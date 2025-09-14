@@ -38,7 +38,9 @@ import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalTime
+import org.junit.FixMethodOrder
 import org.junit.runner.RunWith
+import org.junit.runners.MethodSorters
 import org.robolectric.RobolectricTestParameterInjector
 import java.io.File
 import kotlin.random.Random
@@ -48,6 +50,7 @@ import kotlin.test.assertEquals
 import kotlin.time.Duration
 
 @RunWith(RobolectricTestParameterInjector::class)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class DestructionTests {
     private val testDispatcher = StandardTestDispatcher()
 
@@ -55,8 +58,9 @@ class DestructionTests {
         TestComposeLifeDispatchers(testDispatcher, testDispatcher)
     )
 
-    class TargetTimeDigits(
+    data class TargetTimeDigits(
         val timeDigits: TimeDigits,
+        val minute: Int,
     ) {
         override fun toString(): String = timeDigits.toString()
 
@@ -66,10 +70,11 @@ class DestructionTests {
                     (0..59).flatMap { minute ->
                         listOf(false, true).map { use24HourFormat ->
                             TargetTimeDigits(
-                                timeDigits = createTimeDigits(
+                                timeDigits =createTimeDigits(
                                     localTime = LocalTime(hour = hour, minute = minute),
                                     use24HourFormat = use24HourFormat,
                                 ),
+                                minute = minute,
                             )
                         }
                     }
@@ -77,20 +82,32 @@ class DestructionTests {
         }
     }
 
-    @TestParameter(valuesProvider = TargetTimeDigits.Provider::class)
-    lateinit var targetTimeDigits: TargetTimeDigits
-
     private val TARGET_POPULATION = 200
     private val MAX_PHASE = 2
     private val MAX_GENERATIONS = 300
 
-    val solutionCellStateFile get() =
-        File("src/androidUnitTest/resources/solutions/${targetTimeDigits.timeDigits.firstDigit.char}${targetTimeDigits.timeDigits.secondDigit.char}:${targetTimeDigits.timeDigits.thirdDigit.char}${targetTimeDigits.timeDigits.fourthDigit.char}.rle")
-    val solutionFontFile get() =
-        File("src/androidUnitTest/resources/solutions/${targetTimeDigits.timeDigits.firstDigit.char}${targetTimeDigits.timeDigits.secondDigit.char}:${targetTimeDigits.timeDigits.thirdDigit.char}${targetTimeDigits.timeDigits.fourthDigit.char}.sfd")
+    //@Test
+    fun order0_destructionIsCorrect(
+        @TestParameter(valuesProvider = TargetTimeDigits.Provider::class)
+        targetTimeDigits: TargetTimeDigits
+    ) = runTest(testDispatcher, timeout = Duration.INFINITE) {
+        val solutionCellStateFile =
+            File(
+                "src/androidUnitTest/resources/solutions/" +
+                    "${targetTimeDigits.timeDigits.firstDigit.fileChar}" +
+                    "${targetTimeDigits.timeDigits.secondDigit.char}:" +
+                    "${targetTimeDigits.timeDigits.thirdDigit.char}" +
+                    "${targetTimeDigits.timeDigits.fourthDigit.char}.rle"
+            )
+        val solutionFontFile =
+            File(
+                "src/androidUnitTest/resources/solutions/" +
+                    "${targetTimeDigits.timeDigits.firstDigit.fileChar}" +
+                    "${targetTimeDigits.timeDigits.secondDigit.char}:" +
+                    "${targetTimeDigits.timeDigits.thirdDigit.char}" +
+                    "${targetTimeDigits.timeDigits.fourthDigit.char}.sfd"
+            )
 
-    @Test
-    fun destructionIsCorrect() = runTest(testDispatcher, timeout = Duration.INFINITE) {
         var solution: CellState? = if (solutionCellStateFile.exists()) {
             solutionCellStateFile.useLines {
                 val deserializationResult =
@@ -148,15 +165,16 @@ class DestructionTests {
                 .withIndex()
                 .collect { (index, cellState) ->
                     bufferedWriter.write("StartChar: custom_" +
-                            "${targetTimeDigits.timeDigits.firstDigit.char}_" +
-                            "${targetTimeDigits.timeDigits.secondDigit.char}_" +
                             "${targetTimeDigits.timeDigits.thirdDigit.char}_" +
                             "${targetTimeDigits.timeDigits.fourthDigit.char}_" +
                             index.toString().padStart(3, '0').toCharArray().joinToString("_")
                     )
                     bufferedWriter.newLine()
 
-                    bufferedWriter.write("Encoding: ${256 + index} -1 ${11 + index}")
+                    bufferedWriter.write(
+                        "Encoding: ${256 + 300 * targetTimeDigits.minute + index}" +
+                            " -1 ${11 + 300 * targetTimeDigits.minute + index}"
+                    )
                     bufferedWriter.newLine()
                     bufferedWriter.write("Width: 70")
                     bufferedWriter.newLine()
@@ -184,11 +202,9 @@ class DestructionTests {
                     bufferedWriter.write("EndSplineSet")
                     bufferedWriter.newLine()
                     bufferedWriter.write("""Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" """ +
-                            targetTimeDigits.timeDigits.firstDigit.toWord() + " " +
-                            targetTimeDigits.timeDigits.secondDigit.toWord() + " " +
-                            targetTimeDigits.timeDigits.thirdDigit.toWord() + " " +
-                            targetTimeDigits.timeDigits.fourthDigit.toWord() + " " +
-                            index.toString().padStart(3, '0').toCharArray().joinToString(" ", transform = { it.toWord() } )
+                            targetTimeDigits.timeDigits.thirdDigit.char.digitToWord() + " " +
+                            targetTimeDigits.timeDigits.fourthDigit.char.digitToWord() + " " +
+                            index.toString().padStart(3, '0').toCharArray().joinToString(" ", transform = { it.digitToWord() } )
                     )
                     bufferedWriter.newLine()
                     bufferedWriter.write("LCarets2: 1 0")
@@ -200,23 +216,201 @@ class DestructionTests {
         }
     }
 
-    private fun GameOfLifeSegmentChar.toWord(): String = char.toWord()
+    @Test
+    fun order1_createCombinedFonts(
+        @TestParameter(
+            "00",
+            "01",
+            "02",
+            "03",
+            "04",
+            "05",
+            "06",
+            "07",
+            "08",
+            "09",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "21",
+            "22",
+            "23",
+            "_1",
+            "_2",
+            "_3",
+            "_4",
+            "_5",
+            "_6",
+            "_7",
+            "_8",
+            "_9",
+        )
+        hourPrefix: String,
+    ) {
+        val hourFontFile = File("src/androidUnitTest/resources/solutions/hour$hourPrefix.sfd")
+        hourFontFile.bufferedWriter().use { bufferedWriter ->
+            bufferedWriter.write("""
+                SplineFontDB: 3.2
+                FontName: GameOfLifeHour$hourPrefix
+                FullName: GameOfLifeHour$hourPrefix
+                FamilyName: GameOfLifeHours
+                Weight: Regular
+                Copyright: Copyright (c) 2025, Alex Vanyo
+                UComments: "2025-5-11: Created with FontForge (http://fontforge.org)"
+                Version: 001.000
+                ItalicAngle: 0
+                UnderlinePosition: -9
+                UnderlineWidth: 4
+                Ascent: 70
+                Descent: 0
+                InvalidEm: 0
+                LayerCount: 2
+                Layer: 0 0 "Back" 1
+                Layer: 1 0 "Fore" 0
+                XUID: [1021 274 170034612 13146481]
+                StyleMap: 0x0000
+                FSType: 0
+                OS2Version: 0
+                OS2_WeightWidthSlopeOnly: 0
+                OS2_UseTypoMetrics: 1
+                CreationTime: 1747017898
+                ModificationTime: 1757554175
+                OS2TypoAscent: 0
+                OS2TypoAOffset: 1
+                OS2TypoDescent: 0
+                OS2TypoDOffset: 1
+                OS2TypoLinegap: 6
+                OS2WinAscent: 0
+                OS2WinAOffset: 1
+                OS2WinDescent: 0
+                OS2WinDOffset: 1
+                HheadAscent: 0
+                HheadAOffset: 1
+                HheadDescent: 0
+                HheadDOffset: 1
+                OS2Vendor: 'PfEd'
+                Lookup: 4 0 0 "'liga' Standard Ligatures in Latin lookup 0" { "'liga' Standard Ligatures in Latin lookup 0-1"  } ['liga' ('DFLT' <'dflt' > 'latn' <'dflt' > ) ]
+                MarkAttachClasses: 1
+                DEI: 91125
+                Encoding: Custom
+                UnicodeInterp: none
+                NameList: AGL For New Fonts
+                DisplaySize: -48
+                AntiAlias: 1
+                FitToEm: 0
+                WinInfo: 0 45 17
+                BeginPrivate: 0
+                EndPrivate
+                BeginChars: 556 311
 
-    private fun Char.toWord(): String =
-        when (this) {
-            '0' -> "zero"
-            '1' -> "one"
-            '2' -> "two"
-            '3' -> "three"
-            '4' -> "four"
-            '5' -> "five"
-            '6' -> "six"
-            '7' -> "seven"
-            '8' -> "eight"
-            '9' -> "nine"
-            ' ' -> "space"
-            else -> error("Unexpected digit char")
+                StartChar: zero
+                Encoding: 48 48 0
+                Width: 70
+                Flags: W
+                LayerCount: 2
+                EndChar
+
+                StartChar: one
+                Encoding: 49 49 1
+                Width: 70
+                Flags: W
+                VStem: 50 10
+                LayerCount: 2
+                EndChar
+
+                StartChar: two
+                Encoding: 50 50 2
+                Width: 70
+                Flags: W
+                LayerCount: 2
+                EndChar
+
+                StartChar: colon
+                Encoding: 58 58 3
+                Width: 10
+                Flags: W
+                VStem: 0 10
+                LayerCount: 2
+                EndChar
+
+                StartChar: three
+                Encoding: 51 51 4
+                Width: 70
+                Flags: W
+                LayerCount: 2
+                EndChar
+
+                StartChar: four
+                Encoding: 52 52 5
+                Width: 70
+                Flags: W
+                LayerCount: 2
+                EndChar
+
+                StartChar: five
+                Encoding: 53 53 6
+                Width: 70
+                Flags: W
+                LayerCount: 2
+                EndChar
+
+                StartChar: six
+                Encoding: 54 54 7
+                Width: 70
+                Flags: W
+                LayerCount: 2
+                EndChar
+
+                StartChar: seven
+                Encoding: 55 55 8
+                Width: 70
+                Flags: W
+                LayerCount: 2
+                EndChar
+
+                StartChar: eight
+                Encoding: 56 56 9
+                Width: 70
+                Flags: W
+                LayerCount: 2
+                EndChar
+
+                StartChar: nine
+                Encoding: 57 57 10
+                Width: 70
+                Flags: W
+                LayerCount: 2
+                EndChar
+
+            """.trimIndent())
+            (0..59).forEach { minute ->
+                val minuteFontFile =
+                    File(
+                        "src/androidUnitTest/resources/solutions/" +
+                            "$hourPrefix:${"%02d".format(minute)}.sfd"
+                    )
+                minuteFontFile.bufferedReader().useLines { lines ->
+                    lines.forEach { line ->
+                        bufferedWriter.write(line)
+                        bufferedWriter.newLine()
+                    }
+                }
+            }
+
+            bufferedWriter.write("""
+                EndChars
+                EndSplineFont
+            """.trimIndent())
         }
+    }
 
     private suspend fun isDestructionAchieved(
         timeDigits: TimeDigits,
@@ -365,6 +559,36 @@ private fun createContours(aliveCells: Set<IntOffset>): List<List<IntOffset>> {
         }
     }
 }
+
+private val GameOfLifeSegmentChar.fileChar get() =
+    when (this) {
+        GameOfLifeSegmentChar.Zero -> '0'
+        GameOfLifeSegmentChar.One -> '1'
+        GameOfLifeSegmentChar.Two -> '2'
+        GameOfLifeSegmentChar.Three -> '3'
+        GameOfLifeSegmentChar.Four -> '4'
+        GameOfLifeSegmentChar.Five -> '5'
+        GameOfLifeSegmentChar.Six -> '6'
+        GameOfLifeSegmentChar.Seven -> '7'
+        GameOfLifeSegmentChar.Eight -> '8'
+        GameOfLifeSegmentChar.Nine -> '9'
+        GameOfLifeSegmentChar.Blank -> '_'
+    }
+
+private fun Char.digitToWord(): String =
+    when (this) {
+        '0' -> "zero"
+        '1' -> "one"
+        '2' -> "two"
+        '3' -> "three"
+        '4' -> "four"
+        '5' -> "five"
+        '6' -> "six"
+        '7' -> "seven"
+        '8' -> "eight"
+        '9' -> "nine"
+        else -> error("Unexpected digit char")
+    }
 
 private data class Edge(
     val insideCell: IntOffset,

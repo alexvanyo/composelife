@@ -1,5 +1,5 @@
-StartChar: custom_1_2_5_2_0_0_0
-Encoding: 256 -1 11
+StartChar: custom_5_2_0_0_0
+Encoding: 15856 -1 15611
 Width: 70
 Flags: H
 LayerCount: 2
@@ -287,12 +287,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero zero zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero zero zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_0_1
-Encoding: 257 -1 12
+StartChar: custom_5_2_0_0_1
+Encoding: 15857 -1 15612
 Width: 70
 Flags: H
 LayerCount: 2
@@ -580,12 +580,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero zero one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero zero one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_0_2
-Encoding: 258 -1 13
+StartChar: custom_5_2_0_0_2
+Encoding: 15858 -1 15613
 Width: 70
 Flags: H
 LayerCount: 2
@@ -873,12 +873,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero zero two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero zero two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_0_3
-Encoding: 259 -1 14
+StartChar: custom_5_2_0_0_3
+Encoding: 15859 -1 15614
 Width: 70
 Flags: H
 LayerCount: 2
@@ -1166,12 +1166,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero zero three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero zero three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_0_4
-Encoding: 260 -1 15
+StartChar: custom_5_2_0_0_4
+Encoding: 15860 -1 15615
 Width: 70
 Flags: H
 LayerCount: 2
@@ -1459,12 +1459,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero zero four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero zero four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_0_5
-Encoding: 261 -1 16
+StartChar: custom_5_2_0_0_5
+Encoding: 15861 -1 15616
 Width: 70
 Flags: H
 LayerCount: 2
@@ -1752,12 +1752,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero zero five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero zero five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_0_6
-Encoding: 262 -1 17
+StartChar: custom_5_2_0_0_6
+Encoding: 15862 -1 15617
 Width: 70
 Flags: H
 LayerCount: 2
@@ -2045,12 +2045,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero zero six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero zero six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_0_7
-Encoding: 263 -1 18
+StartChar: custom_5_2_0_0_7
+Encoding: 15863 -1 15618
 Width: 70
 Flags: H
 LayerCount: 2
@@ -2338,12 +2338,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero zero seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero zero seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_0_8
-Encoding: 264 -1 19
+StartChar: custom_5_2_0_0_8
+Encoding: 15864 -1 15619
 Width: 70
 Flags: H
 LayerCount: 2
@@ -2631,12 +2631,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero zero eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero zero eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_0_9
-Encoding: 265 -1 20
+StartChar: custom_5_2_0_0_9
+Encoding: 15865 -1 15620
 Width: 70
 Flags: H
 LayerCount: 2
@@ -2924,12 +2924,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero zero nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero zero nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_1_0
-Encoding: 266 -1 21
+StartChar: custom_5_2_0_1_0
+Encoding: 15866 -1 15621
 Width: 70
 Flags: H
 LayerCount: 2
@@ -3217,12 +3217,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero one zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero one zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_1_1
-Encoding: 267 -1 22
+StartChar: custom_5_2_0_1_1
+Encoding: 15867 -1 15622
 Width: 70
 Flags: H
 LayerCount: 2
@@ -3510,12 +3510,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero one one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero one one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_1_2
-Encoding: 268 -1 23
+StartChar: custom_5_2_0_1_2
+Encoding: 15868 -1 15623
 Width: 70
 Flags: H
 LayerCount: 2
@@ -3803,12 +3803,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero one two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero one two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_1_3
-Encoding: 269 -1 24
+StartChar: custom_5_2_0_1_3
+Encoding: 15869 -1 15624
 Width: 70
 Flags: H
 LayerCount: 2
@@ -4096,12 +4096,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero one three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero one three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_1_4
-Encoding: 270 -1 25
+StartChar: custom_5_2_0_1_4
+Encoding: 15870 -1 15625
 Width: 70
 Flags: H
 LayerCount: 2
@@ -4389,12 +4389,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero one four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero one four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_1_5
-Encoding: 271 -1 26
+StartChar: custom_5_2_0_1_5
+Encoding: 15871 -1 15626
 Width: 70
 Flags: H
 LayerCount: 2
@@ -4682,12 +4682,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero one five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero one five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_1_6
-Encoding: 272 -1 27
+StartChar: custom_5_2_0_1_6
+Encoding: 15872 -1 15627
 Width: 70
 Flags: H
 LayerCount: 2
@@ -4975,12 +4975,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero one six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero one six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_1_7
-Encoding: 273 -1 28
+StartChar: custom_5_2_0_1_7
+Encoding: 15873 -1 15628
 Width: 70
 Flags: H
 LayerCount: 2
@@ -5268,12 +5268,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero one seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero one seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_1_8
-Encoding: 274 -1 29
+StartChar: custom_5_2_0_1_8
+Encoding: 15874 -1 15629
 Width: 70
 Flags: H
 LayerCount: 2
@@ -5561,12 +5561,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero one eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero one eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_1_9
-Encoding: 275 -1 30
+StartChar: custom_5_2_0_1_9
+Encoding: 15875 -1 15630
 Width: 70
 Flags: H
 LayerCount: 2
@@ -5854,12 +5854,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero one nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero one nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_2_0
-Encoding: 276 -1 31
+StartChar: custom_5_2_0_2_0
+Encoding: 15876 -1 15631
 Width: 70
 Flags: H
 LayerCount: 2
@@ -6147,12 +6147,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero two zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero two zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_2_1
-Encoding: 277 -1 32
+StartChar: custom_5_2_0_2_1
+Encoding: 15877 -1 15632
 Width: 70
 Flags: H
 LayerCount: 2
@@ -6440,12 +6440,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero two one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero two one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_2_2
-Encoding: 278 -1 33
+StartChar: custom_5_2_0_2_2
+Encoding: 15878 -1 15633
 Width: 70
 Flags: H
 LayerCount: 2
@@ -6733,12 +6733,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero two two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero two two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_2_3
-Encoding: 279 -1 34
+StartChar: custom_5_2_0_2_3
+Encoding: 15879 -1 15634
 Width: 70
 Flags: H
 LayerCount: 2
@@ -7026,12 +7026,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero two three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero two three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_2_4
-Encoding: 280 -1 35
+StartChar: custom_5_2_0_2_4
+Encoding: 15880 -1 15635
 Width: 70
 Flags: H
 LayerCount: 2
@@ -7319,12 +7319,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero two four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero two four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_2_5
-Encoding: 281 -1 36
+StartChar: custom_5_2_0_2_5
+Encoding: 15881 -1 15636
 Width: 70
 Flags: H
 LayerCount: 2
@@ -7612,12 +7612,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero two five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero two five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_2_6
-Encoding: 282 -1 37
+StartChar: custom_5_2_0_2_6
+Encoding: 15882 -1 15637
 Width: 70
 Flags: H
 LayerCount: 2
@@ -7905,12 +7905,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero two six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero two six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_2_7
-Encoding: 283 -1 38
+StartChar: custom_5_2_0_2_7
+Encoding: 15883 -1 15638
 Width: 70
 Flags: H
 LayerCount: 2
@@ -8198,12 +8198,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero two seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero two seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_2_8
-Encoding: 284 -1 39
+StartChar: custom_5_2_0_2_8
+Encoding: 15884 -1 15639
 Width: 70
 Flags: H
 LayerCount: 2
@@ -8491,12 +8491,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero two eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero two eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_2_9
-Encoding: 285 -1 40
+StartChar: custom_5_2_0_2_9
+Encoding: 15885 -1 15640
 Width: 70
 Flags: H
 LayerCount: 2
@@ -8784,12 +8784,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero two nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero two nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_3_0
-Encoding: 286 -1 41
+StartChar: custom_5_2_0_3_0
+Encoding: 15886 -1 15641
 Width: 70
 Flags: H
 LayerCount: 2
@@ -9077,12 +9077,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero three zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero three zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_3_1
-Encoding: 287 -1 42
+StartChar: custom_5_2_0_3_1
+Encoding: 15887 -1 15642
 Width: 70
 Flags: H
 LayerCount: 2
@@ -9370,12 +9370,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero three one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero three one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_3_2
-Encoding: 288 -1 43
+StartChar: custom_5_2_0_3_2
+Encoding: 15888 -1 15643
 Width: 70
 Flags: H
 LayerCount: 2
@@ -9663,12 +9663,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero three two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero three two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_3_3
-Encoding: 289 -1 44
+StartChar: custom_5_2_0_3_3
+Encoding: 15889 -1 15644
 Width: 70
 Flags: H
 LayerCount: 2
@@ -9956,12 +9956,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero three three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero three three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_3_4
-Encoding: 290 -1 45
+StartChar: custom_5_2_0_3_4
+Encoding: 15890 -1 15645
 Width: 70
 Flags: H
 LayerCount: 2
@@ -10249,12 +10249,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero three four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero three four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_3_5
-Encoding: 291 -1 46
+StartChar: custom_5_2_0_3_5
+Encoding: 15891 -1 15646
 Width: 70
 Flags: H
 LayerCount: 2
@@ -10542,12 +10542,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero three five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero three five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_3_6
-Encoding: 292 -1 47
+StartChar: custom_5_2_0_3_6
+Encoding: 15892 -1 15647
 Width: 70
 Flags: H
 LayerCount: 2
@@ -10835,12 +10835,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero three six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero three six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_3_7
-Encoding: 293 -1 48
+StartChar: custom_5_2_0_3_7
+Encoding: 15893 -1 15648
 Width: 70
 Flags: H
 LayerCount: 2
@@ -11128,12 +11128,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero three seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero three seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_3_8
-Encoding: 294 -1 49
+StartChar: custom_5_2_0_3_8
+Encoding: 15894 -1 15649
 Width: 70
 Flags: H
 LayerCount: 2
@@ -11421,12 +11421,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero three eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero three eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_3_9
-Encoding: 295 -1 50
+StartChar: custom_5_2_0_3_9
+Encoding: 15895 -1 15650
 Width: 70
 Flags: H
 LayerCount: 2
@@ -11714,12 +11714,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero three nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero three nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_4_0
-Encoding: 296 -1 51
+StartChar: custom_5_2_0_4_0
+Encoding: 15896 -1 15651
 Width: 70
 Flags: H
 LayerCount: 2
@@ -12007,12 +12007,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero four zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero four zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_4_1
-Encoding: 297 -1 52
+StartChar: custom_5_2_0_4_1
+Encoding: 15897 -1 15652
 Width: 70
 Flags: H
 LayerCount: 2
@@ -12300,12 +12300,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero four one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero four one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_4_2
-Encoding: 298 -1 53
+StartChar: custom_5_2_0_4_2
+Encoding: 15898 -1 15653
 Width: 70
 Flags: H
 LayerCount: 2
@@ -12593,12 +12593,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero four two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero four two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_4_3
-Encoding: 299 -1 54
+StartChar: custom_5_2_0_4_3
+Encoding: 15899 -1 15654
 Width: 70
 Flags: H
 LayerCount: 2
@@ -12886,12 +12886,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero four three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero four three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_4_4
-Encoding: 300 -1 55
+StartChar: custom_5_2_0_4_4
+Encoding: 15900 -1 15655
 Width: 70
 Flags: H
 LayerCount: 2
@@ -13179,12 +13179,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero four four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero four four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_4_5
-Encoding: 301 -1 56
+StartChar: custom_5_2_0_4_5
+Encoding: 15901 -1 15656
 Width: 70
 Flags: H
 LayerCount: 2
@@ -13472,12 +13472,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero four five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero four five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_4_6
-Encoding: 302 -1 57
+StartChar: custom_5_2_0_4_6
+Encoding: 15902 -1 15657
 Width: 70
 Flags: H
 LayerCount: 2
@@ -13765,12 +13765,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero four six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero four six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_4_7
-Encoding: 303 -1 58
+StartChar: custom_5_2_0_4_7
+Encoding: 15903 -1 15658
 Width: 70
 Flags: H
 LayerCount: 2
@@ -14058,12 +14058,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero four seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero four seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_4_8
-Encoding: 304 -1 59
+StartChar: custom_5_2_0_4_8
+Encoding: 15904 -1 15659
 Width: 70
 Flags: H
 LayerCount: 2
@@ -14351,12 +14351,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero four eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero four eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_4_9
-Encoding: 305 -1 60
+StartChar: custom_5_2_0_4_9
+Encoding: 15905 -1 15660
 Width: 70
 Flags: H
 LayerCount: 2
@@ -14644,12 +14644,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero four nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero four nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_5_0
-Encoding: 306 -1 61
+StartChar: custom_5_2_0_5_0
+Encoding: 15906 -1 15661
 Width: 70
 Flags: H
 LayerCount: 2
@@ -14937,12 +14937,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero five zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero five zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_5_1
-Encoding: 307 -1 62
+StartChar: custom_5_2_0_5_1
+Encoding: 15907 -1 15662
 Width: 70
 Flags: H
 LayerCount: 2
@@ -15230,12 +15230,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero five one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero five one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_5_2
-Encoding: 308 -1 63
+StartChar: custom_5_2_0_5_2
+Encoding: 15908 -1 15663
 Width: 70
 Flags: H
 LayerCount: 2
@@ -15523,12 +15523,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero five two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero five two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_5_3
-Encoding: 309 -1 64
+StartChar: custom_5_2_0_5_3
+Encoding: 15909 -1 15664
 Width: 70
 Flags: H
 LayerCount: 2
@@ -15816,12 +15816,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero five three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero five three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_5_4
-Encoding: 310 -1 65
+StartChar: custom_5_2_0_5_4
+Encoding: 15910 -1 15665
 Width: 70
 Flags: H
 LayerCount: 2
@@ -16109,12 +16109,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero five four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero five four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_5_5
-Encoding: 311 -1 66
+StartChar: custom_5_2_0_5_5
+Encoding: 15911 -1 15666
 Width: 70
 Flags: H
 LayerCount: 2
@@ -16402,12 +16402,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero five five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero five five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_5_6
-Encoding: 312 -1 67
+StartChar: custom_5_2_0_5_6
+Encoding: 15912 -1 15667
 Width: 70
 Flags: H
 LayerCount: 2
@@ -16695,12 +16695,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero five six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero five six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_5_7
-Encoding: 313 -1 68
+StartChar: custom_5_2_0_5_7
+Encoding: 15913 -1 15668
 Width: 70
 Flags: H
 LayerCount: 2
@@ -16988,12 +16988,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero five seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero five seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_5_8
-Encoding: 314 -1 69
+StartChar: custom_5_2_0_5_8
+Encoding: 15914 -1 15669
 Width: 70
 Flags: H
 LayerCount: 2
@@ -17281,12 +17281,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero five eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero five eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_5_9
-Encoding: 315 -1 70
+StartChar: custom_5_2_0_5_9
+Encoding: 15915 -1 15670
 Width: 70
 Flags: H
 LayerCount: 2
@@ -17574,12 +17574,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero five nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero five nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_6_0
-Encoding: 316 -1 71
+StartChar: custom_5_2_0_6_0
+Encoding: 15916 -1 15671
 Width: 70
 Flags: H
 LayerCount: 2
@@ -17867,12 +17867,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero six zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero six zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_6_1
-Encoding: 317 -1 72
+StartChar: custom_5_2_0_6_1
+Encoding: 15917 -1 15672
 Width: 70
 Flags: H
 LayerCount: 2
@@ -18160,12 +18160,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero six one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero six one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_6_2
-Encoding: 318 -1 73
+StartChar: custom_5_2_0_6_2
+Encoding: 15918 -1 15673
 Width: 70
 Flags: H
 LayerCount: 2
@@ -18453,12 +18453,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero six two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero six two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_6_3
-Encoding: 319 -1 74
+StartChar: custom_5_2_0_6_3
+Encoding: 15919 -1 15674
 Width: 70
 Flags: H
 LayerCount: 2
@@ -18746,12 +18746,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero six three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero six three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_6_4
-Encoding: 320 -1 75
+StartChar: custom_5_2_0_6_4
+Encoding: 15920 -1 15675
 Width: 70
 Flags: H
 LayerCount: 2
@@ -19039,12 +19039,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero six four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero six four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_6_5
-Encoding: 321 -1 76
+StartChar: custom_5_2_0_6_5
+Encoding: 15921 -1 15676
 Width: 70
 Flags: H
 LayerCount: 2
@@ -19332,12 +19332,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero six five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero six five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_6_6
-Encoding: 322 -1 77
+StartChar: custom_5_2_0_6_6
+Encoding: 15922 -1 15677
 Width: 70
 Flags: H
 LayerCount: 2
@@ -19630,12 +19630,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero six six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero six six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_6_7
-Encoding: 323 -1 78
+StartChar: custom_5_2_0_6_7
+Encoding: 15923 -1 15678
 Width: 70
 Flags: H
 LayerCount: 2
@@ -19928,12 +19928,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero six seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero six seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_6_8
-Encoding: 324 -1 79
+StartChar: custom_5_2_0_6_8
+Encoding: 15924 -1 15679
 Width: 70
 Flags: H
 LayerCount: 2
@@ -20226,12 +20226,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero six eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero six eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_6_9
-Encoding: 325 -1 80
+StartChar: custom_5_2_0_6_9
+Encoding: 15925 -1 15680
 Width: 70
 Flags: H
 LayerCount: 2
@@ -20524,12 +20524,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero six nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero six nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_7_0
-Encoding: 326 -1 81
+StartChar: custom_5_2_0_7_0
+Encoding: 15926 -1 15681
 Width: 70
 Flags: H
 LayerCount: 2
@@ -20824,12 +20824,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero seven zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero seven zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_7_1
-Encoding: 327 -1 82
+StartChar: custom_5_2_0_7_1
+Encoding: 15927 -1 15682
 Width: 70
 Flags: H
 LayerCount: 2
@@ -21129,12 +21129,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero seven one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero seven one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_7_2
-Encoding: 328 -1 83
+StartChar: custom_5_2_0_7_2
+Encoding: 15928 -1 15683
 Width: 70
 Flags: H
 LayerCount: 2
@@ -21431,12 +21431,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero seven two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero seven two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_7_3
-Encoding: 329 -1 84
+StartChar: custom_5_2_0_7_3
+Encoding: 15929 -1 15684
 Width: 70
 Flags: H
 LayerCount: 2
@@ -21731,12 +21731,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero seven three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero seven three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_7_4
-Encoding: 330 -1 85
+StartChar: custom_5_2_0_7_4
+Encoding: 15930 -1 15685
 Width: 70
 Flags: H
 LayerCount: 2
@@ -22038,12 +22038,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero seven four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero seven four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_7_5
-Encoding: 331 -1 86
+StartChar: custom_5_2_0_7_5
+Encoding: 15931 -1 15686
 Width: 70
 Flags: H
 LayerCount: 2
@@ -22343,12 +22343,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero seven five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero seven five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_7_6
-Encoding: 332 -1 87
+StartChar: custom_5_2_0_7_6
+Encoding: 15932 -1 15687
 Width: 70
 Flags: H
 LayerCount: 2
@@ -22650,12 +22650,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero seven six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero seven six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_7_7
-Encoding: 333 -1 88
+StartChar: custom_5_2_0_7_7
+Encoding: 15933 -1 15688
 Width: 70
 Flags: H
 LayerCount: 2
@@ -22955,12 +22955,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero seven seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero seven seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_7_8
-Encoding: 334 -1 89
+StartChar: custom_5_2_0_7_8
+Encoding: 15934 -1 15689
 Width: 70
 Flags: H
 LayerCount: 2
@@ -23262,12 +23262,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero seven eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero seven eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_7_9
-Encoding: 335 -1 90
+StartChar: custom_5_2_0_7_9
+Encoding: 15935 -1 15690
 Width: 70
 Flags: H
 LayerCount: 2
@@ -23567,12 +23567,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero seven nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero seven nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_8_0
-Encoding: 336 -1 91
+StartChar: custom_5_2_0_8_0
+Encoding: 15936 -1 15691
 Width: 70
 Flags: H
 LayerCount: 2
@@ -23874,12 +23874,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero eight zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero eight zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_8_1
-Encoding: 337 -1 92
+StartChar: custom_5_2_0_8_1
+Encoding: 15937 -1 15692
 Width: 70
 Flags: H
 LayerCount: 2
@@ -24179,12 +24179,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero eight one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero eight one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_8_2
-Encoding: 338 -1 93
+StartChar: custom_5_2_0_8_2
+Encoding: 15938 -1 15693
 Width: 70
 Flags: H
 LayerCount: 2
@@ -24486,12 +24486,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero eight two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero eight two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_8_3
-Encoding: 339 -1 94
+StartChar: custom_5_2_0_8_3
+Encoding: 15939 -1 15694
 Width: 70
 Flags: H
 LayerCount: 2
@@ -24791,12 +24791,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero eight three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero eight three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_8_4
-Encoding: 340 -1 95
+StartChar: custom_5_2_0_8_4
+Encoding: 15940 -1 15695
 Width: 70
 Flags: H
 LayerCount: 2
@@ -25098,12 +25098,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero eight four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero eight four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_8_5
-Encoding: 341 -1 96
+StartChar: custom_5_2_0_8_5
+Encoding: 15941 -1 15696
 Width: 70
 Flags: H
 LayerCount: 2
@@ -25403,12 +25403,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero eight five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero eight five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_8_6
-Encoding: 342 -1 97
+StartChar: custom_5_2_0_8_6
+Encoding: 15942 -1 15697
 Width: 70
 Flags: H
 LayerCount: 2
@@ -25710,12 +25710,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero eight six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero eight six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_8_7
-Encoding: 343 -1 98
+StartChar: custom_5_2_0_8_7
+Encoding: 15943 -1 15698
 Width: 70
 Flags: H
 LayerCount: 2
@@ -26015,12 +26015,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero eight seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero eight seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_8_8
-Encoding: 344 -1 99
+StartChar: custom_5_2_0_8_8
+Encoding: 15944 -1 15699
 Width: 70
 Flags: H
 LayerCount: 2
@@ -26322,12 +26322,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero eight eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero eight eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_8_9
-Encoding: 345 -1 100
+StartChar: custom_5_2_0_8_9
+Encoding: 15945 -1 15700
 Width: 70
 Flags: H
 LayerCount: 2
@@ -26627,12 +26627,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero eight nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero eight nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_9_0
-Encoding: 346 -1 101
+StartChar: custom_5_2_0_9_0
+Encoding: 15946 -1 15701
 Width: 70
 Flags: H
 LayerCount: 2
@@ -26934,12 +26934,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero nine zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero nine zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_9_1
-Encoding: 347 -1 102
+StartChar: custom_5_2_0_9_1
+Encoding: 15947 -1 15702
 Width: 70
 Flags: H
 LayerCount: 2
@@ -27239,12 +27239,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero nine one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero nine one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_9_2
-Encoding: 348 -1 103
+StartChar: custom_5_2_0_9_2
+Encoding: 15948 -1 15703
 Width: 70
 Flags: H
 LayerCount: 2
@@ -27546,12 +27546,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero nine two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero nine two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_9_3
-Encoding: 349 -1 104
+StartChar: custom_5_2_0_9_3
+Encoding: 15949 -1 15704
 Width: 70
 Flags: H
 LayerCount: 2
@@ -27851,12 +27851,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero nine three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero nine three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_9_4
-Encoding: 350 -1 105
+StartChar: custom_5_2_0_9_4
+Encoding: 15950 -1 15705
 Width: 70
 Flags: H
 LayerCount: 2
@@ -28158,12 +28158,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero nine four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero nine four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_9_5
-Encoding: 351 -1 106
+StartChar: custom_5_2_0_9_5
+Encoding: 15951 -1 15706
 Width: 70
 Flags: H
 LayerCount: 2
@@ -28463,12 +28463,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero nine five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero nine five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_9_6
-Encoding: 352 -1 107
+StartChar: custom_5_2_0_9_6
+Encoding: 15952 -1 15707
 Width: 70
 Flags: H
 LayerCount: 2
@@ -28770,12 +28770,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero nine six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero nine six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_9_7
-Encoding: 353 -1 108
+StartChar: custom_5_2_0_9_7
+Encoding: 15953 -1 15708
 Width: 70
 Flags: H
 LayerCount: 2
@@ -29075,12 +29075,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero nine seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero nine seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_9_8
-Encoding: 354 -1 109
+StartChar: custom_5_2_0_9_8
+Encoding: 15954 -1 15709
 Width: 70
 Flags: H
 LayerCount: 2
@@ -29382,12 +29382,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero nine eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero nine eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_0_9_9
-Encoding: 355 -1 110
+StartChar: custom_5_2_0_9_9
+Encoding: 15955 -1 15710
 Width: 70
 Flags: H
 LayerCount: 2
@@ -29687,12 +29687,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two zero nine nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two zero nine nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_0_0
-Encoding: 356 -1 111
+StartChar: custom_5_2_1_0_0
+Encoding: 15956 -1 15711
 Width: 70
 Flags: H
 LayerCount: 2
@@ -29994,12 +29994,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one zero zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one zero zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_0_1
-Encoding: 357 -1 112
+StartChar: custom_5_2_1_0_1
+Encoding: 15957 -1 15712
 Width: 70
 Flags: H
 LayerCount: 2
@@ -30299,12 +30299,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one zero one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one zero one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_0_2
-Encoding: 358 -1 113
+StartChar: custom_5_2_1_0_2
+Encoding: 15958 -1 15713
 Width: 70
 Flags: H
 LayerCount: 2
@@ -30606,12 +30606,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one zero two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one zero two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_0_3
-Encoding: 359 -1 114
+StartChar: custom_5_2_1_0_3
+Encoding: 15959 -1 15714
 Width: 70
 Flags: H
 LayerCount: 2
@@ -30911,12 +30911,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one zero three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one zero three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_0_4
-Encoding: 360 -1 115
+StartChar: custom_5_2_1_0_4
+Encoding: 15960 -1 15715
 Width: 70
 Flags: H
 LayerCount: 2
@@ -31218,12 +31218,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one zero four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one zero four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_0_5
-Encoding: 361 -1 116
+StartChar: custom_5_2_1_0_5
+Encoding: 15961 -1 15716
 Width: 70
 Flags: H
 LayerCount: 2
@@ -31523,12 +31523,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one zero five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one zero five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_0_6
-Encoding: 362 -1 117
+StartChar: custom_5_2_1_0_6
+Encoding: 15962 -1 15717
 Width: 70
 Flags: H
 LayerCount: 2
@@ -31830,12 +31830,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one zero six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one zero six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_0_7
-Encoding: 363 -1 118
+StartChar: custom_5_2_1_0_7
+Encoding: 15963 -1 15718
 Width: 70
 Flags: H
 LayerCount: 2
@@ -32135,12 +32135,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one zero seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one zero seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_0_8
-Encoding: 364 -1 119
+StartChar: custom_5_2_1_0_8
+Encoding: 15964 -1 15719
 Width: 70
 Flags: H
 LayerCount: 2
@@ -32442,12 +32442,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one zero eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one zero eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_0_9
-Encoding: 365 -1 120
+StartChar: custom_5_2_1_0_9
+Encoding: 15965 -1 15720
 Width: 70
 Flags: H
 LayerCount: 2
@@ -32747,12 +32747,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one zero nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one zero nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_1_0
-Encoding: 366 -1 121
+StartChar: custom_5_2_1_1_0
+Encoding: 15966 -1 15721
 Width: 70
 Flags: H
 LayerCount: 2
@@ -33054,12 +33054,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one one zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one one zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_1_1
-Encoding: 367 -1 122
+StartChar: custom_5_2_1_1_1
+Encoding: 15967 -1 15722
 Width: 70
 Flags: H
 LayerCount: 2
@@ -33359,12 +33359,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one one one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one one one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_1_2
-Encoding: 368 -1 123
+StartChar: custom_5_2_1_1_2
+Encoding: 15968 -1 15723
 Width: 70
 Flags: H
 LayerCount: 2
@@ -33666,12 +33666,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one one two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one one two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_1_3
-Encoding: 369 -1 124
+StartChar: custom_5_2_1_1_3
+Encoding: 15969 -1 15724
 Width: 70
 Flags: H
 LayerCount: 2
@@ -33971,12 +33971,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one one three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one one three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_1_4
-Encoding: 370 -1 125
+StartChar: custom_5_2_1_1_4
+Encoding: 15970 -1 15725
 Width: 70
 Flags: H
 LayerCount: 2
@@ -34278,12 +34278,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one one four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one one four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_1_5
-Encoding: 371 -1 126
+StartChar: custom_5_2_1_1_5
+Encoding: 15971 -1 15726
 Width: 70
 Flags: H
 LayerCount: 2
@@ -34583,12 +34583,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one one five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one one five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_1_6
-Encoding: 372 -1 127
+StartChar: custom_5_2_1_1_6
+Encoding: 15972 -1 15727
 Width: 70
 Flags: H
 LayerCount: 2
@@ -34890,12 +34890,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one one six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one one six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_1_7
-Encoding: 373 -1 128
+StartChar: custom_5_2_1_1_7
+Encoding: 15973 -1 15728
 Width: 70
 Flags: H
 LayerCount: 2
@@ -35195,12 +35195,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one one seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one one seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_1_8
-Encoding: 374 -1 129
+StartChar: custom_5_2_1_1_8
+Encoding: 15974 -1 15729
 Width: 70
 Flags: H
 LayerCount: 2
@@ -35502,12 +35502,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one one eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one one eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_1_9
-Encoding: 375 -1 130
+StartChar: custom_5_2_1_1_9
+Encoding: 15975 -1 15730
 Width: 70
 Flags: H
 LayerCount: 2
@@ -35812,12 +35812,12 @@ SplineSet
  70 70 l 1
  70 69 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one one nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one one nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_2_0
-Encoding: 376 -1 131
+StartChar: custom_5_2_1_2_0
+Encoding: 15976 -1 15731
 Width: 70
 Flags: H
 LayerCount: 2
@@ -36124,12 +36124,12 @@ SplineSet
  70 70 l 1
  70 69 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one two zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one two zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_2_1
-Encoding: 377 -1 132
+StartChar: custom_5_2_1_2_1
+Encoding: 15977 -1 15732
 Width: 70
 Flags: H
 LayerCount: 2
@@ -36434,12 +36434,12 @@ SplineSet
  70 70 l 1
  70 69 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one two one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one two one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_2_2
-Encoding: 378 -1 133
+StartChar: custom_5_2_1_2_2
+Encoding: 15978 -1 15733
 Width: 70
 Flags: H
 LayerCount: 2
@@ -36746,12 +36746,12 @@ SplineSet
  70 70 l 1
  70 69 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one two two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one two two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_2_3
-Encoding: 379 -1 134
+StartChar: custom_5_2_1_2_3
+Encoding: 15979 -1 15734
 Width: 70
 Flags: H
 LayerCount: 2
@@ -37058,12 +37058,12 @@ SplineSet
  69 70 l 1
  69 68 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one two three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one two three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_2_4
-Encoding: 380 -1 135
+StartChar: custom_5_2_1_2_4
+Encoding: 15980 -1 15735
 Width: 70
 Flags: H
 LayerCount: 2
@@ -37377,12 +37377,12 @@ SplineSet
  70 70 l 1
  70 69 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one two four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one two four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_2_5
-Encoding: 381 -1 136
+StartChar: custom_5_2_1_2_5
+Encoding: 15981 -1 15736
 Width: 70
 Flags: H
 LayerCount: 2
@@ -37691,12 +37691,12 @@ SplineSet
  67 68 l 1
  67 69 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one two five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one two five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_2_6
-Encoding: 382 -1 137
+StartChar: custom_5_2_1_2_6
+Encoding: 15982 -1 15737
 Width: 70
 Flags: H
 LayerCount: 2
@@ -38005,12 +38005,12 @@ SplineSet
  69 69 l 1
  69 68 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one two six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one two six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_2_7
-Encoding: 383 -1 138
+StartChar: custom_5_2_1_2_7
+Encoding: 15983 -1 15738
 Width: 70
 Flags: H
 LayerCount: 2
@@ -38324,12 +38324,12 @@ SplineSet
  69 70 l 1
  69 69 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one two seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one two seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_2_8
-Encoding: 384 -1 139
+StartChar: custom_5_2_1_2_8
+Encoding: 15984 -1 15739
 Width: 70
 Flags: H
 LayerCount: 2
@@ -38643,12 +38643,12 @@ SplineSet
  69 69 l 1
  69 68 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one two eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one two eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_2_9
-Encoding: 385 -1 140
+StartChar: custom_5_2_1_2_9
+Encoding: 15985 -1 15740
 Width: 70
 Flags: H
 LayerCount: 2
@@ -38962,12 +38962,12 @@ SplineSet
  68 70 l 1
  68 69 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one two nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one two nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_3_0
-Encoding: 386 -1 141
+StartChar: custom_5_2_1_3_0
+Encoding: 15986 -1 15741
 Width: 70
 Flags: H
 LayerCount: 2
@@ -39281,12 +39281,12 @@ SplineSet
  67 70 l 1
  67 69 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one three zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one three zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_3_1
-Encoding: 387 -1 142
+StartChar: custom_5_2_1_3_1
+Encoding: 15987 -1 15742
 Width: 70
 Flags: H
 LayerCount: 2
@@ -39600,12 +39600,12 @@ SplineSet
  68 69 l 1
  68 68 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one three one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one three one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_3_2
-Encoding: 388 -1 143
+StartChar: custom_5_2_1_3_2
+Encoding: 15988 -1 15743
 Width: 70
 Flags: H
 LayerCount: 2
@@ -39919,12 +39919,12 @@ SplineSet
  68 68 l 1
  68 67 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one three two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one three two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_3_3
-Encoding: 389 -1 144
+StartChar: custom_5_2_1_3_3
+Encoding: 15989 -1 15744
 Width: 70
 Flags: H
 LayerCount: 2
@@ -40243,12 +40243,12 @@ SplineSet
  67 69 l 1
  67 68 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one three three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one three three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_3_4
-Encoding: 390 -1 145
+StartChar: custom_5_2_1_3_4
+Encoding: 15990 -1 15745
 Width: 70
 Flags: H
 LayerCount: 2
@@ -40567,12 +40567,12 @@ SplineSet
  66 69 l 1
  66 68 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one three four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one three four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_3_5
-Encoding: 391 -1 146
+StartChar: custom_5_2_1_3_5
+Encoding: 15991 -1 15746
 Width: 70
 Flags: H
 LayerCount: 2
@@ -40891,12 +40891,12 @@ SplineSet
  67 68 l 1
  67 67 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one three five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one three five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_3_6
-Encoding: 392 -1 147
+StartChar: custom_5_2_1_3_6
+Encoding: 15992 -1 15747
 Width: 70
 Flags: H
 LayerCount: 2
@@ -41215,12 +41215,12 @@ SplineSet
  49 70 l 1
  49 69 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one three six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one three six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_3_7
-Encoding: 393 -1 148
+StartChar: custom_5_2_1_3_7
+Encoding: 15993 -1 15748
 Width: 70
 Flags: H
 LayerCount: 2
@@ -41540,12 +41540,12 @@ SplineSet
  66 68 l 1
  66 67 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one three seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one three seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_3_8
-Encoding: 394 -1 149
+StartChar: custom_5_2_1_3_8
+Encoding: 15994 -1 15749
 Width: 70
 Flags: H
 LayerCount: 2
@@ -41879,12 +41879,12 @@ SplineSet
  65 68 l 1
  65 67 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one three eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one three eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_3_9
-Encoding: 395 -1 150
+StartChar: custom_5_2_1_3_9
+Encoding: 15995 -1 15750
 Width: 70
 Flags: H
 LayerCount: 2
@@ -42206,12 +42206,12 @@ SplineSet
  48 69 l 1
  48 68 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one three nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one three nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_4_0
-Encoding: 396 -1 151
+StartChar: custom_5_2_1_4_0
+Encoding: 15996 -1 15751
 Width: 70
 Flags: H
 LayerCount: 2
@@ -42531,12 +42531,12 @@ SplineSet
  48 69 l 1
  48 68 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one four zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one four zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_4_1
-Encoding: 397 -1 152
+StartChar: custom_5_2_1_4_1
+Encoding: 15997 -1 15752
 Width: 70
 Flags: H
 LayerCount: 2
@@ -42868,12 +42868,12 @@ SplineSet
  48 70 l 1
  48 69 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one four one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one four one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_4_2
-Encoding: 398 -1 153
+StartChar: custom_5_2_1_4_2
+Encoding: 15998 -1 15753
 Width: 70
 Flags: H
 LayerCount: 2
@@ -43200,12 +43200,12 @@ SplineSet
  48 69 l 1
  48 68 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one four two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one four two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_4_3
-Encoding: 399 -1 154
+StartChar: custom_5_2_1_4_3
+Encoding: 15999 -1 15754
 Width: 70
 Flags: H
 LayerCount: 2
@@ -43533,12 +43533,12 @@ SplineSet
  47 70 l 1
  47 69 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one four three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one four three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_4_4
-Encoding: 400 -1 155
+StartChar: custom_5_2_1_4_4
+Encoding: 16000 -1 15755
 Width: 70
 Flags: H
 LayerCount: 2
@@ -43864,12 +43864,12 @@ SplineSet
  46 70 l 1
  46 69 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one four four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one four four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_4_5
-Encoding: 401 -1 156
+StartChar: custom_5_2_1_4_5
+Encoding: 16001 -1 15756
 Width: 70
 Flags: H
 LayerCount: 2
@@ -44208,12 +44208,12 @@ SplineSet
  47 69 l 1
  47 68 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one four five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one four five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_4_6
-Encoding: 402 -1 157
+StartChar: custom_5_2_1_4_6
+Encoding: 16002 -1 15757
 Width: 70
 Flags: H
 LayerCount: 2
@@ -44542,12 +44542,12 @@ SplineSet
  47 68 l 1
  47 67 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one four six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one four six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_4_7
-Encoding: 403 -1 158
+StartChar: custom_5_2_1_4_7
+Encoding: 16003 -1 15758
 Width: 70
 Flags: H
 LayerCount: 2
@@ -44898,12 +44898,12 @@ SplineSet
  46 69 l 1
  46 68 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one four seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one four seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_4_8
-Encoding: 404 -1 159
+StartChar: custom_5_2_1_4_8
+Encoding: 16004 -1 15759
 Width: 70
 Flags: H
 LayerCount: 2
@@ -45244,12 +45244,12 @@ SplineSet
  45 69 l 1
  45 68 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one four eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one four eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_4_9
-Encoding: 405 -1 160
+StartChar: custom_5_2_1_4_9
+Encoding: 16005 -1 15760
 Width: 70
 Flags: H
 LayerCount: 2
@@ -45600,12 +45600,12 @@ SplineSet
  46 68 l 1
  46 67 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one four nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one four nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_5_0
-Encoding: 406 -1 161
+StartChar: custom_5_2_1_5_0
+Encoding: 16006 -1 15761
 Width: 70
 Flags: H
 LayerCount: 2
@@ -45954,12 +45954,12 @@ SplineSet
  62 65 l 1
  62 64 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one five zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one five zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_5_1
-Encoding: 407 -1 162
+StartChar: custom_5_2_1_5_1
+Encoding: 16007 -1 15762
 Width: 70
 Flags: H
 LayerCount: 2
@@ -46350,12 +46350,12 @@ SplineSet
  45 68 l 1
  45 67 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one five one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one five one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_5_2
-Encoding: 408 -1 163
+StartChar: custom_5_2_1_5_2
+Encoding: 16008 -1 15763
 Width: 70
 Flags: H
 LayerCount: 2
@@ -46735,12 +46735,12 @@ SplineSet
  44 68 l 1
  44 67 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one five two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one five two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_5_3
-Encoding: 409 -1 164
+StartChar: custom_5_2_1_5_3
+Encoding: 16009 -1 15764
 Width: 70
 Flags: H
 LayerCount: 2
@@ -47133,12 +47133,12 @@ SplineSet
  62 64 l 1
  62 63 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one five three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one five three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_5_4
-Encoding: 410 -1 165
+StartChar: custom_5_2_1_5_4
+Encoding: 16010 -1 15765
 Width: 70
 Flags: H
 LayerCount: 2
@@ -47550,12 +47550,12 @@ SplineSet
  61 64 l 1
  61 63 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one five four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one five four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_5_5
-Encoding: 411 -1 166
+StartChar: custom_5_2_1_5_5
+Encoding: 16011 -1 15766
 Width: 70
 Flags: H
 LayerCount: 2
@@ -47962,12 +47962,12 @@ SplineSet
  62 63 l 1
  62 62 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one five five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one five five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_5_6
-Encoding: 412 -1 167
+StartChar: custom_5_2_1_5_6
+Encoding: 16012 -1 15767
 Width: 70
 Flags: H
 LayerCount: 2
@@ -48379,12 +48379,12 @@ SplineSet
  62 62 l 1
  62 61 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one five six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one five six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_5_7
-Encoding: 413 -1 168
+StartChar: custom_5_2_1_5_7
+Encoding: 16013 -1 15768
 Width: 70
 Flags: H
 LayerCount: 2
@@ -48779,12 +48779,12 @@ SplineSet
  61 63 l 1
  61 62 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one five seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one five seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_5_8
-Encoding: 414 -1 169
+StartChar: custom_5_2_1_5_8
+Encoding: 16014 -1 15769
 Width: 70
 Flags: H
 LayerCount: 2
@@ -49118,12 +49118,12 @@ SplineSet
  60 63 l 1
  60 62 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one five eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one five eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_5_9
-Encoding: 415 -1 170
+StartChar: custom_5_2_1_5_9
+Encoding: 16015 -1 15770
 Width: 70
 Flags: H
 LayerCount: 2
@@ -49506,12 +49506,12 @@ SplineSet
  61 62 l 1
  61 61 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one five nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one five nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_6_0
-Encoding: 416 -1 171
+StartChar: custom_5_2_1_6_0
+Encoding: 16016 -1 15771
 Width: 70
 Flags: H
 LayerCount: 2
@@ -49883,12 +49883,12 @@ SplineSet
  61 61 l 1
  61 60 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one six zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one six zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_6_1
-Encoding: 417 -1 172
+StartChar: custom_5_2_1_6_1
+Encoding: 16017 -1 15772
 Width: 70
 Flags: H
 LayerCount: 2
@@ -50258,12 +50258,12 @@ SplineSet
  60 62 l 1
  60 61 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one six one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one six one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_6_2
-Encoding: 418 -1 173
+StartChar: custom_5_2_1_6_2
+Encoding: 16018 -1 15773
 Width: 70
 Flags: H
 LayerCount: 2
@@ -50613,12 +50613,12 @@ SplineSet
  59 62 l 1
  59 61 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one six two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one six two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_6_3
-Encoding: 419 -1 174
+StartChar: custom_5_2_1_6_3
+Encoding: 16019 -1 15774
 Width: 70
 Flags: H
 LayerCount: 2
@@ -50991,12 +50991,12 @@ SplineSet
  60 61 l 1
  60 60 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one six three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one six three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_6_4
-Encoding: 420 -1 175
+StartChar: custom_5_2_1_6_4
+Encoding: 16020 -1 15775
 Width: 70
 Flags: H
 LayerCount: 2
@@ -51376,12 +51376,12 @@ SplineSet
  60 60 l 1
  60 59 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one six four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one six four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_6_5
-Encoding: 421 -1 176
+StartChar: custom_5_2_1_6_5
+Encoding: 16021 -1 15776
 Width: 70
 Flags: H
 LayerCount: 2
@@ -51755,12 +51755,12 @@ SplineSet
  59 61 l 1
  59 60 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one six five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one six five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_6_6
-Encoding: 422 -1 177
+StartChar: custom_5_2_1_6_6
+Encoding: 16022 -1 15777
 Width: 70
 Flags: H
 LayerCount: 2
@@ -52132,12 +52132,12 @@ SplineSet
  58 61 l 1
  58 60 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one six six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one six six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_6_7
-Encoding: 423 -1 178
+StartChar: custom_5_2_1_6_7
+Encoding: 16023 -1 15778
 Width: 70
 Flags: H
 LayerCount: 2
@@ -52525,12 +52525,12 @@ SplineSet
  59 60 l 1
  59 59 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one six seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one six seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_6_8
-Encoding: 424 -1 179
+StartChar: custom_5_2_1_6_8
+Encoding: 16024 -1 15779
 Width: 70
 Flags: H
 LayerCount: 2
@@ -52915,12 +52915,12 @@ SplineSet
  59 59 l 1
  59 58 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one six eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one six eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_6_9
-Encoding: 425 -1 180
+StartChar: custom_5_2_1_6_9
+Encoding: 16025 -1 15780
 Width: 70
 Flags: H
 LayerCount: 2
@@ -53346,12 +53346,12 @@ SplineSet
  58 60 l 1
  58 59 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one six nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one six nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_7_0
-Encoding: 426 -1 181
+StartChar: custom_5_2_1_7_0
+Encoding: 16026 -1 15781
 Width: 70
 Flags: H
 LayerCount: 2
@@ -53765,12 +53765,12 @@ SplineSet
  57 60 l 1
  57 59 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one seven zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one seven zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_7_1
-Encoding: 427 -1 182
+StartChar: custom_5_2_1_7_1
+Encoding: 16027 -1 15782
 Width: 70
 Flags: H
 LayerCount: 2
@@ -54185,12 +54185,12 @@ SplineSet
  58 59 l 1
  58 58 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one seven one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one seven one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_7_2
-Encoding: 428 -1 183
+StartChar: custom_5_2_1_7_2
+Encoding: 16028 -1 15783
 Width: 70
 Flags: H
 LayerCount: 2
@@ -54600,12 +54600,12 @@ SplineSet
  58 58 l 1
  58 57 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one seven two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one seven two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_7_3
-Encoding: 429 -1 184
+StartChar: custom_5_2_1_7_3
+Encoding: 16029 -1 15784
 Width: 70
 Flags: H
 LayerCount: 2
@@ -54991,12 +54991,12 @@ SplineSet
  57 59 l 1
  57 58 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one seven three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one seven three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_7_4
-Encoding: 430 -1 185
+StartChar: custom_5_2_1_7_4
+Encoding: 16030 -1 15785
 Width: 70
 Flags: H
 LayerCount: 2
@@ -55393,12 +55393,12 @@ SplineSet
  56 59 l 1
  56 58 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one seven four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one seven four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_7_5
-Encoding: 431 -1 186
+StartChar: custom_5_2_1_7_5
+Encoding: 16031 -1 15786
 Width: 70
 Flags: H
 LayerCount: 2
@@ -55817,12 +55817,12 @@ SplineSet
  57 58 l 1
  57 57 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one seven five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one seven five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_7_6
-Encoding: 432 -1 187
+StartChar: custom_5_2_1_7_6
+Encoding: 16032 -1 15787
 Width: 70
 Flags: H
 LayerCount: 2
@@ -56237,12 +56237,12 @@ SplineSet
  57 57 l 1
  57 56 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one seven six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one seven six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_7_7
-Encoding: 433 -1 188
+StartChar: custom_5_2_1_7_7
+Encoding: 16033 -1 15788
 Width: 70
 Flags: H
 LayerCount: 2
@@ -56687,12 +56687,12 @@ SplineSet
  56 58 l 1
  56 57 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one seven seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one seven seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_7_8
-Encoding: 434 -1 189
+StartChar: custom_5_2_1_7_8
+Encoding: 16034 -1 15789
 Width: 70
 Flags: H
 LayerCount: 2
@@ -57119,12 +57119,12 @@ SplineSet
  55 58 l 1
  55 57 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one seven eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one seven eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_7_9
-Encoding: 435 -1 190
+StartChar: custom_5_2_1_7_9
+Encoding: 16035 -1 15790
 Width: 70
 Flags: H
 LayerCount: 2
@@ -57554,12 +57554,12 @@ SplineSet
  56 57 l 1
  56 56 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one seven nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one seven nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_8_0
-Encoding: 436 -1 191
+StartChar: custom_5_2_1_8_0
+Encoding: 16036 -1 15791
 Width: 70
 Flags: H
 LayerCount: 2
@@ -57994,12 +57994,12 @@ SplineSet
  56 56 l 1
  56 55 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one eight zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one eight zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_8_1
-Encoding: 437 -1 192
+StartChar: custom_5_2_1_8_1
+Encoding: 16037 -1 15792
 Width: 70
 Flags: H
 LayerCount: 2
@@ -58451,12 +58451,12 @@ SplineSet
  55 57 l 1
  55 56 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one eight one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one eight one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_8_2
-Encoding: 438 -1 193
+StartChar: custom_5_2_1_8_2
+Encoding: 16038 -1 15793
 Width: 70
 Flags: H
 LayerCount: 2
@@ -58867,12 +58867,12 @@ SplineSet
  54 57 l 1
  54 56 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one eight two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one eight two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_8_3
-Encoding: 439 -1 194
+StartChar: custom_5_2_1_8_3
+Encoding: 16039 -1 15794
 Width: 70
 Flags: H
 LayerCount: 2
@@ -59319,12 +59319,12 @@ SplineSet
  55 56 l 1
  55 55 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one eight three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one eight three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_8_4
-Encoding: 440 -1 195
+StartChar: custom_5_2_1_8_4
+Encoding: 16040 -1 15795
 Width: 70
 Flags: H
 LayerCount: 2
@@ -59738,12 +59738,12 @@ SplineSet
  55 55 l 1
  55 54 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one eight four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one eight four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_8_5
-Encoding: 441 -1 196
+StartChar: custom_5_2_1_8_5
+Encoding: 16041 -1 15796
 Width: 70
 Flags: H
 LayerCount: 2
@@ -60181,12 +60181,12 @@ SplineSet
  54 56 l 1
  54 55 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one eight five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one eight five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_8_6
-Encoding: 442 -1 197
+StartChar: custom_5_2_1_8_6
+Encoding: 16042 -1 15797
 Width: 70
 Flags: H
 LayerCount: 2
@@ -60651,12 +60651,12 @@ SplineSet
  53 56 l 1
  53 55 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one eight six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one eight six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_8_7
-Encoding: 443 -1 198
+StartChar: custom_5_2_1_8_7
+Encoding: 16043 -1 15798
 Width: 70
 Flags: H
 LayerCount: 2
@@ -61085,12 +61085,12 @@ SplineSet
  54 55 l 1
  54 54 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one eight seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one eight seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_8_8
-Encoding: 444 -1 199
+StartChar: custom_5_2_1_8_8
+Encoding: 16044 -1 15799
 Width: 70
 Flags: H
 LayerCount: 2
@@ -61512,12 +61512,12 @@ SplineSet
  54 54 l 1
  54 53 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one eight eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one eight eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_8_9
-Encoding: 445 -1 200
+StartChar: custom_5_2_1_8_9
+Encoding: 16045 -1 15800
 Width: 70
 Flags: H
 LayerCount: 2
@@ -61942,12 +61942,12 @@ SplineSet
  53 55 l 1
  53 54 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one eight nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one eight nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_9_0
-Encoding: 446 -1 201
+StartChar: custom_5_2_1_9_0
+Encoding: 16046 -1 15801
 Width: 70
 Flags: H
 LayerCount: 2
@@ -62405,12 +62405,12 @@ SplineSet
  52 55 l 1
  52 54 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one nine zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one nine zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_9_1
-Encoding: 447 -1 202
+StartChar: custom_5_2_1_9_1
+Encoding: 16047 -1 15802
 Width: 70
 Flags: H
 LayerCount: 2
@@ -62834,12 +62834,12 @@ SplineSet
  53 54 l 1
  53 53 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one nine one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one nine one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_9_2
-Encoding: 448 -1 203
+StartChar: custom_5_2_1_9_2
+Encoding: 16048 -1 15803
 Width: 70
 Flags: H
 LayerCount: 2
@@ -63275,12 +63275,12 @@ SplineSet
  53 53 l 1
  53 52 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one nine two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one nine two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_9_3
-Encoding: 449 -1 204
+StartChar: custom_5_2_1_9_3
+Encoding: 16049 -1 15804
 Width: 70
 Flags: H
 LayerCount: 2
@@ -63735,12 +63735,12 @@ SplineSet
  52 54 l 1
  52 53 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one nine three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one nine three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_9_4
-Encoding: 450 -1 205
+StartChar: custom_5_2_1_9_4
+Encoding: 16050 -1 15805
 Width: 70
 Flags: H
 LayerCount: 2
@@ -64188,12 +64188,12 @@ SplineSet
  51 54 l 1
  51 53 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one nine four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one nine four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_9_5
-Encoding: 451 -1 206
+StartChar: custom_5_2_1_9_5
+Encoding: 16051 -1 15806
 Width: 70
 Flags: H
 LayerCount: 2
@@ -64617,12 +64617,12 @@ SplineSet
  52 53 l 1
  52 52 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one nine five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one nine five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_9_6
-Encoding: 452 -1 207
+StartChar: custom_5_2_1_9_6
+Encoding: 16052 -1 15807
 Width: 70
 Flags: H
 LayerCount: 2
@@ -65079,12 +65079,12 @@ SplineSet
  52 52 l 1
  52 51 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one nine six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one nine six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_9_7
-Encoding: 453 -1 208
+StartChar: custom_5_2_1_9_7
+Encoding: 16053 -1 15808
 Width: 70
 Flags: H
 LayerCount: 2
@@ -65515,12 +65515,12 @@ SplineSet
  51 53 l 1
  51 52 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one nine seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one nine seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_9_8
-Encoding: 454 -1 209
+StartChar: custom_5_2_1_9_8
+Encoding: 16054 -1 15809
 Width: 70
 Flags: H
 LayerCount: 2
@@ -65970,12 +65970,12 @@ SplineSet
  50 53 l 1
  50 52 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one nine eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one nine eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_1_9_9
-Encoding: 455 -1 210
+StartChar: custom_5_2_1_9_9
+Encoding: 16055 -1 15810
 Width: 70
 Flags: H
 LayerCount: 2
@@ -66448,12 +66448,12 @@ SplineSet
  51 52 l 1
  51 51 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two one nine nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two one nine nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_0_0
-Encoding: 456 -1 211
+StartChar: custom_5_2_2_0_0
+Encoding: 16056 -1 15811
 Width: 70
 Flags: H
 LayerCount: 2
@@ -66935,12 +66935,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two zero zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two zero zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_0_1
-Encoding: 457 -1 212
+StartChar: custom_5_2_2_0_1
+Encoding: 16057 -1 15812
 Width: 70
 Flags: H
 LayerCount: 2
@@ -67374,12 +67374,12 @@ SplineSet
  50 52 l 1
  50 51 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two zero one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two zero one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_0_2
-Encoding: 458 -1 213
+StartChar: custom_5_2_2_0_2
+Encoding: 16058 -1 15813
 Width: 70
 Flags: H
 LayerCount: 2
@@ -67824,12 +67824,12 @@ SplineSet
  49 52 l 1
  49 51 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two zero two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two zero two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_0_3
-Encoding: 459 -1 214
+StartChar: custom_5_2_2_0_3
+Encoding: 16059 -1 15814
 Width: 70
 Flags: H
 LayerCount: 2
@@ -68246,12 +68246,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two zero three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two zero three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_0_4
-Encoding: 460 -1 215
+StartChar: custom_5_2_2_0_4
+Encoding: 16060 -1 15815
 Width: 70
 Flags: H
 LayerCount: 2
@@ -68684,12 +68684,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two zero four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two zero four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_0_5
-Encoding: 461 -1 216
+StartChar: custom_5_2_2_0_5
+Encoding: 16061 -1 15816
 Width: 70
 Flags: H
 LayerCount: 2
@@ -69087,12 +69087,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two zero five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two zero five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_0_6
-Encoding: 462 -1 217
+StartChar: custom_5_2_2_0_6
+Encoding: 16062 -1 15817
 Width: 70
 Flags: H
 LayerCount: 2
@@ -69517,12 +69517,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two zero six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two zero six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_0_7
-Encoding: 463 -1 218
+StartChar: custom_5_2_2_0_7
+Encoding: 16063 -1 15818
 Width: 70
 Flags: H
 LayerCount: 2
@@ -69966,12 +69966,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two zero seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two zero seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_0_8
-Encoding: 464 -1 219
+StartChar: custom_5_2_2_0_8
+Encoding: 16064 -1 15819
 Width: 70
 Flags: H
 LayerCount: 2
@@ -70374,12 +70374,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two zero eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two zero eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_0_9
-Encoding: 465 -1 220
+StartChar: custom_5_2_2_0_9
+Encoding: 16065 -1 15820
 Width: 70
 Flags: H
 LayerCount: 2
@@ -70811,12 +70811,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two zero nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two zero nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_1_0
-Encoding: 466 -1 221
+StartChar: custom_5_2_2_1_0
+Encoding: 16066 -1 15821
 Width: 70
 Flags: H
 LayerCount: 2
@@ -71239,12 +71239,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two one zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two one zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_1_1
-Encoding: 467 -1 222
+StartChar: custom_5_2_2_1_1
+Encoding: 16067 -1 15822
 Width: 70
 Flags: H
 LayerCount: 2
@@ -71719,12 +71719,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two one one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two one one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_1_2
-Encoding: 468 -1 223
+StartChar: custom_5_2_2_1_2
+Encoding: 16068 -1 15823
 Width: 70
 Flags: H
 LayerCount: 2
@@ -72191,12 +72191,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two one two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two one two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_1_3
-Encoding: 469 -1 224
+StartChar: custom_5_2_2_1_3
+Encoding: 16069 -1 15824
 Width: 70
 Flags: H
 LayerCount: 2
@@ -72632,12 +72632,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two one three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two one three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_1_4
-Encoding: 470 -1 225
+StartChar: custom_5_2_2_1_4
+Encoding: 16070 -1 15825
 Width: 70
 Flags: H
 LayerCount: 2
@@ -73106,12 +73106,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two one four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two one four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_1_5
-Encoding: 471 -1 226
+StartChar: custom_5_2_2_1_5
+Encoding: 16071 -1 15826
 Width: 70
 Flags: H
 LayerCount: 2
@@ -73546,12 +73546,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two one five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two one five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_1_6
-Encoding: 472 -1 227
+StartChar: custom_5_2_2_1_6
+Encoding: 16072 -1 15827
 Width: 70
 Flags: H
 LayerCount: 2
@@ -73986,12 +73986,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two one six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two one six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_1_7
-Encoding: 473 -1 228
+StartChar: custom_5_2_2_1_7
+Encoding: 16073 -1 15828
 Width: 70
 Flags: H
 LayerCount: 2
@@ -74439,12 +74439,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two one seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two one seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_1_8
-Encoding: 474 -1 229
+StartChar: custom_5_2_2_1_8
+Encoding: 16074 -1 15829
 Width: 70
 Flags: H
 LayerCount: 2
@@ -74928,12 +74928,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two one eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two one eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_1_9
-Encoding: 475 -1 230
+StartChar: custom_5_2_2_1_9
+Encoding: 16075 -1 15830
 Width: 70
 Flags: H
 LayerCount: 2
@@ -75393,12 +75393,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two one nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two one nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_2_0
-Encoding: 476 -1 231
+StartChar: custom_5_2_2_2_0
+Encoding: 16076 -1 15831
 Width: 70
 Flags: H
 LayerCount: 2
@@ -75896,12 +75896,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two two zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two two zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_2_1
-Encoding: 477 -1 232
+StartChar: custom_5_2_2_2_1
+Encoding: 16077 -1 15832
 Width: 70
 Flags: H
 LayerCount: 2
@@ -76385,12 +76385,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two two one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two two one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_2_2
-Encoding: 478 -1 233
+StartChar: custom_5_2_2_2_2
+Encoding: 16078 -1 15833
 Width: 70
 Flags: H
 LayerCount: 2
@@ -76899,12 +76899,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two two two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two two two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_2_3
-Encoding: 479 -1 234
+StartChar: custom_5_2_2_2_3
+Encoding: 16079 -1 15834
 Width: 70
 Flags: H
 LayerCount: 2
@@ -77413,12 +77413,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two two three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two two three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_2_4
-Encoding: 480 -1 235
+StartChar: custom_5_2_2_2_4
+Encoding: 16080 -1 15835
 Width: 70
 Flags: H
 LayerCount: 2
@@ -77905,12 +77905,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two two four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two two four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_2_5
-Encoding: 481 -1 236
+StartChar: custom_5_2_2_2_5
+Encoding: 16081 -1 15836
 Width: 70
 Flags: H
 LayerCount: 2
@@ -78406,12 +78406,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two two five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two two five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_2_6
-Encoding: 482 -1 237
+StartChar: custom_5_2_2_2_6
+Encoding: 16082 -1 15837
 Width: 70
 Flags: H
 LayerCount: 2
@@ -78991,12 +78991,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two two six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two two six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_2_7
-Encoding: 483 -1 238
+StartChar: custom_5_2_2_2_7
+Encoding: 16083 -1 15838
 Width: 70
 Flags: H
 LayerCount: 2
@@ -79523,12 +79523,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two two seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two two seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_2_8
-Encoding: 484 -1 239
+StartChar: custom_5_2_2_2_8
+Encoding: 16084 -1 15839
 Width: 70
 Flags: H
 LayerCount: 2
@@ -80038,12 +80038,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two two eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two two eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_2_9
-Encoding: 485 -1 240
+StartChar: custom_5_2_2_2_9
+Encoding: 16085 -1 15840
 Width: 70
 Flags: H
 LayerCount: 2
@@ -80591,12 +80591,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two two nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two two nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_3_0
-Encoding: 486 -1 241
+StartChar: custom_5_2_2_3_0
+Encoding: 16086 -1 15841
 Width: 70
 Flags: H
 LayerCount: 2
@@ -81099,12 +81099,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two three zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two three zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_3_1
-Encoding: 487 -1 242
+StartChar: custom_5_2_2_3_1
+Encoding: 16087 -1 15842
 Width: 70
 Flags: H
 LayerCount: 2
@@ -81589,12 +81589,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two three one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two three one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_3_2
-Encoding: 488 -1 243
+StartChar: custom_5_2_2_3_2
+Encoding: 16088 -1 15843
 Width: 70
 Flags: H
 LayerCount: 2
@@ -82057,12 +82057,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two three two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two three two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_3_3
-Encoding: 489 -1 244
+StartChar: custom_5_2_2_3_3
+Encoding: 16089 -1 15844
 Width: 70
 Flags: H
 LayerCount: 2
@@ -82494,12 +82494,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two three three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two three three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_3_4
-Encoding: 490 -1 245
+StartChar: custom_5_2_2_3_4
+Encoding: 16090 -1 15845
 Width: 70
 Flags: H
 LayerCount: 2
@@ -82948,12 +82948,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two three four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two three four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_3_5
-Encoding: 491 -1 246
+StartChar: custom_5_2_2_3_5
+Encoding: 16091 -1 15846
 Width: 70
 Flags: H
 LayerCount: 2
@@ -83389,12 +83389,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two three five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two three five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_3_6
-Encoding: 492 -1 247
+StartChar: custom_5_2_2_3_6
+Encoding: 16092 -1 15847
 Width: 70
 Flags: H
 LayerCount: 2
@@ -83839,12 +83839,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two three six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two three six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_3_7
-Encoding: 493 -1 248
+StartChar: custom_5_2_2_3_7
+Encoding: 16093 -1 15848
 Width: 70
 Flags: H
 LayerCount: 2
@@ -84209,12 +84209,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two three seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two three seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_3_8
-Encoding: 494 -1 249
+StartChar: custom_5_2_2_3_8
+Encoding: 16094 -1 15849
 Width: 70
 Flags: H
 LayerCount: 2
@@ -84612,12 +84612,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two three eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two three eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_3_9
-Encoding: 495 -1 250
+StartChar: custom_5_2_2_3_9
+Encoding: 16095 -1 15850
 Width: 70
 Flags: H
 LayerCount: 2
@@ -84951,12 +84951,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two three nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two three nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_4_0
-Encoding: 496 -1 251
+StartChar: custom_5_2_2_4_0
+Encoding: 16096 -1 15851
 Width: 70
 Flags: H
 LayerCount: 2
@@ -85327,12 +85327,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two four zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two four zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_4_1
-Encoding: 497 -1 252
+StartChar: custom_5_2_2_4_1
+Encoding: 16097 -1 15852
 Width: 70
 Flags: H
 LayerCount: 2
@@ -85656,12 +85656,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two four one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two four one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_4_2
-Encoding: 498 -1 253
+StartChar: custom_5_2_2_4_2
+Encoding: 16098 -1 15853
 Width: 70
 Flags: H
 LayerCount: 2
@@ -85972,12 +85972,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two four two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two four two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_4_3
-Encoding: 499 -1 254
+StartChar: custom_5_2_2_4_3
+Encoding: 16099 -1 15854
 Width: 70
 Flags: H
 LayerCount: 2
@@ -86270,12 +86270,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two four three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two four three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_4_4
-Encoding: 500 -1 255
+StartChar: custom_5_2_2_4_4
+Encoding: 16100 -1 15855
 Width: 70
 Flags: H
 LayerCount: 2
@@ -86512,12 +86512,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two four four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two four four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_4_5
-Encoding: 501 -1 256
+StartChar: custom_5_2_2_4_5
+Encoding: 16101 -1 15856
 Width: 70
 Flags: H
 LayerCount: 2
@@ -86773,12 +86773,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two four five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two four five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_4_6
-Encoding: 502 -1 257
+StartChar: custom_5_2_2_4_6
+Encoding: 16102 -1 15857
 Width: 70
 Flags: H
 LayerCount: 2
@@ -87023,12 +87023,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two four six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two four six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_4_7
-Encoding: 503 -1 258
+StartChar: custom_5_2_2_4_7
+Encoding: 16103 -1 15858
 Width: 70
 Flags: H
 LayerCount: 2
@@ -87236,12 +87236,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two four seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two four seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_4_8
-Encoding: 504 -1 259
+StartChar: custom_5_2_2_4_8
+Encoding: 16104 -1 15859
 Width: 70
 Flags: H
 LayerCount: 2
@@ -87449,12 +87449,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two four eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two four eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_4_9
-Encoding: 505 -1 260
+StartChar: custom_5_2_2_4_9
+Encoding: 16105 -1 15860
 Width: 70
 Flags: H
 LayerCount: 2
@@ -87639,12 +87639,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two four nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two four nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_5_0
-Encoding: 506 -1 261
+StartChar: custom_5_2_2_5_0
+Encoding: 16106 -1 15861
 Width: 70
 Flags: H
 LayerCount: 2
@@ -87871,12 +87871,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two five zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two five zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_5_1
-Encoding: 507 -1 262
+StartChar: custom_5_2_2_5_1
+Encoding: 16107 -1 15862
 Width: 70
 Flags: H
 LayerCount: 2
@@ -88104,12 +88104,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two five one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two five one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_5_2
-Encoding: 508 -1 263
+StartChar: custom_5_2_2_5_2
+Encoding: 16108 -1 15863
 Width: 70
 Flags: H
 LayerCount: 2
@@ -88316,12 +88316,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two five two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two five two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_5_3
-Encoding: 509 -1 264
+StartChar: custom_5_2_2_5_3
+Encoding: 16109 -1 15864
 Width: 70
 Flags: H
 LayerCount: 2
@@ -88526,12 +88526,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two five three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two five three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_5_4
-Encoding: 510 -1 265
+StartChar: custom_5_2_2_5_4
+Encoding: 16110 -1 15865
 Width: 70
 Flags: H
 LayerCount: 2
@@ -88749,12 +88749,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two five four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two five four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_5_5
-Encoding: 511 -1 266
+StartChar: custom_5_2_2_5_5
+Encoding: 16111 -1 15866
 Width: 70
 Flags: H
 LayerCount: 2
@@ -88952,12 +88952,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two five five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two five five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_5_6
-Encoding: 512 -1 267
+StartChar: custom_5_2_2_5_6
+Encoding: 16112 -1 15867
 Width: 70
 Flags: H
 LayerCount: 2
@@ -89149,12 +89149,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two five six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two five six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_5_7
-Encoding: 513 -1 268
+StartChar: custom_5_2_2_5_7
+Encoding: 16113 -1 15868
 Width: 70
 Flags: H
 LayerCount: 2
@@ -89327,12 +89327,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two five seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two five seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_5_8
-Encoding: 514 -1 269
+StartChar: custom_5_2_2_5_8
+Encoding: 16114 -1 15869
 Width: 70
 Flags: H
 LayerCount: 2
@@ -89532,12 +89532,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two five eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two five eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_5_9
-Encoding: 515 -1 270
+StartChar: custom_5_2_2_5_9
+Encoding: 16115 -1 15870
 Width: 70
 Flags: H
 LayerCount: 2
@@ -89723,12 +89723,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two five nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two five nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_6_0
-Encoding: 516 -1 271
+StartChar: custom_5_2_2_6_0
+Encoding: 16116 -1 15871
 Width: 70
 Flags: H
 LayerCount: 2
@@ -89945,12 +89945,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two six zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two six zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_6_1
-Encoding: 517 -1 272
+StartChar: custom_5_2_2_6_1
+Encoding: 16117 -1 15872
 Width: 70
 Flags: H
 LayerCount: 2
@@ -90168,12 +90168,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two six one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two six one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_6_2
-Encoding: 518 -1 273
+StartChar: custom_5_2_2_6_2
+Encoding: 16118 -1 15873
 Width: 70
 Flags: H
 LayerCount: 2
@@ -90409,12 +90409,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two six two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two six two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_6_3
-Encoding: 519 -1 274
+StartChar: custom_5_2_2_6_3
+Encoding: 16119 -1 15874
 Width: 70
 Flags: H
 LayerCount: 2
@@ -90629,12 +90629,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two six three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two six three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_6_4
-Encoding: 520 -1 275
+StartChar: custom_5_2_2_6_4
+Encoding: 16120 -1 15875
 Width: 70
 Flags: H
 LayerCount: 2
@@ -90856,12 +90856,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two six four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two six four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_6_5
-Encoding: 521 -1 276
+StartChar: custom_5_2_2_6_5
+Encoding: 16121 -1 15876
 Width: 70
 Flags: H
 LayerCount: 2
@@ -91069,12 +91069,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two six five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two six five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_6_6
-Encoding: 522 -1 277
+StartChar: custom_5_2_2_6_6
+Encoding: 16122 -1 15877
 Width: 70
 Flags: H
 LayerCount: 2
@@ -91313,12 +91313,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two six six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two six six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_6_7
-Encoding: 523 -1 278
+StartChar: custom_5_2_2_6_7
+Encoding: 16123 -1 15878
 Width: 70
 Flags: H
 LayerCount: 2
@@ -91554,12 +91554,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two six seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two six seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_6_8
-Encoding: 524 -1 279
+StartChar: custom_5_2_2_6_8
+Encoding: 16124 -1 15879
 Width: 70
 Flags: H
 LayerCount: 2
@@ -91794,12 +91794,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two six eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two six eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_6_9
-Encoding: 525 -1 280
+StartChar: custom_5_2_2_6_9
+Encoding: 16125 -1 15880
 Width: 70
 Flags: H
 LayerCount: 2
@@ -92037,12 +92037,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two six nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two six nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_7_0
-Encoding: 526 -1 281
+StartChar: custom_5_2_2_7_0
+Encoding: 16126 -1 15881
 Width: 70
 Flags: H
 LayerCount: 2
@@ -92258,12 +92258,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two seven zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two seven zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_7_1
-Encoding: 527 -1 282
+StartChar: custom_5_2_2_7_1
+Encoding: 16127 -1 15882
 Width: 70
 Flags: H
 LayerCount: 2
@@ -92495,12 +92495,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two seven one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two seven one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_7_2
-Encoding: 528 -1 283
+StartChar: custom_5_2_2_7_2
+Encoding: 16128 -1 15883
 Width: 70
 Flags: H
 LayerCount: 2
@@ -92726,12 +92726,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two seven two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two seven two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_7_3
-Encoding: 529 -1 284
+StartChar: custom_5_2_2_7_3
+Encoding: 16129 -1 15884
 Width: 70
 Flags: H
 LayerCount: 2
@@ -92964,12 +92964,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two seven three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two seven three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_7_4
-Encoding: 530 -1 285
+StartChar: custom_5_2_2_7_4
+Encoding: 16130 -1 15885
 Width: 70
 Flags: H
 LayerCount: 2
@@ -93196,12 +93196,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two seven four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two seven four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_7_5
-Encoding: 531 -1 286
+StartChar: custom_5_2_2_7_5
+Encoding: 16131 -1 15886
 Width: 70
 Flags: H
 LayerCount: 2
@@ -93420,12 +93420,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two seven five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two seven five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_7_6
-Encoding: 532 -1 287
+StartChar: custom_5_2_2_7_6
+Encoding: 16132 -1 15887
 Width: 70
 Flags: H
 LayerCount: 2
@@ -93626,12 +93626,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two seven six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two seven six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_7_7
-Encoding: 533 -1 288
+StartChar: custom_5_2_2_7_7
+Encoding: 16133 -1 15888
 Width: 70
 Flags: H
 LayerCount: 2
@@ -93829,12 +93829,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two seven seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two seven seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_7_8
-Encoding: 534 -1 289
+StartChar: custom_5_2_2_7_8
+Encoding: 16134 -1 15889
 Width: 70
 Flags: H
 LayerCount: 2
@@ -94039,12 +94039,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two seven eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two seven eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_7_9
-Encoding: 535 -1 290
+StartChar: custom_5_2_2_7_9
+Encoding: 16135 -1 15890
 Width: 70
 Flags: H
 LayerCount: 2
@@ -94259,12 +94259,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two seven nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two seven nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_8_0
-Encoding: 536 -1 291
+StartChar: custom_5_2_2_8_0
+Encoding: 16136 -1 15891
 Width: 70
 Flags: H
 LayerCount: 2
@@ -94463,12 +94463,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two eight zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two eight zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_8_1
-Encoding: 537 -1 292
+StartChar: custom_5_2_2_8_1
+Encoding: 16137 -1 15892
 Width: 70
 Flags: H
 LayerCount: 2
@@ -94643,12 +94643,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two eight one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two eight one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_8_2
-Encoding: 538 -1 293
+StartChar: custom_5_2_2_8_2
+Encoding: 16138 -1 15893
 Width: 70
 Flags: H
 LayerCount: 2
@@ -94815,12 +94815,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two eight two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two eight two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_8_3
-Encoding: 539 -1 294
+StartChar: custom_5_2_2_8_3
+Encoding: 16139 -1 15894
 Width: 70
 Flags: H
 LayerCount: 2
@@ -94989,12 +94989,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two eight three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two eight three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_8_4
-Encoding: 540 -1 295
+StartChar: custom_5_2_2_8_4
+Encoding: 16140 -1 15895
 Width: 70
 Flags: H
 LayerCount: 2
@@ -95154,12 +95154,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two eight four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two eight four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_8_5
-Encoding: 541 -1 296
+StartChar: custom_5_2_2_8_5
+Encoding: 16141 -1 15896
 Width: 70
 Flags: H
 LayerCount: 2
@@ -95315,12 +95315,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two eight five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two eight five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_8_6
-Encoding: 542 -1 297
+StartChar: custom_5_2_2_8_6
+Encoding: 16142 -1 15897
 Width: 70
 Flags: H
 LayerCount: 2
@@ -95468,12 +95468,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two eight six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two eight six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_8_7
-Encoding: 543 -1 298
+StartChar: custom_5_2_2_8_7
+Encoding: 16143 -1 15898
 Width: 70
 Flags: H
 LayerCount: 2
@@ -95620,12 +95620,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two eight seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two eight seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_8_8
-Encoding: 544 -1 299
+StartChar: custom_5_2_2_8_8
+Encoding: 16144 -1 15899
 Width: 70
 Flags: H
 LayerCount: 2
@@ -95769,12 +95769,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two eight eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two eight eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_8_9
-Encoding: 545 -1 300
+StartChar: custom_5_2_2_8_9
+Encoding: 16145 -1 15900
 Width: 70
 Flags: H
 LayerCount: 2
@@ -95919,12 +95919,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two eight nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two eight nine
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_9_0
-Encoding: 546 -1 301
+StartChar: custom_5_2_2_9_0
+Encoding: 16146 -1 15901
 Width: 70
 Flags: H
 LayerCount: 2
@@ -96054,12 +96054,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two nine zero
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two nine zero
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_9_1
-Encoding: 547 -1 302
+StartChar: custom_5_2_2_9_1
+Encoding: 16147 -1 15902
 Width: 70
 Flags: H
 LayerCount: 2
@@ -96169,12 +96169,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two nine one
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two nine one
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_9_2
-Encoding: 548 -1 303
+StartChar: custom_5_2_2_9_2
+Encoding: 16148 -1 15903
 Width: 70
 Flags: H
 LayerCount: 2
@@ -96284,12 +96284,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two nine two
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two nine two
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_9_3
-Encoding: 549 -1 304
+StartChar: custom_5_2_2_9_3
+Encoding: 16149 -1 15904
 Width: 70
 Flags: H
 LayerCount: 2
@@ -96399,12 +96399,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two nine three
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two nine three
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_9_4
-Encoding: 550 -1 305
+StartChar: custom_5_2_2_9_4
+Encoding: 16150 -1 15905
 Width: 70
 Flags: H
 LayerCount: 2
@@ -96514,12 +96514,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two nine four
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two nine four
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_9_5
-Encoding: 551 -1 306
+StartChar: custom_5_2_2_9_5
+Encoding: 16151 -1 15906
 Width: 70
 Flags: H
 LayerCount: 2
@@ -96629,12 +96629,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two nine five
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two nine five
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_9_6
-Encoding: 552 -1 307
+StartChar: custom_5_2_2_9_6
+Encoding: 16152 -1 15907
 Width: 70
 Flags: H
 LayerCount: 2
@@ -96744,12 +96744,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two nine six
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two nine six
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_9_7
-Encoding: 553 -1 308
+StartChar: custom_5_2_2_9_7
+Encoding: 16153 -1 15908
 Width: 70
 Flags: H
 LayerCount: 2
@@ -96859,12 +96859,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two nine seven
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two nine seven
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_9_8
-Encoding: 554 -1 309
+StartChar: custom_5_2_2_9_8
+Encoding: 16154 -1 15909
 Width: 70
 Flags: H
 LayerCount: 2
@@ -96974,12 +96974,12 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two nine eight
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two nine eight
 LCarets2: 1 0
 EndChar
 
-StartChar: custom_1_2_5_2_2_9_9
-Encoding: 555 -1 310
+StartChar: custom_5_2_2_9_9
+Encoding: 16155 -1 15910
 Width: 70
 Flags: H
 LayerCount: 2
@@ -97089,7 +97089,7 @@ SplineSet
  63 43 l 1
  63 41 l 1
 EndSplineSet
-Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" one two five two two nine nine
+Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" five two two nine nine
 LCarets2: 1 0
 EndChar
 
