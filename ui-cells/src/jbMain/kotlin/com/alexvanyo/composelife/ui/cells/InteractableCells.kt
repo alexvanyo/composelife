@@ -72,13 +72,12 @@ import kotlin.uuid.Uuid
 // region templated-ctx
 @Immutable
 @Inject
-class InteractableCellsCtx(
-    private val preferencesHolder: LoadedComposeLifePreferencesHolder,
-) {
+class InteractableCellsCtx(private val preferencesHolder: LoadedComposeLifePreferencesHolder) {
     @Suppress("ComposableNaming", "LongParameterList")
     @Deprecated(
         "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
+        replaceWith =
+        ReplaceWith(
             "InteractableCells(gameOfLifeState, setSelectionSessionState, scaledCellDpSize, cellWindow, " +
                 "pixelOffsetFromCenter, modifier)",
         ),
@@ -103,10 +102,10 @@ class InteractableCellsCtx(
 
     companion object {
         private val lambda:
-            @Composable
-            context(
+            @Composable context(
                 LoadedComposeLifePreferencesHolder,
-            ) (
+            )
+            (
                 gameOfLifeState: MutableGameOfLifeState,
                 setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,
                 scaledCellDpSize: Dp,
@@ -139,9 +138,9 @@ class InteractableCellsCtx(
  *
  * The [GameOfLifeState] is interactable, so each cell is displayed by a unique [InteractableCell].
  */
-context(ctx: InteractableCellsCtx)
 @Composable
 @Suppress("LongParameterList", "DEPRECATION")
+context(ctx: InteractableCellsCtx)
 fun InteractableCells(
     gameOfLifeState: MutableGameOfLifeState,
     setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,
@@ -152,9 +151,9 @@ fun InteractableCells(
 ) = ctx(gameOfLifeState, setSelectionSessionState, scaledCellDpSize, cellWindow, pixelOffsetFromCenter, modifier)
 // endregion templated-ctx
 
-context(preferencesHolder: LoadedComposeLifePreferencesHolder)
 @Suppress("LongParameterList", "LongMethod")
 @Composable
+context(preferencesHolder: LoadedComposeLifePreferencesHolder)
 private fun InteractableCells(
     gameOfLifeState: MutableGameOfLifeState,
     setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,
@@ -164,12 +163,12 @@ private fun InteractableCells(
     modifier: Modifier = Modifier,
 ) {
     Surface(
-        modifier = modifier
+        modifier =
+        modifier
             .graphicsLayer {
                 this.translationX = -pixelOffsetFromCenter.x
                 this.translationY = -pixelOffsetFromCenter.y
-            }
-            .requiredSize(
+            }.requiredSize(
                 scaledCellDpSize * cellWindow.width,
                 scaledCellDpSize * cellWindow.height,
             ),
@@ -206,8 +205,7 @@ private fun InteractableCells(
                 .requiredSize(
                     scaledCellDpSize * numColumns,
                     scaledCellDpSize * numRows,
-                )
-                .testTag("CellCanvas")
+                ).testTag("CellCanvas")
                 .drawingCellInput(
                     drawingPointerTypes = drawingPointerTypes,
                     erasingPointerTypes = erasingPointerTypes,
@@ -215,8 +213,7 @@ private fun InteractableCells(
                     pendingCellChanges = pendingCellChanges,
                     scaledCellPixelSize = scaledCellPixelSize,
                     cellWindow = cellWindow,
-                )
-                .selectingCellInput(
+                ).selectingCellInput(
                     selectingPointerTypes = selectingPointerTypes,
                     setSelectionSessionState = { setSelectionSessionState(it) },
                     scaledCellPixelSize = scaledCellPixelSize,
@@ -230,15 +227,18 @@ private fun InteractableCells(
                         key(cell) {
                             val isAliveInState = cell in gameOfLifeState.cellState.aliveCells
                             InteractableCell(
-                                modifier = Modifier
+                                modifier =
+                                Modifier
                                     .size(scaledCellDpSize),
-                                drawState = when (pendingCellChanges[cell]) {
+                                drawState =
+                                when (pendingCellChanges[cell]) {
                                     false -> if (isAliveInState) DrawState.PendingDead else DrawState.Dead
                                     true -> if (isAliveInState) DrawState.Alive else DrawState.PendingAlive
                                     null -> if (isAliveInState) DrawState.Alive else DrawState.Dead
                                 },
                                 shape = preferences.currentShape,
-                                contentDescription = parameterizedStringResource(
+                                contentDescription =
+                                parameterizedStringResource(
                                     Strings.InteractableCellContentDescription(
                                         x = cell.x,
                                         y = cell.y,
@@ -255,7 +255,8 @@ private fun InteractableCells(
                                         SessionValue(
                                             sessionId = Uuid.random(),
                                             valueId = Uuid.random(),
-                                            value = SelectionState.SelectingBox.FixedSelectingBox(
+                                            value =
+                                            SelectionState.SelectingBox.FixedSelectingBox(
                                                 topLeft = cell,
                                                 width = 1,
                                                 height = 1,
@@ -306,8 +307,10 @@ private fun Modifier.drawingCellInput(
 
     return pointerInput(drawingPointerTypes, erasingPointerTypes, pendingCellChanges, gameOfLifeState) {
         detectDragGestures(
-            excludedPointerTypes = setOf(PointerType.Touch, PointerType.Mouse, PointerType.Stylus) -
-                drawingPointerTypes - erasingPointerTypes,
+            excludedPointerTypes =
+            setOf(PointerType.Touch, PointerType.Mouse, PointerType.Stylus) -
+                drawingPointerTypes -
+                erasingPointerTypes,
             onDragStart = {
                 pendingCellChanges.clear()
             },
@@ -331,20 +334,21 @@ private fun Modifier.drawingCellInput(
                 pendingCellChanges.clear()
             },
             onDrag = { change, _ ->
-                val path = LineSegmentPath(
-                    (
-                        listOf(change.previousPosition) +
-                            change.historical.map(HistoricalChange::position) +
-                            listOf(change.position)
-                        )
-                        .filter(Offset::isSpecified)
-                        .map { it / currentScaledCellPixelSize },
-                )
-                val isAlive = when (change.type) {
-                    in drawingPointerTypes -> true
-                    in erasingPointerTypes -> false
-                    else -> throw CancellationException("Non-drawing type!")
-                }
+                val path =
+                    LineSegmentPath(
+                        (
+                            listOf(change.previousPosition) +
+                                change.historical.map(HistoricalChange::position) +
+                                listOf(change.position)
+                            ).filter(Offset::isSpecified)
+                            .map { it / currentScaledCellPixelSize },
+                    )
+                val isAlive =
+                    when (change.type) {
+                        in drawingPointerTypes -> true
+                        in erasingPointerTypes -> false
+                        else -> throw CancellationException("Non-drawing type!")
+                    }
                 path.cellIntersections().forEach { localCoordinate ->
                     pendingCellChanges[localCoordinate + currentCellWindow.topLeft] = isAlive
                 }
@@ -386,7 +390,8 @@ private fun Modifier.selectingCellInput(
 
     return pointerInput(selectingPointerTypes) {
         detectDragGestures(
-            excludedPointerTypes = setOf(PointerType.Touch, PointerType.Mouse, PointerType.Stylus) -
+            excludedPointerTypes =
+            setOf(PointerType.Touch, PointerType.Mouse, PointerType.Stylus) -
                 selectingPointerTypes,
             onDragStart = {
                 isSelecting = true
@@ -397,7 +402,8 @@ private fun Modifier.selectingCellInput(
                     SessionValue(
                         sessionId = editingSessionId,
                         valueId = Uuid.random(),
-                        value = SelectionState.SelectingBox.TransientSelectingBox(
+                        value =
+                        SelectionState.SelectingBox.TransientSelectingBox(
                             rect = Rect(topLeft = start, bottomRight = end),
                         ),
                     ),
@@ -409,11 +415,13 @@ private fun Modifier.selectingCellInput(
                     SessionValue(
                         sessionId = editingSessionId,
                         valueId = Uuid.random(),
-                        value = SelectionState.SelectingBox.FixedSelectingBox(
+                        value =
+                        SelectionState.SelectingBox.FixedSelectingBox(
                             topLeft = start.round(),
                             width = (end.x - start.x).roundToInt(),
                             height = (end.y - start.y).roundToInt(),
-                            previousTransientSelectingBox = SelectionState.SelectingBox.TransientSelectingBox(
+                            previousTransientSelectingBox =
+                            SelectionState.SelectingBox.TransientSelectingBox(
                                 rect = Rect(topLeft = start, bottomRight = end),
                             ),
                         ),
@@ -437,7 +445,8 @@ private fun Modifier.selectingCellInput(
                     SessionValue(
                         sessionId = editingSessionId,
                         valueId = Uuid.random(),
-                        value = SelectionState.SelectingBox.TransientSelectingBox(
+                        value =
+                        SelectionState.SelectingBox.TransientSelectingBox(
                             rect = Rect(topLeft = start, bottomRight = end),
                         ),
                     ),

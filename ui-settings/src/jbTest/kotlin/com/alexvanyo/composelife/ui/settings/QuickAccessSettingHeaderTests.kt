@@ -37,126 +37,129 @@ import kotlin.test.assertEquals
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class QuickAccessSettingHeaderTests {
-
     @Test
-    fun is_favorite_without_open_in_settings_is_displayed_correctly() = runComposeUiTest {
-        var setIsFavoriteResult: Boolean? = null
+    fun is_favorite_without_open_in_settings_is_displayed_correctly() =
+        runComposeUiTest {
+            var setIsFavoriteResult: Boolean? = null
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            QuickAccessSettingHeader(
-                isFavorite = true,
-                setIsFavorite = {
-                    setIsFavoriteResult = it
-                },
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                QuickAccessSettingHeader(
+                    isFavorite = true,
+                    setIsFavorite = {
+                        setIsFavoriteResult = it
+                    },
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.RemoveSettingFromQuickAccess))
+                .assertIsOn()
+                .assertIsDisplayed()
+                .performClick()
+
+            assertEquals(false, setIsFavoriteResult)
+
+            onNodeWithContentDescription(resolver(Strings.OpenInSettings))
+                .assertDoesNotExist()
         }
 
-        onNodeWithContentDescription(resolver(Strings.RemoveSettingFromQuickAccess))
-            .assertIsOn()
-            .assertIsDisplayed()
-            .performClick()
-
-        assertEquals(false, setIsFavoriteResult)
-
-        onNodeWithContentDescription(resolver(Strings.OpenInSettings))
-            .assertDoesNotExist()
-    }
-
     @Test
-    fun is_favorite_with_open_in_settings_is_displayed_correctly() = runComposeUiTest {
-        var setIsFavoriteResult: Boolean? = null
-        var onOpenInSettingsResult: Unit? = null
+    fun is_favorite_with_open_in_settings_is_displayed_correctly() =
+        runComposeUiTest {
+            var setIsFavoriteResult: Boolean? = null
+            var onOpenInSettingsResult: Unit? = null
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            QuickAccessSettingHeader(
-                isFavorite = true,
-                setIsFavorite = {
-                    setIsFavoriteResult = it
-                },
-                onOpenInSettingsClicked = {
-                    onOpenInSettingsResult = Unit
-                },
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                QuickAccessSettingHeader(
+                    isFavorite = true,
+                    setIsFavorite = {
+                        setIsFavoriteResult = it
+                    },
+                    onOpenInSettingsClicked = {
+                        onOpenInSettingsResult = Unit
+                    },
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.RemoveSettingFromQuickAccess))
+                .assertIsOn()
+                .assertIsDisplayed()
+                .performClick()
+
+            assertEquals(false, setIsFavoriteResult)
+
+            onNodeWithContentDescription(resolver(Strings.OpenInSettings))
+                .assertIsDisplayed()
+                .performClick()
+
+            assertEquals(Unit, onOpenInSettingsResult)
         }
 
-        onNodeWithContentDescription(resolver(Strings.RemoveSettingFromQuickAccess))
-            .assertIsOn()
-            .assertIsDisplayed()
-            .performClick()
-
-        assertEquals(false, setIsFavoriteResult)
-
-        onNodeWithContentDescription(resolver(Strings.OpenInSettings))
-            .assertIsDisplayed()
-            .performClick()
-
-        assertEquals(Unit, onOpenInSettingsResult)
-    }
-
     @Test
-    fun is_not_favorite_without_open_in_settings_is_displayed_correctly() = runComposeUiTest {
-        var setIsFavoriteResult: Boolean? = null
+    fun is_not_favorite_without_open_in_settings_is_displayed_correctly() =
+        runComposeUiTest {
+            var setIsFavoriteResult: Boolean? = null
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            QuickAccessSettingHeader(
-                isFavorite = false,
-                setIsFavorite = {
-                    setIsFavoriteResult = it
-                },
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                QuickAccessSettingHeader(
+                    isFavorite = false,
+                    setIsFavorite = {
+                        setIsFavoriteResult = it
+                    },
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.AddSettingToQuickAccess))
+                .assertIsOff()
+                .assertIsDisplayed()
+                .performClick()
+
+            assertEquals(true, setIsFavoriteResult)
+
+            onNodeWithContentDescription(resolver(Strings.OpenInSettings))
+                .assertDoesNotExist()
         }
 
-        onNodeWithContentDescription(resolver(Strings.AddSettingToQuickAccess))
-            .assertIsOff()
-            .assertIsDisplayed()
-            .performClick()
-
-        assertEquals(true, setIsFavoriteResult)
-
-        onNodeWithContentDescription(resolver(Strings.OpenInSettings))
-            .assertDoesNotExist()
-    }
-
     @Test
-    fun is_not_favorite_with_open_in_settings_is_displayed_correctly() = runComposeUiTest {
-        var setIsFavoriteResult: Boolean? = null
-        var onOpenInSettingsResult: Unit? = null
+    fun is_not_favorite_with_open_in_settings_is_displayed_correctly() =
+        runComposeUiTest {
+            var setIsFavoriteResult: Boolean? = null
+            var onOpenInSettingsResult: Unit? = null
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            QuickAccessSettingHeader(
-                isFavorite = false,
-                setIsFavorite = {
-                    setIsFavoriteResult = it
-                },
-                onOpenInSettingsClicked = {
-                    onOpenInSettingsResult = Unit
-                },
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                QuickAccessSettingHeader(
+                    isFavorite = false,
+                    setIsFavorite = {
+                        setIsFavoriteResult = it
+                    },
+                    onOpenInSettingsClicked = {
+                        onOpenInSettingsResult = Unit
+                    },
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.AddSettingToQuickAccess))
+                .assertIsOff()
+                .assertIsDisplayed()
+                .performClick()
+
+            assertEquals(true, setIsFavoriteResult)
+
+            onNodeWithContentDescription(resolver(Strings.OpenInSettings))
+                .assertIsDisplayed()
+                .performClick()
+
+            assertEquals(Unit, onOpenInSettingsResult)
         }
-
-        onNodeWithContentDescription(resolver(Strings.AddSettingToQuickAccess))
-            .assertIsOff()
-            .assertIsDisplayed()
-            .performClick()
-
-        assertEquals(true, setIsFavoriteResult)
-
-        onNodeWithContentDescription(resolver(Strings.OpenInSettings))
-            .assertIsDisplayed()
-            .performClick()
-
-        assertEquals(Unit, onOpenInSettingsResult)
-    }
 }

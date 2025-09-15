@@ -34,23 +34,26 @@ class RoborazziTest(
     override val parameterizations = RoborazziTest.parameterizations
 
     companion object {
-        val parameterizations = Showkase.getMetadata().componentList
-            .filter { it.componentKey.startsWith("com.alexvanyo.composelife.ui.util") }
-            .flatMap { showkaseBrowserComponent ->
-                listOf(
-                    DpSize(320.dp, 533.dp), // Nexus One portrait
-                    DpSize(393.dp, 851.dp), // Pixel 5 portrait
-                    DpSize(1200.dp, 800.dp), // Pixel Tablet landscape
-                ).map { size ->
-                    SingleRoborazziParameterization(
-                        showkaseBrowserComponent = showkaseBrowserComponent,
-                        size = size,
-                        darkTheme = false,
-                        isScreenRound = false,
-                        fontScale = 1.0f,
-                    )
+        val parameterizations =
+            Showkase
+                .getMetadata()
+                .componentList
+                .filter { it.componentKey.startsWith("com.alexvanyo.composelife.ui.util") }
+                .flatMap { showkaseBrowserComponent ->
+                    listOf(
+                        DpSize(320.dp, 533.dp), // Nexus One portrait
+                        DpSize(393.dp, 851.dp), // Pixel 5 portrait
+                        DpSize(1200.dp, 800.dp), // Pixel Tablet landscape
+                    ).map { size ->
+                        SingleRoborazziParameterization(
+                            showkaseBrowserComponent = showkaseBrowserComponent,
+                            size = size,
+                            darkTheme = false,
+                            isScreenRound = false,
+                            fontScale = 1.0f,
+                        )
+                    }
                 }
-            }
 
         class Provider : BaseRoborazziParameterizationProvider(parameterizations)
     }

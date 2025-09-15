@@ -109,92 +109,98 @@ private class TestPaneState(
 @Preview
 @Composable
 private fun DialogNavigationTransformPreview() {
-    val navController = rememberMutableBackstackNavigationController(
-        initialBackstackEntries = listOf(
-            BackstackEntry(
-                value = TestPaneState(null),
-                previous = null,
+    val navController =
+        rememberMutableBackstackNavigationController(
+            initialBackstackEntries =
+            listOf(
+                BackstackEntry(
+                    value = TestPaneState(null),
+                    previous = null,
+                ),
             ),
-        ),
-        backstackValueSaverFactory = TestPaneState,
-    )
+            backstackValueSaverFactory = TestPaneState,
+        )
 
     val renderableNavigationState: RenderableNavigationState<
         BackstackEntry<TestPaneState>,
         BackstackState<TestPaneState>,
-        > = associateWithRenderablePanes(
-        navController,
-    ) { entry ->
-        Surface {
-            Column(
-                Modifier.verticalScroll(rememberScrollState()),
-            ) {
-                Text("id: ${entry.id}")
-                Text("count: ${entry.value.count}")
-                Button(
-                    onClick = {
-                        entry.value.increment()
-                    },
+        > =
+        associateWithRenderablePanes(
+            navController,
+        ) { entry ->
+            Surface {
+                Column(
+                    Modifier.verticalScroll(rememberScrollState()),
                 ) {
-                    Text("increment current")
-                }
-                if (entry.value.canIncrementPrevious) {
+                    Text("id: ${entry.id}")
+                    Text("count: ${entry.value.count}")
                     Button(
                         onClick = {
-                            entry.value.incrementPrevious()
+                            entry.value.increment()
                         },
                     ) {
-                        Text("increment previous")
+                        Text("increment current")
                     }
-                }
-                Switch(
-                    checked = entry.value.isDialog,
-                    onCheckedChange = { entry.value.isDialog = it },
-                )
-                if (navController.canNavigateBack) {
-                    Button(
-                        onClick = {
-                            navController.popBackstack()
-                        },
-                    ) {
-                        Text("navigate back")
-                    }
-                }
-                Button(
-                    onClick = {
-                        navController.navigate(
-                            valueFactory = { previous ->
-                                TestPaneState(
-                                    previous = previous.value,
-                                    initialIsDialog = false,
-                                )
+                    if (entry.value.canIncrementPrevious) {
+                        Button(
+                            onClick = {
+                                entry.value.incrementPrevious()
                             },
-                        )
-                    },
-                ) {
-                    Text("navigate forward")
+                        ) {
+                            Text("increment previous")
+                        }
+                    }
+                    Switch(
+                        checked = entry.value.isDialog,
+                        onCheckedChange = { entry.value.isDialog = it },
+                    )
+                    if (navController.canNavigateBack) {
+                        Button(
+                            onClick = {
+                                navController.popBackstack()
+                            },
+                        ) {
+                            Text("navigate back")
+                        }
+                    }
+                    Button(
+                        onClick = {
+                            navController.navigate(
+                                valueFactory = { previous ->
+                                    TestPaneState(
+                                        previous = previous.value,
+                                        initialIsDialog = false,
+                                    )
+                                },
+                            )
+                        },
+                    ) {
+                        Text("navigate forward")
+                    }
                 }
             }
         }
-    }
 
     val dispatcher = requireNotNull(LocalNavigationEventDispatcherOwner.current).navigationEventDispatcher
-    val navigationEventState by dispatcher.getState<DialogNavigationTransformPreviewNavigationEventInfo>(
-        rememberCoroutineScope(),
-        DialogNavigationTransformPreviewNavigationEventInfo(navController.currentEntryId),
-    ).collectAsState()
+    val navigationEventState by dispatcher
+        .getState<DialogNavigationTransformPreviewNavigationEventInfo>(
+            rememberCoroutineScope(),
+            DialogNavigationTransformPreviewNavigationEventInfo(navController.currentEntryId),
+        ).collectAsState()
 
     NavigationBackHandler(
         isBackEnabled = navController.canNavigateBack,
         currentInfo = DialogNavigationTransformPreviewNavigationEventInfo(navController.currentEntryId),
-        backInfo = listOfNotNull(
+        backInfo =
+        listOfNotNull(
             navController.previousEntryId?.let(::DialogNavigationTransformPreviewNavigationEventInfo),
         ),
         onBackCompleted = navController::popBackstack,
     )
 
     MaterialPredictiveNavigationFrame(
-        renderableNavigationState = dialogNavigationTransform<TestPaneState>(navController::popBackstack).invoke(
+        renderableNavigationState =
+        dialogNavigationTransform<TestPaneState>(navController::popBackstack).invoke(
             segmentingNavigationTransform<TestPaneState>().invoke(
                 renderableNavigationState,
             ),
@@ -204,23 +210,22 @@ private fun DialogNavigationTransformPreview() {
     )
 }
 
-private data class DialogNavigationTransformPreviewNavigationEventInfo(
-    val entryId: Uuid,
-) : NavigationEventInfo
+private data class DialogNavigationTransformPreviewNavigationEventInfo(val entryId: Uuid) : NavigationEventInfo
 
 @Preview
 @Composable
 private fun DialogMovableContent() {
     val saveableStateHolder = rememberSaveableStateHolder()
 
-    val movableContent = remember {
-        movableContentOf {
-            saveableStateHolder.SaveableStateProvider(1) {
-                val uuid = rememberSaveable(saver = uuidSaver) { Uuid.random() }
-                Text(uuid.toString())
+    val movableContent =
+        remember {
+            movableContentOf {
+                saveableStateHolder.SaveableStateProvider(1) {
+                    val uuid = rememberSaveable(saver = uuidSaver) { Uuid.random() }
+                    Text(uuid.toString())
+                }
             }
         }
-    }
 
     var flag by remember { mutableStateOf(false) }
 

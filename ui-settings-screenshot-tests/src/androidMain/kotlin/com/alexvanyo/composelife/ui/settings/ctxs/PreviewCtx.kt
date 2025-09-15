@@ -62,25 +62,26 @@ interface PreviewGlobalGraph
  */
 @Suppress("LongParameterList")
 @Composable
-internal fun WithPreviewDependencies(
-    content: @Composable context(PreviewCtx) () -> Unit,
-) {
+internal fun WithPreviewDependencies(content: @Composable context(PreviewCtx) () -> Unit) {
     val previewGraph = createGraph<PreviewGlobalGraph>()
-    val applicationGraph = (previewGraph as ApplicationGraph.Factory).create(
-        object : ApplicationGraphArguments {
-            override val applicationContext: Context = LocalContext.current.applicationContext
-        },
-    )
-    val uiGraph = (applicationGraph as UiGraph.Factory).create(
-        object : UiGraphArguments {
-            override val uiContext: Context = LocalContext.current
-            override val activity: Activity? = LocalActivity.current
-        },
-    )
+    val applicationGraph =
+        (previewGraph as ApplicationGraph.Factory).create(
+            object : ApplicationGraphArguments {
+                override val applicationContext: Context = LocalContext.current.applicationContext
+            },
+        )
+    val uiGraph =
+        (applicationGraph as UiGraph.Factory).create(
+            object : UiGraphArguments {
+                override val uiContext: Context = LocalContext.current
+                override val activity: Activity? = LocalActivity.current
+            },
+        )
     val ctx = uiGraph as PreviewCtx
-    val navigationEventDispatcherOwner = object : NavigationEventDispatcherOwner {
-        override val navigationEventDispatcher = NavigationEventDispatcher()
-    }
+    val navigationEventDispatcherOwner =
+        object : NavigationEventDispatcherOwner {
+            override val navigationEventDispatcher = NavigationEventDispatcher()
+        }
     CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides navigationEventDispatcherOwner) {
         content(ctx)
     }

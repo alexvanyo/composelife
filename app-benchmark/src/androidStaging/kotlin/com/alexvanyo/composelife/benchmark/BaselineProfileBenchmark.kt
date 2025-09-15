@@ -28,7 +28,6 @@ import kotlin.test.Test
 
 @RunWith(AndroidJUnit4::class)
 class BaselineProfileBenchmark {
-
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 

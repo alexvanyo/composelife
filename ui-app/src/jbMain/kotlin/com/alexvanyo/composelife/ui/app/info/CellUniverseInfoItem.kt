@@ -52,7 +52,8 @@ fun ColumnScope.InfoItem(
         modifier = modifier,
     ) {
         Box(
-            modifier = if (editingTargetState.current) {
+            modifier =
+            if (editingTargetState.current) {
                 Modifier.triStateToggleable(
                     state = ToggleableState(cellUniverseInfoItemContent.isChecked),
                     onClick = {
@@ -63,8 +64,7 @@ fun ColumnScope.InfoItem(
                 )
             } else {
                 Modifier
-            }
-                .semantics(mergeDescendants = true) {}
+            }.semantics(mergeDescendants = true) {}
                 .padding(horizontal = 8.dp),
         ) {
             Row(

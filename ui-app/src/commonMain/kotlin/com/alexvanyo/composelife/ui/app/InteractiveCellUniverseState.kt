@@ -82,7 +82,6 @@ class InteractiveCellUniverseCtx(
 // endregion templated-ctx
 
 interface InteractiveCellUniverseState {
-
     /**
      * `true` if the viewport is tracking the alive cells.
      */
@@ -183,9 +182,9 @@ interface InteractiveCellUniverseState {
     fun onClearSelection()
 }
 
-context(ctx: InteractiveCellUniverseCtx)
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
+context(ctx: InteractiveCellUniverseCtx)
 fun rememberInteractiveCellUniverseState(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     mutableCellWindowViewportState: MutableCellWindowViewportState = rememberMutableCellWindowViewportState(),
@@ -210,9 +209,10 @@ internal fun rememberInteractiveCellUniverseState(
 ): InteractiveCellUniverseState {
     val trackingCellWindowViewportState = rememberTrackingCellWindowViewportState(temporalGameOfLifeState)
 
-    val selectionStateHolder = rememberMutableSelectionStateHolder(
-        SessionValue(Uuid.random(), Uuid.random(), SelectionState.NoSelection),
-    )
+    val selectionStateHolder =
+        rememberMutableSelectionStateHolder(
+            SessionValue(Uuid.random(), Uuid.random(), SelectionState.NoSelection),
+        )
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -241,6 +241,7 @@ internal fun rememberInteractiveCellUniverseState(
     val isActionCardExpandedState = rememberSaveable { mutableStateOf(false) }
 
     val isInfoCardExpanded = isInfoCardExpandedState.value
+
     fun setIsInfoCardExpanded(value: Boolean) {
         isInfoCardExpandedState.value = value
         if (value) {
@@ -250,6 +251,7 @@ internal fun rememberInteractiveCellUniverseState(
     }
 
     val isActionCardExpanded = isActionCardExpandedState.value
+
     fun setIsActionCardExpanded(value: Boolean) {
         isActionCardExpandedState.value = value
         if (value) {
@@ -259,55 +261,67 @@ internal fun rememberInteractiveCellUniverseState(
     }
 
     val dispatcher = requireNotNull(LocalNavigationEventDispatcherOwner.current).navigationEventDispatcher
-    val infoCardNavigationEventState by dispatcher.getState<InfoCardNavigationEventInfo>(
-        rememberCoroutineScope(),
-        InfoCardNavigationEventInfo,
-    ).collectAsState()
+    val infoCardNavigationEventState by dispatcher
+        .getState<InfoCardNavigationEventInfo>(
+            rememberCoroutineScope(),
+            InfoCardNavigationEventInfo,
+        ).collectAsState()
     NavigationBackHandler(
         isBackEnabled = isInfoCardExpanded && !isActionCardTopCard,
         currentInfo = InfoCardNavigationEventInfo,
         onBackCompleted = { setIsInfoCardExpanded(false) },
     )
 
-    val actionCardNavigationEventState by dispatcher.getState<ActionCardNavigationEventInfo>(
-        rememberCoroutineScope(),
-        ActionCardNavigationEventInfo,
-    ).collectAsState()
+    val actionCardNavigationEventState by dispatcher
+        .getState<ActionCardNavigationEventInfo>(
+            rememberCoroutineScope(),
+            ActionCardNavigationEventInfo,
+        ).collectAsState()
     NavigationEventHandler(
         isBackEnabled = isActionCardExpanded,
         currentInfo = ActionCardNavigationEventInfo,
         onBackCompleted = { setIsActionCardExpanded(false) },
     )
 
-    val infoCardState = rememberCellUniverseInfoCardState(
-        setIsExpanded = ::setIsInfoCardExpanded,
-        expandedTargetState = when (val navEventState = infoCardNavigationEventState) {
-            is NavigationEventState.Idle<*> -> TargetState.Single(isInfoCardExpanded)
-            is NavigationEventState.InProgress<*> -> {
-                check(isInfoCardExpanded)
-                TargetState.InProgress(
-                    current = true,
-                    provisional = false,
-                    progress = navEventState.progress,
-                )
-            }
-        },
-    )
-    val actionCardState = rememberCellUniverseActionCardState(
-        setIsExpanded = ::setIsActionCardExpanded,
-        enableBackHandler = isActionCardTopCard,
-        expandedTargetState = when (val navEventState = actionCardNavigationEventState) {
-            is NavigationEventState.Idle<*> -> TargetState.Single(isActionCardExpanded)
-            is NavigationEventState.InProgress<*> -> {
-                check(isActionCardExpanded)
-                TargetState.InProgress(
-                    current = true,
-                    provisional = false,
-                    progress = navEventState.progress,
-                )
-            }
-        },
-    )
+    val infoCardState =
+        rememberCellUniverseInfoCardState(
+            setIsExpanded = ::setIsInfoCardExpanded,
+            expandedTargetState =
+            when (val navEventState = infoCardNavigationEventState) {
+                is NavigationEventState.Idle<*> -> {
+                    TargetState.Single(isInfoCardExpanded)
+                }
+
+                is NavigationEventState.InProgress<*> -> {
+                    check(isInfoCardExpanded)
+                    TargetState.InProgress(
+                        current = true,
+                        provisional = false,
+                        progress = navEventState.progress,
+                    )
+                }
+            },
+        )
+    val actionCardState =
+        rememberCellUniverseActionCardState(
+            setIsExpanded = ::setIsActionCardExpanded,
+            enableBackHandler = isActionCardTopCard,
+            expandedTargetState =
+            when (val navEventState = actionCardNavigationEventState) {
+                is NavigationEventState.Idle<*> -> {
+                    TargetState.Single(isActionCardExpanded)
+                }
+
+                is NavigationEventState.InProgress<*> -> {
+                    check(isActionCardExpanded)
+                    TargetState.InProgress(
+                        current = true,
+                        provisional = false,
+                        progress = navEventState.progress,
+                    )
+                }
+            },
+        )
 
     val viewportInteractionConfig: ViewportInteractionConfig by
         remember(mutableCellWindowViewportState, trackingCellWindowViewportState) {
@@ -388,7 +402,10 @@ internal fun rememberInteractiveCellUniverseState(
                     SelectionState.NoSelection,
                     is SelectionState.Selection,
                     is SelectionState.SelectingBox.TransientSelectingBox,
-                    -> false
+                    -> {
+                        false
+                    }
+
                     is SelectionState.SelectingBox.FixedSelectingBox -> {
                         if (currentSelectionState.width != 0 && currentSelectionState.height != 0) {
                             val selectedCellState =
@@ -399,9 +416,10 @@ internal fun rememberInteractiveCellUniverseState(
                                     temporalGameOfLifeState.cellState.subtract(selectedCellState)
                             }
 
-                            val serializedCellState = RunLengthEncodedCellStateSerializer.serializeToString(
-                                selectedCellState,
-                            )
+                            val serializedCellState =
+                                RunLengthEncodedCellStateSerializer.serializeToString(
+                                    selectedCellState,
+                                )
 
                             clipboardReaderWriter.setText(serializedCellState.joinToString("\n"))
                             true
@@ -420,6 +438,7 @@ internal fun rememberInteractiveCellUniverseState(
                         is DeserializationResult.Successful -> {
                             setSelectionToCellState(deserializationResult.cellState)
                         }
+
                         is DeserializationResult.Unsuccessful -> {
                             // TODO: Show error for unsuccessful pasting
                         }
@@ -431,19 +450,24 @@ internal fun rememberInteractiveCellUniverseState(
                 when (val currentSelectionState = selectionStateHolder.selectionSessionState.value) {
                     SelectionState.NoSelection,
                     is SelectionState.SelectingBox,
-                    -> false
+                    -> {
+                        false
+                    }
+
                     is SelectionState.Selection -> {
                         val selectionCellState = currentSelectionState.cellState
 
-                        temporalGameOfLifeState.cellState = selectionCellState.aliveCells
-                            .fold(temporalGameOfLifeState.cellState) { cellState, offset ->
-                                cellState.withCell(
-                                    offset = offset +
-                                        currentSelectionState.offset -
-                                        selectionCellState.boundingBox.topLeft,
-                                    isAlive = true,
-                                )
-                            }
+                        temporalGameOfLifeState.cellState =
+                            selectionCellState.aliveCells
+                                .fold(temporalGameOfLifeState.cellState) { cellState, offset ->
+                                    cellState.withCell(
+                                        offset =
+                                        offset +
+                                            currentSelectionState.offset -
+                                            selectionCellState.boundingBox.topLeft,
+                                        isAlive = true,
+                                    )
+                                }
                         selectionStateHolder.selectionSessionState =
                             SessionValue(Uuid.random(), Uuid.random(), SelectionState.NoSelection)
                         true
@@ -452,16 +476,18 @@ internal fun rememberInteractiveCellUniverseState(
 
             override fun onSelectAll() {
                 val boundingBox = temporalGameOfLifeState.cellState.boundingBox
-                selectionStateHolder.selectionSessionState = SessionValue(
-                    sessionId = Uuid.random(),
-                    valueId = Uuid.random(),
-                    value = SelectionState.SelectingBox.FixedSelectingBox(
-                        topLeft = boundingBox.topLeft,
-                        width = boundingBox.width + 1,
-                        height = boundingBox.height + 1,
-                        previousTransientSelectingBox = null,
-                    ),
-                )
+                selectionStateHolder.selectionSessionState =
+                    SessionValue(
+                        sessionId = Uuid.random(),
+                        valueId = Uuid.random(),
+                        value =
+                        SelectionState.SelectingBox.FixedSelectingBox(
+                            topLeft = boundingBox.topLeft,
+                            width = boundingBox.width + 1,
+                            height = boundingBox.height + 1,
+                            previousTransientSelectingBox = null,
+                        ),
+                    )
             }
 
             override fun onClearSelection() {
@@ -471,17 +497,21 @@ internal fun rememberInteractiveCellUniverseState(
 
             override fun setSelectionToCellState(cellState: CellState) {
                 val boundingBoxSize = cellState.boundingBox.size
-                selectionStateHolder.selectionSessionState = SessionValue(
-                    sessionId = Uuid.random(),
-                    valueId = Uuid.random(),
-                    value = SelectionState.Selection(
-                        cellState = cellState,
-                        offset = (
-                            mutableCellWindowViewportState.cellWindowViewport.offset -
-                                Offset(boundingBoxSize.width - 1f, boundingBoxSize.height - 1f) / 2f
-                            ).round(),
-                    ),
-                )
+                selectionStateHolder.selectionSessionState =
+                    SessionValue(
+                        sessionId = Uuid.random(),
+                        valueId = Uuid.random(),
+                        value =
+                        SelectionState.Selection(
+                            cellState = cellState,
+                            offset =
+                            (
+                                mutableCellWindowViewportState.cellWindowViewport.offset -
+                                    Offset(boundingBoxSize.width - 1f, boundingBoxSize.height - 1f) /
+                                    2f
+                                ).round(),
+                        ),
+                    )
             }
         }
     }

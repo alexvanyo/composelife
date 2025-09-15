@@ -34,56 +34,56 @@ import kotlin.test.assertNotNull
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class ClipboardStateTests {
-
     @Test
-    fun reading_from_clipboard_state_is_correct() = runAndroidComposeUiTest<ComponentActivity> {
-        assumeFalse(activity!!.resources.configuration.isWatch())
+    fun reading_from_clipboard_state_is_correct() =
+        runAndroidComposeUiTest<ComponentActivity> {
+            assumeFalse(activity!!.resources.configuration.isWatch())
 
-        var clipData: ClipData? = null
+            var clipData: ClipData? = null
 
-        setContent {
-            clipData = rememberClipboardReader().getClipData()
-        }
+            setContent {
+                clipData = rememberClipboardReader().getClipData()
+            }
 
-        val clipboardManager = requireNotNull(activity!!.getSystemService<ClipboardManager>())
-        val testClipData = ClipData.newPlainText("test clip data", "test value 1")
-        clipboardManager.setPrimaryClip(testClipData)
+            val clipboardManager = requireNotNull(activity!!.getSystemService<ClipboardManager>())
+            val testClipData = ClipData.newPlainText("test clip data", "test value 1")
+            clipboardManager.setPrimaryClip(testClipData)
 
-        waitForIdle()
+            waitForIdle()
 
-        val actualClipData = clipData
-        assertNotNull(actualClipData)
-        assertEquals(testClipData.itemCount, actualClipData.itemCount)
-        repeat(actualClipData.itemCount) {
-            assertEquals(testClipData.getItemAt(it).text, actualClipData.getItemAt(it).text)
-        }
-    }
-
-    @Test
-    fun writing_to_clipboard_state_is_correct() = runAndroidComposeUiTest<ComponentActivity> {
-        assumeFalse(activity!!.resources.configuration.isWatch())
-
-        lateinit var clipboardWriter: ClipboardWriter
-
-        val testClipData = ClipData.newPlainText("test clip data", "test value 2")
-
-        setContent {
-            clipboardWriter = rememberClipboardWriter()
-            LaunchedEffect(Unit) {
-                clipboardWriter.setClipData(testClipData)
+            val actualClipData = clipData
+            assertNotNull(actualClipData)
+            assertEquals(testClipData.itemCount, actualClipData.itemCount)
+            repeat(actualClipData.itemCount) {
+                assertEquals(testClipData.getItemAt(it).text, actualClipData.getItemAt(it).text)
             }
         }
 
-        val clipboardManager = requireNotNull(activity!!.getSystemService<ClipboardManager>())
+    @Test
+    fun writing_to_clipboard_state_is_correct() =
+        runAndroidComposeUiTest<ComponentActivity> {
+            assumeFalse(activity!!.resources.configuration.isWatch())
 
-        val actualClipData = clipboardManager.primaryClip
-        assertNotNull(actualClipData)
-        assertEquals(testClipData.itemCount, actualClipData.itemCount)
-        repeat(actualClipData.itemCount) {
-            assertEquals(testClipData.getItemAt(it).text, actualClipData.getItemAt(it).text)
+            lateinit var clipboardWriter: ClipboardWriter
+
+            val testClipData = ClipData.newPlainText("test clip data", "test value 2")
+
+            setContent {
+                clipboardWriter = rememberClipboardWriter()
+                LaunchedEffect(Unit) {
+                    clipboardWriter.setClipData(testClipData)
+                }
+            }
+
+            val clipboardManager = requireNotNull(activity!!.getSystemService<ClipboardManager>())
+
+            val actualClipData = clipboardManager.primaryClip
+            assertNotNull(actualClipData)
+            assertEquals(testClipData.itemCount, actualClipData.itemCount)
+            repeat(actualClipData.itemCount) {
+                assertEquals(testClipData.getItemAt(it).text, actualClipData.getItemAt(it).text)
+            }
         }
-    }
 }
 
-private fun Configuration.isWatch() =
-    uiMode and Configuration.UI_MODE_TYPE_MASK == Configuration.UI_MODE_TYPE_WATCH
+private fun Configuration.isWatch() = uiMode and Configuration.UI_MODE_TYPE_MASK == Configuration.UI_MODE_TYPE_WATCH

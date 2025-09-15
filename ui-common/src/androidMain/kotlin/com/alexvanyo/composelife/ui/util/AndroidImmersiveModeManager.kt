@@ -40,14 +40,19 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 
 @SingleIn(UiScope::class)
 @ContributesBinding(UiScope::class, binding = binding<ImmersiveModeManager>())
-@ContributesIntoSet(UiScope::class, binding = binding<
-    @ForScope(UiScope::class)
-    Updatable,
-    >())
+@ContributesIntoSet(
+    UiScope::class,
+    binding =
+    binding<
+        @ForScope(UiScope::class)
+        Updatable,
+        >(),
+)
 class AndroidImmersiveModeManager private constructor(
     private val activity: Activity?,
     private val powerableUpdatable: PowerableUpdatable,
-) : ImmersiveModeManager, Updatable by powerableUpdatable {
+) : ImmersiveModeManager,
+    Updatable by powerableUpdatable {
     @Inject
     constructor(
         activity: Activity?,
@@ -115,9 +120,7 @@ interface WindowInsetsControllerBindings {
     companion object {
         @Provides
         @SingleIn(UiScope::class)
-        fun providesWindowInsetsController(
-            window: Window?,
-        ): WindowInsetsControllerCompat? =
+        fun providesWindowInsetsController(window: Window?): WindowInsetsControllerCompat? =
             window?.let { WindowCompat.getInsetsController(window, window.decorView) }
     }
 }

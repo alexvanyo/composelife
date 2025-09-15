@@ -44,7 +44,8 @@ internal fun CoilNonInteractableCellsPreview(modifier: Modifier = Modifier) {
         ComposeLifeTheme {
             with(implicit().imageLoader) {
                 CoilNonInteractableCells(
-                    gameOfLifeState = GameOfLifeState(
+                    gameOfLifeState =
+                    GameOfLifeState(
                         setOf(
                             0 to 0,
                             0 to 2,
@@ -58,7 +59,8 @@ internal fun CoilNonInteractableCellsPreview(modifier: Modifier = Modifier) {
                         ).toCellState(),
                     ),
                     scaledCellDpSize = 32.dp,
-                    cellWindow = CellWindow(
+                    cellWindow =
+                    CellWindow(
                         IntRect(
                             IntOffset(0, 0),
                             IntSize(10, 10),

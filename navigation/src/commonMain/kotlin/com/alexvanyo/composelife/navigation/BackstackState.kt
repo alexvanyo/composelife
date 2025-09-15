@@ -60,13 +60,11 @@ typealias BackstackMap<T> = Map<Uuid, BackstackEntry<T>>
  * value done by [saver].
  */
 @Composable
-fun <T> rememberBackstackMap(
-    initialBackstackEntries: List<BackstackEntry<T>>,
-    saver: Saver<T, Any> = autoSaver(),
-) = rememberBackstackMap(
-    initialBackstackEntries = initialBackstackEntries,
-    backstackValueSaverFactory = { saver },
-)
+fun <T> rememberBackstackMap(initialBackstackEntries: List<BackstackEntry<T>>, saver: Saver<T, Any> = autoSaver()) =
+    rememberBackstackMap(
+        initialBackstackEntries = initialBackstackEntries,
+        backstackValueSaverFactory = { saver },
+    )
 
 /**
  * A more advanced version of [rememberBackstackMap] that allows saving and restoring state with knowledge of the
@@ -78,7 +76,8 @@ fun <T> rememberBackstackMap(
     backstackValueSaverFactory: BackstackValueSaverFactory<T>,
 ): MutableBackstackMap<T> =
     rememberSaveable(
-        saver = listSaver<MutableBackstackMap<T>, List<Any?>>(
+        saver =
+        listSaver<MutableBackstackMap<T>, List<Any?>>(
             save = { backstack ->
                 backstack.values.map { entry ->
                     val saver = backstackValueSaverFactory.create(entry.previous)

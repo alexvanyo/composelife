@@ -23,7 +23,6 @@ import androidx.compose.animation.core.spring
  * The configuration type for the viewport of an interactive cell universe.
  */
 sealed interface ViewportInteractionConfig {
-
     /**
      * The [MutableCellWindowViewportState]s (if any) to sync the currently displayed cell window state back to.
      */

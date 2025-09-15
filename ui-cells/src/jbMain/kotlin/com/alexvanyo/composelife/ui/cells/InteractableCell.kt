@@ -56,46 +56,49 @@ fun InteractableCell(
     val pendingAliveColor = ComposeLifeTheme.pendingAliveCellColor
     val pendingDeadColor = ComposeLifeTheme.pendingDeadCellColor
 
-    val value = when (drawState) {
-        DrawState.Alive, DrawState.PendingAlive -> true
-        DrawState.Dead, DrawState.PendingDead -> false
-    }
+    val value =
+        when (drawState) {
+            DrawState.Alive, DrawState.PendingAlive -> true
+            DrawState.Dead, DrawState.PendingDead -> false
+        }
 
     val state = ToggleableState(value = value)
 
     val onClick = { onValueChange(!value) }
 
     Canvas(
-        modifier = modifier
+        modifier =
+        modifier
             .semantics {
                 this.contentDescription = contentDescription
-            }
-            .combinedClickable(
+            }.combinedClickable(
                 role = Role.Switch,
                 onClick = onClick,
                 onLongClick = onLongClick,
-            )
-            .semantics {
+            ).semantics {
                 toggleableState = state
             },
     ) {
-        val drawColor = when (drawState) {
-            DrawState.Alive -> aliveColor
-            DrawState.PendingAlive -> pendingAliveColor
-            DrawState.Dead -> Color.Unspecified
-            DrawState.PendingDead -> pendingDeadColor
-        }
+        val drawColor =
+            when (drawState) {
+                DrawState.Alive -> aliveColor
+                DrawState.PendingAlive -> pendingAliveColor
+                DrawState.Dead -> Color.Unspecified
+                DrawState.PendingDead -> pendingDeadColor
+            }
         if (drawColor.isSpecified) {
             when (shape) {
                 is CurrentShape.RoundRectangle -> {
                     drawRoundRect(
                         color = drawColor,
-                        topLeft = Offset(
+                        topLeft =
+                        Offset(
                             size.width * (1f - shape.sizeFraction) / 2f,
                             size.height * (1f - shape.sizeFraction) / 2f,
                         ),
                         size = size * shape.sizeFraction,
-                        cornerRadius = CornerRadius(
+                        cornerRadius =
+                        CornerRadius(
                             size.width * shape.sizeFraction * shape.cornerFraction,
                         ),
                     )
@@ -107,7 +110,10 @@ fun InteractableCell(
 
 sealed interface DrawState {
     data object Alive : DrawState
+
     data object Dead : DrawState
+
     data object PendingAlive : DrawState
+
     data object PendingDead : DrawState
 }

@@ -48,16 +48,18 @@ sealed interface GameOfLifeShapeParameters {
 }
 
 @Language("GLSL")
-private val vertexShaderCode = """
+private val vertexShaderCode =
+    """
     uniform mat4 mvpMatrix;
     attribute vec4 position;
     void main() {
         gl_Position = mvpMatrix * position;
     }
-""".trimIndent()
+    """.trimIndent()
 
 @Language("GLSL")
-private val fragmentShaderCode = """
+private val fragmentShaderCode =
+    """
     #ifdef GL_FRAGMENT_PRECISION_HIGH
     precision highp float;
     #else
@@ -125,18 +127,16 @@ private val fragmentShaderCode = """
             gl_FragColor = deadColor;
         }
     }
-""".trimIndent()
+    """.trimIndent()
 
-class GameOfLifeShape(
-    private val texture: Int = 0,
-) {
-
-    private val coords = floatArrayOf(
-        0f, 1f, 0f,
-        0f, 0f, 0f,
-        1f, 0f, 0f,
-        1f, 1f, 0f,
-    )
+class GameOfLifeShape(private val texture: Int = 0) {
+    private val coords =
+        floatArrayOf(
+            0f, 1f, 0f,
+            0f, 0f, 0f,
+            1f, 0f, 0f,
+            1f, 1f, 0f,
+        )
 
     private val drawOrder = shortArrayOf(0, 1, 2, 0, 2, 3)
 
@@ -162,21 +162,24 @@ class GameOfLifeShape(
             }
         }
 
-    private val vertexShader = loadShader(
-        GLES20.GL_VERTEX_SHADER,
-        vertexShaderCode,
-    )
+    private val vertexShader =
+        loadShader(
+            GLES20.GL_VERTEX_SHADER,
+            vertexShaderCode,
+        )
 
-    private val fragmentShader = loadShader(
-        GLES20.GL_FRAGMENT_SHADER,
-        fragmentShaderCode,
-    )
+    private val fragmentShader =
+        loadShader(
+            GLES20.GL_FRAGMENT_SHADER,
+            fragmentShaderCode,
+        )
 
-    private val program = GLES20.glCreateProgram().apply {
-        GLES20.glAttachShader(this, vertexShader)
-        GLES20.glAttachShader(this, fragmentShader)
-        GLES20.glLinkProgram(this)
-    }
+    private val program =
+        GLES20.glCreateProgram().apply {
+            GLES20.glAttachShader(this, vertexShader)
+            GLES20.glAttachShader(this, fragmentShader)
+            GLES20.glLinkProgram(this)
+        }
 
     private val positionHandle = GLES20.glGetAttribLocation(program, "position")
     private val cellsHandle = GLES20.glGetUniformLocation(program, "cells")
@@ -191,11 +194,12 @@ class GameOfLifeShape(
     private val sizeHandle = GLES20.glGetUniformLocation(program, "size")
     private val mvpMatrixHandle = GLES20.glGetUniformLocation(program, "mvpMatrix")
 
-    private val textureHandle = run {
-        val array = IntArray(1)
-        GLES20.glGenTextures(0, array, 0)
-        array[0]
-    }
+    private val textureHandle =
+        run {
+            val array = IntArray(1)
+            GLES20.glGenTextures(0, array, 0)
+            array[0]
+        }
 
     fun setSize(width: Int, height: Int) {
         GLES20.glUseProgram(program)

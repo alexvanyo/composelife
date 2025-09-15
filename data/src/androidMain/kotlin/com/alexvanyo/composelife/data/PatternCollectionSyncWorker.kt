@@ -45,9 +45,6 @@ class PatternCollectionSyncWorker(
     @WorkerKey(PatternCollectionSyncWorker::class)
     @AssistedFactory
     fun interface Factory : AssistedWorkerFactory {
-        override fun invoke(
-            appContext: Context,
-            workerParams: WorkerParameters,
-        ): PatternCollectionSyncWorker
+        override fun invoke(appContext: Context, workerParams: WorkerParameters): PatternCollectionSyncWorker
     }
 }

@@ -51,36 +51,41 @@ annotation class PreferencesProtoPath
 
 @SingleIn(AppScope::class)
 @ContributesBinding(AppScope::class, binding = binding<PreferencesDataStore>())
-@ContributesIntoSet(AppScope::class, binding = binding<
-    @ForScope(AppScope::class)
-    Updatable,
-    >())
+@ContributesIntoSet(
+    AppScope::class,
+    binding =
+    binding<
+        @ForScope(AppScope::class)
+        Updatable,
+        >(),
+)
 @Inject
 internal class DiskPreferencesDataStore(
     private val fileSystem: FileSystem,
     @param:PreferencesProtoPath private val path: Lazy<Path>,
     private val dispatchers: ComposeLifeDispatchers,
-) : PreferencesDataStore, Updatable {
+) : PreferencesDataStore,
+    Updatable {
     private val mutex = Mutex()
 
     private val dataStoreCompletable = CompletableDeferred<DataStore<PreferencesProto>>()
 
     override suspend fun getDataStore(): DataStore<PreferencesProto> = dataStoreCompletable.await()
 
-    override suspend fun update(): Nothing = mutex.withLock {
-        withContext(dispatchers.IO) {
-            coroutineScope {
-                dataStoreCompletable.complete(createDataStore(this))
-                awaitCancellation()
+    override suspend fun update(): Nothing =
+        mutex.withLock {
+            withContext(dispatchers.IO) {
+                coroutineScope {
+                    dataStoreCompletable.complete(createDataStore(this))
+                    awaitCancellation()
+                }
             }
         }
-    }
 
-    private fun createDataStore(
-        scope: CoroutineScope,
-    ): DataStore<PreferencesProto> =
+    private fun createDataStore(scope: CoroutineScope): DataStore<PreferencesProto> =
         DataStoreFactory.create(
-            storage = OkioStorage(
+            storage =
+            OkioStorage(
                 fileSystem = fileSystem,
                 serializer =
                 object : OkioSerializer<PreferencesProto> {
@@ -100,17 +105,20 @@ internal class DiskPreferencesDataStore(
                 producePath = path::value,
             ),
             corruptionHandler = null,
-            migrations = listOf(
+            migrations =
+            listOf(
                 object : DataMigration<PreferencesProto> {
                     override suspend fun shouldMigrate(currentData: PreferencesProto): Boolean =
                         currentData.round_rectangle_session_id == null
 
                     override suspend fun migrate(currentData: PreferencesProto): PreferencesProto =
                         currentData.copy(
-                            round_rectangle_session_id = LoadedComposeLifePreferences
+                            round_rectangle_session_id =
+                            LoadedComposeLifePreferences
                                 .defaultRoundRectangleSessionId
                                 .toProto(),
-                            round_rectangle_value_id = LoadedComposeLifePreferences
+                            round_rectangle_value_id =
+                            LoadedComposeLifePreferences
                                 .defaultRoundRectangleValueId
                                 .toProto(),
                         )
@@ -123,10 +131,12 @@ internal class DiskPreferencesDataStore(
 
                     override suspend fun migrate(currentData: PreferencesProto): PreferencesProto =
                         currentData.copy(
-                            pattern_collections_synchronization_period_session_id = LoadedComposeLifePreferences
+                            pattern_collections_synchronization_period_session_id =
+                            LoadedComposeLifePreferences
                                 .defaultPatternCollectionsSynchronizationPeriodSessionId
                                 .toProto(),
-                            pattern_collections_synchronization_period_value_id = LoadedComposeLifePreferences
+                            pattern_collections_synchronization_period_value_id =
+                            LoadedComposeLifePreferences
                                 .defaultPatternCollectionsSynchronizationPeriodValueId
                                 .toProto(),
                         )

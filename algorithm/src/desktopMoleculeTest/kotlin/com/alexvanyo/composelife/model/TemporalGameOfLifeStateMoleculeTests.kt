@@ -41,43 +41,46 @@ import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TemporalGameOfLifeStateMoleculeTests {
-
     private val testDispatcher = StandardTestDispatcher()
 
-    private val dispatchers = TestComposeLifeDispatchers(
-        generalTestDispatcher = testDispatcher,
-        cellTickerTestDispatcher = testDispatcher,
-    )
-
-    @Test
-    fun state_is_advanced_correctly() = runTest(testDispatcher + BroadcastFrameClock()) {
-        val hashLifeAlgorithm = HashLifeAlgorithm(
-            dispatchers = dispatchers,
+    private val dispatchers =
+        TestComposeLifeDispatchers(
+            generalTestDispatcher = testDispatcher,
+            cellTickerTestDispatcher = testDispatcher,
         )
 
-        moleculeFlow(RecompositionMode.ContextClock) {
-            val temporalGameOfLifeState = TemporalGameOfLifeState(
-                seedCellState = SixLongLinePattern.seedCellState,
-                isRunning = true,
-                generationsPerStep = 1,
-                targetStepsPerSecond = 60.0,
-            )
+    @Test
+    fun state_is_advanced_correctly() =
+        runTest(testDispatcher + BroadcastFrameClock()) {
+            val hashLifeAlgorithm =
+                HashLifeAlgorithm(
+                    dispatchers = dispatchers,
+                )
 
-            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = hashLifeAlgorithm,
-                clock = testDispatcher.scheduler.clock,
-                dispatchers = dispatchers,
-            )
+            moleculeFlow(RecompositionMode.ContextClock) {
+                val temporalGameOfLifeState =
+                    TemporalGameOfLifeState(
+                        seedCellState = SixLongLinePattern.seedCellState,
+                        isRunning = true,
+                        generationsPerStep = 1,
+                        targetStepsPerSecond = 60.0,
+                    )
 
-            LaunchedEffect(temporalGameOfLifeStateMutator) {
-                withContext(testDispatcher) {
-                    temporalGameOfLifeStateMutator.update()
+                val temporalGameOfLifeStateMutator =
+                    rememberTemporalGameOfLifeStateMutator(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        gameOfLifeAlgorithm = hashLifeAlgorithm,
+                        clock = testDispatcher.scheduler.clock,
+                        dispatchers = dispatchers,
+                    )
+
+                LaunchedEffect(temporalGameOfLifeStateMutator) {
+                    withContext(testDispatcher) {
+                        temporalGameOfLifeStateMutator.update()
+                    }
                 }
-            }
-            temporalGameOfLifeState
-        }
-            .test {
+                temporalGameOfLifeState
+            }.test {
                 val temporalGameOfLifeState = awaitItem()
 
                 assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
@@ -99,37 +102,40 @@ class TemporalGameOfLifeStateMoleculeTests {
                     }
                 }
             }
-    }
+        }
 
     @Test
-    fun pausing_evolution_is_correct() = runTest(testDispatcher + BroadcastFrameClock()) {
-        val hashLifeAlgorithm = HashLifeAlgorithm(
-            dispatchers = dispatchers,
-        )
+    fun pausing_evolution_is_correct() =
+        runTest(testDispatcher + BroadcastFrameClock()) {
+            val hashLifeAlgorithm =
+                HashLifeAlgorithm(
+                    dispatchers = dispatchers,
+                )
 
-        moleculeFlow(RecompositionMode.ContextClock) {
-            val temporalGameOfLifeState = TemporalGameOfLifeState(
-                seedCellState = SixLongLinePattern.seedCellState,
-                isRunning = true,
-                generationsPerStep = 1,
-                targetStepsPerSecond = 60.0,
-            )
+            moleculeFlow(RecompositionMode.ContextClock) {
+                val temporalGameOfLifeState =
+                    TemporalGameOfLifeState(
+                        seedCellState = SixLongLinePattern.seedCellState,
+                        isRunning = true,
+                        generationsPerStep = 1,
+                        targetStepsPerSecond = 60.0,
+                    )
 
-            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = hashLifeAlgorithm,
-                clock = testDispatcher.scheduler.clock,
-                dispatchers = dispatchers,
-            )
+                val temporalGameOfLifeStateMutator =
+                    rememberTemporalGameOfLifeStateMutator(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        gameOfLifeAlgorithm = hashLifeAlgorithm,
+                        clock = testDispatcher.scheduler.clock,
+                        dispatchers = dispatchers,
+                    )
 
-            LaunchedEffect(temporalGameOfLifeStateMutator) {
-                withContext(testDispatcher) {
-                    temporalGameOfLifeStateMutator.update()
+                LaunchedEffect(temporalGameOfLifeStateMutator) {
+                    withContext(testDispatcher) {
+                        temporalGameOfLifeStateMutator.update()
+                    }
                 }
-            }
-            temporalGameOfLifeState
-        }
-            .test {
+                temporalGameOfLifeState
+            }.test {
                 val temporalGameOfLifeState = awaitItem()
 
                 assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
@@ -184,37 +190,40 @@ class TemporalGameOfLifeStateMoleculeTests {
                 assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
                 assertIs<TemporalGameOfLifeState.EvolutionStatus.Paused>(temporalGameOfLifeState.status)
             }
-    }
+        }
 
     @Test
-    fun target_steps_evolution_is_correct() = runTest(testDispatcher + BroadcastFrameClock()) {
-        val hashLifeAlgorithm = HashLifeAlgorithm(
-            dispatchers = dispatchers,
-        )
+    fun target_steps_evolution_is_correct() =
+        runTest(testDispatcher + BroadcastFrameClock()) {
+            val hashLifeAlgorithm =
+                HashLifeAlgorithm(
+                    dispatchers = dispatchers,
+                )
 
-        moleculeFlow(RecompositionMode.ContextClock) {
-            val temporalGameOfLifeState = TemporalGameOfLifeState(
-                seedCellState = SixLongLinePattern.seedCellState,
-                isRunning = true,
-                generationsPerStep = 1,
-                targetStepsPerSecond = 60.0,
-            )
+            moleculeFlow(RecompositionMode.ContextClock) {
+                val temporalGameOfLifeState =
+                    TemporalGameOfLifeState(
+                        seedCellState = SixLongLinePattern.seedCellState,
+                        isRunning = true,
+                        generationsPerStep = 1,
+                        targetStepsPerSecond = 60.0,
+                    )
 
-            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = hashLifeAlgorithm,
-                clock = testDispatcher.scheduler.clock,
-                dispatchers = dispatchers,
-            )
+                val temporalGameOfLifeStateMutator =
+                    rememberTemporalGameOfLifeStateMutator(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        gameOfLifeAlgorithm = hashLifeAlgorithm,
+                        clock = testDispatcher.scheduler.clock,
+                        dispatchers = dispatchers,
+                    )
 
-            LaunchedEffect(temporalGameOfLifeStateMutator) {
-                withContext(testDispatcher) {
-                    temporalGameOfLifeStateMutator.update()
+                LaunchedEffect(temporalGameOfLifeStateMutator) {
+                    withContext(testDispatcher) {
+                        temporalGameOfLifeStateMutator.update()
+                    }
                 }
-            }
-            temporalGameOfLifeState
-        }
-            .test {
+                temporalGameOfLifeState
+            }.test {
                 val temporalGameOfLifeState = awaitItem()
 
                 assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
@@ -281,37 +290,40 @@ class TemporalGameOfLifeStateMoleculeTests {
                     assertEquals(22.388, status.averageGenerationsPerSecond, 0.001)
                 }
             }
-    }
+        }
 
     @Test
-    fun setting_evolution_is_correct() = runTest(testDispatcher + BroadcastFrameClock()) {
-        val hashLifeAlgorithm = HashLifeAlgorithm(
-            dispatchers = dispatchers,
-        )
+    fun setting_evolution_is_correct() =
+        runTest(testDispatcher + BroadcastFrameClock()) {
+            val hashLifeAlgorithm =
+                HashLifeAlgorithm(
+                    dispatchers = dispatchers,
+                )
 
-        moleculeFlow(RecompositionMode.ContextClock) {
-            val temporalGameOfLifeState = TemporalGameOfLifeState(
-                seedCellState = SixLongLinePattern.seedCellState,
-                isRunning = true,
-                generationsPerStep = 1,
-                targetStepsPerSecond = 60.0,
-            )
+            moleculeFlow(RecompositionMode.ContextClock) {
+                val temporalGameOfLifeState =
+                    TemporalGameOfLifeState(
+                        seedCellState = SixLongLinePattern.seedCellState,
+                        isRunning = true,
+                        generationsPerStep = 1,
+                        targetStepsPerSecond = 60.0,
+                    )
 
-            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = hashLifeAlgorithm,
-                clock = testDispatcher.scheduler.clock,
-                dispatchers = dispatchers,
-            )
+                val temporalGameOfLifeStateMutator =
+                    rememberTemporalGameOfLifeStateMutator(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        gameOfLifeAlgorithm = hashLifeAlgorithm,
+                        clock = testDispatcher.scheduler.clock,
+                        dispatchers = dispatchers,
+                    )
 
-            LaunchedEffect(temporalGameOfLifeStateMutator) {
-                withContext(testDispatcher) {
-                    temporalGameOfLifeStateMutator.update()
+                LaunchedEffect(temporalGameOfLifeStateMutator) {
+                    withContext(testDispatcher) {
+                        temporalGameOfLifeStateMutator.update()
+                    }
                 }
-            }
-            temporalGameOfLifeState
-        }
-            .test {
+                temporalGameOfLifeState
+            }.test {
                 val temporalGameOfLifeState = awaitItem()
 
                 assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
@@ -378,47 +390,50 @@ class TemporalGameOfLifeStateMoleculeTests {
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
             }
-    }
+        }
 
     @Test
-    fun multiple_evolutions_is_correct() = runTest(testDispatcher + BroadcastFrameClock()) {
-        val hashLifeAlgorithm = HashLifeAlgorithm(
-            dispatchers = dispatchers,
-        )
+    fun multiple_evolutions_is_correct() =
+        runTest(testDispatcher + BroadcastFrameClock()) {
+            val hashLifeAlgorithm =
+                HashLifeAlgorithm(
+                    dispatchers = dispatchers,
+                )
 
-        var runFirstMutator by mutableStateOf(true)
+            var runFirstMutator by mutableStateOf(true)
 
-        moleculeFlow(RecompositionMode.ContextClock) {
-            val temporalGameOfLifeState = TemporalGameOfLifeState(
-                seedCellState = SixLongLinePattern.seedCellState,
-                isRunning = true,
-                generationsPerStep = 1,
-                targetStepsPerSecond = 60.0,
-            )
+            moleculeFlow(RecompositionMode.ContextClock) {
+                val temporalGameOfLifeState =
+                    TemporalGameOfLifeState(
+                        seedCellState = SixLongLinePattern.seedCellState,
+                        isRunning = true,
+                        generationsPerStep = 1,
+                        targetStepsPerSecond = 60.0,
+                    )
 
-            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = hashLifeAlgorithm,
-                clock = testDispatcher.scheduler.clock,
-                dispatchers = dispatchers,
-            )
+                val temporalGameOfLifeStateMutator =
+                    rememberTemporalGameOfLifeStateMutator(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        gameOfLifeAlgorithm = hashLifeAlgorithm,
+                        clock = testDispatcher.scheduler.clock,
+                        dispatchers = dispatchers,
+                    )
 
-            if (runFirstMutator) {
+                if (runFirstMutator) {
+                    LaunchedEffect(temporalGameOfLifeStateMutator) {
+                        withContext(testDispatcher) {
+                            temporalGameOfLifeStateMutator.update()
+                        }
+                    }
+                }
+
                 LaunchedEffect(temporalGameOfLifeStateMutator) {
                     withContext(testDispatcher) {
                         temporalGameOfLifeStateMutator.update()
                     }
                 }
-            }
-
-            LaunchedEffect(temporalGameOfLifeStateMutator) {
-                withContext(testDispatcher) {
-                    temporalGameOfLifeStateMutator.update()
-                }
-            }
-            temporalGameOfLifeState
-        }
-            .test {
+                temporalGameOfLifeState
+            }.test {
                 val temporalGameOfLifeState = awaitItem()
 
                 assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
@@ -485,37 +500,40 @@ class TemporalGameOfLifeStateMoleculeTests {
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
             }
-    }
+        }
 
     @Test
-    fun state_is_advanced_correctly_with_step() = runTest(testDispatcher + BroadcastFrameClock()) {
-        val hashLifeAlgorithm = HashLifeAlgorithm(
-            dispatchers = dispatchers,
-        )
+    fun state_is_advanced_correctly_with_step() =
+        runTest(testDispatcher + BroadcastFrameClock()) {
+            val hashLifeAlgorithm =
+                HashLifeAlgorithm(
+                    dispatchers = dispatchers,
+                )
 
-        moleculeFlow(RecompositionMode.ContextClock) {
-            val temporalGameOfLifeState = TemporalGameOfLifeState(
-                seedCellState = SixLongLinePattern.seedCellState,
-                isRunning = false,
-                generationsPerStep = 1,
-                targetStepsPerSecond = 60.0,
-            )
+            moleculeFlow(RecompositionMode.ContextClock) {
+                val temporalGameOfLifeState =
+                    TemporalGameOfLifeState(
+                        seedCellState = SixLongLinePattern.seedCellState,
+                        isRunning = false,
+                        generationsPerStep = 1,
+                        targetStepsPerSecond = 60.0,
+                    )
 
-            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = hashLifeAlgorithm,
-                clock = testDispatcher.scheduler.clock,
-                dispatchers = dispatchers,
-            )
+                val temporalGameOfLifeStateMutator =
+                    rememberTemporalGameOfLifeStateMutator(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        gameOfLifeAlgorithm = hashLifeAlgorithm,
+                        clock = testDispatcher.scheduler.clock,
+                        dispatchers = dispatchers,
+                    )
 
-            LaunchedEffect(temporalGameOfLifeStateMutator) {
-                withContext(testDispatcher) {
-                    temporalGameOfLifeStateMutator.update()
+                LaunchedEffect(temporalGameOfLifeStateMutator) {
+                    withContext(testDispatcher) {
+                        temporalGameOfLifeStateMutator.update()
+                    }
                 }
-            }
-            temporalGameOfLifeState
-        }
-            .test {
+                temporalGameOfLifeState
+            }.test {
                 val temporalGameOfLifeState = awaitItem()
 
                 assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
@@ -532,5 +550,5 @@ class TemporalGameOfLifeStateMoleculeTests {
                     assertEquals(TemporalGameOfLifeState.EvolutionStatus.Paused, temporalGameOfLifeState.status)
                 }
             }
-    }
+        }
 }

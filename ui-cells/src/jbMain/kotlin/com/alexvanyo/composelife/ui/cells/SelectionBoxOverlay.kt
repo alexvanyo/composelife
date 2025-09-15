@@ -47,9 +47,9 @@ import com.alexvanyo.composelife.ui.util.anchoredDraggable2D
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 
-context(_: CellWindowImplCtx)
 @Suppress("LongParameterList", "LongMethod")
 @Composable
+context(_: CellWindowImplCtx)
 internal fun SelectionBoxOverlay(
     selectionSessionState: SessionValue<SelectionState.Selection>,
     setSelectionState: (SelectionState) -> Unit,
@@ -58,9 +58,10 @@ internal fun SelectionBoxOverlay(
     cellWindow: CellWindow,
     modifier: Modifier = Modifier,
 ) {
-    val handleAnchors = remember(scaledCellPixelSize, cellWindow) {
-        GridDraggableAnchors2d(scaledCellPixelSize, cellWindow)
-    }
+    val handleAnchors =
+        remember(scaledCellPixelSize, cellWindow) {
+            GridDraggableAnchors2d(scaledCellPixelSize, cellWindow)
+        }
 
     val initialOffset = selectionSessionState.value.offset
 
@@ -76,31 +77,33 @@ internal fun SelectionBoxOverlay(
         true
     }
 
-    val draggable2DState = rememberSaveable(
-        saver = Saver(
-            save = { packInts(it.currentValue.x, it.currentValue.y) },
-            restore = {
-                AnchoredDraggable2DState(
-                    initialValue = IntOffset(unpackInt1(it), unpackInt2(it)),
-                    animationSpec = spring(),
-                    confirmValueChange = confirmValueChange,
-                )
-            },
-        ),
-    ) {
-        AnchoredDraggable2DState(
-            initialValue = initialOffset,
-            animationSpec = spring(),
-            confirmValueChange = confirmValueChange,
-        )
-    }.apply {
-        updateAnchors(
-            newAnchors = handleAnchors,
-            // Ensure the target value remains the same due to updating the anchors.
-            // This keeps the selection box stationary relative to the overall universe.
-            newTarget = targetValue,
-        )
-    }
+    val draggable2DState =
+        rememberSaveable(
+            saver =
+            Saver(
+                save = { packInts(it.currentValue.x, it.currentValue.y) },
+                restore = {
+                    AnchoredDraggable2DState(
+                        initialValue = IntOffset(unpackInt1(it), unpackInt2(it)),
+                        animationSpec = spring(),
+                        confirmValueChange = confirmValueChange,
+                    )
+                },
+            ),
+        ) {
+            AnchoredDraggable2DState(
+                initialValue = initialOffset,
+                animationSpec = spring(),
+                confirmValueChange = confirmValueChange,
+            )
+        }.apply {
+            updateAnchors(
+                newAnchors = handleAnchors,
+                // Ensure the target value remains the same due to updating the anchors.
+                // This keeps the selection box stationary relative to the overall universe.
+                newTarget = targetValue,
+            )
+        }
 
     // As a side-effect of dragging, update the underlying selection state to match the intermediate selection.
     LaunchedEffect(draggable2DState) {
@@ -111,56 +114,65 @@ internal fun SelectionBoxOverlay(
                         offset = intOffset,
                     ),
                 )
-            }
-            .collect()
+            }.collect()
     }
 
     val boundingBox = selectionSessionState.value.cellState.boundingBox
 
     Box(
-        modifier = modifier
+        modifier =
+        modifier
             .fillMaxSize()
             .boxLayoutByHandles(
                 handleAOffsetCalculator = {
                     draggable2DState.requireOffset()
                 },
                 handleBOffsetCalculator = {
-                    draggable2DState.requireOffset() + Offset(
-                        boundingBox.width.toFloat(),
-                        0f,
-                    ) * scaledCellPixelSize
+                    draggable2DState.requireOffset() +
+                        Offset(
+                            boundingBox.width.toFloat(),
+                            0f,
+                        ) *
+                        scaledCellPixelSize
                 },
                 handleCOffsetCalculator = {
-                    draggable2DState.requireOffset() + Offset(
-                        boundingBox.width.toFloat(),
-                        boundingBox.height.toFloat(),
-                    ) * scaledCellPixelSize
+                    draggable2DState.requireOffset() +
+                        Offset(
+                            boundingBox.width.toFloat(),
+                            boundingBox.height.toFloat(),
+                        ) *
+                        scaledCellPixelSize
                 },
                 handleDOffsetCalculator = {
-                    draggable2DState.requireOffset() + Offset(
-                        0f,
-                        boundingBox.height.toFloat(),
-                    ) * scaledCellPixelSize
+                    draggable2DState.requireOffset() +
+                        Offset(
+                            0f,
+                            boundingBox.height.toFloat(),
+                        ) *
+                        scaledCellPixelSize
                 },
-            )
-            .cellStateDragAndDropSource(getSelectionCellState)
+            ).cellStateDragAndDropSource(getSelectionCellState)
             .anchoredDraggable2D(draggable2DState)
             .testTag("SelectionBox"),
     ) {
-        val gameOfLifeState = remember(selectionSessionState.valueId) {
-            GameOfLifeState(selectionSessionState.value.cellState)
-        }
+        val gameOfLifeState =
+            remember(selectionSessionState.valueId) {
+                GameOfLifeState(selectionSessionState.value.cellState)
+            }
         ThumbnailImmutableCellWindow(
             gameOfLifeState = gameOfLifeState,
-            viewportInteractionConfig = ViewportInteractionConfig.Tracking(
-                trackingCellWindowViewportState = rememberTrackingCellWindowViewportState(
+            viewportInteractionConfig =
+            ViewportInteractionConfig.Tracking(
+                trackingCellWindowViewportState =
+                rememberTrackingCellWindowViewportState(
                     gameOfLifeState = gameOfLifeState,
                     trackingWindowSize = 1,
                     cellPadding = 0f,
                 ),
                 trackingAnimationSpec = snap(),
             ),
-            modifier = Modifier
+            modifier =
+            Modifier
                 .matchParentSize()
                 .clipToBounds()
                 .alpha(0.2f),

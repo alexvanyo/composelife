@@ -67,7 +67,8 @@ class InlineSettingsPaneCtx(
     @Suppress("ComposableNaming")
     @Deprecated(
         "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
+        replaceWith =
+        ReplaceWith(
             "InlineSettingsPane(onSeeMoreClicked, onOpenInSettingsClicked, modifier, scrollState)",
         ),
     )
@@ -88,7 +89,8 @@ class InlineSettingsPaneCtx(
 
     companion object {
         private val lambda:
-            @Composable context(LoadedComposeLifePreferencesHolder, SettingUiCtx) (
+            @Composable context(LoadedComposeLifePreferencesHolder, SettingUiCtx)
+            (
                 onSeeMoreClicked: () -> Unit,
                 onOpenInSettingsClicked: (Setting) -> Unit,
                 modifier: Modifier,
@@ -100,9 +102,9 @@ class InlineSettingsPaneCtx(
     }
 }
 
-context(ctx: InlineSettingsPaneCtx)
 @Suppress("DEPRECATION")
 @Composable
+context(ctx: InlineSettingsPaneCtx)
 fun InlineSettingsPane(
     onSeeMoreClicked: () -> Unit,
     onOpenInSettingsClicked: (Setting) -> Unit,
@@ -111,13 +113,13 @@ fun InlineSettingsPane(
 ) = ctx(onSeeMoreClicked, onOpenInSettingsClicked, modifier, scrollState)
 // endregion templated-ctx
 
-context(
-    preferencesHolder: LoadedComposeLifePreferencesHolder,
-_: SettingUiCtx,
-)
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Suppress("LongMethod")
 @Composable
+context(
+    preferencesHolder: LoadedComposeLifePreferencesHolder,
+    _: SettingUiCtx,
+)
 private fun InlineSettingsPane(
     onSeeMoreClicked: () -> Unit,
     onOpenInSettingsClicked: (Setting) -> Unit,
@@ -125,13 +127,13 @@ private fun InlineSettingsPane(
     scrollState: ScrollState = rememberScrollState(initial = Int.MAX_VALUE),
 ) {
     Column(
-        modifier = modifier
+        modifier =
+        modifier
             .fillMaxWidth()
             .verticalScroll(
                 state = scrollState,
                 reverseScrolling = true,
-            )
-            .padding(vertical = 8.dp),
+            ).padding(vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val quickAccessSettings = preferencesHolder.preferences.quickAccessSettings
@@ -157,7 +159,8 @@ private fun InlineSettingsPane(
                 MutableTransitionState(false).apply {
                     targetState = true
                 }
-            } + previouslyAnimatableQuickAccessSettings
+            } +
+                previouslyAnimatableQuickAccessSettings
 
         DisposableEffect(animatableQuickAccessSettings, quickAccessSettings) {
             animatableQuickAccessSettings.forEach { (quickAccessSetting, visibleState) ->
@@ -167,8 +170,10 @@ private fun InlineSettingsPane(
             onDispose {}
         }
 
-        val animatingQuickAccessSettings = animatableQuickAccessSettings
-            .keys.sortedBy(QuickAccessSetting::ordinal)
+        val animatingQuickAccessSettings =
+            animatableQuickAccessSettings
+                .keys
+                .sortedBy(QuickAccessSetting::ordinal)
 
         AnimatedContent(
             targetState = quickAccessSettings.isEmpty(),
@@ -189,7 +194,8 @@ private fun InlineSettingsPane(
                                 SettingUi(
                                     setting = quickAccessSetting.setting,
                                     onOpenInSettingsClicked = onOpenInSettingsClicked,
-                                    modifier = Modifier
+                                    modifier =
+                                    Modifier
                                         .padding(horizontal = 16.dp)
                                         .trySharedBounds(
                                             key = "SettingUi-${quickAccessSetting.setting}",
@@ -215,12 +221,12 @@ private fun InlineSettingsPane(
                 // updating `previouslyAnimatableQuickAccessSettings` in its entirety.
                 .map {}
                 .onEach {
-                    previouslyAnimatableQuickAccessSettings = animatableQuickAccessSettings.filterValues {
-                        // Only keep those that are visible, or are currently animating
-                        !it.isIdle || it.targetState
-                    }
-                }
-                .collect()
+                    previouslyAnimatableQuickAccessSettings =
+                        animatableQuickAccessSettings.filterValues {
+                            // Only keep those that are visible, or are currently animating
+                            !it.isIdle || it.targetState
+                        }
+                }.collect()
         }
 
         TextButton(

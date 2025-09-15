@@ -22,7 +22,8 @@ import com.livefront.sealedenum.SealedEnum
 /**
  * Creates a [Saver] for the given [sealedEnum] using the ordinal value.
  */
-fun <T> sealedEnumSaver(sealedEnum: SealedEnum<T>): Saver<T, Any> = Saver(
-    save = { sealedEnum.ordinalOf(it) },
-    restore = { sealedEnum.values[it as Int] },
-)
+fun <T> sealedEnumSaver(sealedEnum: SealedEnum<T>): Saver<T, Any> =
+    Saver(
+        save = { sealedEnum.ordinalOf(it) },
+        restore = { sealedEnum.values[it as Int] },
+    )

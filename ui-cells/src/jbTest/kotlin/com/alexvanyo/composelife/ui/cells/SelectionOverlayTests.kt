@@ -62,267 +62,283 @@ private val UiGraph.selectionOverlayTestsCtx: SelectionOverlayTestsCtx get() =
     this as SelectionOverlayTestsCtx
 
 @OptIn(ExperimentalTestApi::class)
-class SelectionOverlayTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
-
+class SelectionOverlayTests :
+    BaseUiInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
     @Test
-    fun no_selection_is_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.selectionOverlayTestsCtx
+    fun no_selection_is_displayed_correctly() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.selectionOverlayTestsCtx
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
+            setContent {
+                resolver = parameterizedStringResolver()
 
-            with(ctx.cellWindowImplCtx) {
-                with(ctx.cellStateParser) {
-                    SelectionOverlay(
-                        selectionSessionState = SessionValue(
-                            sessionId = Uuid.random(),
-                            valueId = Uuid.random(),
-                            value = SelectionState.NoSelection,
-                        ),
-                        setSelectionSessionState = {},
-                        getSelectionCellState = { emptyCellState() },
-                        scaledCellDpSize = 50.dp,
-                        cellWindow = CellWindow(
-                            IntRect(
-                                IntOffset(0, 0),
-                                IntSize(9, 9),
+                with(ctx.cellWindowImplCtx) {
+                    with(ctx.cellStateParser) {
+                        SelectionOverlay(
+                            selectionSessionState =
+                            SessionValue(
+                                sessionId = Uuid.random(),
+                                valueId = Uuid.random(),
+                                value = SelectionState.NoSelection,
                             ),
-                        ),
-                        pixelOffsetFromCenter = Offset.Zero,
-                    )
+                            setSelectionSessionState = {},
+                            getSelectionCellState = { emptyCellState() },
+                            scaledCellDpSize = 50.dp,
+                            cellWindow =
+                            CellWindow(
+                                IntRect(
+                                    IntOffset(0, 0),
+                                    IntSize(9, 9),
+                                ),
+                            ),
+                            pixelOffsetFromCenter = Offset.Zero,
+                        )
+                    }
                 }
             }
-        }
 
-        onNodeWithContentDescription(
-            resolver(Strings.SelectingBoxHandle(0, 0)).substringBefore(":"),
-        )
-            .assertDoesNotExist()
-    }
+            onNodeWithContentDescription(
+                resolver(Strings.SelectingBoxHandle(0, 0)).substringBefore(":"),
+            ).assertDoesNotExist()
+        }
 
     @Test
-    fun selecting_box_is_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.selectionOverlayTestsCtx
+    fun selecting_box_is_displayed_correctly() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.selectionOverlayTestsCtx
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
+            setContent {
+                resolver = parameterizedStringResolver()
 
-            with(ctx.cellWindowImplCtx) {
-                with(ctx.cellStateParser) {
-                    SelectionOverlay(
-                        selectionSessionState = SessionValue(
-                            sessionId = Uuid.random(),
-                            valueId = Uuid.random(),
-                            value = SelectionState.SelectingBox.FixedSelectingBox(
-                                topLeft = IntOffset(1, 1),
-                                width = 2,
-                                height = 3,
-                                previousTransientSelectingBox = null,
+                with(ctx.cellWindowImplCtx) {
+                    with(ctx.cellStateParser) {
+                        SelectionOverlay(
+                            selectionSessionState =
+                            SessionValue(
+                                sessionId = Uuid.random(),
+                                valueId = Uuid.random(),
+                                value =
+                                SelectionState.SelectingBox.FixedSelectingBox(
+                                    topLeft = IntOffset(1, 1),
+                                    width = 2,
+                                    height = 3,
+                                    previousTransientSelectingBox = null,
+                                ),
                             ),
-                        ),
-                        setSelectionSessionState = {},
-                        getSelectionCellState = { emptyCellState() },
-                        scaledCellDpSize = 50.dp,
-                        cellWindow = CellWindow(
-                            IntRect(
-                                IntOffset(0, 0),
-                                IntSize(9, 9),
+                            setSelectionSessionState = {},
+                            getSelectionCellState = { emptyCellState() },
+                            scaledCellDpSize = 50.dp,
+                            cellWindow =
+                            CellWindow(
+                                IntRect(
+                                    IntOffset(0, 0),
+                                    IntSize(9, 9),
+                                ),
                             ),
-                        ),
-                        pixelOffsetFromCenter = Offset.Zero,
-                    )
+                            pixelOffsetFromCenter = Offset.Zero,
+                        )
+                    }
                 }
             }
+
+            onNodeWithContentDescription(
+                resolver(Strings.SelectingBoxHandle(1, 1)),
+            ).assertIsDisplayed()
+
+            onNodeWithContentDescription(
+                resolver(Strings.SelectingBoxHandle(3, 1)),
+            ).assertIsDisplayed()
+
+            onNodeWithContentDescription(
+                resolver(Strings.SelectingBoxHandle(1, 4)),
+            ).assertIsDisplayed()
+
+            onNodeWithContentDescription(
+                resolver(Strings.SelectingBoxHandle(3, 4)),
+            ).assertIsDisplayed()
         }
-
-        onNodeWithContentDescription(
-            resolver(Strings.SelectingBoxHandle(1, 1)),
-        )
-            .assertIsDisplayed()
-
-        onNodeWithContentDescription(
-            resolver(Strings.SelectingBoxHandle(3, 1)),
-        )
-            .assertIsDisplayed()
-
-        onNodeWithContentDescription(
-            resolver(Strings.SelectingBoxHandle(1, 4)),
-        )
-            .assertIsDisplayed()
-
-        onNodeWithContentDescription(
-            resolver(Strings.SelectingBoxHandle(3, 4)),
-        )
-            .assertIsDisplayed()
-    }
 
     @Test
-    fun dragging_selecting_box_is_displayed_correctly() = runUiTest { uiGraph ->
-        // TODO: This test tends to deadlock on desktop
-        assumeTrue(isAndroid())
+    fun dragging_selecting_box_is_displayed_correctly() =
+        runUiTest { uiGraph ->
+            // TODO: This test tends to deadlock on desktop
+            assumeTrue(isAndroid())
 
-        val ctx = uiGraph.selectionOverlayTestsCtx
+            val ctx = uiGraph.selectionOverlayTestsCtx
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        val mutableSelectionStateHolder = MutableSelectionStateHolder(
-            SessionValue(
-                sessionId = Uuid.random(),
-                valueId = Uuid.random(),
-                value = SelectionState.SelectingBox.FixedSelectingBox(
-                    topLeft = IntOffset(2, 2),
-                    width = 2,
-                    height = 3,
-                    previousTransientSelectingBox = null,
-                ),
-            ),
-        )
-
-        setContent {
-            resolver = parameterizedStringResolver()
-
-            with(ctx.cellWindowImplCtx) {
-                with(ctx.cellStateParser) {
-                    SelectionOverlay(
-                        selectionSessionState = mutableSelectionStateHolder.selectionSessionState,
-                        setSelectionSessionState = { mutableSelectionStateHolder.selectionSessionState = it },
-                        getSelectionCellState = { emptyCellState() },
-                        scaledCellDpSize = 50.dp,
-                        cellWindow = CellWindow(
-                            IntRect(
-                                IntOffset(0, 0),
-                                IntSize(9, 9),
-                            ),
+            val mutableSelectionStateHolder =
+                MutableSelectionStateHolder(
+                    SessionValue(
+                        sessionId = Uuid.random(),
+                        valueId = Uuid.random(),
+                        value =
+                        SelectionState.SelectingBox.FixedSelectingBox(
+                            topLeft = IntOffset(2, 2),
+                            width = 2,
+                            height = 3,
+                            previousTransientSelectingBox = null,
                         ),
-                        pixelOffsetFromCenter = Offset.Zero,
-                    )
+                    ),
+                )
+
+            setContent {
+                resolver = parameterizedStringResolver()
+
+                with(ctx.cellWindowImplCtx) {
+                    with(ctx.cellStateParser) {
+                        SelectionOverlay(
+                            selectionSessionState = mutableSelectionStateHolder.selectionSessionState,
+                            setSelectionSessionState = { mutableSelectionStateHolder.selectionSessionState = it },
+                            getSelectionCellState = { emptyCellState() },
+                            scaledCellDpSize = 50.dp,
+                            cellWindow =
+                            CellWindow(
+                                IntRect(
+                                    IntOffset(0, 0),
+                                    IntSize(9, 9),
+                                ),
+                            ),
+                            pixelOffsetFromCenter = Offset.Zero,
+                        )
+                    }
                 }
             }
-        }
 
-        onNodeWithContentDescription(
-            resolver(Strings.SelectingBoxHandle(2, 2)),
-        )
-            .performMouseInput {
+            onNodeWithContentDescription(
+                resolver(Strings.SelectingBoxHandle(2, 2)),
+            ).performMouseInput {
                 val start = center
                 val end = center + with(density) { DpOffset(200.dp, 200.dp).toPx() }
                 dragAndDrop(start, end, durationMillis = 1_000)
             }
 
-        assertEquals(
-            SelectionState.SelectingBox.FixedSelectingBox(
-                topLeft = IntOffset(4, 5),
-                width = 2,
-                height = 1,
-                previousTransientSelectingBox = null,
-            ),
-            mutableSelectionStateHolder.selectionSessionState.value,
-        )
-    }
+            assertEquals(
+                SelectionState.SelectingBox.FixedSelectingBox(
+                    topLeft = IntOffset(4, 5),
+                    width = 2,
+                    height = 1,
+                    previousTransientSelectingBox = null,
+                ),
+                mutableSelectionStateHolder.selectionSessionState.value,
+            )
+        }
 
     @Test
-    fun selection_is_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.selectionOverlayTestsCtx
+    fun selection_is_displayed_correctly() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.selectionOverlayTestsCtx
 
-        setContent {
-            with(ctx.cellWindowImplCtx) {
-                with(ctx.cellStateParser) {
-                    SelectionOverlay(
-                        selectionSessionState = SessionValue(
-                            sessionId = Uuid.random(),
-                            valueId = Uuid.random(),
-                            value = SelectionState.Selection(
-                                cellState = """
+            setContent {
+                with(ctx.cellWindowImplCtx) {
+                    with(ctx.cellStateParser) {
+                        SelectionOverlay(
+                            selectionSessionState =
+                            SessionValue(
+                                sessionId = Uuid.random(),
+                                valueId = Uuid.random(),
+                                value =
+                                SelectionState.Selection(
+                                    cellState =
+                                    """
                                 |.O.
                                 |..O
                                 |OOO
                             """.toCellState(),
-                                offset = IntOffset(1, 1),
+                                    offset = IntOffset(1, 1),
+                                ),
                             ),
-                        ),
-                        setSelectionSessionState = {},
-                        getSelectionCellState = { emptyCellState() },
-                        scaledCellDpSize = 50.dp,
-                        cellWindow = CellWindow(
-                            IntRect(
-                                IntOffset(0, 0),
-                                IntSize(9, 9),
+                            setSelectionSessionState = {},
+                            getSelectionCellState = { emptyCellState() },
+                            scaledCellDpSize = 50.dp,
+                            cellWindow =
+                            CellWindow(
+                                IntRect(
+                                    IntOffset(0, 0),
+                                    IntSize(9, 9),
+                                ),
                             ),
-                        ),
-                        pixelOffsetFromCenter = Offset.Zero,
-                    )
+                            pixelOffsetFromCenter = Offset.Zero,
+                        )
+                    }
                 }
             }
-        }
 
-        onNodeWithTag("SelectionBox").assertIsDisplayed()
-    }
+            onNodeWithTag("SelectionBox").assertIsDisplayed()
+        }
 
     @Test
-    fun dragging_selection_is_displayed_correctly() = runUiTest { uiGraph ->
-        // TODO: This test tends to deadlock on desktop
-        assumeTrue(isAndroid())
+    fun dragging_selection_is_displayed_correctly() =
+        runUiTest { uiGraph ->
+            // TODO: This test tends to deadlock on desktop
+            assumeTrue(isAndroid())
 
-        val ctx = uiGraph.selectionOverlayTestsCtx
+            val ctx = uiGraph.selectionOverlayTestsCtx
 
-        val mutableSelectionStateHolder = MutableSelectionStateHolder(
-            SessionValue(
-                sessionId = Uuid.random(),
-                valueId = Uuid.random(),
-                value = SelectionState.Selection(
-                    cellState = """
-                        |.O.
-                        |..O
-                        |OOO
-                    """.trimIndent().toCellState(),
-                    offset = IntOffset(1, 1),
-                ),
-            ),
-        )
-
-        setContent {
-            with(ctx.cellWindowImplCtx) {
-                with(ctx.cellStateParser) {
-                    SelectionOverlay(
-                        selectionSessionState = mutableSelectionStateHolder.selectionSessionState,
-                        setSelectionSessionState = { mutableSelectionStateHolder.selectionSessionState = it },
-                        getSelectionCellState = { emptyCellState() },
-                        scaledCellDpSize = 50.dp,
-                        cellWindow = CellWindow(
-                            IntRect(
-                                IntOffset(0, 0),
-                                IntSize(9, 9),
-                            ),
+            val mutableSelectionStateHolder =
+                MutableSelectionStateHolder(
+                    SessionValue(
+                        sessionId = Uuid.random(),
+                        valueId = Uuid.random(),
+                        value =
+                        SelectionState.Selection(
+                            cellState =
+                            """
+                            |.O.
+                            |..O
+                            |OOO
+                            """.trimIndent().toCellState(),
+                            offset = IntOffset(1, 1),
                         ),
-                        pixelOffsetFromCenter = Offset.Zero,
-                    )
+                    ),
+                )
+
+            setContent {
+                with(ctx.cellWindowImplCtx) {
+                    with(ctx.cellStateParser) {
+                        SelectionOverlay(
+                            selectionSessionState = mutableSelectionStateHolder.selectionSessionState,
+                            setSelectionSessionState = { mutableSelectionStateHolder.selectionSessionState = it },
+                            getSelectionCellState = { emptyCellState() },
+                            scaledCellDpSize = 50.dp,
+                            cellWindow =
+                            CellWindow(
+                                IntRect(
+                                    IntOffset(0, 0),
+                                    IntSize(9, 9),
+                                ),
+                            ),
+                            pixelOffsetFromCenter = Offset.Zero,
+                        )
+                    }
                 }
             }
-        }
 
-        onNodeWithTag("SelectionBox")
-            .performMouseInput {
-                val start = center
-                val end = center + with(density) { DpOffset(200.dp, 200.dp).toPx() }
-                dragAndDrop(start, end, durationMillis = 1_000)
-            }
+            onNodeWithTag("SelectionBox")
+                .performMouseInput {
+                    val start = center
+                    val end = center + with(density) { DpOffset(200.dp, 200.dp).toPx() }
+                    dragAndDrop(start, end, durationMillis = 1_000)
+                }
 
-        assertEquals(
-            SelectionState.Selection(
-                cellState = """
+            assertEquals(
+                SelectionState.Selection(
+                    cellState =
+                    """
                     |.O.
                     |..O
                     |OOO
                 """.toCellState(),
-                offset = IntOffset(5, 5),
-            ),
-            mutableSelectionStateHolder.selectionSessionState.value,
-        )
-    }
+                    offset = IntOffset(5, 5),
+                ),
+                mutableSelectionStateHolder.selectionSessionState.value,
+            )
+        }
 }

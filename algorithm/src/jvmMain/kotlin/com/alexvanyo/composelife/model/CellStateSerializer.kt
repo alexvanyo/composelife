@@ -20,7 +20,6 @@ package com.alexvanyo.composelife.model
  * A general [CellStateSerializer] that can asynchronously serialize and deserialize with a given format.
  */
 interface CellStateSerializer {
-
     /**
      * Attempts to deserialize the sequence of lines into a [DeserializationResult] for the given [CellStateFormat].
      *
@@ -28,18 +27,12 @@ interface CellStateSerializer {
      * [CellStateFormat.FixedFormat] fails, then an attempt will be made to deserialize lines with
      * multiple formats.
      */
-    suspend fun deserializeToCellState(
-        format: CellStateFormat,
-        lines: Sequence<String>,
-    ): DeserializationResult
+    suspend fun deserializeToCellState(format: CellStateFormat, lines: Sequence<String>): DeserializationResult
 
     /**
      * Serializes the [CellState] into a sequence of lines with the given [CellStateFormat.FixedFormat].
      *
      * Note that format
      */
-    suspend fun serializeToString(
-        format: CellStateFormat.FixedFormat,
-        cellState: CellState,
-    ): Sequence<String>
+    suspend fun serializeToString(format: CellStateFormat.FixedFormat, cellState: CellState): Sequence<String>
 }

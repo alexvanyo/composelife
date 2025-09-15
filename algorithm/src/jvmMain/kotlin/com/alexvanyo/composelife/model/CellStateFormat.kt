@@ -20,8 +20,8 @@ import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.serialization.Serializable
 
 sealed interface CellStateFormat {
-
     data object Unknown : CellStateFormat
+
     data object Life : CellStateFormat
 
     /**

@@ -72,6 +72,7 @@ sealed interface ToolDropdownOption : DropdownOption {
             )
         }
     }
+
     data object Draw : ToolDropdownOption {
         override val displayText = Strings.Draw
         override val leadingIcon: (@Composable () -> Unit) = {
@@ -81,6 +82,7 @@ sealed interface ToolDropdownOption : DropdownOption {
             )
         }
     }
+
     data object Erase : ToolDropdownOption {
         override val displayText = Strings.Erase
         override val leadingIcon: (@Composable () -> Unit) = {
@@ -90,6 +92,7 @@ sealed interface ToolDropdownOption : DropdownOption {
             )
         }
     }
+
     data object Select : ToolDropdownOption {
         override val displayText = Strings.Select
         override val leadingIcon: (@Composable () -> Unit) = {
@@ -99,6 +102,7 @@ sealed interface ToolDropdownOption : DropdownOption {
             )
         }
     }
+
     data object None : ToolDropdownOption {
         override val displayText = Strings.None
         override val leadingIcon: (@Composable () -> Unit) = {
@@ -158,7 +162,8 @@ private val InlineEditPaneCtx.Companion.lambda:
         ComposeLifePreferences,
         ClipboardCellStatePreviewCtx,
         CellStateParser
-    ) (
+    )
+    (
         (CellState) -> Unit,
         (DeserializationResult) -> Unit,
         Modifier,
@@ -168,8 +173,8 @@ private val InlineEditPaneCtx.Companion.lambda:
         InlineEditPane(setSelectionToCellState, onViewDeserializationInfo, modifier, scrollState)
     }
 
-context(ctx: InlineEditPaneCtx)
 @Composable
+context(ctx: InlineEditPaneCtx)
 fun InlineEditPane(
     setSelectionToCellState: (CellState) -> Unit,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
@@ -178,13 +183,13 @@ fun InlineEditPane(
 ) = ctx(setSelectionToCellState, onViewDeserializationInfo, modifier, scrollState)
 // endregion templated-ctx
 
+@Composable
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,
-composeLifePreferences: ComposeLifePreferences,
-clipboardCellStatePreviewCtx: ClipboardCellStatePreviewCtx,
-cellStateParser: CellStateParser,
+    composeLifePreferences: ComposeLifePreferences,
+    clipboardCellStatePreviewCtx: ClipboardCellStatePreviewCtx,
+    cellStateParser: CellStateParser,
 )
-@Composable
 fun InlineEditPane(
     setSelectionToCellState: (CellState) -> Unit,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
@@ -196,9 +201,9 @@ fun InlineEditPane(
     scrollState = scrollState,
 )
 
-context(clipboardCellStatePreviewCtx: ClipboardCellStatePreviewCtx)
 @Suppress("LongParameterList", "LongMethod")
 @Composable
+context(clipboardCellStatePreviewCtx: ClipboardCellStatePreviewCtx)
 fun InlineEditPane(
     state: InlineEditPaneState,
     modifier: Modifier = Modifier,
@@ -209,8 +214,7 @@ fun InlineEditPane(
             .verticalScroll(
                 state = scrollState,
                 reverseScrolling = true,
-            )
-            .padding(vertical = 8.dp),
+            ).padding(vertical = 8.dp),
     ) {
         ClipboardWatchingSection(
             clipboardWatchingState = state.clipboardWatchingState,

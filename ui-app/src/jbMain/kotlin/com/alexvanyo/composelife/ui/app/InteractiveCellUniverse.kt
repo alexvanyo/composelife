@@ -82,7 +82,8 @@ private val InteractiveCellUniverseCtx.Companion.lambda:
         ImmersiveModeManager,
         MutableCellWindowCtx,
         InteractiveCellUniverseOverlayCtx,
-    ) (
+    )
+    (
         temporalGameOfLifeState: TemporalGameOfLifeState,
         windowSizeClass: WindowSizeClass,
         onSeeMoreSettingsClicked: () -> Unit,
@@ -115,9 +116,9 @@ private val InteractiveCellUniverseCtx.Companion.lambda:
  * An interactive cell universe displaying the given [temporalGameOfLifeState] and the controls for adjusting how it
  * evolves.
  */
-context(ctx: InteractiveCellUniverseCtx)
 @Suppress("LongParameterList")
 @Composable
+context(ctx: InteractiveCellUniverseCtx)
 fun InteractiveCellUniverse(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     windowSizeClass: WindowSizeClass,
@@ -138,14 +139,14 @@ fun InteractiveCellUniverse(
 )
 // endregion templated-ctx
 
-context(
-    cellStateParser: CellStateParser,
-immersiveModeManager: ImmersiveModeManager,
-_: MutableCellWindowCtx,
-_: InteractiveCellUniverseOverlayCtx,
-)
 @Suppress("LongParameterList", "LongMethod", "CyclomaticComplexMethod")
 @Composable
+context(
+    cellStateParser: CellStateParser,
+    immersiveModeManager: ImmersiveModeManager,
+    _: MutableCellWindowCtx,
+    _: InteractiveCellUniverseOverlayCtx,
+)
 fun InteractiveCellUniverse(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     windowSizeClass: WindowSizeClass,
@@ -170,13 +171,13 @@ fun InteractiveCellUniverse(
     }
 
     Box(
-        modifier = modifier
+        modifier =
+        modifier
             .fillMaxSize()
             .focusRequester(focusRequester)
             .onFocusChanged {
                 hasFocus = it.hasFocus
-            }
-            .focusable()
+            }.focusable()
             .onKeyEvent { keyEvent ->
                 when (keyEvent.type) {
                     KeyEventType.KeyDown -> {
@@ -186,30 +187,38 @@ fun InteractiveCellUniverse(
                                 true
                             }
 
-                            Key.A -> if (keyEvent.isCtrlPressed) {
-                                interactiveCellUniverseState.onSelectAll()
-                                true
-                            } else {
-                                false
+                            Key.A -> {
+                                if (keyEvent.isCtrlPressed) {
+                                    interactiveCellUniverseState.onSelectAll()
+                                    true
+                                } else {
+                                    false
+                                }
                             }
 
-                            Key.C -> if (keyEvent.isCtrlPressed) {
-                                interactiveCellUniverseState.onCopy()
-                            } else {
-                                false
+                            Key.C -> {
+                                if (keyEvent.isCtrlPressed) {
+                                    interactiveCellUniverseState.onCopy()
+                                } else {
+                                    false
+                                }
                             }
 
-                            Key.V -> if (keyEvent.isCtrlPressed) {
-                                interactiveCellUniverseState.onPaste()
-                                true
-                            } else {
-                                false
+                            Key.V -> {
+                                if (keyEvent.isCtrlPressed) {
+                                    interactiveCellUniverseState.onPaste()
+                                    true
+                                } else {
+                                    false
+                                }
                             }
 
-                            Key.X -> if (keyEvent.isCtrlPressed) {
-                                interactiveCellUniverseState.onCut()
-                            } else {
-                                false
+                            Key.X -> {
+                                if (keyEvent.isCtrlPressed) {
+                                    interactiveCellUniverseState.onCut()
+                                } else {
+                                    false
+                                }
                             }
 
                             Key.Escape -> {
@@ -218,11 +227,15 @@ fun InteractiveCellUniverse(
                                 true
                             }
 
-                            else -> false
+                            else -> {
+                                false
+                            }
                         }
                     }
 
-                    else -> false
+                    else -> {
+                        false
+                    }
                 }
             },
     ) {

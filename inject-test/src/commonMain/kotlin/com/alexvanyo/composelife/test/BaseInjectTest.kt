@@ -49,9 +49,8 @@ interface BaseInjectTestCtx {
 private val ApplicationGraph.baseInjectTestCtx: BaseInjectTestCtx get() =
     this as BaseInjectTestCtx
 
-expect abstract class BaseInjectTest(
-    applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph,
-) : BaseInjectTestImpl
+expect abstract class BaseInjectTest(applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph) :
+    BaseInjectTestImpl
 
 /**
  * A base class for testing components that depend on injected classes.
@@ -59,9 +58,7 @@ expect abstract class BaseInjectTest(
  * Subclasses must call [runAppTest] instead of [runTest] to properly initialize dependencies.
  */
 @Suppress("UnnecessaryAbstractClass")
-abstract class BaseInjectTestImpl(
-    applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph,
-) {
+abstract class BaseInjectTestImpl(applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph) {
     val applicationGraph = applicationGraphCreator(createApplicationGraphArguments())
 
     private val ctx get() = applicationGraph.baseInjectTestCtx
@@ -73,34 +70,34 @@ abstract class BaseInjectTestImpl(
         context: CoroutineContext = EmptyCoroutineContext,
         timeout: Duration = 60.seconds,
         testBody: suspend TestScope.() -> Unit,
-    ): TestResult = runTest(
-        context = generalTestDispatcher + context,
-        timeout = timeout,
-    ) {
-        withUpdatables(appUpdatables) {
-            // Let any background jobs launch and stabilize before running the test body
-            advanceUntilIdle()
-            testBody()
-        }
-    }
-}
-
-suspend fun withUpdatables(
-    updatables: Set<Updatable>,
-    testBody: suspend () -> Unit,
-): Unit = coroutineScope {
-    val backgroundJob = launch {
-        updatables.forEach { updatable ->
-            launch {
-                updatable.update()
+    ): TestResult =
+        runTest(
+            context = generalTestDispatcher + context,
+            timeout = timeout,
+        ) {
+            withUpdatables(appUpdatables) {
+                // Let any background jobs launch and stabilize before running the test body
+                advanceUntilIdle()
+                testBody()
             }
         }
-    }
-    try {
-        testBody()
-    } finally {
-        backgroundJob.cancelAndJoin()
-    }
 }
+
+suspend fun withUpdatables(updatables: Set<Updatable>, testBody: suspend () -> Unit): Unit =
+    coroutineScope {
+        val backgroundJob =
+            launch {
+                updatables.forEach { updatable ->
+                    launch {
+                        updatable.update()
+                    }
+                }
+            }
+        try {
+            testBody()
+        } finally {
+            backgroundJob.cancelAndJoin()
+        }
+    }
 
 expect fun createApplicationGraphArguments(): ApplicationGraphArguments

@@ -38,24 +38,27 @@ class RoborazziTest(
     override val parameterizations = RoborazziTest.parameterizations
 
     companion object {
-        val parameterizations = Showkase.getMetadata().componentList
-            .filter { it.componentKey.startsWith("com.alexvanyo.composelife.ui.wear") }
-            .flatMap { showkaseBrowserComponent ->
-                listOf(
-                    DpSize(192.dp, 192.dp) to true, // Small round
-                    DpSize(180.dp, 180.dp) to false, // Square
-                ).flatMap { (size, isScreenRound) ->
-                    listOf(1.0f, 1.5f).map { fontScale ->
-                        SingleRoborazziParameterization(
-                            showkaseBrowserComponent = showkaseBrowserComponent,
-                            size = size,
-                            darkTheme = true,
-                            isScreenRound = isScreenRound,
-                            fontScale = fontScale,
-                        )
+        val parameterizations =
+            Showkase
+                .getMetadata()
+                .componentList
+                .filter { it.componentKey.startsWith("com.alexvanyo.composelife.ui.wear") }
+                .flatMap { showkaseBrowserComponent ->
+                    listOf(
+                        DpSize(192.dp, 192.dp) to true, // Small round
+                        DpSize(180.dp, 180.dp) to false, // Square
+                    ).flatMap { (size, isScreenRound) ->
+                        listOf(1.0f, 1.5f).map { fontScale ->
+                            SingleRoborazziParameterization(
+                                showkaseBrowserComponent = showkaseBrowserComponent,
+                                size = size,
+                                darkTheme = true,
+                                isScreenRound = isScreenRound,
+                                fontScale = fontScale,
+                            )
+                        }
                     }
                 }
-            }
 
         class Provider : BaseRoborazziParameterizationProvider(parameterizations)
     }

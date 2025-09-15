@@ -38,283 +38,291 @@ import kotlin.uuid.Uuid
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class SessionValueHolderStateRestorationTests {
-
     @Test
-    fun whenSavedInstanceStateIsRestoredWithNoLocalSession_stateIsCorrect() = runComposeUiTest {
-        val stateRestorationTester = KmpStateRestorationTester(this)
+    fun whenSavedInstanceStateIsRestoredWithNoLocalSession_stateIsCorrect() =
+        runComposeUiTest {
+            val stateRestorationTester = KmpStateRestorationTester(this)
 
-        val sessionId1 = Uuid.random()
-        val valueId1 = Uuid.random()
+            val sessionId1 = Uuid.random()
+            val valueId1 = Uuid.random()
 
-        val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
+            val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
-        lateinit var sessionValueHolder: SessionValueHolder<Float>
-        val upstreamSessionValue by mutableStateOf(SessionValue(sessionId1, valueId1, 0f))
+            lateinit var sessionValueHolder: SessionValueHolder<Float>
+            val upstreamSessionValue by mutableStateOf(SessionValue(sessionId1, valueId1, 0f))
 
-        stateRestorationTester.setContent {
-            sessionValueHolder = rememberSessionValueHolder(
-                upstreamSessionValue = upstreamSessionValue,
-                setUpstreamSessionValue = { upstreamSessionId, sessionValue ->
-                    pendingUpstreamSessionValues.add(upstreamSessionId to sessionValue)
-                },
+            stateRestorationTester.setContent {
+                sessionValueHolder =
+                    rememberSessionValueHolder(
+                        upstreamSessionValue = upstreamSessionValue,
+                        setUpstreamSessionValue = { upstreamSessionId, sessionValue ->
+                            pendingUpstreamSessionValues.add(upstreamSessionId to sessionValue)
+                        },
+                    )
+            }
+
+            assertEquals(
+                sessionValueHolder.sessionValue,
+                SessionValue(
+                    sessionId1,
+                    valueId1,
+                    0f,
+                ),
             )
+            val info1 = sessionValueHolder.info
+            assertFalse(info1.isLocalSessionActive())
+            val nextLocalSessionId1 = info1.nextLocalSessionId
+            assertEquals(nextLocalSessionId1, info1.localSessionId)
+            assertEquals(sessionId1, info1.currentUpstreamSessionId)
+            assertEquals(sessionId1, info1.preLocalSessionId)
+
+            stateRestorationTester.emulateStateRestore()
+            waitForIdle()
+
+            assertEquals(
+                sessionValueHolder.sessionValue,
+                SessionValue(
+                    sessionId1,
+                    valueId1,
+                    0f,
+                ),
+            )
+            val info2 = sessionValueHolder.info
+            assertFalse(info2.isLocalSessionActive())
+            val nextLocalSessionId2 = info1.nextLocalSessionId
+            assertEquals(nextLocalSessionId1, info2.localSessionId)
+            assertEquals(nextLocalSessionId1, nextLocalSessionId2)
+            assertEquals(sessionId1, info2.currentUpstreamSessionId)
+            assertEquals(sessionId1, info2.preLocalSessionId)
         }
 
-        assertEquals(
-            sessionValueHolder.sessionValue,
-            SessionValue(
-                sessionId1,
-                valueId1,
-                0f,
-            ),
-        )
-        val info1 = sessionValueHolder.info
-        assertFalse(info1.isLocalSessionActive())
-        val nextLocalSessionId1 = info1.nextLocalSessionId
-        assertEquals(nextLocalSessionId1, info1.localSessionId)
-        assertEquals(sessionId1, info1.currentUpstreamSessionId)
-        assertEquals(sessionId1, info1.preLocalSessionId)
-
-        stateRestorationTester.emulateStateRestore()
-        waitForIdle()
-
-        assertEquals(
-            sessionValueHolder.sessionValue,
-            SessionValue(
-                sessionId1,
-                valueId1,
-                0f,
-            ),
-        )
-        val info2 = sessionValueHolder.info
-        assertFalse(info2.isLocalSessionActive())
-        val nextLocalSessionId2 = info1.nextLocalSessionId
-        assertEquals(nextLocalSessionId1, info2.localSessionId)
-        assertEquals(nextLocalSessionId1, nextLocalSessionId2)
-        assertEquals(sessionId1, info2.currentUpstreamSessionId)
-        assertEquals(sessionId1, info2.preLocalSessionId)
-    }
-
     @Test
-    fun whenSavedInstanceStateIsRestoredWithNoLocalSession_withCustomSaver_stateIsCorrect() = runComposeUiTest {
-        val stateRestorationTester = KmpStateRestorationTester(this)
+    fun whenSavedInstanceStateIsRestoredWithNoLocalSession_withCustomSaver_stateIsCorrect() =
+        runComposeUiTest {
+            val stateRestorationTester = KmpStateRestorationTester(this)
 
-        val sessionId1 = Uuid.random()
-        val valueId1 = Uuid.random()
-        val value1 = Uuid.random()
+            val sessionId1 = Uuid.random()
+            val valueId1 = Uuid.random()
+            val value1 = Uuid.random()
 
-        val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Uuid>, SessionValue<Uuid>>>()
+            val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Uuid>, SessionValue<Uuid>>>()
 
-        lateinit var sessionValueHolder: SessionValueHolder<Uuid>
-        val upstreamSessionValue by mutableStateOf(SessionValue(sessionId1, valueId1, value1))
+            lateinit var sessionValueHolder: SessionValueHolder<Uuid>
+            val upstreamSessionValue by mutableStateOf(SessionValue(sessionId1, valueId1, value1))
 
-        stateRestorationTester.setContent {
-            sessionValueHolder = rememberSessionValueHolder(
-                upstreamSessionValue = upstreamSessionValue,
-                setUpstreamSessionValue = { upstreamSessionId, sessionValue ->
-                    pendingUpstreamSessionValues.add(upstreamSessionId to sessionValue)
-                },
+            stateRestorationTester.setContent {
+                sessionValueHolder =
+                    rememberSessionValueHolder(
+                        upstreamSessionValue = upstreamSessionValue,
+                        setUpstreamSessionValue = { upstreamSessionId, sessionValue ->
+                            pendingUpstreamSessionValues.add(upstreamSessionId to sessionValue)
+                        },
+                    )
+            }
+
+            assertEquals(
+                sessionValueHolder.sessionValue,
+                SessionValue(
+                    sessionId1,
+                    valueId1,
+                    value1,
+                ),
             )
+            val info1 = sessionValueHolder.info
+            assertFalse(info1.isLocalSessionActive())
+            val nextLocalSessionId1 = info1.nextLocalSessionId
+            assertEquals(nextLocalSessionId1, info1.localSessionId)
+            assertEquals(sessionId1, info1.currentUpstreamSessionId)
+            assertEquals(sessionId1, info1.preLocalSessionId)
+
+            stateRestorationTester.emulateStateRestore()
+            waitForIdle()
+
+            assertEquals(
+                sessionValueHolder.sessionValue,
+                SessionValue(
+                    sessionId1,
+                    valueId1,
+                    value1,
+                ),
+            )
+            val info2 = sessionValueHolder.info
+            assertFalse(info2.isLocalSessionActive())
+            val nextLocalSessionId2 = info1.nextLocalSessionId
+            assertEquals(nextLocalSessionId1, info2.localSessionId)
+            assertEquals(nextLocalSessionId1, nextLocalSessionId2)
+            assertEquals(sessionId1, info2.currentUpstreamSessionId)
+            assertEquals(sessionId1, info2.preLocalSessionId)
         }
-
-        assertEquals(
-            sessionValueHolder.sessionValue,
-            SessionValue(
-                sessionId1,
-                valueId1,
-                value1,
-            ),
-        )
-        val info1 = sessionValueHolder.info
-        assertFalse(info1.isLocalSessionActive())
-        val nextLocalSessionId1 = info1.nextLocalSessionId
-        assertEquals(nextLocalSessionId1, info1.localSessionId)
-        assertEquals(sessionId1, info1.currentUpstreamSessionId)
-        assertEquals(sessionId1, info1.preLocalSessionId)
-
-        stateRestorationTester.emulateStateRestore()
-        waitForIdle()
-
-        assertEquals(
-            sessionValueHolder.sessionValue,
-            SessionValue(
-                sessionId1,
-                valueId1,
-                value1,
-            ),
-        )
-        val info2 = sessionValueHolder.info
-        assertFalse(info2.isLocalSessionActive())
-        val nextLocalSessionId2 = info1.nextLocalSessionId
-        assertEquals(nextLocalSessionId1, info2.localSessionId)
-        assertEquals(nextLocalSessionId1, nextLocalSessionId2)
-        assertEquals(sessionId1, info2.currentUpstreamSessionId)
-        assertEquals(sessionId1, info2.preLocalSessionId)
-    }
 
     @Suppress("LongMethod")
     @Test
-    fun whenSavedInstanceStateIsRestoredWithLocalSession_stateIsCorrect() = runComposeUiTest {
-        val stateRestorationTester = KmpStateRestorationTester(this)
+    fun whenSavedInstanceStateIsRestoredWithLocalSession_stateIsCorrect() =
+        runComposeUiTest {
+            val stateRestorationTester = KmpStateRestorationTester(this)
 
-        val sessionId1 = Uuid.random()
-        val valueId1 = Uuid.random()
-        val valueId2 = Uuid.random()
+            val sessionId1 = Uuid.random()
+            val valueId1 = Uuid.random()
+            val valueId2 = Uuid.random()
 
-        val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
+            val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
-        lateinit var sessionValueHolder: SessionValueHolder<Float>
-        val upstreamSessionValue by mutableStateOf(SessionValue(sessionId1, valueId1, 0f))
+            lateinit var sessionValueHolder: SessionValueHolder<Float>
+            val upstreamSessionValue by mutableStateOf(SessionValue(sessionId1, valueId1, 0f))
 
-        stateRestorationTester.setContent {
-            sessionValueHolder = rememberSessionValueHolder(
-                upstreamSessionValue = upstreamSessionValue,
-                setUpstreamSessionValue = { upstreamSessionId, sessionValue ->
-                    pendingUpstreamSessionValues.add(upstreamSessionId to sessionValue)
-                },
+            stateRestorationTester.setContent {
+                sessionValueHolder =
+                    rememberSessionValueHolder(
+                        upstreamSessionValue = upstreamSessionValue,
+                        setUpstreamSessionValue = { upstreamSessionId, sessionValue ->
+                            pendingUpstreamSessionValues.add(upstreamSessionId to sessionValue)
+                        },
+                    )
+            }
+
+            assertEquals(
+                sessionValueHolder.sessionValue,
+                SessionValue(
+                    sessionId1,
+                    valueId1,
+                    0f,
+                ),
             )
+            val info1 = sessionValueHolder.info
+            assertFalse(info1.isLocalSessionActive())
+            val nextLocalSessionId1 = info1.nextLocalSessionId
+            assertEquals(nextLocalSessionId1, info1.localSessionId)
+            assertEquals(sessionId1, info1.currentUpstreamSessionId)
+            assertEquals(sessionId1, info1.preLocalSessionId)
+
+            sessionValueHolder.setValue(1f, valueId2)
+            waitForIdle()
+
+            assertEquals(
+                sessionValueHolder.sessionValue,
+                SessionValue(
+                    nextLocalSessionId1,
+                    valueId2,
+                    1f,
+                ),
+            )
+            val info2 = sessionValueHolder.info
+            assertTrue(info2.isLocalSessionActive())
+            assertEquals(nextLocalSessionId1, info2.currentLocalSessionId)
+            assertEquals(nextLocalSessionId1, info2.localSessionId)
+            assertEquals(sessionId1, info2.previousUpstreamSessionId)
+            assertEquals(sessionId1, info2.preLocalSessionId)
+
+            stateRestorationTester.emulateStateRestore()
+            waitForIdle()
+
+            assertEquals(
+                sessionValueHolder.sessionValue,
+                SessionValue(
+                    nextLocalSessionId1,
+                    valueId2,
+                    1f,
+                ),
+            )
+            val info3 = sessionValueHolder.info
+            assertTrue(info3.isLocalSessionActive())
+            assertEquals(nextLocalSessionId1, info3.currentLocalSessionId)
+            assertEquals(nextLocalSessionId1, info3.localSessionId)
+            assertEquals(sessionId1, info3.previousUpstreamSessionId)
+            assertEquals(sessionId1, info3.preLocalSessionId)
         }
-
-        assertEquals(
-            sessionValueHolder.sessionValue,
-            SessionValue(
-                sessionId1,
-                valueId1,
-                0f,
-            ),
-        )
-        val info1 = sessionValueHolder.info
-        assertFalse(info1.isLocalSessionActive())
-        val nextLocalSessionId1 = info1.nextLocalSessionId
-        assertEquals(nextLocalSessionId1, info1.localSessionId)
-        assertEquals(sessionId1, info1.currentUpstreamSessionId)
-        assertEquals(sessionId1, info1.preLocalSessionId)
-
-        sessionValueHolder.setValue(1f, valueId2)
-        waitForIdle()
-
-        assertEquals(
-            sessionValueHolder.sessionValue,
-            SessionValue(
-                nextLocalSessionId1,
-                valueId2,
-                1f,
-            ),
-        )
-        val info2 = sessionValueHolder.info
-        assertTrue(info2.isLocalSessionActive())
-        assertEquals(nextLocalSessionId1, info2.currentLocalSessionId)
-        assertEquals(nextLocalSessionId1, info2.localSessionId)
-        assertEquals(sessionId1, info2.previousUpstreamSessionId)
-        assertEquals(sessionId1, info2.preLocalSessionId)
-
-        stateRestorationTester.emulateStateRestore()
-        waitForIdle()
-
-        assertEquals(
-            sessionValueHolder.sessionValue,
-            SessionValue(
-                nextLocalSessionId1,
-                valueId2,
-                1f,
-            ),
-        )
-        val info3 = sessionValueHolder.info
-        assertTrue(info3.isLocalSessionActive())
-        assertEquals(nextLocalSessionId1, info3.currentLocalSessionId)
-        assertEquals(nextLocalSessionId1, info3.localSessionId)
-        assertEquals(sessionId1, info3.previousUpstreamSessionId)
-        assertEquals(sessionId1, info3.preLocalSessionId)
-    }
 
     @Suppress("LongMethod")
     @Test
-    fun upstreamSessionChanges_whenSavedInstanceStateIsRestoredWithLocalSession_resetsSession() = runComposeUiTest {
-        val stateRestorationTester = KmpStateRestorationTester(this)
+    fun upstreamSessionChanges_whenSavedInstanceStateIsRestoredWithLocalSession_resetsSession() =
+        runComposeUiTest {
+            val stateRestorationTester = KmpStateRestorationTester(this)
 
-        val sessionId1 = Uuid.random()
-        val sessionId2 = Uuid.random()
-        val valueId1 = Uuid.random()
-        val valueId2 = Uuid.random()
-        val valueId3 = Uuid.random()
+            val sessionId1 = Uuid.random()
+            val sessionId2 = Uuid.random()
+            val valueId1 = Uuid.random()
+            val valueId2 = Uuid.random()
+            val valueId3 = Uuid.random()
 
-        lateinit var sessionValueHolder: SessionValueHolder<Float>
-        val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
+            lateinit var sessionValueHolder: SessionValueHolder<Float>
+            val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
 
-        var restorationCount by mutableStateOf(0)
+            var restorationCount by mutableStateOf(0)
 
-        stateRestorationTester.setContent {
-            DisposableEffect(Unit) {
-                onDispose {
-                    restorationCount++
+            stateRestorationTester.setContent {
+                DisposableEffect(Unit) {
+                    onDispose {
+                        restorationCount++
+                    }
                 }
-            }
-            val upstreamSessionValue = when (restorationCount) {
-                0 -> SessionValue(sessionId1, valueId1, 0f)
-                1 -> SessionValue(sessionId2, valueId3, 2f)
-                else -> fail("Unexpected restoration count!")
+                val upstreamSessionValue =
+                    when (restorationCount) {
+                        0 -> SessionValue(sessionId1, valueId1, 0f)
+                        1 -> SessionValue(sessionId2, valueId3, 2f)
+                        else -> fail("Unexpected restoration count!")
+                    }
+
+                sessionValueHolder =
+                    rememberSessionValueHolder(
+                        upstreamSessionValue = upstreamSessionValue,
+                        setUpstreamSessionValue = { upstreamSessionId, sessionValue ->
+                            pendingUpstreamSessionValues.add(upstreamSessionId to sessionValue)
+                        },
+                    )
             }
 
-            sessionValueHolder = rememberSessionValueHolder(
-                upstreamSessionValue = upstreamSessionValue,
-                setUpstreamSessionValue = { upstreamSessionId, sessionValue ->
-                    pendingUpstreamSessionValues.add(upstreamSessionId to sessionValue)
-                },
+            assertEquals(
+                sessionValueHolder.sessionValue,
+                SessionValue(
+                    sessionId1,
+                    valueId1,
+                    0f,
+                ),
             )
+            val info1 = sessionValueHolder.info
+            assertFalse(info1.isLocalSessionActive())
+            val nextLocalSessionId1 = info1.nextLocalSessionId
+            assertEquals(nextLocalSessionId1, info1.localSessionId)
+            assertEquals(sessionId1, info1.currentUpstreamSessionId)
+            assertEquals(sessionId1, info1.preLocalSessionId)
+
+            sessionValueHolder.setValue(1f, valueId2)
+            waitForIdle()
+
+            assertEquals(
+                sessionValueHolder.sessionValue,
+                SessionValue(
+                    nextLocalSessionId1,
+                    valueId2,
+                    1f,
+                ),
+            )
+            val info2 = sessionValueHolder.info
+            assertTrue(info2.isLocalSessionActive())
+            assertEquals(nextLocalSessionId1, info2.currentLocalSessionId)
+            assertEquals(nextLocalSessionId1, info2.localSessionId)
+            assertEquals(sessionId1, info2.previousUpstreamSessionId)
+            assertEquals(sessionId1, info2.preLocalSessionId)
+
+            stateRestorationTester.emulateStateRestore()
+            waitForIdle()
+
+            assertEquals(
+                sessionValueHolder.sessionValue,
+                SessionValue(
+                    sessionId2,
+                    valueId3,
+                    2f,
+                ),
+            )
+            val info3 = sessionValueHolder.info
+            assertFalse(info3.isLocalSessionActive())
+            val nextLocalSessionId2 = info3.nextLocalSessionId
+            assertEquals(nextLocalSessionId2, info3.localSessionId)
+            assertEquals(sessionId2, info3.currentUpstreamSessionId)
+            assertEquals(sessionId2, info3.preLocalSessionId)
+
+            // Updating the upstream session value should cycle the next session id
+            assertNotEquals(nextLocalSessionId1, nextLocalSessionId2)
         }
-
-        assertEquals(
-            sessionValueHolder.sessionValue,
-            SessionValue(
-                sessionId1,
-                valueId1,
-                0f,
-            ),
-        )
-        val info1 = sessionValueHolder.info
-        assertFalse(info1.isLocalSessionActive())
-        val nextLocalSessionId1 = info1.nextLocalSessionId
-        assertEquals(nextLocalSessionId1, info1.localSessionId)
-        assertEquals(sessionId1, info1.currentUpstreamSessionId)
-        assertEquals(sessionId1, info1.preLocalSessionId)
-
-        sessionValueHolder.setValue(1f, valueId2)
-        waitForIdle()
-
-        assertEquals(
-            sessionValueHolder.sessionValue,
-            SessionValue(
-                nextLocalSessionId1,
-                valueId2,
-                1f,
-            ),
-        )
-        val info2 = sessionValueHolder.info
-        assertTrue(info2.isLocalSessionActive())
-        assertEquals(nextLocalSessionId1, info2.currentLocalSessionId)
-        assertEquals(nextLocalSessionId1, info2.localSessionId)
-        assertEquals(sessionId1, info2.previousUpstreamSessionId)
-        assertEquals(sessionId1, info2.preLocalSessionId)
-
-        stateRestorationTester.emulateStateRestore()
-        waitForIdle()
-
-        assertEquals(
-            sessionValueHolder.sessionValue,
-            SessionValue(
-                sessionId2,
-                valueId3,
-                2f,
-            ),
-        )
-        val info3 = sessionValueHolder.info
-        assertFalse(info3.isLocalSessionActive())
-        val nextLocalSessionId2 = info3.nextLocalSessionId
-        assertEquals(nextLocalSessionId2, info3.localSessionId)
-        assertEquals(sessionId2, info3.currentUpstreamSessionId)
-        assertEquals(sessionId2, info3.preLocalSessionId)
-
-        // Updating the upstream session value should cycle the next session id
-        assertNotEquals(nextLocalSessionId1, nextLocalSessionId2)
-    }
 }

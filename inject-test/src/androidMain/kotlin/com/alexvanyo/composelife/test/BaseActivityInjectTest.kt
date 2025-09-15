@@ -37,7 +37,6 @@ abstract class BaseActivityInjectTest<A : ComponentActivity>(
     applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph,
     clazz: Class<A>,
 ) : BaseInjectTest(applicationGraphCreator) {
-
     @get:Rule(order = 0)
     val outerLeakRule = createLeakRule("Outer")
 

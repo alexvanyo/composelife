@@ -24,14 +24,14 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class WindowInsetsLerpTests {
-
     @Test
     fun progress_zero_is_start() {
-        val lerpInsets = lerp(
-            WindowInsets(left = 5.dp, top = 10.dp, right = 15.dp, bottom = 20.dp),
-            WindowInsets(left = 9.dp, top = 14.dp, right = 19.dp, bottom = 24.dp),
-            0f,
-        )
+        val lerpInsets =
+            lerp(
+                WindowInsets(left = 5.dp, top = 10.dp, right = 15.dp, bottom = 20.dp),
+                WindowInsets(left = 9.dp, top = 14.dp, right = 19.dp, bottom = 24.dp),
+                0f,
+            )
 
         val density = Density(1f)
 
@@ -48,11 +48,12 @@ class WindowInsetsLerpTests {
 
     @Test
     fun progress_one_is_stop() {
-        val lerpInsets = lerp(
-            WindowInsets(left = 5.dp, top = 10.dp, right = 15.dp, bottom = 20.dp),
-            WindowInsets(left = 9.dp, top = 14.dp, right = 19.dp, bottom = 24.dp),
-            1f,
-        )
+        val lerpInsets =
+            lerp(
+                WindowInsets(left = 5.dp, top = 10.dp, right = 15.dp, bottom = 20.dp),
+                WindowInsets(left = 9.dp, top = 14.dp, right = 19.dp, bottom = 24.dp),
+                1f,
+            )
 
         val density = Density(1f)
 
@@ -69,11 +70,12 @@ class WindowInsetsLerpTests {
 
     @Test
     fun progress_one_quarter_is_correct() {
-        val lerpInsets = lerp(
-            WindowInsets(left = 5.dp, top = 10.dp, right = 15.dp, bottom = 20.dp),
-            WindowInsets(left = 9.dp, top = 14.dp, right = 19.dp, bottom = 24.dp),
-            0.25f,
-        )
+        val lerpInsets =
+            lerp(
+                WindowInsets(left = 5.dp, top = 10.dp, right = 15.dp, bottom = 20.dp),
+                WindowInsets(left = 9.dp, top = 14.dp, right = 19.dp, bottom = 24.dp),
+                0.25f,
+            )
 
         val density = Density(1f)
 

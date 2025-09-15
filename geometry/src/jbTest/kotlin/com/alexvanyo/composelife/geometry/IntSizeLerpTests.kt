@@ -21,7 +21,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class IntSizeLerpTests {
-
     @Test
     fun progress_zero_is_start() {
         assertEquals(

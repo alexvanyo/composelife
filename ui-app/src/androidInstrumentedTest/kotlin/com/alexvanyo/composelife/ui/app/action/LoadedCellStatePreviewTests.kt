@@ -78,114 +78,124 @@ val UiGraph.loadedCellStatePreviewTestsAppCtx: LoadedCellStatePreviewTestsUiCtx 
     this as LoadedCellStatePreviewTestsUiCtx
 
 @OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
-class LoadedCellStatePreviewTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
+class LoadedCellStatePreviewTests :
+    BaseUiInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
     private val appCtx get() = applicationGraph.loadedCellStatePreviewTestsAppCtx
 
     @Test
-    fun drag_and_drop_works_correctly() = runUiTest { uiGraph ->
-        val uiCtx = uiGraph.loadedCellStatePreviewTestsAppCtx
+    fun drag_and_drop_works_correctly() =
+        runUiTest { uiGraph ->
+            val uiCtx = uiGraph.loadedCellStatePreviewTestsAppCtx
 
-        var droppedCellState: CellState? = null
+            var droppedCellState: CellState? = null
 
-        lateinit var viewConfiguration: ViewConfiguration
+            lateinit var viewConfiguration: ViewConfiguration
 
-        setContent {
-            viewConfiguration = LocalViewConfiguration.current
+            setContent {
+                viewConfiguration = LocalViewConfiguration.current
 
-            Column {
-                with(uiCtx.thumbnailImmutableCellWindowCtx) {
-                    LoadedCellStatePreview(
-                        deserializationResult = DeserializationResult.Successful(
-                            cellState = GliderPattern.seedCellState,
-                            format = CellStateFormat.FixedFormat.Plaintext,
-                            warnings = emptyList(),
-                        ),
-                        isPinned = false,
-                        onPaste = {},
-                        onPinChanged = {},
-                        onViewDeserializationInfo = {},
-                        modifier = Modifier
-                            .testTag("LoadedCellStatePreview")
-                            .height(200.dp),
-                    )
+                Column {
+                    with(uiCtx.thumbnailImmutableCellWindowCtx) {
+                        LoadedCellStatePreview(
+                            deserializationResult =
+                            DeserializationResult.Successful(
+                                cellState = GliderPattern.seedCellState,
+                                format = CellStateFormat.FixedFormat.Plaintext,
+                                warnings = emptyList(),
+                            ),
+                            isPinned = false,
+                            onPaste = {},
+                            onPinChanged = {},
+                            onViewDeserializationInfo = {},
+                            modifier =
+                            Modifier
+                                .testTag("LoadedCellStatePreview")
+                                .height(200.dp),
+                        )
+                    }
+
+                    with(uiCtx.cellStateParser) {
+                        Spacer(
+                            modifier =
+                            Modifier
+                                .testTag("TestDropTarget")
+                                .cellStateDragAndDropTarget(
+                                    rememberMutableCellStateDropStateHolder { _, cellState ->
+                                        droppedCellState = cellState
+                                    },
+                                ).size(100.dp)
+                                .background(Color.Blue),
+                        )
+                    }
+                }
+            }
+
+            val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
+            val downTime = SystemClock.uptimeMillis()
+
+            val loadedCellStatePreviewCenter =
+                onNodeWithTag("LoadedCellStatePreview").fetchSemanticsNode().let { node ->
+                    node.positionOnScreen + node.size.center.toOffset()
+                }
+            val testDropTargetCenter =
+                onNodeWithTag("TestDropTarget").fetchSemanticsNode().let { node ->
+                    node.positionOnScreen + node.size.center.toOffset()
                 }
 
-                with(uiCtx.cellStateParser) {
-                    Spacer(
-                        modifier = Modifier
-                            .testTag("TestDropTarget")
-                            .cellStateDragAndDropTarget(
-                                rememberMutableCellStateDropStateHolder { _, cellState ->
-                                    droppedCellState = cellState
-                                },
-                            )
-                            .size(100.dp)
-                            .background(Color.Blue),
-                    )
-                }
-            }
+            val down =
+                MotionEvent
+                    .obtain(
+                        downTime,
+                        downTime,
+                        MotionEvent.ACTION_DOWN,
+                        loadedCellStatePreviewCenter.x,
+                        loadedCellStatePreviewCenter.y,
+                        0,
+                    ).apply {
+                        source = InputDevice.SOURCE_TOUCHSCREEN
+                    }
+            automation.injectInputEvent(down, true)
+            down.recycle()
+
+            mainClock.advanceTimeBy(viewConfiguration.longPressTimeoutMillis + 100)
+
+            val move =
+                MotionEvent
+                    .obtain(
+                        downTime,
+                        SystemClock.uptimeMillis(),
+                        MotionEvent.ACTION_MOVE,
+                        testDropTargetCenter.x,
+                        testDropTargetCenter.y,
+                        0,
+                    ).apply {
+                        source = InputDevice.SOURCE_TOUCHSCREEN
+                    }
+            automation.injectInputEvent(move, true)
+            move.recycle()
+
+            waitForIdle()
+
+            val up =
+                MotionEvent
+                    .obtain(
+                        downTime,
+                        SystemClock.uptimeMillis(),
+                        MotionEvent.ACTION_UP,
+                        testDropTargetCenter.x,
+                        testDropTargetCenter.y,
+                        0,
+                    ).apply {
+                        source = InputDevice.SOURCE_TOUCHSCREEN
+                    }
+            automation.injectInputEvent(up, true)
+            up.recycle()
+
+            waitForIdle()
+            appCtx.generalTestDispatcher.scheduler.runCurrent()
+
+            assertEquals(GliderPattern.seedCellState, droppedCellState)
         }
-
-        val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
-        val downTime = SystemClock.uptimeMillis()
-
-        val loadedCellStatePreviewCenter =
-            onNodeWithTag("LoadedCellStatePreview").fetchSemanticsNode().let { node ->
-                node.positionOnScreen + node.size.center.toOffset()
-            }
-        val testDropTargetCenter =
-            onNodeWithTag("TestDropTarget").fetchSemanticsNode().let { node ->
-                node.positionOnScreen + node.size.center.toOffset()
-            }
-
-        val down = MotionEvent.obtain(
-            downTime,
-            downTime,
-            MotionEvent.ACTION_DOWN,
-            loadedCellStatePreviewCenter.x,
-            loadedCellStatePreviewCenter.y,
-            0,
-        ).apply {
-            source = InputDevice.SOURCE_TOUCHSCREEN
-        }
-        automation.injectInputEvent(down, true)
-        down.recycle()
-
-        mainClock.advanceTimeBy(viewConfiguration.longPressTimeoutMillis + 100)
-
-        val move = MotionEvent.obtain(
-            downTime,
-            SystemClock.uptimeMillis(),
-            MotionEvent.ACTION_MOVE,
-            testDropTargetCenter.x,
-            testDropTargetCenter.y,
-            0,
-        ).apply {
-            source = InputDevice.SOURCE_TOUCHSCREEN
-        }
-        automation.injectInputEvent(move, true)
-        move.recycle()
-
-        waitForIdle()
-
-        val up = MotionEvent.obtain(
-            downTime,
-            SystemClock.uptimeMillis(),
-            MotionEvent.ACTION_UP,
-            testDropTargetCenter.x,
-            testDropTargetCenter.y,
-            0,
-        ).apply {
-            source = InputDevice.SOURCE_TOUCHSCREEN
-        }
-        automation.injectInputEvent(up, true)
-        up.recycle()
-
-        waitForIdle()
-        appCtx.generalTestDispatcher.scheduler.runCurrent()
-
-        assertEquals(GliderPattern.seedCellState, droppedCellState)
-    }
 }

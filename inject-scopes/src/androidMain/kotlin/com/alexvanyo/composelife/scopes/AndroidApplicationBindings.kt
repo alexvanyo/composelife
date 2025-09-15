@@ -26,7 +26,6 @@ import dev.zacsweers.metro.Provides
 @ContributesTo(AppScope::class)
 @BindingContainer
 interface AndroidApplicationBindings {
-
     companion object {
         @Provides
         @ApplicationContext

@@ -28,7 +28,6 @@ import kotlin.test.assertEquals
 
 @RunWith(TestParameterInjector::class)
 class TimeDigitsTests {
-
     class LocalTimeProvider : TestParameterValuesProvider() {
         override fun provideValues(context: Context?) =
             (0..23).flatMap { hour ->
@@ -43,21 +42,23 @@ class TimeDigitsTests {
         @TestParameter(valuesProvider = LocalTimeProvider::class) localTime: LocalTime,
         @TestParameter use24HourFormat: Boolean,
     ) {
-        val ascendingOrderTime = localTime.format(
-            DateTimeFormatter.ofPattern(
-                if (use24HourFormat) "HHmm" else "hmm",
-                Locale.ROOT,
-            ),
-        )
-            .map { it.digitToInt().let(GameOfLifeSegmentChar.Companion::fromChar) }
-            .reversed()
+        val ascendingOrderTime =
+            localTime
+                .format(
+                    DateTimeFormatter.ofPattern(
+                        if (use24HourFormat) "HHmm" else "hmm",
+                        Locale.ROOT,
+                    ),
+                ).map { it.digitToInt().let(GameOfLifeSegmentChar.Companion::fromChar) }
+                .reversed()
 
-        val expectedTimeDigits = TimeDigits(
-            firstDigit = ascendingOrderTime.getOrElse(3) { GameOfLifeSegmentChar.Blank },
-            secondDigit = ascendingOrderTime.getOrElse(2) { GameOfLifeSegmentChar.Blank },
-            thirdDigit = ascendingOrderTime.getOrElse(1) { GameOfLifeSegmentChar.Blank },
-            fourthDigit = ascendingOrderTime.getOrElse(0) { GameOfLifeSegmentChar.Blank },
-        )
+        val expectedTimeDigits =
+            TimeDigits(
+                firstDigit = ascendingOrderTime.getOrElse(3) { GameOfLifeSegmentChar.Blank },
+                secondDigit = ascendingOrderTime.getOrElse(2) { GameOfLifeSegmentChar.Blank },
+                thirdDigit = ascendingOrderTime.getOrElse(1) { GameOfLifeSegmentChar.Blank },
+                fourthDigit = ascendingOrderTime.getOrElse(0) { GameOfLifeSegmentChar.Blank },
+            )
 
         assertEquals(
             expectedTimeDigits,

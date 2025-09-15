@@ -41,18 +41,18 @@ class ClipboardWatchingOnboardingCompletedUiCtx(
     @Suppress("ComposableNaming")
     @Deprecated(
         "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
+        replaceWith =
+        ReplaceWith(
             "ClipboardWatchingOnboardingCompletedUi(modifier)",
         ),
     )
     @Composable
-    operator fun invoke(
-        modifier: Modifier = Modifier,
-    ) = lambda(preferencesHolder, composeLifePreferences, modifier)
+    operator fun invoke(modifier: Modifier = Modifier) = lambda(preferencesHolder, composeLifePreferences, modifier)
 
     companion object {
         private val lambda:
-            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences) (
+            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences)
+            (
                 modifier: Modifier,
             ) -> Unit =
             { modifier ->
@@ -61,22 +61,18 @@ class ClipboardWatchingOnboardingCompletedUiCtx(
     }
 }
 
-context(ctx: ClipboardWatchingOnboardingCompletedUiCtx)
 @Suppress("DEPRECATION")
 @Composable
-fun ClipboardWatchingOnboardingCompletedUi(
-    modifier: Modifier = Modifier,
-) = ctx(modifier)
+context(ctx: ClipboardWatchingOnboardingCompletedUiCtx)
+fun ClipboardWatchingOnboardingCompletedUi(modifier: Modifier = Modifier) = ctx(modifier)
 // endregion templated-ctx
 
+@Composable
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,
-composeLifePreferences: ComposeLifePreferences,
+    composeLifePreferences: ComposeLifePreferences,
 )
-@Composable
-private fun ClipboardWatchingOnboardingCompletedUi(
-    modifier: Modifier = Modifier,
-) {
+private fun ClipboardWatchingOnboardingCompletedUi(modifier: Modifier = Modifier) {
     ClipboardWatchingOnboardingCompletedUi(
         completedClipboardWatchingOnboarding = preferencesHolder.preferences.completedClipboardWatchingOnboarding,
         setCompletedClipboardWatchingOnboarding =

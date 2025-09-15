@@ -41,7 +41,8 @@ import java.nio.ShortBuffer
 import java.time.ZonedDateTime
 
 @Language("GLSL")
-private val vertexShaderCode = """
+private val vertexShaderCode =
+    """
     uniform mat4 mvpMatrix;
     attribute vec4 position;
     attribute vec4 textureCoordinate;
@@ -50,17 +51,18 @@ private val vertexShaderCode = """
         gl_Position = mvpMatrix * position;
         textureCoord = textureCoordinate.xy;
     }
-""".trimIndent()
+    """.trimIndent()
 
 @Language("GLSL")
-private val fragmentShaderCode = """
+private val fragmentShaderCode =
+    """
     // The complication texture
     uniform sampler2D complication;
     varying highp vec2 textureCoord;
     void main() {
         gl_FragColor = texture2D(complication, textureCoord);
     }
-""".trimIndent()
+    """.trimIndent()
 
 /**
  * The OpenGL shape describing a specific [complicationSlot].
@@ -70,12 +72,10 @@ class ComplicationShape(
      * The overall size of the screen, to use to properly place the complication shape.
      */
     screenSize: IntSize,
-
     /**
      * The complication slot to display a complication for.
      */
     private val complicationSlot: ComplicationSlot,
-
     /**
      * The OpenGL texture index to use for this complication shape.
      */
@@ -119,31 +119,33 @@ class ComplicationShape(
     /**
      * Calculate the normalized OpenGL coords for where the expanded bitmap will be placed
      */
-    private val coords = floatArrayOf(
-        expandedBounds.left.toFloat() / screenSize.width,
-        1f - (expandedBounds.bottom.toFloat() / screenSize.height),
-        0f,
-        expandedBounds.left.toFloat() / screenSize.width,
-        1f - (expandedBounds.top.toFloat() / screenSize.height),
-        0f,
-        expandedBounds.right.toFloat() / screenSize.width,
-        1f - (expandedBounds.top.toFloat() / screenSize.height),
-        0f,
-        expandedBounds.right.toFloat() / screenSize.width,
-        1f - (expandedBounds.bottom.toFloat() / screenSize.height),
-        0f,
-    )
+    private val coords =
+        floatArrayOf(
+            expandedBounds.left.toFloat() / screenSize.width,
+            1f - (expandedBounds.bottom.toFloat() / screenSize.height),
+            0f,
+            expandedBounds.left.toFloat() / screenSize.width,
+            1f - (expandedBounds.top.toFloat() / screenSize.height),
+            0f,
+            expandedBounds.right.toFloat() / screenSize.width,
+            1f - (expandedBounds.top.toFloat() / screenSize.height),
+            0f,
+            expandedBounds.right.toFloat() / screenSize.width,
+            1f - (expandedBounds.bottom.toFloat() / screenSize.height),
+            0f,
+        )
 
-    private val textureCoords = floatArrayOf(
-        0f,
-        1f,
-        0f,
-        0f,
-        1f,
-        0f,
-        1f,
-        1f,
-    )
+    private val textureCoords =
+        floatArrayOf(
+            0f,
+            1f,
+            0f,
+            0f,
+            1f,
+            0f,
+            1f,
+            1f,
+        )
 
     private val drawOrder = shortArrayOf(0, 1, 2, 0, 2, 3)
 
@@ -182,32 +184,36 @@ class ComplicationShape(
             }
         }
 
-    private val vertexShader = loadShader(
-        GLES20.GL_VERTEX_SHADER,
-        vertexShaderCode,
-    )
+    private val vertexShader =
+        loadShader(
+            GLES20.GL_VERTEX_SHADER,
+            vertexShaderCode,
+        )
 
-    private val fragmentShader = loadShader(
-        GLES20.GL_FRAGMENT_SHADER,
-        fragmentShaderCode,
-    )
+    private val fragmentShader =
+        loadShader(
+            GLES20.GL_FRAGMENT_SHADER,
+            fragmentShaderCode,
+        )
 
-    private val program = GLES20.glCreateProgram().apply {
-        GLES20.glAttachShader(this, vertexShader)
-        GLES20.glAttachShader(this, fragmentShader)
-        GLES20.glLinkProgram(this)
-    }
+    private val program =
+        GLES20.glCreateProgram().apply {
+            GLES20.glAttachShader(this, vertexShader)
+            GLES20.glAttachShader(this, fragmentShader)
+            GLES20.glLinkProgram(this)
+        }
 
     private val positionHandle = GLES20.glGetAttribLocation(program, "position")
     private val textureCoordinateHandle = GLES20.glGetAttribLocation(program, "textureCoordinate")
     private val complicationHandle = GLES20.glGetUniformLocation(program, "complication")
     private val mvpMatrixHandle = GLES20.glGetUniformLocation(program, "mvpMatrix")
 
-    private val textureHandle = run {
-        val array = IntArray(1)
-        GLES20.glGenTextures(0, array, 0)
-        array[0]
-    }
+    private val textureHandle =
+        run {
+            val array = IntArray(1)
+            GLES20.glGenTextures(0, array, 0)
+            array[0]
+        }
 
     @Suppress("LongMethod")
     fun draw(
@@ -220,9 +226,10 @@ class ComplicationShape(
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
 
         if (drawHighlightLayer) {
-            val highlightLayer = requireNotNull(renderParameters.highlightLayer) {
-                "Trying to render highlight layer, but it was null!"
-            }
+            val highlightLayer =
+                requireNotNull(renderParameters.highlightLayer) {
+                    "Trying to render highlight layer, but it was null!"
+                }
             complicationSlot.renderer.drawHighlight(
                 canvas = canvas,
                 bounds = renderBounds,

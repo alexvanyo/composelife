@@ -33,12 +33,13 @@ inline fun <reified T, reified S> SurrogatingSerializer(
     surrogateSerializer: KSerializer<S> = serializer(),
 ): KSerializer<T> =
     object : KSerializer<T> {
-        override val descriptor = SerialDescriptor(
-            serialName = serialName,
-            original = surrogateSerializer.descriptor,
-        )
-        override fun deserialize(decoder: Decoder): T =
-            convertFromSurrogate(surrogateSerializer.deserialize(decoder))
+        override val descriptor =
+            SerialDescriptor(
+                serialName = serialName,
+                original = surrogateSerializer.descriptor,
+            )
+
+        override fun deserialize(decoder: Decoder): T = convertFromSurrogate(surrogateSerializer.deserialize(decoder))
 
         override fun serialize(encoder: Encoder, value: T) =
             surrogateSerializer.serialize(encoder, convertToSurrogate(value))

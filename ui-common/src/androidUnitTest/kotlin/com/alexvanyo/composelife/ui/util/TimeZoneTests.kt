@@ -44,35 +44,37 @@ val ApplicationGraph.timeZoneTests: TimeZoneTestsCtx get() =
     this as TimeZoneTestsCtx
 
 @OptIn(ExperimentalTestApi::class)
-class TimeZoneTests : BaseInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
-
+class TimeZoneTests :
+    BaseInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
     @Test
-    fun time_zone_updates_correctly() = runComposeUiTest {
-        val systemDefaultTimeZone = TimeZone.currentSystemDefault()
-        var timeZone: TimeZone by mutableStateOf(TimeZone.UTC)
+    fun time_zone_updates_correctly() =
+        runComposeUiTest {
+            val systemDefaultTimeZone = TimeZone.currentSystemDefault()
+            var timeZone: TimeZone by mutableStateOf(TimeZone.UTC)
 
-        setContent {
-            with(applicationGraph.timeZoneTests.timeZoneHolder) {
-                timeZone = currentTimeZone()
+            setContent {
+                with(applicationGraph.timeZoneTests.timeZoneHolder) {
+                    timeZone = currentTimeZone()
+                }
+            }
+
+            assertEquals(systemDefaultTimeZone, timeZone)
+
+            val newTimeZone = TimeZone.of("GMT+1")
+            try {
+                java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone(newTimeZone.toJavaZoneId()))
+
+                ApplicationProvider
+                    .getApplicationContext<Application>()
+                    .sendBroadcast(Intent(Intent.ACTION_TIMEZONE_CHANGED))
+
+                waitForIdle()
+
+                assertEquals(newTimeZone, timeZone)
+            } finally {
+                java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone(systemDefaultTimeZone.toJavaZoneId()))
             }
         }
-
-        assertEquals(systemDefaultTimeZone, timeZone)
-
-        val newTimeZone = TimeZone.of("GMT+1")
-        try {
-            java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone(newTimeZone.toJavaZoneId()))
-
-            ApplicationProvider.getApplicationContext<Application>()
-                .sendBroadcast(Intent(Intent.ACTION_TIMEZONE_CHANGED))
-
-            waitForIdle()
-
-            assertEquals(newTimeZone, timeZone)
-        } finally {
-            java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone(systemDefaultTimeZone.toJavaZoneId()))
-        }
-    }
 }

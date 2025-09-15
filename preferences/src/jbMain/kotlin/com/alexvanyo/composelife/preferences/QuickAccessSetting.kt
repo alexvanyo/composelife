@@ -20,15 +20,25 @@ import com.livefront.sealedenum.GenSealedEnum
 
 sealed interface QuickAccessSetting {
     data object AlgorithmImplementation : QuickAccessSetting
+
     data object DarkThemeConfig : QuickAccessSetting
+
     data object CellShapeConfig : QuickAccessSetting
+
     data object SynchronizePatternCollectionsOnMeteredNetwork : QuickAccessSetting
+
     data object PatternCollectionsSynchronizationPeriod : QuickAccessSetting
+
     data object DisableAGSL : QuickAccessSetting
+
     data object DisableOpenGL : QuickAccessSetting
+
     data object DoNotKeepProcess : QuickAccessSetting
+
     data object EnableClipboardWatching : QuickAccessSetting
+
     data object ClipboardWatchingOnboardingCompleted : QuickAccessSetting
+
     data object EnableWindowShapeClipping : QuickAccessSetting
 
     @GenSealedEnum

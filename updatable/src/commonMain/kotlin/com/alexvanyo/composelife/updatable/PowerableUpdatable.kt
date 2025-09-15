@@ -42,9 +42,7 @@ import kotlinx.coroutines.sync.withLock
  * [block] will be cancelled if the button is no longer being pressed at all, or when the call to [update] is
  * cancelled.
  */
-class PowerableUpdatable(
-    private val block: suspend () -> Nothing,
-) : Updatable {
+class PowerableUpdatable(private val block: suspend () -> Nothing) : Updatable {
     private val mutex = Mutex()
 
     private val activePushesMutex = Mutex()

@@ -42,20 +42,18 @@ interface TestDriverBindings {
             JdbcSqliteDriver(
                 JdbcSqliteDriver.IN_MEMORY,
                 Properties().apply { put("foreign_keys", "true") },
-            )
-                .also(ComposeLifeDatabase.Schema.synchronous()::create)
+            ).also(ComposeLifeDatabase.Schema.synchronous()::create)
 
         @Provides
         @SingleIn(AppScope::class)
         @IntoSet
         @ForScope(AppScope::class)
-        internal fun providesDriverClosingIntoUpdatable(
-            driver: SqlDriver,
-        ): Updatable = object : Updatable {
-            override suspend fun update(): Nothing =
-                driver.use { _ ->
-                    awaitCancellation()
-                }
-        }
+        internal fun providesDriverClosingIntoUpdatable(driver: SqlDriver): Updatable =
+            object : Updatable {
+                override suspend fun update(): Nothing =
+                    driver.use { _ ->
+                        awaitCancellation()
+                    }
+            }
     }
 }

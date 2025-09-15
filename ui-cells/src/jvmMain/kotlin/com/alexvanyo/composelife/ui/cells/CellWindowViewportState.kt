@@ -24,7 +24,6 @@ import androidx.compose.ui.geometry.Offset
  */
 @Stable
 interface CellWindowViewportState {
-
     /**
      * Returns the [CellWindowViewport] corresponding to the given [CellWindowViewportState].
      */
@@ -49,21 +48,19 @@ val CellWindowViewportState.scale: Float
 /**
  * Returns a fixed [CellWindowViewportState] from the given [offset] and [scale].
  */
-fun CellWindowViewportState(
-    offset: Offset,
-    scale: Float,
-): CellWindowViewportState = CellWindowViewportState(
-    cellWindowViewport = CellWindowViewport(
-        offset = offset,
-        scale = scale,
-    ),
-)
+fun CellWindowViewportState(offset: Offset, scale: Float): CellWindowViewportState =
+    CellWindowViewportState(
+        cellWindowViewport =
+        CellWindowViewport(
+            offset = offset,
+            scale = scale,
+        ),
+    )
 
 /**
  * Returns a fixed [CellWindowViewportState] from the given [cellWindowViewport].
  */
-fun CellWindowViewportState(
-    cellWindowViewport: CellWindowViewport,
-): CellWindowViewportState = object : CellWindowViewportState {
-    override val cellWindowViewport = cellWindowViewport
-}
+fun CellWindowViewportState(cellWindowViewport: CellWindowViewport): CellWindowViewportState =
+    object : CellWindowViewportState {
+        override val cellWindowViewport = cellWindowViewport
+    }

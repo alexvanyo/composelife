@@ -48,18 +48,18 @@ class AlgorithmImplementationUiCtx(
     @Suppress("ComposableNaming")
     @Deprecated(
         "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
+        replaceWith =
+        ReplaceWith(
             "AlgorithmImplementationUi(modifier)",
         ),
     )
     @Composable
-    operator fun invoke(
-        modifier: Modifier = Modifier,
-    ) = lambda(preferencesHolder, composeLifePreferences, modifier)
+    operator fun invoke(modifier: Modifier = Modifier) = lambda(preferencesHolder, composeLifePreferences, modifier)
 
     companion object {
         private val lambda:
-            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences) (
+            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences)
+            (
                 modifier: Modifier,
             ) -> Unit =
             { modifier ->
@@ -68,22 +68,18 @@ class AlgorithmImplementationUiCtx(
     }
 }
 
-context(ctx: AlgorithmImplementationUiCtx)
 @Suppress("DEPRECATION")
 @Composable
-fun AlgorithmImplementationUi(
-    modifier: Modifier = Modifier,
-) = ctx(modifier)
+context(ctx: AlgorithmImplementationUiCtx)
+fun AlgorithmImplementationUi(modifier: Modifier = Modifier) = ctx(modifier)
 // endregion templated-ctx
 
+@Composable
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,
-composeLifePreferences: ComposeLifePreferences,
+    composeLifePreferences: ComposeLifePreferences,
 )
-@Composable
-private fun AlgorithmImplementationUi(
-    modifier: Modifier = Modifier,
-) {
+private fun AlgorithmImplementationUi(modifier: Modifier = Modifier) {
     AlgorithmImplementationUi(
         algorithmChoice = preferencesHolder.preferences.algorithmChoice,
         setAlgorithmChoice = composeLifePreferences::setAlgorithmChoice,
@@ -101,7 +97,8 @@ fun AlgorithmImplementationUi(
 
     TextFieldDropdown(
         label = parameterizedStringResource(Strings.AlgorithmImplementation),
-        currentValue = when (algorithmChoice) {
+        currentValue =
+        when (algorithmChoice) {
             AlgorithmType.HashLifeAlgorithm -> AlgorithmImplementationDropdownOption.HashLifeAlgorithm
             AlgorithmType.NaiveAlgorithm -> AlgorithmImplementationDropdownOption.NaiveAlgorithm
         },
@@ -110,10 +107,13 @@ fun AlgorithmImplementationUi(
             coroutineScope.launch {
                 setAlgorithmChoice(
                     when (option) {
-                        AlgorithmImplementationDropdownOption.HashLifeAlgorithm ->
+                        AlgorithmImplementationDropdownOption.HashLifeAlgorithm -> {
                             AlgorithmType.HashLifeAlgorithm
-                        AlgorithmImplementationDropdownOption.NaiveAlgorithm ->
+                        }
+
+                        AlgorithmImplementationDropdownOption.NaiveAlgorithm -> {
                             AlgorithmType.NaiveAlgorithm
+                        }
                     },
                 )
             }
@@ -126,6 +126,7 @@ sealed interface AlgorithmImplementationDropdownOption : DropdownOption {
     data object HashLifeAlgorithm : AlgorithmImplementationDropdownOption {
         override val displayText: ParameterizedString = Strings.HashLifeAlgorithm
     }
+
     data object NaiveAlgorithm : AlgorithmImplementationDropdownOption {
         override val displayText: ParameterizedString = Strings.NaiveAlgorithm
     }

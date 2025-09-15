@@ -38,8 +38,10 @@ internal fun ClipboardWatchingSectionOnboardingPreview(modifier: Modifier = Modi
             with(implicit().clipboardCellStatePreviewCtx) {
                 Surface(modifier) {
                     ClipboardWatchingSection(
-                        clipboardWatchingState = object : ClipboardWatchingState.Onboarding {
+                        clipboardWatchingState =
+                        object : ClipboardWatchingState.Onboarding {
                             override fun onAllowClipboardWatching() = Unit
+
                             override fun onDisallowClipboardWatching() = Unit
                         },
                     )
@@ -75,7 +77,8 @@ internal fun ClipboardWatchingSectionEnabledLoadingPreview(modifier: Modifier = 
             with(implicit().clipboardCellStatePreviewCtx) {
                 Surface(modifier) {
                     ClipboardWatchingSection(
-                        clipboardWatchingState = object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                        clipboardWatchingState =
+                        object : ClipboardWatchingState.ClipboardWatchingEnabled {
                             override val useSharedElementForCellStatePreviews: Boolean = false
                             override val isLoading = true
                             override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
@@ -97,24 +100,28 @@ internal fun ClipboardWatchingSectionEnabledUnsuccessfulPreview(modifier: Modifi
             with(implicit().clipboardCellStatePreviewCtx) {
                 Surface(modifier) {
                     ClipboardWatchingSection(
-                        clipboardWatchingState = object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                        clipboardWatchingState =
+                        object : ClipboardWatchingState.ClipboardWatchingEnabled {
                             override val useSharedElementForCellStatePreviews: Boolean = false
                             override val isLoading: Boolean = true
-                            override val clipboardPreviewStates: List<ClipboardPreviewState> = listOf(
-                                object : ClipboardPreviewState {
-                                    override val id = Uuid.random()
-                                    override val deserializationResult: DeserializationResult =
-                                        DeserializationResult.Unsuccessful(
-                                            warnings = emptyList(),
-                                            errors = emptyList(),
-                                        )
-                                    override val isPinned: Boolean = false
+                            override val clipboardPreviewStates: List<ClipboardPreviewState> =
+                                listOf(
+                                    object : ClipboardPreviewState {
+                                        override val id = Uuid.random()
+                                        override val deserializationResult: DeserializationResult =
+                                            DeserializationResult.Unsuccessful(
+                                                warnings = emptyList(),
+                                                errors = emptyList(),
+                                            )
+                                        override val isPinned: Boolean = false
 
-                                    override fun onPaste() = Unit
-                                    override fun onPinChanged() = Unit
-                                    override fun onViewDeserializationInfo() = Unit
-                                },
-                            )
+                                        override fun onPaste() = Unit
+
+                                        override fun onPinChanged() = Unit
+
+                                        override fun onViewDeserializationInfo() = Unit
+                                    },
+                                )
                             override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> = emptyList()
                         },
                     )
@@ -133,25 +140,29 @@ internal fun ClipboardWatchingSectionEnabledSuccessfulPreview(modifier: Modifier
             with(implicit().clipboardCellStatePreviewCtx) {
                 Surface(modifier) {
                     ClipboardWatchingSection(
-                        clipboardWatchingState = object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                        clipboardWatchingState =
+                        object : ClipboardWatchingState.ClipboardWatchingEnabled {
                             override val useSharedElementForCellStatePreviews: Boolean = false
                             override val isLoading: Boolean = true
-                            override val clipboardPreviewStates: List<ClipboardPreviewState> = listOf(
-                                object : ClipboardPreviewState {
-                                    override val id = Uuid.random()
-                                    override val deserializationResult: DeserializationResult =
-                                        DeserializationResult.Successful(
-                                            cellState = GliderPattern.seedCellState,
-                                            warnings = emptyList(),
-                                            format = CellStateFormat.FixedFormat.RunLengthEncoding,
-                                        )
-                                    override val isPinned: Boolean = false
+                            override val clipboardPreviewStates: List<ClipboardPreviewState> =
+                                listOf(
+                                    object : ClipboardPreviewState {
+                                        override val id = Uuid.random()
+                                        override val deserializationResult: DeserializationResult =
+                                            DeserializationResult.Successful(
+                                                cellState = GliderPattern.seedCellState,
+                                                warnings = emptyList(),
+                                                format = CellStateFormat.FixedFormat.RunLengthEncoding,
+                                            )
+                                        override val isPinned: Boolean = false
 
-                                    override fun onPaste() = Unit
-                                    override fun onPinChanged() = Unit
-                                    override fun onViewDeserializationInfo() = Unit
-                                },
-                            )
+                                        override fun onPaste() = Unit
+
+                                        override fun onPinChanged() = Unit
+
+                                        override fun onViewDeserializationInfo() = Unit
+                                    },
+                                )
                             override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> = emptyList()
                         },
                     )

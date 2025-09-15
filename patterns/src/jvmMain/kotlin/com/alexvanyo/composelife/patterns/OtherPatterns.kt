@@ -115,7 +115,8 @@ data object SixLongLinePattern : GameOfLifeTestPattern(
         |..........
         |..........
         """.toCellState(),
-    ) + List(50) { emptyCellState() },
+    ) +
+        List(50) { emptyCellState() },
 )
 
 data object GosperGliderGunPattern : GameOfLifeTestPattern(

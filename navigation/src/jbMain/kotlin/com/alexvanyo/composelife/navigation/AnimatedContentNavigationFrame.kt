@@ -43,16 +43,16 @@ fun <T : NavigationEntry> AnimatedContentNavigationFrame(
         (
             fadeIn(animationSpec = tween(220, delayMillis = 90)) +
                 scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90))
-            )
-            .togetherWith(fadeOut(animationSpec = tween(90)))
+            ).togetherWith(fadeOut(animationSpec = tween(90)))
     },
     contentAlignment: Alignment = Alignment.TopStart,
 ) {
-    val rememberedPanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
-        key(id) {
-            rememberUpdatedState(paneContent)
+    val rememberedPanes =
+        renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
+            key(id) {
+                rememberUpdatedState(paneContent)
+            }
         }
-    }
     AnimatedContent(
         targetState = renderableNavigationState.navigationState.currentEntry,
         transitionSpec = transitionSpec,

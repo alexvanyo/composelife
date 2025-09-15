@@ -24,14 +24,11 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 actual sealed class ParameterizedString {
-
     internal abstract val args: List<ParameterizedStringArgument>
 
     @Serializable
-    internal data class BasicString(
-        val value: String,
-        override val args: List<ParameterizedStringArgument>,
-    ) : ParameterizedString()
+    internal data class BasicString(val value: String, override val args: List<ParameterizedStringArgument>) :
+        ParameterizedString()
 
     actual companion object
 }
@@ -39,10 +36,8 @@ actual sealed class ParameterizedString {
 /**
  * Creates a representation of a plain-text string.
  */
-actual fun ParameterizedString(
-    value: String,
-    vararg args: ParameterizedStringArgument,
-): ParameterizedString = ParameterizedString.BasicString(
-    value = value,
-    args = args.toList(),
-)
+actual fun ParameterizedString(value: String, vararg args: ParameterizedStringArgument): ParameterizedString =
+    ParameterizedString.BasicString(
+        value = value,
+        args = args.toList(),
+    )

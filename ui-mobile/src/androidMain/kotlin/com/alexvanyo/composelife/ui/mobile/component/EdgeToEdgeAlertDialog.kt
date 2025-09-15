@@ -124,7 +124,8 @@ fun EdgeToEdgeBasicAlertDialog(
     ) {
         val dialogPaneDescription = "dialog" // TODO: getString(string = Strings.BottomSheetPaneTitle)
         Box(
-            modifier = modifier
+            modifier =
+            modifier
                 .sizeIn(minWidth = DialogMinWidth, maxWidth = DialogMaxWidth)
                 .then(Modifier.semantics { paneTitle = dialogPaneDescription }),
             propagateMinConstraints = true,
@@ -229,11 +230,7 @@ internal fun AlertDialogContent(
  * Text styles will be merged with the current value of LocalTextStyle.
  */
 @Composable
-internal fun ProvideContentColorTextStyle(
-    contentColor: Color,
-    textStyle: TextStyle,
-    content: @Composable () -> Unit,
-) {
+internal fun ProvideContentColorTextStyle(contentColor: Color, textStyle: TextStyle, content: @Composable () -> Unit) {
     val mergedStyle = LocalTextStyle.current.merge(textStyle)
     CompositionLocalProvider(
         LocalContentColor provides contentColor,
@@ -247,11 +244,7 @@ internal fun ProvideContentColorTextStyle(
  * customization.
  */
 @Composable
-internal fun AlertDialogFlowRow(
-    mainAxisSpacing: Dp,
-    crossAxisSpacing: Dp,
-    content: @Composable () -> Unit,
-) {
+internal fun AlertDialogFlowRow(mainAxisSpacing: Dp, crossAxisSpacing: Dp, content: @Composable () -> Unit) {
     Layout(content) { measurables, constraints ->
         val sequences = mutableListOf<List<Placeable>>()
         val crossAxisSizes = mutableListOf<Int>()
@@ -266,7 +259,9 @@ internal fun AlertDialogFlowRow(
 
         // Return whether the placeable can be added to the current sequence.
         fun canAddToCurrentSequence(placeable: Placeable) =
-            currentSequence.isEmpty() || currentMainAxisSize + mainAxisSpacing.roundToPx() +
+            currentSequence.isEmpty() ||
+                currentMainAxisSize +
+                mainAxisSpacing.roundToPx() +
                 placeable.width <= constraints.maxWidth
 
         // Store current sequence information and start a new sequence.
@@ -316,10 +311,11 @@ internal fun AlertDialogFlowRow(
 
         layout(layoutWidth, layoutHeight) {
             sequences.fastForEachIndexed { i, placeables ->
-                val childrenMainAxisSizes = IntArray(placeables.size) { j ->
-                    placeables[j].width +
-                        if (j < placeables.lastIndex) mainAxisSpacing.roundToPx() else 0
-                }
+                val childrenMainAxisSizes =
+                    IntArray(placeables.size) { j ->
+                        placeables[j].width +
+                            if (j < placeables.lastIndex) mainAxisSpacing.roundToPx() else 0
+                    }
                 val arrangement = Arrangement.End
                 val mainAxisPositions = IntArray(childrenMainAxisSizes.size) { 0 }
                 with(arrangement) {
@@ -370,13 +366,15 @@ internal fun EdgeToEdgeAlertDialogPreview() {
         verticalArrangement = Arrangement.Center,
     ) {
         BasicText(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .height(64.dp)
                 .clickable { showEdgeToEdgeAlertDialog = true },
             text = "Show edge-to-edge alert dialog",
         )
         BasicText(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .height(64.dp)
                 .clickable { showAlertDialog = true },
             text = "Show built-in alert dialog",

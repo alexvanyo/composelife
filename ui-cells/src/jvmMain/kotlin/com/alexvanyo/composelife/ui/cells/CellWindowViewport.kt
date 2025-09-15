@@ -22,14 +22,12 @@ import androidx.compose.ui.geometry.Offset
  * A particular viewport into the cell universe.
  */
 data class CellWindowViewport(
-
     /**
      * The [Offset] (in cell coordinates) of the center focused cell.
      *
      * Positive x is to the right, and positive y is to the bottom.
      */
     val offset: Offset,
-
     /**
      * The scale of the current cell window. This is a multiplicative scale, so `1` is the default scale,
      * `2` corresponds to cells twice as big, and `0.5` corresponds to cells half as big.

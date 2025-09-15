@@ -39,80 +39,83 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class DisableOpenGLUiTests {
-
     @Test
-    fun disable_is_displayed_correctly() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun disable_is_displayed_correctly() =
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DisableOpenGLUi(
-                disableOpenGL = true,
-                setDisableOpenGL = {},
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                DisableOpenGLUi(
+                    disableOpenGL = true,
+                    setDisableOpenGL = {},
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.DisableOpenGL))
+                .assertExists()
+                .assertIsOn()
+                .assertHasClickAction()
         }
 
-        onNodeWithContentDescription(resolver(Strings.DisableOpenGL))
-            .assertExists()
-            .assertIsOn()
-            .assertHasClickAction()
-    }
-
     @Test
-    fun disable_will_update_correctly() = runComposeUiTest {
-        var disableOpenGL by mutableStateOf(true)
+    fun disable_will_update_correctly() =
+        runComposeUiTest {
+            var disableOpenGL by mutableStateOf(true)
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DisableOpenGLUi(
-                disableOpenGL = disableOpenGL,
-                setDisableOpenGL = { disableOpenGL = it },
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                DisableOpenGLUi(
+                    disableOpenGL = disableOpenGL,
+                    setDisableOpenGL = { disableOpenGL = it },
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.DisableOpenGL))
+                .performClick()
+
+            assertFalse(disableOpenGL)
         }
 
-        onNodeWithContentDescription(resolver(Strings.DisableOpenGL))
-            .performClick()
-
-        assertFalse(disableOpenGL)
-    }
-
     @Test
-    fun enable_is_displayed_correctly() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun enable_is_displayed_correctly() =
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DisableOpenGLUi(
-                disableOpenGL = false,
-                setDisableOpenGL = {},
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                DisableOpenGLUi(
+                    disableOpenGL = false,
+                    setDisableOpenGL = {},
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.DisableOpenGL))
+                .assertExists()
+                .assertIsOff()
+                .assertHasClickAction()
         }
 
-        onNodeWithContentDescription(resolver(Strings.DisableOpenGL))
-            .assertExists()
-            .assertIsOff()
-            .assertHasClickAction()
-    }
-
     @Test
-    fun enable_will_update_correctly() = runComposeUiTest {
-        var disableOpenGL by mutableStateOf(false)
+    fun enable_will_update_correctly() =
+        runComposeUiTest {
+            var disableOpenGL by mutableStateOf(false)
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DisableOpenGLUi(
-                disableOpenGL = disableOpenGL,
-                setDisableOpenGL = { disableOpenGL = it },
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                DisableOpenGLUi(
+                    disableOpenGL = disableOpenGL,
+                    setDisableOpenGL = { disableOpenGL = it },
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.DisableOpenGL))
+                .performClick()
+
+            assertTrue(disableOpenGL)
         }
-
-        onNodeWithContentDescription(resolver(Strings.DisableOpenGL))
-            .performClick()
-
-        assertTrue(disableOpenGL)
-    }
 }

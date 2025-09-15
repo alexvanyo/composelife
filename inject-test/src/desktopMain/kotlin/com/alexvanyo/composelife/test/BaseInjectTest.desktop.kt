@@ -28,5 +28,4 @@ actual abstract class BaseInjectTest actual constructor(
     applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph,
 ) : BaseInjectTestImpl(applicationGraphCreator)
 
-actual fun createApplicationGraphArguments(): ApplicationGraphArguments =
-    object : ApplicationGraphArguments {}
+actual fun createApplicationGraphArguments(): ApplicationGraphArguments = object : ApplicationGraphArguments {}

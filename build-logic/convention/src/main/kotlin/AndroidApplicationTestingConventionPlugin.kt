@@ -23,61 +23,70 @@ import com.slack.keeper.KeeperExtension
 import com.slack.keeper.optInToKeeper
 import org.gradle.api.GradleException
 
-class AndroidApplicationTestingConventionPlugin : ConventionPlugin({
-    val enableKeeperProperty = providers.gradleProperty("com.alexvanyo.composelife.enableKeeper")
-    val enableKeeper = enableKeeperProperty
-        .orElse(defaultEnableKeeper.toString())
-        .map {
-            when (it) {
-                "true" -> true
-                "false" -> false
-                else ->
-                    throw GradleException("Unexpected value $it for enableKeeper!")
-            }
-        }
+class AndroidApplicationTestingConventionPlugin :
+    ConventionPlugin({
+        val enableKeeperProperty = providers.gradleProperty("com.alexvanyo.composelife.enableKeeper")
+        val enableKeeper =
+            enableKeeperProperty
+                .orElse(defaultEnableKeeper.toString())
+                .map {
+                    when (it) {
+                        "true" -> {
+                            true
+                        }
 
-    with(pluginManager) {
-        apply("com.android.application")
-    }
+                        "false" -> {
+                            false
+                        }
 
-    extensions.configure(ApplicationExtension::class.java) {
-        defaultConfig {
-            val testBuildTypeProperty =
-                providers
-                    .gradleProperty("com.alexvanyo.composelife.testBuildType")
-                    .orNull
-            if (testBuildTypeProperty !in setOf(null, "staging", "debug")) {
-                throw GradleException("Unexpected value $testBuildTypeProperty for testBuildType!")
-            }
-            testBuildType = testBuildTypeProperty ?: defaultTestBuildType
-        }
-        configureTesting(this)
-    }
+                        else -> {
+                            throw GradleException("Unexpected value $it for enableKeeper!")
+                        }
+                    }
+                }
 
-    configureAndroidTesting(
-        extensions.getByType(ApplicationExtension::class.java),
-        extensions.getByType(com.android.build.gradle.TestedExtension::class.java),
-    )
-
-    if (enableKeeper.get()) {
         with(pluginManager) {
-            apply("com.slack.keeper")
+            apply("com.android.application")
         }
 
-        extensions.configure(ApplicationAndroidComponentsExtension::class.java) {
-            beforeVariants { builder ->
-                if (builder.buildType == "staging") {
-                    builder.optInToKeeper()
+        extensions.configure(ApplicationExtension::class.java) {
+            defaultConfig {
+                val testBuildTypeProperty =
+                    providers
+                        .gradleProperty("com.alexvanyo.composelife.testBuildType")
+                        .orNull
+                if (testBuildTypeProperty !in setOf(null, "staging", "debug")) {
+                    throw GradleException("Unexpected value $testBuildTypeProperty for testBuildType!")
+                }
+                testBuildType = testBuildTypeProperty ?: defaultTestBuildType
+            }
+            configureTesting(this)
+        }
+
+        configureAndroidTesting(
+            extensions.getByType(ApplicationExtension::class.java),
+            extensions.getByType(com.android.build.gradle.TestedExtension::class.java),
+        )
+
+        if (enableKeeper.get()) {
+            with(pluginManager) {
+                apply("com.slack.keeper")
+            }
+
+            extensions.configure(ApplicationAndroidComponentsExtension::class.java) {
+                beforeVariants { builder ->
+                    if (builder.buildType == "staging") {
+                        builder.optInToKeeper()
+                    }
                 }
             }
-        }
 
-        extensions.configure(KeeperExtension::class.java) {
-            automaticR8RepoManagement.set(false)
-            traceReferences {}
+            extensions.configure(KeeperExtension::class.java) {
+                automaticR8RepoManagement.set(false)
+                traceReferences {}
+            }
         }
-    }
-})
+    })
 
 /**
  * The default value to enable Keeper or not, if none is specified by the property

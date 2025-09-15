@@ -69,12 +69,12 @@ import kotlin.uuid.Uuid
 /**
  * The overlay based on the [selectionSessionState].
  */
-context(
-    _: CellStateParser,
-_: CellWindowImplCtx,
-)
 @Suppress("LongMethod", "LongParameterList", "CyclomaticComplexMethod")
 @Composable
+context(
+    _: CellStateParser,
+    _: CellWindowImplCtx,
+)
 internal fun SelectionOverlay(
     selectionSessionState: SessionValue<SelectionState>,
     setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,
@@ -84,30 +84,37 @@ internal fun SelectionOverlay(
     pixelOffsetFromCenter: Offset,
     modifier: Modifier = Modifier,
 ) {
-    val selectionSessionStateValueHolder = rememberSessionValueHolder(
-        upstreamSessionValue = selectionSessionState,
-        setUpstreamSessionValue = { _, sessionValue ->
-            setSelectionSessionState(sessionValue)
-        },
-    )
+    val selectionSessionStateValueHolder =
+        rememberSessionValueHolder(
+            upstreamSessionValue = selectionSessionState,
+            setUpstreamSessionValue = { _, sessionValue ->
+                setSelectionSessionState(sessionValue)
+            },
+        )
     val sessionValue = selectionSessionStateValueHolder.sessionValue
 
     val scaledCellPixelSize = with(LocalDensity.current) { scaledCellDpSize.toPx() }
-    val cellStateDropStateHolder = rememberMutableCellStateDropStateHolder { dropOffset, cellState ->
-        setSelectionSessionState(
-            SessionValue(
-                sessionId = Uuid.random(),
-                valueId = Uuid.random(),
-                value = SelectionState.Selection(
-                    cellState = cellState,
-                    offset = (
-                        cellWindow.topLeft.toOffset() + (dropOffset / scaledCellPixelSize) -
-                            cellState.boundingBox.size.toSize().center
-                        ).round(),
+    val cellStateDropStateHolder =
+        rememberMutableCellStateDropStateHolder { dropOffset, cellState ->
+            setSelectionSessionState(
+                SessionValue(
+                    sessionId = Uuid.random(),
+                    valueId = Uuid.random(),
+                    value =
+                    SelectionState.Selection(
+                        cellState = cellState,
+                        offset =
+                        (
+                            cellWindow.topLeft.toOffset() +
+                                (dropOffset / scaledCellPixelSize) -
+                                cellState.boundingBox.size
+                                    .toSize()
+                                    .center
+                            ).round(),
+                    ),
                 ),
-            ),
-        )
-    }
+            )
+        }
 
     val dropAvailableBorderColor = MaterialTheme.colorScheme.tertiary
     val dropPreviewCellStateBorderColor = MaterialTheme.colorScheme.secondary
@@ -115,7 +122,8 @@ internal fun SelectionOverlay(
     val windowShape = currentWindowShape()
     var relativeLayoutBounds: RelativeLayoutBounds? by remember { mutableStateOf(null) }
     AnimatedContent(
-        targetState = TargetState.Single(
+        targetState =
+        TargetState.Single(
             sessionValue to selectionSessionStateValueHolder.info.preLocalSessionId,
         ),
         contentAlignment = Alignment.Center,
@@ -126,52 +134,57 @@ internal fun SelectionOverlay(
                 is SelectionState.Selection -> 2
             } to preLocalSessionId
         },
-        modifier = modifier
+        modifier =
+        modifier
             .onLayoutRectChanged(
                 throttleMillis = 0,
                 debounceMillis = 0,
             ) {
                 relativeLayoutBounds = it
-            }
-            .drawWithContent {
+            }.drawWithContent {
                 drawContent()
 
                 when (cellStateDropStateHolder.cellStateDropState) {
                     CellStateDropState.ApplicableDropAvailable,
                     is CellStateDropState.DropPreview,
                     -> {
-                        val path = windowShape.path.copy().apply {
-                            translate(-checkNotNull(relativeLayoutBounds).positionInWindow.toOffset())
-                        } and Path().apply {
-                            addRect(size.toRect())
-                        }
+                        val path =
+                            windowShape.path.copy().apply {
+                                translate(-checkNotNull(relativeLayoutBounds).positionInWindow.toOffset())
+                            } and
+                                Path().apply {
+                                    addRect(size.toRect())
+                                }
                         drawPath(
                             path = path,
                             color = dropAvailableBorderColor,
-                            style = Stroke(
+                            style =
+                            Stroke(
                                 width = 4.dp.toPx(),
                             ),
                         )
                     }
-                    CellStateDropState.None -> Unit
+
+                    CellStateDropState.None -> {
+                        Unit
+                    }
                 }
-            }
-            .graphicsLayer {
+            }.graphicsLayer {
                 this.translationX = -pixelOffsetFromCenter.x
                 this.translationY = -pixelOffsetFromCenter.y
-            }
-            .requiredSize(
+            }.requiredSize(
                 scaledCellDpSize * cellWindow.width,
                 scaledCellDpSize * cellWindow.height,
-            )
-            .cellStateDragAndDropTarget(
+            ).cellStateDragAndDropTarget(
                 mutableCellStateDropStateHolder = cellStateDropStateHolder,
-            )
-            .drawWithContent {
+            ).drawWithContent {
                 drawContent()
 
                 when (val cellStateDropState = cellStateDropStateHolder.cellStateDropState) {
-                    CellStateDropState.ApplicableDropAvailable -> Unit
+                    CellStateDropState.ApplicableDropAvailable -> {
+                        Unit
+                    }
+
                     is CellStateDropState.DropPreview -> {
                         drawDropPreview(
                             dropPreview = cellStateDropState,
@@ -180,7 +193,9 @@ internal fun SelectionOverlay(
                         )
                     }
 
-                    CellStateDropState.None -> Unit
+                    CellStateDropState.None -> {
+                        Unit
+                    }
                 }
             },
     ) { (targetSelectionSessionState, _) ->
@@ -238,16 +253,25 @@ private fun ContentDrawScope.drawDropPreview(
     drawSymmetricDashedRect(
         color = cellStateOutlineColor,
         strokeWidth = 2.dp.toPx(),
-        intervals = floatArrayOf(
+        intervals =
+        floatArrayOf(
             24.dp.toPx(),
             12.dp.toPx(),
         ),
         phase = 12.dp.toPx(),
-        rect = (
+        rect =
+        (
             (
-                dropPreview.cellState.boundingBox.size.toIntRect().toRect()
-                    .translate(-dropPreview.cellState.boundingBox.size.toSize().center)
-                ) * scaledCellDpSize.toPx()
+                dropPreview.cellState.boundingBox.size
+                    .toIntRect()
+                    .toRect()
+                    .translate(
+                        -dropPreview.cellState.boundingBox.size
+                            .toSize()
+                            .center,
+                    )
+                ) *
+                scaledCellDpSize.toPx()
             ).translate(dropPreview.offset),
     )
 }
@@ -261,41 +285,47 @@ fun Modifier.boxLayoutByHandles(
     handleBOffsetCalculator: () -> Offset,
     handleCOffsetCalculator: () -> Offset,
     handleDOffsetCalculator: () -> Offset,
-): Modifier = layout { measurable, constraints ->
-    // Calculate the offsets of the 4 handles
-    val aOffset = handleAOffsetCalculator()
-    val bOffset = handleBOffsetCalculator()
-    val cOffset = handleCOffsetCalculator()
-    val dOffset = handleDOffsetCalculator()
+): Modifier =
+    layout { measurable, constraints ->
+        // Calculate the offsets of the 4 handles
+        val aOffset = handleAOffsetCalculator()
+        val bOffset = handleBOffsetCalculator()
+        val cOffset = handleCOffsetCalculator()
+        val dOffset = handleDOffsetCalculator()
 
-    // Determine the top left and bottom right points of the offset, coercing to the edges of this box
-    // to avoid drawing the box outside of the bounds.
-    val minX = min(min(aOffset.x, bOffset.x), min(cOffset.x, dOffset.x))
-        .coerceIn(0f, constraints.maxWidth.toFloat())
-    val maxX = max(max(aOffset.x, bOffset.x), max(cOffset.x, dOffset.x))
-        .coerceIn(0f, constraints.maxWidth.toFloat())
-    val minY = min(min(aOffset.y, bOffset.y), min(cOffset.y, dOffset.y))
-        .coerceIn(0f, constraints.maxHeight.toFloat())
-    val maxY = max(max(aOffset.y, bOffset.y), max(cOffset.y, dOffset.y))
-        .coerceIn(0f, constraints.maxHeight.toFloat())
+        // Determine the top left and bottom right points of the offset, coercing to the edges of this box
+        // to avoid drawing the box outside of the bounds.
+        val minX =
+            min(min(aOffset.x, bOffset.x), min(cOffset.x, dOffset.x))
+                .coerceIn(0f, constraints.maxWidth.toFloat())
+        val maxX =
+            max(max(aOffset.x, bOffset.x), max(cOffset.x, dOffset.x))
+                .coerceIn(0f, constraints.maxWidth.toFloat())
+        val minY =
+            min(min(aOffset.y, bOffset.y), min(cOffset.y, dOffset.y))
+                .coerceIn(0f, constraints.maxHeight.toFloat())
+        val maxY =
+            max(max(aOffset.y, bOffset.y), max(cOffset.y, dOffset.y))
+                .coerceIn(0f, constraints.maxHeight.toFloat())
 
-    val topLeft = Offset(minX, minY)
-    val size = Size(maxX - minX, maxY - minY)
+        val topLeft = Offset(minX, minY)
+        val size = Size(maxX - minX, maxY - minY)
 
-    val selectionBoxConstraints = Constraints(
-        minWidth = size.width.roundToInt(),
-        maxWidth = size.width.roundToInt(),
-        minHeight = size.height.roundToInt(),
-        maxHeight = size.height.roundToInt(),
-    )
+        val selectionBoxConstraints =
+            Constraints(
+                minWidth = size.width.roundToInt(),
+                maxWidth = size.width.roundToInt(),
+                minHeight = size.height.roundToInt(),
+                maxHeight = size.height.roundToInt(),
+            )
 
-    // Measure the contents exactly to the constraints.
-    val placeable = measurable.measure(selectionBoxConstraints)
+        // Measure the contents exactly to the constraints.
+        val placeable = measurable.measure(selectionBoxConstraints)
 
-    layout(constraints.maxWidth, constraints.maxHeight) {
-        placeable.place(topLeft.round())
+        layout(constraints.maxWidth, constraints.maxHeight) {
+            placeable.place(topLeft.round())
+        }
     }
-}
 
 fun <T> AnchoredDraggable2DState<T>.isDraggingOrAnimating(): Boolean =
     anchors.positionOf(currentValue) != requireOffset()

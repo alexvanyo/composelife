@@ -61,13 +61,15 @@ fun <T> rememberMutableBackstackNavigationController(
 ): MutableBackstackNavigationController<T> {
     require(initialBackstackEntries.isNotEmpty())
 
-    val backstackMap = rememberBackstackMap(
-        initialBackstackEntries = initialBackstackEntries,
-        backstackValueSaverFactory = backstackValueSaverFactory,
-    )
+    val backstackMap =
+        rememberBackstackMap(
+            initialBackstackEntries = initialBackstackEntries,
+            backstackValueSaverFactory = backstackValueSaverFactory,
+        )
 
     var currentBackstackEntryId by rememberSaveable(
-        saver = Saver(
+        saver =
+        Saver(
             save = { it.value.toString() },
             restore = { mutableStateOf(Uuid.parse(it)) },
         ),
@@ -122,11 +124,12 @@ fun <T> MutableBackstackNavigationController<T>.popUpTo(
     entryPredicate: (BackstackEntry<T>) -> Boolean,
     inclusive: Boolean = false,
 ) {
-    currentEntryId = entryMap.popUpTo(
-        currentEntryId = currentEntryId,
-        entryPredicate = entryPredicate,
-        inclusive = inclusive,
-    )
+    currentEntryId =
+        entryMap.popUpTo(
+            currentEntryId = currentEntryId,
+            entryPredicate = entryPredicate,
+            inclusive = inclusive,
+        )
 }
 
 /**
@@ -134,13 +137,11 @@ fun <T> MutableBackstackNavigationController<T>.popUpTo(
  *
  * If [inclusive] is true, then the entry with the given [id] will also be popped.
  */
-fun <T> MutableBackstackNavigationController<T>.popUpTo(
-    id: Uuid,
-    inclusive: Boolean = false,
-) = popUpTo(
-    entryPredicate = { it.id == id },
-    inclusive = inclusive,
-)
+fun <T> MutableBackstackNavigationController<T>.popUpTo(id: Uuid, inclusive: Boolean = false) =
+    popUpTo(
+        entryPredicate = { it.id == id },
+        inclusive = inclusive,
+    )
 
 /**
  * A navigation action that pops the backstack until the [predicate] is `true` for some entry's value, starting at the
@@ -149,13 +150,11 @@ fun <T> MutableBackstackNavigationController<T>.popUpTo(
  * If [inclusive] is true, then the entry that satisfies the [predicate] will also be popped.
  */
 @JvmName("popUpToValue")
-fun <T> MutableBackstackNavigationController<T>.popUpTo(
-    predicate: (T) -> Boolean,
-    inclusive: Boolean = false,
-) = popUpTo(
-    entryPredicate = { predicate(it.value) },
-    inclusive = inclusive,
-)
+fun <T> MutableBackstackNavigationController<T>.popUpTo(predicate: (T) -> Boolean, inclusive: Boolean = false) =
+    popUpTo(
+        entryPredicate = { predicate(it.value) },
+        inclusive = inclusive,
+    )
 
 /**
  * A navigation action which adds the destination.
@@ -164,29 +163,29 @@ fun <T> MutableBackstackNavigationController<T>.navigate(
     valueFactory: (previous: BackstackEntry<T>) -> T,
     id: Uuid = Uuid.random(),
 ) {
-    currentEntryId = entryMap.navigate(
-        currentEntryId = currentEntryId,
-        valueFactory = valueFactory,
-        id = id,
-    )
+    currentEntryId =
+        entryMap.navigate(
+            currentEntryId = currentEntryId,
+            valueFactory = valueFactory,
+            id = id,
+        )
 }
 
 /**
  * A navigation action which adds the destination.
  */
-fun <T> MutableBackstackNavigationController<T>.navigate(
-    value: T,
-    id: Uuid = Uuid.random(),
-) = navigate(
-    valueFactory = { value },
-    id = id,
-)
+fun <T> MutableBackstackNavigationController<T>.navigate(value: T, id: Uuid = Uuid.random()) =
+    navigate(
+        valueFactory = { value },
+        id = id,
+    )
 
 /**
  * A navigation action which removes the last destination.
  */
 fun <T> MutableBackstackNavigationController<T>.popBackstack() {
-    currentEntryId = entryMap.popBackstack(
-        currentEntryId = currentEntryId,
-    )
+    currentEntryId =
+        entryMap.popBackstack(
+            currentEntryId = currentEntryId,
+        )
 }

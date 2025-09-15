@@ -33,7 +33,6 @@ import kotlin.reflect.KClass
 @ContributesTo(AppScope::class)
 @BindingContainer
 interface WorkManagerBindings {
-
     @Multibinds(allowEmpty = true)
     val workerFactoryClassMap: Map<KClass<out ListenableWorker>, AssistedWorkerFactory>
 
@@ -41,14 +40,14 @@ interface WorkManagerBindings {
         @Provides
         internal fun providesWorkerFactoryClassNameMap(
             workerFactoryClassMap: Map<KClass<out ListenableWorker>, AssistedWorkerFactory>,
-        ): Map<String, AssistedWorkerFactory> =
-            workerFactoryClassMap.mapKeys { it.key.java.name }
+        ): Map<String, AssistedWorkerFactory> = workerFactoryClassMap.mapKeys { it.key.java.name }
 
         @Provides
         internal fun providesWorkManagerConfiguration(
             injectWorkerFactory: InjectWorkerFactory,
         ): androidx.work.Configuration =
-            androidx.work.Configuration.Builder()
+            androidx.work.Configuration
+                .Builder()
                 .setWorkerFactory(injectWorkerFactory)
                 .build()
 

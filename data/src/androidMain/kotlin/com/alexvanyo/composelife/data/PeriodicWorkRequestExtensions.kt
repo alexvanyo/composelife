@@ -31,7 +31,8 @@ inline fun <reified T : ListenableWorker> PeriodicWorkRequestBuilder(
     repeatPeriod: DateTimePeriod,
 ): PeriodicWorkRequest.Builder =
     PeriodicWorkRequestBuilder<T>(
-        repeatInterval = (
+        repeatInterval =
+        (
             repeatPeriod.nanoseconds.nanoseconds +
                 repeatPeriod.seconds.seconds +
                 repeatPeriod.minutes.minutes +

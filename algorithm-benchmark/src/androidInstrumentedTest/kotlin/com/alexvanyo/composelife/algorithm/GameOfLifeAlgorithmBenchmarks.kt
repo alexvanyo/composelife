@@ -37,7 +37,6 @@ import kotlin.test.Test
 
 @RunWith(TestParameterInjector::class)
 class GameOfLifeAlgorithmBenchmarks {
-
     @get:Rule
     val benchmarkRule = BenchmarkRule()
 
@@ -60,10 +59,7 @@ class GameOfLifeAlgorithmBenchmarks {
         }
     }
 
-    class CellStateMapper(
-        private val name: String,
-        val mapper: (CellState) -> CellState,
-    ) {
+    class CellStateMapper(private val name: String, val mapper: (CellState) -> CellState) {
         override fun toString(): String = name
 
         class Provider : TestParameterValuesProvider() {
@@ -103,23 +99,25 @@ class GameOfLifeAlgorithmBenchmarks {
 
         benchmarkRule.measureRepeated {
             runBlocking {
-                val algorithm = runWithMeasurementDisabled {
-                    algorithmFactory.factory(
-                        TestComposeLifeDispatchers(
-                            generalTestDispatcher = testDispatcher,
-                            cellTickerTestDispatcher = testDispatcher,
-                        ),
-                    )
-                }
-                val originalCellState = runWithMeasurementDisabled {
-                    cellStateMapper.mapper(testPattern.seedCellState)
-                }
+                val algorithm =
+                    runWithMeasurementDisabled {
+                        algorithmFactory.factory(
+                            TestComposeLifeDispatchers(
+                                generalTestDispatcher = testDispatcher,
+                                cellTickerTestDispatcher = testDispatcher,
+                            ),
+                        )
+                    }
+                val originalCellState =
+                    runWithMeasurementDisabled {
+                        cellStateMapper.mapper(testPattern.seedCellState)
+                    }
 
-                algorithm.computeGenerationsWithStep(
-                    originalCellState = originalCellState,
-                    step = 1,
-                )
-                    .take(100)
+                algorithm
+                    .computeGenerationsWithStep(
+                        originalCellState = originalCellState,
+                        step = 1,
+                    ).take(100)
                     .collect {}
             }
         }

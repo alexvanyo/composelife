@@ -18,8 +18,10 @@ package com.alexvanyo.composelife.logging
 
 import co.touchlab.kermit.StaticConfig
 
-val NoOpLogger: Logger = SystemLogger(
-    kermitLoggerConfig = StaticConfig(
-        logWriterList = emptyList(),
-    ),
-)
+val NoOpLogger: Logger =
+    SystemLogger(
+        kermitLoggerConfig =
+        StaticConfig(
+            logWriterList = emptyList(),
+        ),
+    )

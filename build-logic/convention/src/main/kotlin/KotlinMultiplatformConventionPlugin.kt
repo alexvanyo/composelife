@@ -17,8 +17,9 @@
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.configureKotlin
 
-class KotlinMultiplatformConventionPlugin : ConventionPlugin({
-    pluginManager.apply("org.jetbrains.kotlin.multiplatform")
+class KotlinMultiplatformConventionPlugin :
+    ConventionPlugin({
+        pluginManager.apply("org.jetbrains.kotlin.multiplatform")
 
-    configureKotlin()
-})
+        configureKotlin()
+    })

@@ -21,7 +21,6 @@ import org.junit.Rule
 import kotlin.test.Test
 
 class BaselineProfileGenerator {
-
     @get:Rule
     val baselineProfileRule = BaselineProfileRule()
 

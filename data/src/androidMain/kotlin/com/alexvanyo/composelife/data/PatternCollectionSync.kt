@@ -44,10 +44,14 @@ import kotlinx.coroutines.guava.await
 
 @Inject
 @SingleIn(AppScope::class)
-@ContributesIntoSet(AppScope::class, binding = binding<
-    @ForScope(AppScope::class)
-    Updatable,
-    >())
+@ContributesIntoSet(
+    AppScope::class,
+    binding =
+    binding<
+        @ForScope(AppScope::class)
+        Updatable,
+        >(),
+)
 class PatternCollectionSync(
     private val composeLifePreferences: ComposeLifePreferences,
     workManager: Lazy<WorkManager>,
@@ -55,59 +59,58 @@ class PatternCollectionSync(
     private val workManager by workManager
 
     override suspend fun update(): Nothing {
-        val workInfos = workManager
-            .getWorkInfosForUniqueWorkFlow(PATTERN_COLLECTIONS_SYNC_NAME)
-            .first()
+        val workInfos =
+            workManager
+                .getWorkInfosForUniqueWorkFlow(PATTERN_COLLECTIONS_SYNC_NAME)
+                .first()
 
-        var id = if (workInfos.isEmpty()) {
-            null
-        } else {
-            assert(workInfos.size == 1)
-            workInfos.first().id
-        }
+        var id =
+            if (workInfos.isEmpty()) {
+                null
+            } else {
+                assert(workInfos.size == 1)
+                workInfos.first().id
+            }
 
         snapshotFlow {
             composeLifePreferences.loadedPreferencesState
-        }
-            .successes()
+        }.successes()
             .map { loadedPreferences ->
                 loadedPreferences.value.synchronizePatternCollectionsOnMeteredNetwork to
                     loadedPreferences.value.patternCollectionsSynchronizationPeriodSessionValue.value
-            }
-            .distinctUntilChanged()
+            }.distinctUntilChanged()
             .onEach { (synchronizePatternCollectionsOnMeteredNetwork, patternCollectionsSynchronizationPeriod) ->
-                val requestBuilderWithoutId = PeriodicWorkRequestBuilder<PatternCollectionSyncWorker>(
-                    repeatPeriod = patternCollectionsSynchronizationPeriod,
-                )
-                    .setConstraints(
-                        Constraints.Builder()
+                val requestBuilderWithoutId =
+                    PeriodicWorkRequestBuilder<PatternCollectionSyncWorker>(
+                        repeatPeriod = patternCollectionsSynchronizationPeriod,
+                    ).setConstraints(
+                        Constraints
+                            .Builder()
                             .setRequiredNetworkType(
                                 if (synchronizePatternCollectionsOnMeteredNetwork) {
                                     NetworkType.CONNECTED
                                 } else {
                                     NetworkType.UNMETERED
                                 },
-                            )
-                            .build(),
+                            ).build(),
                     )
 
                 if (id == null) {
                     val request = requestBuilderWithoutId.build()
-                    workManager.enqueueUniquePeriodicWork(
-                        uniqueWorkName = PATTERN_COLLECTIONS_SYNC_NAME,
-                        existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.UPDATE,
-                        request = request,
-                    )
-                        .await()
+                    workManager
+                        .enqueueUniquePeriodicWork(
+                            uniqueWorkName = PATTERN_COLLECTIONS_SYNC_NAME,
+                            existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.UPDATE,
+                            request = request,
+                        ).await()
                     id = request.id
                 } else {
-                    workManager.updateWork(
-                        request = requestBuilderWithoutId.setId(id).build(),
-                    )
-                        .await()
+                    workManager
+                        .updateWork(
+                            request = requestBuilderWithoutId.setId(id).build(),
+                        ).await()
                 }
-            }
-            .collect()
+            }.collect()
 
         error("snapshotFlow can not complete normally")
     }

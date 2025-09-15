@@ -46,13 +46,17 @@ import java.awt.dnd.DropTargetDropEvent
 actual fun Modifier.cellStateDragAndDropSource(getCellState: () -> CellState): Modifier =
     dragAndDropSource { offset ->
         DragAndDropTransferData(
-            transferable = DragAndDropTransferable(
-                transferable = StringSelection(
-                    RunLengthEncodedCellStateSerializer.serializeToString(getCellState())
+            transferable =
+            DragAndDropTransferable(
+                transferable =
+                StringSelection(
+                    RunLengthEncodedCellStateSerializer
+                        .serializeToString(getCellState())
                         .joinToString("\n"),
                 ),
             ),
-            supportedActions = listOf(
+            supportedActions =
+            listOf(
                 DragAndDropTransferAction.Copy,
                 DragAndDropTransferAction.Move,
                 DragAndDropTransferAction.Link,
@@ -107,8 +111,7 @@ internal actual class DragAndDropSession {
     }
 }
 
-private fun java.awt.Point.toOffset(): Offset =
-    Offset(x.toFloat(), y.toFloat())
+private fun java.awt.Point.toOffset(): Offset = Offset(x.toFloat(), y.toFloat())
 
 @OptIn(ExperimentalComposeUiApi::class)
 private val DragAndDropEvent.positionInRoot get() =

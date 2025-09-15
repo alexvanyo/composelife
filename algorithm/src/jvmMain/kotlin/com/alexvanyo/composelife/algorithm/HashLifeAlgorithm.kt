@@ -33,10 +33,7 @@ import kotlinx.coroutines.withContext
 
 @SingleIn(AppScope::class)
 @Inject
-class HashLifeAlgorithm(
-    private val dispatchers: ComposeLifeDispatchers,
-) : GameOfLifeAlgorithm {
-
+class HashLifeAlgorithm(private val dispatchers: ComposeLifeDispatchers) : GameOfLifeAlgorithm {
     private val mutex = Mutex()
 
     /**
@@ -57,18 +54,20 @@ class HashLifeAlgorithm(
      * The keys of this map must already have canonical subnodes, which is ensured by the implementation of
      * [makeCanonical].
      */
-    private val canonicalCellMap: Cache<Equivalence.Wrapper<MacroCell.CellNode>, MacroCell.CellNode> = Cache(
-        load = { key -> key.value.makeCanonical(false) },
-        getGenerationIndex = { computedGenerations },
-    )
+    private val canonicalCellMap: Cache<Equivalence.Wrapper<MacroCell.CellNode>, MacroCell.CellNode> =
+        Cache(
+            load = { key -> key.value.makeCanonical(false) },
+            getGenerationIndex = { computedGenerations },
+        )
 
     /**
      * The memoization map for [MacroCell.CellNode.computeNextGeneration].
      */
-    private val cellMap: Cache<Equivalence.Wrapper<MacroCell.CellNode>, MacroCell.CellNode> = Cache(
-        load = { key -> key.value.computeNextGeneration(false) },
-        getGenerationIndex = { computedGenerations },
-    )
+    private val cellMap: Cache<Equivalence.Wrapper<MacroCell.CellNode>, MacroCell.CellNode> =
+        Cache(
+            load = { key -> key.value.computeNextGeneration(false) },
+            getGenerationIndex = { computedGenerations },
+        )
 
     private fun MacroCell.makeCanonical(useMap: Boolean = true): MacroCell =
         when (this) {
@@ -86,23 +85,24 @@ class HashLifeAlgorithm(
             currentEntry
         } else {
             // Slow path: make all subnodes canonical, to check if we have an equivalent canonical node
-            val withCanonicalSubNodes = if (size == 0) {
-                // Special case: if this is an empty node, then all subnodes will have the same canonical node.
-                val smallerEmptyCellNode = nw.makeCanonical()
-                MacroCell.CellNode(
-                    nw = smallerEmptyCellNode,
-                    ne = smallerEmptyCellNode,
-                    sw = smallerEmptyCellNode,
-                    se = smallerEmptyCellNode,
-                )
-            } else {
-                MacroCell.CellNode(
-                    nw = nw.makeCanonical(),
-                    ne = ne.makeCanonical(),
-                    sw = sw.makeCanonical(),
-                    se = se.makeCanonical(),
-                )
-            }
+            val withCanonicalSubNodes =
+                if (size == 0) {
+                    // Special case: if this is an empty node, then all subnodes will have the same canonical node.
+                    val smallerEmptyCellNode = nw.makeCanonical()
+                    MacroCell.CellNode(
+                        nw = smallerEmptyCellNode,
+                        ne = smallerEmptyCellNode,
+                        sw = smallerEmptyCellNode,
+                        se = smallerEmptyCellNode,
+                    )
+                } else {
+                    MacroCell.CellNode(
+                        nw = nw.makeCanonical(),
+                        ne = ne.makeCanonical(),
+                        sw = sw.makeCanonical(),
+                        se = se.makeCanonical(),
+                    )
+                }
 
             if (useMap) {
                 // If we're using the map, pull from it now with canonical cell nodes
@@ -126,9 +126,7 @@ class HashLifeAlgorithm(
      * while still using [canonicalCellMap] to compute child nodes.
      */
     @Suppress("LongMethod", "ComplexMethod")
-    private fun MacroCell.CellNode.computeNextGeneration(
-        useMap: Boolean = true,
-    ): MacroCell.CellNode {
+    private fun MacroCell.CellNode.computeNextGeneration(useMap: Boolean = true): MacroCell.CellNode {
         require(level >= 2)
 
         // Ensure we are operating upon a canonical macro cell
@@ -160,65 +158,109 @@ class HashLifeAlgorithm(
             se.sw as MacroCell.Cell
             se.se as MacroCell.Cell
 
-            val nwCount = listOf(
-                nw.nw.isAlive,
-                nw.ne.isAlive,
-                ne.nw.isAlive,
-                nw.sw.isAlive,
-                ne.sw.isAlive,
-                sw.nw.isAlive,
-                sw.ne.isAlive,
-                se.nw.isAlive,
-            ).count { it }
-            val newNw = when (nw.se) {
-                MacroCell.Cell.AliveCell -> if (nwCount in 2..3) MacroCell.Cell.AliveCell else MacroCell.Cell.DeadCell
-                MacroCell.Cell.DeadCell -> if (nwCount == 3) MacroCell.Cell.AliveCell else MacroCell.Cell.DeadCell
-            }
+            val nwCount =
+                listOf(
+                    nw.nw.isAlive,
+                    nw.ne.isAlive,
+                    ne.nw.isAlive,
+                    nw.sw.isAlive,
+                    ne.sw.isAlive,
+                    sw.nw.isAlive,
+                    sw.ne.isAlive,
+                    se.nw.isAlive,
+                ).count { it }
+            val newNw =
+                when (nw.se) {
+                    MacroCell.Cell.AliveCell -> {
+                        if (nwCount in
+                        2..3)
+                        MacroCell.Cell.AliveCell
+                        else
+                        MacroCell.Cell.DeadCell
+                    }
 
-            val neCount = listOf(
-                nw.ne.isAlive,
-                ne.nw.isAlive,
-                ne.ne.isAlive,
-                nw.se.isAlive,
-                ne.se.isAlive,
-                sw.ne.isAlive,
-                se.nw.isAlive,
-                se.ne.isAlive,
-            ).count { it }
-            val newNe = when (ne.sw) {
-                MacroCell.Cell.AliveCell -> if (neCount in 2..3) MacroCell.Cell.AliveCell else MacroCell.Cell.DeadCell
-                MacroCell.Cell.DeadCell -> if (neCount == 3) MacroCell.Cell.AliveCell else MacroCell.Cell.DeadCell
-            }
+                    MacroCell.Cell.DeadCell -> {
+                        if (nwCount == 3) MacroCell.Cell.AliveCell else MacroCell.Cell.DeadCell
+                    }
+                }
 
-            val swCount = listOf(
-                nw.sw.isAlive,
-                nw.se.isAlive,
-                ne.sw.isAlive,
-                sw.nw.isAlive,
-                se.nw.isAlive,
-                sw.sw.isAlive,
-                sw.se.isAlive,
-                se.sw.isAlive,
-            ).count { it }
-            val newSw = when (sw.ne) {
-                MacroCell.Cell.AliveCell -> if (swCount in 2..3) MacroCell.Cell.AliveCell else MacroCell.Cell.DeadCell
-                MacroCell.Cell.DeadCell -> if (swCount == 3) MacroCell.Cell.AliveCell else MacroCell.Cell.DeadCell
-            }
+            val neCount =
+                listOf(
+                    nw.ne.isAlive,
+                    ne.nw.isAlive,
+                    ne.ne.isAlive,
+                    nw.se.isAlive,
+                    ne.se.isAlive,
+                    sw.ne.isAlive,
+                    se.nw.isAlive,
+                    se.ne.isAlive,
+                ).count { it }
+            val newNe =
+                when (ne.sw) {
+                    MacroCell.Cell.AliveCell -> {
+                        if (neCount in
+                        2..3)
+                        MacroCell.Cell.AliveCell
+                        else
+                        MacroCell.Cell.DeadCell
+                    }
 
-            val seCount = listOf(
-                nw.se.isAlive,
-                ne.sw.isAlive,
-                ne.se.isAlive,
-                sw.ne.isAlive,
-                se.ne.isAlive,
-                sw.se.isAlive,
-                se.sw.isAlive,
-                se.se.isAlive,
-            ).count { it }
-            val newSe = when (se.nw) {
-                MacroCell.Cell.AliveCell -> if (seCount in 2..3) MacroCell.Cell.AliveCell else MacroCell.Cell.DeadCell
-                MacroCell.Cell.DeadCell -> if (seCount == 3) MacroCell.Cell.AliveCell else MacroCell.Cell.DeadCell
-            }
+                    MacroCell.Cell.DeadCell -> {
+                        if (neCount == 3) MacroCell.Cell.AliveCell else MacroCell.Cell.DeadCell
+                    }
+                }
+
+            val swCount =
+                listOf(
+                    nw.sw.isAlive,
+                    nw.se.isAlive,
+                    ne.sw.isAlive,
+                    sw.nw.isAlive,
+                    se.nw.isAlive,
+                    sw.sw.isAlive,
+                    sw.se.isAlive,
+                    se.sw.isAlive,
+                ).count { it }
+            val newSw =
+                when (sw.ne) {
+                    MacroCell.Cell.AliveCell -> {
+                        if (swCount in
+                        2..3)
+                        MacroCell.Cell.AliveCell
+                        else
+                        MacroCell.Cell.DeadCell
+                    }
+
+                    MacroCell.Cell.DeadCell -> {
+                        if (swCount == 3) MacroCell.Cell.AliveCell else MacroCell.Cell.DeadCell
+                    }
+                }
+
+            val seCount =
+                listOf(
+                    nw.se.isAlive,
+                    ne.sw.isAlive,
+                    ne.se.isAlive,
+                    sw.ne.isAlive,
+                    se.ne.isAlive,
+                    sw.se.isAlive,
+                    se.sw.isAlive,
+                    se.se.isAlive,
+                ).count { it }
+            val newSe =
+                when (se.nw) {
+                    MacroCell.Cell.AliveCell -> {
+                        if (seCount in
+                        2..3)
+                        MacroCell.Cell.AliveCell
+                        else
+                        MacroCell.Cell.DeadCell
+                    }
+
+                    MacroCell.Cell.DeadCell -> {
+                        if (seCount == 3) MacroCell.Cell.AliveCell else MacroCell.Cell.DeadCell
+                    }
+                }
 
             MacroCell.CellNode(
                 nw = newNw,
@@ -238,38 +280,43 @@ class HashLifeAlgorithm(
             val n22 = centeredSubnode(se)
 
             MacroCell.CellNode(
-                nw = MacroCell.CellNode(
-                    nw = n00,
-                    ne = n01,
-                    sw = n10,
-                    se = n11,
-                ).computeNextGeneration(),
-                ne = MacroCell.CellNode(
-                    nw = n01,
-                    ne = n02,
-                    sw = n11,
-                    se = n12,
-                ).computeNextGeneration(),
-                sw = MacroCell.CellNode(
-                    nw = n10,
-                    ne = n11,
-                    sw = n20,
-                    se = n21,
-                ).computeNextGeneration(),
-                se = MacroCell.CellNode(
-                    nw = n11,
-                    ne = n12,
-                    sw = n21,
-                    se = n22,
-                ).computeNextGeneration(),
+                nw =
+                MacroCell
+                    .CellNode(
+                        nw = n00,
+                        ne = n01,
+                        sw = n10,
+                        se = n11,
+                    ).computeNextGeneration(),
+                ne =
+                MacroCell
+                    .CellNode(
+                        nw = n01,
+                        ne = n02,
+                        sw = n11,
+                        se = n12,
+                    ).computeNextGeneration(),
+                sw =
+                MacroCell
+                    .CellNode(
+                        nw = n10,
+                        ne = n11,
+                        sw = n20,
+                        se = n21,
+                    ).computeNextGeneration(),
+                se =
+                MacroCell
+                    .CellNode(
+                        nw = n11,
+                        ne = n12,
+                        sw = n21,
+                        se = n22,
+                    ).computeNextGeneration(),
             )
         }.makeCanonical()
     }
 
-    override suspend fun computeGenerationWithStep(
-        cellState: CellState,
-        @IntRange(from = 0) step: Int,
-    ): CellState =
+    override suspend fun computeGenerationWithStep(cellState: CellState, @IntRange(from = 0) step: Int): CellState =
         withContext(dispatchers.Default) {
             mutex.withLock {
                 computeGenerationWithStepImpl(
@@ -383,15 +430,11 @@ private fun centeredSubSubnode(node: MacroCell.CellNode): MacroCell.CellNode {
 }
 
 private fun interface Equivalence<T> {
-
     fun isEquivalent(a: T, b: T): Boolean
 
     fun hash(value: T): Int = value.hashCode()
 
-    class Wrapper<T>(
-        private val equivalence: Equivalence<T>,
-        val value: T,
-    ) {
+    class Wrapper<T>(private val equivalence: Equivalence<T>, val value: T) {
         @Suppress("UNCHECKED_CAST")
         override fun equals(other: Any?): Boolean =
             other is Wrapper<*> &&
@@ -402,8 +445,7 @@ private fun interface Equivalence<T> {
     }
 }
 
-private fun <T> Equivalence<T>.wrap(value: T): Equivalence.Wrapper<T> =
-    Equivalence.Wrapper(this, value)
+private fun <T> Equivalence<T>.wrap(value: T): Equivalence.Wrapper<T> = Equivalence.Wrapper(this, value)
 
 /**
  * An [Equivalence] describing a "canonical" [MacroCell.CellNode].
@@ -428,10 +470,7 @@ private val canonicalMacroCellEquivalence =
         a.level == b.level && a.nw === b.nw && a.ne === b.ne && a.sw === b.sw && a.se === b.se
     }
 
-private class Cache<K, V>(
-    private val load: (K) -> V,
-    private val getGenerationIndex: () -> Long,
-) {
+private class Cache<K, V>(private val load: (K) -> V, private val getGenerationIndex: () -> Long) {
     private val mutableMap: MutableMap<K, V> = mutableMapOf()
     val map: Map<K, V> get() = mutableMap
 

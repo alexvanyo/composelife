@@ -31,10 +31,11 @@ import kotlinx.serialization.encoding.Encoder
  * A [KSerializer] for a [Offset].
  */
 object OffsetSerializer : KSerializer<Offset> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(
-        "androidx.compose.ui.unit.Offset",
-        PrimitiveKind.LONG,
-    )
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor(
+            "androidx.compose.ui.unit.Offset",
+            PrimitiveKind.LONG,
+        )
 
     override fun deserialize(decoder: Decoder): Offset {
         val longValue = decoder.decodeLong()

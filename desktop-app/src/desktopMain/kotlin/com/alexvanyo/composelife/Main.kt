@@ -52,79 +52,84 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 
 @Suppress("LongMethod")
-fun main() = application {
-    val globalGraph = createGraph<GlobalGraph>()
-    val applicationGraph = globalGraph.asContribution<ApplicationGraph.Factory>().create(
-        object : ApplicationGraphArguments {},
-    )
+fun main() =
+    application {
+        val globalGraph = createGraph<GlobalGraph>()
+        val applicationGraph =
+            globalGraph.asContribution<ApplicationGraph.Factory>().create(
+                object : ApplicationGraphArguments {},
+            )
 
-    val ctx = applicationGraph.composeLifeApplicationCtx
-    val appUpdatables = ctx.appUpdatables
+        val ctx = applicationGraph.composeLifeApplicationCtx
+        val appUpdatables = ctx.appUpdatables
 
-    LaunchedEffect(Unit) {
-        supervisorScope {
-            appUpdatables.forEach { updatable ->
-                launch {
-                    updatable.update()
+        LaunchedEffect(Unit) {
+            supervisorScope {
+                appUpdatables.forEach { updatable ->
+                    launch {
+                        updatable.update()
+                    }
                 }
             }
         }
-    }
 
-    val windowState = rememberWindowState()
+        val windowState = rememberWindowState()
 
-    val currentExitApplication by rememberUpdatedState(::exitApplication)
+        val currentExitApplication by rememberUpdatedState(::exitApplication)
 
-    Window(
-        onCloseRequest = currentExitApplication,
-        title = "ComposeLife",
-        state = windowState,
-    ) {
-        val navigationEventDispatcherOwner = remember {
-            object : NavigationEventDispatcherOwner {
-                override val navigationEventDispatcher = NavigationEventDispatcher(
-                    fallbackOnBackPressed = { currentExitApplication() },
-                )
-            }
-        }
-
-        CompositionLocalProvider(
-            LocalRetainedStateRegistry provides continuityRetainedStateRegistry(),
-            LocalNavigationEventDispatcherOwner provides navigationEventDispatcherOwner,
+        Window(
+            onCloseRequest = currentExitApplication,
+            title = "ComposeLife",
+            state = windowState,
         ) {
-            val uiGraph = remember(applicationGraph) {
-                (applicationGraph as UiGraph.Factory).create(
-                    object : UiGraphArguments {
-                        override val windowState = windowState
-                    },
-                )
-            }
-            val mainInjectCtx = uiGraph.mainInjectCtx
-            val uiUpdatables = mainInjectCtx.uiUpdatables
+            val navigationEventDispatcherOwner =
+                remember {
+                    object : NavigationEventDispatcherOwner {
+                        override val navigationEventDispatcher =
+                            NavigationEventDispatcher(
+                                fallbackOnBackPressed = { currentExitApplication() },
+                            )
+                    }
+                }
 
-            LaunchedEffect(uiUpdatables) {
-                supervisorScope {
-                    uiUpdatables.forEach { updatable ->
-                        launch {
-                            updatable.update()
+            CompositionLocalProvider(
+                LocalRetainedStateRegistry provides continuityRetainedStateRegistry(),
+                LocalNavigationEventDispatcherOwner provides navigationEventDispatcherOwner,
+            ) {
+                val uiGraph =
+                    remember(applicationGraph) {
+                        (applicationGraph as UiGraph.Factory).create(
+                            object : UiGraphArguments {
+                                override val windowState = windowState
+                            },
+                        )
+                    }
+                val mainInjectCtx = uiGraph.mainInjectCtx
+                val uiUpdatables = mainInjectCtx.uiUpdatables
+
+                LaunchedEffect(uiUpdatables) {
+                    supervisorScope {
+                        uiUpdatables.forEach { updatable ->
+                            launch {
+                                updatable.update()
+                            }
+                        }
+                    }
+                }
+
+                with(mainInjectCtx) {
+                    ComposeLifeTheme(shouldUseDarkTheme()) {
+                        with(mainInjectCtx.composeLifeAppUiCtx) {
+                            ComposeLifeApp(
+                                windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                                windowSize = windowState.size,
+                            )
                         }
                     }
                 }
             }
-
-            with(mainInjectCtx) {
-                ComposeLifeTheme(shouldUseDarkTheme()) {
-                    with(mainInjectCtx.composeLifeAppUiCtx) {
-                        ComposeLifeApp(
-                            windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                            windowSize = windowState.size,
-                        )
-                    }
-                }
-            }
         }
     }
-}
 
 @ContributesTo(AppScope::class)
 interface ComposeLifeApplicationCtx {

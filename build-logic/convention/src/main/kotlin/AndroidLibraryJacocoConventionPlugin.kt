@@ -18,11 +18,12 @@ import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.configureJacoco
 import com.android.build.api.dsl.LibraryExtension
 
-class AndroidLibraryJacocoConventionPlugin : ConventionPlugin({
-    with(pluginManager) {
-        apply("com.android.library")
-        apply("jacoco")
-    }
+class AndroidLibraryJacocoConventionPlugin :
+    ConventionPlugin({
+        with(pluginManager) {
+            apply("com.android.library")
+            apply("jacoco")
+        }
 
-    configureJacoco(extensions.getByType(LibraryExtension::class.java))
-})
+        configureJacoco(extensions.getByType(LibraryExtension::class.java))
+    })

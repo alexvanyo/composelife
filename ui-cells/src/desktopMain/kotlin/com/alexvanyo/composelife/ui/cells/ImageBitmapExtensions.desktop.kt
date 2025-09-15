@@ -21,5 +21,4 @@ import androidx.compose.ui.graphics.asSkiaBitmap
 import coil3.BitmapImage
 import coil3.asImage
 
-actual fun ImageBitmap.asCoilBitmapImage(): BitmapImage =
-    asSkiaBitmap().asImage()
+actual fun ImageBitmap.asCoilBitmapImage(): BitmapImage = asSkiaBitmap().asImage()

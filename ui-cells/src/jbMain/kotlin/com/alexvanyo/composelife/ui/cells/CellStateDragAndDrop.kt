@@ -34,20 +34,17 @@ expect fun Modifier.cellStateDragAndDropSource(getCellState: () -> CellState): M
  * A [Modifier] for a drag-and-drop target for a [CellState].
  */
 @Composable
-fun Modifier.cellStateDragAndDropTarget(
-    mutableCellStateDropStateHolder: MutableCellStateDropStateHolder,
-): Modifier {
+fun Modifier.cellStateDragAndDropTarget(mutableCellStateDropStateHolder: MutableCellStateDropStateHolder): Modifier {
     when (mutableCellStateDropStateHolder) {
         is MutableCellStateDropStateHolderImpl -> Unit
     }
 
     return onGloballyPositioned { coordinates ->
         mutableCellStateDropStateHolder.positionInRoot = coordinates.positionInRoot()
-    }
-        .dragAndDropTarget(
-            shouldStartDragAndDrop = ::cellStateShouldStartDragAndDrop,
-            target = mutableCellStateDropStateHolder,
-        )
+    }.dragAndDropTarget(
+        shouldStartDragAndDrop = ::cellStateShouldStartDragAndDrop,
+        target = mutableCellStateDropStateHolder,
+    )
 }
 
 /**

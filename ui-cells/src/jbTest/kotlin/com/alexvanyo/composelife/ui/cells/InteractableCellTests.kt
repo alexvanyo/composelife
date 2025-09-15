@@ -34,54 +34,59 @@ import kotlin.test.assertEquals
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class InteractableCellTests {
-
     @Test
-    fun alive_cell_calls_correct_function() = runComposeUiTest {
-        var onValueChangeResult: Boolean? = null
+    fun alive_cell_calls_correct_function() =
+        runComposeUiTest {
+            var onValueChangeResult: Boolean? = null
 
-        setContent {
-            InteractableCell(
-                modifier = Modifier
-                    .size(32.dp),
-                drawState = DrawState.Alive,
-                shape = CurrentShape.RoundRectangle(
-                    sizeFraction = 1f,
-                    cornerFraction = 0f,
-                ),
-                contentDescription = "test cell",
-                onValueChange = { onValueChangeResult = it },
-            )
+            setContent {
+                InteractableCell(
+                    modifier =
+                    Modifier
+                        .size(32.dp),
+                    drawState = DrawState.Alive,
+                    shape =
+                    CurrentShape.RoundRectangle(
+                        sizeFraction = 1f,
+                        cornerFraction = 0f,
+                    ),
+                    contentDescription = "test cell",
+                    onValueChange = { onValueChangeResult = it },
+                )
+            }
+
+            onNodeWithContentDescription("test cell")
+                .assertIsOn()
+                .performClick()
+
+            assertEquals(false, onValueChangeResult)
         }
 
-        onNodeWithContentDescription("test cell")
-            .assertIsOn()
-            .performClick()
-
-        assertEquals(false, onValueChangeResult)
-    }
-
     @Test
-    fun dead_cell_calls_correct_function() = runComposeUiTest {
-        var onValueChangeResult: Boolean? = null
+    fun dead_cell_calls_correct_function() =
+        runComposeUiTest {
+            var onValueChangeResult: Boolean? = null
 
-        setContent {
-            InteractableCell(
-                modifier = Modifier
-                    .size(32.dp),
-                drawState = DrawState.Dead,
-                shape = CurrentShape.RoundRectangle(
-                    sizeFraction = 1f,
-                    cornerFraction = 0f,
-                ),
-                contentDescription = "test cell",
-                onValueChange = { onValueChangeResult = it },
-            )
+            setContent {
+                InteractableCell(
+                    modifier =
+                    Modifier
+                        .size(32.dp),
+                    drawState = DrawState.Dead,
+                    shape =
+                    CurrentShape.RoundRectangle(
+                        sizeFraction = 1f,
+                        cornerFraction = 0f,
+                    ),
+                    contentDescription = "test cell",
+                    onValueChange = { onValueChangeResult = it },
+                )
+            }
+
+            onNodeWithContentDescription("test cell")
+                .assertIsOff()
+                .performClick()
+
+            assertEquals(true, onValueChangeResult)
         }
-
-        onNodeWithContentDescription("test cell")
-            .assertIsOff()
-            .performClick()
-
-        assertEquals(true, onValueChangeResult)
-    }
 }

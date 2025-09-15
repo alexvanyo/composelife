@@ -39,80 +39,83 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class DisableAGSLUiTests {
-
     @Test
-    fun disable_is_displayed_correctly() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun disable_is_displayed_correctly() =
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DisableAGSLUi(
-                disableAGSL = true,
-                setDisableAGSL = {},
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                DisableAGSLUi(
+                    disableAGSL = true,
+                    setDisableAGSL = {},
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.DisableAGSL))
+                .assertExists()
+                .assertIsOn()
+                .assertHasClickAction()
         }
 
-        onNodeWithContentDescription(resolver(Strings.DisableAGSL))
-            .assertExists()
-            .assertIsOn()
-            .assertHasClickAction()
-    }
-
     @Test
-    fun disable_will_update_correctly() = runComposeUiTest {
-        var disableAGSL by mutableStateOf(true)
+    fun disable_will_update_correctly() =
+        runComposeUiTest {
+            var disableAGSL by mutableStateOf(true)
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DisableAGSLUi(
-                disableAGSL = disableAGSL,
-                setDisableAGSL = { disableAGSL = it },
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                DisableAGSLUi(
+                    disableAGSL = disableAGSL,
+                    setDisableAGSL = { disableAGSL = it },
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.DisableAGSL))
+                .performClick()
+
+            assertFalse(disableAGSL)
         }
 
-        onNodeWithContentDescription(resolver(Strings.DisableAGSL))
-            .performClick()
-
-        assertFalse(disableAGSL)
-    }
-
     @Test
-    fun enable_is_displayed_correctly() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun enable_is_displayed_correctly() =
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DisableAGSLUi(
-                disableAGSL = false,
-                setDisableAGSL = {},
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                DisableAGSLUi(
+                    disableAGSL = false,
+                    setDisableAGSL = {},
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.DisableAGSL))
+                .assertExists()
+                .assertIsOff()
+                .assertHasClickAction()
         }
 
-        onNodeWithContentDescription(resolver(Strings.DisableAGSL))
-            .assertExists()
-            .assertIsOff()
-            .assertHasClickAction()
-    }
-
     @Test
-    fun enable_will_update_correctly() = runComposeUiTest {
-        var disableAGSL by mutableStateOf(false)
+    fun enable_will_update_correctly() =
+        runComposeUiTest {
+            var disableAGSL by mutableStateOf(false)
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DisableAGSLUi(
-                disableAGSL = disableAGSL,
-                setDisableAGSL = { disableAGSL = it },
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                DisableAGSLUi(
+                    disableAGSL = disableAGSL,
+                    setDisableAGSL = { disableAGSL = it },
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.DisableAGSL))
+                .performClick()
+
+            assertTrue(disableAGSL)
         }
-
-        onNodeWithContentDescription(resolver(Strings.DisableAGSL))
-            .performClick()
-
-        assertTrue(disableAGSL)
-    }
 }

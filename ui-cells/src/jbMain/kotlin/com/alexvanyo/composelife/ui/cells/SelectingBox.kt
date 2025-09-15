@@ -43,7 +43,8 @@ fun SelectingBox(
         drawSymmetricDashedRect(
             color = selectionColor,
             strokeWidth = 2.dp.toPx(),
-            intervals = floatArrayOf(
+            intervals =
+            floatArrayOf(
                 24.dp.toPx(),
                 24.dp.toPx(),
             ),

@@ -27,7 +27,6 @@ import kotlin.contracts.contract
  * still a single current semantic state given by [current].
  */
 sealed interface TargetState<T, out M> {
-
     /**
      * The "current" value of the [TargetState]. This represents the current semantic value for the target state,
      * which may be different from the state currently visible (due to ongoing animations).
@@ -37,9 +36,7 @@ sealed interface TargetState<T, out M> {
     /**
      * The target state is the single [current] value.
      */
-    data class Single<T>(
-        override val current: T,
-    ) : TargetState<T, Nothing>
+    data class Single<T>(override val current: T) : TargetState<T, Nothing>
 
     /**
      * The target state is partway between [current] and [provisional], with the fraction given by [progress] from
@@ -50,20 +47,17 @@ sealed interface TargetState<T, out M> {
      */
     data class InProgress<T, M>(
         override val current: T,
-
         /**
          * The "provisional" state of an in-progress animation. This is a state [T] that could become the [current]
          * state, but is not at the moment the semantically current state.
          */
         val provisional: T,
-
         /**
          * The progress from [current] to [provisional].
          */
         @field:FloatRange(from = 0.0, to = 1.0)
         @param:FloatRange(from = 0.0, to = 1.0)
         val progress: Float,
-
         /**
          * Additional metadata accompanying the [InProgress] target state. This can be any arbitrary data useful
          * for driving an animation for an in-progress state.
@@ -80,16 +74,13 @@ sealed interface TargetState<T, out M> {
             /**
              * Creates an [InProgress] value with a [Unit] metadata.
              */
-            operator fun <T> invoke(
-                current: T,
-                provisional: T,
-                progress: Float,
-            ): InProgress<T, Unit> = InProgress(
-                current = current,
-                provisional = provisional,
-                progress = progress,
-                metadata = Unit,
-            )
+            operator fun <T> invoke(current: T, provisional: T, progress: Float): InProgress<T, Unit> =
+                InProgress(
+                    current = current,
+                    provisional = provisional,
+                    progress = progress,
+                    metadata = Unit,
+                )
         }
     }
 }
@@ -157,11 +148,16 @@ infix fun <M> TargetState<Boolean, M>.or(value: Boolean): TargetState<Boolean, M
  */
 fun <T, M, R> TargetState<T, M>.map(lambda: (T) -> R): TargetState<R, M> =
     when (this) {
-        is TargetState.Single -> TargetState.Single(current.let(lambda))
-        is TargetState.InProgress -> TargetState.InProgress(
-            current = current.let(lambda),
-            provisional = provisional.let(lambda),
-            progress = progress,
-            metadata = metadata,
-        )
+        is TargetState.Single -> {
+            TargetState.Single(current.let(lambda))
+        }
+
+        is TargetState.InProgress -> {
+            TargetState.InProgress(
+                current = current.let(lambda),
+                provisional = provisional.let(lambda),
+                progress = progress,
+                metadata = metadata,
+            )
+        }
     }

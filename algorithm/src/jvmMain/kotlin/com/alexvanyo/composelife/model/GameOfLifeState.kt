@@ -33,9 +33,7 @@ interface GameOfLifeState {
 /**
  * A simple implementation of an immutable [GameOfLifeState].
  */
-private class ImmutableGameOfLifeState(
-    override val cellState: CellState,
-) : GameOfLifeState
+private class ImmutableGameOfLifeState(override val cellState: CellState) : GameOfLifeState
 
 /**
  * Creates a fixed [GameOfLifeState] for the given [cellState].
@@ -57,9 +55,7 @@ fun MutableGameOfLifeState(cellState: CellState): MutableGameOfLifeState = Mutab
 /**
  * A simple implementation of a mutable [GameOfLifeState].
  */
-private class MutableGameOfLifeStateImpl(
-    cellState: CellState,
-) : MutableGameOfLifeState {
+private class MutableGameOfLifeStateImpl(cellState: CellState) : MutableGameOfLifeState {
     override var cellState by mutableStateOf(cellState)
 }
 

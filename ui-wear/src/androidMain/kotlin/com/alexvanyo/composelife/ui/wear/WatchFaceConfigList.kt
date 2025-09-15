@@ -65,7 +65,8 @@ fun WatchFaceConfigList(
                         is ResourceState.Failure, ResourceState.Loading -> {
                             Box(
                                 contentAlignment = Alignment.Center,
-                                modifier = Modifier
+                                modifier =
+                                Modifier
                                     .fillMaxWidth(0.8f)
                                     .aspectRatio(1f)
                                     .fillMaxHeight(),
@@ -73,6 +74,7 @@ fun WatchFaceConfigList(
                                 CircularProgressIndicator()
                             }
                         }
+
                         is ResourceState.Success -> {
                             WatchFacePreview(
                                 previewImageBitmap = currentPreview.value,
@@ -92,7 +94,8 @@ fun WatchFaceConfigList(
                     },
                     icon = {
                         Spacer(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .size(16.dp)
                                 .background(state.color, CircleShape),
                         )

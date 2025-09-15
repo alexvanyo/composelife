@@ -42,21 +42,24 @@ internal fun FullscreenSettingsPaneListPreview(modifier: Modifier = Modifier) {
         ComposeLifeTheme {
             with(implicit().fullscreenSettingsDetailPaneCtx) {
                 BoxWithConstraints(modifier) {
-                    val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = maxWidth.value,
-                        heightDp = maxHeight.value,
-                    )
+                    val windowSizeClass =
+                        BREAKPOINTS_V1.computeWindowSizeClass(
+                            widthDp = maxWidth.value,
+                            heightDp = maxHeight.value,
+                        )
 
-                    val fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
-                        override val settingsCategory = SettingsCategory.Algorithm
-                        override val isListVisible = true
-                        override val isDetailVisible =
-                            windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
-                    }
+                    val fullscreenSettingsListPaneState =
+                        object : FullscreenSettingsListPaneState {
+                            override val settingsCategory = SettingsCategory.Algorithm
+                            override val isListVisible = true
+                            override val isDetailVisible =
+                                windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
+                        }
                     val fullscreenSettingsDetailPaneState =
                         object : FullscreenSettingsDetailPaneState, ListDetailInfo by fullscreenSettingsListPaneState {
                             override val settingsCategory = SettingsCategory.Algorithm
                             override val settingToScrollTo: Setting? = null
+
                             override fun onFinishedScrollingToSetting() = Unit
                         }
 
@@ -86,21 +89,24 @@ internal fun FullscreenSettingsPaneAlgorithmPreview(modifier: Modifier = Modifie
         ComposeLifeTheme {
             with(implicit().fullscreenSettingsDetailPaneCtx) {
                 BoxWithConstraints(modifier) {
-                    val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = maxWidth.value,
-                        heightDp = maxHeight.value,
-                    )
+                    val windowSizeClass =
+                        BREAKPOINTS_V1.computeWindowSizeClass(
+                            widthDp = maxWidth.value,
+                            heightDp = maxHeight.value,
+                        )
 
-                    val fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
-                        override val settingsCategory = SettingsCategory.Algorithm
-                        override val isListVisible =
-                            windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
-                        override val isDetailVisible = true
-                    }
+                    val fullscreenSettingsListPaneState =
+                        object : FullscreenSettingsListPaneState {
+                            override val settingsCategory = SettingsCategory.Algorithm
+                            override val isListVisible =
+                                windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
+                            override val isDetailVisible = true
+                        }
                     val fullscreenSettingsDetailPaneState =
                         object : FullscreenSettingsDetailPaneState, ListDetailInfo by fullscreenSettingsListPaneState {
                             override val settingsCategory = SettingsCategory.Algorithm
                             override val settingToScrollTo: Setting? = null
+
                             override fun onFinishedScrollingToSetting() = Unit
                         }
 
@@ -130,21 +136,24 @@ internal fun FullscreenSettingsPaneVisualPreview(modifier: Modifier = Modifier) 
         ComposeLifeTheme {
             with(implicit().fullscreenSettingsDetailPaneCtx) {
                 BoxWithConstraints(modifier) {
-                    val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = maxWidth.value,
-                        heightDp = maxHeight.value,
-                    )
+                    val windowSizeClass =
+                        BREAKPOINTS_V1.computeWindowSizeClass(
+                            widthDp = maxWidth.value,
+                            heightDp = maxHeight.value,
+                        )
 
-                    val fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
-                        override val settingsCategory = SettingsCategory.Visual
-                        override val isListVisible =
-                            windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
-                        override val isDetailVisible = true
-                    }
+                    val fullscreenSettingsListPaneState =
+                        object : FullscreenSettingsListPaneState {
+                            override val settingsCategory = SettingsCategory.Visual
+                            override val isListVisible =
+                                windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
+                            override val isDetailVisible = true
+                        }
                     val fullscreenSettingsDetailPaneState =
                         object : FullscreenSettingsDetailPaneState, ListDetailInfo by fullscreenSettingsListPaneState {
                             override val settingsCategory = SettingsCategory.Visual
                             override val settingToScrollTo: Setting? = null
+
                             override fun onFinishedScrollingToSetting() = Unit
                         }
 
@@ -174,21 +183,24 @@ internal fun FullscreenSettingsPaneFeatureFlagsPreview(modifier: Modifier = Modi
         ComposeLifeTheme {
             with(implicit().fullscreenSettingsDetailPaneCtx) {
                 BoxWithConstraints(modifier) {
-                    val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = maxWidth.value,
-                        heightDp = maxHeight.value,
-                    )
+                    val windowSizeClass =
+                        BREAKPOINTS_V1.computeWindowSizeClass(
+                            widthDp = maxWidth.value,
+                            heightDp = maxHeight.value,
+                        )
 
-                    val fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
-                        override val settingsCategory = SettingsCategory.FeatureFlags
-                        override val isListVisible =
-                            windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
-                        override val isDetailVisible = true
-                    }
+                    val fullscreenSettingsListPaneState =
+                        object : FullscreenSettingsListPaneState {
+                            override val settingsCategory = SettingsCategory.FeatureFlags
+                            override val isListVisible =
+                                windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
+                            override val isDetailVisible = true
+                        }
                     val fullscreenSettingsDetailPaneState =
                         object : FullscreenSettingsDetailPaneState, ListDetailInfo by fullscreenSettingsListPaneState {
                             override val settingsCategory = SettingsCategory.FeatureFlags
                             override val settingToScrollTo: Setting? = null
+
                             override fun onFinishedScrollingToSetting() = Unit
                         }
 

@@ -53,9 +53,8 @@ internal val UiGraph.baseUiInjectTestCtx: BaseUiInjectTestCtx get() =
  *
  * Subclasses must call [runUiTest] instead of [runAppTest] or [runAppTest] to properly initialize dependencies.
  */
-abstract class BaseUiInjectTest(
-    applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph,
-) : BaseInjectTest(applicationGraphCreator) {
+abstract class BaseUiInjectTest(applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph) :
+    BaseInjectTest(applicationGraphCreator) {
     internal val uiGraphCreator: UiGraph.Factory get() =
         applicationGraph as UiGraph.Factory
 

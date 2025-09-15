@@ -45,10 +45,8 @@ class SettingUiCtx(
     private val cellStatePreviewUiCtx: CellStatePreviewUiCtx,
     private val darkThemeConfigUiCtx: DarkThemeConfigUiCtx,
     private val cellShapeConfigUiCtx: CellShapeConfigUiCtx,
-    private val synchronizePatternCollectionsOnMeteredNetworkUiCtx:
-    SynchronizePatternCollectionsOnMeteredNetworkUiCtx,
-    private val patternCollectionsSynchronizationPeriodUiCtx:
-    PatternCollectionsSynchronizationPeriodUiCtx,
+    private val synchronizePatternCollectionsOnMeteredNetworkUiCtx: SynchronizePatternCollectionsOnMeteredNetworkUiCtx,
+    private val patternCollectionsSynchronizationPeriodUiCtx: PatternCollectionsSynchronizationPeriodUiCtx,
     private val patternCollectionsUiCtx: PatternCollectionsUiCtx,
     private val disableAGSLUiCtx: DisableAGSLUiCtx,
     private val disableOpenGLUiCtx: DisableOpenGLUiCtx,
@@ -60,7 +58,8 @@ class SettingUiCtx(
     @Suppress("ComposableNaming", "LongParameterList")
     @Deprecated(
         "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
+        replaceWith =
+        ReplaceWith(
             "SettingUi(setting, modifier, onOpenInSettingsClicked)",
         ),
     )
@@ -108,7 +107,8 @@ class SettingUiCtx(
                 EnableClipboardWatchingUiCtx,
                 ClipboardWatchingOnboardingCompletedUiCtx,
                 EnableWindowShapeClippingUiCtx,
-            ) (
+            )
+            (
                 setting: Setting,
                 modifier: Modifier,
                 onOpenInSettingsClicked: ((Setting) -> Unit)?,
@@ -119,14 +119,11 @@ class SettingUiCtx(
     }
 }
 
-context(ctx: SettingUiCtx)
 @Suppress("DEPRECATION")
 @Composable
-fun SettingUi(
-    setting: Setting,
-    modifier: Modifier = Modifier,
-    onOpenInSettingsClicked: ((Setting) -> Unit)? = null,
-) = ctx(setting, modifier, onOpenInSettingsClicked)
+context(ctx: SettingUiCtx)
+fun SettingUi(setting: Setting, modifier: Modifier = Modifier, onOpenInSettingsClicked: ((Setting) -> Unit)? = null,) =
+    ctx(setting, modifier, onOpenInSettingsClicked)
 // endregion templated-ctx
 
 /**
@@ -135,25 +132,25 @@ fun SettingUi(
  * If [onOpenInSettingsClicked] is not null, then a button will be displayed to open the given
  * setting that will invoke [onOpenInSettingsClicked].
  */
-context(
-    preferencesHolder: LoadedComposeLifePreferencesHolder,
-composeLifePreferences: ComposeLifePreferences,
-_: AlgorithmImplementationUiCtx,
-_: CellStatePreviewUiCtx,
-_: DarkThemeConfigUiCtx,
-_: CellShapeConfigUiCtx,
-_: SynchronizePatternCollectionsOnMeteredNetworkUiCtx,
-_: PatternCollectionsSynchronizationPeriodUiCtx,
-_: PatternCollectionsUiCtx,
-_: DisableAGSLUiCtx,
-_: DisableOpenGLUiCtx,
-_: DoNotKeepProcessUiCtx,
-_: EnableClipboardWatchingUiCtx,
-_: ClipboardWatchingOnboardingCompletedUiCtx,
-_: EnableWindowShapeClippingUiCtx,
-)
 @Suppress("CyclomaticComplexMethod")
 @Composable
+context(
+    preferencesHolder: LoadedComposeLifePreferencesHolder,
+    composeLifePreferences: ComposeLifePreferences,
+    _: AlgorithmImplementationUiCtx,
+    _: CellStatePreviewUiCtx,
+    _: DarkThemeConfigUiCtx,
+    _: CellShapeConfigUiCtx,
+    _: SynchronizePatternCollectionsOnMeteredNetworkUiCtx,
+    _: PatternCollectionsSynchronizationPeriodUiCtx,
+    _: PatternCollectionsUiCtx,
+    _: DisableAGSLUiCtx,
+    _: DisableOpenGLUiCtx,
+    _: DoNotKeepProcessUiCtx,
+    _: EnableClipboardWatchingUiCtx,
+    _: ClipboardWatchingOnboardingCompletedUiCtx,
+    _: EnableWindowShapeClippingUiCtx,
+)
 private fun SettingUi(
     setting: Setting,
     modifier: Modifier = Modifier,
@@ -183,21 +180,57 @@ private fun SettingUi(
             }
 
             when (setting) {
-                Setting.AlgorithmImplementation -> AlgorithmImplementationUi()
-                Setting.CellStatePreview -> CellStatePreviewUi()
-                Setting.DarkThemeConfig -> DarkThemeConfigUi()
-                Setting.CellShapeConfig -> CellShapeConfigUi()
-                Setting.SynchronizePatternCollectionsOnMeteredNetwork ->
+                Setting.AlgorithmImplementation -> {
+                    AlgorithmImplementationUi()
+                }
+
+                Setting.CellStatePreview -> {
+                    CellStatePreviewUi()
+                }
+
+                Setting.DarkThemeConfig -> {
+                    DarkThemeConfigUi()
+                }
+
+                Setting.CellShapeConfig -> {
+                    CellShapeConfigUi()
+                }
+
+                Setting.SynchronizePatternCollectionsOnMeteredNetwork -> {
                     SynchronizePatternCollectionsOnMeteredNetworkUi()
-                Setting.PatternCollectionsSynchronizationPeriod ->
+                }
+
+                Setting.PatternCollectionsSynchronizationPeriod -> {
                     PatternCollectionsSynchronizationPeriodUi()
-                Setting.PatternCollectionSources -> PatternCollectionsUi()
-                Setting.DisableAGSL -> DisableAGSLUi()
-                Setting.DisableOpenGL -> DisableOpenGLUi()
-                Setting.DoNotKeepProcess -> DoNotKeepProcessUi()
-                Setting.EnableClipboardWatching -> EnableClipboardWatchingUi()
-                Setting.ClipboardWatchingOnboardingCompleted -> ClipboardWatchingOnboardingCompletedUi()
-                Setting.EnableWindowShapeClipping -> EnableWindowShapeClippingUi()
+                }
+
+                Setting.PatternCollectionSources -> {
+                    PatternCollectionsUi()
+                }
+
+                Setting.DisableAGSL -> {
+                    DisableAGSLUi()
+                }
+
+                Setting.DisableOpenGL -> {
+                    DisableOpenGLUi()
+                }
+
+                Setting.DoNotKeepProcess -> {
+                    DoNotKeepProcessUi()
+                }
+
+                Setting.EnableClipboardWatching -> {
+                    EnableClipboardWatchingUi()
+                }
+
+                Setting.ClipboardWatchingOnboardingCompleted -> {
+                    ClipboardWatchingOnboardingCompletedUi()
+                }
+
+                Setting.EnableWindowShapeClipping -> {
+                    EnableWindowShapeClippingUi()
+                }
             }
         }
     }
@@ -206,17 +239,47 @@ private fun SettingUi(
 val QuickAccessSetting.setting: Setting
     get() =
         when (this) {
-            QuickAccessSetting.AlgorithmImplementation -> Setting.AlgorithmImplementation
-            QuickAccessSetting.CellShapeConfig -> Setting.CellShapeConfig
-            QuickAccessSetting.SynchronizePatternCollectionsOnMeteredNetwork ->
+            QuickAccessSetting.AlgorithmImplementation -> {
+                Setting.AlgorithmImplementation
+            }
+
+            QuickAccessSetting.CellShapeConfig -> {
+                Setting.CellShapeConfig
+            }
+
+            QuickAccessSetting.SynchronizePatternCollectionsOnMeteredNetwork -> {
                 Setting.SynchronizePatternCollectionsOnMeteredNetwork
-            QuickAccessSetting.PatternCollectionsSynchronizationPeriod ->
+            }
+
+            QuickAccessSetting.PatternCollectionsSynchronizationPeriod -> {
                 Setting.PatternCollectionsSynchronizationPeriod
-            QuickAccessSetting.DarkThemeConfig -> Setting.DarkThemeConfig
-            QuickAccessSetting.DisableAGSL -> Setting.DisableAGSL
-            QuickAccessSetting.DisableOpenGL -> Setting.DisableOpenGL
-            QuickAccessSetting.DoNotKeepProcess -> Setting.DoNotKeepProcess
-            QuickAccessSetting.EnableClipboardWatching -> Setting.EnableClipboardWatching
-            QuickAccessSetting.ClipboardWatchingOnboardingCompleted -> Setting.ClipboardWatchingOnboardingCompleted
-            QuickAccessSetting.EnableWindowShapeClipping -> Setting.EnableWindowShapeClipping
+            }
+
+            QuickAccessSetting.DarkThemeConfig -> {
+                Setting.DarkThemeConfig
+            }
+
+            QuickAccessSetting.DisableAGSL -> {
+                Setting.DisableAGSL
+            }
+
+            QuickAccessSetting.DisableOpenGL -> {
+                Setting.DisableOpenGL
+            }
+
+            QuickAccessSetting.DoNotKeepProcess -> {
+                Setting.DoNotKeepProcess
+            }
+
+            QuickAccessSetting.EnableClipboardWatching -> {
+                Setting.EnableClipboardWatching
+            }
+
+            QuickAccessSetting.ClipboardWatchingOnboardingCompleted -> {
+                Setting.ClipboardWatchingOnboardingCompleted
+            }
+
+            QuickAccessSetting.EnableWindowShapeClipping -> {
+                Setting.EnableWindowShapeClipping
+            }
         }

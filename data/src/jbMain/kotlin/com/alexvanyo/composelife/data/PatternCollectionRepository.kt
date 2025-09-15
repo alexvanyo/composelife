@@ -38,16 +38,12 @@ interface PatternCollectionRepository {
     /**
      * Adds a new pattern collection with the given [sourceUrl].
      */
-    suspend fun addPatternCollection(
-        sourceUrl: String,
-    ): PatternCollectionId
+    suspend fun addPatternCollection(sourceUrl: String): PatternCollectionId
 
     /**
      * Deletes the pattern collection with the given [PatternCollectionId].
      */
-    suspend fun deletePatternCollection(
-        patternCollectionId: PatternCollectionId,
-    )
+    suspend fun deletePatternCollection(patternCollectionId: PatternCollectionId)
 
     /**
      * Attempts to fetch and synchronize all pattern collections, and extract the patterns from the downloaded

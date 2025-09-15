@@ -26,7 +26,6 @@ import io.ktor.client.engine.okhttp.OkHttp
 @ContributesTo(AppScope::class)
 @BindingContainer
 interface EngineFactoryBindings {
-
     companion object {
         @Provides
         internal fun providesEngineFactoryWithConfigBlock(): EngineFactoryWithConfigBlock<*> =

@@ -42,15 +42,17 @@ internal fun TransientSelectingBoxOverlay(
         val handleCOffsetCalculator = { selectionRect.bottomRight * scaledCellPixelSize }
         val handleDOffsetCalculator = { selectionRect.bottomLeft * scaledCellPixelSize }
 
-        val handleOffsetCalculators = listOf(
-            handleAOffsetCalculator,
-            handleBOffsetCalculator,
-            handleCOffsetCalculator,
-            handleDOffsetCalculator,
-        )
+        val handleOffsetCalculators =
+            listOf(
+                handleAOffsetCalculator,
+                handleBOffsetCalculator,
+                handleCOffsetCalculator,
+                handleDOffsetCalculator,
+            )
 
         SelectingBox(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxSize()
                 .boxLayoutByHandles(
                     handleAOffsetCalculator = {
@@ -72,11 +74,11 @@ internal fun TransientSelectingBoxOverlay(
             key(index) {
                 SelectionHandle(
                     isActive = index == 2,
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .offset {
                             offsetCalculator().round()
-                        }
-                        .graphicsLayer {
+                        }.graphicsLayer {
                             translationX = -size.width / 2f
                             translationY = -size.height / 2f
                         },

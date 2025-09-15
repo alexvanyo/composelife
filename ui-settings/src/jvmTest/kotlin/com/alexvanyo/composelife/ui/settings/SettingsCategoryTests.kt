@@ -20,7 +20,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class SettingsCategoryTests {
-
     @Test
     fun algorithm_settings_are_correct() {
         assertEquals(

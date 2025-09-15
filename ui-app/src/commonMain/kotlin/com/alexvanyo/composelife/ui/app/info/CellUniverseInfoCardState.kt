@@ -24,7 +24,6 @@ import com.alexvanyo.composelife.ui.util.or
  * The persistable state describing the [CellUniverseInfoCard].
  */
 interface CellUniverseInfoCardState {
-
     /**
      * Sets if the card is expanded.
      */

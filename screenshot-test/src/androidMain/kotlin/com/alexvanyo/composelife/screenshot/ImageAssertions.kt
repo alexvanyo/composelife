@@ -25,10 +25,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import kotlin.test.assertEquals
 
-fun ImageBitmap.assertPixels(
-    expectedSize: IntSize? = null,
-    expectedColorProvider: (position: IntOffset) -> Color?,
-) {
+fun ImageBitmap.assertPixels(expectedSize: IntSize? = null, expectedColorProvider: (position: IntOffset) -> Color?) {
     if (expectedSize != null) {
         assertEquals(
             expectedSize,
@@ -47,11 +44,7 @@ fun ImageBitmap.assertPixels(
     }
 }
 
-private fun PixelMap.assertPixelColor(
-    expected: Color,
-    x: Int,
-    y: Int,
-) {
+private fun PixelMap.assertPixelColor(expected: Color, x: Int, y: Int) {
     val color = this[x, y]
     val errorString = "Pixel($x, $y) was expected to be $expected, but was $color"
     assertEquals(expected.red, color.red, 0.02f, errorString)

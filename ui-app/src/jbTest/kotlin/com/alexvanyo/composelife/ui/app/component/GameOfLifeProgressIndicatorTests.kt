@@ -47,29 +47,32 @@ val UiGraph.gameOfLifeProgressIndicatorTestsCtx: GameOfLifeProgressIndicatorTest
     this as GameOfLifeProgressIndicatorTestsCtx
 
 @OptIn(ExperimentalTestApi::class)
-class GameOfLifeProgressIndicatorTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
-
+class GameOfLifeProgressIndicatorTests :
+    BaseUiInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
     @Test
-    fun progress_indicator_is_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.gameOfLifeProgressIndicatorTestsCtx
+    fun progress_indicator_is_displayed_correctly() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.gameOfLifeProgressIndicatorTestsCtx
 
-        setContent {
-            CompositionLocalProvider(
-                LocalLifecycleOwner provides object : LifecycleOwner {
-                    override val lifecycle = LifecycleRegistry(this).apply {
-                        currentState = Lifecycle.State.RESUMED
+            setContent {
+                CompositionLocalProvider(
+                    LocalLifecycleOwner provides
+                        object : LifecycleOwner {
+                            override val lifecycle =
+                                LifecycleRegistry(this).apply {
+                                    currentState = Lifecycle.State.RESUMED
+                                }
+                        },
+                ) {
+                    with(ctx.gameOfLifeProgressIndicatorCtx) {
+                        GameOfLifeProgressIndicator()
                     }
-                },
-            ) {
-                with(ctx.gameOfLifeProgressIndicatorCtx) {
-                    GameOfLifeProgressIndicator()
                 }
             }
-        }
 
-        onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate))
-    }
+            onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+                .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate))
+        }
 }

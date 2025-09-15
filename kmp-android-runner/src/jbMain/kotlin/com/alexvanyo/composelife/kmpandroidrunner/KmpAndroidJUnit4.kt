@@ -24,11 +24,11 @@ import org.junit.runner.notification.RunNotifier
  *
  * Internally, this delegates to a platform specific runner.
  */
-class KmpAndroidJUnit4(
-    klass: Class<*>,
-) : Runner() {
+class KmpAndroidJUnit4(klass: Class<*>) : Runner() {
     private val delegateRunner = createRunner(klass)
+
     override fun getDescription(): Description = delegateRunner.description
+
     override fun run(notifier: RunNotifier?) = delegateRunner.run(notifier)
 }
 

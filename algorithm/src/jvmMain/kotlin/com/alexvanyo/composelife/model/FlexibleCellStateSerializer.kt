@@ -25,39 +25,45 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 
 @Inject
-class FlexibleCellStateSerializer(
-    private val dispatchers: ComposeLifeDispatchers,
-) : CellStateSerializer {
+class FlexibleCellStateSerializer(private val dispatchers: ComposeLifeDispatchers) : CellStateSerializer {
     override suspend fun deserializeToCellState(
         format: CellStateFormat,
         lines: Sequence<String>,
     ): DeserializationResult =
         withContext(dispatchers.Default) {
-            val targetedSerializer = when (format) {
-                CellStateFormat.FixedFormat.Plaintext -> PlaintextCellStateSerializer
-                CellStateFormat.FixedFormat.Life105 -> Life105CellStateSerializer
-                CellStateFormat.FixedFormat.RunLengthEncoding -> RunLengthEncodedCellStateSerializer
-                CellStateFormat.FixedFormat.Life106 -> Life106CellStateSerializer
-                CellStateFormat.FixedFormat.Macrocell -> MacrocellCellStateSerializer
-                CellStateFormat.Life,
-                CellStateFormat.Unknown,
-                -> null
-            }
+            val targetedSerializer =
+                when (format) {
+                    CellStateFormat.FixedFormat.Plaintext -> PlaintextCellStateSerializer
+
+                    CellStateFormat.FixedFormat.Life105 -> Life105CellStateSerializer
+
+                    CellStateFormat.FixedFormat.RunLengthEncoding -> RunLengthEncodedCellStateSerializer
+
+                    CellStateFormat.FixedFormat.Life106 -> Life106CellStateSerializer
+
+                    CellStateFormat.FixedFormat.Macrocell -> MacrocellCellStateSerializer
+
+                    CellStateFormat.Life,
+                    CellStateFormat.Unknown,
+                    -> null
+                }
 
             val targetedResult = targetedSerializer?.deserializeToCellState(lines)
             when (targetedResult) {
                 is DeserializationResult.Successful -> return@withContext targetedResult
+
                 is DeserializationResult.Unsuccessful,
                 null,
                 -> Unit
             }
 
-            val allSerializers = listOf(
-                PlaintextCellStateSerializer,
-                Life105CellStateSerializer,
-                Life106CellStateSerializer,
-                RunLengthEncodedCellStateSerializer,
-            )
+            val allSerializers =
+                listOf(
+                    PlaintextCellStateSerializer,
+                    Life105CellStateSerializer,
+                    Life106CellStateSerializer,
+                    RunLengthEncodedCellStateSerializer,
+                )
 
             coroutineScope {
                 allSerializers
@@ -69,8 +75,7 @@ class FlexibleCellStateSerializer(
                                 it.deserializeToCellState(lines)
                             }
                         }
-                    }
-                    .awaitAll()
+                    }.awaitAll()
                     .reduceToSuccessful()
             }
         }

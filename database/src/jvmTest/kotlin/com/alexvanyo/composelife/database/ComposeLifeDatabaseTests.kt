@@ -33,15 +33,17 @@ interface ComposeLifeDatabaseTestsCtx {
 internal val ApplicationGraph.composeLifeDatabaseTestsCtx: ComposeLifeDatabaseTestsCtx get() =
     this as ComposeLifeDatabaseTestsCtx
 
-class ComposeLifeDatabaseTests : BaseInjectTest(
-    globalGraph.asContribution<ApplicationGraph.Factory>()::create,
-) {
+class ComposeLifeDatabaseTests :
+    BaseInjectTest(
+        globalGraph.asContribution<ApplicationGraph.Factory>()::create,
+    ) {
     private val ctx get() = applicationGraph.composeLifeDatabaseTestsCtx
 
     private val composeLifeDatabase get() = ctx.composeLifeDatabase
 
     @Test
-    fun cell_state_dao_returns_valid_instance() = runAppTest {
-        assertIs<CellStateQueries>(composeLifeDatabase.cellStateQueries)
-    }
+    fun cell_state_dao_returns_valid_instance() =
+        runAppTest {
+            assertIs<CellStateQueries>(composeLifeDatabase.cellStateQueries)
+        }
 }

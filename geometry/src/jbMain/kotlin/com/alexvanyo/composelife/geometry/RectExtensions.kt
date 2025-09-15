@@ -35,62 +35,74 @@ operator fun Rect.div(scale: Float): Rect =
         bottomRight = bottomRight / scale,
     )
 
-fun Rect.topStart(layoutDirection: LayoutDirection): Offset = when (layoutDirection) {
-    LayoutDirection.Ltr -> topLeft
-    LayoutDirection.Rtl -> topRight
-}
+fun Rect.topStart(layoutDirection: LayoutDirection): Offset =
+    when (layoutDirection) {
+        LayoutDirection.Ltr -> topLeft
+        LayoutDirection.Rtl -> topRight
+    }
 
-fun Rect.topEnd(layoutDirection: LayoutDirection): Offset = when (layoutDirection) {
-    LayoutDirection.Ltr -> topRight
-    LayoutDirection.Rtl -> topLeft
-}
+fun Rect.topEnd(layoutDirection: LayoutDirection): Offset =
+    when (layoutDirection) {
+        LayoutDirection.Ltr -> topRight
+        LayoutDirection.Rtl -> topLeft
+    }
 
-fun Rect.centerStart(layoutDirection: LayoutDirection): Offset = when (layoutDirection) {
-    LayoutDirection.Ltr -> centerLeft
-    LayoutDirection.Rtl -> centerRight
-}
+fun Rect.centerStart(layoutDirection: LayoutDirection): Offset =
+    when (layoutDirection) {
+        LayoutDirection.Ltr -> centerLeft
+        LayoutDirection.Rtl -> centerRight
+    }
 
-fun Rect.centerEnd(layoutDirection: LayoutDirection): Offset = when (layoutDirection) {
-    LayoutDirection.Ltr -> centerRight
-    LayoutDirection.Rtl -> centerLeft
-}
+fun Rect.centerEnd(layoutDirection: LayoutDirection): Offset =
+    when (layoutDirection) {
+        LayoutDirection.Ltr -> centerRight
+        LayoutDirection.Rtl -> centerLeft
+    }
 
-fun Rect.bottomStart(layoutDirection: LayoutDirection): Offset = when (layoutDirection) {
-    LayoutDirection.Ltr -> bottomLeft
-    LayoutDirection.Rtl -> bottomRight
-}
+fun Rect.bottomStart(layoutDirection: LayoutDirection): Offset =
+    when (layoutDirection) {
+        LayoutDirection.Ltr -> bottomLeft
+        LayoutDirection.Rtl -> bottomRight
+    }
 
-fun Rect.bottomEnd(layoutDirection: LayoutDirection): Offset = when (layoutDirection) {
-    LayoutDirection.Ltr -> bottomRight
-    LayoutDirection.Rtl -> bottomLeft
-}
+fun Rect.bottomEnd(layoutDirection: LayoutDirection): Offset =
+    when (layoutDirection) {
+        LayoutDirection.Ltr -> bottomRight
+        LayoutDirection.Rtl -> bottomLeft
+    }
 
-fun IntRect.topStart(layoutDirection: LayoutDirection): IntOffset = when (layoutDirection) {
-    LayoutDirection.Ltr -> topLeft
-    LayoutDirection.Rtl -> topRight
-}
+fun IntRect.topStart(layoutDirection: LayoutDirection): IntOffset =
+    when (layoutDirection) {
+        LayoutDirection.Ltr -> topLeft
+        LayoutDirection.Rtl -> topRight
+    }
 
-fun IntRect.topEnd(layoutDirection: LayoutDirection): IntOffset = when (layoutDirection) {
-    LayoutDirection.Ltr -> topRight
-    LayoutDirection.Rtl -> topLeft
-}
+fun IntRect.topEnd(layoutDirection: LayoutDirection): IntOffset =
+    when (layoutDirection) {
+        LayoutDirection.Ltr -> topRight
+        LayoutDirection.Rtl -> topLeft
+    }
 
-fun IntRect.centerStart(layoutDirection: LayoutDirection): IntOffset = when (layoutDirection) {
-    LayoutDirection.Ltr -> centerLeft
-    LayoutDirection.Rtl -> centerRight
-}
+fun IntRect.centerStart(layoutDirection: LayoutDirection): IntOffset =
+    when (layoutDirection) {
+        LayoutDirection.Ltr -> centerLeft
+        LayoutDirection.Rtl -> centerRight
+    }
 
-fun IntRect.centerEnd(layoutDirection: LayoutDirection): IntOffset = when (layoutDirection) {
-    LayoutDirection.Ltr -> centerRight
-    LayoutDirection.Rtl -> centerLeft
-}
+fun IntRect.centerEnd(layoutDirection: LayoutDirection): IntOffset =
+    when (layoutDirection) {
+        LayoutDirection.Ltr -> centerRight
+        LayoutDirection.Rtl -> centerLeft
+    }
 
-fun IntRect.bottomStart(layoutDirection: LayoutDirection): IntOffset = when (layoutDirection) {
-    LayoutDirection.Ltr -> bottomLeft
-    LayoutDirection.Rtl -> bottomRight
-}
+fun IntRect.bottomStart(layoutDirection: LayoutDirection): IntOffset =
+    when (layoutDirection) {
+        LayoutDirection.Ltr -> bottomLeft
+        LayoutDirection.Rtl -> bottomRight
+    }
 
-fun IntRect.bottomEnd(layoutDirection: LayoutDirection): IntOffset = when (layoutDirection) {
-    LayoutDirection.Ltr -> bottomRight
-    LayoutDirection.Rtl -> bottomLeft
-}
+fun IntRect.bottomEnd(layoutDirection: LayoutDirection): IntOffset =
+    when (layoutDirection) {
+        LayoutDirection.Ltr -> bottomRight
+        LayoutDirection.Rtl -> bottomLeft
+    }

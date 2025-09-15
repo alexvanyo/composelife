@@ -23,7 +23,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class CellWindowTests {
-
     @Test
     fun empty_IntRect_returns_empty_points() {
         assertEquals(

@@ -81,7 +81,8 @@ fun DeserializationInfoPane(
     val deserializationResult = navEntryValue.nav.deserializationResult
 
     Surface(
-        modifier = modifier
+        modifier =
+        modifier
             .then(
                 if (navEntryValue.isDialog) {
                     val paddingValues = PaddingValues(vertical = 48.dp)
@@ -107,16 +108,22 @@ fun DeserializationInfoPane(
             val consumedWindowInsets = remember { MutableWindowInsets() }
 
             LazyColumn(
-                contentPadding = WindowInsets.safeDrawing
+                contentPadding =
+                WindowInsets.safeDrawing
                     .exclude(consumedWindowInsets)
                     .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
-                    .asPaddingValues() + PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp),
-                modifier = Modifier.onConsumedWindowInsetsChanged {
+                    .asPaddingValues() +
+                    PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                modifier =
+                Modifier.onConsumedWindowInsetsChanged {
                     consumedWindowInsets.insets = it
                 },
             ) {
                 when (deserializationResult) {
-                    is DeserializationResult.Successful -> Unit
+                    is DeserializationResult.Successful -> {
+                        Unit
+                    }
+
                     is DeserializationResult.Unsuccessful -> {
                         if (deserializationResult.errors.isNotEmpty()) {
                             deserializationSection(
@@ -194,10 +201,7 @@ fun DeserializationInfoTopAppBar(
     )
 }
 
-private fun LazyListScope.deserializationSection(
-    title: ParameterizedString,
-    messages: List<ParameterizedString>,
-) {
+private fun LazyListScope.deserializationSection(title: ParameterizedString, messages: List<ParameterizedString>) {
     item {
         Text(
             text = parameterizedStringResource(title),
@@ -212,8 +216,6 @@ private fun LazyListScope.deserializationSection(
 }
 
 @Composable
-private fun LazyItemScope.DeserializationMessage(
-    parameterizedString: ParameterizedString,
-) {
+private fun LazyItemScope.DeserializationMessage(parameterizedString: ParameterizedString) {
     Text(parameterizedStringResource(parameterizedString))
 }

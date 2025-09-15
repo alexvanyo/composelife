@@ -48,5 +48,4 @@ internal actual val ComposeLifeTheme.darkColorScheme: ColorScheme
         }
 
 @ChecksSdkIntAtLeast(api = 31)
-private fun useDynamicColorScheme() =
-    Build.VERSION.SDK_INT >= 31
+private fun useDynamicColorScheme() = Build.VERSION.SDK_INT >= 31

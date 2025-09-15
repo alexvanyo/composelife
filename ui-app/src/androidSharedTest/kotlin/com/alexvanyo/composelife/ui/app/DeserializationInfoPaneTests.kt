@@ -49,282 +49,319 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class DeserializationInfoPaneTests {
-
     @Test
-    fun successful_is_displayed_correctly_in_dialog() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun successful_is_displayed_correctly_in_dialog() =
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.ForcedSize(DpSize(1200.dp, 800.dp)),
-            ) {
-                BoxWithConstraints {
-                    val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
-                        maxWidth.value,
-                        maxHeight.value,
-                    )
-                    val navEntryValue = ComposeLifeUiNavigation.DeserializationInfo(
-                        nav = ComposeLifeNavigation.DeserializationInfo(
-                            deserializationResult = DeserializationResult.Successful(
-                                cellState = emptyCellState(),
-                                format = CellStateFormat.FixedFormat.Plaintext,
-                                warnings = listOf(
-                                    ParameterizedString("Warning 1"),
+            setContent {
+                resolver = parameterizedStringResolver()
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.ForcedSize(DpSize(1200.dp, 800.dp)),
+                ) {
+                    BoxWithConstraints {
+                        val windowSizeClass =
+                            BREAKPOINTS_V1.computeWindowSizeClass(
+                                maxWidth.value,
+                                maxHeight.value,
+                            )
+                        val navEntryValue =
+                            ComposeLifeUiNavigation.DeserializationInfo(
+                                nav =
+                                ComposeLifeNavigation.DeserializationInfo(
+                                    deserializationResult =
+                                    DeserializationResult.Successful(
+                                        cellState = emptyCellState(),
+                                        format = CellStateFormat.FixedFormat.Plaintext,
+                                        warnings =
+                                        listOf(
+                                            ParameterizedString("Warning 1"),
+                                        ),
+                                    ),
                                 ),
-                            ),
-                        ),
-                        windowSizeClass = windowSizeClass,
-                    )
-                    DeserializationInfoPane(
-                        navEntryValue = navEntryValue,
-                        onBackButtonPressed = {},
-                    )
+                                windowSizeClass = windowSizeClass,
+                            )
+                        DeserializationInfoPane(
+                            navEntryValue = navEntryValue,
+                            onBackButtonPressed = {},
+                        )
+                    }
                 }
             }
+
+            onNodeWithText(resolver(Strings.DeserializationSucceeded))
+                .assertIsDisplayed()
+
+            onNodeWithContentDescription(resolver(Strings.Close))
+                .assertHasClickAction()
+
+            onNodeWithText("Warning 1")
+                .performScrollTo()
+                .assertIsDisplayed()
         }
-
-        onNodeWithText(resolver(Strings.DeserializationSucceeded))
-            .assertIsDisplayed()
-
-        onNodeWithContentDescription(resolver(Strings.Close))
-            .assertHasClickAction()
-
-        onNodeWithText("Warning 1")
-            .performScrollTo()
-            .assertIsDisplayed()
-    }
 
     @Test
-    fun successful_is_displayed_correctly_not_in_dialog() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun successful_is_displayed_correctly_not_in_dialog() =
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.ForcedSize(DpSize(400.dp, 400.dp)),
-            ) {
-                BoxWithConstraints {
-                    val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
-                        maxWidth.value,
-                        maxHeight.value,
-                    )
-                    val navEntryValue = ComposeLifeUiNavigation.DeserializationInfo(
-                        nav = ComposeLifeNavigation.DeserializationInfo(
-                            deserializationResult = DeserializationResult.Successful(
-                                cellState = emptyCellState(),
-                                format = CellStateFormat.FixedFormat.Plaintext,
-                                warnings = listOf(
-                                    ParameterizedString("Warning 1"),
+            setContent {
+                resolver = parameterizedStringResolver()
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.ForcedSize(DpSize(400.dp, 400.dp)),
+                ) {
+                    BoxWithConstraints {
+                        val windowSizeClass =
+                            BREAKPOINTS_V1.computeWindowSizeClass(
+                                maxWidth.value,
+                                maxHeight.value,
+                            )
+                        val navEntryValue =
+                            ComposeLifeUiNavigation.DeserializationInfo(
+                                nav =
+                                ComposeLifeNavigation.DeserializationInfo(
+                                    deserializationResult =
+                                    DeserializationResult.Successful(
+                                        cellState = emptyCellState(),
+                                        format = CellStateFormat.FixedFormat.Plaintext,
+                                        warnings =
+                                        listOf(
+                                            ParameterizedString("Warning 1"),
+                                        ),
+                                    ),
                                 ),
-                            ),
-                        ),
-                        windowSizeClass = windowSizeClass,
-                    )
-                    DeserializationInfoPane(
-                        navEntryValue = navEntryValue,
-                        onBackButtonPressed = {},
-                    )
+                                windowSizeClass = windowSizeClass,
+                            )
+                        DeserializationInfoPane(
+                            navEntryValue = navEntryValue,
+                            onBackButtonPressed = {},
+                        )
+                    }
                 }
             }
+
+            onNodeWithText(resolver(Strings.DeserializationSucceeded))
+                .assertIsDisplayed()
+
+            onNodeWithContentDescription(resolver(Strings.Back))
+                .assertHasClickAction()
+
+            onNodeWithText("Warning 1")
+                .performScrollTo()
+                .assertIsDisplayed()
         }
-
-        onNodeWithText(resolver(Strings.DeserializationSucceeded))
-            .assertIsDisplayed()
-
-        onNodeWithContentDescription(resolver(Strings.Back))
-            .assertHasClickAction()
-
-        onNodeWithText("Warning 1")
-            .performScrollTo()
-            .assertIsDisplayed()
-    }
 
     @Test
-    fun unsuccessful_is_displayed_correctly_in_dialog() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun unsuccessful_is_displayed_correctly_in_dialog() =
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.ForcedSize(DpSize(1200.dp, 800.dp)),
-            ) {
-                BoxWithConstraints {
-                    val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
-                        maxWidth.value,
-                        maxHeight.value,
-                    )
-                    val navEntryValue = ComposeLifeUiNavigation.DeserializationInfo(
-                        nav = ComposeLifeNavigation.DeserializationInfo(
-                            deserializationResult = DeserializationResult.Unsuccessful(
-                                warnings = listOf(
-                                    ParameterizedString("Warning 1"),
+            setContent {
+                resolver = parameterizedStringResolver()
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.ForcedSize(DpSize(1200.dp, 800.dp)),
+                ) {
+                    BoxWithConstraints {
+                        val windowSizeClass =
+                            BREAKPOINTS_V1.computeWindowSizeClass(
+                                maxWidth.value,
+                                maxHeight.value,
+                            )
+                        val navEntryValue =
+                            ComposeLifeUiNavigation.DeserializationInfo(
+                                nav =
+                                ComposeLifeNavigation.DeserializationInfo(
+                                    deserializationResult =
+                                    DeserializationResult.Unsuccessful(
+                                        warnings =
+                                        listOf(
+                                            ParameterizedString("Warning 1"),
+                                        ),
+                                        errors =
+                                        listOf(
+                                            ParameterizedString("Error 1"),
+                                        ),
+                                    ),
                                 ),
-                                errors = listOf(
-                                    ParameterizedString("Error 1"),
-                                ),
-                            ),
-                        ),
-                        windowSizeClass = windowSizeClass,
-                    )
-                    DeserializationInfoPane(
-                        navEntryValue = navEntryValue,
-                        onBackButtonPressed = {},
-                    )
+                                windowSizeClass = windowSizeClass,
+                            )
+                        DeserializationInfoPane(
+                            navEntryValue = navEntryValue,
+                            onBackButtonPressed = {},
+                        )
+                    }
                 }
             }
+
+            onNodeWithText(resolver(Strings.DeserializationFailed))
+                .assertIsDisplayed()
+
+            onNodeWithContentDescription(resolver(Strings.Close))
+                .assertHasClickAction()
+
+            onNodeWithText("Warning 1")
+                .performScrollTo()
+                .assertIsDisplayed()
+
+            onNodeWithText("Error 1")
+                .performScrollTo()
+                .assertIsDisplayed()
         }
-
-        onNodeWithText(resolver(Strings.DeserializationFailed))
-            .assertIsDisplayed()
-
-        onNodeWithContentDescription(resolver(Strings.Close))
-            .assertHasClickAction()
-
-        onNodeWithText("Warning 1")
-            .performScrollTo()
-            .assertIsDisplayed()
-
-        onNodeWithText("Error 1")
-            .performScrollTo()
-            .assertIsDisplayed()
-    }
 
     @Test
-    fun unsuccessful_is_displayed_correctly_not_in_dialog() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun unsuccessful_is_displayed_correctly_not_in_dialog() =
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.ForcedSize(DpSize(400.dp, 400.dp)),
-            ) {
-                BoxWithConstraints {
-                    val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
-                        maxWidth.value,
-                        maxHeight.value,
-                    )
-                    val navEntryValue = ComposeLifeUiNavigation.DeserializationInfo(
-                        nav = ComposeLifeNavigation.DeserializationInfo(
-                            deserializationResult = DeserializationResult.Unsuccessful(
-                                warnings = listOf(
-                                    ParameterizedString("Warning 1"),
+            setContent {
+                resolver = parameterizedStringResolver()
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.ForcedSize(DpSize(400.dp, 400.dp)),
+                ) {
+                    BoxWithConstraints {
+                        val windowSizeClass =
+                            BREAKPOINTS_V1.computeWindowSizeClass(
+                                maxWidth.value,
+                                maxHeight.value,
+                            )
+                        val navEntryValue =
+                            ComposeLifeUiNavigation.DeserializationInfo(
+                                nav =
+                                ComposeLifeNavigation.DeserializationInfo(
+                                    deserializationResult =
+                                    DeserializationResult.Unsuccessful(
+                                        warnings =
+                                        listOf(
+                                            ParameterizedString("Warning 1"),
+                                        ),
+                                        errors =
+                                        listOf(
+                                            ParameterizedString("Error 1"),
+                                        ),
+                                    ),
                                 ),
-                                errors = listOf(
-                                    ParameterizedString("Error 1"),
-                                ),
-                            ),
-                        ),
-                        windowSizeClass = windowSizeClass,
-                    )
-                    DeserializationInfoPane(
-                        navEntryValue = navEntryValue,
-                        onBackButtonPressed = {},
-                    )
+                                windowSizeClass = windowSizeClass,
+                            )
+                        DeserializationInfoPane(
+                            navEntryValue = navEntryValue,
+                            onBackButtonPressed = {},
+                        )
+                    }
                 }
             }
+
+            onNodeWithText(resolver(Strings.DeserializationFailed))
+                .assertIsDisplayed()
+
+            onNodeWithContentDescription(resolver(Strings.Back))
+                .assertHasClickAction()
+
+            onNodeWithText("Warning 1")
+                .performScrollTo()
+                .assertIsDisplayed()
+
+            onNodeWithText("Error 1")
+                .performScrollTo()
+                .assertIsDisplayed()
         }
-
-        onNodeWithText(resolver(Strings.DeserializationFailed))
-            .assertIsDisplayed()
-
-        onNodeWithContentDescription(resolver(Strings.Back))
-            .assertHasClickAction()
-
-        onNodeWithText("Warning 1")
-            .performScrollTo()
-            .assertIsDisplayed()
-
-        onNodeWithText("Error 1")
-            .performScrollTo()
-            .assertIsDisplayed()
-    }
 
     @Test
-    fun close_button_clicked_in_dialog() = runComposeUiTest {
-        var closeButtonWasClicked = false
+    fun close_button_clicked_in_dialog() =
+        runComposeUiTest {
+            var closeButtonWasClicked = false
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.ForcedSize(DpSize(1200.dp, 800.dp)),
-            ) {
-                BoxWithConstraints {
-                    val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
-                        maxWidth.value,
-                        maxHeight.value,
-                    )
-                    val navEntryValue = ComposeLifeUiNavigation.DeserializationInfo(
-                        nav = ComposeLifeNavigation.DeserializationInfo(
-                            deserializationResult = DeserializationResult.Successful(
-                                cellState = emptyCellState(),
-                                format = CellStateFormat.FixedFormat.Plaintext,
-                                warnings = listOf(
-                                    ParameterizedString("Warning 1"),
+            setContent {
+                resolver = parameterizedStringResolver()
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.ForcedSize(DpSize(1200.dp, 800.dp)),
+                ) {
+                    BoxWithConstraints {
+                        val windowSizeClass =
+                            BREAKPOINTS_V1.computeWindowSizeClass(
+                                maxWidth.value,
+                                maxHeight.value,
+                            )
+                        val navEntryValue =
+                            ComposeLifeUiNavigation.DeserializationInfo(
+                                nav =
+                                ComposeLifeNavigation.DeserializationInfo(
+                                    deserializationResult =
+                                    DeserializationResult.Successful(
+                                        cellState = emptyCellState(),
+                                        format = CellStateFormat.FixedFormat.Plaintext,
+                                        warnings =
+                                        listOf(
+                                            ParameterizedString("Warning 1"),
+                                        ),
+                                    ),
                                 ),
-                            ),
-                        ),
-                        windowSizeClass = windowSizeClass,
-                    )
-                    DeserializationInfoPane(
-                        navEntryValue = navEntryValue,
-                        onBackButtonPressed = {
-                            closeButtonWasClicked = true
-                        },
-                    )
+                                windowSizeClass = windowSizeClass,
+                            )
+                        DeserializationInfoPane(
+                            navEntryValue = navEntryValue,
+                            onBackButtonPressed = {
+                                closeButtonWasClicked = true
+                            },
+                        )
+                    }
                 }
             }
+
+            onNodeWithContentDescription(resolver(Strings.Close))
+                .performClick()
+
+            assertTrue(closeButtonWasClicked)
         }
-
-        onNodeWithContentDescription(resolver(Strings.Close))
-            .performClick()
-
-        assertTrue(closeButtonWasClicked)
-    }
 
     @Test
-    fun back_button_clicked_not_in_dialog() = runComposeUiTest {
-        var backButtonWasClicked = false
+    fun back_button_clicked_not_in_dialog() =
+        runComposeUiTest {
+            var backButtonWasClicked = false
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.ForcedSize(DpSize(400.dp, 400.dp)),
-            ) {
-                BoxWithConstraints {
-                    val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
-                        maxWidth.value,
-                        maxHeight.value,
-                    )
-                    val navEntryValue = ComposeLifeUiNavigation.DeserializationInfo(
-                        nav = ComposeLifeNavigation.DeserializationInfo(
-                            deserializationResult = DeserializationResult.Successful(
-                                cellState = emptyCellState(),
-                                format = CellStateFormat.FixedFormat.Plaintext,
-                                warnings = listOf(
-                                    ParameterizedString("Warning 1"),
+            setContent {
+                resolver = parameterizedStringResolver()
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.ForcedSize(DpSize(400.dp, 400.dp)),
+                ) {
+                    BoxWithConstraints {
+                        val windowSizeClass =
+                            BREAKPOINTS_V1.computeWindowSizeClass(
+                                maxWidth.value,
+                                maxHeight.value,
+                            )
+                        val navEntryValue =
+                            ComposeLifeUiNavigation.DeserializationInfo(
+                                nav =
+                                ComposeLifeNavigation.DeserializationInfo(
+                                    deserializationResult =
+                                    DeserializationResult.Successful(
+                                        cellState = emptyCellState(),
+                                        format = CellStateFormat.FixedFormat.Plaintext,
+                                        warnings =
+                                        listOf(
+                                            ParameterizedString("Warning 1"),
+                                        ),
+                                    ),
                                 ),
-                            ),
-                        ),
-                        windowSizeClass = windowSizeClass,
-                    )
-                    DeserializationInfoPane(
-                        navEntryValue = navEntryValue,
-                        onBackButtonPressed = {
-                            backButtonWasClicked = true
-                        },
-                    )
+                                windowSizeClass = windowSizeClass,
+                            )
+                        DeserializationInfoPane(
+                            navEntryValue = navEntryValue,
+                            onBackButtonPressed = {
+                                backButtonWasClicked = true
+                            },
+                        )
+                    }
                 }
             }
+
+            onNodeWithContentDescription(resolver(Strings.Back))
+                .performClick()
+
+            assertTrue(backButtonWasClicked)
         }
-
-        onNodeWithContentDescription(resolver(Strings.Back))
-            .performClick()
-
-        assertTrue(backButtonWasClicked)
-    }
 }

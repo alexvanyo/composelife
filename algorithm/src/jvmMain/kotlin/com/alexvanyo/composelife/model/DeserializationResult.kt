@@ -29,7 +29,6 @@ import kotlin.contracts.contract
  */
 @Serializable
 sealed interface DeserializationResult {
-
     /**
      * A list of warnings encountered while deserializing.
      */
@@ -49,10 +48,8 @@ sealed interface DeserializationResult {
      * An unsuccessful deserialization, with the given [errors].
      */
     @Serializable
-    data class Unsuccessful(
-        override val warnings: List<ParameterizedString>,
-        val errors: List<ParameterizedString>,
-    ) : DeserializationResult
+    data class Unsuccessful(override val warnings: List<ParameterizedString>, val errors: List<ParameterizedString>) :
+        DeserializationResult
 
     companion object {
         val Saver: Saver<DeserializationResult, SavedState> = serializer().saver()
@@ -74,16 +71,23 @@ fun DeserializationResult.isSuccessful(): Boolean {
 fun Iterable<DeserializationResult>.reduceToSuccessful(): DeserializationResult =
     reduce { a, b ->
         when (a) {
-            is DeserializationResult.Unsuccessful -> b
+            is DeserializationResult.Unsuccessful -> {
+                b
+            }
+
             is DeserializationResult.Successful -> {
                 when (b) {
-                    is DeserializationResult.Successful -> if (a.warnings.isEmpty()) {
-                        a
-                    } else {
-                        b
+                    is DeserializationResult.Successful -> {
+                        if (a.warnings.isEmpty()) {
+                            a
+                        } else {
+                            b
+                        }
                     }
 
-                    is DeserializationResult.Unsuccessful -> a
+                    is DeserializationResult.Unsuccessful -> {
+                        a
+                    }
                 }
             }
         }

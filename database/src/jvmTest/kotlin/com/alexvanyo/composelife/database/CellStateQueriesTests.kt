@@ -44,28 +44,271 @@ interface CellStateQueriesTestsCtx {
 internal val ApplicationGraph.cellStateQueriesTestsCtx: CellStateQueriesTestsCtx get() =
     this as CellStateQueriesTestsCtx
 
-class CellStateQueriesTests : BaseInjectTest(
-    globalGraph.asContribution<ApplicationGraph.Factory>()::create,
-) {
+class CellStateQueriesTests :
+    BaseInjectTest(
+        globalGraph.asContribution<ApplicationGraph.Factory>()::create,
+    ) {
     private val ctx get() = applicationGraph.cellStateQueriesTestsCtx
     private val cellStateQueries get() = ctx.cellStateQueries
 
     @Test
-    fun get_cell_states_returns_empty_initially() = runAppTest {
-        withTurbineTimeout(60.seconds) {
-            cellStateQueries.getCellStates().asFlow().mapToList(EmptyCoroutineContext).test {
-                assertEquals(emptyList(), awaitItem())
+    fun get_cell_states_returns_empty_initially() =
+        runAppTest {
+            withTurbineTimeout(60.seconds) {
+                cellStateQueries.getCellStates().asFlow().mapToList(EmptyCoroutineContext).test {
+                    assertEquals(emptyList(), awaitItem())
+                }
             }
         }
-    }
 
     @Test
-    fun get_cell_states_returns_value_once_saved() = runAppTest {
-        withTurbineTimeout(60.seconds) {
-            cellStateQueries.getCellStates().asFlow().mapToList(EmptyCoroutineContext).test {
-                assertEquals(emptyList(), awaitItem())
+    fun get_cell_states_returns_value_once_saved() =
+        runAppTest {
+            withTurbineTimeout(60.seconds) {
+                cellStateQueries.getCellStates().asFlow().mapToList(EmptyCoroutineContext).test {
+                    assertEquals(emptyList(), awaitItem())
 
-                val insertedId = cellStateQueries.transactionWithResult {
+                    val insertedId =
+                        cellStateQueries.transactionWithResult {
+                            cellStateQueries.insertCellState(
+                                name = null,
+                                description = null,
+                                formatExtension = null,
+                                serializedCellState = "O",
+                                serializedCellStateFile = null,
+                                generation = 0,
+                                wasAutosaved = true,
+                                patternCollectionId = null,
+                            )
+                            cellStateQueries.lastInsertedRowId().awaitAsOne()
+                        }
+
+                    assertEquals(
+                        listOf(
+                            CellState(
+                                id = CellStateId(insertedId),
+                                name = null,
+                                description = null,
+                                formatExtension = null,
+                                serializedCellState = "O",
+                                serializedCellStateFile = null,
+                                generation = 0,
+                                wasAutosaved = true,
+                                patternCollectionId = null,
+                            ),
+                        ),
+                        awaitItem(),
+                    )
+                }
+            }
+        }
+
+    @Test
+    fun get_cell_states_returns_value_if_saved_before() =
+        runAppTest {
+            withTurbineTimeout(60.seconds) {
+                val insertedId =
+                    cellStateQueries.transactionWithResult {
+                        cellStateQueries.insertCellState(
+                            name = null,
+                            description = null,
+                            formatExtension = null,
+                            serializedCellState = "O",
+                            serializedCellStateFile = null,
+                            generation = 0,
+                            wasAutosaved = true,
+                            patternCollectionId = null,
+                        )
+                        cellStateQueries.lastInsertedRowId().awaitAsOne()
+                    }
+
+                cellStateQueries.getCellStates().asFlow().mapToList(EmptyCoroutineContext).test {
+                    assertEquals(
+                        listOf(
+                            CellState(
+                                id = CellStateId(insertedId),
+                                name = null,
+                                description = null,
+                                formatExtension = null,
+                                serializedCellState = "O",
+                                serializedCellStateFile = null,
+                                generation = 0,
+                                wasAutosaved = true,
+                                patternCollectionId = null,
+                            ),
+                        ),
+                        awaitItem(),
+                    )
+                }
+            }
+        }
+
+    @Test
+    fun get_cell_states_returns_empty_once_deleted() =
+        runAppTest {
+            withTurbineTimeout(60.seconds) {
+                cellStateQueries.getCellStates().asFlow().mapToList(EmptyCoroutineContext).test {
+                    assertEquals(emptyList(), awaitItem())
+
+                    val insertedId =
+                        cellStateQueries.transactionWithResult {
+                            cellStateQueries.insertCellState(
+                                name = null,
+                                description = null,
+                                formatExtension = null,
+                                serializedCellState = "O",
+                                serializedCellStateFile = null,
+                                generation = 0,
+                                wasAutosaved = true,
+                                patternCollectionId = null,
+                            )
+                            cellStateQueries.lastInsertedRowId().awaitAsOne()
+                        }
+
+                    assertEquals(
+                        listOf(
+                            CellState(
+                                id = CellStateId(insertedId),
+                                name = null,
+                                description = null,
+                                formatExtension = null,
+                                serializedCellState = "O",
+                                serializedCellStateFile = null,
+                                generation = 0,
+                                wasAutosaved = true,
+                                patternCollectionId = null,
+                            ),
+                        ),
+                        awaitItem(),
+                    )
+
+                    cellStateQueries.deleteCellState(CellStateId(insertedId))
+
+                    assertEquals(emptyList(), awaitItem())
+                }
+            }
+        }
+
+    @Test
+    fun get_cell_state_by_id_returns_null_initially() =
+        runAppTest {
+            withTurbineTimeout(60.seconds) {
+                cellStateQueries
+                    .getCellStateById(
+                        CellStateId(123),
+                    ).asFlow()
+                    .mapToOneOrNull(EmptyCoroutineContext)
+                    .test {
+                        assertNull(awaitItem())
+                    }
+            }
+        }
+
+    @Test
+    fun get_cell_state_by_id_returns_value_if_saved_before() =
+        runAppTest {
+            withTurbineTimeout(60.seconds) {
+                val insertedId =
+                    cellStateQueries.transactionWithResult {
+                        cellStateQueries.insertCellState(
+                            name = null,
+                            description = null,
+                            formatExtension = null,
+                            serializedCellState = "O",
+                            serializedCellStateFile = null,
+                            generation = 0,
+                            wasAutosaved = true,
+                            patternCollectionId = null,
+                        )
+                        cellStateQueries.lastInsertedRowId().awaitAsOne()
+                    }
+
+                cellStateQueries
+                    .getCellStateById(
+                        CellStateId(insertedId),
+                    ).asFlow()
+                    .mapToOneOrNull(EmptyCoroutineContext)
+                    .test {
+                        assertEquals(
+                            CellState(
+                                id = CellStateId(insertedId),
+                                name = null,
+                                description = null,
+                                formatExtension = null,
+                                serializedCellState = "O",
+                                serializedCellStateFile = null,
+                                generation = 0,
+                                wasAutosaved = true,
+                                patternCollectionId = null,
+                            ),
+                            awaitItem(),
+                        )
+                    }
+            }
+        }
+
+    @Test
+    fun get_cell_states_returns_null_once_deleted() =
+        runAppTest {
+            withTurbineTimeout(60.seconds) {
+                val insertedId =
+                    cellStateQueries.transactionWithResult {
+                        cellStateQueries.insertCellState(
+                            name = null,
+                            description = null,
+                            formatExtension = null,
+                            serializedCellState = "O",
+                            serializedCellStateFile = null,
+                            generation = 0,
+                            wasAutosaved = true,
+                            patternCollectionId = null,
+                        )
+                        cellStateQueries.lastInsertedRowId().awaitAsOne()
+                    }
+
+                cellStateQueries
+                    .getCellStateById(
+                        CellStateId(insertedId),
+                    ).asFlow()
+                    .mapToOneOrNull(EmptyCoroutineContext)
+                    .test {
+                        assertEquals(
+                            CellState(
+                                id = CellStateId(insertedId),
+                                name = null,
+                                description = null,
+                                formatExtension = null,
+                                serializedCellState = "O",
+                                serializedCellStateFile = null,
+                                generation = 0,
+                                wasAutosaved = true,
+                                patternCollectionId = null,
+                            ),
+                            awaitItem(),
+                        )
+
+                        cellStateQueries.deleteCellState(CellStateId(insertedId))
+
+                        assertNull(awaitItem())
+                    }
+            }
+        }
+
+    @Test
+    fun get_most_recent_autosaved_cell_state_returns_null_initially() =
+        runAppTest {
+            withTurbineTimeout(60.seconds) {
+                cellStateQueries.getMostRecentAutosavedCellState().asFlow().mapToOneOrNull(EmptyCoroutineContext).test {
+                    assertNull(awaitItem())
+                }
+            }
+        }
+
+    @Test
+    fun get_most_recent_autosaved_cell_state_returns_null_if_not_autosaved_before() =
+        runAppTest {
+            withTurbineTimeout(60.seconds) {
+                cellStateQueries.transactionWithResult {
                     cellStateQueries.insertCellState(
                         name = null,
                         description = null,
@@ -73,14 +316,39 @@ class CellStateQueriesTests : BaseInjectTest(
                         serializedCellState = "O",
                         serializedCellStateFile = null,
                         generation = 0,
-                        wasAutosaved = true,
+                        wasAutosaved = false,
                         patternCollectionId = null,
                     )
                     cellStateQueries.lastInsertedRowId().awaitAsOne()
                 }
 
-                assertEquals(
-                    listOf(
+                cellStateQueries.getMostRecentAutosavedCellState().asFlow().mapToOneOrNull(EmptyCoroutineContext).test {
+                    assertNull(awaitItem())
+                }
+            }
+        }
+
+    @Test
+    fun get_most_recent_autosaved_cell_state_returns_value_if_autosaved_before() =
+        runAppTest {
+            withTurbineTimeout(60.seconds) {
+                val insertedId =
+                    cellStateQueries.transactionWithResult {
+                        cellStateQueries.insertCellState(
+                            name = null,
+                            description = null,
+                            formatExtension = null,
+                            serializedCellState = "O",
+                            serializedCellStateFile = null,
+                            generation = 0,
+                            wasAutosaved = true,
+                            patternCollectionId = null,
+                        )
+                        cellStateQueries.lastInsertedRowId().awaitAsOne()
+                    }
+
+                cellStateQueries.getMostRecentAutosavedCellState().asFlow().mapToOneOrNull(EmptyCoroutineContext).test {
+                    assertEquals(
                         CellState(
                             id = CellStateId(insertedId),
                             name = null,
@@ -92,33 +360,35 @@ class CellStateQueriesTests : BaseInjectTest(
                             wasAutosaved = true,
                             patternCollectionId = null,
                         ),
-                    ),
-                    awaitItem(),
-                )
+                        awaitItem(),
+                    )
+                }
             }
         }
-    }
 
     @Test
-    fun get_cell_states_returns_value_if_saved_before() = runAppTest {
-        withTurbineTimeout(60.seconds) {
-            val insertedId = cellStateQueries.transactionWithResult {
-                cellStateQueries.insertCellState(
-                    name = null,
-                    description = null,
-                    formatExtension = null,
-                    serializedCellState = "O",
-                    serializedCellStateFile = null,
-                    generation = 0,
-                    wasAutosaved = true,
-                    patternCollectionId = null,
-                )
-                cellStateQueries.lastInsertedRowId().awaitAsOne()
-            }
+    fun get_most_recent_autosaved_cell_state_returns_value_once_autosaved() =
+        runAppTest {
+            withTurbineTimeout(60.seconds) {
+                cellStateQueries.getMostRecentAutosavedCellState().asFlow().mapToOneOrNull(EmptyCoroutineContext).test {
+                    assertNull(awaitItem())
 
-            cellStateQueries.getCellStates().asFlow().mapToList(EmptyCoroutineContext).test {
-                assertEquals(
-                    listOf(
+                    val insertedId =
+                        cellStateQueries.transactionWithResult {
+                            cellStateQueries.insertCellState(
+                                name = null,
+                                description = null,
+                                formatExtension = null,
+                                serializedCellState = "O",
+                                serializedCellStateFile = null,
+                                generation = 0,
+                                wasAutosaved = true,
+                                patternCollectionId = null,
+                            )
+                            cellStateQueries.lastInsertedRowId().awaitAsOne()
+                        }
+
+                    assertEquals(
                         CellState(
                             id = CellStateId(insertedId),
                             name = null,
@@ -130,249 +400,9 @@ class CellStateQueriesTests : BaseInjectTest(
                             wasAutosaved = true,
                             patternCollectionId = null,
                         ),
-                    ),
-                    awaitItem(),
-                )
-            }
-        }
-    }
-
-    @Test
-    fun get_cell_states_returns_empty_once_deleted() = runAppTest {
-        withTurbineTimeout(60.seconds) {
-            cellStateQueries.getCellStates().asFlow().mapToList(EmptyCoroutineContext).test {
-                assertEquals(emptyList(), awaitItem())
-
-                val insertedId = cellStateQueries.transactionWithResult {
-                    cellStateQueries.insertCellState(
-                        name = null,
-                        description = null,
-                        formatExtension = null,
-                        serializedCellState = "O",
-                        serializedCellStateFile = null,
-                        generation = 0,
-                        wasAutosaved = true,
-                        patternCollectionId = null,
+                        awaitItem(),
                     )
-                    cellStateQueries.lastInsertedRowId().awaitAsOne()
                 }
-
-                assertEquals(
-                    listOf(
-                        CellState(
-                            id = CellStateId(insertedId),
-                            name = null,
-                            description = null,
-                            formatExtension = null,
-                            serializedCellState = "O",
-                            serializedCellStateFile = null,
-                            generation = 0,
-                            wasAutosaved = true,
-                            patternCollectionId = null,
-                        ),
-                    ),
-                    awaitItem(),
-                )
-
-                cellStateQueries.deleteCellState(CellStateId(insertedId))
-
-                assertEquals(emptyList(), awaitItem())
             }
         }
-    }
-
-    @Test
-    fun get_cell_state_by_id_returns_null_initially() = runAppTest {
-        withTurbineTimeout(60.seconds) {
-            cellStateQueries.getCellStateById(CellStateId(123)).asFlow().mapToOneOrNull(EmptyCoroutineContext).test {
-                assertNull(awaitItem())
-            }
-        }
-    }
-
-    @Test
-    fun get_cell_state_by_id_returns_value_if_saved_before() = runAppTest {
-        withTurbineTimeout(60.seconds) {
-            val insertedId = cellStateQueries.transactionWithResult {
-                cellStateQueries.insertCellState(
-                    name = null,
-                    description = null,
-                    formatExtension = null,
-                    serializedCellState = "O",
-                    serializedCellStateFile = null,
-                    generation = 0,
-                    wasAutosaved = true,
-                    patternCollectionId = null,
-                )
-                cellStateQueries.lastInsertedRowId().awaitAsOne()
-            }
-
-            cellStateQueries.getCellStateById(
-                CellStateId(insertedId),
-            ).asFlow().mapToOneOrNull(EmptyCoroutineContext).test {
-                assertEquals(
-                    CellState(
-                        id = CellStateId(insertedId),
-                        name = null,
-                        description = null,
-                        formatExtension = null,
-                        serializedCellState = "O",
-                        serializedCellStateFile = null,
-                        generation = 0,
-                        wasAutosaved = true,
-                        patternCollectionId = null,
-                    ),
-                    awaitItem(),
-                )
-            }
-        }
-    }
-
-    @Test
-    fun get_cell_states_returns_null_once_deleted() = runAppTest {
-        withTurbineTimeout(60.seconds) {
-            val insertedId = cellStateQueries.transactionWithResult {
-                cellStateQueries.insertCellState(
-                    name = null,
-                    description = null,
-                    formatExtension = null,
-                    serializedCellState = "O",
-                    serializedCellStateFile = null,
-                    generation = 0,
-                    wasAutosaved = true,
-                    patternCollectionId = null,
-                )
-                cellStateQueries.lastInsertedRowId().awaitAsOne()
-            }
-
-            cellStateQueries.getCellStateById(
-                CellStateId(insertedId),
-            ).asFlow().mapToOneOrNull(EmptyCoroutineContext).test {
-                assertEquals(
-                    CellState(
-                        id = CellStateId(insertedId),
-                        name = null,
-                        description = null,
-                        formatExtension = null,
-                        serializedCellState = "O",
-                        serializedCellStateFile = null,
-                        generation = 0,
-                        wasAutosaved = true,
-                        patternCollectionId = null,
-                    ),
-                    awaitItem(),
-                )
-
-                cellStateQueries.deleteCellState(CellStateId(insertedId))
-
-                assertNull(awaitItem())
-            }
-        }
-    }
-
-    @Test
-    fun get_most_recent_autosaved_cell_state_returns_null_initially() = runAppTest {
-        withTurbineTimeout(60.seconds) {
-            cellStateQueries.getMostRecentAutosavedCellState().asFlow().mapToOneOrNull(EmptyCoroutineContext).test {
-                assertNull(awaitItem())
-            }
-        }
-    }
-
-    @Test
-    fun get_most_recent_autosaved_cell_state_returns_null_if_not_autosaved_before() = runAppTest {
-        withTurbineTimeout(60.seconds) {
-            cellStateQueries.transactionWithResult {
-                cellStateQueries.insertCellState(
-                    name = null,
-                    description = null,
-                    formatExtension = null,
-                    serializedCellState = "O",
-                    serializedCellStateFile = null,
-                    generation = 0,
-                    wasAutosaved = false,
-                    patternCollectionId = null,
-                )
-                cellStateQueries.lastInsertedRowId().awaitAsOne()
-            }
-
-            cellStateQueries.getMostRecentAutosavedCellState().asFlow().mapToOneOrNull(EmptyCoroutineContext).test {
-                assertNull(awaitItem())
-            }
-        }
-    }
-
-    @Test
-    fun get_most_recent_autosaved_cell_state_returns_value_if_autosaved_before() = runAppTest {
-        withTurbineTimeout(60.seconds) {
-            val insertedId = cellStateQueries.transactionWithResult {
-                cellStateQueries.insertCellState(
-                    name = null,
-                    description = null,
-                    formatExtension = null,
-                    serializedCellState = "O",
-                    serializedCellStateFile = null,
-                    generation = 0,
-                    wasAutosaved = true,
-                    patternCollectionId = null,
-                )
-                cellStateQueries.lastInsertedRowId().awaitAsOne()
-            }
-
-            cellStateQueries.getMostRecentAutosavedCellState().asFlow().mapToOneOrNull(EmptyCoroutineContext).test {
-                assertEquals(
-                    CellState(
-                        id = CellStateId(insertedId),
-                        name = null,
-                        description = null,
-                        formatExtension = null,
-                        serializedCellState = "O",
-                        serializedCellStateFile = null,
-                        generation = 0,
-                        wasAutosaved = true,
-                        patternCollectionId = null,
-                    ),
-                    awaitItem(),
-                )
-            }
-        }
-    }
-
-    @Test
-    fun get_most_recent_autosaved_cell_state_returns_value_once_autosaved() = runAppTest {
-        withTurbineTimeout(60.seconds) {
-            cellStateQueries.getMostRecentAutosavedCellState().asFlow().mapToOneOrNull(EmptyCoroutineContext).test {
-                assertNull(awaitItem())
-
-                val insertedId = cellStateQueries.transactionWithResult {
-                    cellStateQueries.insertCellState(
-                        name = null,
-                        description = null,
-                        formatExtension = null,
-                        serializedCellState = "O",
-                        serializedCellStateFile = null,
-                        generation = 0,
-                        wasAutosaved = true,
-                        patternCollectionId = null,
-                    )
-                    cellStateQueries.lastInsertedRowId().awaitAsOne()
-                }
-
-                assertEquals(
-                    CellState(
-                        id = CellStateId(insertedId),
-                        name = null,
-                        description = null,
-                        formatExtension = null,
-                        serializedCellState = "O",
-                        serializedCellStateFile = null,
-                        generation = 0,
-                        wasAutosaved = true,
-                        patternCollectionId = null,
-                    ),
-                    awaitItem(),
-                )
-            }
-        }
-    }
 }

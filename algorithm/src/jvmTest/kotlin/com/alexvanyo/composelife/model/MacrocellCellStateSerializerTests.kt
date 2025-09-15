@@ -22,7 +22,6 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 class MacrocellCellStateSerializerTests {
-
     private val serializer = MacrocellCellStateSerializer
 
     @Test
@@ -30,7 +29,8 @@ class MacrocellCellStateSerializerTests {
         assertEquals(
             DeserializationResult.Successful(
                 warnings = emptyList(),
-                cellState = setOf(
+                cellState =
+                setOf(
                     0 to 0,
                     2 to 0,
                     4 to 0,
@@ -57,7 +57,8 @@ class MacrocellCellStateSerializerTests {
         assertEquals(
             DeserializationResult.Successful(
                 warnings = emptyList(),
-                cellState = setOf(
+                cellState =
+                setOf(
                     0 to 0,
                     2 to 0,
                     4 to 0,
@@ -87,19 +88,20 @@ class MacrocellCellStateSerializerTests {
             |[M2] (ComposeLife 1.0)
             |*.*.*$$*.*.*$$*.*.*$
             """.trimMargin(),
-            serializer.serializeToString(
-                setOf(
-                    0 to 0,
-                    2 to 0,
-                    4 to 0,
-                    0 to 2,
-                    2 to 2,
-                    4 to 2,
-                    0 to 4,
-                    2 to 4,
-                    4 to 4,
-                ).toCellState(),
-            ).joinToString("\n"),
+            serializer
+                .serializeToString(
+                    setOf(
+                        0 to 0,
+                        2 to 0,
+                        4 to 0,
+                        0 to 2,
+                        2 to 2,
+                        4 to 2,
+                        0 to 4,
+                        2 to 4,
+                        4 to 4,
+                    ).toCellState(),
+                ).joinToString("\n"),
         )
     }
 
@@ -121,8 +123,9 @@ class MacrocellCellStateSerializerTests {
             |5 10 0 0 0
             |6 8 11 0 0
             """.trimMargin(),
-            serializer.serializeToString(
-                """
+            serializer
+                .serializeToString(
+                    """
                 |........................O...........
                 |......................O.O...........
                 |............OO......OO............OO
@@ -133,7 +136,7 @@ class MacrocellCellStateSerializerTests {
                 |...........O...O....................
                 |............OO......................
                 """.toCellState(),
-            ).joinToString("\n"),
+                ).joinToString("\n"),
         )
     }
 
@@ -216,8 +219,9 @@ class MacrocellCellStateSerializerTests {
             |6 71 0 0 0
             |7 42 59 64 72
             """.trimMargin(),
-            serializer.serializeToString(
-                """
+            serializer
+                .serializeToString(
+                    """
                 |............................................................................OO....
                 |...........................................................................OO.OOOO
                 |............................................................................OOOOOO
@@ -292,7 +296,7 @@ class MacrocellCellStateSerializerTests {
                 |...........................................................................OO.OOOO
                 |............................................................................OO....
                 """.toCellState(),
-            ).joinToString("\n"),
+                ).joinToString("\n"),
         )
     }
 
@@ -301,7 +305,8 @@ class MacrocellCellStateSerializerTests {
         assertEquals(
             DeserializationResult.Successful(
                 warnings = emptyList(),
-                cellState = """
+                cellState =
+                """
                 |............................................................................OO....
                 |...........................................................................OO.OOOO
                 |............................................................................OOOOOO
@@ -461,12 +466,13 @@ class MacrocellCellStateSerializerTests {
 
     @Test
     fun pulsar_pixel_display_deserialization_is_correct() {
-        val deserializationResult = serializer.deserializeToCellState(
-            this::class.java
-                .getResource("/patternfiles/pulsarpixeldisplay.mc")!!
-                .readText()
-                .lineSequence(),
-        )
+        val deserializationResult =
+            serializer.deserializeToCellState(
+                this::class.java
+                    .getResource("/patternfiles/pulsarpixeldisplay.mc")!!
+                    .readText()
+                    .lineSequence(),
+            )
         assertIs<DeserializationResult.Successful>(deserializationResult)
         assertEquals(CellStateFormat.FixedFormat.Macrocell, deserializationResult.format)
         assertEquals(emptyList(), deserializationResult.warnings)

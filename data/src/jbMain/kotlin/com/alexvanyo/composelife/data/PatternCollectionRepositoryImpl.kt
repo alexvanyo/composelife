@@ -77,10 +77,14 @@ import kotlin.time.Clock
 
 @Inject
 @ContributesBinding(AppScope::class, binding = binding<PatternCollectionRepository>())
-@ContributesIntoSet(AppScope::class, binding = binding<
-    @ForScope(AppScope::class)
-    Updatable,
-    >())
+@ContributesIntoSet(
+    AppScope::class,
+    binding =
+    binding<
+        @ForScope(AppScope::class)
+        Updatable,
+        >(),
+)
 @SingleIn(AppScope::class)
 @Suppress("LongParameterList")
 internal class PatternCollectionRepositoryImpl(
@@ -92,7 +96,8 @@ internal class PatternCollectionRepositoryImpl(
     private val logger: Logger,
     private val clock: Clock,
     @PersistedDataPath persistedDataPath: Lazy<Path>,
-) : PatternCollectionRepository, Updatable {
+) : PatternCollectionRepository,
+    Updatable {
     private val httpClient by httpClient
     private val persistedDataPath by persistedDataPath
 
@@ -119,25 +124,25 @@ internal class PatternCollectionRepositoryImpl(
             }
         }
 
-    private val powerableUpdatable = PowerableUpdatable {
-        patternCollectionQueries.getPatternCollections()
-            .asFlow()
-            .mapToList(dispatchers.IO)
-            .retry()
-            .onEach { databasePatternCollections ->
-                Snapshot.withMutableSnapshot {
-                    databaseCollections = ResourceState.Success(databasePatternCollections)
-                }
-            }
-            .catch { throwable ->
-                Snapshot.withMutableSnapshot {
-                    databaseCollections = ResourceState.Failure(throwable)
-                }
-            }
-            .collect()
+    private val powerableUpdatable =
+        PowerableUpdatable {
+            patternCollectionQueries
+                .getPatternCollections()
+                .asFlow()
+                .mapToList(dispatchers.IO)
+                .retry()
+                .onEach { databasePatternCollections ->
+                    Snapshot.withMutableSnapshot {
+                        databaseCollections = ResourceState.Success(databasePatternCollections)
+                    }
+                }.catch { throwable ->
+                    Snapshot.withMutableSnapshot {
+                        databaseCollections = ResourceState.Failure(throwable)
+                    }
+                }.collect()
 
-        error("getPatternCollections can not complete normally")
-    }
+            error("getPatternCollections can not complete normally")
+        }
 
     private val synchronizeMutex = Mutex()
 
@@ -145,54 +150,54 @@ internal class PatternCollectionRepositoryImpl(
 
     override suspend fun observePatternCollections(): Nothing = powerableUpdatable.press()
 
-    override suspend fun addPatternCollection(
-        sourceUrl: String,
-    ): PatternCollectionId = withContext(dispatchers.IO) {
-        patternCollectionQueries.transactionWithResult {
-            patternCollectionQueries.insertPatternCollection(
-                sourceUrl = sourceUrl,
-                lastSuccessfulSynchronizationTimestamp = null,
-                lastUnsuccessfulSynchronizationTimestamp = null,
-                synchronizationFailureMessage = null,
-            )
-            patternCollectionQueries.awaitLastInsertedId()
+    override suspend fun addPatternCollection(sourceUrl: String): PatternCollectionId =
+        withContext(dispatchers.IO) {
+            patternCollectionQueries.transactionWithResult {
+                patternCollectionQueries.insertPatternCollection(
+                    sourceUrl = sourceUrl,
+                    lastSuccessfulSynchronizationTimestamp = null,
+                    lastUnsuccessfulSynchronizationTimestamp = null,
+                    synchronizationFailureMessage = null,
+                )
+                patternCollectionQueries.awaitLastInsertedId()
+            }
         }
-    }
 
-    override suspend fun deletePatternCollection(
-        patternCollectionId: PatternCollectionId,
-    ): Unit = withContext(dispatchers.IO) {
-        patternCollectionQueries.transactionWithResult {
-            patternCollectionQueries.deletePatternCollection(patternCollectionId)
+    override suspend fun deletePatternCollection(patternCollectionId: PatternCollectionId): Unit =
+        withContext(dispatchers.IO) {
+            patternCollectionQueries.transactionWithResult {
+                patternCollectionQueries.deletePatternCollection(patternCollectionId)
+            }
+            val archivePathParent =
+                persistedDataPath /
+                    collectionsFolder /
+                    patternCollectionId.value.toString()
+            fileSystem.deleteRecursively(archivePathParent)
         }
-        val archivePathParent = persistedDataPath /
-            collectionsFolder /
-            patternCollectionId.value.toString()
-        fileSystem.deleteRecursively(archivePathParent)
-    }
 
     override suspend fun synchronizePatternCollections(): Boolean =
         synchronizeMutex.withLock {
             try {
                 synchronizationInformation.clear()
                 // Fetch the current list of pattern collections
-                val databasePatternCollections = withContext(dispatchers.IO) {
-                    patternCollectionQueries.getPatternCollections().awaitAsList()
-                }
+                val databasePatternCollections =
+                    withContext(dispatchers.IO) {
+                        patternCollectionQueries.getPatternCollections().awaitAsList()
+                    }
                 databasePatternCollections.forEach { databasePatternCollection ->
                     synchronizationInformation[databasePatternCollection.id] = true
                 }
 
                 // In parallel, synchronize each of the pattern collections we have
                 return coroutineScope {
-                    databasePatternCollections.map { databasePatternCollection ->
-                        async {
-                            synchronizePatternCollection(databasePatternCollection).also {
-                                synchronizationInformation[databasePatternCollection.id] = false
+                    databasePatternCollections
+                        .map { databasePatternCollection ->
+                            async {
+                                synchronizePatternCollection(databasePatternCollection).also {
+                                    synchronizationInformation[databasePatternCollection.id] = false
+                                }
                             }
-                        }
-                    }
-                        .awaitAll()
+                        }.awaitAll()
                         .all { it }
                 }
             } finally {
@@ -203,127 +208,133 @@ internal class PatternCollectionRepositoryImpl(
     @Suppress("ThrowsCount", "TooGenericExceptionCaught", "LongMethod", "CyclomaticComplexMethod")
     private suspend fun synchronizePatternCollection(
         databasePatternCollection: com.alexvanyo.composelife.database.PatternCollection,
-    ): Boolean = withContext(dispatchers.IO) {
-        val sourceUrl = databasePatternCollection.sourceUrl
-        val archivePathParent = persistedDataPath /
-            collectionsFolder /
-            databasePatternCollection.id.value.toString()
+    ): Boolean =
+        withContext(dispatchers.IO) {
+            val sourceUrl = databasePatternCollection.sourceUrl
+            val archivePathParent =
+                persistedDataPath /
+                    collectionsFolder /
+                    databasePatternCollection.id.value.toString()
 
-        val archivePath = archivePathParent / archiveFileName
-        val archiveHashPath = archivePathParent / archiveHashFileName
+            val archivePath = archivePathParent / archiveFileName
+            val archiveHashPath = archivePathParent / archiveHashFileName
 
-        try {
-            fileSystem.createDirectories(archivePathParent)
+            try {
+                fileSystem.createDirectories(archivePathParent)
 
-            httpClient
-                .prepareGet(sourceUrl) {
-                    onDownload { bytesSentTotal: Long, contentLength: Long? ->
-                        // TODO: Make this visible in the UI
-                        if (contentLength != null) {
-                            logger.d {
-                                "Progress: ${ "%.1f".format(bytesSentTotal * 100f / contentLength) }%"
+                httpClient
+                    .prepareGet(sourceUrl) {
+                        onDownload { bytesSentTotal: Long, contentLength: Long? ->
+                            // TODO: Make this visible in the UI
+                            if (contentLength != null) {
+                                logger.d {
+                                    "Progress: ${ "%.1f".format(bytesSentTotal * 100f / contentLength) }%"
+                                }
+                            }
+                        }
+                    }.execute { response ->
+                        fileSystem.sink(archivePath).buffer().use { sink ->
+                            response.bodyAsChannel().readBuffer().asOkioSource().buffer().use { source ->
+                                source.readAll(sink)
                             }
                         }
                     }
-                }
-                .execute { response ->
-                    fileSystem.sink(archivePath).buffer().use { sink ->
-                        response.bodyAsChannel().readBuffer().asOkioSource().buffer().use { source ->
-                            source.readAll(sink)
-                        }
-                    }
-                }
-        } catch (exception: Exception) {
-            coroutineContext.ensureActive()
-            logger.e(exception) { "Failed fetching" }
+            } catch (exception: Exception) {
+                coroutineContext.ensureActive()
+                logger.e(exception) { "Failed fetching" }
 
-            patternCollectionQueries.updatePatternCollection(
-                id = databasePatternCollection.id,
-                sourceUrl = databasePatternCollection.sourceUrl,
-                lastSuccessfulSynchronizationTimestamp =
-                databasePatternCollection.lastSuccessfulSynchronizationTimestamp,
-                lastUnsuccessfulSynchronizationTimestamp = clock.now(),
-                synchronizationFailureMessage = "Failed fetching",
-            )
-
-            return@withContext false
-        }
-
-        try {
-            val hashingSink = HashingSink.sha256(blackholeSink())
-            val hash = hashingSink.buffer().use { sink ->
-                fileSystem.source(archivePath).buffer().use { source ->
-                    source.readAll(sink)
-                    hashingSink.hash
-                }
-            }
-            val oldHash = if (fileSystem.exists(archiveHashPath)) {
-                fileSystem.source(archiveHashPath).buffer().use { source ->
-                    source.readByteArray().toByteString()
-                }
-            } else {
-                null
-            }
-
-            if (hash == oldHash) {
-                logger.d("Archive file had same hash")
-            } else {
-                // The hash has changed, extract all contained patterns
-                val archiveFileSystem = fileSystem.openZip(archivePath)
-                val filesToExtract = archiveFileSystem.listRecursively("/".toPath()).filterNot {
-                    it.toFile().isDirectory
-                }
-                filesToExtract.forEach { file ->
-                    logger.d("Found file: ${file.name}")
-                    val extractedFile = archivePathParent / extractedPatternsFolder / file.relativeTo("/".toPath())
-                    extractedFile.parent?.let(fileSystem::createDirectories)
-                    fileSystem.sink(extractedFile).buffer().use { sink ->
-                        archiveFileSystem.source(file).buffer().use { source ->
-                            source.readAll(sink)
-                        }
-                    }
-                }
-                val extractedFiles = filesToExtract.map { file ->
-                    archivePathParent / extractedPatternsFolder / file.relativeTo("/".toPath())
-                }.toSet()
-
-                // Synchronize the cell states with the updated pattern collection
-                synchronizeCellStateWithPatternCollection(
-                    patternCollectionId = databasePatternCollection.id,
-                    extractedFiles = extractedFiles,
+                patternCollectionQueries.updatePatternCollection(
+                    id = databasePatternCollection.id,
+                    sourceUrl = databasePatternCollection.sourceUrl,
+                    lastSuccessfulSynchronizationTimestamp =
+                    databasePatternCollection.lastSuccessfulSynchronizationTimestamp,
+                    lastUnsuccessfulSynchronizationTimestamp = clock.now(),
+                    synchronizationFailureMessage = "Failed fetching",
                 )
 
-                // Update the hash after processing everything
-                fileSystem.sink(archiveHashPath).buffer().use { sink ->
-                    sink.write(hash)
-                }
+                return@withContext false
             }
-        } catch (exception: Exception) {
-            coroutineContext.ensureActive()
-            logger.e(exception) { "Failed processing archive" }
+
+            try {
+                val hashingSink = HashingSink.sha256(blackholeSink())
+                val hash =
+                    hashingSink.buffer().use { sink ->
+                        fileSystem.source(archivePath).buffer().use { source ->
+                            source.readAll(sink)
+                            hashingSink.hash
+                        }
+                    }
+                val oldHash =
+                    if (fileSystem.exists(archiveHashPath)) {
+                        fileSystem.source(archiveHashPath).buffer().use { source ->
+                            source.readByteArray().toByteString()
+                        }
+                    } else {
+                        null
+                    }
+
+                if (hash == oldHash) {
+                    logger.d("Archive file had same hash")
+                } else {
+                    // The hash has changed, extract all contained patterns
+                    val archiveFileSystem = fileSystem.openZip(archivePath)
+                    val filesToExtract =
+                        archiveFileSystem.listRecursively("/".toPath()).filterNot {
+                            it.toFile().isDirectory
+                        }
+                    filesToExtract.forEach { file ->
+                        logger.d("Found file: ${file.name}")
+                        val extractedFile = archivePathParent / extractedPatternsFolder / file.relativeTo("/".toPath())
+                        extractedFile.parent?.let(fileSystem::createDirectories)
+                        fileSystem.sink(extractedFile).buffer().use { sink ->
+                            archiveFileSystem.source(file).buffer().use { source ->
+                                source.readAll(sink)
+                            }
+                        }
+                    }
+                    val extractedFiles =
+                        filesToExtract
+                            .map { file ->
+                                archivePathParent / extractedPatternsFolder / file.relativeTo("/".toPath())
+                            }.toSet()
+
+                    // Synchronize the cell states with the updated pattern collection
+                    synchronizeCellStateWithPatternCollection(
+                        patternCollectionId = databasePatternCollection.id,
+                        extractedFiles = extractedFiles,
+                    )
+
+                    // Update the hash after processing everything
+                    fileSystem.sink(archiveHashPath).buffer().use { sink ->
+                        sink.write(hash)
+                    }
+                }
+            } catch (exception: Exception) {
+                coroutineContext.ensureActive()
+                logger.e(exception) { "Failed processing archive" }
+
+                patternCollectionQueries.updatePatternCollection(
+                    id = databasePatternCollection.id,
+                    sourceUrl = databasePatternCollection.sourceUrl,
+                    lastSuccessfulSynchronizationTimestamp =
+                    databasePatternCollection.lastSuccessfulSynchronizationTimestamp,
+                    lastUnsuccessfulSynchronizationTimestamp = clock.now(),
+                    synchronizationFailureMessage = "Failed processing archive",
+                )
+
+                return@withContext false
+            }
 
             patternCollectionQueries.updatePatternCollection(
                 id = databasePatternCollection.id,
                 sourceUrl = databasePatternCollection.sourceUrl,
-                lastSuccessfulSynchronizationTimestamp =
-                databasePatternCollection.lastSuccessfulSynchronizationTimestamp,
-                lastUnsuccessfulSynchronizationTimestamp = clock.now(),
-                synchronizationFailureMessage = "Failed processing archive",
+                lastSuccessfulSynchronizationTimestamp = clock.now(),
+                lastUnsuccessfulSynchronizationTimestamp = null,
+                synchronizationFailureMessage = null,
             )
 
-            return@withContext false
+            true
         }
-
-        patternCollectionQueries.updatePatternCollection(
-            id = databasePatternCollection.id,
-            sourceUrl = databasePatternCollection.sourceUrl,
-            lastSuccessfulSynchronizationTimestamp = clock.now(),
-            lastUnsuccessfulSynchronizationTimestamp = null,
-            synchronizationFailureMessage = null,
-        )
-
-        true
-    }
 
     private suspend fun synchronizeCellStateWithPatternCollection(
         patternCollectionId: PatternCollectionId,

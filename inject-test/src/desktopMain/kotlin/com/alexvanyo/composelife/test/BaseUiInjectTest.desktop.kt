@@ -30,13 +30,14 @@ internal actual fun runPlatformUiTest(
     runTestContext: CoroutineContext,
     timeout: Duration,
     testBody: suspend ComposeUiTest.(uiGraphArguments: UiGraphArguments) -> Unit,
-): TestResult = runComposeUiTest(
-    runTestContext = runTestContext,
-    testTimeout = timeout,
-) {
-    testBody(
-        object : UiGraphArguments {
-            override val windowState: WindowState? = null
-        },
-    )
-}
+): TestResult =
+    runComposeUiTest(
+        runTestContext = runTestContext,
+        testTimeout = timeout,
+    ) {
+        testBody(
+            object : UiGraphArguments {
+                override val windowState: WindowState? = null
+            },
+        )
+    }

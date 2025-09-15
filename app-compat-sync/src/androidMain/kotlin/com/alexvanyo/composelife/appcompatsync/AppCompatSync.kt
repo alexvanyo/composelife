@@ -39,21 +39,22 @@ import kotlinx.coroutines.flow.onEach
 
 @Inject
 @SingleIn(AppScope::class)
-@ContributesIntoSet(AppScope::class, binding = binding<
-    @ForScope(AppScope::class)
-    Updatable,
-    >())
-class AppCompatSync(
-    private val composeLifePreferences: ComposeLifePreferences,
-    @ApplicationContext context: Context,
-) : Updatable {
+@ContributesIntoSet(
+    AppScope::class,
+    binding =
+    binding<
+        @ForScope(AppScope::class)
+        Updatable,
+        >(),
+)
+class AppCompatSync(private val composeLifePreferences: ComposeLifePreferences, @ApplicationContext context: Context) :
+    Updatable {
     private val uiModeManager = context.getSystemService<UiModeManager>()
 
     override suspend fun update(): Nothing {
         snapshotFlow {
             composeLifePreferences.darkThemeConfigState
-        }
-            .successes()
+        }.successes()
             .onEach { darkThemeConfig ->
                 // If we can, update and persist the application-defined night mode
                 if (Build.VERSION.SDK_INT >= 31) {
@@ -61,8 +62,7 @@ class AppCompatSync(
                 } else {
                     AppCompatDelegate.setDefaultNightMode(darkThemeConfig.value.appCompatDelegateMode)
                 }
-            }
-            .collect()
+            }.collect()
 
         error("snapshotFlow can not complete normally")
     }

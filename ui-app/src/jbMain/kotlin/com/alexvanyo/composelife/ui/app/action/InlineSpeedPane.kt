@@ -65,12 +65,12 @@ fun InlineSpeedPane(
     scrollState: ScrollState = rememberScrollState(initial = Int.MAX_VALUE),
 ) {
     Column(
-        modifier = modifier
+        modifier =
+        modifier
             .verticalScroll(
                 state = scrollState,
                 reverseScrolling = true,
-            )
-            .padding(vertical = 8.dp),
+            ).padding(vertical = 8.dp),
     ) {
         TargetStepsPerSecondControl(
             targetStepsPerSecond = targetStepsPerSecond,
@@ -88,6 +88,7 @@ fun InlineSpeedPane(
 
 private object TargetStepsPerSecondSliderBijection : SliderBijection<Double> {
     override fun valueToSlider(value: Double): Float = log2(value).toFloat()
+
     override fun sliderToValue(sliderValue: Float): Double = 2.0.pow(sliderValue.toDouble())
 }
 
@@ -99,9 +100,10 @@ fun TargetStepsPerSecondControl(
     minTargetStepsPerSecondPowerOfTwo: Int = 0,
     maxTargetStepsPerSecondPowerOfTwo: Int = 8,
 ) {
-    val valueRange = with(TargetStepsPerSecondSliderBijection) {
-        (minTargetStepsPerSecondPowerOfTwo.toFloat()..maxTargetStepsPerSecondPowerOfTwo.toFloat()).toValue()
-    }
+    val valueRange =
+        with(TargetStepsPerSecondSliderBijection) {
+            (minTargetStepsPerSecondPowerOfTwo.toFloat()..maxTargetStepsPerSecondPowerOfTwo.toFloat()).toValue()
+        }
 
     var sessionId by rememberSaveable(stateSaver = uuidSaver) { mutableStateOf(Uuid.random()) }
     var valueId by rememberSaveable(stateSaver = uuidSaver) { mutableStateOf(Uuid.random()) }
@@ -127,10 +129,11 @@ fun TargetStepsPerSecondControl(
             Canvas(
                 modifier = Modifier.fillMaxSize(),
             ) {
-                val offsets = (minTargetStepsPerSecondPowerOfTwo..maxTargetStepsPerSecondPowerOfTwo).map {
-                    (2f.pow(it) - 2f.pow(minTargetStepsPerSecondPowerOfTwo)) /
-                        (2f.pow(maxTargetStepsPerSecondPowerOfTwo) - 2f.pow(minTargetStepsPerSecondPowerOfTwo))
-                }
+                val offsets =
+                    (minTargetStepsPerSecondPowerOfTwo..maxTargetStepsPerSecondPowerOfTwo).map {
+                        (2f.pow(it) - 2f.pow(minTargetStepsPerSecondPowerOfTwo)) /
+                            (2f.pow(maxTargetStepsPerSecondPowerOfTwo) - 2f.pow(minTargetStepsPerSecondPowerOfTwo))
+                    }
 
                 offsets.forEach { xOffset ->
                     drawLine(
@@ -148,6 +151,7 @@ fun TargetStepsPerSecondControl(
 
 private object GenerationsPerStepSliderBijection : SliderBijection<Int> {
     override fun valueToSlider(value: Int): Float = log2(value.toFloat())
+
     override fun sliderToValue(sliderValue: Float): Int = 2.0.pow(sliderValue.toDouble()).roundToInt()
 }
 
@@ -159,9 +163,10 @@ fun GenerationsPerStepControl(
     minGenerationsPerStepPowerOfTwo: Int = 0,
     maxGenerationsPerStepPowerOfTwo: Int = 8,
 ) {
-    val valueRange = with(GenerationsPerStepSliderBijection) {
-        (minGenerationsPerStepPowerOfTwo.toFloat()..maxGenerationsPerStepPowerOfTwo.toFloat()).toValue()
-    }
+    val valueRange =
+        with(GenerationsPerStepSliderBijection) {
+            (minGenerationsPerStepPowerOfTwo.toFloat()..maxGenerationsPerStepPowerOfTwo.toFloat()).toValue()
+        }
 
     var sessionId by rememberSaveable(stateSaver = uuidSaver) { mutableStateOf(Uuid.random()) }
     var valueId by rememberSaveable(stateSaver = uuidSaver) { mutableStateOf(Uuid.random()) }

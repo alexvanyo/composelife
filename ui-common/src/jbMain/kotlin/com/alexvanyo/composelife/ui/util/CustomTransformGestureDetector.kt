@@ -67,10 +67,11 @@ suspend fun PointerInputScope.detectTransformGestures(
                     rotation += rotationChange
                     pan += panChange
 
-                    val centroidSize = event.calculateCentroidSize(
-                        excludedPointerTypes = excludedPointerTypes,
-                        useCurrent = false,
-                    )
+                    val centroidSize =
+                        event.calculateCentroidSize(
+                            excludedPointerTypes = excludedPointerTypes,
+                            useCurrent = false,
+                        )
                     val zoomMotion = abs(1 - zoom) * centroidSize
                     val rotationMotion = abs(rotation * PI.toFloat() * centroidSize / 180f)
                     val panMotion = pan.getDistance()
@@ -86,10 +87,11 @@ suspend fun PointerInputScope.detectTransformGestures(
                 }
 
                 if (pastTouchSlop) {
-                    val centroid = event.calculateCentroid(
-                        excludedPointerTypes = excludedPointerTypes,
-                        useCurrent = false,
-                    )
+                    val centroid =
+                        event.calculateCentroid(
+                            excludedPointerTypes = excludedPointerTypes,
+                            useCurrent = false,
+                        )
                     val effectiveRotation = if (lockedToPanZoom) 0f else rotationChange
                     if (effectiveRotation != 0f ||
                         zoomChange != 1f ||
@@ -121,9 +123,7 @@ suspend fun PointerInputScope.detectTransformGestures(
  * Example Usage:
  * @sample androidx.compose.foundation.samples.CalculateRotation
  */
-fun PointerEvent.calculateRotation(
-    excludedPointerTypes: Set<PointerType> = emptySet(),
-): Float {
+fun PointerEvent.calculateRotation(excludedPointerTypes: Set<PointerType> = emptySet()): Float {
     val filteredChanges = changes.filterNot { it.type in excludedPointerTypes }
     val pointerCount = filteredChanges.fastSumBy { if (it.previousPressed && it.pressed) 1 else 0 }
     if (pointerCount < 2) {
@@ -159,7 +159,8 @@ fun PointerEvent.calculateRotation(
                 angleDiff > 180f -> angleDiff - 360f
                 angleDiff < -180f -> angleDiff + 360f
                 else -> angleDiff
-            } * weight
+            } *
+                weight
 
             // weight its contribution by the distance to the centroid
             rotationWeight += weight
@@ -171,8 +172,7 @@ fun PointerEvent.calculateRotation(
 /**
  * Returns the angle of the [Offset] between -180 and 180, or 0 if [Offset.Zero].
  */
-private fun Offset.angle(): Float =
-    if (x == 0f && y == 0f) 0f else -atan2(x, y) * 180f / PI.toFloat()
+private fun Offset.angle(): Float = if (x == 0f && y == 0f) 0f else -atan2(x, y) * 180f / PI.toFloat()
 
 /**
  * Uses the change of the centroid size between the [PointerInputChange.previousPosition] and
@@ -181,9 +181,7 @@ private fun Offset.angle(): Float =
  * Example Usage:
  * @sample androidx.compose.foundation.samples.CalculateZoom
  */
-fun PointerEvent.calculateZoom(
-    excludedPointerTypes: Set<PointerType> = emptySet(),
-): Float {
+fun PointerEvent.calculateZoom(excludedPointerTypes: Set<PointerType> = emptySet()): Float {
     val currentCentroidSize = calculateCentroidSize(excludedPointerTypes = excludedPointerTypes, useCurrent = true)
     val previousCentroidSize = calculateCentroidSize(excludedPointerTypes = excludedPointerTypes, useCurrent = false)
     if (currentCentroidSize == 0f || previousCentroidSize == 0f) {
@@ -200,20 +198,20 @@ fun PointerEvent.calculateZoom(
  * Example Usage:
  * @sample androidx.compose.foundation.samples.CalculatePan
  */
-fun PointerEvent.calculatePan(
-    excludedPointerTypes: Set<PointerType> = emptySet(),
-): Offset {
-    val currentCentroid = calculateCentroid(
-        excludedPointerTypes = excludedPointerTypes,
-        useCurrent = true,
-    )
+fun PointerEvent.calculatePan(excludedPointerTypes: Set<PointerType> = emptySet()): Offset {
+    val currentCentroid =
+        calculateCentroid(
+            excludedPointerTypes = excludedPointerTypes,
+            useCurrent = true,
+        )
     if (currentCentroid == Offset.Unspecified) {
         return Offset.Zero
     }
-    val previousCentroid = calculateCentroid(
-        excludedPointerTypes = excludedPointerTypes,
-        useCurrent = false,
-    )
+    val previousCentroid =
+        calculateCentroid(
+            excludedPointerTypes = excludedPointerTypes,
+            useCurrent = false,
+        )
     return currentCentroid - previousCentroid
 }
 

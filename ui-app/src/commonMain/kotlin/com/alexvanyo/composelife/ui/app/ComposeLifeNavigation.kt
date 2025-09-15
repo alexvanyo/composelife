@@ -42,22 +42,18 @@ sealed interface ComposeLifeNavigation {
     val type: ComposeLifeNavigationType
 
     data object CellUniverse : ComposeLifeNavigation {
-
         override val type = Companion
 
         data object Companion : ComposeLifeNavigationType {
-            override fun saverFactory(
-                previous: BackstackEntry<ComposeLifeNavigation>?,
-            ): Saver<CellUniverse, Any> = Saver(
-                save = { 0 },
-                restore = { CellUniverse },
-            )
+            override fun saverFactory(previous: BackstackEntry<ComposeLifeNavigation>?): Saver<CellUniverse, Any> =
+                Saver(
+                    save = { 0 },
+                    restore = { CellUniverse },
+                )
         }
     }
 
-    class FullscreenSettingsList(
-        initialSettingsCategory: SettingsCategory,
-    ) : ComposeLifeNavigation {
+    class FullscreenSettingsList(initialSettingsCategory: SettingsCategory) : ComposeLifeNavigation {
         /**
          * The currently selected settings category.
          */
@@ -93,11 +89,8 @@ sealed interface ComposeLifeNavigation {
         }
     }
 
-    class FullscreenSettingsDetail(
-        val settingsCategory: SettingsCategory,
-        initialSettingToScrollTo: Setting?,
-    ) : ComposeLifeNavigation {
-
+    class FullscreenSettingsDetail(val settingsCategory: SettingsCategory, initialSettingToScrollTo: Setting?) :
+        ComposeLifeNavigation {
         /**
          * If non-null, a [Setting] to scroll to immediately.
          */
@@ -135,9 +128,7 @@ sealed interface ComposeLifeNavigation {
         }
     }
 
-    class DeserializationInfo(
-        val deserializationResult: DeserializationResult,
-    ) : ComposeLifeNavigation {
+    class DeserializationInfo(val deserializationResult: DeserializationResult) : ComposeLifeNavigation {
         override val type = Companion
 
         companion object : ComposeLifeNavigationType {
@@ -160,40 +151,45 @@ sealed interface ComposeLifeNavigation {
 
     companion object {
         @Suppress("UnsafeCallOnNullableType")
-        val SaverFactory: BackstackValueSaverFactory<ComposeLifeNavigation> = BackstackValueSaverFactory { previous ->
-            listSaver(
-                save = { composeLifeNavigation ->
-                    listOf(
-                        with(ComposeLifeNavigationType.Saver) { save(composeLifeNavigation.type) },
-                        when (composeLifeNavigation) {
-                            is CellUniverse ->
-                                with(composeLifeNavigation.type.saverFactory(previous)) {
-                                    save(composeLifeNavigation)
+        val SaverFactory: BackstackValueSaverFactory<ComposeLifeNavigation> =
+            BackstackValueSaverFactory { previous ->
+                listSaver(
+                    save = { composeLifeNavigation ->
+                        listOf(
+                            with(ComposeLifeNavigationType.Saver) { save(composeLifeNavigation.type) },
+                            when (composeLifeNavigation) {
+                                is CellUniverse -> {
+                                    with(composeLifeNavigation.type.saverFactory(previous)) {
+                                        save(composeLifeNavigation)
+                                    }
                                 }
 
-                            is FullscreenSettingsList ->
-                                with(composeLifeNavigation.type.saverFactory(previous)) {
-                                    save(composeLifeNavigation)
+                                is FullscreenSettingsList -> {
+                                    with(composeLifeNavigation.type.saverFactory(previous)) {
+                                        save(composeLifeNavigation)
+                                    }
                                 }
 
-                            is FullscreenSettingsDetail ->
-                                with(composeLifeNavigation.type.saverFactory(previous)) {
-                                    save(composeLifeNavigation)
+                                is FullscreenSettingsDetail -> {
+                                    with(composeLifeNavigation.type.saverFactory(previous)) {
+                                        save(composeLifeNavigation)
+                                    }
                                 }
 
-                            is DeserializationInfo ->
-                                with(composeLifeNavigation.type.saverFactory(previous)) {
-                                    save(composeLifeNavigation)
+                                is DeserializationInfo -> {
+                                    with(composeLifeNavigation.type.saverFactory(previous)) {
+                                        save(composeLifeNavigation)
+                                    }
                                 }
-                        },
-                    )
-                },
-                restore = { list ->
-                    val type = ComposeLifeNavigationType.Saver.restore(list[0] as Int)!!
-                    type.saverFactory(previous).restore(list[1]!!)
-                },
-            )
-        }
+                            },
+                        )
+                    },
+                    restore = { list ->
+                        val type = ComposeLifeNavigationType.Saver.restore(list[0] as Int)!!
+                        type.saverFactory(previous).restore(list[1]!!)
+                    },
+                )
+            }
     }
 }
 

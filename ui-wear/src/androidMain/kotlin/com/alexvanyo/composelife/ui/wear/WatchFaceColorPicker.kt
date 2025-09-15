@@ -48,11 +48,7 @@ import com.alexvanyo.composelife.ui.util.withComponent
 import com.alexvanyo.composelife.resources.wear.R as resourcesWearR
 
 @Composable
-fun WatchFaceColorPicker(
-    color: Color,
-    setColor: (Color) -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun WatchFaceColorPicker(color: Color, setColor: (Color) -> Unit, modifier: Modifier = Modifier) {
     var selectedComponent: ColorComponent.RgbIntComponent by rememberSaveable(
         stateSaver = ColorComponent.RgbIntComponent.Saver,
     ) {
@@ -62,15 +58,15 @@ fun WatchFaceColorPicker(
 
     Row(
         horizontalArrangement = Arrangement.Center,
-        modifier = modifier
+        modifier =
+        modifier
             .fillMaxSize()
             .background(color)
             .padding(12.dp)
             .background(
                 MaterialTheme.colorScheme.background,
                 if (LocalConfiguration.current.isScreenRound) CircleShape else RectangleShape,
-            )
-            .clip(
+            ).clip(
                 if (LocalConfiguration.current.isScreenRound) CircleShape else RectangleShape,
             ),
     ) {

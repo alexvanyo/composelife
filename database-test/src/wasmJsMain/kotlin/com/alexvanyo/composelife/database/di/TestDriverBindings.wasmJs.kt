@@ -38,21 +38,19 @@ interface TestDriverBindings {
     companion object {
         @Provides
         @SingleIn(AppScope::class)
-        internal fun providesDriver(): SqlDriver =
-            createDefaultWebWorkerDriver()
+        internal fun providesDriver(): SqlDriver = createDefaultWebWorkerDriver()
 
         @Provides
         @SingleIn(AppScope::class)
         @IntoSet
         @ForScope(AppScope::class)
-        internal fun providesDriverClosingIntoUpdatable(
-            driver: SqlDriver,
-        ): Updatable = object : Updatable {
-            override suspend fun update(): Nothing =
-                driver.use { _ ->
-                    ComposeLifeDatabase.Schema.awaitCreate(driver)
-                    awaitCancellation()
-                }
-        }
+        internal fun providesDriverClosingIntoUpdatable(driver: SqlDriver): Updatable =
+            object : Updatable {
+                override suspend fun update(): Nothing =
+                    driver.use { _ ->
+                        ComposeLifeDatabase.Schema.awaitCreate(driver)
+                        awaitCancellation()
+                    }
+            }
     }
 }

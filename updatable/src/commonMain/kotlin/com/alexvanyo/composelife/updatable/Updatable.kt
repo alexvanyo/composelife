@@ -20,7 +20,6 @@ package com.alexvanyo.composelife.updatable
  * A component that can be updated on a continual basis by calling [update].
  */
 interface Updatable {
-
     /**
      * Updates this component. This method will not return except exceptionally.
      *

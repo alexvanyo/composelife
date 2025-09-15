@@ -91,7 +91,8 @@ private operator fun InteractiveCellUniverseOverlayCtx.invoke(
 private val InteractiveCellUniverseOverlayCtx.Companion.lambda:
     @Composable context(
         CellUniverseActionCardCtx
-    ) (
+    )
+    (
         temporalGameOfLifeState: TemporalGameOfLifeState,
         interactiveCellUniverseState: InteractiveCellUniverseState,
         cellWindowViewportState: CellWindowViewportState,
@@ -127,9 +128,9 @@ private val InteractiveCellUniverseOverlayCtx.Companion.lambda:
  * An interactive cell universe displaying the given [temporalGameOfLifeState] and the controls for adjusting how it
  * evolves.
  */
-context(ctx: InteractiveCellUniverseOverlayCtx)
 @Suppress("LongParameterList")
 @Composable
+context(ctx: InteractiveCellUniverseOverlayCtx)
 fun InteractiveCellUniverseOverlay(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     interactiveCellUniverseState: InteractiveCellUniverseState,
@@ -151,11 +152,11 @@ fun InteractiveCellUniverseOverlay(
 )
 // endregion templated-ctx
 
+@Suppress("LongMethod", "ComplexMethod", "LongParameterList")
+@Composable
 context(
     _: CellUniverseActionCardCtx,
 )
-@Suppress("LongMethod", "ComplexMethod", "LongParameterList")
-@Composable
 fun InteractiveCellUniverseOverlay(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     interactiveCellUniverseState: InteractiveCellUniverseState,
@@ -178,18 +179,21 @@ fun InteractiveCellUniverseOverlay(
         layoutIdTypes = InteractiveCellUniverseOverlayLayoutTypes._sealedEnum,
         content = {
             Spacer(
-                modifier = Modifier
+                modifier =
+                Modifier
                     .windowInsetsTopHeight(WindowInsets.safeDrawing)
                     .layoutId(TopInsets),
             )
             Spacer(
-                modifier = Modifier
+                modifier =
+                Modifier
                     .windowInsetsBottomHeight(WindowInsets.safeDrawing)
                     .layoutId(BottomInsets),
             )
 
             Box(
-                modifier = Modifier
+                modifier =
+                Modifier
                     .fillMaxWidth()
                     .windowInsetsPadding(WindowInsets.safeDrawing)
                     .layoutId(CellUniverseInfoCard),
@@ -198,7 +202,8 @@ fun InteractiveCellUniverseOverlay(
                     cellWindowViewportState = cellWindowViewportState,
                     evolutionStatus = temporalGameOfLifeState.status,
                     infoCardState = interactiveCellUniverseState.infoCardState,
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .align(Alignment.CenterEnd)
                         .padding(8.dp)
                         .sizeIn(maxWidth = with(LocalDensity.current) { 400.sp.toDp() })
@@ -231,7 +236,8 @@ fun InteractiveCellUniverseOverlay(
                 onOpenInSettingsClicked = onOpenInSettingsClicked,
                 onViewDeserializationInfo = onViewDeserializationInfo,
                 actionCardState = interactiveCellUniverseState.actionCardState,
-                modifier = Modifier
+                modifier =
+                Modifier
                     .layoutId(CellUniverseActionCard)
                     .testTag("CellUniverseActionCard"),
             )
@@ -253,8 +259,10 @@ fun InteractiveCellUniverseOverlay(
                 // Otherwise, place the top-card (as determined by isActionCardTopCard) only aligned to the correct
                 // side of the screen, and align the hidden card just off-screen.
                 if (
-                    infoCardPlaceable.height + actionCardPlaceable.height -
-                    topInsetsPlaceable.height - bottomInsetsPlaceable.height <= constraints.maxHeight
+                    infoCardPlaceable.height +
+                    actionCardPlaceable.height -
+                    topInsetsPlaceable.height -
+                    bottomInsetsPlaceable.height <= constraints.maxHeight
                 ) {
                     displayInfoCardOffscreen = false
                     displayActionCardOffscreen = false
@@ -271,10 +279,11 @@ fun InteractiveCellUniverseOverlay(
 
                 val targetInfoCardFractionOffscreen = if (displayInfoCardOffscreen) 1f else 0f
 
-                val infoAnim = infoCardAnimatable ?: Animatable(
-                    initialValue = targetInfoCardFractionOffscreen,
-                    typeConverter = Float.VectorConverter,
-                ).also { infoCardAnimatable = it }
+                val infoAnim =
+                    infoCardAnimatable ?: Animatable(
+                        initialValue = targetInfoCardFractionOffscreen,
+                        typeConverter = Float.VectorConverter,
+                    ).also { infoCardAnimatable = it }
                 if (infoAnim.targetValue != targetInfoCardFractionOffscreen) {
                     scope.launch {
                         infoAnim.animateTo(targetInfoCardFractionOffscreen, spring())
@@ -283,23 +292,25 @@ fun InteractiveCellUniverseOverlay(
 
                 infoCardPlaceable.place(0, lerp(infoCardYOnscreen, infoCardYOffscreen, infoAnim.value))
 
-                val actionCardX = if (
-                    windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
-                ) {
-                    constraints.maxWidth - actionCardPlaceable.width
-                } else {
-                    (constraints.maxWidth - actionCardPlaceable.width) / 2
-                }
+                val actionCardX =
+                    if (
+                        windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
+                    ) {
+                        constraints.maxWidth - actionCardPlaceable.width
+                    } else {
+                        (constraints.maxWidth - actionCardPlaceable.width) / 2
+                    }
 
                 val actionCardYOffscreen = constraints.maxHeight - topInsetsPlaceable.height
                 val actionCardYOnscreen = constraints.maxHeight - actionCardPlaceable.height
 
                 val targetActionCardFractionOffscreen = if (displayActionCardOffscreen) 1f else 0f
 
-                val actionAnim = actionCardAnimatable ?: Animatable(
-                    initialValue = targetActionCardFractionOffscreen,
-                    typeConverter = Float.VectorConverter,
-                ).also { actionCardAnimatable = it }
+                val actionAnim =
+                    actionCardAnimatable ?: Animatable(
+                        initialValue = targetActionCardFractionOffscreen,
+                        typeConverter = Float.VectorConverter,
+                    ).also { actionCardAnimatable = it }
                 if (actionAnim.targetValue != targetActionCardFractionOffscreen) {
                     scope.launch {
                         actionAnim.animateTo(targetActionCardFractionOffscreen, spring())
@@ -318,8 +329,11 @@ fun InteractiveCellUniverseOverlay(
 
 internal sealed interface InteractiveCellUniverseOverlayLayoutTypes {
     data object TopInsets : InteractiveCellUniverseOverlayLayoutTypes
+
     data object BottomInsets : InteractiveCellUniverseOverlayLayoutTypes
+
     data object CellUniverseInfoCard : InteractiveCellUniverseOverlayLayoutTypes
+
     data object CellUniverseActionCard : InteractiveCellUniverseOverlayLayoutTypes
 
     @GenSealedEnum

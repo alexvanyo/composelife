@@ -29,7 +29,6 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
 class PeriodUntilTests {
-
     @Test
     fun periodUntilWithUnit_time_based_second_positive() {
         val start = Instant.fromEpochMilliseconds(1741463473365L)
@@ -155,11 +154,12 @@ class PeriodUntilTests {
         val start = Instant.fromEpochMilliseconds(1741463473365L)
         val end = start + 131.minutes
 
-        val result = start.periodUntilWithProgressiveUnits(
-            other = end,
-            unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
-            timeZone = TimeZone.UTC,
-        )
+        val result =
+            start.periodUntilWithProgressiveUnits(
+                other = end,
+                unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
+                timeZone = TimeZone.UTC,
+            )
 
         assertEquals(DateTimeUnit.HOUR to DateTimePeriod(hours = 2), result)
     }
@@ -169,11 +169,12 @@ class PeriodUntilTests {
         val start = Instant.fromEpochMilliseconds(1741463473365L)
         val end = start - 131.minutes
 
-        val result = start.periodUntilWithProgressiveUnits(
-            other = end,
-            unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
-            timeZone = TimeZone.UTC,
-        )
+        val result =
+            start.periodUntilWithProgressiveUnits(
+                other = end,
+                unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
+                timeZone = TimeZone.UTC,
+            )
 
         assertEquals(DateTimeUnit.HOUR to DateTimePeriod(hours = -2), result)
     }
@@ -183,11 +184,12 @@ class PeriodUntilTests {
         val start = Instant.fromEpochMilliseconds(1741463473365L)
         val end = start + 27.minutes
 
-        val result = start.periodUntilWithProgressiveUnits(
-            other = end,
-            unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
-            timeZone = TimeZone.UTC,
-        )
+        val result =
+            start.periodUntilWithProgressiveUnits(
+                other = end,
+                unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
+                timeZone = TimeZone.UTC,
+            )
 
         assertEquals(DateTimeUnit.MINUTE to DateTimePeriod(minutes = 27), result)
     }
@@ -197,11 +199,12 @@ class PeriodUntilTests {
         val start = Instant.fromEpochMilliseconds(1741463473365L)
         val end = start - 27.minutes
 
-        val result = start.periodUntilWithProgressiveUnits(
-            other = end,
-            unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
-            timeZone = TimeZone.UTC,
-        )
+        val result =
+            start.periodUntilWithProgressiveUnits(
+                other = end,
+                unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
+                timeZone = TimeZone.UTC,
+            )
 
         assertEquals(DateTimeUnit.MINUTE to DateTimePeriod(minutes = -27), result)
     }
@@ -211,11 +214,12 @@ class PeriodUntilTests {
         val start = Instant.fromEpochMilliseconds(1741463473365L)
         val end = start + 45.seconds
 
-        val result = start.periodUntilWithProgressiveUnits(
-            other = end,
-            unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
-            timeZone = TimeZone.UTC,
-        )
+        val result =
+            start.periodUntilWithProgressiveUnits(
+                other = end,
+                unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
+                timeZone = TimeZone.UTC,
+            )
 
         assertEquals(DateTimeUnit.SECOND to DateTimePeriod(seconds = 45), result)
     }
@@ -225,11 +229,12 @@ class PeriodUntilTests {
         val start = Instant.fromEpochMilliseconds(1741463473365L)
         val end = start - 45.seconds
 
-        val result = start.periodUntilWithProgressiveUnits(
-            other = end,
-            unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
-            timeZone = TimeZone.UTC,
-        )
+        val result =
+            start.periodUntilWithProgressiveUnits(
+                other = end,
+                unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
+                timeZone = TimeZone.UTC,
+            )
 
         assertEquals(DateTimeUnit.SECOND to DateTimePeriod(seconds = -45), result)
     }
@@ -239,11 +244,12 @@ class PeriodUntilTests {
         val start = Instant.fromEpochMilliseconds(1741463473365L)
         val end = start
 
-        val result = start.periodUntilWithProgressiveUnits(
-            other = end,
-            unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
-            timeZone = TimeZone.UTC,
-        )
+        val result =
+            start.periodUntilWithProgressiveUnits(
+                other = end,
+                unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
+                timeZone = TimeZone.UTC,
+            )
 
         assertEquals(DateTimeUnit.SECOND to DateTimePeriod(), result)
     }
@@ -253,10 +259,11 @@ class PeriodUntilTests {
         val start = Instant.fromEpochMilliseconds(1741463473365L)
         val end = start + 131.minutes
 
-        val result = start.periodUntilWithProgressiveUnits(
-            other = end,
-            unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
-        )
+        val result =
+            start.periodUntilWithProgressiveUnits(
+                other = end,
+                unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
+            )
 
         assertEquals(DateTimeUnit.HOUR to DateTimePeriod(hours = 2), result)
     }
@@ -266,10 +273,11 @@ class PeriodUntilTests {
         val start = Instant.fromEpochMilliseconds(1741463473365L)
         val end = start - 131.minutes
 
-        val result = start.periodUntilWithProgressiveUnits(
-            other = end,
-            unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
-        )
+        val result =
+            start.periodUntilWithProgressiveUnits(
+                other = end,
+                unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
+            )
 
         assertEquals(DateTimeUnit.HOUR to DateTimePeriod(hours = -2), result)
     }
@@ -279,10 +287,11 @@ class PeriodUntilTests {
         val start = Instant.fromEpochMilliseconds(1741463473365L)
         val end = start + 27.minutes
 
-        val result = start.periodUntilWithProgressiveUnits(
-            other = end,
-            unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
-        )
+        val result =
+            start.periodUntilWithProgressiveUnits(
+                other = end,
+                unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
+            )
 
         assertEquals(DateTimeUnit.MINUTE to DateTimePeriod(minutes = 27), result)
     }
@@ -292,10 +301,11 @@ class PeriodUntilTests {
         val start = Instant.fromEpochMilliseconds(1741463473365L)
         val end = start - 27.minutes
 
-        val result = start.periodUntilWithProgressiveUnits(
-            other = end,
-            unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
-        )
+        val result =
+            start.periodUntilWithProgressiveUnits(
+                other = end,
+                unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
+            )
 
         assertEquals(DateTimeUnit.MINUTE to DateTimePeriod(minutes = -27), result)
     }
@@ -305,10 +315,11 @@ class PeriodUntilTests {
         val start = Instant.fromEpochMilliseconds(1741463473365L)
         val end = start + 45.seconds
 
-        val result = start.periodUntilWithProgressiveUnits(
-            other = end,
-            unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
-        )
+        val result =
+            start.periodUntilWithProgressiveUnits(
+                other = end,
+                unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
+            )
 
         assertEquals(DateTimeUnit.SECOND to DateTimePeriod(seconds = 45), result)
     }
@@ -318,10 +329,11 @@ class PeriodUntilTests {
         val start = Instant.fromEpochMilliseconds(1741463473365L)
         val end = start - 45.seconds
 
-        val result = start.periodUntilWithProgressiveUnits(
-            other = end,
-            unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
-        )
+        val result =
+            start.periodUntilWithProgressiveUnits(
+                other = end,
+                unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
+            )
 
         assertEquals(DateTimeUnit.SECOND to DateTimePeriod(seconds = -45), result)
     }
@@ -331,10 +343,11 @@ class PeriodUntilTests {
         val start = Instant.fromEpochMilliseconds(1741463473365L)
         val end = start
 
-        val result = start.periodUntilWithProgressiveUnits(
-            other = end,
-            unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
-        )
+        val result =
+            start.periodUntilWithProgressiveUnits(
+                other = end,
+                unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
+            )
 
         assertEquals(DateTimeUnit.SECOND to DateTimePeriod(), result)
     }

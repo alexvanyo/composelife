@@ -21,7 +21,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class CompositeExceptionTests {
-
     @Test
     fun empty_constructor_throws_exception() {
         assertFailsWith<IllegalArgumentException> {

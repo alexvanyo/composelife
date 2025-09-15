@@ -91,69 +91,72 @@ abstract class BaseRoborazziTest(
     }
 
     @Test
-    fun previewScreenshotTest() = runComposeUiTest(testTimeout = 3.minutes) {
-        val testParameterizations = when (roborazziParameterization) {
-            CombinedRoborazziParameterization -> parameterizations
-            is SingleRoborazziParameterization -> listOf(roborazziParameterization)
-        }
+    fun previewScreenshotTest() =
+        runComposeUiTest(testTimeout = 3.minutes) {
+            val testParameterizations =
+                when (roborazziParameterization) {
+                    CombinedRoborazziParameterization -> parameterizations
+                    is SingleRoborazziParameterization -> listOf(roborazziParameterization)
+                }
 
-        var currentParameterization by mutableStateOf(testParameterizations.first())
+            var currentParameterization by mutableStateOf(testParameterizations.first())
 
-        setContent {
-            val lifecycleOwner = LocalLifecycleOwner.current
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.DarkMode(currentParameterization.darkTheme)
-                    then DeviceConfigurationOverride.FontScale(currentParameterization.fontScale)
-                    then DeviceConfigurationOverride.RoundScreen(currentParameterization.isScreenRound),
-            ) {
-                CompositionLocalProvider(
-                    LocalInspectionMode provides true,
-                    // Provide a fake OnBackPressedDispatcherOwner
-                    LocalOnBackPressedDispatcherOwner provides object : OnBackPressedDispatcherOwner {
-                        override val onBackPressedDispatcher = OnBackPressedDispatcher()
-
-                        override val lifecycle = lifecycleOwner.lifecycle
-                    },
+            setContent {
+                val lifecycleOwner = LocalLifecycleOwner.current
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.DarkMode(currentParameterization.darkTheme)
+                        then DeviceConfigurationOverride.FontScale(currentParameterization.fontScale)
+                        then DeviceConfigurationOverride.RoundScreen(currentParameterization.isScreenRound),
                 ) {
-                    contentWrapper {
-                        Box(
-                            modifier = Modifier.size(currentParameterization.size),
-                        ) {
+                    CompositionLocalProvider(
+                        LocalInspectionMode provides true,
+                        // Provide a fake OnBackPressedDispatcherOwner
+                        LocalOnBackPressedDispatcherOwner provides
+                            object : OnBackPressedDispatcherOwner {
+                                override val onBackPressedDispatcher = OnBackPressedDispatcher()
+
+                                override val lifecycle = lifecycleOwner.lifecycle
+                            },
+                    ) {
+                        contentWrapper {
                             Box(
-                                modifier = Modifier.testTag("contentContainer"),
+                                modifier = Modifier.size(currentParameterization.size),
                             ) {
-                                key(currentParameterization) {
-                                    currentParameterization.showkaseBrowserComponent.component()
+                                Box(
+                                    modifier = Modifier.testTag("contentContainer"),
+                                ) {
+                                    key(currentParameterization) {
+                                        currentParameterization.showkaseBrowserComponent.component()
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-        }
 
-        testParameterizations.forEach { parameterization ->
-            currentParameterization = parameterization
+            testParameterizations.forEach { parameterization ->
+                currentParameterization = parameterization
 
-            waitForIdle()
-            val semanticsNodeInteraction = onNodeWithTag("contentContainer")
-            semanticsNodeInteraction.captureRoboImage(
-                file = File(
-                    "src/androidUnitTest/snapshots/${parameterization.showkaseBrowserComponent.componentKey}",
-                    "${parameterization.size}." +
-                        "${ if (parameterization.darkTheme) "dark" else "light" }." +
-                        "${ if (parameterization.isScreenRound) "round" else "notRound" }." +
-                        "font-${parameterization.fontScale}." +
-                        "png",
-                ),
-            )
+                waitForIdle()
+                val semanticsNodeInteraction = onNodeWithTag("contentContainer")
+                semanticsNodeInteraction.captureRoboImage(
+                    file =
+                    File(
+                        "src/androidUnitTest/snapshots/${parameterization.showkaseBrowserComponent.componentKey}",
+                        "${parameterization.size}." +
+                            "${ if (parameterization.darkTheme) "dark" else "light" }." +
+                            "${ if (parameterization.isScreenRound) "round" else "notRound" }." +
+                            "font-${parameterization.fontScale}." +
+                            "png",
+                    ),
+                )
+            }
         }
-    }
 }
 
-open class BaseRoborazziParameterizationProvider(
-    val parameterizations: List<SingleRoborazziParameterization>,
-) : TestParameterValuesProvider() {
+open class BaseRoborazziParameterizationProvider(val parameterizations: List<SingleRoborazziParameterization>) :
+    TestParameterValuesProvider() {
     public final override fun provideValues(context: Context): List<RoborazziParameterization> =
         // Check if we want to provide parameterization at the test level
         // This makes it easier to debug which test is failing, at the cost of speed

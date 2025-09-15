@@ -59,186 +59,197 @@ import kotlin.uuid.Uuid
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class CellShapeConfigUiTests {
-
     @Test
-    fun round_rectangle_is_displayed_correctly() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun round_rectangle_is_displayed_correctly() =
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        val composeLifePreferences = TestComposeLifePreferences(
-            initialPreferences = LoadedComposeLifePreferences.Defaults.copy(
-                roundRectangleSessionValue = SessionValue(
-                    sessionId = Uuid.random(),
-                    valueId = Uuid.random(),
-                    value = CurrentShape.RoundRectangle(0.8f, 0.4f),
-                ),
-            ),
-        )
+            val composeLifePreferences =
+                TestComposeLifePreferences(
+                    initialPreferences =
+                    LoadedComposeLifePreferences.Defaults.copy(
+                        roundRectangleSessionValue =
+                        SessionValue(
+                            sessionId = Uuid.random(),
+                            valueId = Uuid.random(),
+                            value = CurrentShape.RoundRectangle(0.8f, 0.4f),
+                        ),
+                    ),
+                )
 
-        setContent {
-            resolver = parameterizedStringResolver()
+            setContent {
+                resolver = parameterizedStringResolver()
 
-            val cellShapeConfigUiState = with(
-                CellShapeConfigUiCtx(
-                    preferencesHolder = composeLifePreferences,
-                    composeLifePreferences = composeLifePreferences,
-                ),
-            ) {
-                rememberCellShapeConfigUiState()
+                val cellShapeConfigUiState =
+                    with(
+                        CellShapeConfigUiCtx(
+                            preferencesHolder = composeLifePreferences,
+                            composeLifePreferences = composeLifePreferences,
+                        ),
+                    ) {
+                        rememberCellShapeConfigUiState()
+                    }
+
+                CellShapeConfigUi(cellShapeConfigUiState = cellShapeConfigUiState)
             }
 
-            CellShapeConfigUi(cellShapeConfigUiState = cellShapeConfigUiState)
+            onNodeWithText(resolver(Strings.RoundRectangle))
+                .assertExists()
+                .assertHasClickAction()
+
+            onNode(
+                hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                    hasText(resolver(Strings.SizeFractionLabel)),
+            ).assertTextContains(resolver(Strings.SizeFractionValue(0.8f)))
+                .assertIsNotFocused()
+            onNodeWithContentDescription(
+                resolver(Strings.SizeFractionLabelAndValue(0.8f)),
+            ).assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.8f, range = 0.1f..1f)))
+
+            onNode(
+                hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                    hasText(resolver(Strings.CornerFractionLabel)),
+            ).assertTextContains(resolver(Strings.CornerFractionValue(0.4f)))
+                .assertIsNotFocused()
+            onNodeWithContentDescription(
+                resolver(Strings.CornerFractionLabelAndValue(0.4f)),
+            ).assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.4f, range = 0f..0.5f)))
         }
-
-        onNodeWithText(resolver(Strings.RoundRectangle))
-            .assertExists()
-            .assertHasClickAction()
-
-        onNode(
-            hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(Strings.SizeFractionLabel)),
-        )
-            .assertTextContains(resolver(Strings.SizeFractionValue(0.8f)))
-            .assertIsNotFocused()
-        onNodeWithContentDescription(
-            resolver(Strings.SizeFractionLabelAndValue(0.8f)),
-        )
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.8f, range = 0.1f..1f)))
-
-        onNode(
-            hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(Strings.CornerFractionLabel)),
-        )
-            .assertTextContains(resolver(Strings.CornerFractionValue(0.4f)))
-            .assertIsNotFocused()
-        onNodeWithContentDescription(
-            resolver(Strings.CornerFractionLabelAndValue(0.4f)),
-        )
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.4f, range = 0f..0.5f)))
-    }
 
     @Test
-    fun round_rectangle_size_fraction_slider_updates_state() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun round_rectangle_size_fraction_slider_updates_state() =
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        val composeLifePreferences = TestComposeLifePreferences(
-            initialPreferences = LoadedComposeLifePreferences.Defaults.copy(
-                roundRectangleSessionValue = SessionValue(
-                    sessionId = Uuid.random(),
-                    valueId = Uuid.random(),
-                    value = CurrentShape.RoundRectangle(0.8f, 0.4f),
-                ),
-            ),
-        )
+            val composeLifePreferences =
+                TestComposeLifePreferences(
+                    initialPreferences =
+                    LoadedComposeLifePreferences.Defaults.copy(
+                        roundRectangleSessionValue =
+                        SessionValue(
+                            sessionId = Uuid.random(),
+                            valueId = Uuid.random(),
+                            value = CurrentShape.RoundRectangle(0.8f, 0.4f),
+                        ),
+                    ),
+                )
 
-        setContent {
-            resolver = parameterizedStringResolver()
+            setContent {
+                resolver = parameterizedStringResolver()
 
-            val cellShapeConfigUiState = with(
-                CellShapeConfigUiCtx(
-                    preferencesHolder = composeLifePreferences,
-                    composeLifePreferences = composeLifePreferences,
-                ),
-            ) {
-                rememberCellShapeConfigUiState()
+                val cellShapeConfigUiState =
+                    with(
+                        CellShapeConfigUiCtx(
+                            preferencesHolder = composeLifePreferences,
+                            composeLifePreferences = composeLifePreferences,
+                        ),
+                    ) {
+                        rememberCellShapeConfigUiState()
+                    }
+
+                CellShapeConfigUi(cellShapeConfigUiState = cellShapeConfigUiState)
             }
 
-            CellShapeConfigUi(cellShapeConfigUiState = cellShapeConfigUiState)
-        }
-
-        onNodeWithContentDescription(
-            resolver(Strings.SizeFractionLabelAndValue(0.8f)),
-        )
-            .performSemanticsAction(SemanticsActions.SetProgress) {
+            onNodeWithContentDescription(
+                resolver(Strings.SizeFractionLabelAndValue(0.8f)),
+            ).performSemanticsAction(SemanticsActions.SetProgress) {
                 it(0.5f)
             }
 
-        onNodeWithContentDescription(
-            resolver(Strings.SizeFractionLabelAndValue(0.5f)),
-        )
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.5f, range = 0.1f..1f)))
-    }
-
-    @Test
-    fun round_rectangle_corner_fraction_slider_updates_state() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
-
-        val composeLifePreferences = TestComposeLifePreferences(
-            initialPreferences = LoadedComposeLifePreferences.Defaults.copy(
-                roundRectangleSessionValue = SessionValue(
-                    sessionId = Uuid.random(),
-                    valueId = Uuid.random(),
-                    value = CurrentShape.RoundRectangle(0.8f, 0.4f),
-                ),
-            ),
-        )
-
-        setContent {
-            resolver = parameterizedStringResolver()
-
-            val cellShapeConfigUiState = with(
-                CellShapeConfigUiCtx(
-                    preferencesHolder = composeLifePreferences,
-                    composeLifePreferences = composeLifePreferences,
-                ),
-            ) {
-                rememberCellShapeConfigUiState()
-            }
-
-            CellShapeConfigUi(cellShapeConfigUiState = cellShapeConfigUiState)
+            onNodeWithContentDescription(
+                resolver(Strings.SizeFractionLabelAndValue(0.5f)),
+            ).assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.5f, range = 0.1f..1f)))
         }
 
-        onNodeWithContentDescription(
-            resolver(Strings.CornerFractionLabelAndValue(0.4f)),
-        )
-            .performSemanticsAction(SemanticsActions.SetProgress) {
+    @Test
+    fun round_rectangle_corner_fraction_slider_updates_state() =
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
+
+            val composeLifePreferences =
+                TestComposeLifePreferences(
+                    initialPreferences =
+                    LoadedComposeLifePreferences.Defaults.copy(
+                        roundRectangleSessionValue =
+                        SessionValue(
+                            sessionId = Uuid.random(),
+                            valueId = Uuid.random(),
+                            value = CurrentShape.RoundRectangle(0.8f, 0.4f),
+                        ),
+                    ),
+                )
+
+            setContent {
+                resolver = parameterizedStringResolver()
+
+                val cellShapeConfigUiState =
+                    with(
+                        CellShapeConfigUiCtx(
+                            preferencesHolder = composeLifePreferences,
+                            composeLifePreferences = composeLifePreferences,
+                        ),
+                    ) {
+                        rememberCellShapeConfigUiState()
+                    }
+
+                CellShapeConfigUi(cellShapeConfigUiState = cellShapeConfigUiState)
+            }
+
+            onNodeWithContentDescription(
+                resolver(Strings.CornerFractionLabelAndValue(0.4f)),
+            ).performSemanticsAction(SemanticsActions.SetProgress) {
                 it(0f)
             }
 
-        onNodeWithContentDescription(
-            resolver(Strings.CornerFractionLabelAndValue(0f)),
-        )
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0f, range = 0f..0.5f)))
-    }
-
-    @Test
-    fun round_rectangle_popup_displays_options() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
-
-        val composeLifePreferences = TestComposeLifePreferences(
-            initialPreferences = LoadedComposeLifePreferences.Defaults.copy(
-                roundRectangleSessionValue = SessionValue(
-                    sessionId = Uuid.random(),
-                    valueId = Uuid.random(),
-                    value = CurrentShape.RoundRectangle(0.8f, 0.4f),
-                ),
-            ),
-        )
-
-        setContent {
-            resolver = parameterizedStringResolver()
-
-            val cellShapeConfigUiState = with(
-                CellShapeConfigUiCtx(
-                    preferencesHolder = composeLifePreferences,
-                    composeLifePreferences = composeLifePreferences,
-                ),
-            ) {
-                rememberCellShapeConfigUiState()
-            }
-
-            CellShapeConfigUi(cellShapeConfigUiState = cellShapeConfigUiState)
+            onNodeWithContentDescription(
+                resolver(Strings.CornerFractionLabelAndValue(0f)),
+            ).assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0f, range = 0f..0.5f)))
         }
 
-        onNodeWithText(resolver(Strings.RoundRectangle))
-            .performClick()
+    @Test
+    fun round_rectangle_popup_displays_options() =
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        onNode(hasAnyAncestor(isPopup()) and hasText(resolver(Strings.RoundRectangle)))
-            .assertHasClickAction()
-            .performClick()
+            val composeLifePreferences =
+                TestComposeLifePreferences(
+                    initialPreferences =
+                    LoadedComposeLifePreferences.Defaults.copy(
+                        roundRectangleSessionValue =
+                        SessionValue(
+                            sessionId = Uuid.random(),
+                            valueId = Uuid.random(),
+                            value = CurrentShape.RoundRectangle(0.8f, 0.4f),
+                        ),
+                    ),
+                )
 
-        assertEquals(CurrentShapeType.RoundRectangle, composeLifePreferences.currentShapeType)
+            setContent {
+                resolver = parameterizedStringResolver()
 
-        onNode(isPopup())
-            .assertDoesNotExist()
-    }
+                val cellShapeConfigUiState =
+                    with(
+                        CellShapeConfigUiCtx(
+                            preferencesHolder = composeLifePreferences,
+                            composeLifePreferences = composeLifePreferences,
+                        ),
+                    ) {
+                        rememberCellShapeConfigUiState()
+                    }
+
+                CellShapeConfigUi(cellShapeConfigUiState = cellShapeConfigUiState)
+            }
+
+            onNodeWithText(resolver(Strings.RoundRectangle))
+                .performClick()
+
+            onNode(hasAnyAncestor(isPopup()) and hasText(resolver(Strings.RoundRectangle)))
+                .assertHasClickAction()
+                .performClick()
+
+            assertEquals(CurrentShapeType.RoundRectangle, composeLifePreferences.currentShapeType)
+
+            onNode(isPopup())
+                .assertDoesNotExist()
+        }
 }

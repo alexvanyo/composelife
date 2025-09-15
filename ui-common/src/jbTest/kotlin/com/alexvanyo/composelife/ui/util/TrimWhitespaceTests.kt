@@ -25,7 +25,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class TrimWhitespaceTests {
-
     private val textFieldState = TextFieldState()
     private val inputTransformation = InputTransformation.trimWhitespace()
 

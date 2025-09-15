@@ -76,8 +76,8 @@ internal class CellWindowImplCtx(
     internal val cellStateParser: CellStateParser,
 )
 
-context(ctx: CellWindowImplCtx)
 @Composable
+context(ctx: CellWindowImplCtx)
 internal fun CellWindowImpl(
     cellWindowUiState: CellWindowUiState,
     cellDpSize: Dp,
@@ -120,7 +120,10 @@ private fun CellWindowImpl(
 
     // If the viewport is non-navigable, ensure that gesturing is cancelled.
     when (viewportInteractionConfig) {
-        is ViewportInteractionConfig.Navigable -> Unit
+        is ViewportInteractionConfig.Navigable -> {
+            Unit
+        }
+
         is ViewportInteractionConfig.Fixed,
         is ViewportInteractionConfig.Tracking,
         -> {
@@ -186,7 +189,8 @@ private fun CellWindowImpl(
          */
         val animatingCellWindowViewport by animateValueAsState(
             targetValue = targetCellWindowViewport,
-            typeConverter = TwoWayConverter(
+            typeConverter =
+            TwoWayConverter(
                 { AnimationVector(it.offset.x, it.offset.y, it.scale) },
                 {
                     CellWindowViewport(
@@ -202,14 +206,15 @@ private fun CellWindowImpl(
 
         // If the animation spec is an immediate snap, use the targetCellWindowViewport immediately to avoid a single
         // frame delay
-        val cellWindowViewport = if (
-            cellWindowViewportAnimationSpec is SnapSpec<CellWindowViewport> &&
-            cellWindowViewportAnimationSpec.delay == 0
-        ) {
-            targetCellWindowViewport
-        } else {
-            animatingCellWindowViewport
-        }
+        val cellWindowViewport =
+            if (
+                cellWindowViewportAnimationSpec is SnapSpec<CellWindowViewport> &&
+                cellWindowViewportAnimationSpec.delay == 0
+            ) {
+                targetCellWindowViewport
+            } else {
+                animatingCellWindowViewport
+            }
 
         // Sync the currently displayed cell window viewport back to any syncable cell window states
         val syncableMutableCellWindowViewportStates =
@@ -243,85 +248,90 @@ private fun CellWindowImpl(
         val topLeftCellOffset = IntOffset(-columnsToLeft, -rowsToTop)
 
         // Compute the cell window, describing all of the cells that will be drawn
-        val cellWindow = com.alexvanyo.composelife.model.CellWindow(
-            IntRect(
-                intOffset + topLeftCellOffset,
-                IntSize(
-                    columnsToLeft + 1 + columnsToRight + 1,
-                    rowsToTop + 1 + rowsToBottom + 1,
-                ),
-            ),
-        )
-
-        val navigableModifier = when (viewportInteractionConfig) {
-            is ViewportInteractionConfig.Fixed,
-            is ViewportInteractionConfig.Tracking,
-            -> Modifier
-
-            is ViewportInteractionConfig.Navigable -> {
-                val mutableCellWindowViewportState = viewportInteractionConfig.mutableCellWindowViewportState
-
-                val currentOnGesture by rememberOnGesture(
-                    cellPixelSize = cellPixelSize,
-                    topLeftOffset = Offset(
-                        constraints.maxWidth * centerOffset.x,
-                        constraints.maxHeight * centerOffset.y,
+        val cellWindow =
+            com.alexvanyo.composelife.model.CellWindow(
+                IntRect(
+                    intOffset + topLeftCellOffset,
+                    IntSize(
+                        columnsToLeft + 1 + columnsToRight + 1,
+                        rowsToTop + 1 + rowsToBottom + 1,
                     ),
-                    mutableCellWindowViewportState = mutableCellWindowViewportState,
-                )
+                ),
+            )
 
-                Modifier
-                    .semantics {
-                        horizontalScrollAxisRange = ScrollAxisRange(
-                            value = { cellWindowViewport.offset.x },
-                            maxValue = { Float.POSITIVE_INFINITY },
-                        )
-                        verticalScrollAxisRange = ScrollAxisRange(
-                            value = { cellWindowViewport.offset.y },
-                            maxValue = { Float.POSITIVE_INFINITY },
-                        )
-                        scrollBy { x, y ->
-                            mutableCellWindowViewportState.setOffset(
-                                mutableCellWindowViewportState.offset + Offset(x, y),
+        val navigableModifier =
+            when (viewportInteractionConfig) {
+                is ViewportInteractionConfig.Fixed,
+                is ViewportInteractionConfig.Tracking,
+                -> {
+                    Modifier
+                }
+
+                is ViewportInteractionConfig.Navigable -> {
+                    val mutableCellWindowViewportState = viewportInteractionConfig.mutableCellWindowViewportState
+
+                    val currentOnGesture by rememberOnGesture(
+                        cellPixelSize = cellPixelSize,
+                        topLeftOffset =
+                        Offset(
+                            constraints.maxWidth * centerOffset.x,
+                            constraints.maxHeight * centerOffset.y,
+                        ),
+                        mutableCellWindowViewportState = mutableCellWindowViewportState,
+                    )
+
+                    Modifier
+                        .semantics {
+                            horizontalScrollAxisRange =
+                                ScrollAxisRange(
+                                    value = { cellWindowViewport.offset.x },
+                                    maxValue = { Float.POSITIVE_INFINITY },
+                                )
+                            verticalScrollAxisRange =
+                                ScrollAxisRange(
+                                    value = { cellWindowViewport.offset.y },
+                                    maxValue = { Float.POSITIVE_INFINITY },
+                                )
+                            scrollBy { x, y ->
+                                mutableCellWindowViewportState.setOffset(
+                                    mutableCellWindowViewportState.offset + Offset(x, y),
+                                )
+                                true
+                            }
+                            scrollToIndex {
+                                mutableCellWindowViewportState.setOffset(it.toRingOffset().toOffset())
+                                true
+                            }
+                        }.pointerInput(panExcludedPointerTypes) {
+                            detectTransformGestures(
+                                excludedPointerTypes = panExcludedPointerTypes,
+                                onGestureStart = { isGesturing = true },
+                                onGestureEnd = { isGesturing = false },
+                                onGesture = { centroid: Offset, pan: Offset, zoom: Float, rotation: Float ->
+                                    currentOnGesture(centroid, pan, zoom, rotation)
+                                },
                             )
-                            true
-                        }
-                        scrollToIndex {
-                            mutableCellWindowViewportState.setOffset(it.toRingOffset().toOffset())
-                            true
-                        }
-                    }
-                    .pointerInput(panExcludedPointerTypes) {
-                        detectTransformGestures(
-                            excludedPointerTypes = panExcludedPointerTypes,
-                            onGestureStart = { isGesturing = true },
-                            onGestureEnd = { isGesturing = false },
-                            onGesture = { centroid: Offset, pan: Offset, zoom: Float, rotation: Float ->
-                                currentOnGesture(centroid, pan, zoom, rotation)
-                            },
-                        )
-                    }
-                    .pointerInput(Unit) {
-                        // Zoom in and out with vertical scroll wheel events
-                        val coroutineContext = currentCoroutineContext()
-                        awaitPointerEventScope {
-                            while (coroutineContext.isActive) {
-                                val event = awaitPointerEvent()
-                                if (event.type == PointerEventType.Scroll && event.changes.isNotEmpty()) {
-                                    currentOnGesture(
-                                        event.changes.first().position,
-                                        Offset.Zero,
-                                        event.changes.fold(1f) { factor, change ->
-                                            factor * if (change.scrollDelta.y > 0) 9f / 10f else 10f / 9f
-                                        },
-                                        0f,
-                                    )
+                        }.pointerInput(Unit) {
+                            // Zoom in and out with vertical scroll wheel events
+                            val coroutineContext = currentCoroutineContext()
+                            awaitPointerEventScope {
+                                while (coroutineContext.isActive) {
+                                    val event = awaitPointerEvent()
+                                    if (event.type == PointerEventType.Scroll && event.changes.isNotEmpty()) {
+                                        currentOnGesture(
+                                            event.changes.first().position,
+                                            Offset.Zero,
+                                            event.changes.fold(1f) { factor, change ->
+                                                factor * if (change.scrollDelta.y > 0) 9f / 10f else 10f / 9f
+                                            },
+                                            0f,
+                                        )
+                                    }
                                 }
                             }
                         }
-                    }
+                }
             }
-        }
 
         Box {
             // Apply the navigable modifier around the cells, but not the selection overlay.
@@ -336,8 +346,10 @@ private fun CellWindowImpl(
                         scaledCellDpSize = scaledCellDpSize,
                         cellWindow = cellWindow,
                         pixelOffsetFromCenter = fracPixelOffsetFromCenter,
-                        isThumbnail = when (cellWindowUiState) {
+                        isThumbnail =
+                        when (cellWindowUiState) {
                             is CellWindowUiState.ImmutableCellWindowUiState.ThumbnailState -> true
+
                             is CellWindowUiState.ImmutableCellWindowUiState.InteractableState,
                             is CellWindowUiState.MutableState,
                             -> false
@@ -351,13 +363,15 @@ private fun CellWindowImpl(
                     // Only show the interactable cells if the conditions are met to be interactable.
                     if (
                         cellWindowUiState.isEditable(
-                            isGesturing = when (viewportInteractionConfig) {
+                            isGesturing =
+                            when (viewportInteractionConfig) {
                                 is ViewportInteractionConfig.Fixed,
                                 is ViewportInteractionConfig.Tracking,
                                 -> false
 
                                 is ViewportInteractionConfig.Navigable -> true
-                            } && isGesturing,
+                            } &&
+                                isGesturing,
                             scale = cellWindowViewport.scale,
                         )
                     ) {
@@ -375,7 +389,10 @@ private fun CellWindowImpl(
             }
 
             when (cellWindowUiState) {
-                is CellWindowUiState.ImmutableCellWindowUiState -> Unit
+                is CellWindowUiState.ImmutableCellWindowUiState -> {
+                    Unit
+                }
+
                 is CellWindowUiState.MutableState -> {
                     with(cellWindowImplCtx) {
                         with(cellStateParser) {
@@ -418,18 +435,17 @@ private fun rememberOnGesture(
 
     // Compute offset update due to zooming. We adjust the offset by the distance it moved relative to
     // the centroid, which allows the centroid to be the point that remains fixed while zooming.
-    val zoomDiff = (centroid - topLeftOffset) / cellPixelSize *
-        (1 / oldScale - 1 / mutableCellWindowViewportState.scale)
+    val zoomDiff =
+        (centroid - topLeftOffset) /
+            cellPixelSize *
+            (1 / oldScale - 1 / mutableCellWindowViewportState.scale)
 
     // Update the offset
     mutableCellWindowViewportState.setOffset(mutableCellWindowViewportState.offset + zoomDiff - panDiff)
 }
 
 @OptIn(ExperimentalContracts::class)
-private fun CellWindowUiState.isEditable(
-    isGesturing: Boolean,
-    scale: Float,
-): Boolean {
+private fun CellWindowUiState.isEditable(isGesturing: Boolean, scale: Float): Boolean {
     contract { returns(true) implies (this@isEditable is CellWindowUiState.MutableState) }
     return when (this) {
         is CellWindowUiState.ImmutableCellWindowUiState -> false
@@ -439,10 +455,19 @@ private fun CellWindowUiState.isEditable(
 
 private fun CellWindowUiState.getSelectionCellState(selectionState: SelectionState): CellState =
     when (selectionState) {
-        SelectionState.NoSelection -> emptyCellState()
+        SelectionState.NoSelection -> {
+            emptyCellState()
+        }
+
         is SelectionState.SelectingBox.FixedSelectingBox -> {
             gameOfLifeState.cellState.getSelectedCellState(selectionState)
         }
-        is SelectionState.SelectingBox.TransientSelectingBox -> emptyCellState()
-        is SelectionState.Selection -> selectionState.cellState
+
+        is SelectionState.SelectingBox.TransientSelectingBox -> {
+            emptyCellState()
+        }
+
+        is SelectionState.Selection -> {
+            selectionState.cellState
+        }
     }

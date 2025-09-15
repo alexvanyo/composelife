@@ -18,6 +18,8 @@ package com.alexvanyo.composelife.preferences
 
 sealed interface DarkThemeConfig {
     data object FollowSystem : DarkThemeConfig
+
     data object Dark : DarkThemeConfig
+
     data object Light : DarkThemeConfig
 }

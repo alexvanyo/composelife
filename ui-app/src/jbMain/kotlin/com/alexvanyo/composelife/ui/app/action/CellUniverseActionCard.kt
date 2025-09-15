@@ -116,7 +116,8 @@ private operator fun CellUniverseActionCardCtx.invoke(
 )
 
 private val CellUniverseActionCardCtx.Companion.lambda:
-    @Composable (context(InlineEditPaneCtx, InlineSettingsPaneCtx) (
+    @Composable (context(InlineEditPaneCtx, InlineSettingsPaneCtx)
+    (
         temporalGameOfLifeState: TemporalGameOfLifeState,
         isViewportTracking: Boolean,
         setIsViewportTracking: (Boolean) -> Unit,
@@ -190,9 +191,9 @@ private val CellUniverseActionCardCtx.Companion.lambda:
         )
     }
 
-context(ctx: CellUniverseActionCardCtx)
 @Suppress("LongParameterList")
 @Composable
+context(ctx: CellUniverseActionCardCtx)
 fun CellUniverseActionCard(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     isViewportTracking: Boolean,
@@ -242,12 +243,12 @@ fun CellUniverseActionCard(
 )
 // endregion templated-ctx
 
-context(
-    _: InlineEditPaneCtx,
-_: InlineSettingsPaneCtx
-)
 @Suppress("LongParameterList", "LongMethod")
 @Composable
+context(
+    _: InlineEditPaneCtx,
+    _: InlineSettingsPaneCtx
+)
 private fun CellUniverseActionCard(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     isViewportTracking: Boolean,
@@ -273,7 +274,8 @@ private fun CellUniverseActionCard(
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
 ) {
     CellUniverseActionCard(
-        isRunning = when (temporalGameOfLifeState.status) {
+        isRunning =
+        when (temporalGameOfLifeState.status) {
             TemporalGameOfLifeState.EvolutionStatus.Paused -> false
             is TemporalGameOfLifeState.EvolutionStatus.Running -> true
         },
@@ -310,12 +312,12 @@ private fun CellUniverseActionCard(
     )
 }
 
-context(
-    _: InlineEditPaneCtx,
-_: InlineSettingsPaneCtx
-)
 @Suppress("LongParameterList", "LongMethod", "ComplexMethod")
 @Composable
+context(
+    _: InlineEditPaneCtx,
+    _: InlineSettingsPaneCtx
+)
 fun CellUniverseActionCard(
     isRunning: Boolean,
     setIsRunning: (Boolean) -> Unit,
@@ -352,13 +354,15 @@ fun CellUniverseActionCard(
             }
         }
 
-    val currentScrollState = contentScrollStateMap.getValue(
-        actionCardState.inlineNavigationState.currentEntryId,
-    )
+    val currentScrollState =
+        contentScrollStateMap.getValue(
+            actionCardState.inlineNavigationState.currentEntryId,
+        )
 
     val colors = CardDefaults.elevatedCardColors()
     ElevatedCard(
-        modifier = modifier.windowInsetsPadding(
+        modifier =
+        modifier.windowInsetsPadding(
             WindowInsets.safeDrawing.add(WindowInsets(all = 8.dp)),
         ),
         colors = colors,
@@ -370,13 +374,15 @@ fun CellUniverseActionCard(
                 layoutIdTypes = CellUniverseActionCardLayoutTypes._sealedEnum,
                 content = {
                     Box(
-                        modifier = Modifier
+                        modifier =
+                        Modifier
                             .layoutId(ActionControlRow)
                             .widthIn(max = 480.dp),
                         propagateMinConstraints = true,
                     ) {
                         ActionControlRow(
-                            isElevated = !actionCardState.expandedTargetState.isInProgress() &&
+                            isElevated =
+                            !actionCardState.expandedTargetState.isInProgress() &&
                                 actionCardState.expandedTargetState.current &&
                                 currentScrollState.canScrollForward,
                             isRunning = isRunning,
@@ -401,55 +407,57 @@ fun CellUniverseActionCard(
                         )
                     }
 
-                    val renderableNavigationState = associateWithRenderablePanes(
-                        actionCardState.inlineNavigationState,
-                    ) { entry ->
-                        // Cache the scroll state based for the target entry id.
-                        // This value won't change normally, but it will ensure we keep using
-                        // the old state while being removed from the backstack
-                        val scrollState =
-                            remember { contentScrollStateMap.getValue(entry.id) }
+                    val renderableNavigationState =
+                        associateWithRenderablePanes(
+                            actionCardState.inlineNavigationState,
+                        ) { entry ->
+                            // Cache the scroll state based for the target entry id.
+                            // This value won't change normally, but it will ensure we keep using
+                            // the old state while being removed from the backstack
+                            val scrollState =
+                                remember { contentScrollStateMap.getValue(entry.id) }
 
-                        Box(
-                            Modifier.widthIn(max = 480.dp),
-                        ) {
-                            when (entry.value) {
-                                is InlineActionCardNavigation.Speed -> {
-                                    InlineSpeedPane(
-                                        targetStepsPerSecond = targetStepsPerSecond,
-                                        setTargetStepsPerSecond = setTargetStepsPerSecond,
-                                        generationsPerStep = generationsPerStep,
-                                        setGenerationsPerStep = setGenerationsPerStep,
-                                        scrollState = scrollState,
-                                        modifier = Modifier.fillMaxWidth(),
-                                    )
-                                }
+                            Box(
+                                Modifier.widthIn(max = 480.dp),
+                            ) {
+                                when (entry.value) {
+                                    is InlineActionCardNavigation.Speed -> {
+                                        InlineSpeedPane(
+                                            targetStepsPerSecond = targetStepsPerSecond,
+                                            setTargetStepsPerSecond = setTargetStepsPerSecond,
+                                            generationsPerStep = generationsPerStep,
+                                            setGenerationsPerStep = setGenerationsPerStep,
+                                            scrollState = scrollState,
+                                            modifier = Modifier.fillMaxWidth(),
+                                        )
+                                    }
 
-                                is InlineActionCardNavigation.Edit -> {
-                                    InlineEditPane(
-                                        setSelectionToCellState = setSelectionToCellState,
-                                        onViewDeserializationInfo = onViewDeserializationInfo,
-                                        modifier = Modifier.fillMaxWidth(),
-                                        scrollState = scrollState,
-                                    )
-                                }
+                                    is InlineActionCardNavigation.Edit -> {
+                                        InlineEditPane(
+                                            setSelectionToCellState = setSelectionToCellState,
+                                            onViewDeserializationInfo = onViewDeserializationInfo,
+                                            modifier = Modifier.fillMaxWidth(),
+                                            scrollState = scrollState,
+                                        )
+                                    }
 
-                                is InlineActionCardNavigation.Settings -> {
-                                    InlineSettingsPane(
-                                        onSeeMoreClicked = onSeeMoreSettingsClicked,
-                                        onOpenInSettingsClicked = onOpenInSettingsClicked,
-                                        modifier = Modifier.fillMaxWidth(),
-                                        scrollState = scrollState,
-                                    )
+                                    is InlineActionCardNavigation.Settings -> {
+                                        InlineSettingsPane(
+                                            onSeeMoreClicked = onSeeMoreSettingsClicked,
+                                            onOpenInSettingsClicked = onOpenInSettingsClicked,
+                                            modifier = Modifier.fillMaxWidth(),
+                                            scrollState = scrollState,
+                                        )
+                                    }
                                 }
                             }
                         }
-                    }
 
                     AnimatedContent(
                         targetState = actionCardState.expandedTargetState,
                         contentAlignment = Alignment.BottomCenter,
-                        contentSizeAnimationSpec = spring(
+                        contentSizeAnimationSpec =
+                        spring(
                             stiffness = Spring.StiffnessMedium,
                         ),
                         animateInternalContentSizeChanges = !WindowInsets.isImeAnimating,
@@ -485,15 +493,17 @@ fun CellUniverseActionCard(
 
                     // Measure the nav container after removing the height that the action control row will
                     // take up
-                    val navContainerPlaceable = navContainerMeasurable.measure(
-                        constraints.offset(
-                            vertical = -actionControlRowMeasurable.minIntrinsicHeight(constraints.maxWidth),
-                        ),
-                    )
+                    val navContainerPlaceable =
+                        navContainerMeasurable.measure(
+                            constraints.offset(
+                                vertical = -actionControlRowMeasurable.minIntrinsicHeight(constraints.maxWidth),
+                            ),
+                        )
                     // Measure the action control row to at least as big as the nav container
-                    val actionControlRowPlaceable = actionControlRowMeasurable.measure(
-                        constraints.copy(minWidth = navContainerPlaceable.width),
-                    )
+                    val actionControlRowPlaceable =
+                        actionControlRowMeasurable.measure(
+                            constraints.copy(minWidth = navContainerPlaceable.width),
+                        )
 
                     val width = max(actionControlRowPlaceable.width, navContainerPlaceable.width)
 
@@ -515,6 +525,7 @@ fun CellUniverseActionCard(
 
 internal sealed interface CellUniverseActionCardLayoutTypes {
     data object ActionControlRow : CellUniverseActionCardLayoutTypes
+
     data object NavContainer : CellUniverseActionCardLayoutTypes
 
     @GenSealedEnum

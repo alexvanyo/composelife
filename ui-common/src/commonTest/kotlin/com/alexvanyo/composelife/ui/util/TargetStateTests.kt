@@ -21,7 +21,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class TargetStateTests {
-
     @Test
     fun creating_in_progress_with_same_state_throws_exception() {
         assertFailsWith<IllegalArgumentException> {

@@ -38,7 +38,8 @@ internal fun LoadingCellStateCellUniversePanePreview(modifier: Modifier = Modifi
             with(implicit().cellUniversePaneCtx) {
                 BoxWithConstraints(modifier = modifier) {
                     CellUniversePane(
-                        windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                        windowSizeClass =
+                        BREAKPOINTS_V1.computeWindowSizeClass(
                             widthDp = maxWidth.value,
                             heightDp = maxHeight.value,
                         ),
@@ -61,19 +62,22 @@ internal fun LoadedCellUniversePanePreview(modifier: Modifier = Modifier) {
         ComposeLifeTheme {
             with(implicit().cellUniversePaneCtx) {
                 BoxWithConstraints(modifier = modifier) {
-                    val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
-                        seedCellState = gosperGliderGun,
-                        isRunning = false,
-                    )
+                    val temporalGameOfLifeState =
+                        rememberTemporalGameOfLifeState(
+                            seedCellState = gosperGliderGun,
+                            isRunning = false,
+                        )
                     CellUniversePane(
-                        windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                        windowSizeClass =
+                        BREAKPOINTS_V1.computeWindowSizeClass(
                             widthDp = maxWidth.value,
                             heightDp = maxHeight.value,
                         ),
                         onSeeMoreSettingsClicked = {},
                         onOpenInSettingsClicked = {},
                         onViewDeserializationInfo = {},
-                        cellUniversePaneState = object : CellUniversePaneState.LoadedCellState {
+                        cellUniversePaneState =
+                        object : CellUniversePaneState.LoadedCellState {
                             override val temporalGameOfLifeState = temporalGameOfLifeState
                         },
                     )

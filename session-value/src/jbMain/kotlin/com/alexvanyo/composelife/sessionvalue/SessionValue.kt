@@ -31,18 +31,12 @@ import kotlin.uuid.Uuid
  * Session values can be managed with a [SessionValueHolder] created with [rememberSessionValueHolder].
  */
 @Serializable
-data class SessionValue<out T>(
-    val sessionId: Uuid,
-    val valueId: Uuid,
-    val value: T,
-) {
+data class SessionValue<out T>(val sessionId: Uuid, val valueId: Uuid, val value: T) {
     companion object {
-        inline fun <reified T> Saver(): Saver<SessionValue<T>, SavedState> =
-            Saver(kotlinx.serialization.serializer())
+        inline fun <reified T> Saver(): Saver<SessionValue<T>, SavedState> = Saver(kotlinx.serialization.serializer())
 
-        fun <T> Saver(
-            valueSerializer: KSerializer<T>,
-        ): Saver<SessionValue<T>, SavedState> = serializer(valueSerializer).saver()
+        fun <T> Saver(valueSerializer: KSerializer<T>): Saver<SessionValue<T>, SavedState> =
+            serializer(valueSerializer).saver()
     }
 }
 

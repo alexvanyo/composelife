@@ -65,49 +65,64 @@ fun <T> listDetailNavigationTransform(
          * Create a mapping from each list entry ids in the navigation state to a unique pane id for the combination
          * list-detail panes.
          */
-        val listDetailPaneIds = renderableNavigationState.navigationState
-            .entryMap
-            .entries
-            .mapNotNull { entry ->
-                when (val navigationSegment = entry.value.value) {
-                    is NavigationSegment.CombinedSegment -> null
-                    is NavigationSegment.SingleSegment -> {
-                        when (navigationSegment.value) {
-                            is ListEntry -> entry.key to key(entry.key) {
-                                rememberSaveable(saver = uuidSaver) {
-                                    Uuid.random()
+        val listDetailPaneIds =
+            renderableNavigationState.navigationState
+                .entryMap
+                .entries
+                .mapNotNull { entry ->
+                    when (val navigationSegment = entry.value.value) {
+                        is NavigationSegment.CombinedSegment -> {
+                            null
+                        }
+
+                        is NavigationSegment.SingleSegment -> {
+                            when (navigationSegment.value) {
+                                is ListEntry -> {
+                                    entry.key to
+                                        key(entry.key) {
+                                            rememberSaveable(saver = uuidSaver) {
+                                                Uuid.random()
+                                            }
+                                        }
+                                }
+
+                                else -> {
+                                    null
                                 }
                             }
-                            else -> null
                         }
                     }
-                }
-            }
-            .toMap()
+                }.toMap()
 
-        val useListDetailPanes = renderableNavigationState.navigationState
-            .entryMap
-            .entries
-            .mapNotNull { entry ->
-                when (val navigationSegment = entry.value.value) {
-                    is NavigationSegment.CombinedSegment -> null
-                    is NavigationSegment.SingleSegment -> {
-                        when (val value = navigationSegment.value) {
-                            is ListDetailInfo -> {
-                                key(entry.key) {
-                                    val useListDetailPane by rememberUpdatedState(
-                                        value.isListVisible && value.isDetailVisible,
-                                    )
+        val useListDetailPanes =
+            renderableNavigationState.navigationState
+                .entryMap
+                .entries
+                .mapNotNull { entry ->
+                    when (val navigationSegment = entry.value.value) {
+                        is NavigationSegment.CombinedSegment -> {
+                            null
+                        }
 
-                                    entry.key to remember { { useListDetailPane } }
+                        is NavigationSegment.SingleSegment -> {
+                            when (val value = navigationSegment.value) {
+                                is ListDetailInfo -> {
+                                    key(entry.key) {
+                                        val useListDetailPane by rememberUpdatedState(
+                                            value.isListVisible && value.isDetailVisible,
+                                        )
+
+                                        entry.key to remember { { useListDetailPane } }
+                                    }
+                                }
+
+                                else -> {
+                                    null
                                 }
                             }
-                            else -> null
                         }
                     }
-                }
-            }
-            .toMap()
+                }.toMap()
 
         backstackRenderableNavigationTransform<NavigationSegment<T>, NavigationSegment<T>> { entry, movablePanes ->
             when (val navigationSegment = entry.value) {
@@ -119,6 +134,7 @@ fun <T> listDetailNavigationTransform(
                         pane = movablePanes.getValue(entry.id),
                     )
                 }
+
                 is NavigationSegment.SingleSegment -> {
                     when (val value = navigationSegment.value) {
                         is ListEntry -> {
@@ -133,7 +149,8 @@ fun <T> listDetailNavigationTransform(
                                         val visible = !remember { useListDetailPanes.getValue(entry.id) }.invoke()
 
                                         Box(
-                                            modifier = Modifier.trySharedElementWithCallerManagedVisibility(
+                                            modifier =
+                                            Modifier.trySharedElementWithCallerManagedVisibility(
                                                 key = entry.id,
                                                 visible = visible,
                                             ),
@@ -147,6 +164,7 @@ fun <T> listDetailNavigationTransform(
                                 )
                             }
                         }
+
                         is DetailEntry -> {
                             if (useListDetailPanes.getValue(entry.id).invoke()) {
                                 val previous = requireNotNull(entry.previous)
@@ -165,7 +183,8 @@ fun <T> listDetailNavigationTransform(
                                             val visible = remember { useListDetailPanes.getValue(previous.id) }.invoke()
 
                                             Box(
-                                                modifier = Modifier.trySharedElementWithCallerManagedVisibility(
+                                                modifier =
+                                                Modifier.trySharedElementWithCallerManagedVisibility(
                                                     key = previous.id,
                                                     visible = visible,
                                                 ),
@@ -181,14 +200,16 @@ fun <T> listDetailNavigationTransform(
                                                 targetState = TargetState.Single(entry.id),
                                                 animateInternalContentSizeChanges = false,
                                             ) { targetEntryId ->
-                                                val visible = remember {
-                                                    useListDetailPanes.getValue(
-                                                        targetEntryId,
-                                                    )
-                                                }.invoke()
+                                                val visible =
+                                                    remember {
+                                                        useListDetailPanes.getValue(
+                                                            targetEntryId,
+                                                        )
+                                                    }.invoke()
 
                                                 Box(
-                                                    modifier = Modifier.trySharedElementWithCallerManagedVisibility(
+                                                    modifier =
+                                                    Modifier.trySharedElementWithCallerManagedVisibility(
                                                         key = targetEntryId,
                                                         visible = visible,
                                                     ),
@@ -206,7 +227,8 @@ fun <T> listDetailNavigationTransform(
                                 }
                                 BackstackRenderableNavigationTransformResult<NavigationSegment<T>>(
                                     id = newEntryId,
-                                    value = object : NavigationSegment.CombinedSegment<T> {
+                                    value =
+                                    object : NavigationSegment.CombinedSegment<T> {
                                         override val combinedValues =
                                             previous.value.combinedValues + navigationSegment.combinedValues
                                     },
@@ -222,7 +244,8 @@ fun <T> listDetailNavigationTransform(
                                         val visible = !remember { useListDetailPanes.getValue(entry.id) }.invoke()
 
                                         Box(
-                                            modifier = Modifier.trySharedElementWithCallerManagedVisibility(
+                                            modifier =
+                                            Modifier.trySharedElementWithCallerManagedVisibility(
                                                 key = entry.id,
                                                 visible = visible,
                                             ),
@@ -236,6 +259,7 @@ fun <T> listDetailNavigationTransform(
                                 )
                             }
                         }
+
                         else -> {
                             BackstackRenderableNavigationTransformResult<NavigationSegment<T>>(
                                 id = entry.id,

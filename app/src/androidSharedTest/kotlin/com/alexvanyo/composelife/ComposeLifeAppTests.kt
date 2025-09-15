@@ -73,425 +73,430 @@ interface ComposeLifeAppTestsCtx {
 internal val ApplicationGraph.composeLifeAppTestsCtx: ComposeLifeAppTestsCtx get() =
     this as ComposeLifeAppTestsCtx
 
-class ComposeLifeAppTests : BaseActivityInjectTest<MainActivity>(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-    MainActivity::class.java,
-) {
+class ComposeLifeAppTests :
+    BaseActivityInjectTest<MainActivity>(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+        MainActivity::class.java,
+    ) {
     private val ctx get() = applicationGraph.composeLifeAppTestsCtx
 
     private val preferences get() = ctx.preferences
 
     @SkipLeakDetection("recomposer", "Outer")
     @Test
-    fun app_does_not_crash() = runAppTest {
-        composeTestRule.onNodeWithContentDescription(context.getString(uiAppR.string.play)).performClick()
+    fun app_does_not_crash() =
+        runAppTest {
+            composeTestRule.onNodeWithContentDescription(context.getString(uiAppR.string.play)).performClick()
 
-        composeTestRule.onNodeWithContentDescription(context.getString(uiAppR.string.pause)).performClick()
+            composeTestRule.onNodeWithContentDescription(context.getString(uiAppR.string.pause)).performClick()
 
-        composeTestRule.waitForIdle()
-    }
-
-    @SkipLeakDetection("recomposer", "Outer", "Inner")
-    @Test
-    fun app_does_not_crash_when_recreating() = runAppTest {
-        composeTestRule.onNodeWithContentDescription(context.getString(uiAppR.string.play)).performClick()
-
-        composeTestRule.onNodeWithContentDescription(context.getString(uiAppR.string.pause)).performClick()
-
-        composeTestRule.activityRule.scenario.recreate()
-
-        composeTestRule.waitForIdle()
-    }
-
-    @SkipLeakDetection("recomposer", "Outer", "Inner")
-    @Test
-    fun can_change_theme_to_dark_mode() = runAppTest {
-        val windowSizeClass =
-            composeTestRule.activityRule.scenario.withActivity {
-                val dpSize = with(Density(this)) {
-                    WindowMetricsCalculator.getOrCreate()
-                        .computeCurrentWindowMetrics(this@withActivity)
-                        .bounds
-                        .toComposeRect()
-                        .size
-                        .toDpSize()
-                }
-
-                BREAKPOINTS_V1.computeWindowSizeClass(
-                    widthDp = dpSize.width.value,
-                    heightDp = dpSize.height.value,
-                )
-            }
-
-        composeTestRule
-            .onNode(
-                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                    hasContentDescription(context.getString(uiAppR.string.expand)),
-            )
-            .performClick()
-
-        composeTestRule
-            .onNodeWithText(context.getString(uiAppR.string.settings))
-            .performClick()
-
-        composeTestRule
-            .onNodeWithText(context.getString(uiAppR.string.settings))
-            .assertIsSelected()
-
-        composeTestRule
-            .onNodeWithText(context.getString(uiSettingsR.string.see_all))
-            .performClick()
-
-        composeTestRule
-            .onNodeWithText(context.getString(uiSettingsR.string.visual))
-            .performClick()
-
-        composeTestRule
-            .onNodeWithText(context.getString(uiSettingsR.string.dark_theme_config))
-            .performClick()
-
-        composeTestRule
-            .onNode(hasAnyAncestor(isPopup()) and hasText(context.getString(uiSettingsR.string.dark_theme)))
-            .assertHasClickAction()
-            .performClick()
-
-        composeTestRule
-            .onNode(hasAnyAncestor(isPopup()) and hasText(context.getString(uiSettingsR.string.dark_theme)))
-            .assertDoesNotExist()
-
-        assertEquals(ResourceState.Success(DarkThemeConfig.Dark), preferences.darkThemeConfigState)
-
-        if (!windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
-            composeTestRule
-                .onNodeWithContentDescription(context.getString(uiAppR.string.back))
-                .performClick()
-        }
-
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(uiAppR.string.back))
-            .performClick()
-
-        composeTestRule
-            .onNodeWithText(context.getString(uiAppR.string.settings))
-            .assertIsSelected()
-
-        Espresso.pressBack()
-
-        composeTestRule
-            .onNodeWithText(context.getString(uiAppR.string.speed))
-            .assertIsSelected()
-
-        Espresso.pressBack()
-
-        composeTestRule
-            .onNode(
-                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                    hasContentDescription(context.getString(uiAppR.string.expand)),
-            )
-            .assertExists()
-    }
-
-    @SkipLeakDetection("recomposer", "Outer", "Inner")
-    @Test
-    fun can_save_theme_to_quick_access() = runAppTest {
-        val windowSizeClass =
-            composeTestRule.activityRule.scenario.withActivity {
-                val dpSize = with(Density(this)) {
-                    WindowMetricsCalculator.getOrCreate()
-                        .computeCurrentWindowMetrics(this@withActivity)
-                        .bounds
-                        .toComposeRect()
-                        .size
-                        .toDpSize()
-                }
-
-                BREAKPOINTS_V1.computeWindowSizeClass(
-                    widthDp = dpSize.width.value,
-                    heightDp = dpSize.height.value,
-                )
-            }
-
-        composeTestRule
-            .onNode(
-                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                    hasContentDescription(context.getString(uiAppR.string.expand)),
-            )
-            .performClick()
-
-        composeTestRule
-            .onNodeWithText(context.getString(uiAppR.string.settings))
-            .performClick()
-
-        composeTestRule
-            .onNodeWithText(context.getString(uiAppR.string.settings))
-            .assertIsSelected()
-
-        composeTestRule
-            .onNodeWithText(context.getString(uiSettingsR.string.see_all))
-            .performClick()
-
-        composeTestRule
-            .onNodeWithText(context.getString(uiSettingsR.string.visual))
-            .performClick()
-
-        composeTestRule
-            .onNode(
-                hasAnyAncestor(hasTestTag("SettingUi:Setting_DarkThemeConfig")) and
-                    hasContentDescription(context.getString(uiSettingsR.string.add_setting_to_quick_access)),
-            )
-            .performScrollTo()
-            .performClick()
-
-        assertEquals(
-            ResourceState.Success(setOf(QuickAccessSetting.DarkThemeConfig)),
-            preferences.quickAccessSettingsState,
-        )
-
-        if (!windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
-            composeTestRule
-                .onNodeWithContentDescription(context.getString(uiAppR.string.back))
-                .performClick()
-        }
-
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(uiAppR.string.back))
-            .performClick()
-
-        composeTestRule
-            .onNodeWithText(context.getString(uiAppR.string.settings))
-            .assertIsSelected()
-
-        composeTestRule
-            .onNodeWithText(context.getString(uiSettingsR.string.dark_theme_config))
-            .performClick()
-
-        composeTestRule
-            .onNode(hasAnyAncestor(isPopup()) and hasText(context.getString(uiSettingsR.string.dark_theme)))
-            .assertHasClickAction()
-            .performClick()
-
-        composeTestRule
-            .onNode(hasAnyAncestor(isPopup()) and hasText(context.getString(uiSettingsR.string.dark_theme)))
-            .assertDoesNotExist()
-
-        assertEquals(ResourceState.Success(DarkThemeConfig.Dark), preferences.darkThemeConfigState)
-
-        composeTestRule
-            .onNode(
-                hasAnyAncestor(hasTestTag("SettingUi:Setting_DarkThemeConfig")) and
-                    hasContentDescription(context.getString(uiSettingsR.string.open_in_settings)),
-            )
-            .performScrollTo()
-            .performClick()
-
-        composeTestRule
-            .onNodeWithText(context.getString(uiSettingsR.string.visual))
-            .assertIsDisplayed()
-
-        if (!windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
-            composeTestRule
-                .onNodeWithContentDescription(context.getString(uiAppR.string.back))
-                .performClick()
-        }
-
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(uiAppR.string.back))
-            .performClick()
-
-        composeTestRule
-            .onNodeWithText(context.getString(uiAppR.string.settings))
-            .assertIsSelected()
-
-        Espresso.pressBack()
-
-        composeTestRule
-            .onNodeWithText(context.getString(uiAppR.string.speed))
-            .assertIsSelected()
-
-        Espresso.pressBack()
-
-        composeTestRule
-            .onNode(
-                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                    hasContentDescription(context.getString(uiAppR.string.expand)),
-            )
-            .assertExists()
-    }
-
-    @SkipLeakDetection("recomposer", "Outer", "Inner")
-    @Test
-    fun can_change_algorithm_implementation_to_naive() = runAppTest {
-        val windowSizeClass =
-            composeTestRule.activityRule.scenario.withActivity {
-                val dpSize = with(Density(this)) {
-                    WindowMetricsCalculator.getOrCreate()
-                        .computeCurrentWindowMetrics(this@withActivity)
-                        .bounds
-                        .toComposeRect()
-                        .size
-                        .toDpSize()
-                }
-
-                BREAKPOINTS_V1.computeWindowSizeClass(
-                    widthDp = dpSize.width.value,
-                    heightDp = dpSize.height.value,
-                )
-            }
-
-        composeTestRule
-            .onNode(
-                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                    hasContentDescription(context.getString(uiAppR.string.expand)),
-            )
-            .performClick()
-
-        composeTestRule
-            .onNodeWithText(context.getString(uiAppR.string.settings))
-            .performClick()
-
-        composeTestRule
-            .onNodeWithText(context.getString(uiAppR.string.settings))
-            .assertIsSelected()
-
-        composeTestRule
-            .onNodeWithText(context.getString(uiSettingsR.string.see_all))
-            .performClick()
-
-        composeTestRule
-            .onNodeWithText(context.getString(uiSettingsR.string.algorithm))
-            .performClick()
-
-        composeTestRule
-            .onNodeWithText(context.getString(uiSettingsR.string.algorithm_implementation))
-            .performClick()
-
-        composeTestRule
-            .onNode(hasAnyAncestor(isPopup()) and hasText(context.getString(uiSettingsR.string.naive_algorithm)))
-            .assertHasClickAction()
-            .performClick()
-
-        composeTestRule
-            .onNode(hasAnyAncestor(isPopup()) and hasText(context.getString(uiSettingsR.string.naive_algorithm)))
-            .assertDoesNotExist()
-
-        assertEquals(ResourceState.Success(AlgorithmType.NaiveAlgorithm), preferences.algorithmChoiceState)
-
-        if (!windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
-            Espresso.pressBack()
             composeTestRule.waitForIdle()
         }
 
-        Espresso.pressBack()
+    @SkipLeakDetection("recomposer", "Outer", "Inner")
+    @Test
+    fun app_does_not_crash_when_recreating() =
+        runAppTest {
+            composeTestRule.onNodeWithContentDescription(context.getString(uiAppR.string.play)).performClick()
 
-        composeTestRule
-            .onNodeWithText(context.getString(uiAppR.string.settings))
-            .assertIsSelected()
+            composeTestRule.onNodeWithContentDescription(context.getString(uiAppR.string.pause)).performClick()
 
-        Espresso.pressBack()
+            composeTestRule.activityRule.scenario.recreate()
 
-        composeTestRule
-            .onNodeWithText(context.getString(uiAppR.string.speed))
-            .assertIsSelected()
+            composeTestRule.waitForIdle()
+        }
 
-        Espresso.pressBack()
+    @SkipLeakDetection("recomposer", "Outer", "Inner")
+    @Test
+    fun can_change_theme_to_dark_mode() =
+        runAppTest {
+            val windowSizeClass =
+                composeTestRule.activityRule.scenario.withActivity {
+                    val dpSize =
+                        with(Density(this)) {
+                            WindowMetricsCalculator
+                                .getOrCreate()
+                                .computeCurrentWindowMetrics(this@withActivity)
+                                .bounds
+                                .toComposeRect()
+                                .size
+                                .toDpSize()
+                        }
 
-        composeTestRule
-            .onNode(
-                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                    hasContentDescription(context.getString(uiAppR.string.expand)),
+                    BREAKPOINTS_V1.computeWindowSizeClass(
+                        widthDp = dpSize.width.value,
+                        heightDp = dpSize.height.value,
+                    )
+                }
+
+            composeTestRule
+                .onNode(
+                    hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                        hasContentDescription(context.getString(uiAppR.string.expand)),
+                ).performClick()
+
+            composeTestRule
+                .onNodeWithText(context.getString(uiAppR.string.settings))
+                .performClick()
+
+            composeTestRule
+                .onNodeWithText(context.getString(uiAppR.string.settings))
+                .assertIsSelected()
+
+            composeTestRule
+                .onNodeWithText(context.getString(uiSettingsR.string.see_all))
+                .performClick()
+
+            composeTestRule
+                .onNodeWithText(context.getString(uiSettingsR.string.visual))
+                .performClick()
+
+            composeTestRule
+                .onNodeWithText(context.getString(uiSettingsR.string.dark_theme_config))
+                .performClick()
+
+            composeTestRule
+                .onNode(hasAnyAncestor(isPopup()) and hasText(context.getString(uiSettingsR.string.dark_theme)))
+                .assertHasClickAction()
+                .performClick()
+
+            composeTestRule
+                .onNode(hasAnyAncestor(isPopup()) and hasText(context.getString(uiSettingsR.string.dark_theme)))
+                .assertDoesNotExist()
+
+            assertEquals(ResourceState.Success(DarkThemeConfig.Dark), preferences.darkThemeConfigState)
+
+            if (!windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
+                composeTestRule
+                    .onNodeWithContentDescription(context.getString(uiAppR.string.back))
+                    .performClick()
+            }
+
+            composeTestRule
+                .onNodeWithContentDescription(context.getString(uiAppR.string.back))
+                .performClick()
+
+            composeTestRule
+                .onNodeWithText(context.getString(uiAppR.string.settings))
+                .assertIsSelected()
+
+            Espresso.pressBack()
+
+            composeTestRule
+                .onNodeWithText(context.getString(uiAppR.string.speed))
+                .assertIsSelected()
+
+            Espresso.pressBack()
+
+            composeTestRule
+                .onNode(
+                    hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                        hasContentDescription(context.getString(uiAppR.string.expand)),
+                ).assertExists()
+        }
+
+    @SkipLeakDetection("recomposer", "Outer", "Inner")
+    @Test
+    fun can_save_theme_to_quick_access() =
+        runAppTest {
+            val windowSizeClass =
+                composeTestRule.activityRule.scenario.withActivity {
+                    val dpSize =
+                        with(Density(this)) {
+                            WindowMetricsCalculator
+                                .getOrCreate()
+                                .computeCurrentWindowMetrics(this@withActivity)
+                                .bounds
+                                .toComposeRect()
+                                .size
+                                .toDpSize()
+                        }
+
+                    BREAKPOINTS_V1.computeWindowSizeClass(
+                        widthDp = dpSize.width.value,
+                        heightDp = dpSize.height.value,
+                    )
+                }
+
+            composeTestRule
+                .onNode(
+                    hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                        hasContentDescription(context.getString(uiAppR.string.expand)),
+                ).performClick()
+
+            composeTestRule
+                .onNodeWithText(context.getString(uiAppR.string.settings))
+                .performClick()
+
+            composeTestRule
+                .onNodeWithText(context.getString(uiAppR.string.settings))
+                .assertIsSelected()
+
+            composeTestRule
+                .onNodeWithText(context.getString(uiSettingsR.string.see_all))
+                .performClick()
+
+            composeTestRule
+                .onNodeWithText(context.getString(uiSettingsR.string.visual))
+                .performClick()
+
+            composeTestRule
+                .onNode(
+                    hasAnyAncestor(hasTestTag("SettingUi:Setting_DarkThemeConfig")) and
+                        hasContentDescription(context.getString(uiSettingsR.string.add_setting_to_quick_access)),
+                ).performScrollTo()
+                .performClick()
+
+            assertEquals(
+                ResourceState.Success(setOf(QuickAccessSetting.DarkThemeConfig)),
+                preferences.quickAccessSettingsState,
             )
-            .assertExists()
-    }
+
+            if (!windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
+                composeTestRule
+                    .onNodeWithContentDescription(context.getString(uiAppR.string.back))
+                    .performClick()
+            }
+
+            composeTestRule
+                .onNodeWithContentDescription(context.getString(uiAppR.string.back))
+                .performClick()
+
+            composeTestRule
+                .onNodeWithText(context.getString(uiAppR.string.settings))
+                .assertIsSelected()
+
+            composeTestRule
+                .onNodeWithText(context.getString(uiSettingsR.string.dark_theme_config))
+                .performClick()
+
+            composeTestRule
+                .onNode(hasAnyAncestor(isPopup()) and hasText(context.getString(uiSettingsR.string.dark_theme)))
+                .assertHasClickAction()
+                .performClick()
+
+            composeTestRule
+                .onNode(hasAnyAncestor(isPopup()) and hasText(context.getString(uiSettingsR.string.dark_theme)))
+                .assertDoesNotExist()
+
+            assertEquals(ResourceState.Success(DarkThemeConfig.Dark), preferences.darkThemeConfigState)
+
+            composeTestRule
+                .onNode(
+                    hasAnyAncestor(hasTestTag("SettingUi:Setting_DarkThemeConfig")) and
+                        hasContentDescription(context.getString(uiSettingsR.string.open_in_settings)),
+                ).performScrollTo()
+                .performClick()
+
+            composeTestRule
+                .onNodeWithText(context.getString(uiSettingsR.string.visual))
+                .assertIsDisplayed()
+
+            if (!windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
+                composeTestRule
+                    .onNodeWithContentDescription(context.getString(uiAppR.string.back))
+                    .performClick()
+            }
+
+            composeTestRule
+                .onNodeWithContentDescription(context.getString(uiAppR.string.back))
+                .performClick()
+
+            composeTestRule
+                .onNodeWithText(context.getString(uiAppR.string.settings))
+                .assertIsSelected()
+
+            Espresso.pressBack()
+
+            composeTestRule
+                .onNodeWithText(context.getString(uiAppR.string.speed))
+                .assertIsSelected()
+
+            Espresso.pressBack()
+
+            composeTestRule
+                .onNode(
+                    hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                        hasContentDescription(context.getString(uiAppR.string.expand)),
+                ).assertExists()
+        }
+
+    @SkipLeakDetection("recomposer", "Outer", "Inner")
+    @Test
+    fun can_change_algorithm_implementation_to_naive() =
+        runAppTest {
+            val windowSizeClass =
+                composeTestRule.activityRule.scenario.withActivity {
+                    val dpSize =
+                        with(Density(this)) {
+                            WindowMetricsCalculator
+                                .getOrCreate()
+                                .computeCurrentWindowMetrics(this@withActivity)
+                                .bounds
+                                .toComposeRect()
+                                .size
+                                .toDpSize()
+                        }
+
+                    BREAKPOINTS_V1.computeWindowSizeClass(
+                        widthDp = dpSize.width.value,
+                        heightDp = dpSize.height.value,
+                    )
+                }
+
+            composeTestRule
+                .onNode(
+                    hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                        hasContentDescription(context.getString(uiAppR.string.expand)),
+                ).performClick()
+
+            composeTestRule
+                .onNodeWithText(context.getString(uiAppR.string.settings))
+                .performClick()
+
+            composeTestRule
+                .onNodeWithText(context.getString(uiAppR.string.settings))
+                .assertIsSelected()
+
+            composeTestRule
+                .onNodeWithText(context.getString(uiSettingsR.string.see_all))
+                .performClick()
+
+            composeTestRule
+                .onNodeWithText(context.getString(uiSettingsR.string.algorithm))
+                .performClick()
+
+            composeTestRule
+                .onNodeWithText(context.getString(uiSettingsR.string.algorithm_implementation))
+                .performClick()
+
+            composeTestRule
+                .onNode(hasAnyAncestor(isPopup()) and hasText(context.getString(uiSettingsR.string.naive_algorithm)))
+                .assertHasClickAction()
+                .performClick()
+
+            composeTestRule
+                .onNode(hasAnyAncestor(isPopup()) and hasText(context.getString(uiSettingsR.string.naive_algorithm)))
+                .assertDoesNotExist()
+
+            assertEquals(ResourceState.Success(AlgorithmType.NaiveAlgorithm), preferences.algorithmChoiceState)
+
+            if (!windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
+                Espresso.pressBack()
+                composeTestRule.waitForIdle()
+            }
+
+            Espresso.pressBack()
+
+            composeTestRule
+                .onNodeWithText(context.getString(uiAppR.string.settings))
+                .assertIsSelected()
+
+            Espresso.pressBack()
+
+            composeTestRule
+                .onNodeWithText(context.getString(uiAppR.string.speed))
+                .assertIsSelected()
+
+            Espresso.pressBack()
+
+            composeTestRule
+                .onNode(
+                    hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                        hasContentDescription(context.getString(uiAppR.string.expand)),
+                ).assertExists()
+        }
 
     @OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
     @SkipLeakDetection("recomposer", "Outer", "Inner")
     @Test
-    fun can_watch_clipboard_and_view_deserialization_info() = runAppTest {
-        val windowSizeClass =
-            composeTestRule.activityRule.scenario.withActivity {
-                val dpSize = with(Density(this)) {
-                    WindowMetricsCalculator.getOrCreate()
-                        .computeCurrentWindowMetrics(this@withActivity)
-                        .bounds
-                        .toComposeRect()
-                        .size
-                        .toDpSize()
+    fun can_watch_clipboard_and_view_deserialization_info() =
+        runAppTest {
+            val windowSizeClass =
+                composeTestRule.activityRule.scenario.withActivity {
+                    val dpSize =
+                        with(Density(this)) {
+                            WindowMetricsCalculator
+                                .getOrCreate()
+                                .computeCurrentWindowMetrics(this@withActivity)
+                                .bounds
+                                .toComposeRect()
+                                .size
+                                .toDpSize()
+                        }
+
+                    BREAKPOINTS_V1.computeWindowSizeClass(
+                        widthDp = dpSize.width.value,
+                        heightDp = dpSize.height.value,
+                    )
                 }
 
-                BREAKPOINTS_V1.computeWindowSizeClass(
-                    widthDp = dpSize.width.value,
-                    heightDp = dpSize.height.value,
-                )
+            val clipboardManager = context.getSystemService<ClipboardManager>()
+            assertNotNull(clipboardManager)
+            clipboardManager.setPrimaryClip(
+                ClipData.newPlainText("test", ".X.\n..X\nXXX"),
+            )
+
+            composeTestRule
+                .onNode(
+                    hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                        hasContentDescription(context.getString(uiAppR.string.expand)),
+                ).performClick()
+
+            composeTestRule
+                .onNodeWithText(context.getString(uiAppR.string.edit))
+                .performClick()
+
+            composeTestRule
+                .onNodeWithText(context.getString(uiAppR.string.edit))
+                .assertIsSelected()
+
+            composeTestRule
+                .onNodeWithText(context.getString(uiAppR.string.allow))
+                .performClick()
+
+            composeTestRule.waitForIdle()
+            runCurrent()
+
+            composeTestRule
+                .onNodeWithContentDescription(context.getString(uiAppR.string.warnings))
+                .performClick()
+
+            if (
+                windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND) ||
+                windowSizeClass.isHeightAtLeastBreakpoint(WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND)
+            ) {
+                composeTestRule
+                    .onNode(isDialog())
+                    .assertExists()
+            } else {
+                composeTestRule
+                    .onNode(isDialog())
+                    .assertDoesNotExist()
             }
 
-        val clipboardManager = context.getSystemService<ClipboardManager>()
-        assertNotNull(clipboardManager)
-        clipboardManager.setPrimaryClip(
-            ClipData.newPlainText("test", ".X.\n..X\nXXX"),
-        )
-
-        composeTestRule
-            .onNode(
-                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                    hasContentDescription(context.getString(uiAppR.string.expand)),
-            )
-            .performClick()
-
-        composeTestRule
-            .onNodeWithText(context.getString(uiAppR.string.edit))
-            .performClick()
-
-        composeTestRule
-            .onNodeWithText(context.getString(uiAppR.string.edit))
-            .assertIsSelected()
-
-        composeTestRule
-            .onNodeWithText(context.getString(uiAppR.string.allow))
-            .performClick()
-
-        composeTestRule.waitForIdle()
-        runCurrent()
-
-        composeTestRule
-            .onNodeWithContentDescription(context.getString(uiAppR.string.warnings))
-            .performClick()
-
-        if (
-            windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND) ||
-            windowSizeClass.isHeightAtLeastBreakpoint(WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND)
-        ) {
             composeTestRule
-                .onNode(isDialog())
-                .assertExists()
-        } else {
+                .onNodeWithText(context.getString(uiAppR.string.deserialization_succeeded))
+                .performClick()
+
+            Espresso.pressBack()
+
+            composeTestRule
+                .onNodeWithText(context.getString(uiAppR.string.deserialization_succeeded))
+                .assertDoesNotExist()
             composeTestRule
                 .onNode(isDialog())
                 .assertDoesNotExist()
         }
-
-        composeTestRule
-            .onNodeWithText(context.getString(uiAppR.string.deserialization_succeeded))
-            .performClick()
-
-        Espresso.pressBack()
-
-        composeTestRule
-            .onNodeWithText(context.getString(uiAppR.string.deserialization_succeeded))
-            .assertDoesNotExist()
-        composeTestRule
-            .onNode(isDialog())
-            .assertDoesNotExist()
-    }
 }
 
-private inline fun <reified A : Activity, T : Any> ActivityScenario<A>.withActivity(
-    crossinline block: A.() -> T,
-): T {
+private inline fun <reified A : Activity, T : Any> ActivityScenario<A>.withActivity(crossinline block: A.() -> T): T {
     var result: Result<T>? = null
     onActivity { activity ->
-        result = kotlin.runCatching {
-            block(activity)
-        }
+        result =
+            kotlin.runCatching {
+                block(activity)
+            }
     }
     @Suppress("UnsafeCallOnNullableType")
     return result!!.getOrThrow()

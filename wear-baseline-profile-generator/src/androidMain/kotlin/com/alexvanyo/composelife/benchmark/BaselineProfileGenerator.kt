@@ -25,7 +25,6 @@ import org.junit.Rule
 import kotlin.test.Test
 
 class BaselineProfileGenerator {
-
     @get:Rule
     val baselineProfileRule = BaselineProfileRule()
 
@@ -46,7 +45,8 @@ class BaselineProfileGenerator {
                 WatchFaceEditorContract().createIntent(
                     InstrumentationRegistry.getInstrumentation().context,
                     EditorRequest(
-                        watchFaceComponentName = ComponentName(
+                        watchFaceComponentName =
+                        ComponentName(
                             "com.alexvanyo.composelife.wear",
                             "com.alexvanyo.composelife.wear.watchface.GameOfLifeWatchFaceService",
                         ),

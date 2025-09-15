@@ -270,7 +270,8 @@ internal fun SelectingBoxActionControlRowPreview() {
                 showFullSpaceModeControl = false,
                 isFullSpaceMode = false,
                 setIsFullSpaceMode = {},
-                selectionState = SelectionState.SelectingBox.FixedSelectingBox(
+                selectionState =
+                SelectionState.SelectingBox.FixedSelectingBox(
                     topLeft = IntOffset.Zero,
                     width = 1,
                     height = 1,
@@ -307,7 +308,8 @@ internal fun SelectionActionControlRowPreview() {
                 showFullSpaceModeControl = false,
                 isFullSpaceMode = false,
                 setIsFullSpaceMode = {},
-                selectionState = SelectionState.Selection(
+                selectionState =
+                SelectionState.Selection(
                     cellState = emptyCellState(),
                     offset = IntOffset.Zero,
                 ),

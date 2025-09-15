@@ -110,12 +110,14 @@ fun QuickAccessSettingHeader(
                 onCheckedChange = setIsFavorite,
             ) {
                 Icon(
-                    imageVector = if (isFavorite) {
+                    imageVector =
+                    if (isFavorite) {
                         Icons.Filled.Bookmark
                     } else {
                         Icons.Outlined.BookmarkBorder
                     },
-                    contentDescription = parameterizedStringResource(
+                    contentDescription =
+                    parameterizedStringResource(
                         if (isFavorite) {
                             Strings.RemoveSettingFromQuickAccess
                         } else {

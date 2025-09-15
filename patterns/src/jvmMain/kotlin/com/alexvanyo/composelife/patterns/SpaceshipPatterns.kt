@@ -28,7 +28,8 @@ sealed class SpaceshipPatterns(
 ) : GameOfLifeTestPattern(
     patternName = patternName,
     seedCellState = seedCellState,
-    cellStates = List(spaceshipTestGenerations) {
+    cellStates =
+    List(spaceshipTestGenerations) {
         val repeatingCellStates = otherCellStates + seedCellState
         repeatingCellStates[it.mod(repeatingCellStates.size)]
             .offsetBy(offset * ((it + 1) / repeatingCellStates.size).toFloat())

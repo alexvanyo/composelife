@@ -61,17 +61,18 @@ private fun AnimatePlacementPreview() {
     var alignmentInBoxIndex by remember { mutableIntStateOf(0) }
     var animateContentSizeAlignmentIndex by remember { mutableIntStateOf(0) }
 
-    val alignments = listOf(
-        "TopStart" to Alignment.TopStart,
-        "TopCenter" to Alignment.TopCenter,
-        "TopEnd" to Alignment.TopEnd,
-        "CenterStart" to Alignment.CenterStart,
-        "Center" to Alignment.Center,
-        "CenterEnd" to Alignment.CenterEnd,
-        "BottomStart" to Alignment.BottomStart,
-        "BottomCenter" to Alignment.BottomCenter,
-        "BottomEnd" to Alignment.BottomEnd,
-    )
+    val alignments =
+        listOf(
+            "TopStart" to Alignment.TopStart,
+            "TopCenter" to Alignment.TopCenter,
+            "TopEnd" to Alignment.TopEnd,
+            "CenterStart" to Alignment.CenterStart,
+            "Center" to Alignment.Center,
+            "CenterEnd" to Alignment.CenterEnd,
+            "BottomStart" to Alignment.BottomStart,
+            "BottomCenter" to Alignment.BottomCenter,
+            "BottomEnd" to Alignment.BottomEnd,
+        )
 
     val (animatePlacementAlignmentName, animatePlacementAlignment) =
         alignments[animatePlacementAlignmentIndex.mod(alignments.size)]
@@ -184,8 +185,7 @@ private fun AnimatePlacementPreview() {
                                         else -> error("invalid alignment")
                                     }
                                 },
-                            )
-                            .align(alignmentInBox)
+                            ).align(alignmentInBox)
                             .background(Color.Blue)
                             .animateContentSize(alignment = animateContentSizeAlignment)
                             .size(if (isExpanded) 128.dp else 64.dp),

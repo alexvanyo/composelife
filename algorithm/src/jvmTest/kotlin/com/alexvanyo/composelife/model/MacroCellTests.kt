@@ -24,7 +24,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class MacroCellTests {
-
     @Test
     fun alive_cell_is_correct() {
         val cell = MacroCell.Cell.AliveCell
@@ -264,81 +263,84 @@ class MacroCellTests {
     @Test
     fun checking_contains_specific_cell_is_correct() {
         assertTrue(
-            MacroCell.CellNode(
-                createEmptyMacroCell(3),
-                MacroCell.CellNode(
-                    createEmptyMacroCell(2),
-                    createEmptyMacroCell(2),
+            MacroCell
+                .CellNode(
+                    createEmptyMacroCell(3),
                     MacroCell.CellNode(
+                        createEmptyMacroCell(2),
+                        createEmptyMacroCell(2),
                         MacroCell.CellNode(
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.AliveCell,
+                            MacroCell.CellNode(
+                                MacroCell.Cell.DeadCell,
+                                MacroCell.Cell.DeadCell,
+                                MacroCell.Cell.DeadCell,
+                                MacroCell.Cell.AliveCell,
+                            ),
+                            createEmptyMacroCell(1),
+                            createEmptyMacroCell(1),
+                            createEmptyMacroCell(1),
                         ),
-                        createEmptyMacroCell(1),
-                        createEmptyMacroCell(1),
-                        createEmptyMacroCell(1),
+                        createEmptyMacroCell(2),
                     ),
-                    createEmptyMacroCell(2),
-                ),
-                createEmptyMacroCell(3),
-                createEmptyMacroCell(3),
-            ).contains(IntOffset(9, 5)),
+                    createEmptyMacroCell(3),
+                    createEmptyMacroCell(3),
+                ).contains(IntOffset(9, 5)),
         )
     }
 
     @Test
     fun checking_does_not_contain_specific_cell_is_correct() {
         assertFalse(
-            MacroCell.CellNode(
-                createEmptyMacroCell(3),
-                MacroCell.CellNode(
-                    createEmptyMacroCell(2),
-                    createEmptyMacroCell(2),
+            MacroCell
+                .CellNode(
+                    createEmptyMacroCell(3),
                     MacroCell.CellNode(
+                        createEmptyMacroCell(2),
+                        createEmptyMacroCell(2),
                         MacroCell.CellNode(
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.AliveCell,
+                            MacroCell.CellNode(
+                                MacroCell.Cell.DeadCell,
+                                MacroCell.Cell.DeadCell,
+                                MacroCell.Cell.DeadCell,
+                                MacroCell.Cell.AliveCell,
+                            ),
+                            createEmptyMacroCell(1),
+                            createEmptyMacroCell(1),
+                            createEmptyMacroCell(1),
                         ),
-                        createEmptyMacroCell(1),
-                        createEmptyMacroCell(1),
-                        createEmptyMacroCell(1),
+                        createEmptyMacroCell(2),
                     ),
-                    createEmptyMacroCell(2),
-                ),
-                createEmptyMacroCell(3),
-                createEmptyMacroCell(3),
-            ).contains(IntOffset(9, 6)),
+                    createEmptyMacroCell(3),
+                    createEmptyMacroCell(3),
+                ).contains(IntOffset(9, 6)),
         )
     }
 
     @Test
     fun checking_does_not_contain_outside_range_cell_is_correct() {
         assertFalse(
-            MacroCell.CellNode(
-                createEmptyMacroCell(3),
-                MacroCell.CellNode(
-                    createEmptyMacroCell(2),
-                    createEmptyMacroCell(2),
+            MacroCell
+                .CellNode(
+                    createEmptyMacroCell(3),
                     MacroCell.CellNode(
+                        createEmptyMacroCell(2),
+                        createEmptyMacroCell(2),
                         MacroCell.CellNode(
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.AliveCell,
+                            MacroCell.CellNode(
+                                MacroCell.Cell.DeadCell,
+                                MacroCell.Cell.DeadCell,
+                                MacroCell.Cell.DeadCell,
+                                MacroCell.Cell.AliveCell,
+                            ),
+                            createEmptyMacroCell(1),
+                            createEmptyMacroCell(1),
+                            createEmptyMacroCell(1),
                         ),
-                        createEmptyMacroCell(1),
-                        createEmptyMacroCell(1),
-                        createEmptyMacroCell(1),
+                        createEmptyMacroCell(2),
                     ),
-                    createEmptyMacroCell(2),
-                ),
-                createEmptyMacroCell(3),
-                createEmptyMacroCell(3),
-            ).contains(IntOffset(-2, -2)),
+                    createEmptyMacroCell(3),
+                    createEmptyMacroCell(3),
+                ).contains(IntOffset(-2, -2)),
         )
     }
 }

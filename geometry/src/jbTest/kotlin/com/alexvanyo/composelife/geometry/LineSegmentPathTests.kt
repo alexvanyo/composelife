@@ -29,7 +29,6 @@ import kotlin.test.assertEquals
 
 @Suppress("TooManyFunctions")
 class LineSegmentPathTests {
-
     @Test
     fun single_point() {
         assertEquals(
@@ -456,20 +455,20 @@ private fun bruteForceCellIntersections(start: Offset, end: Offset): Set<IntOffs
         val maxY = kotlin.math.floor(max(start.y, end.y)).toInt()
 
         addAll(
-            (minX..maxX).flatMap { x ->
-                (minY..maxY).map { y ->
-                    IntOffset(x, y)
-                }
-            }
-                .filter { it.intersectsLine(start, end) },
+            (minX..maxX)
+                .flatMap { x ->
+                    (minY..maxY).map { y ->
+                        IntOffset(x, y)
+                    }
+                }.filter { it.intersectsLine(start, end) },
         )
     }
 
-private fun IntOffset.intersectsLine(a: Offset, b: Offset) =
-    Rect(toOffset(), Size(1f, 1f)).intersectsLine(a, b)
+private fun IntOffset.intersectsLine(a: Offset, b: Offset) = Rect(toOffset(), Size(1f, 1f)).intersectsLine(a, b)
 
 private fun Rect.intersectsLine(a: Offset, b: Offset) =
-    contains(a) || contains(b) ||
+    contains(a) ||
+        contains(b) ||
         doLineSegmentsIntersect(topLeft, topRight, a, b) ||
         doLineSegmentsIntersect(topRight, bottomRight, a, b) ||
         doLineSegmentsIntersect(bottomRight, bottomLeft, a, b) ||

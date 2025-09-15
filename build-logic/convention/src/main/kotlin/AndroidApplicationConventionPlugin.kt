@@ -20,69 +20,70 @@ import com.alexvanyo.composelife.buildlogic.configureBadgingTasks
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 
-class AndroidApplicationConventionPlugin : ConventionPlugin({
-    with(pluginManager) {
-        apply("com.android.application")
-    }
+class AndroidApplicationConventionPlugin :
+    ConventionPlugin({
+        with(pluginManager) {
+            apply("com.android.application")
+        }
 
-    configureBadgingTasks(extensions.getByType(ApplicationAndroidComponentsExtension::class.java))
+        configureBadgingTasks(extensions.getByType(ApplicationAndroidComponentsExtension::class.java))
 
-    tasks.named("check").configure {
-        dependsOn("checkReleaseBadging")
-    }
+        tasks.named("check").configure {
+            dependsOn("checkReleaseBadging")
+        }
 
-    extensions.configure(ApplicationExtension::class.java) {
-        configureAndroid(this)
+        extensions.configure(ApplicationExtension::class.java) {
+            configureAndroid(this)
 
-        signingConfigs {
-            named("debug") {
-                keyAlias = "debug"
-                keyPassword = "android"
-                storeFile = file("$rootDir/keystore/debug.jks")
-                storePassword = "android"
+            signingConfigs {
+                named("debug") {
+                    keyAlias = "debug"
+                    keyPassword = "android"
+                    storeFile = file("$rootDir/keystore/debug.jks")
+                    storePassword = "android"
+                }
+            }
+
+            buildTypes {
+                debug {
+                    signingConfig = signingConfigs.getByName("debug")
+                    matchingFallbacks.add("release") // fallback to release for dependencies
+                }
+
+                release {
+                    isMinifyEnabled = true
+                    isShrinkResources = true
+                    proguardFiles(
+                        getDefaultProguardFile("proguard-android-optimize.txt"),
+                        "proguard-rules.pro",
+                        "release-proguard-rules.pro",
+                    )
+                }
+
+                // Create a build type for the purposes of testing a minified build (like release is)
+                create("staging") {
+                    isMinifyEnabled = true // minify like a release build
+                    isShrinkResources = true // shrink resources like a release build
+                    matchingFallbacks.add("release") // fallback to release for dependencies
+                    signingConfig = signingConfigs.getByName("debug") // sign with debug for testing
+                    // Use the normal proguard rules, as well as some additional staging ones just for tests (when needed)
+                    proguardFiles(
+                        getDefaultProguardFile("proguard-android-optimize.txt"),
+                        "proguard-rules.pro",
+                        "staging-proguard-rules.pro",
+                    )
+                    testProguardFiles("staging-test-proguard-rules.pro")
+                }
             }
         }
 
-        buildTypes {
-            debug {
-                signingConfig = signingConfigs.getByName("debug")
-                matchingFallbacks.add("release") // fallback to release for dependencies
-            }
-
-            release {
-                isMinifyEnabled = true
-                isShrinkResources = true
-                proguardFiles(
-                    getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "proguard-rules.pro",
-                    "release-proguard-rules.pro",
-                )
-            }
-
-            // Create a build type for the purposes of testing a minified build (like release is)
-            create("staging") {
-                isMinifyEnabled = true // minify like a release build
-                isShrinkResources = true // shrink resources like a release build
-                matchingFallbacks.add("release") // fallback to release for dependencies
-                signingConfig = signingConfigs.getByName("debug") // sign with debug for testing
-                // Use the normal proguard rules, as well as some additional staging ones just for tests (when needed)
-                proguardFiles(
-                    getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "proguard-rules.pro",
-                    "staging-proguard-rules.pro",
-                )
-                testProguardFiles("staging-test-proguard-rules.pro")
-            }
+        @Suppress("NoNameShadowing")
+        afterEvaluate {
+            configurations
+                .matching { it.name.contains("debug", ignoreCase = true).not() }
+                .configureEach {
+                    exclude(mapOf("group" to "androidx.compose.ui", "module" to "ui-tooling"))
+                    exclude(mapOf("group" to "androidx.compose.ui", "module" to "ui-tooling-data"))
+                }
         }
-    }
-
-    @Suppress("NoNameShadowing")
-    afterEvaluate {
-        configurations
-            .matching { it.name.contains("debug", ignoreCase = true).not() }
-            .configureEach {
-                exclude(mapOf("group" to "androidx.compose.ui", "module" to "ui-tooling"))
-                exclude(mapOf("group" to "androidx.compose.ui", "module" to "ui-tooling-data"))
-            }
-    }
-})
+    })

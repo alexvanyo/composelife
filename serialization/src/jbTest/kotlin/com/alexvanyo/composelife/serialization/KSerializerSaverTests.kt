@@ -32,40 +32,43 @@ import kotlin.test.assertEquals
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class KSerializerSaverTests {
-
     @Test
-    fun kserializer_saver_is_correct() = runComposeUiTest {
-        val stateRestorationTester = KmpStateRestorationTester(this)
+    fun kserializer_saver_is_correct() =
+        runComposeUiTest {
+            val stateRestorationTester = KmpStateRestorationTester(this)
 
-        var value: SealedClass? = null
+            var value: SealedClass? = null
 
-        stateRestorationTester.setContent {
-            value = rememberSaveable(saver = SealedClass.Saver) {
-                A(
-                    string = Random.nextInt().toString(),
-                    intOffset = IntOffset(
-                        x = Random.nextInt(),
-                        y = Random.nextInt(),
-                    ),
-                    rect = Rect(
-                        left = Random.nextFloat(),
-                        top = Random.nextFloat(),
-                        right = Random.nextFloat(),
-                        bottom = Random.nextFloat(),
-                    ),
-                )
+            stateRestorationTester.setContent {
+                value =
+                    rememberSaveable(saver = SealedClass.Saver) {
+                        A(
+                            string = Random.nextInt().toString(),
+                            intOffset =
+                            IntOffset(
+                                x = Random.nextInt(),
+                                y = Random.nextInt(),
+                            ),
+                            rect =
+                            Rect(
+                                left = Random.nextFloat(),
+                                top = Random.nextFloat(),
+                                right = Random.nextFloat(),
+                                bottom = Random.nextFloat(),
+                            ),
+                        )
+                    }
             }
+
+            val initialValue = value
+            value = null
+
+            stateRestorationTester.emulateStateRestore()
+
+            val restoredValue = value
+
+            assertEquals(initialValue, restoredValue)
         }
-
-        val initialValue = value
-        value = null
-
-        stateRestorationTester.emulateStateRestore()
-
-        val restoredValue = value
-
-        assertEquals(initialValue, restoredValue)
-    }
 }
 
 @Serializable
@@ -90,9 +93,7 @@ private data class A(
 
 @Suppress("UnusedPrivateClass")
 @Serializable
-private data class B(
-    val int: Int,
-) : SealedClass() {
+private data class B(val int: Int) : SealedClass() {
     companion object {
         val Saver get() = serializer().saver()
     }

@@ -28,7 +28,6 @@ import kotlin.uuid.Uuid
  */
 @Stable
 interface NavigationState<T : NavigationEntry> {
-
     /**
      * A map of all entries, keyed by their [NavigationEntry.id]. This should contain all previous entries that may
      * be returned to at some point.

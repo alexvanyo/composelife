@@ -47,7 +47,9 @@ expect interface ClipboardWriter
 expect fun ClipboardWriter.setText(value: String)
 
 @Stable
-interface ClipboardReaderWriter : ClipboardReader, ClipboardWriter
+interface ClipboardReaderWriter :
+    ClipboardReader,
+    ClipboardWriter
 
 /**
  * Creates a [ClipboardReader] for reading from the system clipboard.

@@ -42,27 +42,30 @@ class RoborazziTest(
     override val parameterizations = RoborazziTest.parameterizations
 
     companion object {
-        val parameterizations = Showkase.getMetadata().componentList
-            .filter { it.componentKey.startsWith("com.alexvanyo.composelife.ui.cells") }
-            .flatMap { showkaseBrowserComponent ->
-                listOf(
-                    DpSize(320.dp, 533.dp), // Nexus One portrait
-                    DpSize(393.dp, 851.dp), // Pixel 5 portrait
-                    DpSize(1200.dp, 800.dp), // Pixel Tablet landscape
-                ).flatMap { size ->
-                    listOf(false, true).flatMap { darkTheme ->
-                        listOf(1.0f, 1.5f).map { fontScale ->
-                            SingleRoborazziParameterization(
-                                showkaseBrowserComponent = showkaseBrowserComponent,
-                                size = size,
-                                darkTheme = darkTheme,
-                                isScreenRound = false,
-                                fontScale = fontScale,
-                            )
+        val parameterizations =
+            Showkase
+                .getMetadata()
+                .componentList
+                .filter { it.componentKey.startsWith("com.alexvanyo.composelife.ui.cells") }
+                .flatMap { showkaseBrowserComponent ->
+                    listOf(
+                        DpSize(320.dp, 533.dp), // Nexus One portrait
+                        DpSize(393.dp, 851.dp), // Pixel 5 portrait
+                        DpSize(1200.dp, 800.dp), // Pixel Tablet landscape
+                    ).flatMap { size ->
+                        listOf(false, true).flatMap { darkTheme ->
+                            listOf(1.0f, 1.5f).map { fontScale ->
+                                SingleRoborazziParameterization(
+                                    showkaseBrowserComponent = showkaseBrowserComponent,
+                                    size = size,
+                                    darkTheme = darkTheme,
+                                    isScreenRound = false,
+                                    fontScale = fontScale,
+                                )
+                            }
                         }
                     }
                 }
-            }
 
         class Provider : BaseRoborazziParameterizationProvider(parameterizations)
     }

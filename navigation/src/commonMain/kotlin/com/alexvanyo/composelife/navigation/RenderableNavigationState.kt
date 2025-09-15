@@ -61,40 +61,45 @@ fun <T1, T2> backstackRenderableNavigationTransform(
     ) -> BackstackRenderableNavigationTransformResult<T2>?,
 ): RenderableNavigationTransform<BackstackEntry<T1>, BackstackState<T1>, BackstackEntry<T2>, BackstackState<T2>> =
     { renderableNavigationState ->
-        val movablePanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
-            key(id) {
-                val currentPaneContent by rememberUpdatedState(paneContent)
-                remember {
-                    movableContentOf {
-                        currentPaneContent()
+        val movablePanes =
+            renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
+                key(id) {
+                    val currentPaneContent by rememberUpdatedState(paneContent)
+                    remember {
+                        movableContentOf {
+                            currentPaneContent()
+                        }
                     }
                 }
             }
-        }
-        val transformed = renderableNavigationState.navigationState.entryMap.mapNotNull { (id, entry) ->
-            key(id) {
-                entryTransform(entry, movablePanes)?.let { id to it }
-            }
-        }.toMap()
+        val transformed =
+            renderableNavigationState.navigationState.entryMap
+                .mapNotNull { (id, entry) ->
+                    key(id) {
+                        entryTransform(entry, movablePanes)?.let { id to it }
+                    }
+                }.toMap()
 
         val transformedIdsMap = transformed.values.associateBy { it.id }
 
-        val transformedEntryMap = remember(transformed) {
-            val map = mutableMapOf<Uuid, BackstackEntry<T2>>()
-            fun createNavigationSegment(
-                result: BackstackRenderableNavigationTransformResult<T2>,
-            ): BackstackEntry<T2> =
-                map.getOrPut(result.id) {
-                    BackstackEntry(
-                        value = result.value,
-                        previous = transformed[result.previousPreTransformedId]?.let(::createNavigationSegment),
-                        id = result.id,
-                    )
-                }
+        val transformedEntryMap =
+            remember(transformed) {
+                val map = mutableMapOf<Uuid, BackstackEntry<T2>>()
 
-            transformed.values.forEach(::createNavigationSegment)
-            map
-        }
+                fun createNavigationSegment(
+                    result: BackstackRenderableNavigationTransformResult<T2>,
+                ): BackstackEntry<T2> =
+                    map.getOrPut(result.id) {
+                        BackstackEntry(
+                            value = result.value,
+                            previous = transformed[result.previousPreTransformedId]?.let(::createNavigationSegment),
+                            id = result.id,
+                        )
+                    }
+
+                transformed.values.forEach(::createNavigationSegment)
+                map
+            }
         val transformedPaneMap = transformedIdsMap.mapValues { it.value.pane }
 
         val transformedCurrentEntryId =

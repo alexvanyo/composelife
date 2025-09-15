@@ -20,7 +20,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class RunLengthEncodingCellStateSerializerTests {
-
     private val serializer = RunLengthEncodedCellStateSerializer
 
     @Test
@@ -28,7 +27,8 @@ class RunLengthEncodingCellStateSerializerTests {
         assertEquals(
             DeserializationResult.Successful(
                 warnings = emptyList(),
-                cellState = setOf(
+                cellState =
+                setOf(
                     0 to 0,
                     2 to 0,
                     4 to 0,
@@ -55,7 +55,8 @@ class RunLengthEncodingCellStateSerializerTests {
         assertEquals(
             DeserializationResult.Successful(
                 warnings = emptyList(),
-                cellState = setOf(
+                cellState =
+                setOf(
                     0 to 0,
                     2 to 0,
                     4 to 0,
@@ -83,7 +84,8 @@ class RunLengthEncodingCellStateSerializerTests {
         assertEquals(
             DeserializationResult.Successful(
                 warnings = emptyList(),
-                cellState = setOf(
+                cellState =
+                setOf(
                     -3 to 7,
                     -1 to 7,
                     1 to 7,
@@ -111,7 +113,8 @@ class RunLengthEncodingCellStateSerializerTests {
         assertEquals(
             DeserializationResult.Successful(
                 warnings = emptyList(),
-                cellState = setOf(
+                cellState =
+                setOf(
                     -3 to 7,
                     -1 to 7,
                     1 to 7,
@@ -142,19 +145,20 @@ class RunLengthEncodingCellStateSerializerTests {
             |x = 5, y = 5, rule = B3/S23
             |obobo2$obobo2$obobo!
             """.trimMargin(),
-            serializer.serializeToString(
-                setOf(
-                    0 to 0,
-                    2 to 0,
-                    4 to 0,
-                    0 to 2,
-                    2 to 2,
-                    4 to 2,
-                    0 to 4,
-                    2 to 4,
-                    4 to 4,
-                ).toCellState(),
-            ).joinToString("\n"),
+            serializer
+                .serializeToString(
+                    setOf(
+                        0 to 0,
+                        2 to 0,
+                        4 to 0,
+                        0 to 2,
+                        2 to 2,
+                        4 to 2,
+                        0 to 4,
+                        2 to 4,
+                        4 to 4,
+                    ).toCellState(),
+                ).joinToString("\n"),
         )
     }
 
@@ -167,8 +171,9 @@ class RunLengthEncodingCellStateSerializerTests {
             |24bo$22bobo$12b2o6b2o12b2o$11bo3bo4b2o12b2o$2o8bo5bo3b2o$2o8bo3bob2o4b
             |obo$10bo5bo7bo$11bo3bo$12b2o!
             """.trimMargin(),
-            serializer.serializeToString(
-                """
+            serializer
+                .serializeToString(
+                    """
                 |........................O...........
                 |......................O.O...........
                 |............OO......OO............OO
@@ -179,7 +184,7 @@ class RunLengthEncodingCellStateSerializerTests {
                 |...........O...O....................
                 |............OO......................
                 """.toCellState(),
-            ).joinToString("\n"),
+                ).joinToString("\n"),
         )
     }
 
@@ -198,8 +203,9 @@ class RunLengthEncodingCellStateSerializerTests {
             |o$43b2ob2o26b2o$44b2o3$53b4o$52b6o$51b2ob4o$52b2o9b2o$62b2ob3o$63b5o$
             |64b3o$77b4o$76b6o$75b2ob4o$76b2o!
             """.trimMargin(),
-            serializer.serializeToString(
-                """
+            serializer
+                .serializeToString(
+                    """
                 |............................................................................OO....
                 |...........................................................................OO.OOOO
                 |............................................................................OOOOOO
@@ -274,7 +280,7 @@ class RunLengthEncodingCellStateSerializerTests {
                 |...........................................................................OO.OOOO
                 |............................................................................OO....
                 """.toCellState(),
-            ).joinToString("\n"),
+                ).joinToString("\n"),
         )
     }
 
@@ -283,7 +289,8 @@ class RunLengthEncodingCellStateSerializerTests {
         assertEquals(
             DeserializationResult.Successful(
                 warnings = emptyList(),
-                cellState = """
+                cellState =
+                """
                 |............................................................................OO....
                 |...........................................................................OO.OOOO
                 |............................................................................OOOOOO

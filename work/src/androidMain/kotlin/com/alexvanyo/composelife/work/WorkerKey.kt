@@ -21,6 +21,4 @@ import dev.zacsweers.metro.MapKey
 import kotlin.reflect.KClass
 
 @MapKey
-annotation class WorkerKey(
-    val workerClass: KClass<out ListenableWorker>,
-)
+annotation class WorkerKey(val workerClass: KClass<out ListenableWorker>)

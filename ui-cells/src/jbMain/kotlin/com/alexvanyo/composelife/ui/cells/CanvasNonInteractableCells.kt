@@ -51,12 +51,12 @@ fun CanvasNonInteractableCells(
     val deadColor = ComposeLifeTheme.deadCellColor
 
     Canvas(
-        modifier = modifier
+        modifier =
+        modifier
             .graphicsLayer {
                 this.translationX = -pixelOffsetFromCenter.x
                 this.translationY = -pixelOffsetFromCenter.y
-            }
-            .requiredSize(
+            }.requiredSize(
                 scaledCellDpSize * cellWindow.width,
                 scaledCellDpSize * cellWindow.height,
             ),
@@ -90,13 +90,16 @@ fun DrawScope.drawCells(
             is CurrentShape.RoundRectangle -> {
                 drawRoundRect(
                     color = aliveColor,
-                    topLeft = (cell - cellWindow.topLeft).toOffset() * scaledCellPixelSize +
+                    topLeft =
+                    (cell - cellWindow.topLeft).toOffset() *
+                        scaledCellPixelSize +
                         Offset(
                             scaledCellPixelSize * (1f - shape.sizeFraction) / 2f,
                             scaledCellPixelSize * (1f - shape.sizeFraction) / 2f,
                         ),
                     size = Size(scaledCellPixelSize, scaledCellPixelSize) * shape.sizeFraction,
-                    cornerRadius = CornerRadius(
+                    cornerRadius =
+                    CornerRadius(
                         scaledCellPixelSize * shape.sizeFraction * shape.cornerFraction,
                     ),
                 )

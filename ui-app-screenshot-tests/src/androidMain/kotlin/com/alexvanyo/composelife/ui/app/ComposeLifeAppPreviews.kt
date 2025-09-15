@@ -37,7 +37,8 @@ internal fun LoadingPreferencesComposeLifeAppPreview() {
                 BoxWithConstraints {
                     val windowSize = DpSize(maxWidth, maxHeight)
                     ComposeLifeApp(
-                        windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                        windowSizeClass =
+                        BREAKPOINTS_V1.computeWindowSizeClass(
                             widthDp = windowSize.width.value,
                             heightDp = windowSize.height.value,
                         ),

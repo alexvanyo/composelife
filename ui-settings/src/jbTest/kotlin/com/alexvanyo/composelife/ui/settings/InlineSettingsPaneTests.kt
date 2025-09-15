@@ -61,152 +61,153 @@ val UiGraph.inlineSettingsPaneTestsCtx: InlineSettingsPaneTestsCtx get() =
     this as InlineSettingsPaneTestsCtx
 
 @OptIn(ExperimentalTestApi::class)
-class InlineSettingsPaneTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
+class InlineSettingsPaneTests :
+    BaseUiInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
     @Test
-    fun saving_settings_onboarding_is_shown_with_no_quick_access_settings_saved() = runUiTest { uiGraph ->
-        val ctx = uiGraph.inlineSettingsPaneTestsCtx
-        ctx.testComposeLifePreferences.quickAccessSettings = emptySet()
+    fun saving_settings_onboarding_is_shown_with_no_quick_access_settings_saved() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.inlineSettingsPaneTestsCtx
+            ctx.testComposeLifePreferences.quickAccessSettings = emptySet()
 
-        var onSeeMoreClickedCount = 0
+            var onSeeMoreClickedCount = 0
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            with(ctx.inlineSettingsPaneCtx) {
-                InlineSettingsPane(
-                    onSeeMoreClicked = {
-                        onSeeMoreClickedCount++
-                    },
-                    onOpenInSettingsClicked = {},
-                )
+            setContent {
+                resolver = parameterizedStringResolver()
+                with(ctx.inlineSettingsPaneCtx) {
+                    InlineSettingsPane(
+                        onSeeMoreClicked = {
+                            onSeeMoreClickedCount++
+                        },
+                        onOpenInSettingsClicked = {},
+                    )
+                }
             }
+
+            onNodeWithText(resolver.invoke(Strings.QuickSettingsInfo))
+                .performScrollTo()
+                .assertIsDisplayed()
+                .assertHasNoClickAction()
+
+            onNodeWithText(resolver.invoke(Strings.SeeAll))
+                .performScrollTo()
+                .assertIsDisplayed()
+                .assertHasClickAction()
+                .performClick()
+
+            assertEquals(1, onSeeMoreClickedCount)
         }
 
-        onNodeWithText(resolver.invoke(Strings.QuickSettingsInfo))
-            .performScrollTo()
-            .assertIsDisplayed()
-            .assertHasNoClickAction()
-
-        onNodeWithText(resolver.invoke(Strings.SeeAll))
-            .performScrollTo()
-            .assertIsDisplayed()
-            .assertHasClickAction()
-            .performClick()
-
-        assertEquals(1, onSeeMoreClickedCount)
-    }
-
     @Test
-    fun saved_opengl_setting_is_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.inlineSettingsPaneTestsCtx
-        ctx.testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
+    fun saved_opengl_setting_is_displayed_correctly() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.inlineSettingsPaneTestsCtx
+            ctx.testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            with(ctx.inlineSettingsPaneCtx) {
-                InlineSettingsPane(
-                    onSeeMoreClicked = {},
-                    onOpenInSettingsClicked = {},
-                )
+            setContent {
+                resolver = parameterizedStringResolver()
+                with(ctx.inlineSettingsPaneCtx) {
+                    InlineSettingsPane(
+                        onSeeMoreClicked = {},
+                        onOpenInSettingsClicked = {},
+                    )
+                }
             }
+
+            onNode(
+                hasContentDescription(resolver.invoke(Strings.RemoveSettingFromQuickAccess)) and
+                    hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL._name}")),
+            ).performScrollTo()
+                .assertIsDisplayed()
+                .assertIsOn()
+                .assertHasClickAction()
+
+            onNode(
+                hasContentDescription(resolver.invoke(Strings.OpenInSettings)) and
+                    hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL._name}")),
+            ).performScrollTo()
+                .assertIsDisplayed()
+                .assertHasClickAction()
+
+            onNodeWithContentDescription(resolver.invoke(Strings.DisableOpenGL))
+                .performScrollTo()
+                .assertIsDisplayed()
+                .assert(hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL._name}")))
+                .assertIsOff()
+                .assertHasClickAction()
         }
 
-        onNode(
-            hasContentDescription(resolver.invoke(Strings.RemoveSettingFromQuickAccess)) and
-                hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL._name}")),
-        )
-            .performScrollTo()
-            .assertIsDisplayed()
-            .assertIsOn()
-            .assertHasClickAction()
-
-        onNode(
-            hasContentDescription(resolver.invoke(Strings.OpenInSettings)) and
-                hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL._name}")),
-        )
-            .performScrollTo()
-            .assertIsDisplayed()
-            .assertHasClickAction()
-
-        onNodeWithContentDescription(resolver.invoke(Strings.DisableOpenGL))
-            .performScrollTo()
-            .assertIsDisplayed()
-            .assert(hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL._name}")))
-            .assertIsOff()
-            .assertHasClickAction()
-    }
-
     @Test
-    fun opening_saved_setting_functions_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.inlineSettingsPaneTestsCtx
-        ctx.testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
+    fun opening_saved_setting_functions_correctly() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.inlineSettingsPaneTestsCtx
+            ctx.testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
 
-        var onOpenInSettingsClickedCount = 0
-        var onOpenInSettingsClickedSetting: Setting? = null
+            var onOpenInSettingsClickedCount = 0
+            var onOpenInSettingsClickedSetting: Setting? = null
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            with(ctx.inlineSettingsPaneCtx) {
-                InlineSettingsPane(
-                    onSeeMoreClicked = {},
-                    onOpenInSettingsClicked = {
-                        onOpenInSettingsClickedCount++
-                        onOpenInSettingsClickedSetting = it
-                    },
-                )
+            setContent {
+                resolver = parameterizedStringResolver()
+                with(ctx.inlineSettingsPaneCtx) {
+                    InlineSettingsPane(
+                        onSeeMoreClicked = {},
+                        onOpenInSettingsClicked = {
+                            onOpenInSettingsClickedCount++
+                            onOpenInSettingsClickedSetting = it
+                        },
+                    )
+                }
             }
+
+            onNode(
+                hasContentDescription(resolver.invoke(Strings.OpenInSettings)) and
+                    hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL._name}")),
+            ).performScrollTo()
+                .assertIsDisplayed()
+                .performClick()
+
+            assertEquals(1, onOpenInSettingsClickedCount)
+            assertEquals(Setting.DisableOpenGL, onOpenInSettingsClickedSetting)
         }
 
-        onNode(
-            hasContentDescription(resolver.invoke(Strings.OpenInSettings)) and
-                hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL._name}")),
-        )
-            .performScrollTo()
-            .assertIsDisplayed()
-            .performClick()
-
-        assertEquals(1, onOpenInSettingsClickedCount)
-        assertEquals(Setting.DisableOpenGL, onOpenInSettingsClickedSetting)
-    }
-
     @Test
-    fun removing_saved_setting_functions_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.inlineSettingsPaneTestsCtx
-        ctx.testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
+    fun removing_saved_setting_functions_correctly() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.inlineSettingsPaneTestsCtx
+            ctx.testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            with(ctx.inlineSettingsPaneCtx) {
-                InlineSettingsPane(
-                    onSeeMoreClicked = {},
-                    onOpenInSettingsClicked = {},
-                )
+            setContent {
+                resolver = parameterizedStringResolver()
+                with(ctx.inlineSettingsPaneCtx) {
+                    InlineSettingsPane(
+                        onSeeMoreClicked = {},
+                        onOpenInSettingsClicked = {},
+                    )
+                }
             }
+
+            onNode(
+                hasContentDescription(resolver.invoke(Strings.RemoveSettingFromQuickAccess)) and
+                    hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL._name}")),
+            ).performScrollTo()
+                .assertIsDisplayed()
+                .performClick()
+
+            onNodeWithText(resolver.invoke(Strings.QuickSettingsInfo))
+                .performScrollTo()
+                .assertIsDisplayed()
+                .assertHasNoClickAction()
+
+            onNodeWithContentDescription(resolver.invoke(Strings.DisableOpenGL))
+                .assertDoesNotExist()
         }
-
-        onNode(
-            hasContentDescription(resolver.invoke(Strings.RemoveSettingFromQuickAccess)) and
-                hasAnyAncestor(hasTestTag("SettingUi:${Setting.DisableOpenGL._name}")),
-        )
-            .performScrollTo()
-            .assertIsDisplayed()
-            .performClick()
-
-        onNodeWithText(resolver.invoke(Strings.QuickSettingsInfo))
-            .performScrollTo()
-            .assertIsDisplayed()
-            .assertHasNoClickAction()
-
-        onNodeWithContentDescription(resolver.invoke(Strings.DisableOpenGL))
-            .assertDoesNotExist()
-    }
 }

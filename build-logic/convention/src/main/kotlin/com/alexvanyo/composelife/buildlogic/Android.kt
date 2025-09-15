@@ -32,9 +32,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.tooling.core.withClosure
 import java.lang.reflect.Field
 
-fun Project.configureAndroid(
-    commonExtension: CommonExtension<*, *, *, *, *, *>,
-) {
+fun Project.configureAndroid(commonExtension: CommonExtension<*, *, *, *, *, *>) {
     val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
     commonExtension.apply {
@@ -150,9 +148,7 @@ private fun Project.addSourceSetsForAndroidMultiplatformAfterEvaluate() {
  * initialized and disallowed changes). This uses reflection to temporarily allow changes, and
  * apply [block].
  */
-private fun ConfigurableFileCollection.withChangesAllowed(
-    block: ConfigurableFileCollection.() -> Unit,
-) {
+private fun ConfigurableFileCollection.withChangesAllowed(block: ConfigurableFileCollection.() -> Unit) {
     // The `disallowChanges` field is defined on `ConfigurableFileCollection` prior to Gradle 8.6
     // and on the inner ValueState in later versions.
     val (target, field) =

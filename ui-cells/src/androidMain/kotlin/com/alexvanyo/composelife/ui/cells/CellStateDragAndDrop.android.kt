@@ -43,38 +43,38 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 
 @Composable
-actual fun Modifier.cellStateDragAndDropSource(
-    getCellState: () -> CellState,
-): Modifier {
+actual fun Modifier.cellStateDragAndDropSource(getCellState: () -> CellState): Modifier {
     // TODO: Remove graphics layer workaround once default drag decoration works with Coil.
     //       https://github.com/coil-kt/coil/issues/2150
     val graphicsLayer = rememberGraphicsLayer()
     return drawWithCache {
         graphicsLayer.record { drawContent() }
         onDrawWithContent { drawLayer(graphicsLayer) }
-    }
-        .dragAndDropSource(
-            drawDragDecoration = {
-                drawLayer(graphicsLayer)
-            },
-            transferData = {
-                val clipData = ClipData.newPlainText(
+    }.dragAndDropSource(
+        drawDragDecoration = {
+            drawLayer(graphicsLayer)
+        },
+        transferData = {
+            val clipData =
+                ClipData.newPlainText(
                     "cellState",
-                    RunLengthEncodedCellStateSerializer.serializeToString(getCellState())
+                    RunLengthEncodedCellStateSerializer
+                        .serializeToString(getCellState())
                         .joinToString("\n"),
                 )
 
-                DragAndDropTransferData(
-                    clipData = clipData,
-                    localState = clipData,
-                    flags = if (Build.VERSION.SDK_INT >= 24) {
-                        View.DRAG_FLAG_GLOBAL
-                    } else {
-                        0
-                    },
-                )
-            },
-        )
+            DragAndDropTransferData(
+                clipData = clipData,
+                localState = clipData,
+                flags =
+                if (Build.VERSION.SDK_INT >= 24) {
+                    View.DRAG_FLAG_GLOBAL
+                } else {
+                    0
+                },
+            )
+        },
+    )
 }
 
 internal actual fun cellStateShouldStartDragAndDrop(event: DragAndDropEvent): Boolean =

@@ -45,9 +45,10 @@ import java.util.concurrent.atomic.AtomicInteger
 @SingleIn(AppScope::class)
 @ContributesBinding(AppScope::class, binding<TimeZoneHolder>())
 @Inject
-class AndroidTimeZoneHolder(
-    @param:ApplicationContext private val context: Context,
-) : BroadcastReceiver(), TimeZoneHolder, Updatable {
+class AndroidTimeZoneHolder(@param:ApplicationContext private val context: Context) :
+    BroadcastReceiver(),
+    TimeZoneHolder,
+    Updatable {
     private var _timeZone by mutableStateOf(TimeZone.currentSystemDefault())
 
     override val timeZone: TimeZone
@@ -90,11 +91,7 @@ class AndroidTimeZoneHolder(
     }
 }
 
-private fun Context.registerReceiverCompat(
-    receiver: BroadcastReceiver,
-    filter: IntentFilter,
-    flags: Int,
-) {
+private fun Context.registerReceiverCompat(receiver: BroadcastReceiver, filter: IntentFilter, flags: Int) {
     if (Build.FINGERPRINT.lowercase() == "robolectric") {
         if (Build.VERSION.SDK_INT >= 33) {
             ContextCompat.registerReceiver(

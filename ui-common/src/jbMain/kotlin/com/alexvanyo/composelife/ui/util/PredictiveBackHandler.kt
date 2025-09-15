@@ -61,12 +61,8 @@ sealed interface CompletablePredictiveBackState {
     /**
      * There is an ongoing predictive back animation, with the given [progress].
      */
-    data class Running(
-        val touchX: Float,
-        val touchY: Float,
-        val progress: Float,
-        val backEventEdge: BackEventEdge,
-    ) : CompletablePredictiveBackState
+    data class Running(val touchX: Float, val touchY: Float, val progress: Float, val backEventEdge: BackEventEdge) :
+        CompletablePredictiveBackState
 
     /**
      * The back has completed.
@@ -76,7 +72,9 @@ sealed interface CompletablePredictiveBackState {
 
 sealed interface BackEventEdge {
     data object Left : BackEventEdge
+
     data object Right : BackEventEdge
+
     data object None : BackEventEdge
 }
 
@@ -92,21 +90,26 @@ fun rememberCompletablePredictiveBackStateHolder(): CompletablePredictiveBackSta
             .filter { (it.currentInfo as? CompletablePredictiveBackStateInfo)?.id == id }
             .map { state ->
                 when (state) {
-                    is NavigationEventState.Idle<*> -> CompletablePredictiveBackState.NotRunning
-                    is NavigationEventState.InProgress<*> -> CompletablePredictiveBackState.Running(
-                        touchX = state.latestEvent.touchX,
-                        touchY = state.latestEvent.touchY,
-                        progress = state.latestEvent.progress,
-                        backEventEdge = when (state.latestEvent.swipeEdge) {
-                            NavigationEventSwipeEdge.Left -> BackEventEdge.Left
-                            NavigationEventSwipeEdge.Right -> BackEventEdge.Right
-                            else -> BackEventEdge.None
-                        },
-                    )
+                    is NavigationEventState.Idle<*> -> {
+                        CompletablePredictiveBackState.NotRunning
+                    }
+
+                    is NavigationEventState.InProgress<*> -> {
+                        CompletablePredictiveBackState.Running(
+                            touchX = state.latestEvent.touchX,
+                            touchY = state.latestEvent.touchY,
+                            progress = state.latestEvent.progress,
+                            backEventEdge =
+                            when (state.latestEvent.swipeEdge) {
+                                NavigationEventSwipeEdge.Left -> BackEventEdge.Left
+                                NavigationEventSwipeEdge.Right -> BackEventEdge.Right
+                                else -> BackEventEdge.None
+                            },
+                        )
+                    }
                 }
             }
-    }
-        .collectAsState(CompletablePredictiveBackState.NotRunning)
+    }.collectAsState(CompletablePredictiveBackState.NotRunning)
 
     var isCompleted by rememberSaveable { mutableStateOf(false) }
 
@@ -140,11 +143,12 @@ class CompletablePredictiveBackStateHolderImpl(
         }
 
     override val value: CompletablePredictiveBackState
-        get() = if (isCompleted) {
-            CompletablePredictiveBackState.Completed
-        } else {
-            preCompletedState
-        }
+        get() =
+            if (isCompleted) {
+                CompletablePredictiveBackState.Completed
+            } else {
+                preCompletedState
+            }
 }
 
 @Composable
@@ -161,10 +165,12 @@ fun CompletablePredictiveBackStateHandler(
             is CompletablePredictiveBackStateHolderImpl -> Unit
         }
         NavigationBackHandler(
-            currentInfo = CompletablePredictiveBackStateInfo(
+            currentInfo =
+            CompletablePredictiveBackStateInfo(
                 id = completablePredictiveBackStateHolder.id,
             ),
-            isBackEnabled = enabled &&
+            isBackEnabled =
+            enabled &&
                 completablePredictiveBackStateHolder.value !is CompletablePredictiveBackState.Completed,
             onBackCompleted = {
                 completablePredictiveBackStateHolder.isCompleted = true
@@ -174,6 +180,4 @@ fun CompletablePredictiveBackStateHandler(
     }
 }
 
-private data class CompletablePredictiveBackStateInfo(
-    val id: Uuid,
-) : NavigationEventInfo
+private data class CompletablePredictiveBackStateInfo(val id: Uuid) : NavigationEventInfo

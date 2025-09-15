@@ -160,12 +160,13 @@ fun Modifier.trySharedElementWithCallerManagedVisibility(
 // Defaults copied from SharedTransitionScope.kt
 
 @ExperimentalSharedTransitionApi
-internal val DefaultBoundsTransform = BoundsTransform { _, _ ->
-    spring(
-        stiffness = StiffnessMediumLow,
-        visibilityThreshold = Rect.VisibilityThreshold,
-    )
-}
+internal val DefaultBoundsTransform =
+    BoundsTransform { _, _ ->
+        spring(
+            stiffness = StiffnessMediumLow,
+            visibilityThreshold = Rect.VisibilityThreshold,
+        )
+    }
 
 @ExperimentalSharedTransitionApi
 internal val ParentClip: OverlayClip =
@@ -175,7 +176,5 @@ internal val ParentClip: OverlayClip =
             bounds: Rect,
             layoutDirection: LayoutDirection,
             density: Density,
-        ): Path? {
-            return sharedContentState.parentSharedContentState?.clipPathInOverlay
-        }
+        ): Path? = sharedContentState.parentSharedContentState?.clipPathInOverlay
     }

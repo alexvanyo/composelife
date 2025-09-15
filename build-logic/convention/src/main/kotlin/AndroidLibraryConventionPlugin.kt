@@ -19,27 +19,28 @@ import com.alexvanyo.composelife.buildlogic.configureAndroid
 import com.android.build.api.dsl.LibraryExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 
-class AndroidLibraryConventionPlugin : ConventionPlugin({
-    with(pluginManager) {
-        apply("com.android.library")
-    }
-
-    extensions.configure(LibraryAndroidComponentsExtension::class.java) {
-        beforeVariants(selector().withBuildType("debug")) { builder ->
-            builder.enable = false
+class AndroidLibraryConventionPlugin :
+    ConventionPlugin({
+        with(pluginManager) {
+            apply("com.android.library")
         }
-    }
 
-    extensions.configure(LibraryExtension::class.java) {
-        configureAndroid(this)
+        extensions.configure(LibraryAndroidComponentsExtension::class.java) {
+            beforeVariants(selector().withBuildType("debug")) { builder ->
+                builder.enable = false
+            }
+        }
 
-        testOptions {
-            targetSdk = 35
-            testBuildType = "release"
+        extensions.configure(LibraryExtension::class.java) {
+            configureAndroid(this)
+
+            testOptions {
+                targetSdk = 35
+                testBuildType = "release"
+            }
+            lint.targetSdk = 35
+            defaultConfig {
+                consumerProguardFiles("consumer-rules.pro")
+            }
         }
-        lint.targetSdk = 35
-        defaultConfig {
-            consumerProguardFiles("consumer-rules.pro")
-        }
-    }
-})
+    })

@@ -15,31 +15,32 @@
  */
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
-import io.gitlab.arturbosch.detekt.Detekt
-import io.gitlab.arturbosch.detekt.extensions.DetektExtension
+import dev.detekt.gradle.Detekt
+import dev.detekt.gradle.extensions.DetektExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.artifacts.VersionCatalogsExtension
 
-class DetektConventionPlugin : ConventionPlugin({
-    pluginManager.apply("io.gitlab.arturbosch.detekt")
+class DetektConventionPlugin :
+    ConventionPlugin({
+        pluginManager.apply("dev.detekt")
 
-    val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
+        val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
-    extensions.configure(DetektExtension::class.java) {
-        buildUponDefaultConfig = true
-        allRules = true
-        autoCorrect = true
-        config.setFrom("$rootDir/config/detekt.yml")
-        source.setFrom("src")
-    }
+        extensions.configure(DetektExtension::class.java) {
+            buildUponDefaultConfig.set(true)
+            allRules.set(true)
+            autoCorrect.set(true)
+            config.setFrom("$rootDir/config/detekt.yml")
+            source.setFrom("src")
+        }
 
-    dependencies.add("detektPlugins", libs.findLibrary("detekt.formatting").get())
+        dependencies.add("detektPlugins", libs.findLibrary("detekt.rules.ktlintWrapper").get())
 
-    tasks.withType(Detekt::class.java).configureEach {
-        jvmTarget = JavaVersion.VERSION_17.toString()
-    }
+        tasks.withType(Detekt::class.java).configureEach {
+            jvmTarget.set(JavaVersion.VERSION_17.toString())
+        }
 
-    tasks.named("check").configure {
-        dependsOn(tasks.withType(Detekt::class.java))
-    }
-})
+        tasks.named("check").configure {
+            dependsOn(tasks.withType(Detekt::class.java))
+        }
+    })

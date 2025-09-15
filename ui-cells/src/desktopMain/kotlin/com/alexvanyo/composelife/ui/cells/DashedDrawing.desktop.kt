@@ -43,7 +43,8 @@ internal actual fun DrawScope.drawDashedLine(
     end = end,
     strokeWidth = strokeWidth,
     cap = cap,
-    pathEffect = PathEffect.dashPathEffect(
+    pathEffect =
+    PathEffect.dashPathEffect(
         intervals = intervals,
         phase = phase,
     ),

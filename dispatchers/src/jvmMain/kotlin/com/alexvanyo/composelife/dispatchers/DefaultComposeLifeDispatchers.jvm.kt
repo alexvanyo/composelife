@@ -37,7 +37,9 @@ class DefaultComposeLifeDispatchers : ComposeLifeDispatchers {
     override val MainImmediate: CoroutineContext = Dispatchers.Main.immediate
     override val Unconfined: CoroutineContext = Dispatchers.Unconfined
     override val IO: CoroutineContext = Dispatchers.IO
+
     override fun IOWithLimitedParallelism(parallelism: Int): CoroutineDispatcher =
         Dispatchers.IO.limitedParallelism(parallelism)
+
     override val CellTicker: CoroutineContext = EmptyCoroutineContext
 }

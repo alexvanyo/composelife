@@ -34,10 +34,7 @@ import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTe
 import org.junit.runner.RunWith
 import kotlin.test.Test
 
-private class TestPaneState(
-    private val previous: TestPaneState?,
-    initialCount: Int = 0,
-) {
+private class TestPaneState(private val previous: TestPaneState?, initialCount: Int = 0) {
     var count by mutableStateOf(initialCount)
         private set
 
@@ -70,178 +67,183 @@ private class TestPaneState(
 @OptIn(ExperimentalAnimationApi::class, ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class ModifyPreviousDestinationUseCaseTests {
-
     @Suppress("LongMethod")
     @Test
-    fun can_increment_count_on_previous_pane() = runComposeUiTest {
-        setContent {
-            val navController = rememberMutableBackstackNavigationController(
-                initialBackstackEntries = listOf(
-                    BackstackEntry(
-                        TestPaneState(
-                            previous = null,
+    fun can_increment_count_on_previous_pane() =
+        runComposeUiTest {
+            setContent {
+                val navController =
+                    rememberMutableBackstackNavigationController(
+                        initialBackstackEntries =
+                        listOf(
+                            BackstackEntry(
+                                TestPaneState(
+                                    previous = null,
+                                ),
+                                previous = null,
+                            ),
                         ),
-                        previous = null,
-                    ),
-                ),
-                backstackValueSaverFactory = TestPaneState,
-            )
-
-            NavigationHost(
-                navigationState = navController,
-            ) { entry ->
-                Column {
-                    BasicText("count: ${entry.value.count}")
-                    BasicText(
-                        "increment current",
-                        Modifier.clickable {
-                            entry.value.increment()
-                        },
+                        backstackValueSaverFactory = TestPaneState,
                     )
-                    if (entry.value.canIncrementPrevious) {
+
+                NavigationHost(
+                    navigationState = navController,
+                ) { entry ->
+                    Column {
+                        BasicText("count: ${entry.value.count}")
                         BasicText(
-                            "increment previous",
+                            "increment current",
                             Modifier.clickable {
-                                entry.value.incrementPrevious()
+                                entry.value.increment()
                             },
                         )
-                    }
-                    if (navController.canNavigateBack) {
+                        if (entry.value.canIncrementPrevious) {
+                            BasicText(
+                                "increment previous",
+                                Modifier.clickable {
+                                    entry.value.incrementPrevious()
+                                },
+                            )
+                        }
+                        if (navController.canNavigateBack) {
+                            BasicText(
+                                "navigate back",
+                                Modifier.clickable {
+                                    navController.withExpectedActor(entry.id) {
+                                        popBackstack()
+                                    }
+                                },
+                            )
+                        }
                         BasicText(
-                            "navigate back",
+                            "navigate forward",
                             Modifier.clickable {
                                 navController.withExpectedActor(entry.id) {
-                                    popBackstack()
+                                    navigate(
+                                        valueFactory = { previous ->
+                                            TestPaneState(
+                                                previous = previous.value,
+                                            )
+                                        },
+                                    )
                                 }
                             },
                         )
                     }
-                    BasicText(
-                        "navigate forward",
-                        Modifier.clickable {
-                            navController.withExpectedActor(entry.id) {
-                                navigate(
-                                    valueFactory = { previous ->
-                                        TestPaneState(
-                                            previous = previous.value,
-                                        )
-                                    },
-                                )
-                            }
-                        },
-                    )
                 }
             }
+
+            onNodeWithText("count: 0").assertExists()
+            onNodeWithText("navigate back").assertDoesNotExist()
+            onNodeWithText("increment previous").assertDoesNotExist()
+
+            onNodeWithText("increment current").performClick()
+
+            onNodeWithText("count: 1").assertExists()
+
+            onNodeWithText("navigate forward").performClick()
+
+            onNodeWithText("count: 0").assertExists()
+            onNodeWithText("navigate back").assertExists()
+
+            onNodeWithText("increment previous").performClick()
+
+            onNodeWithText("count: 0").assertExists()
+
+            onNodeWithText("navigate back").performClick()
+
+            onNodeWithText("count: 2").assertExists()
         }
-
-        onNodeWithText("count: 0").assertExists()
-        onNodeWithText("navigate back").assertDoesNotExist()
-        onNodeWithText("increment previous").assertDoesNotExist()
-
-        onNodeWithText("increment current").performClick()
-
-        onNodeWithText("count: 1").assertExists()
-
-        onNodeWithText("navigate forward").performClick()
-
-        onNodeWithText("count: 0").assertExists()
-        onNodeWithText("navigate back").assertExists()
-
-        onNodeWithText("increment previous").performClick()
-
-        onNodeWithText("count: 0").assertExists()
-
-        onNodeWithText("navigate back").performClick()
-
-        onNodeWithText("count: 2").assertExists()
-    }
 
     @Suppress("LongMethod")
     @Test
-    fun can_increment_count_on_previous_pane_after_recreation() = runComposeUiTest {
-        val stateRestorationTester = KmpStateRestorationTester(this)
+    fun can_increment_count_on_previous_pane_after_recreation() =
+        runComposeUiTest {
+            val stateRestorationTester = KmpStateRestorationTester(this)
 
-        stateRestorationTester.setContent {
-            val navController = rememberMutableBackstackNavigationController(
-                initialBackstackEntries = listOf(
-                    BackstackEntry(
-                        TestPaneState(
-                            previous = null,
+            stateRestorationTester.setContent {
+                val navController =
+                    rememberMutableBackstackNavigationController(
+                        initialBackstackEntries =
+                        listOf(
+                            BackstackEntry(
+                                TestPaneState(
+                                    previous = null,
+                                ),
+                                previous = null,
+                            ),
                         ),
-                        previous = null,
-                    ),
-                ),
-                backstackValueSaverFactory = TestPaneState,
-            )
-
-            NavigationHost(
-                navigationState = navController,
-            ) { entry ->
-                Column {
-                    BasicText("count: ${entry.value.count}")
-                    BasicText(
-                        "increment current",
-                        Modifier.clickable {
-                            entry.value.increment()
-                        },
+                        backstackValueSaverFactory = TestPaneState,
                     )
-                    if (entry.value.canIncrementPrevious) {
+
+                NavigationHost(
+                    navigationState = navController,
+                ) { entry ->
+                    Column {
+                        BasicText("count: ${entry.value.count}")
                         BasicText(
-                            "increment previous",
+                            "increment current",
                             Modifier.clickable {
-                                entry.value.incrementPrevious()
+                                entry.value.increment()
                             },
                         )
-                    }
-                    if (navController.canNavigateBack) {
+                        if (entry.value.canIncrementPrevious) {
+                            BasicText(
+                                "increment previous",
+                                Modifier.clickable {
+                                    entry.value.incrementPrevious()
+                                },
+                            )
+                        }
+                        if (navController.canNavigateBack) {
+                            BasicText(
+                                "navigate back",
+                                Modifier.clickable {
+                                    navController.withExpectedActor(entry.id) {
+                                        popBackstack()
+                                    }
+                                },
+                            )
+                        }
                         BasicText(
-                            "navigate back",
+                            "navigate forward",
                             Modifier.clickable {
                                 navController.withExpectedActor(entry.id) {
-                                    popBackstack()
+                                    navigate(
+                                        valueFactory = { previous ->
+                                            TestPaneState(
+                                                previous = previous.value,
+                                            )
+                                        },
+                                    )
                                 }
                             },
                         )
                     }
-                    BasicText(
-                        "navigate forward",
-                        Modifier.clickable {
-                            navController.withExpectedActor(entry.id) {
-                                navigate(
-                                    valueFactory = { previous ->
-                                        TestPaneState(
-                                            previous = previous.value,
-                                        )
-                                    },
-                                )
-                            }
-                        },
-                    )
                 }
             }
+
+            onNodeWithText("count: 0").assertExists()
+            onNodeWithText("navigate back").assertDoesNotExist()
+            onNodeWithText("increment previous").assertDoesNotExist()
+
+            onNodeWithText("increment current").performClick()
+
+            onNodeWithText("count: 1").assertExists()
+
+            onNodeWithText("navigate forward").performClick()
+
+            onNodeWithText("count: 0").assertExists()
+            onNodeWithText("navigate back").assertExists()
+
+            stateRestorationTester.emulateStateRestore()
+
+            onNodeWithText("increment previous").performClick()
+
+            onNodeWithText("count: 0").assertExists()
+
+            onNodeWithText("navigate back").performClick()
+
+            onNodeWithText("count: 2").assertExists()
         }
-
-        onNodeWithText("count: 0").assertExists()
-        onNodeWithText("navigate back").assertDoesNotExist()
-        onNodeWithText("increment previous").assertDoesNotExist()
-
-        onNodeWithText("increment current").performClick()
-
-        onNodeWithText("count: 1").assertExists()
-
-        onNodeWithText("navigate forward").performClick()
-
-        onNodeWithText("count: 0").assertExists()
-        onNodeWithText("navigate back").assertExists()
-
-        stateRestorationTester.emulateStateRestore()
-
-        onNodeWithText("increment previous").performClick()
-
-        onNodeWithText("count: 0").assertExists()
-
-        onNodeWithText("navigate back").performClick()
-
-        onNodeWithText("count: 2").assertExists()
-    }
 }

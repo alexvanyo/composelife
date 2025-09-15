@@ -88,7 +88,8 @@ class FullscreenSettingsDetailPaneCtx(
     @Suppress("ComposableNaming")
     @Deprecated(
         "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
+        replaceWith =
+        ReplaceWith(
             "FullscreenSettingsDetailPane(fullscreenSettingsDetailPaneState, onBackButtonPressed, modifier)",
         ),
     )
@@ -107,7 +108,8 @@ class FullscreenSettingsDetailPaneCtx(
 
     companion object {
         private val lambda:
-            @Composable context(SettingUiCtx, PatternCollectionRepository) (
+            @Composable context(SettingUiCtx, PatternCollectionRepository)
+            (
                 fullscreenSettingsDetailPaneState: FullscreenSettingsDetailPaneState,
                 onBackButtonPressed: () -> Unit,
                 modifier: Modifier,
@@ -118,9 +120,9 @@ class FullscreenSettingsDetailPaneCtx(
     }
 }
 
-context(ctx: FullscreenSettingsDetailPaneCtx)
 @Suppress("DEPRECATION")
 @Composable
+context(ctx: FullscreenSettingsDetailPaneCtx)
 fun FullscreenSettingsDetailPane(
     fullscreenSettingsDetailPaneState: FullscreenSettingsDetailPaneState,
     onBackButtonPressed: () -> Unit,
@@ -128,11 +130,11 @@ fun FullscreenSettingsDetailPane(
 ) = ctx(fullscreenSettingsDetailPaneState, onBackButtonPressed, modifier)
 // endregion templated-ctx
 
+@Composable
 context(
     _: SettingUiCtx,
-_: PatternCollectionRepository,
+    _: PatternCollectionRepository,
 )
-@Composable
 private fun FullscreenSettingsDetailPane(
     fullscreenSettingsDetailPaneState: FullscreenSettingsDetailPaneState,
     onBackButtonPressed: () -> Unit,
@@ -141,7 +143,8 @@ private fun FullscreenSettingsDetailPane(
     SettingsCategoryDetail(
         settingsCategory = fullscreenSettingsDetailPaneState.settingsCategory,
         detailScrollState = rememberScrollState(),
-        showAppBar = !(
+        showAppBar =
+        !(
             fullscreenSettingsDetailPaneState.isDetailVisible &&
                 fullscreenSettingsDetailPaneState.isListVisible
             ),
@@ -152,13 +155,13 @@ private fun FullscreenSettingsDetailPane(
     )
 }
 
-context(
-    _: SettingUiCtx,
-_: PatternCollectionRepository,
-)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Suppress("LongMethod", "LongParameterList")
 @Composable
+context(
+    _: SettingUiCtx,
+    _: PatternCollectionRepository,
+)
 private fun SettingsCategoryDetail(
     settingsCategory: SettingsCategory,
     detailScrollState: ScrollState,
@@ -183,6 +186,7 @@ private fun SettingsCategoryDetail(
                 modifier = modifier,
             )
         }
+
         SettingsCategory.PatternCollections -> {
             PatternCollectionsDetail(
                 detailScrollState = detailScrollState,
@@ -196,10 +200,10 @@ private fun SettingsCategoryDetail(
     }
 }
 
-context(_: SettingUiCtx)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Suppress("LongMethod", "LongParameterList")
 @Composable
+context(_: SettingUiCtx)
 private fun StandardSettingsCategoryDetail(
     settingsCategory: SettingsCategory,
     detailScrollState: ScrollState,
@@ -224,20 +228,21 @@ private fun StandardSettingsCategoryDetail(
                     tonalElevation = elevation,
                 ) {
                     Box(
-                        modifier = Modifier
+                        modifier =
+                        Modifier
                             .fillMaxWidth()
                             .windowInsetsPadding(
                                 WindowInsets.safeDrawing.only(
                                     WindowInsetsSides.Horizontal + WindowInsetsSides.Top,
                                 ),
-                            )
-                            .height(64.dp),
+                            ).height(64.dp),
                     ) {
                         Box(
                             modifier = Modifier.align(Alignment.CenterStart),
                         ) {
                             TooltipBox(
-                                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                                positionProvider =
+                                TooltipDefaults.rememberTooltipPositionProvider(
                                     TooltipAnchorPosition.Above,
                                 ),
                                 tooltip = {
@@ -269,7 +274,8 @@ private fun StandardSettingsCategoryDetail(
 
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier
+                modifier =
+                Modifier
                     .then(
                         if (showAppBar) {
                             Modifier.consumeWindowInsets(
@@ -280,8 +286,7 @@ private fun StandardSettingsCategoryDetail(
                         } else {
                             Modifier
                         },
-                    )
-                    .imePadding()
+                    ).imePadding()
                     .verticalScroll(detailScrollState)
                     .safeDrawingPadding()
                     .padding(vertical = 16.dp),
@@ -291,12 +296,12 @@ private fun StandardSettingsCategoryDetail(
 
                     SettingUi(
                         setting = setting,
-                        modifier = Modifier
+                        modifier =
+                        Modifier
                             .padding(horizontal = 16.dp)
                             .onPlaced {
                                 layoutCoordinates = it
-                            }
-                            .trySharedBounds(
+                            }.trySharedBounds(
                                 key = "SettingUi-$setting",
                                 resizeMode = SharedTransitionScope.ResizeMode.RemeasureToBounds,
                             ),
@@ -319,13 +324,13 @@ private fun StandardSettingsCategoryDetail(
     }
 }
 
-context(
-    _: SettingUiCtx,
-patternCollectionRepository: PatternCollectionRepository,
-)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Suppress("LongMethod", "LongParameterList")
 @Composable
+context(
+    _: SettingUiCtx,
+    patternCollectionRepository: PatternCollectionRepository,
+)
 private fun PatternCollectionsDetail(
     detailScrollState: ScrollState,
     showAppBar: Boolean,
@@ -349,20 +354,21 @@ private fun PatternCollectionsDetail(
                     tonalElevation = elevation,
                 ) {
                     Box(
-                        modifier = Modifier
+                        modifier =
+                        Modifier
                             .fillMaxWidth()
                             .windowInsetsPadding(
                                 WindowInsets.safeDrawing.only(
                                     WindowInsetsSides.Horizontal + WindowInsetsSides.Top,
                                 ),
-                            )
-                            .height(64.dp),
+                            ).height(64.dp),
                     ) {
                         Box(
                             modifier = Modifier.align(Alignment.CenterStart),
                         ) {
                             TooltipBox(
-                                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                                positionProvider =
+                                TooltipDefaults.rememberTooltipPositionProvider(
                                     TooltipAnchorPosition.Above,
                                 ),
                                 tooltip = {
@@ -410,7 +416,8 @@ private fun PatternCollectionsDetail(
             ) {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .fillMaxSize()
                         .then(
                             if (showAppBar) {
@@ -422,8 +429,7 @@ private fun PatternCollectionsDetail(
                             } else {
                                 Modifier
                             },
-                        )
-                        .safeDrawingPadding()
+                        ).safeDrawingPadding()
                         .verticalScroll(detailScrollState)
                         .padding(vertical = 16.dp),
                 ) {
@@ -432,12 +438,12 @@ private fun PatternCollectionsDetail(
 
                         SettingUi(
                             setting = setting,
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .padding(horizontal = 16.dp)
                                 .onPlaced {
                                     layoutCoordinates = it
-                                }
-                                .trySharedBounds(
+                                }.trySharedBounds(
                                     key = "SettingUi-$setting",
                                     resizeMode = SharedTransitionScope.ResizeMode.RemeasureToBounds,
                                 ),

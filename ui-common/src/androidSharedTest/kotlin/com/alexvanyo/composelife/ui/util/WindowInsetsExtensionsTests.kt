@@ -22,7 +22,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class WindowInsetsExtensionsTests {
-
     @Test
     fun zero_is_correct() {
         assertEquals(

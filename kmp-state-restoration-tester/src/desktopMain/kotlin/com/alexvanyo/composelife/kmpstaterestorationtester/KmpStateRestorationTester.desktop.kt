@@ -28,7 +28,6 @@ private class RestorationRegistryImpl(
     private val originalSaveableStateRegistry: SaveableStateRegistry,
     private val retainedStateRegistry: RetainedStateRegistry,
 ) : RestorationRegistry {
-
     override var shouldEmitChildren by mutableStateOf(true)
         private set
     private var currentRegistry: SaveableStateRegistry = originalSaveableStateRegistry
@@ -41,10 +40,11 @@ private class RestorationRegistryImpl(
     }
 
     override fun emitChildrenWithRestoredState() {
-        currentRegistry = SaveableStateRegistry(
-            restoredValues = savedMap,
-            canBeSaved = { originalSaveableStateRegistry.canBeSaved(it) },
-        )
+        currentRegistry =
+            SaveableStateRegistry(
+                restoredValues = savedMap,
+                canBeSaved = { originalSaveableStateRegistry.canBeSaved(it) },
+            )
         shouldEmitChildren = true
     }
 
@@ -57,11 +57,9 @@ private class RestorationRegistryImpl(
 
     override fun performSave() = currentRegistry.performSave()
 
-    override fun consumeValue(key: String): Any? =
-        retainedStateRegistry.consumeValue(key)
+    override fun consumeValue(key: String): Any? = retainedStateRegistry.consumeValue(key)
 
-    override fun forgetUnclaimedValues() =
-        retainedStateRegistry.forgetUnclaimedValues()
+    override fun forgetUnclaimedValues() = retainedStateRegistry.forgetUnclaimedValues()
 
     override fun registerValue(key: String, valueProvider: RetainedValueProvider): RetainedStateRegistry.Entry =
         retainedStateRegistry.registerValue(key, valueProvider)

@@ -30,7 +30,6 @@ import kotlin.test.assertTrue
 
 @RunWith(TestParameterInjector::class)
 class SerializerTests {
-
     class CellStateSerializerFactory(
         private val name: String,
         val trueEquals: Boolean,

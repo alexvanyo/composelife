@@ -27,197 +27,217 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class PowerableUpdatableTests {
+    @Test
+    fun powered_block_does_not_run() =
+        runTest {
+            val runningEvents = Channel<Boolean>(capacity = Channel.UNLIMITED)
+
+            val powerableUpdatable =
+                PowerableUpdatable {
+                    runningEvents.trySend(true)
+                    try {
+                        awaitCancellation()
+                    } finally {
+                        runningEvents.trySend(false)
+                    }
+                }
+
+            runningEvents.receiveAsFlow().test {
+                val updateJob =
+                    launch {
+                        powerableUpdatable.update()
+                    }
+
+                delay(100)
+                expectNoEvents()
+
+                cancel()
+                updateJob.cancel()
+            }
+        }
 
     @Test
-    fun powered_block_does_not_run() = runTest {
-        val runningEvents = Channel<Boolean>(capacity = Channel.UNLIMITED)
+    fun powered_and_pressed_block_runs() =
+        runTest {
+            val runningEvents = Channel<Boolean>(capacity = Channel.UNLIMITED)
 
-        val powerableUpdatable = PowerableUpdatable {
-            runningEvents.trySend(true)
-            try {
-                awaitCancellation()
-            } finally {
-                runningEvents.trySend(false)
+            val powerableUpdatable =
+                PowerableUpdatable {
+                    runningEvents.trySend(true)
+                    try {
+                        awaitCancellation()
+                    } finally {
+                        runningEvents.trySend(false)
+                    }
+                }
+
+            runningEvents.receiveAsFlow().test {
+                val updateJob =
+                    launch {
+                        powerableUpdatable.update()
+                    }
+
+                expectNoEvents()
+
+                val pressJob =
+                    launch {
+                        powerableUpdatable.press()
+                    }
+
+                assertEquals(true, awaitItem())
+                expectNoEvents()
+
+                pressJob.cancel()
+                assertEquals(false, awaitItem())
+                expectNoEvents()
+
+                cancel()
+                updateJob.cancel()
             }
         }
-
-        runningEvents.receiveAsFlow().test {
-            val updateJob = launch {
-                powerableUpdatable.update()
-            }
-
-            delay(100)
-            expectNoEvents()
-
-            cancel()
-            updateJob.cancel()
-        }
-    }
 
     @Test
-    fun powered_and_pressed_block_runs() = runTest {
-        val runningEvents = Channel<Boolean>(capacity = Channel.UNLIMITED)
+    fun powered_and_pressed_block_runs_once() =
+        runTest {
+            val runningEvents = Channel<Boolean>(capacity = Channel.UNLIMITED)
 
-        val powerableUpdatable = PowerableUpdatable {
-            runningEvents.trySend(true)
-            try {
-                awaitCancellation()
-            } finally {
-                runningEvents.trySend(false)
+            val powerableUpdatable =
+                PowerableUpdatable {
+                    runningEvents.trySend(true)
+                    try {
+                        awaitCancellation()
+                    } finally {
+                        runningEvents.trySend(false)
+                    }
+                }
+
+            runningEvents.receiveAsFlow().test {
+                val updateJob =
+                    launch {
+                        powerableUpdatable.update()
+                    }
+
+                expectNoEvents()
+
+                val pressJob1 =
+                    launch {
+                        powerableUpdatable.press()
+                    }
+
+                assertEquals(true, awaitItem())
+                expectNoEvents()
+
+                val pressJob2 =
+                    launch {
+                        powerableUpdatable.press()
+                    }
+
+                expectNoEvents()
+
+                pressJob1.cancel()
+
+                expectNoEvents()
+
+                pressJob2.cancel()
+
+                assertEquals(false, awaitItem())
+                expectNoEvents()
+
+                cancel()
+                updateJob.cancel()
             }
         }
-
-        runningEvents.receiveAsFlow().test {
-            val updateJob = launch {
-                powerableUpdatable.update()
-            }
-
-            expectNoEvents()
-
-            val pressJob = launch {
-                powerableUpdatable.press()
-            }
-
-            assertEquals(true, awaitItem())
-            expectNoEvents()
-
-            pressJob.cancel()
-            assertEquals(false, awaitItem())
-            expectNoEvents()
-
-            cancel()
-            updateJob.cancel()
-        }
-    }
 
     @Test
-    fun powered_and_pressed_block_runs_once() = runTest {
-        val runningEvents = Channel<Boolean>(capacity = Channel.UNLIMITED)
+    fun powered_and_unpowered_runs_block_twice_when_still_pressed() =
+        runTest {
+            val runningEvents = Channel<Boolean>(capacity = Channel.UNLIMITED)
 
-        val powerableUpdatable = PowerableUpdatable {
-            runningEvents.trySend(true)
-            try {
-                awaitCancellation()
-            } finally {
-                runningEvents.trySend(false)
+            val powerableUpdatable =
+                PowerableUpdatable {
+                    runningEvents.trySend(true)
+                    try {
+                        awaitCancellation()
+                    } finally {
+                        runningEvents.trySend(false)
+                    }
+                }
+
+            runningEvents.receiveAsFlow().test {
+                val updateJob1 =
+                    launch {
+                        powerableUpdatable.update()
+                    }
+
+                val updateJob2 =
+                    launch {
+                        powerableUpdatable.update()
+                    }
+
+                expectNoEvents()
+
+                val pressJob =
+                    launch {
+                        powerableUpdatable.press()
+                    }
+
+                assertEquals(true, awaitItem())
+                expectNoEvents()
+
+                updateJob1.cancel()
+
+                assertEquals(false, awaitItem())
+                assertEquals(true, awaitItem())
+                expectNoEvents()
+
+                pressJob.cancel()
+
+                assertEquals(false, awaitItem())
+                expectNoEvents()
+
+                cancel()
+                updateJob2.cancel()
             }
         }
-
-        runningEvents.receiveAsFlow().test {
-            val updateJob = launch {
-                powerableUpdatable.update()
-            }
-
-            expectNoEvents()
-
-            val pressJob1 = launch {
-                powerableUpdatable.press()
-            }
-
-            assertEquals(true, awaitItem())
-            expectNoEvents()
-
-            val pressJob2 = launch {
-                powerableUpdatable.press()
-            }
-
-            expectNoEvents()
-
-            pressJob1.cancel()
-
-            expectNoEvents()
-
-            pressJob2.cancel()
-
-            assertEquals(false, awaitItem())
-            expectNoEvents()
-
-            cancel()
-            updateJob.cancel()
-        }
-    }
 
     @Test
-    fun powered_and_unpowered_runs_block_twice_when_still_pressed() = runTest {
-        val runningEvents = Channel<Boolean>(capacity = Channel.UNLIMITED)
+    fun pressed_and_powered_runs_block() =
+        runTest {
+            val runningEvents = Channel<Boolean>(capacity = Channel.UNLIMITED)
 
-        val powerableUpdatable = PowerableUpdatable {
-            runningEvents.trySend(true)
-            try {
-                awaitCancellation()
-            } finally {
-                runningEvents.trySend(false)
+            val powerableUpdatable =
+                PowerableUpdatable {
+                    runningEvents.trySend(true)
+                    try {
+                        awaitCancellation()
+                    } finally {
+                        runningEvents.trySend(false)
+                    }
+                }
+
+            runningEvents.receiveAsFlow().test {
+                val pressJob =
+                    launch {
+                        powerableUpdatable.press()
+                    }
+
+                expectNoEvents()
+
+                val updateJob =
+                    launch {
+                        powerableUpdatable.update()
+                    }
+
+                assertEquals(true, awaitItem())
+                expectNoEvents()
+
+                pressJob.cancel()
+
+                assertEquals(false, awaitItem())
+                expectNoEvents()
+
+                cancel()
+                updateJob.cancel()
             }
         }
-
-        runningEvents.receiveAsFlow().test {
-            val updateJob1 = launch {
-                powerableUpdatable.update()
-            }
-
-            val updateJob2 = launch {
-                powerableUpdatable.update()
-            }
-
-            expectNoEvents()
-
-            val pressJob = launch {
-                powerableUpdatable.press()
-            }
-
-            assertEquals(true, awaitItem())
-            expectNoEvents()
-
-            updateJob1.cancel()
-
-            assertEquals(false, awaitItem())
-            assertEquals(true, awaitItem())
-            expectNoEvents()
-
-            pressJob.cancel()
-
-            assertEquals(false, awaitItem())
-            expectNoEvents()
-
-            cancel()
-            updateJob2.cancel()
-        }
-    }
-
-    @Test
-    fun pressed_and_powered_runs_block() = runTest {
-        val runningEvents = Channel<Boolean>(capacity = Channel.UNLIMITED)
-
-        val powerableUpdatable = PowerableUpdatable {
-            runningEvents.trySend(true)
-            try {
-                awaitCancellation()
-            } finally {
-                runningEvents.trySend(false)
-            }
-        }
-
-        runningEvents.receiveAsFlow().test {
-            val pressJob = launch {
-                powerableUpdatable.press()
-            }
-
-            expectNoEvents()
-
-            val updateJob = launch {
-                powerableUpdatable.update()
-            }
-
-            assertEquals(true, awaitItem())
-            expectNoEvents()
-
-            pressJob.cancel()
-
-            assertEquals(false, awaitItem())
-            expectNoEvents()
-
-            cancel()
-            updateJob.cancel()
-        }
-    }
 }

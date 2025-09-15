@@ -49,35 +49,39 @@ data class LoadedComposeLifePreferences(
 
         internal val defaultPatternCollectionsSynchronizationPeriodValueId = Uuid.random()
 
-        val Defaults = LoadedComposeLifePreferences(
-            quickAccessSettings = emptySet(),
-            algorithmChoice = AlgorithmType.HashLifeAlgorithm,
-            currentShapeType = CurrentShapeType.RoundRectangle,
-            roundRectangleSessionValue = SessionValue(
-                sessionId = defaultRoundRectangleSessionId,
-                valueId = defaultRoundRectangleValueId,
-                value = CurrentShape.RoundRectangle(
-                    sizeFraction = 1f,
-                    cornerFraction = 0f,
+        val Defaults =
+            LoadedComposeLifePreferences(
+                quickAccessSettings = emptySet(),
+                algorithmChoice = AlgorithmType.HashLifeAlgorithm,
+                currentShapeType = CurrentShapeType.RoundRectangle,
+                roundRectangleSessionValue =
+                SessionValue(
+                    sessionId = defaultRoundRectangleSessionId,
+                    valueId = defaultRoundRectangleValueId,
+                    value =
+                    CurrentShape.RoundRectangle(
+                        sizeFraction = 1f,
+                        cornerFraction = 0f,
+                    ),
                 ),
-            ),
-            darkThemeConfig = DarkThemeConfig.FollowSystem,
-            disableAGSL = false,
-            disableOpenGL = false,
-            doNotKeepProcess = false,
-            touchToolConfig = ToolConfig.Pan,
-            stylusToolConfig = ToolConfig.Draw,
-            mouseToolConfig = ToolConfig.Draw,
-            completedClipboardWatchingOnboarding = false,
-            enableClipboardWatching = false,
-            synchronizePatternCollectionsOnMeteredNetwork = false,
-            patternCollectionsSynchronizationPeriodSessionValue = SessionValue(
-                sessionId = defaultPatternCollectionsSynchronizationPeriodSessionId,
-                valueId = defaultPatternCollectionsSynchronizationPeriodValueId,
-                value = DateTimePeriod(hours = 24),
-            ),
-            enableWindowShapeClipping = false,
-        )
+                darkThemeConfig = DarkThemeConfig.FollowSystem,
+                disableAGSL = false,
+                disableOpenGL = false,
+                doNotKeepProcess = false,
+                touchToolConfig = ToolConfig.Pan,
+                stylusToolConfig = ToolConfig.Draw,
+                mouseToolConfig = ToolConfig.Draw,
+                completedClipboardWatchingOnboarding = false,
+                enableClipboardWatching = false,
+                synchronizePatternCollectionsOnMeteredNetwork = false,
+                patternCollectionsSynchronizationPeriodSessionValue =
+                SessionValue(
+                    sessionId = defaultPatternCollectionsSynchronizationPeriodSessionId,
+                    valueId = defaultPatternCollectionsSynchronizationPeriodValueId,
+                    value = DateTimePeriod(hours = 24),
+                ),
+                enableWindowShapeClipping = false,
+            )
     }
 }
 

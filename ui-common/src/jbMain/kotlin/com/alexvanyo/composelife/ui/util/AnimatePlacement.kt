@@ -73,27 +73,29 @@ fun Modifier.animatePlacement(
         mutableStateOf<Animatable<IntOffset, AnimationVector2D>?>(null)
     }
     val layoutDirection = LocalLayoutDirection.current
-    val layoutDirectionAwareScope = remember(layoutDirection) {
-        object : LayoutDirectionAwareScope {
-            override val layoutDirection = layoutDirection
+    val layoutDirectionAwareScope =
+        remember(layoutDirection) {
+            object : LayoutDirectionAwareScope {
+                override val layoutDirection = layoutDirection
+            }
         }
-    }
     return this
         .onPlaced { layoutCoordinates ->
             with(layoutDirectionAwareScope) {
                 // Calculate the alignment coordinate of this node in the parent coordinates, and calculate the offset
                 // from that to the fixed point in the parent
                 val currentFixedPoint = fixedPoint(layoutCoordinates)
-                val currentParentFixedPoint = parentFixedPoint(
-                    requireNotNull(layoutCoordinates.parentLayoutCoordinates),
-                )
+                val currentParentFixedPoint =
+                    parentFixedPoint(
+                        requireNotNull(layoutCoordinates.parentLayoutCoordinates),
+                    )
                 targetOffset = currentFixedPoint - currentParentFixedPoint
             }
-        }
-        .offset {
+        }.offset {
             // Animate to the new target offset when alignment changes.
-            val anim = animatable ?: Animatable(targetOffset, IntOffset.VectorConverter)
-                .also { animatable = it }
+            val anim =
+                animatable ?: Animatable(targetOffset, IntOffset.VectorConverter)
+                    .also { animatable = it }
             if (anim.targetValue != targetOffset) {
                 scope.launch {
                     anim.animateTo(targetOffset, animationSpec)

@@ -24,10 +24,7 @@ sealed interface CurrentShape {
     val type: CurrentShapeType
 
     @Serializable
-    data class RoundRectangle(
-        val sizeFraction: Float,
-        val cornerFraction: Float,
-    ) : CurrentShape {
+    data class RoundRectangle(val sizeFraction: Float, val cornerFraction: Float) : CurrentShape {
         override val type: CurrentShapeType = CurrentShapeType.RoundRectangle
     }
 }

@@ -22,8 +22,7 @@ import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.then
 import androidx.compose.ui.text.input.KeyboardType
 
-fun InputTransformation.nonNegativeLong(): InputTransformation =
-    this.trimWhitespace().then(NonNegativeLong)
+fun InputTransformation.nonNegativeLong(): InputTransformation = this.trimWhitespace().then(NonNegativeLong)
 
 private object NonNegativeLong : InputTransformation {
     override val keyboardOptions: KeyboardOptions =

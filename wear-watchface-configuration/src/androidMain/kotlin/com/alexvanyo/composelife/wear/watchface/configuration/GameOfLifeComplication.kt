@@ -33,28 +33,32 @@ import com.livefront.sealedenum.GenSealedEnum
 
 sealed class GameOfLifeComplication(
     val id: Int,
-    val supportedTypes: List<ComplicationType> = listOf(
-        ComplicationType.EMPTY,
-        ComplicationType.NO_DATA,
-        ComplicationType.RANGED_VALUE,
-        ComplicationType.MONOCHROMATIC_IMAGE,
-        ComplicationType.SHORT_TEXT,
-        ComplicationType.SMALL_IMAGE,
-    ),
+    val supportedTypes: List<ComplicationType> =
+        listOf(
+            ComplicationType.EMPTY,
+            ComplicationType.NO_DATA,
+            ComplicationType.RANGED_VALUE,
+            ComplicationType.MONOCHROMATIC_IMAGE,
+            ComplicationType.SHORT_TEXT,
+            ComplicationType.SMALL_IMAGE,
+        ),
     val defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
     val rawBounds: Rect,
 ) {
-    val bounds: ComplicationSlotBounds = ComplicationSlotBounds(
-        rawBounds.toAndroidRectF(),
-    )
+    val bounds: ComplicationSlotBounds =
+        ComplicationSlotBounds(
+            rawBounds.toAndroidRectF(),
+        )
 
     data object TopLeft : GameOfLifeComplication(
         id = 0,
-        defaultDataSourcePolicy = DefaultComplicationDataSourcePolicy(
+        defaultDataSourcePolicy =
+        DefaultComplicationDataSourcePolicy(
             SystemDataSources.DATA_SOURCE_DATE,
             ComplicationType.SHORT_TEXT,
         ),
-        rawBounds = Rect(
+        rawBounds =
+        Rect(
             0.25f,
             0.10f,
             0.45f,
@@ -64,11 +68,13 @@ sealed class GameOfLifeComplication(
 
     data object TopRight : GameOfLifeComplication(
         id = 1,
-        defaultDataSourcePolicy = DefaultComplicationDataSourcePolicy(
+        defaultDataSourcePolicy =
+        DefaultComplicationDataSourcePolicy(
             SystemDataSources.DATA_SOURCE_DAY_OF_WEEK,
             ComplicationType.SHORT_TEXT,
         ),
-        rawBounds = Rect(
+        rawBounds =
+        Rect(
             0.55f,
             0.1f,
             0.75f,
@@ -78,11 +84,13 @@ sealed class GameOfLifeComplication(
 
     data object BottomLeft : GameOfLifeComplication(
         id = 2,
-        defaultDataSourcePolicy = DefaultComplicationDataSourcePolicy(
+        defaultDataSourcePolicy =
+        DefaultComplicationDataSourcePolicy(
             SystemDataSources.DATA_SOURCE_WATCH_BATTERY,
             ComplicationType.RANGED_VALUE,
         ),
-        rawBounds = Rect(
+        rawBounds =
+        Rect(
             0.25f,
             0.7f,
             0.45f,
@@ -92,11 +100,13 @@ sealed class GameOfLifeComplication(
 
     data object BottomRight : GameOfLifeComplication(
         id = 3,
-        defaultDataSourcePolicy = DefaultComplicationDataSourcePolicy(
+        defaultDataSourcePolicy =
+        DefaultComplicationDataSourcePolicy(
             SystemDataSources.DATA_SOURCE_UNREAD_NOTIFICATION_COUNT,
             ComplicationType.MONOCHROMATIC_IMAGE,
         ),
-        rawBounds = Rect(
+        rawBounds =
+        Rect(
             0.55f,
             0.7f,
             0.75f,
@@ -112,13 +122,14 @@ fun createGameOfLifeComplicationSlotsManager(
     context: Context,
     currentUserStyleRepository: CurrentUserStyleRepository,
 ): ComplicationSlotsManager {
-    val canvasComplicationFactory = CanvasComplicationFactory { watchState, invalidateCallback ->
-        CanvasComplicationDrawable(
-            drawable = checkNotNull(ComplicationDrawable.getDrawable(context, R.drawable.complication_style)),
-            watchState = watchState,
-            invalidateCallback = invalidateCallback,
-        )
-    }
+    val canvasComplicationFactory =
+        CanvasComplicationFactory { watchState, invalidateCallback ->
+            CanvasComplicationDrawable(
+                drawable = checkNotNull(ComplicationDrawable.getDrawable(context, R.drawable.complication_style)),
+                watchState = watchState,
+                invalidateCallback = invalidateCallback,
+            )
+        }
 
     return ComplicationSlotsManager(
         GameOfLifeComplication.values.map { gameOfLifeComplication ->
@@ -129,8 +140,7 @@ fun createGameOfLifeComplicationSlotsManager(
                     supportedTypes = gameOfLifeComplication.supportedTypes,
                     defaultDataSourcePolicy = gameOfLifeComplication.defaultDataSourcePolicy,
                     bounds = gameOfLifeComplication.bounds,
-                )
-                .build()
+                ).build()
         },
         currentUserStyleRepository,
     )

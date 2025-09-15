@@ -37,28 +37,24 @@ fun floor(offset: Offset): IntOffset = IntOffset(floor(offset.x).toInt(), floor(
  * [IntOffset].
  */
 @Stable
-fun IntOffset.chebyshevDistance(): Int =
-    max(abs(x), abs(y))
+fun IntOffset.chebyshevDistance(): Int = max(abs(x), abs(y))
 
 /**
  * Calculates the [Manhattan distance](https://en.wikipedia.org/wiki/Taxicab_geometry) represented by this
  * [IntOffset].
  */
 @Stable
-fun IntOffset.manhattanDistance(): Int =
-    abs(x) + abs(y)
+fun IntOffset.manhattanDistance(): Int = abs(x) + abs(y)
 
 /**
  * Calculates the [Euclidean distance](https://en.wikipedia.org/wiki/Euclidean_distance) represented by this
  * [IntOffset].
  */
 @Stable
-fun IntOffset.euclideanDistance(): Float =
-    toOffset().getDistance()
+fun IntOffset.euclideanDistance(): Float = toOffset().getDistance()
 
 context(density: Density)
-fun DpOffset.toPx(): Offset =
-    with(density) { Offset(x.toPx(), y.toPx()) }
+fun DpOffset.toPx(): Offset = with(density) { Offset(x.toPx(), y.toPx()) }
 
 /**
  * Maps an [IntOffset] into an [Int] to enumerate the 2d plane.
@@ -145,13 +141,14 @@ fun IntOffset.toPair() = x to y
  */
 fun IntOffset.getNeighbors(): Set<IntOffset> = neighborOffsets.map { it + this }.toSet()
 
-private val neighborOffsets = listOf(
-    IntOffset(-1, -1),
-    IntOffset(0, -1),
-    IntOffset(1, -1),
-    IntOffset(-1, 0),
-    IntOffset(1, 0),
-    IntOffset(-1, 1),
-    IntOffset(0, 1),
-    IntOffset(1, 1),
-)
+private val neighborOffsets =
+    listOf(
+        IntOffset(-1, -1),
+        IntOffset(0, -1),
+        IntOffset(1, -1),
+        IntOffset(-1, 0),
+        IntOffset(1, 0),
+        IntOffset(-1, 1),
+        IntOffset(0, 1),
+        IntOffset(1, 1),
+    )

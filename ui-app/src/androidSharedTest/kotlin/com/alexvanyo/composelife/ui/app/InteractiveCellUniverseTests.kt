@@ -118,9 +118,10 @@ val UiGraph.interactiveCellUniverseTestsUiCtx: InteractiveCellUniverseTestsUiCtx
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
-class InteractiveCellUniverseTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
+class InteractiveCellUniverseTests :
+    BaseUiInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
     private val ctx get() = applicationGraph.interactiveCellUniverseTestsAppCtx
 
     private val generalTestDispatcher get() = ctx.generalTestDispatcher
@@ -132,794 +133,813 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
     private val dispatchers get() = ctx.dispatchers
 
     @Test
-    fun info_card_closes_upon_back_press() = runUiTest { uiGraph ->
-        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
-
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            resolver = parameterizedStringResolver()
-            val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
-                isRunning = false,
-                targetStepsPerSecond = 60.0,
-            )
-
-            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                clock = cellTickerTestDispatcher.scheduler.clock,
-                dispatchers = dispatchers,
-            )
-
-            LaunchedEffect(temporalGameOfLifeStateMutator) {
-                temporalGameOfLifeStateMutator.update()
-            }
-
-            with(uiCtx.interactiveCellUniverseCtx) {
-                InteractiveCellUniverse(
-                    temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                    onSeeMoreSettingsClicked = {},
-                    onOpenInSettingsClicked = {},
-                    onViewDeserializationInfo = {},
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
-        }
-
-        onNode(
-            hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                hasContentDescription(resolver.invoke(Strings.Expand)),
-        )
-            .performClick()
-
-        generalTestDispatcher.scheduler.advanceUntilIdle()
-        waitForIdle()
-
-        Espresso.pressBack()
-
-        onNodeWithContentDescription(resolver.invoke(Strings.Collapse))
-            .assertDoesNotExist()
-    }
-
-    @Test
-    fun action_card_closes_upon_back_press() = runUiTest { uiGraph ->
-        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
-
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            resolver = parameterizedStringResolver()
-            val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
-                isRunning = false,
-                targetStepsPerSecond = 60.0,
-            )
-
-            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                clock = cellTickerTestDispatcher.scheduler.clock,
-                dispatchers = dispatchers,
-            )
-
-            LaunchedEffect(temporalGameOfLifeStateMutator) {
-                temporalGameOfLifeStateMutator.update()
-            }
-
-            with(uiCtx.interactiveCellUniverseCtx) {
-                InteractiveCellUniverse(
-                    temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                    onSeeMoreSettingsClicked = {},
-                    onOpenInSettingsClicked = {},
-                    onViewDeserializationInfo = {},
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
-        }
-
-        onNode(
-            hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                hasContentDescription(resolver.invoke(Strings.Expand)),
-        )
-            .performClick()
-
-        generalTestDispatcher.scheduler.advanceUntilIdle()
-        waitForIdle()
-
-        Espresso.pressBack()
-
-        onNodeWithContentDescription(resolver.invoke(Strings.Collapse))
-            .assertDoesNotExist()
-    }
-
-    @Test
-    fun six_long_line_evolves_correctly() = runUiTest(
-        generalTestDispatcher,
-        120.seconds,
-    ) { uiGraph ->
-        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
-
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            resolver = parameterizedStringResolver()
-            val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
-                targetStepsPerSecond = 60.0,
-            )
-
-            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                clock = cellTickerTestDispatcher.scheduler.clock,
-                dispatchers = dispatchers,
-            )
-
-            LaunchedEffect(temporalGameOfLifeStateMutator) {
-                temporalGameOfLifeStateMutator.update()
-            }
-
-            with(uiCtx.interactiveCellUniverseCtx) {
-                InteractiveCellUniverse(
-                    temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                    onSeeMoreSettingsClicked = {},
-                    onOpenInSettingsClicked = {},
-                    onViewDeserializationInfo = {},
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
-        }
-
-        onNodeWithContentDescription(resolver.invoke(Strings.Pause))
-            .performClick()
-
-        SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
-            scrollToCell(cell)
-
-            onNodeWithContentDescription(
-                resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
-            )
-                .performTouchInput { click(topLeft) }
-        }
-
-        onNodeWithContentDescription(resolver.invoke(Strings.Play))
-            .performClick()
-
-        SixLongLinePattern.cellStates.forEach { expectedCellState ->
-            generalTestDispatcher.scheduler.advanceUntilIdle()
-            waitForIdle()
-            cellTickerTestDispatcher.scheduler.advanceTimeBy(17)
-            cellTickerTestDispatcher.scheduler.runCurrent()
-            generalTestDispatcher.scheduler.advanceUntilIdle()
-            waitForIdle()
-
-            assertNodesAreAlive(resolver, expectedCellState.aliveCells)
-        }
-    }
-
-    @Test
-    fun six_long_line_evolves_correctly_with_spacebar() = runUiTest(
-        generalTestDispatcher,
-        120.seconds,
-    ) { uiGraph ->
-        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
-
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            resolver = parameterizedStringResolver()
-            val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
-                targetStepsPerSecond = 60.0,
-            )
-
-            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                clock = cellTickerTestDispatcher.scheduler.clock,
-                dispatchers = dispatchers,
-            )
-
-            LaunchedEffect(temporalGameOfLifeStateMutator) {
-                temporalGameOfLifeStateMutator.update()
-            }
-
-            with(uiCtx.interactiveCellUniverseCtx) {
-                InteractiveCellUniverse(
-                    temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                    onSeeMoreSettingsClicked = {},
-                    onOpenInSettingsClicked = {},
-                    onViewDeserializationInfo = {},
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
-        }
-
-        onRoot()
-            .performKeyInput {
-                pressKey(Key.Spacebar)
-            }
-
-        SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
-            scrollToCell(cell)
-
-            onNodeWithContentDescription(
-                resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
-            )
-                .performTouchInput { click(topLeft) }
-        }
-
-        onRoot()
-            .performKeyInput {
-                pressKey(Key.Spacebar)
-            }
-
-        SixLongLinePattern.cellStates.forEach { expectedCellState ->
-            generalTestDispatcher.scheduler.advanceUntilIdle()
-            waitForIdle()
-            cellTickerTestDispatcher.scheduler.advanceTimeBy(17)
-            cellTickerTestDispatcher.scheduler.runCurrent()
-            generalTestDispatcher.scheduler.advanceUntilIdle()
-            waitForIdle()
-
-            assertNodesAreAlive(resolver, expectedCellState.aliveCells)
-        }
-    }
-
-    @Test
-    fun six_long_line_evolves_correctly_after_slowing_down() = runUiTest(
-        generalTestDispatcher,
-        120.seconds,
-    ) { uiGraph ->
-        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
-
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            resolver = parameterizedStringResolver()
-            val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
-                targetStepsPerSecond = 60.0,
-            )
-
-            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                clock = cellTickerTestDispatcher.scheduler.clock,
-                dispatchers = dispatchers,
-            )
-
-            LaunchedEffect(temporalGameOfLifeStateMutator) {
-                temporalGameOfLifeStateMutator.update()
-            }
-
-            with(uiCtx.interactiveCellUniverseCtx) {
-                InteractiveCellUniverse(
-                    temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                    onSeeMoreSettingsClicked = {},
-                    onOpenInSettingsClicked = {},
-                    onViewDeserializationInfo = {},
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
-        }
-
-        onNodeWithContentDescription(resolver.invoke(Strings.Pause))
-            .performClick()
-
-        SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
-            scrollToCell(cell)
-
-            onNodeWithContentDescription(
-                resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
-            )
-                .performTouchInput { click(topLeft) }
-        }
-
-        onNode(
-            hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                hasContentDescription(resolver.invoke(Strings.Expand)),
-        )
-            .performClick()
-
-        onNodeWithContentDescription(resolver.invoke(Strings.TargetStepsPerSecondLabelAndValue(60.0)))
-            .performSemanticsAction(SemanticsActions.SetProgress) { it(0f) }
-
-        onNodeWithContentDescription(resolver.invoke(Strings.Play))
-            .performClick()
-
-        onNode(
-            hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                hasContentDescription(resolver.invoke(Strings.Collapse)),
-        )
-            .performClick()
-
-        SixLongLinePattern.cellStates.forEach { expectedCellState ->
-            generalTestDispatcher.scheduler.advanceUntilIdle()
-            waitForIdle()
-            cellTickerTestDispatcher.scheduler.advanceTimeBy(1000)
-            cellTickerTestDispatcher.scheduler.runCurrent()
-            generalTestDispatcher.scheduler.advanceUntilIdle()
-            waitForIdle()
-
-            assertNodesAreAlive(resolver, expectedCellState.aliveCells)
-        }
-    }
-
-    @Test
-    fun six_long_line_evolves_correctly_with_step() = runUiTest(
-        generalTestDispatcher,
-        120.seconds,
-    ) { uiGraph ->
-        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
-
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            resolver = parameterizedStringResolver()
-            val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
-                targetStepsPerSecond = 0.001,
-            )
-
-            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                clock = cellTickerTestDispatcher.scheduler.clock,
-                dispatchers = dispatchers,
-            )
-
-            LaunchedEffect(temporalGameOfLifeStateMutator) {
-                temporalGameOfLifeStateMutator.update()
-            }
-
-            with(uiCtx.interactiveCellUniverseCtx) {
-                InteractiveCellUniverse(
-                    temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                    onSeeMoreSettingsClicked = {},
-                    onOpenInSettingsClicked = {},
-                    onViewDeserializationInfo = {},
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
-        }
-
-        onNodeWithContentDescription(resolver.invoke(Strings.Pause))
-            .performClick()
-
-        SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
-            scrollToCell(cell)
-
-            onNodeWithContentDescription(
-                resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
-            )
-                .performTouchInput { click(topLeft) }
-        }
-
-        SixLongLinePattern.cellStates.forEach { expectedCellState ->
-            onNodeWithContentDescription(resolver.invoke(Strings.Step))
-                .performClick()
-
-            generalTestDispatcher.scheduler.advanceUntilIdle()
-            waitForIdle()
-
-            assertNodesAreAlive(resolver, expectedCellState.aliveCells)
-        }
-    }
-
-    @Test
-    fun six_long_line_evolves_correctly_with_double_step_via_slider() = runUiTest(
-        generalTestDispatcher,
-        120.seconds,
-    ) { uiGraph ->
-        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
-
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            resolver = parameterizedStringResolver()
-            val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
-                targetStepsPerSecond = 0.001,
-            )
-
-            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                clock = cellTickerTestDispatcher.scheduler.clock,
-                dispatchers = dispatchers,
-            )
-
-            LaunchedEffect(temporalGameOfLifeStateMutator) {
-                temporalGameOfLifeStateMutator.update()
-            }
-            with(uiCtx.interactiveCellUniverseCtx) {
-                InteractiveCellUniverse(
-                    temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                    onSeeMoreSettingsClicked = {},
-                    onOpenInSettingsClicked = {},
-                    onViewDeserializationInfo = {},
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
-        }
-
-        onNodeWithContentDescription(resolver.invoke(Strings.Pause))
-            .performClick()
-
-        SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
-            scrollToCell(cell)
-
-            onNodeWithContentDescription(
-                resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
-            )
-                .performTouchInput { click(topLeft) }
-        }
-
-        onNode(
-            hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                hasContentDescription(resolver.invoke(Strings.Expand)),
-        )
-            .performClick()
-
-        onNodeWithContentDescription(resolver.invoke(Strings.GenerationsPerStepLabelAndValue(1)))
-            .performSemanticsAction(SemanticsActions.SetProgress) { it(1f) }
-
-        onNode(
-            hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                hasContentDescription(resolver.invoke(Strings.Collapse)),
-        )
-            .performClick()
-
-        SixLongLinePattern.cellStates.filterIndexed { index, _ -> index.rem(2) == 1 }.forEach { expectedCellState ->
-            onNodeWithContentDescription(resolver.invoke(Strings.Step))
-                .performClick()
-
-            generalTestDispatcher.scheduler.advanceUntilIdle()
-            waitForIdle()
-
-            assertNodesAreAlive(resolver, expectedCellState.aliveCells)
-        }
-    }
-
-    @Test
-    fun six_long_line_evolves_correctly_with_double_step_via_text() = runUiTest(
-        generalTestDispatcher,
-        120.seconds,
-    ) { uiGraph ->
-        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
-
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            resolver = parameterizedStringResolver()
-            val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
-                targetStepsPerSecond = 0.001,
-            )
-
-            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                clock = cellTickerTestDispatcher.scheduler.clock,
-                dispatchers = dispatchers,
-            )
-
-            LaunchedEffect(temporalGameOfLifeStateMutator) {
-                temporalGameOfLifeStateMutator.update()
-            }
-            with(uiCtx.interactiveCellUniverseCtx) {
-                InteractiveCellUniverse(
-                    temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                    onSeeMoreSettingsClicked = {},
-                    onOpenInSettingsClicked = {},
-                    onViewDeserializationInfo = {},
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
-        }
-
-        onNodeWithContentDescription(resolver.invoke(Strings.Pause))
-            .performClick()
-
-        SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
-            scrollToCell(cell)
-
-            onNodeWithContentDescription(
-                resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
-            )
-                .performTouchInput { click(topLeft) }
-        }
-
-        onNode(
-            hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                hasContentDescription(resolver.invoke(Strings.Expand)),
-        )
-            .performClick()
-
-        onNode(
-            hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver.invoke(Strings.GenerationsPerStepLabel)),
-        )
-            .performTextReplacement("2")
-        onNode(
-            hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver.invoke(Strings.GenerationsPerStepLabel)),
-        )
-            .performImeAction()
-
-        onNode(
-            hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
-                hasContentDescription(resolver.invoke(Strings.Collapse)),
-        )
-            .performClick()
-
-        SixLongLinePattern.cellStates.filterIndexed { index, _ -> index.rem(2) == 1 }.forEach { expectedCellState ->
-            onNodeWithContentDescription(resolver.invoke(Strings.Step))
-                .performClick()
-
-            generalTestDispatcher.scheduler.advanceUntilIdle()
-            waitForIdle()
-
-            assertNodesAreAlive(resolver, expectedCellState.aliveCells)
-        }
-    }
-
-    @Test
-    fun glider_is_copied_correctly_with_keyboard_shortcuts() = runUiTest(
-        generalTestDispatcher,
-    ) { uiGraph ->
-        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
-
-        lateinit var clipboardReaderWriter: ClipboardReaderWriter
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            resolver = parameterizedStringResolver()
-            val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
-                targetStepsPerSecond = 60.0,
-            )
-
-            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                clock = cellTickerTestDispatcher.scheduler.clock,
-                dispatchers = dispatchers,
-            )
-
-            LaunchedEffect(temporalGameOfLifeStateMutator) {
-                temporalGameOfLifeStateMutator.update()
-            }
-            with(uiCtx.interactiveCellUniverseCtx) {
-                clipboardReaderWriter = rememberFakeClipboardReaderWriter()
-
-                InteractiveCellUniverse(
-                    temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                    onSeeMoreSettingsClicked = {},
-                    onOpenInSettingsClicked = {},
-                    onViewDeserializationInfo = {},
-                    modifier = Modifier.fillMaxSize(),
-                    interactiveCellUniverseState = rememberInteractiveCellUniverseState(
+    fun info_card_closes_upon_back_press() =
+        runUiTest { uiGraph ->
+            val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
+
+            lateinit var resolver: (ParameterizedString) -> String
+
+            setContent {
+                resolver = parameterizedStringResolver()
+                val temporalGameOfLifeState =
+                    rememberTemporalGameOfLifeState(
+                        isRunning = false,
+                        targetStepsPerSecond = 60.0,
+                    )
+
+                val temporalGameOfLifeStateMutator =
+                    rememberTemporalGameOfLifeStateMutator(
                         temporalGameOfLifeState = temporalGameOfLifeState,
-                        clipboardReaderWriter = clipboardReaderWriter,
-                    ),
-                )
+                        gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+                        clock = cellTickerTestDispatcher.scheduler.clock,
+                        dispatchers = dispatchers,
+                    )
+
+                LaunchedEffect(temporalGameOfLifeStateMutator) {
+                    temporalGameOfLifeStateMutator.update()
+                }
+
+                with(uiCtx.interactiveCellUniverseCtx) {
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                        onSeeMoreSettingsClicked = {},
+                        onOpenInSettingsClicked = {},
+                        onViewDeserializationInfo = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            }
+
+            onNode(
+                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                    hasContentDescription(resolver.invoke(Strings.Expand)),
+            ).performClick()
+
+            generalTestDispatcher.scheduler.advanceUntilIdle()
+            waitForIdle()
+
+            Espresso.pressBack()
+
+            onNodeWithContentDescription(resolver.invoke(Strings.Collapse))
+                .assertDoesNotExist()
+        }
+
+    @Test
+    fun action_card_closes_upon_back_press() =
+        runUiTest { uiGraph ->
+            val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
+
+            lateinit var resolver: (ParameterizedString) -> String
+
+            setContent {
+                resolver = parameterizedStringResolver()
+                val temporalGameOfLifeState =
+                    rememberTemporalGameOfLifeState(
+                        isRunning = false,
+                        targetStepsPerSecond = 60.0,
+                    )
+
+                val temporalGameOfLifeStateMutator =
+                    rememberTemporalGameOfLifeStateMutator(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+                        clock = cellTickerTestDispatcher.scheduler.clock,
+                        dispatchers = dispatchers,
+                    )
+
+                LaunchedEffect(temporalGameOfLifeStateMutator) {
+                    temporalGameOfLifeStateMutator.update()
+                }
+
+                with(uiCtx.interactiveCellUniverseCtx) {
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                        onSeeMoreSettingsClicked = {},
+                        onOpenInSettingsClicked = {},
+                        onViewDeserializationInfo = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            }
+
+            onNode(
+                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                    hasContentDescription(resolver.invoke(Strings.Expand)),
+            ).performClick()
+
+            generalTestDispatcher.scheduler.advanceUntilIdle()
+            waitForIdle()
+
+            Espresso.pressBack()
+
+            onNodeWithContentDescription(resolver.invoke(Strings.Collapse))
+                .assertDoesNotExist()
+        }
+
+    @Test
+    fun six_long_line_evolves_correctly() =
+        runUiTest(
+            generalTestDispatcher,
+            120.seconds,
+        ) { uiGraph ->
+            val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
+
+            lateinit var resolver: (ParameterizedString) -> String
+
+            setContent {
+                resolver = parameterizedStringResolver()
+                val temporalGameOfLifeState =
+                    rememberTemporalGameOfLifeState(
+                        targetStepsPerSecond = 60.0,
+                    )
+
+                val temporalGameOfLifeStateMutator =
+                    rememberTemporalGameOfLifeStateMutator(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+                        clock = cellTickerTestDispatcher.scheduler.clock,
+                        dispatchers = dispatchers,
+                    )
+
+                LaunchedEffect(temporalGameOfLifeStateMutator) {
+                    temporalGameOfLifeStateMutator.update()
+                }
+
+                with(uiCtx.interactiveCellUniverseCtx) {
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                        onSeeMoreSettingsClicked = {},
+                        onOpenInSettingsClicked = {},
+                        onViewDeserializationInfo = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            }
+
+            onNodeWithContentDescription(resolver.invoke(Strings.Pause))
+                .performClick()
+
+            SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
+                scrollToCell(cell)
+
+                onNodeWithContentDescription(
+                    resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
+                ).performTouchInput { click(topLeft) }
+            }
+
+            onNodeWithContentDescription(resolver.invoke(Strings.Play))
+                .performClick()
+
+            SixLongLinePattern.cellStates.forEach { expectedCellState ->
+                generalTestDispatcher.scheduler.advanceUntilIdle()
+                waitForIdle()
+                cellTickerTestDispatcher.scheduler.advanceTimeBy(17)
+                cellTickerTestDispatcher.scheduler.runCurrent()
+                generalTestDispatcher.scheduler.advanceUntilIdle()
+                waitForIdle()
+
+                assertNodesAreAlive(resolver, expectedCellState.aliveCells)
             }
         }
 
-        onRoot()
-            .performKeyInput {
-                pressKey(Key.Spacebar)
+    @Test
+    fun six_long_line_evolves_correctly_with_spacebar() =
+        runUiTest(
+            generalTestDispatcher,
+            120.seconds,
+        ) { uiGraph ->
+            val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
+
+            lateinit var resolver: (ParameterizedString) -> String
+
+            setContent {
+                resolver = parameterizedStringResolver()
+                val temporalGameOfLifeState =
+                    rememberTemporalGameOfLifeState(
+                        targetStepsPerSecond = 60.0,
+                    )
+
+                val temporalGameOfLifeStateMutator =
+                    rememberTemporalGameOfLifeStateMutator(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+                        clock = cellTickerTestDispatcher.scheduler.clock,
+                        dispatchers = dispatchers,
+                    )
+
+                LaunchedEffect(temporalGameOfLifeStateMutator) {
+                    temporalGameOfLifeStateMutator.update()
+                }
+
+                with(uiCtx.interactiveCellUniverseCtx) {
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                        onSeeMoreSettingsClicked = {},
+                        onOpenInSettingsClicked = {},
+                        onViewDeserializationInfo = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
             }
 
-        listOf(
-            IntOffset(1, 0),
-            IntOffset(2, 1),
-            IntOffset(0, 2),
-            IntOffset(1, 2),
-            IntOffset(2, 2),
-        ).forEach { cell ->
-            scrollToCell(cell)
+            onRoot()
+                .performKeyInput {
+                    pressKey(Key.Spacebar)
+                }
 
-            onNodeWithContentDescription(
-                resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
-            )
-                .performTouchInput { click(topLeft) }
+            SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
+                scrollToCell(cell)
+
+                onNodeWithContentDescription(
+                    resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
+                ).performTouchInput { click(topLeft) }
+            }
+
+            onRoot()
+                .performKeyInput {
+                    pressKey(Key.Spacebar)
+                }
+
+            SixLongLinePattern.cellStates.forEach { expectedCellState ->
+                generalTestDispatcher.scheduler.advanceUntilIdle()
+                waitForIdle()
+                cellTickerTestDispatcher.scheduler.advanceTimeBy(17)
+                cellTickerTestDispatcher.scheduler.runCurrent()
+                generalTestDispatcher.scheduler.advanceUntilIdle()
+                waitForIdle()
+
+                assertNodesAreAlive(resolver, expectedCellState.aliveCells)
+            }
         }
 
-        onRoot()
-            .performKeyInput {
-                keyDown(Key.CtrlLeft)
-                pressKey(Key.A)
-                keyUp(Key.CtrlLeft)
+    @Test
+    fun six_long_line_evolves_correctly_after_slowing_down() =
+        runUiTest(
+            generalTestDispatcher,
+            120.seconds,
+        ) { uiGraph ->
+            val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
+
+            lateinit var resolver: (ParameterizedString) -> String
+
+            setContent {
+                resolver = parameterizedStringResolver()
+                val temporalGameOfLifeState =
+                    rememberTemporalGameOfLifeState(
+                        targetStepsPerSecond = 60.0,
+                    )
+
+                val temporalGameOfLifeStateMutator =
+                    rememberTemporalGameOfLifeStateMutator(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+                        clock = cellTickerTestDispatcher.scheduler.clock,
+                        dispatchers = dispatchers,
+                    )
+
+                LaunchedEffect(temporalGameOfLifeStateMutator) {
+                    temporalGameOfLifeStateMutator.update()
+                }
+
+                with(uiCtx.interactiveCellUniverseCtx) {
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                        onSeeMoreSettingsClicked = {},
+                        onOpenInSettingsClicked = {},
+                        onViewDeserializationInfo = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
             }
 
-        onRoot()
-            .performKeyInput {
-                keyDown(Key.CtrlLeft)
-                keyDown(Key.C)
+            onNodeWithContentDescription(resolver.invoke(Strings.Pause))
+                .performClick()
+
+            SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
+                scrollToCell(cell)
+
+                onNodeWithContentDescription(
+                    resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
+                ).performTouchInput { click(topLeft) }
             }
 
-        val clipData = clipboardReaderWriter.getClipData()
-        assertNotNull(clipData)
-        assertEquals(
-            """
+            onNode(
+                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                    hasContentDescription(resolver.invoke(Strings.Expand)),
+            ).performClick()
+
+            onNodeWithContentDescription(resolver.invoke(Strings.TargetStepsPerSecondLabelAndValue(60.0)))
+                .performSemanticsAction(SemanticsActions.SetProgress) { it(0f) }
+
+            onNodeWithContentDescription(resolver.invoke(Strings.Play))
+                .performClick()
+
+            onNode(
+                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                    hasContentDescription(resolver.invoke(Strings.Collapse)),
+            ).performClick()
+
+            SixLongLinePattern.cellStates.forEach { expectedCellState ->
+                generalTestDispatcher.scheduler.advanceUntilIdle()
+                waitForIdle()
+                cellTickerTestDispatcher.scheduler.advanceTimeBy(1000)
+                cellTickerTestDispatcher.scheduler.runCurrent()
+                generalTestDispatcher.scheduler.advanceUntilIdle()
+                waitForIdle()
+
+                assertNodesAreAlive(resolver, expectedCellState.aliveCells)
+            }
+        }
+
+    @Test
+    fun six_long_line_evolves_correctly_with_step() =
+        runUiTest(
+            generalTestDispatcher,
+            120.seconds,
+        ) { uiGraph ->
+            val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
+
+            lateinit var resolver: (ParameterizedString) -> String
+
+            setContent {
+                resolver = parameterizedStringResolver()
+                val temporalGameOfLifeState =
+                    rememberTemporalGameOfLifeState(
+                        targetStepsPerSecond = 0.001,
+                    )
+
+                val temporalGameOfLifeStateMutator =
+                    rememberTemporalGameOfLifeStateMutator(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+                        clock = cellTickerTestDispatcher.scheduler.clock,
+                        dispatchers = dispatchers,
+                    )
+
+                LaunchedEffect(temporalGameOfLifeStateMutator) {
+                    temporalGameOfLifeStateMutator.update()
+                }
+
+                with(uiCtx.interactiveCellUniverseCtx) {
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                        onSeeMoreSettingsClicked = {},
+                        onOpenInSettingsClicked = {},
+                        onViewDeserializationInfo = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            }
+
+            onNodeWithContentDescription(resolver.invoke(Strings.Pause))
+                .performClick()
+
+            SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
+                scrollToCell(cell)
+
+                onNodeWithContentDescription(
+                    resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
+                ).performTouchInput { click(topLeft) }
+            }
+
+            SixLongLinePattern.cellStates.forEach { expectedCellState ->
+                onNodeWithContentDescription(resolver.invoke(Strings.Step))
+                    .performClick()
+
+                generalTestDispatcher.scheduler.advanceUntilIdle()
+                waitForIdle()
+
+                assertNodesAreAlive(resolver, expectedCellState.aliveCells)
+            }
+        }
+
+    @Test
+    fun six_long_line_evolves_correctly_with_double_step_via_slider() =
+        runUiTest(
+            generalTestDispatcher,
+            120.seconds,
+        ) { uiGraph ->
+            val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
+
+            lateinit var resolver: (ParameterizedString) -> String
+
+            setContent {
+                resolver = parameterizedStringResolver()
+                val temporalGameOfLifeState =
+                    rememberTemporalGameOfLifeState(
+                        targetStepsPerSecond = 0.001,
+                    )
+
+                val temporalGameOfLifeStateMutator =
+                    rememberTemporalGameOfLifeStateMutator(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+                        clock = cellTickerTestDispatcher.scheduler.clock,
+                        dispatchers = dispatchers,
+                    )
+
+                LaunchedEffect(temporalGameOfLifeStateMutator) {
+                    temporalGameOfLifeStateMutator.update()
+                }
+                with(uiCtx.interactiveCellUniverseCtx) {
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                        onSeeMoreSettingsClicked = {},
+                        onOpenInSettingsClicked = {},
+                        onViewDeserializationInfo = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            }
+
+            onNodeWithContentDescription(resolver.invoke(Strings.Pause))
+                .performClick()
+
+            SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
+                scrollToCell(cell)
+
+                onNodeWithContentDescription(
+                    resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
+                ).performTouchInput { click(topLeft) }
+            }
+
+            onNode(
+                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                    hasContentDescription(resolver.invoke(Strings.Expand)),
+            ).performClick()
+
+            onNodeWithContentDescription(resolver.invoke(Strings.GenerationsPerStepLabelAndValue(1)))
+                .performSemanticsAction(SemanticsActions.SetProgress) { it(1f) }
+
+            onNode(
+                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                    hasContentDescription(resolver.invoke(Strings.Collapse)),
+            ).performClick()
+
+            SixLongLinePattern.cellStates.filterIndexed { index, _ -> index.rem(2) == 1 }.forEach { expectedCellState ->
+                onNodeWithContentDescription(resolver.invoke(Strings.Step))
+                    .performClick()
+
+                generalTestDispatcher.scheduler.advanceUntilIdle()
+                waitForIdle()
+
+                assertNodesAreAlive(resolver, expectedCellState.aliveCells)
+            }
+        }
+
+    @Test
+    fun six_long_line_evolves_correctly_with_double_step_via_text() =
+        runUiTest(
+            generalTestDispatcher,
+            120.seconds,
+        ) { uiGraph ->
+            val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
+
+            lateinit var resolver: (ParameterizedString) -> String
+
+            setContent {
+                resolver = parameterizedStringResolver()
+                val temporalGameOfLifeState =
+                    rememberTemporalGameOfLifeState(
+                        targetStepsPerSecond = 0.001,
+                    )
+
+                val temporalGameOfLifeStateMutator =
+                    rememberTemporalGameOfLifeStateMutator(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+                        clock = cellTickerTestDispatcher.scheduler.clock,
+                        dispatchers = dispatchers,
+                    )
+
+                LaunchedEffect(temporalGameOfLifeStateMutator) {
+                    temporalGameOfLifeStateMutator.update()
+                }
+                with(uiCtx.interactiveCellUniverseCtx) {
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                        onSeeMoreSettingsClicked = {},
+                        onOpenInSettingsClicked = {},
+                        onViewDeserializationInfo = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            }
+
+            onNodeWithContentDescription(resolver.invoke(Strings.Pause))
+                .performClick()
+
+            SixLongLinePattern.seedCellState.aliveCells.forEach { cell ->
+                scrollToCell(cell)
+
+                onNodeWithContentDescription(
+                    resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
+                ).performTouchInput { click(topLeft) }
+            }
+
+            onNode(
+                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                    hasContentDescription(resolver.invoke(Strings.Expand)),
+            ).performClick()
+
+            onNode(
+                hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                    hasText(resolver.invoke(Strings.GenerationsPerStepLabel)),
+            ).performTextReplacement("2")
+            onNode(
+                hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                    hasText(resolver.invoke(Strings.GenerationsPerStepLabel)),
+            ).performImeAction()
+
+            onNode(
+                hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and
+                    hasContentDescription(resolver.invoke(Strings.Collapse)),
+            ).performClick()
+
+            SixLongLinePattern.cellStates.filterIndexed { index, _ -> index.rem(2) == 1 }.forEach { expectedCellState ->
+                onNodeWithContentDescription(resolver.invoke(Strings.Step))
+                    .performClick()
+
+                generalTestDispatcher.scheduler.advanceUntilIdle()
+                waitForIdle()
+
+                assertNodesAreAlive(resolver, expectedCellState.aliveCells)
+            }
+        }
+
+    @Test
+    fun glider_is_copied_correctly_with_keyboard_shortcuts() =
+        runUiTest(
+            generalTestDispatcher,
+        ) { uiGraph ->
+            val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
+
+            lateinit var clipboardReaderWriter: ClipboardReaderWriter
+            lateinit var resolver: (ParameterizedString) -> String
+
+            setContent {
+                resolver = parameterizedStringResolver()
+                val temporalGameOfLifeState =
+                    rememberTemporalGameOfLifeState(
+                        targetStepsPerSecond = 60.0,
+                    )
+
+                val temporalGameOfLifeStateMutator =
+                    rememberTemporalGameOfLifeStateMutator(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+                        clock = cellTickerTestDispatcher.scheduler.clock,
+                        dispatchers = dispatchers,
+                    )
+
+                LaunchedEffect(temporalGameOfLifeStateMutator) {
+                    temporalGameOfLifeStateMutator.update()
+                }
+                with(uiCtx.interactiveCellUniverseCtx) {
+                    clipboardReaderWriter = rememberFakeClipboardReaderWriter()
+
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                        onSeeMoreSettingsClicked = {},
+                        onOpenInSettingsClicked = {},
+                        onViewDeserializationInfo = {},
+                        modifier = Modifier.fillMaxSize(),
+                        interactiveCellUniverseState =
+                        rememberInteractiveCellUniverseState(
+                            temporalGameOfLifeState = temporalGameOfLifeState,
+                            clipboardReaderWriter = clipboardReaderWriter,
+                        ),
+                    )
+                }
+            }
+
+            onRoot()
+                .performKeyInput {
+                    pressKey(Key.Spacebar)
+                }
+
+            listOf(
+                IntOffset(1, 0),
+                IntOffset(2, 1),
+                IntOffset(0, 2),
+                IntOffset(1, 2),
+                IntOffset(2, 2),
+            ).forEach { cell ->
+                scrollToCell(cell)
+
+                onNodeWithContentDescription(
+                    resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
+                ).performTouchInput { click(topLeft) }
+            }
+
+            onRoot()
+                .performKeyInput {
+                    keyDown(Key.CtrlLeft)
+                    pressKey(Key.A)
+                    keyUp(Key.CtrlLeft)
+                }
+
+            onRoot()
+                .performKeyInput {
+                    keyDown(Key.CtrlLeft)
+                    keyDown(Key.C)
+                }
+
+            val clipData = clipboardReaderWriter.getClipData()
+            assertNotNull(clipData)
+            assertEquals(
+                """
                 #R 0 0
                 x = 3, y = 3, rule = B3/S23
                 bo$2bo$3o!
-            """.trimIndent(),
-            clipData.getItemAt(0).text,
-        )
-
-        onRoot()
-            .performKeyInput {
-                keyUp(Key.CtrlLeft)
-                keyUp(Key.C)
-            }
-    }
-
-    @Test
-    fun selection_is_cleared_correctly_with_keyboard_shortcuts() = runUiTest(
-        generalTestDispatcher,
-    ) { uiGraph ->
-        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
-
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            resolver = parameterizedStringResolver()
-            val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
-                targetStepsPerSecond = 60.0,
+                """.trimIndent(),
+                clipData.getItemAt(0).text,
             )
 
-            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                clock = cellTickerTestDispatcher.scheduler.clock,
-                dispatchers = dispatchers,
-            )
-
-            LaunchedEffect(temporalGameOfLifeStateMutator) {
-                temporalGameOfLifeStateMutator.update()
-            }
-
-            with(uiCtx.interactiveCellUniverseCtx) {
-                InteractiveCellUniverse(
-                    temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                    onSeeMoreSettingsClicked = {},
-                    onOpenInSettingsClicked = {},
-                    onViewDeserializationInfo = {},
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
+            onRoot()
+                .performKeyInput {
+                    keyUp(Key.CtrlLeft)
+                    keyUp(Key.C)
+                }
         }
 
-        onRoot()
-            .performKeyInput {
-                pressKey(Key.Spacebar)
-            }
-
-        listOf(
-            IntOffset(1, 0),
-            IntOffset(2, 1),
-            IntOffset(0, 2),
-            IntOffset(1, 2),
-            IntOffset(2, 2),
-        ).forEach { cell ->
-            scrollToCell(cell)
-
-            onNodeWithContentDescription(
-                resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
-            )
-                .performTouchInput { click(topLeft) }
-        }
-
-        onRoot()
-            .performKeyInput {
-                keyDown(Key.CtrlLeft)
-                pressKey(Key.A)
-                keyUp(Key.CtrlLeft)
-            }
-
-        onNodeWithContentDescription(resolver.invoke(Strings.Copy))
-            .assertExists()
-
-        onRoot()
-            .performKeyInput {
-                pressKey(Key.Escape)
-            }
-
-        onNodeWithContentDescription(resolver.invoke(Strings.Copy))
-            .assertDoesNotExist()
-    }
-
     @Test
-    fun glider_is_pasted_correctly_with_keyboard_shortcuts() = runUiTest(
-        generalTestDispatcher,
-    ) { uiGraph ->
-        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
+    fun selection_is_cleared_correctly_with_keyboard_shortcuts() =
+        runUiTest(
+            generalTestDispatcher,
+        ) { uiGraph ->
+            val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
 
-        lateinit var clipboardReaderWriter: ClipboardReaderWriter
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
-                targetStepsPerSecond = 60.0,
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                val temporalGameOfLifeState =
+                    rememberTemporalGameOfLifeState(
+                        targetStepsPerSecond = 60.0,
+                    )
 
-            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-                clock = cellTickerTestDispatcher.scheduler.clock,
-                dispatchers = dispatchers,
-            )
-
-            LaunchedEffect(temporalGameOfLifeStateMutator) {
-                temporalGameOfLifeStateMutator.update()
-            }
-
-            with(uiCtx.interactiveCellUniverseCtx) {
-                clipboardReaderWriter = rememberFakeClipboardReaderWriter()
-
-                InteractiveCellUniverse(
-                    temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                    onSeeMoreSettingsClicked = {},
-                    onOpenInSettingsClicked = {},
-                    onViewDeserializationInfo = {},
-                    modifier = Modifier.fillMaxSize(),
-                    interactiveCellUniverseState = rememberInteractiveCellUniverseState(
+                val temporalGameOfLifeStateMutator =
+                    rememberTemporalGameOfLifeStateMutator(
                         temporalGameOfLifeState = temporalGameOfLifeState,
-                        mutableCellWindowViewportState = rememberMutableCellWindowViewportState(
-                            offset = Offset(30.5f, -18.5f),
-                        ),
-                        clipboardReaderWriter = clipboardReaderWriter,
-                    ),
-                )
+                        gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+                        clock = cellTickerTestDispatcher.scheduler.clock,
+                        dispatchers = dispatchers,
+                    )
+
+                LaunchedEffect(temporalGameOfLifeStateMutator) {
+                    temporalGameOfLifeStateMutator.update()
+                }
+
+                with(uiCtx.interactiveCellUniverseCtx) {
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                        onSeeMoreSettingsClicked = {},
+                        onOpenInSettingsClicked = {},
+                        onViewDeserializationInfo = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
             }
+
+            onRoot()
+                .performKeyInput {
+                    pressKey(Key.Spacebar)
+                }
+
+            listOf(
+                IntOffset(1, 0),
+                IntOffset(2, 1),
+                IntOffset(0, 2),
+                IntOffset(1, 2),
+                IntOffset(2, 2),
+            ).forEach { cell ->
+                scrollToCell(cell)
+
+                onNodeWithContentDescription(
+                    resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
+                ).performTouchInput { click(topLeft) }
+            }
+
+            onRoot()
+                .performKeyInput {
+                    keyDown(Key.CtrlLeft)
+                    pressKey(Key.A)
+                    keyUp(Key.CtrlLeft)
+                }
+
+            onNodeWithContentDescription(resolver.invoke(Strings.Copy))
+                .assertExists()
+
+            onRoot()
+                .performKeyInput {
+                    pressKey(Key.Escape)
+                }
+
+            onNodeWithContentDescription(resolver.invoke(Strings.Copy))
+                .assertDoesNotExist()
         }
 
-        onRoot()
-            .performKeyInput {
-                pressKey(Key.Spacebar)
+    @Test
+    fun glider_is_pasted_correctly_with_keyboard_shortcuts() =
+        runUiTest(
+            generalTestDispatcher,
+        ) { uiGraph ->
+            val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
+
+            lateinit var clipboardReaderWriter: ClipboardReaderWriter
+            lateinit var resolver: (ParameterizedString) -> String
+
+            setContent {
+                resolver = parameterizedStringResolver()
+                val temporalGameOfLifeState =
+                    rememberTemporalGameOfLifeState(
+                        targetStepsPerSecond = 60.0,
+                    )
+
+                val temporalGameOfLifeStateMutator =
+                    rememberTemporalGameOfLifeStateMutator(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+                        clock = cellTickerTestDispatcher.scheduler.clock,
+                        dispatchers = dispatchers,
+                    )
+
+                LaunchedEffect(temporalGameOfLifeStateMutator) {
+                    temporalGameOfLifeStateMutator.update()
+                }
+
+                with(uiCtx.interactiveCellUniverseCtx) {
+                    clipboardReaderWriter = rememberFakeClipboardReaderWriter()
+
+                    InteractiveCellUniverse(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                        onSeeMoreSettingsClicked = {},
+                        onOpenInSettingsClicked = {},
+                        onViewDeserializationInfo = {},
+                        modifier = Modifier.fillMaxSize(),
+                        interactiveCellUniverseState =
+                        rememberInteractiveCellUniverseState(
+                            temporalGameOfLifeState = temporalGameOfLifeState,
+                            mutableCellWindowViewportState =
+                            rememberMutableCellWindowViewportState(
+                                offset = Offset(30.5f, -18.5f),
+                            ),
+                            clipboardReaderWriter = clipboardReaderWriter,
+                        ),
+                    )
+                }
             }
 
-        clipboardReaderWriter.setText(
-            """
-            #R 0 0
-            x = 3, y = 3, rule = B3/S23
-            bo$2bo$3o!
-            """.trimIndent(),
-        )
+            onRoot()
+                .performKeyInput {
+                    pressKey(Key.Spacebar)
+                }
 
-        onRoot()
-            .performKeyInput {
-                keyDown(Key.CtrlLeft)
-                pressKey(Key.V)
-                keyUp(Key.CtrlLeft)
-            }
+            clipboardReaderWriter.setText(
+                """
+                #R 0 0
+                x = 3, y = 3, rule = B3/S23
+                bo$2bo$3o!
+                """.trimIndent(),
+            )
 
-        generalTestDispatcher.scheduler.advanceUntilIdle()
-        waitForIdle()
+            onRoot()
+                .performKeyInput {
+                    keyDown(Key.CtrlLeft)
+                    pressKey(Key.V)
+                    keyUp(Key.CtrlLeft)
+                }
 
-        onNodeWithContentDescription(resolver.invoke(Strings.ApplyPaste))
-            .performClick()
+            generalTestDispatcher.scheduler.advanceUntilIdle()
+            waitForIdle()
 
-        assertNodesAreAlive(
-            resolver = resolver,
-            cells = setOf(
-                IntOffset(31, -19),
-                IntOffset(32, -18),
-                IntOffset(30, -17),
-                IntOffset(31, -17),
-                IntOffset(32, -17),
-            ),
-        )
-    }
+            onNodeWithContentDescription(resolver.invoke(Strings.ApplyPaste))
+                .performClick()
+
+            assertNodesAreAlive(
+                resolver = resolver,
+                cells =
+                setOf(
+                    IntOffset(31, -19),
+                    IntOffset(32, -18),
+                    IntOffset(30, -17),
+                    IntOffset(31, -17),
+                    IntOffset(32, -17),
+                ),
+            )
+        }
 }
 
 @OptIn(ExperimentalTestApi::class)
@@ -935,8 +955,7 @@ private fun ComposeUiTest.assertNodesAreAlive(resolver: (ParameterizedString) ->
 
         onNodeWithContentDescription(
             resolver.invoke(CellsStrings.InteractableCellContentDescription(cell.x, cell.y)),
-        )
-            .assertIsOn()
+        ).assertIsOn()
     }
 }
 

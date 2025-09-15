@@ -20,9 +20,13 @@ import com.alexvanyo.composelife.preferences.proto.ToolConfigProto
 
 sealed interface ToolConfig {
     data object Pan : ToolConfig
+
     data object Draw : ToolConfig
+
     data object Erase : ToolConfig
+
     data object Select : ToolConfig
+
     data object None : ToolConfig
 }
 

@@ -16,9 +16,10 @@
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 
-class KotlinMultiplatformComposeConventionPlugin : ConventionPlugin({
-    with(pluginManager) {
-        apply("org.jetbrains.compose")
-        apply("org.jetbrains.kotlin.plugin.compose")
-    }
-})
+class KotlinMultiplatformComposeConventionPlugin :
+    ConventionPlugin({
+        with(pluginManager) {
+            apply("org.jetbrains.compose")
+            apply("org.jetbrains.kotlin.plugin.compose")
+        }
+    })

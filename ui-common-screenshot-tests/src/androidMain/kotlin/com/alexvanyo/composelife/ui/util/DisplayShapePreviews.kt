@@ -51,8 +51,10 @@ internal fun WindowShapeDisplayShapePreview(modifier: Modifier = Modifier) {
     val density = LocalDensity.current
     DeviceConfigurationOverride(
         DeviceConfigurationOverride.WindowInsets(
-            windowInsets = WindowInsetsCompat.toWindowInsetsCompat(
-                WindowInsets.Builder()
+            windowInsets =
+            WindowInsetsCompat.toWindowInsetsCompat(
+                WindowInsets
+                    .Builder()
                     .setDisplayShape(
                         @Suppress("MaxLineLength", "MaximumLineLength")
                         createDisplayShape(
@@ -62,8 +64,7 @@ internal fun WindowShapeDisplayShapePreview(modifier: Modifier = Modifier) {
                             physicalPixelDisplaySizeRatio = density.density,
                             rotation = 0,
                         ),
-                    )
-                    .setInsets(WindowInsets.Type.statusBars(), Insets.of(0, 100, 0, 0))
+                    ).setInsets(WindowInsets.Type.statusBars(), Insets.of(0, 100, 0, 0))
                     .build(),
             ),
         ) then DeviceConfigurationOverride.WindowSize(DpSize(300.dp, 400.dp)),
@@ -74,7 +75,8 @@ internal fun WindowShapeDisplayShapePreview(modifier: Modifier = Modifier) {
                 drawPath(
                     path = windowShape.path,
                     color = Color.Blue,
-                    style = Stroke(
+                    style =
+                    Stroke(
                         width = 8.dp.toPx(),
                     ),
                 )
@@ -92,8 +94,10 @@ internal fun WindowShapeRoundedCornerPreview(modifier: Modifier = Modifier) {
     val density = LocalDensity.current
     DeviceConfigurationOverride(
         DeviceConfigurationOverride.WindowInsets(
-            windowInsets = WindowInsetsCompat.toWindowInsetsCompat(
-                WindowInsets.Builder()
+            windowInsets =
+            WindowInsetsCompat.toWindowInsetsCompat(
+                WindowInsets
+                    .Builder()
                     .setRoundedCorner(
                         RoundedCorner.POSITION_TOP_LEFT,
                         RoundedCorner(
@@ -102,8 +106,7 @@ internal fun WindowShapeRoundedCornerPreview(modifier: Modifier = Modifier) {
                             with(density) { 25.dp.roundToPx() },
                             with(density) { 25.dp.roundToPx() },
                         ),
-                    )
-                    .setRoundedCorner(
+                    ).setRoundedCorner(
                         RoundedCorner.POSITION_TOP_RIGHT,
                         RoundedCorner(
                             RoundedCorner.POSITION_TOP_RIGHT,
@@ -111,8 +114,7 @@ internal fun WindowShapeRoundedCornerPreview(modifier: Modifier = Modifier) {
                             with(density) { 275.dp.roundToPx() },
                             with(density) { 25.dp.roundToPx() },
                         ),
-                    )
-                    .setRoundedCorner(
+                    ).setRoundedCorner(
                         RoundedCorner.POSITION_BOTTOM_LEFT,
                         RoundedCorner(
                             RoundedCorner.POSITION_BOTTOM_LEFT,
@@ -120,8 +122,7 @@ internal fun WindowShapeRoundedCornerPreview(modifier: Modifier = Modifier) {
                             with(density) { 25.dp.roundToPx() },
                             with(density) { 375.dp.roundToPx() },
                         ),
-                    )
-                    .setRoundedCorner(
+                    ).setRoundedCorner(
                         RoundedCorner.POSITION_BOTTOM_RIGHT,
                         RoundedCorner(
                             RoundedCorner.POSITION_BOTTOM_RIGHT,
@@ -129,8 +130,7 @@ internal fun WindowShapeRoundedCornerPreview(modifier: Modifier = Modifier) {
                             with(density) { 275.dp.roundToPx() },
                             with(density) { 375.dp.roundToPx() },
                         ),
-                    )
-                    .setInsets(WindowInsets.Type.statusBars(), Insets.of(0, 100, 0, 0))
+                    ).setInsets(WindowInsets.Type.statusBars(), Insets.of(0, 100, 0, 0))
                     .build(),
             ),
         ) then DeviceConfigurationOverride.WindowSize(DpSize(300.dp, 400.dp)),
@@ -141,7 +141,8 @@ internal fun WindowShapeRoundedCornerPreview(modifier: Modifier = Modifier) {
                 drawPath(
                     path = windowShape.path,
                     color = Color.Blue,
-                    style = Stroke(
+                    style =
+                    Stroke(
                         width = 8.dp.toPx(),
                     ),
                 )
@@ -157,8 +158,10 @@ internal fun WindowShapeRoundedCornerPreview(modifier: Modifier = Modifier) {
 internal fun WindowShapeRectanglePreview(modifier: Modifier = Modifier) {
     DeviceConfigurationOverride(
         DeviceConfigurationOverride.WindowInsets(
-            windowInsets = WindowInsetsCompat.toWindowInsetsCompat(
-                WindowInsets.Builder()
+            windowInsets =
+            WindowInsetsCompat.toWindowInsetsCompat(
+                WindowInsets
+                    .Builder()
                     .setInsets(WindowInsets.Type.statusBars(), Insets.of(0, 100, 0, 0))
                     .setRoundedCorner(RoundedCorner.POSITION_TOP_LEFT, null)
                     .setRoundedCorner(RoundedCorner.POSITION_TOP_RIGHT, null)
@@ -174,7 +177,8 @@ internal fun WindowShapeRectanglePreview(modifier: Modifier = Modifier) {
                 drawPath(
                     path = windowShape.path,
                     color = Color.Blue,
-                    style = Stroke(
+                    style =
+                    Stroke(
                         width = 8.dp.toPx(),
                     ),
                 )
@@ -194,17 +198,17 @@ fun createDisplayShape(
     physicalPixelDisplaySizeRatio: Float,
     rotation: Int,
 ): DisplayShape {
-    val constructor = DisplayShape::class.java
-        .getDeclaredConstructor(
-            String::class.java,
-            Int::class.java,
-            Int::class.java,
-            Float::class.java,
-            Int::class.java,
-        )
-        .apply {
-            isAccessible = true
-        }
+    val constructor =
+        DisplayShape::class.java
+            .getDeclaredConstructor(
+                String::class.java,
+                Int::class.java,
+                Int::class.java,
+                Float::class.java,
+                Int::class.java,
+            ).apply {
+                isAccessible = true
+            }
 
     return constructor.newInstance(
         displayShapeSpec,
@@ -215,18 +219,18 @@ fun createDisplayShape(
     )
 }
 
-fun DeviceConfigurationOverride.Companion.WindowSize(
-    size: DpSize,
-): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
-    val windowInfo = LocalWindowInfo.current
-    val density = LocalDensity.current
+fun DeviceConfigurationOverride.Companion.WindowSize(size: DpSize): DeviceConfigurationOverride =
+    DeviceConfigurationOverride { contentUnderTest ->
+        val windowInfo = LocalWindowInfo.current
+        val density = LocalDensity.current
 
-    val newWindowInfo = object : WindowInfo by windowInfo {
-        override val containerSize: IntSize
-            get() = with(density) { size.toSize().roundToIntSize() }
-    }
+        val newWindowInfo =
+            object : WindowInfo by windowInfo {
+                override val containerSize: IntSize
+                    get() = with(density) { size.toSize().roundToIntSize() }
+            }
 
-    CompositionLocalProvider(LocalWindowInfo provides newWindowInfo) {
-        contentUnderTest()
+        CompositionLocalProvider(LocalWindowInfo provides newWindowInfo) {
+            contentUnderTest()
+        }
     }
-}

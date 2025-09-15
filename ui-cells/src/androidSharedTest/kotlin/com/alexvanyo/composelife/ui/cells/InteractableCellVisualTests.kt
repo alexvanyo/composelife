@@ -37,7 +37,6 @@ import kotlin.test.Test
 
 @RunWith(AndroidJUnit4::class)
 class InteractableCellVisualTests {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -52,13 +51,15 @@ class InteractableCellVisualTests {
             ComposeLifeTheme(darkTheme = true) {
                 InteractableCell(
                     drawState = DrawState.Alive,
-                    shape = CurrentShape.RoundRectangle(
+                    shape =
+                    CurrentShape.RoundRectangle(
                         sizeFraction = 1f,
                         cornerFraction = 0f,
                     ),
                     contentDescription = "",
                     onValueChange = {},
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .size(with(LocalDensity.current) { 10.toDp() })
                         .background(ComposeLifeTheme.deadCellColor),
                 )
@@ -86,13 +87,15 @@ class InteractableCellVisualTests {
             ComposeLifeTheme(darkTheme = false) {
                 InteractableCell(
                     drawState = DrawState.Alive,
-                    shape = CurrentShape.RoundRectangle(
+                    shape =
+                    CurrentShape.RoundRectangle(
                         sizeFraction = 1f,
                         cornerFraction = 0f,
                     ),
                     contentDescription = "",
                     onValueChange = {},
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .size(with(LocalDensity.current) { 10.toDp() })
                         .background(ComposeLifeTheme.deadCellColor),
                 )
@@ -120,13 +123,15 @@ class InteractableCellVisualTests {
             ComposeLifeTheme(darkTheme = true) {
                 InteractableCell(
                     drawState = DrawState.Dead,
-                    shape = CurrentShape.RoundRectangle(
+                    shape =
+                    CurrentShape.RoundRectangle(
                         sizeFraction = 1f,
                         cornerFraction = 0f,
                     ),
                     contentDescription = "",
                     onValueChange = {},
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .size(with(LocalDensity.current) { 10.toDp() })
                         .background(ComposeLifeTheme.deadCellColor),
                 )
@@ -154,13 +159,15 @@ class InteractableCellVisualTests {
             ComposeLifeTheme(darkTheme = false) {
                 InteractableCell(
                     drawState = DrawState.Dead,
-                    shape = CurrentShape.RoundRectangle(
+                    shape =
+                    CurrentShape.RoundRectangle(
                         sizeFraction = 1f,
                         cornerFraction = 0f,
                     ),
                     contentDescription = "",
                     onValueChange = {},
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .size(with(LocalDensity.current) { 10.toDp() })
                         .background(ComposeLifeTheme.deadCellColor),
                 )

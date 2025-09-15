@@ -23,7 +23,6 @@ import kotlin.test.assertEquals
 
 @Suppress("TooManyFunctions")
 class OffsetExtensionsTests {
-
     @Test
     fun pair_to_int_offset_is_correct() {
         assertEquals(

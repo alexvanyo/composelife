@@ -49,7 +49,8 @@ fun ActionCardNavigationBar(
     modifier: Modifier = Modifier,
 ) {
     val color by animateColorAsState(
-        targetValue = if (isElevated) {
+        targetValue =
+        if (isElevated) {
             MaterialTheme.colorScheme.surfaceContainerHigh
         } else {
             MaterialTheme.colorScheme.surfaceContainerLow

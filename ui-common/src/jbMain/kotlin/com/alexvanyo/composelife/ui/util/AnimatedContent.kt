@@ -104,15 +104,22 @@ fun <T, M> AnimatedContent(
                     when (initialState) {
                         is ContentStatus.Appearing,
                         is ContentStatus.Disappearing,
-                        -> spring()
+                        -> {
+                            spring()
+                        }
+
                         ContentStatus.NotVisible,
                         ContentStatus.Visible,
-                        -> when (this@animateFloat.targetState) {
-                            is ContentStatus.Appearing,
-                            is ContentStatus.Disappearing,
-                            -> spring()
-                            ContentStatus.NotVisible -> tween(durationMillis = 90)
-                            ContentStatus.Visible -> tween(durationMillis = 220, delayMillis = 90)
+                        -> {
+                            when (this@animateFloat.targetState) {
+                                is ContentStatus.Appearing,
+                                is ContentStatus.Disappearing,
+                                -> spring()
+
+                                ContentStatus.NotVisible -> tween(durationMillis = 90)
+
+                                ContentStatus.Visible -> tween(durationMillis = 220, delayMillis = 90)
+                            }
                         }
                     }
                 },
@@ -141,16 +148,22 @@ fun <T, M> AnimatedContent(
      * By default, this will render the provisional target first (if any), then the current target, and then any
      * remaining targets.
      */
-    targetRenderingComparator: Comparator<T> = compareBy {
-        when (targetState) {
-            is TargetState.InProgress -> when (it) {
-                targetState.current -> 1f
-                targetState.provisional -> 0f
-                else -> 2f
+    targetRenderingComparator: Comparator<T> =
+        compareBy {
+            when (targetState) {
+                is TargetState.InProgress -> {
+                    when (it) {
+                        targetState.current -> 1f
+                        targetState.provisional -> 0f
+                        else -> 2f
+                    }
+                }
+
+                is TargetState.Single -> {
+                    if (it == targetState.current) 1f else 2f
+                }
             }
-            is TargetState.Single -> if (it == targetState.current) 1f else 2f
-        }
-    },
+        },
     /**
      * The animation specification for animating the content size, if it is enabled.
      */
@@ -173,17 +186,19 @@ fun <T, M> AnimatedContent(
 
     val seekableTransitionState = remember { SeekableTransitionState(targetKeyState.current) }
 
-    val seekableTransition = rememberTransition(
-        transitionState = seekableTransitionState,
-        label = label,
-    )
+    val seekableTransition =
+        rememberTransition(
+            transitionState = seekableTransitionState,
+            label = label,
+        )
 
     val previousTargetsInTransition = remember { mutableStateMapOf<Any?, T>() }
 
-    val newTargetsInTransition = when (targetState) {
-        is TargetState.InProgress -> setOf(targetState.current, targetState.provisional)
-        is TargetState.Single -> setOf(targetState.current)
-    }.associateBy(contentKey)
+    val newTargetsInTransition =
+        when (targetState) {
+            is TargetState.InProgress -> setOf(targetState.current, targetState.provisional)
+            is TargetState.Single -> setOf(targetState.current)
+        }.associateBy(contentKey)
 
     val currentTargetsInTransition = previousTargetsInTransition + newTargetsInTransition
 
@@ -228,58 +243,78 @@ fun <T, M> AnimatedContent(
                         }
                     }
                 }
-            }
-            .collect()
+            }.collect()
     }
 
     Logger.d { "$label: currentTargetsInTransition: $currentTargetsInTransition" }
 
-    val targetKeysWithTransitions = currentTargetsInTransition.keys.associateWith { targetKey ->
-        key(targetKey) {
-            val targetContentStatus = when (targetKeyState) {
-                is TargetState.InProgress -> when (targetKey) {
-                    targetKeyState.provisional -> ContentStatus.Appearing(
-                        progressToVisible = targetKeyState.progress,
-                        metadata = targetKeyState.metadata,
-                    )
-                    targetKeyState.current -> ContentStatus.Disappearing(
-                        progressToNotVisible = targetKeyState.progress,
-                        metadata = targetKeyState.metadata,
-                    )
-                    else -> ContentStatus.NotVisible
-                }
-                is TargetState.Single -> if (targetKeyState.current == targetKey) {
-                    ContentStatus.Visible
-                } else {
-                    ContentStatus.NotVisible
-                }
-            }
+    val targetKeysWithTransitions =
+        currentTargetsInTransition.keys.associateWith { targetKey ->
+            key(targetKey) {
+                val targetContentStatus =
+                    when (targetKeyState) {
+                        is TargetState.InProgress -> {
+                            when (targetKey) {
+                                targetKeyState.provisional -> {
+                                    ContentStatus.Appearing(
+                                        progressToVisible = targetKeyState.progress,
+                                        metadata = targetKeyState.metadata,
+                                    )
+                                }
 
-            val transitionState = remember {
-                MutableTransitionState(
-                    initialState = if (previousTargetsInTransition.isEmpty()) {
-                        targetContentStatus
-                    } else {
-                        ContentStatus.NotVisible
+                                targetKeyState.current -> {
+                                    ContentStatus.Disappearing(
+                                        progressToNotVisible = targetKeyState.progress,
+                                        metadata = targetKeyState.metadata,
+                                    )
+                                }
+
+                                else -> {
+                                    ContentStatus.NotVisible
+                                }
+                            }
+                        }
+
+                        is TargetState.Single -> {
+                            if (targetKeyState.current == targetKey) {
+                                ContentStatus.Visible
+                            } else {
+                                ContentStatus.NotVisible
+                            }
+                        }
+                    }
+
+                val transitionState =
+                    remember {
+                        MutableTransitionState(
+                            initialState =
+                            if (previousTargetsInTransition.isEmpty()) {
+                                targetContentStatus
+                            } else {
+                                ContentStatus.NotVisible
+                            },
+                        )
+                    }
+                rememberTransition(
+                    transitionState =
+                    transitionState.apply {
+                        this.targetState = targetContentStatus
                     },
+                    label = "$label > $targetKey content status",
                 )
             }
-            rememberTransition(
-                transitionState = transitionState.apply {
-                    this.targetState = targetContentStatus
-                },
-                label = "$label > $targetKey content status",
-            )
         }
-    }
 
     targetKeysWithTransitions.forEach { (targetKey, transition) ->
         if (
             when (targetKeyState) {
-                is TargetState.InProgress ->
+                is TargetState.InProgress -> {
                     targetKey != targetKeyState.provisional && targetKey != targetKeyState.current
-                is TargetState.Single ->
+                }
+
+                is TargetState.Single -> {
                     targetKey != targetKeyState.current
+                }
             }
         ) {
             key(targetKey) {
@@ -288,16 +323,13 @@ fun <T, M> AnimatedContent(
                         .filter { it }
                         .onEach {
                             previousTargetsInTransition.remove(targetKey)
-                        }
-                        .collect()
+                        }.collect()
                 }
             }
         }
     }
 
-    data class ConstraintsType(
-        val isLookahead: Boolean,
-    )
+    data class ConstraintsType(val isLookahead: Boolean)
 
     @Stable
     class ConstraintsCache {
@@ -338,23 +370,25 @@ fun <T, M> AnimatedContent(
                         val isGhostElement = LocalGhostElement.current || targetKey != targetKeyState.current
                         val currentNavigationAnimatedContentScope = LocalNavigationAnimatedVisibilityScope.current
 
-                        val updatedContentScope = if (currentNavigationAnimatedContentScope == null) {
-                            val enterExitTransition = seekableTransition.createChildTransition { parentState ->
-                                seekableTransition.targetEnterExit(
-                                    visible = { it == targetKey },
-                                    targetState = parentState,
-                                )
-                            }
+                        val updatedContentScope =
+                            if (currentNavigationAnimatedContentScope == null) {
+                                val enterExitTransition =
+                                    seekableTransition.createChildTransition { parentState ->
+                                        seekableTransition.targetEnterExit(
+                                            visible = { it == targetKey },
+                                            targetState = parentState,
+                                        )
+                                    }
 
-                            remember {
-                                object : AnimatedVisibilityScope {
-                                    override val transition: Transition<EnterExitState>
-                                        get() = enterExitTransition
+                                remember {
+                                    object : AnimatedVisibilityScope {
+                                        override val transition: Transition<EnterExitState>
+                                            get() = enterExitTransition
+                                    }
                                 }
+                            } else {
+                                currentNavigationAnimatedContentScope
                             }
-                        } else {
-                            currentNavigationAnimatedContentScope
-                        }
 
                         CompositionLocalProvider(
                             LocalGhostElement provides isGhostElement,
@@ -372,65 +406,73 @@ fun <T, M> AnimatedContent(
                     }
                 }
             },
-            measurePolicy = object : MeasurePolicy {
-
+            measurePolicy =
+            object : MeasurePolicy {
                 private fun MeasureScope.measure(
                     measurables: List<Measurable>,
                     constraints: Constraints,
                     isIntrinsic: Boolean,
                 ): MeasureResult {
-                    val measurablesMap = measurables.associateBy {
-                        @Suppress("UNCHECKED_CAST")
-                        (it.layoutId as TargetStateLayoutId).value
-                    }
+                    val measurablesMap =
+                        measurables.associateBy {
+                            @Suppress("UNCHECKED_CAST")
+                            (it.layoutId as TargetStateLayoutId).value
+                        }
 
-                    val constraintsType = ConstraintsType(
-                        isLookahead = isLookingAhead,
-                    )
-                    val placeablesMap = measurablesMap.mapValues { (target, measurable) ->
-                        // Determine the contraints to measure with
-                        val resolvedConstraints = if (isIntrinsic) {
-                            // If this is an intrinsic measurement, the constraints have no external dependency, so we
-                            // don't need to cache them.
-                            constraints
-                        } else {
-                            // For safety, we don't want to create an infinite measurement loop if this method happens
-                            // to run multiple times with different constraints for the same ConstraintsType.
-                            // To accomplish that, don't observe reads here
-                            Snapshot.withoutReadObservation {
-                                // Get the cache for the given target
-                                val cache = targetsWithConstraints.getValue(contentKey(target)).cache
+                    val constraintsType =
+                        ConstraintsType(
+                            isLookahead = isLookingAhead,
+                        )
+                    val placeablesMap =
+                        measurablesMap.mapValues { (target, measurable) ->
+                            // Determine the contraints to measure with
+                            val resolvedConstraints =
+                                if (isIntrinsic) {
+                                    // If this is an intrinsic measurement, the constraints have no external dependency, so we
+                                    // don't need to cache them.
+                                    constraints
+                                } else {
+                                    // For safety, we don't want to create an infinite measurement loop if this method happens
+                                    // to run multiple times with different constraints for the same ConstraintsType.
+                                    // To accomplish that, don't observe reads here
+                                    Snapshot.withoutReadObservation {
+                                        // Get the cache for the given target
+                                        val cache = targetsWithConstraints.getValue(contentKey(target)).cache
 
-                                // If we don't have a saved constraints, the target is the current target, or the
-                                // target is the provisional target, update the constraints. Otherwise, we measure using
-                                // the cached constraints as we animate out.
-                                @Suppress("ComplexCondition")
-                                if (constraintsType !in cache ||
-                                    contentKey(target) == targetKeyState.current ||
-                                    (
-                                        targetKeyState.isInProgress() &&
-                                            contentKey(target) == targetKeyState.provisional
-                                        )
-                                ) {
-                                    cache[constraintsType] = constraints
+                                        // If we don't have a saved constraints, the target is the current target, or the
+                                        // target is the provisional target, update the constraints. Otherwise, we measure using
+                                        // the cached constraints as we animate out.
+                                        @Suppress("ComplexCondition")
+                                        if (constraintsType !in cache ||
+                                            contentKey(target) == targetKeyState.current ||
+                                            (
+                                                targetKeyState.isInProgress() &&
+                                                    contentKey(target) == targetKeyState.provisional
+                                                )
+                                        ) {
+                                            cache[constraintsType] = constraints
+                                        }
+                                        cache.getValue(constraintsType)
+                                    }
                                 }
-                                cache.getValue(constraintsType)
+
+                            measurable.measure(resolvedConstraints)
+                        }
+
+                    val targetSize =
+                        when (targetState) {
+                            is TargetState.InProgress -> {
+                                lerp(
+                                    placeablesMap.getValue(targetState.current).size,
+                                    placeablesMap.getValue(targetState.provisional).size,
+                                    targetState.progress,
+                                )
+                            }
+
+                            is TargetState.Single -> {
+                                placeablesMap.getValue(targetState.current).size
                             }
                         }
-
-                        measurable.measure(resolvedConstraints)
-                    }
-
-                    val targetSize = when (targetState) {
-                        is TargetState.InProgress -> {
-                            lerp(
-                                placeablesMap.getValue(targetState.current).size,
-                                placeablesMap.getValue(targetState.provisional).size,
-                                targetState.progress,
-                            )
-                        }
-                        is TargetState.Single -> placeablesMap.getValue(targetState.current).size
-                    }
 
                     return layout(targetSize.width, targetSize.height) {
                         placeablesMap.entries
@@ -439,8 +481,7 @@ fun <T, M> AnimatedContent(
                                     Map.Entry<T, Placeable>::key,
                                     targetRenderingComparator,
                                 ),
-                            )
-                            .forEach { (_, placeable) ->
+                            ).forEach { (_, placeable) ->
                                 placeable.place(
                                     contentAlignment.align(
                                         size = placeable.size,
@@ -466,16 +507,18 @@ fun <T, M> AnimatedContent(
                     measurables: List<IntrinsicMeasurable>,
                     width: Int,
                 ): Int {
-                    val mapped = measurables.fastMap {
-                        DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Max, IntrinsicWidthHeight.Height)
-                    }
+                    val mapped =
+                        measurables.fastMap {
+                            DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Max, IntrinsicWidthHeight.Height)
+                        }
                     val constraints = Constraints(maxWidth = width)
                     val layoutReceiver = IntrinsicsMeasureScope(this, layoutDirection)
-                    val layoutResult = layoutReceiver.measure(
-                        measurables = mapped,
-                        constraints = constraints,
-                        isIntrinsic = true,
-                    )
+                    val layoutResult =
+                        layoutReceiver.measure(
+                            measurables = mapped,
+                            constraints = constraints,
+                            isIntrinsic = true,
+                        )
                     return layoutResult.height
                 }
 
@@ -483,16 +526,18 @@ fun <T, M> AnimatedContent(
                     measurables: List<IntrinsicMeasurable>,
                     height: Int,
                 ): Int {
-                    val mapped = measurables.fastMap {
-                        DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Max, IntrinsicWidthHeight.Width)
-                    }
+                    val mapped =
+                        measurables.fastMap {
+                            DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Max, IntrinsicWidthHeight.Width)
+                        }
                     val constraints = Constraints(maxHeight = height)
                     val layoutReceiver = IntrinsicsMeasureScope(this, layoutDirection)
-                    val layoutResult = layoutReceiver.measure(
-                        measurables = mapped,
-                        constraints = constraints,
-                        isIntrinsic = true,
-                    )
+                    val layoutResult =
+                        layoutReceiver.measure(
+                            measurables = mapped,
+                            constraints = constraints,
+                            isIntrinsic = true,
+                        )
                     return layoutResult.width
                 }
 
@@ -500,16 +545,18 @@ fun <T, M> AnimatedContent(
                     measurables: List<IntrinsicMeasurable>,
                     width: Int,
                 ): Int {
-                    val mapped = measurables.fastMap {
-                        DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Min, IntrinsicWidthHeight.Height)
-                    }
+                    val mapped =
+                        measurables.fastMap {
+                            DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Min, IntrinsicWidthHeight.Height)
+                        }
                     val constraints = Constraints(maxWidth = width)
                     val layoutReceiver = IntrinsicsMeasureScope(this, layoutDirection)
-                    val layoutResult = layoutReceiver.measure(
-                        measurables = mapped,
-                        constraints = constraints,
-                        isIntrinsic = true,
-                    )
+                    val layoutResult =
+                        layoutReceiver.measure(
+                            measurables = mapped,
+                            constraints = constraints,
+                            isIntrinsic = true,
+                        )
                     return layoutResult.height
                 }
 
@@ -517,24 +564,28 @@ fun <T, M> AnimatedContent(
                     measurables: List<IntrinsicMeasurable>,
                     height: Int,
                 ): Int {
-                    val mapped = measurables.fastMap {
-                        DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Min, IntrinsicWidthHeight.Width)
-                    }
+                    val mapped =
+                        measurables.fastMap {
+                            DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Min, IntrinsicWidthHeight.Width)
+                        }
                     val constraints = Constraints(maxHeight = height)
                     val layoutReceiver = IntrinsicsMeasureScope(this, layoutDirection)
-                    val layoutResult = layoutReceiver.measure(
-                        measurables = mapped,
-                        constraints = constraints,
-                        isIntrinsic = true,
-                    )
+                    val layoutResult =
+                        layoutReceiver.measure(
+                            measurables = mapped,
+                            constraints = constraints,
+                            isIntrinsic = true,
+                        )
                     return layoutResult.width
                 }
             },
-            modifier = Modifier.animateContentSize(
+            modifier =
+            Modifier.animateContentSize(
                 // If we have completed animating the size of the target state, and we don't want to animate internal
                 // content size changes, we've now "locked in" to the track of this specific target state, so start
                 // snapping to the content size
-                animationSpec = if (completedTargetSizeAnimation && !animateInternalContentSizeChanges) {
+                animationSpec =
+                if (completedTargetSizeAnimation && !animateInternalContentSizeChanges) {
                     snap()
                 } else {
                     contentSizeAnimationSpec
@@ -559,25 +610,24 @@ private class FixedSizeIntrinsicsPlaceable(width: Int, height: Int) : Placeable(
     }
 
     override fun get(alignmentLine: AlignmentLine): Int = AlignmentLine.Unspecified
-    override fun placeAt(
-        position: IntOffset,
-        zIndex: Float,
-        layerBlock: (GraphicsLayerScope.() -> Unit)?,
-    ) = Unit
+
+    override fun placeAt(position: IntOffset, zIndex: Float, layerBlock: (GraphicsLayerScope.() -> Unit)?) = Unit
 }
 
 /**
  * Identifies an [IntrinsicMeasurable] as a min or max intrinsic measurement.
  */
 private enum class IntrinsicMinMax {
-    Min, Max
+    Min,
+    Max,
 }
 
 /**
  * Identifies an [IntrinsicMeasurable] as a width or height intrinsic measurement.
  */
 private enum class IntrinsicWidthHeight {
-    Width, Height
+    Width,
+    Height,
 }
 
 /**
@@ -596,77 +646,65 @@ private class DefaultIntrinsicMeasurable(
 
     override fun measure(constraints: Constraints): Placeable {
         if (widthHeight == IntrinsicWidthHeight.Width) {
-            val width = if (minMax == IntrinsicMinMax.Max) {
-                measurable.maxIntrinsicWidth(constraints.maxHeight)
-            } else {
-                measurable.minIntrinsicWidth(constraints.maxHeight)
-            }
+            val width =
+                if (minMax == IntrinsicMinMax.Max) {
+                    measurable.maxIntrinsicWidth(constraints.maxHeight)
+                } else {
+                    measurable.minIntrinsicWidth(constraints.maxHeight)
+                }
             return FixedSizeIntrinsicsPlaceable(width, constraints.maxHeight)
         }
-        val height = if (minMax == IntrinsicMinMax.Max) {
-            measurable.maxIntrinsicHeight(constraints.maxWidth)
-        } else {
-            measurable.minIntrinsicHeight(constraints.maxWidth)
-        }
+        val height =
+            if (minMax == IntrinsicMinMax.Max) {
+                measurable.maxIntrinsicHeight(constraints.maxWidth)
+            } else {
+                measurable.minIntrinsicHeight(constraints.maxWidth)
+            }
         return FixedSizeIntrinsicsPlaceable(constraints.maxWidth, height)
     }
 
-    override fun minIntrinsicWidth(height: Int): Int {
-        return measurable.minIntrinsicWidth(height)
-    }
+    override fun minIntrinsicWidth(height: Int): Int = measurable.minIntrinsicWidth(height)
 
-    override fun maxIntrinsicWidth(height: Int): Int {
-        return measurable.maxIntrinsicWidth(height)
-    }
+    override fun maxIntrinsicWidth(height: Int): Int = measurable.maxIntrinsicWidth(height)
 
-    override fun minIntrinsicHeight(width: Int): Int {
-        return measurable.minIntrinsicHeight(width)
-    }
+    override fun minIntrinsicHeight(width: Int): Int = measurable.minIntrinsicHeight(width)
 
-    override fun maxIntrinsicHeight(width: Int): Int {
-        return measurable.maxIntrinsicHeight(width)
-    }
+    override fun maxIntrinsicHeight(width: Int): Int = measurable.maxIntrinsicHeight(width)
 }
 
 /**
  * Receiver scope for [Layout]'s and [LayoutModifier]'s layout lambda when used in an intrinsics
  * call.
  */
-private class IntrinsicsMeasureScope(
-    density: Density,
-    override val layoutDirection: LayoutDirection,
-) : MeasureScope, Density by density
+private class IntrinsicsMeasureScope(density: Density, override val layoutDirection: LayoutDirection) :
+    MeasureScope,
+    Density by density
 
 @Composable
-private fun <T> Transition<T>.targetEnterExit(
-    visible: (T) -> Boolean,
-    targetState: T,
-): EnterExitState = key(this) {
-    val hasBeenVisible = remember { mutableStateOf(false) }
-    if (visible(currentState)) {
-        hasBeenVisible.value = true
-    }
-    if (visible(targetState)) {
-        EnterExitState.Visible
-    } else {
-        // If never been visible, visible = false means PreEnter, otherwise PostExit
-        if (hasBeenVisible.value) {
-            EnterExitState.PostExit
+private fun <T> Transition<T>.targetEnterExit(visible: (T) -> Boolean, targetState: T): EnterExitState =
+    key(this) {
+        val hasBeenVisible = remember { mutableStateOf(false) }
+        if (visible(currentState)) {
+            hasBeenVisible.value = true
+        }
+        if (visible(targetState)) {
+            EnterExitState.Visible
         } else {
-            EnterExitState.PreEnter
+            // If never been visible, visible = false means PreEnter, otherwise PostExit
+            if (hasBeenVisible.value) {
+                EnterExitState.PostExit
+            } else {
+                EnterExitState.PreEnter
+            }
         }
     }
-}
 
 sealed interface ContentStatus<out M> {
     data object Visible : ContentStatus<Nothing>
-    data class Appearing<M>(
-        val progressToVisible: Float,
-        val metadata: M,
-    ) : ContentStatus<M>
-    data class Disappearing<M>(
-        val progressToNotVisible: Float,
-        val metadata: M,
-    ) : ContentStatus<M>
+
+    data class Appearing<M>(val progressToVisible: Float, val metadata: M) : ContentStatus<M>
+
+    data class Disappearing<M>(val progressToNotVisible: Float, val metadata: M) : ContentStatus<M>
+
     data object NotVisible : ContentStatus<Nothing>
 }

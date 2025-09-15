@@ -21,12 +21,12 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class TemporalGameOfLifeStateTests {
-
     @Test
     fun initial_values_are_correct_when_not_running() {
-        val gameOfLifeState = TemporalGameOfLifeState(
-            isRunning = false,
-        )
+        val gameOfLifeState =
+            TemporalGameOfLifeState(
+                isRunning = false,
+            )
 
         assertEquals(emptyCellState(), gameOfLifeState.cellState)
         assertEquals(1, gameOfLifeState.generationsPerStep)
@@ -36,10 +36,11 @@ class TemporalGameOfLifeStateTests {
 
     @Test
     fun initial_values_are_correct_when_running() {
-        val gameOfLifeState = TemporalGameOfLifeState(
-            seedCellState = SixLongLinePattern.seedCellState,
-            isRunning = true,
-        )
+        val gameOfLifeState =
+            TemporalGameOfLifeState(
+                seedCellState = SixLongLinePattern.seedCellState,
+                isRunning = true,
+            )
 
         assertEquals(SixLongLinePattern.seedCellState, gameOfLifeState.cellState)
         assertEquals(1, gameOfLifeState.generationsPerStep)

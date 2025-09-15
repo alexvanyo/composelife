@@ -29,8 +29,9 @@ fun <T : NavigationEntry> JumpcutNavigationFrame(
     modifier: Modifier = Modifier,
 ) {
     Box(modifier = modifier) {
-        renderableNavigationState.renderablePanes.getValue(
-            renderableNavigationState.navigationState.currentEntryId,
-        ).invoke()
+        renderableNavigationState.renderablePanes
+            .getValue(
+                renderableNavigationState.navigationState.currentEntryId,
+            ).invoke()
     }
 }

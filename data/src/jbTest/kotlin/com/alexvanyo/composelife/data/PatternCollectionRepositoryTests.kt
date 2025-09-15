@@ -64,9 +64,10 @@ internal val ApplicationGraph.patternCollectionRepositoryTestsCtx:
         this as PatternCollectionRepositoryTestsCtx
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class PatternCollectionRepositoryTests : BaseInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
+class PatternCollectionRepositoryTests :
+    BaseInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
     private val ctx get() = applicationGraph.patternCollectionRepositoryTestsCtx
 
     private val patternCollectionRepository: PatternCollectionRepository
@@ -83,318 +84,334 @@ class PatternCollectionRepositoryTests : BaseInjectTest(
     private val persistedDataPath get() = ctx.persistedDataPath
 
     @Test
-    fun pattern_collection_is_empty_initially() = runAppTest {
-        backgroundScope.launch {
-            patternCollectionRepository.observePatternCollections()
+    fun pattern_collection_is_empty_initially() =
+        runAppTest {
+            backgroundScope.launch {
+                patternCollectionRepository.observePatternCollections()
+            }
+
+            runCurrent()
+
+            assertEquals(
+                ResourceState.Success(emptyList()),
+                patternCollectionRepository.collections,
+            )
         }
-
-        runCurrent()
-
-        assertEquals(
-            ResourceState.Success(emptyList()),
-            patternCollectionRepository.collections,
-        )
-    }
 
     @Test
-    fun adding_pattern_collection_updates_collections() = runAppTest {
-        backgroundScope.launch {
-            patternCollectionRepository.observePatternCollections()
-        }
+    fun adding_pattern_collection_updates_collections() =
+        runAppTest {
+            backgroundScope.launch {
+                patternCollectionRepository.observePatternCollections()
+            }
 
-        val patternCollectionId = patternCollectionRepository.addPatternCollection(
-            sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
-        )
+            val patternCollectionId =
+                patternCollectionRepository.addPatternCollection(
+                    sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
+                )
 
-        runCurrent()
+            runCurrent()
 
-        assertEquals(
-            ResourceState.Success(
-                listOf(
-                    PatternCollection(
-                        id = patternCollectionId,
-                        sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
-                        lastSuccessfulSynchronizationTimestamp = null,
-                        lastUnsuccessfulSynchronizationTimestamp = null,
-                        synchronizationFailureMessage = null,
-                        isSynchronizing = false,
+            assertEquals(
+                ResourceState.Success(
+                    listOf(
+                        PatternCollection(
+                            id = patternCollectionId,
+                            sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
+                            lastSuccessfulSynchronizationTimestamp = null,
+                            lastUnsuccessfulSynchronizationTimestamp = null,
+                            synchronizationFailureMessage = null,
+                            isSynchronizing = false,
+                        ),
                     ),
                 ),
-            ),
-            patternCollectionRepository.collections,
-        )
-    }
+                patternCollectionRepository.collections,
+            )
+        }
 
     @Suppress("LongMethod")
     @Test
-    fun after_adding_pattern_collection_synchronization_updates() = runAppTest {
-        backgroundScope.launch {
-            patternCollectionRepository.observePatternCollections()
-        }
+    fun after_adding_pattern_collection_synchronization_updates() =
+        runAppTest {
+            backgroundScope.launch {
+                patternCollectionRepository.observePatternCollections()
+            }
 
-        val patternCollectionId = patternCollectionRepository.addPatternCollection(
-            sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
-        )
+            val patternCollectionId =
+                patternCollectionRepository.addPatternCollection(
+                    sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
+                )
 
-        val synchronizationJob = async {
-            patternCollectionRepository.synchronizePatternCollections()
-        }
+            val synchronizationJob =
+                async {
+                    patternCollectionRepository.synchronizePatternCollections()
+                }
 
-        runCurrent()
+            runCurrent()
 
-        assertEquals(
-            ResourceState.Success(
-                listOf(
-                    PatternCollection(
-                        id = patternCollectionId,
-                        sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
-                        lastSuccessfulSynchronizationTimestamp = null,
-                        lastUnsuccessfulSynchronizationTimestamp = null,
-                        synchronizationFailureMessage = null,
-                        isSynchronizing = true,
+            assertEquals(
+                ResourceState.Success(
+                    listOf(
+                        PatternCollection(
+                            id = patternCollectionId,
+                            sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
+                            lastSuccessfulSynchronizationTimestamp = null,
+                            lastUnsuccessfulSynchronizationTimestamp = null,
+                            synchronizationFailureMessage = null,
+                            isSynchronizing = true,
+                        ),
                     ),
                 ),
-            ),
-            patternCollectionRepository.collections,
-        )
+                patternCollectionRepository.collections,
+            )
 
-        fakeRequestHandler.addRequestHandler { request ->
-            assertEquals("https://alex.vanyo.dev/composelife/patterns.zip", request.url.toString())
-            respond(
+            fakeRequestHandler.addRequestHandler { request ->
+                assertEquals("https://alex.vanyo.dev/composelife/patterns.zip", request.url.toString())
+                respond(
+                    this::class.java
+                        .getResource("/patternfiles/patterns.zip")!!
+                        .readBytes(),
+                )
+            }
+
+            assertTrue(synchronizationJob.await())
+
+            assertEquals(
+                ResourceState.Success(
+                    listOf(
+                        PatternCollection(
+                            id = patternCollectionId,
+                            sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
+                            lastSuccessfulSynchronizationTimestamp = Instant.fromEpochSeconds(0),
+                            lastUnsuccessfulSynchronizationTimestamp = null,
+                            synchronizationFailureMessage = null,
+                            isSynchronizing = false,
+                        ),
+                    ),
+                ),
+                patternCollectionRepository.collections,
+            )
+
+            // Validate that the cell state was extracted on disk
+            val cellStateEntity =
+                cellStateQueries
+                    .getCellStatesByPatternCollectionId(patternCollectionId)
+                    .executeAsOne()
+
+            assertNotNull(cellStateEntity)
+            val serializedCellStateFile = cellStateEntity.serializedCellStateFile
+            assertNotNull(serializedCellStateFile)
+            assertEquals(
+                "PatternCollections/${patternCollectionId.value}/extracted/pulsarpixeldisplay.mc",
+                serializedCellStateFile,
+            )
+            val expectedPath = serializedCellStateFile.toPath()
+            assertEquals(
+                CellState(
+                    id = cellStateEntity.id,
+                    name = null,
+                    description = null,
+                    generation = 0,
+                    formatExtension = "mc",
+                    serializedCellState = null,
+                    serializedCellStateFile = expectedPath.toString(),
+                    wasAutosaved = false,
+                    patternCollectionId = patternCollectionId,
+                ),
+                cellStateEntity,
+            )
+            assertEquals(
+                setOf(
+                    "PatternCollections".toPath(),
+                    "PatternCollections/${patternCollectionId.value}".toPath(),
+                    "PatternCollections/${patternCollectionId.value}/archive.zip".toPath(),
+                    "PatternCollections/${patternCollectionId.value}/archive.sha256".toPath(),
+                    "PatternCollections/${patternCollectionId.value}/extracted".toPath(),
+                    "PatternCollections/${patternCollectionId.value}/extracted/pulsarpixeldisplay.mc".toPath(),
+                    "datastore".toPath(),
+                    "datastore/preferences.pb".toPath(),
+                ),
+                fakeFileSystem
+                    .listRecursively(persistedDataPath)
+                    .map { it.relativeTo(persistedDataPath) }
+                    .toSet(),
+            )
+            assertEquals(
                 this::class.java
-                    .getResource("/patternfiles/patterns.zip")!!
-                    .readBytes(),
+                    .getResource("/patternfiles/pulsarpixeldisplay.mc")!!
+                    .readText(),
+                fakeFileSystem.read(persistedDataPath / expectedPath) { readUtf8() },
+            )
+
+            // Validate that the cell state is queryable through the cell state repository
+            val cellStates = cellStateRepository.getCellStates()
+            assertEquals(1, cellStates.size)
+            val cellStateId = cellStates.first().cellStateMetadata.id
+            assertEquals(
+                CellStateMetadata(
+                    id = cellStateId,
+                    name = null,
+                    description = null,
+                    generation = 0,
+                    wasAutosaved = false,
+                    patternCollectionId = patternCollectionId,
+                ),
+                cellStates.first().cellStateMetadata,
+            )
+            assertEquals(
+                this::class.java
+                    .getResource("/patternfiles/pulsarpixeldisplay.mc")!!
+                    .readText()
+                    .toCellState(fixedFormatCellStateSerializer = MacrocellCellStateSerializer),
+                cellStates.first().cellState,
             )
         }
-
-        assertTrue(synchronizationJob.await())
-
-        assertEquals(
-            ResourceState.Success(
-                listOf(
-                    PatternCollection(
-                        id = patternCollectionId,
-                        sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
-                        lastSuccessfulSynchronizationTimestamp = Instant.fromEpochSeconds(0),
-                        lastUnsuccessfulSynchronizationTimestamp = null,
-                        synchronizationFailureMessage = null,
-                        isSynchronizing = false,
-                    ),
-                ),
-            ),
-            patternCollectionRepository.collections,
-        )
-
-        // Validate that the cell state was extracted on disk
-        val cellStateEntity = cellStateQueries
-            .getCellStatesByPatternCollectionId(patternCollectionId)
-            .executeAsOne()
-
-        assertNotNull(cellStateEntity)
-        val serializedCellStateFile = cellStateEntity.serializedCellStateFile
-        assertNotNull(serializedCellStateFile)
-        assertEquals(
-            "PatternCollections/${patternCollectionId.value}/extracted/pulsarpixeldisplay.mc",
-            serializedCellStateFile,
-        )
-        val expectedPath = serializedCellStateFile.toPath()
-        assertEquals(
-            CellState(
-                id = cellStateEntity.id,
-                name = null,
-                description = null,
-                generation = 0,
-                formatExtension = "mc",
-                serializedCellState = null,
-                serializedCellStateFile = expectedPath.toString(),
-                wasAutosaved = false,
-                patternCollectionId = patternCollectionId,
-            ),
-            cellStateEntity,
-        )
-        assertEquals(
-            setOf(
-                "PatternCollections".toPath(),
-                "PatternCollections/${patternCollectionId.value}".toPath(),
-                "PatternCollections/${patternCollectionId.value}/archive.zip".toPath(),
-                "PatternCollections/${patternCollectionId.value}/archive.sha256".toPath(),
-                "PatternCollections/${patternCollectionId.value}/extracted".toPath(),
-                "PatternCollections/${patternCollectionId.value}/extracted/pulsarpixeldisplay.mc".toPath(),
-                "datastore".toPath(),
-                "datastore/preferences.pb".toPath(),
-            ),
-            fakeFileSystem.listRecursively(persistedDataPath)
-                .map { it.relativeTo(persistedDataPath) }
-                .toSet(),
-        )
-        assertEquals(
-            this::class.java
-                .getResource("/patternfiles/pulsarpixeldisplay.mc")!!
-                .readText(),
-            fakeFileSystem.read(persistedDataPath / expectedPath) { readUtf8() },
-        )
-
-        // Validate that the cell state is queryable through the cell state repository
-        val cellStates = cellStateRepository.getCellStates()
-        assertEquals(1, cellStates.size)
-        val cellStateId = cellStates.first().cellStateMetadata.id
-        assertEquals(
-            CellStateMetadata(
-                id = cellStateId,
-                name = null,
-                description = null,
-                generation = 0,
-                wasAutosaved = false,
-                patternCollectionId = patternCollectionId,
-            ),
-            cellStates.first().cellStateMetadata,
-        )
-        assertEquals(
-            this::class.java
-                .getResource("/patternfiles/pulsarpixeldisplay.mc")!!
-                .readText()
-                .toCellState(fixedFormatCellStateSerializer = MacrocellCellStateSerializer),
-            cellStates.first().cellState,
-        )
-    }
 
     @Test
-    fun deleting_pattern_collection_removes_files() = runAppTest {
-        backgroundScope.launch {
-            patternCollectionRepository.observePatternCollections()
-        }
+    fun deleting_pattern_collection_removes_files() =
+        runAppTest {
+            backgroundScope.launch {
+                patternCollectionRepository.observePatternCollections()
+            }
 
-        val patternCollectionId = patternCollectionRepository.addPatternCollection(
-            sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
-        )
+            val patternCollectionId =
+                patternCollectionRepository.addPatternCollection(
+                    sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
+                )
 
-        val synchronizationJob = async {
-            patternCollectionRepository.synchronizePatternCollections()
-        }
+            val synchronizationJob =
+                async {
+                    patternCollectionRepository.synchronizePatternCollections()
+                }
 
-        runCurrent()
+            runCurrent()
 
-        fakeRequestHandler.addRequestHandler { request ->
-            assertEquals("https://alex.vanyo.dev/composelife/patterns.zip", request.url.toString())
-            respond(
-                this::class.java
-                    .getResource("/patternfiles/patterns.zip")!!
-                    .readBytes(),
+            fakeRequestHandler.addRequestHandler { request ->
+                assertEquals("https://alex.vanyo.dev/composelife/patterns.zip", request.url.toString())
+                respond(
+                    this::class.java
+                        .getResource("/patternfiles/patterns.zip")!!
+                        .readBytes(),
+                )
+            }
+            assertTrue(synchronizationJob.await())
+
+            patternCollectionRepository.deletePatternCollection(patternCollectionId)
+
+            runCurrent()
+
+            assertEquals(
+                ResourceState.Success(emptyList()),
+                patternCollectionRepository.collections,
+            )
+            assertEquals(
+                emptyList(),
+                cellStateRepository.getCellStates(),
+            )
+            assertEquals(
+                setOf(
+                    "PatternCollections".toPath(),
+                    "datastore".toPath(),
+                    "datastore/preferences.pb".toPath(),
+                ),
+                fakeFileSystem
+                    .listRecursively(persistedDataPath)
+                    .map { it.relativeTo(persistedDataPath) }
+                    .toSet(),
             )
         }
-        assertTrue(synchronizationJob.await())
-
-        patternCollectionRepository.deletePatternCollection(patternCollectionId)
-
-        runCurrent()
-
-        assertEquals(
-            ResourceState.Success(emptyList()),
-            patternCollectionRepository.collections,
-        )
-        assertEquals(
-            emptyList(),
-            cellStateRepository.getCellStates(),
-        )
-        assertEquals(
-            setOf(
-                "PatternCollections".toPath(),
-                "datastore".toPath(),
-                "datastore/preferences.pb".toPath(),
-            ),
-            fakeFileSystem.listRecursively(persistedDataPath)
-                .map { it.relativeTo(persistedDataPath) }
-                .toSet(),
-        )
-    }
 
     @Suppress("LongMethod")
     @Test
-    fun deleting_pattern_from_archive_removes_files() = runAppTest {
-        backgroundScope.launch {
-            patternCollectionRepository.observePatternCollections()
-        }
+    fun deleting_pattern_from_archive_removes_files() =
+        runAppTest {
+            backgroundScope.launch {
+                patternCollectionRepository.observePatternCollections()
+            }
 
-        val patternCollectionId = patternCollectionRepository.addPatternCollection(
-            sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
-        )
+            val patternCollectionId =
+                patternCollectionRepository.addPatternCollection(
+                    sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
+                )
 
-        val synchronizationJob = async {
-            patternCollectionRepository.synchronizePatternCollections()
-        }
+            val synchronizationJob =
+                async {
+                    patternCollectionRepository.synchronizePatternCollections()
+                }
 
-        runCurrent()
+            runCurrent()
 
-        assertEquals(
-            ResourceState.Success(
-                listOf(
-                    PatternCollection(
-                        id = patternCollectionId,
-                        sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
-                        lastSuccessfulSynchronizationTimestamp = null,
-                        lastUnsuccessfulSynchronizationTimestamp = null,
-                        synchronizationFailureMessage = null,
-                        isSynchronizing = true,
+            assertEquals(
+                ResourceState.Success(
+                    listOf(
+                        PatternCollection(
+                            id = patternCollectionId,
+                            sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
+                            lastSuccessfulSynchronizationTimestamp = null,
+                            lastUnsuccessfulSynchronizationTimestamp = null,
+                            synchronizationFailureMessage = null,
+                            isSynchronizing = true,
+                        ),
                     ),
                 ),
-            ),
-            patternCollectionRepository.collections,
-        )
-
-        fakeRequestHandler.addRequestHandler { request ->
-            assertEquals("https://alex.vanyo.dev/composelife/patterns.zip", request.url.toString())
-            respond(
-                this::class.java
-                    .getResource("/patternfiles/patterns.zip")!!
-                    .readBytes(),
+                patternCollectionRepository.collections,
             )
-        }
 
-        assertTrue(synchronizationJob.await())
+            fakeRequestHandler.addRequestHandler { request ->
+                assertEquals("https://alex.vanyo.dev/composelife/patterns.zip", request.url.toString())
+                respond(
+                    this::class.java
+                        .getResource("/patternfiles/patterns.zip")!!
+                        .readBytes(),
+                )
+            }
 
-        assertEquals(
-            ResourceState.Success(
-                listOf(
-                    PatternCollection(
-                        id = patternCollectionId,
-                        sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
-                        lastSuccessfulSynchronizationTimestamp = Instant.fromEpochSeconds(0),
-                        lastUnsuccessfulSynchronizationTimestamp = null,
-                        synchronizationFailureMessage = null,
-                        isSynchronizing = false,
+            assertTrue(synchronizationJob.await())
+
+            assertEquals(
+                ResourceState.Success(
+                    listOf(
+                        PatternCollection(
+                            id = patternCollectionId,
+                            sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
+                            lastSuccessfulSynchronizationTimestamp = Instant.fromEpochSeconds(0),
+                            lastUnsuccessfulSynchronizationTimestamp = null,
+                            synchronizationFailureMessage = null,
+                            isSynchronizing = false,
+                        ),
                     ),
                 ),
-            ),
-            patternCollectionRepository.collections,
-        )
+                patternCollectionRepository.collections,
+            )
 
-        fakeRequestHandler.addRequestHandler { request ->
-            assertEquals("https://alex.vanyo.dev/composelife/patterns.zip", request.url.toString())
-            respond(
-                this::class.java
-                    .getResource("/patternfiles/empty.zip")!!
-                    .readBytes(),
+            fakeRequestHandler.addRequestHandler { request ->
+                assertEquals("https://alex.vanyo.dev/composelife/patterns.zip", request.url.toString())
+                respond(
+                    this::class.java
+                        .getResource("/patternfiles/empty.zip")!!
+                        .readBytes(),
+                )
+            }
+
+            assertTrue(patternCollectionRepository.synchronizePatternCollections())
+
+            // Validate that the cell state was deleted
+            val cellStates = cellStateRepository.getCellStates()
+            assertEquals(emptyList(), cellStates)
+            assertEquals(
+                setOf(
+                    "PatternCollections".toPath(),
+                    "PatternCollections/${patternCollectionId.value}".toPath(),
+                    "PatternCollections/${patternCollectionId.value}/archive.zip".toPath(),
+                    "PatternCollections/${patternCollectionId.value}/archive.sha256".toPath(),
+                    "PatternCollections/${patternCollectionId.value}/extracted".toPath(),
+                    "datastore".toPath(),
+                    "datastore/preferences.pb".toPath(),
+                ),
+                fakeFileSystem
+                    .listRecursively(persistedDataPath)
+                    .map { it.relativeTo(persistedDataPath) }
+                    .toSet(),
             )
         }
-
-        assertTrue(patternCollectionRepository.synchronizePatternCollections())
-
-        // Validate that the cell state was deleted
-        val cellStates = cellStateRepository.getCellStates()
-        assertEquals(emptyList(), cellStates)
-        assertEquals(
-            setOf(
-                "PatternCollections".toPath(),
-                "PatternCollections/${patternCollectionId.value}".toPath(),
-                "PatternCollections/${patternCollectionId.value}/archive.zip".toPath(),
-                "PatternCollections/${patternCollectionId.value}/archive.sha256".toPath(),
-                "PatternCollections/${patternCollectionId.value}/extracted".toPath(),
-                "datastore".toPath(),
-                "datastore/preferences.pb".toPath(),
-            ),
-            fakeFileSystem.listRecursively(persistedDataPath)
-                .map { it.relativeTo(persistedDataPath) }
-                .toSet(),
-        )
-    }
 }

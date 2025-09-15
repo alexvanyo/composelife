@@ -95,28 +95,33 @@ fun <T> CrossfadePredictiveNavigationFrame(
     contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
     animateInternalContentSizeChanges: Boolean = false,
 ) {
-    val rememberedPanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
-        key(id) {
-            rememberUpdatedState(paneContent)
-        }
-    }
-
-    val backstackState = renderableNavigationState.navigationState
-    val targetState = when (navigationEventState) {
-        is NavigationEventState.Idle<NavigationEventInfo> -> TargetState.Single(backstackState.currentEntry)
-        is NavigationEventState.InProgress<NavigationEventInfo> -> {
-            val previous = backstackState.previousEntry
-            if (previous != null) {
-                TargetState.InProgress(
-                    current = backstackState.currentEntry,
-                    provisional = previous,
-                    progress = navigationEventState.progress,
-                )
-            } else {
-                TargetState.Single(backstackState.currentEntry)
+    val rememberedPanes =
+        renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
+            key(id) {
+                rememberUpdatedState(paneContent)
             }
         }
-    }
+
+    val backstackState = renderableNavigationState.navigationState
+    val targetState =
+        when (navigationEventState) {
+            is NavigationEventState.Idle<NavigationEventInfo> -> {
+                TargetState.Single(backstackState.currentEntry)
+            }
+
+            is NavigationEventState.InProgress<NavigationEventInfo> -> {
+                val previous = backstackState.previousEntry
+                if (previous != null) {
+                    TargetState.InProgress(
+                        current = backstackState.currentEntry,
+                        provisional = previous,
+                        progress = navigationEventState.progress,
+                    )
+                } else {
+                    TargetState.Single(backstackState.currentEntry)
+                }
+            }
+        }
 
     AnimatedContent(
         targetState = targetState,
@@ -150,30 +155,35 @@ fun <T> MaterialPredictiveNavigationFrame(
     animateInternalContentSizeChanges: Boolean = false,
     clipUsingWindowShape: Boolean = false,
 ) {
-    val rememberedPanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
-        key(id) {
-            rememberUpdatedState(paneContent)
+    val rememberedPanes =
+        renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
+            key(id) {
+                rememberUpdatedState(paneContent)
+            }
         }
-    }
 
     val backstackState = renderableNavigationState.navigationState
 
-    val targetState = when (navigationEventState) {
-        is NavigationEventState.Idle<*> -> TargetState.Single(backstackState.currentEntry)
-        is NavigationEventState.InProgress<*> -> {
-            val previous = backstackState.previousEntry
-            if (previous != null) {
-                TargetState.InProgress(
-                    current = backstackState.currentEntry,
-                    provisional = previous,
-                    progress = navigationEventState.progress,
-                    metadata = navigationEventState,
-                )
-            } else {
+    val targetState =
+        when (navigationEventState) {
+            is NavigationEventState.Idle<*> -> {
                 TargetState.Single(backstackState.currentEntry)
             }
+
+            is NavigationEventState.InProgress<*> -> {
+                val previous = backstackState.previousEntry
+                if (previous != null) {
+                    TargetState.InProgress(
+                        current = backstackState.currentEntry,
+                        provisional = previous,
+                        progress = navigationEventState.progress,
+                        metadata = navigationEventState,
+                    )
+                } else {
+                    TargetState.Single(backstackState.currentEntry)
+                }
+            }
         }
-    }
 
     AnimatedContent(
         targetState = targetState,
@@ -186,15 +196,22 @@ fun <T> MaterialPredictiveNavigationFrame(
                     when (initialState) {
                         is ContentStatus.Appearing,
                         is ContentStatus.Disappearing,
-                        -> spring()
+                        -> {
+                            spring()
+                        }
+
                         ContentStatus.NotVisible,
                         ContentStatus.Visible,
-                        -> when (this@animateFloat.targetState) {
-                            is ContentStatus.Appearing,
-                            is ContentStatus.Disappearing,
-                            -> spring()
-                            ContentStatus.NotVisible -> tween(durationMillis = 90)
-                            ContentStatus.Visible -> tween(durationMillis = 220, delayMillis = 90)
+                        -> {
+                            when (this@animateFloat.targetState) {
+                                is ContentStatus.Appearing,
+                                is ContentStatus.Disappearing,
+                                -> spring()
+
+                                ContentStatus.NotVisible -> tween(durationMillis = 90)
+
+                                ContentStatus.Visible -> tween(durationMillis = 220, delayMillis = 90)
+                            }
                         }
                     }
                 },
@@ -213,13 +230,25 @@ fun <T> MaterialPredictiveNavigationFrame(
                 )
             }.apply {
                 when (contentStatusTargetState) {
-                    is ContentStatus.Appearing -> value = null
-                    is ContentStatus.Disappearing -> if (contentStatusTargetState.progressToNotVisible >= 0.01f) {
-                        // Only save that we were disappearing if the progress is at least 1% along
-                        value = contentStatusTargetState
+                    is ContentStatus.Appearing -> {
+                        value = null
                     }
-                    ContentStatus.NotVisible -> Unit // Preserve the previous value of wasDisappearing
-                    ContentStatus.Visible -> value = null
+
+                    is ContentStatus.Disappearing -> {
+                        if (contentStatusTargetState.progressToNotVisible >= 0.01f) {
+                            // Only save that we were disappearing if the progress is at least 1% along
+                            value = contentStatusTargetState
+                        }
+                    }
+
+                    ContentStatus.NotVisible -> {
+                        Unit
+                    }
+
+                    // Preserve the previous value of wasDisappearing
+                    ContentStatus.Visible -> {
+                        value = null
+                    }
                 }
             }
             val scale by animateFloat(
@@ -236,27 +265,36 @@ fun <T> MaterialPredictiveNavigationFrame(
                 label = "translationX",
             ) {
                 when (it) {
-                    is ContentStatus.Appearing -> 0.dp
+                    is ContentStatus.Appearing -> {
+                        0.dp
+                    }
+
                     is ContentStatus.Disappearing -> {
                         val metadata = it.metadata
                         lerp(
                             0.dp,
                             8.dp,
                             it.progressToNotVisible,
-                        ) * when (metadata.latestEvent.swipeEdge) {
-                            NavigationEventSwipeEdge.Left -> -1f
-                            NavigationEventSwipeEdge.Right -> 1f
-                            else -> 0f
-                        }
+                        ) *
+                            when (metadata.latestEvent.swipeEdge) {
+                                NavigationEventSwipeEdge.Left -> -1f
+                                NavigationEventSwipeEdge.Right -> 1f
+                                else -> 0f
+                            }
                     }
+
                     ContentStatus.NotVisible -> {
-                        8.dp * when (lastDisappearingValue?.metadata?.latestEvent?.swipeEdge) {
-                            NavigationEventSwipeEdge.Left -> -1f
-                            NavigationEventSwipeEdge.Right -> 1f
-                            else -> 0f
-                        }
+                        8.dp *
+                            when (lastDisappearingValue?.metadata?.latestEvent?.swipeEdge) {
+                                NavigationEventSwipeEdge.Left -> -1f
+                                NavigationEventSwipeEdge.Right -> 1f
+                                else -> 0f
+                            }
                     }
-                    ContentStatus.Visible -> 0.dp
+
+                    ContentStatus.Visible -> {
+                        0.dp
+                    }
                 }
             }
             val cornerRadius by animateDp(
@@ -273,7 +311,10 @@ fun <T> MaterialPredictiveNavigationFrame(
                 label = "pivotFractionX",
             ) {
                 when (it) {
-                    is ContentStatus.Appearing -> 0.5f
+                    is ContentStatus.Appearing -> {
+                        0.5f
+                    }
+
                     is ContentStatus.Disappearing -> {
                         when (it.metadata.latestEvent.swipeEdge) {
                             NavigationEventSwipeEdge.Left -> 1f
@@ -281,6 +322,7 @@ fun <T> MaterialPredictiveNavigationFrame(
                             else -> 0.5f
                         }
                     }
+
                     ContentStatus.NotVisible -> {
                         when (lastDisappearingValue?.metadata?.latestEvent?.swipeEdge) {
                             NavigationEventSwipeEdge.Left -> 1f
@@ -288,7 +330,10 @@ fun <T> MaterialPredictiveNavigationFrame(
                             else -> 0.5f
                         }
                     }
-                    ContentStatus.Visible -> 0.5f
+
+                    ContentStatus.Visible -> {
+                        0.5f
+                    }
                 }
             }
 
@@ -296,33 +341,40 @@ fun <T> MaterialPredictiveNavigationFrame(
             var relativeLayoutBounds: RelativeLayoutBounds? by remember { mutableStateOf(null) }
 
             Box(
-                modifier = Modifier
+                modifier =
+                Modifier
                     .onLayoutRectChanged(
                         throttleMillis = 0,
                         debounceMillis = 0,
                     ) {
                         relativeLayoutBounds = it
-                    }
-                    .graphicsLayer {
-                        shape = if (clipUsingWindowShape) {
-                            val cornerRadiusPath = Path().apply {
-                                addRoundRect(
-                                    RoundRect(size.toRect(), CornerRadius(cornerRadius.toPx())),
-                                )
+                    }.graphicsLayer {
+                        shape =
+                            if (clipUsingWindowShape) {
+                                val cornerRadiusPath =
+                                    Path().apply {
+                                        addRoundRect(
+                                            RoundRect(size.toRect(), CornerRadius(cornerRadius.toPx())),
+                                        )
+                                    }
+                                val clippingPath =
+                                    cornerRadiusPath and
+                                        windowShape.path.copy().apply {
+                                            translate(
+                                                -(relativeLayoutBounds?.positionInWindow?.toOffset()
+                                                    ?: Offset.Zero),
+                                            )
+                                        }
+                                object : Shape {
+                                    override fun createOutline(
+                                        size: Size,
+                                        layoutDirection: LayoutDirection,
+                                        density: Density,
+                                    ): Outline = Outline.Generic(clippingPath)
+                                }
+                            } else {
+                                RoundedCornerShape(cornerRadius)
                             }
-                            val clippingPath = cornerRadiusPath and windowShape.path.copy().apply {
-                                translate(-(relativeLayoutBounds?.positionInWindow?.toOffset() ?: Offset.Zero))
-                            }
-                            object : Shape {
-                                override fun createOutline(
-                                    size: Size,
-                                    layoutDirection: LayoutDirection,
-                                    density: Density,
-                                ): Outline = Outline.Generic(clippingPath)
-                            }
-                        } else {
-                            RoundedCornerShape(cornerRadius)
-                        }
                         shadowElevation = 6.dp.toPx()
                         this.translationX = translationX.toPx()
                         this.alpha = alpha
@@ -336,7 +388,8 @@ fun <T> MaterialPredictiveNavigationFrame(
                 contentWithStatus()
             }
         },
-        targetRenderingComparator = compareByDescending { entry ->
+        targetRenderingComparator =
+        compareByDescending { entry ->
             // Render items in order of the backstack, with the top of the backstack rendered last
             // If the entry is not in the backstack at all, assume that it is disappearing aftering being popped, and
             // render it on top of everything still in the backstack

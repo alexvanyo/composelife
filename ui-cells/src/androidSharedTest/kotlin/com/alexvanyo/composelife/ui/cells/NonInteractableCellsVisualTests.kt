@@ -55,150 +55,159 @@ val UiGraph.nonInteractableCellsVisualTestsCtx: NonInteractableCellsVisualTestsC
     this as NonInteractableCellsVisualTestsCtx
 
 @OptIn(ExperimentalTestApi::class)
-class NonInteractableCellsVisualTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
+class NonInteractableCellsVisualTests :
+    BaseUiInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
     @Test
-    fun non_interactable_cells_draws_correctly_dark_mode() = runUiTest { uiGraph ->
-        assumeTrue(Build.VERSION.SDK_INT >= 28)
-        if (Build.VERSION.SDK_INT < 28) return@runUiTest
+    fun non_interactable_cells_draws_correctly_dark_mode() =
+        runUiTest { uiGraph ->
+            assumeTrue(Build.VERSION.SDK_INT >= 28)
+            if (Build.VERSION.SDK_INT < 28) return@runUiTest
 
-        val ctx = uiGraph.nonInteractableCellsVisualTestsCtx
-        ctx.testComposeLifePreferences.disableAGSL = true
-        ctx.testComposeLifePreferences.disableOpenGL = true
+            val ctx = uiGraph.nonInteractableCellsVisualTestsCtx
+            ctx.testComposeLifePreferences.disableAGSL = true
+            ctx.testComposeLifePreferences.disableOpenGL = true
 
-        val cellState = setOf(
-            0 to 0,
-            2 to 0,
-            4 to 0,
-            0 to 2,
-            2 to 2,
-            4 to 2,
-            0 to 4,
-            2 to 4,
-            4 to 4,
-        ).toCellState()
+            val cellState =
+                setOf(
+                    0 to 0,
+                    2 to 0,
+                    4 to 0,
+                    0 to 2,
+                    2 to 2,
+                    4 to 2,
+                    0 to 4,
+                    2 to 4,
+                    4 to 4,
+                ).toCellState()
 
-        var aliveCellColor: Color? = null
-        var deadCellColor: Color? = null
+            var aliveCellColor: Color? = null
+            var deadCellColor: Color? = null
 
-        setContent {
-            ComposeLifeTheme(darkTheme = true) {
-                with(ctx.nonInteractableCellsCtx) {
-                    NonInteractableCells(
-                        gameOfLifeState = GameOfLifeState(
-                            setOf(
-                                0 to 0,
-                                2 to 0,
-                                4 to 0,
-                                0 to 2,
-                                2 to 2,
-                                4 to 2,
-                                0 to 4,
-                                2 to 4,
-                                4 to 4,
-                            ).toCellState(),
-                        ),
-                        scaledCellDpSize = with(LocalDensity.current) { 1.toDp() },
-                        cellWindow = CellWindow(
-                            IntRect(
-                                IntOffset(0, 0),
-                                IntSize(10, 10),
+            setContent {
+                ComposeLifeTheme(darkTheme = true) {
+                    with(ctx.nonInteractableCellsCtx) {
+                        NonInteractableCells(
+                            gameOfLifeState =
+                            GameOfLifeState(
+                                setOf(
+                                    0 to 0,
+                                    2 to 0,
+                                    4 to 0,
+                                    0 to 2,
+                                    2 to 2,
+                                    4 to 2,
+                                    0 to 4,
+                                    2 to 4,
+                                    4 to 4,
+                                ).toCellState(),
                             ),
-                        ),
-                        pixelOffsetFromCenter = Offset.Zero,
-                        isThumbnail = false,
-                        modifier = Modifier.size(with(LocalDensity.current) { 10.toDp() }),
-                    )
+                            scaledCellDpSize = with(LocalDensity.current) { 1.toDp() },
+                            cellWindow =
+                            CellWindow(
+                                IntRect(
+                                    IntOffset(0, 0),
+                                    IntSize(10, 10),
+                                ),
+                            ),
+                            pixelOffsetFromCenter = Offset.Zero,
+                            isThumbnail = false,
+                            modifier = Modifier.size(with(LocalDensity.current) { 10.toDp() }),
+                        )
+                    }
+
+                    aliveCellColor = ComposeLifeTheme.aliveCellColor
+                    deadCellColor = ComposeLifeTheme.deadCellColor
                 }
+            }
 
-                aliveCellColor = ComposeLifeTheme.aliveCellColor
-                deadCellColor = ComposeLifeTheme.deadCellColor
+            onRoot().captureToImage().assertPixels(
+                IntSize(10, 10),
+            ) {
+                if (it in cellState.aliveCells) {
+                    @Suppress("UnsafeCallOnNullableType")
+                    aliveCellColor!!
+                } else {
+                    @Suppress("UnsafeCallOnNullableType")
+                    deadCellColor!!
+                }
             }
         }
-
-        onRoot().captureToImage().assertPixels(
-            IntSize(10, 10),
-        ) {
-            if (it in cellState.aliveCells) {
-                @Suppress("UnsafeCallOnNullableType")
-                aliveCellColor!!
-            } else {
-                @Suppress("UnsafeCallOnNullableType")
-                deadCellColor!!
-            }
-        }
-    }
 
     @Test
-    fun non_interactable_cells_draws_correctly_light_mode() = runUiTest { uiGraph ->
-        assumeTrue(Build.VERSION.SDK_INT >= 28)
-        if (Build.VERSION.SDK_INT < 28) return@runUiTest
+    fun non_interactable_cells_draws_correctly_light_mode() =
+        runUiTest { uiGraph ->
+            assumeTrue(Build.VERSION.SDK_INT >= 28)
+            if (Build.VERSION.SDK_INT < 28) return@runUiTest
 
-        val ctx = uiGraph.nonInteractableCellsVisualTestsCtx
-        ctx.testComposeLifePreferences.disableAGSL = true
-        ctx.testComposeLifePreferences.disableOpenGL = true
+            val ctx = uiGraph.nonInteractableCellsVisualTestsCtx
+            ctx.testComposeLifePreferences.disableAGSL = true
+            ctx.testComposeLifePreferences.disableOpenGL = true
 
-        val cellState = setOf(
-            0 to 0,
-            2 to 0,
-            4 to 0,
-            0 to 2,
-            2 to 2,
-            4 to 2,
-            0 to 4,
-            2 to 4,
-            4 to 4,
-        ).toCellState()
+            val cellState =
+                setOf(
+                    0 to 0,
+                    2 to 0,
+                    4 to 0,
+                    0 to 2,
+                    2 to 2,
+                    4 to 2,
+                    0 to 4,
+                    2 to 4,
+                    4 to 4,
+                ).toCellState()
 
-        var aliveCellColor: Color? = null
-        var deadCellColor: Color? = null
+            var aliveCellColor: Color? = null
+            var deadCellColor: Color? = null
 
-        setContent {
-            ComposeLifeTheme(darkTheme = false) {
-                with(ctx.nonInteractableCellsCtx) {
-                    NonInteractableCells(
-                        gameOfLifeState = GameOfLifeState(
-                            setOf(
-                                0 to 0,
-                                2 to 0,
-                                4 to 0,
-                                0 to 2,
-                                2 to 2,
-                                4 to 2,
-                                0 to 4,
-                                2 to 4,
-                                4 to 4,
-                            ).toCellState(),
-                        ),
-                        scaledCellDpSize = with(LocalDensity.current) { 1.toDp() },
-                        cellWindow = CellWindow(
-                            IntRect(
-                                IntOffset(0, 0),
-                                IntSize(10, 10),
+            setContent {
+                ComposeLifeTheme(darkTheme = false) {
+                    with(ctx.nonInteractableCellsCtx) {
+                        NonInteractableCells(
+                            gameOfLifeState =
+                            GameOfLifeState(
+                                setOf(
+                                    0 to 0,
+                                    2 to 0,
+                                    4 to 0,
+                                    0 to 2,
+                                    2 to 2,
+                                    4 to 2,
+                                    0 to 4,
+                                    2 to 4,
+                                    4 to 4,
+                                ).toCellState(),
                             ),
-                        ),
-                        pixelOffsetFromCenter = Offset.Zero,
-                        isThumbnail = false,
-                        modifier = Modifier.size(with(LocalDensity.current) { 10.toDp() }),
-                    )
+                            scaledCellDpSize = with(LocalDensity.current) { 1.toDp() },
+                            cellWindow =
+                            CellWindow(
+                                IntRect(
+                                    IntOffset(0, 0),
+                                    IntSize(10, 10),
+                                ),
+                            ),
+                            pixelOffsetFromCenter = Offset.Zero,
+                            isThumbnail = false,
+                            modifier = Modifier.size(with(LocalDensity.current) { 10.toDp() }),
+                        )
+                    }
+
+                    aliveCellColor = ComposeLifeTheme.aliveCellColor
+                    deadCellColor = ComposeLifeTheme.deadCellColor
                 }
+            }
 
-                aliveCellColor = ComposeLifeTheme.aliveCellColor
-                deadCellColor = ComposeLifeTheme.deadCellColor
+            onRoot().captureToImage().assertPixels(
+                IntSize(10, 10),
+            ) {
+                if (it in cellState.aliveCells) {
+                    @Suppress("UnsafeCallOnNullableType")
+                    aliveCellColor!!
+                } else {
+                    @Suppress("UnsafeCallOnNullableType")
+                    deadCellColor!!
+                }
             }
         }
-
-        onRoot().captureToImage().assertPixels(
-            IntSize(10, 10),
-        ) {
-            if (it in cellState.aliveCells) {
-                @Suppress("UnsafeCallOnNullableType")
-                aliveCellColor!!
-            } else {
-                @Suppress("UnsafeCallOnNullableType")
-                deadCellColor!!
-            }
-        }
-    }
 }

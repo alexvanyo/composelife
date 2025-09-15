@@ -40,15 +40,14 @@ interface TestDriverBindings {
     companion object {
         @Provides
         @SingleIn(AppScope::class)
-        fun providesDriver(
-            @ApplicationContext context: Context,
-        ): SqlDriver {
+        fun providesDriver(@ApplicationContext context: Context): SqlDriver {
             val schema = ComposeLifeDatabase.Schema.synchronous()
             return AndroidSqliteDriver(
                 schema = schema,
                 context = context,
                 name = null,
-                callback = object : AndroidSqliteDriver.Callback(schema) {
+                callback =
+                object : AndroidSqliteDriver.Callback(schema) {
                     override fun onConfigure(db: SupportSQLiteDatabase) {
                         db.setForeignKeyConstraintsEnabled(true)
                     }
@@ -60,13 +59,12 @@ interface TestDriverBindings {
         @SingleIn(AppScope::class)
         @IntoSet
         @ForScope(AppScope::class)
-        fun providesDriverClosingIntoUpdatable(
-            driver: SqlDriver,
-        ): Updatable = object : Updatable {
-            override suspend fun update(): Nothing =
-                driver.use { _ ->
-                    awaitCancellation()
-                }
-        }
+        fun providesDriverClosingIntoUpdatable(driver: SqlDriver): Updatable =
+            object : Updatable {
+                override suspend fun update(): Nothing =
+                    driver.use { _ ->
+                        awaitCancellation()
+                    }
+            }
     }
 }

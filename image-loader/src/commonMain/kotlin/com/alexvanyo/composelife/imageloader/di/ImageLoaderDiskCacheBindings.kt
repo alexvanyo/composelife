@@ -36,14 +36,13 @@ interface ImageLoaderDiskCacheBindings {
     companion object {
         @SingleIn(AppScope::class)
         @Provides
-        internal fun providesDiskCache(
-            dispatchers: ComposeLifeDispatchers,
-            fileSystem: FileSystem,
-        ): DiskCache = DiskCache.Builder()
-            .directory(FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "coil3_disk_cache")
-            .fileSystem(fileSystem)
-            .cleanupCoroutineContext(dispatchers.IO)
-            .build()
+        internal fun providesDiskCache(dispatchers: ComposeLifeDispatchers, fileSystem: FileSystem): DiskCache =
+            DiskCache
+                .Builder()
+                .directory(FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "coil3_disk_cache")
+                .fileSystem(fileSystem)
+                .cleanupCoroutineContext(dispatchers.IO)
+                .build()
 
         @Provides
         @SingleIn(AppScope::class)
@@ -52,16 +51,17 @@ interface ImageLoaderDiskCacheBindings {
         internal fun providesDiskCacheShutdownIntoUpdatable(
             diskCache: Lazy<DiskCache>,
             dispatchers: ComposeLifeDispatchers,
-        ): Updatable = object : Updatable {
-            override suspend fun update(): Nothing =
-                withContext(dispatchers.IO) {
-                    val cache = diskCache.value
-                    try {
-                        awaitCancellation()
-                    } finally {
-                        cache.shutdown()
+        ): Updatable =
+            object : Updatable {
+                override suspend fun update(): Nothing =
+                    withContext(dispatchers.IO) {
+                        val cache = diskCache.value
+                        try {
+                            awaitCancellation()
+                        } finally {
+                            cache.shutdown()
+                        }
                     }
-                }
-        }
+            }
     }
 }

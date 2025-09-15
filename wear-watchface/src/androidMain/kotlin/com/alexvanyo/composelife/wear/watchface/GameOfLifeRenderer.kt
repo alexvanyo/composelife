@@ -74,10 +74,11 @@ class GameOfLifeRenderer(
 
     private var previousLocalTime = LocalTime.MIN
 
-    private val shape: CurrentShape = CurrentShape.RoundRectangle(
-        sizeFraction = 1f,
-        cornerFraction = 0f,
-    )
+    private val shape: CurrentShape =
+        CurrentShape.RoundRectangle(
+            sizeFraction = 1f,
+            cornerFraction = 0f,
+        )
 
     private var cellSize by Delegates.notNull<Float>()
 
@@ -99,17 +100,19 @@ class GameOfLifeRenderer(
 
         GLES20.glClearColor(0f, 0f, 0f, 0f)
 
-        gameOfLifeShape = GameOfLifeShape(
-            texture = 10,
-        )
-        gameOfLifeShape.setSize(width, height)
-        complicationShapes = complicationSlotsManager.complicationSlots.values.mapIndexed { index, complicationSlot ->
-            ComplicationShape(
-                screenSize = IntSize(width, height),
-                complicationSlot = complicationSlot,
-                texture = 11 + index,
+        gameOfLifeShape =
+            GameOfLifeShape(
+                texture = 10,
             )
-        }
+        gameOfLifeShape.setSize(width, height)
+        complicationShapes =
+            complicationSlotsManager.complicationSlots.values.mapIndexed { index, complicationSlot ->
+                ComplicationShape(
+                    screenSize = IntSize(width, height),
+                    complicationSlot = complicationSlot,
+                    texture = 11 + index,
+                )
+            }
     }
 
     @Suppress("LongMethod", "NestedBlockDepth", "CyclomaticComplexMethod")
@@ -120,10 +123,11 @@ class GameOfLifeRenderer(
 
         if (previousLocalTime.hour != localTime.hour || previousLocalTime.minute != localTime.minute) {
             Snapshot.withMutableSnapshot {
-                temporalGameOfLifeState.cellState = createTimeCellState(
-                    isRound = isRound,
-                    timeDigits = createTimeDigits(localTime, use24HourFormat),
-                )
+                temporalGameOfLifeState.cellState =
+                    createTimeCellState(
+                        isRound = isRound,
+                        timeDigits = createTimeDigits(localTime, use24HourFormat),
+                    )
             }
         }
 
@@ -132,29 +136,34 @@ class GameOfLifeRenderer(
         val cellsBuffer = IntBuffer.allocate(cellWindow.width * cellWindow.height)
 
         cellState.getAliveCellsInWindow(cellWindow).forEach { cell ->
-            val index = (cellWindow.bottom - 1 - cell.y) * cellWindow.width +
-                cell.x - cellWindow.left
+            val index =
+                (cellWindow.bottom - 1 - cell.y) *
+                    cellWindow.width +
+                    cell.x -
+                    cellWindow.left
             cellsBuffer.put(index, android.graphics.Color.WHITE)
         }
 
-        val gameOfLifeColor = with(currentUserStyleRepository.schema) {
-            currentUserStyleRepository.userStyle.value.getGameOfLifeColor()
-        }
-
-        val screenShapeParameters = when (shape) {
-            is CurrentShape.RoundRectangle -> {
-                GameOfLifeShapeParameters.RoundRectangle(
-                    cells = cellsBuffer,
-                    aliveColor = gameOfLifeColor,
-                    deadColor = Color.Black,
-                    cellWindowSize = cellWindow.size,
-                    scaledCellPixelSize = cellSize,
-                    pixelOffsetFromCenter = Offset.Zero,
-                    sizeFraction = shape.sizeFraction,
-                    cornerFraction = shape.cornerFraction,
-                )
+        val gameOfLifeColor =
+            with(currentUserStyleRepository.schema) {
+                currentUserStyleRepository.userStyle.value.getGameOfLifeColor()
             }
-        }
+
+        val screenShapeParameters =
+            when (shape) {
+                is CurrentShape.RoundRectangle -> {
+                    GameOfLifeShapeParameters.RoundRectangle(
+                        cells = cellsBuffer,
+                        aliveColor = gameOfLifeColor,
+                        deadColor = Color.Black,
+                        cellWindowSize = cellWindow.size,
+                        scaledCellPixelSize = cellSize,
+                        pixelOffsetFromCenter = Offset.Zero,
+                        sizeFraction = shape.sizeFraction,
+                        cornerFraction = shape.cornerFraction,
+                    )
+                }
+            }
 
         GLES20.glClearColor(0f, 0f, 0f, 1f)
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
@@ -211,9 +220,10 @@ class GameOfLifeRenderer(
     }
 
     override fun renderHighlightLayer(zonedDateTime: ZonedDateTime, sharedAssets: SharedAssets) {
-        val highlightLayer = requireNotNull(renderParameters.highlightLayer) {
-            "Trying to render highlight layer, but it was null!"
-        }
+        val highlightLayer =
+            requireNotNull(renderParameters.highlightLayer) {
+                "Trying to render highlight layer, but it was null!"
+            }
         val highlightedElement = highlightLayer.highlightedElement
         val backgroundTint = Color(highlightLayer.backgroundTint)
         GLES20.glClearColor(
@@ -229,12 +239,20 @@ class GameOfLifeRenderer(
             GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ZERO)
 
             complicationShapes.forEach { complicationShape ->
-                val shouldDrawComplicationHighlight = when (highlightedElement) {
-                    RenderParameters.HighlightedElement.AllComplicationSlots -> true
-                    is RenderParameters.HighlightedElement.ComplicationSlot ->
-                        highlightedElement.id == complicationShape.id
-                    is RenderParameters.HighlightedElement.UserStyle -> false
-                }
+                val shouldDrawComplicationHighlight =
+                    when (highlightedElement) {
+                        RenderParameters.HighlightedElement.AllComplicationSlots -> {
+                            true
+                        }
+
+                        is RenderParameters.HighlightedElement.ComplicationSlot -> {
+                            highlightedElement.id == complicationShape.id
+                        }
+
+                        is RenderParameters.HighlightedElement.UserStyle -> {
+                            false
+                        }
+                    }
                 if (shouldDrawComplicationHighlight) {
                     complicationShape.draw(zonedDateTime, renderParameters, mvpMatrix, true)
                 }
@@ -242,21 +260,20 @@ class GameOfLifeRenderer(
         }
     }
 
-    override suspend fun createSharedAssets(): SharedAssets = object : SharedAssets {
-        override fun onDestroy() = Unit
-    }
+    override suspend fun createSharedAssets(): SharedAssets =
+        object : SharedAssets {
+            override fun onDestroy() = Unit
+        }
 }
 
-private fun createTimeCellState(
-    isRound: Boolean,
-    timeDigits: TimeDigits,
-): CellState {
-    val timeCellState = timeDigits.firstDigit.cellState
-        .union(timeDigits.secondDigit.cellState.offsetBy(IntOffset(14, 0)))
-        .union(timeDigits.thirdDigit.cellState.offsetBy(IntOffset(32, 0)))
-        .union(timeDigits.fourthDigit.cellState.offsetBy(IntOffset(46, 0)))
-        .union(
-            """
+private fun createTimeCellState(isRound: Boolean, timeDigits: TimeDigits): CellState {
+    val timeCellState =
+        timeDigits.firstDigit.cellState
+            .union(timeDigits.secondDigit.cellState.offsetBy(IntOffset(14, 0)))
+            .union(timeDigits.thirdDigit.cellState.offsetBy(IntOffset(32, 0)))
+            .union(timeDigits.fourthDigit.cellState.offsetBy(IntOffset(46, 0)))
+            .union(
+                """
                 |OO
                 |OO
                 |..
@@ -264,18 +281,19 @@ private fun createTimeCellState(
                 |OO
                 |OO
             """.toCellState(IntOffset(27, 6)),
+            ).offsetBy(IntOffset(8, 26))
+
+    val randomPointPool =
+        if (isRound) {
+            roundRandomPointPool
+        } else {
+            notRoundRandomPointPool
+        }
+
+    val randomPoints =
+        CellState(
+            randomPointPool.filter { Random.nextFloat() < 0.2 }.toSet(),
         )
-        .offsetBy(IntOffset(8, 26))
-
-    val randomPointPool = if (isRound) {
-        roundRandomPointPool
-    } else {
-        notRoundRandomPointPool
-    }
-
-    val randomPoints = CellState(
-        randomPointPool.filter { Random.nextFloat() < 0.2 }.toSet(),
-    )
 
     return timeCellState.union(randomPoints)
 }
@@ -286,8 +304,7 @@ val roundRandomPointPool =
             IntOffset(-30, -30),
             IntSize(131, 131),
         ),
-    )
-        .containedPoints()
+    ).containedPoints()
         .filter {
             (it.toOffset() - Offset(34.5f, 34.5f)).getDistance() in 36f..46f
         }
@@ -298,28 +315,29 @@ val notRoundRandomPointPool =
             IntOffset(-30, -30),
             IntSize(91, 91),
         ),
-    )
-        .containedPoints()
+    ).containedPoints()
         .filter {
             it.x !in 0..69 && it.y !in 0..69
         }
 
 fun createTimeDigits(localTime: LocalTime, use24HourFormat: Boolean): TimeDigits {
     val clockHour = localTime.hour.rem(12)
-    val displayHour = if (use24HourFormat) {
-        localTime.hour
-    } else if (clockHour == 0) {
-        12
-    } else {
-        clockHour
-    }
+    val displayHour =
+        if (use24HourFormat) {
+            localTime.hour
+        } else if (clockHour == 0) {
+            12
+        } else {
+            clockHour
+        }
 
     val hourTensPlace = displayHour / 10
-    val firstDigit = if (hourTensPlace == 0 && !use24HourFormat) {
-        GameOfLifeSegmentChar.Blank
-    } else {
-        GameOfLifeSegmentChar.fromChar(hourTensPlace)
-    }
+    val firstDigit =
+        if (hourTensPlace == 0 && !use24HourFormat) {
+            GameOfLifeSegmentChar.Blank
+        } else {
+            GameOfLifeSegmentChar.fromChar(hourTensPlace)
+        }
     val secondDigit = GameOfLifeSegmentChar.fromChar(displayHour.rem(10))
     val thirdDigit = GameOfLifeSegmentChar.fromChar(localTime.minute / 10)
     val fourthDigit = GameOfLifeSegmentChar.fromChar(localTime.minute.rem(10))
@@ -339,26 +357,79 @@ data class TimeDigits(
     val fourthDigit: GameOfLifeSegmentChar,
 )
 
-sealed class GameOfLifeSegmentChar(
-    val cellState: CellState,
-) {
-    data object Zero : GameOfLifeSegmentChar(segA.union(segB).union(segC).union(segD).union(segE).union(segF))
-    data object One : GameOfLifeSegmentChar(segB.union(segC))
-    data object Two : GameOfLifeSegmentChar(segA.union(segB).union(segD).union(segE).union(segG))
-    data object Three : GameOfLifeSegmentChar(segA.union(segB).union(segC).union(segD).union(segG))
-    data object Four : GameOfLifeSegmentChar(segB.union(segC).union(segF).union(segG))
-    data object Five : GameOfLifeSegmentChar(segA.union(segC).union(segD).union(segF).union(segG))
-    data object Six : GameOfLifeSegmentChar(segA.union(segC).union(segD).union(segE).union(segF).union(segG))
-    data object Seven : GameOfLifeSegmentChar(segA.union(segB).union(segC))
-    data object Eight : GameOfLifeSegmentChar(
-        segA.union(segB).union(segC).union(segD).union(segE).union(segF).union(segG),
+sealed class GameOfLifeSegmentChar(val cellState: CellState) {
+    data object Zero : GameOfLifeSegmentChar(
+        segA
+            .union(segB)
+            .union(segC)
+            .union(segD)
+            .union(segE)
+            .union(segF),
     )
-    data object Nine : GameOfLifeSegmentChar(segA.union(segB).union(segC).union(segD).union(segF).union(segG))
+
+    data object One : GameOfLifeSegmentChar(segB.union(segC))
+
+    data object Two : GameOfLifeSegmentChar(
+        segA
+            .union(segB)
+            .union(segD)
+            .union(segE)
+            .union(segG),
+    )
+
+    data object Three : GameOfLifeSegmentChar(
+        segA
+            .union(segB)
+            .union(segC)
+            .union(segD)
+            .union(segG),
+    )
+
+    data object Four : GameOfLifeSegmentChar(segB.union(segC).union(segF).union(segG))
+
+    data object Five : GameOfLifeSegmentChar(
+        segA
+            .union(segC)
+            .union(segD)
+            .union(segF)
+            .union(segG),
+    )
+
+    data object Six : GameOfLifeSegmentChar(
+        segA
+            .union(segC)
+            .union(segD)
+            .union(segE)
+            .union(segF)
+            .union(segG),
+    )
+
+    data object Seven : GameOfLifeSegmentChar(segA.union(segB).union(segC))
+
+    data object Eight : GameOfLifeSegmentChar(
+        segA
+            .union(segB)
+            .union(segC)
+            .union(segD)
+            .union(segE)
+            .union(segF)
+            .union(segG),
+    )
+
+    data object Nine : GameOfLifeSegmentChar(
+        segA
+            .union(segB)
+            .union(segC)
+            .union(segD)
+            .union(segF)
+            .union(segG),
+    )
+
     data object Blank : GameOfLifeSegmentChar(emptyCellState())
 
     companion object {
-        fun fromChar(digit: Int): GameOfLifeSegmentChar {
-            return when (digit) {
+        fun fromChar(digit: Int): GameOfLifeSegmentChar =
+            when (digit) {
                 0 -> Zero
                 1 -> One
                 2 -> Two
@@ -371,11 +442,11 @@ sealed class GameOfLifeSegmentChar(
                 9 -> Nine
                 else -> throw IllegalArgumentException("input wasn't a digit!")
             }
-        }
     }
 }
 
-private val segA = """
+private val segA =
+    """
     |OO.OO.O.OO
     |OO.O.OO.OO
     |..........
@@ -396,7 +467,8 @@ private val segA = """
     |..........
 """.toCellState()
 
-private val segB = """
+private val segB =
+    """
     |........OO
     |........OO
     |..........
@@ -417,7 +489,8 @@ private val segB = """
     |..........
 """.toCellState()
 
-private val segC = """
+private val segC =
+    """
     |..........
     |..........
     |..........
@@ -438,7 +511,8 @@ private val segC = """
     |........OO
 """.toCellState()
 
-private val segD = """
+private val segD =
+    """
     |..........
     |..........
     |..........
@@ -459,7 +533,8 @@ private val segD = """
     |OO.O.OO.OO
 """.toCellState()
 
-private val segE = """
+private val segE =
+    """
     |..........
     |..........
     |..........
@@ -480,7 +555,8 @@ private val segE = """
     |OO........
 """.toCellState()
 
-private val segF = """
+private val segF =
+    """
     |OO........
     |OO........
     |..........
@@ -501,7 +577,8 @@ private val segF = """
     |..........
 """.toCellState()
 
-private val segG = """
+private val segG =
+    """
     |..........
     |..........
     |..........

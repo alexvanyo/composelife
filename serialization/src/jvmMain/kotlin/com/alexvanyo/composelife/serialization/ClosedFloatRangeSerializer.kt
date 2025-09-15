@@ -30,10 +30,11 @@ import kotlinx.serialization.encoding.Encoder
  * A [KSerializer] for a [ClosedRange] of [Float].
  */
 object ClosedFloatRangeSerializer : KSerializer<ClosedRange<Float>> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(
-        "kotlin.ranges.ClosedFloatRange",
-        PrimitiveKind.LONG,
-    )
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor(
+            "kotlin.ranges.ClosedFloatRange",
+            PrimitiveKind.LONG,
+        )
 
     override fun deserialize(decoder: Decoder): ClosedRange<Float> {
         val longValue = decoder.decodeLong()

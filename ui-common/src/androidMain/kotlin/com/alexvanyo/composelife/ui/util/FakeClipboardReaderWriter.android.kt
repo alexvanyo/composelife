@@ -34,14 +34,21 @@ actual fun rememberFakeClipboardReaderWriter(): ClipboardReaderWriter {
             get() {
                 val currentClipData = state
                 return when {
-                    currentClipData == null -> ClipboardStateKey.Empty
+                    currentClipData == null -> {
+                        ClipboardStateKey.Empty
+                    }
+
                     currentClipData.itemCount == 1 -> {
-                        currentClipData.getItemAt(0)
+                        currentClipData
+                            .getItemAt(0)
                             .text
                             ?.toString()
                             ?.let(ClipboardStateKey::PlaintextClipboard) ?: ClipboardStateKey.Unknown()
                     }
-                    else -> ClipboardStateKey.Unknown()
+
+                    else -> {
+                        ClipboardStateKey.Unknown()
+                    }
                 }
             }
 

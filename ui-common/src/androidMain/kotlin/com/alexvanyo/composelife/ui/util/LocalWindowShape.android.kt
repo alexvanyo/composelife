@@ -75,16 +75,20 @@ private fun android.view.WindowInsets.getPathFromRoundedCorners(windowSize: IntS
         addRoundRect(
             RoundRect(
                 rect = windowSize.toIntRect().toRect(),
-                topLeft = getRoundedCorner(
+                topLeft =
+                getRoundedCorner(
                     RoundedCorner.POSITION_TOP_LEFT,
                 )?.toCornerRadius() ?: CornerRadius.Zero,
-                topRight = getRoundedCorner(
+                topRight =
+                getRoundedCorner(
                     RoundedCorner.POSITION_TOP_RIGHT,
                 )?.toCornerRadius() ?: CornerRadius.Zero,
-                bottomLeft = getRoundedCorner(
+                bottomLeft =
+                getRoundedCorner(
                     RoundedCorner.POSITION_BOTTOM_LEFT,
                 )?.toCornerRadius() ?: CornerRadius.Zero,
-                bottomRight = getRoundedCorner(
+                bottomRight =
+                getRoundedCorner(
                     RoundedCorner.POSITION_BOTTOM_RIGHT,
                 )?.toCornerRadius() ?: CornerRadius.Zero,
             ),
@@ -100,5 +104,4 @@ private fun getPathFromFrame(windowSize: IntSize): Path =
     }
 
 @RequiresApi(31)
-private fun RoundedCorner.toCornerRadius(): CornerRadius =
-    CornerRadius(x = radius.toFloat())
+private fun RoundedCorner.toCornerRadius(): CornerRadius = CornerRadius(x = radius.toFloat())

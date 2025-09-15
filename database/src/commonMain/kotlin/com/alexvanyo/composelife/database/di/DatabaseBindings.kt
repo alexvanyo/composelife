@@ -29,7 +29,6 @@ import dev.zacsweers.metro.SingleIn
 @ContributesTo(AppScope::class)
 @BindingContainer
 interface DatabaseBindings {
-
     companion object {
         @Provides
         @SingleIn(AppScope::class)

@@ -33,7 +33,8 @@ internal fun CellUniverseInfoItemNotEditingPreview(modifier: Modifier = Modifier
         ComposeLifeTheme {
             Column(modifier) {
                 InfoItem(
-                    cellUniverseInfoItemContent = CellUniverseInfoItemContent(
+                    cellUniverseInfoItemContent =
+                    CellUniverseInfoItemContent(
                         cellUniverseInfoCardState = rememberCellUniverseInfoItemState(),
                     ) { "isEditing: $it" },
                     editingTargetState = TargetState.Single(false),
@@ -51,7 +52,8 @@ internal fun CellUniverseInfoItemEditingPreview(modifier: Modifier = Modifier) {
         ComposeLifeTheme {
             Column(modifier) {
                 InfoItem(
-                    cellUniverseInfoItemContent = CellUniverseInfoItemContent(
+                    cellUniverseInfoItemContent =
+                    CellUniverseInfoItemContent(
                         cellUniverseInfoCardState = rememberCellUniverseInfoItemState(),
                     ) { "isEditing: $it" },
                     editingTargetState = TargetState.Single(true),

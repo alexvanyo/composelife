@@ -18,5 +18,4 @@ package com.alexvanyo.composelife.database
 
 import app.cash.sqldelight.async.coroutines.awaitAsOne
 
-suspend fun CellStateQueries.awaitLastInsertedId() =
-    CellStateId(lastInsertedRowId().awaitAsOne())
+suspend fun CellStateQueries.awaitLastInsertedId() = CellStateId(lastInsertedRowId().awaitAsOne())

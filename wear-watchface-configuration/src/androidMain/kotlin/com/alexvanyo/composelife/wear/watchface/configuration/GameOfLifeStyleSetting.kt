@@ -33,7 +33,6 @@ import com.livefront.sealedenum.GenSealedEnum
  * A style setting used for the watchface configuration.
  */
 sealed interface GameOfLifeStyleSetting {
-
     /**
      * The id for the [UserStyleSetting].
      */
@@ -48,77 +47,81 @@ sealed interface GameOfLifeStyleSetting {
         override val id = UserStyleSetting.Id("game_of_life_color_red_value")
 
         override fun createUserStyleSetting(resources: Resources): UserStyleSetting.LongRangeUserStyleSetting =
-            UserStyleSetting.LongRangeUserStyleSetting.Builder(
-                id = id,
-                minimumValue = 0,
-                maximumValue = 255,
-                defaultValue = 255,
-                affectsWatchFaceLayers = listOf(
-                    WatchFaceLayer.BASE,
-                    WatchFaceLayer.COMPLICATIONS,
-                ),
-                resources = resources,
-                displayNameResourceId = R.string.color_red_value,
-                descriptionResourceId = R.string.color_red_value_description,
-            )
-                .build()
+            UserStyleSetting.LongRangeUserStyleSetting
+                .Builder(
+                    id = id,
+                    minimumValue = 0,
+                    maximumValue = 255,
+                    defaultValue = 255,
+                    affectsWatchFaceLayers =
+                    listOf(
+                        WatchFaceLayer.BASE,
+                        WatchFaceLayer.COMPLICATIONS,
+                    ),
+                    resources = resources,
+                    displayNameResourceId = R.string.color_red_value,
+                    descriptionResourceId = R.string.color_red_value_description,
+                ).build()
     }
 
     data object ColorGreenValue : GameOfLifeStyleSetting {
         override val id = UserStyleSetting.Id("game_of_life_color_green_value")
 
         override fun createUserStyleSetting(resources: Resources): UserStyleSetting.LongRangeUserStyleSetting =
-            UserStyleSetting.LongRangeUserStyleSetting.Builder(
-                id = id,
-                minimumValue = 0,
-                maximumValue = 255,
-                defaultValue = 255,
-                affectsWatchFaceLayers = listOf(
-                    WatchFaceLayer.BASE,
-                    WatchFaceLayer.COMPLICATIONS,
-                ),
-                resources = resources,
-                displayNameResourceId = R.string.color_green_value,
-                descriptionResourceId = R.string.color_green_value_description,
-            )
-                .build()
+            UserStyleSetting.LongRangeUserStyleSetting
+                .Builder(
+                    id = id,
+                    minimumValue = 0,
+                    maximumValue = 255,
+                    defaultValue = 255,
+                    affectsWatchFaceLayers =
+                    listOf(
+                        WatchFaceLayer.BASE,
+                        WatchFaceLayer.COMPLICATIONS,
+                    ),
+                    resources = resources,
+                    displayNameResourceId = R.string.color_green_value,
+                    descriptionResourceId = R.string.color_green_value_description,
+                ).build()
     }
 
     data object ColorBlueValue : GameOfLifeStyleSetting {
         override val id = UserStyleSetting.Id("game_of_life_color_blue_value")
 
         override fun createUserStyleSetting(resources: Resources): UserStyleSetting.LongRangeUserStyleSetting =
-            UserStyleSetting.LongRangeUserStyleSetting.Builder(
-                id = id,
-                minimumValue = 0,
-                maximumValue = 255,
-                defaultValue = 255,
-                affectsWatchFaceLayers = listOf(
-                    WatchFaceLayer.BASE,
-                    WatchFaceLayer.COMPLICATIONS,
-                ),
-                resources = resources,
-                displayNameResourceId = R.string.color_blue_value,
-                descriptionResourceId = R.string.color_blue_value_description,
-            )
-                .build()
+            UserStyleSetting.LongRangeUserStyleSetting
+                .Builder(
+                    id = id,
+                    minimumValue = 0,
+                    maximumValue = 255,
+                    defaultValue = 255,
+                    affectsWatchFaceLayers =
+                    listOf(
+                        WatchFaceLayer.BASE,
+                        WatchFaceLayer.COMPLICATIONS,
+                    ),
+                    resources = resources,
+                    displayNameResourceId = R.string.color_blue_value,
+                    descriptionResourceId = R.string.color_blue_value_description,
+                ).build()
     }
 
     data object ShowComplicationsInAmbient : GameOfLifeStyleSetting {
         override val id = UserStyleSetting.Id("show_complications_in_ambient")
 
         override fun createUserStyleSetting(resources: Resources): UserStyleSetting.BooleanUserStyleSetting =
-            UserStyleSetting.BooleanUserStyleSetting.Builder(
-                id = id,
-                affectsWatchFaceLayers = listOf(
-                    WatchFaceLayer.COMPLICATIONS,
-                ),
-                defaultValue = true,
-                resources = resources,
-                displayNameResourceId = R.string.show_complications_in_ambient,
-                descriptionResourceId = R.string.show_complications_in_ambient_description,
-            )
-                .build()
+            UserStyleSetting.BooleanUserStyleSetting
+                .Builder(
+                    id = id,
+                    affectsWatchFaceLayers =
+                    listOf(
+                        WatchFaceLayer.COMPLICATIONS,
+                    ),
+                    defaultValue = true,
+                    resources = resources,
+                    displayNameResourceId = R.string.show_complications_in_ambient,
+                    descriptionResourceId = R.string.show_complications_in_ambient_description,
+                ).build()
     }
 
     @GenSealedEnum
@@ -132,15 +135,18 @@ sealed interface GameOfLifeStyleSetting {
  */
 context(userStyleSchema: UserStyleSchema)
 fun UserStyle.getGameOfLifeColor(): Color {
-    val colorRedValueUserSetting = userStyleSchema.rootUserStyleSettings.find {
-        it.id == GameOfLifeStyleSetting.ColorRedValue.id
-    } as UserStyleSetting.LongRangeUserStyleSetting
-    val colorGreenValueUserSetting = userStyleSchema.rootUserStyleSettings.find {
-        it.id == GameOfLifeStyleSetting.ColorGreenValue.id
-    } as UserStyleSetting.LongRangeUserStyleSetting
-    val colorBlueValueUserSetting = userStyleSchema.rootUserStyleSettings.find {
-        it.id == GameOfLifeStyleSetting.ColorBlueValue.id
-    } as UserStyleSetting.LongRangeUserStyleSetting
+    val colorRedValueUserSetting =
+        userStyleSchema.rootUserStyleSettings.find {
+            it.id == GameOfLifeStyleSetting.ColorRedValue.id
+        } as UserStyleSetting.LongRangeUserStyleSetting
+    val colorGreenValueUserSetting =
+        userStyleSchema.rootUserStyleSettings.find {
+            it.id == GameOfLifeStyleSetting.ColorGreenValue.id
+        } as UserStyleSetting.LongRangeUserStyleSetting
+    val colorBlueValueUserSetting =
+        userStyleSchema.rootUserStyleSettings.find {
+            it.id == GameOfLifeStyleSetting.ColorBlueValue.id
+        } as UserStyleSetting.LongRangeUserStyleSetting
 
     return Color(
         (
@@ -165,15 +171,18 @@ fun UserStyle.getGameOfLifeColor(): Color {
  */
 context(userStyleSchema: UserStyleSchema)
 fun MutableUserStyle.setGameOfLifeColor(color: Color) {
-    val colorRedValueUserSetting = userStyleSchema.rootUserStyleSettings.find {
-        it.id == GameOfLifeStyleSetting.ColorRedValue.id
-    } as UserStyleSetting.LongRangeUserStyleSetting
-    val colorGreenValueUserSetting = userStyleSchema.rootUserStyleSettings.find {
-        it.id == GameOfLifeStyleSetting.ColorGreenValue.id
-    } as UserStyleSetting.LongRangeUserStyleSetting
-    val colorBlueValueUserSetting = userStyleSchema.rootUserStyleSettings.find {
-        it.id == GameOfLifeStyleSetting.ColorBlueValue.id
-    } as UserStyleSetting.LongRangeUserStyleSetting
+    val colorRedValueUserSetting =
+        userStyleSchema.rootUserStyleSettings.find {
+            it.id == GameOfLifeStyleSetting.ColorRedValue.id
+        } as UserStyleSetting.LongRangeUserStyleSetting
+    val colorGreenValueUserSetting =
+        userStyleSchema.rootUserStyleSettings.find {
+            it.id == GameOfLifeStyleSetting.ColorGreenValue.id
+        } as UserStyleSetting.LongRangeUserStyleSetting
+    val colorBlueValueUserSetting =
+        userStyleSchema.rootUserStyleSettings.find {
+            it.id == GameOfLifeStyleSetting.ColorBlueValue.id
+        } as UserStyleSetting.LongRangeUserStyleSetting
 
     this[colorRedValueUserSetting] =
         UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption(
@@ -194,9 +203,10 @@ fun MutableUserStyle.setGameOfLifeColor(color: Color) {
  */
 context(userStyleSchema: UserStyleSchema)
 fun UserStyle.getShowComplicationsInAmbient(): Boolean {
-    val showComplicationsInAmbientSetting = userStyleSchema.rootUserStyleSettings.find {
-        it.id == GameOfLifeStyleSetting.ShowComplicationsInAmbient.id
-    } as UserStyleSetting.BooleanUserStyleSetting
+    val showComplicationsInAmbientSetting =
+        userStyleSchema.rootUserStyleSettings.find {
+            it.id == GameOfLifeStyleSetting.ShowComplicationsInAmbient.id
+        } as UserStyleSetting.BooleanUserStyleSetting
     return (this[showComplicationsInAmbientSetting] as UserStyleSetting.BooleanUserStyleSetting.BooleanOption).value
 }
 
@@ -205,14 +215,16 @@ fun UserStyle.getShowComplicationsInAmbient(): Boolean {
  */
 context(userStyleSchema: UserStyleSchema)
 fun MutableUserStyle.setShowComplicationsInAmbient(value: Boolean) {
-    val showComplicationsInAmbientSetting = userStyleSchema.rootUserStyleSettings.find {
-        it.id == GameOfLifeStyleSetting.ShowComplicationsInAmbient.id
-    } as UserStyleSetting.BooleanUserStyleSetting
-    this[showComplicationsInAmbientSetting] = if (value) {
-        UserStyleSetting.BooleanUserStyleSetting.BooleanOption.TRUE
-    } else {
-        UserStyleSetting.BooleanUserStyleSetting.BooleanOption.FALSE
-    }
+    val showComplicationsInAmbientSetting =
+        userStyleSchema.rootUserStyleSettings.find {
+            it.id == GameOfLifeStyleSetting.ShowComplicationsInAmbient.id
+        } as UserStyleSetting.BooleanUserStyleSetting
+    this[showComplicationsInAmbientSetting] =
+        if (value) {
+            UserStyleSetting.BooleanUserStyleSetting.BooleanOption.TRUE
+        } else {
+            UserStyleSetting.BooleanUserStyleSetting.BooleanOption.FALSE
+        }
 }
 
 /**

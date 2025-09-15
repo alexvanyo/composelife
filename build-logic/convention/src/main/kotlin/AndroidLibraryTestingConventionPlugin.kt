@@ -19,13 +19,14 @@ import com.alexvanyo.composelife.buildlogic.configureAndroidTesting
 import com.alexvanyo.composelife.buildlogic.configureTesting
 import com.android.build.api.dsl.LibraryExtension
 
-class AndroidLibraryTestingConventionPlugin : ConventionPlugin({
-    pluginManager.apply("com.android.library")
+class AndroidLibraryTestingConventionPlugin :
+    ConventionPlugin({
+        pluginManager.apply("com.android.library")
 
-    val libraryExtension = extensions.getByType(LibraryExtension::class.java)
-    configureTesting(libraryExtension)
-    configureAndroidTesting(
-        libraryExtension,
-        extensions.getByType(com.android.build.gradle.LibraryExtension::class.java),
-    )
-})
+        val libraryExtension = extensions.getByType(LibraryExtension::class.java)
+        configureTesting(libraryExtension)
+        configureAndroidTesting(
+            libraryExtension,
+            extensions.getByType(com.android.build.gradle.LibraryExtension::class.java),
+        )
+    })

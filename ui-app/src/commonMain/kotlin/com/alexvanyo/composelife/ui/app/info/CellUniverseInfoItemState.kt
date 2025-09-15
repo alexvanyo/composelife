@@ -29,9 +29,7 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 
 @Serializable(with = CellUniverseInfoItemState.Serializer::class)
-class CellUniverseInfoItemState(
-    isChecked: Boolean = defaultIsChecked,
-) {
+class CellUniverseInfoItemState(isChecked: Boolean = defaultIsChecked) {
     var isChecked by mutableStateOf(isChecked)
 
     private object Serializer : KSerializer<CellUniverseInfoItemState> by SurrogatingSerializer(

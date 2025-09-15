@@ -161,12 +161,10 @@ fun EdgeToEdgeModalBottomSheet(
 
         snapshotFlow {
             !sheetState.anchoredDraggableState.isAnimationRunning && !sheetState.isVisible
-        }
-            .filter { it }
+        }.filter { it }
             .onEach {
                 currentOnDismissRequest()
-            }
-            .collect()
+            }.collect()
     }
 
     EdgeToEdgeDialog(
@@ -191,19 +189,28 @@ fun EdgeToEdgeModalBottomSheet(
                 mutableStateOf<CompletablePredictiveBackState.Running?>(null)
             }.apply {
                 when (val predictiveBackState = predictiveBackStateHolder.value) {
-                    CompletablePredictiveBackState.NotRunning -> value = null
-                    is CompletablePredictiveBackState.Running -> if (predictiveBackState.progress >= 0.01f) {
-                        // Only save that we were disappearing if the progress is at least 1% along
-                        value = predictiveBackState
+                    CompletablePredictiveBackState.NotRunning -> {
+                        value = null
                     }
-                    CompletablePredictiveBackState.Completed -> Unit
+
+                    is CompletablePredictiveBackState.Running -> {
+                        if (predictiveBackState.progress >= 0.01f) {
+                            // Only save that we were disappearing if the progress is at least 1% along
+                            value = predictiveBackState
+                        }
+                    }
+
+                    CompletablePredictiveBackState.Completed -> {
+                        Unit
+                    }
                 }
             }
 
             var fullWidth by remember { mutableIntStateOf(0) }
 
             Surface(
-                modifier = modifier
+                modifier =
+                modifier
                     .fillMaxSize()
                     .windowInsetsPadding(sheetWindowInsets())
                     .wrapContentSize()
@@ -217,42 +224,50 @@ fun EdgeToEdgeModalBottomSheet(
 
                         val partiallyExpandedOffset = max(0f, fullHeight / 2f - ime.getBottom(density))
 
-                        val newAnchors = DraggableAnchors {
-                            Hidden at fullHeight
-                            if (sheetSize.height > (fullHeight / 2) && !sheetState.skipPartiallyExpanded) {
-                                PartiallyExpanded at partiallyExpandedOffset
-                            }
-                            if (sheetSize.height != 0) {
-                                Expanded at max(0f, fullHeight - sheetSize.height)
-                            }
-                        }
-
-                        val newTarget = when (sheetState.anchoredDraggableState.targetValue) {
-                            Hidden -> Hidden
-                            PartiallyExpanded -> if (newAnchors.hasPositionFor(PartiallyExpanded)) {
-                                PartiallyExpanded
-                            } else if (newAnchors.hasPositionFor(Expanded)) {
-                                Expanded
-                            } else {
-                                Hidden
+                        val newAnchors =
+                            DraggableAnchors {
+                                Hidden at fullHeight
+                                if (sheetSize.height > (fullHeight / 2) && !sheetState.skipPartiallyExpanded) {
+                                    PartiallyExpanded at partiallyExpandedOffset
+                                }
+                                if (sheetSize.height != 0) {
+                                    Expanded at max(0f, fullHeight - sheetSize.height)
+                                }
                             }
 
-                            Expanded -> if (newAnchors.hasPositionFor(Expanded)) {
-                                Expanded
-                            } else if (newAnchors.hasPositionFor(PartiallyExpanded)) {
-                                PartiallyExpanded
-                            } else {
-                                Hidden
+                        val newTarget =
+                            when (sheetState.anchoredDraggableState.targetValue) {
+                                Hidden -> {
+                                    Hidden
+                                }
+
+                                PartiallyExpanded -> {
+                                    if (newAnchors.hasPositionFor(PartiallyExpanded)) {
+                                        PartiallyExpanded
+                                    } else if (newAnchors.hasPositionFor(Expanded)) {
+                                        Expanded
+                                    } else {
+                                        Hidden
+                                    }
+                                }
+
+                                Expanded -> {
+                                    if (newAnchors.hasPositionFor(Expanded)) {
+                                        Expanded
+                                    } else if (newAnchors.hasPositionFor(PartiallyExpanded)) {
+                                        PartiallyExpanded
+                                    } else {
+                                        Hidden
+                                    }
+                                }
                             }
-                        }
 
                         sheetState.anchoredDraggableState.updateAnchors(newAnchors, newTarget)
 
                         layout(placeable.width, placeable.height) {
                             placeable.placeRelative(0, 0)
                         }
-                    }
-                    .semantics { paneTitle = bottomSheetPaneTitle }
+                    }.semantics { paneTitle = bottomSheetPaneTitle }
                     .offset {
                         IntOffset(
                             0,
@@ -263,8 +278,7 @@ fun EdgeToEdgeModalBottomSheet(
                                     .toInt(),
                             ),
                         )
-                    }
-                    .nestedScroll(
+                    }.nestedScroll(
                         remember(sheetState) {
                             ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
                                 sheetState = sheetState,
@@ -272,31 +286,31 @@ fun EdgeToEdgeModalBottomSheet(
                                 onFling = settleToDismiss,
                             )
                         },
-                    )
-                    .anchoredDraggable(
+                    ).anchoredDraggable(
                         state = sheetState.anchoredDraggableState,
                         orientation = Orientation.Vertical,
                         enabled = sheetState.isVisible,
-                    )
-                    .graphicsLayer {
+                    ).graphicsLayer {
                         val predictiveBackState = predictiveBackStateHolder.value
-                        val scale = lerp(
-                            1f,
-                            1f - (48.dp.toPx() / fullWidth),
-                            when (predictiveBackState) {
-                                CompletablePredictiveBackState.NotRunning -> 0f
-                                is CompletablePredictiveBackState.Running -> predictiveBackState.progress
-                                CompletablePredictiveBackState.Completed -> if (lastRunningValue == null) 0f else 1f
-                            },
-                        )
+                        val scale =
+                            lerp(
+                                1f,
+                                1f - (48.dp.toPx() / fullWidth),
+                                when (predictiveBackState) {
+                                    CompletablePredictiveBackState.NotRunning -> 0f
+                                    is CompletablePredictiveBackState.Running -> predictiveBackState.progress
+                                    CompletablePredictiveBackState.Completed -> if (lastRunningValue == null) 0f else 1f
+                                },
+                            )
                         scaleX = scale
                         scaleY = scale
                         // Set the transform origin to be at the point of the sheet that is at the bottom
                         // edge of the screen
-                        transformOrigin = TransformOrigin(
-                            0.5f,
-                            (size.height - sheetState.requireOffset()) / size.height,
-                        )
+                        transformOrigin =
+                            TransformOrigin(
+                                0.5f,
+                                (size.height - sheetState.requireOffset()) / size.height,
+                            )
                     },
                 shape = shape,
                 color = containerColor,
@@ -353,28 +367,24 @@ fun EdgeToEdgeModalBottomSheet(
 }
 
 @Composable
-private fun Scrim(
-    color: Color,
-    onDismissRequest: () -> Unit,
-    visible: Boolean,
-) {
+private fun Scrim(color: Color, onDismissRequest: () -> Unit, visible: Boolean) {
     if (color.isSpecified) {
         val alpha by animateFloatAsState(
             targetValue = if (visible) 1f else 0f,
             animationSpec = TweenSpec(),
             label = "alpha",
         )
-        val dismissSheet = if (visible) {
-            Modifier
-                .pointerInput(onDismissRequest) {
-                    detectTapGestures {
-                        onDismissRequest()
-                    }
-                }
-                .clearAndSetSemantics {}
-        } else {
-            Modifier
-        }
+        val dismissSheet =
+            if (visible) {
+                Modifier
+                    .pointerInput(onDismissRequest) {
+                        detectTapGestures {
+                            onDismissRequest()
+                        }
+                    }.clearAndSetSemantics {}
+            } else {
+                Modifier
+            }
         Canvas(
             Modifier
                 .fillMaxSize()
@@ -390,57 +400,54 @@ internal fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
     sheetState: SheetState,
     orientation: Orientation,
     onFling: (velocity: Float) -> Unit,
-): NestedScrollConnection = object : NestedScrollConnection {
-    override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-        val delta = available.toFloat()
-        return if (delta < 0 && source == NestedScrollSource.UserInput) {
-            sheetState.anchoredDraggableState.dispatchRawDelta(delta).toOffset()
-        } else {
-            Offset.Zero
+): NestedScrollConnection =
+    object : NestedScrollConnection {
+        override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+            val delta = available.toFloat()
+            return if (delta < 0 && source == NestedScrollSource.UserInput) {
+                sheetState.anchoredDraggableState.dispatchRawDelta(delta).toOffset()
+            } else {
+                Offset.Zero
+            }
         }
-    }
 
-    override fun onPostScroll(
-        consumed: Offset,
-        available: Offset,
-        source: NestedScrollSource,
-    ): Offset {
-        return if (source == NestedScrollSource.UserInput) {
-            sheetState.anchoredDraggableState.dispatchRawDelta(available.toFloat()).toOffset()
-        } else {
-            Offset.Zero
+        override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset =
+            if (source == NestedScrollSource.UserInput) {
+                sheetState.anchoredDraggableState.dispatchRawDelta(available.toFloat()).toOffset()
+            } else {
+                Offset.Zero
+            }
+
+        override suspend fun onPreFling(available: Velocity): Velocity {
+            val toFling = available.toFloat()
+            val currentOffset = sheetState.requireOffset()
+            val minAnchor = sheetState.anchoredDraggableState.anchors.minPosition()
+            return if (toFling < 0 && currentOffset > minAnchor) {
+                onFling(toFling)
+                // since we go to the anchor with tween settling, consume all for the best UX
+                available
+            } else {
+                Velocity.Zero
+            }
         }
-    }
 
-    override suspend fun onPreFling(available: Velocity): Velocity {
-        val toFling = available.toFloat()
-        val currentOffset = sheetState.requireOffset()
-        val minAnchor = sheetState.anchoredDraggableState.anchors.minPosition()
-        return if (toFling < 0 && currentOffset > minAnchor) {
-            onFling(toFling)
-            // since we go to the anchor with tween settling, consume all for the best UX
-            available
-        } else {
-            Velocity.Zero
+        override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+            onFling(available.toFloat())
+            return available
         }
+
+        private fun Float.toOffset(): Offset =
+            Offset(
+                x = if (orientation == Orientation.Horizontal) this else 0f,
+                y = if (orientation == Orientation.Vertical) this else 0f,
+            )
+
+        @JvmName("velocityToFloat")
+        private fun Velocity.toFloat() = if (orientation == Orientation.Horizontal) x else y
+
+        @JvmName("offsetToFloat")
+        private fun Offset.toFloat(): Float = if (orientation == Orientation.Horizontal) x else y
     }
-
-    override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-        onFling(available.toFloat())
-        return available
-    }
-
-    private fun Float.toOffset(): Offset = Offset(
-        x = if (orientation == Orientation.Horizontal) this else 0f,
-        y = if (orientation == Orientation.Vertical) this else 0f,
-    )
-
-    @JvmName("velocityToFloat")
-    private fun Velocity.toFloat() = if (orientation == Orientation.Horizontal) x else y
-
-    @JvmName("offsetToFloat")
-    private fun Offset.toFloat(): Float = if (orientation == Orientation.Horizontal) x else y
-}
 
 /**
  * State of a sheet composable, such as [ModalBottomSheet]
@@ -469,7 +476,6 @@ class SheetState(
     internal val confirmValueChange: (SheetValue) -> Boolean = { true },
     internal val skipHiddenState: Boolean = false,
 ) {
-
     init {
         if (skipPartiallyExpanded) {
             require(initialValue != PartiallyExpanded) {
@@ -569,10 +575,11 @@ class SheetState(
      * @throws [CancellationException] if the animation is interrupted
      */
     suspend fun show() {
-        val targetValue = when {
-            hasPartiallyExpandedState -> PartiallyExpanded
-            else -> Expanded
-        }
+        val targetValue =
+            when {
+                hasPartiallyExpandedState -> PartiallyExpanded
+                else -> Expanded
+            }
         animateTo(targetValue)
     }
 
@@ -599,10 +606,7 @@ class SheetState(
      *
      * @param targetValue The target value of the animation
      */
-    internal suspend fun animateTo(
-        targetValue: SheetValue,
-        velocity: Float = anchoredDraggableState.lastVelocity,
-    ) {
+    internal suspend fun animateTo(targetValue: SheetValue, velocity: Float = anchoredDraggableState.lastVelocity) {
         anchoredDraggableState.animateToWithDecay(targetValue, velocity)
     }
 
@@ -625,14 +629,15 @@ class SheetState(
         anchoredDraggableState.settle(velocity)
     }
 
-    internal var anchoredDraggableState = AnchoredDraggableState(
-        initialValue = initialValue,
-        snapAnimationSpec = spring(),
-        decayAnimationSpec = exponentialDecay(),
-        confirmValueChange = confirmValueChange,
-        positionalThreshold = { with(density) { 56.dp.toPx() } },
-        velocityThreshold = { with(density) { 125.dp.toPx() } },
-    )
+    internal var anchoredDraggableState =
+        AnchoredDraggableState(
+            initialValue = initialValue,
+            snapAnimationSpec = spring(),
+            decayAnimationSpec = exponentialDecay(),
+            confirmValueChange = confirmValueChange,
+            positionalThreshold = { with(density) { 56.dp.toPx() } },
+            velocityThreshold = { with(density) { 125.dp.toPx() } },
+        )
 
     internal val offset: Float get() = anchoredDraggableState.offset
 
@@ -640,16 +645,13 @@ class SheetState(
         /**
          * The default [Saver] implementation for [SheetState].
          */
-        fun Saver(
-            skipPartiallyExpanded: Boolean,
-            confirmValueChange: (SheetValue) -> Boolean,
-            density: Density,
-        ) = Saver<SheetState, SheetValue>(
-            save = { it.currentValue },
-            restore = { savedValue ->
-                SheetState(skipPartiallyExpanded, density, savedValue, confirmValueChange)
-            },
-        )
+        fun Saver(skipPartiallyExpanded: Boolean, confirmValueChange: (SheetValue) -> Boolean, density: Density) =
+            Saver<SheetState, SheetValue>(
+                save = { it.currentValue },
+                restore = { savedValue ->
+                    SheetState(skipPartiallyExpanded, density, savedValue, confirmValueChange)
+                },
+            )
     }
 }
 
@@ -665,7 +667,8 @@ internal fun rememberSheetState(
     return rememberSaveable(
         skipPartiallyExpanded,
         confirmValueChange,
-        saver = SheetState.Saver(
+        saver =
+        SheetState.Saver(
             skipPartiallyExpanded = skipPartiallyExpanded,
             confirmValueChange = confirmValueChange,
             density = density,
@@ -714,13 +717,15 @@ internal fun EdgeToEdgeModalBottomSheetPreview() {
         verticalArrangement = Arrangement.Center,
     ) {
         BasicText(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .height(64.dp)
                 .clickable { showEdgeToEdgeModalBottomSheet = true },
             text = "Show edge-to-edge modal bottom sheet",
         )
         BasicText(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .height(64.dp)
                 .clickable { showModalBottomSheet = true },
             text = "Show built-in modal bottom sheet",

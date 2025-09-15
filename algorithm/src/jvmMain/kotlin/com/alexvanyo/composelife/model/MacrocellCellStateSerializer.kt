@@ -24,7 +24,6 @@ import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import kotlin.collections.removeFirst as removeFirstKt
 
 object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
-
     override val format: CellStateFormat.FixedFormat = CellStateFormat.FixedFormat.Macrocell
 
     @Suppress("LongMethod", "CyclomaticComplexMethod", "DestructuringDeclarationWithTooManyEntries", "ReturnCount")
@@ -49,7 +48,8 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
         if (!headerLine.startsWith("[M2]")) {
             return DeserializationResult.Unsuccessful(
                 warnings = warnings,
-                errors = listOf(
+                errors =
+                listOf(
                     UnexpectedHeaderMessage(headerLine),
                 ),
             )
@@ -70,21 +70,25 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                         warnings.add(UnexpectedBlankLineMessage(lineIndex + 1))
                     }
                 }
+
                 line.first() == '#' -> {
                     // Comment line, continue
                 }
+
                 line.first().isDigit() -> {
-                    val result = nodeRegex.matchEntire(line)
-                        ?: return DeserializationResult.Unsuccessful(
-                            warnings = warnings,
-                            errors = listOf(
-                                UnexpectedInputMessage(
-                                    input = line,
-                                    lineIndex = lineIndex,
-                                    characterIndex = 0,
+                    val result =
+                        nodeRegex.matchEntire(line)
+                            ?: return DeserializationResult.Unsuccessful(
+                                warnings = warnings,
+                                errors =
+                                listOf(
+                                    UnexpectedInputMessage(
+                                        input = line,
+                                        lineIndex = lineIndex,
+                                        characterIndex = 0,
+                                    ),
                                 ),
-                            ),
-                        )
+                            )
 
                     val (_, level, nw, ne, sw, se) = result.groups.toList().map(::checkNotNull)
 
@@ -94,62 +98,68 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                     val swValue = sw.value.toInt()
                     val seValue = se.value.toInt()
 
-                    val node = CellNode(
-                        if (nwValue == 0) {
-                            createEmptyMacroCell(levelValue - 1)
-                        } else {
-                            indexToCellNodeMap[nwValue] ?: return DeserializationResult.Unsuccessful(
-                                warnings = warnings,
-                                errors = listOf(
-                                    UnexpectedNodeIdMessage(
-                                        lineIndex = lineIndex,
-                                        characterIndices = nw.range,
+                    val node =
+                        CellNode(
+                            if (nwValue == 0) {
+                                createEmptyMacroCell(levelValue - 1)
+                            } else {
+                                indexToCellNodeMap[nwValue] ?: return DeserializationResult.Unsuccessful(
+                                    warnings = warnings,
+                                    errors =
+                                    listOf(
+                                        UnexpectedNodeIdMessage(
+                                            lineIndex = lineIndex,
+                                            characterIndices = nw.range,
+                                        ),
                                     ),
-                                ),
-                            )
-                        },
-                        if (neValue == 0) {
-                            createEmptyMacroCell(levelValue - 1)
-                        } else {
-                            indexToCellNodeMap[neValue] ?: return DeserializationResult.Unsuccessful(
-                                warnings = warnings,
-                                errors = listOf(
-                                    UnexpectedNodeIdMessage(
-                                        lineIndex = lineIndex,
-                                        characterIndices = ne.range,
+                                )
+                            },
+                            if (neValue == 0) {
+                                createEmptyMacroCell(levelValue - 1)
+                            } else {
+                                indexToCellNodeMap[neValue] ?: return DeserializationResult.Unsuccessful(
+                                    warnings = warnings,
+                                    errors =
+                                    listOf(
+                                        UnexpectedNodeIdMessage(
+                                            lineIndex = lineIndex,
+                                            characterIndices = ne.range,
+                                        ),
                                     ),
-                                ),
-                            )
-                        },
-                        if (swValue == 0) {
-                            createEmptyMacroCell(levelValue - 1)
-                        } else {
-                            indexToCellNodeMap[swValue] ?: return DeserializationResult.Unsuccessful(
-                                warnings = warnings,
-                                errors = listOf(
-                                    UnexpectedNodeIdMessage(
-                                        lineIndex = lineIndex,
-                                        characterIndices = sw.range,
+                                )
+                            },
+                            if (swValue == 0) {
+                                createEmptyMacroCell(levelValue - 1)
+                            } else {
+                                indexToCellNodeMap[swValue] ?: return DeserializationResult.Unsuccessful(
+                                    warnings = warnings,
+                                    errors =
+                                    listOf(
+                                        UnexpectedNodeIdMessage(
+                                            lineIndex = lineIndex,
+                                            characterIndices = sw.range,
+                                        ),
                                     ),
-                                ),
-                            )
-                        },
-                        if (seValue == 0) {
-                            createEmptyMacroCell(levelValue - 1)
-                        } else {
-                            indexToCellNodeMap[seValue] ?: return DeserializationResult.Unsuccessful(
-                                warnings = warnings,
-                                errors = listOf(
-                                    UnexpectedNodeIdMessage(
-                                        lineIndex = lineIndex,
-                                        characterIndices = se.range,
+                                )
+                            },
+                            if (seValue == 0) {
+                                createEmptyMacroCell(levelValue - 1)
+                            } else {
+                                indexToCellNodeMap[seValue] ?: return DeserializationResult.Unsuccessful(
+                                    warnings = warnings,
+                                    errors =
+                                    listOf(
+                                        UnexpectedNodeIdMessage(
+                                            lineIndex = lineIndex,
+                                            characterIndices = se.range,
+                                        ),
                                     ),
-                                ),
-                            )
-                        },
-                    )
+                                )
+                            },
+                        )
                     indexToCellNodeMap[nodeIndex++] = node
                 }
+
                 else -> {
                     line.forEachIndexed { index, char ->
                         if (char !in setOf('$', '.', '*')) {
@@ -164,112 +174,133 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                     }
                     val rows = line.split('$')
 
-                    val node = CellNode(
-                        nw = CellNode(
-                            nw = CellNode(
-                                nw = if (rows.getOrNull(0)?.getOrNull(0) == '*') AliveCell else DeadCell,
-                                ne = if (rows.getOrNull(0)?.getOrNull(1) == '*') AliveCell else DeadCell,
-                                sw = if (rows.getOrNull(1)?.getOrNull(0) == '*') AliveCell else DeadCell,
-                                se = if (rows.getOrNull(1)?.getOrNull(1) == '*') AliveCell else DeadCell,
+                    val node =
+                        CellNode(
+                            nw =
+                            CellNode(
+                                nw =
+                                CellNode(
+                                    nw = if (rows.getOrNull(0)?.getOrNull(0) == '*') AliveCell else DeadCell,
+                                    ne = if (rows.getOrNull(0)?.getOrNull(1) == '*') AliveCell else DeadCell,
+                                    sw = if (rows.getOrNull(1)?.getOrNull(0) == '*') AliveCell else DeadCell,
+                                    se = if (rows.getOrNull(1)?.getOrNull(1) == '*') AliveCell else DeadCell,
+                                ),
+                                ne =
+                                CellNode(
+                                    nw = if (rows.getOrNull(0)?.getOrNull(2) == '*') AliveCell else DeadCell,
+                                    ne = if (rows.getOrNull(0)?.getOrNull(3) == '*') AliveCell else DeadCell,
+                                    sw = if (rows.getOrNull(1)?.getOrNull(2) == '*') AliveCell else DeadCell,
+                                    se = if (rows.getOrNull(1)?.getOrNull(3) == '*') AliveCell else DeadCell,
+                                ),
+                                sw =
+                                CellNode(
+                                    nw = if (rows.getOrNull(2)?.getOrNull(0) == '*') AliveCell else DeadCell,
+                                    ne = if (rows.getOrNull(2)?.getOrNull(1) == '*') AliveCell else DeadCell,
+                                    sw = if (rows.getOrNull(3)?.getOrNull(0) == '*') AliveCell else DeadCell,
+                                    se = if (rows.getOrNull(3)?.getOrNull(1) == '*') AliveCell else DeadCell,
+                                ),
+                                se =
+                                CellNode(
+                                    nw = if (rows.getOrNull(2)?.getOrNull(2) == '*') AliveCell else DeadCell,
+                                    ne = if (rows.getOrNull(2)?.getOrNull(3) == '*') AliveCell else DeadCell,
+                                    sw = if (rows.getOrNull(3)?.getOrNull(2) == '*') AliveCell else DeadCell,
+                                    se = if (rows.getOrNull(3)?.getOrNull(3) == '*') AliveCell else DeadCell,
+                                ),
                             ),
-                            ne = CellNode(
-                                nw = if (rows.getOrNull(0)?.getOrNull(2) == '*') AliveCell else DeadCell,
-                                ne = if (rows.getOrNull(0)?.getOrNull(3) == '*') AliveCell else DeadCell,
-                                sw = if (rows.getOrNull(1)?.getOrNull(2) == '*') AliveCell else DeadCell,
-                                se = if (rows.getOrNull(1)?.getOrNull(3) == '*') AliveCell else DeadCell,
+                            ne =
+                            CellNode(
+                                nw =
+                                CellNode(
+                                    nw = if (rows.getOrNull(0)?.getOrNull(4) == '*') AliveCell else DeadCell,
+                                    ne = if (rows.getOrNull(0)?.getOrNull(5) == '*') AliveCell else DeadCell,
+                                    sw = if (rows.getOrNull(1)?.getOrNull(4) == '*') AliveCell else DeadCell,
+                                    se = if (rows.getOrNull(1)?.getOrNull(5) == '*') AliveCell else DeadCell,
+                                ),
+                                ne =
+                                CellNode(
+                                    nw = if (rows.getOrNull(0)?.getOrNull(6) == '*') AliveCell else DeadCell,
+                                    ne = if (rows.getOrNull(0)?.getOrNull(7) == '*') AliveCell else DeadCell,
+                                    sw = if (rows.getOrNull(1)?.getOrNull(6) == '*') AliveCell else DeadCell,
+                                    se = if (rows.getOrNull(1)?.getOrNull(7) == '*') AliveCell else DeadCell,
+                                ),
+                                sw =
+                                CellNode(
+                                    nw = if (rows.getOrNull(2)?.getOrNull(4) == '*') AliveCell else DeadCell,
+                                    ne = if (rows.getOrNull(2)?.getOrNull(5) == '*') AliveCell else DeadCell,
+                                    sw = if (rows.getOrNull(3)?.getOrNull(4) == '*') AliveCell else DeadCell,
+                                    se = if (rows.getOrNull(3)?.getOrNull(5) == '*') AliveCell else DeadCell,
+                                ),
+                                se =
+                                CellNode(
+                                    nw = if (rows.getOrNull(2)?.getOrNull(6) == '*') AliveCell else DeadCell,
+                                    ne = if (rows.getOrNull(2)?.getOrNull(7) == '*') AliveCell else DeadCell,
+                                    sw = if (rows.getOrNull(3)?.getOrNull(6) == '*') AliveCell else DeadCell,
+                                    se = if (rows.getOrNull(3)?.getOrNull(7) == '*') AliveCell else DeadCell,
+                                ),
                             ),
-                            sw = CellNode(
-                                nw = if (rows.getOrNull(2)?.getOrNull(0) == '*') AliveCell else DeadCell,
-                                ne = if (rows.getOrNull(2)?.getOrNull(1) == '*') AliveCell else DeadCell,
-                                sw = if (rows.getOrNull(3)?.getOrNull(0) == '*') AliveCell else DeadCell,
-                                se = if (rows.getOrNull(3)?.getOrNull(1) == '*') AliveCell else DeadCell,
+                            sw =
+                            CellNode(
+                                nw =
+                                CellNode(
+                                    nw = if (rows.getOrNull(4)?.getOrNull(0) == '*') AliveCell else DeadCell,
+                                    ne = if (rows.getOrNull(4)?.getOrNull(1) == '*') AliveCell else DeadCell,
+                                    sw = if (rows.getOrNull(5)?.getOrNull(0) == '*') AliveCell else DeadCell,
+                                    se = if (rows.getOrNull(5)?.getOrNull(1) == '*') AliveCell else DeadCell,
+                                ),
+                                ne =
+                                CellNode(
+                                    nw = if (rows.getOrNull(4)?.getOrNull(2) == '*') AliveCell else DeadCell,
+                                    ne = if (rows.getOrNull(4)?.getOrNull(3) == '*') AliveCell else DeadCell,
+                                    sw = if (rows.getOrNull(5)?.getOrNull(2) == '*') AliveCell else DeadCell,
+                                    se = if (rows.getOrNull(5)?.getOrNull(3) == '*') AliveCell else DeadCell,
+                                ),
+                                sw =
+                                CellNode(
+                                    nw = if (rows.getOrNull(6)?.getOrNull(0) == '*') AliveCell else DeadCell,
+                                    ne = if (rows.getOrNull(6)?.getOrNull(1) == '*') AliveCell else DeadCell,
+                                    sw = if (rows.getOrNull(7)?.getOrNull(0) == '*') AliveCell else DeadCell,
+                                    se = if (rows.getOrNull(7)?.getOrNull(1) == '*') AliveCell else DeadCell,
+                                ),
+                                se =
+                                CellNode(
+                                    nw = if (rows.getOrNull(6)?.getOrNull(2) == '*') AliveCell else DeadCell,
+                                    ne = if (rows.getOrNull(6)?.getOrNull(3) == '*') AliveCell else DeadCell,
+                                    sw = if (rows.getOrNull(7)?.getOrNull(2) == '*') AliveCell else DeadCell,
+                                    se = if (rows.getOrNull(7)?.getOrNull(3) == '*') AliveCell else DeadCell,
+                                ),
                             ),
-                            se = CellNode(
-                                nw = if (rows.getOrNull(2)?.getOrNull(2) == '*') AliveCell else DeadCell,
-                                ne = if (rows.getOrNull(2)?.getOrNull(3) == '*') AliveCell else DeadCell,
-                                sw = if (rows.getOrNull(3)?.getOrNull(2) == '*') AliveCell else DeadCell,
-                                se = if (rows.getOrNull(3)?.getOrNull(3) == '*') AliveCell else DeadCell,
+                            se =
+                            CellNode(
+                                nw =
+                                CellNode(
+                                    nw = if (rows.getOrNull(4)?.getOrNull(4) == '*') AliveCell else DeadCell,
+                                    ne = if (rows.getOrNull(4)?.getOrNull(5) == '*') AliveCell else DeadCell,
+                                    sw = if (rows.getOrNull(5)?.getOrNull(4) == '*') AliveCell else DeadCell,
+                                    se = if (rows.getOrNull(5)?.getOrNull(5) == '*') AliveCell else DeadCell,
+                                ),
+                                ne =
+                                CellNode(
+                                    nw = if (rows.getOrNull(4)?.getOrNull(6) == '*') AliveCell else DeadCell,
+                                    ne = if (rows.getOrNull(4)?.getOrNull(7) == '*') AliveCell else DeadCell,
+                                    sw = if (rows.getOrNull(5)?.getOrNull(6) == '*') AliveCell else DeadCell,
+                                    se = if (rows.getOrNull(5)?.getOrNull(7) == '*') AliveCell else DeadCell,
+                                ),
+                                sw =
+                                CellNode(
+                                    nw = if (rows.getOrNull(6)?.getOrNull(4) == '*') AliveCell else DeadCell,
+                                    ne = if (rows.getOrNull(6)?.getOrNull(5) == '*') AliveCell else DeadCell,
+                                    sw = if (rows.getOrNull(7)?.getOrNull(4) == '*') AliveCell else DeadCell,
+                                    se = if (rows.getOrNull(7)?.getOrNull(5) == '*') AliveCell else DeadCell,
+                                ),
+                                se =
+                                CellNode(
+                                    nw = if (rows.getOrNull(6)?.getOrNull(6) == '*') AliveCell else DeadCell,
+                                    ne = if (rows.getOrNull(6)?.getOrNull(7) == '*') AliveCell else DeadCell,
+                                    sw = if (rows.getOrNull(7)?.getOrNull(6) == '*') AliveCell else DeadCell,
+                                    se = if (rows.getOrNull(7)?.getOrNull(7) == '*') AliveCell else DeadCell,
+                                ),
                             ),
-                        ),
-                        ne = CellNode(
-                            nw = CellNode(
-                                nw = if (rows.getOrNull(0)?.getOrNull(4) == '*') AliveCell else DeadCell,
-                                ne = if (rows.getOrNull(0)?.getOrNull(5) == '*') AliveCell else DeadCell,
-                                sw = if (rows.getOrNull(1)?.getOrNull(4) == '*') AliveCell else DeadCell,
-                                se = if (rows.getOrNull(1)?.getOrNull(5) == '*') AliveCell else DeadCell,
-                            ),
-                            ne = CellNode(
-                                nw = if (rows.getOrNull(0)?.getOrNull(6) == '*') AliveCell else DeadCell,
-                                ne = if (rows.getOrNull(0)?.getOrNull(7) == '*') AliveCell else DeadCell,
-                                sw = if (rows.getOrNull(1)?.getOrNull(6) == '*') AliveCell else DeadCell,
-                                se = if (rows.getOrNull(1)?.getOrNull(7) == '*') AliveCell else DeadCell,
-                            ),
-                            sw = CellNode(
-                                nw = if (rows.getOrNull(2)?.getOrNull(4) == '*') AliveCell else DeadCell,
-                                ne = if (rows.getOrNull(2)?.getOrNull(5) == '*') AliveCell else DeadCell,
-                                sw = if (rows.getOrNull(3)?.getOrNull(4) == '*') AliveCell else DeadCell,
-                                se = if (rows.getOrNull(3)?.getOrNull(5) == '*') AliveCell else DeadCell,
-                            ),
-                            se = CellNode(
-                                nw = if (rows.getOrNull(2)?.getOrNull(6) == '*') AliveCell else DeadCell,
-                                ne = if (rows.getOrNull(2)?.getOrNull(7) == '*') AliveCell else DeadCell,
-                                sw = if (rows.getOrNull(3)?.getOrNull(6) == '*') AliveCell else DeadCell,
-                                se = if (rows.getOrNull(3)?.getOrNull(7) == '*') AliveCell else DeadCell,
-                            ),
-                        ),
-                        sw = CellNode(
-                            nw = CellNode(
-                                nw = if (rows.getOrNull(4)?.getOrNull(0) == '*') AliveCell else DeadCell,
-                                ne = if (rows.getOrNull(4)?.getOrNull(1) == '*') AliveCell else DeadCell,
-                                sw = if (rows.getOrNull(5)?.getOrNull(0) == '*') AliveCell else DeadCell,
-                                se = if (rows.getOrNull(5)?.getOrNull(1) == '*') AliveCell else DeadCell,
-                            ),
-                            ne = CellNode(
-                                nw = if (rows.getOrNull(4)?.getOrNull(2) == '*') AliveCell else DeadCell,
-                                ne = if (rows.getOrNull(4)?.getOrNull(3) == '*') AliveCell else DeadCell,
-                                sw = if (rows.getOrNull(5)?.getOrNull(2) == '*') AliveCell else DeadCell,
-                                se = if (rows.getOrNull(5)?.getOrNull(3) == '*') AliveCell else DeadCell,
-                            ),
-                            sw = CellNode(
-                                nw = if (rows.getOrNull(6)?.getOrNull(0) == '*') AliveCell else DeadCell,
-                                ne = if (rows.getOrNull(6)?.getOrNull(1) == '*') AliveCell else DeadCell,
-                                sw = if (rows.getOrNull(7)?.getOrNull(0) == '*') AliveCell else DeadCell,
-                                se = if (rows.getOrNull(7)?.getOrNull(1) == '*') AliveCell else DeadCell,
-                            ),
-                            se = CellNode(
-                                nw = if (rows.getOrNull(6)?.getOrNull(2) == '*') AliveCell else DeadCell,
-                                ne = if (rows.getOrNull(6)?.getOrNull(3) == '*') AliveCell else DeadCell,
-                                sw = if (rows.getOrNull(7)?.getOrNull(2) == '*') AliveCell else DeadCell,
-                                se = if (rows.getOrNull(7)?.getOrNull(3) == '*') AliveCell else DeadCell,
-                            ),
-                        ),
-                        se = CellNode(
-                            nw = CellNode(
-                                nw = if (rows.getOrNull(4)?.getOrNull(4) == '*') AliveCell else DeadCell,
-                                ne = if (rows.getOrNull(4)?.getOrNull(5) == '*') AliveCell else DeadCell,
-                                sw = if (rows.getOrNull(5)?.getOrNull(4) == '*') AliveCell else DeadCell,
-                                se = if (rows.getOrNull(5)?.getOrNull(5) == '*') AliveCell else DeadCell,
-                            ),
-                            ne = CellNode(
-                                nw = if (rows.getOrNull(4)?.getOrNull(6) == '*') AliveCell else DeadCell,
-                                ne = if (rows.getOrNull(4)?.getOrNull(7) == '*') AliveCell else DeadCell,
-                                sw = if (rows.getOrNull(5)?.getOrNull(6) == '*') AliveCell else DeadCell,
-                                se = if (rows.getOrNull(5)?.getOrNull(7) == '*') AliveCell else DeadCell,
-                            ),
-                            sw = CellNode(
-                                nw = if (rows.getOrNull(6)?.getOrNull(4) == '*') AliveCell else DeadCell,
-                                ne = if (rows.getOrNull(6)?.getOrNull(5) == '*') AliveCell else DeadCell,
-                                sw = if (rows.getOrNull(7)?.getOrNull(4) == '*') AliveCell else DeadCell,
-                                se = if (rows.getOrNull(7)?.getOrNull(5) == '*') AliveCell else DeadCell,
-                            ),
-                            se = CellNode(
-                                nw = if (rows.getOrNull(6)?.getOrNull(6) == '*') AliveCell else DeadCell,
-                                ne = if (rows.getOrNull(6)?.getOrNull(7) == '*') AliveCell else DeadCell,
-                                sw = if (rows.getOrNull(7)?.getOrNull(6) == '*') AliveCell else DeadCell,
-                                se = if (rows.getOrNull(7)?.getOrNull(7) == '*') AliveCell else DeadCell,
-                            ),
-                        ),
-                    )
+                        )
 
                     indexToCellNodeMap[nodeIndex++] = node
                 }
@@ -280,9 +311,11 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
 
         return DeserializationResult.Successful(
             warnings = warnings,
-            cellState = HashLifeCellState(
+            cellState =
+            HashLifeCellState(
                 offset = IntOffset.Zero,
-                macroCell = if (nodeIndex == 1) {
+                macroCell =
+                if (nodeIndex == 1) {
                     createEmptyMacroCell(3)
                 } else {
                     indexToCellNodeMap.getValue(nodeIndex - 1)
@@ -316,14 +349,15 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                     cellNodeToIndexMap[node] = 0
                 } else if (node.level == 3) {
                     yield(
-                        (0..7).map { y ->
-                            CharArray(8) { x ->
-                                if (IntOffset(x, y) in node) '*' else '.'
-                            }
-                        }
-                            .map(::String)
+                        (0..7)
+                            .map { y ->
+                                CharArray(8) { x ->
+                                    if (IntOffset(x, y) in node) '*' else '.'
+                                }
+                            }.map(::String)
                             .joinToString("$") { it.trimEnd('.') }
-                            .trimEnd('$') + '$',
+                            .trimEnd('$') +
+                            '$',
                     )
                     cellNodeToIndexMap[node] = nodeIndex++
                 } else if (

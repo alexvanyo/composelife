@@ -30,7 +30,9 @@ import com.livefront.sealedenum.SealedEnum
  */
 sealed interface InlineActionCardBackstack {
     data object Speed : InlineActionCardBackstack
+
     data object Edit : InlineActionCardBackstack
+
     data object Settings : InlineActionCardBackstack
 
     @GenSealedEnum
@@ -61,12 +63,11 @@ sealed interface InlineActionCardNavigation {
         override val type = Companion
 
         data object Companion : InlineActionCardNavigationType {
-            override fun saverFactory(
-                previous: BackstackEntry<InlineActionCardNavigation>?,
-            ): Saver<Speed, Any> = Saver(
-                save = { 0 },
-                restore = { Speed },
-            )
+            override fun saverFactory(previous: BackstackEntry<InlineActionCardNavigation>?): Saver<Speed, Any> =
+                Saver(
+                    save = { 0 },
+                    restore = { Speed },
+                )
         }
     }
 
@@ -74,12 +75,11 @@ sealed interface InlineActionCardNavigation {
         override val type = Companion
 
         data object Companion : InlineActionCardNavigationType {
-            override fun saverFactory(
-                previous: BackstackEntry<InlineActionCardNavigation>?,
-            ): Saver<Edit, Any> = Saver(
-                save = { 0 },
-                restore = { Edit },
-            )
+            override fun saverFactory(previous: BackstackEntry<InlineActionCardNavigation>?): Saver<Edit, Any> =
+                Saver(
+                    save = { 0 },
+                    restore = { Edit },
+                )
         }
     }
 
@@ -87,12 +87,11 @@ sealed interface InlineActionCardNavigation {
         override val type = Companion
 
         data object Companion : InlineActionCardNavigationType {
-            override fun saverFactory(
-                previous: BackstackEntry<InlineActionCardNavigation>?,
-            ): Saver<Settings, Any> = Saver(
-                save = { 0 },
-                restore = { Settings },
-            )
+            override fun saverFactory(previous: BackstackEntry<InlineActionCardNavigation>?): Saver<Settings, Any> =
+                Saver(
+                    save = { 0 },
+                    restore = { Settings },
+                )
         }
     }
 
@@ -105,20 +104,23 @@ sealed interface InlineActionCardNavigation {
                         listOf(
                             with(InlineActionCardNavigationType.Saver) { save(inlineActionCardNavigation.type) },
                             when (inlineActionCardNavigation) {
-                                is Settings ->
+                                is Settings -> {
                                     with(Settings.Companion.saverFactory(previous)) {
                                         save(inlineActionCardNavigation)
                                     }
+                                }
 
-                                is Edit ->
+                                is Edit -> {
                                     with(Edit.Companion.saverFactory(previous)) {
                                         save(inlineActionCardNavigation)
                                     }
+                                }
 
-                                is Speed ->
+                                is Speed -> {
                                     with(Speed.Companion.saverFactory(previous)) {
                                         save(inlineActionCardNavigation)
                                     }
+                                }
                             },
                         )
                     },

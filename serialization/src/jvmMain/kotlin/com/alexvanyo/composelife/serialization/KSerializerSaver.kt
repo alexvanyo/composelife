@@ -28,7 +28,8 @@ import kotlinx.serialization.KSerializer
  */
 fun <T : Any> KSerializer<T>.saver(
     savedStateConfiguration: SavedStateConfiguration = SavedStateConfiguration.DEFAULT,
-): Saver<T, SavedState> = Saver(
-    save = { encodeToSavedState(this@saver, it, savedStateConfiguration) },
-    restore = { decodeFromSavedState(this, it, savedStateConfiguration) },
-)
+): Saver<T, SavedState> =
+    Saver(
+        save = { encodeToSavedState(this@saver, it, savedStateConfiguration) },
+        restore = { decodeFromSavedState(this, it, savedStateConfiguration) },
+    )

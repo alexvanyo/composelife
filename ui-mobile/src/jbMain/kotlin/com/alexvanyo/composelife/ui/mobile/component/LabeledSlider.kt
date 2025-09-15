@@ -100,9 +100,10 @@ fun <T : Comparable<T>> LabeledSlider(
     },
     sliderOverlay: @Composable () -> Unit = {},
 ) {
-    val tickFractions = remember(steps) {
-        stepsToTickFractions(steps)
-    }
+    val tickFractions =
+        remember(steps) {
+            stepsToTickFractions(steps)
+        }
     val sliderValue = with(sliderBijection) { value.toSlider() }
     val sliderValueRange = with(sliderBijection) { valueRange.toSlider() }
 
@@ -113,29 +114,29 @@ fun <T : Comparable<T>> LabeledSlider(
 
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier
+            modifier =
+            Modifier
                 .progressSemantics(
                     value = sliderValue,
                     valueRange = sliderValueRange,
                     steps = steps,
-                )
-                .clearAndSetSemantics {
+                ).clearAndSetSemantics {
                     contentDescription = label
                     setProgress(label) { targetValue ->
                         val newValue = targetValue.coerceIn(sliderValueRange.start, sliderValueRange.endInclusive)
-                        val resolvedValue = if (steps > 0) {
-                            tickFractions
-                                .map {
-                                    lerp(
-                                        sliderValueRange.start,
-                                        sliderValueRange.endInclusive,
-                                        it,
-                                    )
-                                }
-                                .minByOrNull { abs(it - newValue) } ?: newValue
-                        } else {
-                            newValue
-                        }
+                        val resolvedValue =
+                            if (steps > 0) {
+                                tickFractions
+                                    .map {
+                                        lerp(
+                                            sliderValueRange.start,
+                                            sliderValueRange.endInclusive,
+                                            it,
+                                        )
+                                    }.minByOrNull { abs(it - newValue) } ?: newValue
+                            } else {
+                                newValue
+                            }
                         // This is to keep it consistent with AbsSeekbar.java: return false if no
                         // change from current.
                         if (resolvedValue == sliderValue) {
@@ -163,7 +164,8 @@ fun <T : Comparable<T>> LabeledSlider(
             )
 
             Box(
-                modifier = Modifier
+                modifier =
+                Modifier
                     .padding(horizontal = 10.dp)
                     .fillMaxWidth()
                     .height(24.dp),
@@ -179,16 +181,19 @@ fun <T : Comparable<T>> LabeledSlider(
  */
 interface SliderBijection<T : Comparable<T>> {
     fun valueToSlider(value: T): Float
+
     fun sliderToValue(sliderValue: Float): T
 }
 
 /**
  * The identity bijection for a type of [Float].
  */
-val Float.Companion.IdentitySliderBijection get(): SliderBijection<Float> = object : SliderBijection<Float> {
-    override fun valueToSlider(value: Float): Float = value
-    override fun sliderToValue(sliderValue: Float): Float = sliderValue
-}
+val Float.Companion.IdentitySliderBijection get(): SliderBijection<Float> =
+    object : SliderBijection<Float> {
+        override fun valueToSlider(value: Float): Float = value
+
+        override fun sliderToValue(sliderValue: Float): Float = sliderValue
+    }
 
 /**
  * Converts the value [T] into the slider [Float] space using the [SliderBijection].

@@ -42,7 +42,6 @@ import javax.inject.Inject
 
 @CacheableTask
 abstract class GenerateBadgingTask : DefaultTask() {
-
     @get:OutputFile
     abstract val badging: RegularFileProperty
 
@@ -60,7 +59,11 @@ abstract class GenerateBadgingTask : DefaultTask() {
     fun taskAction() {
         execOperations.exec {
             commandLine(
-                aapt2.get().executable.get().asFile.absolutePath,
+                aapt2
+                    .get()
+                    .executable
+                    .get()
+                    .asFile.absolutePath,
                 "dump",
                 "badging",
                 apk.get().asFile.absolutePath,
@@ -72,7 +75,6 @@ abstract class GenerateBadgingTask : DefaultTask() {
 
 @CacheableTask
 abstract class CheckBadgingTask : DefaultTask() {
-
     // In order for the task to be up-to-date when the inputs have not changed,
     // the task must declare an output, even if it's not used. Tasks with no
     // output are always run regardless of whether the inputs changed
@@ -108,26 +110,25 @@ abstract class CheckBadgingTask : DefaultTask() {
     }
 }
 
-fun Project.configureBadgingTasks(
-    componentsExtension: ApplicationAndroidComponentsExtension,
-) {
+fun Project.configureBadgingTasks(componentsExtension: ApplicationAndroidComponentsExtension) {
     // Registers a callback to be called, when a new variant is configured
     componentsExtension.onVariants { variant ->
         // Registers a new task to verify the app bundle.
         val capitalizedVariantName = variant.name.capitalizeForTaskName()
         val generateBadgingTaskName = "generate${capitalizedVariantName}Badging"
-        val generateBadging = tasks.register(generateBadgingTaskName, GenerateBadgingTask::class.java) {
-            apk.set(
-                variant.artifacts.get(SingleArtifact.APK_FROM_BUNDLE),
-            )
-            aapt2.set(componentsExtension.sdkComponents.aapt2)
+        val generateBadging =
+            tasks.register(generateBadgingTaskName, GenerateBadgingTask::class.java) {
+                apk.set(
+                    variant.artifacts.get(SingleArtifact.APK_FROM_BUNDLE),
+                )
+                aapt2.set(componentsExtension.sdkComponents.aapt2)
 
-            badging.set(
-                project.layout.buildDirectory.file(
-                    "outputs/apk_from_bundle/${variant.name}/${variant.name}-badging.txt",
-                ),
-            )
-        }
+                badging.set(
+                    project.layout.buildDirectory.file(
+                        "outputs/apk_from_bundle/${variant.name}/${variant.name}-badging.txt",
+                    ),
+                )
+            }
 
         val updateBadgingTaskName = "update${capitalizedVariantName}Badging"
         tasks.register(updateBadgingTaskName, Copy::class.java) {

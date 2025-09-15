@@ -21,7 +21,6 @@ import kotlin.test.assertEquals
 import kotlin.uuid.Uuid
 
 class BackstackEntryTests {
-
     private val id1 = Uuid.random()
     private val id2 = Uuid.random()
     private val id3 = Uuid.random()

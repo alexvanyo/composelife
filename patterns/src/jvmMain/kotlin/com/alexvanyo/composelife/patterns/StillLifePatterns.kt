@@ -20,14 +20,12 @@ import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.emptyCellState
 import com.alexvanyo.composelife.model.toCellState
 
-sealed class StillLifePattern(
-    patternName: String,
-    cellState: CellState,
-) : GameOfLifeTestPattern(
-    patternName = patternName,
-    seedCellState = cellState,
-    cellStates = List(stillLifeTestGenerations) { cellState },
-) {
+sealed class StillLifePattern(patternName: String, cellState: CellState) :
+    GameOfLifeTestPattern(
+        patternName = patternName,
+        seedCellState = cellState,
+        cellStates = List(stillLifeTestGenerations) { cellState },
+    ) {
     companion object {
         const val stillLifeTestGenerations = 50
     }

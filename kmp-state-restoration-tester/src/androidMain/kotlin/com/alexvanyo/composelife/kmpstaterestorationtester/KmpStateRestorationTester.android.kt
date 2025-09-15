@@ -31,33 +31,37 @@ private class RestorationRegistryImpl(
     private val originalSaveableStateRegistry: SaveableStateRegistry,
     private val retainedStateRegistry: RetainedStateRegistry,
 ) : RestorationRegistry {
-
     override var shouldEmitChildren by mutableStateOf(true)
         private set
     private var currentSaveableStateRegistry: SaveableStateRegistry = originalSaveableStateRegistry
     private lateinit var savedParcel: Parcel
 
     override fun saveStateAndDisposeChildren() {
-        savedParcel = Parcel.obtain().also {
-            currentSaveableStateRegistry
-                .performSave()
-                .toBundle()
-                .writeToParcel(it, Parcelable.PARCELABLE_WRITE_RETURN_VALUE)
-        }
+        savedParcel =
+            Parcel.obtain().also {
+                currentSaveableStateRegistry
+                    .performSave()
+                    .toBundle()
+                    .writeToParcel(it, Parcelable.PARCELABLE_WRITE_RETURN_VALUE)
+            }
         retainedStateRegistry.saveAll()
         shouldEmitChildren = false
     }
 
     override fun emitChildrenWithRestoredState() {
         savedParcel.setDataPosition(0)
-        val restoredValues = Bundle.CREATOR.createFromParcel(savedParcel).apply {
-            classLoader = this@RestorationRegistryImpl.javaClass.classLoader
-        }.toMap()
+        val restoredValues =
+            Bundle.CREATOR
+                .createFromParcel(savedParcel)
+                .apply {
+                    classLoader = this@RestorationRegistryImpl.javaClass.classLoader
+                }.toMap()
         savedParcel.recycle()
-        currentSaveableStateRegistry = SaveableStateRegistry(
-            restoredValues = restoredValues,
-            canBeSaved = { originalSaveableStateRegistry.canBeSaved(it) },
-        )
+        currentSaveableStateRegistry =
+            SaveableStateRegistry(
+                restoredValues = restoredValues,
+                canBeSaved = { originalSaveableStateRegistry.canBeSaved(it) },
+            )
         shouldEmitChildren = true
     }
 
@@ -70,11 +74,9 @@ private class RestorationRegistryImpl(
 
     override fun performSave() = currentSaveableStateRegistry.performSave()
 
-    override fun consumeValue(key: String): Any? =
-        retainedStateRegistry.consumeValue(key)
+    override fun consumeValue(key: String): Any? = retainedStateRegistry.consumeValue(key)
 
-    override fun forgetUnclaimedValues() =
-        retainedStateRegistry.forgetUnclaimedValues()
+    override fun forgetUnclaimedValues() = retainedStateRegistry.forgetUnclaimedValues()
 
     override fun registerValue(key: String, valueProvider: RetainedValueProvider): RetainedStateRegistry.Entry =
         retainedStateRegistry.registerValue(key, valueProvider)

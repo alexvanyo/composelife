@@ -18,5 +18,4 @@ package com.alexvanyo.composelife.database
 
 import app.cash.sqldelight.async.coroutines.awaitAsOne
 
-suspend fun PatternCollectionQueries.awaitLastInsertedId() =
-    PatternCollectionId(lastInsertedRowId().awaitAsOne())
+suspend fun PatternCollectionQueries.awaitLastInsertedId() = PatternCollectionId(lastInsertedRowId().awaitAsOne())

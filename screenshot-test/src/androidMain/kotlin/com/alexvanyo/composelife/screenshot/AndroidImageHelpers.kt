@@ -77,9 +77,10 @@ fun SemanticsNodeInteraction.captureToImage(): ImageBitmap =
 fun SemanticsNodeInteraction.robolectricCaptureToImage(): ImageBitmap {
     val node = fetchSemanticsNode("Failed to capture a node to bitmap.")
     // Validate we are in popup
-    val popupParentMaybe = node.findClosestParentNode(includeSelf = true) {
-        it.config.contains(SemanticsProperties.IsPopup)
-    }
+    val popupParentMaybe =
+        node.findClosestParentNode(includeSelf = true) {
+            it.config.contains(SemanticsProperties.IsPopup)
+        }
     if (popupParentMaybe != null) {
         return processMultiWindowScreenshot(node)
     }
@@ -87,9 +88,10 @@ fun SemanticsNodeInteraction.robolectricCaptureToImage(): ImageBitmap {
     val view = (node.root as ViewRootForTest).view
 
     // If we are in dialog use its window to capture the bitmap
-    val dialogParentNodeMaybe = node.findClosestParentNode(includeSelf = true) {
-        it.config.contains(SemanticsProperties.IsDialog)
-    }
+    val dialogParentNodeMaybe =
+        node.findClosestParentNode(includeSelf = true) {
+            it.config.contains(SemanticsProperties.IsDialog)
+        }
     var dialogWindow: Window? = null
     if (dialogParentNodeMaybe != null) {
         // TODO(b/163023027)
@@ -97,20 +99,22 @@ fun SemanticsNodeInteraction.robolectricCaptureToImage(): ImageBitmap {
             "Cannot currently capture dialogs on API lower than 28!"
         }
 
-        dialogWindow = requireNotNull(findDialogWindowProviderInParent(view)?.window) {
-            "Could not find a dialog window provider to capture its bitmap"
-        }
+        dialogWindow =
+            requireNotNull(findDialogWindowProviderInParent(view)?.window) {
+                "Could not find a dialog window provider to capture its bitmap"
+            }
     }
 
     val windowToUse = dialogWindow ?: view.context.getActivityWindow()
 
     val nodeBounds = node.boundsInRoot
-    val nodeBoundsRect = Rect(
-        nodeBounds.left.roundToInt(),
-        nodeBounds.top.roundToInt(),
-        nodeBounds.right.roundToInt(),
-        nodeBounds.bottom.roundToInt(),
-    )
+    val nodeBoundsRect =
+        Rect(
+            nodeBounds.left.roundToInt(),
+            nodeBounds.top.roundToInt(),
+            nodeBounds.right.roundToInt(),
+            nodeBounds.bottom.roundToInt(),
+        )
 
     val locationInWindow = intArrayOf(0, 0)
     view.getLocationInWindow(locationInWindow)
@@ -125,9 +129,7 @@ fun SemanticsNodeInteraction.robolectricCaptureToImage(): ImageBitmap {
 
 @ExperimentalTestApi
 @RequiresApi(26)
-private fun processMultiWindowScreenshot(
-    node: SemanticsNode,
-): ImageBitmap {
+private fun processMultiWindowScreenshot(node: SemanticsNode): ImageBitmap {
     // not needed for Robolectric
     // (node.root as ViewRootForTest).view.forceRedraw(testContext)
 
@@ -136,20 +138,19 @@ private fun processMultiWindowScreenshot(
 
     val combinedBitmap = InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
 
-    val finalBitmap = Bitmap.createBitmap(
-        combinedBitmap,
-        (nodePositionInScreen.x + nodeBoundsInRoot.left).roundToInt(),
-        (nodePositionInScreen.y + nodeBoundsInRoot.top).roundToInt(),
-        nodeBoundsInRoot.width.roundToInt(),
-        nodeBoundsInRoot.height.roundToInt(),
-    )
+    val finalBitmap =
+        Bitmap.createBitmap(
+            combinedBitmap,
+            (nodePositionInScreen.x + nodeBoundsInRoot.left).roundToInt(),
+            (nodePositionInScreen.y + nodeBoundsInRoot.top).roundToInt(),
+            nodeBoundsInRoot.width.roundToInt(),
+            nodeBoundsInRoot.height.roundToInt(),
+        )
     return finalBitmap.asImageBitmap()
 }
 
 @VisibleForTesting
-private fun findNodePosition(
-    node: SemanticsNode,
-): Offset {
+private fun findNodePosition(node: SemanticsNode): Offset {
     val view = (node.root as ViewRootForTest).view
     val locationOnScreen = intArrayOf(0, 0)
     view.getLocationOnScreen(locationOnScreen)
@@ -160,16 +161,23 @@ private fun findNodePosition(
 }
 
 private fun Context.getActivityWindow(): Window {
-    fun Context.getActivity(): Activity {
-        return when (this) {
-            is Activity -> this
-            is ContextWrapper -> this.baseContext.getActivity()
-            else -> error(
-                "Context is not an Activity context, but a ${javaClass.simpleName} context. " +
-                    "An Activity context is required to get a Window instance",
-            )
+    fun Context.getActivity(): Activity =
+        when (this) {
+            is Activity -> {
+                this
+            }
+
+            is ContextWrapper -> {
+                this.baseContext.getActivity()
+            }
+
+            else -> {
+                error(
+                    "Context is not an Activity context, but a ${javaClass.simpleName} context. " +
+                        "An Activity context is required to get a Window instance",
+                )
+            }
         }
-    }
     return getActivity().window
 }
 
@@ -209,9 +217,7 @@ private fun SemanticsNode.findClosestParentNode(
 }
 
 @RequiresApi(26)
-private fun Window.captureRegionToImage(
-    boundsInWindow: Rect,
-): ImageBitmap {
+private fun Window.captureRegionToImage(boundsInWindow: Rect): ImageBitmap {
     // Turn on hardware rendering, if necessary
     return withDrawingEnabled {
         // First force drawing to happen
@@ -253,10 +259,11 @@ private fun Window.generateBitmap(boundsInWindow: Rect): Bitmap {
 private fun Window.generateBitmapFromPixelCopy(boundsInWindow: Rect, destBitmap: Bitmap) {
     val latch = CountDownLatch(1)
     var copyResult = 0
-    val onCopyFinished = PixelCopy.OnPixelCopyFinishedListener { result ->
-        copyResult = result
-        latch.countDown()
-    }
+    val onCopyFinished =
+        PixelCopy.OnPixelCopyFinishedListener { result ->
+            copyResult = result
+            latch.countDown()
+        }
     PixelCopyHelper.request(
         this,
         boundsInWindow,

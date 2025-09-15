@@ -54,10 +54,7 @@ sealed interface SessionValueHolder<T> {
     /**
      * Sets the value upstream via the [SessionValueHolder], and begins (or continues) a local session.
      */
-    fun setValue(
-        value: T,
-        valueId: Uuid = Uuid.random(),
-    )
+    fun setValue(value: T, valueId: Uuid = Uuid.random())
 }
 
 /**
@@ -90,8 +87,7 @@ inline fun <reified T> rememberSessionValueHolder(
      * The provided upstream session id is the known previous id, for a compare-and-set updating of the [SessionValue].
      */
     noinline setUpstreamSessionValue: (expected: SessionValue<T>, newValue: SessionValue<T>) -> Unit,
-): SessionValueHolder<T> =
-    rememberSessionValueHolder(upstreamSessionValue, setUpstreamSessionValue, serializer())
+): SessionValueHolder<T> = rememberSessionValueHolder(upstreamSessionValue, setUpstreamSessionValue, serializer())
 
 /**
  * A multiplexer for a [SessionValue] that can maintain the state for a local session that runs ahead of the
@@ -126,7 +122,8 @@ fun <T> rememberSessionValueHolder(
     valueSerializer: KSerializer<T>,
 ): SessionValueHolder<T> =
     rememberSaveable(
-        saver = SessionValueHolderImpl.Saver(
+        saver =
+        SessionValueHolderImpl.Saver(
             initialSetUpstreamSessionValue = setUpstreamSessionValue,
             valueSerializer = valueSerializer,
         ),
@@ -138,11 +135,10 @@ fun <T> rememberSessionValueHolder(
             initialLocalSessionValue = null,
             initialUpstreamSessionIdBeforeLocalSession = upstreamSessionValue.sessionId,
         )
+    }.apply {
+        setValueFromUpstream(upstreamSessionValue)
+        this.setUpstreamSessionValue = setUpstreamSessionValue
     }
-        .apply {
-            setValueFromUpstream(upstreamSessionValue)
-            this.setUpstreamSessionValue = setUpstreamSessionValue
-        }
 
 private class SessionValueHolderImpl<T>(
     initialUpstreamSessionIdBeforeLocalSession: Uuid,
@@ -197,25 +193,21 @@ private class SessionValueHolderImpl<T>(
             }
         }
 
-    override fun setValue(
-        value: T,
-        valueId: Uuid,
-    ) {
+    override fun setValue(value: T, valueId: Uuid) {
         val expected = sessionValue
-        localSessionValue = SessionValue(
-            sessionId = localSessionId,
-            valueId = valueId,
-            value = value,
-        )
+        localSessionValue =
+            SessionValue(
+                sessionId = localSessionId,
+                valueId = valueId,
+                value = value,
+            )
         setUpstreamSessionValue(expected, sessionValue)
     }
 
     /**
      * Synchronizes the internal state from the upstream [SessionValue].
      */
-    fun setValueFromUpstream(
-        newUpstreamSessionValue: SessionValue<T>,
-    ) {
+    fun setValueFromUpstream(newUpstreamSessionValue: SessionValue<T>) {
         val hasSessionValueChanged =
             newUpstreamSessionValue.sessionId != upstreamSessionValue.sessionId ||
                 newUpstreamSessionValue.valueId != upstreamSessionValue.valueId
@@ -306,8 +298,7 @@ inline fun <reified T> rememberAsyncSessionValueHolder(
      * The provided upstream session id is the known previous id, for a compare-and-set updating of the [SessionValue].
      */
     noinline setUpstreamSessionValue: suspend (expected: SessionValue<T>, newValue: SessionValue<T>) -> Unit,
-): SessionValueHolder<T> =
-    rememberAsyncSessionValueHolder(upstreamSessionValue, setUpstreamSessionValue, serializer())
+): SessionValueHolder<T> = rememberAsyncSessionValueHolder(upstreamSessionValue, setUpstreamSessionValue, serializer())
 
 /**
  * An async multiplexer for a [SessionValue] that can maintain the state for a local session that runs ahead of the
@@ -341,24 +332,27 @@ fun <T> rememberAsyncSessionValueHolder(
     setUpstreamSessionValue: suspend (expected: SessionValue<T>, newValue: SessionValue<T>) -> Unit,
     valueSerializer: KSerializer<T>,
 ): SessionValueHolder<T> {
-    val updateList = rememberSaveable(
-        saver = SnapshotStateListSerializer(
-            PairSerializer(
-                SessionValue.serializer(valueSerializer),
-                SessionValue.serializer(valueSerializer),
-            ),
-        ).saver(),
-    ) {
-        mutableStateListOf()
-    }
+    val updateList =
+        rememberSaveable(
+            saver =
+            SnapshotStateListSerializer(
+                PairSerializer(
+                    SessionValue.serializer(valueSerializer),
+                    SessionValue.serializer(valueSerializer),
+                ),
+            ).saver(),
+        ) {
+            mutableStateListOf()
+        }
 
-    val sessionValueHolder = rememberSessionValueHolder(
-        upstreamSessionValue = upstreamSessionValue,
-        setUpstreamSessionValue = { expected, newValue ->
-            updateList.add(expected to newValue)
-        },
-        valueSerializer = valueSerializer,
-    )
+    val sessionValueHolder =
+        rememberSessionValueHolder(
+            upstreamSessionValue = upstreamSessionValue,
+            setUpstreamSessionValue = { expected, newValue ->
+                updateList.add(expected to newValue)
+            },
+            valueSerializer = valueSerializer,
+        )
 
     LaunchedEffect(sessionValueHolder.info.localSessionId) {
         // Upon the local session id changing, clear out any updates that are no longer valid because they
@@ -403,6 +397,7 @@ private class MappedSessionValueHolder<T, R>(
         get() = sessionValueHolder.sessionValue.map(transformTo)
     override val info: LocalSessionInfo
         get() = sessionValueHolder.info
+
     override fun setValue(value: R, valueId: Uuid) {
         sessionValueHolder.setValue(transformFrom(value))
     }
@@ -412,7 +407,5 @@ private class MappedSessionValueHolder<T, R>(
  * Converts a [SessionValueHolder] of type [T] to a [SessionValueHolder] of type [R] using [transformTo] and
  * [transformFrom].
  */
-fun <T, R> SessionValueHolder<T>.map(
-    transformTo: (T) -> R,
-    transformFrom: (R) -> T,
-): SessionValueHolder<R> = MappedSessionValueHolder(this, transformTo, transformFrom)
+fun <T, R> SessionValueHolder<T>.map(transformTo: (T) -> R, transformFrom: (R) -> T): SessionValueHolder<R> =
+    MappedSessionValueHolder(this, transformTo, transformFrom)

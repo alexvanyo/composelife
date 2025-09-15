@@ -51,7 +51,8 @@ fun WatchFacePreview(
         Image(
             bitmap = previewImageBitmap,
             contentDescription = "Preview",
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxWidth()
                 .then(
                     if (LocalConfiguration.current.isScreenRound) {

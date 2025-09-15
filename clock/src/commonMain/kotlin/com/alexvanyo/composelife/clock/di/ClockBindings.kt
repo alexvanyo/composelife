@@ -25,7 +25,6 @@ import kotlin.time.Clock
 @ContributesTo(AppScope::class)
 @BindingContainer
 interface ClockBindings {
-
     companion object {
         @Provides
         internal fun providesClock(): Clock = Clock.System

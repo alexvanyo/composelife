@@ -46,10 +46,11 @@ fun ColorComponentPicker(
     contentDescription: () -> String,
     modifier: Modifier = Modifier,
 ) {
-    val pickerState = rememberPickerState(
-        initialNumberOfOptions = 256,
-        initiallySelectedIndex = remember { initialComponentValue },
-    )
+    val pickerState =
+        rememberPickerState(
+            initialNumberOfOptions = 256,
+            initiallySelectedIndex = remember { initialComponentValue },
+        )
     val currentSetComponentValue by rememberUpdatedState(setComponentValue)
 
     LaunchedEffect(pickerState) {
@@ -62,12 +63,14 @@ fun ColorComponentPicker(
         state = pickerState,
         contentDescription = contentDescription,
         onSelected = onSelected,
-        modifier = modifier
+        modifier =
+        modifier
             .hierarchicalFocusGroup(isSelected),
     ) { optionIndex ->
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxSize()
                 .pointerInput(Unit) {
                     awaitEachGesture {

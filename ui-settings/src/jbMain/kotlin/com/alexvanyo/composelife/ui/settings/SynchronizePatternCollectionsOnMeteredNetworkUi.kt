@@ -41,18 +41,18 @@ class SynchronizePatternCollectionsOnMeteredNetworkUiCtx(
     @Suppress("ComposableNaming")
     @Deprecated(
         "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
+        replaceWith =
+        ReplaceWith(
             "SynchronizePatternCollectionsOnMeteredNetworkUi(modifier)",
         ),
     )
     @Composable
-    operator fun invoke(
-        modifier: Modifier = Modifier,
-    ) = lambda(preferencesHolder, composeLifePreferences, modifier)
+    operator fun invoke(modifier: Modifier = Modifier) = lambda(preferencesHolder, composeLifePreferences, modifier)
 
     companion object {
         private val lambda:
-            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences) (
+            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences)
+            (
                 modifier: Modifier,
             ) -> Unit =
             { modifier ->
@@ -61,22 +61,18 @@ class SynchronizePatternCollectionsOnMeteredNetworkUiCtx(
     }
 }
 
-context(ctx: SynchronizePatternCollectionsOnMeteredNetworkUiCtx)
 @Suppress("DEPRECATION")
 @Composable
-fun SynchronizePatternCollectionsOnMeteredNetworkUi(
-    modifier: Modifier = Modifier,
-) = ctx(modifier)
+context(ctx: SynchronizePatternCollectionsOnMeteredNetworkUiCtx)
+fun SynchronizePatternCollectionsOnMeteredNetworkUi(modifier: Modifier = Modifier,) = ctx(modifier)
 // endregion templated-ctx
 
+@Composable
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,
-composeLifePreferences: ComposeLifePreferences,
+    composeLifePreferences: ComposeLifePreferences,
 )
-@Composable
-private fun SynchronizePatternCollectionsOnMeteredNetworkUi(
-    modifier: Modifier = Modifier,
-) {
+private fun SynchronizePatternCollectionsOnMeteredNetworkUi(modifier: Modifier = Modifier) {
     SynchronizePatternCollectionsOnMeteredNetworkUi(
         synchronizePatternCollectionsOnMeteredNetwork =
         preferencesHolder.preferences.synchronizePatternCollectionsOnMeteredNetwork,

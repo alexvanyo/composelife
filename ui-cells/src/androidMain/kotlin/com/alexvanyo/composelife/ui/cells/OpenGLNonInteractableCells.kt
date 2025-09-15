@@ -58,9 +58,10 @@ import javax.microedition.khronos.opengles.GL10
 @Composable
 fun openGLSupported(): Boolean {
     val context = LocalContext.current
-    val activityManager = remember(context) {
-        context.getSystemService<ActivityManager>()
-    }
+    val activityManager =
+        remember(context) {
+            context.getSystemService<ActivityManager>()
+        }
     return (activityManager?.deviceConfigurationInfo?.reqGlEsVersion ?: 0) >= 0x00020000
 }
 
@@ -80,32 +81,37 @@ fun OpenGLNonInteractableCells(
     val aliveColor = ComposeLifeTheme.aliveCellColor
     val deadColor = ComposeLifeTheme.deadCellColor
 
-    val cellsBuffer = remember(cellWindow, gameOfLifeState.cellState) {
-        val buffer = IntBuffer.allocate(cellWindow.width * cellWindow.height)
+    val cellsBuffer =
+        remember(cellWindow, gameOfLifeState.cellState) {
+            val buffer = IntBuffer.allocate(cellWindow.width * cellWindow.height)
 
-        gameOfLifeState.cellState.getAliveCellsInWindow(cellWindow).forEach { cell ->
-            val index = (cellWindow.bottom - 1 - cell.y) * cellWindow.width +
-                cell.x - cellWindow.left
-            buffer.put(index, android.graphics.Color.WHITE)
+            gameOfLifeState.cellState.getAliveCellsInWindow(cellWindow).forEach { cell ->
+                val index =
+                    (cellWindow.bottom - 1 - cell.y) *
+                        cellWindow.width +
+                        cell.x -
+                        cellWindow.left
+                buffer.put(index, android.graphics.Color.WHITE)
+            }
+
+            buffer
         }
 
-        buffer
-    }
-
-    val parameters = when (shape) {
-        is CurrentShape.RoundRectangle -> {
-            GameOfLifeShapeParameters.RoundRectangle(
-                cells = cellsBuffer,
-                aliveColor = aliveColor,
-                deadColor = deadColor,
-                cellWindowSize = cellWindow.size,
-                scaledCellPixelSize = scaledCellPixelSize,
-                pixelOffsetFromCenter = pixelOffsetFromCenter,
-                sizeFraction = shape.sizeFraction,
-                cornerFraction = shape.cornerFraction,
-            )
+    val parameters =
+        when (shape) {
+            is CurrentShape.RoundRectangle -> {
+                GameOfLifeShapeParameters.RoundRectangle(
+                    cells = cellsBuffer,
+                    aliveColor = aliveColor,
+                    deadColor = deadColor,
+                    cellWindowSize = cellWindow.size,
+                    scaledCellPixelSize = scaledCellPixelSize,
+                    pixelOffsetFromCenter = pixelOffsetFromCenter,
+                    sizeFraction = shape.sizeFraction,
+                    cornerFraction = shape.cornerFraction,
+                )
+            }
         }
-    }
 
     val lifecycleOwner = LocalLifecycleOwner.current
     val coroutineScope = rememberCoroutineScope()
@@ -117,40 +123,41 @@ fun OpenGLNonInteractableCells(
             object : GLSurfaceView(context) {
                 val parametersState = MutableStateFlow(parameters)
 
-                val renderer = object : Renderer {
-                    private val mvpMatrix = FloatArray(16)
+                val renderer =
+                    object : Renderer {
+                        private val mvpMatrix = FloatArray(16)
 
-                    init {
-                        val projectionMatrix = FloatArray(16)
-                        Matrix.orthoM(projectionMatrix, 0, 0f, 1f, 0f, 1f, 0.5f, 2f)
-                        val viewMatrix = FloatArray(16)
-                        Matrix.setLookAtM(viewMatrix, 0, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f, 0f)
-                        Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
-                    }
+                        init {
+                            val projectionMatrix = FloatArray(16)
+                            Matrix.orthoM(projectionMatrix, 0, 0f, 1f, 0f, 1f, 0.5f, 2f)
+                            val viewMatrix = FloatArray(16)
+                            Matrix.setLookAtM(viewMatrix, 0, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f, 0f)
+                            Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
+                        }
 
-                    lateinit var gameOfLifeShape: GameOfLifeShape
+                        lateinit var gameOfLifeShape: GameOfLifeShape
 
-                    override fun onSurfaceCreated(unused: GL10?, config: EGLConfig?) {
-                        GLES20.glClearColor(0f, 0f, 0f, 0f)
-                        gameOfLifeShape = GameOfLifeShape()
-                        gameOfLifeShape.setScreenShapeParameters(parametersState.value)
-                    }
+                        override fun onSurfaceCreated(unused: GL10?, config: EGLConfig?) {
+                            GLES20.glClearColor(0f, 0f, 0f, 0f)
+                            gameOfLifeShape = GameOfLifeShape()
+                            gameOfLifeShape.setScreenShapeParameters(parametersState.value)
+                        }
 
-                    override fun onSurfaceChanged(unused: GL10?, width: Int, height: Int) {
-                        GLES20.glViewport(0, 0, width, height)
-                        gameOfLifeShape.setSize(width, height)
-                    }
+                        override fun onSurfaceChanged(unused: GL10?, width: Int, height: Int) {
+                            GLES20.glViewport(0, 0, width, height)
+                            gameOfLifeShape.setSize(width, height)
+                        }
 
-                    override fun onDrawFrame(unused: GL10?) {
-                        gameOfLifeShape.draw(mvpMatrix)
-                    }
+                        override fun onDrawFrame(unused: GL10?) {
+                            gameOfLifeShape.draw(mvpMatrix)
+                        }
 
-                    fun setParameters(parameters: GameOfLifeShapeParameters) {
-                        if (::gameOfLifeShape.isInitialized) {
-                            gameOfLifeShape.setScreenShapeParameters(parameters)
+                        fun setParameters(parameters: GameOfLifeShapeParameters) {
+                            if (::gameOfLifeShape.isInitialized) {
+                                gameOfLifeShape.setScreenShapeParameters(parameters)
+                            }
                         }
                     }
-                }
             }.apply {
                 setEGLContextClientVersion(2)
                 setRenderer(renderer)

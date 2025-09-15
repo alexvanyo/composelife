@@ -29,24 +29,24 @@ import kotlin.uuid.Uuid
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class UuidSaverTests {
-
     @Test
-    fun uuid_saver_is_correct() = runComposeUiTest {
-        val stateRestorationTester = KmpStateRestorationTester(this)
+    fun uuid_saver_is_correct() =
+        runComposeUiTest {
+            val stateRestorationTester = KmpStateRestorationTester(this)
 
-        var value: Uuid? = null
+            var value: Uuid? = null
 
-        stateRestorationTester.setContent {
-            value = rememberSaveable(saver = uuidSaver) { Uuid.random() }
+            stateRestorationTester.setContent {
+                value = rememberSaveable(saver = uuidSaver) { Uuid.random() }
+            }
+
+            val initialValue = value
+            value = null
+
+            stateRestorationTester.emulateStateRestore()
+
+            val restoredValue = value
+
+            assertEquals(initialValue, restoredValue)
         }
-
-        val initialValue = value
-        value = null
-
-        stateRestorationTester.emulateStateRestore()
-
-        val restoredValue = value
-
-        assertEquals(initialValue, restoredValue)
-    }
 }

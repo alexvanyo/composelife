@@ -42,86 +42,89 @@ import kotlin.test.assertEquals
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class DarkThemeConfigUiTests {
-
     @Test
-    fun follow_system_is_displayed_correctly() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun follow_system_is_displayed_correctly() =
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DarkThemeConfigUi(
-                darkThemeConfig = DarkThemeConfig.FollowSystem,
-                setDarkThemeConfig = {},
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                DarkThemeConfigUi(
+                    darkThemeConfig = DarkThemeConfig.FollowSystem,
+                    setDarkThemeConfig = {},
+                )
+            }
+
+            onNodeWithText(resolver(Strings.FollowSystem))
+                .assertExists()
+                .assertHasClickAction()
         }
 
-        onNodeWithText(resolver(Strings.FollowSystem))
-            .assertExists()
-            .assertHasClickAction()
-    }
-
     @Test
-    fun light_is_displayed_correctly() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun light_is_displayed_correctly() =
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DarkThemeConfigUi(
-                darkThemeConfig = DarkThemeConfig.Light,
-                setDarkThemeConfig = {},
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                DarkThemeConfigUi(
+                    darkThemeConfig = DarkThemeConfig.Light,
+                    setDarkThemeConfig = {},
+                )
+            }
+
+            onNodeWithText(resolver(Strings.LightTheme))
+                .assertExists()
+                .assertHasClickAction()
         }
 
-        onNodeWithText(resolver(Strings.LightTheme))
-            .assertExists()
-            .assertHasClickAction()
-    }
-
     @Test
-    fun dark_is_displayed_correctly() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun dark_is_displayed_correctly() =
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DarkThemeConfigUi(
-                darkThemeConfig = DarkThemeConfig.Dark,
-                setDarkThemeConfig = {},
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                DarkThemeConfigUi(
+                    darkThemeConfig = DarkThemeConfig.Dark,
+                    setDarkThemeConfig = {},
+                )
+            }
+
+            onNodeWithText(resolver(Strings.DarkTheme))
+                .assertExists()
+                .assertHasClickAction()
         }
 
-        onNodeWithText(resolver(Strings.DarkTheme))
-            .assertExists()
-            .assertHasClickAction()
-    }
-
     @Test
-    fun dark_theme_config_popup_displays_options() = runComposeUiTest {
-        var darkThemeConfig: DarkThemeConfig by mutableStateOf(DarkThemeConfig.FollowSystem)
+    fun dark_theme_config_popup_displays_options() =
+        runComposeUiTest {
+            var darkThemeConfig: DarkThemeConfig by mutableStateOf(DarkThemeConfig.FollowSystem)
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DarkThemeConfigUi(
-                darkThemeConfig = darkThemeConfig,
-                setDarkThemeConfig = { darkThemeConfig = it },
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                DarkThemeConfigUi(
+                    darkThemeConfig = darkThemeConfig,
+                    setDarkThemeConfig = { darkThemeConfig = it },
+                )
+            }
+
+            onNodeWithText(resolver(Strings.FollowSystem))
+                .performClick()
+
+            onNode(hasAnyAncestor(isPopup()) and hasText(resolver(Strings.LightTheme)))
+                .assertHasClickAction()
+                .performClick()
+
+            assertEquals(DarkThemeConfig.Light, darkThemeConfig)
+
+            onNode(isPopup())
+                .assertDoesNotExist()
+
+            onNodeWithText(resolver(Strings.LightTheme))
+                .assertExists()
+                .assertHasClickAction()
         }
-
-        onNodeWithText(resolver(Strings.FollowSystem))
-            .performClick()
-
-        onNode(hasAnyAncestor(isPopup()) and hasText(resolver(Strings.LightTheme)))
-            .assertHasClickAction()
-            .performClick()
-
-        assertEquals(DarkThemeConfig.Light, darkThemeConfig)
-
-        onNode(isPopup())
-            .assertDoesNotExist()
-
-        onNodeWithText(resolver(Strings.LightTheme))
-            .assertExists()
-            .assertHasClickAction()
-    }
 }

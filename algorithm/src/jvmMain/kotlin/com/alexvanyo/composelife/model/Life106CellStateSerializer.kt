@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 
 object Life106CellStateSerializer : FixedFormatCellStateSerializer {
-
     override val format: CellStateFormat.FixedFormat = CellStateFormat.FixedFormat.Life106
 
     @Suppress("ReturnCount")
@@ -44,7 +43,8 @@ object Life106CellStateSerializer : FixedFormatCellStateSerializer {
         if (headerLine != "#Life 1.06") {
             return DeserializationResult.Unsuccessful(
                 warnings = warnings,
-                errors = listOf(
+                errors =
+                listOf(
                     UnexpectedHeaderMessage(headerLine),
                 ),
             )
@@ -61,7 +61,8 @@ object Life106CellStateSerializer : FixedFormatCellStateSerializer {
             if (matchResult == null) {
                 return DeserializationResult.Unsuccessful(
                     warnings = warnings,
-                    errors = listOf(
+                    errors =
+                    listOf(
                         UnexpectedInputMessage(line, lineIndex + 1, 0),
                     ),
                 )
@@ -79,8 +80,9 @@ object Life106CellStateSerializer : FixedFormatCellStateSerializer {
         )
     }
 
-    override fun serializeToString(cellState: CellState): Sequence<String> = sequence {
-        yield("#Life 1.06")
-        yieldAll(cellState.aliveCells.map { "${it.x} ${it.y}" })
-    }
+    override fun serializeToString(cellState: CellState): Sequence<String> =
+        sequence {
+            yield("#Life 1.06")
+            yieldAll(cellState.aliveCells.map { "${it.x} ${it.y}" })
+        }
 }

@@ -105,10 +105,11 @@ fun ListDetailPaneScaffold(
     val showListAndDetail = showList && showDetail
 
     val dispatcher = requireNotNull(LocalNavigationEventDispatcherOwner.current).navigationEventDispatcher
-    val navigationEventState by dispatcher.getState<ListDetailPaneScaffoldNavigationEventInfo>(
-        rememberCoroutineScope(),
-        ListDetailPaneScaffoldNavigationEventInfo,
-    ).collectAsState()
+    val navigationEventState by dispatcher
+        .getState<ListDetailPaneScaffoldNavigationEventInfo>(
+            rememberCoroutineScope(),
+            ListDetailPaneScaffoldNavigationEventInfo,
+        ).collectAsState()
 
     NavigationBackHandler(
         currentInfo = ListDetailPaneScaffoldNavigationEventInfo,
@@ -119,20 +120,23 @@ fun ListDetailPaneScaffold(
     val currentListContent by rememberUpdatedState(listContent)
     val currentDetailContent by rememberUpdatedState(detailContent)
 
-    val movableListContent = remember {
-        movableContentOf {
-            currentListContent()
+    val movableListContent =
+        remember {
+            movableContentOf {
+                currentListContent()
+            }
         }
-    }
-    val movableDetailContent = remember {
-        movableContentOf {
-            currentDetailContent()
+    val movableDetailContent =
+        remember {
+            movableContentOf {
+                currentDetailContent()
+            }
         }
-    }
 
-    val anchoredDraggableState = rememberSaveable(saver = AnchoredDraggableState.Saver()) {
-        AnchoredDraggableState(initialValue = 0.5f)
-    }
+    val anchoredDraggableState =
+        rememberSaveable(saver = AnchoredDraggableState.Saver()) {
+            AnchoredDraggableState(initialValue = 0.5f)
+        }
 
     val minPaneWidth = 200.dp
 
@@ -144,18 +148,21 @@ fun ListDetailPaneScaffold(
                 layoutIdTypes = ListAndDetailLayoutTypes._sealedEnum,
                 content = {
                     Spacer(
-                        modifier = Modifier
+                        modifier =
+                        Modifier
                             .layoutId(ListAndDetailLayoutTypes.StartInsets)
                             .windowInsetsStartWidth(WindowInsets.safeDrawing),
                     )
                     Spacer(
-                        modifier = Modifier
+                        modifier =
+                        Modifier
                             .layoutId(ListAndDetailLayoutTypes.EndInsets)
                             .windowInsetsEndWidth(WindowInsets.safeDrawing),
                     )
 
                     Box(
-                        modifier = Modifier
+                        modifier =
+                        Modifier
                             .layoutId(ListAndDetailLayoutTypes.List)
                             .consumeWindowInsets(
                                 WindowInsets.safeDrawing.only(
@@ -173,13 +180,11 @@ fun ListDetailPaneScaffold(
                                 WindowInsets.safeDrawing.only(
                                     WindowInsetsSides.Start,
                                 ),
-                            )
-                            .windowInsetsPadding(
+                            ).windowInsetsPadding(
                                 WindowInsets.safeDrawing.only(
                                     WindowInsetsSides.Horizontal,
                                 ),
-                            )
-                            .padding(
+                            ).padding(
                                 top = 4.dp,
                                 start = 8.dp,
                                 end = 8.dp,
@@ -190,7 +195,8 @@ fun ListDetailPaneScaffold(
                         Surface(
                             color = MaterialTheme.colorScheme.secondaryContainer,
                             shape = RoundedCornerShape(16.dp),
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .weight(1f)
                                 .consumeWindowInsets(
                                     WindowInsets.safeDrawing.only(
@@ -208,7 +214,8 @@ fun ListDetailPaneScaffold(
                     }
 
                     Box(
-                        modifier = Modifier
+                        modifier =
+                        Modifier
                             .layoutId(ListAndDetailLayoutTypes.Divider)
                             .fillMaxHeight()
                             .windowInsetsPadding(
@@ -221,17 +228,16 @@ fun ListDetailPaneScaffold(
                         val handleInteractionSource = remember { MutableInteractionSource() }
 
                         Box(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .size(64.dp)
                                 .hoverable(
                                     interactionSource = handleInteractionSource,
-                                )
-                                .anchoredDraggable(
+                                ).anchoredDraggable(
                                     state = anchoredDraggableState,
                                     orientation = Orientation.Horizontal,
                                     interactionSource = handleInteractionSource,
-                                )
-                                .pointerHoverIcon(PointerIcon.Hand),
+                                ).pointerHoverIcon(PointerIcon.Hand),
                             contentAlignment = Alignment.Center,
                         ) {
                             val isHandleDragged by handleInteractionSource.collectIsDraggedAsState()
@@ -243,7 +249,8 @@ fun ListDetailPaneScaffold(
                                 label = "handleWidth",
                             )
                             val handleColor by animateColorAsState(
-                                targetValue = if (isHandleActive) {
+                                targetValue =
+                                if (isHandleActive) {
                                     MaterialTheme.colorScheme.onSurface
                                 } else {
                                     MaterialTheme.colorScheme.outline
@@ -254,10 +261,11 @@ fun ListDetailPaneScaffold(
                                 modifier = Modifier.fillMaxSize(),
                             ) {
                                 val handleSize = DpSize(handleWidth, 48.dp).toSize()
-                                val handleOffset = Offset(
-                                    (size.width - handleSize.width) / 2f,
-                                    (size.height - handleSize.height) / 2f,
-                                )
+                                val handleOffset =
+                                    Offset(
+                                        (size.width - handleSize.width) / 2f,
+                                        (size.height - handleSize.height) / 2f,
+                                    )
                                 drawRoundRect(
                                     color = handleColor,
                                     topLeft = handleOffset,
@@ -269,58 +277,67 @@ fun ListDetailPaneScaffold(
                     }
                 },
                 measurePolicy = { measurables, constraints ->
-                    val startInsetsPlaceable = measurables
-                        .getValue(ListAndDetailLayoutTypes.StartInsets)
-                        .measure(constraints.copy(minWidth = 0))
+                    val startInsetsPlaceable =
+                        measurables
+                            .getValue(ListAndDetailLayoutTypes.StartInsets)
+                            .measure(constraints.copy(minWidth = 0))
 
-                    val endInsetsPlaceable = measurables
-                        .getValue(ListAndDetailLayoutTypes.EndInsets)
-                        .measure(constraints.copy(minWidth = 0))
+                    val endInsetsPlaceable =
+                        measurables
+                            .getValue(ListAndDetailLayoutTypes.EndInsets)
+                            .measure(constraints.copy(minWidth = 0))
 
                     val minPaneWidthPx = minPaneWidth.toPx()
 
-                    val freeSpace = constraints.maxWidth -
-                        startInsetsPlaceable.width -
-                        endInsetsPlaceable.width -
-                        minPaneWidthPx * 2
+                    val freeSpace =
+                        constraints.maxWidth -
+                            startInsetsPlaceable.width -
+                            endInsetsPlaceable.width -
+                            minPaneWidthPx *
+                            2
 
                     layout(constraints.maxWidth, constraints.maxHeight) {
                         val minAnchoredDraggablePosition = 0f
                         val maxAnchoredDraggablePosition = freeSpace.coerceAtLeast(0f)
 
                         anchoredDraggableState.updateAnchors(
-                            newAnchors = ContinuousDraggableAnchors(
+                            newAnchors =
+                            ContinuousDraggableAnchors(
                                 minAnchoredDraggablePosition = minAnchoredDraggablePosition,
                                 maxAnchoredDraggablePosition = maxAnchoredDraggablePosition,
                             ),
                             newTarget = anchoredDraggableState.targetValue,
                         )
 
-                        val currentFraction = checkNotNull(
-                            anchoredDraggableState.anchors.closestAnchor(
-                                anchoredDraggableState.requireOffset(),
-                            ),
-                        )
+                        val currentFraction =
+                            checkNotNull(
+                                anchoredDraggableState.anchors.closestAnchor(
+                                    anchoredDraggableState.requireOffset(),
+                                ),
+                            )
 
                         val listPaneExtraSpace = freeSpace * currentFraction
                         val listPaneWidth =
                             (startInsetsPlaceable.width + minPaneWidthPx + listPaneExtraSpace).roundToInt()
                         val detailPaneWidth = constraints.maxWidth - listPaneWidth
 
-                        val listPanePlaceable = measurables
-                            .getValue(ListAndDetailLayoutTypes.List)
-                            .measure(constraints.copy(minWidth = listPaneWidth, maxWidth = listPaneWidth))
+                        val listPanePlaceable =
+                            measurables
+                                .getValue(ListAndDetailLayoutTypes.List)
+                                .measure(constraints.copy(minWidth = listPaneWidth, maxWidth = listPaneWidth))
 
-                        val detailPanePlaceable = measurables
-                            .getValue(ListAndDetailLayoutTypes.Detail)
-                            .measure(constraints.copy(minWidth = detailPaneWidth, maxWidth = detailPaneWidth))
+                        val detailPanePlaceable =
+                            measurables
+                                .getValue(ListAndDetailLayoutTypes.Detail)
+                                .measure(constraints.copy(minWidth = detailPaneWidth, maxWidth = detailPaneWidth))
 
                         listPanePlaceable.placeRelative(0, 0)
                         detailPanePlaceable.placeRelative(listPaneWidth, 0)
 
-                        val dividerPlaceable = measurables
-                            .getValue(ListAndDetailLayoutTypes.Divider)
-                            .measure(constraints)
+                        val dividerPlaceable =
+                            measurables
+                                .getValue(ListAndDetailLayoutTypes.Divider)
+                                .measure(constraints)
 
                         dividerPlaceable.placeRelative(listPaneWidth - dividerPlaceable.width / 2, 0)
                     }
@@ -328,17 +345,22 @@ fun ListDetailPaneScaffold(
             )
         } else {
             AnimatedContent(
-                targetState = when (val navigationEventState = navigationEventState) {
-                    is NavigationEventState.Idle<ListDetailPaneScaffoldNavigationEventInfo> -> TargetState.Single(
-                        showList,
-                    )
-                    is NavigationEventState.InProgress<ListDetailPaneScaffoldNavigationEventInfo> ->
+                targetState =
+                when (val navigationEventState = navigationEventState) {
+                    is NavigationEventState.Idle<ListDetailPaneScaffoldNavigationEventInfo> -> {
+                        TargetState.Single(
+                            showList,
+                        )
+                    }
+
+                    is NavigationEventState.InProgress<ListDetailPaneScaffoldNavigationEventInfo> -> {
                         TargetState.InProgress(
                             current = false,
                             provisional = true,
                             progress = navigationEventState.progress,
                             metadata = navigationEventState,
                         )
+                    }
                 },
                 transitionSpec = { contentWithStatus ->
                     val contentStatusTargetState = this@AnimatedContent.targetState
@@ -348,15 +370,22 @@ fun ListDetailPaneScaffold(
                             when (initialState) {
                                 is ContentStatus.Appearing,
                                 is ContentStatus.Disappearing,
-                                -> spring()
+                                -> {
+                                    spring()
+                                }
+
                                 ContentStatus.NotVisible,
                                 ContentStatus.Visible,
-                                -> when (this@animateFloat.targetState) {
-                                    is ContentStatus.Appearing,
-                                    is ContentStatus.Disappearing,
-                                    -> spring()
-                                    ContentStatus.NotVisible -> tween(durationMillis = 90)
-                                    ContentStatus.Visible -> tween(durationMillis = 220, delayMillis = 90)
+                                -> {
+                                    when (this@animateFloat.targetState) {
+                                        is ContentStatus.Appearing,
+                                        is ContentStatus.Disappearing,
+                                        -> spring()
+
+                                        ContentStatus.NotVisible -> tween(durationMillis = 90)
+
+                                        ContentStatus.Visible -> tween(durationMillis = 220, delayMillis = 90)
+                                    }
                                 }
                             }
                         },
@@ -381,15 +410,25 @@ fun ListDetailPaneScaffold(
                         )
                     }.apply {
                         when (contentStatusTargetState) {
-                            is ContentStatus.Appearing -> value = null
+                            is ContentStatus.Appearing -> {
+                                value = null
+                            }
+
                             is ContentStatus.Disappearing -> {
                                 if (contentStatusTargetState.progressToNotVisible >= 0.01f) {
                                     // Only save that we were disappearing if the progress is at least 1% along
                                     value = contentStatusTargetState
                                 }
                             }
-                            ContentStatus.NotVisible -> Unit // Preserve the previous value of wasDisappearing
-                            ContentStatus.Visible -> value = null
+
+                            ContentStatus.NotVisible -> {
+                                Unit
+                            }
+
+                            // Preserve the previous value of wasDisappearing
+                            ContentStatus.Visible -> {
+                                value = null
+                            }
                         }
                     }
                     val scale by animateFloat(
@@ -406,27 +445,36 @@ fun ListDetailPaneScaffold(
                         label = "translationX",
                     ) {
                         when (it) {
-                            is ContentStatus.Appearing -> 0.dp
+                            is ContentStatus.Appearing -> {
+                                0.dp
+                            }
+
                             is ContentStatus.Disappearing -> {
                                 val metadata = it.metadata
                                 lerp(
                                     0.dp,
                                     8.dp,
                                     it.progressToNotVisible,
-                                ) * when (metadata.latestEvent.swipeEdge) {
-                                    NavigationEventSwipeEdge.Left -> -1f
-                                    NavigationEventSwipeEdge.Right -> 1f
-                                    else -> 0f
-                                }
+                                ) *
+                                    when (metadata.latestEvent.swipeEdge) {
+                                        NavigationEventSwipeEdge.Left -> -1f
+                                        NavigationEventSwipeEdge.Right -> 1f
+                                        else -> 0f
+                                    }
                             }
+
                             ContentStatus.NotVisible -> {
-                                8.dp * when (lastDisappearingValue?.metadata?.latestEvent?.swipeEdge) {
-                                    NavigationEventSwipeEdge.Left -> -1f
-                                    NavigationEventSwipeEdge.Right -> 1f
-                                    else -> 0f
-                                }
+                                8.dp *
+                                    when (lastDisappearingValue?.metadata?.latestEvent?.swipeEdge) {
+                                        NavigationEventSwipeEdge.Left -> -1f
+                                        NavigationEventSwipeEdge.Right -> 1f
+                                        else -> 0f
+                                    }
                             }
-                            ContentStatus.Visible -> 0.dp
+
+                            ContentStatus.Visible -> {
+                                0.dp
+                            }
                         }
                     }
                     val cornerRadius by animateDp(
@@ -443,7 +491,10 @@ fun ListDetailPaneScaffold(
                         label = "pivotFractionX",
                     ) {
                         when (it) {
-                            is ContentStatus.Appearing -> 0.5f
+                            is ContentStatus.Appearing -> {
+                                0.5f
+                            }
+
                             is ContentStatus.Disappearing -> {
                                 when (it.metadata.latestEvent.swipeEdge) {
                                     NavigationEventSwipeEdge.Left -> 1f
@@ -451,6 +502,7 @@ fun ListDetailPaneScaffold(
                                     else -> 0.5f
                                 }
                             }
+
                             ContentStatus.NotVisible -> {
                                 when (lastDisappearingValue?.metadata?.latestEvent?.swipeEdge) {
                                     NavigationEventSwipeEdge.Left -> 1f
@@ -458,12 +510,16 @@ fun ListDetailPaneScaffold(
                                     else -> 0.5f
                                 }
                             }
-                            ContentStatus.Visible -> 0.5f
+
+                            ContentStatus.Visible -> {
+                                0.5f
+                            }
                         }
                     }
 
                     Box(
-                        modifier = Modifier
+                        modifier =
+                        Modifier
                             .graphicsLayer {
                                 shadowElevation = 6.dp.toPx()
                                 this.translationX = translationX.toPx()
@@ -500,7 +556,6 @@ data class ContinuousDraggableAnchors(
     private val minAnchoredDraggablePosition: Float,
     private val maxAnchoredDraggablePosition: Float,
 ) : DraggableAnchors<Float> {
-
     override val size: Int = 1
 
     override fun closestAnchor(position: Float): Float =
@@ -542,7 +597,8 @@ data class ContinuousDraggableAnchors(
     override fun positionAt(index: Int): Float = Float.NaN
 
     override fun positionOf(anchor: Float): Float =
-        anchor * (maxAnchoredDraggablePosition - minAnchoredDraggablePosition) +
+        anchor *
+            (maxAnchoredDraggablePosition - minAnchoredDraggablePosition) +
             minAnchoredDraggablePosition
 
     override fun hasPositionFor(anchor: Float): Boolean =
@@ -551,9 +607,13 @@ data class ContinuousDraggableAnchors(
 
 sealed interface ListAndDetailLayoutTypes {
     data object StartInsets : ListAndDetailLayoutTypes
+
     data object EndInsets : ListAndDetailLayoutTypes
+
     data object List : ListAndDetailLayoutTypes
+
     data object Detail : ListAndDetailLayoutTypes
+
     data object Divider : ListAndDetailLayoutTypes
 
     @GenSealedEnum

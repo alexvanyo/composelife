@@ -30,12 +30,15 @@ internal fun CellUniverseInfoCardCollapsedPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             CellUniverseInfoCard(
-                cellUniverseInfoCardContent = CellUniverseInfoCardContent(
-                    cellUniverseInfoCardState = rememberCellUniverseInfoCardState(
+                cellUniverseInfoCardContent =
+                CellUniverseInfoCardContent(
+                    cellUniverseInfoCardState =
+                    rememberCellUniverseInfoCardState(
                         setIsExpanded = {},
                         expandedTargetState = TargetState.Single(false),
                     ),
-                    cellUniverseInfoItemContents = listOf(
+                    cellUniverseInfoItemContents =
+                    listOf(
                         CellUniverseInfoItemContent(
                             rememberCellUniverseInfoItemState(isChecked = true),
                         ) { "First" },
@@ -59,12 +62,15 @@ internal fun CellUniverseInfoCardCollapsedSingleSelectionPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             CellUniverseInfoCard(
-                cellUniverseInfoCardContent = CellUniverseInfoCardContent(
-                    cellUniverseInfoCardState = rememberCellUniverseInfoCardState(
+                cellUniverseInfoCardContent =
+                CellUniverseInfoCardContent(
+                    cellUniverseInfoCardState =
+                    rememberCellUniverseInfoCardState(
                         setIsExpanded = {},
                         expandedTargetState = TargetState.Single(false),
                     ),
-                    cellUniverseInfoItemContents = listOf(
+                    cellUniverseInfoItemContents =
+                    listOf(
                         CellUniverseInfoItemContent(
                             rememberCellUniverseInfoItemState(isChecked = false),
                         ) { "First" },
@@ -88,12 +94,15 @@ internal fun CellUniverseInfoCardFullyCollapsedPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             CellUniverseInfoCard(
-                cellUniverseInfoCardContent = CellUniverseInfoCardContent(
-                    cellUniverseInfoCardState = rememberCellUniverseInfoCardState(
+                cellUniverseInfoCardContent =
+                CellUniverseInfoCardContent(
+                    cellUniverseInfoCardState =
+                    rememberCellUniverseInfoCardState(
                         setIsExpanded = {},
                         expandedTargetState = TargetState.Single(false),
                     ),
-                    cellUniverseInfoItemContents = listOf(
+                    cellUniverseInfoItemContents =
+                    listOf(
                         CellUniverseInfoItemContent(
                             rememberCellUniverseInfoItemState(isChecked = false),
                         ) { "First" },
@@ -117,12 +126,15 @@ internal fun CellUniverseInfoCardExpandedPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
             CellUniverseInfoCard(
-                cellUniverseInfoCardContent = CellUniverseInfoCardContent(
-                    cellUniverseInfoCardState = rememberCellUniverseInfoCardState(
+                cellUniverseInfoCardContent =
+                CellUniverseInfoCardContent(
+                    cellUniverseInfoCardState =
+                    rememberCellUniverseInfoCardState(
                         setIsExpanded = {},
                         expandedTargetState = TargetState.Single(true),
                     ),
-                    cellUniverseInfoItemContents = listOf(
+                    cellUniverseInfoItemContents =
+                    listOf(
                         CellUniverseInfoItemContent(
                             rememberCellUniverseInfoItemState(),
                         ) { "First" },

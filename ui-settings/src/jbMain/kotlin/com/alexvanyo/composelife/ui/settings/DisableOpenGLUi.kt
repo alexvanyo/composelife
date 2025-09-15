@@ -41,18 +41,18 @@ class DisableOpenGLUiCtx(
     @Suppress("ComposableNaming")
     @Deprecated(
         "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
+        replaceWith =
+        ReplaceWith(
             "DisableOpenGLUi(modifier)",
         ),
     )
     @Composable
-    operator fun invoke(
-        modifier: Modifier = Modifier,
-    ) = lambda(preferencesHolder, composeLifePreferences, modifier)
+    operator fun invoke(modifier: Modifier = Modifier) = lambda(preferencesHolder, composeLifePreferences, modifier)
 
     companion object {
         private val lambda:
-            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences) (
+            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences)
+            (
                 modifier: Modifier,
             ) -> Unit =
             { modifier ->
@@ -61,22 +61,18 @@ class DisableOpenGLUiCtx(
     }
 }
 
-context(ctx: DisableOpenGLUiCtx)
 @Suppress("DEPRECATION")
 @Composable
-fun DisableOpenGLUi(
-    modifier: Modifier = Modifier,
-) = ctx(modifier)
+context(ctx: DisableOpenGLUiCtx)
+fun DisableOpenGLUi(modifier: Modifier = Modifier) = ctx(modifier)
 // endregion templated-ctx
 
+@Composable
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,
-composeLifePreferences: ComposeLifePreferences,
+    composeLifePreferences: ComposeLifePreferences,
 )
-@Composable
-private fun DisableOpenGLUi(
-    modifier: Modifier = Modifier,
-) {
+private fun DisableOpenGLUi(modifier: Modifier = Modifier) {
     DisableOpenGLUi(
         disableOpenGL = preferencesHolder.preferences.disableOpenGL,
         setDisableOpenGL = composeLifePreferences::setDisableOpenGL,

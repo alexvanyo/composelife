@@ -23,9 +23,7 @@ import androidx.work.WorkerParameters
 import dev.zacsweers.metro.Inject
 
 @Inject
-class InjectWorkerFactory(
-    private val workerFactoryMap: Map<String, AssistedWorkerFactory>,
-) : WorkerFactory() {
+class InjectWorkerFactory(private val workerFactoryMap: Map<String, AssistedWorkerFactory>) : WorkerFactory() {
     override fun createWorker(
         appContext: Context,
         workerClassName: String,

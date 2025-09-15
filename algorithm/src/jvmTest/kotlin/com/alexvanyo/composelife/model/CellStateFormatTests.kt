@@ -20,7 +20,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class CellStateFormatTests {
-
     @Test
     fun from_file_extension_null_is_unknown() {
         assertEquals(

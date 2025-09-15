@@ -37,37 +37,40 @@ import kotlin.test.Test
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class SealedEnumSaverTests {
-
     @Test
-    fun sealed_enum_saver_is_correct() = runComposeUiTest {
-        val stateRestorationTester = KmpStateRestorationTester(this)
+    fun sealed_enum_saver_is_correct() =
+        runComposeUiTest {
+            val stateRestorationTester = KmpStateRestorationTester(this)
 
-        stateRestorationTester.setContent {
-            var value by rememberSaveable(stateSaver = sealedEnumSaver(testEnumSealedEnum)) {
-                mutableStateOf(TestEnum.First)
+            stateRestorationTester.setContent {
+                var value by rememberSaveable(stateSaver = sealedEnumSaver(testEnumSealedEnum)) {
+                    mutableStateOf(TestEnum.First)
+                }
+                Column {
+                    BasicText("Current Value: ${testEnumSealedEnum.nameOf(value)}")
+                    BasicText(
+                        "Change to Third",
+                        modifier =
+                        Modifier.clickable {
+                            value = TestEnum.Third
+                        },
+                    )
+                }
             }
-            Column {
-                BasicText("Current Value: ${testEnumSealedEnum.nameOf(value)}")
-                BasicText(
-                    "Change to Third",
-                    modifier = Modifier.clickable {
-                        value = TestEnum.Third
-                    },
-                )
-            }
+
+            onNodeWithText("Change to Third").performClick()
+            onNodeWithText("Change to Third").performClick()
+
+            stateRestorationTester.emulateStateRestore()
+
+            onNodeWithText("Current Value: Third").assertExists()
         }
-
-        onNodeWithText("Change to Third").performClick()
-        onNodeWithText("Change to Third").performClick()
-
-        stateRestorationTester.emulateStateRestore()
-
-        onNodeWithText("Current Value: Third").assertExists()
-    }
 }
 
 private enum class TestEnum {
-    First, Second, Third
+    First,
+    Second,
+    Third,
 }
 
 private val testEnumSealedEnum = createSealedEnumFromEnum<TestEnum>()

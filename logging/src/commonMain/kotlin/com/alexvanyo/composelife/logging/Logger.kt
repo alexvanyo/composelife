@@ -20,7 +20,6 @@ import kotlin.jvm.JvmOverloads
 
 @Suppress("TooManyFunctions")
 interface Logger {
-
     val tag: String
 
     fun withTag(tag: String): Logger

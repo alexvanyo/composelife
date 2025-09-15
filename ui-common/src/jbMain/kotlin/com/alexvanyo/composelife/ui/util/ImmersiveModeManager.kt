@@ -22,7 +22,6 @@ package com.alexvanyo.composelife.ui.util
  * When the system UI should be hidden, call [hideSystemUi].
  */
 interface ImmersiveModeManager {
-
     /**
      * Hides the system UI will called.
      *

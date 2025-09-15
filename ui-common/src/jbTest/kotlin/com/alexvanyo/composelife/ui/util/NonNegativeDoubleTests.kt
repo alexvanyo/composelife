@@ -28,7 +28,6 @@ import kotlin.test.assertEquals
 
 @Suppress("TooManyFunctions")
 class NonNegativeDoubleTests {
-
     private val textFieldState = TextFieldState()
     private val inputTransformation = InputTransformation.nonNegativeDouble()
 

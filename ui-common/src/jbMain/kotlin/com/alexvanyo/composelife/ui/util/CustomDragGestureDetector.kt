@@ -55,14 +55,15 @@ suspend fun PointerInputScope.detectDragGestures(
         var drag: PointerInputChange?
         var overSlop = Offset.Zero
         do {
-            drag = awaitPointerSlopOrCancellation(
-                down.id,
-                down.type,
-                orientation = null,
-            ) { change, over ->
-                change.consume()
-                overSlop = over
-            }
+            drag =
+                awaitPointerSlopOrCancellation(
+                    down.id,
+                    down.type,
+                    orientation = null,
+                ) { change, over ->
+                    change.consume()
+                    overSlop = over
+                }
         } while (drag != null && !drag.isConsumed)
         if (drag != null) {
             onDragStart.invoke(drag.position)
@@ -157,8 +158,8 @@ internal suspend inline fun AwaitPointerEventScope.awaitPointerSlopOrCancellatio
  * [addPointerInputChange] will return true.
  */
 internal class TouchSlopDetector(val orientation: Orientation? = null) {
-
     fun Offset.mainAxis() = if (orientation == Orientation.Horizontal) x else y
+
     fun Offset.crossAxis() = if (orientation == Orientation.Horizontal) y else x
 
     /**
@@ -171,20 +172,18 @@ internal class TouchSlopDetector(val orientation: Orientation? = null) {
      * slop provided by [touchSlop], this method will return the post slop offset, that is the
      * total accumulated delta change minus the touch slop value, otherwise this should return null.
      */
-    fun addPointerInputChange(
-        dragEvent: PointerInputChange,
-        touchSlop: Float,
-    ): Offset? {
+    fun addPointerInputChange(dragEvent: PointerInputChange, touchSlop: Float): Offset? {
         val currentPosition = dragEvent.position
         val previousPosition = dragEvent.previousPosition
         val positionChange = currentPosition - previousPosition
         totalPositionChange += positionChange
 
-        val inDirection = if (orientation == null) {
-            totalPositionChange.getDistance()
-        } else {
-            totalPositionChange.mainAxis().absoluteValue
-        }
+        val inDirection =
+            if (orientation == null) {
+                totalPositionChange.getDistance()
+            } else {
+                totalPositionChange.mainAxis().absoluteValue
+            }
 
         val hasCrossedSlop = inDirection >= touchSlop
 
@@ -202,15 +201,16 @@ internal class TouchSlopDetector(val orientation: Orientation? = null) {
         totalPositionChange = Offset.Zero
     }
 
-    private fun calculatePostSlopOffset(touchSlop: Float): Offset {
-        return if (orientation == null) {
+    private fun calculatePostSlopOffset(touchSlop: Float): Offset =
+        if (orientation == null) {
             val touchSlopOffset =
                 totalPositionChange / totalPositionChange.getDistance() * touchSlop
             // update postSlopOffset
             totalPositionChange - touchSlopOffset
         } else {
-            val finalMainAxisChange = totalPositionChange.mainAxis() -
-                (sign(totalPositionChange.mainAxis()) * touchSlop)
+            val finalMainAxisChange =
+                totalPositionChange.mainAxis() -
+                    (sign(totalPositionChange.mainAxis()) * touchSlop)
             val finalCrossAxisChange = totalPositionChange.crossAxis()
             if (orientation == Orientation.Horizontal) {
                 Offset(finalMainAxisChange, finalCrossAxisChange)
@@ -218,7 +218,6 @@ internal class TouchSlopDetector(val orientation: Orientation? = null) {
                 Offset(finalCrossAxisChange, finalMainAxisChange)
             }
         }
-    }
 }
 
 internal fun PointerEvent.isPointerUp(pointerId: PointerId): Boolean =
@@ -232,9 +231,8 @@ private val mouseSlop = 0.125.dp
 private val defaultTouchSlop = 18.dp // The default touch slop on Android devices
 private val mouseToTouchSlopRatio = mouseSlop / defaultTouchSlop
 
-private fun ViewConfiguration.pointerSlop(pointerType: PointerType): Float {
-    return when (pointerType) {
+private fun ViewConfiguration.pointerSlop(pointerType: PointerType): Float =
+    when (pointerType) {
         PointerType.Mouse -> touchSlop * mouseToTouchSlopRatio
         else -> touchSlop
     }
-}

@@ -69,528 +69,565 @@ val UiGraph.inlineEditPaneTestsCtx: InlineEditPaneTestsCtx get() =
     this as InlineEditPaneTestsCtx
 
 @OptIn(ExperimentalTestApi::class)
-class InlineEditPaneTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
+class InlineEditPaneTests :
+    BaseUiInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun clipboard_cell_state_preview_loading_is_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.inlineEditPaneTestsCtx
+    fun clipboard_cell_state_preview_loading_is_displayed_correctly() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.inlineEditPaneTestsCtx
 
-        setContent {
-            with(ctx.clipboardCellStatePreviewCtx) {
-                InlineEditPane(
-                    state = object : InlineEditPaneState {
-                        override val touchToolConfig = ToolConfig.Pan
+            setContent {
+                with(ctx.clipboardCellStatePreviewCtx) {
+                    InlineEditPane(
+                        state =
+                        object : InlineEditPaneState {
+                            override val touchToolConfig = ToolConfig.Pan
 
-                        override fun setTouchToolConfig(toolConfig: ToolConfig) = Unit
+                            override fun setTouchToolConfig(toolConfig: ToolConfig) = Unit
 
-                        override val stylusToolConfig = ToolConfig.None
+                            override val stylusToolConfig = ToolConfig.None
 
-                        override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
+                            override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
 
-                        override val mouseToolConfig = ToolConfig.None
+                            override val mouseToolConfig = ToolConfig.None
 
-                        override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
+                            override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
 
-                        override val clipboardWatchingState: ClipboardWatchingState
-                            get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
-                                override val useSharedElementForCellStatePreviews = false
-                                override val isLoading = true
+                            override val clipboardWatchingState: ClipboardWatchingState
+                                get() =
+                                    object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                        override val useSharedElementForCellStatePreviews = false
+                                        override val isLoading = true
 
-                                override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
+                                        override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
 
-                                override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
-                                    emptyList()
-                            }
-                    },
-                )
-            }
-        }
-
-        onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate))
-    }
-
-    @Test
-    fun clipboard_cell_state_preview_success_is_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.inlineEditPaneTestsCtx
-
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            resolver = parameterizedStringResolver()
-            with(ctx.clipboardCellStatePreviewCtx) {
-                val clipboardPreviewStates = remember {
-                    listOf(
-                        object : ClipboardPreviewState {
-                            override val id = Uuid.random()
-                            override val deserializationResult = DeserializationResult.Successful(
-                                warnings = emptyList(),
-                                cellState = GliderPattern.seedCellState,
-                                format = CellStateFormat.FixedFormat.Plaintext,
-                            )
-
-                            override val isPinned = false
-
-                            override fun onPaste() = Unit
-
-                            override fun onPinChanged() = Unit
-
-                            override fun onViewDeserializationInfo() = Unit
+                                        override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
+                                            emptyList()
+                                    }
                         },
                     )
                 }
-
-                InlineEditPane(
-                    state = object : InlineEditPaneState {
-                        override val touchToolConfig = ToolConfig.Pan
-
-                        override fun setTouchToolConfig(toolConfig: ToolConfig) = Unit
-
-                        override val stylusToolConfig = ToolConfig.None
-
-                        override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
-
-                        override val mouseToolConfig = ToolConfig.None
-
-                        override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
-
-                        override val clipboardWatchingState: ClipboardWatchingState
-                            get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
-                                override val useSharedElementForCellStatePreviews = false
-                                override val isLoading = false
-
-                                override val clipboardPreviewStates = clipboardPreviewStates
-
-                                override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
-                                    emptyList()
-                            }
-                    },
-                )
             }
+
+            onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+                .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate))
         }
 
-        onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
-            .assertDoesNotExist()
-
-        onNodeWithContentDescription(resolver(Strings.Paste))
-            .assertExists()
-            .assertHasClickAction()
-
-        onNodeWithContentDescription(resolver(Strings.Pin))
-            .assertExists()
-            .assertHasClickAction()
-    }
-
     @Test
-    fun clipboard_cell_state_preview_success_paste_is_handled_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.inlineEditPaneTestsCtx
+    fun clipboard_cell_state_preview_success_is_displayed_correctly() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.inlineEditPaneTestsCtx
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        var onPasteClipboardClickedCount = 0
+            setContent {
+                resolver = parameterizedStringResolver()
+                with(ctx.clipboardCellStatePreviewCtx) {
+                    val clipboardPreviewStates =
+                        remember {
+                            listOf(
+                                object : ClipboardPreviewState {
+                                    override val id = Uuid.random()
+                                    override val deserializationResult =
+                                        DeserializationResult.Successful(
+                                            warnings = emptyList(),
+                                            cellState = GliderPattern.seedCellState,
+                                            format = CellStateFormat.FixedFormat.Plaintext,
+                                        )
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            with(ctx.clipboardCellStatePreviewCtx) {
-                val clipboardPreviewStates = remember {
-                    listOf(
-                        object : ClipboardPreviewState {
-                            override val id = Uuid.random()
-                            override val deserializationResult = DeserializationResult.Successful(
-                                warnings = emptyList(),
-                                cellState = GliderPattern.seedCellState,
-                                format = CellStateFormat.FixedFormat.Plaintext,
+                                    override val isPinned = false
+
+                                    override fun onPaste() = Unit
+
+                                    override fun onPinChanged() = Unit
+
+                                    override fun onViewDeserializationInfo() = Unit
+                                },
                             )
-
-                            override val isPinned = false
-
-                            override fun onPaste() {
-                                onPasteClipboardClickedCount++
-                            }
-
-                            override fun onPinChanged() = Unit
-
-                            override fun onViewDeserializationInfo() = Unit
-                        },
-                    )
-                }
-
-                InlineEditPane(
-                    state = object : InlineEditPaneState {
-                        override val touchToolConfig = ToolConfig.Pan
-
-                        override fun setTouchToolConfig(toolConfig: ToolConfig) = Unit
-
-                        override val stylusToolConfig = ToolConfig.None
-
-                        override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
-
-                        override val mouseToolConfig = ToolConfig.None
-
-                        override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
-
-                        override val clipboardWatchingState: ClipboardWatchingState
-                            get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
-                                override val useSharedElementForCellStatePreviews = false
-                                override val isLoading = false
-
-                                override val clipboardPreviewStates = clipboardPreviewStates
-
-                                override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
-                                    emptyList()
-                            }
-                    },
-                )
-            }
-        }
-
-        onNodeWithContentDescription(resolver(Strings.Paste))
-            .performClick()
-
-        assertEquals(1, onPasteClipboardClickedCount)
-    }
-
-    @Test
-    fun clipboard_cell_state_preview_success_pin_is_handled_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.inlineEditPaneTestsCtx
-
-        lateinit var resolver: (ParameterizedString) -> String
-
-        var onPinClipboardClickedCount = 0
-
-        setContent {
-            resolver = parameterizedStringResolver()
-            with(ctx.clipboardCellStatePreviewCtx) {
-                val clipboardPreviewStates = remember {
-                    listOf(
-                        object : ClipboardPreviewState {
-                            override val id = Uuid.random()
-                            override val deserializationResult = DeserializationResult.Successful(
-                                warnings = emptyList(),
-                                cellState = GliderPattern.seedCellState,
-                                format = CellStateFormat.FixedFormat.Plaintext,
-                            )
-                            override val isPinned = false
-
-                            override fun onPaste() = Unit
-
-                            override fun onPinChanged() {
-                                onPinClipboardClickedCount++
-                            }
-
-                            override fun onViewDeserializationInfo() = Unit
-                        },
-                    )
-                }
-
-                InlineEditPane(
-                    state = object : InlineEditPaneState {
-                        override val touchToolConfig = ToolConfig.Pan
-
-                        override fun setTouchToolConfig(toolConfig: ToolConfig) = Unit
-
-                        override val stylusToolConfig = ToolConfig.None
-
-                        override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
-
-                        override val mouseToolConfig = ToolConfig.None
-
-                        override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
-
-                        override val clipboardWatchingState: ClipboardWatchingState
-                            get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
-                                override val useSharedElementForCellStatePreviews = false
-                                override val isLoading = false
-
-                                override val clipboardPreviewStates = clipboardPreviewStates
-
-                                override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
-                                    emptyList()
-                            }
-                    },
-                )
-            }
-        }
-
-        onNodeWithContentDescription(resolver(Strings.Pin))
-            .performClick()
-
-        assertEquals(1, onPinClipboardClickedCount)
-    }
-
-    @Test
-    fun touch_config_pan_is_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.inlineEditPaneTestsCtx
-
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            resolver = parameterizedStringResolver()
-            with(ctx.clipboardCellStatePreviewCtx) {
-                InlineEditPane(
-                    state = object : InlineEditPaneState {
-                        override val touchToolConfig = ToolConfig.Pan
-
-                        override fun setTouchToolConfig(toolConfig: ToolConfig) = Unit
-
-                        override val stylusToolConfig = ToolConfig.None
-
-                        override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
-
-                        override val mouseToolConfig = ToolConfig.None
-
-                        override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
-
-                        override val clipboardWatchingState: ClipboardWatchingState
-                            get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
-                                override val useSharedElementForCellStatePreviews = false
-                                override val isLoading = true
-
-                                override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
-
-                                override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
-                                    emptyList()
-                            }
-                    },
-                )
-            }
-        }
-
-        onNodeWithText(resolver(Strings.Pan))
-            .assertExists()
-            .assertHasClickAction()
-    }
-
-    @Test
-    fun touch_config_draw_is_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.inlineEditPaneTestsCtx
-
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            resolver = parameterizedStringResolver()
-            with(ctx.clipboardCellStatePreviewCtx) {
-                InlineEditPane(
-                    state = object : InlineEditPaneState {
-                        override val touchToolConfig = ToolConfig.Draw
-
-                        override fun setTouchToolConfig(toolConfig: ToolConfig) = Unit
-
-                        override val stylusToolConfig = ToolConfig.None
-
-                        override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
-
-                        override val mouseToolConfig = ToolConfig.None
-
-                        override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
-
-                        override val clipboardWatchingState: ClipboardWatchingState
-                            get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
-                                override val useSharedElementForCellStatePreviews = false
-                                override val isLoading = true
-
-                                override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
-
-                                override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
-                                    emptyList()
-                            }
-                    },
-                )
-            }
-        }
-
-        onNodeWithText(resolver(Strings.Draw))
-            .assertExists()
-            .assertHasClickAction()
-    }
-
-    @Test
-    fun touch_config_erase_is_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.inlineEditPaneTestsCtx
-
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            resolver = parameterizedStringResolver()
-            with(ctx.clipboardCellStatePreviewCtx) {
-                InlineEditPane(
-                    state = object : InlineEditPaneState {
-                        override val touchToolConfig = ToolConfig.Erase
-
-                        override fun setTouchToolConfig(toolConfig: ToolConfig) = Unit
-
-                        override val stylusToolConfig = ToolConfig.None
-
-                        override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
-
-                        override val mouseToolConfig = ToolConfig.None
-
-                        override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
-
-                        override val clipboardWatchingState: ClipboardWatchingState
-                            get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
-                                override val useSharedElementForCellStatePreviews = false
-                                override val isLoading = true
-
-                                override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
-
-                                override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
-                                    emptyList()
-                            }
-                    },
-                )
-            }
-        }
-
-        onNodeWithText(resolver(Strings.Erase))
-            .assertExists()
-            .assertHasClickAction()
-    }
-
-    @Test
-    fun touch_config_select_is_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.inlineEditPaneTestsCtx
-
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            resolver = parameterizedStringResolver()
-            with(ctx.clipboardCellStatePreviewCtx) {
-                InlineEditPane(
-                    state = object : InlineEditPaneState {
-                        override val touchToolConfig = ToolConfig.Select
-
-                        override fun setTouchToolConfig(toolConfig: ToolConfig) = Unit
-
-                        override val stylusToolConfig = ToolConfig.None
-
-                        override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
-
-                        override val mouseToolConfig = ToolConfig.None
-
-                        override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
-
-                        override val clipboardWatchingState: ClipboardWatchingState
-                            get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
-                                override val useSharedElementForCellStatePreviews = false
-                                override val isLoading = true
-
-                                override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
-
-                                override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
-                                    emptyList()
-                            }
-                    },
-                )
-            }
-        }
-
-        onNodeWithText(resolver(Strings.Select))
-            .assertExists()
-            .assertHasClickAction()
-    }
-
-    @Test
-    fun touch_config_none_is_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.inlineEditPaneTestsCtx
-
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            resolver = parameterizedStringResolver()
-            with(ctx.clipboardCellStatePreviewCtx) {
-                InlineEditPane(
-                    state = object : InlineEditPaneState {
-                        override val touchToolConfig = ToolConfig.None
-
-                        override fun setTouchToolConfig(toolConfig: ToolConfig) = Unit
-
-                        override val stylusToolConfig = ToolConfig.Draw
-
-                        override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
-
-                        override val mouseToolConfig = ToolConfig.Draw
-
-                        override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
-
-                        override val clipboardWatchingState: ClipboardWatchingState
-                            get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
-                                override val useSharedElementForCellStatePreviews = false
-                                override val isLoading = true
-
-                                override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
-
-                                override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
-                                    emptyList()
-                            }
-                    },
-                )
-            }
-        }
-
-        onNodeWithText(resolver(Strings.None))
-            .assertExists()
-            .assertHasClickAction()
-    }
-
-    @Test
-    fun touch_config_popup_displays_options() = runUiTest { uiGraph ->
-        val ctx = uiGraph.inlineEditPaneTestsCtx
-
-        var touchToolConfig: ToolConfig by mutableStateOf(ToolConfig.Pan)
-
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            resolver = parameterizedStringResolver()
-            with(ctx.clipboardCellStatePreviewCtx) {
-                InlineEditPane(
-                    state = object : InlineEditPaneState {
-                        override val touchToolConfig get() = touchToolConfig
-
-                        override fun setTouchToolConfig(toolConfig: ToolConfig) {
-                            touchToolConfig = toolConfig
                         }
 
-                        override val stylusToolConfig = ToolConfig.None
+                    InlineEditPane(
+                        state =
+                        object : InlineEditPaneState {
+                            override val touchToolConfig = ToolConfig.Pan
 
-                        override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
+                            override fun setTouchToolConfig(toolConfig: ToolConfig) = Unit
 
-                        override val mouseToolConfig = ToolConfig.None
+                            override val stylusToolConfig = ToolConfig.None
 
-                        override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
+                            override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
 
-                        override val clipboardWatchingState: ClipboardWatchingState
-                            get() = object : ClipboardWatchingState.ClipboardWatchingEnabled {
-                                override val useSharedElementForCellStatePreviews = false
-                                override val isLoading = true
+                            override val mouseToolConfig = ToolConfig.None
 
-                                override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
+                            override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
 
-                                override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
-                                    emptyList()
-                            }
-                    },
-                )
+                            override val clipboardWatchingState: ClipboardWatchingState
+                                get() =
+                                    object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                        override val useSharedElementForCellStatePreviews = false
+                                        override val isLoading = false
+
+                                        override val clipboardPreviewStates = clipboardPreviewStates
+
+                                        override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
+                                            emptyList()
+                                    }
+                        },
+                    )
+                }
             }
+
+            onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+                .assertDoesNotExist()
+
+            onNodeWithContentDescription(resolver(Strings.Paste))
+                .assertExists()
+                .assertHasClickAction()
+
+            onNodeWithContentDescription(resolver(Strings.Pin))
+                .assertExists()
+                .assertHasClickAction()
         }
 
-        onNodeWithText(resolver(Strings.Pan))
-            .performClick()
+    @Test
+    fun clipboard_cell_state_preview_success_paste_is_handled_correctly() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.inlineEditPaneTestsCtx
 
-        onNode(hasAnyAncestor(isPopup()) and hasText(resolver(Strings.Draw)))
-            .assertHasClickAction()
-            .performClick()
+            lateinit var resolver: (ParameterizedString) -> String
 
-        assertEquals(ToolConfig.Draw, touchToolConfig)
+            var onPasteClipboardClickedCount = 0
 
-        onNode(isPopup())
-            .assertDoesNotExist()
+            setContent {
+                resolver = parameterizedStringResolver()
+                with(ctx.clipboardCellStatePreviewCtx) {
+                    val clipboardPreviewStates =
+                        remember {
+                            listOf(
+                                object : ClipboardPreviewState {
+                                    override val id = Uuid.random()
+                                    override val deserializationResult =
+                                        DeserializationResult.Successful(
+                                            warnings = emptyList(),
+                                            cellState = GliderPattern.seedCellState,
+                                            format = CellStateFormat.FixedFormat.Plaintext,
+                                        )
 
-        onNodeWithText(resolver(Strings.Draw))
-            .assertExists()
-            .assertHasClickAction()
-    }
+                                    override val isPinned = false
+
+                                    override fun onPaste() {
+                                        onPasteClipboardClickedCount++
+                                    }
+
+                                    override fun onPinChanged() = Unit
+
+                                    override fun onViewDeserializationInfo() = Unit
+                                },
+                            )
+                        }
+
+                    InlineEditPane(
+                        state =
+                        object : InlineEditPaneState {
+                            override val touchToolConfig = ToolConfig.Pan
+
+                            override fun setTouchToolConfig(toolConfig: ToolConfig) = Unit
+
+                            override val stylusToolConfig = ToolConfig.None
+
+                            override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
+
+                            override val mouseToolConfig = ToolConfig.None
+
+                            override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
+
+                            override val clipboardWatchingState: ClipboardWatchingState
+                                get() =
+                                    object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                        override val useSharedElementForCellStatePreviews = false
+                                        override val isLoading = false
+
+                                        override val clipboardPreviewStates = clipboardPreviewStates
+
+                                        override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
+                                            emptyList()
+                                    }
+                        },
+                    )
+                }
+            }
+
+            onNodeWithContentDescription(resolver(Strings.Paste))
+                .performClick()
+
+            assertEquals(1, onPasteClipboardClickedCount)
+        }
+
+    @Test
+    fun clipboard_cell_state_preview_success_pin_is_handled_correctly() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.inlineEditPaneTestsCtx
+
+            lateinit var resolver: (ParameterizedString) -> String
+
+            var onPinClipboardClickedCount = 0
+
+            setContent {
+                resolver = parameterizedStringResolver()
+                with(ctx.clipboardCellStatePreviewCtx) {
+                    val clipboardPreviewStates =
+                        remember {
+                            listOf(
+                                object : ClipboardPreviewState {
+                                    override val id = Uuid.random()
+                                    override val deserializationResult =
+                                        DeserializationResult.Successful(
+                                            warnings = emptyList(),
+                                            cellState = GliderPattern.seedCellState,
+                                            format = CellStateFormat.FixedFormat.Plaintext,
+                                        )
+                                    override val isPinned = false
+
+                                    override fun onPaste() = Unit
+
+                                    override fun onPinChanged() {
+                                        onPinClipboardClickedCount++
+                                    }
+
+                                    override fun onViewDeserializationInfo() = Unit
+                                },
+                            )
+                        }
+
+                    InlineEditPane(
+                        state =
+                        object : InlineEditPaneState {
+                            override val touchToolConfig = ToolConfig.Pan
+
+                            override fun setTouchToolConfig(toolConfig: ToolConfig) = Unit
+
+                            override val stylusToolConfig = ToolConfig.None
+
+                            override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
+
+                            override val mouseToolConfig = ToolConfig.None
+
+                            override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
+
+                            override val clipboardWatchingState: ClipboardWatchingState
+                                get() =
+                                    object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                        override val useSharedElementForCellStatePreviews = false
+                                        override val isLoading = false
+
+                                        override val clipboardPreviewStates = clipboardPreviewStates
+
+                                        override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
+                                            emptyList()
+                                    }
+                        },
+                    )
+                }
+            }
+
+            onNodeWithContentDescription(resolver(Strings.Pin))
+                .performClick()
+
+            assertEquals(1, onPinClipboardClickedCount)
+        }
+
+    @Test
+    fun touch_config_pan_is_displayed_correctly() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.inlineEditPaneTestsCtx
+
+            lateinit var resolver: (ParameterizedString) -> String
+
+            setContent {
+                resolver = parameterizedStringResolver()
+                with(ctx.clipboardCellStatePreviewCtx) {
+                    InlineEditPane(
+                        state =
+                        object : InlineEditPaneState {
+                            override val touchToolConfig = ToolConfig.Pan
+
+                            override fun setTouchToolConfig(toolConfig: ToolConfig) = Unit
+
+                            override val stylusToolConfig = ToolConfig.None
+
+                            override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
+
+                            override val mouseToolConfig = ToolConfig.None
+
+                            override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
+
+                            override val clipboardWatchingState: ClipboardWatchingState
+                                get() =
+                                    object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                        override val useSharedElementForCellStatePreviews = false
+                                        override val isLoading = true
+
+                                        override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
+
+                                        override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
+                                            emptyList()
+                                    }
+                        },
+                    )
+                }
+            }
+
+            onNodeWithText(resolver(Strings.Pan))
+                .assertExists()
+                .assertHasClickAction()
+        }
+
+    @Test
+    fun touch_config_draw_is_displayed_correctly() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.inlineEditPaneTestsCtx
+
+            lateinit var resolver: (ParameterizedString) -> String
+
+            setContent {
+                resolver = parameterizedStringResolver()
+                with(ctx.clipboardCellStatePreviewCtx) {
+                    InlineEditPane(
+                        state =
+                        object : InlineEditPaneState {
+                            override val touchToolConfig = ToolConfig.Draw
+
+                            override fun setTouchToolConfig(toolConfig: ToolConfig) = Unit
+
+                            override val stylusToolConfig = ToolConfig.None
+
+                            override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
+
+                            override val mouseToolConfig = ToolConfig.None
+
+                            override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
+
+                            override val clipboardWatchingState: ClipboardWatchingState
+                                get() =
+                                    object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                        override val useSharedElementForCellStatePreviews = false
+                                        override val isLoading = true
+
+                                        override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
+
+                                        override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
+                                            emptyList()
+                                    }
+                        },
+                    )
+                }
+            }
+
+            onNodeWithText(resolver(Strings.Draw))
+                .assertExists()
+                .assertHasClickAction()
+        }
+
+    @Test
+    fun touch_config_erase_is_displayed_correctly() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.inlineEditPaneTestsCtx
+
+            lateinit var resolver: (ParameterizedString) -> String
+
+            setContent {
+                resolver = parameterizedStringResolver()
+                with(ctx.clipboardCellStatePreviewCtx) {
+                    InlineEditPane(
+                        state =
+                        object : InlineEditPaneState {
+                            override val touchToolConfig = ToolConfig.Erase
+
+                            override fun setTouchToolConfig(toolConfig: ToolConfig) = Unit
+
+                            override val stylusToolConfig = ToolConfig.None
+
+                            override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
+
+                            override val mouseToolConfig = ToolConfig.None
+
+                            override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
+
+                            override val clipboardWatchingState: ClipboardWatchingState
+                                get() =
+                                    object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                        override val useSharedElementForCellStatePreviews = false
+                                        override val isLoading = true
+
+                                        override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
+
+                                        override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
+                                            emptyList()
+                                    }
+                        },
+                    )
+                }
+            }
+
+            onNodeWithText(resolver(Strings.Erase))
+                .assertExists()
+                .assertHasClickAction()
+        }
+
+    @Test
+    fun touch_config_select_is_displayed_correctly() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.inlineEditPaneTestsCtx
+
+            lateinit var resolver: (ParameterizedString) -> String
+
+            setContent {
+                resolver = parameterizedStringResolver()
+                with(ctx.clipboardCellStatePreviewCtx) {
+                    InlineEditPane(
+                        state =
+                        object : InlineEditPaneState {
+                            override val touchToolConfig = ToolConfig.Select
+
+                            override fun setTouchToolConfig(toolConfig: ToolConfig) = Unit
+
+                            override val stylusToolConfig = ToolConfig.None
+
+                            override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
+
+                            override val mouseToolConfig = ToolConfig.None
+
+                            override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
+
+                            override val clipboardWatchingState: ClipboardWatchingState
+                                get() =
+                                    object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                        override val useSharedElementForCellStatePreviews = false
+                                        override val isLoading = true
+
+                                        override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
+
+                                        override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
+                                            emptyList()
+                                    }
+                        },
+                    )
+                }
+            }
+
+            onNodeWithText(resolver(Strings.Select))
+                .assertExists()
+                .assertHasClickAction()
+        }
+
+    @Test
+    fun touch_config_none_is_displayed_correctly() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.inlineEditPaneTestsCtx
+
+            lateinit var resolver: (ParameterizedString) -> String
+
+            setContent {
+                resolver = parameterizedStringResolver()
+                with(ctx.clipboardCellStatePreviewCtx) {
+                    InlineEditPane(
+                        state =
+                        object : InlineEditPaneState {
+                            override val touchToolConfig = ToolConfig.None
+
+                            override fun setTouchToolConfig(toolConfig: ToolConfig) = Unit
+
+                            override val stylusToolConfig = ToolConfig.Draw
+
+                            override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
+
+                            override val mouseToolConfig = ToolConfig.Draw
+
+                            override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
+
+                            override val clipboardWatchingState: ClipboardWatchingState
+                                get() =
+                                    object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                        override val useSharedElementForCellStatePreviews = false
+                                        override val isLoading = true
+
+                                        override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
+
+                                        override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
+                                            emptyList()
+                                    }
+                        },
+                    )
+                }
+            }
+
+            onNodeWithText(resolver(Strings.None))
+                .assertExists()
+                .assertHasClickAction()
+        }
+
+    @Test
+    fun touch_config_popup_displays_options() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.inlineEditPaneTestsCtx
+
+            var touchToolConfig: ToolConfig by mutableStateOf(ToolConfig.Pan)
+
+            lateinit var resolver: (ParameterizedString) -> String
+
+            setContent {
+                resolver = parameterizedStringResolver()
+                with(ctx.clipboardCellStatePreviewCtx) {
+                    InlineEditPane(
+                        state =
+                        object : InlineEditPaneState {
+                            override val touchToolConfig get() = touchToolConfig
+
+                            override fun setTouchToolConfig(toolConfig: ToolConfig) {
+                                touchToolConfig = toolConfig
+                            }
+
+                            override val stylusToolConfig = ToolConfig.None
+
+                            override fun setStylusToolConfig(toolConfig: ToolConfig) = Unit
+
+                            override val mouseToolConfig = ToolConfig.None
+
+                            override fun setMouseToolConfig(toolConfig: ToolConfig) = Unit
+
+                            override val clipboardWatchingState: ClipboardWatchingState
+                                get() =
+                                    object : ClipboardWatchingState.ClipboardWatchingEnabled {
+                                        override val useSharedElementForCellStatePreviews = false
+                                        override val isLoading = true
+
+                                        override val clipboardPreviewStates: List<ClipboardPreviewState> = emptyList()
+
+                                        override val pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState> =
+                                            emptyList()
+                                    }
+                        },
+                    )
+                }
+            }
+
+            onNodeWithText(resolver(Strings.Pan))
+                .performClick()
+
+            onNode(hasAnyAncestor(isPopup()) and hasText(resolver(Strings.Draw)))
+                .assertHasClickAction()
+                .performClick()
+
+            assertEquals(ToolConfig.Draw, touchToolConfig)
+
+            onNode(isPopup())
+                .assertDoesNotExist()
+
+            onNodeWithText(resolver(Strings.Draw))
+                .assertExists()
+                .assertHasClickAction()
+        }
 }

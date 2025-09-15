@@ -23,7 +23,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class DarkThemeConfigModeTests {
-
     @Test
     fun dark_theme_config_light_to_ui_mode_manager_mode_converts_correctly() {
         assertEquals(

@@ -24,7 +24,6 @@ import kotlin.test.assertNotNull
 import kotlin.uuid.Uuid
 
 class BackstackNavigationTests {
-
     private val id1 = Uuid.random()
     private val id2 = Uuid.random()
     private val id3 = Uuid.random()
@@ -34,12 +33,13 @@ class BackstackNavigationTests {
     private val entry3 = BackstackEntry("c", entry2, id3)
     private val entry4 = BackstackEntry("d", entry3, id4)
 
-    private val mutableBackstackMap: MutableBackstackMap<String> = mutableStateMapOf(
-        id1 to entry1,
-        id2 to entry2,
-        id3 to entry3,
-        id4 to entry4,
-    )
+    private val mutableBackstackMap: MutableBackstackMap<String> =
+        mutableStateMapOf(
+            id1 to entry1,
+            id2 to entry2,
+            id3 to entry3,
+            id4 to entry4,
+        )
 
     @Test
     fun pop_backstack_is_correct() {
@@ -69,10 +69,11 @@ class BackstackNavigationTests {
 
     @Test
     fun pop_up_to_with_id_non_inclusive_is_correct() {
-        val newId = mutableBackstackMap.popUpTo(
-            currentEntryId = id4,
-            id = id2,
-        )
+        val newId =
+            mutableBackstackMap.popUpTo(
+                currentEntryId = id4,
+                id = id2,
+            )
 
         assertEquals(
             mapOf(
@@ -86,11 +87,12 @@ class BackstackNavigationTests {
 
     @Test
     fun pop_up_to_with_id_inclusive_is_correct() {
-        val newId = mutableBackstackMap.popUpTo(
-            currentEntryId = id4,
-            id = id2,
-            inclusive = true,
-        )
+        val newId =
+            mutableBackstackMap.popUpTo(
+                currentEntryId = id4,
+                id = id2,
+                inclusive = true,
+            )
 
         assertEquals(
             mapOf(
@@ -124,10 +126,11 @@ class BackstackNavigationTests {
 
     @Test
     fun pop_up_to_with_value_predicate_non_inclusive_is_correct() {
-        val newId = mutableBackstackMap.popUpTo(
-            currentEntryId = id4,
-            predicate = { it == "b" },
-        )
+        val newId =
+            mutableBackstackMap.popUpTo(
+                currentEntryId = id4,
+                predicate = { it == "b" },
+            )
 
         assertEquals(
             mapOf(
@@ -141,11 +144,12 @@ class BackstackNavigationTests {
 
     @Test
     fun pop_up_to_with_value_inclusive_is_correct() {
-        val newId = mutableBackstackMap.popUpTo(
-            currentEntryId = id4,
-            predicate = { it == "b" },
-            inclusive = true,
-        )
+        val newId =
+            mutableBackstackMap.popUpTo(
+                currentEntryId = id4,
+                predicate = { it == "b" },
+                inclusive = true,
+            )
 
         assertEquals(
             mapOf(
@@ -158,10 +162,11 @@ class BackstackNavigationTests {
 
     @Test
     fun pop_up_to_with_entry_predicate_non_inclusive_is_correct() {
-        val newId = mutableBackstackMap.popUpTo(
-            currentEntryId = id4,
-            entryPredicate = { it.value == "b" },
-        )
+        val newId =
+            mutableBackstackMap.popUpTo(
+                currentEntryId = id4,
+                entryPredicate = { it.value == "b" },
+            )
 
         assertEquals(
             mapOf(
@@ -175,11 +180,12 @@ class BackstackNavigationTests {
 
     @Test
     fun pop_up_to_with_entry_predicate_inclusive_is_correct() {
-        val newId = mutableBackstackMap.popUpTo(
-            currentEntryId = id4,
-            entryPredicate = { it.value == "b" },
-            inclusive = true,
-        )
+        val newId =
+            mutableBackstackMap.popUpTo(
+                currentEntryId = id4,
+                entryPredicate = { it.value == "b" },
+                inclusive = true,
+            )
 
         assertEquals(
             mapOf(
@@ -193,11 +199,12 @@ class BackstackNavigationTests {
     @Test
     fun navigate_with_raw_value_is_correct() {
         val id5 = Uuid.random()
-        val newId = mutableBackstackMap.navigate(
-            currentEntryId = id4,
-            value = "e",
-            id = id5,
-        )
+        val newId =
+            mutableBackstackMap.navigate(
+                currentEntryId = id4,
+                value = "e",
+                id = id5,
+            )
 
         val entry5 = mutableBackstackMap[newId]
 
@@ -221,11 +228,12 @@ class BackstackNavigationTests {
     @Test
     fun navigate_with_value_factory_is_correct() {
         val id5 = Uuid.random()
-        val newId = mutableBackstackMap.navigate(
-            currentEntryId = id4,
-            valueFactory = { it.value + "2" },
-            id = id5,
-        )
+        val newId =
+            mutableBackstackMap.navigate(
+                currentEntryId = id4,
+                valueFactory = { it.value + "2" },
+                id = id5,
+            )
 
         val entry5 = mutableBackstackMap[newId]
 

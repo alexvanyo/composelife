@@ -65,9 +65,7 @@ interface WatchFaceConfigState : Updatable {
 }
 
 @Composable
-fun rememberWatchFaceConfigState(
-    editorSession: EditorSession,
-): WatchFaceConfigState {
+fun rememberWatchFaceConfigState(editorSession: EditorSession): WatchFaceConfigState {
     val coroutineScope = rememberCoroutineScope()
 
     var preview: ResourceState<ImageBitmap> by remember { mutableStateOf(ResourceState.Loading) }
@@ -94,56 +92,63 @@ fun rememberWatchFaceConfigState(
                 }
             }
 
-            override suspend fun update(): Nothing = coroutineScope {
-                launch {
-                    combine(
-                        editorSession.userStyle,
-                        editorSession.complicationsPreviewData,
-                    ) { _, complicationsPreviewData ->
-                        yield()
-                        preview = ResourceState.Success(
-                            editorSession.renderWatchFaceToBitmap(
-                                renderParameters = RenderParameters(
-                                    DrawMode.INTERACTIVE,
-                                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-                                    RenderParameters.HighlightLayer(
-                                        RenderParameters.HighlightedElement.AllComplicationSlots,
-                                        Color.Red.toArgb(),
-                                        Color(0, 0, 0, 128).toArgb(),
-                                    ),
-                                ),
-                                instant = editorSession.previewReferenceInstant,
-                                slotIdToComplicationData = complicationsPreviewData,
-                            ).asImageBitmap(),
-                        )
+            override suspend fun update(): Nothing =
+                coroutineScope {
+                    launch {
+                        combine(
+                            editorSession.userStyle,
+                            editorSession.complicationsPreviewData,
+                        ) { _, complicationsPreviewData ->
+                            yield()
+                            preview =
+                                ResourceState.Success(
+                                    editorSession
+                                        .renderWatchFaceToBitmap(
+                                            renderParameters =
+                                            RenderParameters(
+                                                DrawMode.INTERACTIVE,
+                                                WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                                                RenderParameters.HighlightLayer(
+                                                    RenderParameters.HighlightedElement.AllComplicationSlots,
+                                                    Color.Red.toArgb(),
+                                                    Color(0, 0, 0, 128).toArgb(),
+                                                ),
+                                            ),
+                                            instant = editorSession.previewReferenceInstant,
+                                            slotIdToComplicationData = complicationsPreviewData,
+                                        ).asImageBitmap(),
+                                )
+                        }.collect {}
                     }
-                        .collect {}
-                }
 
-                launch {
-                    snapshotFlow { color }
-                        .collect { newColor ->
-                            editorSession.userStyle.value =
-                                editorSession.userStyle.value.toMutableUserStyle().apply {
-                                    with(editorSession.userStyleSchema) {
-                                        setGameOfLifeColor(newColor)
-                                    }
-                                }.toUserStyle()
-                        }
-                }
+                    launch {
+                        snapshotFlow { color }
+                            .collect { newColor ->
+                                editorSession.userStyle.value =
+                                    editorSession.userStyle.value
+                                        .toMutableUserStyle()
+                                        .apply {
+                                            with(editorSession.userStyleSchema) {
+                                                setGameOfLifeColor(newColor)
+                                            }
+                                        }.toUserStyle()
+                            }
+                    }
 
-                launch {
-                    snapshotFlow { showComplicationsInAmbient }
-                        .collect { newShowComplicationsInAmbient ->
-                            editorSession.userStyle.value =
-                                editorSession.userStyle.value.toMutableUserStyle().apply {
-                                    with(editorSession.userStyleSchema) {
-                                        setShowComplicationsInAmbient(newShowComplicationsInAmbient)
-                                    }
-                                }.toUserStyle()
-                        }
-                }
-            }.let { error("combine should not complete normally") }
+                    launch {
+                        snapshotFlow { showComplicationsInAmbient }
+                            .collect { newShowComplicationsInAmbient ->
+                                editorSession.userStyle.value =
+                                    editorSession.userStyle.value
+                                        .toMutableUserStyle()
+                                        .apply {
+                                            with(editorSession.userStyleSchema) {
+                                                setShowComplicationsInAmbient(newShowComplicationsInAmbient)
+                                            }
+                                        }.toUserStyle()
+                            }
+                    }
+                }.let { error("combine should not complete normally") }
         }
     }
 }

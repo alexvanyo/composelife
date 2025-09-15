@@ -67,19 +67,19 @@ internal val UiGraph.mainActivityInjectCtx: MainActivityInjectCtx get() =
     this as MainActivityInjectCtx
 
 class MainActivity : AppCompatActivity() {
-
     @Suppress("LongMethod")
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
         val application = application as ApplicationGraphOwner
-        val uiGraph = (application.applicationGraph as UiGraph.Factory).create(
-            object : UiGraphArguments {
-                override val activity: AppCompatActivity = this@MainActivity
-                override val uiContext: Context = activity
-            },
-        )
+        val uiGraph =
+            (application.applicationGraph as UiGraph.Factory).create(
+                object : UiGraphArguments {
+                    override val activity: AppCompatActivity = this@MainActivity
+                    override val uiContext: Context = activity
+                },
+            )
         val mainActivityCtx = uiGraph.mainActivityInjectCtx
         val uiUpdatables = mainActivityCtx.uiUpdatables
 
@@ -109,11 +109,13 @@ class MainActivity : AppCompatActivity() {
                         val darkTheme = shouldUseDarkTheme()
                         DisposableEffect(darkTheme) {
                             enableEdgeToEdge(
-                                statusBarStyle = SystemBarStyle.auto(
+                                statusBarStyle =
+                                SystemBarStyle.auto(
                                     Color.TRANSPARENT,
                                     Color.TRANSPARENT,
                                 ) { darkTheme },
-                                navigationBarStyle = SystemBarStyle.auto(
+                                navigationBarStyle =
+                                SystemBarStyle.auto(
                                     lightScrim,
                                     darkScrim,
                                 ) { darkTheme },
@@ -125,7 +127,8 @@ class MainActivity : AppCompatActivity() {
                             with(composeLifeAppUiCtx) {
                                 ComposeLifeApp(
                                     windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                                    windowSize = with(LocalDensity.current) {
+                                    windowSize =
+                                    with(LocalDensity.current) {
                                         currentWindowSize().toSize().toDpSize()
                                     },
                                 )

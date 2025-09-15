@@ -38,18 +38,23 @@ internal fun SuccessfulDeserializationInfoPanePreview(modifier: Modifier = Modif
         ComposeLifeTheme {
             BoxWithConstraints(modifier = modifier) {
                 DeserializationInfoPane(
-                    navEntryValue = ComposeLifeUiNavigation.DeserializationInfo(
-                        nav = ComposeLifeNavigation.DeserializationInfo(
-                            deserializationResult = DeserializationResult.Successful(
+                    navEntryValue =
+                    ComposeLifeUiNavigation.DeserializationInfo(
+                        nav =
+                        ComposeLifeNavigation.DeserializationInfo(
+                            deserializationResult =
+                            DeserializationResult.Successful(
                                 cellState = emptyCellState(),
                                 format = CellStateFormat.FixedFormat.Plaintext,
-                                warnings = listOf(
+                                warnings =
+                                listOf(
                                     ParameterizedString("Warning 1"),
                                     ParameterizedString("Warning 2"),
                                 ),
                             ),
                         ),
-                        windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                        windowSizeClass =
+                        BREAKPOINTS_V1.computeWindowSizeClass(
                             widthDp = maxWidth.value,
                             heightDp = maxHeight.value,
                         ),
@@ -69,20 +74,26 @@ internal fun UnsuccessfulDeserializationInfoPanePreview(modifier: Modifier = Mod
         ComposeLifeTheme {
             BoxWithConstraints(modifier = modifier) {
                 DeserializationInfoPane(
-                    navEntryValue = ComposeLifeUiNavigation.DeserializationInfo(
-                        nav = ComposeLifeNavigation.DeserializationInfo(
-                            deserializationResult = DeserializationResult.Unsuccessful(
-                                warnings = listOf(
+                    navEntryValue =
+                    ComposeLifeUiNavigation.DeserializationInfo(
+                        nav =
+                        ComposeLifeNavigation.DeserializationInfo(
+                            deserializationResult =
+                            DeserializationResult.Unsuccessful(
+                                warnings =
+                                listOf(
                                     ParameterizedString("Warning 1"),
                                     ParameterizedString("Warning 2"),
                                 ),
-                                errors = listOf(
+                                errors =
+                                listOf(
                                     ParameterizedString("Error 1"),
                                     ParameterizedString("Error 2"),
                                 ),
                             ),
                         ),
-                        windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
+                        windowSizeClass =
+                        BREAKPOINTS_V1.computeWindowSizeClass(
                             widthDp = maxWidth.value,
                             heightDp = maxHeight.value,
                         ),

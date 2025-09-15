@@ -30,7 +30,7 @@ complexity:
       '**/commonTest/**',
       '**/jvmTest/**',
       '**/desktopTest/**',
-      '**/desktopMoleculeTest/**',
+      '**/desktopMoleculeTest/**',cccccbtkktthlhvtrgrtdjnlgrkurncbvkkbeetiifb
       '**/androidInstrumentedTest/**',
       '**/androidSharedTest/**',
       '**/androidUnitTest/**',
@@ -38,19 +38,11 @@ complexity:
       '**/iosTest/**'
     ]
 
-empty-blocks:
-  EmptyDefaultConstructor:
-    excludes: [ '**/generated/**' ]
-  EmptyFunctionBlock:
-    excludes: [ '**/generated/**' ]
-  EmptyKtFile:
-    excludes: [ '**/generated/**' ]
-
 exceptions:
   SwallowedException:
     excludes: [ '**/generated/**' ]
 
-formatting:
+ktlint:
   ArgumentListWrapping:
     excludes: [ '**/generated/**' ]
   CommentSpacing:
@@ -179,10 +171,10 @@ style:
     excludes: [ '**/generated/**' ]
   UnusedParameter:
     excludes: [ '**/generated/**' ]
-  UnusedPrivateMember:
-    ignoreAnnotated:
-      - "com.alexvanyo.composelife.ui.util.*Previews"
-      - "androidx.compose.ui.tooling.preview.Preview"
+#  UnusedPrivateMember:
+#    ignoreAnnotated:
+#      - "com.alexvanyo.composelife.ui.util.*Previews"
+#      - "androidx.compose.ui.tooling.preview.Preview"
   UnusedPrivateProperty:
     excludes: [ '**/generated/**' ]
   UseArrayLiteralsInAnnotations:

@@ -51,9 +51,10 @@ interface CellStateRepositoryTestsCtx {
 internal val ApplicationGraph.cellStateRepositoryTestsCtx: CellStateRepositoryTestsCtx get() =
     this as CellStateRepositoryTestsCtx
 
-class CellStateRepositoryTests : BaseInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
+class CellStateRepositoryTests :
+    BaseInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
     private val ctx get() = applicationGraph.cellStateRepositoryTestsCtx
 
     private val cellStateRepository get() = ctx.cellStateRepository
@@ -65,86 +66,92 @@ class CellStateRepositoryTests : BaseInjectTest(
     private val persistedDataPath get() = ctx.persistedDataPath
 
     @Test
-    fun get_autosaved_cell_state_returns_null_initially() = runAppTest {
-        assertNull(cellStateRepository.getAutosavedCellState())
-    }
+    fun get_autosaved_cell_state_returns_null_initially() =
+        runAppTest {
+            assertNull(cellStateRepository.getAutosavedCellState())
+        }
 
     @Suppress("LongMethod")
     @Test
-    fun save_autosaved_cell_state_then_get_returns_new_cell_state() = runAppTest {
-        val insertedId = cellStateRepository.autosaveCellState(
-            SaveableCellState(
-                cellState = "O".toCellState(),
-                cellStateMetadata = CellStateMetadata(
-                    id = null,
-                    name = "name",
-                    description = "description",
-                    generation = 123,
-                    wasAutosaved = false,
-                    patternCollectionId = null,
+    fun save_autosaved_cell_state_then_get_returns_new_cell_state() =
+        runAppTest {
+            val insertedId =
+                cellStateRepository.autosaveCellState(
+                    SaveableCellState(
+                        cellState = "O".toCellState(),
+                        cellStateMetadata =
+                        CellStateMetadata(
+                            id = null,
+                            name = "name",
+                            description = "description",
+                            generation = 123,
+                            wasAutosaved = false,
+                            patternCollectionId = null,
+                        ),
+                    ),
+                )
+
+            val actualCellState = cellStateRepository.getAutosavedCellState()
+
+            assertNotNull(actualCellState)
+            assertEquals(
+                SaveableCellState(
+                    cellState = "O".toCellState(),
+                    cellStateMetadata =
+                    CellStateMetadata(
+                        id = insertedId,
+                        name = "name",
+                        description = "description",
+                        generation = 123,
+                        wasAutosaved = true,
+                        patternCollectionId = null,
+                    ),
                 ),
-            ),
-        )
+                actualCellState,
+            )
 
-        val actualCellState = cellStateRepository.getAutosavedCellState()
+            val mostRecentCellStateEntity = cellStateQueries.getMostRecentAutosavedCellState().executeAsOne()
 
-        assertNotNull(actualCellState)
-        assertEquals(
-            SaveableCellState(
-                cellState = "O".toCellState(),
-                cellStateMetadata = CellStateMetadata(
+            assertNotNull(mostRecentCellStateEntity)
+            val serializedCellStateFile = mostRecentCellStateEntity.serializedCellStateFile
+            assertNotNull(serializedCellStateFile)
+            val match = Regex("AutosavedCellStates/(.*).rle").matchEntire(serializedCellStateFile)
+            assertNotNull(match)
+            val fileId = Uuid.parse(match.groupValues[1])
+            val expectedPath = "AutosavedCellStates/$fileId.rle".toPath()
+            assertEquals(
+                CellState(
                     id = insertedId,
                     name = "name",
                     description = "description",
+                    formatExtension = "rle",
+                    serializedCellState = null,
+                    serializedCellStateFile = expectedPath.toString(),
                     generation = 123,
                     wasAutosaved = true,
                     patternCollectionId = null,
                 ),
-            ),
-            actualCellState,
-        )
-
-        val mostRecentCellStateEntity = cellStateQueries.getMostRecentAutosavedCellState().executeAsOne()
-
-        assertNotNull(mostRecentCellStateEntity)
-        val serializedCellStateFile = mostRecentCellStateEntity.serializedCellStateFile
-        assertNotNull(serializedCellStateFile)
-        val match = Regex("AutosavedCellStates/(.*).rle").matchEntire(serializedCellStateFile)
-        assertNotNull(match)
-        val fileId = Uuid.parse(match.groupValues[1])
-        val expectedPath = "AutosavedCellStates/$fileId.rle".toPath()
-        assertEquals(
-            CellState(
-                id = insertedId,
-                name = "name",
-                description = "description",
-                formatExtension = "rle",
-                serializedCellState = null,
-                serializedCellStateFile = expectedPath.toString(),
-                generation = 123,
-                wasAutosaved = true,
-                patternCollectionId = null,
-            ),
-            mostRecentCellStateEntity,
-        )
-        assertEquals(
-            setOf(
-                "AutosavedCellStates".toPath(),
-                expectedPath,
-                "datastore".toPath(),
-                "datastore/preferences.pb".toPath(),
-            ),
-            fakeFileSystem.listRecursively(persistedDataPath)
-                .map { it.relativeTo(persistedDataPath) }
-                .toSet(),
-        )
-        assertEquals(
-            """
+                mostRecentCellStateEntity,
+            )
+            assertEquals(
+                setOf(
+                    "AutosavedCellStates".toPath(),
+                    expectedPath,
+                    "datastore".toPath(),
+                    "datastore/preferences.pb".toPath(),
+                ),
+                fakeFileSystem
+                    .listRecursively(persistedDataPath)
+                    .map { it.relativeTo(persistedDataPath) }
+                    .toSet(),
+            )
+            assertEquals(
+                """
             |#R 0 0
             |x = 1, y = 1, rule = B3/S23
             |o!
-            """.trimMargin(),
-            fakeFileSystem.read(persistedDataPath / expectedPath) { readUtf8() },
-        )
-    }
+                """.trimMargin(),
+                fakeFileSystem.read(persistedDataPath / expectedPath) { readUtf8() },
+            )
+        }
 }

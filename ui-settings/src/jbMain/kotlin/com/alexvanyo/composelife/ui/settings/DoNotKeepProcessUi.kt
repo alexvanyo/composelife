@@ -41,18 +41,18 @@ class DoNotKeepProcessUiCtx(
     @Suppress("ComposableNaming")
     @Deprecated(
         "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
+        replaceWith =
+        ReplaceWith(
             "DoNotKeepProcessUi(modifier)",
         ),
     )
     @Composable
-    operator fun invoke(
-        modifier: Modifier = Modifier,
-    ) = lambda(preferencesHolder, composeLifePreferences, modifier)
+    operator fun invoke(modifier: Modifier = Modifier) = lambda(preferencesHolder, composeLifePreferences, modifier)
 
     companion object {
         private val lambda:
-            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences) (
+            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences)
+            (
                 modifier: Modifier,
             ) -> Unit =
             { modifier ->
@@ -61,22 +61,18 @@ class DoNotKeepProcessUiCtx(
     }
 }
 
-context(ctx: DoNotKeepProcessUiCtx)
 @Suppress("DEPRECATION")
 @Composable
-fun DoNotKeepProcessUi(
-    modifier: Modifier = Modifier,
-) = ctx(modifier)
+context(ctx: DoNotKeepProcessUiCtx)
+fun DoNotKeepProcessUi(modifier: Modifier = Modifier) = ctx(modifier)
 // endregion templated-ctx
 
+@Composable
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,
-composeLifePreferences: ComposeLifePreferences,
+    composeLifePreferences: ComposeLifePreferences,
 )
-@Composable
-private fun DoNotKeepProcessUi(
-    modifier: Modifier = Modifier,
-) {
+private fun DoNotKeepProcessUi(modifier: Modifier = Modifier) {
     DoNotKeepProcessUi(
         doNotKeepProcess = preferencesHolder.preferences.doNotKeepProcess,
         setDoNotKeepProcess = composeLifePreferences::setDoNotKeepProcess,

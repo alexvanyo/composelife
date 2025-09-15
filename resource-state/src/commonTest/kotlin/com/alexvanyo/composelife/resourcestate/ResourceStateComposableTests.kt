@@ -30,22 +30,21 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class ResourceStateComposableTests {
-
     private val broadcastFrameClock = BroadcastFrameClock()
 
     @Suppress("ThrowingExceptionsWithoutMessageOrCause")
     @Test
-    fun collect_as_state_is_correct() = runTest(broadcastFrameClock) {
-        val channel = Channel<String>()
+    fun collect_as_state_is_correct() =
+        runTest(broadcastFrameClock) {
+            val channel = Channel<String>()
 
-        moleculeFlow(RecompositionMode.ContextClock) {
-            val state by remember {
-                channel.receiveAsFlow().asResourceState()
-            }.collectAsState()
+            moleculeFlow(RecompositionMode.ContextClock) {
+                val state by remember {
+                    channel.receiveAsFlow().asResourceState()
+                }.collectAsState()
 
-            state
-        }
-            .test {
+                state
+            }.test {
                 assertEquals(ResourceState.Loading, awaitItem())
 
                 channel.send("a")
@@ -62,7 +61,7 @@ class ResourceStateComposableTests {
                     assertIs<TestException>(state.throwable)
                 }
             }
-    }
+        }
 }
 
 private class TestException : Exception()

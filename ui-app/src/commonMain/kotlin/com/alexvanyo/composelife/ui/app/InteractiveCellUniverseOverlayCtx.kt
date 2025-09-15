@@ -22,8 +22,6 @@ import dev.zacsweers.metro.Inject
 
 @Immutable
 @Inject
-class InteractiveCellUniverseOverlayCtx(
-    internal val cellUniverseActionCardCtx: CellUniverseActionCardCtx,
-) {
+class InteractiveCellUniverseOverlayCtx(internal val cellUniverseActionCardCtx: CellUniverseActionCardCtx) {
     companion object
 }

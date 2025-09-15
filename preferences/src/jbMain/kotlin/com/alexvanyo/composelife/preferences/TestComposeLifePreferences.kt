@@ -28,7 +28,8 @@ import kotlin.uuid.Uuid
 @Suppress("TooManyFunctions", "LongParameterList")
 class TestComposeLifePreferences(
     initialPreferences: LoadedComposeLifePreferences = LoadedComposeLifePreferences.Defaults,
-) : ComposeLifePreferences, LoadedComposeLifePreferencesHolder {
+) : ComposeLifePreferences,
+    LoadedComposeLifePreferencesHolder {
     var quickAccessSettings: Set<QuickAccessSetting> by mutableStateOf(initialPreferences.quickAccessSettings)
 
     var algorithmChoice: AlgorithmType by mutableStateOf(initialPreferences.algorithmChoice)
@@ -81,32 +82,35 @@ class TestComposeLifePreferences(
         get() = ResourceState.Success(preferences)
 
     override val preferences: LoadedComposeLifePreferences
-        get() = LoadedComposeLifePreferences(
-            quickAccessSettings = quickAccessSettings,
-            algorithmChoice = algorithmChoice,
-            currentShapeType = currentShapeType,
-            roundRectangleSessionValue = SessionValue(
-                sessionId = roundRectangleSessionId,
-                valueId = roundRectangleValueId,
-                value = roundRectangleConfig,
-            ),
-            darkThemeConfig = darkThemeConfig,
-            disableAGSL = disableAGSL,
-            disableOpenGL = disableOpenGL,
-            doNotKeepProcess = doNotKeepProcess,
-            touchToolConfig = touchToolConfig,
-            stylusToolConfig = stylusToolConfig,
-            mouseToolConfig = mouseToolConfig,
-            completedClipboardWatchingOnboarding = completedClipboardWatchingOnboarding,
-            enableClipboardWatching = enableClipboardWatching,
-            synchronizePatternCollectionsOnMeteredNetwork = synchronizePatternCollectionsOnMeteredNetwork,
-            patternCollectionsSynchronizationPeriodSessionValue = SessionValue(
-                sessionId = patternCollectionsSynchronizationPeriodSessionId,
-                valueId = patternCollectionsSynchronizationPeriodValueId,
-                value = patternCollectionsSynchronizationPeriod,
-            ),
-            enableWindowShapeClipping = enableWindowShapeClipping,
-        )
+        get() =
+            LoadedComposeLifePreferences(
+                quickAccessSettings = quickAccessSettings,
+                algorithmChoice = algorithmChoice,
+                currentShapeType = currentShapeType,
+                roundRectangleSessionValue =
+                SessionValue(
+                    sessionId = roundRectangleSessionId,
+                    valueId = roundRectangleValueId,
+                    value = roundRectangleConfig,
+                ),
+                darkThemeConfig = darkThemeConfig,
+                disableAGSL = disableAGSL,
+                disableOpenGL = disableOpenGL,
+                doNotKeepProcess = doNotKeepProcess,
+                touchToolConfig = touchToolConfig,
+                stylusToolConfig = stylusToolConfig,
+                mouseToolConfig = mouseToolConfig,
+                completedClipboardWatchingOnboarding = completedClipboardWatchingOnboarding,
+                enableClipboardWatching = enableClipboardWatching,
+                synchronizePatternCollectionsOnMeteredNetwork = synchronizePatternCollectionsOnMeteredNetwork,
+                patternCollectionsSynchronizationPeriodSessionValue =
+                SessionValue(
+                    sessionId = patternCollectionsSynchronizationPeriodSessionId,
+                    valueId = patternCollectionsSynchronizationPeriodValueId,
+                    value = patternCollectionsSynchronizationPeriod,
+                ),
+                enableWindowShapeClipping = enableWindowShapeClipping,
+            )
 
     override suspend fun update(block: ComposeLifePreferencesTransform.() -> Unit) {
         val previousLoadedComposeLifePreferences = preferences
@@ -132,7 +136,9 @@ class TestComposeLifePreferences(
                     expected: SessionValue<CurrentShape.RoundRectangle>?,
                     newValue: SessionValue<CurrentShape.RoundRectangle>,
                 ) {
-                    if (expected == null || expected == SessionValue(
+                    if (expected == null ||
+                        expected ==
+                        SessionValue(
                             sessionId = roundRectangleSessionId,
                             valueId = roundRectangleValueId,
                             value = roundRectangleConfig,
@@ -198,7 +204,9 @@ class TestComposeLifePreferences(
                     expected: SessionValue<DateTimePeriod>?,
                     newValue: SessionValue<DateTimePeriod>,
                 ) {
-                    if (expected == null || expected == SessionValue(
+                    if (expected == null ||
+                        expected ==
+                        SessionValue(
                             sessionId = patternCollectionsSynchronizationPeriodSessionId,
                             valueId = patternCollectionsSynchronizationPeriodValueId,
                             value = patternCollectionsSynchronizationPeriod,

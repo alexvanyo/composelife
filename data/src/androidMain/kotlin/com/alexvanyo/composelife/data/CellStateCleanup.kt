@@ -37,44 +37,49 @@ import kotlinx.datetime.DateTimePeriod
 
 @Inject
 @SingleIn(AppScope::class)
-@ContributesIntoSet(AppScope::class, binding = binding<
-    @ForScope(AppScope::class)
-    Updatable,
-    >())
-class CellStateCleanup(
-    workManager: Lazy<WorkManager>,
-) : Updatable {
+@ContributesIntoSet(
+    AppScope::class,
+    binding =
+    binding<
+        @ForScope(AppScope::class)
+        Updatable,
+        >(),
+)
+class CellStateCleanup(workManager: Lazy<WorkManager>) : Updatable {
     private val workManager by workManager
 
     override suspend fun update(): Nothing {
-        val workInfos = workManager
-            .getWorkInfosForUniqueWorkFlow(CELL_STATE_CLEANUP_NAME)
-            .first()
+        val workInfos =
+            workManager
+                .getWorkInfosForUniqueWorkFlow(CELL_STATE_CLEANUP_NAME)
+                .first()
 
-        val id = if (workInfos.isEmpty()) {
-            null
-        } else {
-            assert(workInfos.size == 1)
-            workInfos.first().id
-        }
+        val id =
+            if (workInfos.isEmpty()) {
+                null
+            } else {
+                assert(workInfos.size == 1)
+                workInfos.first().id
+            }
 
-        val requestBuilderWithoutId = PeriodicWorkRequestBuilder<CellStateCleanupWorker>(
-            repeatPeriod = DateTimePeriod(days = 1),
-        )
+        val requestBuilderWithoutId =
+            PeriodicWorkRequestBuilder<CellStateCleanupWorker>(
+                repeatPeriod = DateTimePeriod(days = 1),
+            )
 
         if (id == null) {
             val request = requestBuilderWithoutId.build()
-            workManager.enqueueUniquePeriodicWork(
-                uniqueWorkName = CELL_STATE_CLEANUP_NAME,
-                existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.UPDATE,
-                request = request,
-            )
-                .await()
+            workManager
+                .enqueueUniquePeriodicWork(
+                    uniqueWorkName = CELL_STATE_CLEANUP_NAME,
+                    existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.UPDATE,
+                    request = request,
+                ).await()
         } else {
-            workManager.updateWork(
-                request = requestBuilderWithoutId.setId(id).build(),
-            )
-                .await()
+            workManager
+                .updateWork(
+                    request = requestBuilderWithoutId.setId(id).build(),
+                ).await()
         }
 
         awaitCancellation()

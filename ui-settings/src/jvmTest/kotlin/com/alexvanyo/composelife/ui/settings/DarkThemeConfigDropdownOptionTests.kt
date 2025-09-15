@@ -20,7 +20,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class DarkThemeConfigDropdownOptionTests {
-
     @Test
     fun algorithm_implementation_dropdown_options_are_correct() {
         assertEquals(

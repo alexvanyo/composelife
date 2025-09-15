@@ -77,24 +77,27 @@ fun <T> WearNavigationFrame(
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val rememberedPanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
-        key(id) {
-            rememberUpdatedState(paneContent)
+    val rememberedPanes =
+        renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
+            key(id) {
+                rememberUpdatedState(paneContent)
+            }
         }
-    }
     val currentEntry = renderableNavigationState.navigationState.currentEntry
     val previousEntry = renderableNavigationState.navigationState.previousEntry
 
-    val foregroundTransition = renderableNavigationState.navigationState.entryMap.mapValues { (id, _) ->
-        key(id) {
-            val transitionState = remember {
-                MutableTransitionState(id != currentEntry.id).apply {
-                    targetState = true
-                }
+    val foregroundTransition =
+        renderableNavigationState.navigationState.entryMap.mapValues { (id, _) ->
+            key(id) {
+                val transitionState =
+                    remember {
+                        MutableTransitionState(id != currentEntry.id).apply {
+                            targetState = true
+                        }
+                    }
+                rememberTransition(transitionState)
             }
-            rememberTransition(transitionState)
         }
-    }
 
     val isScreenRound = LocalConfiguration.current.isScreenRound
 
@@ -105,53 +108,55 @@ fun <T> WearNavigationFrame(
         userSwipeEnabled = previousEntry != null,
         modifier = modifier,
     ) { isBackground ->
-        val entry = if (isBackground) {
-            checkNotNull(previousEntry) {
-                "Current entry had no previous, should not be showing background!"
+        val entry =
+            if (isBackground) {
+                checkNotNull(previousEntry) {
+                    "Current entry had no previous, should not be showing background!"
+                }
+            } else {
+                currentEntry
             }
-        } else {
-            currentEntry
-        }
 
-        val paneModifier = if (isBackground) {
-            Modifier
-        } else {
-            val transition = foregroundTransition.getValue(entry.id)
-            val animationSpec = remember { tween<Float>(400, easing = CubicBezierEasing(0.4f, 0f, 0.2f, 1f)) }
-            val scale by transition.animateFloat(
-                transitionSpec = { animationSpec },
-                label = "scale",
-            ) {
-                if (it) 1f else 0.75f
-            }
-            val opacity by transition.animateFloat(
-                transitionSpec = { animationSpec },
-                label = "opacity",
-            ) {
-                if (it) 1f else 0.1f
-            }
-            val flashColorAlpha by transition.animateFloat(
-                transitionSpec = { animationSpec },
-                label = "flashColorAlpha",
-            ) {
-                if (it) 0f else 0.07f
-            }
-            Modifier
-                .graphicsLayer {
-                    scaleX = scale
-                    scaleY = scale
-                    alpha = opacity
-                    clip = true
-                    shape = if (isScreenRound) CircleShape else RectangleShape
+        val paneModifier =
+            if (isBackground) {
+                Modifier
+            } else {
+                val transition = foregroundTransition.getValue(entry.id)
+                val animationSpec = remember { tween<Float>(400, easing = CubicBezierEasing(0.4f, 0f, 0.2f, 1f)) }
+                val scale by transition.animateFloat(
+                    transitionSpec = { animationSpec },
+                    label = "scale",
+                ) {
+                    if (it) 1f else 0.75f
                 }
-                .drawWithContent {
-                    drawContent()
-                    drawRect(Color.White.copy(alpha = flashColorAlpha))
+                val opacity by transition.animateFloat(
+                    transitionSpec = { animationSpec },
+                    label = "opacity",
+                ) {
+                    if (it) 1f else 0.1f
                 }
-        }
+                val flashColorAlpha by transition.animateFloat(
+                    transitionSpec = { animationSpec },
+                    label = "flashColorAlpha",
+                ) {
+                    if (it) 0f else 0.07f
+                }
+                Modifier
+                    .graphicsLayer {
+                        scaleX = scale
+                        scaleY = scale
+                        alpha = opacity
+                        clip = true
+                        shape = if (isScreenRound) CircleShape else RectangleShape
+                    }.drawWithContent {
+                        drawContent()
+                        drawRect(Color.White.copy(alpha = flashColorAlpha))
+                    }
+            }
 
         Box(
-            modifier = paneModifier.hierarchicalFocusGroup(
+            modifier =
+            paneModifier.hierarchicalFocusGroup(
                 active = currentEntry.id == entry.id,
             ),
         ) {

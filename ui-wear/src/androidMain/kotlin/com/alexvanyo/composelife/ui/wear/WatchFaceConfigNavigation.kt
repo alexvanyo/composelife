@@ -39,31 +39,31 @@ sealed interface WatchFaceConfigNavigation {
     val type: WatchFaceConfigNavigationType
 
     class List(
-        val scalingLazyListState: ScalingLazyListState = ScalingLazyListState(
-            initialCenterItemIndex = 0,
-        ),
+        val scalingLazyListState: ScalingLazyListState =
+            ScalingLazyListState(
+                initialCenterItemIndex = 0,
+            ),
     ) : WatchFaceConfigNavigation {
         override val type = Companion
 
         companion object : WatchFaceConfigNavigationType {
             @Suppress("UnsafeCallOnNullableType")
-            override fun saverFactory(
-                previous: BackstackEntry<WatchFaceConfigNavigation>?,
-            ): Saver<List, Any> = listSaver(
-                save = {
-                    listOf(
-                        with(ScalingLazyListState.Saver) {
-                            save(it.scalingLazyListState)
-                        },
-                    )
-                },
-                restore = { list ->
-                    val scalingLazyListState = list[0]!!.let(ScalingLazyListState.Saver::restore)!!
-                    List(
-                        scalingLazyListState = scalingLazyListState,
-                    )
-                },
-            )
+            override fun saverFactory(previous: BackstackEntry<WatchFaceConfigNavigation>?): Saver<List, Any> =
+                listSaver(
+                    save = {
+                        listOf(
+                            with(ScalingLazyListState.Saver) {
+                                save(it.scalingLazyListState)
+                            },
+                        )
+                    },
+                    restore = { list ->
+                        val scalingLazyListState = list[0]!!.let(ScalingLazyListState.Saver::restore)!!
+                        List(
+                            scalingLazyListState = scalingLazyListState,
+                        )
+                    },
+                )
         }
     }
 
@@ -71,12 +71,11 @@ sealed interface WatchFaceConfigNavigation {
         override val type = Companion
 
         data object Companion : WatchFaceConfigNavigationType {
-            override fun saverFactory(
-                previous: BackstackEntry<WatchFaceConfigNavigation>?,
-            ): Saver<ColorPicker, Any> = Saver(
-                save = { 0 },
-                restore = { ColorPicker },
-            )
+            override fun saverFactory(previous: BackstackEntry<WatchFaceConfigNavigation>?): Saver<ColorPicker, Any> =
+                Saver(
+                    save = { 0 },
+                    restore = { ColorPicker },
+                )
         }
     }
 
@@ -89,14 +88,17 @@ sealed interface WatchFaceConfigNavigation {
                         listOf(
                             with(WatchFaceConfigNavigationType.Saver) { save(watchFaceConfigNavigation.type) },
                             when (watchFaceConfigNavigation) {
-                                is List ->
+                                is List -> {
                                     with(watchFaceConfigNavigation.type.saverFactory(previous)) {
                                         save(watchFaceConfigNavigation)
                                     }
-                                is ColorPicker ->
+                                }
+
+                                is ColorPicker -> {
                                     with(watchFaceConfigNavigation.type.saverFactory(previous)) {
                                         save(watchFaceConfigNavigation)
                                     }
+                                }
                             },
                         )
                     },

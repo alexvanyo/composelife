@@ -31,6 +31,7 @@ internal data class GridDraggableAnchors2d(
         (anchor.toOffset() - cellWindow.topLeft.toOffset()) * scaledCellPixelSize
 
     override fun hasPositionFor(anchor: IntOffset): Boolean = true
+
     override fun closestAnchor(position: Offset): IntOffset =
         (position / scaledCellPixelSize).round() + cellWindow.topLeft
 

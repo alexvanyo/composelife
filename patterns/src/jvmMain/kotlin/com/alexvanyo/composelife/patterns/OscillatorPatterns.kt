@@ -30,7 +30,8 @@ sealed class OscillatorPattern(
 ) : GameOfLifeTestPattern(
     patternName = patternName,
     seedCellState = seedCellState,
-    cellStates = List(oscillatorTestGenerations) {
+    cellStates =
+    List(oscillatorTestGenerations) {
         val repeatingCellStates = otherCellStates + seedCellState
         repeatingCellStates[it.mod(repeatingCellStates.size)]
     },

@@ -37,7 +37,6 @@ import com.alexvanyo.composelife.ui.wear.theme.ComposeLifeTheme
 import kotlinx.coroutines.launch
 
 class WatchFaceConfigActivity : AppCompatActivity() {
-
     private var editorSession: EditorSession? by mutableStateOf(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,17 +45,19 @@ class WatchFaceConfigActivity : AppCompatActivity() {
         // If we don't have the proper intent provided, set a default one for generating baseline profiles and
         // benchmarks
         if (!intent.hasExtra("COMPONENT_NAME_KEY")) {
-            intent = WatchFaceEditorContract().createIntent(
-                this,
-                EditorRequest(
-                    watchFaceComponentName = ComponentName(
-                        "com.alexvanyo.composelife.wear",
-                        "com.alexvanyo.composelife.wear.watchface.GameOfLifeWatchFaceService",
+            intent =
+                WatchFaceEditorContract().createIntent(
+                    this,
+                    EditorRequest(
+                        watchFaceComponentName =
+                        ComponentName(
+                            "com.alexvanyo.composelife.wear",
+                            "com.alexvanyo.composelife.wear.watchface.GameOfLifeWatchFaceService",
+                        ),
+                        editorPackageName = "com.alexvanyo.composelife.wear",
+                        initialUserStyle = null,
                     ),
-                    editorPackageName = "com.alexvanyo.composelife.wear",
-                    initialUserStyle = null,
-                ),
-            )
+                )
         }
 
         lifecycleScope.launch {

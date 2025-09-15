@@ -40,7 +40,8 @@ class NonInteractableCellsCtx(
     @Suppress("ComposableNaming", "LongParameterList")
     @Deprecated(
         "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
+        replaceWith =
+        ReplaceWith(
             "NonInteractableCells(gameOfLifeState, scaledCellDpSize, cellWindow, pixelOffsetFromCenter, " +
                 "isThumbnail, modifier, inOverlay)",
         ),
@@ -68,11 +69,11 @@ class NonInteractableCellsCtx(
 
     companion object {
         private val lambda:
-            @Composable
-            context(
+            @Composable context(
                 ImageLoader,
                 LoadedComposeLifePreferencesHolder,
-            ) (
+            )
+            (
                 gameOfLifeState: GameOfLifeState,
                 scaledCellDpSize: Dp,
                 cellWindow: CellWindow,
@@ -81,13 +82,15 @@ class NonInteractableCellsCtx(
                 modifier: Modifier,
                 inOverlay: Boolean,
             ) -> Unit =
-            { gameOfLifeState,
+            {
+                    gameOfLifeState,
                     scaledCellDpSize,
                     cellWindow,
                     pixelOffsetFromCenter,
                     isThumbnail,
                     modifier,
-                    inOverlay, ->
+                    inOverlay,
+                ->
                 NonInteractableCells(
                     gameOfLifeState = gameOfLifeState,
                     scaledCellDpSize = scaledCellDpSize,
@@ -101,9 +104,9 @@ class NonInteractableCellsCtx(
     }
 }
 
-context(ctx: NonInteractableCellsCtx)
 @Composable
 @Suppress("LongParameterList", "DEPRECATION")
+context(ctx: NonInteractableCellsCtx)
 fun NonInteractableCells(
     gameOfLifeState: GameOfLifeState,
     scaledCellDpSize: Dp,
@@ -121,12 +124,12 @@ fun NonInteractableCells(
  * The [GameOfLifeState] is not interactable, so for efficiency the cell window is represented
  * by a single [Canvas], where each cell is drawn individually.
  */
-context(
-    imageLoader: ImageLoader,
-preferencesHolder: LoadedComposeLifePreferencesHolder,
-)
 @Composable
 @Suppress("LongParameterList")
+context(
+    imageLoader: ImageLoader,
+    preferencesHolder: LoadedComposeLifePreferencesHolder,
+)
 internal expect fun NonInteractableCells(
     gameOfLifeState: GameOfLifeState,
     scaledCellDpSize: Dp,
@@ -138,7 +141,4 @@ internal expect fun NonInteractableCells(
 )
 
 @Composable
-expect fun isSharedElementForCellsSupported(
-    preferences: LoadedComposeLifePreferences,
-    isThumbnail: Boolean,
-): Boolean
+expect fun isSharedElementForCellsSupported(preferences: LoadedComposeLifePreferences, isThumbnail: Boolean): Boolean

@@ -32,10 +32,7 @@ expect sealed class ParameterizedString {
 /**
  * Creates a representation of a plain-text string.
  */
-expect fun ParameterizedString(
-    value: String,
-    vararg args: ParameterizedStringArgument,
-): ParameterizedString
+expect fun ParameterizedString(value: String, vararg args: ParameterizedStringArgument): ParameterizedString
 
 @Serializable
 sealed interface ParameterizedStringArgument {
@@ -60,14 +57,16 @@ sealed interface ParameterizedStringArgument {
 
 fun ParameterizedStringArgument(value: ParameterizedString): ParameterizedStringArgument =
     ParameterizedStringArgument.ParameterizedStringArg(value)
+
 fun ParameterizedStringArgument(value: String): ParameterizedStringArgument =
     ParameterizedStringArgument.StringArg(value)
-fun ParameterizedStringArgument(value: Int): ParameterizedStringArgument =
-    ParameterizedStringArgument.IntArg(value)
-fun ParameterizedStringArgument(value: Char): ParameterizedStringArgument =
-    ParameterizedStringArgument.CharArg(value)
-fun ParameterizedStringArgument(value: Float): ParameterizedStringArgument =
-    ParameterizedStringArgument.FloatArg(value)
+
+fun ParameterizedStringArgument(value: Int): ParameterizedStringArgument = ParameterizedStringArgument.IntArg(value)
+
+fun ParameterizedStringArgument(value: Char): ParameterizedStringArgument = ParameterizedStringArgument.CharArg(value)
+
+fun ParameterizedStringArgument(value: Float): ParameterizedStringArgument = ParameterizedStringArgument.FloatArg(value)
+
 fun ParameterizedStringArgument(value: Double): ParameterizedStringArgument =
     ParameterizedStringArgument.DoubleArg(value)
 

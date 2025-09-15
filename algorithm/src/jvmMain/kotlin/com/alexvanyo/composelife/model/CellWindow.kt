@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.IntSize
  */
 @JvmInline
 value class CellWindow(val intRect: IntRect) {
-
     init {
         require(intRect.top <= intRect.bottom)
         require(intRect.left <= intRect.right)
@@ -58,8 +57,7 @@ value class CellWindow(val intRect: IntRect) {
 
     val size: IntSize get() = intRect.size
 
-    fun translate(intOffset: IntOffset): CellWindow =
-        CellWindow(intRect.translate(intOffset))
+    fun translate(intOffset: IntOffset): CellWindow = CellWindow(intRect.translate(intOffset))
 
     /**
      * Returns all [IntOffset]s that are contained in the [CellWindow].

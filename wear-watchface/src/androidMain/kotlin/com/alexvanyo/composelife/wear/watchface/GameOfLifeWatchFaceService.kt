@@ -66,18 +66,18 @@ internal val ApplicationGraph.gameOfLifeWatchFaceServiceCtx: GameOfLifeWatchFace
 @Suppress("Deprecated")
 @OptIn(WatchFaceExperimental::class)
 class GameOfLifeWatchFaceService : WatchFaceService() {
-
     private lateinit var gameOfLifeAlgorithm: GameOfLifeAlgorithm
 
     private lateinit var dispatchers: ComposeLifeDispatchers
 
     private val scope = CoroutineScope(SupervisorJob() + AndroidUiDispatcher.Main)
 
-    private val temporalGameOfLifeState = TemporalGameOfLifeState(
-        seedCellState = emptyCellState(),
-        isRunning = false,
-        targetStepsPerSecond = 20.0,
-    )
+    private val temporalGameOfLifeState =
+        TemporalGameOfLifeState(
+            seedCellState = emptyCellState(),
+            isRunning = false,
+            targetStepsPerSecond = 20.0,
+        )
 
     private val isBeingTappedState = MutableStateFlow(false)
 
@@ -100,16 +100,18 @@ class GameOfLifeWatchFaceService : WatchFaceService() {
         }
     }
 
-    override fun createUserStyleSchema(): UserStyleSchema = createGameOfLifeStyleSchema(
-        context = applicationContext,
-    )
+    override fun createUserStyleSchema(): UserStyleSchema =
+        createGameOfLifeStyleSchema(
+            context = applicationContext,
+        )
 
     override fun createComplicationSlotsManager(
         currentUserStyleRepository: CurrentUserStyleRepository,
-    ): ComplicationSlotsManager = createGameOfLifeComplicationSlotsManager(
-        context = applicationContext,
-        currentUserStyleRepository = currentUserStyleRepository,
-    )
+    ): ComplicationSlotsManager =
+        createGameOfLifeComplicationSlotsManager(
+            context = applicationContext,
+            currentUserStyleRepository = currentUserStyleRepository,
+        )
 
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
@@ -124,17 +126,17 @@ class GameOfLifeWatchFaceService : WatchFaceService() {
                         temporalGameOfLifeState.cellState = temporalGameOfLifeState.seedCellState
                     }
                 }
-            }
-            .launchIn(scope)
+            }.launchIn(scope)
 
-        val renderer = GameOfLifeRenderer(
-            context = this,
-            surfaceHolder = surfaceHolder,
-            currentUserStyleRepository = currentUserStyleRepository,
-            complicationSlotsManager = complicationSlotsManager,
-            watchState = watchState,
-            temporalGameOfLifeState = temporalGameOfLifeState,
-        )
+        val renderer =
+            GameOfLifeRenderer(
+                context = this,
+                surfaceHolder = surfaceHolder,
+                currentUserStyleRepository = currentUserStyleRepository,
+                complicationSlotsManager = complicationSlotsManager,
+                watchState = watchState,
+                temporalGameOfLifeState = temporalGameOfLifeState,
+            )
 
         combine(
             watchState.isVisible,
@@ -146,21 +148,21 @@ class GameOfLifeWatchFaceService : WatchFaceService() {
             Snapshot.withMutableSnapshot {
                 temporalGameOfLifeState.setIsRunning(isRunning)
             }
-        }
-            .launchIn(scope)
+        }.launchIn(scope)
 
         currentUserStyleRepository.userStyle
             .onEach { userStyle ->
-                val color = with(currentUserStyleRepository.schema) {
-                    android.graphics.Color.valueOf(userStyle.getGameOfLifeColor().toArgb())
-                }
-                renderer.watchfaceColors = WatchFaceColors(
-                    primaryColor = color,
-                    secondaryColor = color,
-                    tertiaryColor = color,
-                )
-            }
-            .launchIn(scope)
+                val color =
+                    with(currentUserStyleRepository.schema) {
+                        android.graphics.Color.valueOf(userStyle.getGameOfLifeColor().toArgb())
+                    }
+                renderer.watchfaceColors =
+                    WatchFaceColors(
+                        primaryColor = color,
+                        secondaryColor = color,
+                        tertiaryColor = color,
+                    )
+            }.launchIn(scope)
 
         return WatchFace(
             watchFaceType = WatchFaceType.DIGITAL,
@@ -174,6 +176,7 @@ class GameOfLifeWatchFaceService : WatchFaceService() {
                                 temporalGameOfLifeState.cellState = temporalGameOfLifeState.seedCellState
                                 isBeingTappedState.value = true
                             }
+
                             else -> {
                                 isBeingTappedState.value = false
                             }

@@ -18,11 +18,12 @@ import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.configureAndroidCompose
 import com.android.build.api.dsl.LibraryExtension
 
-class AndroidLibraryComposeConventionPlugin : ConventionPlugin({
-    with(pluginManager) {
-        apply("com.android.library")
-        apply("org.jetbrains.kotlin.plugin.compose")
-    }
+class AndroidLibraryComposeConventionPlugin :
+    ConventionPlugin({
+        with(pluginManager) {
+            apply("com.android.library")
+            apply("org.jetbrains.kotlin.plugin.compose")
+        }
 
-    configureAndroidCompose(extensions.getByType(LibraryExtension::class.java))
-})
+        configureAndroidCompose(extensions.getByType(LibraryExtension::class.java))
+    })

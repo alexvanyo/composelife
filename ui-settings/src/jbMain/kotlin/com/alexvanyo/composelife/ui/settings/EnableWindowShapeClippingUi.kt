@@ -41,18 +41,18 @@ class EnableWindowShapeClippingUiCtx(
     @Suppress("ComposableNaming")
     @Deprecated(
         "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
+        replaceWith =
+        ReplaceWith(
             "EnableWindowShapeClippingUi(modifier)",
         ),
     )
     @Composable
-    operator fun invoke(
-        modifier: Modifier = Modifier,
-    ) = lambda(preferencesHolder, composeLifePreferences, modifier)
+    operator fun invoke(modifier: Modifier = Modifier) = lambda(preferencesHolder, composeLifePreferences, modifier)
 
     companion object {
         private val lambda:
-            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences) (
+            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences)
+            (
                 modifier: Modifier,
             ) -> Unit =
             { modifier ->
@@ -61,22 +61,18 @@ class EnableWindowShapeClippingUiCtx(
     }
 }
 
-context(ctx: EnableWindowShapeClippingUiCtx)
 @Suppress("DEPRECATION")
 @Composable
-fun EnableWindowShapeClippingUi(
-    modifier: Modifier = Modifier,
-) = ctx(modifier)
+context(ctx: EnableWindowShapeClippingUiCtx)
+fun EnableWindowShapeClippingUi(modifier: Modifier = Modifier) = ctx(modifier)
 // endregion templated-ctx
 
+@Composable
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,
-composeLifePreferences: ComposeLifePreferences,
+    composeLifePreferences: ComposeLifePreferences,
 )
-@Composable
-private fun EnableWindowShapeClippingUi(
-    modifier: Modifier = Modifier,
-) {
+private fun EnableWindowShapeClippingUi(modifier: Modifier = Modifier) {
     EnableWindowShapeClippingUi(
         enableWindowShapeClipping = preferencesHolder.preferences.enableWindowShapeClipping,
         setEnableWindowShapeClipping = composeLifePreferences::setEnableWindowShapeClipping,

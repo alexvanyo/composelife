@@ -39,7 +39,6 @@ import kotlinx.serialization.Serializable
  */
 @Stable
 interface MutableCellWindowViewportState : CellWindowViewportState {
-
     override var cellWindowViewport: CellWindowViewport
 
     /**
@@ -88,11 +87,12 @@ fun MutableCellWindowViewportState(
     offset: Offset = MutableCellWindowViewportState.defaultOffset,
     scale: Float = MutableCellWindowViewportState.defaultScale,
     scaleRange: ClosedRange<Float> = MutableCellWindowViewportState.defaultScaleRange,
-): MutableCellWindowViewportState = MutableCellWindowViewportStateImpl(
-    offset = offset,
-    scale = scale,
-    scaleRange = scaleRange,
-)
+): MutableCellWindowViewportState =
+    MutableCellWindowViewportStateImpl(
+        offset = offset,
+        scale = scale,
+        scaleRange = scaleRange,
+    )
 
 @Serializable(with = MutableCellWindowViewportStateImpl.Serializer::class)
 private class MutableCellWindowViewportStateImpl(
@@ -100,7 +100,6 @@ private class MutableCellWindowViewportStateImpl(
     scale: Float = 1f,
     scaleRange: ClosedRange<Float> = 0.1f..3f,
 ) : MutableCellWindowViewportState {
-
     private constructor(surrogate: Surrogate) : this(
         surrogate.offset,
         surrogate.scale,

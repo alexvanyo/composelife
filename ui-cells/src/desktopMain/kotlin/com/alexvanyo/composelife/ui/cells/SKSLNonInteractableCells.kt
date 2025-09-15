@@ -40,7 +40,8 @@ import org.jetbrains.skia.RuntimeEffect
 import org.jetbrains.skia.RuntimeShaderBuilder
 
 @Language("SKSL")
-private val SHADER_SRC = """
+private val SHADER_SRC =
+    """
     // The cell shader, as a mask.
     uniform shader cells;
     
@@ -104,7 +105,7 @@ private val SHADER_SRC = """
             return deadColor;
         }
     }
-""".trimMargin()
+    """.trimMargin()
 
 @Suppress("LongParameterList")
 @Composable
@@ -123,12 +124,14 @@ fun SKSLNonInteractableCells(
 
     val runtimeEffect = remember { RuntimeEffect.makeForShader(SHADER_SRC) }
     val runtimeShaderBuilder = remember(runtimeEffect) { RuntimeShaderBuilder(runtimeEffect) }
-    val cellBitmap = remember(cellWindow) {
-        ImageBitmap(cellWindow.width, cellWindow.height, ImageBitmapConfig.Argb8888).asSkiaBitmap()
-    }
+    val cellBitmap =
+        remember(cellWindow) {
+            ImageBitmap(cellWindow.width, cellWindow.height, ImageBitmapConfig.Argb8888).asSkiaBitmap()
+        }
 
     Spacer(
-        modifier = modifier
+        modifier =
+        modifier
             .drawWithCache {
                 runtimeShaderBuilder.uniform("size", size.width, size.height)
                 when (shape) {

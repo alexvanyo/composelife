@@ -148,22 +148,23 @@ fun Set<Pair<Int, Int>>.toCellState(): CellState = CellState(map(Pair<Int, Int>:
 object JsonCellStateSerialization : KSerializer<CellState> by
 FixedFormatKSerializer(RunLengthEncodedCellStateSerializer)
 
-class FixedFormatKSerializer(
-    private val fixedFormatCellStateSerializer: FixedFormatCellStateSerializer,
-) : KSerializer<CellState> {
+class FixedFormatKSerializer(private val fixedFormatCellStateSerializer: FixedFormatCellStateSerializer) :
+    KSerializer<CellState> {
     private val delegateSerializer = ListSerializer(String.serializer())
 
     @OptIn(ExperimentalSerializationApi::class)
-    override val descriptor: SerialDescriptor = SerialDescriptor(
-        "com.alexvanyo.composelife.model.CellState.${fixedFormatCellStateSerializer.format._name}",
-        delegateSerializer.descriptor,
-    )
+    override val descriptor: SerialDescriptor =
+        SerialDescriptor(
+            "com.alexvanyo.composelife.model.CellState.${fixedFormatCellStateSerializer.format._name}",
+            delegateSerializer.descriptor,
+        )
 
     override fun deserialize(decoder: Decoder): CellState {
         val lines = delegateSerializer.deserialize(decoder)
-        val deserializationResult = fixedFormatCellStateSerializer.deserializeToCellState(
-            lines.asSequence(),
-        )
+        val deserializationResult =
+            fixedFormatCellStateSerializer.deserializeToCellState(
+                lines.asSequence(),
+            )
         return when (deserializationResult) {
             is DeserializationResult.Successful -> {
                 if (deserializationResult.warnings.isNotEmpty()) {
@@ -191,8 +192,6 @@ class FixedFormatKSerializer(
 /**
  * A simple implementation of [CellState] backed by a normal [Set].
  */
-private class CellStateImpl(
-    override val aliveCells: Set<IntOffset>,
-) : CellState() {
+private class CellStateImpl(override val aliveCells: Set<IntOffset>) : CellState() {
     override fun toString(): String = "CellStateImpl(${aliveCells.toSet()})"
 }

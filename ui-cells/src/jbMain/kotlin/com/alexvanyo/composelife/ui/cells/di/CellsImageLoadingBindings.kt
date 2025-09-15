@@ -31,7 +31,6 @@ import dev.zacsweers.metro.SingleIn
 @ContributesTo(AppScope::class)
 @BindingContainer
 interface CellsImageLoadingBindings {
-
     companion object {
         @Provides
         @SingleIn(AppScope::class)
@@ -43,8 +42,7 @@ interface CellsImageLoadingBindings {
         @Provides
         @SingleIn(AppScope::class)
         @IntoSet
-        internal fun providesCellsKeyerIntoKeyers(
-            cellsKeyer: CellsKeyer,
-        ): KeyerWithType<out Any> = cellsKeyer.withType()
+        internal fun providesCellsKeyerIntoKeyers(cellsKeyer: CellsKeyer): KeyerWithType<out Any> =
+            cellsKeyer.withType()
     }
 }

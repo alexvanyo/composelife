@@ -29,10 +29,7 @@ import java.util.TreeMap
  * Note that intermediate [Easing]s can violate the normal rule that each [Easing] must map 0f to 0f and 1f to 1f,
  * if the overall [Easing] matches that requirement.
  */
-fun Easing(
-    easing: Easing,
-    vararg easings: Pair<Float, Easing>,
-): Easing {
+fun Easing(easing: Easing, vararg easings: Pair<Float, Easing>): Easing {
     require(easings.sortedBy { it.first } == easings.toList()) { "easings were not sorted by keyframe!" }
     val easingMap = TreeMap<Float, Easing>()
     easingMap[0f] = easing

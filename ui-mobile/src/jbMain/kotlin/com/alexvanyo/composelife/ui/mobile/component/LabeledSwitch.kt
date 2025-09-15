@@ -47,7 +47,8 @@ fun LabeledSwitch(
     Row(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
+        modifier =
+        modifier
             .toggleable(
                 value = checked,
                 onValueChange = onCheckedChange,
@@ -55,8 +56,7 @@ fun LabeledSwitch(
                 role = Role.Switch,
                 interactionSource = interactionSource,
                 indication = null,
-            )
-            .clearAndSetSemantics {
+            ).clearAndSetSemantics {
                 contentDescription = label
             },
     ) {

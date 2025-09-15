@@ -31,10 +31,11 @@ object RectSerializer : KSerializer<Rect> {
     private val delegateSerializer = FloatArraySerializer()
 
     @OptIn(ExperimentalSerializationApi::class)
-    override val descriptor: SerialDescriptor = SerialDescriptor(
-        "androidx.compose.ui.geometry.Rect",
-        delegateSerializer.descriptor,
-    )
+    override val descriptor: SerialDescriptor =
+        SerialDescriptor(
+            "androidx.compose.ui.geometry.Rect",
+            delegateSerializer.descriptor,
+        )
 
     override fun deserialize(decoder: Decoder): Rect {
         val floatArray = delegateSerializer.deserialize(decoder)

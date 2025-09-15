@@ -36,7 +36,6 @@ import kotlin.test.assertNotNull
 @OptIn(ExperimentalTestApi::class)
 @RunWith(AndroidJUnit4::class)
 class AndroidParameterizedStringTests {
-
     val context = ApplicationProvider.getApplicationContext<Context>()
 
     @Test
@@ -302,41 +301,103 @@ class AndroidParameterizedStringTests {
     }
 
     @Test
-    fun composable_parameterized_string_resource_is_correct() = runComposeUiTest {
-        lateinit var string: String
+    fun composable_parameterized_string_resource_is_correct() =
+        runComposeUiTest {
+            lateinit var string: String
 
-        setContent {
-            string = parameterizedStringResource(
-                parameterizedString = ParameterizedString(
-                    R.string.three_arg_string,
-                    ParameterizedStringArgument(
+            setContent {
+                string =
+                    parameterizedStringResource(
+                        parameterizedString =
                         ParameterizedString(
-                            R.string.two_arg_string,
-                            ParameterizedStringArgument("a"),
-                            ParameterizedStringArgument("b"),
-                        ),
-                    ),
-                    ParameterizedStringArgument(
-                        ParameterizedString(
-                            R.string.one_arg_string,
+                            R.string.three_arg_string,
                             ParameterizedStringArgument(
                                 ParameterizedString(
-                                    R.string.one_arg_string,
-                                    ParameterizedStringArgument("c"),
+                                    R.string.two_arg_string,
+                                    ParameterizedStringArgument("a"),
+                                    ParameterizedStringArgument("b"),
                                 ),
                             ),
-                        ),
-                    ),
-                    ParameterizedStringArgument(
-                        ParameterizedString(
-                            R.string.one_arg_string,
                             ParameterizedStringArgument(
                                 ParameterizedString(
                                     R.string.one_arg_string,
                                     ParameterizedStringArgument(
                                         ParameterizedString(
                                             R.string.one_arg_string,
-                                            ParameterizedStringArgument("d"),
+                                            ParameterizedStringArgument("c"),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                            ParameterizedStringArgument(
+                                ParameterizedString(
+                                    R.string.one_arg_string,
+                                    ParameterizedStringArgument(
+                                        ParameterizedString(
+                                            R.string.one_arg_string,
+                                            ParameterizedStringArgument(
+                                                ParameterizedString(
+                                                    R.string.one_arg_string,
+                                                    ParameterizedStringArgument("d"),
+                                                ),
+                                            ),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    )
+            }
+
+            assertEquals(
+                "Three: (Two: (a) (b)) (One: (One: (c))) (One: (One: (One: (d))))",
+                string,
+            )
+        }
+
+    @Test
+    fun composable_resolver_is_correct() =
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
+
+            setContent {
+                resolver = parameterizedStringResolver()
+            }
+
+            assertEquals(
+                "Three: (Two: (a) (b)) (One: (One: (c))) (One: (One: (One: (d))))",
+                resolver.invoke(
+                    ParameterizedString(
+                        R.string.three_arg_string,
+                        ParameterizedStringArgument(
+                            ParameterizedString(
+                                R.string.two_arg_string,
+                                ParameterizedStringArgument("a"),
+                                ParameterizedStringArgument("b"),
+                            ),
+                        ),
+                        ParameterizedStringArgument(
+                            ParameterizedString(
+                                R.string.one_arg_string,
+                                ParameterizedStringArgument(
+                                    ParameterizedString(
+                                        R.string.one_arg_string,
+                                        ParameterizedStringArgument("c"),
+                                    ),
+                                ),
+                            ),
+                        ),
+                        ParameterizedStringArgument(
+                            ParameterizedString(
+                                R.string.one_arg_string,
+                                ParameterizedStringArgument(
+                                    ParameterizedString(
+                                        R.string.one_arg_string,
+                                        ParameterizedStringArgument(
+                                            ParameterizedString(
+                                                R.string.one_arg_string,
+                                                ParameterizedStringArgument("d"),
+                                            ),
                                         ),
                                     ),
                                 ),
@@ -347,177 +408,113 @@ class AndroidParameterizedStringTests {
             )
         }
 
-        assertEquals(
-            "Three: (Two: (a) (b)) (One: (One: (c))) (One: (One: (One: (d))))",
-            string,
-        )
-    }
-
     @Test
-    fun composable_resolver_is_correct() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun saver_is_correct_for_normal_string() =
+        runComposeUiTest {
+            val stateRestorationTester = KmpStateRestorationTester(this)
 
-        setContent {
-            resolver = parameterizedStringResolver()
-        }
+            var parameterizedString: ParameterizedString? = null
 
-        assertEquals(
-            "Three: (Two: (a) (b)) (One: (One: (c))) (One: (One: (One: (d))))",
-            resolver.invoke(
-                ParameterizedString(
-                    R.string.three_arg_string,
-                    ParameterizedStringArgument(
-                        ParameterizedString(
-                            R.string.two_arg_string,
-                            ParameterizedStringArgument("a"),
-                            ParameterizedStringArgument("b"),
-                        ),
-                    ),
-                    ParameterizedStringArgument(
-                        ParameterizedString(
-                            R.string.one_arg_string,
-                            ParameterizedStringArgument(
-                                ParameterizedString(
-                                    R.string.one_arg_string,
-                                    ParameterizedStringArgument("c"),
-                                ),
-                            ),
-                        ),
-                    ),
-                    ParameterizedStringArgument(
-                        ParameterizedString(
-                            R.string.one_arg_string,
-                            ParameterizedStringArgument(
-                                ParameterizedString(
-                                    R.string.one_arg_string,
-                                    ParameterizedStringArgument(
-                                        ParameterizedString(
-                                            R.string.one_arg_string,
-                                            ParameterizedStringArgument("d"),
-                                        ),
-                                    ),
-                                ),
-                            ),
-                        ),
-                    ),
-                ),
-            ),
-        )
-    }
-
-    @Test
-    fun saver_is_correct_for_normal_string() = runComposeUiTest {
-        val stateRestorationTester = KmpStateRestorationTester(this)
-
-        var parameterizedString: ParameterizedString? = null
-
-        stateRestorationTester.setContent {
-            parameterizedString = rememberSaveable(saver = ParameterizedString.Saver) {
-                ParameterizedString(
-                    R.string.two_arg_string,
-                    ParameterizedStringArgument(Random.nextInt().toString()),
-                    ParameterizedStringArgument(Random.nextInt().toString()),
-                )
-            }
-        }
-
-        val initial = parameterizedString
-
-        assertNotNull(initial)
-
-        stateRestorationTester.emulateStateRestore()
-
-        val restored = parameterizedString
-
-        assertEquals(initial, restored)
-    }
-
-    @Test
-    fun saver_is_correct_for_quantity_string() = runComposeUiTest {
-        val stateRestorationTester = KmpStateRestorationTester(this)
-
-        var parameterizedString: ParameterizedString? = null
-
-        stateRestorationTester.setContent {
-            parameterizedString = rememberSaveable(saver = ParameterizedString.Saver) {
-                val value = Random.nextInt()
-                ParameterizedQuantityString(
-                    R.plurals.plural_string_with_number,
-                    value,
-                    ParameterizedStringArgument(value),
-                )
-            }
-        }
-
-        val initial = parameterizedString
-
-        assertNotNull(initial)
-
-        stateRestorationTester.emulateStateRestore()
-
-        val restored = parameterizedString
-
-        assertEquals(initial, restored)
-    }
-
-    @Test
-    fun saver_is_correct_for_basic_string() = runComposeUiTest {
-        val stateRestorationTester = KmpStateRestorationTester(this)
-
-        var parameterizedString: ParameterizedString? = null
-
-        stateRestorationTester.setContent {
-            parameterizedString = rememberSaveable(saver = ParameterizedString.Saver) {
-                ParameterizedString(
-                    "Two: (%s) (%s)",
-                    ParameterizedStringArgument(Random.nextInt().toString()),
-                    ParameterizedStringArgument(Random.nextInt().toString()),
-                )
-            }
-        }
-
-        val initial = parameterizedString
-
-        assertNotNull(initial)
-
-        stateRestorationTester.emulateStateRestore()
-
-        val restored = parameterizedString
-
-        assertEquals(initial, restored)
-    }
-
-    @Test
-    fun saver_is_correct_for_nested_parameterized_string() = runComposeUiTest {
-        val stateRestorationTester = KmpStateRestorationTester(this)
-
-        var parameterizedString: ParameterizedString? = null
-
-        stateRestorationTester.setContent {
-            parameterizedString = rememberSaveable(saver = ParameterizedString.Saver) {
-                ParameterizedString(
-                    R.string.three_arg_string,
-                    ParameterizedStringArgument(
+            stateRestorationTester.setContent {
+                parameterizedString =
+                    rememberSaveable(saver = ParameterizedString.Saver) {
                         ParameterizedString(
                             R.string.two_arg_string,
                             ParameterizedStringArgument(Random.nextInt().toString()),
                             ParameterizedStringArgument(Random.nextInt().toString()),
-                        ),
-                    ),
-                    ParameterizedStringArgument(
+                        )
+                    }
+            }
+
+            val initial = parameterizedString
+
+            assertNotNull(initial)
+
+            stateRestorationTester.emulateStateRestore()
+
+            val restored = parameterizedString
+
+            assertEquals(initial, restored)
+        }
+
+    @Test
+    fun saver_is_correct_for_quantity_string() =
+        runComposeUiTest {
+            val stateRestorationTester = KmpStateRestorationTester(this)
+
+            var parameterizedString: ParameterizedString? = null
+
+            stateRestorationTester.setContent {
+                parameterizedString =
+                    rememberSaveable(saver = ParameterizedString.Saver) {
+                        val value = Random.nextInt()
+                        ParameterizedQuantityString(
+                            R.plurals.plural_string_with_number,
+                            value,
+                            ParameterizedStringArgument(value),
+                        )
+                    }
+            }
+
+            val initial = parameterizedString
+
+            assertNotNull(initial)
+
+            stateRestorationTester.emulateStateRestore()
+
+            val restored = parameterizedString
+
+            assertEquals(initial, restored)
+        }
+
+    @Test
+    fun saver_is_correct_for_basic_string() =
+        runComposeUiTest {
+            val stateRestorationTester = KmpStateRestorationTester(this)
+
+            var parameterizedString: ParameterizedString? = null
+
+            stateRestorationTester.setContent {
+                parameterizedString =
+                    rememberSaveable(saver = ParameterizedString.Saver) {
                         ParameterizedString(
-                            R.string.one_arg_string,
+                            "Two: (%s) (%s)",
+                            ParameterizedStringArgument(Random.nextInt().toString()),
+                            ParameterizedStringArgument(Random.nextInt().toString()),
+                        )
+                    }
+            }
+
+            val initial = parameterizedString
+
+            assertNotNull(initial)
+
+            stateRestorationTester.emulateStateRestore()
+
+            val restored = parameterizedString
+
+            assertEquals(initial, restored)
+        }
+
+    @Test
+    fun saver_is_correct_for_nested_parameterized_string() =
+        runComposeUiTest {
+            val stateRestorationTester = KmpStateRestorationTester(this)
+
+            var parameterizedString: ParameterizedString? = null
+
+            stateRestorationTester.setContent {
+                parameterizedString =
+                    rememberSaveable(saver = ParameterizedString.Saver) {
+                        ParameterizedString(
+                            R.string.three_arg_string,
                             ParameterizedStringArgument(
                                 ParameterizedString(
-                                    R.string.one_arg_string,
+                                    R.string.two_arg_string,
+                                    ParameterizedStringArgument(Random.nextInt().toString()),
                                     ParameterizedStringArgument(Random.nextInt().toString()),
                                 ),
                             ),
-                        ),
-                    ),
-                    ParameterizedStringArgument(
-                        ParameterizedString(
-                            R.string.one_arg_string,
                             ParameterizedStringArgument(
                                 ParameterizedString(
                                     R.string.one_arg_string,
@@ -529,20 +526,34 @@ class AndroidParameterizedStringTests {
                                     ),
                                 ),
                             ),
-                        ),
-                    ),
-                )
+                            ParameterizedStringArgument(
+                                ParameterizedString(
+                                    R.string.one_arg_string,
+                                    ParameterizedStringArgument(
+                                        ParameterizedString(
+                                            R.string.one_arg_string,
+                                            ParameterizedStringArgument(
+                                                ParameterizedString(
+                                                    R.string.one_arg_string,
+                                                    ParameterizedStringArgument(Random.nextInt().toString()),
+                                                ),
+                                            ),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        )
+                    }
             }
+
+            val initial = parameterizedString
+
+            assertNotNull(initial)
+
+            stateRestorationTester.emulateStateRestore()
+
+            val restored = parameterizedString
+
+            assertEquals(initial, restored)
         }
-
-        val initial = parameterizedString
-
-        assertNotNull(initial)
-
-        stateRestorationTester.emulateStateRestore()
-
-        val restored = parameterizedString
-
-        assertEquals(initial, restored)
-    }
 }

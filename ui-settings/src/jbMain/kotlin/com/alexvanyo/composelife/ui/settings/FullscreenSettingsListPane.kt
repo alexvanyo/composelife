@@ -107,7 +107,8 @@ private fun SettingsCategoryList(
             Surface(
                 tonalElevation = elevation,
                 shape = RoundedCornerShape(if (showFloatingAppBar) 16.dp else 0.dp),
-                modifier = Modifier
+                modifier =
+                Modifier
                     .then(
                         if (showFloatingAppBar) {
                             Modifier
@@ -115,15 +116,15 @@ private fun SettingsCategoryList(
                                     WindowInsets.safeDrawing.only(
                                         WindowInsetsSides.Horizontal + WindowInsetsSides.Top,
                                     ),
-                                )
-                                .padding(4.dp)
+                                ).padding(4.dp)
                         } else {
                             Modifier
                         },
                     ),
             ) {
                 Box(
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .fillMaxWidth()
                         .then(
                             if (showFloatingAppBar) {
@@ -135,14 +136,14 @@ private fun SettingsCategoryList(
                                     ),
                                 )
                             },
-                        )
-                        .height(64.dp),
+                        ).height(64.dp),
                 ) {
                     Box(
                         modifier = Modifier.align(Alignment.CenterStart),
                     ) {
                         TooltipBox(
-                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                            positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
                                 TooltipAnchorPosition.Above,
                             ),
                             tooltip = {
@@ -174,7 +175,8 @@ private fun SettingsCategoryList(
         modifier = modifier.fillMaxSize(),
     ) { innerPadding ->
         Column(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxSize()
                 .verticalScroll(listScrollState)
                 .padding(innerPadding)
@@ -211,22 +213,26 @@ private fun SettingsCategoryButton(
     val icon = if (isVisuallySelected) filledIcon else outlinedIcon
 
     Card(
-        colors = CardDefaults.cardColors(
-            containerColor = if (isVisuallySelected) {
+        colors =
+        CardDefaults.cardColors(
+            containerColor =
+            if (isVisuallySelected) {
                 MaterialTheme.colorScheme.surfaceVariant
             } else {
                 MaterialTheme.colorScheme.surface
             },
         ),
         onClick = onClick,
-        modifier = Modifier.semantics {
+        modifier =
+        Modifier.semantics {
             if (showSelectedSettingsCategory) {
                 selected = isCurrentSettingsCategory
             }
         },
     ) {
         Row(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .sizeIn(minHeight = 64.dp)
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,

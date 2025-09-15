@@ -55,12 +55,10 @@ actual fun ClipboardWriter.setText(value: String) {
 
 sealed interface ClipboardStateKey {
     data object Empty : ClipboardStateKey
-    data class PlaintextClipboard(
-        val value: String,
-    ) : ClipboardStateKey
-    data class Unknown(
-        val id: Uuid = Uuid.random(),
-    ) : ClipboardStateKey
+
+    data class PlaintextClipboard(val value: String) : ClipboardStateKey
+
+    data class Unknown(val id: Uuid = Uuid.random()) : ClipboardStateKey
 }
 
 @Composable
@@ -86,10 +84,11 @@ actual fun rememberClipboardReader(): ClipboardReader {
         // The clipboard could have changed while in the background or while the window wasn't focused, so we need
         // to read it again
         keyToReadClipData = Uuid.random()
-        val listener = ClipboardManager.OnPrimaryClipChangedListener {
-            // The clipboard changed, so we need to read it again
-            keyToReadClipData = Uuid.random()
-        }
+        val listener =
+            ClipboardManager.OnPrimaryClipChangedListener {
+                // The clipboard changed, so we need to read it again
+                keyToReadClipData = Uuid.random()
+            }
         clipboardManager.addPrimaryClipChangedListener(listener)
         onStopOrDispose {
             clipboardManager.removePrimaryClipChangedListener(listener)
@@ -111,14 +110,21 @@ actual fun rememberClipboardReader(): ClipboardReader {
                 get() {
                     val currentClipData = clipData
                     return when {
-                        currentClipData == null -> ClipboardStateKey.Empty
+                        currentClipData == null -> {
+                            ClipboardStateKey.Empty
+                        }
+
                         currentClipData.itemCount == 1 -> {
-                            currentClipData.getItemAt(0)
+                            currentClipData
+                                .getItemAt(0)
                                 .text
                                 ?.toString()
                                 ?.let(ClipboardStateKey::PlaintextClipboard) ?: ClipboardStateKey.Unknown()
                         }
-                        else -> ClipboardStateKey.Unknown()
+
+                        else -> {
+                            ClipboardStateKey.Unknown()
+                        }
                     }
                 }
 

@@ -21,22 +21,24 @@ import kotlin.test.assertEquals
 import kotlin.uuid.Uuid
 
 class NavigationStateTests {
-
     @Test
     fun current_entry_is_correct() {
         val id1 = Uuid.random()
         val id2 = Uuid.random()
-        val entry1 = object : NavigationEntry {
-            override val id: Uuid = id1
-        }
-        val entry2 = object : NavigationEntry {
-            override val id: Uuid = id2
-        }
+        val entry1 =
+            object : NavigationEntry {
+                override val id: Uuid = id1
+            }
+        val entry2 =
+            object : NavigationEntry {
+                override val id: Uuid = id2
+            }
 
-        val navigationState = object : NavigationState<NavigationEntry> {
-            override val entryMap get() = listOf(entry1, entry2).associateBy { it.id }
-            override val currentEntryId get() = id2
-        }
+        val navigationState =
+            object : NavigationState<NavigationEntry> {
+                override val entryMap get() = listOf(entry1, entry2).associateBy { it.id }
+                override val currentEntryId get() = id2
+            }
 
         assertEquals(
             entry2,

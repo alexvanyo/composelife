@@ -29,37 +29,42 @@ fun <T> segmentingNavigationTransform(): RenderableNavigationTransform<
     BackstackState<T>,
     BackstackEntry<NavigationSegment<T>>,
     BackstackState<NavigationSegment<T>>,
-    > = { renderableNavigationState ->
-    val entries = renderableNavigationState.navigationState.entryMap.values.toList()
+    > =
+    { renderableNavigationState ->
+        val entries =
+            renderableNavigationState.navigationState.entryMap.values
+                .toList()
 
-    // Recursively create the transformed entries.
-    val transformedEntryMap = remember(entries) {
-        val map = mutableMapOf<Uuid, BackstackEntry<NavigationSegment<T>>>()
-        fun createNavigationSegment(entry: BackstackEntry<T>): BackstackEntry<NavigationSegment<T>> =
-            map.getOrPut(entry.id) {
-                BackstackEntry(
-                    value = NavigationSegment.SingleSegment(entry.value),
-                    previous = entry.previous?.let(::createNavigationSegment),
-                    id = entry.id,
-                )
+        // Recursively create the transformed entries.
+        val transformedEntryMap =
+            remember(entries) {
+                val map = mutableMapOf<Uuid, BackstackEntry<NavigationSegment<T>>>()
+
+                fun createNavigationSegment(entry: BackstackEntry<T>): BackstackEntry<NavigationSegment<T>> =
+                    map.getOrPut(entry.id) {
+                        BackstackEntry(
+                            value = NavigationSegment.SingleSegment(entry.value),
+                            previous = entry.previous?.let(::createNavigationSegment),
+                            id = entry.id,
+                        )
+                    }
+
+                entries.forEach(::createNavigationSegment)
+                map
             }
 
-        entries.forEach(::createNavigationSegment)
-        map
+        val transformedBackstackState: BackstackState<NavigationSegment<T>> =
+            object : BackstackState<NavigationSegment<T>> {
+                override val entryMap: BackstackMap<NavigationSegment<T>>
+                    get() = transformedEntryMap
+                override val currentEntryId: Uuid
+                    get() = renderableNavigationState.navigationState.currentEntryId
+                override val previousEntryId: Uuid?
+                    get() = renderableNavigationState.navigationState.previousEntryId
+            }
+
+        RenderableNavigationState(
+            transformedBackstackState,
+            renderableNavigationState.renderablePanes,
+        )
     }
-
-    val transformedBackstackState: BackstackState<NavigationSegment<T>> =
-        object : BackstackState<NavigationSegment<T>> {
-            override val entryMap: BackstackMap<NavigationSegment<T>>
-                get() = transformedEntryMap
-            override val currentEntryId: Uuid
-                get() = renderableNavigationState.navigationState.currentEntryId
-            override val previousEntryId: Uuid?
-                get() = renderableNavigationState.navigationState.previousEntryId
-        }
-
-    RenderableNavigationState(
-        transformedBackstackState,
-        renderableNavigationState.renderablePanes,
-    )
-}

@@ -35,6 +35,7 @@ val TestScope.schedulerClock
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 val TestCoroutineScheduler.clock
-    get(): Clock = object : Clock {
-        override fun now(): Instant = Instant.fromEpochMilliseconds(currentTime)
-    }
+    get(): Clock =
+        object : Clock {
+            override fun now(): Instant = Instant.fromEpochMilliseconds(currentTime)
+        }

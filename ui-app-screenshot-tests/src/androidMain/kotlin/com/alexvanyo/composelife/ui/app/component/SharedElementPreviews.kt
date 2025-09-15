@@ -69,12 +69,12 @@ private fun AnimatedContentSharedElement() {
             AnimatedContent(isExpanded, modifier = modifier) { targetState ->
                 if (targetState) {
                     Box(
-                        modifier = Modifier
+                        modifier =
+                        Modifier
                             .sharedElement(
                                 rememberSharedContentState(key = "a"),
                                 this,
-                            )
-                            .fillMaxSize()
+                            ).fillMaxSize()
                             .background(Color.Red)
                             .clickable {
                                 isExpanded = !isExpanded
@@ -83,29 +83,32 @@ private fun AnimatedContentSharedElement() {
                 } else {
                     FlowRow {
                         Box(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .sharedElement(
                                     rememberSharedContentState(key = "a"),
                                     this@AnimatedContent,
-                                )
-                                .size(64.dp)
+                                ).size(64.dp)
                                 .background(Color.Magenta)
                                 .clickable {
                                     isExpanded = !isExpanded
                                 },
                         )
                         Box(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .size(64.dp)
                                 .background(Color.Blue),
                         )
                         Box(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .size(64.dp)
                                 .background(Color.Green),
                         )
                         Box(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .size(64.dp)
                                 .background(Color.Yellow),
                         )
@@ -127,12 +130,12 @@ private fun AnimatedContentSharedElementWithCallerManagedVisibility() {
             AnimatedContent(isExpanded, modifier = modifier) { targetState ->
                 if (targetState) {
                     Box(
-                        modifier = Modifier
+                        modifier =
+                        Modifier
                             .sharedElementWithCallerManagedVisibility(
                                 rememberSharedContentState(key = "a"),
                                 isExpanded,
-                            )
-                            .fillMaxSize()
+                            ).fillMaxSize()
                             .background(Color.Red)
                             .clickable {
                                 isExpanded = !isExpanded
@@ -141,29 +144,32 @@ private fun AnimatedContentSharedElementWithCallerManagedVisibility() {
                 } else {
                     FlowRow {
                         Box(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .sharedElementWithCallerManagedVisibility(
                                     rememberSharedContentState(key = "a"),
                                     !isExpanded,
-                                )
-                                .size(64.dp)
+                                ).size(64.dp)
                                 .background(Color.Magenta)
                                 .clickable {
                                     isExpanded = !isExpanded
                                 },
                         )
                         Box(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .size(64.dp)
                                 .background(Color.Blue),
                         )
                         Box(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .size(64.dp)
                                 .background(Color.Green),
                         )
                         Box(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .size(64.dp)
                                 .background(Color.Yellow),
                         )
@@ -188,12 +194,12 @@ private fun CustomAnimatedContentSharedElementWithCallerManagedVisibility() {
             ) { targetState ->
                 if (targetState) {
                     Box(
-                        modifier = Modifier
+                        modifier =
+                        Modifier
                             .sharedElementWithCallerManagedVisibility(
                                 rememberSharedContentState(key = "a"),
                                 isExpanded,
-                            )
-                            .fillMaxSize()
+                            ).fillMaxSize()
                             .background(Color.Red)
                             .clickable {
                                 isExpanded = !isExpanded
@@ -202,29 +208,32 @@ private fun CustomAnimatedContentSharedElementWithCallerManagedVisibility() {
                 } else {
                     FlowRow {
                         Box(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .sharedElementWithCallerManagedVisibility(
                                     rememberSharedContentState(key = "a"),
                                     !isExpanded,
-                                )
-                                .size(64.dp)
+                                ).size(64.dp)
                                 .background(Color.Magenta)
                                 .clickable {
                                     isExpanded = !isExpanded
                                 },
                         )
                         Box(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .size(64.dp)
                                 .background(Color.Blue),
                         )
                         Box(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .size(64.dp)
                                 .background(Color.Green),
                         )
                         Box(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .size(64.dp)
                                 .background(Color.Yellow),
                         )
@@ -247,7 +256,8 @@ private fun CustomAnimatedContentSettingUiSharedElementWithCallerManagedVisibili
                 SharedTransitionScope { modifier ->
                     com.alexvanyo.composelife.ui.util.AnimatedContent(
                         TargetState.Single(isExpanded),
-                        modifier = modifier
+                        modifier =
+                        modifier
                             .fillMaxSize()
                             .clickable { isExpanded = !isExpanded },
                     ) { targetState ->
@@ -256,7 +266,8 @@ private fun CustomAnimatedContentSettingUiSharedElementWithCallerManagedVisibili
                                 SettingUi(
                                     setting = Setting.CellShapeConfig,
                                     onOpenInSettingsClicked = null,
-                                    modifier = Modifier.sharedElementWithCallerManagedVisibility(
+                                    modifier =
+                                    Modifier.sharedElementWithCallerManagedVisibility(
                                         rememberSharedContentState(key = "a"),
                                         isExpanded,
                                     ),
@@ -267,7 +278,8 @@ private fun CustomAnimatedContentSettingUiSharedElementWithCallerManagedVisibili
                                 SettingUi(
                                     setting = Setting.CellShapeConfig,
                                     onOpenInSettingsClicked = {},
-                                    modifier = Modifier.sharedElementWithCallerManagedVisibility(
+                                    modifier =
+                                    Modifier.sharedElementWithCallerManagedVisibility(
                                         rememberSharedContentState(key = "a"),
                                         !isExpanded,
                                     ),
@@ -290,7 +302,8 @@ private fun CMYSharedElement() {
     val state = Colors.entries[count.mod(Colors.entries.size)]
 
     androidx.compose.animation.SharedTransitionLayout(
-        modifier = Modifier.clickable {
+        modifier =
+        Modifier.clickable {
             count++
         },
     ) {
@@ -299,70 +312,72 @@ private fun CMYSharedElement() {
                 Colors.Cyan -> {
                     Column {
                         Box(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .sharedElementWithCallerManagedVisibility(
                                     rememberSharedContentState(key = "green"),
                                     targetState == state,
-                                )
-                                .fillMaxWidth()
+                                ).fillMaxWidth()
                                 .weight(1f)
                                 .background(Color.Green),
                         )
                         Box(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .sharedElementWithCallerManagedVisibility(
                                     rememberSharedContentState(key = "blue"),
                                     targetState == state,
-                                )
-                                .fillMaxWidth()
+                                ).fillMaxWidth()
                                 .weight(1f)
                                 .background(Color.Blue),
                         )
                     }
                 }
+
                 Colors.Magenta -> {
                     Column {
                         Box(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .sharedElementWithCallerManagedVisibility(
                                     rememberSharedContentState(key = "blue"),
                                     targetState == state,
-                                )
-                                .fillMaxWidth()
+                                ).fillMaxWidth()
                                 .weight(1f)
                                 .background(Color.Blue),
                         )
                         Box(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .sharedElementWithCallerManagedVisibility(
                                     rememberSharedContentState(key = "red"),
                                     targetState == state,
-                                )
-                                .fillMaxWidth()
+                                ).fillMaxWidth()
                                 .weight(1f)
                                 .background(Color.Red),
                         )
                     }
                 }
+
                 Colors.Yellow -> {
                     Column {
                         Box(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .sharedElementWithCallerManagedVisibility(
                                     rememberSharedContentState(key = "red"),
                                     targetState == state,
-                                )
-                                .fillMaxWidth()
+                                ).fillMaxWidth()
                                 .weight(1f)
                                 .background(Color.Red),
                         )
                         Box(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .sharedElementWithCallerManagedVisibility(
                                     rememberSharedContentState(key = "green"),
                                     targetState == state,
-                                )
-                                .fillMaxWidth()
+                                ).fillMaxWidth()
                                 .weight(1f)
                                 .background(Color.Green),
                         )
@@ -372,74 +387,77 @@ private fun CMYSharedElement() {
                 Colors.Red -> {
                     Column {
                         Box(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .sharedElementWithCallerManagedVisibility(
                                     rememberSharedContentState(key = "red"),
                                     targetState == state,
-                                )
-                                .fillMaxWidth()
+                                ).fillMaxWidth()
                                 .weight(1f)
                                 .background(Color.Red),
                         )
                     }
                 }
+
                 Colors.Green -> {
                     Column {
                         Box(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .sharedElementWithCallerManagedVisibility(
                                     rememberSharedContentState(key = "green"),
                                     targetState == state,
-                                )
-                                .fillMaxWidth()
+                                ).fillMaxWidth()
                                 .weight(1f)
                                 .background(Color.Green),
                         )
                     }
                 }
+
                 Colors.Blue -> {
                     Column {
                         Box(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .sharedElementWithCallerManagedVisibility(
                                     rememberSharedContentState(key = "blue"),
                                     targetState == state,
-                                )
-                                .fillMaxWidth()
+                                ).fillMaxWidth()
                                 .weight(1f)
                                 .background(Color.Blue),
                         )
                     }
                 }
+
                 Colors.White -> {
                     Column {
                         Box(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .sharedElementWithCallerManagedVisibility(
                                     rememberSharedContentState(key = "red"),
                                     targetState == state,
-                                )
-                                .fillMaxWidth()
+                                ).fillMaxWidth()
                                 .weight(1f)
                                 .background(Color.Red),
                         )
                         Box(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .sharedElementWithCallerManagedVisibility(
                                     rememberSharedContentState(key = "green"),
                                     targetState == state,
-                                )
-                                .fillMaxWidth()
+                                ).fillMaxWidth()
                                 .weight(1f)
                                 .background(Color.Green),
                         )
                         Box(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .sharedElementWithCallerManagedVisibility(
                                     rememberSharedContentState(key = "blue"),
                                     targetState == state,
-                                )
-                                .fillMaxWidth()
+                                ).fillMaxWidth()
                                 .weight(1f)
                                 .background(Color.Blue),
                         )
@@ -451,22 +469,26 @@ private fun CMYSharedElement() {
 }
 
 enum class Colors {
-    Cyan, Magenta, Yellow, Red, Green, Blue, White
+    Cyan,
+    Magenta,
+    Yellow,
+    Red,
+    Green,
+    Blue,
+    White,
 }
 
 @Composable
-fun ComposableThatFits(
-    contents: List<@Composable ComposableThatFitsScope.() -> Unit>,
-    modifier: Modifier = Modifier,
-) {
+fun ComposableThatFits(contents: List<@Composable ComposableThatFitsScope.() -> Unit>, modifier: Modifier = Modifier) {
     var placedContentIndex by remember(contents) { mutableIntStateOf(-1) }
 
-    val orderedContents = if (placedContentIndex == -1) {
-        contents.withIndex()
-    } else {
-        listOf(IndexedValue(placedContentIndex, contents[placedContentIndex])) +
-            contents.withIndex().filter { (index, _) -> index != placedContentIndex }
-    }
+    val orderedContents =
+        if (placedContentIndex == -1) {
+            contents.withIndex()
+        } else {
+            listOf(IndexedValue(placedContentIndex, contents[placedContentIndex])) +
+                contents.withIndex().filter { (index, _) -> index != placedContentIndex }
+        }
 
     Layout(
         content = {
@@ -481,14 +503,14 @@ fun ComposableThatFits(
         },
         measurePolicy = { measurables, constraints ->
             val measurablesWithIndex = measurables.withIndex()
-            val placeable = (
-                measurablesWithIndex
-                    .firstOrNull { (_, measurable) ->
-                        measurable.minIntrinsicWidth(constraints.maxHeight) <= constraints.maxWidth &&
-                            measurable.minIntrinsicHeight(constraints.maxWidth) <= constraints.maxHeight
-                    } ?: measurablesWithIndex.last()
-                )
-                .let { (index, measurable) ->
+            val placeable =
+                (
+                    measurablesWithIndex
+                        .firstOrNull { (_, measurable) ->
+                            measurable.minIntrinsicWidth(constraints.maxHeight) <= constraints.maxWidth &&
+                                measurable.minIntrinsicHeight(constraints.maxWidth) <= constraints.maxHeight
+                        } ?: measurablesWithIndex.last()
+                    ).let { (index, measurable) ->
                     placedContentIndex = index
                     measurable.measure(constraints)
                 }
@@ -533,8 +555,9 @@ private fun TextTruncation() {
                 )
             },
             measurePolicy = { measurables, constraints ->
-                val minimumIntrinsicSizes = measurables
-                    .map { it.minIntrinsicHeight(constraints.maxWidth) }
+                val minimumIntrinsicSizes =
+                    measurables
+                        .map { it.minIntrinsicHeight(constraints.maxWidth) }
 
                 // Determine how much space would be need to fit everything up to a certain point at the minimum
                 // intrinsic size.
@@ -546,45 +569,47 @@ private fun TextTruncation() {
                 var remainingHeight = constraints.maxHeight
 
                 // Process the measurables in reverse order, as we will take away space from later measurables first.
-                val placeables = measurables
-                    .withIndex()
-                    .reversed()
-                    .map { (index, measurable) ->
-                        // Determine the single-line height
-                        val singleLineHeight = measurable.minIntrinsicHeight(Int.MAX_VALUE)
-                        // Retrieve the amount of space needed to fit everything up-to and including this measurable
-                        // while fulfilling the minimum intrinsic size
-                        val heightNeededForMinimumIntrinsicSizesHere =
-                            heightsNeededForMinimumIntrinsicSizes[index]
+                val placeables =
+                    measurables
+                        .withIndex()
+                        .reversed()
+                        .map { (index, measurable) ->
+                            // Determine the single-line height
+                            val singleLineHeight = measurable.minIntrinsicHeight(Int.MAX_VALUE)
+                            // Retrieve the amount of space needed to fit everything up-to and including this measurable
+                            // while fulfilling the minimum intrinsic size
+                            val heightNeededForMinimumIntrinsicSizesHere =
+                                heightsNeededForMinimumIntrinsicSizes[index]
 
-                        // Determine the maximum height to measure with
-                        val maxHeight = if (remainingHeight >= heightNeededForMinimumIntrinsicSizesHere) {
-                            // If we have enough space to fit everything completely, just measure with the intrinsic
-                            // size
-                            minimumIntrinsicSizes[index]
-                        } else {
-                            // Retrieve the amount of space needed to fit everything up-to but not including this
-                            // measurable while fulfilling the minimum intrinsic size
-                            val heightNeededForMinimumIntrinsicSizesBefore =
-                                heightsNeededForMinimumIntrinsicSizes.getOrElse(index - 1) { 0 }
+                            // Determine the maximum height to measure with
+                            val maxHeight =
+                                if (remainingHeight >= heightNeededForMinimumIntrinsicSizesHere) {
+                                    // If we have enough space to fit everything completely, just measure with the intrinsic
+                                    // size
+                                    minimumIntrinsicSizes[index]
+                                } else {
+                                    // Retrieve the amount of space needed to fit everything up-to but not including this
+                                    // measurable while fulfilling the minimum intrinsic size
+                                    val heightNeededForMinimumIntrinsicSizesBefore =
+                                        heightsNeededForMinimumIntrinsicSizes.getOrElse(index - 1) { 0 }
 
-                            if (remainingHeight >= heightNeededForMinimumIntrinsicSizesBefore + singleLineHeight) {
-                                // If we have enough space to fit everything before this measurable, measure this one
-                                // with the excess space
-                                remainingHeight - heightNeededForMinimumIntrinsicSizesBefore
-                            } else {
-                                // Otherwise, only allocate this measurable the single-line height
-                                singleLineHeight
-                            }
-                        }
+                                    if (remainingHeight >=
+                                        heightNeededForMinimumIntrinsicSizesBefore + singleLineHeight) {
+                                        // If we have enough space to fit everything before this measurable, measure this one
+                                        // with the excess space
+                                        remainingHeight - heightNeededForMinimumIntrinsicSizesBefore
+                                    } else {
+                                        // Otherwise, only allocate this measurable the single-line height
+                                        singleLineHeight
+                                    }
+                                }
 
-                        val placeable = measurable.measure(constraints.copy(maxHeight = maxHeight))
-                        // Remove the allocated height
-                        remainingHeight -= placeable.height
+                            val placeable = measurable.measure(constraints.copy(maxHeight = maxHeight))
+                            // Remove the allocated height
+                            remainingHeight -= placeable.height
 
-                        placeable
-                    }
-                    .reversed() // Return to top-to-bottom order
+                            placeable
+                        }.reversed() // Return to top-to-bottom order
 
                 layout(placeables.maxOf(Placeable::width), placeables.sumOf(Placeable::height)) {
                     var y = 0
@@ -603,25 +628,27 @@ private fun TextTruncation() {
 @Preview
 @Composable
 private fun MovableContentAnimateAfter() {
-    val textField = remember {
-        movableContentOf {
-            var textFieldValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-                mutableStateOf(TextFieldValue())
+    val textField =
+        remember {
+            movableContentOf {
+                var textFieldValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+                    mutableStateOf(TextFieldValue())
+                }
+                TextField(
+                    textFieldValue,
+                    { textFieldValue = it },
+                    modifier = Modifier.fillMaxWidth(),
+                )
             }
-            TextField(
-                textFieldValue,
-                { textFieldValue = it },
-                modifier = Modifier.fillMaxWidth(),
-            )
         }
-    }
 
     SharedTransitionScope {
         ComposableThatFits(
             listOf(
                 {
                     Box(
-                        modifier = Modifier
+                        modifier =
+                        Modifier
                             .requiredSizeIn(minWidth = 800.dp, minHeight = 400.dp)
                             .fillMaxSize()
                             .background(Color.Yellow),
@@ -632,7 +659,8 @@ private fun MovableContentAnimateAfter() {
                 },
                 {
                     Box(
-                        modifier = Modifier
+                        modifier =
+                        Modifier
                             .requiredSizeIn(minWidth = 400.dp, minHeight = 400.dp)
                             .fillMaxSize()
                             .background(Color.Blue),
@@ -643,7 +671,8 @@ private fun MovableContentAnimateAfter() {
                 },
                 {
                     Box(
-                        modifier = Modifier
+                        modifier =
+                        Modifier
                             .fillMaxSize()
                             .background(Color.Red),
                         contentAlignment = Alignment.BottomCenter,

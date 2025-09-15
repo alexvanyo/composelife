@@ -82,10 +82,7 @@ import kotlin.uuid.Uuid
 
 @Immutable
 @Inject
-class ComposeLifeAppUiCtx(
-    internal val composeLifePreferences: ComposeLifePreferences,
-    internal val uiGraph: UiGraph,
-) {
+class ComposeLifeAppUiCtx(internal val composeLifePreferences: ComposeLifePreferences, internal val uiGraph: UiGraph) {
     companion object
 }
 
@@ -99,20 +96,21 @@ class ComposeLifeAppUiWithLoadedPreferencesCtx(
     companion object
 }
 
-context(uiCtx: ComposeLifeAppUiCtx)
 @Suppress("LongMethod")
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalAnimationApi::class)
 @Composable
+context(uiCtx: ComposeLifeAppUiCtx)
 fun ComposeLifeApp(
     windowSizeClass: WindowSizeClass,
     windowSize: DpSize,
     modifier: Modifier = Modifier,
-    composeLifeAppState: ComposeLifeAppState = rememberComposeLifeAppState(
-        uiCtx.composeLifePreferences,
-        uiCtx.uiGraph,
-        windowSizeClass,
-        windowSize,
-    ),
+    composeLifeAppState: ComposeLifeAppState =
+        rememberComposeLifeAppState(
+            uiCtx.composeLifePreferences,
+            uiCtx.uiGraph,
+            windowSizeClass,
+            windowSize,
+        ),
 ) {
     Surface(modifier = modifier.fillMaxSize()) {
         LookaheadScope {
@@ -127,7 +125,10 @@ fun ComposeLifeApp(
                 },
             ) { targetComposeLifeAppState ->
                 when (targetComposeLifeAppState) {
-                    ComposeLifeAppState.ErrorLoadingPreferences -> Unit
+                    ComposeLifeAppState.ErrorLoadingPreferences -> {
+                        Unit
+                    }
+
                     ComposeLifeAppState.LoadingPreferences -> {
                         Box(
                             contentAlignment = Alignment.Center,
@@ -136,23 +137,28 @@ fun ComposeLifeApp(
                             CircularProgressIndicator()
                         }
                     }
+
                     is ComposeLifeAppState.LoadedPreferences -> {
                         ReportDrawn()
 
-                        val dispatcher = requireNotNull(
-                            LocalNavigationEventDispatcherOwner.current,
-                        ).navigationEventDispatcher
-                        val navigationEventState by dispatcher.getState<ComposeLifeAppNavigationEventInfo>(
-                            rememberCoroutineScope(),
-                            ComposeLifeAppNavigationEventInfo(targetComposeLifeAppState.navigationState.currentEntryId),
-                        ).collectAsState()
+                        val dispatcher =
+                            requireNotNull(
+                                LocalNavigationEventDispatcherOwner.current,
+                            ).navigationEventDispatcher
+                        val navigationEventState by dispatcher
+                            .getState<ComposeLifeAppNavigationEventInfo>(
+                                rememberCoroutineScope(),
+                                ComposeLifeAppNavigationEventInfo(targetComposeLifeAppState.navigationState.currentEntryId),
+                            ).collectAsState()
 
                         NavigationBackHandler(
                             isBackEnabled = targetComposeLifeAppState.canNavigateBack,
-                            currentInfo = ComposeLifeAppNavigationEventInfo(
+                            currentInfo =
+                            ComposeLifeAppNavigationEventInfo(
                                 targetComposeLifeAppState.navigationState.currentEntryId,
                             ),
-                            backInfo = listOfNotNull(
+                            backInfo =
+                            listOfNotNull(
                                 targetComposeLifeAppState.navigationState.previousEntryId?.let(
                                     ::ComposeLifeAppNavigationEventInfo,
                                 ),
@@ -163,52 +169,53 @@ fun ComposeLifeApp(
                         with(targetComposeLifeAppState.composeLifeAppUiWithLoadedPreferencesCtx) {
                             SharedTransitionLayout {
                                 CompositionLocalProvider(LocalNavigationSharedTransitionScope provides this) {
-                                    val renderableNavigationState = associateWithRenderablePanes(
-                                        targetComposeLifeAppState.navigationState,
-                                    ) { entry ->
-                                        when (val value = entry.value) {
-                                            is ComposeLifeUiNavigation.CellUniverse -> {
-                                                Surface {
-                                                    with(cellUniversePaneCtx) {
-                                                        CellUniversePane(
-                                                            windowSizeClass = windowSizeClass,
-                                                            onSeeMoreSettingsClicked =
-                                                            targetComposeLifeAppState::onSeeMoreSettingsClicked,
-                                                            onOpenInSettingsClicked =
-                                                            targetComposeLifeAppState::onOpenInSettingsClicked,
-                                                            onViewDeserializationInfo =
-                                                            targetComposeLifeAppState::onViewDeserializationInfo,
+                                    val renderableNavigationState =
+                                        associateWithRenderablePanes(
+                                            targetComposeLifeAppState.navigationState,
+                                        ) { entry ->
+                                            when (val value = entry.value) {
+                                                is ComposeLifeUiNavigation.CellUniverse -> {
+                                                    Surface {
+                                                        with(cellUniversePaneCtx) {
+                                                            CellUniversePane(
+                                                                windowSizeClass = windowSizeClass,
+                                                                onSeeMoreSettingsClicked =
+                                                                targetComposeLifeAppState::onSeeMoreSettingsClicked,
+                                                                onOpenInSettingsClicked =
+                                                                targetComposeLifeAppState::onOpenInSettingsClicked,
+                                                                onViewDeserializationInfo =
+                                                                targetComposeLifeAppState::onViewDeserializationInfo,
+                                                            )
+                                                        }
+                                                    }
+                                                }
+
+                                                is ComposeLifeUiNavigation.FullscreenSettingsList -> {
+                                                    FullscreenSettingsListPane(
+                                                        fullscreenSettingsListPaneState = value,
+                                                        setSettingsCategory =
+                                                        targetComposeLifeAppState::onSettingsCategoryClicked,
+                                                        onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
+                                                    )
+                                                }
+
+                                                is ComposeLifeUiNavigation.FullscreenSettingsDetail -> {
+                                                    with(fullscreenSettingsDetailPaneCtx) {
+                                                        FullscreenSettingsDetailPane(
+                                                            fullscreenSettingsDetailPaneState = value,
+                                                            onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
                                                         )
                                                     }
                                                 }
-                                            }
 
-                                            is ComposeLifeUiNavigation.FullscreenSettingsList -> {
-                                                FullscreenSettingsListPane(
-                                                    fullscreenSettingsListPaneState = value,
-                                                    setSettingsCategory =
-                                                    targetComposeLifeAppState::onSettingsCategoryClicked,
-                                                    onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
-                                                )
-                                            }
-
-                                            is ComposeLifeUiNavigation.FullscreenSettingsDetail -> {
-                                                with(fullscreenSettingsDetailPaneCtx) {
-                                                    FullscreenSettingsDetailPane(
-                                                        fullscreenSettingsDetailPaneState = value,
+                                                is ComposeLifeUiNavigation.DeserializationInfo -> {
+                                                    DeserializationInfoPane(
+                                                        navEntryValue = value,
                                                         onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
                                                     )
                                                 }
                                             }
-
-                                            is ComposeLifeUiNavigation.DeserializationInfo -> {
-                                                DeserializationInfoPane(
-                                                    navEntryValue = value,
-                                                    onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
-                                                )
-                                            }
                                         }
-                                    }
 
                                     MaterialPredictiveNavigationFrame(
                                         renderableNavigationState =
@@ -242,37 +249,47 @@ fun rememberComposeLifeAppState(
     uiGraph: UiGraph,
     windowSizeClass: WindowSizeClass,
     windowSize: DpSize,
-): ComposeLifeAppState {
-    return when (val loadedPreferencesState = composeLifePreferences.loadedPreferencesState) {
-        is ResourceState.Failure -> ComposeLifeAppState.ErrorLoadingPreferences
-        ResourceState.Loading -> ComposeLifeAppState.LoadingPreferences
+): ComposeLifeAppState =
+    when (val loadedPreferencesState = composeLifePreferences.loadedPreferencesState) {
+        is ResourceState.Failure -> {
+            ComposeLifeAppState.ErrorLoadingPreferences
+        }
+
+        ResourceState.Loading -> {
+            ComposeLifeAppState.LoadingPreferences
+        }
+
         is ResourceState.Success -> {
             val currentLoadedPreferences by rememberUpdatedState(loadedPreferencesState.value)
 
-            val preferencesHolder = remember {
-                object : LoadedComposeLifePreferencesHolder {
-                    override val preferences: LoadedComposeLifePreferences
-                        get() = currentLoadedPreferences
+            val preferencesHolder =
+                remember {
+                    object : LoadedComposeLifePreferencesHolder {
+                        override val preferences: LoadedComposeLifePreferences
+                            get() = currentLoadedPreferences
+                    }
                 }
-            }
 
-            val uiWithLoadedPreferencesGraph = remember(currentLoadedPreferences) {
-                (uiGraph as UiWithLoadedPreferencesGraph.Factory).create(
-                    UiWithLoadedPreferencesGraphArguments(
-                        loadedComposeLifePreferencesHolder = preferencesHolder,
+            val uiWithLoadedPreferencesGraph =
+                remember(currentLoadedPreferences) {
+                    (uiGraph as UiWithLoadedPreferencesGraph.Factory).create(
+                        UiWithLoadedPreferencesGraphArguments(
+                            loadedComposeLifePreferencesHolder = preferencesHolder,
+                        ),
+                    )
+                }
+
+            val navController =
+                rememberMutableBackstackNavigationController(
+                    initialBackstackEntries =
+                    listOf(
+                        BackstackEntry(
+                            value = ComposeLifeNavigation.CellUniverse,
+                            previous = null,
+                        ),
                     ),
+                    backstackValueSaverFactory = ComposeLifeNavigation.SaverFactory,
                 )
-            }
-
-            val navController = rememberMutableBackstackNavigationController(
-                initialBackstackEntries = listOf(
-                    BackstackEntry(
-                        value = ComposeLifeNavigation.CellUniverse,
-                        previous = null,
-                    ),
-                ),
-                backstackValueSaverFactory = ComposeLifeNavigation.SaverFactory,
-            )
 
             val currentEntryId = navController.currentEntryId
 
@@ -297,12 +314,14 @@ fun rememberComposeLifeAppState(
                                 when (val value = navigationUiState.currentEntry.value) {
                                     is ListDetailInfo -> {
                                         navController.popBackstack()
-                                        if (value.isListVisible && value.isDetailVisible &&
+                                        if (value.isListVisible &&
+                                            value.isDetailVisible &&
                                             currentEntryValue is ComposeLifeNavigation.FullscreenSettingsDetail
                                         ) {
                                             navController.popBackstack()
                                         }
                                     }
+
                                     else -> {
                                         navController.popBackstack()
                                     }
@@ -365,11 +384,8 @@ fun rememberComposeLifeAppState(
             }
         }
     }
-}
 
-private data class ComposeLifeAppNavigationEventInfo(
-    val entryId: Uuid,
-) : NavigationEventInfo
+private data class ComposeLifeAppNavigationEventInfo(val entryId: Uuid) : NavigationEventInfo
 
 sealed interface ComposeLifeAppState {
     /**
@@ -386,7 +402,6 @@ sealed interface ComposeLifeAppState {
      * The user's preferences are loaded,.
      */
     interface LoadedPreferences : ComposeLifeAppState {
-
         val composeLifeAppUiWithLoadedPreferencesCtx: ComposeLifeAppUiWithLoadedPreferencesCtx
 
         val navigationState: BackstackState<ComposeLifeUiNavigation>
@@ -420,20 +435,16 @@ interface UiWithLoadedPreferencesGraph {
     }
 }
 
-class UiWithLoadedPreferencesGraphArguments(
-    val loadedComposeLifePreferencesHolder: LoadedComposeLifePreferencesHolder,
-)
+class UiWithLoadedPreferencesGraphArguments(val loadedComposeLifePreferencesHolder: LoadedComposeLifePreferencesHolder)
 
 @ContributesTo(UiWithLoadedPreferencesScope::class)
 @BindingContainer
 interface UiWithLoadedPreferencesScopeBindings {
-
     companion object {
         @Provides
         @SingleIn(UiWithLoadedPreferencesScope::class)
         internal fun providesLoadedComposeLifePreferencesHolder(
             uiWithLoadedPreferencesGraphArguments: UiWithLoadedPreferencesGraphArguments,
-        ): LoadedComposeLifePreferencesHolder =
-            uiWithLoadedPreferencesGraphArguments.loadedComposeLifePreferencesHolder
+        ): LoadedComposeLifePreferencesHolder = uiWithLoadedPreferencesGraphArguments.loadedComposeLifePreferencesHolder
     }
 }

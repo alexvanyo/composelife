@@ -48,10 +48,10 @@ interface NetworkBindings {
                     dispatcher = dispatchers.IOWithLimitedParallelism(4)
                 }
                 install(Logging) {
-                    this.logger = object : io.ktor.client.plugins.logging.Logger {
-                        override fun log(message: String) =
-                            logger.d(tag = "HttpClient", message = { message })
-                    }
+                    this.logger =
+                        object : io.ktor.client.plugins.logging.Logger {
+                            override fun log(message: String) = logger.d(tag = "HttpClient", message = { message })
+                        }
                 }
             }
 
@@ -59,15 +59,14 @@ interface NetworkBindings {
         @SingleIn(AppScope::class)
         @IntoSet
         @ForScope(AppScope::class)
-        internal fun providesHttpClientClosingIntoUpdatable(
-            httpClient: Lazy<HttpClient>,
-        ): Updatable = object : Updatable {
-            override suspend fun update(): Nothing =
-                try {
-                    awaitCancellation()
-                } finally {
-                    httpClient.value.close()
-                }
-        }
+        internal fun providesHttpClientClosingIntoUpdatable(httpClient: Lazy<HttpClient>): Updatable =
+            object : Updatable {
+                override suspend fun update(): Nothing =
+                    try {
+                        awaitCancellation()
+                    } finally {
+                        httpClient.value.close()
+                    }
+            }
     }
 }

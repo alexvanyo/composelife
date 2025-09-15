@@ -53,8 +53,7 @@ fun Modifier.animateContentSize(
     animationSpec: FiniteAnimationSpec<IntSize> = spring(),
     alignment: Alignment = Alignment.TopStart,
     finishedListener: ((initialValue: IntSize, targetValue: IntSize) -> Unit)? = null,
-): Modifier =
-    this.clipToBounds() then SizeAnimationModifierElement(animationSpec, alignment, finishedListener)
+): Modifier = this.clipToBounds() then SizeAnimationModifierElement(animationSpec, alignment, finishedListener)
 
 private data class SizeAnimationModifierElement(
     val animationSpec: FiniteAnimationSpec<IntSize>,
@@ -104,10 +103,7 @@ private class SizeAnimationModifierNode(
             default
         }
 
-    data class AnimData(
-        val anim: Animatable<IntSize, AnimationVector2D>,
-        var startSize: IntSize,
-    )
+    data class AnimData(val anim: Animatable<IntSize, AnimationVector2D>, var startSize: IntSize)
 
     var animData: AnimData? by mutableStateOf(null)
 
@@ -119,29 +115,28 @@ private class SizeAnimationModifierNode(
     }
 
     @OptIn(ExperimentalComposeUiApi::class)
-    override fun MeasureScope.measure(
-        measurable: Measurable,
-        constraints: Constraints,
-    ): MeasureResult {
-        val placeable = if (isLookingAhead) {
-            lookaheadConstraints = constraints
-            measurable.measure(constraints)
-        } else {
-            // Measure with lookahead constraints when available, to avoid unnecessary relayout
-            // in child during the lookahead animation.
-            measurable.measure(targetConstraints(constraints))
-        }
-        val measuredSize = IntSize(placeable.width, placeable.height)
-        val (width, height) = if (isLookingAhead) {
-            lookaheadSize = measuredSize
-            measuredSize
-        } else {
-            animateTo(if (lookaheadSize.isValid) lookaheadSize else measuredSize).let {
-                // Constrain the measure result to incoming constraints, so that parent doesn't
-                // force center this layout.
-                constraints.constrain(it)
+    override fun MeasureScope.measure(measurable: Measurable, constraints: Constraints): MeasureResult {
+        val placeable =
+            if (isLookingAhead) {
+                lookaheadConstraints = constraints
+                measurable.measure(constraints)
+            } else {
+                // Measure with lookahead constraints when available, to avoid unnecessary relayout
+                // in child during the lookahead animation.
+                measurable.measure(targetConstraints(constraints))
             }
-        }
+        val measuredSize = IntSize(placeable.width, placeable.height)
+        val (width, height) =
+            if (isLookingAhead) {
+                lookaheadSize = measuredSize
+                measuredSize
+            } else {
+                animateTo(if (lookaheadSize.isValid) lookaheadSize else measuredSize).let {
+                    // Constrain the measure result to incoming constraints, so that parent doesn't
+                    // force center this layout.
+                    constraints.constrain(it)
+                }
+            }
         return layout(width, height) {
             placeable.place(
                 alignment.align(
@@ -164,21 +159,24 @@ private class SizeAnimationModifierNode(
          * different size.
          */
         val performSynchronousSnap =
-            oldData != null && animSpec is SnapSpec<*> && animSpec.delay == 0 &&
+            oldData != null &&
+                animSpec is SnapSpec<*> &&
+                animSpec.delay == 0 &&
                 (oldData.anim.isRunning || oldData.anim.targetValue != targetSize)
 
-        val newData = if (oldData == null || performSynchronousSnap) {
-            AnimData(
-                Animatable(
+        val newData =
+            if (oldData == null || performSynchronousSnap) {
+                AnimData(
+                    Animatable(
+                        targetSize,
+                        IntSize.VectorConverter,
+                        IntSize(1, 1),
+                    ),
                     targetSize,
-                    IntSize.VectorConverter,
-                    IntSize(1, 1),
-                ),
-                targetSize,
-            )
-        } else {
-            oldData
-        }
+                )
+            } else {
+                oldData
+            }
 
         /**
          * If the instance of data has changed, cancel the old data to ensure it is cleaned up
@@ -211,24 +209,17 @@ private class SizeAnimationModifierNode(
 }
 
 internal abstract class LayoutModifierNodeWithPassThroughIntrinsics :
-    LayoutModifierNode, Modifier.Node() {
-    override fun IntrinsicMeasureScope.minIntrinsicWidth(
-        measurable: IntrinsicMeasurable,
-        height: Int,
-    ) = measurable.minIntrinsicWidth(height)
+    Modifier.Node(),
+    LayoutModifierNode {
+    override fun IntrinsicMeasureScope.minIntrinsicWidth(measurable: IntrinsicMeasurable, height: Int) =
+        measurable.minIntrinsicWidth(height)
 
-    override fun IntrinsicMeasureScope.minIntrinsicHeight(
-        measurable: IntrinsicMeasurable,
-        width: Int,
-    ) = measurable.minIntrinsicHeight(width)
+    override fun IntrinsicMeasureScope.minIntrinsicHeight(measurable: IntrinsicMeasurable, width: Int) =
+        measurable.minIntrinsicHeight(width)
 
-    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-        measurable: IntrinsicMeasurable,
-        height: Int,
-    ) = measurable.maxIntrinsicWidth(height)
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(measurable: IntrinsicMeasurable, height: Int) =
+        measurable.maxIntrinsicWidth(height)
 
-    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
-        measurable: IntrinsicMeasurable,
-        width: Int,
-    ) = measurable.maxIntrinsicHeight(width)
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(measurable: IntrinsicMeasurable, width: Int) =
+        measurable.maxIntrinsicHeight(width)
 }

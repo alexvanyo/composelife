@@ -61,9 +61,10 @@ internal class CellStateRepositoryImpl(
     private val persistedDataPath by persistedDataPath
 
     override suspend fun getAutosavedCellState(): SaveableCellState? {
-        val cellState = withContext(dispatchers.IO) {
-            cellStateQueries.getMostRecentAutosavedCellState().awaitAsOneOrNull()
-        } ?: return null
+        val cellState =
+            withContext(dispatchers.IO) {
+                cellStateQueries.getMostRecentAutosavedCellState().awaitAsOneOrNull()
+            } ?: return null
         check(cellState.wasAutosaved)
         return convertCellStateToSaveableCellState(cellState)
     }
@@ -84,136 +85,148 @@ internal class CellStateRepositoryImpl(
 
     private suspend fun convertCellStateToSaveableCellState(
         cellState: com.alexvanyo.composelife.database.CellState,
-    ): SaveableCellState? = withContext(dispatchers.IO) {
-        val serializedCellStateFile = cellState.serializedCellStateFile
-        val format = CellStateFormat.fromFileExtension(cellState.formatExtension)
+    ): SaveableCellState? =
+        withContext(dispatchers.IO) {
+            val serializedCellStateFile = cellState.serializedCellStateFile
+            val format = CellStateFormat.fromFileExtension(cellState.formatExtension)
 
-        val deserializationResult = if (serializedCellStateFile == null) {
-            flexibleCellStateSerializer.deserializeToCellState(
-                format = format,
-                lines = checkNotNull(cellState.serializedCellState) {
-                    "No serialized cell state or saved file!"
-                }.lineSequence(),
-            )
-        } else {
+            val deserializationResult =
+                if (serializedCellStateFile == null) {
+                    flexibleCellStateSerializer.deserializeToCellState(
+                        format = format,
+                        lines =
+                        checkNotNull(cellState.serializedCellState) {
+                            "No serialized cell state or saved file!"
+                        }.lineSequence(),
+                    )
+                } else {
+                    val file = persistedDataPath / serializedCellStateFile
+                    readCellStateFromFile(
+                        fileSystem = fileSystem,
+                        dispatchers = dispatchers,
+                        serializer = flexibleCellStateSerializer,
+                        file = file,
+                        format = format,
+                    )
+                }
+            val cellStateMetadata =
+                CellStateMetadata(
+                    id = cellState.id,
+                    name = cellState.name,
+                    description = cellState.description,
+                    generation = cellState.generation,
+                    wasAutosaved = cellState.wasAutosaved,
+                    patternCollectionId = cellState.patternCollectionId,
+                )
+
+            when (deserializationResult) {
+                is DeserializationResult.Successful -> {
+                    SaveableCellState(
+                        cellState = deserializationResult.cellState,
+                        cellStateMetadata = cellStateMetadata,
+                    )
+                }
+
+                is DeserializationResult.Unsuccessful -> {
+                    null
+                }
+            }
+        }
+
+    override suspend fun autosaveCellState(saveableCellState: SaveableCellState): CellStateId =
+        withContext(dispatchers.IO) {
+            val serializedCellStateUniqueId = Uuid.random()
+            val serializedCellStateFile = autosavedCellStatesFolder.toPath() / "$serializedCellStateUniqueId.rle"
             val file = persistedDataPath / serializedCellStateFile
-            readCellStateFromFile(
+            writeCellStateToFile(
                 fileSystem = fileSystem,
                 dispatchers = dispatchers,
                 serializer = flexibleCellStateSerializer,
+                cellState = saveableCellState.cellState,
                 file = file,
-                format = format,
+                format = CellStateFormat.FixedFormat.RunLengthEncoding,
+            )
+
+            saveSaveableCellState(
+                saveableCellState = saveableCellState,
+                formatExtension = "rle",
+                serializedCellStateFile = serializedCellStateFile,
             )
         }
-        val cellStateMetadata = CellStateMetadata(
-            id = cellState.id,
-            name = cellState.name,
-            description = cellState.description,
-            generation = cellState.generation,
-            wasAutosaved = cellState.wasAutosaved,
-            patternCollectionId = cellState.patternCollectionId,
-        )
-
-        when (deserializationResult) {
-            is DeserializationResult.Successful -> SaveableCellState(
-                cellState = deserializationResult.cellState,
-                cellStateMetadata = cellStateMetadata,
-            )
-            is DeserializationResult.Unsuccessful -> null
-        }
-    }
-
-    override suspend fun autosaveCellState(
-        saveableCellState: SaveableCellState,
-    ): CellStateId = withContext(dispatchers.IO) {
-        val serializedCellStateUniqueId = Uuid.random()
-        val serializedCellStateFile = autosavedCellStatesFolder.toPath() / "$serializedCellStateUniqueId.rle"
-        val file = persistedDataPath / serializedCellStateFile
-        writeCellStateToFile(
-            fileSystem = fileSystem,
-            dispatchers = dispatchers,
-            serializer = flexibleCellStateSerializer,
-            cellState = saveableCellState.cellState,
-            file = file,
-            format = CellStateFormat.FixedFormat.RunLengthEncoding,
-        )
-
-        saveSaveableCellState(
-            saveableCellState = saveableCellState,
-            formatExtension = "rle",
-            serializedCellStateFile = serializedCellStateFile,
-        )
-    }
 
     private suspend fun saveSaveableCellState(
         saveableCellState: SaveableCellState,
         formatExtension: String,
         serializedCellStateFile: Path,
-    ): CellStateId = withContext(dispatchers.IO) {
-        cellStateQueries.transactionWithResult {
-            if (saveableCellState.cellStateMetadata.id == null) {
-                cellStateQueries.insertCellState(
-                    name = saveableCellState.cellStateMetadata.name,
-                    description = saveableCellState.cellStateMetadata.description,
-                    formatExtension = formatExtension,
-                    serializedCellState = null,
-                    serializedCellStateFile = serializedCellStateFile.toString(),
-                    generation = saveableCellState.cellStateMetadata.generation,
-                    wasAutosaved = true,
-                    patternCollectionId = null,
-                )
-                cellStateQueries.awaitLastInsertedId()
-            } else {
-                cellStateQueries.updateCellState(
-                    id = saveableCellState.cellStateMetadata.id,
-                    name = saveableCellState.cellStateMetadata.name,
-                    description = saveableCellState.cellStateMetadata.description,
-                    formatExtension = formatExtension,
-                    serializedCellState = null,
-                    serializedCellStateFile = serializedCellStateFile.toString(),
-                    generation = saveableCellState.cellStateMetadata.generation,
-                    wasAutosaved = true,
-                    patternCollectionId = null,
-                )
-                saveableCellState.cellStateMetadata.id
-            }
-        }
-    }
-
-    override suspend fun pruneUnusedCellStates(): Boolean =
-        pruneUnusedAutosavedCellStates()
-
-    private suspend fun pruneUnusedAutosavedCellStates(
-        maxAge: Duration = Duration.ZERO,
-    ) = withContext(dispatchers.IO) {
-        // Capture the timestamp to compare duration against
-        val pruningTimestamp = clock.now()
-        // Get the list of all current autosaved cell states and find their corresponding files
-        val currentAutosavedCellStates = cellStateQueries.getAutosavedCellStates().awaitAsList()
-            .mapNotNull { it.serializedCellStateFile }
-            .toSet()
-        fileSystem.listOrNull(persistedDataPath / autosavedCellStatesFolder)
-            .orEmpty()
-            .all { file ->
-                @Suppress("TooGenericExceptionCaught")
-                try {
-                    if (file.relativeTo(persistedDataPath).toString() !in currentAutosavedCellStates) {
-                        val lastModifiedTime = fileSystem
-                            .metadata(file)
-                            .lastModifiedAtMillis
-                            ?.let(Instant::fromEpochMilliseconds) ?: pruningTimestamp
-                        if (pruningTimestamp - lastModifiedTime > maxAge) {
-                            fileSystem.delete(file)
-                        }
-                    }
-                    true
-                } catch (exception: Exception) {
-                    logger.e(exception) { "Failed pruning unused cell state" }
-                    coroutineContext.ensureActive()
-                    false
+    ): CellStateId =
+        withContext(dispatchers.IO) {
+            cellStateQueries.transactionWithResult {
+                if (saveableCellState.cellStateMetadata.id == null) {
+                    cellStateQueries.insertCellState(
+                        name = saveableCellState.cellStateMetadata.name,
+                        description = saveableCellState.cellStateMetadata.description,
+                        formatExtension = formatExtension,
+                        serializedCellState = null,
+                        serializedCellStateFile = serializedCellStateFile.toString(),
+                        generation = saveableCellState.cellStateMetadata.generation,
+                        wasAutosaved = true,
+                        patternCollectionId = null,
+                    )
+                    cellStateQueries.awaitLastInsertedId()
+                } else {
+                    cellStateQueries.updateCellState(
+                        id = saveableCellState.cellStateMetadata.id,
+                        name = saveableCellState.cellStateMetadata.name,
+                        description = saveableCellState.cellStateMetadata.description,
+                        formatExtension = formatExtension,
+                        serializedCellState = null,
+                        serializedCellStateFile = serializedCellStateFile.toString(),
+                        generation = saveableCellState.cellStateMetadata.generation,
+                        wasAutosaved = true,
+                        patternCollectionId = null,
+                    )
+                    saveableCellState.cellStateMetadata.id
                 }
             }
-    }
+        }
+
+    override suspend fun pruneUnusedCellStates(): Boolean = pruneUnusedAutosavedCellStates()
+
+    private suspend fun pruneUnusedAutosavedCellStates(maxAge: Duration = Duration.ZERO) =
+        withContext(dispatchers.IO) {
+            // Capture the timestamp to compare duration against
+            val pruningTimestamp = clock.now()
+            // Get the list of all current autosaved cell states and find their corresponding files
+            val currentAutosavedCellStates =
+                cellStateQueries
+                    .getAutosavedCellStates()
+                    .awaitAsList()
+                    .mapNotNull { it.serializedCellStateFile }
+                    .toSet()
+            fileSystem
+                .listOrNull(persistedDataPath / autosavedCellStatesFolder)
+                .orEmpty()
+                .all { file ->
+                    @Suppress("TooGenericExceptionCaught")
+                    try {
+                        if (file.relativeTo(persistedDataPath).toString() !in currentAutosavedCellStates) {
+                            val lastModifiedTime =
+                                fileSystem
+                                    .metadata(file)
+                                    .lastModifiedAtMillis
+                                    ?.let(Instant::fromEpochMilliseconds) ?: pruningTimestamp
+                            if (pruningTimestamp - lastModifiedTime > maxAge) {
+                                fileSystem.delete(file)
+                            }
+                        }
+                        true
+                    } catch (exception: Exception) {
+                        logger.e(exception) { "Failed pruning unused cell state" }
+                        coroutineContext.ensureActive()
+                        false
+                    }
+                }
+        }
 }
 
 @Suppress("LongParameterList")
@@ -231,8 +244,7 @@ private suspend fun writeCellStateToFile(
             .serializeToString(
                 format = format,
                 cellState = cellState,
-            )
-            .forEachIndexed { index, line ->
+            ).forEachIndexed { index, line ->
                 if (index != 0) {
                     sink.writeUtf8("\n")
                 }
@@ -247,13 +259,14 @@ private suspend fun readCellStateFromFile(
     serializer: FlexibleCellStateSerializer,
     file: Path,
     format: CellStateFormat,
-): DeserializationResult = withContext(dispatchers.IO) {
-    fileSystem.source(file).buffer().use { source ->
-        serializer.deserializeToCellState(
-            format = format,
-            lines = generateSequence(source::readUtf8Line),
-        )
+): DeserializationResult =
+    withContext(dispatchers.IO) {
+        fileSystem.source(file).buffer().use { source ->
+            serializer.deserializeToCellState(
+                format = format,
+                lines = generateSequence(source::readUtf8Line),
+            )
+        }
     }
-}
 
 private const val autosavedCellStatesFolder = "AutosavedCellStates"

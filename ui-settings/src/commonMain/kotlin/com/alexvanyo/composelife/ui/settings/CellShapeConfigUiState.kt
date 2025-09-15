@@ -59,7 +59,6 @@ interface CellShapeConfigUiState {
 }
 
 sealed interface CurrentShapeConfigUiState {
-
     interface RoundRectangleConfigUi : CurrentShapeConfigUiState {
         val sizeFractionSessionValue: SessionValue<Float>
 
@@ -71,19 +70,19 @@ sealed interface CurrentShapeConfigUiState {
     }
 }
 
-context(ctx: CellShapeConfigUiCtx)
 @Composable
+context(ctx: CellShapeConfigUiCtx)
 fun rememberCellShapeConfigUiState(): CellShapeConfigUiState =
     rememberCellShapeConfigUiState(
         composeLifePreferences = ctx.composeLifePreferences,
         preferences = ctx.preferencesHolder.preferences,
     )
 
+@Composable
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,
-composeLifePreferences: ComposeLifePreferences,
+    composeLifePreferences: ComposeLifePreferences,
 )
-@Composable
 fun rememberCellShapeConfigUiState(): CellShapeConfigUiState =
     rememberCellShapeConfigUiState(
         composeLifePreferences = composeLifePreferences,
@@ -98,107 +97,113 @@ fun rememberCellShapeConfigUiState(
 ): CellShapeConfigUiState {
     val currentShapeType: CurrentShapeType = preferences.currentShapeType
     val coroutineScope = rememberCoroutineScope()
-    val roundRectangleSessionValueHolder = rememberAsyncSessionValueHolder(
-        upstreamSessionValue = preferences.roundRectangleSessionValue,
-        setUpstreamSessionValue = composeLifePreferences::setRoundRectangleConfig,
-    )
+    val roundRectangleSessionValueHolder =
+        rememberAsyncSessionValueHolder(
+            upstreamSessionValue = preferences.roundRectangleSessionValue,
+            setUpstreamSessionValue = composeLifePreferences::setRoundRectangleConfig,
+        )
 
-    val currentShapeConfigUiState = when (currentShapeType) {
-        is CurrentShapeType.RoundRectangle -> {
-            val localSessionId = roundRectangleSessionValueHolder.info.localSessionId
+    val currentShapeConfigUiState =
+        when (currentShapeType) {
+            is CurrentShapeType.RoundRectangle -> {
+                val localSessionId = roundRectangleSessionValueHolder.info.localSessionId
 
-            val initialSizeFraction = remember(localSessionId) {
-                roundRectangleSessionValueHolder.sessionValue.value.sizeFraction
-            }
-            val initialCornerFraction = remember(localSessionId) {
-                roundRectangleSessionValueHolder.sessionValue.value.cornerFraction
-            }
-            var sizeFraction by remember(localSessionId) {
-                mutableFloatStateOf(initialSizeFraction)
-            }
-            var cornerFraction by remember(localSessionId) {
-                mutableFloatStateOf(initialCornerFraction)
-            }
-
-            var sizeFractionSessionId by key(localSessionId) {
-                rememberSaveable(stateSaver = uuidSaver) {
-                    mutableStateOf(Uuid.random())
+                val initialSizeFraction =
+                    remember(localSessionId) {
+                        roundRectangleSessionValueHolder.sessionValue.value.sizeFraction
+                    }
+                val initialCornerFraction =
+                    remember(localSessionId) {
+                        roundRectangleSessionValueHolder.sessionValue.value.cornerFraction
+                    }
+                var sizeFraction by remember(localSessionId) {
+                    mutableFloatStateOf(initialSizeFraction)
                 }
-            }
-            var sizeFractionValueId by key(localSessionId) {
-                rememberSaveable(stateSaver = uuidSaver) {
-                    mutableStateOf(Uuid.random())
+                var cornerFraction by remember(localSessionId) {
+                    mutableFloatStateOf(initialCornerFraction)
                 }
-            }
-            var cornerFractionSessionId by key(localSessionId) {
-                rememberSaveable(stateSaver = uuidSaver) {
-                    mutableStateOf(Uuid.random())
+
+                var sizeFractionSessionId by key(localSessionId) {
+                    rememberSaveable(stateSaver = uuidSaver) {
+                        mutableStateOf(Uuid.random())
+                    }
                 }
-            }
-            var cornerFractionValueId by key(localSessionId) {
-                rememberSaveable(stateSaver = uuidSaver) {
-                    mutableStateOf(Uuid.random())
+                var sizeFractionValueId by key(localSessionId) {
+                    rememberSaveable(stateSaver = uuidSaver) {
+                        mutableStateOf(Uuid.random())
+                    }
                 }
-            }
-
-            object : CurrentShapeConfigUiState.RoundRectangleConfigUi {
-                override val sizeFractionSessionValue: SessionValue<Float>
-                    get() =
-                        SessionValue(
-                            sessionId = sizeFractionSessionId,
-                            valueId = sizeFractionValueId,
-                            value = sizeFraction,
-                        )
-
-                override val cornerFractionSessionValue: SessionValue<Float>
-                    get() =
-                        SessionValue(
-                            sessionId = cornerFractionSessionId,
-                            valueId = cornerFractionValueId,
-                            value = cornerFraction,
-                        )
-
-                override fun onSizeFractionSessionValueChange(
-                    expected: SessionValue<Float>,
-                    newValue: SessionValue<Float>,
-                ) {
-                    if (expected.sessionId == sizeFractionSessionId && expected.valueId == sizeFractionValueId) {
-                        sizeFractionSessionId = newValue.sessionId
-                        sizeFractionValueId = newValue.valueId
-                        sizeFraction = newValue.value
-                        updateRoundRectangleConfig()
+                var cornerFractionSessionId by key(localSessionId) {
+                    rememberSaveable(stateSaver = uuidSaver) {
+                        mutableStateOf(Uuid.random())
+                    }
+                }
+                var cornerFractionValueId by key(localSessionId) {
+                    rememberSaveable(stateSaver = uuidSaver) {
+                        mutableStateOf(Uuid.random())
                     }
                 }
 
-                override fun onCornerFractionSessionValueChange(
-                    expected: SessionValue<Float>,
-                    newValue: SessionValue<Float>,
-                ) {
-                    if (expected.sessionId == cornerFractionSessionId && expected.valueId == cornerFractionValueId) {
-                        cornerFractionSessionId = newValue.sessionId
-                        cornerFractionValueId = newValue.valueId
-                        cornerFraction = newValue.value
-                        updateRoundRectangleConfig()
-                    }
-                }
+                object : CurrentShapeConfigUiState.RoundRectangleConfigUi {
+                    override val sizeFractionSessionValue: SessionValue<Float>
+                        get() =
+                            SessionValue(
+                                sessionId = sizeFractionSessionId,
+                                valueId = sizeFractionValueId,
+                                value = sizeFraction,
+                            )
 
-                private fun updateRoundRectangleConfig() {
-                    roundRectangleSessionValueHolder.setValue(
-                        CurrentShape.RoundRectangle(
-                            sizeFraction,
-                            cornerFraction,
-                        ),
-                    )
+                    override val cornerFractionSessionValue: SessionValue<Float>
+                        get() =
+                            SessionValue(
+                                sessionId = cornerFractionSessionId,
+                                valueId = cornerFractionValueId,
+                                value = cornerFraction,
+                            )
+
+                    override fun onSizeFractionSessionValueChange(
+                        expected: SessionValue<Float>,
+                        newValue: SessionValue<Float>,
+                    ) {
+                        if (expected.sessionId == sizeFractionSessionId && expected.valueId == sizeFractionValueId) {
+                            sizeFractionSessionId = newValue.sessionId
+                            sizeFractionValueId = newValue.valueId
+                            sizeFraction = newValue.value
+                            updateRoundRectangleConfig()
+                        }
+                    }
+
+                    override fun onCornerFractionSessionValueChange(
+                        expected: SessionValue<Float>,
+                        newValue: SessionValue<Float>,
+                    ) {
+                        if (expected.sessionId == cornerFractionSessionId &&
+                            expected.valueId == cornerFractionValueId) {
+                            cornerFractionSessionId = newValue.sessionId
+                            cornerFractionValueId = newValue.valueId
+                            cornerFraction = newValue.value
+                            updateRoundRectangleConfig()
+                        }
+                    }
+
+                    private fun updateRoundRectangleConfig() {
+                        roundRectangleSessionValueHolder.setValue(
+                            CurrentShape.RoundRectangle(
+                                sizeFraction,
+                                cornerFraction,
+                            ),
+                        )
+                    }
                 }
             }
         }
-    }
 
     return object : CellShapeConfigUiState {
         override val currentShapeDropdownOption: ShapeDropdownOption
-            get() = when (currentShapeType as CurrentShapeType) {
-                is CurrentShapeType.RoundRectangle -> ShapeDropdownOption.RoundRectangle
-            }
+            get() =
+                when (currentShapeType as CurrentShapeType) {
+                    is CurrentShapeType.RoundRectangle -> ShapeDropdownOption.RoundRectangle
+                }
 
         override val currentShapeConfigUiState: CurrentShapeConfigUiState
             get() = currentShapeConfigUiState

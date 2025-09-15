@@ -32,9 +32,10 @@ interface TestPreferencesBindingsTestsCtx : ComposeLifePreferencesProvider
 internal val ApplicationGraph.testPreferencesBindingsTestsCtx: TestPreferencesBindingsTestsCtx get() =
     this as TestPreferencesBindingsTestsCtx
 
-class TestPreferencesBindingsTests : BaseInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
+class TestPreferencesBindingsTests :
+    BaseInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
     private val ctx = applicationGraph.testPreferencesBindingsTestsCtx
 
     @Test

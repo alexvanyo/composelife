@@ -64,18 +64,18 @@ class PatternCollectionsSynchronizationPeriodUiCtx(
     @Suppress("ComposableNaming")
     @Deprecated(
         "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
+        replaceWith =
+        ReplaceWith(
             "PatternCollectionsSynchronizationPeriodUi(modifier)",
         ),
     )
     @Composable
-    operator fun invoke(
-        modifier: Modifier = Modifier,
-    ) = lambda(preferencesHolder, composeLifePreferences, modifier)
+    operator fun invoke(modifier: Modifier = Modifier) = lambda(preferencesHolder, composeLifePreferences, modifier)
 
     companion object {
         private val lambda:
-            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences) (
+            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences)
+            (
                 modifier: Modifier,
             ) -> Unit =
             { modifier ->
@@ -84,22 +84,18 @@ class PatternCollectionsSynchronizationPeriodUiCtx(
     }
 }
 
-context(ctx: PatternCollectionsSynchronizationPeriodUiCtx)
 @Suppress("DEPRECATION")
 @Composable
-fun PatternCollectionsSynchronizationPeriodUi(
-    modifier: Modifier = Modifier,
-) = ctx(modifier)
+context(ctx: PatternCollectionsSynchronizationPeriodUiCtx)
+fun PatternCollectionsSynchronizationPeriodUi(modifier: Modifier = Modifier) = ctx(modifier)
 // endregion templated-ctx
 
+@Composable
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,
-composeLifePreferences: ComposeLifePreferences,
+    composeLifePreferences: ComposeLifePreferences,
 )
-@Composable
-private fun PatternCollectionsSynchronizationPeriodUi(
-    modifier: Modifier = Modifier,
-) {
+private fun PatternCollectionsSynchronizationPeriodUi(modifier: Modifier = Modifier) {
     PatternCollectionsSynchronizationPeriodUi(
         patternCollectionsSynchronizationPeriodSessionValue =
         preferencesHolder.preferences.patternCollectionsSynchronizationPeriodSessionValue,
@@ -120,10 +116,11 @@ fun PatternCollectionsSynchronizationPeriodUi(
 ) {
     val resolver = parameterizedStringResolver()
 
-    val patternCollectionsSynchronizationPeriodSessionValueHolder = rememberAsyncSessionValueHolder(
-        upstreamSessionValue = patternCollectionsSynchronizationPeriodSessionValue,
-        setUpstreamSessionValue = setPatternCollectionsSynchronizationPeriodSessionValue,
-    )
+    val patternCollectionsSynchronizationPeriodSessionValueHolder =
+        rememberAsyncSessionValueHolder(
+            upstreamSessionValue = patternCollectionsSynchronizationPeriodSessionValue,
+            setUpstreamSessionValue = setPatternCollectionsSynchronizationPeriodSessionValue,
+        )
 
     val localSessionId = patternCollectionsSynchronizationPeriodSessionValueHolder.info.localSessionId
 
@@ -142,9 +139,11 @@ fun PatternCollectionsSynchronizationPeriodUi(
     }
 
     EditableSlider(
-        labelAndValueText = { parameterizedStringResource(
-            Strings.PatternCollectionsSynchronizationPeriodLabelAndValue(it),
-        ) },
+        labelAndValueText = {
+            parameterizedStringResource(
+                Strings.PatternCollectionsSynchronizationPeriodLabelAndValue(it),
+            )
+        },
         valueText = { resolver(Strings.PatternCollectionsSynchronizationPeriodValue(it)) },
         labelText = parameterizedStringResource(Strings.PatternCollectionsSynchronizationPeriod),
         textToValue = { it.toDoubleOrNull() },
@@ -166,5 +165,6 @@ fun PatternCollectionsSynchronizationPeriodUi(
 
 private object PatternCollectionsSynchronizationPeriodBijection : SliderBijection<Double> {
     override fun valueToSlider(value: Double): Float = log2(value).toFloat()
+
     override fun sliderToValue(sliderValue: Float): Double = 2.0.pow(sliderValue.toDouble())
 }

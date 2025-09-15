@@ -43,9 +43,7 @@ fun loadShader(type: Int, shaderCode: String): Int =
  * [GLES20.GL_TEXTURE31].
  */
 @Suppress("CyclomaticComplexMethod")
-fun getTextureReference(
-    @IntRange(from = 0, to = 31) index: Int,
-): Int =
+fun getTextureReference(@IntRange(from = 0, to = 31) index: Int): Int =
     when (index) {
         0 -> GLES20.GL_TEXTURE0
         1 -> GLES20.GL_TEXTURE1

@@ -38,23 +38,25 @@ import kotlin.uuid.Uuid
 
 @Suppress("LargeClass", "TooManyFunctions")
 class DefaultComposeLifePreferencesTests {
-
     private val testDispatcher = StandardTestDispatcher()
 
     private fun runPreferencesTest(testBody: suspend TestScope.(ComposeLifePreferences) -> Unit) =
         runTest(testDispatcher) {
-            val diskPreferencesDataStore = DiskPreferencesDataStore(
-                fileSystem = FakeFileSystem(),
-                path = lazy { "/preferences.pb".toPath() },
-                dispatchers = TestComposeLifeDispatchers(
-                    generalTestDispatcher = testDispatcher,
-                    cellTickerTestDispatcher = testDispatcher,
-                ),
-            )
-            val composelifePreferences = DefaultComposeLifePreferences(
-                preferencesDataStore = diskPreferencesDataStore,
-                logger = NoOpLogger,
-            )
+            val diskPreferencesDataStore =
+                DiskPreferencesDataStore(
+                    fileSystem = FakeFileSystem(),
+                    path = lazy { "/preferences.pb".toPath() },
+                    dispatchers =
+                    TestComposeLifeDispatchers(
+                        generalTestDispatcher = testDispatcher,
+                        cellTickerTestDispatcher = testDispatcher,
+                    ),
+                )
+            val composelifePreferences =
+                DefaultComposeLifePreferences(
+                    preferencesDataStore = diskPreferencesDataStore,
+                    logger = NoOpLogger,
+                )
             backgroundScope.launch {
                 diskPreferencesDataStore.update()
             }
@@ -65,104 +67,113 @@ class DefaultComposeLifePreferencesTests {
         }
 
     @Test
-    fun default_loaded_preferences_is_correct() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.loadedPreferencesState)
+    fun default_loaded_preferences_is_correct() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.loadedPreferencesState)
 
-        delay(1.milliseconds)
+            delay(1.milliseconds)
 
-        assertEquals(
-            ResourceState.Success(LoadedComposeLifePreferences.Defaults),
-            composelifePreferences.loadedPreferencesState,
-        )
-    }
-
-    @Test
-    fun default_algorithm_choice_is_hashlife() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.algorithmChoiceState)
-
-        delay(1.milliseconds)
-
-        assertEquals(
-            ResourceState.Success(AlgorithmType.HashLifeAlgorithm),
-            composelifePreferences.algorithmChoiceState,
-        )
-    }
+            assertEquals(
+                ResourceState.Success(LoadedComposeLifePreferences.Defaults),
+                composelifePreferences.loadedPreferencesState,
+            )
+        }
 
     @Test
-    fun setting_algorithm_choice_updates_value() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.algorithmChoiceState)
+    fun default_algorithm_choice_is_hashlife() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.algorithmChoiceState)
 
-        delay(1.milliseconds)
+            delay(1.milliseconds)
 
-        assertEquals(
-            ResourceState.Success(AlgorithmType.HashLifeAlgorithm),
-            composelifePreferences.algorithmChoiceState,
-        )
-
-        composelifePreferences.setAlgorithmChoice(AlgorithmType.NaiveAlgorithm)
-        delay(1.milliseconds)
-
-        assertEquals(ResourceState.Success(AlgorithmType.NaiveAlgorithm), composelifePreferences.algorithmChoiceState)
-
-        val loadedPreferencesState = composelifePreferences.loadedPreferencesState
-        assertTrue(loadedPreferencesState.isSuccess())
-        assertEquals(
-            AlgorithmType.NaiveAlgorithm,
-            loadedPreferencesState.value.algorithmChoice,
-        )
-    }
+            assertEquals(
+                ResourceState.Success(AlgorithmType.HashLifeAlgorithm),
+                composelifePreferences.algorithmChoiceState,
+            )
+        }
 
     @Test
-    fun default_current_shape_type_is_round_rectangle() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.currentShapeTypeState)
+    fun setting_algorithm_choice_updates_value() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.algorithmChoiceState)
 
-        delay(1.milliseconds)
+            delay(1.milliseconds)
 
-        assertEquals(
-            ResourceState.Success(CurrentShapeType.RoundRectangle),
-            composelifePreferences.currentShapeTypeState,
-        )
-    }
+            assertEquals(
+                ResourceState.Success(AlgorithmType.HashLifeAlgorithm),
+                composelifePreferences.algorithmChoiceState,
+            )
+
+            composelifePreferences.setAlgorithmChoice(AlgorithmType.NaiveAlgorithm)
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(AlgorithmType.NaiveAlgorithm),
+                composelifePreferences.algorithmChoiceState,
+            )
+
+            val loadedPreferencesState = composelifePreferences.loadedPreferencesState
+            assertTrue(loadedPreferencesState.isSuccess())
+            assertEquals(
+                AlgorithmType.NaiveAlgorithm,
+                loadedPreferencesState.value.algorithmChoice,
+            )
+        }
 
     @Test
-    fun default_current_shape_is_round_rectangle() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.currentShapeState)
+    fun default_current_shape_type_is_round_rectangle() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.currentShapeTypeState)
 
-        delay(1.milliseconds)
+            delay(1.milliseconds)
 
-        assertEquals(
-            ResourceState.Success(
+            assertEquals(
+                ResourceState.Success(CurrentShapeType.RoundRectangle),
+                composelifePreferences.currentShapeTypeState,
+            )
+        }
+
+    @Test
+    fun default_current_shape_is_round_rectangle() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.currentShapeState)
+
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(
+                    CurrentShape.RoundRectangle(
+                        sizeFraction = 1f,
+                        cornerFraction = 0f,
+                    ),
+                ),
+                composelifePreferences.currentShapeState,
+            )
+        }
+
+    @Test
+    fun default_round_rectangle_session_state_is_correct() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.roundRectangleSessionState)
+
+            delay(1.milliseconds)
+
+            val roundRectangleSessionState = composelifePreferences.roundRectangleSessionState
+
+            assertIs<ResourceState.Success<SessionValue<CurrentShape.RoundRectangle>>>(roundRectangleSessionState)
+
+            val roundRectangleSessionValue = roundRectangleSessionState.value
+
+            assertNotNull(roundRectangleSessionValue.sessionId)
+            assertNotNull(roundRectangleSessionValue.valueId)
+            assertEquals(
                 CurrentShape.RoundRectangle(
                     sizeFraction = 1f,
                     cornerFraction = 0f,
                 ),
-            ),
-            composelifePreferences.currentShapeState,
-        )
-    }
-
-    @Test
-    fun default_round_rectangle_session_state_is_correct() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.roundRectangleSessionState)
-
-        delay(1.milliseconds)
-
-        val roundRectangleSessionState = composelifePreferences.roundRectangleSessionState
-
-        assertIs<ResourceState.Success<SessionValue<CurrentShape.RoundRectangle>>>(roundRectangleSessionState)
-
-        val roundRectangleSessionValue = roundRectangleSessionState.value
-
-        assertNotNull(roundRectangleSessionValue.sessionId)
-        assertNotNull(roundRectangleSessionValue.valueId)
-        assertEquals(
-            CurrentShape.RoundRectangle(
-                sizeFraction = 1f,
-                cornerFraction = 0f,
-            ),
-            roundRectangleSessionValue.value,
-        )
-    }
+                roundRectangleSessionValue.value,
+            )
+        }
 
     @Test
     fun setting_round_rectangle_config_with_null_old_session_id_updates_value() =
@@ -186,7 +197,8 @@ class DefaultComposeLifePreferencesTests {
 
             composelifePreferences.setRoundRectangleConfig(
                 expected = null,
-                newValue = SessionValue(
+                newValue =
+                SessionValue(
                     newSessionId,
                     newValueId,
                     CurrentShape.RoundRectangle(
@@ -213,7 +225,8 @@ class DefaultComposeLifePreferencesTests {
                 SessionValue(
                     sessionId = newSessionId,
                     valueId = newValueId,
-                    value = CurrentShape.RoundRectangle(
+                    value =
+                    CurrentShape.RoundRectangle(
                         sizeFraction = 0.8f,
                         cornerFraction = 0.25f,
                     ),
@@ -230,657 +243,684 @@ class DefaultComposeLifePreferencesTests {
         }
 
     @Test
-    fun default_dark_theme_config_is_follow_system() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.darkThemeConfigState)
+    fun default_dark_theme_config_is_follow_system() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.darkThemeConfigState)
 
-        delay(1.milliseconds)
+            delay(1.milliseconds)
 
-        assertEquals(
-            ResourceState.Success(DarkThemeConfig.FollowSystem),
-            composelifePreferences.darkThemeConfigState,
-        )
-    }
-
-    @Test
-    fun setting_dark_theme_config_updates_value() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.darkThemeConfigState)
-
-        delay(1.milliseconds)
-
-        assertEquals(
-            ResourceState.Success(DarkThemeConfig.FollowSystem),
-            composelifePreferences.darkThemeConfigState,
-        )
-
-        composelifePreferences.setDarkThemeConfig(DarkThemeConfig.Light)
-        delay(1.milliseconds)
-
-        assertEquals(
-            ResourceState.Success(DarkThemeConfig.Light),
-            composelifePreferences.darkThemeConfigState,
-        )
-
-        val loadedPreferencesState = composelifePreferences.loadedPreferencesState
-        assertTrue(loadedPreferencesState.isSuccess())
-        assertEquals(
-            DarkThemeConfig.Light,
-            loadedPreferencesState.value.darkThemeConfig,
-        )
-    }
+            assertEquals(
+                ResourceState.Success(DarkThemeConfig.FollowSystem),
+                composelifePreferences.darkThemeConfigState,
+            )
+        }
 
     @Test
-    fun default_quick_access_settings_is_empty() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.quickAccessSettingsState)
+    fun setting_dark_theme_config_updates_value() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.darkThemeConfigState)
 
-        delay(1.milliseconds)
+            delay(1.milliseconds)
 
-        assertEquals(
-            ResourceState.Success(emptySet()),
-            composelifePreferences.quickAccessSettingsState,
-        )
-    }
+            assertEquals(
+                ResourceState.Success(DarkThemeConfig.FollowSystem),
+                composelifePreferences.darkThemeConfigState,
+            )
 
-    @Test
-    fun adding_quick_access_setting_updates_value() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.quickAccessSettingsState)
+            composelifePreferences.setDarkThemeConfig(DarkThemeConfig.Light)
+            delay(1.milliseconds)
 
-        delay(1.milliseconds)
+            assertEquals(
+                ResourceState.Success(DarkThemeConfig.Light),
+                composelifePreferences.darkThemeConfigState,
+            )
 
-        assertEquals(
-            ResourceState.Success(emptySet()),
-            composelifePreferences.quickAccessSettingsState,
-        )
-
-        composelifePreferences.addQuickAccessSetting(
-            QuickAccessSetting.DarkThemeConfig,
-        )
-        delay(1.milliseconds)
-
-        assertEquals(
-            ResourceState.Success(setOf(QuickAccessSetting.DarkThemeConfig)),
-            composelifePreferences.quickAccessSettingsState,
-        )
-
-        val loadedPreferencesState = composelifePreferences.loadedPreferencesState
-        assertTrue(loadedPreferencesState.isSuccess())
-        assertEquals(
-            setOf(QuickAccessSetting.DarkThemeConfig),
-            loadedPreferencesState.value.quickAccessSettings,
-        )
-    }
+            val loadedPreferencesState = composelifePreferences.loadedPreferencesState
+            assertTrue(loadedPreferencesState.isSuccess())
+            assertEquals(
+                DarkThemeConfig.Light,
+                loadedPreferencesState.value.darkThemeConfig,
+            )
+        }
 
     @Test
-    fun adding_multiple_quick_access_settings_updates_value() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.quickAccessSettingsState)
+    fun default_quick_access_settings_is_empty() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.quickAccessSettingsState)
 
-        delay(1.milliseconds)
+            delay(1.milliseconds)
 
-        assertEquals(
-            ResourceState.Success(emptySet()),
-            composelifePreferences.quickAccessSettingsState,
-        )
+            assertEquals(
+                ResourceState.Success(emptySet()),
+                composelifePreferences.quickAccessSettingsState,
+            )
+        }
 
-        composelifePreferences.addQuickAccessSetting(
-            QuickAccessSetting.DarkThemeConfig,
-        )
-        composelifePreferences.addQuickAccessSetting(
-            QuickAccessSetting.AlgorithmImplementation,
-        )
-        delay(1.milliseconds)
+    @Test
+    fun adding_quick_access_setting_updates_value() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.quickAccessSettingsState)
 
-        assertEquals(
-            ResourceState.Success(
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(emptySet()),
+                composelifePreferences.quickAccessSettingsState,
+            )
+
+            composelifePreferences.addQuickAccessSetting(
+                QuickAccessSetting.DarkThemeConfig,
+            )
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(setOf(QuickAccessSetting.DarkThemeConfig)),
+                composelifePreferences.quickAccessSettingsState,
+            )
+
+            val loadedPreferencesState = composelifePreferences.loadedPreferencesState
+            assertTrue(loadedPreferencesState.isSuccess())
+            assertEquals(
+                setOf(QuickAccessSetting.DarkThemeConfig),
+                loadedPreferencesState.value.quickAccessSettings,
+            )
+        }
+
+    @Test
+    fun adding_multiple_quick_access_settings_updates_value() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.quickAccessSettingsState)
+
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(emptySet()),
+                composelifePreferences.quickAccessSettingsState,
+            )
+
+            composelifePreferences.addQuickAccessSetting(
+                QuickAccessSetting.DarkThemeConfig,
+            )
+            composelifePreferences.addQuickAccessSetting(
+                QuickAccessSetting.AlgorithmImplementation,
+            )
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(
+                    setOf(
+                        QuickAccessSetting.DarkThemeConfig,
+                        QuickAccessSetting.AlgorithmImplementation,
+                    ),
+                ),
+                composelifePreferences.quickAccessSettingsState,
+            )
+
+            val loadedPreferencesState = composelifePreferences.loadedPreferencesState
+            assertTrue(loadedPreferencesState.isSuccess())
+            assertEquals(
                 setOf(
                     QuickAccessSetting.DarkThemeConfig,
                     QuickAccessSetting.AlgorithmImplementation,
                 ),
-            ),
-            composelifePreferences.quickAccessSettingsState,
-        )
-
-        val loadedPreferencesState = composelifePreferences.loadedPreferencesState
-        assertTrue(loadedPreferencesState.isSuccess())
-        assertEquals(
-            setOf(
-                QuickAccessSetting.DarkThemeConfig,
-                QuickAccessSetting.AlgorithmImplementation,
-            ),
-            loadedPreferencesState.value.quickAccessSettings,
-        )
-    }
+                loadedPreferencesState.value.quickAccessSettings,
+            )
+        }
 
     @Test
-    fun adding_all_quick_access_settings_updates_value() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.quickAccessSettingsState)
+    fun adding_all_quick_access_settings_updates_value() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.quickAccessSettingsState)
 
-        delay(1.milliseconds)
+            delay(1.milliseconds)
 
-        assertEquals(
-            ResourceState.Success(emptySet()),
-            composelifePreferences.quickAccessSettingsState,
-        )
+            assertEquals(
+                ResourceState.Success(emptySet()),
+                composelifePreferences.quickAccessSettingsState,
+            )
 
-        composelifePreferences.addQuickAccessSetting(
-            QuickAccessSetting.DarkThemeConfig,
-        )
-        delay(1.milliseconds)
-        composelifePreferences.addQuickAccessSetting(
-            QuickAccessSetting.AlgorithmImplementation,
-        )
-        delay(1.milliseconds)
-        composelifePreferences.addQuickAccessSetting(
-            QuickAccessSetting.CellShapeConfig,
-        )
-        delay(1.milliseconds)
+            composelifePreferences.addQuickAccessSetting(
+                QuickAccessSetting.DarkThemeConfig,
+            )
+            delay(1.milliseconds)
+            composelifePreferences.addQuickAccessSetting(
+                QuickAccessSetting.AlgorithmImplementation,
+            )
+            delay(1.milliseconds)
+            composelifePreferences.addQuickAccessSetting(
+                QuickAccessSetting.CellShapeConfig,
+            )
+            delay(1.milliseconds)
 
-        assertEquals(
-            ResourceState.Success(
+            assertEquals(
+                ResourceState.Success(
+                    setOf(
+                        QuickAccessSetting.DarkThemeConfig,
+                        QuickAccessSetting.AlgorithmImplementation,
+                        QuickAccessSetting.CellShapeConfig,
+                    ),
+                ),
+                composelifePreferences.quickAccessSettingsState,
+            )
+
+            val loadedPreferencesState = composelifePreferences.loadedPreferencesState
+            assertTrue(loadedPreferencesState.isSuccess())
+            assertEquals(
                 setOf(
                     QuickAccessSetting.DarkThemeConfig,
                     QuickAccessSetting.AlgorithmImplementation,
                     QuickAccessSetting.CellShapeConfig,
                 ),
-            ),
-            composelifePreferences.quickAccessSettingsState,
-        )
+                loadedPreferencesState.value.quickAccessSettings,
+            )
+        }
 
-        val loadedPreferencesState = composelifePreferences.loadedPreferencesState
-        assertTrue(loadedPreferencesState.isSuccess())
-        assertEquals(
-            setOf(
+    @Test
+    fun adding_quick_access_setting_multiple_times_updates_value() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.quickAccessSettingsState)
+
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(emptySet()),
+                composelifePreferences.quickAccessSettingsState,
+            )
+
+            composelifePreferences.addQuickAccessSetting(
                 QuickAccessSetting.DarkThemeConfig,
+            )
+            delay(1.milliseconds)
+            composelifePreferences.addQuickAccessSetting(
+                QuickAccessSetting.DarkThemeConfig,
+            )
+            delay(1.milliseconds)
+            composelifePreferences.addQuickAccessSetting(
+                QuickAccessSetting.DarkThemeConfig,
+            )
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(setOf(QuickAccessSetting.DarkThemeConfig)),
+                composelifePreferences.quickAccessSettingsState,
+            )
+
+            val loadedPreferencesState = composelifePreferences.loadedPreferencesState
+            assertTrue(loadedPreferencesState.isSuccess())
+            assertEquals(
+                setOf(QuickAccessSetting.DarkThemeConfig),
+                loadedPreferencesState.value.quickAccessSettings,
+            )
+        }
+
+    @Test
+    fun removing_quick_access_setting_multiple_times_updates_value() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.quickAccessSettingsState)
+
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(emptySet()),
+                composelifePreferences.quickAccessSettingsState,
+            )
+
+            composelifePreferences.addQuickAccessSetting(
+                QuickAccessSetting.DarkThemeConfig,
+            )
+            delay(1.milliseconds)
+            composelifePreferences.addQuickAccessSetting(
+                QuickAccessSetting.DarkThemeConfig,
+            )
+            delay(1.milliseconds)
+            composelifePreferences.addQuickAccessSetting(
+                QuickAccessSetting.DarkThemeConfig,
+            )
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(setOf(QuickAccessSetting.DarkThemeConfig)),
+                composelifePreferences.quickAccessSettingsState,
+            )
+
+            composelifePreferences.removeQuickAccessSetting(
+                QuickAccessSetting.DarkThemeConfig,
+            )
+            delay(1.milliseconds)
+            composelifePreferences.removeQuickAccessSetting(
+                QuickAccessSetting.DarkThemeConfig,
+            )
+            delay(1.milliseconds)
+            composelifePreferences.removeQuickAccessSetting(
+                QuickAccessSetting.DarkThemeConfig,
+            )
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(emptySet()),
+                composelifePreferences.quickAccessSettingsState,
+            )
+
+            val loadedPreferencesState = composelifePreferences.loadedPreferencesState
+            assertTrue(loadedPreferencesState.isSuccess())
+            assertEquals(
+                emptySet(),
+                loadedPreferencesState.value.quickAccessSettings,
+            )
+        }
+
+    @Test
+    fun adding_and_removing_quick_access_settings_updates_value() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.quickAccessSettingsState)
+
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(emptySet()),
+                composelifePreferences.quickAccessSettingsState,
+            )
+
+            composelifePreferences.addQuickAccessSetting(
+                QuickAccessSetting.DarkThemeConfig,
+            )
+            delay(1.milliseconds)
+            composelifePreferences.addQuickAccessSetting(
                 QuickAccessSetting.AlgorithmImplementation,
-                QuickAccessSetting.CellShapeConfig,
-            ),
-            loadedPreferencesState.value.quickAccessSettings,
-        )
-    }
+            )
+            delay(1.milliseconds)
 
-    @Test
-    fun adding_quick_access_setting_multiple_times_updates_value() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.quickAccessSettingsState)
-
-        delay(1.milliseconds)
-
-        assertEquals(
-            ResourceState.Success(emptySet()),
-            composelifePreferences.quickAccessSettingsState,
-        )
-
-        composelifePreferences.addQuickAccessSetting(
-            QuickAccessSetting.DarkThemeConfig,
-        )
-        delay(1.milliseconds)
-        composelifePreferences.addQuickAccessSetting(
-            QuickAccessSetting.DarkThemeConfig,
-        )
-        delay(1.milliseconds)
-        composelifePreferences.addQuickAccessSetting(
-            QuickAccessSetting.DarkThemeConfig,
-        )
-        delay(1.milliseconds)
-
-        assertEquals(
-            ResourceState.Success(setOf(QuickAccessSetting.DarkThemeConfig)),
-            composelifePreferences.quickAccessSettingsState,
-        )
-
-        val loadedPreferencesState = composelifePreferences.loadedPreferencesState
-        assertTrue(loadedPreferencesState.isSuccess())
-        assertEquals(
-            setOf(QuickAccessSetting.DarkThemeConfig),
-            loadedPreferencesState.value.quickAccessSettings,
-        )
-    }
-
-    @Test
-    fun removing_quick_access_setting_multiple_times_updates_value() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.quickAccessSettingsState)
-
-        delay(1.milliseconds)
-
-        assertEquals(
-            ResourceState.Success(emptySet()),
-            composelifePreferences.quickAccessSettingsState,
-        )
-
-        composelifePreferences.addQuickAccessSetting(
-            QuickAccessSetting.DarkThemeConfig,
-        )
-        delay(1.milliseconds)
-        composelifePreferences.addQuickAccessSetting(
-            QuickAccessSetting.DarkThemeConfig,
-        )
-        delay(1.milliseconds)
-        composelifePreferences.addQuickAccessSetting(
-            QuickAccessSetting.DarkThemeConfig,
-        )
-        delay(1.milliseconds)
-
-        assertEquals(
-            ResourceState.Success(setOf(QuickAccessSetting.DarkThemeConfig)),
-            composelifePreferences.quickAccessSettingsState,
-        )
-
-        composelifePreferences.removeQuickAccessSetting(
-            QuickAccessSetting.DarkThemeConfig,
-        )
-        delay(1.milliseconds)
-        composelifePreferences.removeQuickAccessSetting(
-            QuickAccessSetting.DarkThemeConfig,
-        )
-        delay(1.milliseconds)
-        composelifePreferences.removeQuickAccessSetting(
-            QuickAccessSetting.DarkThemeConfig,
-        )
-        delay(1.milliseconds)
-
-        assertEquals(
-            ResourceState.Success(emptySet()),
-            composelifePreferences.quickAccessSettingsState,
-        )
-
-        val loadedPreferencesState = composelifePreferences.loadedPreferencesState
-        assertTrue(loadedPreferencesState.isSuccess())
-        assertEquals(
-            emptySet(),
-            loadedPreferencesState.value.quickAccessSettings,
-        )
-    }
-
-    @Test
-    fun adding_and_removing_quick_access_settings_updates_value() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.quickAccessSettingsState)
-
-        delay(1.milliseconds)
-
-        assertEquals(
-            ResourceState.Success(emptySet()),
-            composelifePreferences.quickAccessSettingsState,
-        )
-
-        composelifePreferences.addQuickAccessSetting(
-            QuickAccessSetting.DarkThemeConfig,
-        )
-        delay(1.milliseconds)
-        composelifePreferences.addQuickAccessSetting(
-            QuickAccessSetting.AlgorithmImplementation,
-        )
-        delay(1.milliseconds)
-
-        assertEquals(
-            ResourceState.Success(
-                setOf(
-                    QuickAccessSetting.DarkThemeConfig,
-                    QuickAccessSetting.AlgorithmImplementation,
+            assertEquals(
+                ResourceState.Success(
+                    setOf(
+                        QuickAccessSetting.DarkThemeConfig,
+                        QuickAccessSetting.AlgorithmImplementation,
+                    ),
                 ),
-            ),
-            composelifePreferences.quickAccessSettingsState,
-        )
+                composelifePreferences.quickAccessSettingsState,
+            )
 
-        composelifePreferences.removeQuickAccessSetting(
-            QuickAccessSetting.DarkThemeConfig,
-        )
-        delay(1.milliseconds)
+            composelifePreferences.removeQuickAccessSetting(
+                QuickAccessSetting.DarkThemeConfig,
+            )
+            delay(1.milliseconds)
 
-        assertEquals(
-            ResourceState.Success(setOf(QuickAccessSetting.AlgorithmImplementation)),
-            composelifePreferences.quickAccessSettingsState,
-        )
+            assertEquals(
+                ResourceState.Success(setOf(QuickAccessSetting.AlgorithmImplementation)),
+                composelifePreferences.quickAccessSettingsState,
+            )
 
-        val loadedPreferencesState = composelifePreferences.loadedPreferencesState
-        assertTrue(loadedPreferencesState.isSuccess())
-        assertEquals(
-            setOf(QuickAccessSetting.AlgorithmImplementation),
-            loadedPreferencesState.value.quickAccessSettings,
-        )
-    }
-
-    @Test
-    fun default_disabled_agsl_is_disabled() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.disableAGSLState)
-
-        delay(1.milliseconds)
-
-        assertEquals(
-            ResourceState.Success(false),
-            composelifePreferences.disableAGSLState,
-        )
-    }
+            val loadedPreferencesState = composelifePreferences.loadedPreferencesState
+            assertTrue(loadedPreferencesState.isSuccess())
+            assertEquals(
+                setOf(QuickAccessSetting.AlgorithmImplementation),
+                loadedPreferencesState.value.quickAccessSettings,
+            )
+        }
 
     @Test
-    fun setting_disabled_agsl_updates_value() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.disableAGSLState)
+    fun default_disabled_agsl_is_disabled() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.disableAGSLState)
 
-        delay(1.milliseconds)
+            delay(1.milliseconds)
 
-        assertEquals(
-            ResourceState.Success(false),
-            composelifePreferences.disableAGSLState,
-        )
-
-        composelifePreferences.setDisabledAGSL(true)
-        delay(1.milliseconds)
-
-        assertEquals(
-            ResourceState.Success(true),
-            composelifePreferences.disableAGSLState,
-        )
-
-        val loadedPreferencesState = composelifePreferences.loadedPreferencesState
-        assertTrue(loadedPreferencesState.isSuccess())
-        assertEquals(
-            true,
-            loadedPreferencesState.value.disableAGSL,
-        )
-    }
+            assertEquals(
+                ResourceState.Success(false),
+                composelifePreferences.disableAGSLState,
+            )
+        }
 
     @Test
-    fun default_disabled_opengl_is_disabled() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.disableOpenGLState)
+    fun setting_disabled_agsl_updates_value() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.disableAGSLState)
 
-        delay(1.milliseconds)
+            delay(1.milliseconds)
 
-        assertEquals(
-            ResourceState.Success(false),
-            composelifePreferences.disableOpenGLState,
-        )
-    }
+            assertEquals(
+                ResourceState.Success(false),
+                composelifePreferences.disableAGSLState,
+            )
 
-    @Test
-    fun setting_disabled_opengl_updates_value() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.disableOpenGLState)
+            composelifePreferences.setDisabledAGSL(true)
+            delay(1.milliseconds)
 
-        delay(1.milliseconds)
+            assertEquals(
+                ResourceState.Success(true),
+                composelifePreferences.disableAGSLState,
+            )
 
-        assertEquals(
-            ResourceState.Success(false),
-            composelifePreferences.disableOpenGLState,
-        )
-
-        composelifePreferences.setDisableOpenGL(true)
-        delay(1.milliseconds)
-
-        assertEquals(
-            ResourceState.Success(true),
-            composelifePreferences.disableOpenGLState,
-        )
-
-        val loadedPreferencesState = composelifePreferences.loadedPreferencesState
-        assertTrue(loadedPreferencesState.isSuccess())
-        assertEquals(
-            true,
-            loadedPreferencesState.value.disableOpenGL,
-        )
-    }
+            val loadedPreferencesState = composelifePreferences.loadedPreferencesState
+            assertTrue(loadedPreferencesState.isSuccess())
+            assertEquals(
+                true,
+                loadedPreferencesState.value.disableAGSL,
+            )
+        }
 
     @Test
-    fun default_do_not_keep_process_is_false() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.doNotKeepProcessState)
+    fun default_disabled_opengl_is_disabled() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.disableOpenGLState)
 
-        delay(1.milliseconds)
+            delay(1.milliseconds)
 
-        assertEquals(
-            ResourceState.Success(false),
-            composelifePreferences.doNotKeepProcessState,
-        )
-    }
-
-    @Test
-    fun setting_do_not_keep_process_updates_value() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.doNotKeepProcessState)
-
-        delay(1.milliseconds)
-
-        assertEquals(
-            ResourceState.Success(false),
-            composelifePreferences.doNotKeepProcessState,
-        )
-
-        composelifePreferences.setDoNotKeepProcess(true)
-        delay(1.milliseconds)
-
-        assertEquals(
-            ResourceState.Success(true),
-            composelifePreferences.doNotKeepProcessState,
-        )
-
-        val loadedPreferencesState = composelifePreferences.loadedPreferencesState
-        assertTrue(loadedPreferencesState.isSuccess())
-        assertEquals(
-            true,
-            loadedPreferencesState.value.doNotKeepProcess,
-        )
-    }
+            assertEquals(
+                ResourceState.Success(false),
+                composelifePreferences.disableOpenGLState,
+            )
+        }
 
     @Test
-    fun default_touch_tool_config_is_pan() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.touchToolConfigState)
+    fun setting_disabled_opengl_updates_value() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.disableOpenGLState)
 
-        delay(1.milliseconds)
+            delay(1.milliseconds)
 
-        assertEquals(
-            ResourceState.Success(ToolConfig.Pan),
-            composelifePreferences.touchToolConfigState,
-        )
-    }
+            assertEquals(
+                ResourceState.Success(false),
+                composelifePreferences.disableOpenGLState,
+            )
 
-    @Test
-    fun setting_touch_tool_config_updates_value() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.doNotKeepProcessState)
+            composelifePreferences.setDisableOpenGL(true)
+            delay(1.milliseconds)
 
-        delay(1.milliseconds)
+            assertEquals(
+                ResourceState.Success(true),
+                composelifePreferences.disableOpenGLState,
+            )
 
-        assertEquals(
-            ResourceState.Success(ToolConfig.Pan),
-            composelifePreferences.touchToolConfigState,
-        )
-
-        composelifePreferences.setTouchToolConfig(ToolConfig.Draw)
-        delay(1.milliseconds)
-
-        assertEquals(
-            ResourceState.Success(ToolConfig.Draw),
-            composelifePreferences.touchToolConfigState,
-        )
-
-        val loadedPreferencesState = composelifePreferences.loadedPreferencesState
-        assertTrue(loadedPreferencesState.isSuccess())
-        assertEquals(
-            ToolConfig.Draw,
-            loadedPreferencesState.value.touchToolConfig,
-        )
-    }
+            val loadedPreferencesState = composelifePreferences.loadedPreferencesState
+            assertTrue(loadedPreferencesState.isSuccess())
+            assertEquals(
+                true,
+                loadedPreferencesState.value.disableOpenGL,
+            )
+        }
 
     @Test
-    fun default_stylus_tool_config_is_draw() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.stylusToolConfigState)
+    fun default_do_not_keep_process_is_false() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.doNotKeepProcessState)
 
-        delay(1.milliseconds)
+            delay(1.milliseconds)
 
-        assertEquals(
-            ResourceState.Success(ToolConfig.Draw),
-            composelifePreferences.stylusToolConfigState,
-        )
-    }
-
-    @Test
-    fun setting_stylus_tool_config_updates_value() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.doNotKeepProcessState)
-
-        delay(1.milliseconds)
-
-        assertEquals(
-            ResourceState.Success(ToolConfig.Draw),
-            composelifePreferences.stylusToolConfigState,
-        )
-
-        composelifePreferences.setStylusToolConfig(ToolConfig.Erase)
-        delay(1.milliseconds)
-
-        assertEquals(
-            ResourceState.Success(ToolConfig.Erase),
-            composelifePreferences.stylusToolConfigState,
-        )
-
-        val loadedPreferencesState = composelifePreferences.loadedPreferencesState
-        assertTrue(loadedPreferencesState.isSuccess())
-        assertEquals(
-            ToolConfig.Erase,
-            loadedPreferencesState.value.stylusToolConfig,
-        )
-    }
+            assertEquals(
+                ResourceState.Success(false),
+                composelifePreferences.doNotKeepProcessState,
+            )
+        }
 
     @Test
-    fun default_mouse_tool_config_is_draw() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.mouseToolConfigState)
+    fun setting_do_not_keep_process_updates_value() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.doNotKeepProcessState)
 
-        delay(1.milliseconds)
+            delay(1.milliseconds)
 
-        assertEquals(
-            ResourceState.Success(ToolConfig.Draw),
-            composelifePreferences.mouseToolConfigState,
-        )
-    }
+            assertEquals(
+                ResourceState.Success(false),
+                composelifePreferences.doNotKeepProcessState,
+            )
 
-    @Test
-    fun setting_mouse_tool_config_updates_value() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.doNotKeepProcessState)
+            composelifePreferences.setDoNotKeepProcess(true)
+            delay(1.milliseconds)
 
-        delay(1.milliseconds)
+            assertEquals(
+                ResourceState.Success(true),
+                composelifePreferences.doNotKeepProcessState,
+            )
 
-        assertEquals(
-            ResourceState.Success(ToolConfig.Draw),
-            composelifePreferences.mouseToolConfigState,
-        )
-
-        composelifePreferences.setMouseToolConfig(ToolConfig.Erase)
-        delay(1.milliseconds)
-
-        assertEquals(
-            ResourceState.Success(ToolConfig.Erase),
-            composelifePreferences.mouseToolConfigState,
-        )
-
-        val loadedPreferencesState = composelifePreferences.loadedPreferencesState
-        assertTrue(loadedPreferencesState.isSuccess())
-        assertEquals(
-            ToolConfig.Erase,
-            loadedPreferencesState.value.mouseToolConfig,
-        )
-    }
+            val loadedPreferencesState = composelifePreferences.loadedPreferencesState
+            assertTrue(loadedPreferencesState.isSuccess())
+            assertEquals(
+                true,
+                loadedPreferencesState.value.doNotKeepProcess,
+            )
+        }
 
     @Test
-    fun default_completed_clipboard_watching_onboarding_is_false() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.completedClipboardWatchingOnboardingState)
+    fun default_touch_tool_config_is_pan() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.touchToolConfigState)
 
-        delay(1.milliseconds)
+            delay(1.milliseconds)
 
-        assertEquals(
-            ResourceState.Success(false),
-            composelifePreferences.completedClipboardWatchingOnboardingState,
-        )
-    }
-
-    @Test
-    fun setting_completed_clipboard_watching_onboarding_updates_value() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.completedClipboardWatchingOnboardingState)
-
-        delay(1.milliseconds)
-
-        assertEquals(
-            ResourceState.Success(false),
-            composelifePreferences.completedClipboardWatchingOnboardingState,
-        )
-
-        composelifePreferences.setCompletedClipboardWatchingOnboarding(true)
-        delay(1.milliseconds)
-
-        assertEquals(
-            ResourceState.Success(true),
-            composelifePreferences.completedClipboardWatchingOnboardingState,
-        )
-
-        val loadedPreferencesState = composelifePreferences.loadedPreferencesState
-        assertTrue(loadedPreferencesState.isSuccess())
-        assertTrue(
-            loadedPreferencesState.value.completedClipboardWatchingOnboarding,
-        )
-    }
+            assertEquals(
+                ResourceState.Success(ToolConfig.Pan),
+                composelifePreferences.touchToolConfigState,
+            )
+        }
 
     @Test
-    fun default_enable_clipboard_watching_is_false() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.enableClipboardWatchingState)
+    fun setting_touch_tool_config_updates_value() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.doNotKeepProcessState)
 
-        delay(1.milliseconds)
+            delay(1.milliseconds)
 
-        assertEquals(
-            ResourceState.Success(false),
-            composelifePreferences.enableClipboardWatchingState,
-        )
-    }
+            assertEquals(
+                ResourceState.Success(ToolConfig.Pan),
+                composelifePreferences.touchToolConfigState,
+            )
 
-    @Test
-    fun setting_enable_clipboard_watching_updates_value() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.enableClipboardWatchingState)
+            composelifePreferences.setTouchToolConfig(ToolConfig.Draw)
+            delay(1.milliseconds)
 
-        delay(1.milliseconds)
+            assertEquals(
+                ResourceState.Success(ToolConfig.Draw),
+                composelifePreferences.touchToolConfigState,
+            )
 
-        assertEquals(
-            ResourceState.Success(false),
-            composelifePreferences.enableClipboardWatchingState,
-        )
-
-        composelifePreferences.setEnableClipboardWatching(true)
-        delay(1.milliseconds)
-
-        assertEquals(
-            ResourceState.Success(true),
-            composelifePreferences.enableClipboardWatchingState,
-        )
-
-        val loadedPreferencesState = composelifePreferences.loadedPreferencesState
-        assertTrue(loadedPreferencesState.isSuccess())
-        assertTrue(
-            loadedPreferencesState.value.enableClipboardWatching,
-        )
-    }
+            val loadedPreferencesState = composelifePreferences.loadedPreferencesState
+            assertTrue(loadedPreferencesState.isSuccess())
+            assertEquals(
+                ToolConfig.Draw,
+                loadedPreferencesState.value.touchToolConfig,
+            )
+        }
 
     @Test
-    fun default_enable_window_shape_clipping_is_false() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.enableWindowShapeClippingState)
+    fun default_stylus_tool_config_is_draw() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.stylusToolConfigState)
 
-        delay(1.milliseconds)
+            delay(1.milliseconds)
 
-        assertEquals(
-            ResourceState.Success(false),
-            composelifePreferences.enableWindowShapeClippingState,
-        )
-    }
+            assertEquals(
+                ResourceState.Success(ToolConfig.Draw),
+                composelifePreferences.stylusToolConfigState,
+            )
+        }
 
     @Test
-    fun setting_enable_window_shape_clipping_updates_value() = runPreferencesTest { composelifePreferences ->
-        assertEquals(ResourceState.Loading, composelifePreferences.enableWindowShapeClippingState)
+    fun setting_stylus_tool_config_updates_value() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.doNotKeepProcessState)
 
-        delay(1.milliseconds)
+            delay(1.milliseconds)
 
-        assertEquals(
-            ResourceState.Success(false),
-            composelifePreferences.enableWindowShapeClippingState,
-        )
+            assertEquals(
+                ResourceState.Success(ToolConfig.Draw),
+                composelifePreferences.stylusToolConfigState,
+            )
 
-        composelifePreferences.setEnableWindowShapeClipping(true)
-        delay(1.milliseconds)
+            composelifePreferences.setStylusToolConfig(ToolConfig.Erase)
+            delay(1.milliseconds)
 
-        assertEquals(
-            ResourceState.Success(true),
-            composelifePreferences.enableWindowShapeClippingState,
-        )
+            assertEquals(
+                ResourceState.Success(ToolConfig.Erase),
+                composelifePreferences.stylusToolConfigState,
+            )
 
-        val loadedPreferencesState = composelifePreferences.loadedPreferencesState
-        assertTrue(loadedPreferencesState.isSuccess())
-        assertTrue(
-            loadedPreferencesState.value.enableWindowShapeClipping,
-        )
-    }
+            val loadedPreferencesState = composelifePreferences.loadedPreferencesState
+            assertTrue(loadedPreferencesState.isSuccess())
+            assertEquals(
+                ToolConfig.Erase,
+                loadedPreferencesState.value.stylusToolConfig,
+            )
+        }
+
+    @Test
+    fun default_mouse_tool_config_is_draw() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.mouseToolConfigState)
+
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(ToolConfig.Draw),
+                composelifePreferences.mouseToolConfigState,
+            )
+        }
+
+    @Test
+    fun setting_mouse_tool_config_updates_value() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.doNotKeepProcessState)
+
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(ToolConfig.Draw),
+                composelifePreferences.mouseToolConfigState,
+            )
+
+            composelifePreferences.setMouseToolConfig(ToolConfig.Erase)
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(ToolConfig.Erase),
+                composelifePreferences.mouseToolConfigState,
+            )
+
+            val loadedPreferencesState = composelifePreferences.loadedPreferencesState
+            assertTrue(loadedPreferencesState.isSuccess())
+            assertEquals(
+                ToolConfig.Erase,
+                loadedPreferencesState.value.mouseToolConfig,
+            )
+        }
+
+    @Test
+    fun default_completed_clipboard_watching_onboarding_is_false() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.completedClipboardWatchingOnboardingState)
+
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(false),
+                composelifePreferences.completedClipboardWatchingOnboardingState,
+            )
+        }
+
+    @Test
+    fun setting_completed_clipboard_watching_onboarding_updates_value() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.completedClipboardWatchingOnboardingState)
+
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(false),
+                composelifePreferences.completedClipboardWatchingOnboardingState,
+            )
+
+            composelifePreferences.setCompletedClipboardWatchingOnboarding(true)
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(true),
+                composelifePreferences.completedClipboardWatchingOnboardingState,
+            )
+
+            val loadedPreferencesState = composelifePreferences.loadedPreferencesState
+            assertTrue(loadedPreferencesState.isSuccess())
+            assertTrue(
+                loadedPreferencesState.value.completedClipboardWatchingOnboarding,
+            )
+        }
+
+    @Test
+    fun default_enable_clipboard_watching_is_false() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.enableClipboardWatchingState)
+
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(false),
+                composelifePreferences.enableClipboardWatchingState,
+            )
+        }
+
+    @Test
+    fun setting_enable_clipboard_watching_updates_value() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.enableClipboardWatchingState)
+
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(false),
+                composelifePreferences.enableClipboardWatchingState,
+            )
+
+            composelifePreferences.setEnableClipboardWatching(true)
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(true),
+                composelifePreferences.enableClipboardWatchingState,
+            )
+
+            val loadedPreferencesState = composelifePreferences.loadedPreferencesState
+            assertTrue(loadedPreferencesState.isSuccess())
+            assertTrue(
+                loadedPreferencesState.value.enableClipboardWatching,
+            )
+        }
+
+    @Test
+    fun default_enable_window_shape_clipping_is_false() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.enableWindowShapeClippingState)
+
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(false),
+                composelifePreferences.enableWindowShapeClippingState,
+            )
+        }
+
+    @Test
+    fun setting_enable_window_shape_clipping_updates_value() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.enableWindowShapeClippingState)
+
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(false),
+                composelifePreferences.enableWindowShapeClippingState,
+            )
+
+            composelifePreferences.setEnableWindowShapeClipping(true)
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(true),
+                composelifePreferences.enableWindowShapeClippingState,
+            )
+
+            val loadedPreferencesState = composelifePreferences.loadedPreferencesState
+            assertTrue(loadedPreferencesState.isSuccess())
+            assertTrue(
+                loadedPreferencesState.value.enableWindowShapeClipping,
+            )
+        }
 }

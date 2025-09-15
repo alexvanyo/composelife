@@ -43,7 +43,8 @@ internal fun PatternCollectionPreviewNoSuccessfulSynchronization() {
                 },
             ) {
                 PatternCollection(
-                    patternCollection = PatternCollection(
+                    patternCollection =
+                    PatternCollection(
                         id = PatternCollectionId(0),
                         sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
                         lastSuccessfulSynchronizationTimestamp = null,
@@ -71,7 +72,8 @@ internal fun PatternCollectionPreviewSynchronizing() {
                 },
             ) {
                 PatternCollection(
-                    patternCollection = PatternCollection(
+                    patternCollection =
+                    PatternCollection(
                         id = PatternCollectionId(0),
                         sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
                         lastSuccessfulSynchronizationTimestamp = null,
@@ -99,7 +101,8 @@ internal fun PatternCollectionPreviewSuccessfulSynchronizationNow() {
                 },
             ) {
                 PatternCollection(
-                    patternCollection = PatternCollection(
+                    patternCollection =
+                    PatternCollection(
                         id = PatternCollectionId(0),
                         sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
                         lastSuccessfulSynchronizationTimestamp = referenceInstant,
@@ -127,7 +130,8 @@ internal fun PatternCollectionPreviewSuccessfulSynchronization55SecondsAgo() {
                 },
             ) {
                 PatternCollection(
-                    patternCollection = PatternCollection(
+                    patternCollection =
+                    PatternCollection(
                         id = PatternCollectionId(0),
                         sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
                         lastSuccessfulSynchronizationTimestamp = referenceInstant - 55.seconds,
@@ -155,7 +159,8 @@ internal fun PatternCollectionPreviewSuccessfulSynchronization60SecondsAgo() {
                 },
             ) {
                 PatternCollection(
-                    patternCollection = PatternCollection(
+                    patternCollection =
+                    PatternCollection(
                         id = PatternCollectionId(0),
                         sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
                         lastSuccessfulSynchronizationTimestamp = referenceInstant - 60.seconds,
@@ -183,7 +188,8 @@ internal fun PatternCollectionPreviewSuccessfulSynchronization65SecondsAgo() {
                 },
             ) {
                 PatternCollection(
-                    patternCollection = PatternCollection(
+                    patternCollection =
+                    PatternCollection(
                         id = PatternCollectionId(0),
                         sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
                         lastSuccessfulSynchronizationTimestamp = referenceInstant - 65.seconds,
@@ -211,7 +217,8 @@ internal fun PatternCollectionPreviewSuccessfulSynchronization65MinutesAgo() {
                 },
             ) {
                 PatternCollection(
-                    patternCollection = PatternCollection(
+                    patternCollection =
+                    PatternCollection(
                         id = PatternCollectionId(0),
                         sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
                         lastSuccessfulSynchronizationTimestamp = referenceInstant - 65.minutes,
@@ -239,7 +246,8 @@ internal fun PatternCollectionPreviewSuccessfulSynchronization25HoursAgo() {
                 },
             ) {
                 PatternCollection(
-                    patternCollection = PatternCollection(
+                    patternCollection =
+                    PatternCollection(
                         id = PatternCollectionId(0),
                         sourceUrl = "https://alex.vanyo.dev/composelife/patterns.zip",
                         lastSuccessfulSynchronizationTimestamp = referenceInstant - 25.hours,

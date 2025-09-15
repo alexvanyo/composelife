@@ -58,24 +58,25 @@ fun <T> dialogNavigationTransform(
     { renderableNavigationState ->
         val seedPaneIds = renderableNavigationState.calculateSeedPaneIds()
 
-        val paneIdToIsDialog = renderableNavigationState.navigationState
-            .entryMap
-            .mapValues { (_, entry) ->
-                key(entry.id) {
-                    val isDialog by rememberUpdatedState(entry.value.isDialog())
-                    remember { { isDialog } }
+        val paneIdToIsDialog =
+            renderableNavigationState.navigationState
+                .entryMap
+                .mapValues { (_, entry) ->
+                    key(entry.id) {
+                        val isDialog by rememberUpdatedState(entry.value.isDialog())
+                        remember { { isDialog } }
+                    }
                 }
-            }
 
-        val nonDialogPaneIds = renderableNavigationState.navigationState
-            .entryMap
-            .entries
-            .mapNotNull { entry ->
-                (entry.key to key(entry.key) { rememberSaveable(saver = uuidSaver) { Uuid.random() } }).takeUnless {
-                    paneIdToIsDialog.getValue(entry.key).invoke()
-                }
-            }
-            .toMap()
+        val nonDialogPaneIds =
+            renderableNavigationState.navigationState
+                .entryMap
+                .entries
+                .mapNotNull { entry ->
+                    (entry.key to key(entry.key) { rememberSaveable(saver = uuidSaver) { Uuid.random() } }).takeUnless {
+                        paneIdToIsDialog.getValue(entry.key).invoke()
+                    }
+                }.toMap()
 
         backstackRenderableNavigationTransform<NavigationSegment<T>, NavigationSegment<T>> { entry, movablePanes ->
             entryTransform(
@@ -119,70 +120,84 @@ private fun <T> entryTransform(
             )
         }
 
-        val newPane = key(newEntryId) {
-            @Composable {
-                val pane = remember { movablePanes.getValue(nonDialogEntry.id) }
-                val isDialog = remember {
-                    paneIdToIsDialog.getValue(nonDialogEntry.id)
-                }.invoke()
-                val visible = !isDialog
+        val newPane =
+            key(newEntryId) {
+                @Composable {
+                    val pane = remember { movablePanes.getValue(nonDialogEntry.id) }
+                    val isDialog =
+                        remember {
+                            paneIdToIsDialog.getValue(nonDialogEntry.id)
+                        }.invoke()
+                    val visible = !isDialog
 
-                Box {
-                    if (visible) {
-                        pane()
+                    Box {
+                        if (visible) {
+                            pane()
+                        }
                     }
-                }
 
-                if (dialogEntries.isNotEmpty()) {
-                    PlatformEdgeToEdgeDialog(
-                        onDismissRequest = onBackButtonPressed,
-                    ) {
-                        SharedTransitionLayout {
-                            CompositionLocalProvider(LocalNavigationSharedTransitionScope provides null) {
-                                val dispatcher = requireNotNull(
-                                    LocalNavigationEventDispatcherOwner.current,
-                                ).navigationEventDispatcher
-                                val navigationEventState by dispatcher.getState<
-                                    DialogNavigationTransformNavigationEventInfo,
-                                    >(
-                                    rememberCoroutineScope(),
-                                    DialogNavigationTransformNavigationEventInfo(dialogEntries.last().id),
-                                ).collectAsState()
+                    if (dialogEntries.isNotEmpty()) {
+                        PlatformEdgeToEdgeDialog(
+                            onDismissRequest = onBackButtonPressed,
+                        ) {
+                            SharedTransitionLayout {
+                                CompositionLocalProvider(LocalNavigationSharedTransitionScope provides null) {
+                                    val dispatcher =
+                                        requireNotNull(
+                                            LocalNavigationEventDispatcherOwner.current,
+                                        ).navigationEventDispatcher
+                                    val navigationEventState by dispatcher
+                                        .getState<
+                                            DialogNavigationTransformNavigationEventInfo,
+                                            >(
+                                            rememberCoroutineScope(),
+                                            DialogNavigationTransformNavigationEventInfo(dialogEntries.last().id),
+                                        ).collectAsState()
 
-                                NavigationBackHandler(
-                                    isBackEnabled = dialogEntries.size > 1,
-                                    currentInfo = DialogNavigationTransformNavigationEventInfo(dialogEntries.last().id),
-                                    backInfo = listOfNotNull(
-                                        dialogEntries.getOrNull(
-                                            dialogEntries.size - 2,
-                                        )?.id?.let(::DialogNavigationTransformNavigationEventInfo),
-                                    ),
-                                    onBackCompleted = onBackButtonPressed,
-                                )
+                                    NavigationBackHandler(
+                                        isBackEnabled = dialogEntries.size > 1,
+                                        currentInfo =
+                                            DialogNavigationTransformNavigationEventInfo(
+                                                dialogEntries
+                                            .last()
+                                            .id
+                                                    ),
+                                            backInfo =
+                                        listOfNotNull(
+                                            dialogEntries
+                                                .getOrNull(
+                                                    dialogEntries.size - 2,
+                                                )?.id
+                                                ?.let(::DialogNavigationTransformNavigationEventInfo),
+                                        ),
+                                        onBackCompleted = onBackButtonPressed,
+                                    )
 
-                                CrossfadePredictiveNavigationFrame(
-                                    dialogRenderableNavigationState,
-                                    navigationEventState,
-                                )
+                                    CrossfadePredictiveNavigationFrame(
+                                        dialogRenderableNavigationState,
+                                        navigationEventState,
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
-        }
 
         val currentNewPane by key(newEntryId) { rememberUpdatedState(newPane) }
 
         BackstackRenderableNavigationTransformResult(
             id = newEntryId,
-            value = object : NavigationSegment.CombinedSegment<T> {
+            value =
+            object : NavigationSegment.CombinedSegment<T> {
                 override val combinedValues =
                     dialogableEntryGroup.flatMap {
                         it.value.combinedValues
                     }
             },
             previousPreTransformedId = nonDialogEntry.previous?.id,
-            pane = key(newEntryId) {
+            pane =
+            key(newEntryId) {
                 @Composable {
                     currentNewPane.invoke()
                 }
@@ -192,9 +207,7 @@ private fun <T> entryTransform(
         null
     }
 
-private data class DialogNavigationTransformNavigationEventInfo(
-    val entryId: Uuid,
-) : NavigationEventInfo
+private data class DialogNavigationTransformNavigationEventInfo(val entryId: Uuid) : NavigationEventInfo
 
 @Composable
 private fun <T> createDialogRenderableNavigationState(
@@ -207,13 +220,15 @@ private fun <T> createDialogRenderableNavigationState(
         BackstackEntry<NavigationSegment<T>>,
         BackstackState<NavigationSegment<T>>,
         >(
-        navigationState = object : BackstackState<NavigationSegment<T>> {
+        navigationState =
+        object : BackstackState<NavigationSegment<T>> {
             override val entryMap: BackstackMap<NavigationSegment<T>>
                 get() = dialogEntries.associateBy(BackstackEntry<NavigationSegment<T>>::id)
             override val currentEntryId: Uuid
                 get() = currentEntryId
         },
-        renderablePanes = movablePanes.mapValues { (id, pane) ->
+        renderablePanes =
+        movablePanes.mapValues { (id, pane) ->
             key(id) {
                 @Composable {
                     val isDialog = remember { paneIdToIsDialog.getValue(id) }.invoke()
@@ -229,25 +244,30 @@ private fun <T> createDialogRenderableNavigationState(
         },
     )
 
-private fun <T> NavigationSegment<T>.isDialog() = when (this) {
-    is NavigationSegment.SingleSegment<*> -> {
-        val value = this.value
-        value is DialogableEntry && value.isDialog
+private fun <T> NavigationSegment<T>.isDialog() =
+    when (this) {
+        is NavigationSegment.SingleSegment<*> -> {
+            val value = this.value
+            value is DialogableEntry && value.isDialog
+        }
+
+        is NavigationSegment.CombinedSegment<*> -> {
+            combinedValues.all {
+                it is DialogableEntry && it.isDialog
+            }
+        }
     }
-    is NavigationSegment.CombinedSegment<*> -> combinedValues.all {
-        it is DialogableEntry && it.isDialog
-    }
-}
 
 @Composable
 private fun <T> BackstackEntry<NavigationSegment<T>>.createDialogableEntryGroup():
-    List<BackstackEntry<NavigationSegment<T>>> = buildList {
-    var currentEntry: BackstackEntry<NavigationSegment<T>>? = this@createDialogableEntryGroup
-    while (currentEntry != null) {
-        add(currentEntry)
-        currentEntry = currentEntry.previous?.takeIf { currentEntry.value.isDialog() }
+    List<BackstackEntry<NavigationSegment<T>>> =
+    buildList {
+        var currentEntry: BackstackEntry<NavigationSegment<T>>? = this@createDialogableEntryGroup
+        while (currentEntry != null) {
+            add(currentEntry)
+            currentEntry = currentEntry.previous?.takeIf { currentEntry.value.isDialog() }
+        }
     }
-}
 
 @Suppress("ComposeUnstableReceiver")
 @Composable

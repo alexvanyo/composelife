@@ -50,8 +50,9 @@ interface ComposeLifeApplicationCtx {
 internal val ApplicationGraph.composeLifeApplicationCtx: ComposeLifeApplicationCtx get() =
     this as ComposeLifeApplicationCtx
 
-class ComposeLifeApplication : Application(), ApplicationGraphOwner {
-
+class ComposeLifeApplication :
+    Application(),
+    ApplicationGraphOwner {
     override lateinit var applicationGraph: ApplicationGraph
 
     override fun onCreate() {
@@ -60,11 +61,12 @@ class ComposeLifeApplication : Application(), ApplicationGraphOwner {
         initStrictModeIfNeeded()
 
         val globalGraph = createGraph<GlobalGraph>()
-        applicationGraph = globalGraph.asContribution<ApplicationGraph.Factory>().create(
-            object : ApplicationGraphArguments {
-                override val applicationContext: Context = this@ComposeLifeApplication
-            },
-        )
+        applicationGraph =
+            globalGraph.asContribution<ApplicationGraph.Factory>().create(
+                object : ApplicationGraphArguments {
+                    override val applicationContext: Context = this@ComposeLifeApplication
+                },
+            )
         val ctx = applicationGraph.composeLifeApplicationCtx
         val processLifecycleOwner = ctx.processLifecycleOwner
         val appUpdatables = ctx.appUpdatables

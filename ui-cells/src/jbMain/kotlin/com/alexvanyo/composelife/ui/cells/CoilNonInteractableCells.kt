@@ -61,9 +61,9 @@ import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import dev.zacsweers.metro.Inject
 import kotlin.math.roundToInt
 
-context(imageLoader: ImageLoader)
 @Suppress("LongParameterList", "LongMethod")
 @Composable
+context(imageLoader: ImageLoader)
 fun CoilNonInteractableCells(
     gameOfLifeState: GameOfLifeState,
     scaledCellDpSize: Dp,
@@ -77,16 +77,17 @@ fun CoilNonInteractableCells(
     val aliveColor = ComposeLifeTheme.aliveCellColor
     val deadColor = ComposeLifeTheme.deadCellColor
 
-    val model = CellsCoilModel(
-        cellState = gameOfLifeState.cellState,
-        density = LocalDensity.current,
-        layoutDirection = LocalLayoutDirection.current,
-        aliveColor = aliveColor,
-        deadColor = deadColor,
-        cellWindow = cellWindow,
-        scaledCellPixelSize = scaledCellPixelSize,
-        shape = shape,
-    )
+    val model =
+        CellsCoilModel(
+            cellState = gameOfLifeState.cellState,
+            density = LocalDensity.current,
+            layoutDirection = LocalLayoutDirection.current,
+            aliveColor = aliveColor,
+            deadColor = deadColor,
+            cellWindow = cellWindow,
+            scaledCellPixelSize = scaledCellPixelSize,
+            shape = shape,
+        )
 
     var state: AsyncImagePainter.State by remember { mutableStateOf(AsyncImagePainter.State.Empty) }
     var previousCacheKey: MemoryCache.Key? by remember { mutableStateOf(null) }
@@ -97,7 +98,9 @@ fun CoilNonInteractableCells(
             }
 
     AsyncImage(
-        model = ImageRequest.Builder(LocalPlatformContext.current)
+        model =
+        ImageRequest
+            .Builder(LocalPlatformContext.current)
             .data(model)
             .size(coil3.size.Size.ORIGINAL)
             .scale(Scale.FILL)
@@ -111,11 +114,15 @@ fun CoilNonInteractableCells(
             when (it) {
                 AsyncImagePainter.State.Empty,
                 is AsyncImagePainter.State.Loading,
-                -> Unit
+                -> {
+                    Unit
+                }
+
                 is AsyncImagePainter.State.Error -> {
                     previousCacheKey = null
                     previousPixelOffsetsFromCenter.clear()
                 }
+
                 is AsyncImagePainter.State.Success -> {
                     val memoryCacheKey = it.result.memoryCacheKey
                     previousCacheKey = memoryCacheKey
@@ -128,24 +135,31 @@ fun CoilNonInteractableCells(
                 }
             }
         },
-        modifier = modifier
+        modifier =
+        modifier
             .graphicsLayer {
                 when (state) {
-                    AsyncImagePainter.State.Empty -> Unit
-                    is AsyncImagePainter.State.Error -> Unit
+                    AsyncImagePainter.State.Empty -> {
+                        Unit
+                    }
+
+                    is AsyncImagePainter.State.Error -> {
+                        Unit
+                    }
+
                     is AsyncImagePainter.State.Loading -> {
                         previousCacheKey?.key?.let(previousPixelOffsetsFromCenter::get)?.let {
                             translationX = -it.value.x
                             translationY = -it.value.y
                         }
                     }
+
                     is AsyncImagePainter.State.Success -> {
                         translationX = -pixelOffsetFromCenter.x
                         translationY = -pixelOffsetFromCenter.y
                     }
                 }
-            }
-            .requiredSize(
+            }.requiredSize(
                 scaledCellDpSize * cellWindow.width,
                 scaledCellDpSize * cellWindow.height,
             ),
@@ -163,10 +177,7 @@ data class CellsCoilModel(
     val shape: CurrentShape,
 )
 
-class CellsFetcher(
-    private val cellsCoilModel: CellsCoilModel,
-) : Fetcher {
-
+class CellsFetcher(private val cellsCoilModel: CellsCoilModel) : Fetcher {
     override suspend fun fetch(): FetchResult {
         val width = cellsCoilModel.scaledCellPixelSize * cellsCoilModel.cellWindow.width
         val height = cellsCoilModel.scaledCellPixelSize * cellsCoilModel.cellWindow.height
@@ -215,8 +226,7 @@ fun CellsCoilModel.cacheKey(): String =
 
 @Inject
 class CellsKeyer : Keyer<CellsCoilModel> {
-    override fun key(data: CellsCoilModel, options: Options): String =
-        data.cacheKey()
+    override fun key(data: CellsCoilModel, options: Options): String = data.cacheKey()
 }
 
 expect fun ImageBitmap.asCoilBitmapImage(): BitmapImage

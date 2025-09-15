@@ -43,7 +43,8 @@ internal fun InteractableCellsPreview(modifier: Modifier = Modifier) {
             with(implicit().interactableCellsCtx) {
                 Box(modifier = modifier.size(300.dp)) {
                     InteractableCells(
-                        gameOfLifeState = MutableGameOfLifeState(
+                        gameOfLifeState =
+                        MutableGameOfLifeState(
                             setOf(
                                 0 to 0,
                                 0 to 2,
@@ -58,7 +59,8 @@ internal fun InteractableCellsPreview(modifier: Modifier = Modifier) {
                         ),
                         setSelectionSessionState = {},
                         scaledCellDpSize = 32.dp,
-                        cellWindow = CellWindow(
+                        cellWindow =
+                        CellWindow(
                             IntRect(
                                 IntOffset(0, 0),
                                 IntSize(10, 10),

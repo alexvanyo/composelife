@@ -29,7 +29,6 @@ import com.alexvanyo.composelife.model.MacroCell.CellNode
  * A [MacroCell] is either a leaf [Cell], or a [CellNode] with 4 subnodes.
  */
 sealed interface MacroCell {
-
     /**
      * The tree level of this cell. A cell at level `x` represents `4^x` cells.
      */
@@ -46,7 +45,6 @@ sealed interface MacroCell {
      * A leaf [MacroCell], which is either an [AliveCell] or a [DeadCell].
      */
     sealed interface Cell : MacroCell {
-
         override val level get() = 0
 
         val isAlive: Boolean
@@ -67,12 +65,7 @@ sealed interface MacroCell {
     /**
      * A non-leaf [MacroCell], which contains 4 subnode [MacroCell]s.
      */
-    data class CellNode(
-        val nw: MacroCell,
-        val ne: MacroCell,
-        val sw: MacroCell,
-        val se: MacroCell,
-    ) : MacroCell {
+    data class CellNode(val nw: MacroCell, val ne: MacroCell, val sw: MacroCell, val se: MacroCell) : MacroCell {
         init {
             require(nw.level == ne.level)
             require(ne.level == sw.level)
@@ -88,18 +81,19 @@ sealed interface MacroCell {
          *
          * TODO: Is there a better hashcode function?
          */
-        private val hashCode = run {
-            var hash = level
-            hash *= 31
-            hash += nw.hashCode()
-            hash *= 31
-            hash += ne.hashCode()
-            hash *= 31
-            hash += sw.hashCode()
-            hash *= 31
-            hash += se.hashCode()
-            hash
-        }
+        private val hashCode =
+            run {
+                var hash = level
+                hash *= 31
+                hash += nw.hashCode()
+                hash *= 31
+                hash += ne.hashCode()
+                hash *= 31
+                hash += sw.hashCode()
+                hash *= 31
+                hash += se.hashCode()
+                hash
+            }
 
         override fun hashCode(): Int = hashCode
     }
@@ -123,6 +117,7 @@ fun MacroCell.withCell(target: IntOffset, isAlive: Boolean): MacroCell {
                 DeadCell
             }
         }
+
         is CellNode -> {
             val offsetDiff = 1 shl (level - 1)
             val isNorth = target.y < offsetDiff
@@ -152,21 +147,22 @@ fun MacroCell.withCell(target: IntOffset, isAlive: Boolean): MacroCell {
 /**
  * Creates a [MacroCell] with the given [level] as a window looking into [CellState] at [offset].
  */
-fun createMacroCell(cellState: CellState, offset: IntOffset, level: Int): MacroCell = if (level == 0) {
-    if (offset in cellState.aliveCells) {
-        AliveCell
+fun createMacroCell(cellState: CellState, offset: IntOffset, level: Int): MacroCell =
+    if (level == 0) {
+        if (offset in cellState.aliveCells) {
+            AliveCell
+        } else {
+            DeadCell
+        }
     } else {
-        DeadCell
+        val offsetDiff = 1 shl (level - 1)
+        CellNode(
+            createMacroCell(cellState, offset, level - 1),
+            createMacroCell(cellState, offset + IntOffset(offsetDiff, 0), level - 1),
+            createMacroCell(cellState, offset + IntOffset(0, offsetDiff), level - 1),
+            createMacroCell(cellState, offset + IntOffset(offsetDiff, offsetDiff), level - 1),
+        )
     }
-} else {
-    val offsetDiff = 1 shl (level - 1)
-    CellNode(
-        createMacroCell(cellState, offset, level - 1),
-        createMacroCell(cellState, offset + IntOffset(offsetDiff, 0), level - 1),
-        createMacroCell(cellState, offset + IntOffset(0, offsetDiff), level - 1),
-        createMacroCell(cellState, offset + IntOffset(offsetDiff, offsetDiff), level - 1),
-    )
-}
 
 /**
  * Creates an empty [MacroCell] with the given [level].
@@ -187,10 +183,7 @@ fun createEmptyMacroCell(@IntRange(from = 0) level: Int): MacroCell {
  * Returns an [Iterator] of [IntOffset] for every alive cell within the [cellWindow] represented by this [MacroCell],
  * with the given upper left corner [offset].
  */
-fun MacroCell.iterator(
-    offset: IntOffset,
-    cellWindow: CellWindow,
-): Iterator<IntOffset> {
+fun MacroCell.iterator(offset: IntOffset, cellWindow: CellWindow): Iterator<IntOffset> {
     val macroCell = this
     return iterator {
         @Suppress("ComplexCondition")
@@ -202,8 +195,14 @@ fun MacroCell.iterator(
             cellWindow.top < 1 shl level
         ) {
             when (macroCell) {
-                AliveCell -> yield(offset)
-                DeadCell -> throw AssertionError("Dead cell must have a size equal to 0!")
+                AliveCell -> {
+                    yield(offset)
+                }
+
+                DeadCell -> {
+                    throw AssertionError("Dead cell must have a size equal to 0!")
+                }
+
                 is CellNode -> {
                     val offsetDiff = 1 shl (level - 1)
                     yieldAll(macroCell.nw.iterator(offset, cellWindow))
@@ -243,7 +242,10 @@ tailrec operator fun MacroCell.contains(target: IntOffset): Boolean =
         false
     } else {
         when (this) {
-            is Cell -> isAlive
+            is Cell -> {
+                isAlive
+            }
+
             is CellNode -> {
                 if (size == 0) {
                     false
@@ -296,20 +298,25 @@ fun MacroCell.containsAll(targets: Collection<IntOffset>): Boolean {
             check(targets.first() == IntOffset.Zero)
             true
         }
+
         DeadCell -> {
             throw AssertionError("Dead cell must have a size equal to 0!")
         }
+
         is CellNode -> {
             val offsetDiff = 1 shl (level - 1)
-            val (northTargets, southTargets) = targets.partition { target ->
-                target.y < offsetDiff
-            }
-            val (northWestTargets, northEastTargets) = northTargets.partition { target ->
-                target.x < offsetDiff
-            }
-            val (southWestTargets, southEastTargets) = southTargets.partition { target ->
-                target.x < offsetDiff
-            }
+            val (northTargets, southTargets) =
+                targets.partition { target ->
+                    target.y < offsetDiff
+                }
+            val (northWestTargets, northEastTargets) =
+                northTargets.partition { target ->
+                    target.x < offsetDiff
+                }
+            val (southWestTargets, southEastTargets) =
+                southTargets.partition { target ->
+                    target.x < offsetDiff
+                }
             // Recurse on subtrees
             nw.containsAll(northWestTargets) &&
                 ne.containsAll(northEastTargets.map { it + IntOffset(-offsetDiff, 0) }) &&

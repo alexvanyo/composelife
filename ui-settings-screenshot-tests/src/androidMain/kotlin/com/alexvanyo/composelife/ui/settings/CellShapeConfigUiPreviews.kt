@@ -34,7 +34,8 @@ internal fun CellShapeConfigUiRoundRectanglePreview(modifier: Modifier = Modifie
         ComposeLifeTheme {
             Surface(modifier) {
                 CellShapeConfigUi(
-                    cellShapeConfigUiState = object : CellShapeConfigUiState {
+                    cellShapeConfigUiState =
+                    object : CellShapeConfigUiState {
                         override val currentShapeDropdownOption = ShapeDropdownOption.RoundRectangle
                         override val currentShapeConfigUiState =
                             object : CurrentShapeConfigUiState.RoundRectangleConfigUi {
@@ -47,6 +48,7 @@ internal fun CellShapeConfigUiRoundRectanglePreview(modifier: Modifier = Modifie
                                     expected: SessionValue<Float>,
                                     newValue: SessionValue<Float>,
                                 ) = Unit
+
                                 override fun onCornerFractionSessionValueChange(
                                     expected: SessionValue<Float>,
                                     newValue: SessionValue<Float>,

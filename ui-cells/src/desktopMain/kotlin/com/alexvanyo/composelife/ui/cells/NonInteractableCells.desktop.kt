@@ -27,12 +27,12 @@ import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.preferences.currentShape
 
-context(
-    imageLoader: ImageLoader,
-preferencesHolder: LoadedComposeLifePreferencesHolder,
-)
 @Composable
 @Suppress("LongParameterList")
+context(
+    imageLoader: ImageLoader,
+    preferencesHolder: LoadedComposeLifePreferencesHolder,
+)
 actual fun NonInteractableCells(
     gameOfLifeState: GameOfLifeState,
     scaledCellDpSize: Dp,
@@ -53,6 +53,7 @@ actual fun NonInteractableCells(
                 modifier = modifier,
             )
         }
+
         NonInteractableCellsImplementationType.Coil -> {
             CoilNonInteractableCells(
                 gameOfLifeState = gameOfLifeState,
@@ -63,6 +64,7 @@ actual fun NonInteractableCells(
                 modifier = modifier,
             )
         }
+
         NonInteractableCellsImplementationType.SKSL -> {
             SKSLNonInteractableCells(
                 gameOfLifeState = gameOfLifeState,
@@ -78,7 +80,9 @@ actual fun NonInteractableCells(
 
 private sealed interface NonInteractableCellsImplementationType {
     data object SKSL : NonInteractableCellsImplementationType
+
     data object Canvas : NonInteractableCellsImplementationType
+
     data object Coil : NonInteractableCellsImplementationType
 }
 
@@ -88,16 +92,19 @@ private fun computeImplementationType(
     isThumbnail: Boolean,
 ): NonInteractableCellsImplementationType =
     when {
-        isThumbnail ->
+        isThumbnail -> {
             NonInteractableCellsImplementationType.Coil
-        !preferences.disableAGSL ->
+        }
+
+        !preferences.disableAGSL -> {
             NonInteractableCellsImplementationType.SKSL
-        else ->
+        }
+
+        else -> {
             NonInteractableCellsImplementationType.Canvas
+        }
     }
 
 @Composable
-actual fun isSharedElementForCellsSupported(
-    preferences: LoadedComposeLifePreferences,
-    isThumbnail: Boolean,
-): Boolean = true
+actual fun isSharedElementForCellsSupported(preferences: LoadedComposeLifePreferences, isThumbnail: Boolean): Boolean =
+    true

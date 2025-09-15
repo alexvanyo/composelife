@@ -28,7 +28,6 @@ import okio.Path
 @ContributesTo(AppScope::class)
 @BindingContainer
 interface PersistedDataPathBindings {
-
     companion object {
         @Provides
         @PersistedDataPath

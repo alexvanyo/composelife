@@ -56,69 +56,75 @@ fun Modifier.animatedWindowInsetsPadding(
     targetWindowInsets: WindowInsets,
     animationSpec: AnimationSpec<Int> = spring(visibilityThreshold = Int.VisibilityThreshold),
     label: String = "WindowInsetsPaddingAnimation",
-): Modifier = composed {
-    val leftAnimatable = remember { mutableStateOf<Animatable<Int, AnimationVector1D>?>(null) }
-    val topAnimatable = remember { mutableStateOf<Animatable<Int, AnimationVector1D>?>(null) }
-    val rightAnimatable = remember { mutableStateOf<Animatable<Int, AnimationVector1D>?>(null) }
-    val bottomAnimatable = remember { mutableStateOf<Animatable<Int, AnimationVector1D>?>(null) }
+): Modifier =
+    composed {
+        val leftAnimatable = remember { mutableStateOf<Animatable<Int, AnimationVector1D>?>(null) }
+        val topAnimatable = remember { mutableStateOf<Animatable<Int, AnimationVector1D>?>(null) }
+        val rightAnimatable = remember { mutableStateOf<Animatable<Int, AnimationVector1D>?>(null) }
+        val bottomAnimatable = remember { mutableStateOf<Animatable<Int, AnimationVector1D>?>(null) }
 
-    /**
-     * `true` if we have been placed
-     */
-    var isPlaced by remember { mutableStateOf(false) }
+        /**
+         * `true` if we have been placed
+         */
+        var isPlaced by remember { mutableStateOf(false) }
 
-    val scope = rememberCoroutineScope()
+        val scope = rememberCoroutineScope()
 
-    val consumedWindowInsetsState = remember { mutableStateOf(WindowInsets.Zero) }
+        val consumedWindowInsetsState = remember { mutableStateOf(WindowInsets.Zero) }
 
-    val animatedInsets = remember(targetWindowInsets, consumedWindowInsetsState, animationSpec) {
-        object : WindowInsets {
-            private fun MutableState<Animatable<Int, AnimationVector1D>?>.animateTo(target: Int): Int {
-                val currentAnimatable = value
-                // We may not have correct insets in initial measure calls until we have been placed
-                // Therefore, only start tracking potential animations once we have been placed to avoid animating
-                // from incorrect inset values
-                val animatable = if (currentAnimatable == null || !isPlaced) {
-                    Animatable(target, Int.VectorConverter, Int.VisibilityThreshold, label)
-                } else {
-                    currentAnimatable.apply {
-                        if (targetValue != target) {
-                            scope.launch {
-                                animateTo(target, animationSpec)
+        val animatedInsets =
+            remember(targetWindowInsets, consumedWindowInsetsState, animationSpec) {
+                object : WindowInsets {
+                    private fun MutableState<Animatable<Int, AnimationVector1D>?>.animateTo(target: Int): Int {
+                        val currentAnimatable = value
+                        // We may not have correct insets in initial measure calls until we have been placed
+                        // Therefore, only start tracking potential animations once we have been placed to avoid animating
+                        // from incorrect inset values
+                        val animatable =
+                            if (currentAnimatable == null || !isPlaced) {
+                                Animatable(target, Int.VectorConverter, Int.VisibilityThreshold, label)
+                            } else {
+                                currentAnimatable.apply {
+                                    if (targetValue != target) {
+                                        scope.launch {
+                                            animateTo(target, animationSpec)
+                                        }
+                                    }
+                                }
                             }
-                        }
+                        value = animatable
+                        return animatable.value
                     }
+
+                    override fun getBottom(density: Density): Int =
+                        bottomAnimatable.animateTo(
+                            targetWindowInsets.exclude(consumedWindowInsetsState.value).getBottom(density),
+                        )
+
+                    override fun getLeft(density: Density, layoutDirection: LayoutDirection): Int =
+                        leftAnimatable.animateTo(
+                            targetWindowInsets
+                                .exclude(consumedWindowInsetsState.value)
+                                .getLeft(density, layoutDirection),
+                        )
+
+                    override fun getRight(density: Density, layoutDirection: LayoutDirection): Int =
+                        rightAnimatable.animateTo(
+                            targetWindowInsets
+                                .exclude(consumedWindowInsetsState.value)
+                                .getRight(density, layoutDirection),
+                        )
+
+                    override fun getTop(density: Density): Int =
+                        topAnimatable.animateTo(
+                            targetWindowInsets.exclude(consumedWindowInsetsState.value).getTop(density),
+                        )
                 }
-                value = animatable
-                return animatable.value
             }
 
-            override fun getBottom(density: Density): Int =
-                bottomAnimatable.animateTo(
-                    targetWindowInsets.exclude(consumedWindowInsetsState.value).getBottom(density),
-                )
-
-            override fun getLeft(density: Density, layoutDirection: LayoutDirection): Int =
-                leftAnimatable.animateTo(
-                    targetWindowInsets.exclude(consumedWindowInsetsState.value).getLeft(density, layoutDirection),
-                )
-
-            override fun getRight(density: Density, layoutDirection: LayoutDirection): Int =
-                rightAnimatable.animateTo(
-                    targetWindowInsets.exclude(consumedWindowInsetsState.value).getRight(density, layoutDirection),
-                )
-
-            override fun getTop(density: Density): Int =
-                topAnimatable.animateTo(
-                    targetWindowInsets.exclude(consumedWindowInsetsState.value).getTop(density),
-                )
-        }
+        this
+            .onPlaced { isPlaced = true }
+            .onConsumedWindowInsetsChanged {
+                consumedWindowInsetsState.value = it
+            }.windowInsetsPadding(animatedInsets)
     }
-
-    this
-        .onPlaced { isPlaced = true }
-        .onConsumedWindowInsetsChanged {
-            consumedWindowInsetsState.value = it
-        }
-        .windowInsetsPadding(animatedInsets)
-}

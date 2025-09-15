@@ -38,7 +38,6 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 sealed interface SelectionState {
-
     /**
      * No selection.
      */
@@ -50,7 +49,6 @@ sealed interface SelectionState {
      */
     @Serializable
     sealed interface SelectingBox : SelectionState {
-
         /**
          * A cell-grid-aligned selecting box.
          */
@@ -107,20 +105,18 @@ interface SelectionStateHolder {
     val selectionSessionState: SessionValue<SelectionState>
 }
 
-fun SelectionStateHolder(
-    selectionSessionState: SessionValue<SelectionState>,
-) = object : SelectionStateHolder {
-    override val selectionSessionState = selectionSessionState
-}
+fun SelectionStateHolder(selectionSessionState: SessionValue<SelectionState>) =
+    object : SelectionStateHolder {
+        override val selectionSessionState = selectionSessionState
+    }
 
 @Stable
 interface MutableSelectionStateHolder : SelectionStateHolder {
     override var selectionSessionState: SessionValue<SelectionState>
 }
 
-fun MutableSelectionStateHolder(
-    initialSelectionState: SessionValue<SelectionState>,
-): MutableSelectionStateHolder = MutableSelectionStateHolderImpl(initialSelectionState)
+fun MutableSelectionStateHolder(initialSelectionState: SessionValue<SelectionState>): MutableSelectionStateHolder =
+    MutableSelectionStateHolderImpl(initialSelectionState)
 
 @Composable
 fun rememberMutableSelectionStateHolder(
@@ -130,25 +126,25 @@ fun rememberMutableSelectionStateHolder(
         MutableSelectionStateHolder(initialSelectionState)
     }
 
-private class MutableSelectionStateHolderImpl(
-    initialSelectionSessionState: SessionValue<SelectionState>,
-) : MutableSelectionStateHolder {
+private class MutableSelectionStateHolderImpl(initialSelectionSessionState: SessionValue<SelectionState>) :
+    MutableSelectionStateHolder {
     override var selectionSessionState by mutableStateOf(initialSelectionSessionState)
 
     companion object {
         private val sessionValueSaver = SessionValue.Saver<SelectionState>()
 
-        val Saver: Saver<MutableSelectionStateHolder, SavedState> = Saver(
-            save = {
-                with(sessionValueSaver) {
-                    save(it.selectionSessionState)
-                }
-            },
-            restore = {
-                MutableSelectionStateHolderImpl(
-                    sessionValueSaver.restore(it)!!,
-                )
-            },
-        )
+        val Saver: Saver<MutableSelectionStateHolder, SavedState> =
+            Saver(
+                save = {
+                    with(sessionValueSaver) {
+                        save(it.selectionSessionState)
+                    }
+                },
+                restore = {
+                    MutableSelectionStateHolderImpl(
+                        sessionValueSaver.restore(it)!!,
+                    )
+                },
+            )
     }
 }

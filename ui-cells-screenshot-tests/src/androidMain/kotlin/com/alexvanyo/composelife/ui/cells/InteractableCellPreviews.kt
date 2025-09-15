@@ -35,7 +35,8 @@ internal fun AliveCellPreview(modifier: Modifier = Modifier) {
             InteractableCell(
                 modifier = modifier.size(50.dp),
                 drawState = DrawState.Alive,
-                shape = CurrentShape.RoundRectangle(
+                shape =
+                CurrentShape.RoundRectangle(
                     sizeFraction = 1f,
                     cornerFraction = 0f,
                 ),
@@ -55,7 +56,8 @@ internal fun PendingAliveCellPreview(modifier: Modifier = Modifier) {
             InteractableCell(
                 modifier = modifier.size(50.dp),
                 drawState = DrawState.PendingAlive,
-                shape = CurrentShape.RoundRectangle(
+                shape =
+                CurrentShape.RoundRectangle(
                     sizeFraction = 1f,
                     cornerFraction = 0f,
                 ),
@@ -75,7 +77,8 @@ internal fun DeadCellPreview(modifier: Modifier = Modifier) {
             InteractableCell(
                 modifier = modifier.size(50.dp),
                 drawState = DrawState.Dead,
-                shape = CurrentShape.RoundRectangle(
+                shape =
+                CurrentShape.RoundRectangle(
                     sizeFraction = 1f,
                     cornerFraction = 0f,
                 ),
@@ -95,7 +98,8 @@ internal fun PendingDeadCellPreview(modifier: Modifier = Modifier) {
             InteractableCell(
                 modifier = modifier.size(50.dp),
                 drawState = DrawState.PendingDead,
-                shape = CurrentShape.RoundRectangle(
+                shape =
+                CurrentShape.RoundRectangle(
                     sizeFraction = 1f,
                     cornerFraction = 0f,
                 ),

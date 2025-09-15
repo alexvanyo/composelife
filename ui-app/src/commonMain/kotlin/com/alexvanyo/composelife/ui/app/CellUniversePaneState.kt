@@ -57,14 +57,15 @@ class CellUniversePaneCtx(
     companion object
 }
 
-context(ctx: CellUniversePaneCtx)
 @Composable
-fun rememberCellUniversePaneState(): CellUniversePaneState = rememberCellUniversePaneState(
-    cellStateRepository = ctx.cellStateRepository,
-    gameOfLifeAlgorithm = ctx.gameOfLifeAlgorithm,
-    dispatchers = ctx.dispatchers,
-    clock = ctx.clock,
-)
+context(ctx: CellUniversePaneCtx)
+fun rememberCellUniversePaneState(): CellUniversePaneState =
+    rememberCellUniversePaneState(
+        cellStateRepository = ctx.cellStateRepository,
+        gameOfLifeAlgorithm = ctx.gameOfLifeAlgorithm,
+        dispatchers = ctx.dispatchers,
+        clock = ctx.clock,
+    )
 // endregion templated-ctx
 
 @Suppress("LongMethod")
@@ -83,29 +84,32 @@ fun rememberCellUniversePaneState(
 
     if (initialSaveableCellState == null) {
         LaunchedEffect(cellStateRepository) {
-            val newInitialSaveableCellState = cellStateRepository.getAutosavedCellState()
-                ?: SaveableCellState(
-                    gosperGliderGun,
-                    CellStateMetadata(null, null, null, 0, false, null),
-                )
+            val newInitialSaveableCellState =
+                cellStateRepository.getAutosavedCellState()
+                    ?: SaveableCellState(
+                        gosperGliderGun,
+                        CellStateMetadata(null, null, null, 0, false, null),
+                    )
 
             retainedInitialSaveableCellState = newInitialSaveableCellState
-            retainedTemporalGameOfLifeState = TemporalGameOfLifeState(
-                seedCellState = newInitialSaveableCellState.cellState,
-                isRunning = false,
-            )
+            retainedTemporalGameOfLifeState =
+                TemporalGameOfLifeState(
+                    seedCellState = newInitialSaveableCellState.cellState,
+                    isRunning = false,
+                )
         }
     }
 
     return if (initialSaveableCellState == null || temporalGameOfLifeState == null) {
         CellUniversePaneState.LoadingCellState
     } else {
-        val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-            temporalGameOfLifeState = temporalGameOfLifeState,
-            gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-            dispatchers = dispatchers,
-            clock = clock,
-        )
+        val temporalGameOfLifeStateMutator =
+            rememberTemporalGameOfLifeStateMutator(
+                temporalGameOfLifeState = temporalGameOfLifeState,
+                gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+                dispatchers = dispatchers,
+                clock = clock,
+            )
 
         LaunchedEffect(temporalGameOfLifeStateMutator) {
             temporalGameOfLifeStateMutator.update()
@@ -121,31 +125,36 @@ fun rememberCellUniversePaneState(
                 .transform {
                     emit(it)
                     delay(5.seconds)
-                }
-                .onEach { cellState ->
-                    cellStateMetadataId = cellStateRepository.autosaveCellState(
-                        saveableCellState = SaveableCellState(
-                            cellState = cellState,
-                            cellStateMetadata = CellStateMetadata(
-                                id = cellStateMetadataId,
-                                name = initialSaveableCellState.cellStateMetadata.name,
-                                description = initialSaveableCellState
-                                    .cellStateMetadata
-                                    .description,
-                                generation = initialSaveableCellState
-                                    .cellStateMetadata
-                                    .generation,
-                                wasAutosaved = initialSaveableCellState
-                                    .cellStateMetadata
-                                    .wasAutosaved,
-                                patternCollectionId = initialSaveableCellState
-                                    .cellStateMetadata
-                                    .patternCollectionId,
+                }.onEach { cellState ->
+                    cellStateMetadataId =
+                        cellStateRepository.autosaveCellState(
+                            saveableCellState =
+                            SaveableCellState(
+                                cellState = cellState,
+                                cellStateMetadata =
+                                CellStateMetadata(
+                                    id = cellStateMetadataId,
+                                    name = initialSaveableCellState.cellStateMetadata.name,
+                                    description =
+                                    initialSaveableCellState
+                                        .cellStateMetadata
+                                        .description,
+                                    generation =
+                                    initialSaveableCellState
+                                        .cellStateMetadata
+                                        .generation,
+                                    wasAutosaved =
+                                    initialSaveableCellState
+                                        .cellStateMetadata
+                                        .wasAutosaved,
+                                    patternCollectionId =
+                                    initialSaveableCellState
+                                        .cellStateMetadata
+                                        .patternCollectionId,
+                                ),
                             ),
-                        ),
-                    )
-                }
-                .collect()
+                        )
+                }.collect()
         }
 
         remember(temporalGameOfLifeState) {
@@ -170,7 +179,8 @@ sealed interface CellUniversePaneState {
     }
 }
 
-val gosperGliderGun = """
+val gosperGliderGun =
+    """
     |........................O...........
     |......................O.O...........
     |............OO......OO............OO

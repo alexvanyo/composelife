@@ -65,9 +65,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 @Stable
-private class HandleState(
-    val state: AnchoredDraggable2DState<IntOffset>,
-) {
+private class HandleState(val state: AnchoredDraggable2DState<IntOffset>) {
     var reentrancyCount by mutableStateOf(0)
 }
 
@@ -133,28 +131,32 @@ internal fun FixedSelectingBoxOverlay(
         /**
          * The [DraggableAnchors2D] aligned to the current grid.
          */
+
         /**
          * The [DraggableAnchors2D] aligned to the current grid.
          */
-        val handleAnchors = remember(scaledCellPixelSize, cellWindow) {
-            GridDraggableAnchors2d(scaledCellPixelSize, cellWindow)
-        }
+        val handleAnchors =
+            remember(scaledCellPixelSize, cellWindow) {
+                GridDraggableAnchors2d(scaledCellPixelSize, cellWindow)
+            }
 
         /**
          * State holders for the value change confirmation lambdas.
          *
          * These are initialized with a placeholder method, since this depends on the state of the other handles.
          */
+
         /**
          * State holders for the value change confirmation lambdas.
          *
          * These are initialized with a placeholder method, since this depends on the state of the other handles.
          */
-        val confirmValueChangeStates = List(initialHandles.size) { index ->
-            key(index) {
-                remember { mutableStateOf({ _: IntOffset -> true }) }
+        val confirmValueChangeStates =
+            List(initialHandles.size) { index ->
+                key(index) {
+                    remember { mutableStateOf({ _: IntOffset -> true }) }
+                }
             }
-        }
 
         val coroutineScope = rememberCoroutineScope()
 
@@ -164,23 +166,25 @@ internal fun FixedSelectingBoxOverlay(
          *
          * This will be initially added to the offset calculations, and animated to zero.
          */
+
         /**
          * A list of [Animatable]s for each handle representing the fractional part of the initial handle value, in
          * cell coordinates.
          *
          * This will be initially added to the offset calculations, and animated to zero.
          */
-        val transientSelectingBoxAnimatables = initialHandles.mapIndexed { index, offset ->
-            key(index) {
-                remember {
-                    Animatable(
-                        initialValue = offset - offset.round().toOffset(),
-                        typeConverter = Offset.VectorConverter,
-                        visibilityThreshold = Offset.VisibilityThreshold / scaledCellPixelSize,
-                    )
+        val transientSelectingBoxAnimatables =
+            initialHandles.mapIndexed { index, offset ->
+                key(index) {
+                    remember {
+                        Animatable(
+                            initialValue = offset - offset.round().toOffset(),
+                            typeConverter = Offset.VectorConverter,
+                            visibilityThreshold = Offset.VisibilityThreshold / scaledCellPixelSize,
+                        )
+                    }
                 }
             }
-        }
 
         // Resolve the transient offsets to zero
         transientSelectingBoxAnimatables.forEachIndexed { index, animatable ->
@@ -195,7 +199,8 @@ internal fun FixedSelectingBoxOverlay(
             initialHandles.mapIndexed { index, initialHandleOffset ->
                 key(index, scaledCellPixelSize, cellWindow) {
                     rememberSaveable(
-                        saver = Saver(
+                        saver =
+                        Saver(
                             save = { packInts(it.currentValue.x, it.currentValue.y) },
                             restore = {
                                 AnchoredDraggable2DState(
@@ -224,83 +229,85 @@ internal fun FixedSelectingBoxOverlay(
                 }
             }
 
-        val handleStates = handleAnchoredDraggable2DStates.mapIndexed { index, handleAnchoredDraggable2DState ->
-            key(index) {
-                remember(handleAnchoredDraggable2DState) {
-                    HandleState(handleAnchoredDraggable2DState)
+        val handleStates =
+            handleAnchoredDraggable2DStates.mapIndexed { index, handleAnchoredDraggable2DState ->
+                key(index) {
+                    remember(handleAnchoredDraggable2DState) {
+                        HandleState(handleAnchoredDraggable2DState)
+                    }
                 }
             }
-        }
 
         val handleAState = handleStates[0]
         val handleBState = handleStates[1]
         val handleCState = handleStates[2]
         val handleDState = handleStates[3]
 
-        val selectionHandleStates = remember(
-            handleStates,
-            transientSelectingBoxAnimatables,
-            setSelectionState,
-            scaledCellPixelSize,
-        ) {
-            listOf(
-                SelectionDraggableHandleState(
-                    state = handleAState,
-                    transientSelectingBoxAnimatable = transientSelectingBoxAnimatables[0],
-                    horizontalPairState = handleBState,
-                    verticalPairState = handleDState,
-                    oppositeCornerState = handleCState,
-                    setSelectionState = setSelectionState,
-                    coroutineScope = coroutineScope,
-                    scaledCellPixelSize = scaledCellPixelSize,
-                ),
-                SelectionDraggableHandleState(
-                    state = handleBState,
-                    transientSelectingBoxAnimatable = transientSelectingBoxAnimatables[1],
-                    horizontalPairState = handleAState,
-                    verticalPairState = handleCState,
-                    oppositeCornerState = handleDState,
-                    setSelectionState = setSelectionState,
-                    coroutineScope = coroutineScope,
-                    scaledCellPixelSize = scaledCellPixelSize,
-                ),
-                SelectionDraggableHandleState(
-                    state = handleCState,
-                    transientSelectingBoxAnimatable = transientSelectingBoxAnimatables[2],
-                    horizontalPairState = handleDState,
-                    verticalPairState = handleBState,
-                    oppositeCornerState = handleAState,
-                    setSelectionState = setSelectionState,
-                    coroutineScope = coroutineScope,
-                    scaledCellPixelSize = scaledCellPixelSize,
-                ),
-                SelectionDraggableHandleState(
-                    state = handleDState,
-                    transientSelectingBoxAnimatable = transientSelectingBoxAnimatables[3],
-                    horizontalPairState = handleCState,
-                    verticalPairState = handleAState,
-                    oppositeCornerState = handleBState,
-                    setSelectionState = setSelectionState,
-                    coroutineScope = coroutineScope,
-                    scaledCellPixelSize = scaledCellPixelSize,
-                ),
-            )
-        }
+        val selectionHandleStates =
+            remember(
+                handleStates,
+                transientSelectingBoxAnimatables,
+                setSelectionState,
+                scaledCellPixelSize,
+            ) {
+                listOf(
+                    SelectionDraggableHandleState(
+                        state = handleAState,
+                        transientSelectingBoxAnimatable = transientSelectingBoxAnimatables[0],
+                        horizontalPairState = handleBState,
+                        verticalPairState = handleDState,
+                        oppositeCornerState = handleCState,
+                        setSelectionState = setSelectionState,
+                        coroutineScope = coroutineScope,
+                        scaledCellPixelSize = scaledCellPixelSize,
+                    ),
+                    SelectionDraggableHandleState(
+                        state = handleBState,
+                        transientSelectingBoxAnimatable = transientSelectingBoxAnimatables[1],
+                        horizontalPairState = handleAState,
+                        verticalPairState = handleCState,
+                        oppositeCornerState = handleDState,
+                        setSelectionState = setSelectionState,
+                        coroutineScope = coroutineScope,
+                        scaledCellPixelSize = scaledCellPixelSize,
+                    ),
+                    SelectionDraggableHandleState(
+                        state = handleCState,
+                        transientSelectingBoxAnimatable = transientSelectingBoxAnimatables[2],
+                        horizontalPairState = handleDState,
+                        verticalPairState = handleBState,
+                        oppositeCornerState = handleAState,
+                        setSelectionState = setSelectionState,
+                        coroutineScope = coroutineScope,
+                        scaledCellPixelSize = scaledCellPixelSize,
+                    ),
+                    SelectionDraggableHandleState(
+                        state = handleDState,
+                        transientSelectingBoxAnimatable = transientSelectingBoxAnimatables[3],
+                        horizontalPairState = handleCState,
+                        verticalPairState = handleAState,
+                        oppositeCornerState = handleBState,
+                        setSelectionState = setSelectionState,
+                        coroutineScope = coroutineScope,
+                        scaledCellPixelSize = scaledCellPixelSize,
+                    ),
+                )
+            }
 
         selectionHandleStates.forEachIndexed { index, selectionDraggableHandleState ->
             confirmValueChangeStates[index].value = selectionDraggableHandleState.confirmValueChange
         }
 
         SelectingBox(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxSize()
                 .boxLayoutByHandles(
                     handleAOffsetCalculator = selectionHandleStates[0].offsetCalculator,
                     handleBOffsetCalculator = selectionHandleStates[1].offsetCalculator,
                     handleCOffsetCalculator = selectionHandleStates[2].offsetCalculator,
                     handleDOffsetCalculator = selectionHandleStates[3].offsetCalculator,
-                )
-                .cellStateDragAndDropSource(getSelectionCellState),
+                ).cellStateDragAndDropSource(getSelectionCellState),
         )
 
         val parameterizedStringResolver = parameterizedStringResolver()
@@ -318,26 +325,25 @@ internal fun FixedSelectingBoxOverlay(
 
                     SelectionHandle(
                         isActive = isActive,
-                        modifier = Modifier
+                        modifier =
+                        Modifier
                             .offset {
                                 selectionDraggableHandleState.offsetCalculator().round()
-                            }
-                            .graphicsLayer {
+                            }.graphicsLayer {
                                 translationX = -size.width / 2f
                                 translationY = -size.height / 2f
-                            }
-                            .anchoredDraggable2D(
+                            }.anchoredDraggable2D(
                                 state = selectionDraggableHandleState.state.state,
                                 interactionSource = interactionSource,
-                            )
-                            .semantics {
+                            ).semantics {
                                 val targetValue = selectionDraggableHandleState.state.state.targetValue
-                                contentDescription = parameterizedStringResolver(
-                                    Strings.SelectingBoxHandle(
-                                        targetValue.x,
-                                        targetValue.y,
-                                    ),
-                                )
+                                contentDescription =
+                                    parameterizedStringResolver(
+                                        Strings.SelectingBoxHandle(
+                                            targetValue.x,
+                                            targetValue.y,
+                                        ),
+                                    )
                             },
                     )
                 }
@@ -404,20 +410,24 @@ private class SelectionDraggableHandleState(
     }
 
     val offsetCalculator: () -> Offset = {
-        val xReferenceState = when {
-            state.state.isDraggingOrAnimating() -> state
-            verticalPairState.state.isDraggingOrAnimating() -> verticalPairState
-            else -> state
-        }
-        val yReferenceState = when {
-            state.state.isDraggingOrAnimating() -> state
-            horizontalPairState.state.isDraggingOrAnimating() -> horizontalPairState
-            else -> state
-        }
+        val xReferenceState =
+            when {
+                state.state.isDraggingOrAnimating() -> state
+                verticalPairState.state.isDraggingOrAnimating() -> verticalPairState
+                else -> state
+            }
+        val yReferenceState =
+            when {
+                state.state.isDraggingOrAnimating() -> state
+                horizontalPairState.state.isDraggingOrAnimating() -> horizontalPairState
+                else -> state
+            }
 
         Offset(
             xReferenceState.state.requireOffset().x,
             yReferenceState.state.requireOffset().y,
-        ) + transientSelectingBoxAnimatable.value * scaledCellPixelSize
+        ) +
+            transientSelectingBoxAnimatable.value *
+            scaledCellPixelSize
     }
 }

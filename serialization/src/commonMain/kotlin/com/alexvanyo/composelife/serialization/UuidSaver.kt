@@ -22,7 +22,8 @@ import kotlin.uuid.Uuid
 /**
  * A [Saver] for a [Uuid].
  */
-val uuidSaver: Saver<Uuid, String> = Saver(
-    save = { it.toString() },
-    restore = Uuid::parse,
-)
+val uuidSaver: Saver<Uuid, String> =
+    Saver(
+        save = { it.toString() },
+        restore = Uuid::parse,
+    )

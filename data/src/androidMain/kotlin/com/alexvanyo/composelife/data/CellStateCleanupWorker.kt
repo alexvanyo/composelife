@@ -45,9 +45,6 @@ class CellStateCleanupWorker(
     @WorkerKey(CellStateCleanupWorker::class)
     @AssistedFactory
     fun interface Factory : AssistedWorkerFactory {
-        override fun invoke(
-            appContext: Context,
-            workerParams: WorkerParameters,
-        ): CellStateCleanupWorker
+        override fun invoke(appContext: Context, workerParams: WorkerParameters): CellStateCleanupWorker
     }
 }

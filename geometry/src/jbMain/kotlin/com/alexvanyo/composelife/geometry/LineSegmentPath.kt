@@ -26,9 +26,7 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.math.sign
 
-data class LineSegmentPath(
-    val points: List<Offset>,
-) {
+data class LineSegmentPath(val points: List<Offset>) {
     init {
         require(points.isNotEmpty())
     }
@@ -69,10 +67,11 @@ private fun cellIntersections(start: Offset, end: Offset): Set<IntOffset> =
         } else if (chebyshevDistance == 1) {
             // There are only 3 cells: start, end, and one of their shared neighbors, depending on precisely
             // where the start and end points are
-            val side = Offset(
-                floor(max(start.x, end.x)),
-                floor(max(start.y, end.y)),
-            ).sideOfLine(start, end)
+            val side =
+                Offset(
+                    floor(max(start.x, end.x)),
+                    floor(max(start.y, end.y)),
+                ).sideOfLine(start, end)
             val combinedSign = side * isWest * isNorth
 
             if (combinedSign <= 0f) {
@@ -92,38 +91,43 @@ private fun cellIntersections(start: Offset, end: Offset): Set<IntOffset> =
         val xStep = 1 / normalizedVector.x
         val yStep = 1 / normalizedVector.y
 
-        val tXSequence = generateSequence(
-            xStep * if (isWest > 0f) {
-                floor(start.x) - start.x
-            } else {
-                ceil(start.x) - start.x
-            },
-        ) { it + abs(xStep) }
-        val tYSequence = generateSequence(
-            yStep * if (isNorth > 0f) {
-                floor(start.y) - start.y
-            } else {
-                ceil(start.y) - start.y
-            },
-        ) { it + abs(yStep) }
+        val tXSequence =
+            generateSequence(
+                xStep *
+                    if (isWest > 0f) {
+                        floor(start.x) - start.x
+                    } else {
+                        ceil(start.x) - start.x
+                    },
+            ) { it + abs(xStep) }
+        val tYSequence =
+            generateSequence(
+                yStep *
+                    if (isNorth > 0f) {
+                        floor(start.y) - start.y
+                    } else {
+                        ceil(start.y) - start.y
+                    },
+            ) { it + abs(yStep) }
 
-        val tSequence = sequence {
-            val tXIterator = tXSequence.iterator()
-            val tYIterator = tYSequence.iterator()
+        val tSequence =
+            sequence {
+                val tXIterator = tXSequence.iterator()
+                val tYIterator = tYSequence.iterator()
 
-            var nextX = tXIterator.next()
-            var nextY = tYIterator.next()
+                var nextX = tXIterator.next()
+                var nextY = tYIterator.next()
 
-            while (true) {
-                if (nextX < nextY) {
-                    yield(nextX to true)
-                    nextX = tXIterator.next()
-                } else {
-                    yield(nextY to false)
-                    nextY = tYIterator.next()
+                while (true) {
+                    if (nextX < nextY) {
+                        yield(nextX to true)
+                        nextX = tXIterator.next()
+                    } else {
+                        yield(nextY to false)
+                        nextY = tYIterator.next()
+                    }
                 }
             }
-        }
 
         addAll(
             tSequence

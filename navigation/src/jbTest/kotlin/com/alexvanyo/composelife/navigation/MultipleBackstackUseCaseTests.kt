@@ -47,16 +47,16 @@ class MultipleMutableBackstackNavigationController(
     private val thirdNavController: MutableBackstackNavigationController<String>,
     initialSelectedBackstack: BackstackType = BackstackType.First,
 ) : BackstackState<String> {
-
     var currentBackstack by mutableStateOf(initialSelectedBackstack)
         private set
 
     private val currentNavController: MutableBackstackNavigationController<String>
-        get() = when (currentBackstack) {
-            BackstackType.First -> firstNavController
-            BackstackType.Second -> secondNavController
-            BackstackType.Third -> thirdNavController
-        }
+        get() =
+            when (currentBackstack) {
+                BackstackType.First -> firstNavController
+                BackstackType.Second -> secondNavController
+                BackstackType.Third -> thirdNavController
+            }
 
     override val entryMap: BackstackMap<String>
         get() = firstNavController.entryMap + secondNavController.entryMap + thirdNavController.entryMap
@@ -96,7 +96,6 @@ class MultipleMutableBackstackNavigationController(
     }
 
     companion object {
-
         fun saver(
             firstNavController: MutableBackstackNavigationController<String>,
             secondNavController: MutableBackstackNavigationController<String>,
@@ -119,114 +118,122 @@ class MultipleMutableBackstackNavigationController(
 @OptIn(ExperimentalAnimationApi::class, ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class MultipleBackstackUseCaseTests {
-
     @Suppress("LongMethod")
     @Test
-    fun can_increment_count_on_previous_pane() = runComposeUiTest {
-        setContent {
-            val firstNavController = rememberMutableBackstackNavigationController(
-                initialBackstackEntries = listOf(
-                    BackstackEntry(
-                        "first 1",
-                        previous = null,
-                    ),
-                ),
-            )
-            val secondNavController = rememberMutableBackstackNavigationController(
-                initialBackstackEntries = listOf(
-                    BackstackEntry(
-                        "second 1",
-                        previous = null,
-                    ),
-                ),
-            )
-            val thirdNavController = rememberMutableBackstackNavigationController(
-                initialBackstackEntries = listOf(
-                    BackstackEntry(
-                        "third 1",
-                        previous = null,
-                    ),
-                ),
-            )
-
-            val navController = rememberSaveable(
-                saver = MultipleMutableBackstackNavigationController.saver(
-                    firstNavController,
-                    secondNavController,
-                    thirdNavController,
-                ),
-            ) {
-                MultipleMutableBackstackNavigationController(
-                    firstNavController = firstNavController,
-                    secondNavController = secondNavController,
-                    thirdNavController = thirdNavController,
-                )
-            }
-
-            NavigationHost(
-                navigationState = navController,
-            ) { entry ->
-                var count by rememberSaveable { mutableStateOf(0) }
-
-                Column {
-                    BasicText("value: ${entry.value}, count: $count")
-                    BasicText(
-                        "increment",
-                        Modifier.clickable {
-                            count++
-                        },
+    fun can_increment_count_on_previous_pane() =
+        runComposeUiTest {
+            setContent {
+                val firstNavController =
+                    rememberMutableBackstackNavigationController(
+                        initialBackstackEntries =
+                        listOf(
+                            BackstackEntry(
+                                "first 1",
+                                previous = null,
+                            ),
+                        ),
                     )
-                    if (navController.canNavigateBack) {
+                val secondNavController =
+                    rememberMutableBackstackNavigationController(
+                        initialBackstackEntries =
+                        listOf(
+                            BackstackEntry(
+                                "second 1",
+                                previous = null,
+                            ),
+                        ),
+                    )
+                val thirdNavController =
+                    rememberMutableBackstackNavigationController(
+                        initialBackstackEntries =
+                        listOf(
+                            BackstackEntry(
+                                "third 1",
+                                previous = null,
+                            ),
+                        ),
+                    )
+
+                val navController =
+                    rememberSaveable(
+                        saver =
+                        MultipleMutableBackstackNavigationController.saver(
+                            firstNavController,
+                            secondNavController,
+                            thirdNavController,
+                        ),
+                    ) {
+                        MultipleMutableBackstackNavigationController(
+                            firstNavController = firstNavController,
+                            secondNavController = secondNavController,
+                            thirdNavController = thirdNavController,
+                        )
+                    }
+
+                NavigationHost(
+                    navigationState = navController,
+                ) { entry ->
+                    var count by rememberSaveable { mutableStateOf(0) }
+
+                    Column {
+                        BasicText("value: ${entry.value}, count: $count")
                         BasicText(
-                            "navigate back",
+                            "increment",
                             Modifier.clickable {
-                                navController.popBackstack()
+                                count++
+                            },
+                        )
+                        if (navController.canNavigateBack) {
+                            BasicText(
+                                "navigate back",
+                                Modifier.clickable {
+                                    navController.popBackstack()
+                                },
+                            )
+                        }
+                        BasicText(
+                            "navigate to first",
+                            Modifier.clickable {
+                                navController.onFirstClicked()
+                            },
+                        )
+                        BasicText(
+                            "navigate to second",
+                            Modifier.clickable {
+                                navController.onSecondClicked()
+                            },
+                        )
+                        BasicText(
+                            "navigate to third",
+                            Modifier.clickable {
+                                navController.onThirdClicked()
                             },
                         )
                     }
-                    BasicText(
-                        "navigate to first",
-                        Modifier.clickable {
-                            navController.onFirstClicked()
-                        },
-                    )
-                    BasicText(
-                        "navigate to second",
-                        Modifier.clickable {
-                            navController.onSecondClicked()
-                        },
-                    )
-                    BasicText(
-                        "navigate to third",
-                        Modifier.clickable {
-                            navController.onThirdClicked()
-                        },
-                    )
                 }
             }
+
+            onNodeWithText("value: first 1, count: 0").assertExists()
+            onNodeWithText("navigate back").assertDoesNotExist()
+
+            onNodeWithText("increment").performClick()
+
+            onNodeWithText("value: first 1, count: 1").assertExists()
+
+            onNodeWithText("navigate to second").performClick()
+
+            onNodeWithText("value: second 1, count: 0").assertExists()
+
+            onNodeWithText("increment").performClick()
+
+            onNodeWithText("value: second 1, count: 1").assertExists()
+
+            onNodeWithText("navigate back").performClick()
+
+            onNodeWithText("value: first 1, count: 1").assertExists()
+
+            onNodeWithText("navigate to second").performClick()
+
+            onNodeWithText("value: second 1, count: 1").assertExists()
         }
-
-        onNodeWithText("value: first 1, count: 0").assertExists()
-        onNodeWithText("navigate back").assertDoesNotExist()
-
-        onNodeWithText("increment").performClick()
-
-        onNodeWithText("value: first 1, count: 1").assertExists()
-
-        onNodeWithText("navigate to second").performClick()
-
-        onNodeWithText("value: second 1, count: 0").assertExists()
-
-        onNodeWithText("increment").performClick()
-
-        onNodeWithText("value: second 1, count: 1").assertExists()
-
-        onNodeWithText("navigate back").performClick()
-
-        onNodeWithText("value: first 1, count: 1").assertExists()
-
-        onNodeWithText("navigate to second").performClick()
-
-        onNodeWithText("value: second 1, count: 1").assertExists()
-    }
 }

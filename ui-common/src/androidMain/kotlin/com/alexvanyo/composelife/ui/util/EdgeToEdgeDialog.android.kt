@@ -132,33 +132,34 @@ fun EdgeToEdgeDialog(
     val currentDismissOnBackPress by rememberUpdatedState(properties.dismissOnBackPress)
     val currentContent by rememberUpdatedState(content)
 
-    val dialog = remember(view, density) {
-        DialogWrapper(
-            onDismissRequest = onDismissRequest,
-            properties = properties,
-            composeView = view,
-            windowTheme = windowTheme,
-            layoutDirection = layoutDirection,
-            density = density,
-            dialogId = dialogId,
-        ).apply {
-            setContent(composition) {
-                val completablePredictiveBackStateHolder = rememberCompletablePredictiveBackStateHolder()
+    val dialog =
+        remember(view, density) {
+            DialogWrapper(
+                onDismissRequest = onDismissRequest,
+                properties = properties,
+                composeView = view,
+                windowTheme = windowTheme,
+                layoutDirection = layoutDirection,
+                density = density,
+                dialogId = dialogId,
+            ).apply {
+                setContent(composition) {
+                    val completablePredictiveBackStateHolder = rememberCompletablePredictiveBackStateHolder()
 
-                CompletablePredictiveBackStateHandler(
-                    completablePredictiveBackStateHolder = completablePredictiveBackStateHolder,
-                    enabled = currentDismissOnBackPress,
-                    onBack = { currentOnDismissRequest() },
-                )
+                    CompletablePredictiveBackStateHandler(
+                        completablePredictiveBackStateHolder = completablePredictiveBackStateHolder,
+                        enabled = currentDismissOnBackPress,
+                        onBack = { currentOnDismissRequest() },
+                    )
 
-                DialogLayout(
-                    Modifier.semantics { dialog() },
-                ) {
-                    currentContent(completablePredictiveBackStateHolder)
+                    DialogLayout(
+                        Modifier.semantics { dialog() },
+                    ) {
+                        currentContent(completablePredictiveBackStateHolder)
+                    }
                 }
             }
         }
-    }
 
     DisposableEffect(dialog) {
         dialog.show()
@@ -189,7 +190,8 @@ actual fun PlatformEdgeToEdgeDialog(
     properties = properties,
     scrim = {
         Spacer(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxSize()
                 .then(
                     if (properties.dismissOnClickOutside) {
@@ -224,7 +226,8 @@ fun PlatformEdgeToEdgeDialog(
     properties: DialogProperties = DialogProperties(),
     scrim: @Composable () -> Unit = {
         Spacer(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxSize()
                 .then(
                     if (properties.dismissOnClickOutside) {
@@ -249,32 +252,41 @@ fun PlatformEdgeToEdgeDialog(
     ) {
         scrim()
 
-        val sizeModifier = if (properties.usePlatformDefaultWidth) {
-            // This is a reimplementation of the intrinsic logic from
-            // https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/com/android/internal/policy/DecorView.java;l=757;drc=e41472bd05b233b5946b30b3d862f043c30f54c7
-            val widthResource = if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                android.R.dimen.dialog_min_width_minor
-            } else {
-                android.R.dimen.dialog_min_width_major
-            }
-            val typedValue = TypedValue().also {
-                LocalResources.current.getValue(widthResource, it, true)
-            }
-            when (typedValue.type) {
-                TypedValue.TYPE_DIMENSION -> {
-                    Modifier.widthIn(
-                        min = with(LocalDensity.current) {
-                            typedValue.getDimension(LocalResources.current.displayMetrics).toDp()
-                        },
-                    )
+        val sizeModifier =
+            if (properties.usePlatformDefaultWidth) {
+                // This is a reimplementation of the intrinsic logic from
+                // https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/com/android/internal/policy/DecorView.java;l=757;drc=e41472bd05b233b5946b30b3d862f043c30f54c7
+                val widthResource =
+                    if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                        android.R.dimen.dialog_min_width_minor
+                    } else {
+                        android.R.dimen.dialog_min_width_major
+                    }
+                val typedValue =
+                    TypedValue().also {
+                        LocalResources.current.getValue(widthResource, it, true)
+                    }
+                when (typedValue.type) {
+                    TypedValue.TYPE_DIMENSION -> {
+                        Modifier.widthIn(
+                            min =
+                            with(LocalDensity.current) {
+                                typedValue.getDimension(LocalResources.current.displayMetrics).toDp()
+                            },
+                        )
+                    }
+
+                    TypedValue.TYPE_FRACTION -> {
+                        Modifier.fillMaxWidth(fraction = typedValue.getFraction(1f, 1f))
+                    }
+
+                    else -> {
+                        Modifier
+                    }
                 }
-                TypedValue.TYPE_FRACTION ->
-                    Modifier.fillMaxWidth(fraction = typedValue.getFraction(1f, 1f))
-                else -> Modifier
+            } else {
+                Modifier
             }
-        } else {
-            Modifier
-        }
 
         val predictiveBackState = predictiveBackStateHolder.value
 
@@ -282,16 +294,25 @@ fun PlatformEdgeToEdgeDialog(
             mutableStateOf<CompletablePredictiveBackState.Running?>(null)
         }.apply {
             when (predictiveBackState) {
-                CompletablePredictiveBackState.NotRunning -> value = null
-                is CompletablePredictiveBackState.Running -> if (predictiveBackState.progress >= 0.01f) {
-                    // Only save that we were disappearing if the progress is at least 1% along
-                    value = predictiveBackState
+                CompletablePredictiveBackState.NotRunning -> {
+                    value = null
                 }
-                CompletablePredictiveBackState.Completed -> Unit
+
+                is CompletablePredictiveBackState.Running -> {
+                    if (predictiveBackState.progress >= 0.01f) {
+                        // Only save that we were disappearing if the progress is at least 1% along
+                        value = predictiveBackState
+                    }
+                }
+
+                CompletablePredictiveBackState.Completed -> {
+                    Unit
+                }
             }
         }
         val scale by animateFloatAsState(
-            targetValue = when (predictiveBackState) {
+            targetValue =
+            when (predictiveBackState) {
                 CompletablePredictiveBackState.NotRunning -> 1f
                 is CompletablePredictiveBackState.Running -> lerp(1f, 0.9f, predictiveBackState.progress)
                 CompletablePredictiveBackState.Completed -> 0.9f
@@ -300,35 +321,51 @@ fun PlatformEdgeToEdgeDialog(
         ) {
         }
         val translationX by animateDpAsState(
-            targetValue = when (predictiveBackState) {
-                CompletablePredictiveBackState.NotRunning -> 0.dp
-                is CompletablePredictiveBackState.Running -> lerp(
-                    0.dp,
-                    8.dp,
-                    predictiveBackState.progress,
-                ) * when (predictiveBackState.backEventEdge) {
-                    BackEventEdge.None -> 0f
-                    BackEventEdge.Left -> -1f
-                    BackEventEdge.Right -> 1f
+            targetValue =
+            when (predictiveBackState) {
+                CompletablePredictiveBackState.NotRunning -> {
+                    0.dp
                 }
+
+                is CompletablePredictiveBackState.Running -> {
+                    lerp(
+                        0.dp,
+                        8.dp,
+                        predictiveBackState.progress,
+                    ) *
+                        when (predictiveBackState.backEventEdge) {
+                            BackEventEdge.None -> 0f
+                            BackEventEdge.Left -> -1f
+                            BackEventEdge.Right -> 1f
+                        }
+                }
+
                 CompletablePredictiveBackState.Completed -> {
-                    8.dp * when (lastRunningValue?.backEventEdge) {
-                        null, BackEventEdge.None -> 0f
-                        BackEventEdge.Left -> -1f
-                        BackEventEdge.Right -> 1f
-                    }
+                    8.dp *
+                        when (lastRunningValue?.backEventEdge) {
+                            null, BackEventEdge.None -> 0f
+                            BackEventEdge.Left -> -1f
+                            BackEventEdge.Right -> 1f
+                        }
                 }
             },
             label = "translationX",
         )
         val pivotFractionX by animateFloatAsState(
-            targetValue = when (predictiveBackState) {
-                CompletablePredictiveBackState.NotRunning -> 0.5f
-                is CompletablePredictiveBackState.Running -> when (predictiveBackState.backEventEdge) {
-                    BackEventEdge.None -> 0.5f
-                    BackEventEdge.Left -> 1f
-                    BackEventEdge.Right -> 0f
+            targetValue =
+            when (predictiveBackState) {
+                CompletablePredictiveBackState.NotRunning -> {
+                    0.5f
                 }
+
+                is CompletablePredictiveBackState.Running -> {
+                    when (predictiveBackState.backEventEdge) {
+                        BackEventEdge.None -> 0.5f
+                        BackEventEdge.Left -> 1f
+                        BackEventEdge.Right -> 0f
+                    }
+                }
+
                 CompletablePredictiveBackState.Completed -> {
                     when (lastRunningValue?.backEventEdge) {
                         null, BackEventEdge.None -> 0.5f
@@ -341,7 +378,8 @@ fun PlatformEdgeToEdgeDialog(
         )
 
         Box(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .safeDrawingPadding()
                 .graphicsLayer {
                     this.translationX = translationX.toPx()
@@ -349,8 +387,7 @@ fun PlatformEdgeToEdgeDialog(
                     this.scaleX = scale
                     this.scaleY = scale
                     this.transformOrigin = TransformOrigin(pivotFractionX, 0.5f)
-                }
-                .then(sizeModifier),
+                }.then(sizeModifier),
             contentAlignment = Alignment.Center,
         ) {
             content()
@@ -367,8 +404,8 @@ private class DialogWrapper(
     layoutDirection: LayoutDirection,
     density: Density,
     dialogId: UUID,
-) : ComponentDialog(ContextThemeWrapper(composeView.context, windowTheme)), ViewRootForInspector {
-
+) : ComponentDialog(ContextThemeWrapper(composeView.context, windowTheme)),
+    ViewRootForInspector {
     private val dialogLayout: DialogLayout
 
     // On systems older than Android S, there is a bug in the surface insets matrix math used by
@@ -380,28 +417,30 @@ private class DialogWrapper(
     init {
         val window = window ?: error("Dialog has no window")
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        dialogLayout = DialogLayout(context, window).apply {
-            // Set unique id for AbstractComposeView. This allows state restoration for the state
-            // defined inside the Dialog via rememberSaveable()
-            setTag(R.id.compose_view_saveable_id_tag, "Dialog:$dialogId")
-            // Enable children to draw their shadow by not clipping them
-            clipChildren = false
-            // Allocate space for elevation
-            with(density) { elevation = maxSupportedElevation.toPx() }
-            // Simple outline to force window manager to allocate space for shadow.
-            // Note that the outline affects clickable area for the dismiss listener. In case of
-            // shapes like circle the area for dismiss might be to small (rectangular outline
-            // consuming clicks outside of the circle).
-            outlineProvider = object : ViewOutlineProvider() {
-                override fun getOutline(view: View, result: Outline) {
-                    result.setRect(0, 0, view.width, view.height)
-                    // We set alpha to 0 to hide the view's shadow and let the composable to draw
-                    // its own shadow. This still enables us to get the extra space needed in the
-                    // surface.
-                    result.alpha = 0f
-                }
+        dialogLayout =
+            DialogLayout(context, window).apply {
+                // Set unique id for AbstractComposeView. This allows state restoration for the state
+                // defined inside the Dialog via rememberSaveable()
+                setTag(R.id.compose_view_saveable_id_tag, "Dialog:$dialogId")
+                // Enable children to draw their shadow by not clipping them
+                clipChildren = false
+                // Allocate space for elevation
+                with(density) { elevation = maxSupportedElevation.toPx() }
+                // Simple outline to force window manager to allocate space for shadow.
+                // Note that the outline affects clickable area for the dismiss listener. In case of
+                // shapes like circle the area for dismiss might be to small (rectangular outline
+                // consuming clicks outside of the circle).
+                outlineProvider =
+                    object : ViewOutlineProvider() {
+                        override fun getOutline(view: View, result: Outline) {
+                            result.setRect(0, 0, view.width, view.height)
+                            // We set alpha to 0 to hide the view's shadow and let the composable to draw
+                            // its own shadow. This still enables us to get the extra space needed in the
+                            // surface.
+                            result.alpha = 0f
+                        }
+                    }
             }
-        }
 
         /**
          * Disables clipping for [this] and all its descendant [ViewGroup]s until we reach a
@@ -435,16 +474,14 @@ private class DialogWrapper(
     }
 
     private fun setLayoutDirection(layoutDirection: LayoutDirection) {
-        dialogLayout.layoutDirection = when (layoutDirection) {
-            LayoutDirection.Ltr -> android.util.LayoutDirection.LTR
-            LayoutDirection.Rtl -> android.util.LayoutDirection.RTL
-        }
+        dialogLayout.layoutDirection =
+            when (layoutDirection) {
+                LayoutDirection.Ltr -> android.util.LayoutDirection.LTR
+                LayoutDirection.Rtl -> android.util.LayoutDirection.RTL
+            }
     }
 
-    fun setContent(
-        parentComposition: CompositionContext,
-        children: @Composable () -> Unit,
-    ) {
+    fun setContent(parentComposition: CompositionContext, children: @Composable () -> Unit) {
         dialogLayout.setContent(parentComposition, children)
     }
 
@@ -508,11 +545,9 @@ private class DialogWrapper(
 }
 
 @Suppress("ViewConstructor")
-private class DialogLayout(
-    context: Context,
-    override val window: Window,
-) : AbstractComposeView(context), DialogWindowProvider {
-
+private class DialogLayout(context: Context, override val window: Window) :
+    AbstractComposeView(context),
+    DialogWindowProvider {
     private var content: @Composable () -> Unit by mutableStateOf({})
 
     override var shouldCreateCompositionOnAttachedToWindow: Boolean = false
@@ -533,10 +568,7 @@ private class DialogLayout(
 }
 
 @Composable
-private fun DialogLayout(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
+private fun DialogLayout(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Layout(
         content = content,
         modifier = modifier,
@@ -577,19 +609,22 @@ internal fun EdgeToEdgeDialogPreview() {
         verticalArrangement = Arrangement.Center,
     ) {
         BasicText(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .height(64.dp)
                 .clickable { showEdgeToEdgeDialog = true },
             text = "Show edge-to-edge dialog",
         )
         BasicText(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .height(64.dp)
                 .clickable { showBuiltInDialog = true },
             text = "Show built-in dialog",
         )
         BasicText(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .height(64.dp)
                 .clickable { showPlatformEdgeToEdgeDialog = true },
             text = "Show platform edge-to-edge dialog",
@@ -608,7 +643,8 @@ internal fun EdgeToEdgeDialogPreview() {
             ) {
                 val scrimColor = Color.Black.copy(alpha = 0.6f)
                 Canvas(
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .fillMaxSize()
                         .pointerInput(Unit) {
                             detectTapGestures { hideEdgeToEdgeDialog() }
@@ -621,7 +657,8 @@ internal fun EdgeToEdgeDialogPreview() {
                     )
                 }
                 Box(
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .fillMaxSize()
                         .background(Color.Red)
                         .pointerInput(Unit) {},
@@ -638,7 +675,8 @@ internal fun EdgeToEdgeDialogPreview() {
             onDismissRequest = { showBuiltInDialog = false },
         ) {
             Box(
-                modifier = Modifier
+                modifier =
+                Modifier
                     .fillMaxSize()
                     .background(Color.Red),
                 contentAlignment = Alignment.Center,
@@ -653,7 +691,8 @@ internal fun EdgeToEdgeDialogPreview() {
             onDismissRequest = { showPlatformEdgeToEdgeDialog = false },
         ) {
             Box(
-                modifier = Modifier
+                modifier =
+                Modifier
                     .fillMaxSize()
                     .background(Color.Red)
                     .pointerInput(Unit) {},

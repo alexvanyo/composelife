@@ -50,329 +50,335 @@ import kotlin.uuid.Uuid
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class EditableSliderTests {
-
     @Test
-    fun is_displayed_correctly() = runComposeUiTest {
-        var sessionValue by mutableStateOf(SessionValue(Uuid.random(), Uuid.random(), 0f))
+    fun is_displayed_correctly() =
+        runComposeUiTest {
+            var sessionValue by mutableStateOf(SessionValue(Uuid.random(), Uuid.random(), 0f))
 
-        setContent {
-            EditableSlider(
-                labelAndValueText = { "float: $it" },
-                valueText = { it.toString() },
-                labelText = "float",
-                textToValue = String::toFloatOrNull,
-                sessionValue = sessionValue,
-                onSessionValueChange = { _, newValue ->
-                    sessionValue = newValue
-                },
-                valueRange = 0f..1f,
-                sliderBijection = Float.IdentitySliderBijection,
-            )
-        }
-
-        onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("0.0")))
-            .assertIsNotFocused()
-        onNodeWithContentDescription("float: 0.0")
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.0f, range = 0f..1f)))
-    }
-
-    @Test
-    fun is_updated_correctly_with_slider() = runComposeUiTest {
-        var sessionValue by mutableStateOf(SessionValue(Uuid.random(), Uuid.random(), 0f))
-
-        setContent {
-            EditableSlider(
-                labelAndValueText = { "float: $it" },
-                valueText = { it.toString() },
-                labelText = "float",
-                textToValue = String::toFloatOrNull,
-                sessionValue = sessionValue,
-                onSessionValueChange = { _, newValue ->
-                    sessionValue = newValue
-                },
-                valueRange = 0f..1f,
-                sliderBijection = Float.IdentitySliderBijection,
-            )
-        }
-
-        onNodeWithContentDescription("float: 0.0")
-            .performSemanticsAction(SemanticsActions.SetProgress) {
-                it(0.5f)
+            setContent {
+                EditableSlider(
+                    labelAndValueText = { "float: $it" },
+                    valueText = { it.toString() },
+                    labelText = "float",
+                    textToValue = String::toFloatOrNull,
+                    sessionValue = sessionValue,
+                    onSessionValueChange = { _, newValue ->
+                        sessionValue = newValue
+                    },
+                    valueRange = 0f..1f,
+                    sliderBijection = Float.IdentitySliderBijection,
+                )
             }
 
-        onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("0.5")))
-            .assertIsNotFocused()
-        onNodeWithContentDescription("float: 0.5")
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.5f, range = 0f..1f)))
-
-        assertEquals(0.5f, sessionValue.value)
-    }
-
-    @Test
-    fun is_updated_correctly_with_text() = runComposeUiTest {
-        var sessionValue by mutableStateOf(SessionValue(Uuid.random(), Uuid.random(), 0f))
-
-        setContent {
-            EditableSlider(
-                labelAndValueText = { "float: $it" },
-                valueText = { it.toString() },
-                labelText = "float",
-                textToValue = String::toFloatOrNull,
-                sessionValue = sessionValue,
-                onSessionValueChange = { _, newValue ->
-                    sessionValue = newValue
-                },
-                valueRange = 0f..1f,
-                sliderBijection = Float.IdentitySliderBijection,
-            )
+            onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("0.0")))
+                .assertIsNotFocused()
+            onNodeWithContentDescription("float: 0.0")
+                .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.0f, range = 0f..1f)))
         }
 
-        onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
-            .performTextReplacement("0.5")
-
-        onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("0.5")))
-            .assertIsFocused()
-        onNodeWithContentDescription("float: 0.5")
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.5f, range = 0f..1f)))
-        assertEquals(0.5f, sessionValue.value)
-
-        onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
-            .performImeAction()
-
-        onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("0.5")))
-            .assertIsNotFocused()
-        onNodeWithContentDescription("float: 0.5")
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.5f, range = 0f..1f)))
-        assertEquals(0.5f, sessionValue.value)
-    }
-
     @Test
-    fun is_updated_correctly_with_text_clearing() = runComposeUiTest {
-        var sessionValue by mutableStateOf(SessionValue(Uuid.random(), Uuid.random(), 0.5f))
+    fun is_updated_correctly_with_slider() =
+        runComposeUiTest {
+            var sessionValue by mutableStateOf(SessionValue(Uuid.random(), Uuid.random(), 0f))
 
-        setContent {
-            EditableSlider(
-                labelAndValueText = { "float: $it" },
-                valueText = { it.toString() },
-                labelText = "float",
-                textToValue = String::toFloatOrNull,
-                sessionValue = sessionValue,
-                onSessionValueChange = { _, newValue ->
-                    sessionValue = newValue
-                },
-                valueRange = 0f..1f,
-                sliderBijection = Float.IdentitySliderBijection,
-            )
+            setContent {
+                EditableSlider(
+                    labelAndValueText = { "float: $it" },
+                    valueText = { it.toString() },
+                    labelText = "float",
+                    textToValue = String::toFloatOrNull,
+                    sessionValue = sessionValue,
+                    onSessionValueChange = { _, newValue ->
+                        sessionValue = newValue
+                    },
+                    valueRange = 0f..1f,
+                    sliderBijection = Float.IdentitySliderBijection,
+                )
+            }
+
+            onNodeWithContentDescription("float: 0.0")
+                .performSemanticsAction(SemanticsActions.SetProgress) {
+                    it(0.5f)
+                }
+
+            onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("0.5")))
+                .assertIsNotFocused()
+            onNodeWithContentDescription("float: 0.5")
+                .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.5f, range = 0f..1f)))
+
+            assertEquals(0.5f, sessionValue.value)
         }
 
-        onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
-            .performTextClearance()
-
-        onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("")))
-            .assertIsFocused()
-        onNodeWithContentDescription("float: 0.5")
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.5f, range = 0f..1f)))
-        assertEquals(0.5f, sessionValue.value)
-
-        onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
-            .performImeAction()
-
-        onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("0.5")))
-            .assertIsNotFocused()
-        onNodeWithContentDescription("float: 0.5")
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.5f, range = 0f..1f)))
-        assertEquals(0.5f, sessionValue.value)
-    }
-
     @Test
-    fun is_updated_correctly_with_text_out_of_range() = runComposeUiTest {
-        var sessionValue by mutableStateOf(SessionValue(Uuid.random(), Uuid.random(), 0.5f))
+    fun is_updated_correctly_with_text() =
+        runComposeUiTest {
+            var sessionValue by mutableStateOf(SessionValue(Uuid.random(), Uuid.random(), 0f))
 
-        setContent {
-            EditableSlider(
-                labelAndValueText = { "float: $it" },
-                valueText = { it.toString() },
-                labelText = "float",
-                textToValue = String::toFloatOrNull,
-                sessionValue = sessionValue,
-                onSessionValueChange = { _, newValue ->
-                    sessionValue = newValue
-                },
-                valueRange = 0f..1f,
-                sliderBijection = Float.IdentitySliderBijection,
-            )
+            setContent {
+                EditableSlider(
+                    labelAndValueText = { "float: $it" },
+                    valueText = { it.toString() },
+                    labelText = "float",
+                    textToValue = String::toFloatOrNull,
+                    sessionValue = sessionValue,
+                    onSessionValueChange = { _, newValue ->
+                        sessionValue = newValue
+                    },
+                    valueRange = 0f..1f,
+                    sliderBijection = Float.IdentitySliderBijection,
+                )
+            }
+
+            onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
+                .performTextReplacement("0.5")
+
+            onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("0.5")))
+                .assertIsFocused()
+            onNodeWithContentDescription("float: 0.5")
+                .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.5f, range = 0f..1f)))
+            assertEquals(0.5f, sessionValue.value)
+
+            onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
+                .performImeAction()
+
+            onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("0.5")))
+                .assertIsNotFocused()
+            onNodeWithContentDescription("float: 0.5")
+                .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.5f, range = 0f..1f)))
+            assertEquals(0.5f, sessionValue.value)
         }
 
-        onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
-            .performTextReplacement("2.5")
+    @Test
+    fun is_updated_correctly_with_text_clearing() =
+        runComposeUiTest {
+            var sessionValue by mutableStateOf(SessionValue(Uuid.random(), Uuid.random(), 0.5f))
 
-        onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("2.5")))
-            .assertIsFocused()
-        onNodeWithContentDescription("float: 1.0")
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 1f, range = 0f..1f)))
-        assertEquals(1f, sessionValue.value)
+            setContent {
+                EditableSlider(
+                    labelAndValueText = { "float: $it" },
+                    valueText = { it.toString() },
+                    labelText = "float",
+                    textToValue = String::toFloatOrNull,
+                    sessionValue = sessionValue,
+                    onSessionValueChange = { _, newValue ->
+                        sessionValue = newValue
+                    },
+                    valueRange = 0f..1f,
+                    sliderBijection = Float.IdentitySliderBijection,
+                )
+            }
 
-        onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
-            .performImeAction()
+            onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
+                .performTextClearance()
 
-        onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("1.0")))
-            .assertIsNotFocused()
-        onNodeWithContentDescription("float: 1.0")
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 1f, range = 0f..1f)))
-        assertEquals(1f, sessionValue.value)
-    }
+            onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("")))
+                .assertIsFocused()
+            onNodeWithContentDescription("float: 0.5")
+                .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.5f, range = 0f..1f)))
+            assertEquals(0.5f, sessionValue.value)
+
+            onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
+                .performImeAction()
+
+            onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("0.5")))
+                .assertIsNotFocused()
+            onNodeWithContentDescription("float: 0.5")
+                .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.5f, range = 0f..1f)))
+            assertEquals(0.5f, sessionValue.value)
+        }
+
+    @Test
+    fun is_updated_correctly_with_text_out_of_range() =
+        runComposeUiTest {
+            var sessionValue by mutableStateOf(SessionValue(Uuid.random(), Uuid.random(), 0.5f))
+
+            setContent {
+                EditableSlider(
+                    labelAndValueText = { "float: $it" },
+                    valueText = { it.toString() },
+                    labelText = "float",
+                    textToValue = String::toFloatOrNull,
+                    sessionValue = sessionValue,
+                    onSessionValueChange = { _, newValue ->
+                        sessionValue = newValue
+                    },
+                    valueRange = 0f..1f,
+                    sliderBijection = Float.IdentitySliderBijection,
+                )
+            }
+
+            onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
+                .performTextReplacement("2.5")
+
+            onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("2.5")))
+                .assertIsFocused()
+            onNodeWithContentDescription("float: 1.0")
+                .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 1f, range = 0f..1f)))
+            assertEquals(1f, sessionValue.value)
+
+            onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
+                .performImeAction()
+
+            onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("1.0")))
+                .assertIsNotFocused()
+            onNodeWithContentDescription("float: 1.0")
+                .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 1f, range = 0f..1f)))
+            assertEquals(1f, sessionValue.value)
+        }
 
     @Suppress("LongMethod")
     @Test
-    fun multiple_concurrent_editable_sliders_are_updated_correctly_with_slider() = runComposeUiTest {
-        var sessionValue by mutableStateOf(SessionValue(Uuid.random(), Uuid.random(), 0f))
+    fun multiple_concurrent_editable_sliders_are_updated_correctly_with_slider() =
+        runComposeUiTest {
+            var sessionValue by mutableStateOf(SessionValue(Uuid.random(), Uuid.random(), 0f))
 
-        setContent {
-            Column {
-                EditableSlider(
-                    labelAndValueText = { "float 1: $it" },
-                    valueText = { it.toString() },
-                    labelText = "float 1",
-                    textToValue = String::toFloatOrNull,
-                    sessionValue = sessionValue,
-                    onSessionValueChange = { _, newValue ->
-                        sessionValue = newValue
-                    },
-                    valueRange = 0f..1f,
-                    sliderBijection = Float.IdentitySliderBijection,
-                )
-                EditableSlider(
-                    labelAndValueText = { "float 2: $it" },
-                    valueText = { it.toString() },
-                    labelText = "float 2",
-                    textToValue = String::toFloatOrNull,
-                    sessionValue = sessionValue,
-                    onSessionValueChange = { _, newValue ->
-                        sessionValue = newValue
-                    },
-                    valueRange = 0f..1f,
-                    sliderBijection = Float.IdentitySliderBijection,
-                )
+            setContent {
+                Column {
+                    EditableSlider(
+                        labelAndValueText = { "float 1: $it" },
+                        valueText = { it.toString() },
+                        labelText = "float 1",
+                        textToValue = String::toFloatOrNull,
+                        sessionValue = sessionValue,
+                        onSessionValueChange = { _, newValue ->
+                            sessionValue = newValue
+                        },
+                        valueRange = 0f..1f,
+                        sliderBijection = Float.IdentitySliderBijection,
+                    )
+                    EditableSlider(
+                        labelAndValueText = { "float 2: $it" },
+                        valueText = { it.toString() },
+                        labelText = "float 2",
+                        textToValue = String::toFloatOrNull,
+                        sessionValue = sessionValue,
+                        onSessionValueChange = { _, newValue ->
+                            sessionValue = newValue
+                        },
+                        valueRange = 0f..1f,
+                        sliderBijection = Float.IdentitySliderBijection,
+                    )
+                }
             }
+
+            onNodeWithContentDescription("float 1: 0.0")
+                .performSemanticsAction(SemanticsActions.SetProgress) {
+                    it(0.5f)
+                }
+
+            onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float 1"))
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("0.5")))
+                .assertIsNotFocused()
+            onNodeWithContentDescription("float 1: 0.5")
+                .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.5f, range = 0f..1f)))
+
+            onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float 2"))
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("0.5")))
+                .assertIsNotFocused()
+            onNodeWithContentDescription("float 2: 0.5")
+                .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.5f, range = 0f..1f)))
+
+            assertEquals(0.5f, sessionValue.value)
+
+            onNodeWithContentDescription("float 2: 0.5")
+                .performSemanticsAction(SemanticsActions.SetProgress) {
+                    it(0.25f)
+                }
+
+            onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float 1"))
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("0.25")))
+                .assertIsNotFocused()
+            onNodeWithContentDescription("float 1: 0.25")
+                .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.25f, range = 0f..1f)))
+
+            onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float 2"))
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("0.25")))
+                .assertIsNotFocused()
+            onNodeWithContentDescription("float 2: 0.25")
+                .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.25f, range = 0f..1f)))
+
+            assertEquals(0.25f, sessionValue.value)
         }
-
-        onNodeWithContentDescription("float 1: 0.0")
-            .performSemanticsAction(SemanticsActions.SetProgress) {
-                it(0.5f)
-            }
-
-        onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float 1"))
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("0.5")))
-            .assertIsNotFocused()
-        onNodeWithContentDescription("float 1: 0.5")
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.5f, range = 0f..1f)))
-
-        onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float 2"))
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("0.5")))
-            .assertIsNotFocused()
-        onNodeWithContentDescription("float 2: 0.5")
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.5f, range = 0f..1f)))
-
-        assertEquals(0.5f, sessionValue.value)
-
-        onNodeWithContentDescription("float 2: 0.5")
-            .performSemanticsAction(SemanticsActions.SetProgress) {
-                it(0.25f)
-            }
-
-        onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float 1"))
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("0.25")))
-            .assertIsNotFocused()
-        onNodeWithContentDescription("float 1: 0.25")
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.25f, range = 0f..1f)))
-
-        onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float 2"))
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("0.25")))
-            .assertIsNotFocused()
-        onNodeWithContentDescription("float 2: 0.25")
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.25f, range = 0f..1f)))
-
-        assertEquals(0.25f, sessionValue.value)
-    }
 
     @Suppress("LongMethod")
     @Test
-    fun multiple_concurrent_editable_sliders_are_updated_correctly_with_text() = runComposeUiTest {
-        var sessionValue by mutableStateOf(SessionValue(Uuid.random(), Uuid.random(), 0f))
+    fun multiple_concurrent_editable_sliders_are_updated_correctly_with_text() =
+        runComposeUiTest {
+            var sessionValue by mutableStateOf(SessionValue(Uuid.random(), Uuid.random(), 0f))
 
-        setContent {
-            Column {
-                EditableSlider(
-                    labelAndValueText = { "float 1: $it" },
-                    valueText = { it.toString() },
-                    labelText = "float 1",
-                    textToValue = String::toFloatOrNull,
-                    sessionValue = sessionValue,
-                    onSessionValueChange = { _, newValue ->
-                        sessionValue = newValue
-                    },
-                    valueRange = 0f..1f,
-                    sliderBijection = Float.IdentitySliderBijection,
-                )
-                EditableSlider(
-                    labelAndValueText = { "float 2: $it" },
-                    valueText = { it.toString() },
-                    labelText = "float 2",
-                    textToValue = String::toFloatOrNull,
-                    sessionValue = sessionValue,
-                    onSessionValueChange = { _, newValue ->
-                        sessionValue = newValue
-                    },
-                    valueRange = 0f..1f,
-                    sliderBijection = Float.IdentitySliderBijection,
-                )
+            setContent {
+                Column {
+                    EditableSlider(
+                        labelAndValueText = { "float 1: $it" },
+                        valueText = { it.toString() },
+                        labelText = "float 1",
+                        textToValue = String::toFloatOrNull,
+                        sessionValue = sessionValue,
+                        onSessionValueChange = { _, newValue ->
+                            sessionValue = newValue
+                        },
+                        valueRange = 0f..1f,
+                        sliderBijection = Float.IdentitySliderBijection,
+                    )
+                    EditableSlider(
+                        labelAndValueText = { "float 2: $it" },
+                        valueText = { it.toString() },
+                        labelText = "float 2",
+                        textToValue = String::toFloatOrNull,
+                        sessionValue = sessionValue,
+                        onSessionValueChange = { _, newValue ->
+                            sessionValue = newValue
+                        },
+                        valueRange = 0f..1f,
+                        sliderBijection = Float.IdentitySliderBijection,
+                    )
+                }
             }
+
+            onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float 1"))
+                .performTextReplacement("0.5")
+            onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float 1"))
+                .performImeAction()
+
+            onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float 1"))
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("0.5")))
+                .assertIsNotFocused()
+            onNodeWithContentDescription("float 1: 0.5")
+                .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.5f, range = 0f..1f)))
+
+            onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float 2"))
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("0.5")))
+                .assertIsNotFocused()
+            onNodeWithContentDescription("float 2: 0.5")
+                .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.5f, range = 0f..1f)))
+
+            assertEquals(0.5f, sessionValue.value)
+
+            onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float 2"))
+                .performTextReplacement("0.25")
+            onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float 2"))
+                .performImeAction()
+
+            onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float 1"))
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("0.25")))
+                .assertIsNotFocused()
+            onNodeWithContentDescription("float 1: 0.25")
+                .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.25f, range = 0f..1f)))
+
+            onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float 2"))
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("0.25")))
+                .assertIsNotFocused()
+            onNodeWithContentDescription("float 2: 0.25")
+                .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.25f, range = 0f..1f)))
+
+            assertEquals(0.25f, sessionValue.value)
         }
-
-        onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float 1"))
-            .performTextReplacement("0.5")
-        onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float 1"))
-            .performImeAction()
-
-        onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float 1"))
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("0.5")))
-            .assertIsNotFocused()
-        onNodeWithContentDescription("float 1: 0.5")
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.5f, range = 0f..1f)))
-
-        onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float 2"))
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("0.5")))
-            .assertIsNotFocused()
-        onNodeWithContentDescription("float 2: 0.5")
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.5f, range = 0f..1f)))
-
-        assertEquals(0.5f, sessionValue.value)
-
-        onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float 2"))
-            .performTextReplacement("0.25")
-        onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float 2"))
-            .performImeAction()
-
-        onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float 1"))
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("0.25")))
-            .assertIsNotFocused()
-        onNodeWithContentDescription("float 1: 0.25")
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.25f, range = 0f..1f)))
-
-        onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float 2"))
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("0.25")))
-            .assertIsNotFocused()
-        onNodeWithContentDescription("float 2: 0.25")
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0.25f, range = 0f..1f)))
-
-        assertEquals(0.25f, sessionValue.value)
-    }
 }

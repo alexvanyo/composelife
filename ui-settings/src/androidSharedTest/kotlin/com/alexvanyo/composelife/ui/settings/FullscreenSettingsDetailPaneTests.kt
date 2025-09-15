@@ -65,73 +65,75 @@ val UiGraph.fullscreenSettingsDetailPaneTestsCtx: FullscreenSettingsDetailPaneTe
     this as FullscreenSettingsDetailPaneTestsCtx
 
 @OptIn(ExperimentalTestApi::class)
-class FullscreenSettingsDetailPaneTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
+class FullscreenSettingsDetailPaneTests :
+    BaseUiInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
     @Test
-    fun visual_settings_category_keeps_scroll_position_with_ime() = runUiTest { uiGraph ->
-        assumeTrue(Build.VERSION.SDK_INT >= 30)
-        val ctx = uiGraph.fullscreenSettingsDetailPaneTestsCtx
+    fun visual_settings_category_keeps_scroll_position_with_ime() =
+        runUiTest { uiGraph ->
+            assumeTrue(Build.VERSION.SDK_INT >= 30)
+            val ctx = uiGraph.fullscreenSettingsDetailPaneTestsCtx
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        var imeBottom by mutableStateOf(0.dp)
+            var imeBottom by mutableStateOf(0.dp)
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            with(ctx.fullscreenSettingsDetailPaneCtx) {
-                DeviceConfigurationOverride(
-                    DeviceConfigurationOverride.ForcedSize(DpSize(400.dp, 1200.dp)),
-                ) {
+            setContent {
+                resolver = parameterizedStringResolver()
+                with(ctx.fullscreenSettingsDetailPaneCtx) {
                     DeviceConfigurationOverride(
-                        DeviceConfigurationOverride.WindowInsets(
-                            WindowInsetsCompat.Builder()
-                                .setInsets(
-                                    WindowInsetsCompat.Type.ime(),
-                                    with(LocalDensity.current) {
-                                        DpRect(0.dp, 0.dp, 0.dp, imeBottom).toRect()
-                                    }.roundToIntRect().toAndroidXInsets(),
-                                )
-                                .build(),
-                        ),
+                        DeviceConfigurationOverride.ForcedSize(DpSize(400.dp, 1200.dp)),
                     ) {
-                        FullscreenSettingsDetailPane(
-                            fullscreenSettingsDetailPaneState = object : FullscreenSettingsDetailPaneState {
-                                override val settingsCategory = SettingsCategory.Visual
-                                override val settingToScrollTo = null
-                                override fun onFinishedScrollingToSetting() = Unit
+                        DeviceConfigurationOverride(
+                            DeviceConfigurationOverride.WindowInsets(
+                                WindowInsetsCompat
+                                    .Builder()
+                                    .setInsets(
+                                        WindowInsetsCompat.Type.ime(),
+                                        with(LocalDensity.current) {
+                                            DpRect(0.dp, 0.dp, 0.dp, imeBottom).toRect()
+                                        }.roundToIntRect().toAndroidXInsets(),
+                                    ).build(),
+                            ),
+                        ) {
+                            FullscreenSettingsDetailPane(
+                                fullscreenSettingsDetailPaneState =
+                                object : FullscreenSettingsDetailPaneState {
+                                    override val settingsCategory = SettingsCategory.Visual
+                                    override val settingToScrollTo = null
 
-                                override val isListVisible: Boolean = false
-                                override val isDetailVisible: Boolean = true
-                            },
-                            onBackButtonPressed = {},
-                        )
+                                    override fun onFinishedScrollingToSetting() = Unit
+
+                                    override val isListVisible: Boolean = false
+                                    override val isDetailVisible: Boolean = true
+                                },
+                                onBackButtonPressed = {},
+                            )
+                        }
                     }
                 }
             }
+
+            onNode(
+                hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                    hasText(resolver(Strings.CornerFractionLabel)),
+            ).performScrollTo()
+                .performClick()
+
+            imeBottom = 1000.dp
+
+            waitForIdle()
+
+            val boundsInRoot =
+                onNode(
+                    hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                        hasText(resolver(Strings.CornerFractionLabel)),
+                ).assertIsFocused()
+                    .getBoundsInRoot()
+
+            assertTrue(boundsInRoot.bottom <= 250.dp)
         }
-
-        onNode(
-            hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(Strings.CornerFractionLabel)),
-        )
-            .performScrollTo()
-            .performClick()
-
-        imeBottom = 1000.dp
-
-        waitForIdle()
-
-        val boundsInRoot = onNode(
-            hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(Strings.CornerFractionLabel)),
-        )
-            .assertIsFocused()
-            .getBoundsInRoot()
-
-        assertTrue(boundsInRoot.bottom <= 250.dp)
-    }
 }
 
-private fun IntRect.toAndroidXInsets(): Insets =
-    Insets.of(top, left, right, bottom)
+private fun IntRect.toAndroidXInsets(): Insets = Insets.of(top, left, right, bottom)

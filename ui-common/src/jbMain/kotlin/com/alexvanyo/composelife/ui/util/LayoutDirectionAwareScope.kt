@@ -29,7 +29,8 @@ interface LayoutDirectionAwareScope {
 /**
  * Converts a [MeasureScope] to a [LayoutDirectionAwareScope].
  */
-fun MeasureScope.asLayoutDirectionAwareScope(): LayoutDirectionAwareScope = object : LayoutDirectionAwareScope {
-    override val layoutDirection: LayoutDirection
-        get() = this@asLayoutDirectionAwareScope.layoutDirection
-}
+fun MeasureScope.asLayoutDirectionAwareScope(): LayoutDirectionAwareScope =
+    object : LayoutDirectionAwareScope {
+        override val layoutDirection: LayoutDirection
+            get() = this@asLayoutDirectionAwareScope.layoutDirection
+    }

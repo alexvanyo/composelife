@@ -109,41 +109,38 @@ class PatternCollectionsUiCtx(
     @Suppress("ComposableNaming")
     @Deprecated(
         "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
+        replaceWith =
+        ReplaceWith(
             "PatternCollectionsUi(modifier)",
         ),
     )
     @Composable
-    operator fun invoke(
-        modifier: Modifier = Modifier,
-    ) = lambda(patternCollectionRepository, clock, timeZoneHolder, modifier)
+    operator fun invoke(modifier: Modifier = Modifier) =
+        lambda(patternCollectionRepository, clock, timeZoneHolder, modifier)
 
     companion object {
         private val lambda:
-            @Composable context(PatternCollectionRepository, Clock, TimeZoneHolder) (modifier: Modifier) -> Unit =
+            @Composable context(PatternCollectionRepository, Clock, TimeZoneHolder)
+            (modifier: Modifier) -> Unit =
             { modifier ->
                 PatternCollectionsUi(modifier)
             }
     }
 }
 
-context(ctx: PatternCollectionsUiCtx)
 @Suppress("DEPRECATION")
 @Composable
-fun PatternCollectionsUi(
-    modifier: Modifier = Modifier,
-) = ctx(modifier)
+context(ctx: PatternCollectionsUiCtx)
+fun PatternCollectionsUi(modifier: Modifier = Modifier) = ctx(modifier)
 // endregion templated-ctx
 
+@Composable
 context(
     patternCollectionRepository: PatternCollectionRepository,
-_: Clock,
-_: TimeZoneHolder,
+    _: Clock,
+    _: TimeZoneHolder,
 )
-@Composable
-fun PatternCollectionsUi(
-    modifier: Modifier = Modifier,
-) {
+fun PatternCollectionsUi(modifier: Modifier = Modifier) {
     val lifecycleOwner = LocalLifecycleOwner.current
     LaunchedEffect(lifecycleOwner, patternCollectionRepository) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -159,10 +156,10 @@ fun PatternCollectionsUi(
     )
 }
 
-context(_: Clock, _: TimeZoneHolder)
 @OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongMethod")
 @Composable
+context(_: Clock, _: TimeZoneHolder)
 fun PatternCollectionsUi(
     patternCollectionsState: ResourceState<List<PatternCollection>>,
     addPatternCollection: suspend (String) -> Unit,
@@ -179,7 +176,8 @@ fun PatternCollectionsUi(
         Text(
             parameterizedStringResource(Strings.Sources),
             style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(
+            modifier =
+            Modifier.padding(
                 top = 8.dp,
                 bottom = 12.dp,
             ),
@@ -189,9 +187,11 @@ fun PatternCollectionsUi(
             is ResourceState.Failure -> {
                 // TODO
             }
+
             ResourceState.Loading -> {
                 // TODO
             }
+
             is ResourceState.Success -> {
                 val patternCollections = patternCollectionsState.value.associateBy { it.id }
 
@@ -214,7 +214,8 @@ fun PatternCollectionsUi(
                 val animatablePatternCollections =
                     patternCollections.keys.associateWith {
                         MutableTransitionState(false).apply { targetState = true }
-                    } + previouslyAnimatablePatternCollections
+                    } +
+                        previouslyAnimatablePatternCollections
 
                 DisposableEffect(animatablePatternCollections, patternCollections) {
                     animatablePatternCollections.forEach { (patternCollectionId, visibleState) ->
@@ -232,7 +233,8 @@ fun PatternCollectionsUi(
                             visibleState = visibleState,
                         ) {
                             PatternCollection(
-                                patternCollection = remember {
+                                patternCollection =
+                                remember {
                                     mutableStateOf(patternCollections.getValue(patternCollectionId))
                                 }.apply {
                                     patternCollections[patternCollectionId]?.let { value = it }
@@ -260,12 +262,12 @@ fun PatternCollectionsUi(
                         // trigger updating `previouslyAnimatablePatternCollections` in its entirety.
                         .map {}
                         .onEach {
-                            previouslyAnimatablePatternCollections = animatablePatternCollections.filterValues {
-                                // Only keep those that are visible, or are currently animating
-                                !it.isIdle || it.targetState
-                            }
-                        }
-                        .collect()
+                            previouslyAnimatablePatternCollections =
+                                animatablePatternCollections.filterValues {
+                                    // Only keep those that are visible, or are currently animating
+                                    !it.isIdle || it.targetState
+                                }
+                        }.collect()
                 }
             }
         }
@@ -275,15 +277,11 @@ fun PatternCollectionsUi(
     }
 }
 
-context(clock: Clock, _: TimeZoneHolder)
 @Suppress("CyclomaticComplexMethod", "LongMethod")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PatternCollection(
-    patternCollection: PatternCollection,
-    onDelete: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+context(clock: Clock, _: TimeZoneHolder)
+fun PatternCollection(patternCollection: PatternCollection, onDelete: () -> Unit, modifier: Modifier = Modifier,) {
     Card(
         modifier = modifier,
     ) {
@@ -301,27 +299,31 @@ fun PatternCollection(
                     if (lastSuccessfulSynchronizationTimestamp == null) {
                         Text(parameterizedStringResource(Strings.Never))
                     } else {
-                        val (unit, period) = lastSuccessfulSynchronizationTimestamp.progressivePeriodUntil(
-                            clock = clock,
-                            unitProgression = listOf(
-                                DateTimeUnit.DAY,
-                                DateTimeUnit.HOUR,
-                                DateTimeUnit.MINUTE,
-                                DateTimeUnit.SECOND,
-                            ),
-                            timeZone = currentTimeZone(),
-                        )
-                        val amountOfUnit = when (unit) {
-                            is DateTimeUnit.DateBased -> period.dateComponentInWholeUnits(unit).toLong()
-                            is DateTimeUnit.TimeBased -> period.timeComponentInWholeUnits(unit)
-                        }
-                        val unitName = when (unit) {
-                            DateTimeUnit.DAY -> parameterizedStringResource(Strings.DayUnit)
-                            DateTimeUnit.HOUR -> parameterizedStringResource(Strings.HourUnit)
-                            DateTimeUnit.MINUTE -> parameterizedStringResource(Strings.MinuteUnit)
-                            DateTimeUnit.SECOND -> parameterizedStringResource(Strings.SecondUnit)
-                            else -> error("Unknown unit")
-                        }
+                        val (unit, period) =
+                            lastSuccessfulSynchronizationTimestamp.progressivePeriodUntil(
+                                clock = clock,
+                                unitProgression =
+                                listOf(
+                                    DateTimeUnit.DAY,
+                                    DateTimeUnit.HOUR,
+                                    DateTimeUnit.MINUTE,
+                                    DateTimeUnit.SECOND,
+                                ),
+                                timeZone = currentTimeZone(),
+                            )
+                        val amountOfUnit =
+                            when (unit) {
+                                is DateTimeUnit.DateBased -> period.dateComponentInWholeUnits(unit).toLong()
+                                is DateTimeUnit.TimeBased -> period.timeComponentInWholeUnits(unit)
+                            }
+                        val unitName =
+                            when (unit) {
+                                DateTimeUnit.DAY -> parameterizedStringResource(Strings.DayUnit)
+                                DateTimeUnit.HOUR -> parameterizedStringResource(Strings.HourUnit)
+                                DateTimeUnit.MINUTE -> parameterizedStringResource(Strings.MinuteUnit)
+                                DateTimeUnit.SECOND -> parameterizedStringResource(Strings.SecondUnit)
+                                else -> error("Unknown unit")
+                            }
                         Text("$amountOfUnit $unitName ago")
                     }
 
@@ -331,27 +333,31 @@ fun PatternCollection(
                         if (lastUnsuccessfulSynchronizationTimestamp != null) {
                             Column {
                                 Text(parameterizedStringResource(Strings.LastUnsuccessfulSync))
-                                val (unit, period) = lastUnsuccessfulSynchronizationTimestamp.progressivePeriodUntil(
-                                    clock = clock,
-                                    unitProgression = listOf(
-                                        DateTimeUnit.DAY,
-                                        DateTimeUnit.HOUR,
-                                        DateTimeUnit.MINUTE,
-                                        DateTimeUnit.SECOND,
-                                    ),
-                                    timeZone = currentTimeZone(),
-                                )
-                                val amountOfUnit = when (unit) {
-                                    is DateTimeUnit.DateBased -> period.dateComponentInWholeUnits(unit).toLong()
-                                    is DateTimeUnit.TimeBased -> period.timeComponentInWholeUnits(unit)
-                                }
-                                val unitName = when (unit) {
-                                    DateTimeUnit.DAY -> "day(s)"
-                                    DateTimeUnit.HOUR -> "hour(s)"
-                                    DateTimeUnit.MINUTE -> "minute(s)"
-                                    DateTimeUnit.SECOND -> "second(s)"
-                                    else -> error("Unknown unit")
-                                }
+                                val (unit, period) =
+                                    lastUnsuccessfulSynchronizationTimestamp.progressivePeriodUntil(
+                                        clock = clock,
+                                        unitProgression =
+                                        listOf(
+                                            DateTimeUnit.DAY,
+                                            DateTimeUnit.HOUR,
+                                            DateTimeUnit.MINUTE,
+                                            DateTimeUnit.SECOND,
+                                        ),
+                                        timeZone = currentTimeZone(),
+                                    )
+                                val amountOfUnit =
+                                    when (unit) {
+                                        is DateTimeUnit.DateBased -> period.dateComponentInWholeUnits(unit).toLong()
+                                        is DateTimeUnit.TimeBased -> period.timeComponentInWholeUnits(unit)
+                                    }
+                                val unitName =
+                                    when (unit) {
+                                        DateTimeUnit.DAY -> "day(s)"
+                                        DateTimeUnit.HOUR -> "hour(s)"
+                                        DateTimeUnit.MINUTE -> "minute(s)"
+                                        DateTimeUnit.SECOND -> "second(s)"
+                                        else -> error("Unknown unit")
+                                    }
                                 Text("$amountOfUnit $unitName ago")
                                 val synchronizationFailureMessage = patternCollection.synchronizationFailureMessage
                                 if (synchronizationFailureMessage != null) {
@@ -385,7 +391,8 @@ fun PatternCollection(
             }
             if (patternCollection.isSynchronizing) {
                 LinearProgressIndicator(
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .align(Alignment.BottomCenter)
                         .fillMaxWidth(),
                 )
@@ -395,10 +402,7 @@ fun PatternCollection(
 }
 
 @Composable
-fun AddPatternCollection(
-    modifier: Modifier = Modifier,
-    addPatternCollection: suspend (String) -> Unit,
-) {
+fun AddPatternCollection(modifier: Modifier = Modifier, addPatternCollection: suspend (String) -> Unit) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -418,7 +422,8 @@ fun AddPatternCollection(
             state = textFieldState,
             label = { Text(parameterizedStringResource(Strings.SourceUrlLabel)) },
             lineLimits = TextFieldLineLimits.SingleLine,
-            keyboardOptions = KeyboardOptions(
+            keyboardOptions =
+            KeyboardOptions(
                 keyboardType = KeyboardType.Uri,
                 imeAction = ImeAction.Go,
             ),

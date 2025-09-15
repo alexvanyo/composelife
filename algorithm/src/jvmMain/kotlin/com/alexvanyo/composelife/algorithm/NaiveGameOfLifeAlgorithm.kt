@@ -31,13 +31,8 @@ import kotlinx.coroutines.withContext
  * is checked individually.
  */
 @Inject
-class NaiveGameOfLifeAlgorithm(
-    private val dispatchers: ComposeLifeDispatchers,
-) : GameOfLifeAlgorithm {
-    override suspend fun computeGenerationWithStep(
-        cellState: CellState,
-        @IntRange(from = 0) step: Int,
-    ): CellState =
+class NaiveGameOfLifeAlgorithm(private val dispatchers: ComposeLifeDispatchers) : GameOfLifeAlgorithm {
+    override suspend fun computeGenerationWithStep(cellState: CellState, @IntRange(from = 0) step: Int): CellState =
         withContext(dispatchers.Default) {
             computeGenerationWithStepImpl(
                 cellState = cellState,
@@ -45,10 +40,7 @@ class NaiveGameOfLifeAlgorithm(
             )
         }
 
-    private tailrec fun computeGenerationWithStepImpl(
-        cellState: CellState,
-        @IntRange(from = 0) step: Int,
-    ): CellState =
+    private tailrec fun computeGenerationWithStepImpl(cellState: CellState, @IntRange(from = 0) step: Int): CellState =
         if (step == 0) {
             cellState
         } else {
@@ -70,7 +62,6 @@ class NaiveGameOfLifeAlgorithm(
             .filter { cell ->
                 val neighborCount = cellState.aliveCells.intersect(cell.getNeighbors()).count()
                 neighborCount == 3 || (neighborCount == 2 && cell in cellState.aliveCells)
-            }
-            .toSet()
+            }.toSet()
             .let(::CellState)
 }

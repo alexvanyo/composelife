@@ -27,9 +27,7 @@ import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
 import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
 
-fun Project.configureJacoco(
-    commonExtension: CommonExtension<*, *, *, *, *, *>,
-) {
+fun Project.configureJacoco(commonExtension: CommonExtension<*, *, *, *, *, *>) {
     val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
     commonExtension.testCoverage {
@@ -82,38 +80,75 @@ fun Project.configureJacocoMerge() {
         toolVersion = libs.findVersion("jacoco").get().toString()
     }
 
-    val sourceDirectoryFiles = subprojects
-        .flatMap {
-            listOf(
-                it.layout.projectDirectory.dir("src/androidMain/kotlin"),
-                it.layout.projectDirectory.dir("src/commonMain/kotlin"),
-                it.layout.projectDirectory.dir("src/desktopMain/kotlin"),
-                it.layout.projectDirectory.dir("src/jbMain/kotlin"),
-                it.layout.projectDirectory.dir("src/jvmMain/kotlin"),
-                it.layout.projectDirectory.dir("src/jvmNonAndroidMain/kotlin"),
-            )
-        }
+    val sourceDirectoryFiles =
+        subprojects
+            .flatMap {
+                listOf(
+                    it.layout.projectDirectory.dir("src/androidMain/kotlin"),
+                    it.layout.projectDirectory.dir("src/commonMain/kotlin"),
+                    it.layout.projectDirectory.dir("src/desktopMain/kotlin"),
+                    it.layout.projectDirectory.dir("src/jbMain/kotlin"),
+                    it.layout.projectDirectory.dir("src/jvmMain/kotlin"),
+                    it.layout.projectDirectory.dir("src/jvmNonAndroidMain/kotlin"),
+                )
+            }
 
-    val createVariantUnitTestCoverageReports = variants.map { variant ->
-        tasks.register("jacoco${variant.capitalizeForTaskName()}UnitTestCoverageReport", JacocoReport::class.java) {
+    val createVariantUnitTestCoverageReports =
+        variants.map { variant ->
+            tasks.register("jacoco${variant.capitalizeForTaskName()}UnitTestCoverageReport", JacocoReport::class.java) {
+                dependsOn(
+                    subprojects.flatMap {
+                        it.getUnitTestReportTasks(variant)
+                    },
+                )
+
+                classDirectories.setFrom(
+                    subprojects.flatMap {
+                        it
+                            .getUnitTestReportTasks(variant)
+                            .map(JacocoReportTask::classFileCollection)
+                    },
+                )
+                sourceDirectories.setFrom(sourceDirectoryFiles)
+                executionData.setFrom(
+                    subprojects.flatMap {
+                        it
+                            .getUnitTestReportTasks(variant)
+                            .map(JacocoReportTask::jacocoHostTestCoverageFile)
+                    },
+                )
+
+                reports {
+                    html.required.set(true)
+                    xml.required.set(true)
+                }
+            }
+        }
+    val createAndroidTestCoverageReport =
+        tasks.register("jacocoAndroidTestCoverageReport", JacocoReport::class.java) {
             dependsOn(
                 subprojects.flatMap {
-                    it.getUnitTestReportTasks(variant)
+                    it.getAndroidTestReportTasks()
                 },
             )
 
             classDirectories.setFrom(
-                subprojects.flatMap {
-                    it.getUnitTestReportTasks(variant)
-                        .map(JacocoReportTask::classFileCollection)
-                },
+                subprojects
+                    .map {
+                        it
+                            .getAndroidTestReportTasks()
+                            .map(JacocoReportTask::classFileCollection)
+                    },
             )
             sourceDirectories.setFrom(sourceDirectoryFiles)
             executionData.setFrom(
-                subprojects.flatMap {
-                    it.getUnitTestReportTasks(variant)
-                        .map(JacocoReportTask::jacocoHostTestCoverageFile)
-                },
+                subprojects
+                    .map {
+                        it
+                            .getAndroidTestReportTasks()
+                            .map(JacocoReportTask::jacocoConnectedTestsCoverageDir)
+                            .map(::fileTree)
+                    },
             )
 
             reports {
@@ -121,40 +156,11 @@ fun Project.configureJacocoMerge() {
                 xml.required.set(true)
             }
         }
-    }
-    val createAndroidTestCoverageReport = tasks.register("jacocoAndroidTestCoverageReport", JacocoReport::class.java) {
-        dependsOn(
-            subprojects.flatMap {
-                it.getAndroidTestReportTasks()
-            },
-        )
 
-        classDirectories.setFrom(
-            subprojects
-                .map {
-                    it.getAndroidTestReportTasks()
-                        .map(JacocoReportTask::classFileCollection)
-                },
-        )
-        sourceDirectories.setFrom(sourceDirectoryFiles)
-        executionData.setFrom(
-            subprojects
-                .map {
-                    it.getAndroidTestReportTasks()
-                        .map(JacocoReportTask::jacocoConnectedTestsCoverageDir)
-                        .map(::fileTree)
-                },
-        )
-
-        reports {
-            html.required.set(true)
-            xml.required.set(true)
+    val createUnitTestCoverageReport =
+        tasks.register("jacocoUnitTestCoverageReport") {
+            dependsOn(createVariantUnitTestCoverageReports)
         }
-    }
-
-    val createUnitTestCoverageReport = tasks.register("jacocoUnitTestCoverageReport") {
-        dependsOn(createVariantUnitTestCoverageReports)
-    }
 
     tasks.register("jacocoTestCoverageReport") {
         dependsOn(createUnitTestCoverageReport)

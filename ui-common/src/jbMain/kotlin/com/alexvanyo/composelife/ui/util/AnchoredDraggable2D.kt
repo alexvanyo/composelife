@@ -89,7 +89,6 @@ import kotlinx.coroutines.launch
  * See the DraggableAnchors factory method to construct drag anchors using a default implementation.
  */
 interface DraggableAnchors2D<T> {
-
     /**
      * Get the anchor position for an associated [anchor]
      *
@@ -129,7 +128,6 @@ interface DraggableAnchors2D<T> {
  * [DraggableAnchors2D] instance later on.
  */
 class DraggableAnchors2DConfig<T> {
-
     internal val anchors = mutableMapOf<T, Offset>()
 
     /**
@@ -150,9 +148,8 @@ class DraggableAnchors2DConfig<T> {
  * @return A new [DraggableAnchors2D] instance with the anchor positions set by the `builder`
  * function.
  */
-fun <T : Any> DraggableAnchors2D(
-    builder: DraggableAnchors2DConfig<T>.() -> Unit,
-): DraggableAnchors2D<T> = MapDraggableAnchors2D(DraggableAnchors2DConfig<T>().apply(builder).anchors)
+fun <T : Any> DraggableAnchors2D(builder: DraggableAnchors2DConfig<T>.() -> Unit): DraggableAnchors2D<T> =
+    MapDraggableAnchors2D(DraggableAnchors2DConfig<T>().apply(builder).anchors)
 
 /**
  * Enable drag gestures between a set of predefined values.
@@ -177,13 +174,15 @@ fun <T> Modifier.anchoredDraggable2D(
     enabled: Boolean = true,
     reverseDirection: Boolean = false,
     interactionSource: MutableInteractionSource? = null,
-): Modifier = this then AnchoredDraggable2DElement(
-    state = state,
-    enabled = enabled,
-    interactionSource = interactionSource,
-    reverseDirection = reverseDirection,
-    startDragImmediately = state.isAnimationRunning,
-)
+): Modifier =
+    this then
+        AnchoredDraggable2DElement(
+            state = state,
+            enabled = enabled,
+            interactionSource = interactionSource,
+            reverseDirection = reverseDirection,
+            startDragImmediately = state.isAnimationRunning,
+        )
 
 private class AnchoredDraggable2DElement<T>(
     private val state: AnchoredDraggable2DState<T>,
@@ -315,8 +314,9 @@ internal abstract class DragGestureNode(
     enabled: Boolean,
     interactionSource: MutableInteractionSource?,
     private var orientationLock: Orientation?,
-) : DelegatingNode(), PointerInputModifierNode, CompositionLocalConsumerModifierNode {
-
+) : DelegatingNode(),
+    PointerInputModifierNode,
+    CompositionLocalConsumerModifierNode {
     protected var canDrag = canDrag
         private set
 
@@ -400,19 +400,15 @@ internal abstract class DragGestureNode(
         disposeInteractionSource()
     }
 
-    override fun onPointerEvent(
-        pointerEvent: PointerEvent,
-        pass: PointerEventPass,
-        bounds: IntSize,
-    ) {
+    override fun onPointerEvent(pointerEvent: PointerEvent, pass: PointerEventPass, bounds: IntSize) {
         if (enabled && pointerInputNode == null) {
             pointerInputNode = delegate(initializePointerInputNode())
         }
         pointerInputNode?.onPointerEvent(pointerEvent, pass, bounds)
     }
 
-    private fun initializePointerInputNode(): SuspendingPointerInputModifierNode {
-        return SuspendingPointerInputModifierNode {
+    private fun initializePointerInputNode(): SuspendingPointerInputModifierNode =
+        SuspendingPointerInputModifierNode {
             // re-create tracker when pointer input block restarts. This lazily creates the tracker
             // only when it is need.
             val velocityTracker = VelocityTracker()
@@ -475,7 +471,6 @@ internal abstract class DragGestureNode(
                 }
             }
         }
-    }
 
     override fun onCancelPointerInput() {
         pointerInputNode?.onCancelPointerInput()
@@ -551,8 +546,7 @@ internal abstract class DragGestureNode(
 
 @Suppress("LongParameterList")
 internal suspend fun PointerInputScope.detectDragGestures(
-    onDragStart:
-    (
+    onDragStart: (
         down: PointerInputChange,
         slopTriggerChange: PointerInputChange,
         overSlopOffset: Offset,
@@ -746,8 +740,11 @@ private fun Velocity.toValidVelocity() =
 
 internal sealed class DragEvent {
     class DragStarted(val startPoint: Offset) : DragEvent()
+
     class DragStopped(val velocity: Velocity) : DragEvent()
+
     data object DragCancelled : DragEvent()
+
     class DragDelta(val delta: Offset) : DragEvent()
 }
 
@@ -765,10 +762,7 @@ interface AnchoredDrag2DScope {
      * @param newOffset new value for [AnchoredDraggable2DState.offset].
      * @param lastKnownVelocity last known velocity (if known)
      */
-    fun dragTo(
-        newOffset: Offset,
-        lastKnownVelocity: Velocity = Velocity.Zero,
-    )
+    fun dragTo(newOffset: Offset, lastKnownVelocity: Velocity = Velocity.Zero)
 }
 
 /**
@@ -789,7 +783,6 @@ class AnchoredDraggable2DState<T>(
     val animationSpec: AnimationSpec<Offset>,
     internal val confirmValueChange: (newValue: T) -> Boolean = { true },
 ) {
-
     /**
      * Construct an [AnchoredDraggable2DState] instance with anchors.
      *
@@ -816,29 +809,27 @@ class AnchoredDraggable2DState<T>(
     private val dragMutex = MutatorMutex()
 
     @OptIn(ExperimentalFoundationApi::class)
-    internal val draggableState = object : Draggable2DState {
+    internal val draggableState =
+        object : Draggable2DState {
+            private val dragScope =
+                object : Drag2DScope {
+                    override fun dragBy(pixels: Offset) {
+                        with(anchoredDragScope) {
+                            dragTo(newOffsetForDelta(pixels))
+                        }
+                    }
+                }
 
-        private val dragScope = object : Drag2DScope {
-            override fun dragBy(pixels: Offset) {
-                with(anchoredDragScope) {
-                    dragTo(newOffsetForDelta(pixels))
+            override suspend fun drag(dragPriority: MutatePriority, block: suspend Drag2DScope.() -> Unit) {
+                this@AnchoredDraggable2DState.anchoredDrag(dragPriority) {
+                    with(dragScope) { block() }
                 }
             }
-        }
 
-        override suspend fun drag(
-            dragPriority: MutatePriority,
-            block: suspend Drag2DScope.() -> Unit,
-        ) {
-            this@AnchoredDraggable2DState.anchoredDrag(dragPriority) {
-                with(dragScope) { block() }
+            override fun dispatchRawDelta(delta: Offset) {
+                this@AnchoredDraggable2DState.dispatchRawDelta(delta)
             }
         }
-
-        override fun dispatchRawDelta(delta: Offset) {
-            this@AnchoredDraggable2DState.dispatchRawDelta(delta)
-        }
-    }
 
     /**
      * The current value of the [AnchoredDraggable2DState].
@@ -940,11 +931,12 @@ class AnchoredDraggable2DState<T>(
      */
     fun updateAnchors(
         newAnchors: DraggableAnchors2D<T>,
-        newTarget: T = if (offset.isSpecified) {
-            newAnchors.closestAnchor(offset) ?: targetValue
-        } else {
-            targetValue
-        },
+        newTarget: T =
+            if (offset.isSpecified) {
+                newAnchors.closestAnchor(offset) ?: targetValue
+            } else {
+                targetValue
+            },
     ) {
         if (anchors != newAnchors) {
             anchors = newAnchors
@@ -963,11 +955,12 @@ class AnchoredDraggable2DState<T>(
      */
     suspend fun settle(velocity: Velocity) {
         val previousValue = this.currentValue
-        val targetValue = computeTarget(
-            offset = requireOffset(),
-            currentValue = previousValue,
-            velocity = velocity,
-        )
+        val targetValue =
+            computeTarget(
+                offset = requireOffset(),
+                currentValue = previousValue,
+                velocity = velocity,
+            )
         if (confirmValueChange(targetValue)) {
             animateTo(targetValue, velocity)
         } else {
@@ -976,26 +969,20 @@ class AnchoredDraggable2DState<T>(
         }
     }
 
-    private fun computeTarget(
-        offset: Offset,
-        currentValue: T,
-        velocity: Velocity,
-    ): T {
+    private fun computeTarget(offset: Offset, currentValue: T, velocity: Velocity): T {
         val currentAnchors = anchors
-        val targetOffset = exponentialDecay<Offset>(
-            frictionMultiplier = 5f,
-        ).calculateTargetValue(
-            typeConverter = Offset.VectorConverter,
-            initialValue = offset,
-            initialVelocity = Offset(velocity.x, velocity.y),
-        )
+        val targetOffset =
+            exponentialDecay<Offset>(
+                frictionMultiplier = 5f,
+            ).calculateTargetValue(
+                typeConverter = Offset.VectorConverter,
+                initialValue = offset,
+                initialVelocity = Offset(velocity.x, velocity.y),
+            )
         return currentAnchors.closestAnchor(targetOffset) ?: currentValue
     }
 
-    private fun computeTargetWithoutThresholds(
-        offset: Offset,
-        currentValue: T,
-    ): T {
+    private fun computeTargetWithoutThresholds(offset: Offset, currentValue: T): T {
         val currentAnchors = anchors
         val currentAnchor = currentAnchors.positionOf(currentValue)
         return if (currentAnchor == offset || currentAnchor.isUnspecified) {
@@ -1005,12 +992,13 @@ class AnchoredDraggable2DState<T>(
         }
     }
 
-    private val anchoredDragScope: AnchoredDrag2DScope = object : AnchoredDrag2DScope {
-        override fun dragTo(newOffset: Offset, lastKnownVelocity: Velocity) {
-            offset = newOffset
-            lastVelocity = lastKnownVelocity
+    private val anchoredDragScope: AnchoredDrag2DScope =
+        object : AnchoredDrag2DScope {
+            override fun dragTo(newOffset: Offset, lastKnownVelocity: Velocity) {
+                offset = newOffset
+                lastVelocity = lastKnownVelocity
+            }
         }
-    }
 
     /**
      * Call this function to take control of drag logic and perform anchored drag with the latest
@@ -1105,8 +1093,7 @@ class AnchoredDraggable2DState<T>(
         }
     }
 
-    internal fun newOffsetForDelta(delta: Offset) =
-        (if (offset.isUnspecified) Offset.Zero else offset) + delta
+    internal fun newOffsetForDelta(delta: Offset) = (if (offset.isUnspecified) Offset.Zero else offset) + delta
 
     /**
      * Drag by the [delta], coerce it in the bounds and dispatch it to the [AnchoredDraggable2DState].
@@ -1127,34 +1114,33 @@ class AnchoredDraggable2DState<T>(
      *
      * @return true if the synchronous snap was successful, or false if we couldn't snap synchronous
      */
-    private fun trySnapTo(targetValue: T): Boolean = dragMutex.tryMutate {
-        with(anchoredDragScope) {
-            val targetOffset = anchors.positionOf(targetValue)
-            if (targetOffset.isSpecified) {
-                dragTo(targetOffset)
-                dragTarget = null
+    private fun trySnapTo(targetValue: T): Boolean =
+        dragMutex.tryMutate {
+            with(anchoredDragScope) {
+                val targetOffset = anchors.positionOf(targetValue)
+                if (targetOffset.isSpecified) {
+                    dragTo(targetOffset)
+                    dragTarget = null
+                }
+                currentValue = targetValue
             }
-            currentValue = targetValue
         }
-    }
 
     companion object {
         /**
          * The default [Saver] implementation for [AnchoredDraggable2DState].
          */
-        fun <T : Any> Saver(
-            animationSpec: AnimationSpec<Offset>,
-            confirmValueChange: (T) -> Boolean = { true },
-        ) = Saver<AnchoredDraggable2DState<T>, T>(
-            save = { it.currentValue },
-            restore = {
-                AnchoredDraggable2DState(
-                    initialValue = it,
-                    animationSpec = animationSpec,
-                    confirmValueChange = confirmValueChange,
-                )
-            },
-        )
+        fun <T : Any> Saver(animationSpec: AnimationSpec<Offset>, confirmValueChange: (T) -> Boolean = { true }) =
+            Saver<AnchoredDraggable2DState<T>, T>(
+                save = { it.currentValue },
+                restore = {
+                    AnchoredDraggable2DState(
+                        initialValue = it,
+                        animationSpec = animationSpec,
+                        confirmValueChange = confirmValueChange,
+                    )
+                },
+            )
     }
 }
 
@@ -1186,10 +1172,7 @@ suspend fun <T> AnchoredDraggable2DState<T>.snapTo(targetValue: T) {
  * @param targetValue The target value of the animation
  * @param velocity The velocity the animation should start with
  */
-suspend fun <T> AnchoredDraggable2DState<T>.animateTo(
-    targetValue: T,
-    velocity: Velocity = this.lastVelocity,
-) {
+suspend fun <T> AnchoredDraggable2DState<T>.animateTo(targetValue: T, velocity: Velocity = this.lastVelocity) {
     anchoredDrag(targetValue = targetValue) { anchors, latestTarget ->
         val targetOffset = anchors.positionOf(latestTarget)
         if (targetOffset.isSpecified) {
@@ -1230,10 +1213,11 @@ private suspend fun <I> restartable(inputs: () -> I, block: suspend (I) -> Unit)
                         cancel(AnchoredDragFinishedSignal())
                         join()
                     }
-                    previousDrag = launch(start = CoroutineStart.UNDISPATCHED) {
-                        block(latestInputs)
-                        this@coroutineScope.cancel(AnchoredDragFinishedSignal())
-                    }
+                    previousDrag =
+                        launch(start = CoroutineStart.UNDISPATCHED) {
+                            block(latestInputs)
+                            this@coroutineScope.cancel(AnchoredDragFinishedSignal())
+                        }
                 }
         }
     } catch (@Suppress("SwallowedException") anchoredDragFinished: AnchoredDragFinishedSignal) {
@@ -1244,13 +1228,15 @@ private suspend fun <I> restartable(inputs: () -> I, block: suspend (I) -> Unit)
 private fun <T> emptyDraggableAnchors() = MapDraggableAnchors2D<T>(emptyMap())
 
 private class MapDraggableAnchors2D<T>(private val anchors: Map<T, Offset>) : DraggableAnchors2D<T> {
-
     override fun positionOf(anchor: T): Offset = anchors[anchor] ?: Offset.Unspecified
+
     override fun hasPositionFor(anchor: T) = anchors.containsKey(anchor)
 
-    override fun closestAnchor(position: Offset): T? = anchors.minByOrNull {
-        (position - it.value).getDistanceSquared()
-    }?.key
+    override fun closestAnchor(position: Offset): T? =
+        anchors
+            .minByOrNull {
+                (position - it.value).getDistanceSquared()
+            }?.key
 
     override val size: Int
         get() = anchors.size

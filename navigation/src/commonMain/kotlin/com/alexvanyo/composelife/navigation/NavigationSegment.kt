@@ -31,9 +31,7 @@ sealed interface NavigationSegment<T> {
     /**
      * A single segment representing a single [value].
      */
-    data class SingleSegment<T>(
-        val value: T,
-    ) : NavigationSegment<T> {
+    data class SingleSegment<T>(val value: T) : NavigationSegment<T> {
         override val combinedValues: List<T> = listOf(value)
     }
 

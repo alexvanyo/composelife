@@ -49,10 +49,11 @@ internal fun InlineSettingsPaneNoQuickAccessPreview(modifier: Modifier = Modifie
 @Composable
 internal fun InlineSettingsPaneWithQuickAccessPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
-        implicit().testComposeLifePreferences.quickAccessSettings = setOf(
-            QuickAccessSetting.DarkThemeConfig,
-            QuickAccessSetting.CellShapeConfig,
-        )
+        implicit().testComposeLifePreferences.quickAccessSettings =
+            setOf(
+                QuickAccessSetting.DarkThemeConfig,
+                QuickAccessSetting.CellShapeConfig,
+            )
         ComposeLifeTheme {
             with(implicit().inlineSettingsPaneCtx) {
                 Surface(modifier) {

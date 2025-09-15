@@ -103,7 +103,8 @@ fun ActionControlRow(
     modifier: Modifier = Modifier,
 ) {
     val color by animateColorAsState(
-        targetValue = if (isElevated) {
+        targetValue =
+        if (isElevated) {
             MaterialTheme.colorScheme.surfaceContainerHigh
         } else {
             MaterialTheme.colorScheme.surfaceContainerLow
@@ -128,11 +129,13 @@ fun ActionControlRow(
                         showSelectingControls = false
                         showSelectionControls = false
                     }
+
                     is SelectionState.SelectingBox -> {
                         showTimeControls = false
                         showSelectingControls = true
                         showSelectionControls = false
                     }
+
                     is SelectionState.Selection -> {
                         showTimeControls = false
                         showSelectingControls = false
@@ -161,17 +164,20 @@ fun ActionControlRow(
                         IconToggleButton(
                             checked = isRunning,
                             onCheckedChange = setIsRunning,
-                            colors = IconButtonDefaults.iconToggleButtonColors(
+                            colors =
+                            IconButtonDefaults.iconToggleButtonColors(
                                 checkedContentColor = LocalContentColor.current,
                             ),
                         ) {
                             Icon(
-                                imageVector = if (isRunning) {
+                                imageVector =
+                                if (isRunning) {
                                     Icons.Filled.Pause
                                 } else {
                                     Icons.Filled.PlayArrow
                                 },
-                                contentDescription = parameterizedStringResource(
+                                contentDescription =
+                                parameterizedStringResource(
                                     if (isRunning) {
                                         Strings.Pause
                                     } else {
@@ -353,7 +359,8 @@ fun ActionControlRow(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.AutoMode,
-                            contentDescription = parameterizedStringResource(
+                            contentDescription =
+                            parameterizedStringResource(
                                 if (isViewportTracking) {
                                     Strings.DisableAutofit
                                 } else {
@@ -387,12 +394,14 @@ fun ActionControlRow(
                             onCheckedChange = setIsImmersiveMode,
                         ) {
                             Icon(
-                                imageVector = if (isImmersiveMode) {
+                                imageVector =
+                                if (isImmersiveMode) {
                                     Icons.Default.FullscreenExit
                                 } else {
                                     Icons.Default.Fullscreen
                                 },
-                                contentDescription = parameterizedStringResource(
+                                contentDescription =
+                                parameterizedStringResource(
                                     if (isImmersiveMode) {
                                         Strings.DisableImmersiveMode
                                     } else {
@@ -428,12 +437,14 @@ fun ActionControlRow(
                             },
                         ) {
                             Icon(
-                                imageVector = if (isFullSpaceMode) {
+                                imageVector =
+                                if (isFullSpaceMode) {
                                     Icons.Default.CloseFullscreen
                                 } else {
                                     Icons.Default.OpenInFull
                                 },
-                                contentDescription = parameterizedStringResource(
+                                contentDescription =
+                                parameterizedStringResource(
                                     if (isFullSpaceMode) {
                                         Strings.EnterHomeSpaceMode
                                     } else {
@@ -465,17 +476,20 @@ fun ActionControlRow(
                     IconToggleButton(
                         checked = isExpanded,
                         onCheckedChange = setIsExpanded,
-                        colors = IconButtonDefaults.iconToggleButtonColors(
+                        colors =
+                        IconButtonDefaults.iconToggleButtonColors(
                             checkedContentColor = LocalContentColor.current,
                         ),
                     ) {
                         Icon(
-                            imageVector = if (isExpanded) {
+                            imageVector =
+                            if (isExpanded) {
                                 Icons.Filled.ExpandMore
                             } else {
                                 Icons.Filled.ExpandLess
                             },
-                            contentDescription = parameterizedStringResource(
+                            contentDescription =
+                            parameterizedStringResource(
                                 if (isExpanded) {
                                     Strings.Collapse
                                 } else {

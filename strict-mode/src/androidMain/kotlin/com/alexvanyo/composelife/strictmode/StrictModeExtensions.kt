@@ -37,7 +37,8 @@ private fun Application.initStrictMode() {
 
 private fun Application.initStrictModeThreadPolicy() {
     StrictMode.setThreadPolicy(
-        StrictMode.ThreadPolicy.Builder()
+        StrictMode.ThreadPolicy
+            .Builder()
             .apply {
                 detectAll()
                 if (Build.VERSION.SDK_INT >= 28) {
@@ -57,14 +58,14 @@ private fun Application.initStrictModeThreadPolicy() {
                     penaltyLog()
                     penaltyDeath()
                 }
-            }
-            .build(),
+            }.build(),
     )
 }
 
 private fun Application.initStrictModeVmPolicy() {
     StrictMode.setVmPolicy(
-        StrictMode.VmPolicy.Builder()
+        StrictMode.VmPolicy
+            .Builder()
             .apply {
                 detectAll()
                 if (Build.VERSION.SDK_INT >= 28) {
@@ -84,14 +85,14 @@ private fun Application.initStrictModeVmPolicy() {
                     penaltyLog()
                     penaltyDeath()
                 }
-            }
-            .build(),
+            }.build(),
     )
 }
 
-private val strictModeAllowlist: List<String> = listOf(
-    "android.app.IdsController.doIds", // Samsung
-)
+private val strictModeAllowlist: List<String> =
+    listOf(
+        "android.app.IdsController.doIds", // Samsung
+    )
 
 private val Application.isDebuggable get() =
     applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0

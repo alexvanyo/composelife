@@ -32,9 +32,7 @@ import dev.zacsweers.metro.Provides
 interface LoggerBindings {
     companion object {
         @Provides
-        internal fun providesLogger(
-            @ApplicationContext context: Context,
-        ): Logger =
+        internal fun providesLogger(@ApplicationContext context: Context): Logger =
             if (context.isDebuggable) {
                 SingletonSystemLogger
             } else {

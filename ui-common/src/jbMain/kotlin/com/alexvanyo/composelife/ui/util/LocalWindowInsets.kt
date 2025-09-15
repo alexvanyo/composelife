@@ -25,10 +25,7 @@ import androidx.compose.ui.Modifier
  * composition hierarchy.
  */
 @Composable
-expect fun ProvideLocalWindowInsetsHolder(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-)
+expect fun ProvideLocalWindowInsetsHolder(modifier: Modifier = Modifier, content: @Composable () -> Unit)
 
 expect interface WindowInsetsHolder
 

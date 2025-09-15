@@ -57,65 +57,64 @@ import kotlin.uuid.Uuid
 // region templated-ctx
 @Suppress("ComposableNaming")
 @Composable
-private operator fun GameOfLifeProgressIndicatorCtx.invoke(
-    modifier: Modifier = Modifier,
-) = GameOfLifeProgressIndicatorCtx.lambda(
-    immutableCellWindowCtx,
-    random,
-    clock,
-    gameOfLifeAlgorithm,
-    dispatchers,
-    modifier,
-)
+private operator fun GameOfLifeProgressIndicatorCtx.invoke(modifier: Modifier = Modifier) =
+    GameOfLifeProgressIndicatorCtx.lambda(
+        immutableCellWindowCtx,
+        random,
+        clock,
+        gameOfLifeAlgorithm,
+        dispatchers,
+        modifier,
+    )
 
 private val GameOfLifeProgressIndicatorCtx.Companion.lambda:
     @Composable context(
         ImmutableCellWindowCtx, Random, Clock, GameOfLifeAlgorithm, ComposeLifeDispatchers
-    ) (Modifier) -> Unit
+    )
+    (Modifier) -> Unit
     get() = { modifier ->
         GameOfLifeProgressIndicator(modifier)
     }
 
-context(ctx: GameOfLifeProgressIndicatorCtx)
 @Composable
-fun GameOfLifeProgressIndicator(
-    modifier: Modifier = Modifier,
-) = ctx(modifier)
+context(ctx: GameOfLifeProgressIndicatorCtx)
+fun GameOfLifeProgressIndicator(modifier: Modifier = Modifier) = ctx(modifier)
 // endregion templated-ctx
 
 /**
  * A progress indicator that displays progress via an embedded set of cells displaying an
  * oscillating pattern.
  */
+@Composable
 context(
     _: ImmutableCellWindowCtx,
-random: Random,
-clock: Clock,
-gameOfLifeAlgorithm: GameOfLifeAlgorithm,
-dispatchers: ComposeLifeDispatchers,
+    random: Random,
+    clock: Clock,
+    gameOfLifeAlgorithm: GameOfLifeAlgorithm,
+    dispatchers: ComposeLifeDispatchers,
 )
-@Composable
-fun GameOfLifeProgressIndicator(
-    modifier: Modifier = Modifier,
-) {
-    val patternIndex = remember(OscillatorPattern.values.size) {
-        random.nextInt(OscillatorPattern.values.size)
-    }
+fun GameOfLifeProgressIndicator(modifier: Modifier = Modifier) {
+    val patternIndex =
+        remember(OscillatorPattern.values.size) {
+            random.nextInt(OscillatorPattern.values.size)
+        }
     val pattern = OscillatorPattern.values[patternIndex]
-    val temporalGameOfLifeState = key(pattern) {
-        rememberTemporalGameOfLifeState(
-            seedCellState = pattern.seedCellState,
-            isRunning = false,
-            targetStepsPerSecond = 4.0,
-        )
-    }
+    val temporalGameOfLifeState =
+        key(pattern) {
+            rememberTemporalGameOfLifeState(
+                seedCellState = pattern.seedCellState,
+                isRunning = false,
+                targetStepsPerSecond = 4.0,
+            )
+        }
 
-    val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-        temporalGameOfLifeState = temporalGameOfLifeState,
-        gameOfLifeAlgorithm = gameOfLifeAlgorithm,
-        dispatchers = dispatchers,
-        clock = clock,
-    )
+    val temporalGameOfLifeStateMutator =
+        rememberTemporalGameOfLifeStateMutator(
+            temporalGameOfLifeState = temporalGameOfLifeState,
+            gameOfLifeAlgorithm = gameOfLifeAlgorithm,
+            dispatchers = dispatchers,
+            clock = clock,
+        )
 
     LaunchedEffect(temporalGameOfLifeStateMutator) {
         temporalGameOfLifeStateMutator.update()
@@ -131,9 +130,7 @@ fun GameOfLifeProgressIndicator(
 }
 
 @Composable
-fun GameOfLifeProgressIndicatorForegroundEffect(
-    temporalGameOfLifeState: TemporalGameOfLifeState,
-) {
+fun GameOfLifeProgressIndicatorForegroundEffect(temporalGameOfLifeState: TemporalGameOfLifeState) {
     val lifecycleOwner = LocalLifecycleOwner.current
     LaunchedEffect(lifecycleOwner, temporalGameOfLifeState) {
         // If we are not visible, don't animate
@@ -159,41 +156,49 @@ private suspend fun <R> withInfiniteAnimationPolicy(block: suspend () -> R): R {
     }
 }
 
+@Suppress("LongParameterList")
+@Composable
 context(
     immutableCellWindowCtx: ImmutableCellWindowCtx,
 )
-@Suppress("LongParameterList")
-@Composable
 fun GameOfLifeProgressIndicator(
     pattern: OscillatorPattern,
     gameOfLifeState: GameOfLifeState,
     modifier: Modifier = Modifier,
 ) {
-    val selectionSessionState = remember {
-        SessionValue(
-            sessionId = Uuid.random(),
-            valueId = Uuid.random(),
-            value = SelectionState.NoSelection,
-        )
-    }
+    val selectionSessionState =
+        remember {
+            SessionValue(
+                sessionId = Uuid.random(),
+                valueId = Uuid.random(),
+                value = SelectionState.NoSelection,
+            )
+        }
     ImmutableCellWindow(
         gameOfLifeState = gameOfLifeState,
-        modifier = modifier
+        modifier =
+        modifier
             .size(64.dp)
             .clipToBounds()
             .progressSemantics()
             .clearAndSetSemantics {},
-        cellWindowInteractionState = CellWindowInteractionState(
-            viewportInteractionConfig = ViewportInteractionConfig.Fixed(
-                cellWindowViewportState = CellWindowViewportState(
-                    offset = Offset(
+        cellWindowInteractionState =
+        CellWindowInteractionState(
+            viewportInteractionConfig =
+            ViewportInteractionConfig.Fixed(
+                cellWindowViewportState =
+                CellWindowViewportState(
+                    offset =
+                    Offset(
                         (pattern.boundingBox.width - 1) / 2f,
                         (pattern.boundingBox.height - 1) / 2f,
                     ),
-                    scale = 1f / max(
-                        pattern.boundingBox.width,
-                        pattern.boundingBox.height,
-                    ),
+                    scale =
+                    1f /
+                        max(
+                            pattern.boundingBox.width,
+                            pattern.boundingBox.height,
+                        ),
                 ),
             ),
             selectionSessionState = selectionSessionState,

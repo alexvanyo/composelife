@@ -39,7 +39,6 @@ import com.slack.circuit.retained.RetainedStateRegistry
  */
 @OptIn(ExperimentalTestApi::class)
 class KmpStateRestorationTester(private val composeUiTest: ComposeUiTest) {
-
     private var registry: RestorationRegistry? = null
 
     /**
@@ -71,9 +70,10 @@ class KmpStateRestorationTester(private val composeUiTest: ComposeUiTest) {
      * Note that the state stored via regular state() or remember() will be lost.
      */
     fun emulateStateRestore() {
-        val registry = checkNotNull(registry) {
-            "setContent should be called first!"
-        }
+        val registry =
+            checkNotNull(registry) {
+                "setContent should be called first!"
+            }
         composeUiTest.runOnIdle {
             registry.saveStateAndDisposeChildren()
         }
@@ -87,14 +87,16 @@ class KmpStateRestorationTester(private val composeUiTest: ComposeUiTest) {
 
     @Composable
     private fun InjectRestorationRegistry(content: @Composable (RestorationRegistry) -> Unit) {
-        val originalSaveableStateRegistry = requireNotNull(LocalSaveableStateRegistry.current) {
-            "StateRestorationTester requires composeTestRule.setContent() to provide " +
-                "a SaveableStateRegistry implementation via LocalSaveableStateRegistry"
-        }
+        val originalSaveableStateRegistry =
+            requireNotNull(LocalSaveableStateRegistry.current) {
+                "StateRestorationTester requires composeTestRule.setContent() to provide " +
+                    "a SaveableStateRegistry implementation via LocalSaveableStateRegistry"
+            }
         val originalRetainedStateRegistry = LocalRetainedStateRegistry.current
-        val restorationRegistry = remember {
-            RestorationRegistry(originalSaveableStateRegistry, originalRetainedStateRegistry)
-        }
+        val restorationRegistry =
+            remember {
+                RestorationRegistry(originalSaveableStateRegistry, originalRetainedStateRegistry)
+            }
         CompositionLocalProvider(
             LocalSaveableStateRegistry provides restorationRegistry,
             LocalRetainedStateRegistry provides restorationRegistry,
@@ -106,7 +108,9 @@ class KmpStateRestorationTester(private val composeUiTest: ComposeUiTest) {
     }
 }
 
-internal interface RestorationRegistry : SaveableStateRegistry, RetainedStateRegistry {
+internal interface RestorationRegistry :
+    SaveableStateRegistry,
+    RetainedStateRegistry {
     val shouldEmitChildren: Boolean
 
     fun saveStateAndDisposeChildren()

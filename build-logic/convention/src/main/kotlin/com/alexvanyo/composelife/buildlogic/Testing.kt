@@ -25,9 +25,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
 
-fun Project.configureTesting(
-    commonExtension: CommonExtension<*, *, *, *, *, *>,
-) {
+fun Project.configureTesting(commonExtension: CommonExtension<*, *, *, *, *, *>) {
     commonExtension.testOptions {
         unitTests {
             isIncludeAndroidResources = true
@@ -110,9 +108,10 @@ fun Project.configureAndroidTesting(
 
         sourceSets.apply {
             val commonTest = getByName("commonTest")
-            val androidSharedTest = create("androidSharedTest") {
-                dependsOn(commonTest)
-            }
+            val androidSharedTest =
+                create("androidSharedTest") {
+                    dependsOn(commonTest)
+                }
             getByName("androidUnitTest") {
                 if (useSharedTest.get() != SharedTestConfig.Instrumentation) {
                     dependsOn(androidSharedTest)

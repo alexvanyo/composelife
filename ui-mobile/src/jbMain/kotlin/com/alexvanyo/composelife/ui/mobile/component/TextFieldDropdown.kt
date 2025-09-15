@@ -58,7 +58,8 @@ fun <T : DropdownOption> TextFieldDropdown(
     var isShowingDropdownMenu by remember { mutableStateOf(false) }
 
     Box(
-        modifier = modifier
+        modifier =
+        modifier
             .padding(top = 8.dp)
             .clickable {
                 isShowingDropdownMenu = true

@@ -45,32 +45,28 @@ import kotlinx.collections.immutable.toImmutableList
 
 // region templated-ctx
 private val CellShapeConfigUiCtx.Companion.lambda:
-    @Composable (context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences) (Modifier) -> Unit)
+    @Composable (context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences)
+    (Modifier) -> Unit)
     get() = { modifier ->
         CellShapeConfigUi(modifier)
     }
 
 @Suppress("ComposableNaming")
 @Composable
-private operator fun CellShapeConfigUiCtx.invoke(
-    modifier: Modifier = Modifier,
-) = CellShapeConfigUiCtx.Companion.lambda(preferencesHolder, composeLifePreferences, modifier)
+private operator fun CellShapeConfigUiCtx.invoke(modifier: Modifier = Modifier) =
+    CellShapeConfigUiCtx.Companion.lambda(preferencesHolder, composeLifePreferences, modifier)
 
-context(ctx: CellShapeConfigUiCtx)
 @Composable
-fun CellShapeConfigUi(
-    modifier: Modifier = Modifier,
-) = ctx(modifier)
+context(ctx: CellShapeConfigUiCtx)
+fun CellShapeConfigUi(modifier: Modifier = Modifier) = ctx(modifier)
 // endregion templated-ctx
 
+@Composable
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,
-composeLifePreferences: ComposeLifePreferences,
+    composeLifePreferences: ComposeLifePreferences,
 )
-@Composable
-private fun CellShapeConfigUi(
-    modifier: Modifier = Modifier,
-) {
+private fun CellShapeConfigUi(modifier: Modifier = Modifier) {
     CellShapeConfigUi(
         cellShapeConfigUiState = rememberCellShapeConfigUiState(),
         modifier = modifier,
@@ -79,10 +75,7 @@ private fun CellShapeConfigUi(
 
 @Suppress("LongMethod")
 @Composable
-fun CellShapeConfigUi(
-    cellShapeConfigUiState: CellShapeConfigUiState,
-    modifier: Modifier = Modifier,
-) {
+fun CellShapeConfigUi(cellShapeConfigUiState: CellShapeConfigUiState, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,

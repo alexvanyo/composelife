@@ -23,7 +23,6 @@ import androidx.compose.ui.graphics.Path
  * The shape of the window, as expressed in a [Path].
  */
 interface WindowShape {
-
     /**
      * The [Path] describing the shape of the window. This is expressed in window coordinates - components that
      * may match the window coordinate space will need to transform this path into their coordinate space.

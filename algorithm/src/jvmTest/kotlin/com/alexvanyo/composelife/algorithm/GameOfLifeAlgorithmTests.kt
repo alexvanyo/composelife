@@ -45,7 +45,6 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @RunWith(TestParameterInjector::class)
 class GameOfLifeAlgorithmTests {
-
     class GameOfLifeAlgorithmFactory(
         private val algorithmName: String,
         val factory: TestScope.(dispatchers: ComposeLifeDispatchers) -> Pair<GameOfLifeAlgorithm, Job>,
@@ -64,14 +63,15 @@ class GameOfLifeAlgorithmTests {
                     GameOfLifeAlgorithmFactory("Configurable Algorithm") {
                         val preferences = TestComposeLifePreferences()
 
-                        val job = launch {
-                            while (true) {
-                                preferences.setAlgorithmChoice(AlgorithmType.HashLifeAlgorithm)
-                                delay(10)
-                                preferences.setAlgorithmChoice(AlgorithmType.NaiveAlgorithm)
-                                delay(10)
+                        val job =
+                            launch {
+                                while (true) {
+                                    preferences.setAlgorithmChoice(AlgorithmType.HashLifeAlgorithm)
+                                    delay(10)
+                                    preferences.setAlgorithmChoice(AlgorithmType.NaiveAlgorithm)
+                                    delay(10)
+                                }
                             }
-                        }
 
                         ConfigurableGameOfLifeAlgorithm(
                             preferences = preferences,
@@ -83,10 +83,7 @@ class GameOfLifeAlgorithmTests {
         }
     }
 
-    class CellStateMapper(
-        private val name: String,
-        val mapper: (CellState) -> CellState,
-    ) {
+    class CellStateMapper(private val name: String, val mapper: (CellState) -> CellState) {
         override fun toString(): String = name
 
         class Provider : TestParameterValuesProvider() {
@@ -123,114 +120,120 @@ class GameOfLifeAlgorithmTests {
     lateinit var cellStateMapper: CellStateMapper
 
     @Test
-    fun one_generation_step_flow() = runTest {
-        val testDispatcher = StandardTestDispatcher(testScheduler)
+    fun one_generation_step_flow() =
+        runTest {
+            val testDispatcher = StandardTestDispatcher(testScheduler)
 
-        val (algorithm, job) = algorithmFactory.factory(
-            this,
-            TestComposeLifeDispatchers(
-                generalTestDispatcher = testDispatcher,
-                cellTickerTestDispatcher = testDispatcher,
-            ),
-        )
+            val (algorithm, job) =
+                algorithmFactory.factory(
+                    this,
+                    TestComposeLifeDispatchers(
+                        generalTestDispatcher = testDispatcher,
+                        cellTickerTestDispatcher = testDispatcher,
+                    ),
+                )
 
-        assertEquals(
-            testPattern.cellStates.map { cellStateMapper.mapper(it) },
-            algorithm.computeGenerationsWithStep(
-                originalCellState = cellStateMapper.mapper(testPattern.seedCellState),
-                step = 1,
+            assertEquals(
+                testPattern.cellStates.map { cellStateMapper.mapper(it) },
+                algorithm
+                    .computeGenerationsWithStep(
+                        originalCellState = cellStateMapper.mapper(testPattern.seedCellState),
+                        step = 1,
+                    ).onEach {
+                        delay(10.milliseconds)
+                    }.take(testPattern.cellStates.size)
+                    .toList(),
             )
-                .onEach {
-                    delay(10.milliseconds)
-                }
-                .take(testPattern.cellStates.size)
-                .toList(),
-        )
 
-        job.cancel()
-    }
+            job.cancel()
+        }
 
     @Test
-    fun two_generation_step_flow() = runTest {
-        val testDispatcher = StandardTestDispatcher(testScheduler)
+    fun two_generation_step_flow() =
+        runTest {
+            val testDispatcher = StandardTestDispatcher(testScheduler)
 
-        val (algorithm, job) = algorithmFactory.factory(
-            this,
-            TestComposeLifeDispatchers(
-                generalTestDispatcher = testDispatcher,
-                cellTickerTestDispatcher = testDispatcher,
-            ),
-        )
+            val (algorithm, job) =
+                algorithmFactory.factory(
+                    this,
+                    TestComposeLifeDispatchers(
+                        generalTestDispatcher = testDispatcher,
+                        cellTickerTestDispatcher = testDispatcher,
+                    ),
+                )
 
-        assertEquals(
-            testPattern.cellStates
-                .filterIndexed { index, _ -> index.rem(2) == 1 }
-                .map { cellStateMapper.mapper(it) },
-            algorithm.computeGenerationsWithStep(
-                originalCellState = cellStateMapper.mapper(testPattern.seedCellState),
-                step = 2,
+            assertEquals(
+                testPattern.cellStates
+                    .filterIndexed { index, _ -> index.rem(2) == 1 }
+                    .map { cellStateMapper.mapper(it) },
+                algorithm
+                    .computeGenerationsWithStep(
+                        originalCellState = cellStateMapper.mapper(testPattern.seedCellState),
+                        step = 2,
+                    ).onEach {
+                        delay(10.milliseconds)
+                    }.take(testPattern.cellStates.size / 2)
+                    .toList(),
             )
-                .onEach {
-                    delay(10.milliseconds)
-                }
-                .take(testPattern.cellStates.size / 2)
-                .toList(),
-        )
 
-        job.cancel()
-    }
+            job.cancel()
+        }
 
     @Test
-    fun subsequent_one_generation_step() = runTest {
-        val testDispatcher = StandardTestDispatcher(testScheduler)
+    fun subsequent_one_generation_step() =
+        runTest {
+            val testDispatcher = StandardTestDispatcher(testScheduler)
 
-        val (algorithm, job) = algorithmFactory.factory(
-            this,
-            TestComposeLifeDispatchers(
-                generalTestDispatcher = testDispatcher,
-                cellTickerTestDispatcher = testDispatcher,
-            ),
-        )
+            val (algorithm, job) =
+                algorithmFactory.factory(
+                    this,
+                    TestComposeLifeDispatchers(
+                        generalTestDispatcher = testDispatcher,
+                        cellTickerTestDispatcher = testDispatcher,
+                    ),
+                )
 
-        val actualCellStates = (1..testPattern.cellStates.size)
-            .scan(cellStateMapper.mapper(testPattern.seedCellState)) { previousCellState, _ ->
-                algorithm.computeNextGeneration(previousCellState)
-            }
-            .drop(1)
+            val actualCellStates =
+                (1..testPattern.cellStates.size)
+                    .scan(cellStateMapper.mapper(testPattern.seedCellState)) { previousCellState, _ ->
+                        algorithm.computeNextGeneration(previousCellState)
+                    }.drop(1)
 
-        assertEquals(
-            testPattern.cellStates.map { cellStateMapper.mapper(it) },
-            actualCellStates,
-        )
+            assertEquals(
+                testPattern.cellStates.map { cellStateMapper.mapper(it) },
+                actualCellStates,
+            )
 
-        job.cancel()
-    }
+            job.cancel()
+        }
 
     @Test
-    fun subsequent_two_generation_step() = runTest {
-        val testDispatcher = StandardTestDispatcher(testScheduler)
+    fun subsequent_two_generation_step() =
+        runTest {
+            val testDispatcher = StandardTestDispatcher(testScheduler)
 
-        val (algorithm, job) = algorithmFactory.factory(
-            this,
-            TestComposeLifeDispatchers(
-                generalTestDispatcher = testDispatcher,
-                cellTickerTestDispatcher = testDispatcher,
-            ),
-        )
+            val (algorithm, job) =
+                algorithmFactory.factory(
+                    this,
+                    TestComposeLifeDispatchers(
+                        generalTestDispatcher = testDispatcher,
+                        cellTickerTestDispatcher = testDispatcher,
+                    ),
+                )
 
-        val actualCellStates = (1..testPattern.cellStates.size / 2)
-            .scan(cellStateMapper.mapper(testPattern.seedCellState)) { previousCellState, _ ->
-                algorithm.computeGenerationWithStep(previousCellState, 2)
-            }
-            .drop(1)
+            val actualCellStates =
+                (1..testPattern.cellStates.size / 2)
+                    .scan(cellStateMapper.mapper(testPattern.seedCellState)) { previousCellState, _ ->
+                        algorithm.computeGenerationWithStep(previousCellState, 2)
+                    }.drop(1)
 
-        assertEquals(
-            testPattern.cellStates
-                .filterIndexed { index, _ -> index.rem(2) == 1 }
-                .map { cellStateMapper.mapper(it) },
-            actualCellStates,
-        )
+            assertEquals(
+                testPattern.cellStates
+                    .filterIndexed { index, _ -> index.rem(2) == 1 }
+                    .map { cellStateMapper.mapper(it) },
+                actualCellStates,
+            )
 
-        job.cancel()
-    }
+            job.cancel()
+        }
 }

@@ -20,6 +20,8 @@ import android.app.Application
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphOwner
 
-class TestInjectApplication : Application(), ApplicationGraphOwner {
+class TestInjectApplication :
+    Application(),
+    ApplicationGraphOwner {
     override lateinit var applicationGraph: ApplicationGraph
 }

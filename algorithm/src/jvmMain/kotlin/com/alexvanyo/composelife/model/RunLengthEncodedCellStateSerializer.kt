@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.IntSize
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 
 object RunLengthEncodedCellStateSerializer : FixedFormatCellStateSerializer {
-
     override val format: CellStateFormat.FixedFormat = CellStateFormat.FixedFormat.RunLengthEncoding
 
     @Suppress("LongMethod", "ReturnCount", "CyclomaticComplexMethod", "NestedBlockDepth")
@@ -134,72 +133,73 @@ object RunLengthEncodedCellStateSerializer : FixedFormatCellStateSerializer {
         }
         lineIndex++
 
-        val itemSequence = sequence {
-            while (iterator.hasNext()) {
-                val line = iterator.next()
-                val charIterator = line.asSequence().withIndex().iterator()
-                var countString = StringBuilder()
+        val itemSequence =
+            sequence {
+                while (iterator.hasNext()) {
+                    val line = iterator.next()
+                    val charIterator = line.asSequence().withIndex().iterator()
+                    var countString = StringBuilder()
 
-                while (charIterator.hasNext()) {
-                    val (charIndex, char) = charIterator.next()
-                    if (char.isDigit()) {
-                        countString.append(char)
-                    } else if (char == '$') {
-                        val rowEndCount = if (countString.isEmpty()) 1 else countString.toString().toInt()
-                        repeat(rowEndCount) {
+                    while (charIterator.hasNext()) {
+                        val (charIndex, char) = charIterator.next()
+                        if (char.isDigit()) {
+                            countString.append(char)
+                        } else if (char == '$') {
+                            val rowEndCount = if (countString.isEmpty()) 1 else countString.toString().toInt()
+                            repeat(rowEndCount) {
+                                yield(RunItem.RowEnd)
+                            }
+                            countString = StringBuilder()
+                        } else if (char == '!') {
+                            if (countString.isNotEmpty()) {
+                                warnings.add(
+                                    UnexpectedInputMessage(
+                                        input = "$countString$char",
+                                        lineIndex = lineIndex + 1,
+                                        characterIndex = charIndex + 1 - countString.length,
+                                    ),
+                                )
+                            }
+                            if (charIterator.hasNext()) {
+                                warnings.add(
+                                    UnexpectedInputMessage(
+                                        input = "${charIterator.next()}",
+                                        lineIndex = lineIndex + 1,
+                                        characterIndex = charIndex + 2,
+                                    ),
+                                )
+                            } else if (iterator.hasNext()) {
+                                warnings.add(
+                                    UnexpectedInputMessage(
+                                        input = iterator.next(),
+                                        lineIndex = lineIndex + 2,
+                                        characterIndex = 1,
+                                    ),
+                                )
+                            }
                             yield(RunItem.RowEnd)
+                            return@sequence
+                        } else if (char == 'b') {
+                            yield(RunItem.DeadRun(if (countString.isEmpty()) 1 else countString.toString().toInt()))
+                            countString = StringBuilder()
+                        } else {
+                            if (char != 'o') {
+                                warnings.add(
+                                    UnexpectedCharacterMessage(
+                                        character = char,
+                                        lineIndex = lineIndex + 1,
+                                        characterIndex = charIndex + 1,
+                                    ),
+                                )
+                            }
+                            yield(RunItem.AliveRun(if (countString.isEmpty()) 1 else countString.toString().toInt()))
+                            countString = StringBuilder()
                         }
-                        countString = StringBuilder()
-                    } else if (char == '!') {
-                        if (countString.isNotEmpty()) {
-                            warnings.add(
-                                UnexpectedInputMessage(
-                                    input = "$countString$char",
-                                    lineIndex = lineIndex + 1,
-                                    characterIndex = charIndex + 1 - countString.length,
-                                ),
-                            )
-                        }
-                        if (charIterator.hasNext()) {
-                            warnings.add(
-                                UnexpectedInputMessage(
-                                    input = "${charIterator.next()}",
-                                    lineIndex = lineIndex + 1,
-                                    characterIndex = charIndex + 2,
-                                ),
-                            )
-                        } else if (iterator.hasNext()) {
-                            warnings.add(
-                                UnexpectedInputMessage(
-                                    input = iterator.next(),
-                                    lineIndex = lineIndex + 2,
-                                    characterIndex = 1,
-                                ),
-                            )
-                        }
-                        yield(RunItem.RowEnd)
-                        return@sequence
-                    } else if (char == 'b') {
-                        yield(RunItem.DeadRun(if (countString.isEmpty()) 1 else countString.toString().toInt()))
-                        countString = StringBuilder()
-                    } else {
-                        if (char != 'o') {
-                            warnings.add(
-                                UnexpectedCharacterMessage(
-                                    character = char,
-                                    lineIndex = lineIndex + 1,
-                                    characterIndex = charIndex + 1,
-                                ),
-                            )
-                        }
-                        yield(RunItem.AliveRun(if (countString.isEmpty()) 1 else countString.toString().toInt()))
-                        countString = StringBuilder()
                     }
-                }
 
-                lineIndex++
+                    lineIndex++
+                }
             }
-        }
 
         val points = mutableSetOf<IntOffset>()
         var y = offset?.y ?: 0
@@ -233,122 +233,130 @@ object RunLengthEncodedCellStateSerializer : FixedFormatCellStateSerializer {
     private value class RunItem private constructor(val value: Pair<Boolean, Int>?) {
         companion object {
             val RowEnd = RunItem(null)
+
             fun AliveRun(count: Int) = RunItem(true to count)
+
             fun DeadRun(count: Int) = RunItem(false to count)
         }
     }
 
-    override fun serializeToString(cellState: CellState): Sequence<String> = sequence {
-        val boundingBox = cellState.boundingBox
+    override fun serializeToString(cellState: CellState): Sequence<String> =
+        sequence {
+            val boundingBox = cellState.boundingBox
 
-        yield("#R ${boundingBox.left} ${boundingBox.top}")
-        yield("x = ${boundingBox.width}, y = ${boundingBox.height}, rule = B3/S23")
+            yield("#R ${boundingBox.left} ${boundingBox.top}")
+            yield("x = ${boundingBox.width}, y = ${boundingBox.height}, rule = B3/S23")
 
-        /**
-         * The direct sequence of raw tags, without run length encoding optimizations applied (yet)
-         */
-        val tagSequence = sequence {
-            for (y in boundingBox.top until boundingBox.bottom) {
-                for (x in boundingBox.left until boundingBox.right) {
-                    val cell = IntOffset(x, y)
-                    yield(if (cell in cellState.aliveCells) "o" else "b")
+            /**
+             * The direct sequence of raw tags, without run length encoding optimizations applied (yet)
+             */
+            val tagSequence =
+                sequence {
+                    for (y in boundingBox.top until boundingBox.bottom) {
+                        for (x in boundingBox.left until boundingBox.right) {
+                            val cell = IntOffset(x, y)
+                            yield(if (cell in cellState.aliveCells) "o" else "b")
+                        }
+                        // Yield the line end if it isn't the last line
+                        if (y != boundingBox.bottom - 1) {
+                            yield("$")
+                        }
+                    }
+                    yield("!")
                 }
-                // Yield the line end if it isn't the last line
-                if (y != boundingBox.bottom - 1) {
-                    yield("$")
-                }
-            }
-            yield("!")
-        }
 
-        /**
-         * The sequence of items that can't be broken apart with line breaks
-         */
-        val runLengthEncodedItemSequence = tagSequence.runLengthEncode()
+            /**
+             * The sequence of items that can't be broken apart with line breaks
+             */
+            val runLengthEncodedItemSequence = tagSequence.runLengthEncode()
 
-        /**
-         * The optimized sequence of items that can't be broken apart with line breaks, removing ones that aren't
-         * needed.
-         */
-        val optimizedRunLengthEncodedItemSequence = sequence {
-            val iterator = runLengthEncodedItemSequence.iterator()
+            /**
+             * The optimized sequence of items that can't be broken apart with line breaks, removing ones that aren't
+             * needed.
+             */
+            val optimizedRunLengthEncodedItemSequence =
+                sequence {
+                    val iterator = runLengthEncodedItemSequence.iterator()
 
-            var currentItem = iterator.next()
+                    var currentItem = iterator.next()
 
-            while (iterator.hasNext()) {
-                val nextItem = iterator.next()
-                val currentItemLast = currentItem.last()
-                val nextItemLast = nextItem.last()
+                    while (iterator.hasNext()) {
+                        val nextItem = iterator.next()
+                        val currentItemLast = currentItem.last()
+                        val nextItemLast = nextItem.last()
 
-                // We can skip emitting dead space at the end of a line
-                val isDeadSpaceAtEndOfLine = currentItemLast == 'b' && (nextItemLast == '$' || nextItemLast == '!')
-                if (!isDeadSpaceAtEndOfLine) {
+                        // We can skip emitting dead space at the end of a line
+                        val isDeadSpaceAtEndOfLine =
+                            currentItemLast == 'b' && (nextItemLast == '$' || nextItemLast == '!')
+                        if (!isDeadSpaceAtEndOfLine) {
+                            yield(currentItem)
+                        }
+
+                        currentItem = nextItem
+                    }
+
+                    // Yield the last item
                     yield(currentItem)
                 }
+                    // Run length encode again, to combine line breaks for fully empty lines
+                    .runLengthEncode()
 
-                currentItem = nextItem
-            }
+            val lineSequence =
+                sequence {
+                    val itemIterator = optimizedRunLengthEncodedItemSequence.iterator()
+                    var line = StringBuilder()
 
-            // Yield the last item
-            yield(currentItem)
-        }
-            // Run length encode again, to combine line breaks for fully empty lines
-            .runLengthEncode()
-
-        val lineSequence = sequence {
-            val itemIterator = optimizedRunLengthEncodedItemSequence.iterator()
-            var line = StringBuilder()
-
-            while (itemIterator.hasNext()) {
-                val item = itemIterator.next()
-                // If the new item would make us exceed a line length of 70, yield the line
-                if (item.length + line.length > 70) {
+                    while (itemIterator.hasNext()) {
+                        val item = itemIterator.next()
+                        // If the new item would make us exceed a line length of 70, yield the line
+                        if (item.length + line.length > 70) {
+                            yield(line.toString())
+                            line = StringBuilder()
+                        }
+                        line.append(item)
+                    }
+                    // Yield the last line
                     yield(line.toString())
-                    line = StringBuilder()
                 }
-                line.append(item)
-            }
-            // Yield the last line
-            yield(line.toString())
-        }
 
-        yieldAll(lineSequence)
-    }
+            yieldAll(lineSequence)
+        }
 }
 
 private fun parseRunLengthEncodedItem(item: String): Pair<Char, Int> =
     item.last() to if (item.length == 1) 1 else item.dropLast(1).toInt()
 
-private fun Sequence<String>.runLengthEncode(): Sequence<String> = sequence {
-    val iterator = iterator()
+private fun Sequence<String>.runLengthEncode(): Sequence<String> =
+    sequence {
+        val iterator = iterator()
 
-    var (currentChar, currentCount) = parseRunLengthEncodedItem(iterator.next())
+        var (currentChar, currentCount) = parseRunLengthEncodedItem(iterator.next())
 
-    suspend fun SequenceScope<String>.yieldRun() {
-        yield(
-            buildString {
-                // We can omit the number if the run count is 1
-                if (currentCount > 1) {
-                    append("$currentCount")
-                }
-                append(currentChar)
-            },
-        )
-    }
-
-    while (iterator.hasNext()) {
-        val (nextChar, nextCount) = parseRunLengthEncodedItem(iterator.next())
-        if (nextChar == currentChar) {
-            // If the run continues, increase the count and continue
-            currentCount += nextCount
-        } else {
-            // If the run stopped, yield it, and swap to the new state with the next count seen
-            yieldRun()
-            currentChar = nextChar
-            currentCount = nextCount
+        suspend fun SequenceScope<String>.yieldRun() {
+            yield(
+                buildString {
+                    // We can omit the number if the run count is 1
+                    if (currentCount > 1) {
+                        append("$currentCount")
+                    }
+                    append(currentChar)
+                },
+            )
         }
-    }
 
-    // Yield the last run
-    yieldRun()
-}
+        while (iterator.hasNext()) {
+            val (nextChar, nextCount) = parseRunLengthEncodedItem(iterator.next())
+            if (nextChar == currentChar) {
+                // If the run continues, increase the count and continue
+                currentCount += nextCount
+            } else {
+                // If the run stopped, yield it, and swap to the new state with the next count seen
+                yieldRun()
+                currentChar = nextChar
+                currentCount = nextCount
+            }
+        }
+
+        // Yield the last run
+        yieldRun()
+    }

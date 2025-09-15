@@ -40,10 +40,14 @@ import kotlin.system.exitProcess
 
 @Inject
 @SingleIn(AppScope::class)
-@ContributesIntoSet(AppScope::class, binding = binding<
-    @ForScope(AppScope::class)
-    Updatable,
-    >())
+@ContributesIntoSet(
+    AppScope::class,
+    binding =
+    binding<
+        @ForScope(AppScope::class)
+        Updatable,
+        >(),
+)
 class DoNotKeepProcess(
     @param:ProcessLifecycleOwner private val lifecycleOwner: LifecycleOwner,
     private val composeLifePreferences: ComposeLifePreferences,
@@ -54,13 +58,15 @@ class DoNotKeepProcess(
                 is ResourceState.Failure,
                 ResourceState.Loading,
                 -> false
+
                 is ResourceState.Success -> doNotKeepProcessState.value
             }
         }.collectLatest { doNotKeepProcess ->
             if (doNotKeepProcess) {
-                val observer = object : DefaultLifecycleObserver {
-                    override fun onStop(owner: LifecycleOwner) = exitProcess(0)
-                }
+                val observer =
+                    object : DefaultLifecycleObserver {
+                        override fun onStop(owner: LifecycleOwner) = exitProcess(0)
+                    }
                 lifecycleOwner.lifecycle.addObserver(observer)
                 try {
                     awaitCancellation()

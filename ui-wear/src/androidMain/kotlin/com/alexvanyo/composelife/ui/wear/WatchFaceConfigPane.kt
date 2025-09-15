@@ -36,13 +36,11 @@ import kotlinx.coroutines.awaitCancellation
 import com.alexvanyo.composelife.resources.wear.R as resourcesWearR
 
 @Composable
-fun WatchFaceConfigPane(
-    state: WatchFaceConfigState,
-    modifier: Modifier = Modifier,
-) {
+fun WatchFaceConfigPane(state: WatchFaceConfigState, modifier: Modifier = Modifier) {
     val navigationController =
         rememberMutableBackstackNavigationController(
-            initialBackstackEntries = listOf(
+            initialBackstackEntries =
+            listOf(
                 BackstackEntry(
                     value = WatchFaceConfigNavigation.List(),
                     previous = null,
@@ -71,6 +69,7 @@ fun WatchFaceConfigPane(
                     scalingLazyListState = value.scalingLazyListState,
                 )
             }
+
             WatchFaceConfigNavigation.ColorPicker -> {
                 WatchFaceColorPicker(
                     color = state.color,
@@ -89,7 +88,8 @@ internal fun WatchFaceConfigPanePreview() {
         val preview = ImageBitmap.imageResource(id = resourcesWearR.drawable.watchface_square)
 
         WatchFaceConfigPane(
-            state = object : WatchFaceConfigState {
+            state =
+            object : WatchFaceConfigState {
                 override suspend fun update(): Nothing = awaitCancellation()
 
                 override var color: Color

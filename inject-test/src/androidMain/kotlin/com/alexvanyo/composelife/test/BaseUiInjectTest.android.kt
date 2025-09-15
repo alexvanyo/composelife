@@ -30,14 +30,15 @@ internal actual fun runPlatformUiTest(
     runTestContext: CoroutineContext,
     timeout: Duration,
     testBody: suspend ComposeUiTest.(uiGraphArguments: UiGraphArguments) -> Unit,
-): TestResult = runAndroidComposeUiTest<ComponentActivity>(
-    runTestContext = runTestContext,
-    testTimeout = timeout,
-) {
-    testBody(
-        object : UiGraphArguments {
-            override val activity = requireNotNull(this@runAndroidComposeUiTest.activity)
-            override val uiContext = activity
-        },
-    )
-}
+): TestResult =
+    runAndroidComposeUiTest<ComponentActivity>(
+        runTestContext = runTestContext,
+        testTimeout = timeout,
+    ) {
+        testBody(
+            object : UiGraphArguments {
+                override val activity = requireNotNull(this@runAndroidComposeUiTest.activity)
+                override val uiContext = activity
+            },
+        )
+    }

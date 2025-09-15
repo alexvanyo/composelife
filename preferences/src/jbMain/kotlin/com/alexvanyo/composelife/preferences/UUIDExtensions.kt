@@ -19,8 +19,6 @@ package com.alexvanyo.composelife.preferences
 import com.alexvanyo.composelife.preferences.proto.UUIDProto
 import kotlin.uuid.Uuid
 
-internal fun UUIDProto?.toResolved(): Uuid? =
-    this?.value_?.let(Uuid::parse)
+internal fun UUIDProto?.toResolved(): Uuid? = this?.value_?.let(Uuid::parse)
 
-internal fun Uuid.toProto(): UUIDProto =
-    UUIDProto(toString())
+internal fun Uuid.toProto(): UUIDProto = UUIDProto(toString())

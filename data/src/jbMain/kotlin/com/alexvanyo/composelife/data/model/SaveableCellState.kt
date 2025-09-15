@@ -18,7 +18,4 @@ package com.alexvanyo.composelife.data.model
 
 import com.alexvanyo.composelife.model.CellState
 
-data class SaveableCellState(
-    val cellState: CellState,
-    val cellStateMetadata: CellStateMetadata,
-)
+data class SaveableCellState(val cellState: CellState, val cellStateMetadata: CellStateMetadata)

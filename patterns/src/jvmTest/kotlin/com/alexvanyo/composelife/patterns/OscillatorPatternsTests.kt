@@ -26,7 +26,6 @@ import kotlin.test.assertEquals
 
 @RunWith(TestParameterInjector::class)
 class OscillatorPatternsTests {
-
     @TestParameter
     lateinit var oscillatorPatternEnum: OscillatorPatternEnum
 

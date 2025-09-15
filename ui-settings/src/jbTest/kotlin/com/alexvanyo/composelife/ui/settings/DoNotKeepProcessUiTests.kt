@@ -39,80 +39,83 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class DoNotKeepProcessUiTests {
-
     @Test
-    fun disable_is_displayed_correctly() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun disable_is_displayed_correctly() =
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DoNotKeepProcessUi(
-                doNotKeepProcess = true,
-                setDoNotKeepProcess = {},
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                DoNotKeepProcessUi(
+                    doNotKeepProcess = true,
+                    setDoNotKeepProcess = {},
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.DoNotKeepProcess))
+                .assertExists()
+                .assertIsOn()
+                .assertHasClickAction()
         }
 
-        onNodeWithContentDescription(resolver(Strings.DoNotKeepProcess))
-            .assertExists()
-            .assertIsOn()
-            .assertHasClickAction()
-    }
-
     @Test
-    fun disable_will_update_correctly() = runComposeUiTest {
-        var doNotKeepProcess by mutableStateOf(true)
+    fun disable_will_update_correctly() =
+        runComposeUiTest {
+            var doNotKeepProcess by mutableStateOf(true)
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DoNotKeepProcessUi(
-                doNotKeepProcess = doNotKeepProcess,
-                setDoNotKeepProcess = { doNotKeepProcess = it },
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                DoNotKeepProcessUi(
+                    doNotKeepProcess = doNotKeepProcess,
+                    setDoNotKeepProcess = { doNotKeepProcess = it },
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.DoNotKeepProcess))
+                .performClick()
+
+            assertFalse(doNotKeepProcess)
         }
 
-        onNodeWithContentDescription(resolver(Strings.DoNotKeepProcess))
-            .performClick()
-
-        assertFalse(doNotKeepProcess)
-    }
-
     @Test
-    fun enable_is_displayed_correctly() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun enable_is_displayed_correctly() =
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DoNotKeepProcessUi(
-                doNotKeepProcess = false,
-                setDoNotKeepProcess = {},
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                DoNotKeepProcessUi(
+                    doNotKeepProcess = false,
+                    setDoNotKeepProcess = {},
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.DoNotKeepProcess))
+                .assertExists()
+                .assertIsOff()
+                .assertHasClickAction()
         }
 
-        onNodeWithContentDescription(resolver(Strings.DoNotKeepProcess))
-            .assertExists()
-            .assertIsOff()
-            .assertHasClickAction()
-    }
-
     @Test
-    fun enable_will_update_correctly() = runComposeUiTest {
-        var doNotKeepProcess by mutableStateOf(false)
+    fun enable_will_update_correctly() =
+        runComposeUiTest {
+            var doNotKeepProcess by mutableStateOf(false)
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DoNotKeepProcessUi(
-                doNotKeepProcess = doNotKeepProcess,
-                setDoNotKeepProcess = { doNotKeepProcess = it },
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                DoNotKeepProcessUi(
+                    doNotKeepProcess = doNotKeepProcess,
+                    setDoNotKeepProcess = { doNotKeepProcess = it },
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.DoNotKeepProcess))
+                .performClick()
+
+            assertTrue(doNotKeepProcess)
         }
-
-        onNodeWithContentDescription(resolver(Strings.DoNotKeepProcess))
-            .performClick()
-
-        assertTrue(doNotKeepProcess)
-    }
 }

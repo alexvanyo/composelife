@@ -63,321 +63,340 @@ val UiGraph.cellWindowTestsCtx: CellWindowTestsCtx get() =
     this as CellWindowTestsCtx
 
 @OptIn(ExperimentalTestApi::class)
-class CellWindowTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
+class CellWindowTests :
+    BaseUiInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
+    @Suppress("LongMethod")
+    @Test
+    fun cells_are_displayed_correctly() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.cellWindowTestsCtx
+
+            val mutableGameOfLifeState =
+                MutableGameOfLifeState(
+                    cellState =
+                    setOf(
+                        0 to 0,
+                        0 to 2,
+                        0 to 4,
+                        2 to 0,
+                        2 to 2,
+                        2 to 4,
+                        4 to 0,
+                        4 to 2,
+                        4 to 4,
+                    ).toCellState(),
+                )
+
+            val selectionStateHolder =
+                MutableSelectionStateHolder(
+                    SessionValue(
+                        sessionId = Uuid.random(),
+                        valueId = Uuid.random(),
+                        value = SelectionState.NoSelection,
+                    ),
+                )
+
+            lateinit var resolver: (ParameterizedString) -> String
+
+            setContent {
+                with(ctx.mutableCellWindowCtx) {
+                    resolver = parameterizedStringResolver()
+
+                    MutableCellWindow(
+                        gameOfLifeState = mutableGameOfLifeState,
+                        modifier = Modifier.size(50.dp),
+                        cellWindowInteractionState =
+                        object :
+                            MutableCellWindowInteractionState,
+                            MutableSelectionStateHolder by selectionStateHolder {
+                            override val viewportInteractionConfig: ViewportInteractionConfig
+                                get() =
+                                    ViewportInteractionConfig.Fixed(
+                                        CellWindowViewportState(
+                                            offset = Offset(-0.5f, -0.5f),
+                                            scale = 1f,
+                                        ),
+                                    )
+                        },
+                        cellDpSize = 10.dp,
+                    )
+                }
+            }
+
+            onNodeWithContentDescription(
+                resolver(Strings.InteractableCellContentDescription(0, 0)),
+            ).assertIsOn()
+
+            onNodeWithContentDescription(
+                resolver(Strings.InteractableCellContentDescription(0, 1)),
+            ).assertIsOff()
+
+            onNodeWithContentDescription(
+                resolver(Strings.InteractableCellContentDescription(0, 2)),
+            ).assertIsOn()
+
+            onNodeWithContentDescription(
+                resolver(Strings.InteractableCellContentDescription(0, 4)),
+            ).assertDoesNotExist()
+
+            onNodeWithContentDescription(
+                resolver(Strings.InteractableCellContentDescription(2, 0)),
+            ).assertIsOn()
+
+            onNodeWithContentDescription(
+                resolver(Strings.InteractableCellContentDescription(2, 1)),
+            ).assertIsOff()
+
+            onNodeWithContentDescription(
+                resolver(Strings.InteractableCellContentDescription(2, 2)),
+            ).assertIsOn()
+        }
 
     @Suppress("LongMethod")
     @Test
-    fun cells_are_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.cellWindowTestsCtx
+    fun cells_are_displayed_correctly_after_scrolling() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.cellWindowTestsCtx
+            ctx.testComposeLifePreferences.touchToolConfig = ToolConfig.Pan
 
-        val mutableGameOfLifeState = MutableGameOfLifeState(
-            cellState = setOf(
-                0 to 0,
-                0 to 2,
-                0 to 4,
-                2 to 0,
-                2 to 2,
-                2 to 4,
-                4 to 0,
-                4 to 2,
-                4 to 4,
-            ).toCellState(),
-        )
-
-        val selectionStateHolder = MutableSelectionStateHolder(
-            SessionValue(
-                sessionId = Uuid.random(),
-                valueId = Uuid.random(),
-                value = SelectionState.NoSelection,
-            ),
-        )
-
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            with(ctx.mutableCellWindowCtx) {
-                resolver = parameterizedStringResolver()
-
-                MutableCellWindow(
-                    gameOfLifeState = mutableGameOfLifeState,
-                    modifier = Modifier.size(50.dp),
-                    cellWindowInteractionState = object :
-                        MutableCellWindowInteractionState,
-                        MutableSelectionStateHolder by selectionStateHolder {
-                        override val viewportInteractionConfig: ViewportInteractionConfig
-                            get() = ViewportInteractionConfig.Fixed(
-                                CellWindowViewportState(
-                                    offset = Offset(-0.5f, -0.5f),
-                                    scale = 1f,
-                                ),
-                            )
-                    },
-                    cellDpSize = 10.dp,
+            val mutableGameOfLifeState =
+                MutableGameOfLifeState(
+                    cellState =
+                    setOf(
+                        0 to 0,
+                        0 to 2,
+                        0 to 4,
+                        2 to 0,
+                        2 to 2,
+                        2 to 4,
+                        4 to 0,
+                        4 to 2,
+                        4 to 4,
+                    ).toCellState(),
                 )
+
+            val mutableCellWindowViewportState = MutableCellWindowViewportState()
+            val selectionStateHolder =
+                MutableSelectionStateHolder(
+                    SessionValue(
+                        sessionId = Uuid.random(),
+                        valueId = Uuid.random(),
+                        value = SelectionState.NoSelection,
+                    ),
+                )
+
+            lateinit var density: Density
+
+            setContent {
+                density = LocalDensity.current
+
+                with(ctx.mutableCellWindowCtx) {
+                    MutableCellWindow(
+                        gameOfLifeState = mutableGameOfLifeState,
+                        modifier = Modifier.size(150.dp),
+                        cellWindowInteractionState =
+                        object :
+                            MutableCellWindowInteractionState,
+                            MutableSelectionStateHolder by selectionStateHolder {
+                            override val viewportInteractionConfig: ViewportInteractionConfig
+                                get() = ViewportInteractionConfig.Navigable(mutableCellWindowViewportState)
+                        },
+                        cellDpSize = 30.dp,
+                    )
+                }
             }
+
+            onRoot().performTouchInput {
+                with(density) {
+                    swipe(
+                        Offset(135.dp.toPx(), 135.dp.toPx()),
+                        Offset(15.dp.toPx(), 15.dp.toPx()),
+                    )
+                }
+            }
+
+            assertTrue(mutableCellWindowViewportState.offset.x > 3f)
+            assertTrue(mutableCellWindowViewportState.offset.y > 3f)
         }
-
-        onNodeWithContentDescription(
-            resolver(Strings.InteractableCellContentDescription(0, 0)),
-        )
-            .assertIsOn()
-
-        onNodeWithContentDescription(
-            resolver(Strings.InteractableCellContentDescription(0, 1)),
-        )
-            .assertIsOff()
-
-        onNodeWithContentDescription(
-            resolver(Strings.InteractableCellContentDescription(0, 2)),
-        )
-            .assertIsOn()
-
-        onNodeWithContentDescription(
-            resolver(Strings.InteractableCellContentDescription(0, 4)),
-        )
-            .assertDoesNotExist()
-
-        onNodeWithContentDescription(
-            resolver(Strings.InteractableCellContentDescription(2, 0)),
-        )
-            .assertIsOn()
-
-        onNodeWithContentDescription(
-            resolver(Strings.InteractableCellContentDescription(2, 1)),
-        )
-            .assertIsOff()
-
-        onNodeWithContentDescription(
-            resolver(Strings.InteractableCellContentDescription(2, 2)),
-        )
-            .assertIsOn()
-    }
 
     @Suppress("LongMethod")
     @Test
-    fun cells_are_displayed_correctly_after_scrolling() = runUiTest { uiGraph ->
-        val ctx = uiGraph.cellWindowTestsCtx
-        ctx.testComposeLifePreferences.touchToolConfig = ToolConfig.Pan
+    fun cells_are_not_scrolled_with_none_touch_tool_config() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.cellWindowTestsCtx
+            ctx.testComposeLifePreferences.touchToolConfig = ToolConfig.None
 
-        val mutableGameOfLifeState = MutableGameOfLifeState(
-            cellState = setOf(
-                0 to 0,
-                0 to 2,
-                0 to 4,
-                2 to 0,
-                2 to 2,
-                2 to 4,
-                4 to 0,
-                4 to 2,
-                4 to 4,
-            ).toCellState(),
-        )
-
-        val mutableCellWindowViewportState = MutableCellWindowViewportState()
-        val selectionStateHolder = MutableSelectionStateHolder(
-            SessionValue(
-                sessionId = Uuid.random(),
-                valueId = Uuid.random(),
-                value = SelectionState.NoSelection,
-            ),
-        )
-
-        lateinit var density: Density
-
-        setContent {
-            density = LocalDensity.current
-
-            with(ctx.mutableCellWindowCtx) {
-                MutableCellWindow(
-                    gameOfLifeState = mutableGameOfLifeState,
-                    modifier = Modifier.size(150.dp),
-                    cellWindowInteractionState = object :
-                        MutableCellWindowInteractionState,
-                        MutableSelectionStateHolder by selectionStateHolder {
-                        override val viewportInteractionConfig: ViewportInteractionConfig
-                            get() = ViewportInteractionConfig.Navigable(mutableCellWindowViewportState)
-                    },
-                    cellDpSize = 30.dp,
+            val mutableGameOfLifeState =
+                MutableGameOfLifeState(
+                    cellState =
+                    setOf(
+                        0 to 0,
+                        0 to 2,
+                        0 to 4,
+                        2 to 0,
+                        2 to 2,
+                        2 to 4,
+                        4 to 0,
+                        4 to 2,
+                        4 to 4,
+                    ).toCellState(),
                 )
-            }
-        }
 
-        onRoot().performTouchInput {
-            with(density) {
-                swipe(
-                    Offset(135.dp.toPx(), 135.dp.toPx()),
-                    Offset(15.dp.toPx(), 15.dp.toPx()),
+            val mutableCellWindowViewportState = MutableCellWindowViewportState()
+            val selectionStateHolder =
+                MutableSelectionStateHolder(
+                    SessionValue(
+                        sessionId = Uuid.random(),
+                        valueId = Uuid.random(),
+                        value = SelectionState.NoSelection,
+                    ),
                 )
+
+            lateinit var density: Density
+
+            setContent {
+                density = LocalDensity.current
+
+                with(ctx.mutableCellWindowCtx) {
+                    MutableCellWindow(
+                        gameOfLifeState = mutableGameOfLifeState,
+                        modifier = Modifier.size(150.dp),
+                        cellWindowInteractionState =
+                        object :
+                            MutableCellWindowInteractionState,
+                            MutableSelectionStateHolder by selectionStateHolder {
+                            override val viewportInteractionConfig: ViewportInteractionConfig
+                                get() = ViewportInteractionConfig.Navigable(mutableCellWindowViewportState)
+                        },
+                        cellDpSize = 30.dp,
+                    )
+                }
             }
-        }
 
-        assertTrue(mutableCellWindowViewportState.offset.x > 3f)
-        assertTrue(mutableCellWindowViewportState.offset.y > 3f)
-    }
-
-    @Suppress("LongMethod")
-    @Test
-    fun cells_are_not_scrolled_with_none_touch_tool_config() = runUiTest { uiGraph ->
-        val ctx = uiGraph.cellWindowTestsCtx
-        ctx.testComposeLifePreferences.touchToolConfig = ToolConfig.None
-
-        val mutableGameOfLifeState = MutableGameOfLifeState(
-            cellState = setOf(
-                0 to 0,
-                0 to 2,
-                0 to 4,
-                2 to 0,
-                2 to 2,
-                2 to 4,
-                4 to 0,
-                4 to 2,
-                4 to 4,
-            ).toCellState(),
-        )
-
-        val mutableCellWindowViewportState = MutableCellWindowViewportState()
-        val selectionStateHolder = MutableSelectionStateHolder(
-            SessionValue(
-                sessionId = Uuid.random(),
-                valueId = Uuid.random(),
-                value = SelectionState.NoSelection,
-            ),
-        )
-
-        lateinit var density: Density
-
-        setContent {
-            density = LocalDensity.current
-
-            with(ctx.mutableCellWindowCtx) {
-                MutableCellWindow(
-                    gameOfLifeState = mutableGameOfLifeState,
-                    modifier = Modifier.size(150.dp),
-                    cellWindowInteractionState = object :
-                        MutableCellWindowInteractionState,
-                        MutableSelectionStateHolder by selectionStateHolder {
-                        override val viewportInteractionConfig: ViewportInteractionConfig
-                            get() = ViewportInteractionConfig.Navigable(mutableCellWindowViewportState)
-                    },
-                    cellDpSize = 30.dp,
-                )
+            onRoot().performTouchInput {
+                with(density) {
+                    swipe(
+                        Offset(135.dp.toPx(), 135.dp.toPx()),
+                        Offset(15.dp.toPx(), 15.dp.toPx()),
+                    )
+                }
             }
-        }
 
-        onRoot().performTouchInput {
-            with(density) {
-                swipe(
-                    Offset(135.dp.toPx(), 135.dp.toPx()),
-                    Offset(15.dp.toPx(), 15.dp.toPx()),
-                )
-            }
+            assertEquals(
+                Offset.Zero,
+                mutableCellWindowViewportState.offset,
+            )
         }
-
-        assertEquals(
-            Offset.Zero,
-            mutableCellWindowViewportState.offset,
-        )
-    }
 
     @Test
-    fun cells_are_displayed_correctly_after_zooming_in_with_mouse_wheel() = runUiTest { uiGraph ->
-        val ctx = uiGraph.cellWindowTestsCtx
+    fun cells_are_displayed_correctly_after_zooming_in_with_mouse_wheel() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.cellWindowTestsCtx
 
-        val mutableGameOfLifeState = MutableGameOfLifeState(
-            cellState = setOf(
-                0 to 0,
-                0 to 2,
-                0 to 4,
-                2 to 0,
-                2 to 2,
-                2 to 4,
-                4 to 0,
-                4 to 2,
-                4 to 4,
-            ).toCellState(),
-        )
-
-        val mutableCellWindowViewportState = MutableCellWindowViewportState()
-        val selectionStateHolder = MutableSelectionStateHolder(
-            SessionValue(
-                sessionId = Uuid.random(),
-                valueId = Uuid.random(),
-                value = SelectionState.NoSelection,
-            ),
-        )
-
-        setContent {
-            with(ctx.mutableCellWindowCtx) {
-                MutableCellWindow(
-                    gameOfLifeState = mutableGameOfLifeState,
-                    modifier = Modifier.size(150.dp),
-                    cellWindowInteractionState = object :
-                        MutableCellWindowInteractionState,
-                        MutableSelectionStateHolder by selectionStateHolder {
-                        override val viewportInteractionConfig: ViewportInteractionConfig
-                            get() = ViewportInteractionConfig.Navigable(mutableCellWindowViewportState)
-                    },
-                    cellDpSize = 30.dp,
+            val mutableGameOfLifeState =
+                MutableGameOfLifeState(
+                    cellState =
+                    setOf(
+                        0 to 0,
+                        0 to 2,
+                        0 to 4,
+                        2 to 0,
+                        2 to 2,
+                        2 to 4,
+                        4 to 0,
+                        4 to 2,
+                        4 to 4,
+                    ).toCellState(),
                 )
+
+            val mutableCellWindowViewportState = MutableCellWindowViewportState()
+            val selectionStateHolder =
+                MutableSelectionStateHolder(
+                    SessionValue(
+                        sessionId = Uuid.random(),
+                        valueId = Uuid.random(),
+                        value = SelectionState.NoSelection,
+                    ),
+                )
+
+            setContent {
+                with(ctx.mutableCellWindowCtx) {
+                    MutableCellWindow(
+                        gameOfLifeState = mutableGameOfLifeState,
+                        modifier = Modifier.size(150.dp),
+                        cellWindowInteractionState =
+                        object :
+                            MutableCellWindowInteractionState,
+                            MutableSelectionStateHolder by selectionStateHolder {
+                            override val viewportInteractionConfig: ViewportInteractionConfig
+                                get() = ViewportInteractionConfig.Navigable(mutableCellWindowViewportState)
+                        },
+                        cellDpSize = 30.dp,
+                    )
+                }
             }
-        }
 
-        onRoot().performMouseInput {
-            scroll(-1f, ScrollWheel.Vertical)
-        }
+            onRoot().performMouseInput {
+                scroll(-1f, ScrollWheel.Vertical)
+            }
 
-        assertEquals(10f / 9f, mutableCellWindowViewportState.scale)
-    }
+            assertEquals(10f / 9f, mutableCellWindowViewportState.scale)
+        }
 
     @Test
-    fun cells_are_displayed_correctly_after_zooming_out_with_mouse_wheel() = runUiTest { uiGraph ->
-        val ctx = uiGraph.cellWindowTestsCtx
+    fun cells_are_displayed_correctly_after_zooming_out_with_mouse_wheel() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.cellWindowTestsCtx
 
-        val mutableGameOfLifeState = MutableGameOfLifeState(
-            cellState = setOf(
-                0 to 0,
-                0 to 2,
-                0 to 4,
-                2 to 0,
-                2 to 2,
-                2 to 4,
-                4 to 0,
-                4 to 2,
-                4 to 4,
-            ).toCellState(),
-        )
-
-        val mutableCellWindowViewportState = MutableCellWindowViewportState()
-        val selectionStateHolder = MutableSelectionStateHolder(
-            SessionValue(
-                sessionId = Uuid.random(),
-                valueId = Uuid.random(),
-                value = SelectionState.NoSelection,
-            ),
-        )
-
-        setContent {
-            with(ctx.mutableCellWindowCtx) {
-                MutableCellWindow(
-                    gameOfLifeState = mutableGameOfLifeState,
-                    modifier = Modifier.size(150.dp),
-                    cellWindowInteractionState = object :
-                        MutableCellWindowInteractionState,
-                        MutableSelectionStateHolder by selectionStateHolder {
-                        override val viewportInteractionConfig: ViewportInteractionConfig
-                            get() = ViewportInteractionConfig.Navigable(mutableCellWindowViewportState)
-                    },
-                    cellDpSize = 30.dp,
+            val mutableGameOfLifeState =
+                MutableGameOfLifeState(
+                    cellState =
+                    setOf(
+                        0 to 0,
+                        0 to 2,
+                        0 to 4,
+                        2 to 0,
+                        2 to 2,
+                        2 to 4,
+                        4 to 0,
+                        4 to 2,
+                        4 to 4,
+                    ).toCellState(),
                 )
+
+            val mutableCellWindowViewportState = MutableCellWindowViewportState()
+            val selectionStateHolder =
+                MutableSelectionStateHolder(
+                    SessionValue(
+                        sessionId = Uuid.random(),
+                        valueId = Uuid.random(),
+                        value = SelectionState.NoSelection,
+                    ),
+                )
+
+            setContent {
+                with(ctx.mutableCellWindowCtx) {
+                    MutableCellWindow(
+                        gameOfLifeState = mutableGameOfLifeState,
+                        modifier = Modifier.size(150.dp),
+                        cellWindowInteractionState =
+                        object :
+                            MutableCellWindowInteractionState,
+                            MutableSelectionStateHolder by selectionStateHolder {
+                            override val viewportInteractionConfig: ViewportInteractionConfig
+                                get() = ViewportInteractionConfig.Navigable(mutableCellWindowViewportState)
+                        },
+                        cellDpSize = 30.dp,
+                    )
+                }
             }
-        }
 
-        onRoot().performMouseInput {
-            scroll(1f, ScrollWheel.Vertical)
-        }
+            onRoot().performMouseInput {
+                scroll(1f, ScrollWheel.Vertical)
+            }
 
-        assertEquals(9f / 10f, mutableCellWindowViewportState.scale)
-    }
+            assertEquals(9f / 10f, mutableCellWindowViewportState.scale)
+        }
 }

@@ -75,7 +75,8 @@ fun CellUniverseInfoCard(
     val currentEvolutionStatus by rememberUpdatedState(newValue = evolutionStatus)
 
     CellUniverseInfoCard(
-        infoItemTexts = persistentListOf(
+        infoItemTexts =
+        persistentListOf(
             {
                 parameterizedStringResource(
                     Strings.OffsetInfoMessage(
@@ -93,9 +94,11 @@ fun CellUniverseInfoCard(
             },
             { isEditing ->
                 when (val newEvolutionStatus = currentEvolutionStatus) {
-                    TemporalGameOfLifeState.EvolutionStatus.Paused ->
+                    TemporalGameOfLifeState.EvolutionStatus.Paused -> {
                         parameterizedStringResource(Strings.PausedMessage)
-                    is TemporalGameOfLifeState.EvolutionStatus.Running ->
+                    }
+
+                    is TemporalGameOfLifeState.EvolutionStatus.Running -> {
                         if (isEditing) {
                             parameterizedStringResource(
                                 Strings.GenerationsPerSecondLongMessage(
@@ -109,6 +112,7 @@ fun CellUniverseInfoCard(
                                 ),
                             )
                         }
+                    }
                 }
             },
         ),
@@ -123,22 +127,24 @@ fun CellUniverseInfoCard(
     infoCardState: CellUniverseInfoCardState,
     modifier: Modifier = Modifier,
 ) {
-    val infoItemContents = infoItemTexts.map { text ->
-        val infoItemState = rememberCellUniverseInfoItemState()
-        remember {
-            CellUniverseInfoItemContent(
-                cellUniverseInfoCardState = infoItemState,
-                text = text,
+    val infoItemContents =
+        infoItemTexts.map { text ->
+            val infoItemState = rememberCellUniverseInfoItemState()
+            remember {
+                CellUniverseInfoItemContent(
+                    cellUniverseInfoCardState = infoItemState,
+                    text = text,
+                )
+            }
+        }
+
+    val infoCardContent =
+        remember(infoItemContents, infoCardState) {
+            CellUniverseInfoCardContent(
+                cellUniverseInfoCardState = infoCardState,
+                cellUniverseInfoItemContents = infoItemContents,
             )
         }
-    }
-
-    val infoCardContent = remember(infoItemContents, infoCardState) {
-        CellUniverseInfoCardContent(
-            cellUniverseInfoCardState = infoCardState,
-            cellUniverseInfoItemContents = infoItemContents,
-        )
-    }
 
     CellUniverseInfoCard(
         cellUniverseInfoCardContent = infoCardContent,
@@ -147,17 +153,15 @@ fun CellUniverseInfoCard(
 }
 
 @Composable
-fun CellUniverseInfoCard(
-    cellUniverseInfoCardContent: CellUniverseInfoCardContent,
-    modifier: Modifier = Modifier,
-) {
+fun CellUniverseInfoCard(cellUniverseInfoCardContent: CellUniverseInfoCardContent, modifier: Modifier = Modifier) {
     ElevatedCard(
         modifier = modifier,
     ) {
         AnimatedContent(
             targetState = cellUniverseInfoCardContent.showColumnTargetState,
             contentAlignment = Alignment.TopEnd,
-            contentSizeAnimationSpec = spring(
+            contentSizeAnimationSpec =
+            spring(
                 stiffness = Spring.StiffnessMedium,
             ),
             modifier = Modifier.padding(8.dp),
@@ -169,7 +173,8 @@ fun CellUniverseInfoCard(
                 if (showColumn) {
                     Column(
                         verticalArrangement = Arrangement.Center,
-                        modifier = Modifier
+                        modifier =
+                        Modifier
                             .weight(1f)
                             .heightIn(min = 48.dp)
                             .verticalScroll(rememberScrollState())
@@ -222,17 +227,20 @@ private fun CellUniverseInfoExpandButton(
         IconToggleButton(
             checked = isExpanded,
             onCheckedChange = setIsExpanded,
-            colors = IconButtonDefaults.iconToggleButtonColors(
+            colors =
+            IconButtonDefaults.iconToggleButtonColors(
                 checkedContentColor = LocalContentColor.current,
             ),
         ) {
             Icon(
-                imageVector = if (isExpanded) {
+                imageVector =
+                if (isExpanded) {
                     Icons.Filled.ExpandLess
                 } else {
                     Icons.Filled.ExpandMore
                 },
-                contentDescription = parameterizedStringResource(
+                contentDescription =
+                parameterizedStringResource(
                     if (isExpanded) {
                         Strings.Collapse
                     } else {

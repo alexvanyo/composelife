@@ -29,13 +29,14 @@ import com.livefront.sealedenum.SealedEnum
  * A specific component of a [Color].
  */
 sealed interface ColorComponent {
-
     /**
      * An RGB integer component of a [Color].
      */
     sealed interface RgbIntComponent {
         data object Red : RgbIntComponent
+
         data object Green : RgbIntComponent
+
         data object Blue : RgbIntComponent
 
         @GenSealedEnum
@@ -48,10 +49,7 @@ sealed interface ColorComponent {
 /**
  * Modifies the given [color] with updating the given [component] with the given [value].
  */
-fun Color.withComponent(
-    component: RgbIntComponent,
-    @IntRange(from = 0, to = 255) value: Int,
-): Color =
+fun Color.withComponent(component: RgbIntComponent, @IntRange(from = 0, to = 255) value: Int): Color =
     Color(
         red = if (component == RgbIntComponent.Red) value else get(RgbIntComponent.Red),
         green = if (component == RgbIntComponent.Green) value else get(RgbIntComponent.Green),

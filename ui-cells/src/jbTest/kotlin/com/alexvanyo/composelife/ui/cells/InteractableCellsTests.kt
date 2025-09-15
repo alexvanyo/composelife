@@ -52,310 +52,316 @@ import kotlin.test.assertEquals
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class InteractableCellsTests {
-
-    private val interactableCellsLocalCtx = InteractableCellsCtx(
-        preferencesHolder = TestComposeLifePreferences(),
-    )
+    private val interactableCellsLocalCtx =
+        InteractableCellsCtx(
+            preferencesHolder = TestComposeLifePreferences(),
+        )
 
     @Suppress("LongMethod")
     @Test
-    fun cells_are_displayed_correctly() = runComposeUiTest {
-        val mutableGameOfLifeState = MutableGameOfLifeState(
-            cellState = setOf(
-                0 to 0,
-                0 to 2,
-                0 to 4,
-                2 to 0,
-                2 to 2,
-                2 to 4,
-                4 to 0,
-                4 to 2,
-                4 to 4,
-            ).toCellState(),
-        )
-
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            with(interactableCellsLocalCtx) {
-                resolver = parameterizedStringResolver()
-
-                InteractableCells(
-                    gameOfLifeState = mutableGameOfLifeState,
-                    setSelectionSessionState = {},
-                    scaledCellDpSize = 50.dp,
-                    cellWindow = CellWindow(
-                        IntRect(
-                            IntOffset(0, 0),
-                            IntSize(9, 9),
-                        ),
-                    ),
-                    pixelOffsetFromCenter = Offset.Zero,
+    fun cells_are_displayed_correctly() =
+        runComposeUiTest {
+            val mutableGameOfLifeState =
+                MutableGameOfLifeState(
+                    cellState =
+                    setOf(
+                        0 to 0,
+                        0 to 2,
+                        0 to 4,
+                        2 to 0,
+                        2 to 2,
+                        2 to 4,
+                        4 to 0,
+                        4 to 2,
+                        4 to 4,
+                    ).toCellState(),
                 )
+
+            lateinit var resolver: (ParameterizedString) -> String
+
+            setContent {
+                with(interactableCellsLocalCtx) {
+                    resolver = parameterizedStringResolver()
+
+                    InteractableCells(
+                        gameOfLifeState = mutableGameOfLifeState,
+                        setSelectionSessionState = {},
+                        scaledCellDpSize = 50.dp,
+                        cellWindow =
+                        CellWindow(
+                            IntRect(
+                                IntOffset(0, 0),
+                                IntSize(9, 9),
+                            ),
+                        ),
+                        pixelOffsetFromCenter = Offset.Zero,
+                    )
+                }
             }
+
+            onNodeWithContentDescription(
+                resolver(Strings.InteractableCellContentDescription(0, 0)),
+            ).assertIsOn()
+
+            onNodeWithContentDescription(
+                resolver(Strings.InteractableCellContentDescription(0, 1)),
+            ).assertIsOff()
+
+            onNodeWithContentDescription(
+                resolver(Strings.InteractableCellContentDescription(0, 2)),
+            ).assertIsOn()
+
+            onNodeWithContentDescription(
+                resolver(Strings.InteractableCellContentDescription(0, 3)),
+            ).assertIsOff()
+
+            onNodeWithContentDescription(
+                resolver(Strings.InteractableCellContentDescription(0, 4)),
+            ).assertIsOn()
+
+            onNodeWithContentDescription(
+                resolver(Strings.InteractableCellContentDescription(2, 0)),
+            ).assertIsOn()
+
+            onNodeWithContentDescription(
+                resolver(Strings.InteractableCellContentDescription(2, 1)),
+            ).assertIsOff()
+
+            onNodeWithContentDescription(
+                resolver(Strings.InteractableCellContentDescription(2, 2)),
+            ).assertIsOn()
+
+            onNodeWithContentDescription(
+                resolver(Strings.InteractableCellContentDescription(2, 3)),
+            ).assertIsOff()
+
+            onNodeWithContentDescription(
+                resolver(Strings.InteractableCellContentDescription(2, 4)),
+            ).assertIsOn()
+
+            onNodeWithContentDescription(
+                resolver(Strings.InteractableCellContentDescription(8, 8)),
+            ).assertExists()
+
+            onNodeWithContentDescription(
+                resolver(Strings.InteractableCellContentDescription(-1, -1)),
+            ).assertDoesNotExist()
+
+            onNodeWithContentDescription(
+                resolver(Strings.InteractableCellContentDescription(9, 9)),
+            ).assertDoesNotExist()
         }
-
-        onNodeWithContentDescription(
-            resolver(Strings.InteractableCellContentDescription(0, 0)),
-        )
-            .assertIsOn()
-
-        onNodeWithContentDescription(
-            resolver(Strings.InteractableCellContentDescription(0, 1)),
-        )
-            .assertIsOff()
-
-        onNodeWithContentDescription(
-            resolver(Strings.InteractableCellContentDescription(0, 2)),
-        )
-            .assertIsOn()
-
-        onNodeWithContentDescription(
-            resolver(Strings.InteractableCellContentDescription(0, 3)),
-        )
-            .assertIsOff()
-
-        onNodeWithContentDescription(
-            resolver(Strings.InteractableCellContentDescription(0, 4)),
-        )
-            .assertIsOn()
-
-        onNodeWithContentDescription(
-            resolver(Strings.InteractableCellContentDescription(2, 0)),
-        )
-            .assertIsOn()
-
-        onNodeWithContentDescription(
-            resolver(Strings.InteractableCellContentDescription(2, 1)),
-        )
-            .assertIsOff()
-
-        onNodeWithContentDescription(
-            resolver(Strings.InteractableCellContentDescription(2, 2)),
-        )
-            .assertIsOn()
-
-        onNodeWithContentDescription(
-            resolver(Strings.InteractableCellContentDescription(2, 3)),
-        )
-            .assertIsOff()
-
-        onNodeWithContentDescription(
-            resolver(Strings.InteractableCellContentDescription(2, 4)),
-        )
-            .assertIsOn()
-
-        onNodeWithContentDescription(
-            resolver(Strings.InteractableCellContentDescription(8, 8)),
-        )
-            .assertExists()
-
-        onNodeWithContentDescription(
-            resolver(Strings.InteractableCellContentDescription(-1, -1)),
-        )
-            .assertDoesNotExist()
-
-        onNodeWithContentDescription(
-            resolver(Strings.InteractableCellContentDescription(9, 9)),
-        )
-            .assertDoesNotExist()
-    }
 
     @Test
-    fun clicking_on_cell_updates_state() = runComposeUiTest {
-        val mutableGameOfLifeState = MutableGameOfLifeState(
-            cellState = setOf(
-                0 to 0,
-                0 to 2,
-                0 to 4,
-                2 to 0,
-                2 to 2,
-                2 to 4,
-                4 to 0,
-                4 to 2,
-                4 to 4,
-            ).toCellState(),
-        )
-
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            with(interactableCellsLocalCtx) {
-                resolver = parameterizedStringResolver()
-
-                InteractableCells(
-                    gameOfLifeState = mutableGameOfLifeState,
-                    setSelectionSessionState = {},
-                    scaledCellDpSize = 50.dp,
-                    cellWindow = CellWindow(
-                        IntRect(
-                            IntOffset(0, 0),
-                            IntSize(9, 9),
-                        ),
-                    ),
-                    pixelOffsetFromCenter = Offset.Zero,
+    fun clicking_on_cell_updates_state() =
+        runComposeUiTest {
+            val mutableGameOfLifeState =
+                MutableGameOfLifeState(
+                    cellState =
+                    setOf(
+                        0 to 0,
+                        0 to 2,
+                        0 to 4,
+                        2 to 0,
+                        2 to 2,
+                        2 to 4,
+                        4 to 0,
+                        4 to 2,
+                        4 to 4,
+                    ).toCellState(),
                 )
+
+            lateinit var resolver: (ParameterizedString) -> String
+
+            setContent {
+                with(interactableCellsLocalCtx) {
+                    resolver = parameterizedStringResolver()
+
+                    InteractableCells(
+                        gameOfLifeState = mutableGameOfLifeState,
+                        setSelectionSessionState = {},
+                        scaledCellDpSize = 50.dp,
+                        cellWindow =
+                        CellWindow(
+                            IntRect(
+                                IntOffset(0, 0),
+                                IntSize(9, 9),
+                            ),
+                        ),
+                        pixelOffsetFromCenter = Offset.Zero,
+                    )
+                }
             }
+
+            onNodeWithContentDescription(
+                resolver(Strings.InteractableCellContentDescription(2, 4)),
+            ).assertIsOn()
+                .performClick()
+
+            assertEquals(
+                setOf(
+                    0 to 0,
+                    0 to 2,
+                    0 to 4,
+                    2 to 0,
+                    2 to 2,
+                    4 to 0,
+                    4 to 2,
+                    4 to 4,
+                ).toCellState(),
+                mutableGameOfLifeState.cellState,
+            )
         }
-
-        onNodeWithContentDescription(
-            resolver(Strings.InteractableCellContentDescription(2, 4)),
-        )
-            .assertIsOn()
-            .performClick()
-
-        assertEquals(
-            setOf(
-                0 to 0,
-                0 to 2,
-                0 to 4,
-                2 to 0,
-                2 to 2,
-                4 to 0,
-                4 to 2,
-                4 to 4,
-            ).toCellState(),
-            mutableGameOfLifeState.cellState,
-        )
-    }
 
     @Suppress("LongMethod")
     @Test
-    fun drawing_on_cells_with_mouse_updates_state_with_draw_tool() = runComposeUiTest {
-        val mutableGameOfLifeState = MutableGameOfLifeState(
-            cellState = setOf(
-                0 to 0,
-                0 to 2,
-                0 to 4,
-                2 to 0,
-                2 to 2,
-                2 to 4,
-                4 to 0,
-                4 to 2,
-                4 to 4,
-            ).toCellState(),
-        )
-
-        lateinit var density: Density
-
-        setContent {
-            density = LocalDensity.current
-            with(
-                InteractableCellsCtx(
-                    preferencesHolder = TestComposeLifePreferences(
-                        initialPreferences = LoadedComposeLifePreferences.Defaults.copy(
-                            mouseToolConfig = ToolConfig.Draw,
-                        ),
-                    ),
-                ),
-            ) {
-                InteractableCells(
-                    gameOfLifeState = mutableGameOfLifeState,
-                    setSelectionSessionState = {},
-                    scaledCellDpSize = 50.dp,
-                    cellWindow = CellWindow(
-                        IntRect(
-                            IntOffset(0, 0),
-                            IntSize(9, 9),
-                        ),
-                    ),
-                    pixelOffsetFromCenter = Offset.Zero,
+    fun drawing_on_cells_with_mouse_updates_state_with_draw_tool() =
+        runComposeUiTest {
+            val mutableGameOfLifeState =
+                MutableGameOfLifeState(
+                    cellState =
+                    setOf(
+                        0 to 0,
+                        0 to 2,
+                        0 to 4,
+                        2 to 0,
+                        2 to 2,
+                        2 to 4,
+                        4 to 0,
+                        4 to 2,
+                        4 to 4,
+                    ).toCellState(),
                 )
+
+            lateinit var density: Density
+
+            setContent {
+                density = LocalDensity.current
+                with(
+                    InteractableCellsCtx(
+                        preferencesHolder =
+                        TestComposeLifePreferences(
+                            initialPreferences =
+                            LoadedComposeLifePreferences.Defaults.copy(
+                                mouseToolConfig = ToolConfig.Draw,
+                            ),
+                        ),
+                    ),
+                ) {
+                    InteractableCells(
+                        gameOfLifeState = mutableGameOfLifeState,
+                        setSelectionSessionState = {},
+                        scaledCellDpSize = 50.dp,
+                        cellWindow =
+                        CellWindow(
+                            IntRect(
+                                IntOffset(0, 0),
+                                IntSize(9, 9),
+                            ),
+                        ),
+                        pixelOffsetFromCenter = Offset.Zero,
+                    )
+                }
             }
+
+            onNodeWithTag("CellCanvas")
+                .performMouseInput {
+                    dragAndDrop(
+                        with(density) { DpOffset(125.dp, 25.dp).toPx() },
+                        with(density) { DpOffset(125.dp, 225.dp).toPx() },
+                    )
+                }
+
+            assertEquals(
+                setOf(
+                    0 to 0,
+                    0 to 2,
+                    0 to 4,
+                    2 to 0,
+                    2 to 1,
+                    2 to 2,
+                    2 to 3,
+                    2 to 4,
+                    4 to 0,
+                    4 to 2,
+                    4 to 4,
+                ).toCellState(),
+                mutableGameOfLifeState.cellState,
+            )
         }
-
-        onNodeWithTag("CellCanvas")
-            .performMouseInput {
-                dragAndDrop(
-                    with(density) { DpOffset(125.dp, 25.dp).toPx() },
-                    with(density) { DpOffset(125.dp, 225.dp).toPx() },
-                )
-            }
-
-        assertEquals(
-            setOf(
-                0 to 0,
-                0 to 2,
-                0 to 4,
-                2 to 0,
-                2 to 1,
-                2 to 2,
-                2 to 3,
-                2 to 4,
-                4 to 0,
-                4 to 2,
-                4 to 4,
-            ).toCellState(),
-            mutableGameOfLifeState.cellState,
-        )
-    }
 
     @Suppress("LongMethod")
     @Test
-    fun drawing_on_cells_with_mouse_does_not_update_state_with_none_tool() = runComposeUiTest {
-        val mutableGameOfLifeState = MutableGameOfLifeState(
-            cellState = setOf(
-                0 to 0,
-                0 to 2,
-                0 to 4,
-                2 to 0,
-                2 to 2,
-                2 to 4,
-                4 to 0,
-                4 to 2,
-                4 to 4,
-            ).toCellState(),
-        )
-
-        lateinit var density: Density
-
-        setContent {
-            density = LocalDensity.current
-            with(
-                InteractableCellsCtx(
-                    preferencesHolder = TestComposeLifePreferences(
-                        initialPreferences = LoadedComposeLifePreferences.Defaults.copy(
-                            mouseToolConfig = ToolConfig.None,
-                        ),
-                    ),
-                ),
-            ) {
-                InteractableCells(
-                    gameOfLifeState = mutableGameOfLifeState,
-                    setSelectionSessionState = {},
-                    scaledCellDpSize = 50.dp,
-                    cellWindow = CellWindow(
-                        IntRect(
-                            IntOffset(0, 0),
-                            IntSize(9, 9),
-                        ),
-                    ),
-                    pixelOffsetFromCenter = Offset.Zero,
+    fun drawing_on_cells_with_mouse_does_not_update_state_with_none_tool() =
+        runComposeUiTest {
+            val mutableGameOfLifeState =
+                MutableGameOfLifeState(
+                    cellState =
+                    setOf(
+                        0 to 0,
+                        0 to 2,
+                        0 to 4,
+                        2 to 0,
+                        2 to 2,
+                        2 to 4,
+                        4 to 0,
+                        4 to 2,
+                        4 to 4,
+                    ).toCellState(),
                 )
+
+            lateinit var density: Density
+
+            setContent {
+                density = LocalDensity.current
+                with(
+                    InteractableCellsCtx(
+                        preferencesHolder =
+                        TestComposeLifePreferences(
+                            initialPreferences =
+                            LoadedComposeLifePreferences.Defaults.copy(
+                                mouseToolConfig = ToolConfig.None,
+                            ),
+                        ),
+                    ),
+                ) {
+                    InteractableCells(
+                        gameOfLifeState = mutableGameOfLifeState,
+                        setSelectionSessionState = {},
+                        scaledCellDpSize = 50.dp,
+                        cellWindow =
+                        CellWindow(
+                            IntRect(
+                                IntOffset(0, 0),
+                                IntSize(9, 9),
+                            ),
+                        ),
+                        pixelOffsetFromCenter = Offset.Zero,
+                    )
+                }
             }
+
+            onNodeWithTag("CellCanvas")
+                .performMouseInput {
+                    dragAndDrop(
+                        with(density) { DpOffset(125.dp, 25.dp).toPx() },
+                        with(density) { DpOffset(125.dp, 225.dp).toPx() },
+                    )
+                }
+
+            assertEquals(
+                setOf(
+                    0 to 0,
+                    0 to 2,
+                    0 to 4,
+                    2 to 0,
+                    2 to 2,
+                    2 to 4,
+                    4 to 0,
+                    4 to 2,
+                    4 to 4,
+                ).toCellState(),
+                mutableGameOfLifeState.cellState,
+            )
         }
-
-        onNodeWithTag("CellCanvas")
-            .performMouseInput {
-                dragAndDrop(
-                    with(density) { DpOffset(125.dp, 25.dp).toPx() },
-                    with(density) { DpOffset(125.dp, 225.dp).toPx() },
-                )
-            }
-
-        assertEquals(
-            setOf(
-                0 to 0,
-                0 to 2,
-                0 to 4,
-                2 to 0,
-                2 to 2,
-                2 to 4,
-                4 to 0,
-                4 to 2,
-                4 to 4,
-            ).toCellState(),
-            mutableGameOfLifeState.cellState,
-        )
-    }
 }

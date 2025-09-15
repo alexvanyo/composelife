@@ -25,9 +25,7 @@ import kotlinx.coroutines.awaitCancellation
 
 @Inject
 @ContributesBinding(UiScope::class)
-class DesktopImmersiveModeManager(
-    private val windowState: WindowState?,
-) : ImmersiveModeManager {
+class DesktopImmersiveModeManager(private val windowState: WindowState?) : ImmersiveModeManager {
     override suspend fun hideSystemUi() = awaitCancellation()
 
     override suspend fun enterFullscreenMode(): Result<Unit> =

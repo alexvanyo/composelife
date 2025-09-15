@@ -77,794 +77,870 @@ val UiGraph.fullscreenSettingsPaneTestsCtx: FullscreenSettingsPaneTestsCtx get()
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalTestApi::class)
-class FullscreenSettingsPaneTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-
-) {
+class FullscreenSettingsPaneTests :
+    BaseUiInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
     @Test
-    fun show_list_screen_is_displayed_correctly_with_compact_width() = runUiTest { uiGraph ->
-        val ctx = uiGraph.fullscreenSettingsPaneTestsCtx
+    fun show_list_screen_is_displayed_correctly_with_compact_width() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.fullscreenSettingsPaneTestsCtx
 
-        var onBackButtonPressedCount = 0
+            var onBackButtonPressedCount = 0
 
-        var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Algorithm)
-        var isDetailPresent by mutableStateOf(false)
+            var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Algorithm)
+            var isDetailPresent by mutableStateOf(false)
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.ForcedSize(DpSize(500.dp, 500.dp)),
-            ) {
-                BoxWithConstraints {
-                    val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = maxWidth.value,
-                        heightDp = maxHeight.value,
-                    )
+            setContent {
+                resolver = parameterizedStringResolver()
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.ForcedSize(DpSize(500.dp, 500.dp)),
+                ) {
+                    BoxWithConstraints {
+                        val windowSizeClass =
+                            BREAKPOINTS_V1.computeWindowSizeClass(
+                                widthDp = maxWidth.value,
+                                heightDp = maxHeight.value,
+                            )
 
-                    with(ctx.fullscreenSettingsDetailPaneCtx) {
-                        FullscreenSettingsPane(
-                            fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
-                                override val settingsCategory = settingsCategory
+                        with(ctx.fullscreenSettingsDetailPaneCtx) {
+                            FullscreenSettingsPane(
+                                fullscreenSettingsListPaneState =
+                                object : FullscreenSettingsListPaneState {
+                                    override val settingsCategory = settingsCategory
 
-                                override val isListVisible: Boolean =
-                                    !isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                                override val isDetailVisible: Boolean =
-                                    isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                            },
-                            fullscreenSettingsDetailPaneState = object : FullscreenSettingsDetailPaneState {
-                                override val settingsCategory = settingsCategory
-                                override val settingToScrollTo = null
-                                override fun onFinishedScrollingToSetting() = Unit
+                                    override val isListVisible: Boolean =
+                                        !isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                    override val isDetailVisible: Boolean =
+                                        isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                },
+                                fullscreenSettingsDetailPaneState =
+                                object : FullscreenSettingsDetailPaneState {
+                                    override val settingsCategory = settingsCategory
+                                    override val settingToScrollTo = null
 
-                                override val isListVisible: Boolean =
-                                    !isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                                override val isDetailVisible: Boolean =
-                                    isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                            },
-                            onBackButtonPressed = {
-                                onBackButtonPressedCount++
-                            },
-                            setSettingsCategory = {
-                                settingsCategory = it
-                                isDetailPresent = true
-                            },
-                        )
+                                    override fun onFinishedScrollingToSetting() = Unit
+
+                                    override val isListVisible: Boolean =
+                                        !isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                    override val isDetailVisible: Boolean =
+                                        isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                },
+                                onBackButtonPressed = {
+                                    onBackButtonPressedCount++
+                                },
+                                setSettingsCategory = {
+                                    settingsCategory = it
+                                    isDetailPresent = true
+                                },
+                            )
+                        }
                     }
                 }
             }
+
+            onNodeWithText(resolver.invoke(Strings.Algorithm))
+                .performScrollTo()
+                .assertIsDisplayed()
+                .assertHasClickAction()
+                .assert(isSelectable().not())
+
+            onNodeWithText(resolver.invoke(Strings.Visual))
+                .performScrollTo()
+                .assertIsDisplayed()
+                .assertHasClickAction()
+                .assert(isSelectable().not())
+
+            onNodeWithText(resolver.invoke(Strings.FeatureFlags))
+                .performScrollTo()
+                .assertIsDisplayed()
+                .assertHasClickAction()
+                .assert(isSelectable().not())
+
+            onNodeWithText(resolver.invoke(Strings.HashLifeAlgorithm))
+                .assertDoesNotExist()
+
+            onNodeWithContentDescription(resolver.invoke(Strings.Back))
+                .assertIsDisplayed()
+                .assertHasClickAction()
+                .performClick()
+
+            assertEquals(1, onBackButtonPressedCount)
         }
 
-        onNodeWithText(resolver.invoke(Strings.Algorithm))
-            .performScrollTo()
-            .assertIsDisplayed()
-            .assertHasClickAction()
-            .assert(isSelectable().not())
-
-        onNodeWithText(resolver.invoke(Strings.Visual))
-            .performScrollTo()
-            .assertIsDisplayed()
-            .assertHasClickAction()
-            .assert(isSelectable().not())
-
-        onNodeWithText(resolver.invoke(Strings.FeatureFlags))
-            .performScrollTo()
-            .assertIsDisplayed()
-            .assertHasClickAction()
-            .assert(isSelectable().not())
-
-        onNodeWithText(resolver.invoke(Strings.HashLifeAlgorithm))
-            .assertDoesNotExist()
-
-        onNodeWithContentDescription(resolver.invoke(Strings.Back))
-            .assertIsDisplayed()
-            .assertHasClickAction()
-            .performClick()
-
-        assertEquals(1, onBackButtonPressedCount)
-    }
-
     @Test
-    fun show_list_screen_is_displayed_correctly_with_medium_width() = runUiTest { uiGraph ->
-        val ctx = uiGraph.fullscreenSettingsPaneTestsCtx
+    fun show_list_screen_is_displayed_correctly_with_medium_width() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.fullscreenSettingsPaneTestsCtx
 
-        var onBackButtonPressedCount = 0
+            var onBackButtonPressedCount = 0
 
-        var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Algorithm)
-        var isDetailPresent by mutableStateOf(false)
+            var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Algorithm)
+            var isDetailPresent by mutableStateOf(false)
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.ForcedSize(DpSize(700.dp, 500.dp)),
-            ) {
-                BoxWithConstraints {
-                    val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = maxWidth.value,
-                        heightDp = maxHeight.value,
-                    )
+            setContent {
+                resolver = parameterizedStringResolver()
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.ForcedSize(DpSize(700.dp, 500.dp)),
+                ) {
+                    BoxWithConstraints {
+                        val windowSizeClass =
+                            BREAKPOINTS_V1.computeWindowSizeClass(
+                                widthDp = maxWidth.value,
+                                heightDp = maxHeight.value,
+                            )
 
-                    with(ctx.fullscreenSettingsDetailPaneCtx) {
-                        FullscreenSettingsPane(
-                            fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
-                                override val settingsCategory = settingsCategory
+                        with(ctx.fullscreenSettingsDetailPaneCtx) {
+                            FullscreenSettingsPane(
+                                fullscreenSettingsListPaneState =
+                                object : FullscreenSettingsListPaneState {
+                                    override val settingsCategory = settingsCategory
 
-                                override val isListVisible: Boolean =
-                                    !isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                                override val isDetailVisible: Boolean =
-                                    isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                            },
-                            fullscreenSettingsDetailPaneState = object : FullscreenSettingsDetailPaneState {
-                                override val settingsCategory = settingsCategory
-                                override val settingToScrollTo = null
-                                override fun onFinishedScrollingToSetting() = Unit
+                                    override val isListVisible: Boolean =
+                                        !isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                    override val isDetailVisible: Boolean =
+                                        isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                },
+                                fullscreenSettingsDetailPaneState =
+                                object : FullscreenSettingsDetailPaneState {
+                                    override val settingsCategory = settingsCategory
+                                    override val settingToScrollTo = null
 
-                                override val isListVisible: Boolean =
-                                    !isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                                override val isDetailVisible: Boolean =
-                                    isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                            },
-                            onBackButtonPressed = {
-                                onBackButtonPressedCount++
-                            },
-                            setSettingsCategory = {
-                                settingsCategory = it
-                                isDetailPresent = true
-                            },
-                        )
+                                    override fun onFinishedScrollingToSetting() = Unit
+
+                                    override val isListVisible: Boolean =
+                                        !isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                    override val isDetailVisible: Boolean =
+                                        isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                },
+                                onBackButtonPressed = {
+                                    onBackButtonPressedCount++
+                                },
+                                setSettingsCategory = {
+                                    settingsCategory = it
+                                    isDetailPresent = true
+                                },
+                            )
+                        }
                     }
                 }
             }
+
+            onNodeWithText(resolver.invoke(Strings.Algorithm))
+                .performScrollTo()
+                .assertIsDisplayed()
+                .assertHasClickAction()
+                .assertIsSelectable()
+                .assertIsSelected()
+
+            onNodeWithText(resolver.invoke(Strings.Visual))
+                .performScrollTo()
+                .assertIsDisplayed()
+                .assertHasClickAction()
+                .assertIsSelectable()
+                .assertIsNotSelected()
+
+            onNodeWithText(resolver.invoke(Strings.FeatureFlags))
+                .performScrollTo()
+                .assertIsDisplayed()
+                .assertHasClickAction()
+                .assertIsSelectable()
+                .assertIsNotSelected()
+
+            onNodeWithText(resolver.invoke(Strings.HashLifeAlgorithm))
+                .assertExists()
+                .assertHasClickAction()
+
+            onNodeWithContentDescription(resolver.invoke(Strings.Back))
+                .assertIsDisplayed()
+                .assertHasClickAction()
+                .performClick()
+
+            assertEquals(1, onBackButtonPressedCount)
         }
 
-        onNodeWithText(resolver.invoke(Strings.Algorithm))
-            .performScrollTo()
-            .assertIsDisplayed()
-            .assertHasClickAction()
-            .assertIsSelectable()
-            .assertIsSelected()
-
-        onNodeWithText(resolver.invoke(Strings.Visual))
-            .performScrollTo()
-            .assertIsDisplayed()
-            .assertHasClickAction()
-            .assertIsSelectable()
-            .assertIsNotSelected()
-
-        onNodeWithText(resolver.invoke(Strings.FeatureFlags))
-            .performScrollTo()
-            .assertIsDisplayed()
-            .assertHasClickAction()
-            .assertIsSelectable()
-            .assertIsNotSelected()
-
-        onNodeWithText(resolver.invoke(Strings.HashLifeAlgorithm))
-            .assertExists()
-            .assertHasClickAction()
-
-        onNodeWithContentDescription(resolver.invoke(Strings.Back))
-            .assertIsDisplayed()
-            .assertHasClickAction()
-            .performClick()
-
-        assertEquals(1, onBackButtonPressedCount)
-    }
-
     @Test
-    fun show_detail_screen_is_displayed_correctly_with_compact_width() = runUiTest { uiGraph ->
-        val ctx = uiGraph.fullscreenSettingsPaneTestsCtx
+    fun show_detail_screen_is_displayed_correctly_with_compact_width() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.fullscreenSettingsPaneTestsCtx
 
-        var onBackButtonPressedCount = 0
+            var onBackButtonPressedCount = 0
 
-        var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Algorithm)
-        var isDetailPresent by mutableStateOf(true)
+            var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Algorithm)
+            var isDetailPresent by mutableStateOf(true)
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.ForcedSize(DpSize(500.dp, 500.dp)),
-            ) {
-                BoxWithConstraints {
-                    val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = maxWidth.value,
-                        heightDp = maxHeight.value,
-                    )
+            setContent {
+                resolver = parameterizedStringResolver()
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.ForcedSize(DpSize(500.dp, 500.dp)),
+                ) {
+                    BoxWithConstraints {
+                        val windowSizeClass =
+                            BREAKPOINTS_V1.computeWindowSizeClass(
+                                widthDp = maxWidth.value,
+                                heightDp = maxHeight.value,
+                            )
 
-                    with(ctx.fullscreenSettingsDetailPaneCtx) {
-                        FullscreenSettingsPane(
-                            fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
-                                override val settingsCategory = settingsCategory
+                        with(ctx.fullscreenSettingsDetailPaneCtx) {
+                            FullscreenSettingsPane(
+                                fullscreenSettingsListPaneState =
+                                object : FullscreenSettingsListPaneState {
+                                    override val settingsCategory = settingsCategory
 
-                                override val isListVisible: Boolean =
-                                    !isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                                override val isDetailVisible: Boolean =
-                                    isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                            },
-                            fullscreenSettingsDetailPaneState = object : FullscreenSettingsDetailPaneState {
-                                override val settingsCategory = settingsCategory
-                                override val settingToScrollTo = null
-                                override fun onFinishedScrollingToSetting() = Unit
+                                    override val isListVisible: Boolean =
+                                        !isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                    override val isDetailVisible: Boolean =
+                                        isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                },
+                                fullscreenSettingsDetailPaneState =
+                                object : FullscreenSettingsDetailPaneState {
+                                    override val settingsCategory = settingsCategory
+                                    override val settingToScrollTo = null
 
-                                override val isListVisible: Boolean =
-                                    !isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                                override val isDetailVisible: Boolean =
-                                    isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                            },
-                            onBackButtonPressed = {
-                                onBackButtonPressedCount++
-                            },
-                            setSettingsCategory = {
-                                settingsCategory = it
-                                isDetailPresent = true
-                            },
-                        )
+                                    override fun onFinishedScrollingToSetting() = Unit
+
+                                    override val isListVisible: Boolean =
+                                        !isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                    override val isDetailVisible: Boolean =
+                                        isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                },
+                                onBackButtonPressed = {
+                                    onBackButtonPressedCount++
+                                },
+                                setSettingsCategory = {
+                                    settingsCategory = it
+                                    isDetailPresent = true
+                                },
+                            )
+                        }
                     }
                 }
             }
+
+            onNodeWithText(resolver.invoke(Strings.Visual))
+                .assertDoesNotExist()
+
+            onNodeWithText(resolver.invoke(Strings.FeatureFlags))
+                .assertDoesNotExist()
+
+            onNodeWithText(resolver.invoke(Strings.HashLifeAlgorithm))
+                .assertExists()
+
+            onNodeWithContentDescription(resolver.invoke(Strings.Back))
+                .assertIsDisplayed()
+                .assertHasClickAction()
+                .performClick()
+
+            assertEquals(1, onBackButtonPressedCount)
         }
 
-        onNodeWithText(resolver.invoke(Strings.Visual))
-            .assertDoesNotExist()
-
-        onNodeWithText(resolver.invoke(Strings.FeatureFlags))
-            .assertDoesNotExist()
-
-        onNodeWithText(resolver.invoke(Strings.HashLifeAlgorithm))
-            .assertExists()
-
-        onNodeWithContentDescription(resolver.invoke(Strings.Back))
-            .assertIsDisplayed()
-            .assertHasClickAction()
-            .performClick()
-
-        assertEquals(1, onBackButtonPressedCount)
-    }
-
     @Test
-    fun show_detail_screen_is_displayed_correctly_with_medium_width() = runUiTest { uiGraph ->
-        val ctx = uiGraph.fullscreenSettingsPaneTestsCtx
+    fun show_detail_screen_is_displayed_correctly_with_medium_width() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.fullscreenSettingsPaneTestsCtx
 
-        var onBackButtonPressedCount = 0
+            var onBackButtonPressedCount = 0
 
-        var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Algorithm)
-        var isDetailPresent by mutableStateOf(true)
+            var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Algorithm)
+            var isDetailPresent by mutableStateOf(true)
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.ForcedSize(DpSize(700.dp, 500.dp)),
-            ) {
-                BoxWithConstraints {
-                    val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = maxWidth.value,
-                        heightDp = maxHeight.value,
-                    )
+            setContent {
+                resolver = parameterizedStringResolver()
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.ForcedSize(DpSize(700.dp, 500.dp)),
+                ) {
+                    BoxWithConstraints {
+                        val windowSizeClass =
+                            BREAKPOINTS_V1.computeWindowSizeClass(
+                                widthDp = maxWidth.value,
+                                heightDp = maxHeight.value,
+                            )
 
-                    with(ctx.fullscreenSettingsDetailPaneCtx) {
-                        FullscreenSettingsPane(
-                            fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
-                                override val settingsCategory = settingsCategory
+                        with(ctx.fullscreenSettingsDetailPaneCtx) {
+                            FullscreenSettingsPane(
+                                fullscreenSettingsListPaneState =
+                                object : FullscreenSettingsListPaneState {
+                                    override val settingsCategory = settingsCategory
 
-                                override val isListVisible: Boolean =
-                                    !isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                                override val isDetailVisible: Boolean =
-                                    isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                            },
-                            fullscreenSettingsDetailPaneState = object : FullscreenSettingsDetailPaneState {
-                                override val settingsCategory = settingsCategory
-                                override val settingToScrollTo = null
-                                override fun onFinishedScrollingToSetting() = Unit
+                                    override val isListVisible: Boolean =
+                                        !isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                    override val isDetailVisible: Boolean =
+                                        isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                },
+                                fullscreenSettingsDetailPaneState =
+                                object : FullscreenSettingsDetailPaneState {
+                                    override val settingsCategory = settingsCategory
+                                    override val settingToScrollTo = null
 
-                                override val isListVisible: Boolean =
-                                    !isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                                override val isDetailVisible: Boolean =
-                                    isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                            },
-                            onBackButtonPressed = {
-                                onBackButtonPressedCount++
-                            },
-                            setSettingsCategory = {
-                                settingsCategory = it
-                                isDetailPresent = true
-                            },
-                        )
+                                    override fun onFinishedScrollingToSetting() = Unit
+
+                                    override val isListVisible: Boolean =
+                                        !isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                    override val isDetailVisible: Boolean =
+                                        isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                },
+                                onBackButtonPressed = {
+                                    onBackButtonPressedCount++
+                                },
+                                setSettingsCategory = {
+                                    settingsCategory = it
+                                    isDetailPresent = true
+                                },
+                            )
+                        }
                     }
                 }
             }
+
+            onNodeWithText(resolver.invoke(Strings.Algorithm))
+                .performScrollTo()
+                .assertIsDisplayed()
+                .assertHasClickAction()
+
+            onNodeWithText(resolver.invoke(Strings.Visual))
+                .performScrollTo()
+                .assertIsDisplayed()
+                .assertHasClickAction()
+
+            onNodeWithText(resolver.invoke(Strings.FeatureFlags))
+                .performScrollTo()
+                .assertIsDisplayed()
+                .assertHasClickAction()
+
+            onNodeWithText(resolver.invoke(Strings.HashLifeAlgorithm))
+                .assertExists()
+                .assertHasClickAction()
+
+            onNodeWithContentDescription(resolver.invoke(Strings.Back))
+                .assertIsDisplayed()
+                .assertHasClickAction()
+                .performClick()
+
+            assertEquals(1, onBackButtonPressedCount)
         }
 
-        onNodeWithText(resolver.invoke(Strings.Algorithm))
-            .performScrollTo()
-            .assertIsDisplayed()
-            .assertHasClickAction()
+    @Test
+    fun click_on_detail_is_displayed_correctly_with_compact_width() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.fullscreenSettingsPaneTestsCtx
 
-        onNodeWithText(resolver.invoke(Strings.Visual))
-            .performScrollTo()
-            .assertIsDisplayed()
-            .assertHasClickAction()
+            var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Algorithm)
+            var isDetailPresent by mutableStateOf(false)
 
-        onNodeWithText(resolver.invoke(Strings.FeatureFlags))
-            .performScrollTo()
-            .assertIsDisplayed()
-            .assertHasClickAction()
+            lateinit var resolver: (ParameterizedString) -> String
 
-        onNodeWithText(resolver.invoke(Strings.HashLifeAlgorithm))
-            .assertExists()
-            .assertHasClickAction()
+            setContent {
+                resolver = parameterizedStringResolver()
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.ForcedSize(DpSize(500.dp, 500.dp)),
+                ) {
+                    BoxWithConstraints {
+                        val windowSizeClass =
+                            BREAKPOINTS_V1.computeWindowSizeClass(
+                                widthDp = maxWidth.value,
+                                heightDp = maxHeight.value,
+                            )
 
-        onNodeWithContentDescription(resolver.invoke(Strings.Back))
-            .assertIsDisplayed()
-            .assertHasClickAction()
-            .performClick()
+                        with(ctx.fullscreenSettingsDetailPaneCtx) {
+                            FullscreenSettingsPane(
+                                fullscreenSettingsListPaneState =
+                                object : FullscreenSettingsListPaneState {
+                                    override val settingsCategory = settingsCategory
 
-        assertEquals(1, onBackButtonPressedCount)
-    }
+                                    override val isListVisible: Boolean =
+                                        !isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                    override val isDetailVisible: Boolean =
+                                        isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                },
+                                fullscreenSettingsDetailPaneState =
+                                object : FullscreenSettingsDetailPaneState {
+                                    override val settingsCategory = settingsCategory
+                                    override val settingToScrollTo = null
+
+                                    override fun onFinishedScrollingToSetting() = Unit
+
+                                    override val isListVisible: Boolean =
+                                        !isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                    override val isDetailVisible: Boolean =
+                                        isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                },
+                                onBackButtonPressed = {},
+                                setSettingsCategory = {
+                                    settingsCategory = it
+                                    isDetailPresent = true
+                                },
+                            )
+                        }
+                    }
+                }
+            }
+
+            onNodeWithText(resolver.invoke(Strings.FeatureFlags))
+                .performScrollTo()
+                .performClick()
+
+            onNodeWithContentDescription(resolver.invoke(Strings.DoNotKeepProcess))
+                .performScrollTo()
+                .assertIsDisplayed()
+
+            onNodeWithText(resolver.invoke(Strings.Algorithm))
+                .assertDoesNotExist()
+
+            onNodeWithText(resolver.invoke(Strings.Visual))
+                .assertDoesNotExist()
+        }
 
     @Test
-    fun click_on_detail_is_displayed_correctly_with_compact_width() = runUiTest { uiGraph ->
-        val ctx = uiGraph.fullscreenSettingsPaneTestsCtx
+    fun click_on_detail_is_displayed_correctly_with_medium_width() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.fullscreenSettingsPaneTestsCtx
 
-        var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Algorithm)
-        var isDetailPresent by mutableStateOf(false)
+            var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Algorithm)
+            var isDetailPresent by mutableStateOf(false)
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.ForcedSize(DpSize(500.dp, 500.dp)),
-            ) {
-                BoxWithConstraints {
-                    val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = maxWidth.value,
-                        heightDp = maxHeight.value,
-                    )
+            setContent {
+                resolver = parameterizedStringResolver()
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.ForcedSize(DpSize(700.dp, 500.dp)),
+                ) {
+                    BoxWithConstraints {
+                        val windowSizeClass =
+                            BREAKPOINTS_V1.computeWindowSizeClass(
+                                widthDp = maxWidth.value,
+                                heightDp = maxHeight.value,
+                            )
 
+                        with(ctx.fullscreenSettingsDetailPaneCtx) {
+                            FullscreenSettingsPane(
+                                fullscreenSettingsListPaneState =
+                                object : FullscreenSettingsListPaneState {
+                                    override val settingsCategory = settingsCategory
+
+                                    override val isListVisible: Boolean =
+                                        !isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                    override val isDetailVisible: Boolean =
+                                        isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                },
+                                fullscreenSettingsDetailPaneState =
+                                object : FullscreenSettingsDetailPaneState {
+                                    override val settingsCategory = settingsCategory
+                                    override val settingToScrollTo = null
+
+                                    override fun onFinishedScrollingToSetting() = Unit
+
+                                    override val isListVisible: Boolean =
+                                        !isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                    override val isDetailVisible: Boolean =
+                                        isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                },
+                                onBackButtonPressed = {},
+                                setSettingsCategory = {
+                                    settingsCategory = it
+                                    isDetailPresent = true
+                                },
+                            )
+                        }
+                    }
+                }
+            }
+
+            onNodeWithText(resolver.invoke(Strings.FeatureFlags))
+                .performScrollTo()
+                .performClick()
+
+            onNodeWithContentDescription(resolver.invoke(Strings.DoNotKeepProcess))
+                .performScrollTo()
+                .assertIsDisplayed()
+
+            onNodeWithText(resolver.invoke(Strings.Algorithm))
+                .performScrollTo()
+                .assertIsDisplayed()
+                .assertIsSelectable()
+                .assertIsNotSelected()
+
+            onNodeWithText(resolver.invoke(Strings.Visual))
+                .performScrollTo()
+                .assertIsDisplayed()
+                .assertIsSelectable()
+                .assertIsNotSelected()
+
+            onNodeWithText(resolver.invoke(Strings.FeatureFlags))
+                .performScrollTo()
+                .assertIsDisplayed()
+                .assertIsSelectable()
+                .assertIsSelected()
+        }
+
+    @Test
+    fun no_detail_to_scroll_to_is_displayed_correctly() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.fullscreenSettingsPaneTestsCtx
+
+            var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Visual)
+            var settingToScrollTo: Setting? by mutableStateOf(null)
+            var isDetailPresent by mutableStateOf(true)
+
+            lateinit var resolver: (ParameterizedString) -> String
+
+            setContent {
+                resolver = parameterizedStringResolver()
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.ForcedSize(DpSize(300.dp, 300.dp)),
+                ) {
                     with(ctx.fullscreenSettingsDetailPaneCtx) {
                         FullscreenSettingsPane(
-                            fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
+                            fullscreenSettingsListPaneState =
+                            object : FullscreenSettingsListPaneState {
                                 override val settingsCategory = settingsCategory
 
-                                override val isListVisible: Boolean =
-                                    !isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                                override val isDetailVisible: Boolean =
-                                    isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
+                                override val isListVisible: Boolean = !isDetailPresent
+                                override val isDetailVisible: Boolean = isDetailPresent
                             },
-                            fullscreenSettingsDetailPaneState = object : FullscreenSettingsDetailPaneState {
+                            fullscreenSettingsDetailPaneState =
+                            object : FullscreenSettingsDetailPaneState {
                                 override val settingsCategory = settingsCategory
-                                override val settingToScrollTo = null
-                                override fun onFinishedScrollingToSetting() = Unit
+                                override val settingToScrollTo = settingToScrollTo
 
-                                override val isListVisible: Boolean =
-                                    !isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                                override val isDetailVisible: Boolean =
-                                    isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
+                                override fun onFinishedScrollingToSetting() {
+                                    settingToScrollTo = null
+                                }
+
+                                override val isListVisible: Boolean = !isDetailPresent
+                                override val isDetailVisible: Boolean = isDetailPresent
                             },
                             onBackButtonPressed = {},
-                            setSettingsCategory = {
-                                settingsCategory = it
-                                isDetailPresent = true
-                            },
+                            setSettingsCategory = {},
                         )
                     }
                 }
             }
-        }
 
-        onNodeWithText(resolver.invoke(Strings.FeatureFlags))
-            .performScrollTo()
-            .performClick()
-
-        onNodeWithContentDescription(resolver.invoke(Strings.DoNotKeepProcess))
-            .performScrollTo()
-            .assertIsDisplayed()
-
-        onNodeWithText(resolver.invoke(Strings.Algorithm))
-            .assertDoesNotExist()
-
-        onNodeWithText(resolver.invoke(Strings.Visual))
-            .assertDoesNotExist()
-    }
-
-    @Test
-    fun click_on_detail_is_displayed_correctly_with_medium_width() = runUiTest { uiGraph ->
-        val ctx = uiGraph.fullscreenSettingsPaneTestsCtx
-
-        var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Algorithm)
-        var isDetailPresent by mutableStateOf(false)
-
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            resolver = parameterizedStringResolver()
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.ForcedSize(DpSize(700.dp, 500.dp)),
-            ) {
-                BoxWithConstraints {
-                    val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = maxWidth.value,
-                        heightDp = maxHeight.value,
-                    )
-
-                    with(ctx.fullscreenSettingsDetailPaneCtx) {
-                        FullscreenSettingsPane(
-                            fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
-                                override val settingsCategory = settingsCategory
-
-                                override val isListVisible: Boolean =
-                                    !isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                                override val isDetailVisible: Boolean =
-                                    isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                            },
-                            fullscreenSettingsDetailPaneState = object : FullscreenSettingsDetailPaneState {
-                                override val settingsCategory = settingsCategory
-                                override val settingToScrollTo = null
-                                override fun onFinishedScrollingToSetting() = Unit
-
-                                override val isListVisible: Boolean =
-                                    !isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                                override val isDetailVisible: Boolean =
-                                    isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                            },
-                            onBackButtonPressed = {},
-                            setSettingsCategory = {
-                                settingsCategory = it
-                                isDetailPresent = true
-                            },
-                        )
-                    }
-                }
-            }
-        }
-
-        onNodeWithText(resolver.invoke(Strings.FeatureFlags))
-            .performScrollTo()
-            .performClick()
-
-        onNodeWithContentDescription(resolver.invoke(Strings.DoNotKeepProcess))
-            .performScrollTo()
-            .assertIsDisplayed()
-
-        onNodeWithText(resolver.invoke(Strings.Algorithm))
-            .performScrollTo()
-            .assertIsDisplayed()
-            .assertIsSelectable()
-            .assertIsNotSelected()
-
-        onNodeWithText(resolver.invoke(Strings.Visual))
-            .performScrollTo()
-            .assertIsDisplayed()
-            .assertIsSelectable()
-            .assertIsNotSelected()
-
-        onNodeWithText(resolver.invoke(Strings.FeatureFlags))
-            .performScrollTo()
-            .assertIsDisplayed()
-            .assertIsSelectable()
-            .assertIsSelected()
-    }
-
-    @Test
-    fun no_detail_to_scroll_to_is_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.fullscreenSettingsPaneTestsCtx
-
-        var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Visual)
-        var settingToScrollTo: Setting? by mutableStateOf(null)
-        var isDetailPresent by mutableStateOf(true)
-
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            resolver = parameterizedStringResolver()
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.ForcedSize(DpSize(300.dp, 300.dp)),
-            ) {
-                with(ctx.fullscreenSettingsDetailPaneCtx) {
-                    FullscreenSettingsPane(
-                        fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
-                            override val settingsCategory = settingsCategory
-
-                            override val isListVisible: Boolean = !isDetailPresent
-                            override val isDetailVisible: Boolean = isDetailPresent
-                        },
-                        fullscreenSettingsDetailPaneState = object : FullscreenSettingsDetailPaneState {
-                            override val settingsCategory = settingsCategory
-                            override val settingToScrollTo = settingToScrollTo
-                            override fun onFinishedScrollingToSetting() {
-                                settingToScrollTo = null
-                            }
-
-                            override val isListVisible: Boolean = !isDetailPresent
-                            override val isDetailVisible: Boolean = isDetailPresent
-                        },
-                        onBackButtonPressed = {},
-                        setSettingsCategory = {},
-                    )
-                }
-            }
-        }
-
-        onNode(
-            hasScrollAction().and(
-                hasAnyDescendant(
-                    hasContentDescription(
-                        resolver.invoke(Strings.CornerFractionLabelAndValue(0f)),
+            onNode(
+                hasScrollAction().and(
+                    hasAnyDescendant(
+                        hasContentDescription(
+                            resolver.invoke(Strings.CornerFractionLabelAndValue(0f)),
+                        ),
                     ),
                 ),
-            ),
-        )
-            .assert(
+            ).assert(
                 SemanticsMatcher("IsScrolledToTop") {
                     val range = it.config.getOrElseNullable(SemanticsProperties.VerticalScrollAxisRange) { null }
                     range != null && range.value.invoke() == 0f
                 },
             )
-    }
-
-    @Test
-    fun detail_to_scroll_to_is_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.fullscreenSettingsPaneTestsCtx
-
-        var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Visual)
-        var settingToScrollTo: Setting? by mutableStateOf(Setting.CellShapeConfig)
-        var isDetailPresent by mutableStateOf(true)
-
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            resolver = parameterizedStringResolver()
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.ForcedSize(DpSize(300.dp, 300.dp)),
-            ) {
-                with(ctx.fullscreenSettingsDetailPaneCtx) {
-                    FullscreenSettingsPane(
-                        fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
-                            override val settingsCategory = settingsCategory
-
-                            override val isListVisible: Boolean = !isDetailPresent
-                            override val isDetailVisible: Boolean = isDetailPresent
-                        },
-                        fullscreenSettingsDetailPaneState = object : FullscreenSettingsDetailPaneState {
-                            override val settingsCategory = settingsCategory
-                            override val settingToScrollTo = settingToScrollTo
-                            override fun onFinishedScrollingToSetting() {
-                                settingToScrollTo = null
-                            }
-
-                            override val isListVisible: Boolean = !isDetailPresent
-                            override val isDetailVisible: Boolean = isDetailPresent
-                        },
-                        onBackButtonPressed = {},
-                        setSettingsCategory = {},
-                    )
-                }
-            }
         }
 
-        waitForIdle()
+    @Test
+    fun detail_to_scroll_to_is_displayed_correctly() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.fullscreenSettingsPaneTestsCtx
 
-        assertNull(settingToScrollTo)
+            var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Visual)
+            var settingToScrollTo: Setting? by mutableStateOf(Setting.CellShapeConfig)
+            var isDetailPresent by mutableStateOf(true)
 
-        onNode(
-            hasScrollAction().and(
-                hasAnyDescendant(
-                    hasContentDescription(
-                        resolver.invoke(Strings.CornerFractionLabelAndValue(0f)),
+            lateinit var resolver: (ParameterizedString) -> String
+
+            setContent {
+                resolver = parameterizedStringResolver()
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.ForcedSize(DpSize(300.dp, 300.dp)),
+                ) {
+                    with(ctx.fullscreenSettingsDetailPaneCtx) {
+                        FullscreenSettingsPane(
+                            fullscreenSettingsListPaneState =
+                            object : FullscreenSettingsListPaneState {
+                                override val settingsCategory = settingsCategory
+
+                                override val isListVisible: Boolean = !isDetailPresent
+                                override val isDetailVisible: Boolean = isDetailPresent
+                            },
+                            fullscreenSettingsDetailPaneState =
+                            object : FullscreenSettingsDetailPaneState {
+                                override val settingsCategory = settingsCategory
+                                override val settingToScrollTo = settingToScrollTo
+
+                                override fun onFinishedScrollingToSetting() {
+                                    settingToScrollTo = null
+                                }
+
+                                override val isListVisible: Boolean = !isDetailPresent
+                                override val isDetailVisible: Boolean = isDetailPresent
+                            },
+                            onBackButtonPressed = {},
+                            setSettingsCategory = {},
+                        )
+                    }
+                }
+            }
+
+            waitForIdle()
+
+            assertNull(settingToScrollTo)
+
+            onNode(
+                hasScrollAction().and(
+                    hasAnyDescendant(
+                        hasContentDescription(
+                            resolver.invoke(Strings.CornerFractionLabelAndValue(0f)),
+                        ),
                     ),
                 ),
-            ),
-        )
-            .assert(
+            ).assert(
                 SemanticsMatcher("IsNotScrolledToTop") {
                     val range = it.config.getOrElseNullable(SemanticsProperties.VerticalScrollAxisRange) { null }
                     range != null && range.value.invoke() > 0f
                 },
             )
-    }
+        }
 
     @Test
-    fun reducing_size_keeps_selected_detail() = runUiTest { uiGraph ->
-        val ctx = uiGraph.fullscreenSettingsPaneTestsCtx
+    fun reducing_size_keeps_selected_detail() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.fullscreenSettingsPaneTestsCtx
 
-        var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Algorithm)
-        var isDetailPresent by mutableStateOf(false)
+            var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Algorithm)
+            var isDetailPresent by mutableStateOf(false)
 
-        var size by mutableStateOf(DpSize(700.dp, 500.dp))
+            var size by mutableStateOf(DpSize(700.dp, 500.dp))
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.ForcedSize(size),
-            ) {
-                BoxWithConstraints {
-                    val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = maxWidth.value,
-                        heightDp = maxHeight.value,
-                    )
+            setContent {
+                resolver = parameterizedStringResolver()
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.ForcedSize(size),
+                ) {
+                    BoxWithConstraints {
+                        val windowSizeClass =
+                            BREAKPOINTS_V1.computeWindowSizeClass(
+                                widthDp = maxWidth.value,
+                                heightDp = maxHeight.value,
+                            )
 
-                    with(ctx.fullscreenSettingsDetailPaneCtx) {
-                        FullscreenSettingsPane(
-                            fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
-                                override val settingsCategory = settingsCategory
+                        with(ctx.fullscreenSettingsDetailPaneCtx) {
+                            FullscreenSettingsPane(
+                                fullscreenSettingsListPaneState =
+                                object : FullscreenSettingsListPaneState {
+                                    override val settingsCategory = settingsCategory
 
-                                override val isListVisible: Boolean =
-                                    !isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                                override val isDetailVisible: Boolean =
-                                    isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                            },
-                            fullscreenSettingsDetailPaneState = object : FullscreenSettingsDetailPaneState {
-                                override val settingsCategory = settingsCategory
-                                override val settingToScrollTo = null
-                                override fun onFinishedScrollingToSetting() = Unit
+                                    override val isListVisible: Boolean =
+                                        !isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                    override val isDetailVisible: Boolean =
+                                        isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                },
+                                fullscreenSettingsDetailPaneState =
+                                object : FullscreenSettingsDetailPaneState {
+                                    override val settingsCategory = settingsCategory
+                                    override val settingToScrollTo = null
 
-                                override val isListVisible: Boolean =
-                                    !isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                                override val isDetailVisible: Boolean =
-                                    isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                            },
-                            onBackButtonPressed = {},
-                            setSettingsCategory = {
-                                settingsCategory = it
-                                isDetailPresent = true
-                            },
-                        )
+                                    override fun onFinishedScrollingToSetting() = Unit
+
+                                    override val isListVisible: Boolean =
+                                        !isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                    override val isDetailVisible: Boolean =
+                                        isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                },
+                                onBackButtonPressed = {},
+                                setSettingsCategory = {
+                                    settingsCategory = it
+                                    isDetailPresent = true
+                                },
+                            )
+                        }
                     }
                 }
             }
+
+            onNodeWithText(resolver.invoke(Strings.Visual))
+                .performClick()
+
+            size = DpSize(500.dp, 500.dp)
+
+            onNodeWithContentDescription(
+                resolver.invoke(Strings.CornerFractionLabelAndValue(0f)),
+            ).performScrollTo()
+                .assertIsDisplayed()
         }
 
-        onNodeWithText(resolver.invoke(Strings.Visual))
-            .performClick()
-
-        size = DpSize(500.dp, 500.dp)
-
-        onNodeWithContentDescription(
-            resolver.invoke(Strings.CornerFractionLabelAndValue(0f)),
-        )
-            .performScrollTo()
-            .assertIsDisplayed()
-    }
-
     @Test
-    fun expanding_size_keeps_selected_detail() = runUiTest { uiGraph ->
-        val ctx = uiGraph.fullscreenSettingsPaneTestsCtx
+    fun expanding_size_keeps_selected_detail() =
+        runUiTest { uiGraph ->
+            val ctx = uiGraph.fullscreenSettingsPaneTestsCtx
 
-        var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Algorithm)
-        var isDetailPresent by mutableStateOf(false)
-        var size by mutableStateOf(DpSize(500.dp, 500.dp))
+            var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Algorithm)
+            var isDetailPresent by mutableStateOf(false)
+            var size by mutableStateOf(DpSize(500.dp, 500.dp))
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.ForcedSize(size),
-            ) {
-                BoxWithConstraints {
-                    val windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
-                        widthDp = maxWidth.value,
-                        heightDp = maxHeight.value,
-                    )
+            setContent {
+                resolver = parameterizedStringResolver()
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.ForcedSize(size),
+                ) {
+                    BoxWithConstraints {
+                        val windowSizeClass =
+                            BREAKPOINTS_V1.computeWindowSizeClass(
+                                widthDp = maxWidth.value,
+                                heightDp = maxHeight.value,
+                            )
 
-                    with(ctx.fullscreenSettingsDetailPaneCtx) {
-                        FullscreenSettingsPane(
-                            fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
-                                override val settingsCategory = settingsCategory
+                        with(ctx.fullscreenSettingsDetailPaneCtx) {
+                            FullscreenSettingsPane(
+                                fullscreenSettingsListPaneState =
+                                object : FullscreenSettingsListPaneState {
+                                    override val settingsCategory = settingsCategory
 
-                                override val isListVisible: Boolean =
-                                    !isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                                override val isDetailVisible: Boolean =
-                                    isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                            },
-                            fullscreenSettingsDetailPaneState = object : FullscreenSettingsDetailPaneState {
-                                override val settingsCategory = settingsCategory
-                                override val settingToScrollTo = null
-                                override fun onFinishedScrollingToSetting() = Unit
+                                    override val isListVisible: Boolean =
+                                        !isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                    override val isDetailVisible: Boolean =
+                                        isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                },
+                                fullscreenSettingsDetailPaneState =
+                                object : FullscreenSettingsDetailPaneState {
+                                    override val settingsCategory = settingsCategory
+                                    override val settingToScrollTo = null
 
-                                override val isListVisible: Boolean =
-                                    !isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                                override val isDetailVisible: Boolean =
-                                    isDetailPresent || windowSizeClass.isWidthAtLeastBreakpoint(
-                                        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-                                    )
-                            },
-                            onBackButtonPressed = {},
-                            setSettingsCategory = {
-                                settingsCategory = it
-                                isDetailPresent = true
-                            },
-                        )
+                                    override fun onFinishedScrollingToSetting() = Unit
+
+                                    override val isListVisible: Boolean =
+                                        !isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                    override val isDetailVisible: Boolean =
+                                        isDetailPresent ||
+                                            windowSizeClass.isWidthAtLeastBreakpoint(
+                                                WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+                                            )
+                                },
+                                onBackButtonPressed = {},
+                                setSettingsCategory = {
+                                    settingsCategory = it
+                                    isDetailPresent = true
+                                },
+                            )
+                        }
                     }
                 }
             }
+
+            onNodeWithText(resolver.invoke(Strings.Visual))
+                .performClick()
+
+            size = DpSize(700.dp, 500.dp)
+
+            onNodeWithContentDescription(
+                resolver.invoke(Strings.CornerFractionLabelAndValue(0f)),
+            ).performScrollTo()
+                .assertIsDisplayed()
+
+            onNodeWithText(resolver.invoke(Strings.Visual))
+                .performScrollTo()
+                .assertIsDisplayed()
+                .assertIsSelectable()
+                .assertIsSelected()
         }
-
-        onNodeWithText(resolver.invoke(Strings.Visual))
-            .performClick()
-
-        size = DpSize(700.dp, 500.dp)
-
-        onNodeWithContentDescription(
-            resolver.invoke(Strings.CornerFractionLabelAndValue(0f)),
-        )
-            .performScrollTo()
-            .assertIsDisplayed()
-
-        onNodeWithText(resolver.invoke(Strings.Visual))
-            .performScrollTo()
-            .assertIsDisplayed()
-            .assertIsSelectable()
-            .assertIsSelected()
-    }
 }

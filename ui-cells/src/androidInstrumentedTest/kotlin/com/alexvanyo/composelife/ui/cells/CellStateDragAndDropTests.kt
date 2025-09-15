@@ -76,280 +76,300 @@ val UiGraph.cellStateDragAndDropTestsUiCtx: CellStateDragAndDropTestsUiCtx get()
 
 @OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
 @RunWith(KmpAndroidJUnit4::class)
-class CellStateDragAndDropTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
-
+class CellStateDragAndDropTests :
+    BaseUiInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
     private val ctx get() = applicationGraph.cellStateDragAndDropTestsAppCtx
 
     @Test
-    fun drag_and_drop_works_correctly_when_dropped() = runUiTest { uiGraph ->
-        val cellStateParser = uiGraph.cellStateDragAndDropTestsUiCtx.cellStateParser
+    fun drag_and_drop_works_correctly_when_dropped() =
+        runUiTest { uiGraph ->
+            val cellStateParser = uiGraph.cellStateDragAndDropTestsUiCtx.cellStateParser
 
-        lateinit var mutableCellStateDropStateHolder: MutableCellStateDropStateHolder
+            lateinit var mutableCellStateDropStateHolder: MutableCellStateDropStateHolder
 
-        var droppedOffset: Offset? = null
-        var droppedCellState: CellState? = null
+            var droppedOffset: Offset? = null
+            var droppedCellState: CellState? = null
 
-        lateinit var viewConfiguration: ViewConfiguration
+            lateinit var viewConfiguration: ViewConfiguration
 
-        setContent {
-            viewConfiguration = LocalViewConfiguration.current
-            with(cellStateParser) {
-                mutableCellStateDropStateHolder = rememberMutableCellStateDropStateHolder { dropOffset, cellState ->
-                    droppedOffset = dropOffset
-                    droppedCellState = cellState
+            setContent {
+                viewConfiguration = LocalViewConfiguration.current
+                with(cellStateParser) {
+                    mutableCellStateDropStateHolder =
+                        rememberMutableCellStateDropStateHolder { dropOffset, cellState ->
+                            droppedOffset = dropOffset
+                            droppedCellState = cellState
+                        }
+                }
+
+                Column {
+                    Spacer(
+                        modifier =
+                        Modifier
+                            .testTag("TestDropSource")
+                            .cellStateDragAndDropSource {
+                                GliderPattern.seedCellState
+                            }.size(100.dp)
+                            .background(Color.Red),
+                    )
+                    Spacer(
+                        modifier =
+                        Modifier
+                            .testTag("TestDropTarget")
+                            .cellStateDragAndDropTarget(mutableCellStateDropStateHolder)
+                            .size(100.dp)
+                            .background(Color.Blue),
+                    )
                 }
             }
 
-            Column {
-                Spacer(
-                    modifier = Modifier
-                        .testTag("TestDropSource")
-                        .cellStateDragAndDropSource {
-                            GliderPattern.seedCellState
-                        }
-                        .size(100.dp)
-                        .background(Color.Red),
-                )
-                Spacer(
-                    modifier = Modifier
-                        .testTag("TestDropTarget")
-                        .cellStateDragAndDropTarget(mutableCellStateDropStateHolder)
-                        .size(100.dp)
-                        .background(Color.Blue),
-                )
+            mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
+                assertIs<CellStateDropState.None>(cellStateDropState)
             }
-        }
 
-        mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
-            assertIs<CellStateDropState.None>(cellStateDropState)
-        }
+            val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
+            val downTime = SystemClock.uptimeMillis()
 
-        val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
-        val downTime = SystemClock.uptimeMillis()
-
-        val testDropSourceCenterScreenCoordinates: Offset =
-            onNodeWithTag("TestDropSource").fetchSemanticsNode().let { node ->
-                node.positionOnScreen + node.size.center.toOffset()
+            val testDropSourceCenterScreenCoordinates: Offset =
+                onNodeWithTag("TestDropSource").fetchSemanticsNode().let { node ->
+                    node.positionOnScreen + node.size.center.toOffset()
+                }
+            val testDropTargetCenterScreenCoordinates: Offset
+            val testDropTargetCenterLocalCoordinates: Offset
+            onNodeWithTag("TestDropTarget").fetchSemanticsNode().let { node ->
+                testDropTargetCenterLocalCoordinates = node.size.center.toOffset()
+                testDropTargetCenterScreenCoordinates = node.positionOnScreen + testDropTargetCenterLocalCoordinates
             }
-        val testDropTargetCenterScreenCoordinates: Offset
-        val testDropTargetCenterLocalCoordinates: Offset
-        onNodeWithTag("TestDropTarget").fetchSemanticsNode().let { node ->
-            testDropTargetCenterLocalCoordinates = node.size.center.toOffset()
-            testDropTargetCenterScreenCoordinates = node.positionOnScreen + testDropTargetCenterLocalCoordinates
+
+            val down =
+                MotionEvent
+                    .obtain(
+                        downTime,
+                        downTime,
+                        MotionEvent.ACTION_DOWN,
+                        testDropSourceCenterScreenCoordinates.x,
+                        testDropSourceCenterScreenCoordinates.y,
+                        0,
+                    ).apply {
+                        source = InputDevice.SOURCE_TOUCHSCREEN
+                    }
+            automation.injectInputEvent(down, true)
+            down.recycle()
+
+            mainClock.advanceTimeBy(viewConfiguration.longPressTimeoutMillis + 100)
+            waitForIdle()
+            ctx.generalTestDispatcher.scheduler.runCurrent()
+
+            mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
+                assertIs<CellStateDropState.ApplicableDropAvailable>(cellStateDropState)
+            }
+
+            val move =
+                MotionEvent
+                    .obtain(
+                        downTime,
+                        SystemClock.uptimeMillis(),
+                        MotionEvent.ACTION_MOVE,
+                        testDropTargetCenterScreenCoordinates.x,
+                        testDropTargetCenterScreenCoordinates.y,
+                        0,
+                    ).apply {
+                        source = InputDevice.SOURCE_TOUCHSCREEN
+                    }
+            automation.injectInputEvent(move, true)
+            move.recycle()
+
+            waitForIdle()
+            ctx.generalTestDispatcher.scheduler.runCurrent()
+
+            mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
+                assertIs<CellStateDropState.DropPreview>(cellStateDropState)
+                assertEquals(GliderPattern.seedCellState, cellStateDropState.cellState)
+                assertEquals(testDropTargetCenterLocalCoordinates, cellStateDropState.offset)
+            }
+
+            val up =
+                MotionEvent
+                    .obtain(
+                        downTime,
+                        SystemClock.uptimeMillis(),
+                        MotionEvent.ACTION_UP,
+                        testDropTargetCenterScreenCoordinates.x,
+                        testDropTargetCenterScreenCoordinates.y,
+                        0,
+                    ).apply {
+                        source = InputDevice.SOURCE_TOUCHSCREEN
+                    }
+            automation.injectInputEvent(up, true)
+            up.recycle()
+
+            waitForIdle()
+            ctx.generalTestDispatcher.scheduler.runCurrent()
+
+            mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
+                assertIs<CellStateDropState.None>(cellStateDropState)
+            }
+            assertEquals(GliderPattern.seedCellState, droppedCellState)
+            assertEquals(testDropTargetCenterLocalCoordinates, droppedOffset)
         }
-
-        val down = MotionEvent.obtain(
-            downTime,
-            downTime,
-            MotionEvent.ACTION_DOWN,
-            testDropSourceCenterScreenCoordinates.x,
-            testDropSourceCenterScreenCoordinates.y,
-            0,
-        ).apply {
-            source = InputDevice.SOURCE_TOUCHSCREEN
-        }
-        automation.injectInputEvent(down, true)
-        down.recycle()
-
-        mainClock.advanceTimeBy(viewConfiguration.longPressTimeoutMillis + 100)
-        waitForIdle()
-        ctx.generalTestDispatcher.scheduler.runCurrent()
-
-        mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
-            assertIs<CellStateDropState.ApplicableDropAvailable>(cellStateDropState)
-        }
-
-        val move = MotionEvent.obtain(
-            downTime,
-            SystemClock.uptimeMillis(),
-            MotionEvent.ACTION_MOVE,
-            testDropTargetCenterScreenCoordinates.x,
-            testDropTargetCenterScreenCoordinates.y,
-            0,
-        ).apply {
-            source = InputDevice.SOURCE_TOUCHSCREEN
-        }
-        automation.injectInputEvent(move, true)
-        move.recycle()
-
-        waitForIdle()
-        ctx.generalTestDispatcher.scheduler.runCurrent()
-
-        mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
-            assertIs<CellStateDropState.DropPreview>(cellStateDropState)
-            assertEquals(GliderPattern.seedCellState, cellStateDropState.cellState)
-            assertEquals(testDropTargetCenterLocalCoordinates, cellStateDropState.offset)
-        }
-
-        val up = MotionEvent.obtain(
-            downTime,
-            SystemClock.uptimeMillis(),
-            MotionEvent.ACTION_UP,
-            testDropTargetCenterScreenCoordinates.x,
-            testDropTargetCenterScreenCoordinates.y,
-            0,
-        ).apply {
-            source = InputDevice.SOURCE_TOUCHSCREEN
-        }
-        automation.injectInputEvent(up, true)
-        up.recycle()
-
-        waitForIdle()
-        ctx.generalTestDispatcher.scheduler.runCurrent()
-
-        mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
-            assertIs<CellStateDropState.None>(cellStateDropState)
-        }
-        assertEquals(GliderPattern.seedCellState, droppedCellState)
-        assertEquals(testDropTargetCenterLocalCoordinates, droppedOffset)
-    }
 
     @Test
-    fun drag_and_drop_works_correctly_when_ended() = runUiTest { uiGraph ->
-        val cellStateParser = uiGraph.cellStateDragAndDropTestsUiCtx.cellStateParser
+    fun drag_and_drop_works_correctly_when_ended() =
+        runUiTest { uiGraph ->
+            val cellStateParser = uiGraph.cellStateDragAndDropTestsUiCtx.cellStateParser
 
-        lateinit var mutableCellStateDropStateHolder: MutableCellStateDropStateHolder
+            lateinit var mutableCellStateDropStateHolder: MutableCellStateDropStateHolder
 
-        var droppedOffset: Offset? = null
-        var droppedCellState: CellState? = null
+            var droppedOffset: Offset? = null
+            var droppedCellState: CellState? = null
 
-        lateinit var viewConfiguration: ViewConfiguration
+            lateinit var viewConfiguration: ViewConfiguration
 
-        setContent {
-            viewConfiguration = LocalViewConfiguration.current
-            with(cellStateParser) {
-                mutableCellStateDropStateHolder = rememberMutableCellStateDropStateHolder { dropOffset, cellState ->
-                    droppedOffset = dropOffset
-                    droppedCellState = cellState
+            setContent {
+                viewConfiguration = LocalViewConfiguration.current
+                with(cellStateParser) {
+                    mutableCellStateDropStateHolder =
+                        rememberMutableCellStateDropStateHolder { dropOffset, cellState ->
+                            droppedOffset = dropOffset
+                            droppedCellState = cellState
+                        }
+                }
+
+                Column {
+                    Spacer(
+                        modifier =
+                        Modifier
+                            .testTag("TestDropSource")
+                            .cellStateDragAndDropSource {
+                                GliderPattern.seedCellState
+                            }.size(100.dp)
+                            .background(Color.Red),
+                    )
+                    Spacer(
+                        modifier =
+                        Modifier
+                            .testTag("TestDropTarget")
+                            .cellStateDragAndDropTarget(mutableCellStateDropStateHolder)
+                            .size(100.dp)
+                            .background(Color.Blue),
+                    )
                 }
             }
 
-            Column {
-                Spacer(
-                    modifier = Modifier
-                        .testTag("TestDropSource")
-                        .cellStateDragAndDropSource {
-                            GliderPattern.seedCellState
-                        }
-                        .size(100.dp)
-                        .background(Color.Red),
-                )
-                Spacer(
-                    modifier = Modifier
-                        .testTag("TestDropTarget")
-                        .cellStateDragAndDropTarget(mutableCellStateDropStateHolder)
-                        .size(100.dp)
-                        .background(Color.Blue),
-                )
+            mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
+                assertIs<CellStateDropState.None>(cellStateDropState)
             }
-        }
 
-        mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
-            assertIs<CellStateDropState.None>(cellStateDropState)
-        }
+            val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
+            val downTime = SystemClock.uptimeMillis()
 
-        val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
-        val downTime = SystemClock.uptimeMillis()
-
-        val testDropSourceCenterScreenCoordinates: Offset =
-            onNodeWithTag("TestDropSource").fetchSemanticsNode().let { node ->
-                node.positionOnScreen + node.size.center.toOffset()
+            val testDropSourceCenterScreenCoordinates: Offset =
+                onNodeWithTag("TestDropSource").fetchSemanticsNode().let { node ->
+                    node.positionOnScreen + node.size.center.toOffset()
+                }
+            val testDropTargetCenterScreenCoordinates: Offset
+            val testDropTargetCenterLocalCoordinates: Offset
+            onNodeWithTag("TestDropTarget").fetchSemanticsNode().let { node ->
+                testDropTargetCenterLocalCoordinates = node.size.center.toOffset()
+                testDropTargetCenterScreenCoordinates = node.positionOnScreen + testDropTargetCenterLocalCoordinates
             }
-        val testDropTargetCenterScreenCoordinates: Offset
-        val testDropTargetCenterLocalCoordinates: Offset
-        onNodeWithTag("TestDropTarget").fetchSemanticsNode().let { node ->
-            testDropTargetCenterLocalCoordinates = node.size.center.toOffset()
-            testDropTargetCenterScreenCoordinates = node.positionOnScreen + testDropTargetCenterLocalCoordinates
+
+            val down =
+                MotionEvent
+                    .obtain(
+                        downTime,
+                        downTime,
+                        MotionEvent.ACTION_DOWN,
+                        testDropSourceCenterScreenCoordinates.x,
+                        testDropSourceCenterScreenCoordinates.y,
+                        0,
+                    ).apply {
+                        source = InputDevice.SOURCE_TOUCHSCREEN
+                    }
+            automation.injectInputEvent(down, true)
+            down.recycle()
+
+            mainClock.advanceTimeBy(viewConfiguration.longPressTimeoutMillis + 100)
+            waitForIdle()
+            ctx.generalTestDispatcher.scheduler.runCurrent()
+
+            mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
+                assertIs<CellStateDropState.ApplicableDropAvailable>(cellStateDropState)
+            }
+
+            val move1 =
+                MotionEvent
+                    .obtain(
+                        downTime,
+                        SystemClock.uptimeMillis(),
+                        MotionEvent.ACTION_MOVE,
+                        testDropTargetCenterScreenCoordinates.x,
+                        testDropTargetCenterScreenCoordinates.y,
+                        0,
+                    ).apply {
+                        source = InputDevice.SOURCE_TOUCHSCREEN
+                    }
+            automation.injectInputEvent(move1, true)
+            move1.recycle()
+
+            waitForIdle()
+            ctx.generalTestDispatcher.scheduler.runCurrent()
+
+            mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
+                assertIs<CellStateDropState.DropPreview>(cellStateDropState)
+                assertEquals(GliderPattern.seedCellState, cellStateDropState.cellState)
+                assertEquals(testDropTargetCenterLocalCoordinates, cellStateDropState.offset)
+            }
+
+            val move2 =
+                MotionEvent
+                    .obtain(
+                        downTime,
+                        SystemClock.uptimeMillis(),
+                        MotionEvent.ACTION_MOVE,
+                        testDropSourceCenterScreenCoordinates.x,
+                        testDropSourceCenterScreenCoordinates.y,
+                        0,
+                    ).apply {
+                        source = InputDevice.SOURCE_TOUCHSCREEN
+                    }
+            automation.injectInputEvent(move2, true)
+            move2.recycle()
+
+            waitForIdle()
+            ctx.generalTestDispatcher.scheduler.runCurrent()
+
+            mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
+                assertIs<CellStateDropState.ApplicableDropAvailable>(cellStateDropState)
+            }
+
+            val up =
+                MotionEvent
+                    .obtain(
+                        downTime,
+                        SystemClock.uptimeMillis(),
+                        MotionEvent.ACTION_UP,
+                        testDropSourceCenterScreenCoordinates.x,
+                        testDropSourceCenterScreenCoordinates.y,
+                        0,
+                    ).apply {
+                        source = InputDevice.SOURCE_TOUCHSCREEN
+                    }
+            automation.injectInputEvent(up, true)
+            up.recycle()
+
+            // Give time for the drag event to end
+            SystemClock.sleep(500)
+
+            waitForIdle()
+            ctx.generalTestDispatcher.scheduler.runCurrent()
+
+            mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
+                assertIs<CellStateDropState.None>(cellStateDropState)
+            }
+            assertNull(droppedCellState)
+            assertNull(droppedOffset)
         }
-
-        val down = MotionEvent.obtain(
-            downTime,
-            downTime,
-            MotionEvent.ACTION_DOWN,
-            testDropSourceCenterScreenCoordinates.x,
-            testDropSourceCenterScreenCoordinates.y,
-            0,
-        ).apply {
-            source = InputDevice.SOURCE_TOUCHSCREEN
-        }
-        automation.injectInputEvent(down, true)
-        down.recycle()
-
-        mainClock.advanceTimeBy(viewConfiguration.longPressTimeoutMillis + 100)
-        waitForIdle()
-        ctx.generalTestDispatcher.scheduler.runCurrent()
-
-        mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
-            assertIs<CellStateDropState.ApplicableDropAvailable>(cellStateDropState)
-        }
-
-        val move1 = MotionEvent.obtain(
-            downTime,
-            SystemClock.uptimeMillis(),
-            MotionEvent.ACTION_MOVE,
-            testDropTargetCenterScreenCoordinates.x,
-            testDropTargetCenterScreenCoordinates.y,
-            0,
-        ).apply {
-            source = InputDevice.SOURCE_TOUCHSCREEN
-        }
-        automation.injectInputEvent(move1, true)
-        move1.recycle()
-
-        waitForIdle()
-        ctx.generalTestDispatcher.scheduler.runCurrent()
-
-        mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
-            assertIs<CellStateDropState.DropPreview>(cellStateDropState)
-            assertEquals(GliderPattern.seedCellState, cellStateDropState.cellState)
-            assertEquals(testDropTargetCenterLocalCoordinates, cellStateDropState.offset)
-        }
-
-        val move2 = MotionEvent.obtain(
-            downTime,
-            SystemClock.uptimeMillis(),
-            MotionEvent.ACTION_MOVE,
-            testDropSourceCenterScreenCoordinates.x,
-            testDropSourceCenterScreenCoordinates.y,
-            0,
-        ).apply {
-            source = InputDevice.SOURCE_TOUCHSCREEN
-        }
-        automation.injectInputEvent(move2, true)
-        move2.recycle()
-
-        waitForIdle()
-        ctx.generalTestDispatcher.scheduler.runCurrent()
-
-        mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
-            assertIs<CellStateDropState.ApplicableDropAvailable>(cellStateDropState)
-        }
-
-        val up = MotionEvent.obtain(
-            downTime,
-            SystemClock.uptimeMillis(),
-            MotionEvent.ACTION_UP,
-            testDropSourceCenterScreenCoordinates.x,
-            testDropSourceCenterScreenCoordinates.y,
-            0,
-        ).apply {
-            source = InputDevice.SOURCE_TOUCHSCREEN
-        }
-        automation.injectInputEvent(up, true)
-        up.recycle()
-
-        // Give time for the drag event to end
-        SystemClock.sleep(500)
-
-        waitForIdle()
-        ctx.generalTestDispatcher.scheduler.runCurrent()
-
-        mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
-            assertIs<CellStateDropState.None>(cellStateDropState)
-        }
-        assertNull(droppedCellState)
-        assertNull(droppedOffset)
-    }
 }

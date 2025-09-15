@@ -20,7 +20,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ShapeDropdownOptionTests {
-
     @Test
     fun shape_dropdown_options_are_correct() {
         assertEquals(

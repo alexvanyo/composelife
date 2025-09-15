@@ -36,15 +36,14 @@ import okio.FileSystem
 @ContributesTo(AppScope::class)
 @BindingContainer
 interface ImageLoaderBindings {
-
     companion object {
         @SingleIn(AppScope::class)
         @Provides
-        internal fun providesMemoryCache(
-            context: PlatformContext,
-        ): MemoryCache = MemoryCache.Builder()
-            .maxSizePercent(context)
-            .build()
+        internal fun providesMemoryCache(context: PlatformContext): MemoryCache =
+            MemoryCache
+                .Builder()
+                .maxSizePercent(context)
+                .build()
 
         @OptIn(ExperimentalCoilApi::class)
         @Suppress("LongParameterList")
@@ -58,31 +57,31 @@ interface ImageLoaderBindings {
             keyers: Set<KeyerWithType<out Any>>,
             dispatchers: ComposeLifeDispatchers,
             fileSystem: FileSystem,
-        ): ImageLoader = ImageLoader.Builder(context)
-            .fileSystem(fileSystem)
-            .memoryCache(memoryCache::value)
-            .diskCache(diskCache::value)
-            .components {
-                addFetcherFactories { fetcherFactoriesWithType.map { it.fetcherFactory to it.type } }
-                keyers.forEach { it.addTo(this) }
-            }
-            .coroutineContext(dispatchers.IO)
-            .mainCoroutineContext { dispatchers.MainImmediate }
-            .build()
+        ): ImageLoader =
+            ImageLoader
+                .Builder(context)
+                .fileSystem(fileSystem)
+                .memoryCache(memoryCache::value)
+                .diskCache(diskCache::value)
+                .components {
+                    addFetcherFactories { fetcherFactoriesWithType.map { it.fetcherFactory to it.type } }
+                    keyers.forEach { it.addTo(this) }
+                }.coroutineContext(dispatchers.IO)
+                .mainCoroutineContext { dispatchers.MainImmediate }
+                .build()
 
         @Provides
         @SingleIn(AppScope::class)
         @IntoSet
         @ForScope(AppScope::class)
-        internal fun providesImageLoaderShutdownIntoUpdatable(
-            imageLoader: ImageLoader,
-        ): Updatable = object : Updatable {
-            override suspend fun update(): Nothing =
-                try {
-                    awaitCancellation()
-                } finally {
-                    imageLoader.shutdown()
-                }
-        }
+        internal fun providesImageLoaderShutdownIntoUpdatable(imageLoader: ImageLoader): Updatable =
+            object : Updatable {
+                override suspend fun update(): Nothing =
+                    try {
+                        awaitCancellation()
+                    } finally {
+                        imageLoader.shutdown()
+                    }
+            }
     }
 }

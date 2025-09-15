@@ -34,7 +34,6 @@ import kotlinx.coroutines.awaitCancellation
 @ContributesTo(AppScope::class)
 @BindingContainer
 interface DriverBindings {
-
     companion object {
         @Provides
         @SingleIn(AppScope::class)
@@ -45,13 +44,12 @@ interface DriverBindings {
         @SingleIn(AppScope::class)
         @IntoSet
         @ForScope(AppScope::class)
-        internal fun providesDriverClosingIntoUpdatable(
-            driver: SqlDriver,
-        ): Updatable = object : Updatable {
-            override suspend fun update(): Nothing =
-                driver.use { _ ->
-                    awaitCancellation()
-                }
-        }
+        internal fun providesDriverClosingIntoUpdatable(driver: SqlDriver): Updatable =
+            object : Updatable {
+                override suspend fun update(): Nothing =
+                    driver.use { _ ->
+                        awaitCancellation()
+                    }
+            }
     }
 }

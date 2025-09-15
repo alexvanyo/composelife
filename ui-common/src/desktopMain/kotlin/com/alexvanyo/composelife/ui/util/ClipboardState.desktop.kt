@@ -24,7 +24,6 @@ import androidx.compose.ui.text.AnnotatedString
 
 @Stable
 actual interface ClipboardReader {
-
     fun getText(): AnnotatedString?
 }
 
@@ -35,7 +34,6 @@ actual val ClipboardReader.clipboardStateKey: Any? get() = getText()
 
 @Stable
 actual interface ClipboardWriter {
-
     fun setText(annotatedString: AnnotatedString)
 }
 

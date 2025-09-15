@@ -44,7 +44,6 @@ import kotlinx.coroutines.launch
  * The state of drag and drop for a cell state.
  */
 sealed interface CellStateDropState {
-
     /**
      * There is no active drop for the cell state
      */
@@ -58,10 +57,7 @@ sealed interface CellStateDropState {
     /**
      * There is an active previewable drop for the cell state
      */
-    data class DropPreview(
-        val offset: Offset,
-        val cellState: CellState,
-    ) : CellStateDropState
+    data class DropPreview(val offset: Offset, val cellState: CellState) : CellStateDropState
 }
 
 /**
@@ -78,7 +74,9 @@ interface CellStateDropStateHolder {
  * This is also a [DragAndDropTarget] to be passed to a drag and drop target to update the current drop state.
  */
 @Stable
-sealed interface MutableCellStateDropStateHolder : CellStateDropStateHolder, DragAndDropTarget
+sealed interface MutableCellStateDropStateHolder :
+    CellStateDropStateHolder,
+    DragAndDropTarget
 
 internal expect class DragAndDropSession() {
     val isEntered: Boolean
@@ -88,10 +86,15 @@ internal expect class DragAndDropSession() {
     var deserializationResult: DeserializationResult?
 
     fun updateWithOnStarted(event: DragAndDropEvent)
+
     fun updateWithOnEntered(event: DragAndDropEvent)
+
     fun updateWithOnMoved(event: DragAndDropEvent)
+
     fun updateWithOnExited(event: DragAndDropEvent)
+
     fun updateWithOnEnded(event: DragAndDropEvent)
+
     fun updateWithOnDrop(event: DragAndDropEvent)
 }
 
@@ -108,35 +111,37 @@ internal expect suspend fun awaitAndParseCellState(
 internal class MutableCellStateDropStateHolderImpl(
     private val cellStateParser: CellStateParser,
     private val setSelectionToCellState: (dropOffset: Offset, cellState: CellState) -> Unit,
-) : MutableCellStateDropStateHolder, Updatable {
-
+) : MutableCellStateDropStateHolder,
+    Updatable {
     var positionInRoot: Offset by mutableStateOf(Offset.Zero)
 
     private val dragAndDropSessions: MutableList<DragAndDropSession> = mutableStateListOf()
 
     override val cellStateDropState: CellStateDropState
-        get() = if (dragAndDropSessions.isEmpty()) {
-            CellStateDropState.None
-        } else {
-            val activeSession = dragAndDropSessions.first()
-            val deserializationResult = activeSession.deserializationResult
-            if (activeSession.isEntered && deserializationResult != null) {
-                when (deserializationResult) {
-                    is DeserializationResult.Successful -> {
-                        CellStateDropState.DropPreview(
-                            offset = activeSession.rootOffset - positionInRoot,
-                            cellState = deserializationResult.cellState,
-                        )
-                    }
-                    is DeserializationResult.Unsuccessful -> {
-                        // TODO: Show error for what will be an unsuccessful drag and drop
-                        CellStateDropState.ApplicableDropAvailable
-                    }
-                }
+        get() =
+            if (dragAndDropSessions.isEmpty()) {
+                CellStateDropState.None
             } else {
-                CellStateDropState.ApplicableDropAvailable
+                val activeSession = dragAndDropSessions.first()
+                val deserializationResult = activeSession.deserializationResult
+                if (activeSession.isEntered && deserializationResult != null) {
+                    when (deserializationResult) {
+                        is DeserializationResult.Successful -> {
+                            CellStateDropState.DropPreview(
+                                offset = activeSession.rootOffset - positionInRoot,
+                                cellState = deserializationResult.cellState,
+                            )
+                        }
+
+                        is DeserializationResult.Unsuccessful -> {
+                            // TODO: Show error for what will be an unsuccessful drag and drop
+                            CellStateDropState.ApplicableDropAvailable
+                        }
+                    }
+                } else {
+                    CellStateDropState.ApplicableDropAvailable
+                }
             }
-        }
 
     override fun onStarted(event: DragAndDropEvent) {
         Logger.d { "onStarted: $event" }
@@ -195,6 +200,7 @@ internal class MutableCellStateDropStateHolderImpl(
                                         deserializationResult.cellState,
                                     )
                                 }
+
                                 is DeserializationResult.Unsuccessful -> {
                                     // TODO: Show error for unsuccessful drag and drop
                                 }
@@ -218,17 +224,18 @@ internal class MutableCellStateDropStateHolderImpl(
  *
  * The passed [dropOffset] will be in the local coordinates of the [cellStateDragAndDropTarget].
  */
-context(cellStateParser: CellStateParser)
 @Composable
+context(cellStateParser: CellStateParser)
 fun rememberMutableCellStateDropStateHolder(
     setSelectionToCellState: (dropOffset: Offset, cellState: CellState) -> Unit,
 ): MutableCellStateDropStateHolder {
     val currentSetSelectionToCellState by rememberUpdatedState(setSelectionToCellState)
-    val mutableCellStateDropStateHolderImpl = remember(cellStateParser) {
-        MutableCellStateDropStateHolderImpl(cellStateParser) { dropOffset, cellState ->
-            currentSetSelectionToCellState(dropOffset, cellState)
+    val mutableCellStateDropStateHolderImpl =
+        remember(cellStateParser) {
+            MutableCellStateDropStateHolderImpl(cellStateParser) { dropOffset, cellState ->
+                currentSetSelectionToCellState(dropOffset, cellState)
+            }
         }
-    }
     LaunchedEffect(mutableCellStateDropStateHolderImpl) {
         mutableCellStateDropStateHolderImpl.update()
     }

@@ -24,7 +24,6 @@ import kotlin.uuid.Uuid
  * Information about a local session in a [SessionValueHolder].
  */
 sealed interface LocalSessionInfo {
-
     /**
      * The local session is active, meaning that the session value is running ahead of the upstream value.
      */

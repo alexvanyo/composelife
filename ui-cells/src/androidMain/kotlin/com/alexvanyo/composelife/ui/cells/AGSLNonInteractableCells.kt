@@ -40,7 +40,8 @@ import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import org.intellij.lang.annotations.Language
 
 @Language("AGSL")
-private val SHADER_SRC = """
+private val SHADER_SRC =
+    """
     // The cell shader, as a mask.
     uniform shader cells;
     
@@ -104,7 +105,7 @@ private val SHADER_SRC = """
             return deadColor;
         }
     }
-""".trimMargin()
+    """.trimMargin()
 
 @RequiresApi(33)
 @Suppress("LongParameterList")
@@ -123,16 +124,19 @@ fun AGSLNonInteractableCells(
     val deadColor = ComposeLifeTheme.deadCellColor
 
     val shader = remember { RuntimeShader(SHADER_SRC) }
-    val cellBitmap = remember(cellWindow) {
-        createBitmap(cellWindow.width, cellWindow.height)
-    }
-    val cellBitmapShader = remember(cellBitmap) {
-        BitmapShader(cellBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
-    }
+    val cellBitmap =
+        remember(cellWindow) {
+            createBitmap(cellWindow.width, cellWindow.height)
+        }
+    val cellBitmapShader =
+        remember(cellBitmap) {
+            BitmapShader(cellBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
+        }
     val brush = remember(shader) { ShaderBrush(shader) }
 
     Spacer(
-        modifier = modifier
+        modifier =
+        modifier
             .drawWithCache {
                 shader.setFloatUniform("size", size.width, size.height)
 

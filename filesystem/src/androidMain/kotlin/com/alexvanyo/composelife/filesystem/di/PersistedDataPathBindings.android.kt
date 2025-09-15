@@ -33,8 +33,7 @@ interface PersistedDataPathBindings {
     companion object {
         @Provides
         @PersistedDataPath
-        internal fun providesPersistedDataPath(
-            @ApplicationContext context: Context,
-        ): Path = context.filesDir.toOkioPath()
+        internal fun providesPersistedDataPath(@ApplicationContext context: Context): Path =
+            context.filesDir.toOkioPath()
     }
 }

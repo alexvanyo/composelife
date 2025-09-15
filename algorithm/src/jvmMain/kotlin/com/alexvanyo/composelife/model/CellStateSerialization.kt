@@ -23,10 +23,11 @@ fun String.toCellState(
     fixedFormatCellStateSerializer: FixedFormatCellStateSerializer = PlaintextCellStateSerializer,
     throwOnWarnings: Boolean = true,
 ): CellState {
-    val deserializationResult = trimMargin()
-        .split("\n")
-        .asSequence()
-        .run(fixedFormatCellStateSerializer::deserializeToCellState)
+    val deserializationResult =
+        trimMargin()
+            .split("\n")
+            .asSequence()
+            .run(fixedFormatCellStateSerializer::deserializeToCellState)
 
     return when (deserializationResult) {
         is DeserializationResult.Successful -> {
@@ -35,7 +36,9 @@ fun String.toCellState(
             }
             deserializationResult.cellState.offsetBy(topLeftOffset)
         }
-        is DeserializationResult.Unsuccessful ->
+
+        is DeserializationResult.Unsuccessful -> {
             error("Could not parse cell state!\n" + deserializationResult.errors.joinToString("\n"))
+        }
     }
 }

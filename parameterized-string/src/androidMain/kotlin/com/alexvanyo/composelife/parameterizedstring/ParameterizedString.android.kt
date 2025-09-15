@@ -33,7 +33,6 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 actual sealed class ParameterizedString {
-
     internal abstract val args: List<ParameterizedStringArgument>
 
     @Serializable
@@ -54,10 +53,8 @@ actual sealed class ParameterizedString {
     ) : ParameterizedString()
 
     @Serializable
-    internal data class BasicString(
-        val value: String,
-        override val args: List<ParameterizedStringArgument>,
-    ) : ParameterizedString()
+    internal data class BasicString(val value: String, override val args: List<ParameterizedStringArgument>) :
+        ParameterizedString()
 
     actual companion object
 }
@@ -65,21 +62,17 @@ actual sealed class ParameterizedString {
 /**
  * Creates a representation of a plain-text string.
  */
-actual fun ParameterizedString(
-    value: String,
-    vararg args: ParameterizedStringArgument,
-): ParameterizedString = ParameterizedString.BasicString(value, args.toList())
+actual fun ParameterizedString(value: String, vararg args: ParameterizedStringArgument): ParameterizedString =
+    ParameterizedString.BasicString(value, args.toList())
 
 /**
  * Creates a representation of a string resource [stringRes] with optional [args].
  */
-fun ParameterizedString(
-    @StringRes stringRes: Int,
-    vararg args: ParameterizedStringArgument,
-): ParameterizedString = ParameterizedString.NormalString(
-    stringRes = stringRes,
-    args = args.toList(),
-)
+fun ParameterizedString(@StringRes stringRes: Int, vararg args: ParameterizedStringArgument): ParameterizedString =
+    ParameterizedString.NormalString(
+        stringRes = stringRes,
+        args = args.toList(),
+    )
 
 /**
  * Creates a representation of a quantity string resource [pluralsRes] with [quantity] and optional [args].
@@ -88,26 +81,29 @@ fun ParameterizedQuantityString(
     @PluralsRes pluralsRes: Int,
     quantity: Int,
     vararg args: ParameterizedStringArgument,
-): ParameterizedString = ParameterizedString.QuantityString(
-    pluralsRes = pluralsRes,
-    quantity = quantity,
-    args = args.toList(),
-)
+): ParameterizedString =
+    ParameterizedString.QuantityString(
+        pluralsRes = pluralsRes,
+        quantity = quantity,
+        args = args.toList(),
+    )
 
 /**
  * Resolves the [ParameterizedString] to a [String] using the given [Resources].
  */
 internal fun Resources.getParameterizedString(parameterizedString: ParameterizedString): String {
-    val resolvedArgs = parameterizedString.args.map { arg ->
-        when (arg) {
-            is ParameterizedStringArgument.FloatArg -> arg.value
-            is ParameterizedStringArgument.DoubleArg -> arg.value
-            is ParameterizedStringArgument.IntArg -> arg.value
-            is ParameterizedStringArgument.CharArg -> arg.value
-            is ParameterizedStringArgument.ParameterizedStringArg -> getParameterizedString(arg.value)
-            is ParameterizedStringArgument.StringArg -> arg.value
-        }
-    }.toTypedArray<Any>()
+    val resolvedArgs =
+        parameterizedString.args
+            .map { arg ->
+                when (arg) {
+                    is ParameterizedStringArgument.FloatArg -> arg.value
+                    is ParameterizedStringArgument.DoubleArg -> arg.value
+                    is ParameterizedStringArgument.IntArg -> arg.value
+                    is ParameterizedStringArgument.CharArg -> arg.value
+                    is ParameterizedStringArgument.ParameterizedStringArg -> getParameterizedString(arg.value)
+                    is ParameterizedStringArgument.StringArg -> arg.value
+                }
+            }.toTypedArray<Any>()
 
     return when (parameterizedString) {
         is ParameterizedString.NormalString -> {
@@ -117,6 +113,7 @@ internal fun Resources.getParameterizedString(parameterizedString: Parameterized
                 *resolvedArgs,
             )
         }
+
         is ParameterizedString.QuantityString -> {
             @Suppress("SpreadOperator")
             getQuantityString(
@@ -125,6 +122,7 @@ internal fun Resources.getParameterizedString(parameterizedString: Parameterized
                 *resolvedArgs,
             )
         }
+
         is ParameterizedString.BasicString -> {
             @Suppress("SpreadOperator")
             parameterizedString.value.format(

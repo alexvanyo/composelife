@@ -54,12 +54,9 @@ import com.alexvanyo.composelife.ui.app.resources.Disallow
 import com.alexvanyo.composelife.ui.app.resources.Pinned
 import com.alexvanyo.composelife.ui.app.resources.Strings
 
-context(_: ClipboardCellStatePreviewCtx)
 @Composable
-fun ClipboardWatchingSection(
-    clipboardWatchingState: ClipboardWatchingState,
-    modifier: Modifier = Modifier,
-) {
+context(_: ClipboardCellStatePreviewCtx)
+fun ClipboardWatchingSection(clipboardWatchingState: ClipboardWatchingState, modifier: Modifier = Modifier,) {
     AnimatedContent(
         targetState = clipboardWatchingState,
         contentKey = { targetState ->
@@ -76,15 +73,23 @@ fun ClipboardWatchingSection(
         modifier = modifier,
     ) { targetState ->
         when (targetState) {
-            ClipboardWatchingState.ClipboardWatchingDisabled -> Unit
-            is ClipboardWatchingState.ClipboardWatchingEnabled -> { ClipboardWatchingEnabled(targetState) }
-            is ClipboardWatchingState.Onboarding -> { ClipboardWatchingOnboarding(targetState) }
+            ClipboardWatchingState.ClipboardWatchingDisabled -> {
+                Unit
+            }
+
+            is ClipboardWatchingState.ClipboardWatchingEnabled -> {
+                ClipboardWatchingEnabled(targetState)
+            }
+
+            is ClipboardWatchingState.Onboarding -> {
+                ClipboardWatchingOnboarding(targetState)
+            }
         }
     }
 }
 
-context(_: ClipboardCellStatePreviewCtx)
 @Composable
+context(_: ClipboardCellStatePreviewCtx)
 fun ClipboardWatchingEnabled(
     clipboardWatchingState: ClipboardWatchingState.ClipboardWatchingEnabled,
     modifier: Modifier = Modifier,
@@ -132,9 +137,9 @@ fun ClipboardWatchingEnabled(
     }
 }
 
-context(_: ClipboardCellStatePreviewCtx)
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
+context(_: ClipboardCellStatePreviewCtx)
 private fun PinnedClipboardPreviews(
     pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState>,
     useSharedElementForCellStatePreviews: Boolean,
@@ -170,7 +175,8 @@ private fun PinnedClipboardPreviews(
                                         onPinChanged = pinnedClipboardPreviewState::onUnpin,
                                         onViewDeserializationInfo =
                                         pinnedClipboardPreviewState::onViewDeserializationInfo,
-                                        modifier = Modifier
+                                        modifier =
+                                        Modifier
                                             .weight(1f)
                                             .padding(8.dp)
                                             .then(
@@ -196,10 +202,10 @@ private fun PinnedClipboardPreviews(
     }
 }
 
-context(_: ClipboardCellStatePreviewCtx)
 @Suppress("LongMethod")
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
+context(_: ClipboardCellStatePreviewCtx)
 private fun ClipboardPreviewHistory(
     clipboardPreviewStates: List<ClipboardPreviewState>,
     useSharedElementForCellStatePreviews: Boolean,
@@ -216,11 +222,12 @@ private fun ClipboardPreviewHistory(
         ) { targetState ->
             key(targetState.map(ClipboardPreviewState::id)) {
                 val chunks: List<List<ClipboardPreviewState?>> =
-                    listOf(listOf(targetState.firstOrNull())) + targetState
-                        .drop(1)
-                        .chunked(2) { partialChunk ->
-                            List(2) { partialChunk.getOrNull(it) }
-                        }
+                    listOf(listOf(targetState.firstOrNull())) +
+                        targetState
+                            .drop(1)
+                            .chunked(2) { partialChunk ->
+                                List(2) { partialChunk.getOrNull(it) }
+                            }
 
                 Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
                     chunks.forEach { chunk ->
@@ -240,7 +247,8 @@ private fun ClipboardPreviewHistory(
                                             isPinned = clipboardPreviewState.isPinned,
                                             onPaste = clipboardPreviewState::onPaste,
                                             onPinChanged = clipboardPreviewState::onPinChanged,
-                                            modifier = Modifier
+                                            modifier =
+                                            Modifier
                                                 .weight(1f)
                                                 .padding(8.dp)
                                                 .then(

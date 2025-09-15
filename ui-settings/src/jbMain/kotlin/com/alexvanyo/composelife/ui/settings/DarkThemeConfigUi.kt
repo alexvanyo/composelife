@@ -51,17 +51,17 @@ class DarkThemeConfigUiCtx(
     @Composable
     @Deprecated(
         "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
+        replaceWith =
+        ReplaceWith(
             "DarkThemeConfigUi(modifier)",
         ),
     )
-    operator fun invoke(
-        modifier: Modifier = Modifier,
-    ) = lambda(preferencesHolder, composeLifePreferences, modifier)
+    operator fun invoke(modifier: Modifier = Modifier) = lambda(preferencesHolder, composeLifePreferences, modifier)
 
     companion object {
         private val lambda:
-            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences) (
+            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences)
+            (
                 modifier: Modifier,
             ) -> Unit =
             { modifier ->
@@ -70,22 +70,18 @@ class DarkThemeConfigUiCtx(
     }
 }
 
-context(ctx: DarkThemeConfigUiCtx)
 @Suppress("DEPRECATION")
 @Composable
-fun DarkThemeConfigUi(
-    modifier: Modifier = Modifier,
-) = ctx(modifier)
+context(ctx: DarkThemeConfigUiCtx)
+fun DarkThemeConfigUi(modifier: Modifier = Modifier) = ctx(modifier)
 // endregion templated-ctx
 
+@Composable
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,
-composeLifePreferences: ComposeLifePreferences,
+    composeLifePreferences: ComposeLifePreferences,
 )
-@Composable
-private fun DarkThemeConfigUi(
-    modifier: Modifier = Modifier,
-) {
+private fun DarkThemeConfigUi(modifier: Modifier = Modifier) {
     DarkThemeConfigUi(
         darkThemeConfig = preferencesHolder.preferences.darkThemeConfig,
         setDarkThemeConfig = composeLifePreferences::setDarkThemeConfig,
@@ -104,7 +100,8 @@ fun DarkThemeConfigUi(
 
         TextFieldDropdown(
             label = parameterizedStringResource(Strings.DarkThemeConfig),
-            currentValue = when (darkThemeConfig) {
+            currentValue =
+            when (darkThemeConfig) {
                 DarkThemeConfig.FollowSystem -> DarkThemeConfigDropdownOption.FollowSystem
                 DarkThemeConfig.Dark -> DarkThemeConfigDropdownOption.Dark
                 DarkThemeConfig.Light -> DarkThemeConfigDropdownOption.Light
@@ -129,9 +126,11 @@ sealed interface DarkThemeConfigDropdownOption : DropdownOption {
     data object FollowSystem : DarkThemeConfigDropdownOption {
         override val displayText: ParameterizedString = Strings.FollowSystem
     }
+
     data object Dark : DarkThemeConfigDropdownOption {
         override val displayText: ParameterizedString = Strings.DarkTheme
     }
+
     data object Light : DarkThemeConfigDropdownOption {
         override val displayText: ParameterizedString = Strings.LightTheme
     }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import io.gitlab.arturbosch.detekt.Detekt
+import dev.detekt.gradle.Detekt
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -76,7 +76,7 @@ dependencies {
     implementation(libs.keeper.gradlePlugin)
     implementation(libs.ksp.gradlePlugin)
     implementation(libs.jetbrains.compose.gradlePlugin)
-    detektPlugins(libs.detekt.formatting)
+    detektPlugins(libs.detekt.rules.ktlintWrapper)
     lintChecks(libs.androidx.lint.gradle)
 }
 

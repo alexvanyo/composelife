@@ -38,7 +38,6 @@ import kotlin.math.min
  */
 @Stable
 interface TrackingCellWindowViewportState {
-
     /**
      * Calculates the [CellWindowViewport], with a bit of additional information.
      *
@@ -103,12 +102,12 @@ fun rememberTrackingCellWindowViewportState(
         mutableStateOf(false)
     }
 
-    val currentBoundingBoxes = if (isCurrentBoundingBoxIncludedInPrevious) {
-        previousBoundingBoxes
-    } else {
-        previousBoundingBoxes + gameOfLifeState.cellState.boundingBox
-    }
-        .takeLast(trackingWindowSize)
+    val currentBoundingBoxes =
+        if (isCurrentBoundingBoxIncludedInPrevious) {
+            previousBoundingBoxes
+        } else {
+            previousBoundingBoxes + gameOfLifeState.cellState.boundingBox
+        }.takeLast(trackingWindowSize)
 
     DisposableEffect(gameOfLifeState, gameOfLifeState.cellState, trackingWindowSize) {
         previousBoundingBoxes = currentBoundingBoxes
@@ -119,26 +118,28 @@ fun rememberTrackingCellWindowViewportState(
     /**
      * Compute the bounding box that encompasses all of the tracked bounding boxes.
      */
-    val maxBoundingBox = currentBoundingBoxes.reduce { a, b ->
-        CellWindow(
-            IntRect(
-                left = min(a.left, b.left),
-                right = max(a.right, b.right),
-                top = min(a.top, b.top),
-                bottom = max(a.bottom, b.bottom),
-            ),
-        )
-    }
+    val maxBoundingBox =
+        currentBoundingBoxes.reduce { a, b ->
+            CellWindow(
+                IntRect(
+                    left = min(a.left, b.left),
+                    right = max(a.right, b.right),
+                    top = min(a.top, b.top),
+                    bottom = max(a.bottom, b.bottom),
+                ),
+            )
+        }
 
     /**
      * Create the target bounding box to display in cell coordinates.
      */
-    val boundingBox = Rect(
-        left = maxBoundingBox.left - cellPadding,
-        right = maxBoundingBox.right + cellPadding,
-        top = maxBoundingBox.top - cellPadding,
-        bottom = maxBoundingBox.bottom + cellPadding,
-    )
+    val boundingBox =
+        Rect(
+            left = maxBoundingBox.left - cellPadding,
+            right = maxBoundingBox.right + cellPadding,
+            top = maxBoundingBox.top - cellPadding,
+            bottom = maxBoundingBox.bottom + cellPadding,
+        )
 
     return object : TrackingCellWindowViewportState {
         override fun calculateCellWindowViewport(
@@ -149,18 +150,21 @@ fun rememberTrackingCellWindowViewportState(
             /**
              * Compute the scale as the smallest (more zoomed out) to show the necessary height and width.
              */
-            val scale = min(
-                baseCellHeight / boundingBox.height,
-                baseCellWidth / boundingBox.width,
-            )
+            val scale =
+                min(
+                    baseCellHeight / boundingBox.height,
+                    baseCellWidth / boundingBox.width,
+                )
 
             /**
              * Compute the offset so that the entire target bounding box will be shown.
              */
-            val offset = boundingBox.topLeft + Offset(
-                (boundingBox.width - 1) * centerOffset.x,
-                (boundingBox.height - 1) * centerOffset.y,
-            )
+            val offset =
+                boundingBox.topLeft +
+                    Offset(
+                        (boundingBox.width - 1) * centerOffset.x,
+                        (boundingBox.height - 1) * centerOffset.y,
+                    )
 
             return CellWindowViewport(
                 offset = offset,

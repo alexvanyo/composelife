@@ -48,223 +48,242 @@ val ApplicationGraph.inlineEditPaneStateTestsCtx: InlineEditPaneStateTestsCtx ge
     this as InlineEditPaneStateTestsCtx
 
 @OptIn(ExperimentalTestApi::class)
-class InlineEditPaneStateTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
+class InlineEditPaneStateTests :
+    BaseUiInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
     private val ctx get() = applicationGraph.inlineEditPaneStateTestsCtx
 
     private val composeLifePreferences get() = ctx.composeLifePreferences
 
     @Test
-    fun initial_state_is_correct_when_onboarding() = runUiTest {
-        composeLifePreferences.update {
-            setTouchToolConfig(ToolConfig.Pan)
-            setMouseToolConfig(ToolConfig.Select)
-            setStylusToolConfig(ToolConfig.Draw)
-            setCompletedClipboardWatchingOnboarding(false)
-            setEnableClipboardWatching(true)
-        }
-        snapshotFlow { composeLifePreferences.loadedPreferencesState }.successes().first()
+    fun initial_state_is_correct_when_onboarding() =
+        runUiTest {
+            composeLifePreferences.update {
+                setTouchToolConfig(ToolConfig.Pan)
+                setMouseToolConfig(ToolConfig.Select)
+                setStylusToolConfig(ToolConfig.Draw)
+                setCompletedClipboardWatchingOnboarding(false)
+                setEnableClipboardWatching(true)
+            }
+            snapshotFlow { composeLifePreferences.loadedPreferencesState }.successes().first()
 
-        lateinit var inlineEditPaneState: InlineEditPaneState
+            lateinit var inlineEditPaneState: InlineEditPaneState
 
-        setContent {
-            val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
-            assertTrue(loadedPreferencesState.isSuccess())
-            inlineEditPaneState = rememberInlineEditPaneState(
-                composeLifePreferences = composeLifePreferences,
-                preferences = loadedPreferencesState.value,
-                cellStateParser = ctx.cellStateParser,
-                setSelectionToCellState = {},
-                onViewDeserializationInfo = {},
+            setContent {
+                val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+                assertTrue(loadedPreferencesState.isSuccess())
+                inlineEditPaneState =
+                    rememberInlineEditPaneState(
+                        composeLifePreferences = composeLifePreferences,
+                        preferences = loadedPreferencesState.value,
+                        cellStateParser = ctx.cellStateParser,
+                        setSelectionToCellState = {},
+                        onViewDeserializationInfo = {},
+                    )
+            }
+
+            assertEquals(
+                ToolConfig.Pan,
+                inlineEditPaneState.touchToolConfig,
             )
+            assertEquals(
+                ToolConfig.Draw,
+                inlineEditPaneState.stylusToolConfig,
+            )
+            assertEquals(
+                ToolConfig.Select,
+                inlineEditPaneState.mouseToolConfig,
+            )
+
+            val clipboardWatchingState = inlineEditPaneState.clipboardWatchingState
+
+            assertIs<ClipboardWatchingState.Onboarding>(clipboardWatchingState)
         }
-
-        assertEquals(
-            ToolConfig.Pan,
-            inlineEditPaneState.touchToolConfig,
-        )
-        assertEquals(
-            ToolConfig.Draw,
-            inlineEditPaneState.stylusToolConfig,
-        )
-        assertEquals(
-            ToolConfig.Select,
-            inlineEditPaneState.mouseToolConfig,
-        )
-
-        val clipboardWatchingState = inlineEditPaneState.clipboardWatchingState
-
-        assertIs<ClipboardWatchingState.Onboarding>(clipboardWatchingState)
-    }
 
     @Test
-    fun allowing_clipboard_watching_updates_state_correctly() = runUiTest {
-        composeLifePreferences.update {
-            setTouchToolConfig(ToolConfig.Pan)
-            setMouseToolConfig(ToolConfig.Select)
-            setStylusToolConfig(ToolConfig.Draw)
-            setCompletedClipboardWatchingOnboarding(false)
-            setEnableClipboardWatching(true)
+    fun allowing_clipboard_watching_updates_state_correctly() =
+        runUiTest {
+            composeLifePreferences.update {
+                setTouchToolConfig(ToolConfig.Pan)
+                setMouseToolConfig(ToolConfig.Select)
+                setStylusToolConfig(ToolConfig.Draw)
+                setCompletedClipboardWatchingOnboarding(false)
+                setEnableClipboardWatching(true)
+            }
+            snapshotFlow { composeLifePreferences.loadedPreferencesState }.successes().first()
+
+            lateinit var inlineEditPaneState: InlineEditPaneState
+
+            setContent {
+                val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+                assertTrue(loadedPreferencesState.isSuccess())
+                inlineEditPaneState =
+                    rememberInlineEditPaneState(
+                        composeLifePreferences = composeLifePreferences,
+                        preferences = loadedPreferencesState.value,
+                        cellStateParser = ctx.cellStateParser,
+                        setSelectionToCellState = {},
+                        onViewDeserializationInfo = {},
+                    )
+            }
+
+            val initialClipboardWatchingState = inlineEditPaneState.clipboardWatchingState
+            assertIs<ClipboardWatchingState.Onboarding>(initialClipboardWatchingState)
+
+            initialClipboardWatchingState.onAllowClipboardWatching()
+
+            waitForIdle()
+
+            val newPreferences =
+                snapshotFlow { composeLifePreferences.loadedPreferencesState }
+                    .successes()
+                    .first()
+                    .value
+
+            assertTrue(newPreferences.completedClipboardWatchingOnboarding)
+            assertTrue(newPreferences.enableClipboardWatching)
+
+            val newClipboardWatchingState = inlineEditPaneState.clipboardWatchingState
+
+            assertIs<ClipboardWatchingState.ClipboardWatchingEnabled>(newClipboardWatchingState)
         }
-        snapshotFlow { composeLifePreferences.loadedPreferencesState }.successes().first()
-
-        lateinit var inlineEditPaneState: InlineEditPaneState
-
-        setContent {
-            val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
-            assertTrue(loadedPreferencesState.isSuccess())
-            inlineEditPaneState = rememberInlineEditPaneState(
-                composeLifePreferences = composeLifePreferences,
-                preferences = loadedPreferencesState.value,
-                cellStateParser = ctx.cellStateParser,
-                setSelectionToCellState = {},
-                onViewDeserializationInfo = {},
-            )
-        }
-
-        val initialClipboardWatchingState = inlineEditPaneState.clipboardWatchingState
-        assertIs<ClipboardWatchingState.Onboarding>(initialClipboardWatchingState)
-
-        initialClipboardWatchingState.onAllowClipboardWatching()
-
-        waitForIdle()
-
-        val newPreferences = snapshotFlow { composeLifePreferences.loadedPreferencesState }.successes().first().value
-
-        assertTrue(newPreferences.completedClipboardWatchingOnboarding)
-        assertTrue(newPreferences.enableClipboardWatching)
-
-        val newClipboardWatchingState = inlineEditPaneState.clipboardWatchingState
-
-        assertIs<ClipboardWatchingState.ClipboardWatchingEnabled>(newClipboardWatchingState)
-    }
 
     @Test
-    fun disallowing_clipboard_watching_updates_state_correctly() = runUiTest {
-        composeLifePreferences.update {
-            setTouchToolConfig(ToolConfig.Pan)
-            setMouseToolConfig(ToolConfig.Select)
-            setStylusToolConfig(ToolConfig.Draw)
-            setCompletedClipboardWatchingOnboarding(false)
-            setEnableClipboardWatching(true)
+    fun disallowing_clipboard_watching_updates_state_correctly() =
+        runUiTest {
+            composeLifePreferences.update {
+                setTouchToolConfig(ToolConfig.Pan)
+                setMouseToolConfig(ToolConfig.Select)
+                setStylusToolConfig(ToolConfig.Draw)
+                setCompletedClipboardWatchingOnboarding(false)
+                setEnableClipboardWatching(true)
+            }
+            snapshotFlow { composeLifePreferences.loadedPreferencesState }.successes().first()
+
+            lateinit var inlineEditPaneState: InlineEditPaneState
+
+            setContent {
+                val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+                assertTrue(loadedPreferencesState.isSuccess())
+                inlineEditPaneState =
+                    rememberInlineEditPaneState(
+                        composeLifePreferences = composeLifePreferences,
+                        preferences = loadedPreferencesState.value,
+                        cellStateParser = ctx.cellStateParser,
+                        setSelectionToCellState = {},
+                        onViewDeserializationInfo = {},
+                    )
+            }
+
+            val initialClipboardWatchingState = inlineEditPaneState.clipboardWatchingState
+            assertIs<ClipboardWatchingState.Onboarding>(initialClipboardWatchingState)
+
+            initialClipboardWatchingState.onDisallowClipboardWatching()
+
+            waitForIdle()
+
+            val newPreferences =
+                snapshotFlow { composeLifePreferences.loadedPreferencesState }
+                    .successes()
+                    .first()
+                    .value
+
+            assertTrue(newPreferences.completedClipboardWatchingOnboarding)
+            assertFalse(newPreferences.enableClipboardWatching)
+
+            val newClipboardWatchingState = inlineEditPaneState.clipboardWatchingState
+
+            assertIs<ClipboardWatchingState.ClipboardWatchingDisabled>(newClipboardWatchingState)
         }
-        snapshotFlow { composeLifePreferences.loadedPreferencesState }.successes().first()
-
-        lateinit var inlineEditPaneState: InlineEditPaneState
-
-        setContent {
-            val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
-            assertTrue(loadedPreferencesState.isSuccess())
-            inlineEditPaneState = rememberInlineEditPaneState(
-                composeLifePreferences = composeLifePreferences,
-                preferences = loadedPreferencesState.value,
-                cellStateParser = ctx.cellStateParser,
-                setSelectionToCellState = {},
-                onViewDeserializationInfo = {},
-            )
-        }
-
-        val initialClipboardWatchingState = inlineEditPaneState.clipboardWatchingState
-        assertIs<ClipboardWatchingState.Onboarding>(initialClipboardWatchingState)
-
-        initialClipboardWatchingState.onDisallowClipboardWatching()
-
-        waitForIdle()
-
-        val newPreferences = snapshotFlow { composeLifePreferences.loadedPreferencesState }.successes().first().value
-
-        assertTrue(newPreferences.completedClipboardWatchingOnboarding)
-        assertFalse(newPreferences.enableClipboardWatching)
-
-        val newClipboardWatchingState = inlineEditPaneState.clipboardWatchingState
-
-        assertIs<ClipboardWatchingState.ClipboardWatchingDisabled>(newClipboardWatchingState)
-    }
 
     @Test
-    fun initial_state_is_correct_when_clipboard_watching_enabled() = runUiTest {
-        composeLifePreferences.update {
-            setTouchToolConfig(ToolConfig.Pan)
-            setMouseToolConfig(ToolConfig.Select)
-            setStylusToolConfig(ToolConfig.Draw)
-            setCompletedClipboardWatchingOnboarding(true)
-            setEnableClipboardWatching(true)
-        }
-        snapshotFlow { composeLifePreferences.loadedPreferencesState }.successes().first()
+    fun initial_state_is_correct_when_clipboard_watching_enabled() =
+        runUiTest {
+            composeLifePreferences.update {
+                setTouchToolConfig(ToolConfig.Pan)
+                setMouseToolConfig(ToolConfig.Select)
+                setStylusToolConfig(ToolConfig.Draw)
+                setCompletedClipboardWatchingOnboarding(true)
+                setEnableClipboardWatching(true)
+            }
+            snapshotFlow { composeLifePreferences.loadedPreferencesState }.successes().first()
 
-        lateinit var inlineEditPaneState: InlineEditPaneState
+            lateinit var inlineEditPaneState: InlineEditPaneState
 
-        setContent {
-            val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
-            assertTrue(loadedPreferencesState.isSuccess())
-            inlineEditPaneState = rememberInlineEditPaneState(
-                composeLifePreferences = composeLifePreferences,
-                preferences = loadedPreferencesState.value,
-                cellStateParser = ctx.cellStateParser,
-                setSelectionToCellState = {},
-                onViewDeserializationInfo = {},
+            setContent {
+                val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+                assertTrue(loadedPreferencesState.isSuccess())
+                inlineEditPaneState =
+                    rememberInlineEditPaneState(
+                        composeLifePreferences = composeLifePreferences,
+                        preferences = loadedPreferencesState.value,
+                        cellStateParser = ctx.cellStateParser,
+                        setSelectionToCellState = {},
+                        onViewDeserializationInfo = {},
+                    )
+            }
+
+            assertEquals(
+                ToolConfig.Pan,
+                inlineEditPaneState.touchToolConfig,
             )
+            assertEquals(
+                ToolConfig.Draw,
+                inlineEditPaneState.stylusToolConfig,
+            )
+            assertEquals(
+                ToolConfig.Select,
+                inlineEditPaneState.mouseToolConfig,
+            )
+
+            val clipboardWatchingState = inlineEditPaneState.clipboardWatchingState
+
+            assertIs<ClipboardWatchingState.ClipboardWatchingEnabled>(clipboardWatchingState)
         }
-
-        assertEquals(
-            ToolConfig.Pan,
-            inlineEditPaneState.touchToolConfig,
-        )
-        assertEquals(
-            ToolConfig.Draw,
-            inlineEditPaneState.stylusToolConfig,
-        )
-        assertEquals(
-            ToolConfig.Select,
-            inlineEditPaneState.mouseToolConfig,
-        )
-
-        val clipboardWatchingState = inlineEditPaneState.clipboardWatchingState
-
-        assertIs<ClipboardWatchingState.ClipboardWatchingEnabled>(clipboardWatchingState)
-    }
 
     @Test
-    fun initial_state_is_correct_when_clipboard_watching_disabled() = runUiTest {
-        composeLifePreferences.update {
-            setTouchToolConfig(ToolConfig.Pan)
-            setMouseToolConfig(ToolConfig.Select)
-            setStylusToolConfig(ToolConfig.Draw)
-            setCompletedClipboardWatchingOnboarding(true)
-            setEnableClipboardWatching(false)
-        }
-        snapshotFlow { composeLifePreferences.loadedPreferencesState }.successes().first()
+    fun initial_state_is_correct_when_clipboard_watching_disabled() =
+        runUiTest {
+            composeLifePreferences.update {
+                setTouchToolConfig(ToolConfig.Pan)
+                setMouseToolConfig(ToolConfig.Select)
+                setStylusToolConfig(ToolConfig.Draw)
+                setCompletedClipboardWatchingOnboarding(true)
+                setEnableClipboardWatching(false)
+            }
+            snapshotFlow { composeLifePreferences.loadedPreferencesState }.successes().first()
 
-        lateinit var inlineEditPaneState: InlineEditPaneState
+            lateinit var inlineEditPaneState: InlineEditPaneState
 
-        setContent {
-            val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
-            assertTrue(loadedPreferencesState.isSuccess())
-            inlineEditPaneState = rememberInlineEditPaneState(
-                composeLifePreferences = composeLifePreferences,
-                preferences = loadedPreferencesState.value,
-                cellStateParser = ctx.cellStateParser,
-                setSelectionToCellState = {},
-                onViewDeserializationInfo = {},
+            setContent {
+                val loadedPreferencesState = composeLifePreferences.loadedPreferencesState
+                assertTrue(loadedPreferencesState.isSuccess())
+                inlineEditPaneState =
+                    rememberInlineEditPaneState(
+                        composeLifePreferences = composeLifePreferences,
+                        preferences = loadedPreferencesState.value,
+                        cellStateParser = ctx.cellStateParser,
+                        setSelectionToCellState = {},
+                        onViewDeserializationInfo = {},
+                    )
+            }
+
+            assertEquals(
+                ToolConfig.Pan,
+                inlineEditPaneState.touchToolConfig,
             )
+            assertEquals(
+                ToolConfig.Draw,
+                inlineEditPaneState.stylusToolConfig,
+            )
+            assertEquals(
+                ToolConfig.Select,
+                inlineEditPaneState.mouseToolConfig,
+            )
+
+            val clipboardWatchingState = inlineEditPaneState.clipboardWatchingState
+
+            assertIs<ClipboardWatchingState.ClipboardWatchingDisabled>(clipboardWatchingState)
         }
-
-        assertEquals(
-            ToolConfig.Pan,
-            inlineEditPaneState.touchToolConfig,
-        )
-        assertEquals(
-            ToolConfig.Draw,
-            inlineEditPaneState.stylusToolConfig,
-        )
-        assertEquals(
-            ToolConfig.Select,
-            inlineEditPaneState.mouseToolConfig,
-        )
-
-        val clipboardWatchingState = inlineEditPaneState.clipboardWatchingState
-
-        assertIs<ClipboardWatchingState.ClipboardWatchingDisabled>(clipboardWatchingState)
-    }
 }

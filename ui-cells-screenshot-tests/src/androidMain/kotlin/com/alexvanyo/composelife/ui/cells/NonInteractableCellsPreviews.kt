@@ -42,7 +42,8 @@ internal fun NonInteractableCellsPreview(modifier: Modifier = Modifier) {
         ComposeLifeTheme {
             with(implicit().nonInteractableCellsCtx) {
                 NonInteractableCells(
-                    gameOfLifeState = GameOfLifeState(
+                    gameOfLifeState =
+                    GameOfLifeState(
                         setOf(
                             0 to 0,
                             0 to 2,
@@ -56,7 +57,8 @@ internal fun NonInteractableCellsPreview(modifier: Modifier = Modifier) {
                         ).toCellState(),
                     ),
                     scaledCellDpSize = 32.dp,
-                    cellWindow = CellWindow(
+                    cellWindow =
+                    CellWindow(
                         IntRect(
                             IntOffset(0, 0),
                             IntSize(10, 10),
