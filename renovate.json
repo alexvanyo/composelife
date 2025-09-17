@@ -8,7 +8,8 @@
       "groupName": "Kotlin",
       "matchPackageNames": [
         "/^org.jetbrains.kotlin[^a-zA-Z]/",
-        "/^com.google.devtools.ksp/"
+        "/^com.google.devtools.ksp/",
+        "/^dev.zacsweers.metro/"
       ]
     },
     {
