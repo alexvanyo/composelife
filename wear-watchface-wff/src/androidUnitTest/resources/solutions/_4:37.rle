@@ -1,0 +1,7 @@
+#R -39 26
+x = 103, y = 91, rule = B3/S23
+61b2o6b2o8b2ob2obob2o4b2ob2obob2o$61b2o6b2o8b2obob2ob2o4b2obob2ob2o3$
+61b2o6b2o16b2o12b2o$61b2o6b2o16b2o12b2o$74b2o$74b2o$61b2obob2ob2o8b2ob
+ob2ob2o12b2o$61b2ob2obob2o8b2ob2obob2o12b2o$74b2o$74b2o$69b2o16b2o12b
+2o$69b2o16b2o12b2o3$69b2o8b2ob2obob2o12b2o$69b2o8b2obob2ob2o12b2o52$
+20bo$20b2o$19bobo10$3bo$4b2o$3b2o5$o$b2o$2o!

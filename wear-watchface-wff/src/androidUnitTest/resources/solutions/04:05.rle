@@ -1,0 +1,12 @@
+#R -54 -60
+x = 165, y = 182, rule = B3/S23
+38bo$38b2o$37bobo12$37bo$38bo$36b3o6$47bo$46b2o$46bobo3$150b2o$150bobo
+$150bo7$32b2o$31bobo$33bo7$12b2o$12bobo$12bo2$20bo16b2o$b2o16b2o15bobo
+$2o17bobo16bo$2bo34$62b2ob2obob2o4b2o6b2o8b2ob2obob2o4b2ob2obob2o$62b
+2obob2ob2o4b2o6b2o8b2obob2ob2o4b2obob2ob2o3$62b2o6b2o4b2o6b2o8b2o6b2o
+4b2o$62b2o6b2o4b2o6b2o8b2o6b2o4b2o$89b2o$89b2o$62b2o6b2o4b2obob2ob2o8b
+2o6b2o4b2obob2ob2o$62b2o6b2o4b2ob2obob2o8b2o6b2o4b2ob2obob2o$89b2o$89b
+2o$62b2o6b2o12b2o8b2o6b2o12b2o$62b2o6b2o12b2o8b2o6b2o12b2o3$62b2ob2obo
+b2o12b2o8b2ob2obob2o4b2ob2obob2o$62b2obob2ob2o12b2o8b2obob2ob2o4b2obob
+2ob2o48$155b2o$155bobo$25b3o127bo$25bo$26bo4$162bo$137bo25b2o$137b2o
+23b2o$24b2o110bobo$23bobo$25bo$7b2o$6bobo$8bo12$134b2o$133bobo$135bo!

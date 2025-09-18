@@ -86,7 +86,9 @@ class DestructionTests {
     private val MAX_PHASE = 2
     private val MAX_GENERATIONS = 300
 
-    //@Test
+    private val CUSTOM_CODE_POINT_START = 0x4E00
+
+    @Test
     fun order0_destructionIsCorrect(
         @TestParameter(valuesProvider = TargetTimeDigits.Provider::class)
         targetTimeDigits: TargetTimeDigits
@@ -95,17 +97,17 @@ class DestructionTests {
             File(
                 "src/androidUnitTest/resources/solutions/" +
                     "${targetTimeDigits.timeDigits.firstDigit.fileChar}" +
-                    "${targetTimeDigits.timeDigits.secondDigit.char}:" +
-                    "${targetTimeDigits.timeDigits.thirdDigit.char}" +
-                    "${targetTimeDigits.timeDigits.fourthDigit.char}.rle"
+                    "${targetTimeDigits.timeDigits.secondDigit.fileChar}:" +
+                    "${targetTimeDigits.timeDigits.thirdDigit.fileChar}" +
+                    "${targetTimeDigits.timeDigits.fourthDigit.fileChar}.rle"
             )
         val solutionFontFile =
             File(
                 "src/androidUnitTest/resources/solutions/" +
                     "${targetTimeDigits.timeDigits.firstDigit.fileChar}" +
-                    "${targetTimeDigits.timeDigits.secondDigit.char}:" +
-                    "${targetTimeDigits.timeDigits.thirdDigit.char}" +
-                    "${targetTimeDigits.timeDigits.fourthDigit.char}.sfd"
+                    "${targetTimeDigits.timeDigits.secondDigit.fileChar}:" +
+                    "${targetTimeDigits.timeDigits.thirdDigit.fileChar}" +
+                    "${targetTimeDigits.timeDigits.fourthDigit.fileChar}.sfd"
             )
 
         var solution: CellState? = if (solutionCellStateFile.exists()) {
@@ -172,8 +174,9 @@ class DestructionTests {
                     bufferedWriter.newLine()
 
                     bufferedWriter.write(
-                        "Encoding: ${256 + 300 * targetTimeDigits.minute + index}" +
-                            " -1 ${11 + 300 * targetTimeDigits.minute + index}"
+                        "Encoding: ${CUSTOM_CODE_POINT_START + 300 * targetTimeDigits.minute + index} " +
+                            "${CUSTOM_CODE_POINT_START + 300 * targetTimeDigits.minute + index} " +
+                            "${300 * targetTimeDigits.minute + index}"
                     )
                     bufferedWriter.newLine()
                     bufferedWriter.write("Width: 70")
@@ -191,6 +194,11 @@ class DestructionTests {
                             CellWindow(IntRect(IntOffset(1, 1), IntSize(70, 70)))
                         ).toSet()
                     )
+                        .map { contour ->
+                            contour.map {
+                                IntOffset(it.x, 70 - it.y)
+                            }
+                        }
                         .forEach { contour ->
                             bufferedWriter.write("${contour.last().x - 1} ${contour.last().y - 1} m 1")
                             bufferedWriter.newLine()
@@ -200,14 +208,6 @@ class DestructionTests {
                             }
                         }
                     bufferedWriter.write("EndSplineSet")
-                    bufferedWriter.newLine()
-                    bufferedWriter.write("""Ligature2: "'liga' Standard Ligatures in Latin lookup 0-1" """ +
-                            targetTimeDigits.timeDigits.thirdDigit.char.digitToWord() + " " +
-                            targetTimeDigits.timeDigits.fourthDigit.char.digitToWord() + " " +
-                            index.toString().padStart(3, '0').toCharArray().joinToString(" ", transform = { it.digitToWord() } )
-                    )
-                    bufferedWriter.newLine()
-                    bufferedWriter.write("LCarets2: 1 0")
                     bufferedWriter.newLine()
                     bufferedWriter.write("EndChar")
                     bufferedWriter.newLine()
@@ -297,7 +297,6 @@ class DestructionTests {
                 HheadDescent: 0
                 HheadDOffset: 1
                 OS2Vendor: 'PfEd'
-                Lookup: 4 0 0 "'liga' Standard Ligatures in Latin lookup 0" { "'liga' Standard Ligatures in Latin lookup 0-1"  } ['liga' ('DFLT' <'dflt' > 'latn' <'dflt' > ) ]
                 MarkAttachClasses: 1
                 DEI: 91125
                 Encoding: Custom
@@ -306,89 +305,10 @@ class DestructionTests {
                 DisplaySize: -48
                 AntiAlias: 1
                 FitToEm: 0
-                WinInfo: 0 45 17
+                WinInfo: 90 45 17
                 BeginPrivate: 0
                 EndPrivate
-                BeginChars: 556 311
-
-                StartChar: zero
-                Encoding: 48 48 0
-                Width: 70
-                Flags: W
-                LayerCount: 2
-                EndChar
-
-                StartChar: one
-                Encoding: 49 49 1
-                Width: 70
-                Flags: W
-                VStem: 50 10
-                LayerCount: 2
-                EndChar
-
-                StartChar: two
-                Encoding: 50 50 2
-                Width: 70
-                Flags: W
-                LayerCount: 2
-                EndChar
-
-                StartChar: colon
-                Encoding: 58 58 3
-                Width: 10
-                Flags: W
-                VStem: 0 10
-                LayerCount: 2
-                EndChar
-
-                StartChar: three
-                Encoding: 51 51 4
-                Width: 70
-                Flags: W
-                LayerCount: 2
-                EndChar
-
-                StartChar: four
-                Encoding: 52 52 5
-                Width: 70
-                Flags: W
-                LayerCount: 2
-                EndChar
-
-                StartChar: five
-                Encoding: 53 53 6
-                Width: 70
-                Flags: W
-                LayerCount: 2
-                EndChar
-
-                StartChar: six
-                Encoding: 54 54 7
-                Width: 70
-                Flags: W
-                LayerCount: 2
-                EndChar
-
-                StartChar: seven
-                Encoding: 55 55 8
-                Width: 70
-                Flags: W
-                LayerCount: 2
-                EndChar
-
-                StartChar: eight
-                Encoding: 56 56 9
-                Width: 70
-                Flags: W
-                LayerCount: 2
-                EndChar
-
-                StartChar: nine
-                Encoding: 57 57 10
-                Width: 70
-                Flags: W
-                LayerCount: 2
-                EndChar
+                BeginChars: 18097 18000
 
             """.trimIndent())
             (0..59).forEach { minute ->
@@ -410,6 +330,16 @@ class DestructionTests {
                 EndSplineFont
             """.trimIndent())
         }
+    }
+
+    @Test
+    fun printEscapedCharacters() {
+        print("&quot;")
+        repeat(60 * MAX_GENERATIONS) { i ->
+            print("&#x%04x;".format(i + CUSTOM_CODE_POINT_START))
+        }
+        print("&quot;")
+        println()
     }
 
     private suspend fun isDestructionAchieved(
@@ -573,21 +503,6 @@ private val GameOfLifeSegmentChar.fileChar get() =
         GameOfLifeSegmentChar.Eight -> '8'
         GameOfLifeSegmentChar.Nine -> '9'
         GameOfLifeSegmentChar.Blank -> '_'
-    }
-
-private fun Char.digitToWord(): String =
-    when (this) {
-        '0' -> "zero"
-        '1' -> "one"
-        '2' -> "two"
-        '3' -> "three"
-        '4' -> "four"
-        '5' -> "five"
-        '6' -> "six"
-        '7' -> "seven"
-        '8' -> "eight"
-        '9' -> "nine"
-        else -> error("Unexpected digit char")
     }
 
 private data class Edge(
