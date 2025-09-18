@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.retain
 import androidx.compose.runtime.setValue
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.CellStateParser
@@ -40,7 +41,6 @@ import com.alexvanyo.composelife.ui.cells.isSharedElementForCellsSupported
 import com.alexvanyo.composelife.ui.util.ClipboardReader
 import com.alexvanyo.composelife.ui.util.clipboardStateKey
 import com.alexvanyo.composelife.ui.util.rememberClipboardReader
-import com.slack.circuit.retained.rememberRetained
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -263,16 +263,20 @@ fun rememberClipboardWatchingEnabledState(
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
 ): ClipboardWatchingState.ClipboardWatchingEnabled {
     var isLoading by remember { mutableStateOf(false) }
-    var currentClipboardCellStateId: Uuid by rememberRetained {
+
+    @Suppress("ComposeRememberMissing")
+    var currentClipboardCellStateId: Uuid by retain {
         mutableStateOf(Uuid.random())
     }
-    var currentDeserializationResult: DeserializationResult? by rememberRetained {
+
+    @Suppress("ComposeRememberMissing")
+    var currentDeserializationResult: DeserializationResult? by retain {
         mutableStateOf(null)
     }
-    val previousClipboardCellStates: MutableList<Pair<Uuid, DeserializationResult.Successful>> = rememberRetained {
+    val previousClipboardCellStates: MutableList<Pair<Uuid, DeserializationResult.Successful>> = retain {
         mutableStateListOf()
     }
-    val pinnedClipboardCellStates: MutableList<Pair<Uuid, DeserializationResult.Successful>> = rememberRetained {
+    val pinnedClipboardCellStates: MutableList<Pair<Uuid, DeserializationResult.Successful>> = retain {
         mutableStateListOf()
     }
 

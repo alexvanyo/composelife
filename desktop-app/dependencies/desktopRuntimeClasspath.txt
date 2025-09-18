@@ -3,12 +3,12 @@ androidx.annotation:annotation:1.9.1
 androidx.arch.core:core-common:2.2.0
 androidx.collection:collection-jvm:1.5.0
 androidx.collection:collection:1.5.0
-androidx.compose.runtime:runtime-annotation-jvm:1.10.0-alpha02
-androidx.compose.runtime:runtime-annotation:1.10.0-alpha02
-androidx.compose.runtime:runtime-desktop:1.10.0-alpha02
-androidx.compose.runtime:runtime-saveable-desktop:1.10.0-alpha02
-androidx.compose.runtime:runtime-saveable:1.10.0-alpha02
-androidx.compose.runtime:runtime:1.10.0-alpha02
+androidx.compose.runtime:runtime-annotation-jvm:1.10.0-SNAPSHOT
+androidx.compose.runtime:runtime-annotation:1.10.0-SNAPSHOT
+androidx.compose.runtime:runtime-desktop:1.10.0-SNAPSHOT
+androidx.compose.runtime:runtime-saveable-desktop:1.10.0-SNAPSHOT
+androidx.compose.runtime:runtime-saveable:1.10.0-SNAPSHOT
+androidx.compose.runtime:runtime:1.10.0-SNAPSHOT
 androidx.datastore:datastore-core-jvm:1.2.0-alpha02
 androidx.datastore:datastore-core-okio-jvm:1.2.0-alpha02
 androidx.datastore:datastore-core-okio:1.2.0-alpha02
@@ -52,8 +52,6 @@ co.touchlab:kermit-core:2.0.8
 co.touchlab:kermit-jvm:2.0.8
 co.touchlab:kermit:2.0.8
 com.github.livefront.sealed-enum:runtime:0.7.0
-com.slack.circuit:circuit-retained-jvm:0.29.1
-com.slack.circuit:circuit-retained:0.29.1
 com.squareup.okhttp3:okhttp-jvm:5.1.0
 com.squareup.okhttp3:okhttp:5.1.0
 com.squareup.okio:okio-jvm:3.16.0
@@ -148,7 +146,6 @@ org.jetbrains.compose.ui:ui-unit:1.10.0-alpha01
 org.jetbrains.compose.ui:ui-util-desktop:1.10.0-alpha01
 org.jetbrains.compose.ui:ui-util:1.10.0-alpha01
 org.jetbrains.compose.ui:ui:1.10.0-alpha01
-org.jetbrains.kotlin:kotlin-bom:2.2.0
 org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.10
 org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.10
 org.jetbrains.kotlin:kotlin-stdlib:2.2.20
