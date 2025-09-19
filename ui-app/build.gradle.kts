@@ -66,6 +66,7 @@ kotlin {
                 implementation(projects.parameterizedString)
                 implementation(projects.patterns)
                 implementation(projects.resourceState)
+                implementation(projects.sealedEnum.runtime)
                 implementation(projects.serialization)
                 implementation(projects.sessionValue)
                 implementation(projects.uiMobile)
@@ -83,6 +84,7 @@ kotlin {
                 implementation(libs.androidx.window.core)
                 implementation(libs.jetbrains.compose.material3)
                 implementation(libs.jetbrains.compose.materialIconsExtended)
+                implementation(libs.jetbrains.compose.runtime)
                 implementation(libs.jetbrains.compose.ui)
                 implementation(libs.jetbrains.compose.uiGeometry)
                 implementation(libs.jetbrains.compose.uiUtil)
@@ -91,7 +93,7 @@ kotlin {
         val desktopMain by getting {
             dependsOn(jbMain)
             configurations["kspDesktop"].dependencies.addAll(listOf(
-                libs.sealedEnum.ksp.get(),
+                projects.sealedEnum.ksp,
             ))
             dependencies {
                 implementation(compose.desktop.currentOs)
@@ -100,7 +102,7 @@ kotlin {
         val androidMain by getting {
             dependsOn(jbMain)
             configurations["kspAndroid"].dependencies.addAll(listOf(
-                libs.sealedEnum.ksp.get(),
+                projects.sealedEnum.ksp,
             ))
             dependencies {
                 implementation(libs.androidx.activityCompose)
@@ -113,23 +115,22 @@ kotlin {
                 implementation(libs.androidx.core)
                 implementation(libs.androidx.poolingContainer)
                 implementation(libs.kotlinx.coroutines.android)
-                implementation(libs.sealedEnum.runtime)
             }
         }
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
-                implementation(projects.dispatchersTest)
-                implementation(projects.filesystemTest)
+                implementation(projects.dispatchersTestFixtures)
+                implementation(projects.filesystemTestFixtures)
                 implementation(projects.injectTest)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
                 implementation(projects.patterns)
-                implementation(projects.preferencesTest)
+                implementation(projects.preferencesTestFixtures)
                 implementation(projects.screenshotTest)
                 implementation(projects.testActivity)
-                implementation(projects.workTest)
+                implementation(projects.workTestFixtures)
             }
         }
         val jvmTest by creating {
