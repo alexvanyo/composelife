@@ -16,7 +16,11 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import com.android.build.api.variant.HostTestBuilder
+import com.android.build.api.variant.LibraryAndroidComponentsExtension
+import org.gradle.internal.extensions.stdlib.capitalized
 import kotlin.apply
+import kotlin.jvm.java
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -42,6 +46,90 @@ android {
             }
         }
     }
+    buildTypes {
+        getByName("staging") {
+            isMinifyEnabled = false
+            isShrinkResources = false
+            sourceSets {
+                getByName("main").res {
+                    srcDir(layout.buildDirectory.dir("generated/wff/staging/res"))
+                }
+            }
+        }
+        getByName("release") {
+            isMinifyEnabled = false
+            isShrinkResources = false
+            sourceSets {
+                getByName("main").res {
+                    srcDir(layout.buildDirectory.dir("generated/wff/release/res"))
+                }
+            }
+        }
+    }
+}
+
+private val hourPrefixes = listOf(
+    "00",
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
+    "06",
+    "07",
+    "08",
+    "09",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
+    "20",
+    "21",
+    "22",
+    "23",
+    "_1",
+    "_2",
+    "_3",
+    "_4",
+    "_5",
+    "_6",
+    "_7",
+    "_8",
+    "_9",
+)
+
+androidComponents {
+    listOf("staging", "release").forEach { type ->
+        beforeVariants(selector().withBuildType(type)) { builder ->
+            // Disable unit tests for everything other than debug
+            builder.hostTests[HostTestBuilder.UNIT_TEST_TYPE]!!.enable = false
+        }
+        onVariants(selector().withBuildType(type)) { variant ->
+            val capitalizedVariantName = variant.name.capitalized()
+            hourPrefixes.forEach { hourPrefix ->
+                val createHourSfd = tasks.register("create${capitalizedVariantName}Hour${hourPrefix}Sfd", CreateHourSfd::class) {
+                    dependsOn("testDebugUnitTest")
+                    minuteSfdInputDirectory = layout.buildDirectory.dir("wff/minuteSfd")
+                    this.hourPrefix = hourPrefix
+                    hourSfdOutputDirectory = layout.buildDirectory.dir("wff/hourSfd")
+                }
+                val createHourTtf = tasks.register("create${capitalizedVariantName}Hour${hourPrefix}Ttf", ConvertSfdToTtf::class) {
+                    dependsOn(createHourSfd)
+                    sfdFile = createHourSfd.flatMap { it.hourSfdOutputDirectory.file("hour$hourPrefix.sfd") }
+                    ttfFile = layout.buildDirectory.file("generated/wff/${variant.name}/res/font/hour$hourPrefix.ttf")
+                }
+                tasks.withType<Task>().named { it == "generate${capitalizedVariantName}Resources" }.configureEach {
+                    dependsOn(createHourTtf)
+                }
+            }
+        }
+    }
 }
 
 kotlin {
@@ -61,6 +149,121 @@ kotlin {
                 implementation(libs.testParameterInjector.junit4)
                 implementation(libs.turbine)
             }
+        }
+    }
+}
+
+abstract class CreateHourSfd : DefaultTask() {
+
+    @get:InputDirectory
+    abstract val minuteSfdInputDirectory: DirectoryProperty
+
+    @get:Input
+    abstract val hourPrefix: Property<String>
+
+    @get:OutputDirectory
+    abstract val hourSfdOutputDirectory: DirectoryProperty
+
+    @TaskAction
+    fun taskAction() {
+        val hourPrefix = hourPrefix.get()
+        val hourSfdFile = hourSfdOutputDirectory.file("hour$hourPrefix.sfd").get().asFile
+        hourSfdFile.bufferedWriter().use { bufferedWriter ->
+            bufferedWriter.write("""
+                SplineFontDB: 3.2
+                FontName: GameOfLifeHour$hourPrefix
+                FullName: GameOfLifeHour$hourPrefix
+                FamilyName: GameOfLifeHours
+                Weight: Regular
+                Copyright: Copyright (c) 2025, Alex Vanyo
+                UComments: "2025-5-11: Created with FontForge (http://fontforge.org)"
+                Version: 001.000
+                ItalicAngle: 0
+                UnderlinePosition: -9
+                UnderlineWidth: 4
+                Ascent: 70
+                Descent: 0
+                InvalidEm: 0
+                LayerCount: 2
+                Layer: 0 0 "Back" 1
+                Layer: 1 0 "Fore" 0
+                XUID: [1021 274 170034612 13146481]
+                StyleMap: 0x0000
+                FSType: 0
+                OS2Version: 0
+                OS2_WeightWidthSlopeOnly: 0
+                OS2_UseTypoMetrics: 1
+                CreationTime: 1747017898
+                ModificationTime: 1757554175
+                OS2TypoAscent: 0
+                OS2TypoAOffset: 1
+                OS2TypoDescent: 0
+                OS2TypoDOffset: 1
+                OS2TypoLinegap: 6
+                OS2WinAscent: 0
+                OS2WinAOffset: 1
+                OS2WinDescent: 0
+                OS2WinDOffset: 1
+                HheadAscent: 0
+                HheadAOffset: 1
+                HheadDescent: 0
+                HheadDOffset: 1
+                OS2Vendor: 'PfEd'
+                MarkAttachClasses: 1
+                DEI: 91125
+                Encoding: Custom
+                UnicodeInterp: none
+                NameList: AGL For New Fonts
+                DisplaySize: -48
+                AntiAlias: 1
+                FitToEm: 0
+                WinInfo: 90 45 17
+                BeginPrivate: 0
+                EndPrivate
+                BeginChars: 18097 18000
+
+            """.trimIndent())
+            (0..59).forEach { minute ->
+                val minuteFontFile =
+                    minuteSfdInputDirectory.file("$hourPrefix:${"%02d".format(minute)}.sfd").get().asFile
+                minuteFontFile.bufferedReader().useLines { lines ->
+                    lines.forEach { line ->
+                        bufferedWriter.write(line)
+                        bufferedWriter.newLine()
+                    }
+                }
+            }
+
+            bufferedWriter.write("""
+                EndChars
+                EndSplineFont
+            """.trimIndent())
+        }
+    }
+}
+
+abstract class ConvertSfdToTtf : DefaultTask() {
+
+    @get:InputFile
+    abstract val sfdFile: RegularFileProperty
+
+    @get:OutputFile
+    abstract val ttfFile: RegularFileProperty
+
+    @get:Inject
+    abstract val execOperations: ExecOperations
+
+    @TaskAction
+    fun taskAction() {
+        execOperations.exec {
+            commandLine(
+                "fontforge",
+                "-lang=ff",
+                "-c",
+                "'Open(\$1); Generate(\$2)'",
+                sfdFile.get().asFile.absolutePath,
+                ttfFile.get().asFile.absolutePath,
+            )
         }
     }
 }

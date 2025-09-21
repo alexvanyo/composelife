@@ -37,10 +37,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
-import kotlinx.datetime.LocalTime
-import org.junit.FixMethodOrder
 import org.junit.runner.RunWith
-import org.junit.runners.MethodSorters
 import org.robolectric.RobolectricTestParameterInjector
 import java.io.File
 import kotlin.random.Random
@@ -84,7 +81,6 @@ class HourEightDestructionTests : DestructionTests("_8")
 class HourNineDestructionTests : DestructionTests("_9")
 
 @RunWith(RobolectricTestParameterInjector::class)
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 abstract class DestructionTests(
     private val hourPrefix: String,
 ) {
@@ -106,7 +102,7 @@ abstract class DestructionTests(
     private val CUSTOM_CODE_POINT_START = 0x4E00
 
     @Test
-    fun order0_destructionIsCorrect(
+    fun destructionIsCorrect(
         @TestParameter(valuesProvider = MinuteProvider::class)
         minute: Int
     ) = runTest(testDispatcher, timeout = Duration.INFINITE) {
@@ -122,7 +118,7 @@ abstract class DestructionTests(
             )
         val solutionFontFile =
             File(
-                "src/androidUnitTest/resources/solutions/" +
+                "build/wff/minuteSfd/" +
                     "${timeDigits.firstDigit.fileChar}" +
                     "${timeDigits.secondDigit.fileChar}:" +
                     "${timeDigits.thirdDigit.fileChar}" +
@@ -180,6 +176,7 @@ abstract class DestructionTests(
             }
         }
 
+        solutionFontFile.parentFile!!.mkdirs()
         solutionFontFile.bufferedWriter().use { bufferedWriter ->
             algorithm.computeGenerationsWithStep(solution, 1)
                 .take(MAX_GENERATIONS)
@@ -232,85 +229,6 @@ abstract class DestructionTests(
                     bufferedWriter.newLine()
                     bufferedWriter.newLine()
                 }
-        }
-    }
-
-    @Test
-    fun order1_createCombinedFonts() {
-        val hourFontFile = File("src/androidUnitTest/resources/solutions/hour$hourPrefix.sfd")
-        hourFontFile.bufferedWriter().use { bufferedWriter ->
-            bufferedWriter.write("""
-                SplineFontDB: 3.2
-                FontName: GameOfLifeHour$hourPrefix
-                FullName: GameOfLifeHour$hourPrefix
-                FamilyName: GameOfLifeHours
-                Weight: Regular
-                Copyright: Copyright (c) 2025, Alex Vanyo
-                UComments: "2025-5-11: Created with FontForge (http://fontforge.org)"
-                Version: 001.000
-                ItalicAngle: 0
-                UnderlinePosition: -9
-                UnderlineWidth: 4
-                Ascent: 70
-                Descent: 0
-                InvalidEm: 0
-                LayerCount: 2
-                Layer: 0 0 "Back" 1
-                Layer: 1 0 "Fore" 0
-                XUID: [1021 274 170034612 13146481]
-                StyleMap: 0x0000
-                FSType: 0
-                OS2Version: 0
-                OS2_WeightWidthSlopeOnly: 0
-                OS2_UseTypoMetrics: 1
-                CreationTime: 1747017898
-                ModificationTime: 1757554175
-                OS2TypoAscent: 0
-                OS2TypoAOffset: 1
-                OS2TypoDescent: 0
-                OS2TypoDOffset: 1
-                OS2TypoLinegap: 6
-                OS2WinAscent: 0
-                OS2WinAOffset: 1
-                OS2WinDescent: 0
-                OS2WinDOffset: 1
-                HheadAscent: 0
-                HheadAOffset: 1
-                HheadDescent: 0
-                HheadDOffset: 1
-                OS2Vendor: 'PfEd'
-                MarkAttachClasses: 1
-                DEI: 91125
-                Encoding: Custom
-                UnicodeInterp: none
-                NameList: AGL For New Fonts
-                DisplaySize: -48
-                AntiAlias: 1
-                FitToEm: 0
-                WinInfo: 90 45 17
-                BeginPrivate: 0
-                EndPrivate
-                BeginChars: 18097 18000
-
-            """.trimIndent())
-            (0..59).forEach { minute ->
-                val minuteFontFile =
-                    File(
-                        "src/androidUnitTest/resources/solutions/" +
-                            "$hourPrefix:${"%02d".format(minute)}.sfd"
-                    )
-                minuteFontFile.bufferedReader().useLines { lines ->
-                    lines.forEach { line ->
-                        bufferedWriter.write(line)
-                        bufferedWriter.newLine()
-                    }
-                }
-            }
-
-            bufferedWriter.write("""
-                EndChars
-                EndSplineFont
-            """.trimIndent())
         }
     }
 
