@@ -33,8 +33,8 @@ androidx.compose.material:material-ripple:1.10.0-alpha04
 androidx.compose.runtime:runtime-android:1.10.0-SNAPSHOT
 androidx.compose.runtime:runtime-annotation-android:1.10.0-SNAPSHOT
 androidx.compose.runtime:runtime-annotation:1.10.0-SNAPSHOT
-androidx.compose.runtime:runtime-retain-android:1.10.0-alpha04
-androidx.compose.runtime:runtime-retain:1.10.0-alpha04
+androidx.compose.runtime:runtime-retain-android:1.10.0-SNAPSHOT
+androidx.compose.runtime:runtime-retain:1.10.0-SNAPSHOT
 androidx.compose.runtime:runtime-saveable-android:1.10.0-SNAPSHOT
 androidx.compose.runtime:runtime-saveable:1.10.0-SNAPSHOT
 androidx.compose.runtime:runtime:1.10.0-SNAPSHOT

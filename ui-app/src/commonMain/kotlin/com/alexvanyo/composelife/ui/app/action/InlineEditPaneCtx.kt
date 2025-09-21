@@ -24,7 +24,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.retain
+import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.CellStateParser

@@ -21,6 +21,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidLibrary)
+    alias(libs.plugins.convention.androidLibraryCompose)
     alias(libs.plugins.convention.androidLibraryJacoco)
     alias(libs.plugins.convention.androidLibraryKsp)
     alias(libs.plugins.convention.androidLibraryTesting)
@@ -55,7 +56,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.jetbrains.compose.runtime)
+                api(libs.androidx.compose.runtime)
                 api(libs.kotlinx.coroutines.core)
                 api(libs.kotlinx.datetime)
                 api(projects.dispatchers)

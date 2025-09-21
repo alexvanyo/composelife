@@ -23,7 +23,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.retainRetainScopeHolder
+import androidx.compose.runtime.retain.retainRetainScopeHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.runtime.setValue
