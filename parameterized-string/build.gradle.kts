@@ -44,8 +44,8 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.jetbrains.compose.runtime)
-                api(libs.jetbrains.compose.runtime.saveable)
+                api(libs.androidx.compose.runtime)
+                api(libs.androidx.compose.runtime.saveable)
 
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(projects.serialization)

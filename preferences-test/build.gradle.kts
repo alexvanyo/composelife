@@ -56,7 +56,7 @@ kotlin {
             dependencies {
                 api(projects.preferences)
 
-                implementation(libs.jetbrains.compose.runtime)
+                implementation(libs.androidx.compose.runtime)
                 implementation(projects.injectScopes)
             }
         }

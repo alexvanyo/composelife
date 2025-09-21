@@ -45,6 +45,7 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.collection)
                 implementation(libs.androidx.compose.runtime)
+                implementation(libs.androidx.compose.runtime.retain)
                 implementation(libs.kotlinx.coroutines.core)
             }
         }

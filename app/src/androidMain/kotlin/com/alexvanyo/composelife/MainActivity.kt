@@ -32,7 +32,7 @@ import androidx.compose.material3.adaptive.currentWindowSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.LocalRetainScope
+import androidx.compose.runtime.retain.LocalRetainScope
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.findViewTreeCompositionContext
