@@ -19,8 +19,8 @@ package com.alexvanyo.composelife
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.CancellationHandle
 import androidx.compose.runtime.CompositionContext
-import androidx.compose.runtime.ControlledRetainScope
-import androidx.compose.runtime.RetainScope
+import androidx.compose.runtime.retain.ControlledRetainScope
+import androidx.compose.runtime.retain.RetainScope
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel

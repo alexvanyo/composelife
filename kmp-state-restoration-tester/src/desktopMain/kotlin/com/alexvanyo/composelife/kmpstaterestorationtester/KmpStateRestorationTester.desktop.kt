@@ -16,10 +16,10 @@
 
 package com.alexvanyo.composelife.kmpstaterestorationtester
 
-import androidx.compose.runtime.ControlledRetainScope
-import androidx.compose.runtime.RetainScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.retain.ControlledRetainScope
+import androidx.compose.runtime.retain.RetainScope
 import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.runtime.setValue
 

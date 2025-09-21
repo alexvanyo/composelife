@@ -18,12 +18,12 @@ package com.alexvanyo.composelife
 
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.ControlledRetainScope
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.LocalRetainScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.retain.ControlledRetainScope
+import androidx.compose.runtime.retain.LocalRetainScope
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState

@@ -49,6 +49,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(libs.androidx.compose.runtime)
+                implementation(libs.androidx.compose.runtime.retain)
             }
         }
         val jbMain by creating {

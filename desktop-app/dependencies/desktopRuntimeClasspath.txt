@@ -6,6 +6,8 @@ androidx.collection:collection:1.5.0
 androidx.compose.runtime:runtime-annotation-jvm:1.10.0-SNAPSHOT
 androidx.compose.runtime:runtime-annotation:1.10.0-SNAPSHOT
 androidx.compose.runtime:runtime-desktop:1.10.0-SNAPSHOT
+androidx.compose.runtime:runtime-retain-desktop:1.10.0-SNAPSHOT
+androidx.compose.runtime:runtime-retain:1.10.0-SNAPSHOT
 androidx.compose.runtime:runtime-saveable-desktop:1.10.0-SNAPSHOT
 androidx.compose.runtime:runtime-saveable:1.10.0-SNAPSHOT
 androidx.compose.runtime:runtime:1.10.0-SNAPSHOT

@@ -18,11 +18,11 @@ package com.alexvanyo.composelife.navigation
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.runtime.RetainedContentHost
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.retain
+import androidx.compose.runtime.retain.RetainedContentHost
+import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
