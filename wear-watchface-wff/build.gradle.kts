@@ -16,6 +16,7 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import kotlin.apply
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -33,6 +34,14 @@ android {
         targetSdk = 35
     }
     configureGradleManagedDevices(setOf(FormFactor.Wear), this)
+
+    testOptions {
+        unitTests.all { test ->
+            test.apply {
+                maxParallelForks = Runtime.getRuntime().availableProcessors()
+            }
+        }
+    }
 }
 
 kotlin {

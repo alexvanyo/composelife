@@ -1,0 +1,9 @@
+#R -24 -39
+x = 145, y = 151, rule = B3/S23
+bo$b2o$obo12$2b2o$2bobo$2bo2$120bo$119b2o$119bobo45$40b2o4b2o6b2o8b2o
+6b2o4b2ob2obob2o$40b2o4b2o6b2o8b2o6b2o4b2obob2ob2o3$40b2o4b2o6b2o8b2o
+6b2o4b2o6b2o$40b2o4b2o6b2o8b2o6b2o4b2o6b2o$59b2o$59b2o$40b2o4b2obob2ob
+2o8b2obob2ob2o4b2obob2ob2o$40b2o4b2ob2obob2o8b2ob2obob2o4b2ob2obob2o$
+59b2o$59b2o$40b2o12b2o16b2o4b2o6b2o$40b2o12b2o16b2o4b2o6b2o3$40b2o12b
+2o16b2o4b2ob2obob2o$40b2o12b2o16b2o4b2obob2ob2o34$111b3o$111bo$112bo
+16$142bo$143b2o$142b2o12$110bo$109b2o$109bobo!

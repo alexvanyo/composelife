@@ -17,6 +17,7 @@
 <resources>
     <string name="watch_face_name">ComposeLifeWFF</string>
     <string name="color_selector_display_name">Color</string>
+    <string name="show_complications_in_ambient_display_name">Show Complications In Ambient"</string>
     <string name="red">Red</string>
     <string name="pink">Pink</string>
     <string name="purple">Purple</string>

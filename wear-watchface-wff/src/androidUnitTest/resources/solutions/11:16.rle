@@ -1,0 +1,8 @@
+#R -24 26
+x = 151, y = 102, rule = B3/S23
+40b2o12b2o16b2o4b2ob2obob2o$40b2o12b2o16b2o4b2obob2ob2o3$40b2o12b2o16b
+2o4b2o$40b2o12b2o16b2o4b2o$59b2o$59b2o$40b2o12b2o16b2o4b2obob2ob2o$40b
+2o12b2o16b2o4b2ob2obob2o$59b2o$59b2o$40b2o12b2o16b2o4b2o6b2o$40b2o12b
+2o16b2o4b2o6b2o3$40b2o12b2o16b2o4b2ob2obob2o$40b2o12b2o16b2o4b2obob2ob
+2o37$124bo$123b2o$123bobo6$16b2o$15bobo94b2o$17bo93bobo$113bo$149bo$
+148b2o$148bobo20$3o$o$bo9$121bo$121b2o$120bobo!

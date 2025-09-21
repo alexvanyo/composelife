@@ -49,37 +49,54 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Duration
 
+class HourZeroZeroDestructionTests : DestructionTests("00")
+class HourZeroOneDestructionTests : DestructionTests("01")
+class HourZeroTwoDestructionTests : DestructionTests("02")
+class HourZeroThreeDestructionTests : DestructionTests("03")
+class HourZeroFourDestructionTests : DestructionTests("04")
+class HourZeroFiveDestructionTests : DestructionTests("05")
+class HourZeroSixDestructionTests : DestructionTests("06")
+class HourZeroSevenDestructionTests : DestructionTests("07")
+class HourZeroEightDestructionTests : DestructionTests("08")
+class HourZeroNineDestructionTests : DestructionTests("09")
+class HourOneZeroDestructionTests : DestructionTests("10")
+class HourOneOneDestructionTests : DestructionTests("11")
+class HourOneTwoDestructionTests : DestructionTests("12")
+class HourOneThreeDestructionTests : DestructionTests("13")
+class HourOneFourDestructionTests : DestructionTests("14")
+class HourOneFiveDestructionTests : DestructionTests("15")
+class HourOneSixDestructionTests : DestructionTests("16")
+class HourOneSevenDestructionTests : DestructionTests("17")
+class HourOneEightDestructionTests : DestructionTests("18")
+class HourOneNineDestructionTests : DestructionTests("19")
+class HourTwoZeroDestructionTests : DestructionTests("20")
+class HourTwoOneDestructionTests : DestructionTests("21")
+class HourTwoTwoDestructionTests : DestructionTests("22")
+class HourTwoThreeDestructionTests : DestructionTests("23")
+class HourOneDestructionTests : DestructionTests("_1")
+class HourTwoDestructionTests : DestructionTests("_2")
+class HourThreeDestructionTests : DestructionTests("_3")
+class HourFourDestructionTests : DestructionTests("_4")
+class HourFiveDestructionTests : DestructionTests("_5")
+class HourSixDestructionTests : DestructionTests("_6")
+class HourSevenDestructionTests : DestructionTests("_7")
+class HourEightDestructionTests : DestructionTests("_8")
+class HourNineDestructionTests : DestructionTests("_9")
+
 @RunWith(RobolectricTestParameterInjector::class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-class DestructionTests {
+abstract class DestructionTests(
+    private val hourPrefix: String,
+) {
     private val testDispatcher = StandardTestDispatcher()
 
     private val algorithm = HashLifeAlgorithm(
         TestComposeLifeDispatchers(testDispatcher, testDispatcher)
     )
 
-    data class TargetTimeDigits(
-        val timeDigits: TimeDigits,
-        val minute: Int,
-    ) {
-        override fun toString(): String = timeDigits.toString()
-
-        class Provider : TestParameterValuesProvider() {
-            override fun provideValues(context: Context?) =
-                (0..23).flatMap { hour ->
-                    (0..59).flatMap { minute ->
-                        listOf(false, true).map { use24HourFormat ->
-                            TargetTimeDigits(
-                                timeDigits =createTimeDigits(
-                                    localTime = LocalTime(hour = hour, minute = minute),
-                                    use24HourFormat = use24HourFormat,
-                                ),
-                                minute = minute,
-                            )
-                        }
-                    }
-                }.toSet().toList()
-        }
+    class MinuteProvider : TestParameterValuesProvider() {
+        override fun provideValues(context: Context?) =
+            (0..59).toList()
     }
 
     private val TARGET_POPULATION = 200
@@ -90,24 +107,26 @@ class DestructionTests {
 
     @Test
     fun order0_destructionIsCorrect(
-        @TestParameter(valuesProvider = TargetTimeDigits.Provider::class)
-        targetTimeDigits: TargetTimeDigits
+        @TestParameter(valuesProvider = MinuteProvider::class)
+        minute: Int
     ) = runTest(testDispatcher, timeout = Duration.INFINITE) {
+        val timeDigits = createTimeDigits(hourPrefix, minute)
+
         val solutionCellStateFile =
             File(
                 "src/androidUnitTest/resources/solutions/" +
-                    "${targetTimeDigits.timeDigits.firstDigit.fileChar}" +
-                    "${targetTimeDigits.timeDigits.secondDigit.fileChar}:" +
-                    "${targetTimeDigits.timeDigits.thirdDigit.fileChar}" +
-                    "${targetTimeDigits.timeDigits.fourthDigit.fileChar}.rle"
+                    "${timeDigits.firstDigit.fileChar}" +
+                    "${timeDigits.secondDigit.fileChar}:" +
+                    "${timeDigits.thirdDigit.fileChar}" +
+                    "${timeDigits.fourthDigit.fileChar}.rle"
             )
         val solutionFontFile =
             File(
                 "src/androidUnitTest/resources/solutions/" +
-                    "${targetTimeDigits.timeDigits.firstDigit.fileChar}" +
-                    "${targetTimeDigits.timeDigits.secondDigit.fileChar}:" +
-                    "${targetTimeDigits.timeDigits.thirdDigit.fileChar}" +
-                    "${targetTimeDigits.timeDigits.fourthDigit.fileChar}.sfd"
+                    "${timeDigits.firstDigit.fileChar}" +
+                    "${timeDigits.secondDigit.fileChar}:" +
+                    "${timeDigits.thirdDigit.fileChar}" +
+                    "${timeDigits.fourthDigit.fileChar}.sfd"
             )
 
         var solution: CellState? = if (solutionCellStateFile.exists()) {
@@ -126,9 +145,9 @@ class DestructionTests {
 
         while (solution == null) {
             solutionCount++
-            val testCellState = createTimeCellState(targetTimeDigits.timeDigits).union(createRandomGliders())
+            val testCellState = createTimeCellState(timeDigits).union(createRandomGliders())
             val (generation, minimumSize) = isDestructionAchieved(
-                timeDigits = targetTimeDigits.timeDigits,
+                timeDigits = timeDigits,
                 cellState = testCellState,
                 maxGenerations = MAX_GENERATIONS,
             )
@@ -145,7 +164,7 @@ class DestructionTests {
             }
         }
         assertEquals(
-            createTimeCellState(targetTimeDigits.timeDigits).aliveCells,
+            createTimeCellState(timeDigits).aliveCells,
             solution.getAliveCellsInWindow(
                 CellWindow(IntRect(IntOffset(0, 0), IntSize(70, 70)))
             ).toSet()
@@ -167,16 +186,16 @@ class DestructionTests {
                 .withIndex()
                 .collect { (index, cellState) ->
                     bufferedWriter.write("StartChar: custom_" +
-                            "${targetTimeDigits.timeDigits.thirdDigit.char}_" +
-                            "${targetTimeDigits.timeDigits.fourthDigit.char}_" +
+                            "${timeDigits.thirdDigit.char}_" +
+                            "${timeDigits.fourthDigit.char}_" +
                             index.toString().padStart(3, '0').toCharArray().joinToString("_")
                     )
                     bufferedWriter.newLine()
 
                     bufferedWriter.write(
-                        "Encoding: ${CUSTOM_CODE_POINT_START + 300 * targetTimeDigits.minute + index} " +
-                            "${CUSTOM_CODE_POINT_START + 300 * targetTimeDigits.minute + index} " +
-                            "${300 * targetTimeDigits.minute + index}"
+                        "Encoding: ${CUSTOM_CODE_POINT_START + 300 * minute + index} " +
+                            "${CUSTOM_CODE_POINT_START + 300 * minute + index} " +
+                            "${300 * minute + index}"
                     )
                     bufferedWriter.newLine()
                     bufferedWriter.write("Width: 70")
@@ -217,44 +236,7 @@ class DestructionTests {
     }
 
     @Test
-    fun order1_createCombinedFonts(
-        @TestParameter(
-            "00",
-            "01",
-            "02",
-            "03",
-            "04",
-            "05",
-            "06",
-            "07",
-            "08",
-            "09",
-            "10",
-            "11",
-            "12",
-            "13",
-            "14",
-            "15",
-            "16",
-            "17",
-            "18",
-            "19",
-            "20",
-            "21",
-            "22",
-            "23",
-            "_1",
-            "_2",
-            "_3",
-            "_4",
-            "_5",
-            "_6",
-            "_7",
-            "_8",
-            "_9",
-        )
-        hourPrefix: String,
-    ) {
+    fun order1_createCombinedFonts() {
         val hourFontFile = File("src/androidUnitTest/resources/solutions/hour$hourPrefix.sfd")
         hourFontFile.bufferedWriter().use { bufferedWriter ->
             bufferedWriter.write("""
@@ -330,16 +312,6 @@ class DestructionTests {
                 EndSplineFont
             """.trimIndent())
         }
-    }
-
-    @Test
-    fun printEscapedCharacters() {
-        print("&quot;")
-        repeat(60 * MAX_GENERATIONS) { i ->
-            print("&#x%04x;".format(i + CUSTOM_CODE_POINT_START))
-        }
-        print("&quot;")
-        println()
     }
 
     private suspend fun isDestructionAchieved(
@@ -668,25 +640,15 @@ val notRoundRandomPointPool =
             it.x !in -5..74 && it.y !in -5..74
         }
 
-fun createTimeDigits(localTime: LocalTime, use24HourFormat: Boolean): TimeDigits {
-    val clockHour = localTime.hour.rem(12)
-    val displayHour = if (use24HourFormat) {
-        localTime.hour
-    } else if (clockHour == 0) {
-        12
-    } else {
-        clockHour
-    }
-
-    val hourTensPlace = displayHour / 10
-    val firstDigit = if (hourTensPlace == 0 && !use24HourFormat) {
+fun createTimeDigits(hourPrefix: String, minute: Int): TimeDigits {
+    val firstDigit = if (hourPrefix.first() == '_') {
         GameOfLifeSegmentChar.Blank
     } else {
-        GameOfLifeSegmentChar.fromChar(hourTensPlace)
+        GameOfLifeSegmentChar.fromChar(hourPrefix.first().digitToInt())
     }
-    val secondDigit = GameOfLifeSegmentChar.fromChar(displayHour.rem(10))
-    val thirdDigit = GameOfLifeSegmentChar.fromChar(localTime.minute / 10)
-    val fourthDigit = GameOfLifeSegmentChar.fromChar(localTime.minute.rem(10))
+    val secondDigit = GameOfLifeSegmentChar.fromChar(hourPrefix[1].digitToInt())
+    val thirdDigit = GameOfLifeSegmentChar.fromChar(minute / 10)
+    val fourthDigit = GameOfLifeSegmentChar.fromChar(minute.rem(10))
 
     return TimeDigits(
         firstDigit = firstDigit,
