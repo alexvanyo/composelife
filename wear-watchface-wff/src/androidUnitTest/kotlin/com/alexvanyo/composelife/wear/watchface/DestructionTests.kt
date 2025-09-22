@@ -37,6 +37,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
+import org.junit.Assume.assumeTrue
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestParameterInjector
 import java.io.File
@@ -87,7 +88,7 @@ abstract class DestructionTests(
     private val testDispatcher = StandardTestDispatcher()
 
     private val algorithm = HashLifeAlgorithm(
-        TestComposeLifeDispatchers(testDispatcher, testDispatcher)
+        TestComposeLifeDispatchers(testDispatcher, testDispatcher),
     )
 
     class MinuteProvider : TestParameterValuesProvider() {
@@ -104,7 +105,7 @@ abstract class DestructionTests(
     @Test
     fun destructionIsCorrect(
         @TestParameter(valuesProvider = MinuteProvider::class)
-        minute: Int
+        minute: Int,
     ) = runTest(testDispatcher, timeout = Duration.INFINITE) {
         val timeDigits = createTimeDigits(hourPrefix, minute)
 
@@ -114,7 +115,7 @@ abstract class DestructionTests(
                     "${timeDigits.firstDigit.fileChar}" +
                     "${timeDigits.secondDigit.fileChar}:" +
                     "${timeDigits.thirdDigit.fileChar}" +
-                    "${timeDigits.fourthDigit.fileChar}.rle"
+                    "${timeDigits.fourthDigit.fileChar}.rle",
             )
         val solutionFontFile =
             File(
@@ -122,7 +123,7 @@ abstract class DestructionTests(
                     "${timeDigits.firstDigit.fileChar}" +
                     "${timeDigits.secondDigit.fileChar}:" +
                     "${timeDigits.thirdDigit.fileChar}" +
-                    "${timeDigits.fourthDigit.fileChar}.sfd"
+                    "${timeDigits.fourthDigit.fileChar}.sfd",
             )
 
         var solution: CellState? = if (solutionCellStateFile.exists()) {
@@ -162,19 +163,14 @@ abstract class DestructionTests(
         assertEquals(
             createTimeCellState(timeDigits).aliveCells,
             solution.getAliveCellsInWindow(
-                CellWindow(IntRect(IntOffset(0, 0), IntSize(70, 70)))
-            ).toSet()
+                CellWindow(IntRect(IntOffset(0, 0), IntSize(70, 70))),
+            ).toSet(),
         )
         val runLengthEncodingLines = RunLengthEncodedCellStateSerializer.serializeToString(solution)
 
-        println(runLengthEncodingLines.joinToString(""))
-
-        solutionCellStateFile.bufferedWriter().use { bufferedWriter ->
-            runLengthEncodingLines.forEach { line ->
-                bufferedWriter.write(line)
-                bufferedWriter.newLine()
-            }
-        }
+        // If both the solution font file and the cell state file exist, then we don't have to do anything since we
+        // assume they are unchanged
+        assumeTrue(!solutionFontFile.exists() || !solutionCellStateFile.exists())
 
         solutionFontFile.parentFile!!.mkdirs()
         solutionFontFile.bufferedWriter().use { bufferedWriter ->
@@ -182,17 +178,18 @@ abstract class DestructionTests(
                 .take(MAX_GENERATIONS)
                 .withIndex()
                 .collect { (index, cellState) ->
-                    bufferedWriter.write("StartChar: custom_" +
+                    bufferedWriter.write(
+                        "StartChar: custom_" +
                             "${timeDigits.thirdDigit.char}_" +
                             "${timeDigits.fourthDigit.char}_" +
-                            index.toString().padStart(3, '0').toCharArray().joinToString("_")
+                            index.toString().padStart(3, '0').toCharArray().joinToString("_"),
                     )
                     bufferedWriter.newLine()
 
                     bufferedWriter.write(
                         "Encoding: ${CUSTOM_CODE_POINT_START + 300 * minute + index} " +
                             "${CUSTOM_CODE_POINT_START + 300 * minute + index} " +
-                            "${300 * minute + index}"
+                            "${300 * minute + index}",
                     )
                     bufferedWriter.newLine()
                     bufferedWriter.write("Width: 70")
@@ -207,8 +204,8 @@ abstract class DestructionTests(
                     bufferedWriter.newLine()
                     createContours(
                         cellState.getAliveCellsInWindow(
-                            CellWindow(IntRect(IntOffset(1, 1), IntSize(70, 70)))
-                        ).toSet()
+                            CellWindow(IntRect(IntOffset(1, 1), IntSize(70, 70))),
+                        ).toSet(),
                     )
                         .map { contour ->
                             contour.map {
@@ -230,6 +227,14 @@ abstract class DestructionTests(
                     bufferedWriter.newLine()
                 }
         }
+
+        solutionCellStateFile.parentFile!!.mkdirs()
+        solutionCellStateFile.bufferedWriter().use { bufferedWriter ->
+            runLengthEncodingLines.forEach { line ->
+                bufferedWriter.write(line)
+                bufferedWriter.newLine()
+            }
+        }
     }
 
     private suspend fun isDestructionAchieved(
@@ -246,7 +251,7 @@ abstract class DestructionTests(
             .toList()
             .map {
                 val aliveCellsInViewport = it.getAliveCellsInWindow(
-                    CellWindow(IntRect(IntOffset(0, 0), IntSize(70, 70)))
+                    CellWindow(IntRect(IntOffset(0, 0), IntSize(70, 70))),
                 ).toSet()
                 val aliveCellsInOriginalDigits = aliveCellsInViewport.intersect(timeCellState.aliveCells)
                 aliveCellsInViewport.size + aliveCellsInOriginalDigits.size
@@ -271,7 +276,7 @@ abstract class DestructionTests(
             .withIndex()
             .any { (index, cellState) ->
                 val aliveCellsInViewport = cellState.getAliveCellsInWindow(
-                    CellWindow(IntRect(IntOffset(0, 0), IntSize(70, 70)))
+                    CellWindow(IntRect(IntOffset(0, 0), IntSize(70, 70))),
                 ).toSet()
                 val mostRecentGeneration = mostRecentGenerationMap[aliveCellsInViewport]
                 if (mostRecentGeneration != null && index - mostRecentGeneration <= maxPhase) {
@@ -305,7 +310,7 @@ private fun createContours(aliveCells: Set<IntOffset>): List<List<IntOffset>> {
                             }
                         }
                     }
-                }
+                },
             )
         }
     }
@@ -338,7 +343,7 @@ private fun createContours(aliveCells: Set<IntOffset>): List<List<IntOffset>> {
                             }
                             currentEdge = neighborEdge
                         } while (currentEdge != initialEdge)
-                    }
+                    },
                 )
             }
         }
@@ -417,7 +422,7 @@ private enum class Direction(
     ),
     Down(
         IntOffset(0, 1),
-    )
+    ),
 }
 
 private operator fun IntOffset.plus(direction: Direction): IntOffset = this + direction.intOffset
@@ -425,22 +430,50 @@ private operator fun IntOffset.plus(direction: Direction): IntOffset = this + di
 private fun Edge.possibleClockwiseNeighbors(connectedComponent: Set<IntOffset>): List<Edge?> {
     return when (normalDirection) {
         Direction.Left -> listOf(
-            if (insideCell + Direction.Up in connectedComponent) Edge(insideCell + Direction.Up + Direction.Left, outsideCell) else null,
+            if (insideCell + Direction.Up in connectedComponent) {
+                Edge(
+                    insideCell + Direction.Up + Direction.Left,
+                    outsideCell,
+                )
+            } else {
+                null
+            },
             Edge(insideCell + Direction.Up, outsideCell + Direction.Up),
             Edge(insideCell, insideCell + Direction.Up),
         )
         Direction.Right -> listOf(
-            if (insideCell + Direction.Down in connectedComponent) Edge(insideCell + Direction.Down + Direction.Right, outsideCell) else null,
+            if (insideCell + Direction.Down in connectedComponent) {
+                Edge(
+                    insideCell + Direction.Down + Direction.Right,
+                    outsideCell,
+                )
+            } else {
+                null
+            },
             Edge(insideCell + Direction.Down, outsideCell + Direction.Down),
             Edge(insideCell, insideCell + Direction.Down),
         )
         Direction.Up -> listOf(
-            if (insideCell + Direction.Right in connectedComponent) Edge(insideCell + Direction.Right + Direction.Up, outsideCell) else null,
+            if (insideCell + Direction.Right in connectedComponent) {
+                Edge(
+                    insideCell + Direction.Right + Direction.Up,
+                    outsideCell,
+                )
+            } else {
+                null
+            },
             Edge(insideCell + Direction.Right, outsideCell + Direction.Right),
             Edge(insideCell, insideCell + Direction.Right),
         )
         Direction.Down -> listOf(
-            if (insideCell + Direction.Left in connectedComponent) Edge(insideCell + Direction.Left + Direction.Down, outsideCell) else null,
+            if (insideCell + Direction.Left in connectedComponent) {
+                Edge(
+                    insideCell + Direction.Left + Direction.Down,
+                    outsideCell,
+                )
+            } else {
+                null
+            },
             Edge(insideCell + Direction.Left, outsideCell + Direction.Left),
             Edge(insideCell, insideCell + Direction.Left),
         )
@@ -490,7 +523,6 @@ private fun createTimeCellState(
     )
     .offsetBy(IntOffset(8, 26))
 
-
 private fun createRandomGliders(): CellState {
     val gliderDirections = listOf(
         """
@@ -532,7 +564,7 @@ private fun createRandomGliders(): CellState {
             |.O.
             |OO.
             |O.O
-        """
+        """,
     )
 
     return CellState(
@@ -780,4 +812,3 @@ private val segG = """
     |..........
     |..........
 """.toCellState()
-
