@@ -21,8 +21,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
-import com.alexvanyo.composelife.scopes.implicit
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
+import com.alexvanyo.composelife.ui.settings.ctxs.PreviewCtx
 import com.alexvanyo.composelife.ui.settings.ctxs.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.util.ThemePreviews
 
@@ -32,7 +32,7 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
 internal fun InlineSettingsPaneNoQuickAccessPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(implicit().inlineSettingsPaneCtx) {
+            with(contextOf<PreviewCtx>().inlineSettingsPaneCtx) {
                 Surface(modifier) {
                     InlineSettingsPane(
                         onSeeMoreClicked = {},
@@ -49,12 +49,12 @@ internal fun InlineSettingsPaneNoQuickAccessPreview(modifier: Modifier = Modifie
 @Composable
 internal fun InlineSettingsPaneWithQuickAccessPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
-        implicit().testComposeLifePreferences.quickAccessSettings = setOf(
+        contextOf<PreviewCtx>().testComposeLifePreferences.quickAccessSettings = setOf(
             QuickAccessSetting.DarkThemeConfig,
             QuickAccessSetting.CellShapeConfig,
         )
         ComposeLifeTheme {
-            with(implicit().inlineSettingsPaneCtx) {
+            with(contextOf<PreviewCtx>().inlineSettingsPaneCtx) {
                 Surface(modifier) {
                     InlineSettingsPane(
                         onSeeMoreClicked = {},
