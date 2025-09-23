@@ -29,7 +29,7 @@ import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
-import com.alexvanyo.composelife.scopes.implicit
+import com.alexvanyo.composelife.ui.cells.ctxs.PreviewCtx
 import com.alexvanyo.composelife.ui.cells.ctxs.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
@@ -40,7 +40,7 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
 internal fun InteractableCellsPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(implicit().interactableCellsCtx) {
+            with(contextOf<PreviewCtx>().interactableCellsCtx) {
                 Box(modifier = modifier.size(300.dp)) {
                     InteractableCells(
                         gameOfLifeState = MutableGameOfLifeState(

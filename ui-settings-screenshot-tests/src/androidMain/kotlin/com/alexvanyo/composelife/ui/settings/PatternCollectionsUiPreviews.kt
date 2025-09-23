@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.data.model.PatternCollection
 import com.alexvanyo.composelife.database.PatternCollectionId
-import com.alexvanyo.composelife.scopes.implicit
 import com.alexvanyo.composelife.ui.settings.ctxs.PreviewCtx
 import com.alexvanyo.composelife.ui.settings.ctxs.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.util.ThemePreviews
@@ -36,7 +35,7 @@ import kotlin.time.Instant
 internal fun PatternCollectionPreviewNoSuccessfulSynchronization() {
     val referenceInstant = Instant.fromEpochMilliseconds(1741463473365L)
     WithPreviewDependencies {
-        with(implicit().timeZoneHolder) {
+        with(contextOf<PreviewCtx>().timeZoneHolder) {
             with(
                 object : Clock {
                     override fun now(): Instant = referenceInstant
@@ -64,7 +63,7 @@ internal fun PatternCollectionPreviewNoSuccessfulSynchronization() {
 internal fun PatternCollectionPreviewSynchronizing() {
     val referenceInstant = Instant.fromEpochMilliseconds(1741463473365L)
     WithPreviewDependencies {
-        with(implicit().timeZoneHolder) {
+        with(contextOf<PreviewCtx>().timeZoneHolder) {
             with(
                 object : Clock {
                     override fun now(): Instant = referenceInstant
@@ -92,7 +91,7 @@ internal fun PatternCollectionPreviewSynchronizing() {
 internal fun PatternCollectionPreviewSuccessfulSynchronizationNow() {
     val referenceInstant = Instant.fromEpochMilliseconds(1741463473365L)
     WithPreviewDependencies {
-        with(implicit().timeZoneHolder) {
+        with(contextOf<PreviewCtx>().timeZoneHolder) {
             with(
                 object : Clock {
                     override fun now(): Instant = referenceInstant
@@ -120,7 +119,7 @@ internal fun PatternCollectionPreviewSuccessfulSynchronizationNow() {
 internal fun PatternCollectionPreviewSuccessfulSynchronization55SecondsAgo() {
     val referenceInstant = Instant.fromEpochMilliseconds(1741463473365L)
     WithPreviewDependencies {
-        with(implicit().timeZoneHolder) {
+        with(contextOf<PreviewCtx>().timeZoneHolder) {
             with(
                 object : Clock {
                     override fun now(): Instant = referenceInstant
@@ -148,7 +147,7 @@ internal fun PatternCollectionPreviewSuccessfulSynchronization55SecondsAgo() {
 internal fun PatternCollectionPreviewSuccessfulSynchronization60SecondsAgo() {
     val referenceInstant = Instant.fromEpochMilliseconds(1741463473365L)
     WithPreviewDependencies {
-        with(implicit().timeZoneHolder) {
+        with(contextOf<PreviewCtx>().timeZoneHolder) {
             with(
                 object : Clock {
                     override fun now(): Instant = referenceInstant
@@ -176,7 +175,7 @@ internal fun PatternCollectionPreviewSuccessfulSynchronization60SecondsAgo() {
 internal fun PatternCollectionPreviewSuccessfulSynchronization65SecondsAgo() {
     val referenceInstant = Instant.fromEpochMilliseconds(1741463473365L)
     WithPreviewDependencies {
-        with(implicit().timeZoneHolder) {
+        with(contextOf<PreviewCtx>().timeZoneHolder) {
             with(
                 object : Clock {
                     override fun now(): Instant = referenceInstant
@@ -204,7 +203,7 @@ internal fun PatternCollectionPreviewSuccessfulSynchronization65SecondsAgo() {
 internal fun PatternCollectionPreviewSuccessfulSynchronization65MinutesAgo() {
     val referenceInstant = Instant.fromEpochMilliseconds(1741463473365L)
     WithPreviewDependencies {
-        with(implicit().timeZoneHolder) {
+        with(contextOf<PreviewCtx>().timeZoneHolder) {
             with(
                 object : Clock {
                     override fun now(): Instant = referenceInstant
@@ -232,7 +231,7 @@ internal fun PatternCollectionPreviewSuccessfulSynchronization65MinutesAgo() {
 internal fun PatternCollectionPreviewSuccessfulSynchronization25HoursAgo() {
     val referenceInstant = Instant.fromEpochMilliseconds(1741463473365L)
     WithPreviewDependencies {
-        with(implicit().timeZoneHolder) {
+        with(contextOf<PreviewCtx>().timeZoneHolder) {
             with(
                 object : Clock {
                     override fun now(): Instant = referenceInstant

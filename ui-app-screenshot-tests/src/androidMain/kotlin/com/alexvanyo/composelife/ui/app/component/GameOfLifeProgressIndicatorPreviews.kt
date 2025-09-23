@@ -19,7 +19,7 @@ package com.alexvanyo.composelife.ui.app.component
 
 import androidx.compose.runtime.Composable
 import com.airbnb.android.showkase.annotation.ShowkaseComposable
-import com.alexvanyo.composelife.scopes.implicit
+import com.alexvanyo.composelife.ui.app.ctxs.PreviewCtx
 import com.alexvanyo.composelife.ui.app.ctxs.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
@@ -29,9 +29,9 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
 @Composable
 internal fun GameOfLifeProgressIndicatorBlinkerPreview() {
     WithPreviewDependencies {
-        implicit().testRandom.setSeed(6)
+        contextOf<PreviewCtx>().testRandom.setSeed(6)
         ComposeLifeTheme {
-            with(implicit().gameOfLifeProgressIndicatorCtx) {
+            with(contextOf<PreviewCtx>().gameOfLifeProgressIndicatorCtx) {
                 GameOfLifeProgressIndicator()
             }
         }
@@ -43,9 +43,9 @@ internal fun GameOfLifeProgressIndicatorBlinkerPreview() {
 @Composable
 internal fun GameOfLifeProgressIndicatorToadPreview() {
     WithPreviewDependencies {
-        implicit().testRandom.setSeed(2)
+        contextOf<PreviewCtx>().testRandom.setSeed(2)
         ComposeLifeTheme {
-            with(implicit().gameOfLifeProgressIndicatorCtx) {
+            with(contextOf<PreviewCtx>().gameOfLifeProgressIndicatorCtx) {
                 GameOfLifeProgressIndicator()
             }
         }
@@ -57,9 +57,9 @@ internal fun GameOfLifeProgressIndicatorToadPreview() {
 @Composable
 internal fun GameOfLifeProgressIndicatorBeaconPreview() {
     WithPreviewDependencies {
-        implicit().testRandom.setSeed(1)
+        contextOf<PreviewCtx>().testRandom.setSeed(1)
         ComposeLifeTheme {
-            with(implicit().gameOfLifeProgressIndicatorCtx) {
+            with(contextOf<PreviewCtx>().gameOfLifeProgressIndicatorCtx) {
                 GameOfLifeProgressIndicator()
             }
         }
@@ -71,9 +71,9 @@ internal fun GameOfLifeProgressIndicatorBeaconPreview() {
 @Composable
 internal fun GameOfLifeProgressIndicatorPulsarPreview() {
     WithPreviewDependencies {
-        implicit().testRandom.setSeed(0)
+        contextOf<PreviewCtx>().testRandom.setSeed(0)
         ComposeLifeTheme {
-            with(implicit().gameOfLifeProgressIndicatorCtx) {
+            with(contextOf<PreviewCtx>().gameOfLifeProgressIndicatorCtx) {
                 GameOfLifeProgressIndicator()
             }
         }

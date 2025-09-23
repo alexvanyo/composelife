@@ -20,7 +20,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.airbnb.android.showkase.annotation.ShowkaseComposable
-import com.alexvanyo.composelife.scopes.implicit
+import com.alexvanyo.composelife.ui.app.ctxs.PreviewCtx
 import com.alexvanyo.composelife.ui.app.ctxs.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.ThemePreviews
@@ -31,7 +31,7 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
 internal fun InlineEditPanePreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(implicit().inlineEditPaneCtx) {
+            with(contextOf<PreviewCtx>().inlineEditPaneCtx) {
                 Surface(modifier) {
                     InlineEditPane(
                         setSelectionToCellState = {},
