@@ -29,6 +29,7 @@ import com.alexvanyo.composelife.model.RunLengthEncodedCellStateSerializer
 import com.alexvanyo.composelife.model.emptyCellState
 import com.alexvanyo.composelife.model.toCellState
 import com.google.testing.junit.testparameterinjector.TestParameter
+import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import com.google.testing.junit.testparameterinjector.TestParameterValuesProvider
 import kotlinx.coroutines.flow.any
 import kotlinx.coroutines.flow.drop
@@ -39,7 +40,6 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assume.assumeTrue
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestParameterInjector
 import java.io.File
 import kotlin.random.Random
 import kotlin.random.nextInt
@@ -81,10 +81,18 @@ class HourSevenDestructionTests : DestructionTests("_7")
 class HourEightDestructionTests : DestructionTests("_8")
 class HourNineDestructionTests : DestructionTests("_9")
 
-@RunWith(RobolectricTestParameterInjector::class)
+@Suppress("UnnecessaryAbstractClass")
+@RunWith(TestParameterInjector::class)
 abstract class DestructionTests(
     private val hourPrefix: String,
 ) {
+    companion object {
+        private const val TARGET_POPULATION = 200
+        private const val MAX_PHASE = 2
+        private const val MAX_GENERATIONS = 300
+        private const val CUSTOM_CODE_POINT_START = 0x4E00
+    }
+
     private val testDispatcher = StandardTestDispatcher()
 
     private val algorithm = HashLifeAlgorithm(
@@ -96,12 +104,6 @@ abstract class DestructionTests(
             (0..59).toList()
     }
 
-    private val TARGET_POPULATION = 200
-    private val MAX_PHASE = 2
-    private val MAX_GENERATIONS = 300
-
-    private val CUSTOM_CODE_POINT_START = 0x4E00
-
     @Test
     fun destructionIsCorrect(
         @TestParameter(valuesProvider = MinuteProvider::class)
@@ -111,7 +113,7 @@ abstract class DestructionTests(
 
         val solutionCellStateFile =
             File(
-                "src/androidUnitTest/resources/solutions/" +
+                "src/jvmTest/resources/solutions/" +
                     "${timeDigits.firstDigit.fileChar}" +
                     "${timeDigits.secondDigit.fileChar}:" +
                     "${timeDigits.thirdDigit.fileChar}" +
