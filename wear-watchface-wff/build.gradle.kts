@@ -16,11 +16,7 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
-import com.android.build.api.variant.HostTestBuilder
-import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import org.gradle.internal.extensions.stdlib.capitalized
-import kotlin.apply
-import kotlin.jvm.java
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -58,16 +54,9 @@ android {
     }
 }
 
-
 kotlin {
     androidTarget()
-    jvm {
-        testRuns.configureEach {
-            executionTask.configure {
-                maxParallelForks = Runtime.getRuntime().availableProcessors()
-            }
-        }
-    }
+    jvm()
 
     sourceSets {
         val jvmTest by getting {
@@ -131,6 +120,7 @@ androidComponents {
         }
         val createHourTtf = tasks.register("createHour${hourPrefix}Ttf", ConvertSfdToTtf::class) {
             dependsOn(createHourSfd)
+            fontforgeCommand = project.providers.gradleProperty("com.alexvanyo.composelife.fontforgeCommand")
             sfdFile = createHourSfd.flatMap(CreateHourSfd::outputFile)
             ttfFile = layout.buildDirectory.file("generated/wff/res/font/hour$hourPrefix.ttf")
         }
@@ -254,6 +244,9 @@ abstract class ConvertSfdToTtf : DefaultTask() {
     @get:Inject
     abstract val execOperations: ExecOperations
 
+    @get:Input
+    abstract val fontforgeCommand: Property<String>
+
     @get:OutputFile
     val scriptFile: Provider<RegularFile> =
         ttfFile.flatMap {
@@ -267,10 +260,11 @@ abstract class ConvertSfdToTtf : DefaultTask() {
         )
         val result = execOperations.exec {
             commandLine(
-                "fontforge",
-                "-lang=ff",
-                "-script",
-                scriptFile.get().asFile.absolutePath
+                fontforgeCommand.get().split(" ") + listOf(
+                    "-lang=ff",
+                    "-script",
+                    scriptFile.get().asFile.absolutePath
+                )
             )
         }
         result.rethrowFailure()
