@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.window.core.layout.WindowSizeClass.Companion.BREAKPOINTS_V1
 import androidx.window.core.layout.computeWindowSizeClass
 import com.airbnb.android.showkase.annotation.ShowkaseComposable
-import com.alexvanyo.composelife.scopes.implicit
+import com.alexvanyo.composelife.ui.app.ctxs.PreviewCtx
 import com.alexvanyo.composelife.ui.app.ctxs.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
@@ -33,7 +33,7 @@ import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
 internal fun LoadingPreferencesComposeLifeAppPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(implicit().composeLifeAppUiCtx) {
+            with(contextOf<PreviewCtx>().composeLifeAppUiCtx) {
                 BoxWithConstraints {
                     val windowSize = DpSize(maxWidth, maxHeight)
                     ComposeLifeApp(

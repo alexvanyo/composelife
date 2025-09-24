@@ -51,7 +51,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.alexvanyo.composelife.scopes.implicit
+import com.alexvanyo.composelife.ui.app.ctxs.PreviewCtx
 import com.alexvanyo.composelife.ui.app.ctxs.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.settings.SettingUi
@@ -243,7 +243,7 @@ private fun CustomAnimatedContentSettingUiSharedElementWithCallerManagedVisibili
 
     WithPreviewDependencies {
         Surface {
-            with(implicit().settingUiCtx) {
+            with(contextOf<PreviewCtx>().settingUiCtx) {
                 SharedTransitionScope { modifier ->
                     com.alexvanyo.composelife.ui.util.AnimatedContent(
                         TargetState.Single(isExpanded),
