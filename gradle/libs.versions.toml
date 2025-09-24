@@ -116,7 +116,7 @@ leakCanary = "3.0-alpha-8"
 #metro
 metro = "0.6.6"
 #molecule
-molecule = "2.1.0"
+molecule = "2.2.0"
 #okio
 okio = "3.16.0"
 #proguard
