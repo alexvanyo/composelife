@@ -63,7 +63,8 @@ kotlin {
                 api(projects.updatable)
 
                 implementation(libs.androidx.annotation)
-                implementation(libs.jetbrains.compose.runtime)
+                implementation(libs.androidx.compose.runtime)
+                implementation(libs.androidx.compose.runtime.retain)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.json)

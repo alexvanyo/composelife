@@ -22,6 +22,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -31,7 +32,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
-import com.slack.circuit.retained.rememberRetained
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.uuid.Uuid
@@ -131,38 +131,38 @@ class NavigationHostTests {
                 navigationState = navigationState,
             ) { entry ->
                 var rememberSaveableCount by rememberSaveable { mutableStateOf(0) }
-                var rememberRetainedCount by rememberRetained { mutableStateOf(0) }
+                var retainedCount by retain { mutableStateOf(0) }
 
                 Column {
                     BasicText(
                         "value: ${entry.value}, id: ${entry.id}, " +
                             "rememberSaveableCount: $rememberSaveableCount, " +
-                            "rememberRetainedCount: $rememberRetainedCount",
+                            "retainedCount: $retainedCount",
                     )
                     BasicText(
                         "+",
                         modifier = Modifier.clickable {
                             rememberSaveableCount++
-                            rememberRetainedCount++
+                            retainedCount++
                         },
                     )
                 }
             }
         }
 
-        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 0, rememberRetainedCount: 0").assertExists()
+        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 0, retainedCount: 0").assertExists()
 
         onNodeWithText("+").performClick()
 
-        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 1, rememberRetainedCount: 1").assertExists()
+        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 1, retainedCount: 1").assertExists()
 
         currentEntryId = id2
 
-        onNodeWithText("value: b, id: $id2, rememberSaveableCount: 0, rememberRetainedCount: 0").assertExists()
+        onNodeWithText("value: b, id: $id2, rememberSaveableCount: 0, retainedCount: 0").assertExists()
 
         currentEntryId = id1
 
-        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 1, rememberRetainedCount: 1").assertExists()
+        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 1, retainedCount: 1").assertExists()
     }
 
     @Test
@@ -197,7 +197,7 @@ class NavigationHostTests {
                 navigationState = navigationState,
             ) { entry ->
                 var rememberSaveableCount by rememberSaveable { mutableStateOf(0) }
-                var rememberRetainedCount by rememberRetained(key = "rememberRetainedCount") {
+                var retainedCount by retain("retainedCount") {
                     mutableStateOf(0)
                 }
 
@@ -205,34 +205,34 @@ class NavigationHostTests {
                     BasicText(
                         "value: ${entry.value}, id: ${entry.id}, " +
                             "rememberSaveableCount: $rememberSaveableCount, " +
-                            "rememberRetainedCount: $rememberRetainedCount",
+                            "retainedCount: $retainedCount",
                     )
                     BasicText(
                         "+",
                         modifier = Modifier.clickable {
                             rememberSaveableCount++
-                            rememberRetainedCount++
+                            retainedCount++
                         },
                     )
                 }
             }
         }
 
-        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 0, rememberRetainedCount: 0").assertExists()
+        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 0, retainedCount: 0").assertExists()
 
         onNodeWithText("+").performClick()
 
-        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 1, rememberRetainedCount: 1").assertExists()
+        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 1, retainedCount: 1").assertExists()
 
         currentEntryId = id2
         backstackMap.remove(id1)
 
-        onNodeWithText("value: b, id: $id2, rememberSaveableCount: 0, rememberRetainedCount: 0").assertExists()
+        onNodeWithText("value: b, id: $id2, rememberSaveableCount: 0, retainedCount: 0").assertExists()
 
         currentEntryId = id1
         backstackMap[id1] = entry1
 
-        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 0, rememberRetainedCount: 0").assertExists()
+        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 0, retainedCount: 0").assertExists()
     }
 
     @Suppress("LongMethod")
@@ -275,7 +275,7 @@ class NavigationHostTests {
                 navigationState = navigationState,
             ) { entry ->
                 var rememberSaveableCount by rememberSaveable { mutableStateOf(0) }
-                var rememberRetainedCount by rememberRetained(key = "rememberRetainedCount") {
+                var retainedCount by retain("retainedCount") {
                     mutableStateOf(0)
                 }
 
@@ -283,41 +283,41 @@ class NavigationHostTests {
                     BasicText(
                         "value: ${entry.value}, id: ${entry.id}, " +
                             "rememberSaveableCount: $rememberSaveableCount, " +
-                            "rememberRetainedCount: $rememberRetainedCount",
+                            "retainedCount: $retainedCount",
                     )
                     BasicText(
                         "+",
                         modifier = Modifier.clickable {
                             rememberSaveableCount++
-                            rememberRetainedCount++
+                            retainedCount++
                         },
                     )
                 }
             }
         }
 
-        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 0, rememberRetainedCount: 0").assertExists()
+        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 0, retainedCount: 0").assertExists()
 
         onNodeWithText("+").performClick()
 
-        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 1, rememberRetainedCount: 1").assertExists()
+        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 1, retainedCount: 1").assertExists()
 
         currentEntryId = id2
 
-        onNodeWithText("value: b, id: $id2, rememberSaveableCount: 0, rememberRetainedCount: 0").assertExists()
+        onNodeWithText("value: b, id: $id2, rememberSaveableCount: 0, retainedCount: 0").assertExists()
 
         currentEntryId = id3
 
-        onNodeWithText("value: c, id: $id3, rememberSaveableCount: 0, rememberRetainedCount: 0").assertExists()
+        onNodeWithText("value: c, id: $id3, rememberSaveableCount: 0, retainedCount: 0").assertExists()
 
         backstackMap.remove(id1)
 
-        onNodeWithText("value: c, id: $id3, rememberSaveableCount: 0, rememberRetainedCount: 0").assertExists()
+        onNodeWithText("value: c, id: $id3, rememberSaveableCount: 0, retainedCount: 0").assertExists()
 
         backstackMap[id1] = entry1
         currentEntryId = id1
 
-        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 0, rememberRetainedCount: 0").assertExists()
+        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 0, retainedCount: 0").assertExists()
     }
 
     @Test
@@ -354,39 +354,39 @@ class NavigationHostTests {
                 navigationState = navigationState,
             ) { entry ->
                 var rememberSaveableCount by rememberSaveable { mutableStateOf(0) }
-                var rememberRetainedCount by rememberRetained { mutableStateOf(0) }
+                var retainedCount by retain { mutableStateOf(0) }
 
                 Column {
                     BasicText(
                         "value: ${entry.value}, id: ${entry.id}, " +
                             "rememberSaveableCount: $rememberSaveableCount, " +
-                            "rememberRetainedCount: $rememberRetainedCount",
+                            "retainedCount: $retainedCount",
                     )
                     BasicText(
                         "+",
                         modifier = Modifier.clickable {
                             rememberSaveableCount++
-                            rememberRetainedCount++
+                            retainedCount++
                         },
                     )
                 }
             }
         }
 
-        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 0, rememberRetainedCount: 0").assertExists()
+        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 0, retainedCount: 0").assertExists()
 
         onNodeWithText("+").performClick()
 
-        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 1, rememberRetainedCount: 1").assertExists()
+        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 1, retainedCount: 1").assertExists()
 
         currentEntryId = id2
 
-        onNodeWithText("value: b, id: $id2, rememberSaveableCount: 0, rememberRetainedCount: 0").assertExists()
+        onNodeWithText("value: b, id: $id2, rememberSaveableCount: 0, retainedCount: 0").assertExists()
 
         stateRestorationTester.emulateStateRestore()
 
         currentEntryId = id1
 
-        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 1, rememberRetainedCount: 1").assertExists()
+        onNodeWithText("value: a, id: $id1, rememberSaveableCount: 1, retainedCount: 1").assertExists()
     }
 }

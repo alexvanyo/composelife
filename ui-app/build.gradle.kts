@@ -56,6 +56,8 @@ kotlin {
                 api(projects.uiCommon)
                 api(projects.uiSettings)
 
+                implementation(libs.androidx.compose.runtime)
+                implementation(libs.androidx.compose.runtime.retain)
                 implementation(libs.kotlinx.collections.immutable)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)

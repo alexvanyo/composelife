@@ -48,14 +48,13 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(libs.jetbrains.compose.runtime)
-                implementation(libs.jetbrains.compose.runtime.saveable)
+                implementation(libs.androidx.compose.runtime)
+                implementation(libs.androidx.compose.runtime.retain)
             }
         }
         val jbMain by creating {
             dependsOn(commonMain)
             dependencies {
-                implementation(libs.circuit.retained)
                 implementation(libs.jetbrains.compose.uiTest)
             }
         }
