@@ -18,7 +18,6 @@ package com.alexvanyo.composelife.model
 
 import dev.zacsweers.metro.Inject
 
-@Inject
 expect class CellStateParser {
     internal val flexibleCellStateSerializer: FlexibleCellStateSerializer
 }
