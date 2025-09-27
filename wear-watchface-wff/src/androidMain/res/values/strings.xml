@@ -34,5 +34,4 @@
     <string name="amber">Amber</string>
     <string name="orange">Orange</string>
     <string name="deep_orange">Deep Orange</string>
-    <string name="active_formatting">\u200B%07d</string>
 </resources>
