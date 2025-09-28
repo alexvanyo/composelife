@@ -23,8 +23,6 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.SharedTransitionScope.OverlayClip
-import androidx.compose.animation.SharedTransitionScope.PlaceHolderSize
-import androidx.compose.animation.SharedTransitionScope.PlaceHolderSize.Companion.contentSize
 import androidx.compose.animation.SharedTransitionScope.ResizeMode
 import androidx.compose.animation.SharedTransitionScope.SharedContentState
 import androidx.compose.animation.core.Spring.StiffnessMediumLow
@@ -42,6 +40,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import kotlin.OptIn
 
 @Suppress("ComposeCompositionLocalUsage")
 val LocalNavigationAnimatedVisibilityScope: ProvidableCompositionLocal<AnimatedVisibilityScope?> =
@@ -58,7 +57,7 @@ val LocalNavigationSharedTransitionScope: ProvidableCompositionLocal<SharedTrans
 fun Modifier.trySharedElement(
     key: Any,
     boundsTransform: BoundsTransform = DefaultBoundsTransform,
-    placeHolderSize: PlaceHolderSize = contentSize,
+    placeholderSize: PlaceholderSize = ContentSize,
     renderInOverlayDuringTransition: Boolean = true,
     zIndexInOverlay: Float = 0f,
     clipInOverlayDuringTransition: OverlayClip = ParentClip,
@@ -75,7 +74,7 @@ fun Modifier.trySharedElement(
                     sharedContentState = rememberSharedContentState(key),
                     animatedVisibilityScope = animatedVisibilityScope,
                     boundsTransform = boundsTransform,
-                    placeHolderSize = placeHolderSize,
+                    placeholderSize = placeholderSize,
                     renderInOverlayDuringTransition = renderInOverlayDuringTransition,
                     zIndexInOverlay = zIndexInOverlay,
                     clipInOverlayDuringTransition = clipInOverlayDuringTransition,
@@ -94,7 +93,7 @@ fun Modifier.trySharedBounds(
     exit: ExitTransition = fadeOut(),
     boundsTransform: BoundsTransform = DefaultBoundsTransform,
     resizeMode: ResizeMode = ResizeMode.scaleToBounds(ContentScale.FillWidth, Alignment.Center),
-    placeHolderSize: PlaceHolderSize = contentSize,
+    placeholderSize: PlaceholderSize = ContentSize,
     renderInOverlayDuringTransition: Boolean = true,
     zIndexInOverlay: Float = 0f,
     clipInOverlayDuringTransition: OverlayClip = ParentClip,
@@ -114,7 +113,7 @@ fun Modifier.trySharedBounds(
                     exit = exit,
                     boundsTransform = boundsTransform,
                     resizeMode = resizeMode,
-                    placeHolderSize = placeHolderSize,
+                    placeholderSize = placeholderSize,
                     renderInOverlayDuringTransition = renderInOverlayDuringTransition,
                     zIndexInOverlay = zIndexInOverlay,
                     clipInOverlayDuringTransition = clipInOverlayDuringTransition,
@@ -131,7 +130,7 @@ fun Modifier.trySharedElementWithCallerManagedVisibility(
     key: Any,
     visible: Boolean,
     boundsTransform: BoundsTransform = DefaultBoundsTransform,
-    placeHolderSize: PlaceHolderSize = contentSize,
+    placeholderSize: PlaceholderSize = ContentSize,
     renderInOverlayDuringTransition: Boolean = true,
     zIndexInOverlay: Float = 0f,
     clipInOverlayDuringTransition: OverlayClip = ParentClip,
@@ -147,7 +146,7 @@ fun Modifier.trySharedElementWithCallerManagedVisibility(
                     sharedContentState = rememberSharedContentState(key),
                     visible = visible,
                     boundsTransform = boundsTransform,
-                    placeHolderSize = placeHolderSize,
+                    placeholderSize = placeholderSize,
                     renderInOverlayDuringTransition = renderInOverlayDuringTransition,
                     zIndexInOverlay = zIndexInOverlay,
                     clipInOverlayDuringTransition = clipInOverlayDuringTransition,
@@ -156,6 +155,53 @@ fun Modifier.trySharedElementWithCallerManagedVisibility(
         },
     )
 }
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+context(sharedTransitionScope: SharedTransitionScope)
+@Suppress("LongParameterList")
+internal expect fun Modifier.sharedElement(
+    sharedContentState: SharedContentState,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    boundsTransform: BoundsTransform,
+    placeholderSize: PlaceholderSize,
+    renderInOverlayDuringTransition: Boolean,
+    zIndexInOverlay: Float,
+    clipInOverlayDuringTransition: OverlayClip,
+): Modifier
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+context(sharedTransitionScope: SharedTransitionScope)
+@Suppress("LongParameterList")
+internal expect fun Modifier.sharedBounds(
+    sharedContentState: SharedContentState,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    enter: EnterTransition,
+    exit: ExitTransition,
+    boundsTransform: BoundsTransform,
+    resizeMode: ResizeMode,
+    placeholderSize: PlaceholderSize,
+    renderInOverlayDuringTransition: Boolean,
+    zIndexInOverlay: Float,
+    clipInOverlayDuringTransition: OverlayClip,
+): Modifier
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+context(sharedTransitionScope: SharedTransitionScope)
+@Suppress("LongParameterList")
+internal expect fun Modifier.sharedElementWithCallerManagedVisibility(
+    sharedContentState: SharedContentState,
+    visible: Boolean,
+    boundsTransform: BoundsTransform,
+    placeholderSize: PlaceholderSize,
+    renderInOverlayDuringTransition: Boolean,
+    zIndexInOverlay: Float,
+    clipInOverlayDuringTransition: OverlayClip,
+): Modifier
+
+expect interface PlaceholderSize
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+expect val ContentSize: PlaceholderSize
 
 // Defaults copied from SharedTransitionScope.kt
 
