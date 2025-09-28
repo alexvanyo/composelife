@@ -83,7 +83,7 @@ fun main() = application {
         val navigationEventDispatcherOwner = remember {
             object : NavigationEventDispatcherOwner {
                 override val navigationEventDispatcher = NavigationEventDispatcher(
-                    fallbackOnBackPressed = { currentExitApplication() },
+                    onBackCompletedFallback = { currentExitApplication() },
                 )
             }
         }

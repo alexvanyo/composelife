@@ -78,11 +78,10 @@ import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
 import androidx.navigationevent.NavigationEvent
 import androidx.navigationevent.NavigationEventInfo
-import androidx.navigationevent.NavigationEventState
-import androidx.navigationevent.NavigationEventSwipeEdge
+import androidx.navigationevent.NavigationEventTransitionState
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import androidx.navigationevent.compose.NavigationBackHandler
-import androidx.navigationevent.compose.NavigationEventHandler
+import androidx.navigationevent.compose.rememberNavigationEventState
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.ContentStatus
 import com.alexvanyo.composelife.ui.util.Layout
@@ -105,13 +104,20 @@ fun ListDetailPaneScaffold(
     val showListAndDetail = showList && showDetail
 
     val dispatcher = requireNotNull(LocalNavigationEventDispatcherOwner.current).navigationEventDispatcher
-    val navigationEventState by dispatcher.getState<ListDetailPaneScaffoldNavigationEventInfo>(
-        rememberCoroutineScope(),
-        ListDetailPaneScaffoldNavigationEventInfo,
-    ).collectAsState()
+    val navigationEventHistory by dispatcher.history.collectAsState()
+    val currentInfo = navigationEventHistory.mergedHistory.getOrNull(navigationEventHistory.currentIndex)
+
+    val navigationEventTransitionState =
+        if (currentInfo is ListDetailPaneScaffoldNavigationEventInfo) {
+            dispatcher.transitionState.collectAsState().value
+        } else {
+            NavigationEventTransitionState.Idle
+        }
 
     NavigationBackHandler(
-        currentInfo = ListDetailPaneScaffoldNavigationEventInfo,
+        state = rememberNavigationEventState(
+            currentInfo = ListDetailPaneScaffoldNavigationEventInfo,
+        ),
         isBackEnabled = showDetail && !showList,
         onBackCompleted = onBackButtonPressed,
     )
@@ -328,16 +334,16 @@ fun ListDetailPaneScaffold(
             )
         } else {
             AnimatedContent(
-                targetState = when (val navigationEventState = navigationEventState) {
-                    is NavigationEventState.Idle<ListDetailPaneScaffoldNavigationEventInfo> -> TargetState.Single(
+                targetState = when (val navigationEventTransitionState = navigationEventTransitionState) {
+                    is NavigationEventTransitionState.Idle -> TargetState.Single(
                         showList,
                     )
-                    is NavigationEventState.InProgress<ListDetailPaneScaffoldNavigationEventInfo> ->
+                    is NavigationEventTransitionState.InProgress ->
                         TargetState.InProgress(
                             current = false,
                             provisional = true,
-                            progress = navigationEventState.progress,
-                            metadata = navigationEventState,
+                            progress = navigationEventTransitionState.latestEvent.progress,
+                            metadata = navigationEventTransitionState,
                         )
                 },
                 transitionSpec = { contentWithStatus ->
@@ -372,9 +378,7 @@ fun ListDetailPaneScaffold(
                     val lastDisappearingValue by remember {
                         mutableStateOf<
                             ContentStatus.Disappearing<
-                                out NavigationEventState.InProgress<
-                                    ListDetailPaneScaffoldNavigationEventInfo,
-                                    >,
+                                out NavigationEventTransitionState.InProgress,
                                 >?,
                             >(
                             null,
@@ -414,15 +418,15 @@ fun ListDetailPaneScaffold(
                                     8.dp,
                                     it.progressToNotVisible,
                                 ) * when (metadata.latestEvent.swipeEdge) {
-                                    NavigationEventSwipeEdge.Left -> -1f
-                                    NavigationEventSwipeEdge.Right -> 1f
+                                    NavigationEvent.EDGE_LEFT -> -1f
+                                    NavigationEvent.EDGE_RIGHT -> 1f
                                     else -> 0f
                                 }
                             }
                             ContentStatus.NotVisible -> {
                                 8.dp * when (lastDisappearingValue?.metadata?.latestEvent?.swipeEdge) {
-                                    NavigationEventSwipeEdge.Left -> -1f
-                                    NavigationEventSwipeEdge.Right -> 1f
+                                    NavigationEvent.EDGE_LEFT -> -1f
+                                    NavigationEvent.EDGE_RIGHT -> 1f
                                     else -> 0f
                                 }
                             }
@@ -446,15 +450,15 @@ fun ListDetailPaneScaffold(
                             is ContentStatus.Appearing -> 0.5f
                             is ContentStatus.Disappearing -> {
                                 when (it.metadata.latestEvent.swipeEdge) {
-                                    NavigationEventSwipeEdge.Left -> 1f
-                                    NavigationEventSwipeEdge.Right -> 0f
+                                    NavigationEvent.EDGE_LEFT -> 1f
+                                    NavigationEvent.EDGE_RIGHT -> 0f
                                     else -> 0.5f
                                 }
                             }
                             ContentStatus.NotVisible -> {
                                 when (lastDisappearingValue?.metadata?.latestEvent?.swipeEdge) {
-                                    NavigationEventSwipeEdge.Left -> 1f
-                                    NavigationEventSwipeEdge.Right -> 0f
+                                    NavigationEvent.EDGE_LEFT -> 1f
+                                    NavigationEvent.EDGE_RIGHT -> 0f
                                     else -> 0.5f
                                 }
                             }
@@ -494,7 +498,7 @@ fun ListDetailPaneScaffold(
     }
 }
 
-private object ListDetailPaneScaffoldNavigationEventInfo : NavigationEventInfo
+private object ListDetailPaneScaffoldNavigationEventInfo : NavigationEventInfo()
 
 data class ContinuousDraggableAnchors(
     private val minAnchoredDraggablePosition: Float,
