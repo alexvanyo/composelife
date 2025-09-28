@@ -26,20 +26,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.runtime.setValue
 import androidx.navigationevent.NavigationEvent
 import androidx.navigationevent.NavigationEventInfo
-import androidx.navigationevent.NavigationEventState
-import androidx.navigationevent.NavigationEventSwipeEdge
+import androidx.navigationevent.NavigationEventTransitionState
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import androidx.navigationevent.compose.NavigationBackHandler
-import androidx.navigationevent.compose.NavigationEventHandler
+import androidx.navigationevent.compose.rememberNavigationEventState
 import com.alexvanyo.composelife.serialization.uuidSaver
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.map
-import kotlinx.serialization.Serializable
 import kotlin.uuid.Uuid
 
 /**
@@ -86,41 +80,54 @@ fun rememberCompletablePredictiveBackStateHolder(): CompletablePredictiveBackSta
 
     val navigationEventDispatcherOwner =
         requireNotNull(LocalNavigationEventDispatcherOwner.current)
-    val preCompletedState by remember(navigationEventDispatcherOwner, id) {
-        navigationEventDispatcherOwner.navigationEventDispatcher
-            .state
-            .filter { (it.currentInfo as? CompletablePredictiveBackStateInfo)?.id == id }
-            .map { state ->
-                when (state) {
-                    is NavigationEventState.Idle<*> -> CompletablePredictiveBackState.NotRunning
-                    is NavigationEventState.InProgress<*> -> CompletablePredictiveBackState.Running(
-                        touchX = state.latestEvent.touchX,
-                        touchY = state.latestEvent.touchY,
-                        progress = state.latestEvent.progress,
-                        backEventEdge = when (state.latestEvent.swipeEdge) {
-                            NavigationEventSwipeEdge.Left -> BackEventEdge.Left
-                            NavigationEventSwipeEdge.Right -> BackEventEdge.Right
-                            else -> BackEventEdge.None
-                        },
-                    )
-                }
-            }
-    }
-        .collectAsState(CompletablePredictiveBackState.NotRunning)
+
+    val navigationEventHistory by
+        navigationEventDispatcherOwner.navigationEventDispatcher.history
+            .collectAsState()
+    val currentInfo = navigationEventHistory.mergedHistory.getOrNull(navigationEventHistory.currentIndex)
+    val preCompletedNavigationEventTransitionState =
+        if (currentInfo is CompletablePredictiveBackStateInfo && currentInfo.id == id) {
+            navigationEventDispatcherOwner.navigationEventDispatcher.transitionState
+                .collectAsState().value
+        } else {
+            NavigationEventTransitionState.Idle
+        }
+
+    val preCompletedState =
+        when (preCompletedNavigationEventTransitionState) {
+            NavigationEventTransitionState.Idle -> CompletablePredictiveBackState.NotRunning
+            is NavigationEventTransitionState.InProgress -> CompletablePredictiveBackState.Running(
+                touchX = preCompletedNavigationEventTransitionState.latestEvent.touchX,
+                touchY = preCompletedNavigationEventTransitionState.latestEvent.touchY,
+                progress = preCompletedNavigationEventTransitionState.latestEvent.progress,
+                backEventEdge = when (preCompletedNavigationEventTransitionState.latestEvent.swipeEdge) {
+                    NavigationEvent.EDGE_LEFT -> BackEventEdge.Left
+                    NavigationEvent.EDGE_RIGHT -> BackEventEdge.Right
+                    else -> BackEventEdge.None
+                },
+            )
+        }
+    val currentPreCompletedState by rememberUpdatedState(preCompletedState)
 
     var isCompleted by rememberSaveable { mutableStateOf(false) }
 
-    return remember(
-        id,
-        isCompleted,
-        preCompletedState,
-    ) {
-        CompletablePredictiveBackStateHolderImpl(
-            id = id,
-            isCompleted = isCompleted,
-            setIsCompleted = { isCompleted = it },
-            preCompletedState = preCompletedState,
-        )
+    return remember {
+        object : CompletablePredictiveBackStateHolderImpl {
+            override val id = id
+
+            override var isCompleted: Boolean
+                get() = isCompleted
+                set(value) {
+                    isCompleted = value
+                }
+
+            override val value: CompletablePredictiveBackState
+                get() = if (isCompleted) {
+                    CompletablePredictiveBackState.Completed
+                } else {
+                    currentPreCompletedState
+                }
+        }
     }
 }
 
@@ -128,23 +135,10 @@ sealed interface CompletablePredictiveBackStateHolder {
     val value: CompletablePredictiveBackState
 }
 
-class CompletablePredictiveBackStateHolderImpl(
-    val id: Uuid,
-    isCompleted: Boolean,
-    private val setIsCompleted: (Boolean) -> Unit,
-    private val preCompletedState: CompletablePredictiveBackState,
-) : CompletablePredictiveBackStateHolder {
-    var isCompleted: Boolean = isCompleted
-        set(value) {
-            setIsCompleted(value)
-        }
+internal interface CompletablePredictiveBackStateHolderImpl : CompletablePredictiveBackStateHolder {
+    val id: Uuid
 
-    override val value: CompletablePredictiveBackState
-        get() = if (isCompleted) {
-            CompletablePredictiveBackState.Completed
-        } else {
-            preCompletedState
-        }
+    var isCompleted: Boolean
 }
 
 @Composable
@@ -161,8 +155,10 @@ fun CompletablePredictiveBackStateHandler(
             is CompletablePredictiveBackStateHolderImpl -> Unit
         }
         NavigationBackHandler(
-            currentInfo = CompletablePredictiveBackStateInfo(
-                id = completablePredictiveBackStateHolder.id,
+            state = rememberNavigationEventState(
+                currentInfo = CompletablePredictiveBackStateInfo(
+                    id = completablePredictiveBackStateHolder.id,
+                ),
             ),
             isBackEnabled = enabled &&
                 completablePredictiveBackStateHolder.value !is CompletablePredictiveBackState.Completed,
@@ -176,4 +172,4 @@ fun CompletablePredictiveBackStateHandler(
 
 private data class CompletablePredictiveBackStateInfo(
     val id: Uuid,
-) : NavigationEventInfo
+) : NavigationEventInfo()
