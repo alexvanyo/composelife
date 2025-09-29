@@ -25,13 +25,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.navigationevent.NavigationEventInfo
+import androidx.navigationevent.NavigationEventTransitionState
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import androidx.navigationevent.compose.NavigationBackHandler
-import androidx.navigationevent.compose.NavigationEventHandler
+import androidx.navigationevent.compose.rememberNavigationEventState
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackMap
 import com.alexvanyo.composelife.navigation.BackstackRenderableNavigationTransformResult
@@ -142,27 +142,36 @@ private fun <T> entryTransform(
                                 val dispatcher = requireNotNull(
                                     LocalNavigationEventDispatcherOwner.current,
                                 ).navigationEventDispatcher
-                                val navigationEventState by dispatcher.getState<
-                                    DialogNavigationTransformNavigationEventInfo,
-                                    >(
-                                    rememberCoroutineScope(),
-                                    DialogNavigationTransformNavigationEventInfo(dialogEntries.last().id),
-                                ).collectAsState()
+                                val navigationEventHistory by dispatcher.history.collectAsState()
+                                val currentInfo =
+                                    navigationEventHistory.mergedHistory.getOrNull(navigationEventHistory.currentIndex)
+
+                                val navigationEventTransitionState =
+                                    if (currentInfo is DialogNavigationTransformNavigationEventInfo &&
+                                        currentInfo.entryId == dialogEntries.last().id) {
+                                        dispatcher.transitionState.collectAsState().value
+                                    } else {
+                                        NavigationEventTransitionState.Idle
+                                    }
 
                                 NavigationBackHandler(
-                                    isBackEnabled = dialogEntries.size > 1,
-                                    currentInfo = DialogNavigationTransformNavigationEventInfo(dialogEntries.last().id),
-                                    backInfo = listOfNotNull(
-                                        dialogEntries.getOrNull(
-                                            dialogEntries.size - 2,
-                                        )?.id?.let(::DialogNavigationTransformNavigationEventInfo),
+                                    state = rememberNavigationEventState(
+                                        currentInfo = DialogNavigationTransformNavigationEventInfo(
+                                            dialogEntries.last().id,
+                                        ),
+                                        backInfo = listOfNotNull(
+                                            dialogEntries.getOrNull(
+                                                dialogEntries.size - 2,
+                                            )?.id?.let(::DialogNavigationTransformNavigationEventInfo),
+                                        ),
                                     ),
+                                    isBackEnabled = dialogEntries.size > 1,
                                     onBackCompleted = onBackButtonPressed,
                                 )
 
                                 CrossfadePredictiveNavigationFrame(
                                     dialogRenderableNavigationState,
-                                    navigationEventState,
+                                    navigationEventTransitionState,
                                 )
                             }
                         }
@@ -194,7 +203,7 @@ private fun <T> entryTransform(
 
 private data class DialogNavigationTransformNavigationEventInfo(
     val entryId: Uuid,
-) : NavigationEventInfo
+) : NavigationEventInfo()
 
 @Composable
 private fun <T> createDialogRenderableNavigationState(

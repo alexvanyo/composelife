@@ -33,7 +33,6 @@ import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -43,9 +42,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import androidx.navigationevent.NavigationEventInfo
+import androidx.navigationevent.NavigationEventTransitionState
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import androidx.navigationevent.compose.NavigationBackHandler
-import androidx.navigationevent.compose.NavigationEventHandler
+import androidx.navigationevent.compose.rememberNavigationEventState
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.BackstackValueSaverFactory
@@ -179,17 +179,25 @@ private fun DialogNavigationTransformPreview() {
     }
 
     val dispatcher = requireNotNull(LocalNavigationEventDispatcherOwner.current).navigationEventDispatcher
-    val navigationEventState by dispatcher.getState<DialogNavigationTransformPreviewNavigationEventInfo>(
-        rememberCoroutineScope(),
-        DialogNavigationTransformPreviewNavigationEventInfo(navController.currentEntryId),
-    ).collectAsState()
+    val navigationEventHistory by dispatcher.history.collectAsState()
+    val currentInfo = navigationEventHistory.mergedHistory.getOrNull(navigationEventHistory.currentIndex)
+
+    val navigationEventTransitionState =
+        if (currentInfo is DialogNavigationTransformPreviewNavigationEventInfo &&
+            currentInfo.entryId == navController.currentEntryId) {
+            dispatcher.transitionState.collectAsState().value
+        } else {
+            NavigationEventTransitionState.Idle
+        }
 
     NavigationBackHandler(
-        isBackEnabled = navController.canNavigateBack,
-        currentInfo = DialogNavigationTransformPreviewNavigationEventInfo(navController.currentEntryId),
-        backInfo = listOfNotNull(
-            navController.previousEntryId?.let(::DialogNavigationTransformPreviewNavigationEventInfo),
+        state = rememberNavigationEventState(
+            currentInfo = DialogNavigationTransformPreviewNavigationEventInfo(navController.currentEntryId),
+            backInfo = listOfNotNull(
+                navController.previousEntryId?.let(::DialogNavigationTransformPreviewNavigationEventInfo),
+            ),
         ),
+        isBackEnabled = navController.canNavigateBack,
         onBackCompleted = navController::popBackstack,
     )
 
@@ -199,14 +207,14 @@ private fun DialogNavigationTransformPreview() {
                 renderableNavigationState,
             ),
         ),
-        navigationEventState = navigationEventState,
+        navigationEventTransitionState = navigationEventTransitionState,
         modifier = Modifier.fillMaxSize(),
     )
 }
 
 private data class DialogNavigationTransformPreviewNavigationEventInfo(
     val entryId: Uuid,
-) : NavigationEventInfo
+) : NavigationEventInfo()
 
 @Preview
 @Composable
