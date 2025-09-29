@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("TooManyFunctions")
 
 package com.alexvanyo.composelife.geometry
 
@@ -143,9 +144,9 @@ fun IntOffset.toPair() = x to y
 /**
  * Returns the 8 diagonal and orthogonal neighbors to the [IntOffset].
  */
-fun IntOffset.getNeighbors(): Set<IntOffset> = neighborOffsets.map { it + this }.toSet()
+fun IntOffset.getMooreNeighbors(): Set<IntOffset> = mooreNeighborOffsets.map { it + this }.toSet()
 
-private val neighborOffsets = listOf(
+private val mooreNeighborOffsets = listOf(
     IntOffset(-1, -1),
     IntOffset(0, -1),
     IntOffset(1, -1),
@@ -154,4 +155,16 @@ private val neighborOffsets = listOf(
     IntOffset(-1, 1),
     IntOffset(0, 1),
     IntOffset(1, 1),
+)
+
+/**
+ * Returns the 4 orthogonal neighbors to the [IntOffset].
+ */
+fun IntOffset.getVonNeumannNeighbors(): Set<IntOffset> = vonNeumannNeighborOffsets.map { it + this }.toSet()
+
+private val vonNeumannNeighborOffsets = listOf(
+    IntOffset(0, -1),
+    IntOffset(-1, 0),
+    IntOffset(1, 0),
+    IntOffset(0, 1),
 )

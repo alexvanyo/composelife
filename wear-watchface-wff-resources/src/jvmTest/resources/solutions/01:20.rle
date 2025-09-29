@@ -1,0 +1,11 @@
+#R -60 -54
+x = 179, y = 179, rule = B3/S23
+171b3o$171bo$172bo24$169bo$168b2o$168bobo15$177b2o$176bobo$178bo35$68b
+2ob2obob2o12b2o8b2ob2obob2o4b2ob2obob2o$68b2obob2ob2o12b2o8b2obob2ob2o
+4b2obob2ob2o3$68b2o6b2o12b2o16b2o4b2o6b2o$68b2o6b2o12b2o16b2o4b2o6b2o$
+95b2o$95b2o$68b2o6b2o12b2o8b2obob2ob2o4b2o6b2o$68b2o6b2o12b2o8b2ob2obo
+b2o4b2o6b2o$95b2o$95b2o$68b2o6b2o12b2o8b2o12b2o6b2o$68b2o6b2o12b2o8b2o
+12b2o6b2o3$68b2ob2obob2o12b2o8b2ob2obob2o4b2ob2obob2o$68b2obob2ob2o12b
+2o8b2obob2ob2o4b2obob2ob2o32$171b2o$171bobo$144b3o24bo$144bo$145bo$3b
+2o$2b2o$4bo2$bo$b2o$obo7$170bo$170b2o$169bobo5$10b2o$9bobo$11bo20$21b
+2o$20bobo$22bo!
