@@ -23,14 +23,13 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.navigationevent.NavigationEventInfo
-import androidx.navigationevent.NavigationEventState
+import androidx.navigationevent.NavigationEventTransitionState
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import androidx.navigationevent.compose.NavigationBackHandler
-import androidx.navigationevent.compose.NavigationEventHandler
+import androidx.navigationevent.compose.rememberNavigationEventState
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackMap
 import com.alexvanyo.composelife.navigation.BackstackState
@@ -75,9 +74,9 @@ interface CellUniverseActionCardState {
     val inlineNavigationState: BackstackState<InlineActionCardNavigation>
 
     /**
-     * The [NavigationEventState] for the inline navigation of the [CellUniverseActionCard].
+     * The [NavigationEventTransitionState] for the inline navigation of the [CellUniverseActionCard].
      */
-    val inlineNavigationEventState: NavigationEventState<NavigationEventInfo>
+    val inlineNavigationEventTransitionState: NavigationEventTransitionState
 
     /**
      * `true` if the card can navigate back.
@@ -195,17 +194,25 @@ fun rememberCellUniverseActionCardState(
     }
 
     val dispatcher = requireNotNull(LocalNavigationEventDispatcherOwner.current).navigationEventDispatcher
-    val navigationEventState by dispatcher.getState<CellUniverseActionCardNavigationEventInfo>(
-        rememberCoroutineScope(),
-        CellUniverseActionCardNavigationEventInfo(inlineNavigationState.currentEntryId),
-    ).collectAsState()
+    val navigationEventHistory by dispatcher.history.collectAsState()
+    val currentInfo = navigationEventHistory.mergedHistory.getOrNull(navigationEventHistory.currentIndex)
+
+    val navigationEventTransitionState =
+        if (currentInfo is CellUniverseActionCardNavigationEventInfo &&
+            currentInfo.entryId == inlineNavigationState.currentEntryId) {
+            dispatcher.transitionState.collectAsState().value
+        } else {
+            NavigationEventTransitionState.Idle
+        }
 
     NavigationBackHandler(
-        isBackEnabled = enableBackHandler && expandedTargetState.current && canNavigateBack,
-        currentInfo = CellUniverseActionCardNavigationEventInfo(inlineNavigationState.currentEntryId),
-        backInfo = listOfNotNull(
-            inlineNavigationState.previousEntryId?.let(::CellUniverseActionCardNavigationEventInfo),
+        state = rememberNavigationEventState(
+            currentInfo = CellUniverseActionCardNavigationEventInfo(inlineNavigationState.currentEntryId),
+            backInfo = listOfNotNull(
+                inlineNavigationState.previousEntryId?.let(::CellUniverseActionCardNavigationEventInfo),
+            ),
         ),
+        isBackEnabled = enableBackHandler && expandedTargetState.current && canNavigateBack,
         onBackCompleted = {
             onBackPressed(inlineNavigationState.currentEntryId)
         },
@@ -221,7 +228,7 @@ fun rememberCellUniverseActionCardState(
 
         override val inlineNavigationState get() = inlineNavigationState
 
-        override val inlineNavigationEventState get() = navigationEventState
+        override val inlineNavigationEventTransitionState get() = navigationEventTransitionState
 
         override val canNavigateBack: Boolean get() = canNavigateBack
 
@@ -251,4 +258,4 @@ fun rememberCellUniverseActionCardState(
 
 private data class CellUniverseActionCardNavigationEventInfo(
     val entryId: Uuid,
-): NavigationEventInfo
+): NavigationEventInfo()

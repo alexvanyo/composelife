@@ -31,10 +31,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.round
 import androidx.navigationevent.NavigationEventInfo
-import androidx.navigationevent.NavigationEventState
+import androidx.navigationevent.NavigationEventTransitionState
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import androidx.navigationevent.compose.NavigationBackHandler
-import androidx.navigationevent.compose.NavigationEventHandler
+import androidx.navigationevent.compose.rememberNavigationEventState
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.DeserializationResult
@@ -259,36 +259,48 @@ internal fun rememberInteractiveCellUniverseState(
     }
 
     val dispatcher = requireNotNull(LocalNavigationEventDispatcherOwner.current).navigationEventDispatcher
-    val infoCardNavigationEventState by dispatcher.getState<InfoCardNavigationEventInfo>(
-        rememberCoroutineScope(),
-        InfoCardNavigationEventInfo,
-    ).collectAsState()
+
+    val navigationEventHistory by dispatcher.history.collectAsState()
+    val currentInfo = navigationEventHistory.mergedHistory.getOrNull(navigationEventHistory.currentIndex)
+
+    val infoCardNavigationEventTransitionState =
+        if (currentInfo is InfoCardNavigationEventInfo) {
+            dispatcher.transitionState.collectAsState().value
+        } else {
+            NavigationEventTransitionState.Idle
+        }
     NavigationBackHandler(
+        state = rememberNavigationEventState(
+            currentInfo = InfoCardNavigationEventInfo,
+        ),
         isBackEnabled = isInfoCardExpanded && !isActionCardTopCard,
-        currentInfo = InfoCardNavigationEventInfo,
         onBackCompleted = { setIsInfoCardExpanded(false) },
     )
 
-    val actionCardNavigationEventState by dispatcher.getState<ActionCardNavigationEventInfo>(
-        rememberCoroutineScope(),
-        ActionCardNavigationEventInfo,
-    ).collectAsState()
-    NavigationEventHandler(
+    val actionCardNavigationEventTransitionState =
+        if (currentInfo is ActionCardNavigationEventInfo) {
+            dispatcher.transitionState.collectAsState().value
+        } else {
+            NavigationEventTransitionState.Idle
+        }
+    NavigationBackHandler(
+        state = rememberNavigationEventState(
+            currentInfo = ActionCardNavigationEventInfo,
+        ),
         isBackEnabled = isActionCardExpanded,
-        currentInfo = ActionCardNavigationEventInfo,
         onBackCompleted = { setIsActionCardExpanded(false) },
     )
 
     val infoCardState = rememberCellUniverseInfoCardState(
         setIsExpanded = ::setIsInfoCardExpanded,
-        expandedTargetState = when (val navEventState = infoCardNavigationEventState) {
-            is NavigationEventState.Idle<*> -> TargetState.Single(isInfoCardExpanded)
-            is NavigationEventState.InProgress<*> -> {
+        expandedTargetState = when (val navEventState = infoCardNavigationEventTransitionState) {
+            is NavigationEventTransitionState.Idle -> TargetState.Single(isInfoCardExpanded)
+            is NavigationEventTransitionState.InProgress -> {
                 check(isInfoCardExpanded)
                 TargetState.InProgress(
                     current = true,
                     provisional = false,
-                    progress = navEventState.progress,
+                    progress = navEventState.latestEvent.progress,
                 )
             }
         },
@@ -296,14 +308,14 @@ internal fun rememberInteractiveCellUniverseState(
     val actionCardState = rememberCellUniverseActionCardState(
         setIsExpanded = ::setIsActionCardExpanded,
         enableBackHandler = isActionCardTopCard,
-        expandedTargetState = when (val navEventState = actionCardNavigationEventState) {
-            is NavigationEventState.Idle<*> -> TargetState.Single(isActionCardExpanded)
-            is NavigationEventState.InProgress<*> -> {
+        expandedTargetState = when (val navEventState = actionCardNavigationEventTransitionState) {
+            is NavigationEventTransitionState.Idle -> TargetState.Single(isActionCardExpanded)
+            is NavigationEventTransitionState.InProgress -> {
                 check(isActionCardExpanded)
                 TargetState.InProgress(
                     current = true,
                     provisional = false,
-                    progress = navEventState.progress,
+                    progress = navEventState.latestEvent.progress,
                 )
             }
         },
@@ -487,6 +499,6 @@ internal fun rememberInteractiveCellUniverseState(
     }
 }
 
-private object InfoCardNavigationEventInfo : NavigationEventInfo
+private object InfoCardNavigationEventInfo : NavigationEventInfo()
 
-private object ActionCardNavigationEventInfo : NavigationEventInfo
+private object ActionCardNavigationEventInfo : NavigationEventInfo()

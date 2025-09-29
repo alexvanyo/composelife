@@ -32,16 +32,16 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.unit.DpSize
 import androidx.navigationevent.NavigationEventInfo
+import androidx.navigationevent.NavigationEventTransitionState
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import androidx.navigationevent.compose.NavigationBackHandler
-import androidx.navigationevent.compose.NavigationEventHandler
+import androidx.navigationevent.compose.rememberNavigationEventState
 import androidx.window.core.layout.WindowSizeClass
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.navigation.BackstackEntry
@@ -100,7 +100,7 @@ class ComposeLifeAppUiWithLoadedPreferencesCtx(
 }
 
 context(uiCtx: ComposeLifeAppUiCtx)
-@Suppress("LongMethod")
+@Suppress("LongMethod", "CyclomaticComplexMethod")
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun ComposeLifeApp(
@@ -142,21 +142,31 @@ fun ComposeLifeApp(
                         val dispatcher = requireNotNull(
                             LocalNavigationEventDispatcherOwner.current,
                         ).navigationEventDispatcher
-                        val navigationEventState by dispatcher.getState<ComposeLifeAppNavigationEventInfo>(
-                            rememberCoroutineScope(),
-                            ComposeLifeAppNavigationEventInfo(targetComposeLifeAppState.navigationState.currentEntryId),
-                        ).collectAsState()
+                        val navigationEventHistory by dispatcher.history.collectAsState()
+                        val currentInfo = navigationEventHistory.mergedHistory.getOrNull(
+                            navigationEventHistory.currentIndex,
+                        )
+
+                        val navigationEventTransitionState =
+                            if (currentInfo is ComposeLifeAppNavigationEventInfo &&
+                                currentInfo.entryId == targetComposeLifeAppState.navigationState.currentEntryId) {
+                                dispatcher.transitionState.collectAsState().value
+                            } else {
+                                NavigationEventTransitionState.Idle
+                            }
 
                         NavigationBackHandler(
-                            isBackEnabled = targetComposeLifeAppState.canNavigateBack,
-                            currentInfo = ComposeLifeAppNavigationEventInfo(
-                                targetComposeLifeAppState.navigationState.currentEntryId,
-                            ),
-                            backInfo = listOfNotNull(
-                                targetComposeLifeAppState.navigationState.previousEntryId?.let(
-                                    ::ComposeLifeAppNavigationEventInfo,
+                            state = rememberNavigationEventState(
+                                currentInfo = ComposeLifeAppNavigationEventInfo(
+                                    targetComposeLifeAppState.navigationState.currentEntryId,
+                                ),
+                                backInfo = listOfNotNull(
+                                    targetComposeLifeAppState.navigationState.previousEntryId?.let(
+                                        ::ComposeLifeAppNavigationEventInfo,
+                                    ),
                                 ),
                             ),
+                            isBackEnabled = targetComposeLifeAppState.canNavigateBack,
                             onBackCompleted = targetComposeLifeAppState::onBackPressed,
                         )
 
@@ -222,7 +232,7 @@ fun ComposeLifeApp(
                                                     .invoke(renderableNavigationState),
                                             ),
                                         ),
-                                        navigationEventState = navigationEventState,
+                                        navigationEventTransitionState = navigationEventTransitionState,
                                         clipUsingWindowShape = preferencesHolder.preferences.enableWindowShapeClipping,
                                     )
                                 }
@@ -369,7 +379,7 @@ fun rememberComposeLifeAppState(
 
 private data class ComposeLifeAppNavigationEventInfo(
     val entryId: Uuid,
-) : NavigationEventInfo
+) : NavigationEventInfo()
 
 sealed interface ComposeLifeAppState {
     /**
