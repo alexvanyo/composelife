@@ -137,6 +137,11 @@ androidComponents {
     }
 }
 
+tasks.withType<Task>().named { it == "jvmTest" }.configureEach {
+    val buildDirectory = layout.buildDirectory
+    doFirst { buildDirectory.dir("wff/minuteSfd").get().asFile.mkdirs() }
+}
+
 abstract class CreateHourSfd : DefaultTask() {
 
     @get:InputDirectory
