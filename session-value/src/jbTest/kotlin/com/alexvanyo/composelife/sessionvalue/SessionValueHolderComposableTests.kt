@@ -444,7 +444,7 @@ class SessionValueHolderComposableTests {
                     listOf(
                         SessionValue(sessionId1, valueId1, 0f) to SessionValue(nextLocalSessionId1, valueId2, 1f),
                     ),
-                    pendingUpstreamSessionValues,
+                    pendingUpstreamSessionValues.toList(),
                 )
             }
     }
@@ -531,7 +531,7 @@ class SessionValueHolderComposableTests {
                         SessionValue(nextLocalSessionId1, valueId2, 1f) to
                             SessionValue(nextLocalSessionId1, valueId3, 2f),
                     ),
-                    pendingUpstreamSessionValues,
+                    pendingUpstreamSessionValues.toList(),
                 )
             }
     }
@@ -596,7 +596,7 @@ class SessionValueHolderComposableTests {
                     listOf(
                         SessionValue(sessionId1, valueId1, 0f) to SessionValue(nextLocalSessionId1, valueId2, 1f),
                     ),
-                    pendingUpstreamSessionValues,
+                    pendingUpstreamSessionValues.toList(),
                 )
 
                 upstreamSessionValue = pendingUpstreamSessionValues.removeFirstKt().second
@@ -619,7 +619,7 @@ class SessionValueHolderComposableTests {
                 assertTrue(info3.isUpstreamSessionValueUpToDate)
                 assertEquals(
                     emptyList(),
-                    pendingUpstreamSessionValues,
+                    pendingUpstreamSessionValues.toList(),
                 )
             }
     }
@@ -685,7 +685,7 @@ class SessionValueHolderComposableTests {
                     listOf(
                         SessionValue(sessionId1, valueId1, 0f) to SessionValue(nextLocalSessionId1, valueId2, 1f),
                     ),
-                    pendingUpstreamSessionValues,
+                    pendingUpstreamSessionValues.toList(),
                 )
 
                 sessionValueHolder.setValue(2f, valueId3)
@@ -715,7 +715,7 @@ class SessionValueHolderComposableTests {
                             2f,
                         ),
                     ),
-                    pendingUpstreamSessionValues,
+                    pendingUpstreamSessionValues.toList(),
                 )
 
                 upstreamSessionValue = pendingUpstreamSessionValues.removeFirstKt().second
@@ -744,7 +744,7 @@ class SessionValueHolderComposableTests {
                             2f,
                         ),
                     ),
-                    pendingUpstreamSessionValues,
+                    pendingUpstreamSessionValues.toList(),
                 )
 
                 upstreamSessionValue = pendingUpstreamSessionValues.removeFirstKt().second
@@ -767,7 +767,7 @@ class SessionValueHolderComposableTests {
                 assertTrue(info5.isUpstreamSessionValueUpToDate)
                 assertEquals(
                     emptyList(),
-                    pendingUpstreamSessionValues,
+                    pendingUpstreamSessionValues.toList(),
                 )
             }
     }
@@ -834,7 +834,7 @@ class SessionValueHolderComposableTests {
                     listOf(
                         SessionValue(sessionId1, valueId1, 0f) to SessionValue(nextLocalSessionId1, valueId2, 1f),
                     ),
-                    pendingUpstreamSessionValues,
+                    pendingUpstreamSessionValues.toList(),
                 )
 
                 upstreamSessionValue = SessionValue(
@@ -927,7 +927,7 @@ class SessionValueHolderComposableTests {
                     listOf(
                         SessionValue(sessionId1, valueId1, 0f) to SessionValue(nextLocalSessionId1, valueId2, 1f),
                     ),
-                    pendingUpstreamSessionValues,
+                    pendingUpstreamSessionValues.toList(),
                 )
 
                 upstreamSessionValue = SessionValue(
