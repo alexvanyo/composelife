@@ -104,13 +104,13 @@ ktor = "3.3.0"
 #jacoco
 jacoco = "0.8.13"
 #jetbrainsCompose
-jetbrainsCompose = "1.10.0-alpha01"
+jetbrainsCompose = "1.10.0+dev3025"
 #jetbrainsComposeMaterialIconsExtended
 jetbrainsComposeMaterialIconsExtended = "1.7.3"
 #jetbrainsComposeMaterial3
-jetbrainsComposeMaterial3 = "1.10.0-alpha01"
+jetbrainsComposeMaterial3 = "1.10.0+dev3025"
 #jetbrainsComposeMaterial3Adaptive
-jetbrainsComposeMaterial3Adaptive = "1.2.0-alpha06"
+jetbrainsComposeMaterial3Adaptive = "1.2.0+dev3025"
 #junit4
 junit4 = "4.13.2"
 #leakCanary
