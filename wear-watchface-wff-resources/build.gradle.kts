@@ -17,7 +17,6 @@
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
 import com.android.build.api.variant.HasHostTestsBuilder
-import com.android.build.api.variant.HostTestBuilder
 import org.gradle.internal.extensions.stdlib.capitalized
 
 plugins {
@@ -57,13 +56,19 @@ androidComponents {
 
 kotlin {
     androidTarget()
-    jvm()
+    jvm {
+        testRuns.configureEach {
+            executionTask.configure {
+                useJUnitPlatform()
+            }
+        }
+    }
 
     sourceSets {
         val jvmTest by getting {
             dependencies {
                 implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.testParameterInjector.junit4)
+                implementation(libs.testParameterInjector.junit5)
                 implementation(libs.turbine)
 
                 implementation(projects.algorithm)
