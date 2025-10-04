@@ -28,9 +28,9 @@ import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.RunLengthEncodedCellStateSerializer
 import com.alexvanyo.composelife.model.emptyCellState
 import com.alexvanyo.composelife.model.toCellState
-import com.google.testing.junit.testparameterinjector.TestParameter
-import com.google.testing.junit.testparameterinjector.TestParameterInjector
-import com.google.testing.junit.testparameterinjector.TestParameterValuesProvider
+import com.google.testing.junit.testparameterinjector.junit5.TestParameter
+import com.google.testing.junit.testparameterinjector.junit5.TestParameterInjectorTest
+import com.google.testing.junit.testparameterinjector.junit5.TestParameterValuesProvider
 import kotlinx.coroutines.flow.any
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.take
@@ -38,12 +38,10 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
-import org.junit.Assume.assumeTrue
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.Assumptions.assumeTrue
 import java.io.File
 import kotlin.random.Random
 import kotlin.random.nextInt
-import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Duration
 
@@ -82,7 +80,6 @@ class HourEightDestructionTests : DestructionTests("_8")
 class HourNineDestructionTests : DestructionTests("_9")
 
 @Suppress("UnnecessaryAbstractClass")
-@RunWith(TestParameterInjector::class)
 abstract class DestructionTests(
     private val hourPrefix: String,
 ) {
@@ -104,7 +101,7 @@ abstract class DestructionTests(
             (0..59).toList()
     }
 
-    @Test
+    @TestParameterInjectorTest
     fun destructionIsCorrect(
         @TestParameter(valuesProvider = MinuteProvider::class)
         minute: Int,
