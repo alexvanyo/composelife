@@ -170,7 +170,7 @@ jobs:
         run: echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > "$ANDROID_SDK_ROOT/licenses/android-sdk-preview-license"
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v5
         with:
           cache-read-only: ${{ matrix.sdk != 36 || github.ref != 'refs/heads/main' }}
 
@@ -391,7 +391,7 @@ jobs:
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v5
         with:
           cache-read-only: true # Don't write caches for GMD tests
 
