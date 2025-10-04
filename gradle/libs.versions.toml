@@ -108,7 +108,7 @@ jetbrainsCompose = "1.10.0+dev3025"
 #jetbrainsComposeMaterialIconsExtended
 jetbrainsComposeMaterialIconsExtended = "1.7.3"
 #jetbrainsComposeMaterial3
-jetbrainsComposeMaterial3 = "1.10.0+dev3025"
+jetbrainsComposeMaterial3 = "1.10.0-SNAPSHOT+igor-demin-refactorBuildsrc2"
 #jetbrainsComposeMaterial3Adaptive
 jetbrainsComposeMaterial3Adaptive = "1.2.0+dev3025"
 #junit4
