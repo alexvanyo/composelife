@@ -23,6 +23,8 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.SharedTransitionScope.OverlayClip
+import androidx.compose.animation.SharedTransitionScope.PlaceholderSize
+import androidx.compose.animation.SharedTransitionScope.PlaceholderSize.Companion.ContentSize
 import androidx.compose.animation.SharedTransitionScope.ResizeMode
 import androidx.compose.animation.SharedTransitionScope.SharedContentState
 import androidx.compose.animation.core.Spring.StiffnessMediumLow
@@ -155,53 +157,6 @@ fun Modifier.trySharedElementWithCallerManagedVisibility(
         },
     )
 }
-
-@OptIn(ExperimentalSharedTransitionApi::class)
-context(sharedTransitionScope: SharedTransitionScope)
-@Suppress("LongParameterList")
-internal expect fun Modifier.sharedElement(
-    sharedContentState: SharedContentState,
-    animatedVisibilityScope: AnimatedVisibilityScope,
-    boundsTransform: BoundsTransform,
-    placeholderSize: PlaceholderSize,
-    renderInOverlayDuringTransition: Boolean,
-    zIndexInOverlay: Float,
-    clipInOverlayDuringTransition: OverlayClip,
-): Modifier
-
-@OptIn(ExperimentalSharedTransitionApi::class)
-context(sharedTransitionScope: SharedTransitionScope)
-@Suppress("LongParameterList")
-internal expect fun Modifier.sharedBounds(
-    sharedContentState: SharedContentState,
-    animatedVisibilityScope: AnimatedVisibilityScope,
-    enter: EnterTransition,
-    exit: ExitTransition,
-    boundsTransform: BoundsTransform,
-    resizeMode: ResizeMode,
-    placeholderSize: PlaceholderSize,
-    renderInOverlayDuringTransition: Boolean,
-    zIndexInOverlay: Float,
-    clipInOverlayDuringTransition: OverlayClip,
-): Modifier
-
-@OptIn(ExperimentalSharedTransitionApi::class)
-context(sharedTransitionScope: SharedTransitionScope)
-@Suppress("LongParameterList")
-internal expect fun Modifier.sharedElementWithCallerManagedVisibility(
-    sharedContentState: SharedContentState,
-    visible: Boolean,
-    boundsTransform: BoundsTransform,
-    placeholderSize: PlaceholderSize,
-    renderInOverlayDuringTransition: Boolean,
-    zIndexInOverlay: Float,
-    clipInOverlayDuringTransition: OverlayClip,
-): Modifier
-
-expect interface PlaceholderSize
-
-@OptIn(ExperimentalSharedTransitionApi::class)
-expect val ContentSize: PlaceholderSize
 
 // Defaults copied from SharedTransitionScope.kt
 

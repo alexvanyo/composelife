@@ -15,6 +15,10 @@ androidxAppcompat = "1.7.1"
 androidxBenchmark = "1.4.1"
 #androidxComposeBomAlpha
 androidxComposeBomAlpha = "2025.09.01"
+#androidxComposeRuntime
+androidxComposeRuntime = "1.10.0-alpha04"
+#androidxCollection
+androidxCollection = "1.5.0"
 #androidxCore
 androidxCore = "1.17.0"
 #androidxCoreSplashscreen
@@ -63,8 +67,6 @@ apiGuardian = "1.1.2"
 autoService = "1.1.1"
 #autoServiceKsp
 autoServiceKsp = "1.2.0"
-#circuit
-circuit = "0.29.1"
 #coil
 coil = "3.3.0"
 #dependencyGuard
@@ -102,13 +104,13 @@ ktor = "3.3.0"
 #jacoco
 jacoco = "0.8.13"
 #jetbrainsCompose
-jetbrainsCompose = "1.10.0-alpha01"
+jetbrainsCompose = "1.10.0+dev3025"
 #jetbrainsComposeMaterialIconsExtended
 jetbrainsComposeMaterialIconsExtended = "1.7.3"
 #jetbrainsComposeMaterial3
-jetbrainsComposeMaterial3 = "1.10.0-alpha01"
+jetbrainsComposeMaterial3 = "1.10.0+dev3025"
 #jetbrainsComposeMaterial3Adaptive
-jetbrainsComposeMaterial3Adaptive = "1.2.0-alpha06"
+jetbrainsComposeMaterial3Adaptive = "1.2.0+dev3025"
 #junit4
 junit4 = "4.13.2"
 #leakCanary
@@ -156,12 +158,15 @@ androidx-annotation = { group = "androidx.annotation", name = "annotation", vers
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidxAppcompat" }
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "androidxBenchmark" }
 androidx-benchmark-micro-junit4 = { group = "androidx.benchmark", name = "benchmark-junit4", version.ref = "androidxBenchmark" }
+androidx-collection = { group = "androidx.collection", name = "collection", version.ref = "androidxCollection" }
 androidx-compose-animation = { group = "androidx.compose.animation", name = "animation" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom-alpha", version.ref = "androidxComposeBomAlpha" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-compose-materialIconsExtended = { group = "androidx.compose.material", name = "material-icons-extended" }
-androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
+androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "androidxComposeRuntime" }
+androidx-compose-runtime-retain = { group = "androidx.compose.runtime", name = "runtime-retain", version.ref = "androidxComposeRuntime" }
+androidx-compose-runtime-saveable = { group = "androidx.compose.runtime", name = "runtime-saveable", version.ref = "androidxComposeRuntime" }
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-uiGeometry = { group = "androidx.compose.ui", name = "ui-geometry" }
 androidx-compose-uiTest = { group = "androidx.compose.ui", name = "ui-test" }
@@ -210,7 +215,6 @@ androidx-xr-compose = { group = "androidx.xr.compose", name = "compose", version
 apiGuardian-api = { group = "org.apiguardian", name = "apiguardian-api", version.ref = "apiGuardian" }
 autoService-annotations = {  group = "com.google.auto.service", name = "auto-service-annotations", version.ref = "autoService" }
 autoService-ksp = { group = "dev.zacsweers.autoservice", name = "auto-service-ksp", version.ref = "autoServiceKsp" }
-circuit-retained = { group = "com.slack.circuit", name = "circuit-retained", version.ref = "circuit" }
 coil-core = { group = "io.coil-kt.coil3", name = "coil-core", version.ref = "coil" }
 coil-compose-core = { group = "io.coil-kt.coil3", name = "coil-compose-core", version.ref = "coil" }
 dependencyGuard-gradlePlugin = { group = "com.dropbox.dependency-guard", name = "dependency-guard", version.ref = "dependencyGuard" }
@@ -224,8 +228,6 @@ jetbrains-compose-gradlePlugin = { group = "org.jetbrains.compose", name = "comp
 jetbrains-compose-material3 = { group = "org.jetbrains.compose.material3", name = "material3", version.ref = "jetbrainsComposeMaterial3" }
 jetbrains-compose-material3-adaptive = { group = "org.jetbrains.compose.material3.adaptive", name = "adaptive", version.ref = "jetbrainsComposeMaterial3Adaptive" }
 jetbrains-compose-materialIconsExtended = { group = "org.jetbrains.compose.material", name = "material-icons-extended", version.ref = "jetbrainsComposeMaterialIconsExtended" }
-jetbrains-compose-runtime = { group = "org.jetbrains.compose.runtime", name = "runtime", version.ref = "jetbrainsCompose" }
-jetbrains-compose-runtime-saveable = { group = "org.jetbrains.compose.runtime", name = "runtime-saveable", version.ref = "jetbrainsCompose" }
 jetbrains-compose-ui = { group = "org.jetbrains.compose.ui", name = "ui", version.ref = "jetbrainsCompose" }
 jetbrains-compose-uiGeometry = { group = "org.jetbrains.compose.ui", name = "ui-geometry", version.ref = "jetbrainsCompose" }
 jetbrains-compose-uiTest = { group = "org.jetbrains.compose.ui", name = "ui-test", version.ref = "jetbrainsCompose" }

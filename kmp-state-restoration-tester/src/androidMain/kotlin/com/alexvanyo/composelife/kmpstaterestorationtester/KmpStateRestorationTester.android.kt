@@ -21,16 +21,18 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.retain.ControlledRetainScope
+import androidx.compose.runtime.retain.RetainScope
 import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.runtime.setValue
-import com.slack.circuit.retained.RetainedStateRegistry
-import com.slack.circuit.retained.RetainedValueProvider
 
 @Suppress("TooManyFunctions")
 private class RestorationRegistryImpl(
     private val originalSaveableStateRegistry: SaveableStateRegistry,
-    private val retainedStateRegistry: RetainedStateRegistry,
+    private val originalRetainScope: ControlledRetainScope,
 ) : RestorationRegistry {
+
+    override val retainScope: RetainScope = originalRetainScope
 
     override var shouldEmitChildren by mutableStateOf(true)
         private set
@@ -44,7 +46,7 @@ private class RestorationRegistryImpl(
                 .toBundle()
                 .writeToParcel(it, Parcelable.PARCELABLE_WRITE_RETURN_VALUE)
         }
-        retainedStateRegistry.saveAll()
+        originalRetainScope.startKeepingExitedValues()
         shouldEmitChildren = false
     }
 
@@ -70,24 +72,15 @@ private class RestorationRegistryImpl(
 
     override fun performSave() = currentSaveableStateRegistry.performSave()
 
-    override fun consumeValue(key: String): Any? =
-        retainedStateRegistry.consumeValue(key)
-
-    override fun forgetUnclaimedValues() =
-        retainedStateRegistry.forgetUnclaimedValues()
-
-    override fun registerValue(key: String, valueProvider: RetainedValueProvider): RetainedStateRegistry.Entry =
-        retainedStateRegistry.registerValue(key, valueProvider)
-
-    override fun saveAll() = retainedStateRegistry.saveAll()
-
-    override fun saveValue(key: String) = retainedStateRegistry.saveValue(key)
+    override fun restorationFinished() {
+        originalRetainScope.stopKeepingExitedValues()
+    }
 }
 
 internal actual fun RestorationRegistry(
     originalSaveableStateRegistry: SaveableStateRegistry,
-    originalRetainedStateRegistry: RetainedStateRegistry,
-): RestorationRegistry = RestorationRegistryImpl(originalSaveableStateRegistry, originalRetainedStateRegistry)
+    originalRetainScope: ControlledRetainScope,
+): RestorationRegistry = RestorationRegistryImpl(originalSaveableStateRegistry, originalRetainScope)
 
 // Copied from DisposableSaveableStateRegistry.android.kt
 @Suppress("DEPRECATION", "UNCHECKED_CAST")
