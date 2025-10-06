@@ -19,6 +19,8 @@
 package com.alexvanyo.composelife.buildlogic
 
 import com.android.build.api.dsl.CommonExtension
+import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
+import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
 import com.android.build.gradle.internal.lint.AndroidLintAnalysisTask
 import com.android.build.gradle.internal.lint.LintModelWriterTask
 import com.android.build.gradle.internal.lint.VariantInputs
@@ -27,6 +29,7 @@ import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.file.ConfigurableFileCollection
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.tooling.core.withClosure
@@ -75,6 +78,66 @@ fun Project.configureAndroid(
                     "/META-INF/com.google.dagger_dagger.version",
                 ),
             )
+        }
+    }
+
+    configurations.configureEach {
+        resolutionStrategy.eachDependency {
+            val version = requested.version.orEmpty()
+            // Force guava to always use the android version instead of the jre version
+            if (requested.group == "com.google.guava" && requested.name == "guava" && version.endsWith("jre")) {
+                useVersion(version.removeSuffix("jre") + "android")
+            }
+        }
+    }
+
+    afterEvaluate {
+        addSourceSetsForAndroidMultiplatformAfterEvaluate()
+    }
+
+    dependencies.add("coreLibraryDesugaring", libs.findLibrary("android.desugarJdkLibs").get())
+}
+
+fun Project.configureAndroid(
+    extension: KotlinMultiplatformAndroidLibraryTarget,
+) {
+    val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
+
+    extension.apply {
+        compileSdk = 36
+
+        lint {
+            warningsAsErrors = true
+            disable.addAll(listOf("GradleDependency", "OldTargetApi", "AndroidGradlePluginVersion"))
+            enable.addAll(listOf("UnsupportedChromeOsHardware"))
+        }
+
+        enableCoreLibraryDesugaring = true
+        compilations.configureEach {
+            compileTaskProvider.configure {
+                compilerOptions {
+                    jvmTarget.set(JvmTarget.JVM_11)
+                }
+            }
+        }
+
+        // Workaround for https://github.com/Kotlin/kotlinx.coroutines/blob/master/kotlinx-coroutines-debug/README.md#build-failures-due-to-duplicate-resource-files
+        packaging {
+            resources.excludes.addAll(
+                listOf(
+                    "/META-INF/AL2.0",
+                    "/META-INF/LGPL2.1",
+                    "/META-INF/LICENSE.md",
+                    "/META-INF/LICENSE-notice.md",
+                    "/META-INF/com.google.dagger_dagger.version",
+                ),
+            )
+        }
+    }
+
+    extensions.configure(KotlinMultiplatformAndroidComponentsExtension::class.java) {
+        onVariants { variant ->
+            variant.pseudoLocalesEnabled.set(true)
         }
     }
 

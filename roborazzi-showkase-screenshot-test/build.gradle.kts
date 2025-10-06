@@ -22,16 +22,12 @@ plugins {
     alias(libs.plugins.gradleDependenciesSorter)
 }
 
-android {
-    namespace = "com.alexvanyo.composelife.roborazzishowkasescreenshottest"
-    defaultConfig {
-        minSdk = 23
-    }
-    packagingOptions.resources.excludes.add("META-INF/versions/9/OSGI-INF/MANIFEST.MF")
-}
-
 kotlin {
-    androidTarget()
+    androidLibrary {
+        namespace = "com.alexvanyo.composelife.roborazzishowkasescreenshottest"
+        minSdk = 23
+        packaging.resources.excludes.add("META-INF/versions/9/OSGI-INF/MANIFEST.MF")
+    }
 
     sourceSets {
         val commonMain by getting {

@@ -16,58 +16,61 @@
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.configureTesting
-import com.android.build.api.dsl.LibraryExtension
+import com.android.build.api.dsl.androidLibrary
+import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
 import org.gradle.api.GradleException
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 class AndroidLibraryRoborazziConventionPlugin : ConventionPlugin({
     with(pluginManager) {
-        apply("com.android.library")
+        apply("com.android.kotlin.multiplatform.library")
     }
 
     val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
-    val libraryExtension = extensions.getByType(LibraryExtension::class.java)
-
-    configureTesting(libraryExtension)
-
-    libraryExtension.testOptions {
-        unitTests.all { test ->
-            test.apply {
-                systemProperty("robolectric.graphicsMode", "NATIVE")
-                // Configure parameterization to either be combined, or at the test runner level
-                systemProperty(
-                    "com.alexvanyo.composelife.combinedScreenshotTests",
-                    providers.gradleProperty("com.alexvanyo.composelife.combinedScreenshotTests")
-                        .orElse("false")
-                        .map {
-                            when (it) {
-                                "false" -> "false"
-                                "true" -> "true"
-                                else -> throw GradleException(
-                                    "Unexpected value $it for combinedScreenshotTests!",
-                                )
-                            }
-                        }
-                        .get(),
-                )
-                // Increase memory and parallelize Roborazzi tests
-                maxHeapSize = "2g"
-                maxParallelForks = if (System.getenv("CI") == "true") 1 else 4
-                forkEvery = 12
-            }
-        }
-    }
-
     extensions.configure(KotlinMultiplatformExtension::class.java) {
-        androidTarget()
+        androidLibrary {
+            configureTesting(this)
+        }
 
-        sourceSets.getByName("androidUnitTest") {
+        sourceSets.register("androidHostTest") {
             dependencies {
                 implementation(libs.findLibrary("roborazzi.compose").get())
                 implementation(libs.findLibrary("roborazzi.core").get())
                 implementation(libs.findLibrary("robolectric").get())
+            }
+        }
+    }
+
+    extensions.configure(KotlinMultiplatformAndroidComponentsExtension::class.java) {
+        onVariants { variant ->
+            variant.hostTests.forEach { _, hostTest ->
+                hostTest.configureTestTask { test ->
+                    test.apply {
+                        systemProperty("robolectric.graphicsMode", "NATIVE")
+                        // Configure parameterization to either be combined, or at the test runner level
+                        systemProperty(
+                            "com.alexvanyo.composelife.combinedScreenshotTests",
+                            providers.gradleProperty("com.alexvanyo.composelife.combinedScreenshotTests")
+                                .orElse("false")
+                                .map {
+                                    when (it) {
+                                        "false" -> "false"
+                                        "true" -> "true"
+                                        else -> throw GradleException(
+                                            "Unexpected value $it for combinedScreenshotTests!",
+                                        )
+                                    }
+                                }
+                                .get(),
+                        )
+                        // Increase memory and parallelize Roborazzi tests
+                        maxHeapSize = "2g"
+                        maxParallelForks = if (System.getenv("CI") == "true") 1 else 4
+                        forkEvery = 12
+                    }
+                }
             }
         }
     }

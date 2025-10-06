@@ -1,3 +1,8 @@
+import com.alexvanyo.composelife.buildlogic.FormFactor
+import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import com.android.build.api.dsl.KotlinMultiplatformAndroidDeviceTestCompilation
+import kotlin.jvm.java
+
 /*
  * Copyright 2023 The Android Open Source Project
  *
@@ -21,15 +26,11 @@ plugins {
     alias(libs.plugins.gradleDependenciesSorter)
 }
 
-android {
-    namespace = "com.alexvanyo.composelife.strictmode"
-    defaultConfig {
+kotlin {
+    androidLibrary {
+        namespace = "com.alexvanyo.composelife.strictmode"
         minSdk = 23
     }
-}
-
-kotlin {
-    androidTarget()
 
     sourceSets {
         val commonMain by getting {

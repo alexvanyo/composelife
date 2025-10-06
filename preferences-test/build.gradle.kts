@@ -16,6 +16,7 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import com.android.build.api.dsl.KotlinMultiplatformAndroidDeviceTestCompilation
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
@@ -28,18 +29,16 @@ plugins {
     alias(libs.plugins.metro)
 }
 
-android {
-    namespace = "com.alexvanyo.composelife.preferencestest"
-    defaultConfig {
-        minSdk = 23
-        testInstrumentationRunner = "com.alexvanyo.composelife.test.InjectTestRunner"
-    }
-    configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
-}
-
 kotlin {
     jvm("desktop")
-    androidTarget()
+    androidLibrary {
+        namespace = "com.alexvanyo.composelife.preferencestest"
+        minSdk = 23
+        compilations.withType(KotlinMultiplatformAndroidDeviceTestCompilation::class.java) {
+            instrumentationRunner = "com.alexvanyo.composelife.test.InjectTestRunner"
+        }
+        configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
+    }
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser {

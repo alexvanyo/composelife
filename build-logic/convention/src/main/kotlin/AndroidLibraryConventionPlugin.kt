@@ -16,30 +16,19 @@
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.configureAndroid
-import com.android.build.api.dsl.LibraryExtension
-import com.android.build.api.variant.LibraryAndroidComponentsExtension
+import com.android.build.api.dsl.androidLibrary
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 class AndroidLibraryConventionPlugin : ConventionPlugin({
     with(pluginManager) {
-        apply("com.android.library")
+        apply("com.android.kotlin.multiplatform.library")
     }
 
-    extensions.configure(LibraryAndroidComponentsExtension::class.java) {
-        beforeVariants(selector().withBuildType("debug")) { builder ->
-            builder.enable = false
-        }
-    }
-
-    extensions.configure(LibraryExtension::class.java) {
-        configureAndroid(this)
-
-        testOptions {
-            targetSdk = 35
-            testBuildType = "release"
-        }
-        lint.targetSdk = 35
-        defaultConfig {
-            consumerProguardFiles("consumer-rules.pro")
+    extensions.configure(KotlinMultiplatformExtension::class.java) {
+        androidLibrary {
+            configureAndroid(this)
+            lint.targetSdk = 35
+            optimization.consumerKeepRules.file("consumer-rules.pro")
         }
     }
 })

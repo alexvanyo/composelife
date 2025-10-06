@@ -26,16 +26,13 @@ plugins {
     alias(libs.plugins.gradleDependenciesSorter)
 }
 
-android {
-    namespace = "com.alexvanyo.composelife.wear.watchface.configuration"
-    defaultConfig {
-        minSdk = 26
-    }
-    configureGradleManagedDevices(setOf(FormFactor.Wear), this)
-}
-
 kotlin {
-    androidTarget()
+    androidLibrary {
+        namespace = "com.alexvanyo.composelife.wear.watchface.configuration"
+        minSdk = 26
+        configureGradleManagedDevices(setOf(FormFactor.Wear), this)
+        androidResources { enable = true }
+    }
 
     sourceSets {
         val commonMain by getting {

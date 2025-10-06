@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import com.alexvanyo.composelife.buildlogic.FormFactor
+import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
@@ -24,15 +26,12 @@ plugins {
     alias(libs.plugins.metro)
 }
 
-android {
-    namespace = "com.alexvanyo.composelife.databasetest"
-    defaultConfig {
-        minSdk = 23
-    }
-}
 
 kotlin {
-    androidTarget()
+    androidLibrary {
+        namespace = "com.alexvanyo.composelife.databasetest"
+        minSdk = 23
+    }
     jvm("desktop")
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {

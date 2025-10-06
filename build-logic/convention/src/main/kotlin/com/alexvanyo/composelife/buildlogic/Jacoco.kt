@@ -19,6 +19,9 @@
 package com.alexvanyo.composelife.buildlogic
 
 import com.android.build.api.dsl.CommonExtension
+import com.android.build.api.dsl.KotlinMultiplatformAndroidDeviceTestCompilation
+import com.android.build.api.dsl.KotlinMultiplatformAndroidHostTestCompilation
+import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
 import com.android.build.gradle.internal.coverage.JacocoReportTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
@@ -68,6 +71,54 @@ fun Project.configureJacoco(
             project.provider {
                 tasks.withType(JacocoReportTask::class.java).filter {
                     it.name.contains("AndroidTest", ignoreCase = true)
+                }
+            },
+        )
+    }
+}
+
+fun Project.configureJacoco(
+    extension: KotlinMultiplatformAndroidLibraryTarget,
+) {
+    val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
+
+    extension.apply {
+        testCoverage.jacocoVersion = libs.findVersion("jacoco").get().toString()
+        compilations.withType(KotlinMultiplatformAndroidHostTestCompilation::class.java).configureEach {
+            enableCoverage = true
+        }
+        compilations.withType(KotlinMultiplatformAndroidDeviceTestCompilation::class.java).configureEach {
+            // TODO: Re-enable test coverage for instrumented tests https://github.com/alexvanyo/composelife/issues/2257
+            // enableCoverage = true
+        }
+    }
+
+    tasks.withType(Test::class.java).configureEach {
+        extensions.configure(JacocoTaskExtension::class.java) {
+            // Required for JaCoCo + Robolectric
+            // https://github.com/robolectric/robolectric/issues/2230
+            isIncludeNoLocationClasses = true
+
+            // Required for JDK 11 with the above
+            // https://github.com/gradle/gradle/issues/5184#issuecomment-391982009
+            excludes = listOf("jdk.internal.*")
+        }
+    }
+
+    tasks.register("createUnitTestCoverageReport") {
+        dependsOn(
+            project.provider {
+                tasks.withType(JacocoReportTask::class.java).filter {
+                    it.name.contains("HostTest", ignoreCase = true)
+                }
+            },
+        )
+    }
+    tasks.register("createAndroidTestCoverageReport") {
+        dependsOn(
+            project.provider {
+                tasks.withType(JacocoReportTask::class.java).filter {
+                    it.name.contains("DeviceTest", ignoreCase = true)
                 }
             },
         )
@@ -164,12 +215,16 @@ fun Project.configureJacocoMerge() {
 
 private fun Project.getUnitTestReportTasks(variant: String) =
     getTasksByName("create${variant.capitalizeForTaskName()}UnitTestCoverageReport", false)
-        .filterIsInstance<JacocoReportTask>()
+        .filterIsInstance<JacocoReportTask>() +
+        getTasksByName("createAndroidHostTestCoverageReport", false)
+            .filterIsInstance<JacocoReportTask>()
 
 private fun Project.getAndroidTestReportTasks() =
     variants.flatMap { variant ->
         getTasksByName("createManagedDevice${variant.capitalizeForTaskName()}AndroidTestCoverageReport", false)
-            .filterIsInstance<JacocoReportTask>()
+            .filterIsInstance<JacocoReportTask>() +
+            getTasksByName("createAndroidDeviceTestCoverageReport", false)
+                .filterIsInstance<JacocoReportTask>()
     }
 
 private val variants =
