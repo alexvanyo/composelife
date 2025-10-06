@@ -177,11 +177,11 @@ jobs:
       - name: Create CI robolectric.properties
         if: ${{ matrix.sdk != 36 }}
         run: |
-          robolectric_projects=($(find . -regex ".*/src/androidUnitTest/resources/com/alexvanyo/robolectric.properties" | grep -oP '\./(.*?)/'))
+          robolectric_projects=($(find . -regex ".*/src/android.*Test/resources/com/alexvanyo/robolectric.properties" | grep -oP '\./(.*android.*Test?)/'))
           for project in "${robolectric_projects[@]}"
           do
-               mkdir "$project"src/androidUnitTest/resources/com/alexvanyo/composelife
-               echo sdk=${{ matrix.sdk }} > "$project"src/androidUnitTest/resources/com/alexvanyo/composelife/robolectric.properties
+               mkdir "$project"/resources/com/alexvanyo/composelife
+               echo sdk=${{ matrix.sdk }} > "$project"/resources/com/alexvanyo/composelife/robolectric.properties
           done
 
       - name: Run checks

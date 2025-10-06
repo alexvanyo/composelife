@@ -29,16 +29,12 @@ plugins {
     alias(libs.plugins.gradleDependenciesSorter)
 }
 
-android {
-    namespace = "com.alexvanyo.composelife.resourcestate"
-    defaultConfig {
-        minSdk = 23
-    }
-    configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
-}
-
 kotlin {
-    androidTarget()
+    androidLibrary {
+        namespace = "com.alexvanyo.composelife.resourcestate"
+        minSdk = 23
+        configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
+    }
     jvm("desktop")
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {

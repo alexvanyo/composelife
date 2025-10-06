@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import com.alexvanyo.composelife.buildlogic.FormFactor
+import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import com.android.build.api.dsl.KotlinMultiplatformAndroidDeviceTestCompilation
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import kotlin.jvm.java
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -23,15 +27,11 @@ plugins {
     alias(libs.plugins.metro)
 }
 
-android {
-    namespace = "com.alexvanyo.composelife.dispatchers"
-    defaultConfig {
+kotlin {
+    androidLibrary {
+        namespace = "com.alexvanyo.composelife.dispatchers"
         minSdk = 23
     }
-}
-
-kotlin {
-    androidTarget()
     jvm("desktop")
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {

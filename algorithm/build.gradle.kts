@@ -31,16 +31,13 @@ plugins {
     alias(libs.plugins.metro)
 }
 
-android {
-    namespace = "com.alexvanyo.composelife.algorithm"
-    defaultConfig {
-        minSdk = 23
-    }
-    configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
-}
-
 kotlin {
-    androidTarget()
+    androidLibrary {
+        namespace = "com.alexvanyo.composelife.algorithm"
+        minSdk = 23
+        configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
+        androidResources { enable = true }
+    }
     jvm("desktop") {
         val moleculeTest by compilations.creating
 

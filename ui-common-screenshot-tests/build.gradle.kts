@@ -16,6 +16,8 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import com.android.build.api.dsl.KotlinMultiplatformAndroidDeviceTestCompilation
+import kotlin.jvm.java
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -31,16 +33,12 @@ plugins {
     alias(libs.plugins.gradleDependenciesSorter)
 }
 
-android {
-    namespace = "com.alexvanyo.composelife.ui.common.screenshottests"
-    defaultConfig {
-        minSdk = 23
-    }
-    configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
-}
-
 kotlin {
-    androidTarget()
+    androidLibrary {
+        namespace = "com.alexvanyo.composelife.ui.common.screenshottests"
+        minSdk = 23
+        configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
+    }
     jvm("desktop")
 
     sourceSets {
@@ -87,8 +85,8 @@ kotlin {
         val androidSharedTest by getting {
             dependsOn(jbTest)
         }
-        val androidUnitTest by getting {
-            configurations["kspAndroidTest"].dependencies.addAll(
+        val androidHostTest by getting {
+            configurations["kspAndroidHostTest"].dependencies.addAll(
                 listOf(
                     libs.showkase.processor.get(),
                 )

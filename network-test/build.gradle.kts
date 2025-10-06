@@ -1,3 +1,6 @@
+import com.alexvanyo.composelife.buildlogic.FormFactor
+import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+
 /*
  * Copyright 2025 The Android Open Source Project
  *
@@ -22,15 +25,11 @@ plugins {
     alias(libs.plugins.metro)
 }
 
-android {
-    namespace = "com.alexvanyo.composelife.network.test"
-    defaultConfig {
+kotlin {
+    androidLibrary {
+        namespace = "com.alexvanyo.composelife.network.test"
         minSdk = 23
     }
-}
-
-kotlin {
-    androidTarget()
     jvm("desktop")
 
     sourceSets {

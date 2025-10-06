@@ -19,6 +19,9 @@
 package com.alexvanyo.composelife.buildlogic
 
 import com.android.build.api.dsl.CommonExtension
+import com.android.build.api.dsl.KotlinMultiplatformAndroidDeviceTestCompilation
+import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
+import com.android.build.api.dsl.ManagedDevices
 import com.android.build.api.dsl.ManagedVirtualDevice
 import com.android.build.gradle.internal.tasks.ManagedDeviceInstrumentationTestSetupTask
 import com.android.build.gradle.internal.tasks.ManagedDeviceInstrumentationTestTask
@@ -133,14 +136,57 @@ fun Project.configureGradleManagedDevices(
     commonExtension = commonExtension,
 )
 
-@Suppress("CyclomaticComplexMethod", "LongMethod")
 @JvmName("configureGradleManagedDevicesDeviceConfig")
 fun Project.configureGradleManagedDevices(
     devices: Set<GradleManagedDeviceConfig>,
     commonExtension: CommonExtension<*, *, *, *, *, *>,
     filterForTests: Boolean = true,
 ) {
-    commonExtension.testOptions.managedDevices.allDevices.apply {
+    configureManagedDevices(
+        devices = devices,
+        managedDevices = commonExtension.testOptions.managedDevices,
+        minSdk = commonExtension.defaultConfig.minSdk,
+        filterForTests = filterForTests,
+    )
+    configureRelatedGradleManagedDevices()
+}
+
+@JvmName("configureGradleManagedDevicesFormFactors")
+fun Project.configureGradleManagedDevices(
+    formFactors: Set<FormFactor>,
+    kmpExtension: KotlinMultiplatformAndroidLibraryTarget,
+    filterForTests: Boolean = true,
+) = configureGradleManagedDevices(
+    devices = getGradleManagedDeviceConfig(formFactors),
+    filterForTests = filterForTests,
+    kmpExtension = kmpExtension,
+)
+
+@JvmName("configureGradleManagedDevicesDeviceConfig")
+fun Project.configureGradleManagedDevices(
+    devices: Set<GradleManagedDeviceConfig>,
+    kmpExtension: KotlinMultiplatformAndroidLibraryTarget,
+    filterForTests: Boolean = true,
+) {
+    kmpExtension.compilations.withType(KotlinMultiplatformAndroidDeviceTestCompilation::class.java).configureEach {
+        configureManagedDevices(
+            devices = devices,
+            managedDevices = managedDevices,
+            minSdk = kmpExtension.minSdk,
+            filterForTests = filterForTests,
+        )
+    }
+    configureRelatedGradleManagedDevices()
+}
+
+@Suppress("CyclomaticComplexMethod")
+private fun Project.configureManagedDevices(
+    devices: Set<GradleManagedDeviceConfig>,
+    managedDevices: ManagedDevices,
+    minSdk: Int?,
+    filterForTests: Boolean,
+) {
+    managedDevices.allDevices.apply {
         devices
             .filter { config ->
                 !filterForTests ||
@@ -152,7 +198,6 @@ fun Project.configureGradleManagedDevices(
             }
             .filter { config ->
                 // Filter out incompatible devices based on API level
-                val minSdk = commonExtension.defaultConfig.minSdk
                 minSdk == null || config.apiLevel >= minSdk
             }
             .forEach { config ->
@@ -187,8 +232,8 @@ fun Project.configureGradleManagedDevices(
                     }
                 }
 
-                // Create a limiting build service to only allow one setup task for each device configuration to run
-                // at a time
+                // Create a limiting build service to only allow one setup task for each device configuration
+                // to run at a time
                 gradle.sharedServices.registerIfAbsent(
                     LimitingBuildServiceGMDSetup.createKey(config),
                     LimitingBuildServiceGMDSetup::class.java,
@@ -197,7 +242,9 @@ fun Project.configureGradleManagedDevices(
                 }
             }
     }
+}
 
+private fun Project.configureRelatedGradleManagedDevices() {
     if (OperatingSystem.current().isLinux) {
         tasks.withType(ManagedDeviceInstrumentationTestTask::class.java)
             .whenTaskAdded {

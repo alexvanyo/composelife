@@ -24,15 +24,11 @@ plugins {
     alias(libs.plugins.gradleDependenciesSorter)
 }
 
-android {
-    namespace = "com.alexvanyo.composelife.testactivity"
-    defaultConfig {
+kotlin {
+    androidLibrary {
+        namespace = "com.alexvanyo.composelife.testactivity"
         minSdk = 23
     }
-}
-
-kotlin {
-    androidTarget()
     jvm("desktop")
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {

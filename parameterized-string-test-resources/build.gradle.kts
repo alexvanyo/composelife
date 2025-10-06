@@ -21,13 +21,10 @@ plugins {
     alias(libs.plugins.gradleDependenciesSorter)
 }
 
-android {
-    namespace = "com.alexvanyo.composelife.parameterizedstring.testresources"
-    defaultConfig {
-        minSdk = 23
-    }
-}
-
 kotlin {
-    androidTarget()
+    androidLibrary {
+        namespace = "com.alexvanyo.composelife.parameterizedstring.testresources"
+        minSdk = 23
+        androidResources { enable = true }
+    }
 }

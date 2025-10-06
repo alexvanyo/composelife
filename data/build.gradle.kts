@@ -16,10 +16,12 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import com.android.build.api.dsl.KotlinMultiplatformAndroidDeviceTestCompilation
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidLibrary)
+    alias(libs.plugins.convention.androidLibraryCompose)
     alias(libs.plugins.convention.androidLibraryJacoco)
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
@@ -27,17 +29,15 @@ plugins {
     alias(libs.plugins.metro)
 }
 
-android {
-    namespace = "com.alexvanyo.composelife.data"
-    defaultConfig {
-        minSdk = 23
-        testInstrumentationRunner = "com.alexvanyo.composelife.test.InjectTestRunner"
-    }
-    configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
-}
-
 kotlin {
-    androidTarget()
+    androidLibrary {
+        namespace = "com.alexvanyo.composelife.data"
+        minSdk = 23
+        compilations.withType(KotlinMultiplatformAndroidDeviceTestCompilation::class.java) {
+            instrumentationRunner = "com.alexvanyo.composelife.test.InjectTestRunner"
+        }
+        configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
+    }
     jvm("desktop")
 
     sourceSets {

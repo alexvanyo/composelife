@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
+import com.alexvanyo.composelife.buildlogic.FormFactor
+import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import com.android.build.api.dsl.KotlinMultiplatformAndroidDeviceTestCompilation
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import kotlin.jvm.java
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -23,15 +27,11 @@ plugins {
     alias(libs.plugins.gradleDependenciesSorter)
 }
 
-android {
-    namespace = "com.alexvanyo.composelife.kmpandroidrunner"
-    defaultConfig {
+kotlin {
+    androidLibrary {
+        namespace = "com.alexvanyo.composelife.kmpandroidrunner"
         minSdk = 23
     }
-}
-
-kotlin {
-    androidTarget()
     jvm("desktop")
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {

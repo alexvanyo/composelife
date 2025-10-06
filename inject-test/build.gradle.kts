@@ -1,3 +1,4 @@
+
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 /*
@@ -24,15 +25,11 @@ plugins {
     alias(libs.plugins.metro)
 }
 
-android {
-    namespace = "com.alexvanyo.composelife.injecttest"
-    defaultConfig {
+kotlin {
+    androidLibrary {
+        namespace = "com.alexvanyo.composelife.injecttest"
         minSdk = 23
     }
-}
-
-kotlin {
-    androidTarget()
     jvm("desktop")
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {

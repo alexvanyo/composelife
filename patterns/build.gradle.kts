@@ -20,6 +20,7 @@ import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidLibrary)
+    alias(libs.plugins.convention.androidLibraryCompose)
     alias(libs.plugins.convention.androidLibraryKsp)
     alias(libs.plugins.convention.androidLibraryJacoco)
     alias(libs.plugins.convention.androidLibraryTesting)
@@ -27,16 +28,12 @@ plugins {
     alias(libs.plugins.gradleDependenciesSorter)
 }
 
-android {
-    namespace = "com.alexvanyo.composelife.patterns"
-    defaultConfig {
-        minSdk = 23
-    }
-    configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
-}
-
 kotlin {
-    androidTarget()
+    androidLibrary {
+        namespace = "com.alexvanyo.composelife.patterns"
+        minSdk = 23
+        configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
+    }
     jvm("desktop")
 
     sourceSets {

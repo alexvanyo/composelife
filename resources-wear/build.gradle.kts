@@ -21,19 +21,14 @@ plugins {
     alias(libs.plugins.gradleDependenciesSorter)
 }
 
-android {
-    namespace = "com.alexvanyo.composelife.resources.wear"
-    defaultConfig {
-        minSdk = 26
-    }
-    compileOptions {
-        // This library contains no code, so desugaring isn't needed
-        isCoreLibraryDesugaringEnabled = false
-    }
-}
-
 kotlin {
-    androidTarget()
+    androidLibrary {
+        namespace = "com.alexvanyo.composelife.resources.wear"
+        minSdk = 26
+        // This library contains no code, so desugaring isn't needed
+        enableCoreLibraryDesugaring = false
+        androidResources { enable = true }
+    }
 
     sourceSets {
         val commonMain by getting {

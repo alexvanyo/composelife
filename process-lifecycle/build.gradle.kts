@@ -1,3 +1,8 @@
+import com.alexvanyo.composelife.buildlogic.FormFactor
+import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import com.android.build.api.dsl.KotlinMultiplatformAndroidDeviceTestCompilation
+import kotlin.jvm.java
+
 /*
  * Copyright 2022 The Android Open Source Project
  *
@@ -22,15 +27,12 @@ plugins {
     alias(libs.plugins.metro)
 }
 
-android {
-    namespace = "com.alexvanyo.composelife.processlifecycle"
-    defaultConfig {
-        minSdk = 23
-    }
-}
 
 kotlin {
-    androidTarget()
+    androidLibrary {
+        namespace = "com.alexvanyo.composelife.processlifecycle"
+        minSdk = 23
+    }
 
     sourceSets {
         val commonMain by getting {

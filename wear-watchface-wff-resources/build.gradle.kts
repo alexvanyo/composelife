@@ -14,48 +14,28 @@
  * limitations under the License.
  */
 
-import com.alexvanyo.composelife.buildlogic.FormFactor
-import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
-import com.android.build.api.variant.HasHostTestsBuilder
+import com.alexvanyo.composelife.buildlogic.configureTesting
 import org.gradle.internal.extensions.stdlib.capitalized
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidLibrary)
-    alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.gradleDependenciesSorter)
 }
 
-android {
-    namespace = "com.alexvanyo.composelife.wff.resources"
-    defaultConfig {
-        minSdk = 33
-    }
-    configureGradleManagedDevices(setOf(FormFactor.Wear), this)
-
-    compileOptions {
-        // This library contains no code, so desugaring isn't needed
-        isCoreLibraryDesugaringEnabled = false
-    }
-    sourceSets {
-        getByName("main").res {
-            srcDir(layout.buildDirectory.dir("generated/wff/res"))
-        }
-    }
-    lint {
-        disable += listOf("IconMissingDensityFolder")
-    }
-}
-
-androidComponents {
-    beforeVariants { variantBuilder ->
-        (variantBuilder as HasHostTestsBuilder).hostTests.values.forEach { it.enable = false }
-    }
-}
-
 kotlin {
-    androidTarget()
+    androidLibrary {
+        namespace = "com.alexvanyo.composelife.wff.resources"
+        minSdk = 33
+        configureTesting(this)
+        // This library contains no code, so desugaring isn't needed
+        enableCoreLibraryDesugaring = false
+        lint {
+            disable += listOf("IconMissingDensityFolder")
+        }
+        androidResources { enable = true }
+    }
     jvm {
         testRuns.configureEach {
             executionTask.configure {
@@ -139,7 +119,8 @@ androidComponents {
             dependsOn(createHourSfd)
             fontforgeCommand = project.providers.gradleProperty("com.alexvanyo.composelife.fontforgeCommand")
             sfdFile = createHourSfd.flatMap(CreateHourSfd::outputFile)
-            ttfFile = layout.buildDirectory.file("generated/wff/res/font/hour$hourPrefix.ttf")
+            ttfDirectory = layout.buildDirectory.dir("generated/wff/res/font")
+            ttfName = "hour$hourPrefix.ttf"
         }
         onVariants { variant ->
             val capitalizedVariantName = variant.name.capitalized()
@@ -149,6 +130,10 @@ androidComponents {
             }.configureEach {
                 dependsOn(createHourTtf)
             }
+            variant.sources.res!!.addGeneratedSourceDirectory(
+                createHourTtf,
+                ConvertSfdToTtf::ttfDirectory,
+            )
         }
     }
 }
@@ -255,8 +240,17 @@ abstract class ConvertSfdToTtf : DefaultTask() {
     @get:InputFile
     abstract val sfdFile: RegularFileProperty
 
+    @get:OutputDirectory
+    abstract val ttfDirectory: DirectoryProperty
+
+    @get:Input
+    abstract val ttfName: Property<String>
+
     @get:OutputFile
-    abstract val ttfFile: RegularFileProperty
+    val ttfFile: Provider<RegularFile> =
+        ttfDirectory.flatMap { outputDirectory ->
+            outputDirectory.file(ttfName)
+        }
 
     @get:Inject
     abstract val execOperations: ExecOperations

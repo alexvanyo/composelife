@@ -16,6 +16,8 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import com.android.build.api.dsl.KotlinMultiplatformAndroidDeviceTestCompilation
+import kotlin.jvm.java
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -32,17 +34,15 @@ plugins {
     alias(libs.plugins.metro)
 }
 
-android {
-    namespace = "com.alexvanyo.composelife.ui.cells.screenshottests"
-    defaultConfig {
-        minSdk = 23
-        testInstrumentationRunner = "com.alexvanyo.composelife.test.InjectTestRunner"
-    }
-    configureGradleManagedDevices(setOf(FormFactor.Mobile), this)
-}
-
 kotlin {
-    androidTarget()
+    androidLibrary {
+        namespace = "com.alexvanyo.composelife.ui.cells.screenshottests"
+        minSdk = 23
+        compilations.withType(KotlinMultiplatformAndroidDeviceTestCompilation::class.java) {
+            instrumentationRunner = "com.alexvanyo.composelife.test.InjectTestRunner"
+        }
+        configureGradleManagedDevices(setOf(FormFactor.Mobile), this)
+    }
     jvm("desktop")
 
     sourceSets {
@@ -116,8 +116,8 @@ kotlin {
         val androidSharedTest by getting {
             dependsOn(jbTest)
         }
-        val androidUnitTest by getting {
-            configurations["kspAndroidTest"].dependencies.addAll(
+        val androidHostTest by getting {
+            configurations["kspAndroidHostTest"].dependencies.addAll(
                 listOf(
                     libs.showkase.processor.get(),
                 )

@@ -16,6 +16,8 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import com.android.build.api.dsl.KotlinMultiplatformAndroidDeviceTestCompilation
+import kotlin.jvm.java
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -28,16 +30,12 @@ plugins {
     alias(libs.plugins.gradleDependenciesSorter)
 }
 
-android {
-    namespace = "com.alexvanyo.composelife.ui.mobile"
-    defaultConfig {
-        minSdk = 23
-    }
-    configureGradleManagedDevices(setOf(FormFactor.Mobile), this)
-}
-
 kotlin {
-    androidTarget()
+    androidLibrary {
+        namespace = "com.alexvanyo.composelife.ui.app"
+        minSdk = 23
+        configureGradleManagedDevices(setOf(FormFactor.Mobile), this)
+    }
     jvm("desktop")
 
     sourceSets {

@@ -29,16 +29,12 @@ plugins {
     alias(libs.plugins.metro)
 }
 
-android {
-    namespace = "com.alexvanyo.composelife.wear.watchface"
-    defaultConfig {
-        minSdk = 26
-    }
-    configureGradleManagedDevices(setOf(FormFactor.Wear), this)
-}
-
 kotlin {
-    androidTarget()
+    androidLibrary {
+        namespace = "com.alexvanyo.composelife.wear.watchface"
+        minSdk = 26
+        configureGradleManagedDevices(setOf(FormFactor.Wear), this)
+    }
 
     sourceSets {
         val commonMain by getting {
@@ -89,12 +85,12 @@ kotlin {
                 implementation(libs.androidx.test.espresso)
             }
         }
-        val androidUnitTest by getting {
+        val androidHostTest by getting {
             dependencies {
                 implementation(libs.testParameterInjector.junit4)
             }
         }
-        val androidInstrumentedTest by getting {
+        val androidDeviceTest by getting {
             dependencies {
                 compileOnly(libs.apiGuardian.api)
                 compileOnly(libs.google.autoValue.annotations)
