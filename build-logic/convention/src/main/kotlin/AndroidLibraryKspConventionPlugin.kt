@@ -18,7 +18,7 @@ import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 
 class AndroidLibraryKspConventionPlugin : ConventionPlugin({
     with(pluginManager) {
-        apply("com.android.library")
+        apply("com.android.kotlin.multiplatform.library")
         apply("com.google.devtools.ksp")
     }
 })

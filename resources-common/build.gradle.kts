@@ -23,19 +23,14 @@ plugins {
     alias(libs.plugins.gradleDependenciesSorter)
 }
 
-android {
-    namespace = "com.alexvanyo.composelife.resources.common"
-    defaultConfig {
-        minSdk = 23
-    }
-    compileOptions {
-        // This library contains no code, so desugaring isn't needed
-        isCoreLibraryDesugaringEnabled = false
-    }
-}
-
 kotlin {
-    androidTarget()
+    androidLibrary {
+        namespace = "com.alexvanyo.composelife.resources.common"
+        minSdk = 23
+        // This library contains no code, so desugaring isn't needed
+        enableCoreLibraryDesugaring = false
+        androidResources { enable = true }
+    }
     jvm("desktop")
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {

@@ -21,6 +21,7 @@ plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidLibrary)
     alias(libs.plugins.convention.androidLibraryCompose)
+    alias(libs.plugins.convention.androidLibraryJacoco)
     alias(libs.plugins.convention.androidLibraryKsp)
     alias(libs.plugins.convention.androidLibraryRoborazzi)
     alias(libs.plugins.convention.androidLibraryTesting)
@@ -29,16 +30,12 @@ plugins {
     alias(libs.plugins.gradleDependenciesSorter)
 }
 
-android {
-    namespace = "com.alexvanyo.composelife.ui.wear"
-    defaultConfig {
-        minSdk = 26
-    }
-    configureGradleManagedDevices(setOf(FormFactor.Wear), this)
-}
-
 kotlin {
-    androidTarget()
+    androidLibrary {
+        namespace = "com.alexvanyo.composelife.ui.wear"
+        minSdk = 26
+        configureGradleManagedDevices(setOf(FormFactor.Wear), this)
+    }
 
     sourceSets {
         val commonMain by getting {
@@ -110,11 +107,18 @@ kotlin {
                 implementation(libs.androidx.test.junit)
             }
         }
-        val androidUnitTest by getting {
-            configurations["kspAndroidTest"].dependencies.add(libs.showkase.processor.get())
+        val androidHostTest by getting {
+            configurations["kspAndroidHostTest"].dependencies.add(libs.showkase.processor.get())
             dependencies {
                 implementation(projects.roborazziShowkaseScreenshotTest)
             }
         }
     }
 }
+
+// TODO: Remove, this should not be necessary to wire up manually
+tasks.withType<Task>()
+    .named { it == "generateAndroidHostTestLintModel" || it == "lintAnalyzeAndroidHostTest" }
+    .configureEach {
+        dependsOn("kspAndroidHostTest")
+    }
