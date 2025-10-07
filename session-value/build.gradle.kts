@@ -53,14 +53,16 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.androidx.compose.runtime)
-                api(libs.androidx.compose.runtime.saveable)
                 implementation(projects.logging)
                 implementation(projects.serialization)
             }
         }
         val jbMain by creating {
             dependsOn(commonMain)
+            dependencies {
+                api(libs.androidx.compose.runtime)
+                api(libs.androidx.compose.runtime.saveable)
+            }
         }
         val androidMain by getting {
             dependsOn(jbMain)
@@ -70,6 +72,9 @@ kotlin {
             dependencies {
                 implementation(compose.desktop.currentOs)
             }
+        }
+        val wasmJsMain by getting {
+            dependsOn(jbMain)
         }
         val commonTest by getting {
             dependencies {
@@ -94,6 +99,9 @@ kotlin {
             dependsOn(jbTest)
         }
         val androidSharedTest by getting {
+            dependsOn(jbTest)
+        }
+        val wasmJsTest by getting {
             dependsOn(jbTest)
         }
     }
