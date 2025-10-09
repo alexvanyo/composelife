@@ -45,7 +45,7 @@ kotlin {
         }
         val desktopMain by getting {
             configurations["kspDesktop"].dependencies.addAll(listOf(
-                libs.sealedEnum.ksp.get(),
+                projects.sealedEnum.ksp,
             ))
             dependencies {
                 implementation(compose.desktop.currentOs)
@@ -55,10 +55,10 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(projects.databaseTest)
-                implementation(projects.dispatchersTest)
+                implementation(projects.databaseTestFixtures)
+                implementation(projects.dispatchersTestFixtures)
                 implementation(projects.patterns)
-                implementation(projects.preferencesTest)
+                implementation(projects.preferencesTestFixtures)
             }
         }
     }

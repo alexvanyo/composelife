@@ -16,6 +16,7 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -35,46 +36,62 @@ kotlin {
         configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
     }
     jvm("desktop")
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser {
+            testTask {
+                useKarma {
+                    useChromiumHeadless()
+                }
+            }
+        }
+    }
 
     sourceSets {
         val commonMain by getting {
             dependencies {
                 api(projects.algorithm)
-            }
-        }
-        val jvmMain by creating {
-            dependsOn(commonMain)
-            dependencies {
-                api(libs.jetbrains.compose.uiUnit)
-                api(libs.sealedEnum.runtime)
+                api(projects.sealedEnum.runtime)
             }
         }
         val jbMain by creating {
-            dependsOn(jvmMain)
+            dependsOn(commonMain)
+            dependencies {
+                api(libs.jetbrains.compose.uiUnit)
+            }
+        }
+        val jvmMain by creating {
+            dependsOn(jbMain)
         }
         val desktopMain by getting {
-            dependsOn(jbMain)
-            configurations["kspDesktop"].dependencies.add(libs.sealedEnum.ksp.get())
+            dependsOn(jvmMain)
+            configurations["kspDesktop"].dependencies.add(projects.sealedEnum.ksp)
         }
         val androidMain by getting {
-            dependsOn(jbMain)
-            configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
+            dependsOn(jvmMain)
+            configurations["kspAndroid"].dependencies.add(projects.sealedEnum.ksp)
         }
-        val commonTest by getting {
+        val wasmJsMain by getting {
+            dependsOn(jbMain)
+            configurations["kspWasmJs"].dependencies.add(projects.sealedEnum.ksp)
+        }
+        val commonTest by getting {}
+        val jbTest by creating {
+            dependsOn(commonTest)
+        }
+        val jvmTest by creating {
+            dependsOn(jbTest)
             dependencies {
                 implementation(libs.testParameterInjector.junit4)
             }
         }
-        val jvmTest by creating {
-            dependsOn(commonTest)
-        }
-        val jbTest by creating {
+        val desktopTest by getting {
             dependsOn(jvmTest)
         }
-        val desktopTest by getting {
-            dependsOn(jbTest)
-        }
         val androidSharedTest by getting {
+            dependsOn(jvmTest)
+        }
+        val wasmJsTest by getting {
             dependsOn(jbTest)
         }
     }

@@ -17,7 +17,7 @@
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
 import com.android.build.api.dsl.KotlinMultiplatformAndroidDeviceTestCompilation
-import kotlin.jvm.java
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -38,6 +38,16 @@ kotlin {
         configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
     }
     jvm("desktop")
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser {
+            testTask {
+                useKarma {
+                    useChromiumHeadless()
+                }
+            }
+        }
+    }
 
     sourceSets {
         val commonMain by getting {
@@ -60,6 +70,9 @@ kotlin {
         val androidMain by getting {
             dependsOn(jbMain)
         }
+        val wasmJsMain by getting {
+            dependsOn(jbMain)
+        }
         val commonTest by getting {}
         val jbTest by creating {
             dependsOn(commonTest)
@@ -68,6 +81,9 @@ kotlin {
             dependsOn(jbTest)
         }
         val androidSharedTest by getting {
+            dependsOn(jbTest)
+        }
+        val wasmJsTest by getting {
             dependsOn(jbTest)
         }
     }

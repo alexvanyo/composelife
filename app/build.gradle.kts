@@ -99,14 +99,14 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(projects.databaseTest)
-                implementation(projects.dispatchersTest)
-                implementation(projects.filesystemTest)
+                implementation(projects.databaseTestFixtures)
+                implementation(projects.dispatchersTestFixtures)
+                implementation(projects.filesystemTestFixtures)
                 implementation(projects.injectTest)
                 implementation(projects.patterns)
-                implementation(projects.preferencesTest)
+                implementation(projects.preferencesTestFixtures)
                 implementation(projects.uiCommon)
-                implementation(projects.workTest)
+                implementation(projects.workTestFixtures)
             }
         }
         val androidSharedTest by getting {

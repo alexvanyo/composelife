@@ -48,7 +48,7 @@ kotlin {
                 api(libs.kotlinx.coroutines.test)
                 api(projects.kmpAndroidRunner)
 
-                implementation(projects.dispatchersTest)
+                implementation(projects.dispatchersTestFixtures)
                 implementation(projects.injectScopes)
                 implementation(projects.updatable)
             }
@@ -57,14 +57,19 @@ kotlin {
             dependsOn(commonMain)
             dependencies {
                 api(libs.jetbrains.compose.uiTest)
+            }
+        }
+        val jvmMain by creating {
+            dependsOn(jbMain)
+            dependencies {
                 implementation(libs.kotlin.test.junit)
             }
         }
         val desktopMain by getting {
-            dependsOn(jbMain)
+            dependsOn(jvmMain)
         }
         val androidMain by getting {
-            dependsOn(jbMain)
+            dependsOn(jvmMain)
             dependencies {
                 api(libs.androidx.compose.uiTestJunit4)
                 api(libs.androidx.test.runner)
@@ -72,6 +77,9 @@ kotlin {
 
                 implementation(libs.leakCanary.android)
             }
+        }
+        val wasmJsMain by getting {
+            dependsOn(jbMain)
         }
     }
 }

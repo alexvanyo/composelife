@@ -154,7 +154,6 @@ co.touchlab:kermit-android:2.0.8
 co.touchlab:kermit-core-android:2.0.8
 co.touchlab:kermit-core:2.0.8
 co.touchlab:kermit:2.0.8
-com.github.livefront.sealed-enum:runtime:0.7.0
 com.google.accompanist:accompanist-drawablepainter:0.37.3
 com.google.ar:impress:0.0.6
 com.google.code.findbugs:jsr305:3.0.2
@@ -231,8 +230,6 @@ org.jetbrains.compose.ui:ui-tooling-preview:1.10.0+dev3025
 org.jetbrains.compose.ui:ui-unit:1.10.0+dev3025
 org.jetbrains.compose.ui:ui-util:1.10.0+dev3025
 org.jetbrains.compose.ui:ui:1.10.0+dev3025
-org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0
-org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0
 org.jetbrains.kotlin:kotlin-stdlib:2.2.20
 org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.4.0
 org.jetbrains.kotlinx:kotlinx-collections-immutable:0.4.0

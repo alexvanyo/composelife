@@ -89,6 +89,8 @@ kotlin = "2.2.20"
 kotlinPoet = "2.2.0"
 #kotlinxCollectionsImmutable
 kotlinxCollectionsImmutable = "0.4.0"
+#kotlinCompileTesting
+kotlinCompileTesting = "1.5.0"
 #kotlinxCoroutines
 kotlinxCoroutines = "1.10.2"
 #kotlinxDatetime
@@ -103,6 +105,8 @@ ksp = "2.2.20-2.0.3"
 ktor = "3.3.0"
 #jacoco
 jacoco = "0.8.13"
+#jetbrainsSavedState
+jetbrainsSavedState = "1.3.1"
 #jetbrainsCompose
 jetbrainsCompose = "1.10.0+dev3025"
 #jetbrainsComposeMaterialIconsExtended
@@ -113,6 +117,8 @@ jetbrainsComposeMaterial3 = "1.10.0+dev3025"
 jetbrainsComposeMaterial3Adaptive = "1.2.0+dev3025"
 #junit4
 junit4 = "4.13.2"
+#junit5
+junit5 = "5.8.1"
 #leakCanary
 leakCanary = "3.0-alpha-8"
 #metro
@@ -127,8 +133,6 @@ proguard = "7.7.0"
 robolectric = "4.16"
 #roborazzi
 roborazzi = "1.50.0"
-#sealedEnum
-sealedEnum = "0.7.0"
 #slf4j
 slf4j = "2.1.0-alpha1"
 #showkase
@@ -222,6 +226,8 @@ detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-form
 detekt-gradlePlugin = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gradle-plugin", version.ref = "detekt" }
 google-autoValue-annotations = { group = "com.google.auto.value", name = "auto-value-annotations", version.ref = "googleAutoValue" }
 guava-android = { group = "com.google.guava", name = "guava", version.ref = "guavaAndroid" }
+jetbrains-savedState = { group = "org.jetbrains.androidx.savedstate", name = "savedstate", version.ref = "jetbrainsSavedState" }
+jetbrains-savedState-compose = { group = "org.jetbrains.androidx.savedstate", name = "savedstate-compose", version.ref = "jetbrainsSavedState" }
 jetbrains-compose-animation = { group = "org.jetbrains.compose.animation", name = "animation", version.ref = "jetbrainsCompose" }
 jetbrains-compose-foundation = { group = "org.jetbrains.compose.foundation", name = "foundation", version.ref = "jetbrainsCompose" }
 jetbrains-compose-gradlePlugin = { group = "org.jetbrains.compose", name = "compose-gradle-plugin", version.ref = "jetbrainsCompose" }
@@ -237,8 +243,11 @@ jetbrains-compose-uiToolingPreview = { group = "org.jetbrains.compose.ui", name 
 jetbrains-compose-uiUnit = { group = "org.jetbrains.compose.ui", name = "ui-unit", version.ref = "jetbrainsCompose" }
 jetbrains-compose-uiUtil = { group = "org.jetbrains.compose.ui", name = "ui-util", version.ref = "jetbrainsCompose" }
 junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
+junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junit5" }
 keeper-gradlePlugin = { group = "com.slack.keeper", name = "keeper", version.ref = "keeper" }
 kermit = { group = "co.touchlab", name = "kermit", version.ref = "kermit" }
+kotlinCompileTesting-base = { module = "com.github.tschuchortdev:kotlin-compile-testing", version.ref = "kotlinCompileTesting" }
+kotlinCompileTesting-ksp = { module = "com.github.tschuchortdev:kotlin-compile-testing-ksp", version.ref = "kotlinCompileTesting" }
 kotlin-composeCompilerGradlePlugin = { group = "org.jetbrains.kotlin", name = "compose-compiler-gradle-plugin", version.ref = "kotlin" }
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit", version.ref = "kotlin" }
@@ -258,7 +267,9 @@ kotlinx-serialization-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 ksp-api = { group = "com.google.devtools.ksp", name = "symbol-processing-api", version.ref = "ksp" }
 ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+ksp-runtime = { module = "com.google.devtools.ksp:symbol-processing", version.ref = "ksp" }
 ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
+ktor-client-js = { group = "io.ktor", name = "ktor-client-js", version.ref = "ktor" }
 ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
 ktor-client-mock = { group = "io.ktor", name = "ktor-client-mock", version.ref = "ktor" }
 ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
@@ -271,8 +282,6 @@ okio-fakefilesystem = { group = "com.squareup.okio", name = "okio-fakefilesystem
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 roborazzi-core =  { group = "io.github.takahirom.roborazzi", name = "roborazzi", version.ref = "roborazzi" }
 roborazzi-compose =  { group = "io.github.takahirom.roborazzi", name = "roborazzi-compose", version.ref = "roborazzi" }
-sealedEnum-ksp = { group = "com.github.livefront.sealed-enum", name = "ksp", version.ref = "sealedEnum" }
-sealedEnum-runtime = { group = "com.github.livefront.sealed-enum", name = "runtime", version.ref = "sealedEnum" }
 showkase-annotation = { group = "com.airbnb.android", name = "showkase-annotation", version.ref = "showkase" }
 showkase-processor = { group = "com.airbnb.android", name = "showkase-processor", version.ref = "showkase" }
 showkase-runtime = { group = "com.airbnb.android", name = "showkase", version.ref = "showkase" }

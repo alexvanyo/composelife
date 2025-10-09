@@ -23,9 +23,11 @@ import kotlin.jvm.java
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidLibrary)
+    alias(libs.plugins.convention.androidLibraryCompose)
     alias(libs.plugins.convention.androidLibraryJacoco)
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
+    alias(libs.plugins.convention.kotlinMultiplatformCompose)
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.gradleDependenciesSorter)
     alias(libs.plugins.metro)
@@ -61,6 +63,7 @@ kotlin {
                 api(projects.dispatchers)
                 api(projects.updatable)
 
+                implementation(libs.androidx.compose.runtime)
                 implementation(libs.sqldelight.primitiveAdapters)
                 implementation(projects.injectScopes)
             }
@@ -82,15 +85,17 @@ kotlin {
                 implementation(libs.sqldelight.webDriver)
                 implementation(npm("@cashapp/sqldelight-sqljs-worker", libs.versions.sqldelight.get()))
                 implementation(npm("sql.js", libs.versions.sqlJs.get()))
+                implementation(devNpm("copy-webpack-plugin", libs.versions.webPackPlugin.get()))
+                implementation(libs.jetbrains.compose.ui)
             }
         }
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
-                implementation(projects.databaseTest)
-                implementation(projects.dispatchersTest)
-                implementation(projects.filesystemTest)
+                implementation(projects.databaseTestFixtures)
+                implementation(projects.dispatchersTestFixtures)
+                implementation(projects.filesystemTestFixtures)
                 implementation(projects.injectTest)
                 implementation(projects.kmpAndroidRunner)
             }

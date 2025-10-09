@@ -57,18 +57,18 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.navigationEvent)
                 implementation(projects.data)
-                implementation(projects.databaseTest)
-                implementation(projects.dispatchersTest)
-                implementation(projects.filesystemTest)
+                implementation(projects.databaseTestFixtures)
+                implementation(projects.dispatchersTestFixtures)
+                implementation(projects.filesystemTestFixtures)
                 implementation(projects.injectScopes)
-                implementation(projects.networkTest)
-                implementation(projects.preferencesTest)
+                implementation(projects.networkTestFixtures)
+                implementation(projects.preferencesTestFixtures)
                 implementation(projects.uiCommon)
                 implementation(projects.uiMobile)
                 implementation(projects.uiSettings)
                 implementation(projects.uiToolingPreview)
                 implementation(projects.work)
-                implementation(projects.workTest)
+                implementation(projects.workTestFixtures)
             }
         }
         val jbMain by creating {

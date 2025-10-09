@@ -19,6 +19,8 @@ import kotlin.jvm.java
  * limitations under the License.
  */
 
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidLibrary)
@@ -33,6 +35,16 @@ kotlin {
         minSdk = 23
     }
     jvm("desktop")
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser {
+            testTask {
+                useKarma {
+                    useChromiumHeadless()
+                }
+            }
+        }
+    }
 
     sourceSets {
         val commonMain by getting {
@@ -40,12 +52,28 @@ kotlin {
                 api(libs.ktor.client.core)
 
                 implementation(libs.ktor.client.logging)
-                implementation(libs.ktor.client.okhttp)
-                implementation(libs.slf4j.nop)
                 implementation(projects.dispatchers)
                 implementation(projects.injectScopes)
                 implementation(projects.logging)
                 implementation(projects.updatable)
+            }
+        }
+        val jvmMain by creating {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.ktor.client.okhttp)
+                implementation(libs.slf4j.nop)
+            }
+        }
+        val desktopMain by getting {
+            dependsOn(jvmMain)
+        }
+        val androidMain by getting {
+            dependsOn(jvmMain)
+        }
+        val wasmJsMain by getting {
+            dependencies {
+                implementation(libs.ktor.client.js)
             }
         }
     }

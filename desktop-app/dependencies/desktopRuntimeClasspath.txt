@@ -54,7 +54,6 @@ co.touchlab:kermit-core-jvm:2.0.8
 co.touchlab:kermit-core:2.0.8
 co.touchlab:kermit-jvm:2.0.8
 co.touchlab:kermit:2.0.8
-com.github.livefront.sealed-enum:runtime:0.7.0
 com.squareup.okhttp3:okhttp-jvm:5.1.0
 com.squareup.okhttp3:okhttp:5.1.0
 com.squareup.okio:okio-jvm:3.16.0
