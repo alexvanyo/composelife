@@ -66,14 +66,14 @@ kotlin {
         }
         val desktopMain by getting {
             dependsOn(jbMain)
-            configurations["kspDesktop"].dependencies.add(libs.sealedEnum.ksp.get())
+            configurations["kspDesktop"].dependencies.add(projects.sealedEnum.ksp)
             dependencies {
                 implementation(compose.desktop.currentOs)
             }
         }
         val androidMain by getting {
             dependsOn(jbMain)
-            configurations["kspAndroid"].dependencies.add(libs.sealedEnum.ksp.get())
+            configurations["kspAndroid"].dependencies.add(projects.sealedEnum.ksp)
             dependencies {
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.compose.material3)
@@ -84,7 +84,7 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlinx.coroutines.test)
-                implementation(projects.dispatchersTest)
+                implementation(projects.dispatchersTestFixtures)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
                 implementation(projects.testActivity)

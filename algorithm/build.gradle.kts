@@ -16,6 +16,7 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -48,6 +49,16 @@ kotlin {
             create("molecule") { setExecutionSourceFrom(moleculeTest) }
         }
     }
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser {
+            testTask {
+                useKarma {
+                    useChromiumHeadless()
+                }
+            }
+        }
+    }
 
     sourceSets {
         val commonMain by getting {
@@ -68,21 +79,25 @@ kotlin {
                 implementation(projects.injectScopes)
             }
         }
-        val jvmMain by creating {
+        val jbMain by creating {
             dependsOn(commonMain)
             dependencies {
                 implementation(libs.jetbrains.compose.uiUnit)
-                implementation(libs.sealedEnum.runtime)
+                implementation(projects.sealedEnum.runtime)
             }
         }
-        val jvmNonAndroidMain by creating {
-            dependsOn(jvmMain)
+        val jvmMain by creating {
+            dependsOn(jbMain)
+        }
+        val jbNonAndroidMain by creating {
+            dependsOn(jbMain)
         }
         val desktopMain by getting {
-            dependsOn(jvmNonAndroidMain)
+            dependsOn(jvmMain)
+            dependsOn(jbNonAndroidMain)
             configurations["kspDesktop"].dependencies.addAll(
                 listOf(
-                    libs.sealedEnum.ksp.get(),
+                    projects.sealedEnum.ksp,
                 )
             )
             dependencies {
@@ -93,7 +108,7 @@ kotlin {
             dependsOn(jvmMain)
             configurations["kspAndroid"].dependencies.addAll(
                 listOf(
-                    libs.sealedEnum.ksp.get(),
+                    projects.sealedEnum.ksp,
                 )
             )
             dependencies {
@@ -101,19 +116,34 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.android)
             }
         }
+        val wasmJsMain by getting {
+            dependsOn(jbNonAndroidMain)
+            configurations["kspWasmJs"].dependencies.addAll(
+                listOf(
+                    projects.sealedEnum.ksp,
+                )
+            )
+        }
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
                 implementation(projects.algorithmTestResources)
-                implementation(projects.dispatchersTest)
+                implementation(projects.dispatchersTestFixtures)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
                 implementation(projects.patterns)
             }
         }
-        val jvmTest by creating {
+        val jbTest by creating {
             dependsOn(commonTest)
+            dependencies {
+                implementation(libs.jetbrains.compose.foundation)
+                implementation(libs.jetbrains.compose.uiTest)
+            }
+        }
+        val jvmTest by creating {
+            dependsOn(jbTest)
             dependencies {
                 implementation(libs.testParameterInjector.junit4)
             }
@@ -123,21 +153,14 @@ kotlin {
                 implementation(libs.molecule)
             }
         }
-        val jbTest by creating {
-            dependsOn(jvmTest)
-            dependencies {
-                implementation(libs.jetbrains.compose.foundation)
-                implementation(libs.jetbrains.compose.uiTest)
-            }
-        }
         val desktopTest by getting {
-            dependsOn(jbTest)
+            dependsOn(jvmTest)
             dependencies {
                 implementation(compose.desktop.currentOs)
             }
         }
         val androidSharedTest by getting {
-            dependsOn(jbTest)
+            dependsOn(jvmTest)
             dependencies {
                 implementation(libs.androidx.compose.uiTest)
                 implementation(libs.androidx.test.core)

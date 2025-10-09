@@ -53,56 +53,65 @@ kotlin {
             dependencies {
                 api(libs.androidx.compose.runtime)
                 api(libs.androidx.compose.runtime.saveable)
-                api(libs.kotlinx.serialization.core)
-            }
-        }
-        val jvmMain by creating {
-            dependsOn(commonMain)
-            dependencies {
                 api(libs.androidx.savedState)
                 api(libs.androidx.savedState.compose)
+                api(libs.kotlinx.serialization.core)
+                api(projects.sealedEnum.runtime)
+            }
+        }
+        val jbMain by creating {
+            dependsOn(commonMain)
+            dependencies {
                 api(libs.jetbrains.compose.uiGeometry)
                 api(libs.jetbrains.compose.uiUnit)
-                api(libs.sealedEnum.runtime)
 
                 implementation(libs.jetbrains.compose.uiUtil)
             }
         }
-        val jbMain by creating {
-            dependsOn(jvmMain)
+        val jvmMain by creating {
+            dependsOn(jbMain)
         }
         val desktopMain by getting {
-            dependsOn(jbMain)
+            dependsOn(jvmMain)
         }
         val androidMain by getting {
+            dependsOn(jvmMain)
+        }
+        val wasmJsMain by getting {
             dependsOn(jbMain)
+            dependencies {
+                implementation(libs.jetbrains.compose.ui)
+            }
         }
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlinx.coroutines.test)
-                implementation(projects.dispatchersTest)
+                implementation(projects.dispatchersTestFixtures)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
                 implementation(projects.testActivity)
             }
         }
-        val jvmTest by creating {
-            dependsOn(commonTest)
-        }
         val jbTest by creating {
-            dependsOn(jvmTest)
+            dependsOn(commonTest)
             dependencies {
                 implementation(libs.jetbrains.compose.foundation)
                 implementation(libs.jetbrains.compose.uiTest)
             }
         }
-        val desktopTest by getting {
+        val jvmTest by creating {
             dependsOn(jbTest)
+        }
+        val desktopTest by getting {
+            dependsOn(jvmTest)
             dependencies {
                 implementation(compose.desktop.currentOs)
             }
         }
         val androidSharedTest by getting {
+            dependsOn(jvmTest)
+        }
+        val wasmJsTest by getting {
             dependsOn(jbTest)
         }
     }
