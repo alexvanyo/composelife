@@ -16,13 +16,17 @@
 
 package com.alexvanyo.composelife.ui.app.action
 
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.navigationevent.NavigationEventInfo
@@ -30,6 +34,8 @@ import androidx.navigationevent.NavigationEventTransitionState
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
+import com.alexvanyo.composelife.model.CellState
+import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackMap
 import com.alexvanyo.composelife.navigation.BackstackState
@@ -37,9 +43,14 @@ import com.alexvanyo.composelife.navigation.canNavigateBack
 import com.alexvanyo.composelife.navigation.popBackstack
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
 import com.alexvanyo.composelife.navigation.withExpectedActor
+import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseEditingState
+import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseState
+import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneCtx
 import com.alexvanyo.composelife.ui.util.TargetState
+import com.alexvanyo.composelife.ui.util.isInProgress
 import dev.zacsweers.metro.Inject
+import kotlinx.coroutines.launch
 import kotlin.uuid.Uuid
 
 // region templated-ctx
@@ -58,10 +69,9 @@ class CellUniverseActionCardCtx(
  */
 interface CellUniverseActionCardState {
 
-    /**
-     * Sets if the card is expanded.
-     */
-    fun setIsExpanded(isExpanded: Boolean)
+    val editingState: InteractiveCellUniverseEditingState
+
+    val actionControlRowState: ActionControlRowState
 
     /**
      * The target state for whether the card is expanded.
@@ -83,6 +93,8 @@ interface CellUniverseActionCardState {
      */
     val canNavigateBack: Boolean
 
+    val contentScrollStateMap: Map<Uuid, ScrollState>
+
     fun onSpeedClicked(actorBackstackEntryId: Uuid? = null)
 
     fun onEditClicked(actorBackstackEntryId: Uuid? = null)
@@ -95,12 +107,23 @@ interface CellUniverseActionCardState {
 /**
  * Remembers the a default implementation of [CellUniverseActionCardState].
  */
-@Suppress("LongMethod", "CyclomaticComplexMethod")
+@Suppress("LongMethod", "CyclomaticComplexMethod", "LongParameterList")
 @Composable
 fun rememberCellUniverseActionCardState(
     enableBackHandler: Boolean,
+    isViewportTracking: Boolean,
+    setIsViewportTracking: (Boolean) -> Unit,
+    showImmersiveModeControl: Boolean,
+    isImmersiveMode: Boolean,
+    setIsImmersiveMode: (Boolean) -> Unit,
+    showFullSpaceModeControl: Boolean,
+    isFullSpaceMode: Boolean,
+    setIsFullSpaceMode: (Boolean) -> Unit,
+    isExpanded: Boolean,
     setIsExpanded: (Boolean) -> Unit,
     expandedTargetState: TargetState<Boolean, *>,
+    temporalGameOfLifeState: TemporalGameOfLifeState,
+    editingState: InteractiveCellUniverseEditingState,
 ): CellUniverseActionCardState {
     var currentInlineBackstack: InlineActionCardBackstack by rememberSaveable(
         stateSaver = InlineActionCardBackstack.Saver,
@@ -193,6 +216,16 @@ fun rememberCellUniverseActionCardState(
         }
     }
 
+    val contentScrollStateMap =
+        inlineNavigationState.entryMap.mapValues { (entryId, _) ->
+            key(entryId) {
+                rememberScrollState(initial = Int.MAX_VALUE)
+            }
+        }
+    val currentScrollState = contentScrollStateMap.getValue(
+        inlineNavigationState.currentEntryId,
+    )
+
     val dispatcher = requireNotNull(LocalNavigationEventDispatcherOwner.current).navigationEventDispatcher
     val navigationEventHistory by dispatcher.history.collectAsState()
     val currentInfo = navigationEventHistory.mergedHistory.getOrNull(navigationEventHistory.currentIndex)
@@ -218,9 +251,78 @@ fun rememberCellUniverseActionCardState(
         },
     )
 
+    val coroutineScope = rememberCoroutineScope()
+
     return object : CellUniverseActionCardState {
-        override fun setIsExpanded(isExpanded: Boolean) {
-            setIsExpanded(isExpanded)
+        override val editingState: InteractiveCellUniverseEditingState
+            get() = editingState
+
+        override val actionControlRowState: ActionControlRowState = object : ActionControlRowState {
+            override val isElevated: Boolean
+                get() = !expandedTargetState.isInProgress() &&
+                    expandedTargetState.current &&
+                    currentScrollState.canScrollForward
+            override var isRunning: Boolean
+                get() =
+                    when (temporalGameOfLifeState.status) {
+                        TemporalGameOfLifeState.EvolutionStatus.Paused -> false
+                        is TemporalGameOfLifeState.EvolutionStatus.Running -> true
+                    }
+                set(value) {
+                    temporalGameOfLifeState.setIsRunning(value)
+                }
+            override var isExpanded: Boolean
+                get() = isExpanded
+                set(value) {
+                    setIsExpanded(value)
+                }
+            override var isViewportTracking: Boolean
+                get() = isViewportTracking
+                set(value) {
+                    setIsViewportTracking(value)
+                }
+            override val showImmersiveModeControl: Boolean
+                get() = showImmersiveModeControl
+            override var isImmersiveMode: Boolean
+                get() = isImmersiveMode
+                set(value) {
+                    setIsImmersiveMode(value)
+                }
+            override val showFullSpaceModeControl: Boolean
+                get() = showFullSpaceModeControl
+            override var isFullSpaceMode: Boolean
+                get() = isFullSpaceMode
+                set(value) {
+                    setIsFullSpaceMode(value)
+                }
+            override val selectionState: SelectionState
+                get() = editingState.selectionState
+
+            override fun onStep() {
+                coroutineScope.launch {
+                    temporalGameOfLifeState.step()
+                }
+            }
+
+            override fun onClearSelection() {
+                editingState.onClearSelection()
+            }
+
+            override fun onCopy() {
+                editingState.onCopy()
+            }
+
+            override fun onCut() {
+                editingState.onCut()
+            }
+
+            override fun onPaste() {
+                editingState.onPaste()
+            }
+
+            override fun onApplyPaste() {
+                editingState.onApplyPaste()
+            }
         }
 
         override val expandedTargetState: TargetState<Boolean, *>
@@ -231,6 +333,8 @@ fun rememberCellUniverseActionCardState(
         override val inlineNavigationEventTransitionState get() = navigationEventTransitionState
 
         override val canNavigateBack: Boolean get() = canNavigateBack
+
+        override val contentScrollStateMap get() = contentScrollStateMap
 
         override fun onSpeedClicked(actorBackstackEntryId: Uuid?) {
             currentInlineNavController.withExpectedActor(actorBackstackEntryId) {
