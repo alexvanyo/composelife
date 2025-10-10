@@ -16,8 +16,7 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
-import com.android.build.api.dsl.KotlinMultiplatformAndroidDeviceTestCompilation
-import kotlin.jvm.java
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -37,6 +36,16 @@ kotlin {
         configureGradleManagedDevices(setOf(FormFactor.Mobile), this)
     }
     jvm("desktop")
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser {
+            testTask {
+                useKarma {
+                    useChromiumHeadless()
+                }
+            }
+        }
+    }
 
     sourceSets {
         val commonMain by getting {
@@ -64,8 +73,11 @@ kotlin {
                 implementation(libs.jetbrains.compose.materialIconsExtended)
             }
         }
-        val desktopMain by getting {
+        val nonAndroidMain by creating {
             dependsOn(jbMain)
+        }
+        val desktopMain by getting {
+            dependsOn(nonAndroidMain)
             configurations["kspDesktop"].dependencies.add(projects.sealedEnum.ksp)
             dependencies {
                 implementation(compose.desktop.currentOs)
@@ -81,6 +93,10 @@ kotlin {
                 implementation(libs.androidx.xr.compose)
             }
         }
+        val wasmJsMain by getting {
+            dependsOn(nonAndroidMain)
+            configurations["kspWasmJs"].dependencies.add(projects.sealedEnum.ksp)
+        }
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlinx.coroutines.test)
@@ -90,11 +106,8 @@ kotlin {
                 implementation(projects.testActivity)
             }
         }
-        val jvmTest by creating {
-            dependsOn(commonTest)
-        }
         val jbTest by creating {
-            dependsOn(jvmTest)
+            dependsOn(commonTest)
             dependencies {
                 implementation(libs.jetbrains.compose.uiTest)
             }
@@ -103,6 +116,9 @@ kotlin {
             dependsOn(jbTest)
         }
         val androidSharedTest by getting {
+            dependsOn(jbTest)
+        }
+        val wasmJsTest by getting {
             dependsOn(jbTest)
         }
     }
