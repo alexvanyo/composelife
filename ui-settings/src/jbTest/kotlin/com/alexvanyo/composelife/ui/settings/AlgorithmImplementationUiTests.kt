@@ -27,83 +27,87 @@ import androidx.compose.ui.test.isPopup
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.AlgorithmType
 import com.alexvanyo.composelife.ui.settings.resources.HashLifeAlgorithm
 import com.alexvanyo.composelife.ui.settings.resources.NaiveAlgorithm
 import com.alexvanyo.composelife.ui.settings.resources.Strings
-import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @OptIn(ExperimentalTestApi::class)
-@RunWith(KmpAndroidJUnit4::class)
-class AlgorithmImplementationUiTests {
+class AlgorithmImplementationUiTests : BaseKmpTest() {
 
     @Test
-    fun naive_is_displayed_correctly() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun naive_is_displayed_correctly() {
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            AlgorithmImplementationUi(
-                algorithmChoice = AlgorithmType.NaiveAlgorithm,
-                setAlgorithmChoice = {},
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                AlgorithmImplementationUi(
+                    algorithmChoice = AlgorithmType.NaiveAlgorithm,
+                    setAlgorithmChoice = {},
+                )
+            }
+
+            onNodeWithText(resolver(Strings.NaiveAlgorithm))
+                .assertExists()
+                .assertHasClickAction()
         }
-
-        onNodeWithText(resolver(Strings.NaiveAlgorithm))
-            .assertExists()
-            .assertHasClickAction()
     }
 
     @Test
-    fun hashlife_is_displayed_correctly() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun hashlife_is_displayed_correctly() {
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            AlgorithmImplementationUi(
-                algorithmChoice = AlgorithmType.HashLifeAlgorithm,
-                setAlgorithmChoice = {},
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                AlgorithmImplementationUi(
+                    algorithmChoice = AlgorithmType.HashLifeAlgorithm,
+                    setAlgorithmChoice = {},
+                )
+            }
+
+            onNodeWithText(resolver(Strings.HashLifeAlgorithm))
+                .assertExists()
+                .assertHasClickAction()
         }
-
-        onNodeWithText(resolver(Strings.HashLifeAlgorithm))
-            .assertExists()
-            .assertHasClickAction()
     }
 
     @Test
-    fun algorithm_implementation_popup_displays_options() = runComposeUiTest {
-        var algorithmChoice: AlgorithmType by mutableStateOf(AlgorithmType.NaiveAlgorithm)
+    fun algorithm_implementation_popup_displays_options() {
+        runComposeUiTest {
+            var algorithmChoice: AlgorithmType by mutableStateOf(AlgorithmType.NaiveAlgorithm)
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            AlgorithmImplementationUi(
-                algorithmChoice = algorithmChoice,
-                setAlgorithmChoice = { algorithmChoice = it },
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                AlgorithmImplementationUi(
+                    algorithmChoice = algorithmChoice,
+                    setAlgorithmChoice = { algorithmChoice = it },
+                )
+            }
+
+            onNodeWithText(resolver(Strings.NaiveAlgorithm))
+                .performClick()
+
+            onNode(hasAnyAncestor(isPopup()) and hasText(resolver(Strings.HashLifeAlgorithm)))
+                .assertHasClickAction()
+                .performClick()
+
+            assertEquals(AlgorithmType.HashLifeAlgorithm, algorithmChoice)
+
+            onNode(isPopup())
+                .assertDoesNotExist()
+
+            onNodeWithText(resolver(Strings.HashLifeAlgorithm))
+                .assertExists()
+                .assertHasClickAction()
         }
-
-        onNodeWithText(resolver(Strings.NaiveAlgorithm))
-            .performClick()
-
-        onNode(hasAnyAncestor(isPopup()) and hasText(resolver(Strings.HashLifeAlgorithm)))
-            .assertHasClickAction()
-            .performClick()
-
-        assertEquals(AlgorithmType.HashLifeAlgorithm, algorithmChoice)
-
-        onNode(isPopup())
-            .assertDoesNotExist()
-
-        onNodeWithText(resolver(Strings.HashLifeAlgorithm))
-            .assertExists()
-            .assertHasClickAction()
     }
 }
