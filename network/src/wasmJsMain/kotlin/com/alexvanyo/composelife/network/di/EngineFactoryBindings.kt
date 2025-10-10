@@ -14,30 +14,21 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.util
+package com.alexvanyo.composelife.network.di
 
+import com.alexvanyo.composelife.network.EngineFactoryWithConfigBlock
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
-import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.Inject
-import kotlinx.coroutines.awaitCancellation
-import kotlinx.datetime.TimeZone
+import dev.zacsweers.metro.Provides
+import io.ktor.client.engine.js.Js
 
 @ContributesTo(AppScope::class)
 @BindingContainer
-interface WebTimeZoneHolderBindings {
-    @Binds
-    val WebTimeZoneHolder.bind: TimeZoneHolder
-}
-
-@Inject
-class WebTimeZoneHolder : TimeZoneHolder {
-    override val timeZone: TimeZone
-        get() = TimeZone.currentSystemDefault()
-
-    /**
-     * TODO: Figure out how to listen for time zone updates on web.
-     */
-    override suspend fun update(): Nothing = awaitCancellation()
+interface EngineFactoryBindings {
+    companion object {
+        @Provides
+        internal fun providesEngineFactoryWithConfigBlock(): EngineFactoryWithConfigBlock<*> =
+            EngineFactoryWithConfigBlock(Js) {}
+    }
 }
