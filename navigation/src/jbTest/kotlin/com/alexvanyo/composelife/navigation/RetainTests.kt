@@ -20,28 +20,20 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.retain.RetainedContentHost
 import androidx.compose.runtime.retain.retain
-import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
-import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
-import org.junit.runner.RunWith
+import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
 import kotlin.test.Ignore
 import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalTestApi::class)
-@RunWith(KmpAndroidJUnit4::class)
-class RetainTests {
+class RetainTests : BaseKmpTest() {
 
     @Ignore
     @Test

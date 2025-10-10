@@ -103,6 +103,8 @@ ksp = "2.2.20-2.0.3"
 ktor = "3.3.1"
 #jacoco
 jacoco = "0.8.13"
+#jetbrainsNavigationEvent
+jetbrainsNavigationEvent = "1.0.0-alpha01"
 #jetbrainsSavedState
 jetbrainsSavedState = "1.4.0-alpha02"
 #jetbrainsCompose
@@ -224,6 +226,7 @@ detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-form
 detekt-gradlePlugin = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gradle-plugin", version.ref = "detekt" }
 google-autoValue-annotations = { group = "com.google.auto.value", name = "auto-value-annotations", version.ref = "googleAutoValue" }
 guava-android = { group = "com.google.guava", name = "guava", version.ref = "guavaAndroid" }
+jetbrains-navigationEvent-compose = { group = "org.jetbrains.androidx.navigationevent", name = "navigationevent-compose", version.ref = "jetbrainsNavigationEvent" }
 jetbrains-savedState = { group = "org.jetbrains.androidx.savedstate", name = "savedstate", version.ref = "jetbrainsSavedState" }
 jetbrains-savedState-compose = { group = "org.jetbrains.androidx.savedstate", name = "savedstate-compose", version.ref = "jetbrainsSavedState" }
 jetbrains-compose-animation = { group = "org.jetbrains.compose.animation", name = "animation", version.ref = "jetbrainsCompose" }
