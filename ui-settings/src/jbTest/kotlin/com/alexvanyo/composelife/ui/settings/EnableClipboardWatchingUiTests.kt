@@ -26,97 +26,103 @@ import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.ui.settings.resources.EnableClipboardWatching
 import com.alexvanyo.composelife.ui.settings.resources.Strings
-import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
-@RunWith(KmpAndroidJUnit4::class)
-class EnableClipboardWatchingUiTests {
+class EnableClipboardWatchingUiTests : BaseKmpTest() {
 
     @Test
-    fun disabled_is_displayed_correctly() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun disabled_is_displayed_correctly() {
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            EnableClipboardWatchingUi(
-                enableClipboardWatching = false,
-                setEnableClipboardWatching = {},
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                EnableClipboardWatchingUi(
+                    enableClipboardWatching = false,
+                    setEnableClipboardWatching = {},
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.EnableClipboardWatching))
+                .assertExists()
+                .assertIsOff()
+                .assertHasClickAction()
         }
-
-        onNodeWithContentDescription(resolver(Strings.EnableClipboardWatching))
-            .assertExists()
-            .assertIsOff()
-            .assertHasClickAction()
     }
 
     @Test
-    fun disabled_will_update_correctly() = runComposeUiTest {
-        var enableClipboardWatching by mutableStateOf(false)
+    fun disabled_will_update_correctly() {
+        runComposeUiTest {
+            var enableClipboardWatching by mutableStateOf(false)
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            EnableClipboardWatchingUi(
-                enableClipboardWatching = enableClipboardWatching,
-                setEnableClipboardWatching = {
-                    enableClipboardWatching = it
-                },
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                EnableClipboardWatchingUi(
+                    enableClipboardWatching = enableClipboardWatching,
+                    setEnableClipboardWatching = {
+                        enableClipboardWatching = it
+                    },
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.EnableClipboardWatching))
+                .performClick()
+
+            assertTrue(enableClipboardWatching)
         }
-
-        onNodeWithContentDescription(resolver(Strings.EnableClipboardWatching))
-            .performClick()
-
-        assertTrue(enableClipboardWatching)
     }
 
     @Test
-    fun enable_is_displayed_correctly() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun enable_is_displayed_correctly() {
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            EnableClipboardWatchingUi(
-                enableClipboardWatching = true,
-                setEnableClipboardWatching = {},
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                EnableClipboardWatchingUi(
+                    enableClipboardWatching = true,
+                    setEnableClipboardWatching = {},
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.EnableClipboardWatching))
+                .assertExists()
+                .assertIsOn()
+                .assertHasClickAction()
         }
-
-        onNodeWithContentDescription(resolver(Strings.EnableClipboardWatching))
-            .assertExists()
-            .assertIsOn()
-            .assertHasClickAction()
     }
 
     @Test
-    fun enable_will_update_correctly() = runComposeUiTest {
-        var enableClipboardWatching by mutableStateOf(true)
+    fun enable_will_update_correctly() {
+        runComposeUiTest {
+            var enableClipboardWatching by mutableStateOf(true)
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            EnableClipboardWatchingUi(
-                enableClipboardWatching = enableClipboardWatching,
-                setEnableClipboardWatching = {
-                    enableClipboardWatching = it
-                },
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                EnableClipboardWatchingUi(
+                    enableClipboardWatching = enableClipboardWatching,
+                    setEnableClipboardWatching = {
+                        enableClipboardWatching = it
+                    },
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.EnableClipboardWatching))
+                .performClick()
+
+            assertFalse(enableClipboardWatching)
         }
-
-        onNodeWithContentDescription(resolver(Strings.EnableClipboardWatching))
-            .performClick()
-
-        assertFalse(enableClipboardWatching)
     }
 }
