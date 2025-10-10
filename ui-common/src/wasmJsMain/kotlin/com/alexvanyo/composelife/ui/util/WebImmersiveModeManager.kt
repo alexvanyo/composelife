@@ -17,9 +17,19 @@
 package com.alexvanyo.composelife.ui.util
 
 import com.alexvanyo.composelife.scopes.UiScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.awaitCancellation
+
+@ContributesTo(UiScope::class)
+@BindingContainer
+interface WebImmersiveModeManagerBindings {
+    @Binds
+    val WebImmersiveModeManager.bind: ImmersiveModeManager
+}
 
 /**
  * TODO: Add support for immersive mode controls for web

@@ -18,13 +18,23 @@
 package com.alexvanyo.composelife.dispatchers
 
 import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+
+@ContributesTo(AppScope::class)
+@BindingContainer
+interface DefaultComposeLifeDispatchersBindings {
+    @Binds
+    val DefaultComposeLifeDispatchers.bind: ComposeLifeDispatchers
+}
 
 /**
  * The default implementation of [ComposeLifeDispatchers], which just delegates to the normal [Dispatchers] versions.
