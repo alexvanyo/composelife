@@ -14,23 +14,6 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.model
+package com.alexvanyo.composelife.ui.cells.util
 
-import dev.zacsweers.metro.Inject
-
-expect class CellStateParser {
-    internal val flexibleCellStateSerializer: FlexibleCellStateSerializer
-}
-
-suspend fun CellStateParser.parseCellState(text: CharSequence?): DeserializationResult =
-    if (text.isNullOrEmpty()) {
-        DeserializationResult.Unsuccessful(
-            warnings = emptyList(),
-            errors = listOf(EmptyInput),
-        )
-    } else {
-        flexibleCellStateSerializer.deserializeToCellState(
-            format = CellStateFormat.Unknown,
-            lines = text.lineSequence(),
-        )
-    }
+actual fun isAndroid(): Boolean = false

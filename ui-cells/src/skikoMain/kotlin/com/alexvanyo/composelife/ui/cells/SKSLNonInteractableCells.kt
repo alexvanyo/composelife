@@ -34,12 +34,11 @@ import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
-import org.intellij.lang.annotations.Language
 import org.jetbrains.skia.IRect
 import org.jetbrains.skia.RuntimeEffect
 import org.jetbrains.skia.RuntimeShaderBuilder
 
-@Language("SKSL")
+// language=AGSL
 private val SHADER_SRC = """
     // The cell shader, as a mask.
     uniform shader cells;
