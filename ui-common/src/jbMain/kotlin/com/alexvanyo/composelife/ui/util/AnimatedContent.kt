@@ -435,9 +435,9 @@ fun <T, M> AnimatedContent(
                     return layout(targetSize.width, targetSize.height) {
                         placeablesMap.entries
                             .sortedWith(
-                                Comparator.comparing(
-                                    Map.Entry<T, Placeable>::key,
-                                    targetRenderingComparator,
+                                compareBy(
+                                    comparator = targetRenderingComparator,
+                                    selector = Map.Entry<T, Placeable>::key,
                                 ),
                             )
                             .forEach { (_, placeable) ->
