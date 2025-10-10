@@ -39,7 +39,7 @@ interface DriverBindings {
         @Provides
         @SingleIn(AppScope::class)
         internal fun providesDriver(): SqlDriver =
-            createDefaultWebWorkerDriver().also(ComposeLifeDatabase.Schema::create)
+            createDefaultWebWorkerDriver()
 
         @Provides
         @SingleIn(AppScope::class)
@@ -50,6 +50,7 @@ interface DriverBindings {
         ): Updatable = object : Updatable {
             override suspend fun update(): Nothing =
                 driver.use { _ ->
+                    ComposeLifeDatabase.Schema.create(driver).await()
                     awaitCancellation()
                 }
         }
