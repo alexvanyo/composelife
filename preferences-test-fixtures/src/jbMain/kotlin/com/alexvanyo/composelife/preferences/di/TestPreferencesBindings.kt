@@ -17,7 +17,7 @@
 package com.alexvanyo.composelife.preferences.di
 
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
-import com.alexvanyo.composelife.preferences.DefaultComposeLifePreferences
+import com.alexvanyo.composelife.preferences.DefaultComposeLifePreferencesBindings
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import dev.zacsweers.metro.AppScope
@@ -27,7 +27,7 @@ import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 
-@ContributesTo(AppScope::class, replaces = [DefaultComposeLifePreferences::class])
+@ContributesTo(AppScope::class, replaces = [DefaultComposeLifePreferencesBindings::class])
 @BindingContainer
 interface TestPreferencesBindings {
     @Binds

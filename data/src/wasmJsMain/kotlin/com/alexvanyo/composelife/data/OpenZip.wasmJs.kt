@@ -14,18 +14,9 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.network.di
+package com.alexvanyo.composelife.data
 
-import com.alexvanyo.composelife.network.EngineFactoryWithConfigBlock
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.Provides
-import io.ktor.client.engine.js.Js
+import okio.FileSystem
+import okio.Path
 
-@ContributesTo(AppScope::class)
-interface EngineFactoryComponent {
-
-    @Provides
-    fun providesEngineFactoryWithConfigBlock(): EngineFactoryWithConfigBlock<*> =
-        EngineFactoryWithConfigBlock(Js) {}
-}
+actual fun FileSystem.openZip(zipPath: Path): FileSystem = TODO("Not supported!")

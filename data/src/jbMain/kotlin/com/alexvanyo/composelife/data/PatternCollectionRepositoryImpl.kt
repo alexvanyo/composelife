@@ -33,12 +33,13 @@ import com.alexvanyo.composelife.resourcestate.map
 import com.alexvanyo.composelife.updatable.PowerableUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.ContributesBinding
-import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Binds
+import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.ForScope
 import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.IntoSet
 import dev.zacsweers.metro.SingleIn
-import dev.zacsweers.metro.binding
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.onDownload
 import io.ktor.client.request.prepareGet
@@ -63,19 +64,26 @@ import okio.Path
 import okio.Path.Companion.toPath
 import okio.blackholeSink
 import okio.buffer
-import okio.openZip
 import okio.use
+import kotlin.sequences.map
 import kotlin.time.Clock
 
-@Inject
-@ContributesBinding(AppScope::class, binding = binding<PatternCollectionRepository>())
-@ContributesIntoSet(AppScope::class, binding = binding<
+@ContributesTo(AppScope::class)
+@BindingContainer
+interface PatternCollectionRepositoryImplBindings {
+    @Binds
+    val PatternCollectionRepositoryImpl.bind: PatternCollectionRepository
+
+    @Binds
+    @IntoSet
     @ForScope(AppScope::class)
-    Updatable,
-    >())
+    val PatternCollectionRepositoryImpl.bindIntoUpdatable: Updatable
+}
+
+@Inject
 @SingleIn(AppScope::class)
 @Suppress("LongParameterList")
-internal class PatternCollectionRepositoryImpl(
+class PatternCollectionRepositoryImpl(
     private val dispatchers: ComposeLifeDispatchers,
     private val cellStateQueriesWrapper: CellStateQueriesWrapper,
     private val patternCollectionQueriesWrapper: PatternCollectionQueriesWrapper,
@@ -106,7 +114,7 @@ internal class PatternCollectionRepositoryImpl(
                     lastUnsuccessfulSynchronizationTimestamp =
                     databasePatternCollection.lastUnsuccessfulSynchronizationTimestamp,
                     synchronizationFailureMessage = databasePatternCollection.synchronizationFailureMessage,
-                    isSynchronizing = synchronizationInformation.getOrDefault(databasePatternCollection.id, false),
+                    isSynchronizing = synchronizationInformation.getOrElse(databasePatternCollection.id) { false },
                 )
             }
         }
@@ -204,7 +212,7 @@ internal class PatternCollectionRepositoryImpl(
                         // TODO: Make this visible in the UI
                         if (contentLength != null) {
                             logger.d {
-                                "Progress: ${ "%.1f".format(bytesSentTotal * 100f / contentLength) }%"
+                                "Progress: ${bytesSentTotal * 100f / contentLength}%"
                             }
                         }
                     }
@@ -254,7 +262,7 @@ internal class PatternCollectionRepositoryImpl(
                 // The hash has changed, extract all contained patterns
                 val archiveFileSystem = fileSystem.openZip(archivePath)
                 val filesToExtract = archiveFileSystem.listRecursively("/".toPath()).filterNot {
-                    it.toFile().isDirectory
+                    archiveFileSystem.metadata(it).isDirectory
                 }
                 filesToExtract.forEach { file ->
                     logger.d("Found file: ${file.name}")
