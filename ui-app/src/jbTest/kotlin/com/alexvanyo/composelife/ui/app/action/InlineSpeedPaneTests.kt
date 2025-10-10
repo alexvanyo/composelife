@@ -40,7 +40,7 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.ui.app.resources.GenerationsPerStepLabel
@@ -50,317 +50,331 @@ import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.app.resources.TargetStepsPerSecondLabel
 import com.alexvanyo.composelife.ui.app.resources.TargetStepsPerSecondLabelAndValue
 import com.alexvanyo.composelife.ui.app.resources.TargetStepsPerSecondValue
-import org.junit.runner.RunWith
 import kotlin.math.log2
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
-@RunWith(KmpAndroidJUnit4::class)
-class InlineSpeedPaneTests {
+class InlineSpeedPaneTests : BaseKmpTest() {
 
     @Test
-    fun target_steps_per_second_is_displayed_correctly() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun target_steps_per_second_is_displayed_correctly() {
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            var targetStepsPerSecond by remember { mutableStateOf(60.0) }
-            var generationsPerStep by remember { mutableStateOf(1) }
+            setContent {
+                resolver = parameterizedStringResolver()
+                var targetStepsPerSecond by remember { mutableStateOf(60.0) }
+                var generationsPerStep by remember { mutableStateOf(1) }
 
-            InlineSpeedPane(
-                targetStepsPerSecond = targetStepsPerSecond,
-                setTargetStepsPerSecond = { targetStepsPerSecond = it },
-                generationsPerStep = generationsPerStep,
-                setGenerationsPerStep = { generationsPerStep = it },
-            )
-        }
-
-        onNode(
-            hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(Strings.TargetStepsPerSecondLabel)),
-        )
-            .assertTextContains(resolver(Strings.TargetStepsPerSecondValue(60.0)))
-            .assertIsNotFocused()
-
-        onNodeWithContentDescription(
-            resolver(Strings.TargetStepsPerSecondLabelAndValue(60.0)),
-        )
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = log2(60f), range = 0f..8f)))
-    }
-
-    @Test
-    fun target_steps_per_second_updates_correctly_with_slider() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            resolver = parameterizedStringResolver()
-            var targetStepsPerSecond by remember { mutableStateOf(60.0) }
-            var generationsPerStep by remember { mutableStateOf(1) }
-
-            InlineSpeedPane(
-                targetStepsPerSecond = targetStepsPerSecond,
-                setTargetStepsPerSecond = { targetStepsPerSecond = it },
-                generationsPerStep = generationsPerStep,
-                setGenerationsPerStep = { generationsPerStep = it },
-            )
-        }
-
-        onNodeWithContentDescription(
-            resolver(Strings.TargetStepsPerSecondLabelAndValue(60.0)),
-        )
-            .performSemanticsAction(SemanticsActions.SetProgress) {
-                it(8f)
+                InlineSpeedPane(
+                    targetStepsPerSecond = targetStepsPerSecond,
+                    setTargetStepsPerSecond = { targetStepsPerSecond = it },
+                    generationsPerStep = generationsPerStep,
+                    setGenerationsPerStep = { generationsPerStep = it },
+                )
             }
 
-        onNode(
-            hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(Strings.TargetStepsPerSecondLabel)),
-        )
-            .assertTextContains(resolver(Strings.TargetStepsPerSecondValue(256.0)))
-            .assertIsNotFocused()
+            onNode(
+                hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                    hasText(resolver(Strings.TargetStepsPerSecondLabel)),
+            )
+                .assertTextContains(resolver(Strings.TargetStepsPerSecondValue(60.0)))
+                .assertIsNotFocused()
 
-        onNodeWithContentDescription(
-            resolver(Strings.TargetStepsPerSecondLabelAndValue(256.0)),
-        )
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 8f, range = 0f..8f)))
+            onNodeWithContentDescription(
+                resolver(Strings.TargetStepsPerSecondLabelAndValue(60.0)),
+            )
+                .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = log2(60f), range = 0f..8f)))
+        }
     }
 
     @Test
-    fun target_steps_per_second_updates_correctly_with_text() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun target_steps_per_second_updates_correctly_with_slider() {
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            var targetStepsPerSecond by remember { mutableStateOf(60.0) }
-            var generationsPerStep by remember { mutableStateOf(1) }
+            setContent {
+                resolver = parameterizedStringResolver()
+                var targetStepsPerSecond by remember { mutableStateOf(60.0) }
+                var generationsPerStep by remember { mutableStateOf(1) }
 
-            InlineSpeedPane(
-                targetStepsPerSecond = targetStepsPerSecond,
-                setTargetStepsPerSecond = { targetStepsPerSecond = it },
-                generationsPerStep = generationsPerStep,
-                setGenerationsPerStep = { generationsPerStep = it },
-            )
-        }
-
-        onNode(
-            hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(Strings.TargetStepsPerSecondLabel)),
-        )
-            .performTextReplacement("256")
-        onNode(
-            hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(Strings.TargetStepsPerSecondLabel)),
-        )
-            .performImeAction()
-
-        onNode(
-            hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(Strings.TargetStepsPerSecondLabel)),
-        )
-            .assertTextContains(resolver(Strings.TargetStepsPerSecondValue(256.0)))
-            .assertIsNotFocused()
-        onNodeWithContentDescription(
-            resolver(Strings.TargetStepsPerSecondLabelAndValue(256.0)),
-        )
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 8f, range = 0f..8f)))
-    }
-
-    @Test
-    fun target_steps_per_second_does_not_update_with_letter_input() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            resolver = parameterizedStringResolver()
-            var targetStepsPerSecond by remember { mutableStateOf(60.0) }
-            var generationsPerStep by remember { mutableStateOf(1) }
-
-            InlineSpeedPane(
-                targetStepsPerSecond = targetStepsPerSecond,
-                setTargetStepsPerSecond = { targetStepsPerSecond = it },
-                generationsPerStep = generationsPerStep,
-                setGenerationsPerStep = { generationsPerStep = it },
-            )
-        }
-
-        onNode(
-            hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(Strings.TargetStepsPerSecondLabel)),
-        )
-            .performTextClearance()
-        onNode(
-            hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(Strings.TargetStepsPerSecondLabel)),
-        )
-            .performTextReplacement("abc")
-        onNode(
-            hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(Strings.TargetStepsPerSecondLabel)),
-        )
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("")))
-            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Error))
-            .performImeAction()
-
-        onNode(
-            hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(Strings.TargetStepsPerSecondLabel)),
-        )
-            .assertTextContains(resolver(Strings.TargetStepsPerSecondValue(60.0)))
-            .assertIsNotFocused()
-        onNodeWithContentDescription(
-            resolver(Strings.TargetStepsPerSecondLabelAndValue(60.0)),
-        )
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = log2(60f), range = 0f..8f)))
-    }
-
-    @Test
-    fun generations_per_step_is_displayed_correctly() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            resolver = parameterizedStringResolver()
-            var targetStepsPerSecond by remember { mutableStateOf(60.0) }
-            var generationsPerStep by remember { mutableStateOf(1) }
-
-            InlineSpeedPane(
-                targetStepsPerSecond = targetStepsPerSecond,
-                setTargetStepsPerSecond = { targetStepsPerSecond = it },
-                generationsPerStep = generationsPerStep,
-                setGenerationsPerStep = { generationsPerStep = it },
-            )
-        }
-
-        onNode(
-            hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(Strings.GenerationsPerStepLabel)),
-        )
-            .assertTextContains(resolver(Strings.GenerationsPerStepValue(1)))
-            .assertIsNotFocused()
-        onNodeWithContentDescription(
-            resolver(Strings.GenerationsPerStepLabelAndValue(1)),
-        )
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0f, range = 0f..8f, steps = 7)))
-    }
-
-    @Test
-    fun generations_per_step_updates_correctly_with_slider() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
-
-        setContent {
-            resolver = parameterizedStringResolver()
-            var targetStepsPerSecond by remember { mutableStateOf(60.0) }
-            var generationsPerStep by remember { mutableStateOf(1) }
-
-            InlineSpeedPane(
-                targetStepsPerSecond = targetStepsPerSecond,
-                setTargetStepsPerSecond = { targetStepsPerSecond = it },
-                generationsPerStep = generationsPerStep,
-                setGenerationsPerStep = { generationsPerStep = it },
-            )
-        }
-
-        onNodeWithContentDescription(
-            resolver(Strings.GenerationsPerStepLabelAndValue(1)),
-        )
-            .performSemanticsAction(SemanticsActions.SetProgress) {
-                it(8f)
+                InlineSpeedPane(
+                    targetStepsPerSecond = targetStepsPerSecond,
+                    setTargetStepsPerSecond = { targetStepsPerSecond = it },
+                    generationsPerStep = generationsPerStep,
+                    setGenerationsPerStep = { generationsPerStep = it },
+                )
             }
 
-        onNode(
-            hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(Strings.GenerationsPerStepLabel)),
-        )
-            .assertTextContains(resolver(Strings.GenerationsPerStepValue(256)))
-            .assertIsNotFocused()
-        onNodeWithContentDescription(
-            resolver(Strings.GenerationsPerStepLabelAndValue(256)),
-        )
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 8f, range = 0f..8f, steps = 7)))
+            onNodeWithContentDescription(
+                resolver(Strings.TargetStepsPerSecondLabelAndValue(60.0)),
+            )
+                .performSemanticsAction(SemanticsActions.SetProgress) {
+                    it(8f)
+                }
+
+            onNode(
+                hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                    hasText(resolver(Strings.TargetStepsPerSecondLabel)),
+            )
+                .assertTextContains(resolver(Strings.TargetStepsPerSecondValue(256.0)))
+                .assertIsNotFocused()
+
+            onNodeWithContentDescription(
+                resolver(Strings.TargetStepsPerSecondLabelAndValue(256.0)),
+            )
+                .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 8f, range = 0f..8f)))
+        }
     }
 
     @Test
-    fun generations_per_step_updates_correctly_with_text() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun target_steps_per_second_updates_correctly_with_text() {
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            var targetStepsPerSecond by remember { mutableStateOf(60.0) }
-            var generationsPerStep by remember { mutableStateOf(1) }
+            setContent {
+                resolver = parameterizedStringResolver()
+                var targetStepsPerSecond by remember { mutableStateOf(60.0) }
+                var generationsPerStep by remember { mutableStateOf(1) }
 
-            InlineSpeedPane(
-                targetStepsPerSecond = targetStepsPerSecond,
-                setTargetStepsPerSecond = { targetStepsPerSecond = it },
-                generationsPerStep = generationsPerStep,
-                setGenerationsPerStep = { generationsPerStep = it },
+                InlineSpeedPane(
+                    targetStepsPerSecond = targetStepsPerSecond,
+                    setTargetStepsPerSecond = { targetStepsPerSecond = it },
+                    generationsPerStep = generationsPerStep,
+                    setGenerationsPerStep = { generationsPerStep = it },
+                )
+            }
+
+            onNode(
+                hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                    hasText(resolver(Strings.TargetStepsPerSecondLabel)),
             )
+                .performTextReplacement("256")
+            onNode(
+                hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                    hasText(resolver(Strings.TargetStepsPerSecondLabel)),
+            )
+                .performImeAction()
+
+            onNode(
+                hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                    hasText(resolver(Strings.TargetStepsPerSecondLabel)),
+            )
+                .assertTextContains(resolver(Strings.TargetStepsPerSecondValue(256.0)))
+                .assertIsNotFocused()
+            onNodeWithContentDescription(
+                resolver(Strings.TargetStepsPerSecondLabelAndValue(256.0)),
+            )
+                .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 8f, range = 0f..8f)))
         }
-
-        onNode(
-            hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(Strings.GenerationsPerStepLabel)),
-        )
-            .performTextReplacement("256")
-        onNode(
-            hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(Strings.GenerationsPerStepLabel)),
-        )
-            .performImeAction()
-
-        onNode(
-            hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(Strings.GenerationsPerStepLabel)),
-        )
-            .assertTextContains(resolver(Strings.GenerationsPerStepValue(256)))
-            .assertIsNotFocused()
-        onNodeWithContentDescription(
-            resolver(Strings.GenerationsPerStepLabelAndValue(256)),
-        )
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 8f, range = 0f..8f, steps = 7)))
     }
 
     @Test
-    fun generations_per_step_does_not_update_with_double_input() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun target_steps_per_second_does_not_update_with_letter_input() {
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            var targetStepsPerSecond by remember { mutableStateOf(60.0) }
-            var generationsPerStep by remember { mutableStateOf(1) }
+            setContent {
+                resolver = parameterizedStringResolver()
+                var targetStepsPerSecond by remember { mutableStateOf(60.0) }
+                var generationsPerStep by remember { mutableStateOf(1) }
 
-            InlineSpeedPane(
-                targetStepsPerSecond = targetStepsPerSecond,
-                setTargetStepsPerSecond = { targetStepsPerSecond = it },
-                generationsPerStep = generationsPerStep,
-                setGenerationsPerStep = { generationsPerStep = it },
+                InlineSpeedPane(
+                    targetStepsPerSecond = targetStepsPerSecond,
+                    setTargetStepsPerSecond = { targetStepsPerSecond = it },
+                    generationsPerStep = generationsPerStep,
+                    setGenerationsPerStep = { generationsPerStep = it },
+                )
+            }
+
+            onNode(
+                hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                    hasText(resolver(Strings.TargetStepsPerSecondLabel)),
             )
+                .performTextClearance()
+            onNode(
+                hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                    hasText(resolver(Strings.TargetStepsPerSecondLabel)),
+            )
+                .performTextReplacement("abc")
+            onNode(
+                hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                    hasText(resolver(Strings.TargetStepsPerSecondLabel)),
+            )
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("")))
+                .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Error))
+                .performImeAction()
+
+            onNode(
+                hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                    hasText(resolver(Strings.TargetStepsPerSecondLabel)),
+            )
+                .assertTextContains(resolver(Strings.TargetStepsPerSecondValue(60.0)))
+                .assertIsNotFocused()
+            onNodeWithContentDescription(
+                resolver(Strings.TargetStepsPerSecondLabelAndValue(60.0)),
+            )
+                .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = log2(60f), range = 0f..8f)))
         }
+    }
 
-        onNode(
-            hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(Strings.GenerationsPerStepLabel)),
-        )
-            .performTextClearance()
-        onNode(
-            hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(Strings.GenerationsPerStepLabel)),
-        )
-            .performTextReplacement("1.23")
-        onNode(
-            hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(Strings.GenerationsPerStepLabel)),
-        )
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("")))
-            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Error))
-            .performImeAction()
+    @Test
+    fun generations_per_step_is_displayed_correctly() {
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        onNode(
-            hasSetTextAction() and hasImeAction(ImeAction.Done) and
-                hasText(resolver(Strings.GenerationsPerStepLabel)),
-        )
-            .assertTextContains(resolver(Strings.GenerationsPerStepValue(1)))
-            .assertIsNotFocused()
-        onNodeWithContentDescription(
-            resolver(Strings.GenerationsPerStepLabelAndValue(1)),
-        )
-            .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0f, range = 0f..8f, steps = 7)))
+            setContent {
+                resolver = parameterizedStringResolver()
+                var targetStepsPerSecond by remember { mutableStateOf(60.0) }
+                var generationsPerStep by remember { mutableStateOf(1) }
+
+                InlineSpeedPane(
+                    targetStepsPerSecond = targetStepsPerSecond,
+                    setTargetStepsPerSecond = { targetStepsPerSecond = it },
+                    generationsPerStep = generationsPerStep,
+                    setGenerationsPerStep = { generationsPerStep = it },
+                )
+            }
+
+            onNode(
+                hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                    hasText(resolver(Strings.GenerationsPerStepLabel)),
+            )
+                .assertTextContains(resolver(Strings.GenerationsPerStepValue(1)))
+                .assertIsNotFocused()
+            onNodeWithContentDescription(
+                resolver(Strings.GenerationsPerStepLabelAndValue(1)),
+            )
+                .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0f, range = 0f..8f, steps = 7)))
+        }
+    }
+
+    @Test
+    fun generations_per_step_updates_correctly_with_slider() {
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
+
+            setContent {
+                resolver = parameterizedStringResolver()
+                var targetStepsPerSecond by remember { mutableStateOf(60.0) }
+                var generationsPerStep by remember { mutableStateOf(1) }
+
+                InlineSpeedPane(
+                    targetStepsPerSecond = targetStepsPerSecond,
+                    setTargetStepsPerSecond = { targetStepsPerSecond = it },
+                    generationsPerStep = generationsPerStep,
+                    setGenerationsPerStep = { generationsPerStep = it },
+                )
+            }
+
+            onNodeWithContentDescription(
+                resolver(Strings.GenerationsPerStepLabelAndValue(1)),
+            )
+                .performSemanticsAction(SemanticsActions.SetProgress) {
+                    it(8f)
+                }
+
+            onNode(
+                hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                    hasText(resolver(Strings.GenerationsPerStepLabel)),
+            )
+                .assertTextContains(resolver(Strings.GenerationsPerStepValue(256)))
+                .assertIsNotFocused()
+            onNodeWithContentDescription(
+                resolver(Strings.GenerationsPerStepLabelAndValue(256)),
+            )
+                .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 8f, range = 0f..8f, steps = 7)))
+        }
+    }
+
+    @Test
+    fun generations_per_step_updates_correctly_with_text() {
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
+
+            setContent {
+                resolver = parameterizedStringResolver()
+                var targetStepsPerSecond by remember { mutableStateOf(60.0) }
+                var generationsPerStep by remember { mutableStateOf(1) }
+
+                InlineSpeedPane(
+                    targetStepsPerSecond = targetStepsPerSecond,
+                    setTargetStepsPerSecond = { targetStepsPerSecond = it },
+                    generationsPerStep = generationsPerStep,
+                    setGenerationsPerStep = { generationsPerStep = it },
+                )
+            }
+
+            onNode(
+                hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                    hasText(resolver(Strings.GenerationsPerStepLabel)),
+            )
+                .performTextReplacement("256")
+            onNode(
+                hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                    hasText(resolver(Strings.GenerationsPerStepLabel)),
+            )
+                .performImeAction()
+
+            onNode(
+                hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                    hasText(resolver(Strings.GenerationsPerStepLabel)),
+            )
+                .assertTextContains(resolver(Strings.GenerationsPerStepValue(256)))
+                .assertIsNotFocused()
+            onNodeWithContentDescription(
+                resolver(Strings.GenerationsPerStepLabelAndValue(256)),
+            )
+                .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 8f, range = 0f..8f, steps = 7)))
+        }
+    }
+
+    @Test
+    fun generations_per_step_does_not_update_with_double_input() {
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
+
+            setContent {
+                resolver = parameterizedStringResolver()
+                var targetStepsPerSecond by remember { mutableStateOf(60.0) }
+                var generationsPerStep by remember { mutableStateOf(1) }
+
+                InlineSpeedPane(
+                    targetStepsPerSecond = targetStepsPerSecond,
+                    setTargetStepsPerSecond = { targetStepsPerSecond = it },
+                    generationsPerStep = generationsPerStep,
+                    setGenerationsPerStep = { generationsPerStep = it },
+                )
+            }
+
+            onNode(
+                hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                    hasText(resolver(Strings.GenerationsPerStepLabel)),
+            )
+                .performTextClearance()
+            onNode(
+                hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                    hasText(resolver(Strings.GenerationsPerStepLabel)),
+            )
+                .performTextReplacement("1.23")
+            onNode(
+                hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                    hasText(resolver(Strings.GenerationsPerStepLabel)),
+            )
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("")))
+                .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Error))
+                .performImeAction()
+
+            onNode(
+                hasSetTextAction() and hasImeAction(ImeAction.Done) and
+                    hasText(resolver(Strings.GenerationsPerStepLabel)),
+            )
+                .assertTextContains(resolver(Strings.GenerationsPerStepValue(1)))
+                .assertIsNotFocused()
+            onNodeWithContentDescription(
+                resolver(Strings.GenerationsPerStepLabelAndValue(1)),
+            )
+                .assert(hasProgressBarRangeInfo(ProgressBarRangeInfo(current = 0f, range = 0f..8f, steps = 7)))
+        }
     }
 }
