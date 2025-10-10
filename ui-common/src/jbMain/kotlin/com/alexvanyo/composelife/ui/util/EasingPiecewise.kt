@@ -17,7 +17,6 @@
 package com.alexvanyo.composelife.ui.util
 
 import androidx.compose.animation.core.Easing
-import java.util.TreeMap
 
 /**
  * Returns a piecewise [Easing] formed from other easings.
@@ -34,13 +33,33 @@ fun Easing(
     vararg easings: Pair<Float, Easing>,
 ): Easing {
     require(easings.sortedBy { it.first } == easings.toList()) { "easings were not sorted by keyframe!" }
-    val easingMap = TreeMap<Float, Easing>()
-    easingMap[0f] = easing
-    easingMap.putAll(easings)
-    require(easingMap.size == easings.size + 1)
+    val allEasings = buildMap {
+        put(0f, easing)
+        putAll(easings)
+    }
+    require(allEasings.size == easings.size + 1)
+    val keyList = allEasings.keys.toList()
+    val easingsList = allEasings.values.toList()
     return Easing {
-        val (piecewiseStart, piecewiseEasing) = easingMap.floorEntry(it)!!
-        val piecewiseEnd = easingMap.higherKey(it) ?: 1f
+        val piecewiseStartIndex = keyList.floorBinarySearch(it)
+        val piecewiseStart = keyList[piecewiseStartIndex]
+        val piecewiseEasing = easingsList[piecewiseStartIndex]
+        val piecewiseEnd = keyList.getOrElse(piecewiseStartIndex + 1) { 1f }
         piecewiseEasing.transform((it - piecewiseStart) / (piecewiseEnd - piecewiseStart))
     }
+}
+
+private fun <T : Comparable<T>> List<T>.floorBinarySearch(value: T): Int {
+    var low = 0
+    var high = size
+    if (this[low] > value) return -1
+    while (low < high) {
+        val mid = (low + high) / 2
+        if (this[mid] <= value) {
+            low = mid
+        } else {
+            high = mid
+        }
+    }
+    return low
 }

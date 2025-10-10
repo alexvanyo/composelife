@@ -30,8 +30,6 @@ androidx.lifecycle:lifecycle-viewmodel-desktop:2.10.0-alpha05
 androidx.lifecycle:lifecycle-viewmodel-savedstate-desktop:2.10.0-alpha05
 androidx.lifecycle:lifecycle-viewmodel-savedstate:2.10.0-alpha05
 androidx.lifecycle:lifecycle-viewmodel:2.10.0-alpha05
-androidx.navigationevent:navigationevent-compose-jvmstubs:1.0.0-beta01
-androidx.navigationevent:navigationevent-compose:1.0.0-beta01
 androidx.navigationevent:navigationevent-desktop:1.0.0-beta01
 androidx.navigationevent:navigationevent:1.0.0-beta01
 androidx.savedstate:savedstate-compose-desktop:1.4.0-beta01

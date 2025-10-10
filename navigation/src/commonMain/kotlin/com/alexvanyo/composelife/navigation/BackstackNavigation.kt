@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.navigation
 
+import kotlin.jvm.JvmName
 import kotlin.uuid.Uuid
 
 /**
