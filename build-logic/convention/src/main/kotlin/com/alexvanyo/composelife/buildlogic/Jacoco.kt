@@ -31,7 +31,7 @@ import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
 
 fun Project.configureJacoco(
-    commonExtension: CommonExtension<*, *, *, *, *, *>,
+    commonExtension: CommonExtension,
 ) {
     val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
@@ -163,7 +163,7 @@ fun Project.configureJacocoMerge() {
             executionData.setFrom(
                 subprojects.flatMap {
                     it.getUnitTestReportTasks(variant)
-                        .map(JacocoReportTask::jacocoHostTestCoverageFile)
+                        .map(JacocoReportTask::coverageFiles)
                 },
             )
 
@@ -192,8 +192,7 @@ fun Project.configureJacocoMerge() {
             subprojects
                 .map {
                     it.getAndroidTestReportTasks()
-                        .map(JacocoReportTask::jacocoConnectedTestsCoverageDir)
-                        .map(::fileTree)
+                        .map(JacocoReportTask::coverageFiles)
                 },
         )
 
