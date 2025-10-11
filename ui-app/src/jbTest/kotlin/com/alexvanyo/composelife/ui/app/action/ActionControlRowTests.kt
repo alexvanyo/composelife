@@ -24,11 +24,13 @@ import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.unit.IntOffset
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
+import com.alexvanyo.composelife.model.emptyCellState
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.ui.app.resources.ClearSelection
@@ -48,7 +50,6 @@ import com.alexvanyo.composelife.ui.app.resources.Play
 import com.alexvanyo.composelife.ui.app.resources.Step
 import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.cells.SelectionState
-import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -56,8 +57,7 @@ import kotlin.test.assertTrue
 
 @Suppress("LargeClass", "TooManyFunctions")
 @OptIn(ExperimentalTestApi::class)
-@RunWith(KmpAndroidJUnit4::class)
-class ActionControlRowTests {
+class ActionControlRowTests : BaseKmpTest() {
 
     @Test
     fun no_selection_false_values_are_displayed_correctly() = runComposeUiTest {
@@ -66,26 +66,23 @@ class ActionControlRowTests {
         setContent {
             resolver = parameterizedStringResolver()
             ActionControlRow(
-                isElevated = false,
-                isRunning = false,
-                setIsRunning = {},
-                onStep = {},
-                isExpanded = false,
-                setIsExpanded = {},
-                isViewportTracking = false,
-                setIsViewportTracking = {},
-                showImmersiveModeControl = true,
-                isImmersiveMode = false,
-                setIsImmersiveMode = {},
-                showFullSpaceModeControl = false,
-                isFullSpaceMode = false,
-                setIsFullSpaceMode = {},
-                selectionState = SelectionState.NoSelection,
-                onClearSelection = {},
-                onCopy = {},
-                onCut = {},
-                onPaste = {},
-                onApplyPaste = {},
+                actionControlRowState = object : ActionControlRowState {
+                    override val isElevated = false
+                    override var isRunning = false
+                    override var isExpanded = false
+                    override var isViewportTracking = false
+                    override val showImmersiveModeControl = true
+                    override var isImmersiveMode = false
+                    override val showFullSpaceModeControl = false
+                    override var isFullSpaceMode = false
+                    override val selectionState = SelectionState.NoSelection
+                    override fun onStep() = Unit
+                    override fun onClearSelection() = Unit
+                    override fun onCopy() = Unit
+                    override fun onCut() = Unit
+                    override fun onPaste() = Unit
+                    override fun onApplyPaste() = Unit
+                },
             )
         }
 
@@ -128,26 +125,23 @@ class ActionControlRowTests {
         setContent {
             resolver = parameterizedStringResolver()
             ActionControlRow(
-                isElevated = false,
-                isRunning = true,
-                setIsRunning = {},
-                onStep = {},
-                isExpanded = true,
-                setIsExpanded = {},
-                isViewportTracking = true,
-                setIsViewportTracking = {},
-                showImmersiveModeControl = true,
-                isImmersiveMode = true,
-                setIsImmersiveMode = {},
-                showFullSpaceModeControl = false,
-                isFullSpaceMode = false,
-                setIsFullSpaceMode = {},
-                selectionState = SelectionState.NoSelection,
-                onClearSelection = {},
-                onCopy = {},
-                onCut = {},
-                onPaste = {},
-                onApplyPaste = {},
+                actionControlRowState = object : ActionControlRowState {
+                    override val isElevated = false
+                    override var isRunning = true
+                    override var isExpanded = true
+                    override var isViewportTracking = true
+                    override val showImmersiveModeControl = true
+                    override var isImmersiveMode = true
+                    override val showFullSpaceModeControl = false
+                    override var isFullSpaceMode = false
+                    override val selectionState = SelectionState.NoSelection
+                    override fun onStep() = Unit
+                    override fun onClearSelection() = Unit
+                    override fun onCopy() = Unit
+                    override fun onCut() = Unit
+                    override fun onPaste() = Unit
+                    override fun onApplyPaste() = Unit
+                },
             )
         }
 
@@ -199,26 +193,23 @@ class ActionControlRowTests {
         setContent {
             resolver = parameterizedStringResolver()
             ActionControlRow(
-                isElevated = false,
-                isRunning = false,
-                setIsRunning = {},
-                onStep = {},
-                isExpanded = false,
-                setIsExpanded = {},
-                isViewportTracking = false,
-                setIsViewportTracking = {},
-                showImmersiveModeControl = false,
-                isImmersiveMode = false,
-                setIsImmersiveMode = {},
-                showFullSpaceModeControl = true,
-                isFullSpaceMode = false,
-                setIsFullSpaceMode = {},
-                selectionState = SelectionState.NoSelection,
-                onClearSelection = {},
-                onCopy = {},
-                onCut = {},
-                onPaste = {},
-                onApplyPaste = {},
+                actionControlRowState = object : ActionControlRowState {
+                    override val isElevated = false
+                    override var isRunning = false
+                    override var isExpanded = false
+                    override var isViewportTracking = false
+                    override val showImmersiveModeControl = false
+                    override var isImmersiveMode = false
+                    override val showFullSpaceModeControl = true
+                    override var isFullSpaceMode = false
+                    override val selectionState = SelectionState.NoSelection
+                    override fun onStep() = Unit
+                    override fun onClearSelection() = Unit
+                    override fun onCopy() = Unit
+                    override fun onCut() = Unit
+                    override fun onPaste() = Unit
+                    override fun onApplyPaste() = Unit
+                },
             )
         }
 
@@ -261,31 +252,28 @@ class ActionControlRowTests {
         setContent {
             resolver = parameterizedStringResolver()
             ActionControlRow(
-                isElevated = false,
-                isRunning = false,
-                setIsRunning = {},
-                onStep = {},
-                isExpanded = false,
-                setIsExpanded = {},
-                isViewportTracking = false,
-                setIsViewportTracking = {},
-                showImmersiveModeControl = true,
-                isImmersiveMode = false,
-                setIsImmersiveMode = {},
-                showFullSpaceModeControl = false,
-                isFullSpaceMode = false,
-                setIsFullSpaceMode = {},
-                selectionState = SelectionState.SelectingBox.FixedSelectingBox(
-                    topLeft = IntOffset.Zero,
-                    width = 1,
-                    height = 1,
-                    previousTransientSelectingBox = null,
-                ),
-                onClearSelection = {},
-                onCopy = {},
-                onCut = {},
-                onPaste = {},
-                onApplyPaste = {},
+                actionControlRowState = object : ActionControlRowState {
+                    override val isElevated = false
+                    override var isRunning = false
+                    override var isExpanded = false
+                    override var isViewportTracking = false
+                    override val showImmersiveModeControl = true
+                    override var isImmersiveMode = false
+                    override val showFullSpaceModeControl = false
+                    override var isFullSpaceMode = false
+                    override val selectionState = SelectionState.SelectingBox.FixedSelectingBox(
+                        topLeft = IntOffset.Zero,
+                        width = 1,
+                        height = 1,
+                        previousTransientSelectingBox = null,
+                    )
+                    override fun onStep() = Unit
+                    override fun onClearSelection() = Unit
+                    override fun onCopy() = Unit
+                    override fun onCut() = Unit
+                    override fun onPaste() = Unit
+                    override fun onApplyPaste() = Unit
+                },
             )
         }
 
@@ -333,26 +321,31 @@ class ActionControlRowTests {
         setContent {
             resolver = parameterizedStringResolver()
             ActionControlRow(
-                isElevated = false,
-                isRunning = isRunning,
-                setIsRunning = { isRunning = it },
-                onStep = { onStepCount++ },
-                isExpanded = isExpanded,
-                setIsExpanded = { isExpanded = it },
-                isViewportTracking = isViewportTracking,
-                setIsViewportTracking = { isViewportTracking = it },
-                showImmersiveModeControl = true,
-                isImmersiveMode = false,
-                setIsImmersiveMode = {},
-                showFullSpaceModeControl = false,
-                isFullSpaceMode = false,
-                setIsFullSpaceMode = {},
-                selectionState = SelectionState.NoSelection,
-                onClearSelection = {},
-                onCopy = {},
-                onCut = {},
-                onPaste = {},
-                onApplyPaste = {},
+                actionControlRowState = object : ActionControlRowState {
+                    override val isElevated = false
+                    override var isRunning
+                        get() = isRunning
+                        set(value) { isRunning = value }
+                    override var isExpanded
+                        get() = isExpanded
+                        set(value) { isExpanded = value }
+                    override var isViewportTracking
+                        get() = isViewportTracking
+                        set(value) { isViewportTracking = value }
+                    override val showImmersiveModeControl = true
+                    override var isImmersiveMode = false
+                    override val showFullSpaceModeControl = false
+                    override var isFullSpaceMode = false
+                    override val selectionState = SelectionState.NoSelection
+                    override fun onStep() {
+                        onStepCount++
+                    }
+                    override fun onClearSelection() = Unit
+                    override fun onCopy() = Unit
+                    override fun onCut() = Unit
+                    override fun onPaste() = Unit
+                    override fun onApplyPaste() = Unit
+                },
             )
         }
 
@@ -373,26 +366,29 @@ class ActionControlRowTests {
         setContent {
             resolver = parameterizedStringResolver()
             ActionControlRow(
-                isElevated = false,
-                isRunning = isRunning,
-                setIsRunning = { isRunning = it },
-                onStep = {},
-                isExpanded = isExpanded,
-                setIsExpanded = { isExpanded = it },
-                isViewportTracking = isViewportTracking,
-                setIsViewportTracking = { isViewportTracking = it },
-                showImmersiveModeControl = true,
-                isImmersiveMode = false,
-                setIsImmersiveMode = {},
-                showFullSpaceModeControl = false,
-                isFullSpaceMode = false,
-                setIsFullSpaceMode = {},
-                selectionState = SelectionState.NoSelection,
-                onClearSelection = {},
-                onCopy = {},
-                onCut = {},
-                onPaste = {},
-                onApplyPaste = {},
+                actionControlRowState = object : ActionControlRowState {
+                    override val isElevated = false
+                    override var isRunning
+                        get() = isRunning
+                        set(value) { isRunning = value }
+                    override var isExpanded
+                        get() = isExpanded
+                        set(value) { isExpanded = value }
+                    override var isViewportTracking
+                        get() = isViewportTracking
+                        set(value) { isViewportTracking = value }
+                    override val showImmersiveModeControl = true
+                    override var isImmersiveMode = false
+                    override val showFullSpaceModeControl = false
+                    override var isFullSpaceMode = false
+                    override val selectionState = SelectionState.NoSelection
+                    override fun onStep() = Unit
+                    override fun onClearSelection() = Unit
+                    override fun onCopy() = Unit
+                    override fun onCut() = Unit
+                    override fun onPaste() = Unit
+                    override fun onApplyPaste() = Unit
+                },
             )
         }
 
@@ -413,26 +409,29 @@ class ActionControlRowTests {
         setContent {
             resolver = parameterizedStringResolver()
             ActionControlRow(
-                isElevated = false,
-                isRunning = isRunning,
-                setIsRunning = { isRunning = it },
-                onStep = {},
-                isExpanded = isExpanded,
-                setIsExpanded = { isExpanded = it },
-                isViewportTracking = isViewportTracking,
-                setIsViewportTracking = { isViewportTracking = it },
-                showImmersiveModeControl = true,
-                isImmersiveMode = false,
-                setIsImmersiveMode = {},
-                showFullSpaceModeControl = false,
-                isFullSpaceMode = false,
-                setIsFullSpaceMode = {},
-                selectionState = SelectionState.NoSelection,
-                onClearSelection = {},
-                onCopy = {},
-                onCut = {},
-                onPaste = {},
-                onApplyPaste = {},
+                actionControlRowState = object : ActionControlRowState {
+                    override val isElevated = false
+                    override var isRunning
+                        get() = isRunning
+                        set(value) { isRunning = value }
+                    override var isExpanded
+                        get() = isExpanded
+                        set(value) { isExpanded = value }
+                    override var isViewportTracking
+                        get() = isViewportTracking
+                        set(value) { isViewportTracking = value }
+                    override val showImmersiveModeControl = true
+                    override var isImmersiveMode = false
+                    override val showFullSpaceModeControl = false
+                    override var isFullSpaceMode = false
+                    override val selectionState = SelectionState.NoSelection
+                    override fun onStep() = Unit
+                    override fun onClearSelection() = Unit
+                    override fun onCopy() = Unit
+                    override fun onCut() = Unit
+                    override fun onPaste() = Unit
+                    override fun onApplyPaste() = Unit
+                },
             )
         }
 
@@ -453,26 +452,29 @@ class ActionControlRowTests {
         setContent {
             resolver = parameterizedStringResolver()
             ActionControlRow(
-                isElevated = false,
-                isRunning = isRunning,
-                setIsRunning = { isRunning = it },
-                onStep = {},
-                isExpanded = isExpanded,
-                setIsExpanded = { isExpanded = it },
-                isViewportTracking = isViewportTracking,
-                setIsViewportTracking = { isViewportTracking = it },
-                showImmersiveModeControl = true,
-                isImmersiveMode = false,
-                setIsImmersiveMode = {},
-                showFullSpaceModeControl = false,
-                isFullSpaceMode = false,
-                setIsFullSpaceMode = {},
-                selectionState = SelectionState.NoSelection,
-                onClearSelection = {},
-                onCopy = {},
-                onCut = {},
-                onPaste = {},
-                onApplyPaste = {},
+                actionControlRowState = object : ActionControlRowState {
+                    override val isElevated = false
+                    override var isRunning
+                        get() = isRunning
+                        set(value) { isRunning = value }
+                    override var isExpanded
+                        get() = isExpanded
+                        set(value) { isExpanded = value }
+                    override var isViewportTracking
+                        get() = isViewportTracking
+                        set(value) { isViewportTracking = value }
+                    override val showImmersiveModeControl = true
+                    override var isImmersiveMode = false
+                    override val showFullSpaceModeControl = false
+                    override var isFullSpaceMode = false
+                    override val selectionState = SelectionState.NoSelection
+                    override fun onStep() = Unit
+                    override fun onClearSelection() = Unit
+                    override fun onCopy() = Unit
+                    override fun onCut() = Unit
+                    override fun onPaste() = Unit
+                    override fun onApplyPaste() = Unit
+                },
             )
         }
 
@@ -493,26 +495,29 @@ class ActionControlRowTests {
         setContent {
             resolver = parameterizedStringResolver()
             ActionControlRow(
-                isElevated = false,
-                isRunning = isRunning,
-                setIsRunning = { isRunning = it },
-                onStep = {},
-                isExpanded = isExpanded,
-                setIsExpanded = { isExpanded = it },
-                isViewportTracking = isViewportTracking,
-                setIsViewportTracking = { isViewportTracking = it },
-                showImmersiveModeControl = true,
-                isImmersiveMode = false,
-                setIsImmersiveMode = {},
-                showFullSpaceModeControl = false,
-                isFullSpaceMode = false,
-                setIsFullSpaceMode = {},
-                selectionState = SelectionState.NoSelection,
-                onClearSelection = {},
-                onCopy = {},
-                onCut = {},
-                onPaste = {},
-                onApplyPaste = {},
+                actionControlRowState = object : ActionControlRowState {
+                    override val isElevated = false
+                    override var isRunning
+                        get() = isRunning
+                        set(value) { isRunning = value }
+                    override var isExpanded
+                        get() = isExpanded
+                        set(value) { isExpanded = value }
+                    override var isViewportTracking
+                        get() = isViewportTracking
+                        set(value) { isViewportTracking = value }
+                    override val showImmersiveModeControl = true
+                    override var isImmersiveMode = false
+                    override val showFullSpaceModeControl = false
+                    override var isFullSpaceMode = false
+                    override val selectionState = SelectionState.NoSelection
+                    override fun onStep() = Unit
+                    override fun onClearSelection() = Unit
+                    override fun onCopy() = Unit
+                    override fun onCut() = Unit
+                    override fun onPaste() = Unit
+                    override fun onApplyPaste() = Unit
+                },
             )
         }
 
@@ -533,26 +538,29 @@ class ActionControlRowTests {
         setContent {
             resolver = parameterizedStringResolver()
             ActionControlRow(
-                isElevated = false,
-                isRunning = isRunning,
-                setIsRunning = { isRunning = it },
-                onStep = {},
-                isExpanded = isExpanded,
-                setIsExpanded = { isExpanded = it },
-                isViewportTracking = isViewportTracking,
-                setIsViewportTracking = { isViewportTracking = it },
-                showImmersiveModeControl = true,
-                isImmersiveMode = false,
-                setIsImmersiveMode = {},
-                showFullSpaceModeControl = false,
-                isFullSpaceMode = false,
-                setIsFullSpaceMode = {},
-                selectionState = SelectionState.NoSelection,
-                onClearSelection = {},
-                onCopy = {},
-                onCut = {},
-                onPaste = {},
-                onApplyPaste = {},
+                actionControlRowState = object : ActionControlRowState {
+                    override val isElevated = false
+                    override var isRunning
+                        get() = isRunning
+                        set(value) { isRunning = value }
+                    override var isExpanded
+                        get() = isExpanded
+                        set(value) { isExpanded = value }
+                    override var isViewportTracking
+                        get() = isViewportTracking
+                        set(value) { isViewportTracking = value }
+                    override val showImmersiveModeControl = true
+                    override var isImmersiveMode = false
+                    override val showFullSpaceModeControl = false
+                    override var isFullSpaceMode = false
+                    override val selectionState = SelectionState.NoSelection
+                    override fun onStep() = Unit
+                    override fun onClearSelection() = Unit
+                    override fun onCopy() = Unit
+                    override fun onCut() = Unit
+                    override fun onPaste() = Unit
+                    override fun onApplyPaste() = Unit
+                },
             )
         }
 
@@ -574,26 +582,31 @@ class ActionControlRowTests {
         setContent {
             resolver = parameterizedStringResolver()
             ActionControlRow(
-                isElevated = false,
-                isRunning = isRunning,
-                setIsRunning = { isRunning = it },
-                onStep = {},
-                isExpanded = isExpanded,
-                setIsExpanded = { isExpanded = it },
-                isViewportTracking = isViewportTracking,
-                setIsViewportTracking = { isViewportTracking = it },
-                showImmersiveModeControl = false,
-                isImmersiveMode = false,
-                setIsImmersiveMode = {},
-                showFullSpaceModeControl = true,
-                isFullSpaceMode = isFullSpaceMode,
-                setIsFullSpaceMode = { isFullSpaceMode = it },
-                selectionState = SelectionState.NoSelection,
-                onClearSelection = {},
-                onCopy = {},
-                onCut = {},
-                onPaste = {},
-                onApplyPaste = {},
+                actionControlRowState = object : ActionControlRowState {
+                    override val isElevated = false
+                    override var isRunning
+                        get() = isRunning
+                        set(value) { isRunning = value }
+                    override var isExpanded
+                        get() = isExpanded
+                        set(value) { isExpanded = value }
+                    override var isViewportTracking
+                        get() = isViewportTracking
+                        set(value) { isViewportTracking = value }
+                    override val showImmersiveModeControl = false
+                    override var isImmersiveMode = false
+                    override val showFullSpaceModeControl = true
+                    override var isFullSpaceMode
+                        get() = isFullSpaceMode
+                        set(value) { isFullSpaceMode = value }
+                    override val selectionState = SelectionState.NoSelection
+                    override fun onStep() = Unit
+                    override fun onClearSelection() = Unit
+                    override fun onCopy() = Unit
+                    override fun onCut() = Unit
+                    override fun onPaste() = Unit
+                    override fun onApplyPaste() = Unit
+                },
             )
         }
 
@@ -614,26 +627,29 @@ class ActionControlRowTests {
         setContent {
             resolver = parameterizedStringResolver()
             ActionControlRow(
-                isElevated = false,
-                isRunning = isRunning,
-                setIsRunning = { isRunning = it },
-                onStep = {},
-                isExpanded = isExpanded,
-                setIsExpanded = { isExpanded = it },
-                isViewportTracking = isViewportTracking,
-                setIsViewportTracking = { isViewportTracking = it },
-                showImmersiveModeControl = true,
-                isImmersiveMode = false,
-                setIsImmersiveMode = {},
-                showFullSpaceModeControl = false,
-                isFullSpaceMode = false,
-                setIsFullSpaceMode = {},
-                selectionState = SelectionState.NoSelection,
-                onClearSelection = {},
-                onCopy = {},
-                onCut = {},
-                onPaste = {},
-                onApplyPaste = {},
+                actionControlRowState = object : ActionControlRowState {
+                    override val isElevated = false
+                    override var isRunning
+                        get() = isRunning
+                        set(value) { isRunning = value }
+                    override var isExpanded
+                        get() = isExpanded
+                        set(value) { isExpanded = value }
+                    override var isViewportTracking
+                        get() = isViewportTracking
+                        set(value) { isViewportTracking = value }
+                    override val showImmersiveModeControl = true
+                    override var isImmersiveMode = false
+                    override val showFullSpaceModeControl = false
+                    override var isFullSpaceMode = false
+                    override val selectionState = SelectionState.NoSelection
+                    override fun onStep() = Unit
+                    override fun onClearSelection() = Unit
+                    override fun onCopy() = Unit
+                    override fun onCut() = Unit
+                    override fun onPaste() = Unit
+                    override fun onApplyPaste() = Unit
+                },
             )
         }
 
@@ -655,31 +671,34 @@ class ActionControlRowTests {
         setContent {
             resolver = parameterizedStringResolver()
             ActionControlRow(
-                isElevated = false,
-                isRunning = isRunning,
-                setIsRunning = { isRunning = it },
-                onStep = {},
-                isExpanded = isExpanded,
-                setIsExpanded = { isExpanded = it },
-                isViewportTracking = isViewportTracking,
-                setIsViewportTracking = { isViewportTracking = it },
-                showImmersiveModeControl = true,
-                isImmersiveMode = false,
-                setIsImmersiveMode = {},
-                showFullSpaceModeControl = false,
-                isFullSpaceMode = false,
-                setIsFullSpaceMode = {},
-                selectionState = SelectionState.SelectingBox.FixedSelectingBox(
-                    topLeft = IntOffset.Zero,
-                    width = 1,
-                    height = 1,
-                    previousTransientSelectingBox = null,
-                ),
-                onClearSelection = { onClearSelectionCount++ },
-                onCopy = {},
-                onCut = {},
-                onPaste = {},
-                onApplyPaste = {},
+                actionControlRowState = object : ActionControlRowState {
+                    override val isElevated = false
+                    override var isRunning
+                        get() = isRunning
+                        set(value) { isRunning = value }
+                    override var isExpanded
+                        get() = isExpanded
+                        set(value) { isExpanded = value }
+                    override var isViewportTracking
+                        get() = isViewportTracking
+                        set(value) { isViewportTracking = value }
+                    override val showImmersiveModeControl = true
+                    override var isImmersiveMode = false
+                    override val showFullSpaceModeControl = false
+                    override var isFullSpaceMode = false
+                    override val selectionState = SelectionState.SelectingBox.FixedSelectingBox(
+                        topLeft = IntOffset.Zero,
+                        width = 1,
+                        height = 1,
+                        previousTransientSelectingBox = null,
+                    )
+                    override fun onStep() = Unit
+                    override fun onClearSelection() { onClearSelectionCount++ }
+                    override fun onCopy() = Unit
+                    override fun onCut() = Unit
+                    override fun onPaste() = Unit
+                    override fun onApplyPaste() = Unit
+                },
             )
         }
 
@@ -701,31 +720,34 @@ class ActionControlRowTests {
         setContent {
             resolver = parameterizedStringResolver()
             ActionControlRow(
-                isElevated = false,
-                isRunning = isRunning,
-                setIsRunning = { isRunning = it },
-                onStep = {},
-                isExpanded = isExpanded,
-                setIsExpanded = { isExpanded = it },
-                isViewportTracking = isViewportTracking,
-                setIsViewportTracking = { isViewportTracking = it },
-                showImmersiveModeControl = true,
-                isImmersiveMode = false,
-                setIsImmersiveMode = {},
-                showFullSpaceModeControl = false,
-                isFullSpaceMode = false,
-                setIsFullSpaceMode = {},
-                selectionState = SelectionState.SelectingBox.FixedSelectingBox(
-                    topLeft = IntOffset.Zero,
-                    width = 1,
-                    height = 1,
-                    previousTransientSelectingBox = null,
-                ),
-                onClearSelection = {},
-                onCopy = { onCopyCount++ },
-                onCut = {},
-                onPaste = {},
-                onApplyPaste = {},
+                actionControlRowState = object : ActionControlRowState {
+                    override val isElevated = false
+                    override var isRunning
+                        get() = isRunning
+                        set(value) { isRunning = value }
+                    override var isExpanded
+                        get() = isExpanded
+                        set(value) { isExpanded = value }
+                    override var isViewportTracking
+                        get() = isViewportTracking
+                        set(value) { isViewportTracking = value }
+                    override val showImmersiveModeControl = true
+                    override var isImmersiveMode = false
+                    override val showFullSpaceModeControl = false
+                    override var isFullSpaceMode = false
+                    override val selectionState = SelectionState.SelectingBox.FixedSelectingBox(
+                        topLeft = IntOffset.Zero,
+                        width = 1,
+                        height = 1,
+                        previousTransientSelectingBox = null,
+                    )
+                    override fun onStep() = Unit
+                    override fun onClearSelection() = Unit
+                    override fun onCopy() { onCopyCount++ }
+                    override fun onCut() = Unit
+                    override fun onPaste() = Unit
+                    override fun onApplyPaste() = Unit
+                },
             )
         }
 
@@ -747,31 +769,34 @@ class ActionControlRowTests {
         setContent {
             resolver = parameterizedStringResolver()
             ActionControlRow(
-                isElevated = false,
-                isRunning = isRunning,
-                setIsRunning = { isRunning = it },
-                onStep = {},
-                isExpanded = isExpanded,
-                setIsExpanded = { isExpanded = it },
-                isViewportTracking = isViewportTracking,
-                setIsViewportTracking = { isViewportTracking = it },
-                showImmersiveModeControl = true,
-                isImmersiveMode = false,
-                setIsImmersiveMode = {},
-                showFullSpaceModeControl = false,
-                isFullSpaceMode = false,
-                setIsFullSpaceMode = {},
-                selectionState = SelectionState.SelectingBox.FixedSelectingBox(
-                    topLeft = IntOffset.Zero,
-                    width = 1,
-                    height = 1,
-                    previousTransientSelectingBox = null,
-                ),
-                onClearSelection = {},
-                onCopy = {},
-                onCut = { onCutCount++ },
-                onPaste = {},
-                onApplyPaste = {},
+                actionControlRowState = object : ActionControlRowState {
+                    override val isElevated = false
+                    override var isRunning
+                        get() = isRunning
+                        set(value) { isRunning = value }
+                    override var isExpanded
+                        get() = isExpanded
+                        set(value) { isExpanded = value }
+                    override var isViewportTracking
+                        get() = isViewportTracking
+                        set(value) { isViewportTracking = value }
+                    override val showImmersiveModeControl = true
+                    override var isImmersiveMode = false
+                    override val showFullSpaceModeControl = false
+                    override var isFullSpaceMode = false
+                    override val selectionState = SelectionState.SelectingBox.FixedSelectingBox(
+                        topLeft = IntOffset.Zero,
+                        width = 1,
+                        height = 1,
+                        previousTransientSelectingBox = null,
+                    )
+                    override fun onStep() = Unit
+                    override fun onClearSelection() = Unit
+                    override fun onCopy() = Unit
+                    override fun onCut() { onCutCount++ }
+                    override fun onPaste() = Unit
+                    override fun onApplyPaste() = Unit
+                },
             )
         }
 

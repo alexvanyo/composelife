@@ -27,7 +27,6 @@ pluginManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
-        maven(url = "https://maven.pkg.jetbrains.space/public/p/compose/dev/")
     }
 }
 
@@ -40,7 +39,6 @@ dependencyResolutionManagement {
         }
         google()
         mavenCentral()
-        maven(url = "https://maven.pkg.jetbrains.space/public/p/compose/dev/")
     }
 }
 
@@ -125,6 +123,7 @@ include(":ui-settings-screenshot-tests")
 include(":ui-tooling-preview")
 include(":ui-wear")
 include(":updatable")
+include(":web-app")
 include(":wear")
 include(":wear-baseline-profile-generator")
 include(":wear-watchface")

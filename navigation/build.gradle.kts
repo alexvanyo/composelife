@@ -16,6 +16,7 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -35,6 +36,16 @@ kotlin {
         configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
     }
     jvm("desktop")
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser {
+            testTask {
+                useKarma {
+                    useChromiumHeadless()
+                }
+            }
+        }
+    }
 
     sourceSets {
         val commonMain by getting {
@@ -42,6 +53,7 @@ kotlin {
                 implementation(libs.androidx.collection)
                 implementation(libs.androidx.compose.runtime)
                 implementation(libs.androidx.compose.runtime.retain)
+                implementation(libs.androidx.compose.runtime.saveable)
                 implementation(libs.kotlinx.coroutines.core)
             }
         }
@@ -68,19 +80,21 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.android)
             }
         }
+        val wasmJsMain by getting {
+            dependsOn(jbMain)
+        }
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlinx.coroutines.test)
+                implementation(projects.kmpAndroidRunner)
+                implementation(projects.kmpStateRestorationTester)
             }
         }
         val jbTest by creating {
             dependsOn(commonTest)
             dependencies {
-                api(libs.jetbrains.compose.foundation)
-
+                implementation(libs.jetbrains.compose.foundation)
                 implementation(libs.jetbrains.compose.uiTest)
-                implementation(projects.kmpAndroidRunner)
-                implementation(projects.kmpStateRestorationTester)
             }
         }
         val desktopTest by getting {
@@ -94,6 +108,9 @@ kotlin {
                 implementation(libs.androidx.test.espresso)
                 implementation(projects.testActivity)
             }
+        }
+        val wasmJsTest by getting {
+            dependsOn(jbTest)
         }
     }
 }

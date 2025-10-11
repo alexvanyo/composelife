@@ -64,4 +64,4 @@ private val settingsByCategory by lazy { Setting._values.groupBy(Setting::catego
 /**
  * Returns the list of [Setting]s for the given [SettingsCategory].
  */
-val SettingsCategory.settings get() = settingsByCategory.getOrDefault(this, emptyList())
+val SettingsCategory.settings get() = settingsByCategory.getOrElse(this) { emptyList() }

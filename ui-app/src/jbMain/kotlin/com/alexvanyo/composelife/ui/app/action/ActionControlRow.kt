@@ -80,30 +80,11 @@ import com.alexvanyo.composelife.ui.cells.SelectionState
 @Suppress("LongParameterList", "LongMethod", "CyclomaticComplexMethod")
 @Composable
 fun ActionControlRow(
-    isElevated: Boolean,
-    isRunning: Boolean,
-    setIsRunning: (Boolean) -> Unit,
-    onStep: () -> Unit,
-    isExpanded: Boolean,
-    setIsExpanded: (Boolean) -> Unit,
-    isViewportTracking: Boolean,
-    setIsViewportTracking: (Boolean) -> Unit,
-    showImmersiveModeControl: Boolean,
-    isImmersiveMode: Boolean,
-    setIsImmersiveMode: (Boolean) -> Unit,
-    showFullSpaceModeControl: Boolean,
-    isFullSpaceMode: Boolean,
-    setIsFullSpaceMode: (Boolean) -> Unit,
-    selectionState: SelectionState,
-    onClearSelection: () -> Unit,
-    onCopy: () -> Unit,
-    onCut: () -> Unit,
-    onPaste: () -> Unit,
-    onApplyPaste: () -> Unit,
+    actionControlRowState: ActionControlRowState,
     modifier: Modifier = Modifier,
 ) {
     val color by animateColorAsState(
-        targetValue = if (isElevated) {
+        targetValue = if (actionControlRowState.isElevated) {
             MaterialTheme.colorScheme.surfaceContainerHigh
         } else {
             MaterialTheme.colorScheme.surfaceContainerLow
@@ -122,7 +103,7 @@ fun ActionControlRow(
                 val showSelectingControls: Boolean
                 val showSelectionControls: Boolean
 
-                when (selectionState) {
+                when (actionControlRowState.selectionState) {
                     SelectionState.NoSelection -> {
                         showTimeControls = true
                         showSelectingControls = false
@@ -147,7 +128,7 @@ fun ActionControlRow(
                             PlainTooltip {
                                 Text(
                                     parameterizedStringResource(
-                                        if (isRunning) {
+                                        if (actionControlRowState.isRunning) {
                                             Strings.Pause
                                         } else {
                                             Strings.Play
@@ -159,20 +140,20 @@ fun ActionControlRow(
                         state = rememberTooltipState(),
                     ) {
                         IconToggleButton(
-                            checked = isRunning,
-                            onCheckedChange = setIsRunning,
+                            checked = actionControlRowState.isRunning,
+                            onCheckedChange = { actionControlRowState.isRunning = it },
                             colors = IconButtonDefaults.iconToggleButtonColors(
                                 checkedContentColor = LocalContentColor.current,
                             ),
                         ) {
                             Icon(
-                                imageVector = if (isRunning) {
+                                imageVector = if (actionControlRowState.isRunning) {
                                     Icons.Filled.Pause
                                 } else {
                                     Icons.Filled.PlayArrow
                                 },
                                 contentDescription = parameterizedStringResource(
-                                    if (isRunning) {
+                                    if (actionControlRowState.isRunning) {
                                         Strings.Pause
                                     } else {
                                         Strings.Play
@@ -194,7 +175,7 @@ fun ActionControlRow(
                         state = rememberTooltipState(),
                     ) {
                         IconButton(
-                            onClick = onStep,
+                            onClick = actionControlRowState::onStep,
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.SkipNext,
@@ -215,7 +196,7 @@ fun ActionControlRow(
                         state = rememberTooltipState(),
                     ) {
                         IconButton(
-                            onClick = onClearSelection,
+                            onClick = actionControlRowState::onClearSelection,
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Cancel,
@@ -236,7 +217,7 @@ fun ActionControlRow(
                         state = rememberTooltipState(),
                     ) {
                         IconButton(
-                            onClick = onCopy,
+                            onClick = actionControlRowState::onCopy,
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.ContentCopy,
@@ -257,7 +238,7 @@ fun ActionControlRow(
                         state = rememberTooltipState(),
                     ) {
                         IconButton(
-                            onClick = onCut,
+                            onClick = actionControlRowState::onCut,
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.ContentCut,
@@ -278,7 +259,7 @@ fun ActionControlRow(
                         state = rememberTooltipState(),
                     ) {
                         IconButton(
-                            onClick = onPaste,
+                            onClick = actionControlRowState::onPaste,
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.ContentPaste,
@@ -299,7 +280,7 @@ fun ActionControlRow(
                         state = rememberTooltipState(),
                     ) {
                         IconButton(
-                            onClick = onClearSelection,
+                            onClick = actionControlRowState::onClearSelection,
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Cancel,
@@ -320,7 +301,7 @@ fun ActionControlRow(
                         state = rememberTooltipState(),
                     ) {
                         IconButton(
-                            onClick = onApplyPaste,
+                            onClick = actionControlRowState::onApplyPaste,
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Done,
@@ -336,7 +317,7 @@ fun ActionControlRow(
                         PlainTooltip {
                             Text(
                                 parameterizedStringResource(
-                                    if (isViewportTracking) {
+                                    if (actionControlRowState.isViewportTracking) {
                                         Strings.DisableAutofit
                                     } else {
                                         Strings.EnableAutofit
@@ -348,13 +329,13 @@ fun ActionControlRow(
                     state = rememberTooltipState(),
                 ) {
                     IconToggleButton(
-                        checked = isViewportTracking,
-                        onCheckedChange = setIsViewportTracking,
+                        checked = actionControlRowState.isViewportTracking,
+                        onCheckedChange = { actionControlRowState.isViewportTracking = it },
                     ) {
                         Icon(
                             imageVector = Icons.Filled.AutoMode,
                             contentDescription = parameterizedStringResource(
-                                if (isViewportTracking) {
+                                if (actionControlRowState.isViewportTracking) {
                                     Strings.DisableAutofit
                                 } else {
                                     Strings.EnableAutofit
@@ -364,14 +345,14 @@ fun ActionControlRow(
                     }
                 }
 
-                AnimatedVisibility(showImmersiveModeControl) {
+                AnimatedVisibility(actionControlRowState.showImmersiveModeControl) {
                     TooltipBox(
                         positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
                         tooltip = {
                             PlainTooltip {
                                 Text(
                                     parameterizedStringResource(
-                                        if (isImmersiveMode) {
+                                        if (actionControlRowState.isImmersiveMode) {
                                             Strings.DisableImmersiveMode
                                         } else {
                                             Strings.EnableImmersiveMode
@@ -383,17 +364,17 @@ fun ActionControlRow(
                         state = rememberTooltipState(),
                     ) {
                         IconToggleButton(
-                            checked = isImmersiveMode,
-                            onCheckedChange = setIsImmersiveMode,
+                            checked = actionControlRowState.isImmersiveMode,
+                            onCheckedChange = { actionControlRowState.isImmersiveMode = it },
                         ) {
                             Icon(
-                                imageVector = if (isImmersiveMode) {
+                                imageVector = if (actionControlRowState.isImmersiveMode) {
                                     Icons.Default.FullscreenExit
                                 } else {
                                     Icons.Default.Fullscreen
                                 },
                                 contentDescription = parameterizedStringResource(
-                                    if (isImmersiveMode) {
+                                    if (actionControlRowState.isImmersiveMode) {
                                         Strings.DisableImmersiveMode
                                     } else {
                                         Strings.EnableImmersiveMode
@@ -404,14 +385,14 @@ fun ActionControlRow(
                     }
                 }
 
-                AnimatedVisibility(showFullSpaceModeControl) {
+                AnimatedVisibility(actionControlRowState.showFullSpaceModeControl) {
                     TooltipBox(
                         positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
                         tooltip = {
                             PlainTooltip {
                                 Text(
                                     parameterizedStringResource(
-                                        if (isFullSpaceMode) {
+                                        if (actionControlRowState.isFullSpaceMode) {
                                             Strings.EnterHomeSpaceMode
                                         } else {
                                             Strings.EnterFullSpaceMode
@@ -424,17 +405,17 @@ fun ActionControlRow(
                     ) {
                         IconButton(
                             onClick = {
-                                setIsFullSpaceMode(!isFullSpaceMode)
+                                actionControlRowState.isFullSpaceMode = !actionControlRowState.isFullSpaceMode
                             },
                         ) {
                             Icon(
-                                imageVector = if (isFullSpaceMode) {
+                                imageVector = if (actionControlRowState.isFullSpaceMode) {
                                     Icons.Default.CloseFullscreen
                                 } else {
                                     Icons.Default.OpenInFull
                                 },
                                 contentDescription = parameterizedStringResource(
-                                    if (isFullSpaceMode) {
+                                    if (actionControlRowState.isFullSpaceMode) {
                                         Strings.EnterHomeSpaceMode
                                     } else {
                                         Strings.EnterFullSpaceMode
@@ -451,7 +432,7 @@ fun ActionControlRow(
                         PlainTooltip {
                             Text(
                                 parameterizedStringResource(
-                                    if (isExpanded) {
+                                    if (actionControlRowState.isExpanded) {
                                         Strings.Collapse
                                     } else {
                                         Strings.Expand
@@ -463,20 +444,20 @@ fun ActionControlRow(
                     state = rememberTooltipState(),
                 ) {
                     IconToggleButton(
-                        checked = isExpanded,
-                        onCheckedChange = setIsExpanded,
+                        checked = actionControlRowState.isExpanded,
+                        onCheckedChange = { actionControlRowState.isExpanded = it },
                         colors = IconButtonDefaults.iconToggleButtonColors(
                             checkedContentColor = LocalContentColor.current,
                         ),
                     ) {
                         Icon(
-                            imageVector = if (isExpanded) {
+                            imageVector = if (actionControlRowState.isExpanded) {
                                 Icons.Filled.ExpandMore
                             } else {
                                 Icons.Filled.ExpandLess
                             },
                             contentDescription = parameterizedStringResource(
-                                if (isExpanded) {
+                                if (actionControlRowState.isExpanded) {
                                     Strings.Collapse
                                 } else {
                                     Strings.Expand
