@@ -89,8 +89,6 @@ kotlin = "2.2.20"
 kotlinPoet = "2.2.0"
 #kotlinxCollectionsImmutable
 kotlinxCollectionsImmutable = "0.4.0"
-#kotlinCompileTesting
-kotlinCompileTesting = "1.5.0"
 #kotlinxCoroutines
 kotlinxCoroutines = "1.10.2"
 #kotlinxDatetime
@@ -246,8 +244,6 @@ junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junit5" }
 keeper-gradlePlugin = { group = "com.slack.keeper", name = "keeper", version.ref = "keeper" }
 kermit = { group = "co.touchlab", name = "kermit", version.ref = "kermit" }
-kotlinCompileTesting-base = { module = "com.github.tschuchortdev:kotlin-compile-testing", version.ref = "kotlinCompileTesting" }
-kotlinCompileTesting-ksp = { module = "com.github.tschuchortdev:kotlin-compile-testing-ksp", version.ref = "kotlinCompileTesting" }
 kotlin-composeCompilerGradlePlugin = { group = "org.jetbrains.kotlin", name = "compose-compiler-gradle-plugin", version.ref = "kotlin" }
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit", version.ref = "kotlin" }
