@@ -16,19 +16,34 @@
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.configureAndroid
-import com.android.build.api.dsl.androidLibrary
+import com.alexvanyo.composelife.buildlogic.configureKotlin
+import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 class AndroidLibraryConventionPlugin : ConventionPlugin({
     with(pluginManager) {
+        apply("org.jetbrains.kotlin.multiplatform")
         apply("com.android.kotlin.multiplatform.library")
     }
 
+    configureKotlin()
     extensions.configure(KotlinMultiplatformExtension::class.java) {
-        androidLibrary {
+        extensions.configure(KotlinMultiplatformAndroidLibraryTarget::class.java) {
             configureAndroid(this)
             lint.targetSdk = 35
             optimization.consumerKeepRules.file("consumer-rules.pro")
+        }
+    }
+    extensions.configure(KotlinMultiplatformExtension::class.java) {
+        sourceSets.configureEach {
+            languageSettings {
+                // TODO: Remove when out of beta: https://youtrack.jetbrains.com/issue/KT-61573
+                enableLanguageFeature("ExpectActualClasses")
+                enableLanguageFeature("ContextParameters")
+                enableLanguageFeature("MultiDollarInterpolation")
+                optIn("kotlin.uuid.ExperimentalUuidApi")
+                optIn("kotlin.time.ExperimentalTime")
+            }
         }
     }
 })
