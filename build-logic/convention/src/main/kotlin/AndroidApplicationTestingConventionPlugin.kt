@@ -56,7 +56,7 @@ class AndroidApplicationTestingConventionPlugin : ConventionPlugin({
 
     configureAndroidTesting(
         extensions.getByType(ApplicationExtension::class.java),
-        extensions.getByType(com.android.build.gradle.TestedExtension::class.java),
+        extensions.getByType(ApplicationExtension::class.java),
     )
 
     if (enableKeeper.get()) {

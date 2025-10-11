@@ -24,7 +24,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 fun Project.configureAndroidCompose(
-    commonExtension: CommonExtension<*, *, *, *, *, *>,
+    commonExtension: CommonExtension,
 ) {
     val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
@@ -37,9 +37,7 @@ fun Project.configureAndroidCompose(
             )
         }
 
-        buildFeatures {
-            compose = true
-        }
+        buildFeatures.compose = true
 
         // TODO: Add metrics and report to non-test KotlinCompile tasks
         afterEvaluate {
@@ -62,13 +60,9 @@ fun Project.configureAndroidCompose(
                 }
             }
         }
-    }
 
-    extensions.configure(KotlinMultiplatformExtension::class.java) {
-        sourceSets.create("androidMain") {
-            dependencies {
-                implementation(project.dependencies.platform(libs.findLibrary("androidx.compose.bom").get()))
-            }
+        sourceSets.getByName("main") {
+            dependencies.add("implementation", project.dependencies.platform(libs.findLibrary("androidx.compose.bom").get()))
         }
     }
 

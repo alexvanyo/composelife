@@ -16,7 +16,7 @@
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.configureTesting
-import com.android.build.api.dsl.androidLibrary
+import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
 import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
 import org.gradle.api.GradleException
 import org.gradle.api.artifacts.VersionCatalogsExtension
@@ -30,10 +30,6 @@ class AndroidLibraryRoborazziConventionPlugin : ConventionPlugin({
     val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
     extensions.configure(KotlinMultiplatformExtension::class.java) {
-        androidLibrary {
-            configureTesting(this)
-        }
-
         sourceSets.register("androidHostTest") {
             dependencies {
                 implementation(libs.findLibrary("roborazzi.compose").get())
@@ -42,7 +38,11 @@ class AndroidLibraryRoborazziConventionPlugin : ConventionPlugin({
             }
         }
     }
-
+    extensions.configure(KotlinMultiplatformExtension::class.java) {
+        extensions.configure(KotlinMultiplatformAndroidLibraryTarget::class.java) {
+            configureTesting(this)
+        }
+    }
     extensions.configure(KotlinMultiplatformAndroidComponentsExtension::class.java) {
         onVariants { variant ->
             variant.hostTests.forEach { _, hostTest ->

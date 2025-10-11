@@ -31,7 +31,6 @@ plugins {
     alias(libs.plugins.convention.androidTest) apply false
     alias(libs.plugins.convention.dependencyGuard) apply false
     alias(libs.plugins.convention.detekt) apply false
-    alias(libs.plugins.convention.kotlinMultiplatform) apply false
     alias(libs.plugins.convention.kotlinMultiplatformCompose) apply false
 
     alias(libs.plugins.convention.mergeJacoco)

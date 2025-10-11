@@ -21,11 +21,10 @@ import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
 import com.alexvanyo.composelife.buildlogic.taskPrefix
 
 plugins {
-    alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidTest)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.gradleDependenciesSorter)
-    alias(libs.plugins.androidx.baselineProfile)
+    //alias(libs.plugins.androidx.baselineProfile)
 }
 
 val aosppixel2Api30 = GradleManagedDeviceConfig(
@@ -44,25 +43,25 @@ android {
     }
 }
 
-kotlin {
-    androidTarget()
+//kotlin {
+//    androidTarget()
+//
+//    sourceSets {
+//        val androidMain by getting {
+//            dependencies {
+//                implementation(libs.androidx.benchmark.macro.junit4)
+//                implementation(libs.androidx.test.junit)
+//                implementation(libs.androidx.test.runner)
+//                implementation(libs.kotlin.test.junit)
+//            }
+//        }
+//    }
+//}
 
-    sourceSets {
-        val androidMain by getting {
-            dependencies {
-                implementation(libs.androidx.benchmark.macro.junit4)
-                implementation(libs.androidx.test.junit)
-                implementation(libs.androidx.test.runner)
-                implementation(libs.kotlin.test.junit)
-            }
-        }
-    }
-}
-
-baselineProfile {
-    managedDevices += aosppixel2Api30.taskPrefix
-    useConnectedDevices = false
-}
+//baselineProfile {
+//    managedDevices += aosppixel2Api30.taskPrefix
+//    useConnectedDevices = false
+//}
 
 afterEvaluate {
     tasks {
