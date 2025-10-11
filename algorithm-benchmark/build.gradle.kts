@@ -18,7 +18,6 @@ import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
 
 plugins {
-    alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidApplication)
     alias(libs.plugins.convention.androidApplicationCompose)
     alias(libs.plugins.convention.androidApplicationTesting)
@@ -26,7 +25,7 @@ plugins {
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
     kotlin("plugin.serialization") version libs.versions.kotlin
     alias(libs.plugins.gradleDependenciesSorter)
-    alias(libs.plugins.keeper)
+    //alias(libs.plugins.keeper)
 }
 
 android {
@@ -43,32 +42,21 @@ android {
     configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
 }
 
-keeper {
-    automaticR8RepoManagement.set(false)
-    traceReferences {}
-}
+//keeper {
+//    automaticR8RepoManagement.set(false)
+//    traceReferences {}
+//}
 
-kotlin {
-    androidTarget()
-
-    sourceSets {
-        val androidMain by getting {
-            dependencies {
-                implementation(libs.androidx.benchmark.micro.junit4)
-                implementation(libs.androidx.test.runner)
-            }
-        }
-        val commonTest by getting {
-            dependencies {
-                implementation(projects.algorithm)
-                implementation(projects.dispatchersTestFixtures)
-                implementation(projects.patterns)
-            }
-        }
-        val androidInstrumentedTest by getting {
-            dependencies {
-                implementation(libs.testParameterInjector.junit4)
-            }
-        }
-    }
-}
+//dependencies {
+//    implementation(libs.androidx.test.ext.junit)
+//    implementation(libs.androidx.test.rules)
+//
+//    testImplementation(projects.algorithm)
+//    testImplementation(projects.dispatchersTestFixtures)
+//    testImplementation(projects.patterns)
+//
+//    androidTestImplementation(projects.algorithm)
+//    androidTestImplementation(projects.dispatchersTestFixtures)
+//    androidTestImplementation(projects.patterns)
+//    androidTestImplementation(libs.testParameterInjector.junit4)
+//}
