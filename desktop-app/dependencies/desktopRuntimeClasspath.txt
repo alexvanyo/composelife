@@ -56,8 +56,8 @@ co.touchlab:kermit-jvm:2.0.8
 co.touchlab:kermit:2.0.8
 com.squareup.okhttp3:okhttp-jvm:5.1.0
 com.squareup.okhttp3:okhttp:5.1.0
-com.squareup.okio:okio-jvm:3.16.0
-com.squareup.okio:okio:3.16.0
+com.squareup.okio:okio-jvm:3.16.1
+com.squareup.okio:okio:3.16.1
 com.squareup.wire:wire-runtime-jvm:5.4.0
 com.squareup.wire:wire-runtime:5.4.0
 dev.zacsweers.metro:runtime-jvm:0.6.7
