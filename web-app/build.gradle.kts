@@ -16,8 +16,8 @@
 
 import com.alexvanyo.composelife.buildlogic.heavyTaskLimitingBuildService
 import dev.zacsweers.metro.gradle.DiagnosticSeverity
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.wasm.binaryen.BinaryenExec
-import kotlin.jvm.java
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -34,6 +34,7 @@ metro {
 }
 
 kotlin {
+    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         binaries.executable()
         browser {

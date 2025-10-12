@@ -39,9 +39,25 @@ fun Project.configureJacoco(
         jacocoVersion = libs.findVersion("jacoco").get().toString()
     }
 
+    val hasUnitTests = hasTests(
+        "test",
+        "androidUnitTest",
+        "commonTest",
+        "jbTest",
+        "jvmTest",
+        "androidHostTest",
+        "androidSharedTest",
+    )
+    val hasAndroidTests = hasTests(
+        "androidTest",
+        "androidInstrumentedTest",
+        "androidDeviceTest",
+        "androidSharedTest",
+    )
+
     commonExtension.buildTypes.configureEach {
-        enableUnitTestCoverage = true
-        enableAndroidTestCoverage = true
+        enableUnitTestCoverage = hasUnitTests
+        enableAndroidTestCoverage = hasAndroidTests
     }
 
     tasks.withType(Test::class.java).configureEach {
@@ -81,13 +97,29 @@ fun Project.configureJacoco(
 ) {
     val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
+    val hasUnitTests = hasTests(
+        "test",
+        "androidUnitTest",
+        "commonTest",
+        "jbTest",
+        "jvmTest",
+        "androidHostTest",
+        "androidSharedTest",
+    )
+    val hasAndroidTests = hasTests(
+        "androidTest",
+        "androidInstrumentedTest",
+        "androidDeviceTest",
+        "androidSharedTest",
+    )
+
     extension.apply {
         testCoverage.jacocoVersion = libs.findVersion("jacoco").get().toString()
         compilations.withType(KotlinMultiplatformAndroidHostTestCompilation::class.java).configureEach {
-            enableCoverage = true
+            enableCoverage = hasUnitTests
         }
         compilations.withType(KotlinMultiplatformAndroidDeviceTestCompilation::class.java).configureEach {
-            enableCoverage = true
+            enableCoverage = hasAndroidTests
         }
     }
 
@@ -231,3 +263,10 @@ private val variants =
         "release",
         "staging",
     )
+
+private fun Project.hasTests(vararg types: String): Boolean =
+    types.any { type ->
+        layout.projectDirectory.dir("src/$type").asFile.let { dir ->
+            dir.exists() && dir.walkTopDown().any { it.isFile }
+        }
+    }
