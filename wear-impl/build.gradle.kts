@@ -20,11 +20,9 @@ import dev.zacsweers.metro.gradle.DiagnosticSeverity
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
-    alias(libs.plugins.convention.androidApplication)
-    alias(libs.plugins.convention.androidApplicationCompose)
-    alias(libs.plugins.convention.dependencyGuard)
+    alias(libs.plugins.convention.androidLibrary)
+    alias(libs.plugins.convention.androidLibraryCompose)
     alias(libs.plugins.convention.detekt)
-    alias(libs.plugins.gradleDependenciesSorter)
     alias(libs.plugins.androidx.baselineProfile)
     alias(libs.plugins.metro)
 }
@@ -33,52 +31,28 @@ metro {
     unusedGraphInputsSeverity = DiagnosticSeverity.NONE
 }
 
-android {
-    namespace = "com.alexvanyo.composelife.wear"
-    defaultConfig {
-        applicationId = "com.alexvanyo.composelife.wear"
-        minSdk = 26
-        targetSdk = 33
-        versionCode = 1
-        versionName = "1.0"
-    }
-    configureGradleManagedDevices(setOf(FormFactor.Wear), this)
-}
-
-baselineProfile {
-    automaticGenerationDuringBuild = false
-    saveInSrc = true
-    dexLayoutOptimization = true
-    mergeIntoMain = true
-}
-
 kotlin {
-    androidTarget()
+    androidLibrary {
+        namespace = "com.alexvanyo.composelife.wearimpl"
+        minSdk = 26
+    }
 
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(projects.wearImpl)
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(projects.androidApplication)
+                implementation(projects.filesystem)
+                implementation(projects.injectScopes)
+                implementation(projects.processLifecycle)
+                implementation(projects.strictMode)
+                implementation(projects.wearWatchface)
             }
         }
         val androidMain by getting {
-            configurations["baselineProfile"].dependencies.add(projects.wearBaselineProfileGenerator)
-        }
-        val androidDebug by creating {
-            dependsOn(androidMain)
             dependencies {
-                implementation(libs.leakCanary.android)
-            }
-        }
-        val androidStaging by creating {
-            dependsOn(androidMain)
-            dependencies {
-                implementation(libs.leakCanary.android)
+                implementation(libs.androidx.lifecycle.runtime)
             }
         }
     }
-}
-
-dependencyGuard {
-    configuration("releaseRuntimeClasspath")
 }
