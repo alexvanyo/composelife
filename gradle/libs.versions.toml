@@ -112,7 +112,7 @@ jetbrainsCompose = "1.10.0+dev3025"
 #jetbrainsComposeMaterialIconsExtended
 jetbrainsComposeMaterialIconsExtended = "1.7.3"
 #jetbrainsComposeMaterial3
-jetbrainsComposeMaterial3 = "1.10.0+dev3025"
+jetbrainsComposeMaterial3 = "1.10.0-SNAPSHOT+shish-jb-main-k2-2-10"
 #jetbrainsComposeMaterial3Adaptive
 jetbrainsComposeMaterial3Adaptive = "1.2.0+dev3025"
 #junit4
