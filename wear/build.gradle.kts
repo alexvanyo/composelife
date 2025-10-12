@@ -53,24 +53,11 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(libs.kotlinx.coroutines.core)
-                implementation(projects.filesystem)
-                implementation(projects.injectScopes)
-                implementation(projects.processLifecycle)
-                implementation(projects.strictMode)
-                implementation(projects.wearWatchface)
+                implementation(projects.wearImpl)
             }
         }
         val androidMain by getting {
             configurations["baselineProfile"].dependencies.add(projects.wearBaselineProfileGenerator)
-            dependencies {
-                implementation(libs.androidx.activityCompose)
-                implementation(libs.androidx.appcompat)
-                implementation(libs.androidx.core)
-                implementation(libs.androidx.lifecycle.process)
-                implementation(libs.androidx.lifecycle.runtime)
-                implementation(libs.kotlinx.coroutines.android)
-            }
         }
         val androidDebug by creating {
             dependsOn(androidMain)

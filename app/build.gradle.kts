@@ -56,38 +56,15 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(libs.androidx.compose.runtime)
-                implementation(libs.androidx.compose.runtime.retain)
-                implementation(libs.kotlinx.serialization.core)
-                implementation(projects.doNotKeepProcess)
-                implementation(projects.filesystem)
-                implementation(projects.imageLoader)
-                implementation(projects.injectScopes)
-                implementation(projects.logging)
-                implementation(projects.network)
-                implementation(projects.resourcesApp)
-                implementation(projects.strictMode)
-                implementation(projects.uiApp)
-                implementation(projects.uiCommon)
-                implementation(projects.uiMobile)
-                implementation(projects.work)
+                implementation(projects.appImpl)
             }
         }
         val androidMain by getting {
             configurations["baselineProfile"].dependencies.add(projects.appBaselineProfileGenerator)
-            dependencies {
-                implementation(libs.androidx.activityCompose)
-                implementation(libs.androidx.appcompat)
-                implementation(libs.androidx.core)
-                implementation(libs.androidx.core.splashscreen)
-                implementation(libs.androidx.lifecycle.process)
-                implementation(libs.androidx.profileInstaller)
-            }
         }
         val androidDebug by creating {
             dependsOn(androidMain)
             dependencies {
-                implementation(libs.androidx.compose.uiTooling)
                 implementation(libs.leakCanary.android)
             }
         }
@@ -97,30 +74,9 @@ kotlin {
                 implementation(libs.leakCanary.android)
             }
         }
-        val commonTest by getting {
-            dependencies {
-                implementation(projects.databaseTestFixtures)
-                implementation(projects.dispatchersTestFixtures)
-                implementation(projects.filesystemTestFixtures)
-                implementation(projects.injectTest)
-                implementation(projects.patterns)
-                implementation(projects.preferencesTestFixtures)
-                implementation(projects.uiCommon)
-                implementation(projects.workTestFixtures)
-            }
-        }
-        val androidSharedTest by getting {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.androidx.test.core)
-                implementation(libs.androidx.test.espresso)
-                implementation(libs.androidx.window)
-            }
-        }
         val androidInstrumentedTest by getting {
             dependencies {
-                compileOnly(libs.apiGuardian.api)
-                compileOnly(libs.google.autoValue.annotations)
+                implementation(projects.appTestFixtures)
             }
         }
     }
