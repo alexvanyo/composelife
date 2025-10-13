@@ -106,13 +106,13 @@ jacoco = "0.8.13"
 #jetbrainsSavedState
 jetbrainsSavedState = "1.3.1"
 #jetbrainsCompose
-jetbrainsCompose = "1.10.0+dev3025"
+jetbrainsCompose = "1.10.0-alpha02"
 #jetbrainsComposeMaterialIconsExtended
 jetbrainsComposeMaterialIconsExtended = "1.7.3"
 #jetbrainsComposeMaterial3
-jetbrainsComposeMaterial3 = "1.10.0+dev3025"
+jetbrainsComposeMaterial3 = "1.10.0-alpha02"
 #jetbrainsComposeMaterial3Adaptive
-jetbrainsComposeMaterial3Adaptive = "1.2.0+dev3025"
+jetbrainsComposeMaterial3Adaptive = "1.2.0-alpha06"
 #junit4
 junit4 = "4.13.2"
 #junit5
