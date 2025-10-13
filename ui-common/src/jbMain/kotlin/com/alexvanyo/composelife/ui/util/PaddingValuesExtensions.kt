@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.LayoutDirection
  *
  * This addition is done lazily - only when the the calculations are performed.
  */
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 operator fun PaddingValues.plus(other: PaddingValues): PaddingValues =
     object : PaddingValues {
         override fun calculateBottomPadding(): Dp =
