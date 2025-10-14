@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,18 +18,12 @@
 package com.alexvanyo.composelife.database.di
 
 import app.cash.sqldelight.db.SqlDriver
-import app.cash.sqldelight.db.use
-import app.cash.sqldelight.driver.worker.createDefaultWebWorkerDriver
-import com.alexvanyo.composelife.database.ComposeLifeDatabase
-import com.alexvanyo.composelife.updatable.Updatable
+import com.alexvanyo.composelife.database.ComposeLifeDriver
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.ForScope
-import dev.zacsweers.metro.IntoSet
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
-import kotlinx.coroutines.awaitCancellation
 
 @ContributesTo(AppScope::class)
 @BindingContainer
@@ -38,20 +32,8 @@ interface DriverBindings {
     companion object {
         @Provides
         @SingleIn(AppScope::class)
-        internal fun providesDriver(): SqlDriver =
-            createDefaultWebWorkerDriver().also(ComposeLifeDatabase.Schema::create)
-
-        @Provides
-        @SingleIn(AppScope::class)
-        @IntoSet
-        @ForScope(AppScope::class)
-        internal fun providesDriverClosingIntoUpdatable(
-            driver: SqlDriver,
-        ): Updatable = object : Updatable {
-            override suspend fun update(): Nothing =
-                driver.use { _ ->
-                    awaitCancellation()
-                }
-        }
+        internal fun providesDriver(
+            composeLifeDriver: ComposeLifeDriver,
+        ): SqlDriver = composeLifeDriver.sqlDriver
     }
 }

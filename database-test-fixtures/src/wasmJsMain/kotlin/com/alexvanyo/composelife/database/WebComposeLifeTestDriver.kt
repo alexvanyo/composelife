@@ -13,46 +13,51 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("MatchingDeclarationName")
 
-package com.alexvanyo.composelife.database.di
+package com.alexvanyo.composelife.database
 
 import app.cash.sqldelight.async.coroutines.awaitCreate
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.db.use
 import app.cash.sqldelight.driver.worker.createDefaultWebWorkerDriver
-import com.alexvanyo.composelife.database.ComposeLifeDatabase
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.ForScope
+import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.IntoSet
-import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.awaitCancellation
 
-@ContributesTo(AppScope::class, replaces = [DriverBindings::class])
+@ContributesTo(AppScope::class, replaces = [WebComposeLifeDriverBindings::class])
 @BindingContainer
-interface TestDriverBindings {
-    companion object {
-        @Provides
-        @SingleIn(AppScope::class)
-        internal fun providesDriver(): SqlDriver =
-            createDefaultWebWorkerDriver()
+interface WebComposeLifeTestDriverBindings {
 
-        @Provides
-        @SingleIn(AppScope::class)
-        @IntoSet
-        @ForScope(AppScope::class)
-        internal fun providesDriverClosingIntoUpdatable(
-            driver: SqlDriver,
-        ): Updatable = object : Updatable {
-            override suspend fun update(): Nothing =
-                driver.use { _ ->
-                    ComposeLifeDatabase.Schema.awaitCreate(driver)
-                    awaitCancellation()
-                }
+    @Binds
+    val WebComposeLifeTestDriver.bind: ComposeLifeDriver
+
+    @Binds
+    @IntoSet
+    @ForScope(AppScope::class)
+    val WebComposeLifeTestDriver.bindIntoUpdatable: Updatable
+}
+
+@SingleIn(AppScope::class)
+@Inject
+class WebComposeLifeTestDriver : ComposeLifeDriver, Updatable {
+    override val sqlDriver: SqlDriver = createDefaultWebWorkerDriver()
+
+    private val driverReadyDeferred = CompletableDeferred<Unit>()
+
+    override suspend fun awaitDriverReady() = driverReadyDeferred.await()
+
+    override suspend fun update(): Nothing =
+        sqlDriver.use {
+            ComposeLifeDatabase.Schema.awaitCreate(it)
+            driverReadyDeferred.complete(Unit)
+            awaitCancellation()
         }
-    }
 }
