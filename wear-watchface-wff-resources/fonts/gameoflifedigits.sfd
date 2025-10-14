@@ -22,7 +22,7 @@ OS2Version: 0
 OS2_WeightWidthSlopeOnly: 0
 OS2_UseTypoMetrics: 1
 CreationTime: 1747017898
-ModificationTime: 1757714471
+ModificationTime: 1760405978
 OS2TypoAscent: 0
 OS2TypoAOffset: 1
 OS2TypoDescent: 0
@@ -36,6 +36,7 @@ HheadAscent: 0
 HheadAOffset: 1
 HheadDescent: 0
 HheadDOffset: 1
+OS2Vendor: 'PfEd'
 MarkAttachClasses: 1
 DEI: 91125
 Encoding: ISO8859-1
@@ -188,7 +189,7 @@ EndChar
 StartChar: two
 Encoding: 50 50 2
 Width: 70
-Flags: W
+Flags: HW
 LayerCount: 2
 Fore
 SplineSet
@@ -272,26 +273,26 @@ SplineSet
  20 12 l 1
  10 12 l 1
  10 2 l 1
-25 27 m 1
- 35 27 l 1
- 35 32 l 1
- 25 32 l 1
- 25 27 l 1
-25 22 m 1
- 30 22 l 1
- 30 27 l 1
- 25 27 l 1
- 25 22 l 1
-35 22 m 1
- 45 22 l 1
- 45 27 l 1
- 35 27 l 1
- 35 22 l 1
-40 27 m 1
- 45 27 l 1
- 45 32 l 1
- 40 32 l 1
- 40 27 l 1
+45 27 m 5
+ 35 27 l 5
+ 35 32 l 5
+ 45 32 l 5
+ 45 27 l 5
+45 22 m 5
+ 40 22 l 5
+ 40 27 l 5
+ 45 27 l 5
+ 45 22 l 5
+35 22 m 5
+ 25 22 l 5
+ 25 27 l 5
+ 35 27 l 5
+ 35 22 l 5
+30 27 m 5
+ 25 27 l 5
+ 25 32 l 5
+ 30 32 l 5
+ 30 27 l 5
 EndSplineSet
 EndChar
 
@@ -319,10 +320,30 @@ EndChar
 StartChar: three
 Encoding: 51 51 4
 Width: 70
-Flags: W
+Flags: HW
 LayerCount: 2
 Fore
 SplineSet
+45 27 m 5
+ 35 27 l 5
+ 35 32 l 5
+ 45 32 l 5
+ 45 27 l 5
+45 22 m 5
+ 40 22 l 5
+ 40 27 l 5
+ 45 27 l 5
+ 45 22 l 5
+35 22 m 5
+ 25 22 l 5
+ 25 27 l 5
+ 35 27 l 5
+ 35 22 l 5
+30 27 m 5
+ 25 27 l 5
+ 25 32 l 5
+ 30 32 l 5
+ 30 27 l 5
 10 62 m 1
  20 62 l 1
  20 72 l 1
@@ -403,36 +424,36 @@ SplineSet
  20 32 l 1
  10 32 l 1
  10 22 l 1
-25 27 m 1
- 35 27 l 1
- 35 32 l 1
- 25 32 l 1
- 25 27 l 1
-25 22 m 1
- 30 22 l 1
- 30 27 l 1
- 25 27 l 1
- 25 22 l 1
-35 22 m 1
- 45 22 l 1
- 45 27 l 1
- 35 27 l 1
- 35 22 l 1
-40 27 m 1
- 45 27 l 1
- 45 32 l 1
- 40 32 l 1
- 40 27 l 1
 EndSplineSet
 EndChar
 
 StartChar: four
 Encoding: 52 52 5
 Width: 70
-Flags: W
+Flags: HW
 LayerCount: 2
 Fore
 SplineSet
+45 27 m 5
+ 35 27 l 5
+ 35 32 l 5
+ 45 32 l 5
+ 45 27 l 5
+45 22 m 5
+ 40 22 l 5
+ 40 27 l 5
+ 45 27 l 5
+ 45 22 l 5
+35 22 m 5
+ 25 22 l 5
+ 25 27 l 5
+ 35 27 l 5
+ 35 22 l 5
+30 27 m 5
+ 25 27 l 5
+ 25 32 l 5
+ 30 32 l 5
+ 30 27 l 5
 50 62 m 1
  60 62 l 1
  60 72 l 1
@@ -473,36 +494,36 @@ SplineSet
  20 32 l 1
  10 32 l 1
  10 22 l 1
-25 27 m 1
- 35 27 l 1
- 35 32 l 1
- 25 32 l 1
- 25 27 l 1
-25 22 m 1
- 30 22 l 1
- 30 27 l 1
- 25 27 l 1
- 25 22 l 1
-35 22 m 1
- 45 22 l 1
- 45 27 l 1
- 35 27 l 1
- 35 22 l 1
-40 27 m 1
- 45 27 l 1
- 45 32 l 1
- 40 32 l 1
- 40 27 l 1
 EndSplineSet
 EndChar
 
 StartChar: five
 Encoding: 53 53 6
 Width: 70
-Flags: W
+Flags: HW
 LayerCount: 2
 Fore
 SplineSet
+45 27 m 5
+ 35 27 l 5
+ 35 32 l 5
+ 45 32 l 5
+ 45 27 l 5
+45 22 m 5
+ 40 22 l 5
+ 40 27 l 5
+ 45 27 l 5
+ 45 22 l 5
+35 22 m 5
+ 25 22 l 5
+ 25 27 l 5
+ 35 27 l 5
+ 35 22 l 5
+30 27 m 5
+ 25 27 l 5
+ 25 32 l 5
+ 30 32 l 5
+ 30 27 l 5
 10 62 m 1
  20 62 l 1
  20 72 l 1
@@ -583,36 +604,36 @@ SplineSet
  20 52 l 1
  10 52 l 1
  10 42 l 1
-25 27 m 1
- 35 27 l 1
- 35 32 l 1
- 25 32 l 1
- 25 27 l 1
-25 22 m 1
- 30 22 l 1
- 30 27 l 1
- 25 27 l 1
- 25 22 l 1
-35 22 m 1
- 45 22 l 1
- 45 27 l 1
- 35 27 l 1
- 35 22 l 1
-40 27 m 1
- 45 27 l 1
- 45 32 l 1
- 40 32 l 1
- 40 27 l 1
 EndSplineSet
 EndChar
 
 StartChar: six
 Encoding: 54 54 7
 Width: 70
-Flags: W
+Flags: HW
 LayerCount: 2
 Fore
 SplineSet
+45 27 m 5
+ 35 27 l 5
+ 35 32 l 5
+ 45 32 l 5
+ 45 27 l 5
+45 22 m 5
+ 40 22 l 5
+ 40 27 l 5
+ 45 27 l 5
+ 45 22 l 5
+35 22 m 5
+ 25 22 l 5
+ 25 27 l 5
+ 35 27 l 5
+ 35 22 l 5
+30 27 m 5
+ 25 27 l 5
+ 25 32 l 5
+ 30 32 l 5
+ 30 27 l 5
 10 62 m 1
  20 62 l 1
  20 72 l 1
@@ -698,26 +719,6 @@ SplineSet
  20 52 l 1
  10 52 l 1
  10 42 l 1
-25 27 m 1
- 35 27 l 1
- 35 32 l 1
- 25 32 l 1
- 25 27 l 1
-25 22 m 1
- 30 22 l 1
- 30 27 l 1
- 25 27 l 1
- 25 22 l 1
-35 22 m 1
- 45 22 l 1
- 45 27 l 1
- 35 27 l 1
- 35 22 l 1
-40 27 m 1
- 45 27 l 1
- 45 32 l 1
- 40 32 l 1
- 40 27 l 1
 EndSplineSet
 EndChar
 
@@ -784,10 +785,30 @@ EndChar
 StartChar: eight
 Encoding: 56 56 9
 Width: 70
-Flags: W
+Flags: HW
 LayerCount: 2
 Fore
 SplineSet
+45 27 m 5
+ 35 27 l 5
+ 35 32 l 5
+ 45 32 l 5
+ 45 27 l 5
+45 22 m 5
+ 40 22 l 5
+ 40 27 l 5
+ 45 27 l 5
+ 45 22 l 5
+35 22 m 5
+ 25 22 l 5
+ 25 27 l 5
+ 35 27 l 5
+ 35 22 l 5
+30 27 m 5
+ 25 27 l 5
+ 25 32 l 5
+ 30 32 l 5
+ 30 27 l 5
 10 62 m 1
  20 62 l 1
  20 72 l 1
@@ -878,36 +899,36 @@ SplineSet
  20 52 l 1
  10 52 l 1
  10 42 l 1
-25 27 m 1
- 35 27 l 1
- 35 32 l 1
- 25 32 l 1
- 25 27 l 1
-25 22 m 1
- 30 22 l 1
- 30 27 l 1
- 25 27 l 1
- 25 22 l 1
-35 22 m 1
- 45 22 l 1
- 45 27 l 1
- 35 27 l 1
- 35 22 l 1
-40 27 m 1
- 45 27 l 1
- 45 32 l 1
- 40 32 l 1
- 40 27 l 1
 EndSplineSet
 EndChar
 
 StartChar: nine
 Encoding: 57 57 10
 Width: 70
-Flags: W
+Flags: HWO
 LayerCount: 2
 Fore
 SplineSet
+45 27 m 5
+ 35 27 l 5
+ 35 32 l 5
+ 45 32 l 5
+ 45 27 l 5
+45 22 m 5
+ 40 22 l 5
+ 40 27 l 5
+ 45 27 l 5
+ 45 22 l 5
+35 22 m 5
+ 25 22 l 5
+ 25 27 l 5
+ 35 27 l 5
+ 35 22 l 5
+30 27 m 5
+ 25 27 l 5
+ 25 32 l 5
+ 30 32 l 5
+ 30 27 l 5
 10 62 m 1
  20 62 l 1
  20 72 l 1
@@ -993,26 +1014,6 @@ SplineSet
  20 32 l 1
  10 32 l 1
  10 22 l 1
-25 27 m 1
- 35 27 l 1
- 35 32 l 1
- 25 32 l 1
- 25 27 l 1
-25 22 m 1
- 30 22 l 1
- 30 27 l 1
- 25 27 l 1
- 25 22 l 1
-35 22 m 1
- 45 22 l 1
- 45 27 l 1
- 35 27 l 1
- 35 22 l 1
-40 27 m 1
- 45 27 l 1
- 45 32 l 1
- 40 32 l 1
- 40 27 l 1
 EndSplineSet
 EndChar
 EndChars
