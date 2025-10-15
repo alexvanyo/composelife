@@ -16,7 +16,10 @@
 
 package com.alexvanyo.composelife.database
 
-import app.cash.sqldelight.async.coroutines.awaitAsOne
+import app.cash.sqldelight.db.SqlDriver
 
-suspend fun PatternCollectionQueries.awaitLastInsertedId() =
-    PatternCollectionId(lastInsertedRowId().awaitAsOne())
+interface ComposeLifeDriver {
+    val sqlDriver: SqlDriver
+
+    suspend fun awaitDriverReady()
+}
