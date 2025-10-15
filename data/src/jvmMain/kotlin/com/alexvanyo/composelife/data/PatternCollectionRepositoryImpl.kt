@@ -21,14 +21,10 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
-import app.cash.sqldelight.async.coroutines.awaitAsList
-import app.cash.sqldelight.coroutines.asFlow
-import app.cash.sqldelight.coroutines.mapToList
 import com.alexvanyo.composelife.data.model.PatternCollection
-import com.alexvanyo.composelife.database.CellStateQueries
+import com.alexvanyo.composelife.database.CellStateQueriesWrapper
 import com.alexvanyo.composelife.database.PatternCollectionId
-import com.alexvanyo.composelife.database.PatternCollectionQueries
-import com.alexvanyo.composelife.database.awaitLastInsertedId
+import com.alexvanyo.composelife.database.PatternCollectionQueriesWrapper
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.filesystem.PersistedDataPath
 import com.alexvanyo.composelife.logging.Logger
@@ -37,14 +33,10 @@ import com.alexvanyo.composelife.resourcestate.map
 import com.alexvanyo.composelife.updatable.PowerableUpdatable
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.BindingContainer
-import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.ContributesIntoSet
-import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.ForScope
 import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.IntoSet
 import dev.zacsweers.metro.SingleIn
 import dev.zacsweers.metro.binding
 import io.ktor.client.HttpClient
@@ -85,8 +77,8 @@ import kotlin.time.Clock
 @Suppress("LongParameterList")
 internal class PatternCollectionRepositoryImpl(
     private val dispatchers: ComposeLifeDispatchers,
-    private val cellStateQueries: CellStateQueries,
-    private val patternCollectionQueries: PatternCollectionQueries,
+    private val cellStateQueriesWrapper: CellStateQueriesWrapper,
+    private val patternCollectionQueriesWrapper: PatternCollectionQueriesWrapper,
     private val fileSystem: FileSystem,
     httpClient: Lazy<HttpClient>,
     private val logger: Logger,
@@ -120,9 +112,7 @@ internal class PatternCollectionRepositoryImpl(
         }
 
     private val powerableUpdatable = PowerableUpdatable {
-        patternCollectionQueries.getPatternCollections()
-            .asFlow()
-            .mapToList(dispatchers.IO)
+        patternCollectionQueriesWrapper.observePatternCollections()
             .retry()
             .onEach { databasePatternCollections ->
                 Snapshot.withMutableSnapshot {
@@ -147,24 +137,18 @@ internal class PatternCollectionRepositoryImpl(
 
     override suspend fun addPatternCollection(
         sourceUrl: String,
-    ): PatternCollectionId = withContext(dispatchers.IO) {
-        patternCollectionQueries.transactionWithResult {
-            patternCollectionQueries.insertPatternCollection(
-                sourceUrl = sourceUrl,
-                lastSuccessfulSynchronizationTimestamp = null,
-                lastUnsuccessfulSynchronizationTimestamp = null,
-                synchronizationFailureMessage = null,
-            )
-            patternCollectionQueries.awaitLastInsertedId()
-        }
-    }
+    ): PatternCollectionId =
+        patternCollectionQueriesWrapper.insertPatternCollection(
+            sourceUrl = sourceUrl,
+            lastSuccessfulSynchronizationTimestamp = null,
+            lastUnsuccessfulSynchronizationTimestamp = null,
+            synchronizationFailureMessage = null,
+        )
 
     override suspend fun deletePatternCollection(
         patternCollectionId: PatternCollectionId,
     ): Unit = withContext(dispatchers.IO) {
-        patternCollectionQueries.transactionWithResult {
-            patternCollectionQueries.deletePatternCollection(patternCollectionId)
-        }
+        patternCollectionQueriesWrapper.deletePatternCollection(patternCollectionId)
         val archivePathParent = persistedDataPath /
             collectionsFolder /
             patternCollectionId.value.toString()
@@ -176,9 +160,8 @@ internal class PatternCollectionRepositoryImpl(
             try {
                 synchronizationInformation.clear()
                 // Fetch the current list of pattern collections
-                val databasePatternCollections = withContext(dispatchers.IO) {
-                    patternCollectionQueries.getPatternCollections().awaitAsList()
-                }
+                val databasePatternCollections =
+                    patternCollectionQueriesWrapper.getPatternCollections()
                 databasePatternCollections.forEach { databasePatternCollection ->
                     synchronizationInformation[databasePatternCollection.id] = true
                 }
@@ -237,7 +220,7 @@ internal class PatternCollectionRepositoryImpl(
             coroutineContext.ensureActive()
             logger.e(exception) { "Failed fetching" }
 
-            patternCollectionQueries.updatePatternCollection(
+            patternCollectionQueriesWrapper.updatePatternCollection(
                 id = databasePatternCollection.id,
                 sourceUrl = databasePatternCollection.sourceUrl,
                 lastSuccessfulSynchronizationTimestamp =
@@ -302,7 +285,7 @@ internal class PatternCollectionRepositoryImpl(
             coroutineContext.ensureActive()
             logger.e(exception) { "Failed processing archive" }
 
-            patternCollectionQueries.updatePatternCollection(
+            patternCollectionQueriesWrapper.updatePatternCollection(
                 id = databasePatternCollection.id,
                 sourceUrl = databasePatternCollection.sourceUrl,
                 lastSuccessfulSynchronizationTimestamp =
@@ -314,7 +297,7 @@ internal class PatternCollectionRepositoryImpl(
             return@withContext false
         }
 
-        patternCollectionQueries.updatePatternCollection(
+        patternCollectionQueriesWrapper.updatePatternCollection(
             id = databasePatternCollection.id,
             sourceUrl = databasePatternCollection.sourceUrl,
             lastSuccessfulSynchronizationTimestamp = clock.now(),
@@ -334,7 +317,7 @@ internal class PatternCollectionRepositoryImpl(
                 "with extracted files $extractedFiles"
         }
         val cellStates =
-            cellStateQueries.getCellStatesByPatternCollectionId(patternCollectionId).executeAsList()
+            cellStateQueriesWrapper.getCellStatesByPatternCollectionId(patternCollectionId)
         cellStates.forEach { databaseCellState ->
             val serializedCellStateFile = databaseCellState.serializedCellStateFile?.toPath()
             if (serializedCellStateFile != null) {
@@ -342,7 +325,7 @@ internal class PatternCollectionRepositoryImpl(
                     logger.d { "$serializedCellStateFile was removed from archive, deleting from cell states" }
                     // Delete the cell state before deleting the underlying file to avoid a race where the
                     // file no longer exists
-                    cellStateQueries.deleteCellState(databaseCellState.id)
+                    cellStateQueriesWrapper.deleteCellState(databaseCellState.id)
                     fileSystem.delete(persistedDataPath / serializedCellStateFile)
                 } else {
                     // TODO: Update metadata for updated pattern with the same file
@@ -351,7 +334,8 @@ internal class PatternCollectionRepositoryImpl(
         }
         val serializedCellStateFiles = cellStates.mapNotNull { it.serializedCellStateFile?.toPath() }.toSet()
         (extractedFiles - serializedCellStateFiles).forEach { newlyExtractedFile ->
-            cellStateQueries.insertCellState(
+            cellStateQueriesWrapper.upsertCellState(
+                id = null,
                 name = null,
                 description = null,
                 formatExtension = newlyExtractedFile.toString().substringAfterLast(".", ""),

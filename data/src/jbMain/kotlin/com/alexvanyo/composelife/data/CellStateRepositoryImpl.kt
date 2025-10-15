@@ -16,13 +16,10 @@
 
 package com.alexvanyo.composelife.data
 
-import app.cash.sqldelight.async.coroutines.awaitAsList
-import app.cash.sqldelight.async.coroutines.awaitAsOneOrNull
 import com.alexvanyo.composelife.data.model.CellStateMetadata
 import com.alexvanyo.composelife.data.model.SaveableCellState
 import com.alexvanyo.composelife.database.CellStateId
-import com.alexvanyo.composelife.database.CellStateQueries
-import com.alexvanyo.composelife.database.awaitLastInsertedId
+import com.alexvanyo.composelife.database.CellStateQueriesWrapper
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.filesystem.PersistedDataPath
 import com.alexvanyo.composelife.logging.Logger
@@ -51,7 +48,7 @@ import kotlin.uuid.Uuid
 @ContributesBinding(AppScope::class)
 internal class CellStateRepositoryImpl(
     private val flexibleCellStateSerializer: FlexibleCellStateSerializer,
-    private val cellStateQueries: CellStateQueries,
+    private val cellStateQueriesWrapper: CellStateQueriesWrapper,
     private val dispatchers: ComposeLifeDispatchers,
     private val fileSystem: FileSystem,
     @PersistedDataPath persistedDataPath: Lazy<Path>,
@@ -61,24 +58,18 @@ internal class CellStateRepositoryImpl(
     private val persistedDataPath by persistedDataPath
 
     override suspend fun getAutosavedCellState(): SaveableCellState? {
-        val cellState = withContext(dispatchers.IO) {
-            cellStateQueries.getMostRecentAutosavedCellState().awaitAsOneOrNull()
-        } ?: return null
+        val cellState = cellStateQueriesWrapper.getMostRecentAutosavedCellState() ?: return null
         check(cellState.wasAutosaved)
         return convertCellStateToSaveableCellState(cellState)
     }
 
     override suspend fun getAutosavedCellStates(): List<SaveableCellState> =
-        withContext(dispatchers.IO) {
-            cellStateQueries.getAutosavedCellStates().awaitAsList()
-        }.mapNotNull {
+        cellStateQueriesWrapper.getAutosavedCellStates().mapNotNull {
             convertCellStateToSaveableCellState(it)
         }
 
     override suspend fun getCellStates(): List<SaveableCellState> =
-        withContext(dispatchers.IO) {
-            cellStateQueries.getCellStates().awaitAsList()
-        }.mapNotNull {
+        cellStateQueriesWrapper.getCellStates().mapNotNull {
             convertCellStateToSaveableCellState(it)
         }
 
@@ -149,36 +140,18 @@ internal class CellStateRepositoryImpl(
         saveableCellState: SaveableCellState,
         formatExtension: String,
         serializedCellStateFile: Path,
-    ): CellStateId = withContext(dispatchers.IO) {
-        cellStateQueries.transactionWithResult {
-            if (saveableCellState.cellStateMetadata.id == null) {
-                cellStateQueries.insertCellState(
-                    name = saveableCellState.cellStateMetadata.name,
-                    description = saveableCellState.cellStateMetadata.description,
-                    formatExtension = formatExtension,
-                    serializedCellState = null,
-                    serializedCellStateFile = serializedCellStateFile.toString(),
-                    generation = saveableCellState.cellStateMetadata.generation,
-                    wasAutosaved = true,
-                    patternCollectionId = null,
-                )
-                cellStateQueries.awaitLastInsertedId()
-            } else {
-                cellStateQueries.updateCellState(
-                    id = saveableCellState.cellStateMetadata.id,
-                    name = saveableCellState.cellStateMetadata.name,
-                    description = saveableCellState.cellStateMetadata.description,
-                    formatExtension = formatExtension,
-                    serializedCellState = null,
-                    serializedCellStateFile = serializedCellStateFile.toString(),
-                    generation = saveableCellState.cellStateMetadata.generation,
-                    wasAutosaved = true,
-                    patternCollectionId = null,
-                )
-                saveableCellState.cellStateMetadata.id
-            }
-        }
-    }
+    ): CellStateId =
+        cellStateQueriesWrapper.upsertCellState(
+            id = saveableCellState.cellStateMetadata.id,
+            name = saveableCellState.cellStateMetadata.name,
+            description = saveableCellState.cellStateMetadata.description,
+            formatExtension = formatExtension,
+            serializedCellState = null,
+            serializedCellStateFile = serializedCellStateFile.toString(),
+            generation = saveableCellState.cellStateMetadata.generation,
+            wasAutosaved = true,
+            patternCollectionId = null,
+        )
 
     override suspend fun pruneUnusedCellStates(): Boolean =
         pruneUnusedAutosavedCellStates()
@@ -189,7 +162,7 @@ internal class CellStateRepositoryImpl(
         // Capture the timestamp to compare duration against
         val pruningTimestamp = clock.now()
         // Get the list of all current autosaved cell states and find their corresponding files
-        val currentAutosavedCellStates = cellStateQueries.getAutosavedCellStates().awaitAsList()
+        val currentAutosavedCellStates = cellStateQueriesWrapper.getAutosavedCellStates()
             .mapNotNull { it.serializedCellStateFile }
             .toSet()
         fileSystem.listOrNull(persistedDataPath / autosavedCellStatesFolder)
