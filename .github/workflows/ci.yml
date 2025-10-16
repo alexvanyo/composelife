@@ -133,10 +133,13 @@ jobs:
 
       - name: Re-install needed packages
         run: |
-          sudo apt-get update && sudo apt-get install -y libgl1 chromium fontforge
+          sudo apt-get update && sudo apt-get install -y libgl1 chromium fontforge libjemalloc2
 
       - name: Set ANDROID_USER_HOME
         run: echo "ANDROID_USER_HOME=$HOME/.android" >> $GITHUB_ENV
+
+      - name: Set LD_PRELOAD for jemalloc
+        run: echo "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2" >> $GITHUB_ENV
 
       - name: Enable KVM group perms
         run: |
@@ -346,8 +349,15 @@ jobs:
           docker-images: true
           swap-storage: false
 
+      - name: Re-install needed packages
+        run: |
+          sudo apt-get update && sudo apt-get install -y libjemalloc2
+
       - name: Set ANDROID_USER_HOME
         run: echo "ANDROID_USER_HOME=$HOME/.android" >> $GITHUB_ENV
+
+      - name: Set LD_PRELOAD for jemalloc
+        run: echo "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2" >> $GITHUB_ENV
 
       - name: Enable KVM group perms
         run: |
