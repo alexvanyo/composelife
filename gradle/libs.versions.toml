@@ -128,7 +128,7 @@ molecule = "2.2.0"
 #okio
 okio = "3.16.2"
 #proguard
-proguard = "7.7.0"
+proguard = "7.8.0"
 #robolectric
 robolectric = "4.16"
 #roborazzi
