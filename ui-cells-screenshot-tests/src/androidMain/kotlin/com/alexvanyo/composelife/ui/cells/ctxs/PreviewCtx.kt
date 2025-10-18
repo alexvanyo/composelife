@@ -30,10 +30,10 @@ import com.alexvanyo.composelife.scopes.GlobalScope
 import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
-import com.alexvanyo.composelife.ui.cells.ImmutableCellWindowCtx
-import com.alexvanyo.composelife.ui.cells.InteractableCellsCtx
-import com.alexvanyo.composelife.ui.cells.MutableCellWindowCtx
-import com.alexvanyo.composelife.ui.cells.NonInteractableCellsCtx
+import com.alexvanyo.composelife.ui.cells.ImmutableCellWindowCtxClass
+import com.alexvanyo.composelife.ui.cells.InteractableCellsCtxClass
+import com.alexvanyo.composelife.ui.cells.MutableCellWindowCtxClass
+import com.alexvanyo.composelife.ui.cells.NonInteractableCellsCtxClass
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.createGraph
@@ -44,10 +44,10 @@ import dev.zacsweers.metro.createGraph
  */
 @ContributesTo(UiScope::class)
 internal interface PreviewCtx : ComposeLifePreferencesProvider {
-    val mutableCellWindowCtx: MutableCellWindowCtx
-    val immutableCellWindowCtx: ImmutableCellWindowCtx
-    val interactableCellsCtx: InteractableCellsCtx
-    val nonInteractableCellsCtx: NonInteractableCellsCtx
+    val mutableCellWindowCtx: MutableCellWindowCtxClass
+    val immutableCellWindowCtx: ImmutableCellWindowCtxClass
+    val interactableCellsCtx: InteractableCellsCtxClass
+    val nonInteractableCellsCtx: NonInteractableCellsCtxClass
     val imageLoader: ImageLoader
     val loadedComposeLifePreferencesHolder: LoadedComposeLifePreferencesHolder
 }

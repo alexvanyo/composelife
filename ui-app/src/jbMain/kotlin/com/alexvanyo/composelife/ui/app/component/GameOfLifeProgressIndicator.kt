@@ -44,7 +44,7 @@ import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.cells.CellWindowInteractionState
 import com.alexvanyo.composelife.ui.cells.CellWindowViewportState
 import com.alexvanyo.composelife.ui.cells.ImmutableCellWindow
-import com.alexvanyo.composelife.ui.cells.ImmutableCellWindowCtx
+import com.alexvanyo.composelife.ui.cells.ImmutableCellWindowCtxClass
 import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.cells.ViewportInteractionConfig
 import kotlinx.coroutines.awaitCancellation
@@ -70,7 +70,7 @@ private operator fun GameOfLifeProgressIndicatorCtx.invoke(
 
 private val GameOfLifeProgressIndicatorCtx.Companion.lambda:
     @Composable context(
-        ImmutableCellWindowCtx, Random, Clock, GameOfLifeAlgorithm, ComposeLifeDispatchers
+        ImmutableCellWindowCtxClass, Random, Clock, GameOfLifeAlgorithm, ComposeLifeDispatchers
     ) (Modifier) -> Unit
     get() = { modifier ->
         GameOfLifeProgressIndicator(modifier)
@@ -88,7 +88,7 @@ fun GameOfLifeProgressIndicator(
  * oscillating pattern.
  */
 context(
-    _: ImmutableCellWindowCtx,
+    _: ImmutableCellWindowCtxClass,
 random: Random,
 clock: Clock,
 gameOfLifeAlgorithm: GameOfLifeAlgorithm,
@@ -160,7 +160,7 @@ private suspend fun <R> withInfiniteAnimationPolicy(block: suspend () -> R): R {
 }
 
 context(
-    immutableCellWindowCtx: ImmutableCellWindowCtx,
+    immutableCellWindowCtx: ImmutableCellWindowCtxClass,
 )
 @Suppress("LongParameterList")
 @Composable

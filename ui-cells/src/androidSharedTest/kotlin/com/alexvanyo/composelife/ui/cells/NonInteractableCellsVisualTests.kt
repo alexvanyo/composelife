@@ -46,7 +46,7 @@ import kotlin.test.Test
 
 @ContributesTo(UiScope::class)
 interface NonInteractableCellsVisualTestsCtx {
-    val nonInteractableCellsCtx: NonInteractableCellsCtx
+    val nonInteractableCellsCtx: NonInteractableCellsCtxClass
     val testComposeLifePreferences: TestComposeLifePreferences
 }
 

@@ -31,7 +31,7 @@ import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.ui.cells.CellWindowViewportState
 import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindow
-import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindowCtx
+import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindowCtxClass
 import com.alexvanyo.composelife.ui.cells.ViewportInteractionConfig
 import dev.zacsweers.metro.Inject
 
@@ -39,7 +39,7 @@ import dev.zacsweers.metro.Inject
 @Immutable
 @Inject
 class CellStatePreviewUiCtx(
-    private val thumbnailImmutableCellWindowCtx: ThumbnailImmutableCellWindowCtx,
+    private val thumbnailImmutableCellWindowCtx: ThumbnailImmutableCellWindowCtxClass,
 ) {
     @Suppress("ComposableNaming")
     @Deprecated(
@@ -55,7 +55,7 @@ class CellStatePreviewUiCtx(
 
     companion object {
         private val lambda:
-            @Composable context(ThumbnailImmutableCellWindowCtx) (modifier: Modifier) -> Unit =
+            @Composable context(ThumbnailImmutableCellWindowCtxClass) (modifier: Modifier) -> Unit =
             { modifier ->
                 CellStatePreviewUi(modifier)
             }

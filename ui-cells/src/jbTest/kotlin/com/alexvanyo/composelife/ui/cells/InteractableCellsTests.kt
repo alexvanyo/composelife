@@ -41,20 +41,23 @@ import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
+import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.ui.cells.resources.InteractableCellContentDescription
 import com.alexvanyo.composelife.ui.cells.resources.Strings
+import dev.zacsweers.metro.Provider
 import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
+@Suppress("DEPRECATION")
 class InteractableCellsTests {
 
-    private val interactableCellsLocalCtx = InteractableCellsCtx(
-        preferencesHolder = TestComposeLifePreferences(),
+    private val interactableCellsLocalCtx = createInteractableCellsCtx(
+        preferencesHolder = { TestComposeLifePreferences() },
     )
 
     @Suppress("LongMethod")
@@ -241,12 +244,14 @@ class InteractableCellsTests {
         setContent {
             density = LocalDensity.current
             with(
-                InteractableCellsCtx(
-                    preferencesHolder = TestComposeLifePreferences(
-                        initialPreferences = LoadedComposeLifePreferences.Defaults.copy(
-                            mouseToolConfig = ToolConfig.Draw,
-                        ),
-                    ),
+                createInteractableCellsCtx(
+                    preferencesHolder = {
+                        TestComposeLifePreferences(
+                            initialPreferences = LoadedComposeLifePreferences.Defaults.copy(
+                                mouseToolConfig = ToolConfig.Draw,
+                            ),
+                        )
+                    },
                 ),
             ) {
                 InteractableCells(
@@ -312,12 +317,14 @@ class InteractableCellsTests {
         setContent {
             density = LocalDensity.current
             with(
-                InteractableCellsCtx(
-                    preferencesHolder = TestComposeLifePreferences(
-                        initialPreferences = LoadedComposeLifePreferences.Defaults.copy(
-                            mouseToolConfig = ToolConfig.None,
-                        ),
-                    ),
+                createInteractableCellsCtx(
+                    preferencesHolder = {
+                        TestComposeLifePreferences(
+                            initialPreferences = LoadedComposeLifePreferences.Defaults.copy(
+                                mouseToolConfig = ToolConfig.None,
+                            ),
+                        )
+                    },
                 ),
             ) {
                 InteractableCells(
@@ -359,3 +366,10 @@ class InteractableCellsTests {
         )
     }
 }
+
+@Suppress("DEPRECATION_ERROR")
+fun createInteractableCellsCtx(
+    preferencesHolder: Provider<LoadedComposeLifePreferencesHolder>,
+): InteractableCellsCtxClass = InteractableCellsCtxClass.`$$MetroFactory`.newInstance(
+    preferencesHolder = preferencesHolder,
+)

@@ -33,7 +33,7 @@ preferencesHolder: LoadedComposeLifePreferencesHolder,
 )
 @Composable
 @Suppress("LongParameterList")
-actual fun NonInteractableCells(
+actual fun NonInteractableCellsImpl(
     gameOfLifeState: GameOfLifeState,
     scaledCellDpSize: Dp,
     cellWindow: CellWindow,

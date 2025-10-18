@@ -62,7 +62,7 @@ import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.app.resources.Unpin
 import com.alexvanyo.composelife.ui.app.resources.Warnings
 import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindow
-import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindowCtx
+import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindowCtxClass
 import com.alexvanyo.composelife.ui.cells.ViewportInteractionConfig
 import com.alexvanyo.composelife.ui.cells.cellStateDragAndDropSource
 import com.alexvanyo.composelife.ui.cells.rememberTrackingCellWindowViewportState
@@ -88,7 +88,7 @@ private operator fun ClipboardCellStatePreviewCtx.invoke(
 )
 
 private val ClipboardCellStatePreviewCtx.Companion.lambda:
-    @Composable context(ThumbnailImmutableCellWindowCtx) (
+    @Composable context(ThumbnailImmutableCellWindowCtxClass) (
         deserializationResult: DeserializationResult,
         isPinned: Boolean,
         onPaste: () -> Unit,
@@ -123,7 +123,7 @@ fun ClipboardCellStatePreview(
 /**
  * Renders the current clipboard as a cell-state, if possible.
  */
-context(_: ThumbnailImmutableCellWindowCtx)
+context(_: ThumbnailImmutableCellWindowCtxClass)
 @Suppress("LongParameterList")
 @Composable
 fun ClipboardCellStatePreview(
@@ -185,7 +185,7 @@ fun ClipboardCellStatePreview(
     }
 }
 
-context(_: ThumbnailImmutableCellWindowCtx,)
+context(_: ThumbnailImmutableCellWindowCtxClass)
 @Suppress("LongMethod", "LongParameterList")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

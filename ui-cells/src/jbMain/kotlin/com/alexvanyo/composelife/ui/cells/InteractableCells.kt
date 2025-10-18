@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateMapOf
@@ -64,82 +63,19 @@ import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.cells.resources.InteractableCellContentDescription
 import com.alexvanyo.composelife.ui.cells.resources.Strings
 import com.alexvanyo.composelife.ui.util.detectDragGestures
+import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.Inject
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 import kotlin.uuid.Uuid
 
 // region templated-ctx
-@Immutable
-@Inject
-class InteractableCellsCtx(
-    private val preferencesHolder: LoadedComposeLifePreferencesHolder,
-) {
-    @Suppress("ComposableNaming", "LongParameterList")
-    @Deprecated(
-        "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
-            "InteractableCells(gameOfLifeState, setSelectionSessionState, scaledCellDpSize, cellWindow, " +
-                "pixelOffsetFromCenter, modifier)",
-        ),
-    )
-    @Composable
-    operator fun invoke(
-        gameOfLifeState: MutableGameOfLifeState,
-        setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,
-        scaledCellDpSize: Dp,
-        cellWindow: CellWindow,
-        pixelOffsetFromCenter: Offset,
-        modifier: Modifier = Modifier,
-    ) = lambda(
-        preferencesHolder,
-        gameOfLifeState,
-        setSelectionSessionState,
-        scaledCellDpSize,
-        cellWindow,
-        pixelOffsetFromCenter,
-        modifier,
-    )
-
-    companion object {
-        private val lambda:
-            @Composable
-            context(
-                LoadedComposeLifePreferencesHolder,
-            ) (
-                gameOfLifeState: MutableGameOfLifeState,
-                setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,
-                scaledCellDpSize: Dp,
-                cellWindow: CellWindow,
-                pixelOffsetFromCenter: Offset,
-                modifier: Modifier,
-            ) -> Unit =
-            {
-                    gameOfLifeState,
-                    setSelectionSessionState,
-                    scaledCellDpSize,
-                    cellWindow,
-                    pixelOffsetFromCenter,
-                    modifier,
-                ->
-                InteractableCells(
-                    gameOfLifeState = gameOfLifeState,
-                    setSelectionSessionState = setSelectionSessionState,
-                    scaledCellDpSize = scaledCellDpSize,
-                    cellWindow = cellWindow,
-                    pixelOffsetFromCenter = pixelOffsetFromCenter,
-                    modifier = modifier,
-                )
-            }
-    }
-}
-
 /**
  * A fixed size composable that displays a specific [cellWindow] into the given [GameOfLifeState].
  *
  * The [GameOfLifeState] is interactable, so each cell is displayed by a unique [InteractableCell].
  */
-context(ctx: InteractableCellsCtx)
+context(ctx: InteractableCellsCtxClass)
 @Composable
 @Suppress("LongParameterList", "DEPRECATION")
 fun InteractableCells(
@@ -154,14 +90,15 @@ fun InteractableCells(
 
 context(preferencesHolder: LoadedComposeLifePreferencesHolder)
 @Suppress("LongParameterList", "LongMethod")
+@Inject
 @Composable
-private fun InteractableCells(
-    gameOfLifeState: MutableGameOfLifeState,
-    setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,
-    scaledCellDpSize: Dp,
-    cellWindow: CellWindow,
-    pixelOffsetFromCenter: Offset,
-    modifier: Modifier = Modifier,
+internal fun InteractableCellsCtx(
+    @Assisted gameOfLifeState: MutableGameOfLifeState,
+    @Assisted setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,
+    @Assisted scaledCellDpSize: Dp,
+    @Assisted cellWindow: CellWindow,
+    @Assisted pixelOffsetFromCenter: Offset,
+    @Assisted modifier: Modifier,
 ) {
     Surface(
         modifier = modifier

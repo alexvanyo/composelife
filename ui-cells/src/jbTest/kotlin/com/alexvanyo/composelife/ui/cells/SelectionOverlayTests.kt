@@ -53,7 +53,7 @@ import kotlin.uuid.Uuid
 
 @ContributesTo(UiScope::class)
 internal interface SelectionOverlayTestsCtx {
-    val cellWindowImplCtx: CellWindowImplCtx
+    val cellWindowImplCtx: CellWindowImplCtxClass
     val cellStateParser: CellStateParser
 }
 

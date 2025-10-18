@@ -46,7 +46,7 @@ import com.alexvanyo.composelife.ui.app.action.rememberCellUniverseActionCardSta
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.app.info.rememberCellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.cells.CellWindowInteractionState
-import com.alexvanyo.composelife.ui.cells.MutableCellWindowCtx
+import com.alexvanyo.composelife.ui.cells.MutableCellWindowCtxClass
 import com.alexvanyo.composelife.ui.cells.MutableCellWindowInteractionState
 import com.alexvanyo.composelife.ui.cells.MutableCellWindowViewportState
 import com.alexvanyo.composelife.ui.cells.MutableSelectionStateHolder

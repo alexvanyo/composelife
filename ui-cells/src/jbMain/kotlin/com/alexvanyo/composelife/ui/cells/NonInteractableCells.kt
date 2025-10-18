@@ -28,80 +28,11 @@ import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
+import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.Inject
 
 // region templated-ctx
-@Immutable
-@Inject
-class NonInteractableCellsCtx(
-    private val imageLoader: ImageLoader,
-    private val preferencesHolder: LoadedComposeLifePreferencesHolder,
-) {
-    @Suppress("ComposableNaming", "LongParameterList")
-    @Deprecated(
-        "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
-            "NonInteractableCells(gameOfLifeState, scaledCellDpSize, cellWindow, pixelOffsetFromCenter, " +
-                "isThumbnail, modifier, inOverlay)",
-        ),
-    )
-    @Composable
-    operator fun invoke(
-        gameOfLifeState: GameOfLifeState,
-        scaledCellDpSize: Dp,
-        cellWindow: CellWindow,
-        pixelOffsetFromCenter: Offset,
-        isThumbnail: Boolean,
-        modifier: Modifier = Modifier,
-        inOverlay: Boolean = false,
-    ) = lambda(
-        imageLoader,
-        preferencesHolder,
-        gameOfLifeState,
-        scaledCellDpSize,
-        cellWindow,
-        pixelOffsetFromCenter,
-        isThumbnail,
-        modifier,
-        inOverlay,
-    )
-
-    companion object {
-        private val lambda:
-            @Composable
-            context(
-                ImageLoader,
-                LoadedComposeLifePreferencesHolder,
-            ) (
-                gameOfLifeState: GameOfLifeState,
-                scaledCellDpSize: Dp,
-                cellWindow: CellWindow,
-                pixelOffsetFromCenter: Offset,
-                isThumbnail: Boolean,
-                modifier: Modifier,
-                inOverlay: Boolean,
-            ) -> Unit =
-            { gameOfLifeState,
-                    scaledCellDpSize,
-                    cellWindow,
-                    pixelOffsetFromCenter,
-                    isThumbnail,
-                    modifier,
-                    inOverlay, ->
-                NonInteractableCells(
-                    gameOfLifeState = gameOfLifeState,
-                    scaledCellDpSize = scaledCellDpSize,
-                    cellWindow = cellWindow,
-                    pixelOffsetFromCenter = pixelOffsetFromCenter,
-                    isThumbnail = isThumbnail,
-                    modifier = modifier,
-                    inOverlay = inOverlay,
-                )
-            }
-    }
-}
-
-context(ctx: NonInteractableCellsCtx)
+context(ctx: NonInteractableCellsCtxClass)
 @Composable
 @Suppress("LongParameterList", "DEPRECATION")
 fun NonInteractableCells(
@@ -126,15 +57,48 @@ context(
 preferencesHolder: LoadedComposeLifePreferencesHolder,
 )
 @Composable
+@Inject
 @Suppress("LongParameterList")
-internal expect fun NonInteractableCells(
+internal fun NonInteractableCellsCtx(
+    @Assisted gameOfLifeState: GameOfLifeState,
+    @Assisted scaledCellDpSize: Dp,
+    @Assisted cellWindow: CellWindow,
+    @Assisted pixelOffsetFromCenter: Offset,
+    @Assisted isThumbnail: Boolean,
+    @Assisted modifier: Modifier,
+    @Assisted inOverlay: Boolean,
+) {
+    NonInteractableCellsImpl(
+        gameOfLifeState,
+        scaledCellDpSize,
+        cellWindow,
+        pixelOffsetFromCenter,
+        isThumbnail,
+        modifier,
+        inOverlay,
+    )
+}
+
+/**
+ * A fixed size composable that displays a specific [cellWindow] into the given [GameOfLifeState].
+ *
+ * The [GameOfLifeState] is not interactable, so for efficiency the cell window is represented
+ * by a single [Canvas], where each cell is drawn individually.
+ */
+context(
+    imageLoader: ImageLoader,
+preferencesHolder: LoadedComposeLifePreferencesHolder,
+)
+@Composable
+@Suppress("LongParameterList")
+internal expect fun NonInteractableCellsImpl(
     gameOfLifeState: GameOfLifeState,
     scaledCellDpSize: Dp,
     cellWindow: CellWindow,
     pixelOffsetFromCenter: Offset,
     isThumbnail: Boolean,
-    modifier: Modifier = Modifier,
-    inOverlay: Boolean = false,
+    modifier: Modifier,
+    inOverlay: Boolean,
 )
 
 @Composable

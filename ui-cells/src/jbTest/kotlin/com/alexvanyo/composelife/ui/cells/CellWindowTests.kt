@@ -54,7 +54,7 @@ import kotlin.uuid.Uuid
 
 @ContributesTo(UiScope::class)
 interface CellWindowTestsCtx {
-    val mutableCellWindowCtx: MutableCellWindowCtx
+    val mutableCellWindowCtx: MutableCellWindowCtxClass
     val testComposeLifePreferences: TestComposeLifePreferences
 }
 

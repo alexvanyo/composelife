@@ -47,7 +47,7 @@ import com.alexvanyo.composelife.ui.util.anchoredDraggable2D
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 
-context(_: CellWindowImplCtx)
+context(_: CellWindowImplCtxClass)
 @Suppress("LongParameterList", "LongMethod")
 @Composable
 internal fun SelectionBoxOverlay(
@@ -150,7 +150,7 @@ internal fun SelectionBoxOverlay(
         val gameOfLifeState = remember(selectionSessionState.valueId) {
             GameOfLifeState(selectionSessionState.value.cellState)
         }
-        ThumbnailImmutableCellWindow(
+        ThumbnailImmutableCellWindowImpl(
             gameOfLifeState = gameOfLifeState,
             viewportInteractionConfig = ViewportInteractionConfig.Tracking(
                 trackingCellWindowViewportState = rememberTrackingCellWindowViewportState(

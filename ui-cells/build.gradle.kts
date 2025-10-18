@@ -160,3 +160,7 @@ kotlin {
         }
     }
 }
+
+metro {
+    enableTopLevelFunctionInjection.set(true)
+}

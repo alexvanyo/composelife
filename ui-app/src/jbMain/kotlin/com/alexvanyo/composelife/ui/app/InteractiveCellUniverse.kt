@@ -44,7 +44,7 @@ import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.isRunning
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.cells.MutableCellWindow
-import com.alexvanyo.composelife.ui.cells.MutableCellWindowCtx
+import com.alexvanyo.composelife.ui.cells.MutableCellWindowCtxClass
 import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.util.ImmersiveModeManager
@@ -141,7 +141,7 @@ fun InteractiveCellUniverse(
 context(
     cellStateParser: CellStateParser,
 immersiveModeManager: ImmersiveModeManager,
-_: MutableCellWindowCtx,
+_: MutableCellWindowCtxClass,
 _: InteractiveCellUniverseOverlayCtx,
 )
 @Suppress("LongParameterList", "LongMethod", "CyclomaticComplexMethod")

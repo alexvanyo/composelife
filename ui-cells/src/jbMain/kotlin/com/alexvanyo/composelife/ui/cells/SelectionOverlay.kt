@@ -71,7 +71,7 @@ import kotlin.uuid.Uuid
  */
 context(
     _: CellStateParser,
-_: CellWindowImplCtx,
+_: CellWindowImplCtxClass,
 )
 @Suppress("LongMethod", "LongParameterList", "CyclomaticComplexMethod")
 @Composable

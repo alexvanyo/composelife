@@ -17,13 +17,13 @@
 package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.runtime.Immutable
-import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindowCtx
+import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindowCtxClass
 import dev.zacsweers.metro.Inject
 
 @Immutable
 @Inject
 class ClipboardCellStatePreviewCtx(
-    internal val thumbnailImmutableCellWindowCtx: ThumbnailImmutableCellWindowCtx,
+    internal val thumbnailImmutableCellWindowCtx: ThumbnailImmutableCellWindowCtxClass,
 ) {
     companion object
 }

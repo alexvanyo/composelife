@@ -20,7 +20,7 @@ package com.alexvanyo.composelife.ui.app.component
 import androidx.compose.runtime.Immutable
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
-import com.alexvanyo.composelife.ui.cells.ImmutableCellWindowCtx
+import com.alexvanyo.composelife.ui.cells.ImmutableCellWindowCtxClass
 import dev.zacsweers.metro.Inject
 import kotlin.random.Random
 import kotlin.time.Clock
@@ -28,7 +28,7 @@ import kotlin.time.Clock
 @Immutable
 @Inject
 class GameOfLifeProgressIndicatorCtx(
-    internal val immutableCellWindowCtx: ImmutableCellWindowCtx,
+    internal val immutableCellWindowCtx: ImmutableCellWindowCtxClass,
     internal val random: Random,
     internal val clock: Clock,
     internal val gameOfLifeAlgorithm: GameOfLifeAlgorithm,

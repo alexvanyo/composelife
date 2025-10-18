@@ -69,14 +69,14 @@ import kotlin.math.ceil
 
 @Immutable
 @Inject
-internal class CellWindowImplCtx(
-    internal val nonInteractableCellsCtx: NonInteractableCellsCtx,
-    internal val interactableCellsCtx: InteractableCellsCtx,
+internal class CellWindowImplCtxClass(
+    internal val nonInteractableCellsCtx: NonInteractableCellsCtxClass,
+    internal val interactableCellsCtx: InteractableCellsCtxClass,
     internal val preferencesHolder: LoadedComposeLifePreferencesHolder,
     internal val cellStateParser: CellStateParser,
 )
 
-context(ctx: CellWindowImplCtx)
+context(ctx: CellWindowImplCtxClass)
 @Composable
 internal fun CellWindowImpl(
     cellWindowUiState: CellWindowUiState,
@@ -100,11 +100,11 @@ internal fun CellWindowImpl(
 @Suppress("LongMethod", "LongParameterList", "CyclomaticComplexMethod")
 @Composable
 private fun CellWindowImpl(
-    nonInteractableCellsCtx: NonInteractableCellsCtx,
-    interactableCellsCtx: InteractableCellsCtx,
+    nonInteractableCellsCtx: NonInteractableCellsCtxClass,
+    interactableCellsCtx: InteractableCellsCtxClass,
     preferencesHolder: LoadedComposeLifePreferencesHolder,
     cellStateParser: CellStateParser,
-    cellWindowImplCtx: CellWindowImplCtx,
+    cellWindowImplCtx: CellWindowImplCtxClass,
     cellWindowUiState: CellWindowUiState,
     cellDpSize: Dp,
     centerOffset: Offset,
