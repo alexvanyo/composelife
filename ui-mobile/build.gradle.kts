@@ -31,7 +31,7 @@ plugins {
 
 kotlin {
     androidLibrary {
-        namespace = "com.alexvanyo.composelife.ui.app"
+        namespace = "com.alexvanyo.composelife.ui.mobile"
         minSdk = 23
         configureGradleManagedDevices(setOf(FormFactor.Mobile), this)
     }
