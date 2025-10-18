@@ -53,7 +53,7 @@ private fun <T : Comparable<T>> List<T>.floorBinarySearch(value: T): Int {
     var low = 0
     var high = size
     if (this[low] > value) return -1
-    while (low < high) {
+    while (low + 1 < high) {
         val mid = (low + high) / 2
         if (this[mid] <= value) {
             low = mid

@@ -26,26 +26,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
-import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.navigation.associateWithRenderablePanes
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes.ActionControlRow
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes.NavContainer
-import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.mobile.component.LocalBackgroundColor
 import com.alexvanyo.composelife.ui.settings.InlineSettingsPane
 import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneCtx
@@ -55,11 +50,8 @@ import com.alexvanyo.composelife.ui.util.CrossfadePredictiveNavigationFrame
 import com.alexvanyo.composelife.ui.util.Layout
 import com.alexvanyo.composelife.ui.util.WindowInsets
 import com.alexvanyo.composelife.ui.util.isImeAnimating
-import com.alexvanyo.composelife.ui.util.isInProgress
 import com.livefront.sealedenum.GenSealedEnum
 import com.livefront.sealedenum.SealedEnum
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import kotlin.math.max
 
 // region templated-ctx

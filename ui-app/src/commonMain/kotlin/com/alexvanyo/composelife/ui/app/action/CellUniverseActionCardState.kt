@@ -19,21 +19,26 @@ package com.alexvanyo.composelife.ui.app.action
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.runtime.setValue
 import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.NavigationEventTransitionState
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
+import androidx.savedstate.compose.serialization.serializers.SnapshotStateMapSerializer
+import coil3.request.Disposable
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.navigation.BackstackEntry
@@ -51,6 +56,13 @@ import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.isInProgress
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlin.math.exp
 import kotlin.uuid.Uuid
 
 // region templated-ctx
@@ -206,25 +218,58 @@ fun rememberCellUniverseActionCardState(
         }
     }
 
-    val onBackPressed = { inlineActorBackstackEntryId: Uuid? ->
-        currentInlineNavController.withExpectedActor(inlineActorBackstackEntryId) {
-            if (currentInlineNavController.canNavigateBack) {
-                currentInlineNavController.popBackstack()
-            } else {
-                currentInlineBackstack = InlineActionCardBackstack.Speed
+    val onBackPressed = remember {
+        { inlineActorBackstackEntryId: Uuid? ->
+            currentInlineNavController.withExpectedActor(inlineActorBackstackEntryId) {
+                if (currentInlineNavController.canNavigateBack) {
+                    currentInlineNavController.popBackstack()
+                } else {
+                    currentInlineBackstack = InlineActionCardBackstack.Speed
+                }
             }
         }
     }
 
-    val contentScrollStateMap =
-        inlineNavigationState.entryMap.mapValues { (entryId, _) ->
-            key(entryId) {
-                rememberScrollState(initial = Int.MAX_VALUE)
+    val contentScrollStateMap = rememberSerializable(
+        serializer = SnapshotStateMapSerializer(
+            Uuid.serializer(),
+            object : KSerializer<ScrollState> {
+
+                override val descriptor: SerialDescriptor
+                    get() = SerialDescriptor(
+                        "androidx.compose.foundation.ScrollState",
+                        Int.serializer().descriptor,
+                    )
+
+                override fun serialize(
+                    encoder: Encoder,
+                    value: ScrollState,
+                ) {
+                    encoder.encodeInt(value.value)
+                }
+
+                override fun deserialize(decoder: Decoder): ScrollState =
+                    ScrollState(decoder.decodeInt())
+            }
+        )
+    ) {
+        mutableStateMapOf()
+    }
+    val currentEntryKeys = inlineNavigationState.entryMap.keys.toSet()
+    currentEntryKeys.forEach {
+        if (it !in contentScrollStateMap) {
+            contentScrollStateMap[it] = ScrollState(initial = Int.MAX_VALUE)
+        }
+    }
+    DisposableEffect(currentEntryKeys) {
+        contentScrollStateMap.keys.forEach {
+            if (it !in currentEntryKeys) {
+                contentScrollStateMap.remove(it)
             }
         }
-    val currentScrollState = contentScrollStateMap.getValue(
-        inlineNavigationState.currentEntryId,
-    )
+        onDispose {}
+    }
+    val currentScrollState = contentScrollStateMap.getValue(inlineNavigationState.currentEntryId)
 
     val dispatcher = requireNotNull(LocalNavigationEventDispatcherOwner.current).navigationEventDispatcher
     val navigationEventHistory by dispatcher.history.collectAsState()
@@ -253,109 +298,129 @@ fun rememberCellUniverseActionCardState(
 
     val coroutineScope = rememberCoroutineScope()
 
-    return object : CellUniverseActionCardState {
-        override val editingState: InteractiveCellUniverseEditingState
-            get() = editingState
+    return remember(
+        editingState,
+        expandedTargetState,
+        currentScrollState,
+        temporalGameOfLifeState,
+        isExpanded,
+        setIsExpanded,
+        isViewportTracking,
+        setIsViewportTracking,
+        showImmersiveModeControl,
+        isImmersiveMode,
+        setIsImmersiveMode,
+        showFullSpaceModeControl,
+        isFullSpaceMode,
+        setIsFullSpaceMode,
+        coroutineScope,
+        inlineNavigationState,
+        contentScrollStateMap,
+    ) {
+        object : CellUniverseActionCardState {
+            override val editingState: InteractiveCellUniverseEditingState
+                get() = editingState
 
-        override val actionControlRowState: ActionControlRowState = object : ActionControlRowState {
-            override val isElevated: Boolean
-                get() = !expandedTargetState.isInProgress() &&
-                    expandedTargetState.current &&
-                    currentScrollState.canScrollForward
-            override var isRunning: Boolean
-                get() =
-                    when (temporalGameOfLifeState.status) {
-                        TemporalGameOfLifeState.EvolutionStatus.Paused -> false
-                        is TemporalGameOfLifeState.EvolutionStatus.Running -> true
+            override val actionControlRowState: ActionControlRowState = object : ActionControlRowState {
+                override val isElevated: Boolean
+                    get() = !expandedTargetState.isInProgress() &&
+                            expandedTargetState.current &&
+                            currentScrollState.canScrollForward
+                override var isRunning: Boolean
+                    get() =
+                        when (temporalGameOfLifeState.status) {
+                            TemporalGameOfLifeState.EvolutionStatus.Paused -> false
+                            is TemporalGameOfLifeState.EvolutionStatus.Running -> true
+                        }
+                    set(value) {
+                        temporalGameOfLifeState.setIsRunning(value)
                     }
-                set(value) {
-                    temporalGameOfLifeState.setIsRunning(value)
+                override var isExpanded: Boolean
+                    get() = isExpanded
+                    set(value) {
+                        setIsExpanded(value)
+                    }
+                override var isViewportTracking: Boolean
+                    get() = isViewportTracking
+                    set(value) {
+                        setIsViewportTracking(value)
+                    }
+                override val showImmersiveModeControl: Boolean
+                    get() = showImmersiveModeControl
+                override var isImmersiveMode: Boolean
+                    get() = isImmersiveMode
+                    set(value) {
+                        setIsImmersiveMode(value)
+                    }
+                override val showFullSpaceModeControl: Boolean
+                    get() = showFullSpaceModeControl
+                override var isFullSpaceMode: Boolean
+                    get() = isFullSpaceMode
+                    set(value) {
+                        setIsFullSpaceMode(value)
+                    }
+                override val selectionState: SelectionState
+                    get() = editingState.selectionState
+
+                override fun onStep() {
+                    coroutineScope.launch {
+                        temporalGameOfLifeState.step()
+                    }
                 }
-            override var isExpanded: Boolean
-                get() = isExpanded
-                set(value) {
-                    setIsExpanded(value)
-                }
-            override var isViewportTracking: Boolean
-                get() = isViewportTracking
-                set(value) {
-                    setIsViewportTracking(value)
-                }
-            override val showImmersiveModeControl: Boolean
-                get() = showImmersiveModeControl
-            override var isImmersiveMode: Boolean
-                get() = isImmersiveMode
-                set(value) {
-                    setIsImmersiveMode(value)
-                }
-            override val showFullSpaceModeControl: Boolean
-                get() = showFullSpaceModeControl
-            override var isFullSpaceMode: Boolean
-                get() = isFullSpaceMode
-                set(value) {
-                    setIsFullSpaceMode(value)
-                }
-            override val selectionState: SelectionState
-                get() = editingState.selectionState
 
-            override fun onStep() {
-                coroutineScope.launch {
-                    temporalGameOfLifeState.step()
+                override fun onClearSelection() {
+                    editingState.onClearSelection()
+                }
+
+                override fun onCopy() {
+                    editingState.onCopy()
+                }
+
+                override fun onCut() {
+                    editingState.onCut()
+                }
+
+                override fun onPaste() {
+                    editingState.onPaste()
+                }
+
+                override fun onApplyPaste() {
+                    editingState.onApplyPaste()
                 }
             }
 
-            override fun onClearSelection() {
-                editingState.onClearSelection()
+            override val expandedTargetState: TargetState<Boolean, *>
+                get() = expandedTargetState
+
+            override val inlineNavigationState get() = inlineNavigationState
+
+            override val inlineNavigationEventTransitionState get() = navigationEventTransitionState
+
+            override val canNavigateBack: Boolean get() = canNavigateBack
+
+            override val contentScrollStateMap get() = contentScrollStateMap
+
+            override fun onSpeedClicked(actorBackstackEntryId: Uuid?) {
+                currentInlineNavController.withExpectedActor(actorBackstackEntryId) {
+                    currentInlineBackstack = InlineActionCardBackstack.Speed
+                }
             }
 
-            override fun onCopy() {
-                editingState.onCopy()
+            override fun onEditClicked(actorBackstackEntryId: Uuid?) {
+                currentInlineNavController.withExpectedActor(actorBackstackEntryId) {
+                    currentInlineBackstack = InlineActionCardBackstack.Edit
+                }
             }
 
-            override fun onCut() {
-                editingState.onCut()
+            override fun onSettingsClicked(actorBackstackEntryId: Uuid?) {
+                currentInlineNavController.withExpectedActor(actorBackstackEntryId) {
+                    currentInlineBackstack = InlineActionCardBackstack.Settings
+                }
             }
 
-            override fun onPaste() {
-                editingState.onPaste()
+            override fun inlineOnBackPressed(inlineActorBackstackEntryId: Uuid?) {
+                onBackPressed(inlineActorBackstackEntryId)
             }
-
-            override fun onApplyPaste() {
-                editingState.onApplyPaste()
-            }
-        }
-
-        override val expandedTargetState: TargetState<Boolean, *>
-            get() = expandedTargetState
-
-        override val inlineNavigationState get() = inlineNavigationState
-
-        override val inlineNavigationEventTransitionState get() = navigationEventTransitionState
-
-        override val canNavigateBack: Boolean get() = canNavigateBack
-
-        override val contentScrollStateMap get() = contentScrollStateMap
-
-        override fun onSpeedClicked(actorBackstackEntryId: Uuid?) {
-            currentInlineNavController.withExpectedActor(actorBackstackEntryId) {
-                currentInlineBackstack = InlineActionCardBackstack.Speed
-            }
-        }
-
-        override fun onEditClicked(actorBackstackEntryId: Uuid?) {
-            currentInlineNavController.withExpectedActor(actorBackstackEntryId) {
-                currentInlineBackstack = InlineActionCardBackstack.Edit
-            }
-        }
-
-        override fun onSettingsClicked(actorBackstackEntryId: Uuid?) {
-            currentInlineNavController.withExpectedActor(actorBackstackEntryId) {
-                currentInlineBackstack = InlineActionCardBackstack.Settings
-            }
-        }
-
-        override fun inlineOnBackPressed(inlineActorBackstackEntryId: Uuid?) {
-            inlineOnBackPressed(inlineActorBackstackEntryId)
         }
     }
 }
