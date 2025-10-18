@@ -36,7 +36,7 @@ import org.jetbrains.kotlin.tooling.core.withClosure
 import java.lang.reflect.Field
 
 fun Project.configureAndroid(
-    commonExtension: CommonExtension<*, *, *, *, *, *>,
+    commonExtension: CommonExtension,
 ) {
     val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
@@ -49,16 +49,10 @@ fun Project.configureAndroid(
             enable.addAll(listOf("UnsupportedChromeOsHardware"))
         }
 
-        defaultConfig {
-            vectorDrawables {
-                useSupportLibrary = true
-            }
-        }
+        defaultConfig.vectorDrawables.useSupportLibrary = true
 
-        buildTypes {
-            getByName("debug") {
-                isPseudoLocalesEnabled = true
-            }
+        buildTypes.getByName("debug") {
+            isPseudoLocalesEnabled = true
         }
 
         compileOptions {

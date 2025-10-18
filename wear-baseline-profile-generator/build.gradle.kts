@@ -21,11 +21,10 @@ import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
 import com.alexvanyo.composelife.buildlogic.taskPrefix
 
 plugins {
-    alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidTest)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.gradleDependenciesSorter)
-    alias(libs.plugins.androidx.baselineProfile)
+    //alias(libs.plugins.androidx.baselineProfile)
 }
 
 val wearwearoslargeroundapi28 = GradleManagedDeviceConfig(
@@ -43,26 +42,26 @@ android {
     configureGradleManagedDevices(setOf(wearwearoslargeroundapi28), this, false)
 }
 
-kotlin {
-    androidTarget()
+//kotlin {
+//    androidTarget()
+//
+//    sourceSets {
+//        val androidMain by getting {
+//            dependencies {
+//                implementation(libs.androidx.benchmark.macro.junit4)
+//                implementation(libs.androidx.test.junit)
+//                implementation(libs.androidx.test.runner)
+//                implementation(libs.androidx.wear.watchface.editor)
+//                implementation(libs.kotlin.test.junit)
+//            }
+//        }
+//    }
+//}
 
-    sourceSets {
-        val androidMain by getting {
-            dependencies {
-                implementation(libs.androidx.benchmark.macro.junit4)
-                implementation(libs.androidx.test.junit)
-                implementation(libs.androidx.test.runner)
-                implementation(libs.androidx.wear.watchface.editor)
-                implementation(libs.kotlin.test.junit)
-            }
-        }
-    }
-}
-
-baselineProfile {
-    managedDevices += wearwearoslargeroundapi28.taskPrefix
-    useConnectedDevices = false
-}
+//baselineProfile {
+//    managedDevices += wearwearoslargeroundapi28.taskPrefix
+//    useConnectedDevices = false
+//}
 
 afterEvaluate {
     tasks {

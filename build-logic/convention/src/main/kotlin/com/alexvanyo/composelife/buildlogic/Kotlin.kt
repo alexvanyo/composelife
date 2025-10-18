@@ -28,17 +28,4 @@ fun Project.configureKotlin() {
             allWarningsAsErrors.set(true)
         }
     }
-
-    extensions.configure(KotlinMultiplatformExtension::class.java) {
-        sourceSets.configureEach {
-            languageSettings {
-                // TODO: Remove when out of beta: https://youtrack.jetbrains.com/issue/KT-61573
-                enableLanguageFeature("ExpectActualClasses")
-                enableLanguageFeature("ContextParameters")
-                enableLanguageFeature("MultiDollarInterpolation")
-                optIn("kotlin.uuid.ExperimentalUuidApi")
-                optIn("kotlin.time.ExperimentalTime")
-            }
-        }
-    }
 }
