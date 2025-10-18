@@ -250,8 +250,8 @@ fun rememberCellUniverseActionCardState(
 
                 override fun deserialize(decoder: Decoder): ScrollState =
                     ScrollState(decoder.decodeInt())
-            }
-        )
+            },
+        ),
     ) {
         mutableStateMapOf()
     }
@@ -324,8 +324,8 @@ fun rememberCellUniverseActionCardState(
             override val actionControlRowState: ActionControlRowState = object : ActionControlRowState {
                 override val isElevated: Boolean
                     get() = !expandedTargetState.isInProgress() &&
-                            expandedTargetState.current &&
-                            currentScrollState.canScrollForward
+                        expandedTargetState.current &&
+                        currentScrollState.canScrollForward
                 override var isRunning: Boolean
                     get() =
                         when (temporalGameOfLifeState.status) {
