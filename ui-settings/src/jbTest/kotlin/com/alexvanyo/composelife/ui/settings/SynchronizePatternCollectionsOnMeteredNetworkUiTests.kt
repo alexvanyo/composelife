@@ -26,97 +26,103 @@ import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.ui.settings.resources.Strings
 import com.alexvanyo.composelife.ui.settings.resources.SynchronizePatternCollectionsOnMeteredNetwork
-import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
-@RunWith(KmpAndroidJUnit4::class)
-class SynchronizePatternCollectionsOnMeteredNetworkUiTests {
+class SynchronizePatternCollectionsOnMeteredNetworkUiTests : BaseKmpTest() {
 
     @Test
-    fun disable_is_displayed_correctly() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun disable_is_displayed_correctly() {
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            SynchronizePatternCollectionsOnMeteredNetworkUi(
-                synchronizePatternCollectionsOnMeteredNetwork = true,
-                setSynchronizePatternCollectionsOnMeteredNetwork = {},
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                SynchronizePatternCollectionsOnMeteredNetworkUi(
+                    synchronizePatternCollectionsOnMeteredNetwork = true,
+                    setSynchronizePatternCollectionsOnMeteredNetwork = {},
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.SynchronizePatternCollectionsOnMeteredNetwork))
+                .assertExists()
+                .assertIsOn()
+                .assertHasClickAction()
         }
-
-        onNodeWithContentDescription(resolver(Strings.SynchronizePatternCollectionsOnMeteredNetwork))
-            .assertExists()
-            .assertIsOn()
-            .assertHasClickAction()
     }
 
     @Test
-    fun disable_will_update_correctly() = runComposeUiTest {
-        var synchronizePatternCollectionsOnMeteredNetwork by mutableStateOf(true)
+    fun disable_will_update_correctly() {
+        runComposeUiTest {
+            var synchronizePatternCollectionsOnMeteredNetwork by mutableStateOf(true)
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            SynchronizePatternCollectionsOnMeteredNetworkUi(
-                synchronizePatternCollectionsOnMeteredNetwork = synchronizePatternCollectionsOnMeteredNetwork,
-                setSynchronizePatternCollectionsOnMeteredNetwork = {
-                    synchronizePatternCollectionsOnMeteredNetwork = it
-                },
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                SynchronizePatternCollectionsOnMeteredNetworkUi(
+                    synchronizePatternCollectionsOnMeteredNetwork = synchronizePatternCollectionsOnMeteredNetwork,
+                    setSynchronizePatternCollectionsOnMeteredNetwork = {
+                        synchronizePatternCollectionsOnMeteredNetwork = it
+                    },
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.SynchronizePatternCollectionsOnMeteredNetwork))
+                .performClick()
+
+            assertFalse(synchronizePatternCollectionsOnMeteredNetwork)
         }
-
-        onNodeWithContentDescription(resolver(Strings.SynchronizePatternCollectionsOnMeteredNetwork))
-            .performClick()
-
-        assertFalse(synchronizePatternCollectionsOnMeteredNetwork)
     }
 
     @Test
-    fun enable_is_displayed_correctly() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun enable_is_displayed_correctly() {
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            SynchronizePatternCollectionsOnMeteredNetworkUi(
-                synchronizePatternCollectionsOnMeteredNetwork = false,
-                setSynchronizePatternCollectionsOnMeteredNetwork = {},
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                SynchronizePatternCollectionsOnMeteredNetworkUi(
+                    synchronizePatternCollectionsOnMeteredNetwork = false,
+                    setSynchronizePatternCollectionsOnMeteredNetwork = {},
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.SynchronizePatternCollectionsOnMeteredNetwork))
+                .assertExists()
+                .assertIsOff()
+                .assertHasClickAction()
         }
-
-        onNodeWithContentDescription(resolver(Strings.SynchronizePatternCollectionsOnMeteredNetwork))
-            .assertExists()
-            .assertIsOff()
-            .assertHasClickAction()
     }
 
     @Test
-    fun enable_will_update_correctly() = runComposeUiTest {
-        var synchronizePatternCollectionsOnMeteredNetwork by mutableStateOf(false)
+    fun enable_will_update_correctly() {
+        runComposeUiTest {
+            var synchronizePatternCollectionsOnMeteredNetwork by mutableStateOf(false)
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            SynchronizePatternCollectionsOnMeteredNetworkUi(
-                synchronizePatternCollectionsOnMeteredNetwork = synchronizePatternCollectionsOnMeteredNetwork,
-                setSynchronizePatternCollectionsOnMeteredNetwork = {
-                    synchronizePatternCollectionsOnMeteredNetwork = it
-                },
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                SynchronizePatternCollectionsOnMeteredNetworkUi(
+                    synchronizePatternCollectionsOnMeteredNetwork = synchronizePatternCollectionsOnMeteredNetwork,
+                    setSynchronizePatternCollectionsOnMeteredNetwork = {
+                        synchronizePatternCollectionsOnMeteredNetwork = it
+                    },
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.SynchronizePatternCollectionsOnMeteredNetwork))
+                .performClick()
+
+            assertTrue(synchronizePatternCollectionsOnMeteredNetwork)
         }
-
-        onNodeWithContentDescription(resolver(Strings.SynchronizePatternCollectionsOnMeteredNetwork))
-            .performClick()
-
-        assertTrue(synchronizePatternCollectionsOnMeteredNetwork)
     }
 }

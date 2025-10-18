@@ -18,8 +18,7 @@ package com.alexvanyo.composelife.navigation
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
-import org.junit.runner.RunWith
+import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -29,8 +28,7 @@ import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalTestApi::class)
 @Suppress("TooManyFunctions")
-@RunWith(KmpAndroidJUnit4::class)
-class MutableBackstackNavigationControllerTests {
+class MutableBackstackNavigationControllerTests : BaseKmpTest() {
 
     private val id1 = Uuid.random()
     private val id2 = Uuid.random()

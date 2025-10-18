@@ -84,31 +84,6 @@ class InteractiveCellUniverseCtx(
 interface InteractiveCellUniverseState {
 
     /**
-     * `true` if the viewport is tracking the alive cells.
-     */
-    var isViewportTracking: Boolean
-
-    /**
-     * `true` if the control for immersive mode should be shown
-     */
-    val showImmersiveModeControl: Boolean
-
-    /**
-     * `true` if immersive mode is enabled.
-     */
-    var isImmersiveMode: Boolean
-
-    /**
-     * `true` if the control for full space mode should be shown
-     */
-    val showFullSpaceModeControl: Boolean
-
-    /**
-     * `true` if the app is in full space mode.
-     */
-    var isFullSpaceMode: Boolean
-
-    /**
      * The [MutableCellWindowViewportState] for use when [isViewportTracking] is `false`.
      */
     val mutableCellWindowViewportState: MutableCellWindowViewportState
@@ -138,6 +113,12 @@ interface InteractiveCellUniverseState {
      * The action card state.
      */
     val actionCardState: CellUniverseActionCardState
+
+    val editingState: InteractiveCellUniverseEditingState
+}
+
+interface InteractiveCellUniverseEditingState {
+    val selectionState: SelectionState
 
     /**
      * Copies the current selection (if any) to the system clipboard.
@@ -291,105 +272,16 @@ internal fun rememberInteractiveCellUniverseState(
         onBackCompleted = { setIsActionCardExpanded(false) },
     )
 
-    val infoCardState = rememberCellUniverseInfoCardState(
-        setIsExpanded = ::setIsInfoCardExpanded,
-        expandedTargetState = when (val navEventState = infoCardNavigationEventTransitionState) {
-            is NavigationEventTransitionState.Idle -> TargetState.Single(isInfoCardExpanded)
-            is NavigationEventTransitionState.InProgress -> {
-                check(isInfoCardExpanded)
-                TargetState.InProgress(
-                    current = true,
-                    provisional = false,
-                    progress = navEventState.latestEvent.progress,
-                )
-            }
-        },
-    )
-    val actionCardState = rememberCellUniverseActionCardState(
-        setIsExpanded = ::setIsActionCardExpanded,
-        enableBackHandler = isActionCardTopCard,
-        expandedTargetState = when (val navEventState = actionCardNavigationEventTransitionState) {
-            is NavigationEventTransitionState.Idle -> TargetState.Single(isActionCardExpanded)
-            is NavigationEventTransitionState.InProgress -> {
-                check(isActionCardExpanded)
-                TargetState.InProgress(
-                    current = true,
-                    provisional = false,
-                    progress = navEventState.latestEvent.progress,
-                )
-            }
-        },
-    )
-
-    val viewportInteractionConfig: ViewportInteractionConfig by
-        remember(mutableCellWindowViewportState, trackingCellWindowViewportState) {
-            derivedStateOf {
-                if (isViewportTracking) {
-                    ViewportInteractionConfig.Tracking(
-                        trackingCellWindowViewportState = trackingCellWindowViewportState,
-                        syncableMutableCellWindowViewportStates = listOf(mutableCellWindowViewportState),
-                    )
-                } else {
-                    ViewportInteractionConfig.Navigable(
-                        mutableCellWindowViewportState = mutableCellWindowViewportState,
-                    )
-                }
-            }
-        }
-
-    return remember(
+    val editingState = remember(
+        selectionStateHolder,
         temporalGameOfLifeState,
-        mutableCellWindowViewportState,
-        trackingCellWindowViewportState,
-        infoCardState,
-        actionCardState,
+        coroutineScope,
         clipboardReaderWriter,
         cellStateParser,
-        coroutineScope,
-        spatialController,
     ) {
-        object : InteractiveCellUniverseState {
-            override var isViewportTracking: Boolean
-                get() = isViewportTracking
-                set(value) {
-                    isViewportTracking = value
-                }
-
-            override val showImmersiveModeControl: Boolean
-                get() = !spatialController.hasXrSpatialFeature
-
-            override var isImmersiveMode: Boolean
-                get() = isImmersiveMode
-                set(value) {
-                    isImmersiveMode = value
-                }
-
-            override val showFullSpaceModeControl: Boolean
-                get() = spatialController.hasXrSpatialFeature
-
-            override var isFullSpaceMode: Boolean
-                get() = spatialController.isFullSpaceMode
-                set(value) {
-                    spatialController.isFullSpaceMode = value
-                }
-
-            override val mutableCellWindowViewportState: MutableCellWindowViewportState =
-                mutableCellWindowViewportState
-            override val trackingCellWindowViewportState: TrackingCellWindowViewportState =
-                trackingCellWindowViewportState
-
-            override val cellWindowInteractionState: MutableCellWindowInteractionState by derivedStateOf {
-                object :
-                    MutableCellWindowInteractionState,
-                    MutableSelectionStateHolder by selectionStateHolder {
-                    override val viewportInteractionConfig: ViewportInteractionConfig = viewportInteractionConfig
-                }
-            }
-
-            override val isActionCardTopCard: Boolean
-                get() = isActionCardTopCard
-            override val infoCardState: CellUniverseInfoCardState = infoCardState
-            override val actionCardState: CellUniverseActionCardState = actionCardState
+        object : InteractiveCellUniverseEditingState {
+            override val selectionState: SelectionState
+                get() = selectionStateHolder.selectionSessionState.value
 
             override fun onCopy() = onCopy(isCut = false)
 
@@ -495,6 +387,93 @@ internal fun rememberInteractiveCellUniverseState(
                     ),
                 )
             }
+        }
+    }
+
+    val infoCardState = rememberCellUniverseInfoCardState(
+        setIsExpanded = ::setIsInfoCardExpanded,
+        expandedTargetState = when (val navEventState = infoCardNavigationEventTransitionState) {
+            is NavigationEventTransitionState.Idle -> TargetState.Single(isInfoCardExpanded)
+            is NavigationEventTransitionState.InProgress -> {
+                check(isInfoCardExpanded)
+                TargetState.InProgress(
+                    current = true,
+                    provisional = false,
+                    progress = navEventState.latestEvent.progress,
+                )
+            }
+        },
+    )
+    val actionCardState = rememberCellUniverseActionCardState(
+        enableBackHandler = isActionCardTopCard,
+        isViewportTracking = isViewportTracking,
+        setIsViewportTracking = { isViewportTracking = it },
+        showImmersiveModeControl = !spatialController.hasXrSpatialFeature,
+        isImmersiveMode = isImmersiveMode,
+        setIsImmersiveMode = { isImmersiveMode = it },
+        showFullSpaceModeControl = spatialController.hasXrSpatialFeature,
+        isFullSpaceMode = spatialController.isFullSpaceMode,
+        setIsFullSpaceMode = { spatialController.isFullSpaceMode = it },
+        isExpanded = isActionCardExpanded,
+        setIsExpanded = ::setIsActionCardExpanded,
+        expandedTargetState = when (val navEventState = actionCardNavigationEventTransitionState) {
+            is NavigationEventTransitionState.Idle -> TargetState.Single(isActionCardExpanded)
+            is NavigationEventTransitionState.InProgress -> {
+                check(isActionCardExpanded)
+                TargetState.InProgress(
+                    current = true,
+                    provisional = false,
+                    progress = navEventState.latestEvent.progress,
+                )
+            }
+        },
+        temporalGameOfLifeState = temporalGameOfLifeState,
+        editingState = editingState,
+    )
+
+    val viewportInteractionConfig: ViewportInteractionConfig by
+        remember(mutableCellWindowViewportState, trackingCellWindowViewportState) {
+            derivedStateOf {
+                if (isViewportTracking) {
+                    ViewportInteractionConfig.Tracking(
+                        trackingCellWindowViewportState = trackingCellWindowViewportState,
+                        syncableMutableCellWindowViewportStates = listOf(mutableCellWindowViewportState),
+                    )
+                } else {
+                    ViewportInteractionConfig.Navigable(
+                        mutableCellWindowViewportState = mutableCellWindowViewportState,
+                    )
+                }
+            }
+        }
+
+    return remember(
+        mutableCellWindowViewportState,
+        trackingCellWindowViewportState,
+        infoCardState,
+        actionCardState,
+        spatialController,
+        editingState,
+    ) {
+        object : InteractiveCellUniverseState {
+            override val mutableCellWindowViewportState: MutableCellWindowViewportState =
+                mutableCellWindowViewportState
+            override val trackingCellWindowViewportState: TrackingCellWindowViewportState =
+                trackingCellWindowViewportState
+
+            override val cellWindowInteractionState: MutableCellWindowInteractionState by derivedStateOf {
+                object :
+                    MutableCellWindowInteractionState,
+                    MutableSelectionStateHolder by selectionStateHolder {
+                    override val viewportInteractionConfig: ViewportInteractionConfig = viewportInteractionConfig
+                }
+            }
+
+            override val isActionCardTopCard: Boolean
+                get() = isActionCardTopCard
+            override val infoCardState: CellUniverseInfoCardState = infoCardState
+            override val actionCardState: CellUniverseActionCardState = actionCardState
+            override val editingState: InteractiveCellUniverseEditingState = editingState
         }
     }
 }

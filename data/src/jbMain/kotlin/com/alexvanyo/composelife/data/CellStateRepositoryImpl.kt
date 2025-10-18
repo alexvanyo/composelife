@@ -29,7 +29,10 @@ import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.FlexibleCellStateSerializer
 import com.alexvanyo.composelife.model.fromFileExtension
 import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
@@ -43,10 +46,16 @@ import kotlin.time.Duration
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
+@ContributesTo(AppScope::class)
+@BindingContainer
+interface CellStateRepositoryImplBindings {
+    @Binds
+    val CellStateRepositoryImpl.bind: CellStateRepository
+}
+
 @Suppress("LongParameterList")
 @Inject
-@ContributesBinding(AppScope::class)
-internal class CellStateRepositoryImpl(
+class CellStateRepositoryImpl(
     private val flexibleCellStateSerializer: FlexibleCellStateSerializer,
     private val cellStateQueriesWrapper: CellStateQueriesWrapper,
     private val dispatchers: ComposeLifeDispatchers,

@@ -25,7 +25,10 @@ import com.alexvanyo.composelife.resourcestate.firstSuccess
 import com.alexvanyo.composelife.resourcestate.map
 import com.alexvanyo.composelife.resourcestate.successes
 import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -38,9 +41,15 @@ import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.selects.select
 
+@ContributesTo(AppScope::class)
+@BindingContainer
+interface ConfigurableGameOfLifeAlgorithmBindings {
+    @Binds
+    val ConfigurableGameOfLifeAlgorithm.bind: GameOfLifeAlgorithm
+}
+
 @Inject
-@ContributesBinding(AppScope::class)
-internal class ConfigurableGameOfLifeAlgorithm(
+class ConfigurableGameOfLifeAlgorithm(
     private val preferences: ComposeLifePreferences,
     private val naiveGameOfLifeAlgorithm: NaiveGameOfLifeAlgorithm,
     private val hashLifeAlgorithm: HashLifeAlgorithm,
