@@ -186,3 +186,5 @@ data object PulsarPattern : OscillatorPattern(
         ),
     ),
 )
+
+expect val OscillatorPattern.Companion._values: List<OscillatorPattern>

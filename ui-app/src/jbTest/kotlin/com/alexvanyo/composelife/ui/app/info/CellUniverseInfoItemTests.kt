@@ -26,121 +26,129 @@ import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
 import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
 import com.alexvanyo.composelife.ui.util.TargetState
-import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
-@RunWith(KmpAndroidJUnit4::class)
-class CellUniverseInfoItemTests {
+class CellUniverseInfoItemTests : BaseKmpTest() {
 
     @Test
-    fun can_check_while_editing() = runComposeUiTest {
-        val cellUniverseInfoItemState = CellUniverseInfoItemState()
+    fun can_check_while_editing() {
+        runComposeUiTest {
+            val cellUniverseInfoItemState = CellUniverseInfoItemState()
 
-        setContent {
-            Column {
-                InfoItem(
-                    cellUniverseInfoItemContent = CellUniverseInfoItemContent(cellUniverseInfoItemState) { "Test" },
-                    editingTargetState = TargetState.Single(true),
-                )
+            setContent {
+                Column {
+                    InfoItem(
+                        cellUniverseInfoItemContent = CellUniverseInfoItemContent(cellUniverseInfoItemState) { "Test" },
+                        editingTargetState = TargetState.Single(true),
+                    )
+                }
             }
+
+            onNodeWithText("Test")
+                .assertIsToggleable()
+                .assertIsOn()
+                .performClick()
+
+            assertFalse(cellUniverseInfoItemState.isChecked)
+
+            onNodeWithText("Test").assertIsOff()
         }
-
-        onNodeWithText("Test")
-            .assertIsToggleable()
-            .assertIsOn()
-            .performClick()
-
-        assertFalse(cellUniverseInfoItemState.isChecked)
-
-        onNodeWithText("Test").assertIsOff()
     }
 
     @Test
-    fun can_uncheck_while_editing() = runComposeUiTest {
-        val cellUniverseInfoItemState = CellUniverseInfoItemState(isChecked = false)
+    fun can_uncheck_while_editing() {
+        runComposeUiTest {
+            val cellUniverseInfoItemState = CellUniverseInfoItemState(isChecked = false)
 
-        setContent {
-            Column {
-                InfoItem(
-                    cellUniverseInfoItemContent = CellUniverseInfoItemContent(cellUniverseInfoItemState) { "Test" },
-                    editingTargetState = TargetState.Single(true),
-                )
+            setContent {
+                Column {
+                    InfoItem(
+                        cellUniverseInfoItemContent = CellUniverseInfoItemContent(cellUniverseInfoItemState) { "Test" },
+                        editingTargetState = TargetState.Single(true),
+                    )
+                }
             }
+
+            onNodeWithText("Test")
+                .assertIsToggleable()
+                .assertIsOff()
+                .performClick()
+
+            assertTrue(cellUniverseInfoItemState.isChecked)
+
+            onNodeWithText("Test").assertIsOn()
         }
-
-        onNodeWithText("Test")
-            .assertIsToggleable()
-            .assertIsOff()
-            .performClick()
-
-        assertTrue(cellUniverseInfoItemState.isChecked)
-
-        onNodeWithText("Test").assertIsOn()
     }
 
     @Test
-    fun unchecked_item_is_hidden_while_not_editing() = runComposeUiTest {
-        val cellUniverseInfoItemState = CellUniverseInfoItemState(isChecked = false)
+    fun unchecked_item_is_hidden_while_not_editing() {
+        runComposeUiTest {
+            val cellUniverseInfoItemState = CellUniverseInfoItemState(isChecked = false)
 
-        setContent {
-            Column {
-                InfoItem(
-                    cellUniverseInfoItemContent = CellUniverseInfoItemContent(cellUniverseInfoItemState) { "Test" },
-                    editingTargetState = TargetState.Single(false),
-                )
+            setContent {
+                Column {
+                    InfoItem(
+                        cellUniverseInfoItemContent = CellUniverseInfoItemContent(cellUniverseInfoItemState) { "Test" },
+                        editingTargetState = TargetState.Single(false),
+                    )
+                }
             }
-        }
 
-        onNodeWithText("Test").assertDoesNotExist()
+            onNodeWithText("Test").assertDoesNotExist()
+        }
     }
 
     @Test
-    fun checkbox_is_hidden_for_checked_item_is_hidden_while_not_editing() = runComposeUiTest {
-        val cellUniverseInfoItemState = CellUniverseInfoItemState(isChecked = true)
+    fun checkbox_is_hidden_for_checked_item_is_hidden_while_not_editing() {
+        runComposeUiTest {
+            val cellUniverseInfoItemState = CellUniverseInfoItemState(isChecked = true)
 
-        setContent {
-            Column {
-                InfoItem(
-                    cellUniverseInfoItemContent = CellUniverseInfoItemContent(cellUniverseInfoItemState) { "Test" },
-                    editingTargetState = TargetState.Single(false),
-                )
+            setContent {
+                Column {
+                    InfoItem(
+                        cellUniverseInfoItemContent = CellUniverseInfoItemContent(cellUniverseInfoItemState) { "Test" },
+                        editingTargetState = TargetState.Single(false),
+                    )
+                }
             }
-        }
 
-        onNodeWithText("Test").assertIsDisplayed()
-        onNode(isToggleable()).assertDoesNotExist()
+            onNodeWithText("Test").assertIsDisplayed()
+            onNode(isToggleable()).assertDoesNotExist()
+        }
     }
 
     @Test
-    fun is_checked_state_is_saved() = runComposeUiTest {
-        val stateRestorationTester = KmpStateRestorationTester(this)
+    fun is_checked_state_is_saved() {
+        runComposeUiTest {
+            val stateRestorationTester = KmpStateRestorationTester(this)
 
-        stateRestorationTester.setContent {
-            val cellUniverseInfoItemState = rememberCellUniverseInfoItemState()
+            stateRestorationTester.setContent {
+                val cellUniverseInfoItemState = rememberCellUniverseInfoItemState()
 
-            Column {
-                InfoItem(
-                    cellUniverseInfoItemContent = CellUniverseInfoItemContent(cellUniverseInfoItemState) { "Test" },
-                    editingTargetState = TargetState.Single(true),
-                )
+                Column {
+                    InfoItem(
+                        cellUniverseInfoItemContent = CellUniverseInfoItemContent(cellUniverseInfoItemState) { "Test" },
+                        editingTargetState = TargetState.Single(true),
+                    )
+                }
             }
+
+            onNodeWithText("Test")
+                .assertIsToggleable()
+                .assertIsOn()
+                .performClick()
+
+            onNodeWithText("Test").assertIsOff()
+
+            stateRestorationTester.emulateStateRestore()
+
+            onNodeWithText("Test").assertIsOff()
         }
-
-        onNodeWithText("Test")
-            .assertIsToggleable()
-            .assertIsOn()
-            .performClick()
-
-        onNodeWithText("Test").assertIsOff()
-
-        stateRestorationTester.emulateStateRestore()
-
-        onNodeWithText("Test").assertIsOff()
     }
 }

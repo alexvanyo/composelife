@@ -26,26 +26,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
-import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.navigation.associateWithRenderablePanes
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes.ActionControlRow
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes.NavContainer
-import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.mobile.component.LocalBackgroundColor
 import com.alexvanyo.composelife.ui.settings.InlineSettingsPane
 import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneCtx
@@ -55,11 +50,8 @@ import com.alexvanyo.composelife.ui.util.CrossfadePredictiveNavigationFrame
 import com.alexvanyo.composelife.ui.util.Layout
 import com.alexvanyo.composelife.ui.util.WindowInsets
 import com.alexvanyo.composelife.ui.util.isImeAnimating
-import com.alexvanyo.composelife.ui.util.isInProgress
 import com.livefront.sealedenum.GenSealedEnum
 import com.livefront.sealedenum.SealedEnum
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import kotlin.math.max
 
 // region templated-ctx
@@ -67,126 +59,46 @@ import kotlin.math.max
 @Composable
 private operator fun CellUniverseActionCardCtx.invoke(
     temporalGameOfLifeState: TemporalGameOfLifeState,
-    isViewportTracking: Boolean,
-    setIsViewportTracking: (Boolean) -> Unit,
-    showImmersiveModeControl: Boolean,
-    isImmersiveMode: Boolean,
-    setIsImmersiveMode: (Boolean) -> Unit,
-    showFullSpaceModeControl: Boolean,
-    isFullSpaceMode: Boolean,
-    setIsFullSpaceMode: (Boolean) -> Unit,
-    selectionState: SelectionState,
-    setSelectionToCellState: (CellState) -> Unit,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
-    onClearSelection: () -> Unit,
-    onCopy: () -> Unit,
-    onCut: () -> Unit,
-    onPaste: () -> Unit,
-    onApplyPaste: () -> Unit,
     onSeeMoreSettingsClicked: () -> Unit,
     onOpenInSettingsClicked: (setting: Setting) -> Unit,
     actionCardState: CellUniverseActionCardState,
     modifier: Modifier = Modifier,
-    coroutineScope: CoroutineScope = rememberCoroutineScope(),
 ) = CellUniverseActionCardCtx.lambda(
     inlineEditPaneCtx,
     inlineSettingsPaneCtx,
     temporalGameOfLifeState,
-    isViewportTracking,
-    setIsViewportTracking,
-    showImmersiveModeControl,
-    isImmersiveMode,
-    setIsImmersiveMode,
-    showFullSpaceModeControl,
-    isFullSpaceMode,
-    setIsFullSpaceMode,
-    selectionState,
-    setSelectionToCellState,
     onViewDeserializationInfo,
-    onClearSelection,
-    onCopy,
-    onCut,
-    onPaste,
-    onApplyPaste,
     onSeeMoreSettingsClicked,
     onOpenInSettingsClicked,
     actionCardState,
     modifier,
-    coroutineScope,
 )
 
 private val CellUniverseActionCardCtx.Companion.lambda:
     @Composable (context(InlineEditPaneCtx, InlineSettingsPaneCtx) (
         temporalGameOfLifeState: TemporalGameOfLifeState,
-        isViewportTracking: Boolean,
-        setIsViewportTracking: (Boolean) -> Unit,
-        showImmersiveModeControl: Boolean,
-        isImmersiveMode: Boolean,
-        setIsImmersiveMode: (Boolean) -> Unit,
-        showFullSpaceModeControl: Boolean,
-        isFullSpaceMode: Boolean,
-        setIsFullSpaceMode: (Boolean) -> Unit,
-        selectionState: SelectionState,
-        setSelectionToCellState: (CellState) -> Unit,
         onViewDeserializationInfo: (DeserializationResult) -> Unit,
-        onClearSelection: () -> Unit,
-        onCopy: () -> Unit,
-        onCut: () -> Unit,
-        onPaste: () -> Unit,
-        onApplyPaste: () -> Unit,
         onSeeMoreSettingsClicked: () -> Unit,
         onOpenInSettingsClicked: (setting: Setting) -> Unit,
         actionCardState: CellUniverseActionCardState,
         modifier: Modifier,
-        coroutineScope: CoroutineScope,
     ) -> Unit)
     get() = {
             temporalGameOfLifeState,
-            isViewportTracking,
-            setIsViewportTracking,
-            showImmersiveModeControl,
-            isImmersiveMode,
-            setIsImmersiveMode,
-            showFullSpaceModeControl,
-            isFullSpaceMode,
-            setIsFullSpaceMode,
-            selectionState,
-            setSelectionToCellState,
             onViewDeserializationInfo,
-            onClearSelection,
-            onCopy,
-            onCut,
-            onPaste,
-            onApplyPaste,
             onSeeMoreSettingsClicked,
             onOpenInSettingsClicked,
             actionCardState,
             modifier,
-            coroutineScope,
         ->
         CellUniverseActionCard(
             temporalGameOfLifeState = temporalGameOfLifeState,
-            isViewportTracking = isViewportTracking,
-            setIsViewportTracking = setIsViewportTracking,
-            showImmersiveModeControl = showImmersiveModeControl,
-            isImmersiveMode = isImmersiveMode,
-            setIsImmersiveMode = setIsImmersiveMode,
-            showFullSpaceModeControl = showFullSpaceModeControl,
-            isFullSpaceMode = isFullSpaceMode,
-            setIsFullSpaceMode = setIsFullSpaceMode,
-            selectionState = selectionState,
-            setSelectionToCellState = setSelectionToCellState,
             onViewDeserializationInfo = onViewDeserializationInfo,
-            onClearSelection = onClearSelection,
-            onCopy = onCopy,
-            onCut = onCut,
-            onPaste = onPaste,
-            onApplyPaste = onApplyPaste,
             onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
             onOpenInSettingsClicked = onOpenInSettingsClicked,
             actionCardState = actionCardState,
             modifier = modifier,
-            coroutineScope = coroutineScope,
         )
     }
 
@@ -195,50 +107,18 @@ context(ctx: CellUniverseActionCardCtx)
 @Composable
 fun CellUniverseActionCard(
     temporalGameOfLifeState: TemporalGameOfLifeState,
-    isViewportTracking: Boolean,
-    setIsViewportTracking: (Boolean) -> Unit,
-    showImmersiveModeControl: Boolean,
-    isImmersiveMode: Boolean,
-    setIsImmersiveMode: (Boolean) -> Unit,
-    showFullSpaceModeControl: Boolean,
-    isFullSpaceMode: Boolean,
-    setIsFullSpaceMode: (Boolean) -> Unit,
-    selectionState: SelectionState,
-    setSelectionToCellState: (CellState) -> Unit,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
-    onClearSelection: () -> Unit,
-    onCopy: () -> Unit,
-    onCut: () -> Unit,
-    onPaste: () -> Unit,
-    onApplyPaste: () -> Unit,
     onSeeMoreSettingsClicked: () -> Unit,
     onOpenInSettingsClicked: (setting: Setting) -> Unit,
     actionCardState: CellUniverseActionCardState,
     modifier: Modifier = Modifier,
-    coroutineScope: CoroutineScope = rememberCoroutineScope(),
 ) = ctx(
     temporalGameOfLifeState = temporalGameOfLifeState,
-    isViewportTracking = isViewportTracking,
-    setIsViewportTracking = setIsViewportTracking,
-    showImmersiveModeControl = showImmersiveModeControl,
-    isImmersiveMode = isImmersiveMode,
-    setIsImmersiveMode = setIsImmersiveMode,
-    showFullSpaceModeControl = showFullSpaceModeControl,
-    isFullSpaceMode = isFullSpaceMode,
-    setIsFullSpaceMode = setIsFullSpaceMode,
-    selectionState = selectionState,
-    setSelectionToCellState = setSelectionToCellState,
     onViewDeserializationInfo = onViewDeserializationInfo,
-    onClearSelection = onClearSelection,
-    onCopy = onCopy,
-    onCut = onCut,
-    onPaste = onPaste,
-    onApplyPaste = onApplyPaste,
     onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
     onOpenInSettingsClicked = onOpenInSettingsClicked,
     actionCardState = actionCardState,
     modifier = modifier,
-    coroutineScope = coroutineScope,
 )
 // endregion templated-ctx
 
@@ -250,59 +130,18 @@ _: InlineSettingsPaneCtx
 @Composable
 private fun CellUniverseActionCard(
     temporalGameOfLifeState: TemporalGameOfLifeState,
-    isViewportTracking: Boolean,
-    setIsViewportTracking: (Boolean) -> Unit,
-    showImmersiveModeControl: Boolean,
-    isImmersiveMode: Boolean,
-    setIsImmersiveMode: (Boolean) -> Unit,
-    showFullSpaceModeControl: Boolean,
-    isFullSpaceMode: Boolean,
-    setIsFullSpaceMode: (Boolean) -> Unit,
-    selectionState: SelectionState,
-    setSelectionToCellState: (CellState) -> Unit,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
-    onClearSelection: () -> Unit,
-    onCopy: () -> Unit,
-    onCut: () -> Unit,
-    onPaste: () -> Unit,
-    onApplyPaste: () -> Unit,
     onSeeMoreSettingsClicked: () -> Unit,
     onOpenInSettingsClicked: (setting: Setting) -> Unit,
     actionCardState: CellUniverseActionCardState,
     modifier: Modifier = Modifier,
-    coroutineScope: CoroutineScope = rememberCoroutineScope(),
 ) {
     CellUniverseActionCard(
-        isRunning = when (temporalGameOfLifeState.status) {
-            TemporalGameOfLifeState.EvolutionStatus.Paused -> false
-            is TemporalGameOfLifeState.EvolutionStatus.Running -> true
-        },
-        setIsRunning = temporalGameOfLifeState::setIsRunning,
-        onStep = {
-            coroutineScope.launch {
-                temporalGameOfLifeState.step()
-            }
-        },
         targetStepsPerSecond = temporalGameOfLifeState.targetStepsPerSecond,
         setTargetStepsPerSecond = { temporalGameOfLifeState.targetStepsPerSecond = it },
         generationsPerStep = temporalGameOfLifeState.generationsPerStep,
         setGenerationsPerStep = { temporalGameOfLifeState.generationsPerStep = it },
-        isViewportTracking = isViewportTracking,
-        setIsViewportTracking = setIsViewportTracking,
-        showImmersiveModeControl = showImmersiveModeControl,
-        isImmersiveMode = isImmersiveMode,
-        setIsImmersiveMode = setIsImmersiveMode,
-        showFullSpaceModeControl = showFullSpaceModeControl,
-        isFullSpaceMode = isFullSpaceMode,
-        setIsFullSpaceMode = setIsFullSpaceMode,
-        selectionState = selectionState,
-        setSelectionToCellState = setSelectionToCellState,
         onViewDeserializationInfo = onViewDeserializationInfo,
-        onClearSelection = onClearSelection,
-        onCopy = onCopy,
-        onCut = onCut,
-        onPaste = onPaste,
-        onApplyPaste = onApplyPaste,
         onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
         onOpenInSettingsClicked = onOpenInSettingsClicked,
         actionCardState = actionCardState,
@@ -317,41 +156,17 @@ _: InlineSettingsPaneCtx
 @Suppress("LongParameterList", "LongMethod", "ComplexMethod")
 @Composable
 fun CellUniverseActionCard(
-    isRunning: Boolean,
-    setIsRunning: (Boolean) -> Unit,
-    onStep: () -> Unit,
     targetStepsPerSecond: Double,
     setTargetStepsPerSecond: (Double) -> Unit,
     generationsPerStep: Int,
     setGenerationsPerStep: (Int) -> Unit,
-    isViewportTracking: Boolean,
-    setIsViewportTracking: (Boolean) -> Unit,
-    showImmersiveModeControl: Boolean,
-    isImmersiveMode: Boolean,
-    setIsImmersiveMode: (Boolean) -> Unit,
-    showFullSpaceModeControl: Boolean,
-    isFullSpaceMode: Boolean,
-    setIsFullSpaceMode: (Boolean) -> Unit,
-    selectionState: SelectionState,
-    setSelectionToCellState: (CellState) -> Unit,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
-    onClearSelection: () -> Unit,
-    onCopy: () -> Unit,
-    onCut: () -> Unit,
-    onPaste: () -> Unit,
-    onApplyPaste: () -> Unit,
     onSeeMoreSettingsClicked: () -> Unit,
     onOpenInSettingsClicked: (setting: Setting) -> Unit,
     actionCardState: CellUniverseActionCardState,
     modifier: Modifier = Modifier,
 ) {
-    val contentScrollStateMap =
-        actionCardState.inlineNavigationState.entryMap.mapValues { (entryId, _) ->
-            key(entryId) {
-                rememberScrollState(initial = Int.MAX_VALUE)
-            }
-        }
-
+    val contentScrollStateMap = actionCardState.contentScrollStateMap
     val currentScrollState = contentScrollStateMap.getValue(
         actionCardState.inlineNavigationState.currentEntryId,
     )
@@ -376,28 +191,7 @@ fun CellUniverseActionCard(
                         propagateMinConstraints = true,
                     ) {
                         ActionControlRow(
-                            isElevated = !actionCardState.expandedTargetState.isInProgress() &&
-                                actionCardState.expandedTargetState.current &&
-                                currentScrollState.canScrollForward,
-                            isRunning = isRunning,
-                            setIsRunning = setIsRunning,
-                            onStep = onStep,
-                            isExpanded = actionCardState.expandedTargetState.current,
-                            setIsExpanded = actionCardState::setIsExpanded,
-                            isViewportTracking = isViewportTracking,
-                            setIsViewportTracking = setIsViewportTracking,
-                            showImmersiveModeControl = showImmersiveModeControl,
-                            isImmersiveMode = isImmersiveMode,
-                            setIsImmersiveMode = setIsImmersiveMode,
-                            showFullSpaceModeControl = showFullSpaceModeControl,
-                            isFullSpaceMode = isFullSpaceMode,
-                            setIsFullSpaceMode = setIsFullSpaceMode,
-                            selectionState = selectionState,
-                            onClearSelection = onClearSelection,
-                            onCopy = onCopy,
-                            onCut = onCut,
-                            onPaste = onPaste,
-                            onApplyPaste = onApplyPaste,
+                            actionControlRowState = actionCardState.actionControlRowState,
                         )
                     }
 
@@ -427,7 +221,7 @@ fun CellUniverseActionCard(
 
                                 is InlineActionCardNavigation.Edit -> {
                                     InlineEditPane(
-                                        setSelectionToCellState = setSelectionToCellState,
+                                        setSelectionToCellState = actionCardState.editingState::setSelectionToCellState,
                                         onViewDeserializationInfo = onViewDeserializationInfo,
                                         modifier = Modifier.fillMaxWidth(),
                                         scrollState = scrollState,

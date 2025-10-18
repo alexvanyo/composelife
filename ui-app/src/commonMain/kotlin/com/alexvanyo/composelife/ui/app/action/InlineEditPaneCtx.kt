@@ -349,7 +349,7 @@ fun rememberClipboardWatchingEnabledState(
                                 when (deserializationResult) {
                                     is DeserializationResult.Successful -> {
                                         if (isPinned) {
-                                            pinnedClipboardCellStates.removeIf { it.first == id }
+                                            pinnedClipboardCellStates.removeAll { it.first == id }
                                         } else {
                                             pinnedClipboardCellStates.add(id to deserializationResult)
                                         }
@@ -376,7 +376,7 @@ fun rememberClipboardWatchingEnabledState(
 
                         override fun onPinChanged() {
                             if (isPinned) {
-                                pinnedClipboardCellStates.removeIf { it.first == id }
+                                pinnedClipboardCellStates.removeAll { it.first == id }
                             } else {
                                 pinnedClipboardCellStates.add(id to deserializationResult)
                             }
@@ -399,7 +399,7 @@ fun rememberClipboardWatchingEnabledState(
                         }
 
                         override fun onUnpin() {
-                            pinnedClipboardCellStates.removeIf { it.first == id }
+                            pinnedClipboardCellStates.removeAll { it.first == id }
                         }
 
                         override fun onViewDeserializationInfo() {

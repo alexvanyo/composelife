@@ -29,9 +29,8 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
 import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
-import org.junit.runner.RunWith
 import kotlin.test.Test
 
 private class TestPaneState(
@@ -68,8 +67,7 @@ private class TestPaneState(
 }
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalTestApi::class)
-@RunWith(KmpAndroidJUnit4::class)
-class ModifyPreviousDestinationUseCaseTests {
+class ModifyPreviousDestinationUseCaseTests : BaseKmpTest() {
 
     @Suppress("LongMethod")
     @Test

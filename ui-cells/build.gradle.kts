@@ -17,6 +17,7 @@
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
 import com.android.build.api.dsl.KotlinMultiplatformAndroidDeviceTestCompilation
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -43,6 +44,16 @@ kotlin {
         androidResources { enable = true }
     }
     jvm("desktop")
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser {
+            testTask {
+                useKarma {
+                    useChromiumHeadless()
+                }
+            }
+        }
+    }
 
     sourceSets {
         val commonMain by getting {
@@ -83,8 +94,15 @@ kotlin {
                 implementation(libs.jetbrains.compose.uiUtil)
             }
         }
-        val desktopMain by getting {
+        val skikoMain by creating {
             dependsOn(jbMain)
+        }
+        val nonAndroidMain by creating {
+            dependsOn(jbMain)
+        }
+        val desktopMain by getting {
+            dependsOn(skikoMain)
+            dependsOn(nonAndroidMain)
             configurations["kspDesktop"].dependencies.addAll(
                 listOf(
                     projects.sealedEnum.ksp,
@@ -116,6 +134,15 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.android)
             }
         }
+        val wasmJsMain by getting {
+            dependsOn(skikoMain)
+            dependsOn(nonAndroidMain)
+            configurations["kspWasmJs"].dependencies.addAll(
+                listOf(
+                    projects.sealedEnum.ksp,
+                )
+            )
+        }
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlinx.coroutines.test)
@@ -131,32 +158,35 @@ kotlin {
                 implementation(projects.testActivity)
             }
         }
-        val jvmTest by creating {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.testParameterInjector.junit4)
-            }
-        }
         val jbTest by creating {
-            dependsOn(jvmTest)
+            dependsOn(commonTest)
             dependencies {
                 implementation(libs.jetbrains.compose.uiTest)
             }
         }
-        val desktopTest by getting {
+        val jvmTest by creating {
             dependsOn(jbTest)
+            dependencies {
+                implementation(libs.testParameterInjector.junit4)
+            }
+        }
+        val desktopTest by getting {
+            dependsOn(jvmTest)
             dependencies {
                 implementation(libs.kotlinx.coroutines.swing)
             }
         }
         val androidSharedTest by getting {
-            dependsOn(jbTest)
+            dependsOn(jvmTest)
             dependencies {
                 implementation(libs.androidx.compose.uiTest)
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.espresso)
                 implementation(libs.androidx.test.junit)
             }
+        }
+        val wasmJsTest by getting {
+            dependsOn(jbTest)
         }
     }
 }

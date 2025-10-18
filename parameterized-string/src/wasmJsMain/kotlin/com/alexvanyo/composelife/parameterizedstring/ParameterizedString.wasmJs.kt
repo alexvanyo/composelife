@@ -40,7 +40,7 @@ fun getParameterizedString(locale: Locale, parameterizedString: ParameterizedStr
             var searchIndex = 0
             var argIndex = 0
             var usingParameterIndex = false
-            val formatRegex = Regex("""(.*)(%(\d+n)?[0 #+-]?[0-9*]*\.?\d*[hl]{0,2}[jztL]?([diuoxXeEfgGaAcpsSn%]))""")
+            val formatRegex = Regex("""(.*?)(%(\d+n)?[0 #+-]?[0-9*]*\.?\d*[hl]{0,2}[jztL]?([diuoxXeEfgGaAcpsSn%]))""")
             buildString {
                 while (searchIndex < parameterizedString.value.length) {
                     val nextMatch = formatRegex.matchAt(parameterizedString.value, searchIndex)
@@ -48,12 +48,12 @@ fun getParameterizedString(locale: Locale, parameterizedString: ParameterizedStr
                         append(parameterizedString.value.substring(searchIndex))
                         searchIndex = parameterizedString.value.length
                     } else {
-                        val beforeFormat = nextMatch.groups[1]
-                        val entireFormat = nextMatch.groups[2]
+                        val beforeFormat = nextMatch.groups[1]!!
+                        val entireFormat = nextMatch.groups[2]!!
                         val parameterIndex = nextMatch.groups[3]
-                        val formatType = nextMatch.groups[4]
-                        append(beforeFormat)
-                        if (formatType!!.value == "%") {
+                        val formatType = nextMatch.groups[4]!!
+                        append(beforeFormat.value)
+                        if (formatType.value == "%") {
                             append("%")
                         } else if (parameterIndex == null) {
                             require(!usingParameterIndex) {
@@ -65,7 +65,7 @@ fun getParameterizedString(locale: Locale, parameterizedString: ParameterizedStr
                             usingParameterIndex = true
                             append(resolvedArgs[parameterIndex.value.dropLast(1).toInt()])
                         }
-                        searchIndex += nextMatch.groups[5]!!.value.length
+                        searchIndex += nextMatch.groups[0]!!.value.length
                     }
                 }
             }

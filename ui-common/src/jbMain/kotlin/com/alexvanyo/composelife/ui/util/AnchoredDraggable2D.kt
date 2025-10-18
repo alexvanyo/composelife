@@ -1213,12 +1213,7 @@ suspend fun <T> AnchoredDraggable2DState<T>.animateTo(
     }
 }
 
-private class AnchoredDragFinishedSignal : CancellationException() {
-    override fun fillInStackTrace(): Throwable {
-        stackTrace = emptyArray()
-        return this
-    }
-}
+private class AnchoredDragFinishedSignal : CancellationException("Anchored drag finished")
 
 private suspend fun <I> restartable(inputs: () -> I, block: suspend (I) -> Unit) {
     try {

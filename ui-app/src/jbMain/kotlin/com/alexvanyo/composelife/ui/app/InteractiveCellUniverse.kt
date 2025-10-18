@@ -187,34 +187,33 @@ fun InteractiveCellUniverse(
                             }
 
                             Key.A -> if (keyEvent.isCtrlPressed) {
-                                interactiveCellUniverseState.onSelectAll()
+                                interactiveCellUniverseState.editingState.onSelectAll()
                                 true
                             } else {
                                 false
                             }
 
                             Key.C -> if (keyEvent.isCtrlPressed) {
-                                interactiveCellUniverseState.onCopy()
+                                interactiveCellUniverseState.editingState.onCopy()
                             } else {
                                 false
                             }
 
                             Key.V -> if (keyEvent.isCtrlPressed) {
-                                interactiveCellUniverseState.onPaste()
+                                interactiveCellUniverseState.editingState.onPaste()
                                 true
                             } else {
                                 false
                             }
 
                             Key.X -> if (keyEvent.isCtrlPressed) {
-                                interactiveCellUniverseState.onCut()
+                                interactiveCellUniverseState.editingState.onCut()
                             } else {
                                 false
                             }
 
                             Key.Escape -> {
-                                interactiveCellUniverseState.cellWindowInteractionState.selectionSessionState =
-                                    SessionValue(Uuid.random(), Uuid.random(), SelectionState.NoSelection)
+                                interactiveCellUniverseState.editingState.onClearSelection()
                                 true
                             }
 

@@ -30,8 +30,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
-import org.junit.runner.RunWith
+import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
 import kotlin.test.Test
 import kotlin.uuid.Uuid
 
@@ -117,8 +116,7 @@ class MultipleMutableBackstackNavigationController(
 }
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalTestApi::class)
-@RunWith(KmpAndroidJUnit4::class)
-class MultipleBackstackUseCaseTests {
+class MultipleBackstackUseCaseTests : BaseKmpTest() {
 
     @Suppress("LongMethod")
     @Test
