@@ -47,7 +47,7 @@ import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
-import com.alexvanyo.composelife.preferences.ordinal
+import com.alexvanyo.composelife.preferences._ordinal
 import com.alexvanyo.composelife.ui.settings.resources.QuickSettingsInfo
 import com.alexvanyo.composelife.ui.settings.resources.SeeAll
 import com.alexvanyo.composelife.ui.settings.resources.Strings
@@ -168,7 +168,7 @@ private fun InlineSettingsPane(
         }
 
         val animatingQuickAccessSettings = animatableQuickAccessSettings
-            .keys.sortedBy(QuickAccessSetting::ordinal)
+            .keys.sortedBy(QuickAccessSetting::_ordinal)
 
         AnimatedContent(
             targetState = quickAccessSettings.isEmpty(),

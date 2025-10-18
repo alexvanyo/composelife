@@ -34,3 +34,5 @@ sealed interface QuickAccessSetting {
     @GenSealedEnum
     companion object
 }
+
+expect val QuickAccessSetting._ordinal: Int

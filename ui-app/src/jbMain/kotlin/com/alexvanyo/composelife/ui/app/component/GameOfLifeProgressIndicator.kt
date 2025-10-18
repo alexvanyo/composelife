@@ -39,7 +39,7 @@ import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.patterns.OscillatorPattern
-import com.alexvanyo.composelife.patterns.values
+import com.alexvanyo.composelife.patterns._values
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.cells.CellWindowInteractionState
 import com.alexvanyo.composelife.ui.cells.CellWindowViewportState
@@ -98,10 +98,10 @@ dispatchers: ComposeLifeDispatchers,
 fun GameOfLifeProgressIndicator(
     modifier: Modifier = Modifier,
 ) {
-    val patternIndex = remember(OscillatorPattern.values.size) {
-        random.nextInt(OscillatorPattern.values.size)
+    val patternIndex = remember(OscillatorPattern._values.size) {
+        random.nextInt(OscillatorPattern._values.size)
     }
-    val pattern = OscillatorPattern.values[patternIndex]
+    val pattern = OscillatorPattern._values[patternIndex]
     val temporalGameOfLifeState = key(pattern) {
         rememberTemporalGameOfLifeState(
             seedCellState = pattern.seedCellState,
