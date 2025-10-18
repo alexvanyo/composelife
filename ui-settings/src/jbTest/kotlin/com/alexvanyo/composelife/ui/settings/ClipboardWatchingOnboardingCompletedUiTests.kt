@@ -26,97 +26,103 @@ import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
-import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
+import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.ui.settings.resources.ClipboardWatchingOnboardingCompleted
 import com.alexvanyo.composelife.ui.settings.resources.Strings
-import org.junit.runner.RunWith
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
-@RunWith(KmpAndroidJUnit4::class)
-class ClipboardWatchingOnboardingCompletedUiTests {
+class ClipboardWatchingOnboardingCompletedUiTests : BaseKmpTest() {
 
     @Test
-    fun not_completed_is_displayed_correctly() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun not_completed_is_displayed_correctly() {
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            ClipboardWatchingOnboardingCompletedUi(
-                completedClipboardWatchingOnboarding = false,
-                setCompletedClipboardWatchingOnboarding = {},
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                ClipboardWatchingOnboardingCompletedUi(
+                    completedClipboardWatchingOnboarding = false,
+                    setCompletedClipboardWatchingOnboarding = {},
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.ClipboardWatchingOnboardingCompleted))
+                .assertExists()
+                .assertIsOff()
+                .assertHasClickAction()
         }
-
-        onNodeWithContentDescription(resolver(Strings.ClipboardWatchingOnboardingCompleted))
-            .assertExists()
-            .assertIsOff()
-            .assertHasClickAction()
     }
 
     @Test
-    fun not_completed_will_update_correctly() = runComposeUiTest {
-        var completedClipboardWatchingOnboarding by mutableStateOf(false)
+    fun not_completed_will_update_correctly() {
+        runComposeUiTest {
+            var completedClipboardWatchingOnboarding by mutableStateOf(false)
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            ClipboardWatchingOnboardingCompletedUi(
-                completedClipboardWatchingOnboarding = completedClipboardWatchingOnboarding,
-                setCompletedClipboardWatchingOnboarding = {
-                    completedClipboardWatchingOnboarding = it
-                },
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                ClipboardWatchingOnboardingCompletedUi(
+                    completedClipboardWatchingOnboarding = completedClipboardWatchingOnboarding,
+                    setCompletedClipboardWatchingOnboarding = {
+                        completedClipboardWatchingOnboarding = it
+                    },
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.ClipboardWatchingOnboardingCompleted))
+                .performClick()
+
+            assertTrue(completedClipboardWatchingOnboarding)
         }
-
-        onNodeWithContentDescription(resolver(Strings.ClipboardWatchingOnboardingCompleted))
-            .performClick()
-
-        assertTrue(completedClipboardWatchingOnboarding)
     }
 
     @Test
-    fun completed_is_displayed_correctly() = runComposeUiTest {
-        lateinit var resolver: (ParameterizedString) -> String
+    fun completed_is_displayed_correctly() {
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            ClipboardWatchingOnboardingCompletedUi(
-                completedClipboardWatchingOnboarding = true,
-                setCompletedClipboardWatchingOnboarding = {},
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                ClipboardWatchingOnboardingCompletedUi(
+                    completedClipboardWatchingOnboarding = true,
+                    setCompletedClipboardWatchingOnboarding = {},
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.ClipboardWatchingOnboardingCompleted))
+                .assertExists()
+                .assertIsOn()
+                .assertHasClickAction()
         }
-
-        onNodeWithContentDescription(resolver(Strings.ClipboardWatchingOnboardingCompleted))
-            .assertExists()
-            .assertIsOn()
-            .assertHasClickAction()
     }
 
     @Test
-    fun completed_will_update_correctly() = runComposeUiTest {
-        var completedClipboardWatchingOnboarding by mutableStateOf(true)
+    fun completed_will_update_correctly() {
+        runComposeUiTest {
+            var completedClipboardWatchingOnboarding by mutableStateOf(true)
 
-        lateinit var resolver: (ParameterizedString) -> String
+            lateinit var resolver: (ParameterizedString) -> String
 
-        setContent {
-            resolver = parameterizedStringResolver()
-            ClipboardWatchingOnboardingCompletedUi(
-                completedClipboardWatchingOnboarding = completedClipboardWatchingOnboarding,
-                setCompletedClipboardWatchingOnboarding = {
-                    completedClipboardWatchingOnboarding = it
-                },
-            )
+            setContent {
+                resolver = parameterizedStringResolver()
+                ClipboardWatchingOnboardingCompletedUi(
+                    completedClipboardWatchingOnboarding = completedClipboardWatchingOnboarding,
+                    setCompletedClipboardWatchingOnboarding = {
+                        completedClipboardWatchingOnboarding = it
+                    },
+                )
+            }
+
+            onNodeWithContentDescription(resolver(Strings.ClipboardWatchingOnboardingCompleted))
+                .performClick()
+
+            assertFalse(completedClipboardWatchingOnboarding)
         }
-
-        onNodeWithContentDescription(resolver(Strings.ClipboardWatchingOnboardingCompleted))
-            .performClick()
-
-        assertFalse(completedClipboardWatchingOnboarding)
     }
 }

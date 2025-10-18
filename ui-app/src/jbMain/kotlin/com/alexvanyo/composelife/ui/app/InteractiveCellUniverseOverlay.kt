@@ -209,24 +209,6 @@ fun InteractiveCellUniverseOverlay(
             // TODO: Calling order is weird here, but required due to https://youtrack.jetbrains.com/issue/KT-51863
             CellUniverseActionCard(
                 temporalGameOfLifeState = temporalGameOfLifeState,
-                isViewportTracking = interactiveCellUniverseState.isViewportTracking,
-                setIsViewportTracking = { interactiveCellUniverseState.isViewportTracking = it },
-                showImmersiveModeControl = interactiveCellUniverseState.showImmersiveModeControl,
-                isImmersiveMode = interactiveCellUniverseState.isImmersiveMode,
-                setIsImmersiveMode = { interactiveCellUniverseState.isImmersiveMode = it },
-                showFullSpaceModeControl = interactiveCellUniverseState.showFullSpaceModeControl,
-                isFullSpaceMode = interactiveCellUniverseState.isFullSpaceMode,
-                setIsFullSpaceMode = { interactiveCellUniverseState.isFullSpaceMode = it },
-                selectionState = interactiveCellUniverseState.cellWindowInteractionState.selectionSessionState.value,
-                setSelectionToCellState = interactiveCellUniverseState::setSelectionToCellState,
-                onClearSelection = {
-                    interactiveCellUniverseState.cellWindowInteractionState.selectionSessionState =
-                        SessionValue(Uuid.random(), Uuid.random(), SelectionState.NoSelection)
-                },
-                onCopy = interactiveCellUniverseState::onCopy,
-                onCut = interactiveCellUniverseState::onCut,
-                onPaste = interactiveCellUniverseState::onPaste,
-                onApplyPaste = interactiveCellUniverseState::onApplyPaste,
                 onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
                 onOpenInSettingsClicked = onOpenInSettingsClicked,
                 onViewDeserializationInfo = onViewDeserializationInfo,

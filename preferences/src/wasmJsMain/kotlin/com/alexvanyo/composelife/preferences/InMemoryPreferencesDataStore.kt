@@ -18,18 +18,27 @@ package com.alexvanyo.composelife.preferences
 
 import com.alexvanyo.composelife.preferences.proto.PreferencesProto
 import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.updateAndGet
 
+@ContributesTo(AppScope::class)
+@BindingContainer
+interface InMemoryPreferencesDataStoreBindings {
+    @Binds
+    val InMemoryPreferencesDataStore.bind: PreferencesDataStore
+}
+
 /**
  * TODO: Replace with DiskPreferencesDataStore when DataStore supports wasmJs.
  */
 @SingleIn(AppScope::class)
-@ContributesBinding(AppScope::class)
 @Inject
 class InMemoryPreferencesDataStore : PreferencesDataStore {
     private val actualDataStore = MutableStateFlow(
