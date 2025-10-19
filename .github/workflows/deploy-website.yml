@@ -27,6 +27,8 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
+        with:
+          cache-read-only: true # Don't write caches for generating website
 
       - name: Create website
         run: ./gradlew :web-app:wasmJsBrowserDevelopmentExecutableDistribution
