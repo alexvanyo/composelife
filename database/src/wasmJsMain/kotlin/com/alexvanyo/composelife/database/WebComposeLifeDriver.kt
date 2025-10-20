@@ -19,7 +19,7 @@ package com.alexvanyo.composelife.database
 import app.cash.sqldelight.async.coroutines.awaitCreate
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.db.use
-import app.cash.sqldelight.driver.worker.createDefaultWebWorkerDriver
+import app.cash.sqldelight.driver.worker.WebWorkerDriver
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
@@ -31,6 +31,7 @@ import dev.zacsweers.metro.IntoSet
 import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.awaitCancellation
+import org.w3c.dom.Worker
 
 @ContributesTo(AppScope::class)
 @BindingContainer
@@ -48,7 +49,7 @@ interface WebComposeLifeDriverBindings {
 @SingleIn(AppScope::class)
 @Inject
 class WebComposeLifeDriver : ComposeLifeDriver, Updatable {
-    override val sqlDriver: SqlDriver = createDefaultWebWorkerDriver()
+    override val sqlDriver: SqlDriver = WebWorkerDriver(createWorker())
 
     private val driverReadyDeferred = CompletableDeferred<Unit>()
 
@@ -61,3 +62,7 @@ class WebComposeLifeDriver : ComposeLifeDriver, Updatable {
             awaitCancellation()
         }
 }
+
+@OptIn(ExperimentalWasmJsInterop::class)
+private fun createWorker(): Worker =
+    js("""new Worker(new URL("./sqljs.worker.js", import.meta.url))""")
