@@ -27,6 +27,7 @@ import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.globalGraph
+import com.alexvanyo.composelife.ui.util.rememberFakeClipboardReaderWriter
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.asContribution
@@ -75,6 +76,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
                 composeLifePreferences = composeLifePreferences,
                 preferences = loadedPreferencesState.value,
                 cellStateParser = ctx.cellStateParser,
+                clipboardReader = rememberFakeClipboardReaderWriter(),
                 setSelectionToCellState = {},
                 onViewDeserializationInfo = {},
             )
@@ -118,6 +120,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
                 composeLifePreferences = composeLifePreferences,
                 preferences = loadedPreferencesState.value,
                 cellStateParser = ctx.cellStateParser,
+                clipboardReader = rememberFakeClipboardReaderWriter(),
                 setSelectionToCellState = {},
                 onViewDeserializationInfo = {},
             )
@@ -160,6 +163,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
                 composeLifePreferences = composeLifePreferences,
                 preferences = loadedPreferencesState.value,
                 cellStateParser = ctx.cellStateParser,
+                clipboardReader = rememberFakeClipboardReaderWriter(),
                 setSelectionToCellState = {},
                 onViewDeserializationInfo = {},
             )
@@ -202,6 +206,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
                 composeLifePreferences = composeLifePreferences,
                 preferences = loadedPreferencesState.value,
                 cellStateParser = ctx.cellStateParser,
+                clipboardReader = rememberFakeClipboardReaderWriter(),
                 setSelectionToCellState = {},
                 onViewDeserializationInfo = {},
             )
@@ -245,6 +250,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
                 composeLifePreferences = composeLifePreferences,
                 preferences = loadedPreferencesState.value,
                 cellStateParser = ctx.cellStateParser,
+                clipboardReader = rememberFakeClipboardReaderWriter(),
                 setSelectionToCellState = {},
                 onViewDeserializationInfo = {},
             )
