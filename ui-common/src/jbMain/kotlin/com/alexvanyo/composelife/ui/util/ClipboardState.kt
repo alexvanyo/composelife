@@ -44,7 +44,7 @@ expect interface ClipboardWriter
 /**
  * Sets the clipboard to the given text.
  */
-expect fun ClipboardWriter.setText(value: String)
+expect suspend fun ClipboardWriter.setText(value: String)
 
 @Stable
 interface ClipboardReaderWriter : ClipboardReader, ClipboardWriter

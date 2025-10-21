@@ -20,4 +20,4 @@ import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.ui.util.ClipboardReader
 
-expect suspend fun CellStateParser.parseCellState(clipboardStateReader: ClipboardReader): DeserializationResult
+expect suspend fun CellStateParser.parseCellState(clipboardReader: ClipboardReader): DeserializationResult
