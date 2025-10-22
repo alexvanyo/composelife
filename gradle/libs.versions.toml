@@ -16,7 +16,7 @@ androidxBenchmark = "1.4.1"
 #androidxComposeBomAlpha
 androidxComposeBomAlpha = "2025.10.00"
 #androidxComposeRuntime
-androidxComposeRuntime = "1.10.0-alpha05"
+androidxComposeRuntime = "1.10.0-beta01"
 #androidxCollection
 androidxCollection = "1.6.0-alpha01"
 #androidxCore
