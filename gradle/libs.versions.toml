@@ -106,7 +106,7 @@ jacoco = "0.8.13"
 #jetbrainsNavigationEvent
 jetbrainsNavigationEvent = "1.0.0-alpha01"
 #jetbrainsSavedState
-jetbrainsSavedState = "1.4.0-alpha02"
+jetbrainsSavedState = "1.4.0-alpha03"
 #jetbrainsCompose
 jetbrainsCompose = "1.10.0-alpha03"
 #jetbrainsComposeMaterialIconsExtended
