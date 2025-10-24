@@ -60,6 +60,7 @@ import com.alexvanyo.composelife.scopes.GlobalScope
 import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
+import com.alexvanyo.composelife.scopes.WebUiBindings
 import com.alexvanyo.composelife.ui.app.ComposeLifeApp
 import com.alexvanyo.composelife.ui.app.ComposeLifeAppUiCtx
 import com.alexvanyo.composelife.ui.app.UiWithLoadedPreferencesGraph
@@ -124,7 +125,9 @@ fun main() {
         ) {
             val uiGraph = remember(applicationGraph) {
                 (applicationGraph as UiGraph.Factory).create(
-                    object : UiGraphArguments {},
+                    object : UiGraphArguments {
+                        override val element = element
+                    },
                 )
             }
             val mainInjectCtx = uiGraph.mainInjectCtx
@@ -216,6 +219,7 @@ interface ManualApplicationBindings :
 interface ManualUiBindings :
     UiUpdatableBindings,
     WebImmersiveModeManagerBindings,
+    WebUiBindings,
     UiWithLoadedPreferencesGraph.Factory
 
 @ContributesTo(UiWithLoadedPreferencesScope::class)
