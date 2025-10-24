@@ -19,49 +19,29 @@ package com.alexvanyo.composelife.ui.util
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 
 @Stable
 actual interface ClipboardReader {
 
-    fun getText(): AnnotatedString?
+    suspend fun getText(): String?
 }
 
 /**
  * TODO: getText is not snapshot-state aware, so we may not get updates if the clipboard changes
  */
-actual val ClipboardReader.clipboardStateKey: Any? get() = getText()
+actual val ClipboardReader.clipboardStateKey: Any? get() = Unit
 
 @Stable
 actual interface ClipboardWriter {
 
-    fun setText(annotatedString: AnnotatedString)
+    suspend fun setText(value: String)
 }
 
-actual fun ClipboardWriter.setText(value: String): Unit = setText(AnnotatedString(value))
-
-@Composable
-actual fun rememberClipboardReader(): ClipboardReader {
-    @Suppress("DEPRECATION")
-    val clipboardManager = LocalClipboardManager.current
-    return remember(clipboardManager) {
-        object : ClipboardReader {
-            override fun getText(): AnnotatedString? = clipboardManager.getText()
-        }
-    }
-}
-
-@Composable
-actual fun rememberClipboardWriter(): ClipboardWriter {
-    @Suppress("DEPRECATION")
-    val clipboardManager = LocalClipboardManager.current
-    return remember(clipboardManager) {
-        object : ClipboardWriter {
-            override fun setText(annotatedString: AnnotatedString) = clipboardManager.setText(annotatedString)
-        }
-    }
-}
+actual suspend fun ClipboardWriter.setText(value: String): Unit = setText(value)
 
 @Composable
 actual fun rememberClipboardReaderWriter(): ClipboardReaderWriter {
