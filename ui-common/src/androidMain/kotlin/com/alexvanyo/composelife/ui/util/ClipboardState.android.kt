@@ -49,7 +49,7 @@ actual interface ClipboardWriter {
     fun setClipData(clipData: ClipData?)
 }
 
-actual fun ClipboardWriter.setText(value: String) {
+actual suspend fun ClipboardWriter.setText(value: String) {
     setClipData(ClipData.newPlainText(null, value))
 }
 
