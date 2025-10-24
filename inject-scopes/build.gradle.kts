@@ -49,12 +49,12 @@ kotlin {
         val commonMain by getting
         val jbMain by creating {
             dependsOn(commonMain)
-        }
-        val desktopMain by getting {
-            dependsOn(jbMain)
             dependencies {
                 implementation(libs.jetbrains.compose.ui)
             }
+        }
+        val desktopMain by getting {
+            dependsOn(jbMain)
         }
         val androidMain by getting {
             dependsOn(jbMain)
