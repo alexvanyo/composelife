@@ -23,7 +23,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.retain.retainRetainScopeHolder
+import androidx.compose.runtime.retain.retainRetainedValuesStoreRegistry
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.runtime.setValue
@@ -45,7 +45,7 @@ fun <T : NavigationEntry, S : NavigationState<T>> associateWithRenderablePanes(
     pane: @Composable (T) -> Unit,
 ): RenderableNavigationState<T, S> {
     val saveableStateHolder = rememberSaveableStateHolder()
-    val retainScopeHolder = retainRetainScopeHolder()
+    val retainedValuesStoreRegistry = retainRetainedValuesStoreRegistry()
 
     val currentEntryKeySet by rememberUpdatedState(navigationState.entryMap.keys.toSet())
 
@@ -65,7 +65,7 @@ fun <T : NavigationEntry, S : NavigationState<T>> associateWithRenderablePanes(
                 // visible, then it won't start keeping exited values
                 onDispose {
                     if (entryKey !in currentEntryKeySet) {
-                        retainScopeHolder.clearChild(entryKey)
+                        retainedValuesStoreRegistry.clearChild(entryKey)
                         saveableStateHolder.removeState(entryKey)
                     }
                 }
@@ -75,7 +75,7 @@ fun <T : NavigationEntry, S : NavigationState<T>> associateWithRenderablePanes(
 
     // If the backstack changed while nothing was composed, retire anything that is no longer in the backstack
     DisposableEffect(Unit) {
-        retainScopeHolder.clearChildren { !currentEntryKeySet.contains(it) }
+        retainedValuesStoreRegistry.clearChildren { !currentEntryKeySet.contains(it) }
         onDispose {}
     }
 
@@ -93,7 +93,7 @@ fun <T : NavigationEntry, S : NavigationState<T>> associateWithRenderablePanes(
 
     val wrappedPane: @Composable (T) -> Unit = { entry ->
         saveableStateHolder.SaveableStateProvider(key = entry.id) {
-            retainScopeHolder.RetainScopeProvider(key = entry.id) {
+            retainedValuesStoreRegistry.ProvideChildRetainedValuesStore(key = entry.id) {
                 pane(entry)
             }
         }
