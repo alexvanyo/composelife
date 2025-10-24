@@ -303,11 +303,13 @@ internal fun rememberInteractiveCellUniverseState(
                                     temporalGameOfLifeState.cellState.subtract(selectedCellState)
                             }
 
-                            val serializedCellState = RunLengthEncodedCellStateSerializer.serializeToString(
-                                selectedCellState,
-                            )
+                            coroutineScope.launch {
+                                val serializedCellState = RunLengthEncodedCellStateSerializer.serializeToString(
+                                    selectedCellState,
+                                )
 
-                            clipboardReaderWriter.setText(serializedCellState.joinToString("\n"))
+                                clipboardReaderWriter.setText(serializedCellState.joinToString("\n"))
+                            }
                             true
                         } else {
                             false
