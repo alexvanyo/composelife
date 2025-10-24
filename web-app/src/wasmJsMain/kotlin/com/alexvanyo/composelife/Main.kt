@@ -20,8 +20,8 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.retain.ControlledRetainScope
-import androidx.compose.runtime.retain.LocalRetainScope
+import androidx.compose.runtime.retain.LocalRetainedValuesStore
+import androidx.compose.runtime.retain.retainControlledRetainedValuesStore
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -116,10 +116,10 @@ fun main() {
                 )
             }
         }
-        val retainScope = ControlledRetainScope()
+        val retainedValuesStore = retainControlledRetainedValuesStore()
 
         CompositionLocalProvider(
-            LocalRetainScope provides retainScope,
+            LocalRetainedValuesStore provides retainedValuesStore,
             LocalNavigationEventDispatcherOwner provides navigationEventDispatcherOwner,
         ) {
             val uiGraph = remember(applicationGraph) {
