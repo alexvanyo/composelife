@@ -17,6 +17,7 @@
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.configureAndroid
 import com.alexvanyo.composelife.buildlogic.configureBadgingTasks
+import com.alexvanyo.composelife.buildlogic.configureKotlin
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 
@@ -24,6 +25,8 @@ class AndroidApplicationConventionPlugin : ConventionPlugin({
     with(pluginManager) {
         apply("com.android.application")
     }
+
+    configureKotlin()
 
     configureBadgingTasks(extensions.getByType(ApplicationAndroidComponentsExtension::class.java))
 
