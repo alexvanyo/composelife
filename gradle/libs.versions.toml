@@ -60,7 +60,7 @@ androidxWindow = "1.6.0-alpha01"
 #androidxWork
 androidxWork = "2.11.0"
 #androidxXrCompose
-androidxXrCompose = "1.0.0-alpha07"
+androidxXrCompose = "1.0.0-alpha08"
 #apiGuardian
 apiGuardian = "1.1.2"
 #autoService
