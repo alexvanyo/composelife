@@ -25,15 +25,15 @@ import androidx.compose.ui.text.AnnotatedString
 
 @Composable
 actual fun rememberFakeClipboardReaderWriter(): ClipboardReaderWriter {
-    var state: AnnotatedString? by rememberSaveable {
+    var state: String? by rememberSaveable {
         mutableStateOf(null)
     }
 
     return object : ClipboardReaderWriter {
-        override fun getText(): AnnotatedString? = state
+        override suspend fun getText(): String? = state
 
-        override fun setText(annotatedString: AnnotatedString) {
-            state = annotatedString
+        override suspend fun setText(value: String) {
+            state = value
         }
     }
 }
