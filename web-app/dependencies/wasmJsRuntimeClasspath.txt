@@ -10,7 +10,7 @@ androidx.compose.runtime:runtime-saveable-wasm-js:1.10.0-beta01
 androidx.compose.runtime:runtime-saveable:1.10.0-beta01
 androidx.compose.runtime:runtime-wasm-js:1.10.0-beta01
 androidx.compose.runtime:runtime:1.10.0-beta01
-androidx.compose:compose-bom-alpha:2025.10.00
+androidx.compose:compose-bom-alpha:2025.10.01
 androidx.graphics:graphics-shapes-wasm-js:1.1.0-beta01
 androidx.graphics:graphics-shapes:1.1.0-beta01
 androidx.lifecycle:lifecycle-common-wasm-js:2.10.0-beta01

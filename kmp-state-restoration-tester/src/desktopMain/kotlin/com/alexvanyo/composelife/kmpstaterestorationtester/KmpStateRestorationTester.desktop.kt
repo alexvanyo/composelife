@@ -18,18 +18,18 @@ package com.alexvanyo.composelife.kmpstaterestorationtester
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.retain.ControlledRetainScope
-import androidx.compose.runtime.retain.RetainScope
+import androidx.compose.runtime.retain.ControlledRetainedValuesStore
+import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.runtime.setValue
 
 @Suppress("TooManyFunctions")
 private class RestorationRegistryImpl(
     private val originalSaveableStateRegistry: SaveableStateRegistry,
-    private val originalRetainScope: ControlledRetainScope,
+    private val originalRetainedValuesStore: ControlledRetainedValuesStore,
 ) : RestorationRegistry {
 
-    override val retainScope: RetainScope = originalRetainScope
+    override val retainedValuesStore: RetainedValuesStore = originalRetainedValuesStore
 
     override var shouldEmitChildren by mutableStateOf(true)
         private set
@@ -38,7 +38,7 @@ private class RestorationRegistryImpl(
 
     override fun saveStateAndDisposeChildren() {
         savedMap = currentRegistry.performSave()
-        originalRetainScope.startKeepingExitedValues()
+        originalRetainedValuesStore.startRetainingExitedValues()
         shouldEmitChildren = false
     }
 
@@ -60,11 +60,11 @@ private class RestorationRegistryImpl(
     override fun performSave() = currentRegistry.performSave()
 
     override fun restorationFinished() {
-        originalRetainScope.stopKeepingExitedValues()
+        originalRetainedValuesStore.stopRetainingExitedValues()
     }
 }
 
 internal actual fun RestorationRegistry(
     originalSaveableStateRegistry: SaveableStateRegistry,
-    originalRetainScope: ControlledRetainScope,
-): RestorationRegistry = RestorationRegistryImpl(originalSaveableStateRegistry, originalRetainScope)
+    originalRetainedValuesStore: ControlledRetainedValuesStore,
+): RestorationRegistry = RestorationRegistryImpl(originalSaveableStateRegistry, originalRetainedValuesStore)

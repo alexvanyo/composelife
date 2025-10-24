@@ -22,8 +22,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.retain.ControlledRetainScope
-import androidx.compose.runtime.retain.LocalRetainScope
+import androidx.compose.runtime.retain.LocalRetainedValuesStore
+import androidx.compose.runtime.retain.retainControlledRetainedValuesStore
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
@@ -72,7 +72,7 @@ fun main() = application {
     }
 
     val windowState = rememberWindowState()
-    val retainScope = ControlledRetainScope()
+    val retainedValuesStore = retainControlledRetainedValuesStore()
 
     val currentExitApplication by rememberUpdatedState(::exitApplication)
 
@@ -90,7 +90,7 @@ fun main() = application {
         }
 
         CompositionLocalProvider(
-            LocalRetainScope provides retainScope,
+            LocalRetainedValuesStore provides retainedValuesStore,
             LocalNavigationEventDispatcherOwner provides navigationEventDispatcherOwner,
         ) {
             val uiGraph = remember(applicationGraph) {
