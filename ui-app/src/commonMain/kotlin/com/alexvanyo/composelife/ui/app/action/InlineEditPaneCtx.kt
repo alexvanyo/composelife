@@ -123,19 +123,23 @@ cellStateParser: CellStateParser,
 internal fun rememberInlineEditPaneState(
     setSelectionToCellState: (CellState) -> Unit,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
+    clipboardReader: ClipboardReader = rememberClipboardReader(),
 ): InlineEditPaneState = rememberInlineEditPaneState(
     composeLifePreferences = composeLifePreferences,
     preferences = preferencesHolder.preferences,
     cellStateParser = cellStateParser,
+    clipboardReader = clipboardReader,
     setSelectionToCellState = setSelectionToCellState,
     onViewDeserializationInfo = onViewDeserializationInfo,
 )
 
+@Suppress("LongParameterList")
 @Composable
 fun rememberInlineEditPaneState(
     composeLifePreferences: ComposeLifePreferences,
     preferences: LoadedComposeLifePreferences,
     cellStateParser: CellStateParser,
+    clipboardReader: ClipboardReader,
     setSelectionToCellState: (CellState) -> Unit,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
 ): InlineEditPaneState {
@@ -145,6 +149,7 @@ fun rememberInlineEditPaneState(
         composeLifePreferences = composeLifePreferences,
         preferences = preferences,
         cellStateParser = cellStateParser,
+        clipboardReader = clipboardReader,
         setSelectionToCellState = setSelectionToCellState,
         onViewDeserializationInfo = onViewDeserializationInfo,
     )
@@ -189,6 +194,7 @@ fun rememberClipboardWatchingState(
     composeLifePreferences: ComposeLifePreferences,
     preferences: LoadedComposeLifePreferences,
     cellStateParser: CellStateParser,
+    clipboardReader: ClipboardReader,
     setSelectionToCellState: (CellState) -> Unit,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
@@ -197,6 +203,7 @@ fun rememberClipboardWatchingState(
         if (preferences.enableClipboardWatching) {
             rememberClipboardWatchingEnabledState(
                 cellStateParser = cellStateParser,
+                clipboardReader = clipboardReader,
                 preferences = preferences,
                 setSelectionToCellState = setSelectionToCellState,
                 onViewDeserializationInfo = onViewDeserializationInfo,
@@ -238,6 +245,7 @@ fun rememberClipboardWatchingOnboardingState(
 @Composable
 fun rememberClipboardWatchingEnabledState(
     cellStateParser: CellStateParser,
+    clipboardReader: ClipboardReader,
     preferences: LoadedComposeLifePreferences,
     setSelectionToCellState: (CellState) -> Unit,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
@@ -247,7 +255,7 @@ fun rememberClipboardWatchingEnabledState(
             preferences = preferences,
             isThumbnail = true,
         ),
-        clipboardReader = rememberClipboardReader(),
+        clipboardReader = clipboardReader,
         parser = cellStateParser,
         setSelectionToCellState = setSelectionToCellState,
         onViewDeserializationInfo = onViewDeserializationInfo,
