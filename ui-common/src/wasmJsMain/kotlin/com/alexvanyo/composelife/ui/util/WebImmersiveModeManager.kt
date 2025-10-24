@@ -22,7 +22,12 @@ import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Inject
+import kotlinx.browser.document
+import kotlinx.coroutines.asDeferred
+import kotlinx.coroutines.await
 import kotlinx.coroutines.awaitCancellation
+import org.w3c.dom.Element
+import kotlin.coroutines.cancellation.CancellationException
 
 @ContributesTo(UiScope::class)
 @BindingContainer
@@ -36,12 +41,38 @@ interface WebImmersiveModeManagerBindings {
  */
 @Inject
 @ContributesBinding(UiScope::class)
-class WebImmersiveModeManager : ImmersiveModeManager {
+class WebImmersiveModeManager(
+    val element: Element,
+) : ImmersiveModeManager {
     override suspend fun hideSystemUi() = awaitCancellation()
 
+    @OptIn(ExperimentalWasmJsInterop::class)
     override suspend fun enterFullscreenMode(): Result<Unit> =
-        Result.failure(IllegalStateException("No window state to control"))
+        element.requestFullscreen().runSuspendCatching {
+            await()
+        }
 
+    @OptIn(ExperimentalWasmJsInterop::class)
     override suspend fun exitFullscreenMode(): Result<Unit> =
-        Result.failure(IllegalStateException("No window state to control"))
+         document.exitFullscreen().runSuspendCatching {
+             await()
+         }
 }
+
+suspend inline fun <R> runSuspendCatching(block: () -> R): Result<R> =
+    try {
+        Result.success(block())
+    } catch(c: CancellationException) {
+        throw c
+    } catch (e: Throwable) {
+        Result.failure(e)
+    }
+
+suspend inline fun <T, R> T.runSuspendCatching(block: T.() -> R): Result<R> =
+    try {
+        Result.success(block())
+    } catch(c: CancellationException) {
+        throw c
+    } catch (e: Throwable) {
+        Result.failure(e)
+    }
