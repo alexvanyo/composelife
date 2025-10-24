@@ -31,6 +31,7 @@
 -checkdiscard class io.ktor.client.engine.mock.*
 
 # TODO: Added due to XR libraries
+-dontwarn android.extensions.xr.XrExtensions
 -dontwarn com.android.extensions.xr.XrExtensionResult
 -dontwarn com.android.extensions.xr.XrExtensions
 -dontwarn com.android.extensions.xr.function.Consumer
