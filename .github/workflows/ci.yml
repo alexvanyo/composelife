@@ -233,7 +233,7 @@ jobs:
 
       - name: Upload unit test results
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: unit-test-results-${{ matrix.sdk }}
           path: '**/build/test-results/*Test/**.xml'
@@ -245,7 +245,7 @@ jobs:
           (echo "==== Attempt 1 ====" && run) || (echo "==== Attempt 2 ====" && run) || (echo "==== Both attempts failed ====" && exit 1)
 
       - name: Upload code coverage to GitHub
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: unit-code-coverage-${{ matrix.sdk }}
           path: "build/reports/jacoco/**/*.xml"
@@ -257,7 +257,7 @@ jobs:
 
       - name: Upload APKs
         if: matrix.sdk == '36'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: apks
           path: "**/build/outputs/apk/**/*.apk"
@@ -276,7 +276,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Download code coverage from GitHub
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: unit-code-coverage-${{ matrix.sdk }}
           path: codecoverage
@@ -306,7 +306,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Download test results from GitHub
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: unit-test-results-${{ matrix.sdk }}
           path: testresults
@@ -413,7 +413,7 @@ jobs:
 
       - name: Upload device test results
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: device-test-results-${{ matrix.target }}-${{ matrix.device }}-${{ matrix.api-level }}
           path: '**/build/outputs/androidTest-results/managedDevice/**/TEST*.xml'
@@ -424,7 +424,7 @@ jobs:
           (echo "==== Attempt 1 ====" && run) || (echo "==== Attempt 2 ====" && run) || (echo "==== Both attempts failed ====" && exit 1)
 
       - name: Upload code coverage to GitHub
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: device-code-coverage-${{ matrix.target }}-${{ matrix.device }}-${{ matrix.api-level }}
           path: "/build/reports/jacoco/**/*.xml"
@@ -444,7 +444,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Download code coverage from GitHub
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: device-code-coverage-${{ matrix.target }}-${{ matrix.device }}-${{ matrix.api-level }}
           path: codecoverage
@@ -474,7 +474,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Download test results from GitHub
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: device-test-results-${{ matrix.target }}-${{ matrix.device }}-${{ matrix.api-level }}
           path: testresults
