@@ -18,18 +18,13 @@ package com.alexvanyo.composelife.kmpstaterestorationtester
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.retain.ControlledRetainedValuesStore
-import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.runtime.setValue
 
 @Suppress("TooManyFunctions")
 private class RestorationRegistryImpl(
     private val originalSaveableStateRegistry: SaveableStateRegistry,
-    private val originalRetainedValuesStore: ControlledRetainedValuesStore,
 ) : RestorationRegistry {
-
-    override val retainedValuesStore: RetainedValuesStore = originalRetainedValuesStore
 
     override var shouldEmitChildren by mutableStateOf(true)
         private set
@@ -38,7 +33,6 @@ private class RestorationRegistryImpl(
 
     override fun saveStateAndDisposeChildren() {
         savedMap = currentRegistry.performSave()
-        originalRetainedValuesStore.startRetainingExitedValues()
         shouldEmitChildren = false
     }
 
@@ -58,13 +52,8 @@ private class RestorationRegistryImpl(
     override fun canBeSaved(value: Any) = currentRegistry.canBeSaved(value)
 
     override fun performSave() = currentRegistry.performSave()
-
-    override fun restorationFinished() {
-        originalRetainedValuesStore.stopRetainingExitedValues()
-    }
 }
 
 internal actual fun RestorationRegistry(
     originalSaveableStateRegistry: SaveableStateRegistry,
-    originalRetainedValuesStore: ControlledRetainedValuesStore,
-): RestorationRegistry = RestorationRegistryImpl(originalSaveableStateRegistry, originalRetainedValuesStore)
+): RestorationRegistry = RestorationRegistryImpl(originalSaveableStateRegistry)

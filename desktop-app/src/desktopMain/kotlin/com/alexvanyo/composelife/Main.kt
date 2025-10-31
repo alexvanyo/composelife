@@ -22,8 +22,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.retain.LocalRetainedValuesStore
-import androidx.compose.runtime.retain.retainControlledRetainedValuesStore
+import androidx.compose.runtime.retain.LocalRetainedValuesStoreProvider
+import androidx.compose.runtime.retain.retainManagedRetainedValuesStore
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
@@ -72,7 +72,7 @@ fun main() = application {
     }
 
     val windowState = rememberWindowState()
-    val retainedValuesStore = retainControlledRetainedValuesStore()
+    val retainedValuesStore = retainManagedRetainedValuesStore()
 
     val currentExitApplication by rememberUpdatedState(::exitApplication)
 
@@ -90,36 +90,37 @@ fun main() = application {
         }
 
         CompositionLocalProvider(
-            LocalRetainedValuesStore provides retainedValuesStore,
             LocalNavigationEventDispatcherOwner provides navigationEventDispatcherOwner,
         ) {
-            val uiGraph = remember(applicationGraph) {
-                (applicationGraph as UiGraph.Factory).create(
-                    object : UiGraphArguments {
-                        override val windowState = windowState
-                    },
-                )
-            }
-            val mainInjectCtx = uiGraph.mainInjectCtx
-            val uiUpdatables = mainInjectCtx.uiUpdatables
+            LocalRetainedValuesStoreProvider(retainedValuesStore) {
+                val uiGraph = remember(applicationGraph) {
+                    (applicationGraph as UiGraph.Factory).create(
+                        object : UiGraphArguments {
+                            override val windowState = windowState
+                        },
+                    )
+                }
+                val mainInjectCtx = uiGraph.mainInjectCtx
+                val uiUpdatables = mainInjectCtx.uiUpdatables
 
-            LaunchedEffect(uiUpdatables) {
-                supervisorScope {
-                    uiUpdatables.forEach { updatable ->
-                        launch {
-                            updatable.update()
+                LaunchedEffect(uiUpdatables) {
+                    supervisorScope {
+                        uiUpdatables.forEach { updatable ->
+                            launch {
+                                updatable.update()
+                            }
                         }
                     }
                 }
-            }
 
-            with(mainInjectCtx) {
-                ComposeLifeTheme(shouldUseDarkTheme()) {
-                    with(mainInjectCtx.composeLifeAppUiCtx) {
-                        ComposeLifeApp(
-                            windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                            windowSize = windowState.size,
-                        )
+                with(mainInjectCtx) {
+                    ComposeLifeTheme(shouldUseDarkTheme()) {
+                        with(mainInjectCtx.composeLifeAppUiCtx) {
+                            ComposeLifeApp(
+                                windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                                windowSize = windowState.size,
+                            )
+                        }
                     }
                 }
             }
