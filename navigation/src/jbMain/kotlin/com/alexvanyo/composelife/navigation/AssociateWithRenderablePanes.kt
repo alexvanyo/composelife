@@ -93,7 +93,7 @@ fun <T : NavigationEntry, S : NavigationState<T>> associateWithRenderablePanes(
 
     val wrappedPane: @Composable (T) -> Unit = { entry ->
         saveableStateHolder.SaveableStateProvider(key = entry.id) {
-            retainedValuesStoreRegistry.ProvideChildRetainedValuesStore(key = entry.id) {
+            retainedValuesStoreRegistry.LocalRetainedValuesStoreProvider(key = entry.id) {
                 pane(entry)
             }
         }

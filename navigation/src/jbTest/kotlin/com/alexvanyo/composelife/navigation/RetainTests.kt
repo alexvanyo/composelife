@@ -20,8 +20,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.retain.RetainedContentHost
+import androidx.compose.runtime.retain.LocalRetainedValuesStoreProvider
 import androidx.compose.runtime.retain.retain
+import androidx.compose.runtime.retain.retainManagedRetainedValuesStore
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -40,14 +41,17 @@ class RetainTests : BaseKmpTest() {
     fun simple_retained_content_host() = runComposeUiTest {
         var isActive by mutableStateOf(false)
         setContent {
-            RetainedContentHost(isActive) {
-                var count by retain { mutableStateOf(0) }
-                BasicText(
-                    "count: $count",
-                    modifier = Modifier.clickable {
-                        count++
-                    },
-                )
+            val managedRetainedValuesStore = retainManagedRetainedValuesStore()
+            if (isActive) {
+                LocalRetainedValuesStoreProvider(managedRetainedValuesStore) {
+                    var count by retain { mutableStateOf(0) }
+                    BasicText(
+                        "count: $count",
+                        modifier = Modifier.clickable {
+                            count++
+                        },
+                    )
+                }
             }
         }
 

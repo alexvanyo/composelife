@@ -19,10 +19,8 @@ package com.alexvanyo.composelife.kmpstaterestorationtester
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.retain.ControlledRetainedValuesStore
-import androidx.compose.runtime.retain.LocalRetainedValuesStore
-import androidx.compose.runtime.retain.RetainedValuesStore
-import androidx.compose.runtime.retain.retainControlledRetainedValuesStore
+import androidx.compose.runtime.retain.LocalRetainedValuesStoreProvider
+import androidx.compose.runtime.retain.retainManagedRetainedValuesStore
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.ui.test.ComposeUiTest
@@ -55,7 +53,6 @@ class KmpStateRestorationTester(private val composeUiTest: ComposeUiTest) {
             val resolvedSaveableStateRegistry = currentSaveableStateRegistry ?: SaveableStateRegistry(null) { true }
             CompositionLocalProvider(
                 LocalSaveableStateRegistry provides resolvedSaveableStateRegistry,
-                LocalRetainedValuesStore provides retainControlledRetainedValuesStore(),
             ) {
                 InjectRestorationRegistry { registry ->
                     this.registry = registry
@@ -83,7 +80,6 @@ class KmpStateRestorationTester(private val composeUiTest: ComposeUiTest) {
         }
         composeUiTest.runOnIdle {
             // we just wait for the children to be emitted
-            registry.restorationFinished()
         }
     }
 
@@ -93,37 +89,33 @@ class KmpStateRestorationTester(private val composeUiTest: ComposeUiTest) {
             "StateRestorationTester requires composeTestRule.setContent() to provide " +
                 "a SaveableStateRegistry implementation via LocalSaveableStateRegistry"
         }
-        val originalRetainedValuesStore = LocalRetainedValuesStore.current
         val restorationRegistry = remember {
             RestorationRegistry(
                 originalSaveableStateRegistry,
-                originalRetainedValuesStore as ControlledRetainedValuesStore,
             )
         }
+        val retainedValuesStore = retainManagedRetainedValuesStore()
         CompositionLocalProvider(
             LocalSaveableStateRegistry provides restorationRegistry,
-            LocalRetainedValuesStore provides restorationRegistry.retainedValuesStore,
         ) {
             if (restorationRegistry.shouldEmitChildren) {
-                content(restorationRegistry)
+                LocalRetainedValuesStoreProvider(retainedValuesStore) {
+                    content(restorationRegistry)
+                }
             }
         }
     }
 }
 
 internal interface RestorationRegistry : SaveableStateRegistry {
-    val retainedValuesStore: RetainedValuesStore
 
     val shouldEmitChildren: Boolean
 
     fun saveStateAndDisposeChildren()
 
     fun emitChildrenWithRestoredState()
-
-    fun restorationFinished()
 }
 
 internal expect fun RestorationRegistry(
     originalSaveableStateRegistry: SaveableStateRegistry,
-    originalRetainedValuesStore: ControlledRetainedValuesStore,
 ): RestorationRegistry
