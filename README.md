@@ -9,14 +9,14 @@
 
 ComposeLife is a
 work-in-progress [Game of Life][wikipedia_gameoflife] simulator
-multiplatform app.
+multiplatform app, targeting Android, desktop, and [web][composelife_web].
 
 This project is a personal sandbox of sorts, experimenting with the latest libraries and tools.
 These include:
 
 - Written in [Kotlin][kotlin]
 - UI written in [Jetpack Compose][jetpack_compose]
-  - Mobile Android app and desktop app for exploring Game of Life patterns.
+  - Mobile Android app, desktop app and web app for exploring Game of Life patterns.
   - Watchface for Wear OS with configuration
   - Custom [adaptive navigation library][navigation]
 - [Dependency injection][dependency-injection] using [Metro][metro] and
@@ -33,6 +33,7 @@ These include:
     - Linting, with android/lint and [detekt][detekt] with automatic updates on CI
     - Automatic dependency updates with [Renovate][renovate]
     - Automatic [baseline profile][baseline_profiles] generation
+    - Automatic website publishing
 
 ## Setup
 
@@ -54,6 +55,9 @@ patterns.
 surrounding random soup potentially destroying it while the watchface is active.
 
 ![Round Watchface][watchface]
+
+[web-app][web-app] contains the web app simulator for running, editing, and exploring Game of Life
+patterns.
 
 ## License
 
@@ -82,6 +86,7 @@ limitations under the License.
 [codecov_badge]: https://codecov.io/gh/alexvanyo/composelife/branch/main/graph/badge.svg?token=z7yP8Z8xqC
 [codecov_project]: https://codecov.io/gh/alexvanyo/composelife
 [context_parameters]: https://github.com/Kotlin/KEEP/blob/master/proposals/context-parameters.md
+[composelife_web]: https://alex.vanyo.dev/composelife/
 [detekt]: https://detekt.dev/
 [icon]: app/src/androidMain/ic_launcher-playstore.png
 [jacoco]: https://github.com/jacoco/jacoco
@@ -106,3 +111,4 @@ limitations under the License.
 [navigation]: docs/navigation.md
 [watchface]: resources-wear/src/androidMain/res/drawable-nodpi/watchface_round.png
 [wear]: wear
+[web-app]: web-app
