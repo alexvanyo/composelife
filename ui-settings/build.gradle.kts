@@ -41,7 +41,7 @@ metro {
 kotlin {
     androidLibrary {
         namespace = "com.alexvanyo.composelife.ui.settings"
-        minSdk = 23
+        minSdk = 24
         compilations.withType(KotlinMultiplatformAndroidDeviceTestCompilation::class.java) {
             instrumentationRunner = "com.alexvanyo.composelife.test.InjectTestRunner"
         }
