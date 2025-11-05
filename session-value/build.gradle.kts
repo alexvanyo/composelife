@@ -100,6 +100,9 @@ kotlin {
         }
         val androidSharedTest by getting {
             dependsOn(jbTest)
+            dependencies {
+                implementation(libs.androidx.compose.ui)
+            }
         }
         val wasmJsTest by getting {
             dependsOn(jbTest)

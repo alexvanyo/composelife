@@ -49,6 +49,7 @@ actual fun rememberClipboardReader(): ClipboardReader {
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 actual fun rememberClipboardWriter(): ClipboardWriter {
     val clipboard = LocalClipboard.current
