@@ -20,8 +20,8 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.retain.ControlledRetainScope
-import androidx.compose.runtime.retain.LocalRetainScope
+import androidx.compose.runtime.retain.LocalRetainedValuesStoreProvider
+import androidx.compose.runtime.retain.retainManagedRetainedValuesStore
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -116,39 +116,40 @@ fun main() {
                 )
             }
         }
-        val retainScope = ControlledRetainScope()
+        val retainedValuesStore = retainManagedRetainedValuesStore()
 
         CompositionLocalProvider(
-            LocalRetainScope provides retainScope,
             LocalNavigationEventDispatcherOwner provides navigationEventDispatcherOwner,
         ) {
-            val uiGraph = remember(applicationGraph) {
-                (applicationGraph as UiGraph.Factory).create(
-                    object : UiGraphArguments {},
-                )
-            }
-            val mainInjectCtx = uiGraph.mainInjectCtx
-            val uiUpdatables = mainInjectCtx.uiUpdatables
+            LocalRetainedValuesStoreProvider(retainedValuesStore) {
+                val uiGraph = remember(applicationGraph) {
+                    (applicationGraph as UiGraph.Factory).create(
+                        object : UiGraphArguments {},
+                    )
+                }
+                val mainInjectCtx = uiGraph.mainInjectCtx
+                val uiUpdatables = mainInjectCtx.uiUpdatables
 
-            LaunchedEffect(uiUpdatables) {
-                supervisorScope {
-                    uiUpdatables.forEach { updatable ->
-                        launch {
-                            updatable.update()
+                LaunchedEffect(uiUpdatables) {
+                    supervisorScope {
+                        uiUpdatables.forEach { updatable ->
+                            launch {
+                                updatable.update()
+                            }
                         }
                     }
                 }
-            }
 
-            with(mainInjectCtx) {
-                ComposeLifeTheme(shouldUseDarkTheme()) {
-                    with(mainInjectCtx.composeLifeAppUiCtx) {
-                        ComposeLifeApp(
-                            windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                            windowSize = with(LocalDensity.current) {
-                                LocalWindowInfo.current.containerSize.toSize().toDpSize()
-                            },
-                        )
+                with(mainInjectCtx) {
+                    ComposeLifeTheme(shouldUseDarkTheme()) {
+                        with(mainInjectCtx.composeLifeAppUiCtx) {
+                            ComposeLifeApp(
+                                windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                                windowSize = with(LocalDensity.current) {
+                                    LocalWindowInfo.current.containerSize.toSize().toDpSize()
+                                },
+                            )
+                        }
                     }
                 }
             }

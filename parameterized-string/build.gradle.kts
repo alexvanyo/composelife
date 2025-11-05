@@ -115,6 +115,7 @@ kotlin {
         val androidSharedTest by getting {
             dependsOn(jvmTest)
             dependencies {
+                implementation(libs.androidx.compose.ui)
                 implementation(libs.androidx.compose.uiTest)
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.espresso)
