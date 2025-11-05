@@ -19,23 +19,19 @@ package com.alexvanyo.composelife
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.currentWindowSize
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.retain.LocalRetainScope
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.findViewTreeCompositionContext
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.toSize
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowInsetsControllerCompat
@@ -69,21 +65,6 @@ internal val UiGraph.mainActivityInjectCtx: MainActivityInjectCtx get() =
     this as MainActivityInjectCtx
 
 class MainActivity : AppCompatActivity() {
-
-    private val activityRetainScopeOwner by viewModels<ActivityRetainScopeOwner>()
-
-    private val onAttachStateChangeListener: View.OnAttachStateChangeListener =
-        object : View.OnAttachStateChangeListener {
-            override fun onViewAttachedToWindow(v: View) {
-                activityRetainScopeOwner.installIn(
-                    this@MainActivity,
-                    requireNotNull(v.findViewTreeCompositionContext()),
-                )
-                v.removeOnAttachStateChangeListener(this)
-            }
-
-            override fun onViewDetachedFromWindow(v: View) = Unit
-        }
 
     private val composeView: ComposeView get() =
         (findViewById<ViewGroup>(android.R.id.content).getChildAt(0) as ComposeView)
@@ -123,45 +104,35 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            CompositionLocalProvider(LocalRetainScope provides activityRetainScopeOwner.retainScope) {
-                ProvideLocalWindowInsetsHolder {
-                    with(mainActivityCtx) {
-                        val darkTheme = shouldUseDarkTheme()
-                        DisposableEffect(darkTheme) {
-                            enableEdgeToEdge(
-                                statusBarStyle = SystemBarStyle.auto(
-                                    Color.TRANSPARENT,
-                                    Color.TRANSPARENT,
-                                ) { darkTheme },
-                                navigationBarStyle = SystemBarStyle.auto(
-                                    lightScrim,
-                                    darkScrim,
-                                ) { darkTheme },
-                            )
-                            onDispose {}
-                        }
+            ProvideLocalWindowInsetsHolder {
+                with(mainActivityCtx) {
+                    val darkTheme = shouldUseDarkTheme()
+                    DisposableEffect(darkTheme) {
+                        enableEdgeToEdge(
+                            statusBarStyle = SystemBarStyle.auto(
+                                Color.TRANSPARENT,
+                                Color.TRANSPARENT,
+                            ) { darkTheme },
+                            navigationBarStyle = SystemBarStyle.auto(
+                                lightScrim,
+                                darkScrim,
+                            ) { darkTheme },
+                        )
+                        onDispose {}
+                    }
 
-                        ComposeLifeTheme(darkTheme) {
-                            with(composeLifeAppUiCtx) {
-                                ComposeLifeApp(
-                                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
-                                    windowSize = with(LocalDensity.current) {
-                                        currentWindowSize().toSize().toDpSize()
-                                    },
-                                )
-                            }
+                    ComposeLifeTheme(darkTheme) {
+                        with(composeLifeAppUiCtx) {
+                            ComposeLifeApp(
+                                windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                                windowSize = LocalWindowInfo.current.containerDpSize,
+                            )
                         }
                     }
                 }
             }
         }
         composeView.consumeWindowInsets = false
-        composeView.addOnAttachStateChangeListener(onAttachStateChangeListener)
-    }
-
-    override fun onDestroy() {
-        composeView.removeOnAttachStateChangeListener(onAttachStateChangeListener)
-        super.onDestroy()
     }
 }
 

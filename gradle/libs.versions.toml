@@ -14,9 +14,9 @@ androidxAppcompat = "1.7.1"
 #androidxBenchmark
 androidxBenchmark = "1.4.1"
 #androidxComposeBomAlpha
-androidxComposeBomAlpha = "2025.10.00"
-#androidxComposeRuntime
-androidxComposeRuntime = "1.10.0-alpha05"
+androidxComposeBomAlpha = "2025.10.01"
+#androidxComposeSnapshot
+androidxComposeSnapshot = "1.10.0-SNAPSHOT"
 #androidxCollection
 androidxCollection = "1.6.0-alpha01"
 #androidxCore
@@ -108,7 +108,7 @@ jetbrainsNavigationEvent = "1.0.0-alpha02"
 #jetbrainsSavedState
 jetbrainsSavedState = "1.4.0-beta01"
 #jetbrainsCompose
-jetbrainsCompose = "1.10.0-alpha03"
+jetbrainsCompose = "1.10.0-beta01+dev3194"
 #jetbrainsComposeMaterialIconsExtended
 jetbrainsComposeMaterialIconsExtended = "1.7.3"
 #jetbrainsComposeMaterial3
@@ -168,10 +168,10 @@ androidx-compose-bom = { group = "androidx.compose", name = "compose-bom-alpha",
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-compose-materialIconsExtended = { group = "androidx.compose.material", name = "material-icons-extended" }
-androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "androidxComposeRuntime" }
-androidx-compose-runtime-retain = { group = "androidx.compose.runtime", name = "runtime-retain", version.ref = "androidxComposeRuntime" }
-androidx-compose-runtime-saveable = { group = "androidx.compose.runtime", name = "runtime-saveable", version.ref = "androidxComposeRuntime" }
-androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "androidxComposeSnapshot" }
+androidx-compose-runtime-retain = { group = "androidx.compose.runtime", name = "runtime-retain", version.ref = "androidxComposeSnapshot" }
+androidx-compose-runtime-saveable = { group = "androidx.compose.runtime", name = "runtime-saveable", version.ref = "androidxComposeSnapshot" }
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "androidxComposeSnapshot" }
 androidx-compose-uiGeometry = { group = "androidx.compose.ui", name = "ui-geometry" }
 androidx-compose-uiTest = { group = "androidx.compose.ui", name = "ui-test" }
 androidx-compose-uiTestJunit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
