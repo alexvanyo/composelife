@@ -40,7 +40,6 @@ dependencyResolutionManagement {
         }
         google()
         mavenCentral()
-        maven(url = "https://androidx.dev/snapshots/builds/14367037/artifacts/repository")
         maven(url = "https://maven.pkg.jetbrains.space/public/p/compose/dev/")
     }
 }
