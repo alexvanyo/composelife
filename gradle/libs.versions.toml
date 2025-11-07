@@ -84,7 +84,7 @@ keeper = "0.16.1"
 #kermit
 kermit = "2.0.8"
 #kotlin
-kotlin = "2.2.20"
+kotlin = "2.2.21"
 #kotlinPoet
 kotlinPoet = "2.2.0"
 #kotlinxCollectionsImmutable

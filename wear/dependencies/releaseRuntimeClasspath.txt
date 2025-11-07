@@ -189,7 +189,7 @@ org.jetbrains.compose.ui:ui-tooling-preview:1.10.0-beta01+dev3194
 org.jetbrains.compose.ui:ui-unit:1.10.0-beta01+dev3194
 org.jetbrains.compose.ui:ui-util:1.10.0-beta01+dev3194
 org.jetbrains.compose.ui:ui:1.10.0-beta01+dev3194
-org.jetbrains.kotlin:kotlin-stdlib:2.2.20
+org.jetbrains.kotlin:kotlin-stdlib:2.2.21
 org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2
 org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.10.2
 org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2
