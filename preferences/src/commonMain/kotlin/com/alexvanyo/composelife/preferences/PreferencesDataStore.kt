@@ -16,8 +16,84 @@
 
 package com.alexvanyo.composelife.preferences
 
+import androidx.datastore.core.CorruptionException
+import androidx.datastore.core.DataMigration
+import androidx.datastore.core.DataStore
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
+import androidx.datastore.core.okio.OkioSerializer
 import com.alexvanyo.composelife.preferences.proto.PreferencesProto
+import okio.BufferedSink
+import okio.BufferedSource
+import okio.IOException
 
 interface PreferencesDataStore {
-    suspend fun getDataStore(): KmpDataStore<PreferencesProto>
+    suspend fun getDataStore(): DataStore<PreferencesProto>
 }
+
+internal val defaultPreferencesProto = PreferencesProto(
+    round_rectangle_session_id = LoadedComposeLifePreferences
+        .defaultRoundRectangleSessionId
+        .toProto(),
+    round_rectangle_value_id = LoadedComposeLifePreferences
+        .defaultRoundRectangleValueId
+        .toProto(),
+    pattern_collections_synchronization_period_session_id = LoadedComposeLifePreferences
+        .defaultPatternCollectionsSynchronizationPeriodSessionId
+        .toProto(),
+    pattern_collections_synchronization_period_value_id = LoadedComposeLifePreferences
+        .defaultPatternCollectionsSynchronizationPeriodValueId
+        .toProto(),
+)
+
+internal val serializer = object : OkioSerializer<PreferencesProto> {
+    override val defaultValue: PreferencesProto
+        get() = PreferencesProto()
+
+    override suspend fun readFrom(source: BufferedSource): PreferencesProto =
+        try {
+            PreferencesProto.ADAPTER.decode(source)
+        } catch (exception: IOException) {
+            throw CorruptionException("Cannot read proto.", exception)
+        }
+
+    override suspend fun writeTo(t: PreferencesProto, sink: BufferedSink) =
+        PreferencesProto.ADAPTER.encode(sink, t)
+}
+
+internal val corruptionHandler = ReplaceFileCorruptionHandler { defaultPreferencesProto }
+
+internal val migrations =
+    listOf(
+        object : DataMigration<PreferencesProto> {
+            override suspend fun shouldMigrate(currentData: PreferencesProto): Boolean =
+                currentData.round_rectangle_session_id == null
+
+            override suspend fun migrate(currentData: PreferencesProto): PreferencesProto =
+                currentData.copy(
+                    round_rectangle_session_id = LoadedComposeLifePreferences
+                        .defaultRoundRectangleSessionId
+                        .toProto(),
+                    round_rectangle_value_id = LoadedComposeLifePreferences
+                        .defaultRoundRectangleValueId
+                        .toProto(),
+                )
+
+            override suspend fun cleanUp() = Unit
+        },
+        object : DataMigration<PreferencesProto> {
+            override suspend fun shouldMigrate(currentData: PreferencesProto): Boolean =
+                currentData.pattern_collections_synchronization_period_session_id == null
+
+            override suspend fun migrate(currentData: PreferencesProto): PreferencesProto =
+                currentData.copy(
+                    pattern_collections_synchronization_period_session_id = LoadedComposeLifePreferences
+                        .defaultPatternCollectionsSynchronizationPeriodSessionId
+                        .toProto(),
+                    pattern_collections_synchronization_period_value_id = LoadedComposeLifePreferences
+                        .defaultPatternCollectionsSynchronizationPeriodValueId
+                        .toProto(),
+                )
+
+            override suspend fun cleanUp() = Unit
+        },
+    )
