@@ -14,14 +14,9 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.preferences
+package com.alexvanyo.composelife.scopes
 
-import kotlinx.coroutines.flow.Flow
+import dev.zacsweers.metro.Qualifier
 
-/**
- * TODO: Replace with DataStore when it supports wasmJs.
- */
-expect interface KmpDataStore<T> {
-    val data: Flow<T>
-    suspend fun updateData(transform: suspend (t: T) -> T): T
-}
+@Qualifier
+annotation class LocalStorage
