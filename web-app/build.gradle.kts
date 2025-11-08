@@ -44,6 +44,7 @@ kotlin {
                 implementation(libs.kotlinx.serialization.core)
                 implementation(projects.data)
                 implementation(projects.database)
+                implementation(project.dependencies.platform(libs.androidx.compose.bom))
                 implementation(projects.filesystem)
                 implementation(projects.imageLoader)
                 implementation(projects.injectScopes)
