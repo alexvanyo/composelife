@@ -34,6 +34,7 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.compose.runtime)
                 implementation(libs.kotlinx.serialization.core)
+                implementation(project.dependencies.platform(libs.androidx.compose.bom))
                 implementation(projects.filesystem)
                 implementation(projects.imageLoader)
                 implementation(projects.injectScopes)
