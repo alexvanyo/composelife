@@ -37,7 +37,6 @@ kotlin {
     androidLibrary {
         namespace = "com.alexvanyo.composelife.ui.common.screenshottests"
         minSdk = 23
-        configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
     }
     jvm("desktop")
 

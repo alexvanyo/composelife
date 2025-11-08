@@ -41,8 +41,7 @@ fun Project.configureJacoco(
 
     commonExtension.buildTypes.configureEach {
         enableUnitTestCoverage = true
-        // TODO: Re-enable test coverage for instrumented tests https://github.com/alexvanyo/composelife/issues/2257
-        // enableAndroidTestCoverage = true
+        enableAndroidTestCoverage = true
     }
 
     tasks.withType(Test::class.java).configureEach {
@@ -88,8 +87,7 @@ fun Project.configureJacoco(
             enableCoverage = true
         }
         compilations.withType(KotlinMultiplatformAndroidDeviceTestCompilation::class.java).configureEach {
-            // TODO: Re-enable test coverage for instrumented tests https://github.com/alexvanyo/composelife/issues/2257
-            // enableCoverage = true
+            enableCoverage = true
         }
     }
 
@@ -223,7 +221,7 @@ private fun Project.getAndroidTestReportTasks() =
     variants.flatMap { variant ->
         getTasksByName("createManagedDevice${variant.capitalizeForTaskName()}AndroidTestCoverageReport", false)
             .filterIsInstance<JacocoReportTask>() +
-            getTasksByName("createAndroidDeviceTestCoverageReport", false)
+            getTasksByName("createManagedDeviceAndroidDeviceTestCoverageReport", false)
                 .filterIsInstance<JacocoReportTask>()
     }
 
