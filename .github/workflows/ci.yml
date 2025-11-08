@@ -427,12 +427,11 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: device-code-coverage-${{ matrix.target }}-${{ matrix.device }}-${{ matrix.api-level }}
-          path: "/build/reports/jacoco/**/*.xml"
+          path: "build/reports/jacoco/**/*.xml"
 
   codecov-device-coverage-upload:
     needs: [android-test-gmd, config]
-    # TODO: Re-enable with device code coverage: https://github.com/alexvanyo/composelife/issues/2257
-    if: false
+    if: always()
     runs-on: ubuntu-latest
 
     strategy:
