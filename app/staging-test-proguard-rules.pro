@@ -28,3 +28,6 @@
 -keep,allowoptimization class **.*$$$MetroContribution* {
     *;
 }
+-keep,allowoptimization class **.*GraphImpl {
+    *;
+}
