@@ -25,10 +25,10 @@ androidx.lifecycle:lifecycle-viewmodel-wasm-js:2.10.0-beta01
 androidx.lifecycle:lifecycle-viewmodel:2.10.0-beta01
 androidx.navigationevent:navigationevent-wasm-js:1.0.0-rc01
 androidx.navigationevent:navigationevent:1.0.0-rc01
-androidx.savedstate:savedstate-compose-wasm-js:1.4.0-rc01
-androidx.savedstate:savedstate-compose:1.4.0-rc01
-androidx.savedstate:savedstate-wasm-js:1.4.0-rc01
-androidx.savedstate:savedstate:1.4.0-rc01
+androidx.savedstate:savedstate-compose-wasm-js:1.4.0
+androidx.savedstate:savedstate-compose:1.4.0
+androidx.savedstate:savedstate-wasm-js:1.4.0
+androidx.savedstate:savedstate:1.4.0
 androidx.window:window-core-wasm-js:1.5.0
 androidx.window:window-core:1.5.0
 app.cash.sqldelight:async-extensions-wasm-js:2.1.0

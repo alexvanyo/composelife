@@ -32,10 +32,10 @@ androidx.lifecycle:lifecycle-viewmodel-savedstate:2.10.0-beta01
 androidx.lifecycle:lifecycle-viewmodel:2.10.0-beta01
 androidx.navigationevent:navigationevent-desktop:1.0.0-rc01
 androidx.navigationevent:navigationevent:1.0.0-rc01
-androidx.savedstate:savedstate-compose-desktop:1.4.0-rc01
-androidx.savedstate:savedstate-compose:1.4.0-rc01
-androidx.savedstate:savedstate-desktop:1.4.0-rc01
-androidx.savedstate:savedstate:1.4.0-rc01
+androidx.savedstate:savedstate-compose-desktop:1.4.0
+androidx.savedstate:savedstate-compose:1.4.0
+androidx.savedstate:savedstate-desktop:1.4.0
+androidx.savedstate:savedstate:1.4.0
 androidx.window:window-core-jvm:1.5.0
 androidx.window:window-core:1.5.0
 app.cash.sqldelight:async-extensions-jvm:2.1.0
