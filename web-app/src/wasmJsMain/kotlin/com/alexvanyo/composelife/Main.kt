@@ -51,8 +51,9 @@ import com.alexvanyo.composelife.logging.di.LoggerBindings
 import com.alexvanyo.composelife.network.di.EngineFactoryBindings
 import com.alexvanyo.composelife.network.di.NetworkBindings
 import com.alexvanyo.composelife.preferences.DefaultComposeLifePreferencesBindings
-import com.alexvanyo.composelife.preferences.InMemoryPreferencesDataStoreBindings
+import com.alexvanyo.composelife.preferences.LocalStoragePreferencesDataStoreBindings
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
+import com.alexvanyo.composelife.preferences.di.PreferencesDataStoreBindings
 import com.alexvanyo.composelife.random.di.RandomBindings
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
@@ -60,6 +61,7 @@ import com.alexvanyo.composelife.scopes.GlobalScope
 import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
+import com.alexvanyo.composelife.scopes.WebApplicationBindings
 import com.alexvanyo.composelife.ui.app.ComposeLifeApp
 import com.alexvanyo.composelife.ui.app.ComposeLifeAppUiCtx
 import com.alexvanyo.composelife.ui.app.UiWithLoadedPreferencesGraph
@@ -187,8 +189,10 @@ interface GlobalGraph : ApplicationGraph.Factory
 @ContributesTo(AppScope::class)
 interface ManualApplicationBindings :
     AppUpdatableBindings,
+    WebApplicationBindings,
     DefaultComposeLifePreferencesBindings,
-    InMemoryPreferencesDataStoreBindings,
+    PreferencesDataStoreBindings,
+    LocalStoragePreferencesDataStoreBindings,
     LoggerBindings,
     CellStateRepositoryImplBindings,
     ConfigurableGameOfLifeAlgorithmBindings,
