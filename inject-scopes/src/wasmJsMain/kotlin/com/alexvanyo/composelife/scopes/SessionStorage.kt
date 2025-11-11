@@ -13,14 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("MatchingDeclarationName")
 
-package com.alexvanyo.composelife.preferences
+package com.alexvanyo.composelife.scopes
 
-import androidx.datastore.core.DataStore
-import kotlinx.coroutines.flow.Flow
+import dev.zacsweers.metro.Qualifier
 
-actual interface KmpDataStore<T> : DataStore<T> {
-    actual override val data: Flow<T>
-    actual override suspend fun updateData(transform: suspend (t: T) -> T): T
-}
+@Qualifier
+annotation class SessionStorage

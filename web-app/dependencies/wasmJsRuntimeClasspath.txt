@@ -11,6 +11,10 @@ androidx.compose.runtime:runtime-saveable:1.10.0-beta02
 androidx.compose.runtime:runtime-wasm-js:1.10.0-beta02
 androidx.compose.runtime:runtime:1.10.0-beta02
 androidx.compose:compose-bom-alpha:2025.11.00
+androidx.datastore:datastore-core-okio-wasm-js:1.3.0-SNAPSHOT
+androidx.datastore:datastore-core-okio:1.3.0-SNAPSHOT
+androidx.datastore:datastore-core-wasm-js:1.3.0-SNAPSHOT
+androidx.datastore:datastore-core:1.3.0-SNAPSHOT
 androidx.graphics:graphics-shapes-wasm-js:1.1.0-beta01
 androidx.graphics:graphics-shapes:1.1.0-beta01
 androidx.lifecycle:lifecycle-common-wasm-js:2.10.0-beta01

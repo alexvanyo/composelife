@@ -15,11 +15,20 @@
  */
 @file:Suppress("MatchingDeclarationName")
 
-package com.alexvanyo.composelife.preferences
+package com.alexvanyo.composelife.preferences.di
 
-import kotlinx.coroutines.flow.Flow
+import com.alexvanyo.composelife.preferences.PreferencesProtoItemKey
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
 
-actual interface KmpDataStore<T> {
-    actual val data: Flow<T>
-    actual suspend fun updateData(transform: suspend (t: T) -> T): T
+@ContributesTo(AppScope::class)
+@BindingContainer
+interface PreferencesDataStoreBindings {
+    companion object {
+        @Provides
+        @PreferencesProtoItemKey
+        internal fun providesDataStoreItemKey(): String = "preferences.pb"
+    }
 }
