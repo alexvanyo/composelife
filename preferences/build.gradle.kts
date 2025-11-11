@@ -64,6 +64,8 @@ kotlin {
                 api(projects.sessionValue)
                 api(projects.updatable)
 
+                implementation(libs.androidx.dataStore.core)
+                implementation(libs.androidx.dataStore.core.okio)
                 implementation(libs.okio)
                 implementation(projects.filesystem)
                 implementation(projects.injectScopes)
@@ -74,27 +76,23 @@ kotlin {
         val jbMain by creating {
             dependsOn(commonMain)
         }
-        val jvmMain by creating {
+        val nonBrowserMain by creating {
             dependsOn(jbMain)
-            dependencies {
-                api(libs.androidx.dataStore)
-
-                implementation(libs.androidx.dataStore.core.okio)
-            }
         }
         val androidMain by getting {
-            dependsOn(jvmMain)
+            dependsOn(nonBrowserMain)
             configurations["kspAndroid"].dependencies.addAll(
                 listOf(
                     projects.sealedEnum.ksp,
                 )
             )
             dependencies {
+                api(libs.androidx.dataStore)
                 api(libs.kotlinx.coroutines.android)
             }
         }
         val desktopMain by getting {
-            dependsOn(jvmMain)
+            dependsOn(nonBrowserMain)
             configurations["kspDesktop"].dependencies.addAll(
                 listOf(
                     projects.sealedEnum.ksp,
@@ -108,6 +106,9 @@ kotlin {
                     projects.sealedEnum.ksp,
                 )
             )
+            dependencies {
+                implementation(libs.kotlinx.browser)
+            }
         }
         val commonTest by getting {
             dependencies {

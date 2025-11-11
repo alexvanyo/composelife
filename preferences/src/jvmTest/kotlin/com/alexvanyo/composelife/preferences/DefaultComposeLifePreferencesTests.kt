@@ -43,7 +43,7 @@ class DefaultComposeLifePreferencesTests {
 
     private fun runPreferencesTest(testBody: suspend TestScope.(ComposeLifePreferences) -> Unit) =
         runTest(testDispatcher) {
-            val diskPreferencesDataStore = DiskPreferencesDataStore(
+            val okioDiskPreferencesDataStore = OkioDiskPreferencesDataStore(
                 fileSystem = FakeFileSystem(),
                 path = lazy { "/preferences.pb".toPath() },
                 dispatchers = TestComposeLifeDispatchers(
@@ -52,11 +52,11 @@ class DefaultComposeLifePreferencesTests {
                 ),
             )
             val composelifePreferences = DefaultComposeLifePreferences(
-                preferencesDataStore = diskPreferencesDataStore,
+                preferencesDataStore = okioDiskPreferencesDataStore,
                 logger = NoOpLogger,
             )
             backgroundScope.launch {
-                diskPreferencesDataStore.update()
+                okioDiskPreferencesDataStore.update()
             }
             backgroundScope.launch {
                 composelifePreferences.update()
