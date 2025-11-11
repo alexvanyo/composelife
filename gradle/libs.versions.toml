@@ -22,7 +22,7 @@ androidxCore = "1.17.0"
 #androidxCoreSplashscreen
 androidxCoreSplashscreen = "1.2.0"
 #androidxDataStore
-androidxDataStore = "1.2.0-rc01"
+androidxDataStore = "1.3.0-SNAPSHOT"
 #androidxLifecycle
 androidxLifecycle = "2.10.0-beta01"
 #androidxLintGradle
@@ -85,6 +85,8 @@ kermit = "2.0.8"
 kotlin = "2.2.21"
 #kotlinPoet
 kotlinPoet = "2.2.0"
+#kotlinxBrowser
+kotlinxBrowser = "0.5.0"
 #kotlinxCollectionsImmutable
 kotlinxCollectionsImmutable = "0.4.0"
 #kotlinxCoroutines
@@ -181,6 +183,7 @@ androidx-compose-uiUtil = { group = "androidx.compose.ui", name = "ui-util" }
 androidx-core = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCore" }
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "androidxCoreSplashscreen" }
 androidx-dataStore = { group = "androidx.datastore", name = "datastore", version.ref = "androidxDataStore" }
+androidx-dataStore-core = { group = "androidx.datastore", name = "datastore-core", version.ref = "androidxDataStore" }
 androidx-dataStore-core-okio = { group = "androidx.datastore", name = "datastore-core-okio", version.ref = "androidxDataStore" }
 androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "androidxLifecycle" }
 androidx-lifecycle-runtime = { group = "androidx.lifecycle", name = "lifecycle-runtime", version.ref = "androidxLifecycle" }
@@ -250,6 +253,7 @@ kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.re
 kotlin-test-junit = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit", version.ref = "kotlin" }
 kotlinPoet = { group = "com.squareup", name = "kotlinpoet", version.ref = "kotlinPoet" }
 kotlinPoet-ksp = { group = "com.squareup", name = "kotlinpoet-ksp", version.ref = "kotlinPoet" }
+kotlinx-browser = { group = "org.jetbrains.kotlinx", name = "kotlinx-browser", version.ref = "kotlinxBrowser" }
 kotlinx-collections-immutable = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutable" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
