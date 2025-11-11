@@ -112,11 +112,11 @@ androidx.room:room-common-jvm:2.7.0
 androidx.room:room-common:2.7.0
 androidx.room:room-runtime-android:2.7.0
 androidx.room:room-runtime:2.7.0
-androidx.savedstate:savedstate-android:1.4.0-rc01
-androidx.savedstate:savedstate-compose-android:1.4.0-rc01
-androidx.savedstate:savedstate-compose:1.4.0-rc01
-androidx.savedstate:savedstate-ktx:1.4.0-rc01
-androidx.savedstate:savedstate:1.4.0-rc01
+androidx.savedstate:savedstate-android:1.4.0
+androidx.savedstate:savedstate-compose-android:1.4.0
+androidx.savedstate:savedstate-compose:1.4.0
+androidx.savedstate:savedstate-ktx:1.4.0
+androidx.savedstate:savedstate:1.4.0
 androidx.sqlite:sqlite-android:2.5.1
 androidx.sqlite:sqlite-framework-android:2.5.1
 androidx.sqlite:sqlite-framework:2.5.1
