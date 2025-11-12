@@ -16,7 +16,7 @@
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.configureAndroidCompose
-import com.android.build.api.dsl.androidLibrary
+import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 class AndroidLibraryComposeConventionPlugin : ConventionPlugin({
@@ -26,7 +26,7 @@ class AndroidLibraryComposeConventionPlugin : ConventionPlugin({
     }
 
     extensions.configure(KotlinMultiplatformExtension::class.java) {
-        androidLibrary {
+        extensions.configure(KotlinMultiplatformAndroidLibraryTarget::class.java) {
             configureAndroidCompose(this)
         }
     }

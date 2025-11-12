@@ -16,10 +16,8 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
-import org.gradle.internal.extensions.stdlib.capitalized
 
 plugins {
-    alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidApplication)
     alias(libs.plugins.convention.androidApplicationTesting)
     alias(libs.plugins.convention.detekt)
@@ -53,15 +51,7 @@ android {
     }
 }
 
-kotlin {
-    androidTarget()
-
-    sourceSets {
-        val androidMain by getting {
-            dependencies {
-                implementation(projects.resourcesCommon)
-                implementation(projects.wearWatchfaceWffResources)
-            }
-        }
-    }
+dependencies {
+    implementation(projects.resourcesCommon)
+    implementation(projects.wearWatchfaceWffResources)
 }
