@@ -34,7 +34,7 @@ class CellUniverseInfoItemState(
 ) {
     var isChecked by mutableStateOf(isChecked)
 
-    private object Serializer : KSerializer<CellUniverseInfoItemState> by SurrogatingSerializer(
+    object Serializer : KSerializer<CellUniverseInfoItemState> by SurrogatingSerializer(
         "com.alexvanyo.composelife.ui.app.info.CellUniverseInfoItemState",
         CellUniverseInfoItemState::isChecked,
         ::CellUniverseInfoItemState,

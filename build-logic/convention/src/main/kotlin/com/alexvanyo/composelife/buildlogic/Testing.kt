@@ -125,6 +125,7 @@ fun Project.configureAndroidTesting(
     val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
     extensions.configure(KotlinMultiplatformExtension::class.java) {
+        @Suppress("DEPRECATION")
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         androidTarget {
             unitTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
