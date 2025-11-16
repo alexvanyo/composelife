@@ -20,7 +20,9 @@ import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.scopes.UiGraphArguments
+import kotlinx.browser.document
 import kotlinx.coroutines.test.TestResult
+import org.w3c.dom.HTMLElement
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 
@@ -34,6 +36,9 @@ internal actual fun runPlatformUiTest(
     testTimeout = timeout,
 ) {
     testBody(
-        object : UiGraphArguments {},
+        object : UiGraphArguments {
+            override val element: HTMLElement
+                get() = document.documentElement!! as HTMLElement
+        },
     )
 } as TestResult
