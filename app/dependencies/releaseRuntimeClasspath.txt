@@ -76,8 +76,8 @@ androidx.emoji2:emoji2:1.4.0
 androidx.exifinterface:exifinterface:1.4.1
 androidx.fragment:fragment:1.5.4
 androidx.graphics:graphics-path:1.0.1
-androidx.graphics:graphics-shapes-android:1.1.0-beta01
-androidx.graphics:graphics-shapes:1.1.0-beta01
+androidx.graphics:graphics-shapes-android:1.0.1
+androidx.graphics:graphics-shapes:1.0.1
 androidx.interpolator:interpolator:1.0.0
 androidx.legacy:legacy-support-core-utils:1.0.0
 androidx.lifecycle:lifecycle-common-java8:2.10.0-beta01
@@ -216,14 +216,10 @@ org.jetbrains.compose.collection-internal:collection:1.10.0-beta01
 org.jetbrains.compose.foundation:foundation-layout:1.10.0-beta01
 org.jetbrains.compose.foundation:foundation:1.10.0-beta01
 org.jetbrains.compose.material3.adaptive:adaptive:1.2.0
-org.jetbrains.compose.material3:material3:1.10.0-alpha03
 org.jetbrains.compose.material:material-icons-core:1.7.3
 org.jetbrains.compose.material:material-icons-extended:1.7.3
-org.jetbrains.compose.material:material-ripple:1.10.0-alpha03
 org.jetbrains.compose.runtime:runtime-saveable:1.10.0-beta01
 org.jetbrains.compose.runtime:runtime:1.10.0-beta01
-org.jetbrains.compose.ui:ui-backhandler-android:1.10.0-alpha03
-org.jetbrains.compose.ui:ui-backhandler:1.10.0-alpha03
 org.jetbrains.compose.ui:ui-geometry:1.10.0-beta01
 org.jetbrains.compose.ui:ui-graphics:1.10.0-beta01
 org.jetbrains.compose.ui:ui-text:1.10.0-beta01
