@@ -140,7 +140,7 @@ showkase = "1.0.5"
 #slackComposeLintChecks
 slackComposeLintChecks = "1.4.2"
 #sqldelight
-sqldelight = "2.1.0"
+sqldelight = "2.2.1"
 #sqlJs
 sqlJs = "1.8.0"
 #testParameterInjector
