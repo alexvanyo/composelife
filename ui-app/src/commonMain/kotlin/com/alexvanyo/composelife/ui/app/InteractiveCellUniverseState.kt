@@ -19,7 +19,6 @@ package com.alexvanyo.composelife.ui.app
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -59,8 +58,7 @@ import com.alexvanyo.composelife.ui.cells.rememberMutableSelectionStateHolder
 import com.alexvanyo.composelife.ui.cells.rememberTrackingCellWindowViewportState
 import com.alexvanyo.composelife.ui.mobile.rememberSpatialController
 import com.alexvanyo.composelife.ui.util.ClipboardReaderWriter
-import com.alexvanyo.composelife.ui.util.ImmersiveModeManager
-import com.alexvanyo.composelife.ui.util.LocalGhostElement
+import com.alexvanyo.composelife.ui.util.FullscreenModeManager
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.rememberClipboardReaderWriter
 import com.alexvanyo.composelife.ui.util.setText
@@ -73,7 +71,7 @@ import kotlin.uuid.Uuid
 @Inject
 class InteractiveCellUniverseCtx(
     internal val cellStateParser: CellStateParser,
-    internal val immersiveModeManager: ImmersiveModeManager,
+    internal val fullscreenModeManager: FullscreenModeManager,
     internal val mutableCellWindowCtx: MutableCellWindowCtx,
     internal val interactiveCellUniverseOverlayCtx: InteractiveCellUniverseOverlayCtx,
 ) {
@@ -174,7 +172,7 @@ fun rememberInteractiveCellUniverseState(
 ): InteractiveCellUniverseState =
     rememberInteractiveCellUniverseState(
         cellStateParser = ctx.cellStateParser,
-        immersiveModeManager = ctx.immersiveModeManager,
+        fullscreenModeManager = ctx.fullscreenModeManager,
         temporalGameOfLifeState = temporalGameOfLifeState,
         mutableCellWindowViewportState = mutableCellWindowViewportState,
         clipboardReaderWriter = clipboardReaderWriter,
@@ -184,7 +182,7 @@ fun rememberInteractiveCellUniverseState(
 @Composable
 internal fun rememberInteractiveCellUniverseState(
     cellStateParser: CellStateParser,
-    immersiveModeManager: ImmersiveModeManager,
+    fullscreenModeManager: FullscreenModeManager,
     temporalGameOfLifeState: TemporalGameOfLifeState,
     mutableCellWindowViewportState: MutableCellWindowViewportState = rememberMutableCellWindowViewportState(),
     clipboardReaderWriter: ClipboardReaderWriter = rememberClipboardReaderWriter(),
@@ -198,21 +196,6 @@ internal fun rememberInteractiveCellUniverseState(
     val coroutineScope = rememberCoroutineScope()
 
     var isViewportTracking by rememberSaveable { mutableStateOf(false) }
-
-    var isImmersiveMode by rememberSaveable { mutableStateOf(false) }
-
-    if (!LocalGhostElement.current) {
-        if (isImmersiveMode) {
-            LaunchedEffect(Unit) {
-                immersiveModeManager.enterFullscreenMode()
-                immersiveModeManager.hideSystemUi()
-            }
-        } else {
-            LaunchedEffect(Unit) {
-                immersiveModeManager.exitFullscreenMode()
-            }
-        }
-    }
 
     val spatialController = rememberSpatialController()
 
@@ -411,8 +394,14 @@ internal fun rememberInteractiveCellUniverseState(
         isViewportTracking = isViewportTracking,
         setIsViewportTracking = { isViewportTracking = it },
         showImmersiveModeControl = !spatialController.hasXrSpatialFeature,
-        isImmersiveMode = isImmersiveMode,
-        setIsImmersiveMode = { isImmersiveMode = it },
+        isImmersiveMode = fullscreenModeManager.isFullscreen || fullscreenModeManager.isImmersive,
+        setIsImmersiveMode = { isImmersiveMode ->
+            if (isImmersiveMode) {
+                fullscreenModeManager.requestEnterFullscreenMode()
+            } else {
+                fullscreenModeManager.requestExitFullscreenMode()
+            }
+        },
         showFullSpaceModeControl = spatialController.hasXrSpatialFeature,
         isFullSpaceMode = spatialController.isFullSpaceMode,
         setIsFullSpaceMode = { spatialController.isFullSpaceMode = it },

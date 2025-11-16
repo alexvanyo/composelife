@@ -42,13 +42,10 @@ import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.isRunning
-import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.cells.MutableCellWindow
 import com.alexvanyo.composelife.ui.cells.MutableCellWindowCtx
-import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.settings.Setting
-import com.alexvanyo.composelife.ui.util.ImmersiveModeManager
-import kotlin.uuid.Uuid
+import com.alexvanyo.composelife.ui.util.FullscreenModeManager
 
 // region templated-ctx
 @Suppress("ComposableNaming", "LongParameterList")
@@ -64,7 +61,7 @@ private operator fun InteractiveCellUniverseCtx.invoke(
         rememberInteractiveCellUniverseState(temporalGameOfLifeState),
 ) = InteractiveCellUniverseCtx.lambda(
     cellStateParser,
-    immersiveModeManager,
+    fullscreenModeManager,
     mutableCellWindowCtx,
     interactiveCellUniverseOverlayCtx,
     temporalGameOfLifeState,
@@ -79,7 +76,7 @@ private operator fun InteractiveCellUniverseCtx.invoke(
 private val InteractiveCellUniverseCtx.Companion.lambda:
     @Composable context(
         CellStateParser,
-        ImmersiveModeManager,
+        FullscreenModeManager,
         MutableCellWindowCtx,
         InteractiveCellUniverseOverlayCtx,
     ) (
@@ -140,7 +137,7 @@ fun InteractiveCellUniverse(
 
 context(
     cellStateParser: CellStateParser,
-immersiveModeManager: ImmersiveModeManager,
+fullscreenModeManager: FullscreenModeManager,
 _: MutableCellWindowCtx,
 _: InteractiveCellUniverseOverlayCtx,
 )
@@ -156,7 +153,7 @@ fun InteractiveCellUniverse(
     interactiveCellUniverseState: InteractiveCellUniverseState =
         rememberInteractiveCellUniverseState(
             cellStateParser,
-            immersiveModeManager,
+            fullscreenModeManager,
             temporalGameOfLifeState,
         ),
 ) {
