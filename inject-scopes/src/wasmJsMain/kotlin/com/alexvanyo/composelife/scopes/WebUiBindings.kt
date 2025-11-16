@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,16 @@
 
 package com.alexvanyo.composelife.scopes
 
-import org.w3c.dom.HTMLElement
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
+import org.w3c.dom.Element
 
-actual interface UiGraphArguments {
-    val element: HTMLElement
+@ContributesTo(UiScope::class)
+@BindingContainer
+interface WebUiBindings {
+    companion object {
+        @Provides
+        fun bindElement(uiGraphArguments: UiGraphArguments): Element = uiGraphArguments.element
+    }
 }
