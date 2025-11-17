@@ -158,8 +158,8 @@ co.touchlab:kermit:2.0.8
 com.airbnb.android:showkase-annotation:1.0.5
 com.airbnb.android:showkase:1.0.5
 com.google.guava:listenablefuture:1.0
-com.squareup.okio:okio-jvm:3.16.2
-com.squareup.okio:okio:3.16.2
+com.squareup.okio:okio-jvm:3.16.3
+com.squareup.okio:okio:3.16.3
 com.squareup.wire:wire-runtime-jvm:6.0.0-alpha01
 com.squareup.wire:wire-runtime:6.0.0-alpha01
 dev.zacsweers.metro:runtime-jvm:0.7.2
