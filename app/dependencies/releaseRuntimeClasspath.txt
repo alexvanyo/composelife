@@ -101,10 +101,10 @@ androidx.lifecycle:lifecycle-viewmodel-savedstate:2.10.0-beta01
 androidx.lifecycle:lifecycle-viewmodel:2.10.0-beta01
 androidx.loader:loader:1.0.0
 androidx.localbroadcastmanager:localbroadcastmanager:1.0.0
-androidx.navigationevent:navigationevent-android:1.0.0-rc01
-androidx.navigationevent:navigationevent-compose-android:1.0.0-rc01
-androidx.navigationevent:navigationevent-compose:1.0.0-rc01
-androidx.navigationevent:navigationevent:1.0.0-rc01
+androidx.navigationevent:navigationevent-android:1.0.0
+androidx.navigationevent:navigationevent-compose-android:1.0.0
+androidx.navigationevent:navigationevent-compose:1.0.0
+androidx.navigationevent:navigationevent:1.0.0
 androidx.print:print:1.0.0
 androidx.profileinstaller:profileinstaller:1.4.1
 androidx.resourceinspection:resourceinspection-annotation:1.0.1
