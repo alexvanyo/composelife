@@ -33,8 +33,8 @@ androidx.savedstate:savedstate-compose-wasm-js:1.4.0
 androidx.savedstate:savedstate-compose:1.4.0
 androidx.savedstate:savedstate-wasm-js:1.4.0
 androidx.savedstate:savedstate:1.4.0
-androidx.window:window-core-wasm-js:1.5.0
-androidx.window:window-core:1.5.0
+androidx.window:window-core-wasm-js:1.6.0-alpha01
+androidx.window:window-core:1.6.0-alpha01
 app.cash.sqldelight:async-extensions-wasm-js:2.2.1
 app.cash.sqldelight:async-extensions:2.2.1
 app.cash.sqldelight:coroutines-extensions-wasm-js:2.2.1
