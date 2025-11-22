@@ -50,6 +50,8 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                api(libs.androidx.navigation3.runtime)
+
                 implementation(libs.androidx.collection)
                 implementation(libs.androidx.compose.runtime)
                 implementation(libs.androidx.compose.runtime.retain)
@@ -62,6 +64,9 @@ kotlin {
             dependencies {
                 api(libs.jetbrains.compose.animation)
                 api(libs.jetbrains.compose.ui)
+
+                implementation(libs.androidx.lifecycle.runtime.compose)
+                implementation(libs.jetbrains.navigationEvent.compose)
             }
         }
         val desktopMain by getting {
@@ -76,6 +81,7 @@ kotlin {
                 implementation(libs.androidx.compose.animation)
                 implementation(libs.androidx.compose.ui)
                 implementation(libs.androidx.core)
+                implementation(libs.androidx.navigation3.ui)
                 implementation(libs.androidx.tracing)
                 implementation(libs.kotlinx.coroutines.android)
             }

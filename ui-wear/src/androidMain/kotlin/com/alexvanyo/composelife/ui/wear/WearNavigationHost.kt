@@ -17,23 +17,30 @@
 package com.alexvanyo.composelife.ui.wear
 
 import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.rememberTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.IntSize
+import androidx.navigationevent.NavigationEventTransitionState
 import androidx.wear.compose.foundation.hierarchicalFocusGroup
 import androidx.wear.compose.material3.SwipeToDismissBox
 import com.alexvanyo.composelife.navigation.BackstackEntry
@@ -159,6 +166,48 @@ fun <T> WearNavigationFrame(
                 // Fetch and store the movable content to hold onto while animating out
                 remember { rememberedPanes.getValue(entry.id) }.value.invoke()
             }
+        }
+    }
+}
+
+@Composable
+fun <T : Any> WearNavDisplay(
+    sceneState: SceneState<T>,
+    navigationEventTransitionState: NavigationEventTransitionState,
+    modifier: Modifier = Modifier,
+    contentAlignment: Alignment = Alignment.TopStart,
+    contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
+    animateInternalContentSizeChanges: Boolean = false,
+) {
+    val targetState = when (navigationEventTransitionState) {
+        NavigationEventTransitionState.Idle -> TargetState.Single(sceneState.currentScene)
+        is NavigationEventTransitionState.InProgress -> {
+            val previous = sceneState.previousScenes.lastOrNull()
+            if (previous != null) {
+                TargetState.InProgress(
+                    current = sceneState.currentScene,
+                    provisional = previous,
+                    progress = navigationEventTransitionState.latestEvent.progress,
+                )
+            } else {
+                TargetState.Single(sceneState.currentScene)
+            }
+        }
+    }
+
+    AnimatedContent(
+        targetState = targetState,
+        contentAlignment = contentAlignment,
+        contentSizeAnimationSpec = contentSizeAnimationSpec,
+        animateInternalContentSizeChanges = animateInternalContentSizeChanges,
+        contentKey = Scene<T>::key,
+        label = "CrossfadePredictiveNavigationFrame",
+        modifier = modifier,
+    ) { targetScene ->
+        CompositionLocalProvider(
+            LocalNavAnimatedVisibilityScope provides LocalNavigationAnimatedVisibilityScope.current!!,
+        ) {
+            targetScene.content()
         }
     }
 }

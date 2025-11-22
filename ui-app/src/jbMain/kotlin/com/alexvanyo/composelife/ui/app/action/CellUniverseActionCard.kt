@@ -38,7 +38,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
-import com.alexvanyo.composelife.navigation.associateWithRenderablePanes
+import com.alexvanyo.composelife.navigation.rememberDecoratedNavEntries
+import com.alexvanyo.composelife.navigation3.scene.SinglePaneSceneStrategy
+import com.alexvanyo.composelife.navigation3.scene.rememberSceneState
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes.ActionControlRow
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes.NavContainer
 import com.alexvanyo.composelife.ui.mobile.component.LocalBackgroundColor
@@ -46,8 +48,9 @@ import com.alexvanyo.composelife.ui.settings.InlineSettingsPane
 import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneCtx
 import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.util.AnimatedContent
-import com.alexvanyo.composelife.ui.util.CrossfadePredictiveNavigationFrame
+import com.alexvanyo.composelife.ui.util.CrossfadePredictiveNavDisplay
 import com.alexvanyo.composelife.ui.util.Layout
+import com.alexvanyo.composelife.ui.util.LocalNavigationSharedTransitionScope
 import com.alexvanyo.composelife.ui.util.WindowInsets
 import com.alexvanyo.composelife.ui.util.isImeAnimating
 import com.livefront.sealedenum.GenSealedEnum
@@ -195,7 +198,7 @@ fun CellUniverseActionCard(
                         )
                     }
 
-                    val renderableNavigationState = associateWithRenderablePanes(
+                    val navEntries = rememberDecoratedNavEntries(
                         actionCardState.inlineNavigationState,
                     ) { entry ->
                         // Cache the scroll state based for the target entry id.
@@ -239,7 +242,12 @@ fun CellUniverseActionCard(
                             }
                         }
                     }
-
+                    val sceneState = rememberSceneState(
+                        entries = navEntries,
+                        sceneStrategy = SinglePaneSceneStrategy(),
+                        sharedTransitionScope = LocalNavigationSharedTransitionScope.current,
+                        onBack = actionCardState::inlineOnBackPressed,
+                    )
                     AnimatedContent(
                         targetState = actionCardState.expandedTargetState,
                         contentAlignment = Alignment.BottomCenter,
@@ -253,8 +261,8 @@ fun CellUniverseActionCard(
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
-                                CrossfadePredictiveNavigationFrame(
-                                    renderableNavigationState = renderableNavigationState,
+                                CrossfadePredictiveNavDisplay(
+                                    sceneState = sceneState,
                                     navigationEventTransitionState =
                                     actionCardState.inlineNavigationEventTransitionState,
                                     contentAlignment = Alignment.BottomCenter,
