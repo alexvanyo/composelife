@@ -35,6 +35,7 @@ import com.alexvanyo.composelife.ui.wear.theme.ComposeLifeTheme
 import kotlinx.coroutines.awaitCancellation
 import com.alexvanyo.composelife.resources.wear.R as resourcesWearR
 
+@Suppress("IgnoredReturnValue")
 @Composable
 fun WatchFaceConfigPane(
     state: WatchFaceConfigState,
@@ -81,6 +82,7 @@ fun WatchFaceConfigPane(
     }
 }
 
+@Suppress("IgnoredReturnValue")
 @ShowkaseComposable
 @WearPreviewDevices
 @Composable
