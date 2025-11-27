@@ -83,6 +83,7 @@ kotlin {
                 implementation(libs.jetbrains.compose.foundation)
                 implementation(libs.jetbrains.compose.materialIconsExtended)
                 implementation(libs.jetbrains.compose.ui)
+                implementation(libs.jetbrains.navigation3.ui)
             }
         }
         val nonAndroidMain by creating {
