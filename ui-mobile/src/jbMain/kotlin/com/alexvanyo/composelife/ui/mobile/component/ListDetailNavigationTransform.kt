@@ -249,18 +249,3 @@ fun <T> listDetailNavigationTransform(
             }
         }.invoke(renderableNavigationState)
     }
-
-/**
- * The marker interface for a list entry.
- */
-interface ListEntry : ListDetailInfo
-
-/**
- * The marker interface for a detail entry.
- */
-interface DetailEntry : ListDetailInfo
-
-interface ListDetailInfo {
-    val isListVisible: Boolean
-    val isDetailVisible: Boolean
-}

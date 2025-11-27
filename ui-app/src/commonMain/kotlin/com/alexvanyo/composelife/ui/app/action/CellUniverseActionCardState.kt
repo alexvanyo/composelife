@@ -17,14 +17,12 @@
 package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,8 +36,6 @@ import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
 import androidx.savedstate.compose.serialization.serializers.SnapshotStateMapSerializer
-import coil3.request.Disposable
-import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackMap
@@ -49,7 +45,6 @@ import com.alexvanyo.composelife.navigation.popBackstack
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
 import com.alexvanyo.composelife.navigation.withExpectedActor
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseEditingState
-import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseState
 import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneCtx
 import com.alexvanyo.composelife.ui.util.TargetState
@@ -57,12 +52,10 @@ import com.alexvanyo.composelife.ui.util.isInProgress
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlin.math.exp
 import kotlin.uuid.Uuid
 
 // region templated-ctx
@@ -283,6 +276,7 @@ fun rememberCellUniverseActionCardState(
             NavigationEventTransitionState.Idle
         }
 
+    // TODO: Move to CellUniverseActionCard to integrate with scene transition
     NavigationBackHandler(
         state = rememberNavigationEventState(
             currentInfo = CellUniverseActionCardNavigationEventInfo(inlineNavigationState.currentEntryId),
