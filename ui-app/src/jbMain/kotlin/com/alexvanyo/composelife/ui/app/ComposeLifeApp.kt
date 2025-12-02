@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.unit.DpSize
+import androidx.navigation3.scene.Scene
 import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.NavigationEventTransitionState
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
@@ -46,7 +47,6 @@ import androidx.window.core.layout.WindowSizeClass
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
-import com.alexvanyo.composelife.navigation.associateWithRenderablePanes
 import com.alexvanyo.composelife.navigation.canNavigateBack
 import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.navigation.navigate
@@ -54,9 +54,7 @@ import com.alexvanyo.composelife.navigation.popBackstack
 import com.alexvanyo.composelife.navigation.popUpTo
 import com.alexvanyo.composelife.navigation.rememberDecoratedNavEntries
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
-import com.alexvanyo.composelife.navigation.segmentingNavigationTransform
 import com.alexvanyo.composelife.navigation.withExpectedActor
-import com.alexvanyo.composelife.navigation3.scene.SinglePaneSceneStrategy
 import com.alexvanyo.composelife.navigation3.scene.rememberSceneState
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
@@ -66,8 +64,6 @@ import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.ui.mobile.component.ListDetailInfo
 import com.alexvanyo.composelife.ui.mobile.component.ListDetailSceneStrategy
-import com.alexvanyo.composelife.ui.mobile.component.dialogNavigationTransform
-import com.alexvanyo.composelife.ui.mobile.component.listDetailNavigationTransform
 import com.alexvanyo.composelife.ui.settings.FullscreenSettingsDetailPane
 import com.alexvanyo.composelife.ui.settings.FullscreenSettingsDetailPaneCtx
 import com.alexvanyo.composelife.ui.settings.FullscreenSettingsListPane
@@ -75,7 +71,6 @@ import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.settings.SettingsCategory
 import com.alexvanyo.composelife.ui.util.LocalNavigationSharedTransitionScope
 import com.alexvanyo.composelife.ui.util.MaterialPredictiveNavDisplay
-import com.alexvanyo.composelife.ui.util.MaterialPredictiveNavigationFrame
 import com.alexvanyo.composelife.ui.util.ReportDrawn
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
@@ -83,7 +78,7 @@ import dev.zacsweers.metro.GraphExtension
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
-import kotlin.uuid.Uuid
+import kotlin.reflect.KClass
 
 @Immutable
 @Inject
@@ -152,29 +147,6 @@ fun ComposeLifeApp(
                             navigationEventHistory.currentIndex,
                         )
 
-                        val navigationEventTransitionState =
-                            if (currentInfo is ComposeLifeAppNavigationEventInfo &&
-                                currentInfo.entryId == targetComposeLifeAppState.navigationState.currentEntryId) {
-                                dispatcher.transitionState.collectAsState().value
-                            } else {
-                                NavigationEventTransitionState.Idle
-                            }
-
-                        NavigationBackHandler(
-                            state = rememberNavigationEventState(
-                                currentInfo = ComposeLifeAppNavigationEventInfo(
-                                    targetComposeLifeAppState.navigationState.currentEntryId,
-                                ),
-                                backInfo = listOfNotNull(
-                                    targetComposeLifeAppState.navigationState.previousEntryId?.let(
-                                        ::ComposeLifeAppNavigationEventInfo,
-                                    ),
-                                ),
-                            ),
-                            isBackEnabled = targetComposeLifeAppState.canNavigateBack,
-                            onBackCompleted = targetComposeLifeAppState::onBackPressed,
-                        )
-
                         with(targetComposeLifeAppState.composeLifeAppUiWithLoadedPreferencesCtx) {
                             SharedTransitionLayout {
                                 CompositionLocalProvider(LocalNavigationSharedTransitionScope provides this) {
@@ -231,6 +203,30 @@ fun ComposeLifeApp(
                                         sharedTransitionScope = LocalNavigationSharedTransitionScope.current,
                                         onBack = targetComposeLifeAppState::onBackPressed,
                                     )
+
+                                    val navigationEventTransitionState =
+                                        if (currentInfo is ComposeLifeAppNavigationEventInfo &&
+                                            currentInfo.sceneKey ==
+                                            sceneState.currentScene::class to sceneState.currentScene.key
+                                        ) {
+                                            dispatcher.transitionState.collectAsState().value
+                                        } else {
+                                            NavigationEventTransitionState.Idle
+                                        }
+
+                                    NavigationBackHandler(
+                                        state = rememberNavigationEventState(
+                                            currentInfo = ComposeLifeAppNavigationEventInfo(
+                                                sceneState.currentScene::class to sceneState.currentScene.key,
+                                            ),
+                                            backInfo = sceneState.previousScenes.map {
+                                                ComposeLifeAppNavigationEventInfo(it::class to it.key)
+                                            },
+                                        ),
+                                        isBackEnabled = targetComposeLifeAppState.canNavigateBack,
+                                        onBackCompleted = targetComposeLifeAppState::onBackPressed,
+                                    )
+
                                     MaterialPredictiveNavDisplay(
                                         sceneState = sceneState,
                                         // TODO: Re-add via scene strategies
@@ -391,7 +387,7 @@ fun rememberComposeLifeAppState(
 }
 
 private data class ComposeLifeAppNavigationEventInfo(
-    val entryId: Uuid,
+    val sceneKey: Pair<KClass<out Scene<*>>, Any>,
 ) : NavigationEventInfo()
 
 sealed interface ComposeLifeAppState {

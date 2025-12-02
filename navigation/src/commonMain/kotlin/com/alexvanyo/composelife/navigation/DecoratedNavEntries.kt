@@ -41,7 +41,7 @@ fun <T, S : NavigationState<BackstackEntry<T>>> rememberDecoratedNavEntries(
                 key = navigationEntry,
                 contentKey = navigationEntry.id,
                 metadata = mapOf(NavKeyMetadataKey to navigationEntry),
-                content = { pane(navigationEntry) },
+                content = { pane(it) },
             )
         },
         entryDecorators = entryDecorators,

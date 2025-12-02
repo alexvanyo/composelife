@@ -47,6 +47,7 @@ internal data class ListDetailPaneScene<T>(
                     targetState = TargetState.Single(detailEntry),
                     contentKey = { it.contentKey },
                     animateInternalContentSizeChanges = false,
+                    label = "ListDetailPaneScene AnimatedContent",
                 ) { targetDetailEntry ->
                     targetDetailEntry.Content()
                 }

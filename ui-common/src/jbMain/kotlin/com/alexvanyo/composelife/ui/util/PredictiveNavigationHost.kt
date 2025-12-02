@@ -70,6 +70,7 @@ import com.alexvanyo.composelife.navigation.previousEntry
 import com.alexvanyo.composelife.navigation3.scene.LocalEntriesToExcludeFromCurrentScene
 import com.alexvanyo.composelife.navigation3.scene.SceneState
 import com.alexvanyo.composelife.navigation3.ui.LocalNavAnimatedVisibilityScope
+import kotlin.reflect.KClass
 
 @Composable
 @Suppress("LongParameterList")
@@ -165,7 +166,7 @@ fun <T : Any> CrossfadePredictiveNavDisplay(
         CompositionLocalProvider(
             LocalNavAnimatedVisibilityScope provides LocalNavigationAnimatedVisibilityScope.current!!,
             LocalEntriesToExcludeFromCurrentScene provides
-                navDisplayState.entriesToExcludeFromCurrentScene.getValue(targetScene.key),
+                navDisplayState.entriesToExcludeFromCurrentScene.getValue(targetScene::class to targetScene.key),
         ) {
             targetScene.content()
         }
@@ -173,8 +174,9 @@ fun <T : Any> CrossfadePredictiveNavDisplay(
 }
 
 interface NavDisplayState<T : Any> {
-    val animatedContentState: AnimatedContentState<Scene<T>, NavigationEventTransitionState.InProgress, Any>
-    val entriesToExcludeFromCurrentScene: Map<Any, Set<Any>>
+    val animatedContentState:
+        AnimatedContentState<Scene<T>, NavigationEventTransitionState.InProgress, Pair<KClass<out Scene<T>>, Any>>
+    val entriesToExcludeFromCurrentScene: Map<Pair<KClass<out Scene<T>>, Any>, Set<Any>>
 }
 
 @Suppress("LongMethod")
@@ -202,24 +204,24 @@ fun <T : Any> rememberNavDisplayState(
 
     val animatedContentState = rememberAnimatedContentState(
         targetState = targetState,
-        contentKey = Scene<T>::key,
-        label = "CrossfadePredictiveNavigationFrame",
+        contentKey = { it::class to it.key },
+        label = "rememberNavDisplayState",
     )
 
     val previousMostRecentTargetSceneKeys = remember {
-        mutableStateSetOf<Any>()
+        mutableStateSetOf<Pair<KClass<out Scene<T>>, Any>>()
     }
     val newMostRecentTargetSceneKeys =
         when (targetState) {
             is TargetState.InProgress<Scene<T>, *> -> {
                 listOf(
-                    targetState.current.key,
-                    targetState.provisional.key,
+                    targetState.current::class to targetState.current.key,
+                    targetState.provisional::class to targetState.provisional.key,
                 )
             }
             is TargetState.Single<Scene<T>> -> {
                 listOf(
-                    targetState.current.key,
+                    targetState.current::class to targetState.current.key,
                 )
             }
         }
@@ -230,7 +232,7 @@ fun <T : Any> rememberNavDisplayState(
             addAll(newMostRecentTargetSceneKeys)
         }
     val scenesInTransition = remember {
-        mutableStateMapOf<Any, Scene<T>>()
+        mutableStateMapOf<Pair<KClass<out Scene<T>>, Any>, Scene<T>>()
     }
 
     DisposableEffect(
@@ -257,7 +259,7 @@ fun <T : Any> rememberNavDisplayState(
     }
 
     val currentScenesByKey = (listOf(sceneState.currentScene) + sceneState.previousScenes)
-        .associateBy { it.key }
+        .associateBy { it::class to it.key }
 
     scenesInTransition.putAll(currentScenesByKey)
 
@@ -279,9 +281,10 @@ fun <T : Any> rememberNavDisplayState(
 
     return object : NavDisplayState<T> {
         override val animatedContentState:
-            AnimatedContentState<Scene<T>, NavigationEventTransitionState.InProgress, Any>
+            AnimatedContentState<Scene<T>, NavigationEventTransitionState.InProgress, Pair<KClass<out Scene<T>>, Any>>
+
             get() = animatedContentState
-        override val entriesToExcludeFromCurrentScene: Map<Any, Set<Any>>
+        override val entriesToExcludeFromCurrentScene: Map<Pair<KClass<out Scene<T>>, Any>, Set<Any>>
             get() = entriesToExcludeFromCurrentScene
     }
 }
@@ -687,12 +690,12 @@ fun <T : Any> MaterialPredictiveNavDisplay(
                 contentWithStatus()
             }
         },
-        targetRenderingComparator = compareBy { entry ->
+        targetRenderingComparator = compareByDescending { scene ->
             // Render items in order of the backstack, with the top of the backstack rendered last
-            // If the entry is not in the backstack at all, assume that it is disappearing aftering being popped, and
+            // If the entry is not in the backstack at all, assume that it is disappearing after being popped, and
             // render it on top of everything still in the backstack
-            (sceneState.previousScenes + sceneState.currentScene)
-                .indexOfLast { it.key == entry.key }
+            (listOf(sceneState.currentScene) + sceneState.previousScenes.reversed())
+                .indexOfLast { it::class to it.key == scene::class to scene.key }
         },
         contentSizeAnimationSpec = contentSizeAnimationSpec,
         animateInternalContentSizeChanges = animateInternalContentSizeChanges,
@@ -701,7 +704,7 @@ fun <T : Any> MaterialPredictiveNavDisplay(
         CompositionLocalProvider(
             LocalNavAnimatedVisibilityScope provides LocalNavigationAnimatedVisibilityScope.current!!,
             LocalEntriesToExcludeFromCurrentScene provides
-                navDisplayState.entriesToExcludeFromCurrentScene.getValue(targetScene.key),
+                navDisplayState.entriesToExcludeFromCurrentScene.getValue(targetScene::class to targetScene.key),
         ) {
             targetScene.content()
         }
