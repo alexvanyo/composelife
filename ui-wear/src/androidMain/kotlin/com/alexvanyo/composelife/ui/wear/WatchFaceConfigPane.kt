@@ -55,7 +55,7 @@ fun WatchFaceConfigPane(
         navigationController.popBackstack()
     }
 
-    WearNavigationHost(
+    WearNavDisplay(
         navigationController = navigationController,
         modifier = modifier,
     ) { entry ->
