@@ -29,15 +29,13 @@ import kotlin.uuid.Uuid
  */
 interface BackstackState<T> : NavigationState<BackstackEntry<T>> {
     override val entryMap: BackstackMap<T>
-
-    /**
-     * The id of the previous entry. This acts a pointer into [entryMap].
-     *
-     * By default, this is the [BackstackEntry.previous] of the [currentEntry].
-     */
-    val previousEntryId: Uuid?
-        get() = currentEntry.previous?.id
 }
+
+/**
+ * The id of the previous entry if any. This acts a pointer into [BackstackState.entryMap].
+ */
+val <T> BackstackState<T>.previousEntryId: Uuid?
+    get() = currentEntry.previous?.id
 
 /**
  * The previous entry of this [BackstackState], based on the [BackstackState.previousEntryId].

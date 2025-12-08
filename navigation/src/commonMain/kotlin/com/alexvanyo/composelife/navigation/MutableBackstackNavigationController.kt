@@ -99,11 +99,11 @@ fun <T> rememberMutableBackstackNavigationController(
  *
  * This function returns `true` if and only if the [block] was run.
  */
-fun <T> MutableBackstackNavigationController<T>.withExpectedActor(
+fun <N : NavigationState<T>, T : NavigationEntry> N.withExpectedActor(
     actorEntryId: Uuid?,
-    block: MutableBackstackNavigationController<T>.(currentEntry: BackstackEntry<T>) -> Unit,
+    block: N.(currentEntry: T) -> Unit,
 ): Boolean =
-    if (actorEntryId == null || actorEntryId == currentEntry.id) {
+    if (actorEntryId == null || actorEntryId == currentEntryId) {
         block(currentEntry)
         true
     } else {

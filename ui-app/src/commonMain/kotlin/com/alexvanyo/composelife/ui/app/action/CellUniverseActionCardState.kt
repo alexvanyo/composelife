@@ -20,8 +20,6 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -30,20 +28,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.runtime.setValue
-import androidx.navigationevent.NavigationEventInfo
-import androidx.navigationevent.NavigationEventTransitionState
-import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
-import androidx.navigationevent.compose.NavigationBackHandler
-import androidx.navigationevent.compose.rememberNavigationEventState
 import androidx.savedstate.compose.serialization.serializers.SnapshotStateMapSerializer
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.navigation.BackstackEntry
-import com.alexvanyo.composelife.navigation.BackstackMap
-import com.alexvanyo.composelife.navigation.BackstackState
-import com.alexvanyo.composelife.navigation.canNavigateBack
-import com.alexvanyo.composelife.navigation.popBackstack
-import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
+import com.alexvanyo.composelife.navigation.MutableBackstackMap
+import com.alexvanyo.composelife.navigation.NavigationState
+import com.alexvanyo.composelife.navigation.rememberBackstackMap
 import com.alexvanyo.composelife.navigation.withExpectedActor
+import com.alexvanyo.composelife.serialization.uuidSaver
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseEditingState
 import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneCtx
@@ -86,12 +78,7 @@ interface CellUniverseActionCardState {
     /**
      * The inline navigation state of the card.
      */
-    val inlineNavigationState: BackstackState<InlineActionCardNavigation>
-
-    /**
-     * The [NavigationEventTransitionState] for the inline navigation of the [CellUniverseActionCard].
-     */
-    val inlineNavigationEventTransitionState: NavigationEventTransitionState
+    val inlineNavigationState: NavigationState<BackstackEntry<InlineActionCardNavigation>>
 
     /**
      * `true` if the card can navigate back.
@@ -130,94 +117,55 @@ fun rememberCellUniverseActionCardState(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     editingState: InteractiveCellUniverseEditingState,
 ): CellUniverseActionCardState {
-    var currentInlineBackstack: InlineActionCardBackstack by rememberSaveable(
-        stateSaver = InlineActionCardBackstack.Saver,
-    ) {
-        mutableStateOf(InlineActionCardBackstack.Speed)
-    }
-
-    val speedNavController = rememberMutableBackstackNavigationController(
-        initialBackstackEntries = listOf(
-            BackstackEntry(
-                value = InlineActionCardNavigation.Speed,
-                previous = null,
-            ),
-        ),
-        backstackValueSaverFactory = InlineActionCardNavigation.SaverFactory,
+    val initialSpeedEntry: BackstackEntry<InlineActionCardNavigation> = BackstackEntry(
+        value = InlineActionCardNavigation.Speed,
+        previous = null,
+        id = InlineActionCardNavigation.Speed.entryId,
     )
 
-    val editNavController = rememberMutableBackstackNavigationController(
+    val inlineBackstackMap = rememberBackstackMap(
         initialBackstackEntries = listOf(
+            initialSpeedEntry,
             BackstackEntry(
                 value = InlineActionCardNavigation.Edit,
-                previous = null,
+                previous = initialSpeedEntry,
+                id = InlineActionCardNavigation.Edit.entryId,
             ),
-        ),
-        backstackValueSaverFactory = InlineActionCardNavigation.SaverFactory,
-    )
-
-    val settingsNavController = rememberMutableBackstackNavigationController(
-        initialBackstackEntries = listOf(
             BackstackEntry(
                 value = InlineActionCardNavigation.Settings,
-                previous = null,
+                previous = initialSpeedEntry,
+                id = InlineActionCardNavigation.Settings.entryId,
             ),
         ),
         backstackValueSaverFactory = InlineActionCardNavigation.SaverFactory,
     )
 
-    val currentInlineNavController by remember {
-        derivedStateOf {
-            when (currentInlineBackstack) {
-                InlineActionCardBackstack.Speed -> speedNavController
-                InlineActionCardBackstack.Edit -> editNavController
-                InlineActionCardBackstack.Settings -> settingsNavController
-            }
-        }
-    }
-
-    val canNavigateBack by remember {
-        derivedStateOf {
-            currentInlineNavController.canNavigateBack || when (currentInlineBackstack) {
-                InlineActionCardBackstack.Speed -> false
-                InlineActionCardBackstack.Edit,
-                InlineActionCardBackstack.Settings,
-                -> true
-            }
-        }
+    var currentBackstackEntryId by rememberSaveable(
+        stateSaver = uuidSaver,
+    ) {
+        mutableStateOf(InlineActionCardNavigation.Speed.entryId)
     }
 
     val inlineNavigationState = remember {
-        object : BackstackState<InlineActionCardNavigation> {
-            override val entryMap: BackstackMap<InlineActionCardNavigation>
-                get() = speedNavController.entryMap +
-                    editNavController.entryMap +
-                    settingsNavController.entryMap
+        object : NavigationState<BackstackEntry<InlineActionCardNavigation>> {
+            override val entryMap: MutableBackstackMap<InlineActionCardNavigation> get() = inlineBackstackMap
 
-            override val currentEntryId: Uuid
-                get() = currentInlineNavController.currentEntryId
-
-            override val previousEntryId: Uuid?
-                get() = if (currentInlineNavController.canNavigateBack) {
-                    currentInlineNavController.previousEntryId
-                } else {
-                    when (currentInlineBackstack) {
-                        InlineActionCardBackstack.Speed -> null
-                        InlineActionCardBackstack.Edit,
-                        InlineActionCardBackstack.Settings,
-                        -> speedNavController.currentEntryId
-                    }
+            override var currentEntryId: Uuid
+                get() = currentBackstackEntryId
+                set(value) {
+                    currentBackstackEntryId = value
                 }
         }
     }
 
     val onBackPressed = remember {
         { inlineActorBackstackEntryId: Uuid? ->
-            currentInlineNavController.withExpectedActor(inlineActorBackstackEntryId) {
-                if (currentInlineNavController.canNavigateBack) {
-                    currentInlineNavController.popBackstack()
-                } else {
-                    currentInlineBackstack = InlineActionCardBackstack.Speed
+            inlineNavigationState.withExpectedActor(inlineActorBackstackEntryId) { entry ->
+                currentEntryId = when (entry.value) {
+                    InlineActionCardNavigation.Edit,
+                    InlineActionCardNavigation.Settings,
+                    -> InlineActionCardNavigation.Speed.entryId
+                    InlineActionCardNavigation.Speed -> error("Shouldn't be navigating back from speed")
                 }
             }
         }
@@ -264,35 +212,10 @@ fun rememberCellUniverseActionCardState(
     }
     val currentScrollState = contentScrollStateMap.getValue(inlineNavigationState.currentEntryId)
 
-    val dispatcher = requireNotNull(LocalNavigationEventDispatcherOwner.current).navigationEventDispatcher
-    val navigationEventHistory by dispatcher.history.collectAsState()
-    val currentInfo = navigationEventHistory.mergedHistory.getOrNull(navigationEventHistory.currentIndex)
-
-    val navigationEventTransitionState =
-        if (currentInfo is CellUniverseActionCardNavigationEventInfo &&
-            currentInfo.entryId == inlineNavigationState.currentEntryId) {
-            dispatcher.transitionState.collectAsState().value
-        } else {
-            NavigationEventTransitionState.Idle
-        }
-
-    // TODO: Move to CellUniverseActionCard to integrate with scene transition
-    NavigationBackHandler(
-        state = rememberNavigationEventState(
-            currentInfo = CellUniverseActionCardNavigationEventInfo(inlineNavigationState.currentEntryId),
-            backInfo = listOfNotNull(
-                inlineNavigationState.previousEntryId?.let(::CellUniverseActionCardNavigationEventInfo),
-            ),
-        ),
-        isBackEnabled = enableBackHandler && expandedTargetState.current && canNavigateBack,
-        onBackCompleted = {
-            onBackPressed(inlineNavigationState.currentEntryId)
-        },
-    )
-
     val coroutineScope = rememberCoroutineScope()
 
     return remember(
+        enableBackHandler,
         editingState,
         expandedTargetState,
         currentScrollState,
@@ -388,27 +311,28 @@ fun rememberCellUniverseActionCardState(
 
             override val inlineNavigationState get() = inlineNavigationState
 
-            override val inlineNavigationEventTransitionState get() = navigationEventTransitionState
-
-            override val canNavigateBack: Boolean get() = canNavigateBack
+            override val canNavigateBack: Boolean get() =
+                enableBackHandler &&
+                    expandedTargetState.current &&
+                    inlineNavigationState.currentEntryId != InlineActionCardNavigation.Speed.entryId
 
             override val contentScrollStateMap get() = contentScrollStateMap
 
             override fun onSpeedClicked(actorBackstackEntryId: Uuid?) {
-                currentInlineNavController.withExpectedActor(actorBackstackEntryId) {
-                    currentInlineBackstack = InlineActionCardBackstack.Speed
+                inlineNavigationState.withExpectedActor(actorBackstackEntryId) {
+                    currentEntryId = InlineActionCardNavigation.Speed.entryId
                 }
             }
 
             override fun onEditClicked(actorBackstackEntryId: Uuid?) {
-                currentInlineNavController.withExpectedActor(actorBackstackEntryId) {
-                    currentInlineBackstack = InlineActionCardBackstack.Edit
+                inlineNavigationState.withExpectedActor(actorBackstackEntryId) {
+                    currentEntryId = InlineActionCardNavigation.Edit.entryId
                 }
             }
 
             override fun onSettingsClicked(actorBackstackEntryId: Uuid?) {
-                currentInlineNavController.withExpectedActor(actorBackstackEntryId) {
-                    currentInlineBackstack = InlineActionCardBackstack.Settings
+                inlineNavigationState.withExpectedActor(actorBackstackEntryId) {
+                    currentEntryId = InlineActionCardNavigation.Settings.entryId
                 }
             }
 
@@ -418,7 +342,3 @@ fun rememberCellUniverseActionCardState(
         }
     }
 }
-
-private data class CellUniverseActionCardNavigationEventInfo(
-    val entryId: Uuid,
-): NavigationEventInfo()
