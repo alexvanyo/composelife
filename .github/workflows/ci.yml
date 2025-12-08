@@ -152,7 +152,7 @@ jobs:
         run: $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager emulator
 
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           # Use PAT if on a pull request from the main repo, in preparation for auto-committing fixes
           # Otherwise use the default token
@@ -273,7 +273,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Download code coverage from GitHub
         uses: actions/download-artifact@v6
@@ -303,7 +303,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Download test results from GitHub
         uses: actions/download-artifact@v6
@@ -370,7 +370,7 @@ jobs:
         run: $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager emulator
 
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Copy ci-gradle.properties
         run: |
@@ -440,7 +440,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Download code coverage from GitHub
         uses: actions/download-artifact@v6
@@ -470,7 +470,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Download test results from GitHub
         uses: actions/download-artifact@v6
