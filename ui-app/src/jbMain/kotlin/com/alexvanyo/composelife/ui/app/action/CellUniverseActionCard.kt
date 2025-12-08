@@ -30,12 +30,20 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
+import androidx.navigation3.scene.Scene
+import androidx.navigationevent.NavigationEventInfo
+import androidx.navigationevent.NavigationEventTransitionState
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
+import androidx.navigationevent.compose.NavigationBackHandler
+import androidx.navigationevent.compose.rememberNavigationEventState
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.navigation.rememberDecoratedNavEntries
@@ -56,6 +64,7 @@ import com.alexvanyo.composelife.ui.util.isImeAnimating
 import com.livefront.sealedenum.GenSealedEnum
 import com.livefront.sealedenum.SealedEnum
 import kotlin.math.max
+import kotlin.reflect.KClass
 
 // region templated-ctx
 @Suppress("ComposableNaming", "LongParameterList")
@@ -242,12 +251,48 @@ fun CellUniverseActionCard(
                             }
                         }
                     }
+                    val dispatcher = requireNotNull(
+                        LocalNavigationEventDispatcherOwner.current,
+                    ).navigationEventDispatcher
+                    val navigationEventHistory by dispatcher.history.collectAsState()
+                    val currentInfo = navigationEventHistory.mergedHistory.getOrNull(
+                        navigationEventHistory.currentIndex,
+                    )
+
                     val sceneState = rememberSceneState(
                         entries = navEntries,
                         sceneStrategy = SinglePaneSceneStrategy(),
                         sharedTransitionScope = LocalNavigationSharedTransitionScope.current,
                         onBack = actionCardState::inlineOnBackPressed,
                     )
+
+                    val navigationEventTransitionState =
+                        if (currentInfo is CellUniverseActionCardNavigationEventInfo &&
+                            currentInfo.sceneKey ==
+                            sceneState.currentScene::class to sceneState.currentScene.key
+                        ) {
+                            dispatcher.transitionState.collectAsState().value
+                        } else {
+                            NavigationEventTransitionState.Idle
+                        }
+
+                    NavigationBackHandler(
+                        state = rememberNavigationEventState(
+                            currentInfo = CellUniverseActionCardNavigationEventInfo(
+                                sceneState.currentScene::class to sceneState.currentScene.key,
+                            ),
+                            backInfo = sceneState.previousScenes.map {
+                                CellUniverseActionCardNavigationEventInfo(it::class to it.key)
+                            },
+                        ),
+                        isBackEnabled = actionCardState.canNavigateBack,
+                        onBackCompleted = {
+                            actionCardState.inlineOnBackPressed(
+                                inlineActorBackstackEntryId = actionCardState.inlineNavigationState.currentEntryId,
+                            )
+                        },
+                    )
+
                     AnimatedContent(
                         targetState = actionCardState.expandedTargetState,
                         contentAlignment = Alignment.BottomCenter,
@@ -263,8 +308,7 @@ fun CellUniverseActionCard(
                             ) {
                                 CrossfadePredictiveNavDisplay(
                                     sceneState = sceneState,
-                                    navigationEventTransitionState =
-                                    actionCardState.inlineNavigationEventTransitionState,
+                                    navigationEventTransitionState = navigationEventTransitionState,
                                     contentAlignment = Alignment.BottomCenter,
                                     animateInternalContentSizeChanges = false,
                                     modifier = Modifier.weight(1f, fill = false),
@@ -326,3 +370,7 @@ internal sealed interface CellUniverseActionCardLayoutTypes {
 
 internal expect val CellUniverseActionCardLayoutTypes.Companion._sealedEnum:
     SealedEnum<CellUniverseActionCardLayoutTypes>
+
+private data class CellUniverseActionCardNavigationEventInfo(
+    val sceneKey: Pair<KClass<out Scene<*>>, Any>,
+): NavigationEventInfo()
