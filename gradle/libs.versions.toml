@@ -74,7 +74,7 @@ detekt = "1.23.8"
 #googleAutoValue
 googleAutoValue = "1.11.1"
 #gradleDependenciesSorter
-gradleDependenciesSorter = "0.15"
+gradleDependenciesSorter = "0.16"
 #guavaAndroid
 guavaAndroid = "32.1.3-android"
 #keeper
