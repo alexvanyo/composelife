@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+import com.alexvanyo.composelife.buildlogic.heavyTaskLimitingBuildService
+import org.jetbrains.kotlin.gradle.targets.wasm.binaryen.BinaryenExec
+import kotlin.jvm.java
+
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.dependencyGuard)
@@ -61,6 +65,11 @@ kotlin {
                 projects.sealedEnum.ksp,
             ))
         }
+    }
+
+    // Register JS optimization as heavy tasks
+    tasks.withType(BinaryenExec::class.java).configureEach {
+        usesService(heavyTaskLimitingBuildService)
     }
 }
 
