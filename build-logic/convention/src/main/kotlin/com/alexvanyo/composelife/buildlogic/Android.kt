@@ -24,6 +24,7 @@ import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtensi
 import com.android.build.gradle.internal.lint.AndroidLintAnalysisTask
 import com.android.build.gradle.internal.lint.LintModelWriterTask
 import com.android.build.gradle.internal.lint.VariantInputs
+import com.android.build.gradle.internal.tasks.R8Task
 import org.gradle.api.GradleException
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
@@ -96,6 +97,11 @@ fun Project.configureAndroid(
     }
 
     dependencies.add("coreLibraryDesugaring", libs.findLibrary("android.desugarJdkLibs").get())
+
+    // Register R8 minification as heavy tasks
+    tasks.withType(R8Task::class.java).configureEach {
+        usesService(heavyTaskLimitingBuildService)
+    }
 }
 
 fun Project.configureAndroid(
