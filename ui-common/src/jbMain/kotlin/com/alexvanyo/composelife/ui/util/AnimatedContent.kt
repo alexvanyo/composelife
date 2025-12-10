@@ -78,6 +78,60 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.onEach
 
+object AnimatedContentDefaults
+
+fun <M> AnimatedContentDefaults.defaultTransitionSpec(): @Composable Transition<ContentStatus<M>>.(
+    contentWithStatus: @Composable () -> Unit,
+) -> Unit =
+    { contentWithStatus ->
+        val changingVisibilityEasing = Easing({ 0f }, (0.5f to EaseInOut))
+        val alpha by animateFloat(
+            transitionSpec = {
+                when (initialState) {
+                    is ContentStatus.Appearing,
+                    is ContentStatus.Disappearing,
+                    -> spring()
+                    ContentStatus.NotVisible,
+                    ContentStatus.Visible,
+                    -> when (this@animateFloat.targetState) {
+                        is ContentStatus.Appearing,
+                        is ContentStatus.Disappearing,
+                        -> spring()
+                        ContentStatus.NotVisible -> tween(durationMillis = 90)
+                        ContentStatus.Visible -> tween(durationMillis = 220, delayMillis = 90)
+                    }
+                }
+            },
+            label = "alpha",
+        ) {
+            when (it) {
+                is ContentStatus.Appearing -> changingVisibilityEasing.transform(it.progressToVisible)
+                is ContentStatus.Disappearing -> changingVisibilityEasing.transform(1f - it.progressToNotVisible)
+                ContentStatus.NotVisible -> 0f
+                ContentStatus.Visible -> 1f
+            }
+        }
+
+        Box(
+            modifier = Modifier.graphicsLayer { this.alpha = alpha },
+            propagateMinConstraints = true,
+        ) {
+            contentWithStatus()
+        }
+    }
+
+fun <T> AnimatedContentDefaults.defaultTargetRenderingComparator(targetState: TargetState<T, *>): Comparator<T> =
+    compareBy {
+        when (targetState) {
+            is TargetState.InProgress -> when (it) {
+                targetState.current -> 1f
+                targetState.provisional -> 0f
+                else -> 2f
+            }
+            is TargetState.Single -> if (it == targetState.current) 1f else 2f
+        }
+    }
+
 /**
  * A version of AnimatedContent that can animate between [TargetState]s, a target of either one state or
  * between two states.
@@ -97,42 +151,7 @@ fun <T, M> AnimatedContent(
      * By default, this performs a cross-fade between content.
      */
     transitionSpec: @Composable Transition<ContentStatus<M>>.(contentWithStatus: @Composable () -> Unit) -> Unit =
-        { contentWithStatus ->
-            val changingVisibilityEasing = Easing({ 0f }, (0.5f to EaseInOut))
-            val alpha by animateFloat(
-                transitionSpec = {
-                    when (initialState) {
-                        is ContentStatus.Appearing,
-                        is ContentStatus.Disappearing,
-                        -> spring()
-                        ContentStatus.NotVisible,
-                        ContentStatus.Visible,
-                        -> when (this@animateFloat.targetState) {
-                            is ContentStatus.Appearing,
-                            is ContentStatus.Disappearing,
-                            -> spring()
-                            ContentStatus.NotVisible -> tween(durationMillis = 90)
-                            ContentStatus.Visible -> tween(durationMillis = 220, delayMillis = 90)
-                        }
-                    }
-                },
-                label = "alpha",
-            ) {
-                when (it) {
-                    is ContentStatus.Appearing -> changingVisibilityEasing.transform(it.progressToVisible)
-                    is ContentStatus.Disappearing -> changingVisibilityEasing.transform(1f - it.progressToNotVisible)
-                    ContentStatus.NotVisible -> 0f
-                    ContentStatus.Visible -> 1f
-                }
-            }
-
-            Box(
-                modifier = Modifier.graphicsLayer { this.alpha = alpha },
-                propagateMinConstraints = true,
-            ) {
-                contentWithStatus()
-            }
-        },
+        AnimatedContentDefaults.defaultTransitionSpec(),
     /**
      * The [Comparator] governing the order in which targets are rendered.
      *
@@ -141,16 +160,7 @@ fun <T, M> AnimatedContent(
      * By default, this will render the provisional target first (if any), then the current target, and then any
      * remaining targets.
      */
-    targetRenderingComparator: Comparator<T> = compareBy {
-        when (targetState) {
-            is TargetState.InProgress -> when (it) {
-                targetState.current -> 1f
-                targetState.provisional -> 0f
-                else -> 2f
-            }
-            is TargetState.Single -> if (it == targetState.current) 1f else 2f
-        }
-    },
+    targetRenderingComparator: Comparator<T> = AnimatedContentDefaults.defaultTargetRenderingComparator(targetState),
     /**
      * The animation specification for animating the content size, if it is enabled.
      */
@@ -167,133 +177,69 @@ fun <T, M> AnimatedContent(
     contentKey: (T) -> Any? = { it },
     label: String = "Custom AnimatedContent",
     content: @Composable (T) -> Unit,
-) {
-    val targetKeyState = targetState.map(contentKey)
-    val currentTargetKeyState by rememberUpdatedState(targetKeyState)
-
-    val seekableTransitionState = remember { SeekableTransitionState(targetKeyState.current) }
-
-    val seekableTransition = rememberTransition(
-        transitionState = seekableTransitionState,
+) = AnimatedContent(
+    animatedContentState = rememberAnimatedContentState(
+        targetState = targetState,
+        contentKey = contentKey,
         label = label,
-    )
+    ),
+    modifier = modifier,
+    contentAlignment = contentAlignment,
+    transitionSpec = transitionSpec,
+    targetRenderingComparator = targetRenderingComparator,
+    contentSizeAnimationSpec = contentSizeAnimationSpec,
+    animateInternalContentSizeChanges = animateInternalContentSizeChanges,
+    content = content,
+)
 
-    val previousTargetsInTransition = remember { mutableStateMapOf<Any?, T>() }
-
-    val newTargetsInTransition = when (targetState) {
-        is TargetState.InProgress -> setOf(targetState.current, targetState.provisional)
-        is TargetState.Single -> setOf(targetState.current)
-    }.associateBy(contentKey)
-
-    val currentTargetsInTransition = previousTargetsInTransition + newTargetsInTransition
-
-    DisposableEffect(currentTargetsInTransition) {
-        previousTargetsInTransition.putAll(currentTargetsInTransition)
-        onDispose {}
-    }
-
-    LaunchedEffect(Unit) {
-        snapshotFlow { currentTargetKeyState }
-            .distinctUntilChanged()
-            .buffer(capacity = Channel.CONFLATED)
-            .onEach { newTargetKeyState ->
-                when (newTargetKeyState) {
-                    is TargetState.InProgress -> {
-                        if (
-                            seekableTransition.currentState != newTargetKeyState.current &&
-                            seekableTransition.targetState != newTargetKeyState.current
-                        ) {
-                            Logger.d { "$label: snapping to ${newTargetKeyState.current}" }
-                            seekableTransitionState.snapTo(newTargetKeyState.current)
-                            Logger.d { "$label: snapped to ${newTargetKeyState.current}" }
-                        }
-                        Logger.d {
-                            "$label: seeking to ${newTargetKeyState.progress}, ${newTargetKeyState.provisional}"
-                        }
-                        seekableTransitionState.seekTo(newTargetKeyState.progress, newTargetKeyState.provisional)
-                        Logger.d {
-                            "$label: seeked to ${newTargetKeyState.progress}, ${newTargetKeyState.provisional}"
-                        }
-                    }
-
-                    is TargetState.Single -> {
-                        if (seekableTransition.currentState == newTargetKeyState.current) {
-                            Logger.d { "$label: snapping to ${newTargetKeyState.current}" }
-                            seekableTransitionState.animateTo(newTargetKeyState.current, snap())
-                            Logger.d { "$label: snapped to ${newTargetKeyState.current}" }
-                        } else {
-                            Logger.d { "$label: animating to ${newTargetKeyState.current}" }
-                            seekableTransitionState.animateTo(newTargetKeyState.current)
-                            Logger.d { "$label: animated to ${newTargetKeyState.current}" }
-                        }
-                    }
-                }
-            }
-            .collect()
-    }
-
-    Logger.d { "$label: currentTargetsInTransition: $currentTargetsInTransition" }
-
-    val targetKeysWithTransitions = currentTargetsInTransition.keys.associateWith { targetKey ->
-        key(targetKey) {
-            val targetContentStatus = when (targetKeyState) {
-                is TargetState.InProgress -> when (targetKey) {
-                    targetKeyState.provisional -> ContentStatus.Appearing(
-                        progressToVisible = targetKeyState.progress,
-                        metadata = targetKeyState.metadata,
-                    )
-                    targetKeyState.current -> ContentStatus.Disappearing(
-                        progressToNotVisible = targetKeyState.progress,
-                        metadata = targetKeyState.metadata,
-                    )
-                    else -> ContentStatus.NotVisible
-                }
-                is TargetState.Single -> if (targetKeyState.current == targetKey) {
-                    ContentStatus.Visible
-                } else {
-                    ContentStatus.NotVisible
-                }
-            }
-
-            val transitionState = remember {
-                MutableTransitionState(
-                    initialState = if (previousTargetsInTransition.isEmpty()) {
-                        targetContentStatus
-                    } else {
-                        ContentStatus.NotVisible
-                    },
-                )
-            }
-            rememberTransition(
-                transitionState = transitionState.apply {
-                    this.targetState = targetContentStatus
-                },
-                label = "$label > $targetKey content status",
-            )
-        }
-    }
-
-    targetKeysWithTransitions.forEach { (targetKey, transition) ->
-        if (
-            when (targetKeyState) {
-                is TargetState.InProgress ->
-                    targetKey != targetKeyState.provisional && targetKey != targetKeyState.current
-                is TargetState.Single ->
-                    targetKey != targetKeyState.current
-            }
-        ) {
-            key(targetKey) {
-                LaunchedEffect(Unit) {
-                    snapshotFlow { transition.currentState == transition.targetState }
-                        .filter { it }
-                        .onEach {
-                            previousTargetsInTransition.remove(targetKey)
-                        }
-                        .collect()
-                }
-            }
-        }
-    }
+/**
+ * A version of AnimatedContent that can animate between [TargetState]s, a target of either one state or
+ * between two states.
+ *
+ * For all [content] that is not [TargetState.current], [LocalGhostElement] will be `true`.
+ */
+@OptIn(ExperimentalTransitionApi::class)
+@Suppress("LongMethod", "CyclomaticComplexMethod", "LongParameterList")
+@Composable
+fun <T, M, K> AnimatedContent(
+    animatedContentState: AnimatedContentState<T, M, K>,
+    modifier: Modifier = Modifier,
+    contentAlignment: Alignment = Alignment.TopStart,
+    /**
+     * A [Comparable] wrapper around a content, that is transitioning with the given [ContentStatus].
+     *
+     * By default, this performs a cross-fade between content.
+     */
+    transitionSpec: @Composable Transition<ContentStatus<M>>.(contentWithStatus: @Composable () -> Unit) -> Unit =
+        AnimatedContentDefaults.defaultTransitionSpec(),
+    /**
+     * The [Comparator] governing the order in which targets are rendered.
+     *
+     * Targets will be rendered in ascending order, as given by the [targetRenderingComparator].
+     *
+     * By default, this will render the provisional target first (if any), then the current target, and then any
+     * remaining targets.
+     */
+    targetRenderingComparator: Comparator<T> =
+        AnimatedContentDefaults.defaultTargetRenderingComparator(animatedContentState.targetState),
+    /**
+     * The animation specification for animating the content size, if it is enabled.
+     */
+    contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
+    /**
+     * Whether or not the content size animation should be run when the size of the content itself changes.
+     * By default, this is `true`, which means that the size of the animated content container will animate if
+     * the internal size of the content changes.
+     * If this is `false`, only the size changes resulting from switching the [targetState] will be animated. Once the
+     * target size has animated to a particular [targetState], that will "lock in" to that [targetState] size track,
+     * size changes will be immediate when the [targetState] doesn't change.
+     */
+    animateInternalContentSizeChanges: Boolean = true,
+    content: @Composable (T) -> Unit,
+) {
+    val currentTargetsInTransition = animatedContentState.currentTargetsInTransition
+    val seekableTransition = animatedContentState.seekableTransition
+    val targetKeysWithTransitions = animatedContentState.targetKeysWithTransitions
 
     data class ConstraintsType(
         val isLookahead: Boolean,
@@ -313,7 +259,7 @@ fun <T, M> AnimatedContent(
 
     data class TargetStateLayoutId(val value: T)
 
-    var completedTargetSizeAnimation by remember(targetKeyState) {
+    var completedTargetSizeAnimation by remember(animatedContentState.targetKeyState) {
         mutableStateOf(true)
     }
 
@@ -335,7 +281,8 @@ fun <T, M> AnimatedContent(
                         /**
                          * Preserve the existing ghost element value, or if this is not the current value
                          */
-                        val isGhostElement = LocalGhostElement.current || targetKey != targetKeyState.current
+                        val isGhostElement = LocalGhostElement.current ||
+                            targetKey != animatedContentState.targetKeyState.current
                         val currentNavigationAnimatedContentScope = LocalNavigationAnimatedVisibilityScope.current
 
                         val updatedContentScope = if (currentNavigationAnimatedContentScope == null) {
@@ -398,18 +345,21 @@ fun <T, M> AnimatedContent(
                             // to run multiple times with different constraints for the same ConstraintsType.
                             // To accomplish that, don't observe reads here
                             Snapshot.withoutReadObservation {
+                                val targetContentKey = animatedContentState.contentKey(target)
                                 // Get the cache for the given target
-                                val cache = targetsWithConstraints.getValue(contentKey(target)).cache
+                                val cache = targetsWithConstraints.getValue(targetContentKey).cache
+
+                                val targetKeyState = animatedContentState.targetKeyState
 
                                 // If we don't have a saved constraints, the target is the current target, or the
                                 // target is the provisional target, update the constraints. Otherwise, we measure using
                                 // the cached constraints as we animate out.
                                 @Suppress("ComplexCondition")
                                 if (constraintsType !in cache ||
-                                    contentKey(target) == targetKeyState.current ||
+                                    targetContentKey == targetKeyState.current ||
                                     (
                                         targetKeyState.isInProgress() &&
-                                            contentKey(target) == targetKeyState.provisional
+                                            targetContentKey == targetKeyState.provisional
                                         )
                                 ) {
                                     cache[constraintsType] = constraints
@@ -421,7 +371,7 @@ fun <T, M> AnimatedContent(
                         measurable.measure(resolvedConstraints)
                     }
 
-                    val targetSize = when (targetState) {
+                    val targetSize = when (val targetState = animatedContentState.targetState) {
                         is TargetState.InProgress -> {
                             lerp(
                                 placeablesMap.getValue(targetState.current).size,
@@ -669,4 +619,186 @@ sealed interface ContentStatus<out M> {
         val metadata: M,
     ) : ContentStatus<M>
     data object NotVisible : ContentStatus<Nothing>
+}
+
+@Stable
+interface AnimatedContentState<T, M, K> {
+    val contentKey: (T) -> K
+
+    val targetState: TargetState<T, M>
+
+    val seekableTransition: Transition<K>
+
+    val currentTargetsInTransition: Map<K, T>
+
+    val targetKeysWithTransitions: Map<K, Transition<ContentStatus<M>>>
+}
+
+val <T, M, K> AnimatedContentState<T, M, K>.targetKeyState: TargetState<K, M> get() =
+    targetState.map(contentKey)
+
+@Composable
+fun <T, M> rememberAnimatedContentState(
+    targetState: TargetState<T, M>,
+    label: String = "Custom AnimatedContent",
+): AnimatedContentState<T, M, T> =
+    rememberAnimatedContentState(
+        targetState = targetState,
+        contentKey = { it },
+        label = label,
+    )
+
+@Suppress("LongMethod", "CyclomaticComplexMethod")
+@Composable
+fun <T, M, K> rememberAnimatedContentState(
+    targetState: TargetState<T, M>,
+    contentKey: (T) -> K,
+    label: String = "Custom AnimatedContent",
+): AnimatedContentState<T, M, K> {
+    val currentTargetState by rememberUpdatedState(targetState)
+    val targetKeyState = targetState.map(contentKey)
+    val currentTargetKeyState by rememberUpdatedState(targetKeyState)
+
+    val seekableTransitionState = remember { SeekableTransitionState(targetKeyState.current) }
+
+    val seekableTransition = rememberTransition(
+        transitionState = seekableTransitionState,
+        label = label,
+    )
+
+    val previousTargetsInTransition = remember { mutableStateMapOf<K, T>() }
+
+    val newTargetsInTransition = when (targetState) {
+        is TargetState.InProgress -> setOf(targetState.current, targetState.provisional)
+        is TargetState.Single -> setOf(targetState.current)
+    }.associateBy(contentKey)
+
+    val currentTargetsInTransition = previousTargetsInTransition + newTargetsInTransition
+
+    DisposableEffect(currentTargetsInTransition) {
+        previousTargetsInTransition.putAll(currentTargetsInTransition)
+        onDispose {}
+    }
+
+    LaunchedEffect(Unit) {
+        snapshotFlow { currentTargetKeyState }
+            .distinctUntilChanged()
+            .buffer(capacity = Channel.CONFLATED)
+            .onEach { newTargetKeyState ->
+                when (newTargetKeyState) {
+                    is TargetState.InProgress -> {
+                        if (
+                            seekableTransition.currentState != newTargetKeyState.current &&
+                            seekableTransition.targetState != newTargetKeyState.current
+                        ) {
+                            Logger.d { "$label: snapping to ${newTargetKeyState.current}" }
+                            seekableTransitionState.snapTo(newTargetKeyState.current)
+                            Logger.d { "$label: snapped to ${newTargetKeyState.current}" }
+                        }
+                        Logger.d {
+                            "$label: seeking to ${newTargetKeyState.progress}, ${newTargetKeyState.provisional}"
+                        }
+                        seekableTransitionState.seekTo(newTargetKeyState.progress, newTargetKeyState.provisional)
+                        Logger.d {
+                            "$label: seeked to ${newTargetKeyState.progress}, ${newTargetKeyState.provisional}"
+                        }
+                    }
+
+                    is TargetState.Single -> {
+                        if (seekableTransition.currentState == newTargetKeyState.current) {
+                            Logger.d { "$label: snapping to ${newTargetKeyState.current}" }
+                            seekableTransitionState.animateTo(newTargetKeyState.current, snap())
+                            Logger.d { "$label: snapped to ${newTargetKeyState.current}" }
+                        } else {
+                            Logger.d { "$label: animating to ${newTargetKeyState.current}" }
+                            seekableTransitionState.animateTo(newTargetKeyState.current)
+                            Logger.d { "$label: animated to ${newTargetKeyState.current}" }
+                        }
+                    }
+                }
+            }
+            .collect()
+    }
+
+    Logger.d { "$label: currentTargetsInTransition: $currentTargetsInTransition" }
+
+    val targetKeysWithTransitions = currentTargetsInTransition.keys.associateWith { targetKey ->
+        key(targetKey) {
+            val targetContentStatus = when (targetKeyState) {
+                is TargetState.InProgress -> when (targetKey) {
+                    targetKeyState.provisional -> ContentStatus.Appearing(
+                        progressToVisible = targetKeyState.progress,
+                        metadata = targetKeyState.metadata,
+                    )
+                    targetKeyState.current -> ContentStatus.Disappearing(
+                        progressToNotVisible = targetKeyState.progress,
+                        metadata = targetKeyState.metadata,
+                    )
+                    else -> ContentStatus.NotVisible
+                }
+                is TargetState.Single -> if (targetKeyState.current == targetKey) {
+                    ContentStatus.Visible
+                } else {
+                    ContentStatus.NotVisible
+                }
+            }
+
+            val transitionState = remember {
+                MutableTransitionState(
+                    initialState = if (previousTargetsInTransition.isEmpty()) {
+                        targetContentStatus
+                    } else {
+                        ContentStatus.NotVisible
+                    },
+                )
+            }
+            rememberTransition(
+                transitionState = transitionState.apply {
+                    this.targetState = targetContentStatus
+                },
+                label = "$label > $targetKey content status",
+            )
+        }
+    }
+
+    targetKeysWithTransitions.forEach { (targetKey, transition) ->
+        if (
+            when (targetKeyState) {
+                is TargetState.InProgress ->
+                    targetKey != targetKeyState.provisional && targetKey != targetKeyState.current
+                is TargetState.Single ->
+                    targetKey != targetKeyState.current
+            }
+        ) {
+            key(targetKey) {
+                LaunchedEffect(Unit) {
+                    snapshotFlow { transition.currentState == transition.targetState }
+                        .filter { it }
+                        .onEach {
+                            previousTargetsInTransition.remove(targetKey)
+                        }
+                        .collect()
+                }
+            }
+        }
+    }
+
+    val currentContentKey by rememberUpdatedState(contentKey)
+    val currentTargetKeysWithTransitions by rememberUpdatedState(targetKeysWithTransitions)
+    val currentCurrentTargetsInTransition by rememberUpdatedState(currentTargetsInTransition)
+
+    return remember(seekableTransition) {
+        object : AnimatedContentState<T, M, K> {
+            override val contentKey: (T) -> K
+                get() = currentContentKey
+            override val targetState: TargetState<T, M>
+                get() = currentTargetState
+            override val seekableTransition: Transition<K>
+                get() = seekableTransition
+            override val currentTargetsInTransition: Map<K, T>
+                get() = currentCurrentTargetsInTransition
+            override val targetKeysWithTransitions: Map<K, Transition<ContentStatus<M>>>
+                get() = currentTargetKeysWithTransitions
+        }
+    }
 }

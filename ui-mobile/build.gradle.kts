@@ -71,6 +71,7 @@ kotlin {
             dependencies {
                 implementation(libs.jetbrains.compose.material3)
                 implementation(libs.jetbrains.compose.materialIconsExtended)
+                implementation(libs.jetbrains.navigation3.ui)
             }
         }
         val nonAndroidMain by creating {
