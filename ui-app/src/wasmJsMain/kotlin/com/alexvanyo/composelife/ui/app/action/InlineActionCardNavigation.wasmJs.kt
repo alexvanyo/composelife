@@ -20,5 +20,3 @@ import com.livefront.sealedenum.SealedEnum
 
 actual val InlineActionCardNavigationType.Companion._sealedEnum: SealedEnum<InlineActionCardNavigationType>
     get() = sealedEnum
-
-actual val InlineActionCardBackstack.Companion._sealedEnum: SealedEnum<InlineActionCardBackstack> get() = sealedEnum

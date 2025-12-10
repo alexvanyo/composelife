@@ -54,8 +54,6 @@ fun <T> segmentingNavigationTransform(): RenderableNavigationTransform<
                 get() = transformedEntryMap
             override val currentEntryId: Uuid
                 get() = renderableNavigationState.navigationState.currentEntryId
-            override val previousEntryId: Uuid?
-                get() = renderableNavigationState.navigationState.previousEntryId
         }
 
     RenderableNavigationState(
