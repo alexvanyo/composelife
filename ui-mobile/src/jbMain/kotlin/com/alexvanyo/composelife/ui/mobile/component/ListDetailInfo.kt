@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,19 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.app.action
+package com.alexvanyo.composelife.ui.mobile.component
 
-import com.livefront.sealedenum.SealedEnum
+/**
+ * The marker interface for a list entry.
+ */
+interface ListEntry : ListDetailInfo
 
-actual val InlineActionCardNavigationType.Companion._sealedEnum: SealedEnum<InlineActionCardNavigationType>
-    get() = sealedEnum
+/**
+ * The marker interface for a detail entry.
+ */
+interface DetailEntry : ListDetailInfo
+
+interface ListDetailInfo {
+    val isListVisible: Boolean
+    val isDetailVisible: Boolean
+}

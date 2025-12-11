@@ -24,22 +24,7 @@ import com.alexvanyo.composelife.navigation.BackstackValueSaverFactory
 import com.alexvanyo.composelife.serialization.sealedEnumSaver
 import com.livefront.sealedenum.GenSealedEnum
 import com.livefront.sealedenum.SealedEnum
-
-/**
- * A sealed enum of the three different inline backstack types for the inline action card navigation.
- */
-sealed interface InlineActionCardBackstack {
-    data object Speed : InlineActionCardBackstack
-    data object Edit : InlineActionCardBackstack
-    data object Settings : InlineActionCardBackstack
-
-    @GenSealedEnum
-    companion object {
-        val Saver = sealedEnumSaver(_sealedEnum)
-    }
-}
-
-expect val InlineActionCardBackstack.Companion._sealedEnum: SealedEnum<InlineActionCardBackstack>
+import kotlin.uuid.Uuid
 
 /**
  * The entry value for the action card navigation.
@@ -60,6 +45,8 @@ sealed interface InlineActionCardNavigation {
     data object Speed : InlineActionCardNavigation {
         override val type = Companion
 
+        val entryId = Uuid.parse("00000000-0000-8000-8000-000000000000")
+
         data object Companion : InlineActionCardNavigationType {
             override fun saverFactory(
                 previous: BackstackEntry<InlineActionCardNavigation>?,
@@ -73,6 +60,8 @@ sealed interface InlineActionCardNavigation {
     data object Edit : InlineActionCardNavigation {
         override val type = Companion
 
+        val entryId = Uuid.parse("00000000-0000-8000-8000-000000000001")
+
         data object Companion : InlineActionCardNavigationType {
             override fun saverFactory(
                 previous: BackstackEntry<InlineActionCardNavigation>?,
@@ -85,6 +74,8 @@ sealed interface InlineActionCardNavigation {
 
     data object Settings : InlineActionCardNavigation {
         override val type = Companion
+
+        val entryId = Uuid.parse("00000000-0000-8000-8000-000000000002")
 
         data object Companion : InlineActionCardNavigationType {
             override fun saverFactory(

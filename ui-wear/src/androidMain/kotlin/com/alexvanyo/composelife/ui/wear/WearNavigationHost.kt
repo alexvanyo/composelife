@@ -24,10 +24,10 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
@@ -37,86 +37,86 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.wear.compose.foundation.hierarchicalFocusGroup
 import androidx.wear.compose.material3.SwipeToDismissBox
 import com.alexvanyo.composelife.navigation.BackstackEntry
-import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.MutableBackstackNavigationController
-import com.alexvanyo.composelife.navigation.RenderableNavigationState
-import com.alexvanyo.composelife.navigation.associateWithRenderablePanes
-import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.navigation.popBackstack
-import com.alexvanyo.composelife.navigation.previousEntry
+import com.alexvanyo.composelife.navigation.rememberDecoratedNavEntries
+import com.alexvanyo.composelife.navigation3.scene.SceneState
+import com.alexvanyo.composelife.navigation3.scene.SinglePaneSceneStrategy
+import com.alexvanyo.composelife.navigation3.scene.rememberSceneState
 import kotlin.uuid.Uuid
 
 @Composable
-fun <T> WearNavigationHost(
+fun <T : Any> WearNavDisplay(
     navigationController: MutableBackstackNavigationController<T>,
     modifier: Modifier = Modifier,
     content: @Composable (BackstackEntry<out T>) -> Unit,
-) = WearNavigationHost(
-    backstackState = navigationController,
-    onNavigateBack = { navigationController.popBackstack() },
-    modifier = modifier,
-    content = content,
-)
-
-@Composable
-fun <T> WearNavigationHost(
-    backstackState: BackstackState<T>,
-    onNavigateBack: () -> Unit,
-    modifier: Modifier = Modifier,
-    content: @Composable (BackstackEntry<out T>) -> Unit,
-) = WearNavigationFrame(
-    renderableNavigationState = associateWithRenderablePanes(backstackState, content),
-    onNavigateBack = onNavigateBack,
+) = WearNavDisplay(
+    sceneState = rememberSceneState(
+        entries = rememberDecoratedNavEntries(
+            navigationState = navigationController,
+            pane = content,
+        ),
+        sceneStrategy = SinglePaneSceneStrategy(),
+        onBack = navigationController::popBackstack,
+    ),
+    onNavigateBack = navigationController::popBackstack,
     modifier = modifier,
 )
 
 @Suppress("LongMethod")
 @Composable
-fun <T> WearNavigationFrame(
-    renderableNavigationState: RenderableNavigationState<BackstackEntry<T>, BackstackState<T>>,
+fun <T : Any> WearNavDisplay(
+    sceneState: SceneState<T>,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val rememberedPanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
-        key(id) {
-            rememberUpdatedState(paneContent)
-        }
-    }
-    val currentEntry = renderableNavigationState.navigationState.currentEntry
-    val previousEntry = renderableNavigationState.navigationState.previousEntry
+    val currentScene = sceneState.currentScene
+    val previousScene = sceneState.previousScenes.lastOrNull()
 
-    val foregroundTransition = renderableNavigationState.navigationState.entryMap.mapValues { (id, _) ->
-        key(id) {
-            val transitionState = remember {
-                MutableTransitionState(id != currentEntry.id).apply {
-                    targetState = true
-                }
+    val allScenes = sceneState.previousScenes + sceneState.currentScene
+
+    val foregroundTransitionStates = remember {
+        mutableStateMapOf<Any, MutableTransitionState<Boolean>>()
+    }
+
+    DisposableEffect(allScenes) {
+        val allSceneKeys = allScenes.map { it.key }.toSet()
+        foregroundTransitionStates.keys.toSet().forEach { key ->
+            if (key !in allSceneKeys) {
+                foregroundTransitionStates.remove(key)
             }
-            rememberTransition(transitionState)
         }
+        onDispose {}
     }
 
     val isScreenRound = LocalConfiguration.current.isScreenRound
 
     SwipeToDismissBox(
         onDismissed = onNavigateBack,
-        backgroundKey = previousEntry?.id ?: remember { Uuid.random() },
-        contentKey = currentEntry.id,
-        userSwipeEnabled = previousEntry != null,
+        backgroundKey = previousScene?.key ?: remember { Uuid.random() },
+        contentKey = currentScene.key,
+        userSwipeEnabled = previousScene != null,
         modifier = modifier,
     ) { isBackground ->
-        val entry = if (isBackground) {
-            checkNotNull(previousEntry) {
-                "Current entry had no previous, should not be showing background!"
+        val scene = if (isBackground) {
+            checkNotNull(previousScene) {
+                "Current scene had no previous, should not be showing background!"
             }
         } else {
-            currentEntry
+            currentScene
         }
 
         val paneModifier = if (isBackground) {
             Modifier
         } else {
-            val transition = foregroundTransition.getValue(entry.id)
+            val transitionState = remember {
+                foregroundTransitionStates.getOrPut(scene.key) {
+                    MutableTransitionState(scene.key != currentScene.key).apply {
+                        targetState = true
+                    }
+                }
+            }
+            val transition = rememberTransition(transitionState)
             val animationSpec = remember { tween<Float>(400, easing = CubicBezierEasing(0.4f, 0f, 0.2f, 1f)) }
             val scale by transition.animateFloat(
                 transitionSpec = { animationSpec },
@@ -152,13 +152,10 @@ fun <T> WearNavigationFrame(
 
         Box(
             modifier = paneModifier.hierarchicalFocusGroup(
-                active = currentEntry.id == entry.id,
+                active = currentScene.key == scene.key,
             ),
         ) {
-            key(entry.id) {
-                // Fetch and store the movable content to hold onto while animating out
-                remember { rememberedPanes.getValue(entry.id) }.value.invoke()
-            }
+            scene.content()
         }
     }
 }
