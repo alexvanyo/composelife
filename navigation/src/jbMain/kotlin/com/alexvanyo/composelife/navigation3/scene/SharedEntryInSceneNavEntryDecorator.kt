@@ -16,20 +16,17 @@
 
 package com.alexvanyo.composelife.navigation3.scene
 
-import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavEntryDecorator
-import com.alexvanyo.composelife.navigation3.ui.LocalNavAnimatedVisibilityScope
+import com.alexvanyo.composelife.navigation.trySharedElement
 
 /** Returns a [SharedEntryInSceneNavEntryDecorator] that is remembered across recompositions. */
 @Composable
-internal fun <T : Any> rememberSharedEntryInSceneNavEntryDecorator(
-    sharedTransitionScope: SharedTransitionScope,
-): SharedEntryInSceneNavEntryDecorator<T> =
-    remember(sharedTransitionScope) { SharedEntryInSceneNavEntryDecorator(sharedTransitionScope) }
+internal fun <T : Any> rememberSharedEntryInSceneNavEntryDecorator(): SharedEntryInSceneNavEntryDecorator<T> =
+    remember { SharedEntryInSceneNavEntryDecorator() }
 
 /**
  * A [NavEntryDecorator] that wraps each entry in a [Modifier.sharedElement] to allow nav displays
@@ -37,20 +34,14 @@ internal fun <T : Any> rememberSharedEntryInSceneNavEntryDecorator(
  *
  * This should be wrapped around the [SceneSetupNavEntryDecorator].
  */
-internal class SharedEntryInSceneNavEntryDecorator<T : Any>(
-    sharedTransitionScope: SharedTransitionScope,
-) :
-    NavEntryDecorator<T>(
-        decorate = { entry ->
-            with(sharedTransitionScope) {
-                Box(
-                    Modifier.sharedElement(
-                        rememberSharedContentState(entry.contentKey),
-                        animatedVisibilityScope = LocalNavAnimatedVisibilityScope.current,
-                    ),
-                ) {
-                    entry.Content()
-                }
-            }
-        },
-    )
+internal class SharedEntryInSceneNavEntryDecorator<T : Any>: NavEntryDecorator<T>(
+    decorate = { entry ->
+        Box(
+            Modifier.trySharedElement(
+                key = entry.contentKey,
+            ),
+        ) {
+            entry.Content()
+        }
+    },
+)

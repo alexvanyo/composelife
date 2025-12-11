@@ -457,10 +457,8 @@ class ComposeLifeAppTests : BaseActivityInjectTest<MainActivity>(
             .performClick()
 
         if (
-            false
-            // TODO: Re-enable with dialog scene strategy support
-            // windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND) ||
-            // windowSizeClass.isHeightAtLeastBreakpoint(WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND)
+            windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND) ||
+            windowSizeClass.isHeightAtLeastBreakpoint(WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND)
         ) {
             composeTestRule
                 .onNode(isDialog())

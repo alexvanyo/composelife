@@ -28,12 +28,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,88 +56,13 @@ import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.util.lerp
 import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.scene.OverlayScene
 import androidx.navigation3.scene.Scene
 import androidx.navigationevent.NavigationEvent
 import androidx.navigationevent.NavigationEventTransitionState
-import com.alexvanyo.composelife.navigation.BackstackEntry
-import com.alexvanyo.composelife.navigation.BackstackState
-import com.alexvanyo.composelife.navigation.RenderableNavigationState
-import com.alexvanyo.composelife.navigation.associateWithRenderablePanes
-import com.alexvanyo.composelife.navigation.currentEntry
-import com.alexvanyo.composelife.navigation.previousEntry
 import com.alexvanyo.composelife.navigation3.scene.LocalEntriesToExcludeFromCurrentScene
 import com.alexvanyo.composelife.navigation3.scene.SceneState
-import com.alexvanyo.composelife.navigation3.ui.LocalNavAnimatedVisibilityScope
 import kotlin.reflect.KClass
-
-@Composable
-@Suppress("LongParameterList")
-fun <T> MaterialPredictiveNavigationHost(
-    navigationEventTransitionState: NavigationEventTransitionState,
-    backstackState: BackstackState<T>,
-    modifier: Modifier = Modifier,
-    contentAlignment: Alignment = Alignment.TopStart,
-    contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
-    animateInternalContentSizeChanges: Boolean = false,
-    clipUsingWindowShape: Boolean = false,
-    content: @Composable (BackstackEntry<T>) -> Unit,
-) = MaterialPredictiveNavigationFrame(
-    renderableNavigationState = associateWithRenderablePanes(backstackState, content),
-    modifier = modifier,
-    navigationEventTransitionState = navigationEventTransitionState,
-    contentAlignment = contentAlignment,
-    contentSizeAnimationSpec = contentSizeAnimationSpec,
-    animateInternalContentSizeChanges = animateInternalContentSizeChanges,
-    clipUsingWindowShape = clipUsingWindowShape,
-)
-
-@Suppress("LongParameterList")
-@Composable
-fun <T> CrossfadePredictiveNavigationFrame(
-    renderableNavigationState: RenderableNavigationState<BackstackEntry<T>, BackstackState<T>>,
-    navigationEventTransitionState: NavigationEventTransitionState,
-    modifier: Modifier = Modifier,
-    contentAlignment: Alignment = Alignment.TopStart,
-    contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
-    animateInternalContentSizeChanges: Boolean = false,
-) {
-    val rememberedPanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
-        key(id) {
-            rememberUpdatedState(paneContent)
-        }
-    }
-
-    val backstackState = renderableNavigationState.navigationState
-    val targetState = when (navigationEventTransitionState) {
-        NavigationEventTransitionState.Idle -> TargetState.Single(backstackState.currentEntry)
-        is NavigationEventTransitionState.InProgress -> {
-            val previous = backstackState.previousEntry
-            if (previous != null) {
-                TargetState.InProgress(
-                    current = backstackState.currentEntry,
-                    provisional = previous,
-                    progress = navigationEventTransitionState.latestEvent.progress,
-                )
-            } else {
-                TargetState.Single(backstackState.currentEntry)
-            }
-        }
-    }
-
-    AnimatedContent(
-        targetState = targetState,
-        contentAlignment = contentAlignment,
-        contentSizeAnimationSpec = contentSizeAnimationSpec,
-        animateInternalContentSizeChanges = animateInternalContentSizeChanges,
-        contentKey = BackstackEntry<T>::id,
-        label = "CrossfadePredictiveNavigationFrame",
-        modifier = modifier,
-    ) { entry ->
-        key(entry.id) {
-            remember { rememberedPanes.getValue(entry.id) }.value.invoke()
-        }
-    }
-}
 
 @Suppress("LongParameterList", "LongMethod")
 @Composable
@@ -156,19 +79,37 @@ fun <T : Any> CrossfadePredictiveNavDisplay(
         navigationEventTransitionState = navigationEventTransitionState,
     )
 
-    AnimatedContent(
-        animatedContentState = navDisplayState.animatedContentState,
-        contentAlignment = contentAlignment,
-        contentSizeAnimationSpec = contentSizeAnimationSpec,
-        animateInternalContentSizeChanges = animateInternalContentSizeChanges,
-        modifier = modifier,
-    ) { targetScene ->
-        CompositionLocalProvider(
-            LocalNavAnimatedVisibilityScope provides LocalNavigationAnimatedVisibilityScope.current!!,
-            LocalEntriesToExcludeFromCurrentScene provides
-                navDisplayState.entriesToExcludeFromCurrentScene.getValue(targetScene::class to targetScene.key),
-        ) {
-            targetScene.content()
+    Box(modifier = modifier) {
+        AnimatedContent(
+            animatedContentState = navDisplayState.animatedContentState,
+            contentAlignment = contentAlignment,
+            contentSizeAnimationSpec = contentSizeAnimationSpec,
+            animateInternalContentSizeChanges = animateInternalContentSizeChanges,
+        ) { targetScene ->
+            CompositionLocalProvider(
+                LocalEntriesToExcludeFromCurrentScene provides
+                    navDisplayState.entriesToExcludeFromCurrentScene.getValue(targetScene::class to targetScene.key),
+            ) {
+                targetScene.content()
+            }
+        }
+
+        AnimatedContent(
+            animatedContentState = navDisplayState.overlayAnimatedContentState,
+            contentAlignment = contentAlignment,
+            contentSizeAnimationSpec = contentSizeAnimationSpec,
+            animateInternalContentSizeChanges = animateInternalContentSizeChanges,
+        ) { targetOverlayScene ->
+            if (targetOverlayScene != null) {
+                CompositionLocalProvider(
+                    LocalEntriesToExcludeFromCurrentScene provides
+                        navDisplayState.entriesToExcludeFromCurrentScene.getValue(
+                            targetOverlayScene::class to targetOverlayScene.key,
+                        ),
+                ) {
+                    targetOverlayScene.content()
+                }
+            }
         }
     }
 }
@@ -176,10 +117,18 @@ fun <T : Any> CrossfadePredictiveNavDisplay(
 interface NavDisplayState<T : Any> {
     val animatedContentState:
         AnimatedContentState<Scene<T>, NavigationEventTransitionState.InProgress, Pair<KClass<out Scene<T>>, Any>>
+
+    val overlayAnimatedContentState:
+        AnimatedContentState<
+            OverlayScene<T>?,
+            NavigationEventTransitionState.InProgress,
+            Pair<KClass<out OverlayScene<T>>, Any>?,
+            >
+
     val entriesToExcludeFromCurrentScene: Map<Pair<KClass<out Scene<T>>, Any>, Set<Any>>
 }
 
-@Suppress("LongMethod")
+@Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
 fun <T : Any> rememberNavDisplayState(
     sceneState: SceneState<T>,
@@ -201,11 +150,32 @@ fun <T : Any> rememberNavDisplayState(
             }
         }
     }
+    val overlayTargetState = when (navigationEventTransitionState) {
+        NavigationEventTransitionState.Idle -> TargetState.Single(sceneState.overlayScenes.lastOrNull())
+        is NavigationEventTransitionState.InProgress -> {
+            val previous = sceneState.overlayScenes.getOrNull(sceneState.overlayScenes.lastIndex - 1)
+            if (previous != null) {
+                TargetState.InProgress(
+                    current = sceneState.overlayScenes.lastOrNull(),
+                    provisional = previous,
+                    progress = navigationEventTransitionState.latestEvent.progress,
+                    metadata = navigationEventTransitionState,
+                )
+            } else {
+                TargetState.Single(sceneState.overlayScenes.lastOrNull())
+            }
+        }
+    }
 
     val animatedContentState = rememberAnimatedContentState(
         targetState = targetState,
         contentKey = { it::class to it.key },
-        label = "rememberNavDisplayState",
+        label = "rememberNavDisplayStateTargetState",
+    )
+    val overlayAnimatedContentState = rememberAnimatedContentState(
+        targetState = overlayTargetState,
+        contentKey = { it?.let { it::class to it.key } },
+        label = "rememberNavDisplayStateOverlayTargetState",
     )
 
     val previousMostRecentTargetSceneKeys = remember {
@@ -222,6 +192,21 @@ fun <T : Any> rememberNavDisplayState(
             is TargetState.Single<Scene<T>> -> {
                 listOf(
                     targetState.current::class to targetState.current.key,
+                )
+            }
+        } + when (overlayTargetState) {
+            is TargetState.InProgress<OverlayScene<T>?, *> -> {
+                val current = overlayTargetState.current
+                val provisional = overlayTargetState.provisional
+                listOfNotNull(
+                    current?.let { it::class to it.key },
+                    provisional?.let { it::class to it.key },
+                )
+            }
+            is TargetState.Single<OverlayScene<T>?> -> {
+                val current = overlayTargetState.current
+                listOfNotNull(
+                    current?.let { it::class to it.key },
                 )
             }
         }
@@ -245,7 +230,8 @@ fun <T : Any> rememberNavDisplayState(
         }
         onDispose {}
     }
-    val currentTargetKeysInTransition = animatedContentState.currentTargetsInTransition.keys.toSet()
+    val currentTargetKeysInTransition = animatedContentState.currentTargetsInTransition.keys.toSet() +
+        overlayAnimatedContentState.currentTargetsInTransition.keys.toSet()
     DisposableEffect(
         currentTargetKeysInTransition,
     ) {
@@ -258,7 +244,7 @@ fun <T : Any> rememberNavDisplayState(
         onDispose {}
     }
 
-    val currentScenesByKey = (listOf(sceneState.currentScene) + sceneState.previousScenes)
+    val currentScenesByKey = (sceneState.overlayScenes + listOf(sceneState.currentScene) + sceneState.previousScenes)
         .associateBy { it::class to it.key }
 
     scenesInTransition.putAll(currentScenesByKey)
@@ -282,234 +268,18 @@ fun <T : Any> rememberNavDisplayState(
     return object : NavDisplayState<T> {
         override val animatedContentState:
             AnimatedContentState<Scene<T>, NavigationEventTransitionState.InProgress, Pair<KClass<out Scene<T>>, Any>>
-
             get() = animatedContentState
+
+        override val overlayAnimatedContentState:
+            AnimatedContentState<
+                OverlayScene<T>?,
+                NavigationEventTransitionState.InProgress,
+                Pair<KClass<out OverlayScene<T>>, Any>?,
+                >
+            get() = overlayAnimatedContentState
+
         override val entriesToExcludeFromCurrentScene: Map<Pair<KClass<out Scene<T>>, Any>, Set<Any>>
             get() = entriesToExcludeFromCurrentScene
-    }
-}
-
-/**
- * A navigation frame that implements the Material predictive back design for animating between panes upon
- * popping.
- *
- * https://developer.android.com/design/ui/mobile/guides/patterns/predictive-back#full-pane-surfaces
- */
-@Suppress("CyclomaticComplexMethod", "LongMethod", "LongParameterList")
-@Composable
-fun <T> MaterialPredictiveNavigationFrame(
-    renderableNavigationState: RenderableNavigationState<BackstackEntry<T>, BackstackState<T>>,
-    navigationEventTransitionState: NavigationEventTransitionState,
-    modifier: Modifier = Modifier,
-    contentAlignment: Alignment = Alignment.TopStart,
-    contentSizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring(stiffness = Spring.StiffnessMediumLow),
-    animateInternalContentSizeChanges: Boolean = false,
-    clipUsingWindowShape: Boolean = false,
-) {
-    val rememberedPanes = renderableNavigationState.renderablePanes.mapValues { (id, paneContent) ->
-        key(id) {
-            rememberUpdatedState(paneContent)
-        }
-    }
-
-    val backstackState = renderableNavigationState.navigationState
-
-    val targetState = when (navigationEventTransitionState) {
-        NavigationEventTransitionState.Idle -> TargetState.Single(backstackState.currentEntry)
-        is NavigationEventTransitionState.InProgress -> {
-            val previous = backstackState.previousEntry
-            if (previous != null) {
-                TargetState.InProgress(
-                    current = backstackState.currentEntry,
-                    provisional = previous,
-                    progress = navigationEventTransitionState.latestEvent.progress,
-                    metadata = navigationEventTransitionState,
-                )
-            } else {
-                TargetState.Single(backstackState.currentEntry)
-            }
-        }
-    }
-
-    AnimatedContent(
-        targetState = targetState,
-        contentAlignment = contentAlignment,
-        transitionSpec = { contentWithStatus ->
-            val contentStatusTargetState = this@AnimatedContent.targetState
-
-            val alpha by animateFloat(
-                transitionSpec = {
-                    when (initialState) {
-                        is ContentStatus.Appearing,
-                        is ContentStatus.Disappearing,
-                        -> spring()
-                        ContentStatus.NotVisible,
-                        ContentStatus.Visible,
-                        -> when (this@animateFloat.targetState) {
-                            is ContentStatus.Appearing,
-                            is ContentStatus.Disappearing,
-                            -> spring()
-                            ContentStatus.NotVisible -> tween(durationMillis = 90)
-                            ContentStatus.Visible -> tween(durationMillis = 220, delayMillis = 90)
-                        }
-                    }
-                },
-                label = "alpha",
-            ) {
-                when (it) {
-                    is ContentStatus.Appearing -> 1f
-                    is ContentStatus.Disappearing -> 1f
-                    ContentStatus.NotVisible -> 0f
-                    ContentStatus.Visible -> 1f
-                }
-            }
-            val lastDisappearingValue by remember {
-                mutableStateOf<ContentStatus.Disappearing<out NavigationEventTransitionState.InProgress>?>(
-                    null,
-                )
-            }.apply {
-                when (contentStatusTargetState) {
-                    is ContentStatus.Appearing -> value = null
-                    is ContentStatus.Disappearing -> if (contentStatusTargetState.progressToNotVisible >= 0.01f) {
-                        // Only save that we were disappearing if the progress is at least 1% along
-                        value = contentStatusTargetState
-                    }
-                    ContentStatus.NotVisible -> Unit // Preserve the previous value of wasDisappearing
-                    ContentStatus.Visible -> value = null
-                }
-            }
-            val scale by animateFloat(
-                label = "scale",
-            ) {
-                when (it) {
-                    is ContentStatus.Appearing -> 1f
-                    is ContentStatus.Disappearing -> lerp(1f, 0.9f, it.progressToNotVisible)
-                    ContentStatus.NotVisible -> if (lastDisappearingValue != null) 0.9f else 1f
-                    ContentStatus.Visible -> 1f
-                }
-            }
-            val translationX by animateDp(
-                label = "translationX",
-            ) {
-                when (it) {
-                    is ContentStatus.Appearing -> 0.dp
-                    is ContentStatus.Disappearing -> {
-                        val metadata = it.metadata
-                        lerp(
-                            0.dp,
-                            8.dp,
-                            it.progressToNotVisible,
-                        ) * when (metadata.latestEvent.swipeEdge) {
-                            NavigationEvent.EDGE_LEFT -> -1f
-                            NavigationEvent.EDGE_RIGHT -> 1f
-                            else -> 0f
-                        }
-                    }
-                    ContentStatus.NotVisible -> {
-                        8.dp * when (lastDisappearingValue?.metadata?.latestEvent?.swipeEdge) {
-                            NavigationEvent.EDGE_LEFT -> -1f
-                            NavigationEvent.EDGE_RIGHT -> 1f
-                            else -> 0f
-                        }
-                    }
-                    ContentStatus.Visible -> 0.dp
-                }
-            }
-            val cornerRadius by animateDp(
-                label = "cornerRadius",
-            ) {
-                when (it) {
-                    is ContentStatus.Appearing -> 0.dp
-                    is ContentStatus.Disappearing -> lerp(0.dp, 28.dp, it.progressToNotVisible)
-                    ContentStatus.NotVisible -> if (lastDisappearingValue != null) 28.dp else 0.dp
-                    ContentStatus.Visible -> 0.dp
-                }
-            }
-            val pivotFractionX by animateFloat(
-                label = "pivotFractionX",
-            ) {
-                when (it) {
-                    is ContentStatus.Appearing -> 0.5f
-                    is ContentStatus.Disappearing -> {
-                        when (it.metadata.latestEvent.swipeEdge) {
-                            NavigationEvent.EDGE_LEFT -> 1f
-                            NavigationEvent.EDGE_RIGHT -> 0f
-                            else -> 0.5f
-                        }
-                    }
-                    ContentStatus.NotVisible -> {
-                        when (lastDisappearingValue?.metadata?.latestEvent?.swipeEdge) {
-                            NavigationEvent.EDGE_LEFT -> 1f
-                            NavigationEvent.EDGE_RIGHT -> 0f
-                            else -> 0.5f
-                        }
-                    }
-                    ContentStatus.Visible -> 0.5f
-                }
-            }
-
-            val windowShape = currentWindowShape()
-            var relativeLayoutBounds: RelativeLayoutBounds? by remember { mutableStateOf(null) }
-
-            Box(
-                modifier = Modifier
-                    .onLayoutRectChanged(
-                        throttleMillis = 0,
-                        debounceMillis = 0,
-                    ) {
-                        relativeLayoutBounds = it
-                    }
-                    .graphicsLayer {
-                        shape = if (clipUsingWindowShape) {
-                            val cornerRadiusPath = Path().apply {
-                                addRoundRect(
-                                    RoundRect(size.toRect(), CornerRadius(cornerRadius.toPx())),
-                                )
-                            }
-                            val clippingPath = cornerRadiusPath and windowShape.path.copy().apply {
-                                translate(-(relativeLayoutBounds?.positionInWindow?.toOffset() ?: Offset.Zero))
-                            }
-                            object : Shape {
-                                override fun createOutline(
-                                    size: Size,
-                                    layoutDirection: LayoutDirection,
-                                    density: Density,
-                                ): Outline = Outline.Generic(clippingPath)
-                            }
-                        } else {
-                            RoundedCornerShape(cornerRadius)
-                        }
-                        shadowElevation = 6.dp.toPx()
-                        this.translationX = translationX.toPx()
-                        this.alpha = alpha
-                        this.scaleX = scale
-                        this.scaleY = scale
-                        this.transformOrigin = TransformOrigin(pivotFractionX, 0.5f)
-                        clip = true
-                    },
-                propagateMinConstraints = true,
-            ) {
-                contentWithStatus()
-            }
-        },
-        targetRenderingComparator = compareByDescending { entry ->
-            // Render items in order of the backstack, with the top of the backstack rendered last
-            // If the entry is not in the backstack at all, assume that it is disappearing aftering being popped, and
-            // render it on top of everything still in the backstack
-            generateSequence(
-                backstackState.currentEntry,
-                BackstackEntry<T>::previous,
-            ).indexOfFirst { it.id == entry.id }
-        },
-        contentSizeAnimationSpec = contentSizeAnimationSpec,
-        animateInternalContentSizeChanges = animateInternalContentSizeChanges,
-        contentKey = BackstackEntry<T>::id,
-        label = "MaterialPredictiveNavigationFrame",
-        modifier = modifier,
-    ) { entry ->
-        key(entry.id) {
-            remember { rememberedPanes.getValue(entry.id) }.value.invoke()
-        }
     }
 }
 
@@ -529,184 +299,209 @@ fun <T : Any> MaterialPredictiveNavDisplay(
         navigationEventTransitionState = navigationEventTransitionState,
     )
 
-    AnimatedContent(
-        animatedContentState = navDisplayState.animatedContentState,
-        contentAlignment = contentAlignment,
-        transitionSpec = { contentWithStatus ->
-            val contentStatusTargetState = this@AnimatedContent.targetState
+    Box(modifier = modifier) {
+        AnimatedContent(
+            animatedContentState = navDisplayState.animatedContentState,
+            contentAlignment = contentAlignment,
+            transitionSpec = { contentWithStatus ->
+                val contentStatusTargetState = this@AnimatedContent.targetState
 
-            val alpha by animateFloat(
-                transitionSpec = {
-                    when (initialState) {
-                        is ContentStatus.Appearing,
-                        is ContentStatus.Disappearing,
-                        -> spring()
-                        ContentStatus.NotVisible,
-                        ContentStatus.Visible,
-                        -> when (this@animateFloat.targetState) {
+                val alpha by animateFloat(
+                    transitionSpec = {
+                        when (initialState) {
                             is ContentStatus.Appearing,
                             is ContentStatus.Disappearing,
                             -> spring()
-                            ContentStatus.NotVisible -> tween(durationMillis = 90)
-                            ContentStatus.Visible -> tween(durationMillis = 220, delayMillis = 90)
-                        }
-                    }
-                },
-                label = "alpha",
-            ) {
-                when (it) {
-                    is ContentStatus.Appearing -> 1f
-                    is ContentStatus.Disappearing -> 1f
-                    ContentStatus.NotVisible -> 0f
-                    ContentStatus.Visible -> 1f
-                }
-            }
-            val lastDisappearingValue by remember {
-                mutableStateOf<ContentStatus.Disappearing<out NavigationEventTransitionState.InProgress>?>(
-                    null,
-                )
-            }.apply {
-                when (contentStatusTargetState) {
-                    is ContentStatus.Appearing -> value = null
-                    is ContentStatus.Disappearing -> if (contentStatusTargetState.progressToNotVisible >= 0.01f) {
-                        // Only save that we were disappearing if the progress is at least 1% along
-                        value = contentStatusTargetState
-                    }
-                    ContentStatus.NotVisible -> Unit // Preserve the previous value of wasDisappearing
-                    ContentStatus.Visible -> value = null
-                }
-            }
-            val scale by animateFloat(
-                label = "scale",
-            ) {
-                when (it) {
-                    is ContentStatus.Appearing -> 1f
-                    is ContentStatus.Disappearing -> lerp(1f, 0.9f, it.progressToNotVisible)
-                    ContentStatus.NotVisible -> if (lastDisappearingValue != null) 0.9f else 1f
-                    ContentStatus.Visible -> 1f
-                }
-            }
-            val translationX by animateDp(
-                label = "translationX",
-            ) {
-                when (it) {
-                    is ContentStatus.Appearing -> 0.dp
-                    is ContentStatus.Disappearing -> {
-                        val metadata = it.metadata
-                        lerp(
-                            0.dp,
-                            8.dp,
-                            it.progressToNotVisible,
-                        ) * when (metadata.latestEvent.swipeEdge) {
-                            NavigationEvent.EDGE_LEFT -> -1f
-                            NavigationEvent.EDGE_RIGHT -> 1f
-                            else -> 0f
-                        }
-                    }
-                    ContentStatus.NotVisible -> {
-                        8.dp * when (lastDisappearingValue?.metadata?.latestEvent?.swipeEdge) {
-                            NavigationEvent.EDGE_LEFT -> -1f
-                            NavigationEvent.EDGE_RIGHT -> 1f
-                            else -> 0f
-                        }
-                    }
-                    ContentStatus.Visible -> 0.dp
-                }
-            }
-            val cornerRadius by animateDp(
-                label = "cornerRadius",
-            ) {
-                when (it) {
-                    is ContentStatus.Appearing -> 0.dp
-                    is ContentStatus.Disappearing -> lerp(0.dp, 28.dp, it.progressToNotVisible)
-                    ContentStatus.NotVisible -> if (lastDisappearingValue != null) 28.dp else 0.dp
-                    ContentStatus.Visible -> 0.dp
-                }
-            }
-            val pivotFractionX by animateFloat(
-                label = "pivotFractionX",
-            ) {
-                when (it) {
-                    is ContentStatus.Appearing -> 0.5f
-                    is ContentStatus.Disappearing -> {
-                        when (it.metadata.latestEvent.swipeEdge) {
-                            NavigationEvent.EDGE_LEFT -> 1f
-                            NavigationEvent.EDGE_RIGHT -> 0f
-                            else -> 0.5f
-                        }
-                    }
-                    ContentStatus.NotVisible -> {
-                        when (lastDisappearingValue?.metadata?.latestEvent?.swipeEdge) {
-                            NavigationEvent.EDGE_LEFT -> 1f
-                            NavigationEvent.EDGE_RIGHT -> 0f
-                            else -> 0.5f
-                        }
-                    }
-                    ContentStatus.Visible -> 0.5f
-                }
-            }
-
-            val windowShape = currentWindowShape()
-            var relativeLayoutBounds: RelativeLayoutBounds? by remember { mutableStateOf(null) }
-
-            Box(
-                modifier = Modifier
-                    .onLayoutRectChanged(
-                        throttleMillis = 0,
-                        debounceMillis = 0,
-                    ) {
-                        relativeLayoutBounds = it
-                    }
-                    .graphicsLayer {
-                        shape = if (clipUsingWindowShape) {
-                            val cornerRadiusPath = Path().apply {
-                                addRoundRect(
-                                    RoundRect(size.toRect(), CornerRadius(cornerRadius.toPx())),
-                                )
+                            ContentStatus.NotVisible,
+                            ContentStatus.Visible,
+                            -> when (this@animateFloat.targetState) {
+                                is ContentStatus.Appearing,
+                                is ContentStatus.Disappearing,
+                                -> spring()
+                                ContentStatus.NotVisible -> tween(durationMillis = 90)
+                                ContentStatus.Visible -> tween(durationMillis = 220, delayMillis = 90)
                             }
-                            val clippingPath = cornerRadiusPath and windowShape.path.copy().apply {
-                                translate(-(relativeLayoutBounds?.positionInWindow?.toOffset() ?: Offset.Zero))
-                            }
-                            object : Shape {
-                                override fun createOutline(
-                                    size: Size,
-                                    layoutDirection: LayoutDirection,
-                                    density: Density,
-                                ): Outline = Outline.Generic(clippingPath)
-                            }
-                        } else {
-                            RoundedCornerShape(cornerRadius)
                         }
-                        shadowElevation = 6.dp.toPx()
-                        this.translationX = translationX.toPx()
-                        this.alpha = alpha
-                        this.scaleX = scale
-                        this.scaleY = scale
-                        this.transformOrigin = TransformOrigin(pivotFractionX, 0.5f)
-                        clip = true
                     },
-                propagateMinConstraints = true,
+                    label = "alpha",
+                ) {
+                    when (it) {
+                        is ContentStatus.Appearing -> 1f
+                        is ContentStatus.Disappearing -> 1f
+                        ContentStatus.NotVisible -> 0f
+                        ContentStatus.Visible -> 1f
+                    }
+                }
+                val lastDisappearingValue by remember {
+                    mutableStateOf<ContentStatus.Disappearing<out NavigationEventTransitionState.InProgress>?>(
+                        null,
+                    )
+                }.apply {
+                    when (contentStatusTargetState) {
+                        is ContentStatus.Appearing -> value = null
+                        is ContentStatus.Disappearing -> if (contentStatusTargetState.progressToNotVisible >= 0.01f) {
+                            // Only save that we were disappearing if the progress is at least 1% along
+                            value = contentStatusTargetState
+                        }
+                        ContentStatus.NotVisible -> Unit // Preserve the previous value of wasDisappearing
+                        ContentStatus.Visible -> value = null
+                    }
+                }
+                val scale by animateFloat(
+                    label = "scale",
+                ) {
+                    when (it) {
+                        is ContentStatus.Appearing -> 1f
+                        is ContentStatus.Disappearing -> lerp(1f, 0.9f, it.progressToNotVisible)
+                        ContentStatus.NotVisible -> if (lastDisappearingValue != null) 0.9f else 1f
+                        ContentStatus.Visible -> 1f
+                    }
+                }
+                val translationX by animateDp(
+                    label = "translationX",
+                ) {
+                    when (it) {
+                        is ContentStatus.Appearing -> 0.dp
+                        is ContentStatus.Disappearing -> {
+                            val metadata = it.metadata
+                            lerp(
+                                0.dp,
+                                8.dp,
+                                it.progressToNotVisible,
+                            ) * when (metadata.latestEvent.swipeEdge) {
+                                NavigationEvent.EDGE_LEFT -> -1f
+                                NavigationEvent.EDGE_RIGHT -> 1f
+                                else -> 0f
+                            }
+                        }
+                        ContentStatus.NotVisible -> {
+                            8.dp * when (lastDisappearingValue?.metadata?.latestEvent?.swipeEdge) {
+                                NavigationEvent.EDGE_LEFT -> -1f
+                                NavigationEvent.EDGE_RIGHT -> 1f
+                                else -> 0f
+                            }
+                        }
+                        ContentStatus.Visible -> 0.dp
+                    }
+                }
+                val cornerRadius by animateDp(
+                    label = "cornerRadius",
+                ) {
+                    when (it) {
+                        is ContentStatus.Appearing -> 0.dp
+                        is ContentStatus.Disappearing -> lerp(0.dp, 28.dp, it.progressToNotVisible)
+                        ContentStatus.NotVisible -> if (lastDisappearingValue != null) 28.dp else 0.dp
+                        ContentStatus.Visible -> 0.dp
+                    }
+                }
+                val pivotFractionX by animateFloat(
+                    label = "pivotFractionX",
+                ) {
+                    when (it) {
+                        is ContentStatus.Appearing -> 0.5f
+                        is ContentStatus.Disappearing -> {
+                            when (it.metadata.latestEvent.swipeEdge) {
+                                NavigationEvent.EDGE_LEFT -> 1f
+                                NavigationEvent.EDGE_RIGHT -> 0f
+                                else -> 0.5f
+                            }
+                        }
+                        ContentStatus.NotVisible -> {
+                            when (lastDisappearingValue?.metadata?.latestEvent?.swipeEdge) {
+                                NavigationEvent.EDGE_LEFT -> 1f
+                                NavigationEvent.EDGE_RIGHT -> 0f
+                                else -> 0.5f
+                            }
+                        }
+                        ContentStatus.Visible -> 0.5f
+                    }
+                }
+
+                val windowShape = currentWindowShape()
+                var relativeLayoutBounds: RelativeLayoutBounds? by remember { mutableStateOf(null) }
+
+                Box(
+                    modifier = Modifier
+                        .onLayoutRectChanged(
+                            throttleMillis = 0,
+                            debounceMillis = 0,
+                        ) {
+                            relativeLayoutBounds = it
+                        }
+                        .graphicsLayer {
+                            shape = if (clipUsingWindowShape) {
+                                val cornerRadiusPath = Path().apply {
+                                    addRoundRect(
+                                        RoundRect(size.toRect(), CornerRadius(cornerRadius.toPx())),
+                                    )
+                                }
+                                val clippingPath = cornerRadiusPath and windowShape.path.copy().apply {
+                                    translate(-(relativeLayoutBounds?.positionInWindow?.toOffset() ?: Offset.Zero))
+                                }
+                                object : Shape {
+                                    override fun createOutline(
+                                        size: Size,
+                                        layoutDirection: LayoutDirection,
+                                        density: Density,
+                                    ): Outline = Outline.Generic(clippingPath)
+                                }
+                            } else {
+                                RoundedCornerShape(cornerRadius)
+                            }
+                            shadowElevation = 6.dp.toPx()
+                            this.translationX = translationX.toPx()
+                            this.alpha = alpha
+                            this.scaleX = scale
+                            this.scaleY = scale
+                            this.transformOrigin = TransformOrigin(pivotFractionX, 0.5f)
+                            clip = true
+                        },
+                    propagateMinConstraints = true,
+                ) {
+                    contentWithStatus()
+                }
+            },
+            targetRenderingComparator = compareByDescending { scene ->
+                // Render items in order of the backstack, with the top of the backstack rendered last
+                // If the entry is not in the backstack at all, assume that it is disappearing after being popped, and
+                // render it on top of everything still in the backstack
+                (listOf(sceneState.currentScene) + sceneState.previousScenes.reversed())
+                    .indexOfLast { it::class to it.key == scene::class to scene.key }
+            },
+            contentSizeAnimationSpec = contentSizeAnimationSpec,
+            animateInternalContentSizeChanges = animateInternalContentSizeChanges,
+        ) { targetScene ->
+            CompositionLocalProvider(
+                LocalEntriesToExcludeFromCurrentScene provides
+                    navDisplayState.entriesToExcludeFromCurrentScene.getValue(targetScene::class to targetScene.key),
             ) {
-                contentWithStatus()
+                targetScene.content()
             }
-        },
-        targetRenderingComparator = compareByDescending { scene ->
-            // Render items in order of the backstack, with the top of the backstack rendered last
-            // If the entry is not in the backstack at all, assume that it is disappearing after being popped, and
-            // render it on top of everything still in the backstack
-            (listOf(sceneState.currentScene) + sceneState.previousScenes.reversed())
-                .indexOfLast { it::class to it.key == scene::class to scene.key }
-        },
-        contentSizeAnimationSpec = contentSizeAnimationSpec,
-        animateInternalContentSizeChanges = animateInternalContentSizeChanges,
-        modifier = modifier,
-    ) { targetScene ->
-        CompositionLocalProvider(
-            LocalNavAnimatedVisibilityScope provides LocalNavigationAnimatedVisibilityScope.current!!,
-            LocalEntriesToExcludeFromCurrentScene provides
-                navDisplayState.entriesToExcludeFromCurrentScene.getValue(targetScene::class to targetScene.key),
-        ) {
-            targetScene.content()
+        }
+
+        AnimatedContent(
+            animatedContentState = navDisplayState.overlayAnimatedContentState,
+            contentAlignment = contentAlignment,
+            targetRenderingComparator = compareByDescending { scene ->
+                // Render items in order of the backstack, with the top of the backstack rendered last
+                // If the entry is not in the backstack at all, assume that it is disappearing after being popped, and
+                // render it on top of everything still in the backstack
+                (sceneState.overlayScenes.reversed())
+                    .indexOfLast { it::class to it.key == scene?.let { it::class to it.key } }
+            },
+            contentSizeAnimationSpec = contentSizeAnimationSpec,
+            animateInternalContentSizeChanges = animateInternalContentSizeChanges,
+        ) { targetOverlayScene ->
+            if (targetOverlayScene != null) {
+                CompositionLocalProvider(
+                    LocalEntriesToExcludeFromCurrentScene provides
+                        navDisplayState.entriesToExcludeFromCurrentScene.getValue(
+                            targetOverlayScene::class to targetOverlayScene.key,
+                        ),
+                ) {
+                    targetOverlayScene.content()
+                }
+            }
         }
     }
 }

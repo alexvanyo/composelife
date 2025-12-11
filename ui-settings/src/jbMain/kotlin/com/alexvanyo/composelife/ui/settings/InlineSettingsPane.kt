@@ -44,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.alexvanyo.composelife.navigation.trySharedBounds
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
@@ -51,7 +52,6 @@ import com.alexvanyo.composelife.preferences._ordinal
 import com.alexvanyo.composelife.ui.settings.resources.QuickSettingsInfo
 import com.alexvanyo.composelife.ui.settings.resources.SeeAll
 import com.alexvanyo.composelife.ui.settings.resources.Strings
-import com.alexvanyo.composelife.ui.util.trySharedBounds
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.util
+package com.alexvanyo.composelife.navigation
 
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.BoundsTransform
@@ -42,15 +42,14 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
-import kotlin.OptIn
-
-@Suppress("ComposeCompositionLocalUsage")
-val LocalNavigationAnimatedVisibilityScope: ProvidableCompositionLocal<AnimatedVisibilityScope?> =
-    compositionLocalOf { null }
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Suppress("ComposeCompositionLocalUsage")
 val LocalNavigationSharedTransitionScope: ProvidableCompositionLocal<SharedTransitionScope?> =
+    compositionLocalOf { null }
+
+@Suppress("ComposeCompositionLocalUsage")
+val LocalNavigationAnimatedVisibilityScope: ProvidableCompositionLocal<AnimatedVisibilityScope?> =
     compositionLocalOf { null }
 
 @Suppress("ComposeComposableModifier", "ComposeModifierWithoutDefault", "LongParameterList")
