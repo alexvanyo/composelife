@@ -75,3 +75,7 @@ class DialogSceneStrategy<T>(
         }
     }
 }
+
+interface DialogableEntry {
+    val isDialog: Boolean
+}
