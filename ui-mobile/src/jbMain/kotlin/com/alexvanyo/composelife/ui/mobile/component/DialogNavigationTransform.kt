@@ -36,6 +36,7 @@ import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackMap
 import com.alexvanyo.composelife.navigation.BackstackRenderableNavigationTransformResult
 import com.alexvanyo.composelife.navigation.BackstackState
+import com.alexvanyo.composelife.navigation.LocalNavigationSharedTransitionScope
 import com.alexvanyo.composelife.navigation.NavigationSegment
 import com.alexvanyo.composelife.navigation.RenderableNavigationState
 import com.alexvanyo.composelife.navigation.RenderableNavigationTransform
@@ -43,7 +44,6 @@ import com.alexvanyo.composelife.navigation.backstackRenderableNavigationTransfo
 import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.serialization.uuidSaver
 import com.alexvanyo.composelife.ui.util.CrossfadePredictiveNavigationFrame
-import com.alexvanyo.composelife.ui.util.LocalNavigationSharedTransitionScope
 import com.alexvanyo.composelife.ui.util.PlatformEdgeToEdgeDialog
 import kotlin.uuid.Uuid
 

@@ -26,6 +26,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -46,6 +47,7 @@ import com.alexvanyo.composelife.logging.Logger
 import com.alexvanyo.composelife.logging.d
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackValueSaverFactory
+import com.alexvanyo.composelife.navigation.LocalNavigationSharedTransitionScope
 import com.alexvanyo.composelife.navigation.navigate
 import com.alexvanyo.composelife.navigation.popBackstack
 import com.alexvanyo.composelife.navigation.popUpTo
@@ -107,152 +109,153 @@ private class EmptyPreviewEntry : ListDetailSceneStrategyPreviewNavEntry
 @Composable
 private fun ListDetailSceneStrategyPreview() {
     SharedTransitionLayout {
-        val backstack = rememberMutableBackstackNavigationController(
-            initialBackstackEntries = listOf(
-                BackstackEntry(
-                    value = EmptyPreviewEntry(),
-                    previous = null,
+        CompositionLocalProvider(LocalNavigationSharedTransitionScope provides this) {
+            val backstack = rememberMutableBackstackNavigationController(
+                initialBackstackEntries = listOf(
+                    BackstackEntry(
+                        value = EmptyPreviewEntry(),
+                        previous = null,
+                    ),
                 ),
-            ),
-            backstackValueSaverFactory = ListDetailSceneStrategyPreviewNavEntry,
-        )
+                backstackValueSaverFactory = ListDetailSceneStrategyPreviewNavEntry,
+            )
 
-        val detailUuids = rememberSerializable(
-            serializer = ListSerializer(Uuid.serializer()),
-        ) {
-            List(5) { Uuid.random() }
-        }
+            val detailUuids = rememberSerializable(
+                serializer = ListSerializer(Uuid.serializer()),
+            ) {
+                List(5) { Uuid.random() }
+            }
 
-        val navEntries = rememberDecoratedNavEntries(
-            backstack,
-        ) { entry ->
-            Logger.d { "Rendering entry $entry" }
-            when (val value = entry.value) {
-                is EmptyPreviewEntry -> {
-                    Surface(
-                        modifier = Modifier.fillMaxSize(),
-                    ) {
-                        Box(
-                            Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Button(
-                                onClick = {
-                                    backstack.navigate(valueFactory = {
-                                        ListPreviewEntry()
-                                    })
-                                    backstack.navigate(valueFactory = {
-                                        DetailPreviewEntry(
-                                            listDetailInfo = it.value as ListPreviewEntry,
-                                        )
-                                    }, id = detailUuids.first())
-                                },
-                            ) {
-                                Text("Go to list")
-                            }
-                        }
-                    }
-                }
-
-                is DetailPreviewEntry -> {
-                    val random = remember(entry.id) { Random(entry.id.hashCode()) }
-                    val color = remember(random) {
-                        Color(
-                            red = random.nextInt(256),
-                            green = random.nextInt(256),
-                            blue = random.nextInt(256),
-                        )
-                    }
-                    Surface(
-                        modifier = Modifier.fillMaxSize(),
-                    ) {
-                        Column(
-                            modifier = Modifier.fillMaxSize().background(color),
-                            verticalArrangement = Arrangement.Center,
-                        ) {
-                            Text("Detail: ${entry.id}")
-                            Button(
-                                onClick = {
-                                    backstack.navigate(valueFactory = {
-                                        EmptyPreviewEntry()
-                                    })
-                                },
-                            ) {
-                                Text("Go to empty")
-                            }
-                        }
-                    }
-                }
-
-                is ListPreviewEntry -> {
-                    Surface(
-                        modifier = Modifier.fillMaxSize(),
-                    ) {
-                        Column(
+            val navEntries = rememberDecoratedNavEntries(
+                backstack,
+            ) { entry ->
+                Logger.d { "Rendering entry $entry" }
+                when (val value = entry.value) {
+                    is EmptyPreviewEntry -> {
+                        Surface(
                             modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.Center,
                         ) {
-                            detailUuids.forEach { uuid ->
+                            Box(
+                                Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center,
+                            ) {
                                 Button(
                                     onClick = {
-                                        backstack.popUpTo(entry.id, inclusive = false)
-                                        backstack.navigate(valueFactory = { previous ->
-                                            DetailPreviewEntry(listDetailInfo = previous.value as ListPreviewEntry)
-                                        }, id = uuid)
+                                        backstack.navigate(valueFactory = {
+                                            ListPreviewEntry()
+                                        })
+                                        backstack.navigate(valueFactory = {
+                                            DetailPreviewEntry(
+                                                listDetailInfo = it.value as ListPreviewEntry,
+                                            )
+                                        }, id = detailUuids.first())
                                     },
                                 ) {
-                                    Text("Go to detail $uuid")
+                                    Text("Go to list")
+                                }
+                            }
+                        }
+                    }
+
+                    is DetailPreviewEntry -> {
+                        val random = remember(entry.id) { Random(entry.id.hashCode()) }
+                        val color = remember(random) {
+                            Color(
+                                red = random.nextInt(256),
+                                green = random.nextInt(256),
+                                blue = random.nextInt(256),
+                            )
+                        }
+                        Surface(
+                            modifier = Modifier.fillMaxSize(),
+                        ) {
+                            Column(
+                                modifier = Modifier.fillMaxSize().background(color),
+                                verticalArrangement = Arrangement.Center,
+                            ) {
+                                Text("Detail: ${entry.id}")
+                                Button(
+                                    onClick = {
+                                        backstack.navigate(valueFactory = {
+                                            EmptyPreviewEntry()
+                                        })
+                                    },
+                                ) {
+                                    Text("Go to empty")
+                                }
+                            }
+                        }
+                    }
+
+                    is ListPreviewEntry -> {
+                        Surface(
+                            modifier = Modifier.fillMaxSize(),
+                        ) {
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.Center,
+                            ) {
+                                detailUuids.forEach { uuid ->
+                                    Button(
+                                        onClick = {
+                                            backstack.popUpTo(entry.id, inclusive = false)
+                                            backstack.navigate(valueFactory = { previous ->
+                                                DetailPreviewEntry(listDetailInfo = previous.value as ListPreviewEntry)
+                                            }, id = uuid)
+                                        },
+                                    ) {
+                                        Text("Go to detail $uuid")
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-        }
 
-        val sceneState = rememberSceneState(
-            entries = navEntries,
-            sceneStrategy = ListDetailSceneStrategy(),
-            sharedTransitionScope = this,
-            onBack = backstack::popBackstack,
-        )
+            val sceneState = rememberSceneState(
+                entries = navEntries,
+                sceneStrategy = ListDetailSceneStrategy(),
+                onBack = backstack::popBackstack,
+            )
 
-        val dispatcher = requireNotNull(
-            LocalNavigationEventDispatcherOwner.current,
-        ).navigationEventDispatcher
-        val navigationEventHistory by dispatcher.history.collectAsState()
-        val currentInfo = navigationEventHistory.mergedHistory.getOrNull(
-            navigationEventHistory.currentIndex,
-        )
+            val dispatcher = requireNotNull(
+                LocalNavigationEventDispatcherOwner.current,
+            ).navigationEventDispatcher
+            val navigationEventHistory by dispatcher.history.collectAsState()
+            val currentInfo = navigationEventHistory.mergedHistory.getOrNull(
+                navigationEventHistory.currentIndex,
+            )
 
-        val navigationEventTransitionState =
-            if (currentInfo is ListDetailSceneStrategyPreviewNavigationEventInfo &&
-                currentInfo.sceneKey == sceneState.currentScene.key
-            ) {
-                dispatcher.transitionState.collectAsState().value
-            } else {
-                NavigationEventTransitionState.Idle
-            }
+            val navigationEventTransitionState =
+                if (currentInfo is ListDetailSceneStrategyPreviewNavigationEventInfo &&
+                    currentInfo.sceneKey == sceneState.currentScene.key
+                ) {
+                    dispatcher.transitionState.collectAsState().value
+                } else {
+                    NavigationEventTransitionState.Idle
+                }
 
-        NavigationBackHandler(
-            state = rememberNavigationEventState(
-                currentInfo = ListDetailSceneStrategyPreviewNavigationEventInfo(
-                    sceneState.currentScene::class to sceneState.currentScene.key,
+            NavigationBackHandler(
+                state = rememberNavigationEventState(
+                    currentInfo = ListDetailSceneStrategyPreviewNavigationEventInfo(
+                        sceneState.currentScene::class to sceneState.currentScene.key,
+                    ),
+                    backInfo = sceneState.previousScenes.map {
+                        ListDetailSceneStrategyPreviewNavigationEventInfo(it::class to it.key)
+                    },
                 ),
-                backInfo = sceneState.previousScenes.map {
-                    ListDetailSceneStrategyPreviewNavigationEventInfo(it::class to it.key)
+                isBackEnabled = sceneState.currentScene.previousEntries.isNotEmpty(),
+                onBackCompleted = {
+                    backstack.popUpTo(sceneState.currentScene.previousEntries.last().contentKey as Uuid)
                 },
-            ),
-            isBackEnabled = sceneState.currentScene.previousEntries.isNotEmpty(),
-            onBackCompleted = {
-                backstack.popUpTo(sceneState.currentScene.previousEntries.last().contentKey as Uuid)
-            },
-        )
+            )
 
-        MaterialPredictiveNavDisplay(
-            sceneState = sceneState,
-            navigationEventTransitionState = navigationEventTransitionState,
-        )
+            MaterialPredictiveNavDisplay(
+                sceneState = sceneState,
+                navigationEventTransitionState = navigationEventTransitionState,
+            )
+        }
     }
 }
 

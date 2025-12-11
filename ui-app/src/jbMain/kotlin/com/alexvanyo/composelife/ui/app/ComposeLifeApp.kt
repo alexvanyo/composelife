@@ -47,6 +47,7 @@ import androidx.window.core.layout.WindowSizeClass
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
+import com.alexvanyo.composelife.navigation.LocalNavigationSharedTransitionScope
 import com.alexvanyo.composelife.navigation.canNavigateBack
 import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.navigation.navigate
@@ -55,6 +56,7 @@ import com.alexvanyo.composelife.navigation.popUpTo
 import com.alexvanyo.composelife.navigation.rememberDecoratedNavEntries
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
 import com.alexvanyo.composelife.navigation.withExpectedActor
+import com.alexvanyo.composelife.navigation3.scene.SinglePaneSceneStrategy
 import com.alexvanyo.composelife.navigation3.scene.rememberSceneState
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
@@ -62,6 +64,7 @@ import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiScope
+import com.alexvanyo.composelife.ui.mobile.component.DialogSceneStrategy
 import com.alexvanyo.composelife.ui.mobile.component.ListDetailInfo
 import com.alexvanyo.composelife.ui.mobile.component.ListDetailSceneStrategy
 import com.alexvanyo.composelife.ui.settings.FullscreenSettingsDetailPane
@@ -69,7 +72,6 @@ import com.alexvanyo.composelife.ui.settings.FullscreenSettingsDetailPaneCtx
 import com.alexvanyo.composelife.ui.settings.FullscreenSettingsListPane
 import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.settings.SettingsCategory
-import com.alexvanyo.composelife.ui.util.LocalNavigationSharedTransitionScope
 import com.alexvanyo.composelife.ui.util.MaterialPredictiveNavDisplay
 import com.alexvanyo.composelife.ui.util.ReportDrawn
 import dev.zacsweers.metro.BindingContainer
@@ -199,8 +201,10 @@ fun ComposeLifeApp(
 
                                     val sceneState = rememberSceneState(
                                         entries = navEntries,
-                                        sceneStrategy = ListDetailSceneStrategy(),
-                                        sharedTransitionScope = LocalNavigationSharedTransitionScope.current,
+                                        sceneStrategy = DialogSceneStrategy(
+                                            ListDetailSceneStrategy<ComposeLifeUiNavigation>() then
+                                                SinglePaneSceneStrategy(),
+                                        ),
                                         onBack = targetComposeLifeAppState::onBackPressed,
                                     )
 
@@ -229,18 +233,6 @@ fun ComposeLifeApp(
 
                                     MaterialPredictiveNavDisplay(
                                         sceneState = sceneState,
-                                        // TODO: Re-add via scene strategies
-//                                        renderableNavigationState =
-//                                        dialogNavigationTransform<ComposeLifeUiNavigation>(
-//                                            onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
-//                                        ).invoke(
-//                                            listDetailNavigationTransform<ComposeLifeUiNavigation>(
-//                                                onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
-//                                            ).invoke(
-//                                                segmentingNavigationTransform<ComposeLifeUiNavigation>()
-//                                                    .invoke(renderableNavigationState),
-//                                            ),
-//                                        ),
                                         navigationEventTransitionState = navigationEventTransitionState,
                                         clipUsingWindowShape = preferencesHolder.preferences.enableWindowShapeClipping,
                                     )
