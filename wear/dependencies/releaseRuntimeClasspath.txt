@@ -102,10 +102,10 @@ androidx.lifecycle:lifecycle-viewmodel-savedstate:2.10.0
 androidx.lifecycle:lifecycle-viewmodel:2.10.0
 androidx.loader:loader:1.0.0
 androidx.localbroadcastmanager:localbroadcastmanager:1.0.0
-androidx.navigation3:navigation3-runtime-android:1.0.0
-androidx.navigation3:navigation3-runtime:1.0.0
-androidx.navigation3:navigation3-ui-android:1.0.0
-androidx.navigation3:navigation3-ui:1.0.0
+androidx.navigation3:navigation3-runtime-android:1.1.0-alpha01
+androidx.navigation3:navigation3-runtime:1.1.0-alpha01
+androidx.navigation3:navigation3-ui-android:1.1.0-alpha01
+androidx.navigation3:navigation3-ui:1.1.0-alpha01
 androidx.navigation:navigation-common-ktx:2.7.7
 androidx.navigation:navigation-common:2.7.7
 androidx.navigation:navigation-compose:2.7.7
