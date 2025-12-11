@@ -58,7 +58,6 @@ import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.CrossfadePredictiveNavDisplay
 import com.alexvanyo.composelife.ui.util.Layout
-import com.alexvanyo.composelife.ui.util.LocalNavigationSharedTransitionScope
 import com.alexvanyo.composelife.ui.util.WindowInsets
 import com.alexvanyo.composelife.ui.util.isImeAnimating
 import com.livefront.sealedenum.GenSealedEnum
@@ -262,7 +261,6 @@ fun CellUniverseActionCard(
                     val sceneState = rememberSceneState(
                         entries = navEntries,
                         sceneStrategy = SinglePaneSceneStrategy(),
-                        sharedTransitionScope = LocalNavigationSharedTransitionScope.current,
                         onBack = actionCardState::inlineOnBackPressed,
                     )
 

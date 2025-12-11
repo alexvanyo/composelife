@@ -71,6 +71,7 @@ import androidx.compose.ui.util.fastMap
 import com.alexvanyo.composelife.geometry.lerp
 import com.alexvanyo.composelife.logging.Logger
 import com.alexvanyo.composelife.logging.d
+import com.alexvanyo.composelife.navigation.LocalNavigationAnimatedVisibilityScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collect

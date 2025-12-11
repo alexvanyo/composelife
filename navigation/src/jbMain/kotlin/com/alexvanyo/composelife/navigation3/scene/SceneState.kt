@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.navigation3.scene
 
-import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
@@ -38,47 +37,15 @@ import androidx.navigation3.scene.Scene
  * @param onBack a callback for handling system back press.
  * @sample androidx.navigation3.scene.samples.SceneStateSample
  */
-@Deprecated(
-    message = "Deprecated in favor of rememberSceneState that supports sharedTransitionScope",
-    level = DeprecationLevel.HIDDEN,
-)
 @Composable
 public fun <T : Any> rememberSceneState(
     entries: List<NavEntry<T>>,
     sceneStrategy: SceneStrategy<T>,
-    onBack: () -> Unit,
-): SceneState<T> {
-    return rememberSceneState(
-        entries = entries,
-        sceneStrategy = sceneStrategy,
-        sharedTransitionScope = null,
-        onBack = onBack,
-    )
-}
-
-/**
- * Returns a [SceneState] that is remembered across compositions based on the parameters.
- *
- * This calculates all of the scenes and provides them in a [SceneState].
- *
- * @param entries all of the entries that are associated with this state
- * @param sceneStrategy the [SceneStrategy] to determine which scene to render a list of entries.
- * @param sharedTransitionScope the [SharedTransitionScope] needed to wrap the scene decorator. If
- *   this parameter is added, this function will require the [LocalNavAnimatedContentScope].
- * @param onBack a callback for handling system back press.
- * @sample androidx.navigation3.scene.samples.SceneStateSample
- */
-@Composable
-public fun <T : Any> rememberSceneState(
-    entries: List<NavEntry<T>>,
-    sceneStrategy: SceneStrategy<T>,
-    sharedTransitionScope: SharedTransitionScope? = null,
     onBack: () -> Unit,
 ): SceneState<T> {
     val currentOnBack by rememberUpdatedState(onBack)
 
-    val sharedElementDecorator: SharedEntryInSceneNavEntryDecorator<T>? =
-        sharedTransitionScope?.let { rememberSharedEntryInSceneNavEntryDecorator(it) }
+    val sharedElementDecorator: SharedEntryInSceneNavEntryDecorator<T> = rememberSharedEntryInSceneNavEntryDecorator()
 
     // Re-wrap the entries with:
     // - SharedEntryInSceneNavEntryDecorator to allow entries between scenes to be animated
