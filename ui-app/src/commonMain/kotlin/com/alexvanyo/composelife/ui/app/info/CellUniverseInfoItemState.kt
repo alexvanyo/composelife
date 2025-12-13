@@ -21,12 +21,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.runtime.setValue
-import androidx.savedstate.SavedState
 import com.alexvanyo.composelife.serialization.SurrogatingSerializer
-import com.alexvanyo.composelife.serialization.saver
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.serializer
 
 @Serializable(with = CellUniverseInfoItemState.Serializer::class)
 class CellUniverseInfoItemState(
@@ -42,8 +42,6 @@ class CellUniverseInfoItemState(
 
     companion object {
         const val defaultIsChecked: Boolean = true
-
-        val Saver: Saver<CellUniverseInfoItemState, SavedState> = serializer().saver()
     }
 }
 
@@ -51,7 +49,7 @@ class CellUniverseInfoItemState(
 fun rememberCellUniverseInfoItemState(
     isChecked: Boolean = CellUniverseInfoItemState.defaultIsChecked,
 ): CellUniverseInfoItemState =
-    rememberSaveable(saver = CellUniverseInfoItemState.Saver) {
+    rememberSerializable(serializer = serializer()) {
         CellUniverseInfoItemState(isChecked = isChecked)
     }
 
