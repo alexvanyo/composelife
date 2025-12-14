@@ -18,7 +18,6 @@ import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
 
 plugins {
-    alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidApplication)
     alias(libs.plugins.convention.androidApplicationCompose)
     alias(libs.plugins.convention.dependencyGuard)
@@ -47,44 +46,24 @@ baselineProfile {
     mergeIntoMain = true
 }
 
-kotlin {
-    androidTarget()
+dependencies {
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(projects.filesystem)
+    implementation(projects.injectScopes)
+    implementation(projects.processLifecycle)
+    implementation(projects.strictMode)
+    implementation(projects.wearWatchface)
 
-    sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation(libs.kotlinx.coroutines.core)
-                implementation(projects.filesystem)
-                implementation(projects.injectScopes)
-                implementation(projects.processLifecycle)
-                implementation(projects.strictMode)
-                implementation(projects.wearWatchface)
-            }
-        }
-        val androidMain by getting {
-            configurations["baselineProfile"].dependencies.add(projects.wearBaselineProfileGenerator)
-            dependencies {
-                implementation(libs.androidx.activityCompose)
-                implementation(libs.androidx.appcompat)
-                implementation(libs.androidx.core)
-                implementation(libs.androidx.lifecycle.process)
-                implementation(libs.androidx.lifecycle.runtime)
-                implementation(libs.kotlinx.coroutines.android)
-            }
-        }
-        val androidDebug by creating {
-            dependsOn(androidMain)
-            dependencies {
-                implementation(libs.leakCanary.android)
-            }
-        }
-        val androidStaging by creating {
-            dependsOn(androidMain)
-            dependencies {
-                implementation(libs.leakCanary.android)
-            }
-        }
-    }
+    baselineProfile(projects.wearBaselineProfileGenerator)
+    implementation(libs.androidx.activityCompose)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.core)
+    implementation(libs.androidx.lifecycle.process)
+    implementation(libs.androidx.lifecycle.runtime)
+    implementation(libs.kotlinx.coroutines.android)
+    debugImplementation(libs.leakCanary.android)
+    stagingImplementation(libs.leakCanary.android)
+
 }
 
 dependencyGuard {

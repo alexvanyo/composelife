@@ -128,7 +128,7 @@ fun getGradleManagedDeviceConfig(
 @JvmName("configureGradleManagedDevicesFormFactors")
 fun Project.configureGradleManagedDevices(
     formFactors: Set<FormFactor>,
-    commonExtension: CommonExtension<*, *, *, *, *, *>,
+    commonExtension: CommonExtension,
     filterForTests: Boolean = true,
 ) = configureGradleManagedDevices(
     devices = getGradleManagedDeviceConfig(formFactors),
@@ -139,7 +139,7 @@ fun Project.configureGradleManagedDevices(
 @JvmName("configureGradleManagedDevicesDeviceConfig")
 fun Project.configureGradleManagedDevices(
     devices: Set<GradleManagedDeviceConfig>,
-    commonExtension: CommonExtension<*, *, *, *, *, *>,
+    commonExtension: CommonExtension,
     filterForTests: Boolean = true,
 ) {
     configureManagedDevices(

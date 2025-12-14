@@ -2,9 +2,9 @@
 #androidDesugarJdkLibs
 androidDesugarJdkLibs = "2.1.5"
 #androidGradlePlugin
-androidGradlePlugin = "8.13.1"
+androidGradlePlugin = "9.0.0-alpha10"
 #androidTools
-androidTools = "31.13.1"
+androidTools = "32.0.0-alpha10"
 #androidxActivity
 androidxActivity = "1.12.1"
 #androidxAnnotation

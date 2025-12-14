@@ -39,7 +39,7 @@ class DetektConventionPlugin : ConventionPlugin({
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
-    tasks.named("check").configure {
+    tasks.withType(org.gradle.api.Task::class.java).named { it == "check" }.configureEach {
         dependsOn(tasks.withType(Detekt::class.java))
     }
 })
