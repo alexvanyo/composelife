@@ -236,7 +236,7 @@ org.jetbrains.compose.ui:ui-tooling-preview:1.10.0-rc02
 org.jetbrains.compose.ui:ui-unit:1.10.0-rc02
 org.jetbrains.compose.ui:ui-util:1.10.0-rc02
 org.jetbrains.compose.ui:ui:1.10.0-rc02
-org.jetbrains.kotlin:kotlin-stdlib:2.3.0-Beta2
+org.jetbrains.kotlin:kotlin-stdlib:2.3.0-RC3
 org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.4.0
 org.jetbrains.kotlinx:kotlinx-collections-immutable:0.4.0
 org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2
