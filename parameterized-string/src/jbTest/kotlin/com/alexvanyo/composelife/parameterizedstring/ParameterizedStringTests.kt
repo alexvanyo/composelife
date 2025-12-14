@@ -18,10 +18,12 @@
 package com.alexvanyo.composelife.parameterizedstring
 
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
 import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
+import kotlinx.serialization.serializer
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -139,14 +141,14 @@ class ParameterizedStringTests : BaseKmpTest() {
     }
 
     @Test
-    fun saver_is_correct_for_basic_string() {
+    fun serializer_is_correct_for_basic_string() {
         runComposeUiTest {
             val stateRestorationTester = KmpStateRestorationTester(this)
 
             var parameterizedString: ParameterizedString? = null
 
             stateRestorationTester.setContent {
-                parameterizedString = rememberSaveable(saver = ParameterizedString.Saver) {
+                parameterizedString = rememberSerializable(serializer = serializer()) {
                     ParameterizedString(
                         "Two: (%s) (%s)",
                         ParameterizedStringArgument(Random.nextInt().toString()),
@@ -168,14 +170,14 @@ class ParameterizedStringTests : BaseKmpTest() {
     }
 
     @Test
-    fun saver_is_correct_for_nested_parameterized_string() {
+    fun serializer_is_correct_for_nested_parameterized_string() {
         runComposeUiTest {
             val stateRestorationTester = KmpStateRestorationTester(this)
 
             var parameterizedString: ParameterizedString? = null
 
             stateRestorationTester.setContent {
-                parameterizedString = rememberSaveable(saver = ParameterizedString.Saver) {
+                parameterizedString = rememberSerializable(serializer = serializer()) {
                     ParameterizedString(
                         "Three: (%s) (%s) (%s)",
                         ParameterizedStringArgument(

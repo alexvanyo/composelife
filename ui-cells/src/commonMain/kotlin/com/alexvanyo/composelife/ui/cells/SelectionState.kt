@@ -97,10 +97,6 @@ sealed interface SelectionState {
         @Serializable(with = JsonCellStateSerialization::class) val cellState: CellState,
         @Serializable(with = IntOffsetSerializer::class) val offset: IntOffset,
     ) : SelectionState
-
-    companion object {
-        val Saver get() = serializer().saver()
-    }
 }
 
 @Stable
