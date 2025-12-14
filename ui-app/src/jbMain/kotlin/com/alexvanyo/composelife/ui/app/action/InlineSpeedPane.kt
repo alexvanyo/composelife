@@ -28,14 +28,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
-import com.alexvanyo.composelife.serialization.uuidSaver
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.app.resources.GenerationsPerStepLabel
 import com.alexvanyo.composelife.ui.app.resources.GenerationsPerStepLabelAndValue
@@ -103,8 +102,8 @@ fun TargetStepsPerSecondControl(
         (minTargetStepsPerSecondPowerOfTwo.toFloat()..maxTargetStepsPerSecondPowerOfTwo.toFloat()).toValue()
     }
 
-    var sessionId by rememberSaveable(stateSaver = uuidSaver) { mutableStateOf(Uuid.random()) }
-    var valueId by rememberSaveable(stateSaver = uuidSaver) { mutableStateOf(Uuid.random()) }
+    var sessionId by rememberSerializable { mutableStateOf(Uuid.random()) }
+    var valueId by rememberSerializable { mutableStateOf(Uuid.random()) }
     val resolver = parameterizedStringResolver()
     EditableSlider(
         labelAndValueText = {
@@ -163,8 +162,8 @@ fun GenerationsPerStepControl(
         (minGenerationsPerStepPowerOfTwo.toFloat()..maxGenerationsPerStepPowerOfTwo.toFloat()).toValue()
     }
 
-    var sessionId by rememberSaveable(stateSaver = uuidSaver) { mutableStateOf(Uuid.random()) }
-    var valueId by rememberSaveable(stateSaver = uuidSaver) { mutableStateOf(Uuid.random()) }
+    var sessionId by rememberSerializable { mutableStateOf(Uuid.random()) }
+    var valueId by rememberSerializable { mutableStateOf(Uuid.random()) }
 
     val resolver = parameterizedStringResolver()
     EditableSlider(

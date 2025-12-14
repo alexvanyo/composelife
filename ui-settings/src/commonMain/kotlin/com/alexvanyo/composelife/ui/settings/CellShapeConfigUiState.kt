@@ -24,7 +24,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.runtime.setValue
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.CurrentShape
@@ -33,7 +33,6 @@ import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.preferences.setCurrentShapeType
 import com.alexvanyo.composelife.preferences.setRoundRectangleConfig
-import com.alexvanyo.composelife.serialization.uuidSaver
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.sessionvalue.localSessionId
 import com.alexvanyo.composelife.sessionvalue.rememberAsyncSessionValueHolder
@@ -121,22 +120,22 @@ fun rememberCellShapeConfigUiState(
             }
 
             var sizeFractionSessionId by key(localSessionId) {
-                rememberSaveable(stateSaver = uuidSaver) {
+                rememberSerializable {
                     mutableStateOf(Uuid.random())
                 }
             }
             var sizeFractionValueId by key(localSessionId) {
-                rememberSaveable(stateSaver = uuidSaver) {
+                rememberSerializable {
                     mutableStateOf(Uuid.random())
                 }
             }
             var cornerFractionSessionId by key(localSessionId) {
-                rememberSaveable(stateSaver = uuidSaver) {
+                rememberSerializable {
                     mutableStateOf(Uuid.random())
                 }
             }
             var cornerFractionValueId by key(localSessionId) {
-                rememberSaveable(stateSaver = uuidSaver) {
+                rememberSerializable {
                     mutableStateOf(Uuid.random())
                 }
             }

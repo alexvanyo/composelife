@@ -24,14 +24,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.listSaver
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
+import com.alexvanyo.composelife.serialization.SurrogatingSerializer
 import com.alexvanyo.composelife.updatable.Updatable
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -53,6 +52,10 @@ import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.serializer
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -177,8 +180,8 @@ fun rememberTemporalGameOfLifeState(
     @FloatRange(from = 0.0, fromInclusive = false)
     targetStepsPerSecond: Double = TemporalGameOfLifeState.defaultTargetStepsPerSecond,
 ): TemporalGameOfLifeState =
-    rememberSaveable(saver = TemporalGameOfLifeStateImpl.Saver(seedCellState)) {
-        TemporalGameOfLifeState(
+    rememberSerializable(serializer = serializer()) {
+        TemporalGameOfLifeStateImpl(
             seedCellState = seedCellState,
             isRunning = isRunning,
             generationsPerStep = generationsPerStep,
@@ -200,6 +203,7 @@ fun TemporalGameOfLifeState(
     targetStepsPerSecond = targetStepsPerSecond,
 )
 
+@Serializable(with = TemporalGameOfLifeStateImpl.Serializer::class)
 private class TemporalGameOfLifeStateImpl(
     seedCellState: CellState,
     isRunning: Boolean,
@@ -208,6 +212,15 @@ private class TemporalGameOfLifeStateImpl(
     @FloatRange(from = 0.0, fromInclusive = false)
     targetStepsPerSecond: Double,
 ) : TemporalGameOfLifeState {
+
+    private constructor(
+        surrogate: Surrogate,
+    ): this(
+        seedCellState = surrogate.seedCellState,
+        isRunning = surrogate.isRunning,
+        generationsPerStep = surrogate.generationsPerStep,
+        targetStepsPerSecond = surrogate.targetStepsPerSecond,
+    )
 
     override var cellState: CellState
         get() = cellStateGenealogy.computedCellState
@@ -386,29 +399,28 @@ private class TemporalGameOfLifeStateImpl(
 
     private var completedGenerationTracker: List<ComputationRecord> by mutableStateOf(emptyList())
 
-    companion object {
-        fun Saver(seedCellState: CellState): Saver<TemporalGameOfLifeState, *> = listSaver(
-            { temporalGameOfLifeState ->
-                when (temporalGameOfLifeState) {
-                    is TemporalGameOfLifeStateImpl -> Unit
-                }
-                listOf(
-                    temporalGameOfLifeState.isRunning,
-                    temporalGameOfLifeState.generationsPerStep,
-                    temporalGameOfLifeState.targetStepsPerSecond,
-                )
-            },
-            { list ->
-                @Suppress("UNCHECKED_CAST")
-                TemporalGameOfLifeStateImpl(
-                    seedCellState = seedCellState,
-                    isRunning = list[0] as Boolean,
-                    generationsPerStep = list[1] as Int,
-                    targetStepsPerSecond = list[2] as Double,
-                )
-            },
+    private val surrogate: Surrogate get() =
+        Surrogate(
+            seedCellState = seedCellState,
+            isRunning = isRunning,
+            generationsPerStep = generationsPerStep,
+            targetStepsPerSecond = targetStepsPerSecond,
         )
-    }
+
+    @Serializable
+    @SerialName("TemporalGameOfLifeStateImpl")
+    private data class Surrogate(
+        val seedCellState: CellState,
+        val isRunning: Boolean,
+        val generationsPerStep: Int,
+        val targetStepsPerSecond: Double,
+    )
+
+    private object Serializer : KSerializer<TemporalGameOfLifeStateImpl> by SurrogatingSerializer(
+        "com.alexvanyo.composelife.model.TemporalGameOfLifeStateImpl",
+        TemporalGameOfLifeStateImpl::surrogate,
+        ::TemporalGameOfLifeStateImpl,
+    )
 }
 
 private data class ComputationRecord(
