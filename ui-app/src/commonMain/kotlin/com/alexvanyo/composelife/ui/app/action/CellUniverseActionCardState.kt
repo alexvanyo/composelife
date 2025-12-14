@@ -140,9 +140,7 @@ fun rememberCellUniverseActionCardState(
         backstackValueSaverFactory = InlineActionCardNavigation.SaverFactory,
     )
 
-    var currentBackstackEntryId by rememberSaveable(
-        stateSaver = uuidSaver,
-    ) {
+    var currentBackstackEntryId by rememberSerializable {
         mutableStateOf(InlineActionCardNavigation.Speed.entryId)
     }
 

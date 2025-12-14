@@ -26,6 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.runtime.setValue
 import androidx.navigationevent.NavigationEvent
 import androidx.navigationevent.NavigationEventInfo
@@ -33,7 +34,7 @@ import androidx.navigationevent.NavigationEventTransitionState
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
-import com.alexvanyo.composelife.serialization.uuidSaver
+import kotlinx.serialization.serializer
 import kotlin.uuid.Uuid
 
 /**
@@ -76,7 +77,7 @@ sealed interface BackEventEdge {
 
 @Composable
 fun rememberCompletablePredictiveBackStateHolder(): CompletablePredictiveBackStateHolder {
-    val id = rememberSaveable(saver = uuidSaver) { Uuid.random() }
+    val id = rememberSerializable(serializer = serializer()) { Uuid.random() }
 
     val navigationEventDispatcherOwner =
         requireNotNull(LocalNavigationEventDispatcherOwner.current)
