@@ -72,12 +72,6 @@ fun ParameterizedStringArgument(value: Double): ParameterizedStringArgument =
     ParameterizedStringArgument.DoubleArg(value)
 
 /**
- * A [Saver] for [ParameterizedString].
- */
-val ParameterizedString.Companion.Saver: Saver<ParameterizedString, SavedState> get() =
-    serializer().saver()
-
-/**
  * Creates a lambda to resolve the [ParameterizedString] to a [String].
  */
 @Composable

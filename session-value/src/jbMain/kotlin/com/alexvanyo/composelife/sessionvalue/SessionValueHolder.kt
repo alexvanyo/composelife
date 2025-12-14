@@ -21,16 +21,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.savedstate.SavedState
 import androidx.savedstate.compose.serialization.serializers.SnapshotStateListSerializer
-import com.alexvanyo.composelife.serialization.saver
-import com.alexvanyo.composelife.serialization.uuidSaver
+import com.alexvanyo.composelife.serialization.SurrogatingSerializer
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.PairSerializer
 import kotlinx.serialization.serializer
 import kotlin.uuid.Uuid
@@ -125,8 +124,8 @@ fun <T> rememberSessionValueHolder(
     setUpstreamSessionValue: (expected: SessionValue<T>, newValue: SessionValue<T>) -> Unit,
     valueSerializer: KSerializer<T>,
 ): SessionValueHolder<T> =
-    rememberSaveable(
-        saver = SessionValueHolderImpl.Saver(
+    rememberSerializable(
+        serializer = SessionValueHolderImpl.serializer(
             initialSetUpstreamSessionValue = setUpstreamSessionValue,
             valueSerializer = valueSerializer,
         ),
@@ -238,41 +237,42 @@ private class SessionValueHolderImpl<T>(
         }
     }
 
+    private val surrogate: Surrogate<T> get() =
+        Surrogate(
+            upstreamSessionIdBeforeLocalSession = upstreamSessionIdBeforeLocalSession,
+            upstreamSessionValue = upstreamSessionValue,
+            localSessionId = localSessionId,
+            localSessionValue = localSessionValue,
+        )
+
+    @Serializable
+    @SerialName("SessionValueHolderImpl")
+    private data class Surrogate<T>(
+        val upstreamSessionIdBeforeLocalSession: Uuid,
+        val upstreamSessionValue: SessionValue<T>,
+        val localSessionId: Uuid,
+        val localSessionValue: SessionValue<T>?,
+    )
+
     companion object {
-        fun <T> Saver(
+        fun <T> serializer(
             initialSetUpstreamSessionValue: (expected: SessionValue<T>, newValue: SessionValue<T>) -> Unit,
             valueSerializer: KSerializer<T>,
-        ): Saver<SessionValueHolderImpl<T>, *> {
-            val sessionValueSaver = SessionValue.Saver(valueSerializer)
-
-            return Saver(
-                save = {
-                    listOf(
-                        with(uuidSaver) {
-                            save(it.localSessionId)
-                        },
-                        with(sessionValueSaver) {
-                            it.localSessionValue?.let { localSessionValue -> save(localSessionValue) }
-                        },
-                        with(sessionValueSaver) {
-                            save(it.upstreamSessionValue)
-                        },
-                        with(uuidSaver) {
-                            save(it.upstreamSessionIdBeforeLocalSession)
-                        },
-                    )
-                },
-                restore = {
+        ): KSerializer<SessionValueHolderImpl<T>> =
+            SurrogatingSerializer(
+                "com.alexvanyo.composelife.sessionvalue",
+                convertToSurrogate = SessionValueHolderImpl<T>::surrogate,
+                convertFromSurrogate = {
                     SessionValueHolderImpl(
-                        initialUpstreamSessionIdBeforeLocalSession = uuidSaver.restore(it[3] as String)!!,
-                        initialUpstreamSessionValue = sessionValueSaver.restore(it[2]!! as SavedState)!!,
                         initialSetUpstreamSessionValue = initialSetUpstreamSessionValue,
-                        initialLocalSessionId = uuidSaver.restore(it[0] as String)!!,
-                        initialLocalSessionValue = (it[1] as SavedState?)?.let(sessionValueSaver::restore),
+                        initialUpstreamSessionIdBeforeLocalSession = it.upstreamSessionIdBeforeLocalSession,
+                        initialUpstreamSessionValue = it.upstreamSessionValue,
+                        initialLocalSessionId = it.localSessionId,
+                        initialLocalSessionValue = it.localSessionValue,
                     )
                 },
+                surrogateSerializer = Surrogate.serializer(valueSerializer),
             )
-        }
     }
 }
 
@@ -341,13 +341,13 @@ fun <T> rememberAsyncSessionValueHolder(
     setUpstreamSessionValue: suspend (expected: SessionValue<T>, newValue: SessionValue<T>) -> Unit,
     valueSerializer: KSerializer<T>,
 ): SessionValueHolder<T> {
-    val updateList = rememberSaveable(
-        saver = SnapshotStateListSerializer(
+    val updateList = rememberSerializable(
+        serializer = SnapshotStateListSerializer(
             PairSerializer(
                 SessionValue.serializer(valueSerializer),
                 SessionValue.serializer(valueSerializer),
             ),
-        ).saver(),
+        ),
     ) {
         mutableStateListOf()
     }

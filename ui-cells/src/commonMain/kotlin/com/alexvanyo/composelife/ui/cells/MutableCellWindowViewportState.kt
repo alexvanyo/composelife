@@ -21,18 +21,16 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
-import androidx.savedstate.SavedState
 import com.alexvanyo.composelife.serialization.ClosedFloatRangeSerializer
 import com.alexvanyo.composelife.serialization.OffsetSerializer
 import com.alexvanyo.composelife.serialization.SurrogatingSerializer
-import com.alexvanyo.composelife.serialization.saver
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.serializer
 
 /**
  * A state holder describing a specific viewport into the cell universe.
@@ -76,7 +74,7 @@ fun rememberMutableCellWindowViewportState(
     scale: Float = MutableCellWindowViewportState.defaultScale,
     scaleRange: ClosedRange<Float> = MutableCellWindowViewportState.defaultScaleRange,
 ): MutableCellWindowViewportState =
-    rememberSaveable(saver = MutableCellWindowViewportStateImpl.Saver) {
+    rememberSerializable(serializer = serializer()) {
         MutableCellWindowViewportStateImpl(
             offset = offset,
             scale = scale,
@@ -165,8 +163,4 @@ private class MutableCellWindowViewportStateImpl(
         MutableCellWindowViewportStateImpl::surrogate,
         ::MutableCellWindowViewportStateImpl,
     )
-
-    companion object {
-        val Saver: Saver<MutableCellWindowViewportStateImpl, SavedState> = serializer().saver()
-    }
 }

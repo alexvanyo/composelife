@@ -19,13 +19,14 @@
 package com.alexvanyo.composelife.parameterizedstring
 
 import android.content.Context
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
 import com.alexvanyo.composelife.parameterizedstring.testresources.R
+import kotlinx.serialization.serializer
 import org.junit.runner.RunWith
 import java.util.MissingFormatArgumentException
 import kotlin.random.Random
@@ -406,13 +407,13 @@ class AndroidParameterizedStringTests {
     }
 
     @Test
-    fun saver_is_correct_for_normal_string() = runComposeUiTest {
+    fun serializer_is_correct_for_normal_string() = runComposeUiTest {
         val stateRestorationTester = KmpStateRestorationTester(this)
 
         var parameterizedString: ParameterizedString? = null
 
         stateRestorationTester.setContent {
-            parameterizedString = rememberSaveable(saver = ParameterizedString.Saver) {
+            parameterizedString = rememberSerializable(serializer = serializer()) {
                 ParameterizedString(
                     R.string.two_arg_string,
                     ParameterizedStringArgument(Random.nextInt().toString()),
@@ -433,13 +434,13 @@ class AndroidParameterizedStringTests {
     }
 
     @Test
-    fun saver_is_correct_for_quantity_string() = runComposeUiTest {
+    fun serializer_is_correct_for_quantity_string() = runComposeUiTest {
         val stateRestorationTester = KmpStateRestorationTester(this)
 
         var parameterizedString: ParameterizedString? = null
 
         stateRestorationTester.setContent {
-            parameterizedString = rememberSaveable(saver = ParameterizedString.Saver) {
+            parameterizedString = rememberSerializable(serializer = serializer()) {
                 val value = Random.nextInt()
                 ParameterizedQuantityString(
                     R.plurals.plural_string_with_number,
@@ -461,13 +462,13 @@ class AndroidParameterizedStringTests {
     }
 
     @Test
-    fun saver_is_correct_for_basic_string() = runComposeUiTest {
+    fun serializer_is_correct_for_basic_string() = runComposeUiTest {
         val stateRestorationTester = KmpStateRestorationTester(this)
 
         var parameterizedString: ParameterizedString? = null
 
         stateRestorationTester.setContent {
-            parameterizedString = rememberSaveable(saver = ParameterizedString.Saver) {
+            parameterizedString = rememberSerializable(serializer = serializer()) {
                 ParameterizedString(
                     "Two: (%s) (%s)",
                     ParameterizedStringArgument(Random.nextInt().toString()),
@@ -488,13 +489,13 @@ class AndroidParameterizedStringTests {
     }
 
     @Test
-    fun saver_is_correct_for_nested_parameterized_string() = runComposeUiTest {
+    fun serializer_is_correct_for_nested_parameterized_string() = runComposeUiTest {
         val stateRestorationTester = KmpStateRestorationTester(this)
 
         var parameterizedString: ParameterizedString? = null
 
         stateRestorationTester.setContent {
-            parameterizedString = rememberSaveable(saver = ParameterizedString.Saver) {
+            parameterizedString = rememberSerializable(serializer = serializer()) {
                 ParameterizedString(
                     R.string.three_arg_string,
                     ParameterizedStringArgument(
