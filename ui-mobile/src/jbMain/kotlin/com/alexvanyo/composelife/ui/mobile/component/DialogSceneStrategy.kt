@@ -23,10 +23,10 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.scene.OverlayScene
 import androidx.navigation3.scene.Scene
 import com.alexvanyo.composelife.navigation.BackstackEntry
-import com.alexvanyo.composelife.navigation.LocalNavigationSharedTransitionScope
 import com.alexvanyo.composelife.navigation.navigationEntry
 import com.alexvanyo.composelife.navigation3.scene.SceneStrategy
 import com.alexvanyo.composelife.navigation3.scene.SceneStrategyScope
+import com.alexvanyo.composelife.ui.util.LocalNavigationSharedTransitionScope
 import com.alexvanyo.composelife.ui.util.PlatformEdgeToEdgeDialog
 
 internal data class DialogScene<T : Any>(
