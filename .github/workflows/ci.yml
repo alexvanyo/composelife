@@ -11,7 +11,7 @@ on:
 
 jobs:
   config:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     outputs:
       build-matrix: ${{ steps.set-build-matrix.outputs.matrix }}
       android-test-gmd-matrix: ${{ steps.set-android-test-gmd-matrix.outputs.matrix }}
@@ -93,7 +93,7 @@ jobs:
 
   config-check:
     needs: config
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - name: Check build-matrix configuration
         run: |
@@ -265,7 +265,7 @@ jobs:
   codecov-unit-coverage-upload:
     needs: [build, config]
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
 
     strategy:
       fail-fast: false
@@ -295,7 +295,7 @@ jobs:
   codecov-unit-test-upload:
     needs: [build, config]
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
 
     strategy:
       fail-fast: false
@@ -432,7 +432,7 @@ jobs:
   codecov-device-coverage-upload:
     needs: [android-test-gmd, config]
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
 
     strategy:
       fail-fast: false
@@ -462,7 +462,7 @@ jobs:
   codecov-device-test-upload:
     needs: [android-test-gmd, config]
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
 
     strategy:
       fail-fast: false
