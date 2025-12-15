@@ -11,7 +11,7 @@ on:
 jobs:
   Auto:
     name: Auto-update
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - uses: tibdex/auto-update@v2
         with:
