@@ -54,7 +54,7 @@ import com.alexvanyo.composelife.navigation.popUpTo
 import com.alexvanyo.composelife.navigation.rememberDecoratedNavEntries
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
 import com.alexvanyo.composelife.navigation3.scene.rememberSceneState
-import com.alexvanyo.composelife.ui.util.LocalNavigationSharedTransitionScope
+import com.alexvanyo.composelife.ui.util.LocalSharedTransitionScope
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlin.random.Random
@@ -109,7 +109,7 @@ private class EmptyPreviewEntry : ListDetailSceneStrategyPreviewNavEntry
 @Composable
 private fun ListDetailSceneStrategyPreview() {
     SharedTransitionLayout {
-        CompositionLocalProvider(LocalNavigationSharedTransitionScope provides this) {
+        CompositionLocalProvider(LocalSharedTransitionScope provides this) {
             val backstack = rememberMutableBackstackNavigationController(
                 initialBackstackEntries = listOf(
                     BackstackEntry(

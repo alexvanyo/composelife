@@ -72,7 +72,7 @@ import com.alexvanyo.composelife.ui.settings.FullscreenSettingsDetailPaneCtx
 import com.alexvanyo.composelife.ui.settings.FullscreenSettingsListPane
 import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.settings.SettingsCategory
-import com.alexvanyo.composelife.ui.util.LocalNavigationSharedTransitionScope
+import com.alexvanyo.composelife.ui.util.LocalSharedTransitionScope
 import com.alexvanyo.composelife.ui.util.ReportDrawn
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
@@ -151,7 +151,7 @@ fun ComposeLifeApp(
 
                         with(targetComposeLifeAppState.composeLifeAppUiWithLoadedPreferencesCtx) {
                             SharedTransitionLayout {
-                                CompositionLocalProvider(LocalNavigationSharedTransitionScope provides this) {
+                                CompositionLocalProvider(LocalSharedTransitionScope provides this) {
                                     val navEntries = rememberDecoratedNavEntries(
                                         targetComposeLifeAppState.navigationState,
                                     ) { entry ->

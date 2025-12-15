@@ -283,7 +283,7 @@ fun <T, M, K> AnimatedContent(
                          */
                         val isGhostElement = LocalGhostElement.current ||
                             targetKey != animatedContentState.targetKeyState.current
-                        val currentNavigationAnimatedContentScope = LocalNavigationAnimatedVisibilityScope.current
+                        val currentNavigationAnimatedContentScope = LocalAnimatedVisibilityScope.current
 
                         val updatedContentScope = if (currentNavigationAnimatedContentScope == null) {
                             val enterExitTransition = seekableTransition.createChildTransition { parentState ->
@@ -305,7 +305,7 @@ fun <T, M, K> AnimatedContent(
 
                         CompositionLocalProvider(
                             LocalGhostElement provides isGhostElement,
-                            LocalNavigationAnimatedVisibilityScope provides updatedContentScope,
+                            LocalAnimatedVisibilityScope provides updatedContentScope,
                         ) {
                             Box(
                                 modifier = Modifier.layoutId(TargetStateLayoutId(target)),
