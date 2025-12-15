@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.util
+package com.alexvanyo.composelife.navigation
 
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
@@ -62,6 +62,12 @@ import androidx.navigationevent.NavigationEvent
 import androidx.navigationevent.NavigationEventTransitionState
 import com.alexvanyo.composelife.navigation3.scene.LocalEntriesToExcludeFromCurrentScene
 import com.alexvanyo.composelife.navigation3.scene.SceneState
+import com.alexvanyo.composelife.ui.util.AnimatedContent
+import com.alexvanyo.composelife.ui.util.AnimatedContentState
+import com.alexvanyo.composelife.ui.util.ContentStatus
+import com.alexvanyo.composelife.ui.util.TargetState
+import com.alexvanyo.composelife.ui.util.currentWindowShape
+import com.alexvanyo.composelife.ui.util.rememberAnimatedContentState
 import kotlin.reflect.KClass
 
 @Suppress("LongParameterList", "LongMethod")

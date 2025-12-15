@@ -47,14 +47,14 @@ import com.alexvanyo.composelife.logging.Logger
 import com.alexvanyo.composelife.logging.d
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackValueSaverFactory
-import com.alexvanyo.composelife.navigation.LocalNavigationSharedTransitionScope
+import com.alexvanyo.composelife.navigation.MaterialPredictiveNavDisplay
 import com.alexvanyo.composelife.navigation.navigate
 import com.alexvanyo.composelife.navigation.popBackstack
 import com.alexvanyo.composelife.navigation.popUpTo
 import com.alexvanyo.composelife.navigation.rememberDecoratedNavEntries
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
 import com.alexvanyo.composelife.navigation3.scene.rememberSceneState
-import com.alexvanyo.composelife.ui.util.MaterialPredictiveNavDisplay
+import com.alexvanyo.composelife.ui.util.LocalNavigationSharedTransitionScope
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlin.random.Random
