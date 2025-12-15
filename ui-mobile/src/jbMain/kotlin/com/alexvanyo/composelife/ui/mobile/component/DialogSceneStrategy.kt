@@ -26,7 +26,7 @@ import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.navigationEntry
 import com.alexvanyo.composelife.navigation3.scene.SceneStrategy
 import com.alexvanyo.composelife.navigation3.scene.SceneStrategyScope
-import com.alexvanyo.composelife.ui.util.LocalNavigationSharedTransitionScope
+import com.alexvanyo.composelife.ui.util.LocalSharedTransitionScope
 import com.alexvanyo.composelife.ui.util.PlatformEdgeToEdgeDialog
 
 internal data class DialogScene<T : Any>(
@@ -44,7 +44,7 @@ internal data class DialogScene<T : Any>(
             onDismissRequest = onBackButtonPressed,
         ) {
             SharedTransitionLayout {
-                CompositionLocalProvider(LocalNavigationSharedTransitionScope provides null) {
+                CompositionLocalProvider(LocalSharedTransitionScope provides null) {
                     wrappedScene.content()
                 }
             }
