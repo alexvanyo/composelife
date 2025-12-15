@@ -5,7 +5,7 @@ on: workflow_dispatch
 jobs:
   clear:
     name: Clear all caches
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - run: |
           TOTAL_COUNT=0
