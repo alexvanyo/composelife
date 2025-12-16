@@ -157,6 +157,7 @@ turbine = "1.2.1"
 webPackPlugin = "9.1.0"
 #wire
 wire = "6.0.0-alpha01"
+runtime = "1.10.0"
 
 [libraries]
 android-desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "androidDesugarJdkLibs" }
@@ -306,6 +307,7 @@ testParameterInjector-junit4 = { group = "com.google.testparameterinjector", nam
 testParameterInjector-junit5 = { group = "com.google.testparameterinjector", name = "test-parameter-injector-junit5", version.ref = "testParameterInjector" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 wire-runtime = { group = "com.squareup.wire", name = "wire-runtime", version.ref = "wire" }
+androidx-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
 
 [plugins]
 convention-androidApplication = { id = "com.alexvanyo.composelife.androidApplication" }

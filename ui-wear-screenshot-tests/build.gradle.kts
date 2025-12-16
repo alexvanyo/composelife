@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,13 +37,12 @@ ksp {
 
 kotlin {
     androidLibrary {
-        namespace = "com.alexvanyo.composelife.ui.settings.screenshottests"
-        minSdk = 23
+        namespace = "com.alexvanyo.composelife.ui.wear.screenshottests"
+        minSdk = 26
         compilations.withType(KotlinMultiplatformAndroidDeviceTestCompilation::class.java) {
             instrumentationRunner = "com.alexvanyo.composelife.test.InjectTestRunner"
         }
     }
-    jvm("desktop")
 
     sourceSets {
         val commonMain by getting {
@@ -55,25 +54,18 @@ kotlin {
                 implementation(projects.filesystemTestFixtures)
                 implementation(projects.injectScopes)
                 implementation(projects.networkTestFixtures)
+                implementation(projects.parameterizedString)
                 implementation(projects.preferencesTestFixtures)
+                implementation(projects.resourcesWear)
                 implementation(projects.uiCommon)
-                implementation(projects.uiMobile)
-                implementation(projects.uiSettings)
                 implementation(projects.uiToolingPreview)
-                implementation(projects.work)
-                implementation(projects.workTestFixtures)
+                implementation(projects.uiWear)
             }
         }
         val jbMain by creating {
             dependsOn(commonMain)
             dependencies {
                 implementation(libs.jetbrains.compose.material3)
-            }
-        }
-        val desktopMain by getting {
-            dependsOn(jbMain)
-            dependencies {
-                implementation(compose.desktop.currentOs)
             }
         }
         val androidMain by getting {
@@ -89,6 +81,9 @@ kotlin {
                 implementation(libs.androidx.compose.uiUtil)
                 implementation(libs.androidx.core)
                 implementation(libs.androidx.navigationEvent)
+                implementation(libs.androidx.wear.compose.foundation)
+                implementation(libs.androidx.wear.compose.material3)
+                implementation(libs.androidx.wear.compose.uiToolingPreview)
                 implementation(libs.showkase.runtime)
             }
         }
@@ -114,9 +109,6 @@ kotlin {
             dependencies {
                 implementation(libs.jetbrains.compose.uiTest)
             }
-        }
-        val desktopTest by getting {
-            dependsOn(jbTest)
         }
         val androidSharedTest by getting {
             dependsOn(jbTest)
