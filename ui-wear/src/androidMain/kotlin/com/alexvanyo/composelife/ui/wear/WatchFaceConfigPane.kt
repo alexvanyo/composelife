@@ -26,6 +26,7 @@ import com.alexvanyo.composelife.navigation.popBackstack
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
 import com.alexvanyo.composelife.navigation.withExpectedActor
 
+@Suppress("IgnoredReturnValue")
 @Composable
 fun WatchFaceConfigPane(
     state: WatchFaceConfigState,
