@@ -42,7 +42,7 @@ ksp {
 kotlin {
     androidLibrary {
         namespace = "com.alexvanyo.composelife.ui.app.screenshottests"
-        minSdk = 23
+        minSdk = 24
         compilations.withType(KotlinMultiplatformAndroidDeviceTestCompilation::class.java) {
             instrumentationRunner = "com.alexvanyo.composelife.test.InjectTestRunner"
         }
