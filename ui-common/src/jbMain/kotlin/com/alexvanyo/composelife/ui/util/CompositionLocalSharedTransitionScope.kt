@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.navigation
+package com.alexvanyo.composelife.ui.util
 
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.BoundsTransform
@@ -45,11 +45,11 @@ import androidx.compose.ui.unit.LayoutDirection
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Suppress("ComposeCompositionLocalUsage")
-val LocalNavigationSharedTransitionScope: ProvidableCompositionLocal<SharedTransitionScope?> =
+val LocalSharedTransitionScope: ProvidableCompositionLocal<SharedTransitionScope?> =
     compositionLocalOf { null }
 
 @Suppress("ComposeCompositionLocalUsage")
-val LocalNavigationAnimatedVisibilityScope: ProvidableCompositionLocal<AnimatedVisibilityScope?> =
+val LocalAnimatedVisibilityScope: ProvidableCompositionLocal<AnimatedVisibilityScope?> =
     compositionLocalOf { null }
 
 @Suppress("ComposeComposableModifier", "ComposeModifierWithoutDefault", "LongParameterList")
@@ -63,8 +63,8 @@ fun Modifier.trySharedElement(
     zIndexInOverlay: Float = 0f,
     clipInOverlayDuringTransition: OverlayClip = ParentClip,
 ): Modifier {
-    val animatedVisibilityScope = LocalNavigationAnimatedVisibilityScope.current
-    val sharedTransitionScope = LocalNavigationSharedTransitionScope.current
+    val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
+    val sharedTransitionScope = LocalSharedTransitionScope.current
 
     return this.then(
         if (animatedVisibilityScope == null || sharedTransitionScope == null) {
@@ -99,8 +99,8 @@ fun Modifier.trySharedBounds(
     zIndexInOverlay: Float = 0f,
     clipInOverlayDuringTransition: OverlayClip = ParentClip,
 ): Modifier {
-    val animatedVisibilityScope = LocalNavigationAnimatedVisibilityScope.current
-    val sharedTransitionScope = LocalNavigationSharedTransitionScope.current
+    val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
+    val sharedTransitionScope = LocalSharedTransitionScope.current
 
     return this.then(
         if (animatedVisibilityScope == null || sharedTransitionScope == null) {
@@ -136,7 +136,7 @@ fun Modifier.trySharedElementWithCallerManagedVisibility(
     zIndexInOverlay: Float = 0f,
     clipInOverlayDuringTransition: OverlayClip = ParentClip,
 ): Modifier {
-    val sharedTransitionScope = LocalNavigationSharedTransitionScope.current
+    val sharedTransitionScope = LocalSharedTransitionScope.current
 
     return this.then(
         if (sharedTransitionScope == null) {
