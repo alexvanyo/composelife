@@ -27,7 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -37,8 +36,6 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.MaterialTheme
-import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
-import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.ui.util.ColorComponent
@@ -99,15 +96,4 @@ fun WatchFaceColorPicker(
             }
         }
     }
-}
-
-@ShowkaseComposable
-@WearPreviewDevices
-@Composable
-internal fun WatchFaceColorPickerPreview() {
-    var color by remember { mutableStateOf(Color.Cyan) }
-    WatchFaceColorPicker(
-        color = color,
-        setColor = { color = it },
-    )
 }
