@@ -57,6 +57,7 @@ kotlin {
                 implementation(libs.androidx.compose.runtime.retain)
                 implementation(libs.androidx.compose.runtime.saveable)
                 implementation(libs.kotlinx.coroutines.core)
+                implementation(projects.uiCommon)
             }
         }
         val jbMain by creating {
@@ -67,6 +68,7 @@ kotlin {
                 api(libs.jetbrains.navigation3.ui)
 
                 implementation(libs.androidx.lifecycle.runtime.compose)
+                implementation(libs.jetbrains.compose.foundation)
                 implementation(libs.jetbrains.navigationEvent.compose)
             }
         }

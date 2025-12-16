@@ -21,7 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavEntryDecorator
-import com.alexvanyo.composelife.navigation.trySharedElement
+import com.alexvanyo.composelife.ui.util.trySharedElement
 
 /** Returns a [SharedEntryInSceneNavEntryDecorator] that is remembered across recompositions. */
 @Composable

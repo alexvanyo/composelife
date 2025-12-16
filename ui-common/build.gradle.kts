@@ -61,7 +61,6 @@ kotlin {
                 implementation(projects.geometry)
                 implementation(projects.injectScopes)
                 implementation(projects.logging)
-                implementation(projects.navigation)
                 implementation(projects.serialization)
                 implementation(projects.uiToolingPreview)
                 implementation(projects.updatable)
