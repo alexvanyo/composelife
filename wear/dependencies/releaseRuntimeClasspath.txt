@@ -23,14 +23,12 @@ androidx.compose.foundation:foundation-android:1.11.0-alpha01
 androidx.compose.foundation:foundation-layout-android:1.11.0-alpha01
 androidx.compose.foundation:foundation-layout:1.11.0-alpha01
 androidx.compose.foundation:foundation:1.11.0-alpha01
-androidx.compose.material:material-android:1.11.0-alpha01
 androidx.compose.material:material-icons-core-android:1.7.8
 androidx.compose.material:material-icons-core:1.7.8
 androidx.compose.material:material-icons-extended-android:1.7.8
 androidx.compose.material:material-icons-extended:1.7.8
 androidx.compose.material:material-ripple-android:1.11.0-alpha01
 androidx.compose.material:material-ripple:1.11.0-alpha01
-androidx.compose.material:material:1.11.0-alpha01
 androidx.compose.runtime:runtime-android:1.11.0-alpha01
 androidx.compose.runtime:runtime-annotation-android:1.11.0-alpha01
 androidx.compose.runtime:runtime-annotation:1.11.0-alpha01
@@ -94,8 +92,6 @@ androidx.lifecycle:lifecycle-runtime-ktx-android:2.10.0
 androidx.lifecycle:lifecycle-runtime-ktx:2.10.0
 androidx.lifecycle:lifecycle-runtime:2.10.0
 androidx.lifecycle:lifecycle-viewmodel-android:2.10.0
-androidx.lifecycle:lifecycle-viewmodel-compose-android:2.10.0
-androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0
 androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0
 androidx.lifecycle:lifecycle-viewmodel-savedstate-android:2.10.0
 androidx.lifecycle:lifecycle-viewmodel-savedstate:2.10.0
@@ -106,11 +102,6 @@ androidx.navigation3:navigation3-runtime-android:1.1.0-alpha01
 androidx.navigation3:navigation3-runtime:1.1.0-alpha01
 androidx.navigation3:navigation3-ui-android:1.1.0-alpha01
 androidx.navigation3:navigation3-ui:1.1.0-alpha01
-androidx.navigation:navigation-common-ktx:2.7.7
-androidx.navigation:navigation-common:2.7.7
-androidx.navigation:navigation-compose:2.7.7
-androidx.navigation:navigation-runtime-ktx:2.7.7
-androidx.navigation:navigation-runtime:2.7.7
 androidx.navigationevent:navigationevent-android:1.0.1
 androidx.navigationevent:navigationevent-compose-android:1.0.1
 androidx.navigationevent:navigationevent-compose:1.0.1
@@ -159,8 +150,6 @@ co.touchlab:kermit-android:2.0.8
 co.touchlab:kermit-core-android:2.0.8
 co.touchlab:kermit-core:2.0.8
 co.touchlab:kermit:2.0.8
-com.airbnb.android:showkase-annotation:1.0.5
-com.airbnb.android:showkase:1.0.5
 com.google.guava:listenablefuture:1.0
 com.squareup.okio:okio-jvm:3.16.4
 com.squareup.okio:okio:3.16.4
