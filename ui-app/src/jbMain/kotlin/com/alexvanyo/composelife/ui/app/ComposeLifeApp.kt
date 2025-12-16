@@ -47,7 +47,7 @@ import androidx.window.core.layout.WindowSizeClass
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackState
-import com.alexvanyo.composelife.navigation.LocalNavigationSharedTransitionScope
+import com.alexvanyo.composelife.navigation.MaterialPredictiveNavDisplay
 import com.alexvanyo.composelife.navigation.canNavigateBack
 import com.alexvanyo.composelife.navigation.currentEntry
 import com.alexvanyo.composelife.navigation.navigate
@@ -72,7 +72,7 @@ import com.alexvanyo.composelife.ui.settings.FullscreenSettingsDetailPaneCtx
 import com.alexvanyo.composelife.ui.settings.FullscreenSettingsListPane
 import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.settings.SettingsCategory
-import com.alexvanyo.composelife.ui.util.MaterialPredictiveNavDisplay
+import com.alexvanyo.composelife.ui.util.LocalSharedTransitionScope
 import com.alexvanyo.composelife.ui.util.ReportDrawn
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
@@ -151,7 +151,7 @@ fun ComposeLifeApp(
 
                         with(targetComposeLifeAppState.composeLifeAppUiWithLoadedPreferencesCtx) {
                             SharedTransitionLayout {
-                                CompositionLocalProvider(LocalNavigationSharedTransitionScope provides this) {
+                                CompositionLocalProvider(LocalSharedTransitionScope provides this) {
                                     val navEntries = rememberDecoratedNavEntries(
                                         targetComposeLifeAppState.navigationState,
                                     ) { entry ->
