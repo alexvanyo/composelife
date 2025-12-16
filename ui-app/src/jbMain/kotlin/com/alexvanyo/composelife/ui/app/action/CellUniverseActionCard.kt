@@ -46,6 +46,7 @@ import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
+import com.alexvanyo.composelife.navigation.CrossfadePredictiveNavDisplay
 import com.alexvanyo.composelife.navigation.rememberDecoratedNavEntries
 import com.alexvanyo.composelife.navigation3.scene.SinglePaneSceneStrategy
 import com.alexvanyo.composelife.navigation3.scene.rememberSceneState
@@ -56,7 +57,6 @@ import com.alexvanyo.composelife.ui.settings.InlineSettingsPane
 import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneCtx
 import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.util.AnimatedContent
-import com.alexvanyo.composelife.ui.util.CrossfadePredictiveNavDisplay
 import com.alexvanyo.composelife.ui.util.Layout
 import com.alexvanyo.composelife.ui.util.WindowInsets
 import com.alexvanyo.composelife.ui.util.isImeAnimating
