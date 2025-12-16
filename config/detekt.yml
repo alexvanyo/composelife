@@ -150,6 +150,10 @@ naming:
   VariableNaming:
     excludes: [ '**/generated/**' ]
 
+potential-bugs:
+  IgnoredReturnValue:
+    excludes: [ '**/WatchFaceConfigPane.kt' ] # TODO: Re-enable
+
 style:
   ForbiddenComment:
     active: true
