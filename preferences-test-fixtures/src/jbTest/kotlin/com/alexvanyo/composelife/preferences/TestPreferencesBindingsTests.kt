@@ -39,7 +39,7 @@ class TestPreferencesBindingsTests : BaseInjectTest(
 
     @Test
     fun checkType() {
-        assertIs<ComposeLifePreferences>(ctx.composeLifePreferences)
-        assertIs<TestComposeLifePreferences>(ctx.composeLifePreferences)
+        val _ = assertIs<ComposeLifePreferences>(ctx.composeLifePreferences)
+        val _ = assertIs<TestComposeLifePreferences>(ctx.composeLifePreferences)
     }
 }

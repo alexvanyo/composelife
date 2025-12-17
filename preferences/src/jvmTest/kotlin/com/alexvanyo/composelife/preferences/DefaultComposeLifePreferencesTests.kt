@@ -149,7 +149,7 @@ class DefaultComposeLifePreferencesTests {
 
         val roundRectangleSessionState = composelifePreferences.roundRectangleSessionState
 
-        assertIs<ResourceState.Success<SessionValue<CurrentShape.RoundRectangle>>>(roundRectangleSessionState)
+        val _ = assertIs<ResourceState.Success<SessionValue<CurrentShape.RoundRectangle>>>(roundRectangleSessionState)
 
         val roundRectangleSessionValue = roundRectangleSessionState.value
 

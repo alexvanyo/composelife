@@ -280,10 +280,10 @@ class ResourceStateTests {
             a + b
         }
 
-        assertIs<ResourceState.Failure<String>>(result)
+        val _ = assertIs<ResourceState.Failure<String>>(result)
         val throwable = result.throwable
 
-        assertIs<CompositeException>(throwable)
+        val _ = assertIs<CompositeException>(throwable)
         assertEquals("2 exceptions occurred.", throwable.message)
         assertEquals(exception1, throwable.cause)
         assertEquals(listOf(exception1, exception2), throwable.exceptions)
@@ -413,10 +413,10 @@ class ResourceStateTests {
             a + b + c
         }
 
-        assertIs<ResourceState.Failure<String>>(result)
+        val _ = assertIs<ResourceState.Failure<String>>(result)
         val throwable = result.throwable
 
-        assertIs<CompositeException>(throwable)
+        val _ = assertIs<CompositeException>(throwable)
         assertEquals("2 exceptions occurred.", throwable.message)
         assertEquals(exception1, throwable.cause)
         assertEquals(listOf(exception1, exception2), throwable.exceptions)
@@ -508,11 +508,11 @@ class ResourceStateTests {
             a + b + c
         }
 
-        assertIs<ResourceState.Failure<String>>(result)
-        assertIs<ResourceState.Failure<String>>(result)
+        val _ = assertIs<ResourceState.Failure<String>>(result)
+        val _ = assertIs<ResourceState.Failure<String>>(result)
         val throwable = result.throwable
 
-        assertIs<CompositeException>(throwable)
+        val _ = assertIs<CompositeException>(throwable)
         assertEquals("2 exceptions occurred.", throwable.message)
         assertEquals(exception1, throwable.cause)
         assertEquals(listOf(exception1, exception2), throwable.exceptions)
@@ -546,11 +546,11 @@ class ResourceStateTests {
             a + b + c
         }
 
-        assertIs<ResourceState.Failure<String>>(result)
-        assertIs<ResourceState.Failure<String>>(result)
+        val _ = assertIs<ResourceState.Failure<String>>(result)
+        val _ = assertIs<ResourceState.Failure<String>>(result)
         val throwable = result.throwable
 
-        assertIs<CompositeException>(throwable)
+        val _ = assertIs<CompositeException>(throwable)
         assertEquals("2 exceptions occurred.", throwable.message)
         assertEquals(exception1, throwable.cause)
         assertEquals(listOf(exception1, exception2), throwable.exceptions)
@@ -569,10 +569,10 @@ class ResourceStateTests {
             a + b + c
         }
 
-        assertIs<ResourceState.Failure<String>>(result)
+        val _ = assertIs<ResourceState.Failure<String>>(result)
         val throwable = result.throwable
 
-        assertIs<CompositeException>(throwable)
+        val _ = assertIs<CompositeException>(throwable)
         assertEquals("3 exceptions occurred.", throwable.message)
         assertEquals(exception1, throwable.cause)
         assertEquals(listOf(exception1, exception2, exception3), throwable.exceptions)
@@ -590,10 +590,10 @@ class ResourceStateTests {
             a + b + c
         }
 
-        assertIs<ResourceState.Failure<String>>(result)
+        val _ = assertIs<ResourceState.Failure<String>>(result)
         val throwable = result.throwable
 
-        assertIs<CompositeException>(throwable)
+        val _ = assertIs<CompositeException>(throwable)
         assertEquals("2 exceptions occurred.", throwable.message)
         assertEquals(exception1, throwable.cause)
         assertEquals(listOf(exception1, exception2), throwable.exceptions)
@@ -626,10 +626,10 @@ class ResourceStateTests {
             a + b + c
         }
 
-        assertIs<ResourceState.Failure<String>>(result)
+        val _ = assertIs<ResourceState.Failure<String>>(result)
         val throwable = result.throwable
 
-        assertIs<CompositeException>(throwable)
+        val _ = assertIs<CompositeException>(throwable)
         assertEquals("2 exceptions occurred.", throwable.message)
         assertEquals(exception1, throwable.cause)
         assertEquals(listOf(exception1, exception2), throwable.exceptions)
@@ -720,10 +720,10 @@ class ResourceStateTests {
             a + b + c
         }
 
-        assertIs<ResourceState.Failure<String>>(result)
+        val _ = assertIs<ResourceState.Failure<String>>(result)
         val throwable = result.throwable
 
-        assertIs<CompositeException>(throwable)
+        val _ = assertIs<CompositeException>(throwable)
         assertEquals("2 exceptions occurred.", throwable.message)
         assertEquals(exception1, throwable.cause)
         assertEquals(listOf(exception1, exception2), throwable.exceptions)
