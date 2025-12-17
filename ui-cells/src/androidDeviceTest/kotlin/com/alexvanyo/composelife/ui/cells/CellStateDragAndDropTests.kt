@@ -123,7 +123,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest(
         }
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
-            assertIs<CellStateDropState.None>(cellStateDropState)
+            val _ = assertIs<CellStateDropState.None>(cellStateDropState)
         }
 
         val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
@@ -158,7 +158,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest(
         ctx.generalTestDispatcher.scheduler.runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
-            assertIs<CellStateDropState.ApplicableDropAvailable>(cellStateDropState)
+            val _ = assertIs<CellStateDropState.ApplicableDropAvailable>(cellStateDropState)
         }
 
         val move = MotionEvent.obtain(
@@ -178,7 +178,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest(
         ctx.generalTestDispatcher.scheduler.runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
-            assertIs<CellStateDropState.DropPreview>(cellStateDropState)
+            val _ = assertIs<CellStateDropState.DropPreview>(cellStateDropState)
             assertEquals(GliderPattern.seedCellState, cellStateDropState.cellState)
             assertEquals(testDropTargetCenterLocalCoordinates, cellStateDropState.offset)
         }
@@ -200,7 +200,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest(
         ctx.generalTestDispatcher.scheduler.runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
-            assertIs<CellStateDropState.None>(cellStateDropState)
+            val _ = assertIs<CellStateDropState.None>(cellStateDropState)
         }
         assertEquals(GliderPattern.seedCellState, droppedCellState)
         assertEquals(testDropTargetCenterLocalCoordinates, droppedOffset)
@@ -247,7 +247,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest(
         }
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
-            assertIs<CellStateDropState.None>(cellStateDropState)
+            val _ = assertIs<CellStateDropState.None>(cellStateDropState)
         }
 
         val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
@@ -282,7 +282,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest(
         ctx.generalTestDispatcher.scheduler.runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
-            assertIs<CellStateDropState.ApplicableDropAvailable>(cellStateDropState)
+            val _ = assertIs<CellStateDropState.ApplicableDropAvailable>(cellStateDropState)
         }
 
         val move1 = MotionEvent.obtain(
@@ -302,7 +302,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest(
         ctx.generalTestDispatcher.scheduler.runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
-            assertIs<CellStateDropState.DropPreview>(cellStateDropState)
+            val _ = assertIs<CellStateDropState.DropPreview>(cellStateDropState)
             assertEquals(GliderPattern.seedCellState, cellStateDropState.cellState)
             assertEquals(testDropTargetCenterLocalCoordinates, cellStateDropState.offset)
         }
@@ -324,7 +324,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest(
         ctx.generalTestDispatcher.scheduler.runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
-            assertIs<CellStateDropState.ApplicableDropAvailable>(cellStateDropState)
+            val _ = assertIs<CellStateDropState.ApplicableDropAvailable>(cellStateDropState)
         }
 
         val up = MotionEvent.obtain(
@@ -347,7 +347,7 @@ class CellStateDragAndDropTests : BaseUiInjectTest(
         ctx.generalTestDispatcher.scheduler.runCurrent()
 
         mutableCellStateDropStateHolder.cellStateDropState.let { cellStateDropState ->
-            assertIs<CellStateDropState.None>(cellStateDropState)
+            val _ = assertIs<CellStateDropState.None>(cellStateDropState)
         }
         assertNull(droppedCellState)
         assertNull(droppedOffset)

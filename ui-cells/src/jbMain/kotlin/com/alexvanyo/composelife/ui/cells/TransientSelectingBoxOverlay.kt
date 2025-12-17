@@ -68,7 +68,7 @@ internal fun TransientSelectingBoxOverlay(
                 ),
         )
 
-        handleOffsetCalculators.mapIndexed { index, offsetCalculator ->
+        handleOffsetCalculators.forEachIndexed { index, offsetCalculator ->
             key(index) {
                 SelectionHandle(
                     isActive = index == 2,
