@@ -170,5 +170,5 @@ org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0
 org.jetbrains.kotlinx:kotlinx-serialization-json-wasm-js:1.9.0
 org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0
 org.jetbrains.skiko:skiko-js-wasm-runtime:0.9.37
-org.jetbrains.skiko:skiko-wasm-js:0.9.37.3
-org.jetbrains.skiko:skiko:0.9.37.3
+org.jetbrains.skiko:skiko-wasm-js:0.9.37
+org.jetbrains.skiko:skiko:0.9.37
