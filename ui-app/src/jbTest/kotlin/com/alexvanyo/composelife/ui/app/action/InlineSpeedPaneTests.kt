@@ -52,6 +52,7 @@ import com.alexvanyo.composelife.ui.app.resources.TargetStepsPerSecondLabelAndVa
 import com.alexvanyo.composelife.ui.app.resources.TargetStepsPerSecondValue
 import kotlin.math.log2
 import kotlin.test.Test
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 class InlineSpeedPaneTests : BaseKmpTest() {
@@ -110,7 +111,7 @@ class InlineSpeedPaneTests : BaseKmpTest() {
                 resolver(Strings.TargetStepsPerSecondLabelAndValue(60.0)),
             )
                 .performSemanticsAction(SemanticsActions.SetProgress) {
-                    it(8f)
+                    assertTrue(it(8f))
                 }
 
             onNode(
@@ -271,7 +272,7 @@ class InlineSpeedPaneTests : BaseKmpTest() {
                 resolver(Strings.GenerationsPerStepLabelAndValue(1)),
             )
                 .performSemanticsAction(SemanticsActions.SetProgress) {
-                    it(8f)
+                    assertTrue(it(8f))
                 }
 
             onNode(

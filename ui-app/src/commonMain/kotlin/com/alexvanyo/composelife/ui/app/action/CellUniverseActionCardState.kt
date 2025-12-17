@@ -335,7 +335,7 @@ fun rememberCellUniverseActionCardState(
             }
 
             override fun inlineOnBackPressed(inlineActorBackstackEntryId: Uuid?) {
-                onBackPressed(inlineActorBackstackEntryId)
+                val _ = onBackPressed(inlineActorBackstackEntryId)
             }
         }
     }
