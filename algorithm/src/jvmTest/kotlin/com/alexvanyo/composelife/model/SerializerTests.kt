@@ -103,7 +103,7 @@ class SerializerTests {
         val serialized = serializer.serializeToString(testPattern.seedCellState)
         val deserializationResult = serializer.deserializeToCellState(serialized)
 
-        assertIs<DeserializationResult.Successful>(deserializationResult)
+        val _ = assertIs<DeserializationResult.Successful>(deserializationResult)
 
         assertEquals(emptyList(), deserializationResult.warnings)
         if (serializerFactory.trueEquals) {

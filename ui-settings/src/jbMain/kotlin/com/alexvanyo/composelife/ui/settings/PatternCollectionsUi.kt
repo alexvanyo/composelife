@@ -406,7 +406,7 @@ fun AddPatternCollection(
         val coroutineScope = rememberCoroutineScope()
         val textFieldState = rememberSaveable(saver = TextFieldState.Saver) { TextFieldState() }
 
-        val add = {
+        val add: () -> Unit = {
             val text = textFieldState.text.toString()
             textFieldState.clearText()
             coroutineScope.launch {

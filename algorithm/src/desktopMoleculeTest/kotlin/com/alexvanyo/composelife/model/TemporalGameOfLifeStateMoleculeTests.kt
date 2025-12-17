@@ -94,7 +94,7 @@ class TemporalGameOfLifeStateMoleculeTests {
 
                     assertEquals(expectedCellState, temporalGameOfLifeState.cellState)
                     temporalGameOfLifeState.status.let { status ->
-                        assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                        val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
                         assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                     }
                 }
@@ -145,7 +145,7 @@ class TemporalGameOfLifeStateMoleculeTests {
 
                 assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
-                    assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
                     assertEquals(0.0, status.averageGenerationsPerSecond, 0.001)
                 }
 
@@ -154,7 +154,7 @@ class TemporalGameOfLifeStateMoleculeTests {
 
                 assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
-                    assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
 
@@ -163,7 +163,7 @@ class TemporalGameOfLifeStateMoleculeTests {
 
                 assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
-                    assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
 
@@ -172,7 +172,7 @@ class TemporalGameOfLifeStateMoleculeTests {
 
                 assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
-                    assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
 
@@ -182,7 +182,7 @@ class TemporalGameOfLifeStateMoleculeTests {
                 runCurrent()
 
                 assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
-                assertIs<TemporalGameOfLifeState.EvolutionStatus.Paused>(temporalGameOfLifeState.status)
+                val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Paused>(temporalGameOfLifeState.status)
             }
     }
 
@@ -230,7 +230,7 @@ class TemporalGameOfLifeStateMoleculeTests {
 
                 assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
-                    assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
                     assertEquals(0.0, status.averageGenerationsPerSecond, 0.001)
                 }
 
@@ -239,7 +239,7 @@ class TemporalGameOfLifeStateMoleculeTests {
 
                 assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
-                    assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
 
@@ -248,7 +248,7 @@ class TemporalGameOfLifeStateMoleculeTests {
 
                 assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
-                    assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
 
@@ -257,7 +257,7 @@ class TemporalGameOfLifeStateMoleculeTests {
 
                 assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
-                    assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
 
@@ -268,7 +268,7 @@ class TemporalGameOfLifeStateMoleculeTests {
 
                 assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
-                    assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
 
@@ -277,7 +277,7 @@ class TemporalGameOfLifeStateMoleculeTests {
 
                 assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
-                    assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
                     assertEquals(22.388, status.averageGenerationsPerSecond, 0.001)
                 }
             }
@@ -327,7 +327,7 @@ class TemporalGameOfLifeStateMoleculeTests {
 
                 assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
-                    assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
                     assertEquals(0.0, status.averageGenerationsPerSecond, 0.001)
                 }
 
@@ -336,7 +336,7 @@ class TemporalGameOfLifeStateMoleculeTests {
 
                 assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
-                    assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
 
@@ -345,7 +345,7 @@ class TemporalGameOfLifeStateMoleculeTests {
 
                 assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
-                    assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
 
@@ -354,7 +354,7 @@ class TemporalGameOfLifeStateMoleculeTests {
 
                 assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
-                    assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
 
@@ -365,7 +365,7 @@ class TemporalGameOfLifeStateMoleculeTests {
 
                 assertEquals(SingleCellPattern.seedCellState, temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
-                    assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
 
@@ -374,7 +374,7 @@ class TemporalGameOfLifeStateMoleculeTests {
 
                 assertEquals(SingleCellPattern.cellStates[0], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
-                    assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
             }
@@ -434,7 +434,7 @@ class TemporalGameOfLifeStateMoleculeTests {
 
                 assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
-                    assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
                     assertEquals(0.0, status.averageGenerationsPerSecond, 0.001)
                 }
 
@@ -443,7 +443,7 @@ class TemporalGameOfLifeStateMoleculeTests {
 
                 assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
-                    assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
 
@@ -452,7 +452,7 @@ class TemporalGameOfLifeStateMoleculeTests {
 
                 assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
-                    assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
 
@@ -461,7 +461,7 @@ class TemporalGameOfLifeStateMoleculeTests {
 
                 assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
-                    assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
 
@@ -472,7 +472,7 @@ class TemporalGameOfLifeStateMoleculeTests {
 
                 assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
-                    assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
 
@@ -481,7 +481,7 @@ class TemporalGameOfLifeStateMoleculeTests {
 
                 assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
                 temporalGameOfLifeState.status.let { status ->
-                    assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
                     assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                 }
             }

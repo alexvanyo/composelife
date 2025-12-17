@@ -44,6 +44,7 @@ import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalTestApi::class)
@@ -96,7 +97,7 @@ class EditableSliderTests : BaseKmpTest() {
 
         onNodeWithContentDescription("float: 0.0")
             .performSemanticsAction(SemanticsActions.SetProgress) {
-                it(0.5f)
+                assertTrue(it(0.5f))
             }
 
         onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float"))
@@ -264,7 +265,7 @@ class EditableSliderTests : BaseKmpTest() {
 
         onNodeWithContentDescription("float 1: 0.0")
             .performSemanticsAction(SemanticsActions.SetProgress) {
-                it(0.5f)
+                assertTrue(it(0.5f))
             }
 
         onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float 1"))
@@ -283,7 +284,7 @@ class EditableSliderTests : BaseKmpTest() {
 
         onNodeWithContentDescription("float 2: 0.5")
             .performSemanticsAction(SemanticsActions.SetProgress) {
-                it(0.25f)
+                assertTrue(it(0.25f))
             }
 
         onNode(hasSetTextAction() and hasImeAction(ImeAction.Done) and hasText("float 1"))

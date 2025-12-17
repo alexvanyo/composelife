@@ -469,7 +469,7 @@ class MacrocellCellStateSerializerTests {
                 .readText()
                 .lineSequence(),
         )
-        assertIs<DeserializationResult.Successful>(deserializationResult)
+        val _ = assertIs<DeserializationResult.Successful>(deserializationResult)
         assertEquals(CellStateFormat.FixedFormat.Macrocell, deserializationResult.format)
         assertEquals(emptyList(), deserializationResult.warnings)
         assertTrue(

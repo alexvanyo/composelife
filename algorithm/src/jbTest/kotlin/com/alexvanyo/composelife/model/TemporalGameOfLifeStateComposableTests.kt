@@ -126,7 +126,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
             assertEquals(expectedCellState, temporalGameOfLifeState.cellState)
             temporalGameOfLifeState.status.let { status ->
-                assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
                 assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
             }
         }
@@ -173,7 +173,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
         assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
-            assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
             assertEquals(0.0, status.averageGenerationsPerSecond, 0.001)
         }
 
@@ -185,7 +185,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
         assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
-            assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
@@ -197,7 +197,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
         assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
-            assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
@@ -209,7 +209,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
         assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
-            assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
@@ -222,7 +222,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
         waitForIdle()
 
         assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
-        assertIs<TemporalGameOfLifeState.EvolutionStatus.Paused>(temporalGameOfLifeState.status)
+        val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Paused>(temporalGameOfLifeState.status)
     }
 
     @Suppress("LongMethod")
@@ -266,7 +266,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
         assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
-            assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
             assertEquals(0.0, status.averageGenerationsPerSecond, 0.001)
         }
 
@@ -278,7 +278,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
         assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
-            assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
@@ -290,7 +290,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
         assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
-            assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
@@ -302,7 +302,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
         assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
-            assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
@@ -316,7 +316,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
         assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
-            assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
@@ -328,7 +328,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
         assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
-            assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
             assertEquals(22.388, status.averageGenerationsPerSecond, 0.001)
         }
     }
@@ -374,7 +374,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
         assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
-            assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
             assertEquals(0.0, status.averageGenerationsPerSecond, 0.001)
         }
 
@@ -386,7 +386,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
         assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
-            assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
@@ -398,7 +398,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
         assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
-            assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
@@ -410,7 +410,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
         assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
-            assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
@@ -424,7 +424,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
         assertEquals(SingleCellPattern.seedCellState, temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
-            assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
@@ -436,7 +436,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
         assertEquals(SingleCellPattern.cellStates[0], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
-            assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
     }
@@ -490,7 +490,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
         assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
-            assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
             assertEquals(0.0, status.averageGenerationsPerSecond, 0.001)
         }
 
@@ -502,7 +502,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
         assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
-            assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
@@ -514,7 +514,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
         assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
-            assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
@@ -526,7 +526,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
         assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
-            assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
@@ -540,7 +540,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
         assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
-            assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
@@ -552,7 +552,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
         assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
-            assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
     }

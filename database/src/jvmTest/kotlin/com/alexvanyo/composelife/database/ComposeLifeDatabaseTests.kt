@@ -42,6 +42,6 @@ class ComposeLifeDatabaseTests : BaseInjectTest(
 
     @Test
     fun cell_state_dao_returns_valid_instance() = runAppTest {
-        assertIs<CellStateQueries>(composeLifeDatabase.cellStateQueries)
+        val _ = assertIs<CellStateQueries>(composeLifeDatabase.cellStateQueries)
     }
 }

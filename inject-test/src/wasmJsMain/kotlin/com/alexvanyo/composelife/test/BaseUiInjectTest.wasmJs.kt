@@ -26,6 +26,7 @@ import org.w3c.dom.HTMLElement
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 
+@Suppress("CAST_NEVER_SUCCEEDS")
 @OptIn(ExperimentalTestApi::class)
 internal actual fun runPlatformUiTest(
     runTestContext: CoroutineContext,

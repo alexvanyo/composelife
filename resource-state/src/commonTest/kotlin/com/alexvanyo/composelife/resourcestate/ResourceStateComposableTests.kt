@@ -58,8 +58,8 @@ class ResourceStateComposableTests {
                 broadcastFrameClock.sendFrame(2)
 
                 awaitItem().let { state ->
-                    assertIs<ResourceState.Failure<String>>(state)
-                    assertIs<TestException>(state.throwable)
+                    val _ = assertIs<ResourceState.Failure<String>>(state)
+                    val _ = assertIs<TestException>(state.throwable)
                 }
             }
     }

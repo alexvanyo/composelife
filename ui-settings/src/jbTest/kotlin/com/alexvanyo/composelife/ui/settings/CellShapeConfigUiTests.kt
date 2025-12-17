@@ -53,6 +53,7 @@ import com.alexvanyo.composelife.ui.settings.resources.SizeFractionValue
 import com.alexvanyo.composelife.ui.settings.resources.Strings
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalTestApi::class)
@@ -150,7 +151,7 @@ class CellShapeConfigUiTests : BaseKmpTest() {
                 resolver(Strings.SizeFractionLabelAndValue(0.8f)),
             )
                 .performSemanticsAction(SemanticsActions.SetProgress) {
-                    it(0.5f)
+                    assertTrue(it(0.5f))
                 }
 
             onNodeWithContentDescription(
@@ -194,7 +195,7 @@ class CellShapeConfigUiTests : BaseKmpTest() {
                 resolver(Strings.CornerFractionLabelAndValue(0.4f)),
             )
                 .performSemanticsAction(SemanticsActions.SetProgress) {
-                    it(0f)
+                    assertTrue(it(0f))
                 }
 
             onNodeWithContentDescription(
