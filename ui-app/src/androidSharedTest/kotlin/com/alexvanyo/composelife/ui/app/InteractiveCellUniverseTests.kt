@@ -91,6 +91,7 @@ import kotlinx.coroutines.test.TestDispatcher
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.seconds
 import com.alexvanyo.composelife.ui.cells.resources.Strings as CellsStrings
 
@@ -424,7 +425,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             .performClick()
 
         onNodeWithContentDescription(resolver.invoke(Strings.TargetStepsPerSecondLabelAndValue(60.0)))
-            .performSemanticsAction(SemanticsActions.SetProgress) { it(0f) }
+            .performSemanticsAction(SemanticsActions.SetProgress) { assertTrue(it(0f)) }
 
         onNodeWithContentDescription(resolver.invoke(Strings.Play))
             .performClick()
@@ -564,7 +565,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             .performClick()
 
         onNodeWithContentDescription(resolver.invoke(Strings.GenerationsPerStepLabelAndValue(1)))
-            .performSemanticsAction(SemanticsActions.SetProgress) { it(1f) }
+            .performSemanticsAction(SemanticsActions.SetProgress) { assertTrue(it(1f)) }
 
         onNode(
             hasAnyAncestor(hasTestTag("CellUniverseActionCard")) and

@@ -97,7 +97,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
 
         val clipboardWatchingState = inlineEditPaneState.clipboardWatchingState
 
-        assertIs<ClipboardWatchingState.Onboarding>(clipboardWatchingState)
+        val _ = assertIs<ClipboardWatchingState.Onboarding>(clipboardWatchingState)
     }
 
     @Test
@@ -127,7 +127,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
         }
 
         val initialClipboardWatchingState = inlineEditPaneState.clipboardWatchingState
-        assertIs<ClipboardWatchingState.Onboarding>(initialClipboardWatchingState)
+        val _ = assertIs<ClipboardWatchingState.Onboarding>(initialClipboardWatchingState)
 
         initialClipboardWatchingState.onAllowClipboardWatching()
 
@@ -140,7 +140,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
 
         val newClipboardWatchingState = inlineEditPaneState.clipboardWatchingState
 
-        assertIs<ClipboardWatchingState.ClipboardWatchingEnabled>(newClipboardWatchingState)
+        val _ = assertIs<ClipboardWatchingState.ClipboardWatchingEnabled>(newClipboardWatchingState)
     }
 
     @Test
@@ -170,7 +170,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
         }
 
         val initialClipboardWatchingState = inlineEditPaneState.clipboardWatchingState
-        assertIs<ClipboardWatchingState.Onboarding>(initialClipboardWatchingState)
+        val _ = assertIs<ClipboardWatchingState.Onboarding>(initialClipboardWatchingState)
 
         initialClipboardWatchingState.onDisallowClipboardWatching()
 
@@ -183,7 +183,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
 
         val newClipboardWatchingState = inlineEditPaneState.clipboardWatchingState
 
-        assertIs<ClipboardWatchingState.ClipboardWatchingDisabled>(newClipboardWatchingState)
+        val _ = assertIs<ClipboardWatchingState.ClipboardWatchingDisabled>(newClipboardWatchingState)
     }
 
     @Test
@@ -227,7 +227,7 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
 
         val clipboardWatchingState = inlineEditPaneState.clipboardWatchingState
 
-        assertIs<ClipboardWatchingState.ClipboardWatchingEnabled>(clipboardWatchingState)
+        val _ = assertIs<ClipboardWatchingState.ClipboardWatchingEnabled>(clipboardWatchingState)
     }
 
     @Test
@@ -271,6 +271,6 @@ class InlineEditPaneStateTests : BaseUiInjectTest(
 
         val clipboardWatchingState = inlineEditPaneState.clipboardWatchingState
 
-        assertIs<ClipboardWatchingState.ClipboardWatchingDisabled>(clipboardWatchingState)
+        val _ = assertIs<ClipboardWatchingState.ClipboardWatchingDisabled>(clipboardWatchingState)
     }
 }

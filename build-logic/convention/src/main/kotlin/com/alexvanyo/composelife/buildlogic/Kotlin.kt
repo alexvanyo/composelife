@@ -25,7 +25,6 @@ fun Project.configureKotlin() {
     tasks.withType(KotlinCompile::class.java).configureEach {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
-            allWarningsAsErrors.set(true)
         }
     }
 
@@ -36,8 +35,13 @@ fun Project.configureKotlin() {
                 enableLanguageFeature("ExpectActualClasses")
                 enableLanguageFeature("ContextParameters")
                 enableLanguageFeature("MultiDollarInterpolation")
+                enableLanguageFeature("UnnamedLocalVariables")
                 optIn("kotlin.uuid.ExperimentalUuidApi")
                 optIn("kotlin.time.ExperimentalTime")
+            }
+            compilerOptions {
+                freeCompilerArgs.add("-Xreturn-value-checker=check")
+                allWarningsAsErrors.set(true)
             }
         }
     }
