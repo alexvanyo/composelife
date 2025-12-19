@@ -20,6 +20,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.alexvanyo.composelife.navigation.BackstackEntry
+import com.alexvanyo.composelife.navigation.BackstackMapSerializer
 import com.alexvanyo.composelife.navigation.canNavigateBack
 import com.alexvanyo.composelife.navigation.navigate
 import com.alexvanyo.composelife.navigation.popBackstack
@@ -40,7 +41,9 @@ fun WatchFaceConfigPane(
                     previous = null,
                 ),
             ),
-            backstackValueSaverFactory = WatchFaceConfigNavigation.SaverFactory,
+            backstackMapSerializer = BackstackMapSerializer(
+                convertToSurrogate = WatchFaceConfigNavigation::surrogate,
+            ),
         )
 
     BackHandler(navigationController.canNavigateBack) {

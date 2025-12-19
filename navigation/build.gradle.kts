@@ -26,6 +26,7 @@ plugins {
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
+    kotlin("plugin.serialization") version libs.versions.kotlin
     alias(libs.plugins.gradleDependenciesSorter)
 }
 
@@ -57,6 +58,7 @@ kotlin {
                 implementation(libs.androidx.compose.runtime.retain)
                 implementation(libs.androidx.compose.runtime.saveable)
                 implementation(libs.kotlinx.coroutines.core)
+                implementation(projects.serialization)
                 implementation(projects.uiCommon)
             }
         }
