@@ -17,13 +17,10 @@
 package com.alexvanyo.composelife.ui.wear
 
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.listSaver
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import com.alexvanyo.composelife.navigation.BackstackEntry
-import com.alexvanyo.composelife.navigation.BackstackValueSaverFactory
-import com.alexvanyo.composelife.serialization.sealedEnumSaver
-import com.livefront.sealedenum.GenSealedEnum
+import com.alexvanyo.composelife.navigation.BackstackValueSurrogate
+import kotlinx.serialization.Serializable
 
 /**
  * The entry value for the watchface config navigation.
@@ -31,89 +28,50 @@ import com.livefront.sealedenum.GenSealedEnum
  * Each entry value is a [Stable] state holder, which contains a small amount of information related to a particular
  * destination in the backstack. An entry value can be immutable, but does not have to be.
  *
- * Each entry value has an associated [type]. The associated [type] has a [WatchFaceConfigNavigationType.saverFactory]
- * to allow restoring a particular instance of [WatchFaceConfigNavigation].
+ * Each entry value has an associated [surrogate] representing the serialized form of the entry.
  */
 @Stable
 sealed interface WatchFaceConfigNavigation {
-    val type: WatchFaceConfigNavigationType
+    val surrogate: WatchFaceConfigNavigationSurrogate
 
     class List(
         val scalingLazyListState: ScalingLazyListState = ScalingLazyListState(
             initialCenterItemIndex = 0,
         ),
     ) : WatchFaceConfigNavigation {
-        override val type = Companion
+        override val surrogate get() = Surrogate(
+            centerItemIndex = scalingLazyListState.centerItemIndex,
+            centerItemScrollOffset = scalingLazyListState.centerItemScrollOffset,
+        )
 
-        companion object : WatchFaceConfigNavigationType {
-            @Suppress("UnsafeCallOnNullableType")
-            override fun saverFactory(
+        @Serializable
+        data class Surrogate(
+            val centerItemIndex: Int,
+            val centerItemScrollOffset: Int,
+        ) : WatchFaceConfigNavigationSurrogate {
+            override fun createFromSurrogate(
                 previous: BackstackEntry<WatchFaceConfigNavigation>?,
-            ): Saver<List, Any> = listSaver(
-                save = {
-                    listOf(
-                        with(ScalingLazyListState.Saver) {
-                            save(it.scalingLazyListState)
-                        },
-                    )
-                },
-                restore = { list ->
-                    val scalingLazyListState = list[0]!!.let(ScalingLazyListState.Saver::restore)!!
-                    List(
-                        scalingLazyListState = scalingLazyListState,
-                    )
-                },
-            )
+            ): WatchFaceConfigNavigation =
+                List(
+                    ScalingLazyListState(
+                        initialCenterItemIndex = centerItemIndex,
+                        initialCenterItemScrollOffset = centerItemScrollOffset,
+                    ),
+                )
         }
     }
 
     data object ColorPicker : WatchFaceConfigNavigation {
-        override val type = Companion
+        override val surrogate = Surrogate
 
-        data object Companion : WatchFaceConfigNavigationType {
-            override fun saverFactory(
+        @Serializable
+        data object Surrogate : WatchFaceConfigNavigationSurrogate {
+            override fun createFromSurrogate(
                 previous: BackstackEntry<WatchFaceConfigNavigation>?,
-            ): Saver<ColorPicker, Any> = Saver(
-                save = { 0 },
-                restore = { ColorPicker },
-            )
+            ): WatchFaceConfigNavigation = ColorPicker
         }
     }
-
-    companion object {
-        @Suppress("UnsafeCallOnNullableType")
-        val SaverFactory: BackstackValueSaverFactory<WatchFaceConfigNavigation> =
-            BackstackValueSaverFactory { previous ->
-                listSaver(
-                    save = { watchFaceConfigNavigation ->
-                        listOf(
-                            with(WatchFaceConfigNavigationType.Saver) { save(watchFaceConfigNavigation.type) },
-                            when (watchFaceConfigNavigation) {
-                                is List ->
-                                    with(watchFaceConfigNavigation.type.saverFactory(previous)) {
-                                        save(watchFaceConfigNavigation)
-                                    }
-                                is ColorPicker ->
-                                    with(watchFaceConfigNavigation.type.saverFactory(previous)) {
-                                        save(watchFaceConfigNavigation)
-                                    }
-                            },
-                        )
-                    },
-                    restore = { list ->
-                        val type = WatchFaceConfigNavigationType.Saver.restore(list[0] as Int)!!
-                        type.saverFactory(previous).restore(list[1]!!)
-                    },
-                )
-            }
-    }
 }
 
-sealed interface WatchFaceConfigNavigationType {
-    fun saverFactory(previous: BackstackEntry<WatchFaceConfigNavigation>?): Saver<out WatchFaceConfigNavigation, Any>
-
-    @GenSealedEnum
-    companion object {
-        val Saver = sealedEnumSaver(sealedEnum)
-    }
-}
+@Serializable
+sealed interface WatchFaceConfigNavigationSurrogate : BackstackValueSurrogate<WatchFaceConfigNavigation>

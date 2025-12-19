@@ -20,18 +20,13 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.setValue
-import androidx.savedstate.SavedState
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.navigation.BackstackEntry
-import com.alexvanyo.composelife.navigation.BackstackValueSaverFactory
-import com.alexvanyo.composelife.serialization.sealedEnumSaver
+import com.alexvanyo.composelife.navigation.BackstackValueSurrogate
 import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.settings.SettingsCategory
-import com.livefront.sealedenum.GenSealedEnum
-import com.livefront.sealedenum.SealedEnum
+import kotlinx.serialization.Serializable
 import kotlin.uuid.Uuid
 
 @Stable
@@ -39,19 +34,17 @@ sealed interface ComposeLifeNavigation {
     /**
      * The type of the destination.
      */
-    val type: ComposeLifeNavigationType
+    val surrogate: ComposeLifeNavigationSurrogate
 
     data object CellUniverse : ComposeLifeNavigation {
 
-        override val type = Companion
+        override val surrogate = Surrogate
 
-        data object Companion : ComposeLifeNavigationType {
-            override fun saverFactory(
+        @Serializable
+        data object Surrogate : ComposeLifeNavigationSurrogate {
+            override fun createFromSurrogate(
                 previous: BackstackEntry<ComposeLifeNavigation>?,
-            ): Saver<CellUniverse, Any> = Saver(
-                save = { 0 },
-                restore = { CellUniverse },
-            )
+            ): ComposeLifeNavigation = CellUniverse
         }
     }
 
@@ -73,23 +66,16 @@ sealed interface ComposeLifeNavigation {
             FullscreenSettingsDetail(settingsCategory, null)
         }
 
-        override val type = Companion
+        override val surrogate get() = Surrogate(settingsCategory)
 
-        companion object : ComposeLifeNavigationType {
-            @Suppress("UnsafeCallOnNullableType")
-            override fun saverFactory(
+        @Serializable
+        data class Surrogate(
+            val settingsCategory: SettingsCategory,
+        ) : ComposeLifeNavigationSurrogate {
+            override fun createFromSurrogate(
                 previous: BackstackEntry<ComposeLifeNavigation>?,
-            ): Saver<FullscreenSettingsList, Any> =
-                Saver(
-                    save = { nav ->
-                        with(SettingsCategory.Saver) { save(nav.settingsCategory) }
-                    },
-                    restore = {
-                        FullscreenSettingsList(
-                            initialSettingsCategory = SettingsCategory.Saver.restore(it)!!,
-                        )
-                    },
-                )
+            ): ComposeLifeNavigation =
+                FullscreenSettingsList(settingsCategory)
         }
     }
 
@@ -111,88 +97,33 @@ sealed interface ComposeLifeNavigation {
             settingToScrollTo = null
         }
 
-        override val type = Companion
+        override val surrogate get() = Surrogate(settingsCategory, settingToScrollTo)
 
-        companion object : ComposeLifeNavigationType {
-            @Suppress("UnsafeCallOnNullableType")
-            override fun saverFactory(
+        @Serializable
+        data class Surrogate(
+            val settingsCategory: SettingsCategory,
+            val settingToScrollTo: Setting?,
+        ) : ComposeLifeNavigationSurrogate {
+            override fun createFromSurrogate(
                 previous: BackstackEntry<ComposeLifeNavigation>?,
-            ): Saver<FullscreenSettingsDetail, Any> =
-                listSaver(
-                    save = { nav ->
-                        listOf(
-                            with(SettingsCategory.Saver) { save(nav.settingsCategory) },
-                            nav.settingToScrollTo?.let { with(Setting.Saver) { save(it) } },
-                        )
-                    },
-                    restore = {
-                        FullscreenSettingsDetail(
-                            settingsCategory = SettingsCategory.Saver.restore(it[0] as Int)!!,
-                            initialSettingToScrollTo = (it[1] as Int?)?.let(Setting.Saver::restore),
-                        )
-                    },
-                )
+            ): ComposeLifeNavigation =
+                FullscreenSettingsDetail(settingsCategory, settingToScrollTo)
         }
     }
 
     class DeserializationInfo(
         val deserializationResult: DeserializationResult,
     ) : ComposeLifeNavigation {
-        override val type = Companion
+        override val surrogate = Surrogate(deserializationResult)
 
-        companion object : ComposeLifeNavigationType {
-            @Suppress("UnsafeCallOnNullableType")
-            override fun saverFactory(
+        @Serializable
+        data class Surrogate(
+            val deserializationResult: DeserializationResult,
+        ) : ComposeLifeNavigationSurrogate {
+            override fun createFromSurrogate(
                 previous: BackstackEntry<ComposeLifeNavigation>?,
-            ): Saver<DeserializationInfo, Any> =
-                Saver(
-                    save = {
-                        with(DeserializationResult.Saver) {
-                            save(it.deserializationResult)
-                        }
-                    },
-                    restore = {
-                        DeserializationInfo(DeserializationResult.Saver.restore(it as SavedState)!!)
-                    },
-                )
-        }
-    }
-
-    companion object {
-        @Suppress("UnsafeCallOnNullableType")
-        val SaverFactory: BackstackValueSaverFactory<ComposeLifeNavigation> = BackstackValueSaverFactory { previous ->
-            listSaver(
-                save = { composeLifeNavigation ->
-                    listOf(
-                        with(ComposeLifeNavigationType.Saver) { save(composeLifeNavigation.type) },
-                        when (composeLifeNavigation) {
-                            is CellUniverse ->
-                                with(composeLifeNavigation.type.saverFactory(previous)) {
-                                    save(composeLifeNavigation)
-                                }
-
-                            is FullscreenSettingsList ->
-                                with(composeLifeNavigation.type.saverFactory(previous)) {
-                                    save(composeLifeNavigation)
-                                }
-
-                            is FullscreenSettingsDetail ->
-                                with(composeLifeNavigation.type.saverFactory(previous)) {
-                                    save(composeLifeNavigation)
-                                }
-
-                            is DeserializationInfo ->
-                                with(composeLifeNavigation.type.saverFactory(previous)) {
-                                    save(composeLifeNavigation)
-                                }
-                        },
-                    )
-                },
-                restore = { list ->
-                    val type = ComposeLifeNavigationType.Saver.restore(list[0] as Int)!!
-                    type.saverFactory(previous).restore(list[1]!!)
-                },
-            )
+            ): ComposeLifeNavigation =
+                DeserializationInfo(deserializationResult)
         }
     }
 }
@@ -203,13 +134,5 @@ sealed interface ComposeLifeNavigation {
  * These classes must be objects, since they need to statically be able to save and restore concrete
  * [ComposeLifeNavigation] types.
  */
-sealed interface ComposeLifeNavigationType {
-    fun saverFactory(previous: BackstackEntry<ComposeLifeNavigation>?): Saver<out ComposeLifeNavigation, Any>
-
-    @GenSealedEnum
-    companion object {
-        val Saver = sealedEnumSaver(_sealedEnum)
-    }
-}
-
-expect val ComposeLifeNavigationType.Companion._sealedEnum: SealedEnum<ComposeLifeNavigationType>
+@Serializable
+sealed interface ComposeLifeNavigationSurrogate : BackstackValueSurrogate<ComposeLifeNavigation>

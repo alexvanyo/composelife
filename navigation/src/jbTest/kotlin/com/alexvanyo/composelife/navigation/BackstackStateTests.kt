@@ -22,6 +22,8 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
 import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.serializer
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -134,17 +136,9 @@ class BackstackStateTests : BaseKmpTest() {
 
             backstackMap = rememberBackstackMap(
                 initialBackstackEntries = initialBackstackEntries,
-                backstackValueSaverFactory = { entry ->
-                    Saver(
-                        save = { it.value },
-                        restore = {
-                            TestEntryType(
-                                value = it as String,
-                                previous = entry?.value,
-                            )
-                        },
-                    )
-                },
+                backstackMapSerializer = BackstackMapSerializer(
+                    convertToSurrogate = TestEntryType::surrogate,
+                ),
             )
         }
 
@@ -167,4 +161,16 @@ class TestEntryType(
     val previous: TestEntryType?,
 ) {
     val fullValue: String get() = previous?.fullValue.orEmpty() + value
+
+    val surrogate get() = Surrogate(value)
+
+    @Serializable
+    data class Surrogate(val value: String) : BackstackValueSurrogate<TestEntryType> {
+        override fun createFromSurrogate(
+            previous: BackstackEntry<TestEntryType>?,
+        ): TestEntryType = TestEntryType(
+            value = value,
+            previous = previous?.value,
+        )
+    }
 }
