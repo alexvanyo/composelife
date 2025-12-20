@@ -46,7 +46,8 @@ import androidx.navigationevent.compose.rememberNavigationEventState
 import com.alexvanyo.composelife.logging.Logger
 import com.alexvanyo.composelife.logging.d
 import com.alexvanyo.composelife.navigation.BackstackEntry
-import com.alexvanyo.composelife.navigation.BackstackValueSaverFactory
+import com.alexvanyo.composelife.navigation.BackstackMapSerializer
+import com.alexvanyo.composelife.navigation.BackstackValueSurrogate
 import com.alexvanyo.composelife.navigation.MaterialPredictiveNavDisplay
 import com.alexvanyo.composelife.navigation.navigate
 import com.alexvanyo.composelife.navigation.popBackstack
@@ -55,6 +56,7 @@ import com.alexvanyo.composelife.navigation.rememberDecoratedNavEntries
 import com.alexvanyo.composelife.navigation.rememberMutableBackstackNavigationController
 import com.alexvanyo.composelife.navigation3.scene.rememberSceneState
 import com.alexvanyo.composelife.ui.util.LocalSharedTransitionScope
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlin.random.Random
@@ -62,47 +64,56 @@ import kotlin.reflect.KClass
 import kotlin.uuid.Uuid
 
 private sealed interface ListDetailSceneStrategyPreviewNavEntry {
-    companion object : BackstackValueSaverFactory<ListDetailSceneStrategyPreviewNavEntry> {
-        override fun create(
-            previous: BackstackEntry<ListDetailSceneStrategyPreviewNavEntry>?,
-        ): Saver<ListDetailSceneStrategyPreviewNavEntry, Any> =
-            listSaver(
-                save = {
-                    listOf(
-                        when (it) {
-                            is DetailPreviewEntry -> 2
-                            is EmptyPreviewEntry -> 0
-                            is ListPreviewEntry -> 1
-                        },
-                    )
-                },
-                restore = { list ->
-                    val type = list.first()
-                    when (type) {
-                        0 -> EmptyPreviewEntry()
-                        1 -> ListPreviewEntry()
-                        2 -> DetailPreviewEntry(
-                            requireNotNull(previous).value as ListDetailInfo,
-                        )
-                        else -> error("Unknown type!")
-                    }
-                },
-            )
-    }
+    val surrogate: ListDetailSceneStrategyPreviewNavEntrySurrogate
 }
+
+private sealed interface ListDetailSceneStrategyPreviewNavEntrySurrogate :
+    BackstackValueSurrogate<ListDetailSceneStrategyPreviewNavEntry>
 
 private class ListPreviewEntry : ListDetailSceneStrategyPreviewNavEntry, ListEntry {
     override val isListVisible: Boolean
         get() = true
     override val isDetailVisible: Boolean
         get() = true
+
+    override val surrogate = Surrogate
+
+    @Serializable
+    data object Surrogate : ListDetailSceneStrategyPreviewNavEntrySurrogate {
+        override fun createFromSurrogate(
+            previous: BackstackEntry<ListDetailSceneStrategyPreviewNavEntry>?,
+        ): ListDetailSceneStrategyPreviewNavEntry =
+            ListPreviewEntry()
+    }
 }
 
 private class DetailPreviewEntry(
     listDetailInfo: ListDetailInfo,
-) : ListDetailSceneStrategyPreviewNavEntry, ListDetailInfo by listDetailInfo, DetailEntry
+) : ListDetailSceneStrategyPreviewNavEntry, ListDetailInfo by listDetailInfo, DetailEntry {
+    override val surrogate = Surrogate
 
-private class EmptyPreviewEntry : ListDetailSceneStrategyPreviewNavEntry
+    @Serializable
+    data object Surrogate : ListDetailSceneStrategyPreviewNavEntrySurrogate {
+        override fun createFromSurrogate(
+            previous: BackstackEntry<ListDetailSceneStrategyPreviewNavEntry>?,
+        ): ListDetailSceneStrategyPreviewNavEntry =
+            DetailPreviewEntry(
+                requireNotNull(previous).value as ListDetailInfo,
+            )
+    }
+}
+
+private class EmptyPreviewEntry : ListDetailSceneStrategyPreviewNavEntry {
+    override val surrogate = Surrogate
+
+    @Serializable
+    data object Surrogate : ListDetailSceneStrategyPreviewNavEntrySurrogate {
+        override fun createFromSurrogate(
+            previous: BackstackEntry<ListDetailSceneStrategyPreviewNavEntry>?,
+        ): ListDetailSceneStrategyPreviewNavEntry =
+            EmptyPreviewEntry()
+    }
+}
 
 @Suppress("LongMethod")
 @Preview
@@ -117,7 +128,7 @@ private fun ListDetailSceneStrategyPreview() {
                         previous = null,
                     ),
                 ),
-                backstackValueSaverFactory = ListDetailSceneStrategyPreviewNavEntry,
+                backstackMapSerializer = BackstackMapSerializer(ListDetailSceneStrategyPreviewNavEntry::surrogate),
             )
 
             val detailUuids = rememberSerializable(
