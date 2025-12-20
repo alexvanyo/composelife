@@ -25,17 +25,16 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.runtime.setValue
 import androidx.savedstate.compose.serialization.serializers.SnapshotStateMapSerializer
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.navigation.BackstackEntry
+import com.alexvanyo.composelife.navigation.BackstackMapSerializer
 import com.alexvanyo.composelife.navigation.MutableBackstackMap
 import com.alexvanyo.composelife.navigation.NavigationState
 import com.alexvanyo.composelife.navigation.rememberBackstackMap
 import com.alexvanyo.composelife.navigation.withExpectedActor
-import com.alexvanyo.composelife.serialization.uuidSaver
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseEditingState
 import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneCtx
@@ -137,7 +136,9 @@ fun rememberCellUniverseActionCardState(
                 id = InlineActionCardNavigation.Settings.entryId,
             ),
         ),
-        backstackValueSaverFactory = InlineActionCardNavigation.SaverFactory,
+        backstackMapSerializer = BackstackMapSerializer(
+            convertToSurrogate = InlineActionCardNavigation::surrogate,
+        ),
     )
 
     var currentBackstackEntryId by rememberSerializable {

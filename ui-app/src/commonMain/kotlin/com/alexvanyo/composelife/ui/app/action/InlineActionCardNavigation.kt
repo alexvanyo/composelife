@@ -17,13 +17,9 @@
 package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.listSaver
 import com.alexvanyo.composelife.navigation.BackstackEntry
-import com.alexvanyo.composelife.navigation.BackstackValueSaverFactory
-import com.alexvanyo.composelife.serialization.sealedEnumSaver
-import com.livefront.sealedenum.GenSealedEnum
-import com.livefront.sealedenum.SealedEnum
+import com.alexvanyo.composelife.navigation.BackstackValueSurrogate
+import kotlinx.serialization.Serializable
 import kotlin.uuid.Uuid
 
 /**
@@ -32,109 +28,54 @@ import kotlin.uuid.Uuid
  * Each entry value is a [Stable] state holder, which contains a small amount of information related to a particular
  * destination in the backstack. An entry value can be immutable, but does not have to be.
  *
- * Each entry value has an associated [type]. The associated [type] has a [InlineActionCardNavigationType.saverFactory]
- * to allow restoring a particular instance of [InlineActionCardNavigation].
+ * Each entry value has an associated [surrogate] representing the serialized form of the entry.
  */
 @Stable
 sealed interface InlineActionCardNavigation {
     /**
-     * The type of the destination.
+     * The surrogate representation of the destination.
      */
-    val type: InlineActionCardNavigationType
+    val surrogate: InlineActionCardNavigationSurrogate
 
     data object Speed : InlineActionCardNavigation {
-        override val type = Companion
+        override val surrogate = Surrogate
 
         val entryId = Uuid.parse("00000000-0000-8000-8000-000000000000")
 
-        data object Companion : InlineActionCardNavigationType {
-            override fun saverFactory(
+        @Serializable
+        data object Surrogate : InlineActionCardNavigationSurrogate {
+            override fun createFromSurrogate(
                 previous: BackstackEntry<InlineActionCardNavigation>?,
-            ): Saver<Speed, Any> = Saver(
-                save = { 0 },
-                restore = { Speed },
-            )
+            ): InlineActionCardNavigation = Speed
         }
     }
 
     data object Edit : InlineActionCardNavigation {
-        override val type = Companion
+        override val surrogate = Surrogate
 
         val entryId = Uuid.parse("00000000-0000-8000-8000-000000000001")
 
-        data object Companion : InlineActionCardNavigationType {
-            override fun saverFactory(
+        @Serializable
+        data object Surrogate : InlineActionCardNavigationSurrogate {
+            override fun createFromSurrogate(
                 previous: BackstackEntry<InlineActionCardNavigation>?,
-            ): Saver<Edit, Any> = Saver(
-                save = { 0 },
-                restore = { Edit },
-            )
+            ): InlineActionCardNavigation = Edit
         }
     }
 
     data object Settings : InlineActionCardNavigation {
-        override val type = Companion
+        override val surrogate = Surrogate
 
         val entryId = Uuid.parse("00000000-0000-8000-8000-000000000002")
 
-        data object Companion : InlineActionCardNavigationType {
-            override fun saverFactory(
+        @Serializable
+        data object Surrogate : InlineActionCardNavigationSurrogate {
+            override fun createFromSurrogate(
                 previous: BackstackEntry<InlineActionCardNavigation>?,
-            ): Saver<Settings, Any> = Saver(
-                save = { 0 },
-                restore = { Settings },
-            )
+            ): InlineActionCardNavigation = Settings
         }
     }
-
-    companion object {
-        @Suppress("UnsafeCallOnNullableType")
-        val SaverFactory: BackstackValueSaverFactory<InlineActionCardNavigation> =
-            BackstackValueSaverFactory { previous ->
-                listSaver(
-                    save = { inlineActionCardNavigation ->
-                        listOf(
-                            with(InlineActionCardNavigationType.Saver) { save(inlineActionCardNavigation.type) },
-                            when (inlineActionCardNavigation) {
-                                is Settings ->
-                                    with(Settings.Companion.saverFactory(previous)) {
-                                        save(inlineActionCardNavigation)
-                                    }
-
-                                is Edit ->
-                                    with(Edit.Companion.saverFactory(previous)) {
-                                        save(inlineActionCardNavigation)
-                                    }
-
-                                is Speed ->
-                                    with(Speed.Companion.saverFactory(previous)) {
-                                        save(inlineActionCardNavigation)
-                                    }
-                            },
-                        )
-                    },
-                    restore = { list ->
-                        val type = InlineActionCardNavigationType.Saver.restore(list[0] as Int)!!
-                        type.saverFactory(previous).restore(list[1]!!)
-                    },
-                )
-            }
-    }
 }
 
-/**
- * The type for each [InlineActionCardNavigation].
- *
- * These classes must be objects, since they need to statically be able to save and restore concrete
- * [InlineActionCardNavigation] types.
- */
-sealed interface InlineActionCardNavigationType {
-    fun saverFactory(previous: BackstackEntry<InlineActionCardNavigation>?): Saver<out InlineActionCardNavigation, Any>
-
-    @GenSealedEnum
-    companion object {
-        val Saver = sealedEnumSaver(_sealedEnum)
-    }
-}
-
-expect val InlineActionCardNavigationType.Companion._sealedEnum: SealedEnum<InlineActionCardNavigationType>
+@Serializable
+sealed interface InlineActionCardNavigationSurrogate : BackstackValueSurrogate<InlineActionCardNavigation>

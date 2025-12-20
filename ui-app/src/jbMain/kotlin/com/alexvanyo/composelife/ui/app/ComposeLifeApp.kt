@@ -46,6 +46,7 @@ import androidx.navigationevent.compose.rememberNavigationEventState
 import androidx.window.core.layout.WindowSizeClass
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.navigation.BackstackEntry
+import com.alexvanyo.composelife.navigation.BackstackMapSerializer
 import com.alexvanyo.composelife.navigation.BackstackState
 import com.alexvanyo.composelife.navigation.MaterialPredictiveNavDisplay
 import com.alexvanyo.composelife.navigation.canNavigateBack
@@ -282,7 +283,7 @@ fun rememberComposeLifeAppState(
                         previous = null,
                     ),
                 ),
-                backstackValueSaverFactory = ComposeLifeNavigation.SaverFactory,
+                backstackMapSerializer = BackstackMapSerializer(ComposeLifeNavigation::surrogate),
             )
 
             val currentEntryId = navController.currentEntryId
