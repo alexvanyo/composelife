@@ -17,6 +17,8 @@
 package com.alexvanyo.composelife.wear
 
 import android.app.Application
+import androidx.compose.runtime.Composer
+import androidx.compose.runtime.tooling.ComposeStackTraceMode
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -60,6 +62,7 @@ class ComposeLifeApplication : Application(), ApplicationGraphOwner {
         super.onCreate()
 
         initStrictModeIfNeeded()
+        Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.Auto)
 
         val globalGraph = createGraph<GlobalGraph>()
         applicationGraph = globalGraph.asContribution<ApplicationGraph.Factory>().create(
