@@ -21,9 +21,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.autoSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.serializer
 import kotlin.jvm.JvmName
 import kotlin.uuid.Uuid
 
@@ -46,25 +47,28 @@ val <T> MutableBackstackNavigationController<T>.canNavigateBack
     get() = currentEntry.previous != null
 
 @Composable
-fun <T> rememberMutableBackstackNavigationController(
+inline fun <reified T> rememberMutableBackstackNavigationController(
     initialBackstackEntries: List<BackstackEntry<T>>,
-    saver: Saver<T, Any> = autoSaver(),
+    serializer: KSerializer<T> = serializer(),
 ): MutableBackstackNavigationController<T> =
     rememberMutableBackstackNavigationController(
         initialBackstackEntries = initialBackstackEntries,
-        backstackValueSaverFactory = { saver },
+        backstackMapSerializer = BackstackMapSerializer(
+            convertToSurrogate = ::ValueAsSurrogate,
+            backstackValueSurrogateSerializer = ValueAsSurrogate.serializer(serializer),
+        ),
     )
 
 @Composable
 fun <T> rememberMutableBackstackNavigationController(
     initialBackstackEntries: List<BackstackEntry<T>>,
-    backstackValueSaverFactory: BackstackValueSaverFactory<T>,
+    backstackMapSerializer: KSerializer<MutableBackstackMap<T>>,
 ): MutableBackstackNavigationController<T> {
     require(initialBackstackEntries.isNotEmpty())
 
     val backstackMap = rememberBackstackMap(
         initialBackstackEntries = initialBackstackEntries,
-        backstackValueSaverFactory = backstackValueSaverFactory,
+        backstackMapSerializer = backstackMapSerializer,
     )
 
     var currentBackstackEntryId by rememberSaveable(

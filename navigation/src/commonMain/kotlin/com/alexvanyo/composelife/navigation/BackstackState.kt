@@ -18,10 +18,12 @@ package com.alexvanyo.composelife.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.autoSaver
-import androidx.compose.runtime.saveable.listSaver
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSerializable
+import com.alexvanyo.composelife.serialization.SurrogatingSerializer
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.serializer
 import kotlin.uuid.Uuid
 
 /**
@@ -58,12 +60,15 @@ typealias BackstackMap<T> = Map<Uuid, BackstackEntry<T>>
  * value done by [saver].
  */
 @Composable
-fun <T> rememberBackstackMap(
+inline fun <reified T> rememberBackstackMap(
     initialBackstackEntries: List<BackstackEntry<T>>,
-    saver: Saver<T, Any> = autoSaver(),
-) = rememberBackstackMap(
+    serializer: KSerializer<T> = serializer(),
+): MutableBackstackMap<T> = rememberBackstackMap(
     initialBackstackEntries = initialBackstackEntries,
-    backstackValueSaverFactory = { saver },
+    backstackMapSerializer = BackstackMapSerializer(
+        convertToSurrogate = ::ValueAsSurrogate,
+        backstackValueSurrogateSerializer = ValueAsSurrogate.serializer(serializer),
+    ),
 )
 
 /**
@@ -73,63 +78,88 @@ fun <T> rememberBackstackMap(
 @Composable
 fun <T> rememberBackstackMap(
     initialBackstackEntries: List<BackstackEntry<T>>,
-    backstackValueSaverFactory: BackstackValueSaverFactory<T>,
-): MutableBackstackMap<T> =
-    rememberSaveable(
-        saver = listSaver<MutableBackstackMap<T>, List<Any?>>(
-            save = { backstack ->
-                backstack.values.map { entry ->
-                    val saver = backstackValueSaverFactory.create(entry.previous)
-
-                    listOf(
-                        with(saver) { save(entry.value) },
-                        entry.id.toString(),
-                        entry.previous?.id?.toString(),
-                    )
-                }
-            },
-            restore = { list ->
-                // Create a map from the restored entry ids to their restored values
-                val savedEntries = list.associateBy { entryList -> Uuid.parse(entryList[1] as String) }
-
-                val map = mutableStateMapOf<Uuid, BackstackEntry<T>>()
-
-                /**
-                 * Recursively restore the entry with the given [id] and store it in [map].
-                 *
-                 * If the entry for the given [id] hasn't been restored yet, start restoring it, by first restoring
-                 * its previous entry, if any.
-                 */
-                fun restoreEntry(id: Uuid): BackstackEntry<T> =
-                    map.getOrPut(id) {
-                        val entryList = savedEntries.getValue(id)
-                        val previousId = (entryList[2] as String?)?.let(Uuid::parse)
-                        val previous = previousId?.let { restoreEntry(previousId) }
-                        val saver = backstackValueSaverFactory.create(previous)
-                        @Suppress("UnsafeCallOnNullableType")
-                        BackstackEntry(
-                            id = id,
-                            previous = previous,
-                            value = saver.restore(entryList[0]!!)!!,
-                        )
-                    }
-
-                savedEntries.keys.forEach(::restoreEntry)
-
-                map
-            },
-        ),
-    ) {
-        mutableStateMapOf<Uuid, BackstackEntry<T>>().apply {
-            putAll(initialBackstackEntries.associateBy { it.id })
-        }
+    backstackMapSerializer: KSerializer<MutableBackstackMap<T>>,
+): MutableBackstackMap<T> = rememberSerializable(
+    serializer = backstackMapSerializer,
+) {
+    mutableStateMapOf<Uuid, BackstackEntry<T>>().apply {
+        putAll(initialBackstackEntries.associateBy { it.id })
     }
-
-/**
- * A factory for creating a [Saver] that has knowledge of the previous entry in the backstack.
- *
- * Note that [previous] can be null, if saving or restoring the first entry.
- */
-fun interface BackstackValueSaverFactory<T> {
-    fun create(previous: BackstackEntry<T>?): Saver<T, Any>
 }
+
+@Serializable
+@PublishedApi
+internal data class ValueAsSurrogate<T>(
+    val value: T,
+) : BackstackValueSurrogate<T> {
+    override fun createFromSurrogate(previous: BackstackEntry<T>?): T = value
+}
+
+@Serializable
+private data class BackstackEntrySurrogate<S>(
+    val id: Uuid,
+    val previousId: Uuid?,
+    val surrogate: S,
+) {
+    companion object
+}
+
+interface BackstackValueSurrogate<T> {
+    fun createFromSurrogate(previous: BackstackEntry<T>?): T
+}
+
+inline fun <T, reified S : BackstackValueSurrogate<T>> BackstackMapSerializer(
+    noinline convertToSurrogate: (T) -> S,
+): KSerializer<MutableBackstackMap<T>> = BackstackMapSerializer(
+    convertToSurrogate = convertToSurrogate,
+    backstackValueSurrogateSerializer = serializer(),
+)
+
+fun <T, S : BackstackValueSurrogate<T>> BackstackMapSerializer(
+    convertToSurrogate: (T) -> S,
+    backstackValueSurrogateSerializer: KSerializer<S>,
+): KSerializer<MutableBackstackMap<T>> = SurrogatingSerializer(
+    serialName = "com.alexvanyo.composelife.navigation.BackstackMap",
+    convertFromSurrogate = { entrySurrogateList ->
+        val map = mutableStateMapOf<Uuid, BackstackEntry<T>>()
+
+        entrySurrogateList.forEach { backstackEntrySurrogate ->
+            val id = backstackEntrySurrogate.id
+            val previous = backstackEntrySurrogate.previousId?.let(map::getValue)
+            val value = backstackEntrySurrogate.surrogate.createFromSurrogate(previous)
+            map[id] = BackstackEntry(
+                id = id,
+                previous = previous,
+                value = value,
+            )
+        }
+
+        map
+    },
+    convertToSurrogate = { backstackMap ->
+        buildList {
+            val remainingKeys = backstackMap.keys.toMutableSet()
+
+            fun addEntry(key: Uuid) {
+                if (key !in remainingKeys) return
+                val entry = backstackMap.getValue(key)
+                entry.previous?.id?.let(::addEntry)
+                add(
+                    BackstackEntrySurrogate(
+                        id = entry.id,
+                        previousId = entry.previous?.id,
+                        surrogate = convertToSurrogate(entry.value),
+                    ),
+                )
+                remainingKeys.remove(key)
+            }
+
+            while (remainingKeys.isNotEmpty()) {
+                addEntry(remainingKeys.first())
+            }
+        }
+    },
+    surrogateSerializer = ListSerializer(
+        BackstackEntrySurrogate.serializer(backstackValueSurrogateSerializer),
+    ),
+)
