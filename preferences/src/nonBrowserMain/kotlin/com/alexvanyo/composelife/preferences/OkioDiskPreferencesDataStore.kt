@@ -50,7 +50,7 @@ annotation class PreferencesProtoPath
     Updatable,
     >())
 @Inject
-internal class OkioDiskPreferencesDataStore(
+class OkioDiskPreferencesDataStore(
     private val fileSystem: FileSystem,
     @param:PreferencesProtoPath private val path: Lazy<Path>,
     private val dispatchers: ComposeLifeDispatchers,
