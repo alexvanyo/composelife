@@ -17,13 +17,14 @@
 package com.alexvanyo.composelife.ui.settings
 
 import androidx.compose.runtime.Immutable
-import com.alexvanyo.composelife.serialization.sealedEnumSaver
 import com.livefront.sealedenum.GenSealedEnum
 import com.livefront.sealedenum.SealedEnum
+import kotlinx.serialization.Serializable
 
 /**
  * The category for a particular setting.
  */
+@Serializable
 @Immutable
 sealed interface SettingsCategory {
     /**
@@ -47,9 +48,7 @@ sealed interface SettingsCategory {
     data object FeatureFlags : SettingsCategory
 
     @GenSealedEnum
-    companion object {
-        val Saver = sealedEnumSaver(_sealedEnum)
-    }
+    companion object
 }
 
 expect val SettingsCategory.Companion._sealedEnum: SealedEnum<SettingsCategory>
