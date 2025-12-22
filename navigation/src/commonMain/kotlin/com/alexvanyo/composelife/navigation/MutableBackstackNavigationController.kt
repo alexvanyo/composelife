@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import com.alexvanyo.composelife.serialization.uuidSaver
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
 import kotlin.jvm.JvmName
@@ -72,10 +73,7 @@ fun <T> rememberMutableBackstackNavigationController(
     )
 
     var currentBackstackEntryId by rememberSaveable(
-        saver = Saver(
-            save = { it.value.toString() },
-            restore = { mutableStateOf(Uuid.parse(it)) },
-        ),
+        stateSaver = uuidSaver,
     ) {
         mutableStateOf(initialBackstackEntries.last().id)
     }
