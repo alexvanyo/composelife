@@ -262,7 +262,7 @@ fun ComponentActivity.setFancyContent(
                 launch {
                     anim.animateTo(
                         targetValue = newRotation,
-                        animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
+                        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
                     )
                 }
             }
@@ -317,7 +317,7 @@ fun ComponentActivity.setFancyContent(
                             animationSpec = spring(
                                 stiffness = Spring.StiffnessMediumLow,
                                 visibilityThreshold = Size(1f, 1f),
-                            )
+                            ),
                         )
                         width = lookaheadSize.width
                         height = lookaheadSize.height
@@ -325,7 +325,7 @@ fun ComponentActivity.setFancyContent(
                             constraints.copy(
                                 maxWidth = size.width.roundToInt(),
                                 maxHeight = size.height.roundToInt(),
-                            )
+                            ),
                         )
                     }
 
@@ -333,7 +333,7 @@ fun ComponentActivity.setFancyContent(
                         placeable.place(0, 0)
                     }
                 }
-                .fillMaxSize()
+                .fillMaxSize(),
         ) {
             content()
         }
