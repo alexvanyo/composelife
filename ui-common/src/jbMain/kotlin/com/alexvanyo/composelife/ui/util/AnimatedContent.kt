@@ -145,6 +145,7 @@ fun <T, M> AnimatedContent(
     targetState: TargetState<T, M>,
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart,
+    clip: Boolean = true,
     /**
      * A [Comparable] wrapper around a content, that is transitioning with the given [ContentStatus].
      *
@@ -185,6 +186,7 @@ fun <T, M> AnimatedContent(
     ),
     modifier = modifier,
     contentAlignment = contentAlignment,
+    clip = clip,
     transitionSpec = transitionSpec,
     targetRenderingComparator = targetRenderingComparator,
     contentSizeAnimationSpec = contentSizeAnimationSpec,
@@ -205,6 +207,7 @@ fun <T, M, K> AnimatedContent(
     animatedContentState: AnimatedContentState<T, M, K>,
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart,
+    clip: Boolean = true,
     /**
      * A [Comparable] wrapper around a content, that is transitioning with the given [ContentStatus].
      *
@@ -490,6 +493,7 @@ fun <T, M, K> AnimatedContent(
                     contentSizeAnimationSpec
                 },
                 alignment = contentAlignment,
+                clip = clip,
                 finishedListener = { _, _ ->
                     completedTargetSizeAnimation = true
                 },

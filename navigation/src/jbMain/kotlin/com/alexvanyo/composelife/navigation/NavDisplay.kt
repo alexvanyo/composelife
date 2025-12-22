@@ -89,6 +89,7 @@ fun <T : Any> CrossfadePredictiveNavDisplay(
         AnimatedContent(
             animatedContentState = navDisplayState.animatedContentState,
             contentAlignment = contentAlignment,
+            clip = false,
             contentSizeAnimationSpec = contentSizeAnimationSpec,
             animateInternalContentSizeChanges = animateInternalContentSizeChanges,
         ) { targetScene ->
@@ -309,6 +310,7 @@ fun <T : Any> MaterialPredictiveNavDisplay(
         AnimatedContent(
             animatedContentState = navDisplayState.animatedContentState,
             contentAlignment = contentAlignment,
+            clip = false,
             transitionSpec = { contentWithStatus ->
                 val contentStatusTargetState = this@AnimatedContent.targetState
 
@@ -460,7 +462,7 @@ fun <T : Any> MaterialPredictiveNavDisplay(
                             this.scaleX = scale
                             this.scaleY = scale
                             this.transformOrigin = TransformOrigin(pivotFractionX, 0.5f)
-                            clip = true
+                            this.clip = translationX != 0.dp || scaleX < 1f || scaleY < 1f || cornerRadius > 0.dp
                         },
                     propagateMinConstraints = true,
                 ) {
