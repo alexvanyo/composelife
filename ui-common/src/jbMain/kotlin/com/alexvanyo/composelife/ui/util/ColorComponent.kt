@@ -38,8 +38,10 @@ sealed interface ColorComponent {
     sealed interface RgbIntComponent {
         @Serializable
         data object Red : RgbIntComponent
+
         @Serializable
         data object Green : RgbIntComponent
+
         @Serializable
         data object Blue : RgbIntComponent
 
