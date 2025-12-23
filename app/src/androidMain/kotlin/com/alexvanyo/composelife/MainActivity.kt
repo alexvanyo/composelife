@@ -18,8 +18,10 @@ package com.alexvanyo.composelife
 
 import android.content.Context
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.view.ViewGroup
+import android.view.WindowInsetsController
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -90,8 +92,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         enableEdgeToEdge()
-        WindowInsetsControllerCompat(window, window.decorView).systemBarsBehavior =
-            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        with(WindowInsetsControllerCompat(window, window.decorView)) {
+            systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
+        if (Build.VERSION.SDK_INT >= 35) {
+            window.insetsController?.setSystemBarsAppearance(
+                WindowInsetsController.APPEARANCE_TRANSPARENT_CAPTION_BAR_BACKGROUND,
+                WindowInsetsController.APPEARANCE_TRANSPARENT_CAPTION_BAR_BACKGROUND,
+            )
+        }
 
         setContent {
             LaunchedEffect(uiUpdatables) {
@@ -118,6 +128,16 @@ class MainActivity : AppCompatActivity() {
                                 darkScrim,
                             ) { darkTheme },
                         )
+                        if (Build.VERSION.SDK_INT >= 35) {
+                            window.insetsController?.setSystemBarsAppearance(
+                                if (darkTheme) {
+                                    0
+                                } else {
+                                    WindowInsetsController.APPEARANCE_LIGHT_CAPTION_BARS
+                                },
+                                WindowInsetsController.APPEARANCE_LIGHT_CAPTION_BARS,
+                            )
+                        }
                         onDispose {}
                     }
 
