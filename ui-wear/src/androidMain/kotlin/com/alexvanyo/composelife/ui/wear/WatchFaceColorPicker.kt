@@ -27,7 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,6 +42,7 @@ import com.alexvanyo.composelife.ui.util.ColorComponent
 import com.alexvanyo.composelife.ui.util.get
 import com.alexvanyo.composelife.ui.util.values
 import com.alexvanyo.composelife.ui.util.withComponent
+import kotlinx.serialization.serializer
 import com.alexvanyo.composelife.resources.wear.R as resourcesWearR
 
 @Composable
@@ -50,8 +51,8 @@ fun WatchFaceColorPicker(
     setColor: (Color) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var selectedComponent: ColorComponent.RgbIntComponent by rememberSaveable(
-        stateSaver = ColorComponent.RgbIntComponent.Saver,
+    var selectedComponent: ColorComponent.RgbIntComponent by rememberSerializable(
+        stateSerializer = serializer(),
     ) {
         mutableStateOf(ColorComponent.RgbIntComponent.Red)
     }

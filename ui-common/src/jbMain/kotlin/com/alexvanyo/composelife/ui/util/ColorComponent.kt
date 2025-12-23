@@ -20,28 +20,33 @@ import androidx.annotation.ColorInt
 import androidx.annotation.IntRange
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import com.alexvanyo.composelife.serialization.sealedEnumSaver
 import com.alexvanyo.composelife.ui.util.ColorComponent.RgbIntComponent
 import com.livefront.sealedenum.GenSealedEnum
 import com.livefront.sealedenum.SealedEnum
+import kotlinx.serialization.Serializable
 
 /**
  * A specific component of a [Color].
  */
+@Serializable
 sealed interface ColorComponent {
 
     /**
      * An RGB integer component of a [Color].
      */
+    @Serializable
     sealed interface RgbIntComponent {
+        @Serializable
         data object Red : RgbIntComponent
+
+        @Serializable
         data object Green : RgbIntComponent
+
+        @Serializable
         data object Blue : RgbIntComponent
 
         @GenSealedEnum
-        companion object {
-            val Saver = sealedEnumSaver(_sealedEnum)
-        }
+        companion object
     }
 }
 
@@ -103,4 +108,4 @@ private inline val @receiver:ColorInt Int.green: Int
 private inline val @receiver:ColorInt Int.blue: Int
     get() = this and 0xff
 
-internal expect val ColorComponent.RgbIntComponent.Companion._sealedEnum: SealedEnum<ColorComponent.RgbIntComponent>
+internal expect val ColorComponent.RgbIntComponent.Companion._sealedEnum: SealedEnum<RgbIntComponent>

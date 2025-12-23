@@ -20,6 +20,7 @@ import com.alexvanyo.composelife.preferences.QuickAccessSetting
 import com.alexvanyo.composelife.serialization.sealedEnumSaver
 import com.livefront.sealedenum.GenSealedEnum
 import com.livefront.sealedenum.SealedEnum
+import kotlinx.serialization.Serializable
 
 /**
  * The list of settings supported by the app.
@@ -32,6 +33,7 @@ import com.livefront.sealedenum.SealedEnum
  *
  * The order in which settings appear is determined by the declaration order of the subclasses of [Setting] below.
  */
+@Serializable
 sealed interface Setting {
     /**
      * The [SettingsCategory] this [Setting] belongs to.
@@ -110,9 +112,7 @@ sealed interface Setting {
     }
 
     @GenSealedEnum
-    companion object {
-        val Saver = sealedEnumSaver(_sealedEnum)
-    }
+    companion object
 }
 
 expect val Setting.Companion._sealedEnum: SealedEnum<Setting>
