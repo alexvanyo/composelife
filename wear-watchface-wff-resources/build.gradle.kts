@@ -119,7 +119,7 @@ androidComponents {
             dependsOn(createHourSfd)
             fontforgeCommand = project.providers.gradleProperty("com.alexvanyo.composelife.fontforgeCommand")
             sfdFile = createHourSfd.flatMap(CreateHourSfd::outputFile)
-            ttfDirectory = layout.buildDirectory.dir("generated/wff/res/font")
+            generatedResDirectory = layout.buildDirectory.dir("generated/wff/res")
             ttfName = "hour$hourPrefix.ttf"
         }
         onVariants { variant ->
@@ -132,7 +132,7 @@ androidComponents {
             }
             variant.sources.res!!.addGeneratedSourceDirectory(
                 createHourTtf,
-                ConvertSfdToTtf::ttfDirectory,
+                ConvertSfdToTtf::generatedResDirectory,
             )
         }
     }
@@ -241,15 +241,15 @@ abstract class ConvertSfdToTtf : DefaultTask() {
     abstract val sfdFile: RegularFileProperty
 
     @get:OutputDirectory
-    abstract val ttfDirectory: DirectoryProperty
+    abstract val generatedResDirectory: DirectoryProperty
 
     @get:Input
     abstract val ttfName: Property<String>
 
     @get:OutputFile
     val ttfFile: Provider<RegularFile> =
-        ttfDirectory.flatMap { outputDirectory ->
-            outputDirectory.file(ttfName)
+        generatedResDirectory.flatMap { outputDirectory ->
+            outputDirectory.dir("font").file(ttfName)
         }
 
     @get:Inject
