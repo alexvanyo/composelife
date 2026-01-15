@@ -1,6 +1,6 @@
-androidx.activity:activity-compose:1.12.2
-androidx.activity:activity-ktx:1.12.2
-androidx.activity:activity:1.12.2
+androidx.activity:activity-compose:1.13.0-alpha01
+androidx.activity:activity-ktx:1.13.0-alpha01
+androidx.activity:activity:1.13.0-alpha01
 androidx.annotation:annotation-experimental:1.5.1
 androidx.annotation:annotation-jvm:1.9.1
 androidx.annotation:annotation:1.9.1
@@ -55,10 +55,10 @@ androidx.compose.ui:ui:1.11.0-alpha02
 androidx.compose:compose-bom-alpha:2025.12.01
 androidx.concurrent:concurrent-futures-ktx:1.2.0
 androidx.concurrent:concurrent-futures:1.2.0
-androidx.core:core-ktx:1.17.0
+androidx.core:core-ktx:1.18.0-alpha01
 androidx.core:core-splashscreen:1.2.0
 androidx.core:core-viewtree:1.0.0
-androidx.core:core:1.17.0
+androidx.core:core:1.18.0-alpha01
 androidx.cursoradapter:cursoradapter:1.0.0
 androidx.customview:customview-poolingcontainer:1.1.0
 androidx.customview:customview:1.0.0
