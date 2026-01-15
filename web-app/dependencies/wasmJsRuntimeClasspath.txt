@@ -1,7 +1,7 @@
 androidx.annotation:annotation-wasm-js:1.9.1
 androidx.annotation:annotation:1.9.1
-androidx.collection:collection-wasm-js:1.6.0-alpha01
-androidx.collection:collection:1.6.0-alpha01
+androidx.collection:collection-wasm-js:1.6.0-beta01
+androidx.collection:collection:1.6.0-beta01
 androidx.compose.runtime:runtime-annotation-wasm-js:1.11.0-alpha02
 androidx.compose.runtime:runtime-annotation:1.11.0-alpha02
 androidx.compose.runtime:runtime-retain-wasm-js:1.11.0-alpha02
