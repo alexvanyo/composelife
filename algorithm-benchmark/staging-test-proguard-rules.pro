@@ -23,6 +23,9 @@
 # Added due to dependency on Material via accessibility-test-framework
 -dontwarn androidx.appcompat.graphics.drawable.DrawableWrapper
 
+-dontwarn android.view.accessibility.AccessibilityNodeInfo$Selection
+-dontwarn android.view.accessibility.AccessibilityNodeInfo$SelectionPosition
+
 -dontwarn androidx.fragment.app.Fragment
 -dontwarn androidx.fragment.app.FragmentActivity
 -dontwarn androidx.fragment.app.FragmentManager$FragmentLifecycleCallbacks
