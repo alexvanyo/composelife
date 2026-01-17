@@ -37,11 +37,11 @@ import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextReplacement
-import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
 import com.alexvanyo.composelife.sessionvalue.SessionValue
+import com.alexvanyo.composelife.test.runComposeUiTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

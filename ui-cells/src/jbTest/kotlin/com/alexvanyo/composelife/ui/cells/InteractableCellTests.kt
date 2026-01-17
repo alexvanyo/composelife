@@ -23,10 +23,10 @@ import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
 import com.alexvanyo.composelife.preferences.CurrentShape
+import com.alexvanyo.composelife.test.runComposeUiTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

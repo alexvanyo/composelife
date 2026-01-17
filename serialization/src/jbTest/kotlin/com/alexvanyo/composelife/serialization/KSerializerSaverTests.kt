@@ -19,10 +19,10 @@ package com.alexvanyo.composelife.serialization
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
 import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
+import com.alexvanyo.composelife.test.runComposeUiTest
 import kotlinx.serialization.Serializable
 import kotlin.random.Random
 import kotlin.test.Test
