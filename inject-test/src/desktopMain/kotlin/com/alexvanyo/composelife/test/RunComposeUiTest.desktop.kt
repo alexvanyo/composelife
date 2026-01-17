@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,22 @@
 
 package com.alexvanyo.composelife.test
 
-import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.v2.runAndroidComposeUiTest
-import com.alexvanyo.composelife.scopes.UiGraphArguments
 import kotlinx.coroutines.test.TestResult
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
 
 @OptIn(ExperimentalTestApi::class)
-internal actual fun runPlatformUiTest(
+actual fun runComposeUiTest(
+    effectContext: CoroutineContext,
     runTestContext: CoroutineContext,
-    timeout: Duration,
-    testBody: suspend ComposeUiTest.(uiGraphArguments: UiGraphArguments) -> Unit,
-): TestResult = runAndroidComposeUiTest<ComponentActivity>(
+    testTimeout: Duration,
+    block: suspend ComposeUiTest.() -> Unit,
+): TestResult = androidx.compose.ui.test.runComposeUiTest(
+    effectContext = EmptyCoroutineContext, // TODO: pass through effectContext when supported
     runTestContext = runTestContext,
-    testTimeout = timeout,
-) {
-    testBody(
-        object : UiGraphArguments {
-            override val activity = requireNotNull(this@runAndroidComposeUiTest.activity)
-            override val uiContext = activity
-        },
-    )
-}
+    testTimeout = testTimeout,
+    block = block,
+)

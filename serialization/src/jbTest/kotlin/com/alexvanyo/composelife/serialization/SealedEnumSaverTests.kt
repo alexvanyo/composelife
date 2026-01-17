@@ -27,9 +27,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
 import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
+import com.alexvanyo.composelife.test.runComposeUiTest
 import com.livefront.sealedenum.createSealedEnumFromEnum
 import kotlin.test.Test
 

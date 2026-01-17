@@ -22,10 +22,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.runComposeUiTest
 import androidx.test.core.app.ApplicationProvider
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.test.BaseInjectTest
+import com.alexvanyo.composelife.test.runComposeUiTest
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.asContribution

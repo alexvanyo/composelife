@@ -19,7 +19,7 @@ package com.alexvanyo.composelife.test
 import android.content.Context
 import android.os.Build
 import androidx.activity.ComponentActivity
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
 import kotlinx.coroutines.test.runTest
@@ -42,7 +42,10 @@ abstract class BaseActivityInjectTest<A : ComponentActivity>(
     val outerLeakRule = createLeakRule("Outer")
 
     @get:Rule(order = 2)
-    val composeTestRule = createAndroidComposeRule(clazz)
+    val composeTestRule = createAndroidComposeRule(
+        clazz,
+        generalTestDispatcher,
+    )
 
     @get:Rule(order = 3)
     val innerLeakRule = createLeakRule("Inner")

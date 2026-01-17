@@ -22,7 +22,7 @@ import android.content.res.Configuration
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.runAndroidComposeUiTest
+import androidx.compose.ui.test.v2.runAndroidComposeUiTest
 import androidx.core.content.getSystemService
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import org.junit.Assume.assumeFalse

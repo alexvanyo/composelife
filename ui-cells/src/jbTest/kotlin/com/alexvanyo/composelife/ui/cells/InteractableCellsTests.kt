@@ -26,7 +26,6 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performMouseInput
-import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
@@ -43,6 +42,7 @@ import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.ToolConfig
+import com.alexvanyo.composelife.test.runComposeUiTest
 import com.alexvanyo.composelife.ui.cells.resources.InteractableCellContentDescription
 import com.alexvanyo.composelife.ui.cells.resources.Strings
 import kotlin.test.Test

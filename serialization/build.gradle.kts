@@ -87,6 +87,7 @@ kotlin {
             dependencies {
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(projects.dispatchersTestFixtures)
+                implementation(projects.injectTest)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
                 implementation(projects.testActivity)
