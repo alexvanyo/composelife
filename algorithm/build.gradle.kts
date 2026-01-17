@@ -130,6 +130,7 @@ kotlin {
                 implementation(libs.turbine)
                 implementation(projects.algorithmTestResources)
                 implementation(projects.dispatchersTestFixtures)
+                implementation(projects.injectTest)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
                 implementation(projects.patterns)

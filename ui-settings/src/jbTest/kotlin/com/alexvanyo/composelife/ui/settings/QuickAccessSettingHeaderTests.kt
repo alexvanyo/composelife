@@ -22,10 +22,10 @@ import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
+import com.alexvanyo.composelife.test.runComposeUiTest
 import com.alexvanyo.composelife.ui.settings.resources.AddSettingToQuickAccess
 import com.alexvanyo.composelife.ui.settings.resources.OpenInSettings
 import com.alexvanyo.composelife.ui.settings.resources.RemoveSettingFromQuickAccess

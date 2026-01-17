@@ -71,6 +71,7 @@ kotlin {
         val androidMain by getting {
             dependsOn(jvmMain)
             dependencies {
+                api(libs.androidx.compose.uiTest)
                 api(libs.androidx.compose.uiTestJunit4)
                 api(libs.androidx.test.runner)
                 api(libs.leakCanary.instrumentation)
