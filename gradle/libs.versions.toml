@@ -136,7 +136,7 @@ okio = "3.16.4"
 #proguard
 proguard = "7.8.0"
 #robolectric
-robolectric = "4.16"
+robolectric = "4.16.1"
 #roborazzi
 roborazzi = "1.56.0"
 #slf4j
