@@ -165,10 +165,10 @@ org.jetbrains.kotlinx:kotlinx-io-core-wasm-js:0.8.2
 org.jetbrains.kotlinx:kotlinx-io-core:0.8.2
 org.jetbrains.kotlinx:kotlinx-io-okio-wasm-js:0.8.2
 org.jetbrains.kotlinx:kotlinx-io-okio:0.8.2
-org.jetbrains.kotlinx:kotlinx-serialization-core-wasm-js:1.10.0-RC
-org.jetbrains.kotlinx:kotlinx-serialization-core:1.10.0-RC
-org.jetbrains.kotlinx:kotlinx-serialization-json-wasm-js:1.10.0-RC
-org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0-RC
+org.jetbrains.kotlinx:kotlinx-serialization-core-wasm-js:1.10.0
+org.jetbrains.kotlinx:kotlinx-serialization-core:1.10.0
+org.jetbrains.kotlinx:kotlinx-serialization-json-wasm-js:1.10.0
+org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0
 org.jetbrains.skiko:skiko-js-wasm-runtime:0.9.37
 org.jetbrains.skiko:skiko-wasm-js:0.9.37
 org.jetbrains.skiko:skiko:0.9.37
