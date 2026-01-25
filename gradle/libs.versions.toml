@@ -84,7 +84,7 @@ keeper = "0.16.1"
 #kermit
 kermit = "2.0.8"
 #kotlin
-kotlin = "2.3.0"
+kotlin = "2.3.20-Beta1"
 #kotlinPoet
 kotlinPoet = "2.2.0"
 #kotlinxBrowser
@@ -128,7 +128,7 @@ junit5 = "5.14.2"
 #leakCanary
 leakCanary = "3.0-alpha-8"
 #metro
-metro = "0.10.0"
+metro = "0.10.1"
 #molecule
 molecule = "2.2.0"
 #okio
