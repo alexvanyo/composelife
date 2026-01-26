@@ -140,7 +140,7 @@ proguard = "7.8.0"
 #robolectric
 robolectric = "4.16.1"
 #roborazzi
-roborazzi = "1.56.0"
+roborazzi = "1.57.0"
 #slf4j
 slf4j = "2.1.0-alpha1"
 #showkase
