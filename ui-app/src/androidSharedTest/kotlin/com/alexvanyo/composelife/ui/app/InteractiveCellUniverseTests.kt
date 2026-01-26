@@ -236,8 +236,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
 
     @Test
     fun six_long_line_evolves_correctly() = runUiTest(
-        generalTestDispatcher,
-        120.seconds,
+        timeout = 120.seconds,
     ) { uiGraph ->
         val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
 
@@ -301,8 +300,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
 
     @Test
     fun six_long_line_evolves_correctly_with_spacebar() = runUiTest(
-        generalTestDispatcher,
-        120.seconds,
+        timeout = 120.seconds,
     ) { uiGraph ->
         val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
 
@@ -370,8 +368,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
 
     @Test
     fun six_long_line_evolves_correctly_after_slowing_down() = runUiTest(
-        generalTestDispatcher,
-        120.seconds,
+        timeout = 120.seconds,
     ) { uiGraph ->
         val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
 
@@ -450,8 +447,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
 
     @Test
     fun six_long_line_evolves_correctly_with_step() = runUiTest(
-        generalTestDispatcher,
-        120.seconds,
+        timeout = 120.seconds,
     ) { uiGraph ->
         val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
 
@@ -511,8 +507,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
 
     @Test
     fun six_long_line_evolves_correctly_with_double_step_via_slider() = runUiTest(
-        generalTestDispatcher,
-        120.seconds,
+        timeout = 120.seconds,
     ) { uiGraph ->
         val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
 
@@ -586,8 +581,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
 
     @Test
     fun six_long_line_evolves_correctly_with_double_step_via_text() = runUiTest(
-        generalTestDispatcher,
-        120.seconds,
+        timeout = 120.seconds,
     ) { uiGraph ->
         val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
 
@@ -668,9 +662,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
     }
 
     @Test
-    fun glider_is_copied_correctly_with_keyboard_shortcuts() = runUiTest(
-        generalTestDispatcher,
-    ) { uiGraph ->
+    fun glider_is_copied_correctly_with_keyboard_shortcuts() = runUiTest { uiGraph ->
         val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
 
         lateinit var clipboardReaderWriter: ClipboardReaderWriter
@@ -762,9 +754,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
     }
 
     @Test
-    fun selection_is_cleared_correctly_with_keyboard_shortcuts() = runUiTest(
-        generalTestDispatcher,
-    ) { uiGraph ->
+    fun selection_is_cleared_correctly_with_keyboard_shortcuts() = runUiTest { uiGraph ->
         val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
 
         lateinit var resolver: (ParameterizedString) -> String
@@ -838,9 +828,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
     }
 
     @Test
-    fun glider_is_pasted_correctly_with_keyboard_shortcuts() = runUiTest(
-        generalTestDispatcher,
-    ) { uiGraph ->
+    fun glider_is_pasted_correctly_with_keyboard_shortcuts() = runUiTest { uiGraph ->
         val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
 
         lateinit var clipboardReaderWriter: ClipboardReaderWriter
@@ -906,6 +894,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
 
         generalTestDispatcher.scheduler.advanceUntilIdle()
         waitForIdle()
+        generalTestDispatcher.scheduler.advanceUntilIdle()
 
         onNodeWithContentDescription(resolver.invoke(Strings.ApplyPaste))
             .performClick()

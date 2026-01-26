@@ -19,9 +19,9 @@ package com.alexvanyo.composelife.parameterizedstring
 
 import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
 import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
+import com.alexvanyo.composelife.test.runComposeUiTest
 import kotlinx.serialization.serializer
 import kotlin.random.Random
 import kotlin.test.Test

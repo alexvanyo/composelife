@@ -37,12 +37,12 @@ import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextReplacement
-import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
+import com.alexvanyo.composelife.test.runComposeUiTest
 import com.alexvanyo.composelife.ui.app.resources.GenerationsPerStepLabel
 import com.alexvanyo.composelife.ui.app.resources.GenerationsPerStepLabelAndValue
 import com.alexvanyo.composelife.ui.app.resources.GenerationsPerStepValue
