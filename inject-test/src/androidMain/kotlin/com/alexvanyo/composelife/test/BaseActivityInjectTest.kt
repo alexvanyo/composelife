@@ -16,16 +16,24 @@
 
 package com.alexvanyo.composelife.test
 
-import android.content.Context
 import android.os.Build
 import androidx.activity.ComponentActivity
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.AndroidComposeUiTest
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.v2.AndroidComposeUiTestEnvironment
+import androidx.test.core.app.ActivityScenario
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
+import kotlinx.coroutines.test.TestResult
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Rule
 import org.junit.rules.TestRule
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * A base class for testing an [ComponentActivity] that depends on injected classes.
@@ -35,19 +43,64 @@ import org.junit.rules.TestRule
 @Suppress("UnnecessaryAbstractClass")
 abstract class BaseActivityInjectTest<A : ComponentActivity>(
     applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph,
-    clazz: Class<A>,
+    private val clazz: Class<A>,
 ) : BaseInjectTest(applicationGraphCreator) {
 
     @get:Rule(order = 0)
     val outerLeakRule = createLeakRule("Outer")
 
-    @get:Rule(order = 2)
-    val composeTestRule = createAndroidComposeRule(clazz)
+    @Deprecated("Testing with BaseUiInjectTest should call runUiTest instead of runAppTest")
+    override fun runAppTest(
+        context: CoroutineContext,
+        timeout: Duration,
+        testBody: suspend TestScope.() -> Unit,
+    ): TestResult = super.runAppTest(context, timeout, testBody)
 
-    @get:Rule(order = 3)
-    val innerLeakRule = createLeakRule("Inner")
+    @OptIn(ExperimentalTestApi::class)
+    fun runUiTest(
+        appTestContext: CoroutineContext = EmptyCoroutineContext,
+        timeout: Duration = 60.seconds,
+        testBody: suspend AndroidComposeUiTest<A>.(ActivityScenario<A>) -> Unit,
+    ): TestResult {
+        var scenario: ActivityScenario<A>? = null
 
-    val context: Context get() = composeTestRule.activity
+        val environment = AndroidComposeUiTestEnvironment(
+            effectContext = generalTestDispatcher,
+            runTestContext = generalTestDispatcher + appTestContext,
+            testTimeout = timeout,
+            activityProvider = {
+                var activity: A? = null
+                scenario!!.onActivity { activity = it }
+                activity
+            },
+        )
+
+        try {
+            return environment.runTest {
+                scenario = ActivityScenario.launch(clazz)
+                var blockException: Throwable? = null
+                try {
+                    // Run the test
+                    testBody(this, scenario!!)
+                } catch (t: Throwable) {
+                    blockException = t
+                }
+
+                // Throw the aggregate exception. May be from the test body or from the cleanup.
+                blockException?.let { throw it }
+            }
+        } finally {
+            // Close the scenario outside runTest to avoid getting stuck.
+            //
+            // ActivityScenario.close() calls Instrumentation.waitForIdleSync(), which would time out
+            // if there is an infinite self-invalidating measure, layout, or draw loop. If the
+            // Compose content was set through the test's setContent method, it will remove the
+            // AndroidComposeView from the view hierarchy which breaks this loop, which is why we
+            // call close() outside the runTest lambda. This will not help if the content is not set
+            // through the test's setContent method though, in which case we'll still time out here.
+            scenario?.close()
+        }
+    }
 }
 
 private fun createLeakRule(tag: String) =

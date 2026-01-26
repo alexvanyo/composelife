@@ -45,6 +45,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                api(libs.jetbrains.compose.uiTest)
                 api(libs.kotlinx.coroutines.test)
                 api(projects.kmpAndroidRunner)
 
@@ -55,9 +56,6 @@ kotlin {
         }
         val jbMain by creating {
             dependsOn(commonMain)
-            dependencies {
-                api(libs.jetbrains.compose.uiTest)
-            }
         }
         val jvmMain by creating {
             dependsOn(jbMain)
@@ -71,6 +69,7 @@ kotlin {
         val androidMain by getting {
             dependsOn(jvmMain)
             dependencies {
+                api(libs.androidx.compose.uiTest)
                 api(libs.androidx.compose.uiTestJunit4)
                 api(libs.androidx.test.runner)
                 api(libs.leakCanary.instrumentation)

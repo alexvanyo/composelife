@@ -20,14 +20,15 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.runComposeUiTest
 import com.alexvanyo.composelife.algorithm.HashLifeAlgorithm
 import com.alexvanyo.composelife.dispatchers.TestComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.clock
@@ -36,12 +37,15 @@ import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTe
 import com.alexvanyo.composelife.patterns.PondPattern
 import com.alexvanyo.composelife.patterns.SingleCellPattern
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
+import com.alexvanyo.composelife.test.runComposeUiTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
 class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
@@ -54,7 +58,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
     )
 
     @Test
-    fun state_is_instance_state_saved_correctly() = runComposeUiTest {
+    fun state_is_instance_state_saved_correctly() = runComposeUiTest(testDispatcher) {
         val stateRestorationTester = KmpStateRestorationTester(this)
 
         // Extract the state from composition for testing
@@ -84,7 +88,9 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
     }
 
     @Test
-    fun state_is_advanced_correctly() = runComposeUiTest {
+    fun state_is_advanced_correctly() = runComposeUiTest(testDispatcher) {
+        mainClock.autoAdvance = false
+
         val temporalGameOfLifeState = TemporalGameOfLifeState(
             seedCellState = SixLongLinePattern.seedCellState,
             isRunning = true,
@@ -118,10 +124,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
         )
 
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
-            testDispatcher.scheduler.runCurrent()
-            waitForIdle()
             testDispatcher.scheduler.advanceTimeBy(17)
-            testDispatcher.scheduler.runCurrent()
             waitForIdle()
 
             assertEquals(expectedCellState, temporalGameOfLifeState.cellState)
@@ -134,7 +137,9 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
     @Suppress("LongMethod")
     @Test
-    fun pausing_evolution_is_correct() = runComposeUiTest {
+    fun pausing_evolution_is_correct() = runComposeUiTest(testDispatcher) {
+        mainClock.autoAdvance = false
+
         val temporalGameOfLifeState = TemporalGameOfLifeState(
             seedCellState = SixLongLinePattern.seedCellState,
             isRunning = true,
@@ -168,7 +173,6 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
         )
 
         testDispatcher.scheduler.advanceTimeBy(8)
-        testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
@@ -177,10 +181,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
             assertEquals(0.0, status.averageGenerationsPerSecond, 0.001)
         }
 
-        testDispatcher.scheduler.runCurrent()
-        waitForIdle()
         testDispatcher.scheduler.advanceTimeBy(9)
-        testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
@@ -189,10 +190,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
-        testDispatcher.scheduler.runCurrent()
-        waitForIdle()
         testDispatcher.scheduler.advanceTimeBy(8)
-        testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
@@ -201,10 +199,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
-        testDispatcher.scheduler.runCurrent()
-        waitForIdle()
         testDispatcher.scheduler.advanceTimeBy(9)
-        testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
@@ -215,10 +210,8 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
         temporalGameOfLifeState.setIsRunning(false)
 
-        testDispatcher.scheduler.runCurrent()
         waitForIdle()
         testDispatcher.scheduler.advanceTimeBy(1000)
-        testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
@@ -227,7 +220,9 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
     @Suppress("LongMethod")
     @Test
-    fun target_steps_evolution_is_correct() = runComposeUiTest {
+    fun target_steps_evolution_is_correct() = runComposeUiTest(testDispatcher) {
+        mainClock.autoAdvance = false
+
         val temporalGameOfLifeState = TemporalGameOfLifeState(
             seedCellState = SixLongLinePattern.seedCellState,
             isRunning = true,
@@ -261,7 +256,6 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
         )
 
         testDispatcher.scheduler.advanceTimeBy(8)
-        testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
@@ -270,10 +264,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
             assertEquals(0.0, status.averageGenerationsPerSecond, 0.001)
         }
 
-        testDispatcher.scheduler.runCurrent()
-        waitForIdle()
         testDispatcher.scheduler.advanceTimeBy(9)
-        testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
@@ -282,10 +273,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
-        testDispatcher.scheduler.runCurrent()
-        waitForIdle()
         testDispatcher.scheduler.advanceTimeBy(8)
-        testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
@@ -294,10 +282,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
-        testDispatcher.scheduler.runCurrent()
-        waitForIdle()
         testDispatcher.scheduler.advanceTimeBy(9)
-        testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
@@ -308,10 +293,8 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
         temporalGameOfLifeState.targetStepsPerSecond = 10.0
 
-        testDispatcher.scheduler.runCurrent()
         waitForIdle()
         testDispatcher.scheduler.advanceTimeBy(50)
-        testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
@@ -320,10 +303,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
-        testDispatcher.scheduler.runCurrent()
-        waitForIdle()
         testDispatcher.scheduler.advanceTimeBy(50)
-        testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
@@ -335,7 +315,9 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
     @Suppress("LongMethod")
     @Test
-    fun setting_evolution_is_correct() = runComposeUiTest {
+    fun setting_evolution_is_correct() = runComposeUiTest(testDispatcher) {
+        mainClock.autoAdvance = false
+
         val temporalGameOfLifeState = TemporalGameOfLifeState(
             seedCellState = SixLongLinePattern.seedCellState,
             isRunning = true,
@@ -369,7 +351,6 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
         )
 
         testDispatcher.scheduler.advanceTimeBy(8)
-        testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
@@ -378,10 +359,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
             assertEquals(0.0, status.averageGenerationsPerSecond, 0.001)
         }
 
-        testDispatcher.scheduler.runCurrent()
-        waitForIdle()
         testDispatcher.scheduler.advanceTimeBy(9)
-        testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
@@ -390,10 +368,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
-        testDispatcher.scheduler.runCurrent()
-        waitForIdle()
         testDispatcher.scheduler.advanceTimeBy(8)
-        testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
@@ -402,10 +377,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
-        testDispatcher.scheduler.runCurrent()
-        waitForIdle()
         testDispatcher.scheduler.advanceTimeBy(9)
-        testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
@@ -416,10 +388,8 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
         temporalGameOfLifeState.cellState = SingleCellPattern.seedCellState
 
-        testDispatcher.scheduler.runCurrent()
         waitForIdle()
         testDispatcher.scheduler.advanceTimeBy(8)
-        testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SingleCellPattern.seedCellState, temporalGameOfLifeState.cellState)
@@ -428,10 +398,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
-        testDispatcher.scheduler.runCurrent()
-        waitForIdle()
         testDispatcher.scheduler.advanceTimeBy(9)
-        testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SingleCellPattern.cellStates[0], temporalGameOfLifeState.cellState)
@@ -443,7 +410,9 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
     @Suppress("LongMethod")
     @Test
-    fun multiple_evolutions_is_correct() = runComposeUiTest {
+    fun multiple_evolutions_is_correct() = runComposeUiTest(testDispatcher) {
+        mainClock.autoAdvance = false
+
         val temporalGameOfLifeState = TemporalGameOfLifeState(
             seedCellState = SixLongLinePattern.seedCellState,
             isRunning = true,
@@ -456,18 +425,27 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
         )
 
         var runFirstMutator by mutableStateOf(true)
+        var isFirstCancelled = false
 
         setContent {
+            val clock = remember(testDispatcher) {
+                testDispatcher.scheduler.clock
+            }
+
             val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
                 temporalGameOfLifeState = temporalGameOfLifeState,
                 gameOfLifeAlgorithm = hashLifeAlgorithm,
-                clock = testDispatcher.scheduler.clock,
+                clock = clock,
                 dispatchers = dispatchers,
             )
 
             if (runFirstMutator) {
                 LaunchedEffect(temporalGameOfLifeStateMutator) {
-                    temporalGameOfLifeStateMutator.update()
+                    try {
+                        temporalGameOfLifeStateMutator.update()
+                    } finally {
+                        isFirstCancelled = true
+                    }
                 }
             }
 
@@ -485,7 +463,6 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
         )
 
         testDispatcher.scheduler.advanceTimeBy(8)
-        testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
@@ -494,10 +471,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
             assertEquals(0.0, status.averageGenerationsPerSecond, 0.001)
         }
 
-        testDispatcher.scheduler.runCurrent()
-        waitForIdle()
         testDispatcher.scheduler.advanceTimeBy(9)
-        testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
@@ -506,10 +480,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
-        testDispatcher.scheduler.runCurrent()
-        waitForIdle()
         testDispatcher.scheduler.advanceTimeBy(8)
-        testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.cellStates[0], temporalGameOfLifeState.cellState)
@@ -518,10 +489,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
-        testDispatcher.scheduler.runCurrent()
-        waitForIdle()
         testDispatcher.scheduler.advanceTimeBy(9)
-        testDispatcher.scheduler.runCurrent()
         waitForIdle()
 
         assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
@@ -530,13 +498,13 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
+        // Initiate the swap from the first mutator to the second
         runFirstMutator = false
 
-        testDispatcher.scheduler.runCurrent()
-        waitForIdle()
         testDispatcher.scheduler.advanceTimeBy(8)
-        testDispatcher.scheduler.runCurrent()
         waitForIdle()
+
+        assertFalse(isFirstCancelled)
 
         assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
@@ -544,21 +512,71 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
 
-        testDispatcher.scheduler.runCurrent()
-        waitForIdle()
         testDispatcher.scheduler.advanceTimeBy(9)
-        testDispatcher.scheduler.runCurrent()
         waitForIdle()
+
+        assertFalse(isFirstCancelled)
 
         assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
             val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
             assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
         }
+
+        testDispatcher.scheduler.advanceTimeBy(7)
+        waitForIdle()
+
+        assertTrue(isFirstCancelled)
+
+        assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
+        temporalGameOfLifeState.status.let { status ->
+            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+            assertEquals(51.724, status.averageGenerationsPerSecond, 0.001)
+        }
+
+        testDispatcher.scheduler.advanceTimeBy(8)
+        waitForIdle()
+
+        assertTrue(isFirstCancelled)
+
+        assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
+        temporalGameOfLifeState.status.let { status ->
+            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+            assertEquals(51.724, status.averageGenerationsPerSecond, 0.001)
+        }
+
+        testDispatcher.scheduler.advanceTimeBy(9)
+        waitForIdle()
+
+        assertEquals(SixLongLinePattern.cellStates[3], temporalGameOfLifeState.cellState)
+        temporalGameOfLifeState.status.let { status ->
+            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+            assertEquals(53.333, status.averageGenerationsPerSecond, 0.001)
+        }
+
+        testDispatcher.scheduler.advanceTimeBy(8)
+        waitForIdle()
+
+        assertEquals(SixLongLinePattern.cellStates[3], temporalGameOfLifeState.cellState)
+        temporalGameOfLifeState.status.let { status ->
+            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+            assertEquals(53.333, status.averageGenerationsPerSecond, 0.001)
+        }
+
+        testDispatcher.scheduler.advanceTimeBy(9)
+        waitForIdle()
+
+        assertEquals(SixLongLinePattern.cellStates[4], temporalGameOfLifeState.cellState)
+        temporalGameOfLifeState.status.let { status ->
+            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+            assertEquals(54.348, status.averageGenerationsPerSecond, 0.001)
+        }
     }
 
     @Test
-    fun state_is_advanced_correctly_with_step() = runComposeUiTest {
+    fun state_is_advanced_correctly_with_step() = runComposeUiTest(testDispatcher) {
+        mainClock.autoAdvance = false
+
         val temporalGameOfLifeState = TemporalGameOfLifeState(
             seedCellState = SixLongLinePattern.seedCellState,
             isRunning = false,
@@ -601,10 +619,7 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
         )
 
         SixLongLinePattern.cellStates.forEach { expectedCellState ->
-            testDispatcher.scheduler.runCurrent()
-            waitForIdle()
             onNodeWithText("Step").performClick()
-            testDispatcher.scheduler.runCurrent()
             waitForIdle()
 
             assertEquals(expectedCellState, temporalGameOfLifeState.cellState)

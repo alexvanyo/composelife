@@ -37,8 +37,8 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.FontScale
 import androidx.compose.ui.test.RoundScreen
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.test.then
+import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.DpSize
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.test.platform.graphics.HardwareRendererCompat

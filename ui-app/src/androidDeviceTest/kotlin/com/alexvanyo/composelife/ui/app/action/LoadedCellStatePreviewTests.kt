@@ -35,7 +35,6 @@ import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
 import androidx.test.platform.app.InstrumentationRegistry
-import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.CellStateFormat
 import com.alexvanyo.composelife.model.CellStateParser
@@ -50,22 +49,11 @@ import com.alexvanyo.composelife.ui.app.globalGraph
 import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindowCtx
 import com.alexvanyo.composelife.ui.cells.cellStateDragAndDropTarget
 import com.alexvanyo.composelife.ui.cells.rememberMutableCellStateDropStateHolder
-import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.asContribution
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestDispatcher
 import kotlin.test.Test
 import kotlin.test.assertEquals
-
-@ContributesTo(AppScope::class)
-interface LoadedCellStatePreviewTestsAppCtx {
-    @GeneralTestDispatcher val generalTestDispatcher: TestDispatcher
-}
-
-// TODO: Replace with asContribution()
-val ApplicationGraph.loadedCellStatePreviewTestsAppCtx: LoadedCellStatePreviewTestsAppCtx get() =
-    this as LoadedCellStatePreviewTestsAppCtx
 
 @ContributesTo(UiScope::class)
 interface LoadedCellStatePreviewTestsUiCtx {
@@ -74,18 +62,16 @@ interface LoadedCellStatePreviewTestsUiCtx {
 }
 
 // TODO: Replace with asContribution()
-val UiGraph.loadedCellStatePreviewTestsAppCtx: LoadedCellStatePreviewTestsUiCtx get() =
+val UiGraph.loadedCellStatePreviewTestsUiCtx: LoadedCellStatePreviewTestsUiCtx get() =
     this as LoadedCellStatePreviewTestsUiCtx
 
 @OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
 class LoadedCellStatePreviewTests : BaseUiInjectTest(
     { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 ) {
-    private val appCtx get() = applicationGraph.loadedCellStatePreviewTestsAppCtx
-
     @Test
     fun drag_and_drop_works_correctly() = runUiTest { uiGraph ->
-        val uiCtx = uiGraph.loadedCellStatePreviewTestsAppCtx
+        val uiCtx = uiGraph.loadedCellStatePreviewTestsUiCtx
 
         var droppedCellState: CellState? = null
 
@@ -168,7 +154,7 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest(
         automation.injectInputEvent(move, true)
         move.recycle()
 
-        waitForIdle()
+        awaitIdle()
 
         val up = MotionEvent.obtain(
             downTime,
@@ -183,8 +169,7 @@ class LoadedCellStatePreviewTests : BaseUiInjectTest(
         automation.injectInputEvent(up, true)
         up.recycle()
 
-        waitForIdle()
-        appCtx.generalTestDispatcher.scheduler.runCurrent()
+        awaitIdle()
 
         assertEquals(GliderPattern.seedCellState, droppedCellState)
     }
