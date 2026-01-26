@@ -27,12 +27,12 @@ import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
 import com.alexvanyo.composelife.model.emptyCellState
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
+import com.alexvanyo.composelife.test.runComposeUiTest
 import com.alexvanyo.composelife.ui.app.resources.ClearSelection
 import com.alexvanyo.composelife.ui.app.resources.Collapse
 import com.alexvanyo.composelife.ui.app.resources.Copy
