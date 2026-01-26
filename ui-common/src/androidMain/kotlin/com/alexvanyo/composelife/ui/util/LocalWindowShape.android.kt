@@ -16,9 +16,6 @@
 
 package com.alexvanyo.composelife.ui.util
 
-import android.os.Build
-import android.view.RoundedCorner
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -31,6 +28,8 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toIntRect
 import androidx.compose.ui.unit.toRect
+import androidx.core.view.DisplayShapeCompat
+import androidx.core.view.RoundedCornerCompat
 import androidx.core.view.WindowInsetsCompat
 
 @Composable
@@ -47,51 +46,40 @@ actual fun currentWindowShape(): WindowShape {
     }
 }
 
-private fun getDisplayShapePath(windowInsets: WindowInsetsCompat?, windowSize: IntSize): Path {
-    val platformInsets = windowInsets?.toWindowInsets()
-    return if (Build.VERSION.SDK_INT >= 34 && platformInsets != null) {
-        platformInsets.getPathFromDisplayShape()
-    } else {
-        null
-    } ?: if (Build.VERSION.SDK_INT >= 31 && platformInsets != null) {
-        platformInsets.getPathFromRoundedCorners(windowSize)
-    } else {
-        null
-    } ?: getPathFromFrame(windowSize)
-}
+private fun getDisplayShapePath(windowInsets: WindowInsetsCompat?, windowSize: IntSize): Path =
+    windowInsets?.displayShape?.getPathFromDisplayShape()
+        ?: windowInsets?.getPathFromRoundedCorners(windowSize)
+        ?: getPathFromFrame(windowSize)
 
 @Suppress("SwallowedException")
-@RequiresApi(34)
-private fun android.view.WindowInsets.getPathFromDisplayShape(): Path? =
+private fun DisplayShapeCompat.getPathFromDisplayShape(): Path? =
     try {
-        displayShape?.path?.asComposePath()
+        path.takeIf { !it.isEmpty }?.asComposePath()
     } catch (exception: IllegalArgumentException) {
         null
     }
 
-@RequiresApi(31)
-private fun android.view.WindowInsets.getPathFromRoundedCorners(windowSize: IntSize): Path =
+private fun WindowInsetsCompat.getPathFromRoundedCorners(windowSize: IntSize): Path =
     Path().apply {
         addRoundRect(
             RoundRect(
                 rect = windowSize.toIntRect().toRect(),
                 topLeft = getRoundedCorner(
-                    RoundedCorner.POSITION_TOP_LEFT,
+                    RoundedCornerCompat.POSITION_TOP_LEFT,
                 )?.toCornerRadius() ?: CornerRadius.Zero,
                 topRight = getRoundedCorner(
-                    RoundedCorner.POSITION_TOP_RIGHT,
+                    RoundedCornerCompat.POSITION_TOP_RIGHT,
                 )?.toCornerRadius() ?: CornerRadius.Zero,
                 bottomLeft = getRoundedCorner(
-                    RoundedCorner.POSITION_BOTTOM_LEFT,
+                    RoundedCornerCompat.POSITION_BOTTOM_LEFT,
                 )?.toCornerRadius() ?: CornerRadius.Zero,
                 bottomRight = getRoundedCorner(
-                    RoundedCorner.POSITION_BOTTOM_RIGHT,
+                    RoundedCornerCompat.POSITION_BOTTOM_RIGHT,
                 )?.toCornerRadius() ?: CornerRadius.Zero,
             ),
         )
     }
 
-@RequiresApi(31)
 private fun getPathFromFrame(windowSize: IntSize): Path =
     Path().apply {
         addRect(
@@ -99,6 +87,5 @@ private fun getPathFromFrame(windowSize: IntSize): Path =
         )
     }
 
-@RequiresApi(31)
-private fun RoundedCorner.toCornerRadius(): CornerRadius =
+private fun RoundedCornerCompat.toCornerRadius(): CornerRadius =
     CornerRadius(x = radius.toFloat())
