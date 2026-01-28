@@ -112,7 +112,7 @@ jetbrainsNavigationEvent = "1.0.0"
 #jetbrainsSavedState
 jetbrainsSavedState = "1.4.0"
 #jetbrainsCompose
-jetbrainsCompose = "1.11.0-alpha01"
+jetbrainsCompose = "1.11.0-alpha02"
 #jetbrainsCompose
 jetbrainsComposeGradlePlugin = "1.11.0-alpha02"
 #jetbrainsComposeMaterialIconsExtended
