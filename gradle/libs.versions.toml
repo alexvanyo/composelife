@@ -152,7 +152,7 @@ sqldelight = "2.2.1"
 #sqlJs
 sqlJs = "1.8.0"
 #testParameterInjector
-testParameterInjector = "1.20"
+testParameterInjector = "1.21"
 #turbine
 turbine = "1.2.1"
 #webPackPlugin
