@@ -143,8 +143,8 @@ org.jetbrains.compose.ui:ui-graphics-desktop:1.11.0-alpha02
 org.jetbrains.compose.ui:ui-graphics:1.11.0-alpha02
 org.jetbrains.compose.ui:ui-text-desktop:1.11.0-alpha02
 org.jetbrains.compose.ui:ui-text:1.11.0-alpha02
-org.jetbrains.compose.ui:ui-tooling-preview-desktop:1.11.0-alpha01
-org.jetbrains.compose.ui:ui-tooling-preview:1.11.0-alpha01
+org.jetbrains.compose.ui:ui-tooling-preview-desktop:1.11.0-alpha02
+org.jetbrains.compose.ui:ui-tooling-preview:1.11.0-alpha02
 org.jetbrains.compose.ui:ui-unit-desktop:1.11.0-alpha02
 org.jetbrains.compose.ui:ui-unit:1.11.0-alpha02
 org.jetbrains.compose.ui:ui-util-desktop:1.11.0-alpha02
