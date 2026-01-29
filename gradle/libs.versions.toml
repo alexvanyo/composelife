@@ -16,7 +16,7 @@ androidxBenchmark = "1.5.0-alpha02"
 #androidxComposeBomAlpha
 androidxComposeBomAlpha = "2026.01.00"
 #androidxComposeUiTest
-androidxComposeUiTest = "1.11.0-alpha03"
+androidxComposeUiTest = "1.11.0-alpha04"
 #androidxCollection
 androidxCollection = "1.6.0-beta01"
 #androidxCore
