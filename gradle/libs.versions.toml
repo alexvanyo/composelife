@@ -30,7 +30,7 @@ androidxLifecycle = "2.10.0"
 #androidxLintGradle
 androidxLintGradle = "1.0.0-alpha05"
 #androidxNavigationEvent
-androidxNavigationEvent = "1.0.1"
+androidxNavigationEvent = "1.0.2"
 #androidxNavigation3
 androidxNavigation3 = "1.1.0-alpha02"
 #androidxPoolingContainer
