@@ -52,7 +52,7 @@ androidxTestUiAutomator = "2.4.0-alpha07"
 #androidxTracing
 androidxTracing = "2.0.0-alpha01"
 #androidxWearCompose
-androidxWearCompose = "1.6.0-alpha08"
+androidxWearCompose = "1.6.0-alpha09"
 #androidxWearComposeMaterial3
 androidxWearComposeMaterial3 = "1.6.0-alpha08"
 #androidxWearWatchface
