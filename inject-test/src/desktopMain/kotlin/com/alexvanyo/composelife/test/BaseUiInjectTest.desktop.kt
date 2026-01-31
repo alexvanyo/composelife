@@ -26,6 +26,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 
 @OptIn(ExperimentalTestApi::class)
+@Suppress("DEPRECATION")
 internal actual fun runPlatformUiTest(
     runTestContext: CoroutineContext,
     timeout: Duration,
