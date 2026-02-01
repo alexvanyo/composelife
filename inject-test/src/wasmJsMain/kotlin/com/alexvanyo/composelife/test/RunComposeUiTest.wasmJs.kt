@@ -16,19 +16,14 @@
 
 package com.alexvanyo.composelife.test
 
-import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.InternalTestApi
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestResult
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
 
-@Suppress("CAST_NEVER_SUCCEEDS")
+@Suppress("CAST_NEVER_SUCCEEDS", "DEPRECATION")
 @OptIn(ExperimentalTestApi::class)
 actual fun runComposeUiTest(
     effectContext: CoroutineContext,
