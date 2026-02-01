@@ -23,6 +23,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
 
+@Suppress("DEPRECATION")
 @OptIn(ExperimentalTestApi::class)
 actual fun runComposeUiTest(
     effectContext: CoroutineContext,
