@@ -288,10 +288,9 @@ private class TemporalGameOfLifeStateImpl(
         stepManualTicker.send(Unit)
     }
 
-    context(algorithm: GameOfLifeAlgorithm, clock: Clock, dispatchers: ComposeLifeDispatchers)
+    context(_: GameOfLifeAlgorithm, _: Clock, _: ComposeLifeDispatchers)
     override suspend fun evolve(): Nothing {
         evolveMutex.withLock {
-            println("Inside lock evolve")
             try {
                 // coroutineScope to ensure all child coroutines finish
                 coroutineScope {
@@ -364,7 +363,6 @@ private class TemporalGameOfLifeStateImpl(
                                 val lastTick = clock.now()
                                 Snapshot.withMutableSnapshot {
                                     cellStateGenealogy.computedCellState = cellState
-                                    println("set computedCellState to $cellState")
                                     val newRecord = ComputationRecord(
                                         computedGenerations = cellStateGenealogy.generationsPerStep,
                                         computedTime = lastTick,

@@ -31,16 +31,14 @@ fun Project.configureKotlin() {
     extensions.configure(KotlinMultiplatformExtension::class.java) {
         sourceSets.configureEach {
             languageSettings {
-                // TODO: Remove when out of beta: https://youtrack.jetbrains.com/issue/KT-61573
-                enableLanguageFeature("ExpectActualClasses")
-                enableLanguageFeature("ContextParameters")
-                enableLanguageFeature("MultiDollarInterpolation")
-                enableLanguageFeature("UnnamedLocalVariables")
                 optIn("kotlin.uuid.ExperimentalUuidApi")
                 optIn("kotlin.time.ExperimentalTime")
             }
             compilerOptions {
                 freeCompilerArgs.add("-Xreturn-value-checker=check")
+                // TODO: Remove when out of beta: https://youtrack.jetbrains.com/issue/KT-61573
+                freeCompilerArgs.add("-Xexpect-actual-classes")
+                freeCompilerArgs.add("-Xcontext-parameters")
                 allWarningsAsErrors.set(true)
             }
         }
