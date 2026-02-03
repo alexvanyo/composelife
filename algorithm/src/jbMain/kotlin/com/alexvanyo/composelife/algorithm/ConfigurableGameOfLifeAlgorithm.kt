@@ -27,7 +27,6 @@ import com.alexvanyo.composelife.resourcestate.successes
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Binds
-import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.channels.Channel
