@@ -30,51 +30,18 @@ import androidx.compose.ui.window.ComposeViewport
 import androidx.navigationevent.NavigationEventDispatcher
 import androidx.navigationevent.NavigationEventDispatcherOwner
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
-import com.alexvanyo.composelife.algorithm.ConfigurableGameOfLifeAlgorithmBindings
-import com.alexvanyo.composelife.clock.di.ClockBindings
-import com.alexvanyo.composelife.data.CellStateRepositoryImplBindings
-import com.alexvanyo.composelife.data.PatternCollectionRepositoryImplBindings
-import com.alexvanyo.composelife.database.WebComposeLifeDriverBindings
-import com.alexvanyo.composelife.database.di.AdapterBindings
-import com.alexvanyo.composelife.database.di.DatabaseBindings
-import com.alexvanyo.composelife.database.di.DriverBindings
-import com.alexvanyo.composelife.database.di.QueriesBindings
-import com.alexvanyo.composelife.dispatchers.DefaultComposeLifeDispatchersBindings
-import com.alexvanyo.composelife.filesystem.di.FileSystemBindings
-import com.alexvanyo.composelife.filesystem.di.PersistedDataPathBindings
-import com.alexvanyo.composelife.imageloader.di.ImageLoaderBindings
-import com.alexvanyo.composelife.imageloader.di.ImageLoaderDiskCacheBindings
-import com.alexvanyo.composelife.imageloader.di.ImageLoaderFetcherFactoryBindings
-import com.alexvanyo.composelife.imageloader.di.ImageLoaderKeyerBindings
-import com.alexvanyo.composelife.imageloader.di.PlatformContextBindings
-import com.alexvanyo.composelife.logging.di.LoggerBindings
-import com.alexvanyo.composelife.network.di.EngineFactoryBindings
-import com.alexvanyo.composelife.network.di.NetworkBindings
-import com.alexvanyo.composelife.preferences.DefaultComposeLifePreferencesBindings
-import com.alexvanyo.composelife.preferences.LocalStoragePreferencesDataStoreBindings
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
-import com.alexvanyo.composelife.preferences.di.PreferencesDataStoreBindings
-import com.alexvanyo.composelife.random.di.RandomBindings
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
 import com.alexvanyo.composelife.scopes.GlobalScope
 import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
-import com.alexvanyo.composelife.scopes.WebApplicationBindings
-import com.alexvanyo.composelife.scopes.WebUiBindings
 import com.alexvanyo.composelife.ui.app.ComposeLifeApp
 import com.alexvanyo.composelife.ui.app.ComposeLifeAppUiCtx
-import com.alexvanyo.composelife.ui.app.UiWithLoadedPreferencesGraph
-import com.alexvanyo.composelife.ui.app.UiWithLoadedPreferencesScope
-import com.alexvanyo.composelife.ui.app.UiWithLoadedPreferencesScopeBindings
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.mobile.shouldUseDarkTheme
-import com.alexvanyo.composelife.ui.util.WebImmersiveModeManagerBindings
-import com.alexvanyo.composelife.ui.util.WebTimeZoneHolderBindings
 import com.alexvanyo.composelife.updatable.Updatable
-import com.alexvanyo.composelife.updatable.di.AppUpdatableBindings
-import com.alexvanyo.composelife.updatable.di.UiUpdatableBindings
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.DependencyGraph
@@ -186,47 +153,3 @@ internal val UiGraph.mainInjectCtx: MainInjectCtx get() =
 
 @DependencyGraph(GlobalScope::class)
 interface GlobalGraph : ApplicationGraph.Factory
-
-// TODO: This should all be removable once metadata support improves in metro.
-
-@ContributesTo(AppScope::class)
-interface ManualApplicationBindings :
-    AppUpdatableBindings,
-    WebApplicationBindings,
-    DefaultComposeLifePreferencesBindings,
-    PreferencesDataStoreBindings,
-    LocalStoragePreferencesDataStoreBindings,
-    LoggerBindings,
-    CellStateRepositoryImplBindings,
-    ConfigurableGameOfLifeAlgorithmBindings,
-    ClockBindings,
-    DefaultComposeLifeDispatchersBindings,
-    PatternCollectionRepositoryImplBindings,
-    RandomBindings,
-    QueriesBindings,
-    FileSystemBindings,
-    PersistedDataPathBindings,
-    WebTimeZoneHolderBindings,
-    ImageLoaderBindings,
-    NetworkBindings,
-    DatabaseBindings,
-    PlatformContextBindings,
-    ImageLoaderDiskCacheBindings,
-    ImageLoaderFetcherFactoryBindings,
-    ImageLoaderKeyerBindings,
-    EngineFactoryBindings,
-    DriverBindings,
-    WebComposeLifeDriverBindings,
-    AdapterBindings,
-    UiGraph.Factory
-
-@ContributesTo(UiScope::class)
-interface ManualUiBindings :
-    UiUpdatableBindings,
-    WebImmersiveModeManagerBindings,
-    WebUiBindings,
-    UiWithLoadedPreferencesGraph.Factory
-
-@ContributesTo(UiWithLoadedPreferencesScope::class)
-interface ManualUiWithLoadedPreferencesBindings :
-    UiWithLoadedPreferencesScopeBindings
