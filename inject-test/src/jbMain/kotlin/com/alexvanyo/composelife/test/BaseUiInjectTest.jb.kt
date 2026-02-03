@@ -29,12 +29,12 @@ import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.ForScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.coroutines.coroutineContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -81,7 +81,8 @@ fun BaseUiInjectTest.runUiTest(
         val uiUpdatables = uiGraph.baseUiInjectTestCtx.uiUpdatables
         withUpdatables(appUpdatables + uiUpdatables) {
             // Let any background jobs launch and stabilize before running the test body
-            val testDispatcher = coroutineContext[CoroutineDispatcher] as? TestDispatcher
+            @OptIn(kotlin.ExperimentalStdlibApi::class)
+            val testDispatcher = currentCoroutineContext()[CoroutineDispatcher] as? TestDispatcher
             testDispatcher?.scheduler?.advanceUntilIdle()
             testBody(
                 this@runPlatformUiTest,
