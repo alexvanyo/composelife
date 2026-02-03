@@ -31,10 +31,10 @@ jobs:
           cache-read-only: true # Don't write caches for generating website
 
       - name: Create website
-        run: ./gradlew :web-app:wasmJsBrowserDevelopmentExecutableDistribution
+        run: ./gradlew :web-app:wasmJsBrowserDistribution
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./web-app/build/dist/wasmJs/developmentExecutable/
+          publish_dir: ./web-app/build/dist/wasmJs/productionExecutable/
