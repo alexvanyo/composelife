@@ -171,8 +171,8 @@ com.squareup.okio:okio-jvm:3.16.4
 com.squareup.okio:okio:3.16.4
 com.squareup.wire:wire-runtime-jvm:6.0.0-alpha02
 com.squareup.wire:wire-runtime:6.0.0-alpha02
-dev.zacsweers.metro:runtime-jvm:0.10.0
-dev.zacsweers.metro:runtime:0.10.0
+dev.zacsweers.metro:runtime-jvm:0.10.2
+dev.zacsweers.metro:runtime:0.10.2
 io.coil-kt.coil3:coil-compose-core-android:3.3.0
 io.coil-kt.coil3:coil-compose-core:3.3.0
 io.coil-kt.coil3:coil-core-android:3.3.0
@@ -236,7 +236,7 @@ org.jetbrains.compose.ui:ui-tooling-preview:1.11.0-alpha02
 org.jetbrains.compose.ui:ui-unit:1.11.0-alpha02
 org.jetbrains.compose.ui:ui-util:1.11.0-alpha02
 org.jetbrains.compose.ui:ui:1.11.0-alpha02
-org.jetbrains.kotlin:kotlin-stdlib:2.3.0
+org.jetbrains.kotlin:kotlin-stdlib:2.3.20-Beta2
 org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.4.0
 org.jetbrains.kotlinx:kotlinx-collections-immutable:0.4.0
 org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2

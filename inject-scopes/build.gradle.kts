@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-import com.alexvanyo.composelife.buildlogic.FormFactor
-import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
-import com.android.build.api.dsl.KotlinMultiplatformAndroidDeviceTestCompilation
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-import kotlin.jvm.java
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
