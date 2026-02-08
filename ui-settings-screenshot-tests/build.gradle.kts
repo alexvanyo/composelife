@@ -57,6 +57,7 @@ kotlin {
                 implementation(projects.networkTestFixtures)
                 implementation(projects.preferencesTestFixtures)
                 implementation(projects.uiCommon)
+                implementation(projects.uiCommonTestFixtures)
                 implementation(projects.uiMobile)
                 implementation(projects.uiSettings)
                 implementation(projects.uiToolingPreview)

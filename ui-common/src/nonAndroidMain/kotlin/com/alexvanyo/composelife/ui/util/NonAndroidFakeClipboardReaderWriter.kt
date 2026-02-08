@@ -16,24 +16,18 @@
 
 package com.alexvanyo.composelife.ui.util
 
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.AnnotatedString
+import dev.zacsweers.metro.Inject
 
-@Composable
-actual fun rememberFakeClipboardReaderWriter(): ClipboardReaderWriter {
-    var state: String? by rememberSaveable {
-        mutableStateOf(null)
-    }
+@Inject
+class NonAndroidFakeClipboardReaderWriter : ClipboardReaderWriter {
+    var state: String? by mutableStateOf(null)
 
-    return object : ClipboardReaderWriter {
-        override suspend fun getText(): String? = state
+    override suspend fun getText(): String? = state
 
-        override suspend fun setText(value: String) {
-            state = value
-        }
+    override suspend fun setText(value: String) {
+        state = value
     }
 }

@@ -54,6 +54,9 @@ kotlin {
         }
         val androidMain by getting {
             dependsOn(jbMain)
+            dependencies {
+                implementation(libs.androidx.activityCompose)
+            }
         }
         val wasmJsMain by getting {
             dependsOn(jbMain)

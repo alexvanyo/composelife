@@ -17,8 +17,10 @@
 
 package com.alexvanyo.composelife.scopes
 
+import androidx.compose.ui.platform.Clipboard
 import org.w3c.dom.HTMLElement
 
 actual interface UiGraphArguments {
     val element: HTMLElement
+    val clipboard: Clipboard
 }

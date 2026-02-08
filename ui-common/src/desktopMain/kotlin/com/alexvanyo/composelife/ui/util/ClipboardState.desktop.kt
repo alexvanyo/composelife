@@ -16,48 +16,46 @@
 
 package com.alexvanyo.composelife.ui.util
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.ClipEntry
-import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.awtClipboard
+import com.alexvanyo.composelife.scopes.UiScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
 import java.awt.datatransfer.DataFlavor
 import java.awt.datatransfer.StringSelection
 import java.awt.datatransfer.UnsupportedFlavorException
 import java.io.IOException
 
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-actual fun rememberClipboardReader(): ClipboardReader {
-    val clipboard = LocalClipboard.current
-    return remember(clipboard) {
-        object : ClipboardReader {
-            override suspend fun getText(): String? =
-                clipboard.awtClipboard?.getContents(this)?.let {
-                    try {
-                        DataFlavor.stringFlavor.getReaderForText(it).use { reader ->
-                            reader.readText()
-                        }
-                    } catch (_: UnsupportedFlavorException) {
-                        null
-                    } catch (_: IOException) {
-                        null
-                    }
+@Inject
+@ContributesBinding(UiScope::class, binding<ClipboardReader>())
+class DesktopClipboardReader(
+    private val clipboard: Clipboard,
+) : ClipboardReader {
+    @OptIn(ExperimentalComposeUiApi::class)
+    override suspend fun getText(): String? =
+        clipboard.awtClipboard?.getContents(this)?.let {
+            try {
+                DataFlavor.stringFlavor.getReaderForText(it).use { reader ->
+                    reader.readText()
                 }
+            } catch (_: UnsupportedFlavorException) {
+                null
+            } catch (_: IOException) {
+                null
+            }
         }
-    }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-actual fun rememberClipboardWriter(): ClipboardWriter {
-    val clipboard = LocalClipboard.current
-    return remember(clipboard) {
-        object : ClipboardWriter {
-            override suspend fun setText(value: String) = clipboard.setClipEntry(
-                ClipEntry(StringSelection(value)),
-            )
-        }
-    }
+@Inject
+@ContributesBinding(UiScope::class, binding<ClipboardWriter>())
+class DesktopClipboardWriter(
+    private val clipboard: Clipboard,
+) : ClipboardWriter {
+    @OptIn(ExperimentalComposeUiApi::class)
+    override suspend fun setText(value: String) = clipboard.setClipEntry(
+        ClipEntry(StringSelection(value)),
+    )
 }

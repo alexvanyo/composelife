@@ -17,6 +17,7 @@
 
 package com.alexvanyo.composelife.scopes
 
+import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.window.WindowState
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
@@ -28,5 +29,8 @@ interface DesktopUiBindings {
     companion object {
         @Provides
         fun bindWindowState(uiGraphArguments: UiGraphArguments): WindowState? = uiGraphArguments.windowState
+
+        @Provides
+        fun bindClipboard(uiGraphArguments: UiGraphArguments): Clipboard = uiGraphArguments.clipboard
     }
 }
