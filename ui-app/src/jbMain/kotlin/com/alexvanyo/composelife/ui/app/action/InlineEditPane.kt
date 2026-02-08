@@ -59,6 +59,7 @@ import com.alexvanyo.composelife.ui.app.resources.Touch
 import com.alexvanyo.composelife.ui.app.resources.TouchTool
 import com.alexvanyo.composelife.ui.mobile.component.DropdownOption
 import com.alexvanyo.composelife.ui.mobile.component.TextFieldDropdown
+import com.alexvanyo.composelife.ui.util.ClipboardReader
 import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.collections.immutable.toImmutableList
 
@@ -146,6 +147,7 @@ private operator fun InlineEditPaneCtx.invoke(
     composeLifePreferences,
     clipboardCellStatePreviewCtx,
     cellStateParser,
+    clipboardReader,
     setSelectionToCellState,
     onViewDeserializationInfo,
     modifier,
@@ -157,7 +159,8 @@ private val InlineEditPaneCtx.Companion.lambda:
         LoadedComposeLifePreferencesHolder,
         ComposeLifePreferences,
         ClipboardCellStatePreviewCtx,
-        CellStateParser
+        CellStateParser,
+        ClipboardReader,
     ) (
         (CellState) -> Unit,
         (DeserializationResult) -> Unit,
@@ -179,10 +182,11 @@ fun InlineEditPane(
 // endregion templated-ctx
 
 context(
-    preferencesHolder: LoadedComposeLifePreferencesHolder,
-composeLifePreferences: ComposeLifePreferences,
-clipboardCellStatePreviewCtx: ClipboardCellStatePreviewCtx,
-cellStateParser: CellStateParser,
+    _: LoadedComposeLifePreferencesHolder,
+_: ComposeLifePreferences,
+_: ClipboardCellStatePreviewCtx,
+_: CellStateParser,
+_: ClipboardReader,
 )
 @Composable
 fun InlineEditPane(

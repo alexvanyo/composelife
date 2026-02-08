@@ -151,6 +151,7 @@ kotlin {
                 implementation(projects.preferencesTestFixtures)
                 implementation(projects.screenshotTest)
                 implementation(projects.testActivity)
+                implementation(projects.uiCommonTestFixtures)
                 implementation(projects.workTestFixtures)
             }
         }

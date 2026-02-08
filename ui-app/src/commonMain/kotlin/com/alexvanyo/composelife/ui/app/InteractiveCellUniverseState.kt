@@ -60,7 +60,6 @@ import com.alexvanyo.composelife.ui.mobile.rememberSpatialController
 import com.alexvanyo.composelife.ui.util.ClipboardReaderWriter
 import com.alexvanyo.composelife.ui.util.FullscreenModeManager
 import com.alexvanyo.composelife.ui.util.TargetState
-import com.alexvanyo.composelife.ui.util.rememberClipboardReaderWriter
 import com.alexvanyo.composelife.ui.util.setText
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
@@ -71,6 +70,7 @@ import kotlin.uuid.Uuid
 @Inject
 class InteractiveCellUniverseCtx(
     internal val cellStateParser: CellStateParser,
+    internal val clipboardReaderWriter: ClipboardReaderWriter,
     internal val fullscreenModeManager: FullscreenModeManager,
     internal val mutableCellWindowCtx: MutableCellWindowCtx,
     internal val interactiveCellUniverseOverlayCtx: InteractiveCellUniverseOverlayCtx,
@@ -168,24 +168,23 @@ context(ctx: InteractiveCellUniverseCtx)
 fun rememberInteractiveCellUniverseState(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     mutableCellWindowViewportState: MutableCellWindowViewportState = rememberMutableCellWindowViewportState(),
-    clipboardReaderWriter: ClipboardReaderWriter = rememberClipboardReaderWriter(),
 ): InteractiveCellUniverseState =
     rememberInteractiveCellUniverseState(
         cellStateParser = ctx.cellStateParser,
+        clipboardReaderWriter = ctx.clipboardReaderWriter,
         fullscreenModeManager = ctx.fullscreenModeManager,
         temporalGameOfLifeState = temporalGameOfLifeState,
         mutableCellWindowViewportState = mutableCellWindowViewportState,
-        clipboardReaderWriter = clipboardReaderWriter,
     )
 
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
 internal fun rememberInteractiveCellUniverseState(
     cellStateParser: CellStateParser,
+    clipboardReaderWriter: ClipboardReaderWriter,
     fullscreenModeManager: FullscreenModeManager,
     temporalGameOfLifeState: TemporalGameOfLifeState,
     mutableCellWindowViewportState: MutableCellWindowViewportState = rememberMutableCellWindowViewportState(),
-    clipboardReaderWriter: ClipboardReaderWriter = rememberClipboardReaderWriter(),
 ): InteractiveCellUniverseState {
     val trackingCellWindowViewportState = rememberTrackingCellWindowViewportState(temporalGameOfLifeState)
 

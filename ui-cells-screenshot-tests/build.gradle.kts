@@ -55,6 +55,7 @@ kotlin {
                 implementation(projects.sessionValue)
                 implementation(projects.uiCells)
                 implementation(projects.uiCommon)
+                implementation(projects.uiCommonTestFixtures)
                 implementation(projects.uiMobile)
                 implementation(projects.uiToolingPreview)
             }
