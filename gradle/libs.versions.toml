@@ -108,7 +108,7 @@ ktor = "3.4.0"
 #jacoco
 jacoco = "0.8.13"
 #jetbrainsNavigationEvent
-jetbrainsNavigationEvent = "1.0.0"
+jetbrainsNavigationEvent = "1.0.1"
 #jetbrainsSavedState
 jetbrainsSavedState = "1.4.0"
 #jetbrainsCompose
