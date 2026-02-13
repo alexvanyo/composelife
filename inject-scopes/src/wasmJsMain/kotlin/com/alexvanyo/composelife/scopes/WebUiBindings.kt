@@ -17,6 +17,7 @@
 
 package com.alexvanyo.composelife.scopes
 
+import androidx.compose.ui.platform.Clipboard
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Provides
@@ -28,5 +29,8 @@ interface WebUiBindings {
     companion object {
         @Provides
         fun bindElement(uiGraphArguments: UiGraphArguments): Element = uiGraphArguments.element
+
+        @Provides
+        fun bindClipboard(uiGraphArguments: UiGraphArguments): Clipboard = uiGraphArguments.clipboard
     }
 }

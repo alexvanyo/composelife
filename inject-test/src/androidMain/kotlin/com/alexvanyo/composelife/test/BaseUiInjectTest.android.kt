@@ -17,9 +17,12 @@
 package com.alexvanyo.composelife.test
 
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.v2.runAndroidComposeUiTest
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.alexvanyo.composelife.scopes.UiGraphArguments
 import kotlinx.coroutines.test.TestResult
 import kotlin.coroutines.CoroutineContext
@@ -38,6 +41,10 @@ internal actual fun runPlatformUiTest(
         object : UiGraphArguments {
             override val activity = requireNotNull(this@runAndroidComposeUiTest.activity)
             override val uiContext = activity
+            override val windowInfo = object : WindowInfo {
+                override val isWindowFocused: Boolean = true
+            }
+            override val uiLifecycleOwner = activity
         },
     )
 }

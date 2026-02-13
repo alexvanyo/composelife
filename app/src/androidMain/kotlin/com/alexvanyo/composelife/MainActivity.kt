@@ -31,12 +31,19 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.currentWindowSize
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.unit.toSize
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.LifecycleOwner
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.isSuccess
 import com.alexvanyo.composelife.scopes.ApplicationGraphOwner
@@ -51,6 +58,7 @@ import com.alexvanyo.composelife.ui.util.ProvideLocalWindowInsetsHolder
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.ForScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 
@@ -71,25 +79,17 @@ class MainActivity : AppCompatActivity() {
     private val composeView: ComposeView get() =
         (findViewById<ViewGroup>(android.R.id.content).getChildAt(0) as ComposeView)
 
+    private var isPreferencesLoaded by mutableStateOf(false)
+
     @Suppress("LongMethod")
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
         val application = application as ApplicationGraphOwner
-        val uiGraph = (application.applicationGraph as UiGraph.Factory).create(
-            object : UiGraphArguments {
-                override val activity: AppCompatActivity = this@MainActivity
-                override val uiContext: Context = activity
-            },
-        )
-        val mainActivityCtx = uiGraph.mainActivityInjectCtx
-        val uiUpdatables = mainActivityCtx.uiUpdatables
 
         // Keep the splash screen on screen until we've loaded preferences
-        splashScreen.setKeepOnScreenCondition {
-            !mainActivityCtx.composeLifePreferences.loadedPreferencesState.isSuccess()
-        }
+        splashScreen.setKeepOnScreenCondition { !isPreferencesLoaded }
 
         enableEdgeToEdge()
         with(WindowInsetsControllerCompat(window, window.decorView)) {
@@ -104,6 +104,29 @@ class MainActivity : AppCompatActivity() {
         }
 
         setContent {
+            val windowInfo = LocalWindowInfo.current
+            val uiGraph = remember {
+                (application.applicationGraph as UiGraph.Factory).create(
+                    object : UiGraphArguments {
+                        override val activity: AppCompatActivity = this@MainActivity
+                        override val uiContext: Context = activity
+                        override val windowInfo: WindowInfo = windowInfo
+                        override val uiLifecycleOwner: LifecycleOwner = activity
+                    },
+                ).also {
+                    isPreferencesLoaded =
+                        it.mainActivityInjectCtx.composeLifePreferences.loadedPreferencesState.isSuccess()
+                }
+            }
+            val mainActivityInjectCtx = uiGraph.mainActivityInjectCtx
+            val uiUpdatables = mainActivityInjectCtx.uiUpdatables
+
+            LaunchedEffect(mainActivityInjectCtx) {
+                isPreferencesLoaded =
+                    snapshotFlow { mainActivityInjectCtx.composeLifePreferences.loadedPreferencesState.isSuccess() }
+                        .first { it }
+            }
+
             LaunchedEffect(uiUpdatables) {
                 supervisorScope {
                     uiUpdatables.forEach { updatable ->
@@ -115,7 +138,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             ProvideLocalWindowInsetsHolder {
-                with(mainActivityCtx) {
+                with(mainActivityInjectCtx) {
                     val darkTheme = shouldUseDarkTheme()
                     DisposableEffect(darkTheme) {
                         enableEdgeToEdge(

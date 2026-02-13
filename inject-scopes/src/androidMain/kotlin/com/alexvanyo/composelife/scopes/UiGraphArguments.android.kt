@@ -17,10 +17,15 @@
 
 package com.alexvanyo.composelife.scopes
 
-import android.app.Activity
 import android.content.Context
+import androidx.activity.ComponentActivity
+import androidx.compose.ui.platform.WindowInfo
+import androidx.lifecycle.LifecycleOwner
 
 actual interface UiGraphArguments {
     val uiContext: Context
-    val activity: Activity?
+    val activity: ComponentActivity?
+
+    val windowInfo: WindowInfo
+    val uiLifecycleOwner: LifecycleOwner
 }

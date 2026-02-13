@@ -40,7 +40,6 @@ import com.alexvanyo.composelife.ui.app.parseCellState
 import com.alexvanyo.composelife.ui.cells.isSharedElementForCellsSupported
 import com.alexvanyo.composelife.ui.util.ClipboardReader
 import com.alexvanyo.composelife.ui.util.clipboardStateKey
-import com.alexvanyo.composelife.ui.util.rememberClipboardReader
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -54,6 +53,7 @@ class InlineEditPaneCtx internal constructor(
     internal val composeLifePreferences: ComposeLifePreferences,
     internal val clipboardCellStatePreviewCtx: ClipboardCellStatePreviewCtx,
     internal val cellStateParser: CellStateParser,
+    internal val clipboardReader: ClipboardReader,
 ) {
     companion object
 }
@@ -118,12 +118,12 @@ context(
     composeLifePreferences: ComposeLifePreferences,
 preferencesHolder: LoadedComposeLifePreferencesHolder,
 cellStateParser: CellStateParser,
+clipboardReader: ClipboardReader,
 )
 @Composable
 internal fun rememberInlineEditPaneState(
     setSelectionToCellState: (CellState) -> Unit,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
-    clipboardReader: ClipboardReader = rememberClipboardReader(),
 ): InlineEditPaneState = rememberInlineEditPaneState(
     composeLifePreferences = composeLifePreferences,
     preferences = preferencesHolder.preferences,

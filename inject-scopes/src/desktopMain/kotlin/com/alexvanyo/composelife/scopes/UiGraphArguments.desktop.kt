@@ -17,8 +17,10 @@
 
 package com.alexvanyo.composelife.scopes
 
+import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.window.WindowState
 
 actual interface UiGraphArguments {
     val windowState: WindowState?
+    val clipboard: Clipboard
 }

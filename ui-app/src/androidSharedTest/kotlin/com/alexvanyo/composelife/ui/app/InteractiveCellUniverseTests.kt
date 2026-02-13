@@ -81,7 +81,6 @@ import com.alexvanyo.composelife.ui.app.resources.TargetStepsPerSecondLabelAndVa
 import com.alexvanyo.composelife.ui.cells.rememberMutableCellWindowViewportState
 import com.alexvanyo.composelife.ui.cells.resources.InteractableCellContentDescription
 import com.alexvanyo.composelife.ui.util.ClipboardReaderWriter
-import com.alexvanyo.composelife.ui.util.rememberFakeClipboardReaderWriter
 import com.alexvanyo.composelife.ui.util.setText
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
@@ -111,6 +110,8 @@ val ApplicationGraph.interactiveCellUniverseTestsAppCtx: InteractiveCellUniverse
 @ContributesTo(UiScope::class)
 interface InteractiveCellUniverseTestsUiCtx {
     val interactiveCellUniverseCtx: InteractiveCellUniverseCtx
+
+    val clipboardReaderWriter: ClipboardReaderWriter
 }
 
 // TODO: Replace with asContribution()
@@ -665,7 +666,6 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
     fun glider_is_copied_correctly_with_keyboard_shortcuts() = runUiTest { uiGraph ->
         val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
 
-        lateinit var clipboardReaderWriter: ClipboardReaderWriter
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
@@ -685,8 +685,6 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
                 temporalGameOfLifeStateMutator.update()
             }
             with(uiCtx.interactiveCellUniverseCtx) {
-                clipboardReaderWriter = rememberFakeClipboardReaderWriter()
-
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
@@ -696,7 +694,6 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
                     modifier = Modifier.fillMaxSize(),
                     interactiveCellUniverseState = rememberInteractiveCellUniverseState(
                         temporalGameOfLifeState = temporalGameOfLifeState,
-                        clipboardReaderWriter = clipboardReaderWriter,
                     ),
                 )
             }
@@ -735,7 +732,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
                 keyDown(Key.C)
             }
 
-        val clipData = clipboardReaderWriter.getClipData()
+        val clipData = uiCtx.clipboardReaderWriter.getClipData()
         assertNotNull(clipData)
         assertEquals(
             """
@@ -831,7 +828,6 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
     fun glider_is_pasted_correctly_with_keyboard_shortcuts() = runUiTest { uiGraph ->
         val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
 
-        lateinit var clipboardReaderWriter: ClipboardReaderWriter
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
@@ -852,8 +848,6 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             }
 
             with(uiCtx.interactiveCellUniverseCtx) {
-                clipboardReaderWriter = rememberFakeClipboardReaderWriter()
-
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
@@ -866,7 +860,6 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
                         mutableCellWindowViewportState = rememberMutableCellWindowViewportState(
                             offset = Offset(30.5f, -18.5f),
                         ),
-                        clipboardReaderWriter = clipboardReaderWriter,
                     ),
                 )
             }
@@ -877,7 +870,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
                 pressKey(Key.Spacebar)
             }
 
-        clipboardReaderWriter.setText(
+        uiCtx.clipboardReaderWriter.setText(
             """
             #R 0 0
             x = 3, y = 3, rule = B3/S23
