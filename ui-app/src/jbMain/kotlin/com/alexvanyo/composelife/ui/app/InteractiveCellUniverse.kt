@@ -45,6 +45,7 @@ import com.alexvanyo.composelife.model.isRunning
 import com.alexvanyo.composelife.ui.cells.MutableCellWindow
 import com.alexvanyo.composelife.ui.cells.MutableCellWindowCtx
 import com.alexvanyo.composelife.ui.settings.Setting
+import com.alexvanyo.composelife.ui.util.ClipboardReaderWriter
 import com.alexvanyo.composelife.ui.util.FullscreenModeManager
 
 // region templated-ctx
@@ -61,6 +62,7 @@ private operator fun InteractiveCellUniverseCtx.invoke(
         rememberInteractiveCellUniverseState(temporalGameOfLifeState),
 ) = InteractiveCellUniverseCtx.lambda(
     cellStateParser,
+    clipboardReaderWriter,
     fullscreenModeManager,
     mutableCellWindowCtx,
     interactiveCellUniverseOverlayCtx,
@@ -76,6 +78,7 @@ private operator fun InteractiveCellUniverseCtx.invoke(
 private val InteractiveCellUniverseCtx.Companion.lambda:
     @Composable context(
         CellStateParser,
+        ClipboardReaderWriter,
         FullscreenModeManager,
         MutableCellWindowCtx,
         InteractiveCellUniverseOverlayCtx,
@@ -137,6 +140,7 @@ fun InteractiveCellUniverse(
 
 context(
     cellStateParser: CellStateParser,
+clipboardReaderWriter: ClipboardReaderWriter,
 fullscreenModeManager: FullscreenModeManager,
 _: MutableCellWindowCtx,
 _: InteractiveCellUniverseOverlayCtx,
@@ -152,9 +156,10 @@ fun InteractiveCellUniverse(
     modifier: Modifier = Modifier,
     interactiveCellUniverseState: InteractiveCellUniverseState =
         rememberInteractiveCellUniverseState(
-            cellStateParser,
-            fullscreenModeManager,
-            temporalGameOfLifeState,
+            cellStateParser = cellStateParser,
+            clipboardReaderWriter = clipboardReaderWriter,
+            fullscreenModeManager = fullscreenModeManager,
+            temporalGameOfLifeState = temporalGameOfLifeState,
         ),
 ) {
     // Force focus to allow listening to key events

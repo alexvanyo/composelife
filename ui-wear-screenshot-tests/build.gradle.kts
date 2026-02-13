@@ -58,6 +58,7 @@ kotlin {
                 implementation(projects.preferencesTestFixtures)
                 implementation(projects.resourcesWear)
                 implementation(projects.uiCommon)
+                implementation(projects.uiCommonTestFixtures)
                 implementation(projects.uiToolingPreview)
                 implementation(projects.uiWear)
             }
