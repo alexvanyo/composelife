@@ -20,8 +20,13 @@ package com.alexvanyo.composelife.scopes
 import android.app.Activity
 import android.content.Context
 import android.view.Window
+import androidx.activity.ComponentActivity
+import androidx.compose.ui.platform.WindowInfo
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.ForScope
 import dev.zacsweers.metro.Provides
 
 @ContributesTo(UiScope::class)
@@ -34,9 +39,29 @@ interface AndroidUiBindings {
         internal fun bindUiContext(uiGraphArguments: UiGraphArguments): Context = uiGraphArguments.uiContext
 
         @Provides
-        internal fun bindActivity(uiGraphArguments: UiGraphArguments): Activity? = uiGraphArguments.activity
+        internal fun bindComponentActivity(
+            uiGraphArguments: UiGraphArguments,
+        ): ComponentActivity? = uiGraphArguments.activity
+
+        @Provides
+        internal fun bindActivity(componentActivity: ComponentActivity?): Activity? = componentActivity
 
         @Provides
         internal fun bindWindow(activity: Activity?): Window? = activity?.window
+
+        @Provides
+        internal fun bindWindowInfo(uiGraphArguments: UiGraphArguments): WindowInfo = uiGraphArguments.windowInfo
+
+        @Provides
+        @ForScope(UiScope::class)
+        internal fun bindLifecycleOwner(
+            uiGraphArguments: UiGraphArguments,
+        ): LifecycleOwner = uiGraphArguments.uiLifecycleOwner
+
+        @Provides
+        @ForScope(UiScope::class)
+        internal fun bindLifecycle(
+            @ForScope(UiScope::class) owner: LifecycleOwner,
+        ): Lifecycle = owner.lifecycle
     }
 }

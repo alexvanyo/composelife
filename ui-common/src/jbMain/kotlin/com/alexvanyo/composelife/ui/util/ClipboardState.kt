@@ -16,8 +16,11 @@
 
 package com.alexvanyo.composelife.ui.util
 
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import com.alexvanyo.composelife.scopes.UiScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
 
 /**
  * A reader for the system clipboard.
@@ -49,25 +52,9 @@ expect suspend fun ClipboardWriter.setText(value: String)
 @Stable
 interface ClipboardReaderWriter : ClipboardReader, ClipboardWriter
 
-/**
- * Creates a [ClipboardReader] for reading from the system clipboard.
- *
- * Note: This will read from and listen to clipboard changes, which the user may be notified of.
- */
-@Composable
-expect fun rememberClipboardReader(): ClipboardReader
-
-/**
- * Creates a [ClipboardWriter] for writing to the system clipboard.
- */
-@Composable
-expect fun rememberClipboardWriter(): ClipboardWriter
-
-/**
- * Creates a [ClipboardReaderWriter] for writing to the system clipboard.
- *
- * Note: This will read from and listen to clipboard changes, which the user may be notified of.
- * If you are just writing to the clipboard, use [rememberClipboardWriter] instead.
- */
-@Composable
-expect fun rememberClipboardReaderWriter(): ClipboardReaderWriter
+@Inject
+@ContributesBinding(UiScope::class, binding<ClipboardReaderWriter>())
+class ClipboardReaderWriterImpl(
+    clipboardReader: ClipboardReader,
+    clipboardWriter: ClipboardWriter,
+): ClipboardReaderWriter, ClipboardReader by clipboardReader, ClipboardWriter by clipboardWriter

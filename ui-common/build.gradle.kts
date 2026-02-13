@@ -67,14 +67,8 @@ kotlin {
                 implementation(projects.updatable)
             }
         }
-        val jvmMain by creating {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(projects.sealedEnum.runtime)
-            }
-        }
         val jbMain by creating {
-            dependsOn(jvmMain)
+            dependsOn(commonMain)
             dependencies {
                 api(libs.androidx.navigationEvent)
                 api(libs.jetbrains.navigationEvent.compose)
@@ -84,6 +78,8 @@ kotlin {
                 implementation(libs.jetbrains.compose.materialIconsExtended)
                 implementation(libs.jetbrains.compose.ui)
                 implementation(libs.jetbrains.navigation3.ui)
+                implementation(projects.sealedEnum.runtime)
+
             }
         }
         val nonAndroidMain by creating {
