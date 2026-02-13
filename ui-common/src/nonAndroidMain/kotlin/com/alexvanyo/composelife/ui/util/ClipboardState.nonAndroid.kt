@@ -42,16 +42,3 @@ actual interface ClipboardWriter {
 }
 
 actual suspend fun ClipboardWriter.setText(value: String): Unit = setText(value)
-
-@Composable
-actual fun rememberClipboardReaderWriter(): ClipboardReaderWriter {
-    val clipboardReader = rememberClipboardReader()
-    val clipboardWriter = rememberClipboardWriter()
-
-    return remember(clipboardReader, clipboardWriter) {
-        object :
-            ClipboardReaderWriter,
-            ClipboardReader by clipboardReader,
-            ClipboardWriter by clipboardWriter {}
-    }
-}

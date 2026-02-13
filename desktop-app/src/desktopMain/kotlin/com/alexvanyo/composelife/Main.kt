@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.retain.LocalRetainedValuesStoreProvider
 import androidx.compose.runtime.retain.retainManagedRetainedValuesStore
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
@@ -93,10 +94,12 @@ fun main() = application {
             LocalNavigationEventDispatcherOwner provides navigationEventDispatcherOwner,
         ) {
             LocalRetainedValuesStoreProvider(retainedValuesStore) {
-                val uiGraph = remember(applicationGraph) {
+                val clipboard = LocalClipboard.current
+                val uiGraph = remember(applicationGraph, clipboard) {
                     (applicationGraph as UiGraph.Factory).create(
                         object : UiGraphArguments {
                             override val windowState = windowState
+                            override val clipboard = clipboard
                         },
                     )
                 }

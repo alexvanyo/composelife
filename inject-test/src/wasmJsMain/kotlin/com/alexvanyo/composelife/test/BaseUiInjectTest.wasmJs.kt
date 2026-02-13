@@ -16,6 +16,10 @@
 
 package com.alexvanyo.composelife.test
 
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.Clipboard
+import androidx.compose.ui.platform.NativeClipboard
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
@@ -27,7 +31,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 
 @Suppress("CAST_NEVER_SUCCEEDS", "DEPRECATION")
-@OptIn(ExperimentalTestApi::class)
+@OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
 internal actual fun runPlatformUiTest(
     runTestContext: CoroutineContext,
     timeout: Duration,
@@ -40,6 +44,17 @@ internal actual fun runPlatformUiTest(
         object : UiGraphArguments {
             override val element: HTMLElement
                 get() = document.documentElement!! as HTMLElement
+            override val clipboard: Clipboard = object : Clipboard {
+                override val nativeClipboard: NativeClipboard
+                    get() = TODO("Not yet implemented")
+
+                override suspend fun getClipEntry(): ClipEntry? {
+                    TODO("Not yet implemented")
+                }
+                override suspend fun setClipEntry(clipEntry: ClipEntry?) {
+                    TODO("Not yet implemented")
+                }
+            }
         },
     )
 } as TestResult

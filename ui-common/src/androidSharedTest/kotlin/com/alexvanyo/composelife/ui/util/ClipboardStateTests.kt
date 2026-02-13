@@ -21,9 +21,13 @@ import android.content.ClipboardManager
 import android.content.res.Configuration
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.v2.runAndroidComposeUiTest
 import androidx.core.content.getSystemService
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import org.junit.Assume.assumeFalse
 import org.junit.runner.RunWith
@@ -42,7 +46,21 @@ class ClipboardStateTests {
         var clipData: ClipData? = null
 
         setContent {
-            clipData = rememberClipboardReader().getClipData()
+            val context = LocalContext.current
+            val windowInfo = LocalWindowInfo.current
+            val lifecycle = LocalLifecycleOwner.current.lifecycle
+            val clipboardReader = remember(context, windowInfo, lifecycle) {
+                AndroidClipboardReader(
+                    context = context,
+                    windowInfo = windowInfo,
+                    lifecycle = lifecycle,
+                )
+            }
+            LaunchedEffect(clipboardReader) {
+                clipboardReader.update()
+            }
+
+            clipData = clipboardReader.getClipData()
         }
 
         val clipboardManager = requireNotNull(activity!!.getSystemService<ClipboardManager>())
@@ -68,7 +86,13 @@ class ClipboardStateTests {
         val testClipData = ClipData.newPlainText("test clip data", "test value 2")
 
         setContent {
-            clipboardWriter = rememberClipboardWriter()
+            val context = LocalContext.current
+            clipboardWriter = remember(context) {
+                AndroidClipboardWriter(
+                    context = context,
+                )
+            }
+
             LaunchedEffect(Unit) {
                 clipboardWriter.setClipData(testClipData)
             }
