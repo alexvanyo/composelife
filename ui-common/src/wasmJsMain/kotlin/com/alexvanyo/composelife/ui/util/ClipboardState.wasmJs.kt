@@ -16,49 +16,48 @@
 
 package com.alexvanyo.composelife.ui.util
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.ClipboardItem
-import androidx.compose.ui.platform.LocalClipboard
+import com.alexvanyo.composelife.scopes.UiScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
 import kotlinx.coroutines.await
 import org.w3c.files.Blob
 import kotlin.js.Promise
 
-@OptIn(ExperimentalWasmJsInterop::class, ExperimentalComposeUiApi::class)
-@Composable
-actual fun rememberClipboardReader(): ClipboardReader {
-    val clipboard = LocalClipboard.current
-    return remember(clipboard) {
-        object : ClipboardReader {
-            override suspend fun getText(): String? {
-                val clipboardItem =
-                    clipboard.nativeClipboard
-                        .read()
-                        .await<JsArray<ClipboardItem>>()
-                        .toList()
-                        .firstOrNull {
-                            "text/plain" in it.types.toList().map(JsString::toString)
-                        } ?: return null
+@Inject
+@ContributesBinding(UiScope::class, binding<ClipboardReader>())
+class WebClipboardReader(
+    private val clipboard: Clipboard,
+) : ClipboardReader {
+    @OptIn(ExperimentalComposeUiApi::class, ExperimentalWasmJsInterop::class)
+    override suspend fun getText(): String? {
+        val clipboardItem =
+            clipboard.nativeClipboard
+                .read()
+                .await<JsArray<ClipboardItem>>()
+                .toList()
+                .firstOrNull {
+                    "text/plain" in it.types.toList().map(JsString::toString)
+                } ?: return null
 
-                val blob = clipboardItem.getType("text/plain".toJsString()).await<Blob>()
-                return readTextFromBlob(blob).await<JsString>().toString()
-            }
-        }
+        val blob = clipboardItem.getType("text/plain".toJsString()).await<Blob>()
+        return readTextFromBlob(blob).await<JsString>().toString()
     }
 }
 
-@Composable
-actual fun rememberClipboardWriter(): ClipboardWriter {
-    val clipboard = LocalClipboard.current
-    return remember(clipboard) {
-        object : ClipboardWriter {
-            override suspend fun setText(value: String) = clipboard.setClipEntry(
-                ClipEntry.withPlainText(value),
-            )
-        }
-    }
+@Inject
+@ContributesBinding(UiScope::class, binding<ClipboardWriter>())
+class WebClipboardWriter(
+    private val clipboard: Clipboard,
+) : ClipboardWriter {
+    @OptIn(ExperimentalComposeUiApi::class)
+    override suspend fun setText(value: String) = clipboard.setClipEntry(
+        ClipEntry.withPlainText(value),
+    )
 }
 
 @Suppress("UNUSED_PARAMETER")

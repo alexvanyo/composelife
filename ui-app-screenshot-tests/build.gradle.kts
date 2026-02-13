@@ -62,6 +62,7 @@ kotlin {
                 implementation(projects.randomTestFixtures)
                 implementation(projects.uiApp)
                 implementation(projects.uiCommon)
+                implementation(projects.uiCommonTestFixtures)
                 implementation(projects.uiMobile)
                 implementation(projects.uiToolingPreview)
                 implementation(projects.work)

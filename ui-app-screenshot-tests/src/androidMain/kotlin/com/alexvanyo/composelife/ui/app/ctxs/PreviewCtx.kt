@@ -18,9 +18,15 @@ package com.alexvanyo.composelife.ui.app.ctxs
 
 import android.app.Activity
 import android.content.Context
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.WindowInfo
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.random.TestRandom
 import com.alexvanyo.composelife.scopes.ApplicationGraph
@@ -73,17 +79,27 @@ internal fun WithPreviewDependencies(
     content: @Composable context(PreviewCtx) () -> Unit,
 ) {
     val previewGraph = createGraph<PreviewGlobalGraph>()
-    val applicationGraph = (previewGraph as ApplicationGraph.Factory).create(
-        object : ApplicationGraphArguments {
-            override val applicationContext: Context = LocalContext.current.applicationContext
-        },
-    )
-    val uiGraph = (applicationGraph as UiGraph.Factory).create(
-        object : UiGraphArguments {
-            override val uiContext: Context = LocalContext.current
-            override val activity: Activity? = LocalActivity.current
-        },
-    )
+    val context = LocalContext.current
+    val applicationGraph = remember {
+        (previewGraph as ApplicationGraph.Factory).create(
+            object : ApplicationGraphArguments {
+                override val applicationContext: Context = context.applicationContext
+            },
+        )
+    }
+    val activity = LocalActivity.current
+    val windowInfo = LocalWindowInfo.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val uiGraph = remember(context, activity, windowInfo) {
+        (applicationGraph as UiGraph.Factory).create(
+            object : UiGraphArguments {
+                override val uiContext: Context = context
+                override val activity: ComponentActivity? = activity as? ComponentActivity
+                override val windowInfo: WindowInfo = windowInfo
+                override val uiLifecycleOwner: LifecycleOwner = lifecycleOwner
+            },
+        )
+    }
     val ctx = uiGraph as PreviewCtx
 
     content(ctx)
