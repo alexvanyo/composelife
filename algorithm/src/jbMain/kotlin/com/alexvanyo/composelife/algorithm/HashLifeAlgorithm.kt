@@ -35,6 +35,7 @@ import kotlinx.coroutines.withContext
 @Inject
 class HashLifeAlgorithm(
     private val dispatchers: ComposeLifeDispatchers,
+    private val generationsToCache: Int = 256,
 ) : GameOfLifeAlgorithm {
 
     private val mutex = Mutex()
@@ -313,10 +314,6 @@ class HashLifeAlgorithm(
         // If our primary macro cell would be too small or the resulting macro cell wouldn't be the correct result
         // (due to an expanding pattern), expand the main macro cell and compute.
         return computeNextGeneration(cellState.expandCentered())
-    }
-
-    companion object {
-        private const val generationsToCache = 256L
     }
 }
 

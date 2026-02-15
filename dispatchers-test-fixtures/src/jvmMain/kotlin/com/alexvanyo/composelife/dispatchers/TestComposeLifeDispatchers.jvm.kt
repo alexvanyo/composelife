@@ -35,8 +35,8 @@ import kotlin.coroutines.CoroutineContext
 @ContributesBinding(AppScope::class, replaces = [DefaultComposeLifeDispatchers::class])
 @SingleIn(AppScope::class)
 actual class TestComposeLifeDispatchers actual constructor(
-    @param:GeneralTestDispatcher private val generalTestDispatcher: TestDispatcher,
-    @CellTickerTestDispatcher cellTickerTestDispatcher: TestDispatcher,
+    @param:GeneralTestDispatcher private val generalTestDispatcher: CoroutineDispatcher,
+    @CellTickerTestDispatcher cellTickerTestDispatcher: CoroutineDispatcher,
 ) : ComposeLifeDispatchers {
     override val Default: CoroutineContext = generalTestDispatcher
     override val Main: CoroutineContext = generalTestDispatcher
