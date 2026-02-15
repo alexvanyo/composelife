@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.wear.watchface
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
+import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.algorithm.HashLifeAlgorithm
 import com.alexvanyo.composelife.dispatchers.TestComposeLifeDispatchers
 import com.alexvanyo.composelife.geometry.getVonNeumannNeighbors
@@ -28,264 +29,242 @@ import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.RunLengthEncodedCellStateSerializer
 import com.alexvanyo.composelife.model.emptyCellState
 import com.alexvanyo.composelife.model.toCellState
-import com.google.testing.junit.testparameterinjector.junit5.TestParameter
-import com.google.testing.junit.testparameterinjector.junit5.TestParameterInjectorTest
-import com.google.testing.junit.testparameterinjector.junit5.TestParameterValuesProvider
+import de.infix.testBalloon.framework.core.TestCompartment
+import de.infix.testBalloon.framework.core.testSuite
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.any
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.withIndex
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.Assumptions.assumeTrue
 import java.io.File
 import kotlin.random.Random
 import kotlin.random.nextInt
 import kotlin.test.assertEquals
-import kotlin.time.Duration
 
-class HourZeroZeroDestructionTests : DestructionTests("00")
-class HourZeroOneDestructionTests : DestructionTests("01")
-class HourZeroTwoDestructionTests : DestructionTests("02")
-class HourZeroThreeDestructionTests : DestructionTests("03")
-class HourZeroFourDestructionTests : DestructionTests("04")
-class HourZeroFiveDestructionTests : DestructionTests("05")
-class HourZeroSixDestructionTests : DestructionTests("06")
-class HourZeroSevenDestructionTests : DestructionTests("07")
-class HourZeroEightDestructionTests : DestructionTests("08")
-class HourZeroNineDestructionTests : DestructionTests("09")
-class HourOneZeroDestructionTests : DestructionTests("10")
-class HourOneOneDestructionTests : DestructionTests("11")
-class HourOneTwoDestructionTests : DestructionTests("12")
-class HourOneThreeDestructionTests : DestructionTests("13")
-class HourOneFourDestructionTests : DestructionTests("14")
-class HourOneFiveDestructionTests : DestructionTests("15")
-class HourOneSixDestructionTests : DestructionTests("16")
-class HourOneSevenDestructionTests : DestructionTests("17")
-class HourOneEightDestructionTests : DestructionTests("18")
-class HourOneNineDestructionTests : DestructionTests("19")
-class HourTwoZeroDestructionTests : DestructionTests("20")
-class HourTwoOneDestructionTests : DestructionTests("21")
-class HourTwoTwoDestructionTests : DestructionTests("22")
-class HourTwoThreeDestructionTests : DestructionTests("23")
-class HourOneDestructionTests : DestructionTests("_1")
-class HourTwoDestructionTests : DestructionTests("_2")
-class HourThreeDestructionTests : DestructionTests("_3")
-class HourFourDestructionTests : DestructionTests("_4")
-class HourFiveDestructionTests : DestructionTests("_5")
-class HourSixDestructionTests : DestructionTests("_6")
-class HourSevenDestructionTests : DestructionTests("_7")
-class HourEightDestructionTests : DestructionTests("_8")
-class HourNineDestructionTests : DestructionTests("_9")
+private val hourPrefixes = listOf(
+    "00", "01", "02", "03", "04", "05", "06", "07", "08", "09",
+    "10", "11", "12", "13", "14", "15", "16", "17", "18", "19",
+    "20", "21", "22", "23",
+    "_1", "_2", "_3", "_4", "_5", "_6", "_7", "_8", "_9",
+)
 
-@Suppress("UnnecessaryAbstractClass")
-abstract class DestructionTests(
-    private val hourPrefix: String,
+val DestructionTests by testSuite(
+    compartment = { TestCompartment.Concurrent },
 ) {
-    companion object {
-        private const val TARGET_POPULATION = 200
-        private const val MAX_PHASE = 2
-        private const val MAX_GENERATIONS = 300
-        private const val CUSTOM_CODE_POINT_START = 0x4E00
-    }
+    hourPrefixes.forEach { hourPrefix ->
+        testSuite(hourPrefix) {
+            (0..59).forEach { minute ->
+                test(
+                    minute.toString().padStart(2, '0'),
+                ) {
+                    @OptIn(ExperimentalStdlibApi::class)
+                    val dispatcher = currentCoroutineContext()[CoroutineDispatcher]!!
+                    val algorithm = HashLifeAlgorithm(
+                        TestComposeLifeDispatchers(
+                            generalTestDispatcher = dispatcher,
+                            cellTickerTestDispatcher = dispatcher,
+                        ),
+                        generationsToCache = 64,
+                    )
 
-    private val testDispatcher = StandardTestDispatcher()
-
-    private val algorithm = HashLifeAlgorithm(
-        TestComposeLifeDispatchers(testDispatcher, testDispatcher),
-    )
-
-    class MinuteProvider : TestParameterValuesProvider() {
-        override fun provideValues(context: Context?) =
-            (0..59).toList()
-    }
-
-    @TestParameterInjectorTest
-    fun destructionIsCorrect(
-        @TestParameter(valuesProvider = MinuteProvider::class)
-        minute: Int,
-    ) = runTest(testDispatcher, timeout = Duration.INFINITE) {
-        val timeDigits = createTimeDigits(hourPrefix, minute)
-
-        val solutionCellStateFile =
-            File(
-                "src/jvmTest/resources/solutions/" +
-                    "${timeDigits.firstDigit.fileChar}" +
-                    "${timeDigits.secondDigit.fileChar}:" +
-                    "${timeDigits.thirdDigit.fileChar}" +
-                    "${timeDigits.fourthDigit.fileChar}.rle",
-            )
-        val solutionFontFile =
-            File(
-                "build/wff/minuteSfd/" +
-                    "${timeDigits.firstDigit.fileChar}" +
-                    "${timeDigits.secondDigit.fileChar}:" +
-                    "${timeDigits.thirdDigit.fileChar}" +
-                    "${timeDigits.fourthDigit.fileChar}.sfd",
-            )
-
-        var solution: CellState? = if (solutionCellStateFile.exists()) {
-            solutionCellStateFile.useLines {
-                val deserializationResult =
-                    RunLengthEncodedCellStateSerializer.deserializeToCellState(it)
-                when (deserializationResult) {
-                    is DeserializationResult.Successful -> deserializationResult.cellState
-                    is DeserializationResult.Unsuccessful -> error("Could not deserialize")
+                    destructionIsCorrect(algorithm, hourPrefix, minute)
                 }
             }
-        } else {
-            null
         }
-        var solutionCount = 0
+    }
+}
 
-        while (solution == null) {
-            solutionCount++
-            val testCellState = createTimeCellState(timeDigits).union(createRandomGliders())
-            val (generation, minimumSize) = isDestructionAchieved(
-                timeDigits = timeDigits,
+private const val TARGET_POPULATION = 200
+private const val MAX_PHASE = 2
+private const val MAX_GENERATIONS = 300
+private const val CUSTOM_CODE_POINT_START = 0x4E00
+
+private suspend fun destructionIsCorrect(
+    algorithm: GameOfLifeAlgorithm,
+    hourPrefix: String,
+    minute: Int,
+) {
+    val timeDigits = createTimeDigits(hourPrefix, minute)
+
+    val solutionCellStateFile =
+        File(
+            "src/jvmTest/resources/solutions/" +
+                "${timeDigits.firstDigit.fileChar}" +
+                "${timeDigits.secondDigit.fileChar}:" +
+                "${timeDigits.thirdDigit.fileChar}" +
+                "${timeDigits.fourthDigit.fileChar}.rle",
+        )
+    val solutionFontFile =
+        File(
+            "build/wff/minuteSfd/" +
+                "${timeDigits.firstDigit.fileChar}" +
+                "${timeDigits.secondDigit.fileChar}:" +
+                "${timeDigits.thirdDigit.fileChar}" +
+                "${timeDigits.fourthDigit.fileChar}.sfd",
+        )
+
+    var solution: CellState? = if (solutionCellStateFile.exists()) {
+        solutionCellStateFile.useLines {
+            val deserializationResult =
+                RunLengthEncodedCellStateSerializer.deserializeToCellState(it)
+            when (deserializationResult) {
+                is DeserializationResult.Successful -> deserializationResult.cellState
+                is DeserializationResult.Unsuccessful -> error("Could not deserialize")
+            }
+        }
+    } else {
+        null
+    }
+    var solutionCount = 0
+
+    while (solution == null) {
+        solutionCount++
+        val testCellState = createTimeCellState(timeDigits).union(createRandomGliders())
+        val (generation, minimumSize) = isDestructionAchieved(
+            algorithm = algorithm,
+            timeDigits = timeDigits,
+            cellState = testCellState,
+            maxGenerations = MAX_GENERATIONS,
+        )
+        if (
+            minimumSize <= TARGET_POPULATION &&
+            isRepeatingAtEnd(
+                algorithm = algorithm,
+                maxPhase = MAX_PHASE,
                 cellState = testCellState,
+                startGeneration = generation,
                 maxGenerations = MAX_GENERATIONS,
             )
-            if (
-                minimumSize <= TARGET_POPULATION &&
-                isRepeatingAtEnd(
-                    maxPhase = MAX_PHASE,
-                    cellState = testCellState,
-                    startGeneration = generation,
-                    maxGenerations = MAX_GENERATIONS,
+        ) {
+            solution = testCellState
+        }
+    }
+    assertEquals(
+        createTimeCellState(timeDigits).aliveCells,
+        solution.getAliveCellsInWindow(
+            CellWindow(IntRect(IntOffset(0, 0), IntSize(70, 70))),
+        ).toSet(),
+    )
+    val runLengthEncodingLines = RunLengthEncodedCellStateSerializer.serializeToString(solution)
+
+    solutionFontFile.parentFile!!.mkdirs()
+    solutionFontFile.bufferedWriter().use { bufferedWriter ->
+        algorithm.computeGenerationsWithStep(solution, 1)
+            .take(MAX_GENERATIONS)
+            .withIndex()
+            .collect { (index, cellState) ->
+                bufferedWriter.write(
+                    "StartChar: custom_" +
+                        "${timeDigits.thirdDigit.char}_" +
+                        "${timeDigits.fourthDigit.char}_" +
+                        index.toString().padStart(3, '0').toCharArray().joinToString("_"),
                 )
-            ) {
-                solution = testCellState
-            }
-        }
-        assertEquals(
-            createTimeCellState(timeDigits).aliveCells,
-            solution.getAliveCellsInWindow(
-                CellWindow(IntRect(IntOffset(0, 0), IntSize(70, 70))),
-            ).toSet(),
-        )
-        val runLengthEncodingLines = RunLengthEncodedCellStateSerializer.serializeToString(solution)
+                bufferedWriter.newLine()
 
-        // If both the solution font file and the cell state file exist, then we don't have to do anything since we
-        // assume they are unchanged
-        assumeTrue(!solutionFontFile.exists() || !solutionCellStateFile.exists())
-
-        solutionFontFile.parentFile!!.mkdirs()
-        solutionFontFile.bufferedWriter().use { bufferedWriter ->
-            algorithm.computeGenerationsWithStep(solution, 1)
-                .take(MAX_GENERATIONS)
-                .withIndex()
-                .collect { (index, cellState) ->
-                    bufferedWriter.write(
-                        "StartChar: custom_" +
-                            "${timeDigits.thirdDigit.char}_" +
-                            "${timeDigits.fourthDigit.char}_" +
-                            index.toString().padStart(3, '0').toCharArray().joinToString("_"),
-                    )
-                    bufferedWriter.newLine()
-
-                    bufferedWriter.write(
-                        "Encoding: ${CUSTOM_CODE_POINT_START + 300 * minute + index} " +
-                            "${CUSTOM_CODE_POINT_START + 300 * minute + index} " +
-                            "${300 * minute + index}",
-                    )
-                    bufferedWriter.newLine()
-                    bufferedWriter.write("Width: 70")
-                    bufferedWriter.newLine()
-                    bufferedWriter.write("Flags: H")
-                    bufferedWriter.newLine()
-                    bufferedWriter.write("LayerCount: 2")
-                    bufferedWriter.newLine()
-                    bufferedWriter.write("Fore")
-                    bufferedWriter.newLine()
-                    bufferedWriter.write("SplineSet")
-                    bufferedWriter.newLine()
-                    createContours(
-                        cellState.getAliveCellsInWindow(
-                            CellWindow(IntRect(IntOffset(1, 1), IntSize(70, 70))),
-                        ).toSet(),
-                    )
-                        .map { contour ->
-                            contour.map {
-                                IntOffset(it.x, 70 - it.y)
-                            }
+                bufferedWriter.write(
+                    "Encoding: ${CUSTOM_CODE_POINT_START + 300 * minute + index} " +
+                        "${CUSTOM_CODE_POINT_START + 300 * minute + index} " +
+                        "${300 * minute + index}",
+                )
+                bufferedWriter.newLine()
+                bufferedWriter.write("Width: 70")
+                bufferedWriter.newLine()
+                bufferedWriter.write("Flags: H")
+                bufferedWriter.newLine()
+                bufferedWriter.write("LayerCount: 2")
+                bufferedWriter.newLine()
+                bufferedWriter.write("Fore")
+                bufferedWriter.newLine()
+                bufferedWriter.write("SplineSet")
+                bufferedWriter.newLine()
+                createContours(
+                    cellState.getAliveCellsInWindow(
+                        CellWindow(IntRect(IntOffset(1, 1), IntSize(70, 70))),
+                    ).toSet(),
+                )
+                    .map { contour ->
+                        contour.map {
+                            IntOffset(it.x, 70 - it.y)
                         }
-                        .forEach { contour ->
-                            bufferedWriter.write("${contour.last().x - 1} ${contour.last().y - 1} m 1")
+                    }
+                    .forEach { contour ->
+                        bufferedWriter.write("${contour.last().x - 1} ${contour.last().y - 1} m 1")
+                        bufferedWriter.newLine()
+                        contour.forEach { corner ->
+                            bufferedWriter.write(" ${corner.x - 1} ${corner.y - 1} l 1")
                             bufferedWriter.newLine()
-                            contour.forEach { corner ->
-                                bufferedWriter.write(" ${corner.x - 1} ${corner.y - 1} l 1")
-                                bufferedWriter.newLine()
-                            }
                         }
-                    bufferedWriter.write("EndSplineSet")
-                    bufferedWriter.newLine()
-                    bufferedWriter.write("EndChar")
-                    bufferedWriter.newLine()
-                    bufferedWriter.newLine()
-                }
-        }
-
-        solutionCellStateFile.parentFile!!.mkdirs()
-        solutionCellStateFile.bufferedWriter().use { bufferedWriter ->
-            runLengthEncodingLines.forEach { line ->
-                bufferedWriter.write(line)
+                    }
+                bufferedWriter.write("EndSplineSet")
+                bufferedWriter.newLine()
+                bufferedWriter.write("EndChar")
+                bufferedWriter.newLine()
                 bufferedWriter.newLine()
             }
+    }
+
+    solutionCellStateFile.parentFile!!.mkdirs()
+    solutionCellStateFile.bufferedWriter().use { bufferedWriter ->
+        runLengthEncodingLines.forEach { line ->
+            bufferedWriter.write(line)
+            bufferedWriter.newLine()
         }
     }
+}
 
-    private suspend fun isDestructionAchieved(
-        timeDigits: TimeDigits,
-        cellState: CellState,
-        maxGenerations: Int,
-    ): IndexedValue<Int> {
-        val timeCellState = createTimeCellState(timeDigits)
-        return algorithm.computeGenerationsWithStep(
-            cellState,
-            1,
-        )
-            .take(maxGenerations)
-            .toList()
-            .map {
-                val aliveCellsInViewport = it.getAliveCellsInWindow(
-                    CellWindow(IntRect(IntOffset(0, 0), IntSize(70, 70))),
-                ).toSet()
-                val aliveCellsInOriginalDigits = aliveCellsInViewport.intersect(timeCellState.aliveCells)
-                aliveCellsInViewport.size + aliveCellsInOriginalDigits.size
-            }
-            .withIndex()
-            .minBy { (_, value) -> value }
-    }
+private suspend fun isDestructionAchieved(
+    algorithm: GameOfLifeAlgorithm,
+    timeDigits: TimeDigits,
+    cellState: CellState,
+    maxGenerations: Int,
+): IndexedValue<Int> {
+    val timeCellState = createTimeCellState(timeDigits)
+    return algorithm.computeGenerationsWithStep(
+        cellState,
+        1,
+    )
+        .take(maxGenerations)
+        .toList()
+        .map {
+            val aliveCellsInViewport = it.getAliveCellsInWindow(
+                CellWindow(IntRect(IntOffset(0, 0), IntSize(70, 70))),
+            ).toSet()
+            val aliveCellsInOriginalDigits = aliveCellsInViewport.intersect(timeCellState.aliveCells)
+            aliveCellsInViewport.size + aliveCellsInOriginalDigits.size
+        }
+        .withIndex()
+        .minBy { (_, value) -> value }
+}
 
-    private suspend fun isRepeatingAtEnd(
-        maxPhase: Int,
-        cellState: CellState,
-        startGeneration: Int,
-        maxGenerations: Int,
-    ): Boolean {
-        val mostRecentGenerationMap: MutableMap<Set<IntOffset>, Int> = mutableMapOf()
-        return algorithm.computeGenerationsWithStep(
-            cellState,
-            1,
-        )
-            .take(maxGenerations)
-            .drop(startGeneration)
-            .withIndex()
-            .any { (index, cellState) ->
-                val aliveCellsInViewport = cellState.getAliveCellsInWindow(
-                    CellWindow(IntRect(IntOffset(0, 0), IntSize(70, 70))),
-                ).toSet()
-                val mostRecentGeneration = mostRecentGenerationMap[aliveCellsInViewport]
-                if (mostRecentGeneration != null && index - mostRecentGeneration <= maxPhase) {
-                    true
-                } else {
-                    mostRecentGenerationMap[aliveCellsInViewport] = index
-                    false
-                }
+private suspend fun isRepeatingAtEnd(
+    algorithm: GameOfLifeAlgorithm,
+    maxPhase: Int,
+    cellState: CellState,
+    startGeneration: Int,
+    maxGenerations: Int,
+): Boolean {
+    val mostRecentGenerationMap: MutableMap<Set<IntOffset>, Int> = mutableMapOf()
+    return algorithm.computeGenerationsWithStep(
+        cellState,
+        1,
+    )
+        .take(maxGenerations)
+        .drop(startGeneration)
+        .withIndex()
+        .any { (index, cellState) ->
+            val aliveCellsInViewport = cellState.getAliveCellsInWindow(
+                CellWindow(IntRect(IntOffset(0, 0), IntSize(70, 70))),
+            ).toSet()
+            val mostRecentGeneration = mostRecentGenerationMap[aliveCellsInViewport]
+            if (mostRecentGeneration != null && index - mostRecentGeneration <= maxPhase) {
+                true
+            } else {
+                mostRecentGenerationMap[aliveCellsInViewport] = index
+                false
             }
-    }
+        }
 }
 
 private fun createContours(aliveCells: Set<IntOffset>): List<List<IntOffset>> {
