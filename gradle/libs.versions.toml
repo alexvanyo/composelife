@@ -124,7 +124,7 @@ jetbrainsNavigation3 = "1.1.0-alpha02"
 #junit4
 junit4 = "4.13.2"
 #junit5
-junit5 = "5.14.2"
+junit5 = "5.14.3"
 #leakCanary
 leakCanary = "3.0-alpha-8"
 #metro
