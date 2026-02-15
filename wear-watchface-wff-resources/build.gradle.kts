@@ -22,6 +22,7 @@ plugins {
     alias(libs.plugins.convention.androidLibrary)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.gradleDependenciesSorter)
+    alias(libs.plugins.testBalloon)
 }
 
 kotlin {
@@ -36,19 +37,13 @@ kotlin {
         }
         androidResources { enable = true }
     }
-    jvm {
-        testRuns.configureEach {
-            executionTask.configure {
-                useJUnitPlatform()
-            }
-        }
-    }
+    jvm {}
 
     sourceSets {
         val jvmTest by getting {
             dependencies {
                 implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.testParameterInjector.junit5)
+                implementation(libs.testBalloon.framework.core)
                 implementation(libs.turbine)
 
                 implementation(projects.algorithm)
