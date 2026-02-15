@@ -16,9 +16,9 @@
 
 package com.alexvanyo.composelife.dispatchers
 
-import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.CoroutineDispatcher
 
 expect class TestComposeLifeDispatchers(
-    generalTestDispatcher: TestDispatcher,
-    cellTickerTestDispatcher: TestDispatcher,
+    generalTestDispatcher: CoroutineDispatcher,
+    cellTickerTestDispatcher: CoroutineDispatcher,
 )

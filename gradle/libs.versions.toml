@@ -149,6 +149,8 @@ slackComposeLintChecks = "1.4.2"
 sqldelight = "2.2.1"
 #sqlJs
 sqlJs = "1.8.0"
+#testBalloon
+testBalloon = "0.8.1-K2.3.0"
 #testParameterInjector
 testParameterInjector = "1.21"
 #turbine
@@ -302,6 +304,7 @@ sqldelight-coroutinesExtensions = { group = "app.cash.sqldelight", name = "corou
 sqldelight-primitiveAdapters = { group = "app.cash.sqldelight", name = "primitive-adapters", version.ref = "sqldelight" }
 sqldelight-sqliteDriver = { group = "app.cash.sqldelight", name = "sqlite-driver", version.ref = "sqldelight" }
 sqldelight-webDriver = { group = "app.cash.sqldelight", name = "web-worker-driver", version.ref = "sqldelight" }
+testBalloon-framework-core = { group = "de.infix.testBalloon", name = "testBalloon-framework-core", version.ref = "testBalloon" }
 testParameterInjector-junit4 = { group = "com.google.testparameterinjector", name = "test-parameter-injector", version.ref = "testParameterInjector" }
 testParameterInjector-junit5 = { group = "com.google.testparameterinjector", name = "test-parameter-injector-junit5", version.ref = "testParameterInjector" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
@@ -336,4 +339,5 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 metro = { id = "dev.zacsweers.metro", version.ref = "metro" }
 roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
+testBalloon = { id = "de.infix.testBalloon", version.ref = "testBalloon" }
 wire = { id = "com.squareup.wire", version.ref = "wire" }
