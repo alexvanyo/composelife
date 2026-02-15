@@ -150,7 +150,7 @@ sqldelight = "2.2.1"
 #sqlJs
 sqlJs = "1.8.0"
 #testBalloon
-testBalloon = "0.8.1-K2.3.0"
+testBalloon = "0.8.2-K2.3.20-Beta1"
 #testParameterInjector
 testParameterInjector = "1.21"
 #turbine
