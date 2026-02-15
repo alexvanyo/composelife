@@ -25,6 +25,7 @@ import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestDispatcher
@@ -51,6 +52,12 @@ interface TestDispatcherBindings {
             )
 
         @Provides
+        @GeneralTestDispatcher
+        internal fun providesGeneralCoroutineDispatcher(
+            @GeneralTestDispatcher testDispatcher: TestDispatcher,
+        ): CoroutineDispatcher = testDispatcher
+
+        @Provides
         internal fun providesClock(
             @GeneralTestDispatcher testCoroutineScheduler: TestCoroutineScheduler,
         ): Clock = testCoroutineScheduler.clock
@@ -60,5 +67,11 @@ interface TestDispatcherBindings {
         @CellTickerTestDispatcher
         internal fun providesCellTickerTestDispatcher(): TestDispatcher =
             StandardTestDispatcher()
+
+        @Provides
+        @CellTickerTestDispatcher
+        internal fun providesCellTickerCoroutineDispatcher(
+            @CellTickerTestDispatcher testDispatcher: TestDispatcher,
+        ): CoroutineDispatcher = testDispatcher
     }
 }
