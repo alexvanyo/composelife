@@ -111,6 +111,11 @@ sealed interface Setting {
         override val quickAccessSetting = QuickAccessSetting.EnableWindowShapeClipping
     }
 
+    data object CellStatePruningPeriod : Setting {
+        override val category = SettingsCategory.FeatureFlags
+        override val quickAccessSetting = QuickAccessSetting.CellStatePruningPeriod
+    }
+
     @GenSealedEnum
     companion object
 }

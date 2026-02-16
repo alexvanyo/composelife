@@ -26,21 +26,15 @@ import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.resourcestate.successes
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.BindingContainer
-import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesIntoSet
-import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.ForScope
 import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.IntoSet
 import dev.zacsweers.metro.SingleIn
 import dev.zacsweers.metro.binding
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.guava.await
 
 @Inject
 @SingleIn(AppScope::class)
@@ -55,17 +49,6 @@ class PatternCollectionSync(
     private val workManager by workManager
 
     override suspend fun update(): Nothing {
-        val workInfos = workManager
-            .getWorkInfosForUniqueWorkFlow(PATTERN_COLLECTIONS_SYNC_NAME)
-            .first()
-
-        var id = if (workInfos.isEmpty()) {
-            null
-        } else {
-            assert(workInfos.size == 1)
-            workInfos.first().id
-        }
-
         snapshotFlow {
             composeLifePreferences.loadedPreferencesState
         }
@@ -76,7 +59,7 @@ class PatternCollectionSync(
             }
             .distinctUntilChanged()
             .onEach { (synchronizePatternCollectionsOnMeteredNetwork, patternCollectionsSynchronizationPeriod) ->
-                val requestBuilderWithoutId = PeriodicWorkRequestBuilder<PatternCollectionSyncWorker>(
+                val request = PeriodicWorkRequestBuilder<PatternCollectionSyncWorker>(
                     repeatPeriod = patternCollectionsSynchronizationPeriod,
                 )
                     .setConstraints(
@@ -89,23 +72,13 @@ class PatternCollectionSync(
                                 },
                             )
                             .build(),
-                    )
-
-                if (id == null) {
-                    val request = requestBuilderWithoutId.build()
-                    workManager.enqueueUniquePeriodicWork(
-                        uniqueWorkName = PATTERN_COLLECTIONS_SYNC_NAME,
-                        existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.UPDATE,
-                        request = request,
-                    )
-                        .await()
-                    id = request.id
-                } else {
-                    workManager.updateWork(
-                        request = requestBuilderWithoutId.setId(id).build(),
-                    )
-                        .await()
-                }
+                    ).build()
+                workManager.enqueueUniquePeriodicWork(
+                    uniqueWorkName = PATTERN_COLLECTIONS_SYNC_NAME,
+                    existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.UPDATE,
+                    request = request,
+                )
+                    .await()
             }
             .collect()
 

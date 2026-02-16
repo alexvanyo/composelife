@@ -51,6 +51,7 @@ class SettingsCategoryTests {
                 Setting.EnableClipboardWatching,
                 Setting.ClipboardWatchingOnboardingCompleted,
                 Setting.EnableWindowShapeClipping,
+                Setting.CellStatePruningPeriod,
             ),
             SettingsCategory.FeatureFlags.settings,
         )
