@@ -72,6 +72,7 @@ kotlin {
                 implementation(projects.filesystem)
                 implementation(projects.injectScopes)
                 implementation(projects.logging)
+                implementation(projects.timeUtil)
                 implementation(projects.updatable)
                 implementation(projects.work)
             }
