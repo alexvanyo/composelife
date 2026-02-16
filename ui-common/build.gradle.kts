@@ -63,6 +63,7 @@ kotlin {
                 implementation(projects.injectScopes)
                 implementation(projects.logging)
                 implementation(projects.serialization)
+                implementation(projects.timeUtil)
                 implementation(projects.uiToolingPreview)
                 implementation(projects.updatable)
             }
