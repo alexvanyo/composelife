@@ -39,6 +39,7 @@ data class LoadedComposeLifePreferences(
     val synchronizePatternCollectionsOnMeteredNetwork: Boolean,
     val patternCollectionsSynchronizationPeriodSessionValue: SessionValue<DateTimePeriod>,
     val enableWindowShapeClipping: Boolean,
+    val cellStatePruningPeriodSessionValue: SessionValue<DateTimePeriod>,
 ) {
     companion object {
         internal val defaultRoundRectangleSessionId = Uuid.random()
@@ -48,6 +49,10 @@ data class LoadedComposeLifePreferences(
         internal val defaultPatternCollectionsSynchronizationPeriodSessionId = Uuid.random()
 
         internal val defaultPatternCollectionsSynchronizationPeriodValueId = Uuid.random()
+
+        internal val defaultCellStatePruningPeriodSessionId = Uuid.random()
+
+        internal val defaultCellStatePruningPeriodValueId = Uuid.random()
 
         val Defaults = LoadedComposeLifePreferences(
             quickAccessSettings = emptySet(),
@@ -77,6 +82,11 @@ data class LoadedComposeLifePreferences(
                 value = DateTimePeriod(hours = 24),
             ),
             enableWindowShapeClipping = false,
+            cellStatePruningPeriodSessionValue = SessionValue(
+                sessionId = defaultCellStatePruningPeriodSessionId,
+                valueId = defaultCellStatePruningPeriodValueId,
+                value = DateTimePeriod(hours = 24),
+            ),
         )
     }
 }
