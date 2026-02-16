@@ -16,24 +16,23 @@
 
 package com.alexvanyo.composelife.data
 
+import androidx.compose.runtime.snapshotFlow
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.WorkManager
 import androidx.work.await
+import com.alexvanyo.composelife.preferences.ComposeLifePreferences
+import com.alexvanyo.composelife.resourcestate.successes
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.BindingContainer
-import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesIntoSet
-import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.ForScope
 import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.IntoSet
 import dev.zacsweers.metro.SingleIn
 import dev.zacsweers.metro.binding
-import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.guava.await
-import kotlinx.datetime.DateTimePeriod
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 
 @Inject
 @SingleIn(AppScope::class)
@@ -42,42 +41,33 @@ import kotlinx.datetime.DateTimePeriod
     Updatable,
     >())
 class CellStateCleanup(
+    private val composeLifePreferences: ComposeLifePreferences,
     workManager: Lazy<WorkManager>,
 ) : Updatable {
     private val workManager by workManager
 
     override suspend fun update(): Nothing {
-        val workInfos = workManager
-            .getWorkInfosForUniqueWorkFlow(CELL_STATE_CLEANUP_NAME)
-            .first()
-
-        val id = if (workInfos.isEmpty()) {
-            null
-        } else {
-            assert(workInfos.size == 1)
-            workInfos.first().id
+        snapshotFlow {
+            composeLifePreferences.loadedPreferencesState
         }
+            .successes()
+            .map { loadedPreferences ->
+                loadedPreferences.value.cellStatePruningPeriodSessionValue.value
+            }
+            .distinctUntilChanged()
+            .onEach { cellStatePruningPeriod ->
+                workManager.enqueueUniquePeriodicWork(
+                    uniqueWorkName = CELL_STATE_CLEANUP_NAME,
+                    existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.UPDATE,
+                    request = PeriodicWorkRequestBuilder<CellStateCleanupWorker>(
+                        repeatPeriod = cellStatePruningPeriod,
+                    ).build(),
+                )
+                    .await()
+            }
+            .collect()
 
-        val requestBuilderWithoutId = PeriodicWorkRequestBuilder<CellStateCleanupWorker>(
-            repeatPeriod = DateTimePeriod(days = 1),
-        )
-
-        if (id == null) {
-            val request = requestBuilderWithoutId.build()
-            workManager.enqueueUniquePeriodicWork(
-                uniqueWorkName = CELL_STATE_CLEANUP_NAME,
-                existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.UPDATE,
-                request = request,
-            )
-                .await()
-        } else {
-            workManager.updateWork(
-                request = requestBuilderWithoutId.setId(id).build(),
-            )
-                .await()
-        }
-
-        awaitCancellation()
+        error("snapshotFlow can not complete normally")
     }
 
     companion object {

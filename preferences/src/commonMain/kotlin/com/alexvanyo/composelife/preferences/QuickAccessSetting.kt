@@ -30,6 +30,7 @@ sealed interface QuickAccessSetting {
     data object EnableClipboardWatching : QuickAccessSetting
     data object ClipboardWatchingOnboardingCompleted : QuickAccessSetting
     data object EnableWindowShapeClipping : QuickAccessSetting
+    data object CellStatePruningPeriod : QuickAccessSetting
 
     @GenSealedEnum
     companion object

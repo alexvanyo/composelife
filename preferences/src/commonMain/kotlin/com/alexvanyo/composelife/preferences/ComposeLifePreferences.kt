@@ -90,6 +90,12 @@ val ComposeLifePreferences.patternCollectionsSynchronizationPeriodSessionValue:
 val ComposeLifePreferences.enableWindowShapeClippingState: ResourceState<Boolean>
     get() = loadedPreferencesState.map(LoadedComposeLifePreferences::enableWindowShapeClipping)
 
+val ComposeLifePreferences.cellStatePruningPeriodSessionValue:
+    ResourceState<SessionValue<DateTimePeriod>>
+    get() = loadedPreferencesState.map(
+        LoadedComposeLifePreferences::cellStatePruningPeriodSessionValue,
+    )
+
 suspend fun ComposeLifePreferences.setAlgorithmChoice(algorithm: AlgorithmType) =
     update { setAlgorithmChoice(algorithm) }
 
@@ -144,3 +150,8 @@ suspend fun ComposeLifePreferences.setPatternCollectionsSynchronizationPeriod(
 
 suspend fun ComposeLifePreferences.setEnableWindowShapeClipping(enabled: Boolean) =
     update { setEnableWindowShapeClipping(enabled) }
+
+suspend fun ComposeLifePreferences.setCellStatePruningPeriod(
+    expected: SessionValue<DateTimePeriod>?,
+    newValue: SessionValue<DateTimePeriod>,
+) = update { setCellStatePruningPeriod(expected, newValue) }
