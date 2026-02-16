@@ -177,6 +177,8 @@ private class PreferencesProtoTransform(
                 QuickAccessSettingProto.PATTERN_COLLECTIONS_SYNCHRONIZATION_PERIOD
             QuickAccessSetting.EnableWindowShapeClipping ->
                 QuickAccessSettingProto.ENABLE_WINDOW_SHAPE_CLIPPING
+            QuickAccessSetting.CellStatePruningPeriod ->
+                QuickAccessSettingProto.CELL_STATE_PRUNING_PERIOD
         }
 
         val oldQuickAccessSettings = newPreferencesProto.quick_access_settings.toSet()
@@ -264,6 +266,20 @@ private class PreferencesProtoTransform(
             enable_window_shape_clipping = enabled,
         )
     }
+
+    override fun setCellStatePruningPeriod(
+        expected: SessionValue<DateTimePeriod>?,
+        newValue: SessionValue<DateTimePeriod>,
+    ) {
+        val oldValue = newPreferencesProto.cellStatePruningPeriodSessionValue
+        if (expected == null || expected == oldValue) {
+            newPreferencesProto = newPreferencesProto.copy(
+                cell_state_pruning_period = newValue.value.toProto(),
+                cell_state_pruning_period_session_id = newValue.sessionId.toProto(),
+                cell_state_pruning_period_value_id = newValue.valueId.toProto(),
+            )
+        }
+    }
 }
 
 @Suppress("LongMethod", "ComplexMethod")
@@ -293,6 +309,8 @@ private fun PreferencesProto.toLoadedComposeLifePreferences(): LoadedComposeLife
                     QuickAccessSetting.PatternCollectionsSynchronizationPeriod
                 QuickAccessSettingProto.ENABLE_WINDOW_SHAPE_CLIPPING ->
                     QuickAccessSetting.EnableWindowShapeClipping
+                QuickAccessSettingProto.CELL_STATE_PRUNING_PERIOD ->
+                    QuickAccessSetting.CellStatePruningPeriod
                 QuickAccessSettingProto.SETTINGS_UNKNOWN,
                 -> null
             }
@@ -377,6 +395,7 @@ private fun PreferencesProto.toLoadedComposeLifePreferences(): LoadedComposeLife
         synchronizePatternCollectionsOnMeteredNetwork = synchronizePatternCollectionsOnMeteredNetwork,
         patternCollectionsSynchronizationPeriodSessionValue = patternCollectionsSynchronizationPeriodSessionValue,
         enableWindowShapeClipping = enableWindowShapeClipping,
+        cellStatePruningPeriodSessionValue = cellStatePruningPeriodSessionValue,
     )
 }
 
@@ -402,6 +421,21 @@ private val PreferencesProto.patternCollectionsSynchronizationPeriodSessionValue
     }
     val valueId = checkNotNull(pattern_collections_synchronization_period_value_id.toResolved()) {
         "Pattern collections synchronization period value id was null!"
+    }
+    return SessionValue(
+        sessionId = sessionId,
+        valueId = valueId,
+        value = value,
+    )
+}
+
+private val PreferencesProto.cellStatePruningPeriodSessionValue: SessionValue<DateTimePeriod> get() {
+    val value = cell_state_pruning_period.toResolved()
+    val sessionId = checkNotNull(cell_state_pruning_period_session_id.toResolved()) {
+        "Cell state pruning period session id was null!"
+    }
+    val valueId = checkNotNull(cell_state_pruning_period_value_id.toResolved()) {
+        "Cell state pruning period value id was null!"
     }
     return SessionValue(
         sessionId = sessionId,

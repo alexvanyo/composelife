@@ -49,4 +49,7 @@ message PreferencesProto {
   UUIDProto pattern_collections_synchronization_period_session_id = 18;
   UUIDProto pattern_collections_synchronization_period_value_id = 19;
   bool enable_window_shape_clipping = 20;
+  DateTimePeriodProto cell_state_pruning_period = 21;
+  UUIDProto cell_state_pruning_period_session_id = 22;
+  UUIDProto cell_state_pruning_period_value_id = 23;
 }
