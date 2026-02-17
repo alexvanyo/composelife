@@ -91,6 +91,7 @@ import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.TimeZoneHolder
 import com.alexvanyo.composelife.ui.util.currentTimeZone
 import dev.zacsweers.metro.Inject
+import io.ktor.http.parseUrl
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -414,6 +415,9 @@ fun AddPatternCollection(
             }
         }
 
+        val isNotEmpty = textFieldState.text.isNotEmpty()
+        val isValidUrl = parseUrl(textFieldState.text.toString()) != null
+
         TextField(
             state = textFieldState,
             label = { Text(parameterizedStringResource(Strings.SourceUrlLabel)) },
@@ -422,12 +426,13 @@ fun AddPatternCollection(
                 keyboardType = KeyboardType.Uri,
                 imeAction = ImeAction.Go,
             ),
+            isError = isNotEmpty && !isValidUrl,
             onKeyboardAction = { add() },
             modifier = Modifier.fillMaxWidth(),
         )
 
         Button(
-            enabled = textFieldState.text.isNotBlank(),
+            enabled = isNotEmpty && isValidUrl,
             onClick = { add() },
         ) {
             Text(parameterizedStringResource(Strings.AddPatternCollection))
