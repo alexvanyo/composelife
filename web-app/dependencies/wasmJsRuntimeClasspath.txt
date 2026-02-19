@@ -147,8 +147,8 @@ org.jetbrains.compose.ui:ui-util-wasm-js:1.11.0-alpha02
 org.jetbrains.compose.ui:ui-util:1.11.0-alpha02
 org.jetbrains.compose.ui:ui-wasm-js:1.11.0-alpha02
 org.jetbrains.compose.ui:ui:1.11.0-alpha02
-org.jetbrains.kotlin:kotlin-stdlib-wasm-js:2.3.20-Beta2
-org.jetbrains.kotlin:kotlin-stdlib:2.3.20-Beta2
+org.jetbrains.kotlin:kotlin-stdlib-wasm-js:2.3.20-RC
+org.jetbrains.kotlin:kotlin-stdlib:2.3.20-RC
 org.jetbrains.kotlinx:atomicfu-wasm-js:0.31.0
 org.jetbrains.kotlinx:atomicfu:0.31.0
 org.jetbrains.kotlinx:kotlinx-browser-wasm-js:0.5.0
