@@ -182,3 +182,21 @@ internal actual val Strings.SourceUrlLabel: ParameterizedString get() =
 
 internal actual val Strings.EnableWindowShapeClipping: ParameterizedString get() =
     ParameterizedString(R.string.enable_window_shape_clipping)
+
+internal actual val Strings.CellStatePruningPeriod: ParameterizedString get() =
+    ParameterizedString(R.string.cell_state_pruning_period)
+
+internal actual fun Strings.CellStatePruningPeriodLabelAndValue(period: Double): ParameterizedString =
+    ParameterizedString(
+        R.string.cell_state_pruning_period_label_and_value,
+        ParameterizedStringArgument(period),
+    )
+
+internal actual fun Strings.CellStatePruningPeriodValue(period: Double): ParameterizedString =
+    ParameterizedString(
+        R.string.cell_state_pruning_period_value,
+        ParameterizedStringArgument(period),
+    )
+
+internal actual val Strings.CellStatePruningPeriodSuffix: ParameterizedString get() =
+    ParameterizedString(R.string.cell_state_pruning_period_suffix)

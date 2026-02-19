@@ -67,4 +67,9 @@ interface ComposeLifePreferencesTransform {
     )
 
     fun setEnableWindowShapeClipping(enabled: Boolean)
+
+    fun setCellStatePruningPeriod(
+        expected: SessionValue<DateTimePeriod>?,
+        newValue: SessionValue<DateTimePeriod>,
+    )
 }

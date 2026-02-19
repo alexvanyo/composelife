@@ -116,3 +116,11 @@ internal expect val Strings.Sources: ParameterizedString
 internal expect val Strings.SourceUrlLabel: ParameterizedString
 
 internal expect val Strings.EnableWindowShapeClipping: ParameterizedString
+
+internal expect val Strings.CellStatePruningPeriod: ParameterizedString
+
+internal expect fun Strings.CellStatePruningPeriodLabelAndValue(period: Double): ParameterizedString
+
+internal expect fun Strings.CellStatePruningPeriodValue(period: Double): ParameterizedString
+
+internal expect val Strings.CellStatePruningPeriodSuffix: ParameterizedString
