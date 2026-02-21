@@ -18,174 +18,161 @@ package com.alexvanyo.composelife.model
 
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
-import com.google.testing.junit.testparameterinjector.TestParameter
-import com.google.testing.junit.testparameterinjector.TestParameterInjector
-import com.google.testing.junit.testparameterinjector.TestParameterValuesProvider
-import org.junit.runner.RunWith
-import kotlin.test.Test
+import com.alexvanyo.composelife.patterns.GameOfLifeTestPattern
+import com.alexvanyo.composelife.patterns.values
+import de.infix.testBalloon.framework.core.testSuite
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-@RunWith(TestParameterInjector::class)
-class CellStateTests {
+private class CellStateFactory(
+    private val cellStateName: String,
+    val factory: (cellState: CellState) -> CellState,
+) {
+    override fun toString(): String = cellStateName
+}
 
-    class CellStateFactory(
-        private val cellStateName: String,
-        val factory: (cellState: CellState) -> CellState,
-    ) {
-        override fun toString(): String = cellStateName
+val CellStateTests by testSuite {
+    val cellStateFactories = listOf(
+        CellStateFactory("Default cell state") { CellState(it.aliveCells.toSet()) },
+        CellStateFactory("Hash life cell state") { it.toHashLifeCellState() },
+    )
 
-        class Provider : TestParameterValuesProvider() {
-            override fun provideValues(context: Context?) =
-                listOf(
-                    CellStateFactory("Default cell state") { CellState(it.aliveCells.toSet()) },
-                    CellStateFactory("Hash life cell state") { it.toHashLifeCellState() },
+    cellStateFactories.forEach { cellStateFactory ->
+        testSuite(name = cellStateFactory.toString()) {
+            test("conversion_is_correct") {
+                val expectedCellState = """
+                    |.O.O.O
+                    |.O.O..
+                    |.O....
+                    |......
+                """.trimMargin().toCellState()
+
+                val testCellState = cellStateFactory.factory(expectedCellState)
+
+                assertEquals(expectedCellState, testCellState)
+            }
+
+            test("size_of_empty_cell_state_is_correct") {
+                val testCellState = cellStateFactory.factory(
+                    """
+                    |.O.O.O
+                    |.O.O..
+                    |.O....
+                    |......
+                    """.trimMargin().toCellState(),
                 )
+
+                assertEquals(6, testCellState.aliveCells.size)
+            }
+
+            test("offset_by_is_correct") {
+                val testCellState = cellStateFactory.factory(
+                    """
+                    |.O.O.O
+                    |.O.O..
+                    |.O....
+                    |......
+                    """.trimMargin().toCellState(),
+                ).offsetBy(IntOffset(2, 2))
+
+                assertEquals(
+                    """
+                    |.O.O.O
+                    |.O.O..
+                    |.O....
+                    |......
+                    """.trimMargin().toCellState(topLeftOffset = IntOffset(2, 2)),
+                    testCellState,
+                )
+            }
+
+            test("contains_all_is_correct") {
+                val testCellState = cellStateFactory.factory(
+                    """
+                    |.O.O.O
+                    |.O.O..
+                    |.O....
+                    |......
+                    """.trimMargin().toCellState(),
+                )
+
+                assertTrue(
+                    testCellState.aliveCells.containsAll(
+                        setOf(
+                            IntOffset(1, 0),
+                            IntOffset(3, 0),
+                            IntOffset(5, 0),
+                            IntOffset(1, 1),
+                            IntOffset(3, 1),
+                            IntOffset(1, 2),
+                        ),
+                    ),
+                )
+
+                assertFalse(
+                    testCellState.aliveCells.containsAll(
+                        setOf(
+                            IntOffset(0, 0),
+                        ),
+                    ),
+                )
+            }
+
+            test("with_offset_is_correct") {
+                val testCellState = cellStateFactory.factory(
+                    """
+                    |.O.O.O
+                    |.O.O..
+                    |.O....
+                    |......
+                    """.trimMargin().toCellState(),
+                ).offsetBy(IntOffset(2, 2)).withCell(IntOffset.Zero, true)
+
+                assertEquals(
+                    """
+                    |O.......
+                    |........
+                    |...O.O.O
+                    |...O.O..
+                    |...O....
+                    |........
+                    """.trimMargin().toCellState(),
+                    testCellState,
+                )
+            }
+
+            test("bounding_box_is_correct") {
+                val testCellState = cellStateFactory.factory(
+                    """
+                    |.O.O.O
+                    |.O.O..
+                    |.O....
+                    |......
+                    """.trimMargin().toCellState(),
+                )
+
+                assertEquals(
+                    CellWindow(
+                        IntRect(
+                            left = 1,
+                            top = 0,
+                            right = 6,
+                            bottom = 3,
+                        ),
+                    ),
+                    testCellState.boundingBox,
+                )
+            }
+
+            test("empty_bounding_box_is_correct") {
+                val testCellState = cellStateFactory.factory(emptyCellState())
+
+                assertEquals(
+                    CellWindow(IntRect.Zero),
+                    testCellState.boundingBox,
+                )
+            }
         }
-    }
-
-    @TestParameter(valuesProvider = CellStateFactory.Provider::class)
-    lateinit var cellStateFactory: CellStateFactory
-
-    @Test
-    fun conversion_is_correct() {
-        val expectedCellState = """
-            |.O.O.O
-            |.O.O..
-            |.O....
-            |......
-        """.trimMargin().toCellState()
-
-        val testCellState = cellStateFactory.factory(expectedCellState)
-
-        assertEquals(expectedCellState, testCellState)
-    }
-
-    @Test
-    fun size_of_empty_cell_state_is_correct() {
-        val testCellState = cellStateFactory.factory(
-            """
-            |.O.O.O
-            |.O.O..
-            |.O....
-            |......
-            """.trimMargin().toCellState(),
-        )
-
-        assertEquals(6, testCellState.aliveCells.size)
-    }
-
-    @Test
-    fun offset_by_is_correct() {
-        val testCellState = cellStateFactory.factory(
-            """
-            |.O.O.O
-            |.O.O..
-            |.O....
-            |......
-            """.trimMargin().toCellState(),
-        ).offsetBy(IntOffset(2, 2))
-
-        assertEquals(
-            """
-            |.O.O.O
-            |.O.O..
-            |.O....
-            |......
-            """.trimMargin().toCellState(topLeftOffset = IntOffset(2, 2)),
-            testCellState,
-        )
-    }
-
-    @Test
-    fun contains_all_is_correct() {
-        val testCellState = cellStateFactory.factory(
-            """
-            |.O.O.O
-            |.O.O..
-            |.O....
-            |......
-            """.trimMargin().toCellState(),
-        )
-
-        assertTrue(
-            testCellState.aliveCells.containsAll(
-                setOf(
-                    IntOffset(1, 0),
-                    IntOffset(3, 0),
-                    IntOffset(5, 0),
-                    IntOffset(1, 1),
-                    IntOffset(3, 1),
-                    IntOffset(1, 2),
-                ),
-            ),
-        )
-
-        assertFalse(
-            testCellState.aliveCells.containsAll(
-                setOf(
-                    IntOffset(0, 0),
-                ),
-            ),
-        )
-    }
-
-    @Test
-    fun with_offset_is_correct() {
-        val testCellState = cellStateFactory.factory(
-            """
-            |.O.O.O
-            |.O.O..
-            |.O....
-            |......
-            """.trimMargin().toCellState(),
-        ).offsetBy(IntOffset(2, 2)).withCell(IntOffset.Zero, true)
-
-        assertEquals(
-            """
-            |O.......
-            |........
-            |...O.O.O
-            |...O.O..
-            |...O....
-            |........
-            """.trimMargin().toCellState(),
-            testCellState,
-        )
-    }
-
-    @Test
-    fun bounding_box_is_correct() {
-        val testCellState = cellStateFactory.factory(
-            """
-            |.O.O.O
-            |.O.O..
-            |.O....
-            |......
-            """.trimMargin().toCellState(),
-        )
-
-        assertEquals(
-            CellWindow(
-                IntRect(
-                    left = 1,
-                    top = 0,
-                    right = 6,
-                    bottom = 3,
-                ),
-            ),
-            testCellState.boundingBox,
-        )
-    }
-
-    @Test
-    fun empty_bounding_box_is_correct() {
-        val testCellState = cellStateFactory.factory(emptyCellState())
-
-        assertEquals(
-            CellWindow(IntRect.Zero),
-            testCellState.boundingBox,
-        )
     }
 }

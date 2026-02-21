@@ -30,6 +30,7 @@ plugins {
     kotlin("plugin.serialization") version libs.versions.kotlin
     alias(libs.plugins.gradleDependenciesSorter)
     alias(libs.plugins.metro)
+    alias(libs.plugins.testBalloon)
 }
 
 kotlin {
@@ -39,16 +40,7 @@ kotlin {
         configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
         androidResources { enable = true }
     }
-    jvm("desktop") {
-        val moleculeTest by compilations.creating
-
-        // Associate with test compilation to see tests from commonTest
-        moleculeTest.associateWith(compilations.getByName("test"))
-
-        testRuns {
-            create("molecule") { setExecutionSourceFrom(moleculeTest) }
-        }
-    }
+    jvm("desktop") {}
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser {
@@ -71,6 +63,7 @@ kotlin {
                 api(projects.updatable)
 
                 implementation(libs.androidx.annotation)
+                implementation(libs.androidx.collection)
                 implementation(libs.androidx.compose.runtime)
                 implementation(libs.androidx.compose.runtime.retain)
                 implementation(libs.kotlinx.coroutines.core)
@@ -146,12 +139,7 @@ kotlin {
         val jvmTest by creating {
             dependsOn(jbTest)
             dependencies {
-                implementation(libs.testParameterInjector.junit4)
-            }
-        }
-        val desktopMoleculeTest by getting {
-            dependencies {
-                implementation(libs.molecule)
+                implementation(libs.testBalloon.framework.core)
             }
         }
         val desktopTest by getting {
@@ -171,3 +159,10 @@ kotlin {
         }
     }
 }
+
+// TODO: Remove, this manual task wire-up should not be necessary
+tasks.withType<Task>()
+    .named { it == "lintAnalyzeAndroidHostTest" || it == "generateAndroidHostTestLintModel" }
+    .configureEach {
+        dependsOn("generateTestBalloonEntryPoint")
+    }

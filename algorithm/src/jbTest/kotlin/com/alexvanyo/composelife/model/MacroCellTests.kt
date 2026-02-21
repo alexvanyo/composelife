@@ -27,64 +27,20 @@ import kotlin.test.assertTrue
 class MacroCellTests {
 
     @Test
-    fun alive_cell_is_correct() {
-        val cell = MacroCell.Cell.AliveCell
-
-        assertEquals(0, cell.level)
-        assertTrue(cell.isAlive)
-        assertEquals(1, cell.size)
-    }
-
-    @Test
-    fun dead_cell_is_correct() {
-        val cell = MacroCell.Cell.DeadCell
-
-        assertEquals(0, cell.level)
-        assertFalse(cell.isAlive)
-        assertEquals(0, cell.size)
-    }
-
-    @Test
-    fun making_dead_cell_alive_is_correct() {
-        assertEquals(
-            MacroCell.Cell.AliveCell,
-            MacroCell.Cell.DeadCell.withCell(IntOffset.Zero, true),
-        )
-    }
-
-    @Test
-    fun making_alive_cell_dead_is_correct() {
-        assertEquals(
-            MacroCell.Cell.DeadCell,
-            MacroCell.Cell.AliveCell.withCell(IntOffset.Zero, false),
-        )
-    }
-
-    @Test
     fun making_specific_cell_alive_is_correct() {
         assertEquals(
             MacroCell.CellNode(
-                createEmptyMacroCell(3),
-                MacroCell.CellNode(
-                    createEmptyMacroCell(2),
-                    createEmptyMacroCell(2),
-                    MacroCell.CellNode(
-                        MacroCell.CellNode(
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.AliveCell,
-                        ),
-                        createEmptyMacroCell(1),
-                        createEmptyMacroCell(1),
-                        createEmptyMacroCell(1),
-                    ),
-                    createEmptyMacroCell(2),
+                createEmptyMacroCell(4),
+                MacroCell.Level4Node(
+                    0L,
+                    0L,
+                    LeafNode(setOf(IntOffset(3, 7))),
+                    0L,
                 ),
-                createEmptyMacroCell(3),
-                createEmptyMacroCell(3),
+                createEmptyMacroCell(4),
+                createEmptyMacroCell(4),
             ),
-            createEmptyMacroCell(4).withCell(IntOffset(9, 5), true),
+            createEmptyMacroCell(5).withCell(IntOffset(19, 15), true),
         )
     }
 
@@ -96,170 +52,76 @@ class MacroCellTests {
     }
 
     @Test
-    fun create_empty_macro_cell_at_level_0_is_correct() {
+    fun create_empty_macro_cell_at_level_0_throws() {
+        assertFailsWith<IllegalArgumentException> {
+            createEmptyMacroCell(0)
+        }
+    }
+
+    @Test
+    fun create_empty_macro_cell_at_level_1_throws() {
+        assertFailsWith<IllegalArgumentException> {
+            createEmptyMacroCell(1)
+        }
+    }
+
+    @Test
+    fun create_empty_macro_cell_at_level_2_throws() {
+        assertFailsWith<IllegalArgumentException> {
+            createEmptyMacroCell(2)
+        }
+    }
+
+    @Test
+    fun create_empty_macro_cell_at_level_3_throws() {
+        assertFailsWith<IllegalArgumentException> {
+            createEmptyMacroCell(3)
+        }
+    }
+
+    @Test
+    fun create_empty_macro_cell_at_level_4_is_correct() {
         assertEquals(
-            MacroCell.Cell.DeadCell,
-            createEmptyMacroCell(0),
+            MacroCell.Level4Node(
+                0L,
+                0L,
+                0L,
+                0L,
+            ),
+            createEmptyMacroCell(4),
         )
     }
 
     @Test
-    fun create_empty_macro_cell_at_level_1_is_correct() {
+    fun create_empty_macro_cell_at_level_5_is_correct() {
         assertEquals(
             MacroCell.CellNode(
-                MacroCell.Cell.DeadCell,
-                MacroCell.Cell.DeadCell,
-                MacroCell.Cell.DeadCell,
-                MacroCell.Cell.DeadCell,
-            ),
-            createEmptyMacroCell(1),
-        )
-    }
-
-    @Test
-    fun create_empty_macro_cell_at_level_2_is_correct() {
-        assertEquals(
-            MacroCell.CellNode(
-                MacroCell.CellNode(
-                    MacroCell.Cell.DeadCell,
-                    MacroCell.Cell.DeadCell,
-                    MacroCell.Cell.DeadCell,
-                    MacroCell.Cell.DeadCell,
+                MacroCell.Level4Node(
+                    0L,
+                    0L,
+                    0L,
+                    0L,
                 ),
-                MacroCell.CellNode(
-                    MacroCell.Cell.DeadCell,
-                    MacroCell.Cell.DeadCell,
-                    MacroCell.Cell.DeadCell,
-                    MacroCell.Cell.DeadCell,
+                MacroCell.Level4Node(
+                    0L,
+                    0L,
+                    0L,
+                    0L,
                 ),
-                MacroCell.CellNode(
-                    MacroCell.Cell.DeadCell,
-                    MacroCell.Cell.DeadCell,
-                    MacroCell.Cell.DeadCell,
-                    MacroCell.Cell.DeadCell,
+                MacroCell.Level4Node(
+                    0L,
+                    0L,
+                    0L,
+                    0L,
                 ),
-                MacroCell.CellNode(
-                    MacroCell.Cell.DeadCell,
-                    MacroCell.Cell.DeadCell,
-                    MacroCell.Cell.DeadCell,
-                    MacroCell.Cell.DeadCell,
+                MacroCell.Level4Node(
+                    0L,
+                    0L,
+                    0L,
+                    0L,
                 ),
             ),
-            createEmptyMacroCell(2),
-        )
-    }
-
-    @Suppress("LongMethod")
-    @Test
-    fun create_empty_macro_cell_at_level_3_is_correct() {
-        assertEquals(
-            MacroCell.CellNode(
-                MacroCell.CellNode(
-                    MacroCell.CellNode(
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                    ),
-                    MacroCell.CellNode(
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                    ),
-                    MacroCell.CellNode(
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                    ),
-                    MacroCell.CellNode(
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                    ),
-                ),
-                MacroCell.CellNode(
-                    MacroCell.CellNode(
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                    ),
-                    MacroCell.CellNode(
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                    ),
-                    MacroCell.CellNode(
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                    ),
-                    MacroCell.CellNode(
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                    ),
-                ),
-                MacroCell.CellNode(
-                    MacroCell.CellNode(
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                    ),
-                    MacroCell.CellNode(
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                    ),
-                    MacroCell.CellNode(
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                    ),
-                    MacroCell.CellNode(
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                    ),
-                ),
-                MacroCell.CellNode(
-                    MacroCell.CellNode(
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                    ),
-                    MacroCell.CellNode(
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                    ),
-                    MacroCell.CellNode(
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                    ),
-                    MacroCell.CellNode(
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                        MacroCell.Cell.DeadCell,
-                    ),
-                ),
-            ),
-            createEmptyMacroCell(3),
+            createEmptyMacroCell(5),
         )
     }
 
@@ -267,26 +129,16 @@ class MacroCellTests {
     fun checking_contains_specific_cell_is_correct() {
         assertTrue(
             MacroCell.CellNode(
-                createEmptyMacroCell(3),
-                MacroCell.CellNode(
-                    createEmptyMacroCell(2),
-                    createEmptyMacroCell(2),
-                    MacroCell.CellNode(
-                        MacroCell.CellNode(
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.AliveCell,
-                        ),
-                        createEmptyMacroCell(1),
-                        createEmptyMacroCell(1),
-                        createEmptyMacroCell(1),
-                    ),
-                    createEmptyMacroCell(2),
+                createEmptyMacroCell(4),
+                MacroCell.Level4Node(
+                    0L,
+                    0L,
+                    LeafNode(setOf(IntOffset(3, 7))),
+                    0L,
                 ),
-                createEmptyMacroCell(3),
-                createEmptyMacroCell(3),
-            ).contains(IntOffset(9, 5)),
+                createEmptyMacroCell(4),
+                createEmptyMacroCell(4),
+            ).contains(IntOffset(19, 15)),
         )
     }
 
@@ -294,26 +146,16 @@ class MacroCellTests {
     fun checking_does_not_contain_specific_cell_is_correct() {
         assertFalse(
             MacroCell.CellNode(
-                createEmptyMacroCell(3),
-                MacroCell.CellNode(
-                    createEmptyMacroCell(2),
-                    createEmptyMacroCell(2),
-                    MacroCell.CellNode(
-                        MacroCell.CellNode(
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.AliveCell,
-                        ),
-                        createEmptyMacroCell(1),
-                        createEmptyMacroCell(1),
-                        createEmptyMacroCell(1),
-                    ),
-                    createEmptyMacroCell(2),
+                createEmptyMacroCell(4),
+                MacroCell.Level4Node(
+                    0L,
+                    0L,
+                    LeafNode(setOf(IntOffset(3, 7))),
+                    0L,
                 ),
-                createEmptyMacroCell(3),
-                createEmptyMacroCell(3),
-            ).contains(IntOffset(9, 6)),
+                createEmptyMacroCell(4),
+                createEmptyMacroCell(4),
+            ).contains(IntOffset(19, 16)),
         )
     }
 
@@ -321,25 +163,15 @@ class MacroCellTests {
     fun checking_does_not_contain_outside_range_cell_is_correct() {
         assertFalse(
             MacroCell.CellNode(
-                createEmptyMacroCell(3),
-                MacroCell.CellNode(
-                    createEmptyMacroCell(2),
-                    createEmptyMacroCell(2),
-                    MacroCell.CellNode(
-                        MacroCell.CellNode(
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.DeadCell,
-                            MacroCell.Cell.AliveCell,
-                        ),
-                        createEmptyMacroCell(1),
-                        createEmptyMacroCell(1),
-                        createEmptyMacroCell(1),
-                    ),
-                    createEmptyMacroCell(2),
+                createEmptyMacroCell(4),
+                MacroCell.Level4Node(
+                    0L,
+                    0L,
+                    LeafNode(setOf(IntOffset(3, 7))),
+                    0L,
                 ),
-                createEmptyMacroCell(3),
-                createEmptyMacroCell(3),
+                createEmptyMacroCell(4),
+                createEmptyMacroCell(4),
             ).contains(IntOffset(-2, -2)),
         )
     }
