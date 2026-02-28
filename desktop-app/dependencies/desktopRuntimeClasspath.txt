@@ -60,10 +60,10 @@ com.squareup.wire:wire-runtime-jvm:6.0.0-alpha02
 com.squareup.wire:wire-runtime:6.0.0-alpha02
 dev.zacsweers.metro:runtime-jvm:0.10.4
 dev.zacsweers.metro:runtime:0.10.4
-io.coil-kt.coil3:coil-compose-core-jvm:3.3.0
-io.coil-kt.coil3:coil-compose-core:3.3.0
-io.coil-kt.coil3:coil-core-jvm:3.3.0
-io.coil-kt.coil3:coil-core:3.3.0
+io.coil-kt.coil3:coil-compose-core-jvm:3.4.0
+io.coil-kt.coil3:coil-compose-core:3.4.0
+io.coil-kt.coil3:coil-core-jvm:3.4.0
+io.coil-kt.coil3:coil-core:3.4.0
 io.ktor:ktor-client-core-jvm:3.4.0
 io.ktor:ktor-client-core:3.4.0
 io.ktor:ktor-client-logging-jvm:3.4.0
