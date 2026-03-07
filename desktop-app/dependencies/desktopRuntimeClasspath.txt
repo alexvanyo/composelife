@@ -48,10 +48,10 @@ app.cash.sqldelight:primitive-adapters:2.2.1
 app.cash.sqldelight:runtime-jvm:2.2.1
 app.cash.sqldelight:runtime:2.2.1
 app.cash.sqldelight:sqlite-driver:2.2.1
-co.touchlab:kermit-core-jvm:2.0.8
-co.touchlab:kermit-core:2.0.8
-co.touchlab:kermit-jvm:2.0.8
-co.touchlab:kermit:2.0.8
+co.touchlab:kermit-core-jvm:2.1.0
+co.touchlab:kermit-core:2.1.0
+co.touchlab:kermit-jvm:2.1.0
+co.touchlab:kermit:2.1.0
 com.squareup.okhttp3:okhttp-jvm:5.3.2
 com.squareup.okhttp3:okhttp:5.3.2
 com.squareup.okio:okio-jvm:3.16.4

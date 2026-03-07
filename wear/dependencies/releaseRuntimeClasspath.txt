@@ -139,10 +139,10 @@ androidx.wear:wear-tooling-preview:1.0.0
 androidx.window:window-core-android:1.5.0
 androidx.window:window-core:1.5.0
 androidx.window:window:1.5.0
-co.touchlab:kermit-android:2.0.8
-co.touchlab:kermit-core-android:2.0.8
-co.touchlab:kermit-core:2.0.8
-co.touchlab:kermit:2.0.8
+co.touchlab:kermit-android:2.1.0
+co.touchlab:kermit-core-android:2.1.0
+co.touchlab:kermit-core:2.1.0
+co.touchlab:kermit:2.1.0
 com.google.guava:listenablefuture:1.0
 com.squareup.okio:okio-jvm:3.16.4
 com.squareup.okio:okio:3.16.4
