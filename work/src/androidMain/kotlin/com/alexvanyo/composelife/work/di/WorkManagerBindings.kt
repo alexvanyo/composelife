@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.work.di
 
 import android.content.Context
+import androidx.annotation.Keep
 import androidx.work.ListenableWorker
 import androidx.work.WorkManager
 import com.alexvanyo.composelife.scopes.ApplicationContext
