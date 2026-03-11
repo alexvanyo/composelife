@@ -22,7 +22,6 @@ jobs:
           if ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch') }}
           then
             MATRIX='
-              {"sdk": "23"},
               {"sdk": "24"},
               {"sdk": "25"},
               {"sdk": "26"},
@@ -50,7 +49,6 @@ jobs:
           if ${{ (github.event_name == 'schedule') || (github.event_name == 'workflow_dispatch') }}
           then
             MATRIX='
-              {"api-level": "23", "target": "aosp", "device": "nexus4"},
               {"api-level": "24", "target": "aosp", "device": "nexus4"},
               {"api-level": "25", "target": "aosp", "device": "nexus4"},
               {"api-level": "26", "target": "aosp", "device": "nexus4"},
