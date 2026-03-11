@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import dev.zacsweers.metro.gradle.DiagnosticSeverity
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
@@ -24,6 +25,10 @@ plugins {
     alias(libs.plugins.gradleDependenciesSorter)
     alias(libs.plugins.ksp)
     alias(libs.plugins.metro)
+}
+
+metro {
+    unusedGraphInputsSeverity = DiagnosticSeverity.NONE
 }
 
 kotlin {

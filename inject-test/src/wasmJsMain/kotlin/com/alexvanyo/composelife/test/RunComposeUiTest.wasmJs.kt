@@ -35,4 +35,4 @@ actual fun runComposeUiTest(
     runTestContext = runTestContext,
     testTimeout = testTimeout,
     block = block,
-) as TestResult
+)

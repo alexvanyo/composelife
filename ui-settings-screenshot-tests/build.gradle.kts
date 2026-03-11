@@ -15,6 +15,7 @@
  */
 
 import com.android.build.api.dsl.KotlinMultiplatformAndroidDeviceTestCompilation
+import dev.zacsweers.metro.gradle.DiagnosticSeverity
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -29,6 +30,11 @@ plugins {
     alias(libs.plugins.roborazzi)
     alias(libs.plugins.gradleDependenciesSorter)
     alias(libs.plugins.metro)
+}
+
+metro {
+    unusedGraphInputsSeverity = DiagnosticSeverity.NONE
+    shrinkUnusedBindings = false
 }
 
 ksp {
