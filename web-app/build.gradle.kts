@@ -15,6 +15,7 @@
  */
 
 import com.alexvanyo.composelife.buildlogic.heavyTaskLimitingBuildService
+import dev.zacsweers.metro.gradle.DiagnosticSeverity
 import org.jetbrains.kotlin.gradle.targets.wasm.binaryen.BinaryenExec
 import kotlin.jvm.java
 
@@ -26,6 +27,10 @@ plugins {
     alias(libs.plugins.gradleDependenciesSorter)
     alias(libs.plugins.ksp)
     alias(libs.plugins.metro)
+}
+
+metro {
+    unusedGraphInputsSeverity = DiagnosticSeverity.NONE
 }
 
 kotlin {
@@ -45,6 +50,7 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.compose.runtime)
                 implementation(libs.androidx.compose.runtime.retain)
+                implementation(libs.jetbrains.compose.ui)
                 implementation(libs.kotlinx.serialization.core)
                 implementation(projects.data)
                 implementation(projects.database)
