@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import com.alexvanyo.composelife.buildlogic.FormFactor
-import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
 import com.android.build.api.dsl.KotlinMultiplatformAndroidDeviceTestCompilation
+import dev.zacsweers.metro.gradle.DiagnosticSeverity
 import kotlin.jvm.java
 
 plugins {
@@ -33,6 +32,11 @@ plugins {
     kotlin("plugin.serialization") version libs.versions.kotlin
     alias(libs.plugins.gradleDependenciesSorter)
     alias(libs.plugins.metro)
+}
+
+metro {
+    unusedGraphInputsSeverity = DiagnosticSeverity.NONE
+    shrinkUnusedBindings = false
 }
 
 ksp {
@@ -65,6 +69,7 @@ kotlin {
                 implementation(projects.uiCommonTestFixtures)
                 implementation(projects.uiMobile)
                 implementation(projects.uiToolingPreview)
+                implementation(projects.updatable)
                 implementation(projects.work)
                 implementation(projects.workTestFixtures)
             }
