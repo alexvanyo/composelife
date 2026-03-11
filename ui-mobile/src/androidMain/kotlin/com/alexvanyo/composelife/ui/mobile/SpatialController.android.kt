@@ -19,14 +19,17 @@ package com.alexvanyo.composelife.ui.mobile
 import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.platform.LocalSpatialConfiguration
+import androidx.xr.scenecore.scene
 
 @Composable
 actual fun rememberSpatialController(): SpatialController =
     if (Build.VERSION.SDK_INT >= 34) {
         val spatialCapabilities = LocalSpatialCapabilities.current
         val spatialConfiguration = LocalSpatialConfiguration.current
+        val session = LocalSession.current
 
         remember(spatialCapabilities, spatialConfiguration) {
             object : SpatialController {
@@ -36,9 +39,9 @@ actual fun rememberSpatialController(): SpatialController =
                     get() = isSpatialUiEnabled
                     set(value) {
                         if (value) {
-                            spatialConfiguration.requestFullSpaceMode()
+                            session?.scene?.requestFullSpaceMode()
                         } else {
-                            spatialConfiguration.requestHomeSpaceMode()
+                            session?.scene?.requestHomeSpaceMode()
                         }
                     }
             }
