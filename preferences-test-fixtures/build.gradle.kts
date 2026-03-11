@@ -17,6 +17,7 @@
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
 import com.android.build.api.dsl.KotlinMultiplatformAndroidDeviceTestCompilation
+import dev.zacsweers.metro.gradle.DiagnosticSeverity
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
@@ -28,6 +29,10 @@ plugins {
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.gradleDependenciesSorter)
     alias(libs.plugins.metro)
+}
+
+metro {
+    unusedGraphInputsSeverity = DiagnosticSeverity.NONE
 }
 
 kotlin {

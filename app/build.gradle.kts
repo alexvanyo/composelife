@@ -16,6 +16,7 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import dev.zacsweers.metro.gradle.DiagnosticSeverity
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -28,6 +29,10 @@ plugins {
     alias(libs.plugins.androidx.baselineProfile)
     alias(libs.plugins.gradleDependenciesSorter)
     alias(libs.plugins.metro)
+}
+
+metro {
+    unusedGraphInputsSeverity = DiagnosticSeverity.NONE
 }
 
 android {
