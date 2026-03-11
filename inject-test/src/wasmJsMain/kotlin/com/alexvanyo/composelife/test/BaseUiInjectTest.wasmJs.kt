@@ -57,4 +57,4 @@ internal actual fun runPlatformUiTest(
             }
         },
     )
-} as TestResult
+}
