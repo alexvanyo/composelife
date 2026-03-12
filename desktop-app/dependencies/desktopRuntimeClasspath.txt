@@ -152,7 +152,7 @@ org.jetbrains.compose.ui:ui-unit:1.11.0-alpha03
 org.jetbrains.compose.ui:ui-util-desktop:1.11.0-alpha03
 org.jetbrains.compose.ui:ui-util:1.11.0-alpha03
 org.jetbrains.compose.ui:ui:1.11.0-alpha03
-org.jetbrains.kotlin:kotlin-stdlib:2.3.20-RC2
+org.jetbrains.kotlin:kotlin-stdlib:2.3.20-RC3
 org.jetbrains.kotlinx:atomicfu-jvm:0.28.0
 org.jetbrains.kotlinx:atomicfu:0.28.0
 org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.4.0
