@@ -163,3 +163,21 @@ internal actual val Strings.SourceUrlLabel: ParameterizedString get() =
 
 internal actual val Strings.EnableWindowShapeClipping: ParameterizedString get() =
     ParameterizedString("Enable window shape clipping")
+
+internal actual val Strings.CellStatePruningPeriod: ParameterizedString get() =
+    ParameterizedString("Cell state pruning period")
+
+internal actual fun Strings.CellStatePruningPeriodLabelAndValue(period: Double): ParameterizedString =
+    ParameterizedString(
+        "Cell state pruning period: %.2f",
+        ParameterizedStringArgument(period),
+    )
+
+internal actual fun Strings.CellStatePruningPeriodValue(period: Double): ParameterizedString =
+    ParameterizedString(
+        "%.2f",
+        ParameterizedStringArgument(period),
+    )
+
+internal actual val Strings.CellStatePruningPeriodSuffix: ParameterizedString get() =
+    ParameterizedString("minutes")

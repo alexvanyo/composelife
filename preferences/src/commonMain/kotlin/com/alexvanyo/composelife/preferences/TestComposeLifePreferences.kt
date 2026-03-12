@@ -75,6 +75,15 @@ class TestComposeLifePreferences(
     var patternCollectionsSynchronizationPeriodValueId:
         Uuid by mutableStateOf(initialPreferences.patternCollectionsSynchronizationPeriodSessionValue.valueId)
 
+    var cellStatePruningPeriod:
+        DateTimePeriod by mutableStateOf(initialPreferences.cellStatePruningPeriodSessionValue.value)
+
+    var cellStatePruningPeriodSessionId:
+        Uuid by mutableStateOf(initialPreferences.cellStatePruningPeriodSessionValue.sessionId)
+
+    var cellStatePruningPeriodValueId:
+        Uuid by mutableStateOf(initialPreferences.cellStatePruningPeriodSessionValue.valueId)
+
     var enableWindowShapeClipping: Boolean by mutableStateOf(initialPreferences.enableWindowShapeClipping)
 
     override val loadedPreferencesState: ResourceState.Success<LoadedComposeLifePreferences>
@@ -106,6 +115,11 @@ class TestComposeLifePreferences(
                 value = patternCollectionsSynchronizationPeriod,
             ),
             enableWindowShapeClipping = enableWindowShapeClipping,
+            cellStatePruningPeriodSessionValue = SessionValue(
+                sessionId = cellStatePruningPeriodSessionId,
+                valueId = cellStatePruningPeriodValueId,
+                value = cellStatePruningPeriod,
+            ),
         )
 
     override suspend fun update(block: ComposeLifePreferencesTransform.() -> Unit) {
@@ -212,6 +226,22 @@ class TestComposeLifePreferences(
 
                 override fun setEnableWindowShapeClipping(enabled: Boolean) {
                     enableWindowShapeClipping = enabled
+                }
+
+                override fun setCellStatePruningPeriod(
+                    expected: SessionValue<DateTimePeriod>?,
+                    newValue: SessionValue<DateTimePeriod>,
+                ) {
+                    if (expected == null || expected == SessionValue(
+                            sessionId = cellStatePruningPeriodSessionId,
+                            valueId = cellStatePruningPeriodValueId,
+                            value = cellStatePruningPeriod,
+                        )
+                    ) {
+                        cellStatePruningPeriod = newValue.value
+                        cellStatePruningPeriodSessionId = newValue.sessionId
+                        cellStatePruningPeriodValueId = newValue.valueId
+                    }
                 }
             }.run(block)
         }

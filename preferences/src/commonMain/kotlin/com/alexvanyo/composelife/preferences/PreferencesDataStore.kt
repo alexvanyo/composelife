@@ -43,6 +43,12 @@ internal val defaultPreferencesProto = PreferencesProto(
     pattern_collections_synchronization_period_value_id = LoadedComposeLifePreferences
         .defaultPatternCollectionsSynchronizationPeriodValueId
         .toProto(),
+    cell_state_pruning_period_session_id = LoadedComposeLifePreferences
+        .defaultCellStatePruningPeriodSessionId
+        .toProto(),
+    cell_state_pruning_period_value_id = LoadedComposeLifePreferences
+        .defaultCellStatePruningPeriodValueId
+        .toProto(),
 )
 
 internal val serializer = object : OkioSerializer<PreferencesProto> {
@@ -91,6 +97,22 @@ internal val migrations =
                         .toProto(),
                     pattern_collections_synchronization_period_value_id = LoadedComposeLifePreferences
                         .defaultPatternCollectionsSynchronizationPeriodValueId
+                        .toProto(),
+                )
+
+            override suspend fun cleanUp() = Unit
+        },
+        object : DataMigration<PreferencesProto> {
+            override suspend fun shouldMigrate(currentData: PreferencesProto): Boolean =
+                currentData.cell_state_pruning_period_session_id == null
+
+            override suspend fun migrate(currentData: PreferencesProto): PreferencesProto =
+                currentData.copy(
+                    cell_state_pruning_period_session_id = LoadedComposeLifePreferences
+                        .defaultCellStatePruningPeriodSessionId
+                        .toProto(),
+                    cell_state_pruning_period_value_id = LoadedComposeLifePreferences
+                        .defaultCellStatePruningPeriodValueId
                         .toProto(),
                 )
 
