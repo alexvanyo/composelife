@@ -17,8 +17,17 @@
 package com.alexvanyo.composelife.dispatchers
 
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlin.coroutines.CoroutineContext
 
 expect class TestComposeLifeDispatchers(
     generalTestDispatcher: CoroutineDispatcher,
     cellTickerTestDispatcher: CoroutineDispatcher,
-)
+) : ComposeLifeDispatchers {
+    override val Default: CoroutineContext
+    override val Main: CoroutineContext
+    override val MainImmediate: CoroutineContext
+    override val Unconfined: CoroutineContext
+    override val IO: CoroutineContext
+    override fun IOWithLimitedParallelism(parallelism: Int): CoroutineDispatcher
+    override val CellTicker: CoroutineContext
+}

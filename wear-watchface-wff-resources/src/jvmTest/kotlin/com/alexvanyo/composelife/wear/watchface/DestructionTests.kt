@@ -66,7 +66,7 @@ val DestructionTests by testSuite(
                             generalTestDispatcher = dispatcher,
                             cellTickerTestDispatcher = dispatcher,
                         ),
-                        generationsToCache = 64,
+                        generationsToCacheInMacroCellMaps = 64,
                     )
 
                     destructionIsCorrect(algorithm, hourPrefix, minute)

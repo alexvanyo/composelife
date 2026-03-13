@@ -1,8 +1,5 @@
-
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,20 +14,29 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
  * limitations under the License.
  */
 
+import com.alexvanyo.composelife.buildlogic.FormFactor
+import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidLibrary)
+    alias(libs.plugins.convention.androidLibraryCompose)
+    alias(libs.plugins.convention.androidLibraryJacoco)
+    alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
+    alias(libs.plugins.convention.kotlinMultiplatformCompose)
     alias(libs.plugins.gradleDependenciesSorter)
-    alias(libs.plugins.metro)
 }
 
 kotlin {
     androidLibrary {
-        namespace = "com.alexvanyo.composelife.injecttest"
+        namespace = "com.alexvanyo.composelife.algorithmmoleculetests"
         minSdk = 23
+        configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
+        androidResources { enable = true }
     }
-    jvm("desktop")
+    jvm {}
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser {
@@ -45,37 +51,18 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.jetbrains.compose.uiTest)
-                api(libs.kotlinx.coroutines.test)
-                api(projects.kmpAndroidRunner)
-
-                implementation(projects.dispatchersTestFixtures)
-                implementation(projects.injectScopes)
-                implementation(projects.updatable)
+                implementation(projects.algorithm)
             }
         }
-        val jbMain by creating {
-            dependsOn(commonMain)
-        }
-        val jvmMain by creating {
-            dependsOn(jbMain)
-        }
-        val desktopMain by getting {
-            dependsOn(jvmMain)
-        }
-        val androidMain by getting {
-            dependsOn(jvmMain)
+        val commonTest by getting {
             dependencies {
-                api(libs.androidx.compose.uiTest)
-                api(libs.androidx.compose.uiTestJunit4)
-                api(libs.androidx.test.runner)
-                api(libs.leakCanary.instrumentation)
-
-                implementation(libs.leakCanary.android)
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.molecule)
+                implementation(libs.turbine)
+                implementation(projects.algorithmTestResources)
+                implementation(projects.dispatchersTestFixtures)
+                implementation(projects.patterns)
             }
-        }
-        val wasmJsMain by getting {
-            dependsOn(jbMain)
         }
     }
 }
