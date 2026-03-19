@@ -55,10 +55,10 @@ co.touchlab:kermit-wasm-js:2.1.0
 co.touchlab:kermit:2.1.0
 com.squareup.okio:okio-fakefilesystem-wasm-js:3.16.4
 com.squareup.okio:okio-fakefilesystem:3.16.4
-com.squareup.okio:okio-wasm-js:3.16.4
-com.squareup.okio:okio:3.16.4
-com.squareup.wire:wire-runtime-wasm-js:6.0.0-alpha03
-com.squareup.wire:wire-runtime:6.0.0-alpha03
+com.squareup.okio:okio-wasm-js:3.17.0
+com.squareup.okio:okio:3.17.0
+com.squareup.wire:wire-runtime-wasm-js:6.0.0
+com.squareup.wire:wire-runtime:6.0.0
 dev.zacsweers.metro:runtime-wasm-js:0.11.2
 dev.zacsweers.metro:runtime:0.11.2
 io.coil-kt.coil3:coil-compose-core-wasm-js:3.4.0
