@@ -153,8 +153,8 @@ co.touchlab:kermit:2.1.0
 com.google.guava:listenablefuture:1.0
 com.squareup.okio:okio-jvm:3.17.0
 com.squareup.okio:okio:3.17.0
-com.squareup.wire:wire-runtime-jvm:6.0.0
-com.squareup.wire:wire-runtime:6.0.0
+com.squareup.wire:wire-runtime-jvm:6.2.0
+com.squareup.wire:wire-runtime:6.2.0
 dev.zacsweers.metro:runtime-jvm:0.11.4
 dev.zacsweers.metro:runtime:0.11.4
 org.jetbrains.androidx.lifecycle:lifecycle-common:2.10.0-alpha08
