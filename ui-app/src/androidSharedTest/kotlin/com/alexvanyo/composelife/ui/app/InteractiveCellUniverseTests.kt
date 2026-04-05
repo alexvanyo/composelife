@@ -287,7 +287,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
         onNodeWithContentDescription(resolver.invoke(Strings.Play))
             .performClick()
 
-        SixLongLinePattern.cellStates.forEach { expectedCellState ->
+        repeat(SixLongLinePattern.maxGenerationCellState) { index ->
             generalTestDispatcher.scheduler.advanceUntilIdle()
             waitForIdle()
             cellTickerTestDispatcher.scheduler.advanceTimeBy(17)
@@ -295,7 +295,9 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             generalTestDispatcher.scheduler.advanceUntilIdle()
             waitForIdle()
 
-            assertNodesAreAlive(resolver, expectedCellState.aliveCells)
+            SixLongLinePattern.cellStates[index + 1]?.let { expectedCellState ->
+                assertNodesAreAlive(resolver, expectedCellState.aliveCells)
+            }
         }
     }
 
@@ -355,7 +357,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
                 pressKey(Key.Spacebar)
             }
 
-        SixLongLinePattern.cellStates.forEach { expectedCellState ->
+        repeat(SixLongLinePattern.maxGenerationCellState) { index ->
             generalTestDispatcher.scheduler.advanceUntilIdle()
             waitForIdle()
             cellTickerTestDispatcher.scheduler.advanceTimeBy(17)
@@ -363,7 +365,9 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             generalTestDispatcher.scheduler.advanceUntilIdle()
             waitForIdle()
 
-            assertNodesAreAlive(resolver, expectedCellState.aliveCells)
+            SixLongLinePattern.cellStates[index + 1]?.let { expectedCellState ->
+                assertNodesAreAlive(resolver, expectedCellState.aliveCells)
+            }
         }
     }
 
@@ -434,7 +438,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
         )
             .performClick()
 
-        SixLongLinePattern.cellStates.forEach { expectedCellState ->
+        repeat(SixLongLinePattern.maxGenerationCellState) { index ->
             generalTestDispatcher.scheduler.advanceUntilIdle()
             waitForIdle()
             cellTickerTestDispatcher.scheduler.advanceTimeBy(1000)
@@ -442,7 +446,9 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             generalTestDispatcher.scheduler.advanceUntilIdle()
             waitForIdle()
 
-            assertNodesAreAlive(resolver, expectedCellState.aliveCells)
+            SixLongLinePattern.cellStates[index + 1]?.let { expectedCellState ->
+                assertNodesAreAlive(resolver, expectedCellState.aliveCells)
+            }
         }
     }
 
@@ -495,14 +501,16 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
                 .performTouchInput { click(topLeft) }
         }
 
-        SixLongLinePattern.cellStates.forEach { expectedCellState ->
+        repeat(SixLongLinePattern.maxGenerationCellState) { index ->
             onNodeWithContentDescription(resolver.invoke(Strings.Step))
                 .performClick()
 
             generalTestDispatcher.scheduler.advanceUntilIdle()
             waitForIdle()
 
-            assertNodesAreAlive(resolver, expectedCellState.aliveCells)
+            SixLongLinePattern.cellStates[index + 1]?.let { expectedCellState ->
+                assertNodesAreAlive(resolver, expectedCellState.aliveCells)
+            }
         }
     }
 
@@ -569,14 +577,16 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
         )
             .performClick()
 
-        SixLongLinePattern.cellStates.filterIndexed { index, _ -> index.rem(2) == 1 }.forEach { expectedCellState ->
+        repeat(SixLongLinePattern.maxGenerationCellState / 2) { index ->
             onNodeWithContentDescription(resolver.invoke(Strings.Step))
                 .performClick()
 
             generalTestDispatcher.scheduler.advanceUntilIdle()
             waitForIdle()
 
-            assertNodesAreAlive(resolver, expectedCellState.aliveCells)
+            SixLongLinePattern.cellStates[(index + 1) * 2]?.let { expectedCellState ->
+                assertNodesAreAlive(resolver, expectedCellState.aliveCells)
+            }
         }
     }
 
@@ -651,14 +661,16 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
         )
             .performClick()
 
-        SixLongLinePattern.cellStates.filterIndexed { index, _ -> index.rem(2) == 1 }.forEach { expectedCellState ->
+        repeat(SixLongLinePattern.maxGenerationCellState / 2) { index ->
             onNodeWithContentDescription(resolver.invoke(Strings.Step))
                 .performClick()
 
             generalTestDispatcher.scheduler.advanceUntilIdle()
             waitForIdle()
 
-            assertNodesAreAlive(resolver, expectedCellState.aliveCells)
+            SixLongLinePattern.cellStates[(index + 1) * 2]?.let { expectedCellState ->
+                assertNodesAreAlive(resolver, expectedCellState.aliveCells)
+            }
         }
     }
 
