@@ -24,6 +24,7 @@ import com.alexvanyo.composelife.dispatchers.TestComposeLifeDispatchers
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.patterns.GameOfLifeTestPattern
 import com.alexvanyo.composelife.patterns.GosperGliderGunPattern
+import com.alexvanyo.composelife.patterns.RPentominoPattern
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import com.google.testing.junit.testparameterinjector.TestParameterValuesProvider
@@ -88,13 +89,22 @@ class GameOfLifeAlgorithmBenchmarks {
         }
     }
 
-    private val testPattern: GameOfLifeTestPattern = GosperGliderGunPattern
+    class TestPatternProvider : TestParameterValuesProvider() {
+        override fun provideValues(context: Context?) =
+            listOf(
+                GosperGliderGunPattern,
+                RPentominoPattern,
+            )
+    }
 
     @TestParameter(valuesProvider = GameOfLifeAlgorithmFactory.Provider::class)
     lateinit var algorithmFactory: GameOfLifeAlgorithmFactory
 
     @TestParameter(valuesProvider = CellStateMapper.Provider::class)
     lateinit var cellStateMapper: CellStateMapper
+
+    @TestParameter(valuesProvider = TestPatternProvider::class)
+    lateinit var testPattern: GameOfLifeTestPattern
 
     @Test
     fun generations_100() {

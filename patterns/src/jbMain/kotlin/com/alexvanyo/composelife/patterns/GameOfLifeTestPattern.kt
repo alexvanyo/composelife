@@ -20,10 +20,34 @@ import com.alexvanyo.composelife.model.CellState
 import com.livefront.sealedenum.GenSealedEnum
 
 sealed class GameOfLifeTestPattern(
+    /**
+     * The name of the pattern.
+     */
     val patternName: String,
+    /**
+     * The initial state of the pattern.
+     */
     val seedCellState: CellState,
-    val cellStates: List<CellState>,
+    /**
+     * The calculated states from the [seedCellState] for the `key` generation past [seedCellState].
+     */
+    val cellStates: Map<Int, CellState>,
 ) {
+    /**
+     * The maximum key in [cellStates].
+     */
+    val maxGenerationCellState = cellStates.maxOf { it.key }
+
+    constructor(
+        patternName: String,
+        seedCellState: CellState,
+        cellStates: List<CellState>,
+    ) : this(
+        patternName = patternName,
+        seedCellState = seedCellState,
+        cellStates = cellStates.withIndex().associate { it.index + 1 to it.value },
+    )
+
     override fun toString() = patternName
 
     @GenSealedEnum(generateEnum = true)
