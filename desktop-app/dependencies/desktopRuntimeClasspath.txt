@@ -30,10 +30,10 @@ androidx.lifecycle:lifecycle-viewmodel-savedstate:2.11.0-alpha03
 androidx.lifecycle:lifecycle-viewmodel:2.11.0-alpha03
 androidx.navigation3:navigation3-runtime-desktop:1.1.0-beta01
 androidx.navigation3:navigation3-runtime:1.1.0-beta01
-androidx.navigationevent:navigationevent-compose-desktop:1.1.0-alpha01
-androidx.navigationevent:navigationevent-compose:1.1.0-alpha01
-androidx.navigationevent:navigationevent-desktop:1.1.0-alpha01
-androidx.navigationevent:navigationevent:1.1.0-alpha01
+androidx.navigationevent:navigationevent-compose-desktop:1.1.0-beta01
+androidx.navigationevent:navigationevent-compose:1.1.0-beta01
+androidx.navigationevent:navigationevent-desktop:1.1.0-beta01
+androidx.navigationevent:navigationevent:1.1.0-beta01
 androidx.savedstate:savedstate-compose-desktop:1.5.0-alpha02
 androidx.savedstate:savedstate-compose:1.5.0-alpha02
 androidx.savedstate:savedstate-desktop:1.5.0-alpha02
