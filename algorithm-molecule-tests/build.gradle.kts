@@ -62,6 +62,7 @@ kotlin {
                 implementation(projects.algorithmTestResources)
                 implementation(projects.dispatchersTestFixtures)
                 implementation(projects.patterns)
+                implementation(projects.tracingTestFixtures)
             }
         }
     }
