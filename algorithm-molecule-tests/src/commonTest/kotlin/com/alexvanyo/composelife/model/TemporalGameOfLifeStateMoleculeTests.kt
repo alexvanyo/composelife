@@ -29,6 +29,7 @@ import com.alexvanyo.composelife.dispatchers.TestComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.clock
 import com.alexvanyo.composelife.patterns.SingleCellPattern
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
+import com.alexvanyo.composelife.tracing.TestTraceDriver
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
@@ -52,10 +53,10 @@ class TemporalGameOfLifeStateMoleculeTests {
     @Test
     fun state_is_advanced_correctly() {
         runTest(testDispatcher + BroadcastFrameClock()) {
-            val hashLifeAlgorithm =
-                HashLifeAlgorithm(
-                    dispatchers = dispatchers,
-                )
+            val hashLifeAlgorithm = HashLifeAlgorithm(
+                dispatchers = dispatchers,
+                tracer = TestTraceDriver().tracer,
+            )
 
             moleculeFlow(RecompositionMode.ContextClock) {
                 val temporalGameOfLifeState =
@@ -110,10 +111,10 @@ class TemporalGameOfLifeStateMoleculeTests {
     @Test
     fun pausing_evolution_is_correct() {
         runTest(testDispatcher + BroadcastFrameClock()) {
-            val hashLifeAlgorithm =
-                HashLifeAlgorithm(
-                    dispatchers = dispatchers,
-                )
+            val hashLifeAlgorithm = HashLifeAlgorithm(
+                dispatchers = dispatchers,
+                tracer = TestTraceDriver().tracer,
+            )
 
             moleculeFlow(RecompositionMode.ContextClock) {
                 val temporalGameOfLifeState =
@@ -199,10 +200,10 @@ class TemporalGameOfLifeStateMoleculeTests {
     @Test
     fun target_steps_evolution_is_correct() {
         runTest(testDispatcher + BroadcastFrameClock()) {
-            val hashLifeAlgorithm =
-                HashLifeAlgorithm(
-                    dispatchers = dispatchers,
-                )
+            val hashLifeAlgorithm = HashLifeAlgorithm(
+                dispatchers = dispatchers,
+                tracer = TestTraceDriver().tracer,
+            )
 
             moleculeFlow(RecompositionMode.ContextClock) {
                 val temporalGameOfLifeState =
@@ -300,10 +301,10 @@ class TemporalGameOfLifeStateMoleculeTests {
     @Test
     fun setting_evolution_is_correct() {
         runTest(testDispatcher + BroadcastFrameClock()) {
-            val hashLifeAlgorithm =
-                HashLifeAlgorithm(
-                    dispatchers = dispatchers,
-                )
+            val hashLifeAlgorithm = HashLifeAlgorithm(
+                dispatchers = dispatchers,
+                tracer = TestTraceDriver().tracer,
+            )
 
             moleculeFlow(RecompositionMode.ContextClock) {
                 val temporalGameOfLifeState =
@@ -401,10 +402,10 @@ class TemporalGameOfLifeStateMoleculeTests {
     @Test
     fun multiple_evolutions_is_correct() {
         runTest(testDispatcher + BroadcastFrameClock()) {
-            val hashLifeAlgorithm =
-                HashLifeAlgorithm(
-                    dispatchers = dispatchers,
-                )
+            val hashLifeAlgorithm = HashLifeAlgorithm(
+                dispatchers = dispatchers,
+                tracer = TestTraceDriver().tracer,
+            )
 
             var runFirstMutator by mutableStateOf(true)
 
@@ -512,10 +513,10 @@ class TemporalGameOfLifeStateMoleculeTests {
     @Test
     fun state_is_advanced_correctly_with_step() {
         runTest(testDispatcher + BroadcastFrameClock()) {
-            val hashLifeAlgorithm =
-                HashLifeAlgorithm(
-                    dispatchers = dispatchers,
-                )
+            val hashLifeAlgorithm = HashLifeAlgorithm(
+                dispatchers = dispatchers,
+                tracer = TestTraceDriver().tracer,
+            )
 
             moleculeFlow(RecompositionMode.ContextClock) {
                 val temporalGameOfLifeState =

@@ -29,6 +29,7 @@ import com.alexvanyo.composelife.patterns.values
 import com.alexvanyo.composelife.preferences.AlgorithmType
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.setAlgorithmChoice
+import com.alexvanyo.composelife.tracing.TestTraceDriver
 import de.infix.testBalloon.framework.core.Test.ExecutionScope
 import de.infix.testBalloon.framework.core.TestBalloonExperimentalApi
 import de.infix.testBalloon.framework.core.TestConfig
@@ -68,7 +69,10 @@ val GameOfLifeAlgorithmTests by testSuite(
                 NaiveGameOfLifeAlgorithm(it) to Job().apply { complete() }
             },
             GameOfLifeAlgorithmFactory("HashLife Algorithm") {
-                HashLifeAlgorithm(it) to Job().apply { complete() }
+                HashLifeAlgorithm(
+                    dispatchers = it,
+                    tracer = TestTraceDriver().tracer,
+                ) to Job().apply { complete() }
             },
             GameOfLifeAlgorithmFactory("Configurable Algorithm") {
                 val preferences = TestComposeLifePreferences()
@@ -86,7 +90,10 @@ val GameOfLifeAlgorithmTests by testSuite(
                 ConfigurableGameOfLifeAlgorithm(
                     preferences = preferences,
                     naiveGameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(it),
-                    hashLifeAlgorithm = HashLifeAlgorithm(it),
+                    hashLifeAlgorithm = HashLifeAlgorithm(
+                        dispatchers = it,
+                        tracer = TestTraceDriver().tracer,
+                    ),
                 ) to job
             },
         )
