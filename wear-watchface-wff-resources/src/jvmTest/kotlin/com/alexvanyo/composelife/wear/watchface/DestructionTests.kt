@@ -29,6 +29,7 @@ import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.RunLengthEncodedCellStateSerializer
 import com.alexvanyo.composelife.model.emptyCellState
 import com.alexvanyo.composelife.model.toCellState
+import com.alexvanyo.composelife.tracing.TestTraceDriver
 import de.infix.testBalloon.framework.core.TestCompartment
 import de.infix.testBalloon.framework.core.testSuite
 import kotlinx.coroutines.CoroutineDispatcher
@@ -63,10 +64,11 @@ val DestructionTests by testSuite(
                     @OptIn(kotlin.ExperimentalStdlibApi::class)
                     val dispatcher = currentCoroutineContext()[ContinuationInterceptor] as CoroutineDispatcher
                     val algorithm = HashLifeAlgorithm(
-                        TestComposeLifeDispatchers(
+                        dispatchers = TestComposeLifeDispatchers(
                             generalTestDispatcher = dispatcher,
                             cellTickerTestDispatcher = dispatcher,
                         ),
+                        tracer = TestTraceDriver().tracer,
                         generationsToCacheInMacroCellMaps = 64,
                     )
 

@@ -59,6 +59,7 @@ kotlin {
                 api(projects.parameterizedString)
                 api(projects.preferences)
                 api(projects.serialization)
+                api(projects.tracing)
                 api(projects.updatable)
 
                 implementation(libs.androidx.annotation)
@@ -126,6 +127,7 @@ kotlin {
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
                 implementation(projects.patterns)
+                implementation(projects.tracingTestFixtures)
             }
         }
         val jbTest by creating {
