@@ -98,7 +98,7 @@ kotlinxDatetime = "0.7.1-0.6.x-compat"
 #kotlinxIo
 kotlinxIo = "0.9.0"
 #kotlinxSerialization
-kotlinxSerialization = "1.10.0"
+kotlinxSerialization = "1.11.0"
 #ksp
 ksp = "2.3.6"
 #ktor
