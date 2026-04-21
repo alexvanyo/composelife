@@ -1,5 +1,5 @@
-androidx.annotation:annotation-jvm:1.10.0-rc01
-androidx.annotation:annotation:1.10.0-rc01
+androidx.annotation:annotation-jvm:1.10.0
+androidx.annotation:annotation:1.10.0
 androidx.arch.core:core-common:2.2.0
 androidx.collection:collection-jvm:1.6.0
 androidx.collection:collection:1.6.0
