@@ -1,5 +1,5 @@
-androidx.annotation:annotation-wasm-js:1.10.0-rc01
-androidx.annotation:annotation:1.10.0-rc01
+androidx.annotation:annotation-wasm-js:1.10.0
+androidx.annotation:annotation:1.10.0
 androidx.collection:collection-wasm-js:1.6.0
 androidx.collection:collection:1.6.0
 androidx.compose.runtime:runtime-annotation-wasm-js:1.11.0-beta02
