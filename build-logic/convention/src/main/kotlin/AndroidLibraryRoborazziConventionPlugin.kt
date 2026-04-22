@@ -67,7 +67,7 @@ class AndroidLibraryRoborazziConventionPlugin : ConventionPlugin({
                         )
                         // Increase memory and parallelize Roborazzi tests
                         maxHeapSize = "2g"
-                        maxParallelForks = if (System.getenv("CI") == "true") 1 else 4
+                        maxParallelForks = if (providers.environmentVariable("CI").orNull == "true") 1 else 4
                         forkEvery = 12
                     }
                 }
