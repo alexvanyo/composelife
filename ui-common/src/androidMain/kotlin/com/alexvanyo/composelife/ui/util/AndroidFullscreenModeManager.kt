@@ -122,6 +122,7 @@ class AndroidFullscreenModeManager(
         data object ExitFullscreen : RequestType
     }
 
+    @Suppress("RedundantSuspendModifier")
     private suspend fun enterFullscreenMode(): Result<Unit> =
         if (activity == null) {
             isFullscreen = false
@@ -153,6 +154,7 @@ class AndroidFullscreenModeManager(
             }
         }
 
+    @Suppress("RedundantSuspendModifier")
     private suspend fun exitFullscreenMode(): Result<Unit> =
         if (activity == null) {
             isFullscreen = false
