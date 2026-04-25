@@ -33,6 +33,7 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.TestScope
+import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
@@ -82,7 +83,7 @@ fun BaseUiInjectTest.runUiTest(
         withUpdatables(appUpdatables + uiUpdatables) {
             // Let any background jobs launch and stabilize before running the test body
             @OptIn(kotlin.ExperimentalStdlibApi::class)
-            val testDispatcher = currentCoroutineContext()[CoroutineDispatcher] as? TestDispatcher
+            val testDispatcher = currentCoroutineContext()[ContinuationInterceptor] as? TestDispatcher
             testDispatcher?.scheduler?.advanceUntilIdle()
             testBody(
                 this@runPlatformUiTest,
