@@ -42,6 +42,7 @@ import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
+import kotlin.coroutines.ContinuationInterceptor
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -126,7 +127,8 @@ val GameOfLifeAlgorithmTests by testSuite(
                         testSuite(testPattern.toString()) {
                             test("one_generation_step_flow") {
                                 @OptIn(ExperimentalStdlibApi::class)
-                                val dispatcher = currentCoroutineContext()[CoroutineDispatcher]!!
+                                val dispatcher =
+                                    currentCoroutineContext()[ContinuationInterceptor] as CoroutineDispatcher
                                 val (algorithm, job) = algorithmFactory.factory(
                                     this,
                                     TestComposeLifeDispatchers(
@@ -157,7 +159,8 @@ val GameOfLifeAlgorithmTests by testSuite(
 
                             test("two_generation_step_flow") {
                                 @OptIn(ExperimentalStdlibApi::class)
-                                val dispatcher = currentCoroutineContext()[CoroutineDispatcher]!!
+                                val dispatcher =
+                                    currentCoroutineContext()[ContinuationInterceptor] as CoroutineDispatcher
                                 val (algorithm, job) = algorithmFactory.factory(
                                     this,
                                     TestComposeLifeDispatchers(
@@ -188,7 +191,8 @@ val GameOfLifeAlgorithmTests by testSuite(
 
                             test("subsequent_one_generation_step") {
                                 @OptIn(ExperimentalStdlibApi::class)
-                                val dispatcher = currentCoroutineContext()[CoroutineDispatcher]!!
+                                val dispatcher =
+                                    currentCoroutineContext()[ContinuationInterceptor] as CoroutineDispatcher
                                 val (algorithm, job) = algorithmFactory.factory(
                                     this,
                                     TestComposeLifeDispatchers(
@@ -215,7 +219,8 @@ val GameOfLifeAlgorithmTests by testSuite(
 
                             test("subsequent_two_generation_step") {
                                 @OptIn(ExperimentalStdlibApi::class)
-                                val dispatcher = currentCoroutineContext()[CoroutineDispatcher]!!
+                                val dispatcher =
+                                    currentCoroutineContext()[ContinuationInterceptor] as CoroutineDispatcher
                                 val (algorithm, job) = algorithmFactory.factory(
                                     this,
                                     TestComposeLifeDispatchers(
