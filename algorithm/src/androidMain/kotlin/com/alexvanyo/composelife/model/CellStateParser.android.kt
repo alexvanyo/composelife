@@ -55,6 +55,7 @@ actual class CellStateParser(
         }
     }
 
+    @Suppress("RedundantSuspendModifier")
     private suspend fun ClipData.Item.resolveToText(): CharSequence =
         withContext(dispatchers.IO) {
             coerceToText(context)

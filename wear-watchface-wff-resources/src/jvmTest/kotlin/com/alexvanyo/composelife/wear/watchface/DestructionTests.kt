@@ -39,6 +39,7 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.withIndex
 import java.io.File
+import kotlin.coroutines.ContinuationInterceptor
 import kotlin.random.Random
 import kotlin.random.nextInt
 import kotlin.test.assertEquals
@@ -59,8 +60,8 @@ val DestructionTests by testSuite(
                 test(
                     minute.toString().padStart(2, '0'),
                 ) {
-                    @OptIn(ExperimentalStdlibApi::class)
-                    val dispatcher = currentCoroutineContext()[CoroutineDispatcher]!!
+                    @OptIn(kotlin.ExperimentalStdlibApi::class)
+                    val dispatcher = currentCoroutineContext()[ContinuationInterceptor] as CoroutineDispatcher
                     val algorithm = HashLifeAlgorithm(
                         TestComposeLifeDispatchers(
                             generalTestDispatcher = dispatcher,
@@ -214,6 +215,7 @@ private suspend fun destructionIsCorrect(
     }
 }
 
+@Suppress("RedundantSuspendModifier")
 private suspend fun isDestructionAchieved(
     algorithm: GameOfLifeAlgorithm,
     timeDigits: TimeDigits,
@@ -238,6 +240,7 @@ private suspend fun isDestructionAchieved(
         .minBy { (_, value) -> value }
 }
 
+@Suppress("RedundantSuspendModifier")
 private suspend fun isRepeatingAtEnd(
     algorithm: GameOfLifeAlgorithm,
     maxPhase: Int,
