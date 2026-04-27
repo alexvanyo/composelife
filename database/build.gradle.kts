@@ -65,11 +65,12 @@ kotlin {
                 api(libs.kotlinx.coroutines.core)
                 api(libs.kotlinx.datetime)
                 api(libs.sqldelight.coroutinesExtensions)
-                api(projects.dispatchers)
                 api(projects.updatable)
 
                 implementation(libs.androidx.compose.runtime)
                 implementation(libs.sqldelight.primitiveAdapters)
+                implementation(libs.sqldelightAndroidXDriver)
+                implementation(projects.dispatchers)
                 implementation(projects.injectScopes)
             }
         }
@@ -77,20 +78,19 @@ kotlin {
             dependencies {
                 api(libs.kotlinx.coroutines.android)
 
-                implementation(libs.sqldelight.androidDriver)
+                implementation(libs.androidx.sqlite.framework)
             }
         }
         val desktopMain by getting {
             dependencies {
-                implementation(libs.sqldelight.sqliteDriver)
+                implementation(libs.androidx.sqlite.bundled)
             }
         }
         val wasmJsMain by getting {
             dependencies {
-                implementation(libs.sqldelight.webDriver)
-                implementation(npm("sql.js", libs.versions.sqlJs.get()))
-                implementation(devNpm("copy-webpack-plugin", libs.versions.webPackPlugin.get()))
+                implementation(libs.androidx.sqlite.web)
                 implementation(libs.jetbrains.compose.ui)
+                implementation(libs.sqldelightAndroidXDriver.opfs)
             }
         }
         val commonTest by getting {

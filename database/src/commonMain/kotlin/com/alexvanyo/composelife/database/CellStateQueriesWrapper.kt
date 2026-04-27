@@ -19,39 +19,23 @@ package com.alexvanyo.composelife.database
 import app.cash.sqldelight.async.coroutines.awaitAsList
 import app.cash.sqldelight.async.coroutines.awaitAsOne
 import app.cash.sqldelight.async.coroutines.awaitAsOneOrNull
-import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import dev.zacsweers.metro.Inject
-import kotlinx.coroutines.withContext
 
 @Inject
 class CellStateQueriesWrapper(
-    val dispatchers: ComposeLifeDispatchers,
-    val composeLifeDriver: ComposeLifeDriver,
     val queries: CellStateQueries,
 ) {
     suspend fun getCellStates() =
-        withContext(dispatchers.IO) {
-            composeLifeDriver.awaitDriverReady()
-            queries.getCellStates().awaitAsList()
-        }
+        queries.getCellStates().awaitAsList()
 
     suspend fun getAutosavedCellStates() =
-        withContext(dispatchers.IO) {
-            composeLifeDriver.awaitDriverReady()
-            queries.getAutosavedCellStates().awaitAsList()
-        }
+        queries.getAutosavedCellStates().awaitAsList()
 
     suspend fun getMostRecentAutosavedCellState() =
-        withContext(dispatchers.IO) {
-            composeLifeDriver.awaitDriverReady()
-            queries.getMostRecentAutosavedCellState().awaitAsOneOrNull()
-        }
+        queries.getMostRecentAutosavedCellState().awaitAsOneOrNull()
 
     suspend fun getCellStatesByPatternCollectionId(patternCollectionId: PatternCollectionId) =
-        withContext(dispatchers.IO) {
-            composeLifeDriver.awaitDriverReady()
-            queries.getCellStatesByPatternCollectionId(patternCollectionId).awaitAsList()
-        }
+        queries.getCellStatesByPatternCollectionId(patternCollectionId).awaitAsList()
 
     @Suppress("LongParameterList")
     suspend fun upsertCellState(
@@ -64,8 +48,7 @@ class CellStateQueriesWrapper(
         generation: Long,
         wasAutosaved: Boolean,
         patternCollectionId: PatternCollectionId?,
-    ): CellStateId = withContext(dispatchers.IO) {
-        composeLifeDriver.awaitDriverReady()
+    ): CellStateId =
         queries.transactionWithResult {
             if (id == null) {
                 queries.insertCellState(
@@ -94,13 +77,9 @@ class CellStateQueriesWrapper(
                 id
             }
         }
-    }
 
     suspend fun deleteCellState(
         id: CellStateId,
     ) =
-        withContext(dispatchers.IO) {
-            composeLifeDriver.awaitDriverReady()
-            queries.deleteCellState(id)
-        }
+        queries.deleteCellState(id)
 }

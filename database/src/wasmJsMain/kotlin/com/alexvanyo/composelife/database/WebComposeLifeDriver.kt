@@ -16,11 +16,16 @@
 
 package com.alexvanyo.composelife.database
 
-import app.cash.sqldelight.async.coroutines.awaitCreate
+import androidx.sqlite.driver.web.WebWorkerSQLiteDriver
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.db.use
-import app.cash.sqldelight.driver.worker.WebWorkerDriver
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.updatable.Updatable
+import com.eygraber.sqldelight.androidx.driver.AndroidxSqliteConcurrencyModel
+import com.eygraber.sqldelight.androidx.driver.AndroidxSqliteConfiguration
+import com.eygraber.sqldelight.androidx.driver.AndroidxSqliteDatabaseType
+import com.eygraber.sqldelight.androidx.driver.AndroidxSqliteDriver
+import com.eygraber.sqldelight.androidx.driver.opfs.opfsWorker
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Binds
@@ -29,9 +34,7 @@ import dev.zacsweers.metro.ForScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.IntoSet
 import dev.zacsweers.metro.SingleIn
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.awaitCancellation
-import org.w3c.dom.Worker
 
 @ContributesTo(AppScope::class)
 @BindingContainer
@@ -48,21 +51,29 @@ interface WebComposeLifeDriverBindings {
 
 @SingleIn(AppScope::class)
 @Inject
-class WebComposeLifeDriver : ComposeLifeDriver, Updatable {
-    override val sqlDriver: SqlDriver = WebWorkerDriver(createWorker())
+class WebComposeLifeDriver(
+    dispatchers: ComposeLifeDispatchers,
+) : ComposeLifeDriver, Updatable {
 
-    private val driverReadyDeferred = CompletableDeferred<Unit>()
+    override val sqlDriver: SqlDriver = AndroidxSqliteDriver(
+        driver = WebWorkerSQLiteDriver(opfsWorker()),
+        databaseType = AndroidxSqliteDatabaseType.File("composelifedatabase.db"),
+        schema = ComposeLifeDatabase.Schema,
+        configuration = AndroidxSqliteConfiguration(
+            concurrencyModel = AndroidxSqliteConcurrencyModel.MultipleReadersSingleWriter(
+                isWal = true,
+                dispatcherProvider = { parallelism, _ -> dispatchers.IOWithLimitedParallelism(parallelism) },
+            ),
+        ),
+        onConfigure = {
+            setForeignKeyConstraintsEnabled(true)
+        },
+    )
 
-    override suspend fun awaitDriverReady() = driverReadyDeferred.await()
+    override suspend fun awaitDriverReady() = Unit
 
     override suspend fun update(): Nothing =
         sqlDriver.use {
-            ComposeLifeDatabase.Schema.awaitCreate(it)
-            driverReadyDeferred.complete(Unit)
             awaitCancellation()
         }
 }
-
-@OptIn(ExperimentalWasmJsInterop::class)
-private fun createWorker(): Worker =
-    js("""new Worker(new URL("./sqljs.worker.js", import.meta.url))""")

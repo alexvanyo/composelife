@@ -121,10 +121,12 @@ androidx.savedstate:savedstate-compose-android:1.5.0-beta01
 androidx.savedstate:savedstate-compose:1.5.0-beta01
 androidx.savedstate:savedstate-ktx:1.5.0-beta01
 androidx.savedstate:savedstate:1.5.0-beta01
-androidx.sqlite:sqlite-android:2.6.2
-androidx.sqlite:sqlite-framework-android:2.6.2
-androidx.sqlite:sqlite-framework:2.6.2
-androidx.sqlite:sqlite:2.6.2
+androidx.sqlite:sqlite-android:2.7.0-alpha03
+androidx.sqlite:sqlite-async-android:2.7.0-alpha03
+androidx.sqlite:sqlite-async:2.7.0-alpha03
+androidx.sqlite:sqlite-framework-android:2.7.0-alpha03
+androidx.sqlite:sqlite-framework:2.7.0-alpha03
+androidx.sqlite:sqlite:2.7.0-alpha03
 androidx.startup:startup-runtime:1.2.0
 androidx.tracing:tracing-android:2.0.0-alpha06
 androidx.tracing:tracing-ktx:2.0.0-alpha06
@@ -145,7 +147,6 @@ androidx.xr.compose:compose:1.0.0-alpha07
 androidx.xr.runtime:runtime-manifest:1.0.0-alpha06
 androidx.xr.runtime:runtime:1.0.0-alpha06
 androidx.xr.scenecore:scenecore:1.0.0-alpha07
-app.cash.sqldelight:android-driver:2.3.2
 app.cash.sqldelight:async-extensions-jvm:2.3.2
 app.cash.sqldelight:async-extensions:2.3.2
 app.cash.sqldelight:coroutines-extensions-jvm:2.3.2
@@ -158,6 +159,8 @@ co.touchlab:kermit-android:2.1.0
 co.touchlab:kermit-core-android:2.1.0
 co.touchlab:kermit-core:2.1.0
 co.touchlab:kermit:2.1.0
+com.eygraber:sqldelight-androidx-driver-android:0.5.0-alpha.1
+com.eygraber:sqldelight-androidx-driver:0.5.0-alpha.1
 com.google.accompanist:accompanist-drawablepainter:0.37.3
 com.google.ar:impress:0.0.6
 com.google.code.findbugs:jsr305:3.0.2
@@ -234,7 +237,9 @@ org.jetbrains.compose.ui:ui-tooling-preview:1.11.0-alpha03
 org.jetbrains.compose.ui:ui-unit:1.11.0-alpha03
 org.jetbrains.compose.ui:ui-util:1.11.0-alpha03
 org.jetbrains.compose.ui:ui:1.11.0-alpha03
-org.jetbrains.kotlin:kotlin-stdlib:2.3.20
+org.jetbrains.kotlin:kotlin-stdlib:2.3.21
+org.jetbrains.kotlinx:atomicfu-jvm:0.32.1
+org.jetbrains.kotlinx:atomicfu:0.32.1
 org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.4.0
 org.jetbrains.kotlinx:kotlinx-collections-immutable:0.4.0
 org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0-rc01

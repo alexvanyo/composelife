@@ -17,11 +17,16 @@
 package com.alexvanyo.composelife.database
 
 import android.content.Context
-import androidx.sqlite.db.SupportSQLiteDatabase
-import app.cash.sqldelight.async.coroutines.synchronous
-import app.cash.sqldelight.driver.android.AndroidSqliteDriver
+import androidx.sqlite.driver.AndroidSQLiteDriver
+import app.cash.sqldelight.db.SqlDriver
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.scopes.ApplicationContext
 import com.alexvanyo.composelife.updatable.Updatable
+import com.eygraber.sqldelight.androidx.driver.AndroidxSqliteConcurrencyModel
+import com.eygraber.sqldelight.androidx.driver.AndroidxSqliteConfiguration
+import com.eygraber.sqldelight.androidx.driver.AndroidxSqliteDatabaseType
+import com.eygraber.sqldelight.androidx.driver.AndroidxSqliteDriver
+import com.eygraber.sqldelight.androidx.driver.FileProvider
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Binds
@@ -49,17 +54,24 @@ interface AndroidComposeLifeDriverBindings {
 @Inject
 class AndroidComposeLifeDriver(
     @ApplicationContext context: Context,
+    dispatchers: ComposeLifeDispatchers,
 ) : ComposeLifeDriver, Updatable {
 
-    private val schema = ComposeLifeDatabase.Schema.synchronous()
-    override val sqlDriver = AndroidSqliteDriver(
-        schema = schema,
-        context = context,
-        name = "composelifedatabase.db",
-        callback = object : AndroidSqliteDriver.Callback(schema) {
-            override fun onConfigure(db: SupportSQLiteDatabase) {
-                db.setForeignKeyConstraintsEnabled(true)
-            }
+    override val sqlDriver: SqlDriver = AndroidxSqliteDriver(
+        driver = AndroidSQLiteDriver(),
+        databaseType = AndroidxSqliteDatabaseType.FileProvider(
+            context = context,
+            name = "composelifedatabase.db",
+        ),
+        schema = ComposeLifeDatabase.Schema,
+        configuration = AndroidxSqliteConfiguration(
+            concurrencyModel = AndroidxSqliteConcurrencyModel.MultipleReadersSingleWriter(
+                isWal = true,
+                dispatcherProvider = { parallelism, _ -> dispatchers.IOWithLimitedParallelism(parallelism) },
+            ),
+        ),
+        onConfigure = {
+            setForeignKeyConstraintsEnabled(true)
         },
     )
 
