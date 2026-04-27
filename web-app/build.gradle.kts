@@ -71,6 +71,9 @@ kotlin {
             configurations["kspWasmJs"].dependencies.addAll(listOf(
                 projects.sealedEnum.ksp,
             ))
+            dependencies {
+                implementation(libs.sqldelightAndroidXDriver.opfs)
+            }
         }
     }
 

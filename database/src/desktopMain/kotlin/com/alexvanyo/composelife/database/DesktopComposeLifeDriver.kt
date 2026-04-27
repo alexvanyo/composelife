@@ -16,9 +16,14 @@
 
 package com.alexvanyo.composelife.database
 
-import app.cash.sqldelight.async.coroutines.synchronous
-import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import app.cash.sqldelight.db.SqlDriver
+import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.updatable.Updatable
+import com.eygraber.sqldelight.androidx.driver.AndroidxSqliteConcurrencyModel
+import com.eygraber.sqldelight.androidx.driver.AndroidxSqliteConfiguration
+import com.eygraber.sqldelight.androidx.driver.AndroidxSqliteDatabaseType
+import com.eygraber.sqldelight.androidx.driver.AndroidxSqliteDriver
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Binds
@@ -27,8 +32,8 @@ import dev.zacsweers.metro.ForScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.IntoSet
 import dev.zacsweers.metro.SingleIn
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.awaitCancellation
-import java.util.Properties
 
 @ContributesTo(AppScope::class)
 @BindingContainer
@@ -45,11 +50,23 @@ interface DesktopComposeLifeDriverBindings {
 
 @SingleIn(AppScope::class)
 @Inject
-class DesktopComposeLifeDriver : ComposeLifeDriver, Updatable {
-    override val sqlDriver = JdbcSqliteDriver(
-        JdbcSqliteDriver.IN_MEMORY,
-        Properties().apply { put("foreign_keys", "true") },
-        ComposeLifeDatabase.Schema.synchronous(),
+class DesktopComposeLifeDriver(
+    dispatchers: ComposeLifeDispatchers,
+) : ComposeLifeDriver, Updatable {
+
+    override val sqlDriver: SqlDriver = AndroidxSqliteDriver(
+        driver = BundledSQLiteDriver(),
+        databaseType = AndroidxSqliteDatabaseType.Memory,
+        schema = ComposeLifeDatabase.Schema,
+        configuration = AndroidxSqliteConfiguration(
+            concurrencyModel = AndroidxSqliteConcurrencyModel.MultipleReadersSingleWriter(
+                isWal = true,
+                dispatcherProvider = { parallelism, _ -> dispatchers.IOWithLimitedParallelism(parallelism) },
+            ),
+        ),
+        onConfigure = {
+            setForeignKeyConstraintsEnabled(true)
+        },
     )
 
     override suspend fun awaitDriverReady() = Unit

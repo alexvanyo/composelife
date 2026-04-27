@@ -20,31 +20,20 @@ import app.cash.sqldelight.async.coroutines.awaitAsList
 import app.cash.sqldelight.async.coroutines.awaitAsOne
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
-import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.withContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Instant
 
 @Inject
 class PatternCollectionQueriesWrapper(
-    val dispatchers: ComposeLifeDispatchers,
-    val composeLifeDriver: ComposeLifeDriver,
     val queries: PatternCollectionQueries,
 ) {
     fun observePatternCollections(): Flow<List<PatternCollection>> =
-        flow {
-            composeLifeDriver.awaitDriverReady()
-            emitAll(queries.getPatternCollections().asFlow().mapToList(dispatchers.IO))
-        }
+        queries.getPatternCollections().asFlow().mapToList(EmptyCoroutineContext)
 
     suspend fun getPatternCollections(): List<PatternCollection> =
-        withContext(dispatchers.IO) {
-            composeLifeDriver.awaitDriverReady()
-            queries.getPatternCollections().awaitAsList()
-        }
+        queries.getPatternCollections().awaitAsList()
 
     suspend fun insertPatternCollection(
         sourceUrl: String,
@@ -52,17 +41,14 @@ class PatternCollectionQueriesWrapper(
         lastUnsuccessfulSynchronizationTimestamp: Instant?,
         synchronizationFailureMessage: String?,
     ): PatternCollectionId =
-        withContext(dispatchers.IO) {
-            composeLifeDriver.awaitDriverReady()
-            queries.transactionWithResult {
-                queries.insertPatternCollection(
-                    sourceUrl = sourceUrl,
-                    lastSuccessfulSynchronizationTimestamp = lastSuccessfulSynchronizationTimestamp,
-                    lastUnsuccessfulSynchronizationTimestamp = lastUnsuccessfulSynchronizationTimestamp,
-                    synchronizationFailureMessage = synchronizationFailureMessage,
-                )
-                PatternCollectionId(queries.lastInsertedRowId().awaitAsOne())
-            }
+        queries.transactionWithResult {
+            queries.insertPatternCollection(
+                sourceUrl = sourceUrl,
+                lastSuccessfulSynchronizationTimestamp = lastSuccessfulSynchronizationTimestamp,
+                lastUnsuccessfulSynchronizationTimestamp = lastUnsuccessfulSynchronizationTimestamp,
+                synchronizationFailureMessage = synchronizationFailureMessage,
+            )
+            PatternCollectionId(queries.lastInsertedRowId().awaitAsOne())
         }
 
     suspend fun updatePatternCollection(
@@ -72,24 +58,18 @@ class PatternCollectionQueriesWrapper(
         lastUnsuccessfulSynchronizationTimestamp: Instant?,
         synchronizationFailureMessage: String?,
     ) =
-        withContext(dispatchers.IO) {
-            composeLifeDriver.awaitDriverReady()
-            queries.updatePatternCollection(
-                id = id,
-                sourceUrl = sourceUrl,
-                lastSuccessfulSynchronizationTimestamp = lastSuccessfulSynchronizationTimestamp,
-                lastUnsuccessfulSynchronizationTimestamp = lastUnsuccessfulSynchronizationTimestamp,
-                synchronizationFailureMessage = synchronizationFailureMessage,
-            )
-        }
+        queries.updatePatternCollection(
+            id = id,
+            sourceUrl = sourceUrl,
+            lastSuccessfulSynchronizationTimestamp = lastSuccessfulSynchronizationTimestamp,
+            lastUnsuccessfulSynchronizationTimestamp = lastUnsuccessfulSynchronizationTimestamp,
+            synchronizationFailureMessage = synchronizationFailureMessage,
+        )
 
     suspend fun deletePatternCollection(
         id: PatternCollectionId,
     ) =
-        withContext(dispatchers.IO) {
-            composeLifeDriver.awaitDriverReady()
-            queries.deletePatternCollection(
-                id = id,
-            )
-        }
+        queries.deletePatternCollection(
+            id = id,
+        )
 }

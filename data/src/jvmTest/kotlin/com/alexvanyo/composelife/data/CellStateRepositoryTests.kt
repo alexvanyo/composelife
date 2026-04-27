@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.data
 
+import app.cash.sqldelight.async.coroutines.awaitAsOne
 import com.alexvanyo.composelife.data.model.CellStateMetadata
 import com.alexvanyo.composelife.data.model.SaveableCellState
 import com.alexvanyo.composelife.database.CellState
@@ -104,7 +105,7 @@ class CellStateRepositoryTests : BaseInjectTest(
             actualCellState,
         )
 
-        val mostRecentCellStateEntity = cellStateQueries.getMostRecentAutosavedCellState().executeAsOne()
+        val mostRecentCellStateEntity = cellStateQueries.getMostRecentAutosavedCellState().awaitAsOne()
 
         assertNotNull(mostRecentCellStateEntity)
         val serializedCellStateFile = mostRecentCellStateEntity.serializedCellStateFile

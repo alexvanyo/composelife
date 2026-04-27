@@ -51,6 +51,8 @@ kotlin {
                 api(projects.database)
 
                 implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.sqldelightAndroidXDriver)
+                implementation(projects.dispatchers)
                 implementation(projects.injectScopes)
                 implementation(projects.updatable)
             }
@@ -58,17 +60,19 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 api(libs.kotlinx.coroutines.android)
-                api(libs.sqldelight.androidDriver)
+
+                implementation(libs.androidx.sqlite.framework)
             }
         }
         val desktopMain by getting {
             dependencies {
-                api(libs.sqldelight.sqliteDriver)
+                implementation(libs.androidx.sqlite.bundled)
             }
         }
         val wasmJsMain by getting {
             dependencies {
-                api(libs.sqldelight.webDriver)
+                implementation(libs.androidx.sqlite.web)
+                implementation(libs.sqldelightAndroidXDriver.opfs)
             }
         }
     }

@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.data
 
+import app.cash.sqldelight.async.coroutines.awaitAsOne
 import com.alexvanyo.composelife.data.model.CellStateMetadata
 import com.alexvanyo.composelife.data.model.PatternCollection
 import com.alexvanyo.composelife.database.CellState
@@ -169,6 +170,8 @@ class PatternCollectionRepositoryTests : BaseInjectTest(
 
         assertTrue(synchronizationJob.await())
 
+        runCurrent()
+
         assertEquals(
             ResourceState.Success(
                 listOf(
@@ -188,7 +191,7 @@ class PatternCollectionRepositoryTests : BaseInjectTest(
         // Validate that the cell state was extracted on disk
         val cellStateEntity = cellStateQueries
             .getCellStatesByPatternCollectionId(patternCollectionId)
-            .executeAsOne()
+            .awaitAsOne()
 
         assertNotNull(cellStateEntity)
         val serializedCellStateFile = cellStateEntity.serializedCellStateFile
@@ -351,6 +354,8 @@ class PatternCollectionRepositoryTests : BaseInjectTest(
         }
 
         assertTrue(synchronizationJob.await())
+
+        runCurrent()
 
         assertEquals(
             ResourceState.Success(

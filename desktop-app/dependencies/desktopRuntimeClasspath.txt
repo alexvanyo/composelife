@@ -38,6 +38,12 @@ androidx.savedstate:savedstate-compose-desktop:1.5.0-beta01
 androidx.savedstate:savedstate-compose:1.5.0-beta01
 androidx.savedstate:savedstate-desktop:1.5.0-beta01
 androidx.savedstate:savedstate:1.5.0-beta01
+androidx.sqlite:sqlite-async-jvm:2.7.0-alpha03
+androidx.sqlite:sqlite-async:2.7.0-alpha03
+androidx.sqlite:sqlite-bundled-jvm:2.7.0-alpha03
+androidx.sqlite:sqlite-bundled:2.7.0-alpha03
+androidx.sqlite:sqlite-jvm:2.7.0-alpha03
+androidx.sqlite:sqlite:2.7.0-alpha03
 androidx.window:window-core-jvm:1.6.0-alpha03
 androidx.window:window-core:1.6.0-alpha03
 app.cash.sqldelight:async-extensions-jvm:2.3.2
@@ -54,6 +60,8 @@ co.touchlab:kermit-core-jvm:2.1.0
 co.touchlab:kermit-core:2.1.0
 co.touchlab:kermit-jvm:2.1.0
 co.touchlab:kermit:2.1.0
+com.eygraber:sqldelight-androidx-driver-jvm:0.5.0-alpha.1
+com.eygraber:sqldelight-androidx-driver:0.5.0-alpha.1
 com.squareup.okhttp3:okhttp-jvm:5.3.2
 com.squareup.okhttp3:okhttp:5.3.2
 com.squareup.okio:okio-jvm:3.17.0
@@ -152,9 +160,9 @@ org.jetbrains.compose.ui:ui-unit:1.11.0-alpha03
 org.jetbrains.compose.ui:ui-util-desktop:1.11.0-alpha03
 org.jetbrains.compose.ui:ui-util:1.11.0-alpha03
 org.jetbrains.compose.ui:ui:1.11.0-alpha03
-org.jetbrains.kotlin:kotlin-stdlib:2.3.20
-org.jetbrains.kotlinx:atomicfu-jvm:0.28.0
-org.jetbrains.kotlinx:atomicfu:0.28.0
+org.jetbrains.kotlin:kotlin-stdlib:2.3.21
+org.jetbrains.kotlinx:atomicfu-jvm:0.32.1
+org.jetbrains.kotlinx:atomicfu:0.32.1
 org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.4.0
 org.jetbrains.kotlinx:kotlinx-collections-immutable:0.4.0
 org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.11.0-rc01

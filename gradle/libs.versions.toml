@@ -37,6 +37,8 @@ androidxPoolingContainer = "1.1.0"
 androidxProfileInstaller = "1.4.1"
 #androidxSavedState
 androidxSavedState = "1.5.0-beta01"
+#androidxSqlite
+androidxSqlite = "2.7.0-alpha03"
 #androidxTestCore
 androidxTestCore = "1.7.0"
 #androidxTestEspresso
@@ -147,6 +149,8 @@ showkase = "1.0.5"
 slackComposeLintChecks = "1.4.2"
 #sqldelight
 sqldelight = "2.3.2"
+#sqldelightAndroidX
+sqldelightAndroidX = "0.5.0-alpha.1"
 #sqlJs
 sqlJs = "1.8.0"
 #testBalloon
@@ -202,6 +206,9 @@ androidx-navigationEvent = { group = "androidx.navigationevent", name = "navigat
 androidx-navigationEvent-compose = { group = "androidx.navigationevent", name = "navigationevent-compose", version.ref = "androidxNavigationEvent" }
 androidx-savedState = { group = "androidx.savedstate", name = "savedstate", version.ref = "androidxSavedState" }
 androidx-savedState-compose = { group = "androidx.savedstate", name = "savedstate-compose", version.ref = "androidxSavedState" }
+androidx-sqlite-bundled = { group = "androidx.sqlite", name = "sqlite-bundled", version.ref = "androidxSqlite" }
+androidx-sqlite-framework = { group = "androidx.sqlite", name = "sqlite-framework", version.ref = "androidxSqlite" }
+androidx-sqlite-web = { group = "androidx.sqlite", name = "sqlite-web", version.ref = "androidxSqlite" }
 androidx-lint-gradle = { group = "androidx.lint", name = "lint-gradle", version.ref = "androidxLintGradle" }
 androidx-poolingContainer = { group = "androidx.customview", name = "customview-poolingcontainer", version.ref = "androidxPoolingContainer" }
 androidx-profileInstaller = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "androidxProfileInstaller" }
@@ -299,6 +306,8 @@ showkase-processor = { group = "com.airbnb.android", name = "showkase-processor"
 showkase-runtime = { group = "com.airbnb.android", name = "showkase", version.ref = "showkase" }
 slackComposeLintChecks = { group = "com.slack.lint.compose", name = "compose-lint-checks", version.ref = "slackComposeLintChecks" }
 slf4j-nop = { group = "org.slf4j", name = "slf4j-nop", version.ref = "slf4j" }
+sqldelightAndroidXDriver = { group = "com.eygraber", name = "sqldelight-androidx-driver", version.ref = "sqldelightAndroidX" }
+sqldelightAndroidXDriver-opfs = { group = "com.eygraber", name = "sqldelight-androidx-driver-opfs", version.ref = "sqldelightAndroidX" }
 sqldelight-androidDriver = { group = "app.cash.sqldelight", name = "android-driver", version.ref = "sqldelight" }
 sqldelight-coroutinesExtensions = { group = "app.cash.sqldelight", name = "coroutines-extensions", version.ref = "sqldelight" }
 sqldelight-primitiveAdapters = { group = "app.cash.sqldelight", name = "primitive-adapters", version.ref = "sqldelight" }
