@@ -17,8 +17,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-sdk tools:overrideLibrary="androidx.xr.arcore,androidx.xr.compose,androidx.xr.runtime,androidx.xr.runtime.openxr,androidx.xr.scenecore,com.google.ar.imp.apibindings" />
-
     <application
         android:name=".ComposeLifeApplication"
         android:allowBackup="true"
