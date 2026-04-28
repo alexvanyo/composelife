@@ -30,7 +30,7 @@ androidxLintGradle = "1.0.0-beta01"
 #androidxNavigationEvent
 androidxNavigationEvent = "1.1.0-beta01"
 #androidxNavigation3
-androidxNavigation3 = "1.2.0-alpha01"
+androidxNavigation3 = "1.2.0-alpha02"
 #androidxPoolingContainer
 androidxPoolingContainer = "1.1.0"
 #androidxProfileInstaller
