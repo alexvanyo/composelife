@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.ui.cells.ctxs
 
-import android.app.Activity
 import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
@@ -41,9 +40,20 @@ import com.alexvanyo.composelife.ui.cells.ImmutableCellWindowCtx
 import com.alexvanyo.composelife.ui.cells.InteractableCellsCtx
 import com.alexvanyo.composelife.ui.cells.MutableCellWindowCtx
 import com.alexvanyo.composelife.ui.cells.NonInteractableCellsCtx
+import com.alexvanyo.composelife.updatable.Updatable
+import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.DependencyGraph
+import dev.zacsweers.metro.ForScope
 import dev.zacsweers.metro.createGraph
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+
+@ContributesTo(AppScope::class)
+internal interface AppPreviewCtx {
+    @ForScope(AppScope::class)
+    val appUpdatables: Set<Updatable>
+}
 
 /**
  * The full super-interface implementing all entry points for rendering
@@ -57,6 +67,9 @@ internal interface PreviewCtx : ComposeLifePreferencesProvider {
     val nonInteractableCellsCtx: NonInteractableCellsCtx
     val imageLoader: ImageLoader
     val loadedComposeLifePreferencesHolder: LoadedComposeLifePreferencesHolder
+
+    @ForScope(UiScope::class)
+    val uiUpdatables: Set<Updatable>
 }
 
 @DependencyGraph(GlobalScope::class)
@@ -79,6 +92,7 @@ internal fun WithPreviewDependencies(
             },
         )
     }
+    val appCtx = applicationGraph as AppPreviewCtx
     val activity = LocalActivity.current
     val windowInfo = LocalWindowInfo.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -93,6 +107,14 @@ internal fun WithPreviewDependencies(
         )
     }
     val ctx = uiGraph as PreviewCtx
+
+    LaunchedEffect(ctx) {
+        coroutineScope {
+            (appCtx.appUpdatables + ctx.uiUpdatables).forEach {
+                launch { it.update() }
+            }
+        }
+    }
 
     content(ctx)
 }

@@ -35,3 +35,7 @@
 -dontwarn com.android.extensions.xr.splitengine.RequestCallback
 -dontwarn com.android.extensions.xr.splitengine.SystemRendererConnection
 -dontwarn com.android.extensions.xr.subspace.Subspace
+
+-keep,allowobfuscation class com.alexvanyo.composelife.GlobalGraph* {
+    *;
+}

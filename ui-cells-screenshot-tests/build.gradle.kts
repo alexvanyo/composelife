@@ -35,7 +35,6 @@ plugins {
 
 metro {
     unusedGraphInputsSeverity = DiagnosticSeverity.NONE
-    shrinkUnusedBindings = false
 }
 
 kotlin {
