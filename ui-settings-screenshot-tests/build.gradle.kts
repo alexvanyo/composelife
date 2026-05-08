@@ -34,7 +34,6 @@ plugins {
 
 metro {
     unusedGraphInputsSeverity = DiagnosticSeverity.NONE
-    shrinkUnusedBindings = false
 }
 
 ksp {
