@@ -60,8 +60,8 @@ co.touchlab:kermit-core-jvm:2.1.0
 co.touchlab:kermit-core:2.1.0
 co.touchlab:kermit-jvm:2.1.0
 co.touchlab:kermit:2.1.0
-com.eygraber:sqldelight-androidx-driver-jvm:0.5.0-alpha.1
-com.eygraber:sqldelight-androidx-driver:0.5.0-alpha.1
+com.eygraber:sqldelight-androidx-driver-jvm:0.5.0-alpha.7
+com.eygraber:sqldelight-androidx-driver:0.5.0-alpha.7
 com.squareup.okhttp3:okhttp-jvm:5.3.2
 com.squareup.okhttp3:okhttp:5.3.2
 com.squareup.okio:okio-jvm:3.17.0

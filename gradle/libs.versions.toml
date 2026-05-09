@@ -150,7 +150,7 @@ slackComposeLintChecks = "1.4.2"
 #sqldelight
 sqldelight = "2.3.2"
 #sqldelightAndroidX
-sqldelightAndroidX = "0.5.0-alpha.1"
+sqldelightAndroidX = "0.5.0-alpha.7"
 #sqlJs
 sqlJs = "1.8.0"
 #testBalloon

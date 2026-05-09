@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.database
 
-import androidx.sqlite.driver.web.WebWorkerSQLiteDriver
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.db.use
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
@@ -25,7 +24,8 @@ import com.eygraber.sqldelight.androidx.driver.AndroidxSqliteConcurrencyModel
 import com.eygraber.sqldelight.androidx.driver.AndroidxSqliteConfiguration
 import com.eygraber.sqldelight.androidx.driver.AndroidxSqliteDatabaseType
 import com.eygraber.sqldelight.androidx.driver.AndroidxSqliteDriver
-import com.eygraber.sqldelight.androidx.driver.opfs.opfsWorker
+import com.eygraber.sqldelight.androidx.driver.opfs.OpfsMultiTabMode
+import com.eygraber.sqldelight.androidx.driver.opfs.androidxSqliteOpfsDriver
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Binds
@@ -56,7 +56,7 @@ class WebComposeLifeTestDriver(
 ) : ComposeLifeDriver, Updatable {
 
     override val sqlDriver: SqlDriver = AndroidxSqliteDriver(
-        driver = WebWorkerSQLiteDriver(opfsWorker()),
+        driver = androidxSqliteOpfsDriver(multiTabMode = OpfsMultiTabMode.Shared),
         databaseType = AndroidxSqliteDatabaseType.Memory,
         schema = ComposeLifeDatabase.Schema,
         configuration = AndroidxSqliteConfiguration(

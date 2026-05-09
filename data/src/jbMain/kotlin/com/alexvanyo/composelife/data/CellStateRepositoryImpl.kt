@@ -21,6 +21,7 @@ import com.alexvanyo.composelife.data.model.SaveableCellState
 import com.alexvanyo.composelife.database.CellStateId
 import com.alexvanyo.composelife.database.CellStateQueriesWrapper
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
+import com.alexvanyo.composelife.filesystem.AsyncFileSystem
 import com.alexvanyo.composelife.filesystem.PersistedDataPath
 import com.alexvanyo.composelife.logging.Logger
 import com.alexvanyo.composelife.model.CellState
@@ -31,12 +32,10 @@ import com.alexvanyo.composelife.model.fromFileExtension
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Binds
-import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
-import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
 import okio.buffer
@@ -59,7 +58,7 @@ class CellStateRepositoryImpl(
     private val flexibleCellStateSerializer: FlexibleCellStateSerializer,
     private val cellStateQueriesWrapper: CellStateQueriesWrapper,
     private val dispatchers: ComposeLifeDispatchers,
-    private val fileSystem: FileSystem,
+    private val fileSystem: AsyncFileSystem,
     @PersistedDataPath persistedDataPath: Lazy<Path>,
     private val logger: Logger,
     private val clock: Clock,
@@ -200,14 +199,14 @@ class CellStateRepositoryImpl(
 
 @Suppress("LongParameterList")
 private suspend fun writeCellStateToFile(
-    fileSystem: FileSystem,
+    fileSystem: AsyncFileSystem,
     dispatchers: ComposeLifeDispatchers,
     serializer: FlexibleCellStateSerializer,
     cellState: CellState,
     file: Path,
     format: CellStateFormat.FixedFormat,
 ) = withContext(dispatchers.IO) {
-    file.parent?.let(fileSystem::createDirectories)
+    file.parent?.let { fileSystem.createDirectories(it) }
     fileSystem.sink(file).buffer().use { sink ->
         serializer
             .serializeToString(
@@ -224,7 +223,7 @@ private suspend fun writeCellStateToFile(
 }
 
 private suspend fun readCellStateFromFile(
-    fileSystem: FileSystem,
+    fileSystem: AsyncFileSystem,
     dispatchers: ComposeLifeDispatchers,
     serializer: FlexibleCellStateSerializer,
     file: Path,

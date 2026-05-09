@@ -26,6 +26,7 @@ import com.alexvanyo.composelife.database.CellStateQueriesWrapper
 import com.alexvanyo.composelife.database.PatternCollectionId
 import com.alexvanyo.composelife.database.PatternCollectionQueriesWrapper
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
+import com.alexvanyo.composelife.filesystem.AsyncFileSystem
 import com.alexvanyo.composelife.filesystem.PersistedDataPath
 import com.alexvanyo.composelife.logging.Logger
 import com.alexvanyo.composelife.resourcestate.ResourceState
@@ -58,14 +59,12 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.io.okio.asOkioSource
 import okio.ByteString.Companion.toByteString
-import okio.FileSystem
 import okio.HashingSink
 import okio.Path
 import okio.Path.Companion.toPath
 import okio.blackholeSink
 import okio.buffer
 import okio.use
-import kotlin.sequences.map
 import kotlin.time.Clock
 
 @ContributesTo(AppScope::class)
@@ -87,7 +86,7 @@ class PatternCollectionRepositoryImpl(
     private val dispatchers: ComposeLifeDispatchers,
     private val cellStateQueriesWrapper: CellStateQueriesWrapper,
     private val patternCollectionQueriesWrapper: PatternCollectionQueriesWrapper,
-    private val fileSystem: FileSystem,
+    private val fileSystem: AsyncFileSystem,
     httpClient: Lazy<HttpClient>,
     private val logger: Logger,
     private val clock: Clock,
@@ -260,33 +259,35 @@ class PatternCollectionRepositoryImpl(
                 logger.d("Archive file had same hash")
             } else {
                 // The hash has changed, extract all contained patterns
-                val archiveFileSystem = fileSystem.openZip(archivePath)
-                val filesToExtract = archiveFileSystem.listRecursively("/".toPath()).filterNot {
-                    archiveFileSystem.metadata(it).isDirectory
-                }
-                filesToExtract.forEach { file ->
-                    logger.d("Found file: ${file.name}")
-                    val extractedFile = archivePathParent / extractedPatternsFolder / file.relativeTo("/".toPath())
-                    extractedFile.parent?.let(fileSystem::createDirectories)
-                    fileSystem.sink(extractedFile).buffer().use { sink ->
-                        archiveFileSystem.source(file).buffer().use { source ->
-                            source.readAll(sink)
+                fileSystem.openZip(archivePath).use { archiveFileSystem ->
+                    val filesToExtract = mutableListOf<Path>()
+                    archiveFileSystem.listRecursively("/".toPath()).filterNotTo(filesToExtract) {
+                        archiveFileSystem.metadata(it).isDirectory
+                    }
+                    filesToExtract.forEach { file ->
+                        logger.d("Found file: ${file.name}")
+                        val extractedFile = archivePathParent / extractedPatternsFolder / file.relativeTo("/".toPath())
+                        extractedFile.parent?.let { fileSystem.createDirectories(it) }
+                        fileSystem.sink(extractedFile).buffer().use { sink ->
+                            archiveFileSystem.source(file).buffer().use { source ->
+                                source.readAll(sink)
+                            }
                         }
                     }
-                }
-                val extractedFiles = filesToExtract.map { file ->
-                    archivePathParent / extractedPatternsFolder / file.relativeTo("/".toPath())
-                }.toSet()
+                    val extractedFiles = filesToExtract.map { file ->
+                        archivePathParent / extractedPatternsFolder / file.relativeTo("/".toPath())
+                    }.toSet()
 
-                // Synchronize the cell states with the updated pattern collection
-                synchronizeCellStateWithPatternCollection(
-                    patternCollectionId = databasePatternCollection.id,
-                    extractedFiles = extractedFiles,
-                )
+                    // Synchronize the cell states with the updated pattern collection
+                    synchronizeCellStateWithPatternCollection(
+                        patternCollectionId = databasePatternCollection.id,
+                        extractedFiles = extractedFiles,
+                    )
 
-                // Update the hash after processing everything
-                fileSystem.sink(archiveHashPath).buffer().use { sink ->
-                    sink.write(hash)
+                    // Update the hash after processing everything
+                    fileSystem.sink(archiveHashPath).buffer().use { sink ->
+                        sink.write(hash)
+                    }
                 }
             }
         } catch (exception: Exception) {
