@@ -22,8 +22,8 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Provides
-import okio.FileSystem
 import okio.Path
+import okio.Path.Companion.toPath
 
 @ContributesTo(AppScope::class)
 @BindingContainer
@@ -32,6 +32,6 @@ interface PersistedDataPathBindings {
     companion object {
         @Provides
         @PersistedDataPath
-        internal fun providesPersistedDataPath(): Path = FileSystem.SYSTEM_TEMPORARY_DIRECTORY
+        internal fun providesPersistedDataPath(): Path = "".toPath()
     }
 }

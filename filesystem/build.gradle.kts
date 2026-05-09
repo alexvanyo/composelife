@@ -13,11 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import com.alexvanyo.composelife.buildlogic.FormFactor
-import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
-import com.android.build.api.dsl.KotlinMultiplatformAndroidDeviceTestCompilation
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-import kotlin.jvm.java
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -25,6 +21,7 @@ plugins {
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.gradleDependenciesSorter)
     alias(libs.plugins.metro)
+    alias(libs.plugins.convention.kotlinMultiplatformCompose)
 }
 
 kotlin {
@@ -49,7 +46,11 @@ kotlin {
             dependencies {
                 api(libs.okio)
 
+                implementation(project.dependencies.platform(libs.androidx.compose.bom))
+                implementation(libs.androidx.compose.runtime)
+                implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
+                implementation(projects.dispatchers)
                 implementation(projects.injectScopes)
             }
         }
@@ -64,7 +65,18 @@ kotlin {
         }
         val wasmJsMain by getting {
             dependencies {
+                implementation(libs.jetbrains.compose.ui)
+                implementation(libs.kotlinx.browser)
                 implementation(libs.okio.fakefilesystem)
+            }
+        }
+        val wasmJsTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(libs.jetbrains.compose.ui)
+                implementation(libs.kotlinx.browser)
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(projects.dispatchersTestFixtures)
             }
         }
     }
