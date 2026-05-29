@@ -79,6 +79,3 @@ lint/tmp/
 
 #robolectric.properties generated in CI
 resources/com/alexvanyo/composelife/robolectric.properties
-
-.gemini/
-gha-creds-*.json
