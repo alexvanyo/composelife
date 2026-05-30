@@ -178,12 +178,14 @@ fun Project.configureAndroid(
  * no longer be needed. See also b/195329463.
  */
 private fun Project.addSourceSetsForAndroidMultiplatformAfterEvaluate() {
-    val multiplatformExtension = extensions.findByType(KotlinMultiplatformExtension::class.java) ?: return
-    multiplatformExtension.targets.findByName("android") ?: return
+    val multiplatformExtension = extensions.findByType(KotlinMultiplatformExtension::class.java)
+    if (multiplatformExtension == null) return
+    if (multiplatformExtension.targets.findByName("android") == null) return
 
-    val androidMain =
-        multiplatformExtension.sourceSets.findByName("androidMain")
-            ?: throw GradleException("Failed to find source set with name 'androidMain'")
+    val androidMain = multiplatformExtension.sourceSets.findByName("androidMain")
+    if (androidMain == null) {
+        throw GradleException("Failed to find source set with name 'androidMain'")
+    }
 
     // Get all the source sets androidMain transitively / directly depends on.
     val dependencySourceSets = androidMain.withClosure(KotlinSourceSet::dependsOn)
@@ -193,10 +195,12 @@ private fun Project.addSourceSetsForAndroidMultiplatformAfterEvaluate() {
         // Each variant has a source provider for the variant (such as debug) and the 'main'
         // variant. The actual files that Lint will run on is both of these providers
         // combined - so we can just add the dependencies to the first we see.
-        val sourceProvider = sourceProviders.get().firstOrNull() ?: return
-        dependencySourceSets.forEach { sourceSet ->
-            sourceProvider.javaDirectories.withChangesAllowed {
-                from(sourceSet.kotlin.sourceDirectories)
+        val sourceProvider = sourceProviders.get().firstOrNull()
+        if (sourceProvider != null) {
+            dependencySourceSets.forEach { sourceSet ->
+                sourceProvider.javaDirectories.withChangesAllowed {
+                    from(sourceSet.kotlin.sourceDirectories)
+                }
             }
         }
     }
@@ -219,34 +223,69 @@ private fun Project.addSourceSetsForAndroidMultiplatformAfterEvaluate() {
  * initialized and disallowed changes). This uses reflection to temporarily allow changes, and
  * apply [block].
  */
+@Suppress("NestedBlockDepth", "ReturnCount")
 private fun ConfigurableFileCollection.withChangesAllowed(
     block: ConfigurableFileCollection.() -> Unit,
 ) {
-    // The `disallowChanges` field is defined on `ConfigurableFileCollection` prior to Gradle 8.6
-    // and on the inner ValueState in later versions.
-    val (target, field) =
-        findDeclaredFieldOnClass("disallowChanges")?.let { field -> Pair(this, field) }
-            ?: findDeclaredFieldOnClass("valueState")?.let { valueState ->
-                valueState.isAccessible = true
-                val target = valueState.get(this)
-                target.findDeclaredFieldOnClass("disallowChanges")?.let { field ->
-                    // For Gradle 8.6 and later,
-                    Pair(target, field)
-                }
-            }
-            ?: throw NoSuchFieldException()
+    // 1. Try old Gradle versions where disallowChanges was directly on ConfigurableFileCollection
+    val directField = findField("disallowChanges")
+    if (directField != null) {
+        directField.isAccessible = true
+        val originalValue = directField.get(this) as Boolean
+        directField.set(this, false)
+        try {
+            block()
+        } finally {
+            directField.set(this, originalValue)
+        }
+    } else {
+        // 2. Try valueState field
+        val valueStateField = findField("valueState") ?: throw NoSuchFieldException("valueState")
+        valueStateField.isAccessible = true
+        val valueStateObj = valueStateField.get(this)
 
-    // Make the field temporarily accessible while we run the `block`.
-    field.isAccessible = true
-    field.set(target, false)
-    block()
-    field.set(target, true)
+        // 2a. Try disallowChanges on valueStateObj
+        val disallowChangesField = valueStateObj.findField("disallowChanges")
+        if (disallowChangesField != null) {
+            disallowChangesField.isAccessible = true
+            val originalValue = disallowChangesField.get(valueStateObj) as Boolean
+            disallowChangesField.set(valueStateObj, false)
+            try {
+                block()
+            } finally {
+                disallowChangesField.set(valueStateObj, originalValue)
+            }
+        } else {
+            // 2b. Try flags byte mask on valueStateObj (Gradle 9.5+)
+            val flagsField = valueStateObj.findField("flags")
+            val maskField = valueStateObj.findField("DISALLOW_CHANGES")
+            if (flagsField != null && maskField != null) {
+                flagsField.isAccessible = true
+                maskField.isAccessible = true
+                val mask = (maskField.get(null) as Number).toInt()
+                val originalFlags = (flagsField.get(valueStateObj) as Number).toInt()
+                flagsField.set(valueStateObj, (originalFlags and mask.inv()).toByte())
+                try {
+                    block()
+                } finally {
+                    flagsField.set(valueStateObj, originalFlags.toByte())
+                }
+            } else {
+                throw NoSuchFieldException("Could not find disallowChanges or flags field on valueState")
+            }
+        }
+    }
 }
 
 @Suppress("SwallowedException")
-private fun Any.findDeclaredFieldOnClass(name: String): Field? =
-    try {
-        this::class.java.getDeclaredField(name)
-    } catch (e: NoSuchFieldException) {
-        null
+private fun Any.findField(name: String): Field? {
+    var clazz: Class<*>? = this::class.java
+    while (clazz != null) {
+        try {
+            return clazz.getDeclaredField(name)
+        } catch (e: NoSuchFieldException) {
+            clazz = clazz.superclass
+        }
     }
+    return null
+}

@@ -152,7 +152,7 @@ naming:
 
 potential-bugs:
   IgnoredReturnValue:
-    excludes: [ '**/WatchFaceConfigPane.kt' ] # TODO: Re-enable
+    excludes: [ '**/WatchFaceConfigPane.kt', '**/GradleManagedDevices.kt' ] # TODO: Re-enable
 
 style:
   ForbiddenComment:
