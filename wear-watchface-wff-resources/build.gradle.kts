@@ -49,6 +49,7 @@ kotlin {
                 implementation(projects.algorithm)
                 implementation(projects.dispatchersTestFixtures)
                 implementation(projects.geometry)
+                implementation(projects.tracingTestFixtures)
             }
         }
     }

@@ -56,6 +56,7 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.benchmark.micro.junit4)
                 implementation(libs.androidx.test.runner)
+                implementation(libs.androidx.tracing)
             }
         }
         val commonTest by getting {
@@ -63,6 +64,7 @@ kotlin {
                 implementation(projects.algorithm)
                 implementation(projects.dispatchersTestFixtures)
                 implementation(projects.patterns)
+                implementation(projects.tracingTestFixtures)
             }
         }
         val androidInstrumentedTest by getting {

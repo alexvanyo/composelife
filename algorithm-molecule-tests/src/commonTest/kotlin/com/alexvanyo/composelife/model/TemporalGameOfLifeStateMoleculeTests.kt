@@ -29,6 +29,7 @@ import com.alexvanyo.composelife.dispatchers.TestComposeLifeDispatchers
 import com.alexvanyo.composelife.dispatchers.clock
 import com.alexvanyo.composelife.patterns.SingleCellPattern
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
+import com.alexvanyo.composelife.tracing.TestTraceDriver
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
@@ -54,6 +55,7 @@ class TemporalGameOfLifeStateMoleculeTests {
         runTest(testDispatcher + BroadcastFrameClock()) {
             val hashLifeAlgorithm = HashLifeAlgorithm(
                 dispatchers = dispatchers,
+                tracer = TestTraceDriver().tracer,
             )
 
             moleculeFlow(RecompositionMode.ContextClock) {
@@ -110,6 +112,7 @@ class TemporalGameOfLifeStateMoleculeTests {
         runTest(testDispatcher + BroadcastFrameClock()) {
             val hashLifeAlgorithm = HashLifeAlgorithm(
                 dispatchers = dispatchers,
+                tracer = TestTraceDriver().tracer,
             )
 
             moleculeFlow(RecompositionMode.ContextClock) {
@@ -197,6 +200,7 @@ class TemporalGameOfLifeStateMoleculeTests {
         runTest(testDispatcher + BroadcastFrameClock()) {
             val hashLifeAlgorithm = HashLifeAlgorithm(
                 dispatchers = dispatchers,
+                tracer = TestTraceDriver().tracer,
             )
 
             moleculeFlow(RecompositionMode.ContextClock) {
@@ -296,6 +300,7 @@ class TemporalGameOfLifeStateMoleculeTests {
         runTest(testDispatcher + BroadcastFrameClock()) {
             val hashLifeAlgorithm = HashLifeAlgorithm(
                 dispatchers = dispatchers,
+                tracer = TestTraceDriver().tracer,
             )
 
             moleculeFlow(RecompositionMode.ContextClock) {
@@ -395,6 +400,7 @@ class TemporalGameOfLifeStateMoleculeTests {
         runTest(testDispatcher + BroadcastFrameClock()) {
             val hashLifeAlgorithm = HashLifeAlgorithm(
                 dispatchers = dispatchers,
+                tracer = TestTraceDriver().tracer,
             )
 
             var runFirstMutator by mutableStateOf(true)
@@ -504,6 +510,7 @@ class TemporalGameOfLifeStateMoleculeTests {
         runTest(testDispatcher + BroadcastFrameClock()) {
             val hashLifeAlgorithm = HashLifeAlgorithm(
                 dispatchers = dispatchers,
+                tracer = TestTraceDriver().tracer,
             )
 
             moleculeFlow(RecompositionMode.ContextClock) {

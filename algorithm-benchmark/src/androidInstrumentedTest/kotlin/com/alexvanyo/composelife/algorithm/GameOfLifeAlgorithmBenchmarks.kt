@@ -25,6 +25,7 @@ import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.patterns.GameOfLifeTestPattern
 import com.alexvanyo.composelife.patterns.GosperGliderGunPattern
 import com.alexvanyo.composelife.patterns.RPentominoPattern
+import com.alexvanyo.composelife.tracing.TestTraceDriver
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import com.google.testing.junit.testparameterinjector.TestParameterValuesProvider
@@ -55,7 +56,10 @@ class GameOfLifeAlgorithmBenchmarks {
                         NaiveGameOfLifeAlgorithm(it)
                     },
                     GameOfLifeAlgorithmFactory("HashLife Algorithm") {
-                        HashLifeAlgorithm(it)
+                        HashLifeAlgorithm(
+                            dispatchers = it,
+                            tracer = TestTraceDriver().tracer,
+                        )
                     },
                 )
         }

@@ -218,6 +218,7 @@ androidx-test-junit = { group = "androidx.test.ext", name = "junit-ktx", version
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTestRunner" }
 androidx-test-uiAutomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "androidxTestUiAutomator" }
 androidx-tracing = { group = "androidx.tracing", name = "tracing", version.ref = "androidxTracing" }
+androidx-tracing-wire = { group = "androidx.tracing", name = "tracing-wire", version.ref = "androidxTracing" }
 androidx-wear-compose-foundation = { group = "androidx.wear.compose", name = "compose-foundation", version.ref = "androidxWearCompose" }
 androidx-wear-compose-material3 = { group = "androidx.wear.compose", name = "compose-material3", version.ref = "androidxWearComposeMaterial3" }
 androidx-wear-compose-uiToolingPreview = { group = "androidx.wear.compose", name = "compose-ui-tooling", version.ref = "androidxWearCompose" }
