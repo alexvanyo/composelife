@@ -38,7 +38,6 @@ fun Project.configureKotlin() {
                 freeCompilerArgs.add("-Xreturn-value-checker=check")
                 // TODO: Remove when out of beta: https://youtrack.jetbrains.com/issue/KT-61573
                 freeCompilerArgs.add("-Xexpect-actual-classes")
-                freeCompilerArgs.add("-Xcontext-parameters")
                 allWarningsAsErrors.set(true)
             }
         }
