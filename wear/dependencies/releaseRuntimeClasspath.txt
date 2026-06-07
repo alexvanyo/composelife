@@ -188,8 +188,8 @@ org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0-rc01
 org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.11.0-rc01
 org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.11.0-rc01
 org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0-rc01
-org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.7.1-0.6.x-compat
-org.jetbrains.kotlinx:kotlinx-datetime:0.7.1-0.6.x-compat
+org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.8.0-0.6.x-compat
+org.jetbrains.kotlinx:kotlinx-datetime:0.8.0-0.6.x-compat
 org.jetbrains.kotlinx:kotlinx-serialization-bom:1.11.0
 org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.11.0
 org.jetbrains.kotlinx:kotlinx-serialization-core:1.11.0
