@@ -65,8 +65,8 @@ com.squareup.okio:okio-fakefilesystem-wasm-js:3.17.0
 com.squareup.okio:okio-fakefilesystem:3.17.0
 com.squareup.okio:okio-wasm-js:3.17.0
 com.squareup.okio:okio:3.17.0
-com.squareup.wire:wire-runtime-wasm-js:6.4.0
-com.squareup.wire:wire-runtime:6.4.0
+com.squareup.wire:wire-runtime-wasm-js:7.0.0-alpha03
+com.squareup.wire:wire-runtime:7.0.0-alpha03
 dev.zacsweers.metro:runtime-wasm-js:1.1.1
 dev.zacsweers.metro:runtime:1.1.1
 io.coil-kt.coil3:coil-compose-core-wasm-js:3.4.0
