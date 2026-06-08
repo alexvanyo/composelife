@@ -34,10 +34,10 @@ androidx.navigationevent:navigationevent-compose-desktop:1.1.1
 androidx.navigationevent:navigationevent-compose:1.1.1
 androidx.navigationevent:navigationevent-desktop:1.1.1
 androidx.navigationevent:navigationevent:1.1.1
-androidx.savedstate:savedstate-compose-desktop:1.5.0-beta01
-androidx.savedstate:savedstate-compose:1.5.0-beta01
-androidx.savedstate:savedstate-desktop:1.5.0-beta01
-androidx.savedstate:savedstate:1.5.0-beta01
+androidx.savedstate:savedstate-compose-desktop:1.5.0
+androidx.savedstate:savedstate-compose:1.5.0
+androidx.savedstate:savedstate-desktop:1.5.0
+androidx.savedstate:savedstate:1.5.0
 androidx.sqlite:sqlite-async-jvm:2.7.0-alpha06
 androidx.sqlite:sqlite-async:2.7.0-alpha06
 androidx.sqlite:sqlite-bundled-jvm:2.7.0-alpha06
