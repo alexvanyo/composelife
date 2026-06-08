@@ -106,7 +106,7 @@ ksp = "2.3.9"
 #ktor
 ktor = "3.5.0"
 #jacoco
-jacoco = "0.8.14"
+jacoco = "0.8.15"
 #jetbrainsNavigationEvent
 jetbrainsNavigationEvent = "1.1.0"
 #jetbrainsSavedState
