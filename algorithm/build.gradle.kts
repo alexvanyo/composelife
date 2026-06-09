@@ -38,7 +38,6 @@ kotlin {
         namespace = "com.alexvanyo.composelife.algorithm"
         minSdk = 23
         configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
-        androidResources { enable = true }
     }
     jvm("desktop") {}
     @OptIn(ExperimentalWasmDsl::class)

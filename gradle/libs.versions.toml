@@ -2,9 +2,9 @@
 #androidDesugarJdkLibs
 androidDesugarJdkLibs = "2.1.5"
 #androidGradlePlugin
-androidGradlePlugin = "8.13.2"
+androidGradlePlugin = "9.1.0"
 #androidTools
-androidTools = "31.13.2"
+androidTools = "32.1.0"
 #androidxActivity
 androidxActivity = "1.13.0"
 #androidxAnnotation
@@ -106,7 +106,7 @@ ksp = "2.3.9"
 #ktor
 ktor = "3.5.0"
 #jacoco
-jacoco = "0.8.13"
+jacoco = "0.8.14"
 #jetbrainsNavigationEvent
 jetbrainsNavigationEvent = "1.1.0"
 #jetbrainsSavedState

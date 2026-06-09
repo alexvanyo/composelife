@@ -1,13 +1,18 @@
 package: name='com.alexvanyo.composelife.algorithm.benchmark' versionCode='1' versionName='1.0' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'
 minSdkVersion:'30'
 targetSdkVersion:'34'
+uses-permission: name='android.permission.POST_NOTIFICATIONS'
 uses-permission: name='android.permission.WRITE_EXTERNAL_STORAGE'
 uses-permission: name='android.permission.READ_EXTERNAL_STORAGE'
+uses-permission: name='com.alexvanyo.composelife.algorithm.benchmark.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
 application: label='' icon=''
+uses-library-not-required:'androidx.window.extensions'
+uses-library-not-required:'androidx.window.sidecar'
 feature-group: label=''
   uses-feature: name='android.hardware.faketouch'
   uses-implied-feature: name='android.hardware.faketouch' reason='default feature for all apps'
 other-activities
+other-receivers
 supports-screens: 'small' 'normal' 'large' 'xlarge'
 supports-any-density: 'true'
 locales: '--_--'

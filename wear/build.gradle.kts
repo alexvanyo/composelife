@@ -19,7 +19,6 @@ import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
 import dev.zacsweers.metro.gradle.DiagnosticSeverity
 
 plugins {
-    alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidApplication)
     alias(libs.plugins.convention.androidApplicationCompose)
     alias(libs.plugins.convention.dependencyGuard)
@@ -52,31 +51,14 @@ baselineProfile {
     mergeIntoMain = true
 }
 
-kotlin {
-    androidTarget()
+dependencies {
+ implementation(projects.wearImpl)
 
-    sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation(projects.wearImpl)
-            }
-        }
-        val androidMain by getting {
-            configurations["baselineProfile"].dependencies.add(projects.wearBaselineProfileGenerator)
-        }
-        val androidDebug by creating {
-            dependsOn(androidMain)
-            dependencies {
-                implementation(libs.leakCanary.android)
-            }
-        }
-        val androidStaging by creating {
-            dependsOn(androidMain)
-            dependencies {
-                implementation(libs.leakCanary.android)
-            }
-        }
-    }
+ stagingImplementation(libs.leakCanary.android)
+
+ debugImplementation(libs.leakCanary.android)
+
+ baselineProfile(projects.wearBaselineProfileGenerator)
 }
 
 dependencyGuard {

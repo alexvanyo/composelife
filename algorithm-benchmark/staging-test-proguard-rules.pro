@@ -111,3 +111,15 @@
 -dontwarn javax.inject.Qualifier
 -dontwarn javax.inject.Scope
 -dontwarn javax.lang.model.element.Modifier
+
+-keep class androidx.tracing.** { *; }
+-dontwarn androidx.tracing.**
+
+-keep class androidx.benchmark.** { *; }
+-dontwarn androidx.benchmark.**
+
+-keep class j$.** { *; }
+-dontwarn j$.**
+
+
+
