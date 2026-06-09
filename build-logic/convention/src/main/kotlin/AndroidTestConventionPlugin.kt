@@ -16,6 +16,7 @@
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.configureAndroid
+import com.alexvanyo.composelife.buildlogic.configureKotlin
 import com.android.build.api.dsl.TestExtension
 
 class AndroidTestConventionPlugin : ConventionPlugin({
@@ -23,6 +24,7 @@ class AndroidTestConventionPlugin : ConventionPlugin({
         apply("com.android.test")
     }
 
+    configureKotlin()
     extensions.configure(TestExtension::class.java) {
         configureAndroid(this)
 

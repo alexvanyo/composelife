@@ -26,3 +26,26 @@
 -keep,allowobfuscation class androidx.compose.ui.platform.InfiniteAnimationPolicy {
     *;
 }
+
+-keep class kotlin.** { *; }
+-keep class kotlinx.** { *; }
+-keep class com.alexvanyo.composelife.** { *; }
+
+-keep class leakcanary.** { *; }
+-dontwarn leakcanary.**
+
+-keep class androidx.** { *; }
+-dontwarn androidx.**
+
+-keep class j$.** { *; }
+-dontwarn j$.**
+
+
+-keep class okio.** { *; }
+-dontwarn okio.**
+
+
+
+
+
+

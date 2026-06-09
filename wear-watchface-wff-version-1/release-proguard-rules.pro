@@ -19,32 +19,3 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
-
--keep,allowobfuscation class androidx.compose.runtime.MonotonicFrameClock {
-    *;
-}
--keep,allowobfuscation class androidx.compose.ui.platform.InfiniteAnimationPolicy {
-    *;
-}
-
--keep class androidx.tracing.** { *; }
--dontwarn androidx.tracing.**
-
--keep class kotlin.** { *; }
--keep class kotlinx.** { *; }
-
--keep class com.alexvanyo.composelife.** { *; }
-
--keep class androidx.benchmark.** { *; }
--dontwarn androidx.benchmark.**
-
--keep class androidx.compose.** { *; }
-
--keep class j$.** { *; }
--dontwarn j$.**
-
-
-
-
-
-

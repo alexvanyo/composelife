@@ -36,6 +36,8 @@
 -dontwarn com.android.extensions.xr.splitengine.SystemRendererConnection
 -dontwarn com.android.extensions.xr.subspace.Subspace
 
+-dontwarn com.google.j2objc.annotations.ReflectionSupport
+
 -keep,allowobfuscation class com.alexvanyo.composelife.GlobalGraph* {
     *;
 }

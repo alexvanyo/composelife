@@ -48,32 +48,33 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
+            val composeBom = project.dependencies.platform(libs.androidx.compose.bom)
             dependencies {
-                implementation(libs.androidx.compose.runtime)
-                implementation(libs.androidx.compose.runtime.retain)
-                implementation(libs.jetbrains.compose.ui)
-                implementation(libs.kotlinx.serialization.core)
-                implementation(projects.data)
-                implementation(projects.database)
-                implementation(project.dependencies.platform(libs.androidx.compose.bom))
-                implementation(projects.filesystem)
-                implementation(projects.imageLoader)
-                implementation(projects.injectScopes)
-                implementation(projects.logging)
-                implementation(projects.network)
-                implementation(projects.preferences)
-                implementation(projects.uiApp)
-                implementation(projects.uiMobile)
-                implementation(projects.updatable)
-            }
+   implementation(composeBom)
+   implementation(libs.androidx.compose.runtime)
+   implementation(libs.androidx.compose.runtime.retain)
+   implementation(libs.jetbrains.compose.ui)
+   implementation(libs.kotlinx.serialization.core)
+   implementation(projects.data)
+   implementation(projects.database)
+   implementation(projects.filesystem)
+   implementation(projects.imageLoader)
+   implementation(projects.injectScopes)
+   implementation(projects.logging)
+   implementation(projects.network)
+   implementation(projects.preferences)
+   implementation(projects.uiApp)
+   implementation(projects.uiMobile)
+   implementation(projects.updatable)
+  }
         }
         val wasmJsMain by getting {
             configurations["kspWasmJs"].dependencies.addAll(listOf(
                 projects.sealedEnum.ksp,
             ))
             dependencies {
-                implementation(libs.sqldelightAndroidXDriver.opfs)
-            }
+   implementation(libs.sqldelightAndroidXDriver.opfs)
+  }
         }
     }
 

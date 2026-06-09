@@ -17,7 +17,7 @@
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.configureAndroidTesting
 import com.alexvanyo.composelife.buildlogic.configureTesting
-import com.android.build.api.dsl.androidLibrary
+import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 class AndroidLibraryTestingConventionPlugin : ConventionPlugin({
@@ -26,7 +26,7 @@ class AndroidLibraryTestingConventionPlugin : ConventionPlugin({
     }
 
     extensions.configure(KotlinMultiplatformExtension::class.java) {
-        androidLibrary {
+        extensions.configure(KotlinMultiplatformAndroidLibraryTarget::class.java) {
             configureTesting(this)
             configureAndroidTesting(this)
         }
