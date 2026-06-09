@@ -37,49 +37,41 @@ import org.jetbrains.kotlin.tooling.core.withClosure
 import java.lang.reflect.Field
 
 fun Project.configureAndroid(
-    commonExtension: CommonExtension<*, *, *, *, *, *>,
+    commonExtension: CommonExtension,
 ) {
     val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
     commonExtension.apply {
         compileSdk = 36
 
-        lint {
+        lint.apply {
             warningsAsErrors = true
             disable.addAll(listOf("GradleDependency", "OldTargetApi", "AndroidGradlePluginVersion"))
             enable.addAll(listOf("UnsupportedChromeOsHardware"))
         }
 
-        defaultConfig {
-            vectorDrawables {
-                useSupportLibrary = true
-            }
+        defaultConfig.vectorDrawables.useSupportLibrary = true
+
+        buildTypes.getByName("debug") {
+            isPseudoLocalesEnabled = true
         }
 
-        buildTypes {
-            getByName("debug") {
-                isPseudoLocalesEnabled = true
-            }
-        }
-
-        compileOptions {
+        compileOptions.apply {
             sourceCompatibility = JavaVersion.VERSION_11
             targetCompatibility = JavaVersion.VERSION_11
             isCoreLibraryDesugaringEnabled = true
         }
 
         // Workaround for https://github.com/Kotlin/kotlinx.coroutines/blob/master/kotlinx-coroutines-debug/README.md#build-failures-due-to-duplicate-resource-files
-        packaging {
-            resources.excludes.addAll(
-                listOf(
-                    "/META-INF/AL2.0",
-                    "/META-INF/LGPL2.1",
-                    "/META-INF/LICENSE.md",
-                    "/META-INF/LICENSE-notice.md",
-                    "/META-INF/com.google.dagger_dagger.version",
-                ),
-            )
-        }
+        packaging.resources.excludes.addAll(
+            listOf(
+                "/META-INF/AL2.0",
+                "/META-INF/LGPL2.1",
+                "/META-INF/LICENSE.md",
+                "/META-INF/LICENSE-notice.md",
+                "/META-INF/com.google.dagger_dagger.version",
+            ),
+        )
     }
 
     configurations.configureEach {
@@ -119,6 +111,7 @@ fun Project.configureAndroid(
         }
 
         enableCoreLibraryDesugaring = true
+        androidResources { enable = true }
         compilations.configureEach {
             compileTaskProvider.configure {
                 compilerOptions {

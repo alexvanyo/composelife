@@ -37,6 +37,7 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.gradle.process.ExecOperations
+import org.gradle.work.DisableCachingByDefault
 import java.nio.file.Files
 import javax.inject.Inject
 
@@ -108,6 +109,22 @@ abstract class CheckBadgingTask : DefaultTask() {
     }
 }
 
+@DisableCachingByDefault(because = "Updates workspace source files directly")
+abstract class UpdateBadgingTask : DefaultTask() {
+
+    @get:OutputFile
+    abstract val goldenBadging: RegularFileProperty
+
+    @get:PathSensitive(PathSensitivity.NONE)
+    @get:InputFile
+    abstract val generatedBadging: RegularFileProperty
+
+    @TaskAction
+    fun taskAction() {
+        generatedBadging.get().asFile.copyTo(goldenBadging.get().asFile, overwrite = true)
+    }
+}
+
 fun Project.configureBadgingTasks(
     componentsExtension: ApplicationAndroidComponentsExtension,
 ) {
@@ -130,9 +147,13 @@ fun Project.configureBadgingTasks(
         }
 
         val updateBadgingTaskName = "update${capitalizedVariantName}Badging"
-        tasks.register(updateBadgingTaskName, Copy::class.java) {
-            from(generateBadging.map(GenerateBadgingTask::badging))
-            into(project.layout.projectDirectory)
+        tasks.register(updateBadgingTaskName, UpdateBadgingTask::class.java) {
+            goldenBadging.set(
+                project.layout.projectDirectory.file("${variant.name}-badging.txt"),
+            )
+            generatedBadging.set(
+                generateBadging.flatMap(GenerateBadgingTask::badging),
+            )
         }
 
         val checkBadgingTaskName = "check${capitalizedVariantName}Badging"

@@ -31,3 +31,7 @@
 -keep,allowoptimization class **.*GraphImpl {
     *;
 }
+
+-keep class j$.** { *; }
+-dontwarn j$.**
+

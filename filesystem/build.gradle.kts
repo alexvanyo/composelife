@@ -46,7 +46,6 @@ kotlin {
             dependencies {
                 api(libs.okio)
 
-                implementation(project.dependencies.platform(libs.androidx.compose.bom))
                 implementation(libs.androidx.compose.runtime)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)

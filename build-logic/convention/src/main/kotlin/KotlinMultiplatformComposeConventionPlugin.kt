@@ -15,10 +15,22 @@
  */
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
+import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 class KotlinMultiplatformComposeConventionPlugin : ConventionPlugin({
+    val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
+
     with(pluginManager) {
         apply("org.jetbrains.compose")
         apply("org.jetbrains.kotlin.plugin.compose")
+    }
+
+    extensions.findByType(KotlinMultiplatformExtension::class.java)?.apply {
+        sourceSets.getByName("commonMain") {
+            dependencies {
+                implementation(project.dependencies.platform(libs.findLibrary("androidx.compose.bom").get()))
+            }
+        }
     }
 })

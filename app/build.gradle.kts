@@ -19,7 +19,6 @@ import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
 import dev.zacsweers.metro.gradle.DiagnosticSeverity
 
 plugins {
-    alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidApplication)
     alias(libs.plugins.convention.androidApplicationCompose)
     alias(libs.plugins.convention.androidApplicationJacoco)
@@ -55,36 +54,16 @@ baselineProfile {
     mergeIntoMain = true
 }
 
-kotlin {
-    androidTarget()
+dependencies {
+ implementation(projects.appImpl)
 
-    sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation(projects.appImpl)
-            }
-        }
-        val androidMain by getting {
-            configurations["baselineProfile"].dependencies.add(projects.appBaselineProfileGenerator)
-        }
-        val androidDebug by creating {
-            dependsOn(androidMain)
-            dependencies {
-                implementation(libs.leakCanary.android)
-            }
-        }
-        val androidStaging by creating {
-            dependsOn(androidMain)
-            dependencies {
-                implementation(libs.leakCanary.android)
-            }
-        }
-        val androidInstrumentedTest by getting {
-            dependencies {
-                implementation(projects.appTestFixtures)
-            }
-        }
-    }
+ stagingImplementation(libs.leakCanary.android)
+
+ debugImplementation(libs.leakCanary.android)
+
+ androidTestImplementation(projects.appTestFixtures)
+
+ baselineProfile(projects.appBaselineProfileGenerator)
 }
 
 dependencyGuard {

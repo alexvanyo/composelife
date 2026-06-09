@@ -21,7 +21,6 @@ import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
 import com.alexvanyo.composelife.buildlogic.taskPrefix
 
 plugins {
-    alias(libs.plugins.convention.kotlinMultiplatform)
     alias(libs.plugins.convention.androidTest)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.gradleDependenciesSorter)
@@ -44,19 +43,11 @@ android {
     }
 }
 
-kotlin {
-    androidTarget()
-
-    sourceSets {
-        val androidMain by getting {
-            dependencies {
-                implementation(libs.androidx.benchmark.macro.junit4)
-                implementation(libs.androidx.test.junit)
-                implementation(libs.androidx.test.runner)
-                implementation(libs.kotlin.test.junit)
-            }
-        }
-    }
+dependencies {
+    implementation(libs.androidx.benchmark.macro.junit4)
+    implementation(libs.androidx.test.junit)
+    implementation(libs.androidx.test.runner)
+    implementation(libs.kotlin.test.junit)
 }
 
 baselineProfile {

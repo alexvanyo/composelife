@@ -20,6 +20,7 @@ package com.alexvanyo.composelife.buildlogic
 import com.android.build.api.dsl.CommonExtension
 import com.android.build.api.dsl.KotlinMultiplatformAndroidHostTestCompilation
 import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
+import com.android.build.api.dsl.TestedExtension
 import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
 import com.android.build.gradle.internal.tasks.DeviceProviderInstrumentTestTask
 import com.android.build.gradle.internal.tasks.ManagedDeviceInstrumentationTestTask
@@ -27,27 +28,21 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.provider.Provider
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
 
 fun Project.configureTesting(
-    commonExtension: CommonExtension<*, *, *, *, *, *>,
+    commonExtension: CommonExtension,
 ) {
-    commonExtension.testOptions {
-        unitTests {
-            isIncludeAndroidResources = true
-            isReturnDefaultValues = true
-        }
+    commonExtension.testOptions.unitTests {
+        isIncludeAndroidResources = true
+        isReturnDefaultValues = true
     }
 
-    extensions.configure(KotlinMultiplatformExtension::class.java) {
-        sourceSets.getByName("commonTest") {
-            dependencies {
-                implementation(kotlin("test"))
-            }
-        }
-    }
+    val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
+
+    dependencies.add("testImplementation", libs.findLibrary("kotlin.test").get())
+    dependencies.add("androidTestImplementation", libs.findLibrary("kotlin.test").get())
 }
 
 fun Project.configureTesting(
@@ -88,22 +83,18 @@ private val Project.useSharedTest: Provider<SharedTestConfig> get() =
 
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 fun Project.configureAndroidTesting(
-    commonExtension: CommonExtension<*, *, *, *, *, *>,
-    testedExtension: com.android.build.gradle.TestedExtension,
+    commonExtension: CommonExtension,
+    testedExtension: TestedExtension,
 ) {
     commonExtension.apply {
-        defaultConfig {
-            testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        defaultConfig.testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        sourceSets.getByName("test") {
+            resources.directories.add("src/androidSharedTest/resources")
         }
 
-        sourceSets {
-            getByName("test") {
-                resources.srcDirs("src/androidSharedTest/resources")
-            }
-        }
-
-        testOptions {
-            unitTests.all { test ->
+        testOptions.unitTests {
+            all { test ->
                 test.systemProperty("robolectric.graphicsMode", "NATIVE")
             }
         }
@@ -112,48 +103,23 @@ fun Project.configureAndroidTesting(
     testedExtension.apply {
         if (useSharedTest.get() == SharedTestConfig.Robolectric) {
             // TODO: Replace with gradle-api API
-            testVariants.configureEach {
-                connectedInstrumentTestProvider.configure {
-                    doFirst {
-                        throw GradleException("useSharedTest is configured to only run robolectric tests!")
-                    }
-                }
-            }
+//            testVariants.configureEach {
+//                connectedInstrumentTestProvider.configure {
+//                    doFirst {
+//                        throw GradleException("useSharedTest is configured to only run robolectric tests!")
+//                    }
+//                }
+//            }
         }
     }
 
     val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
-    extensions.configure(KotlinMultiplatformExtension::class.java) {
-        @Suppress("DEPRECATION")
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-        androidTarget {
-            unitTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
-            instrumentedTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
-        }
-
-        sourceSets.apply {
-            val commonTest = getByName("commonTest")
-            val androidSharedTest = create("androidSharedTest") {
-                dependsOn(commonTest)
-            }
-            getByName("androidUnitTest") {
-                if (useSharedTest.get() != SharedTestConfig.Instrumentation) {
-                    dependsOn(androidSharedTest)
-                }
-                dependencies {
-                    implementation(libs.findLibrary("robolectric").get())
-                }
-            }
-            getByName("androidInstrumentedTest") {
-                if (useSharedTest.get() != SharedTestConfig.Robolectric) {
-                    dependsOn(androidSharedTest)
-                }
-                dependencies {
-                    implementation(libs.findLibrary("androidx-test-runner").get())
-                }
-            }
-        }
+    if (useSharedTest.get() != SharedTestConfig.Instrumentation) {
+        dependencies.add("testImplementation", libs.findLibrary("robolectric").get())
+    }
+    if (useSharedTest.get() != SharedTestConfig.Robolectric) {
+        dependencies.add("androidTestImplementation", libs.findLibrary("androidx-test-runner").get())
     }
 
     tasks.withType(org.gradle.api.tasks.testing.Test::class.java).configureEach {

@@ -36,7 +36,7 @@ import kotlin.test.Test
 @OptIn(ExperimentalTestApi::class)
 class RetainTests : BaseKmpTest() {
 
-    @Ignore
+    @Ignore // Fails on CI
     @Test
     fun simple_retained_content_host() = runComposeUiTest {
         var isActive by mutableStateOf(false)

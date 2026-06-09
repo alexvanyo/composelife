@@ -18,28 +18,19 @@ package com.alexvanyo.composelife.buildlogic
 
 import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 fun Project.configureKotlin() {
-    tasks.withType(KotlinCompile::class.java).configureEach {
+    tasks.withType(KotlinCompilationTask::class.java).configureEach {
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
-        }
-    }
-
-    extensions.configure(KotlinMultiplatformExtension::class.java) {
-        sourceSets.configureEach {
-            languageSettings {
-                optIn("kotlin.uuid.ExperimentalUuidApi")
-                optIn("kotlin.time.ExperimentalTime")
+            if (this is KotlinJvmCompilerOptions) {
+                jvmTarget.set(JvmTarget.JVM_11)
             }
-            compilerOptions {
-                freeCompilerArgs.add("-Xreturn-value-checker=check")
-                // TODO: Remove when out of beta: https://youtrack.jetbrains.com/issue/KT-61573
-                freeCompilerArgs.add("-Xexpect-actual-classes")
-                allWarningsAsErrors.set(true)
-            }
+            freeCompilerArgs.addAll(
+                "-Xreturn-value-checker=check",
+                "-Xexpect-actual-classes",
+            )
         }
     }
 }
