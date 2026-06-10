@@ -27,6 +27,7 @@ fun Project.configureKotlin() {
             if (this is KotlinJvmCompilerOptions) {
                 jvmTarget.set(JvmTarget.JVM_11)
             }
+            allWarningsAsErrors.set(true)
             freeCompilerArgs.addAll(
                 "-Xreturn-value-checker=check",
                 "-Xexpect-actual-classes",
