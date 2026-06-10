@@ -412,16 +412,18 @@ class LineSegmentPathTests {
             val expected = lineSegmentPath.bruteForceCellIntersections()
             val actual = lineSegmentPath.cellIntersections()
 
-            assertEquals(
-                emptySet(),
-                expected - actual,
-                "extra in expected for lineSegmentPath: $lineSegmentPath",
-            )
-            assertEquals(
-                emptySet(),
-                actual - expected,
-                "extra in actual lineSegmentPath: $lineSegmentPath",
-            )
+            if (expected != actual) {
+                assertEquals(
+                    emptySet(),
+                    expected - actual,
+                    "extra in expected for lineSegmentPath: $lineSegmentPath",
+                )
+                assertEquals(
+                    emptySet(),
+                    actual - expected,
+                    "extra in actual lineSegmentPath: $lineSegmentPath",
+                )
+            }
         }
     }
 }
@@ -455,14 +457,14 @@ private fun bruteForceCellIntersections(start: Offset, end: Offset): Set<IntOffs
         val minY = kotlin.math.floor(min(start.y, end.y)).toInt()
         val maxY = kotlin.math.floor(max(start.y, end.y)).toInt()
 
-        addAll(
-            (minX..maxX).flatMap { x ->
-                (minY..maxY).map { y ->
-                    IntOffset(x, y)
+        for (x in minX..maxX) {
+            for (y in minY..maxY) {
+                val intOffset = IntOffset(x, y)
+                if (intOffset.intersectsLine(start, end)) {
+                    add(intOffset)
                 }
             }
-                .filter { it.intersectsLine(start, end) },
-        )
+        }
     }
 
 private fun IntOffset.intersectsLine(a: Offset, b: Offset) =
