@@ -34,11 +34,13 @@ class InjectTestRunner : AndroidJUnitRunner() {
         java.time.Instant.now()
         java.time.LocalDateTime.now()
         java.time.ZonedDateTime.now()
-        java.time.ZoneOffset.UTC.toString()
+        @Suppress("UNUSED_VARIABLE")
+        val zoneOffset = java.time.ZoneOffset.UTC
         java.time.Clock.systemUTC()
         java.time.Duration.ofDays(1)
         java.time.Period.ofDays(1)
-        java.time.format.DateTimeFormatter.ISO_INSTANT.toString()
+        @Suppress("UNUSED_VARIABLE")
+        val formatter = java.time.format.DateTimeFormatter.ISO_INSTANT
 
         return super.newApplication(cl, TestInjectApplication::class.java.name, context)
     }
