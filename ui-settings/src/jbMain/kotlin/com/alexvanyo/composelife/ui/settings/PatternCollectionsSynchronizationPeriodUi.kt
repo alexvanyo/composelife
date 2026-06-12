@@ -35,6 +35,7 @@ import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.sessionvalue.localSessionId
 import com.alexvanyo.composelife.sessionvalue.map
 import com.alexvanyo.composelife.sessionvalue.rememberAsyncSessionValueHolder
+import com.alexvanyo.composelife.timeutil.approximateDuration
 import com.alexvanyo.composelife.ui.mobile.component.EditableSlider
 import com.alexvanyo.composelife.ui.mobile.component.SliderBijection
 import com.alexvanyo.composelife.ui.settings.resources.PatternCollectionsSynchronizationPeriod
@@ -130,13 +131,7 @@ fun PatternCollectionsSynchronizationPeriodUi(
     var synchronizationPeriodInMinutes by remember(localSessionId) {
         mutableStateOf(
             patternCollectionsSynchronizationPeriodSessionValueHolder.sessionValue.map { dateTimePeriod ->
-                (dateTimePeriod.nanoseconds.nanoseconds +
-                    dateTimePeriod.seconds.seconds +
-                    dateTimePeriod.minutes.minutes +
-                    dateTimePeriod.hours.hours +
-                    dateTimePeriod.days.days +
-                    ((dateTimePeriod.months / 12.0 + dateTimePeriod.years) * 365.2422).days).inWholeNanoseconds /
-                    1.minutes.inWholeNanoseconds.toDouble()
+                dateTimePeriod.approximateDuration.inWholeNanoseconds / 1.minutes.inWholeNanoseconds.toDouble()
             },
         )
     }

@@ -82,6 +82,7 @@ kotlin {
                 implementation(projects.sealedEnum.runtime)
                 implementation(projects.serialization)
                 implementation(projects.sessionValue)
+                implementation(projects.timeUtil)
                 implementation(projects.uiCommon)
                 implementation(projects.uiMobile)
                 implementation(projects.uiToolingPreview)
