@@ -47,7 +47,7 @@ android {
         }
     }
     lint {
-        disable += listOf("UnusedResources")
+        disable += listOf("UnusedResources", "NotShrinkingResources")
     }
 }
 
