@@ -55,7 +55,7 @@ fun Project.configureJacoco(
 
     commonExtension.buildTypes.configureEach {
         enableUnitTestCoverage = hasUnitTests
-        enableAndroidTestCoverage = hasAndroidTests
+        enableAndroidTestCoverage = if (name == "debug") hasAndroidTests else false
     }
 
     tasks.withType(Test::class.java).configureEach {
