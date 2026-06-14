@@ -28,18 +28,6 @@ import androidx.test.runner.AndroidJUnitRunner
 @Suppress("unused")
 class InjectTestRunner : AndroidJUnitRunner() {
     override fun newApplication(cl: ClassLoader?, className: String?, context: Context?): Application {
-        // Keep Collections.synchronizedMap and java.time APIs for L8 desugaring in the test APK
-        java.util.Collections.synchronizedMap(emptyMap<Any?, Any?>())
-        java.time.ZoneId.of("UTC")
-        java.time.Instant.now()
-        java.time.LocalDateTime.now()
-        java.time.ZonedDateTime.now()
-        java.time.ZoneOffset.UTC.toString()
-        java.time.Clock.systemUTC()
-        java.time.Duration.ofDays(1)
-        java.time.Period.ofDays(1)
-        java.time.format.DateTimeFormatter.ISO_INSTANT.toString()
-
         return super.newApplication(cl, TestInjectApplication::class.java.name, context)
     }
 }
