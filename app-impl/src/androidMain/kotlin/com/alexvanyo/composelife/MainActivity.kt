@@ -27,7 +27,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.consumeWindowInsets
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.material3.adaptive.currentWindowSize
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -167,7 +167,7 @@ class MainActivity : AppCompatActivity() {
                     ComposeLifeTheme(darkTheme) {
                         with(composeLifeAppUiCtx) {
                             ComposeLifeApp(
-                                windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                                windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
                                 windowSize = LocalWindowInfo.current.containerDpSize,
                             )
                         }
