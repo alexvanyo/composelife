@@ -157,11 +157,11 @@ com.eygraber:sqldelight-androidx-driver-android:0.5.0-alpha.7
 com.eygraber:sqldelight-androidx-driver:0.5.0-alpha.7
 com.google.accompanist:accompanist-drawablepainter:0.37.3
 com.google.ar:impress:0.0.6
-com.google.code.findbugs:jsr305:3.0.2
-com.google.errorprone:error_prone_annotations:2.30.0
-com.google.guava:failureaccess:1.0.1
-com.google.guava:guava:32.1.3-android
+com.google.errorprone:error_prone_annotations:2.47.0
+com.google.guava:failureaccess:1.0.3
+com.google.guava:guava:33.6.0-android
 com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
+com.google.j2objc:j2objc-annotations:3.1
 com.squareup.okhttp3:okhttp-android:5.3.2
 com.squareup.okhttp3:okhttp:5.3.2
 com.squareup.okio:okio-jvm:3.17.0
@@ -200,7 +200,6 @@ io.ktor:ktor-websocket-serialization-jvm:3.5.0
 io.ktor:ktor-websocket-serialization:3.5.0
 io.ktor:ktor-websockets-jvm:3.5.0
 io.ktor:ktor-websockets:3.5.0
-org.checkerframework:checker-qual:3.37.0
 org.jetbrains.androidx.lifecycle:lifecycle-common:2.9.6
 org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.6
 org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.9.6
