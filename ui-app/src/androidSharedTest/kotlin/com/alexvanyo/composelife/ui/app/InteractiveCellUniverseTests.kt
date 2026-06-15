@@ -17,7 +17,7 @@
 package com.alexvanyo.composelife.ui.app
 
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -160,7 +160,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             with(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                    windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
                     onViewDeserializationInfo = {},
@@ -211,7 +211,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             with(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                    windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
                     onViewDeserializationInfo = {},
@@ -263,7 +263,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             with(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                    windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
                     onViewDeserializationInfo = {},
@@ -329,7 +329,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             with(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                    windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
                     onViewDeserializationInfo = {},
@@ -399,7 +399,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             with(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                    windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
                     onViewDeserializationInfo = {},
@@ -480,7 +480,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             with(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                    windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
                     onViewDeserializationInfo = {},
@@ -541,7 +541,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             with(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                    windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
                     onViewDeserializationInfo = {},
@@ -617,7 +617,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             with(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                    windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
                     onViewDeserializationInfo = {},
@@ -699,7 +699,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             with(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                    windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
                     onViewDeserializationInfo = {},
@@ -788,7 +788,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             with(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                    windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
                     onViewDeserializationInfo = {},
@@ -862,7 +862,7 @@ class InteractiveCellUniverseTests : BaseUiInjectTest(
             with(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
-                    windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                    windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
                     onSeeMoreSettingsClicked = {},
                     onOpenInSettingsClicked = {},
                     onViewDeserializationInfo = {},
