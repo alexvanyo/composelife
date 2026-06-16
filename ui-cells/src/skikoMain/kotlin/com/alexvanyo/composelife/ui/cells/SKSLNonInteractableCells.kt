@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.ImageBitmapConfig
 import androidx.compose.ui.graphics.ShaderBrush
+import androidx.compose.ui.graphics.asComposeShader
 import androidx.compose.ui.graphics.asSkiaBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
@@ -165,7 +166,7 @@ fun SKSLNonInteractableCells(
 
                 runtimeShaderBuilder.child("cells", cellBitmap.makeShader())
 
-                val brush = ShaderBrush(runtimeShaderBuilder.makeShader())
+                val brush = ShaderBrush(runtimeShaderBuilder.makeShader().asComposeShader())
 
                 onDrawWithContent {
                     drawRect(brush)

@@ -16,7 +16,7 @@
 
 package com.alexvanyo.composelife
 
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -119,7 +119,7 @@ fun main() {
                     ComposeLifeTheme(shouldUseDarkTheme()) {
                         with(mainInjectCtx.composeLifeAppUiCtx) {
                             ComposeLifeApp(
-                                windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+                                windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
                                 windowSize = with(LocalDensity.current) {
                                     LocalWindowInfo.current.containerSize.toSize().toDpSize()
                                 },

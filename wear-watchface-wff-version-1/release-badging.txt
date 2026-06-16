@@ -1,4 +1,4 @@
-package: name='com.alexvanyo.composelife.wff' versionCode='1' versionName='1.0' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'
+package: name='com.alexvanyo.composelife.wff' versionCode='1' versionName='1.0' platformBuildVersionName='17' platformBuildVersionCode='37' compileSdkVersion='37' compileSdkVersionCodename='17'
 minSdkVersion:'33'
 maxSdkVersion:'35'
 targetSdkVersion:'35'

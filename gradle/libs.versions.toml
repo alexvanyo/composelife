@@ -2,9 +2,9 @@
 #androidDesugarJdkLibs
 androidDesugarJdkLibs = "2.1.5"
 #androidGradlePlugin
-androidGradlePlugin = "9.1.0"
+androidGradlePlugin = "9.2.1"
 #androidTools
-androidTools = "32.1.0"
+androidTools = "32.2.1"
 #androidxActivity
 androidxActivity = "1.13.0"
 #androidxAnnotation
@@ -14,23 +14,23 @@ androidxAppcompat = "1.8.0-alpha01"
 #androidxBenchmark
 androidxBenchmark = "1.5.0-alpha06"
 #androidxComposeBomAlpha
-androidxComposeBomAlpha = "2026.03.01"
+androidxComposeBomAlpha = "2026.05.02"
 #androidxCollection
 androidxCollection = "1.6.0"
 #androidxCore
-androidxCore = "1.18.0"
+androidxCore = "1.19.0"
 #androidxCoreSplashscreen
 androidxCoreSplashscreen = "1.2.0"
 #androidxDataStore
 androidxDataStore = "1.3.0-alpha09"
 #androidxLifecycle
-androidxLifecycle = "2.11.0-beta01"
+androidxLifecycle = "2.11.0-rc01"
 #androidxLintGradle
 androidxLintGradle = "1.0.0-rc01"
 #androidxNavigationEvent
 androidxNavigationEvent = "1.1.1"
 #androidxNavigation3
-androidxNavigation3 = "1.2.0-alpha02"
+androidxNavigation3 = "1.2.0-alpha04"
 #androidxPoolingContainer
 androidxPoolingContainer = "1.1.0"
 #androidxProfileInstaller
@@ -52,9 +52,9 @@ androidxTestUiAutomator = "2.4.0-beta02"
 #androidxTracing
 androidxTracing = "2.0.0-alpha08"
 #androidxWearCompose
-androidxWearCompose = "1.7.0-alpha01"
+androidxWearCompose = "1.7.0-alpha04"
 #androidxWearComposeMaterial3
-androidxWearComposeMaterial3 = "1.7.0-alpha01"
+androidxWearComposeMaterial3 = "1.7.0-alpha04"
 #androidxWearWatchface
 androidxWearWatchface = "1.3.0-alpha07"
 #androidxWindow
@@ -70,7 +70,7 @@ autoService = "1.1.1"
 #autoServiceKsp
 autoServiceKsp = "1.2.0"
 #coil
-coil = "3.4.0"
+coil = "3.5.0"
 #dependencyGuard
 dependencyGuard = "0.5.0"
 #detekt
@@ -78,7 +78,7 @@ detekt = "1.23.8"
 #googleAutoValue
 googleAutoValue = "1.11.1"
 #gradleDependenciesSorter
-gradleDependenciesSorter = "0.16"
+gradleDependenciesSorter = "0.18.0"
 #guavaAndroid
 guavaAndroid = "32.1.3-android"
 #keeper
@@ -92,7 +92,7 @@ kotlinPoet = "2.3.0"
 #kotlinxBrowser
 kotlinxBrowser = "0.5.0"
 #kotlinxCollectionsImmutable
-kotlinxCollectionsImmutable = "0.5.0-beta01"
+kotlinxCollectionsImmutable = "0.5.0"
 #kotlinxCoroutines
 kotlinxCoroutines = "1.11.0"
 #kotlinxDatetime
@@ -112,15 +112,15 @@ jetbrainsNavigationEvent = "1.1.0"
 #jetbrainsSavedState
 jetbrainsSavedState = "1.4.0"
 #jetbrainsCompose
-jetbrainsCompose = "1.11.0-alpha03"
+jetbrainsCompose = "1.11.1"
 #jetbrainsCompose
-jetbrainsComposeGradlePlugin = "1.11.0-alpha03"
+jetbrainsComposeGradlePlugin = "1.11.1"
 #jetbrainsComposeMaterialIconsExtended
 jetbrainsComposeMaterialIconsExtended = "1.7.3"
 #jetbrainsComposeMaterial3
-jetbrainsComposeMaterial3 = "1.11.0-alpha03"
+jetbrainsComposeMaterial3 = "1.11.0-alpha07"
 #jetbrainsComposeMaterial3Adaptive
-jetbrainsComposeMaterial3Adaptive = "1.3.0-alpha06"
+jetbrainsComposeMaterial3Adaptive = "1.3.0-beta01"
 #jetbrainsNavigation3
 jetbrainsNavigation3 = "1.1.1"
 #junit4
@@ -130,7 +130,7 @@ junit5 = "6.1.0"
 #leakCanary
 leakCanary = "3.0-alpha-8"
 #metro
-metro = "1.1.1"
+metro = "1.2.1"
 #molecule
 molecule = "2.2.0"
 #okio
@@ -140,7 +140,7 @@ proguard = "7.8.0"
 #robolectric
 robolectric = "4.16.1"
 #roborazzi
-roborazzi = "1.63.0"
+roborazzi = "1.64.0"
 #slf4j
 slf4j = "2.1.0-alpha1"
 #showkase

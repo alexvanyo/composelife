@@ -21,7 +21,7 @@ import com.alexvanyo.composelife.scopes.GlobalScope
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.createGraph
 
-class ComposeLifeApplication : BaseComposeLifeApplication<GlobalGraph>(::createGraph)
+class ComposeLifeApplication : BaseComposeLifeApplication<GlobalGraph>({ createGraph() })
 
 @DependencyGraph(GlobalScope::class)
 interface GlobalGraph
