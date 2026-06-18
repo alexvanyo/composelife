@@ -17,7 +17,10 @@
 package com.alexvanyo.composelife.geometry
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -171,5 +174,34 @@ class OffsetExtensionsTests {
     @Test
     fun nine_to_ring_offset() {
         assertEquals(IntOffset(-2, -2), 9.toRingOffset())
+    }
+
+    @Test
+    fun distances_are_correct() {
+        val offset = IntOffset(3, 4)
+        assertEquals(4, offset.chebyshevDistance())
+        assertEquals(7, offset.manhattanDistance())
+        assertEquals(5f, offset.euclideanDistance())
+    }
+
+    @Test
+    fun to_px_is_correct() {
+        val density = Density(density = 2f, fontScale = 1f)
+        val dpOffset = DpOffset(10.dp, 20.dp)
+        val offset = with(density) { dpOffset.toPx() }
+        assertEquals(Offset(20f, 40f), offset)
+    }
+
+    @Test
+    fun von_neumann_neighbors_are_correct() {
+        assertEquals(
+            setOf(
+                IntOffset(-3, -7),
+                IntOffset(-4, -6),
+                IntOffset(-2, -6),
+                IntOffset(-3, -5),
+            ),
+            IntOffset(-3, -6).getVonNeumannNeighbors(),
+        )
     }
 }

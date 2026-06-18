@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.model
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@Suppress("TooManyFunctions")
 class CellStateFormatTests {
 
     @Test
@@ -75,5 +76,53 @@ class CellStateFormatTests {
             CellStateFormat.Unknown,
             CellStateFormat.fromFileExtension(""),
         )
+    }
+
+    @Test
+    fun from_file_extension_mc_is_macrocell() {
+        assertEquals(
+            CellStateFormat.FixedFormat.Macrocell,
+            CellStateFormat.fromFileExtension("mc"),
+        )
+    }
+
+    @Test
+    fun sealed_enum_values_are_correct() {
+        assertEquals(
+            listOf(
+                CellStateFormat.Unknown,
+                CellStateFormat.Life,
+                CellStateFormat.FixedFormat.Plaintext,
+                CellStateFormat.FixedFormat.Life105,
+                CellStateFormat.FixedFormat.Life106,
+                CellStateFormat.FixedFormat.RunLengthEncoding,
+                CellStateFormat.FixedFormat.Macrocell,
+            ),
+            CellStateFormat.sealedEnum.values,
+        )
+    }
+
+    @Test
+    fun fixed_format_sealed_enum_values_are_correct() {
+        assertEquals(
+            listOf(
+                CellStateFormat.FixedFormat.Plaintext,
+                CellStateFormat.FixedFormat.Life105,
+                CellStateFormat.FixedFormat.Life106,
+                CellStateFormat.FixedFormat.RunLengthEncoding,
+                CellStateFormat.FixedFormat.Macrocell,
+            ),
+            CellStateFormat.FixedFormat.sealedEnum.values,
+        )
+    }
+
+    @Test
+    fun fixed_format_name_is_correct() {
+        assertEquals("CellStateFormat_FixedFormat_Plaintext", CellStateFormat.FixedFormat.Plaintext._name)
+        assertEquals("CellStateFormat_FixedFormat_Life105", CellStateFormat.FixedFormat.Life105._name)
+        assertEquals("CellStateFormat_FixedFormat_Life106", CellStateFormat.FixedFormat.Life106._name)
+        val rleName = CellStateFormat.FixedFormat.RunLengthEncoding._name
+        assertEquals("CellStateFormat_FixedFormat_RunLengthEncoding", rleName)
+        assertEquals("CellStateFormat_FixedFormat_Macrocell", CellStateFormat.FixedFormat.Macrocell._name)
     }
 }
