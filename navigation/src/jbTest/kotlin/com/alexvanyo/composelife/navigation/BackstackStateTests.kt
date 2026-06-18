@@ -154,6 +154,41 @@ class BackstackStateTests : BaseKmpTest() {
         assertEquals("abc", restoredBackstackMap[id3]?.value?.fullValue)
         assertEquals("abcd", restoredBackstackMap[id4]?.value?.fullValue)
     }
+
+    @Test
+    fun backstack_state_extension_properties_are_correct() {
+        val entry1 = BackstackEntry(
+            value = "a",
+            previous = null,
+            id = id1,
+        )
+        val entry2 = BackstackEntry(
+            value = "b",
+            previous = entry1,
+            id = id2,
+        )
+
+        val backstackState = object : BackstackState<String> {
+            override val entryMap = mapOf(
+                id1 to entry1,
+                id2 to entry2,
+            )
+            override val currentEntryId = id2
+        }
+
+        assertEquals(id1, backstackState.previousEntryId)
+        assertEquals(entry1, backstackState.previousEntry)
+
+        val backstackStateNoPrevious = object : BackstackState<String> {
+            override val entryMap = mapOf(
+                id1 to entry1,
+            )
+            override val currentEntryId = id1
+        }
+
+        assertEquals(null, backstackStateNoPrevious.previousEntryId)
+        assertEquals(null, backstackStateNoPrevious.previousEntry)
+    }
 }
 
 class TestEntryType(
