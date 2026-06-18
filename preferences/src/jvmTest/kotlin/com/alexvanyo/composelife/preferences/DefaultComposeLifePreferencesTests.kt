@@ -26,6 +26,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.DateTimePeriod
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
 import kotlin.test.Test
@@ -226,6 +227,67 @@ class DefaultComposeLifePreferencesTests {
                     cornerFraction = 0.25f,
                 ),
                 loadedPreferencesState.value.currentShape,
+            )
+
+            // Test non-null expected matching oldValue (should update)
+            val expectedSessionValue = SessionValue(
+                newSessionId,
+                newValueId,
+                CurrentShape.RoundRectangle(
+                    sizeFraction = 0.8f,
+                    cornerFraction = 0.25f,
+                ),
+            )
+            val anotherSessionId = Uuid.random()
+            val anotherValueId = Uuid.random()
+            composelifePreferences.setRoundRectangleConfig(
+                expected = expectedSessionValue,
+                newValue = SessionValue(
+                    anotherSessionId,
+                    anotherValueId,
+                    CurrentShape.RoundRectangle(
+                        sizeFraction = 0.5f,
+                        cornerFraction = 0.5f,
+                    ),
+                ),
+            )
+            delay(1.milliseconds)
+            assertEquals(
+                CurrentShape.RoundRectangle(
+                    sizeFraction = 0.5f,
+                    cornerFraction = 0.5f,
+                ),
+                (composelifePreferences.currentShapeState as ResourceState.Success).value,
+            )
+
+            // Test non-null expected mismatching oldValue (should NOT update)
+            val mismatchExpectedSessionValue = SessionValue(
+                newSessionId, // different from anotherSessionId
+                newValueId,
+                CurrentShape.RoundRectangle(
+                    sizeFraction = 0.8f,
+                    cornerFraction = 0.25f,
+                ),
+            )
+            composelifePreferences.setRoundRectangleConfig(
+                expected = mismatchExpectedSessionValue,
+                newValue = SessionValue(
+                    Uuid.random(),
+                    Uuid.random(),
+                    CurrentShape.RoundRectangle(
+                        sizeFraction = 0.1f,
+                        cornerFraction = 0.1f,
+                    ),
+                ),
+            )
+            delay(1.milliseconds)
+            // Value should still be 0.5f / 0.5f
+            assertEquals(
+                CurrentShape.RoundRectangle(
+                    sizeFraction = 0.5f,
+                    cornerFraction = 0.5f,
+                ),
+                (composelifePreferences.currentShapeState as ResourceState.Success).value,
             )
         }
 
@@ -883,4 +945,95 @@ class DefaultComposeLifePreferencesTests {
             loadedPreferencesState.value.enableWindowShapeClipping,
         )
     }
+
+    @Test
+    fun setting_pattern_collections_synchronization_period_updates_value() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(
+                ResourceState.Loading,
+                composelifePreferences.patternCollectionsSynchronizationPeriodSessionValue,
+            )
+
+            delay(1.milliseconds)
+
+            // Default value is 24 hours, let's verify it starts with a value
+            val defaultPeriodState =
+                composelifePreferences.patternCollectionsSynchronizationPeriodSessionValue
+            assertTrue(defaultPeriodState.isSuccess())
+            assertEquals(
+                DateTimePeriod(hours = 24),
+                defaultPeriodState.value.value,
+            )
+
+            // Test expected = null (should update)
+            val newSessionId = Uuid.random()
+            val newValueId = Uuid.random()
+            composelifePreferences.setPatternCollectionsSynchronizationPeriod(
+                expected = null,
+                newValue = SessionValue(
+                    newSessionId,
+                    newValueId,
+                    DateTimePeriod(days = 7),
+                ),
+            )
+            delay(1.milliseconds)
+
+            val successState1 =
+                composelifePreferences.patternCollectionsSynchronizationPeriodSessionValue
+                    as ResourceState.Success
+            assertEquals(
+                DateTimePeriod(days = 7),
+                successState1.value.value,
+            )
+
+            // Test expected matching (should update)
+            val expectedSessionValue = SessionValue(
+                newSessionId,
+                newValueId,
+                DateTimePeriod(days = 7),
+            )
+            val anotherSessionId = Uuid.random()
+            val anotherValueId = Uuid.random()
+            composelifePreferences.setPatternCollectionsSynchronizationPeriod(
+                expected = expectedSessionValue,
+                newValue = SessionValue(
+                    anotherSessionId,
+                    anotherValueId,
+                    DateTimePeriod(days = 14),
+                ),
+            )
+            delay(1.milliseconds)
+
+            val successState2 =
+                composelifePreferences.patternCollectionsSynchronizationPeriodSessionValue
+                    as ResourceState.Success
+            assertEquals(
+                DateTimePeriod(days = 14),
+                successState2.value.value,
+            )
+
+            // Test expected mismatching (should NOT update)
+            val mismatchExpectedSessionValue = SessionValue(
+                newSessionId, // different from anotherSessionId
+                newValueId,
+                DateTimePeriod(days = 7),
+            )
+            composelifePreferences.setPatternCollectionsSynchronizationPeriod(
+                expected = mismatchExpectedSessionValue,
+                newValue = SessionValue(
+                    Uuid.random(),
+                    Uuid.random(),
+                    DateTimePeriod(days = 30),
+                ),
+            )
+            delay(1.milliseconds)
+
+            val successState3 =
+                composelifePreferences.patternCollectionsSynchronizationPeriodSessionValue
+                    as ResourceState.Success
+            assertEquals(
+                DateTimePeriod(days = 14),
+                successState3.value.value,
+            )
+        }
 }
