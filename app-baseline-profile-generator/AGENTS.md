@@ -13,3 +13,13 @@ This module is responsible for generating the **Baseline Profile** for the main 
 - The tests in this module define the critical user journeys to be profiled (e.g., starting the app, navigating to a screen).
 - These tests are not for verifying correctness, but for exercising the code paths that should be optimized.
 - The CI is configured to run these tests and automatically generate and commit the updated baseline profile. You should not need to run this locally.
+
+## Troubleshooting Local Profile Generation
+
+- If you need to manually force local generation, run:
+  ```bash
+  ./gradlew :app:generateBaselineProfile
+  ```
+- **Common Issues**:
+  - **Git Path Errors**: Running target commands might fail if files like `AndroidManifest.xml` are not in the expected git index. Ensure any local changes are staged or untracked changes are cleaned up.
+  - **Emulator Requirements**: The generator runs instrumented tests on Gradle Managed Devices (GMD). Ensure you have system images or emulator dependencies configured if running locally.
