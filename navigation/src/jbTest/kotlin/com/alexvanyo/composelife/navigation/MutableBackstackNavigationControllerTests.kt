@@ -18,6 +18,7 @@ package com.alexvanyo.composelife.navigation
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
+import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
 import com.alexvanyo.composelife.test.runComposeUiTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -475,5 +476,146 @@ class MutableBackstackNavigationControllerTests : BaseKmpTest() {
         assertEquals("c", navController.currentEntry.value)
         assertTrue(navController.canNavigateBack)
         assertEquals(3, navController.entryMap.size)
+    }
+
+    @Test
+    fun navigation_state_is_correct_after_navigating_repeatedly_and_popping_up_to_id_inclusive() = runComposeUiTest {
+        lateinit var navController: MutableBackstackNavigationController<String>
+
+        setContent {
+            navController = rememberMutableBackstackNavigationController(
+                initialBackstackEntries = listOf(
+                    BackstackEntry(
+                        value = "a",
+                        previous = null,
+                        id = id1,
+                    ),
+                ),
+            )
+        }
+
+        navController.navigate(
+            value = "b",
+            id = id2,
+        )
+        navController.navigate(
+            value = "c",
+            id = id3,
+        )
+        navController.navigate(
+            value = "d",
+            id = id4,
+        )
+        navController.popUpTo(id2, inclusive = true)
+
+        assertEquals(id1, navController.currentEntryId)
+        assertEquals("a", navController.currentEntry.value)
+        assertFalse(navController.canNavigateBack)
+        assertEquals(1, navController.entryMap.size)
+    }
+
+    @Test
+    fun navigation_state_is_correct_after_navigating_repeatedly_and_popping_up_to_value_inclusive() = runComposeUiTest {
+        lateinit var navController: MutableBackstackNavigationController<String>
+
+        setContent {
+            navController = rememberMutableBackstackNavigationController(
+                initialBackstackEntries = listOf(
+                    BackstackEntry(
+                        value = "a",
+                        previous = null,
+                        id = id1,
+                    ),
+                ),
+            )
+        }
+
+        navController.navigate(
+            value = "b",
+            id = id2,
+        )
+        navController.navigate(
+            value = "c",
+            id = id3,
+        )
+        navController.navigate(
+            value = "d",
+            id = id4,
+        )
+        navController.popUpTo(predicate = { it == "b" }, inclusive = true)
+
+        assertEquals(id1, navController.currentEntryId)
+        assertEquals("a", navController.currentEntry.value)
+        assertFalse(navController.canNavigateBack)
+        assertEquals(1, navController.entryMap.size)
+    }
+
+    @Test
+    fun navigation_state_is_correct_after_navigating_repeatedly_and_popping_up_to_entry_inclusive() = runComposeUiTest {
+        lateinit var navController: MutableBackstackNavigationController<String>
+
+        setContent {
+            navController = rememberMutableBackstackNavigationController(
+                initialBackstackEntries = listOf(
+                    BackstackEntry(
+                        value = "a",
+                        previous = null,
+                        id = id1,
+                    ),
+                ),
+            )
+        }
+
+        navController.navigate(
+            value = "b",
+            id = id2,
+        )
+        navController.navigate(
+            value = "c",
+            id = id3,
+        )
+        navController.navigate(
+            value = "d",
+            id = id4,
+        )
+        navController.popUpTo(entryPredicate = { it.value == "b" }, inclusive = true)
+
+        assertEquals(id1, navController.currentEntryId)
+        assertEquals("a", navController.currentEntry.value)
+        assertFalse(navController.canNavigateBack)
+        assertEquals(1, navController.entryMap.size)
+    }
+
+    @Test
+    fun state_restoration_is_correct() = runComposeUiTest {
+        val stateRestorationTester = KmpStateRestorationTester(this)
+
+        lateinit var navController: MutableBackstackNavigationController<String>
+
+        stateRestorationTester.setContent {
+            navController = rememberMutableBackstackNavigationController(
+                initialBackstackEntries = listOf(
+                    BackstackEntry(
+                        value = "a",
+                        previous = null,
+                        id = id1,
+                    ),
+                ),
+            )
+        }
+
+        navController.navigate(
+            value = "b",
+            id = id2,
+        )
+
+        assertEquals(id2, navController.currentEntryId)
+
+        stateRestorationTester.emulateStateRestore()
+
+        assertEquals(id2, navController.currentEntryId)
+        assertEquals("b", navController.currentEntry.value)
+        assertTrue(navController.canNavigateBack)
+        assertEquals(2, navController.entryMap.size)
     }
 }
