@@ -98,6 +98,7 @@ kotlin {
             dependencies {
                 implementation(libs.jetbrains.compose.foundation)
                 implementation(libs.jetbrains.compose.uiTest)
+                implementation(libs.kotlinx.serialization.json)
             }
         }
         val jvmTest by creating {
