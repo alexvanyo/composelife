@@ -11,6 +11,8 @@ This module contains microbenchmarks for the `:algorithm` module.
 ## Usage
 
 - The benchmarks in this module are run on an Android device or emulator.
+- **Build Type Constraints**: Benchmarks must not run as `debug` because debugging options introduce performance overhead. Ensure benchmark configurations use the `staging` build type.
+- **Gradle Managed Devices (GMD)**: Instrumented tests for benchmarks run on GMD should specify the test type as `staging` for exact profiling behavior.
 
 ## Key Dependencies
 
