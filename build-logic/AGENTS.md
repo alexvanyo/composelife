@@ -28,3 +28,9 @@ There are also specialized plugins for setting up specific tools and frameworks,
 ## Usage
 
 When creating a new module, you should apply the appropriate convention plugin(s) in its `build.gradle.kts` file. For example, a new Android library using Compose would apply `com.alexvanyo.composelife.android.library` and `com.alexvanyo.composelife.android.library.compose`.
+
+## Kotlin Compiler Rules & Build Warnings
+
+- **Warnings as Errors**: The Kotlin compiler in this project has `warningsAsErrors` enabled. Any compiler warnings will break `./gradlew check`.
+- **Unused Source Sets**: Be cautious when configuring Kotlin targets. A common warning/error is configuring source sets (e.g., `commonTest`) without connecting them to compilation targets. Connecting them via `dependsOn` (or disabling/removing the unused sets) is necessary to keep builds green.
+- **Deprecation & Lint Warnings**: Always ensure new or modified code does not generate deprecation or generic warnings. If deprecations are unavoidable, annotate them with `@Suppress("DEPRECATION")` or the relevant warning flag.
