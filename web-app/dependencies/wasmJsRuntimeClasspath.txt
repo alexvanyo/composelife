@@ -45,8 +45,8 @@ androidx.sqlite:sqlite-wasm-js:2.7.0-alpha06
 androidx.sqlite:sqlite-web-wasm-js:2.7.0-alpha06
 androidx.sqlite:sqlite-web:2.7.0-alpha06
 androidx.sqlite:sqlite:2.7.0-alpha06
-androidx.window:window-core-wasm-js:1.6.0-alpha03
-androidx.window:window-core:1.6.0-alpha03
+androidx.window:window-core-wasm-js:1.6.0-alpha05
+androidx.window:window-core:1.6.0-alpha05
 app.cash.sqldelight:async-extensions-wasm-js:2.3.2
 app.cash.sqldelight:async-extensions:2.3.2
 app.cash.sqldelight:coroutines-extensions-wasm-js:2.3.2
