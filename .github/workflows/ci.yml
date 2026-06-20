@@ -377,7 +377,7 @@ jobs:
 
       - name: Update gradle.properties with chosen device
         run: |
-          echo "com.alexvanyo.composelife.enabledGradleManagedDevices=${{ matrix.target }}${{ matrix.device }}api${{ matrix.api-level }}" > ~/.gradle/gradle.properties
+          echo "com.alexvanyo.composelife.enabledGradleManagedDevices=${{ matrix.target }}${{ matrix.device }}api${{ matrix.api-level }}" >> ~/.gradle/gradle.properties
 
       - name: Cache AVD
         if: ${{ (github.ref == 'refs/heads/main') && (github.event_name != 'schedule') && (github.event_name != 'workflow_dispatch') }}
