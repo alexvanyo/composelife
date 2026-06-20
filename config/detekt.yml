@@ -47,16 +47,18 @@ empty-blocks:
     excludes: [ '**/generated/**' ]
   EmptyFunctionBlock:
     excludes: [ '**/generated/**' ]
-  EmptyKtFile:
+  EmptyKotlinFile:
     excludes: [ '**/generated/**' ]
 
 exceptions:
   SwallowedException:
     excludes: [ '**/generated/**' ]
 
-formatting:
+ktlint:
   ArgumentListWrapping:
     excludes: [ '**/generated/**' ]
+  BackingPropertyNaming:
+    active: false
   CommentSpacing:
     excludes: [ '**/generated/**' ]
   EnumEntryNameCase:
@@ -73,6 +75,8 @@ formatting:
     excludes: [ '**/generated/**' ]
   Indentation:
     excludes: [ '**/generated/**' ]
+  Kdoc:
+    active: false
   MaximumLineLength:
     excludes: [ '**/generated/**' ]
   MultiLineIfElse:
@@ -103,6 +107,8 @@ formatting:
     excludes: [ '**/generated/**' ]
   PropertyWrapping:
     excludes: [ '**/generated/**' ]
+  PropertyName:
+    active: false
   SpacingAroundAngleBrackets:
     active: true
   SpacingAroundColon:
@@ -164,7 +170,7 @@ style:
         value: 'STOPSHIP:'
   ForbiddenImport:
     active: true
-    imports:
+    forbiddenImports:
       # Disallow JUnit5 imports in favor of kotlin.test
       - 'org.junit.jupiter.api.Assertions.*'
       - 'org.junit.jupiter.api.Test'
@@ -187,7 +193,7 @@ style:
     excludes: [ '**/generated/**' ]
   UnusedParameter:
     excludes: [ '**/generated/**' ]
-  UnusedPrivateMember:
+  UnusedPrivateFunction:
     ignoreAnnotated:
       - "com.alexvanyo.composelife.ui.util.*Previews"
       - "androidx.compose.ui.tooling.preview.Preview"

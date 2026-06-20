@@ -65,9 +65,10 @@ internal val ApplicationGraph.patternCollectionRepositoryTestsCtx:
         this as PatternCollectionRepositoryTestsCtx
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class PatternCollectionRepositoryTests : BaseInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
+class PatternCollectionRepositoryTests :
+    BaseInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
     private val ctx get() = applicationGraph.patternCollectionRepositoryTestsCtx
 
     private val patternCollectionRepository: PatternCollectionRepository

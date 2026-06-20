@@ -320,6 +320,7 @@ private fun CMYSharedElement() {
                         )
                     }
                 }
+
                 Colors.Magenta -> {
                     Column {
                         Box(
@@ -344,6 +345,7 @@ private fun CMYSharedElement() {
                         )
                     }
                 }
+
                 Colors.Yellow -> {
                     Column {
                         Box(
@@ -383,6 +385,7 @@ private fun CMYSharedElement() {
                         )
                     }
                 }
+
                 Colors.Green -> {
                     Column {
                         Box(
@@ -397,6 +400,7 @@ private fun CMYSharedElement() {
                         )
                     }
                 }
+
                 Colors.Blue -> {
                     Column {
                         Box(
@@ -411,6 +415,7 @@ private fun CMYSharedElement() {
                         )
                     }
                 }
+
                 Colors.White -> {
                     Column {
                         Box(
@@ -451,14 +456,17 @@ private fun CMYSharedElement() {
 }
 
 enum class Colors {
-    Cyan, Magenta, Yellow, Red, Green, Blue, White
+    Cyan,
+    Magenta,
+    Yellow,
+    Red,
+    Green,
+    Blue,
+    White,
 }
 
 @Composable
-fun ComposableThatFits(
-    contents: List<@Composable ComposableThatFitsScope.() -> Unit>,
-    modifier: Modifier = Modifier,
-) {
+fun ComposableThatFits(contents: List<@Composable ComposableThatFitsScope.() -> Unit>, modifier: Modifier = Modifier) {
     var placedContentIndex by remember(contents) { mutableIntStateOf(-1) }
 
     val orderedContents = if (placedContentIndex == -1) {

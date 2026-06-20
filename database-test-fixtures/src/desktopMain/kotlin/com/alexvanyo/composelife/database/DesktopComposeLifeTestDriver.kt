@@ -49,9 +49,9 @@ interface DesktopComposeLifeTestDriverBindings {
 
 @SingleIn(AppScope::class)
 @Inject
-class DesktopComposeLifeTestDriver(
-    dispatchers: ComposeLifeDispatchers,
-) : ComposeLifeDriver, Updatable {
+class DesktopComposeLifeTestDriver(dispatchers: ComposeLifeDispatchers) :
+    ComposeLifeDriver,
+    Updatable {
 
     override val sqlDriver: SqlDriver = AndroidxSqliteDriver(
         driver = BundledSQLiteDriver(),
@@ -70,8 +70,7 @@ class DesktopComposeLifeTestDriver(
 
     override suspend fun awaitDriverReady() = Unit
 
-    override suspend fun update(): Nothing =
-        sqlDriver.use {
-            awaitCancellation()
-        }
+    override suspend fun update(): Nothing = sqlDriver.use {
+        awaitCancellation()
+    }
 }

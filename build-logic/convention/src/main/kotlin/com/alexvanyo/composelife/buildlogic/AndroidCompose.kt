@@ -23,9 +23,7 @@ import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-fun Project.configureAndroidCompose(
-    commonExtension: CommonExtension,
-) {
+fun Project.configureAndroidCompose(commonExtension: CommonExtension) {
     val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
     commonExtension.apply {
@@ -67,13 +65,13 @@ fun Project.configureAndroidCompose(
         }
     }
 
-    configurations.getByName("lintChecks")
-        .dependencies.add(libs.findLibrary("slackComposeLintChecks").get().get())
+    configurations
+        .getByName("lintChecks")
+        .dependencies
+        .add(libs.findLibrary("slackComposeLintChecks").get().get())
 }
 
-fun Project.configureAndroidCompose(
-    extension: KotlinMultiplatformAndroidLibraryTarget,
-) {
+fun Project.configureAndroidCompose(extension: KotlinMultiplatformAndroidLibraryTarget) {
     val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
     extension.apply {
@@ -121,6 +119,8 @@ fun Project.configureAndroidCompose(
         }
     }
 
-    configurations.getByName("lintChecks")
-        .dependencies.add(libs.findLibrary("slackComposeLintChecks").get().get())
+    configurations
+        .getByName("lintChecks")
+        .dependencies
+        .add(libs.findLibrary("slackComposeLintChecks").get().get())
 }

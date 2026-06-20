@@ -137,11 +137,7 @@ interface AsyncFileSystem : Closeable {
      *     if there's a loop of symbolic links, or if any name is too long.
      */
     @Throws(IOException::class)
-    suspend fun openReadWrite(
-        file: Path,
-        mustCreate: Boolean = false,
-        mustExist: Boolean = false,
-    ): FileHandle
+    suspend fun openReadWrite(file: Path, mustCreate: Boolean = false, mustExist: Boolean = false): FileHandle
 
     /**
      * Returns a source that reads the bytes of [file] from beginning to end.
@@ -182,11 +178,7 @@ interface AsyncFileSystem : Closeable {
      *     This is equivalent to `O_EXCL` on POSIX and `CREATE_NEW` on Windows.
      */
     @Throws(IOException::class)
-    suspend fun <T> write(
-        file: Path,
-        mustCreate: Boolean = false,
-        writerAction: BufferedSink.() -> T,
-    ): T
+    suspend fun <T> write(file: Path, mustCreate: Boolean = false, writerAction: BufferedSink.() -> T): T
 
     /**
      * Returns a sink that appends bytes to the end of [file], creating it if it doesn't already

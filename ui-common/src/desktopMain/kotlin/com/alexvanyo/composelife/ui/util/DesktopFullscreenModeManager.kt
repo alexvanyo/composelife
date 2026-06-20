@@ -27,9 +27,7 @@ import kotlinx.coroutines.awaitCancellation
 
 @Inject
 @ContributesBinding(UiScope::class)
-class DesktopFullscreenModeManager(
-    private val windowState: WindowState?,
-) : FullscreenModeManager {
+class DesktopFullscreenModeManager(private val windowState: WindowState?) : FullscreenModeManager {
 
     override val isImmersive: Boolean
         get() = false
@@ -37,23 +35,21 @@ class DesktopFullscreenModeManager(
     override val isFullscreen: Boolean
         get() = windowState?.placement == WindowPlacement.Fullscreen
 
-    override fun requestEnterFullscreenMode(): Deferred<Result<Unit>> =
-        CompletableDeferred(
-            if (windowState == null) {
-                Result.failure(IllegalStateException("No window state to control"))
-            } else {
-                windowState.placement = WindowPlacement.Fullscreen
-                Result.success(Unit)
-            },
-        )
+    override fun requestEnterFullscreenMode(): Deferred<Result<Unit>> = CompletableDeferred(
+        if (windowState == null) {
+            Result.failure(IllegalStateException("No window state to control"))
+        } else {
+            windowState.placement = WindowPlacement.Fullscreen
+            Result.success(Unit)
+        },
+    )
 
-    override fun requestExitFullscreenMode(): Deferred<Result<Unit>> =
-        CompletableDeferred(
-            if (windowState == null) {
-                Result.failure(IllegalStateException("No window state to control"))
-            } else {
-                windowState.placement = WindowPlacement.Floating
-                Result.success(Unit)
-            },
-        )
+    override fun requestExitFullscreenMode(): Deferred<Result<Unit>> = CompletableDeferred(
+        if (windowState == null) {
+            Result.failure(IllegalStateException("No window state to control"))
+        } else {
+            windowState.placement = WindowPlacement.Floating
+            Result.success(Unit)
+        },
+    )
 }

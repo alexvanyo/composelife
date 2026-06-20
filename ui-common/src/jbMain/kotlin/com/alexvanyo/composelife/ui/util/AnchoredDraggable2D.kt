@@ -150,9 +150,8 @@ class DraggableAnchors2DConfig<T> {
  * @return A new [DraggableAnchors2D] instance with the anchor positions set by the `builder`
  * function.
  */
-fun <T : Any> DraggableAnchors2D(
-    builder: DraggableAnchors2DConfig<T>.() -> Unit,
-): DraggableAnchors2D<T> = MapDraggableAnchors2D(DraggableAnchors2DConfig<T>().apply(builder).anchors)
+fun <T : Any> DraggableAnchors2D(builder: DraggableAnchors2DConfig<T>.() -> Unit): DraggableAnchors2D<T> =
+    MapDraggableAnchors2D(DraggableAnchors2DConfig<T>().apply(builder).anchors)
 
 /**
  * Enable drag gestures between a set of predefined values.
@@ -192,14 +191,13 @@ private class AnchoredDraggable2DElement<T>(
     private val interactionSource: MutableInteractionSource?,
     private val startDragImmediately: Boolean,
 ) : ModifierNodeElement<AnchoredDraggable2DNode<T>>() {
-    override fun create() =
-        AnchoredDraggable2DNode(
-            state = state,
-            enabled = enabled,
-            reverseDirection = reverseDirection,
-            interactionSource = interactionSource,
-            startDragImmediately = startDragImmediately,
-        )
+    override fun create() = AnchoredDraggable2DNode(
+        state = state,
+        enabled = enabled,
+        reverseDirection = reverseDirection,
+        interactionSource = interactionSource,
+        startDragImmediately = startDragImmediately,
+    )
 
     override fun update(node: AnchoredDraggable2DNode<T>) {
         node.update(
@@ -315,7 +313,9 @@ internal abstract class DragGestureNode(
     enabled: Boolean,
     interactionSource: MutableInteractionSource?,
     private var orientationLock: Orientation?,
-) : DelegatingNode(), PointerInputModifierNode, CompositionLocalConsumerModifierNode {
+) : DelegatingNode(),
+    PointerInputModifierNode,
+    CompositionLocalConsumerModifierNode {
 
     protected var canDrag = canDrag
         private set
@@ -400,79 +400,73 @@ internal abstract class DragGestureNode(
         disposeInteractionSource()
     }
 
-    override fun onPointerEvent(
-        pointerEvent: PointerEvent,
-        pass: PointerEventPass,
-        bounds: IntSize,
-    ) {
+    override fun onPointerEvent(pointerEvent: PointerEvent, pass: PointerEventPass, bounds: IntSize) {
         if (enabled && pointerInputNode == null) {
             pointerInputNode = delegate(initializePointerInputNode())
         }
         pointerInputNode?.onPointerEvent(pointerEvent, pass, bounds)
     }
 
-    private fun initializePointerInputNode(): SuspendingPointerInputModifierNode {
-        return SuspendingPointerInputModifierNode {
-            // re-create tracker when pointer input block restarts. This lazily creates the tracker
-            // only when it is need.
-            val velocityTracker = VelocityTracker()
+    private fun initializePointerInputNode(): SuspendingPointerInputModifierNode = SuspendingPointerInputModifierNode {
+        // re-create tracker when pointer input block restarts. This lazily creates the tracker
+        // only when it is need.
+        val velocityTracker = VelocityTracker()
 
-            val onDragStart:
-                (
-                    down: PointerInputChange,
-                    slopTriggerChange: PointerInputChange,
-                    postSlopOffset: Offset,
-                ) -> Unit =
-                { down, slopTriggerChange, postSlopOffset ->
-                    if (canDrag.invoke(down)) {
-                        if (!isListeningForEvents) {
-                            if (channel == null) {
-                                channel = Channel(capacity = Channel.UNLIMITED)
-                            }
-                            startListeningForEvents()
+        val onDragStart:
+            (
+                down: PointerInputChange,
+                slopTriggerChange: PointerInputChange,
+                postSlopOffset: Offset,
+            ) -> Unit =
+            { down, slopTriggerChange, postSlopOffset ->
+                if (canDrag.invoke(down)) {
+                    if (!isListeningForEvents) {
+                        if (channel == null) {
+                            channel = Channel(capacity = Channel.UNLIMITED)
                         }
-                        velocityTracker.addPointerInputChange(down)
-                        val dragStartedOffset = slopTriggerChange.position - postSlopOffset
-                        // the drag start event offset is the down event + touch slop value
-                        // or in this case the event that triggered the touch slop minus
-                        // the post slop offset
-                        channel?.trySend(DragStarted(dragStartedOffset))
+                        startListeningForEvents()
                     }
+                    velocityTracker.addPointerInputChange(down)
+                    val dragStartedOffset = slopTriggerChange.position - postSlopOffset
+                    // the drag start event offset is the down event + touch slop value
+                    // or in this case the event that triggered the touch slop minus
+                    // the post slop offset
+                    channel?.trySend(DragStarted(dragStartedOffset))
                 }
-
-            val onDragEnd: (change: PointerInputChange) -> Unit = { upEvent ->
-                velocityTracker.addPointerInputChange(upEvent)
-                val maximumVelocity = currentValueOf(LocalViewConfiguration).maximumFlingVelocity
-                val velocity =
-                    velocityTracker.calculateVelocity(Velocity(maximumVelocity, maximumVelocity))
-                velocityTracker.resetTracking()
-                channel?.trySend(DragStopped(velocity.toValidVelocity()))
             }
 
-            val onDragCancel: () -> Unit = { channel?.trySend(DragCancelled) }
+        val onDragEnd: (change: PointerInputChange) -> Unit = { upEvent ->
+            velocityTracker.addPointerInputChange(upEvent)
+            val maximumVelocity = currentValueOf(LocalViewConfiguration).maximumFlingVelocity
+            val velocity =
+                velocityTracker.calculateVelocity(Velocity(maximumVelocity, maximumVelocity))
+            velocityTracker.resetTracking()
+            channel?.trySend(DragStopped(velocity.toValidVelocity()))
+        }
 
-            val shouldAwaitTouchSlop: () -> Boolean = { !startDragImmediately() }
+        val onDragCancel: () -> Unit = { channel?.trySend(DragCancelled) }
 
-            val onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit =
-                { change, delta ->
-                    velocityTracker.addPointerInputChange(change)
-                    channel?.trySend(DragDelta(delta))
-                }
+        val shouldAwaitTouchSlop: () -> Boolean = { !startDragImmediately() }
 
-            coroutineScope {
-                try {
-                    detectDragGestures(
-                        orientationLock = orientationLock,
-                        onDragStart = onDragStart,
-                        onDragEnd = onDragEnd,
-                        onDragCancel = onDragCancel,
-                        shouldAwaitTouchSlop = shouldAwaitTouchSlop,
-                        onDrag = onDrag,
-                    )
-                } catch (cancellation: CancellationException) {
-                    channel?.trySend(DragCancelled)
-                    if (!isActive) throw cancellation
-                }
+        val onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit =
+            { change, delta ->
+                velocityTracker.addPointerInputChange(change)
+                channel?.trySend(DragDelta(delta))
+            }
+
+        coroutineScope {
+            try {
+                detectDragGestures(
+                    orientationLock = orientationLock,
+                    onDragStart = onDragStart,
+                    onDragEnd = onDragEnd,
+                    onDragCancel = onDragCancel,
+                    shouldAwaitTouchSlop = shouldAwaitTouchSlop,
+                    onDrag = onDrag,
+                )
+            } catch (cancellation: CancellationException) {
+                channel?.trySend(DragCancelled)
+                if (!isActive) throw cancellation
             }
         }
     }
@@ -551,8 +545,7 @@ internal abstract class DragGestureNode(
 
 @Suppress("LongParameterList")
 internal suspend fun PointerInputScope.detectDragGestures(
-    onDragStart:
-    (
+    onDragStart: (
         down: PointerInputChange,
         slopTriggerChange: PointerInputChange,
         overSlopOffset: Offset,
@@ -744,6 +737,7 @@ private suspend inline fun AwaitPointerEventScope.awaitDragOrUp(
 private fun Velocity.toValidVelocity() =
     Velocity(if (this.x.isNaN()) 0f else this.x, if (this.y.isNaN()) 0f else this.y)
 
+@Suppress("AbstractClassCanBeInterface")
 internal sealed class DragEvent {
     class DragStarted(val startPoint: Offset) : DragEvent()
     class DragStopped(val velocity: Velocity) : DragEvent()
@@ -765,10 +759,7 @@ interface AnchoredDrag2DScope {
      * @param newOffset new value for [AnchoredDraggable2DState.offset].
      * @param lastKnownVelocity last known velocity (if known)
      */
-    fun dragTo(
-        newOffset: Offset,
-        lastKnownVelocity: Velocity = Velocity.Zero,
-    )
+    fun dragTo(newOffset: Offset, lastKnownVelocity: Velocity = Velocity.Zero)
 }
 
 /**
@@ -826,10 +817,7 @@ class AnchoredDraggable2DState<T>(
             }
         }
 
-        override suspend fun drag(
-            dragPriority: MutatePriority,
-            block: suspend Drag2DScope.() -> Unit,
-        ) {
+        override suspend fun drag(dragPriority: MutatePriority, block: suspend Drag2DScope.() -> Unit) {
             this@AnchoredDraggable2DState.anchoredDrag(dragPriority) {
                 with(dragScope) { block() }
             }
@@ -976,11 +964,7 @@ class AnchoredDraggable2DState<T>(
         }
     }
 
-    private fun computeTarget(
-        offset: Offset,
-        currentValue: T,
-        velocity: Velocity,
-    ): T {
+    private fun computeTarget(offset: Offset, currentValue: T, velocity: Velocity): T {
         val currentAnchors = anchors
         val targetOffset = exponentialDecay<Offset>(
             frictionMultiplier = 5f,
@@ -992,10 +976,7 @@ class AnchoredDraggable2DState<T>(
         return currentAnchors.closestAnchor(targetOffset) ?: currentValue
     }
 
-    private fun computeTargetWithoutThresholds(
-        offset: Offset,
-        currentValue: T,
-    ): T {
+    private fun computeTargetWithoutThresholds(offset: Offset, currentValue: T): T {
         val currentAnchors = anchors
         val currentAnchor = currentAnchors.positionOf(currentValue)
         return if (currentAnchor == offset || currentAnchor.isUnspecified) {
@@ -1105,8 +1086,7 @@ class AnchoredDraggable2DState<T>(
         }
     }
 
-    internal fun newOffsetForDelta(delta: Offset) =
-        (if (offset.isUnspecified) Offset.Zero else offset) + delta
+    internal fun newOffsetForDelta(delta: Offset) = (if (offset.isUnspecified) Offset.Zero else offset) + delta
 
     /**
      * Drag by the [delta], coerce it in the bounds and dispatch it to the [AnchoredDraggable2DState].
@@ -1142,19 +1122,17 @@ class AnchoredDraggable2DState<T>(
         /**
          * The default [Saver] implementation for [AnchoredDraggable2DState].
          */
-        fun <T : Any> Saver(
-            animationSpec: AnimationSpec<Offset>,
-            confirmValueChange: (T) -> Boolean = { true },
-        ) = Saver<AnchoredDraggable2DState<T>, T>(
-            save = { it.currentValue },
-            restore = {
-                AnchoredDraggable2DState(
-                    initialValue = it,
-                    animationSpec = animationSpec,
-                    confirmValueChange = confirmValueChange,
-                )
-            },
-        )
+        fun <T : Any> Saver(animationSpec: AnimationSpec<Offset>, confirmValueChange: (T) -> Boolean = { true }) =
+            Saver<AnchoredDraggable2DState<T>, T>(
+                save = { it.currentValue },
+                restore = {
+                    AnchoredDraggable2DState(
+                        initialValue = it,
+                        animationSpec = animationSpec,
+                        confirmValueChange = confirmValueChange,
+                    )
+                },
+            )
     }
 }
 
@@ -1186,10 +1164,8 @@ suspend fun <T> AnchoredDraggable2DState<T>.snapTo(targetValue: T) {
  * @param targetValue The target value of the animation
  * @param velocity The velocity the animation should start with
  */
-suspend fun <T> AnchoredDraggable2DState<T>.animateTo(
-    targetValue: T,
-    velocity: Velocity = this.lastVelocity,
-) {
+@Suppress("NoNameShadowing")
+suspend fun <T> AnchoredDraggable2DState<T>.animateTo(targetValue: T, velocity: Velocity = this.lastVelocity) {
     anchoredDrag(targetValue = targetValue) { anchors, latestTarget ->
         val targetOffset = anchors.positionOf(latestTarget)
         if (targetOffset.isSpecified) {

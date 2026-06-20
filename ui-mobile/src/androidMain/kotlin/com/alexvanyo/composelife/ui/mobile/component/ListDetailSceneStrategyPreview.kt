@@ -70,7 +70,9 @@ private sealed interface ListDetailSceneStrategyPreviewNavEntry {
 private sealed interface ListDetailSceneStrategyPreviewNavEntrySurrogate :
     BackstackValueSurrogate<ListDetailSceneStrategyPreviewNavEntry>
 
-private class ListPreviewEntry : ListDetailSceneStrategyPreviewNavEntry, ListEntry {
+private class ListPreviewEntry :
+    ListDetailSceneStrategyPreviewNavEntry,
+    ListEntry {
     override val isListVisible: Boolean
         get() = true
     override val isDetailVisible: Boolean
@@ -82,24 +84,23 @@ private class ListPreviewEntry : ListDetailSceneStrategyPreviewNavEntry, ListEnt
     data object Surrogate : ListDetailSceneStrategyPreviewNavEntrySurrogate {
         override fun createFromSurrogate(
             previous: BackstackEntry<ListDetailSceneStrategyPreviewNavEntry>?,
-        ): ListDetailSceneStrategyPreviewNavEntry =
-            ListPreviewEntry()
+        ): ListDetailSceneStrategyPreviewNavEntry = ListPreviewEntry()
     }
 }
 
-private class DetailPreviewEntry(
-    listDetailInfo: ListDetailInfo,
-) : ListDetailSceneStrategyPreviewNavEntry, ListDetailInfo by listDetailInfo, DetailEntry {
+private class DetailPreviewEntry(listDetailInfo: ListDetailInfo) :
+    ListDetailSceneStrategyPreviewNavEntry,
+    ListDetailInfo by listDetailInfo,
+    DetailEntry {
     override val surrogate = Surrogate
 
     @Serializable
     data object Surrogate : ListDetailSceneStrategyPreviewNavEntrySurrogate {
         override fun createFromSurrogate(
             previous: BackstackEntry<ListDetailSceneStrategyPreviewNavEntry>?,
-        ): ListDetailSceneStrategyPreviewNavEntry =
-            DetailPreviewEntry(
-                requireNotNull(previous).value as ListDetailInfo,
-            )
+        ): ListDetailSceneStrategyPreviewNavEntry = DetailPreviewEntry(
+            requireNotNull(previous).value as ListDetailInfo,
+        )
     }
 }
 
@@ -110,8 +111,7 @@ private class EmptyPreviewEntry : ListDetailSceneStrategyPreviewNavEntry {
     data object Surrogate : ListDetailSceneStrategyPreviewNavEntrySurrogate {
         override fun createFromSurrogate(
             previous: BackstackEntry<ListDetailSceneStrategyPreviewNavEntry>?,
-        ): ListDetailSceneStrategyPreviewNavEntry =
-            EmptyPreviewEntry()
+        ): ListDetailSceneStrategyPreviewNavEntry = EmptyPreviewEntry()
     }
 }
 
@@ -141,7 +141,7 @@ private fun ListDetailSceneStrategyPreview() {
                 backstack,
             ) { entry ->
                 Logger.d { "Rendering entry $entry" }
-                when (val value = entry.value) {
+                when (entry.value) {
                     is EmptyPreviewEntry -> {
                         Surface(
                             modifier = Modifier.fillMaxSize(),
@@ -270,6 +270,5 @@ private fun ListDetailSceneStrategyPreview() {
     }
 }
 
-private data class ListDetailSceneStrategyPreviewNavigationEventInfo(
-    val sceneKey: Pair<KClass<out Scene<*>>, Any>,
-) : NavigationEventInfo()
+private data class ListDetailSceneStrategyPreviewNavigationEventInfo(val sceneKey: Pair<KClass<out Scene<*>>, Any>) :
+    NavigationEventInfo()

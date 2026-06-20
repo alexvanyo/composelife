@@ -54,12 +54,9 @@ import com.alexvanyo.composelife.ui.app.resources.Disallow
 import com.alexvanyo.composelife.ui.app.resources.Pinned
 import com.alexvanyo.composelife.ui.app.resources.Strings
 
-context(_: ClipboardCellStatePreviewCtx)
 @Composable
-fun ClipboardWatchingSection(
-    clipboardWatchingState: ClipboardWatchingState,
-    modifier: Modifier = Modifier,
-) {
+context(_: ClipboardCellStatePreviewCtx)
+fun ClipboardWatchingSection(clipboardWatchingState: ClipboardWatchingState, modifier: Modifier = Modifier) {
     AnimatedContent(
         targetState = clipboardWatchingState,
         contentKey = { targetState ->
@@ -77,14 +74,20 @@ fun ClipboardWatchingSection(
     ) { targetState ->
         when (targetState) {
             ClipboardWatchingState.ClipboardWatchingDisabled -> Unit
-            is ClipboardWatchingState.ClipboardWatchingEnabled -> { ClipboardWatchingEnabled(targetState) }
-            is ClipboardWatchingState.Onboarding -> { ClipboardWatchingOnboarding(targetState) }
+
+            is ClipboardWatchingState.ClipboardWatchingEnabled -> {
+                ClipboardWatchingEnabled(targetState)
+            }
+
+            is ClipboardWatchingState.Onboarding -> {
+                ClipboardWatchingOnboarding(targetState)
+            }
         }
     }
 }
 
-context(_: ClipboardCellStatePreviewCtx)
 @Composable
+context(_: ClipboardCellStatePreviewCtx)
 fun ClipboardWatchingEnabled(
     clipboardWatchingState: ClipboardWatchingState.ClipboardWatchingEnabled,
     modifier: Modifier = Modifier,
@@ -132,9 +135,9 @@ fun ClipboardWatchingEnabled(
     }
 }
 
-context(_: ClipboardCellStatePreviewCtx)
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
+context(_: ClipboardCellStatePreviewCtx)
 private fun PinnedClipboardPreviews(
     pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState>,
     useSharedElementForCellStatePreviews: Boolean,
@@ -196,10 +199,10 @@ private fun PinnedClipboardPreviews(
     }
 }
 
-context(_: ClipboardCellStatePreviewCtx)
 @Suppress("LongMethod")
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
+context(_: ClipboardCellStatePreviewCtx)
 private fun ClipboardPreviewHistory(
     clipboardPreviewStates: List<ClipboardPreviewState>,
     useSharedElementForCellStatePreviews: Boolean,

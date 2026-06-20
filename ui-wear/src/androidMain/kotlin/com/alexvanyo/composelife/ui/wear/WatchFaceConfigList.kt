@@ -73,6 +73,7 @@ fun WatchFaceConfigList(
                                 CircularProgressIndicator()
                             }
                         }
+
                         is ResourceState.Success -> {
                             WatchFacePreview(
                                 previewImageBitmap = currentPreview.value,

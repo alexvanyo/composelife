@@ -31,13 +31,8 @@ import kotlinx.coroutines.withContext
  * is checked individually.
  */
 @Inject
-class NaiveGameOfLifeAlgorithm(
-    private val dispatchers: ComposeLifeDispatchers,
-) : GameOfLifeAlgorithm {
-    override suspend fun computeGenerationWithStep(
-        cellState: CellState,
-        @IntRange(from = 0) step: Int,
-    ): CellState =
+class NaiveGameOfLifeAlgorithm(private val dispatchers: ComposeLifeDispatchers) : GameOfLifeAlgorithm {
+    override suspend fun computeGenerationWithStep(cellState: CellState, @IntRange(from = 0) step: Int): CellState =
         withContext(dispatchers.Default) {
             computeGenerationWithStepImpl(
                 cellState = cellState,
@@ -45,10 +40,7 @@ class NaiveGameOfLifeAlgorithm(
             )
         }
 
-    private tailrec fun computeGenerationWithStepImpl(
-        cellState: CellState,
-        @IntRange(from = 0) step: Int,
-    ): CellState =
+    private tailrec fun computeGenerationWithStepImpl(cellState: CellState, @IntRange(from = 0) step: Int): CellState =
         if (step == 0) {
             cellState
         } else {
@@ -58,19 +50,17 @@ class NaiveGameOfLifeAlgorithm(
             )
         }
 
-    private fun computeNextGeneration(cellState: CellState): CellState =
-        cellState
-            .aliveCells
-            // Get all neighbors of current living cells
-            .flatMap(IntOffset::getMooreNeighbors)
-            .toSet()
-            // Union those with all living cells, to get all cells that could be alive next round
-            .union(cellState.aliveCells)
-            // Filter to the living cells, based on the neighbor count from the previous generation
-            .filter { cell ->
-                val neighborCount = cellState.aliveCells.intersect(cell.getMooreNeighbors()).count()
-                neighborCount == 3 || (neighborCount == 2 && cell in cellState.aliveCells)
-            }
-            .toSet()
-            .let(::CellState)
+    private fun computeNextGeneration(cellState: CellState): CellState = cellState
+        .aliveCells
+        // Get all neighbors of current living cells
+        .flatMap(IntOffset::getMooreNeighbors)
+        .toSet()
+        // Union those with all living cells, to get all cells that could be alive next round
+        .union(cellState.aliveCells)
+        // Filter to the living cells, based on the neighbor count from the previous generation
+        .filter { cell ->
+            val neighborCount = cellState.aliveCells.intersect(cell.getMooreNeighbors()).count()
+            neighborCount == 3 || (neighborCount == 2 && cell in cellState.aliveCells)
+        }.toSet()
+        .let(::CellState)
 }

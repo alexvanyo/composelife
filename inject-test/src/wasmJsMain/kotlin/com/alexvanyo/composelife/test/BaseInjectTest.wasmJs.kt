@@ -20,9 +20,9 @@ package com.alexvanyo.composelife.test
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
 
+@Suppress("AbstractClassCanBeConcreteClass")
 actual abstract class BaseInjectTest actual constructor(
     applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph,
 ) : BaseInjectTestImpl(applicationGraphCreator)
 
-actual fun createApplicationGraphArguments(): ApplicationGraphArguments =
-    object : ApplicationGraphArguments {}
+actual fun createApplicationGraphArguments(): ApplicationGraphArguments = object : ApplicationGraphArguments {}

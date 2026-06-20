@@ -36,11 +36,10 @@ interface TestDatabaseBindings {
             driver: SqlDriver,
             cellStateAdapter: CellState.Adapter,
             patternCollectionAdapter: PatternCollection.Adapter,
-        ): ComposeLifeDatabase =
-            ComposeLifeDatabase(
-                driver = driver,
-                cellStateAdapter = cellStateAdapter,
-                patternCollectionAdapter = patternCollectionAdapter,
-            )
+        ): ComposeLifeDatabase = ComposeLifeDatabase(
+            driver = driver,
+            cellStateAdapter = cellStateAdapter,
+            patternCollectionAdapter = patternCollectionAdapter,
+        )
     }
 }

@@ -26,17 +26,14 @@ import androidx.compose.ui.unit.LayoutDirection
  * This addition is done lazily - only when the the calculations are performed.
  */
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-operator fun PaddingValues.plus(other: PaddingValues): PaddingValues =
-    object : PaddingValues {
-        override fun calculateBottomPadding(): Dp =
-            this@plus.calculateBottomPadding() + other.calculateBottomPadding()
+operator fun PaddingValues.plus(other: PaddingValues): PaddingValues = object : PaddingValues {
+    override fun calculateBottomPadding(): Dp = this@plus.calculateBottomPadding() + other.calculateBottomPadding()
 
-        override fun calculateLeftPadding(layoutDirection: LayoutDirection): Dp =
-            this@plus.calculateLeftPadding(layoutDirection) + other.calculateLeftPadding(layoutDirection)
+    override fun calculateLeftPadding(layoutDirection: LayoutDirection): Dp =
+        this@plus.calculateLeftPadding(layoutDirection) + other.calculateLeftPadding(layoutDirection)
 
-        override fun calculateRightPadding(layoutDirection: LayoutDirection): Dp =
-            this@plus.calculateRightPadding(layoutDirection) + other.calculateRightPadding(layoutDirection)
+    override fun calculateRightPadding(layoutDirection: LayoutDirection): Dp =
+        this@plus.calculateRightPadding(layoutDirection) + other.calculateRightPadding(layoutDirection)
 
-        override fun calculateTopPadding(): Dp =
-            this@plus.calculateTopPadding() + other.calculateTopPadding()
-    }
+    override fun calculateTopPadding(): Dp = this@plus.calculateTopPadding() + other.calculateTopPadding()
+}

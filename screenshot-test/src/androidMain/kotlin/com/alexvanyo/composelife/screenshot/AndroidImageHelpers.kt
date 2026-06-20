@@ -56,12 +56,11 @@ import androidx.compose.ui.test.captureToImage as androidxCaptureToImage
  * @throws IllegalArgumentException if we attempt to capture a bitmap of a dialog before API 28.
  */
 @RequiresApi(26)
-fun SemanticsNodeInteraction.captureToImage(): ImageBitmap =
-    if (Build.FINGERPRINT?.lowercase() == "robolectric") {
-        robolectricCaptureToImage()
-    } else {
-        androidxCaptureToImage()
-    }
+fun SemanticsNodeInteraction.captureToImage(): ImageBitmap = if (Build.FINGERPRINT?.lowercase() == "robolectric") {
+    robolectricCaptureToImage()
+} else {
+    androidxCaptureToImage()
+}
 
 /**
  * Captures the underlying semantics node's surface into bitmap. This can be used to capture
@@ -125,9 +124,7 @@ fun SemanticsNodeInteraction.robolectricCaptureToImage(): ImageBitmap {
 
 @ExperimentalTestApi
 @RequiresApi(26)
-private fun processMultiWindowScreenshot(
-    node: SemanticsNode,
-): ImageBitmap {
+private fun processMultiWindowScreenshot(node: SemanticsNode): ImageBitmap {
     // not needed for Robolectric
     // (node.root as ViewRootForTest).view.forceRedraw(testContext)
 
@@ -147,9 +144,7 @@ private fun processMultiWindowScreenshot(
 }
 
 @VisibleForTesting
-private fun findNodePosition(
-    node: SemanticsNode,
-): Offset {
+private fun findNodePosition(node: SemanticsNode): Offset {
     val view = (node.root as ViewRootForTest).view
     val locationOnScreen = intArrayOf(0, 0)
     view.getLocationOnScreen(locationOnScreen)
@@ -160,15 +155,15 @@ private fun findNodePosition(
 }
 
 private fun Context.getActivityWindow(): Window {
-    fun Context.getActivity(): Activity {
-        return when (this) {
-            is Activity -> this
-            is ContextWrapper -> this.baseContext.getActivity()
-            else -> error(
-                "Context is not an Activity context, but a ${javaClass.simpleName} context. " +
-                    "An Activity context is required to get a Window instance",
-            )
-        }
+    fun Context.getActivity(): Activity = when (this) {
+        is Activity -> this
+
+        is ContextWrapper -> this.baseContext.getActivity()
+
+        else -> error(
+            "Context is not an Activity context, but a ${javaClass.simpleName} context. " +
+                "An Activity context is required to get a Window instance",
+        )
     }
     return getActivity().window
 }
@@ -209,9 +204,7 @@ private fun SemanticsNode.findClosestParentNode(
 }
 
 @RequiresApi(26)
-private fun Window.captureRegionToImage(
-    boundsInWindow: Rect,
-): ImageBitmap {
+private fun Window.captureRegionToImage(boundsInWindow: Rect): ImageBitmap {
     // Turn on hardware rendering, if necessary
     return withDrawingEnabled {
         // First force drawing to happen

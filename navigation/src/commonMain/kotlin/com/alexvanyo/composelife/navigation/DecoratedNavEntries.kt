@@ -59,4 +59,5 @@ fun <T, S : NavigationState<BackstackEntry<T>>> rememberDecoratedNavEntries(
 val <T> NavEntry<BackstackEntry<T>>.navigationEntry : BackstackEntry<T>
     get() = metadata[NavKeyMetadataKey] as BackstackEntry<T>
 
+@Suppress("PropertyName")
 private const val NavKeyMetadataKey = "com.alexvanyo.composelife.navigation.NavKeyMetadataKey"

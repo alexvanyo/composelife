@@ -112,18 +112,14 @@ class SceneStateTests {
         )
     }
 
-    private class TestScene(
-        override val key: Any,
-    ) : Scene<String> {
+    private class TestScene(override val key: Any) : Scene<String> {
         override val previousEntries: List<NavEntry<String>> = emptyList()
         override val entries: List<NavEntry<String>> = emptyList()
         override val content: @Composable () -> Unit = {}
         override fun toString(): String = "TestScene(key=$key)"
     }
 
-    private class TestOverlayScene(
-        override val key: Any,
-    ) : OverlayScene<String> {
+    private class TestOverlayScene(override val key: Any) : OverlayScene<String> {
         override val previousEntries: List<NavEntry<String>> = emptyList()
         override val entries: List<NavEntry<String>> = emptyList()
         override val content: @Composable () -> Unit = {}

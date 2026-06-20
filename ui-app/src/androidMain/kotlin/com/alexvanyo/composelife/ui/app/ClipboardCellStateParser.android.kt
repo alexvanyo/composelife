@@ -22,7 +22,5 @@ import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.ui.util.ClipboardReader
 
-actual suspend fun CellStateParser.parseCellState(
-    clipboardReader: ClipboardReader,
-): DeserializationResult =
+actual suspend fun CellStateParser.parseCellState(clipboardReader: ClipboardReader): DeserializationResult =
     parseCellState(clipboardReader.getClipData())

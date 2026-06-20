@@ -35,6 +35,7 @@ import kotlin.coroutines.CoroutineContext
 @Inject
 @ContributesBinding(AppScope::class, replaces = [DefaultComposeLifeDispatchers::class])
 @SingleIn(AppScope::class)
+@Suppress("PropertyName", "InjectDispatcher")
 actual class TestComposeLifeDispatchers actual constructor(
     @param:GeneralTestDispatcher private val generalTestDispatcher: CoroutineDispatcher,
     @CellTickerTestDispatcher cellTickerTestDispatcher: CoroutineDispatcher,

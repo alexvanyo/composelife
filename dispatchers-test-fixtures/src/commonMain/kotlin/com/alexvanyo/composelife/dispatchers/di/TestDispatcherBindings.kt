@@ -38,18 +38,16 @@ interface TestDispatcherBindings {
         @Provides
         @SingleIn(AppScope::class)
         @GeneralTestDispatcher
-        internal fun providesGeneralTestCoroutineScheduler(): TestCoroutineScheduler =
-            TestCoroutineScheduler()
+        internal fun providesGeneralTestCoroutineScheduler(): TestCoroutineScheduler = TestCoroutineScheduler()
 
         @Provides
         @SingleIn(AppScope::class)
         @GeneralTestDispatcher
         internal fun providesGeneralTestDispatcher(
             @GeneralTestDispatcher testCoroutineScheduler: TestCoroutineScheduler,
-        ): TestDispatcher =
-            StandardTestDispatcher(
-                scheduler = testCoroutineScheduler,
-            )
+        ): TestDispatcher = StandardTestDispatcher(
+            scheduler = testCoroutineScheduler,
+        )
 
         @Provides
         @GeneralTestDispatcher
@@ -58,15 +56,13 @@ interface TestDispatcherBindings {
         ): CoroutineDispatcher = testDispatcher
 
         @Provides
-        internal fun providesClock(
-            @GeneralTestDispatcher testCoroutineScheduler: TestCoroutineScheduler,
-        ): Clock = testCoroutineScheduler.clock
+        internal fun providesClock(@GeneralTestDispatcher testCoroutineScheduler: TestCoroutineScheduler): Clock =
+            testCoroutineScheduler.clock
 
         @Provides
         @SingleIn(AppScope::class)
         @CellTickerTestDispatcher
-        internal fun providesCellTickerTestDispatcher(): TestDispatcher =
-            StandardTestDispatcher()
+        internal fun providesCellTickerTestDispatcher(): TestDispatcher = StandardTestDispatcher()
 
         @Provides
         @CellTickerTestDispatcher

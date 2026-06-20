@@ -37,7 +37,7 @@ import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.rememberPickerState
 
 @Composable
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "ImplicitDefaultLocale")
 fun ColorComponentPicker(
     isSelected: Boolean,
     onSelected: () -> Unit,

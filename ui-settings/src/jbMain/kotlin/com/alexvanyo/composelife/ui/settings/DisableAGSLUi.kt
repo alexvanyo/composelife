@@ -46,13 +46,12 @@ class DisableAGSLUiCtx(
         ),
     )
     @Composable
-    operator fun invoke(
-        modifier: Modifier = Modifier,
-    ) = lambda(preferencesHolder, composeLifePreferences, modifier)
+    operator fun invoke(modifier: Modifier = Modifier) = lambda(preferencesHolder, composeLifePreferences, modifier)
 
     companion object {
         private val lambda:
-            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences) (
+            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences)
+            (
                 modifier: Modifier,
             ) -> Unit =
             { modifier ->
@@ -61,22 +60,18 @@ class DisableAGSLUiCtx(
     }
 }
 
-context(ctx: DisableAGSLUiCtx)
 @Suppress("DEPRECATION")
 @Composable
-fun DisableAGSLUi(
-    modifier: Modifier = Modifier,
-) = ctx(modifier)
+context(ctx: DisableAGSLUiCtx)
+fun DisableAGSLUi(modifier: Modifier = Modifier) = ctx(modifier)
 // endregion templated-ctx
 
+@Composable
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,
-composeLifePreferences: ComposeLifePreferences,
+    composeLifePreferences: ComposeLifePreferences,
 )
-@Composable
-private fun DisableAGSLUi(
-    modifier: Modifier = Modifier,
-) {
+private fun DisableAGSLUi(modifier: Modifier = Modifier) {
     DisableAGSLUi(
         disableAGSL = preferencesHolder.preferences.disableAGSL,
         setDisableAGSL = composeLifePreferences::setDisabledAGSL,
@@ -85,11 +80,7 @@ private fun DisableAGSLUi(
 }
 
 @Composable
-fun DisableAGSLUi(
-    disableAGSL: Boolean,
-    setDisableAGSL: suspend (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun DisableAGSLUi(disableAGSL: Boolean, setDisableAGSL: suspend (Boolean) -> Unit, modifier: Modifier = Modifier) {
     val coroutineScope = rememberCoroutineScope()
     LabeledSwitch(
         label = parameterizedStringResource(Strings.DisableAGSL),

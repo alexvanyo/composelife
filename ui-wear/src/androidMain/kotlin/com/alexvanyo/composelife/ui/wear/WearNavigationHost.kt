@@ -65,11 +65,7 @@ fun <T : Any> WearNavDisplay(
 
 @Suppress("LongMethod")
 @Composable
-fun <T : Any> WearNavDisplay(
-    sceneState: SceneState<T>,
-    onNavigateBack: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun <T : Any> WearNavDisplay(sceneState: SceneState<T>, onNavigateBack: () -> Unit, modifier: Modifier = Modifier) {
     val currentScene = sceneState.currentScene
     val previousScene = sceneState.previousScenes.lastOrNull()
 

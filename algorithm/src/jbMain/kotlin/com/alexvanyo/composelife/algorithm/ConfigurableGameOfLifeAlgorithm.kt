@@ -53,13 +53,13 @@ class ConfigurableGameOfLifeAlgorithm(
     private val naiveGameOfLifeAlgorithm: NaiveGameOfLifeAlgorithm,
     private val hashLifeAlgorithm: HashLifeAlgorithm,
 ) : GameOfLifeAlgorithm {
-
-    private val currentAlgorithm get() = preferences.algorithmChoiceState.map { algorithmType ->
-        when (algorithmType) {
-            AlgorithmType.NaiveAlgorithm -> naiveGameOfLifeAlgorithm
-            AlgorithmType.HashLifeAlgorithm -> hashLifeAlgorithm
+    private val currentAlgorithm get() =
+        preferences.algorithmChoiceState.map { algorithmType ->
+            when (algorithmType) {
+                AlgorithmType.NaiveAlgorithm -> naiveGameOfLifeAlgorithm
+                AlgorithmType.HashLifeAlgorithm -> hashLifeAlgorithm
+            }
         }
-    }
 
     override suspend fun computeGenerationWithStep(cellState: CellState, step: Int): CellState =
         snapshotFlow { currentAlgorithm }.firstSuccess().value.computeGenerationWithStep(
@@ -67,42 +67,44 @@ class ConfigurableGameOfLifeAlgorithm(
             step = step,
         )
 
-    override fun computeGenerationsWithStep(originalCellState: CellState, step: Int): Flow<CellState> =
-        channelFlow {
-            // Start listening to algorithm changes
-            val algorithmChannel = snapshotFlow { currentAlgorithm }
+    override fun computeGenerationsWithStep(originalCellState: CellState, step: Int): Flow<CellState> = channelFlow {
+        // Start listening to algorithm changes
+        val algorithmChannel =
+            snapshotFlow { currentAlgorithm }
                 .successes()
                 .map { it.value }
                 .buffer(Channel.CONFLATED) // We only care about the current algorithm
                 .produceIn(this)
 
-            // Setup a receive channel for
-            var cellStateChannel: ReceiveChannel<CellState>? = null
-            var cellState = originalCellState
+        // Setup a receive channel for
+        var cellStateChannel: ReceiveChannel<CellState>? = null
+        var cellState = originalCellState
 
-            while (currentCoroutineContext().isActive) {
-                // Select between a new cell state being produced and a new algorithm update coming through
-                // select guarantees that we'll either send a new state, or switch algorithms with the most recently
-                // emitted cell state
-                select<Unit> {
-                    // Bias towards updating the algorithm, it's expected that there will always be a new cell state
-                    // available.
-                    algorithmChannel.onReceive {
-                        // Cancel the ongoing cell state production with the old algorithm, if any
-                        cellStateChannel?.cancel()
-                        cellStateChannel = it.computeGenerationsWithStep(
-                            originalCellState = cellState,
-                            step = step,
-                        )
-                            .buffer(Channel.RENDEZVOUS) // Buffer rendezvous, we'll only compute what we need by default
+        while (currentCoroutineContext().isActive) {
+            // Select between a new cell state being produced and a new algorithm update coming through
+            // select guarantees that we'll either send a new state, or switch algorithms with the most recently
+            // emitted cell state
+            select<Unit> {
+                // Bias towards updating the algorithm, it's expected that there will always be a new cell state
+                // available.
+                algorithmChannel.onReceive {
+                    // Cancel the ongoing cell state production with the old algorithm, if any
+                    cellStateChannel?.cancel()
+                    cellStateChannel =
+                        it
+                            .computeGenerationsWithStep(
+                                originalCellState = cellState,
+                                step = step,
+                            )
+                            // Buffer rendezvous, we'll only compute what we need by default
+                            .buffer(Channel.RENDEZVOUS)
                             .produceIn(this@channelFlow)
-                    }
-                    cellStateChannel?.onReceive { newCellState ->
-                        cellState = newCellState
-                        send(newCellState)
-                    }
+                }
+                cellStateChannel?.onReceive { newCellState ->
+                    cellState = newCellState
+                    send(newCellState)
                 }
             }
         }
-            .buffer(Channel.RENDEZVOUS) // Buffer rendezvous, we'll only compute what we need by default
+    }.buffer(Channel.RENDEZVOUS) // Buffer rendezvous, we'll only compute what we need by default
 }

@@ -37,9 +37,7 @@ sealed interface TargetState<T, out M> {
     /**
      * The target state is the single [current] value.
      */
-    data class Single<T>(
-        override val current: T,
-    ) : TargetState<T, Nothing>
+    data class Single<T>(override val current: T) : TargetState<T, Nothing>
 
     /**
      * The target state is partway between [current] and [provisional], with the fraction given by [progress] from
@@ -80,11 +78,7 @@ sealed interface TargetState<T, out M> {
             /**
              * Creates an [InProgress] value with a [Unit] metadata.
              */
-            operator fun <T> invoke(
-                current: T,
-                provisional: T,
-                progress: Float,
-            ): InProgress<T, Unit> = InProgress(
+            operator fun <T> invoke(current: T, provisional: T, progress: Float): InProgress<T, Unit> = InProgress(
                 current = current,
                 provisional = provisional,
                 progress = progress,
@@ -132,12 +126,11 @@ operator fun <M> TargetState<Boolean, M>.not(): TargetState<Boolean, M> = map(Bo
  * Because [value] is not animating, this will collapse a [TargetState.InProgress] value to a [TargetState.Single] of
  * `false` if [value] is `false`.
  */
-infix fun <M> TargetState<Boolean, M>.and(value: Boolean): TargetState<Boolean, M> =
-    if (value) {
-        this
-    } else {
-        TargetState.Single(false)
-    }
+infix fun <M> TargetState<Boolean, M>.and(value: Boolean): TargetState<Boolean, M> = if (value) {
+    this
+} else {
+    TargetState.Single(false)
+}
 
 /**
  * Applies an or operation on a [TargetState] with a non-[TargetState] [Boolean] value.
@@ -145,23 +138,22 @@ infix fun <M> TargetState<Boolean, M>.and(value: Boolean): TargetState<Boolean, 
  * Because [value] is not animating, this will collapse a [TargetState.InProgress] value to a [TargetState.Single] of
  * `true` if [value] is `true`.
  */
-infix fun <M> TargetState<Boolean, M>.or(value: Boolean): TargetState<Boolean, M> =
-    if (value) {
-        TargetState.Single(true)
-    } else {
-        this
-    }
+infix fun <M> TargetState<Boolean, M>.or(value: Boolean): TargetState<Boolean, M> = if (value) {
+    TargetState.Single(true)
+} else {
+    this
+}
 
 /**
  * Maps this [TargetState] of type [T] to the [TargetState] of type [R] using [lambda].
  */
-fun <T, M, R> TargetState<T, M>.map(lambda: (T) -> R): TargetState<R, M> =
-    when (this) {
-        is TargetState.Single -> TargetState.Single(current.let(lambda))
-        is TargetState.InProgress -> TargetState.InProgress(
-            current = current.let(lambda),
-            provisional = provisional.let(lambda),
-            progress = progress,
-            metadata = metadata,
-        )
-    }
+fun <T, M, R> TargetState<T, M>.map(lambda: (T) -> R): TargetState<R, M> = when (this) {
+    is TargetState.Single -> TargetState.Single(current.let(lambda))
+
+    is TargetState.InProgress -> TargetState.InProgress(
+        current = current.let(lambda),
+        provisional = provisional.let(lambda),
+        progress = progress,
+        metadata = metadata,
+    )
+}

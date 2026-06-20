@@ -73,14 +73,13 @@ fun rememberMutableCellWindowViewportState(
     offset: Offset = MutableCellWindowViewportState.defaultOffset,
     scale: Float = MutableCellWindowViewportState.defaultScale,
     scaleRange: ClosedRange<Float> = MutableCellWindowViewportState.defaultScaleRange,
-): MutableCellWindowViewportState =
-    rememberSerializable(serializer = serializer()) {
-        MutableCellWindowViewportStateImpl(
-            offset = offset,
-            scale = scale,
-            scaleRange = scaleRange,
-        )
-    }
+): MutableCellWindowViewportState = rememberSerializable(serializer = serializer()) {
+    MutableCellWindowViewportStateImpl(
+        offset = offset,
+        scale = scale,
+        scaleRange = scaleRange,
+    )
+}
 
 fun MutableCellWindowViewportState(
     offset: Offset = MutableCellWindowViewportState.defaultOffset,

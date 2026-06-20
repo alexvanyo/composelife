@@ -111,9 +111,7 @@ interface SelectionStateHolder {
     val selectionSessionState: SessionValue<SelectionState>
 }
 
-fun SelectionStateHolder(
-    selectionSessionState: SessionValue<SelectionState>,
-) = object : SelectionStateHolder {
+fun SelectionStateHolder(selectionSessionState: SessionValue<SelectionState>) = object : SelectionStateHolder {
     override val selectionSessionState = selectionSessionState
 }
 
@@ -122,22 +120,19 @@ interface MutableSelectionStateHolder : SelectionStateHolder {
     override var selectionSessionState: SessionValue<SelectionState>
 }
 
-fun MutableSelectionStateHolder(
-    initialSelectionState: SessionValue<SelectionState>,
-): MutableSelectionStateHolder = MutableSelectionStateHolderImpl(initialSelectionState)
+fun MutableSelectionStateHolder(initialSelectionState: SessionValue<SelectionState>): MutableSelectionStateHolder =
+    MutableSelectionStateHolderImpl(initialSelectionState)
 
 @Composable
 fun rememberMutableSelectionStateHolder(
     initialSelectionState: SessionValue<SelectionState>,
-): MutableSelectionStateHolder =
-    rememberSerializable(serializer = MutableSelectionStateHolderImpl.serializer()) {
-        MutableSelectionStateHolderImpl(initialSelectionState)
-    }
+): MutableSelectionStateHolder = rememberSerializable(serializer = MutableSelectionStateHolderImpl.serializer()) {
+    MutableSelectionStateHolderImpl(initialSelectionState)
+}
 
 @Serializable(with = MutableSelectionStateHolderImpl.Serializer::class)
-private class MutableSelectionStateHolderImpl(
-    initialSelectionSessionState: SessionValue<SelectionState>,
-) : MutableSelectionStateHolder {
+private class MutableSelectionStateHolderImpl(initialSelectionSessionState: SessionValue<SelectionState>) :
+    MutableSelectionStateHolder {
 
     private constructor(surrogate: Surrogate): this(surrogate.selectionSessionState)
 
@@ -150,9 +145,7 @@ private class MutableSelectionStateHolderImpl(
 
     @Serializable
     @SerialName("MutableSelectionStateHolderImpl")
-    private data class Surrogate(
-        val selectionSessionState: SessionValue<SelectionState>,
-    )
+    private data class Surrogate(val selectionSessionState: SessionValue<SelectionState>)
 
     private object Serializer : KSerializer<MutableSelectionStateHolderImpl> by SurrogatingSerializer(
         "com.alexvanyo.composelife.ui.cells.MutableSelectionStateHolderImpl",

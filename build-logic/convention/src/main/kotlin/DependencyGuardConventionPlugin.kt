@@ -16,10 +16,11 @@
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 
-class DependencyGuardConventionPlugin : ConventionPlugin({
-    pluginManager.apply("com.dropbox.dependency-guard")
+class DependencyGuardConventionPlugin :
+    ConventionPlugin({
+        pluginManager.apply("com.dropbox.dependency-guard")
 
-    tasks.named("check").configure {
-        dependsOn(tasks.named("dependencyGuard"))
-    }
-})
+        tasks.named("check").configure {
+            dependsOn(tasks.named("dependencyGuard"))
+        }
+    })

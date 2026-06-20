@@ -46,11 +46,7 @@ import kotlinx.serialization.serializer
 import com.alexvanyo.composelife.resources.wear.R as resourcesWearR
 
 @Composable
-fun WatchFaceColorPicker(
-    color: Color,
-    setColor: (Color) -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun WatchFaceColorPicker(color: Color, setColor: (Color) -> Unit, modifier: Modifier = Modifier) {
     var selectedComponent: ColorComponent.RgbIntComponent by rememberSerializable(
         stateSerializer = serializer(),
     ) {

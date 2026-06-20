@@ -19,11 +19,7 @@ package com.alexvanyo.composelife.model
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-fun assertCellStateEquals(
-    expected: CellState,
-    actual: CellState,
-    equalsModuleOffset: Boolean = false,
-) {
+fun assertCellStateEquals(expected: CellState, actual: CellState, equalsModuleOffset: Boolean = false) {
     if (equalsModuleOffset) {
         assertTrue(
             expected.equalsModuloOffset(actual),

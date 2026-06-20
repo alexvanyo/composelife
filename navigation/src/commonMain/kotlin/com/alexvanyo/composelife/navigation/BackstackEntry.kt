@@ -28,11 +28,9 @@ import kotlin.uuid.Uuid
  * will want to observe if any relevant state changes.
  */
 @Stable
-class BackstackEntry<T>(
-    val value: T,
-    val previous: BackstackEntry<T>?,
-    override val id: Uuid = Uuid.random(),
-) : NavigationEntry, Iterable<BackstackEntry<T>> {
+class BackstackEntry<T>(val value: T, val previous: BackstackEntry<T>?, override val id: Uuid = Uuid.random()) :
+    NavigationEntry,
+    Iterable<BackstackEntry<T>> {
     override fun iterator(): Iterator<BackstackEntry<T>> = iterator {
         var current: BackstackEntry<T>? = this@BackstackEntry
         while (current != null) {
@@ -41,7 +39,5 @@ class BackstackEntry<T>(
         }
     }
 
-    override fun toString(): String {
-        return "BackstackEntry(id=$id, value=$value, previous=$previous)"
-    }
+    override fun toString(): String = "BackstackEntry(id=$id, value=$value, previous=$previous)"
 }

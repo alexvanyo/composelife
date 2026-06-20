@@ -117,6 +117,7 @@ fun DeserializationInfoPane(
             ) {
                 when (deserializationResult) {
                     is DeserializationResult.Successful -> Unit
+
                     is DeserializationResult.Unsuccessful -> {
                         if (deserializationResult.errors.isNotEmpty()) {
                             deserializationSection(
@@ -194,10 +195,7 @@ fun DeserializationInfoTopAppBar(
     )
 }
 
-private fun LazyListScope.deserializationSection(
-    title: ParameterizedString,
-    messages: List<ParameterizedString>,
-) {
+private fun LazyListScope.deserializationSection(title: ParameterizedString, messages: List<ParameterizedString>) {
     item {
         Text(
             text = parameterizedStringResource(title),
@@ -212,8 +210,6 @@ private fun LazyListScope.deserializationSection(
 }
 
 @Composable
-private fun LazyItemScope.DeserializationMessage(
-    parameterizedString: ParameterizedString,
-) {
+private fun LazyItemScope.DeserializationMessage(parameterizedString: ParameterizedString) {
     Text(parameterizedStringResource(parameterizedString))
 }

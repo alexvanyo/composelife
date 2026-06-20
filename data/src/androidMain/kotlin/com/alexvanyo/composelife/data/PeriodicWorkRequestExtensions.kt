@@ -29,15 +29,14 @@ import kotlin.time.Duration.Companion.seconds
 
 inline fun <reified T : ListenableWorker> PeriodicWorkRequestBuilder(
     repeatPeriod: DateTimePeriod,
-): PeriodicWorkRequest.Builder =
-    PeriodicWorkRequestBuilder<T>(
-        repeatInterval = (
-            repeatPeriod.nanoseconds.nanoseconds +
-                repeatPeriod.seconds.seconds +
-                repeatPeriod.minutes.minutes +
-                repeatPeriod.hours.hours +
-                repeatPeriod.days.days +
-                ((repeatPeriod.months / 12.0 + repeatPeriod.years) * 365.2422).days
-            ).inWholeMilliseconds,
-        repeatIntervalTimeUnit = TimeUnit.MILLISECONDS,
-    )
+): PeriodicWorkRequest.Builder = PeriodicWorkRequestBuilder<T>(
+    repeatInterval = (
+        repeatPeriod.nanoseconds.nanoseconds +
+            repeatPeriod.seconds.seconds +
+            repeatPeriod.minutes.minutes +
+            repeatPeriod.hours.hours +
+            repeatPeriod.days.days +
+            ((repeatPeriod.months / 12.0 + repeatPeriod.years) * 365.2422).days
+        ).inWholeMilliseconds,
+    repeatIntervalTimeUnit = TimeUnit.MILLISECONDS,
+)

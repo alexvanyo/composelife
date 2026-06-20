@@ -53,16 +53,12 @@ sealed interface ColorComponent {
 /**
  * Modifies the given [color] with updating the given [component] with the given [value].
  */
-fun Color.withComponent(
-    component: RgbIntComponent,
-    @IntRange(from = 0, to = 255) value: Int,
-): Color =
-    Color(
-        red = if (component == RgbIntComponent.Red) value else get(RgbIntComponent.Red),
-        green = if (component == RgbIntComponent.Green) value else get(RgbIntComponent.Green),
-        blue = if (component == RgbIntComponent.Blue) value else get(RgbIntComponent.Blue),
-        alpha = toArgb().alpha,
-    )
+fun Color.withComponent(component: RgbIntComponent, @IntRange(from = 0, to = 255) value: Int): Color = Color(
+    red = if (component == RgbIntComponent.Red) value else get(RgbIntComponent.Red),
+    green = if (component == RgbIntComponent.Green) value else get(RgbIntComponent.Green),
+    blue = if (component == RgbIntComponent.Blue) value else get(RgbIntComponent.Blue),
+    alpha = toArgb().alpha,
+)
 
 /**
  * Returns the given [component] of the [Color] as an integer value (from 0 to 255).
@@ -71,14 +67,13 @@ fun Color.withComponent(
  *
  * @see Color.toArgb
  */
-fun Color.get(component: RgbIntComponent): Int =
-    toArgb().let {
-        when (component) {
-            RgbIntComponent.Blue -> it.blue
-            RgbIntComponent.Green -> it.green
-            RgbIntComponent.Red -> it.red
-        }
+fun Color.get(component: RgbIntComponent): Int = toArgb().let {
+    when (component) {
+        RgbIntComponent.Blue -> it.blue
+        RgbIntComponent.Green -> it.green
+        RgbIntComponent.Red -> it.red
     }
+}
 
 /**
  * Return the alpha component of a color int.

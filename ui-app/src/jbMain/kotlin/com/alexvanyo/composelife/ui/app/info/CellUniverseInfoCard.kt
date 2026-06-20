@@ -95,6 +95,7 @@ fun CellUniverseInfoCard(
                 when (val newEvolutionStatus = currentEvolutionStatus) {
                     TemporalGameOfLifeState.EvolutionStatus.Paused ->
                         parameterizedStringResource(Strings.PausedMessage)
+
                     is TemporalGameOfLifeState.EvolutionStatus.Running ->
                         if (isEditing) {
                             parameterizedStringResource(
@@ -147,10 +148,7 @@ fun CellUniverseInfoCard(
 }
 
 @Composable
-fun CellUniverseInfoCard(
-    cellUniverseInfoCardContent: CellUniverseInfoCardContent,
-    modifier: Modifier = Modifier,
-) {
+fun CellUniverseInfoCard(cellUniverseInfoCardContent: CellUniverseInfoCardContent, modifier: Modifier = Modifier) {
     ElevatedCard(
         modifier = modifier,
     ) {

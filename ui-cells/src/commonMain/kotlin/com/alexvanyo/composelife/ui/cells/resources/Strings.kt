@@ -21,9 +21,6 @@ import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 
 object Strings
 
-expect fun Strings.InteractableCellContentDescription(
-    x: Int,
-    y: Int,
-): ParameterizedString
+expect fun Strings.InteractableCellContentDescription(x: Int, y: Int): ParameterizedString
 
 internal expect fun Strings.SelectingBoxHandle(x: Int, y: Int): ParameterizedString

@@ -52,40 +52,36 @@ private fun getDisplayShapePath(windowInsets: WindowInsetsCompat?, windowSize: I
         ?: getPathFromFrame(windowSize)
 
 @Suppress("SwallowedException")
-private fun DisplayShapeCompat.getPathFromDisplayShape(): Path? =
-    try {
-        path.takeIf { !it.isEmpty }?.asComposePath()
-    } catch (exception: IllegalArgumentException) {
-        null
-    }
+private fun DisplayShapeCompat.getPathFromDisplayShape(): Path? = try {
+    path.takeIf { !it.isEmpty }?.asComposePath()
+} catch (exception: IllegalArgumentException) {
+    null
+}
 
-private fun WindowInsetsCompat.getPathFromRoundedCorners(windowSize: IntSize): Path =
-    Path().apply {
-        addRoundRect(
-            RoundRect(
-                rect = windowSize.toIntRect().toRect(),
-                topLeft = getRoundedCorner(
-                    RoundedCornerCompat.POSITION_TOP_LEFT,
-                )?.toCornerRadius() ?: CornerRadius.Zero,
-                topRight = getRoundedCorner(
-                    RoundedCornerCompat.POSITION_TOP_RIGHT,
-                )?.toCornerRadius() ?: CornerRadius.Zero,
-                bottomLeft = getRoundedCorner(
-                    RoundedCornerCompat.POSITION_BOTTOM_LEFT,
-                )?.toCornerRadius() ?: CornerRadius.Zero,
-                bottomRight = getRoundedCorner(
-                    RoundedCornerCompat.POSITION_BOTTOM_RIGHT,
-                )?.toCornerRadius() ?: CornerRadius.Zero,
-            ),
-        )
-    }
+private fun WindowInsetsCompat.getPathFromRoundedCorners(windowSize: IntSize): Path = Path().apply {
+    addRoundRect(
+        RoundRect(
+            rect = windowSize.toIntRect().toRect(),
+            topLeft = getRoundedCorner(
+                RoundedCornerCompat.POSITION_TOP_LEFT,
+            )?.toCornerRadius() ?: CornerRadius.Zero,
+            topRight = getRoundedCorner(
+                RoundedCornerCompat.POSITION_TOP_RIGHT,
+            )?.toCornerRadius() ?: CornerRadius.Zero,
+            bottomLeft = getRoundedCorner(
+                RoundedCornerCompat.POSITION_BOTTOM_LEFT,
+            )?.toCornerRadius() ?: CornerRadius.Zero,
+            bottomRight = getRoundedCorner(
+                RoundedCornerCompat.POSITION_BOTTOM_RIGHT,
+            )?.toCornerRadius() ?: CornerRadius.Zero,
+        ),
+    )
+}
 
-private fun getPathFromFrame(windowSize: IntSize): Path =
-    Path().apply {
-        addRect(
-            windowSize.toIntRect().toRect(),
-        )
-    }
+private fun getPathFromFrame(windowSize: IntSize): Path = Path().apply {
+    addRect(
+        windowSize.toIntRect().toRect(),
+    )
+}
 
-private fun RoundedCornerCompat.toCornerRadius(): CornerRadius =
-    CornerRadius(x = radius.toFloat())
+private fun RoundedCornerCompat.toCornerRadius(): CornerRadius = CornerRadius(x = radius.toFloat())

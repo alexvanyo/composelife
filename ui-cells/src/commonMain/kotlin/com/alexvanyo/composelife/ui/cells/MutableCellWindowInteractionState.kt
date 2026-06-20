@@ -19,6 +19,8 @@ package com.alexvanyo.composelife.ui.cells
 import androidx.compose.runtime.Stable
 
 @Stable
-interface MutableCellWindowInteractionState : CellWindowInteractionState, MutableSelectionStateHolder {
+interface MutableCellWindowInteractionState :
+    CellWindowInteractionState,
+    MutableSelectionStateHolder {
     override val viewportInteractionConfig: ViewportInteractionConfig
 }

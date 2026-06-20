@@ -91,7 +91,8 @@ private operator fun InteractiveCellUniverseOverlayCtx.invoke(
 private val InteractiveCellUniverseOverlayCtx.Companion.lambda:
     @Composable context(
         CellUniverseActionCardCtx
-    ) (
+    )
+    (
         temporalGameOfLifeState: TemporalGameOfLifeState,
         interactiveCellUniverseState: InteractiveCellUniverseState,
         cellWindowViewportState: CellWindowViewportState,
@@ -127,9 +128,9 @@ private val InteractiveCellUniverseOverlayCtx.Companion.lambda:
  * An interactive cell universe displaying the given [temporalGameOfLifeState] and the controls for adjusting how it
  * evolves.
  */
-context(ctx: InteractiveCellUniverseOverlayCtx)
 @Suppress("LongParameterList")
 @Composable
+context(ctx: InteractiveCellUniverseOverlayCtx)
 fun InteractiveCellUniverseOverlay(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     interactiveCellUniverseState: InteractiveCellUniverseState,
@@ -151,11 +152,11 @@ fun InteractiveCellUniverseOverlay(
 )
 // endregion templated-ctx
 
+@Suppress("LongMethod", "ComplexMethod", "LongParameterList")
+@Composable
 context(
     _: CellUniverseActionCardCtx,
 )
-@Suppress("LongMethod", "ComplexMethod", "LongParameterList")
-@Composable
 fun InteractiveCellUniverseOverlay(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     interactiveCellUniverseState: InteractiveCellUniverseState,

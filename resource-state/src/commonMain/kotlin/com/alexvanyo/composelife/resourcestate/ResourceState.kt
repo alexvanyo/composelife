@@ -45,16 +45,12 @@ sealed interface ResourceState<out T : Any> {
     /**
      * The resource is successfully loaded, with the given [value].
      */
-    data class Success<T : Any>(
-        val value: T,
-    ) : ResourceState<T>
+    data class Success<T : Any>(val value: T) : ResourceState<T>
 
     /**
      * Loading the resource failed with the given [throwable].
      */
-    data class Failure<T : Any>(
-        val throwable: Throwable,
-    ) : ResourceState<T>
+    data class Failure<T : Any>(val throwable: Throwable) : ResourceState<T>
 }
 
 /**
@@ -111,18 +107,16 @@ fun <T : Any> ResourceState<T>.isFailure(): Boolean {
 /**
  * Returns a filtered [Flow] of only the successful [ResourceState]s.
  */
-fun <T : Any> Flow<ResourceState<T>>.successes(): Flow<Success<T>> =
-    transform { resourceState ->
-        if (resourceState.isSuccess()) {
-            emit(resourceState)
-        }
+fun <T : Any> Flow<ResourceState<T>>.successes(): Flow<Success<T>> = transform { resourceState ->
+    if (resourceState.isSuccess()) {
+        emit(resourceState)
     }
+}
 
 /**
  * Returns the first successful value from the given [Flow].
  */
-suspend fun <T : Any> Flow<ResourceState<T>>.firstSuccess(): Success<T> =
-    successes().first()
+suspend fun <T : Any> Flow<ResourceState<T>>.firstSuccess(): Success<T> = successes().first()
 
 /**
  * Maps the given [ResourceState] into another, with a [transform] upon the underlying values.
@@ -140,13 +134,12 @@ inline fun <T : Any, R : Any> ResourceState<T>.map(transform: (T) -> R): Resourc
  *
  * [Loading] and [Failure]s are simply returned with the proper type.
  */
-inline fun <T : Any, R : Any> ResourceState<T>.flatMap(
-    transform: (T) -> ResourceState<R>,
-): ResourceState<R> = when (this) {
-    Loading -> Loading
-    is Success -> transform(value)
-    is Failure -> Failure(throwable)
-}
+inline fun <T : Any, R : Any> ResourceState<T>.flatMap(transform: (T) -> ResourceState<R>): ResourceState<R> =
+    when (this) {
+        Loading -> Loading
+        is Success -> transform(value)
+        is Failure -> Failure(throwable)
+    }
 
 /**
  * Combines two [ResourceState]s into a single one.
@@ -218,7 +211,9 @@ inline fun <R : Any> combine(
                 },
             )
         }
+
         loading.isNotEmpty() -> Loading
+
         else -> {
             check(resourceStates.size == successes.size)
             Success(

@@ -41,9 +41,7 @@ import kotlinx.datetime.DateTimePeriod
     @ForScope(AppScope::class)
     Updatable,
     >())
-class CellStateCleanup(
-    workManager: Lazy<WorkManager>,
-) : Updatable {
+class CellStateCleanup(workManager: Lazy<WorkManager>) : Updatable {
     private val workManager by workManager
 
     override suspend fun update(): Nothing {

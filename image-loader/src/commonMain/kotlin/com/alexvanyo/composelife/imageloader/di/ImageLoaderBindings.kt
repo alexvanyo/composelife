@@ -40,9 +40,7 @@ interface ImageLoaderBindings {
     companion object {
         @SingleIn(AppScope::class)
         @Provides
-        internal fun providesMemoryCache(
-            context: PlatformContext,
-        ): MemoryCache = MemoryCache.Builder()
+        internal fun providesMemoryCache(context: PlatformContext): MemoryCache = MemoryCache.Builder()
             .maxSizePercent(context)
             .build()
 
@@ -74,15 +72,13 @@ interface ImageLoaderBindings {
         @SingleIn(AppScope::class)
         @IntoSet
         @ForScope(AppScope::class)
-        internal fun providesImageLoaderShutdownIntoUpdatable(
-            imageLoader: ImageLoader,
-        ): Updatable = object : Updatable {
-            override suspend fun update(): Nothing =
-                try {
+        internal fun providesImageLoaderShutdownIntoUpdatable(imageLoader: ImageLoader): Updatable =
+            object : Updatable {
+                override suspend fun update(): Nothing = try {
                     awaitCancellation()
                 } finally {
                     imageLoader.shutdown()
                 }
-        }
+            }
     }
 }

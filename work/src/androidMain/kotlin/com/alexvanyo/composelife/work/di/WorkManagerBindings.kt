@@ -42,16 +42,14 @@ interface WorkManagerBindings {
         @Provides
         internal fun providesWorkerFactoryClassNameMap(
             workerFactoryClassMap: Map<KClass<out ListenableWorker>, AssistedWorkerFactory>,
-        ): Map<String, AssistedWorkerFactory> =
-            workerFactoryClassMap.mapKeys { it.key.java.name }
+        ): Map<String, AssistedWorkerFactory> = workerFactoryClassMap.mapKeys { it.key.java.name }
 
         @Provides
         internal fun providesWorkManagerConfiguration(
             injectWorkerFactory: InjectWorkerFactory,
-        ): androidx.work.Configuration =
-            androidx.work.Configuration.Builder()
-                .setWorkerFactory(injectWorkerFactory)
-                .build()
+        ): androidx.work.Configuration = androidx.work.Configuration.Builder()
+            .setWorkerFactory(injectWorkerFactory)
+            .build()
 
         @Provides
         @SingleIn(AppScope::class)

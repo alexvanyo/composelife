@@ -87,7 +87,8 @@ private operator fun CellUniverseActionCardCtx.invoke(
 )
 
 private val CellUniverseActionCardCtx.Companion.lambda:
-    @Composable (context(InlineEditPaneCtx, InlineSettingsPaneCtx) (
+    @Composable (context(InlineEditPaneCtx, InlineSettingsPaneCtx)
+    (
         temporalGameOfLifeState: TemporalGameOfLifeState,
         onViewDeserializationInfo: (DeserializationResult) -> Unit,
         onSeeMoreSettingsClicked: () -> Unit,
@@ -113,9 +114,9 @@ private val CellUniverseActionCardCtx.Companion.lambda:
         )
     }
 
-context(ctx: CellUniverseActionCardCtx)
 @Suppress("LongParameterList")
 @Composable
+context(ctx: CellUniverseActionCardCtx)
 fun CellUniverseActionCard(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
@@ -133,12 +134,12 @@ fun CellUniverseActionCard(
 )
 // endregion templated-ctx
 
-context(
-    _: InlineEditPaneCtx,
-_: InlineSettingsPaneCtx
-)
 @Suppress("LongParameterList", "LongMethod")
 @Composable
+context(
+    _: InlineEditPaneCtx,
+    _: InlineSettingsPaneCtx
+)
 private fun CellUniverseActionCard(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
@@ -160,12 +161,12 @@ private fun CellUniverseActionCard(
     )
 }
 
-context(
-    _: InlineEditPaneCtx,
-_: InlineSettingsPaneCtx
-)
 @Suppress("LongParameterList", "LongMethod", "ComplexMethod")
 @Composable
+context(
+    _: InlineEditPaneCtx,
+    _: InlineSettingsPaneCtx
+)
 fun CellUniverseActionCard(
     targetStepsPerSecond: Double,
     setTargetStepsPerSecond: (Double) -> Unit,
@@ -369,6 +370,5 @@ internal sealed interface CellUniverseActionCardLayoutTypes {
 internal expect val CellUniverseActionCardLayoutTypes.Companion._sealedEnum:
     SealedEnum<CellUniverseActionCardLayoutTypes>
 
-private data class CellUniverseActionCardNavigationEventInfo(
-    val sceneKey: Pair<KClass<out Scene<*>>, Any>,
-): NavigationEventInfo()
+private data class CellUniverseActionCardNavigationEventInfo(val sceneKey: Pair<KClass<out Scene<*>>, Any>):
+    NavigationEventInfo()

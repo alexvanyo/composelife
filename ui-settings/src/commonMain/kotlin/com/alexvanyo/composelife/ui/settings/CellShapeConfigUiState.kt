@@ -70,24 +70,22 @@ sealed interface CurrentShapeConfigUiState {
     }
 }
 
-context(ctx: CellShapeConfigUiCtx)
 @Composable
-fun rememberCellShapeConfigUiState(): CellShapeConfigUiState =
-    rememberCellShapeConfigUiState(
-        composeLifePreferences = ctx.composeLifePreferences,
-        preferences = ctx.preferencesHolder.preferences,
-    )
+context(ctx: CellShapeConfigUiCtx)
+fun rememberCellShapeConfigUiState(): CellShapeConfigUiState = rememberCellShapeConfigUiState(
+    composeLifePreferences = ctx.composeLifePreferences,
+    preferences = ctx.preferencesHolder.preferences,
+)
 
+@Composable
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,
-composeLifePreferences: ComposeLifePreferences,
+    composeLifePreferences: ComposeLifePreferences,
 )
-@Composable
-fun rememberCellShapeConfigUiState(): CellShapeConfigUiState =
-    rememberCellShapeConfigUiState(
-        composeLifePreferences = composeLifePreferences,
-        preferences = preferencesHolder.preferences,
-    )
+fun rememberCellShapeConfigUiState(): CellShapeConfigUiState = rememberCellShapeConfigUiState(
+    composeLifePreferences = composeLifePreferences,
+    preferences = preferencesHolder.preferences,
+)
 
 @Suppress("LongMethod")
 @Composable

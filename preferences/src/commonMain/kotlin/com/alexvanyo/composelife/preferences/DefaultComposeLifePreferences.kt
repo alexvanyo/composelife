@@ -65,7 +65,8 @@ interface DefaultComposeLifePreferencesBindings {
 class DefaultComposeLifePreferences(
     private val preferencesDataStore: PreferencesDataStore,
     private val logger: Logger,
-) : ComposeLifePreferences, Updatable {
+) : ComposeLifePreferences,
+    Updatable {
 
     override var loadedPreferencesState:
         ResourceState<LoadedComposeLifePreferences> by mutableStateOf(ResourceState.Loading)
@@ -95,9 +96,7 @@ class DefaultComposeLifePreferences(
         awaitCancellation()
     }
 
-    override suspend fun update(
-        block: ComposeLifePreferencesTransform.() -> Unit,
-    ) {
+    override suspend fun update(block: ComposeLifePreferencesTransform.() -> Unit) {
         preferencesDataStore.getDataStore().updateData { preferencesProto ->
             PreferencesProtoTransform(preferencesProto).apply(block).newPreferencesProto
         }
@@ -105,9 +104,7 @@ class DefaultComposeLifePreferences(
 }
 
 @Suppress("TooManyFunctions")
-private class PreferencesProtoTransform(
-    previousPreferencesProto: PreferencesProto,
-) : ComposeLifePreferencesTransform {
+private class PreferencesProtoTransform(previousPreferencesProto: PreferencesProto) : ComposeLifePreferencesTransform {
     var newPreferencesProto: PreferencesProto = previousPreferencesProto
 
     override val previousLoadedComposeLifePreferences: LoadedComposeLifePreferences =
@@ -163,18 +160,28 @@ private class PreferencesProtoTransform(
     private fun updateQuickAccessSetting(include: Boolean, quickAccessSetting: QuickAccessSetting) {
         val quickAccessSettingProto = when (quickAccessSetting) {
             QuickAccessSetting.AlgorithmImplementation -> QuickAccessSettingProto.ALGORITHM_IMPLEMENTATION
+
             QuickAccessSetting.CellShapeConfig -> QuickAccessSettingProto.CELL_SHAPE_CONFIG
+
             QuickAccessSetting.DarkThemeConfig -> QuickAccessSettingProto.DARK_THEME_CONFIG
+
             QuickAccessSetting.DisableAGSL -> QuickAccessSettingProto.DISABLE_AGSL
+
             QuickAccessSetting.DisableOpenGL -> QuickAccessSettingProto.DISABLE_OPENGL
+
             QuickAccessSetting.DoNotKeepProcess -> QuickAccessSettingProto.DO_NOT_KEEP_PROCESS
+
             QuickAccessSetting.EnableClipboardWatching -> QuickAccessSettingProto.ENABLE_CLIPBOARD_WATCHING
+
             QuickAccessSetting.ClipboardWatchingOnboardingCompleted ->
                 QuickAccessSettingProto.CLIPBOARD_WATCHING_ONBOARDING_COMPLETED
+
             QuickAccessSetting.SynchronizePatternCollectionsOnMeteredNetwork ->
                 QuickAccessSettingProto.SYNCHRONIZE_PATTERN_COLLECTION_ON_METERED_NETWORK
+
             QuickAccessSetting.PatternCollectionsSynchronizationPeriod ->
                 QuickAccessSettingProto.PATTERN_COLLECTIONS_SYNCHRONIZATION_PERIOD
+
             QuickAccessSetting.EnableWindowShapeClipping ->
                 QuickAccessSettingProto.ENABLE_WINDOW_SHAPE_CLIPPING
         }
@@ -266,33 +273,44 @@ private class PreferencesProtoTransform(
     }
 }
 
-@Suppress("LongMethod", "ComplexMethod")
+@Suppress("LongMethod", "CyclomaticComplexMethod")
 private fun PreferencesProto.toLoadedComposeLifePreferences(): LoadedComposeLifePreferences {
     val quickAccessSettings =
         quick_access_settings.mapNotNull { quickAccessSettingProto ->
             when (quickAccessSettingProto) {
                 QuickAccessSettingProto.ALGORITHM_IMPLEMENTATION ->
                     QuickAccessSetting.AlgorithmImplementation
+
                 QuickAccessSettingProto.DARK_THEME_CONFIG ->
                     QuickAccessSetting.DarkThemeConfig
+
                 QuickAccessSettingProto.CELL_SHAPE_CONFIG ->
                     QuickAccessSetting.CellShapeConfig
+
                 QuickAccessSettingProto.DISABLE_AGSL ->
                     QuickAccessSetting.DisableAGSL
+
                 QuickAccessSettingProto.DISABLE_OPENGL ->
                     QuickAccessSetting.DisableOpenGL
+
                 QuickAccessSettingProto.DO_NOT_KEEP_PROCESS ->
                     QuickAccessSetting.DoNotKeepProcess
+
                 QuickAccessSettingProto.ENABLE_CLIPBOARD_WATCHING ->
                     QuickAccessSetting.EnableClipboardWatching
+
                 QuickAccessSettingProto.CLIPBOARD_WATCHING_ONBOARDING_COMPLETED ->
                     QuickAccessSetting.ClipboardWatchingOnboardingCompleted
+
                 QuickAccessSettingProto.SYNCHRONIZE_PATTERN_COLLECTION_ON_METERED_NETWORK ->
                     QuickAccessSetting.SynchronizePatternCollectionsOnMeteredNetwork
+
                 QuickAccessSettingProto.PATTERN_COLLECTIONS_SYNCHRONIZATION_PERIOD ->
                     QuickAccessSetting.PatternCollectionsSynchronizationPeriod
+
                 QuickAccessSettingProto.ENABLE_WINDOW_SHAPE_CLIPPING ->
                     QuickAccessSetting.EnableWindowShapeClipping
+
                 QuickAccessSettingProto.SETTINGS_UNKNOWN,
                 -> null
             }
@@ -304,6 +322,7 @@ private fun PreferencesProto.toLoadedComposeLifePreferences(): LoadedComposeLife
             AlgorithmProto.DEFAULT,
             AlgorithmProto.HASHLIFE,
             -> AlgorithmType.HashLifeAlgorithm
+
             AlgorithmProto.NAIVE -> AlgorithmType.NaiveAlgorithm
         }
 
@@ -319,7 +338,9 @@ private fun PreferencesProto.toLoadedComposeLifePreferences(): LoadedComposeLife
             DarkThemeConfigProto.DARK_THEME_UNKNOWN,
             DarkThemeConfigProto.SYSTEM,
             -> DarkThemeConfig.FollowSystem
+
             DarkThemeConfigProto.DARK -> DarkThemeConfig.Dark
+
             DarkThemeConfigProto.LIGHT -> DarkThemeConfig.Light
         }
     val disableAGSL = disable_agsl
@@ -330,29 +351,41 @@ private fun PreferencesProto.toLoadedComposeLifePreferences(): LoadedComposeLife
             ToolConfigProto.TOOL_CONFIG_UNKNOWN,
             ToolConfigProto.PAN,
             -> ToolConfig.Pan
+
             ToolConfigProto.DRAW -> ToolConfig.Draw
+
             ToolConfigProto.ERASE -> ToolConfig.Erase
+
             ToolConfigProto.SELECT -> ToolConfig.Select
+
             ToolConfigProto.NONE -> ToolConfig.None
         }
     val stylusToolConfig =
         when (stylus_tool_config) {
             ToolConfigProto.PAN -> ToolConfig.Pan
+
             ToolConfigProto.TOOL_CONFIG_UNKNOWN,
             ToolConfigProto.DRAW,
             -> ToolConfig.Draw
+
             ToolConfigProto.ERASE -> ToolConfig.Erase
+
             ToolConfigProto.SELECT -> ToolConfig.Select
+
             ToolConfigProto.NONE -> ToolConfig.None
         }
     val mouseToolConfig =
         when (mouse_tool_config) {
             ToolConfigProto.PAN -> ToolConfig.Pan
+
             ToolConfigProto.TOOL_CONFIG_UNKNOWN,
             ToolConfigProto.DRAW,
             -> ToolConfig.Draw
+
             ToolConfigProto.ERASE -> ToolConfig.Erase
+
             ToolConfigProto.SELECT -> ToolConfig.Select
+
             ToolConfigProto.NONE -> ToolConfig.None
         }
     val completedClipboardWatchingOnboarding = completed_clipboard_watching_onboarding

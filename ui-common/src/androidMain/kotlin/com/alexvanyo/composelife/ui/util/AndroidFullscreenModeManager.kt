@@ -59,7 +59,8 @@ class AndroidFullscreenModeManager(
     private val activity: Activity?,
     private val windowInsetsControllerCompat: WindowInsetsControllerCompat?,
     private val dispatchers: ComposeLifeDispatchers,
-) : FullscreenModeManager, Updatable {
+) : FullscreenModeManager,
+    Updatable {
 
     private var _isImmersive by mutableStateOf(false)
 
@@ -89,12 +90,11 @@ class AndroidFullscreenModeManager(
         return completableDeferred
     }
 
-    override suspend fun update(): Nothing =
-        coroutineScope {
-            // TODO: Register for multi window mode changes to update isFullscreen and isImmersive
-            launch { actor() }
-            awaitCancellation()
-        }
+    override suspend fun update(): Nothing = coroutineScope {
+        // TODO: Register for multi window mode changes to update isFullscreen and isImmersive
+        launch { actor() }
+        awaitCancellation()
+    }
 
     private suspend fun actor(): Nothing {
         requests.receiveAsFlow().collect { request ->
@@ -102,6 +102,7 @@ class AndroidFullscreenModeManager(
                 RequestType.EnterFullscreen -> request.completableDeferred.complete(
                     enterFullscreenMode(),
                 )
+
                 RequestType.ExitFullscreen -> request.completableDeferred.complete(
                     exitFullscreenMode(),
                 )
@@ -112,10 +113,7 @@ class AndroidFullscreenModeManager(
 
     private val requests = Channel<Request>(capacity = Channel.UNLIMITED)
 
-    private data class Request(
-        val type: RequestType,
-        val completableDeferred: CompletableDeferred<Result<Unit>>,
-    )
+    private data class Request(val type: RequestType, val completableDeferred: CompletableDeferred<Result<Unit>>)
 
     private sealed interface RequestType {
         data object EnterFullscreen : RequestType
@@ -123,68 +121,66 @@ class AndroidFullscreenModeManager(
     }
 
     @Suppress("RedundantSuspendModifier")
-    private suspend fun enterFullscreenMode(): Result<Unit> =
-        if (activity == null) {
-            isFullscreen = false
-            Result.failure(IllegalStateException("No Activity to request fullscreen with"))
-        } else if (Build.VERSION.SDK_INT >= 35) {
-            suspendCancellableCoroutine { cont ->
-                activity.requestFullscreenMode(
-                    Activity.FULLSCREEN_MODE_REQUEST_ENTER,
-                    @Suppress("ForbiddenVoid")
-                    object : OutcomeReceiver<Void, Throwable> {
-                        override fun onResult(result: Void?) {
-                            isFullscreen = true
-                            cont.resume(Result.success(Unit)) { _, _, _ -> }
-                        }
+    private suspend fun enterFullscreenMode(): Result<Unit> = if (activity == null) {
+        isFullscreen = false
+        Result.failure(IllegalStateException("No Activity to request fullscreen with"))
+    } else if (Build.VERSION.SDK_INT >= 35) {
+        suspendCancellableCoroutine { cont ->
+            activity.requestFullscreenMode(
+                Activity.FULLSCREEN_MODE_REQUEST_ENTER,
+                @Suppress("ForbiddenVoid")
+                object : OutcomeReceiver<Void, Throwable> {
+                    override fun onResult(result: Void?) {
+                        isFullscreen = true
+                        cont.resume(Result.success(Unit)) { _, _, _ -> }
+                    }
 
-                        override fun onError(error: Throwable) {
-                            isFullscreen = false
-                            cont.resume(Result.failure(error)) { _, _, _ -> }
-                        }
-                    },
-                )
-            }
-        } else {
-            isFullscreen = false
-            Result.failure(IllegalStateException("Not supported on API < 35"))
-        }.also {
-            withContext(dispatchers.Main) {
-                isImmersive = true
-            }
+                    override fun onError(error: Throwable) {
+                        isFullscreen = false
+                        cont.resume(Result.failure(error)) { _, _, _ -> }
+                    }
+                },
+            )
         }
+    } else {
+        isFullscreen = false
+        Result.failure(IllegalStateException("Not supported on API < 35"))
+    }.also {
+        withContext(dispatchers.Main) {
+            isImmersive = true
+        }
+    }
 
     @Suppress("RedundantSuspendModifier")
-    private suspend fun exitFullscreenMode(): Result<Unit> =
-        if (activity == null) {
-            isFullscreen = false
-            Result.failure(IllegalStateException("No Activity to request fullscreen with"))
-        } else if (Build.VERSION.SDK_INT >= 35) {
-            suspendCancellableCoroutine { cont ->
-                activity.requestFullscreenMode(
-                    Activity.FULLSCREEN_MODE_REQUEST_EXIT,
-                    @Suppress("ForbiddenVoid")
-                    object : OutcomeReceiver<Void, Throwable> {
-                        override fun onResult(result: Void?) {
-                            isFullscreen = false
-                            cont.resume(Result.success(Unit)) { _, _, _ -> }
-                        }
+    private suspend fun exitFullscreenMode(): Result<Unit> = if (activity == null) {
+        isFullscreen = false
+        Result.failure(IllegalStateException("No Activity to request fullscreen with"))
+    } else if (Build.VERSION.SDK_INT >= 35) {
+        suspendCancellableCoroutine { cont ->
+            activity.requestFullscreenMode(
+                Activity.FULLSCREEN_MODE_REQUEST_EXIT,
+                @Suppress("ForbiddenVoid")
+                object : OutcomeReceiver<Void, Throwable> {
+                    override fun onResult(result: Void?) {
+                        isFullscreen = false
+                        cont.resume(Result.success(Unit)) { _, _, _ -> }
+                    }
 
-                        override fun onError(error: Throwable) {
-                            isFullscreen = false
-                            cont.resume(Result.failure(error)) { _, _, _ -> }
-                        }
-                    },
-                )
-            }
-        } else {
-            isFullscreen = false
-            Result.failure(IllegalStateException("Not supported on API < 35"))
-        }.also {
-            withContext(dispatchers.Main) {
-                isImmersive = false
-            }
+                    override fun onError(error: Throwable) {
+                        isFullscreen = false
+                        cont.resume(Result.failure(error)) { _, _, _ -> }
+                    }
+                },
+            )
         }
+    } else {
+        isFullscreen = false
+        Result.failure(IllegalStateException("Not supported on API < 35"))
+    }.also {
+        withContext(dispatchers.Main) {
+            isImmersive = false
+        }
+    }
 }
 
 @ContributesTo(UiScope::class)
@@ -193,9 +189,7 @@ interface WindowInsetsControllerBindings {
     companion object {
         @Provides
         @SingleIn(UiScope::class)
-        fun providesWindowInsetsController(
-            window: Window?,
-        ): WindowInsetsControllerCompat? =
+        fun providesWindowInsetsController(window: Window?): WindowInsetsControllerCompat? =
             window?.let { WindowCompat.getInsetsController(window, window.decorView) }
     }
 }

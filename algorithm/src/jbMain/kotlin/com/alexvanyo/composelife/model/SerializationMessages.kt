@@ -19,41 +19,22 @@ package com.alexvanyo.composelife.model
 import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 
-expect fun UnexpectedInputMessage(
-    input: String,
-    lineIndex: Int,
-    characterIndex: Int,
-): ParameterizedString
+expect fun UnexpectedInputMessage(input: String, lineIndex: Int, characterIndex: Int): ParameterizedString
 
-expect fun UnexpectedCharacterMessage(
-    character: Char,
-    lineIndex: Int,
-    characterIndex: Int,
-): ParameterizedString
+expect fun UnexpectedCharacterMessage(character: Char, lineIndex: Int, characterIndex: Int): ParameterizedString
 
-expect fun UnexpectedHeaderMessage(
-    header: String,
-): ParameterizedString
+expect fun UnexpectedHeaderMessage(header: String): ParameterizedString
 
-expect fun UnexpectedShortLineMessage(
-    lineIndex: Int,
-): ParameterizedString
+expect fun UnexpectedShortLineMessage(lineIndex: Int): ParameterizedString
 
-expect fun UnexpectedBlankLineMessage(
-    lineIndex: Int,
-): ParameterizedString
+expect fun UnexpectedBlankLineMessage(lineIndex: Int): ParameterizedString
 
 expect val UnexpectedEmptyFileMessage: ParameterizedString
 
 expect val RuleNotSupportedMessage: ParameterizedString
 
-expect fun DuplicateTopLeftCoordinateMessage(
-    overwritingOffset: IntOffset,
-): ParameterizedString
+expect fun DuplicateTopLeftCoordinateMessage(overwritingOffset: IntOffset): ParameterizedString
 
 expect val EmptyInput: ParameterizedString
 
-expect fun UnexpectedNodeIdMessage(
-    lineIndex: Int,
-    characterIndices: IntRange,
-): ParameterizedString
+expect fun UnexpectedNodeIdMessage(lineIndex: Int, characterIndices: IntRange): ParameterizedString

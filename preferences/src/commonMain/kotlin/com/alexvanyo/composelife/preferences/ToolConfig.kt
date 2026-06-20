@@ -26,11 +26,10 @@ sealed interface ToolConfig {
     data object None : ToolConfig
 }
 
-internal fun ToolConfig.toProto(): ToolConfigProto =
-    when (this) {
-        ToolConfig.Pan -> ToolConfigProto.PAN
-        ToolConfig.Draw -> ToolConfigProto.DRAW
-        ToolConfig.Erase -> ToolConfigProto.ERASE
-        ToolConfig.None -> ToolConfigProto.NONE
-        ToolConfig.Select -> ToolConfigProto.SELECT
-    }
+internal fun ToolConfig.toProto(): ToolConfigProto = when (this) {
+    ToolConfig.Pan -> ToolConfigProto.PAN
+    ToolConfig.Draw -> ToolConfigProto.DRAW
+    ToolConfig.Erase -> ToolConfigProto.ERASE
+    ToolConfig.None -> ToolConfigProto.NONE
+    ToolConfig.Select -> ToolConfigProto.SELECT
+}

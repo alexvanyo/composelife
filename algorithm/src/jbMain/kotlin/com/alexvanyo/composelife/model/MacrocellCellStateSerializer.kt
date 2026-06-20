@@ -25,7 +25,6 @@ import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import kotlin.collections.removeFirst as removeFirstKt
 
 object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
-
     override val format: CellStateFormat.FixedFormat = CellStateFormat.FixedFormat.Macrocell
 
     @Suppress("LongMethod", "CyclomaticComplexMethod", "DestructuringDeclarationWithTooManyEntries", "ReturnCount")
@@ -50,7 +49,8 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
         if (!headerLine.startsWith("[M2]")) {
             return DeserializationResult.Unsuccessful(
                 warnings = warnings,
-                errors = listOf(
+                errors =
+                listOf(
                     UnexpectedHeaderMessage(headerLine),
                 ),
             )
@@ -72,21 +72,25 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                         warnings.add(UnexpectedBlankLineMessage(lineIndex + 1))
                     }
                 }
+
                 line.first() == '#' -> {
                     // Comment line, continue
                 }
+
                 line.first().isDigit() -> {
-                    val result = nodeRegex.matchEntire(line)
-                        ?: return DeserializationResult.Unsuccessful(
-                            warnings = warnings,
-                            errors = listOf(
-                                UnexpectedInputMessage(
-                                    input = line,
-                                    lineIndex = lineIndex,
-                                    characterIndex = 0,
+                    val result =
+                        nodeRegex.matchEntire(line)
+                            ?: return DeserializationResult.Unsuccessful(
+                                warnings = warnings,
+                                errors =
+                                listOf(
+                                    UnexpectedInputMessage(
+                                        input = line,
+                                        lineIndex = lineIndex,
+                                        characterIndex = 0,
+                                    ),
                                 ),
-                            ),
-                        )
+                            )
 
                     val (_, level, nw, ne, sw, se) = result.groups.toList().map(::checkNotNull)
 
@@ -105,119 +109,137 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                     val swRange = thirdSpaceIndex + 1 until fourthSpaceIndex // sw.range
                     val seRange = fourthSpaceIndex + 1 until line.length // se.range
 
-                    val node = if (levelValue == 4) {
-                        Level4Node(
-                            nw = if (nwValue == 0) {
-                                0L
-                            } else {
-                                indexToLeafNodeMap[nwValue] ?: return DeserializationResult.Unsuccessful(
-                                    warnings = warnings,
-                                    errors = listOf(
-                                        UnexpectedNodeIdMessage(
-                                            lineIndex = lineIndex,
-                                            characterIndices = nwRange,
+                    val node =
+                        if (levelValue == 4) {
+                            Level4Node(
+                                nw =
+                                if (nwValue == 0) {
+                                    0L
+                                } else {
+                                    indexToLeafNodeMap[nwValue] ?: return DeserializationResult.Unsuccessful(
+                                        warnings = warnings,
+                                        errors =
+                                        listOf(
+                                            UnexpectedNodeIdMessage(
+                                                lineIndex = lineIndex,
+                                                characterIndices = nwRange,
+                                            ),
                                         ),
-                                    ),
-                                )
-                            },
-                            ne = if (neValue == 0) {
-                                0L
-                            } else {
-                                indexToLeafNodeMap[neValue] ?: return DeserializationResult.Unsuccessful(
-                                    warnings = warnings,
-                                    errors = listOf(
-                                        UnexpectedNodeIdMessage(
-                                            lineIndex = lineIndex,
-                                            characterIndices = neRange,
+                                    )
+                                },
+                                ne =
+                                if (neValue == 0) {
+                                    0L
+                                } else {
+                                    indexToLeafNodeMap[neValue] ?: return DeserializationResult.Unsuccessful(
+                                        warnings = warnings,
+                                        errors =
+                                        listOf(
+                                            UnexpectedNodeIdMessage(
+                                                lineIndex = lineIndex,
+                                                characterIndices = neRange,
+                                            ),
                                         ),
-                                    ),
-                                )
-                            },
-                            sw = if (swValue == 0) {
-                                0L
-                            } else {
-                                indexToLeafNodeMap[swValue] ?: return DeserializationResult.Unsuccessful(
-                                    warnings = warnings,
-                                    errors = listOf(
-                                        UnexpectedNodeIdMessage(
-                                            lineIndex = lineIndex,
-                                            characterIndices = swRange,
+                                    )
+                                },
+                                sw =
+                                if (swValue == 0) {
+                                    0L
+                                } else {
+                                    indexToLeafNodeMap[swValue] ?: return DeserializationResult.Unsuccessful(
+                                        warnings = warnings,
+                                        errors =
+                                        listOf(
+                                            UnexpectedNodeIdMessage(
+                                                lineIndex = lineIndex,
+                                                characterIndices = swRange,
+                                            ),
                                         ),
-                                    ),
-                                )
-                            },
-                            se = if (seValue == 0) {
-                                0L
-                            } else {
-                                indexToLeafNodeMap[seValue] ?: return DeserializationResult.Unsuccessful(
-                                    warnings = warnings,
-                                    errors = listOf(
-                                        UnexpectedNodeIdMessage(
-                                            lineIndex = lineIndex,
-                                            characterIndices = seRange,
+                                    )
+                                },
+                                se =
+                                if (seValue == 0) {
+                                    0L
+                                } else {
+                                    indexToLeafNodeMap[seValue] ?: return DeserializationResult.Unsuccessful(
+                                        warnings = warnings,
+                                        errors =
+                                        listOf(
+                                            UnexpectedNodeIdMessage(
+                                                lineIndex = lineIndex,
+                                                characterIndices = seRange,
+                                            ),
                                         ),
-                                    ),
-                                )
-                            },
-                        )
-                    } else {
-                        CellNode(
-                            nw = if (nwValue == 0) {
-                                createEmptyMacroCell(levelValue - 1)
-                            } else {
-                                indexToMacroCellMap[nwValue] ?: return DeserializationResult.Unsuccessful(
-                                    warnings = warnings,
-                                    errors = listOf(
-                                        UnexpectedNodeIdMessage(
-                                            lineIndex = lineIndex,
-                                            characterIndices = nwRange,
+                                    )
+                                },
+                            )
+                        } else {
+                            CellNode(
+                                nw =
+                                if (nwValue == 0) {
+                                    createEmptyMacroCell(levelValue - 1)
+                                } else {
+                                    indexToMacroCellMap[nwValue] ?: return DeserializationResult.Unsuccessful(
+                                        warnings = warnings,
+                                        errors =
+                                        listOf(
+                                            UnexpectedNodeIdMessage(
+                                                lineIndex = lineIndex,
+                                                characterIndices = nwRange,
+                                            ),
                                         ),
-                                    ),
-                                )
-                            },
-                            ne = if (neValue == 0) {
-                                createEmptyMacroCell(levelValue - 1)
-                            } else {
-                                indexToMacroCellMap[neValue] ?: return DeserializationResult.Unsuccessful(
-                                    warnings = warnings,
-                                    errors = listOf(
-                                        UnexpectedNodeIdMessage(
-                                            lineIndex = lineIndex,
-                                            characterIndices = neRange,
+                                    )
+                                },
+                                ne =
+                                if (neValue == 0) {
+                                    createEmptyMacroCell(levelValue - 1)
+                                } else {
+                                    indexToMacroCellMap[neValue] ?: return DeserializationResult.Unsuccessful(
+                                        warnings = warnings,
+                                        errors =
+                                        listOf(
+                                            UnexpectedNodeIdMessage(
+                                                lineIndex = lineIndex,
+                                                characterIndices = neRange,
+                                            ),
                                         ),
-                                    ),
-                                )
-                            },
-                            sw = if (swValue == 0) {
-                                createEmptyMacroCell(levelValue - 1)
-                            } else {
-                                indexToMacroCellMap[swValue] ?: return DeserializationResult.Unsuccessful(
-                                    warnings = warnings,
-                                    errors = listOf(
-                                        UnexpectedNodeIdMessage(
-                                            lineIndex = lineIndex,
-                                            characterIndices = swRange,
+                                    )
+                                },
+                                sw =
+                                if (swValue == 0) {
+                                    createEmptyMacroCell(levelValue - 1)
+                                } else {
+                                    indexToMacroCellMap[swValue] ?: return DeserializationResult.Unsuccessful(
+                                        warnings = warnings,
+                                        errors =
+                                        listOf(
+                                            UnexpectedNodeIdMessage(
+                                                lineIndex = lineIndex,
+                                                characterIndices = swRange,
+                                            ),
                                         ),
-                                    ),
-                                )
-                            },
-                            se = if (seValue == 0) {
-                                createEmptyMacroCell(levelValue - 1)
-                            } else {
-                                indexToMacroCellMap[seValue] ?: return DeserializationResult.Unsuccessful(
-                                    warnings = warnings,
-                                    errors = listOf(
-                                        UnexpectedNodeIdMessage(
-                                            lineIndex = lineIndex,
-                                            characterIndices = seRange,
+                                    )
+                                },
+                                se =
+                                if (seValue == 0) {
+                                    createEmptyMacroCell(levelValue - 1)
+                                } else {
+                                    indexToMacroCellMap[seValue] ?: return DeserializationResult.Unsuccessful(
+                                        warnings = warnings,
+                                        errors =
+                                        listOf(
+                                            UnexpectedNodeIdMessage(
+                                                lineIndex = lineIndex,
+                                                characterIndices = seRange,
+                                            ),
                                         ),
-                                    ),
-                                )
-                            },
-                        )
-                    }
+                                    )
+                                },
+                            )
+                        }
                     indexToMacroCellMap[nodeIndex++] = node
                 }
+
                 else -> {
                     line.forEachIndexed { index, char ->
                         if (char !in setOf('$', '.', '*')) {
@@ -252,9 +274,11 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
 
         return DeserializationResult.Successful(
             warnings = warnings,
-            cellState = HashLifeCellState(
+            cellState =
+            HashLifeCellState(
                 offset = IntOffset.Zero,
-                macroCell = if (nodeIndex == 1) {
+                macroCell =
+                if (nodeIndex == 1) {
                     createEmptyMacroCell(4)
                 } else {
                     indexToMacroCellMap[nodeIndex - 1] ?: Level4Node(
@@ -287,38 +311,42 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                 return@sequence
             } else if (hashLifeCellState.macroCell is Level4Node) {
                 // Fast path: if the cell state is just a Level4Node, we may be able to print just one leaf node
-                val nwIndex = if (hashLifeCellState.macroCell.nw.size == 0) {
-                    0
-                } else {
-                    leafNodeToIndexMap.getOrPut(hashLifeCellState.macroCell.nw) {
-                        yieldLeafNode(hashLifeCellState.macroCell.nw)
-                        nodeIndex++
+                val nwIndex =
+                    if (hashLifeCellState.macroCell.nw.size == 0) {
+                        0
+                    } else {
+                        leafNodeToIndexMap.getOrPut(hashLifeCellState.macroCell.nw) {
+                            yieldLeafNode(hashLifeCellState.macroCell.nw)
+                            nodeIndex++
+                        }
                     }
-                }
-                val neIndex = if (hashLifeCellState.macroCell.ne.size == 0) {
-                    0
-                } else {
-                    leafNodeToIndexMap.getOrPut(hashLifeCellState.macroCell.ne) {
-                        yieldLeafNode(hashLifeCellState.macroCell.ne)
-                        nodeIndex++
+                val neIndex =
+                    if (hashLifeCellState.macroCell.ne.size == 0) {
+                        0
+                    } else {
+                        leafNodeToIndexMap.getOrPut(hashLifeCellState.macroCell.ne) {
+                            yieldLeafNode(hashLifeCellState.macroCell.ne)
+                            nodeIndex++
+                        }
                     }
-                }
-                val swIndex = if (hashLifeCellState.macroCell.sw.size == 0) {
-                    0
-                } else {
-                    leafNodeToIndexMap.getOrPut(hashLifeCellState.macroCell.sw) {
-                        yieldLeafNode(hashLifeCellState.macroCell.sw)
-                        nodeIndex++
+                val swIndex =
+                    if (hashLifeCellState.macroCell.sw.size == 0) {
+                        0
+                    } else {
+                        leafNodeToIndexMap.getOrPut(hashLifeCellState.macroCell.sw) {
+                            yieldLeafNode(hashLifeCellState.macroCell.sw)
+                            nodeIndex++
+                        }
                     }
-                }
-                val seIndex = if (hashLifeCellState.macroCell.se.size == 0) {
-                    0
-                } else {
-                    leafNodeToIndexMap.getOrPut(hashLifeCellState.macroCell.se) {
-                        yieldLeafNode(hashLifeCellState.macroCell.se)
-                        nodeIndex++
+                val seIndex =
+                    if (hashLifeCellState.macroCell.se.size == 0) {
+                        0
+                    } else {
+                        leafNodeToIndexMap.getOrPut(hashLifeCellState.macroCell.se) {
+                            yieldLeafNode(hashLifeCellState.macroCell.se)
+                            nodeIndex++
+                        }
                     }
-                }
                 val nonZeroLeafNodes = listOf(nwIndex, neIndex, swIndex, seIndex).count { it != 0 }
                 if (nonZeroLeafNodes != 1) {
                     // If there was only one non-zero leaf node, we don't need to print the Level4Node
@@ -337,41 +365,46 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                 } else {
                     when (node) {
                         is Level4Node -> {
-                            val nwIndex = if (node.nw.size == 0) {
-                                0
-                            } else {
-                                leafNodeToIndexMap.getOrPut(node.nw) {
-                                    yieldLeafNode(node.nw)
-                                    nodeIndex++
+                            val nwIndex =
+                                if (node.nw.size == 0) {
+                                    0
+                                } else {
+                                    leafNodeToIndexMap.getOrPut(node.nw) {
+                                        yieldLeafNode(node.nw)
+                                        nodeIndex++
+                                    }
                                 }
-                            }
-                            val neIndex = if (node.ne.size == 0) {
-                                0
-                            } else {
-                                leafNodeToIndexMap.getOrPut(node.ne) {
-                                    yieldLeafNode(node.ne)
-                                    nodeIndex++
+                            val neIndex =
+                                if (node.ne.size == 0) {
+                                    0
+                                } else {
+                                    leafNodeToIndexMap.getOrPut(node.ne) {
+                                        yieldLeafNode(node.ne)
+                                        nodeIndex++
+                                    }
                                 }
-                            }
-                            val swIndex = if (node.sw.size == 0) {
-                                0
-                            } else {
-                                leafNodeToIndexMap.getOrPut(node.sw) {
-                                    yieldLeafNode(node.sw)
-                                    nodeIndex++
+                            val swIndex =
+                                if (node.sw.size == 0) {
+                                    0
+                                } else {
+                                    leafNodeToIndexMap.getOrPut(node.sw) {
+                                        yieldLeafNode(node.sw)
+                                        nodeIndex++
+                                    }
                                 }
-                            }
-                            val seIndex = if (node.se.size == 0) {
-                                0
-                            } else {
-                                leafNodeToIndexMap.getOrPut(node.se) {
-                                    yieldLeafNode(node.se)
-                                    nodeIndex++
+                            val seIndex =
+                                if (node.se.size == 0) {
+                                    0
+                                } else {
+                                    leafNodeToIndexMap.getOrPut(node.se) {
+                                        yieldLeafNode(node.se)
+                                        nodeIndex++
+                                    }
                                 }
-                            }
                             yield("${node.level} $nwIndex $neIndex $swIndex $seIndex")
                             macroCellToIndexMap[node] = nodeIndex++
                         }
+
                         is CellNode -> {
                             if (
                                 node.nw in macroCellToIndexMap &&
@@ -403,15 +436,17 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
 
 private suspend fun SequenceScope<String>.yieldLeafNode(leafNode: LeafNode) {
     yield(
-        (0..7).map { y ->
-            CharArray(8) { x ->
-                if (IntOffset(x, y) in leafNode) '*' else '.'
-            }
-        }
-            .map(CharArray::concatToString)
+        (0..7)
+            .map { y ->
+                CharArray(8) { x ->
+                    if (IntOffset(x, y) in leafNode) '*' else '.'
+                }
+            }.map(CharArray::concatToString)
             .joinToString("$") { it.trimEnd('.') }
-            .trimEnd('$') + '$',
+            .trimEnd('$') +
+            '$',
     )
 }
 
+@Suppress("UnusedPrivateFunction")
 private operator fun <T> List<T>.component6(): T = get(5)

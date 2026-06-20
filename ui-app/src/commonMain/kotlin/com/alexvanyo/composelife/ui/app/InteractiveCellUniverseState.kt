@@ -162,20 +162,19 @@ interface InteractiveCellUniverseEditingState {
     fun onClearSelection()
 }
 
-context(ctx: InteractiveCellUniverseCtx)
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
+context(ctx: InteractiveCellUniverseCtx)
 fun rememberInteractiveCellUniverseState(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     mutableCellWindowViewportState: MutableCellWindowViewportState = rememberMutableCellWindowViewportState(),
-): InteractiveCellUniverseState =
-    rememberInteractiveCellUniverseState(
-        cellStateParser = ctx.cellStateParser,
-        clipboardReaderWriter = ctx.clipboardReaderWriter,
-        fullscreenModeManager = ctx.fullscreenModeManager,
-        temporalGameOfLifeState = temporalGameOfLifeState,
-        mutableCellWindowViewportState = mutableCellWindowViewportState,
-    )
+): InteractiveCellUniverseState = rememberInteractiveCellUniverseState(
+    cellStateParser = ctx.cellStateParser,
+    clipboardReaderWriter = ctx.clipboardReaderWriter,
+    fullscreenModeManager = ctx.fullscreenModeManager,
+    temporalGameOfLifeState = temporalGameOfLifeState,
+    mutableCellWindowViewportState = mutableCellWindowViewportState,
+)
 
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
@@ -275,6 +274,7 @@ internal fun rememberInteractiveCellUniverseState(
                     is SelectionState.Selection,
                     is SelectionState.SelectingBox.TransientSelectingBox,
                     -> false
+
                     is SelectionState.SelectingBox.FixedSelectingBox -> {
                         if (currentSelectionState.width != 0 && currentSelectionState.height != 0) {
                             val selectedCellState =
@@ -308,6 +308,7 @@ internal fun rememberInteractiveCellUniverseState(
                         is DeserializationResult.Successful -> {
                             setSelectionToCellState(deserializationResult.cellState)
                         }
+
                         is DeserializationResult.Unsuccessful -> {
                             // TODO: Show error for unsuccessful pasting
                         }
@@ -320,6 +321,7 @@ internal fun rememberInteractiveCellUniverseState(
                     SelectionState.NoSelection,
                     is SelectionState.SelectingBox,
                     -> false
+
                     is SelectionState.Selection -> {
                         val selectionCellState = currentSelectionState.cellState
 
@@ -378,6 +380,7 @@ internal fun rememberInteractiveCellUniverseState(
         setIsExpanded = ::setIsInfoCardExpanded,
         expandedTargetState = when (val navEventState = infoCardNavigationEventTransitionState) {
             is NavigationEventTransitionState.Idle -> TargetState.Single(isInfoCardExpanded)
+
             is NavigationEventTransitionState.InProgress -> {
                 check(isInfoCardExpanded)
                 TargetState.InProgress(
@@ -408,6 +411,7 @@ internal fun rememberInteractiveCellUniverseState(
         setIsExpanded = ::setIsActionCardExpanded,
         expandedTargetState = when (val navEventState = actionCardNavigationEventTransitionState) {
             is NavigationEventTransitionState.Idle -> TargetState.Single(isActionCardExpanded)
+
             is NavigationEventTransitionState.InProgress -> {
                 check(isActionCardExpanded)
                 TargetState.InProgress(

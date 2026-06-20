@@ -191,19 +191,14 @@ class BackstackStateTests : BaseKmpTest() {
     }
 }
 
-class TestEntryType(
-    val value: String,
-    val previous: TestEntryType?,
-) {
+class TestEntryType(val value: String, val previous: TestEntryType?) {
     val fullValue: String get() = previous?.fullValue.orEmpty() + value
 
     val surrogate get() = Surrogate(value)
 
     @Serializable
     data class Surrogate(val value: String) : BackstackValueSurrogate<TestEntryType> {
-        override fun createFromSurrogate(
-            previous: BackstackEntry<TestEntryType>?,
-        ): TestEntryType = TestEntryType(
+        override fun createFromSurrogate(previous: BackstackEntry<TestEntryType>?): TestEntryType = TestEntryType(
             value = value,
             previous = previous?.value,
         )

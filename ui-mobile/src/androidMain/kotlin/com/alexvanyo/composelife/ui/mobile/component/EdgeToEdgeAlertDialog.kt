@@ -229,11 +229,7 @@ internal fun AlertDialogContent(
  * Text styles will be merged with the current value of LocalTextStyle.
  */
 @Composable
-internal fun ProvideContentColorTextStyle(
-    contentColor: Color,
-    textStyle: TextStyle,
-    content: @Composable () -> Unit,
-) {
+internal fun ProvideContentColorTextStyle(contentColor: Color, textStyle: TextStyle, content: @Composable () -> Unit) {
     val mergedStyle = LocalTextStyle.current.merge(textStyle)
     CompositionLocalProvider(
         LocalContentColor provides contentColor,
@@ -247,11 +243,7 @@ internal fun ProvideContentColorTextStyle(
  * customization.
  */
 @Composable
-internal fun AlertDialogFlowRow(
-    mainAxisSpacing: Dp,
-    crossAxisSpacing: Dp,
-    content: @Composable () -> Unit,
-) {
+internal fun AlertDialogFlowRow(mainAxisSpacing: Dp, crossAxisSpacing: Dp, content: @Composable () -> Unit) {
     Layout(content) { measurables, constraints ->
         val sequences = mutableListOf<List<Placeable>>()
         val crossAxisSizes = mutableListOf<Int>()

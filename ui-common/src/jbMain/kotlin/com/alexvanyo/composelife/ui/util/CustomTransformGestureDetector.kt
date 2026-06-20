@@ -35,7 +35,7 @@ import kotlin.math.atan2
  * A modified copy of [PointerInputScope.detectTransformGestures] that also provides callbacks when each gesture
  * has begun and ended.
  */
-@Suppress("ComplexMethod", "LongMethod")
+@Suppress("CyclomaticComplexMethod", "LongMethod")
 suspend fun PointerInputScope.detectTransformGestures(
     panZoomLock: Boolean = false,
     excludedPointerTypes: Set<PointerType> = emptySet(),
@@ -121,9 +121,7 @@ suspend fun PointerInputScope.detectTransformGestures(
  * Example Usage:
  * @sample androidx.compose.foundation.samples.CalculateRotation
  */
-fun PointerEvent.calculateRotation(
-    excludedPointerTypes: Set<PointerType> = emptySet(),
-): Float {
+fun PointerEvent.calculateRotation(excludedPointerTypes: Set<PointerType> = emptySet()): Float {
     val filteredChanges = changes.filterNot { it.type in excludedPointerTypes }
     val pointerCount = filteredChanges.fastSumBy { if (it.previousPressed && it.pressed) 1 else 0 }
     if (pointerCount < 2) {
@@ -171,8 +169,7 @@ fun PointerEvent.calculateRotation(
 /**
  * Returns the angle of the [Offset] between -180 and 180, or 0 if [Offset.Zero].
  */
-private fun Offset.angle(): Float =
-    if (x == 0f && y == 0f) 0f else -atan2(x, y) * 180f / PI.toFloat()
+private fun Offset.angle(): Float = if (x == 0f && y == 0f) 0f else -atan2(x, y) * 180f / PI.toFloat()
 
 /**
  * Uses the change of the centroid size between the [PointerInputChange.previousPosition] and
@@ -181,9 +178,7 @@ private fun Offset.angle(): Float =
  * Example Usage:
  * @sample androidx.compose.foundation.samples.CalculateZoom
  */
-fun PointerEvent.calculateZoom(
-    excludedPointerTypes: Set<PointerType> = emptySet(),
-): Float {
+fun PointerEvent.calculateZoom(excludedPointerTypes: Set<PointerType> = emptySet()): Float {
     val currentCentroidSize = calculateCentroidSize(excludedPointerTypes = excludedPointerTypes, useCurrent = true)
     val previousCentroidSize = calculateCentroidSize(excludedPointerTypes = excludedPointerTypes, useCurrent = false)
     if (currentCentroidSize == 0f || previousCentroidSize == 0f) {
@@ -200,9 +195,7 @@ fun PointerEvent.calculateZoom(
  * Example Usage:
  * @sample androidx.compose.foundation.samples.CalculatePan
  */
-fun PointerEvent.calculatePan(
-    excludedPointerTypes: Set<PointerType> = emptySet(),
-): Offset {
+fun PointerEvent.calculatePan(excludedPointerTypes: Set<PointerType> = emptySet()): Offset {
     val currentCentroid = calculateCentroid(
         excludedPointerTypes = excludedPointerTypes,
         useCurrent = true,

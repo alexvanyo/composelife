@@ -31,29 +31,24 @@ import java.io.IOException
 
 @Inject
 @ContributesBinding(UiScope::class, binding<ClipboardReader>())
-class DesktopClipboardReader(
-    private val clipboard: Clipboard,
-) : ClipboardReader {
+class DesktopClipboardReader(private val clipboard: Clipboard) : ClipboardReader {
     @OptIn(ExperimentalComposeUiApi::class)
-    override suspend fun getText(): String? =
-        clipboard.awtClipboard?.getContents(this)?.let {
-            try {
-                DataFlavor.stringFlavor.getReaderForText(it).use { reader ->
-                    reader.readText()
-                }
-            } catch (_: UnsupportedFlavorException) {
-                null
-            } catch (_: IOException) {
-                null
+    override suspend fun getText(): String? = clipboard.awtClipboard?.getContents(this)?.let {
+        try {
+            DataFlavor.stringFlavor.getReaderForText(it).use { reader ->
+                reader.readText()
             }
+        } catch (_: UnsupportedFlavorException) {
+            null
+        } catch (_: IOException) {
+            null
         }
+    }
 }
 
 @Inject
 @ContributesBinding(UiScope::class, binding<ClipboardWriter>())
-class DesktopClipboardWriter(
-    private val clipboard: Clipboard,
-) : ClipboardWriter {
+class DesktopClipboardWriter(private val clipboard: Clipboard) : ClipboardWriter {
     @OptIn(ExperimentalComposeUiApi::class)
     override suspend fun setText(value: String) = clipboard.setClipEntry(
         ClipEntry(StringSelection(value)),

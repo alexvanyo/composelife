@@ -43,15 +43,14 @@ interface CellUniverseInfoCardState {
 fun rememberCellUniverseInfoCardState(
     setIsExpanded: (Boolean) -> Unit,
     expandedTargetState: TargetState<Boolean, *>,
-): CellUniverseInfoCardState =
-    object : CellUniverseInfoCardState {
-        override fun setIsExpanded(isExpanded: Boolean) {
-            setIsExpanded(isExpanded)
-        }
-
-        override val expandedTargetState: TargetState<Boolean, *>
-            get() = expandedTargetState
+): CellUniverseInfoCardState = object : CellUniverseInfoCardState {
+    override fun setIsExpanded(isExpanded: Boolean) {
+        setIsExpanded(isExpanded)
     }
+
+    override val expandedTargetState: TargetState<Boolean, *>
+        get() = expandedTargetState
+}
 
 class CellUniverseInfoCardContent(
     private val cellUniverseInfoCardState: CellUniverseInfoCardState,

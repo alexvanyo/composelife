@@ -23,8 +23,7 @@ import androidx.compose.foundation.text.input.forEachChange
 import androidx.compose.foundation.text.input.then
 import androidx.compose.ui.text.substring
 
-fun InputTransformation.trimWhitespace(): InputTransformation =
-    this.then(TrimWhitespace)
+fun InputTransformation.trimWhitespace(): InputTransformation = this.then(TrimWhitespace)
 
 private object TrimWhitespace : InputTransformation {
     @OptIn(ExperimentalFoundationApi::class)

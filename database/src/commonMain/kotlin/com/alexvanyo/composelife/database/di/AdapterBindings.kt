@@ -34,21 +34,19 @@ interface AdapterBindings {
         internal fun providesCellStateAdapter(
             cellStateIdAdapter: CellStateIdAdapter,
             patternCollectionIdAdapter: PatternCollectionIdAdapter,
-        ): CellState.Adapter =
-            CellState.Adapter(
-                idAdapter = cellStateIdAdapter,
-                patternCollectionIdAdapter = patternCollectionIdAdapter,
-            )
+        ): CellState.Adapter = CellState.Adapter(
+            idAdapter = cellStateIdAdapter,
+            patternCollectionIdAdapter = patternCollectionIdAdapter,
+        )
 
         @Provides
         internal fun providesPatternCollectionAdapter(
             patternCollectionIdAdapter: PatternCollectionIdAdapter,
             instantAdapter: InstantAdapter,
-        ): PatternCollection.Adapter =
-            PatternCollection.Adapter(
-                idAdapter = patternCollectionIdAdapter,
-                lastSuccessfulSynchronizationTimestampAdapter = instantAdapter,
-                lastUnsuccessfulSynchronizationTimestampAdapter = instantAdapter,
-            )
+        ): PatternCollection.Adapter = PatternCollection.Adapter(
+            idAdapter = patternCollectionIdAdapter,
+            lastSuccessfulSynchronizationTimestampAdapter = instantAdapter,
+            lastUnsuccessfulSynchronizationTimestampAdapter = instantAdapter,
+        )
     }
 }

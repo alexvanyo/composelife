@@ -42,11 +42,9 @@ private val LocalAppliedComposeLifeTheme = compositionLocalOf { false }
  *
  * If [ComposeLifeTheme] is applied multiple times, only the outer one takes effect.
  */
-context(_: ComposeLifePreferencesProvider)
 @Composable
-fun ComposeLifeTheme(
-    content: @Composable () -> Unit,
-) = ComposeLifeTheme(
+context(_: ComposeLifePreferencesProvider)
+fun ComposeLifeTheme(content: @Composable () -> Unit) = ComposeLifeTheme(
     darkTheme = shouldUseDarkTheme(),
     content = content,
 )
@@ -57,10 +55,7 @@ fun ComposeLifeTheme(
  * If [ComposeLifeTheme] is applied multiple times, only the outer one takes effect.
  */
 @Composable
-fun ComposeLifeTheme(
-    darkTheme: Boolean,
-    content: @Composable () -> Unit,
-) {
+fun ComposeLifeTheme(darkTheme: Boolean, content: @Composable () -> Unit) {
     if (LocalAppliedComposeLifeTheme.current) {
         // Render the content directly if the theme has already been applied
         content()
@@ -80,12 +75,11 @@ fun ComposeLifeTheme(
 object ComposeLifeTheme {
 
     @Composable
-    fun colorScheme(darkTheme: Boolean) =
-        if (darkTheme) {
-            darkColorScheme
-        } else {
-            lightColorScheme
-        }
+    fun colorScheme(darkTheme: Boolean) = if (darkTheme) {
+        darkColorScheme
+    } else {
+        lightColorScheme
+    }
 
     val aliveCellColor
         @Composable
@@ -116,18 +110,18 @@ internal expect val ComposeLifeTheme.lightColorScheme: ColorScheme
 @get:ReadOnlyComposable
 internal expect val ComposeLifeTheme.darkColorScheme: ColorScheme
 
-context(preferencesProvider: ComposeLifePreferencesProvider)
 @Composable
-fun shouldUseDarkTheme(): Boolean =
-    when (
-        val darkThemeConfigState = preferencesProvider.composeLifePreferences.darkThemeConfigState
-    ) {
-        ResourceState.Loading,
-        is ResourceState.Failure,
-        -> isSystemInDarkTheme()
-        is ResourceState.Success -> when (darkThemeConfigState.value) {
-            DarkThemeConfig.FollowSystem -> isSystemInDarkTheme()
-            DarkThemeConfig.Dark -> true
-            DarkThemeConfig.Light -> false
-        }
+context(preferencesProvider: ComposeLifePreferencesProvider)
+fun shouldUseDarkTheme(): Boolean = when (
+    val darkThemeConfigState = preferencesProvider.composeLifePreferences.darkThemeConfigState
+) {
+    ResourceState.Loading,
+    is ResourceState.Failure,
+    -> isSystemInDarkTheme()
+
+    is ResourceState.Success -> when (darkThemeConfigState.value) {
+        DarkThemeConfig.FollowSystem -> isSystemInDarkTheme()
+        DarkThemeConfig.Dark -> true
+        DarkThemeConfig.Light -> false
     }
+}

@@ -23,7 +23,7 @@ import kotlin.coroutines.CoroutineContext
 /**
  * A custom interface version of [Dispatchers], so that dispatchers can be injected.
  */
-@Suppress("VariableNaming")
+@Suppress("VariableNaming", "PropertyName")
 interface ComposeLifeDispatchers {
     /**
      * @see Dispatchers.Default

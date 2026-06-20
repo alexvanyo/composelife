@@ -30,10 +30,7 @@ interface ImageLoaderFetcherFactoryBindings {
     val fetcherFactoriesWithType: Set<FetcherFactoryWithType<out Any>>
 }
 
-class FetcherFactoryWithType<T : Any>(
-    val type: KClass<T>,
-    val fetcherFactory: Fetcher.Factory<T>,
-)
+class FetcherFactoryWithType<T : Any>(val type: KClass<T>, val fetcherFactory: Fetcher.Factory<T>)
 
 inline fun <reified T : Any> Fetcher.Factory<T>.withType(): FetcherFactoryWithType<T> =
     FetcherFactoryWithType(T::class, this)

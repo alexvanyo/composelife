@@ -65,9 +65,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 @Stable
-private class HandleState(
-    val state: AnchoredDraggable2DState<IntOffset>,
-) {
+private class HandleState(val state: AnchoredDraggable2DState<IntOffset>) {
     var reentrancyCount by mutableStateOf(0)
 }
 
@@ -133,6 +131,7 @@ internal fun FixedSelectingBoxOverlay(
         /**
          * The [DraggableAnchors2D] aligned to the current grid.
          */
+
         /**
          * The [DraggableAnchors2D] aligned to the current grid.
          */
@@ -145,6 +144,7 @@ internal fun FixedSelectingBoxOverlay(
          *
          * These are initialized with a placeholder method, since this depends on the state of the other handles.
          */
+
         /**
          * State holders for the value change confirmation lambdas.
          *
@@ -164,6 +164,7 @@ internal fun FixedSelectingBoxOverlay(
          *
          * This will be initially added to the offset calculations, and animated to zero.
          */
+
         /**
          * A list of [Animatable]s for each handle representing the fractional part of the initial handle value, in
          * cell coordinates.

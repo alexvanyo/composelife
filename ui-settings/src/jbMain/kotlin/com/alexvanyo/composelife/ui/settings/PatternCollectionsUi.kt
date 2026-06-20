@@ -115,36 +115,32 @@ class PatternCollectionsUiCtx(
         ),
     )
     @Composable
-    operator fun invoke(
-        modifier: Modifier = Modifier,
-    ) = lambda(patternCollectionRepository, clock, timeZoneHolder, modifier)
+    operator fun invoke(modifier: Modifier = Modifier) =
+        lambda(patternCollectionRepository, clock, timeZoneHolder, modifier)
 
     companion object {
         private val lambda:
-            @Composable context(PatternCollectionRepository, Clock, TimeZoneHolder) (modifier: Modifier) -> Unit =
+            @Composable context(PatternCollectionRepository, Clock, TimeZoneHolder)
+            (modifier: Modifier) -> Unit =
             { modifier ->
                 PatternCollectionsUi(modifier)
             }
     }
 }
 
-context(ctx: PatternCollectionsUiCtx)
 @Suppress("DEPRECATION")
 @Composable
-fun PatternCollectionsUi(
-    modifier: Modifier = Modifier,
-) = ctx(modifier)
+context(ctx: PatternCollectionsUiCtx)
+fun PatternCollectionsUi(modifier: Modifier = Modifier) = ctx(modifier)
 // endregion templated-ctx
 
+@Composable
 context(
     patternCollectionRepository: PatternCollectionRepository,
-_: Clock,
-_: TimeZoneHolder,
+    _: Clock,
+    _: TimeZoneHolder,
 )
-@Composable
-fun PatternCollectionsUi(
-    modifier: Modifier = Modifier,
-) {
+fun PatternCollectionsUi(modifier: Modifier = Modifier) {
     val lifecycleOwner = LocalLifecycleOwner.current
     LaunchedEffect(lifecycleOwner, patternCollectionRepository) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -160,10 +156,10 @@ fun PatternCollectionsUi(
     )
 }
 
-context(_: Clock, _: TimeZoneHolder)
 @OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongMethod")
 @Composable
+context(_: Clock, _: TimeZoneHolder)
 fun PatternCollectionsUi(
     patternCollectionsState: ResourceState<List<PatternCollection>>,
     addPatternCollection: suspend (String) -> Unit,
@@ -190,9 +186,11 @@ fun PatternCollectionsUi(
             is ResourceState.Failure -> {
                 // TODO
             }
+
             ResourceState.Loading -> {
                 // TODO
             }
+
             is ResourceState.Success -> {
                 val patternCollections = patternCollectionsState.value.associateBy { it.id }
 
@@ -260,7 +258,7 @@ fun PatternCollectionsUi(
                         // Intentionally ignore the pattern collection that has animated out, we're just using it to
                         // trigger updating `previouslyAnimatablePatternCollections` in its entirety.
                         .map {}
-                        .onEach {
+                        .onEach { _ ->
                             previouslyAnimatablePatternCollections = animatablePatternCollections.filterValues {
                                 // Only keep those that are visible, or are currently animating
                                 !it.isIdle || it.targetState
@@ -276,15 +274,11 @@ fun PatternCollectionsUi(
     }
 }
 
-context(clock: Clock, _: TimeZoneHolder)
 @Suppress("CyclomaticComplexMethod", "LongMethod")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PatternCollection(
-    patternCollection: PatternCollection,
-    onDelete: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+context(clock: Clock, _: TimeZoneHolder)
+fun PatternCollection(patternCollection: PatternCollection, onDelete: () -> Unit, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier,
     ) {
@@ -396,10 +390,7 @@ fun PatternCollection(
 }
 
 @Composable
-fun AddPatternCollection(
-    modifier: Modifier = Modifier,
-    addPatternCollection: suspend (String) -> Unit,
-) {
+fun AddPatternCollection(modifier: Modifier = Modifier, addPatternCollection: suspend (String) -> Unit) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,

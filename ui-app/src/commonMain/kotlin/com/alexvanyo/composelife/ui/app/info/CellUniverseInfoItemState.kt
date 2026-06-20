@@ -29,9 +29,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 
 @Serializable(with = CellUniverseInfoItemState.Serializer::class)
-class CellUniverseInfoItemState(
-    isChecked: Boolean = defaultIsChecked,
-) {
+class CellUniverseInfoItemState(isChecked: Boolean = defaultIsChecked) {
     var isChecked by mutableStateOf(isChecked)
 
     object Serializer : KSerializer<CellUniverseInfoItemState> by SurrogatingSerializer(
@@ -48,10 +46,9 @@ class CellUniverseInfoItemState(
 @Composable
 fun rememberCellUniverseInfoItemState(
     isChecked: Boolean = CellUniverseInfoItemState.defaultIsChecked,
-): CellUniverseInfoItemState =
-    rememberSerializable(serializer = serializer()) {
-        CellUniverseInfoItemState(isChecked = isChecked)
-    }
+): CellUniverseInfoItemState = rememberSerializable(serializer = serializer()) {
+    CellUniverseInfoItemState(isChecked = isChecked)
+}
 
 class CellUniverseInfoItemContent(
     private val cellUniverseInfoCardState: CellUniverseInfoItemState,

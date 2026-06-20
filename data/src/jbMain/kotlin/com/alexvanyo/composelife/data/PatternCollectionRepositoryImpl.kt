@@ -91,7 +91,8 @@ class PatternCollectionRepositoryImpl(
     private val logger: Logger,
     private val clock: Clock,
     @PersistedDataPath persistedDataPath: Lazy<Path>,
-) : PatternCollectionRepository, Updatable {
+) : PatternCollectionRepository,
+    Updatable {
     private val httpClient by httpClient
     private val persistedDataPath by persistedDataPath
 
@@ -142,9 +143,7 @@ class PatternCollectionRepositoryImpl(
 
     override suspend fun observePatternCollections(): Nothing = powerableUpdatable.press()
 
-    override suspend fun addPatternCollection(
-        sourceUrl: String,
-    ): PatternCollectionId =
+    override suspend fun addPatternCollection(sourceUrl: String): PatternCollectionId =
         patternCollectionQueriesWrapper.insertPatternCollection(
             sourceUrl = sourceUrl,
             lastSuccessfulSynchronizationTimestamp = null,
@@ -152,43 +151,41 @@ class PatternCollectionRepositoryImpl(
             synchronizationFailureMessage = null,
         )
 
-    override suspend fun deletePatternCollection(
-        patternCollectionId: PatternCollectionId,
-    ): Unit = withContext(dispatchers.IO) {
-        patternCollectionQueriesWrapper.deletePatternCollection(patternCollectionId)
-        val archivePathParent = persistedDataPath /
-            collectionsFolder /
-            patternCollectionId.value.toString()
-        fileSystem.deleteRecursively(archivePathParent)
-    }
+    override suspend fun deletePatternCollection(patternCollectionId: PatternCollectionId): Unit =
+        withContext(dispatchers.IO) {
+            patternCollectionQueriesWrapper.deletePatternCollection(patternCollectionId)
+            val archivePathParent = persistedDataPath /
+                collectionsFolder /
+                patternCollectionId.value.toString()
+            fileSystem.deleteRecursively(archivePathParent)
+        }
 
-    override suspend fun synchronizePatternCollections(): Boolean =
-        synchronizeMutex.withLock {
-            try {
-                synchronizationInformation.clear()
-                // Fetch the current list of pattern collections
-                val databasePatternCollections =
-                    patternCollectionQueriesWrapper.getPatternCollections()
-                databasePatternCollections.forEach { databasePatternCollection ->
-                    synchronizationInformation[databasePatternCollection.id] = true
-                }
+    override suspend fun synchronizePatternCollections(): Boolean = synchronizeMutex.withLock {
+        try {
+            synchronizationInformation.clear()
+            // Fetch the current list of pattern collections
+            val databasePatternCollections =
+                patternCollectionQueriesWrapper.getPatternCollections()
+            databasePatternCollections.forEach { databasePatternCollection ->
+                synchronizationInformation[databasePatternCollection.id] = true
+            }
 
-                // In parallel, synchronize each of the pattern collections we have
-                return coroutineScope {
-                    databasePatternCollections.map { databasePatternCollection ->
-                        async {
-                            synchronizePatternCollection(databasePatternCollection).also {
-                                synchronizationInformation[databasePatternCollection.id] = false
-                            }
+            // In parallel, synchronize each of the pattern collections we have
+            return coroutineScope {
+                databasePatternCollections.map { databasePatternCollection ->
+                    async {
+                        synchronizePatternCollection(databasePatternCollection).also {
+                            synchronizationInformation[databasePatternCollection.id] = false
                         }
                     }
-                        .awaitAll()
-                        .all { it }
                 }
-            } finally {
-                synchronizationInformation.clear()
+                    .awaitAll()
+                    .all { it }
             }
+        } finally {
+            synchronizationInformation.clear()
         }
+    }
 
     @Suppress("ThrowsCount", "TooGenericExceptionCaught", "LongMethod", "CyclomaticComplexMethod")
     private suspend fun synchronizePatternCollection(
@@ -358,7 +355,14 @@ class PatternCollectionRepositoryImpl(
     }
 }
 
+@Suppress("PropertyName")
 private const val collectionsFolder = "PatternCollections"
+
+@Suppress("PropertyName")
 private const val archiveFileName = "archive.zip"
+
+@Suppress("PropertyName")
 private const val archiveHashFileName = "archive.sha256"
+
+@Suppress("PropertyName")
 private const val extractedPatternsFolder = "extracted"

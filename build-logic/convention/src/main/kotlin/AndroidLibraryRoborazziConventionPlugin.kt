@@ -22,56 +22,59 @@ import org.gradle.api.GradleException
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
-class AndroidLibraryRoborazziConventionPlugin : ConventionPlugin({
-    with(pluginManager) {
-        apply("com.android.kotlin.multiplatform.library")
-    }
+class AndroidLibraryRoborazziConventionPlugin :
+    ConventionPlugin({
+        with(pluginManager) {
+            apply("com.android.kotlin.multiplatform.library")
+        }
 
-    val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
+        val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
-    extensions.configure(KotlinMultiplatformExtension::class.java) {
-        sourceSets.register("androidHostTest") {
-            dependencies {
-                implementation(libs.findLibrary("roborazzi.compose").get())
-                implementation(libs.findLibrary("roborazzi.core").get())
-                implementation(libs.findLibrary("robolectric").get())
+        extensions.configure(KotlinMultiplatformExtension::class.java) {
+            sourceSets.register("androidHostTest") {
+                dependencies {
+                    implementation(libs.findLibrary("roborazzi.compose").get())
+                    implementation(libs.findLibrary("roborazzi.core").get())
+                    implementation(libs.findLibrary("robolectric").get())
+                }
             }
         }
-    }
-    extensions.configure(KotlinMultiplatformExtension::class.java) {
-        extensions.configure(KotlinMultiplatformAndroidLibraryTarget::class.java) {
-            configureTesting(this)
+        extensions.configure(KotlinMultiplatformExtension::class.java) {
+            extensions.configure(KotlinMultiplatformAndroidLibraryTarget::class.java) {
+                configureTesting(this)
+            }
         }
-    }
-    extensions.configure(KotlinMultiplatformAndroidComponentsExtension::class.java) {
-        onVariants { variant ->
-            variant.hostTests.forEach { _, hostTest ->
-                hostTest.configureTestTask { test ->
-                    test.apply {
-                        systemProperty("robolectric.graphicsMode", "NATIVE")
-                        // Configure parameterization to either be combined, or at the test runner level
-                        systemProperty(
-                            "com.alexvanyo.composelife.combinedScreenshotTests",
-                            providers.gradleProperty("com.alexvanyo.composelife.combinedScreenshotTests")
-                                .orElse("false")
-                                .map {
-                                    when (it) {
-                                        "false" -> "false"
-                                        "true" -> "true"
-                                        else -> throw GradleException(
-                                            "Unexpected value $it for combinedScreenshotTests!",
-                                        )
-                                    }
-                                }
-                                .get(),
-                        )
-                        // Increase memory and parallelize Roborazzi tests
-                        maxHeapSize = "2g"
-                        maxParallelForks = if (providers.environmentVariable("CI").orNull == "true") 1 else 4
-                        forkEvery = 12
+        extensions.configure(KotlinMultiplatformAndroidComponentsExtension::class.java) {
+            onVariants { variant ->
+                variant.hostTests.forEach { _, hostTest ->
+                    hostTest.configureTestTask { test ->
+                        test.apply {
+                            systemProperty("robolectric.graphicsMode", "NATIVE")
+                            // Configure parameterization to either be combined, or at the test runner level
+                            systemProperty(
+                                "com.alexvanyo.composelife.combinedScreenshotTests",
+                                providers
+                                    .gradleProperty("com.alexvanyo.composelife.combinedScreenshotTests")
+                                    .orElse("false")
+                                    .map {
+                                        when (it) {
+                                            "false" -> "false"
+
+                                            "true" -> "true"
+
+                                            else -> throw GradleException(
+                                                "Unexpected value $it for combinedScreenshotTests!",
+                                            )
+                                        }
+                                    }.get(),
+                            )
+                            // Increase memory and parallelize Roborazzi tests
+                            maxHeapSize = "2g"
+                            maxParallelForks = if (providers.environmentVariable("CI").orNull == "true") 1 else 4
+                            forkEvery = 12
+                        }
                     }
                 }
             }
         }
-    }
-})
+    })

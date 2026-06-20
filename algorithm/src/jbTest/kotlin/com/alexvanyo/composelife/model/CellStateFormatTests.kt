@@ -21,7 +21,6 @@ import kotlin.test.assertEquals
 
 @Suppress("TooManyFunctions")
 class CellStateFormatTests {
-
     @Test
     fun from_file_extension_null_is_unknown() {
         assertEquals(

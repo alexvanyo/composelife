@@ -89,18 +89,12 @@ fun <T> rememberBackstackMap(
 
 @Serializable
 @PublishedApi
-internal data class ValueAsSurrogate<T>(
-    val value: T,
-) : BackstackValueSurrogate<T> {
+internal data class ValueAsSurrogate<T>(val value: T) : BackstackValueSurrogate<T> {
     override fun createFromSurrogate(previous: BackstackEntry<T>?): T = value
 }
 
 @Serializable
-private data class BackstackEntrySurrogate<S>(
-    val id: Uuid,
-    val previousId: Uuid?,
-    val surrogate: S,
-) {
+private data class BackstackEntrySurrogate<S>(val id: Uuid, val previousId: Uuid?, val surrogate: S) {
     companion object
 }
 

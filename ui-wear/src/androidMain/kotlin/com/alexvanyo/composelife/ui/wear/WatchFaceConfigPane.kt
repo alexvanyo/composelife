@@ -29,10 +29,7 @@ import com.alexvanyo.composelife.navigation.withExpectedActor
 
 @Suppress("IgnoredReturnValue")
 @Composable
-fun WatchFaceConfigPane(
-    state: WatchFaceConfigState,
-    modifier: Modifier = Modifier,
-) {
+fun WatchFaceConfigPane(state: WatchFaceConfigState, modifier: Modifier = Modifier) {
     val navigationController =
         rememberMutableBackstackNavigationController(
             initialBackstackEntries = listOf(
@@ -66,6 +63,7 @@ fun WatchFaceConfigPane(
                     scalingLazyListState = value.scalingLazyListState,
                 )
             }
+
             WatchFaceConfigNavigation.ColorPicker -> {
                 WatchFaceColorPicker(
                     color = state.color,

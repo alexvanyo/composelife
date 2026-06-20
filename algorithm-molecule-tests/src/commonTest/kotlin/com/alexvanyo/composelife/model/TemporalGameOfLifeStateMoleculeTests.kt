@@ -41,35 +41,38 @@ import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TemporalGameOfLifeStateMoleculeTests {
-
     private val testDispatcher = StandardTestDispatcher()
 
-    private val dispatchers = TestComposeLifeDispatchers(
-        generalTestDispatcher = testDispatcher,
-        cellTickerTestDispatcher = testDispatcher,
-    )
+    private val dispatchers =
+        TestComposeLifeDispatchers(
+            generalTestDispatcher = testDispatcher,
+            cellTickerTestDispatcher = testDispatcher,
+        )
 
     @Test
     fun state_is_advanced_correctly() {
         runTest(testDispatcher + BroadcastFrameClock()) {
-            val hashLifeAlgorithm = HashLifeAlgorithm(
-                dispatchers = dispatchers,
-            )
-
-            moleculeFlow(RecompositionMode.ContextClock) {
-                val temporalGameOfLifeState = TemporalGameOfLifeState(
-                    seedCellState = SixLongLinePattern.seedCellState,
-                    isRunning = true,
-                    generationsPerStep = 1,
-                    targetStepsPerSecond = 60.0,
-                )
-
-                val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                    temporalGameOfLifeState = temporalGameOfLifeState,
-                    gameOfLifeAlgorithm = hashLifeAlgorithm,
-                    clock = testDispatcher.scheduler.clock,
+            val hashLifeAlgorithm =
+                HashLifeAlgorithm(
                     dispatchers = dispatchers,
                 )
+
+            moleculeFlow(RecompositionMode.ContextClock) {
+                val temporalGameOfLifeState =
+                    TemporalGameOfLifeState(
+                        seedCellState = SixLongLinePattern.seedCellState,
+                        isRunning = true,
+                        generationsPerStep = 1,
+                        targetStepsPerSecond = 60.0,
+                    )
+
+                val temporalGameOfLifeStateMutator =
+                    rememberTemporalGameOfLifeStateMutator(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        gameOfLifeAlgorithm = hashLifeAlgorithm,
+                        clock = testDispatcher.scheduler.clock,
+                        dispatchers = dispatchers,
+                    )
 
                 LaunchedEffect(temporalGameOfLifeStateMutator) {
                     withContext(testDispatcher) {
@@ -77,55 +80,57 @@ class TemporalGameOfLifeStateMoleculeTests {
                     }
                 }
                 temporalGameOfLifeState
-            }
-                .test {
-                    val temporalGameOfLifeState = awaitItem()
+            }.test {
+                val temporalGameOfLifeState = awaitItem()
 
-                    assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
-                    assertEquals(
-                        TemporalGameOfLifeState.EvolutionStatus.Running(
-                            averageGenerationsPerSecond = 0.0,
-                        ),
-                        temporalGameOfLifeState.status,
-                    )
+                assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
+                assertEquals(
+                    TemporalGameOfLifeState.EvolutionStatus.Running(
+                        averageGenerationsPerSecond = 0.0,
+                    ),
+                    temporalGameOfLifeState.status,
+                )
 
-                    repeat(SixLongLinePattern.maxGenerationCellState) { index ->
-                        advanceTimeBy(17)
-                        runCurrent()
+                repeat(SixLongLinePattern.maxGenerationCellState) { index ->
+                    advanceTimeBy(17)
+                    runCurrent()
 
-                        SixLongLinePattern.cellStates[index + 1]?.let { expectedCellState ->
-                            assertEquals(expectedCellState, temporalGameOfLifeState.cellState)
-                        }
-                        temporalGameOfLifeState.status.let { status ->
-                            val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-                            assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
-                        }
+                    SixLongLinePattern.cellStates[index + 1]?.let { expectedCellState ->
+                        assertEquals(expectedCellState, temporalGameOfLifeState.cellState)
+                    }
+                    temporalGameOfLifeState.status.let { status ->
+                        val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                        assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
                     }
                 }
+            }
         }
     }
 
     @Test
     fun pausing_evolution_is_correct() {
         runTest(testDispatcher + BroadcastFrameClock()) {
-            val hashLifeAlgorithm = HashLifeAlgorithm(
-                dispatchers = dispatchers,
-            )
-
-            moleculeFlow(RecompositionMode.ContextClock) {
-                val temporalGameOfLifeState = TemporalGameOfLifeState(
-                    seedCellState = SixLongLinePattern.seedCellState,
-                    isRunning = true,
-                    generationsPerStep = 1,
-                    targetStepsPerSecond = 60.0,
-                )
-
-                val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                    temporalGameOfLifeState = temporalGameOfLifeState,
-                    gameOfLifeAlgorithm = hashLifeAlgorithm,
-                    clock = testDispatcher.scheduler.clock,
+            val hashLifeAlgorithm =
+                HashLifeAlgorithm(
                     dispatchers = dispatchers,
                 )
+
+            moleculeFlow(RecompositionMode.ContextClock) {
+                val temporalGameOfLifeState =
+                    TemporalGameOfLifeState(
+                        seedCellState = SixLongLinePattern.seedCellState,
+                        isRunning = true,
+                        generationsPerStep = 1,
+                        targetStepsPerSecond = 60.0,
+                    )
+
+                val temporalGameOfLifeStateMutator =
+                    rememberTemporalGameOfLifeStateMutator(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        gameOfLifeAlgorithm = hashLifeAlgorithm,
+                        clock = testDispatcher.scheduler.clock,
+                        dispatchers = dispatchers,
+                    )
 
                 LaunchedEffect(temporalGameOfLifeStateMutator) {
                     withContext(testDispatcher) {
@@ -133,86 +138,88 @@ class TemporalGameOfLifeStateMoleculeTests {
                     }
                 }
                 temporalGameOfLifeState
-            }
-                .test {
-                    val temporalGameOfLifeState = awaitItem()
+            }.test {
+                val temporalGameOfLifeState = awaitItem()
 
-                    assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
-                    assertEquals(
-                        TemporalGameOfLifeState.EvolutionStatus.Running(
-                            averageGenerationsPerSecond = 0.0,
-                        ),
-                        temporalGameOfLifeState.status,
-                    )
+                assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
+                assertEquals(
+                    TemporalGameOfLifeState.EvolutionStatus.Running(
+                        averageGenerationsPerSecond = 0.0,
+                    ),
+                    temporalGameOfLifeState.status,
+                )
 
-                    advanceTimeBy(8)
-                    runCurrent()
+                advanceTimeBy(8)
+                runCurrent()
 
-                    assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
-                    temporalGameOfLifeState.status.let { status ->
-                        val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-                        assertEquals(0.0, status.averageGenerationsPerSecond, 0.001)
-                    }
-
-                    advanceTimeBy(9)
-                    runCurrent()
-
-                    assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
-                    temporalGameOfLifeState.status.let { status ->
-                        val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-                        assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
-                    }
-
-                    advanceTimeBy(8)
-                    runCurrent()
-
-                    assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
-                    temporalGameOfLifeState.status.let { status ->
-                        val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-                        assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
-                    }
-
-                    advanceTimeBy(9)
-                    runCurrent()
-
-                    assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
-                    temporalGameOfLifeState.status.let { status ->
-                        val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-                        assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
-                    }
-
-                    temporalGameOfLifeState.setIsRunning(false)
-
-                    advanceTimeBy(1000)
-                    runCurrent()
-
-                    assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
-                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Paused>(temporalGameOfLifeState.status)
+                assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
+                temporalGameOfLifeState.status.let { status ->
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    assertEquals(0.0, status.averageGenerationsPerSecond, 0.001)
                 }
+
+                advanceTimeBy(9)
+                runCurrent()
+
+                assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
+                temporalGameOfLifeState.status.let { status ->
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
+                }
+
+                advanceTimeBy(8)
+                runCurrent()
+
+                assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
+                temporalGameOfLifeState.status.let { status ->
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
+                }
+
+                advanceTimeBy(9)
+                runCurrent()
+
+                assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
+                temporalGameOfLifeState.status.let { status ->
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
+                }
+
+                temporalGameOfLifeState.setIsRunning(false)
+
+                advanceTimeBy(1000)
+                runCurrent()
+
+                assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
+                val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Paused>(temporalGameOfLifeState.status)
+            }
         }
     }
 
     @Test
     fun target_steps_evolution_is_correct() {
         runTest(testDispatcher + BroadcastFrameClock()) {
-            val hashLifeAlgorithm = HashLifeAlgorithm(
-                dispatchers = dispatchers,
-            )
-
-            moleculeFlow(RecompositionMode.ContextClock) {
-                val temporalGameOfLifeState = TemporalGameOfLifeState(
-                    seedCellState = SixLongLinePattern.seedCellState,
-                    isRunning = true,
-                    generationsPerStep = 1,
-                    targetStepsPerSecond = 60.0,
-                )
-
-                val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                    temporalGameOfLifeState = temporalGameOfLifeState,
-                    gameOfLifeAlgorithm = hashLifeAlgorithm,
-                    clock = testDispatcher.scheduler.clock,
+            val hashLifeAlgorithm =
+                HashLifeAlgorithm(
                     dispatchers = dispatchers,
                 )
+
+            moleculeFlow(RecompositionMode.ContextClock) {
+                val temporalGameOfLifeState =
+                    TemporalGameOfLifeState(
+                        seedCellState = SixLongLinePattern.seedCellState,
+                        isRunning = true,
+                        generationsPerStep = 1,
+                        targetStepsPerSecond = 60.0,
+                    )
+
+                val temporalGameOfLifeStateMutator =
+                    rememberTemporalGameOfLifeStateMutator(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        gameOfLifeAlgorithm = hashLifeAlgorithm,
+                        clock = testDispatcher.scheduler.clock,
+                        dispatchers = dispatchers,
+                    )
 
                 LaunchedEffect(temporalGameOfLifeStateMutator) {
                     withContext(testDispatcher) {
@@ -220,98 +227,100 @@ class TemporalGameOfLifeStateMoleculeTests {
                     }
                 }
                 temporalGameOfLifeState
-            }
-                .test {
-                    val temporalGameOfLifeState = awaitItem()
+            }.test {
+                val temporalGameOfLifeState = awaitItem()
 
-                    assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
-                    assertEquals(
-                        TemporalGameOfLifeState.EvolutionStatus.Running(
-                            averageGenerationsPerSecond = 0.0,
-                        ),
-                        temporalGameOfLifeState.status,
-                    )
+                assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
+                assertEquals(
+                    TemporalGameOfLifeState.EvolutionStatus.Running(
+                        averageGenerationsPerSecond = 0.0,
+                    ),
+                    temporalGameOfLifeState.status,
+                )
 
-                    advanceTimeBy(8)
-                    runCurrent()
+                advanceTimeBy(8)
+                runCurrent()
 
-                    assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
-                    temporalGameOfLifeState.status.let { status ->
-                        val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-                        assertEquals(0.0, status.averageGenerationsPerSecond, 0.001)
-                    }
-
-                    advanceTimeBy(9)
-                    runCurrent()
-
-                    assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
-                    temporalGameOfLifeState.status.let { status ->
-                        val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-                        assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
-                    }
-
-                    advanceTimeBy(8)
-                    runCurrent()
-
-                    assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
-                    temporalGameOfLifeState.status.let { status ->
-                        val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-                        assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
-                    }
-
-                    advanceTimeBy(9)
-                    runCurrent()
-
-                    assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
-                    temporalGameOfLifeState.status.let { status ->
-                        val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-                        assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
-                    }
-
-                    temporalGameOfLifeState.targetStepsPerSecond = 10.0
-
-                    advanceTimeBy(50)
-                    runCurrent()
-
-                    assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
-                    temporalGameOfLifeState.status.let { status ->
-                        val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-                        assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
-                    }
-
-                    advanceTimeBy(50)
-                    runCurrent()
-
-                    assertEquals(SixLongLinePattern.cellStates[3], temporalGameOfLifeState.cellState)
-                    temporalGameOfLifeState.status.let { status ->
-                        val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-                        assertEquals(22.388, status.averageGenerationsPerSecond, 0.001)
-                    }
+                assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
+                temporalGameOfLifeState.status.let { status ->
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    assertEquals(0.0, status.averageGenerationsPerSecond, 0.001)
                 }
+
+                advanceTimeBy(9)
+                runCurrent()
+
+                assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
+                temporalGameOfLifeState.status.let { status ->
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
+                }
+
+                advanceTimeBy(8)
+                runCurrent()
+
+                assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
+                temporalGameOfLifeState.status.let { status ->
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
+                }
+
+                advanceTimeBy(9)
+                runCurrent()
+
+                assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
+                temporalGameOfLifeState.status.let { status ->
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
+                }
+
+                temporalGameOfLifeState.targetStepsPerSecond = 10.0
+
+                advanceTimeBy(50)
+                runCurrent()
+
+                assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
+                temporalGameOfLifeState.status.let { status ->
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
+                }
+
+                advanceTimeBy(50)
+                runCurrent()
+
+                assertEquals(SixLongLinePattern.cellStates[3], temporalGameOfLifeState.cellState)
+                temporalGameOfLifeState.status.let { status ->
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    assertEquals(22.388, status.averageGenerationsPerSecond, 0.001)
+                }
+            }
         }
     }
 
     @Test
     fun setting_evolution_is_correct() {
         runTest(testDispatcher + BroadcastFrameClock()) {
-            val hashLifeAlgorithm = HashLifeAlgorithm(
-                dispatchers = dispatchers,
-            )
-
-            moleculeFlow(RecompositionMode.ContextClock) {
-                val temporalGameOfLifeState = TemporalGameOfLifeState(
-                    seedCellState = SixLongLinePattern.seedCellState,
-                    isRunning = true,
-                    generationsPerStep = 1,
-                    targetStepsPerSecond = 60.0,
-                )
-
-                val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                    temporalGameOfLifeState = temporalGameOfLifeState,
-                    gameOfLifeAlgorithm = hashLifeAlgorithm,
-                    clock = testDispatcher.scheduler.clock,
+            val hashLifeAlgorithm =
+                HashLifeAlgorithm(
                     dispatchers = dispatchers,
                 )
+
+            moleculeFlow(RecompositionMode.ContextClock) {
+                val temporalGameOfLifeState =
+                    TemporalGameOfLifeState(
+                        seedCellState = SixLongLinePattern.seedCellState,
+                        isRunning = true,
+                        generationsPerStep = 1,
+                        targetStepsPerSecond = 60.0,
+                    )
+
+                val temporalGameOfLifeStateMutator =
+                    rememberTemporalGameOfLifeStateMutator(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        gameOfLifeAlgorithm = hashLifeAlgorithm,
+                        clock = testDispatcher.scheduler.clock,
+                        dispatchers = dispatchers,
+                    )
 
                 LaunchedEffect(temporalGameOfLifeStateMutator) {
                     withContext(testDispatcher) {
@@ -319,100 +328,102 @@ class TemporalGameOfLifeStateMoleculeTests {
                     }
                 }
                 temporalGameOfLifeState
-            }
-                .test {
-                    val temporalGameOfLifeState = awaitItem()
+            }.test {
+                val temporalGameOfLifeState = awaitItem()
 
-                    assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
-                    assertEquals(
-                        TemporalGameOfLifeState.EvolutionStatus.Running(
-                            averageGenerationsPerSecond = 0.0,
-                        ),
-                        temporalGameOfLifeState.status,
-                    )
+                assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
+                assertEquals(
+                    TemporalGameOfLifeState.EvolutionStatus.Running(
+                        averageGenerationsPerSecond = 0.0,
+                    ),
+                    temporalGameOfLifeState.status,
+                )
 
-                    advanceTimeBy(8)
-                    runCurrent()
+                advanceTimeBy(8)
+                runCurrent()
 
-                    assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
-                    temporalGameOfLifeState.status.let { status ->
-                        val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-                        assertEquals(0.0, status.averageGenerationsPerSecond, 0.001)
-                    }
-
-                    advanceTimeBy(9)
-                    runCurrent()
-
-                    assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
-                    temporalGameOfLifeState.status.let { status ->
-                        val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-                        assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
-                    }
-
-                    advanceTimeBy(8)
-                    runCurrent()
-
-                    assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
-                    temporalGameOfLifeState.status.let { status ->
-                        val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-                        assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
-                    }
-
-                    advanceTimeBy(9)
-                    runCurrent()
-
-                    assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
-                    temporalGameOfLifeState.status.let { status ->
-                        val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-                        assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
-                    }
-
-                    temporalGameOfLifeState.cellState = SingleCellPattern.seedCellState
-
-                    advanceTimeBy(8)
-                    runCurrent()
-
-                    assertEquals(SingleCellPattern.seedCellState, temporalGameOfLifeState.cellState)
-                    temporalGameOfLifeState.status.let { status ->
-                        val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-                        assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
-                    }
-
-                    advanceTimeBy(9)
-                    runCurrent()
-
-                    assertEquals(SingleCellPattern.cellStates[1], temporalGameOfLifeState.cellState)
-                    temporalGameOfLifeState.status.let { status ->
-                        val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-                        assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
-                    }
+                assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
+                temporalGameOfLifeState.status.let { status ->
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    assertEquals(0.0, status.averageGenerationsPerSecond, 0.001)
                 }
+
+                advanceTimeBy(9)
+                runCurrent()
+
+                assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
+                temporalGameOfLifeState.status.let { status ->
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
+                }
+
+                advanceTimeBy(8)
+                runCurrent()
+
+                assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
+                temporalGameOfLifeState.status.let { status ->
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
+                }
+
+                advanceTimeBy(9)
+                runCurrent()
+
+                assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
+                temporalGameOfLifeState.status.let { status ->
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
+                }
+
+                temporalGameOfLifeState.cellState = SingleCellPattern.seedCellState
+
+                advanceTimeBy(8)
+                runCurrent()
+
+                assertEquals(SingleCellPattern.seedCellState, temporalGameOfLifeState.cellState)
+                temporalGameOfLifeState.status.let { status ->
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
+                }
+
+                advanceTimeBy(9)
+                runCurrent()
+
+                assertEquals(SingleCellPattern.cellStates[1], temporalGameOfLifeState.cellState)
+                temporalGameOfLifeState.status.let { status ->
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
+                }
+            }
         }
     }
 
     @Test
     fun multiple_evolutions_is_correct() {
         runTest(testDispatcher + BroadcastFrameClock()) {
-            val hashLifeAlgorithm = HashLifeAlgorithm(
-                dispatchers = dispatchers,
-            )
+            val hashLifeAlgorithm =
+                HashLifeAlgorithm(
+                    dispatchers = dispatchers,
+                )
 
             var runFirstMutator by mutableStateOf(true)
 
             moleculeFlow(RecompositionMode.ContextClock) {
-                val temporalGameOfLifeState = TemporalGameOfLifeState(
-                    seedCellState = SixLongLinePattern.seedCellState,
-                    isRunning = true,
-                    generationsPerStep = 1,
-                    targetStepsPerSecond = 60.0,
-                )
+                val temporalGameOfLifeState =
+                    TemporalGameOfLifeState(
+                        seedCellState = SixLongLinePattern.seedCellState,
+                        isRunning = true,
+                        generationsPerStep = 1,
+                        targetStepsPerSecond = 60.0,
+                    )
 
-                val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                    temporalGameOfLifeState = temporalGameOfLifeState,
-                    gameOfLifeAlgorithm = hashLifeAlgorithm,
-                    clock = testDispatcher.scheduler.clock,
-                    dispatchers = dispatchers,
-                )
+                val temporalGameOfLifeStateMutator =
+                    rememberTemporalGameOfLifeStateMutator(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        gameOfLifeAlgorithm = hashLifeAlgorithm,
+                        clock = testDispatcher.scheduler.clock,
+                        dispatchers = dispatchers,
+                    )
 
                 if (runFirstMutator) {
                     LaunchedEffect(temporalGameOfLifeStateMutator) {
@@ -428,98 +439,100 @@ class TemporalGameOfLifeStateMoleculeTests {
                     }
                 }
                 temporalGameOfLifeState
-            }
-                .test {
-                    val temporalGameOfLifeState = awaitItem()
+            }.test {
+                val temporalGameOfLifeState = awaitItem()
 
-                    assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
-                    assertEquals(
-                        TemporalGameOfLifeState.EvolutionStatus.Running(
-                            averageGenerationsPerSecond = 0.0,
-                        ),
-                        temporalGameOfLifeState.status,
-                    )
+                assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
+                assertEquals(
+                    TemporalGameOfLifeState.EvolutionStatus.Running(
+                        averageGenerationsPerSecond = 0.0,
+                    ),
+                    temporalGameOfLifeState.status,
+                )
 
-                    advanceTimeBy(8)
-                    runCurrent()
+                advanceTimeBy(8)
+                runCurrent()
 
-                    assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
-                    temporalGameOfLifeState.status.let { status ->
-                        val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-                        assertEquals(0.0, status.averageGenerationsPerSecond, 0.001)
-                    }
-
-                    advanceTimeBy(9)
-                    runCurrent()
-
-                    assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
-                    temporalGameOfLifeState.status.let { status ->
-                        val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-                        assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
-                    }
-
-                    advanceTimeBy(8)
-                    runCurrent()
-
-                    assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
-                    temporalGameOfLifeState.status.let { status ->
-                        val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-                        assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
-                    }
-
-                    advanceTimeBy(9)
-                    runCurrent()
-
-                    assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
-                    temporalGameOfLifeState.status.let { status ->
-                        val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-                        assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
-                    }
-
-                    runFirstMutator = false
-
-                    advanceTimeBy(8)
-                    runCurrent()
-
-                    assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
-                    temporalGameOfLifeState.status.let { status ->
-                        val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-                        assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
-                    }
-
-                    advanceTimeBy(9)
-                    runCurrent()
-
-                    assertEquals(SixLongLinePattern.cellStates[3], temporalGameOfLifeState.cellState)
-                    temporalGameOfLifeState.status.let { status ->
-                        val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
-                        assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
-                    }
+                assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
+                temporalGameOfLifeState.status.let { status ->
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    assertEquals(0.0, status.averageGenerationsPerSecond, 0.001)
                 }
+
+                advanceTimeBy(9)
+                runCurrent()
+
+                assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
+                temporalGameOfLifeState.status.let { status ->
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
+                }
+
+                advanceTimeBy(8)
+                runCurrent()
+
+                assertEquals(SixLongLinePattern.cellStates[1], temporalGameOfLifeState.cellState)
+                temporalGameOfLifeState.status.let { status ->
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
+                }
+
+                advanceTimeBy(9)
+                runCurrent()
+
+                assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
+                temporalGameOfLifeState.status.let { status ->
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
+                }
+
+                runFirstMutator = false
+
+                advanceTimeBy(8)
+                runCurrent()
+
+                assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
+                temporalGameOfLifeState.status.let { status ->
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
+                }
+
+                advanceTimeBy(9)
+                runCurrent()
+
+                assertEquals(SixLongLinePattern.cellStates[3], temporalGameOfLifeState.cellState)
+                temporalGameOfLifeState.status.let { status ->
+                    val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
+                    assertEquals(58.824, status.averageGenerationsPerSecond, 0.001)
+                }
+            }
         }
     }
 
     @Test
     fun state_is_advanced_correctly_with_step() {
         runTest(testDispatcher + BroadcastFrameClock()) {
-            val hashLifeAlgorithm = HashLifeAlgorithm(
-                dispatchers = dispatchers,
-            )
-
-            moleculeFlow(RecompositionMode.ContextClock) {
-                val temporalGameOfLifeState = TemporalGameOfLifeState(
-                    seedCellState = SixLongLinePattern.seedCellState,
-                    isRunning = false,
-                    generationsPerStep = 1,
-                    targetStepsPerSecond = 60.0,
-                )
-
-                val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                    temporalGameOfLifeState = temporalGameOfLifeState,
-                    gameOfLifeAlgorithm = hashLifeAlgorithm,
-                    clock = testDispatcher.scheduler.clock,
+            val hashLifeAlgorithm =
+                HashLifeAlgorithm(
                     dispatchers = dispatchers,
                 )
+
+            moleculeFlow(RecompositionMode.ContextClock) {
+                val temporalGameOfLifeState =
+                    TemporalGameOfLifeState(
+                        seedCellState = SixLongLinePattern.seedCellState,
+                        isRunning = false,
+                        generationsPerStep = 1,
+                        targetStepsPerSecond = 60.0,
+                    )
+
+                val temporalGameOfLifeStateMutator =
+                    rememberTemporalGameOfLifeStateMutator(
+                        temporalGameOfLifeState = temporalGameOfLifeState,
+                        gameOfLifeAlgorithm = hashLifeAlgorithm,
+                        clock = testDispatcher.scheduler.clock,
+                        dispatchers = dispatchers,
+                    )
 
                 LaunchedEffect(temporalGameOfLifeStateMutator) {
                     withContext(testDispatcher) {
@@ -527,26 +540,25 @@ class TemporalGameOfLifeStateMoleculeTests {
                     }
                 }
                 temporalGameOfLifeState
-            }
-                .test {
-                    val temporalGameOfLifeState = awaitItem()
+            }.test {
+                val temporalGameOfLifeState = awaitItem()
 
-                    assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
-                    assertEquals(
-                        TemporalGameOfLifeState.EvolutionStatus.Paused,
-                        temporalGameOfLifeState.status,
-                    )
+                assertEquals(SixLongLinePattern.seedCellState, temporalGameOfLifeState.cellState)
+                assertEquals(
+                    TemporalGameOfLifeState.EvolutionStatus.Paused,
+                    temporalGameOfLifeState.status,
+                )
 
-                    repeat(SixLongLinePattern.maxGenerationCellState) { index ->
-                        temporalGameOfLifeState.step()
-                        runCurrent()
+                repeat(SixLongLinePattern.maxGenerationCellState) { index ->
+                    temporalGameOfLifeState.step()
+                    runCurrent()
 
-                        SixLongLinePattern.cellStates[index + 1]?.let { expectedCellState ->
-                            assertEquals(expectedCellState, temporalGameOfLifeState.cellState)
-                        }
-                        assertEquals(TemporalGameOfLifeState.EvolutionStatus.Paused, temporalGameOfLifeState.status)
+                    SixLongLinePattern.cellStates[index + 1]?.let { expectedCellState ->
+                        assertEquals(expectedCellState, temporalGameOfLifeState.cellState)
                     }
+                    assertEquals(TemporalGameOfLifeState.EvolutionStatus.Paused, temporalGameOfLifeState.status)
                 }
+            }
         }
     }
 }

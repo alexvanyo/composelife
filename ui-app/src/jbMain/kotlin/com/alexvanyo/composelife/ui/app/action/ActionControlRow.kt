@@ -79,10 +79,7 @@ import com.alexvanyo.composelife.ui.cells.SelectionState
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Suppress("LongParameterList", "LongMethod", "CyclomaticComplexMethod")
 @Composable
-fun ActionControlRow(
-    actionControlRowState: ActionControlRowState,
-    modifier: Modifier = Modifier,
-) {
+fun ActionControlRow(actionControlRowState: ActionControlRowState, modifier: Modifier = Modifier) {
     val color by animateColorAsState(
         targetValue = if (actionControlRowState.isElevated) {
             MaterialTheme.colorScheme.surfaceContainerHigh
@@ -109,11 +106,13 @@ fun ActionControlRow(
                         showSelectingControls = false
                         showSelectionControls = false
                     }
+
                     is SelectionState.SelectingBox -> {
                         showTimeControls = false
                         showSelectingControls = true
                         showSelectionControls = false
                     }
+
                     is SelectionState.Selection -> {
                         showTimeControls = false
                         showSelectingControls = false

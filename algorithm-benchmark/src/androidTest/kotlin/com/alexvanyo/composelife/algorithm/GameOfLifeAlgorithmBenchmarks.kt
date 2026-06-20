@@ -38,7 +38,6 @@ import kotlin.test.Test
 
 @RunWith(TestParameterInjector::class)
 class GameOfLifeAlgorithmBenchmarks {
-
     @get:Rule
     val benchmarkRule = BenchmarkRule()
 
@@ -49,52 +48,46 @@ class GameOfLifeAlgorithmBenchmarks {
         override fun toString(): String = algorithmName
 
         class Provider : TestParameterValuesProvider() {
-            override fun provideValues(context: Context?) =
-                listOf(
-                    GameOfLifeAlgorithmFactory("Naive Algorithm") {
-                        NaiveGameOfLifeAlgorithm(it)
-                    },
-                    GameOfLifeAlgorithmFactory("HashLife Algorithm") {
-                        HashLifeAlgorithm(it)
-                    },
-                )
+            override fun provideValues(context: Context?) = listOf(
+                GameOfLifeAlgorithmFactory("Naive Algorithm") {
+                    NaiveGameOfLifeAlgorithm(it)
+                },
+                GameOfLifeAlgorithmFactory("HashLife Algorithm") {
+                    HashLifeAlgorithm(it)
+                },
+            )
         }
     }
 
-    class CellStateMapper(
-        private val name: String,
-        val mapper: (CellState) -> CellState,
-    ) {
+    class CellStateMapper(private val name: String, val mapper: (CellState) -> CellState) {
         override fun toString(): String = name
 
         class Provider : TestParameterValuesProvider() {
-            override fun provideValues(context: Context?) =
-                listOf(
-                    CellStateMapper("Identity") { cellState ->
-                        cellState
-                    },
-                    CellStateMapper("Flip across x-axis") { cellState ->
-                        CellState(cellState.aliveCells.map { cell -> IntOffset(cell.x, -cell.y) }.toSet())
-                    },
-                    CellStateMapper("Flip across y-axis") { cellState ->
-                        CellState(cellState.aliveCells.map { cell -> IntOffset(-cell.x, cell.y) }.toSet())
-                    },
-                    CellStateMapper("Flip across x = y") { cellState ->
-                        CellState(cellState.aliveCells.map { cell -> IntOffset(cell.y, cell.x) }.toSet())
-                    },
-                    CellStateMapper("Translate by an arbitrary amount") { cellState ->
-                        CellState(cellState.aliveCells.map { cell -> cell + IntOffset(157, 72) }.toSet())
-                    },
-                )
+            override fun provideValues(context: Context?) = listOf(
+                CellStateMapper("Identity") { cellState ->
+                    cellState
+                },
+                CellStateMapper("Flip across x-axis") { cellState ->
+                    CellState(cellState.aliveCells.map { cell -> IntOffset(cell.x, -cell.y) }.toSet())
+                },
+                CellStateMapper("Flip across y-axis") { cellState ->
+                    CellState(cellState.aliveCells.map { cell -> IntOffset(-cell.x, cell.y) }.toSet())
+                },
+                CellStateMapper("Flip across x = y") { cellState ->
+                    CellState(cellState.aliveCells.map { cell -> IntOffset(cell.y, cell.x) }.toSet())
+                },
+                CellStateMapper("Translate by an arbitrary amount") { cellState ->
+                    CellState(cellState.aliveCells.map { cell -> cell + IntOffset(157, 72) }.toSet())
+                },
+            )
         }
     }
 
     class TestPatternProvider : TestParameterValuesProvider() {
-        override fun provideValues(context: Context?) =
-            listOf(
-                GosperGliderGunPattern,
-                RPentominoPattern,
-            )
+        override fun provideValues(context: Context?) = listOf(
+            GosperGliderGunPattern,
+            RPentominoPattern,
+        )
     }
 
     @TestParameter(valuesProvider = GameOfLifeAlgorithmFactory.Provider::class)
@@ -113,23 +106,25 @@ class GameOfLifeAlgorithmBenchmarks {
 
         benchmarkRule.measureRepeated {
             runBlocking {
-                val algorithm = runWithMeasurementDisabled {
-                    algorithmFactory.factory(
-                        TestComposeLifeDispatchers(
-                            generalTestDispatcher = testDispatcher,
-                            cellTickerTestDispatcher = testDispatcher,
-                        ),
-                    )
-                }
-                val originalCellState = runWithMeasurementDisabled {
-                    cellStateMapper.mapper(testPattern.seedCellState)
-                }
+                val algorithm =
+                    runWithMeasurementDisabled {
+                        algorithmFactory.factory(
+                            TestComposeLifeDispatchers(
+                                generalTestDispatcher = testDispatcher,
+                                cellTickerTestDispatcher = testDispatcher,
+                            ),
+                        )
+                    }
+                val originalCellState =
+                    runWithMeasurementDisabled {
+                        cellStateMapper.mapper(testPattern.seedCellState)
+                    }
 
-                algorithm.computeGenerationsWithStep(
-                    originalCellState = originalCellState,
-                    step = 1,
-                )
-                    .take(100)
+                algorithm
+                    .computeGenerationsWithStep(
+                        originalCellState = originalCellState,
+                        step = 1,
+                    ).take(100)
                     .collect {}
             }
         }

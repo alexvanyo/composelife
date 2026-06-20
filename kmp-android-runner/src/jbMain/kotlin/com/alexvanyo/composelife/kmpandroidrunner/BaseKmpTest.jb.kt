@@ -17,4 +17,5 @@
 
 package com.alexvanyo.composelife.kmpandroidrunner
 
+@Suppress("AbstractClassCanBeInterface")
 expect abstract class BaseKmpTest()

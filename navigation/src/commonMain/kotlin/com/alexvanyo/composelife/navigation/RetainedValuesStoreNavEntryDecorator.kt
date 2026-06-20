@@ -28,9 +28,7 @@ public fun <T : Any> rememberRetainedValuesStoreNavEntryDecorator(
 ): RetainedValuesStoreNavEntryDecorator<T> =
     remember(retainedValuesStoreRegistry) { RetainedValuesStoreNavEntryDecorator(retainedValuesStoreRegistry) }
 
-public class RetainedValuesStoreNavEntryDecorator<T : Any>(
-    retainedValuesStoreRegistry: RetainedValuesStoreRegistry,
-) :
+public class RetainedValuesStoreNavEntryDecorator<T : Any>(retainedValuesStoreRegistry: RetainedValuesStoreRegistry) :
     NavEntryDecorator<T>(
         onPop = { contentKey -> retainedValuesStoreRegistry.clearChild(contentKey) },
         decorate = { entry ->

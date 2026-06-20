@@ -70,12 +70,13 @@ interface ComposeLifeAppTestsCtx {
 internal val ApplicationGraph.composeLifeAppTestsCtx: ComposeLifeAppTestsCtx get() =
     this as ComposeLifeAppTestsCtx
 
-@Suppress("LongMethod", "UnnecessaryAbstractClass", "UnsafeCallOnNullableType")
+@Suppress("LongMethod", "UnnecessaryAbstractClass", "UnsafeCallOnNullableType", "AbstractClassCanBeConcreteClass")
 @OptIn(ExperimentalTestApi::class)
-abstract class BaseComposeLifeAppTests : BaseActivityInjectTest<MainActivity>(
-    { testGlobalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-    MainActivity::class.java,
-) {
+abstract class BaseComposeLifeAppTests :
+    BaseActivityInjectTest<MainActivity>(
+        { testGlobalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+        MainActivity::class.java,
+    ) {
     private val ctx get() = applicationGraph.composeLifeAppTestsCtx
 
     private val preferences get() = ctx.preferences

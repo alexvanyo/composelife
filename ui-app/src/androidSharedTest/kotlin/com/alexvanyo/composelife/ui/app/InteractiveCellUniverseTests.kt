@@ -120,9 +120,10 @@ val UiGraph.interactiveCellUniverseTestsUiCtx: InteractiveCellUniverseTestsUiCtx
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
-class InteractiveCellUniverseTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
+class InteractiveCellUniverseTests :
+    BaseUiInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
     private val ctx get() = applicationGraph.interactiveCellUniverseTestsAppCtx
 
     private val generalTestDispatcher get() = ctx.generalTestDispatcher

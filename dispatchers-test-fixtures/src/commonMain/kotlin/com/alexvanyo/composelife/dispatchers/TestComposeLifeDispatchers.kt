@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.dispatchers
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlin.coroutines.CoroutineContext
 
+@Suppress("PropertyName")
 expect class TestComposeLifeDispatchers(
     generalTestDispatcher: CoroutineDispatcher,
     cellTickerTestDispatcher: CoroutineDispatcher,

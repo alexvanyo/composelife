@@ -22,5 +22,4 @@ import kotlinx.datetime.DateTimePeriod
 internal fun DateTimePeriodProto?.toResolved(): DateTimePeriod =
     this?.value_?.let(DateTimePeriod::parse) ?: DateTimePeriod(hours = 24)
 
-internal fun DateTimePeriod.toProto(): DateTimePeriodProto =
-    DateTimePeriodProto(toString())
+internal fun DateTimePeriod.toProto(): DateTimePeriodProto = DateTimePeriodProto(toString())

@@ -52,9 +52,10 @@ interface CellStateRepositoryTestsCtx {
 internal val ApplicationGraph.cellStateRepositoryTestsCtx: CellStateRepositoryTestsCtx get() =
     this as CellStateRepositoryTestsCtx
 
-class CellStateRepositoryTests : BaseInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
+class CellStateRepositoryTests :
+    BaseInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
     private val ctx get() = applicationGraph.cellStateRepositoryTestsCtx
 
     private val cellStateRepository get() = ctx.cellStateRepository

@@ -110,11 +110,9 @@ suspend fun ComposeLifePreferences.addQuickAccessSetting(quickAccessSetting: Qui
 suspend fun ComposeLifePreferences.removeQuickAccessSetting(quickAccessSetting: QuickAccessSetting) =
     update { removeQuickAccessSetting(quickAccessSetting) }
 
-suspend fun ComposeLifePreferences.setDisabledAGSL(disabled: Boolean) =
-    update { setDisabledAGSL(disabled) }
+suspend fun ComposeLifePreferences.setDisabledAGSL(disabled: Boolean) = update { setDisabledAGSL(disabled) }
 
-suspend fun ComposeLifePreferences.setDisableOpenGL(disabled: Boolean) =
-    update { setDisableOpenGL(disabled) }
+suspend fun ComposeLifePreferences.setDisableOpenGL(disabled: Boolean) = update { setDisableOpenGL(disabled) }
 
 suspend fun ComposeLifePreferences.setDoNotKeepProcess(doNotKeepProcess: Boolean) =
     update { setDoNotKeepProcess(doNotKeepProcess) }

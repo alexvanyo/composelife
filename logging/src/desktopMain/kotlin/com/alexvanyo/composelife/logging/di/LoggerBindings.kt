@@ -29,11 +29,10 @@ import dev.zacsweers.metro.Provides
 interface LoggerBindings {
     companion object {
         @Provides
-        internal fun providesLogger(): Logger =
-            if (System.getProperty("debug") == "true") {
-                SingletonSystemLogger
-            } else {
-                NoOpLogger
-            }
+        internal fun providesLogger(): Logger = if (System.getProperty("debug") == "true") {
+            SingletonSystemLogger
+        } else {
+            NoOpLogger
+        }
     }
 }

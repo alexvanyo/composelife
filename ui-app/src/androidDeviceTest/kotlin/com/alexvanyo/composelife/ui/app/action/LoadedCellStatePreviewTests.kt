@@ -66,9 +66,10 @@ val UiGraph.loadedCellStatePreviewTestsUiCtx: LoadedCellStatePreviewTestsUiCtx g
     this as LoadedCellStatePreviewTestsUiCtx
 
 @OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
-class LoadedCellStatePreviewTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
+class LoadedCellStatePreviewTests :
+    BaseUiInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
     @Test
     fun drag_and_drop_works_correctly() = runUiTest { uiGraph ->
         val uiCtx = uiGraph.loadedCellStatePreviewTestsUiCtx

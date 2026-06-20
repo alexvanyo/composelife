@@ -28,8 +28,7 @@ import androidx.compose.ui.unit.toSize
  * This will return the actual bounds in parent when the resulting bounds are empty, unlike
  * [LayoutCoordinates.boundsInParent].
  */
-fun LayoutCoordinates.realBoundsInParent(): Rect =
-    Rect(
-        positionInParent(),
-        size.toSize(),
-    )
+fun LayoutCoordinates.realBoundsInParent(): Rect = Rect(
+    positionInParent(),
+    size.toSize(),
+)

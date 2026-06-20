@@ -127,9 +127,7 @@ private val fragmentShaderCode = """
     }
 """.trimIndent()
 
-class GameOfLifeShape(
-    private val texture: Int = 0,
-) {
+class GameOfLifeShape(private val texture: Int = 0) {
 
     private val coords = floatArrayOf(
         0f, 1f, 0f,

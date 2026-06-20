@@ -57,8 +57,8 @@ class CellUniversePaneCtx(
     companion object
 }
 
-context(ctx: CellUniversePaneCtx)
 @Composable
+context(ctx: CellUniversePaneCtx)
 fun rememberCellUniversePaneState(): CellUniversePaneState = rememberCellUniversePaneState(
     cellStateRepository = ctx.cellStateRepository,
     gameOfLifeAlgorithm = ctx.gameOfLifeAlgorithm,

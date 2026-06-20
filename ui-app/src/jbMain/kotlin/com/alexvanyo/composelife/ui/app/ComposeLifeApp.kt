@@ -85,10 +85,7 @@ import kotlin.reflect.KClass
 
 @Immutable
 @Inject
-class ComposeLifeAppUiCtx(
-    internal val composeLifePreferences: ComposeLifePreferences,
-    internal val uiGraph: UiGraph,
-) {
+class ComposeLifeAppUiCtx(internal val composeLifePreferences: ComposeLifePreferences, internal val uiGraph: UiGraph) {
     companion object
 }
 
@@ -102,10 +99,10 @@ class ComposeLifeAppUiWithLoadedPreferencesCtx(
     companion object
 }
 
-context(uiCtx: ComposeLifeAppUiCtx)
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalAnimationApi::class)
 @Composable
+context(uiCtx: ComposeLifeAppUiCtx)
 fun ComposeLifeApp(
     windowSizeClass: WindowSizeClass,
     windowSize: DpSize,
@@ -131,6 +128,7 @@ fun ComposeLifeApp(
             ) { targetComposeLifeAppState ->
                 when (targetComposeLifeAppState) {
                     ComposeLifeAppState.ErrorLoadingPreferences -> Unit
+
                     ComposeLifeAppState.LoadingPreferences -> {
                         Box(
                             contentAlignment = Alignment.Center,
@@ -139,6 +137,7 @@ fun ComposeLifeApp(
                             CircularProgressIndicator()
                         }
                     }
+
                     is ComposeLifeAppState.LoadedPreferences -> {
                         ReportDrawn()
 
@@ -254,124 +253,125 @@ fun rememberComposeLifeAppState(
     uiGraph: UiGraph,
     windowSizeClass: WindowSizeClass,
     windowSize: DpSize,
-): ComposeLifeAppState {
-    return when (val loadedPreferencesState = composeLifePreferences.loadedPreferencesState) {
-        is ResourceState.Failure -> ComposeLifeAppState.ErrorLoadingPreferences
-        ResourceState.Loading -> ComposeLifeAppState.LoadingPreferences
-        is ResourceState.Success -> {
-            val currentLoadedPreferences by rememberUpdatedState(loadedPreferencesState.value)
+): ComposeLifeAppState = when (val loadedPreferencesState = composeLifePreferences.loadedPreferencesState) {
+    is ResourceState.Failure -> ComposeLifeAppState.ErrorLoadingPreferences
 
-            val preferencesHolder = remember {
-                object : LoadedComposeLifePreferencesHolder {
-                    override val preferences: LoadedComposeLifePreferences
-                        get() = currentLoadedPreferences
-                }
+    ResourceState.Loading -> ComposeLifeAppState.LoadingPreferences
+
+    is ResourceState.Success -> {
+        val currentLoadedPreferences by rememberUpdatedState(loadedPreferencesState.value)
+
+        val preferencesHolder = remember {
+            object : LoadedComposeLifePreferencesHolder {
+                override val preferences: LoadedComposeLifePreferences
+                    get() = currentLoadedPreferences
             }
+        }
 
-            val uiWithLoadedPreferencesGraph = remember(currentLoadedPreferences) {
-                (uiGraph as UiWithLoadedPreferencesGraph.Factory).create(
-                    UiWithLoadedPreferencesGraphArguments(
-                        loadedComposeLifePreferencesHolder = preferencesHolder,
-                    ),
-                )
-            }
-
-            val navController = rememberMutableBackstackNavigationController(
-                initialBackstackEntries = listOf(
-                    BackstackEntry(
-                        value = ComposeLifeNavigation.CellUniverse,
-                        previous = null,
-                    ),
+        val uiWithLoadedPreferencesGraph = remember(currentLoadedPreferences) {
+            (uiGraph as UiWithLoadedPreferencesGraph.Factory).create(
+                UiWithLoadedPreferencesGraphArguments(
+                    loadedComposeLifePreferencesHolder = preferencesHolder,
                 ),
-                backstackMapSerializer = BackstackMapSerializer(ComposeLifeNavigation::surrogate),
             )
+        }
 
-            val currentEntryId = navController.currentEntryId
+        val navController = rememberMutableBackstackNavigationController(
+            initialBackstackEntries = listOf(
+                BackstackEntry(
+                    value = ComposeLifeNavigation.CellUniverse,
+                    previous = null,
+                ),
+            ),
+            backstackMapSerializer = BackstackMapSerializer(ComposeLifeNavigation::surrogate),
+        )
 
-            val navigationUiState = navController.toComposeLifeUiNavigation(windowSizeClass, windowSize)
+        val currentEntryId = navController.currentEntryId
 
-            remember(navController, navigationUiState) {
-                object : ComposeLifeAppState.LoadedPreferences {
-                    override val composeLifeAppUiWithLoadedPreferencesCtx:
-                        ComposeLifeAppUiWithLoadedPreferencesCtx
-                        get() = uiWithLoadedPreferencesGraph.composeLifeAppUiWithLoadedPreferencesCtx
+        val navigationUiState = navController.toComposeLifeUiNavigation(windowSizeClass, windowSize)
 
-                    override val navigationState: BackstackState<ComposeLifeUiNavigation>
-                        get() = navigationUiState
+        remember(navController, navigationUiState) {
+            object : ComposeLifeAppState.LoadedPreferences {
+                override val composeLifeAppUiWithLoadedPreferencesCtx:
+                    ComposeLifeAppUiWithLoadedPreferencesCtx
+                    get() = uiWithLoadedPreferencesGraph.composeLifeAppUiWithLoadedPreferencesCtx
 
-                    override val canNavigateBack
-                        get() = navController.canNavigateBack
+                override val navigationState: BackstackState<ComposeLifeUiNavigation>
+                    get() = navigationUiState
 
-                    override fun onBackPressed() {
-                        navController.withExpectedActor(currentEntryId) {
-                            val currentEntryValue = navController.currentEntry.value
-                            if (navController.canNavigateBack) {
-                                when (val value = navigationUiState.currentEntry.value) {
-                                    is ListDetailInfo -> {
+                override val canNavigateBack
+                    get() = navController.canNavigateBack
+
+                override fun onBackPressed() {
+                    navController.withExpectedActor(currentEntryId) {
+                        val currentEntryValue = navController.currentEntry.value
+                        if (navController.canNavigateBack) {
+                            when (val value = navigationUiState.currentEntry.value) {
+                                is ListDetailInfo -> {
+                                    navController.popBackstack()
+                                    if (value.isListVisible && value.isDetailVisible &&
+                                        currentEntryValue is ComposeLifeNavigation.FullscreenSettingsDetail
+                                    ) {
                                         navController.popBackstack()
-                                        if (value.isListVisible && value.isDetailVisible &&
-                                            currentEntryValue is ComposeLifeNavigation.FullscreenSettingsDetail
-                                        ) {
-                                            navController.popBackstack()
-                                        }
                                     }
-                                    else -> {
-                                        navController.popBackstack()
-                                    }
+                                }
+
+                                else -> {
+                                    navController.popBackstack()
                                 }
                             }
                         }
                     }
+                }
 
-                    override fun onSeeMoreSettingsClicked() {
-                        navController.withExpectedActor(currentEntryId) {
-                            navController.navigate(
-                                ComposeLifeNavigation.FullscreenSettingsList(
-                                    initialSettingsCategory = SettingsCategory.Algorithm,
-                                ),
-                            )
-                        }
+                override fun onSeeMoreSettingsClicked() {
+                    navController.withExpectedActor(currentEntryId) {
+                        navController.navigate(
+                            ComposeLifeNavigation.FullscreenSettingsList(
+                                initialSettingsCategory = SettingsCategory.Algorithm,
+                            ),
+                        )
                     }
+                }
 
-                    override fun onOpenInSettingsClicked(setting: Setting) {
-                        navController.withExpectedActor(currentEntryId) {
-                            navController.navigate(
-                                ComposeLifeNavigation.FullscreenSettingsList(
-                                    initialSettingsCategory = setting.category,
-                                ),
-                            )
-                            navController.navigate(
-                                ComposeLifeNavigation.FullscreenSettingsDetail(
-                                    settingsCategory = setting.category,
-                                    initialSettingToScrollTo = setting,
-                                ),
-                            )
-                        }
+                override fun onOpenInSettingsClicked(setting: Setting) {
+                    navController.withExpectedActor(currentEntryId) {
+                        navController.navigate(
+                            ComposeLifeNavigation.FullscreenSettingsList(
+                                initialSettingsCategory = setting.category,
+                            ),
+                        )
+                        navController.navigate(
+                            ComposeLifeNavigation.FullscreenSettingsDetail(
+                                settingsCategory = setting.category,
+                                initialSettingToScrollTo = setting,
+                            ),
+                        )
                     }
+                }
 
-                    override fun onSettingsCategoryClicked(settingsCategory: SettingsCategory) {
-                        navController.withExpectedActor(currentEntryId) {
-                            navController.popUpTo(
-                                predicate = { it is ComposeLifeNavigation.FullscreenSettingsList },
-                            )
-                            val currentEntryValue =
-                                navController.currentEntry.value as ComposeLifeNavigation.FullscreenSettingsList
-                            currentEntryValue.settingsCategory = settingsCategory
-                            navController.navigate(
-                                currentEntryValue.transientFullscreenSettingsDetail,
-                                id = currentEntryValue.transientDetailId,
-                            )
-                        }
+                override fun onSettingsCategoryClicked(settingsCategory: SettingsCategory) {
+                    navController.withExpectedActor(currentEntryId) {
+                        navController.popUpTo(
+                            predicate = { entry -> entry is ComposeLifeNavigation.FullscreenSettingsList },
+                        )
+                        val currentEntryValue =
+                            navController.currentEntry.value as ComposeLifeNavigation.FullscreenSettingsList
+                        currentEntryValue.settingsCategory = settingsCategory
+                        navController.navigate(
+                            currentEntryValue.transientFullscreenSettingsDetail,
+                            id = currentEntryValue.transientDetailId,
+                        )
                     }
+                }
 
-                    override fun onViewDeserializationInfo(deserializationResult: DeserializationResult) {
-                        navController.withExpectedActor(currentEntryId) {
-                            navController.navigate(
-                                ComposeLifeNavigation.DeserializationInfo(
-                                    deserializationResult = deserializationResult,
-                                ),
-                            )
-                        }
+                override fun onViewDeserializationInfo(deserializationResult: DeserializationResult) {
+                    navController.withExpectedActor(currentEntryId) {
+                        navController.navigate(
+                            ComposeLifeNavigation.DeserializationInfo(
+                                deserializationResult = deserializationResult,
+                            ),
+                        )
                     }
                 }
             }
@@ -379,9 +379,8 @@ fun rememberComposeLifeAppState(
     }
 }
 
-private data class ComposeLifeAppNavigationEventInfo(
-    val sceneKey: Pair<KClass<out Scene<*>>, Any>,
-) : NavigationEventInfo()
+private data class ComposeLifeAppNavigationEventInfo(val sceneKey: Pair<KClass<out Scene<*>>, Any>) :
+    NavigationEventInfo()
 
 sealed interface ComposeLifeAppState {
     /**
@@ -417,6 +416,7 @@ sealed interface ComposeLifeAppState {
     }
 }
 
+@Suppress("AbstractClassCanBeInterface")
 abstract class UiWithLoadedPreferencesScope private constructor()
 
 @GraphExtension(UiWithLoadedPreferencesScope::class)
@@ -432,9 +432,7 @@ interface UiWithLoadedPreferencesGraph {
     }
 }
 
-class UiWithLoadedPreferencesGraphArguments(
-    val loadedComposeLifePreferencesHolder: LoadedComposeLifePreferencesHolder,
-)
+class UiWithLoadedPreferencesGraphArguments(val loadedComposeLifePreferencesHolder: LoadedComposeLifePreferencesHolder)
 
 @ContributesTo(UiWithLoadedPreferencesScope::class)
 @BindingContainer
@@ -445,7 +443,6 @@ interface UiWithLoadedPreferencesScopeBindings {
         @SingleIn(UiWithLoadedPreferencesScope::class)
         internal fun providesLoadedComposeLifePreferencesHolder(
             uiWithLoadedPreferencesGraphArguments: UiWithLoadedPreferencesGraphArguments,
-        ): LoadedComposeLifePreferencesHolder =
-            uiWithLoadedPreferencesGraphArguments.loadedComposeLifePreferencesHolder
+        ): LoadedComposeLifePreferencesHolder = uiWithLoadedPreferencesGraphArguments.loadedComposeLifePreferencesHolder
     }
 }

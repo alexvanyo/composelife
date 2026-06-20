@@ -82,7 +82,8 @@ private val InteractiveCellUniverseCtx.Companion.lambda:
         FullscreenModeManager,
         MutableCellWindowCtx,
         InteractiveCellUniverseOverlayCtx,
-    ) (
+    )
+    (
         temporalGameOfLifeState: TemporalGameOfLifeState,
         windowSizeClass: WindowSizeClass,
         onSeeMoreSettingsClicked: () -> Unit,
@@ -115,9 +116,9 @@ private val InteractiveCellUniverseCtx.Companion.lambda:
  * An interactive cell universe displaying the given [temporalGameOfLifeState] and the controls for adjusting how it
  * evolves.
  */
-context(ctx: InteractiveCellUniverseCtx)
 @Suppress("LongParameterList")
 @Composable
+context(ctx: InteractiveCellUniverseCtx)
 fun InteractiveCellUniverse(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     windowSizeClass: WindowSizeClass,
@@ -138,15 +139,15 @@ fun InteractiveCellUniverse(
 )
 // endregion templated-ctx
 
-context(
-    cellStateParser: CellStateParser,
-clipboardReaderWriter: ClipboardReaderWriter,
-fullscreenModeManager: FullscreenModeManager,
-_: MutableCellWindowCtx,
-_: InteractiveCellUniverseOverlayCtx,
-)
 @Suppress("LongParameterList", "LongMethod", "CyclomaticComplexMethod")
 @Composable
+context(
+    cellStateParser: CellStateParser,
+    clipboardReaderWriter: ClipboardReaderWriter,
+    fullscreenModeManager: FullscreenModeManager,
+    _: MutableCellWindowCtx,
+    _: InteractiveCellUniverseOverlayCtx,
+)
 fun InteractiveCellUniverse(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     windowSizeClass: WindowSizeClass,

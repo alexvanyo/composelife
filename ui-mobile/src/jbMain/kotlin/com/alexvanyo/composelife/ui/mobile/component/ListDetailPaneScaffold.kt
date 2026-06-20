@@ -338,6 +338,7 @@ fun ListDetailPaneScaffold(
                     is NavigationEventTransitionState.Idle -> TargetState.Single(
                         showList,
                     )
+
                     is NavigationEventTransitionState.InProgress ->
                         TargetState.InProgress(
                             current = false,
@@ -355,13 +356,16 @@ fun ListDetailPaneScaffold(
                                 is ContentStatus.Appearing,
                                 is ContentStatus.Disappearing,
                                 -> spring()
+
                                 ContentStatus.NotVisible,
                                 ContentStatus.Visible,
                                 -> when (this@animateFloat.targetState) {
                                     is ContentStatus.Appearing,
                                     is ContentStatus.Disappearing,
                                     -> spring()
+
                                     ContentStatus.NotVisible -> tween(durationMillis = 90)
+
                                     ContentStatus.Visible -> tween(durationMillis = 220, delayMillis = 90)
                                 }
                             }
@@ -386,13 +390,17 @@ fun ListDetailPaneScaffold(
                     }.apply {
                         when (contentStatusTargetState) {
                             is ContentStatus.Appearing -> value = null
+
                             is ContentStatus.Disappearing -> {
                                 if (contentStatusTargetState.progressToNotVisible >= 0.01f) {
                                     // Only save that we were disappearing if the progress is at least 1% along
                                     value = contentStatusTargetState
                                 }
                             }
-                            ContentStatus.NotVisible -> Unit // Preserve the previous value of wasDisappearing
+
+                            ContentStatus.NotVisible -> Unit
+
+                            // Preserve the previous value of wasDisappearing
                             ContentStatus.Visible -> value = null
                         }
                     }
@@ -411,6 +419,7 @@ fun ListDetailPaneScaffold(
                     ) {
                         when (it) {
                             is ContentStatus.Appearing -> 0.dp
+
                             is ContentStatus.Disappearing -> {
                                 val metadata = it.metadata
                                 lerp(
@@ -423,6 +432,7 @@ fun ListDetailPaneScaffold(
                                     else -> 0f
                                 }
                             }
+
                             ContentStatus.NotVisible -> {
                                 8.dp * when (lastDisappearingValue?.metadata?.latestEvent?.swipeEdge) {
                                     NavigationEvent.EDGE_LEFT -> -1f
@@ -430,6 +440,7 @@ fun ListDetailPaneScaffold(
                                     else -> 0f
                                 }
                             }
+
                             ContentStatus.Visible -> 0.dp
                         }
                     }
@@ -448,6 +459,7 @@ fun ListDetailPaneScaffold(
                     ) {
                         when (it) {
                             is ContentStatus.Appearing -> 0.5f
+
                             is ContentStatus.Disappearing -> {
                                 when (it.metadata.latestEvent.swipeEdge) {
                                     NavigationEvent.EDGE_LEFT -> 1f
@@ -455,6 +467,7 @@ fun ListDetailPaneScaffold(
                                     else -> 0.5f
                                 }
                             }
+
                             ContentStatus.NotVisible -> {
                                 when (lastDisappearingValue?.metadata?.latestEvent?.swipeEdge) {
                                     NavigationEvent.EDGE_LEFT -> 1f
@@ -462,6 +475,7 @@ fun ListDetailPaneScaffold(
                                     else -> 0.5f
                                 }
                             }
+
                             ContentStatus.Visible -> 0.5f
                         }
                     }
@@ -507,35 +521,33 @@ data class ContinuousDraggableAnchors(
 
     override val size: Int = 1
 
-    override fun closestAnchor(position: Float): Float =
-        (
-            position.coerceIn(minAnchoredDraggablePosition, maxAnchoredDraggablePosition) -
-                minAnchoredDraggablePosition
-            ) /
-            (maxAnchoredDraggablePosition - minAnchoredDraggablePosition)
+    override fun closestAnchor(position: Float): Float = (
+        position.coerceIn(minAnchoredDraggablePosition, maxAnchoredDraggablePosition) -
+            minAnchoredDraggablePosition
+        ) /
+        (maxAnchoredDraggablePosition - minAnchoredDraggablePosition)
 
-    override fun closestAnchor(position: Float, searchUpwards: Boolean): Float? =
-        if (searchUpwards) {
-            if (position <= maxAnchoredDraggablePosition) {
-                (
-                    position.coerceIn(minAnchoredDraggablePosition, maxAnchoredDraggablePosition) -
-                        minAnchoredDraggablePosition
-                    ) /
-                    (maxAnchoredDraggablePosition - minAnchoredDraggablePosition)
-            } else {
-                null
-            }
+    override fun closestAnchor(position: Float, searchUpwards: Boolean): Float? = if (searchUpwards) {
+        if (position <= maxAnchoredDraggablePosition) {
+            (
+                position.coerceIn(minAnchoredDraggablePosition, maxAnchoredDraggablePosition) -
+                    minAnchoredDraggablePosition
+                ) /
+                (maxAnchoredDraggablePosition - minAnchoredDraggablePosition)
         } else {
-            if (position >= minAnchoredDraggablePosition) {
-                (
-                    position.coerceIn(minAnchoredDraggablePosition, maxAnchoredDraggablePosition) -
-                        minAnchoredDraggablePosition
-                    ) /
-                    (maxAnchoredDraggablePosition - minAnchoredDraggablePosition)
-            } else {
-                null
-            }
+            null
         }
+    } else {
+        if (position >= minAnchoredDraggablePosition) {
+            (
+                position.coerceIn(minAnchoredDraggablePosition, maxAnchoredDraggablePosition) -
+                    minAnchoredDraggablePosition
+                ) /
+                (maxAnchoredDraggablePosition - minAnchoredDraggablePosition)
+        } else {
+            null
+        }
+    }
 
     override fun minPosition(): Float = minAnchoredDraggablePosition
 

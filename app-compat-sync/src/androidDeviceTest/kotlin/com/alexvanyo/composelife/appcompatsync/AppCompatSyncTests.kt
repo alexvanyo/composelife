@@ -190,9 +190,7 @@ class AppCompatSyncTests {
 private val Configuration.isDarkThemeActive get() =
     uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
 
-private inline fun <reified A : Activity, T : Any> ActivityScenario<A>.withActivity(
-    crossinline block: A.() -> T,
-): T {
+private inline fun <reified A : Activity, T : Any> ActivityScenario<A>.withActivity(crossinline block: A.() -> T): T {
     var result: Result<T>? = null
     onActivity { activity ->
         result = kotlin.runCatching {

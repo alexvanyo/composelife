@@ -20,7 +20,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class Life106CellStateSerializerTests {
-
     private val serializer = Life106CellStateSerializer
 
     @Test
@@ -28,7 +27,8 @@ class Life106CellStateSerializerTests {
         assertEquals(
             DeserializationResult.Successful(
                 warnings = emptyList(),
-                cellState = setOf(
+                cellState =
+                setOf(
                     0 to 0,
                     2 to 0,
                     4 to 0,
@@ -73,19 +73,20 @@ class Life106CellStateSerializerTests {
             |2 4
             |4 4
             """.trimMargin(),
-            serializer.serializeToString(
-                setOf(
-                    0 to 0,
-                    2 to 0,
-                    4 to 0,
-                    0 to 2,
-                    2 to 2,
-                    4 to 2,
-                    0 to 4,
-                    2 to 4,
-                    4 to 4,
-                ).toCellState(),
-            ).joinToString("\n"),
+            serializer
+                .serializeToString(
+                    setOf(
+                        0 to 0,
+                        2 to 0,
+                        4 to 0,
+                        0 to 2,
+                        2 to 2,
+                        4 to 2,
+                        0 to 4,
+                        2 to 4,
+                        4 to 4,
+                    ).toCellState(),
+                ).joinToString("\n"),
         )
     }
 }

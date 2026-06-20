@@ -234,8 +234,7 @@ private fun <T : Comparable<T>> rememberEditableSliderState(
             /**
              * Parses a value [T] from the given [text].
              */
-            private fun parseValue(text: String): T? =
-                textToValue(text)?.coerceIn(valueRange)
+            private fun parseValue(text: String): T? = textToValue(text)?.coerceIn(valueRange)
 
             /**
              * If non-null, this is the value [T] created from the currently entered string in the current edit session,
