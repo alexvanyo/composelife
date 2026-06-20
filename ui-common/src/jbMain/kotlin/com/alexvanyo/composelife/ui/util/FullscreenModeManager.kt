@@ -53,13 +53,11 @@ interface FullscreenModeManager {
  *
  * If the request failed or isn't supported, the returned [Result] will be a failure.
  */
-suspend fun FullscreenModeManager.enterFullscreenMode(): Result<Unit> =
-    requestEnterFullscreenMode().await()
+suspend fun FullscreenModeManager.enterFullscreenMode(): Result<Unit> = requestEnterFullscreenMode().await()
 
 /**
  * Exits fullscreen mode. This method suspends, and returns a [Result] for whether the request succeeded.
  *
  * If the request failed or isn't supported, the returned [Result] will be a failure.
  */
-suspend fun FullscreenModeManager.exitFullscreenMode(): Result<Unit> =
-    requestExitFullscreenMode().await()
+suspend fun FullscreenModeManager.exitFullscreenMode(): Result<Unit> = requestExitFullscreenMode().await()

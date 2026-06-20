@@ -175,6 +175,7 @@ class GameOfLifeWatchFaceService : WatchFaceService() {
                                 temporalGameOfLifeState.cellState = temporalGameOfLifeState.seedCellState
                                 isBeingTappedState.value = true
                             }
+
                             else -> {
                                 isBeingTappedState.value = false
                             }

@@ -32,26 +32,19 @@ internal class SystemLogger(
         tag = tag,
     )
 
-    override fun withTag(tag: String): Logger =
-        SystemLogger(kermitLoggerConfig, tag)
+    override fun withTag(tag: String): Logger = SystemLogger(kermitLoggerConfig, tag)
 
-    override fun v(throwable: Throwable?, tag: String, message: () -> String) =
-        kermitLogger.v(throwable, tag, message)
+    override fun v(throwable: Throwable?, tag: String, message: () -> String) = kermitLogger.v(throwable, tag, message)
 
-    override fun d(throwable: Throwable?, tag: String, message: () -> String) =
-        kermitLogger.d(throwable, tag, message)
+    override fun d(throwable: Throwable?, tag: String, message: () -> String) = kermitLogger.d(throwable, tag, message)
 
-    override fun i(throwable: Throwable?, tag: String, message: () -> String) =
-        kermitLogger.i(throwable, tag, message)
+    override fun i(throwable: Throwable?, tag: String, message: () -> String) = kermitLogger.i(throwable, tag, message)
 
-    override fun w(throwable: Throwable?, tag: String, message: () -> String) =
-        kermitLogger.w(throwable, tag, message)
+    override fun w(throwable: Throwable?, tag: String, message: () -> String) = kermitLogger.w(throwable, tag, message)
 
-    override fun e(throwable: Throwable?, tag: String, message: () -> String) =
-        kermitLogger.e(throwable, tag, message)
+    override fun e(throwable: Throwable?, tag: String, message: () -> String) = kermitLogger.e(throwable, tag, message)
 
-    override fun a(throwable: Throwable?, tag: String, message: () -> String) =
-        kermitLogger.a(throwable, tag, message)
+    override fun a(throwable: Throwable?, tag: String, message: () -> String) = kermitLogger.a(throwable, tag, message)
 
     override fun v(messageString: String, throwable: Throwable?, tag: String) =
         kermitLogger.v(messageString, throwable, tag)

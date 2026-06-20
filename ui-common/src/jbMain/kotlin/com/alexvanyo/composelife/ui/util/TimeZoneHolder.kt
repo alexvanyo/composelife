@@ -47,8 +47,8 @@ interface TimeZoneHolder : Updatable {
  * just being used to drive UI such as for formatting, then the default [Lifecycle.State.STARTED] is appropriate to
  * only listen while the UI is visible.
  */
-context(timeZoneHolder: TimeZoneHolder)
 @Composable
+context(timeZoneHolder: TimeZoneHolder)
 fun currentTimeZone(lifecycleState: Lifecycle.State = Lifecycle.State.STARTED): TimeZone {
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     LaunchedEffect(lifecycleOwner) {

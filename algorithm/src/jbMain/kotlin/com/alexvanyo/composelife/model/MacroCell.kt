@@ -29,7 +29,6 @@ import com.alexvanyo.composelife.model.MacroCell.Level4Node
  * A [MacroCell] is either a [Level4Node] with 4 [LeafNode] children or a [CellNode] with 4 subnodes.
  */
 internal sealed interface MacroCell {
-
     /**
      * The tree level of this cell. A cell at level `x` represents `4^x` cells.
      */
@@ -69,12 +68,7 @@ internal sealed interface MacroCell {
     /**
      * A [MacroCell] at level 4. This level contains exactly 4 [LeafNode]s.
      */
-    data class Level4Node(
-        val nw: LeafNode,
-        val ne: LeafNode,
-        val sw: LeafNode,
-        val se: LeafNode,
-    ) : MacroCell {
+    data class Level4Node(val nw: LeafNode, val ne: LeafNode, val sw: LeafNode, val se: LeafNode) : MacroCell {
         override val level = 4
 
         override val size = nw.size + ne.size + sw.size + se.size
@@ -84,16 +78,17 @@ internal sealed interface MacroCell {
          *
          * TODO: Is there a better hashcode function?
          */
-        private val hashCode = run {
-            var hash = nw.hashCode()
-            hash *= 31
-            hash += ne.hashCode()
-            hash *= 31
-            hash += sw.hashCode()
-            hash *= 31
-            hash += se.hashCode()
-            hash
-        }
+        private val hashCode =
+            run {
+                var hash = nw.hashCode()
+                hash *= 31
+                hash += ne.hashCode()
+                hash *= 31
+                hash += sw.hashCode()
+                hash *= 31
+                hash += se.hashCode()
+                hash
+            }
 
         override fun hashCode(): Int = hashCode
     }
@@ -101,12 +96,7 @@ internal sealed interface MacroCell {
     /**
      * A non-leaf [MacroCell], which contains 4 subnode [MacroCell]s.
      */
-    data class CellNode(
-        val nw: MacroCell,
-        val ne: MacroCell,
-        val sw: MacroCell,
-        val se: MacroCell,
-    ) : MacroCell {
+    data class CellNode(val nw: MacroCell, val ne: MacroCell, val sw: MacroCell, val se: MacroCell) : MacroCell {
         init {
             require(nw.level == ne.level)
             require(ne.level == sw.level)
@@ -122,36 +112,30 @@ internal sealed interface MacroCell {
          *
          * TODO: Is there a better hashcode function?
          */
-        private val hashCode = run {
-            var hash = level
-            hash *= 31
-            hash += nw.hashCode()
-            hash *= 31
-            hash += ne.hashCode()
-            hash *= 31
-            hash += sw.hashCode()
-            hash *= 31
-            hash += se.hashCode()
-            hash
-        }
+        private val hashCode =
+            run {
+                var hash = level
+                hash *= 31
+                hash += nw.hashCode()
+                hash *= 31
+                hash += ne.hashCode()
+                hash *= 31
+                hash += sw.hashCode()
+                hash *= 31
+                hash += se.hashCode()
+                hash
+            }
 
         override fun hashCode(): Int = hashCode
     }
 }
 
-internal inline fun LeafNode(
-    nw: Int,
-    ne: Int,
-    sw: Int,
-    se: Int,
-): LeafNode = nw.toLong() or
+internal inline fun LeafNode(nw: Int, ne: Int, sw: Int, se: Int): LeafNode = nw.toLong() or
     (ne.toLong() shl 16) or
     (sw.toLong() shl 32) or
     (se.toLong() shl 48)
 
-internal inline fun LeafNode(
-    aliveCells: Set<IntOffset>,
-): LeafNode {
+internal inline fun LeafNode(aliveCells: Set<IntOffset>): LeafNode {
     var result = 0L
     for (target in aliveCells) {
         result = result or target.toMask()
@@ -234,6 +218,7 @@ internal fun MacroCell.withCell(target: IntOffset, isAlive: Boolean): MacroCell 
                 }
             }
         }
+
         is CellNode -> {
             if (isNorth) {
                 if (isWest) {
@@ -272,10 +257,7 @@ internal fun MacroCell.withCell(target: IntOffset, isAlive: Boolean): MacroCell 
     }
 }
 
-internal inline fun createLeafNode(
-    cellState: CellState,
-    offset: IntOffset,
-): LeafNode {
+internal inline fun createLeafNode(cellState: CellState, offset: IntOffset): LeafNode {
     var result = 0L
     for (i in 0..63) {
         val inAliveCells = if ((offset + intOffsetFromBit(i)) in cellState.aliveCells) 1L else 0L
@@ -287,11 +269,7 @@ internal inline fun createLeafNode(
 /**
  * Creates a [MacroCell] with the given [level] as a window looking into [CellState] at [offset].
  */
-internal fun createMacroCell(
-    cellState: CellState,
-    offset: IntOffset,
-    @IntRange(from = 4) level: Int,
-): MacroCell {
+internal fun createMacroCell(cellState: CellState, offset: IntOffset, @IntRange(from = 4) level: Int): MacroCell {
     val offsetDiff = 1 shl (level - 1)
     return if (level == 4) {
         Level4Node(
@@ -345,10 +323,7 @@ internal suspend inline fun SequenceScope<IntOffset>.yieldLeafNode(
  * Returns an [Iterator] of [IntOffset] for every alive cell within the [cellWindow] represented by this [MacroCell],
  * with the given upper left corner [offset].
  */
-internal fun MacroCell.iterator(
-    offset: IntOffset,
-    cellWindow: CellWindow,
-): Iterator<IntOffset> {
+internal fun MacroCell.iterator(offset: IntOffset, cellWindow: CellWindow): Iterator<IntOffset> {
     val macroCell = this
     val offsetDiff = 1 shl (level - 1)
     return iterator {
@@ -379,6 +354,7 @@ internal fun MacroCell.iterator(
                         cellWindow.translate(IntOffset(-offsetDiff, -offsetDiff)),
                     )
                 }
+
                 is CellNode -> {
                     yieldAll(macroCell.nw.iterator(offset, cellWindow))
                     yieldAll(
@@ -405,8 +381,7 @@ internal fun MacroCell.iterator(
     }
 }
 
-internal inline operator fun LeafNode.contains(target: IntOffset): Boolean =
-    (this and target.toMask()) != 0L
+internal inline operator fun LeafNode.contains(target: IntOffset): Boolean = (this and target.toMask()) != 0L
 
 /**
  * Returns true if the given [MacroCell] contains an alive cell with the given [target] offset, where
@@ -441,6 +416,7 @@ internal tailrec operator fun MacroCell.contains(target: IntOffset): Boolean {
                     }
                 }
             }
+
             is CellNode -> {
                 if (isNorth) {
                     if (isWest) {
@@ -492,15 +468,18 @@ internal fun MacroCell.containsAll(targets: Collection<IntOffset>): Boolean {
 
     val offsetDiff = 1 shl (level - 1)
 
-    val (northTargets, southTargets) = targets.partition { target ->
-        target.y < offsetDiff
-    }
-    val (northWestTargets, northEastTargets) = northTargets.partition { target ->
-        target.x < offsetDiff
-    }
-    val (southWestTargets, southEastTargets) = southTargets.partition { target ->
-        target.x < offsetDiff
-    }
+    val (northTargets, southTargets) =
+        targets.partition { target ->
+            target.y < offsetDiff
+        }
+    val (northWestTargets, northEastTargets) =
+        northTargets.partition { target ->
+            target.x < offsetDiff
+        }
+    val (southWestTargets, southEastTargets) =
+        southTargets.partition { target ->
+            target.x < offsetDiff
+        }
 
     // Recurse on subtrees
     return when (this) {
@@ -510,6 +489,7 @@ internal fun MacroCell.containsAll(targets: Collection<IntOffset>): Boolean {
                 sw.containsAll(southWestTargets.map { it + IntOffset(0, -offsetDiff) }) &&
                 se.containsAll(southEastTargets.map { it + IntOffset(-offsetDiff, -offsetDiff) })
         }
+
         is CellNode -> {
             nw.containsAll(northWestTargets) &&
                 ne.containsAll(northEastTargets.map { it + IntOffset(-offsetDiff, 0) }) &&
@@ -528,145 +508,143 @@ internal inline fun IntOffset.toMask(): Long {
 }
 
 @OptIn(ExperimentalUnsignedTypes::class)
-private val maskArray = longArrayOf(
-    1L shl 0x00,
-    1L shl 0x01,
-    1L shl 0x04,
-    1L shl 0x05,
-    1L shl 0x10,
-    1L shl 0x11,
-    1L shl 0x14,
-    1L shl 0x15,
-    1L shl 0x02,
-    1L shl 0x03,
-    1L shl 0x06,
-    1L shl 0x07,
-    1L shl 0x12,
-    1L shl 0x13,
-    1L shl 0x16,
-    1L shl 0x17,
-    1L shl 0x08,
-    1L shl 0x09,
-    1L shl 0x0C,
-    1L shl 0x0D,
-    1L shl 0x18,
-    1L shl 0x19,
-    1L shl 0x1C,
-    1L shl 0x1D,
-    1L shl 0x0A,
-    1L shl 0x0B,
-    1L shl 0x0E,
-    1L shl 0x0F,
-    1L shl 0x1A,
-    1L shl 0x1B,
-    1L shl 0x1E,
-    1L shl 0x1F,
-    1L shl 0x20,
-    1L shl 0x21,
-    1L shl 0x24,
-    1L shl 0x25,
-    1L shl 0x30,
-    1L shl 0x31,
-    1L shl 0x34,
-    1L shl 0x35,
-    1L shl 0x22,
-    1L shl 0x23,
-    1L shl 0x26,
-    1L shl 0x27,
-    1L shl 0x32,
-    1L shl 0x33,
-    1L shl 0x36,
-    1L shl 0x37,
-    1L shl 0x28,
-    1L shl 0x29,
-    1L shl 0x2C,
-    1L shl 0x2D,
-    1L shl 0x38,
-    1L shl 0x39,
-    1L shl 0x3C,
-    1L shl 0x3D,
-    1L shl 0x2A,
-    1L shl 0x2B,
-    1L shl 0x2E,
-    1L shl 0x2F,
-    1L shl 0x3A,
-    1L shl 0x3B,
-    1L shl 0x3E,
-    1L shl 0x3F,
-)
+private val maskArray =
+    longArrayOf(
+        1L shl 0x00,
+        1L shl 0x01,
+        1L shl 0x04,
+        1L shl 0x05,
+        1L shl 0x10,
+        1L shl 0x11,
+        1L shl 0x14,
+        1L shl 0x15,
+        1L shl 0x02,
+        1L shl 0x03,
+        1L shl 0x06,
+        1L shl 0x07,
+        1L shl 0x12,
+        1L shl 0x13,
+        1L shl 0x16,
+        1L shl 0x17,
+        1L shl 0x08,
+        1L shl 0x09,
+        1L shl 0x0C,
+        1L shl 0x0D,
+        1L shl 0x18,
+        1L shl 0x19,
+        1L shl 0x1C,
+        1L shl 0x1D,
+        1L shl 0x0A,
+        1L shl 0x0B,
+        1L shl 0x0E,
+        1L shl 0x0F,
+        1L shl 0x1A,
+        1L shl 0x1B,
+        1L shl 0x1E,
+        1L shl 0x1F,
+        1L shl 0x20,
+        1L shl 0x21,
+        1L shl 0x24,
+        1L shl 0x25,
+        1L shl 0x30,
+        1L shl 0x31,
+        1L shl 0x34,
+        1L shl 0x35,
+        1L shl 0x22,
+        1L shl 0x23,
+        1L shl 0x26,
+        1L shl 0x27,
+        1L shl 0x32,
+        1L shl 0x33,
+        1L shl 0x36,
+        1L shl 0x37,
+        1L shl 0x28,
+        1L shl 0x29,
+        1L shl 0x2C,
+        1L shl 0x2D,
+        1L shl 0x38,
+        1L shl 0x39,
+        1L shl 0x3C,
+        1L shl 0x3D,
+        1L shl 0x2A,
+        1L shl 0x2B,
+        1L shl 0x2E,
+        1L shl 0x2F,
+        1L shl 0x3A,
+        1L shl 0x3B,
+        1L shl 0x3E,
+        1L shl 0x3F,
+    )
 
 /**
  * Converts a bit index into the appropriate [IntOffset] for [LeafNode].
  */
-internal inline fun intOffsetFromBit(@IntRange(0, 63) bit: Int) =
-    intOffsetList[bit]
+internal inline fun intOffsetFromBit(@IntRange(0, 63) bit: Int) = intOffsetList[bit]
 
-private val intOffsetList = listOf(
-    IntOffset(0, 0),
-    IntOffset(1, 0),
-    IntOffset(0, 1),
-    IntOffset(1, 1),
-    IntOffset(2, 0),
-    IntOffset(3, 0),
-    IntOffset(2, 1),
-    IntOffset(3, 1),
-    IntOffset(0, 2),
-    IntOffset(1, 2),
-    IntOffset(0, 3),
-    IntOffset(1, 3),
-    IntOffset(2, 2),
-    IntOffset(3, 2),
-    IntOffset(2, 3),
-    IntOffset(3, 3),
-
-    IntOffset(4, 0),
-    IntOffset(5, 0),
-    IntOffset(4, 1),
-    IntOffset(5, 1),
-    IntOffset(6, 0),
-    IntOffset(7, 0),
-    IntOffset(6, 1),
-    IntOffset(7, 1),
-    IntOffset(4, 2),
-    IntOffset(5, 2),
-    IntOffset(4, 3),
-    IntOffset(5, 3),
-    IntOffset(6, 2),
-    IntOffset(7, 2),
-    IntOffset(6, 3),
-    IntOffset(7, 3),
-
-    IntOffset(0, 4),
-    IntOffset(1, 4),
-    IntOffset(0, 5),
-    IntOffset(1, 5),
-    IntOffset(2, 4),
-    IntOffset(3, 4),
-    IntOffset(2, 5),
-    IntOffset(3, 5),
-    IntOffset(0, 6),
-    IntOffset(1, 6),
-    IntOffset(0, 7),
-    IntOffset(1, 7),
-    IntOffset(2, 6),
-    IntOffset(3, 6),
-    IntOffset(2, 7),
-    IntOffset(3, 7),
-
-    IntOffset(4, 4),
-    IntOffset(5, 4),
-    IntOffset(4, 5),
-    IntOffset(5, 5),
-    IntOffset(6, 4),
-    IntOffset(7, 4),
-    IntOffset(6, 5),
-    IntOffset(7, 5),
-    IntOffset(4, 6),
-    IntOffset(5, 6),
-    IntOffset(4, 7),
-    IntOffset(5, 7),
-    IntOffset(6, 6),
-    IntOffset(7, 6),
-    IntOffset(6, 7),
-    IntOffset(7, 7),
-)
+private val intOffsetList =
+    listOf(
+        IntOffset(0, 0),
+        IntOffset(1, 0),
+        IntOffset(0, 1),
+        IntOffset(1, 1),
+        IntOffset(2, 0),
+        IntOffset(3, 0),
+        IntOffset(2, 1),
+        IntOffset(3, 1),
+        IntOffset(0, 2),
+        IntOffset(1, 2),
+        IntOffset(0, 3),
+        IntOffset(1, 3),
+        IntOffset(2, 2),
+        IntOffset(3, 2),
+        IntOffset(2, 3),
+        IntOffset(3, 3),
+        IntOffset(4, 0),
+        IntOffset(5, 0),
+        IntOffset(4, 1),
+        IntOffset(5, 1),
+        IntOffset(6, 0),
+        IntOffset(7, 0),
+        IntOffset(6, 1),
+        IntOffset(7, 1),
+        IntOffset(4, 2),
+        IntOffset(5, 2),
+        IntOffset(4, 3),
+        IntOffset(5, 3),
+        IntOffset(6, 2),
+        IntOffset(7, 2),
+        IntOffset(6, 3),
+        IntOffset(7, 3),
+        IntOffset(0, 4),
+        IntOffset(1, 4),
+        IntOffset(0, 5),
+        IntOffset(1, 5),
+        IntOffset(2, 4),
+        IntOffset(3, 4),
+        IntOffset(2, 5),
+        IntOffset(3, 5),
+        IntOffset(0, 6),
+        IntOffset(1, 6),
+        IntOffset(0, 7),
+        IntOffset(1, 7),
+        IntOffset(2, 6),
+        IntOffset(3, 6),
+        IntOffset(2, 7),
+        IntOffset(3, 7),
+        IntOffset(4, 4),
+        IntOffset(5, 4),
+        IntOffset(4, 5),
+        IntOffset(5, 5),
+        IntOffset(6, 4),
+        IntOffset(7, 4),
+        IntOffset(6, 5),
+        IntOffset(7, 5),
+        IntOffset(4, 6),
+        IntOffset(5, 6),
+        IntOffset(4, 7),
+        IntOffset(5, 7),
+        IntOffset(6, 6),
+        IntOffset(7, 6),
+        IntOffset(6, 7),
+        IntOffset(7, 7),
+    )

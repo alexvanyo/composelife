@@ -32,6 +32,7 @@ import kotlin.coroutines.EmptyCoroutineContext
 @Inject
 @ContributesBinding(AppScope::class)
 @SingleIn(AppScope::class)
+@Suppress("PropertyName", "InjectDispatcher")
 class DefaultComposeLifeDispatchers : ComposeLifeDispatchers {
     override val Default: CoroutineContext = Dispatchers.Default
     override val Main: CoroutineContext = Dispatchers.Main

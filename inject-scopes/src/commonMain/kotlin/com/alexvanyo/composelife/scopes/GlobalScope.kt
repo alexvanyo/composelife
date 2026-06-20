@@ -33,4 +33,5 @@ package com.alexvanyo.composelife.scopes
  * val applicationGraphFactory = globalGraph.asContribution<ApplicationGraph.Factory>()
  * ```
  */
+@Suppress("AbstractClassCanBeInterface")
 abstract class GlobalScope private constructor()

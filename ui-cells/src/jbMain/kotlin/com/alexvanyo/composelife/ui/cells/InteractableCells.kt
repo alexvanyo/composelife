@@ -72,9 +72,7 @@ import kotlin.uuid.Uuid
 // region templated-ctx
 @Immutable
 @Inject
-class InteractableCellsCtx(
-    private val preferencesHolder: LoadedComposeLifePreferencesHolder,
-) {
+class InteractableCellsCtx(private val preferencesHolder: LoadedComposeLifePreferencesHolder) {
     @Suppress("ComposableNaming", "LongParameterList")
     @Deprecated(
         "Ctx should not be invoked directly, instead use the top-level function",
@@ -103,10 +101,10 @@ class InteractableCellsCtx(
 
     companion object {
         private val lambda:
-            @Composable
-            context(
+            @Composable context(
                 LoadedComposeLifePreferencesHolder,
-            ) (
+            )
+            (
                 gameOfLifeState: MutableGameOfLifeState,
                 setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,
                 scaledCellDpSize: Dp,
@@ -139,9 +137,9 @@ class InteractableCellsCtx(
  *
  * The [GameOfLifeState] is interactable, so each cell is displayed by a unique [InteractableCell].
  */
-context(ctx: InteractableCellsCtx)
 @Composable
 @Suppress("LongParameterList", "DEPRECATION")
+context(ctx: InteractableCellsCtx)
 fun InteractableCells(
     gameOfLifeState: MutableGameOfLifeState,
     setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,
@@ -152,9 +150,9 @@ fun InteractableCells(
 ) = ctx(gameOfLifeState, setSelectionSessionState, scaledCellDpSize, cellWindow, pixelOffsetFromCenter, modifier)
 // endregion templated-ctx
 
-context(preferencesHolder: LoadedComposeLifePreferencesHolder)
 @Suppress("LongParameterList", "LongMethod")
 @Composable
+context(preferencesHolder: LoadedComposeLifePreferencesHolder)
 private fun InteractableCells(
     gameOfLifeState: MutableGameOfLifeState,
     setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,

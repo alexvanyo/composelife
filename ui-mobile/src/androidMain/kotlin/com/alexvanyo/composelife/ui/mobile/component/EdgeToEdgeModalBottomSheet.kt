@@ -192,10 +192,12 @@ fun EdgeToEdgeModalBottomSheet(
             }.apply {
                 when (val predictiveBackState = predictiveBackStateHolder.value) {
                     CompletablePredictiveBackState.NotRunning -> value = null
+
                     is CompletablePredictiveBackState.Running -> if (predictiveBackState.progress >= 0.01f) {
                         // Only save that we were disappearing if the progress is at least 1% along
                         value = predictiveBackState
                     }
+
                     CompletablePredictiveBackState.Completed -> Unit
                 }
             }
@@ -229,6 +231,7 @@ fun EdgeToEdgeModalBottomSheet(
 
                         val newTarget = when (sheetState.anchoredDraggableState.targetValue) {
                             Hidden -> Hidden
+
                             PartiallyExpanded -> if (newAnchors.hasPositionFor(PartiallyExpanded)) {
                                 PartiallyExpanded
                             } else if (newAnchors.hasPositionFor(Expanded)) {
@@ -353,11 +356,7 @@ fun EdgeToEdgeModalBottomSheet(
 }
 
 @Composable
-private fun Scrim(
-    color: Color,
-    onDismissRequest: () -> Unit,
-    visible: Boolean,
-) {
+private fun Scrim(color: Color, onDismissRequest: () -> Unit, visible: Boolean) {
     if (color.isSpecified) {
         val alpha by animateFloatAsState(
             targetValue = if (visible) 1f else 0f,
@@ -400,17 +399,12 @@ internal fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
         }
     }
 
-    override fun onPostScroll(
-        consumed: Offset,
-        available: Offset,
-        source: NestedScrollSource,
-    ): Offset {
-        return if (source == NestedScrollSource.UserInput) {
+    override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset =
+        if (source == NestedScrollSource.UserInput) {
             sheetState.anchoredDraggableState.dispatchRawDelta(available.toFloat()).toOffset()
         } else {
             Offset.Zero
         }
-    }
 
     override suspend fun onPreFling(available: Velocity): Velocity {
         val toFling = available.toFloat()
@@ -599,10 +593,7 @@ class SheetState(
      *
      * @param targetValue The target value of the animation
      */
-    internal suspend fun animateTo(
-        targetValue: SheetValue,
-        velocity: Float = anchoredDraggableState.lastVelocity,
-    ) {
+    internal suspend fun animateTo(targetValue: SheetValue, velocity: Float = anchoredDraggableState.lastVelocity) {
         anchoredDraggableState.animateToWithDecay(targetValue, velocity)
     }
 
@@ -640,16 +631,13 @@ class SheetState(
         /**
          * The default [Saver] implementation for [SheetState].
          */
-        fun Saver(
-            skipPartiallyExpanded: Boolean,
-            confirmValueChange: (SheetValue) -> Boolean,
-            density: Density,
-        ) = Saver<SheetState, SheetValue>(
-            save = { it.currentValue },
-            restore = { savedValue ->
-                SheetState(skipPartiallyExpanded, density, savedValue, confirmValueChange)
-            },
-        )
+        fun Saver(skipPartiallyExpanded: Boolean, confirmValueChange: (SheetValue) -> Boolean, density: Density) =
+            Saver<SheetState, SheetValue>(
+                save = { it.currentValue },
+                restore = { savedValue ->
+                    SheetState(skipPartiallyExpanded, density, savedValue, confirmValueChange)
+                },
+            )
     }
 }
 

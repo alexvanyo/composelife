@@ -62,9 +62,10 @@ private val UiGraph.selectionOverlayTestsCtx: SelectionOverlayTestsCtx get() =
     this as SelectionOverlayTestsCtx
 
 @OptIn(ExperimentalTestApi::class)
-class SelectionOverlayTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
+class SelectionOverlayTests :
+    BaseUiInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
 
     @Test
     fun no_selection_is_displayed_correctly() = runUiTest { uiGraph ->

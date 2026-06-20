@@ -39,9 +39,8 @@ interface AndroidUiBindings {
         internal fun bindUiContext(uiGraphArguments: UiGraphArguments): Context = uiGraphArguments.uiContext
 
         @Provides
-        internal fun bindComponentActivity(
-            uiGraphArguments: UiGraphArguments,
-        ): ComponentActivity? = uiGraphArguments.activity
+        internal fun bindComponentActivity(uiGraphArguments: UiGraphArguments): ComponentActivity? =
+            uiGraphArguments.activity
 
         @Provides
         internal fun bindActivity(componentActivity: ComponentActivity?): Activity? = componentActivity
@@ -54,14 +53,11 @@ interface AndroidUiBindings {
 
         @Provides
         @ForScope(UiScope::class)
-        internal fun bindLifecycleOwner(
-            uiGraphArguments: UiGraphArguments,
-        ): LifecycleOwner = uiGraphArguments.uiLifecycleOwner
+        internal fun bindLifecycleOwner(uiGraphArguments: UiGraphArguments): LifecycleOwner =
+            uiGraphArguments.uiLifecycleOwner
 
         @Provides
         @ForScope(UiScope::class)
-        internal fun bindLifecycle(
-            @ForScope(UiScope::class) owner: LifecycleOwner,
-        ): Lifecycle = owner.lifecycle
+        internal fun bindLifecycle(@ForScope(UiScope::class) owner: LifecycleOwner): Lifecycle = owner.lifecycle
     }
 }

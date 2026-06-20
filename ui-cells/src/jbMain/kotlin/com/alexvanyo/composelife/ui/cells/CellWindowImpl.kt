@@ -76,8 +76,8 @@ internal class CellWindowImplCtx(
     internal val cellStateParser: CellStateParser,
 )
 
-context(ctx: CellWindowImplCtx)
 @Composable
+context(ctx: CellWindowImplCtx)
 internal fun CellWindowImpl(
     cellWindowUiState: CellWindowUiState,
     cellDpSize: Dp,
@@ -121,6 +121,7 @@ private fun CellWindowImpl(
     // If the viewport is non-navigable, ensure that gesturing is cancelled.
     when (viewportInteractionConfig) {
         is ViewportInteractionConfig.Navigable -> Unit
+
         is ViewportInteractionConfig.Fixed,
         is ViewportInteractionConfig.Tracking,
         -> {
@@ -338,6 +339,7 @@ private fun CellWindowImpl(
                         pixelOffsetFromCenter = fracPixelOffsetFromCenter,
                         isThumbnail = when (cellWindowUiState) {
                             is CellWindowUiState.ImmutableCellWindowUiState.ThumbnailState -> true
+
                             is CellWindowUiState.ImmutableCellWindowUiState.InteractableState,
                             is CellWindowUiState.MutableState,
                             -> false
@@ -376,6 +378,7 @@ private fun CellWindowImpl(
 
             when (cellWindowUiState) {
                 is CellWindowUiState.ImmutableCellWindowUiState -> Unit
+
                 is CellWindowUiState.MutableState -> {
                     with(cellWindowImplCtx) {
                         with(cellStateParser) {
@@ -426,10 +429,7 @@ private fun rememberOnGesture(
 }
 
 @OptIn(ExperimentalContracts::class)
-private fun CellWindowUiState.isEditable(
-    isGesturing: Boolean,
-    scale: Float,
-): Boolean {
+private fun CellWindowUiState.isEditable(isGesturing: Boolean, scale: Float): Boolean {
     contract { returns(true) implies (this@isEditable is CellWindowUiState.MutableState) }
     return when (this) {
         is CellWindowUiState.ImmutableCellWindowUiState -> false
@@ -437,12 +437,14 @@ private fun CellWindowUiState.isEditable(
     }
 }
 
-private fun CellWindowUiState.getSelectionCellState(selectionState: SelectionState): CellState =
-    when (selectionState) {
-        SelectionState.NoSelection -> emptyCellState()
-        is SelectionState.SelectingBox.FixedSelectingBox -> {
-            gameOfLifeState.cellState.getSelectedCellState(selectionState)
-        }
-        is SelectionState.SelectingBox.TransientSelectingBox -> emptyCellState()
-        is SelectionState.Selection -> selectionState.cellState
+private fun CellWindowUiState.getSelectionCellState(selectionState: SelectionState): CellState = when (selectionState) {
+    SelectionState.NoSelection -> emptyCellState()
+
+    is SelectionState.SelectingBox.FixedSelectingBox -> {
+        gameOfLifeState.cellState.getSelectedCellState(selectionState)
     }
+
+    is SelectionState.SelectingBox.TransientSelectingBox -> emptyCellState()
+
+    is SelectionState.Selection -> selectionState.cellState
+}

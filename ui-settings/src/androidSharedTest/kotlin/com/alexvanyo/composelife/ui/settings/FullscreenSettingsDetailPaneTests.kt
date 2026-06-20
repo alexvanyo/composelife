@@ -65,9 +65,10 @@ val UiGraph.fullscreenSettingsDetailPaneTestsCtx: FullscreenSettingsDetailPaneTe
     this as FullscreenSettingsDetailPaneTestsCtx
 
 @OptIn(ExperimentalTestApi::class)
-class FullscreenSettingsDetailPaneTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
+class FullscreenSettingsDetailPaneTests :
+    BaseUiInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
     @Test
     fun visual_settings_category_keeps_scroll_position_with_ime() = runUiTest { uiGraph ->
         assumeTrue(Build.VERSION.SDK_INT >= 30)
@@ -133,5 +134,4 @@ class FullscreenSettingsDetailPaneTests : BaseUiInjectTest(
     }
 }
 
-private fun IntRect.toAndroidXInsets(): Insets =
-    Insets.of(top, left, right, bottom)
+private fun IntRect.toAndroidXInsets(): Insets = Insets.of(top, left, right, bottom)

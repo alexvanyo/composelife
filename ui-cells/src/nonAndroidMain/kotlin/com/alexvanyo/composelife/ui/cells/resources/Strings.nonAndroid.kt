@@ -23,9 +23,8 @@ import com.alexvanyo.composelife.parameterizedstring.ParameterizedStringArgument
 actual fun Strings.InteractableCellContentDescription(x: Int, y: Int): ParameterizedString =
     ParameterizedString("$x, $y")
 
-internal actual fun Strings.SelectingBoxHandle(x: Int, y: Int) =
-    ParameterizedString(
-        "Selection handle: %d, %d",
-        ParameterizedStringArgument(x),
-        ParameterizedStringArgument(y),
-    )
+internal actual fun Strings.SelectingBoxHandle(x: Int, y: Int) = ParameterizedString(
+    "Selection handle: %d, %d",
+    ParameterizedStringArgument(x),
+    ParameterizedStringArgument(y),
+)

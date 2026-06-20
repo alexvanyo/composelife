@@ -42,27 +42,24 @@ internal actual fun Strings.GenerationsPerStepLabelAndValue(generationsPerStep: 
         ParameterizedStringArgument(generationsPerStep),
     )
 
-internal actual fun Strings.GenerationsPerStepValue(generationsPerStep: Int): ParameterizedString =
-    ParameterizedString(
-        R.string.generations_per_step_value,
-        ParameterizedStringArgument(generationsPerStep),
-    )
+internal actual fun Strings.GenerationsPerStepValue(generationsPerStep: Int): ParameterizedString = ParameterizedString(
+    R.string.generations_per_step_value,
+    ParameterizedStringArgument(generationsPerStep),
+)
 
 internal actual val Strings.GenerationsPerStepLabel: ParameterizedString get() =
     ParameterizedString(R.string.generations_per_step_label)
 
-internal actual fun Strings.OffsetInfoMessage(x: Float, y: Float): ParameterizedString =
-    ParameterizedString(
-        R.string.offset,
-        ParameterizedStringArgument(x),
-        ParameterizedStringArgument(y),
-    )
+internal actual fun Strings.OffsetInfoMessage(x: Float, y: Float): ParameterizedString = ParameterizedString(
+    R.string.offset,
+    ParameterizedStringArgument(x),
+    ParameterizedStringArgument(y),
+)
 
-internal actual fun Strings.ScaleInfoMessage(scale: Float): ParameterizedString =
-    ParameterizedString(
-        R.string.scale,
-        ParameterizedStringArgument(scale),
-    )
+internal actual fun Strings.ScaleInfoMessage(scale: Float): ParameterizedString = ParameterizedString(
+    R.string.scale,
+    ParameterizedStringArgument(scale),
+)
 
 internal actual val Strings.PausedMessage: ParameterizedString get() =
     ParameterizedString(R.string.paused)

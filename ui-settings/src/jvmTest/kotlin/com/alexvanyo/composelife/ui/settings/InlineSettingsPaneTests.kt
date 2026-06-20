@@ -61,9 +61,10 @@ val UiGraph.inlineSettingsPaneTestsCtx: InlineSettingsPaneTestsCtx get() =
     this as InlineSettingsPaneTestsCtx
 
 @OptIn(ExperimentalTestApi::class)
-class InlineSettingsPaneTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
+class InlineSettingsPaneTests :
+    BaseUiInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
     @Test
     fun saving_settings_onboarding_is_shown_with_no_quick_access_settings_saved() {
         runUiTest { uiGraph ->

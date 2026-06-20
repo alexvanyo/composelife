@@ -29,8 +29,7 @@ import dev.zacsweers.metro.Provides
 interface LoggerBindings {
     companion object {
         @Provides
-        internal fun providesLogger(): Logger =
-            // TODO: determine signal for wasmJs
+        internal fun providesLogger(): Logger = // TODO: determine signal for wasmJs
             if (false) {
                 SingletonSystemLogger
             } else {

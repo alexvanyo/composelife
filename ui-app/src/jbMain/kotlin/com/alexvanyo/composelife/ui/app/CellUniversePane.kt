@@ -64,7 +64,8 @@ private val CellUniversePaneCtx.Companion.lambda:
         Clock,
         GameOfLifeProgressIndicatorCtx,
         InteractiveCellUniverseCtx,
-    ) (
+    )
+    (
         windowSizeClass: WindowSizeClass,
         onSeeMoreSettingsClicked: () -> Unit,
         onOpenInSettingsClicked: (setting: Setting) -> Unit,
@@ -90,9 +91,9 @@ private val CellUniversePaneCtx.Companion.lambda:
         )
     }
 
-context(ctx: CellUniversePaneCtx)
 @Suppress("LongParameterList")
 @Composable
+context(ctx: CellUniversePaneCtx)
 fun CellUniversePane(
     windowSizeClass: WindowSizeClass,
     onSeeMoreSettingsClicked: () -> Unit,
@@ -110,16 +111,16 @@ fun CellUniversePane(
 )
 // endregion templated-ctx
 
-context(
-    cellStateRepository: CellStateRepository,
-gameOfLifeAlgorithm: GameOfLifeAlgorithm,
-dispatchers: ComposeLifeDispatchers,
-clock: Clock,
-_: GameOfLifeProgressIndicatorCtx,
-_: InteractiveCellUniverseCtx,
-)
 @Suppress("LongParameterList")
 @Composable
+context(
+    cellStateRepository: CellStateRepository,
+    gameOfLifeAlgorithm: GameOfLifeAlgorithm,
+    dispatchers: ComposeLifeDispatchers,
+    clock: Clock,
+    _: GameOfLifeProgressIndicatorCtx,
+    _: InteractiveCellUniverseCtx,
+)
 private fun CellUniversePane(
     windowSizeClass: WindowSizeClass,
     onSeeMoreSettingsClicked: () -> Unit,

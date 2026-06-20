@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import io.gitlab.arturbosch.detekt.Detekt
+import dev.detekt.gradle.Detekt
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -46,7 +46,7 @@ tasks {
     }
 
     withType(Detekt::class.java).configureEach {
-        jvmTarget = JavaVersion.VERSION_17.toString()
+        jvmTarget.set(JavaVersion.VERSION_17.toString())
     }
 
     named("check").configure {
@@ -59,9 +59,9 @@ samWithReceiver {
 }
 
 detekt {
-    buildUponDefaultConfig = true
-    allRules = true
-    autoCorrect = System.getenv("CI") != "true"
+    buildUponDefaultConfig.set(true)
+    allRules.set(false)
+    autoCorrect.set(System.getenv("CI") != "true")
     config.setFrom("$rootDir/../config/detekt.yml")
 }
 
@@ -76,7 +76,7 @@ dependencies {
     implementation(libs.keeper.gradlePlugin)
     implementation(libs.ksp.gradlePlugin)
     implementation(libs.jetbrains.compose.gradlePlugin)
-    detektPlugins(libs.detekt.formatting)
+    detektPlugins(libs.detekt.rules.ktlint.wrapper)
     lintChecks(libs.androidx.lint.gradle)
 }
 

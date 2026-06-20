@@ -34,6 +34,7 @@ sealed class SpaceshipPatterns(
             .offsetBy(offset * ((it + 1) / repeatingCellStates.size).toFloat())
     },
 ) {
+    @Suppress("PropertyName")
     companion object {
         const val spaceshipTestGenerations = 100
     }

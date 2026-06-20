@@ -50,19 +50,18 @@ interface BaseInjectTestCtx {
 private val ApplicationGraph.baseInjectTestCtx: BaseInjectTestCtx get() =
     this as BaseInjectTestCtx
 
-expect abstract class BaseInjectTest(
-    applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph,
-) : BaseInjectTestImpl
+@Suppress("AbstractClassCanBeConcreteClass")
+expect abstract class BaseInjectTest(applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph) :
+    BaseInjectTestImpl
 
 /**
  * A base class for testing components that depend on injected classes.
  *
  * Subclasses must call [runAppTest] instead of [runTest] to properly initialize dependencies.
  */
-@Suppress("UnnecessaryAbstractClass")
-abstract class BaseInjectTestImpl(
-    applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph,
-) : BaseKmpTest() {
+@Suppress("UnnecessaryAbstractClass", "AbstractClassCanBeConcreteClass")
+abstract class BaseInjectTestImpl(applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph) :
+    BaseKmpTest() {
     val applicationGraph = applicationGraphCreator(createApplicationGraphArguments())
 
     private val ctx get() = applicationGraph.baseInjectTestCtx
@@ -86,10 +85,7 @@ abstract class BaseInjectTestImpl(
     }
 }
 
-suspend fun withUpdatables(
-    updatables: Set<Updatable>,
-    testBody: suspend () -> Unit,
-): Unit = coroutineScope {
+suspend fun withUpdatables(updatables: Set<Updatable>, testBody: suspend () -> Unit): Unit = coroutineScope {
     val backgroundJob = launch {
         updatables.forEach { updatable ->
             launch {

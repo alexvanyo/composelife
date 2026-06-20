@@ -40,7 +40,7 @@ import kotlin.time.Duration.Companion.seconds
  *
  * Subclasses must call [runAppTest] instead of [runTest] to properly initialize dependencies.
  */
-@Suppress("UnnecessaryAbstractClass")
+@Suppress("UnnecessaryAbstractClass", "AbstractClassCanBeConcreteClass")
 abstract class BaseActivityInjectTest<A : ComponentActivity>(
     applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph,
     private val clazz: Class<A>,
@@ -103,9 +103,8 @@ abstract class BaseActivityInjectTest<A : ComponentActivity>(
     }
 }
 
-private fun createLeakRule(tag: String) =
-    if (Build.FINGERPRINT.lowercase() == "robolectric") {
-        TestRule { base, _ -> base }
-    } else {
-        DetectLeaksAfterTestSuccess(tag)
-    }
+private fun createLeakRule(tag: String) = if (Build.FINGERPRINT.lowercase() == "robolectric") {
+    TestRule { base, _ -> base }
+} else {
+    DetectLeaksAfterTestSuccess(tag)
+}

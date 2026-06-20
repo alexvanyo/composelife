@@ -175,7 +175,5 @@ internal val ParentClip: OverlayClip =
             bounds: Rect,
             layoutDirection: LayoutDirection,
             density: Density,
-        ): Path? {
-            return sharedContentState.parentSharedContentState?.clipPathInOverlay
-        }
+        ): Path? = sharedContentState.parentSharedContentState?.clipPathInOverlay
     }

@@ -116,6 +116,4 @@ internal interface RestorationRegistry : SaveableStateRegistry {
     fun emitChildrenWithRestoredState()
 }
 
-internal expect fun RestorationRegistry(
-    originalSaveableStateRegistry: SaveableStateRegistry,
-): RestorationRegistry
+internal expect fun RestorationRegistry(originalSaveableStateRegistry: SaveableStateRegistry): RestorationRegistry

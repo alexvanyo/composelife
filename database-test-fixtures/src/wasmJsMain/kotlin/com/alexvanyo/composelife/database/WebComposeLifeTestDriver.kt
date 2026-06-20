@@ -51,9 +51,9 @@ interface WebComposeLifeTestDriverBindings {
 
 @SingleIn(AppScope::class)
 @Inject
-class WebComposeLifeTestDriver(
-    dispatchers: ComposeLifeDispatchers,
-) : ComposeLifeDriver, Updatable {
+class WebComposeLifeTestDriver(dispatchers: ComposeLifeDispatchers) :
+    ComposeLifeDriver,
+    Updatable {
 
     override val sqlDriver: SqlDriver = AndroidxSqliteDriver(
         driver = androidxSqliteOpfsDriver(multiTabMode = OpfsMultiTabMode.Shared),
@@ -72,8 +72,7 @@ class WebComposeLifeTestDriver(
 
     override suspend fun awaitDriverReady() = Unit
 
-    override suspend fun update(): Nothing =
-        sqlDriver.use {
-            awaitCancellation()
-        }
+    override suspend fun update(): Nothing = sqlDriver.use {
+        awaitCancellation()
+    }
 }

@@ -25,6 +25,7 @@ import com.alexvanyo.composelife.serialization.saver
 import kotlinx.serialization.Serializable
 
 @Serializable
+@Suppress("AbstractClassCanBeInterface")
 expect sealed class ParameterizedString {
     companion object
 }
@@ -32,10 +33,7 @@ expect sealed class ParameterizedString {
 /**
  * Creates a representation of a plain-text string.
  */
-expect fun ParameterizedString(
-    value: String,
-    vararg args: ParameterizedStringArgument,
-): ParameterizedString
+expect fun ParameterizedString(value: String, vararg args: ParameterizedStringArgument): ParameterizedString
 
 @Serializable
 sealed interface ParameterizedStringArgument {
@@ -62,12 +60,9 @@ fun ParameterizedStringArgument(value: ParameterizedString): ParameterizedString
     ParameterizedStringArgument.ParameterizedStringArg(value)
 fun ParameterizedStringArgument(value: String): ParameterizedStringArgument =
     ParameterizedStringArgument.StringArg(value)
-fun ParameterizedStringArgument(value: Int): ParameterizedStringArgument =
-    ParameterizedStringArgument.IntArg(value)
-fun ParameterizedStringArgument(value: Char): ParameterizedStringArgument =
-    ParameterizedStringArgument.CharArg(value)
-fun ParameterizedStringArgument(value: Float): ParameterizedStringArgument =
-    ParameterizedStringArgument.FloatArg(value)
+fun ParameterizedStringArgument(value: Int): ParameterizedStringArgument = ParameterizedStringArgument.IntArg(value)
+fun ParameterizedStringArgument(value: Char): ParameterizedStringArgument = ParameterizedStringArgument.CharArg(value)
+fun ParameterizedStringArgument(value: Float): ParameterizedStringArgument = ParameterizedStringArgument.FloatArg(value)
 fun ParameterizedStringArgument(value: Double): ParameterizedStringArgument =
     ParameterizedStringArgument.DoubleArg(value)
 

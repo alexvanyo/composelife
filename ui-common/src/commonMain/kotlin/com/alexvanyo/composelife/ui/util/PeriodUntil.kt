@@ -32,11 +32,7 @@ import kotlin.time.Instant
  * Returns the [DateTimePeriod] until the given [Instant] using the given [unit] in the given [timeZone].
  * The result will be a [DateTimePeriod] that is a whole number of [unit]s.
  */
-internal fun Instant.periodUntilWithUnit(
-    other: Instant,
-    unit: DateTimeUnit,
-    timeZone: TimeZone,
-): DateTimePeriod {
+internal fun Instant.periodUntilWithUnit(other: Instant, unit: DateTimeUnit, timeZone: TimeZone): DateTimePeriod {
     val value = until(other, unit, timeZone)
     return when (unit) {
         is DateTimeUnit.TimeBased -> DateTimePeriod(nanoseconds = unit.nanoseconds * value)
@@ -49,10 +45,7 @@ internal fun Instant.periodUntilWithUnit(
  * Returns the [DateTimePeriod] until the given [Instant] using the given [unit].
  * The result will be a [DateTimePeriod] that is a whole number of [unit]s.
  */
-internal fun Instant.periodUntilWithUnit(
-    other: Instant,
-    unit: DateTimeUnit.TimeBased,
-): DateTimePeriod =
+internal fun Instant.periodUntilWithUnit(other: Instant, unit: DateTimeUnit.TimeBased): DateTimePeriod =
     DateTimePeriod(nanoseconds = unit.nanoseconds * until(other, unit))
 
 /**
@@ -111,18 +104,16 @@ internal fun Instant.periodUntilWithProgressiveUnits(
  * Returns the whole number of [unit]s in the date component of the [DateTimePeriod]. The result is truncated toward
  * zero.
  */
-fun DateTimePeriod.dateComponentInWholeUnits(unit: DateTimeUnit.DateBased): Int =
-    when (unit) {
-        is DateTimeUnit.DayBased -> days / unit.days
-        is DateTimeUnit.MonthBased -> months / unit.months
-    }
+fun DateTimePeriod.dateComponentInWholeUnits(unit: DateTimeUnit.DateBased): Int = when (unit) {
+    is DateTimeUnit.DayBased -> days / unit.days
+    is DateTimeUnit.MonthBased -> months / unit.months
+}
 
 /**
  * Returns the whole number of [unit]s in the time component of the [DateTimePeriod]. The result is truncated toward
  * zero.
  */
-fun DateTimePeriod.timeComponentInWholeUnits(unit: DateTimeUnit.TimeBased): Long =
-    totalNanoseconds / unit.nanoseconds
+fun DateTimePeriod.timeComponentInWholeUnits(unit: DateTimeUnit.TimeBased): Long = totalNanoseconds / unit.nanoseconds
 
 /**
  * Returns the total number of nanoseconds of the time component of the [DateTimePeriod].

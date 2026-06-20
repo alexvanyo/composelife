@@ -20,26 +20,27 @@ import com.alexvanyo.composelife.buildlogic.configureKotlin
 import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
-class AndroidLibraryConventionPlugin : ConventionPlugin({
-    with(pluginManager) {
-        apply("org.jetbrains.kotlin.multiplatform")
-        apply("com.android.kotlin.multiplatform.library")
-    }
-
-    configureKotlin()
-    extensions.configure(KotlinMultiplatformExtension::class.java) {
-        extensions.configure(KotlinMultiplatformAndroidLibraryTarget::class.java) {
-            configureAndroid(this)
-            lint.targetSdk = 35
-            optimization.consumerKeepRules.file("consumer-rules.pro")
+class AndroidLibraryConventionPlugin :
+    ConventionPlugin({
+        with(pluginManager) {
+            apply("org.jetbrains.kotlin.multiplatform")
+            apply("com.android.kotlin.multiplatform.library")
         }
-    }
-    extensions.configure(KotlinMultiplatformExtension::class.java) {
-        sourceSets.configureEach {
-            languageSettings {
-                optIn("kotlin.uuid.ExperimentalUuidApi")
-                optIn("kotlin.time.ExperimentalTime")
+
+        configureKotlin()
+        extensions.configure(KotlinMultiplatformExtension::class.java) {
+            extensions.configure(KotlinMultiplatformAndroidLibraryTarget::class.java) {
+                configureAndroid(this)
+                lint.targetSdk = 35
+                optimization.consumerKeepRules.file("consumer-rules.pro")
             }
         }
-    }
-})
+        extensions.configure(KotlinMultiplatformExtension::class.java) {
+            sourceSets.configureEach {
+                languageSettings {
+                    optIn("kotlin.uuid.ExperimentalUuidApi")
+                    optIn("kotlin.time.ExperimentalTime")
+                }
+            }
+        }
+    })

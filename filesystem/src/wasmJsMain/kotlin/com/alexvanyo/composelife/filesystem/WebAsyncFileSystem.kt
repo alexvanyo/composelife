@@ -48,8 +48,7 @@ class WebAsyncFileSystem(
     private val navigator: org.w3c.dom.Navigator,
 ) : AsyncFileSystem {
 
-    private suspend fun getRoot(): FileSystemDirectoryHandle =
-        getStorageManager(navigator).getDirectory().await()
+    private suspend fun getRoot(): FileSystemDirectoryHandle = getStorageManager(navigator).getDirectory().await()
 
     @Suppress("ReturnCount")
     private suspend fun getHandle(
@@ -83,68 +82,62 @@ class WebAsyncFileSystem(
         return current
     }
 
-    override suspend fun canonicalize(path: Path): Path =
-        withContext(dispatchers.IO) {
-            path
-        }
+    override suspend fun canonicalize(path: Path): Path = withContext(dispatchers.IO) {
+        path
+    }
 
-    override suspend fun metadata(path: Path): FileMetadata =
-        withContext(dispatchers.IO) {
-            metadataOrNull(path) ?: throw IOException("File not found: $path")
-        }
+    override suspend fun metadata(path: Path): FileMetadata = withContext(dispatchers.IO) {
+        metadataOrNull(path) ?: throw IOException("File not found: $path")
+    }
 
-    override suspend fun metadataOrNull(path: Path): FileMetadata? =
-        withContext(dispatchers.IO) {
-            when (val handle = getHandle(path)) {
-                is FileSystemFileHandle -> {
-                    val file = handle.getFile().await()
-                    FileMetadata(
-                        isRegularFile = true,
-                        isDirectory = false,
-                        size = file.size.toDouble().toLong(),
-                        createdAtMillis = null,
-                        lastModifiedAtMillis = file.lastModified.toDouble().toLong(),
-                        lastAccessedAtMillis = null,
-                    )
-                }
-
-                is FileSystemDirectoryHandle -> {
-                    FileMetadata(
-                        isRegularFile = false,
-                        isDirectory = true,
-                        size = null,
-                        createdAtMillis = null,
-                        lastModifiedAtMillis = null,
-                        lastAccessedAtMillis = null,
-                    )
-                }
-
-                else -> null
+    override suspend fun metadataOrNull(path: Path): FileMetadata? = withContext(dispatchers.IO) {
+        when (val handle = getHandle(path)) {
+            is FileSystemFileHandle -> {
+                val file = handle.getFile().await()
+                FileMetadata(
+                    isRegularFile = true,
+                    isDirectory = false,
+                    size = file.size.toDouble().toLong(),
+                    createdAtMillis = null,
+                    lastModifiedAtMillis = file.lastModified.toDouble().toLong(),
+                    lastAccessedAtMillis = null,
+                )
             }
-        }
 
-    override suspend fun exists(path: Path): Boolean =
-        withContext(dispatchers.IO) {
-            metadataOrNull(path) != null
-        }
-
-    override suspend fun list(dir: Path): List<Path> =
-        withContext(dispatchers.IO) {
-            listOrNull(dir) ?: throw IOException("Directory not found: $dir")
-        }
-
-    override suspend fun listOrNull(dir: Path): List<Path>? =
-        withContext(dispatchers.IO) {
-            val handle = getHandle(dir) as? FileSystemDirectoryHandle ?: return@withContext null
-            val result = mutableListOf<Path>()
-            val iterator = getKeysIterator(handle)
-            while (true) {
-                val next = iterator.next().await()
-                if (next.done) break
-                result.add(dir / next.value.toString())
+            is FileSystemDirectoryHandle -> {
+                FileMetadata(
+                    isRegularFile = false,
+                    isDirectory = true,
+                    size = null,
+                    createdAtMillis = null,
+                    lastModifiedAtMillis = null,
+                    lastAccessedAtMillis = null,
+                )
             }
-            result.sorted()
+
+            else -> null
         }
+    }
+
+    override suspend fun exists(path: Path): Boolean = withContext(dispatchers.IO) {
+        metadataOrNull(path) != null
+    }
+
+    override suspend fun list(dir: Path): List<Path> = withContext(dispatchers.IO) {
+        listOrNull(dir) ?: throw IOException("Directory not found: $dir")
+    }
+
+    override suspend fun listOrNull(dir: Path): List<Path>? = withContext(dispatchers.IO) {
+        val handle = getHandle(dir) as? FileSystemDirectoryHandle ?: return@withContext null
+        val result = mutableListOf<Path>()
+        val iterator = getKeysIterator(handle)
+        while (true) {
+            val next = iterator.next().await()
+            if (next.done) break
+            result.add(dir / next.value.toString())
+        }
+        result.sorted()
+    }
 
     override suspend fun listRecursively(dir: Path, followSymlinks: Boolean): Sequence<Path> =
         withContext(dispatchers.IO) {
@@ -171,32 +164,30 @@ class WebAsyncFileSystem(
         TODO("Not yet implemented")
     }
 
-    override suspend fun source(file: Path): Source =
-        withContext(dispatchers.IO) {
-            val handle = getHandle(file) as? FileSystemFileHandle ?: throw IOException("File not found: $file")
-            val fileData = handle.getFile().await()
-            val arrayBuffer = fileData.arrayBuffer().await()
-            val bytes = getInt8Array(arrayBuffer)
-            val buffer = okio.Buffer()
-            for (i in 0 until getInt8ArrayLength(bytes)) {
-                buffer.writeByte(getInt8ArrayValue(bytes, i).toInt())
-            }
-            buffer
+    override suspend fun source(file: Path): Source = withContext(dispatchers.IO) {
+        val handle = getHandle(file) as? FileSystemFileHandle ?: throw IOException("File not found: $file")
+        val fileData = handle.getFile().await()
+        val arrayBuffer = fileData.arrayBuffer().await()
+        val bytes = getInt8Array(arrayBuffer)
+        val buffer = okio.Buffer()
+        for (i in 0 until getInt8ArrayLength(bytes)) {
+            buffer.writeByte(getInt8ArrayValue(bytes, i).toInt())
         }
+        buffer
+    }
 
     override suspend fun <T> read(file: Path, readerAction: BufferedSource.() -> T): T =
         source(file).buffer().use(readerAction)
 
-    override suspend fun sink(file: Path, mustCreate: Boolean): Sink =
-        withContext(dispatchers.IO) {
-            val handle = getHandle(
-                path = file,
-                createFile = true,
-                createIntermediateDirectories = true,
-            ) as? FileSystemFileHandle
-                ?: throw IOException("Could not create file: $file")
-            WebWritableSink(dispatchers, handle, append = false)
-        }
+    override suspend fun sink(file: Path, mustCreate: Boolean): Sink = withContext(dispatchers.IO) {
+        val handle = getHandle(
+            path = file,
+            createFile = true,
+            createIntermediateDirectories = true,
+        ) as? FileSystemFileHandle
+            ?: throw IOException("Could not create file: $file")
+        WebWritableSink(dispatchers, handle, append = false)
+    }
 
     override suspend fun <T> write(file: Path, mustCreate: Boolean, writerAction: BufferedSink.() -> T): T =
         withContext(dispatchers.IO) {
@@ -216,16 +207,15 @@ class WebAsyncFileSystem(
             result
         }
 
-    override suspend fun appendingSink(file: Path, mustExist: Boolean): Sink =
-        withContext(dispatchers.IO) {
-            val handle = getHandle(
-                path = file,
-                createFile = !mustExist,
-                createIntermediateDirectories = !mustExist,
-            ) as? FileSystemFileHandle
-                ?: throw IOException("Could not find/create file: $file")
-            WebWritableSink(dispatchers, handle, append = true)
-        }
+    override suspend fun appendingSink(file: Path, mustExist: Boolean): Sink = withContext(dispatchers.IO) {
+        val handle = getHandle(
+            path = file,
+            createFile = !mustExist,
+            createIntermediateDirectories = !mustExist,
+        ) as? FileSystemFileHandle
+            ?: throw IOException("Could not find/create file: $file")
+        WebWritableSink(dispatchers, handle, append = true)
+    }
 
     override suspend fun createDirectory(dir: Path, mustCreate: Boolean) {
         withContext(dispatchers.IO) {
@@ -247,6 +237,7 @@ class WebAsyncFileSystem(
         }
     }
 
+    @Suppress("ThrowsCount")
     override suspend fun atomicMove(source: Path, target: Path) {
         withContext(dispatchers.IO) {
             val sourceHandle = getHandle(source) ?: throw IOException("Source not found: $source")
@@ -281,9 +272,8 @@ class WebAsyncFileSystem(
         }
     }
 
-    override suspend fun createSymlink(source: Path, target: Path) {
+    override suspend fun createSymlink(source: Path, target: Path): Unit =
         throw IOException("Symlinks not supported in OPFS")
-    }
 
     override suspend fun openZip(zipPath: Path): AsyncFileSystem {
         TODO("Not yet implemented")
@@ -333,8 +323,7 @@ private class WebWritableSink(
 
 @OptIn(ExperimentalWasmJsInterop::class)
 @Suppress("UNUSED_PARAMETER")
-internal fun getStorageManager(navigator: org.w3c.dom.Navigator): StorageManager =
-    js("navigator.storage")
+internal fun getStorageManager(navigator: org.w3c.dom.Navigator): StorageManager = js("navigator.storage")
 
 @OptIn(ExperimentalWasmJsInterop::class)
 internal open external class FileSystemHandle : JsAny {
@@ -387,9 +376,8 @@ internal external class AsyncIteratorResult : JsAny {
 
 @OptIn(ExperimentalWasmJsInterop::class)
 @Suppress("UNUSED_PARAMETER")
-internal fun getHandleSafe(handle: FileSystemDirectoryHandle, name: String): Promise<FileSystemHandle?> =
-    js(
-        """
+internal fun getHandleSafe(handle: FileSystemDirectoryHandle, name: String): Promise<FileSystemHandle?> = js(
+    """
         handle.getFileHandle(name)
             .catch(e => {
                 if (e.name === 'TypeMismatchError') {
@@ -404,7 +392,7 @@ internal fun getHandleSafe(handle: FileSystemDirectoryHandle, name: String): Pro
                 throw e;
             })
         """,
-    )
+)
 
 @OptIn(ExperimentalWasmJsInterop::class)
 @Suppress("UNUSED_PARAMETER")
@@ -412,9 +400,8 @@ internal fun getFileHandleSafe(
     handle: FileSystemDirectoryHandle,
     name: String,
     create: Boolean,
-): Promise<FileSystemFileHandle?> =
-    js(
-        """
+): Promise<FileSystemFileHandle?> = js(
+    """
         handle.getFileHandle(name, { create: create })
             .catch(e => {
                 if (e.name === 'TypeMismatchError' || e.name === 'NotFoundError') {
@@ -423,7 +410,7 @@ internal fun getFileHandleSafe(
                 throw e;
             })
         """,
-    )
+)
 
 @OptIn(ExperimentalWasmJsInterop::class)
 @Suppress("UNUSED_PARAMETER")
@@ -431,9 +418,8 @@ internal fun getDirectoryHandleSafe(
     handle: FileSystemDirectoryHandle,
     name: String,
     create: Boolean,
-): Promise<FileSystemDirectoryHandle?> =
-    js(
-        """
+): Promise<FileSystemDirectoryHandle?> = js(
+    """
         handle.getDirectoryHandle(name, { create: create })
             .catch(e => {
                 if (e.name === 'TypeMismatchError' || e.name === 'NotFoundError') {
@@ -442,13 +428,12 @@ internal fun getDirectoryHandleSafe(
                 throw e;
             })
         """,
-    )
+)
 
 @OptIn(ExperimentalWasmJsInterop::class)
 @Suppress("UNUSED_PARAMETER")
-internal fun removeEntrySafe(handle: FileSystemDirectoryHandle, name: String, recursive: Boolean): Promise<JsAny?> =
-    js(
-        """
+internal fun removeEntrySafe(handle: FileSystemDirectoryHandle, name: String, recursive: Boolean): Promise<JsAny?> = js(
+    """
         handle.removeEntry(name, { recursive: recursive })
             .catch(e => {
                 if (e.name === 'NotFoundError') {
@@ -457,7 +442,7 @@ internal fun removeEntrySafe(handle: FileSystemDirectoryHandle, name: String, re
                 throw e;
             })
         """,
-    )
+)
 
 @OptIn(ExperimentalWasmJsInterop::class)
 @Suppress("UNUSED_PARAMETER")
@@ -466,13 +451,11 @@ internal fun getKeysIterator(handle: FileSystemDirectoryHandle): AsyncIterator =
 
 @OptIn(ExperimentalWasmJsInterop::class)
 @Suppress("UNUSED_PARAMETER")
-internal fun createWritableOptions(keepExistingData: Boolean): JsAny =
-    js("({ keepExistingData: keepExistingData })")
+internal fun createWritableOptions(keepExistingData: Boolean): JsAny = js("({ keepExistingData: keepExistingData })")
 
 @OptIn(ExperimentalWasmJsInterop::class)
 @Suppress("UNUSED_PARAMETER")
-internal fun getInt8Array(buffer: JsAny): JsAny =
-    js("new Int8Array(buffer)")
+internal fun getInt8Array(buffer: JsAny): JsAny = js("new Int8Array(buffer)")
 
 @OptIn(ExperimentalWasmJsInterop::class)
 internal fun createInt8ArrayFromKotlin(array: ByteArray): JsAny {
@@ -485,20 +468,16 @@ internal fun createInt8ArrayFromKotlin(array: ByteArray): JsAny {
 
 @OptIn(ExperimentalWasmJsInterop::class)
 @Suppress("UNUSED_PARAMETER")
-internal fun createInt8ArrayOfSize(size: Int): JsAny =
-    js("new Int8Array(size)")
+internal fun createInt8ArrayOfSize(size: Int): JsAny = js("new Int8Array(size)")
 
 @OptIn(ExperimentalWasmJsInterop::class)
 @Suppress("UNUSED_PARAMETER")
-internal fun setInt8ArrayValue(array: JsAny, index: Int, value: Byte): Unit =
-    js("array[index] = value")
+internal fun setInt8ArrayValue(array: JsAny, index: Int, value: Byte): Unit = js("array[index] = value")
 
 @OptIn(ExperimentalWasmJsInterop::class)
 @Suppress("UNUSED_PARAMETER")
-internal fun getInt8ArrayLength(array: JsAny): Int =
-    js("array.length")
+internal fun getInt8ArrayLength(array: JsAny): Int = js("array.length")
 
 @OptIn(ExperimentalWasmJsInterop::class)
 @Suppress("UNUSED_PARAMETER")
-internal fun getInt8ArrayValue(array: JsAny, index: Int): Byte =
-    js("array[index]")
+internal fun getInt8ArrayValue(array: JsAny, index: Int): Byte = js("array[index]")

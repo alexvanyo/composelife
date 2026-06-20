@@ -142,6 +142,7 @@ fun <T : Any> rememberNavDisplayState(
 ): NavDisplayState<T> {
     val targetState = when (navigationEventTransitionState) {
         NavigationEventTransitionState.Idle -> TargetState.Single(sceneState.currentScene)
+
         is NavigationEventTransitionState.InProgress -> {
             val previous = sceneState.previousScenes.lastOrNull()
             if (previous != null) {
@@ -158,6 +159,7 @@ fun <T : Any> rememberNavDisplayState(
     }
     val overlayTargetState = when (navigationEventTransitionState) {
         NavigationEventTransitionState.Idle -> TargetState.Single(sceneState.overlayScenes.lastOrNull())
+
         is NavigationEventTransitionState.InProgress -> {
             val previous = sceneState.overlayScenes.getOrNull(sceneState.overlayScenes.lastIndex - 1)
             if (previous != null) {
@@ -180,7 +182,7 @@ fun <T : Any> rememberNavDisplayState(
     )
     val overlayAnimatedContentState = rememberAnimatedContentState(
         targetState = overlayTargetState,
-        contentKey = { it?.let { it::class to it.key } },
+        contentKey = { state -> state?.let { it::class to it.key } },
         label = "rememberNavDisplayStateOverlayTargetState",
     )
 
@@ -195,6 +197,7 @@ fun <T : Any> rememberNavDisplayState(
                     targetState.provisional::class to targetState.provisional.key,
                 )
             }
+
             is TargetState.Single<Scene<T>> -> {
                 listOf(
                     targetState.current::class to targetState.current.key,
@@ -209,6 +212,7 @@ fun <T : Any> rememberNavDisplayState(
                     provisional?.let { it::class to it.key },
                 )
             }
+
             is TargetState.Single<OverlayScene<T>?> -> {
                 val current = overlayTargetState.current
                 listOfNotNull(
@@ -318,13 +322,16 @@ fun <T : Any> MaterialPredictiveNavDisplay(
                             is ContentStatus.Appearing,
                             is ContentStatus.Disappearing,
                             -> spring()
+
                             ContentStatus.NotVisible,
                             ContentStatus.Visible,
                             -> when (this@animateFloat.targetState) {
                                 is ContentStatus.Appearing,
                                 is ContentStatus.Disappearing,
                                 -> spring()
+
                                 ContentStatus.NotVisible -> tween(durationMillis = 90)
+
                                 ContentStatus.Visible -> tween(durationMillis = 220, delayMillis = 90)
                             }
                         }
@@ -345,11 +352,15 @@ fun <T : Any> MaterialPredictiveNavDisplay(
                 }.apply {
                     when (contentStatusTargetState) {
                         is ContentStatus.Appearing -> value = null
+
                         is ContentStatus.Disappearing -> if (contentStatusTargetState.progressToNotVisible >= 0.01f) {
                             // Only save that we were disappearing if the progress is at least 1% along
                             value = contentStatusTargetState
                         }
-                        ContentStatus.NotVisible -> Unit // Preserve the previous value of wasDisappearing
+
+                        ContentStatus.NotVisible -> Unit
+
+                        // Preserve the previous value of wasDisappearing
                         ContentStatus.Visible -> value = null
                     }
                 }
@@ -368,6 +379,7 @@ fun <T : Any> MaterialPredictiveNavDisplay(
                 ) {
                     when (it) {
                         is ContentStatus.Appearing -> 0.dp
+
                         is ContentStatus.Disappearing -> {
                             val metadata = it.metadata
                             lerp(
@@ -380,6 +392,7 @@ fun <T : Any> MaterialPredictiveNavDisplay(
                                 else -> 0f
                             }
                         }
+
                         ContentStatus.NotVisible -> {
                             8.dp * when (lastDisappearingValue?.metadata?.latestEvent?.swipeEdge) {
                                 NavigationEvent.EDGE_LEFT -> -1f
@@ -387,6 +400,7 @@ fun <T : Any> MaterialPredictiveNavDisplay(
                                 else -> 0f
                             }
                         }
+
                         ContentStatus.Visible -> 0.dp
                     }
                 }
@@ -405,6 +419,7 @@ fun <T : Any> MaterialPredictiveNavDisplay(
                 ) {
                     when (it) {
                         is ContentStatus.Appearing -> 0.5f
+
                         is ContentStatus.Disappearing -> {
                             when (it.metadata.latestEvent.swipeEdge) {
                                 NavigationEvent.EDGE_LEFT -> 1f
@@ -412,6 +427,7 @@ fun <T : Any> MaterialPredictiveNavDisplay(
                                 else -> 0.5f
                             }
                         }
+
                         ContentStatus.NotVisible -> {
                             when (lastDisappearingValue?.metadata?.latestEvent?.swipeEdge) {
                                 NavigationEvent.EDGE_LEFT -> 1f
@@ -419,6 +435,7 @@ fun <T : Any> MaterialPredictiveNavDisplay(
                                 else -> 0.5f
                             }
                         }
+
                         ContentStatus.Visible -> 0.5f
                     }
                 }
@@ -493,7 +510,7 @@ fun <T : Any> MaterialPredictiveNavDisplay(
                 // If the entry is not in the backstack at all, assume that it is disappearing after being popped, and
                 // render it on top of everything still in the backstack
                 (sceneState.overlayScenes.reversed())
-                    .indexOfLast { it::class to it.key == scene?.let { it::class to it.key } }
+                    .indexOfLast { it::class to it.key == scene?.let { s -> s::class to s.key } }
             },
             contentSizeAnimationSpec = contentSizeAnimationSpec,
             animateInternalContentSizeChanges = animateInternalContentSizeChanges,

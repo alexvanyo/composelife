@@ -66,9 +66,7 @@ interface WatchFaceConfigState : Updatable {
 }
 
 @Composable
-fun rememberWatchFaceConfigState(
-    editorSession: EditorSession,
-): WatchFaceConfigState {
+fun rememberWatchFaceConfigState(editorSession: EditorSession): WatchFaceConfigState {
     val coroutineScope = rememberCoroutineScope()
 
     var preview: ResourceState<ImageBitmap> by remember { mutableStateOf(ResourceState.Loading) }

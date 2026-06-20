@@ -43,23 +43,22 @@ import java.awt.dnd.DropTargetDropEvent
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-actual fun Modifier.cellStateDragAndDropSource(getCellState: () -> CellState): Modifier =
-    dragAndDropSource { offset ->
-        DragAndDropTransferData(
-            transferable = DragAndDropTransferable(
-                transferable = StringSelection(
-                    RunLengthEncodedCellStateSerializer.serializeToString(getCellState())
-                        .joinToString("\n"),
-                ),
+actual fun Modifier.cellStateDragAndDropSource(getCellState: () -> CellState): Modifier = dragAndDropSource { offset ->
+    DragAndDropTransferData(
+        transferable = DragAndDropTransferable(
+            transferable = StringSelection(
+                RunLengthEncodedCellStateSerializer.serializeToString(getCellState())
+                    .joinToString("\n"),
             ),
-            supportedActions = listOf(
-                DragAndDropTransferAction.Copy,
-                DragAndDropTransferAction.Move,
-                DragAndDropTransferAction.Link,
-            ),
-            dragDecorationOffset = offset,
-        )
-    }
+        ),
+        supportedActions = listOf(
+            DragAndDropTransferAction.Copy,
+            DragAndDropTransferAction.Move,
+            DragAndDropTransferAction.Link,
+        ),
+        dragDecorationOffset = offset,
+    )
+}
 
 @OptIn(ExperimentalComposeUiApi::class)
 internal actual fun cellStateShouldStartDragAndDrop(event: DragAndDropEvent): Boolean =
@@ -107,8 +106,7 @@ internal actual class DragAndDropSession {
     }
 }
 
-private fun java.awt.Point.toOffset(): Offset =
-    Offset(x.toFloat(), y.toFloat())
+private fun java.awt.Point.toOffset(): Offset = Offset(x.toFloat(), y.toFloat())
 
 @OptIn(ExperimentalComposeUiApi::class)
 private val DragAndDropEvent.positionInRoot get() =
@@ -122,7 +120,6 @@ private val DragAndDropEvent.positionInRoot get() =
 internal actual suspend fun awaitAndParseCellState(
     session: DragAndDropSession,
     cellStateParser: CellStateParser,
-): DeserializationResult =
-    cellStateParser.parseCellState(
-        snapshotFlow { session.dragData }.filterNotNull().first(),
-    )
+): DeserializationResult = cellStateParser.parseCellState(
+    snapshotFlow { session.dragData }.filterNotNull().first(),
+)

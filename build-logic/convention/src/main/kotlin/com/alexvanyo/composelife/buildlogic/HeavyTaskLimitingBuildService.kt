@@ -28,12 +28,14 @@ interface HeavyTaskLimitingBuildService : BuildService<BuildServiceParameters.No
 }
 
 val Project.heavyTaskLimitingBuildService: Provider<HeavyTaskLimitingBuildService>
-    get() = gradle.sharedServices.registerIfAbsent(
-        HeavyTaskLimitingBuildService.createKey(),
-        HeavyTaskLimitingBuildService::class.java,
-    ) {
-        maxParallelUsages.set(
-            providers.gradleProperty("com.alexvanyo.composelife.maxConcurrentHeavyTasks")
-                .map { value -> value.toIntOrNull() },
-        )
-    }
+    get() =
+        gradle.sharedServices.registerIfAbsent(
+            HeavyTaskLimitingBuildService.createKey(),
+            HeavyTaskLimitingBuildService::class.java,
+        ) {
+            maxParallelUsages.set(
+                providers
+                    .gradleProperty("com.alexvanyo.composelife.maxConcurrentHeavyTasks")
+                    .map { value -> value.toIntOrNull() },
+            )
+        }

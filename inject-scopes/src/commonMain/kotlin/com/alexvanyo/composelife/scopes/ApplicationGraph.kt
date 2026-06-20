@@ -26,8 +26,6 @@ interface ApplicationGraph {
     @ContributesTo(GlobalScope::class)
     @GraphExtension.Factory
     fun interface Factory {
-        fun create(
-            @Provides applicationGraphArguments: ApplicationGraphArguments,
-        ): ApplicationGraph
+        fun create(@Provides applicationGraphArguments: ApplicationGraphArguments): ApplicationGraph
     }
 }

@@ -20,13 +20,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 
 @Composable
-actual fun rememberSpatialController(): SpatialController =
-    remember {
-        object : SpatialController {
-            override val hasXrSpatialFeature: Boolean = false
-            override val isSpatialUiEnabled: Boolean = false
-            override var isFullSpaceMode: Boolean
-                get() = false
-                set(value) = Unit
-        }
+actual fun rememberSpatialController(): SpatialController = remember {
+    object : SpatialController {
+        override val hasXrSpatialFeature: Boolean = false
+        override val isSpatialUiEnabled: Boolean = false
+        override var isFullSpaceMode: Boolean
+            get() = false
+            set(value) = Unit
     }
+}

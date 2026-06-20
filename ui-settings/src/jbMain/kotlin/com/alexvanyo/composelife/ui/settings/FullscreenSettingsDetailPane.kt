@@ -107,7 +107,8 @@ class FullscreenSettingsDetailPaneCtx(
 
     companion object {
         private val lambda:
-            @Composable context(SettingUiCtx, PatternCollectionRepository) (
+            @Composable context(SettingUiCtx, PatternCollectionRepository)
+            (
                 fullscreenSettingsDetailPaneState: FullscreenSettingsDetailPaneState,
                 onBackButtonPressed: () -> Unit,
                 modifier: Modifier,
@@ -118,9 +119,9 @@ class FullscreenSettingsDetailPaneCtx(
     }
 }
 
-context(ctx: FullscreenSettingsDetailPaneCtx)
 @Suppress("DEPRECATION")
 @Composable
+context(ctx: FullscreenSettingsDetailPaneCtx)
 fun FullscreenSettingsDetailPane(
     fullscreenSettingsDetailPaneState: FullscreenSettingsDetailPaneState,
     onBackButtonPressed: () -> Unit,
@@ -128,11 +129,11 @@ fun FullscreenSettingsDetailPane(
 ) = ctx(fullscreenSettingsDetailPaneState, onBackButtonPressed, modifier)
 // endregion templated-ctx
 
+@Composable
 context(
     _: SettingUiCtx,
-_: PatternCollectionRepository,
+    _: PatternCollectionRepository,
 )
-@Composable
 private fun FullscreenSettingsDetailPane(
     fullscreenSettingsDetailPaneState: FullscreenSettingsDetailPaneState,
     onBackButtonPressed: () -> Unit,
@@ -152,13 +153,13 @@ private fun FullscreenSettingsDetailPane(
     )
 }
 
-context(
-    _: SettingUiCtx,
-_: PatternCollectionRepository,
-)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Suppress("LongMethod", "LongParameterList")
 @Composable
+context(
+    _: SettingUiCtx,
+    _: PatternCollectionRepository,
+)
 private fun SettingsCategoryDetail(
     settingsCategory: SettingsCategory,
     detailScrollState: ScrollState,
@@ -183,6 +184,7 @@ private fun SettingsCategoryDetail(
                 modifier = modifier,
             )
         }
+
         SettingsCategory.PatternCollections -> {
             PatternCollectionsDetail(
                 detailScrollState = detailScrollState,
@@ -196,10 +198,10 @@ private fun SettingsCategoryDetail(
     }
 }
 
-context(_: SettingUiCtx)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Suppress("LongMethod", "LongParameterList")
 @Composable
+context(_: SettingUiCtx)
 private fun StandardSettingsCategoryDetail(
     settingsCategory: SettingsCategory,
     detailScrollState: ScrollState,
@@ -319,13 +321,13 @@ private fun StandardSettingsCategoryDetail(
     }
 }
 
-context(
-    _: SettingUiCtx,
-patternCollectionRepository: PatternCollectionRepository,
-)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Suppress("LongMethod", "LongParameterList")
 @Composable
+context(
+    _: SettingUiCtx,
+    patternCollectionRepository: PatternCollectionRepository,
+)
 private fun PatternCollectionsDetail(
     detailScrollState: ScrollState,
     showAppBar: Boolean,

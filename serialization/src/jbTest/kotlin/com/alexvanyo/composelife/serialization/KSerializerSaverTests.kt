@@ -67,6 +67,7 @@ class KSerializerSaverTests : BaseKmpTest() {
 }
 
 @Serializable
+@Suppress("AbstractClassCanBeInterface")
 private sealed class SealedClass {
     companion object {
         val Saver get() = serializer().saver()
@@ -88,9 +89,7 @@ private data class A(
 
 @Suppress("UnusedPrivateClass")
 @Serializable
-private data class B(
-    val int: Int,
-) : SealedClass() {
+private data class B(val int: Int) : SealedClass() {
     companion object {
         val Saver get() = serializer().saver()
     }

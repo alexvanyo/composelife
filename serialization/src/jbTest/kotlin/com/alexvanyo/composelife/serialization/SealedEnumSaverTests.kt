@@ -65,7 +65,9 @@ class SealedEnumSaverTests : BaseKmpTest() {
 }
 
 private enum class TestEnum {
-    First, Second, Third
+    First,
+    Second,
+    Third,
 }
 
 private val testEnumSealedEnum = createSealedEnumFromEnum<TestEnum>()

@@ -39,10 +39,7 @@ import androidx.core.view.WindowInsetsCompat
  * composition hierarchy.
  */
 @Composable
-actual fun ProvideLocalWindowInsetsHolder(
-    modifier: Modifier,
-    content: @Composable () -> Unit,
-) {
+actual fun ProvideLocalWindowInsetsHolder(modifier: Modifier, content: @Composable () -> Unit) {
     Box(
         propagateMinConstraints = true,
         modifier = modifier,

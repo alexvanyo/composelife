@@ -16,4 +16,5 @@
 
 package com.alexvanyo.composelife.scopes
 
+@Suppress("AbstractClassCanBeInterface")
 abstract class UiScope private constructor()

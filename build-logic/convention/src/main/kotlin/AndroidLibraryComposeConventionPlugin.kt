@@ -19,15 +19,16 @@ import com.alexvanyo.composelife.buildlogic.configureAndroidCompose
 import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
-class AndroidLibraryComposeConventionPlugin : ConventionPlugin({
-    with(pluginManager) {
-        apply("com.android.kotlin.multiplatform.library")
-        apply("org.jetbrains.kotlin.plugin.compose")
-    }
-
-    extensions.configure(KotlinMultiplatformExtension::class.java) {
-        extensions.configure(KotlinMultiplatformAndroidLibraryTarget::class.java) {
-            configureAndroidCompose(this)
+class AndroidLibraryComposeConventionPlugin :
+    ConventionPlugin({
+        with(pluginManager) {
+            apply("com.android.kotlin.multiplatform.library")
+            apply("org.jetbrains.kotlin.plugin.compose")
         }
-    }
-})
+
+        extensions.configure(KotlinMultiplatformExtension::class.java) {
+            extensions.configure(KotlinMultiplatformAndroidLibraryTarget::class.java) {
+                configureAndroidCompose(this)
+            }
+        }
+    })

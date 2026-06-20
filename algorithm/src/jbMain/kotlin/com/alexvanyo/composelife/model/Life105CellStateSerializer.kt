@@ -20,10 +20,9 @@ import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 
 object Life105CellStateSerializer : FixedFormatCellStateSerializer {
-
     override val format: CellStateFormat.FixedFormat = CellStateFormat.FixedFormat.Life105
 
-    @Suppress("LongMethod", "ComplexMethod", "NestedBlockDepth", "ReturnCount")
+    @Suppress("LongMethod", "ComplexMethod", "CyclomaticComplexMethod", "NestedBlockDepth", "ReturnCount")
     override fun deserializeToCellState(lines: Sequence<String>): DeserializationResult {
         val warnings = mutableListOf<ParameterizedString>()
         var lineIndex = 0
@@ -44,7 +43,8 @@ object Life105CellStateSerializer : FixedFormatCellStateSerializer {
         if (headerLine != "#Life 1.05") {
             return DeserializationResult.Unsuccessful(
                 warnings = warnings,
-                errors = listOf(
+                errors =
+                listOf(
                     UnexpectedHeaderMessage(headerLine),
                 ),
             )
@@ -67,55 +67,59 @@ object Life105CellStateSerializer : FixedFormatCellStateSerializer {
             lineIndex++
         }
 
-        val ruleIterator = iterator {
-            lineAfterDescriptions?.let { yield(it) }
-            yieldAll(iterator)
-        }
+        val ruleIterator =
+            iterator {
+                lineAfterDescriptions?.let { yield(it) }
+                yieldAll(iterator)
+            }
 
-        val lineAfterRule = if (ruleIterator.hasNext()) {
-            val line = ruleIterator.next()
-            if (line.startsWith("#N")) {
-                if (line != "#N") {
-                    warnings.add(UnexpectedInputMessage(line, lineIndex + 1, 3))
-                }
-                // Normal ruleset, continue
-                lineIndex++
-                null
-            } else if (line.startsWith("#R")) {
-                val ruleRegex = Regex("""#R (\d+)/(\d+)""")
-                val matchResult = ruleRegex.matchEntire(line)
-                if (matchResult == null) {
-                    return DeserializationResult.Unsuccessful(
-                        warnings = warnings,
-                        errors = listOf(
-                            UnexpectedInputMessage(line, lineIndex + 1, 3),
-                        ),
-                    )
-                } else {
-                    val survival = matchResult.groupValues[1].map { it.digitToInt() }.toSet()
-                    val birth = matchResult.groupValues[2].map { it.digitToInt() }.toSet()
-
-                    if (survival != setOf(2, 3) || birth != setOf(3)) {
+        val lineAfterRule =
+            if (ruleIterator.hasNext()) {
+                val line = ruleIterator.next()
+                if (line.startsWith("#N")) {
+                    if (line != "#N") {
+                        warnings.add(UnexpectedInputMessage(line, lineIndex + 1, 3))
+                    }
+                    // Normal ruleset, continue
+                    lineIndex++
+                    null
+                } else if (line.startsWith("#R")) {
+                    val ruleRegex = Regex("""#R (\d+)/(\d+)""")
+                    val matchResult = ruleRegex.matchEntire(line)
+                    if (matchResult == null) {
                         return DeserializationResult.Unsuccessful(
                             warnings = warnings,
-                            errors = listOf(RuleNotSupportedMessage),
+                            errors =
+                            listOf(
+                                UnexpectedInputMessage(line, lineIndex + 1, 3),
+                            ),
                         )
                     } else {
-                        lineIndex++
-                        null
+                        val survival = matchResult.groupValues[1].map { it.digitToInt() }.toSet()
+                        val birth = matchResult.groupValues[2].map { it.digitToInt() }.toSet()
+
+                        if (survival != setOf(2, 3) || birth != setOf(3)) {
+                            return DeserializationResult.Unsuccessful(
+                                warnings = warnings,
+                                errors = listOf(RuleNotSupportedMessage),
+                            )
+                        } else {
+                            lineIndex++
+                            null
+                        }
                     }
+                } else {
+                    line
                 }
             } else {
-                line
+                null
             }
-        } else {
-            null
-        }
 
-        val blockIterator = iterator {
-            lineAfterRule?.let { yield(it) }
-            yieldAll(ruleIterator)
-        }
+        val blockIterator =
+            iterator {
+                lineAfterRule?.let { yield(it) }
+                yieldAll(ruleIterator)
+            }
 
         val points = mutableSetOf<IntOffset>()
 
@@ -134,7 +138,8 @@ object Life105CellStateSerializer : FixedFormatCellStateSerializer {
                     if (matchResult == null) {
                         return DeserializationResult.Unsuccessful(
                             warnings = warnings,
-                            errors = listOf(
+                            errors =
+                            listOf(
                                 UnexpectedInputMessage(line, lineIndex + 1, 3),
                             ),
                         )
@@ -145,35 +150,39 @@ object Life105CellStateSerializer : FixedFormatCellStateSerializer {
                         rowIndex = 0
                     }
                 }
+
                 rowRegex.matches(line) -> {
                     val currentBlockOffset = blockOffset
                     if (currentBlockOffset == null) {
                         return DeserializationResult.Unsuccessful(
                             warnings = warnings,
-                            errors = listOf(
+                            errors =
+                            listOf(
                                 UnexpectedInputMessage(line, lineIndex + 1, 1),
                             ),
                         )
                     } else {
                         points.addAll(
-                            line.withIndex()
+                            line
+                                .withIndex()
                                 .filter { (_, c) ->
                                     when (c) {
                                         '.' -> false
                                         '*' -> true
                                         else -> error("Characters should not occur due to matched regex!")
                                     }
-                                }
-                                .map { (columnIndex, _) -> IntOffset(columnIndex, rowIndex) + currentBlockOffset },
+                                }.map { (columnIndex, _) -> IntOffset(columnIndex, rowIndex) + currentBlockOffset },
                         )
 
                         rowIndex++
                     }
                 }
+
                 else -> {
                     return DeserializationResult.Unsuccessful(
                         warnings = warnings,
-                        errors = listOf(
+                        errors =
+                        listOf(
                             UnexpectedInputMessage(line, lineIndex + 1, 1),
                         ),
                     )

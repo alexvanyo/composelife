@@ -37,6 +37,7 @@ import kotlin.test.assertNotNull
 
 @OptIn(ExperimentalTestApi::class)
 @RunWith(KmpAndroidJUnit4::class)
+@Suppress("UnsafeCallOnNullableType")
 class ClipboardStateTests {
 
     @Test
@@ -109,5 +110,4 @@ class ClipboardStateTests {
     }
 }
 
-private fun Configuration.isWatch() =
-    uiMode and Configuration.UI_MODE_TYPE_MASK == Configuration.UI_MODE_TYPE_WATCH
+private fun Configuration.isWatch() = uiMode and Configuration.UI_MODE_TYPE_MASK == Configuration.UI_MODE_TYPE_WATCH

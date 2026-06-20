@@ -268,8 +268,10 @@ fun PlatformEdgeToEdgeDialog(
                         },
                     )
                 }
+
                 TypedValue.TYPE_FRACTION ->
                     Modifier.fillMaxWidth(fraction = typedValue.getFraction(1f, 1f))
+
                 else -> Modifier
             }
         } else {
@@ -283,10 +285,12 @@ fun PlatformEdgeToEdgeDialog(
         }.apply {
             when (predictiveBackState) {
                 CompletablePredictiveBackState.NotRunning -> value = null
+
                 is CompletablePredictiveBackState.Running -> if (predictiveBackState.progress >= 0.01f) {
                     // Only save that we were disappearing if the progress is at least 1% along
                     value = predictiveBackState
                 }
+
                 CompletablePredictiveBackState.Completed -> Unit
             }
         }
@@ -302,6 +306,7 @@ fun PlatformEdgeToEdgeDialog(
         val translationX by animateDpAsState(
             targetValue = when (predictiveBackState) {
                 CompletablePredictiveBackState.NotRunning -> 0.dp
+
                 is CompletablePredictiveBackState.Running -> lerp(
                     0.dp,
                     8.dp,
@@ -311,6 +316,7 @@ fun PlatformEdgeToEdgeDialog(
                     BackEventEdge.Left -> -1f
                     BackEventEdge.Right -> 1f
                 }
+
                 CompletablePredictiveBackState.Completed -> {
                     8.dp * when (lastRunningValue?.backEventEdge) {
                         null, BackEventEdge.None -> 0f
@@ -324,11 +330,13 @@ fun PlatformEdgeToEdgeDialog(
         val pivotFractionX by animateFloatAsState(
             targetValue = when (predictiveBackState) {
                 CompletablePredictiveBackState.NotRunning -> 0.5f
+
                 is CompletablePredictiveBackState.Running -> when (predictiveBackState.backEventEdge) {
                     BackEventEdge.None -> 0.5f
                     BackEventEdge.Left -> 1f
                     BackEventEdge.Right -> 0f
                 }
+
                 CompletablePredictiveBackState.Completed -> {
                     when (lastRunningValue?.backEventEdge) {
                         null, BackEventEdge.None -> 0.5f
@@ -367,7 +375,8 @@ private class DialogWrapper(
     layoutDirection: LayoutDirection,
     density: Density,
     dialogId: UUID,
-) : ComponentDialog(ContextThemeWrapper(composeView.context, windowTheme)), ViewRootForInspector {
+) : ComponentDialog(ContextThemeWrapper(composeView.context, windowTheme)),
+    ViewRootForInspector {
 
     private val dialogLayout: DialogLayout
 
@@ -441,10 +450,7 @@ private class DialogWrapper(
         }
     }
 
-    fun setContent(
-        parentComposition: CompositionContext,
-        children: @Composable () -> Unit,
-    ) {
+    fun setContent(parentComposition: CompositionContext, children: @Composable () -> Unit) {
         dialogLayout.setContent(parentComposition, children)
     }
 
@@ -508,10 +514,9 @@ private class DialogWrapper(
 }
 
 @Suppress("ViewConstructor")
-private class DialogLayout(
-    context: Context,
-    override val window: Window,
-) : AbstractComposeView(context), DialogWindowProvider {
+private class DialogLayout(context: Context, override val window: Window) :
+    AbstractComposeView(context),
+    DialogWindowProvider {
 
     private var content: @Composable () -> Unit by mutableStateOf({})
 
@@ -533,10 +538,7 @@ private class DialogLayout(
 }
 
 @Composable
-private fun DialogLayout(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
+private fun DialogLayout(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Layout(
         content = content,
         modifier = modifier,

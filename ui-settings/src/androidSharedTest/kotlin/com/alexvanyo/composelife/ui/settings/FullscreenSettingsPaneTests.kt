@@ -77,10 +77,11 @@ val UiGraph.fullscreenSettingsPaneTestsCtx: FullscreenSettingsPaneTestsCtx get()
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalTestApi::class)
-class FullscreenSettingsPaneTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+class FullscreenSettingsPaneTests :
+    BaseUiInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
 
-) {
+    ) {
     @Test
     fun show_list_screen_is_displayed_correctly_with_compact_width() = runUiTest { uiGraph ->
         val ctx = uiGraph.fullscreenSettingsPaneTestsCtx
@@ -603,9 +604,9 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest(
     fun no_detail_to_scroll_to_is_displayed_correctly() = runUiTest { uiGraph ->
         val ctx = uiGraph.fullscreenSettingsPaneTestsCtx
 
-        var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Visual)
+        val settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Visual)
         var settingToScrollTo: Setting? by mutableStateOf(null)
-        var isDetailPresent by mutableStateOf(true)
+        val isDetailPresent by mutableStateOf(true)
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -660,9 +661,9 @@ class FullscreenSettingsPaneTests : BaseUiInjectTest(
     fun detail_to_scroll_to_is_displayed_correctly() = runUiTest { uiGraph ->
         val ctx = uiGraph.fullscreenSettingsPaneTestsCtx
 
-        var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Visual)
+        val settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Visual)
         var settingToScrollTo: Setting? by mutableStateOf(Setting.CellShapeConfig)
-        var isDetailPresent by mutableStateOf(true)
+        val isDetailPresent by mutableStateOf(true)
 
         lateinit var resolver: (ParameterizedString) -> String
 

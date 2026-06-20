@@ -53,13 +53,12 @@ class AlgorithmImplementationUiCtx(
         ),
     )
     @Composable
-    operator fun invoke(
-        modifier: Modifier = Modifier,
-    ) = lambda(preferencesHolder, composeLifePreferences, modifier)
+    operator fun invoke(modifier: Modifier = Modifier) = lambda(preferencesHolder, composeLifePreferences, modifier)
 
     companion object {
         private val lambda:
-            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences) (
+            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences)
+            (
                 modifier: Modifier,
             ) -> Unit =
             { modifier ->
@@ -68,22 +67,18 @@ class AlgorithmImplementationUiCtx(
     }
 }
 
-context(ctx: AlgorithmImplementationUiCtx)
 @Suppress("DEPRECATION")
 @Composable
-fun AlgorithmImplementationUi(
-    modifier: Modifier = Modifier,
-) = ctx(modifier)
+context(ctx: AlgorithmImplementationUiCtx)
+fun AlgorithmImplementationUi(modifier: Modifier = Modifier) = ctx(modifier)
 // endregion templated-ctx
 
+@Composable
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,
-composeLifePreferences: ComposeLifePreferences,
+    composeLifePreferences: ComposeLifePreferences,
 )
-@Composable
-private fun AlgorithmImplementationUi(
-    modifier: Modifier = Modifier,
-) {
+private fun AlgorithmImplementationUi(modifier: Modifier = Modifier) {
     AlgorithmImplementationUi(
         algorithmChoice = preferencesHolder.preferences.algorithmChoice,
         setAlgorithmChoice = composeLifePreferences::setAlgorithmChoice,
@@ -112,6 +107,7 @@ fun AlgorithmImplementationUi(
                     when (option) {
                         AlgorithmImplementationDropdownOption.HashLifeAlgorithm ->
                             AlgorithmType.HashLifeAlgorithm
+
                         AlgorithmImplementationDropdownOption.NaiveAlgorithm ->
                             AlgorithmType.NaiveAlgorithm
                     },

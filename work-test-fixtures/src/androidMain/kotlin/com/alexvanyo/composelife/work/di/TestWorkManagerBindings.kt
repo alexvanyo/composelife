@@ -47,18 +47,16 @@ interface TestWorkManagerBindings {
         @Provides
         internal fun providesWorkerFactoryClassNameMap(
             workerFactoryClassMap: Map<KClass<out ListenableWorker>, AssistedWorkerFactory>,
-        ): Map<String, AssistedWorkerFactory> =
-            workerFactoryClassMap.mapKeys { it.key.java.name }
+        ): Map<String, AssistedWorkerFactory> = workerFactoryClassMap.mapKeys { it.key.java.name }
 
         @Provides
         internal fun providesWorkManagerConfiguration(
             injectWorkerFactory: InjectWorkerFactory,
-        ): androidx.work.Configuration =
-            androidx.work.Configuration.Builder()
-                .setWorkerFactory(injectWorkerFactory)
-                .setExecutor(SynchronousExecutor())
-                .setTaskExecutor(SynchronousExecutor())
-                .build()
+        ): androidx.work.Configuration = androidx.work.Configuration.Builder()
+            .setWorkerFactory(injectWorkerFactory)
+            .setExecutor(SynchronousExecutor())
+            .setTaskExecutor(SynchronousExecutor())
+            .build()
 
         @Provides
         @SingleIn(AppScope::class)
@@ -78,14 +76,12 @@ interface TestWorkManagerBindings {
         @SingleIn(AppScope::class)
         @IntoSet
         @ForScope(AppScope::class)
-        internal fun providesWorkManagerIntoUpdatable(): Updatable =
-            object : Updatable {
-                override suspend fun update(): Nothing =
-                    try {
-                        awaitCancellation()
-                    } finally {
-                        WorkManagerTestInitHelper.closeWorkDatabase()
-                    }
+        internal fun providesWorkManagerIntoUpdatable(): Updatable = object : Updatable {
+            override suspend fun update(): Nothing = try {
+                awaitCancellation()
+            } finally {
+                WorkManagerTestInitHelper.closeWorkDatabase()
             }
+        }
     }
 }

@@ -31,11 +31,9 @@ import dev.zacsweers.metro.Provides
 interface FakeClipboardReaderWriterBindings {
     companion object {
         @Provides
-        fun bindsClipboardReader(clipboardReaderWriter: ClipboardReaderWriter): ClipboardReader =
-            clipboardReaderWriter
+        fun bindsClipboardReader(clipboardReaderWriter: ClipboardReaderWriter): ClipboardReader = clipboardReaderWriter
 
         @Provides
-        fun bindsClipboardWriter(clipboardReaderWriter: ClipboardReaderWriter): ClipboardWriter =
-            clipboardReaderWriter
+        fun bindsClipboardWriter(clipboardReaderWriter: ClipboardReaderWriter): ClipboardWriter = clipboardReaderWriter
     }
 }

@@ -16,4 +16,5 @@
 
 package com.alexvanyo.composelife.patterns
 
+@Suppress("BackingPropertyNaming")
 actual val OscillatorPattern.Companion._values: List<OscillatorPattern> get() = values

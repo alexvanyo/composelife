@@ -16,4 +16,5 @@
 
 package com.alexvanyo.composelife.model
 
+@Suppress("BackingPropertyNaming")
 actual val CellStateFormat.FixedFormat._name: String get() = name

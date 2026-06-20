@@ -24,7 +24,7 @@ import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
 import org.junit.runner.RunWith
 
-@Suppress("UnnecessaryAbstractClass")
+@Suppress("UnnecessaryAbstractClass", "AbstractClassCanBeConcreteClass")
 @RunWith(KmpAndroidJUnit4::class)
 actual abstract class BaseInjectTest actual constructor(
     applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph,
@@ -36,7 +36,6 @@ actual abstract class BaseInjectTest actual constructor(
     }
 }
 
-actual fun createApplicationGraphArguments(): ApplicationGraphArguments =
-    object : ApplicationGraphArguments {
-        override val applicationContext: Context = ApplicationProvider.getApplicationContext()
-    }
+actual fun createApplicationGraphArguments(): ApplicationGraphArguments = object : ApplicationGraphArguments {
+    override val applicationContext: Context = ApplicationProvider.getApplicationContext()
+}

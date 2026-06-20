@@ -54,9 +54,9 @@ internal val UiGraph.baseUiInjectTestCtx: BaseUiInjectTestCtx get() =
  *
  * Subclasses must call [runUiTest] instead of [runAppTest] or [runAppTest] to properly initialize dependencies.
  */
-abstract class BaseUiInjectTest(
-    applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph,
-) : BaseInjectTest(applicationGraphCreator) {
+@Suppress("AbstractClassCanBeConcreteClass")
+abstract class BaseUiInjectTest(applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph) :
+    BaseInjectTest(applicationGraphCreator) {
     internal val uiGraphCreator: UiGraph.Factory get() =
         applicationGraph as UiGraph.Factory
 
@@ -73,24 +73,23 @@ fun BaseUiInjectTest.runUiTest(
     appTestContext: CoroutineContext = EmptyCoroutineContext,
     timeout: Duration = 60.seconds,
     testBody: suspend ComposeUiTest.(uiGraph: UiGraph) -> Unit,
-): TestResult =
-    runPlatformUiTest(
-        runTestContext = generalTestDispatcher + appTestContext,
-        timeout = timeout,
-    ) { uiGraphArguments ->
-        val uiGraph = uiGraphCreator.create(uiGraphArguments)
-        val uiUpdatables = uiGraph.baseUiInjectTestCtx.uiUpdatables
-        withUpdatables(appUpdatables + uiUpdatables) {
-            // Let any background jobs launch and stabilize before running the test body
-            @OptIn(kotlin.ExperimentalStdlibApi::class)
-            val testDispatcher = currentCoroutineContext()[ContinuationInterceptor] as? TestDispatcher
-            testDispatcher?.scheduler?.advanceUntilIdle()
-            testBody(
-                this@runPlatformUiTest,
-                uiGraph,
-            )
-        }
+): TestResult = runPlatformUiTest(
+    runTestContext = generalTestDispatcher + appTestContext,
+    timeout = timeout,
+) { uiGraphArguments ->
+    val uiGraph = uiGraphCreator.create(uiGraphArguments)
+    val uiUpdatables = uiGraph.baseUiInjectTestCtx.uiUpdatables
+    withUpdatables(appUpdatables + uiUpdatables) {
+        // Let any background jobs launch and stabilize before running the test body
+        @OptIn(kotlin.ExperimentalStdlibApi::class)
+        val testDispatcher = currentCoroutineContext()[ContinuationInterceptor] as? TestDispatcher
+        testDispatcher?.scheduler?.advanceUntilIdle()
+        testBody(
+            this@runPlatformUiTest,
+            uiGraph,
+        )
     }
+}
 
 @OptIn(ExperimentalTestApi::class)
 internal expect fun runPlatformUiTest(

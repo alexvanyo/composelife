@@ -63,9 +63,10 @@ val UiGraph.cellWindowTestsCtx: CellWindowTestsCtx get() =
     this as CellWindowTestsCtx
 
 @OptIn(ExperimentalTestApi::class)
-class CellWindowTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
+class CellWindowTests :
+    BaseUiInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
 
     @Suppress("LongMethod")
     @Test

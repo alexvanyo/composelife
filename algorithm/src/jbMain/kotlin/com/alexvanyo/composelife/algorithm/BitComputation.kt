@@ -24,42 +24,51 @@ import com.alexvanyo.composelife.model.MacroCell
  * TODO: Fully inline this, to avoid as much shifting as possible.
  */
 internal fun MacroCell.LeafNode.computeNextGeneration(): Int {
-    val n00 = ((this and (1L shl 0x03)) ushr (0x03)) or
-        ((this and (1L shl 0x06)) ushr (0x06 - 1)) or
-        ((this and (1L shl 0x09)) ushr (0x09 - 2)) or
-        ((this and (1L shl 0x0C)) ushr (0x0C - 3))
-    val n01 = ((this and (1L shl 0x07)) ushr (0x07)) or
-        ((this and (1L shl 0x12)) ushr (0x12 - 1)) or
-        ((this and (1L shl 0x0D)) ushr (0x0D - 2)) or
-        ((this and (1L shl 0x18)) ushr (0x18 - 3))
-    val n02 = ((this and (1L shl 0x13)) ushr (0x13)) or
-        ((this and (1L shl 0x16)) ushr (0x16 - 1)) or
-        ((this and (1L shl 0x19)) ushr (0x19 - 2)) or
-        ((this and (1L shl 0x1C)) ushr (0x1C - 3))
-    val n10 = ((this and (1L shl 0x0B)) ushr (0x0B)) or
-        ((this and (1L shl 0x0E)) ushr (0x0E - 1)) or
-        ((this and (1L shl 0x21)) ushr (0x21 - 2)) or
-        ((this and (1L shl 0x24)) ushr (0x24 - 3))
-    val n11 = ((this and (1L shl 0x0F)) ushr (0x0F)) or
-        ((this and (1L shl 0x1A)) ushr (0x1A - 1)) or
-        ((this and (1L shl 0x25)) ushr (0x25 - 2)) or
-        ((this and (1L shl 0x30)) ushr (0x30 - 3))
-    val n12 = ((this and (1L shl 0x1B)) ushr (0x1B)) or
-        ((this and (1L shl 0x1E)) ushr (0x1E - 1)) or
-        ((this and (1L shl 0x31)) ushr (0x31 - 2)) or
-        ((this and (1L shl 0x34)) ushr (0x34 - 3))
-    val n20 = ((this and (1L shl 0x23)) ushr (0x23)) or
-        ((this and (1L shl 0x26)) ushr (0x26 - 1)) or
-        ((this and (1L shl 0x29)) ushr (0x29 - 2)) or
-        ((this and (1L shl 0x2C)) ushr (0x2C - 3))
-    val n21 = ((this and (1L shl 0x27)) ushr (0x27)) or
-        ((this and (1L shl 0x32)) ushr (0x32 - 1)) or
-        ((this and (1L shl 0x2D)) ushr (0x2D - 2)) or
-        ((this and (1L shl 0x38)) ushr (0x38 - 3))
-    val n22 = ((this and (1L shl 0x33)) ushr (0x33)) or
-        ((this and (1L shl 0x36)) ushr (0x36 - 1)) or
-        ((this and (1L shl 0x39)) ushr (0x39 - 2)) or
-        ((this and (1L shl 0x3C)) ushr (0x3C - 3))
+    val n00 =
+        ((this and (1L shl 0x03)) ushr (0x03)) or
+            ((this and (1L shl 0x06)) ushr (0x06 - 1)) or
+            ((this and (1L shl 0x09)) ushr (0x09 - 2)) or
+            ((this and (1L shl 0x0C)) ushr (0x0C - 3))
+    val n01 =
+        ((this and (1L shl 0x07)) ushr (0x07)) or
+            ((this and (1L shl 0x12)) ushr (0x12 - 1)) or
+            ((this and (1L shl 0x0D)) ushr (0x0D - 2)) or
+            ((this and (1L shl 0x18)) ushr (0x18 - 3))
+    val n02 =
+        ((this and (1L shl 0x13)) ushr (0x13)) or
+            ((this and (1L shl 0x16)) ushr (0x16 - 1)) or
+            ((this and (1L shl 0x19)) ushr (0x19 - 2)) or
+            ((this and (1L shl 0x1C)) ushr (0x1C - 3))
+    val n10 =
+        ((this and (1L shl 0x0B)) ushr (0x0B)) or
+            ((this and (1L shl 0x0E)) ushr (0x0E - 1)) or
+            ((this and (1L shl 0x21)) ushr (0x21 - 2)) or
+            ((this and (1L shl 0x24)) ushr (0x24 - 3))
+    val n11 =
+        ((this and (1L shl 0x0F)) ushr (0x0F)) or
+            ((this and (1L shl 0x1A)) ushr (0x1A - 1)) or
+            ((this and (1L shl 0x25)) ushr (0x25 - 2)) or
+            ((this and (1L shl 0x30)) ushr (0x30 - 3))
+    val n12 =
+        ((this and (1L shl 0x1B)) ushr (0x1B)) or
+            ((this and (1L shl 0x1E)) ushr (0x1E - 1)) or
+            ((this and (1L shl 0x31)) ushr (0x31 - 2)) or
+            ((this and (1L shl 0x34)) ushr (0x34 - 3))
+    val n20 =
+        ((this and (1L shl 0x23)) ushr (0x23)) or
+            ((this and (1L shl 0x26)) ushr (0x26 - 1)) or
+            ((this and (1L shl 0x29)) ushr (0x29 - 2)) or
+            ((this and (1L shl 0x2C)) ushr (0x2C - 3))
+    val n21 =
+        ((this and (1L shl 0x27)) ushr (0x27)) or
+            ((this and (1L shl 0x32)) ushr (0x32 - 1)) or
+            ((this and (1L shl 0x2D)) ushr (0x2D - 2)) or
+            ((this and (1L shl 0x38)) ushr (0x38 - 3))
+    val n22 =
+        ((this and (1L shl 0x33)) ushr (0x33)) or
+            ((this and (1L shl 0x36)) ushr (0x36 - 1)) or
+            ((this and (1L shl 0x39)) ushr (0x39 - 2)) or
+            ((this and (1L shl 0x3C)) ushr (0x3C - 3))
 
     val nw = (n00 or (n01 shl 4) or (n10 shl 8) or (n11 shl 12)).toInt().computeNextGeneration()
     val ne = (n01 or (n02 shl 4) or (n11 shl 8) or (n12 shl 12)).toInt().computeNextGeneration()

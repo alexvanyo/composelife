@@ -34,90 +34,66 @@ import okio.openZip
 @Suppress("TooManyFunctions")
 @Inject
 @ContributesBinding(AppScope::class)
-class OkioAsyncFileSystem(
-    private val dispatchers: ComposeLifeDispatchers,
-    private val fileSystem: FileSystem,
-) : AsyncFileSystem {
-    override suspend fun canonicalize(path: Path): Path =
-        withContext(dispatchers.IO) {
-            fileSystem.canonicalize(path)
-        }
+class OkioAsyncFileSystem(private val dispatchers: ComposeLifeDispatchers, private val fileSystem: FileSystem) :
+    AsyncFileSystem {
+    override suspend fun canonicalize(path: Path): Path = withContext(dispatchers.IO) {
+        fileSystem.canonicalize(path)
+    }
 
-    override suspend fun metadata(path: Path): FileMetadata =
-        withContext(dispatchers.IO) {
-            fileSystem.metadata(path)
-        }
+    override suspend fun metadata(path: Path): FileMetadata = withContext(dispatchers.IO) {
+        fileSystem.metadata(path)
+    }
 
-    override suspend fun metadataOrNull(path: Path): FileMetadata? =
-        withContext(dispatchers.IO) {
-            fileSystem.metadataOrNull(path)
-        }
+    override suspend fun metadataOrNull(path: Path): FileMetadata? = withContext(dispatchers.IO) {
+        fileSystem.metadataOrNull(path)
+    }
 
-    override suspend fun exists(path: Path): Boolean =
-        withContext(dispatchers.IO) {
-            fileSystem.exists(path)
-        }
+    override suspend fun exists(path: Path): Boolean = withContext(dispatchers.IO) {
+        fileSystem.exists(path)
+    }
 
-    override suspend fun list(dir: Path): List<Path> =
-        withContext(dispatchers.IO) {
-            fileSystem.list(dir)
-        }
+    override suspend fun list(dir: Path): List<Path> = withContext(dispatchers.IO) {
+        fileSystem.list(dir)
+    }
 
-    override suspend fun listOrNull(dir: Path): List<Path>? =
-        withContext(dispatchers.IO) {
-            fileSystem.listOrNull(dir)
-        }
+    override suspend fun listOrNull(dir: Path): List<Path>? = withContext(dispatchers.IO) {
+        fileSystem.listOrNull(dir)
+    }
 
-    override suspend fun listRecursively(
-        dir: Path,
-        followSymlinks: Boolean,
-    ): Sequence<Path> =
+    override suspend fun listRecursively(dir: Path, followSymlinks: Boolean): Sequence<Path> =
         withContext(dispatchers.IO) {
             fileSystem.listRecursively(dir, followSymlinks)
         }
 
-    override suspend fun openReadOnly(file: Path): FileHandle =
-        withContext(dispatchers.IO) {
-            fileSystem.openReadOnly(file)
-        }
+    override suspend fun openReadOnly(file: Path): FileHandle = withContext(dispatchers.IO) {
+        fileSystem.openReadOnly(file)
+    }
 
-    override suspend fun openReadWrite(
-        file: Path,
-        mustCreate: Boolean,
-        mustExist: Boolean,
-    ): FileHandle =
+    override suspend fun openReadWrite(file: Path, mustCreate: Boolean, mustExist: Boolean): FileHandle =
         withContext(dispatchers.IO) {
             fileSystem.openReadWrite(file, mustCreate, mustExist)
         }
 
-    override suspend fun source(file: Path): Source =
-        withContext(dispatchers.IO) {
-            fileSystem.source(file)
-        }
+    override suspend fun source(file: Path): Source = withContext(dispatchers.IO) {
+        fileSystem.source(file)
+    }
 
-    override suspend fun <T> read(file: Path, readerAction: BufferedSource.() -> T): T =
-        withContext(dispatchers.IO) {
-            fileSystem.read(file, readerAction)
-        }
+    override suspend fun <T> read(file: Path, readerAction: BufferedSource.() -> T): T = withContext(dispatchers.IO) {
+        fileSystem.read(file, readerAction)
+    }
 
-    override suspend fun sink(file: Path, mustCreate: Boolean): Sink =
-        withContext(dispatchers.IO) {
-            fileSystem.sink(file, mustCreate)
-        }
+    override suspend fun sink(file: Path, mustCreate: Boolean): Sink = withContext(dispatchers.IO) {
+        fileSystem.sink(file, mustCreate)
+    }
 
-    override suspend fun <T> write(
-        file: Path,
-        mustCreate: Boolean,
-        writerAction: BufferedSink.() -> T,
-    ): T =
+    override suspend fun <T> write(file: Path, mustCreate: Boolean, writerAction: BufferedSink.() -> T): T =
         withContext(dispatchers.IO) {
             fileSystem.write(file, mustCreate, writerAction)
         }
 
-    override suspend fun appendingSink(file: Path, mustExist: Boolean): Sink =
-        withContext(dispatchers.IO) {
-            fileSystem.appendingSink(file, mustExist)
-        }
+    override suspend fun appendingSink(file: Path, mustExist: Boolean): Sink = withContext(dispatchers.IO) {
+        fileSystem.appendingSink(file, mustExist)
+    }
 
     override suspend fun createDirectory(dir: Path, mustCreate: Boolean) {
         withContext(dispatchers.IO) {
@@ -161,13 +137,12 @@ class OkioAsyncFileSystem(
         }
     }
 
-    override suspend fun openZip(zipPath: Path): AsyncFileSystem =
-        withContext(dispatchers.IO) {
-            OkioAsyncFileSystem(
-                dispatchers = dispatchers,
-                fileSystem = fileSystem.openZip(zipPath),
-            )
-        }
+    override suspend fun openZip(zipPath: Path): AsyncFileSystem = withContext(dispatchers.IO) {
+        OkioAsyncFileSystem(
+            dispatchers = dispatchers,
+            fileSystem = fileSystem.openZip(zipPath),
+        )
+    }
 
     override fun close() {
         fileSystem.close()

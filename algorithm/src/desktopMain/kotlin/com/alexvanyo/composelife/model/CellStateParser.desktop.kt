@@ -23,16 +23,18 @@ import androidx.compose.ui.draganddrop.DragData
 import dev.zacsweers.metro.Inject
 
 @Inject
-actual class CellStateParser(
-    internal actual val flexibleCellStateSerializer: FlexibleCellStateSerializer,
-) {
+actual class CellStateParser(internal actual val flexibleCellStateSerializer: FlexibleCellStateSerializer) {
     @OptIn(ExperimentalComposeUiApi::class)
-    suspend fun parseCellState(dragData: DragData): DeserializationResult =
-        when (dragData) {
-            is DragData.Text -> parseCellState(dragData.readText())
-            else -> DeserializationResult.Unsuccessful(
+    suspend fun parseCellState(dragData: DragData): DeserializationResult = when (dragData) {
+        is DragData.Text -> {
+            parseCellState(dragData.readText())
+        }
+
+        else -> {
+            DeserializationResult.Unsuccessful(
                 warnings = emptyList(),
                 errors = emptyList(),
             )
         }
+    }
 }

@@ -20,8 +20,8 @@ import com.livefront.sealedenum.GenSealedEnum
 import kotlinx.serialization.Serializable
 
 sealed interface CellStateFormat {
-
     data object Unknown : CellStateFormat
+
     data object Life : CellStateFormat
 
     /**
@@ -53,13 +53,13 @@ sealed interface CellStateFormat {
     companion object
 }
 
+@Suppress("BackingPropertyNaming")
 expect val CellStateFormat.FixedFormat._name: String
 
-fun CellStateFormat.Companion.fromFileExtension(fileExtension: String?): CellStateFormat =
-    when (fileExtension) {
-        "cells" -> CellStateFormat.FixedFormat.Plaintext
-        "lif", "life" -> CellStateFormat.Life
-        "rle" -> CellStateFormat.FixedFormat.RunLengthEncoding
-        "mc" -> CellStateFormat.FixedFormat.Macrocell
-        else -> CellStateFormat.Unknown
-    }
+fun CellStateFormat.Companion.fromFileExtension(fileExtension: String?): CellStateFormat = when (fileExtension) {
+    "cells" -> CellStateFormat.FixedFormat.Plaintext
+    "lif", "life" -> CellStateFormat.Life
+    "rle" -> CellStateFormat.FixedFormat.RunLengthEncoding
+    "mc" -> CellStateFormat.FixedFormat.Macrocell
+    else -> CellStateFormat.Unknown
+}

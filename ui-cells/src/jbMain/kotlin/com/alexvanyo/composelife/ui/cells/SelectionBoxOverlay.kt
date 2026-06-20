@@ -47,9 +47,9 @@ import com.alexvanyo.composelife.ui.util.anchoredDraggable2D
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 
-context(_: CellWindowImplCtx)
 @Suppress("LongParameterList", "LongMethod")
 @Composable
+context(_: CellWindowImplCtx)
 internal fun SelectionBoxOverlay(
     selectionSessionState: SessionValue<SelectionState.Selection>,
     setSelectionState: (SelectionState) -> Unit,

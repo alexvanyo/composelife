@@ -29,12 +29,12 @@ import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.preferences.currentShape
 
-context(
-    imageLoader: ImageLoader,
-preferencesHolder: LoadedComposeLifePreferencesHolder,
-)
 @Composable
 @Suppress("LongParameterList")
+context(
+    imageLoader: ImageLoader,
+    preferencesHolder: LoadedComposeLifePreferencesHolder,
+)
 actual fun NonInteractableCells(
     gameOfLifeState: GameOfLifeState,
     scaledCellDpSize: Dp,
@@ -58,6 +58,7 @@ actual fun NonInteractableCells(
                 )
                 )
         }
+
         NonInteractableCellsImplementationType.Canvas -> {
             CanvasNonInteractableCells(
                 gameOfLifeState = gameOfLifeState,
@@ -68,6 +69,7 @@ actual fun NonInteractableCells(
                 modifier = modifier,
             )
         }
+
         NonInteractableCellsImplementationType.Coil -> {
             CoilNonInteractableCells(
                 gameOfLifeState = gameOfLifeState,
@@ -78,6 +80,7 @@ actual fun NonInteractableCells(
                 modifier = modifier,
             )
         }
+
         NonInteractableCellsImplementationType.OpenGL -> {
             OpenGLNonInteractableCells(
                 gameOfLifeState = gameOfLifeState,
@@ -103,32 +106,32 @@ private sealed interface NonInteractableCellsImplementationType {
 private fun computeImplementationType(
     preferences: LoadedComposeLifePreferences,
     isThumbnail: Boolean,
-): NonInteractableCellsImplementationType =
-    when {
-        isThumbnail ->
-            NonInteractableCellsImplementationType.Coil
-        !preferences.disableAGSL &&
-            Build.VERSION.SDK_INT >= 33 &&
-            Build.FINGERPRINT?.lowercase() != "robolectric" ->
-            NonInteractableCellsImplementationType.AGSL
-        !preferences.disableOpenGL && !LocalInspectionMode.current && openGLSupported() ->
-            NonInteractableCellsImplementationType.OpenGL
-        else ->
-            NonInteractableCellsImplementationType.Canvas
-    }
+): NonInteractableCellsImplementationType = when {
+    isThumbnail ->
+        NonInteractableCellsImplementationType.Coil
+
+    !preferences.disableAGSL &&
+        Build.VERSION.SDK_INT >= 33 &&
+        Build.FINGERPRINT?.lowercase() != "robolectric" ->
+        NonInteractableCellsImplementationType.AGSL
+
+    !preferences.disableOpenGL && !LocalInspectionMode.current && openGLSupported() ->
+        NonInteractableCellsImplementationType.OpenGL
+
+    else ->
+        NonInteractableCellsImplementationType.Canvas
+}
 
 /**
  * Returns `true` is shared elements are supported by the resulting implementation of [NonInteractableCells].
  */
 @Composable
-actual fun isSharedElementForCellsSupported(
-    preferences: LoadedComposeLifePreferences,
-    isThumbnail: Boolean,
-): Boolean =
+actual fun isSharedElementForCellsSupported(preferences: LoadedComposeLifePreferences, isThumbnail: Boolean): Boolean =
     when (computeImplementationType(preferences, isThumbnail)) {
         NonInteractableCellsImplementationType.AGSL,
         NonInteractableCellsImplementationType.Canvas,
         NonInteractableCellsImplementationType.Coil,
         -> true
+
         NonInteractableCellsImplementationType.OpenGL -> false
     }

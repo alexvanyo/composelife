@@ -17,8 +17,9 @@
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.configureJacocoMerge
 
-class MergeJacocoConventionPlugin : ConventionPlugin({
-    pluginManager.apply("jacoco")
+class MergeJacocoConventionPlugin :
+    ConventionPlugin({
+        pluginManager.apply("jacoco")
 
-    configureJacocoMerge()
-})
+        configureJacocoMerge()
+    })

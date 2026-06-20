@@ -88,7 +88,8 @@ class InlineSettingsPaneCtx(
 
     companion object {
         private val lambda:
-            @Composable context(LoadedComposeLifePreferencesHolder, SettingUiCtx) (
+            @Composable context(LoadedComposeLifePreferencesHolder, SettingUiCtx)
+            (
                 onSeeMoreClicked: () -> Unit,
                 onOpenInSettingsClicked: (Setting) -> Unit,
                 modifier: Modifier,
@@ -100,9 +101,9 @@ class InlineSettingsPaneCtx(
     }
 }
 
-context(ctx: InlineSettingsPaneCtx)
 @Suppress("DEPRECATION")
 @Composable
+context(ctx: InlineSettingsPaneCtx)
 fun InlineSettingsPane(
     onSeeMoreClicked: () -> Unit,
     onOpenInSettingsClicked: (Setting) -> Unit,
@@ -111,13 +112,13 @@ fun InlineSettingsPane(
 ) = ctx(onSeeMoreClicked, onOpenInSettingsClicked, modifier, scrollState)
 // endregion templated-ctx
 
-context(
-    preferencesHolder: LoadedComposeLifePreferencesHolder,
-_: SettingUiCtx,
-)
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Suppress("LongMethod")
 @Composable
+context(
+    preferencesHolder: LoadedComposeLifePreferencesHolder,
+    _: SettingUiCtx,
+)
 private fun InlineSettingsPane(
     onSeeMoreClicked: () -> Unit,
     onOpenInSettingsClicked: (Setting) -> Unit,
@@ -214,7 +215,7 @@ private fun InlineSettingsPane(
                 // Intentionally ignore the setting that has animated out, we're just using it to trigger
                 // updating `previouslyAnimatableQuickAccessSettings` in its entirety.
                 .map {}
-                .onEach {
+                .onEach { _ ->
                     previouslyAnimatableQuickAccessSettings = animatableQuickAccessSettings.filterValues {
                         // Only keep those that are visible, or are currently animating
                         !it.isIdle || it.targetState

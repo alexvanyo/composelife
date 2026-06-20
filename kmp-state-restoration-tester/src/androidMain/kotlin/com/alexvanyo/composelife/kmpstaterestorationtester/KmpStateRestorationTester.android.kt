@@ -25,9 +25,8 @@ import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.runtime.setValue
 
 @Suppress("TooManyFunctions")
-private class RestorationRegistryImpl(
-    private val originalSaveableStateRegistry: SaveableStateRegistry,
-) : RestorationRegistry {
+private class RestorationRegistryImpl(private val originalSaveableStateRegistry: SaveableStateRegistry) :
+    RestorationRegistry {
 
     override var shouldEmitChildren by mutableStateOf(true)
         private set
@@ -67,9 +66,8 @@ private class RestorationRegistryImpl(
     override fun performSave() = currentSaveableStateRegistry.performSave()
 }
 
-internal actual fun RestorationRegistry(
-    originalSaveableStateRegistry: SaveableStateRegistry,
-): RestorationRegistry = RestorationRegistryImpl(originalSaveableStateRegistry)
+internal actual fun RestorationRegistry(originalSaveableStateRegistry: SaveableStateRegistry): RestorationRegistry =
+    RestorationRegistryImpl(originalSaveableStateRegistry)
 
 // Copied from DisposableSaveableStateRegistry.android.kt
 @Suppress("DEPRECATION", "UNCHECKED_CAST")
