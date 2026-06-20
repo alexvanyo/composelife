@@ -26,7 +26,7 @@ androidxDataStore = "1.3.0-alpha09"
 #androidxLifecycle
 androidxLifecycle = "2.11.0-rc01"
 #androidxLintGradle
-androidxLintGradle = "1.0.0-rc01"
+androidxLintGradle = "1.0.0"
 #androidxNavigationEvent
 androidxNavigationEvent = "1.1.1"
 #androidxNavigation3
