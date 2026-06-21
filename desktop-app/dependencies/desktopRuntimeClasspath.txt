@@ -46,8 +46,8 @@ androidx.sqlite:sqlite-bundled-jvm:2.7.0-alpha06
 androidx.sqlite:sqlite-bundled:2.7.0-alpha06
 androidx.sqlite:sqlite-jvm:2.7.0-alpha06
 androidx.sqlite:sqlite:2.7.0-alpha06
-androidx.window:window-core-jvm:1.6.0-alpha03
-androidx.window:window-core:1.6.0-alpha03
+androidx.window:window-core-jvm:1.6.0-alpha05
+androidx.window:window-core:1.6.0-alpha05
 app.cash.sqldelight:async-extensions-jvm:2.3.2
 app.cash.sqldelight:async-extensions:2.3.2
 app.cash.sqldelight:coroutines-extensions-jvm:2.3.2
