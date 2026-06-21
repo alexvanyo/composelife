@@ -31,10 +31,10 @@ androidx.lifecycle:lifecycle-viewmodel-wasm-js:2.11.0
 androidx.lifecycle:lifecycle-viewmodel:2.11.0
 androidx.navigation3:navigation3-runtime-wasm-js:1.2.0-alpha04
 androidx.navigation3:navigation3-runtime:1.2.0-alpha04
-androidx.navigationevent:navigationevent-compose-wasm-js:1.1.1
-androidx.navigationevent:navigationevent-compose:1.1.1
-androidx.navigationevent:navigationevent-wasm-js:1.1.1
-androidx.navigationevent:navigationevent:1.1.1
+androidx.navigationevent:navigationevent-compose-wasm-js:1.1.2
+androidx.navigationevent:navigationevent-compose:1.1.2
+androidx.navigationevent:navigationevent-wasm-js:1.1.2
+androidx.navigationevent:navigationevent:1.1.2
 androidx.savedstate:savedstate-compose-wasm-js:1.5.0
 androidx.savedstate:savedstate-compose:1.5.0
 androidx.savedstate:savedstate-wasm-js:1.5.0
