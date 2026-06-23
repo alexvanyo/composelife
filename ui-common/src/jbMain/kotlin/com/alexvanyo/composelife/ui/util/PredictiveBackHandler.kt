@@ -56,12 +56,8 @@ sealed interface CompletablePredictiveBackState {
     /**
      * There is an ongoing predictive back animation, with the given [progress].
      */
-    data class Running(
-        val touchX: Float,
-        val touchY: Float,
-        val progress: Float,
-        val backEventEdge: BackEventEdge,
-    ) : CompletablePredictiveBackState
+    data class Running(val touchX: Float, val touchY: Float, val progress: Float, val backEventEdge: BackEventEdge) :
+        CompletablePredictiveBackState
 
     /**
      * The back has completed.
@@ -97,6 +93,7 @@ fun rememberCompletablePredictiveBackStateHolder(): CompletablePredictiveBackSta
     val preCompletedState =
         when (preCompletedNavigationEventTransitionState) {
             NavigationEventTransitionState.Idle -> CompletablePredictiveBackState.NotRunning
+
             is NavigationEventTransitionState.InProgress -> CompletablePredictiveBackState.Running(
                 touchX = preCompletedNavigationEventTransitionState.latestEvent.touchX,
                 touchY = preCompletedNavigationEventTransitionState.latestEvent.touchY,
@@ -171,6 +168,4 @@ fun CompletablePredictiveBackStateHandler(
     }
 }
 
-private data class CompletablePredictiveBackStateInfo(
-    val id: Uuid,
-) : NavigationEventInfo()
+private data class CompletablePredictiveBackStateInfo(val id: Uuid) : NavigationEventInfo()

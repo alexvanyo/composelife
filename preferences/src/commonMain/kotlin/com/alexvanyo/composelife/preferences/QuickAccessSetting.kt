@@ -35,4 +35,5 @@ sealed interface QuickAccessSetting {
     companion object
 }
 
+@Suppress("BackingPropertyNaming")
 expect val QuickAccessSetting._ordinal: Int

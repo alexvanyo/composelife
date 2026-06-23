@@ -43,9 +43,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 
 @Composable
-actual fun Modifier.cellStateDragAndDropSource(
-    getCellState: () -> CellState,
-): Modifier {
+actual fun Modifier.cellStateDragAndDropSource(getCellState: () -> CellState): Modifier {
     // TODO: Remove graphics layer workaround once default drag decoration works with Coil.
     //       https://github.com/coil-kt/coil/issues/2150
     val graphicsLayer = rememberGraphicsLayer()
@@ -135,7 +133,6 @@ internal actual class DragAndDropSession {
 internal actual suspend fun awaitAndParseCellState(
     session: DragAndDropSession,
     cellStateParser: CellStateParser,
-): DeserializationResult =
-    cellStateParser.parseCellState(
-        snapshotFlow { session.clipData }.filterNotNull().first(),
-    )
+): DeserializationResult = cellStateParser.parseCellState(
+    snapshotFlow { session.clipData }.filterNotNull().first(),
+)

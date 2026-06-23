@@ -164,6 +164,7 @@ fun rememberCellUniverseActionCardState(
                     InlineActionCardNavigation.Edit,
                     InlineActionCardNavigation.Settings,
                     -> InlineActionCardNavigation.Speed.entryId
+
                     InlineActionCardNavigation.Speed -> error("Shouldn't be navigating back from speed")
                 }
             }
@@ -181,15 +182,11 @@ fun rememberCellUniverseActionCardState(
                         Int.serializer().descriptor,
                     )
 
-                override fun serialize(
-                    encoder: Encoder,
-                    value: ScrollState,
-                ) {
+                override fun serialize(encoder: Encoder, value: ScrollState) {
                     encoder.encodeInt(value.value)
                 }
 
-                override fun deserialize(decoder: Decoder): ScrollState =
-                    ScrollState(decoder.decodeInt())
+                override fun deserialize(decoder: Decoder): ScrollState = ScrollState(decoder.decodeInt())
             },
         ),
     ) {

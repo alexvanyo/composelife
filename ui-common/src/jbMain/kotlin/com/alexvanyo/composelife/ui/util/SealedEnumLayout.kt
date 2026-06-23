@@ -42,8 +42,7 @@ inline fun <T> Layout(
     layoutIdTypes: SealedEnum<T>,
     content:
     @Composable
-    @UiComposable
-    () -> Unit,
+    @UiComposable () -> Unit,
     modifier: Modifier = Modifier,
     measurePolicy: SealedEnumMeasurePolicy<T>,
 ) {
@@ -66,8 +65,5 @@ inline fun <T> Layout(
  */
 fun interface SealedEnumMeasurePolicy<T> {
 
-    fun MeasureScope.measure(
-        measurables: Map<T, Measurable>,
-        constraints: Constraints,
-    ): MeasureResult
+    fun MeasureScope.measure(measurables: Map<T, Measurable>, constraints: Constraints): MeasureResult
 }

@@ -25,7 +25,6 @@ import kotlin.test.assertTrue
 
 @Suppress("TooManyFunctions")
 class MacroCellTests {
-
     @Test
     fun making_specific_cell_alive_is_correct() {
         assertEquals(
@@ -128,51 +127,54 @@ class MacroCellTests {
     @Test
     fun checking_contains_specific_cell_is_correct() {
         assertTrue(
-            MacroCell.CellNode(
-                createEmptyMacroCell(4),
-                MacroCell.Level4Node(
-                    0L,
-                    0L,
-                    LeafNode(setOf(IntOffset(3, 7))),
-                    0L,
-                ),
-                createEmptyMacroCell(4),
-                createEmptyMacroCell(4),
-            ).contains(IntOffset(19, 15)),
+            MacroCell
+                .CellNode(
+                    createEmptyMacroCell(4),
+                    MacroCell.Level4Node(
+                        0L,
+                        0L,
+                        LeafNode(setOf(IntOffset(3, 7))),
+                        0L,
+                    ),
+                    createEmptyMacroCell(4),
+                    createEmptyMacroCell(4),
+                ).contains(IntOffset(19, 15)),
         )
     }
 
     @Test
     fun checking_does_not_contain_specific_cell_is_correct() {
         assertFalse(
-            MacroCell.CellNode(
-                createEmptyMacroCell(4),
-                MacroCell.Level4Node(
-                    0L,
-                    0L,
-                    LeafNode(setOf(IntOffset(3, 7))),
-                    0L,
-                ),
-                createEmptyMacroCell(4),
-                createEmptyMacroCell(4),
-            ).contains(IntOffset(19, 16)),
+            MacroCell
+                .CellNode(
+                    createEmptyMacroCell(4),
+                    MacroCell.Level4Node(
+                        0L,
+                        0L,
+                        LeafNode(setOf(IntOffset(3, 7))),
+                        0L,
+                    ),
+                    createEmptyMacroCell(4),
+                    createEmptyMacroCell(4),
+                ).contains(IntOffset(19, 16)),
         )
     }
 
     @Test
     fun checking_does_not_contain_outside_range_cell_is_correct() {
         assertFalse(
-            MacroCell.CellNode(
-                createEmptyMacroCell(4),
-                MacroCell.Level4Node(
-                    0L,
-                    0L,
-                    LeafNode(setOf(IntOffset(3, 7))),
-                    0L,
-                ),
-                createEmptyMacroCell(4),
-                createEmptyMacroCell(4),
-            ).contains(IntOffset(-2, -2)),
+            MacroCell
+                .CellNode(
+                    createEmptyMacroCell(4),
+                    MacroCell.Level4Node(
+                        0L,
+                        0L,
+                        LeafNode(setOf(IntOffset(3, 7))),
+                        0L,
+                    ),
+                    createEmptyMacroCell(4),
+                    createEmptyMacroCell(4),
+                ).contains(IntOffset(-2, -2)),
         )
     }
 

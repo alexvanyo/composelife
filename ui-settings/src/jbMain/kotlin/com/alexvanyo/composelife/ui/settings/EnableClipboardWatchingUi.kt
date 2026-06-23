@@ -46,13 +46,12 @@ class EnableClipboardWatchingUiCtx(
         ),
     )
     @Composable
-    operator fun invoke(
-        modifier: Modifier = Modifier,
-    ) = lambda(preferencesHolder, composeLifePreferences, modifier)
+    operator fun invoke(modifier: Modifier = Modifier) = lambda(preferencesHolder, composeLifePreferences, modifier)
 
     companion object {
         private val lambda:
-            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences) (
+            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences)
+            (
                 modifier: Modifier,
             ) -> Unit =
             { modifier ->
@@ -61,22 +60,18 @@ class EnableClipboardWatchingUiCtx(
     }
 }
 
-context(ctx: EnableClipboardWatchingUiCtx)
 @Suppress("DEPRECATION")
 @Composable
-fun EnableClipboardWatchingUi(
-    modifier: Modifier = Modifier,
-) = ctx(modifier)
+context(ctx: EnableClipboardWatchingUiCtx)
+fun EnableClipboardWatchingUi(modifier: Modifier = Modifier) = ctx(modifier)
 // endregion templated-ctx
 
+@Composable
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,
-composeLifePreferences: ComposeLifePreferences,
+    composeLifePreferences: ComposeLifePreferences,
 )
-@Composable
-private fun EnableClipboardWatchingUi(
-    modifier: Modifier = Modifier,
-) {
+private fun EnableClipboardWatchingUi(modifier: Modifier = Modifier) {
     EnableClipboardWatchingUi(
         enableClipboardWatching = preferencesHolder.preferences.enableClipboardWatching,
         setEnableClipboardWatching = composeLifePreferences::setEnableClipboardWatching,

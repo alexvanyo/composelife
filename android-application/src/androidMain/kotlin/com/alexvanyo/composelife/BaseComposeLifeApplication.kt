@@ -48,11 +48,10 @@ interface ComposeLifeApplicationCtx {
 internal val ApplicationGraph.composeLifeApplicationCtx: ComposeLifeApplicationCtx get() =
     this as ComposeLifeApplicationCtx
 
-@Suppress("UnnecessaryAbstractClass")
-abstract class BaseComposeLifeApplication<G>(
-    private val createGlobalGraph: () -> G,
-) : Application(), ApplicationGraphOwner {
-
+@Suppress("UnnecessaryAbstractClass", "AbstractClassCanBeConcreteClass")
+abstract class BaseComposeLifeApplication<G>(private val createGlobalGraph: () -> G) :
+    Application(),
+    ApplicationGraphOwner {
     override lateinit var applicationGraph: ApplicationGraph
 
     override fun onCreate() {
@@ -62,11 +61,12 @@ abstract class BaseComposeLifeApplication<G>(
         Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.Auto)
 
         val globalGraph = createGlobalGraph()
-        applicationGraph = (globalGraph as ApplicationGraph.Factory).create(
-            object : ApplicationGraphArguments {
-                override val applicationContext: Context = this@BaseComposeLifeApplication
-            },
-        )
+        applicationGraph =
+            (globalGraph as ApplicationGraph.Factory).create(
+                object : ApplicationGraphArguments {
+                    override val applicationContext: Context = this@BaseComposeLifeApplication
+                },
+            )
         val ctx = applicationGraph.composeLifeApplicationCtx
         val processLifecycleOwner = ctx.processLifecycleOwner
         val appUpdatables = ctx.appUpdatables

@@ -80,9 +80,7 @@ interface PreviewGlobalGraph
  */
 @Suppress("LongParameterList")
 @Composable
-internal fun WithPreviewDependencies(
-    content: @Composable context(PreviewCtx) () -> Unit,
-) {
+internal fun WithPreviewDependencies(content: @Composable context(PreviewCtx) () -> Unit) {
     val previewGraph = createGraph<PreviewGlobalGraph>()
     val context = LocalContext.current
     val applicationGraph = remember {

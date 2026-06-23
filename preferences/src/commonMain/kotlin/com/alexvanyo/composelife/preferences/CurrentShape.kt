@@ -24,29 +24,24 @@ sealed interface CurrentShape {
     val type: CurrentShapeType
 
     @Serializable
-    data class RoundRectangle(
-        val sizeFraction: Float,
-        val cornerFraction: Float,
-    ) : CurrentShape {
+    data class RoundRectangle(val sizeFraction: Float, val cornerFraction: Float) : CurrentShape {
         override val type: CurrentShapeType = CurrentShapeType.RoundRectangle
     }
 }
 
-internal fun RoundRectangleProto?.toResolved(): CurrentShape.RoundRectangle =
-    if (this == null) {
-        CurrentShape.RoundRectangle(
-            sizeFraction = 1f,
-            cornerFraction = 0f,
-        )
-    } else {
-        CurrentShape.RoundRectangle(
-            sizeFraction = size_fraction,
-            cornerFraction = corner_fraction,
-        )
-    }
-
-internal fun CurrentShape.RoundRectangle.toProto(): RoundRectangleProto =
-    RoundRectangleProto(
-        size_fraction = sizeFraction,
-        corner_fraction = cornerFraction,
+internal fun RoundRectangleProto?.toResolved(): CurrentShape.RoundRectangle = if (this == null) {
+    CurrentShape.RoundRectangle(
+        sizeFraction = 1f,
+        cornerFraction = 0f,
     )
+} else {
+    CurrentShape.RoundRectangle(
+        sizeFraction = size_fraction,
+        cornerFraction = corner_fraction,
+    )
+}
+
+internal fun CurrentShape.RoundRectangle.toProto(): RoundRectangleProto = RoundRectangleProto(
+    size_fraction = sizeFraction,
+    corner_fraction = cornerFraction,
+)

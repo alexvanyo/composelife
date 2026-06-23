@@ -60,9 +60,10 @@ val UiGraph.inlineEditPaneStateTestsUiCtx: InlineEditPaneStateTestsUiCtx get() =
     this as InlineEditPaneStateTestsUiCtx
 
 @OptIn(ExperimentalTestApi::class)
-class InlineEditPaneStateTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
+class InlineEditPaneStateTests :
+    BaseUiInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
     private val ctx get() = applicationGraph.inlineEditPaneStateTestsAppCtx
 
     private val composeLifePreferences get() = ctx.composeLifePreferences

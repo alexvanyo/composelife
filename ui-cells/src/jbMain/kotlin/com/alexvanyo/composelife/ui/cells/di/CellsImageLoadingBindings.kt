@@ -43,8 +43,7 @@ interface CellsImageLoadingBindings {
         @Provides
         @SingleIn(AppScope::class)
         @IntoSet
-        internal fun providesCellsKeyerIntoKeyers(
-            cellsKeyer: CellsKeyer,
-        ): KeyerWithType<out Any> = cellsKeyer.withType()
+        internal fun providesCellsKeyerIntoKeyers(cellsKeyer: CellsKeyer): KeyerWithType<out Any> =
+            cellsKeyer.withType()
     }
 }

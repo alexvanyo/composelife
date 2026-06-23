@@ -21,16 +21,14 @@ import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedStringArgument
 import com.alexvanyo.composelife.ui.cells.R
 
-actual fun Strings.InteractableCellContentDescription(x: Int, y: Int): ParameterizedString =
-    ParameterizedString(
-        R.string.cell_content_description,
-        ParameterizedStringArgument(x),
-        ParameterizedStringArgument(y),
-    )
+actual fun Strings.InteractableCellContentDescription(x: Int, y: Int): ParameterizedString = ParameterizedString(
+    R.string.cell_content_description,
+    ParameterizedStringArgument(x),
+    ParameterizedStringArgument(y),
+)
 
-internal actual fun Strings.SelectingBoxHandle(x: Int, y: Int): ParameterizedString =
-    ParameterizedString(
-        R.string.selecting_box_handle,
-        ParameterizedStringArgument(x),
-        ParameterizedStringArgument(y),
-    )
+internal actual fun Strings.SelectingBoxHandle(x: Int, y: Int): ParameterizedString = ParameterizedString(
+    R.string.selecting_box_handle,
+    ParameterizedStringArgument(x),
+    ParameterizedStringArgument(y),
+)

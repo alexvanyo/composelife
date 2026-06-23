@@ -431,49 +431,44 @@ private fun Random.nextLineSegmentPath(): LineSegmentPath {
     return LineSegmentPath(List(numberPoints) { nextPoint() })
 }
 
-private fun Random.nextPoint(): Offset =
-    Offset(
-        nextFloat() * 10f,
-        nextFloat() * 10f,
-    )
+private fun Random.nextPoint(): Offset = Offset(
+    nextFloat() * 10f,
+    nextFloat() * 10f,
+)
 
 /**
  * Returns all cells [IntOffset]s that intersect with the [LineSegmentPath] with a brute force algorithm just for
  * testing.
  */
-private fun LineSegmentPath.bruteForceCellIntersections(): Set<IntOffset> =
-    if (points.size == 1) {
-        setOf(floor(points.first()))
-    } else {
-        points.zipWithNext { a, b -> bruteForceCellIntersections(a, b) }.flatten().toSet()
-    }
+private fun LineSegmentPath.bruteForceCellIntersections(): Set<IntOffset> = if (points.size == 1) {
+    setOf(floor(points.first()))
+} else {
+    points.zipWithNext { a, b -> bruteForceCellIntersections(a, b) }.flatten().toSet()
+}
 
-private fun bruteForceCellIntersections(start: Offset, end: Offset): Set<IntOffset> =
-    buildSet {
-        val minX = kotlin.math.floor(min(start.x, end.x)).toInt()
-        val maxX = kotlin.math.floor(max(start.x, end.x)).toInt()
-        val minY = kotlin.math.floor(min(start.y, end.y)).toInt()
-        val maxY = kotlin.math.floor(max(start.y, end.y)).toInt()
+private fun bruteForceCellIntersections(start: Offset, end: Offset): Set<IntOffset> = buildSet {
+    val minX = kotlin.math.floor(min(start.x, end.x)).toInt()
+    val maxX = kotlin.math.floor(max(start.x, end.x)).toInt()
+    val minY = kotlin.math.floor(min(start.y, end.y)).toInt()
+    val maxY = kotlin.math.floor(max(start.y, end.y)).toInt()
 
-        addAll(
-            (minX..maxX).flatMap { x ->
-                (minY..maxY).map { y ->
-                    IntOffset(x, y)
-                }
+    addAll(
+        (minX..maxX).flatMap { x ->
+            (minY..maxY).map { y ->
+                IntOffset(x, y)
             }
-                .filter { it.intersectsLine(start, end) },
-        )
-    }
+        }
+            .filter { it.intersectsLine(start, end) },
+    )
+}
 
-private fun IntOffset.intersectsLine(a: Offset, b: Offset) =
-    Rect(toOffset(), Size(1f, 1f)).intersectsLine(a, b)
+private fun IntOffset.intersectsLine(a: Offset, b: Offset) = Rect(toOffset(), Size(1f, 1f)).intersectsLine(a, b)
 
-private fun Rect.intersectsLine(a: Offset, b: Offset) =
-    contains(a) || contains(b) ||
-        doLineSegmentsIntersect(topLeft, topRight, a, b) ||
-        doLineSegmentsIntersect(topRight, bottomRight, a, b) ||
-        doLineSegmentsIntersect(bottomRight, bottomLeft, a, b) ||
-        doLineSegmentsIntersect(bottomLeft, topLeft, a, b)
+private fun Rect.intersectsLine(a: Offset, b: Offset) = contains(a) || contains(b) ||
+    doLineSegmentsIntersect(topLeft, topRight, a, b) ||
+    doLineSegmentsIntersect(topRight, bottomRight, a, b) ||
+    doLineSegmentsIntersect(bottomRight, bottomLeft, a, b) ||
+    doLineSegmentsIntersect(bottomLeft, topLeft, a, b)
 
 private fun doLineSegmentsIntersect(a1: Offset, a2: Offset, b1: Offset, b2: Offset): Boolean {
     val b1Sign = b1.sideOfLine(a1, a2)

@@ -42,9 +42,10 @@ val UiGraph.gameOfLifeProgressIndicatorTestsCtx: GameOfLifeProgressIndicatorTest
     this as GameOfLifeProgressIndicatorTestsCtx
 
 @OptIn(ExperimentalTestApi::class)
-class GameOfLifeProgressIndicatorTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
+class GameOfLifeProgressIndicatorTests :
+    BaseUiInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
 
     @Test
     fun progress_indicator_is_displayed_correctly() = runUiTest { uiGraph ->

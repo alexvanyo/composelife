@@ -75,12 +75,11 @@ abstract class CellState {
      * This is overridable by subclasses in case the operation can be done more efficiently in a
      * particular implementation.
      */
-    open fun withCell(offset: IntOffset, isAlive: Boolean): CellState =
-        if (isAlive) {
-            CellState(aliveCells + offset)
-        } else {
-            CellState(aliveCells - offset)
-        }
+    open fun withCell(offset: IntOffset, isAlive: Boolean): CellState = if (isAlive) {
+        CellState(aliveCells + offset)
+    } else {
+        CellState(aliveCells - offset)
+    }
 
     /**
      * Returns the list of alive cells that are contained within the given [cellWindow].
@@ -112,13 +111,12 @@ abstract class CellState {
             },
         )
 
-    override fun equals(other: Any?): Boolean =
-        if (other !is CellState) {
-            false
-        } else {
-            aliveCells.size == other.aliveCells.size &&
-                aliveCells.containsAll(other.aliveCells)
-        }
+    override fun equals(other: Any?): Boolean = if (other !is CellState) {
+        false
+    } else {
+        aliveCells.size == other.aliveCells.size &&
+            aliveCells.containsAll(other.aliveCells)
+    }
 
     override fun hashCode(): Int = aliveCells.toSet().hashCode()
 }
@@ -129,16 +127,15 @@ abstract class CellState {
  *
  * This does not attempt to check equivalence against rotation or reflection.
  */
-fun CellState.equalsModuloOffset(other: CellState): Boolean =
-    if (aliveCells.size != other.aliveCells.size) {
-        false
-    } else if (aliveCells.isEmpty()) {
-        true
-    } else {
-        val topLeftOffset = IntOffset(aliveCells.minOf(IntOffset::x), aliveCells.minOf(IntOffset::y))
-        val otherTopLeftOffset = IntOffset(other.aliveCells.minOf(IntOffset::x), other.aliveCells.minOf(IntOffset::y))
-        offsetBy(otherTopLeftOffset - topLeftOffset) == other
-    }
+fun CellState.equalsModuloOffset(other: CellState): Boolean = if (aliveCells.size != other.aliveCells.size) {
+    false
+} else if (aliveCells.isEmpty()) {
+    true
+} else {
+    val topLeftOffset = IntOffset(aliveCells.minOf(IntOffset::x), aliveCells.minOf(IntOffset::y))
+    val otherTopLeftOffset = IntOffset(other.aliveCells.minOf(IntOffset::x), other.aliveCells.minOf(IntOffset::y))
+    offsetBy(otherTopLeftOffset - topLeftOffset) == other
+}
 
 fun CellState(aliveCells: Set<IntOffset>): CellState = CellStateImpl(aliveCells)
 
@@ -149,22 +146,23 @@ fun Set<Pair<Int, Int>>.toCellState(): CellState = CellState(map(Pair<Int, Int>:
 object JsonCellStateSerialization : KSerializer<CellState> by
 FixedFormatKSerializer(RunLengthEncodedCellStateSerializer)
 
-class FixedFormatKSerializer(
-    private val fixedFormatCellStateSerializer: FixedFormatCellStateSerializer,
-) : KSerializer<CellState> {
+class FixedFormatKSerializer(private val fixedFormatCellStateSerializer: FixedFormatCellStateSerializer) :
+    KSerializer<CellState> {
     private val delegateSerializer = ListSerializer(String.serializer())
 
     @OptIn(ExperimentalSerializationApi::class)
-    override val descriptor: SerialDescriptor = SerialDescriptor(
-        "com.alexvanyo.composelife.model.CellState.${fixedFormatCellStateSerializer.format._name}",
-        delegateSerializer.descriptor,
-    )
+    override val descriptor: SerialDescriptor =
+        SerialDescriptor(
+            "com.alexvanyo.composelife.model.CellState.${fixedFormatCellStateSerializer.format._name}",
+            delegateSerializer.descriptor,
+        )
 
     override fun deserialize(decoder: Decoder): CellState {
         val lines = delegateSerializer.deserialize(decoder)
-        val deserializationResult = fixedFormatCellStateSerializer.deserializeToCellState(
-            lines.asSequence(),
-        )
+        val deserializationResult =
+            fixedFormatCellStateSerializer.deserializeToCellState(
+                lines.asSequence(),
+            )
         return when (deserializationResult) {
             is DeserializationResult.Successful -> {
                 if (deserializationResult.warnings.isNotEmpty()) {
@@ -192,8 +190,6 @@ class FixedFormatKSerializer(
 /**
  * A simple implementation of [CellState] backed by a normal [Set].
  */
-private class CellStateImpl(
-    override val aliveCells: Set<IntOffset>,
-) : CellState() {
+private class CellStateImpl(override val aliveCells: Set<IntOffset>) : CellState() {
     override fun toString(): String = "CellStateImpl(${aliveCells.toSet()})"
 }

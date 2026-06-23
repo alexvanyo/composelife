@@ -27,10 +27,7 @@ import androidx.compose.ui.Modifier
  * [LocalWindowInsetsHolder] instead of providing an updated one.
  */
 @Composable
-actual fun ProvideLocalWindowInsetsHolder(
-    modifier: Modifier,
-    content: @Composable () -> Unit,
-) {
+actual fun ProvideLocalWindowInsetsHolder(modifier: Modifier, content: @Composable () -> Unit) {
     Box(
         propagateMinConstraints = true,
         modifier = modifier,

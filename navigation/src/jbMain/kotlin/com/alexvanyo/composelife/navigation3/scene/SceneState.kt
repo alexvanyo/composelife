@@ -55,7 +55,7 @@ public fun <T : Any> rememberSceneState(
     val decoratedEntries =
         rememberDecoratedNavEntries(
             entries,
-            listOfNotNull(
+            listOf(
                 sharedElementDecorator,
                 rememberSceneSetupNavEntryDecorator(),
                 rememberBackStackAwareLifecycleNavEntryDecorator(entries),
@@ -152,15 +152,11 @@ internal constructor(
             previousScenes == other.previousScenes
     }
 
-    override fun hashCode(): Int {
-        return entries.hashCode() * 31 +
-            overlayScenes.hashCode() * 31 +
-            currentScene.hashCode() * 31 +
-            previousScenes.hashCode() * 31
-    }
+    override fun hashCode(): Int = entries.hashCode() * 31 +
+        overlayScenes.hashCode() * 31 +
+        currentScene.hashCode() * 31 +
+        previousScenes.hashCode() * 31
 
-    override fun toString(): String {
-        return "SceneState(entries=$entries, overlayScenes=$overlayScenes, " +
-            "currentScene=$currentScene, previousScenes=$previousScenes)"
-    }
+    override fun toString(): String = "SceneState(entries=$entries, overlayScenes=$overlayScenes, " +
+        "currentScene=$currentScene, previousScenes=$previousScenes)"
 }

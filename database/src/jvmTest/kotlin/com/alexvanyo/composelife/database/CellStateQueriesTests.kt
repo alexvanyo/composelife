@@ -44,9 +44,10 @@ interface CellStateQueriesTestsCtx {
 internal val ApplicationGraph.cellStateQueriesTestsCtx: CellStateQueriesTestsCtx get() =
     this as CellStateQueriesTestsCtx
 
-class CellStateQueriesTests : BaseInjectTest(
-    globalGraph.asContribution<ApplicationGraph.Factory>()::create,
-) {
+class CellStateQueriesTests :
+    BaseInjectTest(
+        globalGraph.asContribution<ApplicationGraph.Factory>()::create,
+    ) {
     private val ctx get() = applicationGraph.cellStateQueriesTestsCtx
     private val cellStateQueries get() = ctx.cellStateQueries
 

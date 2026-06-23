@@ -34,20 +34,16 @@ class CellStateCleanupWorker(
     @Assisted private val workerParams: WorkerParameters,
     private val cellStateRepository: CellStateRepository,
 ) : CoroutineWorker(appContext, workerParams) {
-    override suspend fun doWork(): Result =
-        if (cellStateRepository.pruneUnusedCellStates()) {
-            Result.success()
-        } else {
-            Result.retry()
-        }
+    override suspend fun doWork(): Result = if (cellStateRepository.pruneUnusedCellStates()) {
+        Result.success()
+    } else {
+        Result.retry()
+    }
 
     @ContributesIntoMap(AppScope::class, binding = binding<AssistedWorkerFactory>())
     @WorkerKey(CellStateCleanupWorker::class)
     @AssistedFactory
     fun interface Factory : AssistedWorkerFactory {
-        override fun invoke(
-            appContext: Context,
-            workerParams: WorkerParameters,
-        ): CellStateCleanupWorker
+        override fun invoke(appContext: Context, workerParams: WorkerParameters): CellStateCleanupWorker
     }
 }

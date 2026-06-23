@@ -116,23 +116,21 @@ sealed interface ToolDropdownOption : DropdownOption {
 
 expect val ToolDropdownOption.Companion._values: List<ToolDropdownOption>
 
-private fun ToolDropdownOption.toToolConfig(): ToolConfig =
-    when (this) {
-        ToolDropdownOption.Draw -> ToolConfig.Draw
-        ToolDropdownOption.Erase -> ToolConfig.Erase
-        ToolDropdownOption.None -> ToolConfig.None
-        ToolDropdownOption.Pan -> ToolConfig.Pan
-        ToolDropdownOption.Select -> ToolConfig.Select
-    }
+private fun ToolDropdownOption.toToolConfig(): ToolConfig = when (this) {
+    ToolDropdownOption.Draw -> ToolConfig.Draw
+    ToolDropdownOption.Erase -> ToolConfig.Erase
+    ToolDropdownOption.None -> ToolConfig.None
+    ToolDropdownOption.Pan -> ToolConfig.Pan
+    ToolDropdownOption.Select -> ToolConfig.Select
+}
 
-private fun ToolConfig.toToolDropdownOption(): ToolDropdownOption =
-    when (this) {
-        ToolConfig.Draw -> ToolDropdownOption.Draw
-        ToolConfig.Erase -> ToolDropdownOption.Erase
-        ToolConfig.None -> ToolDropdownOption.None
-        ToolConfig.Pan -> ToolDropdownOption.Pan
-        ToolConfig.Select -> ToolDropdownOption.Select
-    }
+private fun ToolConfig.toToolDropdownOption(): ToolDropdownOption = when (this) {
+    ToolConfig.Draw -> ToolDropdownOption.Draw
+    ToolConfig.Erase -> ToolDropdownOption.Erase
+    ToolConfig.None -> ToolDropdownOption.None
+    ToolConfig.Pan -> ToolDropdownOption.Pan
+    ToolConfig.Select -> ToolDropdownOption.Select
+}
 
 // region templated-ctx
 @Suppress("ComposableNaming")
@@ -161,7 +159,8 @@ private val InlineEditPaneCtx.Companion.lambda:
         ClipboardCellStatePreviewCtx,
         CellStateParser,
         ClipboardReader,
-    ) (
+    )
+    (
         (CellState) -> Unit,
         (DeserializationResult) -> Unit,
         Modifier,
@@ -171,8 +170,8 @@ private val InlineEditPaneCtx.Companion.lambda:
         InlineEditPane(setSelectionToCellState, onViewDeserializationInfo, modifier, scrollState)
     }
 
-context(ctx: InlineEditPaneCtx)
 @Composable
+context(ctx: InlineEditPaneCtx)
 fun InlineEditPane(
     setSelectionToCellState: (CellState) -> Unit,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
@@ -181,14 +180,14 @@ fun InlineEditPane(
 ) = ctx(setSelectionToCellState, onViewDeserializationInfo, modifier, scrollState)
 // endregion templated-ctx
 
+@Composable
 context(
     _: LoadedComposeLifePreferencesHolder,
-_: ComposeLifePreferences,
-_: ClipboardCellStatePreviewCtx,
-_: CellStateParser,
-_: ClipboardReader,
+    _: ComposeLifePreferences,
+    _: ClipboardCellStatePreviewCtx,
+    _: CellStateParser,
+    _: ClipboardReader,
 )
-@Composable
 fun InlineEditPane(
     setSelectionToCellState: (CellState) -> Unit,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
@@ -200,9 +199,9 @@ fun InlineEditPane(
     scrollState = scrollState,
 )
 
-context(clipboardCellStatePreviewCtx: ClipboardCellStatePreviewCtx)
 @Suppress("LongParameterList", "LongMethod")
 @Composable
+context(clipboardCellStatePreviewCtx: ClipboardCellStatePreviewCtx)
 fun InlineEditPane(
     state: InlineEditPaneState,
     modifier: Modifier = Modifier,

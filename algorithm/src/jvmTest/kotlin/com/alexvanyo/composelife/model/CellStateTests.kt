@@ -23,28 +23,27 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-private class CellStateFactory(
-    private val cellStateName: String,
-    val factory: (cellState: CellState) -> CellState,
-) {
+private class CellStateFactory(private val cellStateName: String, val factory: (cellState: CellState) -> CellState) {
     override fun toString(): String = cellStateName
 }
 
 val CellStateTests by testSuite {
-    val cellStateFactories = listOf(
-        CellStateFactory("Default cell state") { CellState(it.aliveCells.toSet()) },
-        CellStateFactory("Hash life cell state") { it.toHashLifeCellState() },
-    )
+    val cellStateFactories =
+        listOf(
+            CellStateFactory("Default cell state") { CellState(it.aliveCells.toSet()) },
+            CellStateFactory("Hash life cell state") { it.toHashLifeCellState() },
+        )
 
     cellStateFactories.forEach { cellStateFactory ->
         testSuite(name = cellStateFactory.toString()) {
             test("conversion_is_correct") {
-                val expectedCellState = """
+                val expectedCellState =
+                    """
                     |.O.O.O
                     |.O.O..
                     |.O....
                     |......
-                """.trimMargin().toCellState()
+                    """.trimMargin().toCellState()
 
                 val testCellState = cellStateFactory.factory(expectedCellState)
 
@@ -52,27 +51,30 @@ val CellStateTests by testSuite {
             }
 
             test("size_of_empty_cell_state_is_correct") {
-                val testCellState = cellStateFactory.factory(
-                    """
+                val testCellState =
+                    cellStateFactory.factory(
+                        """
                     |.O.O.O
                     |.O.O..
                     |.O....
                     |......
-                    """.trimMargin().toCellState(),
-                )
+                        """.trimMargin().toCellState(),
+                    )
 
                 assertEquals(6, testCellState.aliveCells.size)
             }
 
             test("offset_by_is_correct") {
-                val testCellState = cellStateFactory.factory(
-                    """
+                val testCellState =
+                    cellStateFactory
+                        .factory(
+                            """
                     |.O.O.O
                     |.O.O..
                     |.O....
                     |......
-                    """.trimMargin().toCellState(),
-                ).offsetBy(IntOffset(2, 2))
+                            """.trimMargin().toCellState(),
+                        ).offsetBy(IntOffset(2, 2))
 
                 assertCellStateEquals(
                     """
@@ -86,14 +88,15 @@ val CellStateTests by testSuite {
             }
 
             test("contains_all_is_correct") {
-                val testCellState = cellStateFactory.factory(
-                    """
+                val testCellState =
+                    cellStateFactory.factory(
+                        """
                     |.O.O.O
                     |.O.O..
                     |.O....
                     |......
-                    """.trimMargin().toCellState(),
-                )
+                        """.trimMargin().toCellState(),
+                    )
 
                 assertTrue(
                     testCellState.aliveCells.containsAll(
@@ -118,14 +121,17 @@ val CellStateTests by testSuite {
             }
 
             test("with_offset_is_correct") {
-                val testCellState = cellStateFactory.factory(
-                    """
+                val testCellState =
+                    cellStateFactory
+                        .factory(
+                            """
                     |.O.O.O
                     |.O.O..
                     |.O....
                     |......
-                    """.trimMargin().toCellState(),
-                ).offsetBy(IntOffset(2, 2)).withCell(IntOffset.Zero, true)
+                            """.trimMargin().toCellState(),
+                        ).offsetBy(IntOffset(2, 2))
+                        .withCell(IntOffset.Zero, true)
 
                 assertCellStateEquals(
                     """
@@ -141,14 +147,15 @@ val CellStateTests by testSuite {
             }
 
             test("bounding_box_is_correct") {
-                val testCellState = cellStateFactory.factory(
-                    """
+                val testCellState =
+                    cellStateFactory.factory(
+                        """
                     |.O.O.O
                     |.O.O..
                     |.O....
                     |......
-                    """.trimMargin().toCellState(),
-                )
+                        """.trimMargin().toCellState(),
+                    )
 
                 assertEquals(
                     CellWindow(

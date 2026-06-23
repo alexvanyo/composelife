@@ -54,17 +54,15 @@ internal actual val Strings.DisableAGSL: ParameterizedString get() =
 internal actual val Strings.Shape: ParameterizedString get() =
     ParameterizedString(R.string.shape)
 
-internal actual fun Strings.SizeFractionLabelAndValue(sizeFraction: Float): ParameterizedString =
-    ParameterizedString(
-        R.string.size_fraction_label_and_value,
-        ParameterizedStringArgument(sizeFraction),
-    )
+internal actual fun Strings.SizeFractionLabelAndValue(sizeFraction: Float): ParameterizedString = ParameterizedString(
+    R.string.size_fraction_label_and_value,
+    ParameterizedStringArgument(sizeFraction),
+)
 
-internal actual fun Strings.SizeFractionValue(sizeFraction: Float): ParameterizedString =
-    ParameterizedString(
-        R.string.size_fraction_value,
-        ParameterizedStringArgument(sizeFraction),
-    )
+internal actual fun Strings.SizeFractionValue(sizeFraction: Float): ParameterizedString = ParameterizedString(
+    R.string.size_fraction_value,
+    ParameterizedStringArgument(sizeFraction),
+)
 
 internal actual val Strings.SizeFractionLabel: ParameterizedString get() =
     ParameterizedString(R.string.size_fraction_label)
@@ -75,11 +73,10 @@ internal actual fun Strings.CornerFractionLabelAndValue(cornerFraction: Float): 
         ParameterizedStringArgument(cornerFraction),
     )
 
-internal actual fun Strings.CornerFractionValue(cornerFraction: Float): ParameterizedString =
-    ParameterizedString(
-        R.string.corner_fraction_value,
-        ParameterizedStringArgument(cornerFraction),
-    )
+internal actual fun Strings.CornerFractionValue(cornerFraction: Float): ParameterizedString = ParameterizedString(
+    R.string.corner_fraction_value,
+    ParameterizedStringArgument(cornerFraction),
+)
 
 internal actual val Strings.CornerFractionLabel: ParameterizedString get() =
     ParameterizedString(R.string.corner_fraction_label)

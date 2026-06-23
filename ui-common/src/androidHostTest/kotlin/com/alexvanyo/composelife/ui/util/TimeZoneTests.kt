@@ -44,9 +44,10 @@ val ApplicationGraph.timeZoneTests: TimeZoneTestsCtx get() =
     this as TimeZoneTestsCtx
 
 @OptIn(ExperimentalTestApi::class)
-class TimeZoneTests : BaseInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
+class TimeZoneTests :
+    BaseInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
 
     @Test
     fun time_zone_updates_correctly() = runComposeUiTest {

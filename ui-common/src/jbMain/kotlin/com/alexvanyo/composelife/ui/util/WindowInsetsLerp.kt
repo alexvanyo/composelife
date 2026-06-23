@@ -35,6 +35,5 @@ fun lerp(start: WindowInsets, stop: WindowInsets, @FloatRange(from = 0.0, to = 1
         override fun getRight(density: Density, layoutDirection: LayoutDirection): Int =
             lerp(start.getRight(density, layoutDirection), stop.getRight(density, layoutDirection), fraction)
 
-        override fun getTop(density: Density): Int =
-            lerp(start.getTop(density), stop.getTop(density), fraction)
+        override fun getTop(density: Density): Int = lerp(start.getTop(density), stop.getTop(density), fraction)
     }

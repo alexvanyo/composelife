@@ -34,20 +34,16 @@ class PatternCollectionSyncWorker(
     @Assisted private val workerParams: WorkerParameters,
     private val patternCollectionRepository: PatternCollectionRepository,
 ) : CoroutineWorker(appContext, workerParams) {
-    override suspend fun doWork(): Result =
-        if (patternCollectionRepository.synchronizePatternCollections()) {
-            Result.success()
-        } else {
-            Result.retry()
-        }
+    override suspend fun doWork(): Result = if (patternCollectionRepository.synchronizePatternCollections()) {
+        Result.success()
+    } else {
+        Result.retry()
+    }
 
     @ContributesIntoMap(AppScope::class, binding = binding<AssistedWorkerFactory>())
     @WorkerKey(PatternCollectionSyncWorker::class)
     @AssistedFactory
     fun interface Factory : AssistedWorkerFactory {
-        override fun invoke(
-            appContext: Context,
-            workerParams: WorkerParameters,
-        ): PatternCollectionSyncWorker
+        override fun invoke(appContext: Context, workerParams: WorkerParameters): PatternCollectionSyncWorker
     }
 }

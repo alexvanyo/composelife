@@ -232,8 +232,10 @@ class GameOfLifeRenderer(
             complicationShapes.forEach { complicationShape ->
                 val shouldDrawComplicationHighlight = when (highlightedElement) {
                     RenderParameters.HighlightedElement.AllComplicationSlots -> true
+
                     is RenderParameters.HighlightedElement.ComplicationSlot ->
                         highlightedElement.id == complicationShape.id
+
                     is RenderParameters.HighlightedElement.UserStyle -> false
                 }
                 if (shouldDrawComplicationHighlight) {
@@ -248,10 +250,7 @@ class GameOfLifeRenderer(
     }
 }
 
-private fun createTimeCellState(
-    isRound: Boolean,
-    timeDigits: TimeDigits,
-): CellState {
+private fun createTimeCellState(isRound: Boolean, timeDigits: TimeDigits): CellState {
     val timeCellState = timeDigits.firstDigit.cellState
         .union(timeDigits.secondDigit.cellState.offsetBy(IntOffset(14, 0)))
         .union(timeDigits.thirdDigit.cellState.offsetBy(IntOffset(32, 0)))
@@ -340,9 +339,7 @@ data class TimeDigits(
     val fourthDigit: GameOfLifeSegmentChar,
 )
 
-sealed class GameOfLifeSegmentChar(
-    val cellState: CellState,
-) {
+sealed class GameOfLifeSegmentChar(val cellState: CellState) {
     data object Zero : GameOfLifeSegmentChar(segA.union(segB).union(segC).union(segD).union(segE).union(segF))
     data object One : GameOfLifeSegmentChar(segB.union(segC))
     data object Two : GameOfLifeSegmentChar(segA.union(segB).union(segD).union(segE).union(segG))
@@ -358,20 +355,18 @@ sealed class GameOfLifeSegmentChar(
     data object Blank : GameOfLifeSegmentChar(emptyCellState())
 
     companion object {
-        fun fromChar(digit: Int): GameOfLifeSegmentChar {
-            return when (digit) {
-                0 -> Zero
-                1 -> One
-                2 -> Two
-                3 -> Three
-                4 -> Four
-                5 -> Five
-                6 -> Six
-                7 -> Seven
-                8 -> Eight
-                9 -> Nine
-                else -> throw IllegalArgumentException("input wasn't a digit!")
-            }
+        fun fromChar(digit: Int): GameOfLifeSegmentChar = when (digit) {
+            0 -> Zero
+            1 -> One
+            2 -> Two
+            3 -> Three
+            4 -> Four
+            5 -> Five
+            6 -> Six
+            7 -> Seven
+            8 -> Eight
+            9 -> Nine
+            else -> throw IllegalArgumentException("input wasn't a digit!")
         }
     }
 }

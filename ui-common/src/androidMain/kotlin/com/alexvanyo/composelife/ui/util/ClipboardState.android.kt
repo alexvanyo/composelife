@@ -64,12 +64,8 @@ actual suspend fun ClipboardWriter.setText(value: String) {
 
 sealed interface ClipboardStateKey {
     data object Empty : ClipboardStateKey
-    data class PlaintextClipboard(
-        val value: String,
-    ) : ClipboardStateKey
-    data class Unknown(
-        val id: Uuid = Uuid.random(),
-    ) : ClipboardStateKey
+    data class PlaintextClipboard(val value: String) : ClipboardStateKey
+    data class Unknown(val id: Uuid = Uuid.random()) : ClipboardStateKey
 }
 
 @Inject
@@ -83,7 +79,8 @@ class AndroidClipboardReader(
     @param:ActivityContext private val context: Context,
     private val windowInfo: WindowInfo,
     @param:ForScope(UiScope::class) private val lifecycle: Lifecycle,
-) : ClipboardReader, Updatable {
+) : ClipboardReader,
+    Updatable {
 
     val clipboardManager = requireNotNull(context.getSystemService<ClipboardManager>())
 
@@ -102,12 +99,14 @@ class AndroidClipboardReader(
             val currentClipData = _clipData
             return when {
                 currentClipData == null -> ClipboardStateKey.Empty
+
                 currentClipData.itemCount == 1 -> {
                     currentClipData.getItemAt(0)
                         .text
                         ?.toString()
                         ?.let(ClipboardStateKey::PlaintextClipboard) ?: ClipboardStateKey.Unknown()
                 }
+
                 else -> ClipboardStateKey.Unknown()
             }
         }
@@ -137,9 +136,7 @@ class AndroidClipboardReader(
 
 @Inject
 @ContributesBinding(UiScope::class, binding<ClipboardWriter>())
-class AndroidClipboardWriter(
-    @param:ActivityContext private val context: Context,
-) : ClipboardWriter {
+class AndroidClipboardWriter(@param:ActivityContext private val context: Context) : ClipboardWriter {
     private val clipboardManager: ClipboardManager =
         requireNotNull(context.getSystemService<ClipboardManager>())
 

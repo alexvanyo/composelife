@@ -39,26 +39,22 @@ interface TestNetworkBindings {
         internal fun providesHttpClient(
             dispatchers: ComposeLifeDispatchers,
             fakeRequestHandler: FakeRequestHandler,
-        ): HttpClient =
-            HttpClient(MockEngine) {
-                expectSuccess = true
-                engine {
-                    addHandler(fakeRequestHandler.asMockRequestHandler())
-                    dispatcher = dispatchers.IOWithLimitedParallelism(1)
-                }
+        ): HttpClient = HttpClient(MockEngine) {
+            expectSuccess = true
+            engine {
+                addHandler(fakeRequestHandler.asMockRequestHandler())
+                dispatcher = dispatchers.IOWithLimitedParallelism(1)
             }
+        }
 
         @Provides
         @SingleIn(AppScope::class)
         @IntoSet
         @ForScope(AppScope::class)
-        internal fun providesHttpClientClosingIntoUpdatable(
-            httpClient: HttpClient,
-        ): Updatable = object : Updatable {
-            override suspend fun update(): Nothing =
-                httpClient.use { _ ->
-                    awaitCancellation()
-                }
+        internal fun providesHttpClientClosingIntoUpdatable(httpClient: HttpClient): Updatable = object : Updatable {
+            override suspend fun update(): Nothing = httpClient.use { _ ->
+                awaitCancellation()
+            }
         }
     }
 }

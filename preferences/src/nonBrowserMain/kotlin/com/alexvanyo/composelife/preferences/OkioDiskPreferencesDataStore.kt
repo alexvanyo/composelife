@@ -54,7 +54,8 @@ class OkioDiskPreferencesDataStore(
     private val fileSystem: FileSystem,
     @param:PreferencesProtoPath private val path: Lazy<Path>,
     private val dispatchers: ComposeLifeDispatchers,
-) : PreferencesDataStore, Updatable {
+) : PreferencesDataStore,
+    Updatable {
     private val mutex = Mutex()
 
     private val dataStoreCompletable = CompletableDeferred<DataStore<PreferencesProto>>()
@@ -72,17 +73,14 @@ class OkioDiskPreferencesDataStore(
         }
     }
 
-    private fun createDataStore(
-        scope: CoroutineScope,
-    ): DataStore<PreferencesProto> =
-        DataStoreFactory.create(
-            storage = OkioStorage(
-                fileSystem = fileSystem,
-                serializer = serializer,
-                producePath = path::value,
-            ),
-            corruptionHandler = corruptionHandler,
-            migrations = migrations,
-            scope = scope,
-        )
+    private fun createDataStore(scope: CoroutineScope): DataStore<PreferencesProto> = DataStoreFactory.create(
+        storage = OkioStorage(
+            fileSystem = fileSystem,
+            serializer = serializer,
+            producePath = path::value,
+        ),
+        corruptionHandler = corruptionHandler,
+        migrations = migrations,
+        scope = scope,
+    )
 }

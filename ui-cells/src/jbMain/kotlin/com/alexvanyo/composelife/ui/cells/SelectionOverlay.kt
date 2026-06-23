@@ -69,12 +69,12 @@ import kotlin.uuid.Uuid
 /**
  * The overlay based on the [selectionSessionState].
  */
-context(
-    _: CellStateParser,
-_: CellWindowImplCtx,
-)
 @Suppress("LongMethod", "LongParameterList", "CyclomaticComplexMethod")
 @Composable
+context(
+    _: CellStateParser,
+    _: CellWindowImplCtx,
+)
 internal fun SelectionOverlay(
     selectionSessionState: SessionValue<SelectionState>,
     setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,
@@ -153,6 +153,7 @@ internal fun SelectionOverlay(
                             ),
                         )
                     }
+
                     CellStateDropState.None -> Unit
                 }
             }
@@ -172,6 +173,7 @@ internal fun SelectionOverlay(
 
                 when (val cellStateDropState = cellStateDropStateHolder.cellStateDropState) {
                     CellStateDropState.ApplicableDropAvailable -> Unit
+
                     is CellStateDropState.DropPreview -> {
                         drawDropPreview(
                             dropPreview = cellStateDropState,

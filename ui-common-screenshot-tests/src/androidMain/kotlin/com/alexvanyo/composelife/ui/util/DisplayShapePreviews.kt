@@ -215,18 +215,17 @@ fun createDisplayShape(
     )
 }
 
-fun DeviceConfigurationOverride.Companion.WindowSize(
-    size: DpSize,
-): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
-    val windowInfo = LocalWindowInfo.current
-    val density = LocalDensity.current
+fun DeviceConfigurationOverride.Companion.WindowSize(size: DpSize): DeviceConfigurationOverride =
+    DeviceConfigurationOverride { contentUnderTest ->
+        val windowInfo = LocalWindowInfo.current
+        val density = LocalDensity.current
 
-    val newWindowInfo = object : WindowInfo by windowInfo {
-        override val containerSize: IntSize
-            get() = with(density) { size.toSize().roundToIntSize() }
-    }
+        val newWindowInfo = object : WindowInfo by windowInfo {
+            override val containerSize: IntSize
+                get() = with(density) { size.toSize().roundToIntSize() }
+        }
 
-    CompositionLocalProvider(LocalWindowInfo provides newWindowInfo) {
-        contentUnderTest()
+        CompositionLocalProvider(LocalWindowInfo provides newWindowInfo) {
+            contentUnderTest()
+        }
     }
-}

@@ -43,10 +43,8 @@ import kotlinx.coroutines.flow.onEach
     @ForScope(AppScope::class)
     Updatable,
     >())
-class AppCompatSync(
-    private val composeLifePreferences: ComposeLifePreferences,
-    @ApplicationContext context: Context,
-) : Updatable {
+class AppCompatSync(private val composeLifePreferences: ComposeLifePreferences, @ApplicationContext context: Context) :
+    Updatable {
     private val uiModeManager = context.getSystemService<UiModeManager>()
 
     override suspend fun update(): Nothing {

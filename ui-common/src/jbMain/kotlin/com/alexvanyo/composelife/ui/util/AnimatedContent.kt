@@ -91,13 +91,16 @@ fun <M> AnimatedContentDefaults.defaultTransitionSpec(): @Composable Transition<
                     is ContentStatus.Appearing,
                     is ContentStatus.Disappearing,
                     -> spring()
+
                     ContentStatus.NotVisible,
                     ContentStatus.Visible,
                     -> when (this@animateFloat.targetState) {
                         is ContentStatus.Appearing,
                         is ContentStatus.Disappearing,
                         -> spring()
+
                         ContentStatus.NotVisible -> tween(durationMillis = 90)
+
                         ContentStatus.Visible -> tween(durationMillis = 220, delayMillis = 90)
                     }
                 }
@@ -128,6 +131,7 @@ fun <T> AnimatedContentDefaults.defaultTargetRenderingComparator(targetState: Ta
                 targetState.provisional -> 0f
                 else -> 2f
             }
+
             is TargetState.Single -> if (it == targetState.current) 1f else 2f
         }
     }
@@ -241,9 +245,7 @@ fun <T, M, K> AnimatedContent(
     val seekableTransition = animatedContentState.seekableTransition
     val targetKeysWithTransitions = animatedContentState.targetKeysWithTransitions
 
-    data class ConstraintsType(
-        val isLookahead: Boolean,
-    )
+    data class ConstraintsType(val isLookahead: Boolean)
 
     @Stable
     class ConstraintsCache {
@@ -379,6 +381,7 @@ fun <T, M, K> AnimatedContent(
                                 targetState.progress,
                             )
                         }
+
                         is TargetState.Single -> placeablesMap.getValue(targetState.current).size
                     }
 
@@ -405,12 +408,11 @@ fun <T, M, K> AnimatedContent(
                 override fun MeasureScope.measure(
                     measurables: List<Measurable>,
                     constraints: Constraints,
-                ): MeasureResult =
-                    measure(
-                        measurables = measurables,
-                        constraints = constraints,
-                        isIntrinsic = false,
-                    )
+                ): MeasureResult = measure(
+                    measurables = measurables,
+                    constraints = constraints,
+                    isIntrinsic = false,
+                )
 
                 override fun IntrinsicMeasureScope.maxIntrinsicHeight(
                     measurables: List<IntrinsicMeasurable>,
@@ -509,25 +511,23 @@ private class FixedSizeIntrinsicsPlaceable(width: Int, height: Int) : Placeable(
     }
 
     override fun get(alignmentLine: AlignmentLine): Int = AlignmentLine.Unspecified
-    override fun placeAt(
-        position: IntOffset,
-        zIndex: Float,
-        layerBlock: (GraphicsLayerScope.() -> Unit)?,
-    ) = Unit
+    override fun placeAt(position: IntOffset, zIndex: Float, layerBlock: (GraphicsLayerScope.() -> Unit)?) = Unit
 }
 
 /**
  * Identifies an [IntrinsicMeasurable] as a min or max intrinsic measurement.
  */
 private enum class IntrinsicMinMax {
-    Min, Max
+    Min,
+    Max,
 }
 
 /**
  * Identifies an [IntrinsicMeasurable] as a width or height intrinsic measurement.
  */
 private enum class IntrinsicWidthHeight {
-    Width, Height
+    Width,
+    Height,
 }
 
 /**
@@ -561,37 +561,25 @@ private class DefaultIntrinsicMeasurable(
         return FixedSizeIntrinsicsPlaceable(constraints.maxWidth, height)
     }
 
-    override fun minIntrinsicWidth(height: Int): Int {
-        return measurable.minIntrinsicWidth(height)
-    }
+    override fun minIntrinsicWidth(height: Int): Int = measurable.minIntrinsicWidth(height)
 
-    override fun maxIntrinsicWidth(height: Int): Int {
-        return measurable.maxIntrinsicWidth(height)
-    }
+    override fun maxIntrinsicWidth(height: Int): Int = measurable.maxIntrinsicWidth(height)
 
-    override fun minIntrinsicHeight(width: Int): Int {
-        return measurable.minIntrinsicHeight(width)
-    }
+    override fun minIntrinsicHeight(width: Int): Int = measurable.minIntrinsicHeight(width)
 
-    override fun maxIntrinsicHeight(width: Int): Int {
-        return measurable.maxIntrinsicHeight(width)
-    }
+    override fun maxIntrinsicHeight(width: Int): Int = measurable.maxIntrinsicHeight(width)
 }
 
 /**
  * Receiver scope for [Layout]'s and [LayoutModifier]'s layout lambda when used in an intrinsics
  * call.
  */
-private class IntrinsicsMeasureScope(
-    density: Density,
-    override val layoutDirection: LayoutDirection,
-) : MeasureScope, Density by density
+private class IntrinsicsMeasureScope(density: Density, override val layoutDirection: LayoutDirection) :
+    MeasureScope,
+    Density by density
 
 @Composable
-private fun <T> Transition<T>.targetEnterExit(
-    visible: (T) -> Boolean,
-    targetState: T,
-): EnterExitState = key(this) {
+private fun <T> Transition<T>.targetEnterExit(visible: (T) -> Boolean, targetState: T): EnterExitState = key(this) {
     val hasBeenVisible = remember { mutableStateOf(false) }
     if (visible(currentState)) {
         hasBeenVisible.value = true
@@ -610,14 +598,8 @@ private fun <T> Transition<T>.targetEnterExit(
 
 sealed interface ContentStatus<out M> {
     data object Visible : ContentStatus<Nothing>
-    data class Appearing<M>(
-        val progressToVisible: Float,
-        val metadata: M,
-    ) : ContentStatus<M>
-    data class Disappearing<M>(
-        val progressToNotVisible: Float,
-        val metadata: M,
-    ) : ContentStatus<M>
+    data class Appearing<M>(val progressToVisible: Float, val metadata: M) : ContentStatus<M>
+    data class Disappearing<M>(val progressToNotVisible: Float, val metadata: M) : ContentStatus<M>
     data object NotVisible : ContentStatus<Nothing>
 }
 
@@ -641,12 +623,11 @@ val <T, M, K> AnimatedContentState<T, M, K>.targetKeyState: TargetState<K, M> ge
 fun <T, M> rememberAnimatedContentState(
     targetState: TargetState<T, M>,
     label: String = "Custom AnimatedContent",
-): AnimatedContentState<T, M, T> =
-    rememberAnimatedContentState(
-        targetState = targetState,
-        contentKey = { it },
-        label = label,
-    )
+): AnimatedContentState<T, M, T> = rememberAnimatedContentState(
+    targetState = targetState,
+    contentKey = { it },
+    label = label,
+)
 
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
@@ -730,12 +711,15 @@ fun <T, M, K> rememberAnimatedContentState(
                         progressToVisible = targetKeyState.progress,
                         metadata = targetKeyState.metadata,
                     )
+
                     targetKeyState.current -> ContentStatus.Disappearing(
                         progressToNotVisible = targetKeyState.progress,
                         metadata = targetKeyState.metadata,
                     )
+
                     else -> ContentStatus.NotVisible
                 }
+
                 is TargetState.Single -> if (targetKeyState.current == targetKey) {
                     ContentStatus.Visible
                 } else {
@@ -766,6 +750,7 @@ fun <T, M, K> rememberAnimatedContentState(
             when (targetKeyState) {
                 is TargetState.InProgress ->
                     targetKey != targetKeyState.provisional && targetKey != targetKeyState.current
+
                 is TargetState.Single ->
                     targetKey != targetKeyState.current
             }

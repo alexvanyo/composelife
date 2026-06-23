@@ -58,10 +58,7 @@ sealed interface CellStateDropState {
     /**
      * There is an active previewable drop for the cell state
      */
-    data class DropPreview(
-        val offset: Offset,
-        val cellState: CellState,
-    ) : CellStateDropState
+    data class DropPreview(val offset: Offset, val cellState: CellState) : CellStateDropState
 }
 
 /**
@@ -78,7 +75,9 @@ interface CellStateDropStateHolder {
  * This is also a [DragAndDropTarget] to be passed to a drag and drop target to update the current drop state.
  */
 @Stable
-sealed interface MutableCellStateDropStateHolder : CellStateDropStateHolder, DragAndDropTarget
+sealed interface MutableCellStateDropStateHolder :
+    CellStateDropStateHolder,
+    DragAndDropTarget
 
 internal expect class DragAndDropSession() {
     val isEntered: Boolean
@@ -108,7 +107,8 @@ internal expect suspend fun awaitAndParseCellState(
 internal class MutableCellStateDropStateHolderImpl(
     private val cellStateParser: CellStateParser,
     private val setSelectionToCellState: (dropOffset: Offset, cellState: CellState) -> Unit,
-) : MutableCellStateDropStateHolder, Updatable {
+) : MutableCellStateDropStateHolder,
+    Updatable {
 
     var positionInRoot: Offset by mutableStateOf(Offset.Zero)
 
@@ -128,6 +128,7 @@ internal class MutableCellStateDropStateHolderImpl(
                             cellState = deserializationResult.cellState,
                         )
                     }
+
                     is DeserializationResult.Unsuccessful -> {
                         // TODO: Show error for what will be an unsuccessful drag and drop
                         CellStateDropState.ApplicableDropAvailable
@@ -195,6 +196,7 @@ internal class MutableCellStateDropStateHolderImpl(
                                         deserializationResult.cellState,
                                     )
                                 }
+
                                 is DeserializationResult.Unsuccessful -> {
                                     // TODO: Show error for unsuccessful drag and drop
                                 }
@@ -218,8 +220,8 @@ internal class MutableCellStateDropStateHolderImpl(
  *
  * The passed [dropOffset] will be in the local coordinates of the [cellStateDragAndDropTarget].
  */
-context(cellStateParser: CellStateParser)
 @Composable
+context(cellStateParser: CellStateParser)
 fun rememberMutableCellStateDropStateHolder(
     setSelectionToCellState: (dropOffset: Offset, cellState: CellState) -> Unit,
 ): MutableCellStateDropStateHolder {

@@ -53,10 +53,7 @@ private class GameOfLifeAlgorithmFactory(
     override fun toString(): String = algorithmName
 }
 
-private class CellStateMapper(
-    val name: String,
-    val mapper: (CellState) -> CellState,
-) {
+private class CellStateMapper(val name: String, val mapper: (CellState) -> CellState) {
     override fun toString(): String = name
 }
 
@@ -65,49 +62,52 @@ val GameOfLifeAlgorithmTests by testSuite(
     testConfig = TestConfig.testScope(true, Duration.INFINITE),
 ) {
 
-    val algorithmFactories = listOf(
-        GameOfLifeAlgorithmFactory("Naive Algorithm") {
-            NaiveGameOfLifeAlgorithm(it) to Job().apply { complete() }
-        },
-        GameOfLifeAlgorithmFactory("HashLife Algorithm") {
-            HashLifeAlgorithm(it) to Job().apply { complete() }
-        },
-        GameOfLifeAlgorithmFactory("Configurable Algorithm") {
-            val preferences = TestComposeLifePreferences()
+    val algorithmFactories =
+        listOf(
+            GameOfLifeAlgorithmFactory("Naive Algorithm") {
+                NaiveGameOfLifeAlgorithm(it) to Job().apply { complete() }
+            },
+            GameOfLifeAlgorithmFactory("HashLife Algorithm") {
+                HashLifeAlgorithm(it) to Job().apply { complete() }
+            },
+            GameOfLifeAlgorithmFactory("Configurable Algorithm") {
+                val preferences = TestComposeLifePreferences()
 
-            val job = launch {
-                while (true) {
-                    preferences.setAlgorithmChoice(AlgorithmType.HashLifeAlgorithm)
-                    delay(10)
-                    preferences.setAlgorithmChoice(AlgorithmType.NaiveAlgorithm)
-                    delay(10)
-                }
-            }
+                val job =
+                    launch {
+                        while (true) {
+                            preferences.setAlgorithmChoice(AlgorithmType.HashLifeAlgorithm)
+                            delay(10)
+                            preferences.setAlgorithmChoice(AlgorithmType.NaiveAlgorithm)
+                            delay(10)
+                        }
+                    }
 
-            ConfigurableGameOfLifeAlgorithm(
-                preferences = preferences,
-                naiveGameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(it),
-                hashLifeAlgorithm = HashLifeAlgorithm(it),
-            ) to job
-        },
-    )
-    val cellStateMappers = listOf(
-        CellStateMapper("Identity") { cellState ->
-            cellState
-        },
-        CellStateMapper("Flip across x-axis") { cellState ->
-            CellState(cellState.aliveCells.map { cell -> IntOffset(cell.x, -cell.y) }.toSet())
-        },
-        CellStateMapper("Flip across y-axis") { cellState ->
-            CellState(cellState.aliveCells.map { cell -> IntOffset(-cell.x, cell.y) }.toSet())
-        },
-        CellStateMapper("Flip across x = y") { cellState ->
-            CellState(cellState.aliveCells.map { cell -> IntOffset(cell.y, cell.x) }.toSet())
-        },
-        CellStateMapper("Translate by an arbitrary amount") { cellState ->
-            CellState(cellState.aliveCells.map { cell -> cell + IntOffset(157, 72) }.toSet())
-        },
-    )
+                ConfigurableGameOfLifeAlgorithm(
+                    preferences = preferences,
+                    naiveGameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(it),
+                    hashLifeAlgorithm = HashLifeAlgorithm(it),
+                ) to job
+            },
+        )
+    val cellStateMappers =
+        listOf(
+            CellStateMapper("Identity") { cellState ->
+                cellState
+            },
+            CellStateMapper("Flip across x-axis") { cellState ->
+                CellState(cellState.aliveCells.map { cell -> IntOffset(cell.x, -cell.y) }.toSet())
+            },
+            CellStateMapper("Flip across y-axis") { cellState ->
+                CellState(cellState.aliveCells.map { cell -> IntOffset(-cell.x, cell.y) }.toSet())
+            },
+            CellStateMapper("Flip across x = y") { cellState ->
+                CellState(cellState.aliveCells.map { cell -> IntOffset(cell.y, cell.x) }.toSet())
+            },
+            CellStateMapper("Translate by an arbitrary amount") { cellState ->
+                CellState(cellState.aliveCells.map { cell -> cell + IntOffset(157, 72) }.toSet())
+            },
+        )
 
     val testPatterns: List<GameOfLifeTestPattern> = GameOfLifeTestPattern.values
     algorithmFactories.forEach { algorithmFactory ->
@@ -129,22 +129,22 @@ val GameOfLifeAlgorithmTests by testSuite(
                                 @OptIn(ExperimentalStdlibApi::class)
                                 val dispatcher =
                                     currentCoroutineContext()[ContinuationInterceptor] as CoroutineDispatcher
-                                val (algorithm, job) = algorithmFactory.factory(
-                                    this,
-                                    TestComposeLifeDispatchers(
-                                        generalTestDispatcher = dispatcher,
-                                        cellTickerTestDispatcher = dispatcher,
-                                    ),
-                                )
+                                val (algorithm, job) =
+                                    algorithmFactory.factory(
+                                        this,
+                                        TestComposeLifeDispatchers(
+                                            generalTestDispatcher = dispatcher,
+                                            cellTickerTestDispatcher = dispatcher,
+                                        ),
+                                    )
 
-                                algorithm.computeGenerationsWithStep(
-                                    originalCellState = cellStateMapper.mapper(testPattern.seedCellState),
-                                    step = 1,
-                                )
-                                    .onEach {
+                                algorithm
+                                    .computeGenerationsWithStep(
+                                        originalCellState = cellStateMapper.mapper(testPattern.seedCellState),
+                                        step = 1,
+                                    ).onEach {
                                         delay(10.milliseconds)
-                                    }
-                                    .take(testPattern.maxGenerationCellState)
+                                    }.take(testPattern.maxGenerationCellState)
                                     .collectIndexed { index, value ->
                                         testPattern.cellStates[index + 1]?.let { expectedCellState ->
                                             assertCellStateEquals(
@@ -161,22 +161,22 @@ val GameOfLifeAlgorithmTests by testSuite(
                                 @OptIn(ExperimentalStdlibApi::class)
                                 val dispatcher =
                                     currentCoroutineContext()[ContinuationInterceptor] as CoroutineDispatcher
-                                val (algorithm, job) = algorithmFactory.factory(
-                                    this,
-                                    TestComposeLifeDispatchers(
-                                        generalTestDispatcher = dispatcher,
-                                        cellTickerTestDispatcher = dispatcher,
-                                    ),
-                                )
+                                val (algorithm, job) =
+                                    algorithmFactory.factory(
+                                        this,
+                                        TestComposeLifeDispatchers(
+                                            generalTestDispatcher = dispatcher,
+                                            cellTickerTestDispatcher = dispatcher,
+                                        ),
+                                    )
 
-                                algorithm.computeGenerationsWithStep(
-                                    originalCellState = cellStateMapper.mapper(testPattern.seedCellState),
-                                    step = 2,
-                                )
-                                    .onEach {
+                                algorithm
+                                    .computeGenerationsWithStep(
+                                        originalCellState = cellStateMapper.mapper(testPattern.seedCellState),
+                                        step = 2,
+                                    ).onEach {
                                         delay(10.milliseconds)
-                                    }
-                                    .take(testPattern.maxGenerationCellState / 2)
+                                    }.take(testPattern.maxGenerationCellState / 2)
                                     .collectIndexed { index, value ->
                                         testPattern.cellStates[(index + 1) * 2]?.let { expectedCellState ->
                                             assertCellStateEquals(
@@ -193,13 +193,14 @@ val GameOfLifeAlgorithmTests by testSuite(
                                 @OptIn(ExperimentalStdlibApi::class)
                                 val dispatcher =
                                     currentCoroutineContext()[ContinuationInterceptor] as CoroutineDispatcher
-                                val (algorithm, job) = algorithmFactory.factory(
-                                    this,
-                                    TestComposeLifeDispatchers(
-                                        generalTestDispatcher = dispatcher,
-                                        cellTickerTestDispatcher = dispatcher,
-                                    ),
-                                )
+                                val (algorithm, job) =
+                                    algorithmFactory.factory(
+                                        this,
+                                        TestComposeLifeDispatchers(
+                                            generalTestDispatcher = dispatcher,
+                                            cellTickerTestDispatcher = dispatcher,
+                                        ),
+                                    )
 
                                 var previous = cellStateMapper.mapper(testPattern.seedCellState)
 
@@ -221,13 +222,14 @@ val GameOfLifeAlgorithmTests by testSuite(
                                 @OptIn(ExperimentalStdlibApi::class)
                                 val dispatcher =
                                     currentCoroutineContext()[ContinuationInterceptor] as CoroutineDispatcher
-                                val (algorithm, job) = algorithmFactory.factory(
-                                    this,
-                                    TestComposeLifeDispatchers(
-                                        generalTestDispatcher = dispatcher,
-                                        cellTickerTestDispatcher = dispatcher,
-                                    ),
-                                )
+                                val (algorithm, job) =
+                                    algorithmFactory.factory(
+                                        this,
+                                        TestComposeLifeDispatchers(
+                                            generalTestDispatcher = dispatcher,
+                                            cellTickerTestDispatcher = dispatcher,
+                                        ),
+                                    )
 
                                 var previous = cellStateMapper.mapper(testPattern.seedCellState)
 

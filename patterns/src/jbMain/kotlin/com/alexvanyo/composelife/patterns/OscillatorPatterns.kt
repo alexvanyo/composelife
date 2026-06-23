@@ -41,6 +41,7 @@ sealed class OscillatorPattern(
     val period = otherCellStates.size + 1
 
     @GenSealedEnum(generateEnum = true)
+    @Suppress("PropertyName")
     companion object {
         const val oscillatorTestGenerations = 50
     }
@@ -187,4 +188,5 @@ data object PulsarPattern : OscillatorPattern(
     ),
 )
 
+@Suppress("BackingPropertyNaming")
 expect val OscillatorPattern.Companion._values: List<OscillatorPattern>

@@ -31,14 +31,10 @@ interface ImageLoaderKeyerBindings {
     val keyers: Set<KeyerWithType<out Any>>
 }
 
-class KeyerWithType<T : Any>(
-    val type: KClass<T>,
-    val keyer: Keyer<T>,
-)
+class KeyerWithType<T : Any>(val type: KClass<T>, val keyer: Keyer<T>)
 
 fun <T : Any> KeyerWithType<T>.addTo(componentRegistryBuilder: ComponentRegistry.Builder) {
     componentRegistryBuilder.add(keyer, type)
 }
 
-inline fun <reified T : Any> Keyer<T>.withType(): KeyerWithType<T> =
-    KeyerWithType(T::class, this)
+inline fun <reified T : Any> Keyer<T>.withType(): KeyerWithType<T> = KeyerWithType(T::class, this)

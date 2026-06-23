@@ -29,10 +29,9 @@ class EngineFactoryWithConfigBlock<T : HttpClientEngineConfig>(
 fun <T : HttpClientEngineConfig> HttpClient(
     engineFactoryWithConfig: EngineFactoryWithConfigBlock<T>,
     block: HttpClientConfig<T>.() -> Unit,
-): HttpClient =
-    HttpClient(
-        engineFactoryWithConfig.engineFactory,
-    ) {
-        engineFactoryWithConfig.block(this)
-        block()
-    }
+): HttpClient = HttpClient(
+    engineFactoryWithConfig.engineFactory,
+) {
+    engineFactoryWithConfig.block(this)
+    block()
+}

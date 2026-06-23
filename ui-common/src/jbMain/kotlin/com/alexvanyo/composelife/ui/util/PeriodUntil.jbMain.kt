@@ -38,39 +38,38 @@ import kotlin.time.Instant
  */
 @Suppress("ComposeUnstableReceiver")
 @Composable
-fun Instant.periodUntil(
-    clock: Clock,
-    unit: DateTimeUnit,
-    timeZone: TimeZone,
-): DateTimePeriod = key(this, clock, unit, timeZone) {
-    produceState(
-        remember {
-            this.periodUntilWithUnit(
-                other = clock.now(),
-                unit = unit,
-                timeZone = timeZone,
-            )
-        },
-    ) {
-        while (isActive) {
-            val targetPeriod = when (unit) {
-                is DateTimeUnit.TimeBased ->
-                    DateTimePeriod(nanoseconds = value.totalNanoseconds + unit.nanoseconds)
-                is DateTimeUnit.DayBased ->
-                    DateTimePeriod(days = value.days + unit.days)
-                is DateTimeUnit.MonthBased ->
-                    DateTimePeriod(months = value.months + unit.months)
+fun Instant.periodUntil(clock: Clock, unit: DateTimeUnit, timeZone: TimeZone): DateTimePeriod =
+    key(this, clock, unit, timeZone) {
+        produceState(
+            remember {
+                this.periodUntilWithUnit(
+                    other = clock.now(),
+                    unit = unit,
+                    timeZone = timeZone,
+                )
+            },
+        ) {
+            while (isActive) {
+                val targetPeriod = when (unit) {
+                    is DateTimeUnit.TimeBased ->
+                        DateTimePeriod(nanoseconds = value.totalNanoseconds + unit.nanoseconds)
+
+                    is DateTimeUnit.DayBased ->
+                        DateTimePeriod(days = value.days + unit.days)
+
+                    is DateTimeUnit.MonthBased ->
+                        DateTimePeriod(months = value.months + unit.months)
+                }
+                val targetInstant = this@periodUntil.plus(targetPeriod, timeZone)
+                delay(targetInstant - clock.now())
+                value = this@periodUntil.periodUntilWithUnit(
+                    other = clock.now(),
+                    unit = unit,
+                    timeZone = timeZone,
+                )
             }
-            val targetInstant = this@periodUntil.plus(targetPeriod, timeZone)
-            delay(targetInstant - clock.now())
-            value = this@periodUntil.periodUntilWithUnit(
-                other = clock.now(),
-                unit = unit,
-                timeZone = timeZone,
-            )
-        }
-    }.value
-}
+        }.value
+    }
 
 /**
  * Returns an observable [DateTimePeriod] of [unit]s since the given [Instant], using the [clock] to determine the
@@ -81,10 +80,7 @@ fun Instant.periodUntil(
  */
 @Suppress("ComposeUnstableReceiver")
 @Composable
-fun Instant.periodUntil(
-    clock: Clock,
-    unit: DateTimeUnit.TimeBased,
-): DateTimePeriod = key(this, clock, unit) {
+fun Instant.periodUntil(clock: Clock, unit: DateTimeUnit.TimeBased): DateTimePeriod = key(this, clock, unit) {
     produceState(
         remember {
             this.periodUntilWithUnit(
@@ -124,41 +120,42 @@ fun Instant.progressivePeriodUntil(
     clock: Clock,
     unitProgression: List<DateTimeUnit>,
     timeZone: TimeZone,
-): Pair<DateTimeUnit, DateTimePeriod> =
-    key(this, clock, unitProgression, timeZone) {
-        produceState(
-            remember {
-                this.periodUntilWithProgressiveUnits(
-                    other = clock.now(),
-                    unitProgression = unitProgression,
-                    timeZone = timeZone,
-                )
-            },
-        ) {
-            while (isActive) {
-                // Determine the minimum (that is, the soonest to occur) instant where the period would change by
-                // the given unit among the units that could be used as more time passes
-                val unitIndex = unitProgression.indexOf(value.first)
-                val targetInstant = unitProgression.subList(0, unitIndex + 1).minOf { unit ->
-                    val period = when (unit) {
-                        is DateTimeUnit.TimeBased ->
-                            DateTimePeriod(nanoseconds = value.second.totalNanoseconds + unit.nanoseconds)
-                        is DateTimeUnit.DayBased ->
-                            DateTimePeriod(days = value.second.days + unit.days)
-                        is DateTimeUnit.MonthBased ->
-                            DateTimePeriod(months = value.second.months + unit.months)
-                    }
-                    this@progressivePeriodUntil.plus(period, timeZone)
+): Pair<DateTimeUnit, DateTimePeriod> = key(this, clock, unitProgression, timeZone) {
+    produceState(
+        remember {
+            this.periodUntilWithProgressiveUnits(
+                other = clock.now(),
+                unitProgression = unitProgression,
+                timeZone = timeZone,
+            )
+        },
+    ) {
+        while (isActive) {
+            // Determine the minimum (that is, the soonest to occur) instant where the period would change by
+            // the given unit among the units that could be used as more time passes
+            val unitIndex = unitProgression.indexOf(value.first)
+            val targetInstant = unitProgression.subList(0, unitIndex + 1).minOf { unit ->
+                val period = when (unit) {
+                    is DateTimeUnit.TimeBased ->
+                        DateTimePeriod(nanoseconds = value.second.totalNanoseconds + unit.nanoseconds)
+
+                    is DateTimeUnit.DayBased ->
+                        DateTimePeriod(days = value.second.days + unit.days)
+
+                    is DateTimeUnit.MonthBased ->
+                        DateTimePeriod(months = value.second.months + unit.months)
                 }
-                delay(targetInstant - clock.now())
-                value = this@progressivePeriodUntil.periodUntilWithProgressiveUnits(
-                    other = clock.now(),
-                    unitProgression = unitProgression,
-                    timeZone = timeZone,
-                )
+                this@progressivePeriodUntil.plus(period, timeZone)
             }
-        }.value
-    }
+            delay(targetInstant - clock.now())
+            value = this@progressivePeriodUntil.periodUntilWithProgressiveUnits(
+                other = clock.now(),
+                unitProgression = unitProgression,
+                timeZone = timeZone,
+            )
+        }
+    }.value
+}
 
 /**
  * Returns an observable [DateTimePeriod] for a progression of units since the given [Instant], using the [clock] to
@@ -177,30 +174,29 @@ fun Instant.progressivePeriodUntil(
 fun Instant.progressivePeriodUntil(
     clock: Clock,
     unitProgression: List<DateTimeUnit.TimeBased>,
-): Pair<DateTimeUnit, DateTimePeriod> =
-    key(this, clock, unitProgression) {
-        produceState(
-            remember {
-                this.periodUntilWithProgressiveUnits(
-                    other = clock.now(),
-                    unitProgression = unitProgression,
-                )
-            },
-        ) {
-            while (isActive) {
-                // Determine the minimum (that is, the soonest to occur) instant where the period would change by
-                // the given unit among the units that could be used as more time passes
-                val unitIndex = unitProgression.indexOf(value.first)
-                val targetInstant = unitProgression.subList(0, unitIndex + 1).minOf { unit ->
-                    this@progressivePeriodUntil.plus(
-                        value.second.timeComponentDuration + unit.duration,
-                    )
-                }
-                delay(targetInstant - clock.now())
-                value = this@progressivePeriodUntil.periodUntilWithProgressiveUnits(
-                    other = clock.now(),
-                    unitProgression = unitProgression,
+): Pair<DateTimeUnit, DateTimePeriod> = key(this, clock, unitProgression) {
+    produceState(
+        remember {
+            this.periodUntilWithProgressiveUnits(
+                other = clock.now(),
+                unitProgression = unitProgression,
+            )
+        },
+    ) {
+        while (isActive) {
+            // Determine the minimum (that is, the soonest to occur) instant where the period would change by
+            // the given unit among the units that could be used as more time passes
+            val unitIndex = unitProgression.indexOf(value.first)
+            val targetInstant = unitProgression.subList(0, unitIndex + 1).minOf { unit ->
+                this@progressivePeriodUntil.plus(
+                    value.second.timeComponentDuration + unit.duration,
                 )
             }
-        }.value
-    }
+            delay(targetInstant - clock.now())
+            value = this@progressivePeriodUntil.periodUntilWithProgressiveUnits(
+                other = clock.now(),
+                unitProgression = unitProgression,
+            )
+        }
+    }.value
+}

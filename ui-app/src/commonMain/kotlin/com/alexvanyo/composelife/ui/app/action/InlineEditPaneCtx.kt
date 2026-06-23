@@ -114,13 +114,13 @@ interface PinnedClipboardPreviewState {
     fun onViewDeserializationInfo()
 }
 
+@Composable
 context(
     composeLifePreferences: ComposeLifePreferences,
-preferencesHolder: LoadedComposeLifePreferencesHolder,
-cellStateParser: CellStateParser,
-clipboardReader: ClipboardReader,
+    preferencesHolder: LoadedComposeLifePreferencesHolder,
+    cellStateParser: CellStateParser,
+    clipboardReader: ClipboardReader,
 )
-@Composable
 internal fun rememberInlineEditPaneState(
     setSelectionToCellState: (CellState) -> Unit,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
@@ -198,49 +198,47 @@ fun rememberClipboardWatchingState(
     setSelectionToCellState: (CellState) -> Unit,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
-): ClipboardWatchingState =
-    if (preferences.completedClipboardWatchingOnboarding) {
-        if (preferences.enableClipboardWatching) {
-            rememberClipboardWatchingEnabledState(
-                cellStateParser = cellStateParser,
-                clipboardReader = clipboardReader,
-                preferences = preferences,
-                setSelectionToCellState = setSelectionToCellState,
-                onViewDeserializationInfo = onViewDeserializationInfo,
-            )
-        } else {
-            ClipboardWatchingState.ClipboardWatchingDisabled
-        }
+): ClipboardWatchingState = if (preferences.completedClipboardWatchingOnboarding) {
+    if (preferences.enableClipboardWatching) {
+        rememberClipboardWatchingEnabledState(
+            cellStateParser = cellStateParser,
+            clipboardReader = clipboardReader,
+            preferences = preferences,
+            setSelectionToCellState = setSelectionToCellState,
+            onViewDeserializationInfo = onViewDeserializationInfo,
+        )
     } else {
-        rememberClipboardWatchingOnboardingState(composeLifePreferences, coroutineScope)
+        ClipboardWatchingState.ClipboardWatchingDisabled
     }
+} else {
+    rememberClipboardWatchingOnboardingState(composeLifePreferences, coroutineScope)
+}
 
 @Composable
 fun rememberClipboardWatchingOnboardingState(
     composeLifePreferences: ComposeLifePreferences,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
-): ClipboardWatchingState.Onboarding =
-    remember(coroutineScope, composeLifePreferences) {
-        object : ClipboardWatchingState.Onboarding {
-            override fun onAllowClipboardWatching() {
-                coroutineScope.launch {
-                    composeLifePreferences.update {
-                        setEnableClipboardWatching(true)
-                        setCompletedClipboardWatchingOnboarding(true)
-                    }
+): ClipboardWatchingState.Onboarding = remember(coroutineScope, composeLifePreferences) {
+    object : ClipboardWatchingState.Onboarding {
+        override fun onAllowClipboardWatching() {
+            coroutineScope.launch {
+                composeLifePreferences.update {
+                    setEnableClipboardWatching(true)
+                    setCompletedClipboardWatchingOnboarding(true)
                 }
             }
+        }
 
-            override fun onDisallowClipboardWatching() {
-                coroutineScope.launch {
-                    composeLifePreferences.update {
-                        setEnableClipboardWatching(false)
-                        setCompletedClipboardWatchingOnboarding(true)
-                    }
+        override fun onDisallowClipboardWatching() {
+            coroutineScope.launch {
+                composeLifePreferences.update {
+                    setEnableClipboardWatching(false)
+                    setCompletedClipboardWatchingOnboarding(true)
                 }
             }
         }
     }
+}
 
 @Composable
 fun rememberClipboardWatchingEnabledState(
@@ -249,17 +247,16 @@ fun rememberClipboardWatchingEnabledState(
     preferences: LoadedComposeLifePreferences,
     setSelectionToCellState: (CellState) -> Unit,
     onViewDeserializationInfo: (DeserializationResult) -> Unit,
-): ClipboardWatchingState.ClipboardWatchingEnabled =
-    rememberClipboardWatchingEnabledState(
-        useSharedElementForCellStatePreviews = isSharedElementForCellsSupported(
-            preferences = preferences,
-            isThumbnail = true,
-        ),
-        clipboardReader = clipboardReader,
-        parser = cellStateParser,
-        setSelectionToCellState = setSelectionToCellState,
-        onViewDeserializationInfo = onViewDeserializationInfo,
-    )
+): ClipboardWatchingState.ClipboardWatchingEnabled = rememberClipboardWatchingEnabledState(
+    useSharedElementForCellStatePreviews = isSharedElementForCellsSupported(
+        preferences = preferences,
+        isThumbnail = true,
+    ),
+    clipboardReader = clipboardReader,
+    parser = cellStateParser,
+    setSelectionToCellState = setSelectionToCellState,
+    onViewDeserializationInfo = onViewDeserializationInfo,
+)
 
 @Suppress("LongMethod")
 @Composable
@@ -337,37 +334,39 @@ fun rememberClipboardWatchingEnabledState(
 
             override val clipboardPreviewStates: List<ClipboardPreviewState>
                 get() = listOfNotNull(
-                    currentDeserializationResult?.let { deserializationResult ->
+                    currentDeserializationResult?.let { result ->
                         object : ClipboardPreviewState {
                             override val id = currentClipboardCellStateId
-                            override val deserializationResult = deserializationResult
+                            override val deserializationResult = result
 
                             override val isPinned get() = pinnedClipboardCellStates.any { it.first == id }
 
                             override fun onPaste() {
-                                when (deserializationResult) {
+                                when (result) {
                                     is DeserializationResult.Successful -> {
-                                        setSelectionToCellState(deserializationResult.cellState)
+                                        setSelectionToCellState(result.cellState)
                                     }
+
                                     is DeserializationResult.Unsuccessful -> Unit
                                 }
                             }
 
                             override fun onPinChanged() {
-                                when (deserializationResult) {
+                                when (result) {
                                     is DeserializationResult.Successful -> {
                                         if (isPinned) {
                                             pinnedClipboardCellStates.removeAll { it.first == id }
                                         } else {
-                                            pinnedClipboardCellStates.add(id to deserializationResult)
+                                            pinnedClipboardCellStates.add(id to result)
                                         }
                                     }
+
                                     is DeserializationResult.Unsuccessful -> Unit
                                 }
                             }
 
                             override fun onViewDeserializationInfo() {
-                                onViewDeserializationInfo(deserializationResult)
+                                onViewDeserializationInfo(result)
                             }
                         }
                     },

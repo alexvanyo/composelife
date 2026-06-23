@@ -45,19 +45,16 @@ sealed interface WatchFaceConfigNavigation {
         )
 
         @Serializable
-        data class Surrogate(
-            val centerItemIndex: Int,
-            val centerItemScrollOffset: Int,
-        ) : WatchFaceConfigNavigationSurrogate {
+        data class Surrogate(val centerItemIndex: Int, val centerItemScrollOffset: Int) :
+            WatchFaceConfigNavigationSurrogate {
             override fun createFromSurrogate(
                 previous: BackstackEntry<WatchFaceConfigNavigation>?,
-            ): WatchFaceConfigNavigation =
-                List(
-                    ScalingLazyListState(
-                        initialCenterItemIndex = centerItemIndex,
-                        initialCenterItemScrollOffset = centerItemScrollOffset,
-                    ),
-                )
+            ): WatchFaceConfigNavigation = List(
+                ScalingLazyListState(
+                    initialCenterItemIndex = centerItemIndex,
+                    initialCenterItemScrollOffset = centerItemScrollOffset,
+                ),
+            )
         }
     }
 

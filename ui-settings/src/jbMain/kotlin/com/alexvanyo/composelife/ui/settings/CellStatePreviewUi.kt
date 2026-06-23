@@ -38,9 +38,7 @@ import dev.zacsweers.metro.Inject
 // region templated-ctx
 @Immutable
 @Inject
-class CellStatePreviewUiCtx(
-    private val thumbnailImmutableCellWindowCtx: ThumbnailImmutableCellWindowCtx,
-) {
+class CellStatePreviewUiCtx(private val thumbnailImmutableCellWindowCtx: ThumbnailImmutableCellWindowCtx) {
     @Suppress("ComposableNaming")
     @Deprecated(
         "Ctx should not be invoked directly, instead use the top-level function",
@@ -49,33 +47,28 @@ class CellStatePreviewUiCtx(
         ),
     )
     @Composable
-    operator fun invoke(
-        modifier: Modifier = Modifier,
-    ) = lambda(thumbnailImmutableCellWindowCtx, modifier)
+    operator fun invoke(modifier: Modifier = Modifier) = lambda(thumbnailImmutableCellWindowCtx, modifier)
 
     companion object {
         private val lambda:
-            @Composable context(ThumbnailImmutableCellWindowCtx) (modifier: Modifier) -> Unit =
+            @Composable context(ThumbnailImmutableCellWindowCtx)
+            (modifier: Modifier) -> Unit =
             { modifier ->
                 CellStatePreviewUi(modifier)
             }
     }
 }
 
-context(ctx: CellStatePreviewUiCtx)
 @Suppress("DEPRECATION")
 @Composable
-fun CellStatePreviewUi(
-    modifier: Modifier = Modifier,
-) = ctx(modifier)
+context(ctx: CellStatePreviewUiCtx)
+fun CellStatePreviewUi(modifier: Modifier = Modifier) = ctx(modifier)
 // endregion templated-ctx
 
-context(_: ThumbnailImmutableCellWindowCtx)
 @Suppress("LongMethod")
 @Composable
-private fun CellStatePreviewUi(
-    modifier: Modifier = Modifier,
-) {
+context(_: ThumbnailImmutableCellWindowCtx)
+private fun CellStatePreviewUi(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center,

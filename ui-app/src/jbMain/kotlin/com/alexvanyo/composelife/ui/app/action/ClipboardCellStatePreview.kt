@@ -88,7 +88,8 @@ private operator fun ClipboardCellStatePreviewCtx.invoke(
 )
 
 private val ClipboardCellStatePreviewCtx.Companion.lambda:
-    @Composable context(ThumbnailImmutableCellWindowCtx) (
+    @Composable context(ThumbnailImmutableCellWindowCtx)
+    (
         deserializationResult: DeserializationResult,
         isPinned: Boolean,
         onPaste: () -> Unit,
@@ -107,9 +108,9 @@ private val ClipboardCellStatePreviewCtx.Companion.lambda:
         )
     }
 
-context(ctx: ClipboardCellStatePreviewCtx)
 @Suppress("LongParameterList")
 @Composable
+context(ctx: ClipboardCellStatePreviewCtx)
 fun ClipboardCellStatePreview(
     deserializationResult: DeserializationResult,
     isPinned: Boolean,
@@ -123,9 +124,9 @@ fun ClipboardCellStatePreview(
 /**
  * Renders the current clipboard as a cell-state, if possible.
  */
-context(_: ThumbnailImmutableCellWindowCtx)
 @Suppress("LongParameterList")
 @Composable
+context(_: ThumbnailImmutableCellWindowCtx)
 fun ClipboardCellStatePreview(
     deserializationResult: DeserializationResult,
     isPinned: Boolean,
@@ -162,6 +163,7 @@ fun ClipboardCellStatePreview(
                             onViewDeserializationInfo = onViewDeserializationInfo,
                         )
                     }
+
                     is DeserializationResult.Unsuccessful -> {
                         Row(
                             modifier = Modifier.padding(8.dp),
@@ -185,10 +187,10 @@ fun ClipboardCellStatePreview(
     }
 }
 
-context(_: ThumbnailImmutableCellWindowCtx,)
 @Suppress("LongMethod", "LongParameterList")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+context(_: ThumbnailImmutableCellWindowCtx,)
 fun LoadedCellStatePreview(
     deserializationResult: DeserializationResult.Successful,
     isPinned: Boolean,

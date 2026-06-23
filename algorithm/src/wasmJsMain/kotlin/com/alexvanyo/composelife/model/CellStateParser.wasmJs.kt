@@ -21,6 +21,4 @@ package com.alexvanyo.composelife.model
 import dev.zacsweers.metro.Inject
 
 @Inject
-actual class CellStateParser(
-    internal actual val flexibleCellStateSerializer: FlexibleCellStateSerializer,
-)
+actual class CellStateParser(internal actual val flexibleCellStateSerializer: FlexibleCellStateSerializer)

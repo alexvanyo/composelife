@@ -28,7 +28,8 @@ import kotlin.uuid.Uuid
 @Suppress("TooManyFunctions", "LongParameterList")
 class TestComposeLifePreferences(
     initialPreferences: LoadedComposeLifePreferences = LoadedComposeLifePreferences.Defaults,
-) : ComposeLifePreferences, LoadedComposeLifePreferencesHolder {
+) : ComposeLifePreferences,
+    LoadedComposeLifePreferencesHolder {
     var quickAccessSettings: Set<QuickAccessSetting> by mutableStateOf(initialPreferences.quickAccessSettings)
 
     var algorithmChoice: AlgorithmType by mutableStateOf(initialPreferences.algorithmChoice)

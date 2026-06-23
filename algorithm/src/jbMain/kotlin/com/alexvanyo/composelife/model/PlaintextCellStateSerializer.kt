@@ -20,13 +20,9 @@ import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 
 object PlaintextCellStateSerializer : FixedFormatCellStateSerializer {
-
     override val format: CellStateFormat.FixedFormat = CellStateFormat.FixedFormat.Plaintext
 
-    private data class LineLengthInfo(
-        val index: Int,
-        val length: Int,
-    )
+    private data class LineLengthInfo(val index: Int, val length: Int)
 
     @Suppress("LongMethod")
     override fun deserializeToCellState(lines: Sequence<String>): DeserializationResult {
@@ -47,33 +43,44 @@ object PlaintextCellStateSerializer : FixedFormatCellStateSerializer {
                 '!' -> {
                     // Comment line, continue
                 }
+
                 null -> {
                     if (iterator.hasNext()) {
                         warnings.add(UnexpectedBlankLineMessage(lineIndex + 1))
                     }
                 }
+
                 else -> {
                     if (longestLine == null) {
-                        longestLine = LineLengthInfo(
-                            index = lineIndex,
-                            length = line.length,
-                        )
+                        longestLine =
+                            LineLengthInfo(
+                                index = lineIndex,
+                                length = line.length,
+                            )
                     } else if (line.length > longestLine.length) {
                         warnings.add(UnexpectedShortLineMessage(longestLine.index + 1))
-                        longestLine = LineLengthInfo(
-                            index = lineIndex,
-                            length = line.length,
-                        )
+                        longestLine =
+                            LineLengthInfo(
+                                index = lineIndex,
+                                length = line.length,
+                            )
                     } else if (line.length < longestLine.length) {
                         warnings.add(UnexpectedShortLineMessage(lineIndex + 1))
                     }
 
                     points.addAll(
-                        line.withIndex()
+                        line
+                            .withIndex()
                             .filter { (columnIndex, c) ->
                                 when (c) {
-                                    '.' -> false
-                                    'O' -> true
+                                    '.' -> {
+                                        false
+                                    }
+
+                                    'O' -> {
+                                        true
+                                    }
+
                                     else -> {
                                         warnings.add(
                                             UnexpectedCharacterMessage(
@@ -88,8 +95,7 @@ object PlaintextCellStateSerializer : FixedFormatCellStateSerializer {
                                         }
                                     }
                                 }
-                            }
-                            .map { (columnIndex, _) -> IntOffset(columnIndex, rowIndex) },
+                            }.map { (columnIndex, _) -> IntOffset(columnIndex, rowIndex) },
                     )
 
                     rowIndex++

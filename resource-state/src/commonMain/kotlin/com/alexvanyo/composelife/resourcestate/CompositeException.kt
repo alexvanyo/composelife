@@ -22,9 +22,7 @@ package com.alexvanyo.composelife.resourcestate
  * Note that [exceptions] should not be empty (since there would be no exception) and [exceptions] should not only
  * contain one exception (prefer to just throw that instead.
  */
-class CompositeException(
-    val exceptions: List<Throwable>,
-) : RuntimeException() {
+class CompositeException(val exceptions: List<Throwable>) : RuntimeException() {
     constructor(
         vararg exceptions: Throwable,
     ) : this(exceptions.toList())

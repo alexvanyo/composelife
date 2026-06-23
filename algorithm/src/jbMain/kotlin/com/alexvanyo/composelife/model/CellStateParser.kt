@@ -20,15 +20,14 @@ expect class CellStateParser {
     internal val flexibleCellStateSerializer: FlexibleCellStateSerializer
 }
 
-suspend fun CellStateParser.parseCellState(text: CharSequence?): DeserializationResult =
-    if (text.isNullOrEmpty()) {
-        DeserializationResult.Unsuccessful(
-            warnings = emptyList(),
-            errors = listOf(EmptyInput),
-        )
-    } else {
-        flexibleCellStateSerializer.deserializeToCellState(
-            format = CellStateFormat.Unknown,
-            lines = text.lineSequence(),
-        )
-    }
+suspend fun CellStateParser.parseCellState(text: CharSequence?): DeserializationResult = if (text.isNullOrEmpty()) {
+    DeserializationResult.Unsuccessful(
+        warnings = emptyList(),
+        errors = listOf(EmptyInput),
+    )
+} else {
+    flexibleCellStateSerializer.deserializeToCellState(
+        format = CellStateFormat.Unknown,
+        lines = text.lineSequence(),
+    )
+}

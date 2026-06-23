@@ -38,7 +38,7 @@ import kotlin.test.assertNotNull
 @RunWith(AndroidJUnit4::class)
 class AndroidParameterizedStringTests {
 
-    val context = ApplicationProvider.getApplicationContext<Context>()
+    val context: Context = ApplicationProvider.getApplicationContext<Context>()
 
     @Test
     fun zero_arg_string_is_correct() {

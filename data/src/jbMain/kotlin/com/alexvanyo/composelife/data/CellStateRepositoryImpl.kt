@@ -76,10 +76,9 @@ class CellStateRepositoryImpl(
             convertCellStateToSaveableCellState(it)
         }
 
-    override suspend fun getCellStates(): List<SaveableCellState> =
-        cellStateQueriesWrapper.getCellStates().mapNotNull {
-            convertCellStateToSaveableCellState(it)
-        }
+    override suspend fun getCellStates(): List<SaveableCellState> = cellStateQueriesWrapper.getCellStates().mapNotNull {
+        convertCellStateToSaveableCellState(it)
+    }
 
     private suspend fun convertCellStateToSaveableCellState(
         cellState: com.alexvanyo.composelife.database.CellState,
@@ -118,55 +117,51 @@ class CellStateRepositoryImpl(
                 cellState = deserializationResult.cellState,
                 cellStateMetadata = cellStateMetadata,
             )
+
             is DeserializationResult.Unsuccessful -> null
         }
     }
 
-    override suspend fun autosaveCellState(
-        saveableCellState: SaveableCellState,
-    ): CellStateId = withContext(dispatchers.IO) {
-        val serializedCellStateUniqueId = Uuid.random()
-        val serializedCellStateFile = autosavedCellStatesFolder.toPath() / "$serializedCellStateUniqueId.rle"
-        val file = persistedDataPath / serializedCellStateFile
-        writeCellStateToFile(
-            fileSystem = fileSystem,
-            dispatchers = dispatchers,
-            serializer = flexibleCellStateSerializer,
-            cellState = saveableCellState.cellState,
-            file = file,
-            format = CellStateFormat.FixedFormat.RunLengthEncoding,
-        )
+    override suspend fun autosaveCellState(saveableCellState: SaveableCellState): CellStateId =
+        withContext(dispatchers.IO) {
+            val serializedCellStateUniqueId = Uuid.random()
+            val serializedCellStateFile = autosavedCellStatesFolder.toPath() / "$serializedCellStateUniqueId.rle"
+            val file = persistedDataPath / serializedCellStateFile
+            writeCellStateToFile(
+                fileSystem = fileSystem,
+                dispatchers = dispatchers,
+                serializer = flexibleCellStateSerializer,
+                cellState = saveableCellState.cellState,
+                file = file,
+                format = CellStateFormat.FixedFormat.RunLengthEncoding,
+            )
 
-        saveSaveableCellState(
-            saveableCellState = saveableCellState,
-            formatExtension = "rle",
-            serializedCellStateFile = serializedCellStateFile,
-        )
-    }
+            saveSaveableCellState(
+                saveableCellState = saveableCellState,
+                formatExtension = "rle",
+                serializedCellStateFile = serializedCellStateFile,
+            )
+        }
 
     private suspend fun saveSaveableCellState(
         saveableCellState: SaveableCellState,
         formatExtension: String,
         serializedCellStateFile: Path,
-    ): CellStateId =
-        cellStateQueriesWrapper.upsertCellState(
-            id = saveableCellState.cellStateMetadata.id,
-            name = saveableCellState.cellStateMetadata.name,
-            description = saveableCellState.cellStateMetadata.description,
-            formatExtension = formatExtension,
-            serializedCellState = null,
-            serializedCellStateFile = serializedCellStateFile.toString(),
-            generation = saveableCellState.cellStateMetadata.generation,
-            wasAutosaved = true,
-            patternCollectionId = null,
-        )
+    ): CellStateId = cellStateQueriesWrapper.upsertCellState(
+        id = saveableCellState.cellStateMetadata.id,
+        name = saveableCellState.cellStateMetadata.name,
+        description = saveableCellState.cellStateMetadata.description,
+        formatExtension = formatExtension,
+        serializedCellState = null,
+        serializedCellStateFile = serializedCellStateFile.toString(),
+        generation = saveableCellState.cellStateMetadata.generation,
+        wasAutosaved = true,
+        patternCollectionId = null,
+    )
 
-    override suspend fun pruneUnusedCellStates(): Boolean =
-        pruneUnusedAutosavedCellStates()
+    override suspend fun pruneUnusedCellStates(): Boolean = pruneUnusedAutosavedCellStates()
 
-    private suspend fun pruneUnusedAutosavedCellStates(
-        maxAge: Duration = Duration.ZERO,
-    ) = withContext(dispatchers.IO) {
+    private suspend fun pruneUnusedAutosavedCellStates(maxAge: Duration = Duration.ZERO) = withContext(dispatchers.IO) {
         // Capture the timestamp to compare duration against
         val pruningTimestamp = clock.now()
         // Get the list of all current autosaved cell states and find their corresponding files
@@ -237,4 +232,5 @@ private suspend fun readCellStateFromFile(
     }
 }
 
+@Suppress("PropertyName")
 private const val autosavedCellStatesFolder = "AutosavedCellStates"

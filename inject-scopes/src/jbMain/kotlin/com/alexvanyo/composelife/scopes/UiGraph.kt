@@ -26,8 +26,6 @@ interface UiGraph {
     @ContributesTo(AppScope::class)
     @GraphExtension.Factory
     fun interface Factory {
-        fun create(
-            @Provides uiGraphArguments: UiGraphArguments,
-        ): UiGraph
+        fun create(@Provides uiGraphArguments: UiGraphArguments): UiGraph
     }
 }

@@ -30,9 +30,7 @@ import kotlin.js.Promise
 
 @Inject
 @ContributesBinding(UiScope::class, binding<ClipboardReader>())
-class WebClipboardReader(
-    private val clipboard: Clipboard,
-) : ClipboardReader {
+class WebClipboardReader(private val clipboard: Clipboard) : ClipboardReader {
     @OptIn(ExperimentalComposeUiApi::class, ExperimentalWasmJsInterop::class)
     override suspend fun getText(): String? {
         val clipboardItem =
@@ -51,9 +49,7 @@ class WebClipboardReader(
 
 @Inject
 @ContributesBinding(UiScope::class, binding<ClipboardWriter>())
-class WebClipboardWriter(
-    private val clipboard: Clipboard,
-) : ClipboardWriter {
+class WebClipboardWriter(private val clipboard: Clipboard) : ClipboardWriter {
     @OptIn(ExperimentalComposeUiApi::class)
     override suspend fun setText(value: String) = clipboard.setClipEntry(
         ClipEntry.withPlainText(value),
@@ -62,5 +58,4 @@ class WebClipboardWriter(
 
 @Suppress("UNUSED_PARAMETER")
 @OptIn(ExperimentalWasmJsInterop::class)
-private fun readTextFromBlob(blob: Blob): Promise<JsString> =
-    js("blob.text()")
+private fun readTextFromBlob(blob: Blob): Promise<JsString> = js("blob.text()")

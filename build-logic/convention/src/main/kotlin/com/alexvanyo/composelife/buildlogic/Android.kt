@@ -36,9 +36,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.tooling.core.withClosure
 import java.lang.reflect.Field
 
-fun Project.configureAndroid(
-    commonExtension: CommonExtension,
-) {
+fun Project.configureAndroid(commonExtension: CommonExtension) {
     val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
     commonExtension.apply {
@@ -96,9 +94,7 @@ fun Project.configureAndroid(
     }
 }
 
-fun Project.configureAndroid(
-    extension: KotlinMultiplatformAndroidLibraryTarget,
-) {
+fun Project.configureAndroid(extension: KotlinMultiplatformAndroidLibraryTarget) {
     val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
     extension.apply {
@@ -217,9 +213,7 @@ private fun Project.addSourceSetsForAndroidMultiplatformAfterEvaluate() {
  * apply [block].
  */
 @Suppress("NestedBlockDepth", "ReturnCount")
-private fun ConfigurableFileCollection.withChangesAllowed(
-    block: ConfigurableFileCollection.() -> Unit,
-) {
+private fun ConfigurableFileCollection.withChangesAllowed(block: ConfigurableFileCollection.() -> Unit) {
     // 1. Try old Gradle versions where disallowChanges was directly on ConfigurableFileCollection
     val directField = findField("disallowChanges")
     if (directField != null) {

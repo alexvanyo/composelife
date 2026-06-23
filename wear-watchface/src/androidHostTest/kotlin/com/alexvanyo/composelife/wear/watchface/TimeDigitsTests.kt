@@ -30,12 +30,11 @@ import kotlin.test.assertEquals
 class TimeDigitsTests {
 
     class LocalTimeProvider : TestParameterValuesProvider() {
-        override fun provideValues(context: Context?) =
-            (0..23).flatMap { hour ->
-                (0..59).map { minute ->
-                    LocalTime.of(hour, minute)
-                }
+        override fun provideValues(context: Context?) = (0..23).flatMap { hour ->
+            (0..59).map { minute ->
+                LocalTime.of(hour, minute)
             }
+        }
     }
 
     @Test

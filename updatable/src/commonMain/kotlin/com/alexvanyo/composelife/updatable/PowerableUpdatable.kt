@@ -42,9 +42,7 @@ import kotlinx.coroutines.sync.withLock
  * [block] will be cancelled if the button is no longer being pressed at all, or when the call to [update] is
  * cancelled.
  */
-class PowerableUpdatable(
-    private val block: suspend () -> Nothing,
-) : Updatable {
+class PowerableUpdatable(private val block: suspend () -> Nothing) : Updatable {
     private val mutex = Mutex()
 
     private val activePushesMutex = Mutex()
@@ -60,42 +58,41 @@ class PowerableUpdatable(
      * Multiple calls to [update] to power the button are safe, _but_ if the source of power is replaced, the [block]
      * will be cancelled and restarted.
      */
-    override suspend fun update(): Nothing =
-        mutex.withLock {
-            coroutineScope {
-                var job: Job? = null
+    override suspend fun update(): Nothing = mutex.withLock {
+        coroutineScope {
+            var job: Job? = null
 
-                while (true) {
-                    // Keep the list of active pushes that we know about
-                    val currentlyActivePushes: List<Deferred<Nothing>>
-                    activePushesMutex.withLock {
-                        // Remove any pushes that have been cancelled
-                        // We do this on both sides to avoid leaking if pressing and unpressing the button
-                        // repeatedly without being powered
-                        activePushes.removeAll { it.isCompleted }
-                        currentlyActivePushes = activePushes
+            while (true) {
+                // Keep the list of active pushes that we know about
+                val currentlyActivePushes: List<Deferred<Nothing>>
+                activePushesMutex.withLock {
+                    // Remove any pushes that have been cancelled
+                    // We do this on both sides to avoid leaking if pressing and unpressing the button
+                    // repeatedly without being powered
+                    activePushes.removeAll { it.isCompleted }
+                    currentlyActivePushes = activePushes
 
-                        if (currentlyActivePushes.isEmpty()) {
-                            // If we are no longer being pushed at all, cancel and clear out the job running the block
-                            job?.cancelAndJoin()
-                            job = null
-                        } else if (job == null) {
-                            // If we are actively pushing and we don't have an existing job, launch the block
-                            job = launch { block() }
-                        }
-                    }
-
-                    // Wait for a new active push, or for any of the existing pushes to be cancelled.
-                    select {
-                        newActivePushesTick.onReceive {}
-                        currentlyActivePushes.forEach { it.onJoin {} }
+                    if (currentlyActivePushes.isEmpty()) {
+                        // If we are no longer being pushed at all, cancel and clear out the job running the block
+                        job?.cancelAndJoin()
+                        job = null
+                    } else if (job == null) {
+                        // If we are actively pushing and we don't have an existing job, launch the block
+                        job = launch { block() }
                     }
                 }
 
-                @Suppress("UNREACHABLE_CODE")
-                error("loop can not complete normally")
+                // Wait for a new active push, or for any of the existing pushes to be cancelled.
+                select {
+                    newActivePushesTick.onReceive {}
+                    currentlyActivePushes.forEach { it.onJoin {} }
+                }
             }
+
+            @Suppress("UNREACHABLE_CODE")
+            error("loop can not complete normally")
         }
+    }
 
     /**
      * Presses the button.

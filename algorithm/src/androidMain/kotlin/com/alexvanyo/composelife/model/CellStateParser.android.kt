@@ -49,17 +49,15 @@ actual class CellStateParser(
                     async {
                         parseCellState(clipDataItem.resolveToText())
                     }
-                }
-                .awaitAll()
+                }.awaitAll()
                 .reduceToSuccessful()
         }
     }
 
     @Suppress("RedundantSuspendModifier")
-    private suspend fun ClipData.Item.resolveToText(): CharSequence =
-        withContext(dispatchers.IO) {
-            coerceToText(context)
-        }
+    private suspend fun ClipData.Item.resolveToText(): CharSequence = withContext(dispatchers.IO) {
+        coerceToText(context)
+    }
 }
 
 private val ClipData.items: List<ClipData.Item> get() = List(itemCount, ::getItemAt)

@@ -325,13 +325,19 @@ class ActionControlRowTests : BaseKmpTest() {
                     override val isElevated = false
                     override var isRunning
                         get() = isRunning
-                        set(value) { isRunning = value }
+                        set(value) {
+                            isRunning = value
+                        }
                     override var isExpanded
                         get() = isExpanded
-                        set(value) { isExpanded = value }
+                        set(value) {
+                            isExpanded = value
+                        }
                     override var isViewportTracking
                         get() = isViewportTracking
-                        set(value) { isViewportTracking = value }
+                        set(value) {
+                            isViewportTracking = value
+                        }
                     override val showImmersiveModeControl = true
                     override var isImmersiveMode = false
                     override val showFullSpaceModeControl = false
@@ -370,13 +376,19 @@ class ActionControlRowTests : BaseKmpTest() {
                     override val isElevated = false
                     override var isRunning
                         get() = isRunning
-                        set(value) { isRunning = value }
+                        set(value) {
+                            isRunning = value
+                        }
                     override var isExpanded
                         get() = isExpanded
-                        set(value) { isExpanded = value }
+                        set(value) {
+                            isExpanded = value
+                        }
                     override var isViewportTracking
                         get() = isViewportTracking
-                        set(value) { isViewportTracking = value }
+                        set(value) {
+                            isViewportTracking = value
+                        }
                     override val showImmersiveModeControl = true
                     override var isImmersiveMode = false
                     override val showFullSpaceModeControl = false
@@ -413,13 +425,19 @@ class ActionControlRowTests : BaseKmpTest() {
                     override val isElevated = false
                     override var isRunning
                         get() = isRunning
-                        set(value) { isRunning = value }
+                        set(value) {
+                            isRunning = value
+                        }
                     override var isExpanded
                         get() = isExpanded
-                        set(value) { isExpanded = value }
+                        set(value) {
+                            isExpanded = value
+                        }
                     override var isViewportTracking
                         get() = isViewportTracking
-                        set(value) { isViewportTracking = value }
+                        set(value) {
+                            isViewportTracking = value
+                        }
                     override val showImmersiveModeControl = true
                     override var isImmersiveMode = false
                     override val showFullSpaceModeControl = false
@@ -456,13 +474,19 @@ class ActionControlRowTests : BaseKmpTest() {
                     override val isElevated = false
                     override var isRunning
                         get() = isRunning
-                        set(value) { isRunning = value }
+                        set(value) {
+                            isRunning = value
+                        }
                     override var isExpanded
                         get() = isExpanded
-                        set(value) { isExpanded = value }
+                        set(value) {
+                            isExpanded = value
+                        }
                     override var isViewportTracking
                         get() = isViewportTracking
-                        set(value) { isViewportTracking = value }
+                        set(value) {
+                            isViewportTracking = value
+                        }
                     override val showImmersiveModeControl = true
                     override var isImmersiveMode = false
                     override val showFullSpaceModeControl = false
@@ -499,13 +523,19 @@ class ActionControlRowTests : BaseKmpTest() {
                     override val isElevated = false
                     override var isRunning
                         get() = isRunning
-                        set(value) { isRunning = value }
+                        set(value) {
+                            isRunning = value
+                        }
                     override var isExpanded
                         get() = isExpanded
-                        set(value) { isExpanded = value }
+                        set(value) {
+                            isExpanded = value
+                        }
                     override var isViewportTracking
                         get() = isViewportTracking
-                        set(value) { isViewportTracking = value }
+                        set(value) {
+                            isViewportTracking = value
+                        }
                     override val showImmersiveModeControl = true
                     override var isImmersiveMode = false
                     override val showFullSpaceModeControl = false
@@ -542,13 +572,19 @@ class ActionControlRowTests : BaseKmpTest() {
                     override val isElevated = false
                     override var isRunning
                         get() = isRunning
-                        set(value) { isRunning = value }
+                        set(value) {
+                            isRunning = value
+                        }
                     override var isExpanded
                         get() = isExpanded
-                        set(value) { isExpanded = value }
+                        set(value) {
+                            isExpanded = value
+                        }
                     override var isViewportTracking
                         get() = isViewportTracking
-                        set(value) { isViewportTracking = value }
+                        set(value) {
+                            isViewportTracking = value
+                        }
                     override val showImmersiveModeControl = true
                     override var isImmersiveMode = false
                     override val showFullSpaceModeControl = false
@@ -586,19 +622,27 @@ class ActionControlRowTests : BaseKmpTest() {
                     override val isElevated = false
                     override var isRunning
                         get() = isRunning
-                        set(value) { isRunning = value }
+                        set(value) {
+                            isRunning = value
+                        }
                     override var isExpanded
                         get() = isExpanded
-                        set(value) { isExpanded = value }
+                        set(value) {
+                            isExpanded = value
+                        }
                     override var isViewportTracking
                         get() = isViewportTracking
-                        set(value) { isViewportTracking = value }
+                        set(value) {
+                            isViewportTracking = value
+                        }
                     override val showImmersiveModeControl = false
                     override var isImmersiveMode = false
                     override val showFullSpaceModeControl = true
                     override var isFullSpaceMode
                         get() = isFullSpaceMode
-                        set(value) { isFullSpaceMode = value }
+                        set(value) {
+                            isFullSpaceMode = value
+                        }
                     override val selectionState = SelectionState.NoSelection
                     override fun onStep() = Unit
                     override fun onClearSelection() = Unit
@@ -631,13 +675,19 @@ class ActionControlRowTests : BaseKmpTest() {
                     override val isElevated = false
                     override var isRunning
                         get() = isRunning
-                        set(value) { isRunning = value }
+                        set(value) {
+                            isRunning = value
+                        }
                     override var isExpanded
                         get() = isExpanded
-                        set(value) { isExpanded = value }
+                        set(value) {
+                            isExpanded = value
+                        }
                     override var isViewportTracking
                         get() = isViewportTracking
-                        set(value) { isViewportTracking = value }
+                        set(value) {
+                            isViewportTracking = value
+                        }
                     override val showImmersiveModeControl = true
                     override var isImmersiveMode = false
                     override val showFullSpaceModeControl = false
@@ -675,13 +725,19 @@ class ActionControlRowTests : BaseKmpTest() {
                     override val isElevated = false
                     override var isRunning
                         get() = isRunning
-                        set(value) { isRunning = value }
+                        set(value) {
+                            isRunning = value
+                        }
                     override var isExpanded
                         get() = isExpanded
-                        set(value) { isExpanded = value }
+                        set(value) {
+                            isExpanded = value
+                        }
                     override var isViewportTracking
                         get() = isViewportTracking
-                        set(value) { isViewportTracking = value }
+                        set(value) {
+                            isViewportTracking = value
+                        }
                     override val showImmersiveModeControl = true
                     override var isImmersiveMode = false
                     override val showFullSpaceModeControl = false
@@ -693,7 +749,9 @@ class ActionControlRowTests : BaseKmpTest() {
                         previousTransientSelectingBox = null,
                     )
                     override fun onStep() = Unit
-                    override fun onClearSelection() { onClearSelectionCount++ }
+                    override fun onClearSelection() {
+                        onClearSelectionCount++
+                    }
                     override fun onCopy() = Unit
                     override fun onCut() = Unit
                     override fun onPaste() = Unit
@@ -724,13 +782,19 @@ class ActionControlRowTests : BaseKmpTest() {
                     override val isElevated = false
                     override var isRunning
                         get() = isRunning
-                        set(value) { isRunning = value }
+                        set(value) {
+                            isRunning = value
+                        }
                     override var isExpanded
                         get() = isExpanded
-                        set(value) { isExpanded = value }
+                        set(value) {
+                            isExpanded = value
+                        }
                     override var isViewportTracking
                         get() = isViewportTracking
-                        set(value) { isViewportTracking = value }
+                        set(value) {
+                            isViewportTracking = value
+                        }
                     override val showImmersiveModeControl = true
                     override var isImmersiveMode = false
                     override val showFullSpaceModeControl = false
@@ -743,7 +807,9 @@ class ActionControlRowTests : BaseKmpTest() {
                     )
                     override fun onStep() = Unit
                     override fun onClearSelection() = Unit
-                    override fun onCopy() { onCopyCount++ }
+                    override fun onCopy() {
+                        onCopyCount++
+                    }
                     override fun onCut() = Unit
                     override fun onPaste() = Unit
                     override fun onApplyPaste() = Unit
@@ -773,13 +839,19 @@ class ActionControlRowTests : BaseKmpTest() {
                     override val isElevated = false
                     override var isRunning
                         get() = isRunning
-                        set(value) { isRunning = value }
+                        set(value) {
+                            isRunning = value
+                        }
                     override var isExpanded
                         get() = isExpanded
-                        set(value) { isExpanded = value }
+                        set(value) {
+                            isExpanded = value
+                        }
                     override var isViewportTracking
                         get() = isViewportTracking
-                        set(value) { isViewportTracking = value }
+                        set(value) {
+                            isViewportTracking = value
+                        }
                     override val showImmersiveModeControl = true
                     override var isImmersiveMode = false
                     override val showFullSpaceModeControl = false
@@ -793,7 +865,9 @@ class ActionControlRowTests : BaseKmpTest() {
                     override fun onStep() = Unit
                     override fun onClearSelection() = Unit
                     override fun onCopy() = Unit
-                    override fun onCut() { onCutCount++ }
+                    override fun onCut() {
+                        onCutCount++
+                    }
                     override fun onPaste() = Unit
                     override fun onApplyPaste() = Unit
                 },

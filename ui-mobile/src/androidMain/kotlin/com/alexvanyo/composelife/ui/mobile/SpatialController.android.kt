@@ -23,34 +23,33 @@ import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.platform.LocalSpatialConfiguration
 
 @Composable
-actual fun rememberSpatialController(): SpatialController =
-    if (Build.VERSION.SDK_INT >= 34) {
-        val spatialCapabilities = LocalSpatialCapabilities.current
-        val spatialConfiguration = LocalSpatialConfiguration.current
+actual fun rememberSpatialController(): SpatialController = if (Build.VERSION.SDK_INT >= 34) {
+    val spatialCapabilities = LocalSpatialCapabilities.current
+    val spatialConfiguration = LocalSpatialConfiguration.current
 
-        remember(spatialCapabilities, spatialConfiguration) {
-            object : SpatialController {
-                override val hasXrSpatialFeature: Boolean get() = spatialConfiguration.hasXrSpatialFeature
-                override val isSpatialUiEnabled: Boolean get() = spatialCapabilities.isSpatialUiEnabled
-                override var isFullSpaceMode: Boolean
-                    get() = isSpatialUiEnabled
-                    set(value) {
-                        if (value) {
-                            spatialConfiguration.requestFullSpaceMode()
-                        } else {
-                            spatialConfiguration.requestHomeSpaceMode()
-                        }
+    remember(spatialCapabilities, spatialConfiguration) {
+        object : SpatialController {
+            override val hasXrSpatialFeature: Boolean get() = spatialConfiguration.hasXrSpatialFeature
+            override val isSpatialUiEnabled: Boolean get() = spatialCapabilities.isSpatialUiEnabled
+            override var isFullSpaceMode: Boolean
+                get() = isSpatialUiEnabled
+                set(value) {
+                    if (value) {
+                        spatialConfiguration.requestFullSpaceMode()
+                    } else {
+                        spatialConfiguration.requestHomeSpaceMode()
                     }
-            }
-        }
-    } else {
-        remember {
-            object : SpatialController {
-                override val hasXrSpatialFeature: Boolean = false
-                override val isSpatialUiEnabled: Boolean = false
-                override var isFullSpaceMode: Boolean
-                    get() = false
-                    set(value) = Unit
-            }
+                }
         }
     }
+} else {
+    remember {
+        object : SpatialController {
+            override val hasXrSpatialFeature: Boolean = false
+            override val isSpatialUiEnabled: Boolean = false
+            override var isFullSpaceMode: Boolean
+                get() = false
+                set(value) = Unit
+        }
+    }
+}

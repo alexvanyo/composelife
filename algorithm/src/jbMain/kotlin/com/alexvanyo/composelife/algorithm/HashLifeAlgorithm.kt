@@ -55,7 +55,6 @@ class HashLifeAlgorithm(
     private val generationsToCacheInMacroCellMaps: Int = 256,
     private val generationsToCacheInLeafNodeMap: Int = 1024,
 ) : GameOfLifeAlgorithm {
-
     private val mutex = Mutex()
 
     /**
@@ -76,23 +75,26 @@ class HashLifeAlgorithm(
      * The keys of this map must already have canonical subnodes, which is ensured by the implementation of
      * [makeCanonical].
      */
-    private val canonicalCellNodeMap: Cache<Equivalence.Wrapper<MacroCell.CellNode>, MacroCell.CellNode> = Cache(
-        load = { key -> key.value.makeCanonical(false) },
-        getGenerationIndex = { computedGenerations },
-    )
+    private val canonicalCellNodeMap: Cache<Equivalence.Wrapper<MacroCell.CellNode>, MacroCell.CellNode> =
+        Cache(
+            load = { key -> key.value.makeCanonical(false) },
+            getGenerationIndex = { computedGenerations },
+        )
 
-    private val canonicalLevel4NodeMap: Cache<MacroCell.Level4Node, MacroCell.Level4Node> = Cache(
-        load = { key -> key.makeCanonical(false) },
-        getGenerationIndex = { computedGenerations },
-    )
+    private val canonicalLevel4NodeMap: Cache<MacroCell.Level4Node, MacroCell.Level4Node> =
+        Cache(
+            load = { key -> key.makeCanonical(false) },
+            getGenerationIndex = { computedGenerations },
+        )
 
     /**
      * The memoization map for [MacroCell.CellNode.computeNextGeneration].
      */
-    private val cellNodeMap: Cache<Equivalence.Wrapper<MacroCell.CellNode>, MacroCell> = Cache(
-        load = { key -> key.value.computeNextGeneration(false) },
-        getGenerationIndex = { computedGenerations },
-    )
+    private val cellNodeMap: Cache<Equivalence.Wrapper<MacroCell.CellNode>, MacroCell> =
+        Cache(
+            load = { key -> key.value.computeNextGeneration(false) },
+            getGenerationIndex = { computedGenerations },
+        )
 
     /**
      * The memoization map for [MacroCell.Level4Node.computeNextGeneration].
@@ -106,25 +108,24 @@ class HashLifeAlgorithm(
     /**
      * The memoization map for [MacroCell.LeafNode.computeNextGeneration].
      */
-    private val leafNodeMap: LongIntCache = LongIntCache(
-        load = { key -> key.computeNextGeneration() },
-        getGenerationIndex = { computedGenerations },
-    )
+    private val leafNodeMap: LongIntCache =
+        LongIntCache(
+            load = { key -> key.computeNextGeneration() },
+            getGenerationIndex = { computedGenerations },
+        )
 
-    private fun MacroCell.makeCanonical(useMap: Boolean = true): MacroCell =
-        when (this) {
-            is MacroCell.Level4Node -> makeCanonical(useMap)
-            is MacroCell.CellNode -> makeCanonical(useMap)
-        }
+    private fun MacroCell.makeCanonical(useMap: Boolean = true): MacroCell = when (this) {
+        is MacroCell.Level4Node -> makeCanonical(useMap)
+        is MacroCell.CellNode -> makeCanonical(useMap)
+    }
 
-    private fun MacroCell.Level4Node.makeCanonical(useMap: Boolean = true): MacroCell.Level4Node =
-        if (useMap) {
-            // If we're using the map, pull from it now
-            canonicalLevel4NodeMap[this]
-        } else {
-            // Otherwise, define the canonical cell
-            this
-        }
+    private fun MacroCell.Level4Node.makeCanonical(useMap: Boolean = true): MacroCell.Level4Node = if (useMap) {
+        // If we're using the map, pull from it now
+        canonicalLevel4NodeMap[this]
+    } else {
+        // Otherwise, define the canonical cell
+        this
+    }
 
     private fun MacroCell.CellNode.makeCanonical(useMap: Boolean = true): MacroCell.CellNode {
         val currentEntry = canonicalCellNodeMap.map[canonicalCellNodeEquivalence.wrap(this)]
@@ -136,23 +137,24 @@ class HashLifeAlgorithm(
             currentEntry
         } else {
             // Slow path: make all subnodes canonical, to check if we have an equivalent canonical node
-            val withCanonicalSubNodes = if (size == 0) {
-                // Special case: if this is an empty node, then all subnodes will have the same canonical node.
-                val smallerEmptyCellNode = nw.makeCanonical()
-                MacroCell.CellNode(
-                    nw = smallerEmptyCellNode,
-                    ne = smallerEmptyCellNode,
-                    sw = smallerEmptyCellNode,
-                    se = smallerEmptyCellNode,
-                )
-            } else {
-                MacroCell.CellNode(
-                    nw = nw.makeCanonical(),
-                    ne = ne.makeCanonical(),
-                    sw = sw.makeCanonical(),
-                    se = se.makeCanonical(),
-                )
-            }
+            val withCanonicalSubNodes =
+                if (size == 0) {
+                    // Special case: if this is an empty node, then all subnodes will have the same canonical node.
+                    val smallerEmptyCellNode = nw.makeCanonical()
+                    MacroCell.CellNode(
+                        nw = smallerEmptyCellNode,
+                        ne = smallerEmptyCellNode,
+                        sw = smallerEmptyCellNode,
+                        se = smallerEmptyCellNode,
+                    )
+                } else {
+                    MacroCell.CellNode(
+                        nw = nw.makeCanonical(),
+                        ne = ne.makeCanonical(),
+                        sw = sw.makeCanonical(),
+                        se = se.makeCanonical(),
+                    )
+                }
 
             if (useMap) {
                 // If we're using the map, pull from it now with canonical cell nodes
@@ -164,9 +166,7 @@ class HashLifeAlgorithm(
         }
     }
 
-    private fun MacroCell.Level4Node.computeNextGeneration(
-        useMap: Boolean = true,
-    ): MacroCell.LeafNode {
+    private fun MacroCell.Level4Node.computeNextGeneration(useMap: Boolean = true): MacroCell.LeafNode {
         // Ensure we are operating upon a canonical macro cell
         val canonicalMacroCell = makeCanonical()
         if (useMap) {
@@ -184,25 +184,29 @@ class HashLifeAlgorithm(
         val n22 = centeredSubnodeLevel3(se)
 
         return LeafNode(
-            nw = LeafNode(
+            nw =
+            LeafNode(
                 nw = n00,
                 ne = n01,
                 sw = n10,
                 se = n11,
             ).computeNextGenerationMemoized(),
-            ne = LeafNode(
+            ne =
+            LeafNode(
                 nw = n01,
                 ne = n02,
                 sw = n11,
                 se = n12,
             ).computeNextGenerationMemoized(),
-            sw = LeafNode(
+            sw =
+            LeafNode(
                 nw = n10,
                 ne = n11,
                 sw = n20,
                 se = n21,
             ).computeNextGenerationMemoized(),
-            se = LeafNode(
+            se =
+            LeafNode(
                 nw = n11,
                 ne = n12,
                 sw = n21,
@@ -222,9 +226,7 @@ class HashLifeAlgorithm(
      * @param useMap if true, use the [cellNodeMap] to memoize the answer.
      */
     @Suppress("LongMethod", "ComplexMethod")
-    private fun MacroCell.CellNode.computeNextGeneration(
-        useMap: Boolean = true,
-    ): MacroCell {
+    private fun MacroCell.CellNode.computeNextGeneration(useMap: Boolean = true): MacroCell {
         // Ensure we are operating upon a canonical macro cell
         val canonicalMacroCell = makeCanonical()
         if (useMap) {
@@ -249,32 +251,41 @@ class HashLifeAlgorithm(
                 val n22 = centeredSubnodeLevel4(se)
 
                 MacroCell.Level4Node(
-                    nw = MacroCell.Level4Node(
-                        nw = n00,
-                        ne = n01,
-                        sw = n10,
-                        se = n11,
-                    ).computeNextGeneration(),
-                    ne = MacroCell.Level4Node(
-                        nw = n01,
-                        ne = n02,
-                        sw = n11,
-                        se = n12,
-                    ).computeNextGeneration(),
-                    sw = MacroCell.Level4Node(
-                        nw = n10,
-                        ne = n11,
-                        sw = n20,
-                        se = n21,
-                    ).computeNextGeneration(),
-                    se = MacroCell.Level4Node(
-                        nw = n11,
-                        ne = n12,
-                        sw = n21,
-                        se = n22,
-                    ).computeNextGeneration(),
+                    nw =
+                    MacroCell
+                        .Level4Node(
+                            nw = n00,
+                            ne = n01,
+                            sw = n10,
+                            se = n11,
+                        ).computeNextGeneration(),
+                    ne =
+                    MacroCell
+                        .Level4Node(
+                            nw = n01,
+                            ne = n02,
+                            sw = n11,
+                            se = n12,
+                        ).computeNextGeneration(),
+                    sw =
+                    MacroCell
+                        .Level4Node(
+                            nw = n10,
+                            ne = n11,
+                            sw = n20,
+                            se = n21,
+                        ).computeNextGeneration(),
+                    se =
+                    MacroCell
+                        .Level4Node(
+                            nw = n11,
+                            ne = n12,
+                            sw = n21,
+                            se = n22,
+                        ).computeNextGeneration(),
                 )
             }
+
             6 -> {
                 nw as MacroCell.CellNode
                 ne as MacroCell.CellNode
@@ -292,32 +303,41 @@ class HashLifeAlgorithm(
                 val n22 = centeredSubnodeLevel5(se)
 
                 MacroCell.CellNode(
-                    nw = MacroCell.CellNode(
-                        nw = n00,
-                        ne = n01,
-                        sw = n10,
-                        se = n11,
-                    ).computeNextGeneration(),
-                    ne = MacroCell.CellNode(
-                        nw = n01,
-                        ne = n02,
-                        sw = n11,
-                        se = n12,
-                    ).computeNextGeneration(),
-                    sw = MacroCell.CellNode(
-                        nw = n10,
-                        ne = n11,
-                        sw = n20,
-                        se = n21,
-                    ).computeNextGeneration(),
-                    se = MacroCell.CellNode(
-                        nw = n11,
-                        ne = n12,
-                        sw = n21,
-                        se = n22,
-                    ).computeNextGeneration(),
+                    nw =
+                    MacroCell
+                        .CellNode(
+                            nw = n00,
+                            ne = n01,
+                            sw = n10,
+                            se = n11,
+                        ).computeNextGeneration(),
+                    ne =
+                    MacroCell
+                        .CellNode(
+                            nw = n01,
+                            ne = n02,
+                            sw = n11,
+                            se = n12,
+                        ).computeNextGeneration(),
+                    sw =
+                    MacroCell
+                        .CellNode(
+                            nw = n10,
+                            ne = n11,
+                            sw = n20,
+                            se = n21,
+                        ).computeNextGeneration(),
+                    se =
+                    MacroCell
+                        .CellNode(
+                            nw = n11,
+                            ne = n12,
+                            sw = n21,
+                            se = n22,
+                        ).computeNextGeneration(),
                 )
             }
+
             else -> {
                 nw as MacroCell.CellNode
                 ne as MacroCell.CellNode
@@ -335,30 +355,38 @@ class HashLifeAlgorithm(
                 val n22 = centeredSubnodeLevel6(se)
 
                 MacroCell.CellNode(
-                    nw = MacroCell.CellNode(
-                        nw = n00,
-                        ne = n01,
-                        sw = n10,
-                        se = n11,
-                    ).computeNextGeneration(),
-                    ne = MacroCell.CellNode(
-                        nw = n01,
-                        ne = n02,
-                        sw = n11,
-                        se = n12,
-                    ).computeNextGeneration(),
-                    sw = MacroCell.CellNode(
-                        nw = n10,
-                        ne = n11,
-                        sw = n20,
-                        se = n21,
-                    ).computeNextGeneration(),
-                    se = MacroCell.CellNode(
-                        nw = n11,
-                        ne = n12,
-                        sw = n21,
-                        se = n22,
-                    ).computeNextGeneration(),
+                    nw =
+                    MacroCell
+                        .CellNode(
+                            nw = n00,
+                            ne = n01,
+                            sw = n10,
+                            se = n11,
+                        ).computeNextGeneration(),
+                    ne =
+                    MacroCell
+                        .CellNode(
+                            nw = n01,
+                            ne = n02,
+                            sw = n11,
+                            se = n12,
+                        ).computeNextGeneration(),
+                    sw =
+                    MacroCell
+                        .CellNode(
+                            nw = n10,
+                            ne = n11,
+                            sw = n20,
+                            se = n21,
+                        ).computeNextGeneration(),
+                    se =
+                    MacroCell
+                        .CellNode(
+                            nw = n11,
+                            ne = n12,
+                            sw = n21,
+                            se = n22,
+                        ).computeNextGeneration(),
                 )
             }
         }.makeCanonical()
@@ -367,13 +395,9 @@ class HashLifeAlgorithm(
     /**
      * Computes the 4x4 [UShort] next generation for the given 8x8 [MacroCell.LeafNode] in its center.
      */
-    private fun MacroCell.LeafNode.computeNextGenerationMemoized(): Int =
-        leafNodeMap[this]
+    private fun MacroCell.LeafNode.computeNextGenerationMemoized(): Int = leafNodeMap[this]
 
-    override suspend fun computeGenerationWithStep(
-        cellState: CellState,
-        @IntRange(from = 0) step: Int,
-    ): CellState =
+    override suspend fun computeGenerationWithStep(cellState: CellState, @IntRange(from = 0) step: Int): CellState =
         withContext(dispatchers.Default) {
             mutex.withLock {
                 computeGenerationWithStepImpl(
@@ -386,40 +410,44 @@ class HashLifeAlgorithm(
     private tailrec fun computeGenerationWithStepImpl(
         cellState: HashLifeCellState,
         @IntRange(from = 0) step: Int,
-    ): HashLifeCellState =
-        if (step == 0) {
-            val oldestGenerationToKeepInMacroCellMaps = computedGenerations - generationsToCacheInMacroCellMaps
-            canonicalCellNodeMap.prune(oldestGenerationToKeepInMacroCellMaps)
-            canonicalLevel4NodeMap.prune(oldestGenerationToKeepInMacroCellMaps)
-            cellNodeMap.prune(oldestGenerationToKeepInMacroCellMaps)
-            level4NodeMap.prune(oldestGenerationToKeepInMacroCellMaps)
-            val oldestGenerationToKeepInLeafNodeMap = computedGenerations - generationsToCacheInLeafNodeMap
-            leafNodeMap.prune(oldestGenerationToKeepInLeafNodeMap)
-            cellState
-        } else {
-            val nextGeneration = computeNextGeneration(cellState)
-            computedGenerations++
-            computeGenerationWithStepImpl(
-                cellState = nextGeneration,
-                step = step - 1,
-            )
-        }
+    ): HashLifeCellState = if (step == 0) {
+        val oldestGenerationToKeepInMacroCellMaps = computedGenerations - generationsToCacheInMacroCellMaps
+        canonicalCellNodeMap.prune(oldestGenerationToKeepInMacroCellMaps)
+        canonicalLevel4NodeMap.prune(oldestGenerationToKeepInMacroCellMaps)
+        cellNodeMap.prune(oldestGenerationToKeepInMacroCellMaps)
+        level4NodeMap.prune(oldestGenerationToKeepInMacroCellMaps)
+        val oldestGenerationToKeepInLeafNodeMap = computedGenerations - generationsToCacheInLeafNodeMap
+        leafNodeMap.prune(oldestGenerationToKeepInLeafNodeMap)
+        cellState
+    } else {
+        val nextGeneration = computeNextGeneration(cellState)
+        computedGenerations++
+        computeGenerationWithStepImpl(
+            cellState = nextGeneration,
+            step = step - 1,
+        )
+    }
 
     /**
      * Returns the [HashLifeCellState] corresponding to the next generation.
      */
     private tailrec fun computeNextGeneration(cellState: HashLifeCellState): HashLifeCellState {
         val node = cellState.macroCell
-        val needToExpand = node.level <= 4 || when (node) {
-            is MacroCell.CellNode -> {
-                when (node.level) {
-                    5 -> centeredSubSubnodeLevel5(node).size
-                    6 -> centeredSubSubnodeLevel6(node).size
-                    else -> centeredSubSubnodeLevel7(node).size
-                }
-            }
-            is MacroCell.Level4Node -> error("Impossible, since level is larger than 4")
-        } != node.size
+        val needToExpand =
+            node.level <= 4 ||
+                when (node) {
+                    is MacroCell.CellNode -> {
+                        when (node.level) {
+                            5 -> centeredSubSubnodeLevel5(node).size
+                            6 -> centeredSubSubnodeLevel6(node).size
+                            else -> centeredSubSubnodeLevel7(node).size
+                        }
+                    }
+
+                    is MacroCell.Level4Node -> {
+                        error("Impossible, since level is larger than 4")
+                    }
+                } != node.size
 
         if (!needToExpand) {
             return HashLifeCellState(
@@ -461,19 +489,23 @@ private inline fun centeredSubnodeLevel5(node: MacroCell.CellNode): MacroCell.Le
     )
 }
 
-private inline fun centeredSubnodeLevel4(node: MacroCell.Level4Node): MacroCell.LeafNode =
-    LeafNode(
-        nw = node.nw.se,
-        ne = node.ne.sw,
-        sw = node.sw.ne,
-        se = node.se.nw,
-    )
+private inline fun centeredSubnodeLevel4(node: MacroCell.Level4Node): MacroCell.LeafNode = LeafNode(
+    nw = node.nw.se,
+    ne = node.ne.sw,
+    sw = node.sw.ne,
+    se = node.se.nw,
+)
 
-private inline fun centeredSubnodeLevel3(node: MacroCell.LeafNode): Int =
-    node.nw.se +
-        node.ne.sw * 16 +
-        node.sw.ne * 16 * 16 +
-        node.se.nw * 16 * 16 * 16
+private inline fun centeredSubnodeLevel3(node: MacroCell.LeafNode): Int = node.nw.se +
+    node.ne.sw *
+    16 +
+    node.sw.ne *
+    16 *
+    16 +
+    node.se.nw *
+    16 *
+    16 *
+    16
 
 private inline fun centeredHorizontalSubnodeLevel6(w: MacroCell.CellNode, e: MacroCell.CellNode): MacroCell.CellNode {
     // require(e.level >= 6)
@@ -508,19 +540,23 @@ private inline fun centeredHorizontalSubnodeLevel5(w: MacroCell.CellNode, e: Mac
 private inline fun centeredHorizontalSubnodeLevel4(
     w: MacroCell.Level4Node,
     e: MacroCell.Level4Node,
-): MacroCell.LeafNode =
-    LeafNode(
-        nw = w.ne.se,
-        ne = e.nw.sw,
-        sw = w.se.ne,
-        se = e.sw.nw,
-    )
+): MacroCell.LeafNode = LeafNode(
+    nw = w.ne.se,
+    ne = e.nw.sw,
+    sw = w.se.ne,
+    se = e.sw.nw,
+)
 
-private inline fun centeredHorizontalSubnodeLevel3(w: MacroCell.LeafNode, e: MacroCell.LeafNode): Int =
-    w.ne.se +
-        e.nw.sw * 16 +
-        w.se.ne * 16 * 16 +
-        e.sw.nw * 16 * 16 * 16
+private inline fun centeredHorizontalSubnodeLevel3(w: MacroCell.LeafNode, e: MacroCell.LeafNode): Int = w.ne.se +
+    e.nw.sw *
+    16 +
+    w.se.ne *
+    16 *
+    16 +
+    e.sw.nw *
+    16 *
+    16 *
+    16
 
 private inline fun centeredVerticalSubnodeLevel6(n: MacroCell.CellNode, s: MacroCell.CellNode): MacroCell.CellNode {
     // require(n.level >= 6)
@@ -560,11 +596,16 @@ private inline fun centeredVerticalSubnodeLevel4(n: MacroCell.Level4Node, s: Mac
         se = s.ne.nw,
     )
 
-private inline fun centeredVerticalSubnodeLevel3(n: MacroCell.LeafNode, s: MacroCell.LeafNode): Int =
-    n.sw.se +
-        n.se.sw * 16 +
-        s.nw.ne * 16 * 16 +
-        s.ne.nw * 16 * 16 * 16
+private inline fun centeredVerticalSubnodeLevel3(n: MacroCell.LeafNode, s: MacroCell.LeafNode): Int = n.sw.se +
+    n.se.sw *
+    16 +
+    s.nw.ne *
+    16 *
+    16 +
+    s.ne.nw *
+    16 *
+    16 *
+    16
 
 private inline fun centeredSubSubnodeLevel7(node: MacroCell.CellNode): MacroCell.CellNode {
     // require(node.level >= 7)
@@ -616,34 +657,33 @@ private inline fun centeredSubSubnodeLevel5(node: MacroCell.CellNode): MacroCell
     )
 }
 
-private inline fun centeredSubSubnodeLevel4(node: MacroCell.Level4Node): Int =
-    node.nw.se.se +
-        node.ne.sw.sw * 16 +
-        node.sw.ne.ne * 16 * 16 +
-        node.se.nw.nw * 16 * 16 * 16
+private inline fun centeredSubSubnodeLevel4(node: MacroCell.Level4Node): Int = node.nw.se.se +
+    node.ne.sw.sw *
+    16 +
+    node.sw.ne.ne *
+    16 *
+    16 +
+    node.se.nw.nw *
+    16 *
+    16 *
+    16
 
 private fun interface Equivalence<in T> {
-
     fun isEquivalent(a: T, b: T): Boolean
 
     fun hash(value: T): Int = value.hashCode()
 
-    class Wrapper<T>(
-        private val equivalence: Equivalence<T>,
-        val value: T,
-    ) {
+    class Wrapper<T>(private val equivalence: Equivalence<T>, val value: T) {
         @Suppress("UNCHECKED_CAST")
-        override fun equals(other: Any?): Boolean =
-            other is Wrapper<*> &&
-                other.equivalence === equivalence &&
-                equivalence.isEquivalent(value, (other as Wrapper<T>).value)
+        override fun equals(other: Any?): Boolean = other is Wrapper<*> &&
+            other.equivalence === equivalence &&
+            equivalence.isEquivalent(value, (other as Wrapper<T>).value)
 
         override fun hashCode(): Int = equivalence.hash(value)
     }
 }
 
-private fun <T> Equivalence<T>.wrap(value: T): Equivalence.Wrapper<T> =
-    Equivalence.Wrapper(this, value)
+private fun <T> Equivalence<T>.wrap(value: T): Equivalence.Wrapper<T> = Equivalence.Wrapper(this, value)
 
 /**
  * An [Equivalence] describing a "canonical" [MacroCell.CellNode].
@@ -667,19 +707,15 @@ private val canonicalCellNodeEquivalence: Equivalence<MacroCell.CellNode> =
         a.level == b.level && a.nw === b.nw && a.ne === b.ne && a.sw === b.sw && a.se === b.se
     }
 
-private class Cache<K, V>(
-    private val load: (K) -> V,
-    private val getGenerationIndex: () -> Long,
-) {
+private class Cache<K, V>(private val load: (K) -> V, private val getGenerationIndex: () -> Long) {
     private val mutableMap: MutableMap<K, V> = mutableMapOf()
     val map: Map<K, V> get() = mutableMap
 
     private val lastAccessedGenerationMap: MutableMap<K, Long> = mutableMapOf()
 
-    operator fun get(key: K): V =
-        mutableMap.getOrPut(key) { load(key) }.also {
-            lastAccessedGenerationMap[key] = getGenerationIndex()
-        }
+    operator fun get(key: K): V = mutableMap.getOrPut(key) { load(key) }.also {
+        lastAccessedGenerationMap[key] = getGenerationIndex()
+    }
 
     fun prune(oldestGenerationToKeep: Long) {
         val iterator = lastAccessedGenerationMap.iterator()
@@ -693,19 +729,15 @@ private class Cache<K, V>(
     }
 }
 
-private class ObjectLongCache<K>(
-    private val load: (K) -> Long,
-    private val getGenerationIndex: () -> Long,
-) {
+private class ObjectLongCache<K>(private val load: (K) -> Long, private val getGenerationIndex: () -> Long) {
     private val mutableMap: MutableObjectLongMap<K> = mutableObjectLongMapOf()
     val map: ObjectLongMap<K> get() = mutableMap
 
     private val lastAccessedGenerationMap: MutableObjectLongMap<K> = mutableObjectLongMapOf()
 
-    operator fun get(key: K): Long =
-        mutableMap.getOrPut(key) { load(key) }.also {
-            lastAccessedGenerationMap[key] = getGenerationIndex()
-        }
+    operator fun get(key: K): Long = mutableMap.getOrPut(key) { load(key) }.also {
+        lastAccessedGenerationMap[key] = getGenerationIndex()
+    }
 
     fun prune(oldestGenerationToKeep: Long) {
         lastAccessedGenerationMap.removeIf { key, value ->
@@ -718,19 +750,15 @@ private class ObjectLongCache<K>(
     }
 }
 
-private class LongIntCache(
-    private val load: (Long) -> Int,
-    private val getGenerationIndex: () -> Long,
-) {
+private class LongIntCache(private val load: (Long) -> Int, private val getGenerationIndex: () -> Long) {
     private val mutableMap: MutableLongIntMap = mutableLongIntMapOf()
     val map: LongIntMap get() = mutableMap
 
     private val lastAccessedGenerationMap: MutableLongLongMap = mutableLongLongMapOf()
 
-    operator fun get(key: Long): Int =
-        mutableMap.getOrPut(key) { load(key) }.also {
-            lastAccessedGenerationMap[key] = getGenerationIndex()
-        }
+    operator fun get(key: Long): Int = mutableMap.getOrPut(key) { load(key) }.also {
+        lastAccessedGenerationMap[key] = getGenerationIndex()
+    }
 
     fun prune(oldestGenerationToKeep: Long) {
         lastAccessedGenerationMap.removeIf { key, value ->

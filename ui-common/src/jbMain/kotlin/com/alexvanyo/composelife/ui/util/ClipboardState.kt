@@ -50,11 +50,13 @@ expect interface ClipboardWriter
 expect suspend fun ClipboardWriter.setText(value: String)
 
 @Stable
-interface ClipboardReaderWriter : ClipboardReader, ClipboardWriter
+interface ClipboardReaderWriter :
+    ClipboardReader,
+    ClipboardWriter
 
 @Inject
 @ContributesBinding(UiScope::class, binding<ClipboardReaderWriter>())
-class ClipboardReaderWriterImpl(
-    clipboardReader: ClipboardReader,
-    clipboardWriter: ClipboardWriter,
-): ClipboardReaderWriter, ClipboardReader by clipboardReader, ClipboardWriter by clipboardWriter
+class ClipboardReaderWriterImpl(clipboardReader: ClipboardReader, clipboardWriter: ClipboardWriter):
+    ClipboardReaderWriter,
+    ClipboardReader by clipboardReader,
+    ClipboardWriter by clipboardWriter

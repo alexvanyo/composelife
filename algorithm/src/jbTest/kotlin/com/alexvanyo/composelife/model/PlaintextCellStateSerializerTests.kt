@@ -20,7 +20,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class PlaintextCellStateSerializerTests {
-
     private val serializer = PlaintextCellStateSerializer
 
     @Test
@@ -28,7 +27,8 @@ class PlaintextCellStateSerializerTests {
         assertEquals(
             DeserializationResult.Successful(
                 warnings = emptyList(),
-                cellState = setOf(
+                cellState =
+                setOf(
                     0 to 0,
                     2 to 0,
                     4 to 0,
@@ -60,7 +60,8 @@ class PlaintextCellStateSerializerTests {
         assertEquals(
             DeserializationResult.Successful(
                 warnings = emptyList(),
-                cellState = setOf(
+                cellState =
+                setOf(
                     0 to 0,
                     2 to 0,
                     4 to 0,
@@ -95,7 +96,8 @@ class PlaintextCellStateSerializerTests {
     fun deserialization_with_comments_and_warnings_is_correct() {
         assertEquals(
             DeserializationResult.Successful(
-                warnings = listOf(
+                warnings =
+                listOf(
                     UnexpectedBlankLineMessage(3),
                     UnexpectedCharacterMessage('0', 4, 1),
                     UnexpectedCharacterMessage('0', 4, 3),
@@ -111,7 +113,8 @@ class PlaintextCellStateSerializerTests {
                     UnexpectedCharacterMessage(' ', 9, 4),
                     UnexpectedCharacterMessage('0', 9, 5),
                 ),
-                cellState = setOf(
+                cellState =
+                setOf(
                     0 to 0,
                     2 to 0,
                     4 to 0,
@@ -153,19 +156,20 @@ class PlaintextCellStateSerializerTests {
             |.....
             |O.O.O
             """.trimMargin(),
-            serializer.serializeToString(
-                setOf(
-                    0 to 0,
-                    2 to 0,
-                    4 to 0,
-                    0 to 2,
-                    2 to 2,
-                    4 to 2,
-                    0 to 4,
-                    2 to 4,
-                    4 to 4,
-                ).toCellState(),
-            ).joinToString("\n"),
+            serializer
+                .serializeToString(
+                    setOf(
+                        0 to 0,
+                        2 to 0,
+                        4 to 0,
+                        0 to 2,
+                        2 to 2,
+                        4 to 2,
+                        0 to 4,
+                        2 to 4,
+                        4 to 4,
+                    ).toCellState(),
+                ).joinToString("\n"),
         )
     }
 }

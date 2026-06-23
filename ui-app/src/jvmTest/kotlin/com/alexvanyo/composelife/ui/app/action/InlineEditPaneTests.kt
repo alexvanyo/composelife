@@ -69,9 +69,10 @@ val UiGraph.inlineEditPaneTestsCtx: InlineEditPaneTestsCtx get() =
     this as InlineEditPaneTestsCtx
 
 @OptIn(ExperimentalTestApi::class)
-class InlineEditPaneTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
+class InlineEditPaneTests :
+    BaseUiInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun clipboard_cell_state_preview_loading_is_displayed_correctly() = runUiTest { uiGraph ->

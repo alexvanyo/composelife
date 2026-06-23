@@ -55,13 +55,12 @@ class DarkThemeConfigUiCtx(
             "DarkThemeConfigUi(modifier)",
         ),
     )
-    operator fun invoke(
-        modifier: Modifier = Modifier,
-    ) = lambda(preferencesHolder, composeLifePreferences, modifier)
+    operator fun invoke(modifier: Modifier = Modifier) = lambda(preferencesHolder, composeLifePreferences, modifier)
 
     companion object {
         private val lambda:
-            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences) (
+            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences)
+            (
                 modifier: Modifier,
             ) -> Unit =
             { modifier ->
@@ -70,22 +69,18 @@ class DarkThemeConfigUiCtx(
     }
 }
 
-context(ctx: DarkThemeConfigUiCtx)
 @Suppress("DEPRECATION")
 @Composable
-fun DarkThemeConfigUi(
-    modifier: Modifier = Modifier,
-) = ctx(modifier)
+context(ctx: DarkThemeConfigUiCtx)
+fun DarkThemeConfigUi(modifier: Modifier = Modifier) = ctx(modifier)
 // endregion templated-ctx
 
+@Composable
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,
-composeLifePreferences: ComposeLifePreferences,
+    composeLifePreferences: ComposeLifePreferences,
 )
-@Composable
-private fun DarkThemeConfigUi(
-    modifier: Modifier = Modifier,
-) {
+private fun DarkThemeConfigUi(modifier: Modifier = Modifier) {
     DarkThemeConfigUi(
         darkThemeConfig = preferencesHolder.preferences.darkThemeConfig,
         setDarkThemeConfig = composeLifePreferences::setDarkThemeConfig,

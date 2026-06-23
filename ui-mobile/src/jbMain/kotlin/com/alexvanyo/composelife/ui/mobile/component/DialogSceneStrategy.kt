@@ -52,9 +52,8 @@ internal data class DialogScene<T : Any>(
     }
 }
 
-class DialogSceneStrategy<T>(
-    private val wrappedSceneStrategy: SceneStrategy<BackstackEntry<T>>,
-) : SceneStrategy<BackstackEntry<T>> {
+class DialogSceneStrategy<T>(private val wrappedSceneStrategy: SceneStrategy<BackstackEntry<T>>) :
+    SceneStrategy<BackstackEntry<T>> {
     @Suppress("ReturnCount")
     override fun SceneStrategyScope<BackstackEntry<T>>.calculateScene(
         entries: List<NavEntry<BackstackEntry<T>>>,

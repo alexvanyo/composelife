@@ -82,11 +82,7 @@ private const val MAX_PHASE = 2
 private const val MAX_GENERATIONS = 300
 private const val CUSTOM_CODE_POINT_START = 0x4E00
 
-private suspend fun destructionIsCorrect(
-    algorithm: GameOfLifeAlgorithm,
-    hourPrefix: String,
-    minute: Int,
-) {
+private suspend fun destructionIsCorrect(algorithm: GameOfLifeAlgorithm, hourPrefix: String, minute: Int) {
     val timeDigits = createTimeDigits(hourPrefix, minute)
 
     val solutionCellStateFile =
@@ -240,7 +236,7 @@ private suspend fun isDestructionAchieved(
         .minBy { (_, value) -> value }
 }
 
-@Suppress("RedundantSuspendModifier")
+@Suppress("RedundantSuspendModifier", "NoNameShadowing")
 private suspend fun isRepeatingAtEnd(
     algorithm: GameOfLifeAlgorithm,
     maxPhase: Int,
@@ -381,17 +377,12 @@ private val GameOfLifeSegmentChar.fileChar get() =
         GameOfLifeSegmentChar.Blank -> '_'
     }
 
-private data class Edge(
-    val insideCell: IntOffset,
-    val outsideCell: IntOffset,
-)
+private data class Edge(val insideCell: IntOffset, val outsideCell: IntOffset)
 
 private val Edge.normalDirection: Direction get() =
     unitIntOffsetToDirection(outsideCell - insideCell)
 
-private enum class Direction(
-    val intOffset: IntOffset,
-) {
+private enum class Direction(val intOffset: IntOffset) {
     Left(
         IntOffset(-1, 0),
     ),
@@ -408,73 +399,69 @@ private enum class Direction(
 
 private operator fun IntOffset.plus(direction: Direction): IntOffset = this + direction.intOffset
 
-private fun Edge.possibleClockwiseNeighbors(connectedComponent: Set<IntOffset>): List<Edge?> {
-    return when (normalDirection) {
-        Direction.Left -> listOf(
-            if (insideCell + Direction.Up in connectedComponent) {
-                Edge(
-                    insideCell + Direction.Up + Direction.Left,
-                    outsideCell,
-                )
-            } else {
-                null
-            },
-            Edge(insideCell + Direction.Up, outsideCell + Direction.Up),
-            Edge(insideCell, insideCell + Direction.Up),
-        )
-        Direction.Right -> listOf(
-            if (insideCell + Direction.Down in connectedComponent) {
-                Edge(
-                    insideCell + Direction.Down + Direction.Right,
-                    outsideCell,
-                )
-            } else {
-                null
-            },
-            Edge(insideCell + Direction.Down, outsideCell + Direction.Down),
-            Edge(insideCell, insideCell + Direction.Down),
-        )
-        Direction.Up -> listOf(
-            if (insideCell + Direction.Right in connectedComponent) {
-                Edge(
-                    insideCell + Direction.Right + Direction.Up,
-                    outsideCell,
-                )
-            } else {
-                null
-            },
-            Edge(insideCell + Direction.Right, outsideCell + Direction.Right),
-            Edge(insideCell, insideCell + Direction.Right),
-        )
-        Direction.Down -> listOf(
-            if (insideCell + Direction.Left in connectedComponent) {
-                Edge(
-                    insideCell + Direction.Left + Direction.Down,
-                    outsideCell,
-                )
-            } else {
-                null
-            },
-            Edge(insideCell + Direction.Left, outsideCell + Direction.Left),
-            Edge(insideCell, insideCell + Direction.Left),
-        )
-    }
+private fun Edge.possibleClockwiseNeighbors(connectedComponent: Set<IntOffset>): List<Edge?> = when (normalDirection) {
+    Direction.Left -> listOf(
+        if (insideCell + Direction.Up in connectedComponent) {
+            Edge(
+                insideCell + Direction.Up + Direction.Left,
+                outsideCell,
+            )
+        } else {
+            null
+        },
+        Edge(insideCell + Direction.Up, outsideCell + Direction.Up),
+        Edge(insideCell, insideCell + Direction.Up),
+    )
+
+    Direction.Right -> listOf(
+        if (insideCell + Direction.Down in connectedComponent) {
+            Edge(
+                insideCell + Direction.Down + Direction.Right,
+                outsideCell,
+            )
+        } else {
+            null
+        },
+        Edge(insideCell + Direction.Down, outsideCell + Direction.Down),
+        Edge(insideCell, insideCell + Direction.Down),
+    )
+
+    Direction.Up -> listOf(
+        if (insideCell + Direction.Right in connectedComponent) {
+            Edge(
+                insideCell + Direction.Right + Direction.Up,
+                outsideCell,
+            )
+        } else {
+            null
+        },
+        Edge(insideCell + Direction.Right, outsideCell + Direction.Right),
+        Edge(insideCell, insideCell + Direction.Right),
+    )
+
+    Direction.Down -> listOf(
+        if (insideCell + Direction.Left in connectedComponent) {
+            Edge(
+                insideCell + Direction.Left + Direction.Down,
+                outsideCell,
+            )
+        } else {
+            null
+        },
+        Edge(insideCell + Direction.Left, outsideCell + Direction.Left),
+        Edge(insideCell, insideCell + Direction.Left),
+    )
 }
 
-private fun unitIntOffsetToDirection(intOffset: IntOffset): Direction =
-    when (intOffset) {
-        IntOffset(-1, 0) -> Direction.Left
-        IntOffset(1, 0) -> Direction.Right
-        IntOffset(0, -1) -> Direction.Up
-        IntOffset(0, 1) -> Direction.Down
-        else -> error("Unexpected non-unit length IntOffset")
-    }
+private fun unitIntOffsetToDirection(intOffset: IntOffset): Direction = when (intOffset) {
+    IntOffset(-1, 0) -> Direction.Left
+    IntOffset(1, 0) -> Direction.Right
+    IntOffset(0, -1) -> Direction.Up
+    IntOffset(0, 1) -> Direction.Down
+    else -> error("Unexpected non-unit length IntOffset")
+}
 
-private fun getCornerPointOnNeighboringEdgesOrNull(
-    a: Edge,
-    b: Edge,
-    connectedComponent: Set<IntOffset>,
-): IntOffset? =
+private fun getCornerPointOnNeighboringEdgesOrNull(a: Edge, b: Edge, connectedComponent: Set<IntOffset>): IntOffset? =
     when (a.possibleClockwiseNeighbors(connectedComponent).indexOf(b)) {
         0, 2 -> when (a.normalDirection) {
             Direction.Left -> a.insideCell
@@ -482,13 +469,13 @@ private fun getCornerPointOnNeighboringEdgesOrNull(
             Direction.Up -> a.insideCell + Direction.Right
             Direction.Down -> a.insideCell + Direction.Down
         }
+
         1 -> null
+
         else -> error("Edges were not neighbors")
     }
 
-private fun createTimeCellState(
-    timeDigits: TimeDigits,
-): CellState = timeDigits.firstDigit.cellState
+private fun createTimeCellState(timeDigits: TimeDigits): CellState = timeDigits.firstDigit.cellState
     .union(timeDigits.secondDigit.cellState.offsetBy(IntOffset(14, 0)))
     .union(timeDigits.thirdDigit.cellState.offsetBy(IntOffset(32, 0)))
     .union(timeDigits.fourthDigit.cellState.offsetBy(IntOffset(46, 0)))
@@ -596,9 +583,7 @@ data class TimeDigits(
     val fourthDigit: GameOfLifeSegmentChar,
 )
 
-sealed class GameOfLifeSegmentChar(
-    val cellState: CellState,
-) {
+sealed class GameOfLifeSegmentChar(val cellState: CellState) {
     data object Zero : GameOfLifeSegmentChar(segA.union(segB).union(segC).union(segD).union(segE).union(segF))
     data object One : GameOfLifeSegmentChar(segB.union(segC))
     data object Two : GameOfLifeSegmentChar(segA.union(segB).union(segD).union(segE).union(segG))
@@ -614,20 +599,18 @@ sealed class GameOfLifeSegmentChar(
     data object Blank : GameOfLifeSegmentChar(emptyCellState())
 
     companion object {
-        fun fromChar(digit: Int): GameOfLifeSegmentChar {
-            return when (digit) {
-                0 -> Zero
-                1 -> One
-                2 -> Two
-                3 -> Three
-                4 -> Four
-                5 -> Five
-                6 -> Six
-                7 -> Seven
-                8 -> Eight
-                9 -> Nine
-                else -> throw IllegalArgumentException("input wasn't a digit!")
-            }
+        fun fromChar(digit: Int): GameOfLifeSegmentChar = when (digit) {
+            0 -> Zero
+            1 -> One
+            2 -> Two
+            3 -> Three
+            4 -> Four
+            5 -> Five
+            6 -> Six
+            7 -> Seven
+            8 -> Eight
+            9 -> Nine
+            else -> throw IllegalArgumentException("input wasn't a digit!")
         }
     }
 }

@@ -49,13 +49,13 @@ import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
 class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
-
     private val testDispatcher = StandardTestDispatcher()
 
-    private val dispatchers = TestComposeLifeDispatchers(
-        generalTestDispatcher = testDispatcher,
-        cellTickerTestDispatcher = testDispatcher,
-    )
+    private val dispatchers =
+        TestComposeLifeDispatchers(
+            generalTestDispatcher = testDispatcher,
+            cellTickerTestDispatcher = testDispatcher,
+        )
 
     @Test
     fun state_is_instance_state_saved_correctly() = runComposeUiTest(testDispatcher) {
@@ -65,12 +65,13 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
         var extractedState: TemporalGameOfLifeState?
 
         stateRestorationTester.setContent {
-            extractedState = rememberTemporalGameOfLifeState(
-                seedCellState = PondPattern.seedCellState,
-                isRunning = false,
-                generationsPerStep = 5,
-                targetStepsPerSecond = 30.0,
-            )
+            extractedState =
+                rememberTemporalGameOfLifeState(
+                    seedCellState = PondPattern.seedCellState,
+                    isRunning = false,
+                    generationsPerStep = 5,
+                    targetStepsPerSecond = 30.0,
+                )
         }
 
         waitForIdle()
@@ -91,24 +92,27 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
     fun state_is_advanced_correctly() = runComposeUiTest(testDispatcher) {
         mainClock.autoAdvance = false
 
-        val temporalGameOfLifeState = TemporalGameOfLifeState(
-            seedCellState = SixLongLinePattern.seedCellState,
-            isRunning = true,
-            generationsPerStep = 1,
-            targetStepsPerSecond = 60.0,
-        )
+        val temporalGameOfLifeState =
+            TemporalGameOfLifeState(
+                seedCellState = SixLongLinePattern.seedCellState,
+                isRunning = true,
+                generationsPerStep = 1,
+                targetStepsPerSecond = 60.0,
+            )
 
-        val hashLifeAlgorithm = HashLifeAlgorithm(
-            dispatchers = dispatchers,
-        )
-
-        setContent {
-            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = hashLifeAlgorithm,
-                clock = testDispatcher.scheduler.clock,
+        val hashLifeAlgorithm =
+            HashLifeAlgorithm(
                 dispatchers = dispatchers,
             )
+
+        setContent {
+            val temporalGameOfLifeStateMutator =
+                rememberTemporalGameOfLifeStateMutator(
+                    temporalGameOfLifeState = temporalGameOfLifeState,
+                    gameOfLifeAlgorithm = hashLifeAlgorithm,
+                    clock = testDispatcher.scheduler.clock,
+                    dispatchers = dispatchers,
+                )
 
             LaunchedEffect(temporalGameOfLifeStateMutator) {
                 temporalGameOfLifeStateMutator.update()
@@ -142,24 +146,27 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
     fun pausing_evolution_is_correct() = runComposeUiTest(testDispatcher) {
         mainClock.autoAdvance = false
 
-        val temporalGameOfLifeState = TemporalGameOfLifeState(
-            seedCellState = SixLongLinePattern.seedCellState,
-            isRunning = true,
-            generationsPerStep = 1,
-            targetStepsPerSecond = 60.0,
-        )
+        val temporalGameOfLifeState =
+            TemporalGameOfLifeState(
+                seedCellState = SixLongLinePattern.seedCellState,
+                isRunning = true,
+                generationsPerStep = 1,
+                targetStepsPerSecond = 60.0,
+            )
 
-        val hashLifeAlgorithm = HashLifeAlgorithm(
-            dispatchers = dispatchers,
-        )
-
-        setContent {
-            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = hashLifeAlgorithm,
-                clock = testDispatcher.scheduler.clock,
+        val hashLifeAlgorithm =
+            HashLifeAlgorithm(
                 dispatchers = dispatchers,
             )
+
+        setContent {
+            val temporalGameOfLifeStateMutator =
+                rememberTemporalGameOfLifeStateMutator(
+                    temporalGameOfLifeState = temporalGameOfLifeState,
+                    gameOfLifeAlgorithm = hashLifeAlgorithm,
+                    clock = testDispatcher.scheduler.clock,
+                    dispatchers = dispatchers,
+                )
 
             LaunchedEffect(temporalGameOfLifeStateMutator) {
                 temporalGameOfLifeStateMutator.update()
@@ -225,24 +232,27 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
     fun target_steps_evolution_is_correct() = runComposeUiTest(testDispatcher) {
         mainClock.autoAdvance = false
 
-        val temporalGameOfLifeState = TemporalGameOfLifeState(
-            seedCellState = SixLongLinePattern.seedCellState,
-            isRunning = true,
-            generationsPerStep = 1,
-            targetStepsPerSecond = 60.0,
-        )
+        val temporalGameOfLifeState =
+            TemporalGameOfLifeState(
+                seedCellState = SixLongLinePattern.seedCellState,
+                isRunning = true,
+                generationsPerStep = 1,
+                targetStepsPerSecond = 60.0,
+            )
 
-        val hashLifeAlgorithm = HashLifeAlgorithm(
-            dispatchers = dispatchers,
-        )
-
-        setContent {
-            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = hashLifeAlgorithm,
-                clock = testDispatcher.scheduler.clock,
+        val hashLifeAlgorithm =
+            HashLifeAlgorithm(
                 dispatchers = dispatchers,
             )
+
+        setContent {
+            val temporalGameOfLifeStateMutator =
+                rememberTemporalGameOfLifeStateMutator(
+                    temporalGameOfLifeState = temporalGameOfLifeState,
+                    gameOfLifeAlgorithm = hashLifeAlgorithm,
+                    clock = testDispatcher.scheduler.clock,
+                    dispatchers = dispatchers,
+                )
 
             LaunchedEffect(temporalGameOfLifeStateMutator) {
                 temporalGameOfLifeStateMutator.update()
@@ -320,24 +330,27 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
     fun setting_evolution_is_correct() = runComposeUiTest(testDispatcher) {
         mainClock.autoAdvance = false
 
-        val temporalGameOfLifeState = TemporalGameOfLifeState(
-            seedCellState = SixLongLinePattern.seedCellState,
-            isRunning = true,
-            generationsPerStep = 1,
-            targetStepsPerSecond = 60.0,
-        )
+        val temporalGameOfLifeState =
+            TemporalGameOfLifeState(
+                seedCellState = SixLongLinePattern.seedCellState,
+                isRunning = true,
+                generationsPerStep = 1,
+                targetStepsPerSecond = 60.0,
+            )
 
-        val hashLifeAlgorithm = HashLifeAlgorithm(
-            dispatchers = dispatchers,
-        )
-
-        setContent {
-            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = hashLifeAlgorithm,
-                clock = testDispatcher.scheduler.clock,
+        val hashLifeAlgorithm =
+            HashLifeAlgorithm(
                 dispatchers = dispatchers,
             )
+
+        setContent {
+            val temporalGameOfLifeStateMutator =
+                rememberTemporalGameOfLifeStateMutator(
+                    temporalGameOfLifeState = temporalGameOfLifeState,
+                    gameOfLifeAlgorithm = hashLifeAlgorithm,
+                    clock = testDispatcher.scheduler.clock,
+                    dispatchers = dispatchers,
+                )
 
             LaunchedEffect(temporalGameOfLifeStateMutator) {
                 temporalGameOfLifeStateMutator.update()
@@ -415,31 +428,35 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
     fun multiple_evolutions_is_correct() = runComposeUiTest(testDispatcher) {
         mainClock.autoAdvance = false
 
-        val temporalGameOfLifeState = TemporalGameOfLifeState(
-            seedCellState = SixLongLinePattern.seedCellState,
-            isRunning = true,
-            generationsPerStep = 1,
-            targetStepsPerSecond = 60.0,
-        )
+        val temporalGameOfLifeState =
+            TemporalGameOfLifeState(
+                seedCellState = SixLongLinePattern.seedCellState,
+                isRunning = true,
+                generationsPerStep = 1,
+                targetStepsPerSecond = 60.0,
+            )
 
-        val hashLifeAlgorithm = HashLifeAlgorithm(
-            dispatchers = dispatchers,
-        )
+        val hashLifeAlgorithm =
+            HashLifeAlgorithm(
+                dispatchers = dispatchers,
+            )
 
         var runFirstMutator by mutableStateOf(true)
         var isFirstCancelled = false
 
         setContent {
-            val clock = remember(testDispatcher) {
-                testDispatcher.scheduler.clock
-            }
+            val clock =
+                remember(testDispatcher) {
+                    testDispatcher.scheduler.clock
+                }
 
-            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = hashLifeAlgorithm,
-                clock = clock,
-                dispatchers = dispatchers,
-            )
+            val temporalGameOfLifeStateMutator =
+                rememberTemporalGameOfLifeStateMutator(
+                    temporalGameOfLifeState = temporalGameOfLifeState,
+                    gameOfLifeAlgorithm = hashLifeAlgorithm,
+                    clock = clock,
+                    dispatchers = dispatchers,
+                )
 
             if (runFirstMutator) {
                 LaunchedEffect(temporalGameOfLifeStateMutator) {
@@ -579,24 +596,27 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
     fun state_is_advanced_correctly_with_step() = runComposeUiTest(testDispatcher) {
         mainClock.autoAdvance = false
 
-        val temporalGameOfLifeState = TemporalGameOfLifeState(
-            seedCellState = SixLongLinePattern.seedCellState,
-            isRunning = false,
-            generationsPerStep = 1,
-            targetStepsPerSecond = 60.0,
-        )
+        val temporalGameOfLifeState =
+            TemporalGameOfLifeState(
+                seedCellState = SixLongLinePattern.seedCellState,
+                isRunning = false,
+                generationsPerStep = 1,
+                targetStepsPerSecond = 60.0,
+            )
 
-        val hashLifeAlgorithm = HashLifeAlgorithm(
-            dispatchers = dispatchers,
-        )
-
-        setContent {
-            val temporalGameOfLifeStateMutator = rememberTemporalGameOfLifeStateMutator(
-                temporalGameOfLifeState = temporalGameOfLifeState,
-                gameOfLifeAlgorithm = hashLifeAlgorithm,
-                clock = testDispatcher.scheduler.clock,
+        val hashLifeAlgorithm =
+            HashLifeAlgorithm(
                 dispatchers = dispatchers,
             )
+
+        setContent {
+            val temporalGameOfLifeStateMutator =
+                rememberTemporalGameOfLifeStateMutator(
+                    temporalGameOfLifeState = temporalGameOfLifeState,
+                    gameOfLifeAlgorithm = hashLifeAlgorithm,
+                    clock = testDispatcher.scheduler.clock,
+                    dispatchers = dispatchers,
+                )
 
             LaunchedEffect(temporalGameOfLifeStateMutator) {
                 temporalGameOfLifeStateMutator.update()
@@ -606,7 +626,8 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
             BasicText(
                 text = "Step",
-                modifier = Modifier.clickable {
+                modifier =
+                Modifier.clickable {
                     coroutineScope.launch {
                         temporalGameOfLifeState.step()
                     }

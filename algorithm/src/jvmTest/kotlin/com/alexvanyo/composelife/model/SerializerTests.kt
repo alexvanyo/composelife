@@ -34,43 +34,44 @@ private class CellStateSerializerFactory(
 }
 
 val SerializerTests by testSuite {
-    val cellStateSerializerFactories = listOf(
-        CellStateSerializerFactory(
-            name = "Plaintext",
-            trueEquals = false,
-            format = CellStateFormat.FixedFormat.Plaintext,
-        ) {
-            PlaintextCellStateSerializer
-        },
-        CellStateSerializerFactory(
-            name = "Life 1.05",
-            trueEquals = true,
-            format = CellStateFormat.FixedFormat.Life105,
-        ) {
-            Life105CellStateSerializer
-        },
-        CellStateSerializerFactory(
-            name = "Life 1.06",
-            trueEquals = true,
-            format = CellStateFormat.FixedFormat.Life106,
-        ) {
-            Life106CellStateSerializer
-        },
-        CellStateSerializerFactory(
-            name = "Run length encoding",
-            trueEquals = true,
-            format = CellStateFormat.FixedFormat.RunLengthEncoding,
-        ) {
-            RunLengthEncodedCellStateSerializer
-        },
-        CellStateSerializerFactory(
-            name = "Macrocell",
-            trueEquals = false,
-            format = CellStateFormat.FixedFormat.Macrocell,
-        ) {
-            MacrocellCellStateSerializer
-        },
-    )
+    val cellStateSerializerFactories =
+        listOf(
+            CellStateSerializerFactory(
+                name = "Plaintext",
+                trueEquals = false,
+                format = CellStateFormat.FixedFormat.Plaintext,
+            ) {
+                PlaintextCellStateSerializer
+            },
+            CellStateSerializerFactory(
+                name = "Life 1.05",
+                trueEquals = true,
+                format = CellStateFormat.FixedFormat.Life105,
+            ) {
+                Life105CellStateSerializer
+            },
+            CellStateSerializerFactory(
+                name = "Life 1.06",
+                trueEquals = true,
+                format = CellStateFormat.FixedFormat.Life106,
+            ) {
+                Life106CellStateSerializer
+            },
+            CellStateSerializerFactory(
+                name = "Run length encoding",
+                trueEquals = true,
+                format = CellStateFormat.FixedFormat.RunLengthEncoding,
+            ) {
+                RunLengthEncodedCellStateSerializer
+            },
+            CellStateSerializerFactory(
+                name = "Macrocell",
+                trueEquals = false,
+                format = CellStateFormat.FixedFormat.Macrocell,
+            ) {
+                MacrocellCellStateSerializer
+            },
+        )
 
     val testPatterns = GameOfLifeTestPattern.values
 
@@ -78,7 +79,7 @@ val SerializerTests by testSuite {
         testSuite(cellStateSerializerFactory.toString()) {
             testPatterns.forEach { testPattern ->
                 testSuite(testPattern.toString()) {
-                    /**
+                    /*
                      * Checks the serialization invariant for all test patterns: serializing the pattern and then
                      * deserializing it results in the original pattern, with no warnings.
                      *

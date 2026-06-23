@@ -79,9 +79,10 @@ val UiGraph.fullscreenSettingsPaneRobolectricTestsCtx: FullscreenSettingsPaneRob
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalTestApi::class)
-class FullscreenSettingsPaneRobolectricTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
+class FullscreenSettingsPaneRobolectricTests :
+    BaseUiInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
 
     @Config(qualifiers = "w500dp-h500dp")
     @Test

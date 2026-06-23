@@ -22,8 +22,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.lerp
 
 @Stable
-fun lerp(start: IntSize, stop: IntSize, @FloatRange(from = 0.0, to = 1.0) fraction: Float): IntSize =
-    IntSize(
-        lerp(start.width, stop.width, fraction),
-        lerp(start.height, stop.height, fraction),
-    )
+fun lerp(start: IntSize, stop: IntSize, @FloatRange(from = 0.0, to = 1.0) fraction: Float): IntSize = IntSize(
+    lerp(start.width, stop.width, fraction),
+    lerp(start.height, stop.height, fraction),
+)

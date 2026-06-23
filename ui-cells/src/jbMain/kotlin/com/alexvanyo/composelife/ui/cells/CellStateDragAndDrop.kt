@@ -34,9 +34,7 @@ expect fun Modifier.cellStateDragAndDropSource(getCellState: () -> CellState): M
  * A [Modifier] for a drag-and-drop target for a [CellState].
  */
 @Composable
-fun Modifier.cellStateDragAndDropTarget(
-    mutableCellStateDropStateHolder: MutableCellStateDropStateHolder,
-): Modifier {
+fun Modifier.cellStateDragAndDropTarget(mutableCellStateDropStateHolder: MutableCellStateDropStateHolder): Modifier {
     when (mutableCellStateDropStateHolder) {
         is MutableCellStateDropStateHolderImpl -> Unit
     }

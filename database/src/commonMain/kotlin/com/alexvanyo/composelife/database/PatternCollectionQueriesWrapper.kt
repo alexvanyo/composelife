@@ -26,30 +26,26 @@ import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Instant
 
 @Inject
-class PatternCollectionQueriesWrapper(
-    val queries: PatternCollectionQueries,
-) {
+class PatternCollectionQueriesWrapper(val queries: PatternCollectionQueries) {
     fun observePatternCollections(): Flow<List<PatternCollection>> =
         queries.getPatternCollections().asFlow().mapToList(EmptyCoroutineContext)
 
-    suspend fun getPatternCollections(): List<PatternCollection> =
-        queries.getPatternCollections().awaitAsList()
+    suspend fun getPatternCollections(): List<PatternCollection> = queries.getPatternCollections().awaitAsList()
 
     suspend fun insertPatternCollection(
         sourceUrl: String,
         lastSuccessfulSynchronizationTimestamp: Instant?,
         lastUnsuccessfulSynchronizationTimestamp: Instant?,
         synchronizationFailureMessage: String?,
-    ): PatternCollectionId =
-        queries.transactionWithResult {
-            queries.insertPatternCollection(
-                sourceUrl = sourceUrl,
-                lastSuccessfulSynchronizationTimestamp = lastSuccessfulSynchronizationTimestamp,
-                lastUnsuccessfulSynchronizationTimestamp = lastUnsuccessfulSynchronizationTimestamp,
-                synchronizationFailureMessage = synchronizationFailureMessage,
-            )
-            PatternCollectionId(queries.lastInsertedRowId().awaitAsOne())
-        }
+    ): PatternCollectionId = queries.transactionWithResult {
+        queries.insertPatternCollection(
+            sourceUrl = sourceUrl,
+            lastSuccessfulSynchronizationTimestamp = lastSuccessfulSynchronizationTimestamp,
+            lastUnsuccessfulSynchronizationTimestamp = lastUnsuccessfulSynchronizationTimestamp,
+            synchronizationFailureMessage = synchronizationFailureMessage,
+        )
+        PatternCollectionId(queries.lastInsertedRowId().awaitAsOne())
+    }
 
     suspend fun updatePatternCollection(
         id: PatternCollectionId,
@@ -57,19 +53,15 @@ class PatternCollectionQueriesWrapper(
         lastSuccessfulSynchronizationTimestamp: Instant?,
         lastUnsuccessfulSynchronizationTimestamp: Instant?,
         synchronizationFailureMessage: String?,
-    ) =
-        queries.updatePatternCollection(
-            id = id,
-            sourceUrl = sourceUrl,
-            lastSuccessfulSynchronizationTimestamp = lastSuccessfulSynchronizationTimestamp,
-            lastUnsuccessfulSynchronizationTimestamp = lastUnsuccessfulSynchronizationTimestamp,
-            synchronizationFailureMessage = synchronizationFailureMessage,
-        )
+    ) = queries.updatePatternCollection(
+        id = id,
+        sourceUrl = sourceUrl,
+        lastSuccessfulSynchronizationTimestamp = lastSuccessfulSynchronizationTimestamp,
+        lastUnsuccessfulSynchronizationTimestamp = lastUnsuccessfulSynchronizationTimestamp,
+        synchronizationFailureMessage = synchronizationFailureMessage,
+    )
 
-    suspend fun deletePatternCollection(
-        id: PatternCollectionId,
-    ) =
-        queries.deletePatternCollection(
-            id = id,
-        )
+    suspend fun deletePatternCollection(id: PatternCollectionId) = queries.deletePatternCollection(
+        id = id,
+    )
 }

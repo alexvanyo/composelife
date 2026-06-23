@@ -79,7 +79,8 @@ class LocalStoragePreferencesDataStore(
     private val navigator: org.w3c.dom.Navigator,
     @param:PreferencesProtoItemKey private val itemKey: String,
     private val dispatchers: ComposeLifeDispatchers,
-) : PreferencesDataStore, Updatable {
+) : PreferencesDataStore,
+    Updatable {
     private val mutex = Mutex()
 
     private val dataStoreCompletable = CompletableDeferred<DataStore<PreferencesProto>>()
@@ -104,21 +105,18 @@ class LocalStoragePreferencesDataStore(
         }
     }
 
-    private fun createDataStore(
-        scope: CoroutineScope,
-    ): DataStore<PreferencesProto> =
-        DataStoreFactory.create(
-            storage = WebStorage(
-                storage = storage,
-                navigator = navigator,
-                updateNotifications = localStorageUpdates,
-                itemKey = itemKey,
-                serializer = serializer,
-            ),
-            corruptionHandler = corruptionHandler,
-            migrations = migrations,
-            scope = scope,
-        )
+    private fun createDataStore(scope: CoroutineScope): DataStore<PreferencesProto> = DataStoreFactory.create(
+        storage = WebStorage(
+            storage = storage,
+            navigator = navigator,
+            updateNotifications = localStorageUpdates,
+            itemKey = itemKey,
+            serializer = serializer,
+        ),
+        corruptionHandler = corruptionHandler,
+        migrations = migrations,
+        scope = scope,
+    )
 }
 
 private class WebProcessCoordinator(
@@ -129,10 +127,9 @@ private class WebProcessCoordinator(
     private val locks = getLocks(navigator)
 
     @OptIn(ExperimentalWasmJsInterop::class)
-    override suspend fun <T> lock(block: suspend () -> T): T =
-        locks.withLock(preferencesLockName) {
-            block()
-        }
+    override suspend fun <T> lock(block: suspend () -> T): T = locks.withLock(preferencesLockName) {
+        block()
+    }
 
     @OptIn(ExperimentalWasmJsInterop::class)
     override suspend fun <T> tryLock(block: suspend (Boolean) -> T): T =
@@ -141,20 +138,19 @@ private class WebProcessCoordinator(
         }
 
     @OptIn(ExperimentalWasmJsInterop::class)
-    override suspend fun getVersion(): Int =
-        locks.withLock(versionLockName) {
-            storage.getItem(preferencesVersionItemKey)?.toIntOrNull() ?: 0
-        }
+    override suspend fun getVersion(): Int = locks.withLock(versionLockName) {
+        storage.getItem(preferencesVersionItemKey)?.toIntOrNull() ?: 0
+    }
 
     @OptIn(ExperimentalWasmJsInterop::class)
-    override suspend fun incrementAndGetVersion(): Int =
-        locks.withLock(versionLockName) {
-            val oldValue = storage.getItem(preferencesVersionItemKey)?.toIntOrNull() ?: 0
-            val newValue = oldValue + 1
-            storage.setItem(preferencesVersionItemKey, newValue.toString())
-            newValue
-        }
+    override suspend fun incrementAndGetVersion(): Int = locks.withLock(versionLockName) {
+        val oldValue = storage.getItem(preferencesVersionItemKey)?.toIntOrNull() ?: 0
+        val newValue = oldValue + 1
+        storage.setItem(preferencesVersionItemKey, newValue.toString())
+        newValue
+    }
 
+    @Suppress("PropertyName")
     companion object {
         private const val preferencesLockName = "preferencesLock"
         private const val versionLockName = "versionLock"
@@ -238,15 +234,13 @@ private open class WebStorageReadScope<T>(
     override fun close() = Unit
 }
 
-private class WebStorageWriteScope<T>(
-    storage: org.w3c.dom.Storage,
-    itemKey: String,
-    serializer: OkioSerializer<T>,
-) : WebStorageReadScope<T>(
-    storage,
-    itemKey,
-    serializer,
-), WriteScope<T> {
+private class WebStorageWriteScope<T>(storage: org.w3c.dom.Storage, itemKey: String, serializer: OkioSerializer<T>) :
+    WebStorageReadScope<T>(
+        storage,
+        itemKey,
+        serializer,
+    ),
+    WriteScope<T> {
     override suspend fun writeData(value: T) {
         val sink = Buffer()
         try {
@@ -260,8 +254,7 @@ private class WebStorageWriteScope<T>(
 
 @OptIn(ExperimentalWasmJsInterop::class)
 @Suppress("UNUSED_PARAMETER")
-internal fun getLocks(navigator: org.w3c.dom.Navigator): LockManager =
-    js("navigator.locks")
+internal fun getLocks(navigator: org.w3c.dom.Navigator): LockManager = js("navigator.locks")
 
 internal external class Lock
 
@@ -274,26 +267,24 @@ private fun <T : JsAny?> requestLockWithPromise(
     name: String,
     ifAvailable: Boolean,
     block: (Lock?) -> Promise<T>,
-): Promise<T> =
-    js("lockManager.request(name, { ifAvailable: ifAvailable }, block)")
+): Promise<T> = js("lockManager.request(name, { ifAvailable: ifAvailable }, block)")
 
 @OptIn(ExperimentalWasmJsInterop::class)
 private suspend fun <T : JsAny?> LockManager.withLockJs(
     name: String,
     ifAvailable: Boolean = false,
     block: suspend (Lock?) -> T,
-): T =
-    coroutineScope {
-        requestLockWithPromise(
-            this@withLockJs,
-            name = name,
-            ifAvailable = ifAvailable,
-        ) { lock ->
-            async {
-                block(lock)
-            }.asPromise()
-        }.await()
-    }
+): T = coroutineScope {
+    requestLockWithPromise(
+        this@withLockJs,
+        name = name,
+        ifAvailable = ifAvailable,
+    ) { lock ->
+        async {
+            block(lock)
+        }.asPromise()
+    }.await()
+}
 
 @OptIn(ExperimentalWasmJsInterop::class)
 private suspend fun <T> LockManager.withLock(
@@ -304,10 +295,7 @@ private suspend fun <T> LockManager.withLock(
     Result.success(block(lock)).toJsReference()
 }.get().getOrThrow()
 
-private suspend fun org.w3c.dom.Window.observeEvents(
-    type: String,
-    callback: (event: Event) -> Unit,
-): Nothing {
+private suspend fun org.w3c.dom.Window.observeEvents(type: String, callback: (event: Event) -> Unit): Nothing {
     addEventListener(type, callback)
     try {
         awaitCancellation()

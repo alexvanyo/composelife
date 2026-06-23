@@ -39,18 +39,17 @@ import org.w3c.dom.DataTransfer
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-actual fun Modifier.cellStateDragAndDropSource(getCellState: () -> CellState): Modifier =
-    dragAndDropSource { offset ->
-        DragAndDropTransferData(
-            nativeTransferData = createDataTransfer().apply {
-                setData(
-                    "text/plain",
-                    RunLengthEncodedCellStateSerializer.serializeToString(getCellState())
-                        .joinToString("\n"),
-                )
-            },
-        )
-    }
+actual fun Modifier.cellStateDragAndDropSource(getCellState: () -> CellState): Modifier = dragAndDropSource { offset ->
+    DragAndDropTransferData(
+        nativeTransferData = createDataTransfer().apply {
+            setData(
+                "text/plain",
+                RunLengthEncodedCellStateSerializer.serializeToString(getCellState())
+                    .joinToString("\n"),
+            )
+        },
+    )
+}
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalWasmJsInterop::class)
 internal actual fun cellStateShouldStartDragAndDrop(event: DragAndDropEvent): Boolean =
@@ -106,10 +105,9 @@ private val DragAndDropEvent.positionInRoot get() =
 internal actual suspend fun awaitAndParseCellState(
     session: DragAndDropSession,
     cellStateParser: CellStateParser,
-): DeserializationResult =
-    cellStateParser.parseCellState(
-        snapshotFlow { session.dragData?.domDataTransferOrNull }.filterNotNull().first().getData("text/plain"),
-    )
+): DeserializationResult = cellStateParser.parseCellState(
+    snapshotFlow { session.dragData?.domDataTransferOrNull }.filterNotNull().first().getData("text/plain"),
+)
 
 @OptIn(ExperimentalWasmJsInterop::class)
 private fun createDataTransfer(): DataTransfer = js("new DataTransfer()")

@@ -52,10 +52,9 @@ interface AndroidComposeLifeDriverBindings {
 
 @SingleIn(AppScope::class)
 @Inject
-class AndroidComposeLifeDriver(
-    @ApplicationContext context: Context,
-    dispatchers: ComposeLifeDispatchers,
-) : ComposeLifeDriver, Updatable {
+class AndroidComposeLifeDriver(@ApplicationContext context: Context, dispatchers: ComposeLifeDispatchers) :
+    ComposeLifeDriver,
+    Updatable {
 
     override val sqlDriver: SqlDriver = AndroidxSqliteDriver(
         driver = AndroidSQLiteDriver(),
@@ -77,8 +76,7 @@ class AndroidComposeLifeDriver(
 
     override suspend fun awaitDriverReady() = Unit
 
-    override suspend fun update(): Nothing =
-        sqlDriver.use {
-            awaitCancellation()
-        }
+    override suspend fun update(): Nothing = sqlDriver.use {
+        awaitCancellation()
+    }
 }

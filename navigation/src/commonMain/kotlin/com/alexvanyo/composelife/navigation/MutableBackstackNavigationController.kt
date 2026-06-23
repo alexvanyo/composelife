@@ -51,14 +51,13 @@ val <T> MutableBackstackNavigationController<T>.canNavigateBack
 inline fun <reified T> rememberMutableBackstackNavigationController(
     initialBackstackEntries: List<BackstackEntry<T>>,
     serializer: KSerializer<T> = serializer(),
-): MutableBackstackNavigationController<T> =
-    rememberMutableBackstackNavigationController(
-        initialBackstackEntries = initialBackstackEntries,
-        backstackMapSerializer = BackstackMapSerializer(
-            convertToSurrogate = ::ValueAsSurrogate,
-            backstackValueSurrogateSerializer = ValueAsSurrogate.serializer(serializer),
-        ),
-    )
+): MutableBackstackNavigationController<T> = rememberMutableBackstackNavigationController(
+    initialBackstackEntries = initialBackstackEntries,
+    backstackMapSerializer = BackstackMapSerializer(
+        convertToSurrogate = ::ValueAsSurrogate,
+        backstackValueSurrogateSerializer = ValueAsSurrogate.serializer(serializer),
+    ),
+)
 
 @Composable
 fun <T> rememberMutableBackstackNavigationController(
@@ -104,13 +103,12 @@ fun <T> rememberMutableBackstackNavigationController(
 fun <N : NavigationState<T>, T : NavigationEntry> N.withExpectedActor(
     actorEntryId: Uuid?,
     block: N.(currentEntry: T) -> Unit,
-): Boolean =
-    if (actorEntryId == null || actorEntryId == currentEntryId) {
-        block(currentEntry)
-        true
-    } else {
-        false
-    }
+): Boolean = if (actorEntryId == null || actorEntryId == currentEntryId) {
+    block(currentEntry)
+    true
+} else {
+    false
+}
 
 /**
  * A navigation action that pops the backstack until the [entryPredicate] is `true` for some  entry, starting at the
@@ -137,10 +135,7 @@ fun <T> MutableBackstackNavigationController<T>.popUpTo(
  *
  * If [inclusive] is true, then the entry with the given [id] will also be popped.
  */
-fun <T> MutableBackstackNavigationController<T>.popUpTo(
-    id: Uuid,
-    inclusive: Boolean = false,
-) = popUpTo(
+fun <T> MutableBackstackNavigationController<T>.popUpTo(id: Uuid, inclusive: Boolean = false) = popUpTo(
     entryPredicate = { it.id == id },
     inclusive = inclusive,
 )
@@ -152,13 +147,11 @@ fun <T> MutableBackstackNavigationController<T>.popUpTo(
  * If [inclusive] is true, then the entry that satisfies the [predicate] will also be popped.
  */
 @JvmName("popUpToValue")
-fun <T> MutableBackstackNavigationController<T>.popUpTo(
-    predicate: (T) -> Boolean,
-    inclusive: Boolean = false,
-) = popUpTo(
-    entryPredicate = { predicate(it.value) },
-    inclusive = inclusive,
-)
+fun <T> MutableBackstackNavigationController<T>.popUpTo(predicate: (T) -> Boolean, inclusive: Boolean = false) =
+    popUpTo(
+        entryPredicate = { predicate(it.value) },
+        inclusive = inclusive,
+    )
 
 /**
  * A navigation action which adds the destination.
@@ -177,10 +170,7 @@ fun <T> MutableBackstackNavigationController<T>.navigate(
 /**
  * A navigation action which adds the destination.
  */
-fun <T> MutableBackstackNavigationController<T>.navigate(
-    value: T,
-    id: Uuid = Uuid.random(),
-) = navigate(
+fun <T> MutableBackstackNavigationController<T>.navigate(value: T, id: Uuid = Uuid.random()) = navigate(
     valueFactory = { value },
     id = id,
 )

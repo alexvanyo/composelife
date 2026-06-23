@@ -55,11 +55,7 @@ fun <T> MutableBackstackMap<T>.popUpTo(
  *
  * This new [currentEntryId] is returned.
  */
-fun <T> MutableBackstackMap<T>.popUpTo(
-    currentEntryId: Uuid,
-    id: Uuid,
-    inclusive: Boolean = false,
-): Uuid = popUpTo(
+fun <T> MutableBackstackMap<T>.popUpTo(currentEntryId: Uuid, id: Uuid, inclusive: Boolean = false): Uuid = popUpTo(
     currentEntryId = currentEntryId,
     entryPredicate = { it.id == id },
     inclusive = inclusive,
@@ -105,11 +101,7 @@ fun <T> MutableBackstackMap<T>.navigate(
 /**
  * A navigation action which adds the destination.
  */
-fun <T> MutableBackstackMap<T>.navigate(
-    currentEntryId: Uuid,
-    value: T,
-    id: Uuid = Uuid.random(),
-): Uuid = navigate(
+fun <T> MutableBackstackMap<T>.navigate(currentEntryId: Uuid, value: T, id: Uuid = Uuid.random()): Uuid = navigate(
     currentEntryId = currentEntryId,
     valueFactory = { value },
     id = id,
@@ -118,9 +110,7 @@ fun <T> MutableBackstackMap<T>.navigate(
 /**
  * A navigation action which removes the last destination.
  */
-fun <T> MutableBackstackMap<T>.popBackstack(
-    currentEntryId: Uuid,
-): Uuid {
+fun <T> MutableBackstackMap<T>.popBackstack(currentEntryId: Uuid): Uuid {
     val current = getValue(currentEntryId)
     val previous = checkNotNull(current.previous) { "Tried to pop last entry in the backstack!" }
     remove(current.id)

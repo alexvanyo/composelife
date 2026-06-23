@@ -56,10 +56,9 @@ interface WebImmersiveModeManagerBindings {
 
 @SingleIn(UiScope::class)
 @Inject
-class WebFullscreenModeManager(
-    val element: Element,
-    val document: Document,
-) : FullscreenModeManager, Updatable {
+class WebFullscreenModeManager(val element: Element, val document: Document) :
+    FullscreenModeManager,
+    Updatable {
     override val isImmersive: Boolean
         get() = false
 
@@ -102,6 +101,7 @@ class WebFullscreenModeManager(
                 RequestType.EnterFullscreen -> request.completableDeferred.complete(
                     enterFullscreenMode(),
                 )
+
                 RequestType.ExitFullscreen -> request.completableDeferred.complete(
                     exitFullscreenMode(),
                 )
@@ -112,10 +112,7 @@ class WebFullscreenModeManager(
 
     private val requests = Channel<Request>(capacity = Channel.UNLIMITED)
 
-    private data class Request(
-        val type: RequestType,
-        val completableDeferred: CompletableDeferred<Result<Unit>>,
-    )
+    private data class Request(val type: RequestType, val completableDeferred: CompletableDeferred<Result<Unit>>)
 
     private sealed interface RequestType {
         data object EnterFullscreen : RequestType
@@ -123,34 +120,30 @@ class WebFullscreenModeManager(
     }
 
     @OptIn(ExperimentalWasmJsInterop::class)
-    private suspend fun enterFullscreenMode(): Result<Unit> =
-        element.requestFullscreen().runSuspendCatching {
-            await()
-        }
+    private suspend fun enterFullscreenMode(): Result<Unit> = element.requestFullscreen().runSuspendCatching {
+        await()
+    }
 
     @OptIn(ExperimentalWasmJsInterop::class)
-    private suspend fun exitFullscreenMode(): Result<Unit> =
-        document.exitFullscreen().runSuspendCatching {
-            await()
-        }
+    private suspend fun exitFullscreenMode(): Result<Unit> = document.exitFullscreen().runSuspendCatching {
+        await()
+    }
 }
 
 @Suppress("TooGenericExceptionCaught")
-suspend inline fun <R> runSuspendCatching(block: () -> R): Result<R> =
-    try {
-        Result.success(block())
-    } catch (c: CancellationException) {
-        throw c
-    } catch (e: Throwable) {
-        Result.failure(e)
-    }
+suspend inline fun <R> runSuspendCatching(block: () -> R): Result<R> = try {
+    Result.success(block())
+} catch (c: CancellationException) {
+    throw c
+} catch (e: Throwable) {
+    Result.failure(e)
+}
 
 @Suppress("TooGenericExceptionCaught")
-suspend inline fun <T, R> T.runSuspendCatching(block: T.() -> R): Result<R> =
-    try {
-        Result.success(block())
-    } catch (c: CancellationException) {
-        throw c
-    } catch (e: Throwable) {
-        Result.failure(e)
-    }
+suspend inline fun <T, R> T.runSuspendCatching(block: T.() -> R): Result<R> = try {
+    Result.success(block())
+} catch (c: CancellationException) {
+    throw c
+} catch (e: Throwable) {
+    Result.failure(e)
+}

@@ -19,44 +19,45 @@ import com.alexvanyo.composelife.buildlogic.configureAndroid
 import com.alexvanyo.composelife.buildlogic.configureKotlin
 import com.android.build.api.dsl.TestExtension
 
-class AndroidTestConventionPlugin : ConventionPlugin({
-    with(pluginManager) {
-        apply("com.android.test")
-    }
-
-    configureKotlin()
-    extensions.configure(TestExtension::class.java) {
-        configureAndroid(this)
-
-        defaultConfig {
-            minSdk = 23
-            targetSdk = 35
-            testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+class AndroidTestConventionPlugin :
+    ConventionPlugin({
+        with(pluginManager) {
+            apply("com.android.test")
         }
 
-        signingConfigs {
-            named("debug") {
-                keyAlias = "debug"
-                keyPassword = "android"
-                storeFile = file("$rootDir/keystore/debug.jks")
-                storePassword = "android"
+        configureKotlin()
+        extensions.configure(TestExtension::class.java) {
+            configureAndroid(this)
+
+            defaultConfig {
+                minSdk = 23
+                targetSdk = 35
+                testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+            }
+
+            signingConfigs {
+                named("debug") {
+                    keyAlias = "debug"
+                    keyPassword = "android"
+                    storeFile = file("$rootDir/keystore/debug.jks")
+                    storePassword = "android"
+                }
+            }
+
+            experimentalProperties["android.experimental.self-instrumenting"] = true
+
+            buildTypes {
+                debug {
+                    signingConfig = signingConfigs.getByName("debug")
+                    matchingFallbacks.add("release") // fallback to release for dependencies
+                }
+                create("release") {
+                    signingConfig = signingConfigs.getByName("debug") // sign with debug for testing
+                }
+                create("staging") {
+                    matchingFallbacks.add("release") // fallback to release for dependencies
+                    signingConfig = signingConfigs.getByName("debug") // sign with debug for testing
+                }
             }
         }
-
-        experimentalProperties["android.experimental.self-instrumenting"] = true
-
-        buildTypes {
-            debug {
-                signingConfig = signingConfigs.getByName("debug")
-                matchingFallbacks.add("release") // fallback to release for dependencies
-            }
-            create("release") {
-                signingConfig = signingConfigs.getByName("debug") // sign with debug for testing
-            }
-            create("staging") {
-                matchingFallbacks.add("release") // fallback to release for dependencies
-                signingConfig = signingConfigs.getByName("debug") // sign with debug for testing
-            }
-        }
-    }
-})
+    })

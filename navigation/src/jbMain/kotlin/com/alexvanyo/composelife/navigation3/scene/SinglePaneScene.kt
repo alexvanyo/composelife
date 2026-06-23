@@ -41,16 +41,13 @@ internal data class SinglePaneScene<T : Any>(
             entries == other.entries
     }
 
-    override fun hashCode(): Int {
-        return key.hashCode() * 31 +
-            entry.hashCode() * 31 +
-            previousEntries.hashCode() * 31 +
-            entries.hashCode() * 31
-    }
+    override fun hashCode(): Int = key.hashCode() * 31 +
+        entry.hashCode() * 31 +
+        previousEntries.hashCode() * 31 +
+        entries.hashCode() * 31
 
-    override fun toString(): String {
-        return "SinglePaneScene(key=$key, entry=$entry, previousEntries=$previousEntries, entries=$entries)"
-    }
+    override fun toString(): String =
+        "SinglePaneScene(key=$key, entry=$entry, previousEntries=$previousEntries, entries=$entries)"
 }
 
 /**
@@ -59,19 +56,15 @@ internal data class SinglePaneScene<T : Any>(
  */
 public class SinglePaneSceneStrategy<T : Any> : SceneStrategy<T> {
 
-    override fun SceneStrategyScope<T>.calculateScene(entries: List<NavEntry<T>>): Scene<T> {
-        return SinglePaneScene(
-            key = entries.last().contentKey,
-            entry = entries.last(),
-            previousEntries = entries.dropLast(1),
-        )
-    }
+    override fun SceneStrategyScope<T>.calculateScene(entries: List<NavEntry<T>>): Scene<T> = SinglePaneScene(
+        key = entries.last().contentKey,
+        entry = entries.last(),
+        previousEntries = entries.dropLast(1),
+    )
 }
 
 internal fun <T : Any> SceneStrategy<T>.calculateSceneWithSinglePaneFallback(
     scope: SceneStrategyScope<T>,
     entries: List<NavEntry<T>>,
-): Scene<T> {
-    return scope.calculateScene(entries)
-        ?: with(SinglePaneSceneStrategy<T>()) { scope.calculateScene(entries) }
-}
+): Scene<T> = scope.calculateScene(entries)
+    ?: with(SinglePaneSceneStrategy<T>()) { scope.calculateScene(entries) }

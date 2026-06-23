@@ -54,7 +54,10 @@ sealed interface ComposeLifeUiNavigation {
         val windowSizeClass: WindowSizeClass,
         windowSize: DpSize,
         isDetailPresent: Boolean,
-    ) : ComposeLifeUiNavigation, FullscreenSettingsListPaneState, ListEntry, DialogableEntry {
+    ) : ComposeLifeUiNavigation,
+        FullscreenSettingsListPaneState,
+        ListEntry,
+        DialogableEntry {
         override val settingsCategory: SettingsCategory
             get() = nav.settingsCategory
 
@@ -94,7 +97,8 @@ sealed interface ComposeLifeUiNavigation {
     class DeserializationInfo(
         val nav: ComposeLifeNavigation.DeserializationInfo,
         val windowSizeClass: WindowSizeClass,
-    ) : ComposeLifeUiNavigation, DialogableEntry {
+    ) : ComposeLifeUiNavigation,
+        DialogableEntry {
         override val isDialog =
             windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND) ||
                 windowSizeClass.isHeightAtLeastBreakpoint(WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND)
@@ -138,6 +142,7 @@ fun BackstackState<ComposeLifeNavigation>.toComposeLifeUiNavigation(
                         previous = nav.previous?.let(::createEntry),
                         id = nav.id,
                     )
+
                     is ComposeLifeNavigation.FullscreenSettingsDetail -> {
                         val previous = nav.previous
                         requireNotNull(previous)
@@ -156,6 +161,7 @@ fun BackstackState<ComposeLifeNavigation>.toComposeLifeUiNavigation(
                             id = nav.id,
                         )
                     }
+
                     is ComposeLifeNavigation.FullscreenSettingsList -> {
                         val isDetailPresent = nav.id in listsPairedWithDetails
                         val newEntryValue = ComposeLifeUiNavigation.FullscreenSettingsList(
@@ -189,6 +195,7 @@ fun BackstackState<ComposeLifeNavigation>.toComposeLifeUiNavigation(
                         }
                         newEntry
                     }
+
                     is ComposeLifeNavigation.DeserializationInfo -> BackstackEntry(
                         value = ComposeLifeUiNavigation.DeserializationInfo(
                             nav = value,

@@ -16,4 +16,5 @@
 
 package com.alexvanyo.composelife.preferences
 
+@Suppress("BackingPropertyNaming")
 actual val QuickAccessSetting._ordinal: Int get() = ordinal

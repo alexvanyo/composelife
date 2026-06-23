@@ -22,17 +22,12 @@ import app.cash.sqldelight.async.coroutines.awaitAsOneOrNull
 import dev.zacsweers.metro.Inject
 
 @Inject
-class CellStateQueriesWrapper(
-    val queries: CellStateQueries,
-) {
-    suspend fun getCellStates() =
-        queries.getCellStates().awaitAsList()
+class CellStateQueriesWrapper(val queries: CellStateQueries) {
+    suspend fun getCellStates() = queries.getCellStates().awaitAsList()
 
-    suspend fun getAutosavedCellStates() =
-        queries.getAutosavedCellStates().awaitAsList()
+    suspend fun getAutosavedCellStates() = queries.getAutosavedCellStates().awaitAsList()
 
-    suspend fun getMostRecentAutosavedCellState() =
-        queries.getMostRecentAutosavedCellState().awaitAsOneOrNull()
+    suspend fun getMostRecentAutosavedCellState() = queries.getMostRecentAutosavedCellState().awaitAsOneOrNull()
 
     suspend fun getCellStatesByPatternCollectionId(patternCollectionId: PatternCollectionId) =
         queries.getCellStatesByPatternCollectionId(patternCollectionId).awaitAsList()
@@ -48,38 +43,34 @@ class CellStateQueriesWrapper(
         generation: Long,
         wasAutosaved: Boolean,
         patternCollectionId: PatternCollectionId?,
-    ): CellStateId =
-        queries.transactionWithResult {
-            if (id == null) {
-                queries.insertCellState(
-                    name = name,
-                    description = description,
-                    formatExtension = formatExtension,
-                    serializedCellState = serializedCellState,
-                    serializedCellStateFile = serializedCellStateFile,
-                    generation = generation,
-                    wasAutosaved = wasAutosaved,
-                    patternCollectionId = patternCollectionId,
-                )
-                CellStateId(queries.lastInsertedRowId().awaitAsOne())
-            } else {
-                queries.updateCellState(
-                    id = id,
-                    name = name,
-                    description = description,
-                    formatExtension = formatExtension,
-                    serializedCellState = serializedCellState,
-                    serializedCellStateFile = serializedCellStateFile,
-                    generation = generation,
-                    wasAutosaved = wasAutosaved,
-                    patternCollectionId = patternCollectionId,
-                )
-                id
-            }
+    ): CellStateId = queries.transactionWithResult {
+        if (id == null) {
+            queries.insertCellState(
+                name = name,
+                description = description,
+                formatExtension = formatExtension,
+                serializedCellState = serializedCellState,
+                serializedCellStateFile = serializedCellStateFile,
+                generation = generation,
+                wasAutosaved = wasAutosaved,
+                patternCollectionId = patternCollectionId,
+            )
+            CellStateId(queries.lastInsertedRowId().awaitAsOne())
+        } else {
+            queries.updateCellState(
+                id = id,
+                name = name,
+                description = description,
+                formatExtension = formatExtension,
+                serializedCellState = serializedCellState,
+                serializedCellStateFile = serializedCellStateFile,
+                generation = generation,
+                wasAutosaved = wasAutosaved,
+                patternCollectionId = patternCollectionId,
+            )
+            id
         }
+    }
 
-    suspend fun deleteCellState(
-        id: CellStateId,
-    ) =
-        queries.deleteCellState(id)
+    suspend fun deleteCellState(id: CellStateId) = queries.deleteCellState(id)
 }

@@ -151,9 +151,8 @@ abstract class BaseRoborazziTest(
     }
 }
 
-open class BaseRoborazziParameterizationProvider(
-    val parameterizations: List<SingleRoborazziParameterization>,
-) : TestParameterValuesProvider() {
+open class BaseRoborazziParameterizationProvider(val parameterizations: List<SingleRoborazziParameterization>) :
+    TestParameterValuesProvider() {
     public final override fun provideValues(context: Context): List<RoborazziParameterization> =
         // Check if we want to provide parameterization at the test level
         // This makes it easier to debug which test is failing, at the cost of speed

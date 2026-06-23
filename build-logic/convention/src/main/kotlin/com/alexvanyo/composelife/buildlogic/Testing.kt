@@ -31,9 +31,7 @@ import org.gradle.api.provider.Provider
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
 
-fun Project.configureTesting(
-    commonExtension: CommonExtension,
-) {
+fun Project.configureTesting(commonExtension: CommonExtension) {
     commonExtension.testOptions.unitTests {
         isIncludeAndroidResources = true
         isReturnDefaultValues = true
@@ -45,9 +43,7 @@ fun Project.configureTesting(
     dependencies.add("androidTestImplementation", libs.findLibrary("kotlin.test").get())
 }
 
-fun Project.configureTesting(
-    extension: KotlinMultiplatformAndroidLibraryTarget,
-) {
+fun Project.configureTesting(extension: KotlinMultiplatformAndroidLibraryTarget) {
     extension.compilations.withType(KotlinMultiplatformAndroidHostTestCompilation::class.java).configureEach {
         isIncludeAndroidResources = true
         isReturnDefaultValues = true
@@ -82,10 +78,7 @@ private val Project.useSharedTest: Provider<SharedTestConfig> get() =
         }
 
 @Suppress("LongMethod", "CyclomaticComplexMethod")
-fun Project.configureAndroidTesting(
-    commonExtension: CommonExtension,
-    testedExtension: TestedExtension,
-) {
+fun Project.configureAndroidTesting(commonExtension: CommonExtension, testedExtension: TestedExtension) {
     commonExtension.apply {
         defaultConfig.testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -135,9 +128,7 @@ fun Project.configureAndroidTesting(
 }
 
 @Suppress("LongMethod", "CyclomaticComplexMethod", "ThrowsCount")
-fun Project.configureAndroidTesting(
-    extension: KotlinMultiplatformAndroidLibraryTarget,
-) {
+fun Project.configureAndroidTesting(extension: KotlinMultiplatformAndroidLibraryTarget) {
     val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
     extension.apply {
@@ -190,9 +181,10 @@ fun Project.configureAndroidTesting(
     extensions.configure(KotlinMultiplatformExtension::class.java) {
         sourceSets.apply {
             val commonTest = getByName("commonTest")
-            val androidSharedTest = create("androidSharedTest") {
-                dependsOn(commonTest)
-            }
+            val androidSharedTest =
+                create("androidSharedTest") {
+                    dependsOn(commonTest)
+                }
             getByName("androidHostTest") {
                 if (useSharedTest.get() != SharedTestConfig.Instrumentation) {
                     dependsOn(androidSharedTest)

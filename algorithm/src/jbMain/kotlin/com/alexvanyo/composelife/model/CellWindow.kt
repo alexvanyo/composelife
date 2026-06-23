@@ -29,7 +29,6 @@ import kotlin.jvm.JvmInline
  */
 @JvmInline
 value class CellWindow(val intRect: IntRect) {
-
     init {
         require(intRect.top <= intRect.bottom)
         require(intRect.left <= intRect.right)
@@ -59,17 +58,15 @@ value class CellWindow(val intRect: IntRect) {
 
     val size: IntSize get() = intRect.size
 
-    fun translate(intOffset: IntOffset): CellWindow =
-        CellWindow(intRect.translate(intOffset))
+    fun translate(intOffset: IntOffset): CellWindow = CellWindow(intRect.translate(intOffset))
 
     /**
      * Returns all [IntOffset]s that are contained in the [CellWindow].
      * The points are returned in row-major order.
      */
-    fun containedPoints(): List<IntOffset> =
-        (top until bottom).flatMap { row ->
-            (left until right).map { column ->
-                IntOffset(column, row)
-            }
+    fun containedPoints(): List<IntOffset> = (top until bottom).flatMap { row ->
+        (left until right).map { column ->
+            IntOffset(column, row)
         }
+    }
 }

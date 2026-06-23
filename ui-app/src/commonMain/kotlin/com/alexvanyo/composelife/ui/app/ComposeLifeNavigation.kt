@@ -42,15 +42,12 @@ sealed interface ComposeLifeNavigation {
 
         @Serializable
         data object Surrogate : ComposeLifeNavigationSurrogate {
-            override fun createFromSurrogate(
-                previous: BackstackEntry<ComposeLifeNavigation>?,
-            ): ComposeLifeNavigation = CellUniverse
+            override fun createFromSurrogate(previous: BackstackEntry<ComposeLifeNavigation>?): ComposeLifeNavigation =
+                CellUniverse
         }
     }
 
-    class FullscreenSettingsList(
-        initialSettingsCategory: SettingsCategory,
-    ) : ComposeLifeNavigation {
+    class FullscreenSettingsList(initialSettingsCategory: SettingsCategory) : ComposeLifeNavigation {
         /**
          * The currently selected settings category.
          */
@@ -69,20 +66,14 @@ sealed interface ComposeLifeNavigation {
         override val surrogate get() = Surrogate(settingsCategory)
 
         @Serializable
-        data class Surrogate(
-            val settingsCategory: SettingsCategory,
-        ) : ComposeLifeNavigationSurrogate {
-            override fun createFromSurrogate(
-                previous: BackstackEntry<ComposeLifeNavigation>?,
-            ): ComposeLifeNavigation =
+        data class Surrogate(val settingsCategory: SettingsCategory) : ComposeLifeNavigationSurrogate {
+            override fun createFromSurrogate(previous: BackstackEntry<ComposeLifeNavigation>?): ComposeLifeNavigation =
                 FullscreenSettingsList(settingsCategory)
         }
     }
 
-    class FullscreenSettingsDetail(
-        val settingsCategory: SettingsCategory,
-        initialSettingToScrollTo: Setting?,
-    ) : ComposeLifeNavigation {
+    class FullscreenSettingsDetail(val settingsCategory: SettingsCategory, initialSettingToScrollTo: Setting?) :
+        ComposeLifeNavigation {
 
         /**
          * If non-null, a [Setting] to scroll to immediately.
@@ -100,29 +91,19 @@ sealed interface ComposeLifeNavigation {
         override val surrogate get() = Surrogate(settingsCategory, settingToScrollTo)
 
         @Serializable
-        data class Surrogate(
-            val settingsCategory: SettingsCategory,
-            val settingToScrollTo: Setting?,
-        ) : ComposeLifeNavigationSurrogate {
-            override fun createFromSurrogate(
-                previous: BackstackEntry<ComposeLifeNavigation>?,
-            ): ComposeLifeNavigation =
+        data class Surrogate(val settingsCategory: SettingsCategory, val settingToScrollTo: Setting?) :
+            ComposeLifeNavigationSurrogate {
+            override fun createFromSurrogate(previous: BackstackEntry<ComposeLifeNavigation>?): ComposeLifeNavigation =
                 FullscreenSettingsDetail(settingsCategory, settingToScrollTo)
         }
     }
 
-    class DeserializationInfo(
-        val deserializationResult: DeserializationResult,
-    ) : ComposeLifeNavigation {
+    class DeserializationInfo(val deserializationResult: DeserializationResult) : ComposeLifeNavigation {
         override val surrogate = Surrogate(deserializationResult)
 
         @Serializable
-        data class Surrogate(
-            val deserializationResult: DeserializationResult,
-        ) : ComposeLifeNavigationSurrogate {
-            override fun createFromSurrogate(
-                previous: BackstackEntry<ComposeLifeNavigation>?,
-            ): ComposeLifeNavigation =
+        data class Surrogate(val deserializationResult: DeserializationResult) : ComposeLifeNavigationSurrogate {
+            override fun createFromSurrogate(previous: BackstackEntry<ComposeLifeNavigation>?): ComposeLifeNavigation =
                 DeserializationInfo(deserializationResult)
         }
     }

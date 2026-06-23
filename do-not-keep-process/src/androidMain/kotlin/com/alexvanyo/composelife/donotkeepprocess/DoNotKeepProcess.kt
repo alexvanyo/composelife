@@ -54,6 +54,7 @@ class DoNotKeepProcess(
                 is ResourceState.Failure,
                 ResourceState.Loading,
                 -> false
+
                 is ResourceState.Success -> doNotKeepProcessState.value
             }
         }.collectLatest { doNotKeepProcess ->

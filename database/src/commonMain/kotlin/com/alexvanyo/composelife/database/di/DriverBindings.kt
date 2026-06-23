@@ -32,8 +32,6 @@ interface DriverBindings {
     companion object {
         @Provides
         @SingleIn(AppScope::class)
-        internal fun providesDriver(
-            composeLifeDriver: ComposeLifeDriver,
-        ): SqlDriver = composeLifeDriver.sqlDriver
+        internal fun providesDriver(composeLifeDriver: ComposeLifeDriver): SqlDriver = composeLifeDriver.sqlDriver
     }
 }

@@ -18,4 +18,5 @@ package com.alexvanyo.composelife.kmpandroidrunner
 import org.junit.runner.RunWith
 
 @RunWith(KmpAndroidJUnit4::class)
+@Suppress("AbstractClassCanBeInterface")
 actual abstract class BaseKmpTest actual constructor()

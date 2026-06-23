@@ -55,9 +55,10 @@ val UiGraph.nonInteractableCellsVisualTestsCtx: NonInteractableCellsVisualTestsC
     this as NonInteractableCellsVisualTestsCtx
 
 @OptIn(ExperimentalTestApi::class)
-class NonInteractableCellsVisualTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
+class NonInteractableCellsVisualTests :
+    BaseUiInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
     @Test
     fun non_interactable_cells_draws_correctly_dark_mode() = runUiTest { uiGraph ->
         assumeTrue(Build.VERSION.SDK_INT >= 28)

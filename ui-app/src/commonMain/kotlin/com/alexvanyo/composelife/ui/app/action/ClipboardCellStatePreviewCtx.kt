@@ -22,8 +22,6 @@ import dev.zacsweers.metro.Inject
 
 @Immutable
 @Inject
-class ClipboardCellStatePreviewCtx(
-    internal val thumbnailImmutableCellWindowCtx: ThumbnailImmutableCellWindowCtx,
-) {
+class ClipboardCellStatePreviewCtx(internal val thumbnailImmutableCellWindowCtx: ThumbnailImmutableCellWindowCtx) {
     companion object
 }

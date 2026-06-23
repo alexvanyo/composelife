@@ -57,47 +57,43 @@ import kotlin.uuid.Uuid
 // region templated-ctx
 @Suppress("ComposableNaming")
 @Composable
-private operator fun GameOfLifeProgressIndicatorCtx.invoke(
-    modifier: Modifier = Modifier,
-) = GameOfLifeProgressIndicatorCtx.lambda(
-    immutableCellWindowCtx,
-    random,
-    clock,
-    gameOfLifeAlgorithm,
-    dispatchers,
-    modifier,
-)
+private operator fun GameOfLifeProgressIndicatorCtx.invoke(modifier: Modifier = Modifier) =
+    GameOfLifeProgressIndicatorCtx.lambda(
+        immutableCellWindowCtx,
+        random,
+        clock,
+        gameOfLifeAlgorithm,
+        dispatchers,
+        modifier,
+    )
 
 private val GameOfLifeProgressIndicatorCtx.Companion.lambda:
     @Composable context(
         ImmutableCellWindowCtx, Random, Clock, GameOfLifeAlgorithm, ComposeLifeDispatchers
-    ) (Modifier) -> Unit
+    )
+    (Modifier) -> Unit
     get() = { modifier ->
         GameOfLifeProgressIndicator(modifier)
     }
 
-context(ctx: GameOfLifeProgressIndicatorCtx)
 @Composable
-fun GameOfLifeProgressIndicator(
-    modifier: Modifier = Modifier,
-) = ctx(modifier)
+context(ctx: GameOfLifeProgressIndicatorCtx)
+fun GameOfLifeProgressIndicator(modifier: Modifier = Modifier) = ctx(modifier)
 // endregion templated-ctx
 
 /**
  * A progress indicator that displays progress via an embedded set of cells displaying an
  * oscillating pattern.
  */
+@Composable
 context(
     _: ImmutableCellWindowCtx,
-random: Random,
-clock: Clock,
-gameOfLifeAlgorithm: GameOfLifeAlgorithm,
-dispatchers: ComposeLifeDispatchers,
+    random: Random,
+    clock: Clock,
+    gameOfLifeAlgorithm: GameOfLifeAlgorithm,
+    dispatchers: ComposeLifeDispatchers,
 )
-@Composable
-fun GameOfLifeProgressIndicator(
-    modifier: Modifier = Modifier,
-) {
+fun GameOfLifeProgressIndicator(modifier: Modifier = Modifier) {
     val patternIndex = remember(OscillatorPattern._values.size) {
         random.nextInt(OscillatorPattern._values.size)
     }
@@ -131,9 +127,7 @@ fun GameOfLifeProgressIndicator(
 }
 
 @Composable
-fun GameOfLifeProgressIndicatorForegroundEffect(
-    temporalGameOfLifeState: TemporalGameOfLifeState,
-) {
+fun GameOfLifeProgressIndicatorForegroundEffect(temporalGameOfLifeState: TemporalGameOfLifeState) {
     val lifecycleOwner = LocalLifecycleOwner.current
     LaunchedEffect(lifecycleOwner, temporalGameOfLifeState) {
         // If we are not visible, don't animate
@@ -159,11 +153,11 @@ private suspend fun <R> withInfiniteAnimationPolicy(block: suspend () -> R): R {
     }
 }
 
+@Suppress("LongParameterList")
+@Composable
 context(
     immutableCellWindowCtx: ImmutableCellWindowCtx,
 )
-@Suppress("LongParameterList")
-@Composable
 fun GameOfLifeProgressIndicator(
     pattern: OscillatorPattern,
     gameOfLifeState: GameOfLifeState,

@@ -38,19 +38,21 @@ internal fun CellState.toHashLifeCellState(): HashLifeCellState {
     val minY = yValues.minOrNull() ?: 0
     val maxY = yValues.maxOrNull() ?: 0
 
-    val minimumLevel = ceil(
-        maxOf(
-            log2((maxX + 1 - minX).toDouble()),
-            log2((maxY + 1 - minY).toDouble()),
-        ),
-    ).toInt().coerceAtLeast(4)
+    val minimumLevel =
+        ceil(
+            maxOf(
+                log2((maxX + 1 - minX).toDouble()),
+                log2((maxY + 1 - minY).toDouble()),
+            ),
+        ).toInt().coerceAtLeast(4)
 
     val offset = IntOffset(minX, minY)
-    val macroCell = createMacroCell(
-        cellState = this,
-        offset = offset,
-        level = minimumLevel,
-    )
+    val macroCell =
+        createMacroCell(
+            cellState = this,
+            offset = offset,
+            level = minimumLevel,
+        )
 
     return HashLifeCellState(
         offset = offset,
@@ -71,87 +73,101 @@ internal fun HashLifeCellState.expandCentered(): HashLifeCellState {
 
     when (node) {
         is Level4Node -> {
-            nwSe = Level4Node(
-                nw = 0L,
-                ne = 0L,
-                sw = 0L,
-                se = node.nw,
-            )
-            neSw = Level4Node(
-                nw = 0L,
-                ne = 0L,
-                sw = node.ne,
-                se = 0L,
-            )
-            swNe = Level4Node(
-                nw = 0L,
-                ne = node.sw,
-                sw = 0L,
-                se = 0L,
-            )
-            seNw = Level4Node(
-                nw = node.se,
-                ne = 0L,
-                sw = 0L,
-                se = 0L,
-            )
+            nwSe =
+                Level4Node(
+                    nw = 0L,
+                    ne = 0L,
+                    sw = 0L,
+                    se = node.nw,
+                )
+            neSw =
+                Level4Node(
+                    nw = 0L,
+                    ne = 0L,
+                    sw = node.ne,
+                    se = 0L,
+                )
+            swNe =
+                Level4Node(
+                    nw = 0L,
+                    ne = node.sw,
+                    sw = 0L,
+                    se = 0L,
+                )
+            seNw =
+                Level4Node(
+                    nw = node.se,
+                    ne = 0L,
+                    sw = 0L,
+                    se = 0L,
+                )
         }
+
         is CellNode -> {
             val smallerLevelEmptyCell = createEmptyMacroCell(node.level - 1)
 
-            nwSe = CellNode(
-                nw = smallerLevelEmptyCell,
-                ne = smallerLevelEmptyCell,
-                sw = smallerLevelEmptyCell,
-                se = node.nw,
-            )
-            neSw = CellNode(
-                nw = smallerLevelEmptyCell,
-                ne = smallerLevelEmptyCell,
-                sw = node.ne,
-                se = smallerLevelEmptyCell,
-            )
-            swNe = CellNode(
-                nw = smallerLevelEmptyCell,
-                ne = node.sw,
-                sw = smallerLevelEmptyCell,
-                se = smallerLevelEmptyCell,
-            )
-            seNw = CellNode(
-                nw = node.se,
-                ne = smallerLevelEmptyCell,
-                sw = smallerLevelEmptyCell,
-                se = smallerLevelEmptyCell,
-            )
+            nwSe =
+                CellNode(
+                    nw = smallerLevelEmptyCell,
+                    ne = smallerLevelEmptyCell,
+                    sw = smallerLevelEmptyCell,
+                    se = node.nw,
+                )
+            neSw =
+                CellNode(
+                    nw = smallerLevelEmptyCell,
+                    ne = smallerLevelEmptyCell,
+                    sw = node.ne,
+                    se = smallerLevelEmptyCell,
+                )
+            swNe =
+                CellNode(
+                    nw = smallerLevelEmptyCell,
+                    ne = node.sw,
+                    sw = smallerLevelEmptyCell,
+                    se = smallerLevelEmptyCell,
+                )
+            seNw =
+                CellNode(
+                    nw = node.se,
+                    ne = smallerLevelEmptyCell,
+                    sw = smallerLevelEmptyCell,
+                    se = smallerLevelEmptyCell,
+                )
         }
     }
 
-    val cell = CellNode(
-        nw = CellNode(
-            nw = sameLevelEmptyCell,
-            ne = sameLevelEmptyCell,
-            sw = sameLevelEmptyCell,
-            se = nwSe,
-        ),
-        ne = CellNode(
-            nw = sameLevelEmptyCell,
-            ne = sameLevelEmptyCell,
-            sw = neSw,
-            se = sameLevelEmptyCell,
-        ),
-        sw = CellNode(
-            nw = sameLevelEmptyCell,
-            ne = swNe,
-            sw = sameLevelEmptyCell,
-            se = sameLevelEmptyCell,
-        ),
-        se = CellNode(
-            nw = seNw,
-            ne = sameLevelEmptyCell,
-            sw = sameLevelEmptyCell,
-            se = sameLevelEmptyCell,
-        ),
-    )
+    val cell =
+        CellNode(
+            nw =
+            CellNode(
+                nw = sameLevelEmptyCell,
+                ne = sameLevelEmptyCell,
+                sw = sameLevelEmptyCell,
+                se = nwSe,
+            ),
+            ne =
+            CellNode(
+                nw = sameLevelEmptyCell,
+                ne = sameLevelEmptyCell,
+                sw = neSw,
+                se = sameLevelEmptyCell,
+            ),
+            sw =
+            CellNode(
+                nw = sameLevelEmptyCell,
+                ne = swNe,
+                sw = sameLevelEmptyCell,
+                se = sameLevelEmptyCell,
+            ),
+            se =
+            CellNode(
+                nw = seNw,
+                ne = sameLevelEmptyCell,
+                sw = sameLevelEmptyCell,
+                se = sameLevelEmptyCell,
+            ),
+        )
 
     val offsetDiff = 3 * (1 shl (node.level - 1))
 
@@ -161,24 +177,19 @@ internal fun HashLifeCellState.expandCentered(): HashLifeCellState {
     )
 }
 
-internal class HashLifeCellState(
-    val offset: IntOffset,
-    val macroCell: MacroCell,
-) : CellState() {
+internal class HashLifeCellState(val offset: IntOffset, val macroCell: MacroCell) : CellState() {
+    override val aliveCells: Set<IntOffset> =
+        object : Set<IntOffset> {
+            override val size: Int = macroCell.size
 
-    override val aliveCells: Set<IntOffset> = object : Set<IntOffset> {
-        override val size: Int = macroCell.size
+            override fun contains(element: IntOffset): Boolean = macroCell.contains(element - offset)
 
-        override fun contains(element: IntOffset): Boolean =
-            macroCell.contains(element - offset)
+            override fun containsAll(elements: Collection<IntOffset>): Boolean =
+                macroCell.containsAll(elements.map { it - offset })
 
-        override fun containsAll(elements: Collection<IntOffset>): Boolean =
-            macroCell.containsAll(elements.map { it - offset })
+            override fun isEmpty(): Boolean = size == 0
 
-        override fun isEmpty(): Boolean = size == 0
-
-        override fun iterator(): Iterator<IntOffset> =
-            macroCell.iterator(
+            override fun iterator(): Iterator<IntOffset> = macroCell.iterator(
                 offset,
                 CellWindow(
                     IntRect(
@@ -187,7 +198,7 @@ internal class HashLifeCellState(
                     ),
                 ),
             )
-    }
+        }
 
     override fun offsetBy(offset: IntOffset) = HashLifeCellState(
         offset = this.offset + offset,

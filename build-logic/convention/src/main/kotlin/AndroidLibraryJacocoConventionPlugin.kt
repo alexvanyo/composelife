@@ -19,15 +19,16 @@ import com.alexvanyo.composelife.buildlogic.configureJacoco
 import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
-class AndroidLibraryJacocoConventionPlugin : ConventionPlugin({
-    with(pluginManager) {
-        apply("com.android.kotlin.multiplatform.library")
-        apply("jacoco")
-    }
-
-    extensions.configure(KotlinMultiplatformExtension::class.java) {
-        extensions.configure(KotlinMultiplatformAndroidLibraryTarget::class.java) {
-            configureJacoco(this)
+class AndroidLibraryJacocoConventionPlugin :
+    ConventionPlugin({
+        with(pluginManager) {
+            apply("com.android.kotlin.multiplatform.library")
+            apply("jacoco")
         }
-    }
-})
+
+        extensions.configure(KotlinMultiplatformExtension::class.java) {
+            extensions.configure(KotlinMultiplatformAndroidLibraryTarget::class.java) {
+                configureJacoco(this)
+            }
+        }
+    })

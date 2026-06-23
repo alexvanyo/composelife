@@ -64,9 +64,10 @@ val UiGraph.cellStateDragAndDropTestsUiCtx: CellStateDragAndDropTestsUiCtx get()
 
 @OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
 @RunWith(KmpAndroidJUnit4::class)
-class CellStateDragAndDropTests : BaseUiInjectTest(
-    { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
-) {
+class CellStateDragAndDropTests :
+    BaseUiInjectTest(
+        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    ) {
     @Test
     fun drag_and_drop_works_correctly_when_dropped() = runUiTest { uiGraph ->
         val cellStateParser = uiGraph.cellStateDragAndDropTestsUiCtx.cellStateParser
