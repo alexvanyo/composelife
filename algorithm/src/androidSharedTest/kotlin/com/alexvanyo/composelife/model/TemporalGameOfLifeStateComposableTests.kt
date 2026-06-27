@@ -38,6 +38,7 @@ import com.alexvanyo.composelife.patterns.PondPattern
 import com.alexvanyo.composelife.patterns.SingleCellPattern
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
 import com.alexvanyo.composelife.test.runComposeUiTest
+import com.alexvanyo.composelife.tracing.TestTraceDriver
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -56,6 +57,8 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
             generalTestDispatcher = testDispatcher,
             cellTickerTestDispatcher = testDispatcher,
         )
+
+    private val tracer = TestTraceDriver().tracer
 
     @Test
     fun state_is_instance_state_saved_correctly() = runComposeUiTest(testDispatcher) {
@@ -100,10 +103,10 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
                 targetStepsPerSecond = 60.0,
             )
 
-        val hashLifeAlgorithm =
-            HashLifeAlgorithm(
-                dispatchers = dispatchers,
-            )
+        val hashLifeAlgorithm = HashLifeAlgorithm(
+            dispatchers = dispatchers,
+            tracer = tracer,
+        )
 
         setContent {
             val temporalGameOfLifeStateMutator =
@@ -154,10 +157,10 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
                 targetStepsPerSecond = 60.0,
             )
 
-        val hashLifeAlgorithm =
-            HashLifeAlgorithm(
-                dispatchers = dispatchers,
-            )
+        val hashLifeAlgorithm = HashLifeAlgorithm(
+            dispatchers = dispatchers,
+            tracer = tracer,
+        )
 
         setContent {
             val temporalGameOfLifeStateMutator =
@@ -240,10 +243,10 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
                 targetStepsPerSecond = 60.0,
             )
 
-        val hashLifeAlgorithm =
-            HashLifeAlgorithm(
-                dispatchers = dispatchers,
-            )
+        val hashLifeAlgorithm = HashLifeAlgorithm(
+            dispatchers = dispatchers,
+            tracer = tracer,
+        )
 
         setContent {
             val temporalGameOfLifeStateMutator =
@@ -338,10 +341,10 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
                 targetStepsPerSecond = 60.0,
             )
 
-        val hashLifeAlgorithm =
-            HashLifeAlgorithm(
-                dispatchers = dispatchers,
-            )
+        val hashLifeAlgorithm = HashLifeAlgorithm(
+            dispatchers = dispatchers,
+            tracer = tracer,
+        )
 
         setContent {
             val temporalGameOfLifeStateMutator =
@@ -436,10 +439,10 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
                 targetStepsPerSecond = 60.0,
             )
 
-        val hashLifeAlgorithm =
-            HashLifeAlgorithm(
-                dispatchers = dispatchers,
-            )
+        val hashLifeAlgorithm = HashLifeAlgorithm(
+            dispatchers = dispatchers,
+            tracer = tracer,
+        )
 
         var runFirstMutator by mutableStateOf(true)
         var isFirstCancelled = false
@@ -604,10 +607,10 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
                 targetStepsPerSecond = 60.0,
             )
 
-        val hashLifeAlgorithm =
-            HashLifeAlgorithm(
-                dispatchers = dispatchers,
-            )
+        val hashLifeAlgorithm = HashLifeAlgorithm(
+            dispatchers = dispatchers,
+            tracer = tracer,
+        )
 
         setContent {
             val temporalGameOfLifeStateMutator =

@@ -51,6 +51,7 @@ android {
 dependencies {
  implementation(libs.androidx.benchmark.micro.junit4)
  implementation(libs.androidx.test.runner)
+ implementation(libs.androidx.tracing)
  implementation(projects.algorithm)
 
  androidTestImplementation(libs.androidx.test.junit)
@@ -59,4 +60,6 @@ dependencies {
  androidTestImplementation(libs.testParameterInjector.junit4)
  androidTestImplementation(projects.dispatchersTestFixtures)
  androidTestImplementation(projects.patterns)
+ androidTestImplementation(projects.tracingTestFixtures)
 }
+
