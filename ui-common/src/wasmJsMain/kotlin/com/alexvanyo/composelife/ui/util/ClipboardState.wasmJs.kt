@@ -33,17 +33,19 @@ import kotlin.js.Promise
 class WebClipboardReader(private val clipboard: Clipboard) : ClipboardReader {
     @OptIn(ExperimentalComposeUiApi::class, ExperimentalWasmJsInterop::class)
     override suspend fun getText(): String? {
-        val clipboardItem =
-            clipboard.nativeClipboard
-                .read()
-                .await<JsArray<ClipboardItem>>()
-                .toList()
-                .firstOrNull {
-                    "text/plain" in it.types.toList().map(JsString::toString)
-                } ?: return null
+        val entry = clipboard.getClipEntry()
+        val clipboardItem = entry?.clipboardItems
+            ?.toList()
+            ?.firstOrNull {
+                "text/plain" in it.types.toList().map(JsString::toString)
+            }
 
-        val blob = clipboardItem.getType("text/plain".toJsString()).await<Blob>()
-        return readTextFromBlob(blob).await<JsString>().toString()
+        return if (clipboardItem != null) {
+            val blob = clipboardItem.getType("text/plain".toJsString()).await<Blob>()
+            readTextFromBlob(blob).await<JsString>().toString()
+        } else {
+            null
+        }
     }
 }
 
