@@ -1036,4 +1036,76 @@ class DefaultComposeLifePreferencesTests {
                 successState3.value.value,
             )
         }
+
+    @Test
+    fun default_synchronize_pattern_collections_on_metered_network_is_false() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(
+                ResourceState.Loading,
+                composelifePreferences.synchronizePatternCollectionsOnMeteredNetwork,
+            )
+
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(false),
+                composelifePreferences.synchronizePatternCollectionsOnMeteredNetwork,
+            )
+        }
+
+    @Test
+    fun setting_synchronize_pattern_collections_on_metered_network_updates_value() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(
+                ResourceState.Loading,
+                composelifePreferences.synchronizePatternCollectionsOnMeteredNetwork,
+            )
+
+            delay(1.milliseconds)
+
+            composelifePreferences.setSynchronizePatternCollectionsOnMeteredNetwork(true)
+            delay(1.milliseconds)
+
+            assertEquals(
+                ResourceState.Success(true),
+                composelifePreferences.synchronizePatternCollectionsOnMeteredNetwork,
+            )
+        }
+
+    @Test
+    fun adding_and_removing_all_possible_quick_access_settings_updates_value() =
+        runPreferencesTest { composelifePreferences ->
+            assertEquals(ResourceState.Loading, composelifePreferences.quickAccessSettingsState)
+            delay(1.milliseconds)
+            assertEquals(ResourceState.Success(emptySet()), composelifePreferences.quickAccessSettingsState)
+
+            val allSettings = listOf(
+                QuickAccessSetting.AlgorithmImplementation,
+                QuickAccessSetting.DarkThemeConfig,
+                QuickAccessSetting.CellShapeConfig,
+                QuickAccessSetting.SynchronizePatternCollectionsOnMeteredNetwork,
+                QuickAccessSetting.PatternCollectionsSynchronizationPeriod,
+                QuickAccessSetting.DisableAGSL,
+                QuickAccessSetting.DisableOpenGL,
+                QuickAccessSetting.DoNotKeepProcess,
+                QuickAccessSetting.EnableClipboardWatching,
+                QuickAccessSetting.ClipboardWatchingOnboardingCompleted,
+                QuickAccessSetting.EnableWindowShapeClipping,
+            )
+
+            allSettings.forEachIndexed { index, setting ->
+                composelifePreferences.addQuickAccessSetting(setting)
+                delay(1.milliseconds)
+                val expectedSet = allSettings.take(index + 1).toSet()
+                assertEquals(ResourceState.Success(expectedSet), composelifePreferences.quickAccessSettingsState)
+            }
+
+            allSettings.forEachIndexed { index, setting ->
+                composelifePreferences.removeQuickAccessSetting(setting)
+                delay(1.milliseconds)
+                val expectedSet = allSettings.drop(index + 1).toSet()
+                assertEquals(ResourceState.Success(expectedSet), composelifePreferences.quickAccessSettingsState)
+            }
+        }
 }
+
