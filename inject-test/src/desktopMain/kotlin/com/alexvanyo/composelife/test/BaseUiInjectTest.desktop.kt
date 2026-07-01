@@ -18,10 +18,9 @@ package com.alexvanyo.composelife.test
 
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.Clipboard
-import androidx.compose.ui.platform.NativeClipboard
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.window.WindowState
 import com.alexvanyo.composelife.scopes.UiGraphArguments
 import kotlinx.coroutines.test.TestResult
@@ -29,7 +28,6 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 
 @OptIn(ExperimentalTestApi::class)
-@Suppress("DEPRECATION")
 internal actual fun runPlatformUiTest(
     runTestContext: CoroutineContext,
     timeout: Duration,
@@ -42,9 +40,6 @@ internal actual fun runPlatformUiTest(
         object : UiGraphArguments {
             override val windowState: WindowState? = null
             override val clipboard: Clipboard = object : Clipboard {
-                override val nativeClipboard: NativeClipboard
-                    get() = TODO("Not yet implemented")
-
                 override suspend fun getClipEntry(): ClipEntry? {
                     TODO("Not yet implemented")
                 }
