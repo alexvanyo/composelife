@@ -1036,4 +1036,67 @@ class DefaultComposeLifePreferencesTests {
                 successState3.value.value,
             )
         }
+
+    @Test
+    fun default_cell_state_pruning_period_is_correct() = runPreferencesTest { composelifePreferences ->
+        assertEquals(ResourceState.Loading, composelifePreferences.cellStatePruningPeriodSessionValue)
+
+        delay(1.milliseconds)
+
+        val cellStatePruningPeriodSessionState = composelifePreferences.cellStatePruningPeriodSessionValue
+
+        val _ = assertIs<ResourceState.Success<SessionValue<DateTimePeriod>>>(cellStatePruningPeriodSessionState)
+
+        val cellStatePruningPeriodSessionValue = cellStatePruningPeriodSessionState.value
+
+        assertNotNull(cellStatePruningPeriodSessionValue.sessionId)
+        assertNotNull(cellStatePruningPeriodSessionValue.valueId)
+        assertEquals(
+            DateTimePeriod(hours = 24),
+            cellStatePruningPeriodSessionValue.value,
+        )
+    }
+
+    @Test
+    fun setting_cell_state_pruning_period_updates_value() = runPreferencesTest { composelifePreferences ->
+        assertEquals(ResourceState.Loading, composelifePreferences.cellStatePruningPeriodSessionValue)
+
+        delay(1.milliseconds)
+
+        val newSessionId = Uuid.random()
+        val newValueId = Uuid.random()
+
+        composelifePreferences.setCellStatePruningPeriod(
+            expected = null,
+            newValue = SessionValue(
+                newSessionId,
+                newValueId,
+                DateTimePeriod(days = 1),
+            ),
+        )
+        delay(1.milliseconds)
+
+        val cellStatePruningPeriodSessionState = composelifePreferences.cellStatePruningPeriodSessionValue
+        val _ = assertIs<ResourceState.Success<SessionValue<DateTimePeriod>>>(cellStatePruningPeriodSessionState)
+
+        assertEquals(
+            SessionValue(
+                sessionId = newSessionId,
+                valueId = newValueId,
+                value = DateTimePeriod(days = 1),
+            ),
+            cellStatePruningPeriodSessionState.value,
+        )
+
+        val loadedPreferencesState = composelifePreferences.loadedPreferencesState
+        assertTrue(loadedPreferencesState.isSuccess())
+        assertEquals(
+            SessionValue(
+                sessionId = newSessionId,
+                valueId = newValueId,
+                value = DateTimePeriod(days = 1),
+            ),
+            loadedPreferencesState.value.cellStatePruningPeriodSessionValue,
+        )
+    }
 }

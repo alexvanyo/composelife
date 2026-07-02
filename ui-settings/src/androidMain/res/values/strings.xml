@@ -63,4 +63,8 @@
     <string name="never">Never</string>
     <string name="sources">Sources</string>
     <string name="enable_window_shape_clipping">Enable window shape clipping</string>
+    <string name="cell_state_pruning_period">Cell state pruning period</string>
+    <string name="cell_state_pruning_period_label_and_value">Cell state pruning period: %1$.2f</string>
+    <string name="cell_state_pruning_period_value">%1$.2f</string>
+    <string name="cell_state_pruning_period_suffix">minutes</string>
 </resources>
