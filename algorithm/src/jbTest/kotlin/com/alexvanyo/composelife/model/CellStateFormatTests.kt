@@ -124,4 +124,37 @@ class CellStateFormatTests {
         assertEquals("CellStateFormat_FixedFormat_RunLengthEncoding", rleName)
         assertEquals("CellStateFormat_FixedFormat_Macrocell", CellStateFormat.FixedFormat.Macrocell._name)
     }
+
+    @Test
+    fun generated_enum_values_and_value_of_are_correct() {
+        val expectedValues = listOf(
+            CellStateFormatEnum.CellStateFormat_Unknown,
+            CellStateFormatEnum.CellStateFormat_Life,
+            CellStateFormatEnum.CellStateFormat_FixedFormat_Plaintext,
+            CellStateFormatEnum.CellStateFormat_FixedFormat_Life105,
+            CellStateFormatEnum.CellStateFormat_FixedFormat_Life106,
+            CellStateFormatEnum.CellStateFormat_FixedFormat_RunLengthEncoding,
+            CellStateFormatEnum.CellStateFormat_FixedFormat_Macrocell,
+        )
+        assertEquals(expectedValues, CellStateFormatEnum.entries)
+        assertEquals(expectedValues, CellStateFormatEnum.values().toList())
+        expectedValues.forEach { enumValue ->
+            assertEquals(enumValue, CellStateFormatEnum.valueOf(enumValue.name))
+        }
+
+        val expectedFixedFormatValues = listOf(
+            CellStateFormat_FixedFormatEnum.CellStateFormat_FixedFormat_Plaintext,
+            CellStateFormat_FixedFormatEnum.CellStateFormat_FixedFormat_Life105,
+            CellStateFormat_FixedFormatEnum.CellStateFormat_FixedFormat_Life106,
+            CellStateFormat_FixedFormatEnum.CellStateFormat_FixedFormat_RunLengthEncoding,
+            CellStateFormat_FixedFormatEnum.CellStateFormat_FixedFormat_Macrocell,
+        )
+        assertEquals(expectedFixedFormatValues, CellStateFormat_FixedFormatEnum.entries)
+        assertEquals(expectedFixedFormatValues, CellStateFormat_FixedFormatEnum.values().toList())
+        expectedFixedFormatValues.forEach { enumValue ->
+            assertEquals(enumValue, CellStateFormat_FixedFormatEnum.valueOf(enumValue.name))
+        }
+    }
 }
+
+
