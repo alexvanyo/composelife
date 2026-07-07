@@ -155,8 +155,8 @@ co.touchlab:kermit-android:2.1.0
 co.touchlab:kermit-core-android:2.1.0
 co.touchlab:kermit-core:2.1.0
 co.touchlab:kermit:2.1.0
-com.eygraber:sqldelight-androidx-driver-android:0.5.0-alpha.7
-com.eygraber:sqldelight-androidx-driver:0.5.0-alpha.7
+com.eygraber:sqldelight-androidx-driver-android:0.5.0-alpha.9
+com.eygraber:sqldelight-androidx-driver:0.5.0-alpha.9
 com.google.accompanist:accompanist-drawablepainter:0.37.3
 com.google.ar:impress:0.0.6
 com.google.code.findbugs:jsr305:3.0.2
@@ -247,8 +247,8 @@ org.jetbrains.compose.ui:ui-util:1.12.0-beta01
 org.jetbrains.compose.ui:ui:1.12.0-beta01
 org.jetbrains.kotlin:kotlin-stdlib-common:2.4.0
 org.jetbrains.kotlin:kotlin-stdlib:2.4.0
-org.jetbrains.kotlinx:atomicfu-jvm:0.32.1
-org.jetbrains.kotlinx:atomicfu:0.32.1
+org.jetbrains.kotlinx:atomicfu-jvm:0.33.0
+org.jetbrains.kotlinx:atomicfu:0.33.0
 org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.5.1
 org.jetbrains.kotlinx:kotlinx-collections-immutable:0.5.1
 org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0
