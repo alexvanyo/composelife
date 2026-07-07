@@ -59,10 +59,10 @@ co.touchlab:kermit-core-wasm-js:2.1.0
 co.touchlab:kermit-core:2.1.0
 co.touchlab:kermit-wasm-js:2.1.0
 co.touchlab:kermit:2.1.0
-com.eygraber:sqldelight-androidx-driver-opfs-wasm-js:0.5.0-alpha.7
-com.eygraber:sqldelight-androidx-driver-opfs:0.5.0-alpha.7
-com.eygraber:sqldelight-androidx-driver-wasm-js:0.5.0-alpha.7
-com.eygraber:sqldelight-androidx-driver:0.5.0-alpha.7
+com.eygraber:sqldelight-androidx-driver-opfs-wasm-js:0.5.0-alpha.9
+com.eygraber:sqldelight-androidx-driver-opfs:0.5.0-alpha.9
+com.eygraber:sqldelight-androidx-driver-wasm-js:0.5.0-alpha.9
+com.eygraber:sqldelight-androidx-driver:0.5.0-alpha.9
 com.squareup.okio:okio-fakefilesystem-wasm-js:3.17.0
 com.squareup.okio:okio-fakefilesystem:3.17.0
 com.squareup.okio:okio-wasm-js:3.17.0
