@@ -21,6 +21,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
+@Suppress("TooManyFunctions")
 class MacrocellCellStateSerializerTests {
     private val serializer = MacrocellCellStateSerializer
 
@@ -484,6 +485,125 @@ class MacrocellCellStateSerializerTests {
                 .readText()
                 .toCellState(fixedFormatCellStateSerializer = RunLengthEncodedCellStateSerializer)
                 .equalsModuloOffset(deserializationResult.cellState),
+        )
+    }
+
+    @Test
+    fun deserialization_of_empty_sequence_is_correct() {
+        assertEquals(
+            DeserializationResult.Successful(
+                warnings = listOf(UnexpectedEmptyFileMessage),
+                cellState = emptyCellState(),
+                format = CellStateFormat.FixedFormat.Macrocell,
+            ),
+            serializer.deserializeToCellState(emptySequence()),
+        )
+    }
+
+    @Test
+    fun deserialization_of_invalid_header_is_correct() {
+        assertEquals(
+            DeserializationResult.Unsuccessful(
+                warnings = emptyList(),
+                errors = listOf(UnexpectedHeaderMessage("invalid header")),
+            ),
+            serializer.deserializeToCellState(sequenceOf("invalid header")),
+        )
+    }
+
+    @Test
+    fun deserialization_with_unexpected_blank_line_is_correct() {
+        assertEquals(
+            DeserializationResult.Successful(
+                warnings = listOf(UnexpectedBlankLineMessage(2)),
+                cellState = emptyCellState(),
+                format = CellStateFormat.FixedFormat.Macrocell,
+            ),
+            serializer.deserializeToCellState(
+                sequenceOf(
+                    "[M2] (ComposeLife 1.0)",
+                    "",
+                    "# Comment to make sure blank line is not the last line",
+                ),
+            ),
+        )
+    }
+
+    @Test
+    fun deserialization_with_unexpected_input_is_correct() {
+        assertEquals(
+            DeserializationResult.Successful(
+                warnings = listOf(
+                    UnexpectedInputMessage("invalid line", 1, 0),
+                    UnexpectedInputMessage("invalid line", 1, 1),
+                    UnexpectedInputMessage("invalid line", 1, 2),
+                    UnexpectedInputMessage("invalid line", 1, 3),
+                    UnexpectedInputMessage("invalid line", 1, 4),
+                    UnexpectedInputMessage("invalid line", 1, 5),
+                    UnexpectedInputMessage("invalid line", 1, 6),
+                    UnexpectedInputMessage("invalid line", 1, 7),
+                    UnexpectedInputMessage("invalid line", 1, 8),
+                    UnexpectedInputMessage("invalid line", 1, 9),
+                    UnexpectedInputMessage("invalid line", 1, 10),
+                    UnexpectedInputMessage("invalid line", 1, 11),
+                ),
+                cellState = emptyCellState(),
+                format = CellStateFormat.FixedFormat.Macrocell,
+            ),
+            serializer.deserializeToCellState(
+                sequenceOf(
+                    "[M2] (ComposeLife 1.0)",
+                    "invalid line",
+                ),
+            ),
+        )
+    }
+
+    @Test
+    fun deserialization_with_malformed_node_is_correct() {
+        assertEquals(
+            DeserializationResult.Unsuccessful(
+                warnings = emptyList(),
+                errors = listOf(UnexpectedInputMessage("4 1 0 0", 1, 0)),
+            ),
+            serializer.deserializeToCellState(
+                sequenceOf(
+                    "[M2] (ComposeLife 1.0)",
+                    "4 1 0 0",
+                ),
+            ),
+        )
+    }
+
+    @Test
+    fun deserialization_with_unexpected_node_id_level_4_is_correct() {
+        assertEquals(
+            DeserializationResult.Unsuccessful(
+                warnings = emptyList(),
+                errors = listOf(UnexpectedNodeIdMessage(1, 2..2)),
+            ),
+            serializer.deserializeToCellState(
+                sequenceOf(
+                    "[M2] (ComposeLife 1.0)",
+                    "4 1 0 0 0",
+                ),
+            ),
+        )
+    }
+
+    @Test
+    fun deserialization_with_unexpected_node_id_cell_node_is_correct() {
+        assertEquals(
+            DeserializationResult.Unsuccessful(
+                warnings = emptyList(),
+                errors = listOf(UnexpectedNodeIdMessage(1, 2..2)),
+            ),
+            serializer.deserializeToCellState(
+                sequenceOf(
+                    "[M2] (ComposeLife 1.0)",
+                    "5 1 0 0 0",
+                ),
+            ),
         )
     }
 }
