@@ -594,4 +594,20 @@ class InlineEditPaneTests :
             .assertExists()
             .assertHasClickAction()
     }
+
+    @Test
+    fun tool_dropdown_option_sealed_enum_values_and_value_of_are_correct() {
+        val expectedValues = listOf(
+            ToolDropdownOption.Pan,
+            ToolDropdownOption.Draw,
+            ToolDropdownOption.Erase,
+            ToolDropdownOption.Select,
+            ToolDropdownOption.None,
+        )
+        assertEquals(expectedValues, ToolDropdownOption._values)
+        assertEquals(expectedValues, ToolDropdownOption.sealedEnum.values)
+        expectedValues.forEachIndexed { index, option ->
+            assertEquals(index, ToolDropdownOption.sealedEnum.ordinalOf(option))
+        }
+    }
 }
