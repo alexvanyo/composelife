@@ -203,9 +203,9 @@ internal actual fun Strings.CellStatePruningPeriodLabelAndValue(period: Double):
     )
 
 internal actual fun Strings.CellStatePruningPeriodValue(period: Double): ParameterizedString = ParameterizedString(
-        R.string.cell_state_pruning_period_value,
-        ParameterizedStringArgument(period),
-    )
+    R.string.cell_state_pruning_period_value,
+    ParameterizedStringArgument(period),
+)
 
 internal actual val Strings.CellStatePruningPeriodSuffix: ParameterizedString get() =
     ParameterizedString(R.string.cell_state_pruning_period_suffix)

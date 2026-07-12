@@ -70,7 +70,7 @@ class CellStatePruningPeriodUiCtx(
         ),
     )
     @Composable
-    operator fun invoke(modifier: Modifier = Modifier,) = lambda(preferencesHolder, composeLifePreferences, modifier)
+    operator fun invoke(modifier: Modifier = Modifier) = lambda(preferencesHolder, composeLifePreferences, modifier)
 
     companion object {
         private val lambda:
@@ -87,7 +87,7 @@ class CellStatePruningPeriodUiCtx(
 @Suppress("DEPRECATION")
 @Composable
 context(ctx: CellStatePruningPeriodUiCtx)
-fun CellStatePruningPeriodUi(modifier: Modifier = Modifier,) = ctx(modifier)
+fun CellStatePruningPeriodUi(modifier: Modifier = Modifier) = ctx(modifier)
 // endregion templated-ctx
 
 @Composable
@@ -95,7 +95,7 @@ context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,
     composeLifePreferences: ComposeLifePreferences,
 )
-private fun CellStatePruningPeriodUi(modifier: Modifier = Modifier,) {
+private fun CellStatePruningPeriodUi(modifier: Modifier = Modifier) {
     CellStatePruningPeriodUi(
         cellStatePruningPeriodSessionValue =
         preferencesHolder.preferences.cellStatePruningPeriodSessionValue,
@@ -134,8 +134,8 @@ fun CellStatePruningPeriodUi(
     EditableSlider(
         labelAndValueText = {
             parameterizedStringResource(
-            Strings.CellStatePruningPeriodLabelAndValue(it),
-        )
+                Strings.CellStatePruningPeriodLabelAndValue(it),
+            )
         },
         valueText = { resolver(Strings.CellStatePruningPeriodValue(it)) },
         labelText = parameterizedStringResource(Strings.CellStatePruningPeriod),

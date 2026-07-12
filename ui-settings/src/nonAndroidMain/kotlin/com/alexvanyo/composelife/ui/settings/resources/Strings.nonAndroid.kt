@@ -186,9 +186,9 @@ internal actual fun Strings.CellStatePruningPeriodLabelAndValue(period: Double):
     )
 
 internal actual fun Strings.CellStatePruningPeriodValue(period: Double): ParameterizedString = ParameterizedString(
-        "%.2f",
-        ParameterizedStringArgument(period),
-    )
+    "%.2f",
+    ParameterizedStringArgument(period),
+)
 
 internal actual val Strings.CellStatePruningPeriodSuffix: ParameterizedString get() =
     ParameterizedString("minutes")
