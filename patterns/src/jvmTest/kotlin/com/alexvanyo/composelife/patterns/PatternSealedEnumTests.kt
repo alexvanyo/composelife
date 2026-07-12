@@ -30,6 +30,13 @@ class PatternSealedEnumTests {
         assertEquals(expectedValues, GameOfLifeTestPatternEnum.values().toList())
         expectedValues.forEach { enumValue ->
             assertEquals(enumValue, GameOfLifeTestPatternEnum.valueOf(enumValue.name))
+            val sealedObject = enumValue.sealedObject
+            assertEquals(enumValue, GameOfLifeTestPattern.sealedEnum.sealedObjectToEnum(sealedObject))
+            assertEquals(sealedObject, GameOfLifeTestPattern.sealedEnum.enumToSealedObject(enumValue))
+            assertEquals(
+                expectedValues.indexOf(enumValue),
+                GameOfLifeTestPattern.sealedEnum.ordinalOf(sealedObject),
+            )
         }
     }
 
@@ -42,6 +49,32 @@ class PatternSealedEnumTests {
         assertEquals(expectedValues, MethuselahPatternEnum.values().toList())
         expectedValues.forEach { enumValue ->
             assertEquals(enumValue, MethuselahPatternEnum.valueOf(enumValue.name))
+            val sealedObject = enumValue.sealedObject
+            assertEquals(enumValue, MethuselahPattern.sealedEnum.sealedObjectToEnum(sealedObject))
+            assertEquals(sealedObject, MethuselahPattern.sealedEnum.enumToSealedObject(enumValue))
+            assertEquals(
+                expectedValues.indexOf(enumValue),
+                MethuselahPattern.sealedEnum.ordinalOf(sealedObject),
+            )
+        }
+    }
+
+    @Test
+    fun oscillator_pattern_enum_values_and_value_of_are_correct() {
+        val expectedValues = OscillatorPattern.sealedEnum.values.map { pattern ->
+            OscillatorPatternEnum.entries.first { it.sealedObject == pattern }
+        }
+        assertEquals(expectedValues, OscillatorPatternEnum.entries)
+        assertEquals(expectedValues, OscillatorPatternEnum.values().toList())
+        expectedValues.forEach { enumValue ->
+            assertEquals(enumValue, OscillatorPatternEnum.valueOf(enumValue.name))
+            val sealedObject = enumValue.sealedObject
+            assertEquals(enumValue, OscillatorPattern.sealedEnum.sealedObjectToEnum(sealedObject))
+            assertEquals(sealedObject, OscillatorPattern.sealedEnum.enumToSealedObject(enumValue))
+            assertEquals(
+                expectedValues.indexOf(enumValue),
+                OscillatorPattern.sealedEnum.ordinalOf(sealedObject),
+            )
         }
     }
 }
