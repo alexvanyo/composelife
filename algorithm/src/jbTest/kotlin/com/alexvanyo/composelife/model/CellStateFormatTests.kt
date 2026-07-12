@@ -140,6 +140,13 @@ class CellStateFormatTests {
         assertEquals(expectedValues, CellStateFormatEnum.values().toList())
         expectedValues.forEach { enumValue ->
             assertEquals(enumValue, CellStateFormatEnum.valueOf(enumValue.name))
+            val sealedObject = enumValue.sealedObject
+            assertEquals(enumValue, CellStateFormat.sealedEnum.sealedObjectToEnum(sealedObject))
+            assertEquals(sealedObject, CellStateFormat.sealedEnum.enumToSealedObject(enumValue))
+            assertEquals(
+                expectedValues.indexOf(enumValue),
+                CellStateFormat.sealedEnum.ordinalOf(sealedObject),
+            )
         }
 
         val expectedFixedFormatValues = listOf(
@@ -153,6 +160,13 @@ class CellStateFormatTests {
         assertEquals(expectedFixedFormatValues, CellStateFormat_FixedFormatEnum.values().toList())
         expectedFixedFormatValues.forEach { enumValue ->
             assertEquals(enumValue, CellStateFormat_FixedFormatEnum.valueOf(enumValue.name))
+            val sealedObject = enumValue.sealedObject
+            assertEquals(enumValue, CellStateFormat.FixedFormat.sealedEnum.sealedObjectToEnum(sealedObject))
+            assertEquals(sealedObject, CellStateFormat.FixedFormat.sealedEnum.enumToSealedObject(enumValue))
+            assertEquals(
+                expectedFixedFormatValues.indexOf(enumValue),
+                CellStateFormat.FixedFormat.sealedEnum.ordinalOf(sealedObject),
+            )
         }
     }
 }
