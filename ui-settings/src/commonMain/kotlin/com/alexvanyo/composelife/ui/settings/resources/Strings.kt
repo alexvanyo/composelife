@@ -101,13 +101,13 @@ internal expect val Strings.LastSuccessfulSync: ParameterizedString
 
 internal expect val Strings.LastUnsuccessfulSync: ParameterizedString
 
-internal expect val Strings.DayUnit: ParameterizedString
+internal expect fun Strings.DaysAgo(count: Int): ParameterizedString
 
-internal expect val Strings.HourUnit: ParameterizedString
+internal expect fun Strings.HoursAgo(count: Int): ParameterizedString
 
-internal expect val Strings.MinuteUnit: ParameterizedString
+internal expect fun Strings.MinutesAgo(count: Int): ParameterizedString
 
-internal expect val Strings.SecondUnit: ParameterizedString
+internal expect fun Strings.SecondsAgo(count: Int): ParameterizedString
 
 internal expect val Strings.Never: ParameterizedString
 
