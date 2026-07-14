@@ -140,17 +140,29 @@ internal actual val Strings.LastSuccessfulSync: ParameterizedString get() =
 internal actual val Strings.LastUnsuccessfulSync: ParameterizedString get() =
     ParameterizedString("Last unsuccessful sync:")
 
-internal actual val Strings.DayUnit: ParameterizedString get() =
-    ParameterizedString("day(s)")
+internal actual fun Strings.DaysAgo(count: Int): ParameterizedString = if (count == 1) {
+    ParameterizedString("1 day ago")
+} else {
+    ParameterizedString("%d days ago", ParameterizedStringArgument(count))
+}
 
-internal actual val Strings.HourUnit: ParameterizedString get() =
-    ParameterizedString("hour(s)")
+internal actual fun Strings.HoursAgo(count: Int): ParameterizedString = if (count == 1) {
+    ParameterizedString("1 hour ago")
+} else {
+    ParameterizedString("%d hours ago", ParameterizedStringArgument(count))
+}
 
-internal actual val Strings.MinuteUnit: ParameterizedString get() =
-    ParameterizedString("minute(s)")
+internal actual fun Strings.MinutesAgo(count: Int): ParameterizedString = if (count == 1) {
+    ParameterizedString("1 minute ago")
+} else {
+    ParameterizedString("%d minutes ago", ParameterizedStringArgument(count))
+}
 
-internal actual val Strings.SecondUnit: ParameterizedString get() =
-    ParameterizedString("second(s)")
+internal actual fun Strings.SecondsAgo(count: Int): ParameterizedString = if (count == 1) {
+    ParameterizedString("1 second ago")
+} else {
+    ParameterizedString("%d seconds ago", ParameterizedStringArgument(count))
+}
 
 internal actual val Strings.Never: ParameterizedString get() =
     ParameterizedString("Never")
