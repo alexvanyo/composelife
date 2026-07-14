@@ -72,14 +72,14 @@ import com.alexvanyo.composelife.database.PatternCollectionId
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.ui.settings.resources.AddPatternCollection
-import com.alexvanyo.composelife.ui.settings.resources.DayUnit
+import com.alexvanyo.composelife.ui.settings.resources.DaysAgo
 import com.alexvanyo.composelife.ui.settings.resources.Delete
-import com.alexvanyo.composelife.ui.settings.resources.HourUnit
+import com.alexvanyo.composelife.ui.settings.resources.HoursAgo
 import com.alexvanyo.composelife.ui.settings.resources.LastSuccessfulSync
 import com.alexvanyo.composelife.ui.settings.resources.LastUnsuccessfulSync
-import com.alexvanyo.composelife.ui.settings.resources.MinuteUnit
+import com.alexvanyo.composelife.ui.settings.resources.MinutesAgo
 import com.alexvanyo.composelife.ui.settings.resources.Never
-import com.alexvanyo.composelife.ui.settings.resources.SecondUnit
+import com.alexvanyo.composelife.ui.settings.resources.SecondsAgo
 import com.alexvanyo.composelife.ui.settings.resources.SourceUrlLabel
 import com.alexvanyo.composelife.ui.settings.resources.Sources
 import com.alexvanyo.composelife.ui.settings.resources.Strings
@@ -307,17 +307,17 @@ fun PatternCollection(patternCollection: PatternCollection, onDelete: () -> Unit
                             timeZone = currentTimeZone(),
                         )
                         val amountOfUnit = when (unit) {
-                            is DateTimeUnit.DateBased -> period.dateComponentInWholeUnits(unit).toLong()
-                            is DateTimeUnit.TimeBased -> period.timeComponentInWholeUnits(unit)
+                            is DateTimeUnit.DateBased -> period.dateComponentInWholeUnits(unit)
+                            is DateTimeUnit.TimeBased -> period.timeComponentInWholeUnits(unit).toInt()
                         }
-                        val unitName = when (unit) {
-                            DateTimeUnit.DAY -> parameterizedStringResource(Strings.DayUnit)
-                            DateTimeUnit.HOUR -> parameterizedStringResource(Strings.HourUnit)
-                            DateTimeUnit.MINUTE -> parameterizedStringResource(Strings.MinuteUnit)
-                            DateTimeUnit.SECOND -> parameterizedStringResource(Strings.SecondUnit)
+                        val syncStatusText = when (unit) {
+                            DateTimeUnit.DAY -> parameterizedStringResource(Strings.DaysAgo(amountOfUnit))
+                            DateTimeUnit.HOUR -> parameterizedStringResource(Strings.HoursAgo(amountOfUnit))
+                            DateTimeUnit.MINUTE -> parameterizedStringResource(Strings.MinutesAgo(amountOfUnit))
+                            DateTimeUnit.SECOND -> parameterizedStringResource(Strings.SecondsAgo(amountOfUnit))
                             else -> error("Unknown unit")
                         }
-                        Text("$amountOfUnit $unitName ago")
+                        Text(syncStatusText)
                     }
 
                     AnimatedContent(
@@ -337,17 +337,17 @@ fun PatternCollection(patternCollection: PatternCollection, onDelete: () -> Unit
                                     timeZone = currentTimeZone(),
                                 )
                                 val amountOfUnit = when (unit) {
-                                    is DateTimeUnit.DateBased -> period.dateComponentInWholeUnits(unit).toLong()
-                                    is DateTimeUnit.TimeBased -> period.timeComponentInWholeUnits(unit)
+                                    is DateTimeUnit.DateBased -> period.dateComponentInWholeUnits(unit)
+                                    is DateTimeUnit.TimeBased -> period.timeComponentInWholeUnits(unit).toInt()
                                 }
-                                val unitName = when (unit) {
-                                    DateTimeUnit.DAY -> "day(s)"
-                                    DateTimeUnit.HOUR -> "hour(s)"
-                                    DateTimeUnit.MINUTE -> "minute(s)"
-                                    DateTimeUnit.SECOND -> "second(s)"
+                                val syncStatusText = when (unit) {
+                                    DateTimeUnit.DAY -> parameterizedStringResource(Strings.DaysAgo(amountOfUnit))
+                                    DateTimeUnit.HOUR -> parameterizedStringResource(Strings.HoursAgo(amountOfUnit))
+                                    DateTimeUnit.MINUTE -> parameterizedStringResource(Strings.MinutesAgo(amountOfUnit))
+                                    DateTimeUnit.SECOND -> parameterizedStringResource(Strings.SecondsAgo(amountOfUnit))
                                     else -> error("Unknown unit")
                                 }
-                                Text("$amountOfUnit $unitName ago")
+                                Text(syncStatusText)
                                 val synchronizationFailureMessage = patternCollection.synchronizationFailureMessage
                                 if (synchronizationFailureMessage != null) {
                                     Text(synchronizationFailureMessage)
