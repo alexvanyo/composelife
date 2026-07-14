@@ -17,6 +17,7 @@
 
 package com.alexvanyo.composelife.ui.settings.resources
 
+import com.alexvanyo.composelife.parameterizedstring.ParameterizedQuantityString
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedStringArgument
 import com.alexvanyo.composelife.ui.settings.R
@@ -156,17 +157,29 @@ internal actual val Strings.LastSuccessfulSync: ParameterizedString get() =
 internal actual val Strings.LastUnsuccessfulSync: ParameterizedString get() =
     ParameterizedString(R.string.last_unsuccessful_sync)
 
-internal actual val Strings.DayUnit: ParameterizedString get() =
-    ParameterizedString(R.string.day_unit)
+internal actual fun Strings.DaysAgo(count: Int): ParameterizedString = ParameterizedQuantityString(
+    R.plurals.days_ago,
+    count,
+    ParameterizedStringArgument(count),
+)
 
-internal actual val Strings.HourUnit: ParameterizedString get() =
-    ParameterizedString(R.string.hour_unit)
+internal actual fun Strings.HoursAgo(count: Int): ParameterizedString = ParameterizedQuantityString(
+    R.plurals.hours_ago,
+    count,
+    ParameterizedStringArgument(count),
+)
 
-internal actual val Strings.MinuteUnit: ParameterizedString get() =
-    ParameterizedString(R.string.minute_unit)
+internal actual fun Strings.MinutesAgo(count: Int): ParameterizedString = ParameterizedQuantityString(
+    R.plurals.minutes_ago,
+    count,
+    ParameterizedStringArgument(count),
+)
 
-internal actual val Strings.SecondUnit: ParameterizedString get() =
-    ParameterizedString(R.string.second_unit)
+internal actual fun Strings.SecondsAgo(count: Int): ParameterizedString = ParameterizedQuantityString(
+    R.plurals.seconds_ago,
+    count,
+    ParameterizedStringArgument(count),
+)
 
 internal actual val Strings.Never: ParameterizedString get() =
     ParameterizedString(R.string.never)
