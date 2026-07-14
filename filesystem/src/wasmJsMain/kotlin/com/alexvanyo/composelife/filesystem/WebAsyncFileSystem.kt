@@ -275,8 +275,13 @@ class WebAsyncFileSystem(
     override suspend fun createSymlink(source: Path, target: Path): Unit =
         throw IOException("Symlinks not supported in OPFS")
 
-    override suspend fun openZip(zipPath: Path): AsyncFileSystem {
-        TODO("Not yet implemented")
+    override suspend fun openZip(zipPath: Path): AsyncFileSystem = withContext(dispatchers.IO) {
+        val bytes = read(zipPath) { readByteArray() }
+        val archive = ZipArchive.parse(bytes)
+        ZipAsyncFileSystem(
+            dispatchers = dispatchers,
+            archive = archive,
+        )
     }
 
     override fun close() = Unit
