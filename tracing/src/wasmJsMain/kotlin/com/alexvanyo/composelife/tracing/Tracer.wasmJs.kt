@@ -29,9 +29,6 @@ actual abstract class AbstractTraceDriver protected actual constructor(actual va
 
 actual abstract class Tracer {
 
-    @ExperimentalContextPropagation
-    actual abstract fun tokenForManualPropagation(): PropagationToken
-
     @DelicateTracingApi
     actual abstract fun tokenFromThreadContext(): PropagationToken
 
@@ -57,7 +54,7 @@ actual abstract class Tracer {
     actual abstract fun counter(category: String, name: String): Counter
 
     @DelicateTracingApi
-    actual abstract fun instant(category: String, name: String): EventMetadataCloseable
+    actual abstract fun writeInstant(category: String, name: String, token: PropagationToken?): EventMetadataCloseable
 }
 
 actual interface PropagationToken {
@@ -129,3 +126,6 @@ actual fun createEventMetadataCloseable(
     closeable = closeable,
     propagationToken = propagationToken,
 )
+
+@ExperimentalContextPropagation
+actual fun Tracer.tokenForManualPropagation(flowIds: List<Long>): PropagationToken = PropagationUnsupportedToken
