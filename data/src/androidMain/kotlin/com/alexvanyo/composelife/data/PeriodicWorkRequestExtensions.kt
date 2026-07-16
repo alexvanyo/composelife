@@ -19,24 +19,12 @@ package com.alexvanyo.composelife.data
 import androidx.work.ListenableWorker
 import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
-import kotlinx.datetime.DateTimePeriod
 import java.util.concurrent.TimeUnit
-import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.nanoseconds
-import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Duration
 
 inline fun <reified T : ListenableWorker> PeriodicWorkRequestBuilder(
-    repeatPeriod: DateTimePeriod,
+    repeatPeriod: Duration,
 ): PeriodicWorkRequest.Builder = PeriodicWorkRequestBuilder<T>(
-    repeatInterval = (
-        repeatPeriod.nanoseconds.nanoseconds +
-            repeatPeriod.seconds.seconds +
-            repeatPeriod.minutes.minutes +
-            repeatPeriod.hours.hours +
-            repeatPeriod.days.days +
-            ((repeatPeriod.months / 12.0 + repeatPeriod.years) * 365.2422).days
-        ).inWholeMilliseconds,
+    repeatInterval = repeatPeriod.inWholeMilliseconds,
     repeatIntervalTimeUnit = TimeUnit.MILLISECONDS,
 )

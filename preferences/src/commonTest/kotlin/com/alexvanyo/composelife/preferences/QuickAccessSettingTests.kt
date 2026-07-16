@@ -35,6 +35,7 @@ class QuickAccessSettingTests {
             QuickAccessSetting.EnableClipboardWatching,
             QuickAccessSetting.ClipboardWatchingOnboardingCompleted,
             QuickAccessSetting.EnableWindowShapeClipping,
+            QuickAccessSetting.CellStatePruningPeriod,
         )
         assertEquals(expectedValues, QuickAccessSetting.sealedEnum.values)
         assertEquals(expectedValues, QuickAccessSetting.values)

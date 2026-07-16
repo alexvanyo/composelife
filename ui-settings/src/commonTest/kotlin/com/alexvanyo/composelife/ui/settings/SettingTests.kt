@@ -37,6 +37,7 @@ class SettingTests {
             Setting.EnableClipboardWatching,
             Setting.ClipboardWatchingOnboardingCompleted,
             Setting.EnableWindowShapeClipping,
+            Setting.CellStatePruningPeriod,
         )
 
         assertEquals(expectedValues, Setting._values)
@@ -71,5 +72,6 @@ class SettingTests {
             Setting.ClipboardWatchingOnboardingCompleted._name,
         )
         assertEquals("Setting_EnableWindowShapeClipping", Setting.EnableWindowShapeClipping._name)
+        assertEquals("Setting_CellStatePruningPeriod", Setting.CellStatePruningPeriod._name)
     }
 }
