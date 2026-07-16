@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("ERROR_SUPPRESSION")
 
 package com.alexvanyo.composelife.ui.cells
 
@@ -28,6 +29,8 @@ import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.draganddrop.domDataTransferOrNull
 import androidx.compose.ui.geometry.Offset
+import com.alexvanyo.composelife.logging.Logger
+import com.alexvanyo.composelife.logging.d
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.DeserializationResult
@@ -51,9 +54,12 @@ actual fun Modifier.cellStateDragAndDropSource(getCellState: () -> CellState): M
     )
 }
 
+/**
+ * TODO: It should be possible to filter for specific MIME types here
+ */
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalWasmJsInterop::class)
 internal actual fun cellStateShouldStartDragAndDrop(event: DragAndDropEvent): Boolean =
-    "text/plain" in event.transferData?.domDataTransferOrNull?.types?.toList().orEmpty().map { it.toString() }
+    true
 
 @OptIn(ExperimentalComposeUiApi::class)
 internal actual class DragAndDropSession {
@@ -70,7 +76,6 @@ internal actual class DragAndDropSession {
     actual var deserializationResult by mutableStateOf<DeserializationResult?>(null)
 
     actual fun updateWithOnStarted(event: DragAndDropEvent) {
-        dragData = event.transferData
     }
 
     actual fun updateWithOnEntered(event: DragAndDropEvent) {
@@ -94,9 +99,13 @@ internal actual class DragAndDropSession {
     actual fun updateWithOnDrop(event: DragAndDropEvent) {
         _isDropped = true
         _rootOffset = event.positionInRoot
+        dragData = event.transferData
     }
 }
 
+/**
+ * TODO: Update to use real offset when exposed on web
+ */
 @OptIn(ExperimentalComposeUiApi::class)
 private val DragAndDropEvent.positionInRoot get() =
     Offset.Zero
