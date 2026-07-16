@@ -58,8 +58,7 @@ actual fun Modifier.cellStateDragAndDropSource(getCellState: () -> CellState): M
  * TODO: It should be possible to filter for specific MIME types here
  */
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalWasmJsInterop::class)
-internal actual fun cellStateShouldStartDragAndDrop(event: DragAndDropEvent): Boolean =
-    true
+internal actual fun cellStateShouldStartDragAndDrop(event: DragAndDropEvent): Boolean = true
 
 @OptIn(ExperimentalComposeUiApi::class)
 internal actual class DragAndDropSession {
