@@ -77,9 +77,6 @@ interface WasmJsTracingBindings {
             sink = WasmJsEmptyTraceSink,
         ) {
             override val tracer: Tracer = object : Tracer() {
-                @ExperimentalContextPropagation
-                override fun tokenForManualPropagation(): PropagationToken = PropagationUnsupportedToken
-
                 override fun tokenFromThreadContext(): PropagationToken = PropagationUnsupportedToken
 
                 override suspend fun tokenFromCoroutineContext(): PropagationToken = PropagationUnsupportedToken
@@ -104,8 +101,11 @@ interface WasmJsTracingBindings {
                     override fun setValue(value: Double) = Unit
                 }
 
-                override fun instant(category: String, name: String): EventMetadataCloseable =
-                    createWasmJsEventMetadataCloseable()
+                override fun writeInstant(
+                    category: String,
+                    name: String,
+                    token: PropagationToken?,
+                ): EventMetadataCloseable = createWasmJsEventMetadataCloseable()
             }
 
             override fun flush() = Unit
