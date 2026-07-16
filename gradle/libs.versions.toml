@@ -114,7 +114,7 @@ jetbrainsSavedState = "1.4.0"
 #jetbrainsCompose
 jetbrainsCompose = "1.12.0-beta01"
 #jetbrainsCompose
-jetbrainsComposeGradlePlugin = "1.12.0-alpha02"
+jetbrainsComposeGradlePlugin = "1.12.0-beta01"
 #jetbrainsComposeMaterialIconsExtended
 jetbrainsComposeMaterialIconsExtended = "1.7.3"
 #jetbrainsComposeMaterial3
