@@ -16,8 +16,11 @@
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinWasmTargetDsl
 
+@OptIn(ExperimentalWasmDsl::class)
 class KotlinMultiplatformComposeConventionPlugin :
     ConventionPlugin({
         val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
@@ -31,6 +34,12 @@ class KotlinMultiplatformComposeConventionPlugin :
             sourceSets.getByName("commonMain") {
                 dependencies {
                     implementation(project.dependencies.platform(libs.findLibrary("androidx.compose.bom").get()))
+                }
+            }
+
+            targets.configureEach {
+                if (this is KotlinWasmTargetDsl) {
+                    binaries.executable()
                 }
             }
         }
