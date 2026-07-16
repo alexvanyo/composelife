@@ -17,6 +17,8 @@
 @file:OptIn(
     com.alexvanyo.composelife.tracing.DelicateTracingApi::class,
     androidx.tracing.DelicateTracingApi::class,
+    com.alexvanyo.composelife.tracing.ExperimentalContextPropagation::class,
+    androidx.tracing.ExperimentalContextPropagation::class,
 )
 
 package com.alexvanyo.composelife.tracing
@@ -59,3 +61,7 @@ actual fun createEventMetadataCloseable(
     closeable = closeable,
     propagationToken = propagationToken,
 )
+
+@ExperimentalContextPropagation
+actual fun Tracer.tokenForManualPropagation(flowIds: List<Long>): PropagationToken =
+    this.tokenForManualPropagation(flowIds)

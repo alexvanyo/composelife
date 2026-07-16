@@ -54,9 +54,6 @@ actual class TestTraceDriver actual constructor() :
         sink = WasmJsEmptyTraceSink,
     ) {
     actual override val tracer: Tracer = object : Tracer() {
-        @ExperimentalContextPropagation
-        override fun tokenForManualPropagation(): PropagationToken = PropagationUnsupportedToken
-
         override fun tokenFromThreadContext(): PropagationToken = PropagationUnsupportedToken
 
         override suspend fun tokenFromCoroutineContext(): PropagationToken = PropagationUnsupportedToken
@@ -81,7 +78,7 @@ actual class TestTraceDriver actual constructor() :
             override fun setValue(value: Double) = Unit
         }
 
-        override fun instant(category: String, name: String): EventMetadataCloseable =
+        override fun writeInstant(category: String, name: String, token: PropagationToken?): EventMetadataCloseable =
             createWasmJsEventMetadataCloseable()
     }
 
