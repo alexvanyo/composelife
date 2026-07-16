@@ -322,3 +322,9 @@ val DateTimePeriod.dateComponentApproximateDuration: Duration get() =
  * Returns the total approximation duration of both the time component and date component of this [DateTimePeriod].
  */
 val DateTimePeriod.approximateDuration: Duration get() = timeComponentDuration + dateComponentApproximateDuration
+
+/**
+ * Returns the approximate duration of this [DateTimePeriod] in minutes.
+ */
+val DateTimePeriod.approximateDurationInMinutes: Double get() =
+    approximateDuration.inWholeNanoseconds / 1.minutes.inWholeNanoseconds.toDouble()

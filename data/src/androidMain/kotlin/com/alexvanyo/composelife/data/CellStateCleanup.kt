@@ -22,6 +22,7 @@ import androidx.work.WorkManager
 import androidx.work.await
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.resourcestate.successes
+import com.alexvanyo.composelife.timeutil.approximateDuration
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesIntoSet
@@ -58,7 +59,7 @@ class CellStateCleanup(private val composeLifePreferences: ComposeLifePreference
                     uniqueWorkName = CELL_STATE_CLEANUP_NAME,
                     existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.UPDATE,
                     request = PeriodicWorkRequestBuilder<CellStateCleanupWorker>(
-                        repeatPeriod = cellStatePruningPeriod,
+                        repeatPeriod = cellStatePruningPeriod.approximateDuration,
                     ).build(),
                 )
                     .await()

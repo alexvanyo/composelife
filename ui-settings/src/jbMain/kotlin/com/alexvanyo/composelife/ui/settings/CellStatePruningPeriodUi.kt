@@ -35,7 +35,7 @@ import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.sessionvalue.localSessionId
 import com.alexvanyo.composelife.sessionvalue.map
 import com.alexvanyo.composelife.sessionvalue.rememberAsyncSessionValueHolder
-import com.alexvanyo.composelife.timeutil.approximateDuration
+import com.alexvanyo.composelife.timeutil.approximateDurationInMinutes
 import com.alexvanyo.composelife.ui.mobile.component.EditableSlider
 import com.alexvanyo.composelife.ui.mobile.component.SliderBijection
 import com.alexvanyo.composelife.ui.settings.resources.CellStatePruningPeriod
@@ -126,7 +126,7 @@ fun CellStatePruningPeriodUi(
     var pruningPeriodInMinutes by remember(localSessionId) {
         mutableStateOf(
             cellStatePruningPeriodSessionValueHolder.sessionValue.map { dateTimePeriod ->
-                dateTimePeriod.approximateDuration.inWholeNanoseconds / 1.minutes.inWholeNanoseconds.toDouble()
+                dateTimePeriod.approximateDurationInMinutes
             },
         )
     }

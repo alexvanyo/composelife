@@ -24,6 +24,7 @@ import androidx.work.WorkManager
 import androidx.work.await
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.resourcestate.successes
+import com.alexvanyo.composelife.timeutil.approximateDuration
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesIntoSet
@@ -60,7 +61,7 @@ class PatternCollectionSync(
             .distinctUntilChanged()
             .onEach { (synchronizePatternCollectionsOnMeteredNetwork, patternCollectionsSynchronizationPeriod) ->
                 val request = PeriodicWorkRequestBuilder<PatternCollectionSyncWorker>(
-                    repeatPeriod = patternCollectionsSynchronizationPeriod,
+                    repeatPeriod = patternCollectionsSynchronizationPeriod.approximateDuration,
                 )
                     .setConstraints(
                         Constraints.Builder()
