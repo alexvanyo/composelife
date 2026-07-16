@@ -61,9 +61,6 @@ expect abstract class AbstractTraceDriver : AutoCloseable {
 @Suppress("AbstractClassCanBeInterface")
 expect abstract class Tracer {
 
-    @ExperimentalContextPropagation
-    abstract fun tokenForManualPropagation(): PropagationToken
-
     @DelicateTracingApi
     abstract fun tokenFromThreadContext(): PropagationToken
 
@@ -89,7 +86,7 @@ expect abstract class Tracer {
     abstract fun counter(category: String, name: String): Counter
 
     @DelicateTracingApi
-    abstract fun instant(category: String, name: String): EventMetadataCloseable
+    abstract fun writeInstant(category: String, name: String, token: PropagationToken?): EventMetadataCloseable
 }
 
 /**
@@ -176,3 +173,25 @@ expect fun createEventMetadataCloseable(
     closeable: AutoCloseable,
     propagationToken: PropagationToken,
 ): EventMetadataCloseable
+
+@ExperimentalContextPropagation
+expect fun Tracer.tokenForManualPropagation(flowIds: List<Long>): PropagationToken
+
+@ExperimentalContextPropagation
+public fun Tracer.tokenForManualPropagation(): PropagationToken = tokenForManualPropagation(emptyList())
+
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+@DelicateTracingApi
+public inline fun Tracer.instant(
+    category: String,
+    name: String,
+    token: PropagationToken? = null,
+    crossinline metadataBlock: EventMetadata.() -> Unit = {},
+) {
+    val closeable = writeInstant(category, name, token)
+    try {
+        closeable.metadata.metadataBlock()
+    } finally {
+        closeable.closeable.close()
+    }
+}
