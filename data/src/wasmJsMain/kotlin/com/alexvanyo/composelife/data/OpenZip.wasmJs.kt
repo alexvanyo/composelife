@@ -16,7 +16,15 @@
 
 package com.alexvanyo.composelife.data
 
+import com.alexvanyo.composelife.filesystem.ZipArchive
+import com.alexvanyo.composelife.filesystem.ZipFileSystem
 import okio.FileSystem
 import okio.Path
 
-actual fun FileSystem.openZip(zipPath: Path): FileSystem = TODO("Not supported!")
+actual fun FileSystem.openZip(zipPath: Path): FileSystem {
+    val bytes = this.read(zipPath) { readByteArray() }
+    val archive = ZipArchive.parse(bytes)
+    return ZipFileSystem(
+        archive = archive,
+    )
+}
