@@ -46,10 +46,10 @@ androidx.sqlite:sqlite-bundled-jvm:2.7.0
 androidx.sqlite:sqlite-bundled:2.7.0
 androidx.sqlite:sqlite-jvm:2.7.0
 androidx.sqlite:sqlite:2.7.0
-androidx.tracing:tracing-desktop:2.0.0-alpha09
-androidx.tracing:tracing-wire-desktop:2.0.0-alpha09
-androidx.tracing:tracing-wire:2.0.0-alpha09
-androidx.tracing:tracing:2.0.0-alpha09
+androidx.tracing:tracing-desktop:2.0.0-beta01
+androidx.tracing:tracing-wire-desktop:2.0.0-beta01
+androidx.tracing:tracing-wire:2.0.0-beta01
+androidx.tracing:tracing:2.0.0-beta01
 androidx.window:window-core-jvm:1.6.0-alpha05
 androidx.window:window-core:1.6.0-alpha05
 app.cash.sqldelight:async-extensions-jvm:2.3.2
