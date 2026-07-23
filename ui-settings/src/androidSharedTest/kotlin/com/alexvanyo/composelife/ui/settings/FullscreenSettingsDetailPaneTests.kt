@@ -80,7 +80,7 @@ class FullscreenSettingsDetailPaneTests :
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(ctx.fullscreenSettingsDetailPaneCtx) {
+            context(ctx.fullscreenSettingsDetailPaneCtx) {
                 DeviceConfigurationOverride(
                     DeviceConfigurationOverride.ForcedSize(DpSize(400.dp, 1200.dp)),
                 ) {

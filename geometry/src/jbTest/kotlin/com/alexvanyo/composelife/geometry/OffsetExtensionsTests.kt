@@ -188,7 +188,7 @@ class OffsetExtensionsTests {
     fun to_px_is_correct() {
         val density = Density(density = 2f, fontScale = 1f)
         val dpOffset = DpOffset(10.dp, 20.dp)
-        val offset = with(density) { dpOffset.toPx() }
+        val offset = context(density) { dpOffset.toPx() }
         assertEquals(Offset(20f, 40f), offset)
     }
 

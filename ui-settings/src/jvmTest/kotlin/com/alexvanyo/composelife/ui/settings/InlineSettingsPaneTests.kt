@@ -77,7 +77,7 @@ class InlineSettingsPaneTests :
 
             setContent {
                 resolver = parameterizedStringResolver()
-                with(ctx.inlineSettingsPaneCtx) {
+                context(ctx.inlineSettingsPaneCtx) {
                     InlineSettingsPane(
                         onSeeMoreClicked = {
                             onSeeMoreClickedCount++
@@ -112,7 +112,7 @@ class InlineSettingsPaneTests :
 
             setContent {
                 resolver = parameterizedStringResolver()
-                with(ctx.inlineSettingsPaneCtx) {
+                context(ctx.inlineSettingsPaneCtx) {
                     InlineSettingsPane(
                         onSeeMoreClicked = {},
                         onOpenInSettingsClicked = {},
@@ -159,7 +159,7 @@ class InlineSettingsPaneTests :
 
             setContent {
                 resolver = parameterizedStringResolver()
-                with(ctx.inlineSettingsPaneCtx) {
+                context(ctx.inlineSettingsPaneCtx) {
                     InlineSettingsPane(
                         onSeeMoreClicked = {},
                         onOpenInSettingsClicked = {
@@ -193,7 +193,7 @@ class InlineSettingsPaneTests :
 
             setContent {
                 resolver = parameterizedStringResolver()
-                with(ctx.inlineSettingsPaneCtx) {
+                context(ctx.inlineSettingsPaneCtx) {
                     InlineSettingsPane(
                         onSeeMoreClicked = {},
                         onOpenInSettingsClicked = {},
