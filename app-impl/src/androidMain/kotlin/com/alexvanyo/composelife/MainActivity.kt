@@ -138,7 +138,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             ProvideLocalWindowInsetsHolder {
-                with(mainActivityInjectCtx) {
+                context(mainActivityInjectCtx) {
                     val darkTheme = shouldUseDarkTheme()
                     DisposableEffect(darkTheme) {
                         enableEdgeToEdge(
@@ -165,7 +165,7 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     ComposeLifeTheme(darkTheme) {
-                        with(composeLifeAppUiCtx) {
+                        context(mainActivityInjectCtx.composeLifeAppUiCtx) {
                             ComposeLifeApp(
                                 windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
                                 windowSize = LocalWindowInfo.current.containerDpSize,

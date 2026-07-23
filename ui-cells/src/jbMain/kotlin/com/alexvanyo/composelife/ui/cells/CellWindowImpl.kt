@@ -330,7 +330,7 @@ private fun CellWindowImpl(
             Box(
                 modifier = navigableModifier,
             ) {
-                with(nonInteractableCellsCtx) {
+                context(nonInteractableCellsCtx) {
                     // Keep the non-interactable cells always visible, to easily be able to switch to it when moving
                     NonInteractableCells(
                         gameOfLifeState = cellWindowUiState.gameOfLifeState,
@@ -349,7 +349,7 @@ private fun CellWindowImpl(
                     )
                 }
 
-                with(interactableCellsCtx) {
+                context(interactableCellsCtx) {
                     // Only show the interactable cells if the conditions are met to be interactable.
                     if (
                         cellWindowUiState.isEditable(
@@ -380,20 +380,21 @@ private fun CellWindowImpl(
                 is CellWindowUiState.ImmutableCellWindowUiState -> Unit
 
                 is CellWindowUiState.MutableState -> {
-                    with(cellWindowImplCtx) {
-                        with(cellStateParser) {
-                            SelectionOverlay(
-                                selectionSessionState =
-                                cellWindowUiState.cellWindowInteractionState.selectionSessionState,
-                                setSelectionSessionState = {
-                                    cellWindowUiState.cellWindowInteractionState.selectionSessionState = it
-                                },
-                                getSelectionCellState = cellWindowUiState::getSelectionCellState,
-                                scaledCellDpSize = scaledCellDpSize,
-                                cellWindow = cellWindow,
-                                pixelOffsetFromCenter = fracPixelOffsetFromCenter,
-                            )
-                        }
+                    context(
+                        cellWindowImplCtx,
+                        cellStateParser,
+                    ) {
+                        SelectionOverlay(
+                            selectionSessionState =
+                            cellWindowUiState.cellWindowInteractionState.selectionSessionState,
+                            setSelectionSessionState = {
+                                cellWindowUiState.cellWindowInteractionState.selectionSessionState = it
+                            },
+                            getSelectionCellState = cellWindowUiState::getSelectionCellState,
+                            scaledCellDpSize = scaledCellDpSize,
+                            cellWindow = cellWindow,
+                            pixelOffsetFromCenter = fracPixelOffsetFromCenter,
+                        )
                     }
                 }
             }

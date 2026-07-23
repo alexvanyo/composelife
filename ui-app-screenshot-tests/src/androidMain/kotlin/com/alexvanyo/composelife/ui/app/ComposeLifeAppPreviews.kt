@@ -33,7 +33,7 @@ import com.alexvanyo.composelife.ui.util.MobileDevicePreviews
 internal fun LoadingPreferencesComposeLifeAppPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(contextOf<PreviewCtx>().composeLifeAppUiCtx) {
+            context(contextOf<PreviewCtx>().composeLifeAppUiCtx) {
                 BoxWithConstraints {
                     val windowSize = DpSize(maxWidth, maxHeight)
                     ComposeLifeApp(
