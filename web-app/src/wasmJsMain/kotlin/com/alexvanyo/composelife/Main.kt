@@ -115,9 +115,9 @@ fun main() {
                     }
                 }
 
-                with(mainInjectCtx) {
+                context(mainInjectCtx) {
                     ComposeLifeTheme(shouldUseDarkTheme()) {
-                        with(mainInjectCtx.composeLifeAppUiCtx) {
+                        context(mainInjectCtx.composeLifeAppUiCtx) {
                             ComposeLifeApp(
                                 windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
                                 windowSize = with(LocalDensity.current) {

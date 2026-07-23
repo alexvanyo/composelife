@@ -238,7 +238,7 @@ class InteractableCellsTests : BaseKmpTest() {
 
         setContent {
             density = LocalDensity.current
-            with(
+            context(
                 InteractableCellsCtx(
                     preferencesHolder = TestComposeLifePreferences(
                         initialPreferences = LoadedComposeLifePreferences.Defaults.copy(
@@ -309,7 +309,7 @@ class InteractableCellsTests : BaseKmpTest() {
 
         setContent {
             density = LocalDensity.current
-            with(
+            context(
                 InteractableCellsCtx(
                     preferencesHolder = TestComposeLifePreferences(
                         initialPreferences = LoadedComposeLifePreferences.Defaults.copy(

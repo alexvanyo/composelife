@@ -35,7 +35,7 @@ import kotlin.uuid.Uuid
 internal fun ClipboardWatchingSectionOnboardingPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(contextOf<PreviewCtx>().clipboardCellStatePreviewCtx) {
+            context(contextOf<PreviewCtx>().clipboardCellStatePreviewCtx) {
                 Surface(modifier) {
                     ClipboardWatchingSection(
                         clipboardWatchingState = object : ClipboardWatchingState.Onboarding {
@@ -55,7 +55,7 @@ internal fun ClipboardWatchingSectionOnboardingPreview(modifier: Modifier = Modi
 private fun ClipboardWatchingSectionDisabledPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(contextOf<PreviewCtx>().clipboardCellStatePreviewCtx) {
+            context(contextOf<PreviewCtx>().clipboardCellStatePreviewCtx) {
                 Surface(modifier) {
                     ClipboardWatchingSection(
                         clipboardWatchingState = ClipboardWatchingState.ClipboardWatchingDisabled,
@@ -72,7 +72,7 @@ private fun ClipboardWatchingSectionDisabledPreview(modifier: Modifier = Modifie
 internal fun ClipboardWatchingSectionEnabledLoadingPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(contextOf<PreviewCtx>().clipboardCellStatePreviewCtx) {
+            context(contextOf<PreviewCtx>().clipboardCellStatePreviewCtx) {
                 Surface(modifier) {
                     ClipboardWatchingSection(
                         clipboardWatchingState = object : ClipboardWatchingState.ClipboardWatchingEnabled {
@@ -94,7 +94,7 @@ internal fun ClipboardWatchingSectionEnabledLoadingPreview(modifier: Modifier = 
 internal fun ClipboardWatchingSectionEnabledUnsuccessfulPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(contextOf<PreviewCtx>().clipboardCellStatePreviewCtx) {
+            context(contextOf<PreviewCtx>().clipboardCellStatePreviewCtx) {
                 Surface(modifier) {
                     ClipboardWatchingSection(
                         clipboardWatchingState = object : ClipboardWatchingState.ClipboardWatchingEnabled {
@@ -130,7 +130,7 @@ internal fun ClipboardWatchingSectionEnabledUnsuccessfulPreview(modifier: Modifi
 internal fun ClipboardWatchingSectionEnabledSuccessfulPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(contextOf<PreviewCtx>().clipboardCellStatePreviewCtx) {
+            context(contextOf<PreviewCtx>().clipboardCellStatePreviewCtx) {
                 Surface(modifier) {
                     ClipboardWatchingSection(
                         clipboardWatchingState = object : ClipboardWatchingState.ClipboardWatchingEnabled {

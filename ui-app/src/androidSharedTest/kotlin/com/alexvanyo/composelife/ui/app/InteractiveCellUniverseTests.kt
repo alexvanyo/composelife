@@ -158,7 +158,7 @@ class InteractiveCellUniverseTests :
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(uiCtx.interactiveCellUniverseCtx) {
+            context(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
@@ -209,7 +209,7 @@ class InteractiveCellUniverseTests :
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(uiCtx.interactiveCellUniverseCtx) {
+            context(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
@@ -261,7 +261,7 @@ class InteractiveCellUniverseTests :
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(uiCtx.interactiveCellUniverseCtx) {
+            context(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
@@ -327,7 +327,7 @@ class InteractiveCellUniverseTests :
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(uiCtx.interactiveCellUniverseCtx) {
+            context(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
@@ -397,7 +397,7 @@ class InteractiveCellUniverseTests :
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(uiCtx.interactiveCellUniverseCtx) {
+            context(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
@@ -478,7 +478,7 @@ class InteractiveCellUniverseTests :
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(uiCtx.interactiveCellUniverseCtx) {
+            context(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
@@ -539,7 +539,7 @@ class InteractiveCellUniverseTests :
             LaunchedEffect(temporalGameOfLifeStateMutator) {
                 temporalGameOfLifeStateMutator.update()
             }
-            with(uiCtx.interactiveCellUniverseCtx) {
+            context(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
@@ -615,7 +615,7 @@ class InteractiveCellUniverseTests :
             LaunchedEffect(temporalGameOfLifeStateMutator) {
                 temporalGameOfLifeStateMutator.update()
             }
-            with(uiCtx.interactiveCellUniverseCtx) {
+            context(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
@@ -697,7 +697,7 @@ class InteractiveCellUniverseTests :
             LaunchedEffect(temporalGameOfLifeStateMutator) {
                 temporalGameOfLifeStateMutator.update()
             }
-            with(uiCtx.interactiveCellUniverseCtx) {
+            context(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
@@ -786,7 +786,7 @@ class InteractiveCellUniverseTests :
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(uiCtx.interactiveCellUniverseCtx) {
+            context(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
@@ -860,7 +860,7 @@ class InteractiveCellUniverseTests :
                 temporalGameOfLifeStateMutator.update()
             }
 
-            with(uiCtx.interactiveCellUniverseCtx) {
+            context(uiCtx.interactiveCellUniverseCtx) {
                 InteractiveCellUniverse(
                     temporalGameOfLifeState = temporalGameOfLifeState,
                     windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,

@@ -41,7 +41,7 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
 internal fun CoilNonInteractableCellsPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(contextOf<PreviewCtx>().imageLoader) {
+            context(contextOf<PreviewCtx>().imageLoader) {
                 CoilNonInteractableCells(
                     gameOfLifeState = GameOfLifeState(
                         setOf(

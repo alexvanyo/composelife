@@ -76,26 +76,27 @@ class SelectionOverlayTests :
         setContent {
             resolver = parameterizedStringResolver()
 
-            with(ctx.cellWindowImplCtx) {
-                with(ctx.cellStateParser) {
-                    SelectionOverlay(
-                        selectionSessionState = SessionValue(
-                            sessionId = Uuid.random(),
-                            valueId = Uuid.random(),
-                            value = SelectionState.NoSelection,
+            context(
+                ctx.cellWindowImplCtx,
+                ctx.cellStateParser,
+            ) {
+                SelectionOverlay(
+                    selectionSessionState = SessionValue(
+                        sessionId = Uuid.random(),
+                        valueId = Uuid.random(),
+                        value = SelectionState.NoSelection,
+                    ),
+                    setSelectionSessionState = {},
+                    getSelectionCellState = { emptyCellState() },
+                    scaledCellDpSize = 50.dp,
+                    cellWindow = CellWindow(
+                        IntRect(
+                            IntOffset(0, 0),
+                            IntSize(9, 9),
                         ),
-                        setSelectionSessionState = {},
-                        getSelectionCellState = { emptyCellState() },
-                        scaledCellDpSize = 50.dp,
-                        cellWindow = CellWindow(
-                            IntRect(
-                                IntOffset(0, 0),
-                                IntSize(9, 9),
-                            ),
-                        ),
-                        pixelOffsetFromCenter = Offset.Zero,
-                    )
-                }
+                    ),
+                    pixelOffsetFromCenter = Offset.Zero,
+                )
             }
         }
 
@@ -114,31 +115,32 @@ class SelectionOverlayTests :
         setContent {
             resolver = parameterizedStringResolver()
 
-            with(ctx.cellWindowImplCtx) {
-                with(ctx.cellStateParser) {
-                    SelectionOverlay(
-                        selectionSessionState = SessionValue(
-                            sessionId = Uuid.random(),
-                            valueId = Uuid.random(),
-                            value = SelectionState.SelectingBox.FixedSelectingBox(
-                                topLeft = IntOffset(1, 1),
-                                width = 2,
-                                height = 3,
-                                previousTransientSelectingBox = null,
-                            ),
+            context(
+                ctx.cellWindowImplCtx,
+                ctx.cellStateParser,
+            ) {
+                SelectionOverlay(
+                    selectionSessionState = SessionValue(
+                        sessionId = Uuid.random(),
+                        valueId = Uuid.random(),
+                        value = SelectionState.SelectingBox.FixedSelectingBox(
+                            topLeft = IntOffset(1, 1),
+                            width = 2,
+                            height = 3,
+                            previousTransientSelectingBox = null,
                         ),
-                        setSelectionSessionState = {},
-                        getSelectionCellState = { emptyCellState() },
-                        scaledCellDpSize = 50.dp,
-                        cellWindow = CellWindow(
-                            IntRect(
-                                IntOffset(0, 0),
-                                IntSize(9, 9),
-                            ),
+                    ),
+                    setSelectionSessionState = {},
+                    getSelectionCellState = { emptyCellState() },
+                    scaledCellDpSize = 50.dp,
+                    cellWindow = CellWindow(
+                        IntRect(
+                            IntOffset(0, 0),
+                            IntSize(9, 9),
                         ),
-                        pixelOffsetFromCenter = Offset.Zero,
-                    )
-                }
+                    ),
+                    pixelOffsetFromCenter = Offset.Zero,
+                )
             }
         }
 
@@ -188,22 +190,23 @@ class SelectionOverlayTests :
         setContent {
             resolver = parameterizedStringResolver()
 
-            with(ctx.cellWindowImplCtx) {
-                with(ctx.cellStateParser) {
-                    SelectionOverlay(
-                        selectionSessionState = mutableSelectionStateHolder.selectionSessionState,
-                        setSelectionSessionState = { mutableSelectionStateHolder.selectionSessionState = it },
-                        getSelectionCellState = { emptyCellState() },
-                        scaledCellDpSize = 50.dp,
-                        cellWindow = CellWindow(
-                            IntRect(
-                                IntOffset(0, 0),
-                                IntSize(9, 9),
-                            ),
+            context(
+                ctx.cellWindowImplCtx,
+                ctx.cellStateParser,
+            ) {
+                SelectionOverlay(
+                    selectionSessionState = mutableSelectionStateHolder.selectionSessionState,
+                    setSelectionSessionState = { mutableSelectionStateHolder.selectionSessionState = it },
+                    getSelectionCellState = { emptyCellState() },
+                    scaledCellDpSize = 50.dp,
+                    cellWindow = CellWindow(
+                        IntRect(
+                            IntOffset(0, 0),
+                            IntSize(9, 9),
                         ),
-                        pixelOffsetFromCenter = Offset.Zero,
-                    )
-                }
+                    ),
+                    pixelOffsetFromCenter = Offset.Zero,
+                )
             }
         }
 
@@ -232,33 +235,34 @@ class SelectionOverlayTests :
         val ctx = uiGraph.selectionOverlayTestsCtx
 
         setContent {
-            with(ctx.cellWindowImplCtx) {
-                with(ctx.cellStateParser) {
-                    SelectionOverlay(
-                        selectionSessionState = SessionValue(
-                            sessionId = Uuid.random(),
-                            valueId = Uuid.random(),
-                            value = SelectionState.Selection(
-                                cellState = """
+            context(
+                ctx.cellWindowImplCtx,
+                ctx.cellStateParser,
+            ) {
+                SelectionOverlay(
+                    selectionSessionState = SessionValue(
+                        sessionId = Uuid.random(),
+                        valueId = Uuid.random(),
+                        value = SelectionState.Selection(
+                            cellState = """
                                 |.O.
                                 |..O
                                 |OOO
                             """.toCellState(),
-                                offset = IntOffset(1, 1),
-                            ),
+                            offset = IntOffset(1, 1),
                         ),
-                        setSelectionSessionState = {},
-                        getSelectionCellState = { emptyCellState() },
-                        scaledCellDpSize = 50.dp,
-                        cellWindow = CellWindow(
-                            IntRect(
-                                IntOffset(0, 0),
-                                IntSize(9, 9),
-                            ),
+                    ),
+                    setSelectionSessionState = {},
+                    getSelectionCellState = { emptyCellState() },
+                    scaledCellDpSize = 50.dp,
+                    cellWindow = CellWindow(
+                        IntRect(
+                            IntOffset(0, 0),
+                            IntSize(9, 9),
                         ),
-                        pixelOffsetFromCenter = Offset.Zero,
-                    )
-                }
+                    ),
+                    pixelOffsetFromCenter = Offset.Zero,
+                )
             }
         }
 
@@ -288,22 +292,23 @@ class SelectionOverlayTests :
         )
 
         setContent {
-            with(ctx.cellWindowImplCtx) {
-                with(ctx.cellStateParser) {
-                    SelectionOverlay(
-                        selectionSessionState = mutableSelectionStateHolder.selectionSessionState,
-                        setSelectionSessionState = { mutableSelectionStateHolder.selectionSessionState = it },
-                        getSelectionCellState = { emptyCellState() },
-                        scaledCellDpSize = 50.dp,
-                        cellWindow = CellWindow(
-                            IntRect(
-                                IntOffset(0, 0),
-                                IntSize(9, 9),
-                            ),
+            context(
+                ctx.cellWindowImplCtx,
+                ctx.cellStateParser,
+            ) {
+                SelectionOverlay(
+                    selectionSessionState = mutableSelectionStateHolder.selectionSessionState,
+                    setSelectionSessionState = { mutableSelectionStateHolder.selectionSessionState = it },
+                    getSelectionCellState = { emptyCellState() },
+                    scaledCellDpSize = 50.dp,
+                    cellWindow = CellWindow(
+                        IntRect(
+                            IntOffset(0, 0),
+                            IntSize(9, 9),
                         ),
-                        pixelOffsetFromCenter = Offset.Zero,
-                    )
-                }
+                    ),
+                    pixelOffsetFromCenter = Offset.Zero,
+                )
             }
         }
 

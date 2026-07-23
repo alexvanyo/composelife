@@ -31,7 +31,7 @@ internal fun GameOfLifeProgressIndicatorBlinkerPreview() {
     WithPreviewDependencies {
         contextOf<PreviewCtx>().testRandom.setSeed(6)
         ComposeLifeTheme {
-            with(contextOf<PreviewCtx>().gameOfLifeProgressIndicatorCtx) {
+            context(contextOf<PreviewCtx>().gameOfLifeProgressIndicatorCtx) {
                 GameOfLifeProgressIndicator()
             }
         }
@@ -45,7 +45,7 @@ internal fun GameOfLifeProgressIndicatorToadPreview() {
     WithPreviewDependencies {
         contextOf<PreviewCtx>().testRandom.setSeed(2)
         ComposeLifeTheme {
-            with(contextOf<PreviewCtx>().gameOfLifeProgressIndicatorCtx) {
+            context(contextOf<PreviewCtx>().gameOfLifeProgressIndicatorCtx) {
                 GameOfLifeProgressIndicator()
             }
         }
@@ -59,7 +59,7 @@ internal fun GameOfLifeProgressIndicatorBeaconPreview() {
     WithPreviewDependencies {
         contextOf<PreviewCtx>().testRandom.setSeed(1)
         ComposeLifeTheme {
-            with(contextOf<PreviewCtx>().gameOfLifeProgressIndicatorCtx) {
+            context(contextOf<PreviewCtx>().gameOfLifeProgressIndicatorCtx) {
                 GameOfLifeProgressIndicator()
             }
         }
@@ -73,7 +73,7 @@ internal fun GameOfLifeProgressIndicatorPulsarPreview() {
     WithPreviewDependencies {
         contextOf<PreviewCtx>().testRandom.setSeed(0)
         ComposeLifeTheme {
-            with(contextOf<PreviewCtx>().gameOfLifeProgressIndicatorCtx) {
+            context(contextOf<PreviewCtx>().gameOfLifeProgressIndicatorCtx) {
                 GameOfLifeProgressIndicator()
             }
         }

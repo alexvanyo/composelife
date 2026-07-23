@@ -444,12 +444,12 @@ class TemporalGameOfLifeStateMutator(
     private val temporalGameOfLifeState: TemporalGameOfLifeState,
 ) : Updatable {
     override suspend fun update(): Nothing {
-        with(gameOfLifeAlgorithm) {
-            with(dispatchers) {
-                with(clock) {
-                    temporalGameOfLifeState.evolve()
-                }
-            }
+        context(
+            gameOfLifeAlgorithm,
+            dispatchers,
+            clock,
+        ) {
+            temporalGameOfLifeState.evolve()
         }
     }
 }
