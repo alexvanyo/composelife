@@ -35,7 +35,7 @@ internal fun LoadingCellStateCellUniversePanePreview(modifier: Modifier = Modifi
     WithPreviewDependencies {
         contextOf<PreviewCtx>().testRandom.setSeed(1) // Fix to Beacon loading pattern
         ComposeLifeTheme {
-            with(contextOf<PreviewCtx>().cellUniversePaneCtx) {
+            context(contextOf<PreviewCtx>().cellUniversePaneCtx) {
                 BoxWithConstraints(modifier = modifier) {
                     CellUniversePane(
                         windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
@@ -59,7 +59,7 @@ internal fun LoadingCellStateCellUniversePanePreview(modifier: Modifier = Modifi
 internal fun LoadedCellUniversePanePreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(contextOf<PreviewCtx>().cellUniversePaneCtx) {
+            context(contextOf<PreviewCtx>().cellUniversePaneCtx) {
                 BoxWithConstraints(modifier = modifier) {
                     val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                         seedCellState = gosperGliderGun,
