@@ -35,7 +35,7 @@ import kotlin.uuid.Uuid
 internal fun NavigableImmutableCellWindowPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(contextOf<PreviewCtx>().immutableCellWindowCtx) {
+            context(contextOf<PreviewCtx>().immutableCellWindowCtx) {
                 ImmutableCellWindow(
                     gameOfLifeState = remember {
                         GameOfLifeState(
@@ -74,7 +74,7 @@ internal fun NavigableImmutableCellWindowPreview() {
 internal fun TrackingImmutableCellWindowPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(contextOf<PreviewCtx>().immutableCellWindowCtx) {
+            context(contextOf<PreviewCtx>().immutableCellWindowCtx) {
                 val gameOfLifeState = remember {
                     GameOfLifeState(
                         setOf(
@@ -116,7 +116,7 @@ internal fun TrackingImmutableCellWindowPreview() {
 internal fun NavigableMutableCellWindowPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(contextOf<PreviewCtx>().mutableCellWindowCtx) {
+            context(contextOf<PreviewCtx>().mutableCellWindowCtx) {
                 val mutableCellWindowViewportState = rememberMutableCellWindowViewportState()
 
                 val selectionStateHolder = rememberMutableSelectionStateHolder(
@@ -162,7 +162,7 @@ internal fun NavigableMutableCellWindowPreview() {
 internal fun TrackingMutableCellWindowPreview() {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(contextOf<PreviewCtx>().mutableCellWindowCtx) {
+            context(contextOf<PreviewCtx>().mutableCellWindowCtx) {
                 val gameOfLifeState = remember {
                     MutableGameOfLifeState(
                         setOf(
