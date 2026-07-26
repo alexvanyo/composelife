@@ -82,7 +82,7 @@ class LoadedCellStatePreviewTests :
             viewConfiguration = LocalViewConfiguration.current
 
             Column {
-                with(uiCtx.thumbnailImmutableCellWindowCtx) {
+                context(uiCtx.thumbnailImmutableCellWindowCtx) {
                     LoadedCellStatePreview(
                         deserializationResult = DeserializationResult.Successful(
                             cellState = GliderPattern.seedCellState,
@@ -99,7 +99,7 @@ class LoadedCellStatePreviewTests :
                     )
                 }
 
-                with(uiCtx.cellStateParser) {
+                context(uiCtx.cellStateParser) {
                     Spacer(
                         modifier = Modifier
                             .testTag("TestDropTarget")

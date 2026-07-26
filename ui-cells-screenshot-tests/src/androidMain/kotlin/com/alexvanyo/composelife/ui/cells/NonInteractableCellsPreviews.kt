@@ -40,7 +40,7 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
 internal fun NonInteractableCellsPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            with(contextOf<PreviewCtx>().nonInteractableCellsCtx) {
+            context(contextOf<PreviewCtx>().nonInteractableCellsCtx) {
                 NonInteractableCells(
                     gameOfLifeState = GameOfLifeState(
                         setOf(

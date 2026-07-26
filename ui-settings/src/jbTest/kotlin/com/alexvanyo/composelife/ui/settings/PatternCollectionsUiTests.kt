@@ -59,14 +59,15 @@ class PatternCollectionsUiTests : BaseKmpTest() {
 
             setContent {
                 resolver = parameterizedStringResolver()
-                with(testClock) {
-                    with(testTimeZoneHolder) {
-                        PatternCollectionsUi(
-                            patternCollectionsState = ResourceState.Success(emptyList()),
-                            addPatternCollection = {},
-                            deletePatternCollection = {},
-                        )
-                    }
+                context(
+                    testClock,
+                    testTimeZoneHolder,
+                ) {
+                    PatternCollectionsUi(
+                        patternCollectionsState = ResourceState.Success(emptyList()),
+                        addPatternCollection = {},
+                        deletePatternCollection = {},
+                    )
                 }
             }
 
@@ -82,14 +83,15 @@ class PatternCollectionsUiTests : BaseKmpTest() {
 
             setContent {
                 resolver = parameterizedStringResolver()
-                with(testClock) {
-                    with(testTimeZoneHolder) {
-                        PatternCollectionsUi(
-                            patternCollectionsState = ResourceState.Success(emptyList()),
-                            addPatternCollection = {},
-                            deletePatternCollection = {},
-                        )
-                    }
+                context(
+                    testClock,
+                    testTimeZoneHolder,
+                ) {
+                    PatternCollectionsUi(
+                        patternCollectionsState = ResourceState.Success(emptyList()),
+                        addPatternCollection = {},
+                        deletePatternCollection = {},
+                    )
                 }
             }
 
@@ -108,14 +110,15 @@ class PatternCollectionsUiTests : BaseKmpTest() {
 
             setContent {
                 resolver = parameterizedStringResolver()
-                with(testClock) {
-                    with(testTimeZoneHolder) {
-                        PatternCollectionsUi(
-                            patternCollectionsState = ResourceState.Success(emptyList()),
-                            addPatternCollection = {},
-                            deletePatternCollection = {},
-                        )
-                    }
+                context(
+                    testClock,
+                    testTimeZoneHolder,
+                ) {
+                    PatternCollectionsUi(
+                        patternCollectionsState = ResourceState.Success(emptyList()),
+                        addPatternCollection = {},
+                        deletePatternCollection = {},
+                    )
                 }
             }
 
@@ -143,14 +146,15 @@ class PatternCollectionsUiTests : BaseKmpTest() {
 
             setContent {
                 resolver = parameterizedStringResolver()
-                with(testClock) {
-                    with(testTimeZoneHolder) {
-                        PatternCollectionsUi(
-                            patternCollectionsState = ResourceState.Success(listOf(patternCollection)),
-                            addPatternCollection = {},
-                            deletePatternCollection = {},
-                        )
-                    }
+                context(
+                    testClock,
+                    testTimeZoneHolder,
+                ) {
+                    PatternCollectionsUi(
+                        patternCollectionsState = ResourceState.Success(listOf(patternCollection)),
+                        addPatternCollection = {},
+                        deletePatternCollection = {},
+                    )
                 }
             }
 
@@ -178,14 +182,15 @@ class PatternCollectionsUiTests : BaseKmpTest() {
 
             setContent {
                 resolver = parameterizedStringResolver()
-                with(testClock) {
-                    with(testTimeZoneHolder) {
-                        PatternCollectionsUi(
-                            patternCollectionsState = ResourceState.Success(listOf(patternCollection)),
-                            addPatternCollection = {},
-                            deletePatternCollection = { deletedId = it },
-                        )
-                    }
+                context(
+                    testClock,
+                    testTimeZoneHolder,
+                ) {
+                    PatternCollectionsUi(
+                        patternCollectionsState = ResourceState.Success(listOf(patternCollection)),
+                        addPatternCollection = {},
+                        deletePatternCollection = { deletedId = it },
+                    )
                 }
             }
 
@@ -205,14 +210,15 @@ class PatternCollectionsUiTests : BaseKmpTest() {
 
             setContent {
                 resolver = parameterizedStringResolver()
-                with(testClock) {
-                    with(testTimeZoneHolder) {
-                        PatternCollectionsUi(
-                            patternCollectionsState = ResourceState.Success(emptyList()),
-                            addPatternCollection = { addedUrl = it },
-                            deletePatternCollection = {},
-                        )
-                    }
+                context(
+                    testClock,
+                    testTimeZoneHolder,
+                ) {
+                    PatternCollectionsUi(
+                        patternCollectionsState = ResourceState.Success(emptyList()),
+                        addPatternCollection = { addedUrl = it },
+                        deletePatternCollection = {},
+                    )
                 }
             }
 
