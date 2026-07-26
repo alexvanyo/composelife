@@ -91,12 +91,12 @@ class GameOfLifeWatchFaceService : WatchFaceService() {
         dispatchers = ctx.dispatchers
 
         scope.launch {
-            with(gameOfLifeAlgorithm) {
-                with(dispatchers) {
-                    with(Clock.System) {
-                        temporalGameOfLifeState.evolve()
-                    }
-                }
+            context(
+                gameOfLifeAlgorithm,
+                dispatchers,
+                Clock.System,
+            ) {
+                temporalGameOfLifeState.evolve()
             }
         }
     }

@@ -55,7 +55,7 @@ class TimeZoneTests :
         var timeZone: TimeZone by mutableStateOf(TimeZone.UTC)
 
         setContent {
-            with(applicationGraph.timeZoneTests.timeZoneHolder) {
+            context(applicationGraph.timeZoneTests.timeZoneHolder) {
                 timeZone = currentTimeZone()
             }
         }
