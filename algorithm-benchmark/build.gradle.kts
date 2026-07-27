@@ -37,7 +37,7 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
-        testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] = "EMULATOR,UNLOCKED"
+        testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] = "EMULATOR,UNLOCKED,NOT-AOT-COMPILED"
     }
     testBuildType = "staging"
     configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
