@@ -152,8 +152,8 @@ co.touchlab:kermit-core-android:2.1.0
 co.touchlab:kermit-core:2.1.0
 co.touchlab:kermit:2.1.0
 com.google.guava:listenablefuture:1.0
-com.squareup.okio:okio-jvm:3.17.0
-com.squareup.okio:okio:3.17.0
+com.squareup.okio:okio-jvm:3.18.0
+com.squareup.okio:okio:3.18.0
 com.squareup.wire:wire-runtime-jvm:7.0.0-alpha05
 com.squareup.wire:wire-runtime:7.0.0-alpha05
 dev.zacsweers.metro:runtime-jvm:1.2.1
