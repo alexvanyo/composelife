@@ -63,10 +63,10 @@ com.eygraber:sqldelight-androidx-driver-opfs-wasm-js:0.5.0-alpha.9
 com.eygraber:sqldelight-androidx-driver-opfs:0.5.0-alpha.9
 com.eygraber:sqldelight-androidx-driver-wasm-js:0.5.0-alpha.9
 com.eygraber:sqldelight-androidx-driver:0.5.0-alpha.9
-com.squareup.okio:okio-fakefilesystem-wasm-js:3.17.0
-com.squareup.okio:okio-fakefilesystem:3.17.0
-com.squareup.okio:okio-wasm-js:3.17.0
-com.squareup.okio:okio:3.17.0
+com.squareup.okio:okio-fakefilesystem-wasm-js:3.18.0
+com.squareup.okio:okio-fakefilesystem:3.18.0
+com.squareup.okio:okio-wasm-js:3.18.0
+com.squareup.okio:okio:3.18.0
 com.squareup.wire:wire-runtime-wasm-js:7.0.0-alpha05
 com.squareup.wire:wire-runtime:7.0.0-alpha05
 dev.zacsweers.metro:runtime-wasm-js:1.2.1
