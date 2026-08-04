@@ -17,6 +17,7 @@
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
 
 class KotlinMultiplatformComposeConventionPlugin :
     ConventionPlugin({
@@ -32,6 +33,9 @@ class KotlinMultiplatformComposeConventionPlugin :
                 dependencies {
                     implementation(project.dependencies.platform(libs.findLibrary("androidx.compose.bom").get()))
                 }
+            }
+            targets.withType(KotlinJsTargetDsl::class.java).configureEach {
+                binaries.executable()
             }
         }
     })
