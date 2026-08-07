@@ -786,4 +786,88 @@ class ResourceStateTests {
             },
         )
     }
+
+    @Test
+    fun flat_map_success_results_in_loading() {
+        val resourceState: ResourceState<Char> = ResourceState.Success('a')
+        assertEquals(
+            ResourceState.Loading,
+            resourceState.flatMap { ResourceState.Loading },
+        )
+    }
+
+    @Test
+    fun flat_map_success_results_in_failure() {
+        val exception = Exception()
+        val resourceState: ResourceState<Char> = ResourceState.Success('a')
+        assertEquals(
+            ResourceState.Failure(exception),
+            resourceState.flatMap { ResourceState.Failure(exception) },
+        )
+    }
+
+    @Test
+    fun combine_vararg_success_results_in_success() {
+        assertEquals(
+            ResourceState.Success("abcd"),
+            combine(
+                ResourceState.Success("a"),
+                ResourceState.Success("b"),
+                ResourceState.Success("c"),
+                ResourceState.Success("d"),
+            ) { args ->
+                args.joinToString("")
+            },
+        )
+    }
+
+    @Test
+    fun combine_vararg_single_failure_results_in_single_exception() {
+        val exception = Exception()
+        val result = combine(
+            ResourceState.Success("a"),
+            ResourceState.Failure<String>(exception),
+            ResourceState.Success("c"),
+            ResourceState.Success("d"),
+        ) { args ->
+            args.joinToString("")
+        }
+
+        val failure = assertIs<ResourceState.Failure<String>>(result)
+        assertEquals(exception, failure.throwable)
+        assertFalse(failure.throwable is CompositeException)
+    }
+
+    @Test
+    fun combine_vararg_multiple_failures_results_in_composite_exception() {
+        val exception1 = Exception()
+        val exception2 = Exception()
+        val result = combine(
+            ResourceState.Success("a"),
+            ResourceState.Failure<String>(exception1),
+            ResourceState.Failure<String>(exception2),
+            ResourceState.Success("d"),
+        ) { args ->
+            args.joinToString("")
+        }
+
+        val failure = assertIs<ResourceState.Failure<String>>(result)
+        val composite = assertIs<CompositeException>(failure.throwable)
+        assertEquals(listOf(exception1, exception2), composite.exceptions)
+    }
+
+    @Test
+    fun combine_vararg_loading_results_in_loading() {
+        assertEquals(
+            ResourceState.Loading,
+            combine(
+                ResourceState.Success("a"),
+                ResourceState.Loading,
+                ResourceState.Success("c"),
+                ResourceState.Success("d"),
+            ) { args ->
+                args.joinToString("")
+            },
+        )
+    }
 }
