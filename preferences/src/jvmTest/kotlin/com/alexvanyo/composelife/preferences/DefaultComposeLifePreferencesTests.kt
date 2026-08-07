@@ -331,6 +331,43 @@ class DefaultComposeLifePreferencesTests {
     }
 
     @Test
+    fun setting_dark_theme_config_to_dark_updates_value() = runPreferencesTest { composelifePreferences ->
+        assertEquals(ResourceState.Loading, composelifePreferences.darkThemeConfigState)
+
+        delay(1.milliseconds)
+
+        composelifePreferences.setDarkThemeConfig(DarkThemeConfig.Dark)
+        delay(1.milliseconds)
+
+        assertEquals(
+            ResourceState.Success(DarkThemeConfig.Dark),
+            composelifePreferences.darkThemeConfigState,
+        )
+
+        val loadedPreferencesState = composelifePreferences.loadedPreferencesState
+        assertTrue(loadedPreferencesState.isSuccess())
+        assertEquals(
+            DarkThemeConfig.Dark,
+            loadedPreferencesState.value.darkThemeConfig,
+        )
+    }
+
+    @Test
+    fun setting_current_shape_type_updates_value() = runPreferencesTest { composelifePreferences ->
+        assertEquals(ResourceState.Loading, composelifePreferences.currentShapeTypeState)
+
+        delay(1.milliseconds)
+
+        composelifePreferences.setCurrentShapeType(CurrentShapeType.RoundRectangle)
+        delay(1.milliseconds)
+
+        assertEquals(
+            ResourceState.Success(CurrentShapeType.RoundRectangle),
+            composelifePreferences.currentShapeTypeState,
+        )
+    }
+
+    @Test
     fun default_quick_access_settings_is_empty() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.quickAccessSettingsState)
 
