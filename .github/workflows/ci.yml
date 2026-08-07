@@ -249,18 +249,6 @@ jobs:
           name: unit-code-coverage-${{ matrix.sdk }}
           path: "build/reports/jacoco/**/*.xml"
 
-      - name: Assemble
-        if: matrix.sdk == '36'
-        # Assemble with running benchmarks and generating baseline profile to ensure those compile
-        run: ./gradlew assemble assembleAndroidTest -Pcom.alexvanyo.composelife.runBenchmarks=true -Pandroidx.baselineprofile.skipgeneration
-
-      - name: Upload APKs
-        if: matrix.sdk == '36'
-        uses: actions/upload-artifact@v7
-        with:
-          name: apks
-          path: "**/build/outputs/apk/**/*.apk"
-
   codecov-unit-coverage-upload:
     needs: [build, config]
     if: always()
@@ -322,6 +310,128 @@ jobs:
           fail_ci_if_error: true
           files: ${{ steps.test-result-files.outputs.files }}
           flags: unit,${{ matrix.sdk }}
+
+  cache:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    concurrency:
+      group: ci-cache-${{ github.event_name }}-${{ github.ref }}
+      cancel-in-progress: true
+
+    steps:
+      - name: Free Disk Space
+        uses: endersonmenezes/free-disk-space@v3
+        with:
+          remove_dotnet: true
+          remove_haskell: true
+          remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox postgresql* *llvm* mysql* dotnet-sdk-*"
+          remove_folders: "/usr/share/swift /usr/share/miniconda /usr/share/az* /usr/local/lib/node_modules /usr/local/share/powershell /usr/local/julia /usr/local/aws-cli /usr/local/aws-sam-cli"
+          rm_cmd: "rmz"
+          rmz_version: "3.1.1"
+
+      - name: Re-install needed packages
+        run: |
+          sudo apt-get update && sudo apt-get install -y libgl1 chromium fontforge libjemalloc2
+
+      - name: Set ANDROID_USER_HOME
+        run: echo "ANDROID_USER_HOME=$HOME/.android" >> $GITHUB_ENV
+
+      - name: Set LD_PRELOAD for jemalloc
+        run: echo "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2" >> $GITHUB_ENV
+
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Copy ci-gradle.properties
+        run: |
+          mkdir -p ~/.gradle
+          cp .github/ci-gradle.properties ~/.gradle/gradle.properties
+
+      - name: Configure JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'zulu'
+          java-version: 25
+
+      - name: Accept license
+        run: echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > "$ANDROID_SDK_ROOT/licenses/android-sdk-preview-license"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-read-only: false
+
+      - name: Assemble
+        # Assemble with running benchmarks and generating baseline profile to ensure those compile
+        run: ./gradlew assemble assembleAndroidTest -Pcom.alexvanyo.composelife.runBenchmarks=true -Pandroidx.baselineprofile.skipgeneration
+
+      - name: Upload APKs
+        uses: actions/upload-artifact@v7
+        with:
+          name: apks
+          path: "**/build/outputs/apk/**/*.apk"
+
+  assemble:
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    concurrency:
+      group: ci-assemble-${{ github.event_name }}-${{ github.ref }}
+      cancel-in-progress: true
+
+    steps:
+      - name: Free Disk Space
+        uses: endersonmenezes/free-disk-space@v3
+        with:
+          remove_dotnet: true
+          remove_haskell: true
+          remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox postgresql* *llvm* mysql* dotnet-sdk-*"
+          remove_folders: "/usr/share/swift /usr/share/miniconda /usr/share/az* /usr/local/lib/node_modules /usr/local/share/powershell /usr/local/julia /usr/local/aws-cli /usr/local/aws-sam-cli"
+          rm_cmd: "rmz"
+          rmz_version: "3.1.1"
+
+      - name: Re-install needed packages
+        run: |
+          sudo apt-get update && sudo apt-get install -y libgl1 chromium fontforge libjemalloc2
+
+      - name: Set ANDROID_USER_HOME
+        run: echo "ANDROID_USER_HOME=$HOME/.android" >> $GITHUB_ENV
+
+      - name: Set LD_PRELOAD for jemalloc
+        run: echo "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2" >> $GITHUB_ENV
+
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Copy ci-gradle.properties
+        run: |
+          mkdir -p ~/.gradle
+          cp .github/ci-gradle.properties ~/.gradle/gradle.properties
+
+      - name: Configure JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'zulu'
+          java-version: 25
+
+      - name: Accept license
+        run: echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > "$ANDROID_SDK_ROOT/licenses/android-sdk-preview-license"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-read-only: true
+
+      - name: Assemble
+        # Assemble with running benchmarks and generating baseline profile to ensure those compile
+        run: ./gradlew assemble assembleAndroidTest -Pcom.alexvanyo.composelife.runBenchmarks=true -Pandroidx.baselineprofile.skipgeneration
+
+      - name: Upload APKs
+        uses: actions/upload-artifact@v7
+        with:
+          name: apks
+          path: "**/build/outputs/apk/**/*.apk"
 
   android-test-gmd:
     needs: config
