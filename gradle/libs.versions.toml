@@ -74,7 +74,7 @@ coil = "3.6.0"
 #dependencyGuard
 dependencyGuard = "0.5.0"
 #detekt
-detekt = "2.0.0-alpha.5"
+detekt = "2.0.0-alpha.6"
 #googleAutoValue
 googleAutoValue = "1.11.1"
 #gradleDependenciesSorter
