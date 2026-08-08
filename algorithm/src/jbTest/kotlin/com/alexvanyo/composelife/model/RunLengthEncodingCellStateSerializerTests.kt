@@ -18,7 +18,9 @@ package com.alexvanyo.composelife.model
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
+@Suppress("TooManyFunctions")
 class RunLengthEncodingCellStateSerializerTests {
     private val serializer = RunLengthEncodedCellStateSerializer
 
@@ -383,6 +385,58 @@ class RunLengthEncodingCellStateSerializerTests {
                 |51b$24bo57b$24bo5bo40b6o5b$24b6o41bo5bo4b$45b2o24bo10b$44b4o24bo4bo4b$
                 |43b2ob2o26b2o6b$44b2o36b3$53b4o25b$52b6o24b$51b2ob4o24b$52b2o9b2o17b$
                 |62b2ob3o14b$63b5o14b$64b3o15b$77b4ob$76b6o$75b2ob4o$76b2o!
+                """.trimMargin().lineSequence(),
+            ),
+        )
+    }
+
+    @Test
+    fun deserialization_with_empty_lines_returns_successful_with_warning() {
+        assertEquals(
+            DeserializationResult.Successful(
+                warnings = listOf(UnexpectedEmptyFileMessage),
+                cellState = emptyCellState(),
+                format = CellStateFormat.FixedFormat.RunLengthEncoding,
+            ),
+            serializer.deserializeToCellState(emptySequence()),
+        )
+    }
+
+    @Test
+    fun deserialization_with_invalid_header_returns_unsuccessful() {
+        assertIs<DeserializationResult.Unsuccessful>(
+            serializer.deserializeToCellState(
+                sequenceOf("invalid header line"),
+            ),
+        )
+    }
+
+    @Test
+    fun deserialization_with_unsupported_rule_returns_unsuccessful() {
+        assertIs<DeserializationResult.Unsuccessful>(
+            serializer.deserializeToCellState(
+                $$"""
+                |x = 1, y = 1, rule = B3/S234
+                |o!
+                """.trimMargin().lineSequence(),
+            ),
+        )
+    }
+
+    @Test
+    fun deserialization_with_other_comment_types_is_successful() {
+        assertEquals(
+            DeserializationResult.Successful(
+                warnings = emptyList(),
+                cellState = setOf(0 to 0).toCellState(),
+                format = CellStateFormat.FixedFormat.RunLengthEncoding,
+            ),
+            serializer.deserializeToCellState(
+                $$"""
+                |#N Glider
+                |#O Author Name
+                |x = 1, y = 1, rule = B3/S23
+                |o!
                 """.trimMargin().lineSequence(),
             ),
         )
