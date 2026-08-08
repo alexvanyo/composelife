@@ -132,13 +132,10 @@ jobs:
 
       - name: Re-install needed packages
         run: |
-          sudo apt-get update && sudo apt-get install -y libgl1 chromium fontforge libjemalloc2
+          sudo apt-get update && sudo apt-get install -y libgl1 chromium fontforge
 
       - name: Set ANDROID_USER_HOME
         run: echo "ANDROID_USER_HOME=$HOME/.android" >> $GITHUB_ENV
-
-      - name: Set LD_PRELOAD for jemalloc
-        run: echo "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2" >> $GITHUB_ENV
 
       - name: Enable KVM group perms
         run: |
@@ -332,13 +329,10 @@ jobs:
 
       - name: Re-install needed packages
         run: |
-          sudo apt-get update && sudo apt-get install -y libgl1 chromium fontforge libjemalloc2
+          sudo apt-get update && sudo apt-get install -y libgl1 chromium fontforge
 
       - name: Set ANDROID_USER_HOME
         run: echo "ANDROID_USER_HOME=$HOME/.android" >> $GITHUB_ENV
-
-      - name: Set LD_PRELOAD for jemalloc
-        run: echo "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v7
@@ -393,13 +387,10 @@ jobs:
 
       - name: Re-install needed packages
         run: |
-          sudo apt-get update && sudo apt-get install -y libgl1 chromium fontforge libjemalloc2
+          sudo apt-get update && sudo apt-get install -y libgl1 chromium fontforge
 
       - name: Set ANDROID_USER_HOME
         run: echo "ANDROID_USER_HOME=$HOME/.android" >> $GITHUB_ENV
-
-      - name: Set LD_PRELOAD for jemalloc
-        run: echo "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v7
@@ -457,15 +448,8 @@ jobs:
           rm_cmd: "rmz"
           rmz_version: "3.1.1"
 
-      - name: Re-install needed packages
-        run: |
-          sudo apt-get update && sudo apt-get install -y libjemalloc2
-
       - name: Set ANDROID_USER_HOME
         run: echo "ANDROID_USER_HOME=$HOME/.android" >> $GITHUB_ENV
-
-      - name: Set LD_PRELOAD for jemalloc
-        run: echo "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2" >> $GITHUB_ENV
 
       - name: Enable KVM group perms
         run: |
