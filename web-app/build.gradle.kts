@@ -58,6 +58,7 @@ kotlin {
                 implementation(projects.logging)
                 implementation(projects.network)
                 implementation(projects.preferences)
+                implementation(projects.tracing)
                 implementation(projects.uiApp)
                 implementation(projects.uiMobile)
                 implementation(projects.updatable)

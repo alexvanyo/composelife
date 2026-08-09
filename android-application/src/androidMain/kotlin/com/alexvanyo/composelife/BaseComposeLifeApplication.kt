@@ -29,6 +29,11 @@ import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
 import com.alexvanyo.composelife.scopes.ApplicationGraphOwner
 import com.alexvanyo.composelife.strictmode.initStrictModeIfNeeded
+import com.alexvanyo.composelife.tracing.AbstractTraceDriver
+import com.alexvanyo.composelife.tracing.AbstractTraceDriverFactory
+import com.alexvanyo.composelife.tracing.Tracer
+import com.alexvanyo.composelife.tracing.createTraceDriver
+import com.alexvanyo.composelife.tracing.trace
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
@@ -49,10 +54,15 @@ internal val ApplicationGraph.composeLifeApplicationCtx: ComposeLifeApplicationC
     this as ComposeLifeApplicationCtx
 
 @Suppress("UnnecessaryAbstractClass", "AbstractClassCanBeConcreteClass")
-abstract class BaseComposeLifeApplication<G>(private val createGlobalGraph: () -> G) :
+abstract class BaseComposeLifeApplication<G>(private val createGlobalGraph: (tracer: Tracer) -> G) :
     Application(),
+    AbstractTraceDriverFactory,
     ApplicationGraphOwner {
     override lateinit var applicationGraph: ApplicationGraph
+
+    private val traceDriver by lazy { createTraceDriver(this) }
+
+    override fun create(): AbstractTraceDriver = traceDriver
 
     override fun onCreate() {
         super.onCreate()
@@ -60,13 +70,18 @@ abstract class BaseComposeLifeApplication<G>(private val createGlobalGraph: () -
         initStrictModeIfNeeded()
         Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.Auto)
 
-        val globalGraph = createGlobalGraph()
-        applicationGraph =
+        val tracer = traceDriver.tracer
+
+        val globalGraph = tracer.trace("startup", "createGlobalGraph") {
+            createGlobalGraph(tracer)
+        }
+        applicationGraph = tracer.trace("startup", "createApplicationGraph") {
             (globalGraph as ApplicationGraph.Factory).create(
                 object : ApplicationGraphArguments {
                     override val applicationContext: Context = this@BaseComposeLifeApplication
                 },
             )
+        }
         val ctx = applicationGraph.composeLifeApplicationCtx
         val processLifecycleOwner = ctx.processLifecycleOwner
         val appUpdatables = ctx.appUpdatables

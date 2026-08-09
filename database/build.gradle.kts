@@ -100,6 +100,7 @@ kotlin {
                 implementation(projects.filesystemTestFixtures)
                 implementation(projects.injectTest)
                 implementation(projects.kmpAndroidRunner)
+                implementation(projects.tracingTestFixtures)
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
             }
