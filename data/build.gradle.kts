@@ -108,6 +108,7 @@ kotlin {
                 implementation(projects.filesystemTestFixtures)
                 implementation(projects.injectTest)
                 implementation(projects.networkTestFixtures)
+                implementation(projects.tracingTestFixtures)
                 implementation(projects.workTestFixtures)
             }
         }

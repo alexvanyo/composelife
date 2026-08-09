@@ -102,6 +102,7 @@ kotlin {
                 implementation(projects.filesystemTestFixtures)
                 implementation(projects.injectTest)
                 implementation(projects.kmpAndroidRunner)
+                implementation(projects.tracingTestFixtures)
             }
         }
         val jvmTest by creating {

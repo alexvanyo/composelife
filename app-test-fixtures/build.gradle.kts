@@ -54,6 +54,7 @@ kotlin {
                 implementation(projects.preferencesTestFixtures)
                 implementation(projects.resourcesApp)
                 implementation(projects.strictMode)
+                implementation(projects.tracingTestFixtures)
                 implementation(projects.uiApp)
                 implementation(projects.uiCommon)
                 implementation(projects.uiMobile)

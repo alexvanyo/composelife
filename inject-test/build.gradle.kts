@@ -48,6 +48,7 @@ kotlin {
                 api(libs.jetbrains.compose.uiTest)
                 api(libs.kotlinx.coroutines.test)
                 api(projects.kmpAndroidRunner)
+                api(projects.tracingTestFixtures)
 
                 implementation(projects.dispatchersTestFixtures)
                 implementation(projects.injectScopes)

@@ -38,6 +38,9 @@ import com.alexvanyo.composelife.scopes.GlobalScope
 import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
+import com.alexvanyo.composelife.tracing.Tracer
+import com.alexvanyo.composelife.tracing.createTraceDriver
+import com.alexvanyo.composelife.tracing.trace
 import com.alexvanyo.composelife.ui.app.ComposeLifeApp
 import com.alexvanyo.composelife.ui.app.ComposeLifeAppUiCtx
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
@@ -47,17 +50,25 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.ForScope
+import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.asContribution
-import dev.zacsweers.metro.createGraph
+import dev.zacsweers.metro.createGraphFactory
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 
 @Suppress("LongMethod")
 fun main() = application {
-    val globalGraph = createGraph<GlobalGraph>()
-    val applicationGraph = globalGraph.asContribution<ApplicationGraph.Factory>().create(
-        object : ApplicationGraphArguments {},
-    )
+    val traceDriver = createTraceDriver()
+    val tracer = traceDriver.tracer
+
+    val globalGraph = tracer.trace("startup", "createGlobalGraph") {
+        createGraphFactory<GlobalGraph.Factory>().create(tracer)
+    }
+    val applicationGraph = tracer.trace("startup", "createApplicationGraph") {
+        globalGraph.asContribution<ApplicationGraph.Factory>().create(
+            object : ApplicationGraphArguments {},
+        )
+    }
 
     val ctx = applicationGraph.composeLifeApplicationCtx
     val appUpdatables = ctx.appUpdatables
@@ -154,4 +165,9 @@ internal val UiGraph.mainInjectCtx: MainInjectCtx get() =
     this as MainInjectCtx
 
 @DependencyGraph(GlobalScope::class)
-interface GlobalGraph
+interface GlobalGraph {
+    @DependencyGraph.Factory
+    fun interface Factory {
+        fun create(@Provides tracer: Tracer): GlobalGraph
+    }
+}

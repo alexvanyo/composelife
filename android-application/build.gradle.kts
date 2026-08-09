@@ -45,6 +45,7 @@ kotlin {
                 implementation(projects.injectScopes)
                 implementation(projects.processLifecycle)
                 implementation(projects.strictMode)
+                implementation(projects.tracing)
                 implementation(projects.updatable)
             }
         }
