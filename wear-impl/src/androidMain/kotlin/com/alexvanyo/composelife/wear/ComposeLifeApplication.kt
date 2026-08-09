@@ -18,10 +18,20 @@ package com.alexvanyo.composelife.wear
 
 import com.alexvanyo.composelife.BaseComposeLifeApplication
 import com.alexvanyo.composelife.scopes.GlobalScope
+import com.alexvanyo.composelife.tracing.Tracer
 import dev.zacsweers.metro.DependencyGraph
-import dev.zacsweers.metro.createGraph
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.createGraphFactory
 
-class ComposeLifeApplication : BaseComposeLifeApplication<GlobalGraph>({ createGraph() })
+class ComposeLifeApplication :
+    BaseComposeLifeApplication<GlobalGraph>({ tracer ->
+        createGraphFactory<GlobalGraph.Factory>().create(tracer)
+    })
 
 @DependencyGraph(GlobalScope::class)
-interface GlobalGraph
+interface GlobalGraph {
+    @DependencyGraph.Factory
+    fun interface Factory {
+        fun create(@Provides tracer: Tracer): GlobalGraph
+    }
+}
