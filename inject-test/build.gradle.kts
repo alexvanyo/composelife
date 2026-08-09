@@ -47,6 +47,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(projects.kmpAndroidRunner)
+                api(projects.tracingTestFixtures)
                 api(libs.jetbrains.compose.uiTest)
                 api(libs.kotlinx.coroutines.test)
 

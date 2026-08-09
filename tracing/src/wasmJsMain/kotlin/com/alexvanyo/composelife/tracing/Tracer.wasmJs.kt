@@ -27,6 +27,10 @@ actual abstract class AbstractTraceDriver protected actual constructor(actual va
     actual abstract override fun close()
 }
 
+actual interface AbstractTraceDriverFactory {
+    actual fun create(): AbstractTraceDriver
+}
+
 actual abstract class Tracer {
 
     @DelicateTracingApi
