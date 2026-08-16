@@ -14,7 +14,7 @@ androidxAppcompat = "1.8.0-rc01"
 #androidxBenchmark
 androidxBenchmark = "1.5.0-beta01"
 #androidxComposeBomAlpha
-androidxComposeBomAlpha = "2026.07.01"
+androidxComposeBomAlpha = "2026.08.00"
 #androidxCollection
 androidxCollection = "1.6.0"
 #androidxCore
