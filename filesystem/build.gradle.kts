@@ -27,7 +27,7 @@ plugins {
 kotlin {
     androidLibrary {
         namespace = "com.alexvanyo.composelife.filesystem"
-        minSdk = 23
+        minSdk = 24
     }
     jvm("desktop")
     @OptIn(ExperimentalWasmDsl::class)
