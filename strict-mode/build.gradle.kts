@@ -29,7 +29,7 @@ plugins {
 kotlin {
     androidLibrary {
         namespace = "com.alexvanyo.composelife.strictmode"
-        minSdk = 23
+        minSdk = 24
     }
 
     sourceSets {

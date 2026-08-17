@@ -31,7 +31,7 @@ plugins {
 kotlin {
     androidLibrary {
         namespace = "com.alexvanyo.composelife.processlifecycle"
-        minSdk = 23
+        minSdk = 24
     }
 
     sourceSets {
