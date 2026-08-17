@@ -32,7 +32,7 @@ plugins {
 kotlin {
     androidLibrary {
         namespace = "com.alexvanyo.composelife.resourcestate"
-        minSdk = 23
+        minSdk = 24
         configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
     }
     jvm("desktop")
