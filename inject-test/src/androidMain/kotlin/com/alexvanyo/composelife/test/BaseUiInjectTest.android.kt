@@ -22,8 +22,6 @@ import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.v2.runAndroidComposeUiTest
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.alexvanyo.composelife.scopes.UiGraphArguments
 import kotlinx.coroutines.test.TestResult
 import kotlin.coroutines.CoroutineContext

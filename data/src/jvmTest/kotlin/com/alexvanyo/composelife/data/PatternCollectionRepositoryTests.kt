@@ -21,8 +21,6 @@ import com.alexvanyo.composelife.data.model.CellStateMetadata
 import com.alexvanyo.composelife.data.model.PatternCollection
 import com.alexvanyo.composelife.database.CellState
 import com.alexvanyo.composelife.database.CellStateQueries
-import com.alexvanyo.composelife.database.PatternCollectionQueries
-import com.alexvanyo.composelife.dispatchers.GeneralTestDispatcher
 import com.alexvanyo.composelife.filesystem.PersistedDataPath
 import com.alexvanyo.composelife.model.MacrocellCellStateSerializer
 import com.alexvanyo.composelife.model.toCellState
@@ -37,7 +35,6 @@ import io.ktor.client.engine.mock.respond
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.runCurrent
 import okio.Path
 import okio.Path.Companion.toPath

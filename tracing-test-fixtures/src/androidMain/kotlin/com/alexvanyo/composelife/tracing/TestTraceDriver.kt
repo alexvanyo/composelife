@@ -23,7 +23,6 @@ package com.alexvanyo.composelife.tracing
 
 import androidx.tracing.AbstractTraceSink
 import androidx.tracing.PooledTracePacketArray
-import androidx.tracing.TraceContext
 
 private class NoOpSink : AbstractTraceSink() {
     override fun enqueue(pooledPacketArray: PooledTracePacketArray) {

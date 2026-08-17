@@ -21,11 +21,8 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.Provides
-import dev.zacsweers.metro.SingleIn
 import okio.FileSystem
 import okio.fakefilesystem.FakeFileSystem
-import kotlin.time.Clock
 
 @ContributesTo(AppScope::class, replaces = [FileSystemBindings::class])
 @BindingContainer

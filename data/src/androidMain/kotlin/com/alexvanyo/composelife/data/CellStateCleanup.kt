@@ -37,10 +37,13 @@ import kotlinx.coroutines.flow.onEach
 
 @Inject
 @SingleIn(AppScope::class)
-@ContributesIntoSet(AppScope::class, binding = binding<
-    @ForScope(AppScope::class)
-    Updatable,
-    >())
+@ContributesIntoSet(
+    AppScope::class,
+    binding = binding<
+        @ForScope(AppScope::class)
+        Updatable,
+        >(),
+)
 class CellStateCleanup(private val composeLifePreferences: ComposeLifePreferences, workManager: Lazy<WorkManager>) :
     Updatable {
     private val workManager by workManager
