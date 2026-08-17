@@ -34,7 +34,7 @@ internal fun <T : Any> rememberSharedEntryInSceneNavEntryDecorator(): SharedEntr
  *
  * This should be wrapped around the [SceneSetupNavEntryDecorator].
  */
-internal class SharedEntryInSceneNavEntryDecorator<T : Any>:
+internal class SharedEntryInSceneNavEntryDecorator<T : Any> :
     NavEntryDecorator<T>(
         decorate = { entry ->
             Box(

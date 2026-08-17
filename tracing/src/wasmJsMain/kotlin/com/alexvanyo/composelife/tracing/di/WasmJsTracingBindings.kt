@@ -24,7 +24,6 @@ import com.alexvanyo.composelife.tracing.Counter
 import com.alexvanyo.composelife.tracing.DelicateTracingApi
 import com.alexvanyo.composelife.tracing.EventMetadata
 import com.alexvanyo.composelife.tracing.EventMetadataCloseable
-import com.alexvanyo.composelife.tracing.ExperimentalContextPropagation
 import com.alexvanyo.composelife.tracing.PooledTracePacketArray
 import com.alexvanyo.composelife.tracing.PropagationToken
 import com.alexvanyo.composelife.tracing.PropagationUnsupportedToken

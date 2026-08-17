@@ -19,7 +19,6 @@ package com.alexvanyo.composelife.ui.util
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.Clipboard
-import androidx.compose.ui.platform.ClipboardItem
 import com.alexvanyo.composelife.scopes.UiScope
 import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.Inject

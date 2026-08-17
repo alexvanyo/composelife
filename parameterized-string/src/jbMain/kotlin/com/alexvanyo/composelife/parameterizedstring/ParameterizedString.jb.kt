@@ -19,9 +19,6 @@ package com.alexvanyo.composelife.parameterizedstring
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.runtime.saveable.Saver
-import androidx.savedstate.SavedState
-import com.alexvanyo.composelife.serialization.saver
 import kotlinx.serialization.Serializable
 
 @Serializable

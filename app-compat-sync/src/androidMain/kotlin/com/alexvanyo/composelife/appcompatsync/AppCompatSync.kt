@@ -39,10 +39,13 @@ import kotlinx.coroutines.flow.onEach
 
 @Inject
 @SingleIn(AppScope::class)
-@ContributesIntoSet(AppScope::class, binding = binding<
-    @ForScope(AppScope::class)
-    Updatable,
-    >())
+@ContributesIntoSet(
+    AppScope::class,
+    binding = binding<
+        @ForScope(AppScope::class)
+        Updatable,
+        >(),
+)
 class AppCompatSync(private val composeLifePreferences: ComposeLifePreferences, @ApplicationContext context: Context) :
     Updatable {
     private val uiModeManager = context.getSystemService<UiModeManager>()

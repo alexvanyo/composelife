@@ -340,7 +340,8 @@ private fun createContours(aliveCells: Set<IntOffset>): List<List<IntOffset>> {
                         contour[index],
                         contour[index + 1],
                         connectedComponent,
-                    ) == null) {
+                    ) == null
+                ) {
                     index++
                 }
                 val initialCornerIndex = index
