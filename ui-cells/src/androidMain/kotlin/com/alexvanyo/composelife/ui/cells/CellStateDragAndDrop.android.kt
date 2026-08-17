@@ -18,7 +18,6 @@ package com.alexvanyo.composelife.ui.cells
 
 import android.content.ClipData
 import android.content.ClipDescription
-import android.os.Build
 import android.view.View
 import androidx.compose.foundation.draganddrop.dragAndDropSource
 import androidx.compose.runtime.Composable
@@ -65,11 +64,7 @@ actual fun Modifier.cellStateDragAndDropSource(getCellState: () -> CellState): M
                 DragAndDropTransferData(
                     clipData = clipData,
                     localState = clipData,
-                    flags = if (Build.VERSION.SDK_INT >= 24) {
-                        View.DRAG_FLAG_GLOBAL
-                    } else {
-                        0
-                    },
+                    flags = View.DRAG_FLAG_GLOBAL,
                 )
             },
         )

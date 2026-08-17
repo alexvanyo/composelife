@@ -38,7 +38,7 @@ kotlin {
     jvm("desktop")
     androidLibrary {
         namespace = "com.alexvanyo.composelife.preferences"
-        minSdk = 23
+        minSdk = 24
         configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
     }
     @OptIn(ExperimentalWasmDsl::class)
