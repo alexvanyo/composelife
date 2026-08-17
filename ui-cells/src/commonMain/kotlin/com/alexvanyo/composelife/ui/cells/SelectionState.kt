@@ -20,22 +20,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.IntOffset
-import androidx.savedstate.SavedState
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.JsonCellStateSerialization
-import com.alexvanyo.composelife.serialization.ClosedFloatRangeSerializer
 import com.alexvanyo.composelife.serialization.IntOffsetSerializer
-import com.alexvanyo.composelife.serialization.OffsetSerializer
 import com.alexvanyo.composelife.serialization.RectSerializer
 import com.alexvanyo.composelife.serialization.SurrogatingSerializer
-import com.alexvanyo.composelife.serialization.saver
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
@@ -134,7 +127,7 @@ fun rememberMutableSelectionStateHolder(
 private class MutableSelectionStateHolderImpl(initialSelectionSessionState: SessionValue<SelectionState>) :
     MutableSelectionStateHolder {
 
-    private constructor(surrogate: Surrogate): this(surrogate.selectionSessionState)
+    private constructor(surrogate: Surrogate) : this(surrogate.selectionSessionState)
 
     override var selectionSessionState by mutableStateOf(initialSelectionSessionState)
 

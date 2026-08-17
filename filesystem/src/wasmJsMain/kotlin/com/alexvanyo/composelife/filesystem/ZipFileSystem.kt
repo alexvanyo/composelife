@@ -38,7 +38,6 @@ import okio.Path
 import okio.Path.Companion.toPath
 import okio.Sink
 import okio.Source
-import okio.Timeout
 import okio.buffer
 import okio.use
 import kotlin.js.Promise
