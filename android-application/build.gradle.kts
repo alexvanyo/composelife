@@ -30,7 +30,7 @@ plugins {
 kotlin {
     androidLibrary {
         namespace = "com.alexvanyo.composelife.androidapplication"
-        minSdk = 23
+        minSdk = 24
         compilations.withType(KotlinMultiplatformAndroidDeviceTestCompilation::class.java) {
             instrumentationRunner = "com.alexvanyo.composelife.test.InjectTestRunner"
         }

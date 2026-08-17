@@ -40,7 +40,7 @@ metro {
 kotlin {
     androidLibrary {
         namespace = "com.alexvanyo.composelife.ui.common"
-        minSdk = 23
+        minSdk = 24
         configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
         androidResources { enable = true }
     }

@@ -25,7 +25,7 @@ plugins {
 kotlin {
     androidLibrary {
         namespace = "com.alexvanyo.composelife.roborazzishowkasescreenshottest"
-        minSdk = 23
+        minSdk = 24
         packaging.resources.excludes.add("META-INF/versions/9/OSGI-INF/MANIFEST.MF")
     }
 
