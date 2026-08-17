@@ -32,8 +32,11 @@ import org.gradle.testing.jacoco.tasks.JacocoReport
 
 fun Project.configureJacoco(commonExtension: CommonExtension) {
     val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
+    val jacocoVersion = libs.findVersion("jacoco").get().toString()
 
-    commonExtension.testCoverage.jacocoVersion = libs.findVersion("jacoco").get().toString()
+    commonExtension.testCoverage.jacocoVersion = jacocoVersion
+
+    forceJacocoVersion(jacocoVersion)
 
     val hasUnitTests =
         hasTests(
@@ -92,6 +95,9 @@ fun Project.configureJacoco(commonExtension: CommonExtension) {
 
 fun Project.configureJacoco(extension: KotlinMultiplatformAndroidLibraryTarget) {
     val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
+    val jacocoVersion = libs.findVersion("jacoco").get().toString()
+
+    forceJacocoVersion(jacocoVersion)
 
     val hasUnitTests =
         hasTests(
@@ -112,13 +118,12 @@ fun Project.configureJacoco(extension: KotlinMultiplatformAndroidLibraryTarget) 
         )
 
     extension.apply {
-        testCoverage.jacocoVersion = libs.findVersion("jacoco").get().toString()
+        testCoverage.jacocoVersion = jacocoVersion
         compilations.withType(KotlinMultiplatformAndroidHostTestCompilation::class.java).configureEach {
             enableCoverage = hasUnitTests
         }
         compilations.withType(KotlinMultiplatformAndroidDeviceTestCompilation::class.java).configureEach {
             enableCoverage = hasAndroidTests
-            val jacocoVersion = libs.findVersion("jacoco").get().toString()
             project.dependencies.add(
                 "androidDeviceTestRuntimeOnly",
                 "org.jacoco:org.jacoco.agent:$jacocoVersion:runtime",
@@ -155,6 +160,22 @@ fun Project.configureJacoco(extension: KotlinMultiplatformAndroidLibraryTarget) 
                 }
             },
         )
+    }
+}
+
+private fun Project.forceJacocoVersion(jacocoVersion: String) {
+    extensions.configure(JacocoPluginExtension::class.java) {
+        toolVersion = jacocoVersion
+    }
+
+    configurations.configureEach {
+        resolutionStrategy {
+            eachDependency {
+                if (requested.group == "org.jacoco") {
+                    useVersion(jacocoVersion)
+                }
+            }
+        }
     }
 }
 
