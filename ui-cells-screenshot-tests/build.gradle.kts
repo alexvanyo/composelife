@@ -56,6 +56,7 @@ kotlin {
                 implementation(projects.injectScopes)
                 implementation(projects.preferencesTestFixtures)
                 implementation(projects.sessionValue)
+                implementation(projects.tracingTestFixtures)
                 implementation(projects.uiCells)
                 implementation(projects.uiCommon)
                 implementation(projects.uiCommonTestFixtures)

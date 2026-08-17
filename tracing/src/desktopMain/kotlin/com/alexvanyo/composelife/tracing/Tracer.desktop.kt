@@ -25,6 +25,10 @@ package com.alexvanyo.composelife.tracing
 
 actual typealias AbstractTraceDriver = androidx.tracing.AbstractTraceDriver
 
+actual interface AbstractTraceDriverFactory {
+    actual fun create(): AbstractTraceDriver
+}
+
 actual typealias Tracer = androidx.tracing.Tracer
 
 actual typealias PropagationToken = androidx.tracing.PropagationToken

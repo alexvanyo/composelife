@@ -63,6 +63,7 @@ kotlin {
                 implementation(projects.patterns)
                 implementation(projects.preferencesTestFixtures)
                 implementation(projects.randomTestFixtures)
+                implementation(projects.tracingTestFixtures)
                 implementation(projects.uiApp)
                 implementation(projects.uiCommon)
                 implementation(projects.uiCommonTestFixtures)

@@ -126,6 +126,7 @@ kotlin {
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
                 implementation(projects.testActivity)
+                implementation(projects.tracingTestFixtures)
             }
         }
         val jbTest by creating {

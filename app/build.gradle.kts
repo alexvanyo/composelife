@@ -31,6 +31,7 @@ plugins {
 }
 
 metro {
+    enableRuntimeTracing.set(true)
     unusedGraphInputsSeverity = DiagnosticSeverity.NONE
 }
 
