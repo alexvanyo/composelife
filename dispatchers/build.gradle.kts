@@ -30,7 +30,7 @@ plugins {
 kotlin {
     androidLibrary {
         namespace = "com.alexvanyo.composelife.dispatchers"
-        minSdk = 23
+        minSdk = 24
     }
     jvm("desktop")
     @OptIn(ExperimentalWasmDsl::class)

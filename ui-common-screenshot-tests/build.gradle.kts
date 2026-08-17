@@ -36,7 +36,7 @@ plugins {
 kotlin {
     androidLibrary {
         namespace = "com.alexvanyo.composelife.ui.common.screenshottests"
-        minSdk = 23
+        minSdk = 24
     }
     jvm("desktop")
 
