@@ -37,7 +37,7 @@ wire {
 kotlin {
     androidLibrary {
         namespace = "com.alexvanyo.composelife.preferencesproto"
-        minSdk = 23
+        minSdk = 24
     }
     jvm("desktop")
     @OptIn(ExperimentalWasmDsl::class)
