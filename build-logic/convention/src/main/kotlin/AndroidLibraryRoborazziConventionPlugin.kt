@@ -49,6 +49,9 @@ class AndroidLibraryRoborazziConventionPlugin :
                 variant.hostTests.forEach { _, hostTest ->
                     hostTest.configureTestTask { test ->
                         test.apply {
+                            jvmArgs(
+                                "--add-opens=java.base/jdk.internal.access=ALL-UNNAMED",
+                            )
                             systemProperty("robolectric.graphicsMode", "NATIVE")
                             // Configure parameterization to either be combined, or at the test runner level
                             systemProperty(
