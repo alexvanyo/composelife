@@ -89,6 +89,9 @@ fun Project.configureAndroidTesting(commonExtension: CommonExtension, testedExte
         testOptions.unitTests {
             all { test ->
                 test.systemProperty("robolectric.graphicsMode", "NATIVE")
+                test.jvmArgs(
+                    "--add-opens=java.base/jdk.internal.access=ALL-UNNAMED",
+                )
             }
         }
     }
@@ -161,6 +164,9 @@ fun Project.configureAndroidTesting(extension: KotlinMultiplatformAndroidLibrary
             variant.hostTests.forEach { _, hostTest ->
                 hostTest.configureTestTask { test ->
                     test.apply {
+                        jvmArgs(
+                            "--add-opens=java.base/jdk.internal.access=ALL-UNNAMED",
+                        )
                         systemProperty("robolectric.graphicsMode", "NATIVE")
                         // Automatically output Robolectric logs to stdout (for ease of debugging in Android Studio)
                         systemProperty("robolectric.logging", "stdout")
