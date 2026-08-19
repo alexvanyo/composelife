@@ -35,10 +35,10 @@ androidx.navigationevent:navigationevent-compose-wasm-js:1.2.0-alpha03
 androidx.navigationevent:navigationevent-compose:1.2.0-alpha03
 androidx.navigationevent:navigationevent-wasm-js:1.2.0-alpha03
 androidx.navigationevent:navigationevent:1.2.0-alpha03
-androidx.savedstate:savedstate-compose-wasm-js:1.5.0
-androidx.savedstate:savedstate-compose:1.5.0
-androidx.savedstate:savedstate-wasm-js:1.5.0
-androidx.savedstate:savedstate:1.5.0
+androidx.savedstate:savedstate-compose-wasm-js:1.6.0-alpha01
+androidx.savedstate:savedstate-compose:1.6.0-alpha01
+androidx.savedstate:savedstate-wasm-js:1.6.0-alpha01
+androidx.savedstate:savedstate:1.6.0-alpha01
 androidx.sqlite:sqlite-async-wasm-js:2.7.0
 androidx.sqlite:sqlite-async:2.7.0
 androidx.sqlite:sqlite-wasm-js:2.7.0
