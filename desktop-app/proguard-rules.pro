@@ -41,3 +41,13 @@
 -keepclassmembers public class **$$serializer {
     private ** descriptor;
 }
+
+# Preserve sealed-enum runtime and generated classes but allow them to be obfuscated
+-keep,allowobfuscation class com.livefront.sealedenum.** { *; }
+-keep,allowobfuscation class * implements com.livefront.sealedenum.SealedEnum { *; }
+
+# Keep JNI / native methods and their signatures
+-keepclasseswithmembernames,includedescriptorclasses class * {
+    native <methods>;
+}
+-keepclasseswithmembers class androidx.sqlite.driver.bundled.** { native <methods>; }
