@@ -1144,4 +1144,26 @@ class DefaultComposeLifePreferencesTests {
                 assertEquals(ResourceState.Success(expectedSet), composelifePreferences.quickAccessSettingsState)
             }
         }
+
+    @Test
+    fun setting_tool_configs_to_all_options_updates_value() = runPreferencesTest { composelifePreferences ->
+        val toolConfigs = listOf(
+            ToolConfig.Pan,
+            ToolConfig.Draw,
+            ToolConfig.Erase,
+            ToolConfig.Select,
+            ToolConfig.None,
+        )
+
+        toolConfigs.forEach { config ->
+            composelifePreferences.setTouchToolConfig(config)
+            composelifePreferences.setStylusToolConfig(config)
+            composelifePreferences.setMouseToolConfig(config)
+            delay(1.milliseconds)
+
+            assertEquals(ResourceState.Success(config), composelifePreferences.touchToolConfigState)
+            assertEquals(ResourceState.Success(config), composelifePreferences.stylusToolConfigState)
+            assertEquals(ResourceState.Success(config), composelifePreferences.mouseToolConfigState)
+        }
+    }
 }
