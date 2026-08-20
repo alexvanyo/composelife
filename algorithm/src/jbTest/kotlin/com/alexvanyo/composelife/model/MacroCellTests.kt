@@ -187,4 +187,67 @@ class MacroCellTests {
             )
         }
     }
+
+    @Test
+    fun making_cells_alive_and_dead_in_all_quadrants_is_correct() {
+        val emptyCell = createEmptyMacroCell(5)
+        // NW quadrant (x=2, y=2)
+        val nwCell = emptyCell.withCell(IntOffset(2, 2), true)
+        assertTrue(nwCell.contains(IntOffset(2, 2)))
+        val nwCleared = nwCell.withCell(IntOffset(2, 2), false)
+        assertFalse(nwCleared.contains(IntOffset(2, 2)))
+
+        // NE quadrant (x=18, y=2)
+        val neCell = emptyCell.withCell(IntOffset(18, 2), true)
+        assertTrue(neCell.contains(IntOffset(18, 2)))
+        val neCleared = neCell.withCell(IntOffset(18, 2), false)
+        assertFalse(neCleared.contains(IntOffset(18, 2)))
+
+        // SW quadrant (x=2, y=18)
+        val swCell = emptyCell.withCell(IntOffset(2, 18), true)
+        assertTrue(swCell.contains(IntOffset(2, 18)))
+        val swCleared = swCell.withCell(IntOffset(2, 18), false)
+        assertFalse(swCleared.contains(IntOffset(2, 18)))
+
+        // SE quadrant (x=18, y=18)
+        val seCell = emptyCell.withCell(IntOffset(18, 18), true)
+        assertTrue(seCell.contains(IntOffset(18, 18)))
+        val seCleared = seCell.withCell(IntOffset(18, 18), false)
+        assertFalse(seCleared.contains(IntOffset(18, 18)))
+    }
+
+    @Test
+    fun making_cells_alive_and_dead_in_level_4_node_is_correct() {
+        val emptyLevel4 = createEmptyMacroCell(4)
+        // NW (0,0)
+        val nw = emptyLevel4.withCell(IntOffset(0, 0), true)
+        assertTrue(nw.contains(IntOffset(0, 0)))
+        assertFalse(nw.withCell(IntOffset(0, 0), false).contains(IntOffset(0, 0)))
+
+        // NE (8,0)
+        val ne = emptyLevel4.withCell(IntOffset(8, 0), true)
+        assertTrue(ne.contains(IntOffset(8, 0)))
+        assertFalse(ne.withCell(IntOffset(8, 0), false).contains(IntOffset(8, 0)))
+
+        // SW (0,8)
+        val sw = emptyLevel4.withCell(IntOffset(0, 8), true)
+        assertTrue(sw.contains(IntOffset(0, 8)))
+        assertFalse(sw.withCell(IntOffset(0, 8), false).contains(IntOffset(0, 8)))
+
+        // SE (8,8)
+        val se = emptyLevel4.withCell(IntOffset(8, 8), true)
+        assertTrue(se.contains(IntOffset(8, 8)))
+        assertFalse(se.withCell(IntOffset(8, 8), false).contains(IntOffset(8, 8)))
+    }
+
+    @Test
+    fun withCell_out_of_bounds_throws() {
+        val cell = createEmptyMacroCell(4)
+        assertFailsWith<IllegalArgumentException> {
+            cell.withCell(IntOffset(-1, 0), true)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            cell.withCell(IntOffset(16, 0), true)
+        }
+    }
 }
