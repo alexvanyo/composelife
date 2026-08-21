@@ -74,8 +74,8 @@ com.squareup.okio:okio-jvm:3.18.1
 com.squareup.okio:okio:3.18.1
 com.squareup.wire:wire-runtime-jvm:7.0.0-alpha05
 com.squareup.wire:wire-runtime:7.0.0-alpha05
-dev.zacsweers.metro:runtime-jvm:1.2.1
-dev.zacsweers.metro:runtime:1.2.1
+dev.zacsweers.metro:runtime-jvm:1.4.2
+dev.zacsweers.metro:runtime:1.4.2
 io.coil-kt.coil3:coil-compose-core-jvm:3.5.0
 io.coil-kt.coil3:coil-compose-core:3.5.0
 io.coil-kt.coil3:coil-core-jvm:3.5.0
@@ -162,7 +162,7 @@ org.jetbrains.compose.ui:ui-unit:1.12.0-rc01
 org.jetbrains.compose.ui:ui-util-desktop:1.12.0-rc01
 org.jetbrains.compose.ui:ui-util:1.12.0-rc01
 org.jetbrains.compose.ui:ui:1.12.0-rc01
-org.jetbrains.kotlin:kotlin-stdlib:2.4.10
+org.jetbrains.kotlin:kotlin-stdlib:2.4.20-RC
 org.jetbrains.kotlinx:atomicfu-jvm:0.33.0
 org.jetbrains.kotlinx:atomicfu:0.33.0
 org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.5.1
