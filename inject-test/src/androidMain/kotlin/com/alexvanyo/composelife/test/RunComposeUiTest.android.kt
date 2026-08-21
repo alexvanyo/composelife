@@ -17,6 +17,7 @@
 package com.alexvanyo.composelife.test
 
 import androidx.compose.ui.test.ComposeUiTest
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.ExperimentalTestApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestResult
@@ -30,8 +31,10 @@ actual fun runComposeUiTest(
     testTimeout: Duration,
     block: suspend ComposeUiTest.() -> Unit,
 ): TestResult = androidx.compose.ui.test.v2.runComposeUiTest(
-    effectContext = effectContext,
-    runTestContext = runTestContext,
-    testTimeout = testTimeout,
+    config = ComposeUiTestConfig(
+        effectContext = effectContext,
+        runTestContext = runTestContext,
+        testTimeout = testTimeout,
+    ),
     block = block,
 )
