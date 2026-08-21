@@ -16,13 +16,7 @@
 
 package com.alexvanyo.composelife.ui.util
 
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.ClipEntry
-import androidx.compose.ui.platform.LocalClipboard
-import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.text.AnnotatedString
 
 @Stable
 actual interface ClipboardReader {

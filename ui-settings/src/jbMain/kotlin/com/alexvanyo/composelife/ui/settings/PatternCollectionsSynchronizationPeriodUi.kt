@@ -125,12 +125,14 @@ fun PatternCollectionsSynchronizationPeriodUi(
     var synchronizationPeriodInMinutes by remember(localSessionId) {
         mutableStateOf(
             patternCollectionsSynchronizationPeriodSessionValueHolder.sessionValue.map { dateTimePeriod ->
-                (dateTimePeriod.nanoseconds.nanoseconds +
-                    dateTimePeriod.seconds.seconds +
-                    dateTimePeriod.minutes.minutes +
-                    dateTimePeriod.hours.hours +
-                    dateTimePeriod.days.days +
-                    ((dateTimePeriod.months / 12.0 + dateTimePeriod.years) * 365.2422).days).inWholeNanoseconds /
+                (
+                    dateTimePeriod.nanoseconds.nanoseconds +
+                        dateTimePeriod.seconds.seconds +
+                        dateTimePeriod.minutes.minutes +
+                        dateTimePeriod.hours.hours +
+                        dateTimePeriod.days.days +
+                        ((dateTimePeriod.months / 12.0 + dateTimePeriod.years) * 365.2422).days
+                    ).inWholeNanoseconds /
                     1.minutes.inWholeNanoseconds.toDouble()
             },
         )

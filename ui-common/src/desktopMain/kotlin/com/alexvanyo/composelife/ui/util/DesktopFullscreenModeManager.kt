@@ -23,7 +23,6 @@ import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.awaitCancellation
 
 @Inject
 @ContributesBinding(UiScope::class)

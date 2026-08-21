@@ -47,7 +47,6 @@ import androidx.compose.ui.util.lerp
 import androidx.window.core.layout.WindowSizeClass
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
-import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.BottomInsets
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.CellUniverseActionCard
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.CellUniverseInfoCard
@@ -56,13 +55,11 @@ import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCard
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardCtx
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCard
 import com.alexvanyo.composelife.ui.cells.CellWindowViewportState
-import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.util.Layout
 import com.livefront.sealedenum.GenSealedEnum
 import com.livefront.sealedenum.SealedEnum
 import kotlinx.coroutines.launch
-import kotlin.uuid.Uuid
 
 // region templated-ctx
 @Suppress("ComposableNaming", "LongParameterList")

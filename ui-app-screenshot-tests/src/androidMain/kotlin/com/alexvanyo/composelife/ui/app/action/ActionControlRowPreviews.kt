@@ -19,7 +19,6 @@ package com.alexvanyo.composelife.ui.app.action
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.IntOffset
 import com.airbnb.android.showkase.annotation.ShowkaseComposable
-import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.emptyCellState
 import com.alexvanyo.composelife.ui.app.ctxs.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.cells.SelectionState

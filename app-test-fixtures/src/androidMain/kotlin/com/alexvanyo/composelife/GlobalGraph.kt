@@ -22,7 +22,6 @@ import com.alexvanyo.composelife.ui.app.UiWithLoadedPreferencesScopeBindings
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.DependencyGraph
-import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.createGraph
 
 @DependencyGraph(GlobalScope::class)

@@ -127,7 +127,8 @@ val GameOfLifeAlgorithmTests by testSuite(
                             return@forEach
                         }
                         if (algorithmFactory.algorithmName != "HashLife Algorithm" &&
-                            testPattern is RPentominoPattern) {
+                            testPattern is RPentominoPattern
+                        ) {
                             return@forEach
                         }
 
