@@ -76,7 +76,7 @@ sealed interface ClipboardStateKey {
     Updatable,
     >())
 class AndroidClipboardReader(
-    @param:ActivityContext private val context: Context,
+    @ActivityContext context: Context,
     private val windowInfo: WindowInfo,
     @param:ForScope(UiScope::class) private val lifecycle: Lifecycle,
 ) : ClipboardReader,
