@@ -16,8 +16,10 @@
 
 package com.alexvanyo.composelife.network.di
 
+import android.content.Context
 import android.net.TrafficStats
 import com.alexvanyo.composelife.network.EngineFactoryWithConfigBlock
+import com.alexvanyo.composelife.scopes.ApplicationContext
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
@@ -30,8 +32,11 @@ interface EngineFactoryBindings {
 
     companion object {
         @Provides
-        internal fun providesEngineFactoryWithConfigBlock(): EngineFactoryWithConfigBlock<*> =
-            EngineFactoryWithConfigBlock(OkHttp) {
+        internal fun providesEngineFactoryWithConfigBlock(
+            @ApplicationContext context: Context,
+        ): EngineFactoryWithConfigBlock<*> {
+            okhttp3.OkHttp.initialize(context)
+            return EngineFactoryWithConfigBlock(OkHttp) {
                 engine {
                     addInterceptor { chain ->
                         val trafficStatsTag = 0xF00D
@@ -44,5 +49,6 @@ interface EngineFactoryBindings {
                     }
                 }
             }
+        }
     }
 }
