@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.test
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.test.ComposeUiTest
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.v2.runAndroidComposeUiTest
 import androidx.lifecycle.LifecycleOwner
@@ -34,8 +35,10 @@ internal actual fun runPlatformUiTest(
     timeout: Duration,
     testBody: suspend ComposeUiTest.(uiGraphArguments: UiGraphArguments) -> Unit,
 ): TestResult = runAndroidComposeUiTest<ComponentActivity>(
-    runTestContext = runTestContext,
-    testTimeout = timeout,
+    config = ComposeUiTestConfig(
+        runTestContext = runTestContext,
+        testTimeout = timeout,
+    ),
 ) {
     testBody(
         object : UiGraphArguments {

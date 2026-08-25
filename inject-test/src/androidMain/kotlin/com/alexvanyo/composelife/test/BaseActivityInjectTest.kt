@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.test
 import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.AndroidComposeUiTest
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.v2.AndroidComposeUiTestEnvironment
 import androidx.test.core.app.ActivityScenario
@@ -65,9 +66,11 @@ abstract class BaseActivityInjectTest<A : ComponentActivity>(
         var scenario: ActivityScenario<A>? = null
 
         val environment = AndroidComposeUiTestEnvironment(
-            effectContext = generalTestDispatcher,
-            runTestContext = generalTestDispatcher + appTestContext,
-            testTimeout = timeout,
+            config = ComposeUiTestConfig(
+                effectContext = generalTestDispatcher,
+                runTestContext = generalTestDispatcher + appTestContext,
+                testTimeout = timeout,
+            ),
             activityProvider = {
                 var activity: A? = null
                 scenario!!.onActivity { activity = it }
