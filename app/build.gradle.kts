@@ -57,9 +57,9 @@ baselineProfile {
 dependencies {
     implementation(projects.appImpl)
 
-    stagingImplementation(libs.leakCanary.android)
-
     debugImplementation(libs.leakCanary.android)
+
+    stagingImplementation(libs.leakCanary.android)
 
     androidTestImplementation(projects.appTestFixtures)
 

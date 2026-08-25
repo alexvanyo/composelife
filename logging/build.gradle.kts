@@ -47,8 +47,8 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(libs.kermit)
                 implementation(projects.injectScopes)
+                implementation(libs.kermit)
             }
         }
     }

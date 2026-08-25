@@ -45,13 +45,13 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.okio.fakefilesystem)
                 api(projects.filesystem)
+                api(libs.okio.fakefilesystem)
 
-                implementation(libs.kotlinx.coroutines.core)
-                implementation(libs.kotlinx.datetime)
                 implementation(projects.injectScopes)
                 implementation(projects.updatable)
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.datetime)
             }
         }
         val jvmMain by creating {

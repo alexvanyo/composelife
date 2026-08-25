@@ -51,8 +51,8 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(libs.kotlinx.coroutines.core)
                 implementation(projects.serialization)
+                implementation(libs.kotlinx.coroutines.core)
             }
         }
         val jbMain by creating {
@@ -92,10 +92,10 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(libs.kotlinx.coroutines.test)
                 implementation(projects.injectTest)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
+                implementation(libs.kotlinx.coroutines.test)
             }
         }
         val jbTest by creating {
@@ -116,12 +116,12 @@ kotlin {
         val androidSharedTest by getting {
             dependsOn(jvmTest)
             dependencies {
+                implementation(projects.parameterizedStringTestResources)
+                implementation(projects.testActivity)
                 implementation(libs.androidx.compose.ui)
                 implementation(libs.androidx.compose.uiTest)
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.espresso)
-                implementation(projects.parameterizedStringTestResources)
-                implementation(projects.testActivity)
             }
         }
         val wasmJsTest by getting {

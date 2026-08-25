@@ -51,11 +51,11 @@ kotlin {
             dependencies {
                 api(libs.ktor.client.core)
 
-                implementation(libs.ktor.client.logging)
                 implementation(projects.dispatchers)
                 implementation(projects.injectScopes)
                 implementation(projects.logging)
                 implementation(projects.updatable)
+                implementation(libs.ktor.client.logging)
             }
         }
         val jvmMain by creating {
