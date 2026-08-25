@@ -31,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.DarkMode
 import androidx.compose.ui.test.DeviceConfigurationOverride
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -91,7 +92,11 @@ abstract class BaseRoborazziTest(
     }
 
     @Test
-    fun previewScreenshotTest() = runComposeUiTest(testTimeout = 3.minutes) {
+    fun previewScreenshotTest() = runComposeUiTest(
+        ComposeUiTestConfig(
+            testTimeout = 3.minutes,
+        ),
+    ) {
         val testParameterizations = when (roborazziParameterization) {
             CombinedRoborazziParameterization -> parameterizations
             is SingleRoborazziParameterization -> listOf(roborazziParameterization)
