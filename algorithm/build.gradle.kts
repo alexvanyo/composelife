@@ -62,6 +62,7 @@ kotlin {
                 api(projects.tracing)
                 api(projects.updatable)
 
+                implementation(projects.injectScopes)
                 implementation(libs.androidx.annotation)
                 implementation(libs.androidx.collection)
                 implementation(libs.androidx.compose.runtime)
@@ -69,14 +70,13 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.json)
-                implementation(projects.injectScopes)
             }
         }
         val jbMain by creating {
             dependsOn(commonMain)
             dependencies {
-                implementation(libs.jetbrains.compose.uiUnit)
                 implementation(projects.sealedEnum.runtime)
+                implementation(libs.jetbrains.compose.uiUnit)
             }
         }
         val jvmMain by creating {
@@ -119,8 +119,6 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.turbine)
                 implementation(projects.algorithmTestResources)
                 implementation(projects.dispatchersTestFixtures)
                 implementation(projects.injectTest)
@@ -128,6 +126,8 @@ kotlin {
                 implementation(projects.kmpStateRestorationTester)
                 implementation(projects.patterns)
                 implementation(projects.tracingTestFixtures)
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.turbine)
             }
         }
         val jbTest by creating {
@@ -152,10 +152,10 @@ kotlin {
         val androidSharedTest by getting {
             dependsOn(jvmTest)
             dependencies {
+                implementation(projects.testActivity)
                 implementation(libs.androidx.compose.uiTest)
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.test.espresso)
-                implementation(projects.testActivity)
             }
         }
     }

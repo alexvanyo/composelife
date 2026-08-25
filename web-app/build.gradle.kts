@@ -50,11 +50,6 @@ kotlin {
         val commonMain by getting {
             val composeBom = project.dependencies.platform(libs.androidx.compose.bom)
             dependencies {
-                implementation(composeBom)
-                implementation(libs.androidx.compose.runtime)
-                implementation(libs.androidx.compose.runtime.retain)
-                implementation(libs.jetbrains.compose.ui)
-                implementation(libs.kotlinx.serialization.core)
                 implementation(projects.data)
                 implementation(projects.database)
                 implementation(projects.filesystem)
@@ -66,6 +61,11 @@ kotlin {
                 implementation(projects.uiApp)
                 implementation(projects.uiMobile)
                 implementation(projects.updatable)
+                implementation(composeBom)
+                implementation(libs.androidx.compose.runtime)
+                implementation(libs.androidx.compose.runtime.retain)
+                implementation(libs.jetbrains.compose.ui)
+                implementation(libs.kotlinx.serialization.core)
             }
         }
         val wasmJsMain by getting {

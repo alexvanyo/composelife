@@ -61,8 +61,8 @@ kotlin {
             dependencies {
                 api(projects.preferences)
 
-                implementation(libs.androidx.compose.runtime)
                 implementation(projects.injectScopes)
+                implementation(libs.androidx.compose.runtime)
             }
         }
         val jbMain by creating {
