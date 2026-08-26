@@ -261,18 +261,45 @@ abstract class ConvertSfdToOtf : DefaultTask() {
 
     @TaskAction
     fun taskAction() {
+        val otfPath = otfFile.get().asFile.absolutePath
         scriptFile.get().asFile.writeText(
-            "Open(\"${sfdFile.get().asFile.absolutePath}\");Generate(\"${otfFile.get().asFile.absolutePath}\", \"\", 12);"
+            "Open(\"${sfdFile.get().asFile.absolutePath}\");Generate(\"$otfPath\", \"\", 12);"
         )
         val result = execOperations.exec {
             commandLine(
                 fontforgeCommand.get().split(" ") + listOf(
                     "-lang=ff",
                     "-script",
-                    scriptFile.get().asFile.absolutePath
+                    scriptFile.get().asFile.absolutePath,
                 )
             )
         }
         result.rethrowFailure()
+
+        val postProcessResult = execOperations.exec {
+            commandLine(
+                listOf(
+                    "python3",
+                    "-c",
+                    """
+                    from fontTools.ttLib import TTFont
+                    from fontTools.cffLib.specializer import specializeProgram
+
+                    f = TTFont('$otfPath')
+                    cff = f['CFF ']
+                    charstrings = cff.cff.topDictIndex[0].CharStrings
+                    for name in charstrings.keys():
+                        cs = charstrings[name]
+                        cs.decompile()
+                        cs.program = specializeProgram(cs.program)
+                    for tag in ['FFTM', 'GDEF']:
+                        if tag in f:
+                            del f[tag]
+                    f.save('$otfPath')
+                    """.trimIndent(),
+                )
+            )
+        }
+        postProcessResult.rethrowFailure()
     }
 }
