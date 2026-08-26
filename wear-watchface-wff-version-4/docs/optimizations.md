@@ -12,7 +12,8 @@ This document details the size optimization techniques implemented to reduce the
 | **2. Unused Resource Removal** | Raw resources (`watchface_testing.xml`) | 342,737 bytes (342.7 KB) | ~13 KB | `f3aac3e84` |
 | **3. Glyph Outline Deduplication (`AltUni2`)** | Glyph outlines (`glyf` & `cmap` tables) | 151,974,816 bytes (144.93 MB, 38.2%) | ~1.24 MB | `a7368749a` |
 | **4. XML Whitespace & Indentation Minification** | `watchface.xml` raw resource | 700,695 bytes (700.7 KB, 11.0%) | ~24 KB | `4299a8f21` |
-| **Total Cumulative Savings** | **Entire Watch Face** | **~164.3 MB Uncompressed** | **~4.5 MB Compressed APK** | **All Verified** |
+| **5. Packaging Exclusions for Builtins Metadata** | APK packaging (`kotlin_builtins`) | ~54 KB (8 metadata files removed) | ~13 KB | `6471e596b` |
+| **Total Cumulative Savings** | **Entire Watch Face** | **~164.4 MB Uncompressed** | **~4.5 MB Compressed APK** | **All Verified** |
 
 ---
 
@@ -74,6 +75,19 @@ This document details the size optimization techniques implemented to reduce the
 - **Impact:**
   - **Uncompressed Resource Reduction:** 700,695 bytes (700.7 KB, 11.0% reduction in `watchface.xml`)
   - **APK Size Reduction:** ~24 KB
+
+---
+
+### 5. Packaging Exclusions for Builtins Metadata
+- **Commit:** `6471e596b`
+- **Affected Files:** `wear-watchface-wff-version-4/build.gradle.kts`
+- **Description:**
+  By default, transitive dependencies packaged `.kotlin_builtins` and version metadata files into the APK root. Because WFF watchfaces are purely declarative XML and TTF fonts with no runtime Kotlin code, these metadata files were superfluous.
+- **Implementation:**
+  Configured `packaging.resources.excludes` in `wear-watchface-wff-version-4/build.gradle.kts` to exclude `kotlin/**`, `**/*.kotlin_builtins`, and `META-INF/*.version`.
+- **Impact:**
+  - **Uncompressed Resource Reduction:** ~54 KB (8 unreferenced files removed)
+  - **APK Size Reduction:** ~13 KB
 
 ---
 
