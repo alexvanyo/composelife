@@ -14,7 +14,8 @@ This document details the size optimization techniques implemented to reduce the
 | **4. XML Whitespace & Indentation Minification** | `watchface.xml` raw resource | 700,695 bytes (700.7 KB, 11.0%) | ~24 KB | `4299a8f21` |
 | **5. Packaging Exclusions for Builtins Metadata** | APK packaging (`kotlin_builtins`) | ~54 KB (8 metadata files removed) | ~13 KB | `6471e596b` |
 | **6. OpenType CFF (`.otf`) Font Conversion** | Font encoding (Type 2 CharStrings vs TrueType) | 108,345,096 bytes (103.33 MB, 44.1%) | 8,938,281 bytes (8.52 MB, 30.6%) | `9d69f457a` |
-| **Total Cumulative Savings** | **Entire Watch Face** | **~272.7 MB Uncompressed** | **~13.0 MB Compressed APK** | **All Verified** |
+| **7. CFF CharString Opcode Specialization & Table Stripping** | CFF bytecode & unused metadata (`FFTM`, `GDEF`) | 1,246,344 bytes (1.19 MB) | - | `711e93bfe` |
+| **Total Cumulative Savings** | **Entire Watch Face** | **~273.9 MB Uncompressed** | **~13.0 MB Compressed APK** | **All Verified** |
 
 ---
 
@@ -106,6 +107,18 @@ This document details the size optimization techniques implemented to reduce the
 - **Impact:**
   - **Uncompressed Font Reduction:** 108,345,096 bytes (103.33 MB, 44.1% reduction across all 33 fonts, dropping total font size from 245.79 MB down to 137.44 MB)
   - **APK Size Reduction:** 8,938,281 bytes (8.52 MB, 30.6% reduction in release APK, dropping from 29.19 MB down to 20.25 MB)
+
+---
+
+### 7. CFF CharString Opcode Specialization & Table Stripping
+- **Commit:** `711e93bfe`
+- **Affected Files:** `wear-watchface-wff-resources/build.gradle.kts`
+- **Description:**
+  Post-processed the generated OpenType CFF (`.otf`) fonts using fontTools CharString specialization to compress consecutive straight lines into compound Type 2 CharString opcodes (`hlineto`, `vlineto`, `rlineto`) with combined operands, and stripped unused FontForge timestamp (`FFTM`) and glyph definition (`GDEF`) metadata tables.
+- **Implementation:**
+  - Added python post-processing step in `ConvertSfdToOtf.taskAction` applying `specializeProgram` across all glyph CharStrings and deleting redundant tables.
+- **Impact:**
+  - **Uncompressed Font Reduction:** 1,246,344 bytes (1.19 MB reduction across all 33 fonts)
 
 ---
 
