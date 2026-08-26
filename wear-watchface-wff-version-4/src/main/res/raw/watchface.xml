@@ -359,7 +359,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour01.ttf"
+family="hour01.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -639,7 +639,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour02.ttf"
+family="hour02.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -919,7 +919,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour03.ttf"
+family="hour03.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -1199,7 +1199,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour04.ttf"
+family="hour04.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -1479,7 +1479,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour05.ttf"
+family="hour05.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -1759,7 +1759,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour06.ttf"
+family="hour06.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -2039,7 +2039,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour07.ttf"
+family="hour07.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -2319,7 +2319,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour08.ttf"
+family="hour08.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -2599,7 +2599,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour09.ttf"
+family="hour09.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -2879,7 +2879,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour10.ttf"
+family="hour10.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -3159,7 +3159,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour11.ttf"
+family="hour11.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -3439,7 +3439,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour12.ttf"
+family="hour12.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -3719,7 +3719,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour13.ttf"
+family="hour13.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -3999,7 +3999,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour14.ttf"
+family="hour14.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -4279,7 +4279,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour15.ttf"
+family="hour15.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -4559,7 +4559,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour16.ttf"
+family="hour16.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -4839,7 +4839,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour17.ttf"
+family="hour17.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -5119,7 +5119,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour18.ttf"
+family="hour18.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -5399,7 +5399,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour19.ttf"
+family="hour19.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -5679,7 +5679,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour20.ttf"
+family="hour20.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -5959,7 +5959,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour21.ttf"
+family="hour21.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -6239,7 +6239,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour22.ttf"
+family="hour22.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -6519,7 +6519,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour23.ttf"
+family="hour23.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -6799,7 +6799,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour_1.ttf"
+family="hour_1.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -7079,7 +7079,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour_2.ttf"
+family="hour_2.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -7359,7 +7359,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour_3.ttf"
+family="hour_3.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -7639,7 +7639,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour_4.ttf"
+family="hour_4.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -7919,7 +7919,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour_5.ttf"
+family="hour_5.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -8199,7 +8199,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour_6.ttf"
+family="hour_6.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -8479,7 +8479,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour_7.ttf"
+family="hour_7.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -8759,7 +8759,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour_8.ttf"
+family="hour_8.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -9039,7 +9039,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour_9.ttf"
+family="hour_9.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
@@ -9319,7 +9319,7 @@ alpha="255">
 align="CENTER">
 <Font
 color="[CONFIGURATION.themeColor]"
-family="hour00.ttf"
+family="hour00.otf"
 size="400">
 <Template>%s
 <Parameter expression="subText(
