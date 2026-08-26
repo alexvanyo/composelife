@@ -208,7 +208,7 @@ abstract class CreateHourSfd : DefaultTask() {
                 WinInfo: 90 45 17
                 BeginPrivate: 0
                 EndPrivate
-                BeginChars: 18097 18000
+                BeginChars: 18097
 
             """.trimIndent())
             (0..59).forEach { minute ->
