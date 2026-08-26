@@ -262,7 +262,7 @@ abstract class ConvertSfdToTtf : DefaultTask() {
     @TaskAction
     fun taskAction() {
         scriptFile.get().asFile.writeText(
-            "Open(\"${sfdFile.get().asFile.absolutePath}\");Generate(\"${ttfFile.get().asFile.absolutePath}\");"
+            "Open(\"${sfdFile.get().asFile.absolutePath}\");Generate(\"${ttfFile.get().asFile.absolutePath}\", \"\", 12);"
         )
         val result = execOperations.exec {
             commandLine(
