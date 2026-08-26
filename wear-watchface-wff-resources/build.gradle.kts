@@ -110,12 +110,12 @@ androidComponents {
             this.hourPrefix = hourPrefix
             hourSfdOutputPath = "wff/hourSfd"
         }
-        val createHourTtf = tasks.register("createHour${hourPrefix}Ttf", ConvertSfdToTtf::class) {
+        val createHourOtf = tasks.register("createHour${hourPrefix}Otf", ConvertSfdToOtf::class) {
             dependsOn(createHourSfd)
             fontforgeCommand = project.providers.gradleProperty("com.alexvanyo.composelife.fontforgeCommand")
             sfdFile = createHourSfd.flatMap(CreateHourSfd::outputFile)
             generatedResDirectory = layout.buildDirectory.dir("generated/wff/res")
-            ttfName = "hour$hourPrefix.ttf"
+            otfName = "hour$hourPrefix.otf"
         }
         onVariants { variant ->
             val capitalizedVariantName = variant.name.capitalized()
@@ -123,11 +123,11 @@ androidComponents {
                 it == "generate${capitalizedVariantName}ResValues" ||
                         it == "process${capitalizedVariantName}NavigationResources"
             }.configureEach {
-                dependsOn(createHourTtf)
+                dependsOn(createHourOtf)
             }
             variant.sources.res!!.addGeneratedSourceDirectory(
-                createHourTtf,
-                ConvertSfdToTtf::generatedResDirectory,
+                createHourOtf,
+                ConvertSfdToOtf::generatedResDirectory,
             )
         }
     }
@@ -230,7 +230,7 @@ abstract class CreateHourSfd : DefaultTask() {
     }
 }
 
-abstract class ConvertSfdToTtf : DefaultTask() {
+abstract class ConvertSfdToOtf : DefaultTask() {
 
     @get:InputFile
     abstract val sfdFile: RegularFileProperty
@@ -239,12 +239,12 @@ abstract class ConvertSfdToTtf : DefaultTask() {
     abstract val generatedResDirectory: DirectoryProperty
 
     @get:Input
-    abstract val ttfName: Property<String>
+    abstract val otfName: Property<String>
 
     @get:OutputFile
-    val ttfFile: Provider<RegularFile> =
+    val otfFile: Provider<RegularFile> =
         generatedResDirectory.flatMap { outputDirectory ->
-            outputDirectory.dir("font").file(ttfName)
+            outputDirectory.dir("font").file(otfName)
         }
 
     @get:Inject
@@ -255,14 +255,14 @@ abstract class ConvertSfdToTtf : DefaultTask() {
 
     @get:OutputFile
     val scriptFile: Provider<RegularFile> =
-        ttfFile.flatMap {
+        otfFile.flatMap {
             project.layout.buildDirectory.file("tmp/wff/script_${it.asFile.absolutePath.replace("/", "_")}")
         }
 
     @TaskAction
     fun taskAction() {
         scriptFile.get().asFile.writeText(
-            "Open(\"${sfdFile.get().asFile.absolutePath}\");Generate(\"${ttfFile.get().asFile.absolutePath}\", \"\", 12);"
+            "Open(\"${sfdFile.get().asFile.absolutePath}\");Generate(\"${otfFile.get().asFile.absolutePath}\", \"\", 12);"
         )
         val result = execOperations.exec {
             commandLine(
