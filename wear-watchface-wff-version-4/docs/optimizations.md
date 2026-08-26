@@ -13,7 +13,8 @@ This document details the size optimization techniques implemented to reduce the
 | **3. Glyph Outline Deduplication (`AltUni2`)** | Glyph outlines (`glyf` & `cmap` tables) | 151,974,816 bytes (144.93 MB, 38.2%) | ~1.24 MB | `a7368749a` |
 | **4. XML Whitespace & Indentation Minification** | `watchface.xml` raw resource | 700,695 bytes (700.7 KB, 11.0%) | ~24 KB | `4299a8f21` |
 | **5. Packaging Exclusions for Builtins Metadata** | APK packaging (`kotlin_builtins`) | ~54 KB (8 metadata files removed) | ~13 KB | `6471e596b` |
-| **Total Cumulative Savings** | **Entire Watch Face** | **~164.4 MB Uncompressed** | **~4.5 MB Compressed APK** | **All Verified** |
+| **6. OpenType CFF (`.otf`) Font Conversion** | Font encoding (Type 2 CharStrings vs TrueType) | 108,345,096 bytes (103.33 MB, 44.1%) | 8,938,281 bytes (8.52 MB, 30.6%) | `9d69f457a` |
+| **Total Cumulative Savings** | **Entire Watch Face** | **~272.7 MB Uncompressed** | **~13.0 MB Compressed APK** | **All Verified** |
 
 ---
 
@@ -88,6 +89,23 @@ This document details the size optimization techniques implemented to reduce the
 - **Impact:**
   - **Uncompressed Resource Reduction:** ~54 KB (8 unreferenced files removed)
   - **APK Size Reduction:** ~13 KB
+
+---
+
+### 6. OpenType CFF (`.otf`) Font Conversion
+- **Commit:** `9d69f457a`
+- **Affected Files:**
+  - `wear-watchface-wff-resources/build.gradle.kts`
+  - `wear-watchface-wff-version-1/src/main/res/raw/watchface.xml`
+  - `wear-watchface-wff-version-4/src/main/res/raw/watchface.xml`
+- **Description:**
+  Converted all 33 generated hour fonts from TrueType (`.ttf`) format to OpenType Compact Font Format (CFF / `.otf`). Type 2 CharStrings in CFF encode orthogonal line segments and coordinate deltas using compact single-byte opcodes (`hlineto`, `vlineto`, `rlineto`) rather than TrueType's multi-byte point coordinate structure and per-glyph `loca` table entries.
+- **Implementation:**
+  - Updated font generation tasks in Gradle from `ConvertSfdToTtf` to `ConvertSfdToOtf` with output `.otf` font naming.
+  - Updated all 33 font family references in `watchface.xml` files to `hourXX.otf`.
+- **Impact:**
+  - **Uncompressed Font Reduction:** 108,345,096 bytes (103.33 MB, 44.1% reduction across all 33 fonts, dropping total font size from 245.79 MB down to 137.44 MB)
+  - **APK Size Reduction:** 8,938,281 bytes (8.52 MB, 30.6% reduction in release APK, dropping from 29.19 MB down to 20.25 MB)
 
 ---
 
