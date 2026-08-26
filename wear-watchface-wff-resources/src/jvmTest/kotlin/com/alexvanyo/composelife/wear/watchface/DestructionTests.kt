@@ -150,58 +150,77 @@ private suspend fun destructionIsCorrect(algorithm: GameOfLifeAlgorithm, hourPre
 
     solutionFontFile.parentFile!!.mkdirs()
     solutionFontFile.bufferedWriter().use { bufferedWriter ->
-        algorithm.computeGenerationsWithStep(solution, 1)
+        val generationCellStates = algorithm.computeGenerationsWithStep(solution, 1)
             .take(MAX_GENERATIONS)
-            .withIndex()
-            .collect { (index, cellState) ->
-                bufferedWriter.write(
-                    "StartChar: custom_" +
-                        "${timeDigits.thirdDigit.char}_" +
-                        "${timeDigits.fourthDigit.char}_" +
-                        index.toString().padStart(3, '0').toCharArray().joinToString("_"),
-                )
-                bufferedWriter.newLine()
+            .toList()
 
-                bufferedWriter.write(
-                    "Encoding: ${CUSTOM_CODE_POINT_START + 300 * minute + index} " +
-                        "${CUSTOM_CODE_POINT_START + 300 * minute + index} " +
-                        "${300 * minute + index}",
-                )
-                bufferedWriter.newLine()
-                bufferedWriter.write("Width: 70")
-                bufferedWriter.newLine()
-                bufferedWriter.write("Flags: H")
-                bufferedWriter.newLine()
-                bufferedWriter.write("LayerCount: 2")
-                bufferedWriter.newLine()
-                bufferedWriter.write("Fore")
-                bufferedWriter.newLine()
-                bufferedWriter.write("SplineSet")
-                bufferedWriter.newLine()
-                createContours(
-                    cellState.getAliveCellsInWindow(
-                        CellWindow(IntRect(IntOffset(1, 1), IntSize(70, 70))),
-                    ).toSet(),
-                )
-                    .map { contour ->
-                        contour.map {
-                            IntOffset(it.x, 70 - it.y)
-                        }
-                    }
-                    .forEach { contour ->
-                        bufferedWriter.write("${contour.last().x - 1} ${contour.last().y - 1} m 1")
-                        bufferedWriter.newLine()
-                        contour.forEach { corner ->
-                            bufferedWriter.write(" ${corner.x - 1} ${corner.y - 1} l 1")
-                            bufferedWriter.newLine()
-                        }
-                    }
-                bufferedWriter.write("EndSplineSet")
-                bufferedWriter.newLine()
-                bufferedWriter.write("EndChar")
-                bufferedWriter.newLine()
+        val aliveCellsInWindow = generationCellStates.map { cellState ->
+            cellState.getAliveCellsInWindow(
+                CellWindow(IntRect(IntOffset(1, 1), IntSize(70, 70))),
+            ).toSet()
+        }
+
+        val canonicalIndices = mutableMapOf<Set<IntOffset>, Int>()
+        val groupedIndices = mutableMapOf<Int, MutableList<Int>>()
+
+        aliveCellsInWindow.forEachIndexed { index, aliveCells ->
+            val canonicalIndex = canonicalIndices.getOrPut(aliveCells) { index }
+            groupedIndices.getOrPut(canonicalIndex) { mutableListOf() }.add(index)
+        }
+
+        groupedIndices.forEach { (canonicalIndex, allIndices) ->
+            bufferedWriter.write(
+                "StartChar: custom_" +
+                    "${timeDigits.thirdDigit.char}_" +
+                    "${timeDigits.fourthDigit.char}_" +
+                    canonicalIndex.toString().padStart(3, '0').toCharArray().joinToString("_"),
+            )
+            bufferedWriter.newLine()
+
+            bufferedWriter.write(
+                "Encoding: ${CUSTOM_CODE_POINT_START + 300 * minute + canonicalIndex} " +
+                    "${CUSTOM_CODE_POINT_START + 300 * minute + canonicalIndex} " +
+                    "${300 * minute + canonicalIndex}",
+            )
+            bufferedWriter.newLine()
+            if (allIndices.size > 1) {
+                val altUniEntries = allIndices.drop(1).joinToString(" ") { otherIndex ->
+                    val codePoint = CUSTOM_CODE_POINT_START + 300 * minute + otherIndex
+                    "${codePoint.toString(16).padStart(6, '0')}.ffffffff.0"
+                }
+                bufferedWriter.write("AltUni2: $altUniEntries")
                 bufferedWriter.newLine()
             }
+            bufferedWriter.write("Width: 70")
+            bufferedWriter.newLine()
+            bufferedWriter.write("Flags: H")
+            bufferedWriter.newLine()
+            bufferedWriter.write("LayerCount: 2")
+            bufferedWriter.newLine()
+            bufferedWriter.write("Fore")
+            bufferedWriter.newLine()
+            bufferedWriter.write("SplineSet")
+            bufferedWriter.newLine()
+            createContours(aliveCellsInWindow[canonicalIndex])
+                .map { contour ->
+                    contour.map {
+                        IntOffset(it.x, 70 - it.y)
+                    }
+                }
+                .forEach { contour ->
+                    bufferedWriter.write("${contour.last().x - 1} ${contour.last().y - 1} m 1")
+                    bufferedWriter.newLine()
+                    contour.forEach { corner ->
+                        bufferedWriter.write(" ${corner.x - 1} ${corner.y - 1} l 1")
+                        bufferedWriter.newLine()
+                    }
+                }
+            bufferedWriter.write("EndSplineSet")
+            bufferedWriter.newLine()
+            bufferedWriter.write("EndChar")
+            bufferedWriter.newLine()
+            bufferedWriter.newLine()
+        }
     }
 
     solutionCellStateFile.parentFile!!.mkdirs()
