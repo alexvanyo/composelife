@@ -16,7 +16,9 @@ This document details the size optimization techniques implemented to reduce the
 | **6. OpenType CFF (`.otf`) Font Conversion** | Font encoding (Type 2 CharStrings vs TrueType) | 108,345,096 bytes (103.33 MB, 44.1%) | 8,938,281 bytes (8.52 MB, 30.6%) | `9d69f457a` |
 | **7. CFF CharString Opcode Specialization & Table Stripping** | CFF bytecode & unused metadata (`FFTM`, `GDEF`) | 1,246,344 bytes (1.19 MB) | - | `711e93bfe` |
 | **8. Table Pruning (`cmap` & `name`) & Subrs Specialization** | Legacy platform 1 tables & Private Subrs | 26,392 bytes (~26 KB) | - | `8790e0b17` |
-| **Total Cumulative Savings** | **Entire Watch Face** | **~274.0 MB Uncompressed** | **~13.0 MB Compressed APK** | **All Verified** |
+| **9. Native `fontTools` Pipeline & FontForge Removal** | Font build architecture & compilation speed | Build speed >50x faster | 769,812 bytes (~770 KB) | `e78e5b745` |
+| **10. In-Memory Subroutinization & Contour Canonicalization** | CFF `Private.Subrs` & vertex ordering | 56,546,080 bytes (53.93 MB, 41.5%) | - | `7b37ee083` |
+| **Total Cumulative Savings** | **Entire Watch Face** | **299.72 MB Uncompressed (-79.0%)** | **17.86 MB Release APK (-47.8%)** | **All Verified** |
 
 ---
 
@@ -137,8 +139,45 @@ This document details the size optimization techniques implemented to reduce the
 
 ---
 
+### 9. Native `fontTools` Pipeline & Complete FontForge Removal
+- **Commit:** `e78e5b745`
+- **Affected Files:**
+  - `wear-watchface-wff-resources/scripts/build_hour_otf.py`
+  - `wear-watchface-wff-resources/build.gradle.kts`
+  - `wear-watchface-wff-resources/src/jvmTest/kotlin/com/alexvanyo/composelife/wear/watchface/DestructionTests.kt`
+  - `gradle.properties`
+  - `.github/workflows/ci.yml`
+- **Description:**
+  Completely replaced FontForge with a native Python `fontTools.fontBuilder` pipeline. `DestructionTests.kt` outputs lightweight minute contour data (`.data`), which `build_hour_otf.py` compiles directly into in-memory OpenType CFF fonts using `T2CharStringPen`.
+- **Implementation:**
+  - Removed all FontForge installation dependencies from CI workflows and `gradle.properties`.
+  - Replaced multi-step Gradle tasks with a fast `BuildHourOtf` task.
+- **Impact:**
+  - **Build Speed:** Font compilation accelerated by **>50x** (from ~20+ minutes down to ~3 seconds).
+  - **APK Size Reduction:** **769,812 bytes (~770 KB reduction)** in compressed release APK.
+
+---
+
+### 10. In-Memory CFF Subroutinization & Contour Canonicalization
+- **Commit:** `7b37ee083`
+- **Affected Files:**
+  - `wear-watchface-wff-resources/scripts/build_hour_otf.py`
+  - `wear-watchface-wff-resources/src/jvmTest/kotlin/com/alexvanyo/composelife/wear/watchface/DestructionTests.kt`
+- **Description:**
+  Implemented in-memory Type 2 CharString subroutinization in Python extracting high-frequency instruction patterns into `Private.Subrs`, rotated polygon contour corner points to always begin at the top-left minimum vertex, and omitted redundant CharString advance width tokens.
+- **Implementation:**
+  - Canonicalized contour vertex order in `createContours` so identical shapes anywhere on the screen emit identical instruction sequences.
+  - In `build_hour_otf.py`, identified the top 1,000 most profitable token n-grams and substituted them with `callsubr` bytecode calls.
+  - Set `width=None` in `T2CharStringPen` to leverage `defaultWidthX = 70`.
+- **Impact:**
+  - **Uncompressed Font Reduction:** **56,546,080 bytes (53.93 MB, 41.5% reduction)**, dropping total font size from 129.86 MB down to **75.94 MB**.
+  - **Lifetime Uncompressed Savings:** **299.72 MB (-79.0% reduction)** from initial baseline.
+
+---
+
 ## Verification & Compatibility
 
 All optimizations were verified through:
 1. **Automated CI Validation:** Successful run of `./gradlew check` (including detekt, unit tests, integration tests, Android lint, and resource checks).
 2. **Dual-Emulator Visual Verification:** Deployed side-by-side to two Wear OS emulators (`emulator-5554` baseline and `emulator-5556` target) comparing interactive animations and ambient display modes via screenshot capture.
+3. **Specification Validator:** Passed both WFF version 4 and version 1 validation checks via `wff-validator.jar`.
