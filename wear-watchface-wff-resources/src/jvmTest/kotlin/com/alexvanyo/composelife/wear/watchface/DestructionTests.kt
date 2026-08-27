@@ -317,7 +317,7 @@ private fun createContours(aliveCells: Set<IntOffset>): List<List<IntOffset>> {
 
         edgeContours.map { contour ->
             var isOuterEdge = false
-            buildList {
+            val cornerPoints = buildList {
                 // Find initial corner
                 var index = 0
                 while (getCornerPointOnNeighboringEdgesOrNull(
@@ -344,7 +344,16 @@ private fun createContours(aliveCells: Set<IntOffset>): List<List<IntOffset>> {
                     index++
                 } while (initialCornerIndex != index.mod(contour.size))
             }
-                .let { if (isOuterEdge) it.reversed() else it }
+            val orderedPoints = if (isOuterEdge) {
+                cornerPoints.reversed()
+            } else {
+                cornerPoints
+            }
+
+            val minIndex = orderedPoints.indices.minWith(
+                compareBy<Int> { orderedPoints[it].y }.thenBy { orderedPoints[it].x },
+            )
+            orderedPoints.drop(minIndex) + orderedPoints.take(minIndex)
         }
     }
 }

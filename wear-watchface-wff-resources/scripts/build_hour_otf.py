@@ -23,11 +23,14 @@ and OpenType font tables in memory directly from minute contour data.
 """
 
 import argparse
+from collections import Counter
 import os
 import sys
 from fontTools.fontBuilder import FontBuilder
 from fontTools.pens.t2CharStringPen import T2CharStringPen
 from fontTools.cffLib.specializer import specializeProgram
+from fontTools.cffLib import SubrsIndex
+from fontTools.misc.psCharStrings import T2CharString
 
 CUSTOM_CODE_POINT_START = 0x4E00
 GENERATIONS_PER_MINUTE = 300
@@ -66,6 +69,77 @@ def parse_minute_data(file_path: str):
     return gen_map, glyph_contours
 
 
+def subroutinize_charstrings(charstrings: dict, max_subrs: int = 1000):
+    """
+    Extracts high-frequency token sub-sequences from CharStrings into CFF local subroutines (Private.Subrs).
+    Returns (subroutinized_charstrings, subrs_index).
+    """
+    programs = {}
+    for name, cs in charstrings.items():
+        cs.decompile()
+        programs[name] = list(cs.program)
+
+    # 1. Count n-grams of drawing commands (excluding moves and endchar)
+    ngram_counts = Counter()
+    for prog in programs.values():
+        for length in (4, 5, 6, 7):
+            for i in range(len(prog) - length + 1):
+                sub = tuple(prog[i : i + length])
+                if all(
+                    not isinstance(t, str)
+                    or t in ("hlineto", "vlineto", "rlineto")
+                    for t in sub
+                ):
+                    ngram_counts[sub] += 1
+
+    # 2. Score candidates by token savings: (length - 2) * occurrences - length
+    candidates = []
+    for sub, count in ngram_counts.items():
+        if count >= 50:
+            profit = (len(sub) - 2) * count - len(sub)
+            if profit > 0:
+                candidates.append((profit, sub))
+
+    candidates.sort(reverse=True, key=lambda x: x[0])
+    selected_subrs = [list(sub) for _, sub in candidates[:max_subrs]]
+
+    if not selected_subrs:
+        return charstrings, None
+
+    num_subrs = len(selected_subrs)
+    bias = 107 if num_subrs < 1240 else (1131 if num_subrs < 33900 else 32768)
+
+    subr_tuples = {tuple(s): idx for idx, s in enumerate(selected_subrs)}
+    sorted_subr_patterns = sorted(subr_tuples.keys(), key=len, reverse=True)
+
+    # 3. Substitute token patterns with callsubr
+    for name, prog in programs.items():
+        i = 0
+        new_prog = []
+        while i < len(prog):
+            matched = False
+            for pat in sorted_subr_patterns:
+                plen = len(pat)
+                if i + plen <= len(prog) and tuple(prog[i : i + plen]) == pat:
+                    subr_idx = subr_tuples[pat]
+                    new_prog.extend([subr_idx - bias, "callsubr"])
+                    i += plen
+                    matched = True
+                    break
+            if not matched:
+                new_prog.append(prog[i])
+                i += 1
+        charstrings[name].program = new_prog
+
+    # 4. Build SubrsIndex
+    subrs_index = SubrsIndex()
+    for subr_prog in selected_subrs:
+        cs = T2CharString(program=subr_prog + ["return"])
+        subrs_index.append(cs)
+
+    return charstrings, subrs_index
+
+
 def build_hour_font(hour_prefix: str, minute_dir: str, output_otf: str) -> None:
     """
     Builds a complete, optimized OpenType CFF (.otf) font for the given hour.
@@ -74,8 +148,8 @@ def build_hour_font(hour_prefix: str, minute_dir: str, output_otf: str) -> None:
     charstrings = {}
     cmap = {}
 
-    # Setup .notdef glyph
-    notdef_pen = T2CharStringPen(EM_SIZE, None)
+    # Setup .notdef glyph (width=None to omit redundant advance width)
+    notdef_pen = T2CharStringPen(None, None)
     notdef_cs = notdef_pen.getCharString()
     notdef_cs.decompile()
     notdef_cs.program = specializeProgram(notdef_cs.program)
@@ -98,7 +172,7 @@ def build_hour_font(hour_prefix: str, minute_dir: str, output_otf: str) -> None:
         # 2. Build CharStrings for all unique canonical glyphs in this minute
         for canonical_idx, contours in glyph_contours.items():
             glyph_name = f"c_{minute:02d}_{canonical_idx}"
-            pen = T2CharStringPen(EM_SIZE, None)
+            pen = T2CharStringPen(None, None)
             for contour in contours:
                 if not contour:
                     continue
@@ -112,6 +186,9 @@ def build_hour_font(hour_prefix: str, minute_dir: str, output_otf: str) -> None:
             cs.program = specializeProgram(cs.program)
             charstrings[glyph_name] = cs
             glyph_order.append(glyph_name)
+
+    # Apply greedy CFF subroutinization across all glyph CharStrings
+    charstrings, subrs_index = subroutinize_charstrings(charstrings)
 
     # Build OpenType CFF font
     fb = FontBuilder(unitsPerEm=EM_SIZE, isTTF=False)
@@ -127,6 +204,12 @@ def build_hour_font(hour_prefix: str, minute_dir: str, output_otf: str) -> None:
         privateDict={"defaultWidthX": EM_SIZE},
         charStringsDict=charstrings,
     )
+
+    if subrs_index is not None:
+        cff = fb.font["CFF "]
+        top_dict = cff.cff.topDictIndex[0]
+        top_dict.Private.Subrs = subrs_index
+
     fb.setupHorizontalMetrics({name: (EM_SIZE, 0) for name in glyph_order})
     fb.setupHorizontalHeader(ascent=EM_SIZE, descent=0)
     fb.setupOS2(
