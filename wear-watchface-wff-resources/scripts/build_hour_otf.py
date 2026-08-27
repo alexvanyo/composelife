@@ -18,19 +18,18 @@
 """
 Standalone script to build OpenType CFF (.otf) watch face fonts directly using fontTools.
 
-Replaces FontForge entirely by constructing CFF Type 2 CharStrings, cmap mappings,
-and OpenType font tables in memory directly from minute contour data.
+Takes pre-extracted shape subroutines and glyph instances computed in Kotlin,
+and compiles them into an optimized OpenType CFF font.
 """
 
 import argparse
-from collections import Counter
 import os
 import sys
 from fontTools.fontBuilder import FontBuilder
 from fontTools.pens.t2CharStringPen import T2CharStringPen
-from fontTools.cffLib.specializer import specializeProgram
 from fontTools.cffLib import SubrsIndex
 from fontTools.misc.psCharStrings import T2CharString
+from fontTools.cffLib.specializer import specializeProgram
 
 CUSTOM_CODE_POINT_START = 0x4E00
 GENERATIONS_PER_MINUTE = 300
@@ -40,11 +39,12 @@ EM_SIZE = 70
 
 def parse_minute_data(file_path: str):
     """
-    Parses a minute data file.
-    Returns (gen_map, glyph_contours_dict).
+    Parses a minute data file with pre-extracted shape subroutines and glyph instances.
+    Returns (gen_map, subr_shapes_dict, glyph_instances_dict).
     """
     gen_map = []
-    glyph_contours = {}
+    subr_shapes = {}
+    glyph_instances = {}
     current_glyph = None
 
     with open(file_path, "r") as f:
@@ -54,90 +54,26 @@ def parse_minute_data(file_path: str):
                 continue
             if line.startswith("GEN_MAP "):
                 gen_map = [int(x) for x in line[8:].split()]
+            elif line.startswith("SUBR "):
+                parts = line[5:].split(" ", 1)
+                subr_id = int(parts[0])
+                coords = []
+                if len(parts) > 1:
+                    for pt in parts[1].split():
+                        x, y = pt.split(",")
+                        coords.append((int(x), int(y)))
+                subr_shapes[subr_id] = tuple(coords)
             elif line.startswith("GLYPH "):
                 current_glyph = int(line[6:])
-                glyph_contours[current_glyph] = []
-            elif line.startswith("CONTOUR "):
-                coords_str = line[8:].split()
-                contour = []
-                for pt in coords_str:
-                    x, y = pt.split(",")
-                    contour.append((int(x), int(y)))
+                glyph_instances[current_glyph] = []
+            elif line.startswith("INST "):
+                parts = line[5:].split()
+                subr_id = int(parts[0])
+                ox, oy = [int(c) for c in parts[1].split(",")]
                 if current_glyph is not None:
-                    glyph_contours[current_glyph].append(contour)
+                    glyph_instances[current_glyph].append((subr_id, ox, oy))
 
-    return gen_map, glyph_contours
-
-
-def subroutinize_charstrings(charstrings: dict, max_subrs: int = 1000):
-    """
-    Extracts high-frequency token sub-sequences from CharStrings into CFF local subroutines (Private.Subrs).
-    Returns (subroutinized_charstrings, subrs_index).
-    """
-    programs = {}
-    for name, cs in charstrings.items():
-        cs.decompile()
-        programs[name] = list(cs.program)
-
-    # 1. Count n-grams of drawing commands (excluding moves and endchar)
-    ngram_counts = Counter()
-    for prog in programs.values():
-        for length in (4, 5, 6, 7):
-            for i in range(len(prog) - length + 1):
-                sub = tuple(prog[i : i + length])
-                if all(
-                    not isinstance(t, str)
-                    or t in ("hlineto", "vlineto", "rlineto")
-                    for t in sub
-                ):
-                    ngram_counts[sub] += 1
-
-    # 2. Score candidates by token savings: (length - 2) * occurrences - length
-    candidates = []
-    for sub, count in ngram_counts.items():
-        if count >= 50:
-            profit = (len(sub) - 2) * count - len(sub)
-            if profit > 0:
-                candidates.append((profit, sub))
-
-    candidates.sort(reverse=True, key=lambda x: x[0])
-    selected_subrs = [list(sub) for _, sub in candidates[:max_subrs]]
-
-    if not selected_subrs:
-        return charstrings, None
-
-    num_subrs = len(selected_subrs)
-    bias = 107 if num_subrs < 1240 else (1131 if num_subrs < 33900 else 32768)
-
-    subr_tuples = {tuple(s): idx for idx, s in enumerate(selected_subrs)}
-    sorted_subr_patterns = sorted(subr_tuples.keys(), key=len, reverse=True)
-
-    # 3. Substitute token patterns with callsubr
-    for name, prog in programs.items():
-        i = 0
-        new_prog = []
-        while i < len(prog):
-            matched = False
-            for pat in sorted_subr_patterns:
-                plen = len(pat)
-                if i + plen <= len(prog) and tuple(prog[i : i + plen]) == pat:
-                    subr_idx = subr_tuples[pat]
-                    new_prog.extend([subr_idx - bias, "callsubr"])
-                    i += plen
-                    matched = True
-                    break
-            if not matched:
-                new_prog.append(prog[i])
-                i += 1
-        charstrings[name].program = new_prog
-
-    # 4. Build SubrsIndex
-    subrs_index = SubrsIndex()
-    for subr_prog in selected_subrs:
-        cs = T2CharString(program=subr_prog + ["return"])
-        subrs_index.append(cs)
-
-    return charstrings, subrs_index
+    return gen_map, subr_shapes, glyph_instances
 
 
 def build_hour_font(hour_prefix: str, minute_dir: str, output_otf: str) -> None:
@@ -148,47 +84,134 @@ def build_hour_font(hour_prefix: str, minute_dir: str, output_otf: str) -> None:
     charstrings = {}
     cmap = {}
 
-    # Setup .notdef glyph (width=None to omit redundant advance width)
+    # Setup .notdef glyph
     notdef_pen = T2CharStringPen(None, None)
     notdef_cs = notdef_pen.getCharString()
-    notdef_cs.decompile()
-    notdef_cs.program = specializeProgram(notdef_cs.program)
     charstrings[".notdef"] = notdef_cs
+
+    # Collect all unique relative shapes and glyph instances across all 60 minutes
+    global_subr_shapes = {}  # shape_tuple -> global_subr_id
+    subr_defs = []  # list of shape_tuple
+    subr_counts = []
+
+    minute_data = []
 
     for minute in range(MINUTES_PER_HOUR):
         data_path = os.path.join(minute_dir, f"{hour_prefix}:{minute:02d}.data")
         if not os.path.exists(data_path):
             raise FileNotFoundError(f"Minute data file not found: {data_path}")
 
-        gen_map, glyph_contours = parse_minute_data(data_path)
+        gen_map, subr_shapes, glyph_instances = parse_minute_data(data_path)
+        minute_data.append((minute, gen_map, subr_shapes, glyph_instances))
 
-        # 1. Build cmap mapping for all 300 generations in this minute
+        for instances in glyph_instances.values():
+            for local_subr_id, ox, oy in instances:
+                shape = subr_shapes[local_subr_id]
+                if shape not in global_subr_shapes:
+                    global_id = len(subr_defs)
+                    global_subr_shapes[shape] = global_id
+                    subr_defs.append(shape)
+                    subr_counts.append(1)
+                else:
+                    global_id = global_subr_shapes[shape]
+                    subr_counts[global_id] += 1
+
+    # Select top 1000 most profitable subroutines across the hour
+    sorted_subr_ids = sorted(
+        range(len(subr_defs)), key=lambda i: subr_counts[i], reverse=True
+    )
+    top_subr_ids = sorted_subr_ids[:1000]
+    top_subr_id_map = {orig_id: new_id for new_id, orig_id in enumerate(top_subr_ids)}
+
+    num_subrs = len(top_subr_ids)
+    bias = 107 if num_subrs < 1240 else (1131 if num_subrs < 33900 else 32768)
+
+    # 1. Compile SubrsIndex
+    subrs_index = SubrsIndex()
+    for orig_id in top_subr_ids:
+        shape = subr_defs[orig_id]
+        pen = T2CharStringPen(None, None)
+        if shape:
+            pen.moveTo(shape[0])
+            for pt in shape[1:]:
+                pen.lineTo(pt)
+            pen.lineTo(shape[0])
+            pen.closePath()
+        cs = pen.getCharString()
+        cs.decompile()
+        prog = specializeProgram(cs.program)
+        # Strip the initial move (which is 0 hmoveto) and trailing endchar
+        if prog and prog[-1] == "endchar":
+            prog = prog[:-1]
+        # Remove first hmoveto/vmoveto/rmoveto if it is at relative origin (0, 0)
+        if len(prog) >= 2 and prog[1] in ("hmoveto", "vmoveto"):
+            prog = prog[2:]
+        elif len(prog) >= 3 and prog[2] == "rmoveto":
+            prog = prog[3:]
+        subr_cs = T2CharString(program=prog + ["return"])
+        subrs_index.append(subr_cs)
+
+    # 2. Build CharStrings for all glyphs
+    for minute, gen_map, subr_shapes, glyph_instances in minute_data:
         minute_base_cp = CUSTOM_CODE_POINT_START + minute * GENERATIONS_PER_MINUTE
         for gen in range(GENERATIONS_PER_MINUTE):
             canonical_idx = gen_map[gen]
             glyph_name = f"c_{minute:02d}_{canonical_idx}"
             cmap[minute_base_cp + gen] = glyph_name
 
-        # 2. Build CharStrings for all unique canonical glyphs in this minute
-        for canonical_idx, contours in glyph_contours.items():
+        for canonical_idx, instances in glyph_instances.items():
             glyph_name = f"c_{minute:02d}_{canonical_idx}"
-            pen = T2CharStringPen(None, None)
-            for contour in contours:
-                if not contour:
-                    continue
-                pen.moveTo(contour[0])
-                for pt in contour[1:]:
-                    pen.lineTo(pt)
-                pen.closePath()
+            prog = []
+            curr_x, curr_y = 0, 0
+            for local_subr_id, ox, oy in instances:
+                shape = subr_shapes[local_subr_id]
+                orig_global_id = global_subr_shapes[shape]
 
-            cs = pen.getCharString()
-            cs.decompile()
-            cs.program = specializeProgram(cs.program)
+                # Move to shape instance origin
+                dx = ox - curr_x
+                dy = oy - curr_y
+                if dx == 0 and dy != 0:
+                    prog.extend([dy, "vmoveto"])
+                elif dy == 0 and dx != 0:
+                    prog.extend([dx, "hmoveto"])
+                else:
+                    prog.extend([dx, dy, "rmoveto"])
+
+                if orig_global_id in top_subr_id_map:
+                    # Call subroutine
+                    new_subr_id = top_subr_id_map[orig_global_id]
+                    prog.extend([new_subr_id - bias, "callsubr"])
+                else:
+                    # Draw inline if not in top subroutines
+                    pen = T2CharStringPen(None, None)
+                    if shape:
+                        pen.moveTo(shape[0])
+                        for pt in shape[1:]:
+                            pen.lineTo(pt)
+                        pen.lineTo(shape[0])
+                        pen.closePath()
+                    cs = pen.getCharString()
+                    cs.decompile()
+                    inline_prog = specializeProgram(cs.program)
+                    if inline_prog and inline_prog[-1] == "endchar":
+                        inline_prog = inline_prog[:-1]
+                    if len(inline_prog) >= 2 and inline_prog[1] in (
+                        "hmoveto",
+                        "vmoveto",
+                    ):
+                        inline_prog = inline_prog[2:]
+                    elif (
+                        len(inline_prog) >= 3 and inline_prog[2] == "rmoveto"
+                    ):
+                        inline_prog = inline_prog[3:]
+                    prog.extend(inline_prog)
+
+                curr_x, curr_y = ox, oy
+
+            prog.append("endchar")
+            cs = T2CharString(program=prog)
             charstrings[glyph_name] = cs
             glyph_order.append(glyph_name)
-
-    # Apply greedy CFF subroutinization across all glyph CharStrings
-    charstrings, subrs_index = subroutinize_charstrings(charstrings)
 
     # Build OpenType CFF font
     fb = FontBuilder(unitsPerEm=EM_SIZE, isTTF=False)
@@ -205,10 +228,9 @@ def build_hour_font(hour_prefix: str, minute_dir: str, output_otf: str) -> None:
         charStringsDict=charstrings,
     )
 
-    if subrs_index is not None:
-        cff = fb.font["CFF "]
-        top_dict = cff.cff.topDictIndex[0]
-        top_dict.Private.Subrs = subrs_index
+    cff = fb.font["CFF "]
+    top_dict = cff.cff.topDictIndex[0]
+    top_dict.Private.Subrs = subrs_index
 
     fb.setupHorizontalMetrics({name: (EM_SIZE, 0) for name in glyph_order})
     fb.setupHorizontalHeader(ascent=EM_SIZE, descent=0)
@@ -232,7 +254,7 @@ def build_hour_font(hour_prefix: str, minute_dir: str, output_otf: str) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Build OpenType CFF (.otf) watch face font using fontTools."
+        description="Build OpenType CFF (.otf) watch face font from Kotlin shape subroutines."
     )
     parser.add_argument(
         "--hour-prefix",
