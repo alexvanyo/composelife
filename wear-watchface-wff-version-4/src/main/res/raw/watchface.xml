@@ -109,18 +109,19 @@ width="400"
 x="-29"
 y="6"
 alpha="0">
+<Variant mode="AMBIENT" target="alpha" value="255" duration="0" />
 <Font
 color="[CONFIGURATION.themeColor]"
 family="gameoflifedigits.ttf"
 size="103" />
-<Variant mode="AMBIENT" target="alpha" value="255" duration="0" />
 </TimeText>
 </DigitalClock>
 <Group
 x="0"
 y="0"
 height="400"
-width="400">
+width="400"
+name="alphaUtil">
 <PartDraw
 x="0"
 y="0"
@@ -128,14 +129,16 @@ height="1"
 width="1"
 alpha="0">
 <Variant mode="AMBIENT" target="alpha" value="255" duration="0" />
-<Reference name="isAmbient" source="alpha" default="0" />
+<Reference name="isAmbient" source="alpha" defaultValue="0" />
+<Rectangle x="0" y="0" width="1" height="1" />
 </PartDraw>
 <Group
 x="0"
 y="0"
 height="400"
 width="400"
-alpha="255">
+alpha="255"
+name="nonAmbientClock">
 <Variant mode="AMBIENT" target="alpha" value="0" duration="0" />
 <Condition>
 <Expressions>
@@ -162,7 +165,8 @@ alpha="255">
 <Transform target="x" value="(([YEAR] - 2025) * 366 + [DAY_OF_YEAR]) * 1440 + floor([SECONDS_IN_DAY] / 60)" mode="TO">
 <Animation duration="1" repeat="-1" fps="10" interpolation="CUBIC_BEZIER" controls="0.0 1.0 0.0 1.0" />
 </Transform>
-<Reference name="aTimestamp" source="x" default="0" />
+<Reference name="aTimestamp" source="x" defaultValue="0" />
+<Rectangle x="0" y="0" width="1" height="1" />
 </PartDraw>
 </Compare>
 <Compare expression="isB">
@@ -175,7 +179,8 @@ alpha="255">
 <Transform target="x" value="(([YEAR] - 2025) * 366 + [DAY_OF_YEAR]) * 1440 + floor([SECONDS_IN_DAY] / 60)" mode="TO">
 <Animation duration="1" repeat="-1" fps="10" interpolation="CUBIC_BEZIER" controls="0.0 1.0 0.0 1.0" />
 </Transform>
-<Reference name="bTimestamp" source="x" default="0" />
+<Reference name="bTimestamp" source="x" defaultValue="0" />
+<Rectangle x="0" y="0" width="1" height="1" />
 </PartDraw>
 </Compare>
 <Compare expression="isC">
@@ -188,7 +193,8 @@ alpha="255">
 <Transform target="x" value="(([YEAR] - 2025) * 366 + [DAY_OF_YEAR]) * 1440 + floor([SECONDS_IN_DAY] / 60)" mode="TO">
 <Animation duration="1" repeat="-1" fps="10" interpolation="CUBIC_BEZIER" controls="0.0 1.0 0.0 1.0" />
 </Transform>
-<Reference name="cTimestamp" source="x" default="0" />
+<Reference name="cTimestamp" source="x" defaultValue="0" />
+<Rectangle x="0" y="0" width="1" height="1" />
 </PartDraw>
 </Compare>
 <Compare expression="isD">
@@ -201,7 +207,8 @@ alpha="255">
 <Transform target="x" value="(([YEAR] - 2025) * 366 + [DAY_OF_YEAR]) * 1440 + floor([SECONDS_IN_DAY] / 60)" mode="TO">
 <Animation duration="1" repeat="-1" fps="10" interpolation="CUBIC_BEZIER" controls="0.0 1.0 0.0 1.0" />
 </Transform>
-<Reference name="dTimestamp" source="x" default="0" />
+<Reference name="dTimestamp" source="x" defaultValue="0" />
+<Rectangle x="0" y="0" width="1" height="1" />
 </PartDraw>
 </Compare>
 <Compare expression="isE">
@@ -214,7 +221,8 @@ alpha="255">
 <Transform target="x" value="(([YEAR] - 2025) * 366 + [DAY_OF_YEAR]) * 1440 + floor([SECONDS_IN_DAY] / 60)" mode="TO">
 <Animation duration="1" repeat="-1" fps="10" interpolation="CUBIC_BEZIER" controls="0.0 1.0 0.0 1.0" />
 </Transform>
-<Reference name="eTimestamp" source="x" default="0" />
+<Reference name="eTimestamp" source="x" defaultValue="0" />
+<Rectangle x="0" y="0" width="1" height="1" />
 </PartDraw>
 </Compare>
 <Compare expression="isF">
@@ -227,7 +235,8 @@ alpha="255">
 <Transform target="x" value="(([YEAR] - 2025) * 366 + [DAY_OF_YEAR]) * 1440 + floor([SECONDS_IN_DAY] / 60)" mode="TO">
 <Animation duration="1" repeat="-1" fps="10" interpolation="CUBIC_BEZIER" controls="0.0 1.0 0.0 1.0" />
 </Transform>
-<Reference name="fTimestamp" source="x" default="0" />
+<Reference name="fTimestamp" source="x" defaultValue="0" />
+<Rectangle x="0" y="0" width="1" height="1" />
 </PartDraw>
 </Compare>
 <Compare expression="isG">
@@ -240,7 +249,8 @@ alpha="255">
 <Transform target="x" value="(([YEAR] - 2025) * 366 + [DAY_OF_YEAR]) * 1440 + floor([SECONDS_IN_DAY] / 60)" mode="TO">
 <Animation duration="1" repeat="-1" fps="10" interpolation="CUBIC_BEZIER" controls="0.0 1.0 0.0 1.0" />
 </Transform>
-<Reference name="gTimestamp" source="x" default="0" />
+<Reference name="gTimestamp" source="x" defaultValue="0" />
+<Rectangle x="0" y="0" width="1" height="1" />
 </PartDraw>
 </Compare>
 <Compare expression="isH">
@@ -253,7 +263,8 @@ alpha="255">
 <Transform target="x" value="(([YEAR] - 2025) * 366 + [DAY_OF_YEAR]) * 1440 + floor([SECONDS_IN_DAY] / 60)" mode="TO">
 <Animation duration="1" repeat="-1" fps="10" interpolation="CUBIC_BEZIER" controls="0.0 1.0 0.0 1.0" />
 </Transform>
-<Reference name="hTimestamp" source="x" default="0" />
+<Reference name="hTimestamp" source="x" defaultValue="0" />
+<Rectangle x="0" y="0" width="1" height="1" />
 </PartDraw>
 </Compare>
 <Compare expression="isI">
@@ -266,7 +277,8 @@ alpha="255">
 <Transform target="x" value="(([YEAR] - 2025) * 366 + [DAY_OF_YEAR]) * 1440 + floor(([SECONDS_IN_DAY] - 30) / 60)" mode="TO">
 <Animation duration="1" repeat="-1" fps="10" interpolation="CUBIC_BEZIER" controls="0.0 1.0 0.0 1.0" />
 </Transform>
-<Reference name="iTimestamp" source="x" default="0" />
+<Reference name="iTimestamp" source="x" defaultValue="0" />
+<Rectangle x="0" y="0" width="1" height="1" />
 </PartDraw>
 </Compare>
 <Compare expression="isJ">
@@ -279,7 +291,8 @@ alpha="255">
 <Transform target="x" value="(([YEAR] - 2025) * 366 + [DAY_OF_YEAR]) * 1440 + floor(([SECONDS_IN_DAY] - 30) / 60)" mode="TO">
 <Animation duration="1" repeat="-1" fps="10" interpolation="CUBIC_BEZIER" controls="0.0 1.0 0.0 1.0" />
 </Transform>
-<Reference name="jTimestamp" source="x" default="0" />
+<Reference name="jTimestamp" source="x" defaultValue="0" />
+<Rectangle x="0" y="0" width="1" height="1" />
 </PartDraw>
 </Compare>
 <Compare expression="isK">
@@ -292,7 +305,8 @@ alpha="255">
 <Transform target="x" value="(([YEAR] - 2025) * 366 + [DAY_OF_YEAR]) * 1440 + floor(([SECONDS_IN_DAY] - 30) / 60)" mode="TO">
 <Animation duration="1" repeat="-1" fps="10" interpolation="CUBIC_BEZIER" controls="0.0 1.0 0.0 1.0" />
 </Transform>
-<Reference name="kTimestamp" source="x" default="0" />
+<Reference name="kTimestamp" source="x" defaultValue="0" />
+<Rectangle x="0" y="0" width="1" height="1" />
 </PartDraw>
 </Compare>
 <Compare expression="isL">
@@ -305,7 +319,8 @@ alpha="255">
 <Transform target="x" value="(([YEAR] - 2025) * 366 + [DAY_OF_YEAR]) * 1440 + floor(([SECONDS_IN_DAY] - 30) / 60)" mode="TO">
 <Animation duration="1" repeat="-1" fps="10" interpolation="CUBIC_BEZIER" controls="0.0 1.0 0.0 1.0" />
 </Transform>
-<Reference name="lTimestamp" source="x" default="0" />
+<Reference name="lTimestamp" source="x" defaultValue="0" />
+<Rectangle x="0" y="0" width="1" height="1" />
 </PartDraw>
 </Compare>
 </Condition>
@@ -329,7 +344,7 @@ alpha="255">
 <Expression name="isOneSeven"><![CDATA[[IS_24_HOUR_MODE] && [HOUR_0_23] == 17]]></Expression>
 <Expression name="isOneEight"><![CDATA[[IS_24_HOUR_MODE] && [HOUR_0_23] == 18]]></Expression>
 <Expression name="isOneNine"><![CDATA[[IS_24_HOUR_MODE] && [HOUR_0_23] == 19]]></Expression>
-<Expression name="IsTwoZero"><![CDATA[[IS_24_HOUR_MODE] && [HOUR_0_23] == 20]]></Expression>
+<Expression name="isTwoZero"><![CDATA[[IS_24_HOUR_MODE] && [HOUR_0_23] == 20]]></Expression>
 <Expression name="isTwoOne"><![CDATA[[IS_24_HOUR_MODE] && [HOUR_0_23] == 21]]></Expression>
 <Expression name="isTwoTwo"><![CDATA[[IS_24_HOUR_MODE] && [HOUR_0_23] == 22]]></Expression>
 <Expression name="isTwoThree"><![CDATA[[IS_24_HOUR_MODE] && [HOUR_0_23] == 23]]></Expression>
