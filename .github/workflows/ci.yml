@@ -130,7 +130,7 @@ jobs:
 
       - name: Re-install needed packages
         run: |
-          sudo apt-get update && sudo apt-get install -y libgl1 chromium fontforge
+          sudo apt-get update && sudo apt-get install -y libgl1 chromium
 
       - name: Set ANDROID_USER_HOME
         run: echo "ANDROID_USER_HOME=$HOME/.android" >> $GITHUB_ENV
@@ -338,7 +338,7 @@ jobs:
 
       - name: Re-install needed packages
         run: |
-          sudo apt-get update && sudo apt-get install -y libgl1 chromium fontforge
+          sudo apt-get update && sudo apt-get install -y libgl1 chromium
 
       - name: Set ANDROID_USER_HOME
         run: echo "ANDROID_USER_HOME=$HOME/.android" >> $GITHUB_ENV
@@ -396,7 +396,7 @@ jobs:
 
       - name: Re-install needed packages
         run: |
-          sudo apt-get update && sudo apt-get install -y libgl1 chromium fontforge
+          sudo apt-get update && sudo apt-get install -y libgl1 chromium
 
       - name: Set ANDROID_USER_HOME
         run: echo "ANDROID_USER_HOME=$HOME/.android" >> $GITHUB_ENV
