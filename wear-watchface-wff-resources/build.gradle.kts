@@ -114,6 +114,7 @@ androidComponents {
             dependsOn(createHourSfd)
             fontforgeCommand = project.providers.gradleProperty("com.alexvanyo.composelife.fontforgeCommand")
             sfdFile = createHourSfd.flatMap(CreateHourSfd::outputFile)
+            optimizeScript = layout.projectDirectory.file("scripts/optimize_otf.py")
             generatedResDirectory = layout.buildDirectory.dir("generated/wff/res")
             otfName = "hour$hourPrefix.otf"
         }
@@ -235,6 +236,9 @@ abstract class ConvertSfdToOtf : DefaultTask() {
     @get:InputFile
     abstract val sfdFile: RegularFileProperty
 
+    @get:InputFile
+    abstract val optimizeScript: RegularFileProperty
+
     @get:OutputDirectory
     abstract val generatedResDirectory: DirectoryProperty
 
@@ -280,36 +284,8 @@ abstract class ConvertSfdToOtf : DefaultTask() {
             commandLine(
                 listOf(
                     "python3",
-                    "-c",
-                    """
-                    from fontTools.ttLib import TTFont
-                    from fontTools.cffLib.specializer import specializeProgram
-
-                    f = TTFont('$otfPath')
-                    cff = f['CFF ']
-                    top_dict = cff.cff.topDictIndex[0]
-                    charstrings = top_dict.CharStrings
-                    for name in charstrings.keys():
-                        cs = charstrings[name]
-                        cs.decompile()
-                        cs.program = specializeProgram(cs.program)
-                    if hasattr(top_dict, 'Private') and hasattr(top_dict.Private, 'Subrs'):
-                        for s in top_dict.Private.Subrs:
-                            s.decompile()
-                            prog = s.program
-                            if prog and prog[-1] == 'return':
-                                s.program = specializeProgram(prog[:-1]) + ['return']
-                            else:
-                                s.program = specializeProgram(prog)
-                    cmap = f['cmap']
-                    cmap.tables = [t for t in cmap.tables if t.platformID == 3 and t.platEncID == 1]
-                    name = f['name']
-                    name.names = [n for n in name.names if n.platformID == 3]
-                    for tag in ['FFTM', 'GDEF']:
-                        if tag in f:
-                            del f[tag]
-                    f.save('$otfPath')
-                    """.trimIndent(),
+                    optimizeScript.get().asFile.absolutePath,
+                    otfPath,
                 )
             )
         }
