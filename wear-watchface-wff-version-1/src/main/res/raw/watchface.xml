@@ -112,11 +112,11 @@
                 x="-29"
                 y="6"
                 alpha="0">
+                <Variant mode="AMBIENT" target="alpha" value="255" />
                 <Font
                     color="[CONFIGURATION.themeColor]"
                     family="gameoflifedigits.ttf"
                     size="103" />
-                <Variant mode="AMBIENT" target="alpha" value="255" duration="0" />
             </TimeText>
         </DigitalClock>
 
@@ -124,14 +124,16 @@
             x="0"
             y="0"
             height="400"
-            width="400">
+            width="400"
+            name="interactiveClock">
             <Group
                 x="0"
                 y="0"
                 height="400"
                 width="400"
-                alpha="255">
-                <Variant mode="AMBIENT" target="alpha" value="0" duration="0" />
+                alpha="255"
+                name="nonAmbientClock">
+                <Variant mode="AMBIENT" target="alpha" value="0" />
                 <Condition>
                     <Expressions>
                         <!-- 24-hour-specific fonts -->
@@ -152,7 +154,7 @@
                         <Expression name="isOneSeven"><![CDATA[[IS_24_HOUR_MODE] && [HOUR_0_23] == 17]]></Expression>
                         <Expression name="isOneEight"><![CDATA[[IS_24_HOUR_MODE] && [HOUR_0_23] == 18]]></Expression>
                         <Expression name="isOneNine"><![CDATA[[IS_24_HOUR_MODE] && [HOUR_0_23] == 19]]></Expression>
-                        <Expression name="IsTwoZero"><![CDATA[[IS_24_HOUR_MODE] && [HOUR_0_23] == 20]]></Expression>
+                        <Expression name="isTwoZero"><![CDATA[[IS_24_HOUR_MODE] && [HOUR_0_23] == 20]]></Expression>
                         <Expression name="isTwoOne"><![CDATA[[IS_24_HOUR_MODE] && [HOUR_0_23] == 21]]></Expression>
                         <Expression name="isTwoTwo"><![CDATA[[IS_24_HOUR_MODE] && [HOUR_0_23] == 22]]></Expression>
                         <Expression name="isTwoThree"><![CDATA[[IS_24_HOUR_MODE] && [HOUR_0_23] == 23]]></Expression>
