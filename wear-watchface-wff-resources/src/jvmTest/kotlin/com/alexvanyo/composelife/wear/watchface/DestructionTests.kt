@@ -170,21 +170,43 @@ private suspend fun destructionIsCorrect(algorithm: GameOfLifeAlgorithm, hourPre
         bufferedWriter.write("GEN_MAP ${genMap.joinToString(" ")}")
         bufferedWriter.newLine()
 
+        val uniqueRelativeShapes = mutableListOf<List<IntOffset>>()
+        val relativeShapeIndices = mutableMapOf<List<IntOffset>, Int>()
+
+        data class ShapeInstance(val shapeIndex: Int, val origin: IntOffset)
+
         val uniqueCanonicalIndices = canonicalIndices.values.toSortedSet()
-        uniqueCanonicalIndices.forEach { canonicalIndex ->
-            bufferedWriter.write("GLYPH $canonicalIndex")
-            bufferedWriter.newLine()
-            createContours(aliveCellsInWindow[canonicalIndex])
+        val glyphInstances = uniqueCanonicalIndices.associateWith { canonicalIndex ->
+            val contours = createContours(aliveCellsInWindow[canonicalIndex])
                 .map { contour ->
                     contour.map {
                         IntOffset(it.x - 1, 70 - it.y - 1)
                     }
                 }
-                .forEach { contour ->
-                    val coordsStr = contour.joinToString(" ") { "${it.x},${it.y}" }
-                    bufferedWriter.write("CONTOUR $coordsStr")
-                    bufferedWriter.newLine()
+            contours.map { contour ->
+                val origin = contour.first()
+                val relativeContour = contour.map { it - origin }
+                val shapeIndex = relativeShapeIndices.getOrPut(relativeContour) {
+                    uniqueRelativeShapes.add(relativeContour)
+                    uniqueRelativeShapes.lastIndex
                 }
+                ShapeInstance(shapeIndex, origin)
+            }
+        }
+
+        uniqueRelativeShapes.forEachIndexed { index, shape ->
+            val coordsStr = shape.joinToString(" ") { "${it.x},${it.y}" }
+            bufferedWriter.write("SUBR $index $coordsStr")
+            bufferedWriter.newLine()
+        }
+
+        glyphInstances.forEach { (canonicalIndex, instances) ->
+            bufferedWriter.write("GLYPH $canonicalIndex")
+            bufferedWriter.newLine()
+            instances.forEach { (shapeIndex, origin) ->
+                bufferedWriter.write("INST $shapeIndex ${origin.x},${origin.y}")
+                bufferedWriter.newLine()
+            }
         }
     }
 
