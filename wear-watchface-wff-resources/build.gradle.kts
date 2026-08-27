@@ -287,11 +287,24 @@ abstract class ConvertSfdToOtf : DefaultTask() {
 
                     f = TTFont('$otfPath')
                     cff = f['CFF ']
-                    charstrings = cff.cff.topDictIndex[0].CharStrings
+                    top_dict = cff.cff.topDictIndex[0]
+                    charstrings = top_dict.CharStrings
                     for name in charstrings.keys():
                         cs = charstrings[name]
                         cs.decompile()
                         cs.program = specializeProgram(cs.program)
+                    if hasattr(top_dict, 'Private') and hasattr(top_dict.Private, 'Subrs'):
+                        for s in top_dict.Private.Subrs:
+                            s.decompile()
+                            prog = s.program
+                            if prog and prog[-1] == 'return':
+                                s.program = specializeProgram(prog[:-1]) + ['return']
+                            else:
+                                s.program = specializeProgram(prog)
+                    cmap = f['cmap']
+                    cmap.tables = [t for t in cmap.tables if t.platformID == 3 and t.platEncID == 1]
+                    name = f['name']
+                    name.names = [n for n in name.names if n.platformID == 3]
                     for tag in ['FFTM', 'GDEF']:
                         if tag in f:
                             del f[tag]
