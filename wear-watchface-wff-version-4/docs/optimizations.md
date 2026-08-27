@@ -17,8 +17,8 @@ This document details the size optimization techniques implemented to reduce the
 | **7. CFF CharString Opcode Specialization & Table Stripping** | CFF bytecode & unused metadata (`FFTM`, `GDEF`) | 1,246,344 bytes (1.19 MB) | - | `711e93bfe` |
 | **8. Table Pruning (`cmap` & `name`) & Subrs Specialization** | Legacy platform 1 tables & Private Subrs | 26,392 bytes (~26 KB) | - | `8790e0b17` |
 | **9. Native `fontTools` Pipeline & FontForge Removal** | Font build architecture & compilation speed | Build speed >50x faster | 769,812 bytes (~770 KB) | `e78e5b745` |
-| **10. In-Memory Subroutinization & Contour Canonicalization** | CFF `Private.Subrs` & vertex ordering | 56,546,080 bytes (53.93 MB, 41.5%) | - | `7b37ee083` |
-| **Total Cumulative Savings** | **Entire Watch Face** | **299.72 MB Uncompressed (-79.0%)** | **17.86 MB Release APK (-47.8%)** | **All Verified** |
+| **10. Shape-Level Subroutinization in Kotlin** | Geometry extraction (`SUBR`/`INST`) & CFF `Private.Subrs` | 38,235,316 bytes (36.46 MB, 28.1%) | - | `e042129be` |
+| **Total Cumulative Savings** | **Entire Watch Face** | **281.41 MB Uncompressed (-74.2%)** | **17.86 MB Release APK (-47.8%)** | **All Verified** |
 
 ---
 
@@ -158,20 +158,19 @@ This document details the size optimization techniques implemented to reduce the
 
 ---
 
-### 10. In-Memory CFF Subroutinization & Contour Canonicalization
-- **Commit:** `7b37ee083`
+### 10. Shape-Level Subroutinization in Kotlin
+- **Commit:** `e042129be`
 - **Affected Files:**
-  - `wear-watchface-wff-resources/scripts/build_hour_otf.py`
   - `wear-watchface-wff-resources/src/jvmTest/kotlin/com/alexvanyo/composelife/wear/watchface/DestructionTests.kt`
+  - `wear-watchface-wff-resources/scripts/build_hour_otf.py`
 - **Description:**
-  Implemented in-memory Type 2 CharString subroutinization in Python extracting high-frequency instruction patterns into `Private.Subrs`, rotated polygon contour corner points to always begin at the top-left minimum vertex, and omitted redundant CharString advance width tokens.
+  Moved geometry and subroutine analysis entirely into Kotlin. `DestructionTests.kt` decomposes each generation's alive cells into shared relative polygon shapes (`SUBR`), while glyphs reference these shapes at specific coordinate offsets (`INST`). `build_hour_otf.py` compiles the subroutines into `Private.Subrs` and emits `rmoveto` and `callsubr` instructions directly without any token-level searching in Python.
 - **Implementation:**
-  - Canonicalized contour vertex order in `createContours` so identical shapes anywhere on the screen emit identical instruction sequences.
-  - In `build_hour_otf.py`, identified the top 1,000 most profitable token n-grams and substituted them with `callsubr` bytecode calls.
-  - Set `width=None` in `T2CharStringPen` to leverage `defaultWidthX = 70`.
+  - In `DestructionTests.kt`, extract relative polygon contours $(x - minX, y - minY)$ into a deduplicated shape library per minute and output `SUBR <id> <vertices>` and `INST <id> <x,y>`.
+  - In `build_hour_otf.py`, map the most frequent relative shapes to `Private.Subrs` and emit `callsubr` instructions.
 - **Impact:**
-  - **Uncompressed Font Reduction:** **56,546,080 bytes (53.93 MB, 41.5% reduction)**, dropping total font size from 129.86 MB down to **75.94 MB**.
-  - **Lifetime Uncompressed Savings:** **299.72 MB (-79.0% reduction)** from initial baseline.
+  - **Uncompressed Font Reduction:** **38,235,316 bytes (36.46 MB, 28.1% reduction)** compared to un-subroutinized CFF, maintaining total uncompressed size at **93.40 MB**.
+  - **Total Lifetime Uncompressed Savings:** **281.41 MB (-74.2% reduction)** from initial baseline.
 
 ---
 
