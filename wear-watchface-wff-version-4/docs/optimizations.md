@@ -15,7 +15,8 @@ This document details the size optimization techniques implemented to reduce the
 | **5. Packaging Exclusions for Builtins Metadata** | APK packaging (`kotlin_builtins`) | ~54 KB (8 metadata files removed) | ~13 KB | `6471e596b` |
 | **6. OpenType CFF (`.otf`) Font Conversion** | Font encoding (Type 2 CharStrings vs TrueType) | 108,345,096 bytes (103.33 MB, 44.1%) | 8,938,281 bytes (8.52 MB, 30.6%) | `9d69f457a` |
 | **7. CFF CharString Opcode Specialization & Table Stripping** | CFF bytecode & unused metadata (`FFTM`, `GDEF`) | 1,246,344 bytes (1.19 MB) | - | `711e93bfe` |
-| **Total Cumulative Savings** | **Entire Watch Face** | **~273.9 MB Uncompressed** | **~13.0 MB Compressed APK** | **All Verified** |
+| **8. Table Pruning (`cmap` & `name`) & Subrs Specialization** | Legacy platform 1 tables & Private Subrs | 26,392 bytes (~26 KB) | - | `8790e0b17` |
+| **Total Cumulative Savings** | **Entire Watch Face** | **~274.0 MB Uncompressed** | **~13.0 MB Compressed APK** | **All Verified** |
 
 ---
 
@@ -119,6 +120,20 @@ This document details the size optimization techniques implemented to reduce the
   - Added python post-processing step in `ConvertSfdToOtf.taskAction` applying `specializeProgram` across all glyph CharStrings and deleting redundant tables.
 - **Impact:**
   - **Uncompressed Font Reduction:** 1,246,344 bytes (1.19 MB reduction across all 33 fonts)
+
+---
+
+### 8. Table Pruning (`cmap` & `name`) & Subrs Specialization
+- **Commit:** `8790e0b17`
+- **Affected Files:** `wear-watchface-wff-resources/build.gradle.kts`
+- **Description:**
+  Pruned redundant Macintosh Roman (platform 1) `cmap` and `name` table records that are not supported or used by Android / Skia, and ran `specializeProgram` on the CFF Private Subroutines index.
+- **Implementation:**
+  - Filtered `cmap.tables` to keep only Windows Unicode BMP (platform 3, encoding 1).
+  - Filtered `name.names` to retain Windows Unicode (platform 3) records.
+  - Decompiled, specialized, and recompiled all `Private.Subrs` bytecode programs.
+- **Impact:**
+  - **Uncompressed Font Reduction:** 26,392 bytes across all 33 fonts
 
 ---
 
