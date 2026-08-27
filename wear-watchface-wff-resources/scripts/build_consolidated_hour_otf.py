@@ -16,10 +16,10 @@
 #
 
 """
-Standalone script to build OpenType CFF (.otf) watch face fonts directly using fontTools.
+Standalone script to build consolidated 3-hour OpenType CFF (.otf) watch face fonts.
 
-Takes pre-extracted shape subroutines and glyph instances computed in Kotlin,
-and compiles them into an optimized OpenType CFF font.
+Takes pre-extracted shape subroutines and glyph instances computed in Kotlin for 3 hours,
+and compiles them into a single OpenType CFF font containing 54,000 frames.
 """
 
 import argparse
@@ -31,9 +31,10 @@ from fontTools.cffLib import SubrsIndex
 from fontTools.misc.psCharStrings import T2CharString
 from fontTools.cffLib.specializer import specializeProgram
 
-CUSTOM_CODE_POINT_START = 0x4E00
+CUSTOM_CODE_POINT_START = 0x20000
 GENERATIONS_PER_MINUTE = 300
 MINUTES_PER_HOUR = 60
+FRAMES_PER_HOUR = MINUTES_PER_HOUR * GENERATIONS_PER_MINUTE  # 18,000
 EM_SIZE = 70
 
 
@@ -76,9 +77,14 @@ def parse_minute_data(file_path: str):
     return gen_map, subr_shapes, glyph_instances
 
 
-def build_hour_font(hour_prefix: str, minute_dir: str, output_otf: str) -> None:
+def build_consolidated_font(
+    hour_prefixes: list,
+    font_name: str,
+    minute_dir: str,
+    output_otf: str,
+) -> None:
     """
-    Builds a complete, optimized OpenType CFF (.otf) font for the given hour.
+    Builds a complete, optimized 3-hour OpenType CFF (.otf) font.
     """
     glyph_order = [".notdef"]
     charstrings = {}
@@ -89,34 +95,35 @@ def build_hour_font(hour_prefix: str, minute_dir: str, output_otf: str) -> None:
     notdef_cs = notdef_pen.getCharString()
     charstrings[".notdef"] = notdef_cs
 
-    # Collect all unique relative shapes and glyph instances across all 60 minutes
-    global_subr_shapes = {}  # shape_tuple -> global_subr_id
+    # Collect all unique relative shapes and glyph instances across all 3 hours (180 minutes)
+    group_subr_shapes = {}  # shape_tuple -> group_subr_id
     subr_defs = []  # list of shape_tuple
     subr_counts = []
 
-    minute_data = []
+    hours_data = []
 
-    for minute in range(MINUTES_PER_HOUR):
-        data_path = os.path.join(minute_dir, f"{hour_prefix}:{minute:02d}.data")
-        if not os.path.exists(data_path):
-            raise FileNotFoundError(f"Minute data file not found: {data_path}")
+    for hour_idx, hour_prefix in enumerate(hour_prefixes):
+        for minute in range(MINUTES_PER_HOUR):
+            data_path = os.path.join(minute_dir, f"{hour_prefix}:{minute:02d}.data")
+            if not os.path.exists(data_path):
+                raise FileNotFoundError(f"Minute data file not found: {data_path}")
 
-        gen_map, subr_shapes, glyph_instances = parse_minute_data(data_path)
-        minute_data.append((minute, gen_map, subr_shapes, glyph_instances))
+            gen_map, subr_shapes, glyph_instances = parse_minute_data(data_path)
+            hours_data.append((hour_idx, hour_prefix, minute, gen_map, subr_shapes, glyph_instances))
 
-        for instances in glyph_instances.values():
-            for local_subr_id, ox, oy in instances:
-                shape = subr_shapes[local_subr_id]
-                if shape not in global_subr_shapes:
-                    global_id = len(subr_defs)
-                    global_subr_shapes[shape] = global_id
-                    subr_defs.append(shape)
-                    subr_counts.append(1)
-                else:
-                    global_id = global_subr_shapes[shape]
-                    subr_counts[global_id] += 1
+            for instances in glyph_instances.values():
+                for local_subr_id, ox, oy in instances:
+                    shape = subr_shapes[local_subr_id]
+                    if shape not in group_subr_shapes:
+                        gid = len(subr_defs)
+                        group_subr_shapes[shape] = gid
+                        subr_defs.append(shape)
+                        subr_counts.append(1)
+                    else:
+                        gid = group_subr_shapes[shape]
+                        subr_counts[gid] += 1
 
-    # Select top 1000 most profitable subroutines across the hour
+    # Select top 1000 most profitable subroutines across the 3 hours
     sorted_subr_ids = sorted(
         range(len(subr_defs)), key=lambda i: subr_counts[i], reverse=True
     )
@@ -140,10 +147,8 @@ def build_hour_font(hour_prefix: str, minute_dir: str, output_otf: str) -> None:
         cs = pen.getCharString()
         cs.decompile()
         prog = specializeProgram(cs.program)
-        # Strip the initial move (which is 0 hmoveto) and trailing endchar
         if prog and prog[-1] == "endchar":
             prog = prog[:-1]
-        # Remove first hmoveto/vmoveto/rmoveto if it is at relative origin (0, 0)
         if len(prog) >= 2 and prog[1] in ("hmoveto", "vmoveto"):
             prog = prog[2:]
         elif len(prog) >= 3 and prog[2] == "rmoveto":
@@ -151,23 +156,22 @@ def build_hour_font(hour_prefix: str, minute_dir: str, output_otf: str) -> None:
         subr_cs = T2CharString(program=prog + ["return"])
         subrs_index.append(subr_cs)
 
-    # 2. Build CharStrings for all glyphs
-    for minute, gen_map, subr_shapes, glyph_instances in minute_data:
-        minute_base_cp = CUSTOM_CODE_POINT_START + minute * GENERATIONS_PER_MINUTE
+    # 2. Build CharStrings and cmap for all 3 hours
+    for hour_idx, hour_prefix, minute, gen_map, subr_shapes, glyph_instances in hours_data:
+        hour_base_cp = CUSTOM_CODE_POINT_START + (hour_idx * FRAMES_PER_HOUR) + (minute * GENERATIONS_PER_MINUTE)
         for gen in range(GENERATIONS_PER_MINUTE):
             canonical_idx = gen_map[gen]
-            glyph_name = f"c_{minute:02d}_{canonical_idx}"
-            cmap[minute_base_cp + gen] = glyph_name
+            glyph_name = f"c_{hour_prefix}_{minute:02d}_{canonical_idx}"
+            cmap[hour_base_cp + gen] = glyph_name
 
         for canonical_idx, instances in glyph_instances.items():
-            glyph_name = f"c_{minute:02d}_{canonical_idx}"
+            glyph_name = f"c_{hour_prefix}_{minute:02d}_{canonical_idx}"
             prog = []
             curr_x, curr_y = 0, 0
             for local_subr_id, ox, oy in instances:
                 shape = subr_shapes[local_subr_id]
-                orig_global_id = global_subr_shapes[shape]
+                orig_group_id = group_subr_shapes[shape]
 
-                # Move to shape instance origin
                 dx = ox - curr_x
                 dy = oy - curr_y
                 if dx == 0 and dy != 0:
@@ -177,12 +181,10 @@ def build_hour_font(hour_prefix: str, minute_dir: str, output_otf: str) -> None:
                 else:
                     prog.extend([dx, dy, "rmoveto"])
 
-                if orig_global_id in top_subr_id_map:
-                    # Call subroutine
-                    new_subr_id = top_subr_id_map[orig_global_id]
+                if orig_group_id in top_subr_id_map:
+                    new_subr_id = top_subr_id_map[orig_group_id]
                     prog.extend([new_subr_id - bias, "callsubr"])
                 else:
-                    # Draw inline if not in top subroutines
                     pen = T2CharStringPen(None, None)
                     if shape:
                         pen.moveTo(shape[0])
@@ -218,9 +220,9 @@ def build_hour_font(hour_prefix: str, minute_dir: str, output_otf: str) -> None:
     fb.setupGlyphOrder(glyph_order)
     fb.setupCharacterMap(cmap)
     fb.setupCFF(
-        psName=f"GameOfLifeHour{hour_prefix}",
+        psName=font_name,
         fontInfo={
-            "FullName": f"GameOfLifeHour{hour_prefix}",
+            "FullName": font_name,
             "FamilyName": "GameOfLifeHours",
             "Weight": "Regular",
         },
@@ -244,22 +246,28 @@ def build_hour_font(hour_prefix: str, minute_dir: str, output_otf: str) -> None:
     fb.setupNameTable({
         "familyName": "GameOfLifeHours",
         "styleName": "Regular",
-        "psName": f"GameOfLifeHour{hour_prefix}",
+        "psName": font_name,
     })
 
     # Ensure output directory exists and save
     os.makedirs(os.path.dirname(os.path.abspath(output_otf)), exist_ok=True)
     fb.save(output_otf)
+    print(f"Successfully generated {output_otf} with {len(glyph_order)} glyphs and {len(cmap)} cmap mappings.")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Build OpenType CFF (.otf) watch face font from Kotlin shape subroutines."
+        description="Build consolidated 3-hour OpenType CFF (.otf) watch face font."
     )
     parser.add_argument(
-        "--hour-prefix",
+        "--hour-prefixes",
         required=True,
-        help="Hour prefix (e.g. 00, 01, _1)",
+        help="Comma-separated hour prefixes (e.g. 00,01,02)",
+    )
+    parser.add_argument(
+        "--font-name",
+        required=True,
+        help="Font PostScript name (e.g. GameOfLifeHours00_02)",
     )
     parser.add_argument(
         "--minute-dir",
@@ -273,8 +281,11 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    build_hour_font(
-        hour_prefix=args.hour_prefix,
+    hour_prefixes = [h.strip() for h in args.hour_prefixes.split(",")]
+
+    build_consolidated_font(
+        hour_prefixes=hour_prefixes,
+        font_name=args.font_name,
         minute_dir=args.minute_dir,
         output_otf=args.output_otf,
     )

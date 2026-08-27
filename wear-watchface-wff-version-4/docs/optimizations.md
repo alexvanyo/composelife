@@ -172,6 +172,24 @@ This document details the size optimization techniques implemented to reduce the
   - **Uncompressed Font Reduction:** **38,235,316 bytes (36.46 MB, 28.1% reduction)** compared to un-subroutinized CFF, maintaining total uncompressed size at **93.40 MB**.
   - **Total Lifetime Uncompressed Savings:** **281.41 MB (-74.2% reduction)** from initial baseline.
 
+### 11. 3-Hour Consolidated Font Files (11 Font Files)
+- **Affected Files:**
+  - `wear-watchface-wff-resources/scripts/build_consolidated_hour_otf.py`
+  - `wear-watchface-wff-resources/build.gradle.kts`
+  - `wear-watchface-wff-version-4/src/main/res/raw/watchface.xml`
+  - `wear-watchface-wff-version-1/src/main/res/raw/watchface.xml`
+- **Description:**
+  Consolidated the 33 individual hour font files into exactly 11 OpenType CFF (`.otf`) font files, where each font file covers exactly 3 hours (54,000 frames total per font). This strictly stays within the OpenType 16-bit `maxp.numGlyphs` ceiling ($\le 65,535$ glyphs per font file) while reducing the total number of font assets by 66.7% and shrinking `watchface.xml` by ~70%.
+- **Implementation:**
+  - Grouped the 33 hours into 11 symmetric 3-hour sets: 8 groups for 24-hour mode (`hours_00_02.otf` through `hours_21_23.otf`) and 3 groups for 12-hour single digits (`hours_1_3.otf`, `hours_4_6.otf`, `hours_7_9.otf`).
+  - Created `build_consolidated_hour_otf.py` to compile each 3-hour bundle with 54,000 character entries starting at Plane 2 Unicode codepoint `0x20000`.
+  - Replaced the 33 `<Compare>` blocks in `watchface.xml` (versions 1 & 4) with 11 unified branch expressions referencing the 54,000-character subText parameterization.
+- **Impact:**
+  - **Asset Simplification:** Reduced total font files from 33 down to 11.
+  - **XML Simplification:** Reduced `watchface.xml` size from ~13,000 lines down to ~4,000 lines.
+  - **APK Size Reduction:** Reduced release APK size from 19.48 MB down to **17.50 MB (1.98 MB, 10.2% reduction)**.
+  - **Total Lifetime APK Savings:** Dropped from original 37.34 MB down to **17.50 MB (-53.1% overall reduction)**.
+
 ---
 
 ## Verification & Compatibility
