@@ -172,7 +172,7 @@ This document details the size optimization techniques implemented to reduce the
   - **Uncompressed Font Reduction:** **38,235,316 bytes (36.46 MB, 28.1% reduction)** compared to un-subroutinized CFF, maintaining total uncompressed size at **93.40 MB**.
   - **Total Lifetime Uncompressed Savings:** **281.41 MB (-74.2% reduction)** from initial baseline.
 
-### 11. 3-Hour Consolidated Font Files (11 Font Files) & Bias-Optimal Subroutine Extraction ($k=1239$)
+### 11. 3-Hour Consolidated Font Files (11 Font Files), Safe LTR BMP Filtering & Bias-Optimal Subroutine Extraction ($k=1239$)
 - **Affected Files:**
   - `wear-watchface-wff-resources/scripts/build_consolidated_hour_otf.py`
   - `wear-watchface-wff-resources/build.gradle.kts`
@@ -181,12 +181,15 @@ This document details the size optimization techniques implemented to reduce the
 - **Description:**
   Consolidated the 33 individual hour font files into exactly 11 OpenType CFF (`.otf`) font files, where each font file covers exactly 3 hours (54,000 frames total per font). This strictly stays within the OpenType 16-bit `maxp.numGlyphs` ceiling ($\le 65,535$ glyphs per font file) while reducing the total number of font assets by 66.7% and shrinking `watchface.xml` by ~70%.
   
-  Furthermore, empirically analyzed the Type 2 CharString subroutine bias boundary. In the CFF specification, when $\text{subrsCount} < 1,240$, $\text{bias} = 107$, which allows the most frequent 215 subroutines to be called using compact **1-byte operands**. Crossing $n \ge 1,240$ shifts the bias to $1,131$, forcing all call sites to use 2-byte operands and immediately increasing font size by **+1.86 MB per font (+20.5 MB across all 11 fonts)**. Setting the subroutine limit to the exact boundary of **$k = 1,239$** extracts maximal deduplication while strictly avoiding the 2-byte operand penalty.
+  Furthermore:
+  1. **Safe LTR BMP Character Filtering:** Filtered the Unicode Basic Multilingual Plane (BMP) to extract 54,000 strictly Left-to-Right (LTR), non-combining, non-whitespace, non-control scalar values. Naive contiguous Unicode ranges previously included Right-to-Left (RTL) scripts (Hebrew, Arabic, Syriac, Thaana, NKo) which caused HarfBuzz/Skia to reverse paragraph text layout, as well as zero-width combining diacritics (`Mn`, `Mc`, `Me`) that collapsed glyph advances. Filtering ensures each character is 1 UTF-16 code unit and renders cleanly without BiDi or shaping anomalies.
+  2. **`subText(string, start, end)` Parameter Alignment:** Aligned parameterization with the Android WFF specification where the third argument is the exclusive `end` index (`end = start + 1`) rather than `length`.
+  3. **Bias-Optimal Subroutine Extraction ($k=1239$):** Empirically analyzed the Type 2 CharString subroutine bias boundary. In the CFF specification, when $\text{subrsCount} < 1,240$, $\text{bias} = 107$, which allows the most frequent 215 subroutines to be called using compact **1-byte operands**. Crossing $n \ge 1,240$ shifts the bias to $1,131$, forcing all call sites to use 2-byte operands and immediately increasing font size by **+1.86 MB per font (+20.5 MB across all 11 fonts)**. Setting the subroutine limit to the exact boundary of **$k = 1,239$** extracts maximal deduplication while strictly avoiding the 2-byte operand penalty.
 - **Implementation:**
   - Grouped the 33 hours into 11 symmetric 3-hour sets: 8 groups for 24-hour mode (`hours_00_02.otf` through `hours_21_23.otf`) and 3 groups for 12-hour single digits (`hours_1_3.otf`, `hours_4_6.otf`, `hours_7_9.otf`).
-  - Created `build_consolidated_hour_otf.py` to compile each 3-hour bundle with 54,000 character entries starting at Plane 2 Unicode codepoint `0x20000`.
+  - Implemented `get_safe_bmp_codepoints()` in `build_consolidated_hour_otf.py` to compile each 3-hour bundle with 54,000 safe BMP character mappings.
   - Configured `MAX_SUBROUTINES_PER_FONT = 1239` to target the mathematical global optimum.
-  - Replaced the 33 `<Compare>` blocks in `watchface.xml` (versions 1 & 4) with 11 unified branch expressions referencing the 54,000-character subText parameterization.
+  - Replaced the 33 `<Compare>` blocks in `watchface.xml` (versions 1 & 4) with 11 unified branch expressions referencing the 54,000-character `subText(entity_str, base_expr, base_expr + 1)` parameterization.
 - **Empirical Subroutine Count Analysis (`hours_00_02.otf`):**
 
   | Subroutine Count ($k$) | Actual Subrs | Raw Font Size | Deflated Size (APK) | Analysis |
