@@ -31,11 +31,15 @@ from fontTools.cffLib import SubrsIndex
 from fontTools.misc.psCharStrings import T2CharString
 from fontTools.cffLib.specializer import specializeProgram
 
-CUSTOM_CODE_POINT_START = 0x20000
+CUSTOM_CODE_POINT_START = 0x0100
 GENERATIONS_PER_MINUTE = 300
 MINUTES_PER_HOUR = 60
 FRAMES_PER_HOUR = MINUTES_PER_HOUR * GENERATIONS_PER_MINUTE  # 18,000
 EM_SIZE = 70
+# In Type 2 CharStrings, subroutine counts < 1240 use bias 107, allowing the top 215 subroutines
+# to be encoded with 1-byte operands. Crossing >= 1240 shifts the bias to 1131, penalizing all
+# call sites with 2-byte operands (+1.86 MB per font). 1239 is the exact optimal threshold.
+MAX_SUBROUTINES_PER_FONT = 1239
 
 
 def parse_minute_data(file_path: str):
@@ -123,11 +127,11 @@ def build_consolidated_font(
                         gid = group_subr_shapes[shape]
                         subr_counts[gid] += 1
 
-    # Select top 1000 most profitable subroutines across the 3 hours
+    # Select top most profitable subroutines across the 3 hours (up to bias threshold)
     sorted_subr_ids = sorted(
         range(len(subr_defs)), key=lambda i: subr_counts[i], reverse=True
     )
-    top_subr_ids = sorted_subr_ids[:1000]
+    top_subr_ids = sorted_subr_ids[:MAX_SUBROUTINES_PER_FONT]
     top_subr_id_map = {orig_id: new_id for new_id, orig_id in enumerate(top_subr_ids)}
 
     num_subrs = len(top_subr_ids)

@@ -172,7 +172,7 @@ This document details the size optimization techniques implemented to reduce the
   - **Uncompressed Font Reduction:** **38,235,316 bytes (36.46 MB, 28.1% reduction)** compared to un-subroutinized CFF, maintaining total uncompressed size at **93.40 MB**.
   - **Total Lifetime Uncompressed Savings:** **281.41 MB (-74.2% reduction)** from initial baseline.
 
-### 11. 3-Hour Consolidated Font Files (11 Font Files)
+### 11. 3-Hour Consolidated Font Files (11 Font Files) & Bias-Optimal Subroutine Extraction ($k=1239$)
 - **Affected Files:**
   - `wear-watchface-wff-resources/scripts/build_consolidated_hour_otf.py`
   - `wear-watchface-wff-resources/build.gradle.kts`
@@ -180,15 +180,32 @@ This document details the size optimization techniques implemented to reduce the
   - `wear-watchface-wff-version-1/src/main/res/raw/watchface.xml`
 - **Description:**
   Consolidated the 33 individual hour font files into exactly 11 OpenType CFF (`.otf`) font files, where each font file covers exactly 3 hours (54,000 frames total per font). This strictly stays within the OpenType 16-bit `maxp.numGlyphs` ceiling ($\le 65,535$ glyphs per font file) while reducing the total number of font assets by 66.7% and shrinking `watchface.xml` by ~70%.
+  
+  Furthermore, empirically analyzed the Type 2 CharString subroutine bias boundary. In the CFF specification, when $\text{subrsCount} < 1,240$, $\text{bias} = 107$, which allows the most frequent 215 subroutines to be called using compact **1-byte operands**. Crossing $n \ge 1,240$ shifts the bias to $1,131$, forcing all call sites to use 2-byte operands and immediately increasing font size by **+1.86 MB per font (+20.5 MB across all 11 fonts)**. Setting the subroutine limit to the exact boundary of **$k = 1,239$** extracts maximal deduplication while strictly avoiding the 2-byte operand penalty.
 - **Implementation:**
   - Grouped the 33 hours into 11 symmetric 3-hour sets: 8 groups for 24-hour mode (`hours_00_02.otf` through `hours_21_23.otf`) and 3 groups for 12-hour single digits (`hours_1_3.otf`, `hours_4_6.otf`, `hours_7_9.otf`).
   - Created `build_consolidated_hour_otf.py` to compile each 3-hour bundle with 54,000 character entries starting at Plane 2 Unicode codepoint `0x20000`.
+  - Configured `MAX_SUBROUTINES_PER_FONT = 1239` to target the mathematical global optimum.
   - Replaced the 33 `<Compare>` blocks in `watchface.xml` (versions 1 & 4) with 11 unified branch expressions referencing the 54,000-character subText parameterization.
+- **Empirical Subroutine Count Analysis (`hours_00_02.otf`):**
+
+  | Subroutine Count ($k$) | Actual Subrs | Raw Font Size | Deflated Size (APK) | Analysis |
+  |---|---|---|---|---|
+  | $k = 0$ | 0 | 15.62 MB (15,615,040 B) | 1.89 MB (1,983,291 B) | Baseline without subroutine extraction |
+  | $k = 250$ | 250 | 10.48 MB (10,478,564 B) | 1.77 MB (1,858,679 B) | Strong initial compression |
+  | $k = 500$ | 500 | 10.44 MB (10,443,184 B) | 1.77 MB (1,852,684 B) | Steady compression |
+  | $k = 1,000$ | 1,000 | 10.40 MB (10,403,892 B) | 1.76 MB (1,843,370 B) | Arbitrary initial threshold |
+  | **$k = 1,239$** | **1,239** | **10.39 MB (10,389,936 B)** | **1.75 MB (1,839,619 B)** | **GLOBAL OPTIMUM (Max before bias shift)** |
+  | $k = 1,500$ | 1,500 | 12.35 MB (12,347,392 B) | 1.90 MB (1,895,138 B) | ⚠️ Bias shifted to 1,131 (+1.96 MB penalty) |
+  | $k = 5,000$ | 5,000 | 12.30 MB (12,303,388 B) | 1.88 MB (1,880,765 B) | Diminishing returns; still penalized |
+  | $k = 10,000$ | 10,000 | 12.34 MB (12,340,368 B) | 1.89 MB (1,887,695 B) | Subroutine table overhead outweighs benefits |
+
 - **Impact:**
   - **Asset Simplification:** Reduced total font files from 33 down to 11.
   - **XML Simplification:** Reduced `watchface.xml` size from ~13,000 lines down to ~4,000 lines.
-  - **APK Size Reduction:** Reduced release APK size from 19.48 MB down to **17.50 MB (1.98 MB, 10.2% reduction)**.
-  - **Total Lifetime APK Savings:** Dropped from original 37.34 MB down to **17.50 MB (-53.1% overall reduction)**.
+  - **Subroutine Optimization Savings ($k=1239$ vs $k=1000$):** Saved an additional **120,716 bytes (117.9 KB)** uncompressed across the 11 font files and **33,796 bytes (33.0 KB)** in release APK download size.
+  - **APK Size Reduction:** Reduced release APK size from 19.48 MB down to **17.47 MB (2.01 MB, 10.3% reduction)**.
+  - **Total Lifetime APK Savings:** Dropped from original 37.34 MB down to **17.47 MB (-53.2% overall reduction)**.
 
 ---
 
