@@ -31,7 +31,8 @@ from fontTools.cffLib import SubrsIndex
 from fontTools.misc.psCharStrings import T2CharString
 from fontTools.cffLib.specializer import specializeProgram
 
-CUSTOM_CODE_POINT_START = 0x0100
+import unicodedata
+
 GENERATIONS_PER_MINUTE = 300
 MINUTES_PER_HOUR = 60
 FRAMES_PER_HOUR = MINUTES_PER_HOUR * GENERATIONS_PER_MINUTE  # 18,000
@@ -40,6 +41,29 @@ EM_SIZE = 70
 # to be encoded with 1-byte operands. Crossing >= 1240 shifts the bias to 1131, penalizing all
 # call sites with 2-byte operands (+1.86 MB per font). 1239 is the exact optimal threshold.
 MAX_SUBROUTINES_PER_FONT = 1239
+
+
+def get_safe_bmp_codepoints():
+    """
+    Generates 54,000 safe BMP codepoints excluding all RTL, combining marks, whitespace,
+    control codes, surrogate ranges, and XML special characters.
+    """
+    safe = []
+    for cp in list(range(0x0021, 0xD800)) + list(range(0xE000, 0xFFFD)):
+        c = chr(cp)
+        cat = unicodedata.category(c)
+        bidi = unicodedata.bidirectional(c)
+        if cat in ("Mn", "Mc", "Me", "Cf", "Cc", "Cs", "Zl", "Zp", "Zs"):
+            continue
+        if bidi in ("R", "AL", "RLE", "RLO", "PDF", "FSI", "LRI", "RLI", "PDI"):
+            continue
+        if c in ("<", ">", "&", '"', "'"):
+            continue
+        safe.append(cp)
+    return safe[:54000]
+
+
+SAFE_BMP_CODEPOINTS = get_safe_bmp_codepoints()
 
 
 def parse_minute_data(file_path: str):
@@ -162,11 +186,11 @@ def build_consolidated_font(
 
     # 2. Build CharStrings and cmap for all 3 hours
     for hour_idx, hour_prefix, minute, gen_map, subr_shapes, glyph_instances in hours_data:
-        hour_base_cp = CUSTOM_CODE_POINT_START + (hour_idx * FRAMES_PER_HOUR) + (minute * GENERATIONS_PER_MINUTE)
+        base_frame_idx = (hour_idx * FRAMES_PER_HOUR) + (minute * GENERATIONS_PER_MINUTE)
         for gen in range(GENERATIONS_PER_MINUTE):
             canonical_idx = gen_map[gen]
             glyph_name = f"c_{hour_prefix}_{minute:02d}_{canonical_idx}"
-            cmap[hour_base_cp + gen] = glyph_name
+            cmap[SAFE_BMP_CODEPOINTS[base_frame_idx + gen]] = glyph_name
 
         for canonical_idx, instances in glyph_instances.items():
             glyph_name = f"c_{hour_prefix}_{minute:02d}_{canonical_idx}"
