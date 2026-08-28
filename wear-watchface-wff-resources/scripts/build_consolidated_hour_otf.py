@@ -45,22 +45,29 @@ MAX_SUBROUTINES_PER_FONT = 1239
 
 def get_safe_bmp_codepoints():
     """
-    Generates 54,000 safe BMP codepoints excluding all RTL, combining marks, whitespace,
-    control codes, surrogate ranges, and XML special characters.
+    Generates 54,000 safe East Asian Fullwidth/ideographic BMP codepoints:
+    - Hour 0: CJK Unified Ideographs (0x4E00..0x944F, 18,000 characters)
+    - Hour 1: Hangul Syllables + CJK Ext A + Yi (0xAC00.., 18,000 characters)
+    - Hour 2: PUA + Remaining CJK + Non-combining LTR BMP (18,000 characters)
     """
-    safe = []
-    for cp in list(range(0x0021, 0xD800)) + list(range(0xE000, 0xFFFD)):
+    h0 = list(range(0x4E00, 0x4E00 + 18000))
+    h1 = (list(range(0xAC00, 0xD7A4)) + list(range(0x3400, 0x4DC0)) + list(range(0xA000, 0xA490)))[:18000]
+
+    h2_filtered = []
+    for cp in list(range(0x0100, 0x0590)) + list(range(0x0900, 0xD800)) + list(range(0xE000, 0xFFFD)):
         c = chr(cp)
         cat = unicodedata.category(c)
         bidi = unicodedata.bidirectional(c)
         if cat in ("Mn", "Mc", "Me", "Cf", "Cc", "Cs", "Zl", "Zp", "Zs"):
             continue
-        if bidi in ("R", "AL", "RLE", "RLO", "PDF", "FSI", "LRI", "RLI", "PDI"):
+        if bidi not in ("L", "ON", "EN"):
             continue
         if c in ("<", ">", "&", '"', "'"):
             continue
-        safe.append(cp)
-    return safe[:54000]
+        if cp not in h0 and cp not in h1 and cp not in h2_filtered:
+            h2_filtered.append(cp)
+    h2 = h2_filtered[:18000]
+    return h0 + h1 + h2
 
 
 SAFE_BMP_CODEPOINTS = get_safe_bmp_codepoints()
