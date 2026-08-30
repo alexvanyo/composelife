@@ -20,7 +20,7 @@ jobs:
           cp .github/ci-gradle.properties ~/.gradle/gradle.properties
 
       - name: Configure JDK
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           distribution: 'zulu'
           java-version: 25
