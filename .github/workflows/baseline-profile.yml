@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Free Disk Space
-        uses: endersonmenezes/free-disk-space@v3
+        uses: endersonmenezes/free-disk-space@v4
         with:
           remove_dotnet: true
           remove_haskell: true
