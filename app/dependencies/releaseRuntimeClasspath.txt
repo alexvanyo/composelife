@@ -174,10 +174,10 @@ com.squareup.wire:wire-runtime-jvm:7.0.0-alpha06
 com.squareup.wire:wire-runtime:7.0.0-alpha06
 dev.zacsweers.metro:runtime-jvm:1.2.1
 dev.zacsweers.metro:runtime:1.2.1
-io.coil-kt.coil3:coil-compose-core-android:3.5.0
-io.coil-kt.coil3:coil-compose-core:3.5.0
-io.coil-kt.coil3:coil-core-android:3.5.0
-io.coil-kt.coil3:coil-core:3.5.0
+io.coil-kt.coil3:coil-compose-core-android:3.6.0
+io.coil-kt.coil3:coil-compose-core:3.6.0
+io.coil-kt.coil3:coil-core-android:3.6.0
+io.coil-kt.coil3:coil-core:3.6.0
 io.ktor:ktor-client-core-jvm:3.5.2
 io.ktor:ktor-client-core:3.5.2
 io.ktor:ktor-client-logging-jvm:3.5.2
