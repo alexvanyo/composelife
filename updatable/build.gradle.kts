@@ -51,9 +51,9 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(projects.injectScopes)
                 implementation(libs.androidx.compose.runtime)
                 implementation(libs.kotlinx.coroutines.core)
-                implementation(projects.injectScopes)
             }
         }
         val commonTest by getting {

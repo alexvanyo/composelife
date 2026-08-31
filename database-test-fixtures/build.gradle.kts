@@ -47,14 +47,14 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.kotlinx.coroutines.core)
                 api(projects.database)
+                api(libs.kotlinx.coroutines.core)
 
-                implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.sqldelightAndroidXDriver)
                 implementation(projects.dispatchers)
                 implementation(projects.injectScopes)
                 implementation(projects.updatable)
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.sqldelightAndroidXDriver)
             }
         }
         val androidMain by getting {

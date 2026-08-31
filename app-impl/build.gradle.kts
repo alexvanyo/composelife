@@ -43,9 +43,6 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(libs.androidx.compose.runtime)
-                implementation(libs.androidx.compose.runtime.retain)
-                implementation(libs.kotlinx.serialization.core)
                 implementation(projects.androidApplication)
                 implementation(projects.doNotKeepProcess)
                 implementation(projects.filesystem)
@@ -59,6 +56,9 @@ kotlin {
                 implementation(projects.uiCommon)
                 implementation(projects.uiMobile)
                 implementation(projects.work)
+                implementation(libs.androidx.compose.runtime)
+                implementation(libs.androidx.compose.runtime.retain)
+                implementation(libs.kotlinx.serialization.core)
             }
         }
         val androidMain by getting {

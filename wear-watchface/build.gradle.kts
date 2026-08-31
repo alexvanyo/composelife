@@ -42,13 +42,13 @@ kotlin {
             dependencies {
                 api(projects.algorithm)
 
-                implementation(libs.kotlinx.coroutines.core)
-                implementation(libs.kotlinx.datetime)
                 implementation(projects.geometry)
                 implementation(projects.injectScopes)
                 implementation(projects.openglRenderer)
                 implementation(projects.uiWear)
                 implementation(projects.wearWatchfaceConfiguration)
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.datetime)
             }
         }
         val androidMain by getting {
@@ -58,6 +58,7 @@ kotlin {
             dependencies {
                 api(libs.androidx.wear.watchface)
 
+                implementation(projects.sealedEnum.runtime)
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.appcompat)
                 implementation(libs.androidx.compose.runtime)
@@ -71,7 +72,6 @@ kotlin {
                 implementation(libs.androidx.wear.watchface.editor)
                 implementation(libs.androidx.wear.watchface.style)
                 implementation(libs.kotlinx.coroutines.android)
-                implementation(projects.sealedEnum.runtime)
             }
         }
         val commonTest by getting {

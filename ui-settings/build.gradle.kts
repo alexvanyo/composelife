@@ -67,10 +67,6 @@ kotlin {
                 api(projects.dispatchers)
                 api(projects.uiCells)
 
-                implementation(libs.kotlinx.collections.immutable)
-                implementation(libs.kotlinx.coroutines.core)
-                implementation(libs.kotlinx.datetime)
-                implementation(libs.kotlinx.serialization.json)
                 implementation(projects.clock)
                 implementation(projects.data)
                 implementation(projects.injectScopes)
@@ -87,6 +83,10 @@ kotlin {
                 implementation(projects.uiMobile)
                 implementation(projects.uiToolingPreview)
                 implementation(projects.work)
+                implementation(libs.kotlinx.collections.immutable)
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.datetime)
+                implementation(libs.kotlinx.serialization.json)
             }
         }
         val jbMain by creating {
@@ -150,8 +150,6 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.turbine)
                 implementation(projects.dispatchersTestFixtures)
                 implementation(projects.filesystemTestFixtures)
                 implementation(projects.injectTest)
@@ -164,6 +162,8 @@ kotlin {
                 implementation(projects.testActivity)
                 implementation(projects.uiCommonTestFixtures)
                 implementation(projects.workTestFixtures)
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.turbine)
             }
         }
         val jbTest by creating {

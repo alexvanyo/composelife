@@ -46,9 +46,9 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                api(projects.kmpAndroidRunner)
                 api(libs.jetbrains.compose.uiTest)
                 api(libs.kotlinx.coroutines.test)
-                api(projects.kmpAndroidRunner)
 
                 implementation(projects.dispatchersTestFixtures)
                 implementation(projects.injectScopes)

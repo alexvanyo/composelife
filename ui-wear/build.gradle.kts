@@ -40,10 +40,6 @@ kotlin {
             dependencies {
                 api(projects.updatable)
 
-                implementation(libs.androidx.compose.runtime)
-                implementation(libs.kotlinx.coroutines.core)
-                implementation(libs.kotlinx.datetime)
-                implementation(libs.kotlinx.serialization.core)
                 implementation(projects.logging)
                 implementation(projects.navigation)
                 implementation(projects.parameterizedString)
@@ -54,11 +50,16 @@ kotlin {
                 implementation(projects.uiCommon)
                 implementation(projects.uiToolingPreview)
                 implementation(projects.wearWatchfaceConfiguration)
+                implementation(libs.androidx.compose.runtime)
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.datetime)
+                implementation(libs.kotlinx.serialization.core)
             }
         }
         val androidMain by getting {
             configurations["kspAndroid"].dependencies.add(projects.sealedEnum.ksp)
             dependencies {
+                implementation(projects.sealedEnum.runtime)
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.compose.foundation)
                 implementation(libs.androidx.core)
@@ -74,7 +75,6 @@ kotlin {
                 implementation(libs.androidx.wear.watchface.editor)
                 implementation(libs.androidx.wear.watchface.style)
                 implementation(libs.kotlinx.coroutines.android)
-                implementation(projects.sealedEnum.runtime)
             }
         }
     }
