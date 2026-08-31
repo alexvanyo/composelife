@@ -47,7 +47,6 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(libs.androidx.navigationEvent)
                 implementation(projects.data)
                 implementation(projects.databaseTestFixtures)
                 implementation(projects.dispatchersTestFixtures)
@@ -61,6 +60,7 @@ kotlin {
                 implementation(projects.uiCommonTestFixtures)
                 implementation(projects.uiToolingPreview)
                 implementation(projects.uiWear)
+                implementation(libs.androidx.navigationEvent)
             }
         }
         val jbMain by creating {
@@ -90,13 +90,13 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.turbine)
                 implementation(projects.injectTest)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
                 implementation(projects.patterns)
                 implementation(projects.testActivity)
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.turbine)
             }
         }
         val jvmTest by creating {
