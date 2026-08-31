@@ -31,11 +31,11 @@ kotlin {
                 )
             )
             dependencies {
+                implementation(projects.sealedEnum.processingCommon)
+                implementation(projects.sealedEnum.runtime)
                 implementation(libs.autoService.annotations)
                 implementation(libs.kotlinPoet)
                 implementation(libs.kotlinPoet.ksp)
-                implementation(projects.sealedEnum.processingCommon)
-                implementation(projects.sealedEnum.runtime)
 
                 compileOnly(libs.ksp.api)
             }

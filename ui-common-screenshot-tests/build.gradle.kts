@@ -43,9 +43,9 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(projects.uiCommon)
                 implementation(libs.jetbrains.compose.foundation)
                 implementation(libs.jetbrains.compose.ui)
-                implementation(projects.uiCommon)
             }
         }
         val androidMain by getting {

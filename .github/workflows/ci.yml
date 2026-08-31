@@ -203,6 +203,17 @@ jobs:
           commit_message: Auto update dependency guard baseline
           push_options: --force-with-lease
 
+      - name: Sort dependencies
+        if: ${{ !cancelled() && matrix.sdk == '36' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
+        run: ./gradlew sortDependencies
+
+      - name: Auto-commit dependency sorting changes
+        if: ${{ !cancelled() && matrix.sdk == '36' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          commit_message: Auto sort dependencies
+          push_options: --force-with-lease
+
       - name: Update screenshots
         if: ${{ !cancelled() && matrix.sdk == '36' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
         run: ./gradlew recordRoborazzi
