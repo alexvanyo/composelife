@@ -72,12 +72,6 @@ kotlin {
                 api(projects.uiCommon)
                 api(projects.uiSettings)
 
-                implementation(libs.androidx.compose.runtime)
-                implementation(libs.androidx.compose.runtime.retain)
-                implementation(libs.kotlinx.collections.immutable)
-                implementation(libs.kotlinx.coroutines.core)
-                implementation(libs.kotlinx.datetime)
-                implementation(libs.kotlinx.serialization.json)
                 implementation(projects.injectScopes)
                 implementation(projects.logging)
                 implementation(projects.navigation)
@@ -90,6 +84,12 @@ kotlin {
                 implementation(projects.uiMobile)
                 implementation(projects.uiToolingPreview)
                 implementation(projects.work)
+                implementation(libs.androidx.compose.runtime)
+                implementation(libs.androidx.compose.runtime.retain)
+                implementation(libs.kotlinx.collections.immutable)
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.datetime)
+                implementation(libs.kotlinx.serialization.json)
             }
         }
         val jbMain by creating {
@@ -145,8 +145,6 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.turbine)
                 implementation(projects.dispatchersTestFixtures)
                 implementation(projects.filesystemTestFixtures)
                 implementation(projects.injectTest)
@@ -158,6 +156,8 @@ kotlin {
                 implementation(projects.testActivity)
                 implementation(projects.uiCommonTestFixtures)
                 implementation(projects.workTestFixtures)
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.turbine)
             }
         }
         val jbTest by creating {

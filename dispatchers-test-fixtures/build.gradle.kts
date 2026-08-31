@@ -45,10 +45,10 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.kotlinx.coroutines.test)
-                api(libs.kotlinx.datetime)
                 api(projects.clock)
                 api(projects.dispatchers)
+                api(libs.kotlinx.coroutines.test)
+                api(libs.kotlinx.datetime)
 
                 implementation(projects.injectScopes)
             }

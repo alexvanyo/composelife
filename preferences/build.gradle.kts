@@ -55,23 +55,23 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.androidx.compose.runtime)
-                api(libs.kotlinx.coroutines.core)
-                api(libs.kotlinx.datetime)
                 api(projects.dispatchers)
                 api(projects.logging)
                 api(projects.resourceState)
                 api(projects.sealedEnum.runtime)
                 api(projects.sessionValue)
                 api(projects.updatable)
+                api(libs.androidx.compose.runtime)
+                api(libs.kotlinx.coroutines.core)
+                api(libs.kotlinx.datetime)
 
-                implementation(libs.androidx.dataStore.core)
-                implementation(libs.androidx.dataStore.core.okio)
-                implementation(libs.okio)
                 implementation(projects.filesystem)
                 implementation(projects.injectScopes)
                 implementation(projects.preferencesProto)
                 implementation(projects.serialization)
+                implementation(libs.androidx.dataStore.core)
+                implementation(libs.androidx.dataStore.core.okio)
+                implementation(libs.okio)
             }
         }
         val jbMain by creating {

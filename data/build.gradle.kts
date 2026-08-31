@@ -59,14 +59,11 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.kotlinx.coroutines.core)
                 api(projects.database)
                 api(projects.dispatchers)
                 api(projects.network)
+                api(libs.kotlinx.coroutines.core)
 
-                implementation(libs.kotlinx.io.core)
-                implementation(libs.kotlinx.io.okio)
-                implementation(libs.okio)
                 implementation(projects.algorithm)
                 implementation(projects.clock)
                 implementation(projects.filesystem)
@@ -75,6 +72,9 @@ kotlin {
                 implementation(projects.timeUtil)
                 implementation(projects.updatable)
                 implementation(projects.work)
+                implementation(libs.kotlinx.io.core)
+                implementation(libs.kotlinx.io.okio)
+                implementation(libs.okio)
             }
         }
         val jbMain by creating {
@@ -101,8 +101,6 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.turbine)
                 implementation(projects.dataTestResources)
                 implementation(projects.databaseTestFixtures)
                 implementation(projects.dispatchersTestFixtures)
@@ -110,6 +108,8 @@ kotlin {
                 implementation(projects.injectTest)
                 implementation(projects.networkTestFixtures)
                 implementation(projects.workTestFixtures)
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.turbine)
             }
         }
         val jbTest by creating {
