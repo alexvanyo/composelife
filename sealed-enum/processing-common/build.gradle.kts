@@ -29,8 +29,8 @@ kotlin {
     sourceSets {
         val jvmMain by getting {
             dependencies {
-                implementation(libs.kotlinPoet)
                 implementation(projects.sealedEnum.runtime)
+                implementation(libs.kotlinPoet)
             }
         }
         val jvmTest by getting {

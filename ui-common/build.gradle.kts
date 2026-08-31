@@ -59,10 +59,6 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(libs.androidx.annotation)
-                implementation(libs.androidx.navigationEvent)
-                implementation(libs.kotlinx.coroutines.core)
-                implementation(libs.kotlinx.datetime)
                 implementation(projects.dispatchers)
                 implementation(projects.geometry)
                 implementation(projects.injectScopes)
@@ -71,6 +67,10 @@ kotlin {
                 implementation(projects.timeUtil)
                 implementation(projects.uiToolingPreview)
                 implementation(projects.updatable)
+                implementation(libs.androidx.annotation)
+                implementation(libs.androidx.navigationEvent)
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.datetime)
             }
         }
         val jbMain by creating {
@@ -78,14 +78,14 @@ kotlin {
             dependencies {
                 api(libs.androidx.navigationEvent)
                 api(libs.jetbrains.navigationEvent.compose)
+
+                implementation(projects.sealedEnum.runtime)
                 implementation(libs.androidx.lifecycle.runtime.compose)
                 implementation(libs.jetbrains.compose.animation)
                 implementation(libs.jetbrains.compose.foundation)
                 implementation(libs.jetbrains.compose.materialIconsExtended)
                 implementation(libs.jetbrains.compose.ui)
                 implementation(libs.jetbrains.navigation3.ui)
-                implementation(projects.sealedEnum.runtime)
-
             }
         }
         val nonAndroidMain by creating {
@@ -119,14 +119,14 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.molecule)
-                implementation(libs.turbine)
                 implementation(projects.dispatchersTestFixtures)
                 implementation(projects.injectTest)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
                 implementation(projects.testActivity)
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.molecule)
+                implementation(libs.turbine)
             }
         }
         val jbTest by creating {

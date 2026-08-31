@@ -49,17 +49,17 @@ android {
 //}
 
 dependencies {
+    implementation(projects.algorithm)
     implementation(libs.androidx.benchmark.micro.junit4)
     implementation(libs.androidx.test.runner)
     implementation(libs.androidx.tracing)
-    implementation(projects.algorithm)
 
+    androidTestImplementation(projects.dispatchersTestFixtures)
+    androidTestImplementation(projects.patterns)
+    androidTestImplementation(projects.tracingTestFixtures)
     androidTestImplementation(libs.androidx.test.junit)
     androidTestImplementation(libs.junit4)
     androidTestImplementation(libs.kotlin.test.junit)
     androidTestImplementation(libs.testParameterInjector.junit4)
-    androidTestImplementation(projects.dispatchersTestFixtures)
-    androidTestImplementation(projects.patterns)
-    androidTestImplementation(projects.tracingTestFixtures)
 }
 

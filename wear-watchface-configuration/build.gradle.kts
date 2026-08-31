@@ -38,15 +38,16 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(libs.kotlinx.coroutines.core)
-                implementation(libs.kotlinx.datetime)
                 implementation(projects.resourcesWear)
                 implementation(projects.uiCommon)
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.datetime)
             }
         }
         val androidMain by getting {
             configurations["kspAndroid"].dependencies.add(projects.sealedEnum.ksp)
             dependencies {
+                implementation(projects.sealedEnum.runtime)
                 implementation(libs.androidx.compose.runtime)
                 implementation(libs.androidx.compose.ui)
                 implementation(libs.androidx.wear.watchface.complications.data)
@@ -56,7 +57,6 @@ kotlin {
                 implementation(libs.androidx.wear.watchface.editor)
                 implementation(libs.androidx.wear.watchface.style)
                 implementation(libs.kotlinx.coroutines.android)
-                implementation(projects.sealedEnum.runtime)
             }
         }
     }

@@ -66,12 +66,6 @@ kotlin {
                 api(projects.dispatchers)
                 api(projects.imageLoader)
 
-                implementation(libs.androidx.annotation)
-                implementation(libs.coil.compose.core)
-                implementation(libs.kotlinx.collections.immutable)
-                implementation(libs.kotlinx.coroutines.core)
-                implementation(libs.kotlinx.datetime)
-                implementation(libs.kotlinx.serialization.json)
                 implementation(projects.injectScopes)
                 implementation(projects.logging)
                 implementation(projects.openglRenderer)
@@ -84,6 +78,12 @@ kotlin {
                 implementation(projects.uiCommon)
                 implementation(projects.uiMobile)
                 implementation(projects.uiToolingPreview)
+                implementation(libs.androidx.annotation)
+                implementation(libs.coil.compose.core)
+                implementation(libs.kotlinx.collections.immutable)
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.datetime)
+                implementation(libs.kotlinx.serialization.json)
             }
         }
         val jvmMain by creating {
@@ -150,8 +150,6 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.turbine)
                 implementation(projects.dispatchersTestFixtures)
                 implementation(projects.filesystemTestFixtures)
                 implementation(projects.injectTest)
@@ -162,6 +160,8 @@ kotlin {
                 implementation(projects.screenshotTest)
                 implementation(projects.testActivity)
                 implementation(projects.uiCommonTestFixtures)
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.turbine)
             }
         }
         val jbTest by creating {
