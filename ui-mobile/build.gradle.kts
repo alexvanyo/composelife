@@ -50,17 +50,17 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.kotlinx.collections.immutable)
                 api(projects.parameterizedString)
                 api(projects.preferences)
+                api(libs.kotlinx.collections.immutable)
 
-                implementation(libs.androidx.navigationEvent)
                 implementation(projects.logging)
                 implementation(projects.navigation)
                 implementation(projects.resourceState)
                 implementation(projects.serialization)
                 implementation(projects.uiCommon)
                 implementation(projects.uiToolingPreview)
+                implementation(libs.androidx.navigationEvent)
             }
         }
         val jvmMain by creating {
@@ -100,12 +100,12 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(libs.kotlinx.coroutines.test)
                 implementation(projects.dispatchersTestFixtures)
                 implementation(projects.injectTest)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
                 implementation(projects.testActivity)
+                implementation(libs.kotlinx.coroutines.test)
             }
         }
         val jbTest by creating {

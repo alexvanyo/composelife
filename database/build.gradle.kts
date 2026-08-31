@@ -62,16 +62,16 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                api(projects.updatable)
                 api(libs.kotlinx.coroutines.core)
                 api(libs.kotlinx.datetime)
                 api(libs.sqldelight.coroutinesExtensions)
-                api(projects.updatable)
 
+                implementation(projects.dispatchers)
+                implementation(projects.injectScopes)
                 implementation(libs.androidx.compose.runtime)
                 implementation(libs.sqldelight.primitiveAdapters)
                 implementation(libs.sqldelightAndroidXDriver)
-                implementation(projects.dispatchers)
-                implementation(projects.injectScopes)
             }
         }
         val androidMain by getting {
@@ -95,13 +95,13 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.turbine)
                 implementation(projects.databaseTestFixtures)
                 implementation(projects.dispatchersTestFixtures)
                 implementation(projects.filesystemTestFixtures)
                 implementation(projects.injectTest)
                 implementation(projects.kmpAndroidRunner)
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.turbine)
             }
         }
         val jvmTest by creating {

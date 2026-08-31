@@ -56,13 +56,13 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.molecule)
-                implementation(libs.turbine)
                 implementation(projects.algorithmTestResources)
                 implementation(projects.dispatchersTestFixtures)
                 implementation(projects.patterns)
                 implementation(projects.tracingTestFixtures)
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.molecule)
+                implementation(libs.turbine)
             }
         }
     }

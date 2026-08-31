@@ -40,12 +40,12 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(libs.androidx.compose.runtime)
-                implementation(libs.androidx.lifecycle.runtime)
                 implementation(projects.injectScopes)
                 implementation(projects.processLifecycle)
                 implementation(projects.strictMode)
                 implementation(projects.updatable)
+                implementation(libs.androidx.compose.runtime)
+                implementation(libs.androidx.lifecycle.runtime)
             }
         }
     }

@@ -46,11 +46,11 @@ kotlin {
             dependencies {
                 api(libs.okio)
 
+                implementation(projects.dispatchers)
+                implementation(projects.injectScopes)
                 implementation(libs.androidx.compose.runtime)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
-                implementation(projects.dispatchers)
-                implementation(projects.injectScopes)
             }
         }
         val jvmMain by creating {
@@ -71,11 +71,11 @@ kotlin {
         }
         val wasmJsTest by getting {
             dependencies {
+                implementation(projects.dispatchersTestFixtures)
                 implementation(kotlin("test"))
                 implementation(libs.jetbrains.compose.ui)
                 implementation(libs.kotlinx.browser)
                 implementation(libs.kotlinx.coroutines.test)
-                implementation(projects.dispatchersTestFixtures)
             }
         }
     }

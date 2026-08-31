@@ -50,9 +50,9 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
+                implementation(projects.testActivity)
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
-                implementation(projects.testActivity)
             }
         }
         val androidSharedTest by getting {

@@ -42,14 +42,13 @@ kotlin {
     sourceSets {
         val jvmTest by getting {
             dependencies {
-                implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.testBalloon.framework.core)
-                implementation(libs.turbine)
-
                 implementation(projects.algorithm)
                 implementation(projects.dispatchersTestFixtures)
                 implementation(projects.geometry)
                 implementation(projects.tracingTestFixtures)
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.testBalloon.framework.core)
+                implementation(libs.turbine)
             }
         }
     }

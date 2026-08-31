@@ -51,12 +51,12 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                api(projects.sealedEnum.runtime)
                 api(libs.androidx.compose.runtime)
                 api(libs.androidx.compose.runtime.saveable)
                 api(libs.androidx.savedState)
                 api(libs.androidx.savedState.compose)
                 api(libs.kotlinx.serialization.core)
-                api(projects.sealedEnum.runtime)
             }
         }
         val jbMain by creating {
@@ -85,12 +85,12 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(libs.kotlinx.coroutines.test)
                 implementation(projects.dispatchersTestFixtures)
                 implementation(projects.injectTest)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
                 implementation(projects.testActivity)
+                implementation(libs.kotlinx.coroutines.test)
             }
         }
         val jbTest by creating {

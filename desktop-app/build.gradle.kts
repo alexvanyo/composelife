@@ -37,8 +37,6 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(libs.androidx.compose.runtime)
-                implementation(libs.kotlinx.serialization.core)
                 implementation(projects.filesystem)
                 implementation(projects.imageLoader)
                 implementation(projects.injectScopes)
@@ -46,6 +44,8 @@ kotlin {
                 implementation(projects.network)
                 implementation(projects.uiApp)
                 implementation(projects.uiMobile)
+                implementation(libs.androidx.compose.runtime)
+                implementation(libs.kotlinx.serialization.core)
             }
         }
         val desktopMain by getting {
