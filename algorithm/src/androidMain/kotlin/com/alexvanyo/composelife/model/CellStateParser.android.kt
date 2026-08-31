@@ -28,6 +28,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 
+@Suppress("UnusedPrivateProperty")
 @Inject
 actual class CellStateParser(
     internal actual val flexibleCellStateSerializer: FlexibleCellStateSerializer,
