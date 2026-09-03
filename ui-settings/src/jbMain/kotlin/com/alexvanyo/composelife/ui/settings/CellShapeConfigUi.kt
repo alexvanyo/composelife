@@ -45,8 +45,10 @@ import kotlinx.collections.immutable.toImmutableList
 
 // region templated-ctx
 private val CellShapeConfigUiCtx.Companion.lambda:
-    @Composable (context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences)
-    (Modifier) -> Unit)
+    @Composable (
+    context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences)
+    (Modifier) -> Unit
+    )
     get() = { modifier ->
         CellShapeConfigUi(modifier)
     }

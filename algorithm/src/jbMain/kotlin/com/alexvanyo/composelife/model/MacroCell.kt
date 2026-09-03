@@ -312,7 +312,8 @@ internal suspend inline fun SequenceScope<IntOffset>.yieldLeafNode(
         if ((leafNode and (1L shl i)) != 0L) {
             val intOffsetFromBit = intOffsetFromBit(i)
             if (intOffsetFromBit.x in cellWindow.left until cellWindow.right &&
-                intOffsetFromBit.y in cellWindow.top until cellWindow.bottom) {
+                intOffsetFromBit.y in cellWindow.top until cellWindow.bottom
+            ) {
                 yield(offset + intOffsetFromBit)
             }
         }

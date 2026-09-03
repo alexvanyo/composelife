@@ -56,7 +56,7 @@ interface ClipboardReaderWriter :
 
 @Inject
 @ContributesBinding(UiScope::class, binding<ClipboardReaderWriter>())
-class ClipboardReaderWriterImpl(clipboardReader: ClipboardReader, clipboardWriter: ClipboardWriter):
+class ClipboardReaderWriterImpl(clipboardReader: ClipboardReader, clipboardWriter: ClipboardWriter) :
     ClipboardReaderWriter,
     ClipboardReader by clipboardReader,
     ClipboardWriter by clipboardWriter
