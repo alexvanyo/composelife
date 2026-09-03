@@ -87,7 +87,8 @@ private operator fun CellUniverseActionCardCtx.invoke(
 )
 
 private val CellUniverseActionCardCtx.Companion.lambda:
-    @Composable (context(InlineEditPaneCtx, InlineSettingsPaneCtx)
+    @Composable (
+    context(InlineEditPaneCtx, InlineSettingsPaneCtx)
     (
         temporalGameOfLifeState: TemporalGameOfLifeState,
         onViewDeserializationInfo: (DeserializationResult) -> Unit,
@@ -95,7 +96,8 @@ private val CellUniverseActionCardCtx.Companion.lambda:
         onOpenInSettingsClicked: (setting: Setting) -> Unit,
         actionCardState: CellUniverseActionCardState,
         modifier: Modifier,
-    ) -> Unit)
+    ) -> Unit
+    )
     get() = {
             temporalGameOfLifeState,
             onViewDeserializationInfo,
@@ -370,5 +372,5 @@ internal sealed interface CellUniverseActionCardLayoutTypes {
 internal expect val CellUniverseActionCardLayoutTypes.Companion._sealedEnum:
     SealedEnum<CellUniverseActionCardLayoutTypes>
 
-private data class CellUniverseActionCardNavigationEventInfo(val sceneKey: Pair<KClass<out Scene<*>>, Any>):
+private data class CellUniverseActionCardNavigationEventInfo(val sceneKey: Pair<KClass<out Scene<*>>, Any>) :
     NavigationEventInfo()

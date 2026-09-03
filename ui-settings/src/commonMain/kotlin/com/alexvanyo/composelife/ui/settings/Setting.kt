@@ -17,7 +17,6 @@
 package com.alexvanyo.composelife.ui.settings
 
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
-import com.alexvanyo.composelife.serialization.sealedEnumSaver
 import com.livefront.sealedenum.GenSealedEnum
 import com.livefront.sealedenum.SealedEnum
 import kotlinx.serialization.Serializable
