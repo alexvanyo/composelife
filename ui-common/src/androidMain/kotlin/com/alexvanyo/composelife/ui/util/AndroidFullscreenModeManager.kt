@@ -50,10 +50,13 @@ import kotlinx.coroutines.withContext
 
 @SingleIn(UiScope::class)
 @ContributesBinding(UiScope::class, binding = binding<FullscreenModeManager>())
-@ContributesIntoSet(UiScope::class, binding = binding<
-    @ForScope(UiScope::class)
-    Updatable,
-    >())
+@ContributesIntoSet(
+    UiScope::class,
+    binding = binding<
+        @ForScope(UiScope::class)
+        Updatable,
+        >(),
+)
 @Inject
 class AndroidFullscreenModeManager(
     private val activity: Activity?,

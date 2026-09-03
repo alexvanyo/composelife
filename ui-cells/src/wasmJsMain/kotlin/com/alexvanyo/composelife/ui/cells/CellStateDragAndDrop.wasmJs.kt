@@ -29,8 +29,6 @@ import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.draganddrop.domDataTransferOrNull
 import androidx.compose.ui.geometry.Offset
-import com.alexvanyo.composelife.logging.Logger
-import com.alexvanyo.composelife.logging.d
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.DeserializationResult

@@ -56,7 +56,7 @@ fun <T, S : NavigationState<BackstackEntry<T>>> rememberDecoratedNavEntries(
 }
 
 @Suppress("UNCHECKED_CAST")
-val <T> NavEntry<BackstackEntry<T>>.navigationEntry : BackstackEntry<T>
+val <T> NavEntry<BackstackEntry<T>>.navigationEntry: BackstackEntry<T>
     get() = metadata[NavKeyMetadataKey] as BackstackEntry<T>
 
 @Suppress("PropertyName")
