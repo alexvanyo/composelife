@@ -71,10 +71,13 @@ sealed interface ClipboardStateKey {
 @Inject
 @SingleIn(UiScope::class)
 @ContributesBinding(UiScope::class, binding<ClipboardReader>())
-@ContributesIntoSet(UiScope::class, binding = binding<
-    @ForScope(UiScope::class)
-    Updatable,
-    >())
+@ContributesIntoSet(
+    UiScope::class,
+    binding = binding<
+        @ForScope(UiScope::class)
+        Updatable,
+        >(),
+)
 class AndroidClipboardReader(
     @ActivityContext context: Context,
     private val windowInfo: WindowInfo,
