@@ -17,12 +17,10 @@
 package com.alexvanyo.composelife.model
 
 import com.alexvanyo.composelife.patterns.GameOfLifeTestPattern
-import com.alexvanyo.composelife.patterns.GameOfLifeTestPatternEnum
 import com.alexvanyo.composelife.patterns.values
 import de.infix.testBalloon.framework.core.testSuite
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlin.test.assertTrue
 
 private class CellStateSerializerFactory(
     private val name: String,

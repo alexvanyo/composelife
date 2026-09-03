@@ -16,7 +16,6 @@
 package com.alexvanyo.composelife.kmpandroidrunner
 
 import org.junit.runner.Description
-import org.junit.runner.RunWith
 import org.junit.runner.Runner
 import org.junit.runner.notification.RunNotifier
 
