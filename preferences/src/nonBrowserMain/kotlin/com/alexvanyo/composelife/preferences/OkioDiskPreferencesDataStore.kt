@@ -45,10 +45,13 @@ annotation class PreferencesProtoPath
 
 @SingleIn(AppScope::class)
 @ContributesBinding(AppScope::class, binding = binding<PreferencesDataStore>())
-@ContributesIntoSet(AppScope::class, binding = binding<
-    @ForScope(AppScope::class)
-    Updatable,
-    >())
+@ContributesIntoSet(
+    AppScope::class,
+    binding = binding<
+        @ForScope(AppScope::class)
+        Updatable,
+        >(),
+)
 @Inject
 class OkioDiskPreferencesDataStore(
     private val fileSystem: FileSystem,

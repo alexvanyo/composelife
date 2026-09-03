@@ -17,7 +17,6 @@
 
 package com.alexvanyo.composelife.parameterizedstring
 
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.ui.test.ExperimentalTestApi
 import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest

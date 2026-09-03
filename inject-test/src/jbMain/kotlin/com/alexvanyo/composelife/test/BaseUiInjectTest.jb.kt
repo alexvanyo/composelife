@@ -27,7 +27,6 @@ import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.ForScope
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.test.TestDispatcher
