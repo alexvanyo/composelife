@@ -37,6 +37,8 @@ import com.alexvanyo.composelife.scopes.GlobalScope
 import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
+import com.alexvanyo.composelife.tracing.TestTraceDriver
+import com.alexvanyo.composelife.tracing.Tracer
 import com.alexvanyo.composelife.ui.app.CellUniversePaneCtx
 import com.alexvanyo.composelife.ui.app.ComposeLifeAppUiCtx
 import com.alexvanyo.composelife.ui.app.UiWithLoadedPreferencesScope
@@ -51,7 +53,9 @@ import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.ForScope
-import dev.zacsweers.metro.createGraph
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.asContribution
+import dev.zacsweers.metro.createGraphFactory
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
@@ -84,7 +88,12 @@ internal interface PreviewCtx : ComposeLifePreferencesProvider {
 }
 
 @DependencyGraph(GlobalScope::class)
-interface PreviewGlobalGraph
+interface PreviewGlobalGraph {
+    @DependencyGraph.Factory
+    fun interface Factory {
+        fun create(@Provides tracer: Tracer): PreviewGlobalGraph
+    }
+}
 
 @ContributesTo(UiWithLoadedPreferencesScope::class, replaces = [UiWithLoadedPreferencesScopeBindings::class])
 @BindingContainer
@@ -93,10 +102,12 @@ interface TestLoadedComposeLifePreferencesHolderBindings
 /**
  * Provides preview-appropriate bindings for the dependency graph.
  */
+private val testTraceDriver = TestTraceDriver()
+
 @Suppress("LongParameterList")
 @Composable
 internal fun WithPreviewDependencies(content: @Composable context(PreviewCtx) () -> Unit) {
-    val previewGraph = createGraph<PreviewGlobalGraph>()
+    val previewGraph = createGraphFactory<PreviewGlobalGraph.Factory>().create(testTraceDriver.tracer)
     val context = LocalContext.current
     val applicationGraph = remember {
         (previewGraph as ApplicationGraph.Factory).create(

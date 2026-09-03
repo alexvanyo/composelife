@@ -87,6 +87,7 @@ kotlin {
                 implementation(projects.injectScopes)
                 implementation(projects.injectTest)
                 implementation(projects.kmpAndroidRunner)
+                implementation(projects.tracingTestFixtures)
             }
         }
         val jbTest by creating {

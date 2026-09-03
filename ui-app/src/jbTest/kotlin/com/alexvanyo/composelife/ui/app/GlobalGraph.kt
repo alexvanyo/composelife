@@ -17,16 +17,24 @@
 package com.alexvanyo.composelife.ui.app
 
 import com.alexvanyo.composelife.scopes.GlobalScope
+import com.alexvanyo.composelife.tracing.TestTraceDriver
+import com.alexvanyo.composelife.tracing.Tracer
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
-import dev.zacsweers.metro.createGraph
+import dev.zacsweers.metro.createGraphFactory
 
 @DependencyGraph(GlobalScope::class)
-interface GlobalGraph
+interface GlobalGraph {
+    @DependencyGraph.Factory
+    fun interface Factory {
+        fun create(@Provides tracer: Tracer): GlobalGraph
+    }
+}
 
-internal val globalGraph = createGraph<GlobalGraph>()
+private val testTraceDriver = TestTraceDriver()
+internal val globalGraph = createGraphFactory<GlobalGraph.Factory>().create(testTraceDriver.tracer)
 
 @ContributesTo(UiWithLoadedPreferencesScope::class, replaces = [UiWithLoadedPreferencesScopeBindings::class])
 @BindingContainer

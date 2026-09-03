@@ -154,6 +154,7 @@ kotlin {
                 implementation(projects.preferencesTestFixtures)
                 implementation(projects.screenshotTest)
                 implementation(projects.testActivity)
+                implementation(projects.tracingTestFixtures)
                 implementation(projects.uiCommonTestFixtures)
                 implementation(projects.workTestFixtures)
                 implementation(libs.kotlinx.coroutines.test)

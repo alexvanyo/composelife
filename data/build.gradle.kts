@@ -107,6 +107,7 @@ kotlin {
                 implementation(projects.filesystemTestFixtures)
                 implementation(projects.injectTest)
                 implementation(projects.networkTestFixtures)
+                implementation(projects.tracingTestFixtures)
                 implementation(projects.workTestFixtures)
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
