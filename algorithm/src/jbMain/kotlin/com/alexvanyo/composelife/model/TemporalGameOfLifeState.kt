@@ -207,7 +207,7 @@ private class TemporalGameOfLifeStateImpl(
 ) : TemporalGameOfLifeState {
     private constructor(
         surrogate: Surrogate,
-    ): this(
+    ) : this(
         seedCellState = surrogate.seedCellState,
         isRunning = surrogate.isRunning,
         generationsPerStep = surrogate.generationsPerStep,

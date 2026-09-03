@@ -39,10 +39,13 @@ import kotlinx.coroutines.flow.onEach
 
 @Inject
 @SingleIn(AppScope::class)
-@ContributesIntoSet(AppScope::class, binding = binding<
-    @ForScope(AppScope::class)
-    Updatable,
-    >())
+@ContributesIntoSet(
+    AppScope::class,
+    binding = binding<
+        @ForScope(AppScope::class)
+        Updatable,
+        >(),
+)
 class PatternCollectionSync(
     private val composeLifePreferences: ComposeLifePreferences,
     workManager: Lazy<WorkManager>,
