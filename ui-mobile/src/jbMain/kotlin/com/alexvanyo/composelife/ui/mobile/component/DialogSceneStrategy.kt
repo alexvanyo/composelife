@@ -63,7 +63,8 @@ class DialogSceneStrategy<T>(private val wrappedSceneStrategy: SceneStrategy<Bac
         }
         return if (wrappedScene.entries.all {
                 (it.navigationEntry.value as? DialogableEntry)?.isDialog == true
-            }) {
+            }
+        ) {
             DialogScene(
                 key = wrappedScene.key,
                 wrappedScene = wrappedScene,

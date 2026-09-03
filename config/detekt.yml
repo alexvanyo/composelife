@@ -100,7 +100,7 @@ ktlint:
   NoUnitReturn:
     excludes: [ '**/generated/**' ]
   NoUnusedImports:
-    active: false # TODO: Re-enable when context parameters are supported
+    excludes: [ '**/generated/**' ]
   PackageName:
     excludes: [ '**/generated/**' ]
   ParameterListWrapping:
@@ -112,7 +112,7 @@ ktlint:
   SpacingAroundAngleBrackets:
     active: true
   SpacingAroundColon:
-    active: false # TODO: Re-enable when context parameters are supported
+    excludes: [ '**/generated/**' ]
   SpacingAroundComma:
     excludes: [ '**/generated/**' ]
   SpacingAroundCurly:
@@ -135,7 +135,6 @@ ktlint:
     active: true
   Wrapping:
     excludes: [ '**/generated/**' ]
-    active: false # TODO: Re-enable when context parameters are supported
 
 naming:
   ConstructorParameterNaming:
