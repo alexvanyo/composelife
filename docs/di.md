@@ -192,17 +192,66 @@ Behind the scenes:
    from the original function (such as `@Composable`), and generates the IR body delegating directly to `ctx.invoke(...)`.
 
 When composing components, the outer function simply declares dependencies on the generated context classes
-as context parameters:
+as context parameters alongside any normal injected parameters or assisted parameters:
 
 ```kotlin
 @InjectContext
 @Inject
 @Composable
-context(_: InnerComposable)
+context(
+    _: InnerComposable,
+)
 fun OuterComposable(
+    analyticsTracker: AnalyticsTracker,
     @Assisted modifier: Modifier = Modifier,
 ) {
     InnerComposable(modifier)
+}
+```
+
+Behind the scenes for `OuterComposable`:
+1. **Metro** generates the `OuterComposable` class, injecting both the context dependency (`InnerComposable`) and normal dependency (`AnalyticsTracker`) in its constructor, with an `invoke` operator taking the assisted parameter:
+   ```kotlin
+   @Inject
+   class OuterComposable(
+       private val innerComposable: InnerComposable,
+       private val analyticsTracker: AnalyticsTracker,
+   ) {
+       @Composable
+       operator fun invoke(
+           modifier: Modifier = Modifier,
+       ) {
+           context(innerComposable) {
+               OuterComposable(
+                   analyticsTracker = analyticsTracker,
+                   modifier = modifier,
+               )
+           }
+       }
+   }
+   ```
+2. **`di-compiler`** generates the matching top-level context functions and default parameter overloads:
+   ```kotlin
+   context(ctx: OuterComposable)
+   @Composable
+   fun OuterComposable(modifier: Modifier = Modifier) {
+       ctx.invoke(modifier)
+   }
+
+   context(ctx: OuterComposable)
+   @Composable
+   fun OuterComposable() {
+       ctx.invoke()
+   }
+   ```
+
+Callers then invoke `OuterComposable(...)` with just `context(_: OuterComposable)`:
+
+```kotlin
+context(_: OuterComposable)
+@Composable
+fun App() {
+    OuterComposable()
 }
 ```
 
