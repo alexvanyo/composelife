@@ -40,7 +40,7 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
 internal fun InteractableCellsPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            context(contextOf<PreviewCtx>().interactableCellsCtx) {
+            context(contextOf<PreviewCtx>().interactableCells) {
                 Box(modifier = modifier.size(300.dp)) {
                     InteractableCells(
                         gameOfLifeState = MutableGameOfLifeState(

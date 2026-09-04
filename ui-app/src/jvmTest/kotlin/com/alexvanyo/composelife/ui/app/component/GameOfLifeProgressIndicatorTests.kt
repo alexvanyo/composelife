@@ -34,7 +34,7 @@ import kotlin.test.Test
 
 @ContributesTo(UiScope::class)
 interface GameOfLifeProgressIndicatorTestsCtx {
-    val gameOfLifeProgressIndicatorCtx: GameOfLifeProgressIndicatorCtx
+    val gameOfLifeProgressIndicatorCtx: GameOfLifeProgressIndicator
 }
 
 // TODO: Replace with asContribution()
@@ -52,7 +52,7 @@ class GameOfLifeProgressIndicatorTests :
         val ctx = uiGraph.gameOfLifeProgressIndicatorTestsCtx
 
         setContent {
-            with(ctx.gameOfLifeProgressIndicatorCtx) {
+            context(ctx.gameOfLifeProgressIndicatorCtx) {
                 GameOfLifeProgressIndicator()
             }
         }

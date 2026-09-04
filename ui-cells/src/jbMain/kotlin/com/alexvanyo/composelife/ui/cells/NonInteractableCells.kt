@@ -17,119 +17,54 @@
 
 package com.alexvanyo.composelife.ui.cells
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Dp
 import coil3.ImageLoader
+import com.alexvanyo.composelife.di.InjectContext
 import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
+import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.Inject
 
-// region templated-ctx
-@Immutable
+@InjectContext
 @Inject
-class NonInteractableCellsCtx(
-    private val imageLoader: ImageLoader,
-    private val preferencesHolder: LoadedComposeLifePreferencesHolder,
-) {
-    @Suppress("ComposableNaming", "LongParameterList")
-    @Deprecated(
-        "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
-            "NonInteractableCells(gameOfLifeState, scaledCellDpSize, cellWindow, pixelOffsetFromCenter, " +
-                "isThumbnail, modifier, inOverlay)",
-        ),
-    )
-    @Composable
-    operator fun invoke(
-        gameOfLifeState: GameOfLifeState,
-        scaledCellDpSize: Dp,
-        cellWindow: CellWindow,
-        pixelOffsetFromCenter: Offset,
-        isThumbnail: Boolean,
-        modifier: Modifier = Modifier,
-        inOverlay: Boolean = false,
-    ) = lambda(
-        imageLoader,
-        preferencesHolder,
-        gameOfLifeState,
-        scaledCellDpSize,
-        cellWindow,
-        pixelOffsetFromCenter,
-        isThumbnail,
-        modifier,
-        inOverlay,
-    )
-
-    companion object {
-        private val lambda:
-            @Composable context(
-                ImageLoader,
-                LoadedComposeLifePreferencesHolder,
-            )
-            (
-                gameOfLifeState: GameOfLifeState,
-                scaledCellDpSize: Dp,
-                cellWindow: CellWindow,
-                pixelOffsetFromCenter: Offset,
-                isThumbnail: Boolean,
-                modifier: Modifier,
-                inOverlay: Boolean,
-            ) -> Unit =
-            {
-                    gameOfLifeState,
-                    scaledCellDpSize,
-                    cellWindow,
-                    pixelOffsetFromCenter,
-                    isThumbnail,
-                    modifier,
-                    inOverlay,
-                ->
-                NonInteractableCells(
-                    gameOfLifeState = gameOfLifeState,
-                    scaledCellDpSize = scaledCellDpSize,
-                    cellWindow = cellWindow,
-                    pixelOffsetFromCenter = pixelOffsetFromCenter,
-                    isThumbnail = isThumbnail,
-                    modifier = modifier,
-                    inOverlay = inOverlay,
-                )
-            }
-    }
-}
-
-@Composable
-@Suppress("LongParameterList", "DEPRECATION")
-context(ctx: NonInteractableCellsCtx)
-fun NonInteractableCells(
-    gameOfLifeState: GameOfLifeState,
-    scaledCellDpSize: Dp,
-    cellWindow: CellWindow,
-    pixelOffsetFromCenter: Offset,
-    isThumbnail: Boolean,
-    modifier: Modifier = Modifier,
-    inOverlay: Boolean = false,
-) = ctx(gameOfLifeState, scaledCellDpSize, cellWindow, pixelOffsetFromCenter, isThumbnail, modifier, inOverlay)
-// endregion templated-ctx
-
-/**
- * A fixed size composable that displays a specific [cellWindow] into the given [GameOfLifeState].
- *
- * The [GameOfLifeState] is not interactable, so for efficiency the cell window is represented
- * by a single [Canvas], where each cell is drawn individually.
- */
-@Composable
 @Suppress("LongParameterList")
+@Composable
 context(
     imageLoader: ImageLoader,
     preferencesHolder: LoadedComposeLifePreferencesHolder,
 )
-internal expect fun NonInteractableCells(
+fun NonInteractableCells(
+    @Assisted gameOfLifeState: GameOfLifeState,
+    @Assisted scaledCellDpSize: Dp,
+    @Assisted cellWindow: CellWindow,
+    @Assisted pixelOffsetFromCenter: Offset,
+    @Assisted isThumbnail: Boolean,
+    @Assisted modifier: Modifier = Modifier,
+    @Assisted inOverlay: Boolean = false,
+) {
+    PlatformNonInteractableCells(
+        gameOfLifeState = gameOfLifeState,
+        scaledCellDpSize = scaledCellDpSize,
+        cellWindow = cellWindow,
+        pixelOffsetFromCenter = pixelOffsetFromCenter,
+        isThumbnail = isThumbnail,
+        modifier = modifier,
+        inOverlay = inOverlay,
+    )
+}
+
+@Suppress("LongParameterList")
+@Composable
+context(
+    imageLoader: ImageLoader,
+    preferencesHolder: LoadedComposeLifePreferencesHolder,
+)
+internal expect fun PlatformNonInteractableCells(
     gameOfLifeState: GameOfLifeState,
     scaledCellDpSize: Dp,
     cellWindow: CellWindow,

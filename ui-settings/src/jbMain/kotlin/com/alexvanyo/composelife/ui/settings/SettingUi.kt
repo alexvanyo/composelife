@@ -21,93 +21,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import com.alexvanyo.composelife.di.InjectContext
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
 import com.alexvanyo.composelife.preferences.addQuickAccessSetting
 import com.alexvanyo.composelife.preferences.removeQuickAccessSetting
 import com.alexvanyo.composelife.ui.mobile.component.LocalBackgroundColor
+import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
-
-@Suppress("LongParameterList")
-@Immutable
-@Inject
-class IndividualSettingCtx(
-    val algorithmImplementationUiCtx: AlgorithmImplementationUiCtx,
-    val cellStatePreviewUiCtx: CellStatePreviewUiCtx,
-    val darkThemeConfigUiCtx: DarkThemeConfigUiCtx,
-    val cellShapeConfigUiCtx: CellShapeConfigUiCtx,
-    val synchronizePatternCollectionsOnMeteredNetworkUiCtx: SynchronizePatternCollectionsOnMeteredNetworkUiCtx,
-    val patternCollectionsSynchronizationPeriodUiCtx: PatternCollectionsSynchronizationPeriodUiCtx,
-    val patternCollectionsUiCtx: PatternCollectionsUiCtx,
-    val disableAGSLUiCtx: DisableAGSLUiCtx,
-    val disableOpenGLUiCtx: DisableOpenGLUiCtx,
-    val doNotKeepProcessUiCtx: DoNotKeepProcessUiCtx,
-    val enableClipboardWatchingUiCtx: EnableClipboardWatchingUiCtx,
-    val clipboardWatchingOnboardingCompletedUiCtx: ClipboardWatchingOnboardingCompletedUiCtx,
-    val enableWindowShapeClippingUiCtx: EnableWindowShapeClippingUiCtx,
-    val cellStatePruningPeriodUiCtx: CellStatePruningPeriodUiCtx,
-)
-
-// region templated-ctx
-@Immutable
-@Inject
-@Suppress("LongParameterList")
-class SettingUiCtx(
-    private val preferencesHolder: LoadedComposeLifePreferencesHolder,
-    private val composeLifePreferences: ComposeLifePreferences,
-    private val individualSettingCtx: IndividualSettingCtx,
-) {
-    @Suppress("ComposableNaming", "LongParameterList")
-    @Deprecated(
-        "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
-            "SettingUi(setting, modifier, onOpenInSettingsClicked)",
-        ),
-    )
-    @Composable
-    operator fun invoke(
-        setting: Setting,
-        modifier: Modifier = Modifier,
-        onOpenInSettingsClicked: ((Setting) -> Unit)? = null,
-    ) = lambda(
-        preferencesHolder,
-        composeLifePreferences,
-        individualSettingCtx,
-        setting,
-        modifier,
-        onOpenInSettingsClicked,
-    )
-
-    companion object {
-        private val lambda:
-            @Composable context(
-                LoadedComposeLifePreferencesHolder,
-                ComposeLifePreferences,
-                IndividualSettingCtx,
-            )
-            (
-                setting: Setting,
-                modifier: Modifier,
-                onOpenInSettingsClicked: ((Setting) -> Unit)?,
-            ) -> Unit =
-            { setting, modifier, onOpenInSettingsClicked ->
-                SettingUi(setting, modifier, onOpenInSettingsClicked)
-            }
-    }
-}
-
-@Suppress("DEPRECATION")
-@Composable
-context(ctx: SettingUiCtx)
-fun SettingUi(setting: Setting, modifier: Modifier = Modifier, onOpenInSettingsClicked: ((Setting) -> Unit)? = null) =
-    ctx(setting, modifier, onOpenInSettingsClicked)
-// endregion templated-ctx
 
 /**
  * Displays the setting UI for the given [setting].
@@ -115,17 +41,32 @@ fun SettingUi(setting: Setting, modifier: Modifier = Modifier, onOpenInSettingsC
  * If [onOpenInSettingsClicked] is not null, then a button will be displayed to open the given
  * setting that will invoke [onOpenInSettingsClicked].
  */
-@Suppress("CyclomaticComplexMethod", "LongMethod")
+@Suppress("CyclomaticComplexMethod")
+@InjectContext
+@Inject
 @Composable
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,
     composeLifePreferences: ComposeLifePreferences,
-    individualSettingCtx: IndividualSettingCtx,
+    _: AlgorithmImplementationUi,
+    _: CellStatePreviewUi,
+    _: DarkThemeConfigUi,
+    _: CellShapeConfigUi,
+    _: SynchronizePatternCollectionsOnMeteredNetworkUi,
+    _: PatternCollectionsSynchronizationPeriodUi,
+    _: PatternCollectionsUi,
+    _: DisableAGSLUi,
+    _: DisableOpenGLUi,
+    _: DoNotKeepProcessUi,
+    _: EnableClipboardWatchingUi,
+    _: ClipboardWatchingOnboardingCompletedUi,
+    _: EnableWindowShapeClippingUi,
+    _: CellStatePruningPeriodUi,
 )
-private fun SettingUi(
-    setting: Setting,
-    modifier: Modifier = Modifier,
-    onOpenInSettingsClicked: ((Setting) -> Unit)? = null,
+internal fun SettingUi(
+    @Assisted setting: Setting,
+    @Assisted modifier: Modifier = Modifier,
+    @Assisted onOpenInSettingsClicked: ((Setting) -> Unit)? = null,
 ) {
     Surface(
         color = LocalBackgroundColor.current ?: MaterialTheme.colorScheme.surface,
@@ -151,67 +92,36 @@ private fun SettingUi(
             }
 
             when (setting) {
-                Setting.AlgorithmImplementation -> with(individualSettingCtx.algorithmImplementationUiCtx) {
-                    AlgorithmImplementationUi()
-                }
+                Setting.AlgorithmImplementation -> AlgorithmImplementationUi()
 
-                Setting.CellStatePreview -> with(individualSettingCtx.cellStatePreviewUiCtx) {
-                    CellStatePreviewUi()
-                }
+                Setting.CellStatePreview -> CellStatePreviewUi()
 
-                Setting.DarkThemeConfig -> with(individualSettingCtx.darkThemeConfigUiCtx) {
-                    DarkThemeConfigUi()
-                }
+                Setting.DarkThemeConfig -> DarkThemeConfigUi()
 
-                Setting.CellShapeConfig -> with(individualSettingCtx.cellShapeConfigUiCtx) {
-                    CellShapeConfigUi()
-                }
+                Setting.CellShapeConfig -> CellShapeConfigUi()
 
-                Setting.SynchronizePatternCollectionsOnMeteredNetwork -> with(
-                    individualSettingCtx.synchronizePatternCollectionsOnMeteredNetworkUiCtx,
-                ) {
+                Setting.SynchronizePatternCollectionsOnMeteredNetwork ->
                     SynchronizePatternCollectionsOnMeteredNetworkUi()
-                }
 
-                Setting.PatternCollectionsSynchronizationPeriod -> with(
-                    individualSettingCtx.patternCollectionsSynchronizationPeriodUiCtx,
-                ) {
+                Setting.PatternCollectionsSynchronizationPeriod ->
                     PatternCollectionsSynchronizationPeriodUi()
-                }
 
-                Setting.PatternCollectionSources -> with(individualSettingCtx.patternCollectionsUiCtx) {
-                    PatternCollectionsUi()
-                }
+                Setting.PatternCollectionSources -> PatternCollectionsUi()
 
-                Setting.DisableAGSL -> with(individualSettingCtx.disableAGSLUiCtx) {
-                    DisableAGSLUi()
-                }
+                Setting.DisableAGSL -> DisableAGSLUi()
 
-                Setting.DisableOpenGL -> with(individualSettingCtx.disableOpenGLUiCtx) {
-                    DisableOpenGLUi()
-                }
+                Setting.DisableOpenGL -> DisableOpenGLUi()
 
-                Setting.DoNotKeepProcess -> with(individualSettingCtx.doNotKeepProcessUiCtx) {
-                    DoNotKeepProcessUi()
-                }
+                Setting.DoNotKeepProcess -> DoNotKeepProcessUi()
 
-                Setting.EnableClipboardWatching -> with(individualSettingCtx.enableClipboardWatchingUiCtx) {
-                    EnableClipboardWatchingUi()
-                }
+                Setting.EnableClipboardWatching -> EnableClipboardWatchingUi()
 
-                Setting.ClipboardWatchingOnboardingCompleted -> with(
-                    individualSettingCtx.clipboardWatchingOnboardingCompletedUiCtx,
-                ) {
+                Setting.ClipboardWatchingOnboardingCompleted ->
                     ClipboardWatchingOnboardingCompletedUi()
-                }
 
-                Setting.EnableWindowShapeClipping -> with(individualSettingCtx.enableWindowShapeClippingUiCtx) {
-                    EnableWindowShapeClippingUi()
-                }
+                Setting.EnableWindowShapeClipping -> EnableWindowShapeClippingUi()
 
-                Setting.CellStatePruningPeriod -> with(individualSettingCtx.cellStatePruningPeriodUiCtx) {
-                    CellStatePruningPeriodUi()
-                }
+                Setting.CellStatePruningPeriod -> CellStatePruningPeriodUi()
             }
         }
     }

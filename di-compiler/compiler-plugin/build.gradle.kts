@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,23 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.ui.app.action
+plugins {
+    alias(libs.plugins.convention.kotlinMultiplatform)
+    alias(libs.plugins.convention.detekt)
+    alias(libs.plugins.gradleDependenciesSorter)
+}
 
-import androidx.compose.runtime.Immutable
-import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindowCtx
-import dev.zacsweers.metro.Inject
+group = "com.alexvanyo.composelife"
+version = "unspecified"
 
-@Immutable
-@Inject
-class ClipboardCellStatePreviewCtx(internal val thumbnailImmutableCellWindowCtx: ThumbnailImmutableCellWindowCtx) {
-    companion object
+kotlin {
+    jvm()
+
+    sourceSets {
+        val jvmMain by getting {
+            dependencies {
+                compileOnly("org.jetbrains.kotlin:kotlin-compiler-embeddable:${libs.versions.kotlin.get()}")
+            }
+        }
+    }
 }

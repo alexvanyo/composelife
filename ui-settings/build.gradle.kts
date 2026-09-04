@@ -69,6 +69,7 @@ kotlin {
 
                 implementation(projects.clock)
                 implementation(projects.data)
+                implementation(projects.diCompiler.pluginAnnotations)
                 implementation(projects.injectScopes)
                 implementation(projects.logging)
                 implementation(projects.navigation)
@@ -197,4 +198,8 @@ kotlin {
             dependsOn(jbTest)
         }
     }
+}
+
+dependencies {
+    kotlinCompilerPluginClasspath(projects.diCompiler.compilerPlugin)
 }

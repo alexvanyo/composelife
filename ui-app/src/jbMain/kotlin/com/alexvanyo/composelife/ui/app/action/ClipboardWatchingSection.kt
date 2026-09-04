@@ -55,7 +55,7 @@ import com.alexvanyo.composelife.ui.app.resources.Pinned
 import com.alexvanyo.composelife.ui.app.resources.Strings
 
 @Composable
-context(_: ClipboardCellStatePreviewCtx)
+context(_: ClipboardCellStatePreview)
 fun ClipboardWatchingSection(clipboardWatchingState: ClipboardWatchingState, modifier: Modifier = Modifier) {
     AnimatedContent(
         targetState = clipboardWatchingState,
@@ -87,7 +87,7 @@ fun ClipboardWatchingSection(clipboardWatchingState: ClipboardWatchingState, mod
 }
 
 @Composable
-context(_: ClipboardCellStatePreviewCtx)
+context(_: ClipboardCellStatePreview)
 fun ClipboardWatchingEnabled(
     clipboardWatchingState: ClipboardWatchingState.ClipboardWatchingEnabled,
     modifier: Modifier = Modifier,
@@ -137,7 +137,7 @@ fun ClipboardWatchingEnabled(
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-context(_: ClipboardCellStatePreviewCtx)
+context(_: ClipboardCellStatePreview)
 private fun PinnedClipboardPreviews(
     pinnedClipboardPreviewStates: List<PinnedClipboardPreviewState>,
     useSharedElementForCellStatePreviews: Boolean,
@@ -202,7 +202,7 @@ private fun PinnedClipboardPreviews(
 @Suppress("LongMethod")
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-context(_: ClipboardCellStatePreviewCtx)
+context(_: ClipboardCellStatePreview)
 private fun ClipboardPreviewHistory(
     clipboardPreviewStates: List<ClipboardPreviewState>,
     useSharedElementForCellStatePreviews: Boolean,
