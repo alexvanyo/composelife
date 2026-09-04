@@ -18,9 +18,9 @@
 package com.alexvanyo.composelife.ui.settings
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import com.alexvanyo.composelife.di.InjectContext
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
@@ -28,50 +28,18 @@ import com.alexvanyo.composelife.preferences.setSynchronizePatternCollectionsOnM
 import com.alexvanyo.composelife.ui.mobile.component.LabeledSwitch
 import com.alexvanyo.composelife.ui.settings.resources.Strings
 import com.alexvanyo.composelife.ui.settings.resources.SynchronizePatternCollectionsOnMeteredNetwork
+import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
 
-// region templated-ctx
-@Immutable
+@InjectContext
 @Inject
-class SynchronizePatternCollectionsOnMeteredNetworkUiCtx(
-    private val preferencesHolder: LoadedComposeLifePreferencesHolder,
-    private val composeLifePreferences: ComposeLifePreferences,
-) {
-    @Suppress("ComposableNaming")
-    @Deprecated(
-        "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
-            "SynchronizePatternCollectionsOnMeteredNetworkUi(modifier)",
-        ),
-    )
-    @Composable
-    operator fun invoke(modifier: Modifier = Modifier) = lambda(preferencesHolder, composeLifePreferences, modifier)
-
-    companion object {
-        private val lambda:
-            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences)
-            (
-                modifier: Modifier,
-            ) -> Unit =
-            { modifier ->
-                SynchronizePatternCollectionsOnMeteredNetworkUi(modifier)
-            }
-    }
-}
-
-@Suppress("DEPRECATION")
-@Composable
-context(ctx: SynchronizePatternCollectionsOnMeteredNetworkUiCtx)
-fun SynchronizePatternCollectionsOnMeteredNetworkUi(modifier: Modifier = Modifier) = ctx(modifier)
-// endregion templated-ctx
-
 @Composable
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,
     composeLifePreferences: ComposeLifePreferences,
 )
-private fun SynchronizePatternCollectionsOnMeteredNetworkUi(modifier: Modifier = Modifier) {
+internal fun SynchronizePatternCollectionsOnMeteredNetworkUi(@Assisted modifier: Modifier = Modifier) {
     SynchronizePatternCollectionsOnMeteredNetworkUi(
         synchronizePatternCollectionsOnMeteredNetwork =
         preferencesHolder.preferences.synchronizePatternCollectionsOnMeteredNetwork,

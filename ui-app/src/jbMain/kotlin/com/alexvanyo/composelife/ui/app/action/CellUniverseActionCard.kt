@@ -44,6 +44,7 @@ import androidx.navigationevent.NavigationEventTransitionState
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
+import com.alexvanyo.composelife.di.InjectContext
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.navigation.CrossfadePredictiveNavDisplay
@@ -54,7 +55,6 @@ import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardLayoutTypes.NavContainer
 import com.alexvanyo.composelife.ui.mobile.component.LocalBackgroundColor
 import com.alexvanyo.composelife.ui.settings.InlineSettingsPane
-import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneCtx
 import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.Layout
@@ -62,93 +62,26 @@ import com.alexvanyo.composelife.ui.util.WindowInsets
 import com.alexvanyo.composelife.ui.util.isImeAnimating
 import com.livefront.sealedenum.GenSealedEnum
 import com.livefront.sealedenum.SealedEnum
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.Inject
 import kotlin.math.max
 import kotlin.reflect.KClass
 
-// region templated-ctx
-@Suppress("ComposableNaming", "LongParameterList")
-@Composable
-private operator fun CellUniverseActionCardCtx.invoke(
-    temporalGameOfLifeState: TemporalGameOfLifeState,
-    onViewDeserializationInfo: (DeserializationResult) -> Unit,
-    onSeeMoreSettingsClicked: () -> Unit,
-    onOpenInSettingsClicked: (setting: Setting) -> Unit,
-    actionCardState: CellUniverseActionCardState,
-    modifier: Modifier = Modifier,
-) = CellUniverseActionCardCtx.lambda(
-    inlineEditPaneCtx,
-    inlineSettingsPaneCtx,
-    temporalGameOfLifeState,
-    onViewDeserializationInfo,
-    onSeeMoreSettingsClicked,
-    onOpenInSettingsClicked,
-    actionCardState,
-    modifier,
-)
-
-private val CellUniverseActionCardCtx.Companion.lambda:
-    @Composable (
-    context(InlineEditPaneCtx, InlineSettingsPaneCtx)
-    (
-        temporalGameOfLifeState: TemporalGameOfLifeState,
-        onViewDeserializationInfo: (DeserializationResult) -> Unit,
-        onSeeMoreSettingsClicked: () -> Unit,
-        onOpenInSettingsClicked: (setting: Setting) -> Unit,
-        actionCardState: CellUniverseActionCardState,
-        modifier: Modifier,
-    ) -> Unit
-    )
-    get() = {
-            temporalGameOfLifeState,
-            onViewDeserializationInfo,
-            onSeeMoreSettingsClicked,
-            onOpenInSettingsClicked,
-            actionCardState,
-            modifier,
-        ->
-        CellUniverseActionCard(
-            temporalGameOfLifeState = temporalGameOfLifeState,
-            onViewDeserializationInfo = onViewDeserializationInfo,
-            onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
-            onOpenInSettingsClicked = onOpenInSettingsClicked,
-            actionCardState = actionCardState,
-            modifier = modifier,
-        )
-    }
-
-@Suppress("LongParameterList")
-@Composable
-context(ctx: CellUniverseActionCardCtx)
-fun CellUniverseActionCard(
-    temporalGameOfLifeState: TemporalGameOfLifeState,
-    onViewDeserializationInfo: (DeserializationResult) -> Unit,
-    onSeeMoreSettingsClicked: () -> Unit,
-    onOpenInSettingsClicked: (setting: Setting) -> Unit,
-    actionCardState: CellUniverseActionCardState,
-    modifier: Modifier = Modifier,
-) = ctx(
-    temporalGameOfLifeState = temporalGameOfLifeState,
-    onViewDeserializationInfo = onViewDeserializationInfo,
-    onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
-    onOpenInSettingsClicked = onOpenInSettingsClicked,
-    actionCardState = actionCardState,
-    modifier = modifier,
-)
-// endregion templated-ctx
-
+@InjectContext
+@Inject
 @Suppress("LongParameterList", "LongMethod")
 @Composable
 context(
-    _: InlineEditPaneCtx,
-    _: InlineSettingsPaneCtx
+    _: InlineEditPane,
+    _: InlineSettingsPane,
 )
-private fun CellUniverseActionCard(
-    temporalGameOfLifeState: TemporalGameOfLifeState,
-    onViewDeserializationInfo: (DeserializationResult) -> Unit,
-    onSeeMoreSettingsClicked: () -> Unit,
-    onOpenInSettingsClicked: (setting: Setting) -> Unit,
-    actionCardState: CellUniverseActionCardState,
-    modifier: Modifier = Modifier,
+fun CellUniverseActionCard(
+    @Assisted temporalGameOfLifeState: TemporalGameOfLifeState,
+    @Assisted onViewDeserializationInfo: (DeserializationResult) -> Unit,
+    @Assisted onSeeMoreSettingsClicked: () -> Unit,
+    @Assisted onOpenInSettingsClicked: (setting: Setting) -> Unit,
+    @Assisted actionCardState: CellUniverseActionCardState,
+    @Assisted modifier: Modifier = Modifier,
 ) {
     CellUniverseActionCard(
         targetStepsPerSecond = temporalGameOfLifeState.targetStepsPerSecond,
@@ -166,8 +99,8 @@ private fun CellUniverseActionCard(
 @Suppress("LongParameterList", "LongMethod", "ComplexMethod")
 @Composable
 context(
-    _: InlineEditPaneCtx,
-    _: InlineSettingsPaneCtx
+    _: InlineEditPane,
+    _: InlineSettingsPane,
 )
 fun CellUniverseActionCard(
     targetStepsPerSecond: Double,
