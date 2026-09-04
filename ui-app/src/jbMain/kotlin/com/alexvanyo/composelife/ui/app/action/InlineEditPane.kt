@@ -38,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.alexvanyo.composelife.di.InjectContext
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.DeserializationResult
@@ -61,6 +62,8 @@ import com.alexvanyo.composelife.ui.mobile.component.DropdownOption
 import com.alexvanyo.composelife.ui.mobile.component.TextFieldDropdown
 import com.alexvanyo.composelife.ui.util.ClipboardReader
 import com.livefront.sealedenum.GenSealedEnum
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.Inject
 import kotlinx.collections.immutable.toImmutableList
 
 sealed interface ToolDropdownOption : DropdownOption {
@@ -132,76 +135,35 @@ private fun ToolConfig.toToolDropdownOption(): ToolDropdownOption = when (this) 
     ToolConfig.Select -> ToolDropdownOption.Select
 }
 
-// region templated-ctx
-@Suppress("ComposableNaming")
-@Composable
-private operator fun InlineEditPaneCtx.invoke(
-    setSelectionToCellState: (CellState) -> Unit,
-    onViewDeserializationInfo: (DeserializationResult) -> Unit,
-    modifier: Modifier = Modifier,
-    scrollState: ScrollState = rememberScrollState(),
-) = InlineEditPaneCtx.lambda(
-    preferencesHolder,
-    composeLifePreferences,
-    clipboardCellStatePreviewCtx,
-    cellStateParser,
-    clipboardReader,
-    setSelectionToCellState,
-    onViewDeserializationInfo,
-    modifier,
-    scrollState,
-)
-
-private val InlineEditPaneCtx.Companion.lambda:
-    @Composable context(
-        LoadedComposeLifePreferencesHolder,
-        ComposeLifePreferences,
-        ClipboardCellStatePreviewCtx,
-        CellStateParser,
-        ClipboardReader,
-    )
-    (
-        (CellState) -> Unit,
-        (DeserializationResult) -> Unit,
-        Modifier,
-        ScrollState,
-    ) -> Unit
-    get() = { setSelectionToCellState, onViewDeserializationInfo, modifier, scrollState ->
-        InlineEditPane(setSelectionToCellState, onViewDeserializationInfo, modifier, scrollState)
-    }
-
-@Composable
-context(ctx: InlineEditPaneCtx)
-fun InlineEditPane(
-    setSelectionToCellState: (CellState) -> Unit,
-    onViewDeserializationInfo: (DeserializationResult) -> Unit,
-    modifier: Modifier = Modifier,
-    scrollState: ScrollState = rememberScrollState(),
-) = ctx(setSelectionToCellState, onViewDeserializationInfo, modifier, scrollState)
-// endregion templated-ctx
-
+@InjectContext
+@Inject
 @Composable
 context(
-    _: LoadedComposeLifePreferencesHolder,
-    _: ComposeLifePreferences,
-    _: ClipboardCellStatePreviewCtx,
-    _: CellStateParser,
-    _: ClipboardReader,
+    preferencesHolder: LoadedComposeLifePreferencesHolder,
+    composeLifePreferences: ComposeLifePreferences,
+    _: ClipboardCellStatePreview,
+    cellStateParser: CellStateParser,
+    clipboardReader: ClipboardReader,
 )
 fun InlineEditPane(
-    setSelectionToCellState: (CellState) -> Unit,
-    onViewDeserializationInfo: (DeserializationResult) -> Unit,
-    modifier: Modifier = Modifier,
-    scrollState: ScrollState = rememberScrollState(),
-) = InlineEditPane(
-    state = rememberInlineEditPaneState(setSelectionToCellState, onViewDeserializationInfo),
-    modifier = modifier,
-    scrollState = scrollState,
-)
+    @Assisted setSelectionToCellState: (CellState) -> Unit,
+    @Assisted onViewDeserializationInfo: (DeserializationResult) -> Unit,
+    @Assisted modifier: Modifier = Modifier,
+    @Assisted scrollState: ScrollState = rememberScrollState(),
+) {
+    InlineEditPane(
+        state = rememberInlineEditPaneState(
+            setSelectionToCellState = setSelectionToCellState,
+            onViewDeserializationInfo = onViewDeserializationInfo,
+        ),
+        modifier = modifier,
+        scrollState = scrollState,
+    )
+}
 
 @Suppress("LongParameterList", "LongMethod")
 @Composable
-context(clipboardCellStatePreviewCtx: ClipboardCellStatePreviewCtx)
+context(_: ClipboardCellStatePreview)
 fun InlineEditPane(
     state: InlineEditPaneState,
     modifier: Modifier = Modifier,

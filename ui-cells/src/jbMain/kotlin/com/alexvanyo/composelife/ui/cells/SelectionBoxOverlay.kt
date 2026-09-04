@@ -38,25 +38,30 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.util.packInts
 import androidx.compose.ui.util.unpackInt1
 import androidx.compose.ui.util.unpackInt2
+import com.alexvanyo.composelife.di.InjectContext
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.util.AnchoredDraggable2DState
 import com.alexvanyo.composelife.ui.util.anchoredDraggable2D
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 
+@InjectContext
+@Inject
 @Suppress("LongParameterList", "LongMethod")
 @Composable
-context(_: CellWindowImplCtx)
+context(_: ThumbnailImmutableCellWindow)
 internal fun SelectionBoxOverlay(
-    selectionSessionState: SessionValue<SelectionState.Selection>,
-    setSelectionState: (SelectionState) -> Unit,
-    getSelectionCellState: () -> CellState,
-    scaledCellPixelSize: Float,
-    cellWindow: CellWindow,
-    modifier: Modifier = Modifier,
+    @Assisted selectionSessionState: SessionValue<SelectionState.Selection>,
+    @Assisted setSelectionState: (SelectionState) -> Unit,
+    @Assisted getSelectionCellState: () -> CellState,
+    @Assisted scaledCellPixelSize: Float,
+    @Assisted cellWindow: CellWindow,
+    @Assisted modifier: Modifier = Modifier,
 ) {
     val handleAnchors = remember(scaledCellPixelSize, cellWindow) {
         GridDraggableAnchors2d(scaledCellPixelSize, cellWindow)
