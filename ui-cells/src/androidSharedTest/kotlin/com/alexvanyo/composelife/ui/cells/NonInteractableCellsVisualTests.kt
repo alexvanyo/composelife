@@ -46,7 +46,7 @@ import kotlin.test.Test
 
 @ContributesTo(UiScope::class)
 interface NonInteractableCellsVisualTestsCtx {
-    val nonInteractableCellsCtx: NonInteractableCellsCtx
+    val nonInteractableCells: NonInteractableCells
     val testComposeLifePreferences: TestComposeLifePreferences
 }
 
@@ -85,7 +85,7 @@ class NonInteractableCellsVisualTests :
 
         setContent {
             ComposeLifeTheme(darkTheme = true) {
-                with(ctx.nonInteractableCellsCtx) {
+                context(ctx.nonInteractableCells) {
                     NonInteractableCells(
                         gameOfLifeState = GameOfLifeState(
                             setOf(
@@ -157,7 +157,7 @@ class NonInteractableCellsVisualTests :
 
         setContent {
             ComposeLifeTheme(darkTheme = false) {
-                with(ctx.nonInteractableCellsCtx) {
+                context(ctx.nonInteractableCells) {
                     NonInteractableCells(
                         gameOfLifeState = GameOfLifeState(
                             setOf(

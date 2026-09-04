@@ -41,9 +41,9 @@ import com.alexvanyo.composelife.scopes.GlobalScope
 import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
-import com.alexvanyo.composelife.ui.settings.CellStatePreviewUiCtx
-import com.alexvanyo.composelife.ui.settings.FullscreenSettingsDetailPaneCtx
-import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneCtx
+import com.alexvanyo.composelife.ui.settings.CellStatePreviewUi
+import com.alexvanyo.composelife.ui.settings.FullscreenSettingsDetailPane
+import com.alexvanyo.composelife.ui.settings.InlineSettingsPane
 import com.alexvanyo.composelife.ui.util.TimeZoneHolder
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
@@ -70,9 +70,9 @@ internal interface AppPreviewCtx {
  */
 @ContributesTo(UiScope::class)
 internal interface PreviewCtx : ComposeLifePreferencesProvider {
-    val cellStatePreviewUiCtx: CellStatePreviewUiCtx
-    val fullscreenSettingsDetailPaneCtx: FullscreenSettingsDetailPaneCtx
-    val inlineSettingsPaneCtx: InlineSettingsPaneCtx
+    val cellStatePreviewUi: CellStatePreviewUi
+    val fullscreenSettingsDetailPane: FullscreenSettingsDetailPane
+    val inlineSettingsPane: InlineSettingsPane
     val testComposeLifePreferences: TestComposeLifePreferences
     val timeZoneHolder: TimeZoneHolder
 

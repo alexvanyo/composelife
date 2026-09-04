@@ -21,54 +21,26 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
+import com.alexvanyo.composelife.di.InjectContext
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.ui.cells.CellWindowViewportState
 import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindow
-import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindowCtx
 import com.alexvanyo.composelife.ui.cells.ViewportInteractionConfig
+import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.Inject
 
-// region templated-ctx
-@Immutable
-@Inject
-class CellStatePreviewUiCtx(private val thumbnailImmutableCellWindowCtx: ThumbnailImmutableCellWindowCtx) {
-    @Suppress("ComposableNaming")
-    @Deprecated(
-        "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
-            "CellStatePreviewUi(modifier)",
-        ),
-    )
-    @Composable
-    operator fun invoke(modifier: Modifier = Modifier) = lambda(thumbnailImmutableCellWindowCtx, modifier)
-
-    companion object {
-        private val lambda:
-            @Composable context(ThumbnailImmutableCellWindowCtx)
-            (modifier: Modifier) -> Unit =
-            { modifier ->
-                CellStatePreviewUi(modifier)
-            }
-    }
-}
-
-@Suppress("DEPRECATION")
-@Composable
-context(ctx: CellStatePreviewUiCtx)
-fun CellStatePreviewUi(modifier: Modifier = Modifier) = ctx(modifier)
-// endregion templated-ctx
-
 @Suppress("LongMethod")
+@InjectContext
+@Inject
 @Composable
-context(_: ThumbnailImmutableCellWindowCtx)
-private fun CellStatePreviewUi(modifier: Modifier = Modifier) {
+context(_: ThumbnailImmutableCellWindow)
+internal fun CellStatePreviewUi(@Assisted modifier: Modifier = Modifier) {
     Box(
         modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center,

@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.geometry.toPx
-import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.emptyCellState
 import com.alexvanyo.composelife.model.toCellState
@@ -53,8 +52,7 @@ import kotlin.uuid.Uuid
 
 @ContributesTo(UiScope::class)
 internal interface SelectionOverlayTestsCtx {
-    val cellWindowImplCtx: CellWindowImplCtx
-    val cellStateParser: CellStateParser
+    val selectionOverlay: SelectionOverlay
 }
 
 // TODO: Replace with asContribution()
@@ -76,10 +74,7 @@ class SelectionOverlayTests :
         setContent {
             resolver = parameterizedStringResolver()
 
-            context(
-                ctx.cellWindowImplCtx,
-                ctx.cellStateParser,
-            ) {
+            context(ctx.selectionOverlay) {
                 SelectionOverlay(
                     selectionSessionState = SessionValue(
                         sessionId = Uuid.random(),
@@ -115,10 +110,7 @@ class SelectionOverlayTests :
         setContent {
             resolver = parameterizedStringResolver()
 
-            context(
-                ctx.cellWindowImplCtx,
-                ctx.cellStateParser,
-            ) {
+            context(ctx.selectionOverlay) {
                 SelectionOverlay(
                     selectionSessionState = SessionValue(
                         sessionId = Uuid.random(),
@@ -190,10 +182,7 @@ class SelectionOverlayTests :
         setContent {
             resolver = parameterizedStringResolver()
 
-            context(
-                ctx.cellWindowImplCtx,
-                ctx.cellStateParser,
-            ) {
+            context(ctx.selectionOverlay) {
                 SelectionOverlay(
                     selectionSessionState = mutableSelectionStateHolder.selectionSessionState,
                     setSelectionSessionState = { mutableSelectionStateHolder.selectionSessionState = it },
@@ -235,10 +224,7 @@ class SelectionOverlayTests :
         val ctx = uiGraph.selectionOverlayTestsCtx
 
         setContent {
-            context(
-                ctx.cellWindowImplCtx,
-                ctx.cellStateParser,
-            ) {
+            context(ctx.selectionOverlay) {
                 SelectionOverlay(
                     selectionSessionState = SessionValue(
                         sessionId = Uuid.random(),
@@ -292,10 +278,7 @@ class SelectionOverlayTests :
         )
 
         setContent {
-            context(
-                ctx.cellWindowImplCtx,
-                ctx.cellStateParser,
-            ) {
+            context(ctx.selectionOverlay) {
                 SelectionOverlay(
                     selectionSessionState = mutableSelectionStateHolder.selectionSessionState,
                     setSelectionSessionState = { mutableSelectionStateHolder.selectionSessionState = it },

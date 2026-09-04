@@ -57,7 +57,7 @@ import kotlin.test.assertTrue
 
 @ContributesTo(UiScope::class)
 interface FullscreenSettingsDetailPaneTestsCtx {
-    val fullscreenSettingsDetailPaneCtx: FullscreenSettingsDetailPaneCtx
+    val fullscreenSettingsDetailPane: FullscreenSettingsDetailPane
 }
 
 // TODO: Replace with asContribution()
@@ -80,7 +80,7 @@ class FullscreenSettingsDetailPaneTests :
 
         setContent {
             resolver = parameterizedStringResolver()
-            context(ctx.fullscreenSettingsDetailPaneCtx) {
+            context(ctx.fullscreenSettingsDetailPane) {
                 DeviceConfigurationOverride(
                     DeviceConfigurationOverride.ForcedSize(DpSize(400.dp, 1200.dp)),
                 ) {

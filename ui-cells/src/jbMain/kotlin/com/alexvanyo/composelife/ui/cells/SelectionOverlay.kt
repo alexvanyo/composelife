@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.toIntRect
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toRect
 import androidx.compose.ui.unit.toSize
+import com.alexvanyo.composelife.di.InjectContext
 import com.alexvanyo.composelife.geometry.times
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.CellStateParser
@@ -61,6 +62,8 @@ import com.alexvanyo.composelife.ui.util.AnchoredDraggable2DState
 import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.currentWindowShape
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.Inject
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -69,20 +72,22 @@ import kotlin.uuid.Uuid
 /**
  * The overlay based on the [selectionSessionState].
  */
+@InjectContext
+@Inject
 @Suppress("LongMethod", "LongParameterList", "CyclomaticComplexMethod")
 @Composable
 context(
     _: CellStateParser,
-    _: CellWindowImplCtx,
+    _: SelectionBoxOverlay,
 )
 internal fun SelectionOverlay(
-    selectionSessionState: SessionValue<SelectionState>,
-    setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,
-    getSelectionCellState: (SelectionState) -> CellState,
-    scaledCellDpSize: Dp,
-    cellWindow: CellWindow,
-    pixelOffsetFromCenter: Offset,
-    modifier: Modifier = Modifier,
+    @Assisted selectionSessionState: SessionValue<SelectionState>,
+    @Assisted setSelectionSessionState: (SessionValue<SelectionState>) -> Unit,
+    @Assisted getSelectionCellState: (SelectionState) -> CellState,
+    @Assisted scaledCellDpSize: Dp,
+    @Assisted cellWindow: CellWindow,
+    @Assisted pixelOffsetFromCenter: Offset,
+    @Assisted modifier: Modifier = Modifier,
 ) {
     val selectionSessionStateValueHolder = rememberSessionValueHolder(
         upstreamSessionValue = selectionSessionState,

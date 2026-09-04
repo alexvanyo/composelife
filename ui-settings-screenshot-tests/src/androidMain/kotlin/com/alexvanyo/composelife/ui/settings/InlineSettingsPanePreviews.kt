@@ -32,7 +32,8 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
 internal fun InlineSettingsPaneNoQuickAccessPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            context(contextOf<PreviewCtx>().inlineSettingsPaneCtx) {
+            val previewCtx = contextOf<PreviewCtx>()
+            context(previewCtx.inlineSettingsPane) {
                 Surface(modifier) {
                     InlineSettingsPane(
                         onSeeMoreClicked = {},
@@ -54,7 +55,8 @@ internal fun InlineSettingsPaneWithQuickAccessPreview(modifier: Modifier = Modif
             QuickAccessSetting.CellShapeConfig,
         )
         ComposeLifeTheme {
-            context(contextOf<PreviewCtx>().inlineSettingsPaneCtx) {
+            val previewCtx = contextOf<PreviewCtx>()
+            context(previewCtx.inlineSettingsPane) {
                 Surface(modifier) {
                     InlineSettingsPane(
                         onSeeMoreClicked = {},

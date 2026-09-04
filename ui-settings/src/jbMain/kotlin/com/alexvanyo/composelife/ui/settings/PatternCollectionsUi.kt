@@ -48,7 +48,6 @@ import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -69,6 +68,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.alexvanyo.composelife.data.PatternCollectionRepository
 import com.alexvanyo.composelife.data.model.PatternCollection
 import com.alexvanyo.composelife.database.PatternCollectionId
+import com.alexvanyo.composelife.di.InjectContext
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.resourcestate.ResourceState
 import com.alexvanyo.composelife.timeutil.dateComponentInWholeUnits
@@ -90,6 +90,7 @@ import com.alexvanyo.composelife.ui.util.AnimatedContent
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.TimeZoneHolder
 import com.alexvanyo.composelife.ui.util.currentTimeZone
+import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.Inject
 import io.ktor.http.parseUrl
 import kotlinx.coroutines.flow.collect
@@ -98,49 +99,15 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
 import kotlin.time.Clock
-
-// region templated-ctx
-@Immutable
+@InjectContext
 @Inject
-class PatternCollectionsUiCtx(
-    private val patternCollectionRepository: PatternCollectionRepository,
-    private val clock: Clock,
-    val timeZoneHolder: TimeZoneHolder,
-) {
-    @Suppress("ComposableNaming")
-    @Deprecated(
-        "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
-            "PatternCollectionsUi(modifier)",
-        ),
-    )
-    @Composable
-    operator fun invoke(modifier: Modifier = Modifier) =
-        lambda(patternCollectionRepository, clock, timeZoneHolder, modifier)
-
-    companion object {
-        private val lambda:
-            @Composable context(PatternCollectionRepository, Clock, TimeZoneHolder)
-            (modifier: Modifier) -> Unit =
-            { modifier ->
-                PatternCollectionsUi(modifier)
-            }
-    }
-}
-
-@Suppress("DEPRECATION")
-@Composable
-context(ctx: PatternCollectionsUiCtx)
-fun PatternCollectionsUi(modifier: Modifier = Modifier) = ctx(modifier)
-// endregion templated-ctx
-
 @Composable
 context(
     patternCollectionRepository: PatternCollectionRepository,
     _: Clock,
     _: TimeZoneHolder,
 )
-fun PatternCollectionsUi(modifier: Modifier = Modifier) {
+fun PatternCollectionsUi(@Assisted modifier: Modifier = Modifier) {
     val lifecycleOwner = LocalLifecycleOwner.current
     LaunchedEffect(lifecycleOwner, patternCollectionRepository) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
