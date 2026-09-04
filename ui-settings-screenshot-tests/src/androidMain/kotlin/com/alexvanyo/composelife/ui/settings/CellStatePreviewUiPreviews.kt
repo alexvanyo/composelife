@@ -32,7 +32,8 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
 internal fun CellStatePreviewUiPreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            context(contextOf<PreviewCtx>().cellStatePreviewUiCtx) {
+            val previewCtx = contextOf<PreviewCtx>()
+            context(previewCtx.cellStatePreviewUi) {
                 Surface(modifier) {
                     CellStatePreviewUi()
                 }

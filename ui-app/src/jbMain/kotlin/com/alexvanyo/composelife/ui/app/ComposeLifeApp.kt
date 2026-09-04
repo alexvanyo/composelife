@@ -28,7 +28,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -44,6 +43,7 @@ import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
 import androidx.window.core.layout.WindowSizeClass
+import com.alexvanyo.composelife.di.InjectContext
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackMapSerializer
@@ -69,12 +69,12 @@ import com.alexvanyo.composelife.ui.mobile.component.DialogSceneStrategy
 import com.alexvanyo.composelife.ui.mobile.component.ListDetailInfo
 import com.alexvanyo.composelife.ui.mobile.component.ListDetailSceneStrategy
 import com.alexvanyo.composelife.ui.settings.FullscreenSettingsDetailPane
-import com.alexvanyo.composelife.ui.settings.FullscreenSettingsDetailPaneCtx
 import com.alexvanyo.composelife.ui.settings.FullscreenSettingsListPane
 import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.settings.SettingsCategory
 import com.alexvanyo.composelife.ui.util.LocalSharedTransitionScope
 import com.alexvanyo.composelife.ui.util.ReportDrawn
+import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.GraphExtension
@@ -83,40 +83,30 @@ import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 import kotlin.reflect.KClass
 
-@Immutable
+@InjectContext
 @Inject
-class ComposeLifeAppUiCtx(internal val composeLifePreferences: ComposeLifePreferences, internal val uiGraph: UiGraph) {
-    companion object
-}
-
-@Immutable
-@Inject
-class ComposeLifeAppUiWithLoadedPreferencesCtx(
-    internal val preferencesHolder: LoadedComposeLifePreferencesHolder,
-    internal val cellUniversePaneCtx: CellUniversePaneCtx,
-    internal val fullscreenSettingsDetailPaneCtx: FullscreenSettingsDetailPaneCtx,
-) {
-    companion object
-}
-
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalAnimationApi::class)
 @Composable
-context(uiCtx: ComposeLifeAppUiCtx)
-fun ComposeLifeApp(
-    windowSizeClass: WindowSizeClass,
-    windowSize: DpSize,
-    modifier: Modifier = Modifier,
-    composeLifeAppState: ComposeLifeAppState = rememberComposeLifeAppState(
-        uiCtx.composeLifePreferences,
-        uiCtx.uiGraph,
-        windowSizeClass,
-        windowSize,
-    ),
+context(
+    composeLifePreferences: ComposeLifePreferences,
+    uiGraph: UiGraph,
+)
+fun ComposeLifeAppUi(
+    @Assisted windowSizeClass: WindowSizeClass,
+    @Assisted windowSize: DpSize,
+    @Assisted modifier: Modifier = Modifier,
+    @Assisted composeLifeAppState: ComposeLifeAppState? = null,
 ) {
+    val resolvedComposeLifeAppState = composeLifeAppState ?: rememberComposeLifeAppState(
+        composeLifePreferences = composeLifePreferences,
+        uiGraph = uiGraph,
+        windowSizeClass = windowSizeClass,
+        windowSize = windowSize,
+    )
     Surface(modifier = modifier.fillMaxSize()) {
         LookaheadScope {
-            val transition = updateTransition(composeLifeAppState, "ComposeLifeAppState Crossfade")
+            val transition = updateTransition(resolvedComposeLifeAppState, "ComposeLifeAppState Crossfade")
             transition.Crossfade(
                 contentKey = {
                     when (it) {
@@ -141,107 +131,124 @@ fun ComposeLifeApp(
                     is ComposeLifeAppState.LoadedPreferences -> {
                         ReportDrawn()
 
-                        val dispatcher = requireNotNull(
-                            LocalNavigationEventDispatcherOwner.current,
-                        ).navigationEventDispatcher
-                        val navigationEventHistory by dispatcher.history.collectAsState()
-                        val currentInfo = navigationEventHistory.mergedHistory.getOrNull(
-                            navigationEventHistory.currentIndex,
-                        )
-
-                        with(targetComposeLifeAppState.composeLifeAppUiWithLoadedPreferencesCtx) {
-                            SharedTransitionLayout {
-                                CompositionLocalProvider(LocalSharedTransitionScope provides this) {
-                                    val navEntries = rememberDecoratedNavEntries(
-                                        targetComposeLifeAppState.navigationState,
-                                    ) { entry ->
-                                        when (val value = entry.value) {
-                                            is ComposeLifeUiNavigation.CellUniverse -> {
-                                                Surface {
-                                                    with(cellUniversePaneCtx) {
-                                                        CellUniversePane(
-                                                            windowSizeClass = windowSizeClass,
-                                                            onSeeMoreSettingsClicked =
-                                                            targetComposeLifeAppState::onSeeMoreSettingsClicked,
-                                                            onOpenInSettingsClicked =
-                                                            targetComposeLifeAppState::onOpenInSettingsClicked,
-                                                            onViewDeserializationInfo =
-                                                            targetComposeLifeAppState::onViewDeserializationInfo,
-                                                        )
-                                                    }
-                                                }
-                                            }
-
-                                            is ComposeLifeUiNavigation.FullscreenSettingsList -> {
-                                                FullscreenSettingsListPane(
-                                                    fullscreenSettingsListPaneState = value,
-                                                    setSettingsCategory =
-                                                    targetComposeLifeAppState::onSettingsCategoryClicked,
-                                                    onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
-                                                )
-                                            }
-
-                                            is ComposeLifeUiNavigation.FullscreenSettingsDetail -> {
-                                                with(fullscreenSettingsDetailPaneCtx) {
-                                                    FullscreenSettingsDetailPane(
-                                                        fullscreenSettingsDetailPaneState = value,
-                                                        onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
-                                                    )
-                                                }
-                                            }
-
-                                            is ComposeLifeUiNavigation.DeserializationInfo -> {
-                                                DeserializationInfoPane(
-                                                    navEntryValue = value,
-                                                    onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
-                                                )
-                                            }
-                                        }
-                                    }
-
-                                    val sceneState = rememberSceneState(
-                                        entries = navEntries,
-                                        sceneStrategy = DialogSceneStrategy(
-                                            ListDetailSceneStrategy<ComposeLifeUiNavigation>() then
-                                                SinglePaneSceneStrategy(),
-                                        ),
-                                        onBack = targetComposeLifeAppState::onBackPressed,
-                                    )
-
-                                    val navigationEventTransitionState =
-                                        if (currentInfo is ComposeLifeAppNavigationEventInfo &&
-                                            currentInfo.sceneKey ==
-                                            sceneState.currentScene::class to sceneState.currentScene.key
-                                        ) {
-                                            dispatcher.transitionState.collectAsState().value
-                                        } else {
-                                            NavigationEventTransitionState.Idle
-                                        }
-
-                                    NavigationBackHandler(
-                                        state = rememberNavigationEventState(
-                                            currentInfo = ComposeLifeAppNavigationEventInfo(
-                                                sceneState.currentScene::class to sceneState.currentScene.key,
-                                            ),
-                                            backInfo = sceneState.previousScenes.map {
-                                                ComposeLifeAppNavigationEventInfo(it::class to it.key)
-                                            },
-                                        ),
-                                        isBackEnabled = targetComposeLifeAppState.canNavigateBack,
-                                        onBackCompleted = targetComposeLifeAppState::onBackPressed,
-                                    )
-
-                                    MaterialPredictiveNavDisplay(
-                                        sceneState = sceneState,
-                                        navigationEventTransitionState = navigationEventTransitionState,
-                                        clipUsingWindowShape = preferencesHolder.preferences.enableWindowShapeClipping,
-                                    )
-                                }
-                            }
+                        context(targetComposeLifeAppState.composeLifeAppUiWithLoadedPreferences) {
+                            ComposeLifeAppUiWithLoadedPreferences(
+                                windowSizeClass = windowSizeClass,
+                                targetComposeLifeAppState = targetComposeLifeAppState,
+                            )
                         }
                     }
                 }
             }
+        }
+    }
+}
+
+@Suppress("LongMethod")
+@InjectContext
+@Inject
+@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalAnimationApi::class)
+@Composable
+context(
+    preferencesHolder: LoadedComposeLifePreferencesHolder,
+    _: CellUniversePane,
+    _: FullscreenSettingsDetailPane,
+)
+fun ComposeLifeAppUiWithLoadedPreferences(
+    @Assisted windowSizeClass: WindowSizeClass,
+    @Assisted targetComposeLifeAppState: ComposeLifeAppState.LoadedPreferences,
+    @Assisted modifier: Modifier = Modifier,
+) {
+    val dispatcher = requireNotNull(
+        LocalNavigationEventDispatcherOwner.current,
+    ).navigationEventDispatcher
+    val navigationEventHistory by dispatcher.history.collectAsState()
+    val currentInfo = navigationEventHistory.mergedHistory.getOrNull(
+        navigationEventHistory.currentIndex,
+    )
+
+    SharedTransitionLayout(modifier = modifier) {
+        CompositionLocalProvider(LocalSharedTransitionScope provides this) {
+            val navEntries = rememberDecoratedNavEntries(
+                targetComposeLifeAppState.navigationState,
+            ) { entry ->
+                when (val value = entry.value) {
+                    is ComposeLifeUiNavigation.CellUniverse -> {
+                        Surface {
+                            CellUniversePane(
+                                windowSizeClass = windowSizeClass,
+                                onSeeMoreSettingsClicked =
+                                targetComposeLifeAppState::onSeeMoreSettingsClicked,
+                                onOpenInSettingsClicked =
+                                targetComposeLifeAppState::onOpenInSettingsClicked,
+                                onViewDeserializationInfo =
+                                targetComposeLifeAppState::onViewDeserializationInfo,
+                            )
+                        }
+                    }
+
+                    is ComposeLifeUiNavigation.FullscreenSettingsList -> {
+                        FullscreenSettingsListPane(
+                            fullscreenSettingsListPaneState = value,
+                            setSettingsCategory =
+                            targetComposeLifeAppState::onSettingsCategoryClicked,
+                            onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
+                        )
+                    }
+
+                    is ComposeLifeUiNavigation.FullscreenSettingsDetail -> {
+                        FullscreenSettingsDetailPane(
+                            fullscreenSettingsDetailPaneState = value,
+                            onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
+                        )
+                    }
+
+                    is ComposeLifeUiNavigation.DeserializationInfo -> {
+                        DeserializationInfoPane(
+                            navEntryValue = value,
+                            onBackButtonPressed = targetComposeLifeAppState::onBackPressed,
+                        )
+                    }
+                }
+            }
+
+            val sceneState = rememberSceneState(
+                entries = navEntries,
+                sceneStrategy = DialogSceneStrategy(
+                    ListDetailSceneStrategy<ComposeLifeUiNavigation>() then
+                        SinglePaneSceneStrategy(),
+                ),
+                onBack = targetComposeLifeAppState::onBackPressed,
+            )
+
+            val navigationEventTransitionState =
+                if (currentInfo is ComposeLifeAppNavigationEventInfo &&
+                    currentInfo.sceneKey ==
+                    sceneState.currentScene::class to sceneState.currentScene.key
+                ) {
+                    dispatcher.transitionState.collectAsState().value
+                } else {
+                    NavigationEventTransitionState.Idle
+                }
+
+            NavigationBackHandler(
+                state = rememberNavigationEventState(
+                    currentInfo = ComposeLifeAppNavigationEventInfo(
+                        sceneState.currentScene::class to sceneState.currentScene.key,
+                    ),
+                    backInfo = sceneState.previousScenes.map {
+                        ComposeLifeAppNavigationEventInfo(it::class to it.key)
+                    },
+                ),
+                isBackEnabled = targetComposeLifeAppState.canNavigateBack,
+                onBackCompleted = targetComposeLifeAppState::onBackPressed,
+            )
+
+            MaterialPredictiveNavDisplay(
+                sceneState = sceneState,
+                navigationEventTransitionState = navigationEventTransitionState,
+                clipUsingWindowShape = preferencesHolder.preferences.enableWindowShapeClipping,
+            )
         }
     }
 }
@@ -292,9 +299,9 @@ fun rememberComposeLifeAppState(
 
         remember(navController, navigationUiState) {
             object : ComposeLifeAppState.LoadedPreferences {
-                override val composeLifeAppUiWithLoadedPreferencesCtx:
-                    ComposeLifeAppUiWithLoadedPreferencesCtx
-                    get() = uiWithLoadedPreferencesGraph.composeLifeAppUiWithLoadedPreferencesCtx
+                override val composeLifeAppUiWithLoadedPreferences:
+                    ComposeLifeAppUiWithLoadedPreferences
+                    get() = uiWithLoadedPreferencesGraph.composeLifeAppUiWithLoadedPreferences
 
                 override val navigationState: BackstackState<ComposeLifeUiNavigation>
                     get() = navigationUiState
@@ -351,9 +358,9 @@ fun rememberComposeLifeAppState(
                 }
 
                 override fun onSettingsCategoryClicked(settingsCategory: SettingsCategory) {
-                    navController.withExpectedActor(currentEntryId) {
+                    navController.withExpectedActor(currentEntryId) { _ ->
                         navController.popUpTo(
-                            predicate = { entry -> entry is ComposeLifeNavigation.FullscreenSettingsList },
+                            predicate = { it is ComposeLifeNavigation.FullscreenSettingsList },
                         )
                         val currentEntryValue =
                             navController.currentEntry.value as ComposeLifeNavigation.FullscreenSettingsList
@@ -398,7 +405,7 @@ sealed interface ComposeLifeAppState {
      */
     interface LoadedPreferences : ComposeLifeAppState {
 
-        val composeLifeAppUiWithLoadedPreferencesCtx: ComposeLifeAppUiWithLoadedPreferencesCtx
+        val composeLifeAppUiWithLoadedPreferences: ComposeLifeAppUiWithLoadedPreferences
 
         val navigationState: BackstackState<ComposeLifeUiNavigation>
 
@@ -421,7 +428,7 @@ abstract class UiWithLoadedPreferencesScope private constructor()
 
 @GraphExtension(UiWithLoadedPreferencesScope::class)
 interface UiWithLoadedPreferencesGraph {
-    val composeLifeAppUiWithLoadedPreferencesCtx: ComposeLifeAppUiWithLoadedPreferencesCtx
+    val composeLifeAppUiWithLoadedPreferences: ComposeLifeAppUiWithLoadedPreferences
 
     @ContributesTo(UiScope::class)
     @GraphExtension.Factory

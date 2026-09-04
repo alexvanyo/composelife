@@ -17,16 +17,17 @@
 package com.alexvanyo.composelife.ui.cells
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
+import com.alexvanyo.composelife.di.InjectContext
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.MutableGameOfLifeState
 import com.alexvanyo.composelife.sessionvalue.SessionValue
+import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.Inject
 import kotlin.uuid.Uuid
 
@@ -40,298 +41,80 @@ object CellWindow {
     const val defaultInOverlay = false
 }
 
-@Immutable
+@InjectContext
 @Inject
-class ThumbnailImmutableCellWindowCtx internal constructor(private val cellWindowImplCtx: CellWindowImplCtx) {
-    @Suppress("ComposableNaming", "LongParameterList")
-    @Deprecated(
-        "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
-            "ThumbnailImmutableCellWindow(gameOfLifeState, viewportInteractionConfig, modifier, cellDpSize, " +
-                "centerOffset, inOverlay)",
-        ),
-    )
-    @Composable
-    operator fun invoke(
-        gameOfLifeState: GameOfLifeState,
-        viewportInteractionConfig: ViewportInteractionConfig,
-        modifier: Modifier = Modifier,
-        cellDpSize: Dp = CellWindow.defaultCellDpSize,
-        centerOffset: Offset = CellWindow.defaultCenterOffset,
-        inOverlay: Boolean = CellWindow.defaultInOverlay,
-    ) = lambda(
-        cellWindowImplCtx,
-        gameOfLifeState,
-        viewportInteractionConfig,
-        modifier,
-        cellDpSize,
-        centerOffset,
-        inOverlay,
-    )
-
-    companion object {
-        private val lambda:
-            @Composable context(
-                CellWindowImplCtx,
-            )
-            (
-                gameOfLifeState: GameOfLifeState,
-                viewportInteractionConfig: ViewportInteractionConfig,
-                modifier: Modifier,
-                cellDpSize: Dp,
-                centerOffset: Offset,
-                inOverlay: Boolean,
-            ) -> Unit =
-            { gameOfLifeState, viewportInteractionConfig, modifier, cellDpSize, centerOffset, inOverlay ->
-                ThumbnailImmutableCellWindow(
-                    gameOfLifeState = gameOfLifeState,
-                    viewportInteractionConfig = viewportInteractionConfig,
-                    modifier = modifier,
-                    cellDpSize = cellDpSize,
-                    centerOffset = centerOffset,
-                    inOverlay = inOverlay,
-                )
-            }
-    }
-}
-
-/**
- * A cell window that displays the given [gameOfLifeState] in an immutable fashion for a thumbnail.
- */
-@Suppress("LongParameterList", "DEPRECATION")
-@Composable
-context(ctx: ThumbnailImmutableCellWindowCtx)
-fun ThumbnailImmutableCellWindow(
-    gameOfLifeState: GameOfLifeState,
-    viewportInteractionConfig: ViewportInteractionConfig,
-    modifier: Modifier = Modifier,
-    cellDpSize: Dp = CellWindow.defaultCellDpSize,
-    centerOffset: Offset = CellWindow.defaultCenterOffset,
-    inOverlay: Boolean = CellWindow.defaultInOverlay,
-) = ctx.invoke(gameOfLifeState, viewportInteractionConfig, modifier, cellDpSize, centerOffset, inOverlay)
-
 @Suppress("LongParameterList")
 @Composable
-context(_: CellWindowImplCtx)
-internal fun ThumbnailImmutableCellWindow(
-    gameOfLifeState: GameOfLifeState,
-    viewportInteractionConfig: ViewportInteractionConfig,
-    modifier: Modifier = Modifier,
-    cellDpSize: Dp = CellWindow.defaultCellDpSize,
-    centerOffset: Offset = CellWindow.defaultCenterOffset,
-    inOverlay: Boolean = CellWindow.defaultInOverlay,
+context(_: CellWindowImpl)
+fun ThumbnailImmutableCellWindow(
+    @Assisted gameOfLifeState: GameOfLifeState,
+    @Assisted viewportInteractionConfig: ViewportInteractionConfig,
+    @Assisted modifier: Modifier = Modifier,
+    @Assisted cellDpSize: Dp = CellWindow.defaultCellDpSize,
+    @Assisted centerOffset: Offset = CellWindow.defaultCenterOffset,
+    @Assisted inOverlay: Boolean = CellWindow.defaultInOverlay,
 ) {
     CellWindowImpl(
-        CellWindowUiState.ImmutableCellWindowUiState.ThumbnailState(
+        cellWindowUiState = CellWindowUiState.ImmutableCellWindowUiState.ThumbnailState(
             gameOfLifeState = gameOfLifeState,
             viewportInteractionConfig = viewportInteractionConfig,
         ),
-        cellDpSize,
-        centerOffset,
-        inOverlay,
-        modifier,
+        cellDpSize = cellDpSize,
+        centerOffset = centerOffset,
+        inOverlay = inOverlay,
+        modifier = modifier,
     )
 }
 
-@Immutable
+@InjectContext
 @Inject
-class ImmutableCellWindowCtx internal constructor(private val cellWindowImplCtx: CellWindowImplCtx) {
-    @Suppress("ComposableNaming", "LongParameterList")
-    @Deprecated(
-        "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
-            "ImmutableCellWindow(gameOfLifeState, cellWindowInteractionState, modifier, cellDpSize, " +
-                "centerOffset, inOverlay)",
-        ),
-    )
-    @Composable
-    operator fun invoke(
-        gameOfLifeState: GameOfLifeState,
-        cellWindowInteractionState: CellWindowInteractionState,
-        modifier: Modifier = Modifier,
-        cellDpSize: Dp = CellWindow.defaultCellDpSize,
-        centerOffset: Offset = CellWindow.defaultCenterOffset,
-        inOverlay: Boolean = CellWindow.defaultInOverlay,
-    ) = lambda(
-        cellWindowImplCtx,
-        gameOfLifeState,
-        cellWindowInteractionState,
-        modifier,
-        cellDpSize,
-        centerOffset,
-        inOverlay,
-    )
-
-    companion object {
-        private val lambda:
-            @Composable context(
-                CellWindowImplCtx,
-            )
-            (
-                gameOfLifeState: GameOfLifeState,
-                cellWindowInteractionState: CellWindowInteractionState,
-                modifier: Modifier,
-                cellDpSize: Dp,
-                centerOffset: Offset,
-                inOverlay: Boolean,
-            ) -> Unit =
-            { gameOfLifeState, cellWindowInteractionState, modifier, cellDpSize, centerOffset, inOverlay ->
-                ImmutableCellWindow(
-                    gameOfLifeState = gameOfLifeState,
-                    cellWindowInteractionState = cellWindowInteractionState,
-                    modifier = modifier,
-                    cellDpSize = cellDpSize,
-                    centerOffset = centerOffset,
-                    inOverlay = inOverlay,
-                )
-            }
-    }
-}
-
-/**
- * A cell window that displays the given [gameOfLifeState] in an immutable fashion.
- */
-@Suppress("LongParameterList", "DEPRECATION")
-@Composable
-context(ctx: ImmutableCellWindowCtx)
-fun ImmutableCellWindow(
-    gameOfLifeState: GameOfLifeState,
-    cellWindowInteractionState: CellWindowInteractionState,
-    modifier: Modifier = Modifier,
-    cellDpSize: Dp = CellWindow.defaultCellDpSize,
-    centerOffset: Offset = CellWindow.defaultCenterOffset,
-    inOverlay: Boolean = CellWindow.defaultInOverlay,
-) = ctx.invoke(gameOfLifeState, cellWindowInteractionState, modifier, cellDpSize, centerOffset, inOverlay)
-
 @Suppress("LongParameterList")
 @Composable
-context(_: CellWindowImplCtx)
-private fun ImmutableCellWindow(
-    gameOfLifeState: GameOfLifeState,
-    cellWindowInteractionState: CellWindowInteractionState,
-    modifier: Modifier = Modifier,
-    cellDpSize: Dp = CellWindow.defaultCellDpSize,
-    centerOffset: Offset = CellWindow.defaultCenterOffset,
-    inOverlay: Boolean = CellWindow.defaultInOverlay,
+context(_: CellWindowImpl)
+fun ImmutableCellWindow(
+    @Assisted gameOfLifeState: GameOfLifeState,
+    @Assisted cellWindowInteractionState: CellWindowInteractionState,
+    @Assisted modifier: Modifier = Modifier,
+    @Assisted cellDpSize: Dp = CellWindow.defaultCellDpSize,
+    @Assisted centerOffset: Offset = CellWindow.defaultCenterOffset,
+    @Assisted inOverlay: Boolean = CellWindow.defaultInOverlay,
 ) {
     CellWindowImpl(
-        CellWindowUiState.ImmutableCellWindowUiState.InteractableState(
+        cellWindowUiState = CellWindowUiState.ImmutableCellWindowUiState.InteractableState(
             gameOfLifeState = gameOfLifeState,
             cellWindowInteractionState = cellWindowInteractionState,
         ),
-        cellDpSize,
-        centerOffset,
-        inOverlay,
-        modifier,
+        cellDpSize = cellDpSize,
+        centerOffset = centerOffset,
+        inOverlay = inOverlay,
+        modifier = modifier,
     )
 }
 
-@Immutable
+@InjectContext
 @Inject
-class MutableCellWindowCtx internal constructor(private val cellWindowImplCtx: CellWindowImplCtx) {
-    @Suppress("ComposableNaming", "LongParameterList")
-    @Deprecated(
-        "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
-            "MutableCellWindow(gameOfLifeState, cellWindowInteractionState, modifier, isEditable, cellDpSize, " +
-                "centerOffset, inOverlay)",
-        ),
-    )
-    @Composable
-    operator fun invoke(
-        gameOfLifeState: MutableGameOfLifeState,
-        cellWindowInteractionState: MutableCellWindowInteractionState,
-        modifier: Modifier = Modifier,
-        isEditable: (isGesturing: Boolean, scale: Float) -> Boolean = CellWindow.defaultIsEditable,
-        cellDpSize: Dp = CellWindow.defaultCellDpSize,
-        centerOffset: Offset = CellWindow.defaultCenterOffset,
-        inOverlay: Boolean = CellWindow.defaultInOverlay,
-    ) = lambda(
-        cellWindowImplCtx,
-        gameOfLifeState,
-        cellWindowInteractionState,
-        modifier,
-        isEditable,
-        cellDpSize,
-        centerOffset,
-        inOverlay,
-    )
-
-    companion object {
-        private val lambda:
-            @Composable context(
-                CellWindowImplCtx,
-            )
-            (
-                gameOfLifeState: MutableGameOfLifeState,
-                cellWindowInteractionState: MutableCellWindowInteractionState,
-                modifier: Modifier,
-                isEditable: (isGesturing: Boolean, scale: Float) -> Boolean,
-                cellDpSize: Dp,
-                centerOffset: Offset,
-                inOverlay: Boolean,
-            ) -> Unit =
-            { gameOfLifeState, cellWindowInteractionState, modifier, isEditable, cellDpSize, centerOffset, inOverlay ->
-                MutableCellWindow(
-                    gameOfLifeState = gameOfLifeState,
-                    cellWindowInteractionState = cellWindowInteractionState,
-                    modifier = modifier,
-                    cellDpSize = cellDpSize,
-                    centerOffset = centerOffset,
-                    inOverlay = inOverlay,
-                )
-            }
-    }
-}
-
-/**
- * A cell window that displays the given [gameOfLifeState] in an mutable fashion.
- *
- * The cells will be editable if and only if [isEditable] returns true.
- */
-@Suppress("LongParameterList", "DEPRECATION")
-@Composable
-context(ctx: MutableCellWindowCtx)
-fun MutableCellWindow(
-    gameOfLifeState: MutableGameOfLifeState,
-    cellWindowInteractionState: MutableCellWindowInteractionState,
-    modifier: Modifier = Modifier,
-    isEditable: (isGesturing: Boolean, scale: Float) -> Boolean = CellWindow.defaultIsEditable,
-    cellDpSize: Dp = CellWindow.defaultCellDpSize,
-    centerOffset: Offset = CellWindow.defaultCenterOffset,
-    inOverlay: Boolean = CellWindow.defaultInOverlay,
-) = ctx.invoke(
-    gameOfLifeState,
-    cellWindowInteractionState,
-    modifier,
-    isEditable,
-    cellDpSize,
-    centerOffset,
-    inOverlay,
-)
-
 @Suppress("LongParameterList")
 @Composable
-context(_: CellWindowImplCtx)
-private fun MutableCellWindow(
-    gameOfLifeState: MutableGameOfLifeState,
-    cellWindowInteractionState: MutableCellWindowInteractionState,
-    modifier: Modifier = Modifier,
-    isEditable: (isGesturing: Boolean, scale: Float) -> Boolean = CellWindow.defaultIsEditable,
-    cellDpSize: Dp = CellWindow.defaultCellDpSize,
-    centerOffset: Offset = CellWindow.defaultCenterOffset,
-    inOverlay: Boolean = CellWindow.defaultInOverlay,
+context(_: CellWindowImpl)
+fun MutableCellWindow(
+    @Assisted gameOfLifeState: MutableGameOfLifeState,
+    @Assisted cellWindowInteractionState: MutableCellWindowInteractionState,
+    @Assisted modifier: Modifier = Modifier,
+    @Assisted isEditable: (isGesturing: Boolean, scale: Float) -> Boolean = CellWindow.defaultIsEditable,
+    @Assisted cellDpSize: Dp = CellWindow.defaultCellDpSize,
+    @Assisted centerOffset: Offset = CellWindow.defaultCenterOffset,
+    @Assisted inOverlay: Boolean = CellWindow.defaultInOverlay,
 ) {
     CellWindowImpl(
-        CellWindowUiState.MutableState(
+        cellWindowUiState = CellWindowUiState.MutableState(
             gameOfLifeState = gameOfLifeState,
             isEditable = isEditable,
             cellWindowInteractionState = cellWindowInteractionState,
         ),
-        cellDpSize,
-        centerOffset,
-        inOverlay,
-        modifier,
+        cellDpSize = cellDpSize,
+        centerOffset = centerOffset,
+        inOverlay = inOverlay,
+        modifier = modifier,
     )
 }
 

@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.alexvanyo.composelife.di.InjectContext
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
@@ -41,34 +42,18 @@ import com.alexvanyo.composelife.ui.settings.resources.SizeFractionLabelAndValue
 import com.alexvanyo.composelife.ui.settings.resources.SizeFractionValue
 import com.alexvanyo.composelife.ui.settings.resources.Strings
 import com.alexvanyo.composelife.ui.util.nonNegativeDouble
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.Inject
 import kotlinx.collections.immutable.toImmutableList
 
-// region templated-ctx
-private val CellShapeConfigUiCtx.Companion.lambda:
-    @Composable (
-    context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences)
-    (Modifier) -> Unit
-    )
-    get() = { modifier ->
-        CellShapeConfigUi(modifier)
-    }
-
-@Suppress("ComposableNaming")
-@Composable
-private operator fun CellShapeConfigUiCtx.invoke(modifier: Modifier = Modifier) =
-    CellShapeConfigUiCtx.Companion.lambda(preferencesHolder, composeLifePreferences, modifier)
-
-@Composable
-context(ctx: CellShapeConfigUiCtx)
-fun CellShapeConfigUi(modifier: Modifier = Modifier) = ctx(modifier)
-// endregion templated-ctx
-
+@InjectContext
+@Inject
 @Composable
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,
     composeLifePreferences: ComposeLifePreferences,
 )
-private fun CellShapeConfigUi(modifier: Modifier = Modifier) {
+internal fun CellShapeConfigUi(@Assisted modifier: Modifier = Modifier) {
     CellShapeConfigUi(
         cellShapeConfigUiState = rememberCellShapeConfigUiState(),
         modifier = modifier,

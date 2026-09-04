@@ -243,7 +243,8 @@ private fun CustomAnimatedContentSettingUiSharedElementWithCallerManagedVisibili
 
     WithPreviewDependencies {
         Surface {
-            context(contextOf<PreviewCtx>().settingUiCtx) {
+            val previewCtx = contextOf<PreviewCtx>()
+            context(previewCtx.settingUi) {
                 SharedTransitionScope { modifier ->
                     com.alexvanyo.composelife.ui.util.AnimatedContent(
                         TargetState.Single(isExpanded),

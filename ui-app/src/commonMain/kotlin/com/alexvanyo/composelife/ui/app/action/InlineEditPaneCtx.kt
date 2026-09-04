@@ -17,7 +17,6 @@
 package com.alexvanyo.composelife.ui.app.action
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -40,23 +39,11 @@ import com.alexvanyo.composelife.ui.app.parseCellState
 import com.alexvanyo.composelife.ui.cells.isSharedElementForCellsSupported
 import com.alexvanyo.composelife.ui.util.ClipboardReader
 import com.alexvanyo.composelife.ui.util.clipboardStateKey
-import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.uuid.Uuid
 import kotlin.collections.removeLast as removeLastKt
 
-@Immutable
-@Inject
-class InlineEditPaneCtx internal constructor(
-    internal val preferencesHolder: LoadedComposeLifePreferencesHolder,
-    internal val composeLifePreferences: ComposeLifePreferences,
-    internal val clipboardCellStatePreviewCtx: ClipboardCellStatePreviewCtx,
-    internal val cellStateParser: CellStateParser,
-    internal val clipboardReader: ClipboardReader,
-) {
-    companion object
-}
 interface InlineEditPaneState {
     val touchToolConfig: ToolConfig
     fun setTouchToolConfig(toolConfig: ToolConfig)

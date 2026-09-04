@@ -67,7 +67,7 @@ import kotlin.test.assertNull
 
 @ContributesTo(UiScope::class)
 interface FullscreenSettingsPaneTestsCtx {
-    val fullscreenSettingsDetailPaneCtx: FullscreenSettingsDetailPaneCtx
+    val fullscreenSettingsDetailPane: FullscreenSettingsDetailPane
 }
 
 // TODO: Replace with asContribution()
@@ -103,7 +103,7 @@ class FullscreenSettingsPaneTests :
                         heightDp = maxHeight.value,
                     )
 
-                    context(ctx.fullscreenSettingsDetailPaneCtx) {
+                    context(ctx.fullscreenSettingsDetailPane) {
                         FullscreenSettingsPane(
                             fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
                                 override val settingsCategory = settingsCategory
@@ -195,7 +195,7 @@ class FullscreenSettingsPaneTests :
                         heightDp = maxHeight.value,
                     )
 
-                    context(ctx.fullscreenSettingsDetailPaneCtx) {
+                    context(ctx.fullscreenSettingsDetailPane) {
                         FullscreenSettingsPane(
                             fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
                                 override val settingsCategory = settingsCategory
@@ -291,7 +291,7 @@ class FullscreenSettingsPaneTests :
                         heightDp = maxHeight.value,
                     )
 
-                    context(ctx.fullscreenSettingsDetailPaneCtx) {
+                    context(ctx.fullscreenSettingsDetailPane) {
                         FullscreenSettingsPane(
                             fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
                                 override val settingsCategory = settingsCategory
@@ -371,7 +371,7 @@ class FullscreenSettingsPaneTests :
                         heightDp = maxHeight.value,
                     )
 
-                    context(ctx.fullscreenSettingsDetailPaneCtx) {
+                    context(ctx.fullscreenSettingsDetailPane) {
                         FullscreenSettingsPane(
                             fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
                                 override val settingsCategory = settingsCategory
@@ -459,7 +459,7 @@ class FullscreenSettingsPaneTests :
                         heightDp = maxHeight.value,
                     )
 
-                    context(ctx.fullscreenSettingsDetailPaneCtx) {
+                    context(ctx.fullscreenSettingsDetailPane) {
                         FullscreenSettingsPane(
                             fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
                                 override val settingsCategory = settingsCategory
@@ -533,7 +533,7 @@ class FullscreenSettingsPaneTests :
                         heightDp = maxHeight.value,
                     )
 
-                    context(ctx.fullscreenSettingsDetailPaneCtx) {
+                    context(ctx.fullscreenSettingsDetailPane) {
                         FullscreenSettingsPane(
                             fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
                                 override val settingsCategory = settingsCategory
@@ -614,7 +614,7 @@ class FullscreenSettingsPaneTests :
             DeviceConfigurationOverride(
                 DeviceConfigurationOverride.ForcedSize(DpSize(300.dp, 300.dp)),
             ) {
-                context(ctx.fullscreenSettingsDetailPaneCtx) {
+                context(ctx.fullscreenSettingsDetailPane) {
                     FullscreenSettingsPane(
                         fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
                             override val settingsCategory = settingsCategory
@@ -671,7 +671,7 @@ class FullscreenSettingsPaneTests :
             DeviceConfigurationOverride(
                 DeviceConfigurationOverride.ForcedSize(DpSize(300.dp, 300.dp)),
             ) {
-                context(ctx.fullscreenSettingsDetailPaneCtx) {
+                context(ctx.fullscreenSettingsDetailPane) {
                     FullscreenSettingsPane(
                         fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
                             override val settingsCategory = settingsCategory
@@ -739,7 +739,7 @@ class FullscreenSettingsPaneTests :
                         heightDp = maxHeight.value,
                     )
 
-                    context(ctx.fullscreenSettingsDetailPaneCtx) {
+                    context(ctx.fullscreenSettingsDetailPane) {
                         FullscreenSettingsPane(
                             fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
                                 override val settingsCategory = settingsCategory
@@ -811,7 +811,7 @@ class FullscreenSettingsPaneTests :
                         heightDp = maxHeight.value,
                     )
 
-                    context(ctx.fullscreenSettingsDetailPaneCtx) {
+                    context(ctx.fullscreenSettingsDetailPane) {
                         FullscreenSettingsPane(
                             fullscreenSettingsListPaneState = object : FullscreenSettingsListPaneState {
                                 override val settingsCategory = settingsCategory
