@@ -61,7 +61,7 @@ import kotlin.uuid.Uuid
 
 @ContributesTo(UiScope::class)
 interface InlineEditPaneTestsCtx {
-    val clipboardCellStatePreviewCtx: ClipboardCellStatePreviewCtx
+    val clipboardCellStatePreview: ClipboardCellStatePreview
 }
 
 // TODO: Replace with asContribution()
@@ -79,7 +79,7 @@ class InlineEditPaneTests :
         val ctx = uiGraph.inlineEditPaneTestsCtx
 
         setContent {
-            with(ctx.clipboardCellStatePreviewCtx) {
+            context(ctx.clipboardCellStatePreview) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
                         override val touchToolConfig = ToolConfig.Pan
@@ -121,7 +121,7 @@ class InlineEditPaneTests :
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(ctx.clipboardCellStatePreviewCtx) {
+            context(ctx.clipboardCellStatePreview) {
                 val clipboardPreviewStates = remember {
                     listOf(
                         object : ClipboardPreviewState {
@@ -194,7 +194,7 @@ class InlineEditPaneTests :
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(ctx.clipboardCellStatePreviewCtx) {
+            context(ctx.clipboardCellStatePreview) {
                 val clipboardPreviewStates = remember {
                     listOf(
                         object : ClipboardPreviewState {
@@ -263,7 +263,7 @@ class InlineEditPaneTests :
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(ctx.clipboardCellStatePreviewCtx) {
+            context(ctx.clipboardCellStatePreview) {
                 val clipboardPreviewStates = remember {
                     listOf(
                         object : ClipboardPreviewState {
@@ -329,7 +329,7 @@ class InlineEditPaneTests :
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(ctx.clipboardCellStatePreviewCtx) {
+            context(ctx.clipboardCellStatePreview) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
                         override val touchToolConfig = ToolConfig.Pan
@@ -372,7 +372,7 @@ class InlineEditPaneTests :
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(ctx.clipboardCellStatePreviewCtx) {
+            context(ctx.clipboardCellStatePreview) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
                         override val touchToolConfig = ToolConfig.Draw
@@ -415,7 +415,7 @@ class InlineEditPaneTests :
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(ctx.clipboardCellStatePreviewCtx) {
+            context(ctx.clipboardCellStatePreview) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
                         override val touchToolConfig = ToolConfig.Erase
@@ -458,7 +458,7 @@ class InlineEditPaneTests :
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(ctx.clipboardCellStatePreviewCtx) {
+            context(ctx.clipboardCellStatePreview) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
                         override val touchToolConfig = ToolConfig.Select
@@ -501,7 +501,7 @@ class InlineEditPaneTests :
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(ctx.clipboardCellStatePreviewCtx) {
+            context(ctx.clipboardCellStatePreview) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
                         override val touchToolConfig = ToolConfig.None
@@ -546,7 +546,7 @@ class InlineEditPaneTests :
 
         setContent {
             resolver = parameterizedStringResolver()
-            with(ctx.clipboardCellStatePreviewCtx) {
+            context(ctx.clipboardCellStatePreview) {
                 InlineEditPane(
                     state = object : InlineEditPaneState {
                         override val touchToolConfig get() = touchToolConfig

@@ -143,3 +143,6 @@ include(":wear-watchface-wff-version-4")
 include(":wear-watchface-configuration")
 include(":work")
 include(":work-test-fixtures")
+
+include(":di-compiler:compiler-plugin")
+include(":di-compiler:plugin-annotations")

@@ -66,6 +66,7 @@ kotlin {
                 api(projects.dispatchers)
                 api(projects.imageLoader)
 
+                implementation(projects.diCompiler.pluginAnnotations)
                 implementation(projects.injectScopes)
                 implementation(projects.logging)
                 implementation(projects.openglRenderer)
@@ -195,4 +196,8 @@ kotlin {
             dependsOn(jbTest)
         }
     }
+}
+
+dependencies {
+    kotlinCompilerPluginClasspath(projects.diCompiler.compilerPlugin)
 }

@@ -38,131 +38,46 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.testTag
 import androidx.window.core.layout.WindowSizeClass
+import com.alexvanyo.composelife.di.InjectContext
 import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.isRunning
 import com.alexvanyo.composelife.ui.cells.MutableCellWindow
-import com.alexvanyo.composelife.ui.cells.MutableCellWindowCtx
 import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.util.ClipboardReaderWriter
 import com.alexvanyo.composelife.ui.util.FullscreenModeManager
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.Inject
 
-// region templated-ctx
-@Suppress("ComposableNaming", "LongParameterList")
-@Composable
-private operator fun InteractiveCellUniverseCtx.invoke(
-    temporalGameOfLifeState: TemporalGameOfLifeState,
-    windowSizeClass: WindowSizeClass,
-    onSeeMoreSettingsClicked: () -> Unit,
-    onOpenInSettingsClicked: (setting: Setting) -> Unit,
-    onViewDeserializationInfo: (DeserializationResult) -> Unit,
-    modifier: Modifier = Modifier,
-    interactiveCellUniverseState: InteractiveCellUniverseState =
-        rememberInteractiveCellUniverseState(temporalGameOfLifeState),
-) = InteractiveCellUniverseCtx.lambda(
-    cellStateParser,
-    clipboardReaderWriter,
-    fullscreenModeManager,
-    mutableCellWindowCtx,
-    interactiveCellUniverseOverlayCtx,
-    temporalGameOfLifeState,
-    windowSizeClass,
-    onSeeMoreSettingsClicked,
-    onOpenInSettingsClicked,
-    onViewDeserializationInfo,
-    modifier,
-    interactiveCellUniverseState,
-)
-
-private val InteractiveCellUniverseCtx.Companion.lambda:
-    @Composable context(
-        CellStateParser,
-        ClipboardReaderWriter,
-        FullscreenModeManager,
-        MutableCellWindowCtx,
-        InteractiveCellUniverseOverlayCtx,
-    )
-    (
-        temporalGameOfLifeState: TemporalGameOfLifeState,
-        windowSizeClass: WindowSizeClass,
-        onSeeMoreSettingsClicked: () -> Unit,
-        onOpenInSettingsClicked: (setting: Setting) -> Unit,
-        onViewDeserializationInfo: (DeserializationResult) -> Unit,
-        modifier: Modifier,
-        interactiveCellUniverseState: InteractiveCellUniverseState,
-    ) -> Unit
-    get() = {
-            temporalGameOfLifeState,
-            windowSizeClass,
-            onSeeMoreSettingsClicked,
-            onOpenInSettingsClicked,
-            onViewDeserializationInfo,
-            modifier,
-            interactiveCellUniverseState,
-        ->
-        InteractiveCellUniverse(
-            temporalGameOfLifeState = temporalGameOfLifeState,
-            windowSizeClass = windowSizeClass,
-            onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
-            onOpenInSettingsClicked = onOpenInSettingsClicked,
-            onViewDeserializationInfo = onViewDeserializationInfo,
-            modifier = modifier,
-            interactiveCellUniverseState = interactiveCellUniverseState,
-        )
-    }
-
-/**
- * An interactive cell universe displaying the given [temporalGameOfLifeState] and the controls for adjusting how it
- * evolves.
- */
-@Suppress("LongParameterList")
-@Composable
-context(ctx: InteractiveCellUniverseCtx)
-fun InteractiveCellUniverse(
-    temporalGameOfLifeState: TemporalGameOfLifeState,
-    windowSizeClass: WindowSizeClass,
-    onSeeMoreSettingsClicked: () -> Unit,
-    onOpenInSettingsClicked: (setting: Setting) -> Unit,
-    onViewDeserializationInfo: (DeserializationResult) -> Unit,
-    modifier: Modifier = Modifier,
-    interactiveCellUniverseState: InteractiveCellUniverseState =
-        rememberInteractiveCellUniverseState(temporalGameOfLifeState),
-) = ctx(
-    temporalGameOfLifeState = temporalGameOfLifeState,
-    windowSizeClass = windowSizeClass,
-    onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
-    onOpenInSettingsClicked = onOpenInSettingsClicked,
-    onViewDeserializationInfo = onViewDeserializationInfo,
-    modifier = modifier,
-    interactiveCellUniverseState = interactiveCellUniverseState,
-)
-// endregion templated-ctx
-
+@InjectContext
+@Inject
 @Suppress("LongParameterList", "LongMethod", "CyclomaticComplexMethod")
 @Composable
 context(
     cellStateParser: CellStateParser,
     clipboardReaderWriter: ClipboardReaderWriter,
     fullscreenModeManager: FullscreenModeManager,
-    _: MutableCellWindowCtx,
-    _: InteractiveCellUniverseOverlayCtx,
+    _: MutableCellWindow,
+    _: InteractiveCellUniverseOverlay,
 )
 fun InteractiveCellUniverse(
-    temporalGameOfLifeState: TemporalGameOfLifeState,
-    windowSizeClass: WindowSizeClass,
-    onSeeMoreSettingsClicked: () -> Unit,
-    onOpenInSettingsClicked: (setting: Setting) -> Unit,
-    onViewDeserializationInfo: (DeserializationResult) -> Unit,
-    modifier: Modifier = Modifier,
-    interactiveCellUniverseState: InteractiveCellUniverseState =
-        rememberInteractiveCellUniverseState(
+    @Assisted temporalGameOfLifeState: TemporalGameOfLifeState,
+    @Assisted windowSizeClass: WindowSizeClass,
+    @Assisted onSeeMoreSettingsClicked: () -> Unit,
+    @Assisted onOpenInSettingsClicked: (setting: Setting) -> Unit,
+    @Assisted onViewDeserializationInfo: (DeserializationResult) -> Unit,
+    @Assisted modifier: Modifier = Modifier,
+    @Assisted interactiveCellUniverseState: InteractiveCellUniverseState? = null,
+) {
+    val resolvedInteractiveCellUniverseState =
+        interactiveCellUniverseState ?: rememberInteractiveCellUniverseStateInternal(
             cellStateParser = cellStateParser,
             clipboardReaderWriter = clipboardReaderWriter,
             fullscreenModeManager = fullscreenModeManager,
             temporalGameOfLifeState = temporalGameOfLifeState,
-        ),
-) {
+        )
+
     // Force focus to allow listening to key events
     var hasFocus by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
@@ -190,33 +105,33 @@ fun InteractiveCellUniverse(
                             }
 
                             Key.A -> if (keyEvent.isCtrlPressed) {
-                                interactiveCellUniverseState.editingState.onSelectAll()
+                                resolvedInteractiveCellUniverseState.editingState.onSelectAll()
                                 true
                             } else {
                                 false
                             }
 
                             Key.C -> if (keyEvent.isCtrlPressed) {
-                                interactiveCellUniverseState.editingState.onCopy()
+                                resolvedInteractiveCellUniverseState.editingState.onCopy()
                             } else {
                                 false
                             }
 
                             Key.V -> if (keyEvent.isCtrlPressed) {
-                                interactiveCellUniverseState.editingState.onPaste()
+                                resolvedInteractiveCellUniverseState.editingState.onPaste()
                                 true
                             } else {
                                 false
                             }
 
                             Key.X -> if (keyEvent.isCtrlPressed) {
-                                interactiveCellUniverseState.editingState.onCut()
+                                resolvedInteractiveCellUniverseState.editingState.onCut()
                             } else {
                                 false
                             }
 
                             Key.Escape -> {
-                                interactiveCellUniverseState.editingState.onClearSelection()
+                                resolvedInteractiveCellUniverseState.editingState.onClearSelection()
                                 true
                             }
 
@@ -231,13 +146,13 @@ fun InteractiveCellUniverse(
         MutableCellWindow(
             gameOfLifeState = temporalGameOfLifeState,
             modifier = Modifier.testTag("MutableCellWindow"),
-            cellWindowInteractionState = interactiveCellUniverseState.cellWindowInteractionState,
+            cellWindowInteractionState = resolvedInteractiveCellUniverseState.cellWindowInteractionState,
         )
 
         InteractiveCellUniverseOverlay(
             temporalGameOfLifeState = temporalGameOfLifeState,
-            interactiveCellUniverseState = interactiveCellUniverseState,
-            cellWindowViewportState = interactiveCellUniverseState.mutableCellWindowViewportState,
+            interactiveCellUniverseState = resolvedInteractiveCellUniverseState,
+            cellWindowViewportState = resolvedInteractiveCellUniverseState.mutableCellWindowViewportState,
             windowSizeClass = windowSizeClass,
             onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
             onOpenInSettingsClicked = onOpenInSettingsClicked,

@@ -52,7 +52,7 @@ import kotlin.test.assertEquals
 
 @ContributesTo(UiScope::class)
 interface InlineSettingsPaneTestsCtx {
-    val inlineSettingsPaneCtx: InlineSettingsPaneCtx
+    val inlineSettingsPane: InlineSettingsPane
     val testComposeLifePreferences: TestComposeLifePreferences
 }
 
@@ -77,7 +77,7 @@ class InlineSettingsPaneTests :
 
             setContent {
                 resolver = parameterizedStringResolver()
-                context(ctx.inlineSettingsPaneCtx) {
+                context(ctx.inlineSettingsPane) {
                     InlineSettingsPane(
                         onSeeMoreClicked = {
                             onSeeMoreClickedCount++
@@ -112,7 +112,7 @@ class InlineSettingsPaneTests :
 
             setContent {
                 resolver = parameterizedStringResolver()
-                context(ctx.inlineSettingsPaneCtx) {
+                context(ctx.inlineSettingsPane) {
                     InlineSettingsPane(
                         onSeeMoreClicked = {},
                         onOpenInSettingsClicked = {},
@@ -159,7 +159,7 @@ class InlineSettingsPaneTests :
 
             setContent {
                 resolver = parameterizedStringResolver()
-                context(ctx.inlineSettingsPaneCtx) {
+                context(ctx.inlineSettingsPane) {
                     InlineSettingsPane(
                         onSeeMoreClicked = {},
                         onOpenInSettingsClicked = {
@@ -193,7 +193,7 @@ class InlineSettingsPaneTests :
 
             setContent {
                 resolver = parameterizedStringResolver()
-                context(ctx.inlineSettingsPaneCtx) {
+                context(ctx.inlineSettingsPane) {
                     InlineSettingsPane(
                         onSeeMoreClicked = {},
                         onOpenInSettingsClicked = {},

@@ -35,6 +35,7 @@ plugins {
 }
 
 metro {
+    enableTopLevelFunctionInjection = true
     unusedGraphInputsSeverity = DiagnosticSeverity.NONE
 }
 
@@ -72,6 +73,7 @@ kotlin {
                 api(projects.uiCommon)
                 api(projects.uiSettings)
 
+                implementation(projects.diCompiler.pluginAnnotations)
                 implementation(projects.injectScopes)
                 implementation(projects.logging)
                 implementation(projects.navigation)
@@ -196,4 +198,8 @@ kotlin {
             dependsOn(jbTest)
         }
     }
+}
+
+dependencies {
+    kotlinCompilerPluginClasspath(projects.diCompiler.compilerPlugin)
 }

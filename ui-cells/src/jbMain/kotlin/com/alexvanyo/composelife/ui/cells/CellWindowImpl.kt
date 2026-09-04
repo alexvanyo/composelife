@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,6 +51,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toOffset
+import com.alexvanyo.composelife.di.InjectContext
 import com.alexvanyo.composelife.geometry.floor
 import com.alexvanyo.composelife.geometry.toRingOffset
 import com.alexvanyo.composelife.model.CellState
@@ -60,6 +60,7 @@ import com.alexvanyo.composelife.model.emptyCellState
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.ui.util.detectTransformGestures
+import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
@@ -67,49 +68,23 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.math.ceil
 
-@Immutable
+@InjectContext
 @Inject
-internal class CellWindowImplCtx(
-    internal val nonInteractableCellsCtx: NonInteractableCellsCtx,
-    internal val interactableCellsCtx: InteractableCellsCtx,
-    internal val preferencesHolder: LoadedComposeLifePreferencesHolder,
-    internal val cellStateParser: CellStateParser,
-)
-
-@Composable
-context(ctx: CellWindowImplCtx)
-internal fun CellWindowImpl(
-    cellWindowUiState: CellWindowUiState,
-    cellDpSize: Dp,
-    centerOffset: Offset,
-    inOverlay: Boolean,
-    modifier: Modifier = Modifier,
-) = CellWindowImpl(
-    ctx.nonInteractableCellsCtx,
-    ctx.interactableCellsCtx,
-    ctx.preferencesHolder,
-    ctx.cellStateParser,
-    ctx,
-    cellWindowUiState,
-    cellDpSize,
-    centerOffset,
-    inOverlay,
-    modifier,
-)
-
 @Suppress("LongMethod", "LongParameterList", "CyclomaticComplexMethod")
 @Composable
-private fun CellWindowImpl(
-    nonInteractableCellsCtx: NonInteractableCellsCtx,
-    interactableCellsCtx: InteractableCellsCtx,
+context(
+    nonInteractableCellsCtx: NonInteractableCells,
+    interactableCellsCtx: InteractableCells,
     preferencesHolder: LoadedComposeLifePreferencesHolder,
-    cellStateParser: CellStateParser,
-    cellWindowImplCtx: CellWindowImplCtx,
-    cellWindowUiState: CellWindowUiState,
-    cellDpSize: Dp,
-    centerOffset: Offset,
-    inOverlay: Boolean,
-    modifier: Modifier = Modifier,
+    _: CellStateParser,
+    selectionOverlayCtx: SelectionOverlay,
+)
+internal fun CellWindowImpl(
+    @Assisted cellWindowUiState: CellWindowUiState,
+    @Assisted cellDpSize: Dp,
+    @Assisted centerOffset: Offset,
+    @Assisted inOverlay: Boolean,
+    @Assisted modifier: Modifier = Modifier,
 ) {
     require(centerOffset.x in 0f..1f)
     require(centerOffset.y in 0f..1f)
@@ -380,10 +355,7 @@ private fun CellWindowImpl(
                 is CellWindowUiState.ImmutableCellWindowUiState -> Unit
 
                 is CellWindowUiState.MutableState -> {
-                    context(
-                        cellWindowImplCtx,
-                        cellStateParser,
-                    ) {
+                    context(selectionOverlayCtx) {
                         SelectionOverlay(
                             selectionSessionState =
                             cellWindowUiState.cellWindowInteractionState.selectionSessionState,

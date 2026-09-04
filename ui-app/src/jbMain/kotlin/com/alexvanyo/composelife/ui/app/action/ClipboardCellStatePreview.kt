@@ -52,6 +52,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.unit.dp
+import com.alexvanyo.composelife.di.InjectContext
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
@@ -62,78 +63,27 @@ import com.alexvanyo.composelife.ui.app.resources.Strings
 import com.alexvanyo.composelife.ui.app.resources.Unpin
 import com.alexvanyo.composelife.ui.app.resources.Warnings
 import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindow
-import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindowCtx
 import com.alexvanyo.composelife.ui.cells.ViewportInteractionConfig
 import com.alexvanyo.composelife.ui.cells.cellStateDragAndDropSource
 import com.alexvanyo.composelife.ui.cells.rememberTrackingCellWindowViewportState
-
-// region templated-ctx
-@Suppress("ComposableNaming", "LongParameterList")
-@Composable
-private operator fun ClipboardCellStatePreviewCtx.invoke(
-    deserializationResult: DeserializationResult,
-    isPinned: Boolean,
-    onPaste: () -> Unit,
-    onPinChanged: () -> Unit,
-    onViewDeserializationInfo: () -> Unit,
-    modifier: Modifier = Modifier,
-) = ClipboardCellStatePreviewCtx.lambda(
-    thumbnailImmutableCellWindowCtx,
-    deserializationResult,
-    isPinned,
-    onPaste,
-    onPinChanged,
-    onViewDeserializationInfo,
-    modifier,
-)
-
-private val ClipboardCellStatePreviewCtx.Companion.lambda:
-    @Composable context(ThumbnailImmutableCellWindowCtx)
-    (
-        deserializationResult: DeserializationResult,
-        isPinned: Boolean,
-        onPaste: () -> Unit,
-        onPinChanged: () -> Unit,
-        onViewDeserializationInfo: () -> Unit,
-        modifier: Modifier,
-    ) -> Unit
-    get() = { deserializationResult, isPinned, onPaste, onPinChanged, onViewDeserializationInfo, modifier ->
-        ClipboardCellStatePreview(
-            deserializationResult,
-            isPinned,
-            onPaste,
-            onPinChanged,
-            onViewDeserializationInfo,
-            modifier,
-        )
-    }
-
-@Suppress("LongParameterList")
-@Composable
-context(ctx: ClipboardCellStatePreviewCtx)
-fun ClipboardCellStatePreview(
-    deserializationResult: DeserializationResult,
-    isPinned: Boolean,
-    onPaste: () -> Unit,
-    onPinChanged: () -> Unit,
-    onViewDeserializationInfo: () -> Unit,
-    modifier: Modifier = Modifier,
-) = ctx(deserializationResult, isPinned, onPaste, onPinChanged, onViewDeserializationInfo, modifier)
-// endregion templated-ctx
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.Inject
 
 /**
  * Renders the current clipboard as a cell-state, if possible.
  */
+@InjectContext
+@Inject
 @Suppress("LongParameterList")
 @Composable
-context(_: ThumbnailImmutableCellWindowCtx)
+context(_: ThumbnailImmutableCellWindow)
 fun ClipboardCellStatePreview(
-    deserializationResult: DeserializationResult,
-    isPinned: Boolean,
-    onPaste: () -> Unit,
-    onPinChanged: () -> Unit,
-    onViewDeserializationInfo: () -> Unit,
-    modifier: Modifier = Modifier,
+    @Assisted deserializationResult: DeserializationResult,
+    @Assisted isPinned: Boolean,
+    @Assisted onPaste: () -> Unit,
+    @Assisted onPinChanged: () -> Unit,
+    @Assisted onViewDeserializationInfo: () -> Unit,
+    @Assisted modifier: Modifier = Modifier,
 ) {
     Card(
         modifier = modifier
@@ -190,7 +140,7 @@ fun ClipboardCellStatePreview(
 @Suppress("LongMethod", "LongParameterList")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-context(_: ThumbnailImmutableCellWindowCtx,)
+context(_: ThumbnailImmutableCellWindow)
 fun LoadedCellStatePreview(
     deserializationResult: DeserializationResult.Successful,
     isPinned: Boolean,

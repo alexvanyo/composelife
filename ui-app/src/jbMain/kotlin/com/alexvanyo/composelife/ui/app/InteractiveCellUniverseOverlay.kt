@@ -45,124 +45,40 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import androidx.window.core.layout.WindowSizeClass
+import com.alexvanyo.composelife.di.InjectContext
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.BottomInsets
-import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.CellUniverseActionCard
-import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.CellUniverseInfoCard
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseOverlayLayoutTypes.TopInsets
 import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCard
-import com.alexvanyo.composelife.ui.app.action.CellUniverseActionCardCtx
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCard
 import com.alexvanyo.composelife.ui.cells.CellWindowViewportState
 import com.alexvanyo.composelife.ui.settings.Setting
 import com.alexvanyo.composelife.ui.util.Layout
 import com.livefront.sealedenum.GenSealedEnum
 import com.livefront.sealedenum.SealedEnum
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
 
-// region templated-ctx
-@Suppress("ComposableNaming", "LongParameterList")
-@Composable
-private operator fun InteractiveCellUniverseOverlayCtx.invoke(
-    temporalGameOfLifeState: TemporalGameOfLifeState,
-    interactiveCellUniverseState: InteractiveCellUniverseState,
-    cellWindowViewportState: CellWindowViewportState,
-    windowSizeClass: WindowSizeClass,
-    onSeeMoreSettingsClicked: () -> Unit,
-    onOpenInSettingsClicked: (setting: Setting) -> Unit,
-    onViewDeserializationInfo: (DeserializationResult) -> Unit,
-    modifier: Modifier = Modifier,
-) = InteractiveCellUniverseOverlayCtx.lambda(
-    cellUniverseActionCardCtx,
-    temporalGameOfLifeState,
-    interactiveCellUniverseState,
-    cellWindowViewportState,
-    windowSizeClass,
-    onSeeMoreSettingsClicked,
-    onOpenInSettingsClicked,
-    onViewDeserializationInfo,
-    modifier,
-)
+// (existing imports cleaned up below)
 
-private val InteractiveCellUniverseOverlayCtx.Companion.lambda:
-    @Composable context(
-        CellUniverseActionCardCtx
-    )
-    (
-        temporalGameOfLifeState: TemporalGameOfLifeState,
-        interactiveCellUniverseState: InteractiveCellUniverseState,
-        cellWindowViewportState: CellWindowViewportState,
-        windowSizeClass: WindowSizeClass,
-        onSeeMoreSettingsClicked: () -> Unit,
-        onOpenInSettingsClicked: (setting: Setting) -> Unit,
-        onViewDeserializationInfo: (DeserializationResult) -> Unit,
-        modifier: Modifier,
-    ) -> Unit
-    get() = {
-            temporalGameOfLifeState,
-            interactiveCellUniverseState,
-            cellWindowViewportState,
-            windowSizeClass,
-            onSeeMoreSettingsClicked,
-            onOpenInSettingsClicked,
-            onViewDeserializationInfo,
-            modifier,
-        ->
-        InteractiveCellUniverseOverlay(
-            temporalGameOfLifeState = temporalGameOfLifeState,
-            interactiveCellUniverseState = interactiveCellUniverseState,
-            cellWindowViewportState = cellWindowViewportState,
-            windowSizeClass = windowSizeClass,
-            onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
-            onOpenInSettingsClicked = onOpenInSettingsClicked,
-            onViewDeserializationInfo = onViewDeserializationInfo,
-            modifier = modifier,
-        )
-    }
-
-/**
- * An interactive cell universe displaying the given [temporalGameOfLifeState] and the controls for adjusting how it
- * evolves.
- */
-@Suppress("LongParameterList")
-@Composable
-context(ctx: InteractiveCellUniverseOverlayCtx)
-fun InteractiveCellUniverseOverlay(
-    temporalGameOfLifeState: TemporalGameOfLifeState,
-    interactiveCellUniverseState: InteractiveCellUniverseState,
-    cellWindowViewportState: CellWindowViewportState,
-    windowSizeClass: WindowSizeClass,
-    onSeeMoreSettingsClicked: () -> Unit,
-    onOpenInSettingsClicked: (setting: Setting) -> Unit,
-    onViewDeserializationInfo: (DeserializationResult) -> Unit,
-    modifier: Modifier = Modifier,
-) = ctx(
-    temporalGameOfLifeState = temporalGameOfLifeState,
-    interactiveCellUniverseState = interactiveCellUniverseState,
-    cellWindowViewportState = cellWindowViewportState,
-    windowSizeClass = windowSizeClass,
-    onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
-    onOpenInSettingsClicked = onOpenInSettingsClicked,
-    onViewDeserializationInfo = onViewDeserializationInfo,
-    modifier = modifier,
-)
-// endregion templated-ctx
-
+@InjectContext
+@Inject
 @Suppress("LongMethod", "ComplexMethod", "LongParameterList")
 @Composable
 context(
-    _: CellUniverseActionCardCtx,
+    _: CellUniverseActionCard,
 )
 fun InteractiveCellUniverseOverlay(
-    temporalGameOfLifeState: TemporalGameOfLifeState,
-    interactiveCellUniverseState: InteractiveCellUniverseState,
-    cellWindowViewportState: CellWindowViewportState,
-    windowSizeClass: WindowSizeClass,
-    onSeeMoreSettingsClicked: () -> Unit,
-    onOpenInSettingsClicked: (setting: Setting) -> Unit,
-    onViewDeserializationInfo: (DeserializationResult) -> Unit,
-    modifier: Modifier = Modifier,
+    @Assisted temporalGameOfLifeState: TemporalGameOfLifeState,
+    @Assisted interactiveCellUniverseState: InteractiveCellUniverseState,
+    @Assisted cellWindowViewportState: CellWindowViewportState,
+    @Assisted windowSizeClass: WindowSizeClass,
+    @Assisted onSeeMoreSettingsClicked: () -> Unit,
+    @Assisted onOpenInSettingsClicked: (setting: Setting) -> Unit,
+    @Assisted onViewDeserializationInfo: (DeserializationResult) -> Unit,
+    @Assisted modifier: Modifier = Modifier,
 ) {
     val scope = rememberCoroutineScope()
     var infoCardAnimatable by remember {
@@ -190,7 +106,7 @@ fun InteractiveCellUniverseOverlay(
                 modifier = Modifier
                     .fillMaxWidth()
                     .windowInsetsPadding(WindowInsets.safeDrawing)
-                    .layoutId(CellUniverseInfoCard),
+                    .layoutId(InteractiveCellUniverseOverlayLayoutTypes.CellUniverseInfoCard),
             ) {
                 CellUniverseInfoCard(
                     cellWindowViewportState = cellWindowViewportState,
@@ -212,15 +128,19 @@ fun InteractiveCellUniverseOverlay(
                 onViewDeserializationInfo = onViewDeserializationInfo,
                 actionCardState = interactiveCellUniverseState.actionCardState,
                 modifier = Modifier
-                    .layoutId(CellUniverseActionCard)
+                    .layoutId(InteractiveCellUniverseOverlayLayoutTypes.CellUniverseActionCard)
                     .testTag("CellUniverseActionCard"),
             )
         },
         measurePolicy = { measurables, constraints ->
             val topInsetsPlaceable = measurables.getValue(TopInsets).measure(constraints)
             val bottomInsetsPlaceable = measurables.getValue(BottomInsets).measure(constraints)
-            val infoCardPlaceable = measurables.getValue(CellUniverseInfoCard).measure(constraints)
-            val actionCardPlaceable = measurables.getValue(CellUniverseActionCard).measure(constraints)
+            val infoCardPlaceable = measurables.getValue(
+                InteractiveCellUniverseOverlayLayoutTypes.CellUniverseInfoCard,
+            ).measure(constraints)
+            val actionCardPlaceable = measurables.getValue(
+                InteractiveCellUniverseOverlayLayoutTypes.CellUniverseActionCard,
+            ).measure(constraints)
 
             layout(constraints.maxWidth, constraints.maxHeight) {
                 topInsetsPlaceable.place(0, 0)

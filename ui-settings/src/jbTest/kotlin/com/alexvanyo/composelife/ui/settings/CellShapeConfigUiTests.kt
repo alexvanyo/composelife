@@ -77,14 +77,10 @@ class CellShapeConfigUiTests : BaseKmpTest() {
             setContent {
                 resolver = parameterizedStringResolver()
 
-                val cellShapeConfigUiState = context(
-                    CellShapeConfigUiCtx(
-                        preferencesHolder = composeLifePreferences,
-                        composeLifePreferences = composeLifePreferences,
-                    ),
-                ) {
-                    rememberCellShapeConfigUiState()
-                }
+                val cellShapeConfigUiState = rememberCellShapeConfigUiState(
+                    composeLifePreferences = composeLifePreferences,
+                    preferences = composeLifePreferences.preferences,
+                )
 
                 CellShapeConfigUi(cellShapeConfigUiState = cellShapeConfigUiState)
             }
@@ -135,14 +131,10 @@ class CellShapeConfigUiTests : BaseKmpTest() {
             setContent {
                 resolver = parameterizedStringResolver()
 
-                val cellShapeConfigUiState = context(
-                    CellShapeConfigUiCtx(
-                        preferencesHolder = composeLifePreferences,
-                        composeLifePreferences = composeLifePreferences,
-                    ),
-                ) {
-                    rememberCellShapeConfigUiState()
-                }
+                val cellShapeConfigUiState = rememberCellShapeConfigUiState(
+                    composeLifePreferences = composeLifePreferences,
+                    preferences = composeLifePreferences.preferences,
+                )
 
                 CellShapeConfigUi(cellShapeConfigUiState = cellShapeConfigUiState)
             }
@@ -179,14 +171,10 @@ class CellShapeConfigUiTests : BaseKmpTest() {
             setContent {
                 resolver = parameterizedStringResolver()
 
-                val cellShapeConfigUiState = context(
-                    CellShapeConfigUiCtx(
-                        preferencesHolder = composeLifePreferences,
-                        composeLifePreferences = composeLifePreferences,
-                    ),
-                ) {
-                    rememberCellShapeConfigUiState()
-                }
+                val cellShapeConfigUiState = rememberCellShapeConfigUiState(
+                    composeLifePreferences = composeLifePreferences,
+                    preferences = composeLifePreferences.preferences,
+                )
 
                 CellShapeConfigUi(cellShapeConfigUiState = cellShapeConfigUiState)
             }
@@ -223,14 +211,10 @@ class CellShapeConfigUiTests : BaseKmpTest() {
             setContent {
                 resolver = parameterizedStringResolver()
 
-                val cellShapeConfigUiState = context(
-                    CellShapeConfigUiCtx(
-                        preferencesHolder = composeLifePreferences,
-                        composeLifePreferences = composeLifePreferences,
-                    ),
-                ) {
-                    rememberCellShapeConfigUiState()
-                }
+                val cellShapeConfigUiState = rememberCellShapeConfigUiState(
+                    composeLifePreferences = composeLifePreferences,
+                    preferences = composeLifePreferences.preferences,
+                )
 
                 CellShapeConfigUi(cellShapeConfigUiState = cellShapeConfigUiState)
             }
