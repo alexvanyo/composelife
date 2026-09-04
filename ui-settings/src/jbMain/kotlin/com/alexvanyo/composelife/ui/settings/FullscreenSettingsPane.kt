@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import com.alexvanyo.composelife.ui.mobile.component.ListDetailPaneScaffold
 
 @Composable
-context(_: FullscreenSettingsDetailPaneCtx)
+context(_: FullscreenSettingsDetailPane)
 fun FullscreenSettingsPane(
     fullscreenSettingsListPaneState: FullscreenSettingsListPaneState,
     fullscreenSettingsDetailPaneState: FullscreenSettingsDetailPaneState,

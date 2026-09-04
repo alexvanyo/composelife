@@ -37,14 +37,14 @@ import com.alexvanyo.composelife.scopes.GlobalScope
 import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
-import com.alexvanyo.composelife.ui.app.CellUniversePaneCtx
-import com.alexvanyo.composelife.ui.app.ComposeLifeAppUiCtx
+import com.alexvanyo.composelife.ui.app.CellUniversePane
+import com.alexvanyo.composelife.ui.app.ComposeLifeAppUi
 import com.alexvanyo.composelife.ui.app.UiWithLoadedPreferencesScope
 import com.alexvanyo.composelife.ui.app.UiWithLoadedPreferencesScopeBindings
-import com.alexvanyo.composelife.ui.app.action.ClipboardCellStatePreviewCtx
-import com.alexvanyo.composelife.ui.app.action.InlineEditPaneCtx
-import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorCtx
-import com.alexvanyo.composelife.ui.settings.SettingUiCtx
+import com.alexvanyo.composelife.ui.app.action.ClipboardCellStatePreview
+import com.alexvanyo.composelife.ui.app.action.InlineEditPane
+import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicator
+import com.alexvanyo.composelife.ui.settings.SettingUi
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
@@ -71,12 +71,12 @@ internal interface AppPreviewCtx {
  */
 @ContributesTo(UiScope::class)
 internal interface PreviewCtx : ComposeLifePreferencesProvider {
-    val cellUniversePaneCtx: CellUniversePaneCtx
-    val composeLifeAppUiCtx: ComposeLifeAppUiCtx
-    val clipboardCellStatePreviewCtx: ClipboardCellStatePreviewCtx
-    val gameOfLifeProgressIndicatorCtx: GameOfLifeProgressIndicatorCtx
-    val inlineEditPaneCtx: InlineEditPaneCtx
-    val settingUiCtx: SettingUiCtx
+    val cellUniversePane: CellUniversePane
+    val composeLifeAppUi: ComposeLifeAppUi
+    val clipboardCellStatePreview: ClipboardCellStatePreview
+    val gameOfLifeProgressIndicator: GameOfLifeProgressIndicator
+    val inlineEditPane: InlineEditPane
+    val settingUi: SettingUi
     val testRandom: TestRandom
 
     @ForScope(UiScope::class)

@@ -20,12 +20,12 @@ package com.alexvanyo.composelife.ui.settings
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.alexvanyo.composelife.di.InjectContext
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.ComposeLifePreferences
@@ -44,6 +44,7 @@ import com.alexvanyo.composelife.ui.settings.resources.CellStatePruningPeriodSuf
 import com.alexvanyo.composelife.ui.settings.resources.CellStatePruningPeriodValue
 import com.alexvanyo.composelife.ui.settings.resources.Strings
 import com.alexvanyo.composelife.ui.util.nonNegativeDouble
+import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.Inject
 import kotlinx.datetime.DateTimePeriod
 import kotlinx.datetime.toDateTimePeriod
@@ -52,47 +53,14 @@ import kotlin.math.pow
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 
-// region templated-ctx
-@Immutable
+@InjectContext
 @Inject
-class CellStatePruningPeriodUiCtx(
-    private val preferencesHolder: LoadedComposeLifePreferencesHolder,
-    private val composeLifePreferences: ComposeLifePreferences,
-) {
-    @Suppress("ComposableNaming")
-    @Deprecated(
-        "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
-            "CellStatePruningPeriodUi(modifier)",
-        ),
-    )
-    @Composable
-    operator fun invoke(modifier: Modifier = Modifier) = lambda(preferencesHolder, composeLifePreferences, modifier)
-
-    companion object {
-        private val lambda:
-            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences)
-            (
-                modifier: Modifier,
-            ) -> Unit =
-            { modifier ->
-                CellStatePruningPeriodUi(modifier)
-            }
-    }
-}
-
-@Suppress("DEPRECATION")
-@Composable
-context(ctx: CellStatePruningPeriodUiCtx)
-fun CellStatePruningPeriodUi(modifier: Modifier = Modifier) = ctx(modifier)
-// endregion templated-ctx
-
 @Composable
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,
     composeLifePreferences: ComposeLifePreferences,
 )
-private fun CellStatePruningPeriodUi(modifier: Modifier = Modifier) {
+internal fun CellStatePruningPeriodUi(@Assisted modifier: Modifier = Modifier) {
     CellStatePruningPeriodUi(
         cellStatePruningPeriodSessionValue =
         preferencesHolder.preferences.cellStatePruningPeriodSessionValue,

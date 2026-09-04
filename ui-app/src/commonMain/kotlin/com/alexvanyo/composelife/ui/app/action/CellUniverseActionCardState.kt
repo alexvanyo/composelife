@@ -19,7 +19,6 @@ package com.alexvanyo.composelife.ui.app.action
 import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -37,10 +36,8 @@ import com.alexvanyo.composelife.navigation.rememberBackstackMap
 import com.alexvanyo.composelife.navigation.withExpectedActor
 import com.alexvanyo.composelife.ui.app.InteractiveCellUniverseEditingState
 import com.alexvanyo.composelife.ui.cells.SelectionState
-import com.alexvanyo.composelife.ui.settings.InlineSettingsPaneCtx
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.isInProgress
-import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.serializer
@@ -48,17 +45,6 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlin.uuid.Uuid
-
-// region templated-ctx
-@Immutable
-@Inject
-class CellUniverseActionCardCtx(
-    internal val inlineEditPaneCtx: InlineEditPaneCtx,
-    internal val inlineSettingsPaneCtx: InlineSettingsPaneCtx,
-) {
-    companion object
-}
-// endregion templated-ctx
 
 /**
  * The persistable state describing the [CellUniverseActionCard].

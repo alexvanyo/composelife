@@ -18,9 +18,9 @@
 package com.alexvanyo.composelife.ui.settings
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import com.alexvanyo.composelife.di.InjectContext
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.AlgorithmType
@@ -34,51 +34,19 @@ import com.alexvanyo.composelife.ui.settings.resources.HashLifeAlgorithm
 import com.alexvanyo.composelife.ui.settings.resources.NaiveAlgorithm
 import com.alexvanyo.composelife.ui.settings.resources.Strings
 import com.livefront.sealedenum.GenSealedEnum
+import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.Inject
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 
-// region templated-ctx
-@Immutable
+@InjectContext
 @Inject
-class AlgorithmImplementationUiCtx(
-    private val preferencesHolder: LoadedComposeLifePreferencesHolder,
-    private val composeLifePreferences: ComposeLifePreferences,
-) {
-    @Suppress("ComposableNaming")
-    @Deprecated(
-        "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
-            "AlgorithmImplementationUi(modifier)",
-        ),
-    )
-    @Composable
-    operator fun invoke(modifier: Modifier = Modifier) = lambda(preferencesHolder, composeLifePreferences, modifier)
-
-    companion object {
-        private val lambda:
-            @Composable context(LoadedComposeLifePreferencesHolder, ComposeLifePreferences)
-            (
-                modifier: Modifier,
-            ) -> Unit =
-            { modifier ->
-                AlgorithmImplementationUi(modifier)
-            }
-    }
-}
-
-@Suppress("DEPRECATION")
-@Composable
-context(ctx: AlgorithmImplementationUiCtx)
-fun AlgorithmImplementationUi(modifier: Modifier = Modifier) = ctx(modifier)
-// endregion templated-ctx
-
 @Composable
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,
     composeLifePreferences: ComposeLifePreferences,
 )
-private fun AlgorithmImplementationUi(modifier: Modifier = Modifier) {
+internal fun AlgorithmImplementationUi(@Assisted modifier: Modifier = Modifier) {
     AlgorithmImplementationUi(
         algorithmChoice = preferencesHolder.preferences.algorithmChoice,
         setAlgorithmChoice = composeLifePreferences::setAlgorithmChoice,

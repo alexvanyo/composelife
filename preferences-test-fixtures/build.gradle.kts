@@ -32,6 +32,7 @@ plugins {
 }
 
 metro {
+    enableTopLevelFunctionInjection = true
     unusedGraphInputsSeverity = DiagnosticSeverity.NONE
 }
 
