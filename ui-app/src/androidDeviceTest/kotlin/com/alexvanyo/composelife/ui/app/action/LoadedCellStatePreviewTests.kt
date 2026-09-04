@@ -46,7 +46,7 @@ import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.globalGraph
-import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindowCtx
+import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindow
 import com.alexvanyo.composelife.ui.cells.cellStateDragAndDropTarget
 import com.alexvanyo.composelife.ui.cells.rememberMutableCellStateDropStateHolder
 import dev.zacsweers.metro.ContributesTo
@@ -57,7 +57,7 @@ import kotlin.test.assertEquals
 
 @ContributesTo(UiScope::class)
 interface LoadedCellStatePreviewTestsUiCtx {
-    val thumbnailImmutableCellWindowCtx: ThumbnailImmutableCellWindowCtx
+    val thumbnailImmutableCellWindow: ThumbnailImmutableCellWindow
     val cellStateParser: CellStateParser
 }
 
@@ -82,7 +82,7 @@ class LoadedCellStatePreviewTests :
             viewConfiguration = LocalViewConfiguration.current
 
             Column {
-                context(uiCtx.thumbnailImmutableCellWindowCtx) {
+                context(uiCtx.thumbnailImmutableCellWindow) {
                     LoadedCellStatePreview(
                         deserializationResult = DeserializationResult.Successful(
                             cellState = GliderPattern.seedCellState,

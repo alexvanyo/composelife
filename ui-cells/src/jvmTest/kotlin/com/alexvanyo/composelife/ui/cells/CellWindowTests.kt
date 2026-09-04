@@ -54,7 +54,7 @@ import kotlin.uuid.Uuid
 
 @ContributesTo(UiScope::class)
 interface CellWindowTestsCtx {
-    val mutableCellWindowCtx: MutableCellWindowCtx
+    val mutableCellWindow: MutableCellWindow
     val testComposeLifePreferences: TestComposeLifePreferences
 }
 
@@ -98,7 +98,7 @@ class CellWindowTests :
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
-            with(ctx.mutableCellWindowCtx) {
+            context(ctx.mutableCellWindow) {
                 resolver = parameterizedStringResolver()
 
                 MutableCellWindow(
@@ -190,7 +190,7 @@ class CellWindowTests :
         setContent {
             density = LocalDensity.current
 
-            with(ctx.mutableCellWindowCtx) {
+            context(ctx.mutableCellWindow) {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
                     modifier = Modifier.size(150.dp),
@@ -252,7 +252,7 @@ class CellWindowTests :
         setContent {
             density = LocalDensity.current
 
-            with(ctx.mutableCellWindowCtx) {
+            context(ctx.mutableCellWindow) {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
                     modifier = Modifier.size(150.dp),
@@ -310,7 +310,7 @@ class CellWindowTests :
         )
 
         setContent {
-            with(ctx.mutableCellWindowCtx) {
+            context(ctx.mutableCellWindow) {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
                     modifier = Modifier.size(150.dp),
@@ -360,7 +360,7 @@ class CellWindowTests :
         )
 
         setContent {
-            with(ctx.mutableCellWindowCtx) {
+            context(ctx.mutableCellWindow) {
                 MutableCellWindow(
                     gameOfLifeState = mutableGameOfLifeState,
                     modifier = Modifier.size(150.dp),

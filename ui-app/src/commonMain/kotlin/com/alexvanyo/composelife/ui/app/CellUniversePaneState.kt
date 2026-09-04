@@ -17,7 +17,6 @@
 package com.alexvanyo.composelife.ui.app
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,8 +32,6 @@ import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.model.toCellState
-import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorCtx
-import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.conflate
@@ -42,30 +39,6 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.transform
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
-
-// region templated-ctx
-@Immutable
-@Inject
-class CellUniversePaneCtx(
-    internal val cellStateRepository: CellStateRepository,
-    internal val gameOfLifeAlgorithm: GameOfLifeAlgorithm,
-    internal val clock: Clock,
-    internal val dispatchers: ComposeLifeDispatchers,
-    internal val gameOfLifeProgressIndicatorCtx: GameOfLifeProgressIndicatorCtx,
-    internal val interactiveCellUniverseCtx: InteractiveCellUniverseCtx,
-) {
-    companion object
-}
-
-@Composable
-context(ctx: CellUniversePaneCtx)
-fun rememberCellUniversePaneState(): CellUniversePaneState = rememberCellUniversePaneState(
-    cellStateRepository = ctx.cellStateRepository,
-    gameOfLifeAlgorithm = ctx.gameOfLifeAlgorithm,
-    dispatchers = ctx.dispatchers,
-    clock = ctx.clock,
-)
-// endregion templated-ctx
 
 @Suppress("LongMethod")
 @Composable

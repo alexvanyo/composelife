@@ -31,7 +31,8 @@ import com.alexvanyo.composelife.ui.util.ThemePreviews
 internal fun InlineEditPanePreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            context(contextOf<PreviewCtx>().inlineEditPaneCtx) {
+            val previewCtx = contextOf<PreviewCtx>()
+            context(previewCtx.inlineEditPane) {
                 Surface(modifier) {
                     InlineEditPane(
                         setSelectionToCellState = {},
