@@ -18,7 +18,6 @@
 package com.alexvanyo.composelife.ui.app
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -45,7 +44,6 @@ import com.alexvanyo.composelife.ui.app.action.rememberCellUniverseActionCardSta
 import com.alexvanyo.composelife.ui.app.info.CellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.app.info.rememberCellUniverseInfoCardState
 import com.alexvanyo.composelife.ui.cells.CellWindowInteractionState
-import com.alexvanyo.composelife.ui.cells.MutableCellWindowCtx
 import com.alexvanyo.composelife.ui.cells.MutableCellWindowInteractionState
 import com.alexvanyo.composelife.ui.cells.MutableCellWindowViewportState
 import com.alexvanyo.composelife.ui.cells.MutableSelectionStateHolder
@@ -61,23 +59,8 @@ import com.alexvanyo.composelife.ui.util.ClipboardReaderWriter
 import com.alexvanyo.composelife.ui.util.FullscreenModeManager
 import com.alexvanyo.composelife.ui.util.TargetState
 import com.alexvanyo.composelife.ui.util.setText
-import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
 import kotlin.uuid.Uuid
-
-// region templated-ctx
-@Immutable
-@Inject
-class InteractiveCellUniverseCtx(
-    internal val cellStateParser: CellStateParser,
-    internal val clipboardReaderWriter: ClipboardReaderWriter,
-    internal val fullscreenModeManager: FullscreenModeManager,
-    internal val mutableCellWindowCtx: MutableCellWindowCtx,
-    internal val interactiveCellUniverseOverlayCtx: InteractiveCellUniverseOverlayCtx,
-) {
-    companion object
-}
-// endregion templated-ctx
 
 interface InteractiveCellUniverseState {
 
@@ -164,21 +147,25 @@ interface InteractiveCellUniverseEditingState {
 
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
-context(ctx: InteractiveCellUniverseCtx)
+context(
+    cellStateParser: CellStateParser,
+    clipboardReaderWriter: ClipboardReaderWriter,
+    fullscreenModeManager: FullscreenModeManager,
+)
 fun rememberInteractiveCellUniverseState(
     temporalGameOfLifeState: TemporalGameOfLifeState,
     mutableCellWindowViewportState: MutableCellWindowViewportState = rememberMutableCellWindowViewportState(),
-): InteractiveCellUniverseState = rememberInteractiveCellUniverseState(
-    cellStateParser = ctx.cellStateParser,
-    clipboardReaderWriter = ctx.clipboardReaderWriter,
-    fullscreenModeManager = ctx.fullscreenModeManager,
+): InteractiveCellUniverseState = rememberInteractiveCellUniverseStateInternal(
+    cellStateParser = cellStateParser,
+    clipboardReaderWriter = clipboardReaderWriter,
+    fullscreenModeManager = fullscreenModeManager,
     temporalGameOfLifeState = temporalGameOfLifeState,
     mutableCellWindowViewportState = mutableCellWindowViewportState,
 )
 
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
-internal fun rememberInteractiveCellUniverseState(
+internal fun rememberInteractiveCellUniverseStateInternal(
     cellStateParser: CellStateParser,
     clipboardReaderWriter: ClipboardReaderWriter,
     fullscreenModeManager: FullscreenModeManager,

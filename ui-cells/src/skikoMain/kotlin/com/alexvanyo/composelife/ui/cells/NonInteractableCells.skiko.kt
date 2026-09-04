@@ -27,13 +27,13 @@ import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.preferences.currentShape
 
-@Composable
 @Suppress("LongParameterList")
+@Composable
 context(
     imageLoader: ImageLoader,
     preferencesHolder: LoadedComposeLifePreferencesHolder,
 )
-actual fun NonInteractableCells(
+actual fun PlatformNonInteractableCells(
     gameOfLifeState: GameOfLifeState,
     scaledCellDpSize: Dp,
     cellWindow: CellWindow,

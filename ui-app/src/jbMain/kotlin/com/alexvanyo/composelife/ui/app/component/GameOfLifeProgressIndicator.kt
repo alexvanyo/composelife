@@ -33,6 +33,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
+import com.alexvanyo.composelife.di.InjectContext
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
@@ -44,9 +45,10 @@ import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.ui.cells.CellWindowInteractionState
 import com.alexvanyo.composelife.ui.cells.CellWindowViewportState
 import com.alexvanyo.composelife.ui.cells.ImmutableCellWindow
-import com.alexvanyo.composelife.ui.cells.ImmutableCellWindowCtx
 import com.alexvanyo.composelife.ui.cells.SelectionState
 import com.alexvanyo.composelife.ui.cells.ViewportInteractionConfig
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.awaitCancellation
 import kotlin.coroutines.coroutineContext
 import kotlin.math.max
@@ -54,46 +56,21 @@ import kotlin.random.Random
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
 
-// region templated-ctx
-@Suppress("ComposableNaming")
-@Composable
-private operator fun GameOfLifeProgressIndicatorCtx.invoke(modifier: Modifier = Modifier) =
-    GameOfLifeProgressIndicatorCtx.lambda(
-        immutableCellWindowCtx,
-        random,
-        clock,
-        gameOfLifeAlgorithm,
-        dispatchers,
-        modifier,
-    )
-
-private val GameOfLifeProgressIndicatorCtx.Companion.lambda:
-    @Composable context(
-        ImmutableCellWindowCtx, Random, Clock, GameOfLifeAlgorithm, ComposeLifeDispatchers
-    )
-    (Modifier) -> Unit
-    get() = { modifier ->
-        GameOfLifeProgressIndicator(modifier)
-    }
-
-@Composable
-context(ctx: GameOfLifeProgressIndicatorCtx)
-fun GameOfLifeProgressIndicator(modifier: Modifier = Modifier) = ctx(modifier)
-// endregion templated-ctx
-
 /**
  * A progress indicator that displays progress via an embedded set of cells displaying an
  * oscillating pattern.
  */
+@InjectContext
+@Inject
 @Composable
-context(
-    _: ImmutableCellWindowCtx,
+context(_: ImmutableCellWindow)
+fun GameOfLifeProgressIndicator(
     random: Random,
     clock: Clock,
     gameOfLifeAlgorithm: GameOfLifeAlgorithm,
     dispatchers: ComposeLifeDispatchers,
-)
-fun GameOfLifeProgressIndicator(modifier: Modifier = Modifier) {
+    @Assisted modifier: Modifier = Modifier,
+) {
     val patternIndex = remember(OscillatorPattern._values.size) {
         random.nextInt(OscillatorPattern._values.size)
     }
@@ -156,7 +133,7 @@ private suspend fun <R> withInfiniteAnimationPolicy(block: suspend () -> R): R {
 @Suppress("LongParameterList")
 @Composable
 context(
-    immutableCellWindowCtx: ImmutableCellWindowCtx,
+    _: ImmutableCellWindow,
 )
 fun GameOfLifeProgressIndicator(
     pattern: OscillatorPattern,
