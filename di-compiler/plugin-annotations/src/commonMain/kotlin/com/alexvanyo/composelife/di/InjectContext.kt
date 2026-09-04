@@ -25,20 +25,90 @@ import kotlin.annotation.AnnotationTarget.FUNCTION
  * collaborates with Metro to generate convenient context functions.
  *
  * Specifically:
- * - Metro generates an injectable class with the same name as the function (e.g., `Foo`), providing
+ * - Metro generates an injectable class with the same name as the function (e.g., `ParentComponent`), providing
  *   an `operator fun invoke(...)` that receives any `@Assisted` parameters and injects all context
- *   dependencies from the Metro dependency graph.
- * - The `di-compiler` plugin generates a top-level context function with the same name (`Foo`)
- *   that requires `context(ctx: Foo)` and accepts the `@Assisted` parameters. Overloads are generated for
- *   assisted parameters with default values. Any other annotations on the original function (such as `@Composable`)
- *   are preserved on the generated context function.
+ *   and normal dependencies from the Metro dependency graph.
+ * - The `di-compiler` plugin generates matching top-level context functions with the same name (`ParentComponent`)
+ *   that require `context(ctx: ParentComponent)` and accept the `@Assisted` parameters. Overloads are generated for
+ *   assisted parameters with default values so callers can omit them. Any other annotations on the original function
+ *   (such as `@Composable`) are preserved on the generated context functions.
  * - The generated context function delegates in IR to `ctx.invoke(...)`.
  *
- * This allows call sites to invoke the function directly using standard context parameter resolution:
+ * ### Example
+ *
+ * Given a function that has context parameters for a nested function call (`ChildComponent`), a normal injection
+ * parameter (`Repository`), and an assisted parameter (`modifier`):
+ *
  * ```kotlin
- * context(foo: Foo)
- * fun Parent() {
- *     Foo(...)
+ * @InjectContext
+ * @Inject
+ * @Composable
+ * context(
+ *     _: ChildComponent,
+ * )
+ * fun ParentComponent(
+ *     repository: Repository,
+ *     @Assisted modifier: Modifier = Modifier,
+ * ) {
+ *     ChildComponent()
+ *     // use repository and modifier...
+ * }
+ * ```
+ *
+ * #### What Metro generates
+ * Metro generates an injectable class containing constructor parameters for both the context parameter dependencies
+ * and normal injection parameters, with an `invoke` operator taking the assisted parameter:
+ *
+ * ```kotlin
+ * @Inject
+ * class ParentComponent(
+ *     private val childComponent: ChildComponent,
+ *     private val repository: Repository,
+ * ) {
+ *     @Composable
+ *     operator fun invoke(
+ *         modifier: Modifier = Modifier,
+ *     ) {
+ *         context(childComponent) {
+ *             ParentComponent(
+ *                 repository = repository,
+ *                 modifier = modifier,
+ *             )
+ *         }
+ *     }
+ * }
+ * ```
+ *
+ * #### What di-compiler generates
+ * The `di-compiler` plugin generates top-level context functions that require `context(ctx: ParentComponent)`,
+ * including overloads for assisted parameters with default values:
+ *
+ * ```kotlin
+ * context(ctx: ParentComponent)
+ * @Composable
+ * fun ParentComponent(
+ *     modifier: Modifier = Modifier,
+ * ) {
+ *     ctx.invoke(
+ *         modifier = modifier,
+ *     )
+ * }
+ *
+ * context(ctx: ParentComponent)
+ * @Composable
+ * fun ParentComponent() {
+ *     ctx.invoke()
+ * }
+ * ```
+ *
+ * #### Usage at call sites
+ * Call sites only need the generated context class in their context:
+ *
+ * ```kotlin
+ * context(_: ParentComponent)
+ * @Composable
+ * fun GrandparentComponent() {
+ *     ParentComponent()
  * }
  * ```
  */
