@@ -51,9 +51,7 @@ import kotlin.test.assertEquals
 @OptIn(ExperimentalTestApi::class)
 class InteractableCellsTests : BaseKmpTest() {
 
-    private val interactableCellsLocalCtx = InteractableCellsCtx(
-        preferencesHolder = TestComposeLifePreferences(),
-    )
+    private val interactableCellsLocal = TestComposeLifePreferences()
 
     @Suppress("LongMethod")
     @Test
@@ -75,7 +73,7 @@ class InteractableCellsTests : BaseKmpTest() {
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
-            with(interactableCellsLocalCtx) {
+            context(interactableCellsLocal) {
                 resolver = parameterizedStringResolver()
 
                 InteractableCells(
@@ -178,7 +176,7 @@ class InteractableCellsTests : BaseKmpTest() {
         lateinit var resolver: (ParameterizedString) -> String
 
         setContent {
-            with(interactableCellsLocalCtx) {
+            context(interactableCellsLocal) {
                 resolver = parameterizedStringResolver()
 
                 InteractableCells(
@@ -239,11 +237,9 @@ class InteractableCellsTests : BaseKmpTest() {
         setContent {
             density = LocalDensity.current
             context(
-                InteractableCellsCtx(
-                    preferencesHolder = TestComposeLifePreferences(
-                        initialPreferences = LoadedComposeLifePreferences.Defaults.copy(
-                            mouseToolConfig = ToolConfig.Draw,
-                        ),
+                TestComposeLifePreferences(
+                    initialPreferences = LoadedComposeLifePreferences.Defaults.copy(
+                        mouseToolConfig = ToolConfig.Draw,
                     ),
                 ),
             ) {
@@ -310,11 +306,9 @@ class InteractableCellsTests : BaseKmpTest() {
         setContent {
             density = LocalDensity.current
             context(
-                InteractableCellsCtx(
-                    preferencesHolder = TestComposeLifePreferences(
-                        initialPreferences = LoadedComposeLifePreferences.Defaults.copy(
-                            mouseToolConfig = ToolConfig.None,
-                        ),
+                TestComposeLifePreferences(
+                    initialPreferences = LoadedComposeLifePreferences.Defaults.copy(
+                        mouseToolConfig = ToolConfig.None,
                     ),
                 ),
             ) {

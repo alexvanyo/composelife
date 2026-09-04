@@ -24,93 +24,17 @@ import androidx.compose.ui.Modifier
 import androidx.window.core.layout.WindowSizeClass
 import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.data.CellStateRepository
+import com.alexvanyo.composelife.di.InjectContext
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicator
-import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorCtx
 import com.alexvanyo.composelife.ui.settings.Setting
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.Inject
 import kotlin.time.Clock
 
-// region templated-ctx
-@Suppress("ComposableNaming", "LongParameterList")
-@Composable
-private operator fun CellUniversePaneCtx.invoke(
-    windowSizeClass: WindowSizeClass,
-    onSeeMoreSettingsClicked: () -> Unit,
-    onOpenInSettingsClicked: (setting: Setting) -> Unit,
-    onViewDeserializationInfo: (DeserializationResult) -> Unit,
-    modifier: Modifier = Modifier,
-    cellUniversePaneState: CellUniversePaneState = rememberCellUniversePaneState(),
-) = CellUniversePaneCtx.lambda(
-    cellStateRepository,
-    gameOfLifeAlgorithm,
-    dispatchers,
-    clock,
-    gameOfLifeProgressIndicatorCtx,
-    interactiveCellUniverseCtx,
-    windowSizeClass,
-    onSeeMoreSettingsClicked,
-    onOpenInSettingsClicked,
-    onViewDeserializationInfo,
-    modifier,
-    cellUniversePaneState,
-)
-
-private val CellUniversePaneCtx.Companion.lambda:
-    @Composable context(
-        CellStateRepository,
-        GameOfLifeAlgorithm,
-        ComposeLifeDispatchers,
-        Clock,
-        GameOfLifeProgressIndicatorCtx,
-        InteractiveCellUniverseCtx,
-    )
-    (
-        windowSizeClass: WindowSizeClass,
-        onSeeMoreSettingsClicked: () -> Unit,
-        onOpenInSettingsClicked: (setting: Setting) -> Unit,
-        onViewDeserializationInfo: (DeserializationResult) -> Unit,
-        modifier: Modifier,
-        cellUniversePaneState: CellUniversePaneState,
-    ) -> Unit
-    get() = {
-            windowSizeClass,
-            onSeeMoreSettingsClicked,
-            onOpenInSettingsClicked,
-            onViewDeserializationInfo,
-            modifier,
-            cellUniversePaneState,
-        ->
-        CellUniversePane(
-            windowSizeClass = windowSizeClass,
-            onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
-            onOpenInSettingsClicked = onOpenInSettingsClicked,
-            onViewDeserializationInfo = onViewDeserializationInfo,
-            modifier = modifier,
-            cellUniversePaneState = cellUniversePaneState,
-        )
-    }
-
-@Suppress("LongParameterList")
-@Composable
-context(ctx: CellUniversePaneCtx)
-fun CellUniversePane(
-    windowSizeClass: WindowSizeClass,
-    onSeeMoreSettingsClicked: () -> Unit,
-    onOpenInSettingsClicked: (setting: Setting) -> Unit,
-    onViewDeserializationInfo: (DeserializationResult) -> Unit,
-    modifier: Modifier = Modifier,
-    cellUniversePaneState: CellUniversePaneState = rememberCellUniversePaneState(),
-) = ctx(
-    windowSizeClass = windowSizeClass,
-    onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
-    onOpenInSettingsClicked = onOpenInSettingsClicked,
-    onViewDeserializationInfo = onViewDeserializationInfo,
-    modifier = modifier,
-    cellUniversePaneState = cellUniversePaneState,
-)
-// endregion templated-ctx
-
+@InjectContext
+@Inject
 @Suppress("LongParameterList")
 @Composable
 context(
@@ -118,24 +42,25 @@ context(
     gameOfLifeAlgorithm: GameOfLifeAlgorithm,
     dispatchers: ComposeLifeDispatchers,
     clock: Clock,
-    _: GameOfLifeProgressIndicatorCtx,
-    _: InteractiveCellUniverseCtx,
+    _: GameOfLifeProgressIndicator,
+    _: InteractiveCellUniverse,
 )
-private fun CellUniversePane(
-    windowSizeClass: WindowSizeClass,
-    onSeeMoreSettingsClicked: () -> Unit,
-    onOpenInSettingsClicked: (setting: Setting) -> Unit,
-    onViewDeserializationInfo: (DeserializationResult) -> Unit,
-    modifier: Modifier = Modifier,
-    cellUniversePaneState: CellUniversePaneState = rememberCellUniversePaneState(
+fun CellUniversePane(
+    @Assisted windowSizeClass: WindowSizeClass,
+    @Assisted onSeeMoreSettingsClicked: () -> Unit,
+    @Assisted onOpenInSettingsClicked: (setting: Setting) -> Unit,
+    @Assisted onViewDeserializationInfo: (DeserializationResult) -> Unit,
+    @Assisted modifier: Modifier = Modifier,
+    @Assisted cellUniversePaneState: CellUniversePaneState? = null,
+) {
+    val resolvedCellUniversePaneState = cellUniversePaneState ?: rememberCellUniversePaneState(
         cellStateRepository = cellStateRepository,
         gameOfLifeAlgorithm = gameOfLifeAlgorithm,
         dispatchers = dispatchers,
         clock = clock,
-    ),
-) {
+    )
     Box(modifier = modifier) {
-        when (cellUniversePaneState) {
+        when (resolvedCellUniversePaneState) {
             is CellUniversePaneState.LoadingCellState -> {
                 Box(
                     contentAlignment = Alignment.Center,
@@ -147,7 +72,7 @@ private fun CellUniversePane(
 
             is CellUniversePaneState.LoadedCellState -> {
                 InteractiveCellUniverse(
-                    temporalGameOfLifeState = cellUniversePaneState.temporalGameOfLifeState,
+                    temporalGameOfLifeState = resolvedCellUniversePaneState.temporalGameOfLifeState,
                     windowSizeClass = windowSizeClass,
                     onSeeMoreSettingsClicked = onSeeMoreSettingsClicked,
                     onOpenInSettingsClicked = onOpenInSettingsClicked,

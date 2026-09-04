@@ -53,7 +53,6 @@ import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -68,76 +67,29 @@ import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.data.PatternCollectionRepository
+import com.alexvanyo.composelife.di.InjectContext
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.ui.mobile.component.ListDetailInfo
 import com.alexvanyo.composelife.ui.mobile.component.LocalBackgroundColor
 import com.alexvanyo.composelife.ui.settings.resources.Back
 import com.alexvanyo.composelife.ui.settings.resources.Strings
 import com.alexvanyo.composelife.ui.util.trySharedBounds
+import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-// region templated-ctx
-@Immutable
+@InjectContext
 @Inject
-class FullscreenSettingsDetailPaneCtx(
-    private val settingUiCtx: SettingUiCtx,
-    private val patternCollectionRepository: PatternCollectionRepository,
-) {
-    @Suppress("ComposableNaming")
-    @Deprecated(
-        "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
-            "FullscreenSettingsDetailPane(fullscreenSettingsDetailPaneState, onBackButtonPressed, modifier)",
-        ),
-    )
-    @Composable
-    operator fun invoke(
-        fullscreenSettingsDetailPaneState: FullscreenSettingsDetailPaneState,
-        onBackButtonPressed: () -> Unit,
-        modifier: Modifier = Modifier,
-    ) = lambda(
-        settingUiCtx,
-        patternCollectionRepository,
-        fullscreenSettingsDetailPaneState,
-        onBackButtonPressed,
-        modifier,
-    )
-
-    companion object {
-        private val lambda:
-            @Composable context(SettingUiCtx, PatternCollectionRepository)
-            (
-                fullscreenSettingsDetailPaneState: FullscreenSettingsDetailPaneState,
-                onBackButtonPressed: () -> Unit,
-                modifier: Modifier,
-            ) -> Unit =
-            { fullscreenSettingsDetailPaneState, onBackButtonPressed, modifier ->
-                FullscreenSettingsDetailPane(fullscreenSettingsDetailPaneState, onBackButtonPressed, modifier)
-            }
-    }
-}
-
-@Suppress("DEPRECATION")
-@Composable
-context(ctx: FullscreenSettingsDetailPaneCtx)
-fun FullscreenSettingsDetailPane(
-    fullscreenSettingsDetailPaneState: FullscreenSettingsDetailPaneState,
-    onBackButtonPressed: () -> Unit,
-    modifier: Modifier = Modifier,
-) = ctx(fullscreenSettingsDetailPaneState, onBackButtonPressed, modifier)
-// endregion templated-ctx
-
 @Composable
 context(
-    _: SettingUiCtx,
+    _: SettingUi,
     _: PatternCollectionRepository,
 )
-private fun FullscreenSettingsDetailPane(
-    fullscreenSettingsDetailPaneState: FullscreenSettingsDetailPaneState,
-    onBackButtonPressed: () -> Unit,
-    modifier: Modifier = Modifier,
+internal fun FullscreenSettingsDetailPane(
+    @Assisted fullscreenSettingsDetailPaneState: FullscreenSettingsDetailPaneState,
+    @Assisted onBackButtonPressed: () -> Unit,
+    @Assisted modifier: Modifier = Modifier,
 ) {
     SettingsCategoryDetail(
         settingsCategory = fullscreenSettingsDetailPaneState.settingsCategory,
@@ -157,7 +109,7 @@ private fun FullscreenSettingsDetailPane(
 @Suppress("LongMethod", "LongParameterList")
 @Composable
 context(
-    _: SettingUiCtx,
+    _: SettingUi,
     _: PatternCollectionRepository,
 )
 private fun SettingsCategoryDetail(
@@ -201,7 +153,7 @@ private fun SettingsCategoryDetail(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Suppress("LongMethod", "LongParameterList")
 @Composable
-context(_: SettingUiCtx)
+context(_: SettingUi)
 private fun StandardSettingsCategoryDetail(
     settingsCategory: SettingsCategory,
     detailScrollState: ScrollState,
@@ -325,7 +277,7 @@ private fun StandardSettingsCategoryDetail(
 @Suppress("LongMethod", "LongParameterList")
 @Composable
 context(
-    _: SettingUiCtx,
+    _: SettingUi,
     patternCollectionRepository: PatternCollectionRepository,
 )
 private fun PatternCollectionsDetail(

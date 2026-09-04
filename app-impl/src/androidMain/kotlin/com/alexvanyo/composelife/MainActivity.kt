@@ -47,8 +47,7 @@ import com.alexvanyo.composelife.scopes.ApplicationGraphOwner
 import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
-import com.alexvanyo.composelife.ui.app.ComposeLifeApp
-import com.alexvanyo.composelife.ui.app.ComposeLifeAppUiCtx
+import com.alexvanyo.composelife.ui.app.ComposeLifeAppUi
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.mobile.shouldUseDarkTheme
 import com.alexvanyo.composelife.ui.util.ProvideLocalWindowInsetsHolder
@@ -61,7 +60,7 @@ import kotlinx.coroutines.supervisorScope
 
 @ContributesTo(UiScope::class)
 interface MainActivityInjectCtx : ComposeLifePreferencesProvider {
-    val composeLifeAppUiCtx: ComposeLifeAppUiCtx
+    val composeLifeAppUi: ComposeLifeAppUi
 
     @ForScope(UiScope::class)
     val uiUpdatables: Set<Updatable>
@@ -162,8 +161,8 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     ComposeLifeTheme(darkTheme) {
-                        context(mainActivityInjectCtx.composeLifeAppUiCtx) {
-                            ComposeLifeApp(
+                        context(mainActivityInjectCtx.composeLifeAppUi) {
+                            ComposeLifeAppUi(
                                 windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
                                 windowSize = LocalWindowInfo.current.containerDpSize,
                             )

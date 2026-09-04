@@ -38,8 +38,7 @@ import com.alexvanyo.composelife.scopes.GlobalScope
 import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
-import com.alexvanyo.composelife.ui.app.ComposeLifeApp
-import com.alexvanyo.composelife.ui.app.ComposeLifeAppUiCtx
+import com.alexvanyo.composelife.ui.app.ComposeLifeAppUi
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.mobile.shouldUseDarkTheme
 import com.alexvanyo.composelife.updatable.Updatable
@@ -118,8 +117,8 @@ fun main() = application {
 
                 context(mainInjectCtx) {
                     ComposeLifeTheme(shouldUseDarkTheme()) {
-                        context(mainInjectCtx.composeLifeAppUiCtx) {
-                            ComposeLifeApp(
+                        context(mainInjectCtx.composeLifeAppUi) {
+                            ComposeLifeAppUi(
                                 windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
                                 windowSize = windowState.size,
                             )
@@ -143,7 +142,7 @@ internal val ApplicationGraph.composeLifeApplicationCtx: ComposeLifeApplicationC
 
 @ContributesTo(UiScope::class)
 interface MainInjectCtx : ComposeLifePreferencesProvider {
-    val composeLifeAppUiCtx: ComposeLifeAppUiCtx
+    val composeLifeAppUi: ComposeLifeAppUi
 
     @ForScope(UiScope::class)
     val uiUpdatables: Set<Updatable>

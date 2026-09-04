@@ -32,7 +32,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -44,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.alexvanyo.composelife.di.InjectContext
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
@@ -52,78 +52,26 @@ import com.alexvanyo.composelife.ui.settings.resources.QuickSettingsInfo
 import com.alexvanyo.composelife.ui.settings.resources.SeeAll
 import com.alexvanyo.composelife.ui.settings.resources.Strings
 import com.alexvanyo.composelife.ui.util.trySharedBounds
+import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 
-// region templated-ctx
-@Immutable
-@Inject
-class InlineSettingsPaneCtx(
-    private val preferencesHolder: LoadedComposeLifePreferencesHolder,
-    private val settingUiCtx: SettingUiCtx,
-) {
-    @Suppress("ComposableNaming")
-    @Deprecated(
-        "Ctx should not be invoked directly, instead use the top-level function",
-        replaceWith = ReplaceWith(
-            "InlineSettingsPane(onSeeMoreClicked, onOpenInSettingsClicked, modifier, scrollState)",
-        ),
-    )
-    @Composable
-    operator fun invoke(
-        onSeeMoreClicked: () -> Unit,
-        onOpenInSettingsClicked: (Setting) -> Unit,
-        modifier: Modifier = Modifier,
-        scrollState: ScrollState = rememberScrollState(initial = Int.MAX_VALUE),
-    ) = lambda(
-        preferencesHolder,
-        settingUiCtx,
-        onSeeMoreClicked,
-        onOpenInSettingsClicked,
-        modifier,
-        scrollState,
-    )
-
-    companion object {
-        private val lambda:
-            @Composable context(LoadedComposeLifePreferencesHolder, SettingUiCtx)
-            (
-                onSeeMoreClicked: () -> Unit,
-                onOpenInSettingsClicked: (Setting) -> Unit,
-                modifier: Modifier,
-                scrollState: ScrollState,
-            ) -> Unit =
-            { onSeeMoreClicked, onOpenInSettingsClicked, modifier, scrollState ->
-                InlineSettingsPane(onSeeMoreClicked, onOpenInSettingsClicked, modifier, scrollState)
-            }
-    }
-}
-
-@Suppress("DEPRECATION")
-@Composable
-context(ctx: InlineSettingsPaneCtx)
-fun InlineSettingsPane(
-    onSeeMoreClicked: () -> Unit,
-    onOpenInSettingsClicked: (Setting) -> Unit,
-    modifier: Modifier = Modifier,
-    scrollState: ScrollState = rememberScrollState(initial = Int.MAX_VALUE),
-) = ctx(onSeeMoreClicked, onOpenInSettingsClicked, modifier, scrollState)
-// endregion templated-ctx
-
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Suppress("LongMethod")
+@InjectContext
+@Inject
 @Composable
 context(
     preferencesHolder: LoadedComposeLifePreferencesHolder,
-    _: SettingUiCtx,
+    _: SettingUi,
 )
-private fun InlineSettingsPane(
-    onSeeMoreClicked: () -> Unit,
-    onOpenInSettingsClicked: (Setting) -> Unit,
-    modifier: Modifier = Modifier,
-    scrollState: ScrollState = rememberScrollState(initial = Int.MAX_VALUE),
+internal fun InlineSettingsPane(
+    @Assisted onSeeMoreClicked: () -> Unit,
+    @Assisted onOpenInSettingsClicked: (Setting) -> Unit,
+    @Assisted modifier: Modifier = Modifier,
+    @Assisted scrollState: ScrollState = rememberScrollState(initial = Int.MAX_VALUE),
 ) {
     Column(
         modifier = modifier

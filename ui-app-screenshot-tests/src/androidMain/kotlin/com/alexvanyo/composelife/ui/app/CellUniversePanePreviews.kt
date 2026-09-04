@@ -23,6 +23,7 @@ import androidx.window.core.layout.WindowSizeClass.Companion.BREAKPOINTS_V1
 import androidx.window.core.layout.computeWindowSizeClass
 import com.airbnb.android.showkase.annotation.ShowkaseComposable
 import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeState
+import com.alexvanyo.composelife.ui.app.CellUniversePane
 import com.alexvanyo.composelife.ui.app.ctxs.PreviewCtx
 import com.alexvanyo.composelife.ui.app.ctxs.WithPreviewDependencies
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
@@ -35,7 +36,7 @@ internal fun LoadingCellStateCellUniversePanePreview(modifier: Modifier = Modifi
     WithPreviewDependencies {
         contextOf<PreviewCtx>().testRandom.setSeed(1) // Fix to Beacon loading pattern
         ComposeLifeTheme {
-            context(contextOf<PreviewCtx>().cellUniversePaneCtx) {
+            context(contextOf<PreviewCtx>().cellUniversePane) {
                 BoxWithConstraints(modifier = modifier) {
                     CellUniversePane(
                         windowSizeClass = BREAKPOINTS_V1.computeWindowSizeClass(
@@ -59,7 +60,7 @@ internal fun LoadingCellStateCellUniversePanePreview(modifier: Modifier = Modifi
 internal fun LoadedCellUniversePanePreview(modifier: Modifier = Modifier) {
     WithPreviewDependencies {
         ComposeLifeTheme {
-            context(contextOf<PreviewCtx>().cellUniversePaneCtx) {
+            context(contextOf<PreviewCtx>().cellUniversePane) {
                 BoxWithConstraints(modifier = modifier) {
                     val temporalGameOfLifeState = rememberTemporalGameOfLifeState(
                         seedCellState = gosperGliderGun,
