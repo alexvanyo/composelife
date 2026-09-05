@@ -82,7 +82,6 @@ val DestructionTests by testSuite(
 private const val TARGET_POPULATION = 200
 private const val MAX_PHASE = 2
 private const val MAX_GENERATIONS = 300
-private const val CUSTOM_CODE_POINT_START = 0x4E00
 
 private suspend fun destructionIsCorrect(algorithm: GameOfLifeAlgorithm, hourPrefix: String, minute: Int) {
     val timeDigits = createTimeDigits(hourPrefix, minute)
@@ -95,13 +94,13 @@ private suspend fun destructionIsCorrect(algorithm: GameOfLifeAlgorithm, hourPre
                 "${timeDigits.thirdDigit.fileChar}" +
                 "${timeDigits.fourthDigit.fileChar}.rle",
         )
-    val solutionFontFile =
+    val solutionMinuteDataFile =
         File(
-            "build/wff/minuteSfd/" +
+            "build/wff/minuteData/" +
                 "${timeDigits.firstDigit.fileChar}" +
                 "${timeDigits.secondDigit.fileChar}:" +
                 "${timeDigits.thirdDigit.fileChar}" +
-                "${timeDigits.fourthDigit.fileChar}.sfd",
+                "${timeDigits.fourthDigit.fileChar}.data",
         )
 
     var solution: CellState? = if (solutionCellStateFile.exists()) {
@@ -148,60 +147,67 @@ private suspend fun destructionIsCorrect(algorithm: GameOfLifeAlgorithm, hourPre
     )
     val runLengthEncodingLines = RunLengthEncodedCellStateSerializer.serializeToString(solution)
 
-    solutionFontFile.parentFile!!.mkdirs()
-    solutionFontFile.bufferedWriter().use { bufferedWriter ->
-        algorithm.computeGenerationsWithStep(solution, 1)
+    solutionMinuteDataFile.parentFile!!.mkdirs()
+    solutionMinuteDataFile.bufferedWriter().use { bufferedWriter ->
+        val generationCellStates = algorithm.computeGenerationsWithStep(solution, 1)
             .take(MAX_GENERATIONS)
-            .withIndex()
-            .collect { (index, cellState) ->
-                bufferedWriter.write(
-                    "StartChar: custom_" +
-                        "${timeDigits.thirdDigit.char}_" +
-                        "${timeDigits.fourthDigit.char}_" +
-                        index.toString().padStart(3, '0').toCharArray().joinToString("_"),
-                )
-                bufferedWriter.newLine()
+            .toList()
 
-                bufferedWriter.write(
-                    "Encoding: ${CUSTOM_CODE_POINT_START + 300 * minute + index} " +
-                        "${CUSTOM_CODE_POINT_START + 300 * minute + index} " +
-                        "${300 * minute + index}",
-                )
-                bufferedWriter.newLine()
-                bufferedWriter.write("Width: 70")
-                bufferedWriter.newLine()
-                bufferedWriter.write("Flags: H")
-                bufferedWriter.newLine()
-                bufferedWriter.write("LayerCount: 2")
-                bufferedWriter.newLine()
-                bufferedWriter.write("Fore")
-                bufferedWriter.newLine()
-                bufferedWriter.write("SplineSet")
-                bufferedWriter.newLine()
-                createContours(
-                    cellState.getAliveCellsInWindow(
-                        CellWindow(IntRect(IntOffset(1, 1), IntSize(70, 70))),
-                    ).toSet(),
-                )
-                    .map { contour ->
-                        contour.map {
-                            IntOffset(it.x, 70 - it.y)
-                        }
+        val aliveCellsInWindow = generationCellStates.map { cellState ->
+            cellState.getAliveCellsInWindow(
+                CellWindow(IntRect(IntOffset(1, 1), IntSize(70, 70))),
+            ).toSet()
+        }
+
+        val canonicalIndices = mutableMapOf<Set<IntOffset>, Int>()
+        val genMap = IntArray(MAX_GENERATIONS)
+
+        aliveCellsInWindow.forEachIndexed { index, aliveCells ->
+            val canonicalIndex = canonicalIndices.getOrPut(aliveCells) { index }
+            genMap[index] = canonicalIndex
+        }
+
+        bufferedWriter.write("GEN_MAP ${genMap.joinToString(" ")}")
+        bufferedWriter.newLine()
+
+        val uniqueRelativeShapes = mutableListOf<List<IntOffset>>()
+        val relativeShapeIndices = mutableMapOf<List<IntOffset>, Int>()
+
+        data class ShapeInstance(val shapeIndex: Int, val origin: IntOffset)
+
+        val uniqueCanonicalIndices = canonicalIndices.values.toSortedSet()
+        val glyphInstances = uniqueCanonicalIndices.associateWith { canonicalIndex ->
+            val contours = createContours(aliveCellsInWindow[canonicalIndex])
+                .map { contour ->
+                    contour.map {
+                        IntOffset(it.x - 1, 70 - it.y - 1)
                     }
-                    .forEach { contour ->
-                        bufferedWriter.write("${contour.last().x - 1} ${contour.last().y - 1} m 1")
-                        bufferedWriter.newLine()
-                        contour.forEach { corner ->
-                            bufferedWriter.write(" ${corner.x - 1} ${corner.y - 1} l 1")
-                            bufferedWriter.newLine()
-                        }
-                    }
-                bufferedWriter.write("EndSplineSet")
-                bufferedWriter.newLine()
-                bufferedWriter.write("EndChar")
-                bufferedWriter.newLine()
+                }
+            contours.map { contour ->
+                val origin = contour.first()
+                val relativeContour = contour.map { it - origin }
+                val shapeIndex = relativeShapeIndices.getOrPut(relativeContour) {
+                    uniqueRelativeShapes.add(relativeContour)
+                    uniqueRelativeShapes.lastIndex
+                }
+                ShapeInstance(shapeIndex, origin)
+            }
+        }
+
+        uniqueRelativeShapes.forEachIndexed { index, shape ->
+            val coordsStr = shape.joinToString(" ") { "${it.x},${it.y}" }
+            bufferedWriter.write("SUBR $index $coordsStr")
+            bufferedWriter.newLine()
+        }
+
+        glyphInstances.forEach { (canonicalIndex, instances) ->
+            bufferedWriter.write("GLYPH $canonicalIndex")
+            bufferedWriter.newLine()
+            instances.forEach { (shapeIndex, origin) ->
+                bufferedWriter.write("INST $shapeIndex ${origin.x},${origin.y}")
                 bufferedWriter.newLine()
             }
+        }
     }
 
     solutionCellStateFile.parentFile!!.mkdirs()
@@ -333,7 +339,7 @@ private fun createContours(aliveCells: Set<IntOffset>): List<List<IntOffset>> {
 
         edgeContours.map { contour ->
             var isOuterEdge = false
-            buildList {
+            val cornerPoints = buildList {
                 // Find initial corner
                 var index = 0
                 while (getCornerPointOnNeighboringEdgesOrNull(
@@ -360,7 +366,16 @@ private fun createContours(aliveCells: Set<IntOffset>): List<List<IntOffset>> {
                     index++
                 } while (initialCornerIndex != index.mod(contour.size))
             }
-                .let { if (isOuterEdge) it.reversed() else it }
+            val orderedPoints = if (isOuterEdge) {
+                cornerPoints.reversed()
+            } else {
+                cornerPoints
+            }
+
+            val minIndex = orderedPoints.indices.minWith(
+                compareBy<Int> { orderedPoints[it].y }.thenBy { orderedPoints[it].x },
+            )
+            orderedPoints.drop(minIndex) + orderedPoints.take(minIndex)
         }
     }
 }
