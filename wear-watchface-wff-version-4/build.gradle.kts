@@ -49,6 +49,15 @@ android {
     lint {
         disable += listOf("UnusedResources", "NotShrinkingResources")
     }
+    packaging {
+        resources {
+            excludes += listOf(
+                "kotlin/**",
+                "META-INF/*.version",
+                "**/*.kotlin_builtins",
+            )
+        }
+    }
 }
 
 dependencies {
