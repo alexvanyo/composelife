@@ -61,8 +61,6 @@ import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
 
-// (existing imports cleaned up below)
-
 @InjectContext
 @Inject
 @Suppress("LongMethod", "ComplexMethod", "LongParameterList")
