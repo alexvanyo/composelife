@@ -30,8 +30,8 @@
 -keep class androidx.tracing.** { *; }
 -dontwarn androidx.tracing.**
 
--keep class kotlin.** { *; }
--keep class kotlinx.** { *; }
+-keep,allowshrinking class kotlin.** { *; }
+-keep,allowshrinking class kotlinx.** { *; }
 
 -keep class com.alexvanyo.composelife.** { *; }
 
