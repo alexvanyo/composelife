@@ -56,7 +56,9 @@ androidxWearCompose = "1.7.0-beta01"
 #androidxWearComposeMaterial3
 androidxWearComposeMaterial3 = "1.7.0-beta01"
 #androidxWearWatchface
-androidxWearWatchface = "1.3.0"
+androidxWearWatchface = "1.3.0-alpha07"
+#androidxWearWatchfaceComplications
+androidxWearWatchfaceComplications = "1.3.0"
 #androidxWindow
 androidxWindow = "1.6.0-alpha05"
 #androidxWork
@@ -224,8 +226,8 @@ androidx-wear-compose-material3 = { group = "androidx.wear.compose", name = "com
 androidx-wear-compose-uiToolingPreview = { group = "androidx.wear.compose", name = "compose-ui-tooling", version.ref = "androidxWearCompose" }
 androidx-wear-watchface = { group = "androidx.wear.watchface", name = "watchface", version.ref = "androidxWearWatchface" }
 androidx-wear-watchface-client = { group = "androidx.wear.watchface", name = "watchface-client", version.ref = "androidxWearWatchface" }
-androidx-wear-watchface-complications-data = { group = "androidx.wear.watchface", name = "watchface-complications-data", version.ref = "androidxWearWatchface" }
-androidx-wear-watchface-complications-dataSource = { group = "androidx.wear.watchface", name = "watchface-complications-data-source", version.ref = "androidxWearWatchface" }
+androidx-wear-watchface-complications-data = { group = "androidx.wear.watchface", name = "watchface-complications-data", version.ref = "androidxWearWatchfaceComplications" }
+androidx-wear-watchface-complications-dataSource = { group = "androidx.wear.watchface", name = "watchface-complications-data-source", version.ref = "androidxWearWatchfaceComplications" }
 androidx-wear-watchface-complications-rendering = { group = "androidx.wear.watchface", name = "watchface-complications-rendering", version.ref = "androidxWearWatchface" }
 androidx-wear-watchface-data = { group = "androidx.wear.watchface", name = "watchface-data", version.ref = "androidxWearWatchface" }
 androidx-wear-watchface-editor = { group = "androidx.wear.watchface", name = "watchface-editor", version.ref = "androidxWearWatchface" }
