@@ -154,7 +154,7 @@ sqldelightAndroidX = "0.5.0-alpha.10"
 #sqlJs
 sqlJs = "1.8.0"
 #testBalloon
-testBalloon = "1.1.0-RC"
+testBalloon = "1.2.0-Beta1"
 #testParameterInjector
 testParameterInjector = "1.22"
 #turbine
