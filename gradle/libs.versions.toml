@@ -88,7 +88,7 @@ kermit = "2.1.0"
 #kotlin
 kotlin = "2.4.0"
 #kotlinPoet
-kotlinPoet = "2.3.0"
+kotlinPoet = "2.4.0"
 #kotlinxBrowser
 kotlinxBrowser = "0.5.0"
 #kotlinxCollectionsImmutable
