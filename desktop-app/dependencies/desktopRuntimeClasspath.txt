@@ -180,11 +180,11 @@ org.jetbrains.kotlinx:kotlinx-io-core-jvm:0.9.1
 org.jetbrains.kotlinx:kotlinx-io-core:0.9.1
 org.jetbrains.kotlinx:kotlinx-io-okio-jvm:0.9.1
 org.jetbrains.kotlinx:kotlinx-io-okio:0.9.1
-org.jetbrains.kotlinx:kotlinx-serialization-bom:1.11.0
-org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.11.0
-org.jetbrains.kotlinx:kotlinx-serialization-core:1.11.0
-org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.11.0
-org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0
+org.jetbrains.kotlinx:kotlinx-serialization-bom:1.12.0-RC
+org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.12.0-RC
+org.jetbrains.kotlinx:kotlinx-serialization-core:1.12.0-RC
+org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.12.0-RC
+org.jetbrains.kotlinx:kotlinx-serialization-json:1.12.0-RC
 org.jetbrains.runtime:jbr-api:1.9.0
 org.jetbrains.skiko:skiko-awt-runtime-linux-x64:0.150.1
 org.jetbrains.skiko:skiko-awt:0.150.1
