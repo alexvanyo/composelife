@@ -20,6 +20,7 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
+-dontwarn android.extensions.xr.XrExtensions
 -dontwarn com.android.extensions.xr.XrExtensionResult
 -dontwarn com.android.extensions.xr.XrExtensions
 -dontwarn com.android.extensions.xr.function.Consumer
