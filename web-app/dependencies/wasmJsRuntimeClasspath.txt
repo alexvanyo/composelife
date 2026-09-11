@@ -55,10 +55,10 @@ app.cash.sqldelight:primitive-adapters-wasm-js:2.3.2
 app.cash.sqldelight:primitive-adapters:2.3.2
 app.cash.sqldelight:runtime-wasm-js:2.3.2
 app.cash.sqldelight:runtime:2.3.2
-co.touchlab:kermit-core-wasm-js:2.1.0
-co.touchlab:kermit-core:2.1.0
-co.touchlab:kermit-wasm-js:2.1.0
-co.touchlab:kermit:2.1.0
+co.touchlab:kermit-core-wasm-js:2.2.0
+co.touchlab:kermit-core:2.2.0
+co.touchlab:kermit-wasm-js:2.2.0
+co.touchlab:kermit:2.2.0
 com.eygraber:sqldelight-androidx-driver-opfs-wasm-js:0.5.0-alpha.10
 com.eygraber:sqldelight-androidx-driver-opfs:0.5.0-alpha.10
 com.eygraber:sqldelight-androidx-driver-wasm-js:0.5.0-alpha.10
