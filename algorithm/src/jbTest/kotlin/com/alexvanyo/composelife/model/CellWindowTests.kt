@@ -21,8 +21,85 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class CellWindowTests {
+    @Test
+    fun invalid_vertical_bounds_throws() {
+        assertFailsWith<IllegalArgumentException> {
+            CellWindow(
+                IntRect(
+                    left = 0,
+                    top = 10,
+                    right = 5,
+                    bottom = 2,
+                ),
+            )
+        }
+    }
+
+    @Test
+    fun invalid_horizontal_bounds_throws() {
+        assertFailsWith<IllegalArgumentException> {
+            CellWindow(
+                IntRect(
+                    left = 10,
+                    top = 0,
+                    right = 5,
+                    bottom = 2,
+                ),
+            )
+        }
+    }
+
+    @Test
+    fun accessors_are_correct() {
+        val cellWindow = CellWindow(
+            IntRect(
+                left = 1,
+                top = 2,
+                right = 7,
+                bottom = 10,
+            ),
+        )
+
+        assertEquals(IntOffset(1, 2), cellWindow.topLeft)
+        assertEquals(IntOffset(7, 2), cellWindow.topRight)
+        assertEquals(IntOffset(7, 10), cellWindow.bottomRight)
+        assertEquals(IntOffset(1, 10), cellWindow.bottomLeft)
+        assertEquals(IntOffset(4, 6), cellWindow.center)
+        assertEquals(1, cellWindow.left)
+        assertEquals(2, cellWindow.top)
+        assertEquals(7, cellWindow.right)
+        assertEquals(10, cellWindow.bottom)
+        assertEquals(6, cellWindow.width)
+        assertEquals(8, cellWindow.height)
+        assertEquals(IntSize(6, 8), cellWindow.size)
+    }
+
+    @Test
+    fun translate_is_correct() {
+        val cellWindow = CellWindow(
+            IntRect(
+                left = 1,
+                top = 2,
+                right = 7,
+                bottom = 10,
+            ),
+        )
+        val translated = cellWindow.translate(IntOffset(3, -1))
+
+        assertEquals(
+            IntRect(
+                left = 4,
+                top = 1,
+                right = 10,
+                bottom = 9,
+            ),
+            translated.intRect,
+        )
+    }
+
     @Test
     fun empty_IntRect_returns_empty_points() {
         assertEquals(
