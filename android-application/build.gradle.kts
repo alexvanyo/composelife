@@ -43,6 +43,7 @@ kotlin {
                 implementation(projects.injectScopes)
                 implementation(projects.processLifecycle)
                 implementation(projects.strictMode)
+                implementation(projects.tracing)
                 implementation(projects.updatable)
                 implementation(libs.androidx.compose.runtime)
                 implementation(libs.androidx.lifecycle.runtime)
