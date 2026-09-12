@@ -22,6 +22,7 @@ import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
 import com.alexvanyo.composelife.kmpstaterestorationtester.KmpStateRestorationTester
 import com.alexvanyo.composelife.test.runComposeUiTest
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.serializer
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -186,6 +187,125 @@ class BackstackStateTests : BaseKmpTest() {
 
         assertEquals(null, backstackStateNoPrevious.previousEntryId)
         assertEquals(null, backstackStateNoPrevious.previousEntry)
+    }
+
+    @Test
+    fun backstack_state_previous_entry_missing_from_map() {
+        val missingEntry = BackstackEntry(
+            value = "missing",
+            previous = null,
+            id = id1,
+        )
+        val entry = BackstackEntry(
+            value = "current",
+            previous = missingEntry,
+            id = id2,
+        )
+        val backstackState = object : BackstackState<String> {
+            override val entryMap = mapOf(id2 to entry)
+            override val currentEntryId = id2
+        }
+        assertEquals(id1, backstackState.previousEntryId)
+        assertEquals(null, backstackState.previousEntry)
+    }
+
+    @Test
+    fun value_as_surrogate_is_correct() {
+        val surrogate = ValueAsSurrogate("value")
+        assertEquals("value", surrogate.value)
+        assertEquals("value", surrogate.createFromSurrogate(null))
+        assertEquals("value", surrogate.component1())
+        val copy = surrogate.copy(value = "other")
+        assertEquals("other", copy.value)
+        assertEquals(surrogate, ValueAsSurrogate("value"))
+    }
+
+    @Test
+    fun branching_backstack_state_is_saved_correctly() = runComposeUiTest {
+        val stateRestorationTester = KmpStateRestorationTester(this)
+
+        @Suppress("DoubleMutabilityForCollection")
+        var backstackMap: MutableBackstackMap<String>? = null
+
+        stateRestorationTester.setContent {
+            val initialBackstackEntries = remember {
+                val entry1 = BackstackEntry(
+                    value = "root",
+                    previous = null,
+                    id = id1,
+                )
+                val entry2a = BackstackEntry(
+                    value = "branchA",
+                    previous = entry1,
+                    id = id2,
+                )
+                val entry2b = BackstackEntry(
+                    value = "branchB",
+                    previous = entry1,
+                    id = id3,
+                )
+                val entry3 = BackstackEntry(
+                    value = "leaf",
+                    previous = entry2a,
+                    id = id4,
+                )
+
+                listOf(entry1, entry2a, entry2b, entry3)
+            }
+
+            backstackMap = rememberBackstackMap(
+                initialBackstackEntries = initialBackstackEntries,
+            )
+        }
+
+        assertNotNull(backstackMap)
+        backstackMap = null
+
+        stateRestorationTester.emulateStateRestore()
+
+        val restoredBackstackMap = assertNotNull(backstackMap)
+        assertEquals(4, restoredBackstackMap.size)
+        assertEquals("root", restoredBackstackMap[id1]?.value)
+        assertEquals("branchA", restoredBackstackMap[id2]?.value)
+        assertEquals("branchB", restoredBackstackMap[id3]?.value)
+        assertEquals("leaf", restoredBackstackMap[id4]?.value)
+        assertEquals(id1, restoredBackstackMap[id2]?.previous?.id)
+        assertEquals(id1, restoredBackstackMap[id3]?.previous?.id)
+        assertEquals(id2, restoredBackstackMap[id4]?.previous?.id)
+    }
+
+    @Test
+    fun backstack_state_with_explicit_serializer_is_saved_correctly() = runComposeUiTest {
+        val stateRestorationTester = KmpStateRestorationTester(this)
+
+        @Suppress("DoubleMutabilityForCollection")
+        var backstackMap: MutableBackstackMap<String>? = null
+
+        stateRestorationTester.setContent {
+            val initialBackstackEntries = remember {
+                listOf(
+                    BackstackEntry(
+                        value = "a",
+                        previous = null,
+                        id = id1,
+                    ),
+                )
+            }
+
+            backstackMap = rememberBackstackMap(
+                initialBackstackEntries = initialBackstackEntries,
+                serializer = String.serializer(),
+            )
+        }
+
+        assertNotNull(backstackMap)
+        backstackMap = null
+
+        stateRestorationTester.emulateStateRestore()
+
+        val restoredBackstackMap = assertNotNull(backstackMap)
+        assertEquals(1, restoredBackstackMap.size)
+        assertEquals("a", restoredBackstackMap[id1]?.value)
     }
 }
 
