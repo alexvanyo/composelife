@@ -148,7 +148,7 @@ showkase = "1.0.5"
 #slackComposeLintChecks
 slackComposeLintChecks = "1.5.4"
 #sqldelight
-sqldelight = "2.3.2"
+sqldelight = "2.4.0-rc1"
 #sqldelightAndroidX
 sqldelightAndroidX = "0.5.0-alpha.10"
 #sqlJs
