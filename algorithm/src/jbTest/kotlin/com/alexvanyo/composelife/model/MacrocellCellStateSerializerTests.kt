@@ -16,12 +16,14 @@
 
 package com.alexvanyo.composelife.model
 
+import androidx.compose.ui.unit.IntOffset
+import com.alexvanyo.composelife.model.MacroCell.Level4Node
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
-@Suppress("TooManyFunctions")
+@Suppress("LargeClass", "TooManyFunctions")
 class MacrocellCellStateSerializerTests {
     private val serializer = MacrocellCellStateSerializer
 
@@ -592,6 +594,54 @@ class MacrocellCellStateSerializerTests {
     }
 
     @Test
+    fun deserialization_with_unexpected_node_id_level_4_ne_is_correct() {
+        assertEquals(
+            DeserializationResult.Unsuccessful(
+                warnings = emptyList(),
+                errors = listOf(UnexpectedNodeIdMessage(1, 4..4)),
+            ),
+            serializer.deserializeToCellState(
+                sequenceOf(
+                    "[M2] (ComposeLife 1.0)",
+                    "4 0 1 0 0",
+                ),
+            ),
+        )
+    }
+
+    @Test
+    fun deserialization_with_unexpected_node_id_level_4_sw_is_correct() {
+        assertEquals(
+            DeserializationResult.Unsuccessful(
+                warnings = emptyList(),
+                errors = listOf(UnexpectedNodeIdMessage(1, 6..6)),
+            ),
+            serializer.deserializeToCellState(
+                sequenceOf(
+                    "[M2] (ComposeLife 1.0)",
+                    "4 0 0 1 0",
+                ),
+            ),
+        )
+    }
+
+    @Test
+    fun deserialization_with_unexpected_node_id_level_4_se_is_correct() {
+        assertEquals(
+            DeserializationResult.Unsuccessful(
+                warnings = emptyList(),
+                errors = listOf(UnexpectedNodeIdMessage(1, 8..8)),
+            ),
+            serializer.deserializeToCellState(
+                sequenceOf(
+                    "[M2] (ComposeLife 1.0)",
+                    "4 0 0 0 1",
+                ),
+            ),
+        )
+    }
+
+    @Test
     fun deserialization_with_unexpected_node_id_cell_node_is_correct() {
         assertEquals(
             DeserializationResult.Unsuccessful(
@@ -604,6 +654,83 @@ class MacrocellCellStateSerializerTests {
                     "5 1 0 0 0",
                 ),
             ),
+        )
+    }
+
+    @Test
+    fun deserialization_with_unexpected_node_id_cell_node_ne_is_correct() {
+        assertEquals(
+            DeserializationResult.Unsuccessful(
+                warnings = emptyList(),
+                errors = listOf(UnexpectedNodeIdMessage(1, 4..4)),
+            ),
+            serializer.deserializeToCellState(
+                sequenceOf(
+                    "[M2] (ComposeLife 1.0)",
+                    "5 0 1 0 0",
+                ),
+            ),
+        )
+    }
+
+    @Test
+    fun deserialization_with_unexpected_node_id_cell_node_sw_is_correct() {
+        assertEquals(
+            DeserializationResult.Unsuccessful(
+                warnings = emptyList(),
+                errors = listOf(UnexpectedNodeIdMessage(1, 6..6)),
+            ),
+            serializer.deserializeToCellState(
+                sequenceOf(
+                    "[M2] (ComposeLife 1.0)",
+                    "5 0 0 1 0",
+                ),
+            ),
+        )
+    }
+
+    @Test
+    fun deserialization_with_unexpected_node_id_cell_node_se_is_correct() {
+        assertEquals(
+            DeserializationResult.Unsuccessful(
+                warnings = emptyList(),
+                errors = listOf(UnexpectedNodeIdMessage(1, 8..8)),
+            ),
+            serializer.deserializeToCellState(
+                sequenceOf(
+                    "[M2] (ComposeLife 1.0)",
+                    "5 0 0 0 1",
+                ),
+            ),
+        )
+    }
+
+    @Test
+    fun serialization_of_empty_cell_state_is_correct() {
+        assertEquals(
+            "[M2] (ComposeLife 1.0)",
+            serializer.serializeToString(emptyCellState()).joinToString("\n"),
+        )
+    }
+
+    @Test
+    fun serialization_with_empty_quadrants_in_level_4_is_correct() {
+        val hashLifeCellState = HashLifeCellState(
+            offset = IntOffset.Zero,
+            macroCell = Level4Node(
+                nw = 0L,
+                ne = 1L,
+                sw = 1L,
+                se = 0L,
+            ),
+        )
+        assertEquals(
+            listOf(
+                "[M2] (ComposeLife 1.0)",
+                "*$",
+                "4 0 1 1 0",
+            ),
+            serializer.serializeToString(hashLifeCellState).toList(),
         )
     }
 }

@@ -438,4 +438,32 @@ class PeriodUntilTests {
 
         assertEquals(1.hours.inWholeNanoseconds, period.totalNanoseconds)
     }
+
+    @Test
+    fun dateComponentApproximateDuration_is_correct() {
+        val period = DateTimePeriod(years = 1, months = 6, days = 10)
+        val expected = (10.days + (1.5 * 365.2422).days).inWholeNanoseconds.nanoseconds
+        assertEquals(expected, period.dateComponentApproximateDuration)
+    }
+
+    @Test
+    fun approximateDuration_is_correct() {
+        val period = DateTimePeriod(
+            years = 1,
+            months = 6,
+            days = 10,
+            hours = 2,
+            minutes = 30,
+            seconds = 15,
+            nanoseconds = 500,
+        )
+        val expected = period.timeComponentDuration + period.dateComponentApproximateDuration
+        assertEquals(expected, period.approximateDuration)
+    }
+
+    @Test
+    fun approximateDurationInMinutes_is_correct() {
+        val period = DateTimePeriod(hours = 1, minutes = 30)
+        assertEquals(90.0, period.approximateDurationInMinutes)
+    }
 }
