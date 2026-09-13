@@ -18,6 +18,7 @@ package com.alexvanyo.composelife
 
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.retain.LocalRetainedValuesStoreProvider
@@ -41,6 +42,7 @@ import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.ui.app.ComposeLifeAppUi
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.mobile.shouldUseDarkTheme
+import com.alexvanyo.composelife.ui.util.ProvideLocalWindowInsetsHolder
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
@@ -115,14 +117,21 @@ fun main() {
                 }
 
                 context(mainInjectCtx) {
-                    ComposeLifeTheme(shouldUseDarkTheme()) {
-                        context(mainInjectCtx.composeLifeAppUi) {
-                            ComposeLifeAppUi(
-                                windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
-                                windowSize = with(LocalDensity.current) {
-                                    LocalWindowInfo.current.containerSize.toSize().toDpSize()
-                                },
-                            )
+                    val darkTheme = shouldUseDarkTheme()
+                    DisposableEffect(darkTheme) {
+                        document.body?.style?.backgroundColor = if (darkTheme) "black" else "white"
+                        onDispose {}
+                    }
+                    ProvideLocalWindowInsetsHolder {
+                        ComposeLifeTheme(darkTheme) {
+                            context(mainInjectCtx.composeLifeAppUi) {
+                                ComposeLifeAppUi(
+                                    windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
+                                    windowSize = with(LocalDensity.current) {
+                                        LocalWindowInfo.current.containerSize.toSize().toDpSize()
+                                    },
+                                )
+                            }
                         }
                     }
                 }
