@@ -60,6 +60,7 @@ kotlin {
                 implementation(projects.network)
                 implementation(projects.preferences)
                 implementation(projects.uiApp)
+                implementation(projects.uiCommon)
                 implementation(projects.uiMobile)
                 implementation(projects.updatable)
                 implementation(composeBom)
