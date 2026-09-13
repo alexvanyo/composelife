@@ -20,5 +20,3 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
-# Super non-standard rule: WFF APKs can't have any code, so we strip it all!
--assumenosideeffects class ** { *; }

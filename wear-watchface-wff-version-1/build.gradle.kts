@@ -26,6 +26,7 @@ plugins {
 
 android {
     namespace = "com.alexvanyo.composelife"
+    enableKotlin = false
     defaultConfig {
         applicationId = "com.alexvanyo.composelife.wff"
         minSdk = 33
