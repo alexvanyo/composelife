@@ -89,4 +89,52 @@ class Life106CellStateSerializerTests {
                 ).joinToString("\n"),
         )
     }
+
+    @Test
+    fun format_is_correct() {
+        assertEquals(CellStateFormat.FixedFormat.Life106, serializer.format)
+    }
+
+    @Test
+    fun empty_file_deserialization_is_correct() {
+        assertEquals(
+            DeserializationResult.Successful(
+                warnings = listOf(UnexpectedEmptyFileMessage),
+                cellState = emptyCellState(),
+                format = CellStateFormat.FixedFormat.Life106,
+            ),
+            serializer.deserializeToCellState(emptySequence()),
+        )
+    }
+
+    @Test
+    fun invalid_header_deserialization_is_correct() {
+        assertEquals(
+            DeserializationResult.Unsuccessful(
+                warnings = emptyList(),
+                errors = listOf(
+                    UnexpectedHeaderMessage("invalid header"),
+                ),
+            ),
+            serializer.deserializeToCellState(sequenceOf("invalid header")),
+        )
+    }
+
+    @Test
+    fun invalid_input_line_deserialization_is_correct() {
+        assertEquals(
+            DeserializationResult.Unsuccessful(
+                warnings = emptyList(),
+                errors = listOf(
+                    UnexpectedInputMessage("invalid line", 2, 0),
+                ),
+            ),
+            serializer.deserializeToCellState(
+                """
+                |#Life 1.06
+                |invalid line
+                """.trimMargin().lineSequence(),
+            ),
+        )
+    }
 }
