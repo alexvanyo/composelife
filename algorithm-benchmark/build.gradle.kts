@@ -37,7 +37,12 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
-        testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] = "EMULATOR,UNLOCKED,NOT-AOT-COMPILED"
+        // Built-in test platform in AGP splits runner arguments on commas in android-test-engine <= 1.0.7.
+        // Avoid commas by passing individual arguments rather than a comma-separated list to suppressErrors.
+        // Safe to consolidate back to suppressErrors once AGP updates its bundled android-test-engine to >= 1.0.8.
+        testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] = "EMULATOR"
+        testInstrumentationRunnerArguments["androidx.benchmark.requireAot"] = "false"
+        testInstrumentationRunnerArguments["androidx.benchmark.requireLockedClocks"] = "false"
     }
     testBuildType = "staging"
     configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
