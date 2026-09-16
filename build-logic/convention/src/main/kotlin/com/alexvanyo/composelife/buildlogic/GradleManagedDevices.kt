@@ -24,7 +24,7 @@ import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
 import com.android.build.api.dsl.ManagedDevices
 import com.android.build.api.dsl.ManagedVirtualDevice
 import com.android.build.gradle.internal.tasks.ManagedDeviceInstrumentationTestSetupTask
-import com.android.build.gradle.internal.tasks.ManagedDeviceInstrumentationTestTask
+import com.android.build.gradle.tasks.TestSuiteTestTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
@@ -243,7 +243,7 @@ private fun Project.configureManagedDevices(
 private fun Project.configureRelatedGradleManagedDevices() {
     if (OperatingSystem.current().isLinux) {
         tasks
-            .withType(ManagedDeviceInstrumentationTestTask::class.java)
+            .withType(TestSuiteTestTask::class.java)
             .whenTaskAdded {
                 val id = path
                 finalizedBy(
@@ -266,7 +266,7 @@ private fun Project.configureRelatedGradleManagedDevices() {
                     .map { value -> value.toIntOrNull() ?: 1 },
             )
         }
-    tasks.withType(ManagedDeviceInstrumentationTestTask::class.java).configureEach {
+    tasks.withType(TestSuiteTestTask::class.java).configureEach {
         usesService(runningLimitingService)
     }
     tasks.withType(ManagedDeviceInstrumentationTestSetupTask::class.java).configureEach {
