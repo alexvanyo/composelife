@@ -127,7 +127,6 @@ kotlin {
                 implementation(projects.testActivity)
                 implementation(projects.tracingTestFixtures)
                 implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.molecule)
                 implementation(libs.turbine)
             }
         }

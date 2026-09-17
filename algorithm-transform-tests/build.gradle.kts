@@ -60,9 +60,8 @@ kotlin {
                 implementation(projects.dispatchersTestFixtures)
                 implementation(projects.patterns)
                 implementation(projects.tracingTestFixtures)
+                implementation(libs.androidx.appstate.transform)
                 implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.molecule)
-                implementation(libs.turbine)
             }
         }
     }
