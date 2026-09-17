@@ -113,3 +113,14 @@ kotlin {
         }
     }
 }
+
+val verifyLean by tasks.registering(Exec::class) {
+    description = "Formally verifies session-value logic using Lean 4"
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    workingDir = file("lean")
+    commandLine("lake", "build")
+}
+
+tasks.named("check") {
+    dependsOn(verifyLean)
+}
