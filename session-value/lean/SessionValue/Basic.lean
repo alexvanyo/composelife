@@ -20,6 +20,8 @@ namespace SessionValue
 def Uuid := Nat
 deriving DecidableEq, Repr, Inhabited
 
+instance (n : Nat) : OfNat Uuid n := ⟨n⟩
+
 /--
 An object representing a specific session for `value`.
 This `value` is from the given `sessionId`, and has the associated `valueId`.
