@@ -1,5 +1,5 @@
-/-
- * Copyright 2024 The Android Open Source Project
+/*
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,12 +12,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- -/
+ */
 
-import SessionValue.Basic
-import SessionValue.StateMachine
-import SessionValue.Mapping
-import SessionValue.AsyncBatching
-import SessionValue.Properties
-import SessionValue.Mutations
-import SessionValue.Bridge
+package com.alexvanyo.composelife.sessionvalue.lean
+
+/**
+ * Snapshot of the state machine state in Lean 4.
+ */
+data class LeanSnapshot(
+    val exposedSessionId: Long,
+    val exposedValueId: Long,
+    val exposedValue: String,
+    val isLocalSessionActive: Boolean,
+    val localSessionId: Long,
+    val preLocalSessionId: Long,
+    val isUpstreamUpToDate: Boolean,
+    val lastExpectedSessionId: Long,
+    val lastExpectedValueId: Long,
+)
