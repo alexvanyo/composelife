@@ -41,7 +41,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class TemporalGameOfLifeStateMoleculeTests {
+class TemporalGameOfLifeStateTransformTests {
     private val testDispatcher = StandardTestDispatcher()
 
     private val dispatchers =

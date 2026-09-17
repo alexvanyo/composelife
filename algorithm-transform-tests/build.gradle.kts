@@ -31,7 +31,7 @@ plugins {
 
 kotlin {
     androidLibrary {
-        namespace = "com.alexvanyo.composelife.algorithmmoleculetests"
+        namespace = "com.alexvanyo.composelife.algorithmtransformtests"
         minSdk = 24
         configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
         androidResources { enable = true }
