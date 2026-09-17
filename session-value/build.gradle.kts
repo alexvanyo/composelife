@@ -83,6 +83,7 @@ kotlin {
                 implementation(projects.kmpStateRestorationTester)
                 implementation(projects.testActivity)
                 implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.kotlinx.serialization.json)
                 implementation(libs.molecule)
                 implementation(libs.turbine)
             }
@@ -122,5 +123,9 @@ val verifyLean by tasks.registering(Exec::class) {
 }
 
 tasks.named("check") {
+    dependsOn(verifyLean)
+}
+
+tasks.named("desktopTest") {
     dependsOn(verifyLean)
 }
