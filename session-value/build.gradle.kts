@@ -82,9 +82,8 @@ kotlin {
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
                 implementation(projects.testActivity)
+                implementation(libs.androidx.appstate.transform)
                 implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.molecule)
-                implementation(libs.turbine)
             }
         }
         val jvmTest by creating {

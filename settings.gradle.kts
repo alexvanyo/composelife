@@ -37,6 +37,11 @@ dependencyResolutionManagement {
                 includeModule("com.android.tools", "r8")
             }
         }
+        maven(url = "https://androidx.dev/snapshots/builds/16366130/artifacts/repository") {
+            content {
+                includeGroup("androidx.appstate.transform")
+            }
+        }
         google()
         mavenCentral()
     }
