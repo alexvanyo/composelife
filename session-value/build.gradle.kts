@@ -17,6 +17,7 @@
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
 import com.android.build.api.dsl.KotlinMultiplatformAndroidDeviceTestCompilation
+import com.dshatz.kni.bundlesPrebuiltNatives
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import kotlin.jvm.java
 
@@ -28,8 +29,55 @@ plugins {
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
+    alias(libs.plugins.kni)
     kotlin("plugin.serialization") version libs.versions.kotlin
     alias(libs.plugins.gradleDependenciesSorter)
+}
+
+val leanPrefixProvider = providers.exec {
+    commandLine("lean", "--print-prefix")
+}.standardOutput.asText.map { it.trim() }
+
+val javaHomeProvider = providers.environmentVariable("JAVA_HOME")
+    .filter { it.isNotBlank() }
+    .orElse(providers.systemProperty("java.home"))
+
+val verifyLean by tasks.registering(Exec::class) {
+    description = "Formally verifies session-value logic using Lean 4"
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    workingDir = file("lean")
+    commandLine("lake", "build", "SessionValue:static")
+}
+
+val buildSessionValueLeanSharedLibrary by tasks.registering(Exec::class) {
+    description = "Compiles JNI shared library for Lean session-value state machine"
+    group = LifecycleBasePlugin.BUILD_GROUP
+    dependsOn(verifyLean)
+    workingDir = file("lean")
+    val outputDir = layout.buildDirectory.dir("natives/linuxX64")
+    outputs.dir(outputDir)
+    doFirst {
+        outputDir.get().asFile.mkdirs()
+    }
+    val javaHome = javaHomeProvider.get()
+    val leanPrefix = leanPrefixProvider.get()
+    commandLine(
+        "clang",
+        "-shared",
+        "-fPIC",
+        "c/session_value_bridge.c",
+        ".lake/build/lib/libSessionValue_SessionValue.a",
+        "-I$javaHome/include",
+        "-I$javaHome/include/linux",
+        "-I$javaHome/include/darwin",
+        "-I$leanPrefix/include",
+        "-L$leanPrefix/lib/lean",
+        "-L$leanPrefix/lib",
+        "-lleanshared",
+        "-Wl,-rpath,$leanPrefix/lib/lean",
+        "-o",
+        outputDir.get().file("libsessionvalue_lean.so").asFile.absolutePath,
+    )
 }
 
 kotlin {
@@ -38,7 +86,13 @@ kotlin {
         minSdk = 24
         configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
     }
-    jvm("desktop")
+
+    jvm("desktop") {
+        bundlesPrebuiltNatives {
+            linuxX64.add(layout.buildDirectory.dir("natives/linuxX64"))
+        }
+    }
+
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser {
@@ -100,6 +154,9 @@ kotlin {
         }
         val desktopTest by getting {
             dependsOn(jbTest)
+            dependencies {
+                implementation(libs.kni.jni)
+            }
         }
         val androidSharedTest by getting {
             dependsOn(jbTest)
@@ -116,11 +173,8 @@ kotlin {
     }
 }
 
-val verifyLean by tasks.registering(Exec::class) {
-    description = "Formally verifies session-value logic using Lean 4"
-    group = LifecycleBasePlugin.VERIFICATION_GROUP
-    workingDir = file("lean")
-    commandLine("lake", "build")
+tasks.named("collectPrebuiltLibsJvm") {
+    dependsOn(buildSessionValueLeanSharedLibrary)
 }
 
 tasks.named("check") {
