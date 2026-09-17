@@ -16,13 +16,16 @@
 
 package com.alexvanyo.composelife.sessionvalue
 
+import kotlinx.io.Sink
+import kotlinx.io.Source
+import kotlinx.io.asSink
+import kotlinx.io.asSource
+import kotlinx.io.buffered
+import kotlinx.io.readLine
+import kotlinx.io.writeString
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import java.io.BufferedReader
-import java.io.BufferedWriter
 import java.io.File
-import java.io.InputStreamReader
-import java.io.OutputStreamWriter
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -45,8 +48,8 @@ private fun Uuid.toLeanId(): Long = this.toLongs { _, lsb -> lsb }
 class SessionValueLeanConformanceTests {
 
     private lateinit var oracleProcess: Process
-    private lateinit var reader: BufferedReader
-    private lateinit var writer: BufferedWriter
+    private lateinit var source: Source
+    private lateinit var sink: Sink
 
     private val json = Json { ignoreUnknownKeys = true }
 
@@ -96,15 +99,17 @@ class SessionValueLeanConformanceTests {
         }
 
         oracleProcess = ProcessBuilder(oracleBinary.absolutePath).start()
-        reader = BufferedReader(InputStreamReader(oracleProcess.inputStream))
-        writer = BufferedWriter(OutputStreamWriter(oracleProcess.outputStream))
+        source = oracleProcess.inputStream.asSource().buffered()
+        sink = oracleProcess.outputStream.asSink().buffered()
     }
 
     @AfterTest
     fun tearDown() {
         try {
-            writer.write("${OracleCommand.Exit.toCommandLine()}\n")
-            writer.flush()
+            sink.writeString("${OracleCommand.Exit.toCommandLine()}\n")
+            sink.flush()
+            sink.close()
+            source.close()
         } catch (_: Exception) {
             // Process may have already exited
         }
@@ -112,9 +117,9 @@ class SessionValueLeanConformanceTests {
     }
 
     private fun sendCommand(command: OracleCommand): LeanSnapshot {
-        writer.write("${command.toCommandLine()}\n")
-        writer.flush()
-        val line = reader.readLine()
+        sink.writeString("${command.toCommandLine()}\n")
+        sink.flush()
+        val line = source.readLine()
         assertNotNull(line, "Oracle process terminated unexpectedly")
         return json.decodeFromString<LeanSnapshot>(line)
     }
