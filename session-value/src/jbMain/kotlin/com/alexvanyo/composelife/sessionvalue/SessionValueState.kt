@@ -27,7 +27,7 @@ import kotlin.uuid.Uuid
  */
 @Immutable
 @Serializable
-data class SessionValueState<out T>(
+internal data class SessionValueState<T>(
     val upstreamSessionIdBeforeLocalSession: Uuid,
     val upstreamSessionValue: SessionValue<T>,
     val localSessionId: Uuid,
@@ -57,48 +57,48 @@ data class SessionValueState<out T>(
                     )
                 }
             }
+}
 
-    fun stepSetValue(
-        value: @UnsafeVariance T,
-        valueId: Uuid = Uuid.random(),
-    ): Pair<SessionValueState<T>, Pair<SessionValue<T>, SessionValue<T>>> {
-        val expected = sessionValue
-        val newLocalVal = SessionValue(
-            sessionId = localSessionId,
-            valueId = valueId,
-            value = value,
-        )
-        val nextState = copy(localSessionValue = newLocalVal)
-        return nextState to (expected to newLocalVal)
+internal fun <T> SessionValueState<T>.stepSetValue(
+    value: T,
+    valueId: Uuid = Uuid.random(),
+): Pair<SessionValueState<T>, Pair<SessionValue<T>, SessionValue<T>>> {
+    val expected = sessionValue
+    val newLocalVal = SessionValue(
+        sessionId = localSessionId,
+        valueId = valueId,
+        value = value,
+    )
+    val nextState = copy(localSessionValue = newLocalVal)
+    return nextState to (expected to newLocalVal)
+}
+
+internal fun <T> SessionValueState<T>.stepSetValueFromUpstream(
+    newUpstreamSessionValue: SessionValue<T>,
+    freshLocalSessionId: Uuid = Uuid.random(),
+): SessionValueState<T> {
+    val hasSessionValueChanged =
+        newUpstreamSessionValue.sessionId != upstreamSessionValue.sessionId ||
+            newUpstreamSessionValue.valueId != upstreamSessionValue.valueId
+
+    if (!hasSessionValueChanged) {
+        return this
     }
 
-    fun stepSetValueFromUpstream(
-        newUpstreamSessionValue: SessionValue<@UnsafeVariance T>,
-        freshLocalSessionId: Uuid = Uuid.random(),
-    ): SessionValueState<T> {
-        val hasSessionValueChanged =
-            newUpstreamSessionValue.sessionId != upstreamSessionValue.sessionId ||
-                newUpstreamSessionValue.valueId != upstreamSessionValue.valueId
-
-        if (!hasSessionValueChanged) {
-            return this
+    val isDifferentSession = newUpstreamSessionValue.sessionId != localSessionValue?.sessionId
+    val nextLocalSessionId = if (isDifferentSession) freshLocalSessionId else localSessionId
+    val nextLocalSessionValue = if (isDifferentSession) null else localSessionValue
+    val nextUpstreamBefore =
+        if (nextLocalSessionId != newUpstreamSessionValue.sessionId) {
+            newUpstreamSessionValue.sessionId
+        } else {
+            upstreamSessionIdBeforeLocalSession
         }
 
-        val isDifferentSession = newUpstreamSessionValue.sessionId != localSessionValue?.sessionId
-        val nextLocalSessionId = if (isDifferentSession) freshLocalSessionId else localSessionId
-        val nextLocalSessionValue = if (isDifferentSession) null else localSessionValue
-        val nextUpstreamBefore =
-            if (nextLocalSessionId != newUpstreamSessionValue.sessionId) {
-                newUpstreamSessionValue.sessionId
-            } else {
-                upstreamSessionIdBeforeLocalSession
-            }
-
-        return SessionValueState(
-            upstreamSessionIdBeforeLocalSession = nextUpstreamBefore,
-            upstreamSessionValue = newUpstreamSessionValue,
-            localSessionId = nextLocalSessionId,
-            localSessionValue = nextLocalSessionValue,
-        )
-    }
+    return SessionValueState(
+        upstreamSessionIdBeforeLocalSession = nextUpstreamBefore,
+        upstreamSessionValue = newUpstreamSessionValue,
+        localSessionId = nextLocalSessionId,
+        localSessionValue = nextLocalSessionValue,
+    )
 }
