@@ -85,6 +85,8 @@ guavaAndroid = "32.1.3-android"
 keeper = "0.16.1"
 #kermit
 kermit = "2.2.0"
+#kni
+kni = "2.3.0-beta01"
 #kotlin
 kotlin = "2.4.0"
 #kotlinPoet
@@ -267,6 +269,8 @@ junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junit5" }
 keeper-gradlePlugin = { group = "com.slack.keeper", name = "keeper", version.ref = "keeper" }
 kermit = { group = "co.touchlab", name = "kermit", version.ref = "kermit" }
+kni-gradlePlugin = { group = "com.dshatz.kni", name = "com.dshatz.kni.gradle.plugin", version.ref = "kni" }
+kni-jni = { group = "com.dshatz.kni", name = "jni", version.ref = "kni" }
 kotlin-composeCompilerGradlePlugin = { group = "org.jetbrains.kotlin", name = "compose-compiler-gradle-plugin", version.ref = "kotlin" }
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit", version.ref = "kotlin" }
@@ -345,6 +349,7 @@ compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }
 gradleDependenciesSorter = { id = "com.squareup.sort-dependencies", version.ref = "gradleDependenciesSorter" }
 keeper = { id = "com.slack.keeper" }
+kni = { id = "com.dshatz.kni", version.ref = "kni" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 metro = { id = "dev.zacsweers.metro", version.ref = "metro" }
 roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }

@@ -1,10 +1,6 @@
 name = "SessionValue"
 version = "0.1.0"
-defaultTargets = ["SessionValue", "SessionValueOracle"]
+defaultTargets = ["SessionValue"]
 
 [[lean_lib]]
 name = "SessionValue"
-
-[[lean_exe]]
-name = "SessionValueOracle"
-root = "SessionValue.Oracle"
