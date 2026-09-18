@@ -1,0 +1,6 @@
+name = "Algorithm"
+version = "0.1.0"
+defaultTargets = ["Algorithm"]
+
+[[lean_lib]]
+name = "Algorithm"
