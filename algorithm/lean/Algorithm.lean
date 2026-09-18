@@ -19,4 +19,5 @@ import Algorithm.BitComputation
 import Algorithm.Patterns
 import Algorithm.Properties
 import Algorithm.MacroCell
+import Algorithm.MacroCellHash
 import Algorithm.Bridge
