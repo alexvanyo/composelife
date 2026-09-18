@@ -416,4 +416,100 @@ theorem se_quadrant_contains_all_moore_neighbors :
   centerSE.all (fun c => (mooreNeighbors c).all seQuadrantCoords.contains) = true := by
   decide
 
+-- =========================================================================
+-- Optimized 8x8 Computation and Equivalence Proof
+-- =========================================================================
+
+def extractCenter (q : Nat) : Nat :=
+  boolToNat (testBit q 3) +
+  boolToNat (testBit q 6) * 2 +
+  boolToNat (testBit q 9) * 4 +
+  boolToNat (testBit q 12) * 8
+
+def extractHorizontalMid (leftQuad rightQuad : Nat) : Nat :=
+  boolToNat (testBit leftQuad 7) +
+  boolToNat (testBit rightQuad 2) * 2 +
+  boolToNat (testBit leftQuad 13) * 4 +
+  boolToNat (testBit rightQuad 8) * 8
+
+def extractVerticalMid (topQuad bottomQuad : Nat) : Nat :=
+  boolToNat (testBit topQuad 11) +
+  boolToNat (testBit topQuad 14) * 2 +
+  boolToNat (testBit bottomQuad 1) * 4 +
+  boolToNat (testBit bottomQuad 4) * 8
+
+def extractCenterMid (q0 q1 q2 q3 : Nat) : Nat :=
+  boolToNat (testBit q0 15) +
+  boolToNat (testBit q1 10) * 2 +
+  boolToNat (testBit q2 5) * 4 +
+  boolToNat (testBit q3 0) * 8
+
+def quad0 (w : Nat) : Nat := shiftRight w 0
+def quad1 (w : Nat) : Nat := shiftRight w 16
+def quad2 (w : Nat) : Nat := shiftRight w 32
+def quad3 (w : Nat) : Nat := shiftRight w 48
+
+/--
+Optimized 8x8 next generation computation reflecting the 32-bit quadrant decomposed implementation.
+-/
+def computeLeafNextGen8x8Fast (w : Nat) : Nat :=
+  let q0 := quad0 w
+  let q1 := quad1 w
+  let q2 := quad2 w
+  let q3 := quad3 w
+
+  let n00 := extractCenter q0
+  let n02 := extractCenter q1
+  let n20 := extractCenter q2
+  let n22 := extractCenter q3
+
+  let n01 := extractHorizontalMid q0 q1
+  let n21 := extractHorizontalMid q2 q3
+
+  let n10 := extractVerticalMid q0 q2
+  let n12 := extractVerticalMid q1 q3
+
+  let n11 := extractCenterMid q0 q1 q2 q3
+
+  let nw := computeNextGen4x4 (n00 + n01 * 16 + n10 * 256 + n11 * 4096)
+  let ne := computeNextGen4x4 (n01 + n02 * 16 + n11 * 256 + n12 * 4096)
+  let sw := computeNextGen4x4 (n10 + n11 * 16 + n20 * 256 + n21 * 4096)
+  let se := computeNextGen4x4 (n11 + n12 * 16 + n21 * 256 + n22 * 4096)
+
+  nw + ne * 16 + sw * 256 + se * 4096
+
+/--
+Theorem: The optimized computeLeafNextGen8x8Fast is definitionally equivalent
+to computeLeafNextGen8x8 for ALL inputs w.
+-/
+theorem computeLeafNextGen8x8Fast_eq_computeLeafNextGen8x8 (w : Nat) :
+  computeLeafNextGen8x8Fast w = computeLeafNextGen8x8 w := by
+  rfl
+
+/--
+Branching 8x8 computation with 0-short-circuiting matching Kotlin's fast path.
+-/
+def computeLeafNextGen8x8Branch (w : Nat) : Nat :=
+  if w == 0 then 0 else computeLeafNextGen8x8Fast w
+
+/--
+Theorem: For input 0 (empty leaf), computeLeafNextGen8x8Fast evaluates to 0.
+-/
+theorem computeLeafNextGen8x8Fast_zero : computeLeafNextGen8x8Fast 0 = 0 := by
+  rfl
+
+/--
+Theorem: The branching fast-path implementation is mathematically equivalent
+to computeLeafNextGen8x8 for ALL inputs w.
+-/
+theorem computeLeafNextGen8x8Branch_eq_computeLeafNextGen8x8 (w : Nat) :
+  computeLeafNextGen8x8Branch w = computeLeafNextGen8x8 w := by
+  unfold computeLeafNextGen8x8Branch
+  split
+  · rename_i h
+    have heq : w = 0 := of_decide_eq_true h
+    rw [heq]
+    rfl
+  · exact computeLeafNextGen8x8Fast_eq_computeLeafNextGen8x8 w
+
 end Algorithm

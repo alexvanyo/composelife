@@ -44,61 +44,77 @@ internal inline fun Int.computeNextGeneration(): Int {
 }
 
 /**
- * Computes the 4x4 [Int] next generation for the given 8x8 64-bit Morton leaf node in its center.
+ * A 64 KB lookup table mapping any 16-bit 4x4 grid in Morton order to its next generation 2x2 center (4 bits).
  *
- * TODO: Fully inline this, to avoid as much shifting as possible.
+ * This precomputes Conway's Game of Life transition rule for all 65,536 possible 4x4 neighborhood states,
+ * replacing runtime neighbor counting and bitwise branching with a single L1 data cache array load.
  */
-internal fun Long.computeLeafNextGeneration(): Int {
-    val n00 =
-        ((this and (1L shl 0x03)) ushr (0x03)) or
-            ((this and (1L shl 0x06)) ushr (0x06 - 1)) or
-            ((this and (1L shl 0x09)) ushr (0x09 - 2)) or
-            ((this and (1L shl 0x0C)) ushr (0x0C - 3))
-    val n01 =
-        ((this and (1L shl 0x07)) ushr (0x07)) or
-            ((this and (1L shl 0x12)) ushr (0x12 - 1)) or
-            ((this and (1L shl 0x0D)) ushr (0x0D - 2)) or
-            ((this and (1L shl 0x18)) ushr (0x18 - 3))
-    val n02 =
-        ((this and (1L shl 0x13)) ushr (0x13)) or
-            ((this and (1L shl 0x16)) ushr (0x16 - 1)) or
-            ((this and (1L shl 0x19)) ushr (0x19 - 2)) or
-            ((this and (1L shl 0x1C)) ushr (0x1C - 3))
-    val n10 =
-        ((this and (1L shl 0x0B)) ushr (0x0B)) or
-            ((this and (1L shl 0x0E)) ushr (0x0E - 1)) or
-            ((this and (1L shl 0x21)) ushr (0x21 - 2)) or
-            ((this and (1L shl 0x24)) ushr (0x24 - 3))
-    val n11 =
-        ((this and (1L shl 0x0F)) ushr (0x0F)) or
-            ((this and (1L shl 0x1A)) ushr (0x1A - 1)) or
-            ((this and (1L shl 0x25)) ushr (0x25 - 2)) or
-            ((this and (1L shl 0x30)) ushr (0x30 - 3))
-    val n12 =
-        ((this and (1L shl 0x1B)) ushr (0x1B)) or
-            ((this and (1L shl 0x1E)) ushr (0x1E - 1)) or
-            ((this and (1L shl 0x31)) ushr (0x31 - 2)) or
-            ((this and (1L shl 0x34)) ushr (0x34 - 3))
-    val n20 =
-        ((this and (1L shl 0x23)) ushr (0x23)) or
-            ((this and (1L shl 0x26)) ushr (0x26 - 1)) or
-            ((this and (1L shl 0x29)) ushr (0x29 - 2)) or
-            ((this and (1L shl 0x2C)) ushr (0x2C - 3))
-    val n21 =
-        ((this and (1L shl 0x27)) ushr (0x27)) or
-            ((this and (1L shl 0x32)) ushr (0x32 - 1)) or
-            ((this and (1L shl 0x2D)) ushr (0x2D - 2)) or
-            ((this and (1L shl 0x38)) ushr (0x38 - 3))
-    val n22 =
-        ((this and (1L shl 0x33)) ushr (0x33)) or
-            ((this and (1L shl 0x36)) ushr (0x36 - 1)) or
-            ((this and (1L shl 0x39)) ushr (0x39 - 2)) or
-            ((this and (1L shl 0x3C)) ushr (0x3C - 3))
+private val NEXT_GEN_4X4_LUT = ByteArray(65536) { it.computeNextGeneration().toByte() }
 
-    val nw = (n00 or (n01 shl 4) or (n10 shl 8) or (n11 shl 12)).toInt().computeNextGeneration()
-    val ne = (n01 or (n02 shl 4) or (n11 shl 8) or (n12 shl 12)).toInt().computeNextGeneration()
-    val sw = (n10 or (n11 shl 4) or (n20 shl 8) or (n21 shl 12)).toInt().computeNextGeneration()
-    val se = (n11 or (n12 shl 4) or (n21 shl 8) or (n22 shl 12)).toInt().computeNextGeneration()
+/**
+ * A 256 KB lookup table indexed by a 16-bit 4x4 quadrant (`0..65535`) in Morton order.
+ *
+ * Pre-extracts and packs the sub-components of the quadrant into a single 32-bit [Int] to accelerate assembling
+ * the four overlapping 4x4 subnodes (`subNW`, `subNE`, `subSW`, `subSE`) needed by [computeLeafNextGeneration]:
+ * - Bits 0..3: `center` (2x2 center cells of the quadrant).
+ * - Bits 4..7: `right` (vertical edge cells at the right border of the quadrant, aligned for horizontal neighbors).
+ * - Bits 8..11: `left` (vertical edge cells at the left border of the quadrant, aligned for horizontal neighbors).
+ * - Bits 12..15: `bottom` (horizontal edge cells at the bottom border of the quadrant, aligned for vertical neighbors).
+ * - Bits 16..19: `top` (horizontal edge cells at the top border of the quadrant, aligned for vertical neighbors).
+ * - Bits 20..23: `corner` (corner cells needed by the diagonally adjacent quadrant).
+ *
+ * Looking up each quadrant in this table replaces over 40 individual bit shifts and masks with 4 array loads.
+ */
+private val QUAD_INFO_LUT = IntArray(65536) { q ->
+    val c = q ushr 3
+    val center = (c and 1) or ((c ushr 2) and 2) or ((c ushr 4) and 4) or ((c ushr 6) and 8)
+    val right = ((q ushr 7) and 1) or (((q ushr 13) and 1) shl 2)
+    val left = (((q ushr 2) and 1) shl 1) or (((q ushr 8) and 1) shl 3)
+    val bottom = ((q ushr 11) and 1) or (((q ushr 14) and 1) shl 1)
+    val top = (((q ushr 1) and 1) shl 2) or (((q ushr 4) and 1) shl 3)
+    val corner = ((q ushr 15) and 1) or (((q ushr 10) and 1) shl 1) or (((q ushr 5) and 1) shl 2) or ((q and 1) shl 3)
+
+    center or (right shl 4) or (left shl 8) or (bottom shl 12) or (top shl 16) or (corner shl 20)
+}
+
+/**
+ * Computes the 4x4 [Int] next generation for the given 8x8 64-bit Morton leaf node in its center.
+ */
+fun Long.computeLeafNextGeneration(): Int {
+    if (this == 0L) return 0
+
+    val q0 = (this and 0xFFFFL).toInt()
+    val q1 = ((this ushr 16) and 0xFFFFL).toInt()
+    val q2 = ((this ushr 32) and 0xFFFFL).toInt()
+    val q3 = (this ushr 48).toInt()
+
+    val quadLut = QUAD_INFO_LUT
+    val info0 = quadLut[q0]
+    val info1 = quadLut[q1]
+    val info2 = quadLut[q2]
+    val info3 = quadLut[q3]
+
+    val n00 = info0 and 0xF
+    val n02 = info1 and 0xF
+    val n20 = info2 and 0xF
+    val n22 = info3 and 0xF
+
+    val n01 = ((info0 ushr 4) and 0x5) or ((info1 ushr 8) and 0xA)
+    val n21 = ((info2 ushr 4) and 0x5) or ((info3 ushr 8) and 0xA)
+
+    val n10 = ((info0 ushr 12) and 0x3) or ((info2 ushr 16) and 0xC)
+    val n12 = ((info1 ushr 12) and 0x3) or ((info3 ushr 16) and 0xC)
+
+    val n11 = ((info0 ushr 20) and 1) or
+        ((info1 ushr 20) and 2) or
+        ((info2 ushr 20) and 4) or
+        ((info3 ushr 20) and 8)
+
+    val lut = NEXT_GEN_4X4_LUT
+    val nw = lut[n00 or (n01 shl 4) or (n10 shl 8) or (n11 shl 12)].toInt()
+    val ne = lut[n01 or (n02 shl 4) or (n11 shl 8) or (n12 shl 12)].toInt()
+    val sw = lut[n10 or (n11 shl 4) or (n20 shl 8) or (n21 shl 12)].toInt()
+    val se = lut[n11 or (n12 shl 4) or (n21 shl 8) or (n22 shl 12)].toInt()
 
     return nw or (ne shl 4) or (sw shl 8) or (se shl 12)
 }
