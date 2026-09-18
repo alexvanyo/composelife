@@ -75,19 +75,19 @@ internal sealed interface MacroCell {
 
         /**
          * Memoize the hashcode.
-         *
-         * TODO: Is there a better hashcode function?
          */
         private val hashCode =
             run {
-                var hash = nw.hashCode()
-                hash *= 31
-                hash += ne.hashCode()
-                hash *= 31
-                hash += sw.hashCode()
-                hash *= 31
-                hash += se.hashCode()
-                hash
+                // Multi-linear universal hash across the 4 64-bit quadrants with distinct primes,
+                // followed by Stafford's Mix13 / MurmurHash3 64-bit mixer for complete bit avalanche.
+                var h = 0x243F6A8885A308D3L +
+                    (nw * -0x61c8864680b583ebL) +
+                    (ne * -0x40a7b892e31b1a47L) +
+                    (sw * -0x6b2fb644ecceee15L) +
+                    (se * -0x662d04944d150cb1L)
+                h = (h xor (h ushr 30)) * -0x40a7b892e31b1a47L
+                h = (h xor (h ushr 27)) * -0x6b2fb644ecceee15L
+                (h xor (h ushr 31)).toInt()
             }
 
         override fun hashCode(): Int = hashCode
@@ -109,21 +109,19 @@ internal sealed interface MacroCell {
 
         /**
          * Memoize the hashcode.
-         *
-         * TODO: Is there a better hashcode function?
          */
         private val hashCode =
             run {
-                var hash = level
-                hash *= 31
-                hash += nw.hashCode()
-                hash *= 31
-                hash += ne.hashCode()
-                hash *= 31
-                hash += sw.hashCode()
-                hash *= 31
-                hash += se.hashCode()
-                hash
+                // Multi-linear universal hash across level and the 4 child hashes with distinct primes,
+                // followed by MurmurHash3 fmix32 for complete bit avalanche.
+                var h = (level * -0x61c8864f) +
+                    (nw.hashCode() * -0x7a143589) +
+                    (ne.hashCode() * -0x3d4d51c3) +
+                    (sw.hashCode() * 0x27D4EB2F) +
+                    (se.hashCode() * 0x165667B1)
+                h = (h xor (h ushr 16)) * -0x7a143595
+                h = (h xor (h ushr 13)) * -0x3d4d51cb
+                h xor (h ushr 16)
             }
 
         override fun hashCode(): Int = hashCode
