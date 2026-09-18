@@ -25,7 +25,7 @@ def oracleStep4x4Bits (bits : Nat) : Nat :=
 
 @[export algorithm_step_leaf_bits]
 def oracleStepLeafBits (bits : Nat) : Nat :=
-  computeLeafNextGen8x8 bits
+  computeLeafNextGen8x8Branch bits
 
 @[export algorithm_step_coords]
 def oracleStepCoords (coords : Array (Int × Int)) (steps : Nat) : Array (Int × Int) :=

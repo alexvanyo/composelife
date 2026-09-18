@@ -70,7 +70,7 @@ class HashLifeLeanConformanceTests {
     @Test
     fun hashlife_leaf_fuzz_differential() {
         val random = Random(42)
-        repeat(500) {
+        repeat(1000) {
             val bits = random.nextLong()
             val kotlinResult = bits.computeLeafNextGeneration()
             val leanResult = oracle.stepLeafBits(bits)
