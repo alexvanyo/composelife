@@ -22,6 +22,7 @@
 extern lean_object* initialize_Algorithm_Algorithm_Bridge(uint8_t builtin);
 void lean_initialize_runtime_module(void);
 extern lean_object* algorithm_step_coords(lean_object* coords, lean_object* steps);
+extern lean_object* algorithm_step_4x4_bits(lean_object* bits);
 
 static bool g_lean_runtime_initialized = false;
 
@@ -36,6 +37,14 @@ void lean_algorithm_init_runtime(void) {
     }
     lean_io_mark_end_initialization();
     g_lean_runtime_initialized = true;
+}
+
+uint16_t lean_algorithm_step_4x4_bits(uint16_t bits) {
+    lean_algorithm_init_runtime();
+    lean_object* bits_obj = lean_uint64_to_nat((uint64_t)bits);
+    lean_object* res_obj = algorithm_step_4x4_bits(bits_obj);
+    uint16_t res = (uint16_t)lean_uint64_of_nat_mk(res_obj);
+    return res;
 }
 
 int32_t lean_algorithm_step(
