@@ -56,6 +56,8 @@ val compileSessionValueBridgeCObject by tasks.registering(Exec::class) {
     group = LifecycleBasePlugin.BUILD_GROUP
     dependsOn(verifyLean)
     workingDir = file("lean")
+    inputs.file(file("lean/c/session_value_bridge.c"))
+    inputs.file(file("lean/c/session_value_bridge.h"))
     val outputFile = layout.buildDirectory.file("natives/c/session_value_bridge.o")
     outputs.file(outputFile)
     doFirst {
