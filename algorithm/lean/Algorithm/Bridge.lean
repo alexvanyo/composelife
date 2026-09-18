@@ -23,6 +23,10 @@ namespace Algorithm
 def oracleStep4x4Bits (bits : Nat) : Nat :=
   computeNextGen4x4 bits
 
+@[export algorithm_step_leaf_bits]
+def oracleStepLeafBits (bits : Nat) : Nat :=
+  computeLeafNextGen8x8 bits
+
 @[export algorithm_step_coords]
 def oracleStepCoords (coords : Array (Int × Int)) (steps : Nat) : Array (Int × Int) :=
   let inputList := coords.toList
