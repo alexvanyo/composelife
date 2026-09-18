@@ -37,6 +37,11 @@ dependencyResolutionManagement {
                 includeModule("com.android.tools", "r8")
             }
         }
+        maven(url = "https://androidx.dev/snapshots/builds/16366130/artifacts/repository") {
+            content {
+                includeGroup("androidx.appstate.transform")
+            }
+        }
         google()
         mavenCentral()
     }
@@ -62,8 +67,8 @@ develocity {
 rootProject.name = "ComposeLife"
 include(":algorithm")
 include(":algorithm-benchmark")
-include(":algorithm-molecule-tests")
 include(":algorithm-test-resources")
+include(":algorithm-transform-tests")
 include(":android-application")
 include(":app")
 include(":app-baseline-profile-generator")

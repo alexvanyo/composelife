@@ -16,12 +16,9 @@
 
 package com.alexvanyo.composelife.timeutil
 
-import androidx.compose.runtime.BroadcastFrameClock
-import app.cash.molecule.RecompositionMode
-import app.cash.molecule.moleculeFlow
-import app.cash.turbine.test
+import androidx.appstate.transform.transform
+import androidx.compose.runtime.snapshots.Snapshot
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runCurrent
@@ -46,7 +43,6 @@ class PeriodUntilComposableTests {
     private var now = start
     private val testScheduler = TestCoroutineScheduler()
     private val testDispatcher = StandardTestDispatcher(testScheduler)
-    private val broadcastFrameClock = BroadcastFrameClock()
     private var nowInvokedCount = 0
 
     private val clock = object : Clock {
@@ -56,224 +52,222 @@ class PeriodUntilComposableTests {
     private fun advanceTimeBy(duration: Duration) {
         now += duration
         testScheduler.advanceTimeBy(duration)
+        testScheduler.runCurrent()
+        Snapshot.sendApplyNotifications()
+        testScheduler.runCurrent()
     }
 
     @Test
-    fun period_until_time_based() = runTest(testDispatcher + broadcastFrameClock) {
-        moleculeFlow(RecompositionMode.ContextClock) {
+    fun period_until_time_based() = runTest(testDispatcher) {
+        val state = transform(
+            initialValue = DateTimePeriod(),
+            scope = backgroundScope,
+            dispatcher = testDispatcher,
+        ) {
             start.periodUntil(
                 clock = clock,
                 unit = DateTimeUnit.SECOND,
             )
         }
-            .distinctUntilChanged()
-            .test {
-                assertEquals(DateTimePeriod(), awaitItem())
-                assertEquals(2, nowInvokedCount)
+        runCurrent()
 
-                advanceTimeBy(500.milliseconds)
-                runCurrent()
-                broadcastFrameClock.sendFrame((now - start).inWholeNanoseconds)
+        assertEquals(DateTimePeriod(), state.value)
+        assertEquals(2, nowInvokedCount)
 
-                expectNoEvents()
-                assertEquals(2, nowInvokedCount)
+        advanceTimeBy(500.milliseconds)
+        runCurrent()
 
-                advanceTimeBy(500.milliseconds)
-                runCurrent()
-                broadcastFrameClock.sendFrame((now - start).inWholeNanoseconds)
+        assertEquals(DateTimePeriod(), state.value)
+        assertEquals(2, nowInvokedCount)
 
-                assertEquals(DateTimePeriod(seconds = 1), awaitItem())
-                assertEquals(4, nowInvokedCount)
-            }
+        advanceTimeBy(500.milliseconds)
+        runCurrent()
+
+        assertEquals(DateTimePeriod(seconds = 1), state.value)
+        assertEquals(4, nowInvokedCount)
     }
 
     @Test
-    fun progressive_period_until_time_based() = runTest(testDispatcher + broadcastFrameClock) {
+    fun progressive_period_until_time_based() = runTest(testDispatcher) {
         advanceTimeBy(58.seconds)
 
-        moleculeFlow(RecompositionMode.ContextClock) {
+        val state = transform<Pair<DateTimeUnit, DateTimePeriod>>(
+            initialValue = DateTimeUnit.SECOND to DateTimePeriod(seconds = 58),
+            scope = backgroundScope,
+            dispatcher = testDispatcher,
+        ) {
             start.progressivePeriodUntil(
                 clock = clock,
                 unitProgression = listOf(DateTimeUnit.HOUR, DateTimeUnit.MINUTE, DateTimeUnit.SECOND),
             )
         }
-            .distinctUntilChanged()
-            .test {
-                assertEquals(DateTimeUnit.SECOND to DateTimePeriod(seconds = 58), awaitItem())
-                assertEquals(2, nowInvokedCount)
+        runCurrent()
 
-                advanceTimeBy(500.milliseconds)
-                runCurrent()
-                broadcastFrameClock.sendFrame((now - start).inWholeNanoseconds)
+        assertEquals(DateTimeUnit.SECOND to DateTimePeriod(seconds = 58), state.value)
+        assertEquals(2, nowInvokedCount)
 
-                expectNoEvents()
-                assertEquals(2, nowInvokedCount)
+        advanceTimeBy(500.milliseconds)
+        runCurrent()
 
-                advanceTimeBy(500.milliseconds)
-                runCurrent()
-                broadcastFrameClock.sendFrame((now - start).inWholeNanoseconds)
+        assertEquals(DateTimeUnit.SECOND to DateTimePeriod(seconds = 58), state.value)
+        assertEquals(2, nowInvokedCount)
 
-                assertEquals(DateTimeUnit.SECOND to DateTimePeriod(seconds = 59), awaitItem())
-                assertEquals(4, nowInvokedCount)
+        advanceTimeBy(500.milliseconds)
+        runCurrent()
 
-                advanceTimeBy(500.milliseconds)
-                runCurrent()
-                broadcastFrameClock.sendFrame((now - start).inWholeNanoseconds)
+        assertEquals(DateTimeUnit.SECOND to DateTimePeriod(seconds = 59), state.value)
+        assertEquals(4, nowInvokedCount)
 
-                expectNoEvents()
-                assertEquals(4, nowInvokedCount)
+        advanceTimeBy(500.milliseconds)
+        runCurrent()
 
-                advanceTimeBy(500.milliseconds)
-                runCurrent()
-                broadcastFrameClock.sendFrame((now - start).inWholeNanoseconds)
+        assertEquals(DateTimeUnit.SECOND to DateTimePeriod(seconds = 59), state.value)
+        assertEquals(4, nowInvokedCount)
 
-                assertEquals(DateTimeUnit.MINUTE to DateTimePeriod(seconds = 60), awaitItem())
-                assertEquals(6, nowInvokedCount)
+        advanceTimeBy(500.milliseconds)
+        runCurrent()
 
-                advanceTimeBy(500.milliseconds)
-                runCurrent()
-                broadcastFrameClock.sendFrame((now - start).inWholeNanoseconds)
+        assertEquals(DateTimeUnit.MINUTE to DateTimePeriod(seconds = 60), state.value)
+        assertEquals(6, nowInvokedCount)
 
-                expectNoEvents()
-                assertEquals(6, nowInvokedCount)
+        advanceTimeBy(500.milliseconds)
+        runCurrent()
 
-                advanceTimeBy(500.milliseconds)
-                runCurrent()
-                broadcastFrameClock.sendFrame((now - start).inWholeNanoseconds)
+        assertEquals(DateTimeUnit.MINUTE to DateTimePeriod(seconds = 60), state.value)
+        assertEquals(6, nowInvokedCount)
 
-                expectNoEvents()
-                assertEquals(6, nowInvokedCount)
+        advanceTimeBy(500.milliseconds)
+        runCurrent()
 
-                advanceTimeBy(58.seconds)
-                runCurrent()
-                broadcastFrameClock.sendFrame((now - start).inWholeNanoseconds)
+        assertEquals(DateTimeUnit.MINUTE to DateTimePeriod(seconds = 60), state.value)
+        assertEquals(6, nowInvokedCount)
 
-                expectNoEvents()
-                assertEquals(6, nowInvokedCount)
+        advanceTimeBy(58.seconds)
+        runCurrent()
 
-                advanceTimeBy(1.seconds)
-                runCurrent()
-                broadcastFrameClock.sendFrame((now - start).inWholeNanoseconds)
+        assertEquals(DateTimeUnit.MINUTE to DateTimePeriod(seconds = 60), state.value)
+        assertEquals(6, nowInvokedCount)
 
-                assertEquals(DateTimeUnit.MINUTE to DateTimePeriod(seconds = 120), awaitItem())
-                assertEquals(8, nowInvokedCount)
+        advanceTimeBy(1.seconds)
+        runCurrent()
 
-                advanceTimeBy(58.minutes)
-                runCurrent()
-                broadcastFrameClock.sendFrame((now - start).inWholeNanoseconds)
+        assertEquals(DateTimeUnit.MINUTE to DateTimePeriod(seconds = 120), state.value)
+        assertEquals(8, nowInvokedCount)
 
-                assertEquals(DateTimeUnit.HOUR to DateTimePeriod(seconds = 3600), awaitItem())
-                assertEquals(10, nowInvokedCount)
-            }
+        advanceTimeBy(58.minutes)
+        runCurrent()
+
+        assertEquals(DateTimeUnit.HOUR to DateTimePeriod(seconds = 3600), state.value)
+        assertEquals(10, nowInvokedCount)
     }
 
     @Test
-    fun period_until_time_based_with_time_zone() = runTest(testDispatcher + broadcastFrameClock) {
-        moleculeFlow(RecompositionMode.ContextClock) {
+    fun period_until_time_based_with_time_zone() = runTest(testDispatcher) {
+        val state = transform(
+            initialValue = DateTimePeriod(),
+            scope = backgroundScope,
+            dispatcher = testDispatcher,
+        ) {
             start.periodUntil(
                 clock = clock,
                 unit = DateTimeUnit.SECOND,
                 timeZone = TimeZone.UTC,
             )
         }
-            .distinctUntilChanged()
-            .test {
-                assertEquals(DateTimePeriod(), awaitItem())
-                assertEquals(2, nowInvokedCount)
+        runCurrent()
 
-                advanceTimeBy(500.milliseconds)
-                runCurrent()
-                broadcastFrameClock.sendFrame((now - start).inWholeNanoseconds)
+        assertEquals(DateTimePeriod(), state.value)
+        assertEquals(2, nowInvokedCount)
 
-                expectNoEvents()
-                assertEquals(2, nowInvokedCount)
+        advanceTimeBy(500.milliseconds)
+        runCurrent()
 
-                advanceTimeBy(500.milliseconds)
-                runCurrent()
-                broadcastFrameClock.sendFrame((now - start).inWholeNanoseconds)
+        assertEquals(DateTimePeriod(), state.value)
+        assertEquals(2, nowInvokedCount)
 
-                assertEquals(DateTimePeriod(seconds = 1), awaitItem())
-                assertEquals(4, nowInvokedCount)
-            }
+        advanceTimeBy(500.milliseconds)
+        runCurrent()
+
+        assertEquals(DateTimePeriod(seconds = 1), state.value)
+        assertEquals(4, nowInvokedCount)
     }
 
     @Test
-    fun period_until_day_based() = runTest(testDispatcher + broadcastFrameClock) {
-        moleculeFlow(RecompositionMode.ContextClock) {
+    fun period_until_day_based() = runTest(testDispatcher) {
+        val state = transform(
+            initialValue = DateTimePeriod(),
+            scope = backgroundScope,
+            dispatcher = testDispatcher,
+        ) {
             start.periodUntil(
                 clock = clock,
                 unit = DateTimeUnit.DAY,
                 timeZone = TimeZone.UTC,
             )
         }
-            .distinctUntilChanged()
-            .test {
-                assertEquals(DateTimePeriod(), awaitItem())
 
-                advanceTimeBy(12.hours)
-                runCurrent()
-                broadcastFrameClock.sendFrame((now - start).inWholeNanoseconds)
-                expectNoEvents()
+        assertEquals(DateTimePeriod(), state.value)
 
-                advanceTimeBy(12.hours)
-                runCurrent()
-                broadcastFrameClock.sendFrame((now - start).inWholeNanoseconds)
-                assertEquals(DateTimePeriod(days = 1), awaitItem())
-            }
+        advanceTimeBy(12.hours)
+        runCurrent()
+        assertEquals(DateTimePeriod(), state.value)
+
+        advanceTimeBy(12.hours)
+        runCurrent()
+        assertEquals(DateTimePeriod(days = 1), state.value)
     }
 
     @Test
-    fun period_until_month_based() = runTest(testDispatcher + broadcastFrameClock) {
-        moleculeFlow(RecompositionMode.ContextClock) {
+    fun period_until_month_based() = runTest(testDispatcher) {
+        val state = transform(
+            initialValue = DateTimePeriod(),
+            scope = backgroundScope,
+            dispatcher = testDispatcher,
+        ) {
             start.periodUntil(
                 clock = clock,
                 unit = DateTimeUnit.MONTH,
                 timeZone = TimeZone.UTC,
             )
         }
-            .distinctUntilChanged()
-            .test {
-                assertEquals(DateTimePeriod(), awaitItem())
 
-                advanceTimeBy(15.days)
-                runCurrent()
-                broadcastFrameClock.sendFrame((now - start).inWholeNanoseconds)
-                expectNoEvents()
+        assertEquals(DateTimePeriod(), state.value)
 
-                advanceTimeBy(16.days)
-                runCurrent()
-                broadcastFrameClock.sendFrame((now - start).inWholeNanoseconds)
-                assertEquals(DateTimePeriod(months = 1), awaitItem())
-            }
+        advanceTimeBy(15.days)
+        runCurrent()
+        assertEquals(DateTimePeriod(), state.value)
+
+        advanceTimeBy(16.days)
+        runCurrent()
+        assertEquals(DateTimePeriod(months = 1), state.value)
     }
 
     @Test
-    fun progressive_period_until_with_date_units() = runTest(testDispatcher + broadcastFrameClock) {
-        moleculeFlow(RecompositionMode.ContextClock) {
+    fun progressive_period_until_with_date_units() = runTest(testDispatcher) {
+        val state = transform<Pair<DateTimeUnit, DateTimePeriod>>(
+            initialValue = DateTimeUnit.HOUR to DateTimePeriod(),
+            scope = backgroundScope,
+            dispatcher = testDispatcher,
+        ) {
             start.progressivePeriodUntil(
                 clock = clock,
                 unitProgression = listOf(DateTimeUnit.MONTH, DateTimeUnit.DAY, DateTimeUnit.HOUR),
                 timeZone = TimeZone.UTC,
             )
         }
-            .distinctUntilChanged()
-            .test {
-                assertEquals(DateTimeUnit.HOUR to DateTimePeriod(), awaitItem())
 
-                advanceTimeBy(1.hours)
-                runCurrent()
-                broadcastFrameClock.sendFrame((now - start).inWholeNanoseconds)
-                assertEquals(DateTimeUnit.HOUR to DateTimePeriod(hours = 1), awaitItem())
+        assertEquals(DateTimeUnit.HOUR to DateTimePeriod(), state.value)
 
-                advanceTimeBy(23.hours)
-                runCurrent()
-                broadcastFrameClock.sendFrame((now - start).inWholeNanoseconds)
-                assertEquals(DateTimeUnit.DAY to DateTimePeriod(days = 1), awaitItem())
+        advanceTimeBy(1.hours)
+        runCurrent()
+        assertEquals(DateTimeUnit.HOUR to DateTimePeriod(hours = 1), state.value)
 
-                advanceTimeBy(31.days)
-                runCurrent()
-                broadcastFrameClock.sendFrame((now - start).inWholeNanoseconds)
-                assertEquals(DateTimeUnit.MONTH to DateTimePeriod(months = 1), awaitItem())
-            }
+        advanceTimeBy(23.hours)
+        runCurrent()
+        assertEquals(DateTimeUnit.DAY to DateTimePeriod(days = 1), state.value)
+
+        advanceTimeBy(31.days)
+        runCurrent()
+        assertEquals(DateTimeUnit.MONTH to DateTimePeriod(months = 1), state.value)
     }
 }

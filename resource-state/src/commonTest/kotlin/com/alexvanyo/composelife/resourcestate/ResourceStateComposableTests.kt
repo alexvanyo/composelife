@@ -16,52 +16,54 @@
 
 package com.alexvanyo.composelife.resourcestate
 
-import androidx.compose.runtime.BroadcastFrameClock
+import androidx.appstate.transform.transform
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import app.cash.molecule.RecompositionMode
-import app.cash.molecule.moleculeFlow
-import app.cash.turbine.test
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class ResourceStateComposableTests {
-
-    private val broadcastFrameClock = BroadcastFrameClock()
 
     @Suppress("ThrowingExceptionsWithoutMessageOrCause")
     @Test
-    fun collect_as_state_is_correct() = runTest(broadcastFrameClock) {
+    fun collect_as_state_is_correct() = runTest {
         val channel = Channel<String>()
 
-        moleculeFlow(RecompositionMode.ContextClock) {
-            val state by remember {
+        val state = transform<ResourceState<String>>(
+            initialValue = ResourceState.Loading,
+            scope = backgroundScope,
+            dispatcher = StandardTestDispatcher(testScheduler),
+        ) {
+            val resourceState by remember {
                 channel.receiveAsFlow().asResourceState()
             }.collectAsState()
 
-            state
+            resourceState
         }
-            .test {
-                assertEquals(ResourceState.Loading, awaitItem())
 
-                channel.send("a")
-                broadcastFrameClock.sendFrame(1)
+        assertEquals(ResourceState.Loading, state.value)
 
-                assertEquals(ResourceState.Success("a"), awaitItem())
+        channel.send("a")
+        runCurrent()
 
-                val exception = TestException()
-                channel.close(exception)
-                broadcastFrameClock.sendFrame(2)
+        assertEquals(ResourceState.Success("a"), state.value)
 
-                awaitItem().let { state ->
-                    val _ = assertIs<ResourceState.Failure<String>>(state)
-                    val _ = assertIs<TestException>(state.throwable)
-                }
-            }
+        val exception = TestException()
+        channel.close(exception)
+        runCurrent()
+
+        state.value.let { result ->
+            val _ = assertIs<ResourceState.Failure<String>>(result)
+            val _ = assertIs<TestException>(result.throwable)
+        }
     }
 }
 
