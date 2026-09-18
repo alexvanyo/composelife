@@ -16,7 +16,6 @@
 
 #include "session_value_bridge.h"
 #include <lean/lean.h>
-#include <jni.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -179,106 +178,5 @@ void lean_oracle_free(LeanOracleSession* session) {
         session->cached_exposed_value = NULL;
     }
     free(session);
-}
-
-static jobject create_snapshot_object(JNIEnv* env, const LeanStateSnapshotC* snap) {
-    jclass cls = (*env)->FindClass(env, "com/alexvanyo/composelife/sessionvalue/lean/LeanSnapshot");
-    if (cls == NULL) return NULL;
-    jmethodID init_mid = (*env)->GetMethodID(env, cls, "<init>", "(JJLjava/lang/String;ZJJZJJ)V");
-    if (init_mid == NULL) return NULL;
-    jstring str = (*env)->NewStringUTF(env, snap->exposed_value ? snap->exposed_value : "");
-    jobject obj = (*env)->NewObject(
-        env,
-        cls,
-        init_mid,
-        (jlong)snap->exposed_session_id,
-        (jlong)snap->exposed_value_id,
-        str,
-        (jboolean)snap->is_local_session_active,
-        (jlong)snap->local_session_id,
-        (jlong)snap->pre_local_session_id,
-        (jboolean)snap->is_upstream_up_to_date,
-        (jlong)snap->last_expected_session_id,
-        (jlong)snap->last_expected_value_id
-    );
-    return obj;
-}
-
-JNIEXPORT jlong JNICALL Java_com_alexvanyo_composelife_sessionvalue_lean_LeanSessionValueOracle_create(
-    JNIEnv* env,
-    jclass cls,
-    jlong upstream_session_id,
-    jlong upstream_value_id,
-    jstring upstream_value,
-    jlong local_session_id
-) {
-    const char* val_cstr = (*env)->GetStringUTFChars(env, upstream_value, NULL);
-    LeanOracleSession* session = lean_oracle_create(
-        (uint64_t)upstream_session_id,
-        (uint64_t)upstream_value_id,
-        val_cstr,
-        (uint64_t)local_session_id
-    );
-    (*env)->ReleaseStringUTFChars(env, upstream_value, val_cstr);
-    return (jlong)(intptr_t)session;
-}
-
-JNIEXPORT jobject JNICALL Java_com_alexvanyo_composelife_sessionvalue_lean_LeanSessionValueOracle_nativeStepSetValue(
-    JNIEnv* env,
-    jclass cls,
-    jlong session_ptr,
-    jstring value,
-    jlong value_id
-) {
-    LeanOracleSession* session = (LeanOracleSession*)(intptr_t)session_ptr;
-    const char* val_cstr = (*env)->GetStringUTFChars(env, value, NULL);
-    LeanStateSnapshotC snap;
-    lean_oracle_step_set_value(session, val_cstr, (uint64_t)value_id, &snap);
-    (*env)->ReleaseStringUTFChars(env, value, val_cstr);
-    return create_snapshot_object(env, &snap);
-}
-
-JNIEXPORT jobject JNICALL Java_com_alexvanyo_composelife_sessionvalue_lean_LeanSessionValueOracle_nativeStepSetUpstream(
-    JNIEnv* env,
-    jclass cls,
-    jlong session_ptr,
-    jlong upstream_session_id,
-    jlong upstream_value_id,
-    jstring upstream_value,
-    jlong fresh_local_id
-) {
-    LeanOracleSession* session = (LeanOracleSession*)(intptr_t)session_ptr;
-    const char* val_cstr = (*env)->GetStringUTFChars(env, upstream_value, NULL);
-    LeanStateSnapshotC snap;
-    lean_oracle_step_set_upstream(
-        session,
-        (uint64_t)upstream_session_id,
-        (uint64_t)upstream_value_id,
-        val_cstr,
-        (uint64_t)fresh_local_id,
-        &snap
-    );
-    (*env)->ReleaseStringUTFChars(env, upstream_value, val_cstr);
-    return create_snapshot_object(env, &snap);
-}
-
-JNIEXPORT jobject JNICALL Java_com_alexvanyo_composelife_sessionvalue_lean_LeanSessionValueOracle_nativeGetSnapshot(
-    JNIEnv* env,
-    jclass cls,
-    jlong session_ptr
-) {
-    LeanOracleSession* session = (LeanOracleSession*)(intptr_t)session_ptr;
-    LeanStateSnapshotC snap;
-    lean_oracle_get_snapshot(session, &snap);
-    return create_snapshot_object(env, &snap);
-}
-
-JNIEXPORT void JNICALL Java_com_alexvanyo_composelife_sessionvalue_lean_LeanSessionValueOracle_nativeDestroy(
-    JNIEnv* env,
-    jclass cls,
-    jlong session_ptr
-) {
-    LeanOracleSession* session = (LeanOracleSession*)(intptr_t)session_ptr;
-    lean_oracle_free(session);
 }
 

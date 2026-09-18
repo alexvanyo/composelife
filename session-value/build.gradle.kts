@@ -16,10 +16,7 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
-import com.android.build.api.dsl.KotlinMultiplatformAndroidDeviceTestCompilation
-import com.dshatz.kni.bundlesPrebuiltNatives
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-import kotlin.jvm.java
 
 plugins {
     alias(libs.plugins.convention.kotlinMultiplatform)
@@ -29,18 +26,23 @@ plugins {
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
-    alias(libs.plugins.kni)
     kotlin("plugin.serialization") version libs.versions.kotlin
     alias(libs.plugins.gradleDependenciesSorter)
+}
+
+composeCompiler {
+    targetKotlinPlatforms.set(
+        setOf(
+            org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.androidJvm,
+            org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.jvm,
+            org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.wasm,
+        ),
+    )
 }
 
 val leanPrefixProvider = providers.exec {
     commandLine("lean", "--print-prefix")
 }.standardOutput.asText.map { it.trim() }
-
-val javaHomeProvider = providers.environmentVariable("JAVA_HOME")
-    .filter { it.isNotBlank() }
-    .orElse(providers.systemProperty("java.home"))
 
 val verifyLean by tasks.registering(Exec::class) {
     description = "Formally verifies session-value logic using Lean 4"
@@ -49,34 +51,25 @@ val verifyLean by tasks.registering(Exec::class) {
     commandLine("lake", "build", "SessionValue:static")
 }
 
-val buildSessionValueLeanSharedLibrary by tasks.registering(Exec::class) {
-    description = "Compiles JNI shared library for Lean session-value state machine"
+val compileSessionValueBridgeCObject by tasks.registering(Exec::class) {
+    description = "Compiles C bridge for Lean session-value state machine"
     group = LifecycleBasePlugin.BUILD_GROUP
     dependsOn(verifyLean)
     workingDir = file("lean")
-    val outputDir = layout.buildDirectory.dir("natives/linuxX64")
-    outputs.dir(outputDir)
+    val outputFile = layout.buildDirectory.file("natives/c/session_value_bridge.o")
+    outputs.file(outputFile)
     doFirst {
-        outputDir.get().asFile.mkdirs()
+        outputFile.get().asFile.parentFile.mkdirs()
     }
-    val javaHome = javaHomeProvider.get()
     val leanPrefix = leanPrefixProvider.get()
     commandLine(
         "clang",
-        "-shared",
+        "-c",
         "-fPIC",
         "c/session_value_bridge.c",
-        ".lake/build/lib/libSessionValue_SessionValue.a",
-        "-I$javaHome/include",
-        "-I$javaHome/include/linux",
-        "-I$javaHome/include/darwin",
         "-I$leanPrefix/include",
-        "-L$leanPrefix/lib/lean",
-        "-L$leanPrefix/lib",
-        "-lleanshared",
-        "-Wl,-rpath,$leanPrefix/lib/lean",
         "-o",
-        outputDir.get().file("libsessionvalue_lean.so").asFile.absolutePath,
+        outputFile.get().asFile.absolutePath,
     )
 }
 
@@ -87,11 +80,7 @@ kotlin {
         configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
     }
 
-    jvm("desktop") {
-        bundlesPrebuiltNatives {
-            linuxX64.add(layout.buildDirectory.dir("natives/linuxX64"))
-        }
-    }
+    jvm("desktop")
 
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
@@ -104,11 +93,37 @@ kotlin {
         }
     }
 
+    linuxX64 {
+        compilations.getByName("test") {
+            cinterops {
+                val sessionValueBridge by creating {
+                    definitionFile.set(file("src/linuxX64Test/cinterop/session_value_bridge.def"))
+                    includeDirs(file("lean/c"))
+                }
+            }
+        }
+        binaries.withType<org.jetbrains.kotlin.gradle.plugin.mpp.TestExecutable>().configureEach {
+            linkTaskProvider.configure {
+                dependsOn(compileSessionValueBridgeCObject)
+            }
+            val bridgeObj = layout.buildDirectory.file("natives/c/session_value_bridge.o").get().asFile.absolutePath
+            val leanArchive = file("lean/.lake/build/lib/libSessionValue_SessionValue.a").absolutePath
+            val leanPrefix = leanPrefixProvider.get()
+            linkerOpts(
+                bridgeObj,
+                leanArchive,
+                "-L$leanPrefix/lib/lean",
+                "-L$leanPrefix/lib",
+                "-lleanshared",
+                "-Wl,-rpath,$leanPrefix/lib/lean",
+            )
+        }
+    }
+
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(projects.logging)
-                implementation(projects.serialization)
+                api(libs.kotlinx.serialization.core)
             }
         }
         val jbMain by creating {
@@ -116,6 +131,8 @@ kotlin {
             dependencies {
                 api(libs.androidx.compose.runtime)
                 api(libs.androidx.compose.runtime.saveable)
+
+                implementation(projects.serialization)
             }
         }
         val androidMain by getting {
@@ -132,10 +149,17 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
+                implementation(kotlin("test"))
+            }
+        }
+        val jbTest by creating {
+            dependsOn(commonTest)
+            dependencies {
                 implementation(projects.injectTest)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
                 implementation(projects.testActivity)
+                implementation(libs.jetbrains.compose.uiTest)
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.kotlinx.io.core)
                 implementation(libs.kotlinx.serialization.json)
@@ -144,22 +168,13 @@ kotlin {
             }
         }
         val jvmTest by creating {
-            dependsOn(commonTest)
-        }
-        val jbTest by creating {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.jetbrains.compose.uiTest)
-            }
+            dependsOn(jbTest)
         }
         val desktopTest by getting {
-            dependsOn(jbTest)
-            dependencies {
-                implementation(libs.kni.jni)
-            }
+            dependsOn(jvmTest)
         }
         val androidSharedTest by getting {
-            dependsOn(jbTest)
+            dependsOn(jvmTest)
             dependencies {
                 implementation(libs.androidx.compose.ui)
             }
@@ -170,17 +185,16 @@ kotlin {
                 implementation(libs.jetbrains.compose.ui)
             }
         }
+        val linuxX64Test by getting {
+            dependsOn(commonTest)
+        }
     }
-}
-
-tasks.named("collectPrebuiltLibsJvm") {
-    dependsOn(buildSessionValueLeanSharedLibrary)
 }
 
 tasks.named("check") {
     dependsOn(verifyLean)
 }
 
-tasks.named("desktopTest") {
+tasks.named("linuxX64Test") {
     dependsOn(verifyLean)
 }
