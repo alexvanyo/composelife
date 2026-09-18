@@ -59,6 +59,8 @@ val compileAlgorithmBridgeCObject by tasks.registering(Exec::class) {
     group = LifecycleBasePlugin.BUILD_GROUP
     dependsOn(verifyLean)
     workingDir = file("lean")
+    inputs.file(file("lean/c/algorithm_bridge.c"))
+    inputs.file(file("lean/c/algorithm_bridge.h"))
     val outputFile = layout.buildDirectory.file("natives/c/algorithm_bridge.o")
     outputs.file(outputFile)
     doFirst {

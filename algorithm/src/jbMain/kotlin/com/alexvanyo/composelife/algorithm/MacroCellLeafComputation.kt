@@ -77,30 +77,3 @@ internal fun MacroCell.LeafNode.computeNextGeneration(): Int {
 
     return nw or (ne shl 4) or (sw shl 8) or (se shl 12)
 }
-
-/**
- * Computes the next 2x2 [Int] generation for the given 4x4 [Int] in its center.
- */
-@Suppress("NOTHING_TO_INLINE")
-internal inline fun Int.computeNextGeneration(): Int {
-    val count0 = (0b1110_1010_1100_1000 and this).countOneBits()
-    val previousBit0 = (0b0001_0000_0000_0000 and this) shr 12
-    val newBit0 = (count0 or previousBit0) xor (0b11)
-
-    val count1 = (0b0101_1101_0100_1100 and this).countOneBits()
-    val previousBit1 = (0b0000_0010_0000_0000 and this) shr 9
-    val newBit1 = (count1 or previousBit1) xor (0b11)
-
-    val count2 = (0b0011_0010_1011_1010 and this).countOneBits()
-    val previousBit2 = (0b0000_0000_0100_0000 and this) shr 6
-    val newBit2 = (count2 or previousBit2) xor (0b11)
-
-    val count3 = (0b0001_0011_0101_0111 and this).countOneBits()
-    val previousBit3 = (0b0000_0000_0000_1000 and this) shr 3
-    val newBit3 = (count3 or previousBit3) xor (0b11)
-
-    return (-((-newBit0 ushr 31) xor 0b1) and 0b1000) or
-        (-((-newBit1 ushr 31) xor 0b1) and 0b0100) or
-        (-((-newBit2 ushr 31) xor 0b1) and 0b0010) or
-        (-((-newBit3 ushr 31) xor 0b1) and 0b0001)
-}

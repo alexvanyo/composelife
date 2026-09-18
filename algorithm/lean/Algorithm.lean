@@ -15,6 +15,7 @@
  -/
 
 import Algorithm.Basic
+import Algorithm.BitComputation
 import Algorithm.Patterns
 import Algorithm.Properties
 import Algorithm.MacroCell
