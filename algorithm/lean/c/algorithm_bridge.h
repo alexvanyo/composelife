@@ -39,6 +39,8 @@ void lean_algorithm_init_runtime(void);
 
 uint16_t lean_algorithm_step_4x4_bits(uint16_t bits);
 
+uint16_t lean_algorithm_step_leaf_bits(uint64_t bits);
+
 int32_t lean_algorithm_step(
     const CellPointC* in_points,
     size_t in_count,
