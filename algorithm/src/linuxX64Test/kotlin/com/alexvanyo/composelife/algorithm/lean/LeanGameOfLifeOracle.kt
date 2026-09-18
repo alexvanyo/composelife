@@ -22,6 +22,7 @@ import com.alexvanyo.composelife.algorithm.lean.cinterop.lean_algorithm_free_gri
 import com.alexvanyo.composelife.algorithm.lean.cinterop.lean_algorithm_init_runtime
 import com.alexvanyo.composelife.algorithm.lean.cinterop.lean_algorithm_step
 import com.alexvanyo.composelife.algorithm.lean.cinterop.lean_algorithm_step_4x4_bits
+import com.alexvanyo.composelife.algorithm.lean.cinterop.lean_algorithm_step_leaf_bits
 import com.alexvanyo.composelife.model.CellCoordinate
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.alloc
@@ -44,6 +45,11 @@ class LeanGameOfLifeOracle {
      * Steps a 4x4 bitfield to its 2x2 central next generation using the formal Lean specification.
      */
     fun step4x4Bits(bits: Int): Int = lean_algorithm_step_4x4_bits(bits.toUShort()).toInt()
+
+    /**
+     * Steps an 8x8 64-bit leaf node to its 4x4 central next generation using the formal Lean specification.
+     */
+    fun stepLeafBits(bits: Long): Int = lean_algorithm_step_leaf_bits(bits.toULong()).toInt()
 
     fun step(cells: Set<CellCoordinate>, stepCount: Int): Set<CellCoordinate> = memScoped {
         if (cells.isEmpty()) {
