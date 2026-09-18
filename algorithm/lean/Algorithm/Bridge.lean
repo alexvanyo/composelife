@@ -15,8 +15,13 @@
  -/
 
 import Algorithm.Basic
+import Algorithm.BitComputation
 
 namespace Algorithm
+
+@[export algorithm_step_4x4_bits]
+def oracleStep4x4Bits (bits : Nat) : Nat :=
+  computeNextGen4x4 bits
 
 @[export algorithm_step_coords]
 def oracleStepCoords (coords : Array (Int × Int)) (steps : Nat) : Array (Int × Int) :=

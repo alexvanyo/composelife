@@ -170,4 +170,17 @@ class GameOfLifeLeanConformanceTests {
             }
         }
     }
+
+    @Test
+    fun hashlife_4x4_bit_computation_exhaustive_differential() {
+        for (bits in 0..0xFFFF) {
+            val kotlinResult = bits.computeNextGeneration()
+            val leanResult = oracle.step4x4Bits(bits)
+            assertEquals(
+                expected = leanResult,
+                actual = kotlinResult,
+                message = "Mismatch for 4x4 bit pattern 0x${bits.toString(16)}",
+            )
+        }
+    }
 }
