@@ -33,6 +33,49 @@ plugins {
     alias(libs.plugins.testBalloon)
 }
 
+composeCompiler {
+    targetKotlinPlatforms.set(
+        setOf(
+            org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.androidJvm,
+            org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.jvm,
+            org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.wasm,
+        ),
+    )
+}
+
+val leanPrefixProvider = providers.exec {
+    commandLine("lean", "--print-prefix")
+}.standardOutput.asText.map { it.trim() }
+
+val verifyLean by tasks.registering(Exec::class) {
+    description = "Formally verifies algorithm logic using Lean 4"
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    workingDir = file("lean")
+    commandLine("lake", "build", "Algorithm:static")
+}
+
+val compileAlgorithmBridgeCObject by tasks.registering(Exec::class) {
+    description = "Compiles C bridge for Lean algorithm engine"
+    group = LifecycleBasePlugin.BUILD_GROUP
+    dependsOn(verifyLean)
+    workingDir = file("lean")
+    val outputFile = layout.buildDirectory.file("natives/c/algorithm_bridge.o")
+    outputs.file(outputFile)
+    doFirst {
+        outputFile.get().asFile.parentFile.mkdirs()
+    }
+    val leanPrefix = leanPrefixProvider.get()
+    commandLine(
+        "clang",
+        "-c",
+        "-fPIC",
+        "c/algorithm_bridge.c",
+        "-I$leanPrefix/include",
+        "-o",
+        outputFile.get().asFile.absolutePath,
+    )
+}
+
 kotlin {
     androidLibrary {
         namespace = "com.alexvanyo.composelife.algorithm"
@@ -51,8 +94,37 @@ kotlin {
         }
     }
 
+    linuxX64 {
+        compilations.getByName("test") {
+            cinterops {
+                val algorithmBridge by creating {
+                    definitionFile.set(file("src/linuxX64Test/cinterop/algorithm_bridge.def"))
+                    includeDirs(file("lean/c"))
+                }
+            }
+        }
+        binaries.withType<org.jetbrains.kotlin.gradle.plugin.mpp.TestExecutable>().configureEach {
+            linkTaskProvider.configure {
+                dependsOn(compileAlgorithmBridgeCObject)
+            }
+            val bridgeObj = layout.buildDirectory.file("natives/c/algorithm_bridge.o").get().asFile.absolutePath
+            val leanArchive = file("lean/.lake/build/lib/libAlgorithm_Algorithm.a").absolutePath
+            val leanPrefix = leanPrefixProvider.get()
+            linkerOpts(
+                bridgeObj,
+                leanArchive,
+                "-L$leanPrefix/lib/lean",
+                "-L$leanPrefix/lib",
+                "-lleanshared",
+                "-Wl,-rpath,$leanPrefix/lib/lean",
+            )
+        }
+    }
+
     sourceSets {
-        val commonMain by getting {
+        val commonMain by getting
+        val jbMain by creating {
+            dependsOn(commonMain)
             dependencies {
                 api(projects.dispatchers)
                 api(projects.geometry)
@@ -63,20 +135,15 @@ kotlin {
                 api(projects.updatable)
 
                 implementation(projects.injectScopes)
+                implementation(projects.sealedEnum.runtime)
                 implementation(libs.androidx.annotation)
                 implementation(libs.androidx.collection)
                 implementation(libs.androidx.compose.runtime)
                 implementation(libs.androidx.compose.runtime.retain)
+                implementation(libs.jetbrains.compose.uiUnit)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.json)
-            }
-        }
-        val jbMain by creating {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(projects.sealedEnum.runtime)
-                implementation(libs.jetbrains.compose.uiUnit)
             }
         }
         val jvmMain by creating {
@@ -119,6 +186,13 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
+                implementation(kotlin("test"))
+                implementation(libs.testBalloon.framework.core)
+            }
+        }
+        val jbTest by creating {
+            dependsOn(commonTest)
+            dependencies {
                 implementation(projects.algorithmTestResources)
                 implementation(projects.dispatchersTestFixtures)
                 implementation(projects.injectTest)
@@ -126,22 +200,14 @@ kotlin {
                 implementation(projects.kmpStateRestorationTester)
                 implementation(projects.patterns)
                 implementation(projects.tracingTestFixtures)
+                implementation(libs.jetbrains.compose.foundation)
+                implementation(libs.jetbrains.compose.uiTest)
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
             }
         }
-        val jbTest by creating {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.jetbrains.compose.foundation)
-                implementation(libs.jetbrains.compose.uiTest)
-            }
-        }
         val jvmTest by creating {
             dependsOn(jbTest)
-            dependencies {
-                implementation(libs.testBalloon.framework.core)
-            }
         }
         val desktopTest by getting {
             dependsOn(jvmTest)
@@ -158,5 +224,16 @@ kotlin {
                 implementation(libs.androidx.test.espresso)
             }
         }
+        val linuxX64Test by getting {
+            dependsOn(commonTest)
+        }
     }
+}
+
+tasks.named("check") {
+    dependsOn(verifyLean)
+}
+
+tasks.named("linuxX64Test") {
+    dependsOn(verifyLean)
 }
