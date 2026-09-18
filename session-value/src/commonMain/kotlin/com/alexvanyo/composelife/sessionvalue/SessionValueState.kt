@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.sessionvalue
 
-import androidx.compose.runtime.Immutable
 import kotlinx.serialization.Serializable
 import kotlin.uuid.Uuid
 
@@ -25,7 +24,6 @@ import kotlin.uuid.Uuid
  *
  * Matches `SessionValue.StateMachine` in the Lean 4 formal specification.
  */
-@Immutable
 @Serializable
 internal data class SessionValueState<T>(
     val upstreamSessionIdBeforeLocalSession: Uuid,

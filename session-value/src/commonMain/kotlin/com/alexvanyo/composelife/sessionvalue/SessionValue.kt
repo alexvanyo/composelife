@@ -16,10 +16,6 @@
 
 package com.alexvanyo.composelife.sessionvalue
 
-import androidx.compose.runtime.saveable.Saver
-import androidx.savedstate.SavedState
-import com.alexvanyo.composelife.serialization.saver
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlin.uuid.Uuid
 
@@ -32,12 +28,7 @@ import kotlin.uuid.Uuid
  */
 @Serializable
 data class SessionValue<out T>(val sessionId: Uuid, val valueId: Uuid, val value: T) {
-    companion object {
-        inline fun <reified T> Saver(): Saver<SessionValue<T>, SavedState> = Saver(kotlinx.serialization.serializer())
-
-        fun <T> Saver(valueSerializer: KSerializer<T>): Saver<SessionValue<T>, SavedState> =
-            serializer(valueSerializer).saver()
-    }
+    companion object
 }
 
 /**
