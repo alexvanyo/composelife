@@ -18,12 +18,18 @@ package com.alexvanyo.composelife.algorithm.lean
 
 import com.alexvanyo.composelife.algorithm.lean.cinterop.CellGridC
 import com.alexvanyo.composelife.algorithm.lean.cinterop.CellPointC
+import com.alexvanyo.composelife.algorithm.lean.cinterop.lean_algorithm_centered_horizontal_subnode_level3_bits
+import com.alexvanyo.composelife.algorithm.lean.cinterop.lean_algorithm_centered_sub_subnode_level4_bits
+import com.alexvanyo.composelife.algorithm.lean.cinterop.lean_algorithm_centered_subnode_level3_bits
+import com.alexvanyo.composelife.algorithm.lean.cinterop.lean_algorithm_centered_vertical_subnode_level3_bits
 import com.alexvanyo.composelife.algorithm.lean.cinterop.lean_algorithm_free_grid
 import com.alexvanyo.composelife.algorithm.lean.cinterop.lean_algorithm_init_runtime
 import com.alexvanyo.composelife.algorithm.lean.cinterop.lean_algorithm_step
 import com.alexvanyo.composelife.algorithm.lean.cinterop.lean_algorithm_step_4x4_bits
 import com.alexvanyo.composelife.algorithm.lean.cinterop.lean_algorithm_step_leaf_bits
+import com.alexvanyo.composelife.algorithm.lean.cinterop.lean_algorithm_step_level4_bits
 import com.alexvanyo.composelife.model.CellCoordinate
+import com.alexvanyo.composelife.model.MacroCell
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.allocArray
@@ -36,7 +42,7 @@ import kotlinx.cinterop.ptr
  * An in-memory differential oracle running the formal Lean 4 Conway Game of Life specification.
  */
 @OptIn(ExperimentalForeignApi::class)
-class LeanGameOfLifeOracle {
+internal class LeanGameOfLifeOracle {
     init {
         lean_algorithm_init_runtime()
     }
@@ -50,6 +56,62 @@ class LeanGameOfLifeOracle {
      * Steps an 8x8 64-bit leaf node to its 4x4 central next generation using the formal Lean specification.
      */
     fun stepLeafBits(bits: Long): Int = lean_algorithm_step_leaf_bits(bits.toULong()).toInt()
+
+    /**
+     * Steps a 16x16 Level 4 node (four 8x8 leaf nodes) to its central 8x8 next generation leaf node
+     * using the formal Lean specification.
+     */
+    fun stepLevel4Bits(nw: Long, ne: Long, sw: Long, se: Long): Long = lean_algorithm_step_level4_bits(
+        nw = nw.toULong(),
+        ne = ne.toULong(),
+        sw = sw.toULong(),
+        se = se.toULong(),
+    ).toLong()
+
+    /**
+     * Steps a [MacroCell.Level4Node] to its central 8x8 next generation [MacroCell.LeafNode]
+     * using the formal Lean specification.
+     */
+    fun stepLevel4(node: MacroCell.Level4Node): MacroCell.LeafNode = stepLevel4Bits(node.nw, node.ne, node.sw, node.se)
+
+    /**
+     * Extracts the central 4x4 from an 8x8 64-bit leaf node using the formal Lean specification.
+     */
+    fun centeredSubnodeLevel3(leaf: MacroCell.LeafNode): Int =
+        lean_algorithm_centered_subnode_level3_bits(leaf.toULong()).toInt()
+
+    /**
+     * Extracts the horizontal central 4x4 spanning west and east 8x8 leaf nodes using the formal Lean specification.
+     */
+    fun centeredHorizontalSubnodeLevel3(w: MacroCell.LeafNode, e: MacroCell.LeafNode): Int =
+        lean_algorithm_centered_horizontal_subnode_level3_bits(w.toULong(), e.toULong()).toInt()
+
+    /**
+     * Extracts the vertical central 4x4 spanning north and south 8x8 leaf nodes using the formal Lean specification.
+     */
+    fun centeredVerticalSubnodeLevel3(n: MacroCell.LeafNode, s: MacroCell.LeafNode): Int =
+        lean_algorithm_centered_vertical_subnode_level3_bits(n.toULong(), s.toULong()).toInt()
+
+    /**
+     * Extracts the central 4x4 from a 16x16 Level 4 node using the formal Lean specification.
+     */
+    fun centeredSubSubnodeLevel4(
+        nw: MacroCell.LeafNode,
+        ne: MacroCell.LeafNode,
+        sw: MacroCell.LeafNode,
+        se: MacroCell.LeafNode,
+    ): Int = lean_algorithm_centered_sub_subnode_level4_bits(
+        nw = nw.toULong(),
+        ne = ne.toULong(),
+        sw = sw.toULong(),
+        se = se.toULong(),
+    ).toInt()
+
+    /**
+     * Extracts the central 4x4 from a [MacroCell.Level4Node] using the formal Lean specification.
+     */
+    fun centeredSubSubnodeLevel4(node: MacroCell.Level4Node): Int =
+        centeredSubSubnodeLevel4(node.nw, node.ne, node.sw, node.se)
 
     fun step(cells: Set<CellCoordinate>, stepCount: Int): Set<CellCoordinate> = memScoped {
         if (cells.isEmpty()) {

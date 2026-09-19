@@ -41,6 +41,16 @@ uint16_t lean_algorithm_step_4x4_bits(uint16_t bits);
 
 uint16_t lean_algorithm_step_leaf_bits(uint64_t bits);
 
+uint64_t lean_algorithm_step_level4_bits(uint64_t nw, uint64_t ne, uint64_t sw, uint64_t se);
+
+uint16_t lean_algorithm_centered_subnode_level3_bits(uint64_t leaf);
+
+uint16_t lean_algorithm_centered_horizontal_subnode_level3_bits(uint64_t w, uint64_t e);
+
+uint16_t lean_algorithm_centered_vertical_subnode_level3_bits(uint64_t n, uint64_t s);
+
+uint16_t lean_algorithm_centered_sub_subnode_level4_bits(uint64_t nw, uint64_t ne, uint64_t sw, uint64_t se);
+
 int32_t lean_algorithm_step(
     const CellPointC* in_points,
     size_t in_count,
