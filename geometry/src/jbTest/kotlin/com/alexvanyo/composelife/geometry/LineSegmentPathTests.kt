@@ -26,9 +26,17 @@ import kotlin.math.min
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 @Suppress("TooManyFunctions")
 class LineSegmentPathTests {
+
+    @Test
+    fun empty_line_segment_path_throws() {
+        assertFailsWith<IllegalArgumentException> {
+            LineSegmentPath(emptyList())
+        }
+    }
 
     @Test
     fun single_point() {
