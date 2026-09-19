@@ -17,14 +17,21 @@
 package com.alexvanyo.composelife.navigation3.scene
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.scene.OverlayScene
 import androidx.navigation3.scene.Scene
+import com.alexvanyo.composelife.kmpandroidrunner.BaseKmpTest
+import com.alexvanyo.composelife.test.runComposeUiTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
+import kotlin.test.assertTrue
 
-class SceneStateTests {
+@OptIn(ExperimentalTestApi::class)
+@Suppress("TooManyFunctions")
+class SceneStateTests : BaseKmpTest() {
 
     private val entry1 = NavEntry<String>(
         key = "key1",
@@ -112,18 +119,142 @@ class SceneStateTests {
         )
     }
 
-    private class TestScene(override val key: Any) : Scene<String> {
-        override val previousEntries: List<NavEntry<String>> = emptyList()
-        override val entries: List<NavEntry<String>> = emptyList()
+    @Test
+    fun remember_scene_state_with_single_pane_fallback_is_correct() = runComposeUiTest {
+        lateinit var state: SceneState<String>
+
+        setContent {
+            state = rememberSceneState(
+                entries = listOf(entry1),
+                sceneStrategy = SinglePaneSceneStrategy(),
+                onBack = {},
+            )
+        }
+
+        assertEquals(1, state.entries.size)
+        assertEquals("key1", state.entries.first().contentKey)
+        assertEquals(emptyList(), state.overlayScenes)
+        assertEquals(emptyList(), state.previousScenes)
+        assertEquals("key1", state.currentScene.key)
+    }
+
+    @Test
+    fun remember_scene_state_with_overlay_scene_is_correct() = runComposeUiTest {
+        lateinit var state: SceneState<String>
+        val overlayScene = TestOverlayScene(
+            key = "overlay",
+            overlaidEntries = listOf(entry2),
+        )
+        val baseScene = TestScene(key = "base")
+
+        val strategy = SceneStrategy<String> { entries ->
+            when {
+                entries.any { it.contentKey == "key1" } -> overlayScene
+                entries.any { it.contentKey == "key2" } -> baseScene
+                else -> null
+            }
+        }
+
+        setContent {
+            state = rememberSceneState(
+                entries = listOf(entry1),
+                sceneStrategy = strategy,
+                onBack = {},
+            )
+        }
+
+        assertEquals(listOf(overlayScene), state.overlayScenes)
+        assertEquals(baseScene, state.currentScene)
+        assertEquals(listOf(overlayScene), state.previousScenes)
+    }
+
+    @Test
+    fun remember_scene_state_with_empty_overlaid_entries_throws_exception() = runComposeUiTest {
+        val emptyOverlayScene = TestOverlayScene(
+            key = "emptyOverlay",
+            overlaidEntries = emptyList(),
+        )
+
+        val strategy = SceneStrategy<String> {
+            emptyOverlayScene
+        }
+
+        assertFailsWith<IllegalArgumentException> {
+            setContent {
+                rememberSceneState(
+                    entries = listOf(entry1),
+                    sceneStrategy = strategy,
+                    onBack = {},
+                )
+            }
+        }
+    }
+
+    @Test
+    fun remember_scene_state_with_previous_entries_is_correct() = runComposeUiTest {
+        lateinit var state: SceneState<String>
+        val previousScene = TestScene(key = "prev")
+        val currentScene = TestScene(
+            key = "current",
+            previousEntries = listOf(entry1),
+        )
+
+        val strategy = SceneStrategy<String> { entries ->
+            when {
+                entries.any { it.contentKey == "key2" } -> currentScene
+                entries.any { it.contentKey == "key1" } -> previousScene
+                else -> null
+            }
+        }
+
+        setContent {
+            state = rememberSceneState(
+                entries = listOf(entry2),
+                sceneStrategy = strategy,
+                onBack = {},
+            )
+        }
+
+        assertEquals(currentScene, state.currentScene)
+        assertEquals(listOf(previousScene), state.previousScenes)
+        assertEquals(emptyList(), state.overlayScenes)
+    }
+
+    @Test
+    fun remember_scene_state_on_back_invoked_via_scope() = runComposeUiTest {
+        var onBackCalled = false
+        val strategy = SceneStrategy<String> {
+            onBack()
+            TestScene(key = "scene")
+        }
+
+        setContent {
+            rememberSceneState(
+                entries = listOf(entry1),
+                sceneStrategy = strategy,
+                onBack = { onBackCalled = true },
+            )
+        }
+
+        assertTrue(onBackCalled)
+    }
+
+    private class TestScene(
+        override val key: Any,
+        override val previousEntries: List<NavEntry<String>> = emptyList(),
+        override val entries: List<NavEntry<String>> = emptyList(),
+    ) : Scene<String> {
         override val content: @Composable () -> Unit = {}
         override fun toString(): String = "TestScene(key=$key)"
     }
 
-    private class TestOverlayScene(override val key: Any) : OverlayScene<String> {
-        override val previousEntries: List<NavEntry<String>> = emptyList()
-        override val entries: List<NavEntry<String>> = emptyList()
+    private class TestOverlayScene(
+        override val key: Any,
+        override val overlaidEntries: List<NavEntry<String>> = emptyList(),
+        override val previousEntries: List<NavEntry<String>> = emptyList(),
+        override val entries: List<NavEntry<String>> = emptyList(),
+    ) : OverlayScene<String> {
         override val content: @Composable () -> Unit = {}
-        override val overlaidEntries: List<NavEntry<String>> = emptyList()
         override fun toString(): String = "TestOverlayScene(key=$key)"
     }
 }
