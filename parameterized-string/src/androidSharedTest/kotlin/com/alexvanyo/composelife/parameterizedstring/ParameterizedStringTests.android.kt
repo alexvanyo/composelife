@@ -546,4 +546,73 @@ class AndroidParameterizedStringTests {
 
         assertEquals(initial, restored)
     }
+
+    @Test
+    fun char_arg_raw_string_is_correct() {
+        assertEquals(
+            "Char: a",
+            context.resources.getParameterizedString(
+                ParameterizedString(
+                    "Char: %c",
+                    ParameterizedStringArgument('a'),
+                ),
+            ),
+        )
+    }
+
+    @Test
+    fun float_arg_raw_string_is_correct() {
+        assertEquals(
+            "Float: 1.5",
+            context.resources.getParameterizedString(
+                ParameterizedString(
+                    "Float: %.1f",
+                    ParameterizedStringArgument(1.5f),
+                ),
+            ),
+        )
+    }
+
+    @Test
+    fun double_arg_raw_string_is_correct() {
+        assertEquals(
+            "Double: 2.5",
+            context.resources.getParameterizedString(
+                ParameterizedString(
+                    "Double: %.1f",
+                    ParameterizedStringArgument(2.5),
+                ),
+            ),
+        )
+    }
+
+    @Test
+    fun serializer_is_correct_for_char_float_double() {
+        runComposeUiTest {
+            val stateRestorationTester = KmpStateRestorationTester(this)
+
+            var parameterizedString: ParameterizedString? = null
+
+            stateRestorationTester.setContent {
+                parameterizedString = rememberSerializable(serializer = serializer()) {
+                    ParameterizedString(
+                        "Char: %c, Float: %.1f, Double: %.1f",
+                        ParameterizedStringArgument('a'),
+                        ParameterizedStringArgument(1.5f),
+                        ParameterizedStringArgument(2.5),
+                    )
+                }
+            }
+
+            val initial = parameterizedString
+
+            assertNotNull(initial)
+
+            stateRestorationTester.emulateStateRestore()
+
+            val restored = parameterizedString
+
+            assertEquals(initial, restored)
+        }
+    }
 }
