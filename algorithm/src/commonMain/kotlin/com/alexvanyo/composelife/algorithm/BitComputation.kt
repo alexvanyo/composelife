@@ -55,7 +55,7 @@ private val NEXT_GEN_4X4_LUT = ByteArray(65536) { it.computeNextGeneration().toB
  * A 256 KB lookup table indexed by a 16-bit 4x4 quadrant (`0..65535`) in Morton order.
  *
  * Pre-extracts and packs the sub-components of the quadrant into a single 32-bit [Int] to accelerate assembling
- * the four overlapping 4x4 subnodes (`subNW`, `subNE`, `subSW`, `subSE`) needed by [computeLeafNextGeneration]:
+ * the four overlapping 4x4 subnodes (`subNW`, `subNE`, `subSW`, `subSE`) needed by [computeNextGeneration]:
  * - Bits 0..3: `center` (2x2 center cells of the quadrant).
  * - Bits 4..7: `right` (vertical edge cells at the right border of the quadrant, aligned for horizontal neighbors).
  * - Bits 8..11: `left` (vertical edge cells at the left border of the quadrant, aligned for horizontal neighbors).
@@ -63,9 +63,11 @@ private val NEXT_GEN_4X4_LUT = ByteArray(65536) { it.computeNextGeneration().toB
  * - Bits 16..19: `top` (horizontal edge cells at the top border of the quadrant, aligned for vertical neighbors).
  * - Bits 20..23: `corner` (corner cells needed by the diagonally adjacent quadrant).
  *
- * Looking up each quadrant in this table replaces over 40 individual bit shifts and masks with 4 array loads.
+ * All packed components are pre-shifted to their destination bit-offsets within the destination 4x4 word.
  */
-private val QUAD_INFO_LUT = IntArray(65536) { q ->
+private val QUAD_INFO_LUT = IntArray(65536, ::computeQuadInfo)
+
+private fun computeQuadInfo(q: Int): Int {
     val c = q ushr 3
     val center = (c and 1) or ((c ushr 2) and 2) or ((c ushr 4) and 4) or ((c ushr 6) and 8)
     val right = ((q ushr 7) and 1) or (((q ushr 13) and 1) shl 2)
@@ -74,13 +76,13 @@ private val QUAD_INFO_LUT = IntArray(65536) { q ->
     val top = (((q ushr 1) and 1) shl 2) or (((q ushr 4) and 1) shl 3)
     val corner = ((q ushr 15) and 1) or (((q ushr 10) and 1) shl 1) or (((q ushr 5) and 1) shl 2) or ((q and 1) shl 3)
 
-    center or (right shl 4) or (left shl 8) or (bottom shl 12) or (top shl 16) or (corner shl 20)
+    return center or (right shl 4) or (left shl 8) or (bottom shl 12) or (top shl 16) or (corner shl 20)
 }
 
 /**
  * Computes the 4x4 [Int] next generation for the given 8x8 64-bit Morton leaf node in its center.
  */
-fun Long.computeLeafNextGeneration(): Int {
+fun Long.computeNextGeneration(): Int {
     if (this == 0L) return 0
 
     val q0 = (this and 0xFFFFL).toInt()

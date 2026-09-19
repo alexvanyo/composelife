@@ -50,21 +50,21 @@ class LeafNodeBenchmark {
     @Test
     fun benchmark_leaf_empty() {
         benchmarkRule.measureRepeated {
-            emptyLeaf.computeLeafNextGeneration()
+            emptyLeaf.computeNextGeneration()
         }
     }
 
     @Test
     fun benchmark_leaf_block() {
         benchmarkRule.measureRepeated {
-            blockLeaf.computeLeafNextGeneration()
+            blockLeaf.computeNextGeneration()
         }
     }
 
     @Test
     fun benchmark_leaf_blinker() {
         benchmarkRule.measureRepeated {
-            blinkerLeaf.computeLeafNextGeneration()
+            blinkerLeaf.computeNextGeneration()
         }
     }
 
@@ -74,7 +74,7 @@ class LeafNodeBenchmark {
         benchmarkRule.measureRepeated {
             var sum = 0
             for (i in 0 until leaves.size) {
-                sum = sum xor leaves[i].computeLeafNextGeneration()
+                sum = sum xor leaves[i].computeNextGeneration()
             }
             assertNotEquals(-1, sum)
         }
