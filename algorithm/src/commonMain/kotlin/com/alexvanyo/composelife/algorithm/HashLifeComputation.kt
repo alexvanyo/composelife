@@ -113,7 +113,7 @@ internal fun computeLevel4NextGeneration(
     ne: Long,
     sw: Long,
     se: Long,
-    computeLeafNextGen: (Long) -> Int = Long::computeLeafNextGeneration,
+    computeLeafNextGen: (Long) -> Int = Long::computeNextGeneration,
 ): Long {
     val n00 = centeredSubnodeLevel3(nw)
     val n01 = centeredHorizontalSubnodeLevel3(nw, ne)
@@ -143,7 +143,7 @@ internal fun computeLevel4NextGeneration(
  */
 internal fun computeLevel4NextGeneration(
     node: MacroCell.Level4Node,
-    computeLeafNextGen: (Long) -> Int = Long::computeLeafNextGeneration,
+    computeLeafNextGen: (Long) -> Int = Long::computeNextGeneration,
 ): MacroCell.LeafNode = computeLevel4NextGeneration(
     nw = node.nw,
     ne = node.ne,
