@@ -42,7 +42,7 @@ class HashLifeLeanConformanceTests {
 
     @Test
     fun hashlife_leaf_empty_differential() {
-        val kotlinResult = 0L.computeLeafNextGeneration()
+        val kotlinResult = 0L.computeNextGeneration()
         val leanResult = oracle.stepLeafBits(0L)
         assertEquals(0, kotlinResult)
         assertEquals(0, leanResult)
@@ -53,19 +53,19 @@ class HashLifeLeanConformanceTests {
         val block = (1L shl 0x0F) or (1L shl 0x1A) or (1L shl 0x25) or (1L shl 0x30)
         assertEquals(
             expected = oracle.stepLeafBits(block),
-            actual = block.computeLeafNextGeneration(),
+            actual = block.computeNextGeneration(),
         )
 
         val blinker = (1L shl 0x0E) or (1L shl 0x0F) or (1L shl 0x1A)
         assertEquals(
             expected = oracle.stepLeafBits(blinker),
-            actual = blinker.computeLeafNextGeneration(),
+            actual = blinker.computeNextGeneration(),
         )
 
         val tub = (1L shl 0x0D) or (1L shl 0x0E) or (1L shl 0x1A) or (1L shl 0x25)
         assertEquals(
             expected = oracle.stepLeafBits(tub),
-            actual = tub.computeLeafNextGeneration(),
+            actual = tub.computeNextGeneration(),
         )
     }
 
@@ -74,7 +74,7 @@ class HashLifeLeanConformanceTests {
         val random = Random(42)
         repeat(1000) {
             val bits = random.nextLong()
-            val kotlinResult = bits.computeLeafNextGeneration()
+            val kotlinResult = bits.computeNextGeneration()
             val leanResult = oracle.stepLeafBits(bits)
             assertEquals(
                 expected = leanResult,

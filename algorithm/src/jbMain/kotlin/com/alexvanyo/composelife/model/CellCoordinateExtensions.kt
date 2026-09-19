@@ -21,19 +21,21 @@ import androidx.compose.ui.unit.IntOffset
 /**
  * Converts an [IntOffset] to a [CellCoordinate].
  */
-fun IntOffset.toCellCoordinate(): CellCoordinate = CellCoordinate(x, y)
+fun IntOffset.toCellCoordinate(): CellCoordinate = CellCoordinate(packedValue)
 
 /**
  * Converts a [CellCoordinate] to an [IntOffset].
  */
-fun CellCoordinate.toIntOffset(): IntOffset = IntOffset(x, y)
+fun CellCoordinate.toIntOffset(): IntOffset = IntOffset(packedValue)
 
 /**
  * Converts a set of [IntOffset]s to a set of [CellCoordinate]s.
  */
-fun Set<IntOffset>.toCellCoordinates(): Set<CellCoordinate> = map(IntOffset::toCellCoordinate).toSet()
+@Suppress("UNCHECKED_CAST")
+fun Set<IntOffset>.toCellCoordinates(): Set<CellCoordinate> = this as Set<CellCoordinate>
 
 /**
  * Converts a set of [CellCoordinate]s to a set of [IntOffset]s.
  */
-fun Set<CellCoordinate>.toIntOffsets(): Set<IntOffset> = map(CellCoordinate::toIntOffset).toSet()
+@Suppress("UNCHECKED_CAST")
+fun Set<CellCoordinate>.toIntOffsets(): Set<IntOffset> = this as Set<IntOffset>
