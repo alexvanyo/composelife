@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife.model
 
+import androidx.compose.ui.unit.IntOffset
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -404,7 +405,11 @@ class RunLengthEncodingCellStateSerializerTests {
 
     @Test
     fun deserialization_with_invalid_header_returns_unsuccessful() {
-        assertIs<DeserializationResult.Unsuccessful>(
+        assertEquals(
+            DeserializationResult.Unsuccessful(
+                warnings = emptyList(),
+                errors = listOf(UnexpectedHeaderMessage("invalid header line")),
+            ),
             serializer.deserializeToCellState(
                 sequenceOf("invalid header line"),
             ),
@@ -437,6 +442,184 @@ class RunLengthEncodingCellStateSerializerTests {
                 |#O Author Name
                 |x = 1, y = 1, rule = B3/S23
                 |o!
+                """.trimMargin().lineSequence(),
+            ),
+        )
+    }
+
+    @Test
+    fun deserialization_with_duplicate_top_left_coordinates_generates_warning() {
+        assertEquals(
+            DeserializationResult.Successful(
+                warnings = listOf(DuplicateTopLeftCoordinateMessage(IntOffset(1, 2))),
+                cellState = setOf(1 to 2).toCellState(),
+                format = CellStateFormat.FixedFormat.RunLengthEncoding,
+            ),
+            serializer.deserializeToCellState(
+                $$"""
+                |#R 0 0
+                |#P 1 2
+                |x = 1, y = 1, rule = B3/S23
+                |o!
+                """.trimMargin().lineSequence(),
+            ),
+        )
+    }
+
+    @Test
+    fun deserialization_with_only_comments_returns_unsuccessful() {
+        assertEquals(
+            DeserializationResult.Unsuccessful(
+                warnings = emptyList(),
+                errors = listOf(UnexpectedHeaderMessage("none")),
+            ),
+            serializer.deserializeToCellState(
+                $$"""
+                |#C Just a comment
+                |#C Another comment
+                """.trimMargin().lineSequence(),
+            ),
+        )
+    }
+
+    @Test
+    fun deserialization_with_header_without_rule_is_successful() {
+        assertEquals(
+            DeserializationResult.Successful(
+                warnings = emptyList(),
+                cellState = setOf(0 to 0).toCellState(),
+                format = CellStateFormat.FixedFormat.RunLengthEncoding,
+            ),
+            serializer.deserializeToCellState(
+                $$"""
+                |x = 1, y = 1
+                |o!
+                """.trimMargin().lineSequence(),
+            ),
+        )
+    }
+
+    @Test
+    fun deserialization_with_rule_format2_is_successful() {
+        assertEquals(
+            DeserializationResult.Successful(
+                warnings = emptyList(),
+                cellState = setOf(0 to 0).toCellState(),
+                format = CellStateFormat.FixedFormat.RunLengthEncoding,
+            ),
+            serializer.deserializeToCellState(
+                $$"""
+                |x = 1, y = 1, rule = 23/3
+                |o!
+                """.trimMargin().lineSequence(),
+            ),
+        )
+    }
+
+    @Test
+    fun deserialization_with_rule_format2_unsupported_returns_unsuccessful() {
+        assertEquals(
+            DeserializationResult.Unsuccessful(
+                warnings = emptyList(),
+                errors = listOf(RuleNotSupportedMessage),
+            ),
+            serializer.deserializeToCellState(
+                $$"""
+                |x = 1, y = 1, rule = 23/34
+                |o!
+                """.trimMargin().lineSequence(),
+            ),
+        )
+    }
+
+    @Test
+    fun deserialization_with_unexpected_count_before_exclamation_generates_warning() {
+        assertEquals(
+            DeserializationResult.Successful(
+                warnings = listOf(
+                    UnexpectedInputMessage(
+                        input = "5!",
+                        lineIndex = 2,
+                        characterIndex = 2,
+                    ),
+                ),
+                cellState = setOf(0 to 0).toCellState(),
+                format = CellStateFormat.FixedFormat.RunLengthEncoding,
+            ),
+            serializer.deserializeToCellState(
+                $$"""
+                |x = 1, y = 1, rule = B3/S23
+                |o5!
+                """.trimMargin().lineSequence(),
+            ),
+        )
+    }
+
+    @Test
+    fun deserialization_with_trailing_chars_on_exclamation_line_generates_warning() {
+        assertEquals(
+            DeserializationResult.Successful(
+                warnings = listOf(
+                    UnexpectedInputMessage(
+                        input = "IndexedValue(index=2, value=e)",
+                        lineIndex = 2,
+                        characterIndex = 3,
+                    ),
+                ),
+                cellState = setOf(0 to 0).toCellState(),
+                format = CellStateFormat.FixedFormat.RunLengthEncoding,
+            ),
+            serializer.deserializeToCellState(
+                $$"""
+                |x = 1, y = 1, rule = B3/S23
+                |o!extra
+                """.trimMargin().lineSequence(),
+            ),
+        )
+    }
+
+    @Test
+    fun deserialization_with_subsequent_line_after_exclamation_generates_warning() {
+        assertEquals(
+            DeserializationResult.Successful(
+                warnings = listOf(
+                    UnexpectedInputMessage(
+                        input = "extra line",
+                        lineIndex = 3,
+                        characterIndex = 1,
+                    ),
+                ),
+                cellState = setOf(0 to 0).toCellState(),
+                format = CellStateFormat.FixedFormat.RunLengthEncoding,
+            ),
+            serializer.deserializeToCellState(
+                $$"""
+                |x = 1, y = 1, rule = B3/S23
+                |o!
+                |extra line
+                """.trimMargin().lineSequence(),
+            ),
+        )
+    }
+
+    @Test
+    fun deserialization_with_unexpected_characters_generates_warning_and_treats_as_alive() {
+        assertEquals(
+            DeserializationResult.Successful(
+                warnings = listOf(
+                    UnexpectedCharacterMessage(
+                        character = 'x',
+                        lineIndex = 2,
+                        characterIndex = 1,
+                    ),
+                ),
+                cellState = setOf(0 to 0).toCellState(),
+                format = CellStateFormat.FixedFormat.RunLengthEncoding,
+            ),
+            serializer.deserializeToCellState(
+                $$"""
+                |x = 1, y = 1, rule = B3/S23
+                |x!
                 """.trimMargin().lineSequence(),
             ),
         )
