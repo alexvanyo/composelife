@@ -24,6 +24,21 @@ void lean_initialize_runtime_module(void);
 extern lean_object* algorithm_step_coords(lean_object* coords, lean_object* steps);
 extern lean_object* algorithm_step_4x4_bits(lean_object* bits);
 extern lean_object* algorithm_step_leaf_bits(lean_object* bits);
+extern lean_object* algorithm_step_level4_bits(
+    lean_object* nw,
+    lean_object* ne,
+    lean_object* sw,
+    lean_object* se
+);
+extern lean_object* algorithm_centered_subnode_level3_bits(lean_object* leaf);
+extern lean_object* algorithm_centered_horizontal_subnode_level3_bits(lean_object* w, lean_object* e);
+extern lean_object* algorithm_centered_vertical_subnode_level3_bits(lean_object* n, lean_object* s);
+extern lean_object* algorithm_centered_sub_subnode_level4_bits(
+    lean_object* nw,
+    lean_object* ne,
+    lean_object* sw,
+    lean_object* se
+);
 
 static bool g_lean_runtime_initialized = false;
 
@@ -52,6 +67,59 @@ uint16_t lean_algorithm_step_leaf_bits(uint64_t bits) {
     lean_algorithm_init_runtime();
     lean_object* bits_obj = lean_uint64_to_nat(bits);
     lean_object* res_obj = algorithm_step_leaf_bits(bits_obj);
+    uint16_t res = (uint16_t)lean_uint64_of_nat_mk(res_obj);
+    return res;
+}
+
+uint64_t lean_algorithm_step_level4_bits(uint64_t nw, uint64_t ne, uint64_t sw, uint64_t se) {
+    lean_algorithm_init_runtime();
+    lean_object* nw_obj = lean_uint64_to_nat(nw);
+    lean_object* ne_obj = lean_uint64_to_nat(ne);
+    lean_object* sw_obj = lean_uint64_to_nat(sw);
+    lean_object* se_obj = lean_uint64_to_nat(se);
+    lean_object* res_obj = algorithm_step_level4_bits(nw_obj, ne_obj, sw_obj, se_obj);
+    uint64_t res = lean_uint64_of_nat_mk(res_obj);
+    return res;
+}
+
+uint16_t lean_algorithm_centered_subnode_level3_bits(uint64_t leaf) {
+    lean_algorithm_init_runtime();
+    lean_object* leaf_obj = lean_uint64_to_nat(leaf);
+    lean_object* res_obj = algorithm_centered_subnode_level3_bits(leaf_obj);
+    uint16_t res = (uint16_t)lean_uint64_of_nat_mk(res_obj);
+    return res;
+}
+
+uint16_t lean_algorithm_centered_horizontal_subnode_level3_bits(uint64_t w, uint64_t e) {
+    lean_algorithm_init_runtime();
+    lean_object* w_obj = lean_uint64_to_nat(w);
+    lean_object* e_obj = lean_uint64_to_nat(e);
+    lean_object* res_obj = algorithm_centered_horizontal_subnode_level3_bits(w_obj, e_obj);
+    uint16_t res = (uint16_t)lean_uint64_of_nat_mk(res_obj);
+    return res;
+}
+
+uint16_t lean_algorithm_centered_vertical_subnode_level3_bits(uint64_t n, uint64_t s) {
+    lean_algorithm_init_runtime();
+    lean_object* n_obj = lean_uint64_to_nat(n);
+    lean_object* s_obj = lean_uint64_to_nat(s);
+    lean_object* res_obj = algorithm_centered_vertical_subnode_level3_bits(n_obj, s_obj);
+    uint16_t res = (uint16_t)lean_uint64_of_nat_mk(res_obj);
+    return res;
+}
+
+uint16_t lean_algorithm_centered_sub_subnode_level4_bits(
+    uint64_t nw,
+    uint64_t ne,
+    uint64_t sw,
+    uint64_t se
+) {
+    lean_algorithm_init_runtime();
+    lean_object* nw_obj = lean_uint64_to_nat(nw);
+    lean_object* ne_obj = lean_uint64_to_nat(ne);
+    lean_object* sw_obj = lean_uint64_to_nat(sw);
+    lean_object* se_obj = lean_uint64_to_nat(se);
+    lean_object* res_obj = algorithm_centered_sub_subnode_level4_bits(nw_obj, ne_obj, sw_obj, se_obj);
     uint16_t res = (uint16_t)lean_uint64_of_nat_mk(res_obj);
     return res;
 }
