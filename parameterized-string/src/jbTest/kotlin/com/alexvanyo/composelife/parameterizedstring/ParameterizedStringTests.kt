@@ -228,4 +228,34 @@ class ParameterizedStringTests : BaseKmpTest() {
             assertEquals(initial, restored)
         }
     }
+
+    @Test
+    fun serializer_is_correct_for_char_float_double() {
+        runComposeUiTest {
+            val stateRestorationTester = KmpStateRestorationTester(this)
+
+            var parameterizedString: ParameterizedString? = null
+
+            stateRestorationTester.setContent {
+                parameterizedString = rememberSerializable(serializer = serializer()) {
+                    ParameterizedString(
+                        "Char: %c, Float: %.1f, Double: %.1f",
+                        ParameterizedStringArgument('a'),
+                        ParameterizedStringArgument(1.5f),
+                        ParameterizedStringArgument(2.5),
+                    )
+                }
+            }
+
+            val initial = parameterizedString
+
+            assertNotNull(initial)
+
+            stateRestorationTester.emulateStateRestore()
+
+            val restored = parameterizedString
+
+            assertEquals(initial, restored)
+        }
+    }
 }
