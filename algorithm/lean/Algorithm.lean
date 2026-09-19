@@ -20,4 +20,5 @@ import Algorithm.Patterns
 import Algorithm.Properties
 import Algorithm.MacroCell
 import Algorithm.MacroCellHash
+import Algorithm.HashLife
 import Algorithm.Bridge
