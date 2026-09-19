@@ -44,6 +44,7 @@ composeCompiler {
 }
 
 val leanPrefixProvider = providers.exec {
+    workingDir = file("lean")
     commandLine("lean", "--print-prefix")
 }.standardOutput.asText.map { it.trim() }
 
