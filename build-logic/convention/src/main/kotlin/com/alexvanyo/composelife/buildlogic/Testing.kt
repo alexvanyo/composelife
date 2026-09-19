@@ -22,8 +22,7 @@ import com.android.build.api.dsl.KotlinMultiplatformAndroidHostTestCompilation
 import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
 import com.android.build.api.dsl.TestedExtension
 import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
-import com.android.build.gradle.internal.tasks.DeviceProviderInstrumentTestTask
-import com.android.build.gradle.internal.tasks.ManagedDeviceInstrumentationTestTask
+import com.android.build.gradle.tasks.TestSuiteTestTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
@@ -147,12 +146,7 @@ fun Project.configureAndroidTesting(extension: KotlinMultiplatformAndroidLibrary
 
     if (useSharedTest.get() == SharedTestConfig.Robolectric) {
         // TODO: Replace with gradle-api API
-        tasks.withType(ManagedDeviceInstrumentationTestTask::class.java).configureEach {
-            doFirst {
-                throw GradleException("useSharedTest is configured to only run robolectric tests!")
-            }
-        }
-        tasks.withType(DeviceProviderInstrumentTestTask::class.java).configureEach {
+        tasks.withType(TestSuiteTestTask::class.java).configureEach {
             doFirst {
                 throw GradleException("useSharedTest is configured to only run robolectric tests!")
             }
