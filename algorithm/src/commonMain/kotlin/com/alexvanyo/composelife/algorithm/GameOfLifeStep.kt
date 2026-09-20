@@ -16,31 +16,14 @@
 
 package com.alexvanyo.composelife.algorithm
 
-import com.alexvanyo.composelife.model.CellCoordinate
+import com.alexvanyo.composelife.geometry.IntOffset
+import com.alexvanyo.composelife.geometry.getMooreNeighbors
 
 /**
- * Returns the 8 Moore neighbors of this [CellCoordinate].
+ * Pure function computing one generation of Conway's Game of Life on a set of [IntOffset]s.
  */
-fun CellCoordinate.getMooreNeighbors(): Set<CellCoordinate> {
-    val cx = x
-    val cy = y
-    return setOf(
-        CellCoordinate(cx - 1, cy - 1),
-        CellCoordinate(cx, cy - 1),
-        CellCoordinate(cx + 1, cy - 1),
-        CellCoordinate(cx - 1, cy),
-        CellCoordinate(cx + 1, cy),
-        CellCoordinate(cx - 1, cy + 1),
-        CellCoordinate(cx, cy + 1),
-        CellCoordinate(cx + 1, cy + 1),
-    )
-}
-
-/**
- * Pure function computing one generation of Conway's Game of Life on a set of [CellCoordinate]s.
- */
-fun stepGeneration(aliveCells: Set<CellCoordinate>): Set<CellCoordinate> {
-    val candidates = aliveCells.flatMapTo(mutableSetOf(), CellCoordinate::getMooreNeighbors)
+fun stepGeneration(aliveCells: Set<IntOffset>): Set<IntOffset> {
+    val candidates = aliveCells.flatMapTo(mutableSetOf(), IntOffset::getMooreNeighbors)
     candidates.addAll(aliveCells)
     return candidates.filterTo(mutableSetOf()) { cell ->
         val neighborCount = cell.getMooreNeighbors().count { it in aliveCells }
@@ -51,7 +34,7 @@ fun stepGeneration(aliveCells: Set<CellCoordinate>): Set<CellCoordinate> {
 /**
  * Pure function computing [step] generations of Conway's Game of Life.
  */
-tailrec fun stepGenerations(aliveCells: Set<CellCoordinate>, step: Int): Set<CellCoordinate> = if (step <= 0) {
+tailrec fun stepGenerations(aliveCells: Set<IntOffset>, step: Int): Set<IntOffset> = if (step <= 0) {
     aliveCells
 } else {
     stepGenerations(stepGeneration(aliveCells), step - 1)

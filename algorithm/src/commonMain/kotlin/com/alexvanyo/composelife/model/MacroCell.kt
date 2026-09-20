@@ -17,6 +17,7 @@
 
 package com.alexvanyo.composelife.model
 
+import com.alexvanyo.composelife.geometry.IntOffset
 import com.alexvanyo.composelife.model.MacroCell.CellNode
 import com.alexvanyo.composelife.model.MacroCell.LeafNode
 import com.alexvanyo.composelife.model.MacroCell.Level4Node
@@ -131,7 +132,7 @@ internal inline fun LeafNode(nw: Int, ne: Int, sw: Int, se: Int): LeafNode = (nw
     ((sw.toLong() and 0xFFFFL) shl 32) or
     ((se.toLong() and 0xFFFFL) shl 48)
 
-internal inline fun LeafNode(aliveCells: Set<CellCoordinate>): LeafNode {
+internal inline fun LeafNode(aliveCells: Set<IntOffset>): LeafNode {
     var result = 0L
     for (target in aliveCells) {
         result = result or target.toMask()
@@ -163,7 +164,7 @@ internal inline fun LeafNode.withCell(x: Int, y: Int, isAlive: Boolean): LeafNod
     }
 }
 
-internal inline fun LeafNode.withCell(target: CellCoordinate, isAlive: Boolean): LeafNode =
+internal inline fun LeafNode.withCell(target: IntOffset, isAlive: Boolean): LeafNode =
     withCell(target.x, target.y, isAlive)
 
 /**
@@ -255,7 +256,7 @@ internal fun MacroCell.withCell(x: Int, y: Int, isAlive: Boolean): MacroCell {
     }
 }
 
-internal inline fun MacroCell.withCell(target: CellCoordinate, isAlive: Boolean): MacroCell =
+internal inline fun MacroCell.withCell(target: IntOffset, isAlive: Boolean): MacroCell =
     withCell(target.x, target.y, isAlive)
 
 /**
@@ -278,7 +279,7 @@ internal fun createEmptyMacroCell(level: Int): MacroCell {
     }
 }
 
-internal inline operator fun LeafNode.contains(target: CellCoordinate): Boolean {
+internal inline operator fun LeafNode.contains(target: IntOffset): Boolean {
     if (target.x !in 0..7 || target.y !in 0..7) return false
     return (this and target.toMask()) != 0L
 }
@@ -336,7 +337,7 @@ internal tailrec fun MacroCell.contains(x: Int, y: Int): Boolean {
     }
 }
 
-internal inline operator fun MacroCell.contains(target: CellCoordinate): Boolean = contains(target.x, target.y)
+internal inline operator fun MacroCell.contains(target: IntOffset): Boolean = contains(target.x, target.y)
 
 /**
  * Converts relative coordinates where `x` and `y` are each in `0..7` into the appropriate [Long] bit for [LeafNode].
@@ -346,7 +347,7 @@ internal inline fun cellToLeafMask(x: Int, y: Int): Long {
     return maskArray[y * 8 + x]
 }
 
-internal inline fun CellCoordinate.toMask(): Long = cellToLeafMask(x, y)
+internal inline fun IntOffset.toMask(): Long = cellToLeafMask(x, y)
 
 internal val maskArray =
     longArrayOf(
@@ -417,74 +418,74 @@ internal val maskArray =
     )
 
 /**
- * Converts a bit index into the appropriate [CellCoordinate] for [LeafNode].
+ * Converts a bit index into the appropriate [IntOffset] for [LeafNode].
  */
-internal inline fun cellCoordinateFromBit(bit: Int): CellCoordinate = cellCoordinateList[bit]
+internal inline fun intOffsetFromBit(bit: Int): IntOffset = intOffsetList[bit]
 
-internal val cellCoordinateList =
+internal val intOffsetList =
     listOf(
-        CellCoordinate(0, 0),
-        CellCoordinate(1, 0),
-        CellCoordinate(0, 1),
-        CellCoordinate(1, 1),
-        CellCoordinate(2, 0),
-        CellCoordinate(3, 0),
-        CellCoordinate(2, 1),
-        CellCoordinate(3, 1),
-        CellCoordinate(0, 2),
-        CellCoordinate(1, 2),
-        CellCoordinate(0, 3),
-        CellCoordinate(1, 3),
-        CellCoordinate(2, 2),
-        CellCoordinate(3, 2),
-        CellCoordinate(2, 3),
-        CellCoordinate(3, 3),
-        CellCoordinate(4, 0),
-        CellCoordinate(5, 0),
-        CellCoordinate(4, 1),
-        CellCoordinate(5, 1),
-        CellCoordinate(6, 0),
-        CellCoordinate(7, 0),
-        CellCoordinate(6, 1),
-        CellCoordinate(7, 1),
-        CellCoordinate(4, 2),
-        CellCoordinate(5, 2),
-        CellCoordinate(4, 3),
-        CellCoordinate(5, 3),
-        CellCoordinate(6, 2),
-        CellCoordinate(7, 2),
-        CellCoordinate(6, 3),
-        CellCoordinate(7, 3),
-        CellCoordinate(0, 4),
-        CellCoordinate(1, 4),
-        CellCoordinate(0, 5),
-        CellCoordinate(1, 5),
-        CellCoordinate(2, 4),
-        CellCoordinate(3, 4),
-        CellCoordinate(2, 5),
-        CellCoordinate(3, 5),
-        CellCoordinate(0, 6),
-        CellCoordinate(1, 6),
-        CellCoordinate(0, 7),
-        CellCoordinate(1, 7),
-        CellCoordinate(2, 6),
-        CellCoordinate(3, 6),
-        CellCoordinate(2, 7),
-        CellCoordinate(3, 7),
-        CellCoordinate(4, 4),
-        CellCoordinate(5, 4),
-        CellCoordinate(4, 5),
-        CellCoordinate(5, 5),
-        CellCoordinate(6, 4),
-        CellCoordinate(7, 4),
-        CellCoordinate(6, 5),
-        CellCoordinate(7, 5),
-        CellCoordinate(4, 6),
-        CellCoordinate(5, 6),
-        CellCoordinate(4, 7),
-        CellCoordinate(5, 7),
-        CellCoordinate(6, 6),
-        CellCoordinate(7, 6),
-        CellCoordinate(6, 7),
-        CellCoordinate(7, 7),
+        IntOffset(0, 0),
+        IntOffset(1, 0),
+        IntOffset(0, 1),
+        IntOffset(1, 1),
+        IntOffset(2, 0),
+        IntOffset(3, 0),
+        IntOffset(2, 1),
+        IntOffset(3, 1),
+        IntOffset(0, 2),
+        IntOffset(1, 2),
+        IntOffset(0, 3),
+        IntOffset(1, 3),
+        IntOffset(2, 2),
+        IntOffset(3, 2),
+        IntOffset(2, 3),
+        IntOffset(3, 3),
+        IntOffset(4, 0),
+        IntOffset(5, 0),
+        IntOffset(4, 1),
+        IntOffset(5, 1),
+        IntOffset(6, 0),
+        IntOffset(7, 0),
+        IntOffset(6, 1),
+        IntOffset(7, 1),
+        IntOffset(4, 2),
+        IntOffset(5, 2),
+        IntOffset(4, 3),
+        IntOffset(5, 3),
+        IntOffset(6, 2),
+        IntOffset(7, 2),
+        IntOffset(6, 3),
+        IntOffset(7, 3),
+        IntOffset(0, 4),
+        IntOffset(1, 4),
+        IntOffset(0, 5),
+        IntOffset(1, 5),
+        IntOffset(2, 4),
+        IntOffset(3, 4),
+        IntOffset(2, 5),
+        IntOffset(3, 5),
+        IntOffset(0, 6),
+        IntOffset(1, 6),
+        IntOffset(0, 7),
+        IntOffset(1, 7),
+        IntOffset(2, 6),
+        IntOffset(3, 6),
+        IntOffset(2, 7),
+        IntOffset(3, 7),
+        IntOffset(4, 4),
+        IntOffset(5, 4),
+        IntOffset(4, 5),
+        IntOffset(5, 5),
+        IntOffset(6, 4),
+        IntOffset(7, 4),
+        IntOffset(6, 5),
+        IntOffset(7, 5),
+        IntOffset(4, 6),
+        IntOffset(5, 6),
+        IntOffset(4, 7),
+        IntOffset(5, 7),
+        IntOffset(6, 6),
+        IntOffset(7, 6),
+        IntOffset(6, 7),
+        IntOffset(7, 7),
     )

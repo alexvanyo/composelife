@@ -28,7 +28,7 @@ import com.alexvanyo.composelife.algorithm.lean.cinterop.lean_algorithm_step
 import com.alexvanyo.composelife.algorithm.lean.cinterop.lean_algorithm_step_4x4_bits
 import com.alexvanyo.composelife.algorithm.lean.cinterop.lean_algorithm_step_leaf_bits
 import com.alexvanyo.composelife.algorithm.lean.cinterop.lean_algorithm_step_level4_bits
-import com.alexvanyo.composelife.model.CellCoordinate
+import com.alexvanyo.composelife.geometry.IntOffset
 import com.alexvanyo.composelife.model.MacroCell
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.alloc
@@ -113,32 +113,32 @@ internal class LeanGameOfLifeOracle {
     fun centeredSubSubnodeLevel4(node: MacroCell.Level4Node): Int =
         centeredSubSubnodeLevel4(node.nw, node.ne, node.sw, node.se)
 
-    fun step(cells: Set<CellCoordinate>, stepCount: Int): Set<CellCoordinate> = memScoped {
-        if (cells.isEmpty()) {
-            return emptySet()
-        }
+    fun step(cells: Set<IntOffset>, stepCount: Int): Set<IntOffset> = memScoped {
+        if (cells.isEmpty()) return emptySet()
+
         val inPoints = allocArray<CellPointC>(cells.size)
-        cells.forEachIndexed { index, coord ->
-            inPoints[index].x = coord.x
-            inPoints[index].y = coord.y
+        cells.forEachIndexed { index, cell ->
+            inPoints[index].x = cell.x
+            inPoints[index].y = cell.y
         }
+
         val outGrid = alloc<CellGridC>()
+
         val res = lean_algorithm_step(
             in_points = inPoints,
             in_count = cells.size.convert(),
-            step = stepCount.convert(),
+            step = stepCount.toUInt(),
             out_grid = outGrid.ptr,
         )
-        check(res == 0) { "lean_algorithm_step failed with status $res" }
+        check(res == 0) { "lean_algorithm_step failed with error code $res" }
+
         try {
-            val count = outGrid.count.toInt()
-            val points = outGrid.points
-            if (count == 0 || points == null) {
-                emptySet()
-            } else {
-                buildSet(count) {
+            buildSet {
+                val count = outGrid.count.toInt()
+                val points = outGrid.points
+                if (points != null) {
                     for (i in 0 until count) {
-                        add(CellCoordinate(points[i].x, points[i].y))
+                        add(IntOffset(points[i].x, points[i].y))
                     }
                 }
             }

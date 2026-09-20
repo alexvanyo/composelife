@@ -14,24 +14,26 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.model
+@file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+
+package com.alexvanyo.composelife.geometry
 
 import kotlin.jvm.JvmInline
 
-/**
- * A lightweight 2D integer cell coordinate for Game of Life cells.
- *
- * Packed as two 32-bit integers in a 64-bit [Long] for zero-allocation performance.
- */
 @JvmInline
-value class CellCoordinate(val packedValue: Long) {
-    constructor(x: Int, y: Int) : this((x.toLong() shl 32) or (y.toLong() and 0xFFFFFFFFL))
+expect value class Offset(val packedValue: Long) {
+    val x: Float
+    val y: Float
 
-    val x: Int get() = (packedValue shr 32).toInt()
-    val y: Int get() = (packedValue and 0xFFFFFFFFL).toInt()
+    operator fun component1(): Float
+    operator fun component2(): Float
 
-    operator fun component1(): Int = x
-    operator fun component2(): Int = y
-
-    override fun toString(): String = "($x, $y)"
+    operator fun minus(other: Offset): Offset
+    operator fun plus(other: Offset): Offset
+    operator fun div(operand: Float): Offset
+    fun getDistance(): Float
 }
+
+expect fun Offset(x: Float, y: Float): Offset
+
+expect fun lerp(start: Offset, stop: Offset, fraction: Float): Offset

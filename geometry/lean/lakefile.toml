@@ -1,0 +1,6 @@
+name = "Geometry"
+version = "0.1.0"
+defaultTargets = ["Geometry"]
+
+[[lean_lib]]
+name = "Geometry"

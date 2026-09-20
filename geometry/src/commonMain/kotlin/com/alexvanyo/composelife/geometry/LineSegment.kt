@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,6 @@
 
 package com.alexvanyo.composelife.geometry
 
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.lerp
-import androidx.compose.ui.unit.IntOffset
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -26,32 +23,32 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.math.sign
 
-data class LineSegmentPath(val points: List<Offset>) {
-    init {
-        require(points.isNotEmpty())
+/**
+ * Returns all discrete grid [IntOffset]s that intersect with the polyline path defined by [points].
+ */
+fun cellIntersections(points: List<Offset>): Set<IntOffset> {
+    require(points.isNotEmpty())
+    return if (points.size == 1) {
+        setOf(floor(points.first()))
+    } else {
+        points.zipWithNext { a, b -> cellIntersections(a, b) }.flatten().toSet()
     }
 }
 
 /**
- * Returns all cells [IntOffset]s that intersect with the [LineSegmentPath].
+ * Returns all discrete grid [IntOffset]s that intersect with the line segment from [start] to [end].
  */
-fun LineSegmentPath.cellIntersections(): Set<IntOffset> = if (points.size == 1) {
-    setOf(floor(points.first()))
-} else {
-    points.zipWithNext { a, b -> cellIntersections(a, b) }.flatten().toSet()
-}
-
 @Suppress("LongMethod")
-private fun cellIntersections(start: Offset, end: Offset): Set<IntOffset> = buildSet {
-    val startCellCoordinate = floor(start)
-    val endCellCoordinate = floor(end)
+fun cellIntersections(start: Offset, end: Offset): Set<IntOffset> = buildSet {
+    val startCell = floor(start)
+    val endCell = floor(end)
 
-    add(startCellCoordinate)
-    add(endCellCoordinate)
+    add(startCell)
+    add(endCell)
 
-    val startToEndDiffCellCoordinate = startCellCoordinate - endCellCoordinate
-    val chebyshevDistance = startToEndDiffCellCoordinate.chebyshevDistance()
-    val manhattanDistance = startToEndDiffCellCoordinate.manhattanDistance()
+    val startToEndDiff = startCell - endCell
+    val chebyshevDistance = startToEndDiff.chebyshevDistance()
+    val manhattanDistance = startToEndDiff.manhattanDistance()
     val isWest = sign(start.x - end.x)
     val isNorth = sign(start.y - end.y)
 
@@ -72,10 +69,10 @@ private fun cellIntersections(start: Offset, end: Offset): Set<IntOffset> = buil
         val combinedSign = side * isWest * isNorth
 
         if (combinedSign <= 0f) {
-            add(IntOffset(startCellCoordinate.x, endCellCoordinate.y))
+            add(IntOffset(startCell.x, endCell.y))
         }
         if (combinedSign >= 0f) {
-            add(IntOffset(endCellCoordinate.x, startCellCoordinate.y))
+            add(IntOffset(endCell.x, startCell.y))
         }
         return@buildSet
     }
@@ -152,10 +149,3 @@ private fun cellIntersections(start: Offset, end: Offset): Set<IntOffset> = buil
             },
     )
 }
-
-/**
- * Returns `1.0` if this [Offset] is on the right side of the line (from [start] to [end]), `0.0` if on this line,
- * and `-1.0` if on the left side of the line.
- */
-fun Offset.sideOfLine(start: Offset, end: Offset): Float =
-    sign((end.x - start.x) * (y - start.y) - (end.y - start.y) * (x - start.x))
