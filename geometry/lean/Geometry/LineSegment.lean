@@ -22,31 +22,42 @@ namespace Geometry
 Deduplicates a list of cells while preserving first-occurrence order.
 -/
 def dedupCells (cells : List Cell) : List Cell :=
-  cells.foldl (fun acc c => if acc.contains c then acc else acc ++ [c]) []
+  cells.eraseDups
+
+/--
+Membership in dedupCells is equivalent to membership in the original list.
+-/
+@[simp]
+theorem mem_dedupCells (c : Cell) (cells : List Cell) : c ∈ dedupCells cells ↔ c ∈ cells :=
+  List.mem_eraseDups
 
 /--
 Ray marching loop that steps across grid boundary lines until reaching distance.
+Terminates structurally over fuel (bounded by grid cell Manhattan distance).
 -/
-partial def rayMarch (start ptEnd : Point) (distance : Float) (isWest isNorth : Float)
+def rayMarch (fuel : Nat) (start ptEnd : Point) (distance : Float) (isWest isNorth : Float)
     (xStep yStep : Float) (tX tY : Float) (acc : List Cell) : List Cell :=
-  let nextT := if tX < tY then tX else tY
-  let isX := tX < tY
-  if nextT >= distance then
-    acc
-  else
-    let fraction := nextT / distance
-    let offsetX := start.x + (ptEnd.x - start.x) * fraction
-    let offsetY := start.y + (ptEnd.y - start.y) * fraction
-    let newCells :=
-      if isX then
-        [⟨roundToInt offsetX, toInt offsetY.floor⟩,
-         ⟨roundToInt offsetX - 1, toInt offsetY.floor⟩]
-      else
-        [⟨toInt offsetX.floor, roundToInt offsetY⟩,
-         ⟨toInt offsetX.floor, roundToInt offsetY - 1⟩]
-    let nextTX := if isX then tX + xStep.abs else tX
-    let nextTY := if isX then tY else tY + yStep.abs
-    rayMarch start ptEnd distance isWest isNorth xStep yStep nextTX nextTY (acc ++ newCells)
+  match fuel with
+  | 0 => acc
+  | fuel + 1 =>
+    let nextT := if tX < tY then tX else tY
+    let isX := tX < tY
+    if nextT >= distance then
+      acc
+    else
+      let fraction := nextT / distance
+      let offsetX := start.x + (ptEnd.x - start.x) * fraction
+      let offsetY := start.y + (ptEnd.y - start.y) * fraction
+      let newCells :=
+        if isX then
+          [⟨roundToInt offsetX, toInt offsetY.floor⟩,
+           ⟨roundToInt offsetX - 1, toInt offsetY.floor⟩]
+        else
+          [⟨toInt offsetX.floor, roundToInt offsetY⟩,
+           ⟨toInt offsetX.floor, roundToInt offsetY - 1⟩]
+      let nextTX := if isX then tX + xStep.abs else tX
+      let nextTY := if isX then tY else tY + yStep.abs
+      rayMarch fuel start ptEnd distance isWest isNorth xStep yStep nextTX nextTY (acc ++ newCells)
 
 /--
 Computes the set of discrete grid cells intersected by the line segment from `start` to `ptEnd`.
@@ -85,7 +96,8 @@ def cellIntersectionsSegment (start ptEnd : Point) : List Cell :=
       let yStep := 1.0 / normY
       let initTX := xStep * if isWest > 0.0 then start.x.floor - start.x else start.x.ceil - start.x
       let initTY := yStep * if isNorth > 0.0 then start.y.floor - start.y else start.y.ceil - start.y
-      let marched := rayMarch start ptEnd distance isWest isNorth xStep yStep initTX initTY []
+      let maxSteps := manhattan + 4
+      let marched := rayMarch maxSteps start ptEnd distance isWest isNorth xStep yStep initTX initTY []
       dedupCells ([startCell, endCell] ++ marched)
 
 /--
