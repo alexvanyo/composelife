@@ -28,23 +28,30 @@ import kotlin.math.sign
  */
 fun cellIntersections(points: List<Offset>): Set<IntOffset> {
     require(points.isNotEmpty())
-    return if (points.size == 1) {
-        setOf(floor(points.first()))
-    } else {
-        points.zipWithNext { a, b -> cellIntersections(a, b) }.flatten().toSet()
+    if (points.size == 1) {
+        return setOf(floor(points[0]))
     }
+    val result = mutableSetOf<IntOffset>()
+    for (i in 0 until points.size - 1) {
+        cellIntersections(points[i], points[i + 1], result)
+    }
+    return result
 }
 
 /**
  * Returns all discrete grid [IntOffset]s that intersect with the line segment from [start] to [end].
  */
-@Suppress("LongMethod")
 fun cellIntersections(start: Offset, end: Offset): Set<IntOffset> = buildSet {
+    cellIntersections(start, end, this)
+}
+
+@Suppress("LongMethod", "ComplexMethod", "ReturnCount")
+internal fun cellIntersections(start: Offset, end: Offset, destination: MutableSet<IntOffset>) {
     val startCell = floor(start)
     val endCell = floor(end)
 
-    add(startCell)
-    add(endCell)
+    destination.add(startCell)
+    destination.add(endCell)
 
     val startToEndDiff = startCell - endCell
     val chebyshevDistance = startToEndDiff.chebyshevDistance()
@@ -53,15 +60,9 @@ fun cellIntersections(start: Offset, end: Offset): Set<IntOffset> = buildSet {
     val isNorth = sign(start.y - end.y)
 
     // Fast paths
-    if (manhattanDistance == 0) {
-        // The start and end cells are the same, so we are done
-        return@buildSet
-    } else if (manhattanDistance == 1) {
-        // The start and end cells are the only two cells, so we are done
-        return@buildSet
+    if (manhattanDistance <= 1) {
+        return
     } else if (chebyshevDistance == 1) {
-        // There are only 3 cells: start, end, and one of their shared neighbors, depending on precisely
-        // where the start and end points are
         val side = Offset(
             floor(max(start.x, end.x)),
             floor(max(start.y, end.y)),
@@ -69,12 +70,12 @@ fun cellIntersections(start: Offset, end: Offset): Set<IntOffset> = buildSet {
         val combinedSign = side * isWest * isNorth
 
         if (combinedSign <= 0f) {
-            add(IntOffset(startCell.x, endCell.y))
+            destination.add(IntOffset(startCell.x, endCell.y))
         }
         if (combinedSign >= 0f) {
-            add(IntOffset(endCell.x, startCell.y))
+            destination.add(IntOffset(endCell.x, startCell.y))
         }
-        return@buildSet
+        return
     }
 
     val vector = end - start
@@ -82,70 +83,34 @@ fun cellIntersections(start: Offset, end: Offset): Set<IntOffset> = buildSet {
     check(distance >= 1f)
     val normalizedVector = vector / distance
 
-    val xStep = 1 / normalizedVector.x
-    val yStep = 1 / normalizedVector.y
+    val xStep = 1f / normalizedVector.x
+    val yStep = 1f / normalizedVector.y
 
-    val tXSequence = generateSequence(
-        xStep * if (isWest > 0f) {
-            floor(start.x) - start.x
+    val absXStep = abs(xStep)
+    val absYStep = abs(yStep)
+
+    var tX = xStep * if (isWest > 0f) floor(start.x) - start.x else ceil(start.x) - start.x
+    var tY = yStep * if (isNorth > 0f) floor(start.y) - start.y else ceil(start.y) - start.y
+
+    while (true) {
+        val isX = tX < tY
+        val nextT = if (isX) tX else tY
+        if (nextT >= distance) {
+            break
+        }
+        val offset = lerp(start, end, nextT / distance)
+        if (isX) {
+            val rx = offset.x.roundToInt()
+            val fy = floor(offset.y).roundToInt()
+            destination.add(IntOffset(rx, fy))
+            destination.add(IntOffset(rx - 1, fy))
+            tX += absXStep
         } else {
-            ceil(start.x) - start.x
-        },
-    ) { it + abs(xStep) }
-    val tYSequence = generateSequence(
-        yStep * if (isNorth > 0f) {
-            floor(start.y) - start.y
-        } else {
-            ceil(start.y) - start.y
-        },
-    ) { it + abs(yStep) }
-
-    val tSequence = sequence {
-        val tXIterator = tXSequence.iterator()
-        val tYIterator = tYSequence.iterator()
-
-        var nextX = tXIterator.next()
-        var nextY = tYIterator.next()
-
-        while (true) {
-            if (nextX < nextY) {
-                yield(nextX to true)
-                nextX = tXIterator.next()
-            } else {
-                yield(nextY to false)
-                nextY = tYIterator.next()
-            }
+            val fx = floor(offset.x).roundToInt()
+            val ry = offset.y.roundToInt()
+            destination.add(IntOffset(fx, ry))
+            destination.add(IntOffset(fx, ry - 1))
+            tY += absYStep
         }
     }
-
-    addAll(
-        tSequence
-            .takeWhile { (t, _) -> t < distance }
-            .flatMap { (t, isX) ->
-                val offset = lerp(start, end, t / distance)
-                if (isX) {
-                    listOf(
-                        IntOffset(
-                            offset.x.roundToInt(),
-                            floor(offset.y).roundToInt(),
-                        ),
-                        IntOffset(
-                            offset.x.roundToInt() - 1,
-                            floor(offset.y).roundToInt(),
-                        ),
-                    )
-                } else {
-                    listOf(
-                        IntOffset(
-                            floor(offset.x).roundToInt(),
-                            offset.y.roundToInt(),
-                        ),
-                        IntOffset(
-                            floor(offset.x).roundToInt(),
-                            offset.y.roundToInt() - 1,
-                        ),
-                    )
-                }
-            },
-    )
 }
