@@ -125,12 +125,15 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting
+        val commonMain by getting {
+            dependencies {
+                api(projects.geometry)
+            }
+        }
         val jbMain by creating {
             dependsOn(commonMain)
             dependencies {
                 api(projects.dispatchers)
-                api(projects.geometry)
                 api(projects.parameterizedString)
                 api(projects.preferences)
                 api(projects.serialization)

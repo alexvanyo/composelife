@@ -16,7 +16,6 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
-import com.android.build.api.dsl.KotlinMultiplatformAndroidDeviceTestCompilation
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
@@ -29,6 +28,52 @@ plugins {
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
     alias(libs.plugins.gradleDependenciesSorter)
+}
+
+composeCompiler {
+    targetKotlinPlatforms.set(
+        setOf(
+            org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.androidJvm,
+            org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.jvm,
+            org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.wasm,
+        ),
+    )
+}
+
+val leanPrefixProvider = providers.exec {
+    workingDir = file("lean")
+    commandLine("lean", "--print-prefix")
+}.standardOutput.asText.map { it.trim() }
+
+val verifyLean by tasks.registering(Exec::class) {
+    description = "Formally verifies geometry logic using Lean 4"
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    workingDir = file("lean")
+    commandLine("lake", "build", "Geometry:static")
+}
+
+val compileGeometryBridgeCObject by tasks.registering(Exec::class) {
+    description = "Compiles C bridge for Lean geometry engine"
+    group = LifecycleBasePlugin.BUILD_GROUP
+    dependsOn(verifyLean)
+    workingDir = file("lean")
+    inputs.file(file("lean/c/geometry_bridge.c"))
+    inputs.file(file("lean/c/geometry_bridge.h"))
+    val outputFile = layout.buildDirectory.file("natives/c/geometry_bridge.o")
+    outputs.file(outputFile)
+    doFirst {
+        outputFile.get().asFile.parentFile.mkdirs()
+    }
+    val leanPrefix = leanPrefixProvider.get()
+    commandLine(
+        "clang",
+        "-c",
+        "-fPIC",
+        "c/geometry_bridge.c",
+        "-I$leanPrefix/include",
+        "-o",
+        outputFile.get().asFile.absolutePath,
+    )
 }
 
 kotlin {
@@ -49,18 +94,47 @@ kotlin {
         }
     }
 
+    linuxX64 {
+        compilations.getByName("test") {
+            cinterops {
+                val geometryBridge by creating {
+                    definitionFile.set(file("src/linuxX64Test/cinterop/geometry_bridge.def"))
+                    includeDirs(file("lean/c"))
+                }
+            }
+        }
+        binaries.withType<org.jetbrains.kotlin.gradle.plugin.mpp.TestExecutable>().configureEach {
+            linkTaskProvider.configure {
+                dependsOn(compileGeometryBridgeCObject)
+            }
+            val bridgeObj = layout.buildDirectory.file("natives/c/geometry_bridge.o").get().asFile.absolutePath
+            val leanArchive = file("lean/.lake/build/lib/libGeometry_Geometry.a").absolutePath
+            val leanPrefix = leanPrefixProvider.get()
+            linkerOpts(
+                bridgeObj,
+                leanArchive,
+                "-lgcc_s",
+                "-L$leanPrefix/lib/lean",
+                "-L$leanPrefix/lib",
+                "-lleanshared",
+                "-Wl,-rpath,$leanPrefix/lib/lean",
+            )
+        }
+    }
+
     sourceSets {
         val commonMain by getting {
             dependencies {
                 implementation(libs.androidx.annotation)
-                implementation(libs.androidx.compose.runtime)
             }
         }
         val jbMain by creating {
             dependsOn(commonMain)
             dependencies {
-                implementation(libs.jetbrains.compose.uiGeometry)
-                implementation(libs.jetbrains.compose.uiUnit)
+                api(libs.jetbrains.compose.uiGeometry)
+                api(libs.jetbrains.compose.uiUnit)
+
+                implementation(libs.androidx.compose.runtime)
                 implementation(libs.jetbrains.compose.uiUtil)
             }
         }
@@ -73,7 +147,11 @@ kotlin {
         val wasmJsMain by getting {
             dependsOn(jbMain)
         }
-        val commonTest by getting {}
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
         val jbTest by creating {
             dependsOn(commonTest)
         }
@@ -86,5 +164,16 @@ kotlin {
         val wasmJsTest by getting {
             dependsOn(jbTest)
         }
+        val linuxX64Test by getting {
+            dependsOn(commonTest)
+        }
     }
+}
+
+tasks.named("check") {
+    dependsOn(verifyLean)
+}
+
+tasks.named("linuxX64Test") {
+    dependsOn(verifyLean)
 }

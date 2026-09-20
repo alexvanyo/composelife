@@ -17,7 +17,7 @@
 package com.alexvanyo.composelife.algorithm
 
 import com.alexvanyo.composelife.algorithm.lean.LeanGameOfLifeOracle
-import com.alexvanyo.composelife.model.CellCoordinate
+import com.alexvanyo.composelife.geometry.IntOffset
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -28,7 +28,7 @@ class GameOfLifeLeanConformanceTests {
 
     @Test
     fun empty_grid_stability() {
-        val empty = emptySet<CellCoordinate>()
+        val empty = emptySet<IntOffset>()
         assertEquals(empty, stepGenerations(empty, 0))
         assertEquals(empty, stepGenerations(empty, 1))
         assertEquals(empty, stepGenerations(empty, 5))
@@ -39,10 +39,10 @@ class GameOfLifeLeanConformanceTests {
     @Test
     fun block_still_life() {
         val block = setOf(
-            CellCoordinate(0, 0),
-            CellCoordinate(0, 1),
-            CellCoordinate(1, 0),
-            CellCoordinate(1, 1),
+            IntOffset(0, 0),
+            IntOffset(0, 1),
+            IntOffset(1, 0),
+            IntOffset(1, 1),
         )
         val kotlinNext = stepGenerations(block, 1)
         val oracleNext = oracle.step(block, 1)
@@ -54,10 +54,10 @@ class GameOfLifeLeanConformanceTests {
     @Test
     fun tub_still_life() {
         val tub = setOf(
-            CellCoordinate(1, 0),
-            CellCoordinate(0, 1),
-            CellCoordinate(2, 1),
-            CellCoordinate(1, 2),
+            IntOffset(1, 0),
+            IntOffset(0, 1),
+            IntOffset(2, 1),
+            IntOffset(1, 2),
         )
         val kotlinNext = stepGenerations(tub, 1)
         val oracleNext = oracle.step(tub, 1)
@@ -69,14 +69,14 @@ class GameOfLifeLeanConformanceTests {
     @Test
     fun blinker_oscillator() {
         val blinkerH = setOf(
-            CellCoordinate(0, 1),
-            CellCoordinate(1, 1),
-            CellCoordinate(2, 1),
+            IntOffset(0, 1),
+            IntOffset(1, 1),
+            IntOffset(2, 1),
         )
         val blinkerV = setOf(
-            CellCoordinate(1, 0),
-            CellCoordinate(1, 1),
-            CellCoordinate(1, 2),
+            IntOffset(1, 0),
+            IntOffset(1, 1),
+            IntOffset(1, 2),
         )
 
         val kotlinStep1 = stepGenerations(blinkerH, 1)
@@ -93,12 +93,12 @@ class GameOfLifeLeanConformanceTests {
     @Test
     fun toad_oscillator() {
         val toad = setOf(
-            CellCoordinate(1, 1),
-            CellCoordinate(2, 1),
-            CellCoordinate(3, 1),
-            CellCoordinate(0, 2),
-            CellCoordinate(1, 2),
-            CellCoordinate(2, 2),
+            IntOffset(1, 1),
+            IntOffset(2, 1),
+            IntOffset(3, 1),
+            IntOffset(0, 2),
+            IntOffset(1, 2),
+            IntOffset(2, 2),
         )
 
         val kotlinStep2 = stepGenerations(toad, 2)
@@ -110,18 +110,18 @@ class GameOfLifeLeanConformanceTests {
     @Test
     fun glider_period_four_shift() {
         val glider = setOf(
-            CellCoordinate(1, 0),
-            CellCoordinate(2, 1),
-            CellCoordinate(0, 2),
-            CellCoordinate(1, 2),
-            CellCoordinate(2, 2),
+            IntOffset(1, 0),
+            IntOffset(2, 1),
+            IntOffset(0, 2),
+            IntOffset(1, 2),
+            IntOffset(2, 2),
         )
         val shiftedGlider = setOf(
-            CellCoordinate(2, 1),
-            CellCoordinate(3, 2),
-            CellCoordinate(1, 3),
-            CellCoordinate(2, 3),
-            CellCoordinate(3, 3),
+            IntOffset(2, 1),
+            IntOffset(3, 2),
+            IntOffset(1, 3),
+            IntOffset(2, 3),
+            IntOffset(3, 3),
         )
 
         val kotlinStep4 = stepGenerations(glider, 4)
@@ -134,13 +134,13 @@ class GameOfLifeLeanConformanceTests {
     @Test
     fun translation_symmetry_commutes() {
         val glider = setOf(
-            CellCoordinate(1, 0),
-            CellCoordinate(2, 1),
-            CellCoordinate(0, 2),
-            CellCoordinate(1, 2),
-            CellCoordinate(2, 2),
+            IntOffset(1, 0),
+            IntOffset(2, 1),
+            IntOffset(0, 2),
+            IntOffset(1, 2),
+            IntOffset(2, 2),
         )
-        val offsetGlider = glider.map { CellCoordinate(it.x + 157, it.y + 72) }.toSet()
+        val offsetGlider = glider.map { IntOffset(it.x + 157, it.y + 72) }.toSet()
 
         val stepped = stepGenerations(offsetGlider, 2)
         val oracleStepped = oracle.step(offsetGlider, 2)
@@ -155,7 +155,7 @@ class GameOfLifeLeanConformanceTests {
             val cellCount = random.nextInt(5, 25)
             val seed = buildSet(cellCount) {
                 while (size < cellCount) {
-                    add(CellCoordinate(random.nextInt(-10, 10), random.nextInt(-10, 10)))
+                    add(IntOffset(random.nextInt(-10, 10), random.nextInt(-10, 10)))
                 }
             }
 

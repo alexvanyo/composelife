@@ -17,7 +17,7 @@
 package com.alexvanyo.composelife.algorithm
 
 import com.alexvanyo.composelife.algorithm.lean.LeanGameOfLifeOracle
-import com.alexvanyo.composelife.model.CellCoordinate
+import com.alexvanyo.composelife.geometry.IntOffset
 import com.alexvanyo.composelife.model.MacroCell
 import kotlin.random.Random
 import kotlin.test.Test
@@ -175,46 +175,46 @@ class HashLifeLeanConformanceTests {
         val patterns = listOf(
             // Still life: Block at (6, 6)
             setOf(
-                CellCoordinate(6, 6),
-                CellCoordinate(7, 6),
-                CellCoordinate(6, 7),
-                CellCoordinate(7, 7),
+                IntOffset(6, 6),
+                IntOffset(7, 6),
+                IntOffset(6, 7),
+                IntOffset(7, 7),
             ),
             // Oscillator: Blinker at (7, 6)..(7, 8)
             setOf(
-                CellCoordinate(7, 6),
-                CellCoordinate(7, 7),
-                CellCoordinate(7, 8),
+                IntOffset(7, 6),
+                IntOffset(7, 7),
+                IntOffset(7, 8),
             ),
             // Still life: Tub at (7, 6)
             setOf(
-                CellCoordinate(7, 6),
-                CellCoordinate(6, 7),
-                CellCoordinate(8, 7),
-                CellCoordinate(7, 8),
+                IntOffset(7, 6),
+                IntOffset(6, 7),
+                IntOffset(8, 7),
+                IntOffset(7, 8),
             ),
             // Glider at (4, 4) moving southeast
             setOf(
-                CellCoordinate(5, 4),
-                CellCoordinate(6, 5),
-                CellCoordinate(4, 6),
-                CellCoordinate(5, 6),
-                CellCoordinate(6, 6),
+                IntOffset(5, 4),
+                IntOffset(6, 5),
+                IntOffset(4, 6),
+                IntOffset(5, 6),
+                IntOffset(6, 6),
             ),
             // Glider centered at boundary of quadrants (7, 7)
             setOf(
-                CellCoordinate(8, 7),
-                CellCoordinate(9, 8),
-                CellCoordinate(7, 9),
-                CellCoordinate(8, 9),
-                CellCoordinate(9, 9),
+                IntOffset(8, 7),
+                IntOffset(9, 8),
+                IntOffset(7, 9),
+                IntOffset(8, 9),
+                IntOffset(9, 9),
             ),
         )
 
         patterns.forEach(::assertPatternMatchesLevel4AndOracle)
     }
 
-    private fun assertPatternMatchesLevel4AndOracle(pattern: Set<CellCoordinate>) {
+    private fun assertPatternMatchesLevel4AndOracle(pattern: Set<IntOffset>) {
         val leaves = coordinatesToLevel4(pattern)
 
         val kotlinLevel4Result = computeLevel4NextGeneration(leaves)

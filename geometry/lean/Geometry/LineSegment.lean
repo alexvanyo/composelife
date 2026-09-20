@@ -1,0 +1,103 @@
+/-
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ -/
+
+import Geometry.Basic
+
+namespace Geometry
+
+/--
+Deduplicates a list of cells while preserving first-occurrence order.
+-/
+def dedupCells (cells : List Cell) : List Cell :=
+  cells.foldl (fun acc c => if acc.contains c then acc else acc ++ [c]) []
+
+/--
+Ray marching loop that steps across grid boundary lines until reaching distance.
+-/
+partial def rayMarch (start ptEnd : Point) (distance : Float) (isWest isNorth : Float)
+    (xStep yStep : Float) (tX tY : Float) (acc : List Cell) : List Cell :=
+  let nextT := if tX < tY then tX else tY
+  let isX := tX < tY
+  if nextT >= distance then
+    acc
+  else
+    let fraction := nextT / distance
+    let offsetX := start.x + (ptEnd.x - start.x) * fraction
+    let offsetY := start.y + (ptEnd.y - start.y) * fraction
+    let newCells :=
+      if isX then
+        [⟨roundToInt offsetX, toInt offsetY.floor⟩,
+         ⟨roundToInt offsetX - 1, toInt offsetY.floor⟩]
+      else
+        [⟨toInt offsetX.floor, roundToInt offsetY⟩,
+         ⟨toInt offsetX.floor, roundToInt offsetY - 1⟩]
+    let nextTX := if isX then tX + xStep.abs else tX
+    let nextTY := if isX then tY else tY + yStep.abs
+    rayMarch start ptEnd distance isWest isNorth xStep yStep nextTX nextTY (acc ++ newCells)
+
+/--
+Computes the set of discrete grid cells intersected by the line segment from `start` to `ptEnd`.
+Matches LineSegmentPath.cellIntersections in Kotlin.
+-/
+def cellIntersectionsSegment (start ptEnd : Point) : List Cell :=
+  let startCell := floorPoint start
+  let endCell := floorPoint ptEnd
+  let chebyshev := chebyshevDistance startCell endCell
+  let manhattan := manhattanDistance startCell endCell
+  let isWest := sign (start.x - ptEnd.x)
+  let isNorth := sign (start.y - ptEnd.y)
+  if manhattan == 0 then
+    [startCell]
+  else if manhattan == 1 then
+    [startCell, endCell]
+  else if chebyshev == 1 then
+    let maxX := if start.x > ptEnd.x then start.x else ptEnd.x
+    let maxY := if start.y > ptEnd.y then start.y else ptEnd.y
+    let cornerPt : Point := ⟨maxX.floor, maxY.floor⟩
+    let side := sideOfLine cornerPt start ptEnd
+    let combinedSign := side * isWest * isNorth
+    let c1 : List Cell := if combinedSign <= 0.0 then [⟨startCell.x, endCell.y⟩] else []
+    let c2 : List Cell := if combinedSign >= 0.0 then [⟨endCell.x, startCell.y⟩] else []
+    dedupCells ([startCell, endCell] ++ c1 ++ c2)
+  else
+    let vx := ptEnd.x - start.x
+    let vy := ptEnd.y - start.y
+    let distance := (vx * vx + vy * vy).sqrt
+    if distance < 1.0 then
+      dedupCells [startCell, endCell]
+    else
+      let normX := vx / distance
+      let normY := vy / distance
+      let xStep := 1.0 / normX
+      let yStep := 1.0 / normY
+      let initTX := xStep * if isWest > 0.0 then start.x.floor - start.x else start.x.ceil - start.x
+      let initTY := yStep * if isNorth > 0.0 then start.y.floor - start.y else start.y.ceil - start.y
+      let marched := rayMarch start ptEnd distance isWest isNorth xStep yStep initTX initTY []
+      dedupCells ([startCell, endCell] ++ marched)
+
+/--
+Computes all grid cells intersected by a polyline path with at least one point.
+-/
+def cellIntersectionsPath (points : List Point) : List Cell :=
+  match points with
+  | [] => []
+  | [p] => [floorPoint p]
+  | p1 :: p2 :: rest =>
+    let firstSeg := cellIntersectionsSegment p1 p2
+    let restSegs := cellIntersectionsPath (p2 :: rest)
+    dedupCells (firstSeg ++ restSegs)
+
+end Geometry
