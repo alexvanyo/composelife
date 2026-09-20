@@ -273,4 +273,101 @@ theorem cellIntersectionsPath_nonempty (p : Point) (rest : List Point) :
   rw [hnil] at h
   contradiction
 
+theorem cellIntersectionsSegment_diagonal_corner_all_four_cells {p1 p2 : Point}
+    (hcheb : chebyshevDistance (floorPoint p1) (floorPoint p2) = 1)
+    (hman : manhattanDistance (floorPoint p1) (floorPoint p2) = 2)
+    (hcomb : let isWest := sign (p1.x - p2.x)
+             let isNorth := sign (p1.y - p2.y)
+             let maxX := if p1.x > p2.x then p1.x else p2.x
+             let maxY := if p1.y > p2.y then p1.y else p2.y
+             let cornerPt : Point := ⟨maxX.floor, maxY.floor⟩
+             let side := sideOfLine cornerPt p1 p2
+             (side * isWest * isNorth <= 0.0) = true ∧
+             (side * isWest * isNorth >= 0.0) = true) :
+    let c1 := floorPoint p1
+    let c2 := floorPoint p2
+    c1 ∈ cellIntersectionsSegment p1 p2 ∧
+    c2 ∈ cellIntersectionsSegment p1 p2 ∧
+    ⟨c1.x, c2.y⟩ ∈ cellIntersectionsSegment p1 p2 ∧
+    ⟨c2.x, c1.y⟩ ∈ cellIntersectionsSegment p1 p2 := by
+  dsimp [cellIntersectionsSegment]
+  have hman0 : (manhattanDistance (floorPoint p1) (floorPoint p2) == 0) = false := by simp [hman]
+  have hman1 : (manhattanDistance (floorPoint p1) (floorPoint p2) == 1) = false := by simp [hman]
+  have hcheb1 : (chebyshevDistance (floorPoint p1) (floorPoint p2) == 1) = true := by simp [hcheb]
+  simp only [hman0, hman1, hcheb1, Bool.false_eq_true, ↓reduceIte]
+  rcases hcomb with ⟨h1, h2⟩
+  simp only [h1, h2, ↓reduceIte]
+  rw [mem_dedupCells]
+  simp
+
+/--
+Theorem: For any two points with Chebyshev distance 1 and Manhattan distance 2 (diagonal cells)
+where the segment passes directly through the corner between them, cellIntersectionsPath [p1, p2]
+contains all 4 cells surrounding that corner.
+-/
+theorem cellIntersectionsPath_two_diagonal_corner_all_four_cells {p1 p2 : Point}
+    (hcheb : chebyshevDistance (floorPoint p1) (floorPoint p2) = 1)
+    (hman : manhattanDistance (floorPoint p1) (floorPoint p2) = 2)
+    (hcomb : let isWest := sign (p1.x - p2.x)
+             let isNorth := sign (p1.y - p2.y)
+             let maxX := if p1.x > p2.x then p1.x else p2.x
+             let maxY := if p1.y > p2.y then p1.y else p2.y
+             let cornerPt : Point := ⟨maxX.floor, maxY.floor⟩
+             let side := sideOfLine cornerPt p1 p2
+             (side * isWest * isNorth <= 0.0) = true ∧
+             (side * isWest * isNorth >= 0.0) = true) :
+    let c1 := floorPoint p1
+    let c2 := floorPoint p2
+    c1 ∈ cellIntersectionsPath [p1, p2] ∧
+    c2 ∈ cellIntersectionsPath [p1, p2] ∧
+    ⟨c1.x, c2.y⟩ ∈ cellIntersectionsPath [p1, p2] ∧
+    ⟨c2.x, c1.y⟩ ∈ cellIntersectionsPath [p1, p2] := by
+  have hseg := cellIntersectionsSegment_diagonal_corner_all_four_cells hcheb hman hcomb
+  rw [cellIntersectionsPath_two]
+  simp only [mem_dedupCells, List.mem_append]
+  rcases hseg with ⟨h1, h2, h3, h4⟩
+  refine ⟨Or.inl h1, Or.inl h2, Or.inl h3, Or.inl h4⟩
+
+
+theorem cellIntersectionsSegment_diagonal_example :
+
+    cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨1.5, 1.5⟩ = [⟨0, 0⟩, ⟨1, 1⟩, ⟨0, 1⟩, ⟨1, 0⟩] := by
+  native_decide
+
+theorem cellIntersectionsSegment_multi_corner_example :
+    (⟨0, 0⟩ ∈ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨2.5, 2.5⟩) ∧
+    (⟨1, 0⟩ ∈ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨2.5, 2.5⟩) ∧
+    (⟨0, 1⟩ ∈ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨2.5, 2.5⟩) ∧
+    (⟨1, 1⟩ ∈ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨2.5, 2.5⟩) ∧
+    (⟨2, 1⟩ ∈ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨2.5, 2.5⟩) ∧
+    (⟨1, 2⟩ ∈ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨2.5, 2.5⟩) ∧
+    (⟨2, 2⟩ ∈ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨2.5, 2.5⟩) := by
+  native_decide
+
+theorem cellIntersectionsPath_two_diagonal_example :
+    cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨1.5, 1.5⟩] = [⟨0, 0⟩, ⟨1, 1⟩, ⟨0, 1⟩, ⟨1, 0⟩] := by
+  native_decide
+
+theorem cellIntersectionsPath_two_multi_corner_example :
+    (⟨0, 0⟩ ∈ cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨2.5, 2.5⟩]) ∧
+    (⟨1, 0⟩ ∈ cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨2.5, 2.5⟩]) ∧
+    (⟨0, 1⟩ ∈ cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨2.5, 2.5⟩]) ∧
+    (⟨1, 1⟩ ∈ cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨2.5, 2.5⟩]) ∧
+    (⟨2, 1⟩ ∈ cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨2.5, 2.5⟩]) ∧
+    (⟨1, 2⟩ ∈ cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨2.5, 2.5⟩]) ∧
+    (⟨2, 2⟩ ∈ cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨2.5, 2.5⟩]) := by
+  native_decide
+
+theorem cellIntersectionsSegment_diagonal_negative_slope_corner_example :
+    cellIntersectionsSegment ⟨0.25, 1.75⟩ ⟨1.75, 0.25⟩ = [⟨0, 1⟩, ⟨1, 0⟩, ⟨0, 0⟩, ⟨1, 1⟩] := by
+  native_decide
+
+theorem cellIntersectionsPath_two_diagonal_negative_slope_corner_example :
+    cellIntersectionsPath [⟨0.25, 1.75⟩, ⟨1.75, 0.25⟩] = [⟨0, 1⟩, ⟨1, 0⟩, ⟨0, 0⟩, ⟨1, 1⟩] := by
+  native_decide
+
+theorem cellIntersectionsSegment_diagonal_off_corner_example :
+    cellIntersectionsSegment ⟨0.25, 0.35⟩ ⟨1.75, 1.85⟩ = [⟨0, 0⟩, ⟨1, 1⟩, ⟨0, 1⟩] := by
+  native_decide
+
 end Geometry

@@ -90,6 +90,74 @@ class LineSegmentPathLeanConformanceTests {
     }
 
     @Test
+    fun diagonal_corner_crossings_add_all_four_cells() {
+        val positiveSlopeStart = Offset(0.25f, 0.25f)
+        val positiveSlopeEnd = Offset(1.75f, 1.75f)
+        val expectedPositiveSlope = setOf(
+            IntOffset(0, 0),
+            IntOffset(1, 1),
+            IntOffset(0, 1),
+            IntOffset(1, 0),
+        )
+        assertEquals(expectedPositiveSlope, cellIntersections(positiveSlopeStart, positiveSlopeEnd))
+        assertEquals(expectedPositiveSlope, oracle.cellIntersectionsSegment(positiveSlopeStart, positiveSlopeEnd))
+        assertEquals(
+            expectedPositiveSlope,
+            oracle.cellIntersectionsPath(listOf(positiveSlopeStart, positiveSlopeEnd)),
+        )
+
+        val negativeSlopeStart = Offset(0.25f, 1.75f)
+        val negativeSlopeEnd = Offset(1.75f, 0.25f)
+        val expectedNegativeSlope = setOf(
+            IntOffset(0, 1),
+            IntOffset(1, 0),
+            IntOffset(0, 0),
+            IntOffset(1, 1),
+        )
+        assertEquals(expectedNegativeSlope, cellIntersections(negativeSlopeStart, negativeSlopeEnd))
+        assertEquals(expectedNegativeSlope, oracle.cellIntersectionsSegment(negativeSlopeStart, negativeSlopeEnd))
+        assertEquals(
+            expectedNegativeSlope,
+            oracle.cellIntersectionsPath(listOf(negativeSlopeStart, negativeSlopeEnd)),
+        )
+    }
+
+    @Test
+    fun diagonal_off_corner_does_not_add_all_four_cells() {
+        val start = Offset(0.25f, 0.35f)
+        val end = Offset(1.75f, 1.85f)
+        val expected = setOf(
+            IntOffset(0, 0),
+            IntOffset(1, 1),
+            IntOffset(0, 1),
+        )
+        assertEquals(expected, cellIntersections(start, end))
+        assertEquals(expected, oracle.cellIntersectionsSegment(start, end))
+        assertEquals(expected, oracle.cellIntersectionsPath(listOf(start, end)))
+    }
+
+    @Test
+    fun multi_corner_crossings_adds_all_four_cells_at_every_corner() {
+        val start = Offset(0.5f, 0.5f)
+        val end = Offset(3.5f, 3.5f)
+        val expected = setOf(
+            IntOffset(0, 0),
+            IntOffset(1, 0),
+            IntOffset(0, 1),
+            IntOffset(1, 1),
+            IntOffset(2, 1),
+            IntOffset(1, 2),
+            IntOffset(2, 2),
+            IntOffset(3, 2),
+            IntOffset(2, 3),
+            IntOffset(3, 3),
+        )
+        assertEquals(expected, cellIntersections(start, end))
+        assertEquals(expected, oracle.cellIntersectionsSegment(start, end))
+        assertEquals(expected, oracle.cellIntersectionsPath(listOf(start, end)))
+    }
+
+    @Test
     fun differential_random_segments() {
         val random = Random(42)
         repeat(500) {

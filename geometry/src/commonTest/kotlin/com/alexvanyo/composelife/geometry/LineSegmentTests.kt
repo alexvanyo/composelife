@@ -85,4 +85,62 @@ class LineSegmentTests {
             cells,
         )
     }
+
+    @Test
+    fun diagonal_corner_crossings_add_all_four_cells() {
+        val positiveSlopeCells = cellIntersections(Offset(0.25f, 0.25f), Offset(1.75f, 1.75f))
+        assertEquals(
+            setOf(
+                IntOffset(0, 0),
+                IntOffset(1, 1),
+                IntOffset(0, 1),
+                IntOffset(1, 0),
+            ),
+            positiveSlopeCells,
+        )
+
+        val negativeSlopeCells = cellIntersections(Offset(0.25f, 1.75f), Offset(1.75f, 0.25f))
+        assertEquals(
+            setOf(
+                IntOffset(0, 1),
+                IntOffset(1, 0),
+                IntOffset(0, 0),
+                IntOffset(1, 1),
+            ),
+            negativeSlopeCells,
+        )
+    }
+
+    @Test
+    fun diagonal_off_corner_does_not_add_all_four_cells() {
+        val cells = cellIntersections(Offset(0.25f, 0.35f), Offset(1.75f, 1.85f))
+        assertEquals(
+            setOf(
+                IntOffset(0, 0),
+                IntOffset(1, 1),
+                IntOffset(0, 1),
+            ),
+            cells,
+        )
+    }
+
+    @Test
+    fun multi_corner_crossings_adds_all_four_cells_at_every_corner() {
+        val cells = cellIntersections(Offset(0.5f, 0.5f), Offset(3.5f, 3.5f))
+        assertEquals(
+            setOf(
+                IntOffset(0, 0),
+                IntOffset(1, 0),
+                IntOffset(0, 1),
+                IntOffset(1, 1),
+                IntOffset(2, 1),
+                IntOffset(1, 2),
+                IntOffset(2, 2),
+                IntOffset(3, 2),
+                IntOffset(2, 3),
+                IntOffset(3, 3),
+            ),
+            cells,
+        )
+    }
 }
