@@ -20,105 +20,10 @@ namespace Geometry
 
 /--
 Deduplicates a list of cells while preserving first-occurrence order.
+Matches Kotlin's Set deduplication.
 -/
 def dedupCells (cells : List Cell) : List Cell :=
   cells.eraseDups
-
-/--
-Membership in dedupCells is equivalent to membership in the original list.
--/
-@[simp]
-theorem mem_dedupCells (c : Cell) (cells : List Cell) : c ∈ dedupCells cells ↔ c ∈ cells :=
-  List.mem_eraseDups
-
-/--
-Checks whether cell `c` is inside the bounding box formed by the floored endpoints `A` and `B`.
--/
-def inBoundingBox (c : Cell) (A B : Point) : Bool :=
-  let startCell := floorPoint A
-  let endCell := floorPoint B
-  let minX := min startCell.x endCell.x
-  let maxX := max startCell.x endCell.x
-  let minY := min startCell.y endCell.y
-  let maxY := max startCell.y endCell.y
-  minX <= c.x && c.x <= maxX && minY <= c.y && c.y <= maxY
-
-/--
-Computes the parameter interval [tEnter, tExit] ⊆ [0, 1] along the segment `A + t(B - A)`
-that falls within the closed unit square [c.x, c.x + 1] × [c.y, c.y + 1].
-Returns `none` if the segment does not intersect the cell's closed area.
--/
-def cellIntersectionInterval (c : Cell) (A B : Point) : Option (Binary32 × Binary32) :=
-  let dx := B.x - A.x
-  let dy := B.y - A.y
-  let cx0 := ofInt c.x
-  let cx1 := ofInt (c.x + 1)
-  let cy0 := ofInt c.y
-  let cy1 := ofInt (c.y + 1)
-  let (tx0, tx1) :=
-    if dx == 0.0 then
-      if A.x < cx0 || A.x > cx1 then (1.0, 0.0) else (0.0, 1.0)
-    else if dx > 0.0 then
-      ((cx0 - A.x) / dx, (cx1 - A.x) / dx)
-    else
-      ((cx1 - A.x) / dx, (cx0 - A.x) / dx)
-  let (ty0, ty1) :=
-    if dy == 0.0 then
-      if A.y < cy0 || A.y > cy1 then (1.0, 0.0) else (0.0, 1.0)
-    else if dy > 0.0 then
-      ((cy0 - A.y) / dy, (cy1 - A.y) / dy)
-    else
-      ((cy1 - A.y) / dy, (cy0 - A.y) / dy)
-  let tEnter := max 0.0 (max tx0 ty0)
-  let tExit := min 1.0 (min tx1 ty1)
-  if tEnter <= tExit then
-    some (tEnter, tExit)
-  else
-    none
-
-/--
-Returns true if the line segment from `A` to `B` intersects cell `c`.
--/
-def segmentIntersectsCellBool (c : Cell) (A B : Point) : Bool :=
-  if c == floorPoint A || c == floorPoint B then
-    true
-  else if !inBoundingBox c A B then
-    false
-  else
-    match cellIntersectionInterval c A B with
-    | some _ => true
-    | none => false
-
-/--
-Returns true if cell `c` has an off-axis corner contact with the segment:
-it touches the segment at a single corner point, does not enter the interior,
-and is not an endpoint cell (start or end).
--/
-def isOffAxisCornerBool (c : Cell) (A B : Point) : Bool :=
-  if c == floorPoint A || c == floorPoint B then
-    false
-  else if !inBoundingBox c A B then
-    false
-  else
-    match cellIntersectionInterval c A B with
-    | some (tEnter, tExit) => tEnter == tExit
-    | none => false
-
-/--
-Generates all candidate grid cells within the bounding box of endpoints `A` and `B`.
--/
-def candidateCells (A B : Point) : List Cell :=
-  let startCell := floorPoint A
-  let endCell := floorPoint B
-  let minX := min startCell.x endCell.x
-  let maxX := max startCell.x endCell.x
-  let minY := min startCell.y endCell.y
-  let maxY := max startCell.y endCell.y
-  let xCount := (maxX - minX + 1).toNat
-  let yCount := (maxY - minY + 1).toNat
-  (List.range xCount).flatMap (fun dx =>
-    (List.range yCount).map (fun dy =>
-      ⟨minX + Int.ofNat dx, minY + Int.ofNat dy⟩))
 
 /--
 Determines the next cell transition in ray-marching via exact coordinate crossings.
@@ -159,37 +64,25 @@ def rayMarch (fuel : Nat) (start ptEnd : Point) (dx dy : Binary32) (stepX stepY 
       else rayMarch fuel start ptEnd dx dy stepX stepY endCell nextCell (acc ++ [nextCell])
 
 /--
-Candidate cells strictly between the endpoints that are actively intersected by the line segment.
--/
-def intermediateCells (A B : Point) : List Cell :=
-  let startCell := floorPoint A
-  let endCell := floorPoint B
-  (candidateCells A B).filter (fun c =>
-    (c != startCell) && (c != endCell) && segmentIntersectsCellBool c A B && !isOffAxisCornerBool c A B)
-
-/--
-Intermediate cells traversed via ray-marching in O(W + H) time.
--/
-def rayMarchIntermediateCells (A B : Point) : List Cell :=
-  let startCell := floorPoint A
-  let endCell := floorPoint B
-  let dx := B.x - A.x
-  let dy := B.y - A.y
-  let stepX : Int := if dx > 0.0 then 1 else if dx < 0.0 then -1 else 0
-  let stepY : Int := if dy > 0.0 then 1 else if dy < 0.0 then -1 else 0
-  let maxSteps := (endCell.x - startCell.x).natAbs + (endCell.y - startCell.y).natAbs + 2
-  (rayMarch maxSteps A B dx dy stepX stepY endCell startCell []).filter (fun c =>
-    (c != startCell) && (c != endCell) && !isOffAxisCornerBool c A B)
-
-/--
 Computes the set of discrete grid cells intersected by the line segment from `A` to `B`.
-Contains endpoints followed by all actively intersected intermediate cells (excluding off-axis corners).
+Matches `cellIntersections(start, end)` in Kotlin's LineSegment.kt.
 -/
 def cellIntersectionsSegment (A B : Point) : List Cell :=
-  dedupCells ([floorPoint A, floorPoint B] ++ intermediateCells A B)
+  let startCell := floorPoint A
+  let endCell := floorPoint B
+  if startCell == endCell then
+    [startCell]
+  else
+    let dx := B.x - A.x
+    let dy := B.y - A.y
+    let stepX : Int := if dx > 0.0 then 1 else if dx < 0.0 then -1 else 0
+    let stepY : Int := if dy > 0.0 then 1 else if dy < 0.0 then -1 else 0
+    let maxSteps := (endCell.x - startCell.x).natAbs + (endCell.y - startCell.y).natAbs + 2
+    dedupCells ([startCell, endCell] ++ rayMarch maxSteps A B dx dy stepX stepY endCell startCell [])
 
 /--
 Computes all grid cells intersected by a polyline path with at least one point.
+Matches `cellIntersections(points)` in Kotlin's LineSegment.kt.
 -/
 def cellIntersectionsPath (points : List Point) : List Cell :=
   match points with
