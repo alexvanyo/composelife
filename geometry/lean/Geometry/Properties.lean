@@ -585,4 +585,199 @@ theorem diagonal_corner_off_axis_is_isolated_contact_and_excluded {p1 p2 : Point
       injection h_eq with _ hy_eq
       exact hy hy_eq
 
+/--
+Theorem: When start and end points fall within the same discrete grid cell, a cell is in the
+intersection set if and only if it is that single cell. All other cells are strictly excluded.
+-/
+theorem cellIntersectionsSegment_same_cell_iff {p1 p2 : Point}
+    (h : floorPoint p1 = floorPoint p2) (c : Cell) :
+    c ∈ cellIntersectionsSegment p1 p2 ↔ c = floorPoint p1 := by
+  rw [cellIntersectionsSegment_same_cell h]
+  simp
+
+/--
+Theorem: When start and end points fall within the same discrete grid cell,
+all other cells are strictly excluded from cellIntersectionsSegment.
+-/
+theorem cellIntersectionsSegment_same_cell_all_others_excluded {p1 p2 : Point}
+    (h : floorPoint p1 = floorPoint p2) (c : Cell) (hc : c ≠ floorPoint p1) :
+    c ∉ cellIntersectionsSegment p1 p2 := by
+  rw [cellIntersectionsSegment_same_cell_iff h]
+  exact hc
+
+/--
+Theorem: For points with Manhattan distance 1, a cell is in the intersection set
+if and only if it is one of the two endpoint cells. All other cells are strictly excluded.
+-/
+theorem cellIntersectionsSegment_manhattan_one_iff {p1 p2 : Point}
+    (h : manhattanDistance (floorPoint p1) (floorPoint p2) = 1) (c : Cell) :
+    c ∈ cellIntersectionsSegment p1 p2 ↔ c = floorPoint p1 ∨ c = floorPoint p2 := by
+  rw [cellIntersectionsSegment_manhattan_one h]
+  simp
+
+/--
+Theorem: For points with Manhattan distance 1, all other cells are strictly excluded
+from cellIntersectionsSegment.
+-/
+theorem cellIntersectionsSegment_manhattan_one_all_others_excluded {p1 p2 : Point}
+    (h : manhattanDistance (floorPoint p1) (floorPoint p2) = 1) (c : Cell)
+    (h1 : c ≠ floorPoint p1) (h2 : c ≠ floorPoint p2) :
+    c ∉ cellIntersectionsSegment p1 p2 := by
+  rw [cellIntersectionsSegment_manhattan_one_iff h]
+  intro h_or
+  cases h_or with
+  | inl heq => exact h1 heq
+  | inr heq => exact h2 heq
+
+/--
+Theorem: For diagonal corner crossings with Chebyshev distance 1 and Manhattan distance 2,
+a cell is in the intersection set if and only if it is one of the two endpoint cells.
+All other cells are strictly excluded.
+-/
+theorem cellIntersectionsSegment_diagonal_corner_iff {p1 p2 : Point}
+    (hcheb : chebyshevDistance (floorPoint p1) (floorPoint p2) = 1)
+    (hman : manhattanDistance (floorPoint p1) (floorPoint p2) = 2)
+    (hcomb : let isWest := sign (p1.x - p2.x)
+             let isNorth := sign (p1.y - p2.y)
+             let maxX := if p1.x > p2.x then p1.x else p2.x
+             let maxY := if p1.y > p2.y then p1.y else p2.y
+             let cornerPt : Point := ⟨maxX.floor, maxY.floor⟩
+             let side := sideOfLine cornerPt p1 p2
+             (side * isWest * isNorth < 0.0) = false ∧
+             (side * isWest * isNorth > 0.0) = false) (c : Cell) :
+    c ∈ cellIntersectionsSegment p1 p2 ↔ c = floorPoint p1 ∨ c = floorPoint p2 := by
+  rw [cellIntersectionsSegment_diagonal_corner_two_cells hcheb hman hcomb]
+  simp
+
+/--
+Theorem: For diagonal corner crossings with Chebyshev distance 1 and Manhattan distance 2,
+all other cells (including off-axis corner cells) are strictly excluded from cellIntersectionsSegment.
+-/
+theorem cellIntersectionsSegment_diagonal_corner_all_others_excluded {p1 p2 : Point}
+    (hcheb : chebyshevDistance (floorPoint p1) (floorPoint p2) = 1)
+    (hman : manhattanDistance (floorPoint p1) (floorPoint p2) = 2)
+    (hcomb : let isWest := sign (p1.x - p2.x)
+             let isNorth := sign (p1.y - p2.y)
+             let maxX := if p1.x > p2.x then p1.x else p2.x
+             let maxY := if p1.y > p2.y then p1.y else p2.y
+             let cornerPt : Point := ⟨maxX.floor, maxY.floor⟩
+             let side := sideOfLine cornerPt p1 p2
+             (side * isWest * isNorth < 0.0) = false ∧
+             (side * isWest * isNorth > 0.0) = false) (c : Cell)
+    (h1 : c ≠ floorPoint p1) (h2 : c ≠ floorPoint p2) :
+    c ∉ cellIntersectionsSegment p1 p2 := by
+  rw [cellIntersectionsSegment_diagonal_corner_iff hcheb hman hcomb]
+  intro h_or
+  cases h_or with
+  | inl heq => exact h1 heq
+  | inr heq => exact h2 heq
+
+/--
+Theorem: For diagonal corner crossings with Chebyshev distance 1 and Manhattan distance 2,
+a cell is in the path intersection set if and only if it is one of the two endpoint cells.
+All other cells are strictly excluded.
+-/
+theorem cellIntersectionsPath_two_diagonal_corner_iff {p1 p2 : Point}
+    (hcheb : chebyshevDistance (floorPoint p1) (floorPoint p2) = 1)
+    (hman : manhattanDistance (floorPoint p1) (floorPoint p2) = 2)
+    (hcomb : let isWest := sign (p1.x - p2.x)
+             let isNorth := sign (p1.y - p2.y)
+             let maxX := if p1.x > p2.x then p1.x else p2.x
+             let maxY := if p1.y > p2.y then p1.y else p2.y
+             let cornerPt : Point := ⟨maxX.floor, maxY.floor⟩
+             let side := sideOfLine cornerPt p1 p2
+             (side * isWest * isNorth < 0.0) = false ∧
+             (side * isWest * isNorth > 0.0) = false) (c : Cell) :
+    c ∈ cellIntersectionsPath [p1, p2] ↔ c = floorPoint p1 ∨ c = floorPoint p2 := by
+  rw [cellIntersectionsPath_two_diagonal_corner_two_cells hcheb hman hcomb]
+  simp
+
+/--
+Theorem: For diagonal corner crossings with Chebyshev distance 1 and Manhattan distance 2,
+all other cells are strictly excluded from cellIntersectionsPath [p1, p2].
+-/
+theorem cellIntersectionsPath_two_diagonal_corner_all_others_excluded {p1 p2 : Point}
+    (hcheb : chebyshevDistance (floorPoint p1) (floorPoint p2) = 1)
+    (hman : manhattanDistance (floorPoint p1) (floorPoint p2) = 2)
+    (hcomb : let isWest := sign (p1.x - p2.x)
+             let isNorth := sign (p1.y - p2.y)
+             let maxX := if p1.x > p2.x then p1.x else p2.x
+             let maxY := if p1.y > p2.y then p1.y else p2.y
+             let cornerPt : Point := ⟨maxX.floor, maxY.floor⟩
+             let side := sideOfLine cornerPt p1 p2
+             (side * isWest * isNorth < 0.0) = false ∧
+             (side * isWest * isNorth > 0.0) = false) (c : Cell)
+    (h1 : c ≠ floorPoint p1) (h2 : c ≠ floorPoint p2) :
+    c ∉ cellIntersectionsPath [p1, p2] := by
+  rw [cellIntersectionsPath_two_diagonal_corner_iff hcheb hman hcomb]
+  intro h_or
+  cases h_or with
+  | inl heq => exact h1 heq
+  | inr heq => exact h2 heq
+
+/--
+Theorem: Exact value of cellIntersectionsSegment from (0, 2) to (2, 0).
+-/
+theorem cellIntersectionsSegment_0_2_to_2_0_eq :
+    cellIntersectionsSegment ⟨0.0, 2.0⟩ ⟨2.0, 0.0⟩ = [⟨0, 2⟩, ⟨2, 0⟩, ⟨1, 0⟩] := by
+  native_decide
+
+/--
+Theorem: Cell (1, 2) is strictly excluded from cellIntersectionsSegment (0, 2) -> (2, 0).
+-/
+theorem cellIntersectionsSegment_0_2_to_2_0_excludes_1_2 :
+    ⟨1, 2⟩ ∉ cellIntersectionsSegment ⟨0.0, 2.0⟩ ⟨2.0, 0.0⟩ := by
+  native_decide
+
+/--
+Theorem: Cell (0, 0) is strictly excluded from cellIntersectionsSegment (0, 2) -> (2, 0).
+-/
+theorem cellIntersectionsSegment_0_2_to_2_0_excludes_0_0 :
+    ⟨0, 0⟩ ∉ cellIntersectionsSegment ⟨0.0, 2.0⟩ ⟨2.0, 0.0⟩ := by
+  native_decide
+
+/--
+Theorem: For the segment from (0, 2) to (2, 0), all other cells not in
+{(0, 2), (2, 0), (1, 0)} are strictly excluded from cellIntersectionsSegment.
+-/
+theorem cellIntersectionsSegment_0_2_to_2_0_all_other_cells_excluded (c : Cell)
+    (h1 : c ≠ ⟨0, 2⟩) (h2 : c ≠ ⟨2, 0⟩) (h3 : c ≠ ⟨1, 0⟩) :
+    c ∉ cellIntersectionsSegment ⟨0.0, 2.0⟩ ⟨2.0, 0.0⟩ := by
+  rw [cellIntersectionsSegment_0_2_to_2_0_eq]
+  intro hmem
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at hmem
+  rcases hmem with h | h | h
+  · exact h1 h
+  · exact h2 h
+  · exact h3 h
+
+/--
+Theorem: Exact value of cellIntersectionsPath for [(0, 2), (2, 0)].
+-/
+theorem cellIntersectionsPath_two_0_2_to_2_0_eq :
+    cellIntersectionsPath [⟨0.0, 2.0⟩, ⟨2.0, 0.0⟩] = [⟨0, 2⟩, ⟨2, 0⟩, ⟨1, 0⟩] := by
+  native_decide
+
+/--
+Theorem: Cell (1, 2) is strictly excluded from cellIntersectionsPath [(0, 2), (2, 0)].
+-/
+theorem cellIntersectionsPath_two_0_2_to_2_0_excludes_1_2 :
+    ⟨1, 2⟩ ∉ cellIntersectionsPath [⟨0.0, 2.0⟩, ⟨2.0, 0.0⟩] := by
+  native_decide
+
+/--
+Theorem: For the path [(0, 2), (2, 0)], all other cells not in
+{(0, 2), (2, 0), (1, 0)} are strictly excluded from cellIntersectionsPath.
+-/
+theorem cellIntersectionsPath_two_0_2_to_2_0_all_other_cells_excluded (c : Cell)
+    (h1 : c ≠ ⟨0, 2⟩) (h2 : c ≠ ⟨2, 0⟩) (h3 : c ≠ ⟨1, 0⟩) :
+    c ∉ cellIntersectionsPath [⟨0.0, 2.0⟩, ⟨2.0, 0.0⟩] := by
+  rw [cellIntersectionsPath_two_0_2_to_2_0_eq]
+  intro hmem
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at hmem
+  rcases hmem with h | h | h
+  · exact h1 h
+  · exact h2 h
+  · exact h3 h
+
 end Geometry
