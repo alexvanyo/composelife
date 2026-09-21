@@ -273,7 +273,28 @@ theorem cellIntersectionsPath_nonempty (p : Point) (rest : List Point) :
   rw [hnil] at h
   contradiction
 
-theorem cellIntersectionsSegment_diagonal_corner_all_four_cells {p1 p2 : Point}
+/--
+Theorem: Deduplicating a two-element list of distinct cells returns the original list.
+-/
+theorem dedupCells_pair {c1 c2 : Cell} (hne : c1 ≠ c2) :
+    dedupCells [c1, c2] = [c1, c2] := by
+  unfold dedupCells
+  rw [List.eraseDups_cons]
+  have hbeq : (c2 == c1) = false := by
+    rw [Bool.eq_false_iff]
+    intro heq
+    have hcell : c2 = c1 := eq_of_beq heq
+    exact hne hcell.symm
+  simp [hbeq]
+  rw [List.eraseDups_cons]
+  simp [List.eraseDups_nil]
+
+/--
+Theorem: For any two points with Chebyshev distance 1 and Manhattan distance 2 (diagonal cells)
+where the segment passes directly through the corner between them, cellIntersectionsSegment
+contains exactly the 2 endpoint cells along the diagonal, and does NOT contain off-axis cells.
+-/
+theorem cellIntersectionsSegment_diagonal_corner_two_cells {p1 p2 : Point}
     (hcheb : chebyshevDistance (floorPoint p1) (floorPoint p2) = 1)
     (hman : manhattanDistance (floorPoint p1) (floorPoint p2) = 2)
     (hcomb : let isWest := sign (p1.x - p2.x)
@@ -282,30 +303,30 @@ theorem cellIntersectionsSegment_diagonal_corner_all_four_cells {p1 p2 : Point}
              let maxY := if p1.y > p2.y then p1.y else p2.y
              let cornerPt : Point := ⟨maxX.floor, maxY.floor⟩
              let side := sideOfLine cornerPt p1 p2
-             (side * isWest * isNorth <= 0.0) = true ∧
-             (side * isWest * isNorth >= 0.0) = true) :
+             (side * isWest * isNorth < 0.0) = false ∧
+             (side * isWest * isNorth > 0.0) = false) :
     let c1 := floorPoint p1
     let c2 := floorPoint p2
-    c1 ∈ cellIntersectionsSegment p1 p2 ∧
-    c2 ∈ cellIntersectionsSegment p1 p2 ∧
-    ⟨c1.x, c2.y⟩ ∈ cellIntersectionsSegment p1 p2 ∧
-    ⟨c2.x, c1.y⟩ ∈ cellIntersectionsSegment p1 p2 := by
+    cellIntersectionsSegment p1 p2 = [c1, c2] := by
   dsimp [cellIntersectionsSegment]
   have hman0 : (manhattanDistance (floorPoint p1) (floorPoint p2) == 0) = false := by simp [hman]
   have hman1 : (manhattanDistance (floorPoint p1) (floorPoint p2) == 1) = false := by simp [hman]
   have hcheb1 : (chebyshevDistance (floorPoint p1) (floorPoint p2) == 1) = true := by simp [hcheb]
   simp only [hman0, hman1, hcheb1, Bool.false_eq_true, ↓reduceIte]
   rcases hcomb with ⟨h1, h2⟩
-  simp only [h1, h2, ↓reduceIte]
-  rw [mem_dedupCells]
-  simp
+  simp only [h1, h2]
+  have hne : floorPoint p1 ≠ floorPoint p2 := by
+    intro heq
+    have hman_eq := (manhattanDistance_eq_zero (floorPoint p1) (floorPoint p2)).mpr heq
+    omega
+  exact dedupCells_pair hne
 
 /--
 Theorem: For any two points with Chebyshev distance 1 and Manhattan distance 2 (diagonal cells)
 where the segment passes directly through the corner between them, cellIntersectionsPath [p1, p2]
-contains all 4 cells surrounding that corner.
+contains exactly the 2 endpoint cells along the diagonal.
 -/
-theorem cellIntersectionsPath_two_diagonal_corner_all_four_cells {p1 p2 : Point}
+theorem cellIntersectionsPath_two_diagonal_corner_two_cells {p1 p2 : Point}
     (hcheb : chebyshevDistance (floorPoint p1) (floorPoint p2) = 1)
     (hman : manhattanDistance (floorPoint p1) (floorPoint p2) = 2)
     (hcomb : let isWest := sign (p1.x - p2.x)
@@ -314,60 +335,254 @@ theorem cellIntersectionsPath_two_diagonal_corner_all_four_cells {p1 p2 : Point}
              let maxY := if p1.y > p2.y then p1.y else p2.y
              let cornerPt : Point := ⟨maxX.floor, maxY.floor⟩
              let side := sideOfLine cornerPt p1 p2
-             (side * isWest * isNorth <= 0.0) = true ∧
-             (side * isWest * isNorth >= 0.0) = true) :
+             (side * isWest * isNorth < 0.0) = false ∧
+             (side * isWest * isNorth > 0.0) = false) :
     let c1 := floorPoint p1
     let c2 := floorPoint p2
-    c1 ∈ cellIntersectionsPath [p1, p2] ∧
-    c2 ∈ cellIntersectionsPath [p1, p2] ∧
-    ⟨c1.x, c2.y⟩ ∈ cellIntersectionsPath [p1, p2] ∧
-    ⟨c2.x, c1.y⟩ ∈ cellIntersectionsPath [p1, p2] := by
-  have hseg := cellIntersectionsSegment_diagonal_corner_all_four_cells hcheb hman hcomb
-  rw [cellIntersectionsPath_two]
-  simp only [mem_dedupCells, List.mem_append]
-  rcases hseg with ⟨h1, h2, h3, h4⟩
-  refine ⟨Or.inl h1, Or.inl h2, Or.inl h3, Or.inl h4⟩
+    cellIntersectionsPath [p1, p2] = [c1, c2] := by
+  have hseg := cellIntersectionsSegment_diagonal_corner_two_cells hcheb hman hcomb
+  rw [cellIntersectionsPath_two, hseg]
+  dsimp
+  have hne : floorPoint p1 ≠ floorPoint p2 := by
+    intro heq
+    have hman_eq := (manhattanDistance_eq_zero (floorPoint p1) (floorPoint p2)).mpr heq
+    omega
+  unfold dedupCells
+  rw [List.eraseDups_cons]
+  have hbeq : (floorPoint p2 == floorPoint p1) = false := by
+    rw [Bool.eq_false_iff]
+    intro heq
+    have hcell : floorPoint p2 = floorPoint p1 := eq_of_beq heq
+    exact hne hcell.symm
+  simp [hbeq]
+  rw [List.eraseDups_cons]
+  simp [List.eraseDups_nil]
 
-
+/--
+Concrete verification: Positive-slope single diagonal corner crossing yields exactly the 2 endpoint cells.
+-/
 theorem cellIntersectionsSegment_diagonal_example :
-
-    cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨1.5, 1.5⟩ = [⟨0, 0⟩, ⟨1, 1⟩, ⟨0, 1⟩, ⟨1, 0⟩] := by
+    cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨1.5, 1.5⟩ = [⟨0, 0⟩, ⟨1, 1⟩] := by
   native_decide
 
-theorem cellIntersectionsSegment_multi_corner_example :
-    (⟨0, 0⟩ ∈ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨2.5, 2.5⟩) ∧
-    (⟨1, 0⟩ ∈ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨2.5, 2.5⟩) ∧
-    (⟨0, 1⟩ ∈ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨2.5, 2.5⟩) ∧
-    (⟨1, 1⟩ ∈ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨2.5, 2.5⟩) ∧
-    (⟨2, 1⟩ ∈ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨2.5, 2.5⟩) ∧
-    (⟨1, 2⟩ ∈ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨2.5, 2.5⟩) ∧
-    (⟨2, 2⟩ ∈ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨2.5, 2.5⟩) := by
-  native_decide
-
+/--
+Concrete verification: Positive-slope single diagonal corner crossing via path yields exactly 2 endpoint cells.
+-/
 theorem cellIntersectionsPath_two_diagonal_example :
-    cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨1.5, 1.5⟩] = [⟨0, 0⟩, ⟨1, 1⟩, ⟨0, 1⟩, ⟨1, 0⟩] := by
+    cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨1.5, 1.5⟩] = [⟨0, 0⟩, ⟨1, 1⟩] := by
   native_decide
 
-theorem cellIntersectionsPath_two_multi_corner_example :
-    (⟨0, 0⟩ ∈ cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨2.5, 2.5⟩]) ∧
-    (⟨1, 0⟩ ∈ cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨2.5, 2.5⟩]) ∧
-    (⟨0, 1⟩ ∈ cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨2.5, 2.5⟩]) ∧
-    (⟨1, 1⟩ ∈ cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨2.5, 2.5⟩]) ∧
-    (⟨2, 1⟩ ∈ cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨2.5, 2.5⟩]) ∧
-    (⟨1, 2⟩ ∈ cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨2.5, 2.5⟩]) ∧
-    (⟨2, 2⟩ ∈ cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨2.5, 2.5⟩]) := by
-  native_decide
-
+/--
+Concrete verification: Negative-slope single diagonal corner crossing yields exactly the 2 endpoint cells.
+-/
 theorem cellIntersectionsSegment_diagonal_negative_slope_corner_example :
-    cellIntersectionsSegment ⟨0.25, 1.75⟩ ⟨1.75, 0.25⟩ = [⟨0, 1⟩, ⟨1, 0⟩, ⟨0, 0⟩, ⟨1, 1⟩] := by
+    cellIntersectionsSegment ⟨0.25, 1.75⟩ ⟨1.75, 0.25⟩ = [⟨0, 1⟩, ⟨1, 0⟩] := by
   native_decide
 
+/--
+Concrete verification: Negative-slope single diagonal corner crossing via path yields exactly 2 endpoint cells.
+-/
 theorem cellIntersectionsPath_two_diagonal_negative_slope_corner_example :
-    cellIntersectionsPath [⟨0.25, 1.75⟩, ⟨1.75, 0.25⟩] = [⟨0, 1⟩, ⟨1, 0⟩, ⟨0, 0⟩, ⟨1, 1⟩] := by
+    cellIntersectionsPath [⟨0.25, 1.75⟩, ⟨1.75, 0.25⟩] = [⟨0, 1⟩, ⟨1, 0⟩] := by
   native_decide
 
+/--
+Concrete verification: Diagonal segment that does not cross the corner contains 3 cells (includes off-axis cell).
+-/
 theorem cellIntersectionsSegment_diagonal_off_corner_example :
     cellIntersectionsSegment ⟨0.25, 0.35⟩ ⟨1.75, 1.85⟩ = [⟨0, 0⟩, ⟨1, 1⟩, ⟨0, 1⟩] := by
   native_decide
+
+/--
+Concrete verification: Multi-corner diagonal traversal (0.5, 0.5) -> (3.5, 3.5) yields exactly the 4 diagonal cells
+and no off-axis cells.
+-/
+theorem cellIntersectionsSegment_multi_corner_example :
+    (⟨0, 0⟩ ∈ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨3.5, 3.5⟩) ∧
+    (⟨1, 1⟩ ∈ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨3.5, 3.5⟩) ∧
+    (⟨2, 2⟩ ∈ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨3.5, 3.5⟩) ∧
+    (⟨3, 3⟩ ∈ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨3.5, 3.5⟩) ∧
+    (⟨0, 1⟩ ∉ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨3.5, 3.5⟩) ∧
+    (⟨1, 0⟩ ∉ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨3.5, 3.5⟩) ∧
+    (⟨1, 2⟩ ∉ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨3.5, 3.5⟩) ∧
+    (⟨2, 1⟩ ∉ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨3.5, 3.5⟩) ∧
+    (⟨2, 3⟩ ∉ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨3.5, 3.5⟩) ∧
+    (⟨3, 2⟩ ∉ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨3.5, 3.5⟩) := by
+  native_decide
+
+/--
+Concrete verification: Multi-corner diagonal path yields all 4 diagonal cells and no off-axis cells.
+-/
+theorem cellIntersectionsPath_two_multi_corner_example :
+    (⟨0, 0⟩ ∈ cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨3.5, 3.5⟩]) ∧
+    (⟨1, 1⟩ ∈ cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨3.5, 3.5⟩]) ∧
+    (⟨2, 2⟩ ∈ cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨3.5, 3.5⟩]) ∧
+    (⟨3, 3⟩ ∈ cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨3.5, 3.5⟩]) ∧
+    (⟨0, 1⟩ ∉ cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨3.5, 3.5⟩]) ∧
+    (⟨1, 0⟩ ∉ cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨3.5, 3.5⟩]) := by
+  native_decide
+
+/--
+Concrete verification: Horizontal segment on grid line y = 1.0 from x = 1.0 to 3.0
+produces exactly {(1, 1), (2, 1), (3, 1)}, 1-cell thick in row 1.
+-/
+theorem cellIntersectionsSegment_horizontal_grid_line_example :
+    (⟨1, 1⟩ ∈ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨3.0, 1.0⟩) ∧
+    (⟨2, 1⟩ ∈ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨3.0, 1.0⟩) ∧
+    (⟨3, 1⟩ ∈ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨3.0, 1.0⟩) ∧
+    (⟨0, 1⟩ ∉ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨3.0, 1.0⟩) ∧
+    (⟨1, 0⟩ ∉ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨3.0, 1.0⟩) ∧
+    (⟨2, 0⟩ ∉ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨3.0, 1.0⟩) ∧
+    (⟨3, 0⟩ ∉ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨3.0, 1.0⟩) ∧
+    (⟨1, 2⟩ ∉ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨3.0, 1.0⟩) := by
+  native_decide
+
+/--
+Concrete verification: Vertical segment on grid line x = 1.0 from y = 1.0 to 3.0
+produces exactly {(1, 1), (1, 2), (1, 3)}, 1-cell thick in column 1.
+-/
+theorem cellIntersectionsSegment_vertical_grid_line_example :
+    (⟨1, 1⟩ ∈ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨1.0, 3.0⟩) ∧
+    (⟨1, 2⟩ ∈ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨1.0, 3.0⟩) ∧
+    (⟨1, 3⟩ ∈ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨1.0, 3.0⟩) ∧
+    (⟨1, 0⟩ ∉ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨1.0, 3.0⟩) ∧
+    (⟨0, 1⟩ ∉ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨1.0, 3.0⟩) ∧
+    (⟨0, 2⟩ ∉ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨1.0, 3.0⟩) ∧
+    (⟨0, 3⟩ ∉ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨1.0, 3.0⟩) ∧
+    (⟨2, 1⟩ ∉ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨1.0, 3.0⟩) := by
+  native_decide
+
+/--
+Continuous segment membership: point `p` lies on the directed line segment between `A` and `B`.
+-/
+inductive PointOnSegment (p A B : Point) : Prop where
+  | start : p = A → PointOnSegment p A B
+  | ptEnd : p = B → PointOnSegment p A B
+  | interior (t : Float) (ht0 : 0.0 ≤ t) (ht1 : t ≤ 1.0)
+      (hx : p.x = A.x + t * (B.x - A.x))
+      (hy : p.y = A.y + t * (B.y - A.y)) : PointOnSegment p A B
+
+/--
+A cell is traversed by the line segment if some continuous point on the segment
+falls into that half-open grid cell [c.x, c.x + 1) × [c.y, c.y + 1).
+-/
+def CellTraversedBySegment (c : Cell) (A B : Point) : Prop :=
+  ∃ p : Point, PointOnSegment p A B ∧ floorPoint p = c
+
+/--
+A cell touches the closed line segment if some continuous point on the segment
+lies within the closed unit square [c.x, c.x + 1] × [c.y, c.y + 1].
+-/
+def CellTouchesSegment (c : Cell) (A B : Point) : Prop :=
+  ∃ p : Point, PointOnSegment p A B ∧
+    c.x.toFloat ≤ p.x ∧ p.x ≤ (c.x + 1).toFloat ∧
+    c.y.toFloat ≤ p.y ∧ p.y ≤ (c.y + 1).toFloat
+
+/--
+An isolated corner contact occurs when a cell touches the closed segment,
+but the line does not traverse the half-open cell (i.e. strictly diagonal corner contact).
+-/
+def IsIsolatedCornerContact (c : Cell) (A B : Point) : Prop :=
+  CellTouchesSegment c A B ∧ ¬ CellTraversedBySegment c A B
+
+/--
+Characterization Theorem: The start point of any segment is on the segment.
+-/
+theorem pointOnSegment_start (A B : Point) : PointOnSegment A A B :=
+  PointOnSegment.start rfl
+
+/--
+Characterization Theorem: The end point of any segment is on the segment.
+-/
+theorem pointOnSegment_end (A B : Point) : PointOnSegment B A B :=
+  PointOnSegment.ptEnd rfl
+
+/--
+Full Characterization Theorem (Endpoints): Every endpoint of a segment is traversed by the segment
+and is contained in cellIntersectionsSegment.
+-/
+theorem cellIntersectionsSegment_contains_traversed_endpoints (A B : Point) :
+    CellTraversedBySegment (floorPoint A) A B ∧
+    CellTraversedBySegment (floorPoint B) A B ∧
+    floorPoint A ∈ cellIntersectionsSegment A B ∧
+    floorPoint B ∈ cellIntersectionsSegment A B := by
+  refine ⟨⟨A, pointOnSegment_start A B, rfl⟩,
+          ⟨B, pointOnSegment_end A B, rfl⟩,
+          cellIntersectionsSegment_contains_start A B,
+          cellIntersectionsSegment_contains_end A B⟩
+
+/--
+Full Characterization Theorem (Paths): Every vertex of a polyline path is traversed
+and is contained in cellIntersectionsPath.
+-/
+theorem cellIntersectionsPath_contains_traversed_vertices (pts : List Point) (p : Point)
+    (hp : p ∈ pts) :
+    floorPoint p ∈ cellIntersectionsPath pts :=
+  cellIntersectionsPath_contains_vertices pts p hp
+
+/--
+Theorem: For two cells with Chebyshev distance 1 and Manhattan distance 2 (diagonal neighbors),
+both their x coordinates and their y coordinates differ.
+-/
+theorem diagonal_cells_coords_ne {c1 c2 : Cell}
+    (hcheb : chebyshevDistance c1 c2 = 1)
+    (hman : manhattanDistance c1 c2 = 2) :
+    c1.x ≠ c2.x ∧ c1.y ≠ c2.y := by
+  unfold chebyshevDistance at hcheb
+  unfold manhattanDistance at hman
+  have hx : (c1.x - c2.x).natAbs = 1 := by omega
+  have hy : (c1.y - c2.y).natAbs = 1 := by omega
+  constructor
+  · intro h
+    rw [h] at hx
+    simp at hx
+  · intro h
+    rw [h] at hy
+    simp at hy
+
+/--
+Full Characterization Theorem (Option A Corner Exclusion):
+For any diagonal corner crossing, off-axis cells are isolated corner contacts
+and are excluded from cellIntersectionsSegment.
+-/
+theorem diagonal_corner_off_axis_is_isolated_contact_and_excluded {p1 p2 : Point}
+    (hcheb : chebyshevDistance (floorPoint p1) (floorPoint p2) = 1)
+    (hman : manhattanDistance (floorPoint p1) (floorPoint p2) = 2)
+    (hcomb : let isWest := sign (p1.x - p2.x)
+             let isNorth := sign (p1.y - p2.y)
+             let maxX := if p1.x > p2.x then p1.x else p2.x
+             let maxY := if p1.y > p2.y then p1.y else p2.y
+             let cornerPt : Point := ⟨maxX.floor, maxY.floor⟩
+             let side := sideOfLine cornerPt p1 p2
+             (side * isWest * isNorth < 0.0) = false ∧
+             (side * isWest * isNorth > 0.0) = false) :
+    let c1 := floorPoint p1
+    let c2 := floorPoint p2
+    ⟨c1.x, c2.y⟩ ∉ cellIntersectionsSegment p1 p2 ∧
+    ⟨c2.x, c1.y⟩ ∉ cellIntersectionsSegment p1 p2 := by
+  have hseg := cellIntersectionsSegment_diagonal_corner_two_cells hcheb hman hcomb
+  have hne := diagonal_cells_coords_ne hcheb hman
+  rcases hne with ⟨hx, hy⟩
+  dsimp
+  rw [hseg]
+  constructor
+  · intro hmem
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at hmem
+    cases hmem with
+    | inl h_eq =>
+      injection h_eq with _ hy_eq
+      exact hy hy_eq.symm
+    | inr h_eq =>
+      injection h_eq with hx_eq _
+      exact hx hx_eq
+  · intro hmem
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at hmem
+    cases hmem with
+    | inl h_eq =>
+      injection h_eq with hx_eq _
+      exact hx hx_eq.symm
+    | inr h_eq =>
+      injection h_eq with _ hy_eq
+      exact hy hy_eq
 
 end Geometry

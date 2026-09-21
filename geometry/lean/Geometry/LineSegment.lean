@@ -40,24 +40,34 @@ def rayMarch (fuel : Nat) (start ptEnd : Point) (distance : Float) (isWest isNor
   match fuel with
   | 0 => acc
   | fuel + 1 =>
-    let nextT := if tX < tY then tX else tY
-    let isX := tX < tY
+    let isCorner := tX == tY
+    let nextT := if tX <= tY then tX else tY
     if nextT >= distance then
       acc
     else
       let fraction := nextT / distance
       let offsetX := start.x + (ptEnd.x - start.x) * fraction
       let offsetY := start.y + (ptEnd.y - start.y) * fraction
-      let newCells :=
-        if isX then
-          [⟨roundToInt offsetX, toInt offsetY.floor⟩,
-           ⟨roundToInt offsetX - 1, toInt offsetY.floor⟩]
-        else
-          [⟨toInt offsetX.floor, roundToInt offsetY⟩,
-           ⟨toInt offsetX.floor, roundToInt offsetY - 1⟩]
-      let nextTX := if isX then tX + xStep.abs else tX
-      let nextTY := if isX then tY else tY + yStep.abs
-      rayMarch fuel start ptEnd distance isWest isNorth xStep yStep nextTX nextTY (acc ++ newCells)
+      if isCorner then
+        let rx := roundToInt offsetX
+        let ry := roundToInt offsetY
+        let cellX := if isWest > 0.0 then rx - 1 else rx
+        let cellY := if isNorth > 0.0 then ry - 1 else ry
+        let nextTX := tX + xStep.abs
+        let nextTY := tY + yStep.abs
+        rayMarch fuel start ptEnd distance isWest isNorth xStep yStep nextTX nextTY (acc ++ [⟨cellX, cellY⟩])
+      else
+        let isX := tX < tY
+        let newCells :=
+          if isX then
+            [⟨roundToInt offsetX, toInt offsetY.floor⟩,
+             ⟨roundToInt offsetX - 1, toInt offsetY.floor⟩]
+          else
+            [⟨toInt offsetX.floor, roundToInt offsetY⟩,
+             ⟨toInt offsetX.floor, roundToInt offsetY - 1⟩]
+        let nextTX := if isX then tX + xStep.abs else tX
+        let nextTY := if isX then tY else tY + yStep.abs
+        rayMarch fuel start ptEnd distance isWest isNorth xStep yStep nextTX nextTY (acc ++ newCells)
 
 /--
 Computes the set of discrete grid cells intersected by the line segment from `start` to `ptEnd`.
@@ -80,8 +90,8 @@ def cellIntersectionsSegment (start ptEnd : Point) : List Cell :=
     let cornerPt : Point := ⟨maxX.floor, maxY.floor⟩
     let side := sideOfLine cornerPt start ptEnd
     let combinedSign := side * isWest * isNorth
-    let c1 : List Cell := if combinedSign <= 0.0 then [⟨startCell.x, endCell.y⟩] else []
-    let c2 : List Cell := if combinedSign >= 0.0 then [⟨endCell.x, startCell.y⟩] else []
+    let c1 : List Cell := if combinedSign < 0.0 then [⟨startCell.x, endCell.y⟩] else []
+    let c2 : List Cell := if combinedSign > 0.0 then [⟨endCell.x, startCell.y⟩] else []
     dedupCells ([startCell, endCell] ++ c1 ++ c2)
   else
     let vx := ptEnd.x - start.x
@@ -92,10 +102,32 @@ def cellIntersectionsSegment (start ptEnd : Point) : List Cell :=
     else
       let normX := vx / distance
       let normY := vy / distance
-      let xStep := 1.0 / normX
-      let yStep := 1.0 / normY
-      let initTX := xStep * if isWest > 0.0 then start.x.floor - start.x else start.x.ceil - start.x
-      let initTY := yStep * if isNorth > 0.0 then start.y.floor - start.y else start.y.ceil - start.y
+      let xStep := if normX != 0.0 then 1.0 / normX else 1.0 / 0.0
+      let yStep := if normY != 0.0 then 1.0 / normY else 1.0 / 0.0
+      let initTX :=
+        if normX == 0.0 then
+          1.0 / 0.0
+        else
+          let deltaX :=
+            if isWest > 0.0 then
+              let f := start.x.floor - start.x
+              if f == 0.0 then -1.0 else f
+            else
+              let c := start.x.ceil - start.x
+              if c == 0.0 then 1.0 else c
+          xStep * deltaX
+      let initTY :=
+        if normY == 0.0 then
+          1.0 / 0.0
+        else
+          let deltaY :=
+            if isNorth > 0.0 then
+              let f := start.y.floor - start.y
+              if f == 0.0 then -1.0 else f
+            else
+              let c := start.y.ceil - start.y
+              if c == 0.0 then 1.0 else c
+          yStep * deltaY
       let maxSteps := manhattan + 4
       let marched := rayMarch maxSteps start ptEnd distance isWest isNorth xStep yStep initTX initTY []
       dedupCells ([startCell, endCell] ++ marched)
