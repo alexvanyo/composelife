@@ -14,15 +14,24 @@
  * limitations under the License.
  -/
 
+import FloatLib
+
+open FloatLib.Floats
+
 namespace Geometry
 
 /--
-A continuous 2D point with 64-bit floating point coordinates.
+IEEE binary32 representation from FloatLib.
+-/
+abbrev Binary32 := ExecFloat.Binary (exponentBits := 8) (fractionBits := 23)
+
+/--
+A continuous 2D point with FloatLib Binary32 floating point coordinates.
 -/
 structure Point where
-  x : Float
-  y : Float
-  deriving Repr, Inhabited, BEq
+  x : Binary32
+  y : Binary32
+  deriving Repr, Inhabited, BEq, DecidableEq
 
 /--
 A discrete 2D integer cell coordinate representing the unit cell [x, x+1] x [y, y+1].
@@ -52,20 +61,29 @@ instance : LawfulBEq Cell where
     rw [cell_beq_def]
     simp
 
-/--
-Converts a Float to an Int by taking the floor and casting.
--/
-def toInt (f : Float) : Int :=
-  let fl := f.floor
-  if fl >= 0.0 then
-    Int.ofNat fl.toUInt64.toNat
-  else
-    -Int.ofNat (-fl).toUInt64.toNat
+instance : ReflBEq Cell where
+  rfl {a} := by
+    rw [cell_beq_def]
+    simp
 
 /--
-Rounds a Float to the nearest Int (ties round up), matching Kotlin's roundToInt().
+Converts an Int to a Binary32.
 -/
-def roundToInt (f : Float) : Int :=
+def ofInt (n : Int) : Binary32 :=
+  ExecFloat.Binary.ofFloat32 n.toFloat32
+
+/--
+Converts a Binary32 to an Int by taking the floor.
+-/
+def toInt (f : Binary32) : Int :=
+  match Formats.BinaryInterchange.Model.toDyadic? (ExecFloat.Binary.toModel f) with
+  | some d => Formats.BinaryInterchange.Model.roundDyadicToInt .towardNegativeInfinity d
+  | none => 0
+
+/--
+Rounds a Binary32 to the nearest Int (ties round up), matching Kotlin's roundToInt().
+-/
+def roundToInt (f : Binary32) : Int :=
   toInt (f + 0.5)
 
 /--
@@ -77,7 +95,7 @@ def floorPoint (p : Point) : Cell :=
 /--
 Returns 1.0 if positive, -1.0 if negative, and 0.0 otherwise.
 -/
-def sign (f : Float) : Float :=
+def sign (f : Binary32) : Binary32 :=
   if f > 0.0 then 1.0
   else if f < 0.0 then -1.0
   else 0.0
@@ -86,7 +104,7 @@ def sign (f : Float) : Float :=
 Determines which side of the directed line from `start` to `ptEnd` the point `p` lies on.
 Returns 1.0 for right, -1.0 for left, and 0.0 for collinear.
 -/
-def sideOfLine (p start ptEnd : Point) : Float :=
+def sideOfLine (p start ptEnd : Point) : Binary32 :=
   sign ((ptEnd.x - start.x) * (p.y - start.y) - (ptEnd.y - start.y) * (p.x - start.x))
 
 /--

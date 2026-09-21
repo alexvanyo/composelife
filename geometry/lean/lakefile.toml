@@ -2,5 +2,10 @@ name = "Geometry"
 version = "0.1.0"
 defaultTargets = ["Geometry"]
 
+[[require]]
+name = "floatlib"
+git = "https://github.com/lean-dojo/FloatLib"
+rev = "main"
+
 [[lean_lib]]
 name = "Geometry"
