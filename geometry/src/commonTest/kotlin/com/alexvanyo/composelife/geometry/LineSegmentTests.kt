@@ -138,6 +138,17 @@ class LineSegmentTests {
             ),
             negativeSlopeCells,
         )
+
+        val segmentAcrossCorners = cellIntersections(Offset(0f, 2f), Offset(2f, 0f))
+        assertEquals(
+            setOf(
+                IntOffset(0, 2),
+                IntOffset(2, 0),
+                IntOffset(0, 1),
+                IntOffset(1, 0),
+            ),
+            segmentAcrossCorners,
+        )
     }
 
     @Test
