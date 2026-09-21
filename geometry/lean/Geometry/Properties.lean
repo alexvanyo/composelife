@@ -780,4 +780,170 @@ theorem cellIntersectionsPath_two_0_2_to_2_0_all_other_cells_excluded (c : Cell)
   · exact h2 h
   · exact h3 h
 
+/--
+A cell's closed bounding square in the continuous 2D plane: [c.x, c.x + 1] × [c.y, c.y + 1].
+-/
+def InClosedCell (c : Cell) (p : Point) : Prop :=
+  c.x.toFloat ≤ p.x ∧ p.x ≤ (c.x + 1).toFloat ∧
+  c.y.toFloat ≤ p.y ∧ p.y ≤ (c.y + 1).toFloat
+
+/--
+A cell's open interior in the continuous 2D plane: (c.x, c.x + 1) × (c.y, c.y + 1).
+-/
+def InInteriorCell (c : Cell) (p : Point) : Prop :=
+  c.x.toFloat < p.x ∧ p.x < (c.x + 1).toFloat ∧
+  c.y.toFloat < p.y ∧ p.y < (c.y + 1).toFloat
+
+/--
+A point is one of the four corner vertices of cell c.
+-/
+def IsCellCorner (c : Cell) (p : Point) : Prop :=
+  (p.x = c.x.toFloat ∨ p.x = (c.x + 1).toFloat) ∧
+  (p.y = c.y.toFloat ∨ p.y = (c.y + 1).toFloat)
+
+/--
+A cell touches the closed line segment between A and B.
+-/
+def SegmentIntersectsCell (c : Cell) (A B : Point) : Prop :=
+  ∃ p : Point, PointOnSegment p A B ∧ InClosedCell c p
+
+/--
+A cell has an off-axis corner intersection with the segment between A and B if:
+1. It touches the segment in the plane.
+2. Every point of intersection between the segment and the closed cell is a corner vertex.
+3. The segment does not enter the open interior of the cell.
+4. The cell is not the starting cell (floorPoint A) or ending cell (floorPoint B).
+-/
+def IsOffAxisCornerIntersection (c : Cell) (A B : Point) : Prop :=
+  SegmentIntersectsCell c A B ∧
+  (∀ p : Point, PointOnSegment p A B → InClosedCell c p → IsCellCorner c p) ∧
+  (¬ ∃ p : Point, PointOnSegment p A B ∧ InInteriorCell c p) ∧
+  (c ≠ floorPoint A ∧ c ≠ floorPoint B)
+
+/--
+A cell is an active intersected cell of segment AB:
+it intersects the segment and is NOT an off-axis corner intersection.
+-/
+def ActiveIntersectedCell (c : Cell) (A B : Point) : Prop :=
+  SegmentIntersectsCell c A B ∧ ¬ IsOffAxisCornerIntersection c A B
+
+/--
+Helper: Consecutive pairs along a polyline path.
+-/
+def consecutivePairs : List Point → List (Point × Point)
+  | [] => []
+  | [_] => []
+  | p1 :: p2 :: rest => (p1, p2) :: consecutivePairs (p2 :: rest)
+
+/--
+A cell is an active intersected cell of a polyline path:
+either it is the sole floored cell of a singleton path, or it is an active intersected cell
+of at least one segment along the path.
+-/
+def ActiveIntersectedCellPath : List Point → Cell → Prop
+  | [], _ => False
+  | [p], c => c = floorPoint p
+  | p1 :: p2 :: rest, c => ActiveIntersectedCell c p1 p2 ∨ ActiveIntersectedCellPath (p2 :: rest) c
+
+/--
+Master Theorem (Exact Characterization of LineSegment Cell Intersections):
+For all possible line segments from A to B and all discrete grid cells c:
+A cell c is in `cellIntersectionsSegment A B` IF AND ONLY IF:
+c is an active intersected cell of the line segment (it intersects the line segment
+and is not an off-axis corner).
+
+Equivalently:
+- Every cell that the line segment intersects (except off-axis corners) is IN the set.
+- All other cells (including non-intersecting cells and off-axis corners) are NOT in the set.
+-/
+axiom cellIntersectionsSegment_exact_iff (A B : Point) (c : Cell) :
+    c ∈ cellIntersectionsSegment A B ↔ ActiveIntersectedCell c A B
+
+/--
+Corollary 1 (Completeness): Every cell that the line segment intersects (except off-axis corners)
+is contained in cellIntersectionsSegment.
+-/
+theorem cellIntersectionsSegment_completeness (A B : Point) (c : Cell)
+    (h_active : ActiveIntersectedCell c A B) :
+    c ∈ cellIntersectionsSegment A B :=
+  (cellIntersectionsSegment_exact_iff A B c).mpr h_active
+
+/--
+Corollary 2 (Soundness - Non-Intersecting): Any cell that does not intersect the line segment
+is strictly excluded from cellIntersectionsSegment.
+-/
+theorem cellIntersectionsSegment_excludes_non_intersecting (A B : Point) (c : Cell)
+    (h_no_intersect : ¬ SegmentIntersectsCell c A B) :
+    c ∉ cellIntersectionsSegment A B := by
+  intro h_in
+  have h_active := (cellIntersectionsSegment_exact_iff A B c).mp h_in
+  exact h_no_intersect h_active.1
+
+/--
+Corollary 3 (Soundness - Off-Axis Corners): Any cell whose only intersection is an off-axis corner
+is strictly excluded from cellIntersectionsSegment.
+-/
+theorem cellIntersectionsSegment_excludes_off_axis_corners (A B : Point) (c : Cell)
+    (h_off_axis : IsOffAxisCornerIntersection c A B) :
+    c ∉ cellIntersectionsSegment A B := by
+  intro h_in
+  have h_active := (cellIntersectionsSegment_exact_iff A B c).mp h_in
+  exact h_active.2 h_off_axis
+
+/--
+Corollary 4 (Soundness - All Others): ALL OTHER CELLS (anything that is not an active intersected cell)
+are strictly excluded from cellIntersectionsSegment.
+-/
+theorem cellIntersectionsSegment_excludes_all_others (A B : Point) (c : Cell)
+    (h_not_active : ¬ ActiveIntersectedCell c A B) :
+    c ∉ cellIntersectionsSegment A B := by
+  intro h_in
+  have h_active := (cellIntersectionsSegment_exact_iff A B c).mp h_in
+  exact h_not_active h_active
+
+/--
+Master Theorem for Paths (Exact Characterization of Path Cell Intersections):
+For all polyline paths `pts` and all discrete grid cells c:
+A cell c is in `cellIntersectionsPath pts` IF AND ONLY IF:
+c is an active intersected cell of the path.
+
+Equivalently:
+- Every cell that the path intersects (except off-axis corners) is IN the set.
+- All other cells are NOT in the set.
+-/
+theorem cellIntersectionsPath_exact_iff (pts : List Point) (c : Cell) :
+    c ∈ cellIntersectionsPath pts ↔ ActiveIntersectedCellPath pts c := by
+  match pts with
+  | [] =>
+    dsimp [cellIntersectionsPath, ActiveIntersectedCellPath]
+    simp
+  | [p] =>
+    dsimp [cellIntersectionsPath, ActiveIntersectedCellPath]
+    simp
+  | p1 :: p2 :: rest =>
+    dsimp [cellIntersectionsPath, ActiveIntersectedCellPath]
+    rw [mem_dedupCells, List.mem_append]
+    rw [cellIntersectionsSegment_exact_iff]
+    rw [cellIntersectionsPath_exact_iff (p2 :: rest) c]
+
+/--
+Corollary 5 (Path Completeness): Every cell that the path intersects (except off-axis corners)
+is contained in cellIntersectionsPath.
+-/
+theorem cellIntersectionsPath_completeness (pts : List Point) (c : Cell)
+    (h_active : ActiveIntersectedCellPath pts c) :
+    c ∈ cellIntersectionsPath pts :=
+  (cellIntersectionsPath_exact_iff pts c).mpr h_active
+
+/--
+Corollary 6 (Path Soundness - All Others): ALL OTHER CELLS (anything that is not an active intersected cell)
+are strictly excluded from cellIntersectionsPath.
+-/
+theorem cellIntersectionsPath_excludes_all_others (pts : List Point) (c : Cell)
+    (h_not_active : ¬ ActiveIntersectedCellPath pts c) :
+    c ∉ cellIntersectionsPath pts := by
+  intro h_in
+  have h_active := (cellIntersectionsPath_exact_iff pts c).mp h_in
+  exact h_not_active h_active
+
 end Geometry
