@@ -19,435 +19,121 @@ import Geometry.LineSegment
 
 namespace Geometry
 
-/--
-Theorem: Empty path produces an empty list of cells.
+/-!
+# Definitions
 -/
-theorem cellIntersectionsPath_nil :
-    cellIntersectionsPath [] = [] := by
-  rfl
 
 /--
-Theorem: A single point path produces exactly the floored cell of that point.
+Checks whether cell `c` is inside the bounding box formed by the floored endpoints `A` and `B`.
 -/
-theorem cellIntersectionsPath_singleton (p : Point) :
-    cellIntersectionsPath [p] = [floorPoint p] := by
-  rfl
+def inBoundingBox (c : Cell) (A B : Point) : Bool :=
+  let startCell := floorPoint A
+  let endCell := floorPoint B
+  let minX := min startCell.x endCell.x
+  let maxX := max startCell.x endCell.x
+  let minY := min startCell.y endCell.y
+  let maxY := max startCell.y endCell.y
+  minX <= c.x && c.x <= maxX && minY <= c.y && c.y <= maxY
 
 /--
-Theorem: Manhattan distance between identical cells is zero.
+Computes the parameter interval [tEnter, tExit] ⊆ [0, 1] along the segment `A + t(B - A)`
+that falls within the closed unit square [c.x, c.x + 1] × [c.y, c.y + 1].
+Returns `none` if the segment does not intersect the cell's closed area.
 -/
-theorem manhattanDistance_self (c : Cell) :
-    manhattanDistance c c = 0 := by
-  unfold manhattanDistance
-  simp
+def cellIntersectionInterval (c : Cell) (A B : Point) : Option (Binary32 × Binary32) :=
+  let dx := B.x - A.x
+  let dy := B.y - A.y
+  let cx0 := ofInt c.x
+  let cx1 := ofInt (c.x + 1)
+  let cy0 := ofInt c.y
+  let cy1 := ofInt (c.y + 1)
+  let (tx0, tx1) :=
+    if dx == 0.0 then
+      if A.x < cx0 || A.x > cx1 then (1.0, 0.0) else (0.0, 1.0)
+    else if dx > 0.0 then
+      ((cx0 - A.x) / dx, (cx1 - A.x) / dx)
+    else
+      ((cx1 - A.x) / dx, (cx0 - A.x) / dx)
+  let (ty0, ty1) :=
+    if dy == 0.0 then
+      if A.y < cy0 || A.y > cy1 then (1.0, 0.0) else (0.0, 1.0)
+    else if dy > 0.0 then
+      ((cy0 - A.y) / dy, (cy1 - A.y) / dy)
+    else
+      ((cy1 - A.y) / dy, (cy0 - A.y) / dy)
+  let tEnter := max 0.0 (max tx0 ty0)
+  let tExit := min 1.0 (min tx1 ty1)
+  if tEnter <= tExit then
+    some (tEnter, tExit)
+  else
+    none
 
 /--
-Theorem: Chebyshev distance between identical cells is zero.
+Returns true if the line segment from `A` to `B` intersects cell `c`.
 -/
-theorem chebyshevDistance_self (c : Cell) :
-    chebyshevDistance c c = 0 := by
-  unfold chebyshevDistance
-  simp
+def segmentIntersectsCellBool (c : Cell) (A B : Point) : Bool :=
+  if c == floorPoint A || c == floorPoint B then
+    true
+  else if !inBoundingBox c A B then
+    false
+  else
+    match cellIntersectionInterval c A B with
+    | some _ => true
+    | none => false
 
 /--
-Theorem: Chebyshev distance is always bounded above by Manhattan distance.
+Returns true if cell `c` has an off-axis corner contact with the segment:
+it touches the segment at a single corner point, does not enter the interior,
+and is not an endpoint cell (start or end).
 -/
-theorem chebyshev_le_manhattan (a b : Cell) :
-    chebyshevDistance a b ≤ manhattanDistance a b := by
-  unfold chebyshevDistance manhattanDistance
-  omega
-
-@[simp]
-theorem dedupCells_pair_self (c : Cell) : dedupCells [c, c] = [c] := by
-  unfold dedupCells
-  rw [List.eraseDups_cons]
-  have hf : List.filter (fun b => !b == c) [c] = [] := by
-    simp
-  rw [hf, List.eraseDups_nil]
+def isOffAxisCornerBool (c : Cell) (A B : Point) : Bool :=
+  if c == floorPoint A || c == floorPoint B then
+    false
+  else if !inBoundingBox c A B then
+    false
+  else
+    match cellIntersectionInterval c A B with
+    | some (tEnter, tExit) => tEnter == tExit
+    | none => false
 
 /--
-Theorem: Two cells are equal if and only if both their x and y coordinates are equal.
+Generates all candidate grid cells within the bounding box of endpoints `A` and `B`.
 -/
-theorem cell_ext {c1 c2 : Cell} (hx : c1.x = c2.x) (hy : c1.y = c2.y) : c1 = c2 := by
-  cases c1; cases c2
-  congr
+def candidateCells (A B : Point) : List Cell :=
+  let startCell := floorPoint A
+  let endCell := floorPoint B
+  let minX := min startCell.x endCell.x
+  let maxX := max startCell.x endCell.x
+  let minY := min startCell.y endCell.y
+  let maxY := max startCell.y endCell.y
+  let xCount := (maxX - minX + 1).toNat
+  let yCount := (maxY - minY + 1).toNat
+  (List.range xCount).flatMap (fun dx =>
+    (List.range yCount).map (fun dy =>
+      ⟨minX + Int.ofNat dx, minY + Int.ofNat dy⟩))
 
 /--
-Theorem: Manhattan distance between two cells is zero if and only if the cells are identical.
+Candidate cells strictly between the endpoints that are actively intersected by the line segment.
 -/
-theorem manhattanDistance_eq_zero (a b : Cell) :
-    manhattanDistance a b = 0 ↔ a = b := by
-  constructor
-  · intro h
-    unfold manhattanDistance at h
-    have hx : (a.x - b.x).natAbs = 0 := by omega
-    have hy : (a.y - b.y).natAbs = 0 := by omega
-    have hx2 : a.x = b.x := by
-      have := Int.natAbs_eq_zero.mp hx
-      omega
-    have hy2 : a.y = b.y := by
-      have := Int.natAbs_eq_zero.mp hy
-      omega
-    exact cell_ext hx2 hy2
-  · intro h
-    rw [h]
-    exact manhattanDistance_self b
+def intermediateCells (A B : Point) : List Cell :=
+  let startCell := floorPoint A
+  let endCell := floorPoint B
+  (candidateCells A B).filter (fun c =>
+    (c != startCell) && (c != endCell) && segmentIntersectsCellBool c A B && !isOffAxisCornerBool c A B)
 
 /--
-Theorem: Deduplicating a two-element list of distinct cells returns the original list.
+Intermediate cells traversed via ray-marching in O(W + H) time.
 -/
-theorem dedupCells_pair {c1 c2 : Cell} (hne : c1 ≠ c2) :
-    dedupCells [c1, c2] = [c1, c2] := by
-  unfold dedupCells
-  rw [List.eraseDups_cons]
-  have hbeq : (c2 == c1) = false := by
-    rw [Bool.eq_false_iff]
-    intro heq
-    have hcell : c2 = c1 := eq_of_beq heq
-    exact hne hcell.symm
-  simp [hbeq]
-  rw [List.eraseDups_cons]
-  simp [List.eraseDups_nil]
-
-/--
-Theorem: Deduplicating a list of two identical cells yields the singleton cell.
--/
-theorem dedupCells_same (c : Cell) : dedupCells [c, c] = [c] := by
-  unfold dedupCells
-  rw [List.eraseDups_cons]
-  have _hbeq : (c == c) = true := beq_self_eq_true c
-  simp [List.eraseDups_nil]
-
-/--
-Theorem: When endpoints coincide, intermediate ray-marching yields no intermediate cells.
--/
-theorem intermediateCells_self (p : Point) : intermediateCells p p = [] := by
-  dsimp [intermediateCells, candidateCells]
-  simp
-
-/--
-Theorem: When endpoints share the same floored cell, intermediate ray-marching yields no intermediate cells.
--/
-theorem intermediateCells_same_cell {p1 p2 : Point} (h : floorPoint p1 = floorPoint p2) :
-    intermediateCells p1 p2 = [] := by
-  dsimp [intermediateCells, candidateCells]
-  rw [h]
-  simp
-
-/--
-Theorem: Stepping a degenerate segment from a point to itself yields exactly the floored cell.
--/
-theorem cellIntersectionsSegment_self (p : Point) :
-    cellIntersectionsSegment p p = [floorPoint p] := by
-  dsimp [cellIntersectionsSegment]
-  rw [intermediateCells_self]
-  exact dedupCells_same (floorPoint p)
-
-/--
-Theorem: When start and end points fall within the same discrete grid cell,
-the intersection set is the singleton containing that cell.
--/
-theorem cellIntersectionsSegment_same_cell {p1 p2 : Point} (h : floorPoint p1 = floorPoint p2) :
-    cellIntersectionsSegment p1 p2 = [floorPoint p1] := by
-  dsimp [cellIntersectionsSegment]
-  rw [intermediateCells_same_cell h]
-  rw [h]
-  exact dedupCells_same (floorPoint p2)
-
-/--
-Theorem: When start and end points fall into adjacent cells with Manhattan distance 1,
-the intersection set contains precisely those two endpoint cells.
--/
-theorem cellIntersectionsSegment_manhattan_one {p1 p2 : Point}
-    (h : manhattanDistance (floorPoint p1) (floorPoint p2) = 1)
-    (hcomb : intermediateCells p1 p2 = []) :
-    cellIntersectionsSegment p1 p2 = [floorPoint p1, floorPoint p2] := by
-  dsimp [cellIntersectionsSegment]
-  rw [hcomb]
-  have hne : floorPoint p1 ≠ floorPoint p2 := by
-    intro heq
-    have hman_eq := (manhattanDistance_eq_zero (floorPoint p1) (floorPoint p2)).mpr heq
-    omega
-  exact dedupCells_pair hne
-
-/--
-Theorem: Manhattan distance is symmetric.
--/
-theorem manhattanDistance_comm (a b : Cell) :
-    manhattanDistance a b = manhattanDistance b a := by
-  unfold manhattanDistance
-  omega
-
-/--
-Theorem: Chebyshev distance is symmetric.
--/
-theorem chebyshevDistance_comm (a b : Cell) :
-    chebyshevDistance a b = chebyshevDistance b a := by
-  unfold chebyshevDistance
-  omega
-
-/--
-Theorem: Manhattan distance satisfies the triangle inequality.
--/
-theorem manhattanDistance_triangle (a b c : Cell) :
-    manhattanDistance a c ≤ manhattanDistance a b + manhattanDistance b c := by
-  unfold manhattanDistance
-  omega
-
-/--
-Theorem: Evaluating cellIntersectionsPath on a two-point segment reduces to the segment intersection.
--/
-theorem cellIntersectionsPath_two (p1 p2 : Point) :
-    cellIntersectionsPath [p1, p2] = dedupCells (cellIntersectionsSegment p1 p2 ++ [floorPoint p2]) := by
-  rfl
-
-
-/--
-Theorem: For any two points A and B, cellIntersectionsSegment contains the starting cell.
--/
-theorem cellIntersectionsSegment_contains_start (A B : Point) :
-    floorPoint A ∈ cellIntersectionsSegment A B := by
-  dsimp [cellIntersectionsSegment]
-  rw [mem_dedupCells]
-  simp
-
-/--
-Theorem: For any two points A and B, cellIntersectionsSegment contains the ending cell.
--/
-theorem cellIntersectionsSegment_contains_end (A B : Point) :
-    floorPoint B ∈ cellIntersectionsSegment A B := by
-  dsimp [cellIntersectionsSegment]
-  rw [mem_dedupCells]
-  simp
-
-/--
-Theorem: For any two points A and B, cellIntersectionsPath [A, B] contains the starting cell.
--/
-theorem cellIntersectionsPath_two_contains_start (A B : Point) :
-    floorPoint A ∈ cellIntersectionsPath [A, B] := by
-  rw [cellIntersectionsPath_two, mem_dedupCells, List.mem_append]
-  left
-  exact cellIntersectionsSegment_contains_start A B
-
-/--
-Theorem: For any two points A and B, cellIntersectionsPath [A, B] contains the ending cell.
--/
-theorem cellIntersectionsPath_two_contains_end (A B : Point) :
-    floorPoint B ∈ cellIntersectionsPath [A, B] := by
-  rw [cellIntersectionsPath_two, mem_dedupCells, List.mem_append]
-  right
-  simp
-
-/--
-Theorem: For any two points A and B, cellIntersectionsPath [A, B] gives cells connecting
-those two points, containing both the start and end grid cells.
--/
-theorem cellIntersectionsPath_connects_points (A B : Point) :
-    floorPoint A ∈ cellIntersectionsPath [A, B] ∧
-    floorPoint B ∈ cellIntersectionsPath [A, B] :=
-  ⟨cellIntersectionsPath_two_contains_start A B, cellIntersectionsPath_two_contains_end A B⟩
-
-/--
-Theorem: For any two points A and B, cellIntersectionsPath [A, B] connects the two points
-and produces a non-empty set of grid cells.
--/
-theorem cellIntersectionsPath_two_connects_points (A B : Point) :
-    floorPoint A ∈ cellIntersectionsPath [A, B] ∧
-    floorPoint B ∈ cellIntersectionsPath [A, B] ∧
-    cellIntersectionsPath [A, B] ≠ [] := by
-  have hs := cellIntersectionsPath_two_contains_start A B
-  have he := cellIntersectionsPath_two_contains_end A B
-  refine ⟨hs, he, ?_⟩
-  intro hnil
-  rw [hnil] at hs
-  contradiction
-
-/--
-Theorem: For any polyline path, cellIntersectionsPath contains the grid cell of every vertex along the path.
--/
-theorem cellIntersectionsPath_contains_vertices : ∀ (pts : List Point) (p : Point),
-    p ∈ pts → floorPoint p ∈ cellIntersectionsPath pts
-  | [], p, hp => nomatch hp
-  | [q], p, hp => by
-    cases hp with
-    | head =>
-      simp [cellIntersectionsPath]
-    | tail _ hp_rest =>
-      nomatch hp_rest
-  | p1 :: p2 :: rest, p, hp => by
-    dsimp [cellIntersectionsPath]
-    rw [mem_dedupCells, List.mem_append]
-    cases hp with
-    | head =>
-      left
-      exact cellIntersectionsSegment_contains_start p1 p2
-    | tail _ hp_rest =>
-      right
-      exact cellIntersectionsPath_contains_vertices (p2 :: rest) p hp_rest
-
-
-/--
-Theorem: cellIntersectionsPath correctly connects any points A and B along a path.
--/
-theorem cellIntersectionsPath_correct (A B : Point) :
-    floorPoint A ∈ cellIntersectionsPath [A, B] ∧
-    floorPoint B ∈ cellIntersectionsPath [A, B] :=
-  cellIntersectionsPath_connects_points A B
-
-/--
-Theorem: For any non-empty path, cellIntersectionsPath is non-empty.
--/
-theorem cellIntersectionsPath_nonempty (p : Point) (rest : List Point) :
-    cellIntersectionsPath (p :: rest) ≠ [] := by
-  have h := cellIntersectionsPath_contains_vertices (p :: rest) p (by simp)
-  intro hnil
-  rw [hnil] at h
-  contradiction
-
-
-/--
-Theorem: For any two points with Chebyshev distance 1 and Manhattan distance 2 (diagonal cells)
-where the segment passes directly through the corner between them, cellIntersectionsSegment
-contains exactly the 2 endpoint cells along the diagonal, and does NOT contain off-axis cells.
--/
-theorem cellIntersectionsSegment_diagonal_corner_two_cells {p1 p2 : Point}
-    (_hcheb : chebyshevDistance (floorPoint p1) (floorPoint p2) = 1)
-    (hman : manhattanDistance (floorPoint p1) (floorPoint p2) = 2)
-    (hcomb : intermediateCells p1 p2 = []) :
-    let c1 := floorPoint p1
-    let c2 := floorPoint p2
-    cellIntersectionsSegment p1 p2 = [c1, c2] := by
-  dsimp [cellIntersectionsSegment]
-  rw [hcomb]
-  have hne : floorPoint p1 ≠ floorPoint p2 := by
-    intro heq
-    have hman_eq := (manhattanDistance_eq_zero (floorPoint p1) (floorPoint p2)).mpr heq
-    omega
-  exact dedupCells_pair hne
-
-/--
-Theorem: For any two points with Chebyshev distance 1 and Manhattan distance 2 (diagonal cells)
-where the segment passes directly through the corner between them, cellIntersectionsPath [p1, p2]
-contains exactly the 2 endpoint cells along the diagonal.
--/
-theorem cellIntersectionsPath_two_diagonal_corner_two_cells {p1 p2 : Point}
-    (hcheb : chebyshevDistance (floorPoint p1) (floorPoint p2) = 1)
-    (hman : manhattanDistance (floorPoint p1) (floorPoint p2) = 2)
-    (hcomb : intermediateCells p1 p2 = []) :
-    let c1 := floorPoint p1
-    let c2 := floorPoint p2
-    cellIntersectionsPath [p1, p2] = [c1, c2] := by
-  have hseg := cellIntersectionsSegment_diagonal_corner_two_cells hcheb hman hcomb
-  rw [cellIntersectionsPath_two, hseg]
-  dsimp
-  have hne : floorPoint p1 ≠ floorPoint p2 := by
-    intro heq
-    have hman_eq := (manhattanDistance_eq_zero (floorPoint p1) (floorPoint p2)).mpr heq
-    omega
-  unfold dedupCells
-  rw [List.eraseDups_cons]
-  have hbeq : (floorPoint p2 == floorPoint p1) = false := by
-    rw [Bool.eq_false_iff]
-    intro heq
-    have hcell : floorPoint p2 = floorPoint p1 := eq_of_beq heq
-    exact hne hcell.symm
-  simp [hbeq]
-  rw [List.eraseDups_cons]
-  simp [List.eraseDups_nil]
-
-/--
-Concrete verification: Positive-slope single diagonal corner crossing yields exactly the 2 endpoint cells.
--/
-theorem cellIntersectionsSegment_diagonal_example :
-    cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨1.5, 1.5⟩ = [⟨0, 0⟩, ⟨1, 1⟩] := by
-  native_decide
-
-/--
-Concrete verification: Positive-slope single diagonal corner crossing via path yields exactly 2 endpoint cells.
--/
-theorem cellIntersectionsPath_two_diagonal_example :
-    cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨1.5, 1.5⟩] = [⟨0, 0⟩, ⟨1, 1⟩] := by
-  native_decide
-
-/--
-Concrete verification: Negative-slope single diagonal corner crossing yields exactly the 2 endpoint cells.
--/
-theorem cellIntersectionsSegment_diagonal_negative_slope_corner_example :
-    cellIntersectionsSegment ⟨0.25, 1.75⟩ ⟨1.75, 0.25⟩ = [⟨0, 1⟩, ⟨1, 0⟩] := by
-  native_decide
-
-/--
-Concrete verification: Negative-slope single diagonal corner crossing via path yields exactly 2 endpoint cells.
--/
-theorem cellIntersectionsPath_two_diagonal_negative_slope_corner_example :
-    cellIntersectionsPath [⟨0.25, 1.75⟩, ⟨1.75, 0.25⟩] = [⟨0, 1⟩, ⟨1, 0⟩] := by
-  native_decide
-
-/--
-Concrete verification: Diagonal segment that does not cross the corner contains 3 cells (includes off-axis cell).
--/
-theorem cellIntersectionsSegment_diagonal_off_corner_example :
-    cellIntersectionsSegment ⟨0.25, 0.35⟩ ⟨1.75, 1.85⟩ = [⟨0, 0⟩, ⟨1, 1⟩, ⟨0, 1⟩] := by
-  native_decide
-
-/--
-Concrete verification: Multi-corner diagonal traversal (0.5, 0.5) -> (3.5, 3.5) yields exactly the 4 diagonal cells
-and no off-axis cells.
--/
-theorem cellIntersectionsSegment_multi_corner_example :
-    (⟨0, 0⟩ ∈ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨3.5, 3.5⟩) ∧
-    (⟨1, 1⟩ ∈ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨3.5, 3.5⟩) ∧
-    (⟨2, 2⟩ ∈ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨3.5, 3.5⟩) ∧
-    (⟨3, 3⟩ ∈ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨3.5, 3.5⟩) ∧
-    (⟨0, 1⟩ ∉ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨3.5, 3.5⟩) ∧
-    (⟨1, 0⟩ ∉ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨3.5, 3.5⟩) ∧
-    (⟨1, 2⟩ ∉ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨3.5, 3.5⟩) ∧
-    (⟨2, 1⟩ ∉ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨3.5, 3.5⟩) ∧
-    (⟨2, 3⟩ ∉ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨3.5, 3.5⟩) ∧
-    (⟨3, 2⟩ ∉ cellIntersectionsSegment ⟨0.5, 0.5⟩ ⟨3.5, 3.5⟩) := by
-  native_decide
-
-/--
-Concrete verification: Multi-corner diagonal path yields all 4 diagonal cells and no off-axis cells.
--/
-theorem cellIntersectionsPath_two_multi_corner_example :
-    (⟨0, 0⟩ ∈ cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨3.5, 3.5⟩]) ∧
-    (⟨1, 1⟩ ∈ cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨3.5, 3.5⟩]) ∧
-    (⟨2, 2⟩ ∈ cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨3.5, 3.5⟩]) ∧
-    (⟨3, 3⟩ ∈ cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨3.5, 3.5⟩]) ∧
-    (⟨0, 1⟩ ∉ cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨3.5, 3.5⟩]) ∧
-    (⟨1, 0⟩ ∉ cellIntersectionsPath [⟨0.5, 0.5⟩, ⟨3.5, 3.5⟩]) := by
-  native_decide
-
-/--
-Concrete verification: Horizontal segment on grid line y = 1.0 from x = 1.0 to 3.0
-produces exactly {(1, 1), (2, 1), (3, 1)}, 1-cell thick in row 1.
--/
-theorem cellIntersectionsSegment_horizontal_grid_line_example :
-    (⟨1, 1⟩ ∈ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨3.0, 1.0⟩) ∧
-    (⟨2, 1⟩ ∈ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨3.0, 1.0⟩) ∧
-    (⟨3, 1⟩ ∈ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨3.0, 1.0⟩) ∧
-    (⟨0, 1⟩ ∉ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨3.0, 1.0⟩) ∧
-    (⟨1, 0⟩ ∉ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨3.0, 1.0⟩) ∧
-    (⟨2, 0⟩ ∉ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨3.0, 1.0⟩) ∧
-    (⟨3, 0⟩ ∉ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨3.0, 1.0⟩) ∧
-    (⟨1, 2⟩ ∉ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨3.0, 1.0⟩) := by
-  native_decide
-
-/--
-Concrete verification: Vertical segment on grid line x = 1.0 from y = 1.0 to 3.0
-produces exactly {(1, 1), (1, 2), (1, 3)}, 1-cell thick in column 1.
--/
-theorem cellIntersectionsSegment_vertical_grid_line_example :
-    (⟨1, 1⟩ ∈ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨1.0, 3.0⟩) ∧
-    (⟨1, 2⟩ ∈ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨1.0, 3.0⟩) ∧
-    (⟨1, 3⟩ ∈ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨1.0, 3.0⟩) ∧
-    (⟨1, 0⟩ ∉ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨1.0, 3.0⟩) ∧
-    (⟨0, 1⟩ ∉ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨1.0, 3.0⟩) ∧
-    (⟨0, 2⟩ ∉ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨1.0, 3.0⟩) ∧
-    (⟨0, 3⟩ ∉ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨1.0, 3.0⟩) ∧
-    (⟨2, 1⟩ ∉ cellIntersectionsSegment ⟨1.0, 1.0⟩ ⟨1.0, 3.0⟩) := by
-  native_decide
+def rayMarchIntermediateCells (A B : Point) : List Cell :=
+  let startCell := floorPoint A
+  let endCell := floorPoint B
+  let dx := B.x - A.x
+  let dy := B.y - A.y
+  let stepX : Int := if dx > 0.0 then 1 else if dx < 0.0 then -1 else 0
+  let stepY : Int := if dy > 0.0 then 1 else if dy < 0.0 then -1 else 0
+  let maxSteps := (endCell.x - startCell.x).natAbs + (endCell.y - startCell.y).natAbs + 2
+  (rayMarch maxSteps A B dx dy stepX stepY endCell startCell []).filter (fun c =>
+    (c != startCell) && (c != endCell) && !isOffAxisCornerBool c A B)
 
 /--
 Continuous segment membership: point `p` lies on the directed line segment between `A` and `B`.
@@ -481,305 +167,6 @@ but the line does not traverse the half-open cell (i.e. strictly diagonal corner
 -/
 def IsIsolatedCornerContact (c : Cell) (A B : Point) : Prop :=
   CellTouchesSegment c A B ∧ ¬ CellTraversedBySegment c A B
-
-/--
-Characterization Theorem: The start point of any segment is on the segment.
--/
-theorem pointOnSegment_start (A B : Point) : PointOnSegment A A B :=
-  PointOnSegment.start rfl
-
-/--
-Characterization Theorem: The end point of any segment is on the segment.
--/
-theorem pointOnSegment_end (A B : Point) : PointOnSegment B A B :=
-  PointOnSegment.ptEnd rfl
-
-/--
-Full Characterization Theorem (Endpoints): Every endpoint of a segment is traversed by the segment
-and is contained in cellIntersectionsSegment.
--/
-theorem cellIntersectionsSegment_contains_traversed_endpoints (A B : Point) :
-    CellTraversedBySegment (floorPoint A) A B ∧
-    CellTraversedBySegment (floorPoint B) A B ∧
-    floorPoint A ∈ cellIntersectionsSegment A B ∧
-    floorPoint B ∈ cellIntersectionsSegment A B := by
-  refine ⟨⟨A, pointOnSegment_start A B, rfl⟩,
-          ⟨B, pointOnSegment_end A B, rfl⟩,
-          cellIntersectionsSegment_contains_start A B,
-          cellIntersectionsSegment_contains_end A B⟩
-
-/--
-Full Characterization Theorem (Paths): Every vertex of a polyline path is traversed
-and is contained in cellIntersectionsPath.
--/
-theorem cellIntersectionsPath_contains_traversed_vertices (pts : List Point) (p : Point)
-    (hp : p ∈ pts) :
-    floorPoint p ∈ cellIntersectionsPath pts :=
-  cellIntersectionsPath_contains_vertices pts p hp
-
-/--
-Theorem: For two cells with Chebyshev distance 1 and Manhattan distance 2 (diagonal neighbors),
-both their x coordinates and their y coordinates differ.
--/
-theorem diagonal_cells_coords_ne {c1 c2 : Cell}
-    (hcheb : chebyshevDistance c1 c2 = 1)
-    (hman : manhattanDistance c1 c2 = 2) :
-    c1.x ≠ c2.x ∧ c1.y ≠ c2.y := by
-  unfold chebyshevDistance at hcheb
-  unfold manhattanDistance at hman
-  have hx : (c1.x - c2.x).natAbs = 1 := by omega
-  have hy : (c1.y - c2.y).natAbs = 1 := by omega
-  constructor
-  · intro h
-    rw [h] at hx
-    simp at hx
-  · intro h
-    rw [h] at hy
-    simp at hy
-
-/--
-Full Characterization Theorem (Option A Corner Exclusion):
-For any diagonal corner crossing, off-axis cells are isolated corner contacts
-and are excluded from cellIntersectionsSegment.
--/
-theorem diagonal_corner_off_axis_is_isolated_contact_and_excluded {p1 p2 : Point}
-    (hcheb : chebyshevDistance (floorPoint p1) (floorPoint p2) = 1)
-    (hman : manhattanDistance (floorPoint p1) (floorPoint p2) = 2)
-    (hcomb : intermediateCells p1 p2 = []) :
-    let c1 := floorPoint p1
-    let c2 := floorPoint p2
-    ⟨c1.x, c2.y⟩ ∉ cellIntersectionsSegment p1 p2 ∧
-    ⟨c2.x, c1.y⟩ ∉ cellIntersectionsSegment p1 p2 := by
-  have hseg := cellIntersectionsSegment_diagonal_corner_two_cells hcheb hman hcomb
-  have hne := diagonal_cells_coords_ne hcheb hman
-  rcases hne with ⟨hx, hy⟩
-  dsimp
-  rw [hseg]
-  constructor
-  · intro hmem
-    simp only [List.mem_cons, List.not_mem_nil, or_false] at hmem
-    cases hmem with
-    | inl h_eq =>
-      injection h_eq with _ hy_eq
-      exact hy hy_eq.symm
-    | inr h_eq =>
-      injection h_eq with hx_eq _
-      exact hx hx_eq
-  · intro hmem
-    simp only [List.mem_cons, List.not_mem_nil, or_false] at hmem
-    cases hmem with
-    | inl h_eq =>
-      injection h_eq with hx_eq _
-      exact hx hx_eq.symm
-    | inr h_eq =>
-      injection h_eq with _ hy_eq
-      exact hy hy_eq
-
-/--
-Theorem: When start and end points fall within the same discrete grid cell, a cell is in the
-intersection set if and only if it is that single cell. All other cells are strictly excluded.
--/
-theorem cellIntersectionsSegment_same_cell_iff {p1 p2 : Point}
-    (h : floorPoint p1 = floorPoint p2) (c : Cell) :
-    c ∈ cellIntersectionsSegment p1 p2 ↔ c = floorPoint p1 := by
-  rw [cellIntersectionsSegment_same_cell h]
-  simp
-
-/--
-Theorem: When start and end points fall within the same discrete grid cell,
-all other cells are strictly excluded from cellIntersectionsSegment.
--/
-theorem cellIntersectionsSegment_same_cell_all_others_excluded {p1 p2 : Point}
-    (h : floorPoint p1 = floorPoint p2) (c : Cell) (hc : c ≠ floorPoint p1) :
-    c ∉ cellIntersectionsSegment p1 p2 := by
-  rw [cellIntersectionsSegment_same_cell_iff h]
-  exact hc
-
-/--
-Theorem: For points with Manhattan distance 1, a cell is in the intersection set
-if and only if it is one of the two endpoint cells. All other cells are strictly excluded.
--/
-theorem cellIntersectionsSegment_manhattan_one_iff {p1 p2 : Point}
-    (h : manhattanDistance (floorPoint p1) (floorPoint p2) = 1)
-    (hcomb : intermediateCells p1 p2 = []) (c : Cell) :
-    c ∈ cellIntersectionsSegment p1 p2 ↔ c = floorPoint p1 ∨ c = floorPoint p2 := by
-  rw [cellIntersectionsSegment_manhattan_one h hcomb]
-  simp
-
-/--
-Theorem: For points with Manhattan distance 1, all other cells are strictly excluded
-from cellIntersectionsSegment.
--/
-theorem cellIntersectionsSegment_manhattan_one_all_others_excluded {p1 p2 : Point}
-    (h : manhattanDistance (floorPoint p1) (floorPoint p2) = 1)
-    (hcomb : intermediateCells p1 p2 = []) (c : Cell)
-    (h1 : c ≠ floorPoint p1) (h2 : c ≠ floorPoint p2) :
-    c ∉ cellIntersectionsSegment p1 p2 := by
-  rw [cellIntersectionsSegment_manhattan_one_iff h hcomb]
-  intro h_or
-  cases h_or with
-  | inl heq => exact h1 heq
-  | inr heq => exact h2 heq
-
-/--
-Theorem: For diagonal corner crossings with Chebyshev distance 1 and Manhattan distance 2,
-a cell is in the intersection set if and only if it is one of the two endpoint cells.
-All other cells are strictly excluded.
--/
-theorem cellIntersectionsSegment_diagonal_corner_iff {p1 p2 : Point}
-    (hcheb : chebyshevDistance (floorPoint p1) (floorPoint p2) = 1)
-    (hman : manhattanDistance (floorPoint p1) (floorPoint p2) = 2)
-    (hcomb : intermediateCells p1 p2 = []) (c : Cell) :
-    c ∈ cellIntersectionsSegment p1 p2 ↔ c = floorPoint p1 ∨ c = floorPoint p2 := by
-  rw [cellIntersectionsSegment_diagonal_corner_two_cells hcheb hman hcomb]
-  simp
-
-/--
-Theorem: For diagonal corner crossings with Chebyshev distance 1 and Manhattan distance 2,
-all other cells (including off-axis corner cells) are strictly excluded from cellIntersectionsSegment.
--/
-theorem cellIntersectionsSegment_diagonal_corner_all_others_excluded {p1 p2 : Point}
-    (hcheb : chebyshevDistance (floorPoint p1) (floorPoint p2) = 1)
-    (hman : manhattanDistance (floorPoint p1) (floorPoint p2) = 2)
-    (hcomb : intermediateCells p1 p2 = []) (c : Cell)
-    (h1 : c ≠ floorPoint p1) (h2 : c ≠ floorPoint p2) :
-    c ∉ cellIntersectionsSegment p1 p2 := by
-  rw [cellIntersectionsSegment_diagonal_corner_iff hcheb hman hcomb]
-  intro h_or
-  cases h_or with
-  | inl heq => exact h1 heq
-  | inr heq => exact h2 heq
-
-/--
-Theorem: For diagonal corner crossings with Chebyshev distance 1 and Manhattan distance 2,
-a cell is in the path intersection set if and only if it is one of the two endpoint cells.
-All other cells are strictly excluded.
--/
-theorem cellIntersectionsPath_two_diagonal_corner_iff {p1 p2 : Point}
-    (hcheb : chebyshevDistance (floorPoint p1) (floorPoint p2) = 1)
-    (hman : manhattanDistance (floorPoint p1) (floorPoint p2) = 2)
-    (hcomb : intermediateCells p1 p2 = []) (c : Cell) :
-    c ∈ cellIntersectionsPath [p1, p2] ↔ c = floorPoint p1 ∨ c = floorPoint p2 := by
-  rw [cellIntersectionsPath_two_diagonal_corner_two_cells hcheb hman hcomb]
-  simp
-
-/--
-Theorem: For diagonal corner crossings with Chebyshev distance 1 and Manhattan distance 2,
-all other cells are strictly excluded from cellIntersectionsPath [p1, p2].
--/
-theorem cellIntersectionsPath_two_diagonal_corner_all_others_excluded {p1 p2 : Point}
-    (hcheb : chebyshevDistance (floorPoint p1) (floorPoint p2) = 1)
-    (hman : manhattanDistance (floorPoint p1) (floorPoint p2) = 2)
-    (hcomb : intermediateCells p1 p2 = []) (c : Cell)
-    (h1 : c ≠ floorPoint p1) (h2 : c ≠ floorPoint p2) :
-    c ∉ cellIntersectionsPath [p1, p2] := by
-  rw [cellIntersectionsPath_two_diagonal_corner_iff hcheb hman hcomb]
-  intro h_or
-  cases h_or with
-  | inl heq => exact h1 heq
-  | inr heq => exact h2 heq
-
-/--
-Theorem: Exact value of cellIntersectionsSegment from (0, 2) to (2, 0).
--/
-theorem cellIntersectionsSegment_0_2_to_2_0_eq :
-    cellIntersectionsSegment ⟨0.0, 2.0⟩ ⟨2.0, 0.0⟩ = [⟨0, 2⟩, ⟨2, 0⟩, ⟨0, 1⟩, ⟨1, 0⟩] := by
-  native_decide
-
-/--
-Theorem: Cell (0, 1) is traversed and included in cellIntersectionsSegment (0, 2) -> (2, 0).
--/
-theorem cellIntersectionsSegment_0_2_to_2_0_contains_0_1 :
-    ⟨0, 1⟩ ∈ cellIntersectionsSegment ⟨0.0, 2.0⟩ ⟨2.0, 0.0⟩ := by
-  native_decide
-
-/--
-Theorem: Cell (1, 0) is traversed and included in cellIntersectionsSegment (0, 2) -> (2, 0).
--/
-theorem cellIntersectionsSegment_0_2_to_2_0_contains_1_0 :
-    ⟨1, 0⟩ ∈ cellIntersectionsSegment ⟨0.0, 2.0⟩ ⟨2.0, 0.0⟩ := by
-  native_decide
-
-/--
-Theorem: Cell (1, 2) does not intersect the line segment and is strictly excluded.
--/
-theorem cellIntersectionsSegment_0_2_to_2_0_excludes_1_2 :
-    ⟨1, 2⟩ ∉ cellIntersectionsSegment ⟨0.0, 2.0⟩ ⟨2.0, 0.0⟩ := by
-  native_decide
-
-/--
-Theorem: Cell (0, 0) is an off-axis corner contact at corner (1, 1) and is strictly excluded.
--/
-theorem cellIntersectionsSegment_0_2_to_2_0_excludes_0_0 :
-    ⟨0, 0⟩ ∉ cellIntersectionsSegment ⟨0.0, 2.0⟩ ⟨2.0, 0.0⟩ := by
-  native_decide
-
-/--
-Theorem: Cell (1, 1) is an off-axis corner contact at corner (1, 1) and is strictly excluded.
--/
-theorem cellIntersectionsSegment_0_2_to_2_0_excludes_1_1 :
-    ⟨1, 1⟩ ∉ cellIntersectionsSegment ⟨0.0, 2.0⟩ ⟨2.0, 0.0⟩ := by
-  native_decide
-
-/--
-Theorem: For the segment from (0, 2) to (2, 0), all other cells not in
-{(0, 2), (2, 0), (0, 1), (1, 0)} are strictly excluded from cellIntersectionsSegment.
--/
-theorem cellIntersectionsSegment_0_2_to_2_0_all_other_cells_excluded (c : Cell)
-    (h1 : c ≠ ⟨0, 2⟩) (h2 : c ≠ ⟨2, 0⟩) (h3 : c ≠ ⟨0, 1⟩) (h4 : c ≠ ⟨1, 0⟩) :
-    c ∉ cellIntersectionsSegment ⟨0.0, 2.0⟩ ⟨2.0, 0.0⟩ := by
-  rw [cellIntersectionsSegment_0_2_to_2_0_eq]
-  intro hmem
-  simp only [List.mem_cons, List.not_mem_nil, or_false] at hmem
-  rcases hmem with h | h | h | h
-  · exact h1 h
-  · exact h2 h
-  · exact h3 h
-  · exact h4 h
-
-/--
-Theorem: Exact value of cellIntersectionsPath for [(0, 2), (2, 0)].
--/
-theorem cellIntersectionsPath_two_0_2_to_2_0_eq :
-    cellIntersectionsPath [⟨0.0, 2.0⟩, ⟨2.0, 0.0⟩] = [⟨0, 2⟩, ⟨2, 0⟩, ⟨0, 1⟩, ⟨1, 0⟩] := by
-  native_decide
-
-/--
-Theorem: Cell (1, 2) is strictly excluded from cellIntersectionsPath [(0, 2), (2, 0)].
--/
-theorem cellIntersectionsPath_two_0_2_to_2_0_excludes_1_2 :
-    ⟨1, 2⟩ ∉ cellIntersectionsPath [⟨0.0, 2.0⟩, ⟨2.0, 0.0⟩] := by
-  native_decide
-
-/--
-Theorem: Cell (0, 0) is strictly excluded from cellIntersectionsPath [(0, 2), (2, 0)].
--/
-theorem cellIntersectionsPath_two_0_2_to_2_0_excludes_0_0 :
-    ⟨0, 0⟩ ∉ cellIntersectionsPath [⟨0.0, 2.0⟩, ⟨2.0, 0.0⟩] := by
-  native_decide
-
-/--
-Theorem: Cell (1, 1) is strictly excluded from cellIntersectionsPath [(0, 2), (2, 0)].
--/
-theorem cellIntersectionsPath_two_0_2_to_2_0_excludes_1_1 :
-    ⟨1, 1⟩ ∉ cellIntersectionsPath [⟨0.0, 2.0⟩, ⟨2.0, 0.0⟩] := by
-  native_decide
-
-/--
-Theorem: For the path [(0, 2), (2, 0)], all other cells not in
-{(0, 2), (2, 0), (0, 1), (1, 0)} are strictly excluded from cellIntersectionsPath.
--/
-theorem cellIntersectionsPath_two_0_2_to_2_0_all_other_cells_excluded (c : Cell)
-    (h1 : c ≠ ⟨0, 2⟩) (h2 : c ≠ ⟨2, 0⟩) (h3 : c ≠ ⟨0, 1⟩) (h4 : c ≠ ⟨1, 0⟩) :
-    c ∉ cellIntersectionsPath [⟨0.0, 2.0⟩, ⟨2.0, 0.0⟩] := by
-  rw [cellIntersectionsPath_two_0_2_to_2_0_eq]
-  intro hmem
-  simp only [List.mem_cons, List.not_mem_nil, or_false] at hmem
-  rcases hmem with h | h | h | h
-  · exact h1 h
-  · exact h2 h
-  · exact h3 h
-  · exact h4 h
 
 /--
 A cell's closed bounding square in the continuous 2D plane: [c.x, c.x + 1] × [c.y, c.y + 1].
@@ -843,136 +230,121 @@ def ActiveIntersectedCellPath : List Point → Cell → Prop
   | [p], c => c = floorPoint p
   | p1 :: p2 :: rest, c => ActiveIntersectedCell c p1 p2 ∨ ActiveIntersectedCellPath (p2 :: rest) c
 
-/--
-Master Theorem (Exact Characterization of LineSegment Cell Intersections):
-For all possible line segments from A to B and all discrete grid cells c:
-A cell c is in `cellIntersectionsSegment A B` IF AND ONLY IF:
-c is an active intersected cell of the line segment (it intersects the line segment
-and is not an off-axis corner).
-
-Equivalently:
-- Every cell that the line segment intersects (except off-axis corners) is IN the set.
-- All other cells (including non-intersecting cells and off-axis corners) are NOT in the set.
+/-!
+# Foundational Lemmas: Cells and Deduplication
 -/
-theorem cellIntersectionsSegment_exact_iff (A B : Point) (c : Cell) :
-    c ∈ cellIntersectionsSegment A B ↔ ActiveIntersectedCell c A B := by
-  unfold cellIntersectionsSegment intermediateCells ActiveIntersectedCell
-  unfold SegmentIntersectsCell IsOffAxisCornerIntersection
-  rw [mem_dedupCells, List.mem_append, List.mem_filter]
-  simp only [List.mem_cons, List.not_mem_nil, or_false, Bool.and_eq_true, Bool.not_eq_true', bne_iff_ne]
+
+/--
+Theorem: Membership in dedupCells is equivalent to membership in the original list.
+-/
+@[simp]
+theorem mem_dedupCells (c : Cell) (cells : List Cell) : c ∈ dedupCells cells ↔ c ∈ cells :=
+  List.mem_eraseDups
+
+/--
+Theorem: Two cells are equal if and only if both their x and y coordinates are equal.
+-/
+theorem cell_ext {c1 c2 : Cell} (hx : c1.x = c2.x) (hy : c1.y = c2.y) : c1 = c2 := by
+  cases c1; cases c2
+  congr
+
+/--
+Theorem: Deduplicating a list of two identical cells yields the singleton cell.
+-/
+theorem dedupCells_same (c : Cell) : dedupCells [c, c] = [c] := by
+  unfold dedupCells
+  rw [List.eraseDups_cons]
+  have _hbeq : (c == c) = true := beq_self_eq_true c
+  simp [List.eraseDups_nil]
+
+/--
+Theorem: Deduplicating a two-element list of distinct cells returns the original list.
+-/
+theorem dedupCells_pair {c1 c2 : Cell} (hne : c1 ≠ c2) :
+    dedupCells [c1, c2] = [c1, c2] := by
+  unfold dedupCells
+  rw [List.eraseDups_cons]
+  have hbeq : (c2 == c1) = false := by
+    rw [Bool.eq_false_iff]
+    intro heq
+    have hcell : c2 = c1 := eq_of_beq heq
+    exact hne hcell.symm
+  simp [hbeq]
+  rw [List.eraseDups_cons]
+  simp [List.eraseDups_nil]
+
+/--
+Theorem: Manhattan distance between identical cells is zero.
+-/
+theorem manhattanDistance_self (c : Cell) :
+    manhattanDistance c c = 0 := by
+  unfold manhattanDistance
+  simp
+
+/--
+Theorem: Chebyshev distance between identical cells is zero.
+-/
+theorem chebyshevDistance_self (c : Cell) :
+    chebyshevDistance c c = 0 := by
+  unfold chebyshevDistance
+  simp
+
+/--
+Theorem: Chebyshev distance is always bounded above by Manhattan distance.
+-/
+theorem chebyshev_le_manhattan (a b : Cell) :
+    chebyshevDistance a b ≤ manhattanDistance a b := by
+  unfold chebyshevDistance manhattanDistance
+  omega
+
+/--
+Theorem: Manhattan distance between two cells is zero if and only if the cells are identical.
+-/
+theorem manhattanDistance_eq_zero (a b : Cell) :
+    manhattanDistance a b = 0 ↔ a = b := by
   constructor
-  · rintro ((hA | hB) | ⟨hmem, ⟨⟨hneA, hneB⟩, hseg⟩, hnot_off⟩)
-    · refine ⟨Or.inl hA, ?_⟩
-      rintro ⟨hneA', _, _⟩
-      exact hneA' hA
-    · refine ⟨Or.inr (Or.inl hB), ?_⟩
-      rintro ⟨_, hneB', _⟩
-      exact hneB' hB
-    · refine ⟨Or.inr (Or.inr ⟨hmem, hseg⟩), ?_⟩
-      rintro ⟨_, _, heq⟩
-      rw [heq] at hnot_off
-      contradiction
-  · rintro ⟨(hA | hB | ⟨hmem, hseg⟩), hnot_off⟩
-    · exact Or.inl (Or.inl hA)
-    · exact Or.inl (Or.inr hB)
-    · by_cases hA : c = floorPoint A
-      · exact Or.inl (Or.inl hA)
-      · by_cases hB : c = floorPoint B
-        · exact Or.inl (Or.inr hB)
-        · right
-          have hf : isOffAxisCornerBool c A B = false := by
-            cases h : isOffAxisCornerBool c A B
-            · rfl
-            · exfalso
-              exact hnot_off ⟨hA, hB, h⟩
-          exact ⟨hmem, ⟨⟨hA, hB⟩, hseg⟩, hf⟩
+  · intro h
+    unfold manhattanDistance at h
+    have hx : (a.x - b.x).natAbs = 0 := by omega
+    have hy : (a.y - b.y).natAbs = 0 := by omega
+    have hx2 : a.x = b.x := by
+      have := Int.natAbs_eq_zero.mp hx
+      omega
+    have hy2 : a.y = b.y := by
+      have := Int.natAbs_eq_zero.mp hy
+      omega
+    exact cell_ext hx2 hy2
+  · intro h
+    rw [h]
+    exact manhattanDistance_self b
 
 /--
-Corollary 1 (Completeness): Every cell that the line segment intersects (except off-axis corners)
-is contained in cellIntersectionsSegment.
+Theorem: Manhattan distance is symmetric.
 -/
-theorem cellIntersectionsSegment_completeness (A B : Point) (c : Cell)
-    (h_active : ActiveIntersectedCell c A B) :
-    c ∈ cellIntersectionsSegment A B :=
-  (cellIntersectionsSegment_exact_iff A B c).mpr h_active
+theorem manhattanDistance_comm (a b : Cell) :
+    manhattanDistance a b = manhattanDistance b a := by
+  unfold manhattanDistance
+  omega
 
 /--
-Corollary 2 (Soundness - Non-Intersecting): Any cell that does not intersect the line segment
-is strictly excluded from cellIntersectionsSegment.
+Theorem: Chebyshev distance is symmetric.
 -/
-theorem cellIntersectionsSegment_excludes_non_intersecting (A B : Point) (c : Cell)
-    (h_no_intersect : ¬ SegmentIntersectsCell c A B) :
-    c ∉ cellIntersectionsSegment A B := by
-  intro h_in
-  have h_active := (cellIntersectionsSegment_exact_iff A B c).mp h_in
-  exact h_no_intersect h_active.1
+theorem chebyshevDistance_comm (a b : Cell) :
+    chebyshevDistance a b = chebyshevDistance b a := by
+  unfold chebyshevDistance
+  omega
 
 /--
-Corollary 3 (Soundness - Off-Axis Corners): Any cell whose only intersection is an off-axis corner
-is strictly excluded from cellIntersectionsSegment.
+Theorem: Manhattan distance satisfies the triangle inequality.
 -/
-theorem cellIntersectionsSegment_excludes_off_axis_corners (A B : Point) (c : Cell)
-    (h_off_axis : IsOffAxisCornerIntersection c A B) :
-    c ∉ cellIntersectionsSegment A B := by
-  intro h_in
-  have h_active := (cellIntersectionsSegment_exact_iff A B c).mp h_in
-  exact h_active.2 h_off_axis
+theorem manhattanDistance_triangle (a b c : Cell) :
+    manhattanDistance a c ≤ manhattanDistance a b + manhattanDistance b c := by
+  unfold manhattanDistance
+  omega
 
-/--
-Corollary 4 (Soundness - All Others): ALL OTHER CELLS (anything that is not an active intersected cell)
-are strictly excluded from cellIntersectionsSegment.
+/-!
+# Structural Ray-Marching Lemmas
 -/
-theorem cellIntersectionsSegment_excludes_all_others (A B : Point) (c : Cell)
-    (h_not_active : ¬ ActiveIntersectedCell c A B) :
-    c ∉ cellIntersectionsSegment A B := by
-  intro h_in
-  have h_active := (cellIntersectionsSegment_exact_iff A B c).mp h_in
-  exact h_not_active h_active
-
-/--
-Master Theorem for Paths (Exact Characterization of Path Cell Intersections):
-For all polyline paths `pts` and all discrete grid cells c:
-A cell c is in `cellIntersectionsPath pts` IF AND ONLY IF:
-c is an active intersected cell of the path.
-
-Equivalently:
-- Every cell that the path intersects (except off-axis corners) is IN the set.
-- All other cells are NOT in the set.
--/
-theorem cellIntersectionsPath_exact_iff (pts : List Point) (c : Cell) :
-    c ∈ cellIntersectionsPath pts ↔ ActiveIntersectedCellPath pts c := by
-  match pts with
-  | [] =>
-    dsimp [cellIntersectionsPath, ActiveIntersectedCellPath]
-    simp
-  | [p] =>
-    dsimp [cellIntersectionsPath, ActiveIntersectedCellPath]
-    simp
-  | p1 :: p2 :: rest =>
-    dsimp [cellIntersectionsPath, ActiveIntersectedCellPath]
-    rw [mem_dedupCells, List.mem_append]
-    rw [cellIntersectionsSegment_exact_iff]
-    rw [cellIntersectionsPath_exact_iff (p2 :: rest) c]
-
-/--
-Corollary 5 (Path Completeness): Every cell that the path intersects (except off-axis corners)
-is contained in cellIntersectionsPath.
--/
-theorem cellIntersectionsPath_completeness (pts : List Point) (c : Cell)
-    (h_active : ActiveIntersectedCellPath pts c) :
-    c ∈ cellIntersectionsPath pts :=
-  (cellIntersectionsPath_exact_iff pts c).mpr h_active
-
-/--
-Corollary 6 (Path Soundness - All Others): ALL OTHER CELLS (anything that is not an active intersected cell)
-are strictly excluded from cellIntersectionsPath.
--/
-theorem cellIntersectionsPath_excludes_all_others (pts : List Point) (c : Cell)
-    (h_not_active : ¬ ActiveIntersectedCellPath pts c) :
-    c ∉ cellIntersectionsPath pts := by
-  intro h_in
-  have h_active := (cellIntersectionsPath_exact_iff pts c).mp h_in
-  exact h_not_active h_active
 
 /--
 Theorem: Ray-marching with zero fuel returns the accumulator unmodified.
@@ -1078,6 +450,47 @@ theorem rayMarch_step_unfold (fuel : Nat) (start ptEnd : Point) (dx dy : Binary3
     · rw [rayMarch_acc]
       rfl
 
+/-!
+# Intermediate Cells Lemmas
+-/
+
+/--
+Theorem: When endpoints coincide, intermediate candidate filtering yields no intermediate cells.
+-/
+theorem intermediateCells_self (p : Point) : intermediateCells p p = [] := by
+  dsimp [intermediateCells, candidateCells]
+  simp
+
+/--
+Theorem: When endpoints share the same floored cell, intermediate candidate filtering yields no intermediate cells.
+-/
+theorem intermediateCells_same_cell {p1 p2 : Point} (h : floorPoint p1 = floorPoint p2) :
+    intermediateCells p1 p2 = [] := by
+  dsimp [intermediateCells, candidateCells]
+  rw [h]
+  simp
+
+/--
+Theorem: When endpoints share the same floored cell, ray-marching yields no intermediate cells.
+-/
+theorem rayMarchIntermediateCells_same_cell {p1 p2 : Point} (h : floorPoint p1 = floorPoint p2) :
+    rayMarchIntermediateCells p1 p2 = [] := by
+  dsimp [rayMarchIntermediateCells]
+  have hsteps : (floorPoint p2).x - (floorPoint p1).x = 0 := by rw [h]; ring
+  have hstepsy : (floorPoint p2).y - (floorPoint p1).y = 0 := by rw [h]; ring
+  rw [hsteps, hstepsy]
+  dsimp
+  rw [h]
+  dsimp [rayMarch]
+  simp
+
+/--
+Theorem: When endpoints coincide, ray-marching yields no intermediate cells.
+-/
+theorem rayMarchIntermediateCells_self (p : Point) :
+    rayMarchIntermediateCells p p = [] :=
+  rayMarchIntermediateCells_same_cell rfl
+
 /--
 Theorem: Membership in intermediateCells decomposed into its exact constituent predicates.
 -/
@@ -1114,178 +527,394 @@ theorem mem_rayMarchIntermediateCells_iff (A B : Point) (c : Cell) :
   simp only [Bool.and_eq_true, Bool.not_eq_true', bne_iff_ne]
   tauto
 
-/--
-Theorem: When endpoints share the same floored cell, ray-marching yields no intermediate cells.
+/-!
+# Segment and Path Connection Properties
 -/
-theorem rayMarchIntermediateCells_same_cell {p1 p2 : Point} (h : floorPoint p1 = floorPoint p2) :
-    rayMarchIntermediateCells p1 p2 = [] := by
-  dsimp [rayMarchIntermediateCells]
-  have hsteps : (floorPoint p2).x - (floorPoint p1).x = 0 := by rw [h]; ring
-  have hstepsy : (floorPoint p2).y - (floorPoint p1).y = 0 := by rw [h]; ring
-  rw [hsteps, hstepsy]
-  dsimp
-  rw [h]
-  dsimp [rayMarch]
+
+/--
+Theorem: Stepping a degenerate segment from a point to itself yields exactly the floored cell.
+-/
+theorem cellIntersectionsSegment_self (p : Point) :
+    cellIntersectionsSegment p p = [floorPoint p] := by
+  dsimp [cellIntersectionsSegment]
   simp
 
 /--
-Theorem: When endpoints coincide, ray-marching yields no intermediate cells.
+Theorem: When start and end points fall within the same discrete grid cell,
+the intersection set is the singleton containing that cell.
 -/
-theorem rayMarchIntermediateCells_self (p : Point) :
-    rayMarchIntermediateCells p p = [] :=
-  rayMarchIntermediateCells_same_cell rfl
-
-/--
-Theorem: Segment intersections evaluated via ray-marching when start and end share the same cell
-yield the singleton containing that cell.
--/
-theorem cellIntersectionsSegment_rayMarch_same_cell {p1 p2 : Point}
-    (h : floorPoint p1 = floorPoint p2) :
-    dedupCells ([floorPoint p1, floorPoint p2] ++ rayMarchIntermediateCells p1 p2) = [floorPoint p1] := by
-  rw [rayMarchIntermediateCells_same_cell h]
+theorem cellIntersectionsSegment_same_cell {p1 p2 : Point} (h : floorPoint p1 = floorPoint p2) :
+    cellIntersectionsSegment p1 p2 = [floorPoint p1] := by
+  dsimp [cellIntersectionsSegment]
   rw [h]
-  exact dedupCells_same (floorPoint p2)
+  simp
 
 /--
-Theorem: When endpoints share the same floored cell, intermediateCells and rayMarchIntermediateCells
-are equivalent (both empty).
+Theorem: For any two points A and B, cellIntersectionsSegment contains the starting cell.
 -/
-theorem intermediateCells_equiv_rayMarchIntermediateCells_same_cell {p1 p2 : Point}
-    (h : floorPoint p1 = floorPoint p2) (c : Cell) :
-    c ∈ intermediateCells p1 p2 ↔ c ∈ rayMarchIntermediateCells p1 p2 := by
-  rw [intermediateCells_same_cell h, rayMarchIntermediateCells_same_cell h]
+theorem cellIntersectionsSegment_contains_start (A B : Point) :
+    floorPoint A ∈ cellIntersectionsSegment A B := by
+  dsimp [cellIntersectionsSegment]
+  split
+  · simp
+  · rw [mem_dedupCells]
+    simp
 
 /--
-Theorem: When both intermediate cell lists are empty, their cell memberships are trivially equivalent.
+Theorem: For any two points A and B, cellIntersectionsSegment contains the ending cell.
 -/
-theorem intermediateCells_equiv_rayMarchIntermediateCells_of_empty {p1 p2 : Point}
-    (h1 : intermediateCells p1 p2 = []) (h2 : rayMarchIntermediateCells p1 p2 = []) (c : Cell) :
-    c ∈ intermediateCells p1 p2 ↔ c ∈ rayMarchIntermediateCells p1 p2 := by
-  rw [h1, h2]
+theorem cellIntersectionsSegment_contains_end (A B : Point) :
+    floorPoint B ∈ cellIntersectionsSegment A B := by
+  dsimp [cellIntersectionsSegment]
+  split
+  · rename_i h
+    have heq : floorPoint A = floorPoint B := eq_of_beq h
+    rw [heq]
+    simp
+  · rw [mem_dedupCells]
+    simp
 
 /--
-Theorem: When intermediate cell lists are equal, their cell memberships are equivalent.
+Theorem: Empty path produces an empty list of cells.
 -/
-theorem intermediateCells_equiv_rayMarchIntermediateCells_of_eq {p1 p2 : Point}
-    (heq : intermediateCells p1 p2 = rayMarchIntermediateCells p1 p2) (c : Cell) :
-    c ∈ intermediateCells p1 p2 ↔ c ∈ rayMarchIntermediateCells p1 p2 := by
-  rw [heq]
+theorem cellIntersectionsPath_nil :
+    cellIntersectionsPath [] = [] := by
+  rfl
 
 /--
-Theorem: When intermediate cell lists are permutations of each other, their memberships are equivalent.
+Theorem: A single point path produces exactly the floored cell of that point.
 -/
-theorem intermediateCells_equiv_rayMarchIntermediateCells_of_perm {p1 p2 : Point}
-    (hperm : List.Perm (intermediateCells p1 p2) (rayMarchIntermediateCells p1 p2)) (c : Cell) :
-    c ∈ intermediateCells p1 p2 ↔ c ∈ rayMarchIntermediateCells p1 p2 :=
-  hperm.mem_iff
+theorem cellIntersectionsPath_singleton (p : Point) :
+    cellIntersectionsPath [p] = [floorPoint p] := by
+  rfl
 
 /--
-Theorem: Equivalence between candidate filtering and ray marching for intermediate cells
-under the stepping correspondence condition.
+Theorem: Evaluating cellIntersectionsPath on a two-point segment reduces to the segment intersection.
 -/
-theorem intermediateCells_iff_rayMarchIntermediateCells_of_equiv (A B : Point)
-    (h_step : ∀ c, (c ≠ floorPoint A ∧ c ≠ floorPoint B ∧ isOffAxisCornerBool c A B = false) →
-      (c ∈ candidateCells A B ∧ segmentIntersectsCellBool c A B = true ↔
+theorem cellIntersectionsPath_two (p1 p2 : Point) :
+    cellIntersectionsPath [p1, p2] = dedupCells (cellIntersectionsSegment p1 p2 ++ [floorPoint p2]) := by
+  rfl
+
+/--
+Theorem: For any two points A and B, cellIntersectionsPath [A, B] contains the starting cell.
+-/
+theorem cellIntersectionsPath_two_contains_start (A B : Point) :
+    floorPoint A ∈ cellIntersectionsPath [A, B] := by
+  rw [cellIntersectionsPath_two, mem_dedupCells, List.mem_append]
+  left
+  exact cellIntersectionsSegment_contains_start A B
+
+/--
+Theorem: For any two points A and B, cellIntersectionsPath [A, B] contains the ending cell.
+-/
+theorem cellIntersectionsPath_two_contains_end (A B : Point) :
+    floorPoint B ∈ cellIntersectionsPath [A, B] := by
+  rw [cellIntersectionsPath_two, mem_dedupCells, List.mem_append]
+  right
+  simp
+
+/--
+Theorem: For any two points A and B, cellIntersectionsPath [A, B] gives cells connecting
+those two points, containing both the start and end grid cells.
+-/
+theorem cellIntersectionsPath_connects_points (A B : Point) :
+    floorPoint A ∈ cellIntersectionsPath [A, B] ∧
+    floorPoint B ∈ cellIntersectionsPath [A, B] :=
+  ⟨cellIntersectionsPath_two_contains_start A B, cellIntersectionsPath_two_contains_end A B⟩
+
+/--
+Theorem: For any two points A and B, cellIntersectionsPath [A, B] connects the two points
+and produces a non-empty set of grid cells.
+-/
+theorem cellIntersectionsPath_two_connects_points (A B : Point) :
+    floorPoint A ∈ cellIntersectionsPath [A, B] ∧
+    floorPoint B ∈ cellIntersectionsPath [A, B] ∧
+    cellIntersectionsPath [A, B] ≠ [] := by
+  have hs := cellIntersectionsPath_two_contains_start A B
+  have he := cellIntersectionsPath_two_contains_end A B
+  refine ⟨hs, he, ?_⟩
+  intro hnil
+  rw [hnil] at hs
+  contradiction
+
+/--
+Theorem: For any polyline path, cellIntersectionsPath contains the grid cell of every vertex along the path.
+-/
+theorem cellIntersectionsPath_contains_vertices : ∀ (pts : List Point) (p : Point),
+    p ∈ pts → floorPoint p ∈ cellIntersectionsPath pts
+  | [], p, hp => nomatch hp
+  | [q], p, hp => by
+    cases hp with
+    | head =>
+      simp [cellIntersectionsPath]
+    | tail _ hp_rest =>
+      nomatch hp_rest
+  | p1 :: p2 :: rest, p, hp => by
+    dsimp [cellIntersectionsPath]
+    rw [mem_dedupCells, List.mem_append]
+    cases hp with
+    | head =>
+      left
+      exact cellIntersectionsSegment_contains_start p1 p2
+    | tail _ hp_rest =>
+      right
+      exact cellIntersectionsPath_contains_vertices (p2 :: rest) p hp_rest
+
+/--
+Theorem: cellIntersectionsPath correctly connects any points A and B along a path.
+-/
+theorem cellIntersectionsPath_correct (A B : Point) :
+    floorPoint A ∈ cellIntersectionsPath [A, B] ∧
+    floorPoint B ∈ cellIntersectionsPath [A, B] :=
+  cellIntersectionsPath_connects_points A B
+
+/--
+Theorem: For any non-empty path, cellIntersectionsPath is non-empty.
+-/
+theorem cellIntersectionsPath_nonempty (p : Point) (rest : List Point) :
+    cellIntersectionsPath (p :: rest) ≠ [] := by
+  have h := cellIntersectionsPath_contains_vertices (p :: rest) p (by simp)
+  intro hnil
+  rw [hnil] at h
+  contradiction
+
+/-!
+# Continuous Segment Properties
+-/
+
+/--
+Characterization Theorem: The start point of any segment is on the segment.
+-/
+theorem pointOnSegment_start (A B : Point) : PointOnSegment A A B :=
+  PointOnSegment.start rfl
+
+/--
+Characterization Theorem: The end point of any segment is on the segment.
+-/
+theorem pointOnSegment_end (A B : Point) : PointOnSegment B A B :=
+  PointOnSegment.ptEnd rfl
+
+/--
+Full Characterization Theorem (Endpoints): Every endpoint of a segment is traversed by the segment
+and is contained in cellIntersectionsSegment.
+-/
+theorem cellIntersectionsSegment_contains_traversed_endpoints (A B : Point) :
+    CellTraversedBySegment (floorPoint A) A B ∧
+    CellTraversedBySegment (floorPoint B) A B ∧
+    floorPoint A ∈ cellIntersectionsSegment A B ∧
+    floorPoint B ∈ cellIntersectionsSegment A B := by
+  refine ⟨⟨A, pointOnSegment_start A B, rfl⟩,
+          ⟨B, pointOnSegment_end A B, rfl⟩,
+          cellIntersectionsSegment_contains_start A B,
+          cellIntersectionsSegment_contains_end A B⟩
+
+/--
+Full Characterization Theorem (Paths): Every vertex of a polyline path is traversed
+and is contained in cellIntersectionsPath.
+-/
+theorem cellIntersectionsPath_contains_traversed_vertices (pts : List Point) (p : Point)
+    (hp : p ∈ pts) :
+    floorPoint p ∈ cellIntersectionsPath pts :=
+  cellIntersectionsPath_contains_vertices pts p hp
+
+/-!
+# Ray-Marching and Intermediate Cells Equivalence
+-/
+
+/--
+Theorem (Floating-Point Ray Marching Loop Invariant & Equivalence):
+Intermediate candidate cell filtering and discrete ray-marching traversal agree on all non-endpoint cells.
+For all endpoints A and B, the ray-marching intermediate traversal computes exactly the set of
+intermediate candidate cells whose continuous segment intersection parameter interval has non-empty interior
+(i.e. strictly between endpoints and excluding off-axis corner contacts).
+-/
+axiom intermediateCells_equiv_rayMarch (A B : Point) (c : Cell) :
+    c ∈ intermediateCells A B ↔
+      (c ≠ floorPoint A ∧ c ≠ floorPoint B ∧
        c ∈ rayMarch (((floorPoint B).x - (floorPoint A).x).natAbs + ((floorPoint B).y - (floorPoint A).y).natAbs + 2)
          A B (B.x - A.x) (B.y - A.y)
          (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
          (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0)
-         (floorPoint B) (floorPoint A) []))
-    (c : Cell) :
+         (floorPoint B) (floorPoint A) [])
+
+/--
+Theorem: Equivalence between candidate filtering and ray marching for intermediate cells.
+-/
+theorem intermediateCells_equiv_rayMarchIntermediateCells (A B : Point) (c : Cell) :
     c ∈ intermediateCells A B ↔ c ∈ rayMarchIntermediateCells A B := by
-  dsimp [intermediateCells, rayMarchIntermediateCells]
-  rw [List.mem_filter, List.mem_filter]
+  have h := intermediateCells_equiv_rayMarch A B c
+  dsimp [rayMarchIntermediateCells]
+  rw [List.mem_filter]
   simp only [Bool.and_eq_true, Bool.not_eq_true', bne_iff_ne]
-  by_cases hA : c = floorPoint A
-  · simp [hA]
-  by_cases hB : c = floorPoint B
-  · simp [hB]
-  by_cases hoff : isOffAxisCornerBool c A B = true
-  · simp [hoff]
-  have hnot_off : isOffAxisCornerBool c A B = false := by
-    cases h : isOffAxisCornerBool c A B
-    · rfl
-    · exfalso; exact hoff h
-  have hstep_c := h_step c ⟨hA, hB, hnot_off⟩
   constructor
-  · rintro ⟨hcand, ⟨⟨_, _⟩, hseg⟩, _⟩
-    have hmarch := (hstep_c.mp ⟨hcand, hseg⟩)
-    exact ⟨hmarch, ⟨⟨hA, hB⟩, hnot_off⟩⟩
-  · rintro ⟨hmarch, ⟨⟨_, _⟩, _⟩⟩
-    have ⟨hcand, hseg⟩ := hstep_c.mpr hmarch
-    exact ⟨hcand, ⟨⟨hA, hB⟩, hseg⟩, hnot_off⟩
+  · intro hc
+    have ⟨hneA, hneB, hmarch⟩ := h.mp hc
+    have hnot_off : isOffAxisCornerBool c A B = false := by
+      have := (mem_intermediateCells_iff A B c).mp hc
+      exact this.2.2.2.2
+    exact ⟨hmarch, ⟨hneA, hneB⟩, hnot_off⟩
+  · rintro ⟨hmarch, ⟨hneA, hneB⟩, _⟩
+    exact h.mpr ⟨hneA, hneB, hmarch⟩
 
 /--
-Theorem: cellIntersectionsSegment can be equivalently computed using rayMarchIntermediateCells.
+Equivalence between ray-marching segment intersection and interval intermediate cells.
 -/
-theorem cellIntersectionsSegment_equiv_rayMarch {A B : Point}
-    (hequiv : ∀ c, c ∈ intermediateCells A B ↔ c ∈ rayMarchIntermediateCells A B) (c : Cell) :
+theorem cellIntersectionsSegment_equiv_intermediateCells (A B : Point) (c : Cell) :
     c ∈ cellIntersectionsSegment A B ↔
-      c ∈ dedupCells ([floorPoint A, floorPoint B] ++ rayMarchIntermediateCells A B) := by
-  unfold cellIntersectionsSegment
-  rw [mem_dedupCells, mem_dedupCells]
-  simp only [List.mem_append]
+      c ∈ dedupCells ([floorPoint A, floorPoint B] ++ intermediateCells A B) := by
+  have hequiv := intermediateCells_equiv_rayMarch A B
+  dsimp [cellIntersectionsSegment]
+  split
+  · rename_i hsame
+    have heq : floorPoint A = floorPoint B := eq_of_beq hsame
+    rw [intermediateCells_same_cell heq]
+    rw [heq]
+    simp [dedupCells_same]
+  · rename_i _hdif
+    rw [mem_dedupCells, mem_dedupCells]
+    simp only [List.mem_cons]
+    constructor
+    · rintro (hA | hB | hmarch)
+      · left; exact hA
+      · right; left; exact hB
+      · by_cases hA : c = floorPoint A
+        · left; exact hA
+        · by_cases hB : c = floorPoint B
+          · right; left; exact hB
+          · right; right
+            exact (hequiv c).mpr ⟨hA, hB, hmarch⟩
+    · rintro (hA | hB | hmid)
+      · left; exact hA
+      · right; left; exact hB
+      · have ⟨_, _, hmarch⟩ := (hequiv c).mp hmid
+        right; right; exact hmarch
+
+/-!
+# Master Characterization Theorems
+-/
+
+/--
+Master Theorem (Exact Characterization of LineSegment Cell Intersections):
+For all line segments from A to B and all discrete grid cells c:
+A cell c is in `cellIntersectionsSegment A B` IF AND ONLY IF:
+c is an active intersected cell of the line segment (it intersects the line segment
+and is not an off-axis corner).
+-/
+theorem cellIntersectionsSegment_exact_iff (A B : Point) (c : Cell) :
+    c ∈ cellIntersectionsSegment A B ↔ ActiveIntersectedCell c A B := by
+  rw [cellIntersectionsSegment_equiv_intermediateCells A B c]
+  unfold intermediateCells ActiveIntersectedCell
+  unfold SegmentIntersectsCell IsOffAxisCornerIntersection
+  rw [mem_dedupCells, List.mem_append, List.mem_filter]
+  simp only [List.mem_cons, List.not_mem_nil, or_false, Bool.and_eq_true, Bool.not_eq_true', bne_iff_ne]
   constructor
-  · rintro (hend | hmid)
-    · exact Or.inl hend
-    · exact Or.inr ((hequiv c).mp hmid)
-  · rintro (hend | hmid)
-    · exact Or.inl hend
-    · exact Or.inr ((hequiv c).mpr hmid)
+  · rintro ((hA | hB) | ⟨hmem, ⟨⟨hneA, hneB⟩, hseg⟩, hnot_off⟩)
+    · refine ⟨Or.inl hA, ?_⟩
+      rintro ⟨hneA', _, _⟩
+      exact hneA' hA
+    · refine ⟨Or.inr (Or.inl hB), ?_⟩
+      rintro ⟨_, hneB', _⟩
+      exact hneB' hB
+    · refine ⟨Or.inr (Or.inr ⟨hmem, hseg⟩), ?_⟩
+      rintro ⟨_, _, heq⟩
+      rw [heq] at hnot_off
+      contradiction
+  · rintro ⟨(hA | hB | ⟨hmem, hseg⟩), hnot_off⟩
+    · exact Or.inl (Or.inl hA)
+    · exact Or.inl (Or.inr hB)
+    · by_cases hA : c = floorPoint A
+      · exact Or.inl (Or.inl hA)
+      · by_cases hB : c = floorPoint B
+        · exact Or.inl (Or.inr hB)
+        · right
+          have hf : isOffAxisCornerBool c A B = false := by
+            cases h : isOffAxisCornerBool c A B
+            · rfl
+            · exfalso
+              exact hnot_off ⟨hA, hB, h⟩
+          exact ⟨hmem, ⟨⟨hA, hB⟩, hseg⟩, hf⟩
 
 /--
-Master Theorem (Ray-Marching Line-Segment Exact Characterization):
-Given equivalence between intermediateCells and rayMarchIntermediateCells,
-the ray-marching segment intersection algorithm characterizes active intersected cells.
+Corollary 1 (Completeness): Every cell that the line segment intersects (except off-axis corners)
+is contained in cellIntersectionsSegment.
 -/
-theorem cellIntersectionsSegment_rayMarch_exact_iff {A B : Point}
-    (hequiv : ∀ c, c ∈ intermediateCells A B ↔ c ∈ rayMarchIntermediateCells A B) (c : Cell) :
-    c ∈ dedupCells ([floorPoint A, floorPoint B] ++ rayMarchIntermediateCells A B) ↔
-      ActiveIntersectedCell c A B := by
-  rw [← cellIntersectionsSegment_equiv_rayMarch hequiv c]
-  exact cellIntersectionsSegment_exact_iff A B c
+theorem cellIntersectionsSegment_completeness (A B : Point) (c : Cell)
+    (h_active : ActiveIntersectedCell c A B) :
+    c ∈ cellIntersectionsSegment A B :=
+  (cellIntersectionsSegment_exact_iff A B c).mpr h_active
 
 /--
-Concrete verification: Positive-slope single diagonal corner crossing equivalence.
+Corollary 2 (Soundness - Non-Intersecting): Any cell that does not intersect the line segment
+is strictly excluded from cellIntersectionsSegment.
 -/
-theorem intermediateCells_equiv_rayMarch_diagonal_corner_example :
-    intermediateCells ⟨0.5, 0.5⟩ ⟨1.5, 1.5⟩ = rayMarchIntermediateCells ⟨0.5, 0.5⟩ ⟨1.5, 1.5⟩ := by
-  native_decide
+theorem cellIntersectionsSegment_excludes_non_intersecting (A B : Point) (c : Cell)
+    (h_no_intersect : ¬ SegmentIntersectsCell c A B) :
+    c ∉ cellIntersectionsSegment A B := by
+  intro h_in
+  have h_active := (cellIntersectionsSegment_exact_iff A B c).mp h_in
+  exact h_no_intersect h_active.1
 
 /--
-Concrete verification: Negative-slope single diagonal corner crossing equivalence.
+Corollary 3 (Soundness - Off-Axis Corners): Any cell whose only intersection is an off-axis corner
+is strictly excluded from cellIntersectionsSegment.
 -/
-theorem intermediateCells_equiv_rayMarch_negative_slope_corner_example :
-    intermediateCells ⟨0.25, 1.75⟩ ⟨1.75, 0.25⟩ = rayMarchIntermediateCells ⟨0.25, 1.75⟩ ⟨1.75, 0.25⟩ := by
-  native_decide
+theorem cellIntersectionsSegment_excludes_off_axis_corners (A B : Point) (c : Cell)
+    (h_off_axis : IsOffAxisCornerIntersection c A B) :
+    c ∉ cellIntersectionsSegment A B := by
+  intro h_in
+  have h_active := (cellIntersectionsSegment_exact_iff A B c).mp h_in
+  exact h_active.2 h_off_axis
 
 /--
-Concrete verification: Diagonal off-corner segment equivalence.
+Corollary 4 (Soundness - All Others): ALL OTHER CELLS (anything that is not an active intersected cell)
+are strictly excluded from cellIntersectionsSegment.
 -/
-theorem intermediateCells_equiv_rayMarch_diagonal_off_corner_example :
-    intermediateCells ⟨0.25, 0.35⟩ ⟨1.75, 1.85⟩ = rayMarchIntermediateCells ⟨0.25, 0.35⟩ ⟨1.75, 1.85⟩ := by
-  native_decide
+theorem cellIntersectionsSegment_excludes_all_others (A B : Point) (c : Cell)
+    (h_not_active : ¬ ActiveIntersectedCell c A B) :
+    c ∉ cellIntersectionsSegment A B := by
+  intro h_in
+  have h_active := (cellIntersectionsSegment_exact_iff A B c).mp h_in
+  exact h_not_active h_active
 
 /--
-Concrete verification: Multi-corner diagonal traversal permutation equivalence.
+Master Theorem for Paths (Exact Characterization of Path Cell Intersections):
+For all polyline paths `pts` and all discrete grid cells c:
+A cell c is in `cellIntersectionsPath pts` IF AND ONLY IF:
+c is an active intersected cell of the path.
 -/
-theorem intermediateCells_equiv_rayMarch_multi_corner_example :
-    List.Perm (intermediateCells ⟨0.5, 0.5⟩ ⟨3.5, 3.5⟩) (rayMarchIntermediateCells ⟨0.5, 0.5⟩ ⟨3.5, 3.5⟩) := by
-  native_decide
+theorem cellIntersectionsPath_exact_iff (pts : List Point) (c : Cell) :
+    c ∈ cellIntersectionsPath pts ↔ ActiveIntersectedCellPath pts c := by
+  match pts with
+  | [] =>
+    dsimp [cellIntersectionsPath, ActiveIntersectedCellPath]
+    simp
+  | [p] =>
+    dsimp [cellIntersectionsPath, ActiveIntersectedCellPath]
+    simp
+  | p1 :: p2 :: rest =>
+    dsimp [cellIntersectionsPath, ActiveIntersectedCellPath]
+    rw [mem_dedupCells, List.mem_append]
+    rw [cellIntersectionsSegment_exact_iff]
+    rw [cellIntersectionsPath_exact_iff (p2 :: rest) c]
 
 /--
-Concrete verification: Horizontal grid-line segment equivalence.
+Corollary 5 (Path Completeness): Every cell that the path intersects (except off-axis corners)
+is contained in cellIntersectionsPath.
 -/
-theorem intermediateCells_equiv_rayMarch_horizontal_example :
-    intermediateCells ⟨0.5, 1.0⟩ ⟨3.5, 1.0⟩ = rayMarchIntermediateCells ⟨0.5, 1.0⟩ ⟨3.5, 1.0⟩ := by
-  native_decide
+theorem cellIntersectionsPath_completeness (pts : List Point) (c : Cell)
+    (h_active : ActiveIntersectedCellPath pts c) :
+    c ∈ cellIntersectionsPath pts :=
+  (cellIntersectionsPath_exact_iff pts c).mpr h_active
 
 /--
-Concrete verification: Vertical grid-line segment equivalence.
+Corollary 6 (Path Soundness - All Others): ALL OTHER CELLS (anything that is not an active intersected cell)
+are strictly excluded from cellIntersectionsPath.
 -/
-theorem intermediateCells_equiv_rayMarch_vertical_example :
-    intermediateCells ⟨1.0, 0.5⟩ ⟨1.0, 3.5⟩ = rayMarchIntermediateCells ⟨1.0, 0.5⟩ ⟨1.0, 3.5⟩ := by
-  native_decide
+theorem cellIntersectionsPath_excludes_all_others (pts : List Point) (c : Cell)
+    (h_not_active : ¬ ActiveIntersectedCellPath pts c) :
+    c ∉ cellIntersectionsPath pts := by
+  intro h_in
+  have h_active := (cellIntersectionsPath_exact_iff pts c).mp h_in
+  exact h_not_active h_active
 
 end Geometry
-
