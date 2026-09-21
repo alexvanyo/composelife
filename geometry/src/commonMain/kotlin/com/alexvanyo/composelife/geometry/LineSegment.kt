@@ -16,31 +16,31 @@
 
 package com.alexvanyo.composelife.geometry
 
-import kotlin.math.max
-import kotlin.math.min
+import kotlin.math.absoluteValue
 
 /**
  * Returns all discrete grid [IntOffset]s that intersect with the polyline path defined by [points].
  */
 fun cellIntersections(points: List<Offset>): Set<IntOffset> {
-    require(points.isNotEmpty())
-    if (points.size == 1) {
-        return setOf(floor(points[0]))
+    require(points.isNotEmpty()) { "Points cannot be empty!" }
+    return buildSet {
+        for (i in 0 until points.size - 1) {
+            cellIntersections(points[i], points[i + 1], this)
+        }
+        if (points.size == 1) {
+            add(floor(points.first()))
+        }
     }
-    val result = mutableSetOf<IntOffset>()
-    for (i in 0 until points.size - 1) {
-        cellIntersections(points[i], points[i + 1], result)
-    }
-    return result
 }
 
 /**
- * Returns all discrete grid [IntOffset]s that intersect with the line segment from [start] to [end].
+ * Returns all discrete grid [IntOffset]s that intersect with the line segment between [start] and [end].
  */
 fun cellIntersections(start: Offset, end: Offset): Set<IntOffset> = buildSet {
     cellIntersections(start, end, this)
 }
 
+@Suppress("ComplexMethod", "CyclomaticComplexMethod")
 internal fun cellIntersections(start: Offset, end: Offset, destination: MutableSet<IntOffset>) {
     val startCell = floor(start)
     val endCell = floor(end)
@@ -48,60 +48,63 @@ internal fun cellIntersections(start: Offset, end: Offset, destination: MutableS
     destination.add(startCell)
     destination.add(endCell)
 
-    val minX = min(startCell.x, endCell.x)
-    val maxX = max(startCell.x, endCell.x)
-    val minY = min(startCell.y, endCell.y)
-    val maxY = max(startCell.y, endCell.y)
-
-    for (x in minX..maxX) {
-        for (y in minY..maxY) {
-            val cell = IntOffset(x, y)
-            if (cell != startCell && cell != endCell && isActiveIntersectedCell(cell, start, end)) {
-                destination.add(cell)
-            }
-        }
+    if (startCell == endCell) {
+        return
     }
-}
 
-@Suppress("ReturnCount")
-private fun isActiveIntersectedCell(cell: IntOffset, start: Offset, end: Offset): Boolean {
     val dx = end.x - start.x
     val dy = end.y - start.y
-    val cx0 = cell.x.toFloat()
-    val cx1 = (cell.x + 1).toFloat()
-    val cy0 = cell.y.toFloat()
-    val cy1 = (cell.y + 1).toFloat()
 
-    val tx0: Float
-    val tx1: Float
-    if (dx == 0f) {
-        if (start.x < cx0 || start.x > cx1) return false
-        tx0 = 0f
-        tx1 = 1f
-    } else if (dx > 0f) {
-        tx0 = (cx0 - start.x) / dx
-        tx1 = (cx1 - start.x) / dx
+    val stepX = if (dx > 0f) {
+        1
+    } else if (dx < 0f) {
+        -1
     } else {
-        tx0 = (cx1 - start.x) / dx
-        tx1 = (cx0 - start.x) / dx
+        0
+    }
+    val stepY = if (dy > 0f) {
+        1
+    } else if (dy < 0f) {
+        -1
+    } else {
+        0
     }
 
-    val ty0: Float
-    val ty1: Float
-    if (dy == 0f) {
-        if (start.y < cy0 || start.y > cy1) return false
-        ty0 = 0f
-        ty1 = 1f
-    } else if (dy > 0f) {
-        ty0 = (cy0 - start.y) / dy
-        ty1 = (cy1 - start.y) / dy
-    } else {
-        ty0 = (cy1 - start.y) / dy
-        ty1 = (cy0 - start.y) / dy
+    var currentX = startCell.x
+    var currentY = startCell.y
+
+    val maxSteps = (endCell.x - startCell.x).absoluteValue + (endCell.y - startCell.y).absoluteValue + 2
+    var step = 0
+    while ((currentX != endCell.x || currentY != endCell.y) && step < maxSteps) {
+        step++
+
+        val xb = if (stepX > 0) (currentX + 1).toFloat() else currentX.toFloat()
+        val yb = if (stepY > 0) (currentY + 1).toFloat() else currentY.toFloat()
+
+        val tx = if (stepX != 0) (xb - start.x) / dx else Float.POSITIVE_INFINITY
+        val ty = if (stepY != 0) (yb - start.y) / dy else Float.POSITIVE_INFINITY
+
+        val minT = minOf(tx, ty)
+        if (minT >= 1f) {
+            break
+        }
+
+        if (tx <= 0f && ty <= 0f) {
+            currentX += stepX
+            currentY += stepY
+        } else if (tx <= 0f) {
+            currentX += stepX
+        } else if (ty <= 0f) {
+            currentY += stepY
+        } else if (tx < ty) {
+            currentX += stepX
+        } else if (ty < tx) {
+            currentY += stepY
+        } else {
+            currentX += stepX
+            currentY += stepY
+        }
+
+        destination.add(IntOffset(currentX, currentY))
     }
-
-    val tEnter = maxOf(0f, maxOf(tx0, ty0))
-    val tExit = minOf(1f, minOf(tx1, ty1))
-
-    return tEnter < tExit
 }

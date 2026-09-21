@@ -22,7 +22,7 @@
 extern lean_object* initialize_Geometry_Geometry_Bridge(uint8_t builtin);
 void lean_initialize_runtime_module(void);
 
-extern lean_object* geometry_cell_intersections_segment(double x1, double y1, double x2, double y2);
+extern lean_object* geometry_cell_intersections_segment(float x1, float y1, float x2, float y2);
 extern lean_object* geometry_cell_intersections_path(lean_object* coords);
 
 static bool g_lean_runtime_initialized = false;
@@ -73,7 +73,7 @@ int32_t lean_geometry_cell_intersections_segment(
 ) {
     lean_geometry_init_runtime();
 
-    lean_object* res_arr = geometry_cell_intersections_segment((double)x1, (double)y1, (double)x2, (double)y2);
+    lean_object* res_arr = geometry_cell_intersections_segment(x1, y1, x2, y2);
     return populate_cell_list(res_arr, out_cells);
 }
 
@@ -87,7 +87,7 @@ int32_t lean_geometry_cell_intersections_path(
     size_t total_floats = num_points * 2;
     lean_object* arr = lean_alloc_array(0, total_floats);
     for (size_t i = 0; i < total_floats; i++) {
-        lean_object* f_obj = lean_box_float((double)coords[i]);
+        lean_object* f_obj = lean_box_float32(coords[i]);
         arr = lean_array_push(arr, f_obj);
     }
 

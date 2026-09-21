@@ -110,12 +110,38 @@ theorem dedupCells_pair {c1 c2 : Cell} (hne : c1 ≠ c2) :
   simp [List.eraseDups_nil]
 
 /--
+Theorem: Deduplicating a list of two identical cells yields the singleton cell.
+-/
+theorem dedupCells_same (c : Cell) : dedupCells [c, c] = [c] := by
+  unfold dedupCells
+  rw [List.eraseDups_cons]
+  have _hbeq : (c == c) = true := beq_self_eq_true c
+  simp [List.eraseDups_nil]
+
+/--
+Theorem: When endpoints coincide, intermediate ray-marching yields no intermediate cells.
+-/
+theorem intermediateCells_self (p : Point) : intermediateCells p p = [] := by
+  dsimp [intermediateCells, candidateCells]
+  simp
+
+/--
+Theorem: When endpoints share the same floored cell, intermediate ray-marching yields no intermediate cells.
+-/
+theorem intermediateCells_same_cell {p1 p2 : Point} (h : floorPoint p1 = floorPoint p2) :
+    intermediateCells p1 p2 = [] := by
+  dsimp [intermediateCells, candidateCells]
+  rw [h]
+  simp
+
+/--
 Theorem: Stepping a degenerate segment from a point to itself yields exactly the floored cell.
 -/
 theorem cellIntersectionsSegment_self (p : Point) :
     cellIntersectionsSegment p p = [floorPoint p] := by
-  dsimp [cellIntersectionsSegment, intermediateCells, candidateCells]
-  simp
+  dsimp [cellIntersectionsSegment]
+  rw [intermediateCells_self]
+  exact dedupCells_same (floorPoint p)
 
 /--
 Theorem: When start and end points fall within the same discrete grid cell,
@@ -123,9 +149,10 @@ the intersection set is the singleton containing that cell.
 -/
 theorem cellIntersectionsSegment_same_cell {p1 p2 : Point} (h : floorPoint p1 = floorPoint p2) :
     cellIntersectionsSegment p1 p2 = [floorPoint p1] := by
-  dsimp [cellIntersectionsSegment, intermediateCells, candidateCells]
+  dsimp [cellIntersectionsSegment]
+  rw [intermediateCells_same_cell h]
   rw [h]
-  simp
+  exact dedupCells_same (floorPoint p2)
 
 /--
 Theorem: When start and end points fall into adjacent cells with Manhattan distance 1,
@@ -428,7 +455,7 @@ Continuous segment membership: point `p` lies on the directed line segment betwe
 inductive PointOnSegment (p A B : Point) : Prop where
   | start : p = A → PointOnSegment p A B
   | ptEnd : p = B → PointOnSegment p A B
-  | interior (t : Float) (ht0 : 0.0 ≤ t) (ht1 : t ≤ 1.0)
+  | interior (t : Binary32) (ht0 : 0.0 ≤ t) (ht1 : t ≤ 1.0)
       (hx : p.x = A.x + t * (B.x - A.x))
       (hy : p.y = A.y + t * (B.y - A.y)) : PointOnSegment p A B
 
@@ -445,8 +472,8 @@ lies within the closed unit square [c.x, c.x + 1] × [c.y, c.y + 1].
 -/
 def CellTouchesSegment (c : Cell) (A B : Point) : Prop :=
   ∃ p : Point, PointOnSegment p A B ∧
-    c.x.toFloat ≤ p.x ∧ p.x ≤ (c.x + 1).toFloat ∧
-    c.y.toFloat ≤ p.y ∧ p.y ≤ (c.y + 1).toFloat
+    ofInt c.x ≤ p.x ∧ p.x ≤ ofInt (c.x + 1) ∧
+    ofInt c.y ≤ p.y ∧ p.y ≤ ofInt (c.y + 1)
 
 /--
 An isolated corner contact occurs when a cell touches the closed segment,
@@ -758,22 +785,22 @@ theorem cellIntersectionsPath_two_0_2_to_2_0_all_other_cells_excluded (c : Cell)
 A cell's closed bounding square in the continuous 2D plane: [c.x, c.x + 1] × [c.y, c.y + 1].
 -/
 def InClosedCell (c : Cell) (p : Point) : Prop :=
-  c.x.toFloat ≤ p.x ∧ p.x ≤ (c.x + 1).toFloat ∧
-  c.y.toFloat ≤ p.y ∧ p.y ≤ (c.y + 1).toFloat
+  ofInt c.x ≤ p.x ∧ p.x ≤ ofInt (c.x + 1) ∧
+  ofInt c.y ≤ p.y ∧ p.y ≤ ofInt (c.y + 1)
 
 /--
 A cell's open interior in the continuous 2D plane: (c.x, c.x + 1) × (c.y, c.y + 1).
 -/
 def InInteriorCell (c : Cell) (p : Point) : Prop :=
-  c.x.toFloat < p.x ∧ p.x < (c.x + 1).toFloat ∧
-  c.y.toFloat < p.y ∧ p.y < (c.y + 1).toFloat
+  ofInt c.x < p.x ∧ p.x < ofInt (c.x + 1) ∧
+  ofInt c.y < p.y ∧ p.y < ofInt (c.y + 1)
 
 /--
 A point is one of the four corner vertices of cell c.
 -/
 def IsCellCorner (c : Cell) (p : Point) : Prop :=
-  (p.x = c.x.toFloat ∨ p.x = (c.x + 1).toFloat) ∧
-  (p.y = c.y.toFloat ∨ p.y = (c.y + 1).toFloat)
+  (p.x = ofInt c.x ∨ p.x = ofInt (c.x + 1)) ∧
+  (p.y = ofInt c.y ∨ p.y = ofInt (c.y + 1))
 
 /--
 A cell touches the closed line segment between A and B if:
@@ -829,7 +856,8 @@ Equivalently:
 -/
 theorem cellIntersectionsSegment_exact_iff (A B : Point) (c : Cell) :
     c ∈ cellIntersectionsSegment A B ↔ ActiveIntersectedCell c A B := by
-  unfold cellIntersectionsSegment intermediateCells ActiveIntersectedCell SegmentIntersectsCell IsOffAxisCornerIntersection
+  unfold cellIntersectionsSegment intermediateCells ActiveIntersectedCell
+  unfold SegmentIntersectsCell IsOffAxisCornerIntersection
   rw [mem_dedupCells, List.mem_append, List.mem_filter]
   simp only [List.mem_cons, List.not_mem_nil, or_false, Bool.and_eq_true, Bool.not_eq_true', bne_iff_ne]
   constructor
@@ -946,4 +974,318 @@ theorem cellIntersectionsPath_excludes_all_others (pts : List Point) (c : Cell)
   have h_active := (cellIntersectionsPath_exact_iff pts c).mp h_in
   exact h_not_active h_active
 
+/--
+Theorem: Ray-marching with zero fuel returns the accumulator unmodified.
+-/
+theorem rayMarch_zero (start ptEnd : Point) (dx dy : Binary32) (stepX stepY : Int)
+    (endCell current : Cell) (acc : List Cell) :
+    rayMarch 0 start ptEnd dx dy stepX stepY endCell current acc = acc :=
+  rfl
+
+/--
+Theorem: Ray-marching halting condition when current cell reaches end cell.
+-/
+theorem rayMarch_self (fuel : Nat) (start ptEnd : Point) (dx dy : Binary32) (stepX stepY : Int)
+    (endCell : Cell) (acc : List Cell) :
+    rayMarch (fuel + 1) start ptEnd dx dy stepX stepY endCell endCell acc = acc := by
+  dsimp [rayMarch]
+  simp
+
+/--
+Theorem: Ray-marching halting condition when rayMarchStep indicates completion.
+-/
+theorem rayMarch_step_done (fuel : Nat) (start ptEnd : Point) (dx dy : Binary32) (stepX stepY : Int)
+    (endCell current : Cell) (acc : List Cell) (h_not_end : (current == endCell) = false)
+    (nextCell : Cell) (h_step : rayMarchStep start ptEnd dx dy stepX stepY current = (nextCell, true)) :
+    rayMarch (fuel + 1) start ptEnd dx dy stepX stepY endCell current acc = acc := by
+  change (if current == endCell then acc
+          else
+            let (nextCell', done) := rayMarchStep start ptEnd dx dy stepX stepY current
+            if done then acc
+            else rayMarch fuel start ptEnd dx dy stepX stepY endCell nextCell' (acc ++ [nextCell'])) = acc
+  rw [h_not_end]
+  dsimp only
+  rw [h_step]
+  rfl
+
+/--
+Theorem: Ray-marching recursive transition step.
+-/
+theorem rayMarch_step_continue (fuel : Nat) (start ptEnd : Point) (dx dy : Binary32) (stepX stepY : Int)
+    (endCell current : Cell) (acc : List Cell) (h_not_end : (current == endCell) = false)
+    (nextCell : Cell) (h_step : rayMarchStep start ptEnd dx dy stepX stepY current = (nextCell, false)) :
+    rayMarch (fuel + 1) start ptEnd dx dy stepX stepY endCell current acc =
+      rayMarch fuel start ptEnd dx dy stepX stepY endCell nextCell (acc ++ [nextCell]) := by
+  change (if current == endCell then acc
+          else
+            let (nextCell', done) := rayMarchStep start ptEnd dx dy stepX stepY current
+            if done then acc
+            else rayMarch fuel start ptEnd dx dy stepX stepY endCell nextCell' (acc ++ [nextCell'])) =
+      rayMarch fuel start ptEnd dx dy stepX stepY endCell nextCell (acc ++ [nextCell])
+  rw [h_not_end]
+  dsimp only
+  rw [h_step]
+  rfl
+
+/--
+Theorem: Accumulating in ray-marching distributes over appending.
+-/
+theorem rayMarch_acc (fuel : Nat) (start ptEnd : Point) (dx dy : Binary32) (stepX stepY : Int)
+    (endCell current : Cell) (acc : List Cell) :
+    rayMarch fuel start ptEnd dx dy stepX stepY endCell current acc =
+      acc ++ rayMarch fuel start ptEnd dx dy stepX stepY endCell current [] := by
+  induction fuel generalizing current acc with
+  | zero =>
+    dsimp [rayMarch]
+    simp
+  | succ fuel ih =>
+    dsimp [rayMarch]
+    split
+    · simp
+    · split
+      · simp
+      · rw [ih (acc := acc ++ [_])]
+        rw [ih (acc := [_])]
+        simp
+
+/--
+Theorem: Membership in a ray-marching run decomposes into membership in the accumulator
+or in the remaining ray-marching traversal.
+-/
+theorem mem_rayMarch (fuel : Nat) (start ptEnd : Point) (dx dy : Binary32) (stepX stepY : Int)
+    (endCell current : Cell) (acc : List Cell) (c : Cell) :
+    c ∈ rayMarch fuel start ptEnd dx dy stepX stepY endCell current acc ↔
+      c ∈ acc ∨ c ∈ rayMarch fuel start ptEnd dx dy stepX stepY endCell current [] := by
+  rw [rayMarch_acc]
+  rw [List.mem_append]
+
+/--
+Theorem: Unfolding a non-zero-fuel ray-marching step.
+-/
+theorem rayMarch_step_unfold (fuel : Nat) (start ptEnd : Point) (dx dy : Binary32) (stepX stepY : Int)
+    (endCell current : Cell) :
+    rayMarch (fuel + 1) start ptEnd dx dy stepX stepY endCell current [] =
+      if current == endCell then []
+      else
+        let (nextCell, done) := rayMarchStep start ptEnd dx dy stepX stepY current
+        if done then []
+        else nextCell :: rayMarch fuel start ptEnd dx dy stepX stepY endCell nextCell [] := by
+  dsimp [rayMarch]
+  split
+  · rfl
+  · split
+    · rfl
+    · rw [rayMarch_acc]
+      rfl
+
+/--
+Theorem: Membership in intermediateCells decomposed into its exact constituent predicates.
+-/
+theorem mem_intermediateCells_iff (A B : Point) (c : Cell) :
+    c ∈ intermediateCells A B ↔
+      c ∈ candidateCells A B ∧
+      c ≠ floorPoint A ∧
+      c ≠ floorPoint B ∧
+      segmentIntersectsCellBool c A B = true ∧
+      isOffAxisCornerBool c A B = false := by
+  dsimp [intermediateCells]
+  rw [List.mem_filter]
+  simp only [Bool.and_eq_true, Bool.not_eq_true', bne_iff_ne]
+  tauto
+
+/--
+Theorem: Membership in rayMarchIntermediateCells decomposed into its exact constituent predicates.
+-/
+theorem mem_rayMarchIntermediateCells_iff (A B : Point) (c : Cell) :
+    let startCell := floorPoint A
+    let endCell := floorPoint B
+    let dx := B.x - A.x
+    let dy := B.y - A.y
+    let stepX : Int := if dx > 0.0 then 1 else if dx < 0.0 then -1 else 0
+    let stepY : Int := if dy > 0.0 then 1 else if dy < 0.0 then -1 else 0
+    let maxSteps := (endCell.x - startCell.x).natAbs + (endCell.y - startCell.y).natAbs + 2
+    c ∈ rayMarchIntermediateCells A B ↔
+      c ∈ rayMarch maxSteps A B dx dy stepX stepY endCell startCell [] ∧
+      c ≠ startCell ∧
+      c ≠ endCell ∧
+      isOffAxisCornerBool c A B = false := by
+  dsimp [rayMarchIntermediateCells]
+  rw [List.mem_filter]
+  simp only [Bool.and_eq_true, Bool.not_eq_true', bne_iff_ne]
+  tauto
+
+/--
+Theorem: When endpoints share the same floored cell, ray-marching yields no intermediate cells.
+-/
+theorem rayMarchIntermediateCells_same_cell {p1 p2 : Point} (h : floorPoint p1 = floorPoint p2) :
+    rayMarchIntermediateCells p1 p2 = [] := by
+  dsimp [rayMarchIntermediateCells]
+  have hsteps : (floorPoint p2).x - (floorPoint p1).x = 0 := by rw [h]; ring
+  have hstepsy : (floorPoint p2).y - (floorPoint p1).y = 0 := by rw [h]; ring
+  rw [hsteps, hstepsy]
+  dsimp
+  rw [h]
+  dsimp [rayMarch]
+  simp
+
+/--
+Theorem: When endpoints coincide, ray-marching yields no intermediate cells.
+-/
+theorem rayMarchIntermediateCells_self (p : Point) :
+    rayMarchIntermediateCells p p = [] :=
+  rayMarchIntermediateCells_same_cell rfl
+
+/--
+Theorem: Segment intersections evaluated via ray-marching when start and end share the same cell
+yield the singleton containing that cell.
+-/
+theorem cellIntersectionsSegment_rayMarch_same_cell {p1 p2 : Point}
+    (h : floorPoint p1 = floorPoint p2) :
+    dedupCells ([floorPoint p1, floorPoint p2] ++ rayMarchIntermediateCells p1 p2) = [floorPoint p1] := by
+  rw [rayMarchIntermediateCells_same_cell h]
+  rw [h]
+  exact dedupCells_same (floorPoint p2)
+
+/--
+Theorem: When endpoints share the same floored cell, intermediateCells and rayMarchIntermediateCells
+are equivalent (both empty).
+-/
+theorem intermediateCells_equiv_rayMarchIntermediateCells_same_cell {p1 p2 : Point}
+    (h : floorPoint p1 = floorPoint p2) (c : Cell) :
+    c ∈ intermediateCells p1 p2 ↔ c ∈ rayMarchIntermediateCells p1 p2 := by
+  rw [intermediateCells_same_cell h, rayMarchIntermediateCells_same_cell h]
+
+/--
+Theorem: When both intermediate cell lists are empty, their cell memberships are trivially equivalent.
+-/
+theorem intermediateCells_equiv_rayMarchIntermediateCells_of_empty {p1 p2 : Point}
+    (h1 : intermediateCells p1 p2 = []) (h2 : rayMarchIntermediateCells p1 p2 = []) (c : Cell) :
+    c ∈ intermediateCells p1 p2 ↔ c ∈ rayMarchIntermediateCells p1 p2 := by
+  rw [h1, h2]
+
+/--
+Theorem: When intermediate cell lists are equal, their cell memberships are equivalent.
+-/
+theorem intermediateCells_equiv_rayMarchIntermediateCells_of_eq {p1 p2 : Point}
+    (heq : intermediateCells p1 p2 = rayMarchIntermediateCells p1 p2) (c : Cell) :
+    c ∈ intermediateCells p1 p2 ↔ c ∈ rayMarchIntermediateCells p1 p2 := by
+  rw [heq]
+
+/--
+Theorem: When intermediate cell lists are permutations of each other, their memberships are equivalent.
+-/
+theorem intermediateCells_equiv_rayMarchIntermediateCells_of_perm {p1 p2 : Point}
+    (hperm : List.Perm (intermediateCells p1 p2) (rayMarchIntermediateCells p1 p2)) (c : Cell) :
+    c ∈ intermediateCells p1 p2 ↔ c ∈ rayMarchIntermediateCells p1 p2 :=
+  hperm.mem_iff
+
+/--
+Theorem: Equivalence between candidate filtering and ray marching for intermediate cells
+under the stepping correspondence condition.
+-/
+theorem intermediateCells_iff_rayMarchIntermediateCells_of_equiv (A B : Point)
+    (h_step : ∀ c, (c ≠ floorPoint A ∧ c ≠ floorPoint B ∧ isOffAxisCornerBool c A B = false) →
+      (c ∈ candidateCells A B ∧ segmentIntersectsCellBool c A B = true ↔
+       c ∈ rayMarch (((floorPoint B).x - (floorPoint A).x).natAbs + ((floorPoint B).y - (floorPoint A).y).natAbs + 2)
+         A B (B.x - A.x) (B.y - A.y)
+         (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
+         (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0)
+         (floorPoint B) (floorPoint A) []))
+    (c : Cell) :
+    c ∈ intermediateCells A B ↔ c ∈ rayMarchIntermediateCells A B := by
+  dsimp [intermediateCells, rayMarchIntermediateCells]
+  rw [List.mem_filter, List.mem_filter]
+  simp only [Bool.and_eq_true, Bool.not_eq_true', bne_iff_ne]
+  by_cases hA : c = floorPoint A
+  · simp [hA]
+  by_cases hB : c = floorPoint B
+  · simp [hB]
+  by_cases hoff : isOffAxisCornerBool c A B = true
+  · simp [hoff]
+  have hnot_off : isOffAxisCornerBool c A B = false := by
+    cases h : isOffAxisCornerBool c A B
+    · rfl
+    · exfalso; exact hoff h
+  have hstep_c := h_step c ⟨hA, hB, hnot_off⟩
+  constructor
+  · rintro ⟨hcand, ⟨⟨_, _⟩, hseg⟩, _⟩
+    have hmarch := (hstep_c.mp ⟨hcand, hseg⟩)
+    exact ⟨hmarch, ⟨⟨hA, hB⟩, hnot_off⟩⟩
+  · rintro ⟨hmarch, ⟨⟨_, _⟩, _⟩⟩
+    have ⟨hcand, hseg⟩ := hstep_c.mpr hmarch
+    exact ⟨hcand, ⟨⟨hA, hB⟩, hseg⟩, hnot_off⟩
+
+/--
+Theorem: cellIntersectionsSegment can be equivalently computed using rayMarchIntermediateCells.
+-/
+theorem cellIntersectionsSegment_equiv_rayMarch {A B : Point}
+    (hequiv : ∀ c, c ∈ intermediateCells A B ↔ c ∈ rayMarchIntermediateCells A B) (c : Cell) :
+    c ∈ cellIntersectionsSegment A B ↔
+      c ∈ dedupCells ([floorPoint A, floorPoint B] ++ rayMarchIntermediateCells A B) := by
+  unfold cellIntersectionsSegment
+  rw [mem_dedupCells, mem_dedupCells]
+  simp only [List.mem_append]
+  constructor
+  · rintro (hend | hmid)
+    · exact Or.inl hend
+    · exact Or.inr ((hequiv c).mp hmid)
+  · rintro (hend | hmid)
+    · exact Or.inl hend
+    · exact Or.inr ((hequiv c).mpr hmid)
+
+/--
+Master Theorem (Ray-Marching Line-Segment Exact Characterization):
+Given equivalence between intermediateCells and rayMarchIntermediateCells,
+the ray-marching segment intersection algorithm characterizes active intersected cells.
+-/
+theorem cellIntersectionsSegment_rayMarch_exact_iff {A B : Point}
+    (hequiv : ∀ c, c ∈ intermediateCells A B ↔ c ∈ rayMarchIntermediateCells A B) (c : Cell) :
+    c ∈ dedupCells ([floorPoint A, floorPoint B] ++ rayMarchIntermediateCells A B) ↔
+      ActiveIntersectedCell c A B := by
+  rw [← cellIntersectionsSegment_equiv_rayMarch hequiv c]
+  exact cellIntersectionsSegment_exact_iff A B c
+
+/--
+Concrete verification: Positive-slope single diagonal corner crossing equivalence.
+-/
+theorem intermediateCells_equiv_rayMarch_diagonal_corner_example :
+    intermediateCells ⟨0.5, 0.5⟩ ⟨1.5, 1.5⟩ = rayMarchIntermediateCells ⟨0.5, 0.5⟩ ⟨1.5, 1.5⟩ := by
+  native_decide
+
+/--
+Concrete verification: Negative-slope single diagonal corner crossing equivalence.
+-/
+theorem intermediateCells_equiv_rayMarch_negative_slope_corner_example :
+    intermediateCells ⟨0.25, 1.75⟩ ⟨1.75, 0.25⟩ = rayMarchIntermediateCells ⟨0.25, 1.75⟩ ⟨1.75, 0.25⟩ := by
+  native_decide
+
+/--
+Concrete verification: Diagonal off-corner segment equivalence.
+-/
+theorem intermediateCells_equiv_rayMarch_diagonal_off_corner_example :
+    intermediateCells ⟨0.25, 0.35⟩ ⟨1.75, 1.85⟩ = rayMarchIntermediateCells ⟨0.25, 0.35⟩ ⟨1.75, 1.85⟩ := by
+  native_decide
+
+/--
+Concrete verification: Multi-corner diagonal traversal permutation equivalence.
+-/
+theorem intermediateCells_equiv_rayMarch_multi_corner_example :
+    List.Perm (intermediateCells ⟨0.5, 0.5⟩ ⟨3.5, 3.5⟩) (rayMarchIntermediateCells ⟨0.5, 0.5⟩ ⟨3.5, 3.5⟩) := by
+  native_decide
+
+/--
+Concrete verification: Horizontal grid-line segment equivalence.
+-/
+theorem intermediateCells_equiv_rayMarch_horizontal_example :
+    intermediateCells ⟨0.5, 1.0⟩ ⟨3.5, 1.0⟩ = rayMarchIntermediateCells ⟨0.5, 1.0⟩ ⟨3.5, 1.0⟩ := by
+  native_decide
+
+/--
+Concrete verification: Vertical grid-line segment equivalence.
+-/
+theorem intermediateCells_equiv_rayMarch_vertical_example :
+    intermediateCells ⟨1.0, 0.5⟩ ⟨1.0, 3.5⟩ = rayMarchIntermediateCells ⟨1.0, 0.5⟩ ⟨1.0, 3.5⟩ := by
+  native_decide
+
 end Geometry
+

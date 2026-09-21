@@ -48,13 +48,13 @@ Computes the parameter interval [tEnter, tExit] ⊆ [0, 1] along the segment `A 
 that falls within the closed unit square [c.x, c.x + 1] × [c.y, c.y + 1].
 Returns `none` if the segment does not intersect the cell's closed area.
 -/
-def cellIntersectionInterval (c : Cell) (A B : Point) : Option (Float × Float) :=
+def cellIntersectionInterval (c : Cell) (A B : Point) : Option (Binary32 × Binary32) :=
   let dx := B.x - A.x
   let dy := B.y - A.y
-  let cx0 := c.x.toFloat
-  let cx1 := (c.x + 1).toFloat
-  let cy0 := c.y.toFloat
-  let cy1 := (c.y + 1).toFloat
+  let cx0 := ofInt c.x
+  let cx1 := ofInt (c.x + 1)
+  let cy0 := ofInt c.y
+  let cy1 := ofInt (c.y + 1)
   let (tx0, tx1) :=
     if dx == 0.0 then
       if A.x < cx0 || A.x > cx1 then (1.0, 0.0) else (0.0, 1.0)
@@ -121,6 +121,44 @@ def candidateCells (A B : Point) : List Cell :=
       ⟨minX + Int.ofNat dx, minY + Int.ofNat dy⟩))
 
 /--
+Determines the next cell transition in ray-marching via exact coordinate crossings.
+-/
+def rayMarchStep (start _ptEnd : Point) (dx dy : Binary32) (stepX stepY : Int) (c : Cell) : Cell × Bool :=
+  let xb : Binary32 := if stepX > 0 then ofInt (c.x + 1) else ofInt c.x
+  let yb : Binary32 := if stepY > 0 then ofInt (c.y + 1) else ofInt c.y
+  let tx : Binary32 := if stepX != 0 then (xb - start.x) / dx else 1.0 / 0.0
+  let ty : Binary32 := if stepY != 0 then (yb - start.y) / dy else 1.0 / 0.0
+  if tx <= 0.0 && ty <= 0.0 then
+    (⟨c.x + stepX, c.y + stepY⟩, false)
+  else if tx <= 0.0 then
+    (⟨c.x + stepX, c.y⟩, false)
+  else if ty <= 0.0 then
+    (⟨c.x, c.y + stepY⟩, false)
+  else if tx < ty then
+    if tx >= 1.0 then (c, true)
+    else (⟨c.x + stepX, c.y⟩, false)
+  else if ty < tx then
+    if ty >= 1.0 then (c, true)
+    else (⟨c.x, c.y + stepY⟩, false)
+  else
+    if tx >= 1.0 then (c, true)
+    else (⟨c.x + stepX, c.y + stepY⟩, false)
+
+/--
+Ray-marches from `startCell` towards `endCell`, stepping cell-by-cell in O(W + H) time.
+-/
+def rayMarch (fuel : Nat) (start ptEnd : Point) (dx dy : Binary32) (stepX stepY : Int)
+    (endCell : Cell) (current : Cell) (acc : List Cell) : List Cell :=
+  match fuel with
+  | 0 => acc
+  | fuel + 1 =>
+    if current == endCell then acc
+    else
+      let (nextCell, done) := rayMarchStep start ptEnd dx dy stepX stepY current
+      if done then acc
+      else rayMarch fuel start ptEnd dx dy stepX stepY endCell nextCell (acc ++ [nextCell])
+
+/--
 Candidate cells strictly between the endpoints that are actively intersected by the line segment.
 -/
 def intermediateCells (A B : Point) : List Cell :=
@@ -128,6 +166,20 @@ def intermediateCells (A B : Point) : List Cell :=
   let endCell := floorPoint B
   (candidateCells A B).filter (fun c =>
     (c != startCell) && (c != endCell) && segmentIntersectsCellBool c A B && !isOffAxisCornerBool c A B)
+
+/--
+Intermediate cells traversed via ray-marching in O(W + H) time.
+-/
+def rayMarchIntermediateCells (A B : Point) : List Cell :=
+  let startCell := floorPoint A
+  let endCell := floorPoint B
+  let dx := B.x - A.x
+  let dy := B.y - A.y
+  let stepX : Int := if dx > 0.0 then 1 else if dx < 0.0 then -1 else 0
+  let stepY : Int := if dy > 0.0 then 1 else if dy < 0.0 then -1 else 0
+  let maxSteps := (endCell.x - startCell.x).natAbs + (endCell.y - startCell.y).natAbs + 2
+  (rayMarch maxSteps A B dx dy stepX stepY endCell startCell []).filter (fun c =>
+    (c != startCell) && (c != endCell) && !isOffAxisCornerBool c A B)
 
 /--
 Computes the set of discrete grid cells intersected by the line segment from `A` to `B`.
