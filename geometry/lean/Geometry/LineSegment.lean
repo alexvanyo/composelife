@@ -32,105 +32,109 @@ theorem mem_dedupCells (c : Cell) (cells : List Cell) : c ∈ dedupCells cells �
   List.mem_eraseDups
 
 /--
-Ray marching loop that steps across grid boundary lines until reaching distance.
-Terminates structurally over fuel (bounded by grid cell Manhattan distance).
+Checks whether cell `c` is inside the bounding box formed by the floored endpoints `A` and `B`.
 -/
-def rayMarch (fuel : Nat) (start ptEnd : Point) (distance : Float) (isWest isNorth : Float)
-    (xStep yStep : Float) (tX tY : Float) (acc : List Cell) : List Cell :=
-  match fuel with
-  | 0 => acc
-  | fuel + 1 =>
-    let isCorner := tX == tY
-    let nextT := if tX <= tY then tX else tY
-    if nextT >= distance then
-      acc
-    else
-      let fraction := nextT / distance
-      let offsetX := start.x + (ptEnd.x - start.x) * fraction
-      let offsetY := start.y + (ptEnd.y - start.y) * fraction
-      if isCorner then
-        let rx := roundToInt offsetX
-        let ry := roundToInt offsetY
-        let cellX := if isWest > 0.0 then rx - 1 else rx
-        let cellY := if isNorth > 0.0 then ry - 1 else ry
-        let nextTX := tX + xStep.abs
-        let nextTY := tY + yStep.abs
-        rayMarch fuel start ptEnd distance isWest isNorth xStep yStep nextTX nextTY (acc ++ [⟨cellX, cellY⟩])
-      else
-        let isX := tX < tY
-        let newCells :=
-          if isX then
-            [⟨roundToInt offsetX, toInt offsetY.floor⟩,
-             ⟨roundToInt offsetX - 1, toInt offsetY.floor⟩]
-          else
-            [⟨toInt offsetX.floor, roundToInt offsetY⟩,
-             ⟨toInt offsetX.floor, roundToInt offsetY - 1⟩]
-        let nextTX := if isX then tX + xStep.abs else tX
-        let nextTY := if isX then tY else tY + yStep.abs
-        rayMarch fuel start ptEnd distance isWest isNorth xStep yStep nextTX nextTY (acc ++ newCells)
+def inBoundingBox (c : Cell) (A B : Point) : Bool :=
+  let startCell := floorPoint A
+  let endCell := floorPoint B
+  let minX := min startCell.x endCell.x
+  let maxX := max startCell.x endCell.x
+  let minY := min startCell.y endCell.y
+  let maxY := max startCell.y endCell.y
+  minX <= c.x && c.x <= maxX && minY <= c.y && c.y <= maxY
 
 /--
-Computes the set of discrete grid cells intersected by the line segment from `start` to `ptEnd`.
-Matches LineSegmentPath.cellIntersections in Kotlin.
+Computes the parameter interval [tEnter, tExit] ⊆ [0, 1] along the segment `A + t(B - A)`
+that falls within the closed unit square [c.x, c.x + 1] × [c.y, c.y + 1].
+Returns `none` if the segment does not intersect the cell's closed area.
 -/
-def cellIntersectionsSegment (start ptEnd : Point) : List Cell :=
-  let startCell := floorPoint start
-  let endCell := floorPoint ptEnd
-  let chebyshev := chebyshevDistance startCell endCell
-  let manhattan := manhattanDistance startCell endCell
-  let isWest := sign (start.x - ptEnd.x)
-  let isNorth := sign (start.y - ptEnd.y)
-  if manhattan == 0 then
-    [startCell]
-  else if manhattan == 1 then
-    [startCell, endCell]
-  else if chebyshev == 1 then
-    let maxX := if start.x > ptEnd.x then start.x else ptEnd.x
-    let maxY := if start.y > ptEnd.y then start.y else ptEnd.y
-    let cornerPt : Point := ⟨maxX.floor, maxY.floor⟩
-    let side := sideOfLine cornerPt start ptEnd
-    let combinedSign := side * isWest * isNorth
-    let c1 : List Cell := if combinedSign < 0.0 then [⟨startCell.x, endCell.y⟩] else []
-    let c2 : List Cell := if combinedSign > 0.0 then [⟨endCell.x, startCell.y⟩] else []
-    dedupCells ([startCell, endCell] ++ c1 ++ c2)
-  else
-    let vx := ptEnd.x - start.x
-    let vy := ptEnd.y - start.y
-    let distance := (vx * vx + vy * vy).sqrt
-    if distance < 1.0 then
-      dedupCells [startCell, endCell]
+def cellIntersectionInterval (c : Cell) (A B : Point) : Option (Float × Float) :=
+  let dx := B.x - A.x
+  let dy := B.y - A.y
+  let cx0 := c.x.toFloat
+  let cx1 := (c.x + 1).toFloat
+  let cy0 := c.y.toFloat
+  let cy1 := (c.y + 1).toFloat
+  let (tx0, tx1) :=
+    if dx == 0.0 then
+      if A.x < cx0 || A.x > cx1 then (1.0, 0.0) else (0.0, 1.0)
+    else if dx > 0.0 then
+      ((cx0 - A.x) / dx, (cx1 - A.x) / dx)
     else
-      let normX := vx / distance
-      let normY := vy / distance
-      let xStep := if normX != 0.0 then 1.0 / normX else 1.0 / 0.0
-      let yStep := if normY != 0.0 then 1.0 / normY else 1.0 / 0.0
-      let initTX :=
-        if normX == 0.0 then
-          1.0 / 0.0
-        else
-          let deltaX :=
-            if isWest > 0.0 then
-              let f := start.x.floor - start.x
-              if f == 0.0 then -1.0 else f
-            else
-              let c := start.x.ceil - start.x
-              if c == 0.0 then 1.0 else c
-          xStep * deltaX
-      let initTY :=
-        if normY == 0.0 then
-          1.0 / 0.0
-        else
-          let deltaY :=
-            if isNorth > 0.0 then
-              let f := start.y.floor - start.y
-              if f == 0.0 then -1.0 else f
-            else
-              let c := start.y.ceil - start.y
-              if c == 0.0 then 1.0 else c
-          yStep * deltaY
-      let maxSteps := manhattan + 4
-      let marched := rayMarch maxSteps start ptEnd distance isWest isNorth xStep yStep initTX initTY []
-      dedupCells ([startCell, endCell] ++ marched)
+      ((cx1 - A.x) / dx, (cx0 - A.x) / dx)
+  let (ty0, ty1) :=
+    if dy == 0.0 then
+      if A.y < cy0 || A.y > cy1 then (1.0, 0.0) else (0.0, 1.0)
+    else if dy > 0.0 then
+      ((cy0 - A.y) / dy, (cy1 - A.y) / dy)
+    else
+      ((cy1 - A.y) / dy, (cy0 - A.y) / dy)
+  let tEnter := max 0.0 (max tx0 ty0)
+  let tExit := min 1.0 (min tx1 ty1)
+  if tEnter <= tExit then
+    some (tEnter, tExit)
+  else
+    none
+
+/--
+Returns true if the line segment from `A` to `B` intersects cell `c`.
+-/
+def segmentIntersectsCellBool (c : Cell) (A B : Point) : Bool :=
+  if c == floorPoint A || c == floorPoint B then
+    true
+  else if !inBoundingBox c A B then
+    false
+  else
+    match cellIntersectionInterval c A B with
+    | some _ => true
+    | none => false
+
+/--
+Returns true if cell `c` has an off-axis corner contact with the segment:
+it touches the segment at a single corner point, does not enter the interior,
+and is not an endpoint cell (start or end).
+-/
+def isOffAxisCornerBool (c : Cell) (A B : Point) : Bool :=
+  if c == floorPoint A || c == floorPoint B then
+    false
+  else if !inBoundingBox c A B then
+    false
+  else
+    match cellIntersectionInterval c A B with
+    | some (tEnter, tExit) => tEnter == tExit
+    | none => false
+
+/--
+Generates all candidate grid cells within the bounding box of endpoints `A` and `B`.
+-/
+def candidateCells (A B : Point) : List Cell :=
+  let startCell := floorPoint A
+  let endCell := floorPoint B
+  let minX := min startCell.x endCell.x
+  let maxX := max startCell.x endCell.x
+  let minY := min startCell.y endCell.y
+  let maxY := max startCell.y endCell.y
+  let xCount := (maxX - minX + 1).toNat
+  let yCount := (maxY - minY + 1).toNat
+  (List.range xCount).flatMap (fun dx =>
+    (List.range yCount).map (fun dy =>
+      ⟨minX + Int.ofNat dx, minY + Int.ofNat dy⟩))
+
+/--
+Candidate cells strictly between the endpoints that are actively intersected by the line segment.
+-/
+def intermediateCells (A B : Point) : List Cell :=
+  let startCell := floorPoint A
+  let endCell := floorPoint B
+  (candidateCells A B).filter (fun c =>
+    (c != startCell) && (c != endCell) && segmentIntersectsCellBool c A B && !isOffAxisCornerBool c A B)
+
+/--
+Computes the set of discrete grid cells intersected by the line segment from `A` to `B`.
+Contains endpoints followed by all actively intersected intermediate cells (excluding off-axis corners).
+-/
+def cellIntersectionsSegment (A B : Point) : List Cell :=
+  dedupCells ([floorPoint A, floorPoint B] ++ intermediateCells A B)
 
 /--
 Computes all grid cells intersected by a polyline path with at least one point.
