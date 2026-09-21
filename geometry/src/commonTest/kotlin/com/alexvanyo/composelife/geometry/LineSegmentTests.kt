@@ -54,18 +54,55 @@ class LineSegmentTests {
     }
 
     @Test
-    fun adjacent_horizontal_cells() {
+    fun adjacent_cells() {
         assertEquals(
             setOf(IntOffset(1, 2), IntOffset(2, 2)),
             cellIntersections(Offset(1.2f, 2.5f), Offset(2.3f, 2.5f)),
         )
-    }
-
-    @Test
-    fun adjacent_vertical_cells() {
         assertEquals(
             setOf(IntOffset(1, 2), IntOffset(1, 3)),
             cellIntersections(Offset(1.5f, 2.2f), Offset(1.5f, 3.8f)),
+        )
+    }
+
+    @Test
+    fun grid_aligned_horizontal_and_vertical_lines() {
+        // Horizontal on grid line y = 1.0f
+        assertEquals(
+            setOf(
+                IntOffset(0, 1),
+                IntOffset(1, 1),
+                IntOffset(2, 1),
+                IntOffset(3, 1),
+            ),
+            cellIntersections(Offset(0.5f, 1.0f), Offset(3.5f, 1.0f)),
+        )
+        assertEquals(
+            setOf(
+                IntOffset(1, 1),
+                IntOffset(2, 1),
+                IntOffset(3, 1),
+            ),
+            cellIntersections(Offset(1.0f, 1.0f), Offset(3.0f, 1.0f)),
+        )
+
+        // Vertical on grid line x = 1.0f
+        assertEquals(
+            setOf(
+                IntOffset(1, 0),
+                IntOffset(1, 1),
+                IntOffset(1, 2),
+                IntOffset(1, 3),
+            ),
+            cellIntersections(Offset(1.0f, 0.5f), Offset(1.0f, 3.5f)),
+        )
+        assertEquals(
+            setOf(
+                IntOffset(1, 1),
+                IntOffset(1, 2),
+                IntOffset(1, 3),
+            ),
+            cellIntersections(Offset(1.0f, 1.0f), Offset(1.0f, 3.0f)),
         )
     }
 
@@ -75,11 +112,7 @@ class LineSegmentTests {
         assertEquals(
             setOf(
                 IntOffset(0, 0),
-                IntOffset(1, 0),
-                IntOffset(0, 1),
                 IntOffset(1, 1),
-                IntOffset(2, 1),
-                IntOffset(1, 2),
                 IntOffset(2, 2),
             ),
             cells,
@@ -87,14 +120,12 @@ class LineSegmentTests {
     }
 
     @Test
-    fun diagonal_corner_crossings_add_all_four_cells() {
+    fun diagonal_corner_crossings_add_only_diagonal_cells() {
         val positiveSlopeCells = cellIntersections(Offset(0.25f, 0.25f), Offset(1.75f, 1.75f))
         assertEquals(
             setOf(
                 IntOffset(0, 0),
                 IntOffset(1, 1),
-                IntOffset(0, 1),
-                IntOffset(1, 0),
             ),
             positiveSlopeCells,
         )
@@ -104,8 +135,6 @@ class LineSegmentTests {
             setOf(
                 IntOffset(0, 1),
                 IntOffset(1, 0),
-                IntOffset(0, 0),
-                IntOffset(1, 1),
             ),
             negativeSlopeCells,
         )
@@ -125,19 +154,13 @@ class LineSegmentTests {
     }
 
     @Test
-    fun multi_corner_crossings_adds_all_four_cells_at_every_corner() {
+    fun multi_corner_crossings_adds_only_diagonal_cells() {
         val cells = cellIntersections(Offset(0.5f, 0.5f), Offset(3.5f, 3.5f))
         assertEquals(
             setOf(
                 IntOffset(0, 0),
-                IntOffset(1, 0),
-                IntOffset(0, 1),
                 IntOffset(1, 1),
-                IntOffset(2, 1),
-                IntOffset(1, 2),
                 IntOffset(2, 2),
-                IntOffset(3, 2),
-                IntOffset(2, 3),
                 IntOffset(3, 3),
             ),
             cells,

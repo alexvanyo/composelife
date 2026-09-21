@@ -45,7 +45,7 @@ fun cellIntersections(start: Offset, end: Offset): Set<IntOffset> = buildSet {
     cellIntersections(start, end, this)
 }
 
-@Suppress("LongMethod", "ComplexMethod", "ReturnCount")
+@Suppress("LongMethod", "ComplexMethod", "CyclomaticComplexMethod", "ReturnCount")
 internal fun cellIntersections(start: Offset, end: Offset, destination: MutableSet<IntOffset>) {
     val startCell = floor(start)
     val endCell = floor(end)
@@ -63,16 +63,16 @@ internal fun cellIntersections(start: Offset, end: Offset, destination: MutableS
     if (manhattanDistance <= 1) {
         return
     } else if (chebyshevDistance == 1) {
-        val side = Offset(
+        val corner = Offset(
             floor(max(start.x, end.x)),
             floor(max(start.y, end.y)),
-        ).sideOfLine(start, end)
+        )
+        val side = corner.sideOfLine(start, end)
         val combinedSign = side * isWest * isNorth
 
-        if (combinedSign <= 0f) {
+        if (combinedSign < 0f) {
             destination.add(IntOffset(startCell.x, endCell.y))
-        }
-        if (combinedSign >= 0f) {
+        } else if (combinedSign > 0f) {
             destination.add(IntOffset(endCell.x, startCell.y))
         }
         return
@@ -83,23 +83,39 @@ internal fun cellIntersections(start: Offset, end: Offset, destination: MutableS
     check(distance >= 1f)
     val normalizedVector = vector / distance
 
-    val xStep = 1f / normalizedVector.x
-    val yStep = 1f / normalizedVector.y
+    val xStep = if (normalizedVector.x != 0f) 1f / normalizedVector.x else Float.POSITIVE_INFINITY
+    val yStep = if (normalizedVector.y != 0f) 1f / normalizedVector.y else Float.POSITIVE_INFINITY
 
     val absXStep = abs(xStep)
     val absYStep = abs(yStep)
 
-    var tX = xStep * if (isWest > 0f) floor(start.x) - start.x else ceil(start.x) - start.x
-    var tY = yStep * if (isNorth > 0f) floor(start.y) - start.y else ceil(start.y) - start.y
+    var tX = if (normalizedVector.x == 0f) {
+        Float.POSITIVE_INFINITY
+    } else {
+        xStep * initialDelta(start.x, isWest)
+    }
+    var tY = if (normalizedVector.y == 0f) {
+        Float.POSITIVE_INFINITY
+    } else {
+        yStep * initialDelta(start.y, isNorth)
+    }
 
     while (true) {
-        val isX = tX < tY
-        val nextT = if (isX) tX else tY
+        val isCorner = tX == tY
+        val nextT = if (tX <= tY) tX else tY
         if (nextT >= distance) {
             break
         }
         val offset = lerp(start, end, nextT / distance)
-        if (isX) {
+        if (isCorner) {
+            val rx = offset.x.roundToInt()
+            val ry = offset.y.roundToInt()
+            val cellX = if (isWest > 0f) rx - 1 else rx
+            val cellY = if (isNorth > 0f) ry - 1 else ry
+            destination.add(IntOffset(cellX, cellY))
+            tX += absXStep
+            tY += absYStep
+        } else if (tX < tY) {
             val rx = offset.x.roundToInt()
             val fy = floor(offset.y).roundToInt()
             destination.add(IntOffset(rx, fy))
@@ -113,4 +129,12 @@ internal fun cellIntersections(start: Offset, end: Offset, destination: MutableS
             tY += absYStep
         }
     }
+}
+
+private fun initialDelta(coord: Float, isNegative: Float): Float = if (isNegative > 0f) {
+    val f = floor(coord) - coord
+    if (f == 0f) -1f else f
+} else {
+    val c = ceil(coord) - coord
+    if (c == 0f) 1f else c
 }
