@@ -19,28 +19,43 @@ import Geometry.LineSegment
 
 namespace Geometry
 
-def uint32ToRat (n : UInt32) : Rat :=
-  Rat.ofInt (Int.ofNat n.toNat)
+def float32ToRat (f : Float32) : Rat :=
+  let n := f.toBits.toNat
+  let sign : Rat := if n / (2^31) != 0 then -1 else 1
+  let exp : Nat := (n / (2^23)) % (2^8)
+  let frac : Nat := n % (2^23)
+  if exp == 0 then
+    if frac == 0 then 0
+    else sign * (Rat.ofInt frac) / (Rat.ofInt (2^149))
+  else if exp == 255 then
+    0
+  else
+    let mantissa : Rat := Rat.ofInt (frac + 2^23)
+    let shift : Int := (exp : Int) - 127 - 23
+    if shift >= 0 then
+      sign * mantissa * (Rat.ofInt (2^(shift.toNat)))
+    else
+      sign * mantissa / (Rat.ofInt (2^((-shift).toNat)))
 
 @[export geometry_cell_intersections_segment]
-def oracleCellIntersectionsSegment (x1 y1 x2 y2 : UInt32) : Array (Int × Int) :=
-  let p1 : Point := ⟨uint32ToRat x1, uint32ToRat y1⟩
-  let p2 : Point := ⟨uint32ToRat x2, uint32ToRat y2⟩
+def oracleCellIntersectionsSegment (x1 y1 x2 y2 : Float32) : Array (Int × Int) :=
+  let p1 : Point := ⟨float32ToRat x1, float32ToRat y1⟩
+  let p2 : Point := ⟨float32ToRat x2, float32ToRat y2⟩
   let cells := cellIntersectionsSegment p1 p2
   (cells.map (fun c => (c.x, c.y))).toArray
 
-def pointsFromUInt32Array (coords : Array UInt32) : List Point :=
+def pointsFromFloatArray (coords : Array Float32) : List Point :=
   let n := coords.size / 2
   let rec loop (i : Nat) (acc : List Point) : List Point :=
     if i >= n then acc.reverse
     else
-      let p : Point := ⟨uint32ToRat coords[2 * i]!, uint32ToRat coords[2 * i + 1]!⟩
+      let p : Point := ⟨float32ToRat coords[2 * i]!, float32ToRat coords[2 * i + 1]!⟩
       loop (i + 1) (p :: acc)
   loop 0 []
 
 @[export geometry_cell_intersections_path]
-def oracleCellIntersectionsPath (coords : Array UInt32) : Array (Int × Int) :=
-  let points := pointsFromUInt32Array coords
+def oracleCellIntersectionsPath (coords : Array Float32) : Array (Int × Int) :=
+  let points := pointsFromFloatArray coords
   let cells := cellIntersectionsPath points
   (cells.map (fun c => (c.x, c.y))).toArray
 
