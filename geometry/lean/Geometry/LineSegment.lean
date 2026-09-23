@@ -28,31 +28,38 @@ def dedupCells (cells : List Cell) : List Cell :=
 /--
 Determines the next cell transition in ray-marching via exact coordinate crossings.
 -/
-def rayMarchStep (start _ptEnd : Point) (dx dy : Binary32) (stepX stepY : Int) (c : Cell) : Cell × Bool :=
-  let xb : Binary32 := if stepX > 0 then ofInt (c.x + 1) else ofInt c.x
-  let yb : Binary32 := if stepY > 0 then ofInt (c.y + 1) else ofInt c.y
-  let tx : Binary32 := if stepX != 0 then (xb - start.x) / dx else 1.0 / 0.0
-  let ty : Binary32 := if stepY != 0 then (yb - start.y) / dy else 1.0 / 0.0
-  if tx <= 0.0 && ty <= 0.0 then
-    (⟨c.x + stepX, c.y + stepY⟩, false)
-  else if tx <= 0.0 then
-    (⟨c.x + stepX, c.y⟩, false)
-  else if ty <= 0.0 then
-    (⟨c.x, c.y + stepY⟩, false)
-  else if tx < ty then
-    if tx >= 1.0 then (c, true)
-    else (⟨c.x + stepX, c.y⟩, false)
-  else if ty < tx then
-    if ty >= 1.0 then (c, true)
+def rayMarchStep (start _ptEnd : Point) (dx dy : Rat) (stepX stepY : Int) (c : Cell) : Cell × Bool :=
+  let xb : Rat := if stepX > 0 then ofInt (c.x + 1) else ofInt c.x
+  let yb : Rat := if stepY > 0 then ofInt (c.y + 1) else ofInt c.y
+  let absDx := if dx >= 0 then dx else -dx
+  let absDy := if dy >= 0 then dy else -dy
+  if stepX == 0 then
+    let remY := if yb >= start.y then yb - start.y else start.y - yb
+    if remY >= absDy then (c, true)
     else (⟨c.x, c.y + stepY⟩, false)
+  else if stepY == 0 then
+    let remX := if xb >= start.x then xb - start.x else start.x - xb
+    if remX >= absDx then (c, true)
+    else (⟨c.x + stepX, c.y⟩, false)
   else
-    if tx >= 1.0 then (c, true)
-    else (⟨c.x + stepX, c.y + stepY⟩, false)
+    let remX := if xb >= start.x then xb - start.x else start.x - xb
+    let remY := if yb >= start.y then yb - start.y else start.y - yb
+    let crossX := remX * absDy
+    let crossY := remY * absDx
+    let limitCross := absDx * absDy
+    if min crossX crossY >= limitCross then
+      (c, true)
+    else if crossX < crossY then
+      (⟨c.x + stepX, c.y⟩, false)
+    else if crossY < crossX then
+      (⟨c.x, c.y + stepY⟩, false)
+    else
+      (⟨c.x + stepX, c.y + stepY⟩, false)
 
 /--
 Ray-marches from `startCell` towards `endCell`, stepping cell-by-cell in O(W + H) time.
 -/
-def rayMarch (fuel : Nat) (start ptEnd : Point) (dx dy : Binary32) (stepX stepY : Int)
+def rayMarch (fuel : Nat) (start ptEnd : Point) (dx dy : Rat) (stepX stepY : Int)
     (endCell : Cell) (current : Cell) (acc : List Cell) : List Cell :=
   match fuel with
   | 0 => acc
@@ -75,8 +82,8 @@ def cellIntersectionsSegment (A B : Point) : List Cell :=
   else
     let dx := B.x - A.x
     let dy := B.y - A.y
-    let stepX : Int := if dx > 0.0 then 1 else if dx < 0.0 then -1 else 0
-    let stepY : Int := if dy > 0.0 then 1 else if dy < 0.0 then -1 else 0
+    let stepX : Int := if dx > 0 then 1 else if dx < 0 then -1 else 0
+    let stepY : Int := if dy > 0 then 1 else if dy < 0 then -1 else 0
     let maxSteps := (endCell.x - startCell.x).natAbs + (endCell.y - startCell.y).natAbs + 2
     dedupCells ([startCell, endCell] ++ rayMarch maxSteps A B dx dy stepX stepY endCell startCell [])
 

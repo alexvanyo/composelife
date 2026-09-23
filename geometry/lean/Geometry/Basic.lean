@@ -14,23 +14,14 @@
  * limitations under the License.
  -/
 
-import FloatLib
-
-open FloatLib.Floats
-
 namespace Geometry
 
 /--
-IEEE binary32 representation from FloatLib.
--/
-abbrev Binary32 := ExecFloat.Binary (exponentBits := 8) (fractionBits := 23)
-
-/--
-A continuous 2D point with FloatLib Binary32 floating point coordinates.
+A continuous 2D point with exact rational coordinates in Rat².
 -/
 structure Point where
-  x : Binary32
-  y : Binary32
+  x : Rat
+  y : Rat
   deriving Repr, Inhabited, BEq, DecidableEq
 
 /--
@@ -67,24 +58,16 @@ instance : ReflBEq Cell where
     simp
 
 /--
-Converts an Int to a Binary32.
+Converts an Int to a Rat.
 -/
-def ofInt (n : Int) : Binary32 :=
-  ExecFloat.Binary.ofFloat32 n.toFloat32
+def ofInt (n : Int) : Rat :=
+  Rat.ofInt n
 
 /--
-Converts a Binary32 to an Int by taking the floor.
+Converts a Rat to an Int by taking the floor.
 -/
-def toInt (f : Binary32) : Int :=
-  match Formats.BinaryInterchange.Model.toDyadic? (ExecFloat.Binary.toModel f) with
-  | some d => Formats.BinaryInterchange.Model.roundDyadicToInt .towardNegativeInfinity d
-  | none => 0
-
-/--
-Rounds a Binary32 to the nearest Int (ties round up), matching Kotlin's roundToInt().
--/
-def roundToInt (f : Binary32) : Int :=
-  toInt (f + 0.5)
+def toInt (f : Rat) : Int :=
+  f.floor
 
 /--
 Floors a continuous Point into discrete Cell coordinates.
@@ -95,16 +78,16 @@ def floorPoint (p : Point) : Cell :=
 /--
 Returns 1.0 if positive, -1.0 if negative, and 0.0 otherwise.
 -/
-def sign (f : Binary32) : Binary32 :=
-  if f > 0.0 then 1.0
-  else if f < 0.0 then -1.0
-  else 0.0
+def sign (f : Rat) : Rat :=
+  if f > 0 then 1
+  else if f < 0 then -1
+  else 0
 
 /--
 Determines which side of the directed line from `start` to `ptEnd` the point `p` lies on.
 Returns 1.0 for right, -1.0 for left, and 0.0 for collinear.
 -/
-def sideOfLine (p start ptEnd : Point) : Binary32 :=
+def sideOfLine (p start ptEnd : Point) : Rat :=
   sign ((ptEnd.x - start.x) * (p.y - start.y) - (ptEnd.y - start.y) * (p.x - start.x))
 
 /--
