@@ -40,7 +40,7 @@ fun cellIntersections(start: Offset, end: Offset): Set<IntOffset> = buildSet {
     cellIntersections(start, end, this)
 }
 
-@Suppress("ComplexMethod", "CyclomaticComplexMethod")
+@Suppress("ComplexMethod", "CyclomaticComplexMethod", "LongMethod", "LoopWithTooManyJumpStatements")
 internal fun cellIntersections(start: Offset, end: Offset, destination: MutableSet<IntOffset>) {
     val startCell = floor(start)
     val endCell = floor(end)
@@ -81,28 +81,40 @@ internal fun cellIntersections(start: Offset, end: Offset, destination: MutableS
         val xb = if (stepX > 0) (currentX + 1).toFloat() else currentX.toFloat()
         val yb = if (stepY > 0) (currentY + 1).toFloat() else currentY.toFloat()
 
-        val tx = if (stepX != 0) (xb - start.x) / dx else Float.POSITIVE_INFINITY
-        val ty = if (stepY != 0) (yb - start.y) / dy else Float.POSITIVE_INFINITY
+        val absDx = dx.toDouble().absoluteValue
+        val absDy = dy.toDouble().absoluteValue
 
-        val minT = minOf(tx, ty)
-        if (minT >= 1f) {
-            break
-        }
-
-        if (tx <= 0f && ty <= 0f) {
-            currentX += stepX
+        if (stepX == 0) {
+            val remY = (yb.toDouble() - start.y.toDouble()).absoluteValue
+            if (remY >= absDy) {
+                break
+            }
             currentY += stepY
-        } else if (tx <= 0f) {
+        } else if (stepY == 0) {
+            val remX = (xb.toDouble() - start.x.toDouble()).absoluteValue
+            if (remX >= absDx) {
+                break
+            }
             currentX += stepX
-        } else if (ty <= 0f) {
-            currentY += stepY
-        } else if (tx < ty) {
-            currentX += stepX
-        } else if (ty < tx) {
-            currentY += stepY
         } else {
-            currentX += stepX
-            currentY += stepY
+            val remX = (xb.toDouble() - start.x.toDouble()).absoluteValue
+            val remY = (yb.toDouble() - start.y.toDouble()).absoluteValue
+            val crossX = remX * absDy
+            val crossY = remY * absDx
+            val limitCross = absDx * absDy
+
+            if (minOf(crossX, crossY) >= limitCross) {
+                break
+            }
+
+            if (crossX < crossY) {
+                currentX += stepX
+            } else if (crossY < crossX) {
+                currentY += stepY
+            } else {
+                currentX += stepX
+                currentY += stepY
+            }
         }
 
         destination.add(IntOffset(currentX, currentY))
