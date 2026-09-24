@@ -19,6 +19,8 @@ import Algorithm.BitComputation
 import Algorithm.MacroCell
 import Algorithm.Properties
 
+local notation "ℕ" => Nat
+
 namespace Algorithm
 
 -- =========================================================================
@@ -29,7 +31,7 @@ namespace Algorithm
 Computes the total number of alive cells in a MacroCell.
 Matches `MacroCell.size` in Kotlin (`override val size = nw.size + ne.size + sw.size + se.size`).
 -/
-def macroCellSize : MacroCell → Nat
+def macroCellSize : MacroCell → ℕ
   | .leaf true => 1
   | .leaf false => 0
   | .node _ nw ne sw se =>
@@ -38,7 +40,7 @@ def macroCellSize : MacroCell → Nat
 /--
 Empty node size is identically 0 for all quadtree levels k.
 -/
-theorem macroCellSize_emptyNode : ∀ (k : Nat), macroCellSize (emptyNode k) = 0
+theorem macroCellSize_emptyNode : ∀ (k : ℕ), macroCellSize (emptyNode k) = 0
   | 0 => rfl
   | k + 1 => by
     have ih := macroCellSize_emptyNode k
@@ -86,7 +88,7 @@ Theorem: Centered Sub-Subnode Recovery.
 Extracting the central sub-subnode from an expanded macrocell reconstructs
 the original macrocell with 100% fidelity.
 -/
-theorem centeredSubSubnode_expandCentered (k : Nat) (nw ne sw se : MacroCell) :
+theorem centeredSubSubnode_expandCentered (k : ℕ) (nw ne sw se : MacroCell) :
     centeredSubSubnode (expandCentered (.node k nw ne sw se)) = .node k nw ne sw se := by
   rfl
 
@@ -94,7 +96,7 @@ theorem centeredSubSubnode_expandCentered (k : Nat) (nw ne sw se : MacroCell) :
 Theorem: Level Increase under Expansion.
 `expandCentered` strictly increases the quadtree level by 2.
 -/
-theorem expandCentered_level (k : Nat) (nw ne sw se : MacroCell) :
+theorem expandCentered_level (k : ℕ) (nw ne sw se : MacroCell) :
     (expandCentered (.node k nw ne sw se)).level = k + 2 := by
   rfl
 
@@ -102,7 +104,7 @@ theorem expandCentered_level (k : Nat) (nw ne sw se : MacroCell) :
 Theorem: Live Cell Population Invariance under Expansion.
 `expandCentered` preserves the exact live cell count of the macrocell.
 -/
-theorem expandCentered_size_node (k : Nat) (nw ne sw se : MacroCell) :
+theorem expandCentered_size_node (k : ℕ) (nw ne sw se : MacroCell) :
     macroCellSize (expandCentered (.node k nw ne sw se)) =
     macroCellSize (.node k nw ne sw se) := by
   simp [expandCentered, macroCellSize, macroCellSize_emptyNode]
@@ -113,7 +115,7 @@ After `expandCentered`, the live population of the center sub-subnode is identic
 to the live population of the entire expanded node, proving that no live cells
 exist in the outer perimeter margin.
 -/
-theorem expandCentered_confinement (k : Nat) (nw ne sw se : MacroCell) :
+theorem expandCentered_confinement (k : ℕ) (nw ne sw se : MacroCell) :
     macroCellSize (centeredSubSubnode (expandCentered (.node k nw ne sw se))) =
     macroCellSize (expandCentered (.node k nw ne sw se)) := by
   rw [centeredSubSubnode_expandCentered]
@@ -163,16 +165,16 @@ def decomposeSubnodes (m : MacroCell) : HashLifeSubnodes :=
 Quadrant builders from subnodes matching HashLifeAlgorithm.kt:
 Each quadrant combines 4 adjacent subnodes to form a recursive step input at level k - 1.
 -/
-def quadrantNW (k : Nat) (sn : HashLifeSubnodes) : MacroCell :=
+def quadrantNW (k : ℕ) (sn : HashLifeSubnodes) : MacroCell :=
   .node k sn.n00 sn.n01 sn.n10 sn.n11
 
-def quadrantNE (k : Nat) (sn : HashLifeSubnodes) : MacroCell :=
+def quadrantNE (k : ℕ) (sn : HashLifeSubnodes) : MacroCell :=
   .node k sn.n01 sn.n02 sn.n11 sn.n12
 
-def quadrantSW (k : Nat) (sn : HashLifeSubnodes) : MacroCell :=
+def quadrantSW (k : ℕ) (sn : HashLifeSubnodes) : MacroCell :=
   .node k sn.n10 sn.n11 sn.n20 sn.n21
 
-def quadrantSE (k : Nat) (sn : HashLifeSubnodes) : MacroCell :=
+def quadrantSE (k : ℕ) (sn : HashLifeSubnodes) : MacroCell :=
   .node k sn.n11 sn.n12 sn.n21 sn.n22
 
 /--
@@ -184,7 +186,7 @@ All four recursive stepping quadrants share the exact same central subnode n11:
 - quadrantSE's North-West child is n11
 This formalizes why HashLife's canonical hash-consing achieves maximal memoization overlap.
 -/
-theorem subnodes_shared_center (k : Nat) (sn : HashLifeSubnodes) :
+theorem subnodes_shared_center (k : ℕ) (sn : HashLifeSubnodes) :
     match quadrantNW k sn, quadrantNE k sn, quadrantSW k sn, quadrantSE k sn with
     | .node _ _ _ _ nw_se, .node _ _ _ ne_sw _,
       .node _ _ sw_ne _ _, .node _ se_nw _ _ _ =>
@@ -198,7 +200,7 @@ Theorem: Adjacent Quadrant Horizontal Boundary Alignment.
 The East boundary of quadrantNW matches the West boundary of quadrantNE,
 and the East boundary of quadrantSW matches the West boundary of quadrantSE.
 -/
-theorem subnodes_horizontal_alignment (k : Nat) (sn : HashLifeSubnodes) :
+theorem subnodes_horizontal_alignment (k : ℕ) (sn : HashLifeSubnodes) :
     match quadrantNW k sn, quadrantNE k sn, quadrantSW k sn, quadrantSE k sn with
     | .node _ _ nw_ne _ nw_se, .node _ ne_nw _ ne_sw _,
       .node _ _ sw_ne _ sw_se, .node _ se_nw _ se_sw _ =>
@@ -212,7 +214,7 @@ Theorem: Adjacent Quadrant Vertical Boundary Alignment.
 The South boundary of quadrantNW matches the North boundary of quadrantSW,
 and the South boundary of quadrantNE matches the North boundary of quadrantSE.
 -/
-theorem subnodes_vertical_alignment (k : Nat) (sn : HashLifeSubnodes) :
+theorem subnodes_vertical_alignment (k : ℕ) (sn : HashLifeSubnodes) :
     match quadrantNW k sn, quadrantNE k sn, quadrantSW k sn, quadrantSE k sn with
     | .node _ _ _ nw_sw nw_se, .node _ _ _ ne_sw ne_se,
       .node _ sw_nw sw_ne _ _, .node _ se_nw se_ne _ _ =>
@@ -229,7 +231,7 @@ theorem subnodes_vertical_alignment (k : Nat) (sn : HashLifeSubnodes) :
 Theorem: Centered Subnode of Empty Node.
 For any k >= 1, the centered subnode of an empty node at level k + 1 is an empty node at level k.
 -/
-theorem centeredSubnode_emptyNode : ∀ (k : Nat),
+theorem centeredSubnode_emptyNode : ∀ (k : ℕ),
     centeredSubnode (emptyNode (k + 2)) = emptyNode (k + 1)
   | 0 => rfl
   | _ + 1 => rfl
@@ -238,7 +240,7 @@ theorem centeredSubnode_emptyNode : ∀ (k : Nat),
 Theorem: Centered Horizontal Subnode of Empty Nodes.
 Combining two empty nodes at level k + 2 horizontally yields an empty node at level k + 1.
 -/
-theorem centeredHorizontalSubnode_emptyNode : ∀ (k : Nat),
+theorem centeredHorizontalSubnode_emptyNode : ∀ (k : ℕ),
     centeredHorizontalSubnode (emptyNode (k + 2)) (emptyNode (k + 2)) = emptyNode (k + 1)
   | 0 => rfl
   | _ + 1 => rfl
@@ -247,7 +249,7 @@ theorem centeredHorizontalSubnode_emptyNode : ∀ (k : Nat),
 Theorem: Centered Vertical Subnode of Empty Nodes.
 Combining two empty nodes at level k + 2 vertically yields an empty node at level k + 1.
 -/
-theorem centeredVerticalSubnode_emptyNode : ∀ (k : Nat),
+theorem centeredVerticalSubnode_emptyNode : ∀ (k : ℕ),
     centeredVerticalSubnode (emptyNode (k + 2)) (emptyNode (k + 2)) = emptyNode (k + 1)
   | 0 => rfl
   | _ + 1 => rfl
@@ -256,7 +258,7 @@ theorem centeredVerticalSubnode_emptyNode : ∀ (k : Nat),
 Theorem: Centered Sub-Subnode of Empty Node.
 For any k >= 0, the centered sub-subnode of an empty node at level k + 3 is an empty node at level k + 1.
 -/
-theorem centeredSubSubnode_emptyNode : ∀ (k : Nat),
+theorem centeredSubSubnode_emptyNode : ∀ (k : ℕ),
     centeredSubSubnode (emptyNode (k + 3)) = emptyNode (k + 1)
   | 0 => rfl
   | _ + 1 => rfl
@@ -265,7 +267,7 @@ theorem centeredSubSubnode_emptyNode : ∀ (k : Nat),
 Theorem: Empty Node Decomposition Universality.
 Decomposing an empty node at level k + 3 produces empty subnodes across all 9 components.
 -/
-theorem decomposeSubnodes_emptyNode (k : Nat) :
+theorem decomposeSubnodes_emptyNode (k : ℕ) :
     decomposeSubnodes (emptyNode (k + 3)) =
       { n00 := emptyNode (k + 1)
       , n01 := emptyNode (k + 1)
@@ -291,7 +293,7 @@ Computes the packed 16-bit word from four 4-bit quadrants (nibbles),
 matching HashLifeAlgorithm.kt centeredSubnodeLevel3:
   node.nw.se + node.ne.sw * 16 + node.sw.ne * 256 + node.se.nw * 4096
 -/
-def packCentralNibbles (q0 q1 q2 q3 : Nat) : Nat :=
+def packCentralNibbles (q0 q1 q2 q3 : ℕ) : ℕ :=
   q0 + q1 * 16 + q2 * 256 + q3 * 4096
 
 /--
@@ -299,27 +301,27 @@ Theorem: Bitwise Disjointness and Unambiguous Extraction.
 Each 4-bit quadrant q0, q1, q2, q3 (< 16) is uniquely recoverable from the packed 16-bit word,
 proving that no bit collision or cross-lane carry occurs during quadtree center extraction.
 -/
-theorem packCentralNibbles_extract_q0 (q0 q1 q2 q3 : Nat) (h0 : q0 < 16) :
+theorem packCentralNibbles_extract_q0 (q0 q1 q2 q3 : ℕ) (h0 : q0 < 16) :
     (packCentralNibbles q0 q1 q2 q3) % 16 = q0 := by
   unfold packCentralNibbles
   omega
 
-theorem packCentralNibbles_extract_q1 (q0 q1 q2 q3 : Nat) (h0 : q0 < 16) (h1 : q1 < 16) :
+theorem packCentralNibbles_extract_q1 (q0 q1 q2 q3 : ℕ) (h0 : q0 < 16) (h1 : q1 < 16) :
     ((packCentralNibbles q0 q1 q2 q3) / 16) % 16 = q1 := by
   unfold packCentralNibbles
   omega
 
-theorem packCentralNibbles_extract_q2 (q0 q1 q2 q3 : Nat) (h0 : q0 < 16) (h1 : q1 < 16) (h2 : q2 < 16) :
+theorem packCentralNibbles_extract_q2 (q0 q1 q2 q3 : ℕ) (h0 : q0 < 16) (h1 : q1 < 16) (h2 : q2 < 16) :
     ((packCentralNibbles q0 q1 q2 q3) / 256) % 16 = q2 := by
   unfold packCentralNibbles
   omega
 
-theorem packCentralNibbles_extract_q3 (q0 q1 q2 q3 : Nat) (h0 : q0 < 16) (h1 : q1 < 16) (h2 : q2 < 16) (h3 : q3 < 16) :
+theorem packCentralNibbles_extract_q3 (q0 q1 q2 q3 : ℕ) (h0 : q0 < 16) (h1 : q1 < 16) (h2 : q2 < 16) (h3 : q3 < 16) :
     ((packCentralNibbles q0 q1 q2 q3) / 4096) % 16 = q3 := by
   unfold packCentralNibbles
   omega
 
-theorem packCentralNibbles_in_range (q0 q1 q2 q3 : Nat)
+theorem packCentralNibbles_in_range (q0 q1 q2 q3 : ℕ)
     (h0 : q0 < 16) (h1 : q1 < 16) (h2 : q2 < 16) (h3 : q3 < 16) :
     packCentralNibbles q0 q1 q2 q3 < 65536 := by
   unfold packCentralNibbles
@@ -329,7 +331,7 @@ theorem packCentralNibbles_in_range (q0 q1 q2 q3 : Nat)
 Extracts the central 4x4 from an 8x8 packed leaf node (64-bit word).
 Matches centeredSubnodeLevel3 in Kotlin.
 -/
-def centeredSubnodeLevel3Bits (leaf : Nat) : Nat :=
+def centeredSubnodeLevel3Bits (leaf : ℕ) : ℕ :=
   let nw := (leaf / (2^0)) % (2^16)
   let ne := (leaf / (2^16)) % (2^16)
   let sw := (leaf / (2^32)) % (2^16)
@@ -344,7 +346,7 @@ def centeredSubnodeLevel3Bits (leaf : Nat) : Nat :=
 Extracts the horizontal central 4x4 spanning west and east 8x8 leaf nodes.
 Matches centeredHorizontalSubnodeLevel3 in Kotlin.
 -/
-def centeredHorizontalSubnodeLevel3Bits (w e : Nat) : Nat :=
+def centeredHorizontalSubnodeLevel3Bits (w e : ℕ) : ℕ :=
   let w_ne := (w / (2^16)) % (2^16)
   let w_se := (w / (2^48)) % (2^16)
   let e_nw := (e / (2^0)) % (2^16)
@@ -359,7 +361,7 @@ def centeredHorizontalSubnodeLevel3Bits (w e : Nat) : Nat :=
 Extracts the vertical central 4x4 spanning north and south 8x8 leaf nodes.
 Matches centeredVerticalSubnodeLevel3 in Kotlin.
 -/
-def centeredVerticalSubnodeLevel3Bits (n s : Nat) : Nat :=
+def centeredVerticalSubnodeLevel3Bits (n s : ℕ) : ℕ :=
   let n_sw := (n / (2^32)) % (2^16)
   let n_se := (n / (2^48)) % (2^16)
   let s_nw := (s / (2^0)) % (2^16)
@@ -374,7 +376,7 @@ def centeredVerticalSubnodeLevel3Bits (n s : Nat) : Nat :=
 Extracts the center 4x4 from a 16x16 Level 4 node (four 8x8 leaf nodes).
 Matches centeredSubSubnodeLevel4 in Kotlin.
 -/
-def centeredSubSubnodeLevel4Bits (nw ne sw se : Nat) : Nat :=
+def centeredSubSubnodeLevel4Bits (nw ne sw se : ℕ) : ℕ :=
   let nw_se := (nw / (2^48)) % (2^16)
   let ne_sw := (ne / (2^32)) % (2^16)
   let sw_ne := (sw / (2^16)) % (2^16)
@@ -388,7 +390,7 @@ def centeredSubSubnodeLevel4Bits (nw ne sw se : Nat) : Nat :=
 /--
 Packs four 16-bit 4x4 quadrants into a 64-bit 8x8 leaf node.
 -/
-def packLeafFrom4x4s (q0 q1 q2 q3 : Nat) : Nat :=
+def packLeafFrom4x4s (q0 q1 q2 q3 : ℕ) : ℕ :=
   (q0 % (2^16)) + (q1 % (2^16)) * (2^16) + (q2 % (2^16)) * (2^32) + (q3 % (2^16)) * (2^48)
 
 /--
@@ -396,7 +398,7 @@ Direct computation of next generation for a 16x16 Level 4 MacroCell (four 8x8 le
 into its central 8x8 leaf node.
 Matches Level4Node.computeNextGeneration in HashLifeAlgorithm.kt.
 -/
-def computeLevel4NextGen16x16 (nw ne sw se : Nat) : Nat :=
+def computeLevel4NextGen16x16 (nw ne sw se : ℕ) : ℕ :=
   let n00 := centeredSubnodeLevel3Bits nw
   let n01 := centeredHorizontalSubnodeLevel3Bits nw ne
   let n02 := centeredSubnodeLevel3Bits ne

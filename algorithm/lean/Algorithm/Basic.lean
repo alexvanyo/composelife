@@ -14,11 +14,14 @@
  * limitations under the License.
  -/
 
+local notation "ℕ" => Nat
+local notation "ℤ" => Int
+
 namespace Algorithm
 
-abbrev Coord := Int × Int
+abbrev Coord := ℤ × ℤ
 
-def mooreOffsets : List (Int × Int) :=
+def mooreOffsets : List (ℤ × ℤ) :=
   [ (-1, -1), (0, -1), (1, -1),
     (-1,  0),          (1,  0),
     (-1,  1), (0,  1), (1,  1) ]
@@ -27,10 +30,10 @@ def mooreNeighbors (c : Coord) : List Coord :=
   let (x, y) := c
   mooreOffsets.map (fun (dx, dy) => (x + dx, y + dy))
 
-def countAliveNeighbors (c : Coord) (alive : List Coord) : Nat :=
+def countAliveNeighbors (c : Coord) (alive : List Coord) : ℕ :=
   (mooreNeighbors c).filter (fun n => alive.contains n) |>.length
 
-def lifeRule (isAlive : Bool) (neighborCount : Nat) : Bool :=
+def lifeRule (isAlive : Bool) (neighborCount : ℕ) : Bool :=
   neighborCount == 3 || (neighborCount == 2 && isAlive)
 
 def deduplicate [DecidableEq α] (xs : List α) : List α :=
@@ -48,18 +51,18 @@ def stepGrid (alive : List Coord) : List Coord :=
     let n := countAliveNeighbors c distinctAlive
     lifeRule isAlive n
 
-def stepN : Nat → List Coord → List Coord
+def stepN : ℕ → List Coord → List Coord
   | 0, s => deduplicate s
   | n + 1, s => stepGrid (stepN n s)
 
 theorem stepN_zero (s : List Coord) : stepN 0 s = deduplicate s := rfl
 
-theorem stepN_succ (n : Nat) (s : List Coord) : stepN (n + 1) s = stepGrid (stepN n s) := rfl
+theorem stepN_succ (n : ℕ) (s : List Coord) : stepN (n + 1) s = stepGrid (stepN n s) := rfl
 
 theorem stepGrid_empty : stepGrid [] = [] := by
   rfl
 
-theorem stepN_empty (n : Nat) : stepN n [] = [] := by
+theorem stepN_empty (n : ℕ) : stepN n [] = [] := by
   induction n with
   | zero => rfl
   | succ k ih =>

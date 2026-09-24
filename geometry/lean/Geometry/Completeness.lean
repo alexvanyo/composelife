@@ -25,7 +25,7 @@ import Mathlib.Tactic.Ring
 
 namespace Geometry
 
-def targetDist (sx sy : Int) (x c A : Cell) : Nat :=
+def targetDist (sx sy : ℤ) (x c A : Cell) : ℕ :=
   let dx := (x.x - c.x) * sx
   let dy := (x.y - c.y) * sy
   if 0 ≤ (c.x - A.x) * sx ∧ 0 ≤ (c.y - A.y) * sy ∧
@@ -36,8 +36,8 @@ def targetDist (sx sy : Int) (x c A : Cell) : Nat :=
   else
     0
 
-theorem eq_of_mul_sign_zero (x_val a_val : Int) (dx : Rat)
-    (e : (x_val - a_val) * (if dx > 0 then 1 else if dx < 0 then -1 else (0 : Int)) = 0)
+theorem eq_of_mul_sign_zero (x_val a_val : ℤ) (dx : ℚ)
+    (e : (x_val - a_val) * (if dx > 0 then 1 else if dx < 0 then -1 else (0 : ℤ)) = 0)
     (h_zero : dx = 0 → x_val = a_val) :
     x_val = a_val := by
   split_ifs at e with h1 h2
@@ -48,8 +48,8 @@ theorem eq_of_mul_sign_zero (x_val a_val : Int) (dx : Rat)
 theorem targetDist_start_pos (A B : Point) (x : Cell)
     (h_bbox : inBoundingBox x A B = true)
     (hxA : x ≠ floorPoint A) :
-    let sx : Int := if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else 0
-    let sy : Int := if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0
+    let sx : ℤ := if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else 0
+    let sy : ℤ := if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0
     0 < targetDist sx sy x (floorPoint A) (floorPoint A) := by
   intro sx sy
   unfold targetDist
@@ -81,8 +81,8 @@ theorem targetDist_start_pos (A B : Point) (x : Cell)
   split_ifs
   omega
 
-theorem mul_sign_le_natAbs (z : Int) (s : Int) (hs : s = 1 ∨ s = -1 ∨ s = 0) :
-    z * s ≤ (z.natAbs : Int) := by
+theorem mul_sign_le_natAbs (z : ℤ) (s : ℤ) (hs : s = 1 ∨ s = -1 ∨ s = 0) :
+    z * s ≤ (z.natAbs : ℤ) := by
   rcases hs with rfl | rfl | rfl
   · simp
     exact le_max_left z (-z)
@@ -90,16 +90,16 @@ theorem mul_sign_le_natAbs (z : Int) (s : Int) (hs : s = 1 ∨ s = -1 ∨ s = 0)
     exact le_max_right z (-z)
   · simp
 
-theorem sign_cases (v : Rat) :
-    (if v > 0 then 1 else if v < 0 then -1 else (0 : Int)) = 1 ∨
-    (if v > 0 then 1 else if v < 0 then -1 else (0 : Int)) = -1 ∨
-    (if v > 0 then 1 else if v < 0 then -1 else (0 : Int)) = 0 := by
+theorem sign_cases (v : ℚ) :
+    (if v > 0 then 1 else if v < 0 then -1 else (0 : ℤ)) = 1 ∨
+    (if v > 0 then 1 else if v < 0 then -1 else (0 : ℤ)) = -1 ∨
+    (if v > 0 then 1 else if v < 0 then -1 else (0 : ℤ)) = 0 := by
   split_ifs <;> simp
 
 theorem targetDist_start_le (A B : Point) (x : Cell)
     (h_bbox : inBoundingBox x A B = true) :
-    let sx : Int := if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else 0
-    let sy : Int := if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0
+    let sx : ℤ := if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else 0
+    let sy : ℤ := if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0
     let fuel := (((floorPoint B).x - (floorPoint A).x).natAbs + ((floorPoint B).y - (floorPoint A).y).natAbs + 2)
     targetDist sx sy x (floorPoint A) (floorPoint A) ≤ fuel := by
   intro sx sy fuel
@@ -121,25 +121,25 @@ theorem targetDist_start_le (A B : Point) (x : Cell)
   have h_abs_x := mul_sign_le_natAbs ((floorPoint B).x - (floorPoint A).x) sx hsx
   have h_abs_y := mul_sign_le_natAbs ((floorPoint B).y - (floorPoint A).y) sy hsy
   have h_sum : (x.x - (floorPoint A).x) * sx + (x.y - (floorPoint A).y) * sy ≤
-    (((floorPoint B).x - (floorPoint A).x).natAbs : Int) + (((floorPoint B).y - (floorPoint A).y).natAbs : Int) := by
+    (((floorPoint B).x - (floorPoint A).x).natAbs : ℤ) + (((floorPoint B).y - (floorPoint A).y).natAbs : ℤ) := by
     linarith
-  have h_fuel : (x.x - (floorPoint A).x) * sx + (x.y - (floorPoint A).y) * sy ≤ (fuel : Int) := by
+  have h_fuel : (x.x - (floorPoint A).x) * sx + (x.y - (floorPoint A).y) * sy ≤ (fuel : ℤ) := by
     dsimp [fuel]
     omega
   split_ifs <;> omega
 
 
 
-theorem targetDist_step_sx_zero (A B : Point) (x c : Cell) (tEnter tExit : Rat)
+theorem targetDist_step_sx_zero (A B : Point) (x c : Cell) (tEnter tExit : ℚ)
     (h_bbox : inBoundingBox x A B = true) (hxA : x ≠ floorPoint A)
     (h_int : cellIntersectionInterval x A B = some (tEnter, tExit))
     (h_enter_lt_exit : tEnter < tExit)
-    (hsx : (if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else (0 : Int)) = 0)
+    (hsx : (if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else (0 : ℤ)) = 0)
     (h_cA_y : 0 ≤ (c.y - (floorPoint A).y) * if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0)
     (h_cy : 0 ≤ (x.y - c.y) * if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0)
     (hc_x : c.x = (floorPoint A).x)
     (h_ne : c ≠ x) :
-    let sy : Int := if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0
+    let sy : ℤ := if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0
     (rayMarchStep A B (B.x - A.x) (B.y - A.y) 0 sy c).2 = false ∧
     ( (rayMarchStep A B (B.x - A.x) (B.y - A.y) 0 sy c).1 = x ∨
       (targetDist 0 sy x (rayMarchStep A B (B.x - A.x) (B.y - A.y) 0 sy c).1 (floorPoint A) < targetDist 0 sy x c (floorPoint A) ∧
@@ -173,7 +173,7 @@ theorem targetDist_step_sx_zero (A B : Point) (x c : Cell) (tEnter tExit : Rat)
         0 ≤ (c.y - (floorPoint A).y) * sy ∧
         0 ≤ (x.x - c.x) * 0 ∧
         0 ≤ (x.y - c.y) * sy ∧
-        (c.x = (floorPoint A).x ∨ (0 : Int) ≠ 0) ∧
+        (c.x = (floorPoint A).x ∨ (0 : ℤ) ≠ 0) ∧
         (c.y = (floorPoint A).y ∨ sy ≠ 0) ∧
         c ≠ x := ⟨by simp, h_cA_y, by simp, h_cy, Or.inl hc_x, Or.inr (by
           dsimp [sy]
@@ -189,7 +189,7 @@ theorem targetDist_step_sx_zero (A B : Point) (x c : Cell) (tEnter tExit : Rat)
         0 ≤ (c.y + sy - (floorPoint A).y) * sy ∧
         0 ≤ (x.x - c.x) * 0 ∧
         0 ≤ (x.y - (c.y + sy)) * sy ∧
-        (c.x = (floorPoint A).x ∨ (0 : Int) ≠ 0) ∧
+        (c.x = (floorPoint A).x ∨ (0 : ℤ) ≠ 0) ∧
         (c.y + sy = (floorPoint A).y ∨ sy ≠ 0) ∧
         ({ x := c.x, y := c.y + sy } : Cell) ≠ x := ⟨by simp, h_step.2.2.2, by simp, h_step.2.2.1, Or.inl hc_x, Or.inr (by
           dsimp [sy]
@@ -230,16 +230,16 @@ theorem targetDist_step_sx_zero (A B : Point) (x c : Cell) (tEnter tExit : Rat)
     refine ⟨by omega, by omega⟩
 
 
-theorem targetDist_step_sy_zero (A B : Point) (x c : Cell) (tEnter tExit : Rat)
+theorem targetDist_step_sy_zero (A B : Point) (x c : Cell) (tEnter tExit : ℚ)
     (h_bbox : inBoundingBox x A B = true) (hxA : x ≠ floorPoint A)
     (h_int : cellIntersectionInterval x A B = some (tEnter, tExit))
     (h_enter_lt_exit : tEnter < tExit)
-    (hsy : (if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else (0 : Int)) = 0)
+    (hsy : (if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else (0 : ℤ)) = 0)
     (h_cA_x : 0 ≤ (c.x - (floorPoint A).x) * if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else 0)
     (h_cx : 0 ≤ (x.x - c.x) * if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else 0)
     (hc_y : c.y = (floorPoint A).y)
     (h_ne : c ≠ x) :
-    let sx : Int := if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else 0
+    let sx : ℤ := if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else 0
     (rayMarchStep A B (B.x - A.x) (B.y - A.y) sx 0 c).2 = false ∧
     ( (rayMarchStep A B (B.x - A.x) (B.y - A.y) sx 0 c).1 = x ∨
       (targetDist sx 0 x (rayMarchStep A B (B.x - A.x) (B.y - A.y) sx 0 c).1 (floorPoint A) < targetDist sx 0 x c (floorPoint A) ∧
@@ -274,7 +274,7 @@ theorem targetDist_step_sy_zero (A B : Point) (x c : Cell) (tEnter tExit : Rat)
         0 ≤ (x.x - c.x) * sx ∧
         0 ≤ (x.y - c.y) * 0 ∧
         (c.x = (floorPoint A).x ∨ sx ≠ 0) ∧
-        (c.y = (floorPoint A).y ∨ (0 : Int) ≠ 0) ∧
+        (c.y = (floorPoint A).y ∨ (0 : ℤ) ≠ 0) ∧
         c ≠ x := ⟨h_cA_x, by simp, h_cx, by simp, Or.inr (by
           dsimp [sx]
           rcases lt_or_gt_of_ne hdx_ne with h | h
@@ -290,7 +290,7 @@ theorem targetDist_step_sy_zero (A B : Point) (x c : Cell) (tEnter tExit : Rat)
         0 ≤ (x.x - (c.x + sx)) * sx ∧
         0 ≤ (x.y - c.y) * 0 ∧
         (c.x + sx = (floorPoint A).x ∨ sx ≠ 0) ∧
-        (c.y = (floorPoint A).y ∨ (0 : Int) ≠ 0) ∧
+        (c.y = (floorPoint A).y ∨ (0 : ℤ) ≠ 0) ∧
         ({ x := c.x + sx, y := c.y } : Cell) ≠ x := ⟨h_step.2.2.2, by simp, h_step.2.2.1, by simp, Or.inr (by
           dsimp [sx]
           rcases lt_or_gt_of_ne hdx_ne with h | h
@@ -330,7 +330,7 @@ theorem targetDist_step_sy_zero (A B : Point) (x c : Cell) (tEnter tExit : Rat)
     refine ⟨by omega, by omega⟩
 
 
-theorem targetDist_step_pos_pos (A B : Point) (x c : Cell) (tEnter tExit : Rat)
+theorem targetDist_step_pos_pos (A B : Point) (x c : Cell) (tEnter tExit : ℚ)
     (h_bbox : inBoundingBox x A B = true) (hxA : x ≠ floorPoint A)
     (h_int : cellIntersectionInterval x A B = some (tEnter, tExit))
     (h_enter_lt_exit : tEnter < tExit)
@@ -344,8 +344,8 @@ theorem targetDist_step_pos_pos (A B : Point) (x c : Cell) (tEnter tExit : Rat)
     ( (rayMarchStep A B (B.x - A.x) (B.y - A.y) 1 1 c).1 = x ∨
       (targetDist 1 1 x (rayMarchStep A B (B.x - A.x) (B.y - A.y) 1 1 c).1 (floorPoint A) < targetDist 1 1 x c (floorPoint A) ∧
        0 < targetDist 1 1 x (rayMarchStep A B (B.x - A.x) (B.y - A.y) 1 1 c).1 (floorPoint A)) ) := by
-  have hsx_ne : ((1 : Int) == 0) = false := rfl
-  have hsy_ne : ((1 : Int) == 0) = false := rfl
+  have hsx_ne : ((1 : ℤ) == 0) = false := rfl
+  have hsy_ne : ((1 : ℤ) == 0) = false := rfl
   have h_diag := rayMarchStep_diag A B c (B.x - A.x) (B.y - A.y) 1 1 hsx_ne hsy_ne
   dsimp only [] at h_diag
   have h_tx := interval_dx_pos x A B tEnter tExit h_int hdx
@@ -356,26 +356,26 @@ theorem targetDist_step_pos_pos (A B : Point) (x c : Cell) (tEnter tExit : Rat)
   have h_absDy : (if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)) = B.y - A.y := by
     split_ifs with h <;> [rfl; linarith]
   have h_flA_x : (floorPoint A).x = toInt A.x := rfl
-  have h_lt_x : A.x < ((floorPoint A).x : Rat) + 1 := by
+  have h_lt_x : A.x < ((floorPoint A).x : ℚ) + 1 := by
     have := Rat.lt_floor_add_one A.x
     unfold toInt at h_flA_x; rw [← h_flA_x] at this; push_cast at this; exact this
-  have h_cast_cA_x : ((floorPoint A).x : Rat) ≤ (c.x : Rat) := Int.cast_le.mpr (by omega)
+  have h_cast_cA_x : ((floorPoint A).x : ℚ) ≤ (c.x : ℚ) := Int.cast_le.mpr (by omega)
   have h_ge_x : A.x < ofInt (c.x + 1) := by dsimp [ofInt]; push_cast; linarith
   have h_flA_y : (floorPoint A).y = toInt A.y := rfl
-  have h_lt_y : A.y < ((floorPoint A).y : Rat) + 1 := by
+  have h_lt_y : A.y < ((floorPoint A).y : ℚ) + 1 := by
     have := Rat.lt_floor_add_one A.y
     unfold toInt at h_flA_y; rw [← h_flA_y] at this; push_cast at this; exact this
-  have h_cast_cA_y : ((floorPoint A).y : Rat) ≤ (c.y : Rat) := Int.cast_le.mpr (by omega)
+  have h_cast_cA_y : ((floorPoint A).y : ℚ) ≤ (c.y : ℚ) := Int.cast_le.mpr (by omega)
   have h_ge_y : A.y < ofInt (c.y + 1) := by dsimp [ofInt]; push_cast; linarith
-  have h_one_pos : (1 : Int) > 0 := by decide
-  have h_remX : (if (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-      (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-    else A.x - if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) = ofInt (c.x + 1) - A.x := by
+  have h_one_pos : (1 : ℤ) > 0 := by decide
+  have h_remX : (if (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+      (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+    else A.x - if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) = ofInt (c.x + 1) - A.x := by
     simp only [h_one_pos, ↓reduceIte]
     split_ifs with h <;> [rfl; linarith]
-  have h_remY : (if (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-      (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-    else A.y - if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) = ofInt (c.y + 1) - A.y := by
+  have h_remY : (if (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+      (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+    else A.y - if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) = ofInt (c.y + 1) - A.y := by
     simp only [h_one_pos, ↓reduceIte]
     split_ifs with h <;> [rfl; linarith]
   have h_cases : c.x + 1 ≤ x.x ∨ c.y + 1 ≤ x.y := by
@@ -399,7 +399,7 @@ theorem targetDist_step_pos_pos (A B : Point) (x c : Cell) (tEnter tExit : Rat)
     else (({ x := c.x + 1, y := c.y + 1 } : Cell), false)).2 = false := by
     split_ifs <;> rfl
   refine ⟨h_step_not_done, ?_⟩
-  have h_eval_targetDist : ∀ (px py : Int), (floorPoint A).x ≤ px → (floorPoint A).y ≤ py →
+  have h_eval_targetDist : ∀ (px py : ℤ), (floorPoint A).x ≤ px → (floorPoint A).y ≤ py →
       px ≤ x.x → py ≤ x.y → ({ x := px, y := py } : Cell) ≠ x →
       targetDist 1 1 x { x := px, y := py } (floorPoint A) = ((x.x - px) + (x.y - py)).toNat := by
     intro px py hpAx hpAy hpx hpy hpne
@@ -408,8 +408,8 @@ theorem targetDist_step_pos_pos (A B : Point) (x c : Cell) (tEnter tExit : Rat)
       0 ≤ (py - (floorPoint A).y) * 1 ∧
       0 ≤ (x.x - px) * 1 ∧
       0 ≤ (x.y - py) * 1 ∧
-      (px = (floorPoint A).x ∨ (1 : Int) ≠ 0) ∧
-      (py = (floorPoint A).y ∨ (1 : Int) ≠ 0) ∧
+      (px = (floorPoint A).x ∨ (1 : ℤ) ≠ 0) ∧
+      (py = (floorPoint A).y ∨ (1 : ℤ) ≠ 0) ∧
       ({ x := px, y := py } : Cell) ≠ x := ⟨by omega, by omega, by omega, by omega, Or.inr (by decide), Or.inr (by decide), hpne⟩
     split_ifs; simp
   have hc_cell : c = { x := c.x, y := c.y } := by cases c; rfl
@@ -417,7 +417,7 @@ theorem targetDist_step_pos_pos (A B : Point) (x c : Cell) (tEnter tExit : Rat)
   have h_Dc : targetDist 1 1 x c (floorPoint A) = ((x.x - c.x) + (x.y - c.y)).toNat := by
     rw [hc_cell]
     exact h_eval_targetDist c.x c.y (by omega) (by omega) (by omega) (by omega) h_ne_pair
-  have h_cell_ne : ∀ nx ny : Int, ({ x := nx, y := ny } : Cell) ≠ x → nx ≠ x.x ∨ ny ≠ x.y := by
+  have h_cell_ne : ∀ nx ny : ℤ, ({ x := nx, y := ny } : Cell) ≠ x → nx ≠ x.x ∨ ny ≠ x.y := by
     intro nx ny hne
     contrapose! hne
     cases x
@@ -485,7 +485,7 @@ theorem targetDist_step_pos_pos (A B : Point) (x c : Cell) (tEnter tExit : Rat)
           refine ⟨by omega, by omega⟩
 
 
-theorem targetDist_step_pos_neg (A B : Point) (x c : Cell) (tEnter tExit : Rat)
+theorem targetDist_step_pos_neg (A B : Point) (x c : Cell) (tEnter tExit : ℚ)
     (h_bbox : inBoundingBox x A B = true) (hxA : x ≠ floorPoint A)
     (h_int : cellIntersectionInterval x A B = some (tEnter, tExit))
     (h_enter_lt_exit : tEnter < tExit)
@@ -499,8 +499,8 @@ theorem targetDist_step_pos_neg (A B : Point) (x c : Cell) (tEnter tExit : Rat)
     ( (rayMarchStep A B (B.x - A.x) (B.y - A.y) 1 (-1) c).1 = x ∨
       (targetDist 1 (-1) x (rayMarchStep A B (B.x - A.x) (B.y - A.y) 1 (-1) c).1 (floorPoint A) < targetDist 1 (-1) x c (floorPoint A) ∧
        0 < targetDist 1 (-1) x (rayMarchStep A B (B.x - A.x) (B.y - A.y) 1 (-1) c).1 (floorPoint A)) ) := by
-  have hsx_ne : ((1 : Int) == 0) = false := rfl
-  have hsy_ne : ((-1 : Int) == 0) = false := rfl
+  have hsx_ne : ((1 : ℤ) == 0) = false := rfl
+  have hsy_ne : ((-1 : ℤ) == 0) = false := rfl
   have h_diag := rayMarchStep_diag A B c (B.x - A.x) (B.y - A.y) 1 (-1) hsx_ne hsy_ne
   dsimp only [] at h_diag
   have h_tx := interval_dx_pos x A B tEnter tExit h_int hdx
@@ -511,27 +511,27 @@ theorem targetDist_step_pos_neg (A B : Point) (x c : Cell) (tEnter tExit : Rat)
   have h_absDy : (if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)) = -(B.y - A.y) := by
     split_ifs with h <;> [linarith; rfl]
   have h_flA_x : (floorPoint A).x = toInt A.x := rfl
-  have h_lt_x : A.x < ((floorPoint A).x : Rat) + 1 := by
+  have h_lt_x : A.x < ((floorPoint A).x : ℚ) + 1 := by
     have := Rat.lt_floor_add_one A.x
     unfold toInt at h_flA_x; rw [← h_flA_x] at this; push_cast at this; exact this
-  have h_cast_cA_x : ((floorPoint A).x : Rat) ≤ (c.x : Rat) := Int.cast_le.mpr (by omega)
+  have h_cast_cA_x : ((floorPoint A).x : ℚ) ≤ (c.x : ℚ) := Int.cast_le.mpr (by omega)
   have h_ge_x : A.x < ofInt (c.x + 1) := by dsimp [ofInt]; push_cast; linarith
   have h_flA_y : (floorPoint A).y = toInt A.y := rfl
-  have h_le_y : ((floorPoint A).y : Rat) ≤ A.y := by
+  have h_le_y : ((floorPoint A).y : ℚ) ≤ A.y := by
     have := Rat.floor_le A.y
     unfold toInt at h_flA_y; rw [← h_flA_y] at this; exact this
-  have h_cast_cA_y : (c.y : Rat) ≤ ((floorPoint A).y : Rat) := Int.cast_le.mpr (by omega)
+  have h_cast_cA_y : (c.y : ℚ) ≤ ((floorPoint A).y : ℚ) := Int.cast_le.mpr (by omega)
   have h_le_cA_y : ofInt c.y ≤ A.y := by dsimp [ofInt]; linarith
-  have h_one_pos : (1 : Int) > 0 := by decide
-  have h_neg_one_not_pos : ¬((-1 : Int) > 0) := by decide
-  have h_remX : (if (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-      (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-    else A.x - if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) = ofInt (c.x + 1) - A.x := by
+  have h_one_pos : (1 : ℤ) > 0 := by decide
+  have h_neg_one_not_pos : ¬((-1 : ℤ) > 0) := by decide
+  have h_remX : (if (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+      (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+    else A.x - if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) = ofInt (c.x + 1) - A.x := by
     simp only [h_one_pos, ↓reduceIte]
     split_ifs with h <;> [rfl; linarith]
-  have h_remY : (if (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-      (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-    else A.y - if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) = A.y - ofInt c.y := by
+  have h_remY : (if (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+      (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+    else A.y - if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) = A.y - ofInt c.y := by
     simp only [h_neg_one_not_pos, ↓reduceIte]
     split_ifs with h <;> [linarith; rfl]
   have h_cases : c.x + 1 ≤ x.x ∨ x.y + 1 ≤ c.y := by
@@ -555,7 +555,7 @@ theorem targetDist_step_pos_neg (A B : Point) (x c : Cell) (tEnter tExit : Rat)
     else (({ x := c.x + 1, y := c.y + -1 } : Cell), false)).2 = false := by
     split_ifs <;> rfl
   refine ⟨h_step_not_done, ?_⟩
-  have h_eval_targetDist : ∀ (px py : Int), (floorPoint A).x ≤ px → py ≤ (floorPoint A).y →
+  have h_eval_targetDist : ∀ (px py : ℤ), (floorPoint A).x ≤ px → py ≤ (floorPoint A).y →
       px ≤ x.x → x.y ≤ py → ({ x := px, y := py } : Cell) ≠ x →
       targetDist 1 (-1) x { x := px, y := py } (floorPoint A) = ((x.x - px) + (py - x.y)).toNat := by
     intro px py hpAx hpAy hpx hpy hpne
@@ -564,8 +564,8 @@ theorem targetDist_step_pos_neg (A B : Point) (x c : Cell) (tEnter tExit : Rat)
       0 ≤ (py - (floorPoint A).y) * (-1) ∧
       0 ≤ (x.x - px) * 1 ∧
       0 ≤ (x.y - py) * (-1) ∧
-      (px = (floorPoint A).x ∨ (1 : Int) ≠ 0) ∧
-      (py = (floorPoint A).y ∨ (-1 : Int) ≠ 0) ∧
+      (px = (floorPoint A).x ∨ (1 : ℤ) ≠ 0) ∧
+      (py = (floorPoint A).y ∨ (-1 : ℤ) ≠ 0) ∧
       ({ x := px, y := py } : Cell) ≠ x := ⟨by omega, by omega, by omega, by omega, Or.inr (by decide), Or.inr (by decide), hpne⟩
     split_ifs; congr 1; ring
   have hc_cell : c = { x := c.x, y := c.y } := by cases c; rfl
@@ -573,7 +573,7 @@ theorem targetDist_step_pos_neg (A B : Point) (x c : Cell) (tEnter tExit : Rat)
   have h_Dc : targetDist 1 (-1) x c (floorPoint A) = ((x.x - c.x) + (c.y - x.y)).toNat := by
     rw [hc_cell]
     exact h_eval_targetDist c.x c.y (by omega) (by omega) (by omega) (by omega) h_ne_pair
-  have h_cell_ne : ∀ nx ny : Int, ({ x := nx, y := ny } : Cell) ≠ x → nx ≠ x.x ∨ ny ≠ x.y := by
+  have h_cell_ne : ∀ nx ny : ℤ, ({ x := nx, y := ny } : Cell) ≠ x → nx ≠ x.x ∨ ny ≠ x.y := by
     intro nx ny hne
     contrapose! hne
     cases x
@@ -641,7 +641,7 @@ theorem targetDist_step_pos_neg (A B : Point) (x c : Cell) (tEnter tExit : Rat)
           refine ⟨by omega, by omega⟩
 
 
-theorem targetDist_step_neg_pos (A B : Point) (x c : Cell) (tEnter tExit : Rat)
+theorem targetDist_step_neg_pos (A B : Point) (x c : Cell) (tEnter tExit : ℚ)
     (h_bbox : inBoundingBox x A B = true) (hxA : x ≠ floorPoint A)
     (h_int : cellIntersectionInterval x A B = some (tEnter, tExit))
     (h_enter_lt_exit : tEnter < tExit)
@@ -655,8 +655,8 @@ theorem targetDist_step_neg_pos (A B : Point) (x c : Cell) (tEnter tExit : Rat)
     ( (rayMarchStep A B (B.x - A.x) (B.y - A.y) (-1) 1 c).1 = x ∨
       (targetDist (-1) 1 x (rayMarchStep A B (B.x - A.x) (B.y - A.y) (-1) 1 c).1 (floorPoint A) < targetDist (-1) 1 x c (floorPoint A) ∧
        0 < targetDist (-1) 1 x (rayMarchStep A B (B.x - A.x) (B.y - A.y) (-1) 1 c).1 (floorPoint A)) ) := by
-  have hsx_ne : (((-1 : Int) == 0) = false) := rfl
-  have hsy_ne : ((1 : Int) == 0) = false := rfl
+  have hsx_ne : (((-1 : ℤ) == 0) = false) := rfl
+  have hsy_ne : ((1 : ℤ) == 0) = false := rfl
   have h_diag := rayMarchStep_diag A B c (B.x - A.x) (B.y - A.y) (-1) 1 hsx_ne hsy_ne
   dsimp only [] at h_diag
   have h_tx := interval_dx_neg x A B tEnter tExit h_int hdx
@@ -667,27 +667,27 @@ theorem targetDist_step_neg_pos (A B : Point) (x c : Cell) (tEnter tExit : Rat)
   have h_absDy : (if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)) = B.y - A.y := by
     split_ifs with h <;> [rfl; linarith]
   have h_flA_x : (floorPoint A).x = toInt A.x := rfl
-  have h_le_x : ((floorPoint A).x : Rat) ≤ A.x := by
+  have h_le_x : ((floorPoint A).x : ℚ) ≤ A.x := by
     have := Rat.floor_le A.x
     unfold toInt at h_flA_x; rw [← h_flA_x] at this; exact this
-  have h_cast_cA_x : (c.x : Rat) ≤ ((floorPoint A).x : Rat) := Int.cast_le.mpr (by omega)
+  have h_cast_cA_x : (c.x : ℚ) ≤ ((floorPoint A).x : ℚ) := Int.cast_le.mpr (by omega)
   have h_le_cA_x : ofInt c.x ≤ A.x := by dsimp [ofInt]; linarith
   have h_flA_y : (floorPoint A).y = toInt A.y := rfl
-  have h_lt_y : A.y < ((floorPoint A).y : Rat) + 1 := by
+  have h_lt_y : A.y < ((floorPoint A).y : ℚ) + 1 := by
     have := Rat.lt_floor_add_one A.y
     unfold toInt at h_flA_y; rw [← h_flA_y] at this; push_cast at this; exact this
-  have h_cast_cA_y : ((floorPoint A).y : Rat) ≤ (c.y : Rat) := Int.cast_le.mpr (by omega)
+  have h_cast_cA_y : ((floorPoint A).y : ℚ) ≤ (c.y : ℚ) := Int.cast_le.mpr (by omega)
   have h_ge_y : A.y < ofInt (c.y + 1) := by dsimp [ofInt]; push_cast; linarith
-  have h_one_pos : (1 : Int) > 0 := by decide
-  have h_neg_one_not_pos : ¬((-1 : Int) > 0) := by decide
-  have h_remX : (if (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-      (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-    else A.x - if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) = A.x - ofInt c.x := by
+  have h_one_pos : (1 : ℤ) > 0 := by decide
+  have h_neg_one_not_pos : ¬((-1 : ℤ) > 0) := by decide
+  have h_remX : (if (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+      (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+    else A.x - if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) = A.x - ofInt c.x := by
     simp only [h_neg_one_not_pos, ↓reduceIte]
     split_ifs with h <;> [linarith; rfl]
-  have h_remY : (if (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-      (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-    else A.y - if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) = ofInt (c.y + 1) - A.y := by
+  have h_remY : (if (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+      (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+    else A.y - if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) = ofInt (c.y + 1) - A.y := by
     simp only [h_one_pos, ↓reduceIte]
     split_ifs with h <;> [rfl; linarith]
   have h_cases : x.x + 1 ≤ c.x ∨ c.y + 1 ≤ x.y := by
@@ -711,7 +711,7 @@ theorem targetDist_step_neg_pos (A B : Point) (x c : Cell) (tEnter tExit : Rat)
     else (({ x := c.x + -1, y := c.y + 1 } : Cell), false)).2 = false := by
     split_ifs <;> rfl
   refine ⟨h_step_not_done, ?_⟩
-  have h_eval_targetDist : ∀ (px py : Int), px ≤ (floorPoint A).x → (floorPoint A).y ≤ py →
+  have h_eval_targetDist : ∀ (px py : ℤ), px ≤ (floorPoint A).x → (floorPoint A).y ≤ py →
       x.x ≤ px → py ≤ x.y → ({ x := px, y := py } : Cell) ≠ x →
       targetDist (-1) 1 x { x := px, y := py } (floorPoint A) = ((px - x.x) + (x.y - py)).toNat := by
     intro px py hpAx hpAy hpx hpy hpne
@@ -720,8 +720,8 @@ theorem targetDist_step_neg_pos (A B : Point) (x c : Cell) (tEnter tExit : Rat)
       0 ≤ (py - (floorPoint A).y) * 1 ∧
       0 ≤ (x.x - px) * (-1) ∧
       0 ≤ (x.y - py) * 1 ∧
-      (px = (floorPoint A).x ∨ (-1 : Int) ≠ 0) ∧
-      (py = (floorPoint A).y ∨ (1 : Int) ≠ 0) ∧
+      (px = (floorPoint A).x ∨ (-1 : ℤ) ≠ 0) ∧
+      (py = (floorPoint A).y ∨ (1 : ℤ) ≠ 0) ∧
       ({ x := px, y := py } : Cell) ≠ x := ⟨by omega, by omega, by omega, by omega, Or.inr (by decide), Or.inr (by decide), hpne⟩
     split_ifs; congr 1; ring
   have hc_cell : c = { x := c.x, y := c.y } := by cases c; rfl
@@ -729,7 +729,7 @@ theorem targetDist_step_neg_pos (A B : Point) (x c : Cell) (tEnter tExit : Rat)
   have h_Dc : targetDist (-1) 1 x c (floorPoint A) = ((c.x - x.x) + (x.y - c.y)).toNat := by
     rw [hc_cell]
     exact h_eval_targetDist c.x c.y (by omega) (by omega) (by omega) (by omega) h_ne_pair
-  have h_cell_ne : ∀ nx ny : Int, ({ x := nx, y := ny } : Cell) ≠ x → nx ≠ x.x ∨ ny ≠ x.y := by
+  have h_cell_ne : ∀ nx ny : ℤ, ({ x := nx, y := ny } : Cell) ≠ x → nx ≠ x.x ∨ ny ≠ x.y := by
     intro nx ny hne
     contrapose! hne
     cases x
@@ -797,7 +797,7 @@ theorem targetDist_step_neg_pos (A B : Point) (x c : Cell) (tEnter tExit : Rat)
           refine ⟨by omega, by omega⟩
 
 
-theorem targetDist_step_neg_neg (A B : Point) (x c : Cell) (tEnter tExit : Rat)
+theorem targetDist_step_neg_neg (A B : Point) (x c : Cell) (tEnter tExit : ℚ)
     (h_bbox : inBoundingBox x A B = true) (hxA : x ≠ floorPoint A)
     (h_int : cellIntersectionInterval x A B = some (tEnter, tExit))
     (h_enter_lt_exit : tEnter < tExit)
@@ -811,8 +811,8 @@ theorem targetDist_step_neg_neg (A B : Point) (x c : Cell) (tEnter tExit : Rat)
     ( (rayMarchStep A B (B.x - A.x) (B.y - A.y) (-1) (-1) c).1 = x ∨
       (targetDist (-1) (-1) x (rayMarchStep A B (B.x - A.x) (B.y - A.y) (-1) (-1) c).1 (floorPoint A) < targetDist (-1) (-1) x c (floorPoint A) ∧
        0 < targetDist (-1) (-1) x (rayMarchStep A B (B.x - A.x) (B.y - A.y) (-1) (-1) c).1 (floorPoint A)) ) := by
-  have hsx_ne : (((-1 : Int) == 0) = false) := rfl
-  have hsy_ne : (((-1 : Int) == 0) = false) := rfl
+  have hsx_ne : (((-1 : ℤ) == 0) = false) := rfl
+  have hsy_ne : (((-1 : ℤ) == 0) = false) := rfl
   have h_diag := rayMarchStep_diag A B c (B.x - A.x) (B.y - A.y) (-1) (-1) hsx_ne hsy_ne
   dsimp only [] at h_diag
   have h_tx := interval_dx_neg x A B tEnter tExit h_int hdx
@@ -823,26 +823,26 @@ theorem targetDist_step_neg_neg (A B : Point) (x c : Cell) (tEnter tExit : Rat)
   have h_absDy : (if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)) = -(B.y - A.y) := by
     split_ifs with h <;> [linarith; rfl]
   have h_flA_x : (floorPoint A).x = toInt A.x := rfl
-  have h_le_x : ((floorPoint A).x : Rat) ≤ A.x := by
+  have h_le_x : ((floorPoint A).x : ℚ) ≤ A.x := by
     have := Rat.floor_le A.x
     unfold toInt at h_flA_x; rw [← h_flA_x] at this; exact this
-  have h_cast_cA_x : (c.x : Rat) ≤ ((floorPoint A).x : Rat) := Int.cast_le.mpr (by omega)
+  have h_cast_cA_x : (c.x : ℚ) ≤ ((floorPoint A).x : ℚ) := Int.cast_le.mpr (by omega)
   have h_le_cA_x : ofInt c.x ≤ A.x := by dsimp [ofInt]; linarith
   have h_flA_y : (floorPoint A).y = toInt A.y := rfl
-  have h_le_y : ((floorPoint A).y : Rat) ≤ A.y := by
+  have h_le_y : ((floorPoint A).y : ℚ) ≤ A.y := by
     have := Rat.floor_le A.y
     unfold toInt at h_flA_y; rw [← h_flA_y] at this; exact this
-  have h_cast_cA_y : (c.y : Rat) ≤ ((floorPoint A).y : Rat) := Int.cast_le.mpr (by omega)
+  have h_cast_cA_y : (c.y : ℚ) ≤ ((floorPoint A).y : ℚ) := Int.cast_le.mpr (by omega)
   have h_le_cA_y : ofInt c.y ≤ A.y := by dsimp [ofInt]; linarith
-  have h_neg_one_not_pos : ¬((-1 : Int) > 0) := by decide
-  have h_remX : (if (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-      (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-    else A.x - if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) = A.x - ofInt c.x := by
+  have h_neg_one_not_pos : ¬((-1 : ℤ) > 0) := by decide
+  have h_remX : (if (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+      (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+    else A.x - if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) = A.x - ofInt c.x := by
     simp only [h_neg_one_not_pos, ↓reduceIte]
     split_ifs with h <;> [linarith; rfl]
-  have h_remY : (if (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-      (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-    else A.y - if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) = A.y - ofInt c.y := by
+  have h_remY : (if (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+      (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+    else A.y - if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) = A.y - ofInt c.y := by
     simp only [h_neg_one_not_pos, ↓reduceIte]
     split_ifs with h <;> [linarith; rfl]
   have h_cases : x.x + 1 ≤ c.x ∨ x.y + 1 ≤ c.y := by
@@ -866,7 +866,7 @@ theorem targetDist_step_neg_neg (A B : Point) (x c : Cell) (tEnter tExit : Rat)
     else (({ x := c.x + -1, y := c.y + -1 } : Cell), false)).2 = false := by
     split_ifs <;> rfl
   refine ⟨h_step_not_done, ?_⟩
-  have h_eval_targetDist : ∀ (px py : Int), px ≤ (floorPoint A).x → py ≤ (floorPoint A).y →
+  have h_eval_targetDist : ∀ (px py : ℤ), px ≤ (floorPoint A).x → py ≤ (floorPoint A).y →
       x.x ≤ px → x.y ≤ py → ({ x := px, y := py } : Cell) ≠ x →
       targetDist (-1) (-1) x { x := px, y := py } (floorPoint A) = ((px - x.x) + (py - x.y)).toNat := by
     intro px py hpAx hpAy hpx hpy hpne
@@ -875,8 +875,8 @@ theorem targetDist_step_neg_neg (A B : Point) (x c : Cell) (tEnter tExit : Rat)
       0 ≤ (py - (floorPoint A).y) * (-1) ∧
       0 ≤ (x.x - px) * (-1) ∧
       0 ≤ (x.y - py) * (-1) ∧
-      (px = (floorPoint A).x ∨ (-1 : Int) ≠ 0) ∧
-      (py = (floorPoint A).y ∨ (-1 : Int) ≠ 0) ∧
+      (px = (floorPoint A).x ∨ (-1 : ℤ) ≠ 0) ∧
+      (py = (floorPoint A).y ∨ (-1 : ℤ) ≠ 0) ∧
       ({ x := px, y := py } : Cell) ≠ x := ⟨by omega, by omega, by omega, by omega, Or.inr (by decide), Or.inr (by decide), hpne⟩
     split_ifs; congr 1; ring
   have hc_cell : c = { x := c.x, y := c.y } := by cases c; rfl
@@ -884,7 +884,7 @@ theorem targetDist_step_neg_neg (A B : Point) (x c : Cell) (tEnter tExit : Rat)
   have h_Dc : targetDist (-1) (-1) x c (floorPoint A) = ((c.x - x.x) + (c.y - x.y)).toNat := by
     rw [hc_cell]
     exact h_eval_targetDist c.x c.y (by omega) (by omega) (by omega) (by omega) h_ne_pair
-  have h_cell_ne : ∀ nx ny : Int, ({ x := nx, y := ny } : Cell) ≠ x → nx ≠ x.x ∨ ny ≠ x.y := by
+  have h_cell_ne : ∀ nx ny : ℤ, ({ x := nx, y := ny } : Cell) ≠ x → nx ≠ x.x ∨ ny ≠ x.y := by
     intro nx ny hne
     contrapose! hne
     cases x
@@ -954,8 +954,8 @@ theorem targetDist_step_neg_neg (A B : Point) (x c : Cell) (tEnter tExit : Rat)
 
 theorem not_endCell_of_dist_pos (A B : Point) (x c : Cell)
     (h_bbox : inBoundingBox x A B = true) :
-    let sx : Int := if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else 0
-    let sy : Int := if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0
+    let sx : ℤ := if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else 0
+    let sy : ℤ := if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0
     targetDist sx sy x c (floorPoint A) > 0 → (c == floorPoint B) = false := by
   intro sx sy hD
   have h_signs := bbox_signs x A B h_bbox
@@ -984,12 +984,12 @@ theorem not_endCell_of_dist_pos (A B : Point) (x c : Cell)
 
 
 
-theorem targetDist_step_combined (A B : Point) (x c : Cell) (tEnter tExit : Rat)
+theorem targetDist_step_combined (A B : Point) (x c : Cell) (tEnter tExit : ℚ)
     (h_bbox : inBoundingBox x A B = true) (hxA : x ≠ floorPoint A)
     (h_int : cellIntersectionInterval x A B = some (tEnter, tExit))
     (h_enter_lt_exit : tEnter < tExit) :
-    let sx : Int := if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else 0
-    let sy : Int := if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0
+    let sx : ℤ := if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else 0
+    let sy : ℤ := if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0
     targetDist sx sy x c (floorPoint A) > 0 →
     (rayMarchStep A B (B.x - A.x) (B.y - A.y) sx sy c).2 = false ∧
     ( (rayMarchStep A B (B.x - A.x) (B.y - A.y) sx sy c).1 = x ∨
@@ -1064,9 +1064,9 @@ theorem rayMarch_completeness (A B : Point) (x : Cell)
       (if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0)
       (floorPoint B) (floorPoint A) [] := by
   rcases h_int with ⟨tEnter, tExit, h_inter, h_enter_lt_exit⟩
-  let sx : Int := if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else 0
-  let sy : Int := if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0
-  let fuel : Nat := ((floorPoint B).x - (floorPoint A).x).natAbs + ((floorPoint B).y - (floorPoint A).y).natAbs + 2
+  let sx : ℤ := if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else 0
+  let sy : ℤ := if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0
+  let fuel : ℕ := ((floorPoint B).x - (floorPoint A).x).natAbs + ((floorPoint B).y - (floorPoint A).y).natAbs + 2
   let D := fun c => targetDist sx sy x c (floorPoint A)
   have h_step : ∀ c, D c > 0 →
       (c == floorPoint B) = false ∧

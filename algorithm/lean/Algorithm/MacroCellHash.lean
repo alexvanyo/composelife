@@ -16,6 +16,8 @@
 
 import Algorithm.Basic
 
+local notation "ℕ" => Nat
+
 namespace Algorithm
 
 -- =========================================================================
@@ -249,7 +251,7 @@ Hierarchical Hash of an empty node at level k.
 Level 4 empty node is composed of four empty leaves (0, 0, 0, 0).
 Levels > 4 are composed of four empty nodes of level k-1.
 -/
-def emptyNodeHash : Nat → UInt32
+def emptyNodeHash : ℕ → UInt32
   | 4 => level4Hash 0 0 0 0
   | k + 5 =>
     let sub := emptyNodeHash (k + 4)

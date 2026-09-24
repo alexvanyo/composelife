@@ -17,27 +17,30 @@
 import Algorithm.Basic
 import Algorithm.BitComputation
 
+local notation "ℕ" => Nat
+local notation "ℤ" => Int
+
 namespace Algorithm
 
 inductive MacroCell where
   | leaf (alive : Bool)
-  | node (level : Nat) (nw ne sw se : MacroCell)
+  | node (level : ℕ) (nw ne sw se : MacroCell)
   deriving DecidableEq, Repr
 
-def MacroCell.level : MacroCell → Nat
+def MacroCell.level : MacroCell → ℕ
   | leaf _ => 0
   | node k _ _ _ _ => k
 
-def MacroCell.subcellWidth (k : Nat) : Int :=
+def MacroCell.subcellWidth (k : ℕ) : ℤ :=
   match k with
   | 0 => 0
   | 1 => 1
-  | n + 1 => (2 : Int) ^ n
+  | n + 1 => (2 : ℤ) ^ n
 
 /--
 Recursively creates an empty (all dead) macrocell at tree level k.
 -/
-def emptyNode : Nat → MacroCell
+def emptyNode : ℕ → MacroCell
   | 0 => .leaf false
   | k + 1 =>
     let sub := emptyNode k
@@ -46,7 +49,7 @@ def emptyNode : Nat → MacroCell
 /--
 Flattens a MacroCell to a list of live 2D coordinates rooted at (ox, oy).
 -/
-def macroCellToGrid (ox oy : Int) : MacroCell → List Coord
+def macroCellToGrid (ox oy : ℤ) : MacroCell → List Coord
   | .leaf true => [(ox, oy)]
   | .leaf false => []
   | .node k nw ne sw se =>
@@ -120,7 +123,7 @@ def centeredSubSubnode : MacroCell → MacroCell
 /--
 Converts a level 2 MacroCell (4x4) to its 16-bit integer representation.
 -/
-def level2ToBits (m : MacroCell) : Nat :=
+def level2ToBits (m : MacroCell) : ℕ :=
   match m with
   | .node 2 (.node 1 (.leaf b0) (.leaf b1) (.leaf b2) (.leaf b3))
             (.node 1 (.leaf b4) (.leaf b5) (.leaf b6) (.leaf b7))
@@ -135,7 +138,7 @@ def level2ToBits (m : MacroCell) : Nat :=
 /--
 Converts a 4-bit integer output from BitComputation into a level 1 (2x2) MacroCell.
 -/
-def bitsToLevel1 (out : Nat) : MacroCell :=
+def bitsToLevel1 (out : ℕ) : MacroCell :=
   let b11 := (shiftRight out 0) % 2 == 1
   let b21 := (shiftRight out 1) % 2 == 1
   let b12 := (shiftRight out 2) % 2 == 1

@@ -16,6 +16,10 @@
 
 import Geometry.Basic
 
+local notation "ℕ" => Nat
+local notation "ℤ" => Int
+local notation "ℚ" => Rat
+
 namespace Geometry
 
 /--
@@ -28,9 +32,9 @@ def dedupCells (cells : List Cell) : List Cell :=
 /--
 Determines the next cell transition in ray-marching via exact coordinate crossings.
 -/
-def rayMarchStep (start _ptEnd : Point) (dx dy : Rat) (stepX stepY : Int) (c : Cell) : Cell × Bool :=
-  let xb : Rat := if stepX > 0 then ofInt (c.x + 1) else ofInt c.x
-  let yb : Rat := if stepY > 0 then ofInt (c.y + 1) else ofInt c.y
+def rayMarchStep (start _ptEnd : Point) (dx dy : ℚ) (stepX stepY : ℤ) (c : Cell) : Cell × Bool :=
+  let xb : ℚ := if stepX > 0 then ofInt (c.x + 1) else ofInt c.x
+  let yb : ℚ := if stepY > 0 then ofInt (c.y + 1) else ofInt c.y
   let absDx := if dx >= 0 then dx else -dx
   let absDy := if dy >= 0 then dy else -dy
   if stepX == 0 then
@@ -59,7 +63,7 @@ def rayMarchStep (start _ptEnd : Point) (dx dy : Rat) (stepX stepY : Int) (c : C
 /--
 Ray-marches from `startCell` towards `endCell`, stepping cell-by-cell in O(W + H) time.
 -/
-def rayMarch (fuel : Nat) (start ptEnd : Point) (dx dy : Rat) (stepX stepY : Int)
+def rayMarch (fuel : ℕ) (start ptEnd : Point) (dx dy : ℚ) (stepX stepY : ℤ)
     (endCell : Cell) (current : Cell) (acc : List Cell) : List Cell :=
   match fuel with
   | 0 => acc
@@ -82,8 +86,8 @@ def cellIntersectionsSegment (A B : Point) : List Cell :=
   else
     let dx := B.x - A.x
     let dy := B.y - A.y
-    let stepX : Int := if dx > 0 then 1 else if dx < 0 then -1 else 0
-    let stepY : Int := if dy > 0 then 1 else if dy < 0 then -1 else 0
+    let stepX : ℤ := if dx > 0 then 1 else if dx < 0 then -1 else 0
+    let stepY : ℤ := if dy > 0 then 1 else if dy < 0 then -1 else 0
     let maxSteps := (endCell.x - startCell.x).natAbs + (endCell.y - startCell.y).natAbs + 2
     dedupCells ([startCell, endCell] ++ rayMarch maxSteps A B dx dy stepX stepY endCell startCell [])
 

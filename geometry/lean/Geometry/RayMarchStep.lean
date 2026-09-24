@@ -28,8 +28,8 @@ namespace Geometry
 # Part 3: Abstract rayMarch reachability induction
 -/
 
-lemma rayMarch_reaches_target (fuel : Nat) (start ptEnd : Point) (dx dy : Rat) (stepX stepY : Int)
-    (endCell : Cell) (x : Cell) (D : Cell → Nat)
+lemma rayMarch_reaches_target (fuel : ℕ) (start ptEnd : Point) (dx dy : ℚ) (stepX stepY : ℤ)
+    (endCell : Cell) (x : Cell) (D : Cell → ℕ)
     (h_step : ∀ c, D c > 0 →
       (c == endCell) = false ∧
       (rayMarchStep start ptEnd dx dy stepX stepY c).2 = false ∧
@@ -64,7 +64,7 @@ lemma rayMarch_reaches_target (fuel : Nat) (start ptEnd : Point) (dx dy : Rat) (
 # Part 4: rayMarchStep possible outputs
 -/
 
-theorem rayMarchStep_mem (start ptEnd : Point) (dx dy : Rat) (stepX stepY : Int) (c : Cell) :
+theorem rayMarchStep_mem (start ptEnd : Point) (dx dy : ℚ) (stepX stepY : ℤ) (c : Cell) :
     let S : List (Cell × Bool) :=
       [(c, true), (⟨c.x + stepX, c.y⟩, false), (⟨c.x, c.y + stepY⟩, false), (⟨c.x + stepX, c.y + stepY⟩, false)]
     rayMarchStep start ptEnd dx dy stepX stepY c ∈ S := by
@@ -124,7 +124,7 @@ theorem rayMarchStep_mem (start ptEnd : Point) (dx dy : Rat) (stepX stepY : Int)
           · simp only [hyx, ite_true]; exact h_in3
           · simp only [hyx, ite_false]; exact h_in4
 
-theorem rayMarchStep_fst_cases (start ptEnd : Point) (dx dy : Rat) (stepX stepY : Int) (c : Cell)
+theorem rayMarchStep_fst_cases (start ptEnd : Point) (dx dy : ℚ) (stepX stepY : ℤ) (c : Cell)
     (h_not_done : (rayMarchStep start ptEnd dx dy stepX stepY c).2 = false) :
     (rayMarchStep start ptEnd dx dy stepX stepY c).1 = ⟨c.x + stepX, c.y⟩ ∨
     (rayMarchStep start ptEnd dx dy stepX stepY c).1 = ⟨c.x, c.y + stepY⟩ ∨
@@ -148,7 +148,7 @@ theorem rayMarchStep_fst_cases (start ptEnd : Point) (dx dy : Rat) (stepX stepY 
 
 /-! # 1. crossY < crossX when cx = xx -/
 
-theorem cross_pos_pos (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
+theorem cross_pos_pos (cx cy xx xy : ℤ) (Ax Ay dx dy tEnter tExit : ℚ)
     (hdx : 0 < dx) (hdy : 0 < dy)
     (h_enter_lt_exit : tEnter < tExit)
     (h_tx : (ofInt xx - Ax) / dx ≤ tEnter ∧ tExit ≤ (ofInt (xx + 1) - Ax) / dx)
@@ -160,11 +160,11 @@ theorem cross_pos_pos (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
   intro remX remY
   have h_remY_le : remY ≤ ofInt xy - Ay := by
     dsimp [remY, ofInt]
-    have : ((cy + 1 : Int) : Rat) ≤ ((xy : Int) : Rat) := Int.cast_le.mpr hcy
+    have : ((cy + 1 : ℤ) : ℚ) ≤ ((xy : ℤ) : ℚ) := Int.cast_le.mpr hcy
     linarith
   have h_remX_ge : ofInt (xx + 1) - Ax ≤ remX := by
     dsimp [remX, ofInt]
-    have : ((xx + 1 : Int) : Rat) = ((cx + 1 : Int) : Rat) := by rw [hcx]
+    have : ((xx + 1 : ℤ) : ℚ) = ((cx + 1 : ℤ) : ℚ) := by rw [hcx]
     linarith
   have h1 : remY / dy ≤ (ofInt xy - Ay) / dy := div_le_div_of_nonneg_right h_remY_le (le_of_lt hdy)
   have h2 : (ofInt xy - Ay) / dy ≤ tEnter := h_ty.1
@@ -175,7 +175,7 @@ theorem cross_pos_pos (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
   have h_cross := (cross_lt_cross_iff_div_lt_div remY remX dy dx hdy hdx).mpr h_lt
   linarith
 
-theorem cross_pos_neg (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
+theorem cross_pos_neg (cx cy xx xy : ℤ) (Ax Ay dx dy tEnter tExit : ℚ)
     (hdx : 0 < dx) (hdy : dy < 0)
     (h_enter_lt_exit : tEnter < tExit)
     (h_tx : (ofInt xx - Ax) / dx ≤ tEnter ∧ tExit ≤ (ofInt (xx + 1) - Ax) / dx)
@@ -189,7 +189,7 @@ theorem cross_pos_neg (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
   have habsDy : 0 < absDy := by dsimp [absDy]; linarith
   have h_remY_le : remY ≤ Ay - ofInt (xy + 1) := by
     dsimp [remY, ofInt]
-    have : ((xy + 1 : Int) : Rat) ≤ ((cy : Int) : Rat) := Int.cast_le.mpr hcy
+    have : ((xy + 1 : ℤ) : ℚ) ≤ ((cy : ℤ) : ℚ) := Int.cast_le.mpr hcy
     linarith
   have h1 : remY / absDy ≤ (Ay - ofInt (xy + 1)) / absDy :=
     div_le_div_of_nonneg_right h_remY_le (le_of_lt habsDy)
@@ -202,14 +202,14 @@ theorem cross_pos_neg (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
   have h4 : tExit ≤ (ofInt (xx + 1) - Ax) / dx := h_tx.2
   have h_remX_ge : ofInt (xx + 1) - Ax ≤ remX := by
     dsimp [remX, ofInt]
-    have : ((xx + 1 : Int) : Rat) = ((cx + 1 : Int) : Rat) := by rw [hcx]
+    have : ((xx + 1 : ℤ) : ℚ) = ((cx + 1 : ℤ) : ℚ) := by rw [hcx]
     linarith
   have h5 : (ofInt (xx + 1) - Ax) / dx ≤ remX / dx := div_le_div_of_nonneg_right h_remX_ge (le_of_lt hdx)
   have h_lt : remY / absDy < remX / dx := by linarith
   have h_cross := (cross_lt_cross_iff_div_lt_div remY remX absDy dx habsDy hdx).mpr h_lt
   linarith
 
-theorem cross_neg_pos (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
+theorem cross_neg_pos (cx cy xx xy : ℤ) (Ax Ay dx dy tEnter tExit : ℚ)
     (hdx : dx < 0) (hdy : 0 < dy)
     (h_enter_lt_exit : tEnter < tExit)
     (h_tx : (ofInt (xx + 1) - Ax) / dx ≤ tEnter ∧ tExit ≤ (ofInt xx - Ax) / dx)
@@ -223,7 +223,7 @@ theorem cross_neg_pos (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
   have habsDx : 0 < absDx := by dsimp [absDx]; linarith
   have h_remY_le : remY ≤ ofInt xy - Ay := by
     dsimp [remY, ofInt]
-    have : ((cy + 1 : Int) : Rat) ≤ ((xy : Int) : Rat) := Int.cast_le.mpr hcy
+    have : ((cy + 1 : ℤ) : ℚ) ≤ ((xy : ℤ) : ℚ) := Int.cast_le.mpr hcy
     linarith
   have h1 : remY / dy ≤ (ofInt xy - Ay) / dy :=
     div_le_div_of_nonneg_right h_remY_le (le_of_lt hdy)
@@ -240,7 +240,7 @@ theorem cross_neg_pos (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
   have h_cross := (cross_lt_cross_iff_div_lt_div remY remX dy absDx hdy habsDx).mpr h_lt
   linarith
 
-theorem cross_neg_neg (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
+theorem cross_neg_neg (cx cy xx xy : ℤ) (Ax Ay dx dy tEnter tExit : ℚ)
     (hdx : dx < 0) (hdy : dy < 0)
     (h_enter_lt_exit : tEnter < tExit)
     (h_tx : (ofInt (xx + 1) - Ax) / dx ≤ tEnter ∧ tExit ≤ (ofInt xx - Ax) / dx)
@@ -256,7 +256,7 @@ theorem cross_neg_neg (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
   have habsDy : 0 < absDy := by dsimp [absDy]; linarith
   have h_remY_le : remY ≤ Ay - ofInt (xy + 1) := by
     dsimp [remY, ofInt]
-    have : ((xy + 1 : Int) : Rat) ≤ ((cy : Int) : Rat) := Int.cast_le.mpr hcy
+    have : ((xy + 1 : ℤ) : ℚ) ≤ ((cy : ℤ) : ℚ) := Int.cast_le.mpr hcy
     linarith
   have h1 : remY / absDy ≤ (Ay - ofInt (xy + 1)) / absDy :=
     div_le_div_of_nonneg_right h_remY_le (le_of_lt habsDy)
@@ -279,7 +279,7 @@ theorem cross_neg_neg (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
 
 /-! # 2. crossX < crossY when cy = xy -/
 
-theorem cross_ge_pos_pos (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
+theorem cross_ge_pos_pos (cx cy xx xy : ℤ) (Ax Ay dx dy tEnter tExit : ℚ)
     (hdx : 0 < dx) (hdy : 0 < dy)
     (h_enter_lt_exit : tEnter < tExit)
     (h_tx : (ofInt xx - Ax) / dx ≤ tEnter ∧ tExit ≤ (ofInt (xx + 1) - Ax) / dx)
@@ -291,11 +291,11 @@ theorem cross_ge_pos_pos (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
   intro remX remY
   have h_remX_le : remX ≤ ofInt xx - Ax := by
     dsimp [remX, ofInt]
-    have : ((cx + 1 : Int) : Rat) ≤ ((xx : Int) : Rat) := Int.cast_le.mpr hcx
+    have : ((cx + 1 : ℤ) : ℚ) ≤ ((xx : ℤ) : ℚ) := Int.cast_le.mpr hcx
     linarith
   have h_remY_ge : ofInt (xy + 1) - Ay ≤ remY := by
     dsimp [remY, ofInt]
-    have : ((xy + 1 : Int) : Rat) = ((cy + 1 : Int) : Rat) := by rw [hcy]
+    have : ((xy + 1 : ℤ) : ℚ) = ((cy + 1 : ℤ) : ℚ) := by rw [hcy]
     linarith
   have h1 : remX / dx ≤ (ofInt xx - Ax) / dx := div_le_div_of_nonneg_right h_remX_le (le_of_lt hdx)
   have h2 : (ofInt xx - Ax) / dx ≤ tEnter := h_tx.1
@@ -306,7 +306,7 @@ theorem cross_ge_pos_pos (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
   have h_cross := (cross_lt_cross_iff_div_lt_div remX remY dx dy hdx hdy).mpr h_lt
   linarith
 
-theorem cross_ge_pos_neg (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
+theorem cross_ge_pos_neg (cx cy xx xy : ℤ) (Ax Ay dx dy tEnter tExit : ℚ)
     (hdx : 0 < dx) (hdy : dy < 0)
     (h_enter_lt_exit : tEnter < tExit)
     (h_tx : (ofInt xx - Ax) / dx ≤ tEnter ∧ tExit ≤ (ofInt (xx + 1) - Ax) / dx)
@@ -320,7 +320,7 @@ theorem cross_ge_pos_neg (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
   have habsDy : 0 < absDy := by dsimp [absDy]; linarith
   have h_remX_le : remX ≤ ofInt xx - Ax := by
     dsimp [remX, ofInt]
-    have : ((cx + 1 : Int) : Rat) ≤ ((xx : Int) : Rat) := Int.cast_le.mpr hcx
+    have : ((cx + 1 : ℤ) : ℚ) ≤ ((xx : ℤ) : ℚ) := Int.cast_le.mpr hcx
     linarith
   have h1 : remX / dx ≤ (ofInt xx - Ax) / dx := div_le_div_of_nonneg_right h_remX_le (le_of_lt hdx)
   have h2 : (ofInt xx - Ax) / dx ≤ tEnter := h_tx.1
@@ -336,7 +336,7 @@ theorem cross_ge_pos_neg (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
   have h_cross := (cross_lt_cross_iff_div_lt_div remX remY dx absDy hdx habsDy).mpr h_lt
   linarith
 
-theorem cross_ge_neg_pos (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
+theorem cross_ge_neg_pos (cx cy xx xy : ℤ) (Ax Ay dx dy tEnter tExit : ℚ)
     (hdx : dx < 0) (hdy : 0 < dy)
     (h_enter_lt_exit : tEnter < tExit)
     (h_tx : (ofInt (xx + 1) - Ax) / dx ≤ tEnter ∧ tExit ≤ (ofInt xx - Ax) / dx)
@@ -350,7 +350,7 @@ theorem cross_ge_neg_pos (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
   have habsDx : 0 < absDx := by dsimp [absDx]; linarith
   have h_remX_le : remX ≤ Ax - ofInt (xx + 1) := by
     dsimp [remX, ofInt]
-    have : ((xx + 1 : Int) : Rat) ≤ ((cx : Int) : Rat) := Int.cast_le.mpr hcx
+    have : ((xx + 1 : ℤ) : ℚ) ≤ ((cx : ℤ) : ℚ) := Int.cast_le.mpr hcx
     linarith
   have h1 : remX / absDx ≤ (Ax - ofInt (xx + 1)) / absDx :=
     div_le_div_of_nonneg_right h_remX_le (le_of_lt habsDx)
@@ -363,14 +363,14 @@ theorem cross_ge_neg_pos (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
   have h4 : tExit ≤ (ofInt (xy + 1) - Ay) / dy := h_ty.2
   have h_remY_ge : ofInt (xy + 1) - Ay ≤ remY := by
     dsimp [remY, ofInt]
-    have : ((xy + 1 : Int) : Rat) = ((cy + 1 : Int) : Rat) := by rw [hcy]
+    have : ((xy + 1 : ℤ) : ℚ) = ((cy + 1 : ℤ) : ℚ) := by rw [hcy]
     linarith
   have h5 : (ofInt (xy + 1) - Ay) / dy ≤ remY / dy := div_le_div_of_nonneg_right h_remY_ge (le_of_lt hdy)
   have h_lt : remX / absDx < remY / dy := by linarith
   have h_cross := (cross_lt_cross_iff_div_lt_div remX remY absDx dy habsDx hdy).mpr h_lt
   linarith
 
-theorem cross_ge_neg_neg (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
+theorem cross_ge_neg_neg (cx cy xx xy : ℤ) (Ax Ay dx dy tEnter tExit : ℚ)
     (hdx : dx < 0) (hdy : dy < 0)
     (h_enter_lt_exit : tEnter < tExit)
     (h_tx : (ofInt (xx + 1) - Ax) / dx ≤ tEnter ∧ tExit ≤ (ofInt xx - Ax) / dx)
@@ -386,7 +386,7 @@ theorem cross_ge_neg_neg (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
   have habsDy : 0 < absDy := by dsimp [absDy]; linarith
   have h_remX_le : remX ≤ Ax - ofInt (xx + 1) := by
     dsimp [remX, ofInt]
-    have : ((xx + 1 : Int) : Rat) ≤ ((cx : Int) : Rat) := Int.cast_le.mpr hcx
+    have : ((xx + 1 : ℤ) : ℚ) ≤ ((cx : ℤ) : ℚ) := Int.cast_le.mpr hcx
     linarith
   have h1 : remX / absDx ≤ (Ax - ofInt (xx + 1)) / absDx :=
     div_le_div_of_nonneg_right h_remX_le (le_of_lt habsDx)
@@ -410,7 +410,7 @@ theorem cross_ge_neg_neg (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
 
 /-! # 3. min crossX crossY < limitCross when cx not reached or cy not reached -/
 
-theorem min_cross_lt_limit_pos_pos (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
+theorem min_cross_lt_limit_pos_pos (cx cy xx xy : ℤ) (Ax Ay dx dy tEnter tExit : ℚ)
     (hdx : 0 < dx) (hdy : 0 < dy)
     (h_enter_lt_exit : tEnter < tExit)
     (h_exit_le_one : tExit ≤ 1)
@@ -426,7 +426,7 @@ theorem min_cross_lt_limit_pos_pos (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit
   · left
     have h_remX_le : remX ≤ ofInt xx - Ax := by
       dsimp [remX, ofInt]
-      have : ((cx + 1 : Int) : Rat) ≤ ((xx : Int) : Rat) := Int.cast_le.mpr hcx
+      have : ((cx + 1 : ℤ) : ℚ) ≤ ((xx : ℤ) : ℚ) := Int.cast_le.mpr hcx
       linarith
     have h1 : remX / dx ≤ (ofInt xx - Ax) / dx := div_le_div_of_nonneg_right h_remX_le (le_of_lt hdx)
     have h2 : (ofInt xx - Ax) / dx ≤ tEnter := h_tx.1
@@ -436,7 +436,7 @@ theorem min_cross_lt_limit_pos_pos (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit
   · right
     have h_remY_le : remY ≤ ofInt xy - Ay := by
       dsimp [remY, ofInt]
-      have : ((cy + 1 : Int) : Rat) ≤ ((xy : Int) : Rat) := Int.cast_le.mpr hcy
+      have : ((cy + 1 : ℤ) : ℚ) ≤ ((xy : ℤ) : ℚ) := Int.cast_le.mpr hcy
       linarith
     have h1 : remY / dy ≤ (ofInt xy - Ay) / dy := div_le_div_of_nonneg_right h_remY_le (le_of_lt hdy)
     have h2 : (ofInt xy - Ay) / dy ≤ tEnter := h_ty.1
@@ -444,7 +444,7 @@ theorem min_cross_lt_limit_pos_pos (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit
     have : remY / dy < 1 := by linarith
     exact (div_lt_one hdy).mp this
 
-theorem min_cross_lt_limit_pos_neg (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
+theorem min_cross_lt_limit_pos_neg (cx cy xx xy : ℤ) (Ax Ay dx dy tEnter tExit : ℚ)
     (hdx : 0 < dx) (hdy : dy < 0)
     (h_enter_lt_exit : tEnter < tExit)
     (h_exit_le_one : tExit ≤ 1)
@@ -462,7 +462,7 @@ theorem min_cross_lt_limit_pos_neg (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit
   · left
     have h_remX_le : remX ≤ ofInt xx - Ax := by
       dsimp [remX, ofInt]
-      have : ((cx + 1 : Int) : Rat) ≤ ((xx : Int) : Rat) := Int.cast_le.mpr hcx
+      have : ((cx + 1 : ℤ) : ℚ) ≤ ((xx : ℤ) : ℚ) := Int.cast_le.mpr hcx
       linarith
     have h1 : remX / dx ≤ (ofInt xx - Ax) / dx := div_le_div_of_nonneg_right h_remX_le (le_of_lt hdx)
     have h2 : (ofInt xx - Ax) / dx ≤ tEnter := h_tx.1
@@ -472,7 +472,7 @@ theorem min_cross_lt_limit_pos_neg (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit
   · right
     have h_remY_le : remY ≤ Ay - ofInt (xy + 1) := by
       dsimp [remY, ofInt]
-      have : ((xy + 1 : Int) : Rat) ≤ ((cy : Int) : Rat) := Int.cast_le.mpr hcy
+      have : ((xy + 1 : ℤ) : ℚ) ≤ ((cy : ℤ) : ℚ) := Int.cast_le.mpr hcy
       linarith
     have h1 : remY / absDy ≤ (Ay - ofInt (xy + 1)) / absDy :=
       div_le_div_of_nonneg_right h_remY_le (le_of_lt habsDy)
@@ -485,7 +485,7 @@ theorem min_cross_lt_limit_pos_neg (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit
     have : remY / absDy < 1 := by linarith
     exact (div_lt_one habsDy).mp this
 
-theorem min_cross_lt_limit_neg_pos (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
+theorem min_cross_lt_limit_neg_pos (cx cy xx xy : ℤ) (Ax Ay dx dy tEnter tExit : ℚ)
     (hdx : dx < 0) (hdy : 0 < dy)
     (h_enter_lt_exit : tEnter < tExit)
     (h_exit_le_one : tExit ≤ 1)
@@ -503,7 +503,7 @@ theorem min_cross_lt_limit_neg_pos (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit
   · left
     have h_remX_le : remX ≤ Ax - ofInt (xx + 1) := by
       dsimp [remX, ofInt]
-      have : ((xx + 1 : Int) : Rat) ≤ ((cx : Int) : Rat) := Int.cast_le.mpr hcx
+      have : ((xx + 1 : ℤ) : ℚ) ≤ ((cx : ℤ) : ℚ) := Int.cast_le.mpr hcx
       linarith
     have h1 : remX / absDx ≤ (Ax - ofInt (xx + 1)) / absDx :=
       div_le_div_of_nonneg_right h_remX_le (le_of_lt habsDx)
@@ -518,7 +518,7 @@ theorem min_cross_lt_limit_neg_pos (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit
   · right
     have h_remY_le : remY ≤ ofInt xy - Ay := by
       dsimp [remY, ofInt]
-      have : ((cy + 1 : Int) : Rat) ≤ ((xy : Int) : Rat) := Int.cast_le.mpr hcy
+      have : ((cy + 1 : ℤ) : ℚ) ≤ ((xy : ℤ) : ℚ) := Int.cast_le.mpr hcy
       linarith
     have h1 : remY / dy ≤ (ofInt xy - Ay) / dy := div_le_div_of_nonneg_right h_remY_le (le_of_lt hdy)
     have h2 : (ofInt xy - Ay) / dy ≤ tEnter := h_ty.1
@@ -526,7 +526,7 @@ theorem min_cross_lt_limit_neg_pos (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit
     have : remY / dy < 1 := by linarith
     exact (div_lt_one hdy).mp this
 
-theorem min_cross_lt_limit_neg_neg (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit : Rat)
+theorem min_cross_lt_limit_neg_neg (cx cy xx xy : ℤ) (Ax Ay dx dy tEnter tExit : ℚ)
     (hdx : dx < 0) (hdy : dy < 0)
     (h_enter_lt_exit : tEnter < tExit)
     (h_exit_le_one : tExit ≤ 1)
@@ -546,7 +546,7 @@ theorem min_cross_lt_limit_neg_neg (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit
   · left
     have h_remX_le : remX ≤ Ax - ofInt (xx + 1) := by
       dsimp [remX, ofInt]
-      have : ((xx + 1 : Int) : Rat) ≤ ((cx : Int) : Rat) := Int.cast_le.mpr hcx
+      have : ((xx + 1 : ℤ) : ℚ) ≤ ((cx : ℤ) : ℚ) := Int.cast_le.mpr hcx
       linarith
     have h1 : remX / absDx ≤ (Ax - ofInt (xx + 1)) / absDx :=
       div_le_div_of_nonneg_right h_remX_le (le_of_lt habsDx)
@@ -561,7 +561,7 @@ theorem min_cross_lt_limit_neg_neg (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit
   · right
     have h_remY_le : remY ≤ Ay - ofInt (xy + 1) := by
       dsimp [remY, ofInt]
-      have : ((xy + 1 : Int) : Rat) ≤ ((cy : Int) : Rat) := Int.cast_le.mpr hcy
+      have : ((xy + 1 : ℤ) : ℚ) ≤ ((cy : ℤ) : ℚ) := Int.cast_le.mpr hcy
       linarith
     have h1 : remY / absDy ≤ (Ay - ofInt (xy + 1)) / absDy :=
       div_le_div_of_nonneg_right h_remY_le (le_of_lt habsDy)
@@ -576,9 +576,9 @@ theorem min_cross_lt_limit_neg_neg (cx cy xx xy : Int) (Ax Ay dx dy tEnter tExit
 
 
 theorem rayMarchStep_sx_zero (A B : Point) (c : Cell)
-    (dy : Rat) (stepY : Int) :
-    let stepX : Int := 0
-    let yb : Rat := if stepY > 0 then ofInt (c.y + 1) else ofInt c.y
+    (dy : ℚ) (stepY : ℤ) :
+    let stepX : ℤ := 0
+    let yb : ℚ := if stepY > 0 then ofInt (c.y + 1) else ofInt c.y
     let absDy := if dy >= 0 then dy else -dy
     let remY := if yb >= A.y then yb - A.y else A.y - yb
     rayMarchStep A B 0 dy stepX stepY c =
@@ -589,14 +589,14 @@ theorem rayMarchStep_sx_zero (A B : Point) (c : Cell)
   dsimp only []
   rfl
 
-theorem step_sx_zero (A B : Point) (x c : Cell) (tEnter tExit : Rat)
+theorem step_sx_zero (A B : Point) (x c : Cell) (tEnter tExit : ℚ)
     (hdx : B.x - A.x = 0) (hdy_ne : B.y - A.y ≠ 0)
     (h_enter_lt_exit : tEnter < tExit)
     (h_inter : cellIntersectionInterval x A B = some (tEnter, tExit))
     (h_cy_le : 0 ≤ (x.y - c.y) * if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0)
     (h_cy_ne : c.y ≠ x.y)
     (h_cA_y : 0 ≤ (c.y - (floorPoint A).y) * if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0) :
-    let stepY : Int := if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0
+    let stepY : ℤ := if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0
     (rayMarchStep A B (B.x - A.x) (B.y - A.y) 0 stepY c) = (⟨c.x, c.y + stepY⟩, false) ∧
     (x.y - (c.y + stepY)) * stepY < (x.y - c.y) * stepY ∧
     0 ≤ (x.y - (c.y + stepY)) * stepY ∧
@@ -620,13 +620,13 @@ theorem step_sx_zero (A B : Point) (x c : Cell) (tEnter tExit : Rat)
       have : 0 ≤ (x.y - c.y) * 1 := by rw [← hsy]; exact h_cy_le
       omega
     have h_fl : (floorPoint A).y = toInt A.y := rfl
-    have h_lt : A.y < ((floorPoint A).y : Rat) + 1 := by
+    have h_lt : A.y < ((floorPoint A).y : ℚ) + 1 := by
       have := Rat.lt_floor_add_one A.y
       unfold toInt at h_fl
       rw [← h_fl] at this
       push_cast at this
       exact this
-    have h_cast_cA : ((floorPoint A).y : Rat) ≤ (c.y : Rat) := Int.cast_le.mpr h_cA
+    have h_cast_cA : ((floorPoint A).y : ℚ) ≤ (c.y : ℚ) := Int.cast_le.mpr h_cA
     have h_ge : A.y < ofInt (c.y + 1) := by
       dsimp [ofInt]
       push_cast
@@ -639,7 +639,7 @@ theorem step_sx_zero (A B : Point) (x c : Cell) (tEnter tExit : Rat)
     have h_ty := interval_dy_pos x A B tEnter tExit h_inter hdy_pos
     have h_remY_le : ofInt (c.y + 1) - A.y ≤ ofInt x.y - A.y := by
       dsimp [ofInt]
-      have : ((c.y + 1 : Int) : Rat) ≤ ((x.y : Int) : Rat) := Int.cast_le.mpr h_cx_le
+      have : ((c.y + 1 : ℤ) : ℚ) ≤ ((x.y : ℤ) : ℚ) := Int.cast_le.mpr h_cx_le
       linarith
     have h1 : (ofInt (c.y + 1) - A.y) / (B.y - A.y) ≤ (ofInt x.y - A.y) / (B.y - A.y) :=
       div_le_div_of_nonneg_right h_remY_le (le_of_lt hdy_pos)
@@ -672,13 +672,13 @@ theorem step_sx_zero (A B : Point) (x c : Cell) (tEnter tExit : Rat)
       have : 0 ≤ (x.y - c.y) * (-1) := by rw [← hsy]; exact h_cy_le
       omega
     have h_fl : (floorPoint A).y = toInt A.y := rfl
-    have h_le : ((floorPoint A).y : Rat) ≤ A.y := by
+    have h_le : ((floorPoint A).y : ℚ) ≤ A.y := by
       have := Rat.floor_le A.y
       unfold toInt at h_fl
       rw [← h_fl] at this
       exact this
     have h_le_A : ofInt c.y ≤ A.y := by
-      have : (c.y : Rat) ≤ ((floorPoint A).y : Rat) := Int.cast_le.mpr h_cA
+      have : (c.y : ℚ) ≤ ((floorPoint A).y : ℚ) := Int.cast_le.mpr h_cA
       dsimp [ofInt]
       linarith
     have h_remY : (if (if stepY > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
@@ -692,7 +692,7 @@ theorem step_sx_zero (A B : Point) (x c : Cell) (tEnter tExit : Rat)
     have h_ty := interval_dy_neg x A B tEnter tExit h_inter hdy_neg
     have h_remY_le : A.y - ofInt c.y ≤ A.y - ofInt (x.y + 1) := by
       dsimp [ofInt]
-      have : ((x.y + 1 : Int) : Rat) ≤ ((c.y : Int) : Rat) := Int.cast_le.mpr h_cx_le
+      have : ((x.y + 1 : ℤ) : ℚ) ≤ ((c.y : ℤ) : ℚ) := Int.cast_le.mpr h_cx_le
       linarith
     have h1 : (A.y - ofInt c.y) / -(B.y - A.y) ≤ (A.y - ofInt (x.y + 1)) / -(B.y - A.y) :=
       div_le_div_of_nonneg_right h_remY_le (le_of_lt habsDy)
@@ -711,9 +711,9 @@ theorem step_sx_zero (A B : Point) (x c : Cell) (tEnter tExit : Rat)
 
 
 theorem rayMarchStep_sy_zero (A B : Point) (c : Cell)
-    (dx : Rat) (stepX : Int) (hx : (stepX == 0) = false) :
-    let stepY : Int := 0
-    let xb : Rat := if stepX > 0 then ofInt (c.x + 1) else ofInt c.x
+    (dx : ℚ) (stepX : ℤ) (hx : (stepX == 0) = false) :
+    let stepY : ℤ := 0
+    let xb : ℚ := if stepX > 0 then ofInt (c.x + 1) else ofInt c.x
     let absDx := if dx >= 0 then dx else -dx
     let remX := if xb >= A.x then xb - A.x else A.x - xb
     rayMarchStep A B dx 0 stepX stepY c =
@@ -725,14 +725,14 @@ theorem rayMarchStep_sy_zero (A B : Point) (c : Cell)
   simp only [hx, Bool.false_eq_true, ↓reduceIte]
   rfl
 
-theorem step_sy_zero (A B : Point) (x c : Cell) (tEnter tExit : Rat)
+theorem step_sy_zero (A B : Point) (x c : Cell) (tEnter tExit : ℚ)
     (hdy : B.y - A.y = 0) (hdx_ne : B.x - A.x ≠ 0)
     (h_enter_lt_exit : tEnter < tExit)
     (h_inter : cellIntersectionInterval x A B = some (tEnter, tExit))
     (h_cx_le : 0 ≤ (x.x - c.x) * if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else 0)
     (h_cx_ne : c.x ≠ x.x)
     (h_cA_x : 0 ≤ (c.x - (floorPoint A).x) * if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else 0) :
-    let stepX : Int := if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else 0
+    let stepX : ℤ := if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else 0
     (rayMarchStep A B (B.x - A.x) (B.y - A.y) stepX 0 c) = (⟨c.x + stepX, c.y⟩, false) ∧
     (x.x - (c.x + stepX)) * stepX < (x.x - c.x) * stepX ∧
     0 ≤ (x.x - (c.x + stepX)) * stepX ∧
@@ -762,13 +762,13 @@ theorem step_sy_zero (A B : Point) (x c : Cell) (tEnter tExit : Rat)
       have : 0 ≤ (x.x - c.x) * 1 := by rw [← hsx]; exact h_cx_le
       omega
     have h_fl : (floorPoint A).x = toInt A.x := rfl
-    have h_lt : A.x < ((floorPoint A).x : Rat) + 1 := by
+    have h_lt : A.x < ((floorPoint A).x : ℚ) + 1 := by
       have := Rat.lt_floor_add_one A.x
       unfold toInt at h_fl
       rw [← h_fl] at this
       push_cast at this
       exact this
-    have h_cast_cA : ((floorPoint A).x : Rat) ≤ (c.x : Rat) := Int.cast_le.mpr h_cA
+    have h_cast_cA : ((floorPoint A).x : ℚ) ≤ (c.x : ℚ) := Int.cast_le.mpr h_cA
     have h_ge : A.x < ofInt (c.x + 1) := by
       dsimp [ofInt]
       push_cast
@@ -781,7 +781,7 @@ theorem step_sy_zero (A B : Point) (x c : Cell) (tEnter tExit : Rat)
     have h_tx := interval_dx_pos x A B tEnter tExit h_inter hdx_pos
     have h_remX_le : ofInt (c.x + 1) - A.x ≤ ofInt x.x - A.x := by
       dsimp [ofInt]
-      have : ((c.x + 1 : Int) : Rat) ≤ ((x.x : Int) : Rat) := Int.cast_le.mpr h_cx_le'
+      have : ((c.x + 1 : ℤ) : ℚ) ≤ ((x.x : ℤ) : ℚ) := Int.cast_le.mpr h_cx_le'
       linarith
     have h1 : (ofInt (c.x + 1) - A.x) / (B.x - A.x) ≤ (ofInt x.x - A.x) / (B.x - A.x) :=
       div_le_div_of_nonneg_right h_remX_le (le_of_lt hdx_pos)
@@ -814,13 +814,13 @@ theorem step_sy_zero (A B : Point) (x c : Cell) (tEnter tExit : Rat)
       have : 0 ≤ (x.x - c.x) * (-1) := by rw [← hsx]; exact h_cx_le
       omega
     have h_fl : (floorPoint A).x = toInt A.x := rfl
-    have h_le : ((floorPoint A).x : Rat) ≤ A.x := by
+    have h_le : ((floorPoint A).x : ℚ) ≤ A.x := by
       have := Rat.floor_le A.x
       unfold toInt at h_fl
       rw [← h_fl] at this
       exact this
     have h_le_A : ofInt c.x ≤ A.x := by
-      have : (c.x : Rat) ≤ ((floorPoint A).x : Rat) := Int.cast_le.mpr h_cA
+      have : (c.x : ℚ) ≤ ((floorPoint A).x : ℚ) := Int.cast_le.mpr h_cA
       dsimp [ofInt]
       linarith
     have h_remX : (if (if stepX > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
@@ -834,7 +834,7 @@ theorem step_sy_zero (A B : Point) (x c : Cell) (tEnter tExit : Rat)
     have h_tx := interval_dx_neg x A B tEnter tExit h_inter hdx_neg
     have h_remX_le : A.x - ofInt c.x ≤ A.x - ofInt (x.x + 1) := by
       dsimp [ofInt]
-      have : ((x.x + 1 : Int) : Rat) ≤ ((c.x : Int) : Rat) := Int.cast_le.mpr h_cx_le'
+      have : ((x.x + 1 : ℤ) : ℚ) ≤ ((c.x : ℤ) : ℚ) := Int.cast_le.mpr h_cx_le'
       linarith
     have h1 : (A.x - ofInt c.x) / -(B.x - A.x) ≤ (A.x - ofInt (x.x + 1)) / -(B.x - A.x) :=
       div_le_div_of_nonneg_right h_remX_le (le_of_lt habsDx)
@@ -855,9 +855,9 @@ theorem step_sy_zero (A B : Point) (x c : Cell) (tEnter tExit : Rat)
 
 
 theorem rayMarchStep_diag (A B : Point) (c : Cell)
-    (dx dy : Rat) (stepX stepY : Int) (hx : (stepX == 0) = false) (hy : (stepY == 0) = false) :
-    let xb : Rat := if stepX > 0 then ofInt (c.x + 1) else ofInt c.x
-    let yb : Rat := if stepY > 0 then ofInt (c.y + 1) else ofInt c.y
+    (dx dy : ℚ) (stepX stepY : ℤ) (hx : (stepX == 0) = false) (hy : (stepY == 0) = false) :
+    let xb : ℚ := if stepX > 0 then ofInt (c.x + 1) else ofInt c.x
+    let yb : ℚ := if stepY > 0 then ofInt (c.y + 1) else ofInt c.y
     let absDx := if dx >= 0 then dx else -dx
     let absDy := if dy >= 0 then dy else -dy
     let remX := if xb >= A.x then xb - A.x else A.x - xb
@@ -878,21 +878,21 @@ theorem rayMarchStep_diag (A B : Point) (c : Cell)
 
 
 
-def absVal (r : Rat) : Rat := if r ≥ 0 then r else -r
+def absVal (r : ℚ) : ℚ := if r ≥ 0 then r else -r
 
 
-def remX_val (start : Point) (stepX : Int) (c : Cell) : Rat :=
+def remX_val (start : Point) (stepX : ℤ) (c : Cell) : ℚ :=
   let xb := if stepX > 0 then ofInt (c.x + 1) else ofInt c.x
   if xb ≥ start.x then xb - start.x else start.x - xb
 
 
-def remY_val (start : Point) (stepY : Int) (c : Cell) : Rat :=
+def remY_val (start : Point) (stepY : ℤ) (c : Cell) : ℚ :=
   let yb := if stepY > 0 then ofInt (c.y + 1) else ofInt c.y
   if yb ≥ start.y then yb - start.y else start.y - yb
 
 
 
-theorem rayMarchStep_cases (start ptEnd : Point) (dx dy : Rat) (stepX stepY : Int) (c : Cell) :
+theorem rayMarchStep_cases (start ptEnd : Point) (dx dy : ℚ) (stepX stepY : ℤ) (c : Cell) :
     rayMarchStep start ptEnd dx dy stepX stepY c = (c, true) ∨
     rayMarchStep start ptEnd dx dy stepX stepY c = (⟨c.x + stepX, c.y⟩, false) ∨
     rayMarchStep start ptEnd dx dy stepX stepY c = (⟨c.x, c.y + stepY⟩, false) ∨
@@ -902,7 +902,7 @@ theorem rayMarchStep_cases (start ptEnd : Point) (dx dy : Rat) (stepX stepY : In
   exact h_mem
 
 
-theorem rayMarchStep_not_done_cases (start ptEnd : Point) (dx dy : Rat) (stepX stepY : Int) (c : Cell)
+theorem rayMarchStep_not_done_cases (start ptEnd : Point) (dx dy : ℚ) (stepX stepY : ℤ) (c : Cell)
     (h_not_done : (rayMarchStep start ptEnd dx dy stepX stepY c).2 = false) :
     let next := (rayMarchStep start ptEnd dx dy stepX stepY c).1
     next = ⟨c.x + stepX, c.y⟩ ∨ next = ⟨c.x, c.y + stepY⟩ ∨ next = ⟨c.x + stepX, c.y + stepY⟩ := by
@@ -918,7 +918,7 @@ theorem rayMarchStep_not_done_cases (start ptEnd : Point) (dx dy : Rat) (stepX s
     exact Or.inr (Or.inr rfl)
 
 
-theorem rayMarch_same_endpoints (fuel : Nat) (A B : Point) (dx dy : Rat) (stepX stepY : Int)
+theorem rayMarch_same_endpoints (fuel : ℕ) (A B : Point) (dx dy : ℚ) (stepX stepY : ℤ)
     (h : floorPoint A = floorPoint B) :
     rayMarch (fuel + 1) A B dx dy stepX stepY (floorPoint B) (floorPoint A) [] = [] := by
   rw [rayMarch_succ]
@@ -927,49 +927,49 @@ theorem rayMarch_same_endpoints (fuel : Nat) (A B : Point) (dx dy : Rat) (stepX 
   simp [this]
 
 
-theorem floor_mono {x y : Rat} (h : x ≤ y) : Rat.floor x ≤ Rat.floor y := by
-  have h1 : ((Rat.floor x : Int) : Rat) ≤ x := Rat.floor_le x
-  have h2 : ((Rat.floor x : Int) : Rat) ≤ y := le_trans h1 h
+theorem floor_mono {x y : ℚ} (h : x ≤ y) : Rat.floor x ≤ Rat.floor y := by
+  have h1 : ((Rat.floor x : ℤ) : ℚ) ≤ x := Rat.floor_le x
+  have h2 : ((Rat.floor x : ℤ) : ℚ) ≤ y := le_trans h1 h
   by_contra! h_lt
   have : Rat.floor y + 1 ≤ Rat.floor x := h_lt
-  have h_le : ((Rat.floor y + 1 : Int) : Rat) ≤ ((Rat.floor x : Int) : Rat) := Int.cast_le.mpr this
-  have h_lt_cast : y < ((Rat.floor y + 1 : Int) : Rat) := Rat.lt_floor_add_one y
+  have h_le : ((Rat.floor y + 1 : ℤ) : ℚ) ≤ ((Rat.floor x : ℤ) : ℚ) := Int.cast_le.mpr this
+  have h_lt_cast : y < ((Rat.floor y + 1 : ℤ) : ℚ) := Rat.lt_floor_add_one y
   linarith
 
 
-theorem floor_le_sub_one_of_lt (y : Rat) (cy : Int) (h : y < ofInt cy) :
+theorem floor_le_sub_one_of_lt (y : ℚ) (cy : ℤ) (h : y < ofInt cy) :
     Rat.floor y ≤ cy - 1 := by
-  have h1 : ((Rat.floor y : Int) : Rat) ≤ y := Rat.floor_le y
-  have h2 : ((Rat.floor y : Int) : Rat) < ofInt cy := lt_of_le_of_lt h1 h
+  have h1 : ((Rat.floor y : ℤ) : ℚ) ≤ y := Rat.floor_le y
+  have h2 : ((Rat.floor y : ℤ) : ℚ) < ofInt cy := lt_of_le_of_lt h1 h
   unfold ofInt at h2
-  change ((Rat.floor y : Int) : Rat) < ((cy : Int) : Rat) at h2
+  change ((Rat.floor y : ℤ) : ℚ) < ((cy : ℤ) : ℚ) at h2
   have h3 : Rat.floor y < cy := Int.cast_lt.mp h2
   omega
 
 
-theorem stepX_pos_next_le_end (cx : Int) (Ax : Rat) (B : Point)
+theorem stepX_pos_next_le_end (cx : ℤ) (Ax : ℚ) (B : Point)
     (_hdx : 0 < B.x - Ax)
     (h_bnd : ofInt cx - Ax < B.x - Ax) :
     cx ≤ (floorPoint B).x := by
-  have h_lt : ((cx : Int) : Rat) ≤ B.x := by
-    change ((cx : Int) : Rat) - Ax < B.x - Ax at h_bnd
+  have h_lt : ((cx : ℤ) : ℚ) ≤ B.x := by
+    change ((cx : ℤ) : ℚ) - Ax < B.x - Ax at h_bnd
     linarith
   unfold floorPoint toInt; dsimp
   exact le_floor_of_le cx B.x h_lt
 
 
-theorem stepY_pos_next_le_end (cy : Int) (Ay : Rat) (B : Point)
+theorem stepY_pos_next_le_end (cy : ℤ) (Ay : ℚ) (B : Point)
     (_hdy : 0 < B.y - Ay)
     (h_bnd : ofInt cy - Ay < B.y - Ay) :
     cy ≤ (floorPoint B).y := by
-  have h_lt : ((cy : Int) : Rat) ≤ B.y := by
-    change ((cy : Int) : Rat) - Ay < B.y - Ay at h_bnd
+  have h_lt : ((cy : ℤ) : ℚ) ≤ B.y := by
+    change ((cy : ℤ) : ℚ) - Ay < B.y - Ay at h_bnd
     linarith
   unfold floorPoint toInt; dsimp
   exact le_floor_of_le cy B.y h_lt
 
 
-theorem stepX_neg_next_ge_end (cx : Int) (Ax : Rat) (B : Point)
+theorem stepX_neg_next_ge_end (cx : ℤ) (Ax : ℚ) (B : Point)
     (hdx : B.x - Ax < 0)
     (h_bnd : (ofInt cx - Ax) / (B.x - Ax) < 1) :
     (floorPoint B).x ≤ cx - 1 := by
@@ -980,7 +980,7 @@ theorem stepX_neg_next_ge_end (cx : Int) (Ax : Rat) (B : Point)
   exact floor_le_sub_one_of_lt B.x cx h_gt
 
 
-theorem stepY_neg_next_ge_end (cy : Int) (Ay : Rat) (B : Point)
+theorem stepY_neg_next_ge_end (cy : ℤ) (Ay : ℚ) (B : Point)
     (hdy : B.y - Ay < 0)
     (h_bnd : (ofInt cy - Ay) / (B.y - Ay) < 1) :
     (floorPoint B).y ≤ cy - 1 := by
@@ -1055,7 +1055,7 @@ theorem inBoundingBox_stepY_backward (c : Cell) (A B : Point)
   exact ⟨⟨⟨h1, h2⟩, h_next⟩, by omega⟩
 
 
-theorem stepX_interval_lt_neg (tx1 ty0 ty1 dx : Rat) (dx_neg : dx < 0)
+theorem stepX_interval_lt_neg (tx1 ty0 ty1 dx : ℚ) (dx_neg : dx < 0)
     (h_cross : tx1 < ty1)
     (h_lim : tx1 < 1)
     (h_pos : 0 ≤ tx1)
@@ -1078,7 +1078,7 @@ theorem stepX_interval_lt_neg (tx1 ty0 ty1 dx : Rat) (dx_neg : dx < 0)
   exact ⟨h2, h3⟩
 
 
-theorem stepY_interval_lt_neg (ty1 tx0 tx1 dy : Rat) (dy_neg : dy < 0)
+theorem stepY_interval_lt_neg (ty1 tx0 tx1 dy : ℚ) (dy_neg : dy < 0)
     (h_cross : ty1 < tx1)
     (h_lim : ty1 < 1)
     (h_pos : 0 ≤ ty1)

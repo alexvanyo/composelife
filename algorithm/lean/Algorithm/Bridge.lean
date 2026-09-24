@@ -18,38 +18,41 @@ import Algorithm.Basic
 import Algorithm.BitComputation
 import Algorithm.HashLife
 
+local notation "ℕ" => Nat
+local notation "ℤ" => Int
+
 namespace Algorithm
 
 @[export algorithm_step_4x4_bits]
-def oracleStep4x4Bits (bits : Nat) : Nat :=
+def oracleStep4x4Bits (bits : ℕ) : ℕ :=
   computeNextGen4x4 bits
 
 @[export algorithm_step_leaf_bits]
-def oracleStepLeafBits (bits : Nat) : Nat :=
+def oracleStepLeafBits (bits : ℕ) : ℕ :=
   computeLeafNextGen8x8Branch bits
 
 @[export algorithm_step_level4_bits]
-def oracleStepLevel4Bits (nw ne sw se : Nat) : Nat :=
+def oracleStepLevel4Bits (nw ne sw se : ℕ) : ℕ :=
   computeLevel4NextGen16x16 nw ne sw se
 
 @[export algorithm_centered_subnode_level3_bits]
-def oracleCenteredSubnodeLevel3Bits (leaf : Nat) : Nat :=
+def oracleCenteredSubnodeLevel3Bits (leaf : ℕ) : ℕ :=
   centeredSubnodeLevel3Bits leaf
 
 @[export algorithm_centered_horizontal_subnode_level3_bits]
-def oracleCenteredHorizontalSubnodeLevel3Bits (w e : Nat) : Nat :=
+def oracleCenteredHorizontalSubnodeLevel3Bits (w e : ℕ) : ℕ :=
   centeredHorizontalSubnodeLevel3Bits w e
 
 @[export algorithm_centered_vertical_subnode_level3_bits]
-def oracleCenteredVerticalSubnodeLevel3Bits (n s : Nat) : Nat :=
+def oracleCenteredVerticalSubnodeLevel3Bits (n s : ℕ) : ℕ :=
   centeredVerticalSubnodeLevel3Bits n s
 
 @[export algorithm_centered_sub_subnode_level4_bits]
-def oracleCenteredSubSubnodeLevel4Bits (nw ne sw se : Nat) : Nat :=
+def oracleCenteredSubSubnodeLevel4Bits (nw ne sw se : ℕ) : ℕ :=
   centeredSubSubnodeLevel4Bits nw ne sw se
 
 @[export algorithm_step_coords]
-def oracleStepCoords (coords : Array (Int × Int)) (steps : Nat) : Array (Int × Int) :=
+def oracleStepCoords (coords : Array (ℤ × ℤ)) (steps : ℕ) : Array (ℤ × ℤ) :=
   let inputList := coords.toList
   let resultList := stepN steps inputList
   resultList.toArray
