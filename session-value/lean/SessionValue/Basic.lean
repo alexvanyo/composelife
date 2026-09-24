@@ -14,13 +14,15 @@
  * limitations under the License.
  -/
 
+local notation "ℕ" => Nat
+
 namespace SessionValue
 
 /-- Abstract representation of a UUID with decidable equality. -/
-def Uuid := Nat
+def Uuid := ℕ
 deriving DecidableEq, Repr, Inhabited
 
-instance (n : Nat) : OfNat Uuid n := ⟨n⟩
+instance (n : ℕ) : OfNat Uuid n := ⟨n⟩
 
 /--
 An object representing a specific session for `value`.

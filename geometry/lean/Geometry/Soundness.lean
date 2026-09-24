@@ -29,7 +29,7 @@ namespace Geometry
    Quadrant 1: dx > 0, dy > 0
    ========================================================================= -/
 
-theorem inBoundingBox_diag (c : Cell) (A B : Point) (stepX stepY : Int)
+theorem inBoundingBox_diag (c : Cell) (A B : Point) (stepX stepY : ℤ)
     (hX : inBoundingBox ⟨c.x + stepX, c.y⟩ A B = true)
     (hY : inBoundingBox ⟨c.x, c.y + stepY⟩ A B = true) :
     inBoundingBox ⟨c.x + stepX, c.y + stepY⟩ A B = true := by
@@ -64,7 +64,7 @@ theorem cellIntersectionInterval_stepX_pos (A B : Point) (c : Cell)
   simp only [h_dx_ne, h_dy_ne, hdx, hdy, ↓reduceIte]
   have h_cx1 : ofInt (c.x + 1 + 1) = ofInt (c.x + 1) + 1 := by
     unfold ofInt
-    change ((c.x + 1 + 1 : Int) : Rat) = ((c.x + 1 : Int) : Rat) + 1
+    change ((c.x + 1 + 1 : ℤ) : ℚ) = ((c.x + 1 : ℤ) : ℚ) + 1
     push_cast
     ring
   rw [h_cx1]
@@ -103,7 +103,7 @@ theorem cellIntersectionInterval_stepY_pos (A B : Point) (c : Cell)
   simp only [h_dx_ne, h_dy_ne, hdx, hdy, ↓reduceIte]
   have h_cy1 : ofInt (c.y + 1 + 1) = ofInt (c.y + 1) + 1 := by
     unfold ofInt
-    change ((c.y + 1 + 1 : Int) : Rat) = ((c.y + 1 : Int) : Rat) + 1
+    change ((c.y + 1 + 1 : ℤ) : ℚ) = ((c.y + 1 : ℤ) : ℚ) + 1
     push_cast
     ring
   rw [h_cy1]
@@ -140,12 +140,12 @@ theorem cellIntersectionInterval_diag_pos (A B : Point) (c : Cell) (hdx : 0 < B.
   simp only [h_dx_ne, h_dy_ne, hdx, hdy, ↓reduceIte]
   have h_cx1 : ofInt (c.x + 1 + 1) = ofInt (c.x + 1) + 1 := by
     unfold ofInt
-    change ((c.x + 1 + 1 : Int) : Rat) = ((c.x + 1 : Int) : Rat) + 1
+    change ((c.x + 1 + 1 : ℤ) : ℚ) = ((c.x + 1 : ℤ) : ℚ) + 1
     push_cast
     ring
   have h_cy1 : ofInt (c.y + 1 + 1) = ofInt (c.y + 1) + 1 := by
     unfold ofInt
-    change ((c.y + 1 + 1 : Int) : Rat) = ((c.y + 1 : Int) : Rat) + 1
+    change ((c.y + 1 + 1 : ℤ) : ℚ) = ((c.y + 1 : ℤ) : ℚ) + 1
     push_cast
     ring
   rw [h_cx1, h_cy1]
@@ -176,41 +176,41 @@ theorem extract_stepX_pos_pos (A B : Point) (c : Cell)
     min (remX_val A 1 c * absVal (B.y - A.y)) (remY_val A 1 c * absVal (B.x - A.x)) < absVal (B.x - A.x) * absVal (B.y - A.y) := by
   unfold rayMarchStep at h_step
   dsimp only [] at h_step
-  simp only [show ((1 : Int) == 0) = false by decide, Bool.false_eq_true, ↓reduceIte] at h_step
+  simp only [show ((1 : ℤ) == 0) = false by decide, Bool.false_eq_true, ↓reduceIte] at h_step
   by_cases hlim : min
-        ((if (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-            (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-          else A.x - if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+        ((if (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+            (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+          else A.x - if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
           if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y))
-        ((if (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-            (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-          else A.y - if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+        ((if (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+            (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+          else A.y - if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
           if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) ≥
       (if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) *
         if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)
   · simp only [hlim, ↓reduceIte] at h_step
     injection h_step with _ h_bool; contradiction
   · simp only [hlim, ↓reduceIte] at h_step
-    by_cases hxy : ((if (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-            (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-          else A.x - if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+    by_cases hxy : ((if (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+            (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+          else A.x - if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
           if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)) <
-        (if (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-            (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-          else A.y - if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+        (if (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+            (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+          else A.y - if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
           if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)
     · unfold remX_val remY_val absVal
       dsimp only []
-      simp only [show (1 : Int) > 0 by decide, ↓reduceIte]
+      simp only [show (1 : ℤ) > 0 by decide, ↓reduceIte]
       refine ⟨hxy, not_le.mp hlim⟩
     · simp only [hxy, ↓reduceIte] at h_step
-      by_cases hyx : ((if (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-              (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-            else A.y - if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+      by_cases hyx : ((if (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+              (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+            else A.y - if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
             if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) <
-          (if (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-              (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-            else A.x - if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+          (if (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+              (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+            else A.x - if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
             if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)
       · simp only [hyx, ↓reduceIte] at h_step
         injection h_step with h_cell _
@@ -229,45 +229,45 @@ theorem extract_stepY_pos_pos (A B : Point) (c : Cell)
     min (remX_val A 1 c * absVal (B.y - A.y)) (remY_val A 1 c * absVal (B.x - A.x)) < absVal (B.x - A.x) * absVal (B.y - A.y) := by
   unfold rayMarchStep at h_step
   dsimp only [] at h_step
-  simp only [show ((1 : Int) == 0) = false by decide, Bool.false_eq_true, ↓reduceIte] at h_step
+  simp only [show ((1 : ℤ) == 0) = false by decide, Bool.false_eq_true, ↓reduceIte] at h_step
   by_cases hlim : min
-        ((if (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-            (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-          else A.x - if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+        ((if (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+            (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+          else A.x - if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
           if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y))
-        ((if (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-            (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-          else A.y - if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+        ((if (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+            (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+          else A.y - if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
           if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) ≥
       (if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) *
         if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)
   · simp only [hlim, ↓reduceIte] at h_step
     injection h_step with _ h_bool; contradiction
   · simp only [hlim, ↓reduceIte] at h_step
-    by_cases hxy : ((if (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-            (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-          else A.x - if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+    by_cases hxy : ((if (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+            (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+          else A.x - if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
           if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)) <
-        (if (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-            (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-          else A.y - if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+        (if (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+            (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+          else A.y - if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
           if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)
     · simp only [hxy, ↓reduceIte] at h_step
       injection h_step with h_cell _
       injection h_cell with hx _
       omega
     · simp only [hxy, ↓reduceIte] at h_step
-      by_cases hyx : ((if (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-              (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-            else A.y - if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+      by_cases hyx : ((if (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+              (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+            else A.y - if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
             if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) <
-          (if (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-              (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-            else A.x - if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+          (if (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+              (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+            else A.x - if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
             if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)
       · unfold remX_val remY_val absVal
         dsimp only []
-        simp only [show (1 : Int) > 0 by decide, ↓reduceIte]
+        simp only [show (1 : ℤ) > 0 by decide, ↓reduceIte]
         refine ⟨hyx, not_le.mp hlim⟩
       · simp only [hyx, ↓reduceIte] at h_step
         injection h_step with h_cell _
@@ -282,41 +282,41 @@ theorem extract_stepDiag_pos_pos (A B : Point) (c : Cell)
     min (remX_val A 1 c * absVal (B.y - A.y)) (remY_val A 1 c * absVal (B.x - A.x)) < absVal (B.x - A.x) * absVal (B.y - A.y) := by
   unfold rayMarchStep at h_step
   dsimp only [] at h_step
-  simp only [show ((1 : Int) == 0) = false by decide, Bool.false_eq_true, ↓reduceIte] at h_step
+  simp only [show ((1 : ℤ) == 0) = false by decide, Bool.false_eq_true, ↓reduceIte] at h_step
   by_cases hlim : min
-        ((if (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-            (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-          else A.x - if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+        ((if (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+            (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+          else A.x - if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
           if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y))
-        ((if (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-            (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-          else A.y - if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+        ((if (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+            (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+          else A.y - if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
           if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) ≥
       (if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) *
         if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)
   · simp only [hlim, ↓reduceIte] at h_step
     injection h_step with _ h_bool; contradiction
   · simp only [hlim, ↓reduceIte] at h_step
-    by_cases hxy : ((if (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-            (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-          else A.x - if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+    by_cases hxy : ((if (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+            (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+          else A.x - if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
           if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)) <
-        (if (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-            (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-          else A.y - if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+        (if (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+            (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+          else A.y - if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
           if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)
     · simp only [hxy, ↓reduceIte] at h_step
       injection h_step with h_cell _
       injection h_cell with _ hy
       omega
     · simp only [hxy, ↓reduceIte] at h_step
-      by_cases hyx : ((if (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-              (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-            else A.y - if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+      by_cases hyx : ((if (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+              (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+            else A.y - if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
             if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) <
-          (if (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-              (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-            else A.x - if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+          (if (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+              (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+            else A.x - if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
             if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)
       · simp only [hyx, ↓reduceIte] at h_step
         injection h_step with h_cell _
@@ -324,8 +324,8 @@ theorem extract_stepDiag_pos_pos (A B : Point) (c : Cell)
         omega
       · unfold remX_val remY_val absVal
         dsimp only []
-        simp only [show (1 : Int) > 0 by decide, ↓reduceIte]
-        simp only [show (1 : Int) > 0 by decide, ↓reduceIte] at hxy hyx hlim
+        simp only [show (1 : ℤ) > 0 by decide, ↓reduceIte]
+        simp only [show (1 : ℤ) > 0 by decide, ↓reduceIte] at hxy hyx hlim
         have h_eq : ((if ofInt (c.x + 1) ≥ A.x then ofInt (c.x + 1) - A.x else A.x - ofInt (c.x + 1)) *
               if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)) =
             ((if ofInt (c.y + 1) ≥ A.y then ofInt (c.y + 1) - A.y else A.y - ofInt (c.y + 1)) *
@@ -349,7 +349,7 @@ theorem rayMarchStep_X_pos_pos_sound (A B : Point) (c : Cell)
   unfold absVal at h_bnd
   simp [le_of_lt hdx] at h_bnd
   unfold remX_val at h_bnd
-  simp only [show (1 : Int) > 0 by decide, ↓reduceIte] at h_bnd
+  simp only [show (1 : ℤ) > 0 by decide, ↓reduceIte] at h_bnd
   have hc_prop := hc_bbox
   unfold inBoundingBox at hc_prop
   dsimp only [] at hc_prop
@@ -374,18 +374,18 @@ theorem rayMarchStep_X_pos_pos_sound (A B : Point) (c : Cell)
     unfold floorPoint toInt at h_flA; dsimp at h_flA
     have h_lt := Rat.lt_floor_add_one A.x
     push_cast at h_lt
-    have h_flA_rat : ((A.x.floor : Int) : Rat) ≤ (c.x : Rat) := Int.cast_le.mpr h_flA
-    have h_ofInt : ofInt (c.x + 1) = (c.x : Rat) + 1 := by
-      unfold ofInt; change ((c.x + 1 : Int) : Rat) = (c.x : Rat) + 1; push_cast; ring
+    have h_flA_rat : ((A.x.floor : ℤ) : ℚ) ≤ (c.x : ℚ) := Int.cast_le.mpr h_flA
+    have h_ofInt : ofInt (c.x + 1) = (c.x : ℚ) + 1 := by
+      unfold ofInt; change ((c.x + 1 : ℤ) : ℚ) = (c.x : ℚ) + 1; push_cast; ring
     rw [h_ofInt]
     linarith
   have h_remY_ge : ofInt (c.y + 1) ≥ A.y := by
     unfold floorPoint toInt at h_flAy; dsimp at h_flAy
     have h_lt := Rat.lt_floor_add_one A.y
     push_cast at h_lt
-    have h_flAy_rat : ((A.y.floor : Int) : Rat) ≤ (c.y : Rat) := Int.cast_le.mpr h_flAy
-    have h_ofInt : ofInt (c.y + 1) = (c.y : Rat) + 1 := by
-      unfold ofInt; change ((c.y + 1 : Int) : Rat) = (c.y : Rat) + 1; push_cast; ring
+    have h_flAy_rat : ((A.y.floor : ℤ) : ℚ) ≤ (c.y : ℚ) := Int.cast_le.mpr h_flAy
+    have h_ofInt : ofInt (c.y + 1) = (c.y : ℚ) + 1 := by
+      unfold ofInt; change ((c.y + 1 : ℤ) : ℚ) = (c.y : ℚ) + 1; push_cast; ring
     rw [h_ofInt]
     linarith
   simp only [h_ge, ↓reduceIte] at h_bnd
@@ -396,9 +396,9 @@ theorem rayMarchStep_X_pos_pos_sound (A B : Point) (c : Cell)
   have h_dx_prop := interval_dx_pos c A B tEnter_c tExit_c hc_inter hdx
   have h_dy_prop := interval_dy_pos c A B tEnter_c tExit_c hc_inter hdy
   unfold remY_val absVal at h_step
-  simp only [show (1 : Int) > 0 by decide, ↓reduceIte, le_of_lt hdy, le_of_lt hdx, h_remY_ge] at h_step
+  simp only [show (1 : ℤ) > 0 by decide, ↓reduceIte, le_of_lt hdy, le_of_lt hdx, h_remY_ge] at h_step
   unfold remX_val at h_step
-  simp only [show (1 : Int) > 0 by decide, ↓reduceIte, h_ge] at h_step
+  simp only [show (1 : ℤ) > 0 by decide, ↓reduceIte, h_ge] at h_step
   let tx1 := (ofInt (c.x + 1) - A.x) / (B.x - A.x)
   let ty0 := (ofInt c.y - A.y) / (B.y - A.y)
   let ty1 := (ofInt (c.y + 1) - A.y) / (B.y - A.y)
@@ -437,7 +437,7 @@ theorem rayMarchStep_Y_pos_pos_sound (A B : Point) (c : Cell)
   unfold absVal at h_bnd
   simp [le_of_lt hdy] at h_bnd
   unfold remY_val at h_bnd
-  simp only [show (1 : Int) > 0 by decide, ↓reduceIte] at h_bnd
+  simp only [show (1 : ℤ) > 0 by decide, ↓reduceIte] at h_bnd
   have hc_prop := hc_bbox
   unfold inBoundingBox at hc_prop
   dsimp only [] at hc_prop
@@ -462,18 +462,18 @@ theorem rayMarchStep_Y_pos_pos_sound (A B : Point) (c : Cell)
     unfold floorPoint toInt at h_flA; dsimp at h_flA
     have h_lt := Rat.lt_floor_add_one A.x
     push_cast at h_lt
-    have h_flA_rat : ((A.x.floor : Int) : Rat) ≤ (c.x : Rat) := Int.cast_le.mpr h_flA
-    have h_ofInt : ofInt (c.x + 1) = (c.x : Rat) + 1 := by
-      unfold ofInt; change ((c.x + 1 : Int) : Rat) = (c.x : Rat) + 1; push_cast; ring
+    have h_flA_rat : ((A.x.floor : ℤ) : ℚ) ≤ (c.x : ℚ) := Int.cast_le.mpr h_flA
+    have h_ofInt : ofInt (c.x + 1) = (c.x : ℚ) + 1 := by
+      unfold ofInt; change ((c.x + 1 : ℤ) : ℚ) = (c.x : ℚ) + 1; push_cast; ring
     rw [h_ofInt]
     linarith
   have h_remY_ge : ofInt (c.y + 1) ≥ A.y := by
     unfold floorPoint toInt at h_flAy; dsimp at h_flAy
     have h_lt := Rat.lt_floor_add_one A.y
     push_cast at h_lt
-    have h_flAy_rat : ((A.y.floor : Int) : Rat) ≤ (c.y : Rat) := Int.cast_le.mpr h_flAy
-    have h_ofInt : ofInt (c.y + 1) = (c.y : Rat) + 1 := by
-      unfold ofInt; change ((c.y + 1 : Int) : Rat) = (c.y : Rat) + 1; push_cast; ring
+    have h_flAy_rat : ((A.y.floor : ℤ) : ℚ) ≤ (c.y : ℚ) := Int.cast_le.mpr h_flAy
+    have h_ofInt : ofInt (c.y + 1) = (c.y : ℚ) + 1 := by
+      unfold ofInt; change ((c.y + 1 : ℤ) : ℚ) = (c.y : ℚ) + 1; push_cast; ring
     rw [h_ofInt]
     linarith
   simp only [h_remY_ge, ↓reduceIte] at h_bnd
@@ -484,9 +484,9 @@ theorem rayMarchStep_Y_pos_pos_sound (A B : Point) (c : Cell)
   have h_dx_prop := interval_dx_pos c A B tEnter_c tExit_c hc_inter hdx
   have h_dy_prop := interval_dy_pos c A B tEnter_c tExit_c hc_inter hdy
   unfold remY_val absVal at h_step
-  simp only [show (1 : Int) > 0 by decide, ↓reduceIte, le_of_lt hdy, le_of_lt hdx, h_remY_ge] at h_step
+  simp only [show (1 : ℤ) > 0 by decide, ↓reduceIte, le_of_lt hdy, le_of_lt hdx, h_remY_ge] at h_step
   unfold remX_val at h_step
-  simp only [show (1 : Int) > 0 by decide, ↓reduceIte, h_ge] at h_step
+  simp only [show (1 : ℤ) > 0 by decide, ↓reduceIte, h_ge] at h_step
   let tx0 := (ofInt c.x - A.x) / (B.x - A.x)
   let tx1 := (ofInt (c.x + 1) - A.x) / (B.x - A.x)
   let ty1 := (ofInt (c.y + 1) - A.y) / (B.y - A.y)
@@ -530,7 +530,7 @@ theorem rayMarchStep_Diag_pos_pos_sound (A B : Point) (c : Cell)
   simp [le_of_lt hdy] at h_bndY
   unfold remX_val at h_bndX
   unfold remY_val at h_bndY
-  simp only [show (1 : Int) > 0 by decide, ↓reduceIte] at h_bndX h_bndY
+  simp only [show (1 : ℤ) > 0 by decide, ↓reduceIte] at h_bndX h_bndY
   have hc_prop := hc_bbox
   unfold inBoundingBox at hc_prop
   dsimp only [] at hc_prop
@@ -555,18 +555,18 @@ theorem rayMarchStep_Diag_pos_pos_sound (A B : Point) (c : Cell)
     unfold floorPoint toInt at h_flA; dsimp at h_flA
     have h_lt := Rat.lt_floor_add_one A.x
     push_cast at h_lt
-    have h_flA_rat : ((A.x.floor : Int) : Rat) ≤ (c.x : Rat) := Int.cast_le.mpr h_flA
-    have h_ofInt : ofInt (c.x + 1) = (c.x : Rat) + 1 := by
-      unfold ofInt; change ((c.x + 1 : Int) : Rat) = (c.x : Rat) + 1; push_cast; ring
+    have h_flA_rat : ((A.x.floor : ℤ) : ℚ) ≤ (c.x : ℚ) := Int.cast_le.mpr h_flA
+    have h_ofInt : ofInt (c.x + 1) = (c.x : ℚ) + 1 := by
+      unfold ofInt; change ((c.x + 1 : ℤ) : ℚ) = (c.x : ℚ) + 1; push_cast; ring
     rw [h_ofInt]
     linarith
   have h_remY_ge : ofInt (c.y + 1) ≥ A.y := by
     unfold floorPoint toInt at h_flAy; dsimp at h_flAy
     have h_lt := Rat.lt_floor_add_one A.y
     push_cast at h_lt
-    have h_flAy_rat : ((A.y.floor : Int) : Rat) ≤ (c.y : Rat) := Int.cast_le.mpr h_flAy
-    have h_ofInt : ofInt (c.y + 1) = (c.y : Rat) + 1 := by
-      unfold ofInt; change ((c.y + 1 : Int) : Rat) = (c.y : Rat) + 1; push_cast; ring
+    have h_flAy_rat : ((A.y.floor : ℤ) : ℚ) ≤ (c.y : ℚ) := Int.cast_le.mpr h_flAy
+    have h_ofInt : ofInt (c.y + 1) = (c.y : ℚ) + 1 := by
+      unfold ofInt; change ((c.y + 1 : ℤ) : ℚ) = (c.y : ℚ) + 1; push_cast; ring
     rw [h_ofInt]
     linarith
   simp only [h_ge, ↓reduceIte] at h_bndX
@@ -578,7 +578,7 @@ theorem rayMarchStep_Diag_pos_pos_sound (A B : Point) (c : Cell)
   have h_bbox_next := inBoundingBox_diag c A B 1 1 h_bboxX h_bboxY
   refine ⟨h_bbox_next, ?_⟩
   unfold remX_val remY_val absVal at h_step
-  simp only [show (1 : Int) > 0 by decide, ↓reduceIte, le_of_lt hdy, le_of_lt hdx, h_ge, h_remY_ge] at h_step
+  simp only [show (1 : ℤ) > 0 by decide, ↓reduceIte, le_of_lt hdy, le_of_lt hdx, h_ge, h_remY_ge] at h_step
   let t := (ofInt (c.x + 1) - A.x) / (B.x - A.x)
   have h_cross : t = (ofInt (c.y + 1) - A.y) / (B.y - A.y) := by
     dsimp [t]
@@ -610,33 +610,33 @@ theorem cellIntersectionInterval_startCell_pos_pos (A B : Point)
     · rfl
     · exfalso; have := eq_of_beq h; linarith
   simp only [h_dx_ne, h_dy_ne, hdx, hdy, Bool.false_eq_true, ↓reduceIte]
-  have h_flA : ((floorPoint A).x : Rat) ≤ A.x := by
+  have h_flA : ((floorPoint A).x : ℚ) ≤ A.x := by
     unfold floorPoint toInt; dsimp
     exact Rat.floor_le A.x
-  have h_flAy : ((floorPoint A).y : Rat) ≤ A.y := by
+  have h_flAy : ((floorPoint A).y : ℚ) ≤ A.y := by
     unfold floorPoint toInt; dsimp
     exact Rat.floor_le A.y
-  have h_ltX : A.x < ((floorPoint A).x : Rat) + 1 := by
+  have h_ltX : A.x < ((floorPoint A).x : ℚ) + 1 := by
     unfold floorPoint toInt; dsimp
     have := Rat.lt_floor_add_one A.x
     push_cast at this
     exact this
-  have h_ltY : A.y < ((floorPoint A).y : Rat) + 1 := by
+  have h_ltY : A.y < ((floorPoint A).y : ℚ) + 1 := by
     unfold floorPoint toInt; dsimp
     have := Rat.lt_floor_add_one A.y
     push_cast at this
     exact this
-  have h_ofIntX0 : ofInt (floorPoint A).x = ((floorPoint A).x : Rat) := rfl
-  have h_ofIntX1 : ofInt ((floorPoint A).x + 1) = ((floorPoint A).x : Rat) + 1 := by
-    unfold ofInt; change (((floorPoint A).x + 1 : Int) : Rat) = ((floorPoint A).x : Rat) + 1; push_cast; ring
-  have h_ofIntY0 : ofInt (floorPoint A).y = ((floorPoint A).y : Rat) := rfl
-  have h_ofIntY1 : ofInt ((floorPoint A).y + 1) = ((floorPoint A).y : Rat) + 1 := by
-    unfold ofInt; change (((floorPoint A).y + 1 : Int) : Rat) = ((floorPoint A).y : Rat) + 1; push_cast; ring
+  have h_ofIntX0 : ofInt (floorPoint A).x = ((floorPoint A).x : ℚ) := rfl
+  have h_ofIntX1 : ofInt ((floorPoint A).x + 1) = ((floorPoint A).x : ℚ) + 1 := by
+    unfold ofInt; change (((floorPoint A).x + 1 : ℤ) : ℚ) = ((floorPoint A).x : ℚ) + 1; push_cast; ring
+  have h_ofIntY0 : ofInt (floorPoint A).y = ((floorPoint A).y : ℚ) := rfl
+  have h_ofIntY1 : ofInt ((floorPoint A).y + 1) = ((floorPoint A).y : ℚ) + 1 := by
+    unfold ofInt; change (((floorPoint A).y + 1 : ℤ) : ℚ) = ((floorPoint A).y : ℚ) + 1; push_cast; ring
   rw [h_ofIntX0, h_ofIntX1, h_ofIntY0, h_ofIntY1]
-  let tx0 := (((floorPoint A).x : Rat) - A.x) / (B.x - A.x)
-  let tx1 := (((floorPoint A).x : Rat) + 1 - A.x) / (B.x - A.x)
-  let ty0 := (((floorPoint A).y : Rat) - A.y) / (B.y - A.y)
-  let ty1 := (((floorPoint A).y : Rat) + 1 - A.y) / (B.y - A.y)
+  let tx0 := (((floorPoint A).x : ℚ) - A.x) / (B.x - A.x)
+  let tx1 := (((floorPoint A).x : ℚ) + 1 - A.x) / (B.x - A.x)
+  let ty0 := (((floorPoint A).y : ℚ) - A.y) / (B.y - A.y)
+  let ty1 := (((floorPoint A).y : ℚ) + 1 - A.y) / (B.y - A.y)
   have h_tx0_nonpos : tx0 ≤ 0 := by
     dsimp [tx0]
     exact div_nonpos_of_nonpos_of_nonneg (by linarith) (le_of_lt hdx)
@@ -667,7 +667,7 @@ theorem cellIntersectionInterval_startCell_pos_pos (A B : Point)
   exact h_exit_pos
 
 
-theorem rayMarchStep_sound_step_pos_pos (A B : Point) (dx dy : Rat) (stepX stepY : Int) (c : Cell)
+theorem rayMarchStep_sound_step_pos_pos (A B : Point) (dx dy : ℚ) (stepX stepY : ℤ) (c : Cell)
     (hdx : dx = B.x - A.x) (hdy : dy = B.y - A.y)
     (hstepX : stepX = if dx > 0 then 1 else if dx < 0 then -1 else 0)
     (hstepY : stepY = if dy > 0 then 1 else if dy < 0 then -1 else 0)
@@ -705,7 +705,7 @@ theorem rayMarchStep_sound_step_pos_pos (A B : Point) (dx dy : Rat) (stepX stepY
     exact rayMarchStep_Diag_pos_pos_sound A B c (by linarith) (by linarith) hc.1 hc.2 h_step h_lim
 
 
-theorem rayMarchStep_sound_base_pos_pos (A B : Point) (dx dy : Rat) (stepX stepY : Int)
+theorem rayMarchStep_sound_base_pos_pos (A B : Point) (dx dy : ℚ) (stepX stepY : ℤ)
     (hdx : dx = B.x - A.x) (hdy : dy = B.y - A.y)
     (hstepX : stepX = if dx > 0 then 1 else if dx < 0 then -1 else 0)
     (hstepY : stepY = if dy > 0 then 1 else if dy < 0 then -1 else 0)
@@ -728,8 +728,8 @@ theorem rayMarch_soundness_pos_pos (A B : Point) (x : Cell)
       (floorPoint B) (floorPoint A) []) :
     inBoundingBox x A B = true ∧
     ∃ tEnter tExit, cellIntersectionInterval x A B = some (tEnter, tExit) ∧ tEnter < tExit := by
-  have hsx : (if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else (0 : Int)) = 1 := by simp [hdx]
-  have hsy : (if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else (0 : Int)) = 1 := by simp [hdy]
+  have hsx : (if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else (0 : ℤ)) = 1 := by simp [hdx]
+  have hsy : (if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else (0 : ℤ)) = 1 := by simp [hdy]
   rw [hsx, hsy] at hx
   have h_fuel : (((floorPoint B).x - (floorPoint A).x).natAbs + ((floorPoint B).y - (floorPoint A).y).natAbs + 2) =
     (((floorPoint B).x - (floorPoint A).x).natAbs + ((floorPoint B).y - (floorPoint A).y).natAbs + 1) + 1 := by omega
@@ -760,7 +760,7 @@ theorem inBoundingBox_diag_pos_neg (c : Cell) (A B : Point)
   exact inBoundingBox_stepY_backward ⟨c.x + 1, c.y⟩ A B hdy h1 h_next_y
 
 
-theorem stepDiag_interval_lt_pos_neg (t dx dy : Rat) (dx_pos : 0 < dx) (dy_neg : dy < 0)
+theorem stepDiag_interval_lt_pos_neg (t dx dy : ℚ) (dx_pos : 0 < dx) (dy_neg : dy < 0)
     (h_lim : t < 1)
     (h_pos : 0 ≤ t) :
     max 0 (max t t) < min 1 (min (t + 1 / dx) (t - 1 / dy)) := by
@@ -809,7 +809,7 @@ theorem cellIntersectionInterval_stepX_pos_neg (A B : Point) (c : Cell)
   simp only [h_dx_ne, h_dy_ne, hdx, h_not_dy_pos, ↓reduceIte]
   have h_cx1 : ofInt (c.x + 1 + 1) = ofInt (c.x + 1) + 1 := by
     unfold ofInt
-    change ((c.x + 1 + 1 : Int) : Rat) = ((c.x + 1 : Int) : Rat) + 1
+    change ((c.x + 1 + 1 : ℤ) : ℚ) = ((c.x + 1 : ℤ) : ℚ) + 1
     push_cast
     ring
   rw [h_cx1]
@@ -853,7 +853,7 @@ theorem cellIntersectionInterval_stepY_pos_neg (A B : Point) (c : Cell)
     omega
   have h_cy0 : ofInt (c.y - 1) = ofInt c.y - 1 := by
     unfold ofInt
-    change ((c.y - 1 : Int) : Rat) = ((c.y : Int) : Rat) - 1
+    change ((c.y - 1 : ℤ) : ℚ) = ((c.y : ℤ) : ℚ) - 1
     push_cast
     ring
   rw [h_cy1, h_cy0]
@@ -892,7 +892,7 @@ theorem cellIntersectionInterval_diag_pos_neg (A B : Point) (c : Cell)
   simp only [h_dx_ne, h_dy_ne, hdx, h_not_dy_pos, ↓reduceIte]
   have h_cx1 : ofInt (c.x + 1 + 1) = ofInt (c.x + 1) + 1 := by
     unfold ofInt
-    change ((c.x + 1 + 1 : Int) : Rat) = ((c.x + 1 : Int) : Rat) + 1
+    change ((c.x + 1 + 1 : ℤ) : ℚ) = ((c.x + 1 : ℤ) : ℚ) + 1
     push_cast
     ring
   have h_cy1 : ofInt (c.y - 1 + 1) = ofInt c.y := by
@@ -901,7 +901,7 @@ theorem cellIntersectionInterval_diag_pos_neg (A B : Point) (c : Cell)
     omega
   have h_cy0 : ofInt (c.y - 1) = ofInt c.y - 1 := by
     unfold ofInt
-    change ((c.y - 1 : Int) : Rat) = ((c.y : Int) : Rat) - 1
+    change ((c.y - 1 : ℤ) : ℚ) = ((c.y : ℤ) : ℚ) - 1
     push_cast
     ring
   rw [h_cx1, h_cy1, h_cy0]
@@ -931,38 +931,38 @@ theorem extract_stepX_pos_neg (A B : Point) (c : Cell)
     remX_val A 1 c * absVal (B.y - A.y) < remY_val A (-1) c * absVal (B.x - A.x) ∧
     min (remX_val A 1 c * absVal (B.y - A.y)) (remY_val A (-1) c * absVal (B.x - A.x)) < absVal (B.x - A.x) * absVal (B.y - A.y) := by
   unfold rayMarchStep at h_step; dsimp only [] at h_step
-  simp only [show ((1 : Int) == 0) = false by decide, Bool.false_eq_true, ↓reduceIte] at h_step
+  simp only [show ((1 : ℤ) == 0) = false by decide, Bool.false_eq_true, ↓reduceIte] at h_step
   by_cases hlim : min
-        ((if (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-            (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-          else A.x - if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+        ((if (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+            (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+          else A.x - if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
           if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y))
-        ((if (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-            (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-          else A.y - if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+        ((if (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+            (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+          else A.y - if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
           if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) ≥
       (if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) * if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)
   · simp only [hlim, ↓reduceIte] at h_step; injection h_step with _ h_bool; contradiction
   · simp only [hlim, ↓reduceIte] at h_step
-    by_cases hxy : ((if (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-            (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-          else A.x - if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+    by_cases hxy : ((if (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+            (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+          else A.x - if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
           if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)) <
-        (if (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-            (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-          else A.y - if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+        (if (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+            (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+          else A.y - if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
           if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)
     · unfold remX_val remY_val absVal; dsimp only []
-      simp only [show (1 : Int) > 0 by decide, show ¬((-1 : Int) > 0) by decide, ↓reduceIte]
+      simp only [show (1 : ℤ) > 0 by decide, show ¬((-1 : ℤ) > 0) by decide, ↓reduceIte]
       refine ⟨hxy, not_le.mp hlim⟩
     · simp only [hxy, ↓reduceIte] at h_step
-      by_cases hyx : ((if (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-              (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-            else A.y - if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+      by_cases hyx : ((if (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+              (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+            else A.y - if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
             if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) <
-          (if (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-              (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-            else A.x - if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+          (if (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+              (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+            else A.x - if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
             if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)
       · simp only [hyx, ↓reduceIte] at h_step; injection h_step with h_cell _; injection h_cell with hx _; omega
       · simp only [hyx, ↓reduceIte] at h_step; injection h_step with h_cell _; injection h_cell with _ hy; omega
@@ -974,39 +974,39 @@ theorem extract_stepY_pos_neg (A B : Point) (c : Cell)
     remY_val A (-1) c * absVal (B.x - A.x) < remX_val A 1 c * absVal (B.y - A.y) ∧
     min (remX_val A 1 c * absVal (B.y - A.y)) (remY_val A (-1) c * absVal (B.x - A.x)) < absVal (B.x - A.x) * absVal (B.y - A.y) := by
   unfold rayMarchStep at h_step; dsimp only [] at h_step
-  simp only [show ((1 : Int) == 0) = false by decide, Bool.false_eq_true, ↓reduceIte] at h_step
+  simp only [show ((1 : ℤ) == 0) = false by decide, Bool.false_eq_true, ↓reduceIte] at h_step
   by_cases hlim : min
-        ((if (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-            (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-          else A.x - if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+        ((if (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+            (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+          else A.x - if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
           if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y))
-        ((if (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-            (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-          else A.y - if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+        ((if (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+            (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+          else A.y - if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
           if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) ≥
       (if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) * if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)
   · simp only [hlim, ↓reduceIte] at h_step; injection h_step with _ h_bool; contradiction
   · simp only [hlim, ↓reduceIte] at h_step
-    by_cases hxy : ((if (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-            (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-          else A.x - if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+    by_cases hxy : ((if (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+            (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+          else A.x - if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
           if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)) <
-        (if (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-            (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-          else A.y - if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+        (if (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+            (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+          else A.y - if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
           if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)
     · simp only [hxy, ↓reduceIte] at h_step; injection h_step with h_cell _; injection h_cell with _ hy; omega
     · simp only [hxy, ↓reduceIte] at h_step
-      by_cases hyx : ((if (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-              (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-            else A.y - if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+      by_cases hyx : ((if (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+              (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+            else A.y - if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
             if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) <
-          (if (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-              (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-            else A.x - if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+          (if (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+              (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+            else A.x - if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
             if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)
       · unfold remX_val remY_val absVal; dsimp only []
-        simp only [show (1 : Int) > 0 by decide, show ¬((-1 : Int) > 0) by decide, ↓reduceIte]
+        simp only [show (1 : ℤ) > 0 by decide, show ¬((-1 : ℤ) > 0) by decide, ↓reduceIte]
         refine ⟨hyx, not_le.mp hlim⟩
       · simp only [hyx, ↓reduceIte] at h_step; injection h_step with h_cell _; injection h_cell with hx _; omega
 
@@ -1017,40 +1017,40 @@ theorem extract_stepDiag_pos_neg (A B : Point) (c : Cell)
     remX_val A 1 c * absVal (B.y - A.y) = remY_val A (-1) c * absVal (B.x - A.x) ∧
     min (remX_val A 1 c * absVal (B.y - A.y)) (remY_val A (-1) c * absVal (B.x - A.x)) < absVal (B.x - A.x) * absVal (B.y - A.y) := by
   unfold rayMarchStep at h_step; dsimp only [] at h_step
-  simp only [show ((1 : Int) == 0) = false by decide, Bool.false_eq_true, ↓reduceIte] at h_step
+  simp only [show ((1 : ℤ) == 0) = false by decide, Bool.false_eq_true, ↓reduceIte] at h_step
   by_cases hlim : min
-        ((if (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-            (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-          else A.x - if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+        ((if (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+            (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+          else A.x - if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
           if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y))
-        ((if (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-            (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-          else A.y - if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+        ((if (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+            (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+          else A.y - if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
           if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) ≥
       (if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) * if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)
   · simp only [hlim, ↓reduceIte] at h_step; injection h_step with _ h_bool; contradiction
   · simp only [hlim, ↓reduceIte] at h_step
-    by_cases hxy : ((if (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-            (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-          else A.x - if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+    by_cases hxy : ((if (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+            (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+          else A.x - if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
           if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)) <
-        (if (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-            (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-          else A.y - if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+        (if (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+            (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+          else A.y - if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
           if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)
     · simp only [hxy, ↓reduceIte] at h_step; injection h_step with h_cell _; injection h_cell with _ hy; omega
     · simp only [hxy, ↓reduceIte] at h_step
-      by_cases hyx : ((if (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-              (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-            else A.y - if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+      by_cases hyx : ((if (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+              (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+            else A.y - if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
             if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) <
-          (if (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-              (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-            else A.x - if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+          (if (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+              (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+            else A.x - if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
             if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)
       · simp only [hyx, ↓reduceIte] at h_step; injection h_step with h_cell _; injection h_cell with hx _; omega
       · unfold remX_val remY_val absVal; dsimp only []
-        simp only [show (1 : Int) > 0 by decide, show ¬((-1 : Int) > 0) by decide, ↓reduceIte] at *
+        simp only [show (1 : ℤ) > 0 by decide, show ¬((-1 : ℤ) > 0) by decide, ↓reduceIte] at *
         refine ⟨by linarith, not_le.mp hlim⟩
 
 
@@ -1067,7 +1067,7 @@ theorem rayMarchStep_X_pos_neg_sound (A B : Point) (c : Cell)
   have h_bnd := stepX_bounded (remX_val A 1 c) (absVal (B.x - A.x)) (absVal (B.y - A.y))
     (remY_val A (-1) c * absVal (B.x - A.x)) h_absDy h_step h_not_done
   unfold absVal at h_bnd; simp [le_of_lt hdx] at h_bnd
-  unfold remX_val at h_bnd; simp only [show (1 : Int) > 0 by decide, ↓reduceIte] at h_bnd
+  unfold remX_val at h_bnd; simp only [show (1 : ℤ) > 0 by decide, ↓reduceIte] at h_bnd
   have hc_prop := hc_bbox; unfold inBoundingBox at hc_prop; dsimp only [] at hc_prop
   simp only [Bool.and_eq_true, decide_eq_true_iff] at hc_prop
   have h_flA : (floorPoint A).x ≤ c.x := by
@@ -1082,24 +1082,24 @@ theorem rayMarchStep_X_pos_neg_sound (A B : Point) (c : Cell)
   have h_ge : ofInt (c.x + 1) ≥ A.x := by
     unfold floorPoint toInt at h_flA; dsimp at h_flA
     have h_lt := Rat.lt_floor_add_one A.x; push_cast at h_lt
-    have h_flA_rat : ((A.x.floor : Int) : Rat) ≤ (c.x : Rat) := Int.cast_le.mpr h_flA
-    have h_ofInt : ofInt (c.x + 1) = (c.x : Rat) + 1 := by
-      unfold ofInt; change ((c.x + 1 : Int) : Rat) = (c.x : Rat) + 1; push_cast; ring
+    have h_flA_rat : ((A.x.floor : ℤ) : ℚ) ≤ (c.x : ℚ) := Int.cast_le.mpr h_flA
+    have h_ofInt : ofInt (c.x + 1) = (c.x : ℚ) + 1 := by
+      unfold ofInt; change ((c.x + 1 : ℤ) : ℚ) = (c.x : ℚ) + 1; push_cast; ring
     rw [h_ofInt]; linarith
   have h_remY_ge : ofInt c.y ≤ A.y := by
     unfold floorPoint toInt at h_flAy; dsimp at h_flAy
     have h_le := Rat.floor_le A.y
-    have h_flAy_rat : (c.y : Rat) ≤ ((A.y.floor : Int) : Rat) := Int.cast_le.mpr h_flAy
-    have h_ofInt : ofInt c.y = (c.y : Rat) := rfl
+    have h_flAy_rat : (c.y : ℚ) ≤ ((A.y.floor : ℤ) : ℚ) := Int.cast_le.mpr h_flAy
+    have h_ofInt : ofInt c.y = (c.y : ℚ) := rfl
     rw [h_ofInt]; linarith
   simp only [h_ge, ↓reduceIte] at h_bnd
   have h_le := stepX_next_le_end c.x A.x B.x h_bnd
   have h_bbox_next := inBoundingBox_stepX_forward c A B hdx hc_bbox h_le
   refine ⟨h_bbox_next, ?_⟩
   unfold remY_val absVal at h_step
-  simp only [show ¬((-1 : Int) > 0) by decide, ↓reduceIte, show ¬(B.y - A.y ≥ 0) by linarith, le_of_lt hdx] at h_step
+  simp only [show ¬((-1 : ℤ) > 0) by decide, ↓reduceIte, show ¬(B.y - A.y ≥ 0) by linarith, le_of_lt hdx] at h_step
   unfold remX_val at h_step
-  simp only [show (1 : Int) > 0 by decide, ↓reduceIte, h_ge] at h_step
+  simp only [show (1 : ℤ) > 0 by decide, ↓reduceIte, h_ge] at h_step
   have h_remY_split : (if ofInt c.y ≥ A.y then ofInt c.y - A.y else A.y - ofInt c.y) = A.y - ofInt c.y := by
     split_ifs with h <;> [linarith; rfl]
   rw [h_remY_split] at h_step
@@ -1125,7 +1125,7 @@ theorem rayMarchStep_X_pos_neg_sound (A B : Point) (c : Cell)
         unfold floorPoint toInt; dsimp
         have h_lt := Rat.lt_floor_add_one A.y; push_cast at h_lt
         have h_num : 0 < ofInt (A.y.floor + 1) - A.y := by
-          unfold ofInt; change 0 < ((A.y.floor + 1 : Int) : Rat) - A.y; push_cast; linarith
+          unfold ofInt; change 0 < ((A.y.floor + 1 : ℤ) : ℚ) - A.y; push_cast; linarith
         exact div_nonpos_of_nonneg_of_nonpos (le_of_lt h_num) (le_of_lt hdy)
       linarith
     | inr h_int =>
@@ -1153,7 +1153,7 @@ theorem rayMarchStep_Y_pos_neg_sound (A B : Point) (c : Cell)
   have h_bnd := stepY_bounded (remY_val A (-1) c) (absVal (B.x - A.x)) (absVal (B.y - A.y))
     (remX_val A 1 c * absVal (B.y - A.y)) h_absDx h_step h_not_done
   unfold absVal at h_bnd; simp [show ¬(B.y - A.y ≥ 0) by linarith] at h_bnd
-  unfold remY_val at h_bnd; simp only [show ¬((-1 : Int) > 0) by decide, ↓reduceIte] at h_bnd
+  unfold remY_val at h_bnd; simp only [show ¬((-1 : ℤ) > 0) by decide, ↓reduceIte] at h_bnd
   have hc_prop := hc_bbox; unfold inBoundingBox at hc_prop; dsimp only [] at hc_prop
   simp only [Bool.and_eq_true, decide_eq_true_iff] at hc_prop
   have h_flA : (floorPoint A).x ≤ c.x := by
@@ -1168,15 +1168,15 @@ theorem rayMarchStep_Y_pos_neg_sound (A B : Point) (c : Cell)
   have h_ge : ofInt (c.x + 1) ≥ A.x := by
     unfold floorPoint toInt at h_flA; dsimp at h_flA
     have h_lt := Rat.lt_floor_add_one A.x; push_cast at h_lt
-    have h_flA_rat : ((A.x.floor : Int) : Rat) ≤ (c.x : Rat) := Int.cast_le.mpr h_flA
-    have h_ofInt : ofInt (c.x + 1) = (c.x : Rat) + 1 := by
-      unfold ofInt; change ((c.x + 1 : Int) : Rat) = (c.x : Rat) + 1; push_cast; ring
+    have h_flA_rat : ((A.x.floor : ℤ) : ℚ) ≤ (c.x : ℚ) := Int.cast_le.mpr h_flA
+    have h_ofInt : ofInt (c.x + 1) = (c.x : ℚ) + 1 := by
+      unfold ofInt; change ((c.x + 1 : ℤ) : ℚ) = (c.x : ℚ) + 1; push_cast; ring
     rw [h_ofInt]; linarith
   have h_remY_ge : ofInt c.y ≤ A.y := by
     unfold floorPoint toInt at h_flAy; dsimp at h_flAy
     have h_le := Rat.floor_le A.y
-    have h_flAy_rat : (c.y : Rat) ≤ ((A.y.floor : Int) : Rat) := Int.cast_le.mpr h_flAy
-    have h_ofInt : ofInt c.y = (c.y : Rat) := rfl
+    have h_flAy_rat : (c.y : ℚ) ≤ ((A.y.floor : ℤ) : ℚ) := Int.cast_le.mpr h_flAy
+    have h_ofInt : ofInt c.y = (c.y : ℚ) := rfl
     rw [h_ofInt]; linarith
   have h_remY_split : (if ofInt c.y ≥ A.y then ofInt c.y - A.y else A.y - ofInt c.y) = A.y - ofInt c.y := by
     split_ifs with h <;> [linarith; rfl]
@@ -1190,9 +1190,9 @@ theorem rayMarchStep_Y_pos_neg_sound (A B : Point) (c : Cell)
   have h_bbox_next := inBoundingBox_stepY_backward c A B hdy hc_bbox h_le
   refine ⟨h_bbox_next, ?_⟩
   unfold remX_val absVal at h_step
-  simp only [show (1 : Int) > 0 by decide, ↓reduceIte, le_of_lt hdx, show ¬(B.y - A.y ≥ 0) by linarith, h_ge] at h_step
+  simp only [show (1 : ℤ) > 0 by decide, ↓reduceIte, le_of_lt hdx, show ¬(B.y - A.y ≥ 0) by linarith, h_ge] at h_step
   unfold remY_val at h_step
-  simp only [show ¬((-1 : Int) > 0) by decide, ↓reduceIte] at h_step
+  simp only [show ¬((-1 : ℤ) > 0) by decide, ↓reduceIte] at h_step
   rw [h_remY_split] at h_step
   let tx0 := (ofInt c.x - A.x) / (B.x - A.x)
   let tx1 := (ofInt (c.x + 1) - A.x) / (B.x - A.x)
@@ -1246,8 +1246,8 @@ theorem rayMarchStep_Diag_pos_neg_sound (A B : Point) (c : Cell)
   simp [le_of_lt hdx, show ¬(B.y - A.y ≥ 0) by linarith] at h_bndX h_bndY
   unfold remX_val at h_bndX
   unfold remY_val at h_bndY
-  simp only [show (1 : Int) > 0 by decide, ↓reduceIte] at h_bndX
-  simp only [show ¬((-1 : Int) > 0) by decide, ↓reduceIte] at h_bndY
+  simp only [show (1 : ℤ) > 0 by decide, ↓reduceIte] at h_bndX
+  simp only [show ¬((-1 : ℤ) > 0) by decide, ↓reduceIte] at h_bndY
   have hc_prop := hc_bbox; unfold inBoundingBox at hc_prop; dsimp only [] at hc_prop
   simp only [Bool.and_eq_true, decide_eq_true_iff] at hc_prop
   have h_flA : (floorPoint A).x ≤ c.x := by
@@ -1261,14 +1261,14 @@ theorem rayMarchStep_Diag_pos_neg_sound (A B : Point) (c : Cell)
     rw [h_max_eq] at h_max; exact h_max
   have h_ge : ofInt (c.x + 1) ≥ A.x := by
     unfold floorPoint toInt at h_flA; dsimp at h_flA; have h_lt := Rat.lt_floor_add_one A.x; push_cast at h_lt
-    have h_flA_rat : ((A.x.floor : Int) : Rat) ≤ (c.x : Rat) := Int.cast_le.mpr h_flA
-    have h_ofInt : ofInt (c.x + 1) = (c.x : Rat) + 1 := by
-      unfold ofInt; change ((c.x + 1 : Int) : Rat) = (c.x : Rat) + 1; push_cast; ring
+    have h_flA_rat : ((A.x.floor : ℤ) : ℚ) ≤ (c.x : ℚ) := Int.cast_le.mpr h_flA
+    have h_ofInt : ofInt (c.x + 1) = (c.x : ℚ) + 1 := by
+      unfold ofInt; change ((c.x + 1 : ℤ) : ℚ) = (c.x : ℚ) + 1; push_cast; ring
     rw [h_ofInt]; linarith
   have h_remY_ge : ofInt c.y ≤ A.y := by
     unfold floorPoint toInt at h_flAy; dsimp at h_flAy; have h_le := Rat.floor_le A.y
-    have h_flAy_rat : (c.y : Rat) ≤ ((A.y.floor : Int) : Rat) := Int.cast_le.mpr h_flAy
-    have h_ofInt : ofInt c.y = (c.y : Rat) := rfl
+    have h_flAy_rat : (c.y : ℚ) ≤ ((A.y.floor : ℤ) : ℚ) := Int.cast_le.mpr h_flAy
+    have h_ofInt : ofInt c.y = (c.y : ℚ) := rfl
     rw [h_ofInt]; linarith
   have h_remY_split : (if ofInt c.y ≥ A.y then ofInt c.y - A.y else A.y - ofInt c.y) = A.y - ofInt c.y := by
     split_ifs with h <;> [linarith; rfl]
@@ -1284,7 +1284,7 @@ theorem rayMarchStep_Diag_pos_neg_sound (A B : Point) (c : Cell)
   have h_bbox_next := inBoundingBox_diag_pos_neg c A B hdx hdy hc_bbox h_le_x h_le_y
   refine ⟨h_bbox_next, ?_⟩
   unfold remX_val remY_val absVal at h_step
-  simp only [show (1 : Int) > 0 by decide, show ¬((-1 : Int) > 0) by decide, ↓reduceIte,
+  simp only [show (1 : ℤ) > 0 by decide, show ¬((-1 : ℤ) > 0) by decide, ↓reduceIte,
     le_of_lt hdx, show ¬(B.y - A.y ≥ 0) by linarith, h_ge] at h_step
   rw [h_remY_split] at h_step
   let t := (ofInt (c.x + 1) - A.x) / (B.x - A.x)
@@ -1303,7 +1303,7 @@ theorem rayMarchStep_Diag_pos_neg_sound (A B : Point) (c : Cell)
   exact ⟨tEnter, tExit, h_eval, h_lt⟩
 
 
-theorem rayMarchStep_sound_step_pos_neg (A B : Point) (dx dy : Rat) (stepX stepY : Int) (c : Cell)
+theorem rayMarchStep_sound_step_pos_neg (A B : Point) (dx dy : ℚ) (stepX stepY : ℤ) (c : Cell)
     (hdx : dx = B.x - A.x) (hdy : dy = B.y - A.y)
     (hstepX : stepX = if dx > 0 then 1 else if dx < 0 then -1 else 0)
     (hstepY : stepY = if dy > 0 then 1 else if dy < 0 then -1 else 0)
@@ -1347,8 +1347,8 @@ theorem rayMarch_soundness_pos_neg (A B : Point) (x : Cell)
       (floorPoint B) (floorPoint A) []) :
     inBoundingBox x A B = true ∧
     ∃ tEnter tExit, cellIntersectionInterval x A B = some (tEnter, tExit) ∧ tEnter < tExit := by
-  have hsx : (if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else (0 : Int)) = 1 := by simp [hdx]
-  have hsy : (if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else (0 : Int)) = -1 := by
+  have hsx : (if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else (0 : ℤ)) = 1 := by simp [hdx]
+  have hsy : (if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else (0 : ℤ)) = -1 := by
     simp [show ¬(B.y - A.y > 0) by linarith, hdy]
   rw [hsx, hsy] at hx
   have h_fuel : (((floorPoint B).x - (floorPoint A).x).natAbs + ((floorPoint B).y - (floorPoint A).y).natAbs + 2) =
@@ -1378,7 +1378,7 @@ theorem inBoundingBox_diag_neg_pos (c : Cell) (A B : Point)
   exact inBoundingBox_stepY_forward ⟨c.x - 1, c.y⟩ A B hdy h1 h_next_y
 
 
-theorem stepDiag_interval_lt_neg_pos (t dx dy : Rat) (dx_neg : dx < 0) (dy_pos : 0 < dy)
+theorem stepDiag_interval_lt_neg_pos (t dx dy : ℚ) (dx_neg : dx < 0) (dy_pos : 0 < dy)
     (h_lim : t < 1)
     (h_pos : 0 ≤ t) :
     max 0 (max t t) < min 1 (min (t - 1 / dx) (t + 1 / dy)) := by
@@ -1427,7 +1427,7 @@ theorem cellIntersectionInterval_stepX_neg_pos (A B : Point) (c : Cell)
   have h_cx1 : ofInt (c.x - 1 + 1) = ofInt c.x := by
     unfold ofInt; congr 1; omega
   have h_cx0 : ofInt (c.x - 1) = ofInt c.x - 1 := by
-    unfold ofInt; change ((c.x - 1 : Int) : Rat) = ((c.x : Int) : Rat) - 1; push_cast; ring
+    unfold ofInt; change ((c.x - 1 : ℤ) : ℚ) = ((c.x : ℤ) : ℚ) - 1; push_cast; ring
   rw [h_cx1, h_cx0]
   have h_divx : (ofInt c.x - 1 - A.x) / (B.x - A.x) = tx1 - 1 / dx := by
     dsimp [tx1, dx]; ring
@@ -1462,7 +1462,7 @@ theorem cellIntersectionInterval_stepY_neg_pos (A B : Point) (c : Cell)
   have h_not_dx_pos : ¬(B.x - A.x > 0) := by linarith
   simp only [h_dx_ne, h_dy_ne, h_not_dx_pos, hdy, ↓reduceIte]
   have h_cy1 : ofInt (c.y + 1 + 1) = ofInt (c.y + 1) + 1 := by
-    unfold ofInt; change ((c.y + 1 + 1 : Int) : Rat) = ((c.y + 1 : Int) : Rat) + 1; push_cast; ring
+    unfold ofInt; change ((c.y + 1 + 1 : ℤ) : ℚ) = ((c.y + 1 : ℤ) : ℚ) + 1; push_cast; ring
   rw [h_cy1]
   have h_divy : (ofInt (c.y + 1) + 1 - A.y) / (B.y - A.y) = ty1 + 1 / dy := by
     dsimp [ty1, dy]; ring
@@ -1498,9 +1498,9 @@ theorem cellIntersectionInterval_diag_neg_pos (A B : Point) (c : Cell)
   have h_cx1 : ofInt (c.x - 1 + 1) = ofInt c.x := by
     unfold ofInt; congr 1; omega
   have h_cx0 : ofInt (c.x - 1) = ofInt c.x - 1 := by
-    unfold ofInt; change ((c.x - 1 : Int) : Rat) = ((c.x : Int) : Rat) - 1; push_cast; ring
+    unfold ofInt; change ((c.x - 1 : ℤ) : ℚ) = ((c.x : ℤ) : ℚ) - 1; push_cast; ring
   have h_cy1 : ofInt (c.y + 1 + 1) = ofInt (c.y + 1) + 1 := by
-    unfold ofInt; change ((c.y + 1 + 1 : Int) : Rat) = ((c.y + 1 : Int) : Rat) + 1; push_cast; ring
+    unfold ofInt; change ((c.y + 1 + 1 : ℤ) : ℚ) = ((c.y + 1 : ℤ) : ℚ) + 1; push_cast; ring
   rw [h_cx1, h_cx0, h_cy1]
   have h_divx : (ofInt c.x - 1 - A.x) / (B.x - A.x) = t - 1 / dx := by
     dsimp [t, dx]; ring
@@ -1522,38 +1522,38 @@ theorem extract_stepX_neg_pos (A B : Point) (c : Cell)
     remX_val A (-1) c * absVal (B.y - A.y) < remY_val A 1 c * absVal (B.x - A.x) ∧
     min (remX_val A (-1) c * absVal (B.y - A.y)) (remY_val A 1 c * absVal (B.x - A.x)) < absVal (B.x - A.x) * absVal (B.y - A.y) := by
   unfold rayMarchStep at h_step; dsimp only [] at h_step
-  simp only [show ((-1 : Int) == 0) = false by decide, Bool.false_eq_true, ↓reduceIte] at h_step
+  simp only [show ((-1 : ℤ) == 0) = false by decide, Bool.false_eq_true, ↓reduceIte] at h_step
   by_cases hlim : min
-        ((if (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-            (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-          else A.x - if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+        ((if (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+            (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+          else A.x - if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
           if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y))
-        ((if (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-            (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-          else A.y - if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+        ((if (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+            (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+          else A.y - if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
           if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) ≥
       (if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) * if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)
   · simp only [hlim, ↓reduceIte] at h_step; injection h_step with _ h_bool; contradiction
   · simp only [hlim, ↓reduceIte] at h_step
-    by_cases hxy : ((if (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-            (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-          else A.x - if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+    by_cases hxy : ((if (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+            (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+          else A.x - if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
           if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)) <
-        (if (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-            (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-          else A.y - if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+        (if (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+            (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+          else A.y - if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
           if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)
     · unfold remX_val remY_val absVal; dsimp only []
-      simp only [show ¬((-1 : Int) > 0) by decide, show (1 : Int) > 0 by decide, ↓reduceIte]
+      simp only [show ¬((-1 : ℤ) > 0) by decide, show (1 : ℤ) > 0 by decide, ↓reduceIte]
       refine ⟨hxy, not_le.mp hlim⟩
     · simp only [hxy, ↓reduceIte] at h_step
-      by_cases hyx : ((if (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-              (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-            else A.y - if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+      by_cases hyx : ((if (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+              (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+            else A.y - if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
             if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) <
-          (if (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-              (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-            else A.x - if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+          (if (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+              (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+            else A.x - if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
             if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)
       · simp only [hyx, ↓reduceIte] at h_step; injection h_step with h_cell _; injection h_cell with _ hy; omega
       · simp only [hyx, ↓reduceIte] at h_step; injection h_step with h_cell _; injection h_cell with hx _; omega
@@ -1565,39 +1565,39 @@ theorem extract_stepY_neg_pos (A B : Point) (c : Cell)
     remY_val A 1 c * absVal (B.x - A.x) < remX_val A (-1) c * absVal (B.y - A.y) ∧
     min (remX_val A (-1) c * absVal (B.y - A.y)) (remY_val A 1 c * absVal (B.x - A.x)) < absVal (B.x - A.x) * absVal (B.y - A.y) := by
   unfold rayMarchStep at h_step; dsimp only [] at h_step
-  simp only [show ((-1 : Int) == 0) = false by decide, Bool.false_eq_true, ↓reduceIte] at h_step
+  simp only [show ((-1 : ℤ) == 0) = false by decide, Bool.false_eq_true, ↓reduceIte] at h_step
   by_cases hlim : min
-        ((if (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-            (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-          else A.x - if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+        ((if (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+            (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+          else A.x - if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
           if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y))
-        ((if (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-            (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-          else A.y - if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+        ((if (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+            (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+          else A.y - if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
           if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) ≥
       (if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) * if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)
   · simp only [hlim, ↓reduceIte] at h_step; injection h_step with _ h_bool; contradiction
   · simp only [hlim, ↓reduceIte] at h_step
-    by_cases hxy : ((if (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-            (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-          else A.x - if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+    by_cases hxy : ((if (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+            (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+          else A.x - if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
           if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)) <
-        (if (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-            (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-          else A.y - if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+        (if (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+            (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+          else A.y - if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
           if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)
     · simp only [hxy, ↓reduceIte] at h_step; injection h_step with h_cell _; injection h_cell with hx _; omega
     · simp only [hxy, ↓reduceIte] at h_step
-      by_cases hyx : ((if (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-              (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-            else A.y - if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+      by_cases hyx : ((if (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+              (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+            else A.y - if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
             if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) <
-          (if (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-              (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-            else A.x - if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+          (if (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+              (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+            else A.x - if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
             if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)
       · unfold remX_val remY_val absVal; dsimp only []
-        simp only [show ¬((-1 : Int) > 0) by decide, show (1 : Int) > 0 by decide, ↓reduceIte]
+        simp only [show ¬((-1 : ℤ) > 0) by decide, show (1 : ℤ) > 0 by decide, ↓reduceIte]
         refine ⟨hyx, not_le.mp hlim⟩
       · simp only [hyx, ↓reduceIte] at h_step; injection h_step with h_cell _; injection h_cell with _ hy; omega
 
@@ -1608,40 +1608,40 @@ theorem extract_stepDiag_neg_pos (A B : Point) (c : Cell)
     remX_val A (-1) c * absVal (B.y - A.y) = remY_val A 1 c * absVal (B.x - A.x) ∧
     min (remX_val A (-1) c * absVal (B.y - A.y)) (remY_val A 1 c * absVal (B.x - A.x)) < absVal (B.x - A.x) * absVal (B.y - A.y) := by
   unfold rayMarchStep at h_step; dsimp only [] at h_step
-  simp only [show ((-1 : Int) == 0) = false by decide, Bool.false_eq_true, ↓reduceIte] at h_step
+  simp only [show ((-1 : ℤ) == 0) = false by decide, Bool.false_eq_true, ↓reduceIte] at h_step
   by_cases hlim : min
-        ((if (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-            (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-          else A.x - if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+        ((if (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+            (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+          else A.x - if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
           if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y))
-        ((if (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-            (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-          else A.y - if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+        ((if (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+            (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+          else A.y - if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
           if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) ≥
       (if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) * if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)
   · simp only [hlim, ↓reduceIte] at h_step; injection h_step with _ h_bool; contradiction
   · simp only [hlim, ↓reduceIte] at h_step
-    by_cases hxy : ((if (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-            (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-          else A.x - if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+    by_cases hxy : ((if (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+            (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+          else A.x - if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
           if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)) <
-        (if (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-            (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-          else A.y - if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+        (if (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+            (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+          else A.y - if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
           if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)
     · simp only [hxy, ↓reduceIte] at h_step; injection h_step with h_cell _; injection h_cell with hx _; omega
     · simp only [hxy, ↓reduceIte] at h_step
-      by_cases hyx : ((if (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-              (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-            else A.y - if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+      by_cases hyx : ((if (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+              (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+            else A.y - if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
             if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) <
-          (if (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-              (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-            else A.x - if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+          (if (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+              (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+            else A.x - if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
             if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)
       · simp only [hyx, ↓reduceIte] at h_step; injection h_step with h_cell _; injection h_cell with _ hy; omega
       · unfold remX_val remY_val absVal; dsimp only []
-        simp only [show ¬((-1 : Int) > 0) by decide, show (1 : Int) > 0 by decide, ↓reduceIte] at *
+        simp only [show ¬((-1 : ℤ) > 0) by decide, show (1 : ℤ) > 0 by decide, ↓reduceIte] at *
         refine ⟨by linarith, not_le.mp hlim⟩
 
 
@@ -1657,7 +1657,7 @@ theorem rayMarchStep_X_neg_pos_sound (A B : Point) (c : Cell)
   have h_bnd := stepX_bounded (remX_val A (-1) c) (absVal (B.x - A.x)) (absVal (B.y - A.y))
     (remY_val A 1 c * absVal (B.x - A.x)) h_absDy h_step h_not_done
   unfold absVal at h_bnd; simp [show ¬(B.x - A.x ≥ 0) by linarith] at h_bnd
-  unfold remX_val at h_bnd; simp only [show ¬((-1 : Int) > 0) by decide, ↓reduceIte] at h_bnd
+  unfold remX_val at h_bnd; simp only [show ¬((-1 : ℤ) > 0) by decide, ↓reduceIte] at h_bnd
   have hc_prop := hc_bbox; unfold inBoundingBox at hc_prop; dsimp only [] at hc_prop
   simp only [Bool.and_eq_true, decide_eq_true_iff] at hc_prop
   have h_flAx : c.x ≤ (floorPoint A).x := by
@@ -1672,15 +1672,15 @@ theorem rayMarchStep_X_neg_pos_sound (A B : Point) (c : Cell)
   have h_remX_ge : ofInt c.x ≤ A.x := by
     unfold floorPoint toInt at h_flAx; dsimp at h_flAx
     have h_le := Rat.floor_le A.x
-    have h_flAx_rat : (c.x : Rat) ≤ ((A.x.floor : Int) : Rat) := Int.cast_le.mpr h_flAx
-    have h_ofInt : ofInt c.x = (c.x : Rat) := rfl
+    have h_flAx_rat : (c.x : ℚ) ≤ ((A.x.floor : ℤ) : ℚ) := Int.cast_le.mpr h_flAx
+    have h_ofInt : ofInt c.x = (c.x : ℚ) := rfl
     rw [h_ofInt]; linarith
   have h_remY_ge : ofInt (c.y + 1) ≥ A.y := by
     unfold floorPoint toInt at h_flAy; dsimp at h_flAy
     have h_lt := Rat.lt_floor_add_one A.y; push_cast at h_lt
-    have h_flAy_rat : ((A.y.floor : Int) : Rat) ≤ (c.y : Rat) := Int.cast_le.mpr h_flAy
-    have h_ofInt : ofInt (c.y + 1) = (c.y : Rat) + 1 := by
-      unfold ofInt; change ((c.y + 1 : Int) : Rat) = (c.y : Rat) + 1; push_cast; ring
+    have h_flAy_rat : ((A.y.floor : ℤ) : ℚ) ≤ (c.y : ℚ) := Int.cast_le.mpr h_flAy
+    have h_ofInt : ofInt (c.y + 1) = (c.y : ℚ) + 1 := by
+      unfold ofInt; change ((c.y + 1 : ℤ) : ℚ) = (c.y : ℚ) + 1; push_cast; ring
     rw [h_ofInt]; linarith
   have h_remX_split : (if ofInt c.x ≥ A.x then ofInt c.x - A.x else A.x - ofInt c.x) = A.x - ofInt c.x := by
     split_ifs with h <;> [linarith; rfl]
@@ -1694,9 +1694,9 @@ theorem rayMarchStep_X_neg_pos_sound (A B : Point) (c : Cell)
   have h_bbox_next := inBoundingBox_stepX_backward c A B hdx hc_bbox h_le
   refine ⟨h_bbox_next, ?_⟩
   unfold remY_val absVal at h_step
-  simp only [show (1 : Int) > 0 by decide, ↓reduceIte, le_of_lt hdy, show ¬(B.x - A.x ≥ 0) by linarith, h_remY_ge] at h_step
+  simp only [show (1 : ℤ) > 0 by decide, ↓reduceIte, le_of_lt hdy, show ¬(B.x - A.x ≥ 0) by linarith, h_remY_ge] at h_step
   unfold remX_val at h_step
-  simp only [show ¬((-1 : Int) > 0) by decide, ↓reduceIte] at h_step
+  simp only [show ¬((-1 : ℤ) > 0) by decide, ↓reduceIte] at h_step
   rw [h_remX_split] at h_step
   let tx1 := (ofInt c.x - A.x) / (B.x - A.x)
   let ty0 := (ofInt c.y - A.y) / (B.y - A.y)
@@ -1743,7 +1743,7 @@ theorem rayMarchStep_Y_neg_pos_sound (A B : Point) (c : Cell)
   have h_bnd := stepY_bounded (remY_val A 1 c) (absVal (B.x - A.x)) (absVal (B.y - A.y))
     (remX_val A (-1) c * absVal (B.y - A.y)) h_absDx h_step h_not_done
   unfold absVal at h_bnd; simp [le_of_lt hdy] at h_bnd
-  unfold remY_val at h_bnd; simp only [show (1 : Int) > 0 by decide, ↓reduceIte] at h_bnd
+  unfold remY_val at h_bnd; simp only [show (1 : ℤ) > 0 by decide, ↓reduceIte] at h_bnd
   have hc_prop := hc_bbox; unfold inBoundingBox at hc_prop; dsimp only [] at hc_prop
   simp only [Bool.and_eq_true, decide_eq_true_iff] at hc_prop
   have h_flAx : c.x ≤ (floorPoint A).x := by
@@ -1758,24 +1758,24 @@ theorem rayMarchStep_Y_neg_pos_sound (A B : Point) (c : Cell)
   have h_remX_ge : ofInt c.x ≤ A.x := by
     unfold floorPoint toInt at h_flAx; dsimp at h_flAx
     have h_le := Rat.floor_le A.x
-    have h_flAx_rat : (c.x : Rat) ≤ ((A.x.floor : Int) : Rat) := Int.cast_le.mpr h_flAx
-    have h_ofInt : ofInt c.x = (c.x : Rat) := rfl
+    have h_flAx_rat : (c.x : ℚ) ≤ ((A.x.floor : ℤ) : ℚ) := Int.cast_le.mpr h_flAx
+    have h_ofInt : ofInt c.x = (c.x : ℚ) := rfl
     rw [h_ofInt]; linarith
   have h_remY_ge : ofInt (c.y + 1) ≥ A.y := by
     unfold floorPoint toInt at h_flAy; dsimp at h_flAy
     have h_lt := Rat.lt_floor_add_one A.y; push_cast at h_lt
-    have h_flAy_rat : ((A.y.floor : Int) : Rat) ≤ (c.y : Rat) := Int.cast_le.mpr h_flAy
-    have h_ofInt : ofInt (c.y + 1) = (c.y : Rat) + 1 := by
-      unfold ofInt; change ((c.y + 1 : Int) : Rat) = (c.y : Rat) + 1; push_cast; ring
+    have h_flAy_rat : ((A.y.floor : ℤ) : ℚ) ≤ (c.y : ℚ) := Int.cast_le.mpr h_flAy
+    have h_ofInt : ofInt (c.y + 1) = (c.y : ℚ) + 1 := by
+      unfold ofInt; change ((c.y + 1 : ℤ) : ℚ) = (c.y : ℚ) + 1; push_cast; ring
     rw [h_ofInt]; linarith
   simp only [h_remY_ge, ↓reduceIte] at h_bnd
   have h_le := stepY_next_le_end c.y A.y B.y h_bnd
   have h_bbox_next := inBoundingBox_stepY_forward c A B hdy hc_bbox h_le
   refine ⟨h_bbox_next, ?_⟩
   unfold remX_val absVal at h_step
-  simp only [show ¬((-1 : Int) > 0) by decide, ↓reduceIte, le_of_lt hdy, show ¬(B.x - A.x ≥ 0) by linarith] at h_step
+  simp only [show ¬((-1 : ℤ) > 0) by decide, ↓reduceIte, le_of_lt hdy, show ¬(B.x - A.x ≥ 0) by linarith] at h_step
   unfold remY_val at h_step
-  simp only [show (1 : Int) > 0 by decide, ↓reduceIte, h_remY_ge] at h_step
+  simp only [show (1 : ℤ) > 0 by decide, ↓reduceIte, h_remY_ge] at h_step
   have h_remX_split : (if ofInt c.x ≥ A.x then ofInt c.x - A.x else A.x - ofInt c.x) = A.x - ofInt c.x := by
     split_ifs with h <;> [linarith; rfl]
   rw [h_remX_split] at h_step
@@ -1799,7 +1799,7 @@ theorem rayMarchStep_Y_neg_pos_sound (A B : Point) (c : Cell)
         unfold floorPoint toInt; dsimp
         have h_lt := Rat.lt_floor_add_one A.x; push_cast at h_lt
         have h_num : 0 < ofInt (A.x.floor + 1) - A.x := by
-          unfold ofInt; change 0 < ((A.x.floor + 1 : Int) : Rat) - A.x; push_cast; linarith
+          unfold ofInt; change 0 < ((A.x.floor + 1 : ℤ) : ℚ) - A.x; push_cast; linarith
         exact div_nonpos_of_nonneg_of_nonpos (le_of_lt h_num) (le_of_lt hdx)
       linarith
     | inr h_int =>
@@ -1830,8 +1830,8 @@ theorem rayMarchStep_Diag_neg_pos_sound (A B : Point) (c : Cell)
   simp [show ¬(B.x - A.x ≥ 0) by linarith, le_of_lt hdy] at h_bndX h_bndY
   unfold remX_val at h_bndX
   unfold remY_val at h_bndY
-  simp only [show ¬((-1 : Int) > 0) by decide, ↓reduceIte] at h_bndX
-  simp only [show (1 : Int) > 0 by decide, ↓reduceIte] at h_bndY
+  simp only [show ¬((-1 : ℤ) > 0) by decide, ↓reduceIte] at h_bndX
+  simp only [show (1 : ℤ) > 0 by decide, ↓reduceIte] at h_bndY
   have hc_prop := hc_bbox; unfold inBoundingBox at hc_prop; dsimp only [] at hc_prop
   simp only [Bool.and_eq_true, decide_eq_true_iff] at hc_prop
   have h_flAx : c.x ≤ (floorPoint A).x := by
@@ -1846,15 +1846,15 @@ theorem rayMarchStep_Diag_neg_pos_sound (A B : Point) (c : Cell)
   have h_remX_ge : ofInt c.x ≤ A.x := by
     unfold floorPoint toInt at h_flAx; dsimp at h_flAx
     have h_le := Rat.floor_le A.x
-    have h_flAx_rat : (c.x : Rat) ≤ ((A.x.floor : Int) : Rat) := Int.cast_le.mpr h_flAx
-    have h_ofInt : ofInt c.x = (c.x : Rat) := rfl
+    have h_flAx_rat : (c.x : ℚ) ≤ ((A.x.floor : ℤ) : ℚ) := Int.cast_le.mpr h_flAx
+    have h_ofInt : ofInt c.x = (c.x : ℚ) := rfl
     rw [h_ofInt]; linarith
   have h_remY_ge : ofInt (c.y + 1) ≥ A.y := by
     unfold floorPoint toInt at h_flAy; dsimp at h_flAy
     have h_lt := Rat.lt_floor_add_one A.y; push_cast at h_lt
-    have h_flAy_rat : ((A.y.floor : Int) : Rat) ≤ (c.y : Rat) := Int.cast_le.mpr h_flAy
-    have h_ofInt : ofInt (c.y + 1) = (c.y : Rat) + 1 := by
-      unfold ofInt; change ((c.y + 1 : Int) : Rat) = (c.y : Rat) + 1; push_cast; ring
+    have h_flAy_rat : ((A.y.floor : ℤ) : ℚ) ≤ (c.y : ℚ) := Int.cast_le.mpr h_flAy
+    have h_ofInt : ofInt (c.y + 1) = (c.y : ℚ) + 1 := by
+      unfold ofInt; change ((c.y + 1 : ℤ) : ℚ) = (c.y : ℚ) + 1; push_cast; ring
     rw [h_ofInt]; linarith
   have h_remX_split : (if ofInt c.x ≥ A.x then ofInt c.x - A.x else A.x - ofInt c.x) = A.x - ofInt c.x := by
     split_ifs with h <;> [linarith; rfl]
@@ -1870,7 +1870,7 @@ theorem rayMarchStep_Diag_neg_pos_sound (A B : Point) (c : Cell)
   have h_bbox_next := inBoundingBox_diag_neg_pos c A B hdx hdy hc_bbox h_le_x h_le_y
   refine ⟨h_bbox_next, ?_⟩
   unfold remX_val remY_val absVal at h_step
-  simp only [show ¬((-1 : Int) > 0) by decide, show (1 : Int) > 0 by decide, ↓reduceIte,
+  simp only [show ¬((-1 : ℤ) > 0) by decide, show (1 : ℤ) > 0 by decide, ↓reduceIte,
     le_of_lt hdy, show ¬(B.x - A.x ≥ 0) by linarith, h_remY_ge] at h_step
   rw [h_remX_split] at h_step
   let t := (ofInt c.x - A.x) / (B.x - A.x)
@@ -1891,7 +1891,7 @@ theorem rayMarchStep_Diag_neg_pos_sound (A B : Point) (c : Cell)
   exact ⟨tEnter, tExit, h_eval, h_lt⟩
 
 
-theorem rayMarchStep_sound_step_neg_pos (A B : Point) (dx dy : Rat) (stepX stepY : Int) (c : Cell)
+theorem rayMarchStep_sound_step_neg_pos (A B : Point) (dx dy : ℚ) (stepX stepY : ℤ) (c : Cell)
     (hdx : dx = B.x - A.x) (hdy : dy = B.y - A.y)
     (hstepX : stepX = if dx > 0 then 1 else if dx < 0 then -1 else 0)
     (hstepY : stepY = if dy > 0 then 1 else if dy < 0 then -1 else 0)
@@ -1935,9 +1935,9 @@ theorem rayMarch_soundness_neg_pos (A B : Point) (x : Cell)
       (floorPoint B) (floorPoint A) []) :
     inBoundingBox x A B = true ∧
     ∃ tEnter tExit, cellIntersectionInterval x A B = some (tEnter, tExit) ∧ tEnter < tExit := by
-  have hsx : (if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else (0 : Int)) = -1 := by
+  have hsx : (if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else (0 : ℤ)) = -1 := by
     simp [show ¬(B.x - A.x > 0) by linarith, hdx]
-  have hsy : (if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else (0 : Int)) = 1 := by simp [hdy]
+  have hsy : (if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else (0 : ℤ)) = 1 := by simp [hdy]
   rw [hsx, hsy] at hx
   have h_fuel : (((floorPoint B).x - (floorPoint A).x).natAbs + ((floorPoint B).y - (floorPoint A).y).natAbs + 2) =
     (((floorPoint B).x - (floorPoint A).x).natAbs + ((floorPoint B).y - (floorPoint A).y).natAbs + 1) + 1 := by omega
@@ -1966,7 +1966,7 @@ theorem inBoundingBox_diag_neg_neg (c : Cell) (A B : Point)
   exact inBoundingBox_stepY_backward ⟨c.x - 1, c.y⟩ A B hdy h1 h_next_y
 
 
-theorem stepDiag_interval_lt_neg_neg (t dx dy : Rat) (dx_neg : dx < 0) (dy_neg : dy < 0)
+theorem stepDiag_interval_lt_neg_neg (t dx dy : ℚ) (dx_neg : dx < 0) (dy_neg : dy < 0)
     (h_lim : t < 1)
     (h_pos : 0 ≤ t) :
     max 0 (max t t) < min 1 (min (t - 1 / dx) (t - 1 / dy)) := by
@@ -2018,7 +2018,7 @@ theorem cellIntersectionInterval_stepX_neg_neg (A B : Point) (c : Cell)
   have h_cx1 : ofInt (c.x - 1 + 1) = ofInt c.x := by
     unfold ofInt; congr 1; omega
   have h_cx0 : ofInt (c.x - 1) = ofInt c.x - 1 := by
-    unfold ofInt; change ((c.x - 1 : Int) : Rat) = ((c.x : Int) : Rat) - 1; push_cast; ring
+    unfold ofInt; change ((c.x - 1 : ℤ) : ℚ) = ((c.x : ℤ) : ℚ) - 1; push_cast; ring
   rw [h_cx1, h_cx0]
   have h_divx : (ofInt c.x - 1 - A.x) / (B.x - A.x) = tx1 - 1 / dx := by
     dsimp [tx1, dx]; ring
@@ -2056,7 +2056,7 @@ theorem cellIntersectionInterval_stepY_neg_neg (A B : Point) (c : Cell)
   have h_cy1 : ofInt (c.y - 1 + 1) = ofInt c.y := by
     unfold ofInt; congr 1; omega
   have h_cy0 : ofInt (c.y - 1) = ofInt c.y - 1 := by
-    unfold ofInt; change ((c.y - 1 : Int) : Rat) = ((c.y : Int) : Rat) - 1; push_cast; ring
+    unfold ofInt; change ((c.y - 1 : ℤ) : ℚ) = ((c.y : ℤ) : ℚ) - 1; push_cast; ring
   rw [h_cy1, h_cy0]
   have h_divy : (ofInt c.y - 1 - A.y) / (B.y - A.y) = ty1 - 1 / dy := by
     dsimp [ty1, dy]; ring
@@ -2093,11 +2093,11 @@ theorem cellIntersectionInterval_diag_neg_neg (A B : Point) (c : Cell)
   have h_cx1 : ofInt (c.x - 1 + 1) = ofInt c.x := by
     unfold ofInt; congr 1; omega
   have h_cx0 : ofInt (c.x - 1) = ofInt c.x - 1 := by
-    unfold ofInt; change ((c.x - 1 : Int) : Rat) = ((c.x : Int) : Rat) - 1; push_cast; ring
+    unfold ofInt; change ((c.x - 1 : ℤ) : ℚ) = ((c.x : ℤ) : ℚ) - 1; push_cast; ring
   have h_cy1 : ofInt (c.y - 1 + 1) = ofInt c.y := by
     unfold ofInt; congr 1; omega
   have h_cy0 : ofInt (c.y - 1) = ofInt c.y - 1 := by
-    unfold ofInt; change ((c.y - 1 : Int) : Rat) = ((c.y : Int) : Rat) - 1; push_cast; ring
+    unfold ofInt; change ((c.y - 1 : ℤ) : ℚ) = ((c.y : ℤ) : ℚ) - 1; push_cast; ring
   rw [h_cx1, h_cx0, h_cy1, h_cy0]
   have h_divx : (ofInt c.x - 1 - A.x) / (B.x - A.x) = t - 1 / dx := by
     dsimp [t, dx]; ring
@@ -2119,38 +2119,38 @@ theorem extract_stepX_neg_neg (A B : Point) (c : Cell)
     remX_val A (-1) c * absVal (B.y - A.y) < remY_val A (-1) c * absVal (B.x - A.x) ∧
     min (remX_val A (-1) c * absVal (B.y - A.y)) (remY_val A (-1) c * absVal (B.x - A.x)) < absVal (B.x - A.x) * absVal (B.y - A.y) := by
   unfold rayMarchStep at h_step; dsimp only [] at h_step
-  simp only [show ((-1 : Int) == 0) = false by decide, Bool.false_eq_true, ↓reduceIte] at h_step
+  simp only [show ((-1 : ℤ) == 0) = false by decide, Bool.false_eq_true, ↓reduceIte] at h_step
   by_cases hlim : min
-        ((if (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-            (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-          else A.x - if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+        ((if (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+            (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+          else A.x - if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
           if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y))
-        ((if (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-            (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-          else A.y - if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+        ((if (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+            (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+          else A.y - if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
           if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) ≥
       (if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) * if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)
   · simp only [hlim, ↓reduceIte] at h_step; injection h_step with _ h_bool; contradiction
   · simp only [hlim, ↓reduceIte] at h_step
-    by_cases hxy : ((if (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-            (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-          else A.x - if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+    by_cases hxy : ((if (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+            (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+          else A.x - if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
           if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)) <
-        (if (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-            (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-          else A.y - if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+        (if (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+            (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+          else A.y - if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
           if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)
     · unfold remX_val remY_val absVal; dsimp only []
-      simp only [show ¬((-1 : Int) > 0) by decide, ↓reduceIte]
+      simp only [show ¬((-1 : ℤ) > 0) by decide, ↓reduceIte]
       refine ⟨hxy, not_le.mp hlim⟩
     · simp only [hxy, ↓reduceIte] at h_step
-      by_cases hyx : ((if (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-              (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-            else A.y - if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+      by_cases hyx : ((if (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+              (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+            else A.y - if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
             if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) <
-          (if (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-              (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-            else A.x - if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+          (if (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+              (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+            else A.x - if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
             if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)
       · simp only [hyx, ↓reduceIte] at h_step; injection h_step with h_cell _; injection h_cell with _ hy; omega
       · simp only [hyx, ↓reduceIte] at h_step; injection h_step with h_cell _; injection h_cell with hx _; omega
@@ -2162,39 +2162,39 @@ theorem extract_stepY_neg_neg (A B : Point) (c : Cell)
     remY_val A (-1) c * absVal (B.x - A.x) < remX_val A (-1) c * absVal (B.y - A.y) ∧
     min (remX_val A (-1) c * absVal (B.y - A.y)) (remY_val A (-1) c * absVal (B.x - A.x)) < absVal (B.x - A.x) * absVal (B.y - A.y) := by
   unfold rayMarchStep at h_step; dsimp only [] at h_step
-  simp only [show ((-1 : Int) == 0) = false by decide, Bool.false_eq_true, ↓reduceIte] at h_step
+  simp only [show ((-1 : ℤ) == 0) = false by decide, Bool.false_eq_true, ↓reduceIte] at h_step
   by_cases hlim : min
-        ((if (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-            (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-          else A.x - if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+        ((if (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+            (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+          else A.x - if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
           if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y))
-        ((if (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-            (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-          else A.y - if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+        ((if (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+            (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+          else A.y - if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
           if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) ≥
       (if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) * if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)
   · simp only [hlim, ↓reduceIte] at h_step; injection h_step with _ h_bool; contradiction
   · simp only [hlim, ↓reduceIte] at h_step
-    by_cases hxy : ((if (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-            (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-          else A.x - if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+    by_cases hxy : ((if (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+            (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+          else A.x - if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
           if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)) <
-        (if (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-            (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-          else A.y - if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+        (if (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+            (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+          else A.y - if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
           if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)
     · simp only [hxy, ↓reduceIte] at h_step; injection h_step with h_cell _; injection h_cell with _ hy; omega
     · simp only [hxy, ↓reduceIte] at h_step
-      by_cases hyx : ((if (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-              (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-            else A.y - if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+      by_cases hyx : ((if (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+              (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+            else A.y - if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
             if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) <
-          (if (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-              (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-            else A.x - if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+          (if (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+              (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+            else A.x - if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
             if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)
       · unfold remX_val remY_val absVal; dsimp only []
-        simp only [show ¬((-1 : Int) > 0) by decide, ↓reduceIte]
+        simp only [show ¬((-1 : ℤ) > 0) by decide, ↓reduceIte]
         refine ⟨hyx, not_le.mp hlim⟩
       · simp only [hyx, ↓reduceIte] at h_step; injection h_step with h_cell _; injection h_cell with hx _; omega
 
@@ -2205,40 +2205,40 @@ theorem extract_stepDiag_neg_neg (A B : Point) (c : Cell)
     remX_val A (-1) c * absVal (B.y - A.y) = remY_val A (-1) c * absVal (B.x - A.x) ∧
     min (remX_val A (-1) c * absVal (B.y - A.y)) (remY_val A (-1) c * absVal (B.x - A.x)) < absVal (B.x - A.x) * absVal (B.y - A.y) := by
   unfold rayMarchStep at h_step; dsimp only [] at h_step
-  simp only [show ((-1 : Int) == 0) = false by decide, Bool.false_eq_true, ↓reduceIte] at h_step
+  simp only [show ((-1 : ℤ) == 0) = false by decide, Bool.false_eq_true, ↓reduceIte] at h_step
   by_cases hlim : min
-        ((if (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-            (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-          else A.x - if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+        ((if (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+            (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+          else A.x - if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
           if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y))
-        ((if (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-            (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-          else A.y - if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+        ((if (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+            (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+          else A.y - if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
           if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) ≥
       (if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) * if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)
   · simp only [hlim, ↓reduceIte] at h_step; injection h_step with _ h_bool; contradiction
   · simp only [hlim, ↓reduceIte] at h_step
-    by_cases hxy : ((if (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-            (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-          else A.x - if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+    by_cases hxy : ((if (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+            (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+          else A.x - if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
           if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)) <
-        (if (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-            (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-          else A.y - if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+        (if (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+            (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+          else A.y - if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
           if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)
     · simp only [hxy, ↓reduceIte] at h_step; injection h_step with h_cell _; injection h_cell with _ hy; omega
     · simp only [hxy, ↓reduceIte] at h_step
-      by_cases hyx : ((if (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
-              (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
-            else A.y - if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) *
+      by_cases hyx : ((if (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) ≥ A.y then
+              (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) - A.y
+            else A.y - if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) *
             if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) <
-          (if (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
-              (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
-            else A.x - if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) *
+          (if (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) ≥ A.x then
+              (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) - A.x
+            else A.x - if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) *
             if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)
       · simp only [hyx, ↓reduceIte] at h_step; injection h_step with h_cell _; injection h_cell with hx _; omega
       · unfold remX_val remY_val absVal; dsimp only []
-        simp only [show ¬((-1 : Int) > 0) by decide, ↓reduceIte] at *
+        simp only [show ¬((-1 : ℤ) > 0) by decide, ↓reduceIte] at *
         refine ⟨by linarith, not_le.mp hlim⟩
 
 
@@ -2254,7 +2254,7 @@ theorem rayMarchStep_X_neg_neg_sound (A B : Point) (c : Cell)
   have h_bnd := stepX_bounded (remX_val A (-1) c) (absVal (B.x - A.x)) (absVal (B.y - A.y))
     (remY_val A (-1) c * absVal (B.x - A.x)) h_absDy h_step h_not_done
   unfold absVal at h_bnd; simp [show ¬(B.x - A.x ≥ 0) by linarith] at h_bnd
-  unfold remX_val at h_bnd; simp only [show ¬((-1 : Int) > 0) by decide, ↓reduceIte] at h_bnd
+  unfold remX_val at h_bnd; simp only [show ¬((-1 : ℤ) > 0) by decide, ↓reduceIte] at h_bnd
   have hc_prop := hc_bbox; unfold inBoundingBox at hc_prop; dsimp only [] at hc_prop
   simp only [Bool.and_eq_true, decide_eq_true_iff] at hc_prop
   have h_flAx : c.x ≤ (floorPoint A).x := by
@@ -2270,14 +2270,14 @@ theorem rayMarchStep_X_neg_neg_sound (A B : Point) (c : Cell)
   have h_remX_ge : ofInt c.x ≤ A.x := by
     unfold floorPoint toInt at h_flAx; dsimp at h_flAx
     have h_le := Rat.floor_le A.x
-    have h_flAx_rat : (c.x : Rat) ≤ ((A.x.floor : Int) : Rat) := Int.cast_le.mpr h_flAx
-    have h_ofInt : ofInt c.x = (c.x : Rat) := rfl
+    have h_flAx_rat : (c.x : ℚ) ≤ ((A.x.floor : ℤ) : ℚ) := Int.cast_le.mpr h_flAx
+    have h_ofInt : ofInt c.x = (c.x : ℚ) := rfl
     rw [h_ofInt]; linarith
   have h_remY_ge : ofInt c.y ≤ A.y := by
     unfold floorPoint toInt at h_flAy; dsimp at h_flAy
     have h_le := Rat.floor_le A.y
-    have h_flAy_rat : (c.y : Rat) ≤ ((A.y.floor : Int) : Rat) := Int.cast_le.mpr h_flAy
-    have h_ofInt : ofInt c.y = (c.y : Rat) := rfl
+    have h_flAy_rat : (c.y : ℚ) ≤ ((A.y.floor : ℤ) : ℚ) := Int.cast_le.mpr h_flAy
+    have h_ofInt : ofInt c.y = (c.y : ℚ) := rfl
     rw [h_ofInt]; linarith
   have h_remX_split : (if ofInt c.x ≥ A.x then ofInt c.x - A.x else A.x - ofInt c.x) = A.x - ofInt c.x := by
     split_ifs with h <;> [linarith; rfl]
@@ -2291,9 +2291,9 @@ theorem rayMarchStep_X_neg_neg_sound (A B : Point) (c : Cell)
   have h_bbox_next := inBoundingBox_stepX_backward c A B hdx hc_bbox h_le
   refine ⟨h_bbox_next, ?_⟩
   unfold remY_val absVal at h_step
-  simp only [show ¬((-1 : Int) > 0) by decide, ↓reduceIte, show ¬(B.y - A.y ≥ 0) by linarith, show ¬(B.x - A.x ≥ 0) by linarith] at h_step
+  simp only [show ¬((-1 : ℤ) > 0) by decide, ↓reduceIte, show ¬(B.y - A.y ≥ 0) by linarith, show ¬(B.x - A.x ≥ 0) by linarith] at h_step
   unfold remX_val at h_step
-  simp only [show ¬((-1 : Int) > 0) by decide, ↓reduceIte] at h_step
+  simp only [show ¬((-1 : ℤ) > 0) by decide, ↓reduceIte] at h_step
   rw [h_remX_split] at h_step
   have h_remY_split : (if ofInt c.y ≥ A.y then ofInt c.y - A.y else A.y - ofInt c.y) = A.y - ofInt c.y := by
     split_ifs with h <;> [linarith; rfl]
@@ -2321,7 +2321,7 @@ theorem rayMarchStep_X_neg_neg_sound (A B : Point) (c : Cell)
         unfold floorPoint toInt; dsimp
         have h_lt := Rat.lt_floor_add_one A.y; push_cast at h_lt
         have h_num : 0 < ofInt (A.y.floor + 1) - A.y := by
-          unfold ofInt; change 0 < ((A.y.floor + 1 : Int) : Rat) - A.y; push_cast; linarith
+          unfold ofInt; change 0 < ((A.y.floor + 1 : ℤ) : ℚ) - A.y; push_cast; linarith
         exact div_nonpos_of_nonneg_of_nonpos (le_of_lt h_num) (le_of_lt hdy)
       linarith
     | inr h_int =>
@@ -2348,7 +2348,7 @@ theorem rayMarchStep_Y_neg_neg_sound (A B : Point) (c : Cell)
   have h_bnd := stepY_bounded (remY_val A (-1) c) (absVal (B.x - A.x)) (absVal (B.y - A.y))
     (remX_val A (-1) c * absVal (B.y - A.y)) h_absDx h_step h_not_done
   unfold absVal at h_bnd; simp [show ¬(B.y - A.y ≥ 0) by linarith] at h_bnd
-  unfold remY_val at h_bnd; simp only [show ¬((-1 : Int) > 0) by decide, ↓reduceIte] at h_bnd
+  unfold remY_val at h_bnd; simp only [show ¬((-1 : ℤ) > 0) by decide, ↓reduceIte] at h_bnd
   have hc_prop := hc_bbox; unfold inBoundingBox at hc_prop; dsimp only [] at hc_prop
   simp only [Bool.and_eq_true, decide_eq_true_iff] at hc_prop
   have h_flAx : c.x ≤ (floorPoint A).x := by
@@ -2364,14 +2364,14 @@ theorem rayMarchStep_Y_neg_neg_sound (A B : Point) (c : Cell)
   have h_remX_ge : ofInt c.x ≤ A.x := by
     unfold floorPoint toInt at h_flAx; dsimp at h_flAx
     have h_le := Rat.floor_le A.x
-    have h_flAx_rat : (c.x : Rat) ≤ ((A.x.floor : Int) : Rat) := Int.cast_le.mpr h_flAx
-    have h_ofInt : ofInt c.x = (c.x : Rat) := rfl
+    have h_flAx_rat : (c.x : ℚ) ≤ ((A.x.floor : ℤ) : ℚ) := Int.cast_le.mpr h_flAx
+    have h_ofInt : ofInt c.x = (c.x : ℚ) := rfl
     rw [h_ofInt]; linarith
   have h_remY_ge : ofInt c.y ≤ A.y := by
     unfold floorPoint toInt at h_flAy; dsimp at h_flAy
     have h_le := Rat.floor_le A.y
-    have h_flAy_rat : (c.y : Rat) ≤ ((A.y.floor : Int) : Rat) := Int.cast_le.mpr h_flAy
-    have h_ofInt : ofInt c.y = (c.y : Rat) := rfl
+    have h_flAy_rat : (c.y : ℚ) ≤ ((A.y.floor : ℤ) : ℚ) := Int.cast_le.mpr h_flAy
+    have h_ofInt : ofInt c.y = (c.y : ℚ) := rfl
     rw [h_ofInt]; linarith
   have h_remY_split : (if ofInt c.y ≥ A.y then ofInt c.y - A.y else A.y - ofInt c.y) = A.y - ofInt c.y := by
     split_ifs with h <;> [linarith; rfl]
@@ -2385,9 +2385,9 @@ theorem rayMarchStep_Y_neg_neg_sound (A B : Point) (c : Cell)
   have h_bbox_next := inBoundingBox_stepY_backward c A B hdy hc_bbox h_le
   refine ⟨h_bbox_next, ?_⟩
   unfold remX_val absVal at h_step
-  simp only [show ¬((-1 : Int) > 0) by decide, ↓reduceIte, show ¬(B.x - A.x ≥ 0) by linarith, show ¬(B.y - A.y ≥ 0) by linarith] at h_step
+  simp only [show ¬((-1 : ℤ) > 0) by decide, ↓reduceIte, show ¬(B.x - A.x ≥ 0) by linarith, show ¬(B.y - A.y ≥ 0) by linarith] at h_step
   unfold remY_val at h_step
-  simp only [show ¬((-1 : Int) > 0) by decide, ↓reduceIte] at h_step
+  simp only [show ¬((-1 : ℤ) > 0) by decide, ↓reduceIte] at h_step
   rw [h_remY_split] at h_step
   have h_remX_split : (if ofInt c.x ≥ A.x then ofInt c.x - A.x else A.x - ofInt c.x) = A.x - ofInt c.x := by
     split_ifs with h <;> [linarith; rfl]
@@ -2415,7 +2415,7 @@ theorem rayMarchStep_Y_neg_neg_sound (A B : Point) (c : Cell)
         unfold floorPoint toInt; dsimp
         have h_lt := Rat.lt_floor_add_one A.x; push_cast at h_lt
         have h_num : 0 < ofInt (A.x.floor + 1) - A.x := by
-          unfold ofInt; change 0 < ((A.x.floor + 1 : Int) : Rat) - A.x; push_cast; linarith
+          unfold ofInt; change 0 < ((A.x.floor + 1 : ℤ) : ℚ) - A.x; push_cast; linarith
         exact div_nonpos_of_nonneg_of_nonpos (le_of_lt h_num) (le_of_lt hdx)
       linarith
     | inr h_int =>
@@ -2446,8 +2446,8 @@ theorem rayMarchStep_Diag_neg_neg_sound (A B : Point) (c : Cell)
   simp [show ¬(B.x - A.x ≥ 0) by linarith, show ¬(B.y - A.y ≥ 0) by linarith] at h_bndX h_bndY
   unfold remX_val at h_bndX
   unfold remY_val at h_bndY
-  simp only [show ¬((-1 : Int) > 0) by decide, ↓reduceIte] at h_bndX
-  simp only [show ¬((-1 : Int) > 0) by decide, ↓reduceIte] at h_bndY
+  simp only [show ¬((-1 : ℤ) > 0) by decide, ↓reduceIte] at h_bndX
+  simp only [show ¬((-1 : ℤ) > 0) by decide, ↓reduceIte] at h_bndY
   have hc_prop := hc_bbox; unfold inBoundingBox at hc_prop; dsimp only [] at hc_prop
   simp only [Bool.and_eq_true, decide_eq_true_iff] at hc_prop
   have h_flAx : c.x ≤ (floorPoint A).x := by
@@ -2463,14 +2463,14 @@ theorem rayMarchStep_Diag_neg_neg_sound (A B : Point) (c : Cell)
   have h_remX_ge : ofInt c.x ≤ A.x := by
     unfold floorPoint toInt at h_flAx; dsimp at h_flAx
     have h_le := Rat.floor_le A.x
-    have h_flAx_rat : (c.x : Rat) ≤ ((A.x.floor : Int) : Rat) := Int.cast_le.mpr h_flAx
-    have h_ofInt : ofInt c.x = (c.x : Rat) := rfl
+    have h_flAx_rat : (c.x : ℚ) ≤ ((A.x.floor : ℤ) : ℚ) := Int.cast_le.mpr h_flAx
+    have h_ofInt : ofInt c.x = (c.x : ℚ) := rfl
     rw [h_ofInt]; linarith
   have h_remY_ge : ofInt c.y ≤ A.y := by
     unfold floorPoint toInt at h_flAy; dsimp at h_flAy
     have h_le := Rat.floor_le A.y
-    have h_flAy_rat : (c.y : Rat) ≤ ((A.y.floor : Int) : Rat) := Int.cast_le.mpr h_flAy
-    have h_ofInt : ofInt c.y = (c.y : Rat) := rfl
+    have h_flAy_rat : (c.y : ℚ) ≤ ((A.y.floor : ℤ) : ℚ) := Int.cast_le.mpr h_flAy
+    have h_ofInt : ofInt c.y = (c.y : ℚ) := rfl
     rw [h_ofInt]; linarith
   have h_remX_split : (if ofInt c.x ≥ A.x then ofInt c.x - A.x else A.x - ofInt c.x) = A.x - ofInt c.x := by
     split_ifs with h <;> [linarith; rfl]
@@ -2493,7 +2493,7 @@ theorem rayMarchStep_Diag_neg_neg_sound (A B : Point) (c : Cell)
   have h_bbox_next := inBoundingBox_diag_neg_neg c A B hdx hdy hc_bbox h_le_x h_le_y
   refine ⟨h_bbox_next, ?_⟩
   unfold remX_val remY_val absVal at h_step
-  simp only [show ¬((-1 : Int) > 0) by decide, ↓reduceIte,
+  simp only [show ¬((-1 : ℤ) > 0) by decide, ↓reduceIte,
     show ¬(B.y - A.y ≥ 0) by linarith, show ¬(B.x - A.x ≥ 0) by linarith] at h_step
   rw [h_remX_split, h_remY_split] at h_step
   let t := (ofInt c.x - A.x) / (B.x - A.x)
@@ -2518,7 +2518,7 @@ theorem rayMarchStep_Diag_neg_neg_sound (A B : Point) (c : Cell)
   exact ⟨tEnter, tExit, h_eval, h_lt⟩
 
 
-theorem rayMarchStep_sound_step_neg_neg (A B : Point) (dx dy : Rat) (stepX stepY : Int) (c : Cell)
+theorem rayMarchStep_sound_step_neg_neg (A B : Point) (dx dy : ℚ) (stepX stepY : ℤ) (c : Cell)
     (hdx : dx = B.x - A.x) (hdy : dy = B.y - A.y)
     (hstepX : stepX = if dx > 0 then 1 else if dx < 0 then -1 else 0)
     (hstepY : stepY = if dy > 0 then 1 else if dy < 0 then -1 else 0)
@@ -2562,9 +2562,9 @@ theorem rayMarch_soundness_neg_neg (A B : Point) (x : Cell)
       (floorPoint B) (floorPoint A) []) :
     inBoundingBox x A B = true ∧
     ∃ tEnter tExit, cellIntersectionInterval x A B = some (tEnter, tExit) ∧ tEnter < tExit := by
-  have hsx : (if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else (0 : Int)) = -1 := by
+  have hsx : (if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else (0 : ℤ)) = -1 := by
     simp [show ¬(B.x - A.x > 0) by linarith, hdx]
-  have hsy : (if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else (0 : Int)) = -1 := by
+  have hsy : (if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else (0 : ℤ)) = -1 := by
     simp [show ¬(B.y - A.y > 0) by linarith, hdy]
   rw [hsx, hsy] at hx
   have h_fuel : (((floorPoint B).x - (floorPoint A).x).natAbs + ((floorPoint B).y - (floorPoint A).y).natAbs + 2) =
@@ -2619,7 +2619,7 @@ theorem cellIntersectionInterval_sx_zero_pos (A B : Point) (c : Cell)
   have h2 : ty0 < ty1 := by
     dsimp [ty0, ty1]
     have h_lt_num : ofInt (c.y + 1) - A.y < ofInt (c.y + 1 + 1) - A.y := by
-      unfold ofInt; change ((c.y + 1 : Int) : Rat) - A.y < ((c.y + 1 + 1 : Int) : Rat) - A.y
+      unfold ofInt; change ((c.y + 1 : ℤ) : ℚ) - A.y < ((c.y + 1 + 1 : ℤ) : ℚ) - A.y
       push_cast; linarith
     exact div_lt_div_of_pos_right h_lt_num hdy
   have h_lt : tEnter < tExit := by
@@ -2629,7 +2629,7 @@ theorem cellIntersectionInterval_sx_zero_pos (A B : Point) (c : Cell)
   simp only [h_dx_eq, h_dy_ne, hdy, ↓reduceIte, Bool.false_eq_true]
   have h_not_lt_cx : ¬(A.x < ofInt c.x) := by linarith
   have h_not_gt_cx1 : ¬(A.x > ofInt (c.x + 1)) := by linarith
-  have h_cx_eval : (if (A.x < ofInt c.x || A.x > ofInt (c.x + 1)) then (1, 0) else (0, 1) : Rat × Rat) = (0, 1) := by
+  have h_cx_eval : (if (A.x < ofInt c.x || A.x > ofInt (c.x + 1)) then (1, 0) else (0, 1) : ℚ × ℚ) = (0, 1) := by
     simp [h_not_lt_cx, h_not_gt_cx1]
   rw [h_cx_eval]
   dsimp only []
@@ -2689,13 +2689,13 @@ theorem cellIntersectionInterval_sx_zero_neg (A B : Point) (c : Cell)
   simp only [h_dx_eq, h_dy_ne, h_not_dy_pos, ↓reduceIte, Bool.false_eq_true]
   have h_not_lt_cx : ¬(A.x < ofInt c.x) := by linarith
   have h_not_gt_cx1 : ¬(A.x > ofInt (c.x + 1)) := by linarith
-  have h_cx_eval : (if (A.x < ofInt c.x || A.x > ofInt (c.x + 1)) then (1, 0) else (0, 1) : Rat × Rat) = (0, 1) := by
+  have h_cx_eval : (if (A.x < ofInt c.x || A.x > ofInt (c.x + 1)) then (1, 0) else (0, 1) : ℚ × ℚ) = (0, 1) := by
     simp [h_not_lt_cx, h_not_gt_cx1]
   rw [h_cx_eval]
   have h_cy1 : ofInt (c.y - 1 + 1) = ofInt c.y := by
     unfold ofInt; congr 1; omega
   have h_cy0 : ofInt (c.y - 1) = ofInt c.y - 1 := by
-    unfold ofInt; change ((c.y - 1 : Int) : Rat) = ((c.y : Int) : Rat) - 1; push_cast; ring
+    unfold ofInt; change ((c.y - 1 : ℤ) : ℚ) = ((c.y : ℤ) : ℚ) - 1; push_cast; ring
   rw [h_cy1, h_cy0]
   have h_divy : (ofInt c.y - 1 - A.y) / (B.y - A.y) = ty1 := by
     dsimp [ty1, ty0]; ring
@@ -2742,7 +2742,7 @@ theorem cellIntersectionInterval_sy_zero_pos (A B : Point) (c : Cell)
   have h2 : tx0 < tx1 := by
     dsimp [tx0, tx1]
     have h_lt_num : ofInt (c.x + 1) - A.x < ofInt (c.x + 1 + 1) - A.x := by
-      unfold ofInt; change ((c.x + 1 : Int) : Rat) - A.x < ((c.x + 1 + 1 : Int) : Rat) - A.x
+      unfold ofInt; change ((c.x + 1 : ℤ) : ℚ) - A.x < ((c.x + 1 + 1 : ℤ) : ℚ) - A.x
       push_cast; linarith
     exact div_lt_div_of_pos_right h_lt_num hdx
   have h_lt : tEnter < tExit := by
@@ -2752,7 +2752,7 @@ theorem cellIntersectionInterval_sy_zero_pos (A B : Point) (c : Cell)
   simp only [h_dy_eq, h_dx_ne, hdx, ↓reduceIte, Bool.false_eq_true]
   have h_not_lt_cy : ¬(A.y < ofInt c.y) := by linarith
   have h_not_gt_cy1 : ¬(A.y > ofInt (c.y + 1)) := by linarith
-  have h_cy_eval : (if (A.y < ofInt c.y || A.y > ofInt (c.y + 1)) then (1, 0) else (0, 1) : Rat × Rat) = (0, 1) := by
+  have h_cy_eval : (if (A.y < ofInt c.y || A.y > ofInt (c.y + 1)) then (1, 0) else (0, 1) : ℚ × ℚ) = (0, 1) := by
     simp [h_not_lt_cy, h_not_gt_cy1]
   rw [h_cy_eval]
   dsimp only []
@@ -2813,13 +2813,13 @@ theorem cellIntersectionInterval_sy_zero_neg (A B : Point) (c : Cell)
   simp only [h_dy_eq, h_dx_ne, h_not_dx_pos, ↓reduceIte, Bool.false_eq_true]
   have h_not_lt_cy : ¬(A.y < ofInt c.y) := by linarith
   have h_not_gt_cy1 : ¬(A.y > ofInt (c.y + 1)) := by linarith
-  have h_cy_eval : (if (A.y < ofInt c.y || A.y > ofInt (c.y + 1)) then (1, 0) else (0, 1) : Rat × Rat) = (0, 1) := by
+  have h_cy_eval : (if (A.y < ofInt c.y || A.y > ofInt (c.y + 1)) then (1, 0) else (0, 1) : ℚ × ℚ) = (0, 1) := by
     simp [h_not_lt_cy, h_not_gt_cy1]
   rw [h_cy_eval]
   have h_cx1 : ofInt (c.x - 1 + 1) = ofInt c.x := by
     unfold ofInt; congr 1; omega
   have h_cx0 : ofInt (c.x - 1) = ofInt c.x - 1 := by
-    unfold ofInt; change ((c.x - 1 : Int) : Rat) = ((c.x : Int) : Rat) - 1; push_cast; ring
+    unfold ofInt; change ((c.x - 1 : ℤ) : ℚ) = ((c.x : ℤ) : ℚ) - 1; push_cast; ring
   rw [h_cx1, h_cx0]
   have h_divx : (ofInt c.x - 1 - A.x) / (B.x - A.x) = tx1 := by
     dsimp [tx1, tx0]; ring
@@ -2833,9 +2833,9 @@ theorem cellIntersectionInterval_sy_zero_neg (A B : Point) (c : Cell)
 
 
 theorem rayMarchStep_sx_zero_step (A B : Point) (c : Cell)
-    (dy : Rat) (stepY : Int)
+    (dy : ℚ) (stepY : ℤ)
     (h_not_done : (rayMarchStep A B 0 dy 0 stepY c).2 = false) :
-    let yb : Rat := if stepY > 0 then ofInt (c.y + 1) else ofInt c.y
+    let yb : ℚ := if stepY > 0 then ofInt (c.y + 1) else ofInt c.y
     let absDy := if dy >= 0 then dy else -dy
     let remY := if yb >= A.y then yb - A.y else A.y - yb
     (rayMarchStep A B 0 dy 0 stepY c) = (⟨c.x, c.y + stepY⟩, false) ∧ remY < absDy := by
@@ -2853,10 +2853,10 @@ theorem rayMarchStep_sx_zero_step (A B : Point) (c : Cell)
 
 
 theorem rayMarchStep_sy_zero_step (A B : Point) (c : Cell)
-    (dx : Rat) (stepX : Int)
+    (dx : ℚ) (stepX : ℤ)
     (hsx_ne : (stepX == 0) = false)
     (h_not_done : (rayMarchStep A B dx 0 stepX 0 c).2 = false) :
-    let xb : Rat := if stepX > 0 then ofInt (c.x + 1) else ofInt c.x
+    let xb : ℚ := if stepX > 0 then ofInt (c.x + 1) else ofInt c.x
     let absDx := if dx >= 0 then dx else -dx
     let remX := if xb >= A.x then xb - A.x else A.x - xb
     (rayMarchStep A B dx 0 stepX 0 c) = (⟨c.x + stepX, c.y⟩, false) ∧ remX < absDx := by
@@ -2873,7 +2873,7 @@ theorem rayMarchStep_sy_zero_step (A B : Point) (c : Cell)
     exact ⟨trivial, not_le.mp h⟩
 
 
-theorem rayMarchStep_sound_step_sx_zero (A B : Point) (stepY : Int) (c : Cell)
+theorem rayMarchStep_sound_step_sx_zero (A B : Point) (stepY : ℤ) (c : Cell)
     (hdx : B.x - A.x = 0)
     (hstepY : stepY = if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0)
     (hc_bbox : inBoundingBox c A B = true)
@@ -2893,7 +2893,7 @@ theorem rayMarchStep_sound_step_sx_zero (A B : Point) (stepY : Int) (c : Cell)
   rcases hc_y with ⟨hdy_pos, hcy_le⟩ | ⟨hdy_neg, hcy_ge⟩
   · have hsy : stepY = 1 := by rw [hstepY]; simp [hdy_pos]
     rw [hsy] at h_step_eq h_rem ⊢
-    have h_yb : (if (1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) = ofInt (c.y + 1) := by rfl
+    have h_yb : (if (1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) = ofInt (c.y + 1) := by rfl
     have h_abs : (if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)) = B.y - A.y := by
       simp [show B.y - A.y ≥ 0 by linarith]
     rw [h_yb, h_abs] at h_rem
@@ -2918,7 +2918,7 @@ theorem rayMarchStep_sound_step_sx_zero (A B : Point) (stepY : Int) (c : Cell)
       rw [hstepY]
       simp [show ¬(B.y - A.y > 0) by linarith, hdy_neg]
     rw [hsy] at h_step_eq h_rem ⊢
-    have h_yb : (if (-1 : Int) > 0 then ofInt (c.y + 1) else ofInt c.y) = ofInt c.y := by rfl
+    have h_yb : (if (-1 : ℤ) > 0 then ofInt (c.y + 1) else ofInt c.y) = ofInt c.y := by rfl
     have h_abs : (if B.y - A.y ≥ 0 then B.y - A.y else -(B.y - A.y)) = -(B.y - A.y) := by
       simp [show ¬(B.y - A.y ≥ 0) by linarith]
     rw [h_yb, h_abs] at h_rem
@@ -2952,7 +2952,7 @@ theorem rayMarchStep_sound_step_sx_zero (A B : Point) (stepY : Int) (c : Cell)
     exact ⟨_, _, h_inter.2, h_inter.1⟩
 
 
-theorem rayMarchStep_sound_step_sy_zero (A B : Point) (stepX : Int) (c : Cell)
+theorem rayMarchStep_sound_step_sy_zero (A B : Point) (stepX : ℤ) (c : Cell)
     (hdy : B.y - A.y = 0)
     (hsx_ne : (stepX == 0) = false)
     (hstepX : stepX = if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else 0)
@@ -2973,7 +2973,7 @@ theorem rayMarchStep_sound_step_sy_zero (A B : Point) (stepX : Int) (c : Cell)
   rcases hc_x with ⟨hdx_pos, hcx_le⟩ | ⟨hdx_neg, hcx_ge⟩
   · have hsx : stepX = 1 := by rw [hstepX]; simp [hdx_pos]
     rw [hsx] at h_step_eq h_rem ⊢
-    have h_xb : (if (1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) = ofInt (c.x + 1) := by rfl
+    have h_xb : (if (1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) = ofInt (c.x + 1) := by rfl
     have h_abs : (if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) = B.x - A.x := by
       simp [show B.x - A.x ≥ 0 by linarith]
     rw [h_xb, h_abs] at h_rem
@@ -2998,7 +2998,7 @@ theorem rayMarchStep_sound_step_sy_zero (A B : Point) (stepX : Int) (c : Cell)
       rw [hstepX]
       simp [show ¬(B.x - A.x > 0) by linarith, hdx_neg]
     rw [hsx] at h_step_eq h_rem ⊢
-    have h_xb : (if (-1 : Int) > 0 then ofInt (c.x + 1) else ofInt c.x) = ofInt c.x := by rfl
+    have h_xb : (if (-1 : ℤ) > 0 then ofInt (c.x + 1) else ofInt c.x) = ofInt c.x := by rfl
     have h_abs : (if B.x - A.x ≥ 0 then B.x - A.x else -(B.x - A.x)) = -(B.x - A.x) := by
       simp [show ¬(B.x - A.x ≥ 0) by linarith]
     rw [h_xb, h_abs] at h_rem
@@ -3042,7 +3042,7 @@ theorem rayMarch_soundness_sx_zero (A B : Point) (x : Cell)
       (floorPoint B) (floorPoint A) []) :
     inBoundingBox x A B = true ∧
     ∃ tEnter tExit, cellIntersectionInterval x A B = some (tEnter, tExit) ∧ tEnter < tExit := by
-  have hsx : (if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else (0 : Int)) = 0 := by simp [hdx]
+  have hsx : (if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else (0 : ℤ)) = 0 := by simp [hdx]
   have hdy_ne : ¬(B.y - A.y = 0) := by
     intro h_dy0
     have : A = B := by
@@ -3054,7 +3054,7 @@ theorem rayMarch_soundness_sx_zero (A B : Point) (x : Cell)
       congr
     rw [this] at hA_eq_B
     exact hA_eq_B rfl
-  let stepY : Int := if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0
+  let stepY : ℤ := if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0
   rw [hsx, hdx] at hx
   have h_fuel : (((floorPoint B).x - (floorPoint A).x).natAbs + ((floorPoint B).y - (floorPoint A).y).natAbs + 2) =
     (((floorPoint B).x - (floorPoint A).x).natAbs + ((floorPoint B).y - (floorPoint A).y).natAbs + 1) + 1 := by omega
@@ -3092,7 +3092,7 @@ theorem rayMarch_soundness_sy_zero (A B : Point) (x : Cell)
       (floorPoint B) (floorPoint A) []) :
     inBoundingBox x A B = true ∧
     ∃ tEnter tExit, cellIntersectionInterval x A B = some (tEnter, tExit) ∧ tEnter < tExit := by
-  have hsy : (if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else (0 : Int)) = 0 := by simp [hdy]
+  have hsy : (if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else (0 : ℤ)) = 0 := by simp [hdy]
   have hdx_ne : ¬(B.x - A.x = 0) := by
     intro h_dx0
     have : A = B := by
@@ -3104,7 +3104,7 @@ theorem rayMarch_soundness_sy_zero (A B : Point) (x : Cell)
       congr
     rw [this] at hA_eq_B
     exact hA_eq_B rfl
-  let stepX : Int := if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else 0
+  let stepX : ℤ := if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else 0
   have hsx_ne : (stepX == 0) = false := by
     cases h : (stepX == 0)
     · rfl

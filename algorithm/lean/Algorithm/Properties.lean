@@ -16,9 +16,12 @@
 
 import Algorithm.Basic
 
+local notation "ℕ" => Nat
+local notation "ℤ" => Int
+
 namespace Algorithm
 
-def translateGrid (dx dy : Int) (s : List Coord) : List Coord :=
+def translateGrid (dx dy : ℤ) (s : List Coord) : List Coord :=
   s.map (fun (x, y) => (x + dx, y + dy))
 
 def flipXGrid (s : List Coord) : List Coord :=
@@ -33,10 +36,10 @@ def flipDiagGrid (s : List Coord) : List Coord :=
 def rotate90Grid (s : List Coord) : List Coord :=
   s.map (fun (x, y) => (-y, x))
 
-def chebyshevDist (c1 c2 : Coord) : Nat :=
+def chebyshevDist (c1 c2 : Coord) : ℕ :=
   max (c1.1 - c2.1).natAbs (c1.2 - c2.2).natAbs
 
-def manhattanDist (c1 c2 : Coord) : Nat :=
+def manhattanDist (c1 c2 : Coord) : ℕ :=
   (c1.1 - c2.1).natAbs + (c1.2 - c2.2).natAbs
 
 def cellsEqual (a b : List Coord) : Bool :=
@@ -44,10 +47,10 @@ def cellsEqual (a b : List Coord) : Bool :=
   let db := deduplicate b
   da.all (db.contains ·) && db.all (da.contains ·)
 
-theorem stepN_composition_step (n : Nat) (s : List Coord) :
+theorem stepN_composition_step (n : ℕ) (s : List Coord) :
   stepN (n + 1) s = stepGrid (stepN n s) := rfl
 
-theorem extinction_stability (n : Nat) :
+theorem extinction_stability (n : ℕ) :
   stepN n [] = [] := stepN_empty n
 
 theorem blinker_translation_commutes :

@@ -41,7 +41,7 @@ Computes the parameter interval [tEnter, tExit] ⊆ [0, 1] along the segment `A 
 that falls within the closed unit square [c.x, c.x + 1] × [c.y, c.y + 1].
 Returns `none` if the segment does not intersect the cell's closed area.
 -/
-def cellIntersectionInterval (c : Cell) (A B : Point) : Option (Rat × Rat) :=
+def cellIntersectionInterval (c : Cell) (A B : Point) : Option (ℚ × ℚ) :=
   let dx := B.x - A.x
   let dy := B.y - A.y
   let cx0 := ofInt c.x
@@ -130,8 +130,8 @@ def rayMarchIntermediateCells (A B : Point) : List Cell :=
   let endCell := floorPoint B
   let dx := B.x - A.x
   let dy := B.y - A.y
-  let stepX : Int := if dx > 0 then 1 else if dx < 0 then -1 else 0
-  let stepY : Int := if dy > 0 then 1 else if dy < 0 then -1 else 0
+  let stepX : ℤ := if dx > 0 then 1 else if dx < 0 then -1 else 0
+  let stepY : ℤ := if dy > 0 then 1 else if dy < 0 then -1 else 0
   let maxSteps := (endCell.x - startCell.x).natAbs + (endCell.y - startCell.y).natAbs + 2
   (rayMarch maxSteps A B dx dy stepX stepY endCell startCell []).filter (fun c =>
     (c != startCell) && (c != endCell) && !isOffAxisCornerBool c A B)
@@ -142,7 +142,7 @@ Continuous segment membership: point `p` lies on the directed line segment betwe
 inductive PointOnSegment (p A B : Point) : Prop where
   | start : p = A → PointOnSegment p A B
   | ptEnd : p = B → PointOnSegment p A B
-  | interior (t : Rat) (ht0 : 0 ≤ t) (ht1 : t ≤ 1)
+  | interior (t : ℚ) (ht0 : 0 ≤ t) (ht1 : t ≤ 1)
       (hx : p.x = A.x + t * (B.x - A.x))
       (hy : p.y = A.y + t * (B.y - A.y)) : PointOnSegment p A B
 
@@ -350,21 +350,21 @@ theorem manhattanDistance_triangle (a b c : Cell) :
 /--
 Theorem: Integer minimum with itself is identity.
 -/
-theorem int_min_self (a : Int) : min a a = a := by
+theorem int_min_self (a : ℤ) : min a a = a := by
   show (if a ≤ a then a else a) = a
   simp
 
 /--
 Theorem: Integer maximum with itself is identity.
 -/
-theorem int_max_self (a : Int) : max a a = a := by
+theorem int_max_self (a : ℤ) : max a a = a := by
   show (if a ≤ a then a else a) = a
   simp
 
 /--
 Theorem: Integer minimum is bounded above by integer maximum.
 -/
-theorem int_min_le_max (a b : Int) : min a b ≤ max a b := by
+theorem int_min_le_max (a b : ℤ) : min a b ≤ max a b := by
   show (if a ≤ b then a else b) ≤ (if a ≤ b then b else a)
   by_cases h : a ≤ b
   · simp [h]
@@ -461,11 +461,11 @@ theorem mem_candidateCells_iff (A B : Point) (c : Cell) :
       · have hx_nonneg : 0 ≤ c.x - minX := by omega
         have hy_nonneg : 0 ≤ c.y - minY := by omega
         have hx : minX + Int.ofNat (c.x - minX).toNat = c.x := by
-          have : Int.ofNat (c.x - minX).toNat = ((c.x - minX).toNat : Int) := rfl
+          have : Int.ofNat (c.x - minX).toNat = ((c.x - minX).toNat : ℤ) := rfl
           rw [this, Int.toNat_of_nonneg hx_nonneg]
           omega
         have hy : minY + Int.ofNat (c.y - minY).toNat = c.y := by
-          have : Int.ofNat (c.y - minY).toNat = ((c.y - minY).toNat : Int) := rfl
+          have : Int.ofNat (c.y - minY).toNat = ((c.y - minY).toNat : ℤ) := rfl
           rw [this, Int.toNat_of_nonneg hy_nonneg]
           omega
         exact cell_ext hx hy
@@ -570,7 +570,7 @@ theorem endpoints_in_cellIntersectionsSegment (A B : Point) :
 /--
 Theorem: Accumulator append property for rayMarch.
 -/
-theorem rayMarch_acc (fuel : Nat) (start ptEnd : Point) (dx dy : Rat) (stepX stepY : Int)
+theorem rayMarch_acc (fuel : ℕ) (start ptEnd : Point) (dx dy : ℚ) (stepX stepY : ℤ)
     (endCell current : Cell) (acc : List Cell) :
     rayMarch fuel start ptEnd dx dy stepX stepY endCell current acc =
       acc ++ rayMarch fuel start ptEnd dx dy stepX stepY endCell current [] := by
@@ -594,7 +594,7 @@ theorem rayMarch_acc (fuel : Nat) (start ptEnd : Point) (dx dy : Rat) (stepX ste
 /--
 Theorem: Membership in rayMarch with accumulator splits into accumulator or empty accumulator.
 -/
-theorem mem_rayMarch (fuel : Nat) (start ptEnd : Point) (dx dy : Rat) (stepX stepY : Int)
+theorem mem_rayMarch (fuel : ℕ) (start ptEnd : Point) (dx dy : ℚ) (stepX stepY : ℤ)
     (endCell current : Cell) (acc : List Cell) (c : Cell) :
     c ∈ rayMarch fuel start ptEnd dx dy stepX stepY endCell current acc ↔
       c ∈ acc ∨ c ∈ rayMarch fuel start ptEnd dx dy stepX stepY endCell current [] := by
@@ -604,7 +604,7 @@ theorem mem_rayMarch (fuel : Nat) (start ptEnd : Point) (dx dy : Rat) (stepX ste
 /--
 Theorem: Unfolding step equation for rayMarch with empty accumulator.
 -/
-theorem rayMarch_succ (fuel : Nat) (start ptEnd : Point) (dx dy : Rat) (stepX stepY : Int)
+theorem rayMarch_succ (fuel : ℕ) (start ptEnd : Point) (dx dy : ℚ) (stepX stepY : ℤ)
     (endCell current : Cell) :
     rayMarch (fuel + 1) start ptEnd dx dy stepX stepY endCell current [] =
       if current == endCell then []
@@ -628,7 +628,7 @@ theorem rayMarch_succ (fuel : Nat) (start ptEnd : Point) (dx dy : Rat) (stepX st
 /--
 Theorem: Base case for rayMarch with zero fuel.
 -/
-theorem rayMarch_zero (start ptEnd : Point) (dx dy : Rat) (stepX stepY : Int)
+theorem rayMarch_zero (start ptEnd : Point) (dx dy : ℚ) (stepX stepY : ℤ)
     (endCell current : Cell) (acc : List Cell) :
     rayMarch 0 start ptEnd dx dy stepX stepY endCell current acc = acc := by
   rfl
@@ -636,7 +636,7 @@ theorem rayMarch_zero (start ptEnd : Point) (dx dy : Rat) (stepX stepY : Int)
 /--
 Theorem: When current reaches endCell, rayMarch terminates and returns acc.
 -/
-theorem rayMarch_at_end (fuel : Nat) (start ptEnd : Point) (dx dy : Rat) (stepX stepY : Int)
+theorem rayMarch_at_end (fuel : ℕ) (start ptEnd : Point) (dx dy : ℚ) (stepX stepY : ℤ)
     (endCell current : Cell) (acc : List Cell) (h : (current == endCell) = true) :
     rayMarch (fuel + 1) start ptEnd dx dy stepX stepY endCell current acc = acc := by
   conv =>
@@ -649,7 +649,7 @@ theorem rayMarch_at_end (fuel : Nat) (start ptEnd : Point) (dx dy : Rat) (stepX 
 /--
 Theorem: When rayMarchStep indicates done, rayMarch terminates and returns acc.
 -/
-theorem rayMarch_step_done (fuel : Nat) (start ptEnd : Point) (dx dy : Rat) (stepX stepY : Int)
+theorem rayMarch_step_done (fuel : ℕ) (start ptEnd : Point) (dx dy : ℚ) (stepX stepY : ℤ)
     (endCell current : Cell) (acc : List Cell)
     (h_not_end : (current == endCell) = false)
     (h_done : (rayMarchStep start ptEnd dx dy stepX stepY current).snd = true) :
@@ -668,7 +668,7 @@ theorem rayMarch_step_done (fuel : Nat) (start ptEnd : Point) (dx dy : Rat) (ste
 /--
 Theorem: When rayMarchStep produces nextCell without terminating, rayMarch recurses on nextCell.
 -/
-theorem rayMarch_step_continue (fuel : Nat) (start ptEnd : Point) (dx dy : Rat) (stepX stepY : Int)
+theorem rayMarch_step_continue (fuel : ℕ) (start ptEnd : Point) (dx dy : ℚ) (stepX stepY : ℤ)
     (endCell current : Cell) (acc : List Cell)
     (h_not_end : (current == endCell) = false)
     (h_not_done : (rayMarchStep start ptEnd dx dy stepX stepY current).snd = false) :
@@ -690,7 +690,7 @@ theorem rayMarch_step_continue (fuel : Nat) (start ptEnd : Point) (dx dy : Rat) 
 Theorem: If an invariant on cells is preserved by each non-terminating rayMarchStep,
 then every cell output by rayMarch satisfies the invariant.
 -/
-theorem rayMarch_induction_sound (fuel : Nat) (A B : Point) (dx dy : Rat) (stepX stepY : Int)
+theorem rayMarch_induction_sound (fuel : ℕ) (A B : Point) (dx dy : ℚ) (stepX stepY : ℤ)
     (endCell current : Cell) (P : Cell → Prop)
     (h_step : ∀ c, P c →
       (rayMarchStep A B dx dy stepX stepY c).2 = false →
@@ -724,7 +724,7 @@ theorem rayMarch_induction_sound (fuel : Nat) (A B : Point) (dx dy : Rat) (stepX
 Theorem: Soundness from first step: if the first step produces a valid cell and all subsequent
 steps preserve validity, then every cell output by rayMarch satisfies the property.
 -/
-theorem sound_from_first_step (fuel : Nat) (A B : Point) (dx dy : Rat) (stepX stepY : Int)
+theorem sound_from_first_step (fuel : ℕ) (A B : Point) (dx dy : ℚ) (stepX stepY : ℤ)
     (endCell : Cell) (P : Cell → Prop)
     (h_step : ∀ c, P c →
       (rayMarchStep A B dx dy stepX stepY c).2 = false →
@@ -776,7 +776,7 @@ theorem rayMarchIntermediateCells_of_same (A B : Point) (h : floorPoint A = floo
     exact beq_self_eq_true (floorPoint B)
   have hx : (floorPoint B).x - (floorPoint A).x = 0 := by rw [h]; omega
   have hy : (floorPoint B).y - (floorPoint A).y = 0 := by rw [h]; omega
-  have hstep : (0 : Int).natAbs + (0 : Int).natAbs + 2 = 2 := rfl
+  have hstep : (0 : ℤ).natAbs + (0 : ℤ).natAbs + 2 = 2 := rfl
   dsimp
   rw [hx, hy, hstep]
   change List.filter _ (rayMarch (1 + 1) _ _ _ _ _ _ (floorPoint B) (floorPoint A) []) = []
@@ -890,7 +890,7 @@ theorem activeIntersectedCell_iff_endpoints_or_intermediate (A B : Point) (c : C
 /--
 Theorem: Cross product strict inequality is equivalent to division inequality for positive terms.
 -/
-theorem cross_lt_cross_iff_div_lt_div (remX remY absDx absDy : Rat)
+theorem cross_lt_cross_iff_div_lt_div (remX remY absDx absDy : ℚ)
     (hdx : 0 < absDx) (hdy : 0 < absDy) :
     remX * absDy < remY * absDx ↔ remX / absDx < remY / absDy :=
   (div_lt_div_iff₀ hdx hdy).symm
@@ -898,7 +898,7 @@ theorem cross_lt_cross_iff_div_lt_div (remX remY absDx absDy : Rat)
 /--
 Theorem: Cross product non-strict inequality is equivalent to division inequality for positive terms.
 -/
-theorem cross_le_cross_iff_div_le_div (remX remY absDx absDy : Rat)
+theorem cross_le_cross_iff_div_le_div (remX remY absDx absDy : ℚ)
     (hdx : 0 < absDx) (hdy : 0 < absDy) :
     remX * absDy ≤ remY * absDx ↔ remX / absDx ≤ remY / absDy :=
   (div_le_div_iff₀ hdx hdy).symm
@@ -906,7 +906,7 @@ theorem cross_le_cross_iff_div_le_div (remX remY absDx absDy : Rat)
 /--
 Theorem: Cross product equality is equivalent to division equality for positive terms.
 -/
-theorem cross_eq_cross_iff_div_eq_div (remX remY absDx absDy : Rat)
+theorem cross_eq_cross_iff_div_eq_div (remX remY absDx absDy : ℚ)
     (hdx : 0 < absDx) (hdy : 0 < absDy) :
     remX * absDy = remY * absDx ↔ remX / absDx = remY / absDy := by
   constructor
@@ -927,7 +927,7 @@ theorem cross_eq_cross_iff_div_eq_div (remX remY absDx absDy : Rat)
 Theorem: `min crossX crossY ≥ limitCross` is equivalent to
 `remX ≥ absDx ∧ remY ≥ absDy` (i.e. both exit times are ≥ 1).
 -/
-theorem min_cross_ge_limit_iff (remX remY absDx absDy : Rat)
+theorem min_cross_ge_limit_iff (remX remY absDx absDy : ℚ)
     (hdx : 0 < absDx) (hdy : 0 < absDy) :
     min (remX * absDy) (remY * absDx) ≥ absDx * absDy ↔
       remX ≥ absDx ∧ remY ≥ absDy := by
@@ -946,7 +946,7 @@ theorem min_cross_ge_limit_iff (remX remY absDx absDy : Rat)
 Theorem: The negation `min crossX crossY < limitCross` means at least one
 boundary is crossed before t = 1.
 -/
-theorem min_cross_lt_limit_iff (remX remY absDx absDy : Rat)
+theorem min_cross_lt_limit_iff (remX remY absDx absDy : ℚ)
     (hdx : 0 < absDx) (hdy : 0 < absDy) :
     min (remX * absDy) (remY * absDx) < absDx * absDy ↔
       remX < absDx ∨ remY < absDy := by
@@ -962,7 +962,7 @@ theorem min_cross_lt_limit_iff (remX remY absDx absDy : Rat)
 /--
 Theorem: When rayMarchStep takes an X step, remX < absDx.
 -/
-theorem stepX_bounded (remX absDx absDy crossY : Rat)
+theorem stepX_bounded (remX absDx absDy crossY : ℚ)
     (hdy : 0 < absDy)
     (h_step : remX * absDy < crossY)
     (h_not_done : min (remX * absDy) crossY < absDx * absDy) :
@@ -974,7 +974,7 @@ theorem stepX_bounded (remX absDx absDy crossY : Rat)
 /--
 Theorem: When rayMarchStep takes a Y step, remY < absDy.
 -/
-theorem stepY_bounded (remY absDx absDy crossX : Rat)
+theorem stepY_bounded (remY absDx absDy crossX : ℚ)
     (hdx : 0 < absDx)
     (h_step : remY * absDx < crossX)
     (h_not_done : min crossX (remY * absDx) < absDx * absDy) :
@@ -987,7 +987,7 @@ theorem stepY_bounded (remY absDx absDy crossX : Rat)
 /--
 Theorem: When rayMarchStep takes a diagonal step, remX < absDx and remY < absDy.
 -/
-theorem stepDiag_bounded (remX remY absDx absDy : Rat)
+theorem stepDiag_bounded (remX remY absDx absDy : ℚ)
     (hdx : 0 < absDx) (hdy : 0 < absDy)
     (h_eq : remX * absDy = remY * absDx)
     (h_not_done : min (remX * absDy) (remY * absDx) < absDx * absDy) :
@@ -1003,31 +1003,31 @@ theorem stepDiag_bounded (remX remY absDx absDy : Rat)
 /--
 Theorem: If an integer cast is strictly less than a rational, it is ≤ floor of the rational.
 -/
-theorem int_le_floor_of_lt (n : Int) (x : Rat) (h : (n : Rat) < x) :
+theorem int_le_floor_of_lt (n : ℤ) (x : ℚ) (h : (n : ℚ) < x) :
     n ≤ (Rat.floor x) := by
   have := Rat.floor_le x
   by_contra! h_lt
   have : Rat.floor x + 1 ≤ n := h_lt
-  have h_le : ((Rat.floor x + 1 : Int) : Rat) ≤ (n : Rat) := Int.cast_le.mpr this
-  have h_lt' : x < ((Rat.floor x + 1 : Int) : Rat) := Rat.lt_floor_add_one x
+  have h_le : ((Rat.floor x + 1 : ℤ) : ℚ) ≤ (n : ℚ) := Int.cast_le.mpr this
+  have h_lt' : x < ((Rat.floor x + 1 : ℤ) : ℚ) := Rat.lt_floor_add_one x
   linarith
 
 /--
 Theorem: If a rational is strictly less than an integer cast, its floor is strictly less.
 -/
-theorem floor_lt_of_lt (n : Int) (x : Rat) (h : x < (n : Rat)) :
+theorem floor_lt_of_lt (n : ℤ) (x : ℚ) (h : x < (n : ℚ)) :
     Rat.floor x < n := by
   have := Rat.floor_le x
-  have : ((Rat.floor x : Int) : Rat) < (n : Rat) := by linarith
+  have : ((Rat.floor x : ℤ) : ℚ) < (n : ℚ) := by linarith
   exact Int.cast_lt.mp this
 
 /--
 Theorem: Directional bounding for X step forward (dx > 0).
 -/
-theorem stepX_next_le_end (cx : Int) (Ax Bx : Rat)
-    (h_rem : ((cx + 1 : Int) : Rat) - Ax < Bx - Ax) :
+theorem stepX_next_le_end (cx : ℤ) (Ax Bx : ℚ)
+    (h_rem : ((cx + 1 : ℤ) : ℚ) - Ax < Bx - Ax) :
     cx + 1 ≤ (floorPoint ⟨Bx, 0⟩).x := by
-  have h_lt : ((cx + 1 : Int) : Rat) < Bx := by linarith
+  have h_lt : ((cx + 1 : ℤ) : ℚ) < Bx := by linarith
   unfold floorPoint toInt
   dsimp
   exact int_le_floor_of_lt (cx + 1) Bx h_lt
@@ -1035,10 +1035,10 @@ theorem stepX_next_le_end (cx : Int) (Ax Bx : Rat)
 /--
 Theorem: Directional bounding for X step backward (dx < 0).
 -/
-theorem stepX_next_ge_end (cx : Int) (Ax Bx : Rat)
-    (h_rem : Ax - ((cx : Int) : Rat) < Ax - Bx) :
+theorem stepX_next_ge_end (cx : ℤ) (Ax Bx : ℚ)
+    (h_rem : Ax - ((cx : ℤ) : ℚ) < Ax - Bx) :
     (floorPoint ⟨Bx, 0⟩).x ≤ cx - 1 := by
-  have h_lt : Bx < ((cx : Int) : Rat) := by linarith
+  have h_lt : Bx < ((cx : ℤ) : ℚ) := by linarith
   have h_floor_lt := floor_lt_of_lt cx Bx h_lt
   unfold floorPoint toInt
   dsimp
@@ -1047,10 +1047,10 @@ theorem stepX_next_ge_end (cx : Int) (Ax Bx : Rat)
 /--
 Theorem: Directional bounding for Y step forward (dy > 0).
 -/
-theorem stepY_next_le_end (cy : Int) (Ay By : Rat)
-    (h_rem : ((cy + 1 : Int) : Rat) - Ay < By - Ay) :
+theorem stepY_next_le_end (cy : ℤ) (Ay By : ℚ)
+    (h_rem : ((cy + 1 : ℤ) : ℚ) - Ay < By - Ay) :
     cy + 1 ≤ (floorPoint ⟨0, By⟩).y := by
-  have h_lt : ((cy + 1 : Int) : Rat) < By := by linarith
+  have h_lt : ((cy + 1 : ℤ) : ℚ) < By := by linarith
   unfold floorPoint toInt
   dsimp
   exact int_le_floor_of_lt (cy + 1) By h_lt
@@ -1058,10 +1058,10 @@ theorem stepY_next_le_end (cy : Int) (Ay By : Rat)
 /--
 Theorem: Directional bounding for Y step backward (dy < 0).
 -/
-theorem stepY_next_ge_end (cy : Int) (Ay By : Rat)
-    (h_rem : Ay - ((cy : Int) : Rat) < Ay - By) :
+theorem stepY_next_ge_end (cy : ℤ) (Ay By : ℚ)
+    (h_rem : Ay - ((cy : ℤ) : ℚ) < Ay - By) :
     (floorPoint ⟨0, By⟩).y ≤ cy - 1 := by
-  have h_lt : By < ((cy : Int) : Rat) := by linarith
+  have h_lt : By < ((cy : ℤ) : ℚ) := by linarith
   have h_floor_lt := floor_lt_of_lt cy By h_lt
   unfold floorPoint toInt
   dsimp
@@ -1070,7 +1070,7 @@ theorem stepY_next_ge_end (cy : Int) (Ay By : Rat)
 /--
 Theorem: Positive interval length for X step transition.
 -/
-theorem stepX_interval_lt (tx1 ty0 ty1 dx : Rat) (dx_pos : 0 < dx)
+theorem stepX_interval_lt (tx1 ty0 ty1 dx : ℚ) (dx_pos : 0 < dx)
     (h_cross : tx1 < ty1)
     (h_lim : tx1 < 1)
     (h_pos : 0 ≤ tx1)
@@ -1093,7 +1093,7 @@ theorem stepX_interval_lt (tx1 ty0 ty1 dx : Rat) (dx_pos : 0 < dx)
 /--
 Theorem: Positive interval length for Y step transition.
 -/
-theorem stepY_interval_lt (ty1 tx0 tx1 dy : Rat) (dy_pos : 0 < dy)
+theorem stepY_interval_lt (ty1 tx0 tx1 dy : ℚ) (dy_pos : 0 < dy)
     (h_cross : ty1 < tx1)
     (h_lim : ty1 < 1)
     (h_pos : 0 ≤ ty1)
@@ -1116,7 +1116,7 @@ theorem stepY_interval_lt (ty1 tx0 tx1 dy : Rat) (dy_pos : 0 < dy)
 /--
 Theorem: Positive interval length for diagonal step transition.
 -/
-theorem stepDiag_interval_lt (t dx dy : Rat) (dx_pos : 0 < dx) (dy_pos : 0 < dy)
+theorem stepDiag_interval_lt (t dx dy : ℚ) (dx_pos : 0 < dx) (dy_pos : 0 < dy)
     (h_lim : t < 1)
     (h_pos : 0 ≤ t) :
     max 0 (max t t) < min 1 (min (t + 1 / dx) (t + 1 / dy)) := by
@@ -1143,7 +1143,7 @@ and isOffAxisCornerBool is false.
 theorem cell_active_of_interval_lt (c : Cell) (A B : Point)
     (hcA : c ≠ floorPoint A) (hcB : c ≠ floorPoint B)
     (h_bbox : inBoundingBox c A B = true)
-    (tEnter tExit : Rat)
+    (tEnter tExit : ℚ)
     (h_interval : cellIntersectionInterval c A B = some (tEnter, tExit))
     (h_lt : tEnter < tExit) :
     segmentIntersectsCellBool c A B = true ∧ isOffAxisCornerBool c A B = false := by
@@ -1169,7 +1169,7 @@ Theorem: When cellIntersectionInterval has tEnter < tExit, isOffAxisCornerBool i
 theorem not_off_axis_of_interval_lt (c : Cell) (A B : Point)
     (hcA : c ≠ floorPoint A) (hcB : c ≠ floorPoint B)
     (h_bbox : inBoundingBox c A B = true)
-    (tEnter tExit : Rat)
+    (tEnter tExit : ℚ)
     (h_int : cellIntersectionInterval c A B = some (tEnter, tExit))
     (h_lt : tEnter < tExit) :
     isOffAxisCornerBool c A B = false :=
@@ -1178,7 +1178,7 @@ theorem not_off_axis_of_interval_lt (c : Cell) (A B : Point)
 /--
 Theorem: If cellIntersectionInterval returns some (tEnter, tExit), then tEnter ≤ tExit.
 -/
-theorem cellIntersectionInterval_le (c : Cell) (A B : Point) (tEnter tExit : Rat)
+theorem cellIntersectionInterval_le (c : Cell) (A B : Point) (tEnter tExit : ℚ)
     (h : cellIntersectionInterval c A B = some (tEnter, tExit)) :
     tEnter ≤ tExit := by
   unfold cellIntersectionInterval at h
@@ -1399,19 +1399,19 @@ theorem cellIntersectionsSegment_exact_iff_reduction (A B : Point) (c : Cell)
 # Part 1: Floor monotonicity and interval bounds
 -/
 
-theorem le_floor_of_le (n : Int) (x : Rat) (h : (n : Rat) ≤ x) :
+theorem le_floor_of_le (n : ℤ) (x : ℚ) (h : (n : ℚ) ≤ x) :
     n ≤ Rat.floor x := by
   by_contra! h_lt
   have : Rat.floor x + 1 ≤ n := h_lt
-  have h_le : ((Rat.floor x + 1 : Int) : Rat) ≤ (n : Rat) := Int.cast_le.mpr this
-  have h_lt' : x < ((Rat.floor x + 1 : Int) : Rat) := Rat.lt_floor_add_one x
+  have h_le : ((Rat.floor x + 1 : ℤ) : ℚ) ≤ (n : ℚ) := Int.cast_le.mpr this
+  have h_lt' : x < ((Rat.floor x + 1 : ℤ) : ℚ) := Rat.lt_floor_add_one x
   linarith
 
-theorem rat_floor_mono {a b : Rat} (h : a ≤ b) : Rat.floor a ≤ Rat.floor b := by
+theorem rat_floor_mono {a b : ℚ} (h : a ≤ b) : Rat.floor a ≤ Rat.floor b := by
   have := Rat.floor_le a
   exact le_floor_of_le (Rat.floor a) b (by linarith)
 
-theorem interval_enter_exit_le_one (c : Cell) (A B : Point) (tEnter tExit : Rat)
+theorem interval_enter_exit_le_one (c : Cell) (A B : Point) (tEnter tExit : ℚ)
     (h : cellIntersectionInterval c A B = some (tEnter, tExit)) :
     0 ≤ tEnter ∧ tExit ≤ 1 := by
   unfold cellIntersectionInterval at h
@@ -1425,7 +1425,7 @@ theorem interval_enter_exit_le_one (c : Cell) (A B : Point) (tEnter tExit : Rat)
        subst h1 h2
        refine ⟨le_max_left 0 _, min_le_left 1 _⟩)
 
-theorem interval_dx_pos (c : Cell) (A B : Point) (tEnter tExit : Rat)
+theorem interval_dx_pos (c : Cell) (A B : Point) (tEnter tExit : ℚ)
     (h : cellIntersectionInterval c A B = some (tEnter, tExit))
     (hdx : 0 < B.x - A.x) :
     (ofInt c.x - A.x) / (B.x - A.x) ≤ tEnter ∧
@@ -1450,7 +1450,7 @@ theorem interval_dx_pos (c : Cell) (A B : Point) (tEnter tExit : Rat)
        · exact le_trans (le_max_left _ _) (le_max_right 0 _)
        · exact le_trans (min_le_right 1 _) (min_le_left _ _))
 
-theorem interval_dx_neg (c : Cell) (A B : Point) (tEnter tExit : Rat)
+theorem interval_dx_neg (c : Cell) (A B : Point) (tEnter tExit : ℚ)
     (h : cellIntersectionInterval c A B = some (tEnter, tExit))
     (hdx : B.x - A.x < 0) :
     (ofInt (c.x + 1) - A.x) / (B.x - A.x) ≤ tEnter ∧
@@ -1476,7 +1476,7 @@ theorem interval_dx_neg (c : Cell) (A B : Point) (tEnter tExit : Rat)
        · exact le_trans (le_max_left _ _) (le_max_right 0 _)
        · exact le_trans (min_le_right 1 _) (min_le_left _ _))
 
-theorem interval_dy_pos (c : Cell) (A B : Point) (tEnter tExit : Rat)
+theorem interval_dy_pos (c : Cell) (A B : Point) (tEnter tExit : ℚ)
     (h : cellIntersectionInterval c A B = some (tEnter, tExit))
     (hdy : 0 < B.y - A.y) :
     (ofInt c.y - A.y) / (B.y - A.y) ≤ tEnter ∧
@@ -1501,7 +1501,7 @@ theorem interval_dy_pos (c : Cell) (A B : Point) (tEnter tExit : Rat)
        · exact le_trans (le_max_right _ _) (le_max_right 0 _)
        · exact le_trans (min_le_right 1 _) (min_le_right _ _))
 
-theorem interval_dy_neg (c : Cell) (A B : Point) (tEnter tExit : Rat)
+theorem interval_dy_neg (c : Cell) (A B : Point) (tEnter tExit : ℚ)
     (h : cellIntersectionInterval c A B = some (tEnter, tExit))
     (hdy : B.y - A.y < 0) :
     (ofInt (c.y + 1) - A.y) / (B.y - A.y) ≤ tEnter ∧
@@ -1532,8 +1532,8 @@ theorem interval_dy_neg (c : Cell) (A B : Point) (tEnter tExit : Rat)
 -/
 
 theorem bbox_signs (x : Cell) (A B : Point) (h_bbox : inBoundingBox x A B = true) :
-    let sx : Int := if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else 0
-    let sy : Int := if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0
+    let sx : ℤ := if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else 0
+    let sy : ℤ := if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0
     0 ≤ (x.x - (floorPoint A).x) * sx ∧
     0 ≤ ((floorPoint B).x - x.x) * sx ∧
     0 ≤ (x.y - (floorPoint A).y) * sy ∧
@@ -1609,7 +1609,7 @@ theorem bbox_signs (x : Cell) (A B : Point) (h_bbox : inBoundingBox x A B = true
     · linarith
 
 theorem bbox_sx_zero (x : Cell) (A B : Point) (h_bbox : inBoundingBox x A B = true)
-    (hsx : (if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else (0 : Int)) = 0) :
+    (hsx : (if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else (0 : ℤ)) = 0) :
     x.x = (floorPoint A).x ∧ x.x = (floorPoint B).x := by
   unfold inBoundingBox at h_bbox
   dsimp only [] at h_bbox
@@ -1631,7 +1631,7 @@ theorem bbox_sx_zero (x : Cell) (A B : Point) (h_bbox : inBoundingBox x A B = tr
   exact ⟨by linarith, by linarith⟩
 
 theorem bbox_sy_zero (x : Cell) (A B : Point) (h_bbox : inBoundingBox x A B = true)
-    (hsy : (if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else (0 : Int)) = 0) :
+    (hsy : (if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else (0 : ℤ)) = 0) :
     x.y = (floorPoint A).y ∧ x.y = (floorPoint B).y := by
   unfold inBoundingBox at h_bbox
   dsimp only [] at h_bbox

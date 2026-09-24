@@ -16,16 +16,18 @@
 
 import Algorithm.Basic
 
+local notation "ℕ" => Nat
+
 namespace Algorithm
 
-def shiftRight (a : Nat) : Nat → Nat
+def shiftRight (a : ℕ) : ℕ → ℕ
   | 0 => a
   | k + 1 => shiftRight (a / 2) k
 
-def testBit (w : Nat) (i : Nat) : Bool :=
+def testBit (w : ℕ) (i : ℕ) : Bool :=
   (shiftRight w i) % 2 == 1
 
-def boolToNat (b : Bool) : Nat :=
+def boolToNat (b : Bool) : ℕ :=
   if b then 1 else 0
 
 /--
@@ -35,7 +37,7 @@ Row 1: 2  3  6  7
 Row 2: 8  9 12 13
 Row 3: 10 11 14 15
 -/
-def bitToCoord4x4 : Nat → Option Coord
+def bitToCoord4x4 : ℕ → Option Coord
   | 0 => some (0, 0)
   | 1 => some (1, 0)
   | 2 => some (0, 1)
@@ -57,7 +59,7 @@ def bitToCoord4x4 : Nat → Option Coord
 /--
 Converts 16-bit integer to list of active 2D coordinates.
 -/
-def natToGrid4x4 (w : Nat) : List Coord :=
+def natToGrid4x4 (w : ℕ) : List Coord :=
   let indices := [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
   indices.filterMap fun i =>
     if testBit w i then bitToCoord4x4 i else none
@@ -66,7 +68,7 @@ def natToGrid4x4 (w : Nat) : List Coord :=
 Count of alive neighbors for cell (2, 2) (bit 12):
 Neighbor bit indices: 3, 6, 7, 9, 11, 13, 14, 15
 -/
-def neighborCount22 (w : Nat) : Nat :=
+def neighborCount22 (w : ℕ) : ℕ :=
   boolToNat (testBit w 3) + boolToNat (testBit w 6) +
   boolToNat (testBit w 7) + boolToNat (testBit w 9) +
   boolToNat (testBit w 11) + boolToNat (testBit w 13) +
@@ -76,7 +78,7 @@ def neighborCount22 (w : Nat) : Nat :=
 Count of alive neighbors for cell (1, 2) (bit 9):
 Neighbor bit indices: 2, 3, 6, 8, 10, 11, 12, 14 (mask 0x5D4C)
 -/
-def neighborCount12 (w : Nat) : Nat :=
+def neighborCount12 (w : ℕ) : ℕ :=
   boolToNat (testBit w 2) + boolToNat (testBit w 3) +
   boolToNat (testBit w 6) + boolToNat (testBit w 8) +
   boolToNat (testBit w 10) + boolToNat (testBit w 11) +
@@ -86,7 +88,7 @@ def neighborCount12 (w : Nat) : Nat :=
 Count of alive neighbors for cell (2, 1) (bit 6):
 Neighbor bit indices: 1, 3, 4, 5, 7, 9, 12, 13 (mask 0x32BA)
 -/
-def neighborCount21 (w : Nat) : Nat :=
+def neighborCount21 (w : ℕ) : ℕ :=
   boolToNat (testBit w 1) + boolToNat (testBit w 3) +
   boolToNat (testBit w 4) + boolToNat (testBit w 5) +
   boolToNat (testBit w 7) + boolToNat (testBit w 9) +
@@ -96,7 +98,7 @@ def neighborCount21 (w : Nat) : Nat :=
 Count of alive neighbors for cell (1, 1) (bit 3):
 Neighbor bit indices: 0, 1, 2, 4, 6, 8, 9, 12
 -/
-def neighborCount11 (w : Nat) : Nat :=
+def neighborCount11 (w : ℕ) : ℕ :=
   boolToNat (testBit w 0) + boolToNat (testBit w 1) +
   boolToNat (testBit w 2) + boolToNat (testBit w 4) +
   boolToNat (testBit w 6) + boolToNat (testBit w 8) +
@@ -106,7 +108,7 @@ def neighborCount11 (w : Nat) : Nat :=
 Conway rule as computed in BitComputation:
 `(count or prevBit) ^ 3 == 0`
 -/
-def bitRule (count : Nat) (prevBit : Bool) : Bool :=
+def bitRule (count : ℕ) (prevBit : Bool) : Bool :=
   let p := if prevBit then 1 else 0
   -- In Conway: alive iff count == 3 || (count == 2 && prevBit)
   count == 3 || (count == 2 && p == 1)
@@ -118,14 +120,14 @@ Computes next generation center 2x2 of 4x4 grid as a 4-bit integer:
   bit 1: cell (2, 1)
   bit 0: cell (1, 1)
 -/
-def computeNextGen4x4 (w : Nat) : Nat :=
+def computeNextGen4x4 (w : ℕ) : ℕ :=
   let b22 := bitRule (neighborCount22 w) (testBit w 12)
   let b12 := bitRule (neighborCount12 w) (testBit w 9)
   let b21 := bitRule (neighborCount21 w) (testBit w 6)
   let b11 := bitRule (neighborCount11 w) (testBit w 3)
   boolToNat b22 * 8 + boolToNat b12 * 4 + boolToNat b21 * 2 + boolToNat b11
 
-def centerBitsToCoords (out : Nat) : List Coord :=
+def centerBitsToCoords (out : ℕ) : List Coord :=
   let b0 := testBit out 0
   let b1 := testBit out 1
   let b2 := testBit out 2
@@ -138,13 +140,13 @@ def centerBitsToCoords (out : Nat) : List Coord :=
 /--
 Computes center 2x2 cells using Naive Moore stepping on the 4x4 grid.
 -/
-def naiveCenter2x2 (w : Nat) : List Coord :=
+def naiveCenter2x2 (w : ℕ) : List Coord :=
   let grid := natToGrid4x4 w
   let nextGrid := stepGrid grid
   nextGrid.filter fun (x, y) =>
     (x == 1 || x == 2) && (y == 1 || y == 2)
 
-def verifyBitComputation4x4 (w : Nat) : Bool :=
+def verifyBitComputation4x4 (w : ℕ) : Bool :=
   let bitCenter := centerBitsToCoords (computeNextGen4x4 w)
   let naiveCenter := naiveCenter2x2 w
   bitCenter.all (naiveCenter.contains ·) && naiveCenter.all (bitCenter.contains ·)
@@ -186,7 +188,7 @@ theorem bit_comp_tub_correct :
 /--
 Extracts a 2x2 subnode (4 bits) from four bit positions of a 64-bit leaf node.
 -/
-def extractSub2x2 (w : Nat) (b0 b1 b2 b3 : Nat) : Nat :=
+def extractSub2x2 (w : ℕ) (b0 b1 b2 b3 : ℕ) : ℕ :=
   boolToNat (testBit w b0) +
   boolToNat (testBit w b1) * 2 +
   boolToNat (testBit w b2) * 4 +
@@ -196,7 +198,7 @@ def extractSub2x2 (w : Nat) (b0 b1 b2 b3 : Nat) : Nat :=
 Computes the central 4x4 next generation for an 8x8 64-bit MacroCell.LeafNode.
 Implements the 9-subnode decomposition (n00..n22) into four 4x4 quadrant evaluations.
 -/
-def computeLeafNextGen8x8 (w : Nat) : Nat :=
+def computeLeafNextGen8x8 (w : ℕ) : ℕ :=
   let n00 := extractSub2x2 w 0x03 0x06 0x09 0x0C
   let n01 := extractSub2x2 w 0x07 0x12 0x0D 0x18
   let n02 := extractSub2x2 w 0x13 0x16 0x19 0x1C
@@ -217,7 +219,7 @@ def computeLeafNextGen8x8 (w : Nat) : Nat :=
 /--
 Maps an 8x8 bit index [0..63] to 2D coordinate (x, y).
 -/
-def bitToCoord8x8 (b : Nat) : Option Coord :=
+def bitToCoord8x8 (b : ℕ) : Option Coord :=
   if b >= 64 then none
   else
     let quad := b / 16
@@ -232,12 +234,12 @@ def bitToCoord8x8 (b : Nat) : Option Coord :=
         | _ => (4, 4)
       some (lx + ox, ly + oy)
 
-def leafBitsToCoords (w : Nat) : List Coord :=
+def leafBitsToCoords (w : ℕ) : List Coord :=
   (List.range 64).filterMap (fun b =>
     if testBit w b then bitToCoord8x8 b else none
   )
 
-def center4x4BitsToCoords (out16 : Nat) : List Coord :=
+def center4x4BitsToCoords (out16 : ℕ) : List Coord :=
   (List.range 16).filterMap (fun b =>
     if testBit out16 b then
       match bitToCoord4x4 b with
@@ -246,12 +248,12 @@ def center4x4BitsToCoords (out16 : Nat) : List Coord :=
     else none
   )
 
-def naiveCenter4x4 (w : Nat) : List Coord :=
+def naiveCenter4x4 (w : ℕ) : List Coord :=
   let fullGrid := leafBitsToCoords w
   let nextGrid := stepGrid fullGrid
   nextGrid.filter (fun (x, y) => x >= 2 && x <= 5 && y >= 2 && y <= 5)
 
-def verifyLeafComputation8x8 (w : Nat) : Bool :=
+def verifyLeafComputation8x8 (w : ℕ) : Bool :=
   let bitCenter := center4x4BitsToCoords (computeLeafNextGen8x8 w)
   let naiveCenter := naiveCenter4x4 w
   bitCenter.all (naiveCenter.contains ·) && naiveCenter.all (bitCenter.contains ·)
@@ -290,7 +292,7 @@ theorem leaf_comp_centered_tub_correct :
 /--
 Theorem: bitRule is definitionally identical to Conway's lifeRule for all neighbor counts and states.
 -/
-theorem bitRule_equals_lifeRule (alive : Bool) (n : Nat) :
+theorem bitRule_equals_lifeRule (alive : Bool) (n : ℕ) :
   bitRule n alive = lifeRule alive n := by
   cases alive <;> rfl
 
@@ -352,19 +354,19 @@ theorem mask22_is_exact_moore_neighborhood :
 
 -- 8x8 Quadrant Moore Neighborhood Containment Theorems:
 
-def nwQuadrantBits : List Nat :=
+def nwQuadrantBits : List ℕ :=
   [0x03, 0x06, 0x09, 0x0C, 0x07, 0x12, 0x0D, 0x18,
    0x0B, 0x0E, 0x21, 0x24, 0x0F, 0x1A, 0x25, 0x30]
 
-def neQuadrantBits : List Nat :=
+def neQuadrantBits : List ℕ :=
   [0x07, 0x12, 0x0D, 0x18, 0x13, 0x16, 0x19, 0x1C,
    0x0F, 0x1A, 0x25, 0x30, 0x1B, 0x1E, 0x31, 0x34]
 
-def swQuadrantBits : List Nat :=
+def swQuadrantBits : List ℕ :=
   [0x0B, 0x0E, 0x21, 0x24, 0x0F, 0x1A, 0x25, 0x30,
    0x23, 0x26, 0x29, 0x2C, 0x27, 0x32, 0x2D, 0x38]
 
-def seQuadrantBits : List Nat :=
+def seQuadrantBits : List ℕ :=
   [0x0F, 0x1A, 0x25, 0x30, 0x1B, 0x1E, 0x31, 0x34,
    0x27, 0x32, 0x2D, 0x38, 0x33, 0x36, 0x39, 0x3C]
 
@@ -420,39 +422,39 @@ theorem se_quadrant_contains_all_moore_neighbors :
 -- Optimized 8x8 Computation and Equivalence Proof
 -- =========================================================================
 
-def extractCenter (q : Nat) : Nat :=
+def extractCenter (q : ℕ) : ℕ :=
   boolToNat (testBit q 3) +
   boolToNat (testBit q 6) * 2 +
   boolToNat (testBit q 9) * 4 +
   boolToNat (testBit q 12) * 8
 
-def extractHorizontalMid (leftQuad rightQuad : Nat) : Nat :=
+def extractHorizontalMid (leftQuad rightQuad : ℕ) : ℕ :=
   boolToNat (testBit leftQuad 7) +
   boolToNat (testBit rightQuad 2) * 2 +
   boolToNat (testBit leftQuad 13) * 4 +
   boolToNat (testBit rightQuad 8) * 8
 
-def extractVerticalMid (topQuad bottomQuad : Nat) : Nat :=
+def extractVerticalMid (topQuad bottomQuad : ℕ) : ℕ :=
   boolToNat (testBit topQuad 11) +
   boolToNat (testBit topQuad 14) * 2 +
   boolToNat (testBit bottomQuad 1) * 4 +
   boolToNat (testBit bottomQuad 4) * 8
 
-def extractCenterMid (q0 q1 q2 q3 : Nat) : Nat :=
+def extractCenterMid (q0 q1 q2 q3 : ℕ) : ℕ :=
   boolToNat (testBit q0 15) +
   boolToNat (testBit q1 10) * 2 +
   boolToNat (testBit q2 5) * 4 +
   boolToNat (testBit q3 0) * 8
 
-def quad0 (w : Nat) : Nat := shiftRight w 0
-def quad1 (w : Nat) : Nat := shiftRight w 16
-def quad2 (w : Nat) : Nat := shiftRight w 32
-def quad3 (w : Nat) : Nat := shiftRight w 48
+def quad0 (w : ℕ) : ℕ := shiftRight w 0
+def quad1 (w : ℕ) : ℕ := shiftRight w 16
+def quad2 (w : ℕ) : ℕ := shiftRight w 32
+def quad3 (w : ℕ) : ℕ := shiftRight w 48
 
 /--
 Optimized 8x8 next generation computation reflecting the 32-bit quadrant decomposed implementation.
 -/
-def computeLeafNextGen8x8Fast (w : Nat) : Nat :=
+def computeLeafNextGen8x8Fast (w : ℕ) : ℕ :=
   let q0 := quad0 w
   let q1 := quad1 w
   let q2 := quad2 w
@@ -482,14 +484,14 @@ def computeLeafNextGen8x8Fast (w : Nat) : Nat :=
 Theorem: The optimized computeLeafNextGen8x8Fast is definitionally equivalent
 to computeLeafNextGen8x8 for ALL inputs w.
 -/
-theorem computeLeafNextGen8x8Fast_eq_computeLeafNextGen8x8 (w : Nat) :
+theorem computeLeafNextGen8x8Fast_eq_computeLeafNextGen8x8 (w : ℕ) :
   computeLeafNextGen8x8Fast w = computeLeafNextGen8x8 w := by
   rfl
 
 /--
 Branching 8x8 computation with 0-short-circuiting matching Kotlin's fast path.
 -/
-def computeLeafNextGen8x8Branch (w : Nat) : Nat :=
+def computeLeafNextGen8x8Branch (w : ℕ) : ℕ :=
   if w == 0 then 0 else computeLeafNextGen8x8Fast w
 
 /--
@@ -502,7 +504,7 @@ theorem computeLeafNextGen8x8Fast_zero : computeLeafNextGen8x8Fast 0 = 0 := by
 Theorem: The branching fast-path implementation is mathematically equivalent
 to computeLeafNextGen8x8 for ALL inputs w.
 -/
-theorem computeLeafNextGen8x8Branch_eq_computeLeafNextGen8x8 (w : Nat) :
+theorem computeLeafNextGen8x8Branch_eq_computeLeafNextGen8x8 (w : ℕ) :
   computeLeafNextGen8x8Branch w = computeLeafNextGen8x8 w := by
   unfold computeLeafNextGen8x8Branch
   split
