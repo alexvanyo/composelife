@@ -47,6 +47,20 @@ void lean_session_value_init_runtime(void) {
     g_lean_runtime_initialized = true;
 }
 
+static inline lean_object* lean_mk_uuid(uint64_t msb, uint64_t lsb) {
+    lean_object* obj = lean_alloc_ctor(0, 0, 16);
+    lean_ctor_set_uint64(obj, 0, msb);
+    lean_ctor_set_uint64(obj, 8, lsb);
+    return obj;
+}
+
+static inline LeanUuidC lean_to_uuid_c(lean_object* obj) {
+    LeanUuidC u;
+    u.most_significant_bits = lean_ctor_get_uint64(obj, 0);
+    u.least_significant_bits = lean_ctor_get_uint64(obj, 8);
+    return u;
+}
+
 static void fill_snapshot(LeanOracleSession* session, lean_object* snap_obj, LeanStateSnapshotC* out_snapshot) {
     lean_object* exp_sess = lean_ctor_get(snap_obj, 0);
     lean_object* exp_val_id = lean_ctor_get(snap_obj, 1);
@@ -58,12 +72,12 @@ static void fill_snapshot(LeanOracleSession* session, lean_object* snap_obj, Lea
     uint8_t is_active = lean_ctor_get_uint8(snap_obj, sizeof(void*)*7);
     uint8_t is_up_to_date = lean_ctor_get_uint8(snap_obj, sizeof(void*)*7 + 1);
 
-    out_snapshot->exposed_session_id = lean_uint64_of_nat(exp_sess);
-    out_snapshot->exposed_value_id = lean_uint64_of_nat(exp_val_id);
-    out_snapshot->local_session_id = lean_uint64_of_nat(loc_sess);
-    out_snapshot->pre_local_session_id = lean_uint64_of_nat(pre_loc_sess);
-    out_snapshot->last_expected_session_id = lean_uint64_of_nat(last_exp_sess);
-    out_snapshot->last_expected_value_id = lean_uint64_of_nat(last_exp_val_id);
+    out_snapshot->exposed_session_id = lean_to_uuid_c(exp_sess);
+    out_snapshot->exposed_value_id = lean_to_uuid_c(exp_val_id);
+    out_snapshot->local_session_id = lean_to_uuid_c(loc_sess);
+    out_snapshot->pre_local_session_id = lean_to_uuid_c(pre_loc_sess);
+    out_snapshot->last_expected_session_id = lean_to_uuid_c(last_exp_sess);
+    out_snapshot->last_expected_value_id = lean_to_uuid_c(last_exp_val_id);
     out_snapshot->is_local_session_active = (bool)is_active;
     out_snapshot->is_upstream_up_to_date = (bool)is_up_to_date;
 
@@ -76,17 +90,20 @@ static void fill_snapshot(LeanOracleSession* session, lean_object* snap_obj, Lea
 }
 
 LeanOracleSession* lean_oracle_create(
-    uint64_t upstream_session_id,
-    uint64_t upstream_value_id,
+    uint64_t upstream_session_id_msb,
+    uint64_t upstream_session_id_lsb,
+    uint64_t upstream_value_id_msb,
+    uint64_t upstream_value_id_lsb,
     const char* upstream_value,
-    uint64_t local_session_id
+    uint64_t local_session_id_msb,
+    uint64_t local_session_id_lsb
 ) {
     lean_session_value_init_runtime();
 
-    lean_object* u_sess = lean_uint64_to_nat(upstream_session_id);
-    lean_object* u_val = lean_uint64_to_nat(upstream_value_id);
+    lean_object* u_sess = lean_mk_uuid(upstream_session_id_msb, upstream_session_id_lsb);
+    lean_object* u_val = lean_mk_uuid(upstream_value_id_msb, upstream_value_id_lsb);
     lean_object* u_val_str = lean_mk_string(upstream_value);
-    lean_object* loc_id = lean_uint64_to_nat(local_session_id);
+    lean_object* loc_id = lean_mk_uuid(local_session_id_msb, local_session_id_lsb);
 
     lean_object* pair = session_value_initial_state(u_sess, u_val, u_val_str, loc_id);
     lean_object* st = lean_ctor_get(pair, 0);
@@ -105,11 +122,12 @@ LeanOracleSession* lean_oracle_create(
 void lean_oracle_step_set_value(
     LeanOracleSession* session,
     const char* new_val,
-    uint64_t val_id,
+    uint64_t val_id_msb,
+    uint64_t val_id_lsb,
     LeanStateSnapshotC* out_snapshot
 ) {
     lean_object* val_str = lean_mk_string(new_val);
-    lean_object* vid = lean_uint64_to_nat(val_id);
+    lean_object* vid = lean_mk_uuid(val_id_msb, val_id_lsb);
 
     lean_object* pair = session_value_step_set_value(session->state, val_str, vid);
     lean_object* next_st = lean_ctor_get(pair, 0);
@@ -127,16 +145,19 @@ void lean_oracle_step_set_value(
 
 void lean_oracle_step_set_upstream(
     LeanOracleSession* session,
-    uint64_t upstream_session_id,
-    uint64_t upstream_value_id,
+    uint64_t upstream_session_id_msb,
+    uint64_t upstream_session_id_lsb,
+    uint64_t upstream_value_id_msb,
+    uint64_t upstream_value_id_lsb,
     const char* upstream_value,
-    uint64_t fresh_local_id,
+    uint64_t fresh_local_id_msb,
+    uint64_t fresh_local_id_lsb,
     LeanStateSnapshotC* out_snapshot
 ) {
-    lean_object* u_sess = lean_uint64_to_nat(upstream_session_id);
-    lean_object* u_val = lean_uint64_to_nat(upstream_value_id);
+    lean_object* u_sess = lean_mk_uuid(upstream_session_id_msb, upstream_session_id_lsb);
+    lean_object* u_val = lean_mk_uuid(upstream_value_id_msb, upstream_value_id_lsb);
     lean_object* u_val_str = lean_mk_string(upstream_value);
-    lean_object* fresh_id = lean_uint64_to_nat(fresh_local_id);
+    lean_object* fresh_id = lean_mk_uuid(fresh_local_id_msb, fresh_local_id_lsb);
 
     lean_object* pair = session_value_step_set_upstream(session->state, u_sess, u_val, u_val_str, fresh_id);
     lean_object* next_st = lean_ctor_get(pair, 0);

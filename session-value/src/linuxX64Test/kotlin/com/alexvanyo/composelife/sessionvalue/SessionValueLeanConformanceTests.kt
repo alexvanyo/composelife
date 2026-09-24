@@ -24,10 +24,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
-private fun Long.toUuid(): Uuid = Uuid.fromLongs(0L, this)
-
-@OptIn(ExperimentalUuidApi::class)
-private fun Uuid.toLeanId(): Long = this.toLongs { _, lsb -> lsb }
+private fun Long.toUuid(highBits: Long = 0x123456789abcdef0L): Uuid = Uuid.fromLongs(highBits, this)
 
 /**
  * Conformance test suite verifying that production Kotlin [SessionValueState] faithfully
@@ -38,34 +35,31 @@ class SessionValueLeanConformanceTests {
 
     private fun createOracle(upstream: SessionValue<String>, localSessionId: Uuid): LeanSessionValueOracle =
         LeanSessionValueOracle(
-            upstreamSessionId = upstream.sessionId.toLeanId(),
-            upstreamValueId = upstream.valueId.toLeanId(),
+            upstreamSessionId = upstream.sessionId,
+            upstreamValueId = upstream.valueId,
             upstreamValue = upstream.value,
-            localSessionId = localSessionId.toLeanId(),
+            localSessionId = localSessionId,
         )
-
-    private fun LeanSessionValueOracle.stepSetValue(value: String, valueId: Uuid): LeanSnapshot =
-        stepSetValue(value, valueId.toLeanId())
 
     private fun LeanSessionValueOracle.stepSetUpstream(
         upstream: SessionValue<String>,
         freshLocalSessionId: Uuid,
     ): LeanSnapshot = stepSetUpstream(
-        upstreamSessionId = upstream.sessionId.toLeanId(),
-        upstreamValueId = upstream.valueId.toLeanId(),
+        upstreamSessionId = upstream.sessionId,
+        upstreamValueId = upstream.valueId,
         upstreamValue = upstream.value,
-        freshLocalSessionId = freshLocalSessionId.toLeanId(),
+        freshLocalSessionId = freshLocalSessionId,
     )
 
     private fun assertMatchesLean(kotlinState: SessionValueState<String>, lean: LeanSnapshot, message: String = "") {
         assertEquals(
             lean.exposedSessionId,
-            kotlinState.sessionValue.sessionId.toLeanId(),
+            kotlinState.sessionValue.sessionId,
             "$message: exposedSessionId mismatch",
         )
         assertEquals(
             lean.exposedValueId,
-            kotlinState.sessionValue.valueId.toLeanId(),
+            kotlinState.sessionValue.valueId,
             "$message: exposedValueId mismatch",
         )
         assertEquals(
@@ -80,12 +74,12 @@ class SessionValueLeanConformanceTests {
         )
         assertEquals(
             lean.localSessionId,
-            kotlinState.info.localSessionId.toLeanId(),
+            kotlinState.info.localSessionId,
             "$message: localSessionId mismatch",
         )
         assertEquals(
             lean.preLocalSessionId,
-            kotlinState.info.preLocalSessionId.toLeanId(),
+            kotlinState.info.preLocalSessionId,
             "$message: preLocalSessionId mismatch",
         )
         if (kotlinState.info is LocalSessionInfo.Active) {
@@ -233,8 +227,11 @@ class SessionValueLeanConformanceTests {
 
     @Test
     fun fuzzedRandomizedActionTrace_matchesLean() {
-        val u0 = SessionValue(1L.toUuid(), 1L.toUuid(), "v0")
-        val localId = 100L.toUuid()
+        val rng = kotlin.random.Random(12345)
+        fun nextUuid(): Uuid = Uuid.fromLongs(rng.nextLong(), rng.nextLong())
+
+        val u0 = SessionValue(nextUuid(), nextUuid(), "v0")
+        val localId = nextUuid()
         var kotlinState = SessionValueState(
             upstreamSessionIdBeforeLocalSession = u0.sessionId,
             upstreamSessionValue = u0,
@@ -245,14 +242,11 @@ class SessionValueLeanConformanceTests {
             var lean = oracle.getSnapshot()
             assertMatchesLean(kotlinState, lean, "Fuzz start")
 
-            val rng = kotlin.random.Random(12345)
-            var nextId = 200L
-
             for (step in 1..100) {
                 when (rng.nextInt(3)) {
                     0 -> {
                         // Local edit
-                        val valId = nextId++.toUuid()
+                        val valId = nextUuid()
                         val newVal = "val_$valId"
                         val (kState, _) = kotlinState.stepSetValue(newVal, valId)
                         kotlinState = kState
@@ -262,9 +256,9 @@ class SessionValueLeanConformanceTests {
                     1 -> {
                         // Upstream echo (same session as local or old upstream)
                         val activeSession = kotlinState.info.localSessionId
-                        val valId = nextId++.toUuid()
+                        val valId = nextUuid()
                         val newVal = "echo_$valId"
-                        val freshId = nextId++.toUuid()
+                        val freshId = nextUuid()
                         val newUpstream = SessionValue(activeSession, valId, newVal)
                         kotlinState = kotlinState.stepSetValueFromUpstream(newUpstream, freshId)
                         lean = oracle.stepSetUpstream(newUpstream, freshId)
@@ -272,10 +266,10 @@ class SessionValueLeanConformanceTests {
 
                     2 -> {
                         // Foreign upstream update
-                        val foreignSess = nextId++.toUuid()
-                        val valId = nextId++.toUuid()
+                        val foreignSess = nextUuid()
+                        val valId = nextUuid()
                         val newVal = "foreign_$valId"
-                        val freshId = nextId++.toUuid()
+                        val freshId = nextUuid()
                         val newUpstream = SessionValue(foreignSess, valId, newVal)
                         kotlinState = kotlinState.stepSetValueFromUpstream(newUpstream, freshId)
                         lean = oracle.stepSetUpstream(newUpstream, freshId)

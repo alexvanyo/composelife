@@ -18,6 +18,7 @@ package com.alexvanyo.composelife.sessionvalue.lean
 
 import cnames.structs.LeanOracleSession
 import com.alexvanyo.composelife.sessionvalue.lean.cinterop.LeanStateSnapshotC
+import com.alexvanyo.composelife.sessionvalue.lean.cinterop.LeanUuidC
 import com.alexvanyo.composelife.sessionvalue.lean.cinterop.lean_oracle_create
 import com.alexvanyo.composelife.sessionvalue.lean.cinterop.lean_oracle_free
 import com.alexvanyo.composelife.sessionvalue.lean.cinterop.lean_oracle_get_snapshot
@@ -29,51 +30,73 @@ import kotlinx.cinterop.alloc
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.toKString
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 /**
  * An in-memory differential oracle running the formal Lean 4 specification via Kotlin/Native C-interop.
  */
 @OptIn(ExperimentalForeignApi::class)
 class LeanSessionValueOracle(
-    upstreamSessionId: Long,
-    upstreamValueId: Long,
+    upstreamSessionId: Uuid,
+    upstreamValueId: Uuid,
     upstreamValue: String,
-    localSessionId: Long,
+    localSessionId: Uuid,
 ) : AutoCloseable {
 
-    private var sessionPtr: CPointer<LeanOracleSession>? = lean_oracle_create(
-        upstream_session_id = upstreamSessionId.toULong(),
-        upstream_value_id = upstreamValueId.toULong(),
-        upstream_value = upstreamValue,
-        local_session_id = localSessionId.toULong(),
-    )
+    private var sessionPtr: CPointer<LeanOracleSession>? = upstreamSessionId.useULongs { uSessMsb, uSessLsb ->
+        upstreamValueId.useULongs { uValMsb, uValLsb ->
+            localSessionId.useULongs { locMsb, locLsb ->
+                lean_oracle_create(
+                    upstream_session_id_msb = uSessMsb,
+                    upstream_session_id_lsb = uSessLsb,
+                    upstream_value_id_msb = uValMsb,
+                    upstream_value_id_lsb = uValLsb,
+                    upstream_value = upstreamValue,
+                    local_session_id_msb = locMsb,
+                    local_session_id_lsb = locLsb,
+                )
+            }
+        }
+    }
 
-    fun stepSetValue(value: String, valueId: Long): LeanSnapshot {
+    fun stepSetValue(value: String, valueId: Uuid): LeanSnapshot {
         val ptr = checkNotNull(sessionPtr) { "Lean session has already been closed" }
         return memScoped {
             val snap = alloc<LeanStateSnapshotC>()
-            lean_oracle_step_set_value(ptr, value, valueId.toULong(), snap.ptr)
+            valueId.useULongs { valIdMsb, valIdLsb ->
+                lean_oracle_step_set_value(ptr, value, valIdMsb, valIdLsb, snap.ptr)
+            }
             snap.toSnapshot()
         }
     }
 
     fun stepSetUpstream(
-        upstreamSessionId: Long,
-        upstreamValueId: Long,
+        upstreamSessionId: Uuid,
+        upstreamValueId: Uuid,
         upstreamValue: String,
-        freshLocalSessionId: Long,
+        freshLocalSessionId: Uuid,
     ): LeanSnapshot {
         val ptr = checkNotNull(sessionPtr) { "Lean session has already been closed" }
         return memScoped {
             val snap = alloc<LeanStateSnapshotC>()
-            lean_oracle_step_set_upstream(
-                ptr,
-                upstreamSessionId.toULong(),
-                upstreamValueId.toULong(),
-                upstreamValue,
-                freshLocalSessionId.toULong(),
-                snap.ptr,
-            )
+            upstreamSessionId.useULongs { uSessMsb, uSessLsb ->
+                upstreamValueId.useULongs { uValMsb, uValLsb ->
+                    freshLocalSessionId.useULongs { freshIdMsb, freshIdLsb ->
+                        lean_oracle_step_set_upstream(
+                            ptr,
+                            uSessMsb,
+                            uSessLsb,
+                            uValMsb,
+                            uValLsb,
+                            upstreamValue,
+                            freshIdMsb,
+                            freshIdLsb,
+                            snap.ptr,
+                        )
+                    }
+                }
+            }
             snap.toSnapshot()
         }
     }
@@ -95,14 +118,21 @@ class LeanSessionValueOracle(
     }
 
     private fun LeanStateSnapshotC.toSnapshot(): LeanSnapshot = LeanSnapshot(
-        exposedSessionId = exposed_session_id.toLong(),
-        exposedValueId = exposed_value_id.toLong(),
+        exposedSessionId = exposed_session_id.toUuid(),
+        exposedValueId = exposed_value_id.toUuid(),
         exposedValue = exposed_value?.toKString().orEmpty(),
         isLocalSessionActive = is_local_session_active,
-        localSessionId = local_session_id.toLong(),
-        preLocalSessionId = pre_local_session_id.toLong(),
+        localSessionId = local_session_id.toUuid(),
+        preLocalSessionId = pre_local_session_id.toUuid(),
         isUpstreamUpToDate = is_upstream_up_to_date,
-        lastExpectedSessionId = last_expected_session_id.toLong(),
-        lastExpectedValueId = last_expected_value_id.toLong(),
+        lastExpectedSessionId = last_expected_session_id.toUuid(),
+        lastExpectedValueId = last_expected_value_id.toUuid(),
     )
 }
+
+@OptIn(ExperimentalUuidApi::class)
+private inline fun <R> Uuid.useULongs(block: (msb: ULong, lsb: ULong) -> R): R =
+    toLongs { msb, lsb -> block(msb.toULong(), lsb.toULong()) }
+
+@OptIn(ExperimentalForeignApi::class, ExperimentalUuidApi::class)
+private fun LeanUuidC.toUuid(): Uuid = Uuid.fromLongs(most_significant_bits.toLong(), least_significant_bits.toLong())

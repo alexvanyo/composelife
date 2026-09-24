@@ -17,20 +17,18 @@
 import SessionValue.Basic
 import SessionValue.StateMachine
 
-local notation "ℕ" => Nat
-
 namespace SessionValue
 
 structure StateSnapshot where
-  exposedSessionId : ℕ
-  exposedValueId : ℕ
+  exposedSessionId : Uuid
+  exposedValueId : Uuid
   exposedValue : String
   isLocalSessionActive : Bool
-  localSessionId : ℕ
-  preLocalSessionId : ℕ
+  localSessionId : Uuid
+  preLocalSessionId : Uuid
   isUpstreamUpToDate : Bool
-  lastExpectedSessionId : ℕ
-  lastExpectedValueId : ℕ
+  lastExpectedSessionId : Uuid
+  lastExpectedValueId : Uuid
 
 def makeSnapshot (st : State String) (lastExp : SessionValue String) : StateSnapshot :=
   let exp := st.sessionValue
@@ -52,20 +50,20 @@ def makeSnapshot (st : State String) (lastExp : SessionValue String) : StateSnap
   }
 
 @[export session_value_initial_state]
-def oracleInit (uSess : ℕ) (uVal : ℕ) (uValStr : String) (locId : ℕ) :
+def oracleInit (uSess : Uuid) (uVal : Uuid) (uValStr : String) (locId : Uuid) :
     State String × SessionValue String :=
   let u0 : SessionValue String := { sessionId := uSess, valueId := uVal, value := uValStr }
   let st := initialState u0 locId
   (st, st.sessionValue)
 
 @[export session_value_step_set_value]
-def oracleStepSetValue (st : State String) (valStr : String) (valId : ℕ) :
+def oracleStepSetValue (st : State String) (valStr : String) (valId : Uuid) :
     State String × SessionValue String :=
   let (nextSt, (exp, _)) := stepSetValue st valStr valId
   (nextSt, exp)
 
 @[export session_value_step_set_upstream]
-def oracleStepSetUpstream (st : State String) (uSess : ℕ) (uVal : ℕ) (uValStr : String) (freshId : ℕ) :
+def oracleStepSetUpstream (st : State String) (uSess : Uuid) (uVal : Uuid) (uValStr : String) (freshId : Uuid) :
     State String × SessionValue String :=
   let newUpstream : SessionValue String := { sessionId := uSess, valueId := uVal, value := uValStr }
   let nextSt := stepSetValueFromUpstream st newUpstream freshId
