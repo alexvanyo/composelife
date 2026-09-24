@@ -16,17 +16,19 @@
 
 package com.alexvanyo.composelife.sessionvalue.lean
 
+import kotlin.uuid.Uuid
+
 /**
  * Snapshot of the state machine state in Lean 4.
  */
 data class LeanSnapshot(
-    val exposedSessionId: Long,
-    val exposedValueId: Long,
+    val exposedSessionId: Uuid,
+    val exposedValueId: Uuid,
     val exposedValue: String,
     val isLocalSessionActive: Boolean,
-    val localSessionId: Long,
-    val preLocalSessionId: Long,
+    val localSessionId: Uuid,
+    val preLocalSessionId: Uuid,
     val isUpstreamUpToDate: Boolean,
-    val lastExpectedSessionId: Long,
-    val lastExpectedValueId: Long,
+    val lastExpectedSessionId: Uuid,
+    val lastExpectedValueId: Uuid,
 )

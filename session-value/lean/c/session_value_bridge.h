@@ -25,15 +25,20 @@ extern "C" {
 #endif
 
 typedef struct {
-    uint64_t exposed_session_id;
-    uint64_t exposed_value_id;
+    uint64_t most_significant_bits;
+    uint64_t least_significant_bits;
+} LeanUuidC;
+
+typedef struct {
+    LeanUuidC exposed_session_id;
+    LeanUuidC exposed_value_id;
     const char* exposed_value;
     bool is_local_session_active;
-    uint64_t local_session_id;
-    uint64_t pre_local_session_id;
+    LeanUuidC local_session_id;
+    LeanUuidC pre_local_session_id;
     bool is_upstream_up_to_date;
-    uint64_t last_expected_session_id;
-    uint64_t last_expected_value_id;
+    LeanUuidC last_expected_session_id;
+    LeanUuidC last_expected_value_id;
 } LeanStateSnapshotC;
 
 typedef struct LeanOracleSession LeanOracleSession;
@@ -41,25 +46,32 @@ typedef struct LeanOracleSession LeanOracleSession;
 void lean_session_value_init_runtime(void);
 
 LeanOracleSession* lean_oracle_create(
-    uint64_t upstream_session_id,
-    uint64_t upstream_value_id,
+    uint64_t upstream_session_id_msb,
+    uint64_t upstream_session_id_lsb,
+    uint64_t upstream_value_id_msb,
+    uint64_t upstream_value_id_lsb,
     const char* upstream_value,
-    uint64_t local_session_id
+    uint64_t local_session_id_msb,
+    uint64_t local_session_id_lsb
 );
 
 void lean_oracle_step_set_value(
     LeanOracleSession* session,
     const char* new_val,
-    uint64_t val_id,
+    uint64_t val_id_msb,
+    uint64_t val_id_lsb,
     LeanStateSnapshotC* out_snapshot
 );
 
 void lean_oracle_step_set_upstream(
     LeanOracleSession* session,
-    uint64_t upstream_session_id,
-    uint64_t upstream_value_id,
+    uint64_t upstream_session_id_msb,
+    uint64_t upstream_session_id_lsb,
+    uint64_t upstream_value_id_msb,
+    uint64_t upstream_value_id_lsb,
     const char* upstream_value,
-    uint64_t fresh_local_id,
+    uint64_t fresh_local_id_msb,
+    uint64_t fresh_local_id_lsb,
     LeanStateSnapshotC* out_snapshot
 );
 

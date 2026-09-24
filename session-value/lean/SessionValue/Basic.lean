@@ -14,15 +14,22 @@
  * limitations under the License.
  -/
 
-local notation "ℕ" => Nat
-
 namespace SessionValue
 
-/-- Abstract representation of a UUID with decidable equality. -/
-def Uuid := ℕ
+/--
+A 128-bit UUID representation matching RFC 4122 / RFC 9562 and Kotlin's `kotlin.uuid.Uuid`.
+Represented as two 64-bit unsigned integers: `mostSignificantBits` and `leastSignificantBits`.
+-/
+structure Uuid where
+  mostSignificantBits : UInt64
+  leastSignificantBits : UInt64
 deriving DecidableEq, Repr, Inhabited
 
-instance (n : ℕ) : OfNat Uuid n := ⟨n⟩
+instance (n : Nat) : OfNat Uuid n where
+  ofNat := {
+    mostSignificantBits := (n >>> 64).toUInt64,
+    leastSignificantBits := n.toUInt64,
+  }
 
 /--
 An object representing a specific session for `value`.
