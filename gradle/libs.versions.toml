@@ -11,6 +11,8 @@ androidxActivity = "1.14.0-alpha02"
 androidxAnnotation = "1.11.0-rc01"
 #androidxAppcompat
 androidxAppcompat = "1.8.0"
+#androidxAppStateTransform
+androidxAppStateTransform = "1.0.0-SNAPSHOT"
 #androidxBenchmark
 androidxBenchmark = "1.5.0"
 #androidxComposeBomAlpha
@@ -131,8 +133,6 @@ junit5 = "6.1.3"
 leakCanary = "3.0-alpha-8"
 #metro
 metro = "1.4.2"
-#molecule
-molecule = "2.2.0"
 #okio
 okio = "3.18.2"
 #proguard
@@ -172,6 +172,7 @@ android-tools-common = { group = "com.android.tools", name = "common", version.r
 androidx-activityCompose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
 androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "androidxAnnotation" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidxAppcompat" }
+androidx-appstate-transform = { group = "androidx.appstate.transform", name = "transform", version.ref = "androidxAppStateTransform" }
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "androidxBenchmark" }
 androidx-benchmark-micro-junit4 = { group = "androidx.benchmark", name = "benchmark-junit4", version.ref = "androidxBenchmark" }
 androidx-collection = { group = "androidx.collection", name = "collection", version.ref = "androidxCollection" }
@@ -296,7 +297,6 @@ ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.r
 leakCanary-android = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakCanary" }
 leakCanary-instrumentation = { group = "com.squareup.leakcanary", name = "leakcanary-android-instrumentation", version.ref = "leakCanary" }
 metro-runtime = { group = "dev.zacsweers.metro", name = "runtime", version.ref = "metro" }
-molecule = { group = "app.cash.molecule", name = "molecule-runtime", version.ref = "molecule" }
 okio = { group = "com.squareup.okio", name = "okio", version.ref = "okio" }
 okio-fakefilesystem = { group = "com.squareup.okio", name = "okio-fakefilesystem", version.ref = "okio" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }

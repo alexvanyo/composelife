@@ -126,7 +126,6 @@ kotlin {
                 implementation(projects.kmpStateRestorationTester)
                 implementation(projects.testActivity)
                 implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.molecule)
                 implementation(libs.turbine)
             }
         }

@@ -53,9 +53,8 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
+                implementation(libs.androidx.appstate.transform)
                 implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.molecule)
-                implementation(libs.turbine)
             }
         }
     }
