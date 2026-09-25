@@ -145,6 +145,42 @@ theorem cellHausdorffDistanceLe_of_eq {cells1 cells2 : List Cell} (h : cells1 = 
     exact ⟨c', hc', by omega⟩
 
 /--
+Reduces the Hausdorff distance bound between deduplicated cell lists with matching endpoints
+to proving that intermediate cells are within Chebyshev distance at most 1.
+-/
+theorem cellHausdorffDistanceLe_dedup_endpoints (s e : Cell) (rest1 rest2 : List Cell)
+    (h1 : ∀ c1 ∈ rest1, ∃ c2 ∈ dedupCells ([s, e] ++ rest2), chebyshevDistance c1 c2 ≤ 1)
+    (h2 : ∀ c2 ∈ rest2, ∃ c1 ∈ dedupCells ([s, e] ++ rest1), chebyshevDistance c1 c2 ≤ 1) :
+    cellHausdorffDistanceLe (dedupCells ([s, e] ++ rest1)) (dedupCells ([s, e] ++ rest2)) 1 := by
+  constructor
+  · intro c1 hc1
+    rw [mem_dedupCells] at hc1
+    simp only [List.mem_append, List.mem_cons, List.not_mem_nil, or_false] at hc1
+    rcases hc1 with (rfl | rfl) | hrest1
+    · refine ⟨c1, ?_, ?_⟩
+      · rw [mem_dedupCells]
+        simp
+      · rw [chebyshevDistance_self]; omega
+    · refine ⟨c1, ?_, ?_⟩
+      · rw [mem_dedupCells]
+        simp
+      · rw [chebyshevDistance_self]; omega
+    · exact h1 c1 hrest1
+  · intro c2 hc2
+    rw [mem_dedupCells] at hc2
+    simp only [List.mem_append, List.mem_cons, List.not_mem_nil, or_false] at hc2
+    rcases hc2 with (rfl | rfl) | hrest2
+    · refine ⟨c2, ?_, ?_⟩
+      · rw [mem_dedupCells]
+        simp
+      · rw [chebyshevDistance_self]; omega
+    · refine ⟨c2, ?_, ?_⟩
+      · rw [mem_dedupCells]
+        simp
+      · rw [chebyshevDistance_self]; omega
+    · exact h2 c2 hrest2
+
+/--
 When single-step transitions agree between floating-point and rational stepping,
 the entire multi-step raymarching sequence produces identical cell lists by induction on fuel.
 -/
@@ -284,6 +320,186 @@ theorem cellIntersectionsSegmentFloat_hausdorff_bound_same_cell
   simp
   rw [h_floorB]
   exact cellHausdorffDistanceLe_of_eq rfl
+
+/--
+Unconditional Hausdorff bound when floating-point and idealized single-step raymarching transitions agree.
+-/
+theorem cellIntersectionsSegmentFloat_hausdorff_bound_of_step_eq
+    (A B : Point32)
+    (h_finiteA : A.isFinite)
+    (h_finiteB : B.isFinite)
+    (h_stepX : (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) =
+      (if B.toPoint.x - A.toPoint.x > 0 then 1 else if B.toPoint.x - A.toPoint.x < 0 then -1 else 0))
+    (h_stepY : (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) =
+      (if B.toPoint.y - A.toPoint.y > 0 then 1 else if B.toPoint.y - A.toPoint.y < 0 then -1 else 0))
+    (h_step : ∀ c, (rayMarchStepFloat A (B.x - A.x) (B.y - A.y)
+        (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
+        (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) c).1 =
+      (rayMarchStep A.toPoint B.toPoint (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y)
+        (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
+        (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) c).1)
+    (h_done : ∀ c, (rayMarchStepFloat A (B.x - A.x) (B.y - A.y)
+        (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
+        (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) c).2 =
+      (rayMarchStep A.toPoint B.toPoint (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y)
+        (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
+        (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) c).2) :
+    cellHausdorffDistanceLe
+      (cellIntersectionsSegmentFloat A B)
+      (cellIntersectionsSegment A.toPoint B.toPoint) 1 := by
+  by_cases h_same : floorPoint32 A = floorPoint32 B
+  · exact cellIntersectionsSegmentFloat_hausdorff_bound_same_cell A B h_finiteA h_finiteB h_same
+  · have h_floorA := floorPoint32_eq_floorPoint A h_finiteA
+    have h_floorB := floorPoint32_eq_floorPoint B h_finiteB
+    have h_same_ideal : floorPoint A.toPoint ≠ floorPoint B.toPoint := by
+      rw [← h_floorA, ← h_floorB]; exact h_same
+    have h_same_bool : (floorPoint32 A == floorPoint32 B) = false := by
+      cases h : (floorPoint32 A == floorPoint32 B)
+      · rfl
+      · exfalso; apply h_same; rw [eq_of_beq h]
+    have h_same_ideal_bool : (floorPoint A.toPoint == floorPoint B.toPoint) = false := by
+      cases h : (floorPoint A.toPoint == floorPoint B.toPoint)
+      · rfl
+      · exfalso; apply h_same_ideal; rw [eq_of_beq h]
+    unfold cellIntersectionsSegmentFloat cellIntersectionsSegment
+    dsimp only []
+    rw [h_same_bool, h_same_ideal_bool]
+    simp only [Bool.false_eq_true, ↓reduceIte]
+    rw [h_floorA, h_floorB]
+    have hX : (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) = -1 ∨
+              (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) = 0 ∨
+              (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) = 1 := by
+      split_ifs <;> simp
+    have hY : (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) = -1 ∨
+              (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) = 0 ∨
+              (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) = 1 := by
+      split_ifs <;> simp
+    have h1 := rayMarchFloat_near_rayMarch_endpoints
+      (((floorPoint B.toPoint).x - (floorPoint A.toPoint).x).natAbs +
+       ((floorPoint B.toPoint).y - (floorPoint A.toPoint).y).natAbs + 2)
+      A B.toPoint (B.x - A.x) (B.y - A.y)
+      (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y)
+      (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
+      (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0)
+      (floorPoint B.toPoint) (floorPoint A.toPoint)
+      hX hY
+      (by intro c; exact h_step c)
+      (by intro c; exact h_done c)
+    have h2 := rayMarch_near_rayMarchFloat_endpoints
+      (((floorPoint B.toPoint).x - (floorPoint A.toPoint).x).natAbs +
+       ((floorPoint B.toPoint).y - (floorPoint A.toPoint).y).natAbs + 2)
+      A B.toPoint (B.x - A.x) (B.y - A.y)
+      (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y)
+      (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
+      (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0)
+      (floorPoint B.toPoint) (floorPoint A.toPoint)
+      hX hY
+      (by intro c; exact h_step c)
+      (by intro c; exact h_done c)
+    rw [← h_stepX, ← h_stepY]
+    apply cellHausdorffDistanceLe_dedup_endpoints
+    · exact h1
+    · exact h2
+
+/--
+Master Theorem: Discrete Hausdorff bound when segments share a cell, maintain corner clearance,
+or exhibit step agreement between floating point and rational raymarching.
+-/
+theorem cellIntersectionsSegmentFloat_hausdorff_bound_of_clearance_or_step_eq
+    (A B : Point32) (M : ℚ)
+    (h_finiteA : A.isFinite)
+    (h_finiteB : B.isFinite)
+    (h_bound : inCoordBounds M A.toPoint B.toPoint)
+    (h : floorPoint32 A = floorPoint32 B ∨
+         HasCornerClearance A.toPoint B.toPoint M ∨
+         ( (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) =
+             (if B.toPoint.x - A.toPoint.x > 0 then 1 else if B.toPoint.x - A.toPoint.x < 0 then -1 else 0) ∧
+           (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) =
+             (if B.toPoint.y - A.toPoint.y > 0 then 1 else if B.toPoint.y - A.toPoint.y < 0 then -1 else 0) ∧
+           (∀ c, (rayMarchStepFloat A (B.x - A.x) (B.y - A.y)
+               (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
+               (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) c).1 =
+             (rayMarchStep A.toPoint B.toPoint (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y)
+               (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
+               (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) c).1) ∧
+           (∀ c, (rayMarchStepFloat A (B.x - A.x) (B.y - A.y)
+               (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
+               (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) c).2 =
+             (rayMarchStep A.toPoint B.toPoint (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y)
+               (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
+               (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) c).2) )) :
+    cellHausdorffDistanceLe
+      (cellIntersectionsSegmentFloat A B)
+      (cellIntersectionsSegment A.toPoint B.toPoint) 1 := by
+  rcases h with h_same | h_clear | ⟨h_stepX, h_stepY, h_step, h_done⟩
+  · exact cellIntersectionsSegmentFloat_hausdorff_bound_same_cell A B h_finiteA h_finiteB h_same
+  · exact cellIntersectionsSegmentFloat_hausdorff_bound A B M h_finiteA h_finiteB h_bound h_clear
+  · exact cellIntersectionsSegmentFloat_hausdorff_bound_of_step_eq
+      A B h_finiteA h_finiteB h_stepX h_stepY h_step h_done
+
+/--
+Discrete cell Hausdorff distance bound for segments with coordinates bounded by M ≤ 1447,
+when either clearance, step agreement, or common endpoint cells hold.
+-/
+theorem cellIntersectionsSegmentFloat_hausdorff_bound_1447_of_conditions
+    (A B : Point32)
+    (h_finiteA : A.isFinite)
+    (h_finiteB : B.isFinite)
+    (h_bound : inCoordBounds 1447 A.toPoint B.toPoint)
+    (h : floorPoint32 A = floorPoint32 B ∨
+         HasCornerClearance A.toPoint B.toPoint 1447 ∨
+         ( (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) =
+             (if B.toPoint.x - A.toPoint.x > 0 then 1 else if B.toPoint.x - A.toPoint.x < 0 then -1 else 0) ∧
+           (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) =
+             (if B.toPoint.y - A.toPoint.y > 0 then 1 else if B.toPoint.y - A.toPoint.y < 0 then -1 else 0) ∧
+           (∀ c, (rayMarchStepFloat A (B.x - A.x) (B.y - A.y)
+               (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
+               (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) c).1 =
+             (rayMarchStep A.toPoint B.toPoint (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y)
+               (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
+               (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) c).1) ∧
+           (∀ c, (rayMarchStepFloat A (B.x - A.x) (B.y - A.y)
+               (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
+               (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) c).2 =
+             (rayMarchStep A.toPoint B.toPoint (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y)
+               (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
+               (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) c).2) )) :
+    cellHausdorffDistanceLe
+      (cellIntersectionsSegmentFloat A B)
+      (cellIntersectionsSegment A.toPoint B.toPoint) 1 :=
+  cellIntersectionsSegmentFloat_hausdorff_bound_of_clearance_or_step_eq A B 1447 h_finiteA h_finiteB h_bound h
+
+/--
+Discrete cell Hausdorff distance bound for segments with coordinates bounded by M ≤ 1000,
+when either clearance, step agreement, or common endpoint cells hold.
+-/
+theorem cellIntersectionsSegmentFloat_hausdorff_bound_1000_of_conditions
+    (A B : Point32)
+    (h_finiteA : A.isFinite)
+    (h_finiteB : B.isFinite)
+    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (h : floorPoint32 A = floorPoint32 B ∨
+         HasCornerClearance A.toPoint B.toPoint 1000 ∨
+         ( (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) =
+             (if B.toPoint.x - A.toPoint.x > 0 then 1 else if B.toPoint.x - A.toPoint.x < 0 then -1 else 0) ∧
+           (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) =
+             (if B.toPoint.y - A.toPoint.y > 0 then 1 else if B.toPoint.y - A.toPoint.y < 0 then -1 else 0) ∧
+           (∀ c, (rayMarchStepFloat A (B.x - A.x) (B.y - A.y)
+               (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
+               (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) c).1 =
+             (rayMarchStep A.toPoint B.toPoint (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y)
+               (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
+               (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) c).1) ∧
+           (∀ c, (rayMarchStepFloat A (B.x - A.x) (B.y - A.y)
+               (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
+               (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) c).2 =
+             (rayMarchStep A.toPoint B.toPoint (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y)
+               (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
+               (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) c).2) )) :
+    cellHausdorffDistanceLe
+      (cellIntersectionsSegmentFloat A B)
+      (cellIntersectionsSegment A.toPoint B.toPoint) 1 :=
+  cellIntersectionsSegmentFloat_hausdorff_bound_of_clearance_or_step_eq A B 1000 h_finiteA h_finiteB h_bound h
 
 /--
 Alias for Master Theorem 1 matching verification plan naming.
