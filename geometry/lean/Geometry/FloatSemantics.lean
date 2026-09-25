@@ -54,6 +54,14 @@ def inCoordBounds (M : ℚ) (A B : Point) : Prop :=
   |A.x| ≤ M ∧ |A.y| ≤ M ∧ |B.x| ≤ M ∧ |B.y| ≤ M
 
 /--
+Monotonicity of inCoordBounds: bounds transfer to any larger bound.
+-/
+theorem inCoordBounds_le {M1 M2 : ℚ} (hM : M1 ≤ M2) {A B : Point} (h : inCoordBounds M1 A B) :
+    inCoordBounds M2 A B := by
+  rcases h with ⟨h1, h2, h3, h4⟩
+  exact ⟨le_trans h1 hM, le_trans h2 hM, le_trans h3 hM, le_trans h4 hM⟩
+
+/--
 Upper bound on the cross-product decision discrepancy between floating point
 and exact rational arithmetic for coordinates within [-M, M].
 γ(M) = eps32 * (8 * M^2 + 8 * M).
@@ -69,6 +77,20 @@ theorem gammaBound_nonneg (M : ℚ) (hM : 0 ≤ M) : 0 ≤ gammaBound M := by
     linarith
   have h_eps : 0 ≤ eps32 := le_of_lt eps32_pos
   positivity
+
+/--
+The cross-product discrepancy bound at coordinate scale M = 1000 is strictly less than 1.
+-/
+theorem gammaBound_1000_lt_one : gammaBound 1000 < 1 := by
+  unfold gammaBound eps32
+  norm_num
+
+/--
+The cross-product discrepancy bound at coordinate scale M = 1447 is strictly less than 1.
+-/
+theorem gammaBound_1447_lt_one : gammaBound 1447 < 1 := by
+  unfold gammaBound eps32
+  norm_num
 
 /--
 Evaluates the ideal continuous cross-product difference between a line segment AB
