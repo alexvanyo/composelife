@@ -107,10 +107,9 @@ class SessionValueLeanConformanceTests {
             localSessionValue = null,
         )
 
-        createOracle(u0, localId).use { oracle ->
-            val lean = oracle.getSnapshot()
-            assertMatchesLean(kotlinState, lean, "Initial State")
-        }
+        val oracle = createOracle(u0, localId)
+        val lean = oracle.getSnapshot()
+        assertMatchesLean(kotlinState, lean, "Initial State")
     }
 
     @Test
@@ -123,22 +122,21 @@ class SessionValueLeanConformanceTests {
             localSessionId = localId,
             localSessionValue = null,
         )
-        createOracle(u0, localId).use { oracle ->
-            var lean = oracle.getSnapshot()
-            assertMatchesLean(kotlinState, lean)
+        val oracle = createOracle(u0, localId)
+        var lean = oracle.getSnapshot()
+        assertMatchesLean(kotlinState, lean)
 
-            // First local update
-            val (kState1, _) = kotlinState.stepSetValue("Update1", 40L.toUuid())
-            kotlinState = kState1
-            lean = oracle.stepSetValue("Update1", 40L.toUuid())
-            assertMatchesLean(kotlinState, lean, "First local update")
+        // First local update
+        val (kState1, _) = kotlinState.stepSetValue("Update1", 40L.toUuid())
+        kotlinState = kState1
+        lean = oracle.stepSetValue("Update1", 40L.toUuid())
+        assertMatchesLean(kotlinState, lean, "First local update")
 
-            // Second local update
-            val (kState2, _) = kotlinState.stepSetValue("Update2", 41L.toUuid())
-            kotlinState = kState2
-            lean = oracle.stepSetValue("Update2", 41L.toUuid())
-            assertMatchesLean(kotlinState, lean, "Second local update")
-        }
+        // Second local update
+        val (kState2, _) = kotlinState.stepSetValue("Update2", 41L.toUuid())
+        kotlinState = kState2
+        lean = oracle.stepSetValue("Update2", 41L.toUuid())
+        assertMatchesLean(kotlinState, lean, "Second local update")
     }
 
     @Test
@@ -151,31 +149,30 @@ class SessionValueLeanConformanceTests {
             localSessionId = localId,
             localSessionValue = null,
         )
-        createOracle(u0, localId).use { oracle ->
-            // Set local value to 30L:40L:"Val1"
-            val (kState1, _) = kotlinState.stepSetValue("Val1", 40L.toUuid())
-            kotlinState = kState1
-            oracle.stepSetValue("Val1", 40L.toUuid())
+        val oracle = createOracle(u0, localId)
+        // Set local value to 30L:40L:"Val1"
+        val (kState1, _) = kotlinState.stepSetValue("Val1", 40L.toUuid())
+        kotlinState = kState1
+        oracle.stepSetValue("Val1", 40L.toUuid())
 
-            // Set another local value to 30L:41L:"Val2"
-            val (kState2, _) = kotlinState.stepSetValue("Val2", 41L.toUuid())
-            kotlinState = kState2
-            oracle.stepSetValue("Val2", 41L.toUuid())
+        // Set another local value to 30L:41L:"Val2"
+        val (kState2, _) = kotlinState.stepSetValue("Val2", 41L.toUuid())
+        kotlinState = kState2
+        oracle.stepSetValue("Val2", 41L.toUuid())
 
-            // Echo of first local value arrives (valueId 40L) -> should be active, but not up to date
-            val echo1 = SessionValue(localId, 40L.toUuid(), "Val1")
-            kotlinState = kotlinState.stepSetValueFromUpstream(echo1, 99L.toUuid())
-            var lean = oracle.stepSetUpstream(echo1, 99L.toUuid())
-            assertMatchesLean(kotlinState, lean, "Partial echo")
-            assertEquals(false, lean.isUpstreamUpToDate)
+        // Echo of first local value arrives (valueId 40L) -> should be active, but not up to date
+        val echo1 = SessionValue(localId, 40L.toUuid(), "Val1")
+        kotlinState = kotlinState.stepSetValueFromUpstream(echo1, 99L.toUuid())
+        var lean = oracle.stepSetUpstream(echo1, 99L.toUuid())
+        assertMatchesLean(kotlinState, lean, "Partial echo")
+        assertEquals(false, lean.isUpstreamUpToDate)
 
-            // Echo of latest local value arrives (valueId 41L) -> should be active and up to date!
-            val echo2 = SessionValue(localId, 41L.toUuid(), "Val2")
-            kotlinState = kotlinState.stepSetValueFromUpstream(echo2, 99L.toUuid())
-            lean = oracle.stepSetUpstream(echo2, 99L.toUuid())
-            assertMatchesLean(kotlinState, lean, "Complete echo")
-            assertEquals(true, lean.isUpstreamUpToDate)
-        }
+        // Echo of latest local value arrives (valueId 41L) -> should be active and up to date!
+        val echo2 = SessionValue(localId, 41L.toUuid(), "Val2")
+        kotlinState = kotlinState.stepSetValueFromUpstream(echo2, 99L.toUuid())
+        lean = oracle.stepSetUpstream(echo2, 99L.toUuid())
+        assertMatchesLean(kotlinState, lean, "Complete echo")
+        assertEquals(true, lean.isUpstreamUpToDate)
     }
 
     @Test
@@ -188,23 +185,22 @@ class SessionValueLeanConformanceTests {
             localSessionId = localId,
             localSessionValue = null,
         )
-        createOracle(u0, localId).use { oracle ->
-            // Make a local edit
-            val (kState1, _) = kotlinState.stepSetValue("LocalDraft", 40L.toUuid())
-            kotlinState = kState1
-            oracle.stepSetValue("LocalDraft", 40L.toUuid())
+        val oracle = createOracle(u0, localId)
+        // Make a local edit
+        val (kState1, _) = kotlinState.stepSetValue("LocalDraft", 40L.toUuid())
+        kotlinState = kState1
+        oracle.stepSetValue("LocalDraft", 40L.toUuid())
 
-            // A foreign session 99L commits upstream
-            val foreignUpstream = SessionValue(99L.toUuid(), 100L.toUuid(), "ForeignData")
-            kotlinState = kotlinState.stepSetValueFromUpstream(foreignUpstream, 50L.toUuid())
-            val lean = oracle.stepSetUpstream(foreignUpstream, 50L.toUuid())
+        // A foreign session 99L commits upstream
+        val foreignUpstream = SessionValue(99L.toUuid(), 100L.toUuid(), "ForeignData")
+        kotlinState = kotlinState.stepSetValueFromUpstream(foreignUpstream, 50L.toUuid())
+        val lean = oracle.stepSetUpstream(foreignUpstream, 50L.toUuid())
 
-            assertMatchesLean(kotlinState, lean, "Foreign conflict invalidation")
-            assertEquals(false, kotlinState.info.isLocalSessionActive())
-            assertEquals("ForeignData", kotlinState.sessionValue.value)
-            assertEquals(99L.toUuid(), kotlinState.sessionValue.sessionId)
-            assertEquals(50L.toUuid(), kotlinState.info.localSessionId)
-        }
+        assertMatchesLean(kotlinState, lean, "Foreign conflict invalidation")
+        assertEquals(false, kotlinState.info.isLocalSessionActive())
+        assertEquals("ForeignData", kotlinState.sessionValue.value)
+        assertEquals(99L.toUuid(), kotlinState.sessionValue.sessionId)
+        assertEquals(50L.toUuid(), kotlinState.info.localSessionId)
     }
 
     @Test
@@ -217,17 +213,16 @@ class SessionValueLeanConformanceTests {
             localSessionId = localId,
             localSessionValue = null,
         )
-        createOracle(u0, localId).use { oracle ->
-            // Upstream changes while inactive
-            val nextUpstream = SessionValue(11L.toUuid(), 21L.toUuid(), "Changed")
-            kotlinState = kotlinState.stepSetValueFromUpstream(nextUpstream, 31L.toUuid())
-            val lean = oracle.stepSetUpstream(nextUpstream, 31L.toUuid())
+        val oracle = createOracle(u0, localId)
+        // Upstream changes while inactive
+        val nextUpstream = SessionValue(11L.toUuid(), 21L.toUuid(), "Changed")
+        kotlinState = kotlinState.stepSetValueFromUpstream(nextUpstream, 31L.toUuid())
+        val lean = oracle.stepSetUpstream(nextUpstream, 31L.toUuid())
 
-            assertMatchesLean(kotlinState, lean, "Inactive upstream change")
-            assertEquals(false, kotlinState.info.isLocalSessionActive())
-            assertEquals(31L.toUuid(), kotlinState.info.localSessionId)
-            assertEquals(11L.toUuid(), kotlinState.info.preLocalSessionId)
-        }
+        assertMatchesLean(kotlinState, lean, "Inactive upstream change")
+        assertEquals(false, kotlinState.info.isLocalSessionActive())
+        assertEquals(31L.toUuid(), kotlinState.info.localSessionId)
+        assertEquals(11L.toUuid(), kotlinState.info.preLocalSessionId)
     }
 
     @Test
@@ -243,45 +238,44 @@ class SessionValueLeanConformanceTests {
             localSessionId = localId,
             localSessionValue = null,
         )
-        createOracle(u0, localId).use { oracle ->
-            var lean = oracle.getSnapshot()
-            assertMatchesLean(kotlinState, lean, "Fuzz start")
+        val oracle = createOracle(u0, localId)
+        var lean = oracle.getSnapshot()
+        assertMatchesLean(kotlinState, lean, "Fuzz start")
 
-            for (step in 1..100) {
-                when (rng.nextInt(3)) {
-                    0 -> {
-                        // Local edit
-                        val valId = nextUuid()
-                        val newVal = "val_$valId"
-                        val (kState, _) = kotlinState.stepSetValue(newVal, valId)
-                        kotlinState = kState
-                        lean = oracle.stepSetValue(newVal, valId)
-                    }
-
-                    1 -> {
-                        // Upstream echo (same session as local or old upstream)
-                        val activeSession = kotlinState.info.localSessionId
-                        val valId = nextUuid()
-                        val newVal = "echo_$valId"
-                        val freshId = nextUuid()
-                        val newUpstream = SessionValue(activeSession, valId, newVal)
-                        kotlinState = kotlinState.stepSetValueFromUpstream(newUpstream, freshId)
-                        lean = oracle.stepSetUpstream(newUpstream, freshId)
-                    }
-
-                    2 -> {
-                        // Foreign upstream update
-                        val foreignSess = nextUuid()
-                        val valId = nextUuid()
-                        val newVal = "foreign_$valId"
-                        val freshId = nextUuid()
-                        val newUpstream = SessionValue(foreignSess, valId, newVal)
-                        kotlinState = kotlinState.stepSetValueFromUpstream(newUpstream, freshId)
-                        lean = oracle.stepSetUpstream(newUpstream, freshId)
-                    }
+        for (step in 1..100) {
+            when (rng.nextInt(3)) {
+                0 -> {
+                    // Local edit
+                    val valId = nextUuid()
+                    val newVal = "val_$valId"
+                    val (kState, _) = kotlinState.stepSetValue(newVal, valId)
+                    kotlinState = kState
+                    lean = oracle.stepSetValue(newVal, valId)
                 }
-                assertMatchesLean(kotlinState, lean, "Fuzz step $step")
+
+                1 -> {
+                    // Upstream echo (same session as local or old upstream)
+                    val activeSession = kotlinState.info.localSessionId
+                    val valId = nextUuid()
+                    val newVal = "echo_$valId"
+                    val freshId = nextUuid()
+                    val newUpstream = SessionValue(activeSession, valId, newVal)
+                    kotlinState = kotlinState.stepSetValueFromUpstream(newUpstream, freshId)
+                    lean = oracle.stepSetUpstream(newUpstream, freshId)
+                }
+
+                2 -> {
+                    // Foreign upstream update
+                    val foreignSess = nextUuid()
+                    val valId = nextUuid()
+                    val newVal = "foreign_$valId"
+                    val freshId = nextUuid()
+                    val newUpstream = SessionValue(foreignSess, valId, newVal)
+                    kotlinState = kotlinState.stepSetValueFromUpstream(newUpstream, freshId)
+                    lean = oracle.stepSetUpstream(newUpstream, freshId)
+                }
             }
+            assertMatchesLean(kotlinState, lean, "Fuzz step $step")
         }
     }
 }
