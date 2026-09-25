@@ -3,9 +3,15 @@ version = "0.1.0"
 defaultTargets = ["Geometry"]
 
 [[require]]
+name = "floatlib"
+git = "https://github.com/lean-dojo/FloatLib"
+rev = "main"
+
+[[require]]
 name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4"
 rev = "v4.34.0"
 
 [[lean_lib]]
 name = "Geometry"
+
