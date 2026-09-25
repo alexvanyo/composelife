@@ -46,6 +46,19 @@ val leanPrefixProvider = providers.exec {
     commandLine("lean", "--print-prefix")
 }.standardOutput.asText.map { it.trim() }
 
+/**
+ * Path to the custom Lean 4 binary with JVM bytecode backend support.
+ * Override via the Gradle property `leanJvmBinary` or system property `leanJvmBinary`.
+ * Defaults to the local Lean 4 fork build at ~/Projects/lean4.
+ */
+val leanJvmBinaryProvider = providers.gradleProperty("leanJvmBinary")
+    .orElse(providers.systemProperty("leanJvmBinary"))
+    .orElse(
+        providers.provider {
+            "${System.getProperty("user.home")}/Projects/lean4/build/release/stage1/bin/lean"
+        },
+    )
+
 val verifyLean by tasks.registering(Exec::class) {
     description = "Formally verifies session-value logic using Lean 4"
     group = LifecycleBasePlugin.VERIFICATION_GROUP
@@ -78,7 +91,111 @@ val compileSessionValueBridgeCObject by tasks.registering(Exec::class) {
     )
 }
 
+/**
+ * Step 1 of JVM bytecode compilation: rebuild the .olean cache for SessionValue using the
+ * custom Lean 4 binary (which has the JVM backend). The standard lean toolchain builds
+ * oleans that are incompatible with the custom binary's elaborator.
+ */
+val lakeBuildWithJvmLean by tasks.registering(Exec::class) {
+    description = "Rebuilds Lean oleans with the custom JVM-capable lean binary"
+    group = LifecycleBasePlugin.BUILD_GROUP
+    workingDir = file("lean")
+    inputs.files(
+        fileTree("lean") {
+            include("**/*.lean")
+            include("lakefile.toml")
+            include("lean-toolchain")
+        },
+    )
+    val leanBinary = leanJvmBinaryProvider.get()
+    val lakeBinary = file(leanBinary).resolveSibling("lake").absolutePath
+    environment("LEAN", leanBinary)
+    commandLine(lakeBinary, "build", "SessionValue")
+}
+
+/**
+ * The LEAN_PATH produced by `lake env` when using the custom lean binary.
+ * Evaluated lazily at configuration time so it is available as a Provider<String>.
+ */
+val jvmLeanPathProvider: Provider<String> = leanJvmBinaryProvider.flatMap { leanBinary ->
+    val lakeBinary = file(leanBinary).resolveSibling("lake").absolutePath
+    providers.exec {
+        workingDir = file("lean")
+        environment("LEAN", leanBinary)
+        commandLine(lakeBinary, "env")
+    }.standardOutput.asText.map { output ->
+        output.lines()
+            .firstOrNull { it.startsWith("LEAN_PATH=") }
+            ?.removePrefix("LEAN_PATH=")
+            .orEmpty()
+    }
+}
+
+/**
+ * Compile SessionValue/Bridge.lean to JVM bytecode using the custom Lean 4 JVM backend.
+ *
+ * Depends on [lakeBuildWithJvmLean] to ensure oleans are built with the custom lean first.
+ * The `--jvm=<file>` flag emits a standard Java 17 .class file.
+ * The generated class is `lean.mod_l_SessionValue_Bridge` (verified via `javap`).
+ */
+abstract class CompileLeanJvmBytecodeTask @javax.inject.Inject constructor(
+    private val execOperations: ExecOperations,
+) : DefaultTask() {
+    @get:InputFiles
+    abstract val leanFiles: ConfigurableFileCollection
+
+    @get:Input
+    abstract val leanBinary: Property<String>
+
+    @get:Input
+    abstract val leanPath: Property<String>
+
+    @get:InputDirectory
+    abstract val workingDir: DirectoryProperty
+
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
+
+    @TaskAction
+    fun compile() {
+        val modules = listOf(
+            "SessionValue/Basic.lean" to "lean/mod_l_SessionValue_Basic.class",
+            "SessionValue/StateMachine.lean" to "lean/mod_l_SessionValue_StateMachine.class",
+            "SessionValue/Bridge.lean" to "lean/mod_l_SessionValue_Bridge.class",
+        )
+        for ((leanFile, classFile) in modules) {
+            val dest = outputDir.get().file(classFile).asFile
+            dest.parentFile.mkdirs()
+            execOperations.exec {
+                workingDir = this@CompileLeanJvmBytecodeTask.workingDir.get().asFile
+                environment("LEAN_PATH", leanPath.get())
+                commandLine(leanBinary.get(), "--jvm=${dest.absolutePath}", leanFile)
+            }
+        }
+    }
+}
+
+val compileLeanJvmBytecode by tasks.registering(CompileLeanJvmBytecodeTask::class) {
+    description = "Compiles Lean session-value modules to JVM bytecode for oracle testing"
+    group = LifecycleBasePlugin.BUILD_GROUP
+    dependsOn(lakeBuildWithJvmLean)
+
+    leanFiles.from(
+        fileTree("lean") {
+            include("**/*.lean")
+            include("lakefile.toml")
+            include("lean-toolchain")
+        },
+    )
+    leanBinary.set(leanJvmBinaryProvider)
+    leanPath.set(jvmLeanPathProvider)
+    workingDir.set(layout.projectDirectory.dir("lean"))
+    outputDir.set(layout.buildDirectory.dir("lean-jvm-classes"))
+}
+
+
 kotlin {
+
     androidLibrary {
         namespace = "com.alexvanyo.composelife.sessionvalue"
         minSdk = 24
@@ -203,3 +320,12 @@ tasks.named("check") {
 tasks.named("linuxX64Test") {
     dependsOn(verifyLean)
 }
+
+// Wire the Lean JVM bytecode into the desktop test runtime classpath.
+// The compileLeanJvmBytecode task emits lean/mod_l_SessionValue_Bridge.class into
+// build/lean-jvm-classes/, which must be on the classpath for Class.forName() to find it.
+tasks.named<Test>("desktopTest") {
+    dependsOn(compileLeanJvmBytecode)
+    classpath += files(layout.buildDirectory.dir("lean-jvm-classes"))
+}
+
