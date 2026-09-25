@@ -23,7 +23,7 @@ When adding or modifying code, please adhere to the following conventions, which
     - Maximum line length is 120 characters.
 - **Logging:** Use the `Kermit` logging library via the `logging` module. Do **not** use `android.util.Log`.
 - **Forbidden Comments:** Do not use `FIXME:` or `STOPSHIP:`.
-- **Dependencies:** Avoid introducing new external dependencies unless absolutely necessary. The project uses Renovate for automated dependency updates.
+- **Dependencies:** Avoid introducing new external dependencies unless absolutely necessary. The project uses Renovate for automated dependency updates. All dependency declarations for Gradle must be specified in `libs.versions.toml`.
 
 ## Testing
 
