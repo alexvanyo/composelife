@@ -129,6 +129,8 @@ junit4 = "4.13.2"
 junit5 = "6.1.3"
 #leakCanary
 leakCanary = "3.0-alpha-8"
+#lean
+lean = "4.0.0"
 #metro
 metro = "1.4.2"
 #molecule
@@ -293,6 +295,7 @@ ktor-client-js = { group = "io.ktor", name = "ktor-client-js", version.ref = "kt
 ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
 ktor-client-mock = { group = "io.ktor", name = "ktor-client-mock", version.ref = "ktor" }
 ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
+lean-runtime-kmp = { group = "org.leanprover", name = "lean-runtime-kmp", version.ref = "lean" }
 leakCanary-android = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakCanary" }
 leakCanary-instrumentation = { group = "com.squareup.leakcanary", name = "leakcanary-android-instrumentation", version.ref = "leakCanary" }
 metro-runtime = { group = "dev.zacsweers.metro", name = "runtime", version.ref = "metro" }
