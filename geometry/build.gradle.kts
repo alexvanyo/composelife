@@ -46,9 +46,19 @@ val leanPrefixProvider = providers.exec {
     commandLine("lean", "--print-prefix")
 }.standardOutput.asText.map { it.trim() }
 
+val cacheLean by tasks.registering(Exec::class) {
+    description = "Opportunistically downloads Lean cache"
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    workingDir = file("lean")
+    commandLine("lake", "exe", "cache", "get")
+    isIgnoreExitValue = true
+    usesService(heavyTaskLimitingBuildService)
+}
+
 val verifyLean by tasks.registering(Exec::class) {
     description = "Formally verifies geometry logic using Lean 4"
     group = LifecycleBasePlugin.VERIFICATION_GROUP
+    dependsOn(cacheLean)
     workingDir = file("lean")
     commandLine("lake", "build", "Geometry:static")
     usesService(heavyTaskLimitingBuildService)
