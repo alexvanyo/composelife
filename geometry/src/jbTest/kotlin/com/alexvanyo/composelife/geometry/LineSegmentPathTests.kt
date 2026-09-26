@@ -178,8 +178,6 @@ class LineSegmentPathTests {
         assertEquals(
             setOf(
                 IntOffset(5, 5),
-                IntOffset(5, 6),
-                IntOffset(6, 5),
                 IntOffset(6, 6),
             ),
             LineSegmentPath(
@@ -230,8 +228,6 @@ class LineSegmentPathTests {
         assertEquals(
             setOf(
                 IntOffset(5, 5),
-                IntOffset(5, 4),
-                IntOffset(6, 5),
                 IntOffset(6, 4),
             ),
             LineSegmentPath(
@@ -281,10 +277,8 @@ class LineSegmentPathTests {
     fun single_line_segment_across_northwest_slope_diagonal_middle() {
         assertEquals(
             setOf(
-                IntOffset(5, 5),
-                IntOffset(6, 5),
-                IntOffset(5, 6),
                 IntOffset(6, 6),
+                IntOffset(5, 5),
             ),
             LineSegmentPath(
                 listOf(
@@ -333,10 +327,8 @@ class LineSegmentPathTests {
     fun single_line_segment_across_southwest_slope_diagonal_middle() {
         assertEquals(
             setOf(
-                IntOffset(5, 5),
-                IntOffset(6, 5),
-                IntOffset(5, 4),
                 IntOffset(6, 4),
+                IntOffset(5, 5),
             ),
             LineSegmentPath(
                 listOf(

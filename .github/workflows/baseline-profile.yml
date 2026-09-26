@@ -48,6 +48,9 @@ jobs:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.PAT }}
 
+      - name: Setup Lean
+        uses: ./.github/actions/setup-lean
+
       - name: Copy ci-gradle.properties
         run: |
           mkdir -p ~/.gradle

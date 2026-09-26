@@ -1,0 +1,3 @@
+headers = session_value_bridge.h
+headerFilter = session_value_bridge.h
+package = com.alexvanyo.composelife.sessionvalue.lean.cinterop
