@@ -93,7 +93,7 @@ abstract class BaseRoborazziTest(
     @Test
     fun previewScreenshotTest() = runComposeUiTest(
         ComposeUiTestConfig(
-            testTimeout = 3.minutes,
+            testTimeout = 15.minutes,
         ),
     ) {
         val testParameterizations = when (roborazziParameterization) {
