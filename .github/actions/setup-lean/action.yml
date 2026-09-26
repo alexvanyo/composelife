@@ -1,0 +1,27 @@
+name: Setup Lean
+description: Sets up elan and Lean 4
+inputs:
+  toolchain:
+    description: 'Lean toolchain to install'
+    required: false
+    default: 'leanprover/lean4:v4.34.0'
+runs:
+  using: composite
+  steps:
+    - name: Cache Elan
+      uses: actions/cache@v6
+      with:
+        path: |
+          ~/.elan
+        key: elan-${{ runner.os }}-${{ inputs.toolchain }}
+
+    - name: Install Elan & Lean
+      shell: bash
+      run: |
+        if [ ! -x "$HOME/.elan/bin/elan" ]; then
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain "${{ inputs.toolchain }}"
+        fi
+        echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+        export PATH="$HOME/.elan/bin:$PATH"
+        elan default "${{ inputs.toolchain }}"
+        lean --version
