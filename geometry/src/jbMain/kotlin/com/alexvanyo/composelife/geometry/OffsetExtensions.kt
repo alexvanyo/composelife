@@ -27,26 +27,6 @@ import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.sqrt
-
-/**
- * Floors an [Offset] into an [IntOffset], taking the [floor] of both coordinates.
- */
-fun floor(offset: Offset): IntOffset = IntOffset(floor(offset.x).toInt(), floor(offset.y).toInt())
-
-/**
- * Calculates the [Chebyshev distance](https://en.wikipedia.org/wiki/Chebyshev_distance) represented by this
- * [IntOffset].
- */
-@Stable
-fun IntOffset.chebyshevDistance(): Int = max(abs(x), abs(y))
-
-/**
- * Calculates the [Manhattan distance](https://en.wikipedia.org/wiki/Taxicab_geometry) represented by this
- * [IntOffset].
- */
-@Stable
-fun IntOffset.manhattanDistance(): Int = abs(x) + abs(y)
-
 /**
  * Calculates the [Euclidean distance](https://en.wikipedia.org/wiki/Euclidean_distance) represented by this
  * [IntOffset].
@@ -136,31 +116,3 @@ fun Pair<Int, Int>.toIntOffset() = IntOffset(first, second)
  * Converts an [IntOffset] to a pair of [Int].
  */
 fun IntOffset.toPair() = x to y
-
-/**
- * Returns the 8 diagonal and orthogonal neighbors to the [IntOffset].
- */
-fun IntOffset.getMooreNeighbors(): Set<IntOffset> = mooreNeighborOffsets.map { it + this }.toSet()
-
-private val mooreNeighborOffsets = listOf(
-    IntOffset(-1, -1),
-    IntOffset(0, -1),
-    IntOffset(1, -1),
-    IntOffset(-1, 0),
-    IntOffset(1, 0),
-    IntOffset(-1, 1),
-    IntOffset(0, 1),
-    IntOffset(1, 1),
-)
-
-/**
- * Returns the 4 orthogonal neighbors to the [IntOffset].
- */
-fun IntOffset.getVonNeumannNeighbors(): Set<IntOffset> = vonNeumannNeighborOffsets.map { it + this }.toSet()
-
-private val vonNeumannNeighborOffsets = listOf(
-    IntOffset(0, -1),
-    IntOffset(-1, 0),
-    IntOffset(1, 0),
-    IntOffset(0, 1),
-)
