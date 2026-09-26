@@ -1,0 +1,3 @@
+headers = algorithm_bridge.h
+headerFilter = algorithm_bridge.h
+package = com.alexvanyo.composelife.algorithm.lean.cinterop

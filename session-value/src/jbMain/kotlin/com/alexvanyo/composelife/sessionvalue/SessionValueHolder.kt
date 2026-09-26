@@ -145,94 +145,42 @@ private class SessionValueHolderImpl<T>(
     initialLocalSessionId: Uuid,
     initialLocalSessionValue: SessionValue<T>?,
 ) : SessionValueHolder<T> {
-    /**
-     * The upstream session id known prior to the current local session (if any).
-     */
-    var upstreamSessionIdBeforeLocalSession by mutableStateOf(initialUpstreamSessionIdBeforeLocalSession)
-
-    /**
-     * The current known upstream session value.
-     */
-    var upstreamSessionValue by mutableStateOf(initialUpstreamSessionValue)
-
-    /**
-     * The local session id for the current local session (if any), otherwise the local session id that will be used
-     * for the next local session.
-     */
-    var localSessionId: Uuid by mutableStateOf(initialLocalSessionId)
-
-    /**
-     * If non-null, the local session value that is set and is running ahead of the [upstreamSessionValue].
-     */
-    var localSessionValue: SessionValue<T>? by mutableStateOf(initialLocalSessionValue)
+    var state by mutableStateOf(
+        SessionValueState(
+            upstreamSessionIdBeforeLocalSession = initialUpstreamSessionIdBeforeLocalSession,
+            upstreamSessionValue = initialUpstreamSessionValue,
+            localSessionId = initialLocalSessionId,
+            localSessionValue = initialLocalSessionValue,
+        ),
+    )
 
     var setUpstreamSessionValue by mutableStateOf(initialSetUpstreamSessionValue)
 
     override val sessionValue: SessionValue<T>
-        get() = localSessionValue ?: upstreamSessionValue
+        get() = state.sessionValue
 
     override val info: LocalSessionInfo
-        get() {
-            val currentLocalSessionValue = localSessionValue
-            return if (currentLocalSessionValue == null) {
-                check(upstreamSessionIdBeforeLocalSession == upstreamSessionValue.sessionId)
-                LocalSessionInfo.Inactive(
-                    currentUpstreamSessionId = upstreamSessionValue.sessionId,
-                    nextLocalSessionId = localSessionId,
-                )
-            } else {
-                LocalSessionInfo.Active(
-                    currentLocalSessionId = localSessionId,
-                    isUpstreamSessionValueUpToDate =
-                    upstreamSessionValue.sessionId == currentLocalSessionValue.sessionId &&
-                        upstreamSessionValue.valueId == currentLocalSessionValue.valueId,
-                    previousUpstreamSessionId = upstreamSessionIdBeforeLocalSession,
-                )
-            }
-        }
+        get() = state.info
 
     override fun setValue(value: T, valueId: Uuid) {
-        val expected = sessionValue
-        localSessionValue = SessionValue(
-            sessionId = localSessionId,
-            valueId = valueId,
-            value = value,
-        )
-        setUpstreamSessionValue(expected, sessionValue)
+        val (nextState, update) = state.stepSetValue(value, valueId)
+        state = nextState
+        setUpstreamSessionValue(update.first, update.second)
     }
 
     /**
      * Synchronizes the internal state from the upstream [SessionValue].
      */
     fun setValueFromUpstream(newUpstreamSessionValue: SessionValue<T>) {
-        val hasSessionValueChanged =
-            newUpstreamSessionValue.sessionId != upstreamSessionValue.sessionId ||
-                newUpstreamSessionValue.valueId != upstreamSessionValue.valueId
-
-        // If our most recent upstream session value still matches this new one, we have nothing to do
-        if (hasSessionValueChanged) {
-            // Otherwise, we've seen a new upstream session value
-            if (newUpstreamSessionValue.sessionId != localSessionValue?.sessionId) {
-                // The upstream session has become something different than the local session (if any) and the session
-                // value before our local session. Clear the local session, to revert back to the new upstream session.
-                localSessionId = Uuid.random()
-                localSessionValue = null
-            }
-            // Update the previous upstream session id in all cases except when we are see the update to our local
-            // session id
-            if (localSessionId != newUpstreamSessionValue.sessionId) {
-                upstreamSessionIdBeforeLocalSession = newUpstreamSessionValue.sessionId
-            }
-            upstreamSessionValue = newUpstreamSessionValue
-        }
+        state = state.stepSetValueFromUpstream(newUpstreamSessionValue)
     }
 
     private val surrogate: Surrogate<T> get() =
         Surrogate(
-            upstreamSessionIdBeforeLocalSession = upstreamSessionIdBeforeLocalSession,
-            upstreamSessionValue = upstreamSessionValue,
-            localSessionId = localSessionId,
-            localSessionValue = localSessionValue,
+            upstreamSessionIdBeforeLocalSession = state.upstreamSessionIdBeforeLocalSession,
+            upstreamSessionValue = state.upstreamSessionValue,
+            localSessionId = state.localSessionId,
+            localSessionValue = state.localSessionValue,
         )
 
     @Serializable
