@@ -1,0 +1,3 @@
+headers = geometry_bridge.h
+headerFilter = geometry_bridge.h
+package = com.alexvanyo.composelife.geometry.lean.cinterop
