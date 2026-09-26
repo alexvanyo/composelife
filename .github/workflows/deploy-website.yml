@@ -14,6 +14,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Setup Lean
+        uses: ./.github/actions/setup-lean
+
       - name: Copy ci-gradle.properties
         run: |
           mkdir -p ~/.gradle
