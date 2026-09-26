@@ -131,7 +131,7 @@ jobs:
 
       - name: Re-install needed packages
         run: |
-          sudo apt-get update && sudo apt-get install -y libgl1 chromium python3-fonttools
+          sudo apt-get update && sudo apt-get install -y libgl1 chromium python3-fonttools clang
 
       - name: Set ANDROID_USER_HOME
         run: echo "ANDROID_USER_HOME=$HOME/.android" >> $GITHUB_ENV
@@ -152,6 +152,9 @@ jobs:
           # Use PAT if on a pull request from the main repo, in preparation for auto-committing fixes
           # Otherwise use the default token
           token: ${{ (matrix.sdk == '37' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' && secrets.PAT) || github.token}}
+
+      - name: Setup Lean
+        uses: ./.github/actions/setup-lean
 
       - name: Copy ci-gradle.properties
         run: |
@@ -339,13 +342,16 @@ jobs:
 
       - name: Re-install needed packages
         run: |
-          sudo apt-get update && sudo apt-get install -y libgl1 chromium python3-fonttools
+          sudo apt-get update && sudo apt-get install -y libgl1 chromium python3-fonttools clang
 
       - name: Set ANDROID_USER_HOME
         run: echo "ANDROID_USER_HOME=$HOME/.android" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Setup Lean
+        uses: ./.github/actions/setup-lean
 
       - name: Copy ci-gradle.properties
         run: |
@@ -397,13 +403,16 @@ jobs:
 
       - name: Re-install needed packages
         run: |
-          sudo apt-get update && sudo apt-get install -y libgl1 chromium python3-fonttools
+          sudo apt-get update && sudo apt-get install -y libgl1 chromium python3-fonttools clang
 
       - name: Set ANDROID_USER_HOME
         run: echo "ANDROID_USER_HOME=$HOME/.android" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Setup Lean
+        uses: ./.github/actions/setup-lean
 
       - name: Copy ci-gradle.properties
         run: |
@@ -473,6 +482,9 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Setup Lean
+        uses: ./.github/actions/setup-lean
 
       - name: Copy ci-gradle.properties
         run: |
