@@ -35,10 +35,12 @@ class SceneStateTests : BaseKmpTest() {
 
     private val entry1 = NavEntry<String>(
         key = "key1",
+        contentKey = "key1",
         content = {},
     )
     private val entry2 = NavEntry<String>(
         key = "key2",
+        contentKey = "key2",
         content = {},
     )
 
@@ -239,7 +241,7 @@ class SceneStateTests : BaseKmpTest() {
         assertTrue(onBackCalled)
     }
 
-    private class TestScene(
+    private data class TestScene(
         override val key: Any,
         override val previousEntries: List<NavEntry<String>> = emptyList(),
         override val entries: List<NavEntry<String>> = emptyList(),
@@ -248,7 +250,7 @@ class SceneStateTests : BaseKmpTest() {
         override fun toString(): String = "TestScene(key=$key)"
     }
 
-    private class TestOverlayScene(
+    private data class TestOverlayScene(
         override val key: Any,
         override val overlaidEntries: List<NavEntry<String>> = emptyList(),
         override val previousEntries: List<NavEntry<String>> = emptyList(),
