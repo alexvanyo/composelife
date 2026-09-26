@@ -185,41 +185,9 @@ class HashLifeAlgorithm(
             return@trace level4NodeMap[canonicalMacroCell]
         }
 
-        val n00 = centeredSubnodeLevel3(nw)
-        val n01 = centeredHorizontalSubnodeLevel3(nw, ne)
-        val n02 = centeredSubnodeLevel3(ne)
-        val n10 = centeredVerticalSubnodeLevel3(nw, sw)
-        val n11 = centeredSubSubnodeLevel4(canonicalMacroCell)
-        val n12 = centeredVerticalSubnodeLevel3(ne, se)
-        val n20 = centeredSubnodeLevel3(sw)
-        val n21 = centeredHorizontalSubnodeLevel3(sw, se)
-        val n22 = centeredSubnodeLevel3(se)
-
-        LeafNode(
-            nw = LeafNode(
-                nw = n00,
-                ne = n01,
-                sw = n10,
-                se = n11,
-            ).computeNextGenerationMemoized(),
-            ne = LeafNode(
-                nw = n01,
-                ne = n02,
-                sw = n11,
-                se = n12,
-            ).computeNextGenerationMemoized(),
-            sw = LeafNode(
-                nw = n10,
-                ne = n11,
-                sw = n20,
-                se = n21,
-            ).computeNextGenerationMemoized(),
-            se = LeafNode(
-                nw = n11,
-                ne = n12,
-                sw = n21,
-                se = n22,
-            ).computeNextGenerationMemoized(),
+        computeLevel4NextGeneration(
+            node = canonicalMacroCell,
+            computeLeafNextGen = { it.computeNextGenerationMemoized() },
         )
     }
 
@@ -495,17 +463,6 @@ private inline fun centeredSubnodeLevel4(node: MacroCell.Level4Node): MacroCell.
     se = node.se.nw,
 )
 
-private inline fun centeredSubnodeLevel3(node: MacroCell.LeafNode): Int = node.nw.se +
-    node.ne.sw *
-    16 +
-    node.sw.ne *
-    16 *
-    16 +
-    node.se.nw *
-    16 *
-    16 *
-    16
-
 private inline fun centeredHorizontalSubnodeLevel6(w: MacroCell.CellNode, e: MacroCell.CellNode): MacroCell.CellNode {
     // require(e.level >= 6)
     // require(e.level == w.level)
@@ -546,17 +503,6 @@ private inline fun centeredHorizontalSubnodeLevel4(
     se = e.sw.nw,
 )
 
-private inline fun centeredHorizontalSubnodeLevel3(w: MacroCell.LeafNode, e: MacroCell.LeafNode): Int = w.ne.se +
-    e.nw.sw *
-    16 +
-    w.se.ne *
-    16 *
-    16 +
-    e.sw.nw *
-    16 *
-    16 *
-    16
-
 private inline fun centeredVerticalSubnodeLevel6(n: MacroCell.CellNode, s: MacroCell.CellNode): MacroCell.CellNode {
     // require(n.level >= 6)
     // require(s.level == n.level)
@@ -594,17 +540,6 @@ private inline fun centeredVerticalSubnodeLevel4(n: MacroCell.Level4Node, s: Mac
         sw = s.nw.ne,
         se = s.ne.nw,
     )
-
-private inline fun centeredVerticalSubnodeLevel3(n: MacroCell.LeafNode, s: MacroCell.LeafNode): Int = n.sw.se +
-    n.se.sw *
-    16 +
-    s.nw.ne *
-    16 *
-    16 +
-    s.ne.nw *
-    16 *
-    16 *
-    16
 
 private inline fun centeredSubSubnodeLevel7(node: MacroCell.CellNode): MacroCell.CellNode {
     // require(node.level >= 7)
@@ -655,17 +590,6 @@ private inline fun centeredSubSubnodeLevel5(node: MacroCell.CellNode): MacroCell
         se = node.se.nw.nw,
     )
 }
-
-private inline fun centeredSubSubnodeLevel4(node: MacroCell.Level4Node): Int = node.nw.se.se +
-    node.ne.sw.sw *
-    16 +
-    node.sw.ne.ne *
-    16 *
-    16 +
-    node.se.nw.nw *
-    16 *
-    16 *
-    16
 
 private fun interface Equivalence<in T> {
     fun isEquivalent(a: T, b: T): Boolean
