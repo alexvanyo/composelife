@@ -16,6 +16,7 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
+import com.alexvanyo.composelife.buildlogic.heavyTaskLimitingBuildService
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
@@ -53,6 +54,7 @@ val verifyLean by tasks.registering(Exec::class) {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     workingDir = file("lean")
     commandLine("lake", "build", "Algorithm:static")
+    usesService(heavyTaskLimitingBuildService)
 }
 
 val compileAlgorithmBridgeCObject by tasks.registering(Exec::class) {
