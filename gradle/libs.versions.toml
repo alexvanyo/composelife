@@ -106,7 +106,7 @@ kotlinxSerialization = "1.12.0-RC"
 #ksp
 ksp = "2.3.9"
 #ktor
-ktor = "3.5.2"
+ktor = "3.6.0"
 #jacoco
 jacoco = "0.8.15"
 #jetbrainsNavigationEvent
