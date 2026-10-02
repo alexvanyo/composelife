@@ -15,11 +15,40 @@
  */
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
+import com.alexvanyo.composelife.buildlogic.HeavyTaskLimitingBuildService
 import com.alexvanyo.composelife.buildlogic.configureKotlin
+import com.alexvanyo.composelife.buildlogic.heavyTaskLimitingBuildService
+import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.TaskContainer
+import org.jetbrains.kotlin.gradle.targets.js.testing.KotlinJsTest
+import org.jetbrains.kotlin.gradle.targets.js.testing.karma.KotlinKarma
+import java.io.File
 
 class KotlinMultiplatformConventionPlugin :
     ConventionPlugin({
         pluginManager.apply("org.jetbrains.kotlin.multiplatform")
 
         configureKotlin()
+
+        val karmaConfigDir = isolated.rootProject.projectDirectory.dir("config/karma").asFile
+        configureKotlinJsTest(
+            tasks = tasks,
+            heavyTaskLimitingBuildService = heavyTaskLimitingBuildService,
+            karmaConfigDir = karmaConfigDir,
+        )
     })
+
+private fun configureKotlinJsTest(
+    tasks: TaskContainer,
+    heavyTaskLimitingBuildService: Provider<HeavyTaskLimitingBuildService>,
+    karmaConfigDir: File,
+) {
+    tasks.withType(KotlinJsTest::class.java).configureEach {
+        usesService(heavyTaskLimitingBuildService)
+        onTestFrameworkSet {
+            if (this is KotlinKarma) {
+                useConfigDirectory(karmaConfigDir)
+            }
+        }
+    }
+}
