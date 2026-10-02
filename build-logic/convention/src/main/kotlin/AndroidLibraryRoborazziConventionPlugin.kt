@@ -16,6 +16,7 @@
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.configureTesting
+import com.alexvanyo.composelife.buildlogic.heavyTaskLimitingBuildService
 import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
 import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
 import org.gradle.api.GradleException
@@ -49,6 +50,7 @@ class AndroidLibraryRoborazziConventionPlugin :
                 variant.hostTests.forEach { _, hostTest ->
                     hostTest.configureTestTask { test ->
                         test.apply {
+                            usesService(heavyTaskLimitingBuildService)
                             jvmArgs(
                                 "--add-opens=java.base/jdk.internal.access=ALL-UNNAMED",
                             )
