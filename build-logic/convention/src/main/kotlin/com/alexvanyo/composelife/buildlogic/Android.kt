@@ -40,7 +40,11 @@ fun Project.configureAndroid(commonExtension: CommonExtension) {
     val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
     commonExtension.apply {
-        compileSdk = 37
+        compileSdk {
+            version = release(37) {
+                minorApiLevel = 1
+            }
+        }
 
         lint.apply {
             warningsAsErrors = true
@@ -98,7 +102,11 @@ fun Project.configureAndroid(extension: KotlinMultiplatformAndroidLibraryTarget)
     val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
     extension.apply {
-        compileSdk = 37
+        compileSdk {
+            version = release(37) {
+                minorApiLevel = 1
+            }
+        }
 
         lint {
             warningsAsErrors = true
