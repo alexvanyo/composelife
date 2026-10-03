@@ -14,13 +14,20 @@
  * limitations under the License.
  -/
 
-import Algorithm.Basic
-import Algorithm.BitComputation
-import Algorithm.Patterns
-import Algorithm.MacroCell
-import Algorithm.MacroCellHash
-import Algorithm.HashLife
-import Algorithm.Bridge
-import AlgorithmDefs
-import AlgorithmProofs
-import AlgorithmTheorems
+import SessionValue.Basic
+import SessionValue.StateMachine
+
+namespace SessionValue
+
+/--
+The core inductive invariant of `SessionValueHolder`:
+1. When inactive, `upstreamSessionIdBeforeLocalSession` strictly equals `upstreamSessionValue.sessionId`.
+2. When active, `localSessionValue` is tagged with `localSessionId`.
+-/
+structure ValidState (st : State α) : Prop where
+  inactive_sound : st.localSessionValue = none →
+    st.upstreamSessionIdBeforeLocalSession = st.upstreamSessionValue.sessionId
+  active_sound : ∀ lv, st.localSessionValue = some lv →
+    lv.sessionId = st.localSessionId
+
+end SessionValue

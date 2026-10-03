@@ -14,13 +14,9 @@
  * limitations under the License.
  -/
 
-import Algorithm.Basic
-import Algorithm.BitComputation
-import Algorithm.Patterns
-import Algorithm.MacroCell
-import Algorithm.MacroCellHash
-import Algorithm.HashLife
-import Algorithm.Bridge
-import AlgorithmDefs
-import AlgorithmProofs
-import AlgorithmTheorems
+import proofs.PatternsProofs
+import proofs.PropertiesProofs
+import proofs.MacroCellProofs
+import proofs.MacroCellHashProofs
+import proofs.BitComputationProofs
+import proofs.HashLifeProofs

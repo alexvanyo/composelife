@@ -14,13 +14,7 @@
  * limitations under the License.
  -/
 
-import Algorithm.Basic
-import Algorithm.BitComputation
-import Algorithm.Patterns
-import Algorithm.MacroCell
-import Algorithm.MacroCellHash
-import Algorithm.HashLife
-import Algorithm.Bridge
-import AlgorithmDefs
-import AlgorithmProofs
-import AlgorithmTheorems
+import proofs.SegmentBound.Waypoints
+import proofs.SegmentBound.MiniSegment
+import proofs.SegmentBound.PointBound
+import proofs.SegmentBound.Hausdorff

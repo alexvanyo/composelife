@@ -15,12 +15,29 @@
  -/
 
 import Algorithm.Basic
-import Algorithm.BitComputation
 import Algorithm.Patterns
-import Algorithm.MacroCell
-import Algorithm.MacroCellHash
-import Algorithm.HashLife
-import Algorithm.Bridge
 import AlgorithmDefs
-import AlgorithmProofs
-import AlgorithmTheorems
+
+namespace Algorithm
+
+theorem block_is_still_life_Impl :
+    sameCells (stepGrid blockPattern) blockPattern = true := by
+  decide
+
+theorem tub_is_still_life_Impl :
+    sameCells (stepGrid tubPattern) tubPattern = true := by
+  decide
+
+theorem blinker_period_two_Impl :
+    sameCells (stepGrid blinkerH) blinkerV = true ∧
+    sameCells (stepGrid blinkerV) blinkerH = true ∧
+    sameCells (stepN 2 blinkerH) blinkerH = true := by
+  decide
+
+theorem glider_period_four_shift_Impl :
+    let g4 := stepN 4 gliderPattern
+    let shifted := gliderPattern.map (fun (x, y) => (x + 1, y + 1))
+    sameCells g4 shifted = true := by
+  decide
+
+end Algorithm

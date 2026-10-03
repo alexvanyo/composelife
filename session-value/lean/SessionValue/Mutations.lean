@@ -16,7 +16,6 @@
 
 import SessionValue.Basic
 import SessionValue.StateMachine
-import SessionValue.Properties
 
 namespace SessionValue
 
