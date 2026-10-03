@@ -36,24 +36,6 @@ theorem cellIntersectionsSegmentFloat_eq_ideal_of_clearance
     cellIntersectionsSegmentFloat A B = cellIntersectionsSegment A.toPoint B.toPoint :=
   cellIntersectionsSegmentFloat_eq_ideal_of_clearance_Impl A B M h_finA h_finB h_bound h_clear
 
-/-- Float Hausdorff Master Theorem: Discrete Chebyshev distance at most 1 under step classification. -/
-theorem cellIntersectionsSegmentFloat_hausdorff_bound
-    (A B : Point32) (h_finA : A.isFinite) (h_finB : B.isFinite)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
-    (h_stepX : (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) =
-      (if B.toPoint.x - A.toPoint.x > 0 then 1 else if B.toPoint.x - A.toPoint.x < 0 then -1 else 0))
-    (h_stepY : (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) =
-      (if B.toPoint.y - A.toPoint.y > 0 then 1 else if B.toPoint.y - A.toPoint.y < 0 then -1 else 0))
-    (h_class : ∀ c, StepClassification A B.toPoint (B.x - A.x) (B.y - A.y)
-      (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y)
-      (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
-      (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0)
-      (floorPoint B.toPoint) c) :
-    cellHausdorffDistanceLe
-      (cellIntersectionsSegmentFloat A B)
-      (cellIntersectionsSegment A.toPoint B.toPoint) 1 :=
-  cellIntersectionsSegmentFloat_hausdorff_bound_Impl A B h_finA h_finB h_bound h_stepX h_stepY h_class
-
 /-- Sub-segment Path Master Theorem: Inductive Hausdorff bound along any waypoint sequence. -/
 theorem cellIntersectionsPathFloat_hausdorff_bound
     (Ps : List Point32) (h_fin : AllFinite Ps)
@@ -96,4 +78,25 @@ theorem cellIntersectionsPathFloat_hausdorff_bound_of_same_cell_steps
       (cellIntersectionsPath (pointsToRational Ps)) 1 :=
   cellIntersectionsPathFloat_hausdorff_bound_of_same_cell_steps_Impl Ps h_fin h_steps
 
+theorem cellIntersectionsSegmentFloat_hausdorff_bound_1000_fresh
+    (A B : Point32)
+    (h_finiteA : A.isFinite)
+    (h_finiteB : B.isFinite)
+    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint) :
+    cellHausdorffDistanceLe
+      (cellIntersectionsSegmentFloat A B)
+      (cellIntersectionsSegment A.toPoint B.toPoint) 1 :=
+  cellIntersectionsSegmentFloat_hausdorff_bound_1000_fresh_Impl A B h_finiteA h_finiteB h_bound
+
+/-- Master Polyline Theorem: Global Hausdorff bound along any path in [-1000, 1000]^2. -/
+theorem cellIntersectionsPathFloat_hausdorff_bound_1000
+    (Ps : List Point32) (h_fin : AllFinite Ps)
+    (h_bounds : ∀ (i : Nat) (hi : i + 1 < Ps.length),
+      inCoordBounds 1000 (Ps.get ⟨i, by omega⟩).toPoint (Ps.get ⟨i + 1, hi⟩).toPoint) :
+    cellHausdorffDistanceLe
+      (cellIntersectionsPathFloat Ps)
+      (cellIntersectionsPath (pointsToRational Ps)) 1 :=
+  cellIntersectionsPathFloat_hausdorff_bound_1000_Impl Ps h_fin h_bounds
+
 end Geometry
+

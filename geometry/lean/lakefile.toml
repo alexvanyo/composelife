@@ -14,5 +14,23 @@ rev = "v4.34.0"
 
 [[lean_lib]]
 name = "Geometry"
-roots = ["Geometry", "GeometryDefs", "GeometryTheorems", "GeometryProofs"]
+roots = [
+  "Geometry",
+  "GeometryDefs",
+  "GeometryTheorems",
+  "GeometryProofs",
+  "proofs.Interval",
+  "proofs.RayMarchStep",
+  "proofs.Soundness",
+  "proofs.Completeness",
+  "proofs.FloatSemantics",
+  "proofs.FloatBounds",
+  "proofs.FloatAnalysis",
+  "proofs.FloatProperties",
+  "proofs.SegmentBound",
+  "proofs.SegmentBound.Waypoints",
+  "proofs.SegmentBound.PointBound",
+  "proofs.SegmentBound.MiniSegment",
+  "proofs.SegmentBound.Hausdorff",
+]
 

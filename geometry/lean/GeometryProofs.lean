@@ -55,21 +55,5 @@ theorem cellIntersectionsSegment_exact_iff_Impl (A B : Point) (c : Cell) :
     exact not_off_axis_of_interval_lt c A B hcA hcB h_bbox tEnter tExit h_int h_lt
 
 
-theorem cellIntersectionsSegmentFloat_hausdorff_bound_Impl
-    (A B : Point32) (h_finA : A.isFinite) (h_finB : B.isFinite)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
-    (h_stepX : (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) =
-      (if B.toPoint.x - A.toPoint.x > 0 then 1 else if B.toPoint.x - A.toPoint.x < 0 then -1 else 0))
-    (h_stepY : (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) =
-      (if B.toPoint.y - A.toPoint.y > 0 then 1 else if B.toPoint.y - A.toPoint.y < 0 then -1 else 0))
-    (h_class : ∀ c, StepClassification A B.toPoint (B.x - A.x) (B.y - A.y)
-      (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y)
-      (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
-      (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0)
-      (floorPoint B.toPoint) c) :
-    cellHausdorffDistanceLe
-      (cellIntersectionsSegmentFloat A B)
-      (cellIntersectionsSegment A.toPoint B.toPoint) 1 :=
-  cellIntersectionsSegmentFloat_hausdorff_bound_of_classification A B h_finA h_finB h_bound h_stepX h_stepY h_class
 
 end Geometry
