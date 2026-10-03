@@ -4,3 +4,4 @@ defaultTargets = ["Algorithm"]
 
 [[lean_lib]]
 name = "Algorithm"
+roots = ["Algorithm", "AlgorithmDefs", "AlgorithmTheorems", "AlgorithmProofs"]

@@ -16,22 +16,22 @@
 
 import Geometry.Basic
 import Geometry.LineSegment
-import Geometry.Interval
-import Geometry.RayMarchStep
-import Geometry.Completeness
-import Geometry.Soundness
+import Geometry.FloatModel
+import GeometryDefs
+import proofs.Interval
+import proofs.RayMarchStep
+import proofs.Soundness
+import proofs.Completeness
+import proofs.FloatSemantics
+import proofs.FloatBounds
+import proofs.FloatAnalysis
+import proofs.FloatProperties
+import proofs.SegmentBound
 
 namespace Geometry
 
 
-/--
-Master Theorem (Exact Characterization of LineSegment Cell Intersections):
-For all line segments from A to B and all discrete grid cells c:
-A cell c is in `cellIntersectionsSegment A B` IF AND ONLY IF:
-c is an active intersected cell of the line segment (it intersects the line segment
-and is not an off-axis corner).
--/
-theorem cellIntersectionsSegment_exact_iff (A B : Point) (c : Cell) :
+theorem cellIntersectionsSegment_exact_iff_Impl (A B : Point) (c : Cell) :
     c ∈ cellIntersectionsSegment A B ↔ ActiveIntersectedCell c A B := by
   apply cellIntersectionsSegment_exact_iff_reduction
   intro hne hcA hcB
@@ -53,5 +53,23 @@ theorem cellIntersectionsSegment_exact_iff (A B : Point) (c : Cell) :
   · intro hray
     rcases h_sound c hray with ⟨h_bbox, tEnter, tExit, h_int, h_lt⟩
     exact not_off_axis_of_interval_lt c A B hcA hcB h_bbox tEnter tExit h_int h_lt
+
+
+theorem cellIntersectionsSegmentFloat_hausdorff_bound_Impl
+    (A B : Point32) (h_finA : A.isFinite) (h_finB : B.isFinite)
+    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (h_stepX : (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) =
+      (if B.toPoint.x - A.toPoint.x > 0 then 1 else if B.toPoint.x - A.toPoint.x < 0 then -1 else 0))
+    (h_stepY : (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) =
+      (if B.toPoint.y - A.toPoint.y > 0 then 1 else if B.toPoint.y - A.toPoint.y < 0 then -1 else 0))
+    (h_class : ∀ c, StepClassification A B.toPoint (B.x - A.x) (B.y - A.y)
+      (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y)
+      (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
+      (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0)
+      (floorPoint B.toPoint) c) :
+    cellHausdorffDistanceLe
+      (cellIntersectionsSegmentFloat A B)
+      (cellIntersectionsSegment A.toPoint B.toPoint) 1 :=
+  cellIntersectionsSegmentFloat_hausdorff_bound_of_classification A B h_finA h_finB h_bound h_stepX h_stepY h_class
 
 end Geometry

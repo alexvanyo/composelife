@@ -52,17 +52,6 @@ def State.info (st : State α) : LocalSessionInfo :=
       st.upstreamSessionIdBeforeLocalSession
 
 /--
-The core inductive invariant of `SessionValueHolder`:
-1. When inactive, `upstreamSessionIdBeforeLocalSession` strictly equals `upstreamSessionValue.sessionId`.
-2. When active, `localSessionValue` is tagged with `localSessionId`.
--/
-structure ValidState (st : State α) : Prop where
-  inactive_sound : st.localSessionValue = none →
-    st.upstreamSessionIdBeforeLocalSession = st.upstreamSessionValue.sessionId
-  active_sound : ∀ lv, st.localSessionValue = some lv →
-    lv.sessionId = st.localSessionId
-
-/--
 Initial state constructor matching `rememberSessionValueHolder`:
 `upstreamSessionIdBeforeLocalSession = upstreamSessionValue.sessionId`
 `localSessionValue = none`
