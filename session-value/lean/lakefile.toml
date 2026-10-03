@@ -4,3 +4,4 @@ defaultTargets = ["SessionValue"]
 
 [[lean_lib]]
 name = "SessionValue"
+roots = ["SessionValue", "SessionValueDefs", "SessionValueTheorems", "SessionValueProofs"]
