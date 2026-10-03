@@ -16,7 +16,7 @@
 
 import Geometry.Basic
 import Geometry.LineSegment
-import Geometry.Interval
+import proofs.Interval
 import Mathlib.Algebra.Order.Field.Basic
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.Linarith

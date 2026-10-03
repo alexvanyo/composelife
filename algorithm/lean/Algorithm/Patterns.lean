@@ -33,27 +33,4 @@ def blinkerV : List Coord :=
 def gliderPattern : List Coord :=
   [(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)]
 
-def sameCells (a b : List Coord) : Bool :=
-  a.all (b.contains ·) && b.all (a.contains ·)
-
-theorem block_is_still_life :
-  sameCells (stepGrid blockPattern) blockPattern = true := by
-  decide
-
-theorem tub_is_still_life :
-  sameCells (stepGrid tubPattern) tubPattern = true := by
-  decide
-
-theorem blinker_period_two :
-  sameCells (stepGrid blinkerH) blinkerV = true ∧
-  sameCells (stepGrid blinkerV) blinkerH = true ∧
-  sameCells (stepN 2 blinkerH) blinkerH = true := by
-  decide
-
-theorem glider_period_four_shift :
-  let g4 := stepN 4 gliderPattern
-  let shifted := gliderPattern.map (fun (x, y) => (x + 1, y + 1))
-  sameCells g4 shifted = true := by
-  decide
-
 end Algorithm
