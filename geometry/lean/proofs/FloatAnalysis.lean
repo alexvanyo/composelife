@@ -528,6 +528,64 @@ theorem intToBinary32_toReal_eq (n : Int) (hn : |n| ≤ 1001) :
     _ = (Dyadic.ofScaledInt n 0).toReal := hrepr.2
     _ = (n : ℝ) := Model.Dyadic.toReal_ofScaledInt_zero n
 
+theorem intToBinary32_toReal_eq_2000 (n : Int) (hn : |n| ≤ 2000) :
+    Model.toReal (ExecFloat.Binary.toModel (intToBinary32 n)) = (n : ℝ) := by
+  have h_toModel : ExecFloat.Binary.toModel (intToBinary32 n) =
+      Model.roundDyadic FloatFormat.binary32 (Dyadic.ofScaledInt n 0) :=
+    ExecFloat.Binary.toModel_ofFloat32_ofInt n
+  have hrepr := Model.roundDyadic_of_representable FloatFormat.binary32 (by rfl)
+    (Dyadic.ofScaledInt n 0) n.natAbs 0
+    (by simp [Dyadic.ofScaledInt])
+    (by
+      have h1 : -2000 ≤ n ∧ n ≤ 2000 := abs_le.mp hn
+      have h2 : n.natAbs ≤ 2000 := by omega
+      change n.natAbs < 2 ^ 24
+      omega)
+    (by
+      simp only [Dyadic.ofScaledInt]
+      decide)
+    (by
+      rw [Model.Dyadic.toReal_ofScaledInt_zero]
+      have h_le : |(n : ℝ)| ≤ (2000 : ℝ) := by
+        rw [← Int.cast_abs]
+        exact_mod_cast hn
+      apply le_trans h_le
+      apply two_thousand_le_posMaxFinite _ (by decide) (by decide))
+  calc
+    Model.toReal (ExecFloat.Binary.toModel (intToBinary32 n)) =
+        Model.toReal (Model.roundDyadic FloatFormat.binary32 (Dyadic.ofScaledInt n 0)) :=
+      congrArg Model.toReal h_toModel
+    _ = (Dyadic.ofScaledInt n 0).toReal := hrepr.2
+    _ = (n : ℝ) := Model.Dyadic.toReal_ofScaledInt_zero n
+
+theorem intToBinary32_isFinite_2000 (n : Int) (hn : |n| ≤ 2000) :
+    ExecFloat.Binary.isFinite (intToBinary32 n) = true := by
+  have h_toModel : ExecFloat.Binary.toModel (intToBinary32 n) =
+      Model.roundDyadic FloatFormat.binary32 (Dyadic.ofScaledInt n 0) :=
+    ExecFloat.Binary.toModel_ofFloat32_ofInt n
+  have hrepr := Model.roundDyadic_of_representable FloatFormat.binary32 (by rfl)
+    (Dyadic.ofScaledInt n 0) n.natAbs 0
+    (by simp [Dyadic.ofScaledInt])
+    (by
+      have h1 : -2000 ≤ n ∧ n ≤ 2000 := abs_le.mp hn
+      have h2 : n.natAbs ≤ 2000 := by omega
+      change n.natAbs < 2 ^ 24
+      omega)
+    (by
+      simp only [Dyadic.ofScaledInt]
+      decide)
+    (by
+      rw [Model.Dyadic.toReal_ofScaledInt_zero]
+      have h_le : |(n : ℝ)| ≤ (2000 : ℝ) := by
+        rw [← Int.cast_abs]
+        exact_mod_cast hn
+      apply le_trans h_le
+      apply two_thousand_le_posMaxFinite _ (by decide) (by decide))
+  change Model.isFinite (ExecFloat.Binary.toModel (intToBinary32 n)) = true
+  rw [h_toModel]
+  exact hrepr.1
+
+
 
 /--
 The result of a single rational rayMarchStep is either the done-pair or one of three non-done cells.
@@ -555,7 +613,7 @@ private theorem rayMarchStep_done_or_cases (start ptEnd : Point) (dx dy : ℚ) (
 /--
 The result of a single float rayMarchStepFloat is either the done-pair or one of three non-done cells.
 -/
-private theorem rayMarchStepFloat_done_or_cases (start : Point32) (dx dy : Binary32) (stepX stepY : ℤ) (c : Cell) :
+theorem rayMarchStepFloat_done_or_cases (start : Point32) (dx dy : Binary32) (stepX stepY : ℤ) (c : Cell) :
     ((rayMarchStepFloat start dx dy stepX stepY c).2 = true ∧
      (rayMarchStepFloat start dx dy stepX stepY c).1 = c) ∨
     ((rayMarchStepFloat start dx dy stepX stepY c).2 = false ∧
@@ -574,232 +632,18 @@ private theorem rayMarchStepFloat_done_or_cases (start : Point32) (dx dy : Binar
     · simp only [hy0, Bool.false_eq_true, ite_false]
       split_ifs <;> simp
 
-/--
-For any cell c, when both floating-point and rational raymarching steps take the same next cell
-(or both are in the "done" state), Branch 1 of StepClassification holds.
--/
-private theorem stepClassification_branch1
-    (start : Point32) (ptEnd : Point) (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell c : Cell)
-    (h_cell : (rayMarchStepFloat start dx dy stepX stepY c).1 = (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1)
-    (h_done : (rayMarchStepFloat start dx dy stepX stepY c).2 = (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).2) :
-    StepClassification start ptEnd dx dy dxQ dyQ stepX stepY endCell c := by
-  unfold StepClassification
-  exact ⟨Or.inl ⟨h_cell, h_done⟩, Or.inl ⟨h_cell, h_done⟩⟩
-
-/--
-For any cell c, when the floating-point step is done (B is in c for float), Branch 4 of
-StepClassification holds as long as the rational step also terminates or hits endCell.
--/
-private theorem stepClassification_branch4
-    (start : Point32) (ptEnd : Point) (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell c : Cell)
-    (h_termF : (c == endCell) = true ∨
-               (rayMarchStepFloat start dx dy stepX stepY c).2 = true ∨
-               (rayMarchStepFloat start dx dy stepX stepY c).1 = endCell)
-    (h_termI : (c == endCell) = true ∨
-               (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).2 = true ∨
-               (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1 = endCell) :
-    StepClassification start ptEnd dx dy dxQ dyQ stepX stepY endCell c := by
-  unfold StepClassification
-  exact ⟨Or.inr (Or.inr (Or.inr h_termF)), Or.inr (Or.inr (Or.inr h_termI))⟩
-
-private theorem stepClassification_branch4_float
-    (start : Point32) (ptEnd : Point) (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell c : Cell)
-    (h_termF : (c == endCell) = true ∨
-               (rayMarchStepFloat start dx dy stepX stepY c).2 = true ∨
-               (rayMarchStepFloat start dx dy stepX stepY c).1 = endCell) :
-    ( ( (rayMarchStepFloat start dx dy stepX stepY c).1 = (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1 ∧
-        (rayMarchStepFloat start dx dy stepX stepY c).2 = (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).2 ) ∨
-      ( (c == endCell) = false ∧
-        (⟨c.x + stepX, c.y⟩ == endCell) = false ∧
-        (⟨c.x, c.y + stepY⟩ == endCell) = false ∧
-        (rayMarchStepFloat start dx dy stepX stepY c).1 = ⟨c.x + stepX, c.y⟩ ∧
-        (rayMarchStepFloat start dx dy stepX stepY c).2 = false ∧
-        (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1 = ⟨c.x, c.y + stepY⟩ ∧
-        (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).2 = false ∧
-        (rayMarchStepFloat start dx dy stepX stepY ⟨c.x + stepX, c.y⟩).1 = ⟨c.x + stepX, c.y + stepY⟩ ∧
-        (rayMarchStepFloat start dx dy stepX stepY ⟨c.x + stepX, c.y⟩).2 = false ∧
-        (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x, c.y + stepY⟩).1 = ⟨c.x + stepX, c.y + stepY⟩ ∧
-        (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x, c.y + stepY⟩).2 = false ) ∨
-      ( (c == endCell) = false ∧
-        (⟨c.x, c.y + stepY⟩ == endCell) = false ∧
-        (⟨c.x + stepX, c.y⟩ == endCell) = false ∧
-        (rayMarchStepFloat start dx dy stepX stepY c).1 = ⟨c.x, c.y + stepY⟩ ∧
-        (rayMarchStepFloat start dx dy stepX stepY c).2 = false ∧
-        (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1 = ⟨c.x + stepX, c.y⟩ ∧
-        (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).2 = false ∧
-        (rayMarchStepFloat start dx dy stepX stepY ⟨c.x, c.y + stepY⟩).1 = ⟨c.x + stepX, c.y + stepY⟩ ∧
-        (rayMarchStepFloat start dx dy stepX stepY ⟨c.x, c.y + stepY⟩).2 = false ∧
-        (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x + stepX, c.y⟩).1 = ⟨c.x + stepX, c.y + stepY⟩ ∧
-        (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x + stepX, c.y⟩).2 = false ) ∨
-      ( (c == endCell) = true ∨ (rayMarchStepFloat start dx dy stepX stepY c).2 = true ∨ (rayMarchStepFloat start dx dy stepX stepY c).1 = endCell ) ) :=
-  Or.inr (Or.inr (Or.inr h_termF))
-
-private theorem stepClassification_branch4_ideal
-    (start : Point32) (ptEnd : Point) (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell c : Cell)
-    (h_termI : (c == endCell) = true ∨
-               (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).2 = true ∨
-               (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1 = endCell) :
-    ( ( (rayMarchStepFloat start dx dy stepX stepY c).1 = (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1 ∧
-        (rayMarchStepFloat start dx dy stepX stepY c).2 = (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).2 ) ∨
-      ( (c == endCell) = false ∧
-        (⟨c.x + stepX, c.y⟩ == endCell) = false ∧
-        (⟨c.x, c.y + stepY⟩ == endCell) = false ∧
-        (rayMarchStepFloat start dx dy stepX stepY c).1 = ⟨c.x + stepX, c.y⟩ ∧
-        (rayMarchStepFloat start dx dy stepX stepY c).2 = false ∧
-        (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1 = ⟨c.x, c.y + stepY⟩ ∧
-        (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).2 = false ∧
-        (rayMarchStepFloat start dx dy stepX stepY ⟨c.x + stepX, c.y⟩).1 = ⟨c.x + stepX, c.y + stepY⟩ ∧
-        (rayMarchStepFloat start dx dy stepX stepY ⟨c.x + stepX, c.y⟩).2 = false ∧
-        (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x, c.y + stepY⟩).1 = ⟨c.x + stepX, c.y + stepY⟩ ∧
-        (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x, c.y + stepY⟩).2 = false ) ∨
-      ( (c == endCell) = false ∧
-        (⟨c.x, c.y + stepY⟩ == endCell) = false ∧
-        (⟨c.x + stepX, c.y⟩ == endCell) = false ∧
-        (rayMarchStepFloat start dx dy stepX stepY c).1 = ⟨c.x, c.y + stepY⟩ ∧
-        (rayMarchStepFloat start dx dy stepX stepY c).2 = false ∧
-        (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1 = ⟨c.x + stepX, c.y⟩ ∧
-        (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).2 = false ∧
-        (rayMarchStepFloat start dx dy stepX stepY ⟨c.x, c.y + stepY⟩).1 = ⟨c.x + stepX, c.y + stepY⟩ ∧
-        (rayMarchStepFloat start dx dy stepX stepY ⟨c.x, c.y + stepY⟩).2 = false ∧
-        (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x + stepX, c.y⟩).1 = ⟨c.x + stepX, c.y + stepY⟩ ∧
-        (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x + stepX, c.y⟩).2 = false ) ∨
-      ( (c == endCell) = true ∨ (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).2 = true ∨ (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1 = endCell ) ) :=
-  Or.inr (Or.inr (Or.inr h_termI))
-
-
-/--
-When both float and rational steps are "done" at cell c, Branch 1 (agreement) holds:
-both return (c, true).
--/
-private theorem stepClassification_both_done
-    (start : Point32) (ptEnd : Point) (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell c : Cell)
-    (hf_done : (rayMarchStepFloat start dx dy stepX stepY c).2 = true)
-    (hf_cell : (rayMarchStepFloat start dx dy stepX stepY c).1 = c)
-    (hi_done : (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).2 = true)
-    (hi_cell : (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1 = c) :
-    StepClassification start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
-  stepClassification_branch1 start ptEnd dx dy dxQ dyQ stepX stepY endCell c
-    (by rw [hf_cell, hi_cell]) (by rw [hf_done, hi_done])
-
-/--
-Helper: when the float step is done at c, the float contribution to Branch 4 holds.
--/
-private theorem float_terminal_of_done
-    (start : Point32) (dx dy : Binary32) (stepX stepY : ℤ) (endCell c : Cell)
-    (hf_done : (rayMarchStepFloat start dx dy stepX stepY c).2 = true) :
-    (rayMarchStepFloat start dx dy stepX stepY c).2 = true ∨
-    (rayMarchStepFloat start dx dy stepX stepY c).1 = endCell :=
-  Or.inl hf_done
-
-/--
-Helper: when the rational step is done at c, the ideal contribution to Branch 4 holds.
--/
-private theorem ideal_terminal_of_done
-    (start : Point32) (ptEnd : Point) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell c : Cell)
-    (hi_done : (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).2 = true) :
-    (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).2 = true ∨
-    (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1 = endCell :=
-  Or.inl hi_done
-
-/--
-Branch 2 of StepClassification holds:
-Float takes X then Y, while rational takes Y then X, resynchronizing at the diagonal.
--/
-private theorem stepClassification_branch2
-    (start : Point32) (ptEnd : Point) (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell c : Cell)
-    (h_not_end : (c == endCell) = false)
-    (h_not_endX : (⟨c.x + stepX, c.y⟩ == endCell) = false)
-    (h_not_endY : (⟨c.x, c.y + stepY⟩ == endCell) = false)
-    (hf1_cell : (rayMarchStepFloat start dx dy stepX stepY c).1 = ⟨c.x + stepX, c.y⟩)
-    (hf1_done : (rayMarchStepFloat start dx dy stepX stepY c).2 = false)
-    (hi1_cell : (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1 = ⟨c.x, c.y + stepY⟩)
-    (hi1_done : (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).2 = false)
-    (hf2_cell : (rayMarchStepFloat start dx dy stepX stepY ⟨c.x + stepX, c.y⟩).1 = ⟨c.x + stepX, c.y + stepY⟩)
-    (hf2_done : (rayMarchStepFloat start dx dy stepX stepY ⟨c.x + stepX, c.y⟩).2 = false)
-    (hi2_cell : (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x, c.y + stepY⟩).1 = ⟨c.x + stepX, c.y + stepY⟩)
-    (hi2_done : (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x, c.y + stepY⟩).2 = false) :
-    StepClassification start ptEnd dx dy dxQ dyQ stepX stepY endCell c := by
-  unfold StepClassification
-  refine ⟨Or.inr (Or.inl ⟨h_not_end, h_not_endX, h_not_endY, hf1_cell, hf1_done, hi1_cell, hi1_done,
-                         hf2_cell, hf2_done, hi2_cell, hi2_done⟩),
-          Or.inr (Or.inl ⟨h_not_end, h_not_endX, h_not_endY, hf1_cell, hf1_done, hi1_cell, hi1_done,
-                         hf2_cell, hf2_done, hi2_cell, hi2_done⟩)⟩
-
-/--
-Branch 3 of StepClassification holds:
-Float takes Y then X, while rational takes X then Y, resynchronizing at the diagonal.
--/
-private theorem stepClassification_branch3
-    (start : Point32) (ptEnd : Point) (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell c : Cell)
-    (h_not_end : (c == endCell) = false)
-    (h_not_endY : (⟨c.x, c.y + stepY⟩ == endCell) = false)
-    (h_not_endX : (⟨c.x + stepX, c.y⟩ == endCell) = false)
-    (hf1_cell : (rayMarchStepFloat start dx dy stepX stepY c).1 = ⟨c.x, c.y + stepY⟩)
-    (hf1_done : (rayMarchStepFloat start dx dy stepX stepY c).2 = false)
-    (hi1_cell : (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1 = ⟨c.x + stepX, c.y⟩)
-    (hi1_done : (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).2 = false)
-    (hf2_cell : (rayMarchStepFloat start dx dy stepX stepY ⟨c.x, c.y + stepY⟩).1 = ⟨c.x + stepX, c.y + stepY⟩)
-    (hf2_done : (rayMarchStepFloat start dx dy stepX stepY ⟨c.x, c.y + stepY⟩).2 = false)
-    (hi2_cell : (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x + stepX, c.y⟩).1 = ⟨c.x + stepX, c.y + stepY⟩)
-    (hi2_done : (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x + stepX, c.y⟩).2 = false) :
-    StepClassification start ptEnd dx dy dxQ dyQ stepX stepY endCell c := by
-  unfold StepClassification
-  refine ⟨Or.inr (Or.inr (Or.inl ⟨h_not_end, h_not_endY, h_not_endX, hf1_cell, hf1_done, hi1_cell, hi1_done,
-                                 hf2_cell, hf2_done, hi2_cell, hi2_done⟩)),
-          Or.inr (Or.inr (Or.inl ⟨h_not_end, h_not_endY, h_not_endX, hf1_cell, hf1_done, hi1_cell, hi1_done,
-                                 hf2_cell, hf2_done, hi2_cell, hi2_done⟩))⟩
-
-/--
-For any cell c and any finite Point32 values A, B with inCoordBounds 1000,
-the single-step floating-point and rational raymarching transitions satisfy StepClassification.
-This is the key lemma that unlocks the unconditional master theorems.
--/
-theorem step_classification_1000 (A B : Point32)
-    (h_finiteA : A.isFinite) (h_finiteB : B.isFinite)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
-    (c : Cell) :
-    StepClassification A B.toPoint (B.x - A.x) (B.y - A.y)
-      (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y)
-      (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
-      (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0)
-      (floorPoint B.toPoint) c := by
-  set dx := B.x - A.x with hdx_def
-  set dy := B.y - A.y with hdy_def
-  set dxQ := B.toPoint.x - A.toPoint.x with hdxQ_def
-  set dyQ := B.toPoint.y - A.toPoint.y with hdyQ_def
-  set stepX : ℤ := if dx > 0.0 then 1 else if dx < 0.0 then -1 else 0 with hstepX_def
-  set stepY : ℤ := if dy > 0.0 then 1 else if dy < 0.0 then -1 else 0 with hstepY_def
-  set endCell := floorPoint B.toPoint with hendCell_def
-  -- Get sign agreements from existing lemmas
-  have hsignX := step_signs_agree_X A B h_finiteA h_finiteB h_bound
-  have hsignY := step_signs_agree_Y A B h_finiteA h_finiteB h_bound
-  -- Float and rational signs agree: stepX = rational sign of dxQ, stepY = rational sign of dyQ
-  have hstepX_eq : stepX = (if dxQ > 0 then 1 else if dxQ < 0 then -1 else 0) := by
-    rw [hstepX_def, hdx_def, hdxQ_def]; exact hsignX
-  have hstepY_eq : stepY = (if dyQ > 0 then 1 else if dyQ < 0 then -1 else 0) := by
-    rw [hstepY_def, hdy_def, hdyQ_def]; exact hsignY
-  unfold StepClassification
-  constructor
-  · by_cases hc_end : (c == endCell) = true
-    · exact Or.inr (Or.inr (Or.inr (Or.inl hc_end)))
-    · by_cases hf_term : (rayMarchStepFloat A dx dy stepX stepY c).2 = true ∨
-                         (rayMarchStepFloat A dx dy stepX stepY c).1 = endCell
-      · exact Or.inr (Or.inr (Or.inr (Or.inr hf_term)))
-      · by_cases h_agree : (rayMarchStepFloat A dx dy stepX stepY c).1 = (rayMarchStep A.toPoint B.toPoint dxQ dyQ stepX stepY c).1 ∧
-                           (rayMarchStepFloat A dx dy stepX stepY c).2 = (rayMarchStep A.toPoint B.toPoint dxQ dyQ stepX stepY c).2
-        · exact Or.inl h_agree
-        · sorry
-  · by_cases hc_end : (c == endCell) = true
-    · exact Or.inr (Or.inr (Or.inr (Or.inl hc_end)))
-    · by_cases hi_term : (rayMarchStep A.toPoint B.toPoint dxQ dyQ stepX stepY c).2 = true ∨
-                         (rayMarchStep A.toPoint B.toPoint dxQ dyQ stepX stepY c).1 = endCell
-      · exact Or.inr (Or.inr (Or.inr (Or.inr hi_term)))
-      · by_cases h_agree : (rayMarchStepFloat A dx dy stepX stepY c).1 = (rayMarchStep A.toPoint B.toPoint dxQ dyQ stepX stepY c).1 ∧
-                           (rayMarchStepFloat A dx dy stepX stepY c).2 = (rayMarchStep A.toPoint B.toPoint dxQ dyQ stepX stepY c).2
-        · exact Or.inl h_agree
-        · sorry
+theorem rayMarchStepFloat_done_cell (start : Point32) (dx dy : Binary32) (stepX stepY : ℤ) (c : Cell)
+    (h_done : (rayMarchStepFloat start dx dy stepX stepY c).2 = true) :
+    (rayMarchStepFloat start dx dy stepX stepY c).1 = c := by
+  have h := rayMarchStepFloat_done_or_cases start dx dy stepX stepY c
+  rcases h with ⟨_, heq⟩ | ⟨hd, _⟩
+  · exact heq
+  · rw [hd] at h_done
+    contradiction
 
 end Geometry
+
+
 
 
 
