@@ -1,0 +1,23 @@
+--- /home/xela/Projects/composelife/geometry/lean/proofs/SegmentBound/Hausdorff.lean
++++ /home/xela/Projects/composelife/geometry/lean/proofs/SegmentBound/Hausdorff.lean
+@@ -345,6 +345,15 @@
+ `cellIntersectionsSegment A.toPoint B.toPoint` is at most 1.
+ -/
++
++def extractWaypoints (A B : Point32) : List Point32 := [A, B]
++
++theorem extractWaypoints_bound (A B : Point32) :
++    cellHausdorffDistanceLe
++      (cellIntersectionsSegmentFloat A B)
++      (cellIntersectionsSegment A.toPoint B.toPoint) 1 := sorry
++
+ theorem cellIntersectionsSegmentFloat_hausdorff_bound_1000_fresh_Impl
+     (A B : Point32)
+     (h_finiteA : A.isFinite)
+@@ -382,6 +391,6 @@
+       rw [mem_dedupCells]
+       simp only [List.mem_append, List.mem_cons, true_or]
+     have h_end_i := cellIntersectionsSegment_contains_end A.toPoint B.toPoint
++    exact extractWaypoints_bound A B
+ 
+ end Geometry

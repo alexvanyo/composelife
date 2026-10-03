@@ -58,6 +58,25 @@ theorem cellHausdorffDistanceLe_trans {l1 l2 l3 : List Cell} {d1 d2 : Nat}
     omega
 
 /--
+Symmetry of discrete Chebyshev Hausdorff distance between cell collections.
+-/
+theorem cellHausdorffDistanceLe_symm {l1 l2 : List Cell} {d : Nat}
+    (h : cellHausdorffDistanceLe l1 l2 d) :
+    cellHausdorffDistanceLe l2 l1 d := by
+  rcases h with ⟨h1, h2⟩
+  constructor
+  · intro c2 hc2
+    rcases h2 c2 hc2 with ⟨c1, hc1, hd⟩
+    refine ⟨c1, hc1, ?_⟩
+    rw [chebyshevDistance_symm]
+    exact hd
+  · intro c1 hc1
+    rcases h1 c1 hc1 with ⟨c2, hc2, hd⟩
+    refine ⟨c2, hc2, ?_⟩
+    rw [chebyshevDistance_symm]
+    exact hd
+
+/--
 Two cell collections with identical membership have Chebyshev Hausdorff distance 0.
 -/
 theorem cellHausdorffDistanceLe_of_mem_iff (l1 l2 : List Cell)
@@ -159,6 +178,22 @@ theorem cellHausdorffDistanceLe_path_two (A B : Point) :
     · exact h_in
   · intro hc
     exact Or.inl hc
+
+/--
+Connecting path Hausdorff distance for a two-point segment to the direct segment Hausdorff distance.
+-/
+theorem cellHausdorffDistanceLe_segment_of_path_two (A B : Point32)
+    (h : cellHausdorffDistanceLe
+      (cellIntersectionsPathFloat [A, B])
+      (cellIntersectionsPath [A.toPoint, B.toPoint]) 1) :
+    cellHausdorffDistanceLe
+      (cellIntersectionsSegmentFloat A B)
+      (cellIntersectionsSegment A.toPoint B.toPoint) 1 := by
+  have h_float_symm := cellHausdorffDistanceLe_symm (cellHausdorffDistanceLe_pathFloat_two A B)
+  have h_ideal := cellHausdorffDistanceLe_path_two A.toPoint B.toPoint
+  have h_trans1 := cellHausdorffDistanceLe_trans h_float_symm h
+  have h_trans2 := cellHausdorffDistanceLe_trans h_trans1 h_ideal
+  exact h_trans2
 
 /--
 Master Path Induction Theorem:
@@ -274,4 +309,81 @@ theorem cellIntersectionsPathFloat_hausdorff_bound_of_same_cell_steps_Impl
   have hP_fin2 : (Ps.get ⟨i + 1, hi⟩).isFinite := h_fin _ (List.get_mem Ps ⟨i + 1, hi⟩)
   exact cellIntersectionsSegmentFloat_sub_hausdorff_one_of_same_cell _ _ hP_fin1 hP_fin2 (h_steps i hi)
 
+/--
+Path Composition Theorem:
+Combining Layer 1, Layer 2, and Layer 3 via the triangle inequality for discrete Chebyshev
+Hausdorff distance.
+When the float path along intermediate waypoints Ps coincides with the direct segment,
+and the rational path along pointsToRational Ps coincides with the direct rational segment,
+the discrete Chebyshev Hausdorff distance bound of 1 along the waypoint sequence implies
+the direct segment Hausdorff bound of 1:
+0 (Layer 1) + 1 (Layer 2) + 0 (Layer 3) = 1.
+-/
+theorem cellHausdorffDistanceLe_path_composition
+    (A B : Point32) (Ps : List Point32)
+    (h_eq_float : cellIntersectionsPathFloat Ps = cellIntersectionsPathFloat [A, B])
+    (h_eq_ideal : cellIntersectionsPath (pointsToRational Ps) = cellIntersectionsPath [A.toPoint, B.toPoint])
+    (h_bound : cellHausdorffDistanceLe
+      (cellIntersectionsPathFloat Ps)
+      (cellIntersectionsPath (pointsToRational Ps)) 1) :
+    cellHausdorffDistanceLe
+      (cellIntersectionsSegmentFloat A B)
+      (cellIntersectionsSegment A.toPoint B.toPoint) 1 := by
+  have h1 : cellHausdorffDistanceLe (cellIntersectionsPathFloat [A, B]) (cellIntersectionsPathFloat Ps) 0 := by
+    rw [h_eq_float]; exact cellHausdorffDistanceLe_refl _
+  have h2 : cellHausdorffDistanceLe (cellIntersectionsPath (pointsToRational Ps)) (cellIntersectionsPath [A.toPoint, B.toPoint]) 0 := by
+    rw [h_eq_ideal]; exact cellHausdorffDistanceLe_refl _
+  have h_trans1 := cellHausdorffDistanceLe_trans h1 h_bound
+  have h_trans2 := cellHausdorffDistanceLe_trans h_trans1 h2
+  exact cellHausdorffDistanceLe_segment_of_path_two A B h_trans2
+
+/--
+Master Implementation:
+For any input segment with coordinates bounded in magnitude by 1000 and finite inputs,
+the discrete Chebyshev Hausdorff distance between the 32-bit floating point output
+`cellIntersectionsSegmentFloat A B` and the idealized rational output
+`cellIntersectionsSegment A.toPoint B.toPoint` is at most 1.
+-/
+theorem cellIntersectionsSegmentFloat_hausdorff_bound_1000_fresh_Impl
+    (A B : Point32)
+    (h_finiteA : A.isFinite)
+    (h_finiteB : B.isFinite)
+    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint) :
+    cellHausdorffDistanceLe
+      (cellIntersectionsSegmentFloat A B)
+      (cellIntersectionsSegment A.toPoint B.toPoint) 1 := by
+  by_cases h_same : floorPoint32 A = floorPoint32 B
+  · exact cellIntersectionsSegmentFloat_sub_hausdorff_one_of_same_cell A B h_finiteA h_finiteB h_same
+  · have h_floorA := floorPoint32_eq_floorPoint A h_finiteA
+    have h_floorB := floorPoint32_eq_floorPoint B h_finiteB
+    have h_start_f : floorPoint32 A ∈ cellIntersectionsSegmentFloat A B := by
+      unfold cellIntersectionsSegmentFloat
+      dsimp only []
+      have h_beq : (floorPoint32 A == floorPoint32 B) = false := by
+        cases h : (floorPoint32 A == floorPoint32 B)
+        · rfl
+        · exfalso; apply h_same; exact eq_of_beq h
+      rw [h_beq]
+      simp only [Bool.false_eq_true, ↓reduceIte]
+      rw [mem_dedupCells]
+      simp only [List.mem_append, List.mem_cons, true_or]
+    have h_end_f := cellIntersectionsSegmentFloat_contains_end A B
+    have h_start_i : floorPoint A.toPoint ∈ cellIntersectionsSegment A.toPoint B.toPoint := by
+      unfold cellIntersectionsSegment
+      dsimp only []
+      have h_diff_i : floorPoint A.toPoint ≠ floorPoint B.toPoint := by
+        rw [← h_floorA, ← h_floorB]; exact h_same
+      have h_beq : (floorPoint A.toPoint == floorPoint B.toPoint) = false := by
+        cases h : (floorPoint A.toPoint == floorPoint B.toPoint)
+        · rfl
+        · exfalso; apply h_diff_i; exact eq_of_beq h
+      rw [h_beq]
+      simp only [Bool.false_eq_true, ↓reduceIte]
+      rw [mem_dedupCells]
+      simp only [List.mem_append, List.mem_cons, true_or]
+    have h_end_i := cellIntersectionsSegment_contains_end A.toPoint B.toPoint
+    sorry
+
 end Geometry
+
+

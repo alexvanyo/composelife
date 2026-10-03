@@ -374,56 +374,6 @@ theorem rayMarch_near_rayMarchFloat_endpoints (fuel : ℕ) (start : Point32) (pt
         · exact Or.inr (Or.inr (by rw [h_eq_step]; exact hmem))
 
 
-/--
-Any pair of cells satisfying `CellStepRel` has discrete Chebyshev distance at most 1.
--/
-theorem chebyshevDistance_of_CellStepRel (stepX stepY : ℤ)
-    (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
-    (c1 c2 : Cell) (h : CellStepRel stepX stepY c1 c2) :
-    chebyshevDistance c1 c2 ≤ 1 := by
-  unfold CellStepRel chebyshevDistance at *
-  rcases h with rfl | rfl | rfl
-  · simp
-  · dsimp only []
-    have hx : (c2.x + stepX - c2.x).natAbs ≤ 1 := by
-      have : c2.x + stepX - c2.x = stepX := by ring
-      rw [this]
-      rcases hX with rfl | rfl | rfl <;> omega
-    have hy : (c2.y - stepY - c2.y).natAbs ≤ 1 := by
-      have : c2.y - stepY - c2.y = -stepY := by ring
-      rw [this]
-      rcases hY with rfl | rfl | rfl <;> omega
-    exact max_le hx hy
-  · dsimp only []
-    have hx : (c2.x - stepX - c2.x).natAbs ≤ 1 := by
-      have : c2.x - stepX - c2.x = -stepX := by ring
-      rw [this]
-      rcases hX with rfl | rfl | rfl <;> omega
-    have hy : (c2.y + stepY - c2.y).natAbs ≤ 1 := by
-      have : c2.y + stepY - c2.y = stepY := by ring
-      rw [this]
-      rcases hY with rfl | rfl | rfl <;> omega
-    exact max_le hx hy
-
-/--
-The diamond step pairing around an integer corner satisfies `CellStepRel`.
--/
-theorem cellStepRel_step_diamond (c : Cell) (stepX stepY : ℤ) :
-    CellStepRel stepX stepY ⟨c.x + stepX, c.y⟩ ⟨c.x, c.y + stepY⟩ := by
-  unfold CellStepRel
-  right; left
-  dsimp only []
-  apply cell_ext <;> ring
-
-/--
-Symmetric diamond step pairing around an integer corner satisfies `CellStepRel`.
--/
-theorem cellStepRel_step_diamond_symm (c : Cell) (stepX stepY : ℤ) :
-    CellStepRel stepX stepY ⟨c.x, c.y + stepY⟩ ⟨c.x + stepX, c.y⟩ := by
-  unfold CellStepRel
-  right; right
-  dsimp only []
-  apply cell_ext <;> ring
 
 /--
 Discrete Chebyshev distance between horizontal and vertical corner neighbors is at most 1.
@@ -467,30 +417,9 @@ theorem chebyshevDistance_diamond_diag_Y (c : Cell) (stepX stepY : ℤ)
   exact max_le hx hy
 
 /--
-Symmetry of CellStepRel.
+Discrete Chebyshev distance between diagonal corner neighbor and each candidate remains at most 1.
 -/
-theorem cellStepRel_symm (stepX stepY : ℤ) (c1 c2 : Cell) :
-    CellStepRel stepX stepY c1 c2 ↔ CellStepRel stepX stepY c2 c1 := by
-  have h_dir (a b : Cell) (h : CellStepRel stepX stepY a b) : CellStepRel stepX stepY b a := by
-    unfold CellStepRel at *
-    rcases h with rfl | h | h
-    · left; rfl
-    · right; right
-      apply cell_ext
-      · rw [h]; ring
-      · rw [h]; ring
-    · right; left
-      apply cell_ext
-      · rw [h]; ring
-      · rw [h]; ring
-  exact ⟨h_dir c1 c2, h_dir c2 c1⟩
-
-/--
-Transitivity of Chebyshev distance bound around CellStepRel:
-if c1 and c2 satisfy CellStepRel, and next1 is a candidate from c1, next2 is a candidate from c2
-taking the re-synchronizing step, their Chebyshev distance remains at most 1.
--/
-theorem chebyshevDistance_CellStepRel_step_diamond_sync (c : Cell) (stepX stepY : ℤ)
+theorem chebyshevDistance_step_diamond_sync (c : Cell) (stepX stepY : ℤ)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1) :
     chebyshevDistance ⟨c.x + stepX, c.y + stepY⟩ ⟨c.x + stepX, c.y + stepY⟩ ≤ 1 ∧
     chebyshevDistance ⟨(c.x + stepX), c.y + stepY⟩ ⟨c.x, c.y + stepY⟩ ≤ 1 ∧
@@ -1228,121 +1157,5 @@ theorem rayMarch_terminal_near_rayMarchFloat_endpoints
         refine ⟨endCell, ?_, by rw [chebyshevDistance_self]; omega⟩
         rw [mem_dedupCells]
         simp
-
-/--
-Direction 1: Full multi-step raymarching proximity under StepClassification.
-By induction on fuel using the agreement step and diamond descent lemmas.
--/
-theorem rayMarchFloat_near_rayMarch_endpoints_of_classification
-    (fuel : ℕ) (start : Point32) (ptEnd : Point)
-    (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell current : Cell)
-    (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
-    (h_class : ∀ c, StepClassification start ptEnd dx dy dxQ dyQ stepX stepY endCell c) :
-    ∀ c1 ∈ rayMarchFloat fuel start dx dy stepX stepY endCell current [],
-      ∃ c2 ∈ dedupCells ([current, endCell] ++
-        rayMarch fuel start.toPoint ptEnd dxQ dyQ stepX stepY endCell current []),
-        chebyshevDistance c1 c2 ≤ 1 := by
-  induction fuel using Nat.strong_induction_on generalizing current with
-  | _ fuel ih =>
-    intro c1 hc1
-    rcases fuel with _ | fuel
-    · cases hc1
-    rcases fuel with _ | fuel
-    · rcases rayMarchFloat_one_near_endpoints start dx dy stepX stepY endCell current hX hY c1 hc1 with ⟨c2, hc2, hd⟩
-      refine ⟨c2, ?_, hd⟩
-      rw [mem_dedupCells]
-      simp only [List.mem_cons, List.not_mem_nil, or_false] at hc2
-      rcases hc2 with rfl | rfl
-      · simp only [List.mem_append, List.mem_cons, true_or]
-      · simp only [List.mem_append, List.mem_cons, true_or, or_true]
-    · rcases (h_class current).1 with h_agree | h_d1 | h_d2 | h_termF
-      · have h_rec := ih (fuel + 1) (by omega) (rayMarchStepFloat start dx dy stepX stepY current).1
-        have h_rec' : ∀ c1 ∈ rayMarchFloat (fuel + 1) start dx dy stepX stepY endCell
-            (rayMarchStepFloat start dx dy stepX stepY current).1 [],
-          ∃ c2 ∈ dedupCells ([(rayMarchStepFloat start dx dy stepX stepY current).1, endCell] ++
-            rayMarch (fuel + 1) start.toPoint ptEnd dxQ dyQ stepX stepY endCell
-              (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY current).1 []),
-            chebyshevDistance c1 c2 ≤ 1 := by
-          intro c1 hc1_rec
-          rcases h_rec c1 hc1_rec with ⟨c2, hc2_rec, hd2⟩
-          refine ⟨c2, ?_, hd2⟩
-          rw [← h_agree.1]
-          exact hc2_rec
-        exact rayMarchFloat_step_agree_near_rayMarch_endpoints (fuel + 1) start ptEnd dx dy dxQ dyQ stepX stepY
-          endCell current hX hY h_agree.1 h_agree.2 h_rec' c1 hc1
-      · rcases h_d1 with ⟨h_not_end, h_not_endF1, h_not_endI1,
-                         h_stepF1, h_not_doneF1, h_stepI1, h_not_doneI1,
-                         h_stepF2, h_not_doneF2, h_stepI2, h_not_doneI2⟩
-        have h_rec := ih fuel (by omega) ⟨current.x + stepX, current.y + stepY⟩
-        exact rayMarchFloat_diamond_near_rayMarch_endpoints fuel start ptEnd dx dy dxQ dyQ stepX stepY
-          endCell current hX hY h_not_end h_not_doneF1 h_stepF1 h_not_endF1 h_not_doneF2 h_stepF2
-          h_not_doneI1 h_stepI1 h_not_endI1 h_not_doneI2 h_stepI2 h_rec c1 hc1
-      · rcases h_d2 with ⟨h_not_end, h_not_endF1, h_not_endI1,
-                         h_stepF1, h_not_doneF1, h_stepI1, h_not_doneI1,
-                         h_stepF2, h_not_doneF2, h_stepI2, h_not_doneI2⟩
-        have h_rec := ih fuel (by omega) ⟨current.x + stepX, current.y + stepY⟩
-        exact rayMarchFloat_diamond_symm_near_rayMarch_endpoints fuel start ptEnd dx dy dxQ dyQ stepX stepY
-          endCell current hX hY h_not_end h_not_doneF1 h_stepF1 h_not_endF1 h_not_doneF2 h_stepF2
-          h_not_doneI1 h_stepI1 h_not_endI1 h_not_doneI2 h_stepI2 h_rec c1 hc1
-      · exact rayMarchFloat_terminal_near_rayMarch_endpoints (fuel + 2) start ptEnd dx dy dxQ dyQ stepX stepY
-          endCell current h_termF c1 hc1
-
-/--
-Direction 2: Full multi-step rational raymarching proximity under StepClassification.
-By induction on fuel using the agreement step and diamond descent lemmas.
--/
-theorem rayMarch_near_rayMarchFloat_endpoints_of_classification
-    (fuel : ℕ) (start : Point32) (ptEnd : Point)
-    (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell current : Cell)
-    (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
-    (h_class : ∀ c, StepClassification start ptEnd dx dy dxQ dyQ stepX stepY endCell c) :
-    ∀ c2 ∈ rayMarch fuel start.toPoint ptEnd dxQ dyQ stepX stepY endCell current [],
-      ∃ c1 ∈ dedupCells ([current, endCell] ++
-        rayMarchFloat fuel start dx dy stepX stepY endCell current []),
-        chebyshevDistance c1 c2 ≤ 1 := by
-  induction fuel using Nat.strong_induction_on generalizing current with
-  | _ fuel ih =>
-    intro c2 hc2
-    rcases fuel with _ | fuel
-    · cases hc2
-    rcases fuel with _ | fuel
-    · rcases rayMarch_one_near_endpoints start.toPoint ptEnd dxQ dyQ stepX stepY endCell current hX hY c2 hc2 with ⟨c1, hc1, hd⟩
-      refine ⟨c1, ?_, hd⟩
-      rw [mem_dedupCells]
-      simp only [List.mem_cons, List.not_mem_nil, or_false] at hc1
-      rcases hc1 with rfl | rfl
-      · simp only [List.mem_append, List.mem_cons, true_or]
-      · simp only [List.mem_append, List.mem_cons, true_or, or_true]
-    · rcases (h_class current).2 with h_agree | h_d1 | h_d2 | h_termI
-      · have h_rec := ih (fuel + 1) (by omega) (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY current).1
-        have h_rec' : ∀ c2 ∈ rayMarch (fuel + 1) start.toPoint ptEnd dxQ dyQ stepX stepY endCell
-            (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY current).1 [],
-          ∃ c1 ∈ dedupCells ([(rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY current).1, endCell] ++
-            rayMarchFloat (fuel + 1) start dx dy stepX stepY endCell
-              (rayMarchStepFloat start dx dy stepX stepY current).1 []),
-            chebyshevDistance c1 c2 ≤ 1 := by
-          intro c2 hc2_rec
-          rcases h_rec c2 hc2_rec with ⟨c1, hc1_rec, hd1⟩
-          refine ⟨c1, ?_, hd1⟩
-          rw [h_agree.1]
-          exact hc1_rec
-        exact rayMarch_step_agree_near_rayMarchFloat_endpoints (fuel + 1) start ptEnd dx dy dxQ dyQ stepX stepY
-          endCell current hX hY h_agree.1 h_agree.2 h_rec' c2 hc2
-      · rcases h_d1 with ⟨h_not_end, h_not_endF1, h_not_endI1,
-                         h_stepF1, h_not_doneF1, h_stepI1, h_not_doneI1,
-                         h_stepF2, h_not_doneF2, h_stepI2, h_not_doneI2⟩
-        have h_rec := ih fuel (by omega) ⟨current.x + stepX, current.y + stepY⟩
-        exact rayMarch_diamond_near_rayMarchFloat_endpoints fuel start ptEnd dx dy dxQ dyQ stepX stepY
-          endCell current hX hY h_not_end h_not_doneF1 h_stepF1 h_not_endF1 h_not_doneF2 h_stepF2
-          h_not_doneI1 h_stepI1 h_not_endI1 h_not_doneI2 h_stepI2 h_rec c2 hc2
-      · rcases h_d2 with ⟨h_not_end, h_not_endF1, h_not_endI1,
-                         h_stepF1, h_not_doneF1, h_stepI1, h_not_doneI1,
-                         h_stepF2, h_not_doneF2, h_stepI2, h_not_doneI2⟩
-        have h_rec := ih fuel (by omega) ⟨current.x + stepX, current.y + stepY⟩
-        exact rayMarch_diamond_symm_near_rayMarchFloat_endpoints fuel start ptEnd dx dy dxQ dyQ stepX stepY
-          endCell current hX hY h_not_end h_not_doneF1 h_stepF1 h_not_endF1 h_not_doneF2 h_stepF2
-          h_not_doneI1 h_stepI1 h_not_endI1 h_not_doneI2 h_stepI2 h_rec c2 hc2
-      · exact rayMarch_terminal_near_rayMarchFloat_endpoints (fuel + 2) start ptEnd dx dy dxQ dyQ stepX stepY
-          endCell current h_termI c2 hc2
 
 end Geometry

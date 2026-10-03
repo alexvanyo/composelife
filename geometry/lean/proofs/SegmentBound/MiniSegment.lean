@@ -148,4 +148,27 @@ theorem cellIntersectionsSegmentFloat_sub_hausdorff_one_of_same_cell
     rcases h2 c hc with ⟨c', hc', hd⟩
     exact ⟨c', hc', by omega⟩
 
+/--
+Mini-segment agreement at waypoints:
+When two points reside in the same cell, the float and rational outputs agree identically.
+-/
+theorem cellIntersectionsSegment_float_eq_rational_at_waypoints
+    (Pi Pi1 : Point32) (h_finPi : Pi.isFinite) (h_finPi1 : Pi1.isFinite)
+    (h_same : floorPoint32 Pi = floorPoint32 Pi1) :
+    cellIntersectionsSegmentFloat Pi Pi1 =
+    cellIntersectionsSegment Pi.toPoint Pi1.toPoint :=
+  cellIntersectionsSegmentFloat_eq_ideal_of_same_cell Pi Pi1 h_finPi h_finPi1 h_same
+
+/--
+Mini-segment discrete Hausdorff bound:
+When two points reside in the same cell, their discrete Chebyshev Hausdorff distance is at most 1.
+-/
+theorem cellIntersectionsSegmentFloat_sub_hausdorff_one_at_waypoints
+    (Pi Pi1 : Point32) (h_finPi : Pi.isFinite) (h_finPi1 : Pi1.isFinite)
+    (h_same : floorPoint32 Pi = floorPoint32 Pi1) :
+    cellHausdorffDistanceLe
+      (cellIntersectionsSegmentFloat Pi Pi1)
+      (cellIntersectionsSegment Pi.toPoint Pi1.toPoint) 1 :=
+  cellIntersectionsSegmentFloat_sub_hausdorff_one_of_same_cell Pi Pi1 h_finPi h_finPi1 h_same
+
 end Geometry
