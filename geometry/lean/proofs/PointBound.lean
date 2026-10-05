@@ -95,7 +95,7 @@ theorem float_interpolation_error_lt_one (M : ℚ) (hM : M ≤ mainCoordBound) (
   have h_bound : (1 / (2^24 : ℚ)) * 2 * M ≤ (1 / 16777216 : ℚ) * 2 * mainCoordBound := by
     nlinarith
   have h_num : ((1 / 16777216 : ℚ) * 2 * mainCoordBound) < 1 := by
-    unfold mainCoordBound
+    unfold mainCoordBound mainCoordBoundNat
     norm_num
   exact lt_of_le_of_lt h_bound h_num
 

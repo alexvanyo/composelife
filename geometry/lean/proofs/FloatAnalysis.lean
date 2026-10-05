@@ -136,16 +136,31 @@ theorem binary32_zero_toRat : binary32ToRat (0.0 : Binary32) = 0 := by
   exact_mod_cast h_real.symm
 
 /--
-2000 is well within the positive finite representable range of IEEE-754 formats of sufficient width.
+Any positive integer N bounded by the unscaled significand capacity is well within the
+positive finite representable range of IEEE-754 formats of sufficient width.
 -/
-theorem two_thousand_le_posMaxFinite (fmt : FloatFormat)
-    (hm : 2000 ≤ Model.pow2 fmt.fracWidth + fmt.maxFiniteFracField)
+theorem nat_le_posMaxFinite (fmt : FloatFormat) (N : ℕ) (hN : 0 < N)
+    (hm : N ≤ Model.pow2 fmt.fracWidth + fmt.maxFiniteFracField)
     (hexp : 0 ≤ fmt.maxNormalExponent - Int.ofNat fmt.fracWidth) :
-    (2000 : ℝ) ≤ Model.toReal (Model.posMaxFinite fmt) := by
-  have h := Model.abs_signed_mul_bpow_le_toReal_posMaxFinite fmt false 2000 0 hm hexp
+    (N : ℝ) ≤ Model.toReal (Model.posMaxFinite fmt) := by
+  have h := Model.abs_signed_mul_bpow_le_toReal_posMaxFinite fmt false N 0 hm hexp
   simp only [Bool.false_eq_true, ite_false, one_mul, Model.bpow_zero, mul_one] at h
-  rw [abs_of_pos (by norm_num)] at h
+  rw [abs_of_pos (by positivity)] at h
   exact h
+
+/--
+maxCoordDelta is well within the positive finite representable range of IEEE-754 formats of sufficient width.
+-/
+theorem maxCoordDelta_le_posMaxFinite (fmt : FloatFormat)
+    (hm : maxCoordDeltaNat ≤ Model.pow2 fmt.fracWidth + fmt.maxFiniteFracField)
+    (hexp : 0 ≤ fmt.maxNormalExponent - Int.ofNat fmt.fracWidth) :
+    (maxCoordDelta : ℝ) ≤ Model.toReal (Model.posMaxFinite fmt) := by
+  have h_eq : (maxCoordDelta : ℝ) = ((maxCoordDeltaNat : ℕ) : ℝ) := by
+    unfold maxCoordDelta
+    push_cast
+    rfl
+  rw [h_eq]
+  exact nat_le_posMaxFinite fmt maxCoordDeltaNat (by decide) hm hexp
 
 /--
 Subtraction of two bounded finite Binary32 values does not overflow and remains finite.
@@ -157,19 +172,16 @@ theorem binary32_sub_isFinite (a b : Binary32)
   unfold binary32IsFinite ExecFloat.Binary.isFinite
   rw [toModel_sub]
   apply Model.isFinite_sub_of_abs_add_le_posMaxFinite (ExecFloat.Binary.toModel b) (ExecFloat.Binary.toModel a) (by rfl) hb ha
-  have h_le : |Model.toReal (ExecFloat.Binary.toModel b)| + |Model.toReal (ExecFloat.Binary.toModel a)| ≤ (2000 : ℝ) := by
+  have h_le : |Model.toReal (ExecFloat.Binary.toModel b)| + |Model.toReal (ExecFloat.Binary.toModel a)| ≤
+      (maxCoordDelta : ℝ) := by
     rw [toReal_eq_cast_toRat b hb, toReal_eq_cast_toRat a ha]
-    have h1 : |((binary32ToRat b : ℚ) : ℝ)| ≤ (1000 : ℝ) := by
-      rw [← Rat.cast_abs]
-      have : |binary32ToRat b| ≤ (1000 : ℚ) := hbound_b
-      exact_mod_cast this
-    have h2 : |((binary32ToRat a : ℚ) : ℝ)| ≤ (1000 : ℝ) := by
-      rw [← Rat.cast_abs]
-      have : |binary32ToRat a| ≤ (1000 : ℚ) := hbound_a
-      exact_mod_cast this
+    have h1 : |((binary32ToRat b : ℚ) : ℝ)| ≤ (mainCoordBound : ℝ) := by exact_mod_cast hbound_b
+    have h2 : |((binary32ToRat a : ℚ) : ℝ)| ≤ (mainCoordBound : ℝ) := by exact_mod_cast hbound_a
+    have : (maxCoordDelta : ℝ) = 2 * (mainCoordBound : ℝ) := by
+      unfold maxCoordDelta maxCoordDeltaNat mainCoordBound mainCoordBoundNat; push_cast; norm_num
     linarith
   apply le_trans h_le
-  apply two_thousand_le_posMaxFinite _ (by decide) (by decide)
+  apply maxCoordDelta_le_posMaxFinite _ (by decide) (by decide)
 
 /--
 Decoded real value of Binary32 subtraction is exact real difference rounded once.
@@ -498,9 +510,10 @@ theorem widen32To64_toReal_eq (x : Binary32) (hx : binary32IsFinite x = true) :
         (Model.toReal_genericFormat_of_isFinite (ExecFloat.Binary.toModel x) hx))
 
 /--
-Converting an integer with magnitude at most 1001 to Binary32 via intToBinary32 preserves its exact real value.
+Converting an integer with magnitude bounded by mainCoordBound.floor + 2 to Binary32 via intToBinary32
+preserves its exact real value.
 -/
-theorem intToBinary32_toReal_eq (n : Int) (hn : |n| ≤ 1001) :
+theorem intToBinary32_toReal_eq (n : Int) (hn : |n| ≤ (mainCoordBoundNat : ℤ) + 2) :
     Model.toReal (ExecFloat.Binary.toModel (intToBinary32 n)) = (n : ℝ) := by
   have h_toModel : ExecFloat.Binary.toModel (intToBinary32 n) =
       Model.roundDyadic FloatFormat.binary32 (Dyadic.ofScaledInt n 0) :=
@@ -509,21 +522,23 @@ theorem intToBinary32_toReal_eq (n : Int) (hn : |n| ≤ 1001) :
     (Dyadic.ofScaledInt n 0) n.natAbs 0
     (by simp [Dyadic.ofScaledInt])
     (by
-      have h1 : -1001 ≤ n ∧ n ≤ 1001 := abs_le.mp hn
-      have h2 : n.natAbs ≤ 1001 := by omega
-      change n.natAbs < 2 ^ 24
-      omega)
+      have h1 : -((mainCoordBoundNat : ℤ) + 2) ≤ n ∧ n ≤ (mainCoordBoundNat : ℤ) + 2 := abs_le.mp hn
+      have h2 : n.natAbs ≤ mainCoordBoundNat + 2 := by omega
+      have h_bound : mainCoordBoundNat + 2 < 2 ^ 24 := by decide
+      exact Nat.lt_of_le_of_lt h2 h_bound)
     (by
       simp only [Dyadic.ofScaledInt]
       decide)
     (by
       rw [Model.Dyadic.toReal_ofScaledInt_zero]
-      have h_le : |(n : ℝ)| ≤ (1001 : ℝ) := by
+      have h_le : |(n : ℝ)| ≤ (((mainCoordBoundNat : ℤ) + 2 : ℤ) : ℝ) := by
         rw [← Int.cast_abs]
         exact_mod_cast hn
-      have h2000 : (1001 : ℝ) ≤ (2000 : ℝ) := by norm_num
-      apply le_trans (le_trans h_le h2000)
-      apply two_thousand_le_posMaxFinite _ (by decide) (by decide))
+      have h_le_delta : (((mainCoordBoundNat : ℤ) + 2 : ℤ) : ℝ) ≤ (maxCoordDelta : ℝ) := by
+        unfold maxCoordDelta maxCoordDeltaNat mainCoordBoundNat
+        norm_num
+      apply le_trans (le_trans h_le h_le_delta)
+      apply maxCoordDelta_le_posMaxFinite _ (by decide) (by decide))
   calc
     Model.toReal (ExecFloat.Binary.toModel (intToBinary32 n)) =
         Model.toReal (Model.roundDyadic FloatFormat.binary32 (Dyadic.ofScaledInt n 0)) :=
@@ -531,37 +546,11 @@ theorem intToBinary32_toReal_eq (n : Int) (hn : |n| ≤ 1001) :
     _ = (Dyadic.ofScaledInt n 0).toReal := hrepr.2
     _ = (n : ℝ) := Model.Dyadic.toReal_ofScaledInt_zero n
 
-theorem intToBinary32_toReal_eq_2000 (n : Int) (hn : |n| ≤ 2000) :
-    Model.toReal (ExecFloat.Binary.toModel (intToBinary32 n)) = (n : ℝ) := by
-  have h_toModel : ExecFloat.Binary.toModel (intToBinary32 n) =
-      Model.roundDyadic FloatFormat.binary32 (Dyadic.ofScaledInt n 0) :=
-    ExecFloat.Binary.toModel_ofFloat32_ofInt n
-  have hrepr := Model.roundDyadic_of_representable FloatFormat.binary32 (by rfl)
-    (Dyadic.ofScaledInt n 0) n.natAbs 0
-    (by simp [Dyadic.ofScaledInt])
-    (by
-      have h1 : -2000 ≤ n ∧ n ≤ 2000 := abs_le.mp hn
-      have h2 : n.natAbs ≤ 2000 := by omega
-      change n.natAbs < 2 ^ 24
-      omega)
-    (by
-      simp only [Dyadic.ofScaledInt]
-      decide)
-    (by
-      rw [Model.Dyadic.toReal_ofScaledInt_zero]
-      have h_le : |(n : ℝ)| ≤ (2000 : ℝ) := by
-        rw [← Int.cast_abs]
-        exact_mod_cast hn
-      apply le_trans h_le
-      apply two_thousand_le_posMaxFinite _ (by decide) (by decide))
-  calc
-    Model.toReal (ExecFloat.Binary.toModel (intToBinary32 n)) =
-        Model.toReal (Model.roundDyadic FloatFormat.binary32 (Dyadic.ofScaledInt n 0)) :=
-      congrArg Model.toReal h_toModel
-    _ = (Dyadic.ofScaledInt n 0).toReal := hrepr.2
-    _ = (n : ℝ) := Model.Dyadic.toReal_ofScaledInt_zero n
-
-theorem intToBinary32_isFinite_2000 (n : Int) (hn : |n| ≤ 2000) :
+/--
+Converting an integer with magnitude bounded by mainCoordBound.floor + 2 to Binary32 via intToBinary32
+yields a finite float.
+-/
+theorem intToBinary32_isFinite (n : Int) (hn : |n| ≤ (mainCoordBoundNat : ℤ) + 2) :
     ExecFloat.Binary.isFinite (intToBinary32 n) = true := by
   have h_toModel : ExecFloat.Binary.toModel (intToBinary32 n) =
       Model.roundDyadic FloatFormat.binary32 (Dyadic.ofScaledInt n 0) :=
@@ -570,20 +559,23 @@ theorem intToBinary32_isFinite_2000 (n : Int) (hn : |n| ≤ 2000) :
     (Dyadic.ofScaledInt n 0) n.natAbs 0
     (by simp [Dyadic.ofScaledInt])
     (by
-      have h1 : -2000 ≤ n ∧ n ≤ 2000 := abs_le.mp hn
-      have h2 : n.natAbs ≤ 2000 := by omega
-      change n.natAbs < 2 ^ 24
-      omega)
+      have h1 : -((mainCoordBoundNat : ℤ) + 2) ≤ n ∧ n ≤ (mainCoordBoundNat : ℤ) + 2 := abs_le.mp hn
+      have h2 : n.natAbs ≤ mainCoordBoundNat + 2 := by omega
+      have h_bound : mainCoordBoundNat + 2 < 2 ^ 24 := by decide
+      exact Nat.lt_of_le_of_lt h2 h_bound)
     (by
       simp only [Dyadic.ofScaledInt]
       decide)
     (by
       rw [Model.Dyadic.toReal_ofScaledInt_zero]
-      have h_le : |(n : ℝ)| ≤ (2000 : ℝ) := by
+      have h_le : |(n : ℝ)| ≤ (((mainCoordBoundNat : ℤ) + 2 : ℤ) : ℝ) := by
         rw [← Int.cast_abs]
         exact_mod_cast hn
-      apply le_trans h_le
-      apply two_thousand_le_posMaxFinite _ (by decide) (by decide))
+      have h_le_delta : (((mainCoordBoundNat : ℤ) + 2 : ℤ) : ℝ) ≤ (maxCoordDelta : ℝ) := by
+        unfold maxCoordDelta maxCoordDeltaNat mainCoordBoundNat
+        norm_num
+      apply le_trans (le_trans h_le h_le_delta)
+      apply maxCoordDelta_le_posMaxFinite _ (by decide) (by decide))
   change Model.isFinite (ExecFloat.Binary.toModel (intToBinary32 n)) = true
   rw [h_toModel]
   exact hrepr.1
