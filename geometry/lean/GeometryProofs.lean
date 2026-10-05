@@ -26,7 +26,7 @@ import proofs.FloatSemantics
 import proofs.FloatBounds
 import proofs.FloatAnalysis
 import proofs.FloatProperties
-import proofs.SegmentBound
+import proofs.Hausdorff
 
 namespace Geometry
 

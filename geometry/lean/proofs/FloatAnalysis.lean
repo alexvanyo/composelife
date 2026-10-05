@@ -16,6 +16,7 @@
 
 import Geometry.Basic
 import Geometry.FloatModel
+import GeometryDefs
 import proofs.FloatSemantics
 import proofs.FloatBounds
 import Geometry.LineSegment
@@ -151,7 +152,7 @@ Subtraction of two bounded finite Binary32 values does not overflow and remains 
 -/
 theorem binary32_sub_isFinite (a b : Binary32)
     (ha : binary32IsFinite a = true) (hb : binary32IsFinite b = true)
-    (hbound_a : |binary32ToRat a| ≤ 1000) (hbound_b : |binary32ToRat b| ≤ 1000) :
+    (hbound_a : |binary32ToRat a| ≤ mainCoordBound) (hbound_b : |binary32ToRat b| ≤ mainCoordBound) :
     binary32IsFinite (b - a) = true := by
   unfold binary32IsFinite ExecFloat.Binary.isFinite
   rw [toModel_sub]
@@ -160,10 +161,12 @@ theorem binary32_sub_isFinite (a b : Binary32)
     rw [toReal_eq_cast_toRat b hb, toReal_eq_cast_toRat a ha]
     have h1 : |((binary32ToRat b : ℚ) : ℝ)| ≤ (1000 : ℝ) := by
       rw [← Rat.cast_abs]
-      exact_mod_cast hbound_b
+      have : |binary32ToRat b| ≤ (1000 : ℚ) := hbound_b
+      exact_mod_cast this
     have h2 : |((binary32ToRat a : ℚ) : ℝ)| ≤ (1000 : ℝ) := by
       rw [← Rat.cast_abs]
-      exact_mod_cast hbound_a
+      have : |binary32ToRat a| ≤ (1000 : ℚ) := hbound_a
+      exact_mod_cast this
     linarith
   apply le_trans h_le
   apply two_thousand_le_posMaxFinite _ (by decide) (by decide)
@@ -173,7 +176,7 @@ Decoded real value of Binary32 subtraction is exact real difference rounded once
 -/
 theorem toReal_sub_eq_roundAt (a b : Binary32)
     (ha : binary32IsFinite a = true) (hb : binary32IsFinite b = true)
-    (hbound_a : |binary32ToRat a| ≤ 1000) (hbound_b : |binary32ToRat b| ≤ 1000) :
+    (hbound_a : |binary32ToRat a| ≤ mainCoordBound) (hbound_b : |binary32ToRat b| ≤ mainCoordBound) :
     Model.toReal (ExecFloat.Binary.toModel (b - a)) =
       Model.roundAt FloatFormat.binary32 (Model.toReal (ExecFloat.Binary.toModel b) - Model.toReal (ExecFloat.Binary.toModel a)) := by
   rw [toModel_sub]
@@ -287,7 +290,7 @@ The sign of Binary32 subtraction matches the sign of exact rational subtraction.
 -/
 theorem binary32_sub_sign_eq (a b : Binary32)
     (ha : binary32IsFinite a = true) (hb : binary32IsFinite b = true)
-    (hbound_a : |binary32ToRat a| ≤ 1000) (hbound_b : |binary32ToRat b| ≤ 1000) :
+    (hbound_a : |binary32ToRat a| ≤ mainCoordBound) (hbound_b : |binary32ToRat b| ≤ mainCoordBound) :
     (if b - a > 0.0 then 1 else if b - a < 0.0 then -1 else 0 : ℤ) =
     (if binary32ToRat b - binary32ToRat a > 0 then 1 else if binary32ToRat b - binary32ToRat a < 0 then -1 else 0 : ℤ) := by
   have hsub_fin : binary32IsFinite (b - a) = true := binary32_sub_isFinite a b ha hb hbound_a hbound_b
@@ -370,7 +373,7 @@ Step X sign agreement: The floating-point step direction along X matches the rat
 -/
 theorem step_signs_agree_X (A B : Point32)
     (h_finiteA : A.isFinite) (h_finiteB : B.isFinite)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint) :
+    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint) :
     (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) =
     (if B.toPoint.x - A.toPoint.x > 0 then 1 else if B.toPoint.x - A.toPoint.x < 0 then -1 else 0) := by
   rcases h_bound with ⟨hAx, _, hBx, _⟩
@@ -381,7 +384,7 @@ Step Y sign agreement: The floating-point step direction along Y matches the rat
 -/
 theorem step_signs_agree_Y (A B : Point32)
     (h_finiteA : A.isFinite) (h_finiteB : B.isFinite)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint) :
+    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint) :
     (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) =
     (if B.toPoint.y - A.toPoint.y > 0 then 1 else if B.toPoint.y - A.toPoint.y < 0 then -1 else 0) := by
   rcases h_bound with ⟨_, hAy, _, hBy⟩

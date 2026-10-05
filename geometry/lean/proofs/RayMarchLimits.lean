@@ -16,6 +16,7 @@
 
 import Geometry.Basic
 import Geometry.FloatModel
+import GeometryDefs
 import proofs.FloatAnalysis
 import proofs.FloatProperties
 import FloatLib.Floats.Formats.BinaryInterchange.Configured.Instances
@@ -244,7 +245,7 @@ theorem binary64_min_of_gt (x y : Binary64) (h : y < x) : min x y = y := by
     simp [Model.minimum, hchoose, h_gt]
   rwa [← ExecFloat.Binary.toModel_inj]
 
-theorem test_not_stepX_of_crossX_ge
+theorem not_stepX_of_crossX_ge
     (crossX crossY limitCross : Binary64)
     (h_ge : crossX ≥ limitCross)
     (h_not_done : ¬ (min crossX crossY ≥ limitCross))
@@ -254,7 +255,7 @@ theorem test_not_stepX_of_crossX_ge
   rw [h_min] at h_not_done
   exact h_not_done h_ge
 
-theorem test_not_stepY_of_crossY_ge
+theorem not_stepY_of_crossY_ge
     (crossX crossY limitCross : Binary64)
     (h_ge : crossY ≥ limitCross)
     (h_not_done : ¬ (min crossX crossY ≥ limitCross))
@@ -264,7 +265,7 @@ theorem test_not_stepY_of_crossY_ge
   rw [h_min] at h_not_done
   exact h_not_done h_ge
 
-theorem step_at_ge_limitCross_clean
+theorem step_at_ge_limitCross_X_of_ne
     (start : Point32) (dx dy : Binary32) (stepX stepY : ℤ) (c : Cell)
     (hx0 : (stepX == 0) = false) (hy0 : (stepY == 0) = false) :
     let currentX := if stepX > 0 then c.x + 1 else c.x
@@ -299,13 +300,13 @@ theorem step_at_ge_limitCross_clean
   split_ifs with h_done h_x h_y
   · left; rfl
   · exfalso
-    exact test_not_stepX_of_crossX_ge crossX crossY limitCross h_ge h_done h_x
+    exact not_stepX_of_crossX_ge crossX crossY limitCross h_ge h_done h_x
   · right; rfl
   · rcases h_cases with hx' | hy'
     · exfalso; exact h_x hx'
     · exfalso; exact h_y hy'
 
-theorem step_at_ge_limitCross_clean_Y
+theorem step_at_ge_limitCross_Y_of_ne
     (start : Point32) (dx dy : Binary32) (stepX stepY : ℤ) (c : Cell)
     (hx0 : (stepX == 0) = false) (hy0 : (stepY == 0) = false) :
     let currentX := if stepX > 0 then c.x + 1 else c.x
@@ -341,7 +342,7 @@ theorem step_at_ge_limitCross_clean_Y
   · left; rfl
   · right; rfl
   · exfalso
-    exact test_not_stepY_of_crossY_ge crossX crossY limitCross h_ge h_done h_y
+    exact not_stepY_of_crossY_ge crossX crossY limitCross h_ge h_done h_y
   · rcases h_cases with hx' | hy'
     · exfalso; exact h_x hx'
     · exfalso; exact h_y hy'
@@ -367,8 +368,8 @@ theorem step_done_of_both_ge
     crossX < crossY ∨ crossY < crossX →
     (rayMarchStepFloat start dx dy stepX stepY c).2 = true := by
   intro currentX currentY xb yb startX startY absDx absDy remX remY crossX crossY limitCross hx_ge hy_ge h_cases
-  have h1 := step_at_ge_limitCross_clean start dx dy stepX stepY c hx0 hy0 hx_ge h_cases
-  have h2 := step_at_ge_limitCross_clean_Y start dx dy stepX stepY c hx0 hy0 hy_ge h_cases
+  have h1 := step_at_ge_limitCross_X_of_ne start dx dy stepX stepY c hx0 hy0 hx_ge h_cases
+  have h2 := step_at_ge_limitCross_Y_of_ne start dx dy stepX stepY c hx0 hy0 hy_ge h_cases
   rcases h1 with h1_done | h1_step
   · exact h1_done
   · rcases h2 with h2_done | h2_step
@@ -414,7 +415,7 @@ theorem rayMarchStepFloat_he1_h_step
       crossX < crossY ∨ crossY < crossX) :
     (rayMarchStepFloat start dx dy stepX stepY startCell).2 = true ∨
     (rayMarchStepFloat start dx dy stepX stepY startCell).1 = endCell := by
-  have h := step_at_ge_limitCross_clean_Y start dx dy stepX stepY startCell hx0 hy0 hy_ge h_cases
+  have h := step_at_ge_limitCross_Y_of_ne start dx dy stepX stepY startCell hx0 hy0 hy_ge h_cases
   rw [he1]
   exact h
 
@@ -448,7 +449,7 @@ theorem rayMarchStepFloat_he2_h_step
       crossX < crossY ∨ crossY < crossX) :
     (rayMarchStepFloat start dx dy stepX stepY startCell).2 = true ∨
     (rayMarchStepFloat start dx dy stepX stepY startCell).1 = endCell := by
-  have h := step_at_ge_limitCross_clean start dx dy stepX stepY startCell hx0 hy0 hx_ge h_cases
+  have h := step_at_ge_limitCross_X_of_ne start dx dy stepX stepY startCell hx0 hy0 hx_ge h_cases
   rw [he2]
   exact h
 
@@ -484,7 +485,7 @@ theorem rayMarchStepFloat_case8_hs2_done
     (rayMarchStepFloat A dx dy stepX stepY ⟨startCell.x + 2 * stepX, startCell.y⟩).1 =
       ⟨startCell.x + 2 * stepX, startCell.y + stepY⟩ := by
   right
-  exact step_at_ge_limitCross_clean A dx dy stepX stepY ⟨startCell.x + 2 * stepX, startCell.y⟩ hx0 hy0 h_crossX h_cases
+  exact step_at_ge_limitCross_X_of_ne A dx dy stepX stepY ⟨startCell.x + 2 * stepX, startCell.y⟩ hx0 hy0 h_crossX h_cases
 
 theorem rayMarchStepFloat_case8_hs3_done
     (A : Point32) (dx dy : Binary32) (stepX stepY : ℤ) (startCell : Cell)
@@ -600,7 +601,7 @@ theorem rayMarchStepFloat_case10_hs2_done
     (rayMarchStepFloat A dx dy stepX stepY ⟨startCell.x, startCell.y + 2 * stepY⟩).1 =
       ⟨startCell.x + stepX, startCell.y + 2 * stepY⟩ := by
   right
-  exact step_at_ge_limitCross_clean_Y A dx dy stepX stepY ⟨startCell.x, startCell.y + 2 * stepY⟩ hx0 hy0 hy_ge h_cases
+  exact step_at_ge_limitCross_Y_of_ne A dx dy stepX stepY ⟨startCell.x, startCell.y + 2 * stepY⟩ hx0 hy0 hy_ge h_cases
 
 theorem rayMarchStepFloat_case10_hs3_done
     (A : Point32) (dx dy : Binary32) (stepX stepY : ℤ) (startCell : Cell)
@@ -733,7 +734,7 @@ theorem cross_ge_limitCross_of_rem_ge_bounded_loc
 
 theorem real_rem_ge_absD_upper
     (A B : Point32) (_h_finA : A.isFinite) (h_finB : B.isFinite)
-    (_h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (_h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (targetX : ℤ) (endCell : Cell) (h_cell_B : floorPoint32 B = endCell)
     (h_ge : targetX ≥ endCell.x + 1) :
     let xb : Binary64 := widen32To64 (intToBinary32 targetX)
@@ -778,7 +779,7 @@ theorem real_rem_ge_absD_upper
 
 theorem real_rem_ge_absD_lower
     (A B : Point32) (_h_finA : A.isFinite) (h_finB : B.isFinite)
-    (_h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (_h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (targetX : ℤ) (endCell : Cell) (h_cell_B : floorPoint32 B = endCell)
     (h_le : targetX ≤ endCell.x) :
     let xb : Binary64 := widen32To64 (intToBinary32 targetX)
@@ -857,7 +858,7 @@ theorem step_at_ge_limitCross_general
   split_ifs with h_done h_x h_y
   · left; rfl
   · exfalso
-    exact test_not_stepX_of_crossX_ge crossX crossY limitCross h_ge h_done h_x
+    exact not_stepX_of_crossX_ge crossX crossY limitCross h_ge h_done h_x
   · right; left; rfl
   · right; right; rfl
 
@@ -901,7 +902,7 @@ theorem step_at_ge_limitCross_general_Y
   · left; rfl
   · right; left; rfl
   · exfalso
-    exact test_not_stepY_of_crossY_ge crossX crossY limitCross h_ge h_done h_y
+    exact not_stepY_of_crossY_ge crossX crossY limitCross h_ge h_done h_y
   · right; right; rfl
 
 theorem binary64_min_isFinite_and_toReal_eq_left_of_not_lt (x y : Binary64)
@@ -1059,7 +1060,7 @@ theorem abs_sub_toReal_ge_bpow_neg149_of_ne (x y : Binary32)
 
 theorem abs_toReal_sub_binary32_rel (a b : Binary32)
     (ha : binary32IsFinite a = true) (hb : binary32IsFinite b = true)
-    (ha_le : |binary32ToRat a| ≤ 1000) (hb_le : |binary32ToRat b| ≤ 1000) :
+    (ha_le : |binary32ToRat a| ≤ mainCoordBound) (hb_le : |binary32ToRat b| ≤ mainCoordBound) :
     |Model.toReal (ExecFloat.Binary.toModel (b - a)) -
       (Model.toReal (ExecFloat.Binary.toModel b) - Model.toReal (ExecFloat.Binary.toModel a))| ≤
     (1 / 16777216 : ℝ) * |Model.toReal (ExecFloat.Binary.toModel b) - Model.toReal (ExecFloat.Binary.toModel a)| := by
@@ -1207,7 +1208,7 @@ theorem widen32To64_isFinite (x : Binary32) (hx : binary32IsFinite x = true) :
 
 theorem abs_toReal_absD_binary64_rel (a b : Binary32)
     (ha : binary32IsFinite a = true) (hb : binary32IsFinite b = true)
-    (ha_le : |binary32ToRat a| ≤ 1000) (hb_le : |binary32ToRat b| ≤ 1000) :
+    (ha_le : |binary32ToRat a| ≤ mainCoordBound) (hb_le : |binary32ToRat b| ≤ mainCoordBound) :
     let absD := ExecFloat.Binary.abs (widen32To64 (b - a))
     let d_I := |((binary32ToRat b - binary32ToRat a : ℚ) : ℝ)|
     ExecFloat.Binary.isFinite absD = true ∧
@@ -1256,7 +1257,7 @@ theorem abs_toReal_absD_binary64_rel (a b : Binary32)
 
 theorem abs_toReal_rem_binary64_rel (a : Binary32) (k : ℤ)
     (ha : binary32IsFinite a = true)
-    (ha_le : |binary32ToRat a| ≤ 1000)
+    (ha_le : |binary32ToRat a| ≤ mainCoordBound)
     (hk_le : |k| ≤ 2000) :
     let kb : Binary64 := widen32To64 (intToBinary32 k)
     let startA : Binary64 := widen32To64 a
@@ -1375,7 +1376,7 @@ def limitCross_R (A B : Point32) : ℝ :=
   absDx_R A B * absDy_R A B
 
 theorem crossProducts_R_bounds (A B : Point32) (stepX stepY : ℤ) (cx cy : ℤ)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (hcx : |cx| ≤ 1995) (hcy : |cy| ≤ 1995) :
     0 ≤ absDx_R A B ∧ absDx_R A B ≤ 2000 ∧
     0 ≤ absDy_R A B ∧ absDy_R A B ≤ 2000 ∧
@@ -1426,7 +1427,7 @@ theorem crossProducts_R_bounds (A B : Point32) (stepX stepY : ℤ) (cx cy : ℤ)
 
 theorem crossProducts_float_approx_rel (A B : Point32) (stepX stepY : ℤ) (c : Cell)
     (h_finA : A.isFinite) (h_finB : B.isFinite)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (hcx : |c.x| ≤ 1995) (hcy : |c.y| ≤ 1995) :
     let currentX := if stepX > 0 then c.x + 1 else c.x
     let currentY := if stepY > 0 then c.y + 1 else c.y
@@ -1571,7 +1572,7 @@ theorem crossY_R_step (A B : Point32) (stepY cy : ℤ)
 
 theorem rayMarchStepFloat_real_bounds (A B : Point32) (stepX stepY : ℤ) (c : Cell)
     (h_finA : A.isFinite) (h_finB : B.isFinite)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (hx0 : (stepX == 0) = false) (hy0 : (stepY == 0) = false)
     (hcx : |c.x| ≤ 1995) (hcy : |c.y| ≤ 1995) :
     let ε : ℝ := 1 / 5000000
@@ -1837,9 +1838,10 @@ theorem floor_mono_rat {q1 q2 : ℚ} (h : q1 ≤ q2) : q1.floor ≤ q2.floor := 
   have h4 : q1.floor < q2.floor + 1 := by exact_mod_cast h3
   omega
 
-theorem floor_bounds_1000 {q : ℚ} (h : |q| ≤ 1000) :
+theorem floor_bounds_mainCoordBound {q : ℚ} (h : |q| ≤ mainCoordBound) :
     -1000 ≤ q.floor ∧ q.floor ≤ 1000 := by
-  obtain ⟨h1, h2⟩ := abs_le.mp h
+  have h1000 : |q| ≤ 1000 := h
+  obtain ⟨h1, h2⟩ := abs_le.mp h1000
   have hfl1 : ((-1000 : ℤ) : ℚ).floor ≤ q.floor := floor_mono_rat h1
   have hfl2 : q.floor ≤ ((1000 : ℤ) : ℚ).floor := floor_mono_rat h2
   have heq1 : ((-1000 : ℤ) : ℚ).floor = -1000 := by decide
@@ -1930,18 +1932,18 @@ def CellInBox (A B : Point32) (stepX stepY : ℤ) (c : Cell) : Prop :=
    (stepY = 0 ∧ B.toPoint.y = A.toPoint.y ∧ c.y = (floorPoint A.toPoint).y ∧ c.y = (floorPoint B.toPoint).y))
 
 theorem cellInBox_bounds (A B : Point32) (stepX stepY : ℤ) (c : Cell)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (hc : CellInBox A B stepX stepY c) :
     |c.x| ≤ 1000 ∧ |c.y| ≤ 1000 := by
   obtain ⟨hAx, hAy, hBx, hBy⟩ := h_bound
   have hflAx : -1000 ≤ (floorPoint A.toPoint).x ∧ (floorPoint A.toPoint).x ≤ 1000 :=
-    floor_bounds_1000 hAx
+    floor_bounds_mainCoordBound hAx
   have hflBx : -1000 ≤ (floorPoint B.toPoint).x ∧ (floorPoint B.toPoint).x ≤ 1000 :=
-    floor_bounds_1000 hBx
+    floor_bounds_mainCoordBound hBx
   have hflAy : -1000 ≤ (floorPoint A.toPoint).y ∧ (floorPoint A.toPoint).y ≤ 1000 :=
-    floor_bounds_1000 hAy
+    floor_bounds_mainCoordBound hAy
   have hflBy : -1000 ≤ (floorPoint B.toPoint).y ∧ (floorPoint B.toPoint).y ≤ 1000 :=
-    floor_bounds_1000 hBy
+    floor_bounds_mainCoordBound hBy
   rcases hc with ⟨hcx, hcy⟩
   constructor
   · rcases hcx with ⟨_, _, h1, h2⟩ | ⟨_, _, h1, h2⟩ | ⟨_, _, h1, _⟩ <;>
@@ -2131,7 +2133,7 @@ theorem rayMarchStep_preserves_cellInBox_and_dist (A B : Point32) (stepX stepY :
         · refine ⟨⟨Or.inr (Or.inl ⟨hsx, habx, by omega, by omega⟩), Or.inr (Or.inl ⟨hsy, haby, by omega, by omega⟩)⟩, by omega⟩
 
 theorem cellInBox_real_facts (A B : Point32) (stepX stepY : ℤ) (c : Cell)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (hc : CellInBox A B stepX stepY c)
     (hx0 : (stepX == 0) = false) (hy0 : (stepY == 0) = false) :
     (|c.x| ≤ 1995 ∧ |c.y| ≤ 1995 ∧
@@ -2237,7 +2239,7 @@ hold at any `c` satisfying `CellInBox`.
 theorem rayMarch_axis_aligned_stepX_zero
     (A B : Point32) (stepX stepY : ℤ) (c : Cell)
     (h_finiteA : A.isFinite) (h_finiteB : B.isFinite)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (hc : CellInBox A B stepX stepY c)
     (hx0 : (stepX == 0) = true) :
     RayMarchCasesFloatExt A B.toPoint (B.x - A.x) (B.y - A.y)
@@ -2378,7 +2380,7 @@ and `RayMarchCasesIdealExt` hold at any `c` satisfying `CellInBox`.
 theorem rayMarch_axis_aligned_stepY_zero
     (A B : Point32) (stepX stepY : ℤ) (c : Cell)
     (h_finiteA : A.isFinite) (h_finiteB : B.isFinite)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (hc : CellInBox A B stepX stepY c)
     (hx0 : (stepX == 0) = false)
     (hy0 : (stepY == 0) = true) :
@@ -2689,7 +2691,7 @@ theorem rayMarch_near_rayMarchFloat_of_ext
 theorem cellIntersectionsSegmentFloat_hausdorff_bound_axis_aligned
     (A B : Point32)
     (h_finiteA : A.isFinite) (h_finiteB : B.isFinite)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (h_stepX : (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) =
       (if B.toPoint.x - A.toPoint.x > 0 then 1 else if B.toPoint.x - A.toPoint.x < 0 then -1 else 0))
     (h_stepY : (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) =
