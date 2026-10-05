@@ -1657,16 +1657,24 @@ private theorem prove_cases_float_ext3_of_cellInBox
   have h_ind := prove_cases_float_ind A B.toPoint (B.x - A.x) (B.y - A.y)
     (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y)
     stepX stepY (floorPoint B.toPoint) c
-  obtain ⟨⟨hcx_1995, hcy_1995, hcx1_1995, hcy1_1995⟩,
+  obtain ⟨⟨hcx_bnd, hcy_bnd, hcx1_bnd, hcy1_bnd⟩,
           ⟨hdx_pos, hdy_pos, hlim_pos, hcxR_ge, hcyR_ge⟩,
           ⟨hlim_dx, hlim_dy, hcx_le_dy, hcy_le_dx⟩,
           ⟨hcx_step1, hcx_step2, hcy_step1, hcy_step2⟩,
           ⟨hend_x0, hend_x1, hend_y0, hend_y1⟩⟩ :=
     cellInBox_real_facts A B stepX stepY c h_bound hc hx0 hy0
-  have hF_c := rayMarchStepFloat_real_bounds A B stepX stepY c h_finiteA h_finiteB h_bound hx0 hy0 hcx_1995 hcy_1995
-  have hF_x := rayMarchStepFloat_real_bounds A B stepX stepY ⟨c.x + stepX, c.y⟩ h_finiteA h_finiteB h_bound hx0 hy0 hcx1_1995 hcy_1995
-  have hF_y := rayMarchStepFloat_real_bounds A B stepX stepY ⟨c.x, c.y + stepY⟩ h_finiteA h_finiteB h_bound hx0 hy0 hcx_1995 hcy1_1995
-  have hF_xy := rayMarchStepFloat_real_bounds A B stepX stepY ⟨c.x + stepX, c.y + stepY⟩ h_finiteA h_finiteB h_bound hx0 hy0 hcx1_1995 hcy1_1995
+  have hF_c :=
+    rayMarchStepFloat_real_bounds A B stepX stepY c
+      h_finiteA h_finiteB h_bound hx0 hy0 hcx_bnd hcy_bnd
+  have hF_x :=
+    rayMarchStepFloat_real_bounds A B stepX stepY ⟨c.x + stepX, c.y⟩
+      h_finiteA h_finiteB h_bound hx0 hy0 hcx1_bnd hcy_bnd
+  have hF_y :=
+    rayMarchStepFloat_real_bounds A B stepX stepY ⟨c.x, c.y + stepY⟩
+      h_finiteA h_finiteB h_bound hx0 hy0 hcx_bnd hcy1_bnd
+  have hF_xy :=
+    rayMarchStepFloat_real_bounds A B stepX stepY ⟨c.x + stepX, c.y + stepY⟩
+      h_finiteA h_finiteB h_bound hx0 hy0 hcx1_bnd hcy1_bnd
   have hI_c := rayMarchStep_real_bounds A B stepX stepY c hx0 hy0
   have hI_x := rayMarchStep_real_bounds A B stepX stepY ⟨c.x + stepX, c.y⟩ hx0 hy0
   have hI_y := rayMarchStep_real_bounds A B stepX stepY ⟨c.x, c.y + stepY⟩ hx0 hy0
@@ -1676,7 +1684,8 @@ private theorem prove_cases_float_ext3_of_cellInBox
   have heq_2y : c.y + stepY + stepY = c.y + 2 * stepY := by omega
   rw [hcx_step1, heq_2x] at hF_x hI_x
   rw [hcy_step1, heq_2y] at hF_y hI_y
-  rw [hcx_step1, hcy_step1] at hF_xy hI_xy
+  rw [maxCoordDelta_toReal_eval] at hlim_dx hlim_dy
+  rw [maxCellBoundaryDistance_toReal_eval] at hcx_le_dy hcy_le_dx
   rcases h_ind with h_ext3 | h_res1 | h_res2 | h_res3
   · exact h_ext3
   · exfalso
@@ -1789,16 +1798,24 @@ private theorem prove_cases_ideal_ext3_of_cellInBox
   have h_ind := prove_cases_ideal_ind A B.toPoint (B.x - A.x) (B.y - A.y)
     (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y)
     stepX stepY (floorPoint B.toPoint) c
-  obtain ⟨⟨hcx_1995, hcy_1995, hcx1_1995, hcy1_1995⟩,
+  obtain ⟨⟨hcx_bnd, hcy_bnd, hcx1_bnd, hcy1_bnd⟩,
           ⟨hdx_pos, hdy_pos, hlim_pos, hcxR_ge, hcyR_ge⟩,
           ⟨hlim_dx, hlim_dy, hcx_le_dy, hcy_le_dx⟩,
           ⟨hcx_step1, hcx_step2, hcy_step1, hcy_step2⟩,
           ⟨hend_x0, hend_x1, hend_y0, hend_y1⟩⟩ :=
     cellInBox_real_facts A B stepX stepY c h_bound hc hx0 hy0
-  have hF_c := rayMarchStepFloat_real_bounds A B stepX stepY c h_finiteA h_finiteB h_bound hx0 hy0 hcx_1995 hcy_1995
-  have hF_x := rayMarchStepFloat_real_bounds A B stepX stepY ⟨c.x + stepX, c.y⟩ h_finiteA h_finiteB h_bound hx0 hy0 hcx1_1995 hcy_1995
-  have hF_y := rayMarchStepFloat_real_bounds A B stepX stepY ⟨c.x, c.y + stepY⟩ h_finiteA h_finiteB h_bound hx0 hy0 hcx_1995 hcy1_1995
-  have hF_xy := rayMarchStepFloat_real_bounds A B stepX stepY ⟨c.x + stepX, c.y + stepY⟩ h_finiteA h_finiteB h_bound hx0 hy0 hcx1_1995 hcy1_1995
+  have hF_c :=
+    rayMarchStepFloat_real_bounds A B stepX stepY c
+      h_finiteA h_finiteB h_bound hx0 hy0 hcx_bnd hcy_bnd
+  have hF_x :=
+    rayMarchStepFloat_real_bounds A B stepX stepY ⟨c.x + stepX, c.y⟩
+      h_finiteA h_finiteB h_bound hx0 hy0 hcx1_bnd hcy_bnd
+  have hF_y :=
+    rayMarchStepFloat_real_bounds A B stepX stepY ⟨c.x, c.y + stepY⟩
+      h_finiteA h_finiteB h_bound hx0 hy0 hcx_bnd hcy1_bnd
+  have hF_xy :=
+    rayMarchStepFloat_real_bounds A B stepX stepY ⟨c.x + stepX, c.y + stepY⟩
+      h_finiteA h_finiteB h_bound hx0 hy0 hcx1_bnd hcy1_bnd
   have hI_c := rayMarchStep_real_bounds A B stepX stepY c hx0 hy0
   have hI_x := rayMarchStep_real_bounds A B stepX stepY ⟨c.x + stepX, c.y⟩ hx0 hy0
   have hI_y := rayMarchStep_real_bounds A B stepX stepY ⟨c.x, c.y + stepY⟩ hx0 hy0
@@ -1808,7 +1825,8 @@ private theorem prove_cases_ideal_ext3_of_cellInBox
   have heq_2y : c.y + stepY + stepY = c.y + 2 * stepY := by omega
   rw [hcx_step1, heq_2x] at hF_x hI_x
   rw [hcy_step1, heq_2y] at hF_y hI_y
-  rw [hcx_step1, hcy_step1] at hF_xy hI_xy
+  rw [maxCoordDelta_toReal_eval] at hlim_dx hlim_dy
+  rw [maxCellBoundaryDistance_toReal_eval] at hcx_le_dy hcy_le_dx
   rcases h_ind with h_ext3 | h_res1 | h_res2 | h_res3
   · exact h_ext3
   · exfalso

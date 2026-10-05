@@ -221,9 +221,35 @@ def eps32 : ℚ := 1 / (2^24)
 def eps64 : ℚ := 1 / (2^53)
 
 /--
-Main coordinate magnitude bound for geometry verification ([-1000, 1000]²).
+Main coordinate magnitude bound as a natural number.
+1447 is the maximum integer where the cross-product discrepancy bound gammaBound M < 1 holds.
 -/
-def mainCoordBound : ℚ := 1000
+def mainCoordBoundNat : ℕ := 1447
+
+/--
+Main coordinate magnitude bound for geometry verification ([-1447, 1447]²).
+-/
+def mainCoordBound : ℚ := mainCoordBoundNat
+
+/--
+Maximum coordinate difference between two points bounded by `mainCoordBound` as a natural number.
+-/
+def maxCoordDeltaNat : ℕ := 2 * mainCoordBoundNat
+
+/--
+Maximum coordinate difference between two points bounded by `mainCoordBound`.
+-/
+def maxCoordDelta : ℚ := maxCoordDeltaNat
+
+/--
+Maximum distance from an endpoint to any evaluated cell boundary line as a natural number.
+-/
+def maxCellBoundaryDistanceNat : ℕ := 2 * mainCoordBoundNat + 2
+
+/--
+Maximum distance from an endpoint to any evaluated cell boundary line.
+-/
+def maxCellBoundaryDistance : ℚ := maxCellBoundaryDistanceNat
 
 def inCoordBounds (M : ℚ) (A B : Point) : Prop :=
   |A.x| ≤ M ∧ |A.y| ≤ M ∧ |B.x| ≤ M ∧ |B.y| ≤ M
