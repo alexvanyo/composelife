@@ -16,12 +16,13 @@
 
 import Geometry.Basic
 import Geometry.FloatModel
+import GeometryDefs
 import proofs.FloatProperties
 import Geometry.LineSegment
-import proofs.SegmentBound.Waypoints
-import proofs.SegmentBound.MiniSegment
-import proofs.SegmentBound.PointBound
-import proofs.SegmentBound.RayMarchLimits
+import proofs.Waypoints
+import proofs.MiniSegment
+import proofs.PointBound
+import proofs.RayMarchLimits
 
 namespace Geometry
 
@@ -190,7 +191,7 @@ satisfies the discrete Chebyshev Hausdorff distance bound ≤ 1 relative to its 
 then the full floating-point path output satisfies the discrete Chebyshev Hausdorff distance bound ≤ 1
 relative to the full rational path output.
 -/
-theorem cellIntersectionsPathFloat_hausdorff_bound_Impl :
+theorem cellIntersectionsPathFloat_hausdorff_bound_of_segments_Impl :
     ∀ (Ps : List Point32), AllFinite Ps →
       (∀ (i : Nat) (hi : i + 1 < Ps.length),
         cellHausdorffDistanceLe
@@ -251,26 +252,11 @@ theorem cellIntersectionsPathFloat_hausdorff_bound_Impl :
       · exact ih
 
 /--
-Master Theorem (Sub-Segment Waypoint Approach):
-When a segment A → B is evaluated as a two-point path, its discrete Chebyshev Hausdorff distance
-relative to the idealized rational output is at most 1 whenever the constituent segment bound holds.
--/
-theorem cellIntersectionsSegmentFloat_hausdorff_bound_fresh_Impl
-    (A B : Point32) (_h_finA : A.isFinite) (_h_finB : B.isFinite)
-    (h_seg : cellHausdorffDistanceLe
-      (cellIntersectionsSegmentFloat A B)
-      (cellIntersectionsSegment A.toPoint B.toPoint) 1) :
-    cellHausdorffDistanceLe
-      (cellIntersectionsSegmentFloat A B)
-      (cellIntersectionsSegment A.toPoint B.toPoint) 1 :=
-  h_seg
-
-/--
 Master Theorem (Same-Cell Unconditional Formulation):
 For any segment whose endpoints reside in the same discrete grid cell,
 the discrete Chebyshev Hausdorff distance between float and rational outputs is at most 1.
 -/
-theorem cellIntersectionsSegmentFloat_hausdorff_bound_same_cell_fresh_Impl
+theorem cellIntersectionsSegmentFloat_hausdorff_bound_of_same_cell_Impl
     (A B : Point32) (h_finA : A.isFinite) (h_finB : B.isFinite)
     (h_same : floorPoint32 A = floorPoint32 B) :
     cellHausdorffDistanceLe
@@ -291,7 +277,7 @@ theorem cellIntersectionsPathFloat_hausdorff_bound_of_same_cell_steps_Impl
     cellHausdorffDistanceLe
       (cellIntersectionsPathFloat Ps)
       (cellIntersectionsPath (pointsToRational Ps)) 1 := by
-  apply cellIntersectionsPathFloat_hausdorff_bound_Impl Ps h_fin
+  apply cellIntersectionsPathFloat_hausdorff_bound_of_segments_Impl Ps h_fin
   intro i hi
   have hP_fin1 : (Ps.get ⟨i, by omega⟩).isFinite := h_fin _ (List.get_mem Ps ⟨i, by omega⟩)
   have hP_fin2 : (Ps.get ⟨i + 1, hi⟩).isFinite := h_fin _ (List.get_mem Ps ⟨i + 1, hi⟩)
@@ -325,31 +311,31 @@ theorem cellHausdorffDistanceLe_path_composition
   have h_trans2 := cellHausdorffDistanceLe_trans h_trans1 h2
   exact cellHausdorffDistanceLe_segment_of_path_two A B h_trans2
 
-theorem ext_clean_agree {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
+theorem rayMarchCasesFloat_of_agree {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
     {stepX stepY : ℤ} {endCell c : Cell}
     (h : (rayMarchStepFloat start dx dy stepX stepY c).1 =
            (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1 ∧
          (rayMarchStepFloat start dx dy stepX stepY c).2 =
            (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).2) :
-    RayMarchCasesFloatClean start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
+    RayMarchCasesFloatDiamond start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
   Or.inl h
 
-theorem ext_clean_term1 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
+theorem rayMarchCasesFloat_of_term1 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
     {stepX stepY : ℤ} {endCell c : Cell}
     (h : (c == endCell) = true ∨
          (rayMarchStepFloat start dx dy stepX stepY c).2 = true ∨
          (rayMarchStepFloat start dx dy stepX stepY c).1 = endCell) :
-    RayMarchCasesFloatClean start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
+    RayMarchCasesFloatDiamond start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
   Or.inr (Or.inl h)
 
-theorem ext_clean_term2 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
+theorem rayMarchCasesFloat_of_term2 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
     {stepX stepY : ℤ} {endCell c : Cell}
     (h : (rayMarchStepFloat start dx dy stepX stepY (rayMarchStepFloat start dx dy stepX stepY c).1).1 = endCell ∨
          (rayMarchStepFloat start dx dy stepX stepY (rayMarchStepFloat start dx dy stepX stepY c).1).2 = true) :
-    RayMarchCasesFloatClean start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
+    RayMarchCasesFloatDiamond start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
   Or.inr (Or.inr (Or.inl h))
 
-theorem ext_clean_dia {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
+theorem rayMarchCasesFloat_of_diamond {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
     {stepX stepY : ℤ} {endCell c : Cell}
     (h : (c == endCell) = false ∧
          (rayMarchStepFloat start dx dy stepX stepY c).2 = false ∧
@@ -362,10 +348,10 @@ theorem ext_clean_dia {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ 
          (⟨c.x, c.y + stepY⟩ == endCell) = false ∧
          (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x, c.y + stepY⟩).2 = false ∧
          (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x, c.y + stepY⟩).1 = ⟨c.x + stepX, c.y + stepY⟩) :
-    RayMarchCasesFloatClean start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
+    RayMarchCasesFloatDiamond start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
   Or.inr (Or.inr (Or.inr (Or.inl h)))
 
-theorem ext_clean_diasymm {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
+theorem rayMarchCasesFloat_of_diamond_symm {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
     {stepX stepY : ℤ} {endCell c : Cell}
     (h : (c == endCell) = false ∧
          (rayMarchStepFloat start dx dy stepX stepY c).2 = false ∧
@@ -378,36 +364,36 @@ theorem ext_clean_diasymm {start : Point32} {ptEnd : Point} {dx dy : Binary32} {
          (⟨c.x + stepX, c.y⟩ == endCell) = false ∧
          (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x + stepX, c.y⟩).2 = false ∧
          (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x + stepX, c.y⟩).1 = ⟨c.x + stepX, c.y + stepY⟩) :
-    RayMarchCasesFloatClean start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
+    RayMarchCasesFloatDiamond start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
   Or.inr (Or.inr (Or.inr (Or.inr h)))
 
-theorem ext_I_clean_agree {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
+theorem rayMarchCasesIdeal_of_agree {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
     {stepX stepY : ℤ} {endCell c : Cell}
     (h : (rayMarchStepFloat start dx dy stepX stepY c).1 =
            (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1 ∧
          (rayMarchStepFloat start dx dy stepX stepY c).2 =
            (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).2) :
-    RayMarchCasesIdealClean start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
+    RayMarchCasesIdealDiamond start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
   Or.inl h
 
-theorem ext_I_clean_term1 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
+theorem rayMarchCasesIdeal_of_term1 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
     {stepX stepY : ℤ} {endCell c : Cell}
     (h : (c == endCell) = true ∨
          (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).2 = true ∨
          (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1 = endCell) :
-    RayMarchCasesIdealClean start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
+    RayMarchCasesIdealDiamond start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
   Or.inr (Or.inl h)
 
-theorem ext_I_clean_term2 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
+theorem rayMarchCasesIdeal_of_term2 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
     {stepX stepY : ℤ} {endCell c : Cell}
     (h : (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY
            (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1).1 = endCell ∨
          (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY
            (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1).2 = true) :
-    RayMarchCasesIdealClean start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
+    RayMarchCasesIdealDiamond start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
   Or.inr (Or.inr (Or.inl h))
 
-theorem ext_I_clean_dia {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
+theorem rayMarchCasesIdeal_of_diamond {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
     {stepX stepY : ℤ} {endCell c : Cell}
     (h : (c == endCell) = false ∧
          (rayMarchStepFloat start dx dy stepX stepY c).2 = false ∧
@@ -420,10 +406,10 @@ theorem ext_I_clean_dia {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dx
          (⟨c.x, c.y + stepY⟩ == endCell) = false ∧
          (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x, c.y + stepY⟩).2 = false ∧
          (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x, c.y + stepY⟩).1 = ⟨c.x + stepX, c.y + stepY⟩) :
-    RayMarchCasesIdealClean start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
+    RayMarchCasesIdealDiamond start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
   Or.inr (Or.inr (Or.inr (Or.inl h)))
 
-theorem ext_I_clean_diasymm {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
+theorem rayMarchCasesIdeal_of_diamond_symm {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
     {stepX stepY : ℤ} {endCell c : Cell}
     (h : (c == endCell) = false ∧
          (rayMarchStepFloat start dx dy stepX stepY c).2 = false ∧
@@ -436,7 +422,7 @@ theorem ext_I_clean_diasymm {start : Point32} {ptEnd : Point} {dx dy : Binary32}
          (⟨c.x + stepX, c.y⟩ == endCell) = false ∧
          (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x + stepX, c.y⟩).2 = false ∧
          (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x + stepX, c.y⟩).1 = ⟨c.x + stepX, c.y + stepY⟩) :
-    RayMarchCasesIdealClean start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
+    RayMarchCasesIdealDiamond start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
   Or.inr (Or.inr (Or.inr (Or.inr h)))
 
 theorem rayMarchStep_done_or_cases (start ptEnd : Point) (dx dy : ℚ) (stepX stepY : Int) (c : Cell) :
@@ -1094,7 +1080,7 @@ theorem prove_cases_ideal_ind (start : Point32) (ptEnd : Point)
                   right; left; exact ⟨h_end_b, hcI, hdI, h_endI1_b, hdI2_b, heI2, Or.inr ⟨hdF, Or.inr ⟨hcF, Or.inr (Or.inr (Or.inr hcF2))⟩⟩⟩
             · left; left; exact Or.inl ⟨by rw [hcF, hcI], by rw [hdF, hdI]⟩
 
-theorem test_prove_c_ext
+theorem rayMarchCasesFloatExt_of_cases
     (start : Point32) (ptEnd : Point)
     (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell : Cell) (c : Cell)
     (h_or :
@@ -1135,7 +1121,7 @@ theorem test_prove_c_ext
   · exact Or.inr (Or.inr (Or.inl (Or.inr (Or.inr (Or.inr (Or.inr (Or.inr (Or.inr (Or.inl h7)))))))))
   · exact Or.inr (Or.inr (Or.inl (Or.inr (Or.inr (Or.inr (Or.inr (Or.inr (Or.inr (Or.inr h8)))))))))
 
-theorem test_prove_c_ideal_ext
+theorem rayMarchCasesIdealExt_of_cases
     (start : Point32) (ptEnd : Point)
     (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell : Cell) (c : Cell)
     (h_or :
@@ -1213,7 +1199,7 @@ theorem ext_step2_done {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ
     RayMarchCasesFloatExt start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
   Or.inr (Or.inr (Or.inl (Or.inr (Or.inl h))))
 
-theorem ext_c3_3 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
+theorem rayMarchCasesFloatExt_stepXY_done {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
     {stepX stepY : ℤ} {endCell c : Cell}
     (h : (rayMarchStepFloat start dx dy stepX stepY c).1 = ⟨c.x + stepX, c.y⟩ ∧
          (rayMarchStepFloat start dx dy stepX stepY ⟨c.x + stepX, c.y⟩).1 = ⟨c.x + stepX, c.y + stepY⟩ ∧
@@ -1221,7 +1207,7 @@ theorem ext_c3_3 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ :
     RayMarchCasesFloatExt start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
   Or.inr (Or.inr (Or.inl (Or.inr (Or.inr (Or.inl h)))))
 
-theorem ext_c3_4 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
+theorem rayMarchCasesFloatExt_stepYX_done {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
     {stepX stepY : ℤ} {endCell c : Cell}
     (h : (rayMarchStepFloat start dx dy stepX stepY c).1 = ⟨c.x, c.y + stepY⟩ ∧
          (rayMarchStepFloat start dx dy stepX stepY ⟨c.x, c.y + stepY⟩).1 = ⟨c.x + stepX, c.y + stepY⟩ ∧
@@ -1229,7 +1215,7 @@ theorem ext_c3_4 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ :
     RayMarchCasesFloatExt start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
   Or.inr (Or.inr (Or.inl (Or.inr (Or.inr (Or.inr (Or.inl h))))))
 
-theorem ext_c3_5 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
+theorem rayMarchCasesFloatExt_stepXY_endCell {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
     {stepX stepY : ℤ} {endCell c : Cell}
     (h : (rayMarchStepFloat start dx dy stepX stepY c).1 = ⟨c.x + stepX, c.y⟩ ∧
          (rayMarchStepFloat start dx dy stepX stepY ⟨c.x + stepX, c.y⟩).1 = ⟨c.x + stepX, c.y + stepY⟩ ∧
@@ -1237,7 +1223,7 @@ theorem ext_c3_5 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ :
     RayMarchCasesFloatExt start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
   Or.inr (Or.inr (Or.inl (Or.inr (Or.inr (Or.inr (Or.inr (Or.inl h)))))))
 
-theorem ext_c3_6 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
+theorem rayMarchCasesFloatExt_stepYX_endCell {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
     {stepX stepY : ℤ} {endCell c : Cell}
     (h : (rayMarchStepFloat start dx dy stepX stepY c).1 = ⟨c.x, c.y + stepY⟩ ∧
          (rayMarchStepFloat start dx dy stepX stepY ⟨c.x, c.y + stepY⟩).1 = ⟨c.x + stepX, c.y + stepY⟩ ∧
@@ -1245,14 +1231,14 @@ theorem ext_c3_6 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ :
     RayMarchCasesFloatExt start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
   Or.inr (Or.inr (Or.inl (Or.inr (Or.inr (Or.inr (Or.inr (Or.inr (Or.inl h))))))))
 
-theorem ext_c3_7 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
+theorem rayMarchCasesFloatExt_diag_done {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
     {stepX stepY : ℤ} {endCell c : Cell}
     (h : (rayMarchStepFloat start dx dy stepX stepY c).1 = ⟨c.x + stepX, c.y + stepY⟩ ∧
          (rayMarchStepFloat start dx dy stepX stepY ⟨c.x + stepX, c.y + stepY⟩).2 = true) :
     RayMarchCasesFloatExt start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
   Or.inr (Or.inr (Or.inl (Or.inr (Or.inr (Or.inr (Or.inr (Or.inr (Or.inr (Or.inl h)))))))))
 
-theorem ext_c3_8 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
+theorem rayMarchCasesFloatExt_diag_endCell {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
     {stepX stepY : ℤ} {endCell c : Cell}
     (h : (rayMarchStepFloat start dx dy stepX stepY c).1 = ⟨c.x + stepX, c.y + stepY⟩ ∧
          (rayMarchStepFloat start dx dy stepX stepY ⟨c.x + stepX, c.y + stepY⟩).1 = endCell) :
@@ -1328,7 +1314,7 @@ theorem ext_I_step2_done {start : Point32} {ptEnd : Point} {dx dy : Binary32} {d
     RayMarchCasesIdealExt start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
   Or.inr (Or.inr (Or.inl (Or.inr (Or.inl h))))
 
-theorem ext_I_c3_3 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
+theorem rayMarchCasesIdealExt_stepXY_done {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
     {stepX stepY : ℤ} {endCell c : Cell}
     (h : (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1 = ⟨c.x + stepX, c.y⟩ ∧
          (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x + stepX, c.y⟩).1 = ⟨c.x + stepX, c.y + stepY⟩ ∧
@@ -1336,7 +1322,7 @@ theorem ext_I_c3_3 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ
     RayMarchCasesIdealExt start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
   Or.inr (Or.inr (Or.inl (Or.inr (Or.inr (Or.inl h)))))
 
-theorem ext_I_c3_4 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
+theorem rayMarchCasesIdealExt_stepYX_done {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
     {stepX stepY : ℤ} {endCell c : Cell}
     (h : (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1 = ⟨c.x, c.y + stepY⟩ ∧
          (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x, c.y + stepY⟩).1 = ⟨c.x + stepX, c.y + stepY⟩ ∧
@@ -1344,7 +1330,7 @@ theorem ext_I_c3_4 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ
     RayMarchCasesIdealExt start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
   Or.inr (Or.inr (Or.inl (Or.inr (Or.inr (Or.inr (Or.inl h))))))
 
-theorem ext_I_c3_5 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
+theorem rayMarchCasesIdealExt_stepXY_endCell {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
     {stepX stepY : ℤ} {endCell c : Cell}
     (h : (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1 = ⟨c.x + stepX, c.y⟩ ∧
          (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x + stepX, c.y⟩).1 = ⟨c.x + stepX, c.y + stepY⟩ ∧
@@ -1352,7 +1338,7 @@ theorem ext_I_c3_5 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ
     RayMarchCasesIdealExt start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
   Or.inr (Or.inr (Or.inl (Or.inr (Or.inr (Or.inr (Or.inr (Or.inl h)))))))
 
-theorem ext_I_c3_6 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
+theorem rayMarchCasesIdealExt_stepYX_endCell {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
     {stepX stepY : ℤ} {endCell c : Cell}
     (h : (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1 = ⟨c.x, c.y + stepY⟩ ∧
          (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x, c.y + stepY⟩).1 = ⟨c.x + stepX, c.y + stepY⟩ ∧
@@ -1360,14 +1346,14 @@ theorem ext_I_c3_6 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ
     RayMarchCasesIdealExt start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
   Or.inr (Or.inr (Or.inl (Or.inr (Or.inr (Or.inr (Or.inr (Or.inr (Or.inl h))))))))
 
-theorem ext_I_c3_7 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
+theorem rayMarchCasesIdealExt_diag_done {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
     {stepX stepY : ℤ} {endCell c : Cell}
     (h : (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1 = ⟨c.x + stepX, c.y + stepY⟩ ∧
          (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x + stepX, c.y + stepY⟩).2 = true) :
     RayMarchCasesIdealExt start ptEnd dx dy dxQ dyQ stepX stepY endCell c :=
   Or.inr (Or.inr (Or.inl (Or.inr (Or.inr (Or.inr (Or.inr (Or.inr (Or.inr (Or.inl h)))))))))
 
-theorem ext_I_c3_8 {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
+theorem rayMarchCasesIdealExt_diag_endCell {start : Point32} {ptEnd : Point} {dx dy : Binary32} {dxQ dyQ : ℚ}
     {stepX stepY : ℤ} {endCell c : Cell}
     (h : (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1 = ⟨c.x + stepX, c.y + stepY⟩ ∧
          (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x + stepX, c.y + stepY⟩).1 = endCell) :
@@ -1431,7 +1417,7 @@ theorem step_not_Y_when_stepY_zero (start : Point32) (dx dy : Binary32) (stepX :
   simp only [Bool.false_eq_true, ite_false, ite_true] at hd ⊢
   split_ifs at hd ⊢ <;> simp at hd ⊢
 
-theorem test_close_963_no_h0
+theorem false_of_rayMarchStepFloat_diag_stuck
     (A B : Point32) (c : Cell)
     (hx0 : (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0 : ℤ) ≠ 0)
     (hy0 : (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0 : ℤ) ≠ 0)
@@ -1485,7 +1471,7 @@ theorem test_close_963_no_h0
     have : (stepX == 0) = true := by rw [show stepX = 0 by omega]; rfl
     rw [this] at hx_b; contradiction
 
-theorem test_close_963_ideal
+theorem false_of_rayMarchStep_diag_stuck
     (start ptEnd : Point) (dx dy : ℚ) (stepX stepY : ℤ) (c : Cell)
     (hx0 : (stepX == 0) = false) (hy0 : (stepY == 0) = false)
     (h7 : ¬ ((rayMarchStep start ptEnd dx dy stepX stepY c).1 = ⟨c.x + stepX, c.y + stepY⟩ ∧
@@ -1513,7 +1499,7 @@ theorem test_close_963_ideal
     have : (stepX == 0) = true := by rw [show stepX = 0 by omega]; rfl
     rw [this] at hx0; contradiction
 
-theorem test_hc2x_float1_must_be_X
+theorem rayMarchStepFloat_steps_of_two_stepX
     (start : Point32) (dx dy : Binary32) (stepX stepY : ℤ) (c : Cell)
     (hy0 : (stepY == 0) = false)
     (hd1 : (rayMarchStepFloat start dx dy stepX stepY c).2 = false)
@@ -1574,7 +1560,7 @@ theorem test_hc2x_float1_must_be_X
       have : (stepY == 0) = true := by rw [show stepY = 0 by omega]; rfl
       rw [this] at hy0; contradiction
 
-theorem test_hc2y_float1_must_be_Y
+theorem rayMarchStepFloat_steps_of_two_stepY
     (start : Point32) (dx dy : Binary32) (stepX stepY : ℤ) (c : Cell)
     (hx0 : (stepX == 0) = false)
     (hd1 : (rayMarchStepFloat start dx dy stepX stepY c).2 = false)
@@ -1662,7 +1648,7 @@ set_option maxHeartbeats 800000 in
 private theorem prove_cases_float_ext3_of_cellInBox
     (A B : Point32) (stepX stepY : ℤ) (c : Cell)
     (h_finiteA : A.isFinite) (h_finiteB : B.isFinite)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (hx0 : (stepX == 0) = false) (hy0 : (stepY == 0) = false)
     (hc : CellInBox A B stepX stepY c) :
     RayMarchCasesFloatExt3 A B.toPoint (B.x - A.x) (B.y - A.y)
@@ -1794,7 +1780,7 @@ set_option maxHeartbeats 800000 in
 private theorem prove_cases_ideal_ext3_of_cellInBox
     (A B : Point32) (stepX stepY : ℤ) (c : Cell)
     (h_finiteA : A.isFinite) (h_finiteB : B.isFinite)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (hx0 : (stepX == 0) = false) (hy0 : (stepY == 0) = false)
     (hc : CellInBox A B stepX stepY c) :
     RayMarchCasesIdealExt3 A B.toPoint (B.x - A.x) (B.y - A.y)
@@ -1920,16 +1906,16 @@ private theorem prove_cases_ideal_ext3_of_cellInBox
 
 /--
 Master Implementation:
-For any input segment with coordinates bounded in magnitude by 1000 and finite inputs,
+For any input segment with coordinates bounded in magnitude by mainCoordBound and finite inputs,
 the discrete Chebyshev Hausdorff distance between the 32-bit floating point output
 `cellIntersectionsSegmentFloat A B` and the idealized rational output
 `cellIntersectionsSegment A.toPoint B.toPoint` is at most 1.
 -/
-theorem cellIntersectionsSegmentFloat_hausdorff_bound_1000_fresh_Impl
+theorem cellIntersectionsSegmentFloat_hausdorff_bound_Impl
     (A B : Point32)
     (h_finiteA : A.isFinite)
     (h_finiteB : B.isFinite)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint) :
+    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint) :
     cellHausdorffDistanceLe
       (cellIntersectionsSegmentFloat A B)
       (cellIntersectionsSegment A.toPoint B.toPoint) 1 := by
@@ -1953,21 +1939,21 @@ theorem cellIntersectionsSegmentFloat_hausdorff_bound_1000_fresh_Impl
 /--
 Master Polyline Theorem (Bounded Implementation):
 For any polyline path Ps whose points are finite and whose consecutive segments
-satisfy the coordinate magnitude bound of 1000, the discrete Chebyshev Hausdorff distance
+satisfy the coordinate magnitude bound of mainCoordBound, the discrete Chebyshev Hausdorff distance
 between the floating-point path output and the rational path output is at most 1.
 -/
-theorem cellIntersectionsPathFloat_hausdorff_bound_1000_Impl
+theorem cellIntersectionsPathFloat_hausdorff_bound_Impl
     (Ps : List Point32) (h_fin : AllFinite Ps)
     (h_bounds : ∀ (i : Nat) (hi : i + 1 < Ps.length),
-      inCoordBounds 1000 (Ps.get ⟨i, by omega⟩).toPoint (Ps.get ⟨i + 1, hi⟩).toPoint) :
+      inCoordBounds mainCoordBound (Ps.get ⟨i, by omega⟩).toPoint (Ps.get ⟨i + 1, hi⟩).toPoint) :
     cellHausdorffDistanceLe
       (cellIntersectionsPathFloat Ps)
       (cellIntersectionsPath (pointsToRational Ps)) 1 := by
-  apply cellIntersectionsPathFloat_hausdorff_bound_Impl Ps h_fin
+  apply cellIntersectionsPathFloat_hausdorff_bound_of_segments_Impl Ps h_fin
   intro i hi
   have hP_fin1 : (Ps.get ⟨i, by omega⟩).isFinite := h_fin _ (List.get_mem Ps ⟨i, by omega⟩)
   have hP_fin2 : (Ps.get ⟨i + 1, hi⟩).isFinite := h_fin _ (List.get_mem Ps ⟨i + 1, hi⟩)
-  exact cellIntersectionsSegmentFloat_hausdorff_bound_1000_fresh_Impl _ _ hP_fin1 hP_fin2 (h_bounds i hi)
+  exact cellIntersectionsSegmentFloat_hausdorff_bound_Impl _ _ hP_fin1 hP_fin2 (h_bounds i hi)
 
 end Geometry
 

@@ -54,10 +54,10 @@ theorem gammaBound_nonneg (M : ℚ) (hM : 0 ≤ M) : 0 ≤ gammaBound M := by
   positivity
 
 /--
-The cross-product discrepancy bound at coordinate scale M = 1000 is strictly less than 1.
+The cross-product discrepancy bound at coordinate scale M = mainCoordBound is strictly less than 1.
 -/
-theorem gammaBound_1000_lt_one : gammaBound 1000 < 1 := by
-  unfold gammaBound eps32
+theorem gammaBound_mainCoordBound_lt_one : gammaBound mainCoordBound < 1 := by
+  unfold gammaBound eps32 mainCoordBound
   norm_num
 
 /--

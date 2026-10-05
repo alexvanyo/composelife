@@ -445,16 +445,16 @@ theorem cellIntersectionsSegmentFloat_hausdorff_bound_1447_of_conditions
   cellIntersectionsSegmentFloat_hausdorff_bound_of_clearance_or_step_eq A B 1447 h_finiteA h_finiteB h_bound h
 
 /--
-Discrete cell Hausdorff distance bound for segments with coordinates bounded by M ≤ 1000,
+Discrete cell Hausdorff distance bound for segments with coordinates bounded by M ≤ mainCoordBound,
 when either clearance, step agreement, or common endpoint cells hold.
 -/
-theorem cellIntersectionsSegmentFloat_hausdorff_bound_1000_of_conditions
+theorem cellIntersectionsSegmentFloat_hausdorff_bound_of_conditions
     (A B : Point32)
     (h_finiteA : A.isFinite)
     (h_finiteB : B.isFinite)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (h : floorPoint32 A = floorPoint32 B ∨
-         HasCornerClearance A.toPoint B.toPoint 1000 ∨
+         HasCornerClearance A.toPoint B.toPoint mainCoordBound ∨
          ( (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) =
              (if B.toPoint.x - A.toPoint.x > 0 then 1 else if B.toPoint.x - A.toPoint.x < 0 then -1 else 0) ∧
            (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) =
@@ -474,7 +474,7 @@ theorem cellIntersectionsSegmentFloat_hausdorff_bound_1000_of_conditions
     cellHausdorffDistanceLe
       (cellIntersectionsSegmentFloat A B)
       (cellIntersectionsSegment A.toPoint B.toPoint) 1 :=
-  cellIntersectionsSegmentFloat_hausdorff_bound_of_clearance_or_step_eq A B 1000 h_finiteA h_finiteB h_bound h
+  cellIntersectionsSegmentFloat_hausdorff_bound_of_clearance_or_step_eq A B mainCoordBound h_finiteA h_finiteB h_bound h
 
 /--
 Alias for Master Theorem 1 matching verification plan naming.
@@ -489,27 +489,27 @@ abbrev cellIntersections_float_hausdorff_bound :=
   @cellIntersectionsSegmentFloat_hausdorff_bound_of_clearance
 
 /--
-Hausdorff bound for segments bounded by 1000 when corner clearance holds.
+Hausdorff bound for segments bounded by mainCoordBound when corner clearance holds.
 -/
-theorem cellIntersectionsSegmentFloat_hausdorff_bound_of_clearance_1000
+theorem cellIntersectionsSegmentFloat_hausdorff_bound_of_clearance_mainCoordBound
     (A B : Point32)
     (h_finiteA : A.isFinite)
     (h_finiteB : B.isFinite)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
-    (h_clear : HasCornerClearance A.toPoint B.toPoint 1000) :
+    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
+    (h_clear : HasCornerClearance A.toPoint B.toPoint mainCoordBound) :
     cellHausdorffDistanceLe
       (cellIntersectionsSegmentFloat A B)
       (cellIntersectionsSegment A.toPoint B.toPoint) 1 :=
-  cellIntersectionsSegmentFloat_hausdorff_bound_of_clearance A B 1000 h_finiteA h_finiteB h_bound h_clear
+  cellIntersectionsSegmentFloat_hausdorff_bound_of_clearance A B mainCoordBound h_finiteA h_finiteB h_bound h_clear
 
 /--
-Hausdorff bound for segments bounded by 1000 when endpoint cells are identical.
+Hausdorff bound for segments bounded by mainCoordBound when endpoint cells are identical.
 -/
-theorem cellIntersectionsSegmentFloat_hausdorff_bound_same_cell_1000
+theorem cellIntersectionsSegmentFloat_hausdorff_bound_same_cell_mainCoordBound
     (A B : Point32)
     (h_finiteA : A.isFinite)
     (h_finiteB : B.isFinite)
-    (_h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (_h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (h_same : floorPoint32 A = floorPoint32 B) :
     cellHausdorffDistanceLe
       (cellIntersectionsSegmentFloat A B)
@@ -517,13 +517,13 @@ theorem cellIntersectionsSegmentFloat_hausdorff_bound_same_cell_1000
   cellIntersectionsSegmentFloat_hausdorff_bound_same_cell A B h_finiteA h_finiteB h_same
 
 /--
-Hausdorff bound for segments bounded by 1000 when single-step transitions agree.
+Hausdorff bound for segments bounded by mainCoordBound when single-step transitions agree.
 -/
-theorem cellIntersectionsSegmentFloat_hausdorff_bound_of_step_eq_1000
+theorem cellIntersectionsSegmentFloat_hausdorff_bound_of_step_eq_mainCoordBound
     (A B : Point32)
     (h_finiteA : A.isFinite)
     (h_finiteB : B.isFinite)
-    (_h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (_h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (h_stepX : (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) =
       (if B.toPoint.x - A.toPoint.x > 0 then 1 else if B.toPoint.x - A.toPoint.x < 0 then -1 else 0))
     (h_stepY : (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) =
@@ -546,32 +546,32 @@ theorem cellIntersectionsSegmentFloat_hausdorff_bound_of_step_eq_1000
   cellIntersectionsSegmentFloat_hausdorff_bound_of_step_eq A B h_finiteA h_finiteB h_stepX h_stepY h_step h_done
 
 /--
-Hausdorff bound for segments bounded by 1000 when either common cells or corner clearance hold.
+Hausdorff bound for segments bounded by mainCoordBound when either common cells or corner clearance hold.
 -/
-theorem cellIntersectionsSegmentFloat_hausdorff_bound_1000_of_disjunction
+theorem cellIntersectionsSegmentFloat_hausdorff_bound_of_disjunction
     (A B : Point32)
     (h_finiteA : A.isFinite)
     (h_finiteB : B.isFinite)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
-    (h : (floorPoint32 A = floorPoint32 B) ∨ (HasCornerClearance A.toPoint B.toPoint 1000)) :
+    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
+    (h : (floorPoint32 A = floorPoint32 B) ∨ (HasCornerClearance A.toPoint B.toPoint mainCoordBound)) :
     cellHausdorffDistanceLe
       (cellIntersectionsSegmentFloat A B)
       (cellIntersectionsSegment A.toPoint B.toPoint) 1 := by
   rcases h with h_same | h_clear
-  · exact cellIntersectionsSegmentFloat_hausdorff_bound_same_cell_1000 A B h_finiteA h_finiteB h_bound h_same
-  · exact cellIntersectionsSegmentFloat_hausdorff_bound_of_clearance_1000 A B h_finiteA h_finiteB h_bound h_clear
+  · exact cellIntersectionsSegmentFloat_hausdorff_bound_same_cell_mainCoordBound A B h_finiteA h_finiteB h_bound h_same
+  · exact cellIntersectionsSegmentFloat_hausdorff_bound_of_clearance_mainCoordBound A B h_finiteA h_finiteB h_bound h_clear
 
 /--
-Direction 1 of the Hausdorff bound for M ≤ 1000 when corner clearance holds:
+Direction 1 of the Hausdorff bound for M ≤ mainCoordBound when corner clearance holds:
 Every cell visited by floating-point raymarching is within Chebyshev distance at most 1
 of some cell in the deduplicated rational raymarching output (including endpoints).
 -/
-theorem rayMarchFloat_near_rayMarch_endpoints_of_clearance_1000
+theorem rayMarchFloat_near_rayMarch_endpoints_of_clearance_mainCoordBound
     (A B : Point32)
     (h_finiteA : A.isFinite) (h_finiteB : B.isFinite)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (h_diff : floorPoint32 A ≠ floorPoint32 B)
-    (h_clear : HasCornerClearance A.toPoint B.toPoint 1000) :
+    (h_clear : HasCornerClearance A.toPoint B.toPoint mainCoordBound) :
     let startCell := floorPoint32 A
     let endCell := floorPoint32 B
     let dx : Binary32 := B.x - A.x
@@ -600,7 +600,7 @@ theorem rayMarchFloat_near_rayMarch_endpoints_of_clearance_1000
     cases h : (floorPoint A.toPoint == floorPoint B.toPoint)
     · rfl
     · exfalso; apply h_diff_ideal; rw [eq_of_beq h]
-  have h_hausdorff := cellIntersectionsSegmentFloat_hausdorff_bound_of_clearance_1000 A B h_finiteA h_finiteB h_bound h_clear
+  have h_hausdorff := cellIntersectionsSegmentFloat_hausdorff_bound_of_clearance_mainCoordBound A B h_finiteA h_finiteB h_bound h_clear
   unfold cellIntersectionsSegmentFloat cellIntersectionsSegment at h_hausdorff
   dsimp only [] at h_hausdorff
   rw [h_diff_bool, h_diff_ideal_bool] at h_hausdorff
@@ -620,16 +620,16 @@ theorem rayMarchFloat_near_rayMarch_endpoints_of_clearance_1000
   exact ⟨c2, hc2, hd⟩
 
 /--
-Direction 1 of the Hausdorff bound for M ≤ 1000 under clearance or step agreement:
+Direction 1 of the Hausdorff bound for M ≤ mainCoordBound under clearance or step agreement:
 Every cell visited by floating-point raymarching is within Chebyshev distance at most 1
 of some cell in the deduplicated rational raymarching output (including endpoints).
 -/
-theorem rayMarchFloat_near_rayMarch_endpoints_1000_of_conditions
+theorem rayMarchFloat_near_rayMarch_endpoints_of_conditions
     (A B : Point32)
     (h_finiteA : A.isFinite) (h_finiteB : B.isFinite)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (h_diff : floorPoint32 A ≠ floorPoint32 B)
-    (h : HasCornerClearance A.toPoint B.toPoint 1000 ∨
+    (h : HasCornerClearance A.toPoint B.toPoint mainCoordBound ∨
          ( (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) =
              (if B.toPoint.x - A.toPoint.x > 0 then 1 else if B.toPoint.x - A.toPoint.x < 0 then -1 else 0) ∧
            (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) =
@@ -674,8 +674,8 @@ theorem rayMarchFloat_near_rayMarch_endpoints_1000_of_conditions
     cases h_b : (floorPoint A.toPoint == floorPoint B.toPoint)
     · rfl
     · exfalso; apply h_diff_ideal; rw [eq_of_beq h_b]
-  have h_cond : floorPoint32 A = floorPoint32 B ∨ HasCornerClearance A.toPoint B.toPoint 1000 ∨ _ := Or.inr h
-  have h_hausdorff := cellIntersectionsSegmentFloat_hausdorff_bound_1000_of_conditions A B h_finiteA h_finiteB h_bound h_cond
+  have h_cond : floorPoint32 A = floorPoint32 B ∨ HasCornerClearance A.toPoint B.toPoint mainCoordBound ∨ _ := Or.inr h
+  have h_hausdorff := cellIntersectionsSegmentFloat_hausdorff_bound_of_conditions A B h_finiteA h_finiteB h_bound h_cond
   unfold cellIntersectionsSegmentFloat cellIntersectionsSegment at h_hausdorff
   dsimp only [] at h_hausdorff
   rw [h_diff_bool, h_diff_ideal_bool] at h_hausdorff
@@ -695,16 +695,16 @@ theorem rayMarchFloat_near_rayMarch_endpoints_1000_of_conditions
   exact ⟨c2, hc2, hd⟩
 
 /--
-Direction 2 of the Hausdorff bound for M ≤ 1000 when corner clearance holds:
+Direction 2 of the Hausdorff bound for M ≤ mainCoordBound when corner clearance holds:
 Every cell visited by idealized rational raymarching is within Chebyshev distance at most 1
 of some cell in the deduplicated floating-point raymarching output (including endpoints).
 -/
-theorem rayMarch_near_rayMarchFloat_endpoints_of_clearance_1000
+theorem rayMarch_near_rayMarchFloat_endpoints_of_clearance_mainCoordBound
     (A B : Point32)
     (h_finiteA : A.isFinite) (h_finiteB : B.isFinite)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (h_diff : floorPoint32 A ≠ floorPoint32 B)
-    (h_clear : HasCornerClearance A.toPoint B.toPoint 1000) :
+    (h_clear : HasCornerClearance A.toPoint B.toPoint mainCoordBound) :
     let startCell := floorPoint32 A
     let endCell := floorPoint32 B
     let dx : Binary32 := B.x - A.x
@@ -733,7 +733,7 @@ theorem rayMarch_near_rayMarchFloat_endpoints_of_clearance_1000
     cases h : (floorPoint A.toPoint == floorPoint B.toPoint)
     · rfl
     · exfalso; apply h_diff_ideal; rw [eq_of_beq h]
-  have h_hausdorff := cellIntersectionsSegmentFloat_hausdorff_bound_of_clearance_1000 A B h_finiteA h_finiteB h_bound h_clear
+  have h_hausdorff := cellIntersectionsSegmentFloat_hausdorff_bound_of_clearance_mainCoordBound A B h_finiteA h_finiteB h_bound h_clear
   unfold cellIntersectionsSegmentFloat cellIntersectionsSegment at h_hausdorff
   dsimp only [] at h_hausdorff
   rw [h_diff_bool, h_diff_ideal_bool] at h_hausdorff
@@ -753,16 +753,16 @@ theorem rayMarch_near_rayMarchFloat_endpoints_of_clearance_1000
   exact ⟨c1, hc1, hd⟩
 
 /--
-Direction 2 of the Hausdorff bound for M ≤ 1000 under clearance or step agreement:
+Direction 2 of the Hausdorff bound for M ≤ mainCoordBound under clearance or step agreement:
 Every cell visited by idealized rational raymarching is within Chebyshev distance at most 1
 of some cell in the deduplicated floating-point raymarching output (including endpoints).
 -/
-theorem rayMarch_near_rayMarchFloat_endpoints_1000_of_conditions
+theorem rayMarch_near_rayMarchFloat_endpoints_of_conditions
     (A B : Point32)
     (h_finiteA : A.isFinite) (h_finiteB : B.isFinite)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (h_diff : floorPoint32 A ≠ floorPoint32 B)
-    (h : HasCornerClearance A.toPoint B.toPoint 1000 ∨
+    (h : HasCornerClearance A.toPoint B.toPoint mainCoordBound ∨
          ( (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) =
              (if B.toPoint.x - A.toPoint.x > 0 then 1 else if B.toPoint.x - A.toPoint.x < 0 then -1 else 0) ∧
            (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) =
@@ -807,8 +807,8 @@ theorem rayMarch_near_rayMarchFloat_endpoints_1000_of_conditions
     cases h_b : (floorPoint A.toPoint == floorPoint B.toPoint)
     · rfl
     · exfalso; apply h_diff_ideal; rw [eq_of_beq h_b]
-  have h_cond : floorPoint32 A = floorPoint32 B ∨ HasCornerClearance A.toPoint B.toPoint 1000 ∨ _ := Or.inr h
-  have h_hausdorff := cellIntersectionsSegmentFloat_hausdorff_bound_1000_of_conditions A B h_finiteA h_finiteB h_bound h_cond
+  have h_cond : floorPoint32 A = floorPoint32 B ∨ HasCornerClearance A.toPoint B.toPoint mainCoordBound ∨ _ := Or.inr h
+  have h_hausdorff := cellIntersectionsSegmentFloat_hausdorff_bound_of_conditions A B h_finiteA h_finiteB h_bound h_cond
   unfold cellIntersectionsSegmentFloat cellIntersectionsSegment at h_hausdorff
   dsimp only [] at h_hausdorff
   rw [h_diff_bool, h_diff_ideal_bool] at h_hausdorff
@@ -939,7 +939,7 @@ theorem cellIntersectionsSegmentFloat_hausdorff_bound_of_cases
     · exact h1
     · exact h2
 
-def RayMarchCasesFloatClean
+def RayMarchCasesFloatDiamond
     (start : Point32) (ptEnd : Point)
     (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell : Cell) (c : Cell) : Prop :=
   -- Case 1: Step agreement
@@ -977,7 +977,7 @@ def RayMarchCasesFloatClean
    (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x + stepX, c.y⟩).2 = false ∧
    (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x + stepX, c.y⟩).1 = ⟨c.x + stepX, c.y + stepY⟩)
 
-def RayMarchCasesIdealClean
+def RayMarchCasesIdealDiamond
     (start : Point32) (ptEnd : Point)
     (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell : Cell) (c : Cell) : Prop :=
   -- Case 1: Step agreement
@@ -1015,11 +1015,11 @@ def RayMarchCasesIdealClean
    (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x + stepX, c.y⟩).2 = false ∧
    (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY ⟨c.x + stepX, c.y⟩).1 = ⟨c.x + stepX, c.y + stepY⟩)
 
-theorem rayMarchFloat_near_rayMarch_of_cases_clean
+theorem rayMarchFloat_near_rayMarch_of_cases_diamond
     (fuel : ℕ) (start : Point32) (ptEnd : Point)
     (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell current : Cell)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
-    (h_cases : ∀ c, RayMarchCasesFloatClean start ptEnd dx dy dxQ dyQ stepX stepY endCell c) :
+    (h_cases : ∀ c, RayMarchCasesFloatDiamond start ptEnd dx dy dxQ dyQ stepX stepY endCell c) :
     ∀ c1 ∈ rayMarchFloat fuel start dx dy stepX stepY endCell current [],
       ∃ c2 ∈ dedupCells ([current, endCell] ++
         rayMarch fuel start.toPoint ptEnd dxQ dyQ stepX stepY endCell current []),
@@ -1086,11 +1086,11 @@ theorem rayMarchFloat_near_rayMarch_of_cases_clean
           exact rayMarchFloat_diamond_symm_near_rayMarch_endpoints fuel start ptEnd dx dy dxQ dyQ stepX stepY
             endCell current hX hY hne hndF1 hstF1 hneF1 hndF2 hstF2 hndI1 hstI1 hneI1 hndI2 hstI2 h_rec c1 hc1
 
-theorem rayMarch_near_rayMarchFloat_of_cases_clean
+theorem rayMarch_near_rayMarchFloat_of_cases_diamond
     (fuel : ℕ) (start : Point32) (ptEnd : Point)
     (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell current : Cell)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
-    (h_cases : ∀ c, RayMarchCasesIdealClean start ptEnd dx dy dxQ dyQ stepX stepY endCell c) :
+    (h_cases : ∀ c, RayMarchCasesIdealDiamond start ptEnd dx dy dxQ dyQ stepX stepY endCell c) :
     ∀ c2 ∈ rayMarch fuel start.toPoint ptEnd dxQ dyQ stepX stepY endCell current [],
       ∃ c1 ∈ dedupCells ([current, endCell] ++
         rayMarchFloat fuel start dx dy stepX stepY endCell current []),
@@ -1156,19 +1156,19 @@ theorem rayMarch_near_rayMarchFloat_of_cases_clean
           exact rayMarch_diamond_symm_near_rayMarchFloat_endpoints fuel start ptEnd dx dy dxQ dyQ stepX stepY
             endCell current hX hY hne hndF1 hstF1 hneF1 hndF2 hstF2 hndI1 hstI1 hneI1 hndI2 hstI2 h_rec c2 hc2
 
-theorem cellIntersectionsSegmentFloat_hausdorff_bound_of_cases_clean
+theorem cellIntersectionsSegmentFloat_hausdorff_bound_of_cases_diamond
     (A B : Point32)
     (h_finiteA : A.isFinite) (h_finiteB : B.isFinite)
     (h_stepX : (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) =
       (if B.toPoint.x - A.toPoint.x > 0 then 1 else if B.toPoint.x - A.toPoint.x < 0 then -1 else 0))
     (h_stepY : (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) =
       (if B.toPoint.y - A.toPoint.y > 0 then 1 else if B.toPoint.y - A.toPoint.y < 0 then -1 else 0))
-    (h_cases_F : ∀ c, RayMarchCasesFloatClean A B.toPoint (B.x - A.x) (B.y - A.y)
+    (h_cases_F : ∀ c, RayMarchCasesFloatDiamond A B.toPoint (B.x - A.x) (B.y - A.y)
       (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y)
       (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
       (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0)
       (floorPoint B.toPoint) c)
-    (h_cases_I : ∀ c, RayMarchCasesIdealClean A B.toPoint (B.x - A.x) (B.y - A.y)
+    (h_cases_I : ∀ c, RayMarchCasesIdealDiamond A B.toPoint (B.x - A.x) (B.y - A.y)
       (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y)
       (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
       (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0)
@@ -1203,7 +1203,7 @@ theorem cellIntersectionsSegmentFloat_hausdorff_bound_of_cases_clean
               (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) = 0 ∨
               (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) = 1 := by
       split_ifs <;> simp
-    have h1 := rayMarchFloat_near_rayMarch_of_cases_clean
+    have h1 := rayMarchFloat_near_rayMarch_of_cases_diamond
       (((floorPoint B.toPoint).x - (floorPoint A.toPoint).x).natAbs +
        ((floorPoint B.toPoint).y - (floorPoint A.toPoint).y).natAbs + 2)
       A B.toPoint (B.x - A.x) (B.y - A.y)
@@ -1212,7 +1212,7 @@ theorem cellIntersectionsSegmentFloat_hausdorff_bound_of_cases_clean
       (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0)
       (floorPoint B.toPoint) (floorPoint A.toPoint)
       hX hY h_cases_F
-    have h2 := rayMarch_near_rayMarchFloat_of_cases_clean
+    have h2 := rayMarch_near_rayMarchFloat_of_cases_diamond
       (((floorPoint B.toPoint).x - (floorPoint A.toPoint).x).natAbs +
        ((floorPoint B.toPoint).y - (floorPoint A.toPoint).y).natAbs + 2)
       A B.toPoint (B.x - A.x) (B.y - A.y)
