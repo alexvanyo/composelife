@@ -37,7 +37,7 @@ theorem cellIntersectionsSegmentFloat_eq_ideal_of_clearance
   cellIntersectionsSegmentFloat_eq_ideal_of_clearance_Impl A B M h_finA h_finB h_bound h_clear
 
 /-- Sub-segment Path Master Theorem: Inductive Hausdorff bound along any waypoint sequence. -/
-theorem cellIntersectionsPathFloat_hausdorff_bound
+theorem cellIntersectionsPathFloat_hausdorff_bound_of_segments
     (Ps : List Point32) (h_fin : AllFinite Ps)
     (h_seg : ∀ (i : Nat) (hi : i + 1 < Ps.length),
       cellHausdorffDistanceLe
@@ -46,29 +46,18 @@ theorem cellIntersectionsPathFloat_hausdorff_bound
     cellHausdorffDistanceLe
       (cellIntersectionsPathFloat Ps)
       (cellIntersectionsPath (pointsToRational Ps)) 1 :=
-  cellIntersectionsPathFloat_hausdorff_bound_Impl Ps h_fin h_seg
+  cellIntersectionsPathFloat_hausdorff_bound_of_segments_Impl Ps h_fin h_seg
 
-/-- Fresh Master Theorem: Sub-segment bound formulation. -/
-theorem cellIntersectionsSegmentFloat_hausdorff_bound_fresh
-    (A B : Point32) (h_finA : A.isFinite) (h_finB : B.isFinite)
-    (h_seg : cellHausdorffDistanceLe
-      (cellIntersectionsSegmentFloat A B)
-      (cellIntersectionsSegment A.toPoint B.toPoint) 1) :
-    cellHausdorffDistanceLe
-      (cellIntersectionsSegmentFloat A B)
-      (cellIntersectionsSegment A.toPoint B.toPoint) 1 :=
-  cellIntersectionsSegmentFloat_hausdorff_bound_fresh_Impl A B h_finA h_finB h_seg
-
-/-- Fresh Master Theorem: Unconditional bound for same-cell segments. -/
-theorem cellIntersectionsSegmentFloat_hausdorff_bound_same_cell_fresh
+/-- Unconditional Hausdorff bound for segments whose endpoints lie in the same cell. -/
+theorem cellIntersectionsSegmentFloat_hausdorff_bound_of_same_cell
     (A B : Point32) (h_finA : A.isFinite) (h_finB : B.isFinite)
     (h_same : floorPoint32 A = floorPoint32 B) :
     cellHausdorffDistanceLe
       (cellIntersectionsSegmentFloat A B)
       (cellIntersectionsSegment A.toPoint B.toPoint) 1 :=
-  cellIntersectionsSegmentFloat_hausdorff_bound_same_cell_fresh_Impl A B h_finA h_finB h_same
+  cellIntersectionsSegmentFloat_hausdorff_bound_of_same_cell_Impl A B h_finA h_finB h_same
 
-/-- Fresh Master Theorem: Path formulation along same-cell waypoint steps. -/
+/-- Path formulation along same-cell waypoint steps. -/
 theorem cellIntersectionsPathFloat_hausdorff_bound_of_same_cell_steps
     (Ps : List Point32) (h_fin : AllFinite Ps)
     (h_steps : ∀ (i : Nat) (hi : i + 1 < Ps.length),
@@ -78,25 +67,26 @@ theorem cellIntersectionsPathFloat_hausdorff_bound_of_same_cell_steps
       (cellIntersectionsPath (pointsToRational Ps)) 1 :=
   cellIntersectionsPathFloat_hausdorff_bound_of_same_cell_steps_Impl Ps h_fin h_steps
 
-theorem cellIntersectionsSegmentFloat_hausdorff_bound_1000_fresh
+/-- Master Segment Theorem: Global Hausdorff bound for any segment within `mainCoordBound`. -/
+theorem cellIntersectionsSegmentFloat_hausdorff_bound
     (A B : Point32)
     (h_finiteA : A.isFinite)
     (h_finiteB : B.isFinite)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint) :
+    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint) :
     cellHausdorffDistanceLe
       (cellIntersectionsSegmentFloat A B)
       (cellIntersectionsSegment A.toPoint B.toPoint) 1 :=
-  cellIntersectionsSegmentFloat_hausdorff_bound_1000_fresh_Impl A B h_finiteA h_finiteB h_bound
+  cellIntersectionsSegmentFloat_hausdorff_bound_Impl A B h_finiteA h_finiteB h_bound
 
-/-- Master Polyline Theorem: Global Hausdorff bound along any path in [-1000, 1000]^2. -/
-theorem cellIntersectionsPathFloat_hausdorff_bound_1000
+/-- Master Polyline Theorem: Global Hausdorff bound along any path within `mainCoordBound`. -/
+theorem cellIntersectionsPathFloat_hausdorff_bound
     (Ps : List Point32) (h_fin : AllFinite Ps)
     (h_bounds : ∀ (i : Nat) (hi : i + 1 < Ps.length),
-      inCoordBounds 1000 (Ps.get ⟨i, by omega⟩).toPoint (Ps.get ⟨i + 1, hi⟩).toPoint) :
+      inCoordBounds mainCoordBound (Ps.get ⟨i, by omega⟩).toPoint (Ps.get ⟨i + 1, hi⟩).toPoint) :
     cellHausdorffDistanceLe
       (cellIntersectionsPathFloat Ps)
       (cellIntersectionsPath (pointsToRational Ps)) 1 :=
-  cellIntersectionsPathFloat_hausdorff_bound_1000_Impl Ps h_fin h_bounds
+  cellIntersectionsPathFloat_hausdorff_bound_Impl Ps h_fin h_bounds
 
 end Geometry
 

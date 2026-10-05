@@ -220,6 +220,11 @@ def eps32 : ℚ := 1 / (2^24)
 
 def eps64 : ℚ := 1 / (2^53)
 
+/--
+Main coordinate magnitude bound for geometry verification ([-1000, 1000]²).
+-/
+def mainCoordBound : ℚ := 1000
+
 def inCoordBounds (M : ℚ) (A B : Point) : Prop :=
   |A.x| ≤ M ∧ |A.y| ≤ M ∧ |B.x| ≤ M ∧ |B.y| ≤ M
 

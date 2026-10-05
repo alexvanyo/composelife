@@ -16,8 +16,9 @@
 
 import Geometry.Basic
 import Geometry.FloatModel
+import GeometryDefs
 import proofs.FloatAnalysis
-import proofs.SegmentBound.Waypoints
+import proofs.Waypoints
 import Mathlib.Tactic.Linarith
 
 namespace Geometry
@@ -84,16 +85,18 @@ theorem pairwise_waypoint_floor_proximity (Ps : List Point32) (h_fin : AllFinite
   exact chebyshevDistance_floorPoint_float_rational_le_one (Ps.get ⟨i, hi⟩) hP_fin
 
 /--
-The single-precision floating point rounding envelope on coordinate bounds M ≤ 1000
+The single-precision floating point rounding envelope on coordinate bounds M ≤ mainCoordBound
 is strictly less than 1.
 -/
-theorem float_interpolation_error_lt_one (M : ℚ) (hM : M ≤ 1000) (_hM_pos : 0 ≤ M) :
+theorem float_interpolation_error_lt_one (M : ℚ) (hM : M ≤ mainCoordBound) (_hM_pos : 0 ≤ M) :
     eps32 * 2 * M < 1 := by
   have he : eps32 = 1 / (2^24 : ℚ) := rfl
   rw [he]
-  have h_bound : (1 / (2^24 : ℚ)) * 2 * M ≤ (1 / 16777216 : ℚ) * 2 * 1000 := by
+  have h_bound : (1 / (2^24 : ℚ)) * 2 * M ≤ (1 / 16777216 : ℚ) * 2 * mainCoordBound := by
     nlinarith
-  have h_num : ((1 / 16777216 : ℚ) * 2 * 1000) < 1 := by norm_num
+  have h_num : ((1 / 16777216 : ℚ) * 2 * mainCoordBound) < 1 := by
+    unfold mainCoordBound
+    norm_num
   exact lt_of_le_of_lt h_bound h_num
 
 /--
@@ -104,7 +107,7 @@ by the single-precision interpolation envelope (eps32 * 2 * M), the grid cells o
 intermediate waypoint and the idealized rational crossing have Chebyshev distance at most 1.
 -/
 theorem chebyshevDistance_waypoint_crossing_le_one
-    (P Q : Point) (M : ℚ) (hM : M ≤ 1000) (hM_pos : 0 ≤ M)
+    (P Q : Point) (M : ℚ) (hM : M ≤ mainCoordBound) (hM_pos : 0 ≤ M)
     (h_axis : (P.x = Q.x ∧ |P.y - Q.y| ≤ eps32 * 2 * M) ∨
               (P.y = Q.y ∧ |P.x - Q.x| ≤ eps32 * 2 * M)) :
     chebyshevDistance (floorPoint P) (floorPoint Q) ≤ 1 := by
@@ -136,7 +139,7 @@ theorem intermediate_waypoint_near_segment_of_bound
     (A B P Q : Point) (t : ℚ) (ht0 : 0 ≤ t) (ht1 : t ≤ 1)
     (hQx : Q.x = A.x + t * (B.x - A.x))
     (hQy : Q.y = A.y + t * (B.y - A.y))
-    (M : ℚ) (hM : M ≤ 1000) (hM_pos : 0 ≤ M)
+    (M : ℚ) (hM : M ≤ mainCoordBound) (hM_pos : 0 ≤ M)
     (h_axis : (P.x = Q.x ∧ |P.y - Q.y| ≤ eps32 * 2 * M) ∨
               (P.y = Q.y ∧ |P.x - Q.x| ≤ eps32 * 2 * M)) :
     IntermediateWaypointNearSegment P A B := by
@@ -160,12 +163,12 @@ theorem intermediate_waypoint_near_segment_end (A B : Point) :
 /--
 Furthest distance bound from intermediate crossing waypoints to the idealized segment:
 Every cell-crossing waypoint P along the floating-point raymarching path from A to B
-(with coordinate bounds M ≤ 1000) has Chebyshev cell distance at most 1 from an idealized
+(with coordinate bounds M ≤ mainCoordBound) has Chebyshev cell distance at most 1 from an idealized
 rational point Q on the continuous segment AB.
 -/
 theorem intermediate_crossings_distance_bound
     (A B : Point32) (_h_finA : A.isFinite) (_h_finB : B.isFinite)
-    (_h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (_h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (P : Point32) (h_finP : P.isFinite)
     (h_near : IntermediateWaypointNearSegment P.toPoint A.toPoint B.toPoint) :
     ∃ Q : Point,

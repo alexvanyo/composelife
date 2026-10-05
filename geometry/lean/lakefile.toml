@@ -27,10 +27,10 @@ roots = [
   "proofs.FloatBounds",
   "proofs.FloatAnalysis",
   "proofs.FloatProperties",
-  "proofs.SegmentBound",
-  "proofs.SegmentBound.Waypoints",
-  "proofs.SegmentBound.PointBound",
-  "proofs.SegmentBound.MiniSegment",
-  "proofs.SegmentBound.Hausdorff",
+  "proofs.Waypoints",
+  "proofs.PointBound",
+  "proofs.RayMarchLimits",
+  "proofs.MiniSegment",
+  "proofs.Hausdorff",
 ]
 

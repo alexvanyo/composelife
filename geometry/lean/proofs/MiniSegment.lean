@@ -23,9 +23,9 @@ import proofs.FloatProperties
 import proofs.FloatAnalysis
 import proofs.Interval
 import proofs.Soundness
-import proofs.SegmentBound.Waypoints
-import proofs.SegmentBound.PointBound
-import proofs.SegmentBound.RayMarchLimits
+import proofs.Waypoints
+import proofs.PointBound
+import proofs.RayMarchLimits
 import FloatLib.Floats.Formats.BinaryInterchange.Configured.Instances
 
 namespace Geometry
@@ -193,7 +193,7 @@ theorem cellIntersectionsSegment_contains_end (A B : Point) :
     have h_eq : floorPoint A = floorPoint B := eq_of_beq h
     simp [h_eq]
 
-theorem test_fuel_bound_le_4 (startCell endCell : Cell)
+theorem rayMarch_fuel_bound_le_four_of_adjacent (startCell endCell : Cell)
     (h_dist : chebyshevDistance startCell endCell ≤ 1) :
     (endCell.x - startCell.x).natAbs + (endCell.y - startCell.y).natAbs + 2 ≤ 4 := by
   unfold chebyshevDistance at h_dist
@@ -226,21 +226,21 @@ theorem chebyshevDistance_2x_end_le_one (startCell : Cell) (stepX stepY : ℤ)
   unfold chebyshevDistance; dsimp only []
   rcases hX with rfl | rfl | rfl <;> rcases hY with rfl | rfl | rfl <;> omega
 
-theorem test_s3_diag_stepY (c0 : Cell) (stepX stepY : ℤ)
+theorem chebyshevDistance_2x_stepY_endCell_le_one (c0 : Cell) (stepX stepY : ℤ)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
     (endCell : Cell) (he3 : endCell = ⟨c0.x + stepX, c0.y + stepY⟩) :
     chebyshevDistance ⟨c0.x + 2 * stepX, c0.y + stepY⟩ endCell ≤ 1 := by
   rw [he3]; unfold chebyshevDistance; cases c0
   rcases hX with rfl | rfl | rfl <;> rcases hY with rfl | rfl | rfl <;> dsimp <;> omega
 
-theorem test_s3_diag_stepX (c0 : Cell) (stepX stepY : ℤ)
+theorem chebyshevDistance_stepX_2y_endCell_le_one (c0 : Cell) (stepX stepY : ℤ)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
     (endCell : Cell) (he3 : endCell = ⟨c0.x + stepX, c0.y + stepY⟩) :
     chebyshevDistance ⟨c0.x + stepX, c0.y + 2 * stepY⟩ endCell ≤ 1 := by
   rw [he3]; unfold chebyshevDistance; cases c0
   rcases hX with rfl | rfl | rfl <;> rcases hY with rfl | rfl | rfl <;> dsimp <;> omega
 
-theorem test_cand_s3_s4_diag (startCell : Cell) (stepX stepY : ℤ)
+theorem chebyshevDistance_candidates_diag_endCell_le_one (startCell : Cell) (stepX stepY : ℤ)
     (hX : stepX = -1 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 1)
     (endCell : Cell) (hend : endCell = ⟨startCell.x + stepX, startCell.y + stepY⟩)
     (c : Cell)
@@ -299,7 +299,7 @@ theorem fuel_le_3_of_axial_Y (startCell endCell : Cell) (stepY : ℤ)
     rcases hY with rfl | rfl | rfl <;> omega
   omega
 
-theorem test_stepY_zero (start : Point32) (dx dy : Binary32) (stepX : Int) (c : Cell)
+theorem rayMarchStepFloat_step_cases_stepY_zero (start : Point32) (dx dy : Binary32) (stepX : Int) (c : Cell)
     (hx : stepX ≠ 0) :
     (rayMarchStepFloat start dx dy stepX 0 c).2 = true ∨
     (rayMarchStepFloat start dx dy stepX 0 c).1 = ⟨c.x + stepX, c.y⟩ := by
@@ -313,7 +313,7 @@ theorem test_stepY_zero (start : Point32) (dx dy : Binary32) (stepX : Int) (c : 
   simp only [Bool.false_eq_true, ite_false, ite_true]
   split_ifs <;> simp
 
-theorem test_stepX_zero (start : Point32) (dx dy : Binary32) (stepY : Int) (c : Cell)
+theorem rayMarchStepFloat_step_cases_stepX_zero (start : Point32) (dx dy : Binary32) (stepY : Int) (c : Cell)
     (_hy : stepY ≠ 0) :
     (rayMarchStepFloat start dx dy 0 stepY c).2 = true ∨
     (rayMarchStepFloat start dx dy 0 stepY c).1 = ⟨c.x, c.y + stepY⟩ := by
@@ -367,7 +367,7 @@ theorem rat_floor_step_cases (a b : ℚ) (h_dist : (b.floor - a.floor).natAbs �
       omega
 
 theorem endCell_step_cases (A B : Point32)
-    (h_finA : A.isFinite) (h_finB : B.isFinite) (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (h_finA : A.isFinite) (h_finB : B.isFinite) (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (h_dist : chebyshevDistance (floorPoint32 A) (floorPoint32 B) ≤ 1) :
     let stepX := if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0
     let stepY := if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0
@@ -421,7 +421,7 @@ theorem endCell_step_cases (A B : Point32)
 
 theorem adjacent_cells_h_term_full (A B : Point32)
     (h_finA : A.isFinite) (h_finB : B.isFinite)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (h_dist : chebyshevDistance (floorPoint32 A) (floorPoint32 B) ≤ 1) :
     let startCell := floorPoint32 A
     let endCell := floorPoint32 B
@@ -464,7 +464,7 @@ theorem adjacent_cells_h_term_full (A B : Point32)
         intro hy; rw [hy] at hendY; simp only [add_zero] at hendY
         have heq : endCell = startCell := by rw [hendY]
         exact h_same heq.symm
-      have hstep := test_stepX_zero A dx dy stepY startCell hy0
+      have hstep := rayMarchStepFloat_step_cases_stepX_zero A dx dy stepY startCell hy0
       change (startCell == endCell) = true ∨ _
       rw [hx0]
       rcases hstep with h_done | h_c1
@@ -478,7 +478,7 @@ theorem adjacent_cells_h_term_full (A B : Point32)
             have heq : endCell = startCell := by rw [h2]
             exact False.elim (h_same heq.symm)
           · rw [hy0] at h3; simp only [add_zero] at h3; exact h3
-        have hstep := test_stepY_zero A dx dy stepX startCell hx0
+        have hstep := rayMarchStepFloat_step_cases_stepY_zero A dx dy stepX startCell hx0
         change (startCell == endCell) = true ∨ _
         rw [hy0]
         rcases hstep with h_done | h_c1
@@ -591,7 +591,7 @@ theorem rayMarchFloat_cases_1_to_7
               · rw [h_next2_diag, hendDiag, rayMarchFloat_endCell] at htail2
                 cases htail2
 
-theorem test_close_he1_stepY_zero
+theorem rayMarchFloat_cells_near_endpoints_stepY_zero
     (fuel : ℕ)
     (start : Point32) (dx dy : Binary32) (stepX : ℤ)
     (endCell startCell : Cell)
@@ -601,7 +601,7 @@ theorem test_close_he1_stepY_zero
     (c : Cell)
     (hc : c ∈ rayMarchFloat fuel start dx dy stepX 0 endCell startCell []) :
     chebyshevDistance c startCell ≤ 1 ∨ chebyshevDistance c endCell ≤ 1 := by
-  have hstep := test_stepY_zero start dx dy stepX startCell hx0
+  have hstep := rayMarchStepFloat_step_cases_stepY_zero start dx dy stepX startCell hx0
   cases fuel with
   | zero => unfold rayMarchFloat at hc; cases hc
   | succ fuel =>
@@ -619,7 +619,7 @@ theorem test_close_he1_stepY_zero
           rw [rayMarchFloat_endCell] at htail
           cases htail
 
-theorem test_close_he2_stepX_zero
+theorem rayMarchFloat_cells_near_endpoints_stepX_zero
     (fuel : ℕ)
     (start : Point32) (dx dy : Binary32) (stepY : ℤ)
     (endCell startCell : Cell)
@@ -629,7 +629,7 @@ theorem test_close_he2_stepX_zero
     (c : Cell)
     (hc : c ∈ rayMarchFloat fuel start dx dy 0 stepY endCell startCell []) :
     chebyshevDistance c startCell ≤ 1 ∨ chebyshevDistance c endCell ≤ 1 := by
-  have hstep := test_stepX_zero start dx dy stepY startCell hy0
+  have hstep := rayMarchStepFloat_step_cases_stepX_zero start dx dy stepY startCell hy0
   cases fuel with
   | zero => unfold rayMarchFloat at hc; cases hc
   | succ fuel =>
@@ -679,7 +679,7 @@ theorem cellIntersectionsSegment_contains_start (A B : Point) :
     simp only [List.mem_append, List.mem_cons, true_or]
   · simp only [ite_true, List.mem_singleton]
 
-theorem test_case8_no_hs3_done
+theorem rayMarchFloat_cells_near_endpoints_2stepX_stepY
     (fuel : ℕ) (h_fuel : fuel ≤ 4)
     (A : Point32) (dx dy : Binary32) (stepX stepY : ℤ)
     (endCell startCell : Cell)
@@ -728,7 +728,7 @@ theorem test_case8_no_hs3_done
             · simp only [List.mem_cons] at htail
               rcases htail with rfl | htail2
               · right; rw [h8]
-                exact test_cand_s3_s4_diag startCell stepX stepY hX_diag hY_diag endCell he3 _ (Or.inl rfl)
+                exact chebyshevDistance_candidates_diag_endCell_le_one startCell stepX stepY hX_diag hY_diag endCell he3 _ (Or.inl rfl)
               · cases h_f2 : f2 with
                 | zero => rw [h_f2] at htail2; unfold rayMarchFloat at htail2; cases htail2
                 | succ f3 =>
@@ -744,7 +744,7 @@ theorem test_case8_no_hs3_done
             · simp only [List.mem_cons] at htail
               rcases htail with rfl | htail2
               · right; rw [h8]
-                exact test_cand_s3_s4_diag startCell stepX stepY hX_diag hY_diag endCell he3 _ (Or.inl rfl)
+                exact chebyshevDistance_candidates_diag_endCell_le_one startCell stepX stepY hX_diag hY_diag endCell he3 _ (Or.inl rfl)
               · cases h_f2 : f2 with
                 | zero => rw [h_f2] at htail2; unfold rayMarchFloat at htail2; cases htail2
                 | succ f3 =>
@@ -756,7 +756,7 @@ theorem test_case8_no_hs3_done
                   · simp only [List.mem_cons] at htail2
                     rcases htail2 with rfl | htail3
                     · right
-                      exact test_cand_s3_s4_diag startCell stepX stepY hX_diag hY_diag endCell he3 _ (Or.inr (Or.inl rfl))
+                      exact chebyshevDistance_candidates_diag_endCell_le_one startCell stepX stepY hX_diag hY_diag endCell he3 _ (Or.inr (Or.inl rfl))
                     · cases h_f3 : f3 with
                       | zero => rw [h_f3] at htail3; unfold rayMarchFloat at htail3; cases htail3
                       | succ f4 =>
@@ -768,7 +768,7 @@ theorem test_case8_no_hs3_done
                           · cases htail3
                           · simp only [List.mem_cons] at htail3
                             rcases htail3 with rfl | htail4
-                            · right; exact test_cand_s3_s4_diag startCell stepX stepY hX_diag hY_diag endCell he3 _ (Or.inr (Or.inl rfl))
+                            · right; exact chebyshevDistance_candidates_diag_endCell_le_one startCell stepX stepY hX_diag hY_diag endCell he3 _ (Or.inr (Or.inl rfl))
                             · cases f4 with
                               | zero =>
                                 subst h_f0 h_f1 h_f2 h_f3
@@ -780,14 +780,14 @@ theorem test_case8_no_hs3_done
                           · cases htail3
                           · simp only [List.mem_cons] at htail3
                             rcases htail3 with rfl | htail4
-                            · right; exact test_cand_s3_s4_diag startCell stepX stepY hX_diag hY_diag endCell he3 _ (Or.inr (Or.inr (Or.inl rfl)))
+                            · right; exact chebyshevDistance_candidates_diag_endCell_le_one startCell stepX stepY hX_diag hY_diag endCell he3 _ (Or.inr (Or.inr (Or.inl rfl)))
                             · cases f4 with
                               | zero =>
                                 subst h_f0 h_f1 h_f2 h_f3
                                 unfold rayMarchFloat at htail4; cases htail4
                               | succ f5 => exfalso; omega
 
-theorem test_case8_closed_fuel4
+theorem rayMarchFloat_cells_near_endpoints_2stepX_term
     (fuel : ℕ) (h_fuel : fuel ≤ 4)
     (start : Point32) (dx dy : Binary32) (stepX stepY : ℤ)
     (endCell startCell : Cell)
@@ -858,7 +858,7 @@ theorem test_case8_closed_fuel4
                   · cases htail2
                   · simp only [List.mem_cons] at htail2
                     rcases htail2 with rfl | htail3
-                    · right; exact test_s3_diag_stepY startCell stepX stepY hX hY endCell he3
+                    · right; exact chebyshevDistance_2x_stepY_endCell_le_one startCell stepX stepY hX hY endCell he3
                     · cases h_f3 : f3 with
                       | zero => rw [h_f3] at htail3; unfold rayMarchFloat at htail3; cases htail3
                       | succ f4 =>
@@ -869,7 +869,7 @@ theorem test_case8_closed_fuel4
                         · cases htail3
                         · exfalso; apply h_done4; rfl
 
-theorem test_case9_direct
+theorem rayMarchFloat_cells_near_endpoints_2stepX_stepY_term
     (fuel : ℕ)
     (A : Point32) (dx dy : Binary32) (stepX stepY : ℤ)
     (endCell startCell : Cell)
@@ -921,9 +921,9 @@ theorem test_case9_direct
                   · cases htail2
                   · exfalso; apply h_done3; rfl
 
-abbrev test_case9_closed_fuel4 := @test_case9_direct
+abbrev rayMarchFloat_cells_near_endpoints_2stepX_stepY_term_fuel4 := @rayMarchFloat_cells_near_endpoints_2stepX_stepY_term
 
-theorem test_case10_direct
+theorem rayMarchFloat_cells_near_endpoints_2stepY_stepX
     (fuel : ℕ)
     (A : Point32) (dx dy : Binary32) (stepX stepY : ℤ)
     (endCell startCell : Cell)
@@ -996,7 +996,7 @@ theorem test_case10_direct
                         · cases htail3
                         · exfalso; apply h_done4; rfl
 
-theorem test_case11_direct
+theorem rayMarchFloat_cells_near_endpoints_stepX_2stepY_term
     (fuel : ℕ)
     (A : Point32) (dx dy : Binary32) (stepX stepY : ℤ)
     (endCell startCell : Cell)
@@ -1048,7 +1048,7 @@ theorem test_case11_direct
                   · cases htail2
                   · exfalso; apply h_done3; rfl
 
-theorem test_close_axial_X_direct
+theorem rayMarchFloat_cells_near_endpoints_axial_X
     (fuel : ℕ)
     (A : Point32) (dx dy : Binary32) (stepX stepY : ℤ)
     (endCell startCell : Cell)
@@ -1075,7 +1075,7 @@ theorem test_close_axial_X_direct
         · exfalso; apply h_done1; exact h_d1
         · rw [h_e1, rayMarchFloat_endCell] at htail; cases htail
 
-theorem test_close_axial_Y_direct
+theorem rayMarchFloat_cells_near_endpoints_axial_Y
     (fuel : ℕ)
     (A : Point32) (dx dy : Binary32) (stepX stepY : ℤ)
     (endCell startCell : Cell)
@@ -1105,7 +1105,7 @@ theorem test_close_axial_Y_direct
 
 theorem cellIntersectionsSegmentFloat_cells_near_endpoints_Impl
     (A B : Point32) (h_finA : A.isFinite) (h_finB : B.isFinite)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (h_dist : chebyshevDistance (floorPoint32 A) (floorPoint32 B) ≤ 1)
     (h_step_axial_X :
       (rayMarchStepFloat A (B.x - A.x) (B.y - A.y)
@@ -1184,7 +1184,7 @@ theorem cellIntersectionsSegmentFloat_cells_near_endpoints_Impl
         dsimp only [stepY]; split_ifs <;> simp
       let fuel := (endCell.x - startCell.x).natAbs + (endCell.y - startCell.y).natAbs + 2
       change chebyshevDistance c startCell ≤ 1 ∨ chebyshevDistance c endCell ≤ 1
-      have h_fuel : fuel ≤ 4 := test_fuel_bound_le_4 startCell endCell h_dist
+      have h_fuel : fuel ≤ 4 := rayMarch_fuel_bound_le_four_of_adjacent startCell endCell h_dist
       have h_term := adjacent_cells_h_term_full A B h_finA h_finB h_bound h_dist
       have hend_cases := endCell_step_cases A B h_finA h_finB h_bound h_dist
       have h_ne : startCell ≠ endCell := by
@@ -1211,11 +1211,11 @@ theorem cellIntersectionsSegmentFloat_cells_near_endpoints_Impl
           have hstepY_eq : (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) = stepY := rfl
           have hstepX_eq : (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) = stepX := rfl
           rw [hstepY_eq, hstepX_eq, hy0] at hray
-          exact test_close_he1_stepY_zero fuel A dx dy stepX endCell startCell hX he1 hx0 c hray
+          exact rayMarchFloat_cells_near_endpoints_stepY_zero fuel A dx dy stepX endCell startCell hX he1 hx0 c hray
         · have hstepX_eq : (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) = stepX := rfl
           have hstepY_eq : (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) = stepY := rfl
           rw [hstepX_eq, hstepY_eq] at hray
-          exact test_close_axial_X_direct fuel A dx dy stepX stepY endCell startCell hX hY he1 h_step_axial_X c hray
+          exact rayMarchFloat_cells_near_endpoints_axial_X fuel A dx dy stepX stepY endCell startCell hX hY he1 h_step_axial_X c hray
       · -- he2 : endCell = ⟨startCell.x, startCell.y + stepY⟩
         by_cases hx0 : stepX = 0
         · have hy0 : stepY ≠ 0 := by
@@ -1225,11 +1225,11 @@ theorem cellIntersectionsSegmentFloat_cells_near_endpoints_Impl
           have hstepX_eq : (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) = stepX := rfl
           have hstepY_eq : (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) = stepY := rfl
           rw [hstepX_eq, hstepY_eq, hx0] at hray
-          exact test_close_he2_stepX_zero fuel A dx dy stepY endCell startCell hY he2 hy0 c hray
+          exact rayMarchFloat_cells_near_endpoints_stepX_zero fuel A dx dy stepY endCell startCell hY he2 hy0 c hray
         · have hstepX_eq : (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) = stepX := rfl
           have hstepY_eq : (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) = stepY := rfl
           rw [hstepX_eq, hstepY_eq] at hray
-          exact test_close_axial_Y_direct fuel A dx dy stepX stepY endCell startCell hX hY he2 h_step_axial_Y c hray
+          exact rayMarchFloat_cells_near_endpoints_axial_Y fuel A dx dy stepX stepY endCell startCell hX hY he2 h_step_axial_Y c hray
       · -- he3 : endCell = ⟨startCell.x + stepX, startCell.y + stepY⟩
         have hstepX_eq : (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) = stepX := rfl
         have hstepY_eq : (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) = stepY := rfl
@@ -1244,10 +1244,10 @@ theorem cellIntersectionsSegmentFloat_cells_near_endpoints_Impl
         · exact rayMarchFloat_cases_1_to_7 fuel A dx dy stepX stepY endCell startCell hX hY he3 (Or.inr (Or.inr (Or.inr (Or.inl h5)))) c hray
         · exact rayMarchFloat_cases_1_to_7 fuel A dx dy stepX stepY endCell startCell hX hY he3 (Or.inr (Or.inr (Or.inr (Or.inr (Or.inl h6))))) c hray
         · exact rayMarchFloat_cases_1_to_7 fuel A dx dy stepX stepY endCell startCell hX hY he3 (Or.inr (Or.inr (Or.inr (Or.inr (Or.inr h7))))) c hray
-        · exact test_case8_closed_fuel4 fuel h_fuel A dx dy stepX stepY endCell startCell hX hY he3 h8 h_case8_hs2 h_case8_hs3 c hray
-        · exact test_case9_direct fuel A dx dy stepX stepY endCell startCell hX hY he3 h9 h_case9_hs2 c hray
-        · exact test_case10_direct fuel A dx dy stepX stepY endCell startCell hX hY he3 h10 h_case10_hs2 h_case10_hs3 c hray
-        · exact test_case11_direct fuel A dx dy stepX stepY endCell startCell hX hY he3 h11 h_case11_hs2 c hray
+        · exact rayMarchFloat_cells_near_endpoints_2stepX_term fuel h_fuel A dx dy stepX stepY endCell startCell hX hY he3 h8 h_case8_hs2 h_case8_hs3 c hray
+        · exact rayMarchFloat_cells_near_endpoints_2stepX_stepY_term fuel A dx dy stepX stepY endCell startCell hX hY he3 h9 h_case9_hs2 c hray
+        · exact rayMarchFloat_cells_near_endpoints_2stepY_stepX fuel A dx dy stepX stepY endCell startCell hX hY he3 h10 h_case10_hs2 h_case10_hs3 c hray
+        · exact rayMarchFloat_cells_near_endpoints_stepX_2stepY_term fuel A dx dy stepX stepY endCell startCell hX hY he3 h11 h_case11_hs2 c hray
   · rw [h_same] at hc
     simp only [ite_true, List.mem_singleton] at hc
     subst hc
@@ -1255,7 +1255,7 @@ theorem cellIntersectionsSegmentFloat_cells_near_endpoints_Impl
 
 theorem cellIntersectionsSegmentFloat_cells_near_endpoints
     (A B : Point32) (h_finA : A.isFinite) (h_finB : B.isFinite)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (h_dist : chebyshevDistance (floorPoint32 A) (floorPoint32 B) ≤ 1)
     (h_step_axial_X :
       (rayMarchStepFloat A (B.x - A.x) (B.y - A.y)
@@ -1316,7 +1316,7 @@ theorem cellIntersectionsSegmentFloat_cells_near_endpoints
 
 theorem cellIntersectionsSegmentFloat_sub_hausdorff_one_of_adjacent_cells_Impl
     (A B : Point32) (h_finA : A.isFinite) (h_finB : B.isFinite)
-    (_h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (_h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (h_dist : chebyshevDistance (floorPoint32 A) (floorPoint32 B) ≤ 1)
     (h_near : ∀ c ∈ cellIntersectionsSegmentFloat A B,
       chebyshevDistance c (floorPoint32 A) ≤ 1 ∨ chebyshevDistance c (floorPoint32 B) ≤ 1) :
@@ -1350,7 +1350,7 @@ theorem cellIntersectionsSegmentFloat_sub_hausdorff_one_of_adjacent_cells_Impl
 
 theorem cellIntersectionsSegmentFloat_sub_hausdorff_one_of_adjacent_cells
     (A B : Point32) (h_finA : A.isFinite) (h_finB : B.isFinite)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (h_dist : chebyshevDistance (floorPoint32 A) (floorPoint32 B) ≤ 1)
     (h_near : ∀ c ∈ cellIntersectionsSegmentFloat A B,
       chebyshevDistance c (floorPoint32 A) ≤ 1 ∨ chebyshevDistance c (floorPoint32 B) ≤ 1) :
@@ -1361,7 +1361,7 @@ theorem cellIntersectionsSegmentFloat_sub_hausdorff_one_of_adjacent_cells
 
 theorem cellIntersectionsSegmentFloat_sub_hausdorff_one_of_adjacent_cells_of_cases
     (A B : Point32) (h_finA : A.isFinite) (h_finB : B.isFinite)
-    (h_bound : inCoordBounds 1000 A.toPoint B.toPoint)
+    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (h_dist : chebyshevDistance (floorPoint32 A) (floorPoint32 B) ≤ 1)
     (h_step_axial_X :
       (rayMarchStepFloat A (B.x - A.x) (B.y - A.y)
