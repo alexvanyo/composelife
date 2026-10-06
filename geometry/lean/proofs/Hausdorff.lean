@@ -17,6 +17,7 @@
 import Geometry.Basic
 import Geometry.FloatModel
 import GeometryDefs
+import proofs.FloatSemantics
 import proofs.FloatProperties
 import Geometry.LineSegment
 import proofs.Waypoints
@@ -1686,6 +1687,7 @@ private theorem prove_cases_float_ext3_of_cellInBox
   rw [hcy_step1, heq_2y] at hF_y hI_y
   rw [maxCoordDelta_toReal_eval] at hlim_dx hlim_dy
   rw [maxCellBoundaryDistance_toReal_eval] at hcx_le_dy hcy_le_dx
+  rw [epsRayMarch_toReal_eval] at hF_c hF_x hF_y hF_xy
   rcases h_ind with h_ext3 | h_res1 | h_res2 | h_res3
   · exact h_ext3
   · exfalso
@@ -1827,6 +1829,7 @@ private theorem prove_cases_ideal_ext3_of_cellInBox
   rw [hcy_step1, heq_2y] at hF_y hI_y
   rw [maxCoordDelta_toReal_eval] at hlim_dx hlim_dy
   rw [maxCellBoundaryDistance_toReal_eval] at hcx_le_dy hcy_le_dx
+  rw [epsRayMarch_toReal_eval] at hF_c hF_x hF_y hF_xy
   rcases h_ind with h_ext3 | h_res1 | h_res2 | h_res3
   · exact h_ext3
   · exfalso
