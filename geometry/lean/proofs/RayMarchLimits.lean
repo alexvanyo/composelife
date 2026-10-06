@@ -1016,8 +1016,8 @@ theorem binary64_mul_approx_rel (u v : Binary64) (u_I v_I : ℝ)
     (hv_fin : ExecFloat.Binary.isFinite v = true)
     (hu_I : 0 ≤ u_I ∧ u_I ≤ (maxCellBoundaryDistance : ℝ))
     (hv_I : 0 ≤ v_I ∧ v_I ≤ (maxCellBoundaryDistance : ℝ))
-    (hu_rel : |Model.toReal (ExecFloat.Binary.toModel u) - u_I| ≤ (1 / 16777216 : ℝ) * u_I)
-    (hv_rel : |Model.toReal (ExecFloat.Binary.toModel v) - v_I| ≤ (1 / 16777216 : ℝ) * v_I)
+    (hu_rel : |Model.toReal (ExecFloat.Binary.toModel u) - u_I| ≤ (1 / 9007199254740992 : ℝ) * u_I)
+    (hv_rel : |Model.toReal (ExecFloat.Binary.toModel v) - v_I| ≤ (1 / 9007199254740992 : ℝ) * v_I)
     (hu_bpow : Model.toReal (ExecFloat.Binary.toModel u) = 0 ∨
                Model.bpow (-150) ≤ |Model.toReal (ExecFloat.Binary.toModel u)|)
     (hv_bpow : Model.toReal (ExecFloat.Binary.toModel v) = 0 ∨
@@ -1033,13 +1033,13 @@ theorem binary64_mul_approx_rel (u v : Binary64) (u_I v_I : ℝ)
   have hrv_nonneg : 0 ≤ rv := by linarith [hv_I.1]
   have hru_le : |ru| ≤ (maxCellBoundaryDistance : ℝ) + 1 := by
     rw [abs_of_nonneg hru_nonneg]
-    have h_eps : (1 / 16777216 : ℝ) * u_I ≤ 1/4 := by
+    have h_eps : (1 / 9007199254740992 : ℝ) * u_I ≤ 1/4 := by
       have := maxCellBoundaryDistance_mul_eps_le_quarter
       nlinarith [hu_I.2]
     linarith [hu_I.2, hru_bounds.2, h_eps]
   have hrv_le : |rv| ≤ (maxCellBoundaryDistance : ℝ) + 1 := by
     rw [abs_of_nonneg hrv_nonneg]
-    have h_eps : (1 / 16777216 : ℝ) * v_I ≤ 1/4 := by
+    have h_eps : (1 / 9007199254740992 : ℝ) * v_I ≤ 1/4 := by
       have := maxCellBoundaryDistance_mul_eps_le_quarter
       nlinarith [hv_I.2]
     linarith [hv_I.2, hrv_bounds.2, h_eps]
@@ -1127,7 +1127,7 @@ theorem abs_toReal_absD_binary64_rel (a b : Binary32)
     let d_I := |((binary32ToRat b - binary32ToRat a : ℚ) : ℝ)|
     ExecFloat.Binary.isFinite absD = true ∧
     (0 ≤ d_I ∧ d_I ≤ (maxCoordDelta : ℝ)) ∧
-    |Model.toReal (ExecFloat.Binary.toModel absD) - d_I| ≤ (1 / 16777216 : ℝ) * d_I ∧
+    |Model.toReal (ExecFloat.Binary.toModel absD) - d_I| ≤ (1 / 9007199254740992 : ℝ) * d_I ∧
     (Model.toReal (ExecFloat.Binary.toModel absD) = 0 ∨
      Model.bpow (-150) ≤ |Model.toReal (ExecFloat.Binary.toModel absD)|) := by
   intro absD d_I
@@ -1194,13 +1194,10 @@ theorem abs_toReal_absD_binary64_rel (a b : Binary32)
     · left; exact h0
     · right; exact le_trans (bpow_le_bpow_of_le (-300) (-149) (by decide)) h149
   have hround_rel := abs_roundAt_binary64_rel_of_ge_bpow_neg300 r hr_bpow300
-  have hrel : |Model.toReal (ExecFloat.Binary.toModel absD) - d_I| ≤ (1 / 16777216 : ℝ) * d_I := by
+  have hrel : |Model.toReal (ExecFloat.Binary.toModel absD) - d_I| ≤ (1 / 9007199254740992 : ℝ) * d_I := by
     have hr_d_I : |r| = d_I := by dsimp [r, d_I]; push_cast; rfl
     rw [habs_toReal, ← hr_d_I]
-    have h1 : |Model.roundAt FloatFormat.binary64 r - r| ≤ (1 / 16777216 : ℝ) * |r| := by
-      have : (1 / 9007199254740992 : ℝ) ≤ 1 / 16777216 := by norm_num
-      nlinarith [hround_rel, abs_nonneg r]
-    exact le_trans (abs_abs_sub_abs_le (Model.roundAt FloatFormat.binary64 r) r) h1
+    exact le_trans (abs_abs_sub_abs_le (Model.roundAt FloatFormat.binary64 r) r) hround_rel
   have hbpow : Model.toReal (ExecFloat.Binary.toModel absD) = 0 ∨
       Model.bpow (-150) ≤ |Model.toReal (ExecFloat.Binary.toModel absD)| := by
     rcases hr_bpow with h0 | h149
@@ -1229,7 +1226,7 @@ theorem abs_toReal_rem_binary64_rel (a : Binary32) (k : ℤ)
     let rem_I : ℝ := |(k : ℝ) - ((binary32ToRat a : ℚ) : ℝ)|
     ExecFloat.Binary.isFinite rem = true ∧
     (0 ≤ rem_I ∧ rem_I ≤ (maxCellBoundaryDistance : ℝ)) ∧
-    |Model.toReal (ExecFloat.Binary.toModel rem) - rem_I| ≤ (1 / 16777216 : ℝ) * rem_I ∧
+    |Model.toReal (ExecFloat.Binary.toModel rem) - rem_I| ≤ (1 / 9007199254740992 : ℝ) * rem_I ∧
     (Model.toReal (ExecFloat.Binary.toModel rem) = 0 ∨
      Model.bpow (-150) ≤ |Model.toReal (ExecFloat.Binary.toModel rem)|) := by
   intro kb startA rem rem_I
@@ -1309,13 +1306,10 @@ theorem abs_toReal_rem_binary64_rel (a : Binary32) (k : ℤ)
     · left; exact h0
     · right; exact le_trans (bpow_le_bpow_of_le (-300) (-149) (by decide)) h149
   have hround_rel := abs_roundAt_binary64_rel_of_ge_bpow_neg300 r hr_bpow300
-  have hrel : |Model.toReal (ExecFloat.Binary.toModel rem) - rem_I| ≤ (1 / 16777216 : ℝ) * rem_I := by
+  have hrel : |Model.toReal (ExecFloat.Binary.toModel rem) - rem_I| ≤ (1 / 9007199254740992 : ℝ) * rem_I := by
     rw [hrem_toReal]
     dsimp [rem_I]
-    have h1 : |Model.roundAt FloatFormat.binary64 r - r| ≤ (1 / 16777216 : ℝ) * |r| := by
-      have : (1 / 9007199254740992 : ℝ) ≤ 1 / 16777216 := by norm_num
-      nlinarith [hround_rel, abs_nonneg r]
-    exact le_trans (abs_abs_sub_abs_le _ _) h1
+    exact le_trans (abs_abs_sub_abs_le _ _) hround_rel
   have hbpow : Model.toReal (ExecFloat.Binary.toModel rem) = 0 ∨
       Model.bpow (-150) ≤ |Model.toReal (ExecFloat.Binary.toModel rem)| := by
     rcases hr_bpow with h0 | h149
@@ -2286,9 +2280,9 @@ theorem rayMarch_axis_aligned_stepX_zero
       unfold absDy_R Point32.toPoint; push_cast; rfl
     rw [hdI_y] at habsDy_rel habsDy_bds
     change |Model.toReal (ExecFloat.Binary.toModel (ExecFloat.Binary.abs (widen32To64 (intToBinary32 curY0) - widen32To64 A.y))) - remY_R A stepY c.y| ≤
-      (1 / 16777216 : ℝ) * remY_R A stepY c.y at hremY0_rel
+      (1 / 9007199254740992 : ℝ) * remY_R A stepY c.y at hremY0_rel
     change |Model.toReal (ExecFloat.Binary.toModel (ExecFloat.Binary.abs (widen32To64 (intToBinary32 curY1) - widen32To64 A.y))) - remY_R A stepY (c.y + stepY)| ≤
-      (1 / 16777216 : ℝ) * remY_R A stepY (c.y + stepY) at hremY1_rel
+      (1 / 9007199254740992 : ℝ) * remY_R A stepY (c.y + stepY) at hremY1_rel
     change 0 ≤ remY_R A stepY c.y ∧ remY_R A stepY c.y ≤ (maxCellBoundaryDistance : ℝ) at hremY0_bds
     change 0 ≤ remY_R A stepY (c.y + stepY) ∧ remY_R A stepY (c.y + stepY) ≤ (maxCellBoundaryDistance : ℝ) at hremY1_bds
     have hremY0_b := abs_le.mp hremY0_rel
@@ -2339,9 +2333,9 @@ theorem rayMarch_axis_aligned_stepX_zero
           rw [hI_eval c, if_neg hcondI]
         have hF_le := toReal_ge_of_ge_binary64 (remY64 c.y) absDy64 hremY0_fin habsDy_fin hcondF
         have hI_next_ge : remYQ (c.y + stepY) ≥ absDyQ := by
-          have h_rem_q : (1 / 16777216 : ℝ) * remY_R A stepY c.y ≤ 1/4 := by
+          have h_rem_q : (1 / 9007199254740992 : ℝ) * remY_R A stepY c.y ≤ 1/4 := by
             have := maxCellBoundaryDistance_mul_eps_le_quarter; nlinarith [hremY0_bds.2]
-          have h_dy_q : (1 / 16777216 : ℝ) * absDy_R A B ≤ 1/4 := by
+          have h_dy_q : (1 / 9007199254740992 : ℝ) * absDy_R A B ≤ 1/4 := by
             have := maxCoordDelta_mul_eps_le_quarter; nlinarith [habsDy_bds.2]
           have hR : absDy_R A B ≤ remY_R A stepY (c.y + stepY) := by
             dsimp [remY64, curY0, absDy64] at hF_le
@@ -2362,9 +2356,9 @@ theorem rayMarch_axis_aligned_stepX_zero
           exact_mod_cast hcondI
         have hF_next_ge : remY64 (c.y + stepY) ≥ absDy64 := by
           apply ge_of_toReal_ge (remY64 (c.y + stepY)) absDy64 hremY1_fin habsDy_fin
-          have h_rem_q : (1 / 16777216 : ℝ) * remY_R A stepY (c.y + stepY) ≤ 1/4 := by
+          have h_rem_q : (1 / 9007199254740992 : ℝ) * remY_R A stepY (c.y + stepY) ≤ 1/4 := by
             have := maxCellBoundaryDistance_mul_eps_le_quarter; nlinarith [hremY1_bds.2]
-          have h_dy_q : (1 / 16777216 : ℝ) * absDy_R A B ≤ 1/4 := by
+          have h_dy_q : (1 / 9007199254740992 : ℝ) * absDy_R A B ≤ 1/4 := by
             have := maxCoordDelta_mul_eps_le_quarter; nlinarith [habsDy_bds.2]
           dsimp [remY64, curY1, absDy64]
           linarith [hremy_step]
@@ -2428,9 +2422,9 @@ theorem rayMarch_axis_aligned_stepY_zero
     unfold absDx_R Point32.toPoint; push_cast; rfl
   rw [hdI_x] at habsDx_rel habsDx_bds
   change |Model.toReal (ExecFloat.Binary.toModel (ExecFloat.Binary.abs (widen32To64 (intToBinary32 curX0) - widen32To64 A.x))) - remX_R A stepX c.x| ≤
-    (1 / 16777216 : ℝ) * remX_R A stepX c.x at hremX0_rel
+    (1 / 9007199254740992 : ℝ) * remX_R A stepX c.x at hremX0_rel
   change |Model.toReal (ExecFloat.Binary.toModel (ExecFloat.Binary.abs (widen32To64 (intToBinary32 curX1) - widen32To64 A.x))) - remX_R A stepX (c.x + stepX)| ≤
-    (1 / 16777216 : ℝ) * remX_R A stepX (c.x + stepX) at hremX1_rel
+    (1 / 9007199254740992 : ℝ) * remX_R A stepX (c.x + stepX) at hremX1_rel
   change 0 ≤ remX_R A stepX c.x ∧ remX_R A stepX c.x ≤ (maxCellBoundaryDistance : ℝ) at hremX0_bds
   change 0 ≤ remX_R A stepX (c.x + stepX) ∧ remX_R A stepX (c.x + stepX) ≤ (maxCellBoundaryDistance : ℝ) at hremX1_bds
   have hremX0_b := abs_le.mp hremX0_rel
@@ -2465,7 +2459,7 @@ theorem rayMarch_axis_aligned_stepY_zero
   have hI_eval (c' : Cell) :
       rayMarchStep A.toPoint B.toPoint (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y) stepX stepY c' =
         if remXQ c'.x ≥ absDxQ then (c', true) else (⟨c'.x + stepX, c'.y⟩, false) := by
-    unfold rayMarchStep; dsimp only []; rw [hx0, if_neg Bool.false_ne_true, hy0, if_pos rfl]
+      unfold rayMarchStep; dsimp only []; rw [hx0, if_neg Bool.false_ne_true, hy0, if_pos rfl]
   by_cases hcondF : remX64 c.x ≥ absDx64
   · by_cases hcondI : remXQ c.x ≥ absDxQ
     · have hF_c : rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY c = (c, true) := by
@@ -2480,9 +2474,9 @@ theorem rayMarch_axis_aligned_stepY_zero
         rw [hI_eval c, if_neg hcondI]
       have hF_le := toReal_ge_of_ge_binary64 (remX64 c.x) absDx64 hremX0_fin habsDx_fin hcondF
       have hI_next_ge : remXQ (c.x + stepX) ≥ absDxQ := by
-        have h_rem_q : (1 / 16777216 : ℝ) * remX_R A stepX c.x ≤ 1/4 := by
+        have h_rem_q : (1 / 9007199254740992 : ℝ) * remX_R A stepX c.x ≤ 1/4 := by
           have := maxCellBoundaryDistance_mul_eps_le_quarter; nlinarith [hremX0_bds.2]
-        have h_dx_q : (1 / 16777216 : ℝ) * absDx_R A B ≤ 1/4 := by
+        have h_dx_q : (1 / 9007199254740992 : ℝ) * absDx_R A B ≤ 1/4 := by
           have := maxCoordDelta_mul_eps_le_quarter; nlinarith [habsDx_bds.2]
         have hR : absDx_R A B ≤ remX_R A stepX (c.x + stepX) := by
           dsimp [remX64, curX0, absDx64] at hF_le
@@ -2503,9 +2497,9 @@ theorem rayMarch_axis_aligned_stepY_zero
         exact_mod_cast hcondI
       have hF_next_ge : remX64 (c.x + stepX) ≥ absDx64 := by
         apply ge_of_toReal_ge (remX64 (c.x + stepX)) absDx64 hremX1_fin habsDx_fin
-        have h_rem_q : (1 / 16777216 : ℝ) * remX_R A stepX (c.x + stepX) ≤ 1/4 := by
+        have h_rem_q : (1 / 9007199254740992 : ℝ) * remX_R A stepX (c.x + stepX) ≤ 1/4 := by
           have := maxCellBoundaryDistance_mul_eps_le_quarter; nlinarith [hremX1_bds.2]
-        have h_dx_q : (1 / 16777216 : ℝ) * absDx_R A B ≤ 1/4 := by
+        have h_dx_q : (1 / 9007199254740992 : ℝ) * absDx_R A B ≤ 1/4 := by
           have := maxCoordDelta_mul_eps_le_quarter; nlinarith [habsDx_bds.2]
         dsimp [remX64, curX1, absDx64]
         linarith [hremx_step]
