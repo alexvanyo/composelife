@@ -17,6 +17,7 @@
 import Geometry.Basic
 import Geometry.FloatModel
 import GeometryDefs
+import proofs.FloatSemantics
 import proofs.FloatAnalysis
 import proofs.FloatProperties
 import FloatLib.Floats.Formats.BinaryInterchange.Configured.Instances
@@ -867,6 +868,31 @@ theorem bpow_neg23_eq : Model.bpow (-23) = (1 / 8388608 : ℝ) := by
   norm_num at h1
   linarith
 
+theorem bpow_neg52_eq : Model.bpow (-52) = (1 / 4503599627370496 : ℝ) := by
+  have h1 : Model.bpow (52 + (-52)) = Model.bpow 52 * Model.bpow (-52) :=
+    Formats.Flocq.bpow.add_exp Numerics.binaryRadix 52 (-52)
+  have h0 : Model.bpow (52 + (-52)) = 1 := Model.bpow_zero
+  have h52 : Model.bpow (52 : ℕ) = (2 : ℝ) ^ 52 := Model.bpow_natCast 52
+  change Model.bpow (52 : ℤ) = (2 : ℝ) ^ 52 at h52
+  rw [h0, h52] at h1
+  norm_num at h1
+  linarith
+
+theorem abs_roundAt_sub_le_rel_of_normal_binary64 (x : ℝ)
+    (hnormal : Model.minNormalAt FloatFormat.binary64 ≤ |x|) :
+    |Model.roundAt FloatFormat.binary64 x - x| ≤ (1 / 9007199254740992 : ℝ) * |x| := by
+  have hpos : 0 < Model.minNormalAt FloatFormat.binary64 := Model.bpow_pos FloatFormat.binary64.minNormalExponent
+  have hx_abs_pos : 0 < |x| := lt_of_lt_of_le hpos hnormal
+  have hx : x ≠ 0 := abs_pos.mp hx_abs_pos
+  have hrel := Model.relativeError_roundAt_le_of_normal FloatFormat.binary64 x hx hnormal
+  change |Model.roundAt FloatFormat.binary64 x - x| / |x| ≤
+    Model.bpow (1 - Int.ofNat (FloatFormat.binary64.fracWidth + 1)) / 2 at hrel
+  have hexp : 1 - Int.ofNat (FloatFormat.binary64.fracWidth + 1) = -52 := by decide
+  rw [hexp, bpow_neg52_eq] at hrel
+  have hdiv : |Model.roundAt FloatFormat.binary64 x - x| / |x| ≤ (1 / 9007199254740992 : ℝ) := by
+    linarith
+  rwa [div_le_iff₀ hx_abs_pos] at hdiv
+
 theorem abs_roundAt_sub_le_rel_of_normal (fmt : FloatFormat) (x : ℝ)
     (hexp : 1 - Int.ofNat (fmt.fracWidth + 1) ≤ -23)
     (hnormal : Model.minNormalAt fmt ≤ |x|) :
@@ -964,14 +990,14 @@ theorem abs_toReal_sub_binary32_rel (a b : Binary32)
 
 theorem abs_roundAt_binary64_rel_of_ge_bpow_neg300 (x : ℝ)
     (hx : x = 0 ∨ Model.bpow (-300) ≤ |x|) :
-    |Model.roundAt FloatFormat.binary64 x - x| ≤ (1 / 16777216 : ℝ) * |x| := by
+    |Model.roundAt FloatFormat.binary64 x - x| ≤ (1 / 9007199254740992 : ℝ) * |x| := by
   rcases hx with rfl | hge
   · rw [Model.roundAt_zero, sub_self, abs_zero, mul_zero]
   · have hnorm : Model.minNormalAt FloatFormat.binary64 ≤ |x| := by
       have h1 : Model.minNormalAt FloatFormat.binary64 ≤ Model.bpow (-300) :=
         bpow_le_bpow_of_le _ _ (by decide)
       exact le_trans h1 hge
-    exact abs_roundAt_sub_le_rel_of_normal FloatFormat.binary64 x (by decide) hnorm
+    exact abs_roundAt_sub_le_rel_of_normal_binary64 x hnorm
 
 /--
 The square of the maximum cell boundary distance is strictly within the finite range of IEEE-754 Binary64.
@@ -998,7 +1024,7 @@ theorem binary64_mul_approx_rel (u v : Binary64) (u_I v_I : ℝ)
                Model.bpow (-150) ≤ |Model.toReal (ExecFloat.Binary.toModel v)|) :
     ExecFloat.Binary.isFinite (u * v) = true ∧
     |Model.toReal (ExecFloat.Binary.toModel (u * v)) - u_I * v_I| ≤
-      (1 / 5000000 : ℝ) * (u_I * v_I) := by
+      (epsRayMarch : ℝ) * (u_I * v_I) := by
   set ru := Model.toReal (ExecFloat.Binary.toModel u)
   set rv := Model.toReal (ExecFloat.Binary.toModel v)
   have hru_bounds := abs_le.mp hu_rel
@@ -1056,6 +1082,8 @@ theorem binary64_mul_approx_rel (u v : Binary64) (u_I v_I : ℝ)
   rw [← huv_toReal] at hround_err
   rw [abs_of_nonneg (mul_nonneg hru_nonneg hrv_nonneg)] at hround_err
   have hround_bounds := abs_le.mp hround_err
+  have he := epsRayMarch_toReal_eval
+  rw [he]
   refine ⟨huv_fin, abs_le.mpr ⟨?_, ?_⟩⟩
   · nlinarith [hu_I.1, hv_I.1]
   · nlinarith [hu_I.1, hv_I.1]
@@ -1235,7 +1263,10 @@ theorem abs_toReal_rem_binary64_rel (a : Binary32) (k : ℤ)
   have hrel : |Model.toReal (ExecFloat.Binary.toModel rem) - rem_I| ≤ (1 / 16777216 : ℝ) * rem_I := by
     rw [hrem_toReal]
     dsimp [rem_I]
-    exact le_trans (abs_abs_sub_abs_le _ _) hround_rel
+    have h1 : |Model.roundAt FloatFormat.binary64 r - r| ≤ (1 / 16777216 : ℝ) * |r| := by
+      have : (1 / 9007199254740992 : ℝ) ≤ 1 / 16777216 := by norm_num
+      nlinarith [hround_rel, abs_nonneg r]
+    exact le_trans (abs_abs_sub_abs_le _ _) h1
   have hbpow : Model.toReal (ExecFloat.Binary.toModel rem) = 0 ∨
       Model.bpow (-150) ≤ |Model.toReal (ExecFloat.Binary.toModel rem)| := by
     rcases hr_bpow with h0 | h149
@@ -1355,11 +1386,11 @@ theorem crossProducts_float_approx_rel (A B : Point32) (stepX stepY : ℤ) (c : 
     ExecFloat.Binary.isFinite crossY = true ∧
     ExecFloat.Binary.isFinite limitCross = true ∧
     |Model.toReal (ExecFloat.Binary.toModel crossX) - crossX_R A B stepX c.x| ≤
-      (1 / 5000000 : ℝ) * crossX_R A B stepX c.x ∧
+      (epsRayMarch : ℝ) * crossX_R A B stepX c.x ∧
     |Model.toReal (ExecFloat.Binary.toModel crossY) - crossY_R A B stepY c.y| ≤
-      (1 / 5000000 : ℝ) * crossY_R A B stepY c.y ∧
+      (epsRayMarch : ℝ) * crossY_R A B stepY c.y ∧
     |Model.toReal (ExecFloat.Binary.toModel limitCross) - limitCross_R A B| ≤
-      (1 / 5000000 : ℝ) * limitCross_R A B := by
+      (epsRayMarch : ℝ) * limitCross_R A B := by
   intro currentX currentY xb yb startX startY absDx absDy remX remY crossX crossY limitCross
   rcases h_bound with ⟨hAx_le, hAy_le, hBx_le, hBy_le⟩
   have hcurX_le : |currentX| ≤ mainCoordBound.floor + 2 := by
@@ -1488,7 +1519,7 @@ theorem rayMarchStepFloat_real_bounds (A B : Point32) (stepX stepY : ℤ) (c : C
     (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (hx0 : (stepX == 0) = false) (hy0 : (stepY == 0) = false)
     (hcx : |c.x| ≤ mainCoordBound.floor + 1) (hcy : |c.y| ≤ mainCoordBound.floor + 1) :
-    let ε : ℝ := 1 / 5000000
+    let ε : ℝ := (epsRayMarch : ℝ)
     let s := rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY c
     (s.2 = true →
       (1 - ε) * limitCross_R A B ≤ (1 + ε) * crossX_R A B stepX c.x ∧
