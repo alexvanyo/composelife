@@ -154,16 +154,16 @@ theorem maxCoordDelta_le_maxCellBoundaryDistance : (maxCoordDelta : ℝ) ≤ (ma
   norm_num
 
 /--
-Evaluated numeral value of maxCoordDelta in ℝ (2 * mainCoordBoundNat = 2,000,000) for linear arithmetic.
+Evaluated numeral value of maxCoordDelta in ℝ (2 * mainCoordBoundNat = 2,097,150) for linear arithmetic.
 -/
-theorem maxCoordDelta_toReal_eval : (maxCoordDelta : ℝ) = 2000000 := by
+theorem maxCoordDelta_toReal_eval : (maxCoordDelta : ℝ) = 2097150 := by
   unfold maxCoordDelta maxCoordDeltaNat mainCoordBoundNat
   norm_num
 
 /--
-Evaluated numeral value of maxCellBoundaryDistance in ℝ (2 * mainCoordBoundNat + 2 = 2,000,002) for linear arithmetic.
+Evaluated numeral value of maxCellBoundaryDistance in ℝ (2 * mainCoordBoundNat + 2 = 2,097,152) for linear arithmetic.
 -/
-theorem maxCellBoundaryDistance_toReal_eval : (maxCellBoundaryDistance : ℝ) = 2000002 := by
+theorem maxCellBoundaryDistance_toReal_eval : (maxCellBoundaryDistance : ℝ) = 2097152 := by
   unfold maxCellBoundaryDistance maxCellBoundaryDistanceNat mainCoordBoundNat
   norm_num
 

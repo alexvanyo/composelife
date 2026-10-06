@@ -241,12 +241,13 @@ def clearanceCoordBound : ℚ := clearanceCoordBoundNat
 
 /--
 Main coordinate magnitude bound as a natural number for global Hausdorff distance verification.
-Bounded to 1,000,000, strictly within the single-precision significand capacity (2^24 = 16,777,216).
+1048575 (2^20 - 1) is the sharp theoretical integer upper bound where linear arithmetic slack
+4 * epsRayMarch * maxCoordDelta < 1 strictly holds.
 -/
-def mainCoordBoundNat : ℕ := 1000000
+def mainCoordBoundNat : ℕ := 1048575
 
 /--
-Main coordinate magnitude bound for geometry verification ([-1000000, 1000000]²).
+Main coordinate magnitude bound for geometry verification ([-1048575, 1048575]²).
 -/
 def mainCoordBound : ℚ := mainCoordBoundNat
 
