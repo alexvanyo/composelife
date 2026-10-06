@@ -229,10 +229,10 @@ Numerically approximately 3.33067e-16, strictly derived from machine epsilon.
 def epsRayMarch : ℚ := (1 + eps64)^3 - 1
 
 /--
-The maximum coordinate scale where the single-precision cross-product discrepancy bound
-gammaBound M < 1 holds. 1447 is the exact sharp integer upper limit for corner clearance.
+The maximum coordinate scale where the double-precision cross-product discrepancy bound
+gammaBound M < 1 holds, matching mainCoordBoundNat (16,777,213).
 -/
-def clearanceCoordBoundNat : ℕ := 1447
+def clearanceCoordBoundNat : ℕ := 16777213
 
 /--
 The maximum coordinate scale where corner clearance holds.
@@ -275,7 +275,7 @@ def inCoordBounds (M : ℚ) (A B : Point) : Prop :=
   |A.x| ≤ M ∧ |A.y| ≤ M ∧ |B.x| ≤ M ∧ |B.y| ≤ M
 
 def gammaBound (M : ℚ) : ℚ :=
-  eps32 * (8 * M * M + 8 * M)
+  epsRayMarch * (8 * M * M + 8 * M)
 
 def idealCrossCorner (A B : Point) (xb yb : ℚ) : ℚ :=
   let dx := B.x - A.x

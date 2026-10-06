@@ -90,3 +90,7 @@ theorem cellIntersectionsPathFloat_hausdorff_bound
 
 end Geometry
 
+#print axioms Geometry.cellIntersectionsSegmentFloat_eq_ideal_of_clearance
+#print axioms Geometry.cellIntersectionsSegmentFloat_hausdorff_bound
+#print axioms Geometry.cellIntersectionsPathFloat_hausdorff_bound
+
