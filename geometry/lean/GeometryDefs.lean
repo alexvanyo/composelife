@@ -291,13 +291,15 @@ def HasCornerClearance (A B : Point) (M : ℚ) : Prop :=
     |idealCrossCorner A B (ofInt xb) (ofInt yb)| > gammaBound M ∨
     idealCrossCorner A B (ofInt xb) (ofInt yb) = 0) ∧
   (∀ (A' B' : Point32), A'.toPoint = A → B'.toPoint = B →
-    (if B'.x - A'.x > 0.0 then 1 else if B'.x - A'.x < 0.0 then -1 else 0) =
+    let dx := widen32To64 B'.x - widen32To64 A'.x
+    let dy := widen32To64 B'.y - widen32To64 A'.y
+    (if dx > 0.0 then 1 else if dx < 0.0 then -1 else 0) =
       (if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else 0) ∧
-    (if B'.y - A'.y > 0.0 then 1 else if B'.y - A'.y < 0.0 then -1 else 0) =
+    (if dy > 0.0 then 1 else if dy < 0.0 then -1 else 0) =
       (if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0) ∧
-    (∀ c, rayMarchStepFloat A' (B'.x - A'.x) (B'.y - A'.y)
-      (if B'.x - A'.x > 0.0 then 1 else if B'.x - A'.x < 0.0 then -1 else 0)
-      (if B'.y - A'.y > 0.0 then 1 else if B'.y - A'.y < 0.0 then -1 else 0) c =
+    (∀ c, rayMarchStepFloat A' dx dy
+      (if dx > 0.0 then 1 else if dx < 0.0 then -1 else 0)
+      (if dy > 0.0 then 1 else if dy < 0.0 then -1 else 0) c =
       rayMarchStep A B (B.x - A.x) (B.y - A.y)
         (if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else 0)
         (if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0) c))
