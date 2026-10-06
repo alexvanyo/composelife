@@ -222,11 +222,11 @@ def eps64 : ℚ := 1 / (2^53)
 
 /--
 Cross-product relative error bound for ray marching.
-Tightly bounds single-precision coordinate differences widened to double precision
-and accumulated in double-precision cross products: (1 + eps32)^2 * (1 + eps64) - 1.
-Numerically approximately 1.19209e-7, strictly derived from machine epsilon.
+Tightly bounds double-precision coordinate differences and cross products:
+(1 + eps64)^3 - 1.
+Numerically approximately 3.33067e-16, strictly derived from machine epsilon.
 -/
-def epsRayMarch : ℚ := (1 + eps32)^2 * (1 + eps64) - 1
+def epsRayMarch : ℚ := (1 + eps64)^3 - 1
 
 /--
 The maximum coordinate scale where the single-precision cross-product discrepancy bound
@@ -241,13 +241,13 @@ def clearanceCoordBound : ℚ := clearanceCoordBoundNat
 
 /--
 Main coordinate magnitude bound as a natural number for global Hausdorff distance verification.
-1048575 (2^20 - 1) is the sharp theoretical integer upper bound where linear arithmetic slack
-4 * epsRayMarch * maxCoordDelta < 1 strictly holds.
+16777213 (2^24 - 3) is the sharp theoretical integer upper bound where grid cell boundary
+coordinates (up to M + 2) fit within the exact 24-bit significand capacity of IEEE-754 Float32.
 -/
-def mainCoordBoundNat : ℕ := 1048575
+def mainCoordBoundNat : ℕ := 16777213
 
 /--
-Main coordinate magnitude bound for geometry verification ([-1048575, 1048575]²).
+Main coordinate magnitude bound for geometry verification ([-16777213, 16777213]²).
 -/
 def mainCoordBound : ℚ := mainCoordBoundNat
 

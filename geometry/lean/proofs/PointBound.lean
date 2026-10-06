@@ -89,12 +89,12 @@ The single-precision floating point rounding envelope on coordinate bounds M ≤
 is strictly less than 1.
 -/
 theorem float_interpolation_error_lt_one (M : ℚ) (hM : M ≤ mainCoordBound) (_hM_pos : 0 ≤ M) :
-    eps32 * 2 * M < 1 := by
+    eps32 * M < 1 := by
   have he : eps32 = 1 / (2^24 : ℚ) := rfl
   rw [he]
-  have h_bound : (1 / (2^24 : ℚ)) * 2 * M ≤ (1 / 16777216 : ℚ) * 2 * mainCoordBound := by
+  have h_bound : (1 / (2^24 : ℚ)) * M ≤ (1 / 16777216 : ℚ) * mainCoordBound := by
     nlinarith
-  have h_num : ((1 / 16777216 : ℚ) * 2 * mainCoordBound) < 1 := by
+  have h_num : ((1 / 16777216 : ℚ) * mainCoordBound) < 1 := by
     unfold mainCoordBound mainCoordBoundNat
     norm_num
   exact lt_of_le_of_lt h_bound h_num
@@ -103,13 +103,13 @@ theorem float_interpolation_error_lt_one (M : ℚ) (hM : M ≤ mainCoordBound) (
 Distance bound between an intermediate floating-point crossing waypoint and the idealized
 rational crossing point along the same grid boundary line.
 When the coordinate differences between float and rational crossing points are bounded
-by the single-precision interpolation envelope (eps32 * 2 * M), the grid cells of the
+by the single-precision interpolation envelope (eps32 * M), the grid cells of the
 intermediate waypoint and the idealized rational crossing have Chebyshev distance at most 1.
 -/
 theorem chebyshevDistance_waypoint_crossing_le_one
     (P Q : Point) (M : ℚ) (hM : M ≤ mainCoordBound) (hM_pos : 0 ≤ M)
-    (h_axis : (P.x = Q.x ∧ |P.y - Q.y| ≤ eps32 * 2 * M) ∨
-              (P.y = Q.y ∧ |P.x - Q.x| ≤ eps32 * 2 * M)) :
+    (h_axis : (P.x = Q.x ∧ |P.y - Q.y| ≤ eps32 * M) ∨
+              (P.y = Q.y ∧ |P.x - Q.x| ≤ eps32 * M)) :
     chebyshevDistance (floorPoint P) (floorPoint Q) ≤ 1 := by
   have h_err := float_interpolation_error_lt_one M hM hM_pos
   rcases h_axis with ⟨hx, hy⟩ | ⟨hy, hx⟩
@@ -132,7 +132,7 @@ def IntermediateWaypointNearSegment (P : Point) (A B : Point) : Prop :=
 /--
 Master intermediate waypoint bound:
 Every intermediate grid cell crossing point P produced by raymarching whose coordinate
-deviation is bounded by the single-precision interpolation envelope (eps32 * 2 * M)
+deviation is bounded by the single-precision interpolation envelope (eps32 * M)
 remains within discrete Chebyshev cell distance ≤ 1 of the idealized rational line segment AB.
 -/
 theorem intermediate_waypoint_near_segment_of_bound
@@ -140,8 +140,8 @@ theorem intermediate_waypoint_near_segment_of_bound
     (hQx : Q.x = A.x + t * (B.x - A.x))
     (hQy : Q.y = A.y + t * (B.y - A.y))
     (M : ℚ) (hM : M ≤ mainCoordBound) (hM_pos : 0 ≤ M)
-    (h_axis : (P.x = Q.x ∧ |P.y - Q.y| ≤ eps32 * 2 * M) ∨
-              (P.y = Q.y ∧ |P.x - Q.x| ≤ eps32 * 2 * M)) :
+    (h_axis : (P.x = Q.x ∧ |P.y - Q.y| ≤ eps32 * M) ∨
+              (P.y = Q.y ∧ |P.x - Q.x| ≤ eps32 * M)) :
     IntermediateWaypointNearSegment P A B := by
   refine ⟨Q, ⟨t, ht0, ht1, hQx, hQy⟩, ?_⟩
   exact chebyshevDistance_waypoint_crossing_le_one P Q M hM hM_pos h_axis

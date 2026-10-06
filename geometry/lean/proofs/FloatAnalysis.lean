@@ -148,19 +148,31 @@ theorem nat_le_posMaxFinite (fmt : FloatFormat) (N : ℕ) (hN : 0 < N)
   rw [abs_of_pos (by positivity)] at h
   exact h
 
+theorem nat_mul_two_le_posMaxFinite (fmt : FloatFormat) (m : ℕ)
+    (hm : m ≤ Model.pow2 fmt.fracWidth + fmt.maxFiniteFracField)
+    (hexp : 1 ≤ fmt.maxNormalExponent - Int.ofNat fmt.fracWidth) :
+    (2 * m : ℝ) ≤ Model.toReal (Model.posMaxFinite fmt) := by
+  have h := Model.abs_signed_mul_bpow_le_toReal_posMaxFinite fmt false m 1 hm hexp
+  simp only [Bool.false_eq_true, ite_false, one_mul] at h
+  have hbpow1 : Model.bpow (1 : ℤ) = (2 : ℝ) := by
+    have h1 := Model.bpow_natCast 1
+    exact h1.trans (by norm_num)
+  rw [hbpow1] at h
+  have : 0 ≤ (m : ℝ) * 2 := by positivity
+  rw [abs_of_nonneg this] at h
+  linarith
+
 /--
 maxCoordDelta is well within the positive finite representable range of IEEE-754 formats of sufficient width.
 -/
 theorem maxCoordDelta_le_posMaxFinite (fmt : FloatFormat)
-    (hm : maxCoordDeltaNat ≤ Model.pow2 fmt.fracWidth + fmt.maxFiniteFracField)
-    (hexp : 0 ≤ fmt.maxNormalExponent - Int.ofNat fmt.fracWidth) :
+    (hm : mainCoordBoundNat ≤ Model.pow2 fmt.fracWidth + fmt.maxFiniteFracField)
+    (hexp : 1 ≤ fmt.maxNormalExponent - Int.ofNat fmt.fracWidth) :
     (maxCoordDelta : ℝ) ≤ Model.toReal (Model.posMaxFinite fmt) := by
-  have h_eq : (maxCoordDelta : ℝ) = ((maxCoordDeltaNat : ℕ) : ℝ) := by
-    unfold maxCoordDelta
-    push_cast
-    rfl
+  have h_eq : (maxCoordDelta : ℝ) = 2 * ((mainCoordBoundNat : ℕ) : ℝ) := by
+    unfold maxCoordDelta maxCoordDeltaNat; push_cast; ring
   rw [h_eq]
-  exact nat_le_posMaxFinite fmt maxCoordDeltaNat (by decide) hm hexp
+  exact nat_mul_two_le_posMaxFinite fmt mainCoordBoundNat hm hexp
 
 /--
 Subtraction of two bounded finite Binary32 values does not overflow and remains finite.
@@ -534,11 +546,12 @@ theorem intToBinary32_toReal_eq (n : Int) (hn : |n| ≤ (mainCoordBoundNat : ℤ
       have h_le : |(n : ℝ)| ≤ (((mainCoordBoundNat : ℤ) + 2 : ℤ) : ℝ) := by
         rw [← Int.cast_abs]
         exact_mod_cast hn
-      have h_le_delta : (((mainCoordBoundNat : ℤ) + 2 : ℤ) : ℝ) ≤ (maxCoordDelta : ℝ) := by
-        unfold maxCoordDelta maxCoordDeltaNat mainCoordBoundNat
-        norm_num
-      apply le_trans (le_trans h_le h_le_delta)
-      apply maxCoordDelta_le_posMaxFinite _ (by decide) (by decide))
+      have h_cast : (((mainCoordBoundNat : ℤ) + 2 : ℤ) : ℝ) = ((mainCoordBoundNat + 2 : ℕ) : ℝ) := by
+        push_cast; rfl
+      rw [h_cast] at h_le
+      have h_posMax := nat_le_posMaxFinite FloatFormat.binary32 (mainCoordBoundNat + 2)
+        (by decide) (by decide) (by decide)
+      exact le_trans h_le h_posMax)
   calc
     Model.toReal (ExecFloat.Binary.toModel (intToBinary32 n)) =
         Model.toReal (Model.roundDyadic FloatFormat.binary32 (Dyadic.ofScaledInt n 0)) :=
@@ -571,11 +584,12 @@ theorem intToBinary32_isFinite (n : Int) (hn : |n| ≤ (mainCoordBoundNat : ℤ)
       have h_le : |(n : ℝ)| ≤ (((mainCoordBoundNat : ℤ) + 2 : ℤ) : ℝ) := by
         rw [← Int.cast_abs]
         exact_mod_cast hn
-      have h_le_delta : (((mainCoordBoundNat : ℤ) + 2 : ℤ) : ℝ) ≤ (maxCoordDelta : ℝ) := by
-        unfold maxCoordDelta maxCoordDeltaNat mainCoordBoundNat
-        norm_num
-      apply le_trans (le_trans h_le h_le_delta)
-      apply maxCoordDelta_le_posMaxFinite _ (by decide) (by decide))
+      have h_cast : (((mainCoordBoundNat : ℤ) + 2 : ℤ) : ℝ) = ((mainCoordBoundNat + 2 : ℕ) : ℝ) := by
+        push_cast; rfl
+      rw [h_cast] at h_le
+      have h_posMax := nat_le_posMaxFinite FloatFormat.binary32 (mainCoordBoundNat + 2)
+        (by decide) (by decide) (by decide)
+      exact le_trans h_le h_posMax)
   change Model.isFinite (ExecFloat.Binary.toModel (intToBinary32 n)) = true
   rw [h_toModel]
   exact hrepr.1
