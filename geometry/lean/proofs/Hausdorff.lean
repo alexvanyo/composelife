@@ -1630,11 +1630,11 @@ theorem solve_hdiag
     (h_term1 : ¬ ((c == endCell) = true ∨
                   (rayMarchStepFloat start dx dy stepX stepY c).2 = true ∨
                   (rayMarchStepFloat start dx dy stepX stepY c).1 = endCell))
-    (h_term2 : ¬ ((rayMarchStepFloat start dx dy stepX stepY (rayMarchStepFloat start dx dy stepX stepY c).1).1 = endCell ∨
+    (_h_term2 : ¬ ((rayMarchStepFloat start dx dy stepX stepY (rayMarchStepFloat start dx dy stepX stepY c).1).1 = endCell ∨
                   (rayMarchStepFloat start dx dy stepX stepY (rayMarchStepFloat start dx dy stepX stepY c).1).2 = true))
-    (h7 : ¬ ((rayMarchStepFloat start dx dy stepX stepY c).1 = ⟨c.x + stepX, c.y + stepY⟩ ∧
+    (_h7 : ¬ ((rayMarchStepFloat start dx dy stepX stepY c).1 = ⟨c.x + stepX, c.y + stepY⟩ ∧
              (rayMarchStepFloat start dx dy stepX stepY ⟨c.x + stepX, c.y + stepY⟩).2 = true))
-    (h8 : ¬ ((rayMarchStepFloat start dx dy stepX stepY c).1 = ⟨c.x + stepX, c.y + stepY⟩ ∧
+    (_h8 : ¬ ((rayMarchStepFloat start dx dy stepX stepY c).1 = ⟨c.x + stepX, c.y + stepY⟩ ∧
              (rayMarchStepFloat start dx dy stepX stepY ⟨c.x + stepX, c.y + stepY⟩).1 = endCell))
     (hdiag : (rayMarchStepFloat start dx dy stepX stepY c).1 = ⟨c.x + stepX, c.y + stepY⟩)
     (hI_diag : (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1 = ⟨c.x + stepX, c.y + stepY⟩)
@@ -1946,7 +1946,7 @@ theorem cellIntersectionsSegmentFloat_hausdorff_bound_Impl
   set stepY : ℤ := if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0
   by_cases h_axis : (stepX == 0) = true ∨ (stepY == 0) = true
   · exact cellIntersectionsSegmentFloat_hausdorff_bound_axis_aligned A B h_finiteA h_finiteB h_bound h_stepX h_stepY h_axis
-  · push_neg at h_axis
+  · push Not at h_axis
     have hx0 : (stepX == 0) = false := Bool.eq_false_iff.mpr h_axis.1
     have hy0 : (stepY == 0) = false := Bool.eq_false_iff.mpr h_axis.2
     exact cellIntersectionsSegmentFloat_hausdorff_bound_of_cases_visited2 A B

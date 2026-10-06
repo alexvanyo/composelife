@@ -60,7 +60,7 @@ val verifyLean by tasks.registering(Exec::class) {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     dependsOn(cacheLean)
     workingDir = file("lean")
-    commandLine("lake", "build", "Geometry:static")
+    commandLine("lake", "build", "--wfail", "Geometry:static")
     usesService(heavyTaskLimitingBuildService)
 }
 

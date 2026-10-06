@@ -1645,11 +1645,10 @@ theorem rayMarchStepFloat_real_bounds (A B : Point32) (stepX stepY : ℤ) (c : C
       have h1_r := toReal_ge_of_ge_binary64 crossX limitCross hcx_fin hlim_fin h1
       have h2_r := toReal_ge_of_ge_binary64 crossY limitCross hcy_fin hlim_fin h2
       dsimp [ε]; constructor <;> linarith
-    all_goals (simp at h_done)
   · intro h_ndone
     have h_min : ¬(crossX ⊓ crossY ≥ limitCross) := by
       intro h_ge
-      rw [hs_eq, if_pos h_ge] at h_ndone
+      rw [hs_eq, ite_eq_left h_ge] at h_ndone
       simp at h_ndone
     have h_not_both : ¬ (crossX ≥ limitCross ∧ crossY ≥ limitCross) := by
       intro hboth
@@ -1659,12 +1658,12 @@ theorem rayMarchStepFloat_real_bounds (A B : Point32) (stepX stepY : ℤ) (c : C
       have hx_lt_lim : Model.toReal (ExecFloat.Binary.toModel crossX) <
           Model.toReal (ExecFloat.Binary.toModel limitCross) := by
         by_contra hge
-        push_neg at hge
+        push Not at hge
         have hcx_ge := ge_of_toReal_ge crossX limitCross hcx_fin hlim_fin hge
         have hcy_ge := ge_of_toReal_ge crossY limitCross hcy_fin hlim_fin (by linarith)
         exact h_not_both ⟨hcx_ge, hcy_ge⟩
       have hs1 : s.1 = ⟨c.x + stepX, c.y⟩ := by
-        rw [hs_eq, if_neg h_min, if_pos h_x]
+        rw [hs_eq, ite_eq_right h_min, ite_eq_left h_x]
       refine ⟨Or.inl (by dsimp [ε]; linarith), ?_, ?_, ?_⟩
       · intro _; dsimp [ε]; constructor <;> linarith
       · intro h_eq; rw [hs1] at h_eq
@@ -1676,12 +1675,12 @@ theorem rayMarchStepFloat_real_bounds (A B : Point32) (stepX stepY : ℤ) (c : C
         have hy_lt_lim : Model.toReal (ExecFloat.Binary.toModel crossY) <
             Model.toReal (ExecFloat.Binary.toModel limitCross) := by
           by_contra hge
-          push_neg at hge
+          push Not at hge
           have hcy_ge := ge_of_toReal_ge crossY limitCross hcy_fin hlim_fin hge
           have hcx_ge := ge_of_toReal_ge crossX limitCross hcx_fin hlim_fin (by linarith)
           exact h_not_both ⟨hcx_ge, hcy_ge⟩
         have hs1 : s.1 = ⟨c.x, c.y + stepY⟩ := by
-          rw [hs_eq, if_neg h_min, if_neg h_x, if_pos h_y]
+          rw [hs_eq, ite_eq_right h_min, ite_eq_right h_x, ite_eq_left h_y]
         refine ⟨Or.inr (by dsimp [ε]; linarith), ?_, ?_, ?_⟩
         · intro h_eq; rw [hs1] at h_eq
           have := congr_arg Cell.x h_eq; dsimp only [] at this; omega
@@ -1697,12 +1696,12 @@ theorem rayMarchStepFloat_real_bounds (A B : Point32) (stepX stepY : ℤ) (c : C
         have hx_lt_lim : Model.toReal (ExecFloat.Binary.toModel crossX) <
             Model.toReal (ExecFloat.Binary.toModel limitCross) := by
           by_contra hge
-          push_neg at hge
+          push Not at hge
           have hcx_ge := ge_of_toReal_ge crossX limitCross hcx_fin hlim_fin hge
           have hcy_ge := ge_of_toReal_ge crossY limitCross hcy_fin hlim_fin (by linarith)
           exact h_not_both ⟨hcx_ge, hcy_ge⟩
         have hs1 : s.1 = ⟨c.x + stepX, c.y + stepY⟩ := by
-          rw [hs_eq, if_neg h_min, if_neg h_x, if_neg h_y]
+          rw [hs_eq, ite_eq_right h_min, ite_eq_right h_x, ite_eq_right h_y]
         refine ⟨Or.inl (by dsimp [ε]; linarith), ?_, ?_, ?_⟩
         · intro h_eq; rw [hs1] at h_eq
           have := congr_arg Cell.y h_eq; dsimp only [] at this; omega
@@ -1797,11 +1796,10 @@ theorem rayMarchStep_real_bounds (A B : Point32) (stepX stepY : ℤ) (c : Cell)
       rw [hcx_eq, hlim_eq] at h1
       rw [hcy_eq, hlim_eq] at h2
       exact ⟨h1, h2⟩
-    all_goals (simp at h_done)
   · intro h_ndone
     have h_min : ¬(min crossX crossY ≥ limitCross) := by
       intro h_ge
-      rw [hs_eq, if_pos h_ge] at h_ndone
+      rw [hs_eq, ite_eq_left h_ge] at h_ndone
       simp at h_ndone
     have hmin_r : crossX_R A B stepX c.x < limitCross_R A B ∨ crossY_R A B stepY c.y < limitCross_R A B := by
       rcases min_lt_iff.mp (not_le.mp h_min) with h1 | h2
@@ -1811,7 +1809,7 @@ theorem rayMarchStep_real_bounds (A B : Point32) (stepX stepY : ℤ) (c : Cell)
     · have hx_r : crossX_R A B stepX c.x < crossY_R A B stepY c.y := by
         rw [← hcx_eq, ← hcy_eq]; exact_mod_cast h_x
       have hs1 : s.1 = ⟨c.x + stepX, c.y⟩ := by
-        rw [hs_eq, if_neg h_min, if_pos h_x]
+        rw [hs_eq, ite_eq_right h_min, ite_eq_left h_x]
       refine ⟨hmin_r, ?_, ?_, ?_⟩
       · intro _; exact ⟨hx_r, by rcases hmin_r with h1 | h2 <;> linarith⟩
       · intro h_eq; rw [hs1] at h_eq
@@ -1822,7 +1820,7 @@ theorem rayMarchStep_real_bounds (A B : Point32) (stepX stepY : ℤ) (c : Cell)
       · have hy_r : crossY_R A B stepY c.y < crossX_R A B stepX c.x := by
           rw [← hcx_eq, ← hcy_eq]; exact_mod_cast h_y
         have hs1 : s.1 = ⟨c.x, c.y + stepY⟩ := by
-          rw [hs_eq, if_neg h_min, if_neg h_x, if_pos h_y]
+          rw [hs_eq, ite_eq_right h_min, ite_eq_right h_x, ite_eq_left h_y]
         refine ⟨hmin_r, ?_, ?_, ?_⟩
         · intro h_eq; rw [hs1] at h_eq
           have := congr_arg Cell.x h_eq; dsimp only [] at this; omega
@@ -1833,7 +1831,7 @@ theorem rayMarchStep_real_bounds (A B : Point32) (stepX stepY : ℤ) (c : Cell)
         have h_eq_r : crossX_R A B stepX c.x = crossY_R A B stepY c.y := by
           rw [← hcx_eq, ← hcy_eq]; exact_mod_cast h_eq_q
         have hs1 : s.1 = ⟨c.x + stepX, c.y + stepY⟩ := by
-          rw [hs_eq, if_neg h_min, if_neg h_x, if_neg h_y]
+          rw [hs_eq, ite_eq_right h_min, ite_eq_right h_x, ite_eq_right h_y]
         refine ⟨hmin_r, ?_, ?_, ?_⟩
         · intro h_eq; rw [hs1] at h_eq
           have := congr_arg Cell.y h_eq; dsimp only [] at this; omega
@@ -1877,7 +1875,7 @@ theorem remX_R_ge_absDx_of_ge_endCell (A B : Point32) (stepX cx : ℤ)
       le_of_lt (by exact_mod_cast hfl)
     have hcx_r : ((floorPoint B.toPoint).x : ℝ) ≤ (cx : ℝ) := by exact_mod_cast hcx
     have hpos : (0 : ℤ) < 1 := by decide
-    rw [if_pos hpos]
+    rw [ite_eq_left hpos]
     push_cast
     rw [abs_of_nonneg (by linarith), abs_of_nonneg (by linarith)]
     linarith
@@ -1887,7 +1885,7 @@ theorem remX_R_ge_absDx_of_ge_endCell (A B : Point32) (stepX cx : ℤ)
     have hfl_r : ((floorPoint B.toPoint).x : ℝ) ≤ (B.toPoint.x : ℝ) := by exact_mod_cast hfl
     have hcx_r : (cx : ℝ) ≤ ((floorPoint B.toPoint).x : ℝ) := by exact_mod_cast hcx
     have hneg : ¬ ((0 : ℤ) < -1) := by decide
-    rw [if_neg hneg]
+    rw [ite_eq_right hneg]
     rw [abs_of_nonpos (by linarith), abs_of_nonpos (by linarith)]
     linarith
 
@@ -1905,7 +1903,7 @@ theorem remY_R_ge_absDy_of_ge_endCell (A B : Point32) (stepY cy : ℤ)
       le_of_lt (by exact_mod_cast hfl)
     have hcy_r : ((floorPoint B.toPoint).y : ℝ) ≤ (cy : ℝ) := by exact_mod_cast hcy
     have hpos : (0 : ℤ) < 1 := by decide
-    rw [if_pos hpos]
+    rw [ite_eq_left hpos]
     push_cast
     rw [abs_of_nonneg (by linarith), abs_of_nonneg (by linarith)]
     linarith
@@ -1915,7 +1913,7 @@ theorem remY_R_ge_absDy_of_ge_endCell (A B : Point32) (stepY cy : ℤ)
     have hfl_r : ((floorPoint B.toPoint).y : ℝ) ≤ (B.toPoint.y : ℝ) := by exact_mod_cast hfl
     have hcy_r : (cy : ℝ) ≤ ((floorPoint B.toPoint).y : ℝ) := by exact_mod_cast hcy
     have hneg : ¬ ((0 : ℤ) < -1) := by decide
-    rw [if_neg hneg]
+    rw [ite_eq_right hneg]
     rw [abs_of_nonpos (by linarith), abs_of_nonpos (by linarith)]
     linarith
 
@@ -2065,7 +2063,7 @@ theorem rayMarchStep_preserves_cellInBox_and_dist (A B : Point32) (stepX stepY :
       change (rayMarchStep A.toPoint B.toPoint (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y) stepX stepY c).1 = _
       unfold rayMarchStep at h_ndone ⊢
       dsimp only [] at h_ndone ⊢
-      rw [hx0, if_pos rfl] at h_ndone ⊢
+      rw [hx0, ite_eq_left rfl] at h_ndone ⊢
       split_ifs at h_ndone ⊢ <;> simp at h_ndone ⊢
     rw [hnext_eq]
     dsimp only [CellInBox]
@@ -2343,23 +2341,23 @@ theorem rayMarch_axis_aligned_stepX_zero
     have hF_eval (c' : Cell) :
         rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY c' =
           if remY64 c'.y ≥ absDy64 then (c', true) else (⟨c'.x, c'.y + stepY⟩, false) := by
-      unfold rayMarchStepFloat; dsimp only []; rw [hx0, if_pos rfl]; rfl
+      unfold rayMarchStepFloat; dsimp only []; rw [hx0, ite_eq_left rfl]; rfl
     have hI_eval (c' : Cell) :
         rayMarchStep A.toPoint B.toPoint (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y) stepX stepY c' =
           if remYQ c'.y ≥ absDyQ then (c', true) else (⟨c'.x, c'.y + stepY⟩, false) := by
-      unfold rayMarchStep; dsimp only []; rw [hx0, if_pos rfl]
+      unfold rayMarchStep; dsimp only []; rw [hx0, ite_eq_left rfl]
     by_cases hcondF : remY64 c.y ≥ absDy64
     · by_cases hcondI : remYQ c.y ≥ absDyQ
       · have hF_c : rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY c = (c, true) := by
-          rw [hF_eval c, if_pos hcondF]
+          rw [hF_eval c, ite_eq_left hcondF]
         have hI_c : rayMarchStep A.toPoint B.toPoint (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y) stepX stepY c = (c, true) := by
-          rw [hI_eval c, if_pos hcondI]
+          rw [hI_eval c, ite_eq_left hcondI]
         exact ⟨Or.inl ⟨by rw [hF_c, hI_c], by rw [hF_c, hI_c]⟩,
                Or.inl ⟨by rw [hF_c, hI_c], by rw [hF_c, hI_c]⟩⟩
       · have hF_c : rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY c = (c, true) := by
-          rw [hF_eval c, if_pos hcondF]
+          rw [hF_eval c, ite_eq_left hcondF]
         have hI_c : rayMarchStep A.toPoint B.toPoint (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y) stepX stepY c = (⟨c.x, c.y + stepY⟩, false) := by
-          rw [hI_eval c, if_neg hcondI]
+          rw [hI_eval c, ite_eq_right hcondI]
         have hF_le := toReal_ge_of_ge_binary64 (remY64 c.y) absDy64 hremY0_fin habsDy_fin hcondF
         have hI_next_ge : remYQ (c.y + stepY) ≥ absDyQ := by
           have h_rem_q : (1 / 9007199254740992 : ℝ) * remY_R A stepY c.y ≤ 1/4 := by
@@ -2372,14 +2370,14 @@ theorem rayMarch_axis_aligned_stepX_zero
           rw [← habsDyQ_eq, ← hremYQ_eq (c.y + stepY)] at hR
           exact_mod_cast hR
         have hI_c1 : rayMarchStep A.toPoint B.toPoint (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y) stepX stepY ⟨c.x, c.y + stepY⟩ = (⟨c.x, c.y + stepY⟩, true) := by
-          rw [hI_eval ⟨c.x, c.y + stepY⟩, if_pos hI_next_ge]
+          rw [hI_eval ⟨c.x, c.y + stepY⟩, ite_eq_left hI_next_ge]
         refine ⟨Or.inr (Or.inl (Or.inr (Or.inl (by rw [hF_c])))),
                 Or.inr (Or.inr (Or.inl (Or.inr (Or.inl (by rw [hI_c, hI_c1])))))⟩
     · by_cases hcondI : remYQ c.y ≥ absDyQ
       · have hF_c : rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY c = (⟨c.x, c.y + stepY⟩, false) := by
-          rw [hF_eval c, if_neg hcondF]
+          rw [hF_eval c, ite_eq_right hcondF]
         have hI_c : rayMarchStep A.toPoint B.toPoint (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y) stepX stepY c = (c, true) := by
-          rw [hI_eval c, if_pos hcondI]
+          rw [hI_eval c, ite_eq_left hcondI]
         have hI_le_R : absDy_R A B ≤ remY_R A stepY c.y := by
           rw [← habsDyQ_eq, ← hremYQ_eq c.y]
           exact_mod_cast hcondI
@@ -2392,13 +2390,13 @@ theorem rayMarch_axis_aligned_stepX_zero
           dsimp [remY64, curY1, absDy64]
           linarith [hremy_step]
         have hF_c1 : rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY ⟨c.x, c.y + stepY⟩ = (⟨c.x, c.y + stepY⟩, true) := by
-          rw [hF_eval ⟨c.x, c.y + stepY⟩, if_pos hF_next_ge]
+          rw [hF_eval ⟨c.x, c.y + stepY⟩, ite_eq_left hF_next_ge]
         refine ⟨Or.inr (Or.inr (Or.inl (Or.inr (Or.inl (by rw [hF_c, hF_c1]))))),
                 Or.inr (Or.inl (Or.inr (Or.inl (by rw [hI_c]))))⟩
       · have hF_c : rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY c = (⟨c.x, c.y + stepY⟩, false) := by
-          rw [hF_eval c, if_neg hcondF]
+          rw [hF_eval c, ite_eq_right hcondF]
         have hI_c : rayMarchStep A.toPoint B.toPoint (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y) stepX stepY c = (⟨c.x, c.y + stepY⟩, false) := by
-          rw [hI_eval c, if_neg hcondI]
+          rw [hI_eval c, ite_eq_right hcondI]
         exact ⟨Or.inl ⟨by rw [hF_c, hI_c], by rw [hF_c, hI_c]⟩,
                Or.inl ⟨by rw [hF_c, hI_c], by rw [hF_c, hI_c]⟩⟩
 
@@ -2486,23 +2484,23 @@ theorem rayMarch_axis_aligned_stepY_zero
   have hF_eval (c' : Cell) :
       rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY c' =
         if remX64 c'.x ≥ absDx64 then (c', true) else (⟨c'.x + stepX, c'.y⟩, false) := by
-    unfold rayMarchStepFloat; dsimp only []; rw [hx0, if_neg Bool.false_ne_true, hy0, if_pos rfl]; rfl
+    unfold rayMarchStepFloat; dsimp only []; rw [hx0, ite_eq_right Bool.false_ne_true, hy0, ite_eq_left rfl]; rfl
   have hI_eval (c' : Cell) :
       rayMarchStep A.toPoint B.toPoint (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y) stepX stepY c' =
         if remXQ c'.x ≥ absDxQ then (c', true) else (⟨c'.x + stepX, c'.y⟩, false) := by
-      unfold rayMarchStep; dsimp only []; rw [hx0, if_neg Bool.false_ne_true, hy0, if_pos rfl]
+      unfold rayMarchStep; dsimp only []; rw [hx0, ite_eq_right Bool.false_ne_true, hy0, ite_eq_left rfl]
   by_cases hcondF : remX64 c.x ≥ absDx64
   · by_cases hcondI : remXQ c.x ≥ absDxQ
     · have hF_c : rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY c = (c, true) := by
-        rw [hF_eval c, if_pos hcondF]
+        rw [hF_eval c, ite_eq_left hcondF]
       have hI_c : rayMarchStep A.toPoint B.toPoint (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y) stepX stepY c = (c, true) := by
-        rw [hI_eval c, if_pos hcondI]
+        rw [hI_eval c, ite_eq_left hcondI]
       exact ⟨Or.inl ⟨by rw [hF_c, hI_c], by rw [hF_c, hI_c]⟩,
              Or.inl ⟨by rw [hF_c, hI_c], by rw [hF_c, hI_c]⟩⟩
     · have hF_c : rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY c = (c, true) := by
-        rw [hF_eval c, if_pos hcondF]
+        rw [hF_eval c, ite_eq_left hcondF]
       have hI_c : rayMarchStep A.toPoint B.toPoint (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y) stepX stepY c = (⟨c.x + stepX, c.y⟩, false) := by
-        rw [hI_eval c, if_neg hcondI]
+        rw [hI_eval c, ite_eq_right hcondI]
       have hF_le := toReal_ge_of_ge_binary64 (remX64 c.x) absDx64 hremX0_fin habsDx_fin hcondF
       have hI_next_ge : remXQ (c.x + stepX) ≥ absDxQ := by
         have h_rem_q : (1 / 9007199254740992 : ℝ) * remX_R A stepX c.x ≤ 1/4 := by
@@ -2515,14 +2513,14 @@ theorem rayMarch_axis_aligned_stepY_zero
         rw [← habsDxQ_eq, ← hremXQ_eq (c.x + stepX)] at hR
         exact_mod_cast hR
       have hI_c1 : rayMarchStep A.toPoint B.toPoint (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y) stepX stepY ⟨c.x + stepX, c.y⟩ = (⟨c.x + stepX, c.y⟩, true) := by
-        rw [hI_eval ⟨c.x + stepX, c.y⟩, if_pos hI_next_ge]
+        rw [hI_eval ⟨c.x + stepX, c.y⟩, ite_eq_left hI_next_ge]
       refine ⟨Or.inr (Or.inl (Or.inr (Or.inl (by rw [hF_c])))),
               Or.inr (Or.inr (Or.inl (Or.inr (Or.inl (by rw [hI_c, hI_c1])))))⟩
   · by_cases hcondI : remXQ c.x ≥ absDxQ
     · have hF_c : rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY c = (⟨c.x + stepX, c.y⟩, false) := by
-        rw [hF_eval c, if_neg hcondF]
+        rw [hF_eval c, ite_eq_right hcondF]
       have hI_c : rayMarchStep A.toPoint B.toPoint (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y) stepX stepY c = (c, true) := by
-        rw [hI_eval c, if_pos hcondI]
+        rw [hI_eval c, ite_eq_left hcondI]
       have hI_le_R : absDx_R A B ≤ remX_R A stepX c.x := by
         rw [← habsDxQ_eq, ← hremXQ_eq c.x]
         exact_mod_cast hcondI
@@ -2535,13 +2533,13 @@ theorem rayMarch_axis_aligned_stepY_zero
         dsimp [remX64, curX1, absDx64]
         linarith [hremx_step]
       have hF_c1 : rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY ⟨c.x + stepX, c.y⟩ = (⟨c.x + stepX, c.y⟩, true) := by
-        rw [hF_eval ⟨c.x + stepX, c.y⟩, if_pos hF_next_ge]
+        rw [hF_eval ⟨c.x + stepX, c.y⟩, ite_eq_left hF_next_ge]
       refine ⟨Or.inr (Or.inr (Or.inl (Or.inr (Or.inl (by rw [hF_c, hF_c1]))))),
               Or.inr (Or.inl (Or.inr (Or.inl (by rw [hI_c]))))⟩
     · have hF_c : rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY c = (⟨c.x + stepX, c.y⟩, false) := by
-        rw [hF_eval c, if_neg hcondF]
+        rw [hF_eval c, ite_eq_right hcondF]
       have hI_c : rayMarchStep A.toPoint B.toPoint (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y) stepX stepY c = (⟨c.x + stepX, c.y⟩, false) := by
-        rw [hI_eval c, if_neg hcondI]
+        rw [hI_eval c, ite_eq_right hcondI]
       exact ⟨Or.inl ⟨by rw [hF_c, hI_c], by rw [hF_c, hI_c]⟩,
              Or.inl ⟨by rw [hF_c, hI_c], by rw [hF_c, hI_c]⟩⟩
 
