@@ -241,13 +241,13 @@ def clearanceCoordBound : ℚ := clearanceCoordBoundNat
 
 /--
 Main coordinate magnitude bound as a natural number for global Hausdorff distance verification.
-16777213 (2^24 - 3) is the sharp theoretical integer upper bound where grid cell boundary
-coordinates (up to M + 2) fit within the exact 24-bit significand capacity of IEEE-754 Float32.
+2147483645 (2^31 - 3) is the sharp theoretical integer upper bound where grid cell boundary
+coordinates (up to M + 2) fit within the signed 32-bit integer range [-2^31, 2^31 - 1] in Kotlin and Lean.
 -/
-def mainCoordBoundNat : ℕ := 16777213
+def mainCoordBoundNat : ℕ := 2147483645
 
 /--
-Main coordinate magnitude bound for geometry verification ([-16777213, 16777213]²).
+Main coordinate magnitude bound for geometry verification ([-2147483645, 2147483645]²).
 -/
 def mainCoordBound : ℚ := mainCoordBoundNat
 

@@ -94,6 +94,13 @@ def intToBinary32 (n : Int) : Binary32 :=
   ExecFloat.Binary.ofFloat32 (Float32.ofInt n)
 
 /--
+Converts an integer cell coordinate directly to a 64-bit float (Double) value,
+matching `currentX.toDouble()` in Kotlin's LineSegment.kt.
+-/
+def intToBinary64 (n : Int) : Binary64 :=
+  ExecFloat.Binary.ofFloat (Float.ofInt n)
+
+/--
 Widening cast from 32-bit Binary32 to 64-bit Binary64 (Double).
 -/
 def widen32To64 (x : Binary32) : Binary64 :=
@@ -112,8 +119,8 @@ and 64-bit Double differences and cross products, matching `cellIntersections` i
 def rayMarchStepFloat (start : Point32) (dx dy : Binary64) (stepX stepY : Int) (c : Cell) : Cell × Bool :=
   let currentX := if stepX > 0 then c.x + 1 else c.x
   let currentY := if stepY > 0 then c.y + 1 else c.y
-  let xb : Binary64 := widen32To64 (intToBinary32 currentX)
-  let yb : Binary64 := widen32To64 (intToBinary32 currentY)
+  let xb : Binary64 := intToBinary64 currentX
+  let yb : Binary64 := intToBinary64 currentY
   let startX : Binary64 := widen32To64 start.x
   let startY : Binary64 := widen32To64 start.y
   let absDx : Binary64 := ExecFloat.Binary.abs dx
@@ -149,8 +156,8 @@ The returned point lines up with at least one discrete integer grid line (x = cu
 def rayMarchStepWaypointFloat (start : Point32) (dx dy : Binary64) (stepX stepY : Int) (c : Cell) : Point32 :=
   let currentX := if stepX > 0 then c.x + 1 else c.x
   let currentY := if stepY > 0 then c.y + 1 else c.y
-  let xb : Binary64 := widen32To64 (intToBinary32 currentX)
-  let yb : Binary64 := widen32To64 (intToBinary32 currentY)
+  let xb : Binary64 := intToBinary64 currentX
+  let yb : Binary64 := intToBinary64 currentY
   let startX : Binary64 := widen32To64 start.x
   let startY : Binary64 := widen32To64 start.y
   let absDx : Binary64 := ExecFloat.Binary.abs dx

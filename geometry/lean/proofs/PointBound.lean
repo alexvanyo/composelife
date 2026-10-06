@@ -85,17 +85,17 @@ theorem pairwise_waypoint_floor_proximity (Ps : List Point32) (h_fin : AllFinite
   exact chebyshevDistance_floorPoint_float_rational_le_one (Ps.get ⟨i, hi⟩) hP_fin
 
 /--
-The single-precision floating point rounding envelope on coordinate bounds M ≤ mainCoordBound
+The single-precision floating point rounding envelope on coordinate bounds M ≤ clearanceCoordBound
 is strictly less than 1.
 -/
-theorem float_interpolation_error_lt_one (M : ℚ) (hM : M ≤ mainCoordBound) (_hM_pos : 0 ≤ M) :
+theorem float_interpolation_error_lt_one (M : ℚ) (hM : M ≤ clearanceCoordBound) (_hM_pos : 0 ≤ M) :
     eps32 * M < 1 := by
   have he : eps32 = 1 / (2^24 : ℚ) := rfl
   rw [he]
-  have h_bound : (1 / (2^24 : ℚ)) * M ≤ (1 / 16777216 : ℚ) * mainCoordBound := by
+  have h_bound : (1 / (2^24 : ℚ)) * M ≤ (1 / 16777216 : ℚ) * clearanceCoordBound := by
     nlinarith
-  have h_num : ((1 / 16777216 : ℚ) * mainCoordBound) < 1 := by
-    unfold mainCoordBound mainCoordBoundNat
+  have h_num : ((1 / 16777216 : ℚ) * clearanceCoordBound) < 1 := by
+    unfold clearanceCoordBound clearanceCoordBoundNat
     norm_num
   exact lt_of_le_of_lt h_bound h_num
 
@@ -107,7 +107,7 @@ by the single-precision interpolation envelope (eps32 * M), the grid cells of th
 intermediate waypoint and the idealized rational crossing have Chebyshev distance at most 1.
 -/
 theorem chebyshevDistance_waypoint_crossing_le_one
-    (P Q : Point) (M : ℚ) (hM : M ≤ mainCoordBound) (hM_pos : 0 ≤ M)
+    (P Q : Point) (M : ℚ) (hM : M ≤ clearanceCoordBound) (hM_pos : 0 ≤ M)
     (h_axis : (P.x = Q.x ∧ |P.y - Q.y| ≤ eps32 * M) ∨
               (P.y = Q.y ∧ |P.x - Q.x| ≤ eps32 * M)) :
     chebyshevDistance (floorPoint P) (floorPoint Q) ≤ 1 := by
@@ -139,7 +139,7 @@ theorem intermediate_waypoint_near_segment_of_bound
     (A B P Q : Point) (t : ℚ) (ht0 : 0 ≤ t) (ht1 : t ≤ 1)
     (hQx : Q.x = A.x + t * (B.x - A.x))
     (hQy : Q.y = A.y + t * (B.y - A.y))
-    (M : ℚ) (hM : M ≤ mainCoordBound) (hM_pos : 0 ≤ M)
+    (M : ℚ) (hM : M ≤ clearanceCoordBound) (hM_pos : 0 ≤ M)
     (h_axis : (P.x = Q.x ∧ |P.y - Q.y| ≤ eps32 * M) ∨
               (P.y = Q.y ∧ |P.x - Q.x| ≤ eps32 * M)) :
     IntermediateWaypointNearSegment P A B := by

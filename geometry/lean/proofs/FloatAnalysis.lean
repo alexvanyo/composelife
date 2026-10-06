@@ -179,28 +179,26 @@ Subtraction of two bounded finite Binary32 values does not overflow and remains 
 -/
 theorem binary32_sub_isFinite (a b : Binary32)
     (ha : binary32IsFinite a = true) (hb : binary32IsFinite b = true)
-    (hbound_a : |binary32ToRat a| ≤ mainCoordBound) (hbound_b : |binary32ToRat b| ≤ mainCoordBound) :
+    (hbound_a : |binary32ToRat a| ≤ clearanceCoordBound) (hbound_b : |binary32ToRat b| ≤ clearanceCoordBound) :
     binary32IsFinite (b - a) = true := by
   unfold binary32IsFinite ExecFloat.Binary.isFinite
   rw [toModel_sub]
   apply Model.isFinite_sub_of_abs_add_le_posMaxFinite (ExecFloat.Binary.toModel b) (ExecFloat.Binary.toModel a) (by rfl) hb ha
   have h_le : |Model.toReal (ExecFloat.Binary.toModel b)| + |Model.toReal (ExecFloat.Binary.toModel a)| ≤
-      (maxCoordDelta : ℝ) := by
+      2 * (clearanceCoordBound : ℝ) := by
     rw [toReal_eq_cast_toRat b hb, toReal_eq_cast_toRat a ha]
-    have h1 : |((binary32ToRat b : ℚ) : ℝ)| ≤ (mainCoordBound : ℝ) := by exact_mod_cast hbound_b
-    have h2 : |((binary32ToRat a : ℚ) : ℝ)| ≤ (mainCoordBound : ℝ) := by exact_mod_cast hbound_a
-    have : (maxCoordDelta : ℝ) = 2 * (mainCoordBound : ℝ) := by
-      unfold maxCoordDelta maxCoordDeltaNat mainCoordBound mainCoordBoundNat; push_cast; norm_num
+    have h1 : |((binary32ToRat b : ℚ) : ℝ)| ≤ (clearanceCoordBound : ℝ) := by exact_mod_cast hbound_b
+    have h2 : |((binary32ToRat a : ℚ) : ℝ)| ≤ (clearanceCoordBound : ℝ) := by exact_mod_cast hbound_a
     linarith
   apply le_trans h_le
-  apply maxCoordDelta_le_posMaxFinite _ (by decide) (by decide)
+  exact nat_mul_two_le_posMaxFinite FloatFormat.binary32 clearanceCoordBoundNat (by decide) (by decide)
 
 /--
 Decoded real value of Binary32 subtraction is exact real difference rounded once.
 -/
 theorem toReal_sub_eq_roundAt (a b : Binary32)
     (ha : binary32IsFinite a = true) (hb : binary32IsFinite b = true)
-    (hbound_a : |binary32ToRat a| ≤ mainCoordBound) (hbound_b : |binary32ToRat b| ≤ mainCoordBound) :
+    (hbound_a : |binary32ToRat a| ≤ clearanceCoordBound) (hbound_b : |binary32ToRat b| ≤ clearanceCoordBound) :
     Model.toReal (ExecFloat.Binary.toModel (b - a)) =
       Model.roundAt FloatFormat.binary32 (Model.toReal (ExecFloat.Binary.toModel b) - Model.toReal (ExecFloat.Binary.toModel a)) := by
   rw [toModel_sub]
@@ -314,7 +312,7 @@ The sign of Binary32 subtraction matches the sign of exact rational subtraction.
 -/
 theorem binary32_sub_sign_eq (a b : Binary32)
     (ha : binary32IsFinite a = true) (hb : binary32IsFinite b = true)
-    (hbound_a : |binary32ToRat a| ≤ mainCoordBound) (hbound_b : |binary32ToRat b| ≤ mainCoordBound) :
+    (hbound_a : |binary32ToRat a| ≤ clearanceCoordBound) (hbound_b : |binary32ToRat b| ≤ clearanceCoordBound) :
     (if b - a > 0.0 then 1 else if b - a < 0.0 then -1 else 0 : ℤ) =
     (if binary32ToRat b - binary32ToRat a > 0 then 1 else if binary32ToRat b - binary32ToRat a < 0 then -1 else 0 : ℤ) := by
   have hsub_fin : binary32IsFinite (b - a) = true := binary32_sub_isFinite a b ha hb hbound_a hbound_b
@@ -397,7 +395,7 @@ Step X sign agreement for 32-bit floats: The floating-point step direction along
 -/
 theorem binary32_step_signs_agree_X (A B : Point32)
     (h_finiteA : A.isFinite) (h_finiteB : B.isFinite)
-    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint) :
+    (h_bound : inCoordBounds clearanceCoordBound A.toPoint B.toPoint) :
     (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) =
     (if B.toPoint.x - A.toPoint.x > 0 then 1 else if B.toPoint.x - A.toPoint.x < 0 then -1 else 0) := by
   rcases h_bound with ⟨hAx, _, hBx, _⟩
@@ -408,7 +406,7 @@ Step Y sign agreement for 32-bit floats: The floating-point step direction along
 -/
 theorem binary32_step_signs_agree_Y (A B : Point32)
     (h_finiteA : A.isFinite) (h_finiteB : B.isFinite)
-    (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint) :
+    (h_bound : inCoordBounds clearanceCoordBound A.toPoint B.toPoint) :
     (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) =
     (if B.toPoint.y - A.toPoint.y > 0 then 1 else if B.toPoint.y - A.toPoint.y < 0 then -1 else 0) := by
   rcases h_bound with ⟨_, hAy, _, hBy⟩
@@ -525,7 +523,7 @@ theorem widen32To64_toReal_eq (x : Binary32) (hx : binary32IsFinite x = true) :
 Converting an integer with magnitude bounded by mainCoordBound.floor + 2 to Binary32 via intToBinary32
 preserves its exact real value.
 -/
-theorem intToBinary32_toReal_eq (n : Int) (hn : |n| ≤ (mainCoordBoundNat : ℤ) + 2) :
+theorem intToBinary32_toReal_eq (n : Int) (hn : |n| ≤ (clearanceCoordBoundNat : ℤ) + 2) :
     Model.toReal (ExecFloat.Binary.toModel (intToBinary32 n)) = (n : ℝ) := by
   have h_toModel : ExecFloat.Binary.toModel (intToBinary32 n) =
       Model.roundDyadic FloatFormat.binary32 (Dyadic.ofScaledInt n 0) :=
@@ -534,22 +532,22 @@ theorem intToBinary32_toReal_eq (n : Int) (hn : |n| ≤ (mainCoordBoundNat : ℤ
     (Dyadic.ofScaledInt n 0) n.natAbs 0
     (by simp [Dyadic.ofScaledInt])
     (by
-      have h1 : -((mainCoordBoundNat : ℤ) + 2) ≤ n ∧ n ≤ (mainCoordBoundNat : ℤ) + 2 := abs_le.mp hn
-      have h2 : n.natAbs ≤ mainCoordBoundNat + 2 := by omega
-      have h_bound : mainCoordBoundNat + 2 < 2 ^ 24 := by decide
+      have h1 : -((clearanceCoordBoundNat : ℤ) + 2) ≤ n ∧ n ≤ (clearanceCoordBoundNat : ℤ) + 2 := abs_le.mp hn
+      have h2 : n.natAbs ≤ clearanceCoordBoundNat + 2 := by omega
+      have h_bound : clearanceCoordBoundNat + 2 < 2 ^ 24 := by decide
       exact Nat.lt_of_le_of_lt h2 h_bound)
     (by
       simp only [Dyadic.ofScaledInt]
       decide)
     (by
       rw [Model.Dyadic.toReal_ofScaledInt_zero]
-      have h_le : |(n : ℝ)| ≤ (((mainCoordBoundNat : ℤ) + 2 : ℤ) : ℝ) := by
+      have h_le : |(n : ℝ)| ≤ (((clearanceCoordBoundNat : ℤ) + 2 : ℤ) : ℝ) := by
         rw [← Int.cast_abs]
         exact_mod_cast hn
-      have h_cast : (((mainCoordBoundNat : ℤ) + 2 : ℤ) : ℝ) = ((mainCoordBoundNat + 2 : ℕ) : ℝ) := by
+      have h_cast : (((clearanceCoordBoundNat : ℤ) + 2 : ℤ) : ℝ) = ((clearanceCoordBoundNat + 2 : ℕ) : ℝ) := by
         push_cast; rfl
       rw [h_cast] at h_le
-      have h_posMax := nat_le_posMaxFinite FloatFormat.binary32 (mainCoordBoundNat + 2)
+      have h_posMax := nat_le_posMaxFinite FloatFormat.binary32 (clearanceCoordBoundNat + 2)
         (by decide) (by decide) (by decide)
       exact le_trans h_le h_posMax)
   calc
@@ -563,7 +561,7 @@ theorem intToBinary32_toReal_eq (n : Int) (hn : |n| ≤ (mainCoordBoundNat : ℤ
 Converting an integer with magnitude bounded by mainCoordBound.floor + 2 to Binary32 via intToBinary32
 yields a finite float.
 -/
-theorem intToBinary32_isFinite (n : Int) (hn : |n| ≤ (mainCoordBoundNat : ℤ) + 2) :
+theorem intToBinary32_isFinite (n : Int) (hn : |n| ≤ (clearanceCoordBoundNat : ℤ) + 2) :
     ExecFloat.Binary.isFinite (intToBinary32 n) = true := by
   have h_toModel : ExecFloat.Binary.toModel (intToBinary32 n) =
       Model.roundDyadic FloatFormat.binary32 (Dyadic.ofScaledInt n 0) :=
@@ -572,9 +570,44 @@ theorem intToBinary32_isFinite (n : Int) (hn : |n| ≤ (mainCoordBoundNat : ℤ)
     (Dyadic.ofScaledInt n 0) n.natAbs 0
     (by simp [Dyadic.ofScaledInt])
     (by
+      have h1 : -((clearanceCoordBoundNat : ℤ) + 2) ≤ n ∧ n ≤ (clearanceCoordBoundNat : ℤ) + 2 := abs_le.mp hn
+      have h2 : n.natAbs ≤ clearanceCoordBoundNat + 2 := by omega
+      have h_bound : clearanceCoordBoundNat + 2 < 2 ^ 24 := by decide
+      exact Nat.lt_of_le_of_lt h2 h_bound)
+    (by
+      simp only [Dyadic.ofScaledInt]
+      decide)
+    (by
+      rw [Model.Dyadic.toReal_ofScaledInt_zero]
+      have h_le : |(n : ℝ)| ≤ (((clearanceCoordBoundNat : ℤ) + 2 : ℤ) : ℝ) := by
+        rw [← Int.cast_abs]
+        exact_mod_cast hn
+      have h_cast : (((clearanceCoordBoundNat : ℤ) + 2 : ℤ) : ℝ) = ((clearanceCoordBoundNat + 2 : ℕ) : ℝ) := by
+        push_cast; rfl
+      rw [h_cast] at h_le
+      have h_posMax := nat_le_posMaxFinite FloatFormat.binary32 (clearanceCoordBoundNat + 2)
+        (by decide) (by decide) (by decide)
+      exact le_trans h_le h_posMax)
+  change Model.isFinite (ExecFloat.Binary.toModel (intToBinary32 n)) = true
+  rw [h_toModel]
+  exact hrepr.1
+
+/--
+Converting an integer with magnitude bounded by mainCoordBound.floor + 2 to Binary64 via intToBinary64
+preserves its exact real value.
+-/
+theorem intToBinary64_toReal_eq (n : Int) (hn : |n| ≤ (mainCoordBoundNat : ℤ) + 2) :
+    Model.toReal (ExecFloat.Binary.toModel (intToBinary64 n)) = (n : ℝ) := by
+  have h_toModel : ExecFloat.Binary.toModel (intToBinary64 n) =
+      Model.roundDyadic FloatFormat.binary64 (Dyadic.ofScaledInt n 0) :=
+    ExecFloat.Binary.toModel_ofFloat_ofInt n
+  have hrepr := Model.roundDyadic_of_representable FloatFormat.binary64 (by rfl)
+    (Dyadic.ofScaledInt n 0) n.natAbs 0
+    (by simp [Dyadic.ofScaledInt])
+    (by
       have h1 : -((mainCoordBoundNat : ℤ) + 2) ≤ n ∧ n ≤ (mainCoordBoundNat : ℤ) + 2 := abs_le.mp hn
       have h2 : n.natAbs ≤ mainCoordBoundNat + 2 := by omega
-      have h_bound : mainCoordBoundNat + 2 < 2 ^ 24 := by decide
+      have h_bound : mainCoordBoundNat + 2 < 2 ^ 53 := by decide
       exact Nat.lt_of_le_of_lt h2 h_bound)
     (by
       simp only [Dyadic.ofScaledInt]
@@ -587,10 +620,48 @@ theorem intToBinary32_isFinite (n : Int) (hn : |n| ≤ (mainCoordBoundNat : ℤ)
       have h_cast : (((mainCoordBoundNat : ℤ) + 2 : ℤ) : ℝ) = ((mainCoordBoundNat + 2 : ℕ) : ℝ) := by
         push_cast; rfl
       rw [h_cast] at h_le
-      have h_posMax := nat_le_posMaxFinite FloatFormat.binary32 (mainCoordBoundNat + 2)
+      have h_posMax := nat_le_posMaxFinite FloatFormat.binary64 (mainCoordBoundNat + 2)
         (by decide) (by decide) (by decide)
       exact le_trans h_le h_posMax)
-  change Model.isFinite (ExecFloat.Binary.toModel (intToBinary32 n)) = true
+  calc
+    Model.toReal (ExecFloat.Binary.toModel (intToBinary64 n)) =
+        Model.toReal (Model.roundDyadic FloatFormat.binary64 (Dyadic.ofScaledInt n 0)) :=
+      congrArg Model.toReal h_toModel
+    _ = (Dyadic.ofScaledInt n 0).toReal := hrepr.2
+    _ = (n : ℝ) := Model.Dyadic.toReal_ofScaledInt_zero n
+
+/--
+Converting an integer with magnitude bounded by mainCoordBound.floor + 2 to Binary64 via intToBinary64
+yields a finite float.
+-/
+theorem intToBinary64_isFinite (n : Int) (hn : |n| ≤ (mainCoordBoundNat : ℤ) + 2) :
+    ExecFloat.Binary.isFinite (intToBinary64 n) = true := by
+  have h_toModel : ExecFloat.Binary.toModel (intToBinary64 n) =
+      Model.roundDyadic FloatFormat.binary64 (Dyadic.ofScaledInt n 0) :=
+    ExecFloat.Binary.toModel_ofFloat_ofInt n
+  have hrepr := Model.roundDyadic_of_representable FloatFormat.binary64 (by rfl)
+    (Dyadic.ofScaledInt n 0) n.natAbs 0
+    (by simp [Dyadic.ofScaledInt])
+    (by
+      have h1 : -((mainCoordBoundNat : ℤ) + 2) ≤ n ∧ n ≤ (mainCoordBoundNat : ℤ) + 2 := abs_le.mp hn
+      have h2 : n.natAbs ≤ mainCoordBoundNat + 2 := by omega
+      have h_bound : mainCoordBoundNat + 2 < 2 ^ 53 := by decide
+      exact Nat.lt_of_le_of_lt h2 h_bound)
+    (by
+      simp only [Dyadic.ofScaledInt]
+      decide)
+    (by
+      rw [Model.Dyadic.toReal_ofScaledInt_zero]
+      have h_le : |(n : ℝ)| ≤ (((mainCoordBoundNat : ℤ) + 2 : ℤ) : ℝ) := by
+        rw [← Int.cast_abs]
+        exact_mod_cast hn
+      have h_cast : (((mainCoordBoundNat : ℤ) + 2 : ℤ) : ℝ) = ((mainCoordBoundNat + 2 : ℕ) : ℝ) := by
+        push_cast; rfl
+      rw [h_cast] at h_le
+      have h_posMax := nat_le_posMaxFinite FloatFormat.binary64 (mainCoordBoundNat + 2)
+        (by decide) (by decide) (by decide)
+      exact le_trans h_le h_posMax)
+  change Model.isFinite (ExecFloat.Binary.toModel (intToBinary64 n)) = true
   rw [h_toModel]
   exact hrepr.1
 
