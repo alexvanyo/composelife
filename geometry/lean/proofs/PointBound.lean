@@ -186,7 +186,7 @@ satisfies `IsCellBoundaryPoint`: it lines up with at least one integer cell grid
 (x = currentX or y = currentY).
 -/
 theorem rayMarchStepWaypointFloat_isCellBoundaryPoint
-    (start : Point32) (dx dy : Binary32) (stepX stepY : Int) (c : Cell) :
+    (start : Point32) (dx dy : Binary64) (stepX stepY : Int) (c : Cell) :
     IsCellBoundaryPoint (rayMarchStepWaypointFloat start dx dy stepX stepY c) := by
   unfold rayMarchStepWaypointFloat IsCellBoundaryPoint
   dsimp only []

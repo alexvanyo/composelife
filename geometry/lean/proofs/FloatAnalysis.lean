@@ -381,9 +381,9 @@ theorem binary32_sub_sign_eq (a b : Binary32)
     simp [h_gt, h_diff_pos]
 
 /--
-Step X sign agreement: The floating-point step direction along X matches the rational step direction.
+Step X sign agreement for 32-bit floats: The floating-point step direction along X matches the rational step direction.
 -/
-theorem step_signs_agree_X (A B : Point32)
+theorem binary32_step_signs_agree_X (A B : Point32)
     (h_finiteA : A.isFinite) (h_finiteB : B.isFinite)
     (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint) :
     (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) =
@@ -392,9 +392,9 @@ theorem step_signs_agree_X (A B : Point32)
   exact binary32_sub_sign_eq A.x B.x h_finiteA.1 h_finiteB.1 hAx hBx
 
 /--
-Step Y sign agreement: The floating-point step direction along Y matches the rational step direction.
+Step Y sign agreement for 32-bit floats: The floating-point step direction along Y matches the rational step direction.
 -/
-theorem step_signs_agree_Y (A B : Point32)
+theorem binary32_step_signs_agree_Y (A B : Point32)
     (h_finiteA : A.isFinite) (h_finiteB : B.isFinite)
     (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint) :
     (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) =
@@ -608,7 +608,7 @@ private theorem rayMarchStep_done_or_cases (start ptEnd : Point) (dx dy : ℚ) (
 /--
 The result of a single float rayMarchStepFloat is either the done-pair or one of three non-done cells.
 -/
-theorem rayMarchStepFloat_done_or_cases (start : Point32) (dx dy : Binary32) (stepX stepY : ℤ) (c : Cell) :
+theorem rayMarchStepFloat_done_or_cases (start : Point32) (dx dy : Binary64) (stepX stepY : ℤ) (c : Cell) :
     ((rayMarchStepFloat start dx dy stepX stepY c).2 = true ∧
      (rayMarchStepFloat start dx dy stepX stepY c).1 = c) ∨
     ((rayMarchStepFloat start dx dy stepX stepY c).2 = false ∧
@@ -627,7 +627,7 @@ theorem rayMarchStepFloat_done_or_cases (start : Point32) (dx dy : Binary32) (st
     · simp only [hy0, Bool.false_eq_true, ite_false]
       split_ifs <;> simp
 
-theorem rayMarchStepFloat_done_cell (start : Point32) (dx dy : Binary32) (stepX stepY : ℤ) (c : Cell)
+theorem rayMarchStepFloat_done_cell (start : Point32) (dx dy : Binary64) (stepX stepY : ℤ) (c : Cell)
     (h_done : (rayMarchStepFloat start dx dy stepX stepY c).2 = true) :
     (rayMarchStepFloat start dx dy stepX stepY c).1 = c := by
   have h := rayMarchStepFloat_done_or_cases start dx dy stepX stepY c

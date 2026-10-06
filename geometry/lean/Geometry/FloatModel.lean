@@ -106,18 +106,18 @@ def narrow64To32 (x : Binary64) : Binary32 :=
   (x.cast (target := Binary32)).value?.getD (0.0 : Binary32)
 
 /--
-Determines the next cell transition in ray-marching using 32-bit floating point inputs
-and 64-bit Double widening for intermediate cross products, matching `cellIntersections` in `LineSegment.kt`.
+Determines the next cell transition in ray-marching using 32-bit floating point points
+and 64-bit Double differences and cross products, matching `cellIntersections` in `LineSegment.kt`.
 -/
-def rayMarchStepFloat (start : Point32) (dx dy : Binary32) (stepX stepY : Int) (c : Cell) : Cell × Bool :=
+def rayMarchStepFloat (start : Point32) (dx dy : Binary64) (stepX stepY : Int) (c : Cell) : Cell × Bool :=
   let currentX := if stepX > 0 then c.x + 1 else c.x
   let currentY := if stepY > 0 then c.y + 1 else c.y
   let xb : Binary64 := widen32To64 (intToBinary32 currentX)
   let yb : Binary64 := widen32To64 (intToBinary32 currentY)
   let startX : Binary64 := widen32To64 start.x
   let startY : Binary64 := widen32To64 start.y
-  let absDx : Binary64 := ExecFloat.Binary.abs (widen32To64 dx)
-  let absDy : Binary64 := ExecFloat.Binary.abs (widen32To64 dy)
+  let absDx : Binary64 := ExecFloat.Binary.abs dx
+  let absDy : Binary64 := ExecFloat.Binary.abs dy
   if stepX == 0 then
     let remY : Binary64 := ExecFloat.Binary.abs (yb - startY)
     if remY >= absDy then (c, true)
@@ -146,15 +146,15 @@ Extracts the intermediate continuous floating-point boundary crossing waypoint a
 with the transition from cell `c` during ray-marching.
 The returned point lines up with at least one discrete integer grid line (x = currentX or y = currentY).
 -/
-def rayMarchStepWaypointFloat (start : Point32) (dx dy : Binary32) (stepX stepY : Int) (c : Cell) : Point32 :=
+def rayMarchStepWaypointFloat (start : Point32) (dx dy : Binary64) (stepX stepY : Int) (c : Cell) : Point32 :=
   let currentX := if stepX > 0 then c.x + 1 else c.x
   let currentY := if stepY > 0 then c.y + 1 else c.y
   let xb : Binary64 := widen32To64 (intToBinary32 currentX)
   let yb : Binary64 := widen32To64 (intToBinary32 currentY)
   let startX : Binary64 := widen32To64 start.x
   let startY : Binary64 := widen32To64 start.y
-  let absDx : Binary64 := ExecFloat.Binary.abs (widen32To64 dx)
-  let absDy : Binary64 := ExecFloat.Binary.abs (widen32To64 dy)
+  let absDx : Binary64 := ExecFloat.Binary.abs dx
+  let absDy : Binary64 := ExecFloat.Binary.abs dy
   if stepX == 0 then
     ⟨start.x, intToBinary32 currentY⟩
   else if stepY == 0 then
@@ -165,10 +165,10 @@ def rayMarchStepWaypointFloat (start : Point32) (dx dy : Binary32) (stepX stepY 
     let crossX : Binary64 := remX * absDy
     let crossY : Binary64 := remY * absDx
     if crossX < crossY then
-      let interpY := narrow64To32 (startY + (xb - startX) * widen32To64 dy / widen32To64 dx)
+      let interpY := narrow64To32 (startY + (xb - startX) * dy / dx)
       ⟨intToBinary32 currentX, interpY⟩
     else if crossY < crossX then
-      let interpX := narrow64To32 (startX + (yb - startY) * widen32To64 dx / widen32To64 dy)
+      let interpX := narrow64To32 (startX + (yb - startY) * dx / dy)
       ⟨interpX, intToBinary32 currentY⟩
     else
       ⟨intToBinary32 currentX, intToBinary32 currentY⟩
@@ -177,7 +177,7 @@ def rayMarchStepWaypointFloat (start : Point32) (dx dy : Binary32) (stepX stepY 
 Ray-marches from `startCell` towards `endCell` using floating-point operations.
 Matches the while loop in `LineSegment.kt`.
 -/
-def rayMarchFloat (fuel : Nat) (start : Point32) (dx dy : Binary32) (stepX stepY : Int)
+def rayMarchFloat (fuel : Nat) (start : Point32) (dx dy : Binary64) (stepX stepY : Int)
     (endCell : Cell) (current : Cell) (acc : List Cell) : List Cell :=
   match fuel with
   | 0 => acc
@@ -192,7 +192,7 @@ def rayMarchFloat (fuel : Nat) (start : Point32) (dx dy : Binary32) (stepX stepY
 Ray-marches from `startCell` towards `endCell` while tracking both visited discrete cells
 and intermediate continuous boundary crossing waypoints.
 -/
-def rayMarchWithWaypointsFloat (fuel : Nat) (start : Point32) (dx dy : Binary32) (stepX stepY : Int)
+def rayMarchWithWaypointsFloat (fuel : Nat) (start : Point32) (dx dy : Binary64) (stepX stepY : Int)
     (endCell : Cell) (current : Cell)
     (accCells : List Cell) (accWaypoints : List Point32) : List Cell × List Point32 :=
   match fuel with
@@ -210,7 +210,7 @@ def rayMarchWithWaypointsFloat (fuel : Nat) (start : Point32) (dx dy : Binary32)
 Equivalence theorem: `rayMarchWithWaypointsFloat` generates the exact same sequence of discrete
 grid cells as `rayMarchFloat`.
 -/
-theorem rayMarchFloat_eq_fst (fuel : Nat) (start : Point32) (dx dy : Binary32) (stepX stepY : Int)
+theorem rayMarchFloat_eq_fst (fuel : Nat) (start : Point32) (dx dy : Binary64) (stepX stepY : Int)
     (endCell : Cell) (current : Cell) (acc : List Cell) (accW : List Point32) :
     (rayMarchWithWaypointsFloat fuel start dx dy stepX stepY endCell current acc accW).1 =
     rayMarchFloat fuel start dx dy stepX stepY endCell current acc := by
@@ -225,6 +225,20 @@ theorem rayMarchFloat_eq_fst (fuel : Nat) (start : Point32) (dx dy : Binary32) (
     · exact ih _ _ _
 
 /--
+Difference in X between two Point32s widened to Binary64.
+Matches `end.x.toDouble() - start.x.toDouble()` in Kotlin's LineSegment.kt.
+-/
+def deltaX (A B : Point32) : Binary64 :=
+  widen32To64 B.x - widen32To64 A.x
+
+/--
+Difference in Y between two Point32s widened to Binary64.
+Matches `end.y.toDouble() - start.y.toDouble()` in Kotlin's LineSegment.kt.
+-/
+def deltaY (A B : Point32) : Binary64 :=
+  widen32To64 B.y - widen32To64 A.y
+
+/--
 Extracts the full list of floating-point waypoints for segment AB, starting at A, passing through
 all intermediate grid-boundary crossing points, and ending at B.
 -/
@@ -234,8 +248,8 @@ def segmentWaypointsFloat (A B : Point32) : List Point32 :=
   if startCell == endCell then
     [A, B]
   else
-    let dx : Binary32 := B.x - A.x
-    let dy : Binary32 := B.y - A.y
+    let dx := deltaX A B
+    let dy := deltaY A B
     let stepX : Int := if dx > 0.0 then 1 else if dx < 0.0 then -1 else 0
     let stepY : Int := if dy > 0.0 then 1 else if dy < 0.0 then -1 else 0
     let maxSteps := (endCell.x - startCell.x).natAbs + (endCell.y - startCell.y).natAbs + 2
@@ -244,7 +258,7 @@ def segmentWaypointsFloat (A B : Point32) : List Point32 :=
 
 /--
 Computes the set of discrete grid cells intersected by the line segment from `A` to `B`
-using the 32-bit floating point raymarching algorithm.
+using the floating point raymarching algorithm with 64-bit Double coordinate deltas.
 Directly corresponds to `cellIntersections(start, end)` in Kotlin's LineSegment.kt.
 -/
 def cellIntersectionsSegmentFloat (A B : Point32) : List Cell :=
@@ -253,8 +267,8 @@ def cellIntersectionsSegmentFloat (A B : Point32) : List Cell :=
   if startCell == endCell then
     [startCell]
   else
-    let dx : Binary32 := B.x - A.x
-    let dy : Binary32 := B.y - A.y
+    let dx := deltaX A B
+    let dy := deltaY A B
     let stepX : Int := if dx > 0.0 then 1 else if dx < 0.0 then -1 else 0
     let stepY : Int := if dy > 0.0 then 1 else if dy < 0.0 then -1 else 0
     let maxSteps := (endCell.x - startCell.x).natAbs + (endCell.y - startCell.y).natAbs + 2
@@ -271,8 +285,8 @@ theorem cellIntersectionsSegmentFloat_eq_with_waypoints (A B : Point32) :
     if startCell == endCell then
       [startCell]
     else
-      let dx : Binary32 := B.x - A.x
-      let dy : Binary32 := B.y - A.y
+      let dx := deltaX A B
+      let dy := deltaY A B
       let stepX : Int := if dx > 0.0 then 1 else if dx < 0.0 then -1 else 0
       let stepY : Int := if dy > 0.0 then 1 else if dy < 0.0 then -1 else 0
       let maxSteps := (endCell.x - startCell.x).natAbs + (endCell.y - startCell.y).natAbs + 2

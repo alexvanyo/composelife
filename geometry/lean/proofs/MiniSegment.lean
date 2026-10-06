@@ -299,7 +299,7 @@ theorem fuel_le_3_of_axial_Y (startCell endCell : Cell) (stepY : ℤ)
     rcases hY with rfl | rfl | rfl <;> omega
   omega
 
-theorem rayMarchStepFloat_step_cases_stepY_zero (start : Point32) (dx dy : Binary32) (stepX : Int) (c : Cell)
+theorem rayMarchStepFloat_step_cases_stepY_zero (start : Point32) (dx dy : Binary64) (stepX : Int) (c : Cell)
     (hx : stepX ≠ 0) :
     (rayMarchStepFloat start dx dy stepX 0 c).2 = true ∨
     (rayMarchStepFloat start dx dy stepX 0 c).1 = ⟨c.x + stepX, c.y⟩ := by
@@ -313,7 +313,7 @@ theorem rayMarchStepFloat_step_cases_stepY_zero (start : Point32) (dx dy : Binar
   simp only [Bool.false_eq_true, ite_false, ite_true]
   split_ifs <;> simp
 
-theorem rayMarchStepFloat_step_cases_stepX_zero (start : Point32) (dx dy : Binary32) (stepY : Int) (c : Cell)
+theorem rayMarchStepFloat_step_cases_stepX_zero (start : Point32) (dx dy : Binary64) (stepY : Int) (c : Cell)
     (_hy : stepY ≠ 0) :
     (rayMarchStepFloat start dx dy 0 stepY c).2 = true ∨
     (rayMarchStepFloat start dx dy 0 stepY c).1 = ⟨c.x, c.y + stepY⟩ := by
@@ -323,7 +323,7 @@ theorem rayMarchStepFloat_step_cases_stepX_zero (start : Point32) (dx dy : Binar
   simp only [ite_true]
   split_ifs <;> simp
 
-theorem rayMarchStepFloat_step_cases (start : Point32) (dx dy : Binary32) (stepX stepY : Int) (c : Cell)
+theorem rayMarchStepFloat_step_cases (start : Point32) (dx dy : Binary64) (stepX stepY : Int) (c : Cell)
     (hx : stepX ≠ 0) (hy : stepY ≠ 0) :
     (rayMarchStepFloat start dx dy stepX stepY c).2 = true ∨
     ((rayMarchStepFloat start dx dy stepX stepY c).1 = ⟨c.x + stepX, c.y⟩ ∧ (rayMarchStepFloat start dx dy stepX stepY c).2 = false) ∨
@@ -369,8 +369,8 @@ theorem rat_floor_step_cases (a b : ℚ) (h_dist : (b.floor - a.floor).natAbs �
 theorem endCell_step_cases (A B : Point32)
     (h_finA : A.isFinite) (h_finB : B.isFinite) (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (h_dist : chebyshevDistance (floorPoint32 A) (floorPoint32 B) ≤ 1) :
-    let stepX := if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0
-    let stepY := if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0
+    let stepX := if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0
+    let stepY := if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0
     floorPoint32 B = floorPoint32 A ∨
     floorPoint32 B = ⟨(floorPoint32 A).x + stepX, (floorPoint32 A).y⟩ ∨
     floorPoint32 B = ⟨(floorPoint32 A).x, (floorPoint32 A).y + stepY⟩ ∨
@@ -425,8 +425,8 @@ theorem adjacent_cells_h_term_full (A B : Point32)
     (h_dist : chebyshevDistance (floorPoint32 A) (floorPoint32 B) ≤ 1) :
     let startCell := floorPoint32 A
     let endCell := floorPoint32 B
-    let dx := B.x - A.x
-    let dy := B.y - A.y
+    let dx := deltaX A B
+    let dy := deltaY A B
     let stepX := if dx > 0.0 then 1 else if dx < 0.0 then -1 else 0
     let stepY := if dy > 0.0 then 1 else if dy < 0.0 then -1 else 0
     (startCell == endCell) = true ∨
@@ -518,7 +518,7 @@ theorem adjacent_cells_h_term_full (A B : Point32)
 
 theorem rayMarchFloat_cases_1_to_7
     (fuel : ℕ)
-    (start : Point32) (dx dy : Binary32) (stepX stepY : ℤ)
+    (start : Point32) (dx dy : Binary64) (stepX stepY : ℤ)
     (endCell startCell : Cell)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
     (hendDiag : endCell = ⟨startCell.x + stepX, startCell.y + stepY⟩)
@@ -593,7 +593,7 @@ theorem rayMarchFloat_cases_1_to_7
 
 theorem rayMarchFloat_cells_near_endpoints_stepY_zero
     (fuel : ℕ)
-    (start : Point32) (dx dy : Binary32) (stepX : ℤ)
+    (start : Point32) (dx dy : Binary64) (stepX : ℤ)
     (endCell startCell : Cell)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1)
     (he1 : endCell = ⟨startCell.x + stepX, startCell.y⟩)
@@ -621,7 +621,7 @@ theorem rayMarchFloat_cells_near_endpoints_stepY_zero
 
 theorem rayMarchFloat_cells_near_endpoints_stepX_zero
     (fuel : ℕ)
-    (start : Point32) (dx dy : Binary32) (stepY : ℤ)
+    (start : Point32) (dx dy : Binary64) (stepY : ℤ)
     (endCell startCell : Cell)
     (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
     (he2 : endCell = ⟨startCell.x, startCell.y + stepY⟩)
@@ -681,7 +681,7 @@ theorem cellIntersectionsSegment_contains_start (A B : Point) :
 
 theorem rayMarchFloat_cells_near_endpoints_2stepX_stepY
     (fuel : ℕ) (h_fuel : fuel ≤ 4)
-    (A : Point32) (dx dy : Binary32) (stepX stepY : ℤ)
+    (A : Point32) (dx dy : Binary64) (stepX stepY : ℤ)
     (endCell startCell : Cell)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
     (hX_diag : stepX = -1 ∨ stepX = 1) (hY_diag : stepY = -1 ∨ stepY = 1)
@@ -789,7 +789,7 @@ theorem rayMarchFloat_cells_near_endpoints_2stepX_stepY
 
 theorem rayMarchFloat_cells_near_endpoints_2stepX_term
     (fuel : ℕ) (h_fuel : fuel ≤ 4)
-    (start : Point32) (dx dy : Binary32) (stepX stepY : ℤ)
+    (start : Point32) (dx dy : Binary64) (stepX stepY : ℤ)
     (endCell startCell : Cell)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
     (he3 : endCell = ⟨startCell.x + stepX, startCell.y + stepY⟩)
@@ -871,7 +871,7 @@ theorem rayMarchFloat_cells_near_endpoints_2stepX_term
 
 theorem rayMarchFloat_cells_near_endpoints_2stepX_stepY_term
     (fuel : ℕ)
-    (A : Point32) (dx dy : Binary32) (stepX stepY : ℤ)
+    (A : Point32) (dx dy : Binary64) (stepX stepY : ℤ)
     (endCell startCell : Cell)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
     (he3 : endCell = ⟨startCell.x + stepX, startCell.y + stepY⟩)
@@ -925,7 +925,7 @@ abbrev rayMarchFloat_cells_near_endpoints_2stepX_stepY_term_fuel4 := @rayMarchFl
 
 theorem rayMarchFloat_cells_near_endpoints_2stepY_stepX
     (fuel : ℕ)
-    (A : Point32) (dx dy : Binary32) (stepX stepY : ℤ)
+    (A : Point32) (dx dy : Binary64) (stepX stepY : ℤ)
     (endCell startCell : Cell)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
     (hendDiag : endCell = ⟨startCell.x + stepX, startCell.y + stepY⟩)
@@ -998,7 +998,7 @@ theorem rayMarchFloat_cells_near_endpoints_2stepY_stepX
 
 theorem rayMarchFloat_cells_near_endpoints_stepX_2stepY_term
     (fuel : ℕ)
-    (A : Point32) (dx dy : Binary32) (stepX stepY : ℤ)
+    (A : Point32) (dx dy : Binary64) (stepX stepY : ℤ)
     (endCell startCell : Cell)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
     (hendDiag : endCell = ⟨startCell.x + stepX, startCell.y + stepY⟩)
@@ -1050,7 +1050,7 @@ theorem rayMarchFloat_cells_near_endpoints_stepX_2stepY_term
 
 theorem rayMarchFloat_cells_near_endpoints_axial_X
     (fuel : ℕ)
-    (A : Point32) (dx dy : Binary32) (stepX stepY : ℤ)
+    (A : Point32) (dx dy : Binary64) (stepX stepY : ℤ)
     (endCell startCell : Cell)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
     (he1 : endCell = ⟨startCell.x + stepX, startCell.y⟩)
@@ -1077,7 +1077,7 @@ theorem rayMarchFloat_cells_near_endpoints_axial_X
 
 theorem rayMarchFloat_cells_near_endpoints_axial_Y
     (fuel : ℕ)
-    (A : Point32) (dx dy : Binary32) (stepX stepY : ℤ)
+    (A : Point32) (dx dy : Binary64) (stepX stepY : ℤ)
     (endCell startCell : Cell)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
     (he2 : endCell = ⟨startCell.x, startCell.y + stepY⟩)
@@ -1108,57 +1108,63 @@ theorem cellIntersectionsSegmentFloat_cells_near_endpoints_Impl
     (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (h_dist : chebyshevDistance (floorPoint32 A) (floorPoint32 B) ≤ 1)
     (h_step_axial_X :
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y)
-        (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
-        (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) (floorPoint32 A)).2 = true ∨
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y)
-        (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
-        (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) (floorPoint32 A)).1 = floorPoint32 B)
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B)
+        (if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0)
+        (if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0) (floorPoint32 A)).2 = true ∨
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B)
+        (if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0)
+        (if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0) (floorPoint32 A)).1 = floorPoint32 B)
     (h_step_axial_Y :
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y)
-        (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
-        (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) (floorPoint32 A)).2 = true ∨
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y)
-        (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
-        (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) (floorPoint32 A)).1 = floorPoint32 B)
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B)
+        (if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0)
+        (if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0) (floorPoint32 A)).2 = true ∨
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B)
+        (if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0)
+        (if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0) (floorPoint32 A)).1 = floorPoint32 B)
     (h_case8_hs2 :
-      let stepX := if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0
-      let stepY := if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY
-        (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY (floorPoint32 A)).1).2 = true ∨
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY ⟨(floorPoint32 A).x + 2 * stepX, (floorPoint32 A).y⟩).2 = true ∨
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY ⟨(floorPoint32 A).x + 2 * stepX, (floorPoint32 A).y⟩).1 =
+      let stepX := if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0
+      let stepY := if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY (floorPoint32 A)).1).2 = true ∨
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        ⟨(floorPoint32 A).x + 2 * stepX, (floorPoint32 A).y⟩).2 = true ∨
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        ⟨(floorPoint32 A).x + 2 * stepX, (floorPoint32 A).y⟩).1 =
         ⟨(floorPoint32 A).x + 2 * stepX, (floorPoint32 A).y + stepY⟩)
     (h_case8_hs3 :
-      let stepX := if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0
-      let stepY := if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY
+      let stepX := if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0
+      let stepY := if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
         ⟨(floorPoint32 A).x + 2 * stepX, (floorPoint32 A).y + stepY⟩).2 = true)
     (h_case9_hs2 :
-      let stepX := if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0
-      let stepY := if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY
-        (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY (floorPoint32 A)).1).2 = true ∨
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY ⟨(floorPoint32 A).x + 2 * stepX, (floorPoint32 A).y + stepY⟩).2 = true)
+      let stepX := if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0
+      let stepY := if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY (floorPoint32 A)).1).2 = true ∨
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        ⟨(floorPoint32 A).x + 2 * stepX, (floorPoint32 A).y + stepY⟩).2 = true)
     (h_case10_hs2 :
-      let stepX := if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0
-      let stepY := if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY
-        (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY (floorPoint32 A)).1).2 = true ∨
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY ⟨(floorPoint32 A).x, (floorPoint32 A).y + 2 * stepY⟩).2 = true ∨
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY ⟨(floorPoint32 A).x, (floorPoint32 A).y + 2 * stepY⟩).1 =
+      let stepX := if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0
+      let stepY := if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY (floorPoint32 A)).1).2 = true ∨
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        ⟨(floorPoint32 A).x, (floorPoint32 A).y + 2 * stepY⟩).2 = true ∨
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        ⟨(floorPoint32 A).x, (floorPoint32 A).y + 2 * stepY⟩).1 =
         ⟨(floorPoint32 A).x + stepX, (floorPoint32 A).y + 2 * stepY⟩)
     (h_case10_hs3 :
-      let stepX := if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0
-      let stepY := if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY
+      let stepX := if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0
+      let stepY := if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
         ⟨(floorPoint32 A).x + stepX, (floorPoint32 A).y + 2 * stepY⟩).2 = true)
     (h_case11_hs2 :
-      let stepX := if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0
-      let stepY := if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY
-        (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY (floorPoint32 A)).1).2 = true ∨
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY ⟨(floorPoint32 A).x + stepX, (floorPoint32 A).y + 2 * stepY⟩).2 = true) :
+      let stepX := if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0
+      let stepY := if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY (floorPoint32 A)).1).2 = true ∨
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        ⟨(floorPoint32 A).x + stepX, (floorPoint32 A).y + 2 * stepY⟩).2 = true) :
     ∀ c ∈ cellIntersectionsSegmentFloat A B,
       chebyshevDistance c (floorPoint32 A) ≤ 1 ∨ chebyshevDistance c (floorPoint32 B) ≤ 1 := by
   intro c hc
@@ -1174,8 +1180,8 @@ theorem cellIntersectionsSegmentFloat_cells_near_endpoints_Impl
     · right; rw [chebyshevDistance_self]; omega
     · let startCell := floorPoint32 A
       let endCell := floorPoint32 B
-      let dx := B.x - A.x
-      let dy := B.y - A.y
+      let dx := deltaX A B
+      let dy := deltaY A B
       let stepX := if dx > 0.0 then 1 else if dx < 0.0 then -1 else 0
       let stepY := if dy > 0.0 then 1 else if dy < 0.0 then -1 else 0
       have hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1 := by
@@ -1208,12 +1214,12 @@ theorem cellIntersectionsSegmentFloat_cells_near_endpoints_Impl
             intro hx; rw [hx] at he1
             have : endCell = startCell := by rw [he1]; apply cell_ext <;> dsimp <;> ring
             exact h_ne this.symm
-          have hstepY_eq : (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) = stepY := rfl
-          have hstepX_eq : (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) = stepX := rfl
+          have hstepY_eq : (if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0) = stepY := rfl
+          have hstepX_eq : (if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0) = stepX := rfl
           rw [hstepY_eq, hstepX_eq, hy0] at hray
           exact rayMarchFloat_cells_near_endpoints_stepY_zero fuel A dx dy stepX endCell startCell hX he1 hx0 c hray
-        · have hstepX_eq : (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) = stepX := rfl
-          have hstepY_eq : (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) = stepY := rfl
+        · have hstepX_eq : (if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0) = stepX := rfl
+          have hstepY_eq : (if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0) = stepY := rfl
           rw [hstepX_eq, hstepY_eq] at hray
           exact rayMarchFloat_cells_near_endpoints_axial_X fuel A dx dy stepX stepY endCell startCell hX hY he1 h_step_axial_X c hray
       · -- he2 : endCell = ⟨startCell.x, startCell.y + stepY⟩
@@ -1222,17 +1228,17 @@ theorem cellIntersectionsSegmentFloat_cells_near_endpoints_Impl
             intro hy; rw [hy] at he2
             have : endCell = startCell := by rw [he2]; apply cell_ext <;> dsimp <;> omega
             exact h_ne this.symm
-          have hstepX_eq : (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) = stepX := rfl
-          have hstepY_eq : (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) = stepY := rfl
+          have hstepX_eq : (if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0) = stepX := rfl
+          have hstepY_eq : (if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0) = stepY := rfl
           rw [hstepX_eq, hstepY_eq, hx0] at hray
           exact rayMarchFloat_cells_near_endpoints_stepX_zero fuel A dx dy stepY endCell startCell hY he2 hy0 c hray
-        · have hstepX_eq : (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) = stepX := rfl
-          have hstepY_eq : (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) = stepY := rfl
+        · have hstepX_eq : (if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0) = stepX := rfl
+          have hstepY_eq : (if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0) = stepY := rfl
           rw [hstepX_eq, hstepY_eq] at hray
           exact rayMarchFloat_cells_near_endpoints_axial_Y fuel A dx dy stepX stepY endCell startCell hX hY he2 h_step_axial_Y c hray
       · -- he3 : endCell = ⟨startCell.x + stepX, startCell.y + stepY⟩
-        have hstepX_eq : (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0) = stepX := rfl
-        have hstepY_eq : (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) = stepY := rfl
+        have hstepX_eq : (if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0) = stepX := rfl
+        have hstepY_eq : (if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0) = stepY := rfl
         rw [hstepX_eq, hstepY_eq] at hray
         rcases h_term with h1 | h2 | h3 | h4 | h5 | h6 | h7 | h8 | h9 | h10 | h11
         · exfalso; have heq : (startCell == endCell) = (floorPoint32 A == floorPoint32 B) := rfl
@@ -1258,57 +1264,63 @@ theorem cellIntersectionsSegmentFloat_cells_near_endpoints
     (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (h_dist : chebyshevDistance (floorPoint32 A) (floorPoint32 B) ≤ 1)
     (h_step_axial_X :
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y)
-        (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
-        (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) (floorPoint32 A)).2 = true ∨
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y)
-        (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
-        (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) (floorPoint32 A)).1 = floorPoint32 B)
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B)
+        (if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0)
+        (if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0) (floorPoint32 A)).2 = true ∨
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B)
+        (if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0)
+        (if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0) (floorPoint32 A)).1 = floorPoint32 B)
     (h_step_axial_Y :
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y)
-        (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
-        (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) (floorPoint32 A)).2 = true ∨
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y)
-        (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
-        (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) (floorPoint32 A)).1 = floorPoint32 B)
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B)
+        (if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0)
+        (if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0) (floorPoint32 A)).2 = true ∨
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B)
+        (if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0)
+        (if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0) (floorPoint32 A)).1 = floorPoint32 B)
     (h_case8_hs2 :
-      let stepX := if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0
-      let stepY := if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY
-        (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY (floorPoint32 A)).1).2 = true ∨
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY ⟨(floorPoint32 A).x + 2 * stepX, (floorPoint32 A).y⟩).2 = true ∨
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY ⟨(floorPoint32 A).x + 2 * stepX, (floorPoint32 A).y⟩).1 =
+      let stepX := if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0
+      let stepY := if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY (floorPoint32 A)).1).2 = true ∨
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        ⟨(floorPoint32 A).x + 2 * stepX, (floorPoint32 A).y⟩).2 = true ∨
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        ⟨(floorPoint32 A).x + 2 * stepX, (floorPoint32 A).y⟩).1 =
         ⟨(floorPoint32 A).x + 2 * stepX, (floorPoint32 A).y + stepY⟩)
     (h_case8_hs3 :
-      let stepX := if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0
-      let stepY := if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY
+      let stepX := if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0
+      let stepY := if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
         ⟨(floorPoint32 A).x + 2 * stepX, (floorPoint32 A).y + stepY⟩).2 = true)
     (h_case9_hs2 :
-      let stepX := if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0
-      let stepY := if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY
-        (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY (floorPoint32 A)).1).2 = true ∨
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY ⟨(floorPoint32 A).x + 2 * stepX, (floorPoint32 A).y + stepY⟩).2 = true)
+      let stepX := if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0
+      let stepY := if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY (floorPoint32 A)).1).2 = true ∨
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        ⟨(floorPoint32 A).x + 2 * stepX, (floorPoint32 A).y + stepY⟩).2 = true)
     (h_case10_hs2 :
-      let stepX := if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0
-      let stepY := if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY
-        (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY (floorPoint32 A)).1).2 = true ∨
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY ⟨(floorPoint32 A).x, (floorPoint32 A).y + 2 * stepY⟩).2 = true ∨
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY ⟨(floorPoint32 A).x, (floorPoint32 A).y + 2 * stepY⟩).1 =
+      let stepX := if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0
+      let stepY := if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY (floorPoint32 A)).1).2 = true ∨
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        ⟨(floorPoint32 A).x, (floorPoint32 A).y + 2 * stepY⟩).2 = true ∨
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        ⟨(floorPoint32 A).x, (floorPoint32 A).y + 2 * stepY⟩).1 =
         ⟨(floorPoint32 A).x + stepX, (floorPoint32 A).y + 2 * stepY⟩)
     (h_case10_hs3 :
-      let stepX := if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0
-      let stepY := if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY
+      let stepX := if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0
+      let stepY := if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
         ⟨(floorPoint32 A).x + stepX, (floorPoint32 A).y + 2 * stepY⟩).2 = true)
     (h_case11_hs2 :
-      let stepX := if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0
-      let stepY := if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY
-        (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY (floorPoint32 A)).1).2 = true ∨
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY ⟨(floorPoint32 A).x + stepX, (floorPoint32 A).y + 2 * stepY⟩).2 = true) :
+      let stepX := if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0
+      let stepY := if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY (floorPoint32 A)).1).2 = true ∨
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        ⟨(floorPoint32 A).x + stepX, (floorPoint32 A).y + 2 * stepY⟩).2 = true) :
     ∀ c ∈ cellIntersectionsSegmentFloat A B,
       chebyshevDistance c (floorPoint32 A) ≤ 1 ∨ chebyshevDistance c (floorPoint32 B) ≤ 1 :=
   cellIntersectionsSegmentFloat_cells_near_endpoints_Impl A B h_finA h_finB h_bound h_dist
@@ -1364,57 +1376,63 @@ theorem cellIntersectionsSegmentFloat_sub_hausdorff_one_of_adjacent_cells_of_cas
     (h_bound : inCoordBounds mainCoordBound A.toPoint B.toPoint)
     (h_dist : chebyshevDistance (floorPoint32 A) (floorPoint32 B) ≤ 1)
     (h_step_axial_X :
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y)
-        (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
-        (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) (floorPoint32 A)).2 = true ∨
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y)
-        (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
-        (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) (floorPoint32 A)).1 = floorPoint32 B)
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B)
+        (if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0)
+        (if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0) (floorPoint32 A)).2 = true ∨
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B)
+        (if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0)
+        (if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0) (floorPoint32 A)).1 = floorPoint32 B)
     (h_step_axial_Y :
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y)
-        (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
-        (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) (floorPoint32 A)).2 = true ∨
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y)
-        (if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0)
-        (if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0) (floorPoint32 A)).1 = floorPoint32 B)
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B)
+        (if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0)
+        (if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0) (floorPoint32 A)).2 = true ∨
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B)
+        (if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0)
+        (if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0) (floorPoint32 A)).1 = floorPoint32 B)
     (h_case8_hs2 :
-      let stepX := if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0
-      let stepY := if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY
-        (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY (floorPoint32 A)).1).2 = true ∨
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY ⟨(floorPoint32 A).x + 2 * stepX, (floorPoint32 A).y⟩).2 = true ∨
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY ⟨(floorPoint32 A).x + 2 * stepX, (floorPoint32 A).y⟩).1 =
+      let stepX := if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0
+      let stepY := if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY (floorPoint32 A)).1).2 = true ∨
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        ⟨(floorPoint32 A).x + 2 * stepX, (floorPoint32 A).y⟩).2 = true ∨
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        ⟨(floorPoint32 A).x + 2 * stepX, (floorPoint32 A).y⟩).1 =
         ⟨(floorPoint32 A).x + 2 * stepX, (floorPoint32 A).y + stepY⟩)
     (h_case8_hs3 :
-      let stepX := if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0
-      let stepY := if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY
+      let stepX := if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0
+      let stepY := if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
         ⟨(floorPoint32 A).x + 2 * stepX, (floorPoint32 A).y + stepY⟩).2 = true)
     (h_case9_hs2 :
-      let stepX := if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0
-      let stepY := if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY
-        (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY (floorPoint32 A)).1).2 = true ∨
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY ⟨(floorPoint32 A).x + 2 * stepX, (floorPoint32 A).y + stepY⟩).2 = true)
+      let stepX := if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0
+      let stepY := if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY (floorPoint32 A)).1).2 = true ∨
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        ⟨(floorPoint32 A).x + 2 * stepX, (floorPoint32 A).y + stepY⟩).2 = true)
     (h_case10_hs2 :
-      let stepX := if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0
-      let stepY := if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY
-        (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY (floorPoint32 A)).1).2 = true ∨
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY ⟨(floorPoint32 A).x, (floorPoint32 A).y + 2 * stepY⟩).2 = true ∨
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY ⟨(floorPoint32 A).x, (floorPoint32 A).y + 2 * stepY⟩).1 =
+      let stepX := if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0
+      let stepY := if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY (floorPoint32 A)).1).2 = true ∨
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        ⟨(floorPoint32 A).x, (floorPoint32 A).y + 2 * stepY⟩).2 = true ∨
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        ⟨(floorPoint32 A).x, (floorPoint32 A).y + 2 * stepY⟩).1 =
         ⟨(floorPoint32 A).x + stepX, (floorPoint32 A).y + 2 * stepY⟩)
     (h_case10_hs3 :
-      let stepX := if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0
-      let stepY := if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY
+      let stepX := if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0
+      let stepY := if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
         ⟨(floorPoint32 A).x + stepX, (floorPoint32 A).y + 2 * stepY⟩).2 = true)
     (h_case11_hs2 :
-      let stepX := if B.x - A.x > 0.0 then 1 else if B.x - A.x < 0.0 then -1 else 0
-      let stepY := if B.y - A.y > 0.0 then 1 else if B.y - A.y < 0.0 then -1 else 0
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY
-        (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY (floorPoint32 A)).1).2 = true ∨
-      (rayMarchStepFloat A (B.x - A.x) (B.y - A.y) stepX stepY ⟨(floorPoint32 A).x + stepX, (floorPoint32 A).y + 2 * stepY⟩).2 = true) :
+      let stepX := if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0
+      let stepY := if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY (floorPoint32 A)).1).2 = true ∨
+      (rayMarchStepFloat A (deltaX A B) (deltaY A B) stepX stepY
+        ⟨(floorPoint32 A).x + stepX, (floorPoint32 A).y + 2 * stepY⟩).2 = true) :
     cellHausdorffDistanceLe
       (cellIntersectionsSegmentFloat A B)
       (cellIntersectionsSegment A.toPoint B.toPoint) 1 :=

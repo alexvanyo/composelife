@@ -29,7 +29,7 @@ namespace Geometry
 The next cell produced by `rayMarchStepFloat` is always one of the 4 candidate transitions:
 current cell, stepX neighbor, stepY neighbor, or diagonal step.
 -/
-theorem rayMarchStepFloat_candidates (start : Point32) (dx dy : Binary32) (stepX stepY : Int) (c : Cell) :
+theorem rayMarchStepFloat_candidates (start : Point32) (dx dy : Binary64) (stepX stepY : Int) (c : Cell) :
     (rayMarchStepFloat start dx dy stepX stepY c).1 ∈ [
       c,
       ⟨c.x + stepX, c.y⟩,
@@ -52,7 +52,7 @@ theorem rayMarchStepFloat_candidates (start : Point32) (dx dy : Binary32) (stepX
 Every step taken in floating-point raymarching changes coordinates by at most 1 in Chebyshev distance
 relative to the current cell, ensuring path continuity.
 -/
-theorem chebyshevDistance_stepFloat_le_one (start : Point32) (dx dy : Binary32) (stepX stepY : Int)
+theorem chebyshevDistance_stepFloat_le_one (start : Point32) (dx dy : Binary64) (stepX stepY : Int)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1) (c : Cell) :
     chebyshevDistance c (rayMarchStepFloat start dx dy stepX stepY c).1 ≤ 1 := by
   have hc := rayMarchStepFloat_candidates start dx dy stepX stepY c
@@ -156,7 +156,7 @@ Chebyshev distance between the next cell chosen by floating-point raymarching
 and idealized rational raymarching from the same cell is always at most 1.
 -/
 theorem rayMarchStepFloat_near_rayMarchStep (start : Point32) (ptEnd : Point)
-    (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ)
+    (dx dy : Binary64) (dxQ dyQ : ℚ) (stepX stepY : ℤ)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1) (c : Cell) :
     chebyshevDistance
       (rayMarchStepFloat start dx dy stepX stepY c).1
@@ -199,7 +199,7 @@ theorem rayMarchStepFloat_near_rayMarchStep (start : Point32) (ptEnd : Point)
 /--
 Accumulator append property for rayMarchFloat.
 -/
-theorem rayMarchFloat_acc (fuel : ℕ) (start : Point32) (dx dy : Binary32) (stepX stepY : ℤ)
+theorem rayMarchFloat_acc (fuel : ℕ) (start : Point32) (dx dy : Binary64) (stepX stepY : ℤ)
     (endCell current : Cell) (acc : List Cell) :
     rayMarchFloat fuel start dx dy stepX stepY endCell current acc =
       acc ++ rayMarchFloat fuel start dx dy stepX stepY endCell current [] := by
@@ -223,7 +223,7 @@ theorem rayMarchFloat_acc (fuel : ℕ) (start : Point32) (dx dy : Binary32) (ste
 /--
 Membership in rayMarchFloat with accumulator splits into accumulator or empty accumulator.
 -/
-theorem mem_rayMarchFloat (fuel : ℕ) (start : Point32) (dx dy : Binary32) (stepX stepY : ℤ)
+theorem mem_rayMarchFloat (fuel : ℕ) (start : Point32) (dx dy : Binary64) (stepX stepY : ℤ)
     (endCell current : Cell) (acc : List Cell) (c : Cell) :
     c ∈ rayMarchFloat fuel start dx dy stepX stepY endCell current acc ↔
       c ∈ acc ∨ c ∈ rayMarchFloat fuel start dx dy stepX stepY endCell current [] := by
@@ -233,7 +233,7 @@ theorem mem_rayMarchFloat (fuel : ℕ) (start : Point32) (dx dy : Binary32) (ste
 /--
 Unfolding step equation for rayMarchFloat with empty accumulator.
 -/
-theorem rayMarchFloat_succ (fuel : ℕ) (start : Point32) (dx dy : Binary32) (stepX stepY : ℤ)
+theorem rayMarchFloat_succ (fuel : ℕ) (start : Point32) (dx dy : Binary64) (stepX stepY : ℤ)
     (endCell current : Cell) :
     rayMarchFloat (fuel + 1) start dx dy stepX stepY endCell current [] =
       if current == endCell then []
@@ -259,7 +259,7 @@ Proves that every cell visited by floating-point raymarching is within Chebyshev
 of some cell in the deduplicated ideal raymarching output (including endpoints) when step transitions agree.
 -/
 theorem rayMarchFloat_near_rayMarch_endpoints (fuel : ℕ) (start : Point32) (ptEnd : Point)
-    (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell current : Cell)
+    (dx dy : Binary64) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell current : Cell)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
     (h_step : ∀ c, (rayMarchStepFloat start dx dy stepX stepY c).1 =
       (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1)
@@ -319,7 +319,7 @@ Proves that every cell visited by ideal rational raymarching is within Chebyshev
 of some cell in the deduplicated floating-point raymarching output (including endpoints) when step transitions agree.
 -/
 theorem rayMarch_near_rayMarchFloat_endpoints (fuel : ℕ) (start : Point32) (ptEnd : Point)
-    (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell current : Cell)
+    (dx dy : Binary64) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell current : Cell)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
     (h_step : ∀ c, (rayMarchStepFloat start dx dy stepX stepY c).1 =
       (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1)
@@ -452,7 +452,7 @@ theorem chebyshevDistance_candidates_le_one (c : Cell) (stepX stepY : ℤ)
 The next cell produced by rayMarchStepFloat from c is within Chebyshev distance at most 1
 of any candidate transition from c.
 -/
-theorem rayMarchStepFloat_near_candidates (start : Point32) (dx dy : Binary32) (stepX stepY : ℤ)
+theorem rayMarchStepFloat_near_candidates (start : Point32) (dx dy : Binary64) (stepX stepY : ℤ)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1) (c : Cell)
     (c2 : Cell) (h2 : c2 ∈ [c, ⟨c.x + stepX, c.y⟩, ⟨c.x, c.y + stepY⟩, ⟨c.x + stepX, c.y + stepY⟩]) :
     chebyshevDistance (rayMarchStepFloat start dx dy stepX stepY c).1 c2 ≤ 1 := by
@@ -474,7 +474,7 @@ theorem rayMarchStep_near_candidates (start ptEnd : Point) (dx dy : ℚ) (stepX 
 Any cell produced in a 1-step rayMarchFloat is within Chebyshev distance at most 1
 of the endpoints [current, endCell].
 -/
-theorem rayMarchFloat_one_near_endpoints (start : Point32) (dx dy : Binary32) (stepX stepY : ℤ)
+theorem rayMarchFloat_one_near_endpoints (start : Point32) (dx dy : Binary64) (stepX stepY : ℤ)
     (endCell current : Cell)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1) :
     ∀ c1 ∈ rayMarchFloat 1 start dx dy stepX stepY endCell current [],
@@ -516,7 +516,7 @@ Simultaneous proximity of current cell, floating-point next step, and ideal rati
 the Chebyshev distance between any two of them is at most 1.
 -/
 theorem rayMarchStepFloat_and_ideal_near (start : Point32) (ptEnd : Point)
-    (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ)
+    (dx dy : Binary64) (dxQ dyQ : ℚ) (stepX stepY : ℤ)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1) (c : Cell) :
     chebyshevDistance
       (rayMarchStepFloat start dx dy stepX stepY c).1
@@ -601,7 +601,7 @@ Two-step unfolding for rayMarchFloat across a corner diamond transition:
 When the float algorithm steps from `c` to `⟨c.x + stepX, c.y⟩` and then to `⟨c.x + stepX, c.y + stepY⟩`,
 the visited cells are precisely `⟨c.x + stepX, c.y⟩ :: ⟨c.x + stepX, c.y + stepY⟩ :: tail`.
 -/
-theorem rayMarchFloat_succ_succ (fuel : ℕ) (start : Point32) (dx dy : Binary32) (stepX stepY : ℤ)
+theorem rayMarchFloat_succ_succ (fuel : ℕ) (start : Point32) (dx dy : Binary64) (stepX stepY : ℤ)
     (endCell c : Cell)
     (h_not_end : (c == endCell) = false)
     (h_not_done1 : (rayMarchStepFloat start dx dy stepX stepY c).2 = false)
@@ -667,7 +667,7 @@ is within Chebyshev distance at most 1 of some cell in the deduplicated ideal ou
 -/
 theorem rayMarchFloat_diamond_near_rayMarch_endpoints
     (fuel : ℕ) (start : Point32) (ptEnd : Point)
-    (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ)
+    (dx dy : Binary64) (dxQ dyQ : ℚ) (stepX stepY : ℤ)
     (endCell c : Cell)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
     (h_not_end : (c == endCell) = false)
@@ -720,7 +720,7 @@ is within Chebyshev distance at most 1 of some cell in the deduplicated float ou
 -/
 theorem rayMarch_diamond_near_rayMarchFloat_endpoints
     (fuel : ℕ) (start : Point32) (ptEnd : Point)
-    (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ)
+    (dx dy : Binary64) (dxQ dyQ : ℚ) (stepX stepY : ℤ)
     (endCell c : Cell)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
     (h_not_end : (c == endCell) = false)
@@ -778,7 +778,7 @@ assuming the induction hypothesis holds for the remaining fuel from the next cel
 -/
 theorem rayMarchFloat_step_agree_near_rayMarch_endpoints
     (fuel : ℕ) (start : Point32) (ptEnd : Point)
-    (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell current : Cell)
+    (dx dy : Binary64) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell current : Cell)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
     (h_step : (rayMarchStepFloat start dx dy stepX stepY current).1 =
       (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY current).1)
@@ -841,7 +841,7 @@ assuming the induction hypothesis holds for the remaining fuel from the next cel
 -/
 theorem rayMarch_step_agree_near_rayMarchFloat_endpoints
     (fuel : ℕ) (start : Point32) (ptEnd : Point)
-    (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell current : Cell)
+    (dx dy : Binary64) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell current : Cell)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
     (h_step : (rayMarchStepFloat start dx dy stepX stepY current).1 =
       (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY current).1)
@@ -898,7 +898,7 @@ theorem rayMarch_step_agree_near_rayMarchFloat_endpoints
 Two-step unfolding for rayMarchFloat across a symmetric corner diamond transition:
 When the float algorithm steps from `c` to `⟨c.x, c.y + stepY⟩` and then to `⟨c.x + stepX, c.y + stepY⟩`.
 -/
-theorem rayMarchFloat_succ_succ_symm (fuel : ℕ) (start : Point32) (dx dy : Binary32) (stepX stepY : ℤ)
+theorem rayMarchFloat_succ_succ_symm (fuel : ℕ) (start : Point32) (dx dy : Binary64) (stepX stepY : ℤ)
     (endCell c : Cell)
     (h_not_end : (c == endCell) = false)
     (h_not_doneF1 : (rayMarchStepFloat start dx dy stepX stepY c).2 = false)
@@ -965,7 +965,7 @@ of some cell in the deduplicated ideal raymarching output (including endpoints).
 -/
 theorem rayMarchFloat_diamond_symm_near_rayMarch_endpoints
     (fuel : ℕ) (start : Point32) (ptEnd : Point)
-    (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ)
+    (dx dy : Binary64) (dxQ dyQ : ℚ) (stepX stepY : ℤ)
     (endCell c : Cell)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
     (h_not_end : (c == endCell) = false)
@@ -1021,7 +1021,7 @@ of some cell in the deduplicated floating-point raymarching output (including en
 -/
 theorem rayMarch_diamond_symm_near_rayMarchFloat_endpoints
     (fuel : ℕ) (start : Point32) (ptEnd : Point)
-    (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ)
+    (dx dy : Binary64) (dxQ dyQ : ℚ) (stepX stepY : ℤ)
     (endCell c : Cell)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
     (h_not_end : (c == endCell) = false)
@@ -1068,7 +1068,7 @@ theorem rayMarch_diamond_symm_near_rayMarchFloat_endpoints
     · left; right; rfl
     · right; right; right; exact hmem
 
-theorem rayMarchFloat_endCell (fuel : ℕ) (start : Point32) (dx dy : Binary32) (stepX stepY : ℤ)
+theorem rayMarchFloat_endCell (fuel : ℕ) (start : Point32) (dx dy : Binary64) (stepX stepY : ℤ)
     (endCell : Cell) :
     rayMarchFloat fuel start dx dy stepX stepY endCell endCell [] = [] := by
   cases fuel with
@@ -1088,7 +1088,7 @@ theorem rayMarch_endCell (fuel : ℕ) (start ptEnd : Point) (dx dy : ℚ) (stepX
 
 theorem rayMarchFloat_terminal_near_rayMarch_endpoints
     (fuel : ℕ) (start : Point32) (ptEnd : Point)
-    (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ)
+    (dx dy : Binary64) (dxQ dyQ : ℚ) (stepX stepY : ℤ)
     (endCell current : Cell)
     (h_termF : (current == endCell) = true ∨
                (rayMarchStepFloat start dx dy stepX stepY current).2 = true ∨
@@ -1124,7 +1124,7 @@ theorem rayMarchFloat_terminal_near_rayMarch_endpoints
 
 theorem rayMarch_terminal_near_rayMarchFloat_endpoints
     (fuel : ℕ) (start : Point32) (ptEnd : Point)
-    (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ)
+    (dx dy : Binary64) (dxQ dyQ : ℚ) (stepX stepY : ℤ)
     (endCell current : Cell)
     (h_termI : (current == endCell) = true ∨
                (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY current).2 = true ∨
@@ -1160,7 +1160,7 @@ theorem rayMarch_terminal_near_rayMarchFloat_endpoints
 
 theorem rayMarchFloat_two_step_terminal_near_rayMarch_endpoints
     (fuel : ℕ) (start : Point32) (ptEnd : Point)
-    (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ)
+    (dx dy : Binary64) (dxQ dyQ : ℚ) (stepX stepY : ℤ)
     (endCell current : Cell)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
     (h_termF2 : (rayMarchStepFloat start dx dy stepX stepY
@@ -1208,7 +1208,7 @@ theorem rayMarchFloat_two_step_terminal_near_rayMarch_endpoints
 
 theorem rayMarch_two_step_terminal_near_rayMarchFloat_endpoints
     (fuel : ℕ) (start : Point32) (ptEnd : Point)
-    (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ)
+    (dx dy : Binary64) (dxQ dyQ : ℚ) (stepX stepY : ℤ)
     (endCell current : Cell)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
     (h_termI2 : (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY
@@ -1256,7 +1256,7 @@ theorem rayMarch_two_step_terminal_near_rayMarchFloat_endpoints
 
 theorem rayMarchFloat_near_rayMarch_of_cases
     (fuel : ℕ) (start : Point32) (ptEnd : Point)
-    (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell current : Cell)
+    (dx dy : Binary64) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell current : Cell)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
     (h_cases : ∀ c,
       ((rayMarchStepFloat start dx dy stepX stepY c).1 = (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1 ∧
@@ -1294,7 +1294,7 @@ theorem rayMarchFloat_near_rayMarch_of_cases
 
 theorem rayMarch_near_rayMarchFloat_of_cases
     (fuel : ℕ) (start : Point32) (ptEnd : Point)
-    (dx dy : Binary32) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell current : Cell)
+    (dx dy : Binary64) (dxQ dyQ : ℚ) (stepX stepY : ℤ) (endCell current : Cell)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
     (h_cases : ∀ c,
       ((rayMarchStepFloat start dx dy stepX stepY c).1 = (rayMarchStep start.toPoint ptEnd dxQ dyQ stepX stepY c).1 ∧
