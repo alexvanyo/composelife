@@ -75,58 +75,60 @@ theorem gammaBound_1448_ge_one : gammaBound 1448 ≥ 1 := by
   norm_num
 
 /--
-The maximum cell boundary distance is strictly within the 24-bit single-precision mantissa capacity (2^24).
+The maximum cell boundary distance is strictly within 2^26 capacity.
 -/
-theorem maxCellBoundaryDistance_lt_2_pow_24_rat : maxCellBoundaryDistance < 16777216 := by
+theorem maxCellBoundaryDistance_lt_2_pow_26_rat : maxCellBoundaryDistance < 67108864 := by
   unfold maxCellBoundaryDistance maxCellBoundaryDistanceNat mainCoordBoundNat
   norm_num
 
 /--
-The maximum cell boundary distance is strictly within the 24-bit single-precision mantissa capacity (2^24).
+The maximum cell boundary distance is strictly within 2^26 capacity.
 -/
-theorem maxCellBoundaryDistance_lt_2_pow_24 : (maxCellBoundaryDistance : ℝ) < 16777216 := by
+theorem maxCellBoundaryDistance_lt_2_pow_26 : (maxCellBoundaryDistance : ℝ) < 67108864 := by
   unfold maxCellBoundaryDistance maxCellBoundaryDistanceNat mainCoordBoundNat
   norm_num
 
 /--
-The maximum coordinate span is strictly within the 24-bit single-precision mantissa capacity (2^24).
+The maximum coordinate span is strictly within 2^26 capacity.
 -/
-theorem maxCoordDelta_lt_2_pow_24_rat : maxCoordDelta < 16777216 := by
+theorem maxCoordDelta_lt_2_pow_26_rat : maxCoordDelta < 67108864 := by
   unfold maxCoordDelta maxCoordDeltaNat mainCoordBoundNat
   norm_num
 
 /--
-The maximum coordinate span is strictly within the 24-bit single-precision mantissa capacity (2^24).
+The maximum coordinate span is strictly within 2^26 capacity.
 -/
-theorem maxCoordDelta_lt_2_pow_24 : (maxCoordDelta : ℝ) < 16777216 := by
+theorem maxCoordDelta_lt_2_pow_26 : (maxCoordDelta : ℝ) < 67108864 := by
   unfold maxCoordDelta maxCoordDeltaNat mainCoordBoundNat
   norm_num
 
 /--
 The maximum relative error on cell boundary distances is at most 1/4 (rational).
 -/
-theorem maxCellBoundaryDistance_mul_eps_le_quarter_rat : (1 / 16777216 : ℚ) * maxCellBoundaryDistance ≤ 1/4 := by
+theorem maxCellBoundaryDistance_mul_eps_le_quarter_rat :
+    (1 / 9007199254740992 : ℚ) * maxCellBoundaryDistance ≤ 1/4 := by
   unfold maxCellBoundaryDistance maxCellBoundaryDistanceNat mainCoordBoundNat
   norm_num
 
 /--
 The maximum relative error on cell boundary distances is at most 1/4.
 -/
-theorem maxCellBoundaryDistance_mul_eps_le_quarter : (1 / 16777216 : ℝ) * (maxCellBoundaryDistance : ℝ) ≤ 1/4 := by
+theorem maxCellBoundaryDistance_mul_eps_le_quarter :
+    (1 / 9007199254740992 : ℝ) * (maxCellBoundaryDistance : ℝ) ≤ 1/4 := by
   unfold maxCellBoundaryDistance maxCellBoundaryDistanceNat mainCoordBoundNat
   norm_num
 
 /--
 The maximum relative error on coordinate spans is at most 1/4 (rational).
 -/
-theorem maxCoordDelta_mul_eps_le_quarter_rat : (1 / 16777216 : ℚ) * maxCoordDelta ≤ 1/4 := by
+theorem maxCoordDelta_mul_eps_le_quarter_rat : (1 / 9007199254740992 : ℚ) * maxCoordDelta ≤ 1/4 := by
   unfold maxCoordDelta maxCoordDeltaNat mainCoordBoundNat
   norm_num
 
 /--
 The maximum relative error on coordinate spans is at most 1/4.
 -/
-theorem maxCoordDelta_mul_eps_le_quarter : (1 / 16777216 : ℝ) * (maxCoordDelta : ℝ) ≤ 1/4 := by
+theorem maxCoordDelta_mul_eps_le_quarter : (1 / 9007199254740992 : ℝ) * (maxCoordDelta : ℝ) ≤ 1/4 := by
   unfold maxCoordDelta maxCoordDeltaNat mainCoordBoundNat
   norm_num
 
@@ -154,16 +156,16 @@ theorem maxCoordDelta_le_maxCellBoundaryDistance : (maxCoordDelta : ℝ) ≤ (ma
   norm_num
 
 /--
-Evaluated numeral value of maxCoordDelta in ℝ (2 * mainCoordBoundNat = 2,097,150) for linear arithmetic.
+Evaluated numeral value of maxCoordDelta in ℝ (2 * mainCoordBoundNat = 33,554,426) for linear arithmetic.
 -/
-theorem maxCoordDelta_toReal_eval : (maxCoordDelta : ℝ) = 2097150 := by
+theorem maxCoordDelta_toReal_eval : (maxCoordDelta : ℝ) = 33554426 := by
   unfold maxCoordDelta maxCoordDeltaNat mainCoordBoundNat
   norm_num
 
 /--
-Evaluated numeral value of maxCellBoundaryDistance in ℝ (2 * mainCoordBoundNat + 2 = 2,097,152) for linear arithmetic.
+Evaluated numeral value of maxCellBoundaryDistance in ℝ (2 * mainCoordBoundNat + 2 = 33,554,428) for linear arithmetic.
 -/
-theorem maxCellBoundaryDistance_toReal_eval : (maxCellBoundaryDistance : ℝ) = 2097152 := by
+theorem maxCellBoundaryDistance_toReal_eval : (maxCellBoundaryDistance : ℝ) = 33554428 := by
   unfold maxCellBoundaryDistance maxCellBoundaryDistanceNat mainCoordBoundNat
   norm_num
 
@@ -171,8 +173,8 @@ theorem maxCellBoundaryDistance_toReal_eval : (maxCellBoundaryDistance : ℝ) = 
 Evaluated rational numeral of epsRayMarch in ℝ for linear arithmetic.
 -/
 theorem epsRayMarch_toReal_eval :
-    (epsRayMarch : ℝ) = 302231464192331558682625 / 2535301200456458802993406410752 := by
-  unfold epsRayMarch eps32 eps64
+    (epsRayMarch : ℝ) = 243388915243820072108964779655169 / 730750818665451459101842416358141509827966271488 := by
+  unfold epsRayMarch eps64
   push_cast
   ring
 
@@ -180,7 +182,7 @@ theorem epsRayMarch_toReal_eval :
 The ray march cross-product relative error bound is strictly positive.
 -/
 theorem epsRayMarch_pos : 0 < epsRayMarch := by
-  unfold epsRayMarch eps32 eps64
+  unfold epsRayMarch eps64
   norm_num
 
 end Geometry
