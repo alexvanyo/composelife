@@ -271,8 +271,8 @@ theorem step_at_ge_limitCross_X_of_ne
     (hx0 : (stepX == 0) = false) (hy0 : (stepY == 0) = false) :
     let currentX := if stepX > 0 then c.x + 1 else c.x
     let currentY := if stepY > 0 then c.y + 1 else c.y
-    let xb : Binary64 := widen32To64 (intToBinary32 currentX)
-    let yb : Binary64 := widen32To64 (intToBinary32 currentY)
+    let xb : Binary64 := intToBinary64 currentX
+    let yb : Binary64 := intToBinary64 currentY
     let startX : Binary64 := widen32To64 start.x
     let startY : Binary64 := widen32To64 start.y
     let absDx : Binary64 := ExecFloat.Binary.abs (dx)
@@ -312,8 +312,8 @@ theorem step_at_ge_limitCross_Y_of_ne
     (hx0 : (stepX == 0) = false) (hy0 : (stepY == 0) = false) :
     let currentX := if stepX > 0 then c.x + 1 else c.x
     let currentY := if stepY > 0 then c.y + 1 else c.y
-    let xb : Binary64 := widen32To64 (intToBinary32 currentX)
-    let yb : Binary64 := widen32To64 (intToBinary32 currentY)
+    let xb : Binary64 := intToBinary64 currentX
+    let yb : Binary64 := intToBinary64 currentY
     let startX : Binary64 := widen32To64 start.x
     let startY : Binary64 := widen32To64 start.y
     let absDx : Binary64 := ExecFloat.Binary.abs (dx)
@@ -353,8 +353,8 @@ theorem step_done_of_both_ge
     (hx0 : (stepX == 0) = false) (hy0 : (stepY == 0) = false) :
     let currentX := if stepX > 0 then c.x + 1 else c.x
     let currentY := if stepY > 0 then c.y + 1 else c.y
-    let xb : Binary64 := widen32To64 (intToBinary32 currentX)
-    let yb : Binary64 := widen32To64 (intToBinary32 currentY)
+    let xb : Binary64 := intToBinary64 currentX
+    let yb : Binary64 := intToBinary64 currentY
     let startX : Binary64 := widen32To64 start.x
     let startY : Binary64 := widen32To64 start.y
     let absDx : Binary64 := ExecFloat.Binary.abs (dx)
@@ -392,7 +392,7 @@ theorem rayMarchStepFloat_he1_h_step
     (he1 : endCell = ⟨startCell.x + stepX, startCell.y⟩)
     (hy_ge :
       let currentY := if stepY > 0 then startCell.y + 1 else startCell.y
-      let yb : Binary64 := widen32To64 (intToBinary32 currentY)
+      let yb : Binary64 := intToBinary64 currentY
       let startY : Binary64 := widen32To64 start.y
       let absDx : Binary64 := ExecFloat.Binary.abs (dx)
       let absDy : Binary64 := ExecFloat.Binary.abs (dy)
@@ -403,8 +403,8 @@ theorem rayMarchStepFloat_he1_h_step
     (h_cases :
       let currentX := if stepX > 0 then startCell.x + 1 else startCell.x
       let currentY := if stepY > 0 then startCell.y + 1 else startCell.y
-      let xb : Binary64 := widen32To64 (intToBinary32 currentX)
-      let yb : Binary64 := widen32To64 (intToBinary32 currentY)
+      let xb : Binary64 := intToBinary64 currentX
+      let yb : Binary64 := intToBinary64 currentY
       let startX : Binary64 := widen32To64 start.x
       let startY : Binary64 := widen32To64 start.y
       let absDx : Binary64 := ExecFloat.Binary.abs (dx)
@@ -426,7 +426,7 @@ theorem rayMarchStepFloat_he2_h_step
     (he2 : endCell = ⟨startCell.x, startCell.y + stepY⟩)
     (hx_ge :
       let currentX := if stepX > 0 then startCell.x + 1 else startCell.x
-      let xb : Binary64 := widen32To64 (intToBinary32 currentX)
+      let xb : Binary64 := intToBinary64 currentX
       let startX : Binary64 := widen32To64 start.x
       let absDx : Binary64 := ExecFloat.Binary.abs (dx)
       let absDy : Binary64 := ExecFloat.Binary.abs (dy)
@@ -437,8 +437,8 @@ theorem rayMarchStepFloat_he2_h_step
     (h_cases :
       let currentX := if stepX > 0 then startCell.x + 1 else startCell.x
       let currentY := if stepY > 0 then startCell.y + 1 else startCell.y
-      let xb : Binary64 := widen32To64 (intToBinary32 currentX)
-      let yb : Binary64 := widen32To64 (intToBinary32 currentY)
+      let xb : Binary64 := intToBinary64 currentX
+      let yb : Binary64 := intToBinary64 currentY
       let startX : Binary64 := widen32To64 start.x
       let startY : Binary64 := widen32To64 start.y
       let absDx : Binary64 := ExecFloat.Binary.abs (dx)
@@ -459,7 +459,7 @@ theorem rayMarchStepFloat_case8_hs2_done
     (hx0 : (stepX == 0) = false) (hy0 : (stepY == 0) = false)
     (h_crossX :
       let currentX := if stepX > 0 then (startCell.x + 2 * stepX) + 1 else startCell.x + 2 * stepX
-      let xb : Binary64 := widen32To64 (intToBinary32 currentX)
+      let xb : Binary64 := intToBinary64 currentX
       let startX : Binary64 := widen32To64 A.x
       let absDx : Binary64 := ExecFloat.Binary.abs (dx)
       let absDy : Binary64 := ExecFloat.Binary.abs (dy)
@@ -470,8 +470,8 @@ theorem rayMarchStepFloat_case8_hs2_done
     (h_cases :
       let currentX := if stepX > 0 then (startCell.x + 2 * stepX) + 1 else startCell.x + 2 * stepX
       let currentY := if stepY > 0 then startCell.y + 1 else startCell.y
-      let xb : Binary64 := widen32To64 (intToBinary32 currentX)
-      let yb : Binary64 := widen32To64 (intToBinary32 currentY)
+      let xb : Binary64 := intToBinary64 currentX
+      let yb : Binary64 := intToBinary64 currentY
       let startX : Binary64 := widen32To64 A.x
       let startY : Binary64 := widen32To64 A.y
       let absDx : Binary64 := ExecFloat.Binary.abs (dx)
@@ -493,7 +493,7 @@ theorem rayMarchStepFloat_case8_hs3_done
     (hx0 : (stepX == 0) = false) (hy0 : (stepY == 0) = false)
     (hx_ge :
       let currentX := if stepX > 0 then (startCell.x + 2 * stepX) + 1 else startCell.x + 2 * stepX
-      let xb : Binary64 := widen32To64 (intToBinary32 currentX)
+      let xb : Binary64 := intToBinary64 currentX
       let startX : Binary64 := widen32To64 A.x
       let absDx : Binary64 := ExecFloat.Binary.abs (dx)
       let absDy : Binary64 := ExecFloat.Binary.abs (dy)
@@ -503,7 +503,7 @@ theorem rayMarchStepFloat_case8_hs3_done
       crossX ≥ limitCross)
     (hy_ge :
       let currentY := if stepY > 0 then (startCell.y + stepY) + 1 else startCell.y + stepY
-      let yb : Binary64 := widen32To64 (intToBinary32 currentY)
+      let yb : Binary64 := intToBinary64 currentY
       let startY : Binary64 := widen32To64 A.y
       let absDx : Binary64 := ExecFloat.Binary.abs (dx)
       let absDy : Binary64 := ExecFloat.Binary.abs (dy)
@@ -514,8 +514,8 @@ theorem rayMarchStepFloat_case8_hs3_done
     (h_cases :
       let currentX := if stepX > 0 then (startCell.x + 2 * stepX) + 1 else startCell.x + 2 * stepX
       let currentY := if stepY > 0 then (startCell.y + stepY) + 1 else startCell.y + stepY
-      let xb : Binary64 := widen32To64 (intToBinary32 currentX)
-      let yb : Binary64 := widen32To64 (intToBinary32 currentY)
+      let xb : Binary64 := intToBinary64 currentX
+      let yb : Binary64 := intToBinary64 currentY
       let startX : Binary64 := widen32To64 A.x
       let startY : Binary64 := widen32To64 A.y
       let absDx : Binary64 := ExecFloat.Binary.abs (dx)
@@ -533,7 +533,7 @@ theorem rayMarchStepFloat_case9_hs2_done
     (hx0 : (stepX == 0) = false) (hy0 : (stepY == 0) = false)
     (hx_ge :
       let currentX := if stepX > 0 then (startCell.x + 2 * stepX) + 1 else startCell.x + 2 * stepX
-      let xb : Binary64 := widen32To64 (intToBinary32 currentX)
+      let xb : Binary64 := intToBinary64 currentX
       let startX : Binary64 := widen32To64 A.x
       let absDx : Binary64 := ExecFloat.Binary.abs (dx)
       let absDy : Binary64 := ExecFloat.Binary.abs (dy)
@@ -543,7 +543,7 @@ theorem rayMarchStepFloat_case9_hs2_done
       crossX ≥ limitCross)
     (hy_ge :
       let currentY := if stepY > 0 then (startCell.y + stepY) + 1 else startCell.y + stepY
-      let yb : Binary64 := widen32To64 (intToBinary32 currentY)
+      let yb : Binary64 := intToBinary64 currentY
       let startY : Binary64 := widen32To64 A.y
       let absDx : Binary64 := ExecFloat.Binary.abs (dx)
       let absDy : Binary64 := ExecFloat.Binary.abs (dy)
@@ -554,8 +554,8 @@ theorem rayMarchStepFloat_case9_hs2_done
     (h_cases :
       let currentX := if stepX > 0 then (startCell.x + 2 * stepX) + 1 else startCell.x + 2 * stepX
       let currentY := if stepY > 0 then (startCell.y + stepY) + 1 else startCell.y + stepY
-      let xb : Binary64 := widen32To64 (intToBinary32 currentX)
-      let yb : Binary64 := widen32To64 (intToBinary32 currentY)
+      let xb : Binary64 := intToBinary64 currentX
+      let yb : Binary64 := intToBinary64 currentY
       let startX : Binary64 := widen32To64 A.x
       let startY : Binary64 := widen32To64 A.y
       let absDx : Binary64 := ExecFloat.Binary.abs (dx)
@@ -575,7 +575,7 @@ theorem rayMarchStepFloat_case10_hs2_done
     (hx0 : (stepX == 0) = false) (hy0 : (stepY == 0) = false)
     (hy_ge :
       let currentY := if stepY > 0 then (startCell.y + 2 * stepY) + 1 else startCell.y + 2 * stepY
-      let yb : Binary64 := widen32To64 (intToBinary32 currentY)
+      let yb : Binary64 := intToBinary64 currentY
       let startY : Binary64 := widen32To64 A.y
       let absDx : Binary64 := ExecFloat.Binary.abs (dx)
       let absDy : Binary64 := ExecFloat.Binary.abs (dy)
@@ -586,8 +586,8 @@ theorem rayMarchStepFloat_case10_hs2_done
     (h_cases :
       let currentX := if stepX > 0 then startCell.x + 1 else startCell.x
       let currentY := if stepY > 0 then (startCell.y + 2 * stepY) + 1 else startCell.y + 2 * stepY
-      let xb : Binary64 := widen32To64 (intToBinary32 currentX)
-      let yb : Binary64 := widen32To64 (intToBinary32 currentY)
+      let xb : Binary64 := intToBinary64 currentX
+      let yb : Binary64 := intToBinary64 currentY
       let startX : Binary64 := widen32To64 A.x
       let startY : Binary64 := widen32To64 A.y
       let absDx : Binary64 := ExecFloat.Binary.abs (dx)
@@ -609,7 +609,7 @@ theorem rayMarchStepFloat_case10_hs3_done
     (hx0 : (stepX == 0) = false) (hy0 : (stepY == 0) = false)
     (hx_ge :
       let currentX := if stepX > 0 then (startCell.x + stepX) + 1 else startCell.x + stepX
-      let xb : Binary64 := widen32To64 (intToBinary32 currentX)
+      let xb : Binary64 := intToBinary64 currentX
       let startX : Binary64 := widen32To64 A.x
       let absDx : Binary64 := ExecFloat.Binary.abs (dx)
       let absDy : Binary64 := ExecFloat.Binary.abs (dy)
@@ -619,7 +619,7 @@ theorem rayMarchStepFloat_case10_hs3_done
       crossX ≥ limitCross)
     (hy_ge :
       let currentY := if stepY > 0 then (startCell.y + 2 * stepY) + 1 else startCell.y + 2 * stepY
-      let yb : Binary64 := widen32To64 (intToBinary32 currentY)
+      let yb : Binary64 := intToBinary64 currentY
       let startY : Binary64 := widen32To64 A.y
       let absDx : Binary64 := ExecFloat.Binary.abs (dx)
       let absDy : Binary64 := ExecFloat.Binary.abs (dy)
@@ -630,8 +630,8 @@ theorem rayMarchStepFloat_case10_hs3_done
     (h_cases :
       let currentX := if stepX > 0 then (startCell.x + stepX) + 1 else startCell.x + stepX
       let currentY := if stepY > 0 then (startCell.y + 2 * stepY) + 1 else startCell.y + 2 * stepY
-      let xb : Binary64 := widen32To64 (intToBinary32 currentX)
-      let yb : Binary64 := widen32To64 (intToBinary32 currentY)
+      let xb : Binary64 := intToBinary64 currentX
+      let yb : Binary64 := intToBinary64 currentY
       let startX : Binary64 := widen32To64 A.x
       let startY : Binary64 := widen32To64 A.y
       let absDx : Binary64 := ExecFloat.Binary.abs (dx)
@@ -649,7 +649,7 @@ theorem rayMarchStepFloat_case11_hs2_done
     (hx0 : (stepX == 0) = false) (hy0 : (stepY == 0) = false)
     (hx_ge :
       let currentX := if stepX > 0 then (startCell.x + stepX) + 1 else startCell.x + stepX
-      let xb : Binary64 := widen32To64 (intToBinary32 currentX)
+      let xb : Binary64 := intToBinary64 currentX
       let startX : Binary64 := widen32To64 A.x
       let absDx : Binary64 := ExecFloat.Binary.abs (dx)
       let absDy : Binary64 := ExecFloat.Binary.abs (dy)
@@ -659,7 +659,7 @@ theorem rayMarchStepFloat_case11_hs2_done
       crossX ≥ limitCross)
     (hy_ge :
       let currentY := if stepY > 0 then (startCell.y + 2 * stepY) + 1 else startCell.y + 2 * stepY
-      let yb : Binary64 := widen32To64 (intToBinary32 currentY)
+      let yb : Binary64 := intToBinary64 currentY
       let startY : Binary64 := widen32To64 A.y
       let absDx : Binary64 := ExecFloat.Binary.abs (dx)
       let absDy : Binary64 := ExecFloat.Binary.abs (dy)
@@ -670,8 +670,8 @@ theorem rayMarchStepFloat_case11_hs2_done
     (h_cases :
       let currentX := if stepX > 0 then (startCell.x + stepX) + 1 else startCell.x + stepX
       let currentY := if stepY > 0 then (startCell.y + 2 * stepY) + 1 else startCell.y + 2 * stepY
-      let xb : Binary64 := widen32To64 (intToBinary32 currentX)
-      let yb : Binary64 := widen32To64 (intToBinary32 currentY)
+      let xb : Binary64 := intToBinary64 currentX
+      let yb : Binary64 := intToBinary64 currentY
       let startX : Binary64 := widen32To64 A.x
       let startY : Binary64 := widen32To64 A.y
       let absDx : Binary64 := ExecFloat.Binary.abs (dx)
@@ -691,8 +691,8 @@ theorem step_at_ge_limitCross_general
     (hx0 : (stepX == 0) = false) (hy0 : (stepY == 0) = false) :
     let currentX := if stepX > 0 then c.x + 1 else c.x
     let _currentY := if stepY > 0 then c.y + 1 else c.y
-    let xb : Binary64 := widen32To64 (intToBinary32 currentX)
-    let _yb : Binary64 := widen32To64 (intToBinary32 _currentY)
+    let xb : Binary64 := intToBinary64 currentX
+    let _yb : Binary64 := intToBinary64 _currentY
     let startX : Binary64 := widen32To64 start.x
     let _startY : Binary64 := widen32To64 start.y
     let absDx : Binary64 := ExecFloat.Binary.abs (dx)
@@ -734,8 +734,8 @@ theorem step_at_ge_limitCross_general_Y
     (hx0 : (stepX == 0) = false) (hy0 : (stepY == 0) = false) :
     let _currentX := if stepX > 0 then c.x + 1 else c.x
     let currentY := if stepY > 0 then c.y + 1 else c.y
-    let _xb : Binary64 := widen32To64 (intToBinary32 _currentX)
-    let yb : Binary64 := widen32To64 (intToBinary32 currentY)
+    let _xb : Binary64 := intToBinary64 _currentX
+    let yb : Binary64 := intToBinary64 currentY
     let _startX : Binary64 := widen32To64 start.x
     let startY : Binary64 := widen32To64 start.y
     let absDx : Binary64 := ExecFloat.Binary.abs (dx)
@@ -950,9 +950,38 @@ theorem abs_sub_toReal_ge_bpow_neg149_of_ne (x y : Binary32)
   rw [hsub, abs_mul, abs_of_pos hbpow_pos]
   nlinarith
 
+theorem abs_int_sub_toReal_ge_bpow_neg149_of_ne (k : ℤ) (y : Binary32)
+    (hy : binary32IsFinite y = true)
+    (hne : (k : ℝ) - Model.toReal (ExecFloat.Binary.toModel y) ≠ 0) :
+    Model.bpow (-149) ≤ |(k : ℝ) - Model.toReal (ExecFloat.Binary.toModel y)| := by
+  obtain ⟨ny, hny⟩ := toReal_eq_int_mul_posMinSubnormal y hy
+  have h_posMin : Model.toReal (Model.posMinSubnormal FloatFormat.binary32) = Model.bpow (-149) :=
+    Model.toReal_posMinSubnormal FloatFormat.binary32
+  rw [h_posMin] at hny
+  have hbpow_149 : (2 : ℝ) ^ 149 * Model.bpow (-149) = 1 := by
+    have h : Model.bpow ((149 : ℤ) + (-149)) = Model.bpow 149 * Model.bpow (-149) :=
+      Model.bpow_add 149 (-149)
+    rw [show (149 : ℤ) + (-149) = 0 by omega, Model.bpow_zero] at h
+    rw [show (149 : ℤ) = ((149 : ℕ) : ℤ) by rfl, Model.bpow_natCast] at h
+    exact h.symm
+  have hk : (k : ℝ) = (k : ℝ) * (2 : ℝ) ^ 149 * Model.bpow (-149) := by
+    rw [mul_assoc, hbpow_149, mul_one]
+  have hsub : (k : ℝ) - Model.toReal (ExecFloat.Binary.toModel y) =
+      ((k * 2 ^ 149 - ny : ℤ) : ℝ) * Model.bpow (-149) := by
+    rw [hk, hny]; push_cast; ring
+  have hn_ne : k * 2 ^ 149 - ny ≠ 0 := by
+    intro h0; apply hne; rw [hsub, h0]; simp
+  have hn_abs : (1 : ℝ) ≤ |((k * 2 ^ 149 - ny : ℤ) : ℝ)| := by
+    rw [← Int.cast_abs]
+    have : 1 ≤ |k * 2 ^ 149 - ny| := Int.one_le_abs hn_ne
+    exact_mod_cast this
+  have hbpow_pos : 0 < Model.bpow (-149) := Model.bpow_pos (-149)
+  rw [hsub, abs_mul, abs_of_pos hbpow_pos]
+  nlinarith
+
 theorem abs_toReal_sub_binary32_rel (a b : Binary32)
     (ha : binary32IsFinite a = true) (hb : binary32IsFinite b = true)
-    (ha_le : |binary32ToRat a| ≤ mainCoordBound) (hb_le : |binary32ToRat b| ≤ mainCoordBound) :
+    (ha_le : |binary32ToRat a| ≤ clearanceCoordBound) (hb_le : |binary32ToRat b| ≤ clearanceCoordBound) :
     |Model.toReal (ExecFloat.Binary.toModel (b - a)) -
       (Model.toReal (ExecFloat.Binary.toModel b) - Model.toReal (ExecFloat.Binary.toModel a))| ≤
     (1 / 16777216 : ℝ) * |Model.toReal (ExecFloat.Binary.toModel b) - Model.toReal (ExecFloat.Binary.toModel a)| := by
@@ -1006,10 +1035,15 @@ theorem maxCellBoundaryDistance_sq_le_posMaxFinite :
     (((maxCellBoundaryDistanceNat + 1) * (maxCellBoundaryDistanceNat + 1) : ℕ) : ℝ) ≤
       Model.toReal (Model.posMaxFinite FloatFormat.binary64) := by
   have h := Model.abs_signed_mul_bpow_le_toReal_posMaxFinite FloatFormat.binary64 false
-    ((maxCellBoundaryDistanceNat + 1) * (maxCellBoundaryDistanceNat + 1)) 0 (by decide) (by decide)
-  simp only [Bool.false_eq_true, ite_false, one_mul, Model.bpow_zero, mul_one] at h
+    17179869161 30 (by decide) (by decide)
+  simp only [Bool.false_eq_true, ite_false, one_mul] at h
+  rw [show (30 : ℤ) = ((30 : ℕ) : ℤ) by rfl, Model.bpow_natCast] at h
   rw [abs_of_pos (by positivity)] at h
-  exact h
+  have h_bound : (((maxCellBoundaryDistanceNat + 1) * (maxCellBoundaryDistanceNat + 1) : ℕ) : ℝ) ≤
+      (17179869161 : ℝ) * (2 : ℝ) ^ 30 := by
+    unfold maxCellBoundaryDistanceNat mainCoordBoundNat
+    norm_num
+  exact le_trans h_bound h
 
 theorem binary64_mul_approx_rel (u v : Binary64) (u_I v_I : ℝ)
     (hu_fin : ExecFloat.Binary.isFinite u = true)
@@ -1220,7 +1254,7 @@ theorem abs_toReal_rem_binary64_rel (a : Binary32) (k : ℤ)
     (ha : binary32IsFinite a = true)
     (ha_le : |binary32ToRat a| ≤ mainCoordBound)
     (hk_le : |k| ≤ mainCoordBound.floor + 2) :
-    let kb : Binary64 := widen32To64 (intToBinary32 k)
+    let kb : Binary64 := intToBinary64 k
     let startA : Binary64 := widen32To64 a
     let rem : Binary64 := ExecFloat.Binary.abs (kb - startA)
     let rem_I : ℝ := |(k : ℝ) - ((binary32ToRat a : ℚ) : ℝ)|
@@ -1230,15 +1264,10 @@ theorem abs_toReal_rem_binary64_rel (a : Binary32) (k : ℤ)
     (Model.toReal (ExecFloat.Binary.toModel rem) = 0 ∨
      Model.bpow (-150) ≤ |Model.toReal (ExecFloat.Binary.toModel rem)|) := by
   intro kb startA rem rem_I
-  have hk_fin32 : ExecFloat.Binary.isFinite (intToBinary32 k) = true :=
-    intToBinary32_isFinite k hk_le
-  have hk_real32 : Model.toReal (ExecFloat.Binary.toModel (intToBinary32 k)) = (k : ℝ) :=
-    intToBinary32_toReal_eq k hk_le
   have hkb_fin : ExecFloat.Binary.isFinite kb = true :=
-    widen32To64_isFinite (intToBinary32 k) hk_fin32
-  have hkb_real : Model.toReal (ExecFloat.Binary.toModel kb) = (k : ℝ) := by
-    dsimp [kb]
-    rw [widen32To64_toReal_eq _ hk_fin32, hk_real32]
+    intToBinary64_isFinite k hk_le
+  have hkb_real : Model.toReal (ExecFloat.Binary.toModel kb) = (k : ℝ) :=
+    intToBinary64_toReal_eq k hk_le
   have hstart_fin : ExecFloat.Binary.isFinite startA = true :=
     widen32To64_isFinite a ha
   have hstart_real : Model.toReal (ExecFloat.Binary.toModel startA) = ((binary32ToRat a : ℚ) : ℝ) := by
@@ -1289,18 +1318,16 @@ theorem abs_toReal_rem_binary64_rel (a : Binary32) (k : ℤ)
     have hbound := maxCellBoundaryDistance_eq
     linarith [abs_le.mp ha_r, hk_r, abs_sub (k : ℝ) ((binary32ToRat a : ℚ) : ℝ)]
   set r := (k : ℝ) - ((binary32ToRat a : ℚ) : ℝ)
-  have hr_eq : r = Model.toReal (ExecFloat.Binary.toModel (intToBinary32 k)) -
-      Model.toReal (ExecFloat.Binary.toModel a) := by
-    rw [hk_real32, toReal_eq_cast_toRat a ha]
+  have hr_eq : r = (k : ℝ) - Model.toReal (ExecFloat.Binary.toModel a) := by
+    rw [toReal_eq_cast_toRat a ha]
   have hr_bpow : r = 0 ∨ Model.bpow (-149) ≤ |r| := by
     by_cases h0 : r = 0
     · left; exact h0
     · right
-      have hne : Model.toReal (ExecFloat.Binary.toModel (intToBinary32 k)) -
-          Model.toReal (ExecFloat.Binary.toModel a) ≠ 0 := by
+      have hne : (k : ℝ) - Model.toReal (ExecFloat.Binary.toModel a) ≠ 0 := by
         rw [← hr_eq]; exact h0
       rw [hr_eq]
-      exact abs_sub_toReal_ge_bpow_neg149_of_ne (intToBinary32 k) a hk_fin32 ha hne
+      exact abs_int_sub_toReal_ge_bpow_neg149_of_ne k a ha hne
   have hr_bpow300 : r = 0 ∨ Model.bpow (-300) ≤ |r| := by
     rcases hr_bpow with h0 | h149
     · left; exact h0
@@ -1414,8 +1441,8 @@ theorem crossProducts_float_approx_rel (A B : Point32) (stepX stepY : ℤ) (c : 
     (hcx : |c.x| ≤ mainCoordBound.floor + 1) (hcy : |c.y| ≤ mainCoordBound.floor + 1) :
     let currentX := if stepX > 0 then c.x + 1 else c.x
     let currentY := if stepY > 0 then c.y + 1 else c.y
-    let xb : Binary64 := widen32To64 (intToBinary32 currentX)
-    let yb : Binary64 := widen32To64 (intToBinary32 currentY)
+    let xb : Binary64 := intToBinary64 currentX
+    let yb : Binary64 := intToBinary64 currentY
     let startX : Binary64 := widen32To64 A.x
     let startY : Binary64 := widen32To64 A.y
     let absDx : Binary64 := ExecFloat.Binary.abs (deltaX A B)
@@ -1591,8 +1618,8 @@ theorem rayMarchStepFloat_real_bounds (A B : Point32) (stepX stepY : ℤ) (c : C
   have hy_ne : stepY ≠ 0 := by intro h; rw [h] at hy0; contradiction
   set currentX := if stepX > 0 then c.x + 1 else c.x
   set currentY := if stepY > 0 then c.y + 1 else c.y
-  set xb : Binary64 := widen32To64 (intToBinary32 currentX)
-  set yb : Binary64 := widen32To64 (intToBinary32 currentY)
+  set xb : Binary64 := intToBinary64 currentX
+  set yb : Binary64 := intToBinary64 currentY
   set startX : Binary64 := widen32To64 A.x
   set startY : Binary64 := widen32To64 A.y
   set absDx : Binary64 := ExecFloat.Binary.abs (deltaX A B)
@@ -2279,10 +2306,12 @@ theorem rayMarch_axis_aligned_stepX_zero
     have hdI_y : |((binary32ToRat B.y - binary32ToRat A.y : ℚ) : ℝ)| = absDy_R A B := by
       unfold absDy_R Point32.toPoint; push_cast; rfl
     rw [hdI_y] at habsDy_rel habsDy_bds
-    change |Model.toReal (ExecFloat.Binary.toModel (ExecFloat.Binary.abs (widen32To64 (intToBinary32 curY0) - widen32To64 A.y))) - remY_R A stepY c.y| ≤
-      (1 / 9007199254740992 : ℝ) * remY_R A stepY c.y at hremY0_rel
-    change |Model.toReal (ExecFloat.Binary.toModel (ExecFloat.Binary.abs (widen32To64 (intToBinary32 curY1) - widen32To64 A.y))) - remY_R A stepY (c.y + stepY)| ≤
-      (1 / 9007199254740992 : ℝ) * remY_R A stepY (c.y + stepY) at hremY1_rel
+    change
+      |Model.toReal (ExecFloat.Binary.toModel (ExecFloat.Binary.abs (intToBinary64 curY0 - widen32To64 A.y))) -
+        remY_R A stepY c.y| ≤ (1 / 9007199254740992 : ℝ) * remY_R A stepY c.y at hremY0_rel
+    change
+      |Model.toReal (ExecFloat.Binary.toModel (ExecFloat.Binary.abs (intToBinary64 curY1 - widen32To64 A.y))) -
+        remY_R A stepY (c.y + stepY)| ≤ (1 / 9007199254740992 : ℝ) * remY_R A stepY (c.y + stepY) at hremY1_rel
     change 0 ≤ remY_R A stepY c.y ∧ remY_R A stepY c.y ≤ (maxCellBoundaryDistance : ℝ) at hremY0_bds
     change 0 ≤ remY_R A stepY (c.y + stepY) ∧ remY_R A stepY (c.y + stepY) ≤ (maxCellBoundaryDistance : ℝ) at hremY1_bds
     have hremY0_b := abs_le.mp hremY0_rel
@@ -2290,7 +2319,7 @@ theorem rayMarch_axis_aligned_stepX_zero
     have hremY1_b' := abs_le.mp hremY1_rel
     have habsDy_b := abs_le.mp habsDy_rel
     let remY64 (cy : ℤ) : Binary64 :=
-      ExecFloat.Binary.abs (widen32To64 (intToBinary32 (if stepY > 0 then cy + 1 else cy)) - widen32To64 A.y)
+      ExecFloat.Binary.abs (intToBinary64 (if stepY > 0 then cy + 1 else cy) - widen32To64 A.y)
     let absDy64 : Binary64 := ExecFloat.Binary.abs (widen32To64 B.y - widen32To64 A.y)
     let ybQ (cy : ℤ) : ℚ := if stepY > 0 then ofInt (cy + 1) else ofInt cy
     let remYQ (cy : ℤ) : ℚ := if ybQ cy >= A.toPoint.y then ybQ cy - A.toPoint.y else A.toPoint.y - ybQ cy
@@ -2421,17 +2450,19 @@ theorem rayMarch_axis_aligned_stepY_zero
   have hdI_x : |((binary32ToRat B.x - binary32ToRat A.x : ℚ) : ℝ)| = absDx_R A B := by
     unfold absDx_R Point32.toPoint; push_cast; rfl
   rw [hdI_x] at habsDx_rel habsDx_bds
-  change |Model.toReal (ExecFloat.Binary.toModel (ExecFloat.Binary.abs (widen32To64 (intToBinary32 curX0) - widen32To64 A.x))) - remX_R A stepX c.x| ≤
-    (1 / 9007199254740992 : ℝ) * remX_R A stepX c.x at hremX0_rel
-  change |Model.toReal (ExecFloat.Binary.toModel (ExecFloat.Binary.abs (widen32To64 (intToBinary32 curX1) - widen32To64 A.x))) - remX_R A stepX (c.x + stepX)| ≤
-    (1 / 9007199254740992 : ℝ) * remX_R A stepX (c.x + stepX) at hremX1_rel
+  change
+    |Model.toReal (ExecFloat.Binary.toModel (ExecFloat.Binary.abs (intToBinary64 curX0 - widen32To64 A.x))) -
+      remX_R A stepX c.x| ≤ (1 / 9007199254740992 : ℝ) * remX_R A stepX c.x at hremX0_rel
+  change
+    |Model.toReal (ExecFloat.Binary.toModel (ExecFloat.Binary.abs (intToBinary64 curX1 - widen32To64 A.x))) -
+      remX_R A stepX (c.x + stepX)| ≤ (1 / 9007199254740992 : ℝ) * remX_R A stepX (c.x + stepX) at hremX1_rel
   change 0 ≤ remX_R A stepX c.x ∧ remX_R A stepX c.x ≤ (maxCellBoundaryDistance : ℝ) at hremX0_bds
   change 0 ≤ remX_R A stepX (c.x + stepX) ∧ remX_R A stepX (c.x + stepX) ≤ (maxCellBoundaryDistance : ℝ) at hremX1_bds
   have hremX0_b := abs_le.mp hremX0_rel
   have hremX1_b := abs_le.mp hremX1_rel
   have habsDx_b := abs_le.mp habsDx_rel
   let remX64 (cx : ℤ) : Binary64 :=
-    ExecFloat.Binary.abs (widen32To64 (intToBinary32 (if stepX > 0 then cx + 1 else cx)) - widen32To64 A.x)
+    ExecFloat.Binary.abs (intToBinary64 (if stepX > 0 then cx + 1 else cx) - widen32To64 A.x)
   let absDx64 : Binary64 := ExecFloat.Binary.abs (widen32To64 B.x - widen32To64 A.x)
   let xbQ (cx : ℤ) : ℚ := if stepX > 0 then ofInt (cx + 1) else ofInt cx
   let remXQ (cx : ℤ) : ℚ := if xbQ cx >= A.toPoint.x then xbQ cx - A.toPoint.x else A.toPoint.x - xbQ cx

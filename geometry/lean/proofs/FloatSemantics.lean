@@ -79,30 +79,30 @@ theorem gammaBound_19372660_ge_one : gammaBound 19372660 ≥ 1 := by
   norm_num
 
 /--
-The maximum cell boundary distance is strictly within 2^26 capacity.
+The maximum cell boundary distance is strictly within 2^33 capacity.
 -/
-theorem maxCellBoundaryDistance_lt_2_pow_26_rat : maxCellBoundaryDistance < 67108864 := by
+theorem maxCellBoundaryDistance_lt_2_pow_33_rat : maxCellBoundaryDistance < 8589934592 := by
   unfold maxCellBoundaryDistance maxCellBoundaryDistanceNat mainCoordBoundNat
   norm_num
 
 /--
-The maximum cell boundary distance is strictly within 2^26 capacity.
+The maximum cell boundary distance is strictly within 2^33 capacity.
 -/
-theorem maxCellBoundaryDistance_lt_2_pow_26 : (maxCellBoundaryDistance : ℝ) < 67108864 := by
+theorem maxCellBoundaryDistance_lt_2_pow_33 : (maxCellBoundaryDistance : ℝ) < 8589934592 := by
   unfold maxCellBoundaryDistance maxCellBoundaryDistanceNat mainCoordBoundNat
   norm_num
 
 /--
-The maximum coordinate span is strictly within 2^26 capacity.
+The maximum coordinate span is strictly within 2^33 capacity.
 -/
-theorem maxCoordDelta_lt_2_pow_26_rat : maxCoordDelta < 67108864 := by
+theorem maxCoordDelta_lt_2_pow_33_rat : maxCoordDelta < 8589934592 := by
   unfold maxCoordDelta maxCoordDeltaNat mainCoordBoundNat
   norm_num
 
 /--
-The maximum coordinate span is strictly within 2^26 capacity.
+The maximum coordinate span is strictly within 2^33 capacity.
 -/
-theorem maxCoordDelta_lt_2_pow_26 : (maxCoordDelta : ℝ) < 67108864 := by
+theorem maxCoordDelta_lt_2_pow_33 : (maxCoordDelta : ℝ) < 8589934592 := by
   unfold maxCoordDelta maxCoordDeltaNat mainCoordBoundNat
   norm_num
 
@@ -160,16 +160,17 @@ theorem maxCoordDelta_le_maxCellBoundaryDistance : (maxCoordDelta : ℝ) ≤ (ma
   norm_num
 
 /--
-Evaluated numeral value of maxCoordDelta in ℝ (2 * mainCoordBoundNat = 33,554,426) for linear arithmetic.
+Evaluated numeral value of maxCoordDelta in ℝ (2 * mainCoordBoundNat = 4,294,967,290) for linear arithmetic.
 -/
-theorem maxCoordDelta_toReal_eval : (maxCoordDelta : ℝ) = 33554426 := by
+theorem maxCoordDelta_toReal_eval : (maxCoordDelta : ℝ) = 4294967290 := by
   unfold maxCoordDelta maxCoordDeltaNat mainCoordBoundNat
   norm_num
 
 /--
-Evaluated numeral value of maxCellBoundaryDistance in ℝ (2 * mainCoordBoundNat + 2 = 33,554,428) for linear arithmetic.
+Evaluated numeral value of maxCellBoundaryDistance in ℝ (2 * mainCoordBoundNat + 2 = 4,294,967,292)
+for linear arithmetic.
 -/
-theorem maxCellBoundaryDistance_toReal_eval : (maxCellBoundaryDistance : ℝ) = 33554428 := by
+theorem maxCellBoundaryDistance_toReal_eval : (maxCellBoundaryDistance : ℝ) = 4294967292 := by
   unfold maxCellBoundaryDistance maxCellBoundaryDistanceNat mainCoordBoundNat
   norm_num
 
