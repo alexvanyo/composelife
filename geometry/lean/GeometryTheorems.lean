@@ -67,7 +67,7 @@ theorem cellIntersectionsPathFloat_hausdorff_bound_of_same_cell_steps
       (cellIntersectionsPath (pointsToRational Ps)) 1 :=
   cellIntersectionsPathFloat_hausdorff_bound_of_same_cell_steps_Impl Ps h_fin h_steps
 
-/-- Master Segment Theorem: Global Hausdorff bound for any segment within `mainCoordBound` ([-1000000, 1000000]²). -/
+/-- Master Segment Theorem: Global Hausdorff bound for any segment within `mainCoordBound` ([-1048575, 1048575]²). -/
 theorem cellIntersectionsSegmentFloat_hausdorff_bound
     (A B : Point32)
     (h_finiteA : A.isFinite)
@@ -78,7 +78,7 @@ theorem cellIntersectionsSegmentFloat_hausdorff_bound
       (cellIntersectionsSegment A.toPoint B.toPoint) 1 :=
   cellIntersectionsSegmentFloat_hausdorff_bound_Impl A B h_finiteA h_finiteB h_bound
 
-/-- Master Polyline Theorem: Global Hausdorff bound along any path within `mainCoordBound` ([-1000000, 1000000]²). -/
+/-- Master Polyline Theorem: Global Hausdorff bound along any path within `mainCoordBound` ([-1048575, 1048575]²). -/
 theorem cellIntersectionsPathFloat_hausdorff_bound
     (Ps : List Point32) (h_fin : AllFinite Ps)
     (h_bounds : ∀ (i : Nat) (hi : i + 1 < Ps.length),
