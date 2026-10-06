@@ -221,13 +221,32 @@ def eps32 : ℚ := 1 / (2^24)
 def eps64 : ℚ := 1 / (2^53)
 
 /--
-Main coordinate magnitude bound as a natural number.
-1447 is the maximum integer where the cross-product discrepancy bound gammaBound M < 1 holds.
+Cross-product relative error bound for ray marching.
+Tightly bounds single-precision coordinate differences widened to double precision
+and accumulated in double-precision cross products: (1 + eps32)^2 * (1 + eps64) - 1.
+Numerically approximately 1.19209e-7, strictly derived from machine epsilon.
 -/
-def mainCoordBoundNat : ℕ := 1447
+def epsRayMarch : ℚ := (1 + eps32)^2 * (1 + eps64) - 1
 
 /--
-Main coordinate magnitude bound for geometry verification ([-1447, 1447]²).
+The maximum coordinate scale where the single-precision cross-product discrepancy bound
+gammaBound M < 1 holds. 1447 is the exact sharp integer upper limit for corner clearance.
+-/
+def clearanceCoordBoundNat : ℕ := 1447
+
+/--
+The maximum coordinate scale where corner clearance holds.
+-/
+def clearanceCoordBound : ℚ := clearanceCoordBoundNat
+
+/--
+Main coordinate magnitude bound as a natural number for global Hausdorff distance verification.
+Bounded to 1,000,000, strictly within the single-precision significand capacity (2^24 = 16,777,216).
+-/
+def mainCoordBoundNat : ℕ := 1000000
+
+/--
+Main coordinate magnitude bound for geometry verification ([-1000000, 1000000]²).
 -/
 def mainCoordBound : ℚ := mainCoordBoundNat
 

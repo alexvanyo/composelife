@@ -54,10 +54,10 @@ theorem gammaBound_nonneg (M : ℚ) (hM : 0 ≤ M) : 0 ≤ gammaBound M := by
   positivity
 
 /--
-The cross-product discrepancy bound at coordinate scale M = mainCoordBound is strictly less than 1.
+The cross-product discrepancy bound at coordinate scale M = clearanceCoordBound is strictly less than 1.
 -/
-theorem gammaBound_mainCoordBound_lt_one : gammaBound mainCoordBound < 1 := by
-  unfold gammaBound eps32 mainCoordBound mainCoordBoundNat
+theorem gammaBound_clearanceCoordBound_lt_one : gammaBound clearanceCoordBound < 1 := by
+  unfold gammaBound eps32 clearanceCoordBound clearanceCoordBoundNat
   norm_num
 
 /--
@@ -154,17 +154,33 @@ theorem maxCoordDelta_le_maxCellBoundaryDistance : (maxCoordDelta : ℝ) ≤ (ma
   norm_num
 
 /--
-Evaluated numeral value of maxCoordDelta in ℝ (2 * mainCoordBoundNat) for linear arithmetic.
+Evaluated numeral value of maxCoordDelta in ℝ (2 * mainCoordBoundNat = 2,000,000) for linear arithmetic.
 -/
-theorem maxCoordDelta_toReal_eval : (maxCoordDelta : ℝ) = 2894 := by
+theorem maxCoordDelta_toReal_eval : (maxCoordDelta : ℝ) = 2000000 := by
   unfold maxCoordDelta maxCoordDeltaNat mainCoordBoundNat
   norm_num
 
 /--
-Evaluated numeral value of maxCellBoundaryDistance in ℝ (2 * mainCoordBoundNat + 2) for linear arithmetic.
+Evaluated numeral value of maxCellBoundaryDistance in ℝ (2 * mainCoordBoundNat + 2 = 2,000,002) for linear arithmetic.
 -/
-theorem maxCellBoundaryDistance_toReal_eval : (maxCellBoundaryDistance : ℝ) = 2896 := by
+theorem maxCellBoundaryDistance_toReal_eval : (maxCellBoundaryDistance : ℝ) = 2000002 := by
   unfold maxCellBoundaryDistance maxCellBoundaryDistanceNat mainCoordBoundNat
+  norm_num
+
+/--
+Evaluated rational numeral of epsRayMarch in ℝ for linear arithmetic.
+-/
+theorem epsRayMarch_toReal_eval :
+    (epsRayMarch : ℝ) = 302231464192331558682625 / 2535301200456458802993406410752 := by
+  unfold epsRayMarch eps32 eps64
+  push_cast
+  ring
+
+/--
+The ray march cross-product relative error bound is strictly positive.
+-/
+theorem epsRayMarch_pos : 0 < epsRayMarch := by
+  unfold epsRayMarch eps32 eps64
   norm_num
 
 end Geometry
