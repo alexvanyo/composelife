@@ -22,33 +22,30 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.IntSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexvanyo.composelife.preferences.CurrentShape
 import com.alexvanyo.composelife.screenshot.assertPixels
-import com.alexvanyo.composelife.screenshot.captureToImage
+import com.alexvanyo.composelife.test.runComposeUiTest
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import org.junit.Assume.assumeTrue
-import org.junit.Rule
 import org.junit.runner.RunWith
 import kotlin.test.Test
 
 @RunWith(AndroidJUnit4::class)
 class InteractableCellVisualTests {
 
-    @get:Rule
-    val composeTestRule = createComposeRule()
-
     @Test
-    fun alive_interactable_cell_draws_correctly_dark_mode() {
+    fun alive_interactable_cell_draws_correctly_dark_mode() = runComposeUiTest {
         assumeTrue(Build.VERSION.SDK_INT >= 28)
-        if (Build.VERSION.SDK_INT < 28) return
+        if (Build.VERSION.SDK_INT < 28) return@runComposeUiTest
 
         var aliveCellColor: Color? = null
 
-        composeTestRule.setContent {
+        setContent {
             ComposeLifeTheme(darkTheme = true) {
                 InteractableCell(
                     drawState = DrawState.Alive,
@@ -67,7 +64,7 @@ class InteractableCellVisualTests {
             }
         }
 
-        composeTestRule.onRoot().captureToImage().assertPixels(
+        onRoot().captureToImage().assertPixels(
             IntSize(10, 10),
         ) {
             @Suppress("UnsafeCallOnNullableType")
@@ -76,13 +73,13 @@ class InteractableCellVisualTests {
     }
 
     @Test
-    fun alive_interactable_cell_draws_correctly_light_mode() {
+    fun alive_interactable_cell_draws_correctly_light_mode() = runComposeUiTest {
         assumeTrue(Build.VERSION.SDK_INT >= 28)
-        if (Build.VERSION.SDK_INT < 28) return
+        if (Build.VERSION.SDK_INT < 28) return@runComposeUiTest
 
         var aliveCellColor: Color? = null
 
-        composeTestRule.setContent {
+        setContent {
             ComposeLifeTheme(darkTheme = false) {
                 InteractableCell(
                     drawState = DrawState.Alive,
@@ -101,7 +98,7 @@ class InteractableCellVisualTests {
             }
         }
 
-        composeTestRule.onRoot().captureToImage().assertPixels(
+        onRoot().captureToImage().assertPixels(
             IntSize(10, 10),
         ) {
             @Suppress("UnsafeCallOnNullableType")
@@ -110,13 +107,13 @@ class InteractableCellVisualTests {
     }
 
     @Test
-    fun dead_interactable_cell_draws_correctly_dark_mode() {
+    fun dead_interactable_cell_draws_correctly_dark_mode() = runComposeUiTest {
         assumeTrue(Build.VERSION.SDK_INT >= 28)
-        if (Build.VERSION.SDK_INT < 28) return
+        if (Build.VERSION.SDK_INT < 28) return@runComposeUiTest
 
         var deadCellColor: Color? = null
 
-        composeTestRule.setContent {
+        setContent {
             ComposeLifeTheme(darkTheme = true) {
                 InteractableCell(
                     drawState = DrawState.Dead,
@@ -135,7 +132,7 @@ class InteractableCellVisualTests {
             }
         }
 
-        composeTestRule.onRoot().captureToImage().assertPixels(
+        onRoot().captureToImage().assertPixels(
             IntSize(10, 10),
         ) {
             @Suppress("UnsafeCallOnNullableType")
@@ -144,13 +141,13 @@ class InteractableCellVisualTests {
     }
 
     @Test
-    fun dead_interactable_cell_draws_correctly_light_mode() {
+    fun dead_interactable_cell_draws_correctly_light_mode() = runComposeUiTest {
         assumeTrue(Build.VERSION.SDK_INT >= 28)
-        if (Build.VERSION.SDK_INT < 28) return
+        if (Build.VERSION.SDK_INT < 28) return@runComposeUiTest
 
         var deadCellColor: Color? = null
 
-        composeTestRule.setContent {
+        setContent {
             ComposeLifeTheme(darkTheme = false) {
                 InteractableCell(
                     drawState = DrawState.Dead,
@@ -169,7 +166,7 @@ class InteractableCellVisualTests {
             }
         }
 
-        composeTestRule.onRoot().captureToImage().assertPixels(
+        onRoot().captureToImage().assertPixels(
             IntSize(10, 10),
         ) {
             @Suppress("UnsafeCallOnNullableType")
