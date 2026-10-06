@@ -36,6 +36,10 @@ theorem eps64_pos : 0 < eps64 := by
   change 0 < (1 : ℚ) / (2^53)
   positivity
 
+theorem epsRayMarch_pos : 0 < epsRayMarch := by
+  unfold epsRayMarch eps64
+  norm_num
+
 /--
 Monotonicity of inCoordBounds: bounds transfer to any larger bound.
 -/
@@ -50,28 +54,28 @@ theorem gammaBound_nonneg (M : ℚ) (hM : 0 ≤ M) : 0 ≤ gammaBound M := by
     have h2 : 0 ≤ 8 * M * M := by positivity
     have h3 : 0 ≤ 8 * M := by positivity
     linarith
-  have h_eps : 0 ≤ eps32 := le_of_lt eps32_pos
+  have h_eps : 0 ≤ epsRayMarch := le_of_lt epsRayMarch_pos
   positivity
 
 /--
 The cross-product discrepancy bound at coordinate scale M = clearanceCoordBound is strictly less than 1.
 -/
 theorem gammaBound_clearanceCoordBound_lt_one : gammaBound clearanceCoordBound < 1 := by
-  unfold gammaBound eps32 clearanceCoordBound clearanceCoordBoundNat
+  unfold gammaBound epsRayMarch eps64 clearanceCoordBound clearanceCoordBoundNat
   norm_num
 
 /--
-The cross-product discrepancy bound at coordinate scale M = 1447 is strictly less than 1.
+The cross-product discrepancy bound at coordinate scale M = 19372659 is strictly less than 1.
 -/
-theorem gammaBound_1447_lt_one : gammaBound 1447 < 1 := by
-  unfold gammaBound eps32
+theorem gammaBound_19372659_lt_one : gammaBound 19372659 < 1 := by
+  unfold gammaBound epsRayMarch eps64
   norm_num
 
 /--
-Counterexample: at scale M = 1448, the cross-product discrepancy bound fails (gammaBound 1448 ≥ 1).
+Counterexample: at scale M = 19372660, the cross-product discrepancy bound fails (gammaBound 19372660 ≥ 1).
 -/
-theorem gammaBound_1448_ge_one : gammaBound 1448 ≥ 1 := by
-  unfold gammaBound eps32
+theorem gammaBound_19372660_ge_one : gammaBound 19372660 ≥ 1 := by
+  unfold gammaBound epsRayMarch eps64
   norm_num
 
 /--
@@ -177,12 +181,5 @@ theorem epsRayMarch_toReal_eval :
   unfold epsRayMarch eps64
   push_cast
   ring
-
-/--
-The ray march cross-product relative error bound is strictly positive.
--/
-theorem epsRayMarch_pos : 0 < epsRayMarch := by
-  unfold epsRayMarch eps64
-  norm_num
 
 end Geometry
