@@ -495,11 +495,11 @@ theorem adjacent_cells_h_term_full (A B : Point32)
             rcases hs2 with h2_done | ⟨h2_x, _⟩ | ⟨h2_y, _⟩ | ⟨h2_diag, _⟩
             · right; right; right; right; left; exact h2_done
             · right; right; right; right; right; right; right; left
-              rw [h2_x, h1_x]; (apply cell_ext <;> dsimp <;> ring)
+              rw [h2_x, h1_x]; ((apply cell_ext <;> dsimp); ring)
             · right; right; right; right; right; right; left
               rw [h2_y, h1_x]
             · right; right; right; right; right; right; right; right; left
-              rw [h2_diag, h1_x]; (apply cell_ext <;> dsimp <;> ring)
+              rw [h2_diag, h1_x]; ((apply cell_ext <;> dsimp); ring)
         · by_cases hc1_end : s1.1 = endCell
           · right; right; left; exact hc1_end
           · let s2 := rayMarchStepFloat A dx dy stepX stepY s1.1
@@ -788,7 +788,7 @@ theorem rayMarchFloat_cells_near_endpoints_2stepX_stepY
                               | succ f5 => exfalso; omega
 
 theorem rayMarchFloat_cells_near_endpoints_2stepX_term
-    (fuel : ℕ) (h_fuel : fuel ≤ 4)
+    (fuel : ℕ) (_h_fuel : fuel ≤ 4)
     (start : Point32) (dx dy : Binary64) (stepX stepY : ℤ)
     (endCell startCell : Cell)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
@@ -1053,7 +1053,7 @@ theorem rayMarchFloat_cells_near_endpoints_axial_X
     (A : Point32) (dx dy : Binary64) (stepX stepY : ℤ)
     (endCell startCell : Cell)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
-    (he1 : endCell = ⟨startCell.x + stepX, startCell.y⟩)
+    (_he1 : endCell = ⟨startCell.x + stepX, startCell.y⟩)
     (hs1_step :
       (rayMarchStepFloat A dx dy stepX stepY startCell).2 = true ∨
       (rayMarchStepFloat A dx dy stepX stepY startCell).1 = endCell)
@@ -1080,7 +1080,7 @@ theorem rayMarchFloat_cells_near_endpoints_axial_Y
     (A : Point32) (dx dy : Binary64) (stepX stepY : ℤ)
     (endCell startCell : Cell)
     (hX : stepX = -1 ∨ stepX = 0 ∨ stepX = 1) (hY : stepY = -1 ∨ stepY = 0 ∨ stepY = 1)
-    (he2 : endCell = ⟨startCell.x, startCell.y + stepY⟩)
+    (_he2 : endCell = ⟨startCell.x, startCell.y + stepY⟩)
     (hs1_step :
       (rayMarchStepFloat A dx dy stepX stepY startCell).2 = true ∨
       (rayMarchStepFloat A dx dy stepX stepY startCell).1 = endCell)
@@ -1212,7 +1212,7 @@ theorem cellIntersectionsSegmentFloat_cells_near_endpoints_Impl
         by_cases hy0 : stepY = 0
         · have hx0 : stepX ≠ 0 := by
             intro hx; rw [hx] at he1
-            have : endCell = startCell := by rw [he1]; apply cell_ext <;> dsimp <;> ring
+            have : endCell = startCell := by rw [he1]; (apply cell_ext <;> dsimp); ring
             exact h_ne this.symm
           have hstepY_eq : (if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0) = stepY := rfl
           have hstepX_eq : (if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0) = stepX := rfl
@@ -1226,7 +1226,7 @@ theorem cellIntersectionsSegmentFloat_cells_near_endpoints_Impl
         by_cases hx0 : stepX = 0
         · have hy0 : stepY ≠ 0 := by
             intro hy; rw [hy] at he2
-            have : endCell = startCell := by rw [he2]; apply cell_ext <;> dsimp <;> omega
+            have : endCell = startCell := by rw [he2]; (apply cell_ext <;> dsimp); omega
             exact h_ne this.symm
           have hstepX_eq : (if deltaX A B > 0.0 then 1 else if deltaX A B < 0.0 then -1 else 0) = stepX := rfl
           have hstepY_eq : (if deltaY A B > 0.0 then 1 else if deltaY A B < 0.0 then -1 else 0) = stepY := rfl
