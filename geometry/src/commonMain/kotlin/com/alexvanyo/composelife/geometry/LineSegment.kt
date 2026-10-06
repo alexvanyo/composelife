@@ -78,27 +78,27 @@ internal fun cellIntersections(start: Offset, end: Offset, destination: MutableS
     while ((currentX != endCell.x || currentY != endCell.y) && step < maxSteps) {
         step++
 
-        val xb = if (stepX > 0) (currentX + 1).toFloat() else currentX.toFloat()
-        val yb = if (stepY > 0) (currentY + 1).toFloat() else currentY.toFloat()
+        val xb = if (stepX > 0) (currentX + 1).toDouble() else currentX.toDouble()
+        val yb = if (stepY > 0) (currentY + 1).toDouble() else currentY.toDouble()
 
         val absDx = dx.absoluteValue
         val absDy = dy.absoluteValue
 
         if (stepX == 0) {
-            val remY = (yb.toDouble() - start.y.toDouble()).absoluteValue
+            val remY = (yb - start.y.toDouble()).absoluteValue
             if (remY >= absDy) {
                 break
             }
             currentY += stepY
         } else if (stepY == 0) {
-            val remX = (xb.toDouble() - start.x.toDouble()).absoluteValue
+            val remX = (xb - start.x.toDouble()).absoluteValue
             if (remX >= absDx) {
                 break
             }
             currentX += stepX
         } else {
-            val remX = (xb.toDouble() - start.x.toDouble()).absoluteValue
-            val remY = (yb.toDouble() - start.y.toDouble()).absoluteValue
+            val remX = (xb - start.x.toDouble()).absoluteValue
+            val remY = (yb - start.y.toDouble()).absoluteValue
             val crossX = remX * absDy
             val crossY = remY * absDx
             val limitCross = absDx * absDy
