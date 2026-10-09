@@ -14,126 +14,44 @@
  * limitations under the License.
  */
 @file:Suppress("TooManyFunctions", "NOTHING_TO_INLINE")
+@file:OptIn(ExperimentalUnsignedTypes::class)
 
 package com.alexvanyo.composelife.model
 
 import com.alexvanyo.composelife.geometry.IntOffset
-import com.alexvanyo.composelife.model.MacroCell.CellNode
-import com.alexvanyo.composelife.model.MacroCell.LeafNode
-import com.alexvanyo.composelife.model.MacroCell.Level4Node
 
 /**
- * A quad tree representation of the state of cells.
+ * A leaf [MacroCell], which contains 64 cells encoded in a [ULong]. The bit mapping is defined as follows, with
+ * the bit index encoded in hexadecimal:
  *
- * A [MacroCell] is either a [Level4Node] with 4 [LeafNode] children or a [CellNode] with 4 subnodes.
+ * ```
+ * + ------------+-------------+
+ * | 00 01 04 05 | 10 11 14 15 |
+ * | 02 03 06 07 | 12 13 16 17 |
+ * | 08 09 0C 0D | 18 19 1C 1D |
+ * | 0A 0B 0E 0F | 1A 1B 1E 1F |
+ * + ------------+-------------+
+ * | 20 21 24 25 | 30 31 34 35 |
+ * | 22 23 26 27 | 32 33 36 37 |
+ * | 28 29 2C 2D | 38 39 3C 3D |
+ * | 2A 2B 2E 2F | 3A 3B 3E 3F |
+ * + ------------+-------------+
+ * ```
  */
-internal sealed interface MacroCell {
-    /**
-     * The tree level of this cell. A cell at level `x` represents `4^x` cells.
-     */
-    val level: Int
+typealias LeafNode = ULong
+typealias Level4Node = MacroCell.Level4Node
+typealias CellNode = MacroCell.CellNode
 
-    /**
-     * The number of alive cells represented by this [MacroCell].
-     *
-     * This number is in the range of `0` and `4^x` (inclusive).
-     */
-    val size: Int
+internal inline fun Level4Node(nw: Long, ne: Long, sw: Long, se: Long): MacroCell.Level4Node =
+    MacroCell.Level4Node(nw.toULong(), ne.toULong(), sw.toULong(), se.toULong())
 
-    /**
-     * A leaf [MacroCell], which contains 64 cells encoded in a [Long]. The bit mapping is defined as follows, with
-     * the bit index encoded in hexadecimal:
-     *
-     * ```
-     * + ------------+-------------+
-     * | 00 01 04 05 | 10 11 14 15 |
-     * | 02 03 06 07 | 12 13 16 17 |
-     * | 08 09 0C 0D | 18 19 1C 1D |
-     * | 0A 0B 0E 0F | 1A 1B 1E 1F |
-     * + ------------+-------------+
-     * | 20 21 24 25 | 30 31 34 35 |
-     * | 22 23 26 27 | 32 33 36 37 |
-     * | 28 29 2C 2D | 38 39 3C 3D |
-     * | 2A 2B 2E 2F | 3A 3B 3E 3F |
-     * + ------------+-------------+
-     * ```
-     *
-     * This mapping allows each 4x4 quadrant of the leaf node to be represented by a 16-bit value, and each
-     * quadrant can be extracted by the appropriate masking. Furthermore, each 2x2 quadrant of each 4x4 quadrant can be
-     * extracted as a contiguous 4-bit value.
-     */
-    typealias LeafNode = Long
-
-    /**
-     * A [MacroCell] at level 4. This level contains exactly 4 [LeafNode]s.
-     */
-    data class Level4Node(val nw: LeafNode, val ne: LeafNode, val sw: LeafNode, val se: LeafNode) : MacroCell {
-        override val level = 4
-
-        override val size = nw.size + ne.size + sw.size + se.size
-
-        /**
-         * Memoize the hashcode.
-         */
-        private val hashCode =
-            run {
-                // Multi-linear universal hash across the 4 64-bit quadrants with distinct primes,
-                // followed by Stafford's Mix13 / MurmurHash3 64-bit mixer for complete bit avalanche.
-                var h = 0x243F6A8885A308D3L +
-                    (nw * -0x61c8864680b583ebL) +
-                    (ne * -0x40a7b892e31b1a47L) +
-                    (sw * -0x6b2fb644ecceee15L) +
-                    (se * -0x662d04944d150cb1L)
-                h = (h xor (h ushr 30)) * -0x40a7b892e31b1a47L
-                h = (h xor (h ushr 27)) * -0x6b2fb644ecceee15L
-                (h xor (h ushr 31)).toInt()
-            }
-
-        override fun hashCode(): Int = hashCode
-    }
-
-    /**
-     * A non-leaf [MacroCell], which contains 4 subnode [MacroCell]s.
-     */
-    data class CellNode(val nw: MacroCell, val ne: MacroCell, val sw: MacroCell, val se: MacroCell) : MacroCell {
-        init {
-            require(nw.level == ne.level)
-            require(ne.level == sw.level)
-            require(sw.level == se.level)
-        }
-
-        override val level = nw.level + 1
-
-        override val size = nw.size + ne.size + sw.size + se.size
-
-        /**
-         * Memoize the hashcode.
-         */
-        private val hashCode =
-            run {
-                // Multi-linear universal hash across level and the 4 child hashes with distinct primes,
-                // followed by MurmurHash3 fmix32 for complete bit avalanche.
-                var h = (level * -0x61c8864f) +
-                    (nw.hashCode() * -0x7a143589) +
-                    (ne.hashCode() * -0x3d4d51c3) +
-                    (sw.hashCode() * 0x27D4EB2F) +
-                    (se.hashCode() * 0x165667B1)
-                h = (h xor (h ushr 16)) * -0x7a143595
-                h = (h xor (h ushr 13)) * -0x3d4d51cb
-                h xor (h ushr 16)
-            }
-
-        override fun hashCode(): Int = hashCode
-    }
-}
-
-internal inline fun LeafNode(nw: Int, ne: Int, sw: Int, se: Int): LeafNode = (nw.toLong() and 0xFFFFL) or
-    ((ne.toLong() and 0xFFFFL) shl 16) or
-    ((sw.toLong() and 0xFFFFL) shl 32) or
-    ((se.toLong() and 0xFFFFL) shl 48)
+internal inline fun LeafNode(nw: Int, ne: Int, sw: Int, se: Int): LeafNode = (nw.toULong() and 0xFFFFuL) or
+    ((ne.toULong() and 0xFFFFuL) shl 16) or
+    ((sw.toULong() and 0xFFFFuL) shl 32) or
+    ((se.toULong() and 0xFFFFuL) shl 48)
 
 internal inline fun LeafNode(aliveCells: Set<IntOffset>): LeafNode {
-    var result = 0L
+    var result = 0uL
     for (target in aliveCells) {
         result = result or target.toMask()
     }
@@ -142,13 +60,13 @@ internal inline fun LeafNode(aliveCells: Set<IntOffset>): LeafNode {
 
 internal inline val LeafNode.size: Int get() = countOneBits()
 
-internal inline val LeafNode.nw: Int get() = ((this and 0x000000000000FFFFL) ushr 0).toInt()
+internal inline val LeafNode.nw: Int get() = ((this and 0x000000000000FFFFuL) shr 0).toInt()
 
-internal inline val LeafNode.ne: Int get() = ((this and 0x00000000FFFF0000L) ushr 16).toInt()
+internal inline val LeafNode.ne: Int get() = ((this and 0x00000000FFFF0000uL) shr 16).toInt()
 
-internal inline val LeafNode.sw: Int get() = ((this and 0x0000FFFF00000000L) ushr 32).toInt()
+internal inline val LeafNode.sw: Int get() = ((this and 0x0000FFFF00000000uL) shr 32).toInt()
 
-internal inline val LeafNode.se: Int get() = ((this and -0x1000000000000L) ushr 48).toInt()
+internal inline val LeafNode.se: Int get() = ((this and 0xFFFF000000000000uL) shr 48).toInt()
 
 internal inline val Int.nw: Int get() = ((this and 0b0000_0000_0000_1111) ushr 0)
 internal inline val Int.ne: Int get() = ((this and 0b0000_0000_1111_0000) ushr 4)
@@ -175,9 +93,10 @@ internal inline fun LeafNode.withCell(target: IntOffset, isAlive: Boolean): Leaf
  */
 @Suppress("LongMethod")
 internal fun MacroCell.withCell(x: Int, y: Int, isAlive: Boolean): MacroCell {
-    require(x in 0 until (1 shl level) && y in 0 until (1 shl level))
+    val intLevel = level().toInt()
+    require(x in 0 until (1 shl intLevel) && y in 0 until (1 shl intLevel))
 
-    val offsetDiff = 1 shl (level - 1)
+    val offsetDiff = 1 shl (intLevel - 1)
     val isNorth = y < offsetDiff
     val isWest = x < offsetDiff
 
@@ -267,7 +186,7 @@ internal inline fun MacroCell.withCell(target: IntOffset, isAlive: Boolean): Mac
 internal fun createEmptyMacroCell(level: Int): MacroCell {
     require(level >= 4)
     return if (level == 4) {
-        Level4Node(0L, 0L, 0L, 0L)
+        Level4Node(0uL, 0uL, 0uL, 0uL)
     } else {
         val smallerEmptyMacroCell = createEmptyMacroCell(level - 1)
         CellNode(
@@ -281,7 +200,7 @@ internal fun createEmptyMacroCell(level: Int): MacroCell {
 
 internal inline operator fun LeafNode.contains(target: IntOffset): Boolean {
     if (target.x !in 0..7 || target.y !in 0..7) return false
-    return (this and target.toMask()) != 0L
+    return (this and target.toMask()) != 0uL
 }
 
 /**
@@ -292,28 +211,29 @@ internal inline operator fun LeafNode.contains(target: IntOffset): Boolean {
  */
 @Suppress("NestedBlockDepth")
 internal tailrec fun MacroCell.contains(x: Int, y: Int): Boolean {
-    val offsetDiff = 1 shl (level - 1)
+    val intLevel = level().toInt()
+    val offsetDiff = 1 shl (intLevel - 1)
     val isNorth = y < offsetDiff
     val isWest = x < offsetDiff
 
-    return if (size == 0) {
+    return if (size() == 0u) {
         false
-    } else if (x !in 0 until (1 shl level) || y !in 0 until (1 shl level)) {
+    } else if (x !in 0 until (1 shl intLevel) || y !in 0 until (1 shl intLevel)) {
         false
     } else {
         when (this) {
             is Level4Node -> {
                 if (isNorth) {
                     if (isWest) {
-                        (nw and cellToLeafMask(x, y)) != 0L
+                        (nw and cellToLeafMask(x, y)) != 0uL
                     } else {
-                        (ne and cellToLeafMask(x - offsetDiff, y)) != 0L
+                        (ne and cellToLeafMask(x - offsetDiff, y)) != 0uL
                     }
                 } else {
                     if (isWest) {
-                        (sw and cellToLeafMask(x, y - offsetDiff)) != 0L
+                        (sw and cellToLeafMask(x, y - offsetDiff)) != 0uL
                     } else {
-                        (se and cellToLeafMask(x - offsetDiff, y - offsetDiff)) != 0L
+                        (se and cellToLeafMask(x - offsetDiff, y - offsetDiff)) != 0uL
                     }
                 }
             }
@@ -340,81 +260,81 @@ internal tailrec fun MacroCell.contains(x: Int, y: Int): Boolean {
 internal inline operator fun MacroCell.contains(target: IntOffset): Boolean = contains(target.x, target.y)
 
 /**
- * Converts relative coordinates where `x` and `y` are each in `0..7` into the appropriate [Long] bit for [LeafNode].
+ * Converts relative coordinates where `x` and `y` are each in `0..7` into the appropriate [ULong] bit for [LeafNode].
  */
-internal inline fun cellToLeafMask(x: Int, y: Int): Long {
+internal inline fun cellToLeafMask(x: Int, y: Int): ULong {
     require(x in 0..7 && y in 0..7)
     return maskArray[y * 8 + x]
 }
 
-internal inline fun IntOffset.toMask(): Long = cellToLeafMask(x, y)
+internal inline fun IntOffset.toMask(): ULong = cellToLeafMask(x, y)
 
 internal val maskArray =
-    longArrayOf(
-        1L shl 0x00,
-        1L shl 0x01,
-        1L shl 0x04,
-        1L shl 0x05,
-        1L shl 0x10,
-        1L shl 0x11,
-        1L shl 0x14,
-        1L shl 0x15,
-        1L shl 0x02,
-        1L shl 0x03,
-        1L shl 0x06,
-        1L shl 0x07,
-        1L shl 0x12,
-        1L shl 0x13,
-        1L shl 0x16,
-        1L shl 0x17,
-        1L shl 0x08,
-        1L shl 0x09,
-        1L shl 0x0C,
-        1L shl 0x0D,
-        1L shl 0x18,
-        1L shl 0x19,
-        1L shl 0x1C,
-        1L shl 0x1D,
-        1L shl 0x0A,
-        1L shl 0x0B,
-        1L shl 0x0E,
-        1L shl 0x0F,
-        1L shl 0x1A,
-        1L shl 0x1B,
-        1L shl 0x1E,
-        1L shl 0x1F,
-        1L shl 0x20,
-        1L shl 0x21,
-        1L shl 0x24,
-        1L shl 0x25,
-        1L shl 0x30,
-        1L shl 0x31,
-        1L shl 0x34,
-        1L shl 0x35,
-        1L shl 0x22,
-        1L shl 0x23,
-        1L shl 0x26,
-        1L shl 0x27,
-        1L shl 0x32,
-        1L shl 0x33,
-        1L shl 0x36,
-        1L shl 0x37,
-        1L shl 0x28,
-        1L shl 0x29,
-        1L shl 0x2C,
-        1L shl 0x2D,
-        1L shl 0x38,
-        1L shl 0x39,
-        1L shl 0x3C,
-        1L shl 0x3D,
-        1L shl 0x2A,
-        1L shl 0x2B,
-        1L shl 0x2E,
-        1L shl 0x2F,
-        1L shl 0x3A,
-        1L shl 0x3B,
-        1L shl 0x3E,
-        1L shl 0x3F,
+    ulongArrayOf(
+        1uL shl 0x00,
+        1uL shl 0x01,
+        1uL shl 0x04,
+        1uL shl 0x05,
+        1uL shl 0x10,
+        1uL shl 0x11,
+        1uL shl 0x14,
+        1uL shl 0x15,
+        1uL shl 0x02,
+        1uL shl 0x03,
+        1uL shl 0x06,
+        1uL shl 0x07,
+        1uL shl 0x12,
+        1uL shl 0x13,
+        1uL shl 0x16,
+        1uL shl 0x17,
+        1uL shl 0x08,
+        1uL shl 0x09,
+        1uL shl 0x0C,
+        1uL shl 0x0D,
+        1uL shl 0x18,
+        1uL shl 0x19,
+        1uL shl 0x1C,
+        1uL shl 0x1D,
+        1uL shl 0x0A,
+        1uL shl 0x0B,
+        1uL shl 0x0E,
+        1uL shl 0x0F,
+        1uL shl 0x1A,
+        1uL shl 0x1B,
+        1uL shl 0x1E,
+        1uL shl 0x1F,
+        1uL shl 0x20,
+        1uL shl 0x21,
+        1uL shl 0x24,
+        1uL shl 0x25,
+        1uL shl 0x30,
+        1uL shl 0x31,
+        1uL shl 0x34,
+        1uL shl 0x35,
+        1uL shl 0x22,
+        1uL shl 0x23,
+        1uL shl 0x26,
+        1uL shl 0x27,
+        1uL shl 0x32,
+        1uL shl 0x33,
+        1uL shl 0x36,
+        1uL shl 0x37,
+        1uL shl 0x28,
+        1uL shl 0x29,
+        1uL shl 0x2C,
+        1uL shl 0x2D,
+        1uL shl 0x38,
+        1uL shl 0x39,
+        1uL shl 0x3C,
+        1uL shl 0x3D,
+        1uL shl 0x2A,
+        1uL shl 0x2B,
+        1uL shl 0x2E,
+        1uL shl 0x2F,
+        1uL shl 0x3A,
+        1uL shl 0x3B,
+        1uL shl 0x3E,
+        1uL shl 0x3F,
     )
 
 /**
