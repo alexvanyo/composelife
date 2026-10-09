@@ -152,7 +152,7 @@ class HashLifeAlgorithm(
         } else {
             // Slow path: make all subnodes canonical, to check if we have an equivalent canonical node
             val withCanonicalSubNodes =
-                if (size == 0) {
+                if (size() == 0u) {
                     // Special case: if this is an empty node, then all subnodes will have the same canonical node.
                     val smallerEmptyCellNode = nw.makeCanonical()
                     MacroCell.CellNode(
@@ -180,7 +180,7 @@ class HashLifeAlgorithm(
         }
     }
 
-    private fun MacroCell.Level4Node.computeNextGeneration(useMap: Boolean = true): MacroCell.LeafNode = tracer.trace(
+    private fun MacroCell.Level4Node.computeNextGeneration(useMap: Boolean = true): LeafNode = tracer.trace(
         category = "HashLifeAlgorithm",
         name = "Level4Node.computeNextGeneration",
     ) {
@@ -214,8 +214,8 @@ class HashLifeAlgorithm(
             return@trace cellNodeMap[canonicalCellNodeEquivalence.wrap(canonicalMacroCell)]
         }
 
-        when (level) {
-            5 -> {
+        when (level()) {
+            5u -> {
                 nw as MacroCell.Level4Node
                 ne as MacroCell.Level4Node
                 sw as MacroCell.Level4Node
@@ -306,9 +306,9 @@ class HashLifeAlgorithm(
     }
 
     /**
-     * Computes the 4x4 [UShort] next generation for the given 8x8 [MacroCell.LeafNode] in its center.
+     * Computes the 4x4 [UShort] next generation for the given 8x8 [LeafNode] in its center.
      */
-    private fun MacroCell.LeafNode.computeNextGenerationMemoized(): Int = leafNodeMap[this]
+    private fun LeafNode.computeNextGenerationMemoized(): Int = leafNodeMap[this]
 
     override suspend fun computeGenerationWithStep(cellState: CellState, @IntRange(from = 0) step: Int): CellState =
         tracer.traceCoroutine(
@@ -359,12 +359,15 @@ class HashLifeAlgorithm(
     private tailrec fun computeNextGenerationImpl(cellState: HashLifeCellState): HashLifeCellState {
         val node = cellState.macroCell
         val needToExpand =
-            node.level <= 4 ||
-                (node as MacroCell.CellNode).centeredSubSubnodeSize() != node.size
+            node.level() <= 4u ||
+                (node as MacroCell.CellNode).centeredSubSubnodeSize() != node.size()
 
         if (!needToExpand) {
             return HashLifeCellState(
-                offset = cellState.offset + IntOffset(1 shl (node.level - 2), 1 shl (node.level - 2)),
+                offset = cellState.offset + IntOffset(
+                    1 shl (node.level().toInt() - 2),
+                    1 shl (node.level().toInt() - 2),
+                ),
                 macroCell = node.computeNextGeneration(),
             )
         }
@@ -375,33 +378,31 @@ class HashLifeAlgorithm(
     }
 }
 
-private inline fun MacroCell.CellNode.centeredSubSubnodeSize(): Int = when (val center = centeredSubnode(this)) {
-    is MacroCell.Level4Node -> centeredSubnode(center).size
-    is MacroCell.CellNode -> centeredSubnode(center).size
+private inline fun MacroCell.CellNode.centeredSubSubnodeSize(): UInt = when (val center = centeredSubnode(this)) {
+    is MacroCell.Level4Node -> centeredSubnode(center).size.toUInt()
+    is MacroCell.CellNode -> centeredSubnode(center).size()
 }
 
-private inline fun centeredSubnode(node: MacroCell.Level4Node): MacroCell.LeafNode = LeafNode(
+private inline fun centeredSubnode(node: MacroCell.Level4Node): LeafNode = LeafNode(
     nw = node.nw.se,
     ne = node.ne.sw,
     sw = node.sw.ne,
     se = node.se.nw,
 )
 
-private inline fun centeredHorizontalSubnode(w: MacroCell.Level4Node, e: MacroCell.Level4Node): MacroCell.LeafNode =
-    LeafNode(
-        nw = w.ne.se,
-        ne = e.nw.sw,
-        sw = w.se.ne,
-        se = e.sw.nw,
-    )
+private inline fun centeredHorizontalSubnode(w: MacroCell.Level4Node, e: MacroCell.Level4Node): LeafNode = LeafNode(
+    nw = w.ne.se,
+    ne = e.nw.sw,
+    sw = w.se.ne,
+    se = e.sw.nw,
+)
 
-private inline fun centeredVerticalSubnode(n: MacroCell.Level4Node, s: MacroCell.Level4Node): MacroCell.LeafNode =
-    LeafNode(
-        nw = n.sw.se,
-        ne = n.se.sw,
-        sw = s.nw.ne,
-        se = s.ne.nw,
-    )
+private inline fun centeredVerticalSubnode(n: MacroCell.Level4Node, s: MacroCell.Level4Node): LeafNode = LeafNode(
+    nw = n.sw.se,
+    ne = n.se.sw,
+    sw = s.nw.ne,
+    se = s.ne.nw,
+)
 
 private fun centeredSubnode(node: MacroCell.CellNode): MacroCell = when (val nw = node.nw) {
     is MacroCell.Level4Node -> MacroCell.Level4Node(
@@ -490,7 +491,7 @@ private fun <T> Equivalence<T>.wrap(value: T): Equivalence.Wrapper<T> = Equivale
  */
 private val canonicalCellNodeEquivalence: Equivalence<MacroCell.CellNode> =
     Equivalence { a: MacroCell.CellNode, b: MacroCell.CellNode ->
-        a.level == b.level && a.nw === b.nw && a.ne === b.ne && a.sw === b.sw && a.se === b.se
+        a.level() == b.level() && a.nw === b.nw && a.ne === b.ne && a.sw === b.sw && a.se === b.se
     }
 
 private class Cache<K, V>(private val load: (K) -> V, private val getGenerationIndex: () -> Long) {
@@ -515,13 +516,13 @@ private class Cache<K, V>(private val load: (K) -> V, private val getGenerationI
     }
 }
 
-private class ObjectLongCache<K>(private val load: (K) -> Long, private val getGenerationIndex: () -> Long) {
+private class ObjectLongCache<K>(private val load: (K) -> ULong, private val getGenerationIndex: () -> Long) {
     private val mutableMap: MutableObjectLongMap<K> = mutableObjectLongMapOf()
     val map: ObjectLongMap<K> get() = mutableMap
 
     private val lastAccessedGenerationMap: MutableObjectLongMap<K> = mutableObjectLongMapOf()
 
-    operator fun get(key: K): Long = mutableMap.getOrPut(key) { load(key) }.also {
+    operator fun get(key: K): ULong = mutableMap.getOrPut(key) { load(key).toLong() }.toULong().also {
         lastAccessedGenerationMap[key] = getGenerationIndex()
     }
 
@@ -536,14 +537,14 @@ private class ObjectLongCache<K>(private val load: (K) -> Long, private val getG
     }
 }
 
-private class LongIntCache(private val load: (Long) -> Int, private val getGenerationIndex: () -> Long) {
+private class LongIntCache(private val load: (ULong) -> Int, private val getGenerationIndex: () -> Long) {
     private val mutableMap: MutableLongIntMap = mutableLongIntMapOf()
     val map: LongIntMap get() = mutableMap
 
     private val lastAccessedGenerationMap: MutableLongLongMap = mutableLongLongMapOf()
 
-    operator fun get(key: Long): Int = mutableMap.getOrPut(key) { load(key) }.also {
-        lastAccessedGenerationMap[key] = getGenerationIndex()
+    operator fun get(key: ULong): Int = mutableMap.getOrPut(key.toLong()) { load(key) }.also {
+        lastAccessedGenerationMap[key.toLong()] = getGenerationIndex()
     }
 
     fun prune(oldestGenerationToKeep: Long) {
