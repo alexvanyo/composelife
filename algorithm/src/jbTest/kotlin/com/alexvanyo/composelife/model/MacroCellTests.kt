@@ -31,10 +31,10 @@ class MacroCellTests {
             MacroCell.CellNode(
                 createEmptyMacroCell(4),
                 MacroCell.Level4Node(
-                    0L,
-                    0L,
+                    0uL,
+                    0uL,
                     LeafNode(setOf(IntOffset(3, 7))),
-                    0L,
+                    0uL,
                 ),
                 createEmptyMacroCell(4),
                 createEmptyMacroCell(4),
@@ -82,10 +82,10 @@ class MacroCellTests {
     fun create_empty_macro_cell_at_level_4_is_correct() {
         assertEquals(
             MacroCell.Level4Node(
-                0L,
-                0L,
-                0L,
-                0L,
+                0uL,
+                0uL,
+                0uL,
+                0uL,
             ),
             createEmptyMacroCell(4),
         )
@@ -96,28 +96,28 @@ class MacroCellTests {
         assertEquals(
             MacroCell.CellNode(
                 MacroCell.Level4Node(
-                    0L,
-                    0L,
-                    0L,
-                    0L,
+                    0uL,
+                    0uL,
+                    0uL,
+                    0uL,
                 ),
                 MacroCell.Level4Node(
-                    0L,
-                    0L,
-                    0L,
-                    0L,
+                    0uL,
+                    0uL,
+                    0uL,
+                    0uL,
                 ),
                 MacroCell.Level4Node(
-                    0L,
-                    0L,
-                    0L,
-                    0L,
+                    0uL,
+                    0uL,
+                    0uL,
+                    0uL,
                 ),
                 MacroCell.Level4Node(
-                    0L,
-                    0L,
-                    0L,
-                    0L,
+                    0uL,
+                    0uL,
+                    0uL,
+                    0uL,
                 ),
             ),
             createEmptyMacroCell(5),
@@ -131,10 +131,10 @@ class MacroCellTests {
                 .CellNode(
                     createEmptyMacroCell(4),
                     MacroCell.Level4Node(
-                        0L,
-                        0L,
+                        0uL,
+                        0uL,
                         LeafNode(setOf(IntOffset(3, 7))),
-                        0L,
+                        0uL,
                     ),
                     createEmptyMacroCell(4),
                     createEmptyMacroCell(4),
@@ -149,10 +149,10 @@ class MacroCellTests {
                 .CellNode(
                     createEmptyMacroCell(4),
                     MacroCell.Level4Node(
-                        0L,
-                        0L,
+                        0uL,
+                        0uL,
                         LeafNode(setOf(IntOffset(3, 7))),
-                        0L,
+                        0uL,
                     ),
                     createEmptyMacroCell(4),
                     createEmptyMacroCell(4),
@@ -167,10 +167,10 @@ class MacroCellTests {
                 .CellNode(
                     createEmptyMacroCell(4),
                     MacroCell.Level4Node(
-                        0L,
-                        0L,
+                        0uL,
+                        0uL,
                         LeafNode(setOf(IntOffset(3, 7))),
-                        0L,
+                        0uL,
                     ),
                     createEmptyMacroCell(4),
                     createEmptyMacroCell(4),
@@ -182,7 +182,7 @@ class MacroCellTests {
     fun toMask_is_correct() {
         repeat(64) { bit ->
             assertEquals(
-                1L shl bit,
+                1uL shl bit,
                 intOffsetFromBit(bit).toMask(),
             )
         }

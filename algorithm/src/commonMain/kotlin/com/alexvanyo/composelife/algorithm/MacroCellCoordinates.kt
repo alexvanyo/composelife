@@ -74,8 +74,8 @@ internal fun coordinatesToLevel4(
     offsetX: Int = 0,
     offsetY: Int = 0,
 ): MacroCell.Level4Node = MacroCell.Level4Node(
-    nw = coordinatesToLeaf(coordinates, offsetX, offsetY),
-    ne = coordinatesToLeaf(coordinates, offsetX + 8, offsetY),
-    sw = coordinatesToLeaf(coordinates, offsetX, offsetY + 8),
-    se = coordinatesToLeaf(coordinates, offsetX + 8, offsetY + 8),
+    nw = coordinatesToLeaf(coordinates, offsetX, offsetY).toULong(),
+    ne = coordinatesToLeaf(coordinates, offsetX + 8, offsetY).toULong(),
+    sw = coordinatesToLeaf(coordinates, offsetX, offsetY + 8).toULong(),
+    se = coordinatesToLeaf(coordinates, offsetX + 8, offsetY + 8).toULong(),
 )

@@ -19,6 +19,7 @@ import com.alexvanyo.composelife.buildlogic.CheckLeanBuildScriptHygieneTask
 import com.alexvanyo.composelife.buildlogic.CheckLeanGeneratedKotlinTask
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.GenerateLeanKotlinTask
+import com.alexvanyo.composelife.buildlogic.LeanEntrySpec
 import com.alexvanyo.composelife.buildlogic.LeanExtension
 import com.alexvanyo.composelife.buildlogic.VerifyLeanTask
 import com.alexvanyo.composelife.buildlogic.heavyTaskLimitingBuildService
@@ -44,9 +45,10 @@ class LeanConventionPlugin :
         val generatedSourcesDir = layout.buildDirectory.dir("generated/sources/lean/kotlin/commonMain")
 
         leanExtension.entries.configureEach {
+            packageName.convention(leanExtension.packageName)
             outputFile.convention(
                 layout.buildDirectory.file(
-                    leanExtension.packageName.map { pkg ->
+                    packageName.map { pkg ->
                         val packagePath = pkg.replace('.', '/')
                         val capitalizedName = name.replaceFirstChar {
                             if (it.isLowerCase()) it.titlecase() else it.toString()
@@ -92,7 +94,11 @@ class LeanConventionPlugin :
             entries.set(
                 provider {
                     leanExtension.entries.associate { entry ->
-                        entry.leanFile.get() to entry.outputFile.get().asFile.absolutePath
+                        entry.name to LeanEntrySpec(
+                            leanFile = entry.leanFile.get(),
+                            outputFile = entry.outputFile.get().asFile.absolutePath,
+                            packageName = entry.packageName.get(),
+                        )
                     }
                 },
             )

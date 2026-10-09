@@ -18,6 +18,7 @@
 
 package com.alexvanyo.composelife.algorithm
 
+import com.alexvanyo.composelife.model.LeafNode
 import com.alexvanyo.composelife.model.MacroCell
 
 /**
@@ -29,44 +30,49 @@ internal inline fun Int.computeNextGeneration(): Int = f_Algorithm_exportCompute
 /**
  * Computes the 4x4 [Int] next generation for the given 8x8 64-bit Morton leaf node in its center.
  */
-fun Long.computeNextGeneration(): Int = f_Algorithm_exportComputeLeafNextGen8x8BranchUInt(this.toULong()).toInt()
+fun ULong.computeNextGeneration(): Int = f_Algorithm_exportComputeLeafNextGen8x8BranchUInt(this).toInt()
+
+/**
+ * Computes the 4x4 [Int] next generation for the given 8x8 64-bit Morton leaf node in its center.
+ */
+fun Long.computeNextGeneration(): Int = this.toULong().computeNextGeneration()
 
 /**
  * Packs four 16-bit 4x4 quadrants in Morton order into an 8x8 64-bit leaf node.
  */
-internal fun packLeafNode(nw: Int, ne: Int, sw: Int, se: Int): Long = f_Algorithm_packLeafFrom4x4sUInt(
+internal fun packLeafNode(nw: Int, ne: Int, sw: Int, se: Int): LeafNode = f_Algorithm_packLeafFrom4x4sUInt(
     nw.toUInt(),
     ne.toUInt(),
     sw.toUInt(),
     se.toUInt(),
-).toLong()
+)
 
 /**
  * Extracts the central 4x4 from an 8x8 64-bit leaf node.
  */
-internal fun centeredSubnodeLevel3(node: Long): Int = f_Algorithm_centeredSubnodeLevel3BitsUInt(node.toULong()).toInt()
+internal fun centeredSubnodeLevel3(node: LeafNode): Int = f_Algorithm_centeredSubnodeLevel3BitsUInt(node).toInt()
 
 /**
  * Extracts the horizontal central 4x4 spanning west and east 8x8 leaf nodes.
  */
-internal fun centeredHorizontalSubnodeLevel3(w: Long, e: Long): Int =
-    f_Algorithm_centeredHorizontalSubnodeLevel3BitsUInt(w.toULong(), e.toULong()).toInt()
+internal fun centeredHorizontalSubnodeLevel3(w: LeafNode, e: LeafNode): Int =
+    f_Algorithm_centeredHorizontalSubnodeLevel3BitsUInt(w, e).toInt()
 
 /**
  * Extracts the vertical central 4x4 spanning north and south 8x8 leaf nodes.
  */
-internal fun centeredVerticalSubnodeLevel3(n: Long, s: Long): Int =
-    f_Algorithm_centeredVerticalSubnodeLevel3BitsUInt(n.toULong(), s.toULong()).toInt()
+internal fun centeredVerticalSubnodeLevel3(n: LeafNode, s: LeafNode): Int =
+    f_Algorithm_centeredVerticalSubnodeLevel3BitsUInt(n, s).toInt()
 
 /**
  * Extracts the central 4x4 from a 16x16 Level 4 node consisting of four 8x8 leaf nodes.
  */
-internal fun centeredSubSubnodeLevel4(nw: Long, ne: Long, sw: Long, se: Long): Int =
+internal fun centeredSubSubnodeLevel4(nw: LeafNode, ne: LeafNode, sw: LeafNode, se: LeafNode): Int =
     f_Algorithm_centeredSubSubnodeLevel4BitsUInt(
-        nw.toULong(),
-        ne.toULong(),
-        sw.toULong(),
-        se.toULong(),
+        nw,
+        ne,
+        sw,
+        se,
     ).toInt()
 
 /**
@@ -76,27 +82,27 @@ internal fun centeredSubSubnodeLevel4(node: MacroCell.Level4Node): Int =
     centeredSubSubnodeLevel4(node.nw, node.ne, node.sw, node.se)
 
 /**
- * Computes the next generation for a 16x16 Level 4 node, returning the centered 8x8 [Long] leaf node.
+ * Computes the next generation for a 16x16 Level 4 node, returning the centered 8x8 [LeafNode] leaf node.
  */
-internal fun computeLevel4NextGeneration(nw: Long, ne: Long, sw: Long, se: Long): Long =
+internal fun computeLevel4NextGeneration(nw: LeafNode, ne: LeafNode, sw: LeafNode, se: LeafNode): LeafNode =
     f_Algorithm_computeLevel4NextGen16x16UInt(
-        nw.toULong(),
-        ne.toULong(),
-        sw.toULong(),
-        se.toULong(),
-    ).toLong()
+        nw,
+        ne,
+        sw,
+        se,
+    )
 
 /**
- * Computes the next generation for a 16x16 Level 4 node, returning the centered 8x8 [Long] leaf node,
+ * Computes the next generation for a 16x16 Level 4 node, returning the centered 8x8 [LeafNode] leaf node,
  * delegating leaf computations to the provided [computeLeafNextGen] function.
  */
 internal fun computeLevel4NextGeneration(
-    nw: Long,
-    ne: Long,
-    sw: Long,
-    se: Long,
-    computeLeafNextGen: (Long) -> Int,
-): Long {
+    nw: LeafNode,
+    ne: LeafNode,
+    sw: LeafNode,
+    se: LeafNode,
+    computeLeafNextGen: (LeafNode) -> Int,
+): LeafNode {
     val n00 = centeredSubnodeLevel3(nw)
     val n01 = centeredHorizontalSubnodeLevel3(nw, ne)
     val n02 = centeredSubnodeLevel3(ne)
@@ -121,9 +127,9 @@ internal fun computeLevel4NextGeneration(
 }
 
 /**
- * Computes the next generation for a [MacroCell.Level4Node], returning the centered 8x8 [Long] leaf node.
+ * Computes the next generation for a [MacroCell.Level4Node], returning the centered 8x8 [LeafNode] leaf node.
  */
-internal fun computeLevel4NextGeneration(node: MacroCell.Level4Node): MacroCell.LeafNode = computeLevel4NextGeneration(
+internal fun computeLevel4NextGeneration(node: MacroCell.Level4Node): LeafNode = computeLevel4NextGeneration(
     nw = node.nw,
     ne = node.ne,
     sw = node.sw,
@@ -131,16 +137,14 @@ internal fun computeLevel4NextGeneration(node: MacroCell.Level4Node): MacroCell.
 )
 
 /**
- * Computes the next generation for a [MacroCell.Level4Node], returning the centered 8x8 [Long] leaf node,
+ * Computes the next generation for a [MacroCell.Level4Node], returning the centered 8x8 [LeafNode] leaf node,
  * delegating leaf computations to the provided [computeLeafNextGen] function.
  */
-internal fun computeLevel4NextGeneration(
-    node: MacroCell.Level4Node,
-    computeLeafNextGen: (Long) -> Int,
-): MacroCell.LeafNode = computeLevel4NextGeneration(
-    nw = node.nw,
-    ne = node.ne,
-    sw = node.sw,
-    se = node.se,
-    computeLeafNextGen = computeLeafNextGen,
-)
+internal fun computeLevel4NextGeneration(node: MacroCell.Level4Node, computeLeafNextGen: (LeafNode) -> Int): LeafNode =
+    computeLevel4NextGeneration(
+        nw = node.nw,
+        ne = node.ne,
+        sw = node.sw,
+        se = node.se,
+        computeLeafNextGen = computeLeafNextGen,
+    )

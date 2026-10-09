@@ -19,7 +19,6 @@ package com.alexvanyo.composelife.model
 import androidx.collection.mutableLongIntMapOf
 import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.model.MacroCell.CellNode
-import com.alexvanyo.composelife.model.MacroCell.LeafNode
 import com.alexvanyo.composelife.model.MacroCell.Level4Node
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import kotlin.collections.removeFirst as removeFirstKt
@@ -114,7 +113,7 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                             Level4Node(
                                 nw =
                                 if (nwValue == 0) {
-                                    0L
+                                    0uL
                                 } else {
                                     indexToLeafNodeMap[nwValue] ?: return DeserializationResult.Unsuccessful(
                                         warnings = warnings,
@@ -129,7 +128,7 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                                 },
                                 ne =
                                 if (neValue == 0) {
-                                    0L
+                                    0uL
                                 } else {
                                     indexToLeafNodeMap[neValue] ?: return DeserializationResult.Unsuccessful(
                                         warnings = warnings,
@@ -144,7 +143,7 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                                 },
                                 sw =
                                 if (swValue == 0) {
-                                    0L
+                                    0uL
                                 } else {
                                     indexToLeafNodeMap[swValue] ?: return DeserializationResult.Unsuccessful(
                                         warnings = warnings,
@@ -159,7 +158,7 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                                 },
                                 se =
                                 if (seValue == 0) {
-                                    0L
+                                    0uL
                                 } else {
                                     indexToLeafNodeMap[seValue] ?: return DeserializationResult.Unsuccessful(
                                         warnings = warnings,
@@ -260,7 +259,7 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                                 if (rows.getOrNull(row)?.getOrNull(column) == '*') {
                                     IntOffset(column, row).toMask()
                                 } else {
-                                    0L
+                                    0uL
                                 }
                             }
                         }
@@ -283,9 +282,9 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                 } else {
                     indexToMacroCellMap[nodeIndex - 1] ?: Level4Node(
                         nw = indexToLeafNodeMap.getValue(nodeIndex - 1),
-                        ne = 0L,
-                        sw = 0L,
-                        se = 0L,
+                        ne = 0uL,
+                        sw = 0uL,
+                        se = 0uL,
                     )
                 },
             ),
@@ -306,7 +305,7 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
             val leafNodeToIndexMap = mutableLongIntMapOf()
             val nodesToEmit = mutableListOf(hashLifeCellState.macroCell)
 
-            if (hashLifeCellState.macroCell.size == 0) {
+            if (hashLifeCellState.macroCell.size() == 0u) {
                 // Fast path: if the cell state is empty, there's nothing to print
                 return@sequence
             } else if (hashLifeCellState.macroCell is Level4Node) {
@@ -315,7 +314,7 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                     if (hashLifeCellState.macroCell.nw.size == 0) {
                         0
                     } else {
-                        leafNodeToIndexMap.getOrPut(hashLifeCellState.macroCell.nw) {
+                        leafNodeToIndexMap.getOrPut(hashLifeCellState.macroCell.nw.toLong()) {
                             yieldLeafNode(hashLifeCellState.macroCell.nw)
                             nodeIndex++
                         }
@@ -324,7 +323,7 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                     if (hashLifeCellState.macroCell.ne.size == 0) {
                         0
                     } else {
-                        leafNodeToIndexMap.getOrPut(hashLifeCellState.macroCell.ne) {
+                        leafNodeToIndexMap.getOrPut(hashLifeCellState.macroCell.ne.toLong()) {
                             yieldLeafNode(hashLifeCellState.macroCell.ne)
                             nodeIndex++
                         }
@@ -333,7 +332,7 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                     if (hashLifeCellState.macroCell.sw.size == 0) {
                         0
                     } else {
-                        leafNodeToIndexMap.getOrPut(hashLifeCellState.macroCell.sw) {
+                        leafNodeToIndexMap.getOrPut(hashLifeCellState.macroCell.sw.toLong()) {
                             yieldLeafNode(hashLifeCellState.macroCell.sw)
                             nodeIndex++
                         }
@@ -342,7 +341,7 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                     if (hashLifeCellState.macroCell.se.size == 0) {
                         0
                     } else {
-                        leafNodeToIndexMap.getOrPut(hashLifeCellState.macroCell.se) {
+                        leafNodeToIndexMap.getOrPut(hashLifeCellState.macroCell.se.toLong()) {
                             yieldLeafNode(hashLifeCellState.macroCell.se)
                             nodeIndex++
                         }
@@ -350,7 +349,7 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                 val nonZeroLeafNodes = listOf(nwIndex, neIndex, swIndex, seIndex).count { it != 0 }
                 if (nonZeroLeafNodes != 1) {
                     // If there was only one non-zero leaf node, we don't need to print the Level4Node
-                    yield("${hashLifeCellState.macroCell.level} $nwIndex $neIndex $swIndex $seIndex")
+                    yield("${hashLifeCellState.macroCell.level()} $nwIndex $neIndex $swIndex $seIndex")
                 }
                 return@sequence
             }
@@ -360,7 +359,7 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                 @Suppress("ComplexCondition")
                 if (node in macroCellToIndexMap) {
                     continue
-                } else if (node.size == 0) {
+                } else if (node.size() == 0u) {
                     macroCellToIndexMap[node] = 0
                 } else {
                     when (node) {
@@ -369,7 +368,7 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                                 if (node.nw.size == 0) {
                                     0
                                 } else {
-                                    leafNodeToIndexMap.getOrPut(node.nw) {
+                                    leafNodeToIndexMap.getOrPut(node.nw.toLong()) {
                                         yieldLeafNode(node.nw)
                                         nodeIndex++
                                     }
@@ -378,7 +377,7 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                                 if (node.ne.size == 0) {
                                     0
                                 } else {
-                                    leafNodeToIndexMap.getOrPut(node.ne) {
+                                    leafNodeToIndexMap.getOrPut(node.ne.toLong()) {
                                         yieldLeafNode(node.ne)
                                         nodeIndex++
                                     }
@@ -387,7 +386,7 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                                 if (node.sw.size == 0) {
                                     0
                                 } else {
-                                    leafNodeToIndexMap.getOrPut(node.sw) {
+                                    leafNodeToIndexMap.getOrPut(node.sw.toLong()) {
                                         yieldLeafNode(node.sw)
                                         nodeIndex++
                                     }
@@ -396,12 +395,12 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                                 if (node.se.size == 0) {
                                     0
                                 } else {
-                                    leafNodeToIndexMap.getOrPut(node.se) {
+                                    leafNodeToIndexMap.getOrPut(node.se.toLong()) {
                                         yieldLeafNode(node.se)
                                         nodeIndex++
                                     }
                                 }
-                            yield("${node.level} $nwIndex $neIndex $swIndex $seIndex")
+                            yield("${node.level()} $nwIndex $neIndex $swIndex $seIndex")
                             macroCellToIndexMap[node] = nodeIndex++
                         }
 
@@ -417,7 +416,7 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                                 val swIndex = macroCellToIndexMap.getValue(node.sw)
                                 val seIndex = macroCellToIndexMap.getValue(node.se)
 
-                                yield("${node.level} $nwIndex $neIndex $swIndex $seIndex")
+                                yield("${node.level()} $nwIndex $neIndex $swIndex $seIndex")
                                 macroCellToIndexMap[node] = nodeIndex++
                             } else {
                                 nodesToEmit.add(node.nw)

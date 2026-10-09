@@ -18,5 +18,6 @@ import proofs.PatternsProofs
 import proofs.PropertiesProofs
 import proofs.MacroCellProofs
 import proofs.MacroCellHashProofs
+import proofs.CacheProofs
 import proofs.BitComputationProofs
 import proofs.HashLifeProofs
