@@ -54,6 +54,9 @@ theorem cellIntersectionsSegment_exact_iff_Impl (A B : Point) (c : Cell) :
     rcases h_sound c hray with ⟨h_bbox, tEnter, tExit, h_int, h_lt⟩
     exact not_off_axis_of_interval_lt c A B hcA hcB h_bbox tEnter tExit h_int h_lt
 
-
+theorem rayMarchSegmentCoords_same_cell_Impl (x y : Float) (cx cy : Int32) :
+    rayMarchSegmentCoords x y x y cx cy cx cy = #[(cx, cy)] := by
+  unfold rayMarchSegmentCoords
+  simp
 
 end Geometry

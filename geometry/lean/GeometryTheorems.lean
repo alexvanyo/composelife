@@ -92,9 +92,15 @@ theorem cellIntersectionsPathFloat_hausdorff_bound
       (cellIntersectionsPath (pointsToRational Ps)) 1 :=
   cellIntersectionsPathFloat_hausdorff_bound_Impl Ps h_fin h_bounds
 
+/-- Same-cell Master Theorem for compiled ray march coordinates. -/
+theorem rayMarchSegmentCoords_same_cell (x y : Float) (cx cy : Int32) :
+    rayMarchSegmentCoords x y x y cx cy cx cy = #[(cx, cy)] :=
+  rayMarchSegmentCoords_same_cell_Impl x y cx cy
+
 end Geometry
 
 #print axioms Geometry.cellIntersectionsSegmentFloat_eq_ideal_of_clearance
 #print axioms Geometry.cellIntersectionsSegmentFloat_hausdorff_bound
 #print axioms Geometry.cellIntersectionsPathFloat_hausdorff_bound
+#print axioms Geometry.rayMarchSegmentCoords_same_cell
 
