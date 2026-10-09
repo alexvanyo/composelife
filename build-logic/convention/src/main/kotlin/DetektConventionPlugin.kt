@@ -15,6 +15,7 @@
  */
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
+import com.alexvanyo.composelife.buildlogic.heavyTaskLimitingBuildService
 import dev.detekt.gradle.Detekt
 import dev.detekt.gradle.extensions.DetektExtension
 import org.gradle.api.JavaVersion
@@ -37,6 +38,7 @@ class DetektConventionPlugin :
         dependencies.add("detektPlugins", libs.findLibrary("detekt-rules-ktlint-wrapper").get())
 
         tasks.withType(Detekt::class.java).configureEach {
+            usesService(heavyTaskLimitingBuildService)
             jvmTarget.set(JavaVersion.VERSION_17.toString())
             exclude { it.file.absolutePath.contains("build/generated") }
             exclude("**/SinglePaneScene.kt")
