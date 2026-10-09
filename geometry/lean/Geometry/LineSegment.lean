@@ -14,95 +14,9 @@
  * limitations under the License.
  -/
 
-import Geometry.Basic
-
-local notation "ℕ" => Nat
-local notation "ℤ" => Int
-local notation "ℚ" => Rat
+import Init.Data.UInt
 
 namespace Geometry
-
-/--
-Deduplicates a list of cells while preserving first-occurrence order.
-Matches Kotlin's Set deduplication.
--/
-def dedupCells (cells : List Cell) : List Cell :=
-  cells.eraseDups
-
-/--
-Determines the next cell transition in ray-marching via exact coordinate crossings.
--/
-def rayMarchStep (start _ptEnd : Point) (dx dy : ℚ) (stepX stepY : ℤ) (c : Cell) : Cell × Bool :=
-  let xb : ℚ := if stepX > 0 then ofInt (c.x + 1) else ofInt c.x
-  let yb : ℚ := if stepY > 0 then ofInt (c.y + 1) else ofInt c.y
-  let absDx := if dx >= 0 then dx else -dx
-  let absDy := if dy >= 0 then dy else -dy
-  if stepX == 0 then
-    let remY := if yb >= start.y then yb - start.y else start.y - yb
-    if remY >= absDy then (c, true)
-    else (⟨c.x, c.y + stepY⟩, false)
-  else if stepY == 0 then
-    let remX := if xb >= start.x then xb - start.x else start.x - xb
-    if remX >= absDx then (c, true)
-    else (⟨c.x + stepX, c.y⟩, false)
-  else
-    let remX := if xb >= start.x then xb - start.x else start.x - xb
-    let remY := if yb >= start.y then yb - start.y else start.y - yb
-    let crossX := remX * absDy
-    let crossY := remY * absDx
-    let limitCross := absDx * absDy
-    if min crossX crossY >= limitCross then
-      (c, true)
-    else if crossX < crossY then
-      (⟨c.x + stepX, c.y⟩, false)
-    else if crossY < crossX then
-      (⟨c.x, c.y + stepY⟩, false)
-    else
-      (⟨c.x + stepX, c.y + stepY⟩, false)
-
-/--
-Ray-marches from `startCell` towards `endCell`, stepping cell-by-cell in O(W + H) time.
--/
-def rayMarch (fuel : ℕ) (start ptEnd : Point) (dx dy : ℚ) (stepX stepY : ℤ)
-    (endCell : Cell) (current : Cell) (acc : List Cell) : List Cell :=
-  match fuel with
-  | 0 => acc
-  | fuel + 1 =>
-    if current == endCell then acc
-    else
-      let (nextCell, done) := rayMarchStep start ptEnd dx dy stepX stepY current
-      if done then acc
-      else rayMarch fuel start ptEnd dx dy stepX stepY endCell nextCell (acc ++ [nextCell])
-
-/--
-Computes the set of discrete grid cells intersected by the line segment from `A` to `B`.
-Matches `cellIntersections(start, end)` in Kotlin's LineSegment.kt.
--/
-def cellIntersectionsSegment (A B : Point) : List Cell :=
-  let startCell := floorPoint A
-  let endCell := floorPoint B
-  if startCell == endCell then
-    [startCell]
-  else
-    let dx := B.x - A.x
-    let dy := B.y - A.y
-    let stepX : ℤ := if dx > 0 then 1 else if dx < 0 then -1 else 0
-    let stepY : ℤ := if dy > 0 then 1 else if dy < 0 then -1 else 0
-    let maxSteps := (endCell.x - startCell.x).natAbs + (endCell.y - startCell.y).natAbs + 2
-    dedupCells ([startCell, endCell] ++ rayMarch maxSteps A B dx dy stepX stepY endCell startCell [])
-
-/--
-Computes all grid cells intersected by a polyline path with at least one point.
-Matches `cellIntersections(points)` in Kotlin's LineSegment.kt.
--/
-def cellIntersectionsPath (points : List Point) : List Cell :=
-  match points with
-  | [] => []
-  | [p] => [floorPoint p]
-  | p1 :: p2 :: rest =>
-    let firstSeg := cellIntersectionsSegment p1 p2
-    let restSegs := cellIntersectionsPath (p2 :: rest)
-    dedupCells (firstSeg ++ restSegs)
 
 def absFloat (x : Float) : Float :=
   if x < 0.0 then -x else x
@@ -110,8 +24,7 @@ def absFloat (x : Float) : Float :=
 def absInt (x : Int32) : UInt32 :=
   if x < 0 then (-x).toUInt32 else x.toUInt32
 
-@[export geometry_ray_march]
-partial def rayMarchLoop (fuel : UInt32) (startX startY : Float) (dx dy absDx absDy : Float)
+def rayMarchLoop (fuel : UInt32) (startX startY : Float) (dx dy absDx absDy : Float)
     (stepX stepY : Int32) (endX endY : Int32) (curX curY : Int32) (acc : Array (Int32 × Int32)) : Array (Int32 × Int32) :=
   if fuel == 0 then acc
   else if curX == endX && curY == endY then acc
@@ -142,6 +55,29 @@ partial def rayMarchLoop (fuel : UInt32) (startX startY : Float) (dx dy absDx ab
         let nextX := if crossX <= crossY then curX + stepX else curX
         let nextY := if crossY <= crossX then curY + stepY else curY
         rayMarchLoop (fuel - 1) startX startY dx dy absDx absDy stepX stepY endX endY nextX nextY (acc.push (nextX, nextY))
+termination_by fuel.toNat
+decreasing_by
+  all_goals
+    have h_sub := UInt32.toNat_sub fuel 1
+    have h1 : (1 : UInt32).toNat = 1 := rfl
+    rw [h1] at h_sub
+    have h_lt := UInt32.toNat_lt fuel
+    have h_ne : fuel.toNat ≠ 0 := by
+      intro hz
+      have : fuel = 0 := by
+        have : fuel.toNat = (0 : UInt32).toNat := by rw [hz]; rfl
+        exact UInt32.toNat.inj this
+      subst this
+      contradiction
+    have h_pos : 0 < fuel.toNat := Nat.pos_of_ne_zero h_ne
+    rw [h_sub]
+    have : (2 ^ 32 - 1 + fuel.toNat) = 2 ^ 32 + (fuel.toNat - 1) := by omega
+    rw [this, Nat.add_mod_left]
+    have : (fuel.toNat - 1) % 2 ^ 32 = fuel.toNat - 1 := by
+      apply Nat.mod_eq_of_lt
+      omega
+    rw [this]
+    omega
 
 @[export geometry_ray_march_segment]
 def rayMarchSegmentCoords (startX startY endX endY : Float) (startCellX startCellY endCellX endCellY : Int32) : Array (Int32 × Int32) :=
