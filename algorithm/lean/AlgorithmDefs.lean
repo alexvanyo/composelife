@@ -234,5 +234,53 @@ def swQuadrantCoords : List Coord :=
 def seQuadrantCoords : List Coord :=
   seQuadrantBits.filterMap bitToCoord8x8
 
+-- =========================================================================
+-- HashLife State Machine, Offset Dynamics, and Transitions
+-- =========================================================================
+
+structure HashLifeCellState where
+  offset : Coord
+  macroCell : MacroCell
+  deriving DecidableEq, Repr
+
+def hashLifeToGrid (st : HashLifeCellState) : List Coord :=
+  macroCellToGrid st.offset.1 st.offset.2 st.macroCell
+
+def stepOffsetDelta (level : ℕ) : ℤ :=
+  (2 : ℤ) ^ (level - 2)
+
+def expandOffsetDelta (level : ℕ) : ℤ :=
+  -3 * ((2 : ℤ) ^ (level - 1))
+
+def isConfinedToSubSubnode (m : MacroCell) : Prop :=
+  macroCellSize (centeredSubSubnode m) = macroCellSize m
+
+def needToExpand (m : MacroCell) : Bool :=
+  m.level <= 4 || (macroCellSize (centeredSubSubnode m) != macroCellSize m)
+
+def centralSubnodeWindow (k : ℕ) (coords : List Coord) : List Coord :=
+  let d := MacroCell.subcellWidth k
+  let halfD := d / 2
+  coords.filter (fun (x, y) => x >= halfD && x < d + halfD && y >= halfD && y < d + halfD)
+
+def hashLifeNextGenerationStep (st : HashLifeCellState) : HashLifeCellState :=
+  let nextNode := hashLifeStep st.macroCell
+  let nextOffset := (st.offset.1 + stepOffsetDelta st.macroCell.level,
+                     st.offset.2 + stepOffsetDelta st.macroCell.level)
+  { offset := nextOffset, macroCell := nextNode }
+
+def hashLifeNextGeneration (st : HashLifeCellState) : HashLifeCellState :=
+  if needToExpand st.macroCell then
+    let expandedNode := expandCentered st.macroCell
+    let expandedOffset := (st.offset.1 + expandOffsetDelta st.macroCell.level,
+                           st.offset.2 + expandOffsetDelta st.macroCell.level)
+    hashLifeNextGenerationStep { offset := expandedOffset, macroCell := expandedNode }
+  else
+    hashLifeNextGenerationStep st
+
+def hashLifeStepN : ℕ → HashLifeCellState → HashLifeCellState
+  | 0, st => st
+  | n + 1, st => hashLifeStepN n (hashLifeNextGeneration st)
+
 end Algorithm
 

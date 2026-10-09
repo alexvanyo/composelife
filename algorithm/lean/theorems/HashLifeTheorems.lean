@@ -22,6 +22,7 @@ import AlgorithmDefs
 import proofs.HashLifeProofs
 
 local notation "ℕ" => Nat
+local notation "ℤ" => Int
 
 namespace Algorithm
 
@@ -258,5 +259,60 @@ theorem packLeafFrom4x4sUInt_zero :
 theorem computeLevel4NextGen16x16UInt_zero :
     computeLevel4NextGen16x16UInt 0 0 0 0 = 0 :=
   computeLevel4NextGen16x16UInt_zero_Impl
+
+theorem expandOffsetDelta_succ (k : ℕ) :
+    expandOffsetDelta (k + 1) = -3 * (2 : ℤ) ^ k :=
+  expandOffsetDelta_succ_Impl k
+
+theorem stepOffsetDelta_succ (k : ℕ) :
+    stepOffsetDelta (k + 2) = (2 : ℤ) ^ k :=
+  stepOffsetDelta_succ_Impl k
+
+theorem expandCentered_guarantees_confinement (k : ℕ) (nw ne sw se : MacroCell) :
+    isConfinedToSubSubnode (expandCentered (.node k nw ne sw se)) :=
+  expandCentered_guarantees_confinement_Impl k nw ne sw se
+
+theorem quadrants_cover_center (k : ℕ) (sn : HashLifeSubnodes) :
+    (quadrantNW k sn).level = k ∧
+    (quadrantNE k sn).level = k ∧
+    (quadrantSW k sn).level = k ∧
+    (quadrantSE k sn).level = k :=
+  quadrants_cover_center_Impl k sn
+
+theorem macroCellToGrid_emptyNode (k : ℕ) (ox oy : ℤ) :
+    macroCellToGrid ox oy (emptyNode k) = [] :=
+  macroCellToGrid_emptyNode_Impl k ox oy
+
+theorem hashLifeToGrid_emptyNode (k : ℕ) (ox oy : ℤ) :
+    hashLifeToGrid { offset := (ox, oy), macroCell := emptyNode k } = [] :=
+  hashLifeToGrid_emptyNode_Impl k ox oy
+
+theorem hashLifeStepN_zero (st : HashLifeCellState) :
+    hashLifeStepN 0 st = st :=
+  hashLifeStepN_zero_Impl st
+
+theorem hashLifeStepN_succ (n : ℕ) (st : HashLifeCellState) :
+    hashLifeStepN (n + 1) st = hashLifeStepN n (hashLifeNextGeneration st) :=
+  hashLifeStepN_succ_Impl n st
+
+theorem hashlife_stepN_induction_step (n : ℕ) (st : HashLifeCellState)
+    (h : hashLifeToGrid (hashLifeStepN n (hashLifeNextGeneration st)) =
+         stepN n (hashLifeToGrid (hashLifeNextGeneration st))) :
+    hashLifeToGrid (hashLifeStepN (n + 1) st) =
+    stepN n (hashLifeToGrid (hashLifeNextGeneration st)) :=
+  hashlife_stepN_induction_step_Impl n st h
+
+theorem hashLifeStep_emptyNode (k : ℕ) :
+    hashLifeStep (emptyNode (k + 2)) = emptyNode (k + 1) :=
+  hashLifeStep_emptyNode_Impl k
+
+theorem hashLifeNextGenerationStep_emptyNode (k : ℕ) (ox oy : ℤ) :
+    hashLifeToGrid (hashLifeNextGenerationStep { offset := (ox, oy), macroCell := emptyNode (k + 2) }) = [] :=
+  hashLifeNextGenerationStep_emptyNode_Impl k ox oy
+
+theorem hashlife_step_equivalence_empty (k : ℕ) (ox oy : ℤ) :
+    hashLifeToGrid (hashLifeNextGenerationStep { offset := (ox, oy), macroCell := emptyNode (k + 2) }) =
+    stepGrid (hashLifeToGrid { offset := (ox, oy), macroCell := emptyNode (k + 2) }) :=
+  hashlife_step_equivalence_empty_Impl k ox oy
 
 end Algorithm
