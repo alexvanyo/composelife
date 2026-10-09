@@ -15,7 +15,6 @@
  -/
 
 import Geometry.Basic
-import Geometry.Bridge
 import Geometry.FloatModel
 import GeometryDefs
 import proofs.FloatSemantics
