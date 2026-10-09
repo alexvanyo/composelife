@@ -63,7 +63,15 @@ abstract class LeanCodegenEntry @Inject constructor(private val name: String) : 
     abstract val leanFile: Property<String>
 
     abstract val outputFile: RegularFileProperty
+
+    abstract val packageName: Property<String>
 }
+
+data class LeanEntrySpec(
+    val leanFile: String,
+    val outputFile: String,
+    val packageName: String,
+) : java.io.Serializable
 
 @DisableCachingByDefault(because = "Downloads external cache from Lake")
 abstract class CacheLeanTask @Inject constructor(private val execOperations: ExecOperations) : DefaultTask() {
@@ -115,7 +123,7 @@ abstract class GenerateLeanKotlinTask @Inject constructor(private val execOperat
     abstract val packageName: Property<String>
 
     @get:Input
-    abstract val entries: MapProperty<String, String>
+    abstract val entries: MapProperty<String, LeanEntrySpec>
 
     @get:OutputDirectory
     abstract val generatedSourcesDir: DirectoryProperty
@@ -125,8 +133,8 @@ abstract class GenerateLeanKotlinTask @Inject constructor(private val execOperat
         val workDir = workingDir.get().asFile
         val leanPath = File(workDir, ".lake/build/lib/lean").absolutePath
 
-        entries.get().forEach { (leanRelPath, outFilePath) ->
-            val outFile = File(outFilePath)
+        entries.get().forEach { (_, spec) ->
+            val outFile = File(spec.outputFile)
             outFile.parentFile.mkdirs()
             execOperations.exec {
                 workingDir = workDir
@@ -135,10 +143,10 @@ abstract class GenerateLeanKotlinTask @Inject constructor(private val execOperat
                     leanBinary.get(),
                     "-DwarningAsError=true",
                     "-Dcompiler.kotlin.pruneUnreachable=true",
-                    "-Dcompiler.kotlin.package=${packageName.get()}",
+                    "-Dcompiler.kotlin.package=${spec.packageName}",
                     "-K",
                     outFile.absolutePath,
-                    leanRelPath,
+                    spec.leanFile,
                 )
             }
         }

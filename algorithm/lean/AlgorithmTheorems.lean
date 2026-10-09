@@ -18,5 +18,6 @@ import theorems.PatternsTheorems
 import theorems.PropertiesTheorems
 import theorems.MacroCellTheorems
 import theorems.MacroCellHashTheorems
+import theorems.CacheTheorems
 import theorems.BitComputationTheorems
 import theorems.HashLifeTheorems
