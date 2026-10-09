@@ -16,6 +16,7 @@
 
 import Geometry.Basic
 import Geometry.LineSegment
+import GeometryDefs
 import proofs.Interval
 import proofs.RayMarchStep
 import Mathlib.Algebra.Order.Field.Basic

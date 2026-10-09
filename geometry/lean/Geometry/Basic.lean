@@ -36,30 +36,12 @@ structure Cell where
   y : ℤ
   deriving Repr, Inhabited, DecidableEq, BEq, Hashable
 
-theorem cell_beq_def (a b : Cell) : (a == b) = (a.x == b.x && a.y == b.y) := rfl
-
-instance : LawfulBEq Cell where
-  eq_of_beq {a b} h := by
-    rw [cell_beq_def] at h
-    have h1 : (a.x == b.x) = true := by
-      revert h
-      cases a.x == b.x <;> simp
-    have h2 : (a.y == b.y) = true := by
-      revert h
-      cases a.x == b.x <;> cases a.y == b.y <;> simp
-    have hx : a.x = b.x := eq_of_beq h1
-    have hy : a.y = b.y := eq_of_beq h2
-    cases a; cases b
-    simp only at hx hy
-    rw [hx, hy]
-  rfl {a} := by
-    rw [cell_beq_def]
-    simp
-
-instance : ReflBEq Cell where
-  rfl {a} := by
-    rw [cell_beq_def]
-    simp
+/--
+Deduplicates a list of cells while preserving first-occurrence order.
+Matches Kotlin's Set deduplication.
+-/
+def dedupCells (cells : List Cell) : List Cell :=
+  cells.eraseDups
 
 /--
 Converts an Int to a Rat.
