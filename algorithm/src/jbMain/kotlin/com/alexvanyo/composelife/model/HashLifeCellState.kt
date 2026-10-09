@@ -64,7 +64,7 @@ internal fun CellState.toHashLifeCellState(): HashLifeCellState {
 internal fun HashLifeCellState.expandCentered(): HashLifeCellState {
     val node = macroCell
 
-    val sameLevelEmptyCell = createEmptyMacroCell(node.level)
+    val sameLevelEmptyCell = createEmptyMacroCell(node.level().toInt())
 
     val nwSe: MacroCell
     val neSw: MacroCell
@@ -75,36 +75,36 @@ internal fun HashLifeCellState.expandCentered(): HashLifeCellState {
         is Level4Node -> {
             nwSe =
                 Level4Node(
-                    nw = 0L,
-                    ne = 0L,
-                    sw = 0L,
+                    nw = 0uL,
+                    ne = 0uL,
+                    sw = 0uL,
                     se = node.nw,
                 )
             neSw =
                 Level4Node(
-                    nw = 0L,
-                    ne = 0L,
+                    nw = 0uL,
+                    ne = 0uL,
                     sw = node.ne,
-                    se = 0L,
+                    se = 0uL,
                 )
             swNe =
                 Level4Node(
-                    nw = 0L,
+                    nw = 0uL,
                     ne = node.sw,
-                    sw = 0L,
-                    se = 0L,
+                    sw = 0uL,
+                    se = 0uL,
                 )
             seNw =
                 Level4Node(
                     nw = node.se,
-                    ne = 0L,
-                    sw = 0L,
-                    se = 0L,
+                    ne = 0uL,
+                    sw = 0uL,
+                    se = 0uL,
                 )
         }
 
         is CellNode -> {
-            val smallerLevelEmptyCell = createEmptyMacroCell(node.level - 1)
+            val smallerLevelEmptyCell = createEmptyMacroCell(node.level().toInt() - 1)
 
             nwSe =
                 CellNode(
@@ -169,7 +169,7 @@ internal fun HashLifeCellState.expandCentered(): HashLifeCellState {
             ),
         )
 
-    val offsetDiff = 3 * (1 shl (node.level - 1))
+    val offsetDiff = 3 * (1 shl (node.level().toInt() - 1))
 
     return HashLifeCellState(
         offset = offset + IntOffset(-offsetDiff, -offsetDiff),
@@ -180,7 +180,7 @@ internal fun HashLifeCellState.expandCentered(): HashLifeCellState {
 internal class HashLifeCellState(val offset: IntOffset, val macroCell: MacroCell) : CellState() {
     override val aliveCells: Set<IntOffset> =
         object : Set<IntOffset> {
-            override val size: Int = macroCell.size
+            override val size: Int = macroCell.size().toInt()
 
             override fun contains(element: IntOffset): Boolean = macroCell.contains(element - offset)
 
@@ -194,7 +194,7 @@ internal class HashLifeCellState(val offset: IntOffset, val macroCell: MacroCell
                 CellWindow(
                     IntRect(
                         IntOffset.Zero,
-                        IntSize(1 shl macroCell.level, 1 shl macroCell.level),
+                        IntSize(1 shl macroCell.level().toInt(), 1 shl macroCell.level().toInt()),
                     ),
                 ),
             )
@@ -213,7 +213,7 @@ internal class HashLifeCellState(val offset: IntOffset, val macroCell: MacroCell
         while (
             run {
                 target = offset - hashLifeCellState.offset
-                val size = 1 shl hashLifeCellState.macroCell.level
+                val size = 1 shl hashLifeCellState.macroCell.level().toInt()
                 target.x !in 0 until size || target.y !in 0 until size
             }
         ) {
