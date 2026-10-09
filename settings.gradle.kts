@@ -39,6 +39,11 @@ dependencyResolutionManagement {
         }
         google()
         mavenCentral()
+        mavenLocal {
+            content {
+                includeGroup("org.leanprover")
+            }
+        }
     }
 }
 

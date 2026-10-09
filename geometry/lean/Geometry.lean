@@ -16,10 +16,7 @@
 
 import Geometry.Basic
 import Geometry.LineSegment
-import Geometry.Properties
 import Geometry.FloatModel
-import Geometry.FloatSemantics
-import Geometry.FloatBounds
-import Geometry.FloatProperties
-import Geometry.Bridge
-
+import GeometryDefs
+import GeometryProofs
+import GeometryTheorems

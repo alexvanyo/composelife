@@ -4,3 +4,21 @@ defaultTargets = ["Algorithm"]
 
 [[lean_lib]]
 name = "Algorithm"
+roots = [
+  "Algorithm",
+  "AlgorithmDefs",
+  "AlgorithmTheorems",
+  "AlgorithmProofs",
+  "theorems.BitComputationTheorems",
+  "theorems.HashLifeTheorems",
+  "theorems.MacroCellHashTheorems",
+  "theorems.MacroCellTheorems",
+  "theorems.PatternsTheorems",
+  "theorems.PropertiesTheorems",
+  "proofs.BitComputationProofs",
+  "proofs.HashLifeProofs",
+  "proofs.MacroCellHashProofs",
+  "proofs.MacroCellProofs",
+  "proofs.PatternsProofs",
+  "proofs.PropertiesProofs",
+]

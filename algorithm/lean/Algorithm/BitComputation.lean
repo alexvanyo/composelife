@@ -151,35 +151,6 @@ def verifyBitComputation4x4 (w : ℕ) : Bool :=
   let naiveCenter := naiveCenter2x2 w
   bitCenter.all (naiveCenter.contains ·) && naiveCenter.all (bitCenter.contains ·)
 
--- Formal verification theorems:
-theorem bit_comp_empty_correct :
-  verifyBitComputation4x4 0 = true := by
-  decide
-
-theorem bit_comp_blinker_h_correct :
-  -- Blinker horizontal at (1, 1), (2, 1), (3, 1): bits 3, 6, 7
-  verifyBitComputation4x4 (2^3 + 2^6 + 2^7) = true := by
-  decide
-
-theorem bit_comp_blinker_v_correct :
-  -- Blinker vertical at (1, 0), (1, 1), (1, 2): bits 1, 3, 9
-  verifyBitComputation4x4 (2^1 + 2^3 + 2^9) = true := by
-  decide
-
-theorem bit_comp_block_correct :
-  -- Block at (1, 1), (2, 1), (1, 2), (2, 2): bits 3, 6, 9, 12
-  verifyBitComputation4x4 (2^3 + 2^6 + 2^9 + 2^12) = true := by
-  decide
-
-theorem bit_comp_glider_sub_correct :
-  -- Glider subpattern at (1, 0), (2, 1), (0, 2), (1, 2), (2, 2): bits 1, 6, 8, 9, 12
-  verifyBitComputation4x4 (2^1 + 2^6 + 2^8 + 2^9 + 2^12) = true := by
-  decide
-
-theorem bit_comp_tub_correct :
-  -- Tub at (1, 0), (0, 1), (2, 1), (1, 2): bits 1, 2, 6, 9
-  verifyBitComputation4x4 (2^1 + 2^2 + 2^6 + 2^9) = true := by
-  decide
 
 -- =========================================================================
 -- 8x8 LeafNode Computation (MacroCell.LeafNode.computeNextGeneration)
@@ -258,165 +229,6 @@ def verifyLeafComputation8x8 (w : ℕ) : Bool :=
   let naiveCenter := naiveCenter4x4 w
   bitCenter.all (naiveCenter.contains ·) && naiveCenter.all (bitCenter.contains ·)
 
--- Formal verification theorems for 8x8 LeafNode computation:
-theorem leaf_comp_empty_correct :
-  verifyLeafComputation8x8 0 = true := by
-  decide
-
-theorem leaf_comp_centered_block_correct :
-  -- Block centered at (3,3), (4,3), (3,4), (4,4): bits 0x0F, 0x1A, 0x25, 0x30
-  verifyLeafComputation8x8 (2^0x0F + 2^0x1A + 2^0x25 + 2^0x30) = true := by
-  decide
-
-theorem leaf_comp_centered_blinker_h_correct :
-  -- Horizontal blinker at (2, 3), (3, 3), (4, 3):
-  -- (2, 3) is bit 0x0E (14)
-  -- (3, 3) is bit 0x0F (15)
-  -- (4, 3) is bit 0x1A (26)
-  verifyLeafComputation8x8 (2^0x0E + 2^0x0F + 2^0x1A) = true := by
-  decide
-
-theorem leaf_comp_centered_tub_correct :
-  -- Tub at (3, 2), (2, 3), (4, 3), (3, 4):
-  -- (3, 2) is bit 0x0D (13)
-  -- (2, 3) is bit 0x0E (14)
-  -- (4, 3) is bit 0x1A (26)
-  -- (3, 4) is bit 0x25 (37)
-  verifyLeafComputation8x8 (2^0x0D + 2^0x0E + 2^0x1A + 2^0x25) = true := by
-  decide
-
--- =========================================================================
--- Universal Correctness: Proof by Neighborhood Soundness and Completeness
--- =========================================================================
-
-/--
-Theorem: bitRule is definitionally identical to Conway's lifeRule for all neighbor counts and states.
--/
-theorem bitRule_equals_lifeRule (alive : Bool) (n : ℕ) :
-  bitRule n alive = lifeRule alive n := by
-  cases alive <;> rfl
-
-def mask11Neighbors : List Coord :=
-  (List.range 16).filterMap (fun b =>
-    if testBit 0x1357 b then bitToCoord4x4 b else none
-  )
-
-def mask21Neighbors : List Coord :=
-  (List.range 16).filterMap (fun b =>
-    if testBit 0x32BA b then bitToCoord4x4 b else none
-  )
-
-def mask12Neighbors : List Coord :=
-  (List.range 16).filterMap (fun b =>
-    if testBit 0x5D4C b then bitToCoord4x4 b else none
-  )
-
-def mask22Neighbors : List Coord :=
-  (List.range 16).filterMap (fun b =>
-    if testBit 0xEAC8 b then bitToCoord4x4 b else none
-  )
-
-/--
-Theorem: Mask 0x1357 covers the exact Moore neighborhood of (1, 1) in the 4x4 grid.
--/
-theorem mask11_is_exact_moore_neighborhood :
-  mask11Neighbors.all (mooreNeighbors (1, 1)).contains ∧
-  (mooreNeighbors (1, 1)).all mask11Neighbors.contains ∧
-  mask11Neighbors.length = 8 := by
-  decide
-
-/--
-Theorem: Mask 0x32BA covers the exact Moore neighborhood of (2, 1) in the 4x4 grid.
--/
-theorem mask21_is_exact_moore_neighborhood :
-  mask21Neighbors.all (mooreNeighbors (2, 1)).contains ∧
-  (mooreNeighbors (2, 1)).all mask21Neighbors.contains ∧
-  mask21Neighbors.length = 8 := by
-  decide
-
-/--
-Theorem: Mask 0x5D4C covers the exact Moore neighborhood of (1, 2) in the 4x4 grid.
--/
-theorem mask12_is_exact_moore_neighborhood :
-  mask12Neighbors.all (mooreNeighbors (1, 2)).contains ∧
-  (mooreNeighbors (1, 2)).all mask12Neighbors.contains ∧
-  mask12Neighbors.length = 8 := by
-  decide
-
-/--
-Theorem: Mask 0xEAC8 covers the exact Moore neighborhood of (2, 2) in the 4x4 grid.
--/
-theorem mask22_is_exact_moore_neighborhood :
-  mask22Neighbors.all (mooreNeighbors (2, 2)).contains ∧
-  (mooreNeighbors (2, 2)).all mask22Neighbors.contains ∧
-  mask22Neighbors.length = 8 := by
-  decide
-
--- 8x8 Quadrant Moore Neighborhood Containment Theorems:
-
-def nwQuadrantBits : List ℕ :=
-  [0x03, 0x06, 0x09, 0x0C, 0x07, 0x12, 0x0D, 0x18,
-   0x0B, 0x0E, 0x21, 0x24, 0x0F, 0x1A, 0x25, 0x30]
-
-def neQuadrantBits : List ℕ :=
-  [0x07, 0x12, 0x0D, 0x18, 0x13, 0x16, 0x19, 0x1C,
-   0x0F, 0x1A, 0x25, 0x30, 0x1B, 0x1E, 0x31, 0x34]
-
-def swQuadrantBits : List ℕ :=
-  [0x0B, 0x0E, 0x21, 0x24, 0x0F, 0x1A, 0x25, 0x30,
-   0x23, 0x26, 0x29, 0x2C, 0x27, 0x32, 0x2D, 0x38]
-
-def seQuadrantBits : List ℕ :=
-  [0x0F, 0x1A, 0x25, 0x30, 0x1B, 0x1E, 0x31, 0x34,
-   0x27, 0x32, 0x2D, 0x38, 0x33, 0x36, 0x39, 0x3C]
-
-def nwQuadrantCoords : List Coord :=
-  nwQuadrantBits.filterMap bitToCoord8x8
-
-def neQuadrantCoords : List Coord :=
-  neQuadrantBits.filterMap bitToCoord8x8
-
-def swQuadrantCoords : List Coord :=
-  swQuadrantBits.filterMap bitToCoord8x8
-
-def seQuadrantCoords : List Coord :=
-  seQuadrantBits.filterMap bitToCoord8x8
-
-/--
-Theorem: For every cell in the NW center 2x2 of the 8x8 grid, all 8 Moore neighbors
-are strictly contained within the NW quadrant input block.
--/
-theorem nw_quadrant_contains_all_moore_neighbors :
-  let centerNW : List Coord := [(2, 2), (3, 2), (2, 3), (3, 3)]
-  centerNW.all (fun c => (mooreNeighbors c).all nwQuadrantCoords.contains) = true := by
-  decide
-
-/--
-Theorem: For every cell in the NE center 2x2 of the 8x8 grid, all 8 Moore neighbors
-are strictly contained within the NE quadrant input block.
--/
-theorem ne_quadrant_contains_all_moore_neighbors :
-  let centerNE : List Coord := [(4, 2), (5, 2), (4, 3), (5, 3)]
-  centerNE.all (fun c => (mooreNeighbors c).all neQuadrantCoords.contains) = true := by
-  decide
-
-/--
-Theorem: For every cell in the SW center 2x2 of the 8x8 grid, all 8 Moore neighbors
-are strictly contained within the SW quadrant input block.
--/
-theorem sw_quadrant_contains_all_moore_neighbors :
-  let centerSW : List Coord := [(2, 4), (3, 4), (2, 5), (3, 5)]
-  centerSW.all (fun c => (mooreNeighbors c).all swQuadrantCoords.contains) = true := by
-  decide
-
-/--
-Theorem: For every cell in the SE center 2x2 of the 8x8 grid, all 8 Moore neighbors
-are strictly contained within the SE quadrant input block.
--/
-theorem se_quadrant_contains_all_moore_neighbors :
-  let centerSE : List Coord := [(4, 4), (5, 4), (4, 5), (5, 5)]
-  centerSE.all (fun c => (mooreNeighbors c).all seQuadrantCoords.contains) = true := by
-  decide
 
 -- =========================================================================
 -- Optimized 8x8 Computation and Equivalence Proof
@@ -481,37 +293,118 @@ def computeLeafNextGen8x8Fast (w : ℕ) : ℕ :=
   nw + ne * 16 + sw * 256 + se * 4096
 
 /--
-Theorem: The optimized computeLeafNextGen8x8Fast is definitionally equivalent
-to computeLeafNextGen8x8 for ALL inputs w.
--/
-theorem computeLeafNextGen8x8Fast_eq_computeLeafNextGen8x8 (w : ℕ) :
-  computeLeafNextGen8x8Fast w = computeLeafNextGen8x8 w := by
-  rfl
-
-/--
 Branching 8x8 computation with 0-short-circuiting matching Kotlin's fast path.
 -/
 def computeLeafNextGen8x8Branch (w : ℕ) : ℕ :=
   if w == 0 then 0 else computeLeafNextGen8x8Fast w
 
-/--
-Theorem: For input 0 (empty leaf), computeLeafNextGen8x8Fast evaluates to 0.
--/
-theorem computeLeafNextGen8x8Fast_zero : computeLeafNextGen8x8Fast 0 = 0 := by
-  rfl
+-- =========================================================================
+-- Fixed-width UInt32 / UInt64 Bit Computations for Production Kotlin Codegen
+-- =========================================================================
 
-/--
-Theorem: The branching fast-path implementation is mathematically equivalent
-to computeLeafNextGen8x8 for ALL inputs w.
--/
-theorem computeLeafNextGen8x8Branch_eq_computeLeafNextGen8x8 (w : ℕ) :
-  computeLeafNextGen8x8Branch w = computeLeafNextGen8x8 w := by
-  unfold computeLeafNextGen8x8Branch
-  split
-  · rename_i h
-    have heq : w = 0 := of_decide_eq_true h
-    rw [heq]
-    rfl
-  · exact computeLeafNextGen8x8Fast_eq_computeLeafNextGen8x8 w
+def neighborCount22UInt (w : UInt32) : UInt32 :=
+  ((w >>> 3) &&& (1 : UInt32)) + ((w >>> 6) &&& (1 : UInt32)) +
+  ((w >>> 7) &&& (1 : UInt32)) + ((w >>> 9) &&& (1 : UInt32)) +
+  ((w >>> 11) &&& (1 : UInt32)) + ((w >>> 13) &&& (1 : UInt32)) +
+  ((w >>> 14) &&& (1 : UInt32)) + ((w >>> 15) &&& (1 : UInt32))
+
+def neighborCount12UInt (w : UInt32) : UInt32 :=
+  ((w >>> 2) &&& (1 : UInt32)) + ((w >>> 3) &&& (1 : UInt32)) +
+  ((w >>> 6) &&& (1 : UInt32)) + ((w >>> 8) &&& (1 : UInt32)) +
+  ((w >>> 10) &&& (1 : UInt32)) + ((w >>> 11) &&& (1 : UInt32)) +
+  ((w >>> 12) &&& (1 : UInt32)) + ((w >>> 14) &&& (1 : UInt32))
+
+def neighborCount21UInt (w : UInt32) : UInt32 :=
+  ((w >>> 1) &&& (1 : UInt32)) + ((w >>> 3) &&& (1 : UInt32)) +
+  ((w >>> 4) &&& (1 : UInt32)) + ((w >>> 5) &&& (1 : UInt32)) +
+  ((w >>> 7) &&& (1 : UInt32)) + ((w >>> 9) &&& (1 : UInt32)) +
+  ((w >>> 12) &&& (1 : UInt32)) + ((w >>> 13) &&& (1 : UInt32))
+
+def neighborCount11UInt (w : UInt32) : UInt32 :=
+  ((w >>> 0) &&& (1 : UInt32)) + ((w >>> 1) &&& (1 : UInt32)) +
+  ((w >>> 2) &&& (1 : UInt32)) + ((w >>> 4) &&& (1 : UInt32)) +
+  ((w >>> 6) &&& (1 : UInt32)) + ((w >>> 8) &&& (1 : UInt32)) +
+  ((w >>> 9) &&& (1 : UInt32)) + ((w >>> 12) &&& (1 : UInt32))
+
+def bitRuleUInt (count : UInt32) (prevBit : UInt32) : UInt32 :=
+  if count == 3 || (count == 2 && prevBit == (1 : UInt32)) then 1 else 0
+
+@[export computeNextGen4x4UInt]
+def computeNextGen4x4UInt (w : UInt32) : UInt32 :=
+  let b22 := bitRuleUInt (neighborCount22UInt w) ((w >>> 12) &&& (1 : UInt32))
+  let b12 := bitRuleUInt (neighborCount12UInt w) ((w >>> 9) &&& (1 : UInt32))
+  let b21 := bitRuleUInt (neighborCount21UInt w) ((w >>> 6) &&& (1 : UInt32))
+  let b11 := bitRuleUInt (neighborCount11UInt w) ((w >>> 3) &&& (1 : UInt32))
+  (b22 <<< 3) ||| (b12 <<< 2) ||| (b21 <<< 1) ||| b11
+
+def extractCenterUInt (q : UInt32) : UInt32 :=
+  ((q >>> 3) &&& (1 : UInt32)) |||
+  (((q >>> 6) &&& (1 : UInt32)) <<< 1) |||
+  (((q >>> 9) &&& (1 : UInt32)) <<< 2) |||
+  (((q >>> 12) &&& (1 : UInt32)) <<< 3)
+
+def extractHorizontalMidUInt (leftQuad rightQuad : UInt32) : UInt32 :=
+  ((leftQuad >>> 7) &&& (1 : UInt32)) |||
+  (((rightQuad >>> 2) &&& (1 : UInt32)) <<< 1) |||
+  (((leftQuad >>> 13) &&& (1 : UInt32)) <<< 2) |||
+  (((rightQuad >>> 8) &&& (1 : UInt32)) <<< 3)
+
+def extractVerticalMidUInt (topQuad bottomQuad : UInt32) : UInt32 :=
+  ((topQuad >>> 11) &&& (1 : UInt32)) |||
+  (((topQuad >>> 14) &&& (1 : UInt32)) <<< 1) |||
+  (((bottomQuad >>> 1) &&& (1 : UInt32)) <<< 2) |||
+  (((bottomQuad >>> 4) &&& (1 : UInt32)) <<< 3)
+
+def extractCenterMidUInt (q0 q1 q2 q3 : UInt32) : UInt32 :=
+  ((q0 >>> 15) &&& (1 : UInt32)) |||
+  (((q1 >>> 10) &&& (1 : UInt32)) <<< 1) |||
+  (((q2 >>> 5) &&& (1 : UInt32)) <<< 2) |||
+  (((q3 >>> 0) &&& (1 : UInt32)) <<< 3)
+
+def quad0UInt (w : UInt64) : UInt32 := (w &&& (0xFFFF : UInt64)).toUInt32
+def quad1UInt (w : UInt64) : UInt32 := ((w >>> 16) &&& (0xFFFF : UInt64)).toUInt32
+def quad2UInt (w : UInt64) : UInt32 := ((w >>> 32) &&& (0xFFFF : UInt64)).toUInt32
+def quad3UInt (w : UInt64) : UInt32 := ((w >>> 48) &&& (0xFFFF : UInt64)).toUInt32
+
+def computeLeafNextGen8x8FastUInt (w : UInt64) : UInt32 :=
+  let q0 := quad0UInt w
+  let q1 := quad1UInt w
+  let q2 := quad2UInt w
+  let q3 := quad3UInt w
+
+  let n00 := extractCenterUInt q0
+  let n02 := extractCenterUInt q1
+  let n20 := extractCenterUInt q2
+  let n22 := extractCenterUInt q3
+
+  let n01 := extractHorizontalMidUInt q0 q1
+  let n21 := extractHorizontalMidUInt q2 q3
+
+  let n10 := extractVerticalMidUInt q0 q2
+  let n12 := extractVerticalMidUInt q1 q3
+
+  let n11 := extractCenterMidUInt q0 q1 q2 q3
+
+  let nw := computeNextGen4x4UInt (n00 ||| (n01 <<< 4) ||| (n10 <<< 8) ||| (n11 <<< 12))
+  let ne := computeNextGen4x4UInt (n01 ||| (n02 <<< 4) ||| (n11 <<< 8) ||| (n12 <<< 12))
+  let sw := computeNextGen4x4UInt (n10 ||| (n11 <<< 4) ||| (n20 <<< 8) ||| (n21 <<< 12))
+  let se := computeNextGen4x4UInt (n11 ||| (n12 <<< 4) ||| (n21 <<< 8) ||| (n22 <<< 12))
+
+  nw ||| (ne <<< 4) ||| (sw <<< 8) ||| (se <<< 12)
+
+@[export computeLeafNextGen8x8BranchUInt]
+def computeLeafNextGen8x8BranchUInt (w : UInt64) : UInt32 :=
+  if w == 0 then 0 else computeLeafNextGen8x8FastUInt w
+
+def verifyBitComputation4x4UInt (w : UInt32) : Bool :=
+  let bitCenter := centerBitsToCoords (computeNextGen4x4UInt w).toNat
+  let naiveCenter := naiveCenter2x2 w.toNat
+  bitCenter.all (naiveCenter.contains ·) && naiveCenter.all (bitCenter.contains ·)
+
+def verifyLeafComputation8x8UInt (w : UInt64) : Bool :=
+  let bitCenter := center4x4BitsToCoords (computeLeafNextGen8x8BranchUInt w).toNat
+  let naiveCenter := naiveCenter4x4 w.toNat
+  bitCenter.all (naiveCenter.contains ·) && naiveCenter.all (bitCenter.contains ·)
 
 end Algorithm
+

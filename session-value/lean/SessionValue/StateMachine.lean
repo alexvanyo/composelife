@@ -14,13 +14,17 @@
  * limitations under the License.
  -/
 
+import Lean.Compiler.Kotlin
 import SessionValue.Basic
+
+open Lean.Compiler.Kotlin
 
 namespace SessionValue
 
 /--
 The internal state of `SessionValueHolderImpl`.
 -/
+@[kotlin_class "data class SessionValueState"]
 structure State (α : Type u) where
   upstreamSessionIdBeforeLocalSession : Uuid
   upstreamSessionValue : SessionValue α
@@ -32,12 +36,14 @@ deriving DecidableEq, Repr, Inhabited
 The current exposed `sessionValue`.
 Returns `localSessionValue` if present, otherwise `upstreamSessionValue`.
 -/
+@[export session_value_state_session_value, kotlin_member "SessionValueState" "public val" "sessionValue"]
 def State.sessionValue (st : State α) : SessionValue α :=
   st.localSessionValue.getD st.upstreamSessionValue
 
 /--
 The current `LocalSessionInfo` calculated from `State`.
 -/
+@[export session_value_state_info, kotlin_member "SessionValueState" "public val" "info"]
 def State.info (st : State α) : LocalSessionInfo :=
   match st.localSessionValue with
   | none =>
@@ -50,17 +56,6 @@ def State.info (st : State α) : LocalSessionInfo :=
       (st.upstreamSessionValue.sessionId == lv.sessionId &&
        st.upstreamSessionValue.valueId == lv.valueId)
       st.upstreamSessionIdBeforeLocalSession
-
-/--
-The core inductive invariant of `SessionValueHolder`:
-1. When inactive, `upstreamSessionIdBeforeLocalSession` strictly equals `upstreamSessionValue.sessionId`.
-2. When active, `localSessionValue` is tagged with `localSessionId`.
--/
-structure ValidState (st : State α) : Prop where
-  inactive_sound : st.localSessionValue = none →
-    st.upstreamSessionIdBeforeLocalSession = st.upstreamSessionValue.sessionId
-  active_sound : ∀ lv, st.localSessionValue = some lv →
-    lv.sessionId = st.localSessionId
 
 /--
 Initial state constructor matching `rememberSessionValueHolder`:
@@ -78,6 +73,7 @@ def initialState (u0 : SessionValue α) (initLocalId : Uuid) : State α := {
 Transition `setValue`: updates local state immediately and returns the new state
 together with the `(expected, newValue)` CAS update pair for upstream.
 -/
+@[export session_value_step_set_value, kotlin_member "SessionValueState" "public extension" "stepSetValue"]
 def stepSetValue (st : State α) (v : α) (vid : Uuid) :
     State α × (SessionValue α × SessionValue α) :=
   let expected := st.sessionValue
@@ -97,6 +93,7 @@ Handles:
 - Conflicting updates from foreign sessions (invalidates local session and resets to inactive).
 - ID cycling when inactive.
 -/
+@[export session_value_step_set_value_from_upstream, kotlin_member "SessionValueState" "public extension" "stepSetValueFromUpstream"]
 def stepSetValueFromUpstream (st : State α) (newUpstream : SessionValue α)
     (freshLocalSessionId : Uuid) : State α :=
   let hasSessionValueChanged : Bool :=
@@ -124,5 +121,15 @@ def stepSetValueFromUpstream (st : State α) (newUpstream : SessionValue α)
       localSessionId := newLocalSessionId,
       localSessionValue := newLocalSessionValue
     }
+
+@[kotlin_file]
+def stateMachineFileSpec : FileSpec := {
+  imports := #[
+    "import kotlin.uuid.Uuid"
+  ]
+  items := #[
+    .topLevel
+  ]
+}
 
 end SessionValue

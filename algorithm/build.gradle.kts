@@ -16,7 +16,6 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
-import com.alexvanyo.composelife.buildlogic.heavyTaskLimitingBuildService
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
@@ -28,6 +27,7 @@ plugins {
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
+    alias(libs.plugins.convention.lean)
     kotlin("plugin.serialization") version libs.versions.kotlin
     alias(libs.plugins.gradleDependenciesSorter)
     alias(libs.plugins.metro)
@@ -44,51 +44,14 @@ composeCompiler {
     )
 }
 
-val leanPrefixProvider = providers.exec {
-    workingDir = file("lean")
-    commandLine("lean", "--print-prefix")
-}.standardOutput.asText.map { it.trim() }
-
-val cacheLean by tasks.registering(Exec::class) {
-    description = "Opportunistically downloads Lean cache"
-    group = LifecycleBasePlugin.VERIFICATION_GROUP
-    workingDir = file("lean")
-    commandLine("lake", "exe", "cache", "get")
-    isIgnoreExitValue = true
-    usesService(heavyTaskLimitingBuildService)
-}
-
-val verifyLean by tasks.registering(Exec::class) {
-    description = "Formally verifies algorithm logic using Lean 4"
-    group = LifecycleBasePlugin.VERIFICATION_GROUP
-    dependsOn(cacheLean)
-    workingDir = file("lean")
-    commandLine("lake", "build", "Algorithm:static")
-    usesService(heavyTaskLimitingBuildService)
-}
-
-val compileAlgorithmBridgeCObject by tasks.registering(Exec::class) {
-    description = "Compiles C bridge for Lean algorithm engine"
-    group = LifecycleBasePlugin.BUILD_GROUP
-    dependsOn(verifyLean)
-    workingDir = file("lean")
-    inputs.file(file("lean/c/algorithm_bridge.c"))
-    inputs.file(file("lean/c/algorithm_bridge.h"))
-    val outputFile = layout.buildDirectory.file("natives/c/algorithm_bridge.o")
-    outputs.file(outputFile)
-    doFirst {
-        outputFile.get().asFile.parentFile.mkdirs()
+lean {
+    target = "Algorithm:static"
+    packageName = "com.alexvanyo.composelife.algorithm"
+    entries {
+        register("algorithm") {
+            leanFile = "Algorithm/HashLife.lean"
+        }
     }
-    val leanPrefix = leanPrefixProvider.get()
-    commandLine(
-        "clang",
-        "-c",
-        "-fPIC",
-        "c/algorithm_bridge.c",
-        "-I$leanPrefix/include",
-        "-o",
-        outputFile.get().asFile.absolutePath,
-    )
 }
 
 kotlin {
@@ -106,33 +69,6 @@ kotlin {
                     useChromiumHeadless()
                 }
             }
-        }
-    }
-
-    linuxX64 {
-        compilations.getByName("test") {
-            cinterops {
-                val algorithmBridge by creating {
-                    definitionFile.set(file("src/linuxX64Test/cinterop/algorithm_bridge.def"))
-                    includeDirs(file("lean/c"))
-                }
-            }
-        }
-        binaries.withType<org.jetbrains.kotlin.gradle.plugin.mpp.TestExecutable>().configureEach {
-            linkTaskProvider.configure {
-                dependsOn(compileAlgorithmBridgeCObject)
-            }
-            val bridgeObj = layout.buildDirectory.file("natives/c/algorithm_bridge.o").get().asFile.absolutePath
-            val leanArchive = file("lean/.lake/build/lib/libAlgorithm_Algorithm.a").absolutePath
-            val leanPrefix = leanPrefixProvider.get()
-            linkerOpts(
-                bridgeObj,
-                leanArchive,
-                "-L$leanPrefix/lib/lean",
-                "-L$leanPrefix/lib",
-                "-lleanshared",
-                "-Wl,-rpath,$leanPrefix/lib/lean",
-            )
         }
     }
 
@@ -242,16 +178,5 @@ kotlin {
                 implementation(libs.androidx.test.espresso)
             }
         }
-        val linuxX64Test by getting {
-            dependsOn(commonTest)
-        }
     }
-}
-
-tasks.named("check") {
-    dependsOn(verifyLean)
-}
-
-tasks.named("linuxX64Test") {
-    dependsOn(verifyLean)
 }

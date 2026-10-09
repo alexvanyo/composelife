@@ -16,7 +16,6 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
-import com.alexvanyo.composelife.buildlogic.heavyTaskLimitingBuildService
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
@@ -28,6 +27,7 @@ plugins {
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
+    alias(libs.plugins.convention.lean)
     alias(libs.plugins.gradleDependenciesSorter)
 }
 
@@ -41,51 +41,14 @@ composeCompiler {
     )
 }
 
-val leanPrefixProvider = providers.exec {
-    workingDir = file("lean")
-    commandLine("lean", "--print-prefix")
-}.standardOutput.asText.map { it.trim() }
-
-val cacheLean by tasks.registering(Exec::class) {
-    description = "Opportunistically downloads Lean cache"
-    group = LifecycleBasePlugin.VERIFICATION_GROUP
-    workingDir = file("lean")
-    commandLine("lake", "exe", "cache", "get")
-    isIgnoreExitValue = true
-    usesService(heavyTaskLimitingBuildService)
-}
-
-val verifyLean by tasks.registering(Exec::class) {
-    description = "Formally verifies geometry logic using Lean 4"
-    group = LifecycleBasePlugin.VERIFICATION_GROUP
-    dependsOn(cacheLean)
-    workingDir = file("lean")
-    commandLine("lake", "build", "Geometry:static")
-    usesService(heavyTaskLimitingBuildService)
-}
-
-val compileGeometryBridgeCObject by tasks.registering(Exec::class) {
-    description = "Compiles C bridge for Lean geometry engine"
-    group = LifecycleBasePlugin.BUILD_GROUP
-    dependsOn(verifyLean)
-    workingDir = file("lean")
-    inputs.file(file("lean/c/geometry_bridge.c"))
-    inputs.file(file("lean/c/geometry_bridge.h"))
-    val outputFile = layout.buildDirectory.file("natives/c/geometry_bridge.o")
-    outputs.file(outputFile)
-    doFirst {
-        outputFile.get().asFile.parentFile.mkdirs()
+lean {
+    target = "Geometry:static"
+    packageName = "com.alexvanyo.composelife.geometry"
+    entries {
+        register("lineSegment") {
+            leanFile = "Geometry/LineSegment.lean"
+        }
     }
-    val leanPrefix = leanPrefixProvider.get()
-    commandLine(
-        "clang",
-        "-c",
-        "-fPIC",
-        "c/geometry_bridge.c",
-        "-I$leanPrefix/include",
-        "-o",
-        outputFile.get().asFile.absolutePath,
-    )
 }
 
 kotlin {
@@ -103,34 +66,6 @@ kotlin {
                     useChromiumHeadless()
                 }
             }
-        }
-    }
-
-    linuxX64 {
-        compilations.getByName("test") {
-            cinterops {
-                val geometryBridge by creating {
-                    definitionFile.set(file("src/linuxX64Test/cinterop/geometry_bridge.def"))
-                    includeDirs(file("lean/c"))
-                }
-            }
-        }
-        binaries.withType<org.jetbrains.kotlin.gradle.plugin.mpp.TestExecutable>().configureEach {
-            linkTaskProvider.configure {
-                dependsOn(compileGeometryBridgeCObject)
-            }
-            val bridgeObj = layout.buildDirectory.file("natives/c/geometry_bridge.o").get().asFile.absolutePath
-            val leanArchive = file("lean/.lake/build/lib/libGeometry_Geometry.a").absolutePath
-            val leanPrefix = leanPrefixProvider.get()
-            linkerOpts(
-                bridgeObj,
-                leanArchive,
-                "-lgcc_s",
-                "-L$leanPrefix/lib/lean",
-                "-L$leanPrefix/lib",
-                "-lleanshared",
-                "-Wl,-rpath,$leanPrefix/lib/lean",
-            )
         }
     }
 
@@ -176,16 +111,5 @@ kotlin {
         val wasmJsTest by getting {
             dependsOn(jbTest)
         }
-        val linuxX64Test by getting {
-            dependsOn(commonTest)
-        }
     }
-}
-
-tasks.named("check") {
-    dependsOn(verifyLean)
-}
-
-tasks.named("linuxX64Test") {
-    dependsOn(verifyLean)
 }

@@ -19,84 +19,53 @@ package com.alexvanyo.composelife.algorithm
 import com.alexvanyo.composelife.model.MacroCell
 
 /**
+ * Computes the next 2x2 [Int] generation for the given 4x4 [Int] in its center.
+ */
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun Int.computeNextGeneration(): Int = f_Algorithm_exportComputeNextGen4x4UInt(this.toUInt()).toInt()
+
+/**
+ * Computes the 4x4 [Int] next generation for the given 8x8 64-bit Morton leaf node in its center.
+ */
+fun Long.computeNextGeneration(): Int = f_Algorithm_exportComputeLeafNextGen8x8BranchUInt(this.toULong()).toInt()
+
+/**
  * Packs four 16-bit 4x4 quadrants in Morton order into an 8x8 64-bit leaf node.
  */
-internal fun packLeafNode(nw: Int, ne: Int, sw: Int, se: Int): Long = (nw.toLong() and 0xFFFFL) or
-    ((ne.toLong() and 0xFFFFL) shl 16) or
-    ((sw.toLong() and 0xFFFFL) shl 32) or
-    ((se.toLong() and 0xFFFFL) shl 48)
+internal fun packLeafNode(nw: Int, ne: Int, sw: Int, se: Int): Long = f_Algorithm_packLeafFrom4x4sUInt(
+    nw.toUInt(),
+    ne.toUInt(),
+    sw.toUInt(),
+    se.toUInt(),
+).toLong()
 
 /**
  * Extracts the central 4x4 from an 8x8 64-bit leaf node.
- * Matches `centeredSubnodeLevel3` in `HashLifeAlgorithm`.
  */
-internal fun centeredSubnodeLevel3(node: Long): Int {
-    val nw = (node and 0xFFFFL).toInt()
-    val ne = ((node ushr 16) and 0xFFFFL).toInt()
-    val sw = ((node ushr 32) and 0xFFFFL).toInt()
-    val se = (node ushr 48).toInt()
-
-    val q0 = (nw ushr 12) and 0xF
-    val q1 = (ne ushr 8) and 0xF
-    val q2 = (sw ushr 4) and 0xF
-    val q3 = (se ushr 0) and 0xF
-
-    return q0 or (q1 shl 4) or (q2 shl 8) or (q3 shl 12)
-}
+internal fun centeredSubnodeLevel3(node: Long): Int = f_Algorithm_centeredSubnodeLevel3BitsUInt(node.toULong()).toInt()
 
 /**
  * Extracts the horizontal central 4x4 spanning west and east 8x8 leaf nodes.
- * Matches `centeredHorizontalSubnodeLevel3` in `HashLifeAlgorithm`.
  */
-internal fun centeredHorizontalSubnodeLevel3(w: Long, e: Long): Int {
-    val wNe = ((w ushr 16) and 0xFFFFL).toInt()
-    val wSe = (w ushr 48).toInt()
-    val eNw = (e and 0xFFFFL).toInt()
-    val eSw = ((e ushr 32) and 0xFFFFL).toInt()
-
-    val q0 = (wNe ushr 12) and 0xF
-    val q1 = (eNw ushr 8) and 0xF
-    val q2 = (wSe ushr 4) and 0xF
-    val q3 = (eSw ushr 0) and 0xF
-
-    return q0 or (q1 shl 4) or (q2 shl 8) or (q3 shl 12)
-}
+internal fun centeredHorizontalSubnodeLevel3(w: Long, e: Long): Int =
+    f_Algorithm_centeredHorizontalSubnodeLevel3BitsUInt(w.toULong(), e.toULong()).toInt()
 
 /**
  * Extracts the vertical central 4x4 spanning north and south 8x8 leaf nodes.
- * Matches `centeredVerticalSubnodeLevel3` in `HashLifeAlgorithm`.
  */
-internal fun centeredVerticalSubnodeLevel3(n: Long, s: Long): Int {
-    val nSw = ((n ushr 32) and 0xFFFFL).toInt()
-    val nSe = (n ushr 48).toInt()
-    val sNw = (s and 0xFFFFL).toInt()
-    val sNe = ((s ushr 16) and 0xFFFFL).toInt()
-
-    val q0 = (nSw ushr 12) and 0xF
-    val q1 = (nSe ushr 8) and 0xF
-    val q2 = (sNw ushr 4) and 0xF
-    val q3 = (sNe ushr 0) and 0xF
-
-    return q0 or (q1 shl 4) or (q2 shl 8) or (q3 shl 12)
-}
+internal fun centeredVerticalSubnodeLevel3(n: Long, s: Long): Int =
+    f_Algorithm_centeredVerticalSubnodeLevel3BitsUInt(n.toULong(), s.toULong()).toInt()
 
 /**
  * Extracts the central 4x4 from a 16x16 Level 4 node consisting of four 8x8 leaf nodes.
- * Matches `centeredSubSubnodeLevel4` in `HashLifeAlgorithm`.
  */
-internal fun centeredSubSubnodeLevel4(nw: Long, ne: Long, sw: Long, se: Long): Int {
-    val nwSe = (nw ushr 48).toInt()
-    val neSw = ((ne ushr 32) and 0xFFFFL).toInt()
-    val swNe = ((sw ushr 16) and 0xFFFFL).toInt()
-    val seNw = (se and 0xFFFFL).toInt()
-
-    val q0 = (nwSe ushr 12) and 0xF
-    val q1 = (neSw ushr 8) and 0xF
-    val q2 = (swNe ushr 4) and 0xF
-    val q3 = (seNw ushr 0) and 0xF
-
-    return q0 or (q1 shl 4) or (q2 shl 8) or (q3 shl 12)
-}
+internal fun centeredSubSubnodeLevel4(nw: Long, ne: Long, sw: Long, se: Long): Int =
+    f_Algorithm_centeredSubSubnodeLevel4BitsUInt(
+        nw.toULong(),
+        ne.toULong(),
+        sw.toULong(),
+        se.toULong(),
+    ).toInt()
 
 /**
  * Extracts the central 4x4 from a [MacroCell.Level4Node].
@@ -106,7 +75,6 @@ internal fun centeredSubSubnodeLevel4(node: MacroCell.Level4Node): Int =
 
 /**
  * Computes the next generation for a 16x16 Level 4 node, returning the centered 8x8 [Long] leaf node.
- * Matches `Level4Node.computeNextGeneration` in `HashLifeAlgorithm`.
  */
 internal fun computeLevel4NextGeneration(
     nw: Long,
