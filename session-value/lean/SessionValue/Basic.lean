@@ -14,27 +14,28 @@
  * limitations under the License.
  -/
 
+import Lean.Compiler.Kotlin
+open Lean.Compiler.Kotlin
+
 namespace SessionValue
 
 /--
 A 128-bit UUID representation matching RFC 4122 / RFC 9562 and Kotlin's `kotlin.uuid.Uuid`.
 Represented as two 64-bit unsigned integers: `mostSignificantBits` and `leastSignificantBits`.
 -/
+@[extern "kotlin:kotlin.uuid.Uuid"]
 structure Uuid where
   mostSignificantBits : UInt64
   leastSignificantBits : UInt64
 deriving DecidableEq, Repr, Inhabited
 
-instance (n : Nat) : OfNat Uuid n where
-  ofNat := {
-    mostSignificantBits := (n >>> 64).toUInt64,
-    leastSignificantBits := n.toUInt64,
-  }
+attribute [kotlin_expr "({0} == {1})"] instDecidableEqUuid
 
 /--
 An object representing a specific session for `value`.
 This `value` is from the given `sessionId`, and has the associated `valueId`.
 -/
+@[kotlin_class "data class SessionValue"]
 structure SessionValue (α : Type u) where
   sessionId : Uuid
   valueId : Uuid
@@ -45,12 +46,14 @@ deriving DecidableEq, Repr, Inhabited
 Converts a `SessionValue` of type `α` to a `SessionValue` of type `β` using `f`.
 This preserves `sessionId` and `valueId`.
 -/
-def SessionValue.map (f : α → β) (sv : SessionValue α) : SessionValue β :=
+@[kotlin_member "SessionValue" "public" "map"]
+def SessionValue.map (sv : SessionValue α) (f : α → β) : SessionValue β :=
   { sessionId := sv.sessionId, valueId := sv.valueId, value := f sv.value }
 
 /--
 Information about a local session in a `SessionValueHolder`.
 -/
+@[kotlin_class "data sealed interface LocalSessionInfo"]
 inductive LocalSessionInfo where
   /--
   The local session is active, meaning that the session value is running ahead of the upstream value.
@@ -69,6 +72,7 @@ deriving DecidableEq, Repr, Inhabited
 The local session id that will remain constant when upgrading from
 `LocalSessionInfo.inactive` to `LocalSessionInfo.active`.
 -/
+@[export session_value_local_session_id, kotlin_member "LocalSessionInfo" "public extension val" "localSessionId"]
 def LocalSessionInfo.localSessionId : LocalSessionInfo → Uuid
   | .active currentLocalSessionId _ _ => currentLocalSessionId
   | .inactive _ nextLocalSessionId => nextLocalSessionId
@@ -77,6 +81,7 @@ def LocalSessionInfo.localSessionId : LocalSessionInfo → Uuid
 The previous upstream session id that will remain constant when upgrading from
 `LocalSessionInfo.inactive` to `LocalSessionInfo.active`.
 -/
+@[export session_value_pre_local_session_id, kotlin_member "LocalSessionInfo" "public extension val" "preLocalSessionId"]
 def LocalSessionInfo.preLocalSessionId : LocalSessionInfo → Uuid
   | .active _ _ previousUpstreamSessionId => previousUpstreamSessionId
   | .inactive currentUpstreamSessionId _ => currentUpstreamSessionId
@@ -84,8 +89,31 @@ def LocalSessionInfo.preLocalSessionId : LocalSessionInfo → Uuid
 /--
 Returns `true` if the `LocalSessionInfo` is `LocalSessionInfo.active`, and `false` if `inactive`.
 -/
+@[export session_value_is_local_session_active,
+  kotlin_member "LocalSessionInfo" "public extension" "isLocalSessionActive",
+  kotlin_contract "returns(true) implies (this@isLocalSessionActive is LocalSessionInfo.Active)"
+                  "returns(false) implies (this@isLocalSessionActive is LocalSessionInfo.Inactive)"]
 def LocalSessionInfo.isLocalSessionActive : LocalSessionInfo → Bool
   | .active .. => true
   | .inactive .. => false
+
+@[kotlin_file]
+def basicFileSpec : FileSpec := {
+  imports := #[
+    "import kotlinx.serialization.Serializable",
+    "import kotlin.uuid.Uuid"
+  ]
+  items := #[
+    .cls {
+      name := "SessionValue"
+      header := "@Serializable\ndata class SessionValue<out T>(val sessionId: Uuid, val valueId: Uuid, val value: T)"
+      body := #[
+        .verbatim "companion object {}",
+        .members
+      ]
+    },
+    .topLevel
+  ]
+}
 
 end SessionValue

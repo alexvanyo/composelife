@@ -19,7 +19,6 @@ import SessionValue.StateMachine
 import SessionValue.Mapping
 import SessionValue.AsyncBatching
 import SessionValue.Mutations
-import SessionValue.Bridge
 import SessionValueDefs
 import SessionValueProofs
 import SessionValueTheorems

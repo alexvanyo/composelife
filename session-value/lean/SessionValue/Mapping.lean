@@ -40,7 +40,7 @@ def State.map (f : α → β) (st : State α) : State β := {
   upstreamSessionIdBeforeLocalSession := st.upstreamSessionIdBeforeLocalSession,
   upstreamSessionValue := st.upstreamSessionValue.map f,
   localSessionId := st.localSessionId,
-  localSessionValue := st.localSessionValue.map (SessionValue.map f)
+  localSessionValue := st.localSessionValue.map (fun sv => sv.map f)
 }
 
 /--

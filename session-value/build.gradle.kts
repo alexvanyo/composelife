@@ -77,38 +77,20 @@ val verifyLean by tasks.registering(Exec::class) {
     usesService(heavyTaskLimitingBuildService)
 }
 
-val compileSessionValueBridgeCObject by tasks.registering(Exec::class) {
-    description = "Compiles C bridge for Lean session-value state machine"
-    group = LifecycleBasePlugin.BUILD_GROUP
-    dependsOn(verifyLean)
-    workingDir = file("lean")
-    inputs.file(file("lean/c/session_value_bridge.c"))
-    inputs.file(file("lean/c/session_value_bridge.h"))
-    val outputFile = layout.buildDirectory.file("natives/c/session_value_bridge.o")
-    outputs.file(outputFile)
-    doFirst {
-        outputFile.get().asFile.parentFile.mkdirs()
-    }
-    val leanPrefix = leanPrefixProvider.get()
-    commandLine(
-        "clang",
-        "-c",
-        "-fPIC",
-        "c/session_value_bridge.c",
-        "-I$leanPrefix/include",
-        "-o",
-        outputFile.get().asFile.absolutePath,
-    )
-}
-
 /**
- * Compile SessionValue modules to JVM bytecode using the custom Lean 4 JVM backend.
- *
- * Each module is compiled with `--jvm=<classFile>` and `-o <oleanFile>` directly into
- * the task's output directory, resolving intra-module imports via `LEAN_PATH` without
- * touching or colliding with Lake's native build cache.
+ * Path to the custom Lean 4 binary with Kotlin codegen backend support.
+ * Override via the Gradle property `leanBinary` or system property `leanBinary`.
+ * Defaults to the local Lean 4 fork build at ~/Projects/lean4.
  */
-abstract class CompileLeanJvmBytecodeTask @javax.inject.Inject constructor(
+val leanBinaryProvider = providers.gradleProperty("leanBinary")
+    .orElse(providers.systemProperty("leanBinary"))
+    .orElse(
+        providers.provider {
+            "${System.getProperty("user.home")}/Projects/lean4/build/release/stage1/bin/lean"
+        },
+    )
+
+abstract class GenerateLeanSessionValueKotlinTask @javax.inject.Inject constructor(
     private val execOperations: ExecOperations,
 ) : DefaultTask() {
     @get:InputFiles
@@ -120,43 +102,51 @@ abstract class CompileLeanJvmBytecodeTask @javax.inject.Inject constructor(
     @get:InputDirectory
     abstract val workingDir: DirectoryProperty
 
-    @get:OutputDirectory
-    abstract val outputDir: DirectoryProperty
+    @get:OutputFile
+    abstract val sessionValueFile: RegularFileProperty
+
+    @get:OutputFile
+    abstract val stateMachineFile: RegularFileProperty
 
     @TaskAction
-    fun compile() {
-        val outDir = outputDir.get().asFile
-        val modules = listOf(
-            Pair("SessionValue/Basic.lean", "lean/mod_l_SessionValue_Basic.class") to "SessionValue/Basic.olean",
-            Pair("SessionValue/StateMachine.lean", "lean/mod_l_SessionValue_StateMachine.class") to
-                "SessionValue/StateMachine.olean",
-            Pair("SessionValue/Bridge.lean", "lean/mod_l_SessionValue_Bridge.class") to "SessionValue/Bridge.olean",
-        )
-        for ((pair, oleanRelPath) in modules) {
-            val (leanFile, classRelPath) = pair
-            val destClass = outDir.resolve(classRelPath)
-            val destOlean = outDir.resolve(oleanRelPath)
-            destClass.parentFile.mkdirs()
-            destOlean.parentFile.mkdirs()
-            execOperations.exec {
-                workingDir = this@CompileLeanJvmBytecodeTask.workingDir.get().asFile
-                environment("LEAN_PATH", outDir.absolutePath)
-                commandLine(
-                    leanBinary.get(),
-                    "-o",
-                    destOlean.absolutePath,
-                    "--jvm=${destClass.absolutePath}",
-                    leanFile,
-                )
-            }
+    fun generate() {
+        val svFile = sessionValueFile.get().asFile
+        svFile.parentFile.mkdirs()
+        val smFile = stateMachineFile.get().asFile
+        smFile.parentFile.mkdirs()
+        val workDir = this@GenerateLeanSessionValueKotlinTask.workingDir.get().asFile
+        val leanPath = File(workDir, ".lake/build/lib/lean").absolutePath
+        execOperations.exec {
+            workingDir = workDir
+            environment("LEAN_PATH", leanPath)
+            commandLine(
+                leanBinary.get(),
+                "-Dcompiler.kotlin.pruneUnreachable=true",
+                "-Dcompiler.kotlin.package=com.alexvanyo.composelife.sessionvalue",
+                "-K",
+                svFile.absolutePath,
+                "SessionValue/Basic.lean",
+            )
+        }
+        execOperations.exec {
+            workingDir = workDir
+            environment("LEAN_PATH", leanPath)
+            commandLine(
+                leanBinary.get(),
+                "-Dcompiler.kotlin.pruneUnreachable=true",
+                "-Dcompiler.kotlin.package=com.alexvanyo.composelife.sessionvalue",
+                "-K",
+                smFile.absolutePath,
+                "SessionValue/StateMachine.lean",
+            )
         }
     }
 }
 
-val compileLeanJvmBytecode by tasks.registering(CompileLeanJvmBytecodeTask::class) {
-    description = "Compiles Lean session-value modules to JVM bytecode for oracle testing"
+val generateLeanSessionValueKotlin by tasks.registering(GenerateLeanSessionValueKotlinTask::class) {
+    description = "Generates Kotlin code directly from Lean session-value formal model"
     group = LifecycleBasePlugin.BUILD_GROUP
-
+    dependsOn(verifyLean)
     leanFiles.from(
         fileTree("lean") {
             include("**/*.lean")
@@ -164,21 +154,11 @@ val compileLeanJvmBytecode by tasks.registering(CompileLeanJvmBytecodeTask::clas
             include("lean-toolchain")
         },
     )
-    leanBinary.set(leanJvmBinaryProvider)
+    leanBinary.set(leanBinaryProvider)
     workingDir.set(layout.projectDirectory.dir("lean"))
-    outputDir.set(layout.buildDirectory.dir("lean-jvm-classes"))
+    sessionValueFile.set(layout.buildDirectory.file("generated/sources/lean/kotlin/commonMain/com/alexvanyo/composelife/sessionvalue/SessionValueLean.kt"))
+    stateMachineFile.set(layout.buildDirectory.file("generated/sources/lean/kotlin/commonMain/com/alexvanyo/composelife/sessionvalue/SessionValueStateLean.kt"))
 }
-
-val leanJvmJar by tasks.registering(Jar::class) {
-    description = "Packages Lean JVM bytecode into a JAR for jvmTest"
-    group = LifecycleBasePlugin.BUILD_GROUP
-    from(compileLeanJvmBytecode.map { it.outputDir }) {
-        include("**/*.class")
-    }
-    archiveBaseName.set("session-value-lean-oracle")
-}
-
-
 
 kotlin {
 
@@ -201,35 +181,9 @@ kotlin {
         }
     }
 
-    linuxX64 {
-        compilations.getByName("test") {
-            cinterops {
-                val sessionValueBridge by creating {
-                    definitionFile.set(file("src/linuxX64Test/cinterop/session_value_bridge.def"))
-                    includeDirs(file("lean/c"))
-                }
-            }
-        }
-        binaries.withType<org.jetbrains.kotlin.gradle.plugin.mpp.TestExecutable>().configureEach {
-            linkTaskProvider.configure {
-                dependsOn(compileSessionValueBridgeCObject)
-            }
-            val bridgeObj = layout.buildDirectory.file("natives/c/session_value_bridge.o").get().asFile.absolutePath
-            val leanArchive = file("lean/.lake/build/lib/libSessionValue_SessionValue.a").absolutePath
-            val leanPrefix = leanPrefixProvider.get()
-            linkerOpts(
-                bridgeObj,
-                leanArchive,
-                "-L$leanPrefix/lib/lean",
-                "-L$leanPrefix/lib",
-                "-lleanshared",
-                "-Wl,-rpath,$leanPrefix/lib/lean",
-            )
-        }
-    }
-
     sourceSets {
         val commonMain by getting {
+            kotlin.srcDir(generateLeanSessionValueKotlin.map { it.sessionValueFile.get().asFile.parentFile.parentFile.parentFile.parentFile.parentFile })
             dependencies {
                 api(libs.kotlinx.serialization.core)
             }
@@ -275,19 +229,11 @@ kotlin {
                 implementation(libs.turbine)
             }
         }
-        val jvmTest by creating {
-            dependsOn(jbTest)
-            dependencies {
-                implementation(files(leanJvmJar))
-                implementation(libs.lean.runtime.kmp)
-            }
-        }
-
         val desktopTest by getting {
-            dependsOn(jvmTest)
+            dependsOn(jbTest)
         }
         val androidSharedTest by getting {
-            dependsOn(jvmTest)
+            dependsOn(jbTest)
             dependencies {
                 implementation(libs.androidx.compose.ui)
             }
@@ -298,17 +244,10 @@ kotlin {
                 implementation(libs.jetbrains.compose.ui)
             }
         }
-        val linuxX64Test by getting {
-            dependsOn(commonTest)
-        }
     }
 }
 
 tasks.named("check") {
-    dependsOn(verifyLean)
-}
-
-tasks.named("linuxX64Test") {
     dependsOn(verifyLean)
 }
 
