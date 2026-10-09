@@ -144,6 +144,9 @@ jobs:
           # Otherwise use the default token
           token: ${{ (matrix.sdk == '37' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' && secrets.PAT) || github.token}}
 
+      - name: Reserve CPU core
+        uses: ./.github/actions/reserve-cpu-core
+
       - name: Setup Lean
         uses: ./.github/actions/setup-lean
 
@@ -176,49 +179,70 @@ jobs:
                echo sdk=${{ matrix.sdk }} > "$project"/resources/com/alexvanyo/composelife/robolectric.properties
           done
 
-      - name: Run checks
-        id: check
-        run: ./gradlew check --stacktrace
+      - name: Run static analysis and formal verification
+        id: check-static
+        continue-on-error: true
+        run: ./gradlew detekt verifyLean dependencyGuard checkSortDependencies --stacktrace
 
       - name: Auto-commit formatting changes
-        if: ${{ !cancelled() && matrix.sdk == '37' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
+        if: ${{ !cancelled() && matrix.sdk == '37' && steps.check-static.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: Fix formatting issues
           push_options: --force-with-lease
 
       - name: Update dependency guard baseline
-        if: ${{ !cancelled() && matrix.sdk == '37' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
+        if: ${{ !cancelled() && matrix.sdk == '37' && steps.check-static.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
         run: ./gradlew dependencyGuardBaseline
 
       - name: Auto-commit dependency guard baseline changes
-        if: ${{ !cancelled() && matrix.sdk == '37' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
+        if: ${{ !cancelled() && matrix.sdk == '37' && steps.check-static.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: Auto update dependency guard baseline
           push_options: --force-with-lease
 
       - name: Sort dependencies
-        if: ${{ !cancelled() && matrix.sdk == '37' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
+        if: ${{ !cancelled() && matrix.sdk == '37' && steps.check-static.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
         run: ./gradlew sortDependencies
 
       - name: Auto-commit dependency sorting changes
-        if: ${{ !cancelled() && matrix.sdk == '37' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
+        if: ${{ !cancelled() && matrix.sdk == '37' && steps.check-static.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: Auto sort dependencies
           push_options: --force-with-lease
 
+      - name: Run Android lint
+        id: check-lint
+        continue-on-error: true
+        run: ./gradlew lintDebug --stacktrace
+
+      - name: Run unit and screenshot tests
+        id: check-tests
+        continue-on-error: true
+        run: ./gradlew testDebugUnitTest desktopTest linuxX64Test --stacktrace
+
       - name: Update screenshots
-        if: ${{ !cancelled() && matrix.sdk == '37' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
+        if: ${{ !cancelled() && matrix.sdk == '37' && steps.check-tests.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
         run: ./gradlew recordRoborazzi
 
       - name: Auto-commit screenshot changes
-        if: ${{ !cancelled() && matrix.sdk == '37' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
+        if: ${{ !cancelled() && matrix.sdk == '37' && steps.check-tests.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: Auto update screenshots
           push_options: --force-with-lease
+
+      - name: Run Wasm tests
+        id: check-wasm
+        continue-on-error: true
+        run: ./gradlew wasmJsTest --stacktrace
+
+      - name: Run remaining checks
+        id: check
+        continue-on-error: true
+        run: ./gradlew check --stacktrace
 
       - name: Update badging
         if: ${{ !cancelled() && matrix.sdk == '37' && steps.check.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
@@ -237,6 +261,17 @@ jobs:
         with:
           name: unit-test-results-${{ matrix.sdk }}
           path: '**/build/test-results/*Test/**.xml'
+
+      - name: Verify all checks passed
+        run: |
+          if [ "${{ steps.check-static.outcome }}" != "success" ] || \
+             [ "${{ steps.check-lint.outcome }}" != "success" ] || \
+             [ "${{ steps.check-tests.outcome }}" != "success" ] || \
+             [ "${{ steps.check-wasm.outcome }}" != "success" ] || \
+             [ "${{ steps.check.outcome }}" != "success" ]; then
+            echo "One or more check phases failed."
+            exit 1
+          fi
 
       - name: Generate code coverage
         run: |
@@ -341,6 +376,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Reserve CPU core
+        uses: ./.github/actions/reserve-cpu-core
+
       - name: Setup Lean
         uses: ./.github/actions/setup-lean
 
@@ -401,6 +439,9 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Reserve CPU core
+        uses: ./.github/actions/reserve-cpu-core
 
       - name: Setup Lean
         uses: ./.github/actions/setup-lean
@@ -473,6 +514,9 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Reserve CPU core
+        uses: ./.github/actions/reserve-cpu-core
 
       - name: Setup Lean
         uses: ./.github/actions/setup-lean

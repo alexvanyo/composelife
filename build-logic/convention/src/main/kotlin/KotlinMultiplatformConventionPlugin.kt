@@ -20,6 +20,7 @@ import com.alexvanyo.composelife.buildlogic.configureKotlin
 import com.alexvanyo.composelife.buildlogic.heavyTaskLimitingBuildService
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskContainer
+import org.gradle.api.tasks.testing.AbstractTestTask
 import org.jetbrains.kotlin.gradle.targets.js.testing.KotlinJsTest
 import org.jetbrains.kotlin.gradle.targets.js.testing.karma.KotlinKarma
 import java.io.File
@@ -29,6 +30,10 @@ class KotlinMultiplatformConventionPlugin :
         pluginManager.apply("org.jetbrains.kotlin.multiplatform")
 
         configureKotlin()
+
+        tasks.withType(AbstractTestTask::class.java).configureEach {
+            usesService(heavyTaskLimitingBuildService)
+        }
 
         val karmaConfigDir = isolated.rootProject.projectDirectory.dir("config/karma").asFile
         configureKotlinJsTest(
