@@ -91,6 +91,37 @@ theorem toReal_sub_mono_binary64 (x1 y1 x2 y2 : Binary64)
   rw [toReal_sub_eq_roundAt_binary64 x2 y2 hx2 hy2 hbound2]
   exact Model.roundAt_mono FloatFormat.binary64 h_ge
 
+theorem toModel_mul_binary64 (x y : Binary64) :
+    ExecFloat.Binary.toModel (x * y) =
+      Model.Spec.mul (ExecFloat.Binary.toModel x) (ExecFloat.Binary.toModel y) := by
+  change ExecFloat.Binary.toModel (ExecFloat.mul x y) = _
+  rw [ExecFloat.Proof.mul_eq_spec]
+  change Configured.Family.toModel (ExecFloat.ModelCodec.liftBinary Model.Spec.mul x y) = _
+  simp [Configured.Family.toModel, ExecFloat.Binary.toModel]
+
+theorem isFinite_mul_binary64 (x y : Binary64)
+    (hx : ExecFloat.Binary.isFinite x = true) (hy : ExecFloat.Binary.isFinite y = true)
+    (hbound : |Model.toReal (ExecFloat.Binary.toModel x)| * |Model.toReal (ExecFloat.Binary.toModel y)| ≤
+              Model.toReal (Model.posMaxFinite FloatFormat.binary64)) :
+    ExecFloat.Binary.isFinite (x * y) = true := by
+  change Model.isFinite (ExecFloat.Binary.toModel (x * y)) = true
+  rw [toModel_mul_binary64]
+  rw [← Model.Proof.mul_eq_spec]
+  exact Model.isFinite_mul_of_abs_mul_le_posMaxFinite
+    (ExecFloat.Binary.toModel x) (ExecFloat.Binary.toModel y) (by rfl) hx hy hbound
+
+theorem toReal_mul_eq_roundAt_binary64 (x y : Binary64)
+    (hx : ExecFloat.Binary.isFinite x = true) (hy : ExecFloat.Binary.isFinite y = true)
+    (hbound : |Model.toReal (ExecFloat.Binary.toModel x)| * |Model.toReal (ExecFloat.Binary.toModel y)| ≤
+              Model.toReal (Model.posMaxFinite FloatFormat.binary64)) :
+    Model.toReal (ExecFloat.Binary.toModel (x * y)) =
+      Model.roundAt FloatFormat.binary64
+        (Model.toReal (ExecFloat.Binary.toModel x) * Model.toReal (ExecFloat.Binary.toModel y)) := by
+  rw [toModel_mul_binary64]
+  rw [← Model.Proof.mul_eq_spec]
+  exact Model.toReal_mul_eq_roundAt_of_abs_mul_le_posMaxFinite
+    (ExecFloat.Binary.toModel x) (ExecFloat.Binary.toModel y) (by rfl) hx hy hbound
+
 theorem toReal_mul_mono_binary64
     (x y z : Binary64)
     (hx : ExecFloat.Binary.isFinite x = true)
@@ -104,21 +135,8 @@ theorem toReal_mul_mono_binary64
                Model.toReal (Model.posMaxFinite FloatFormat.binary64)) :
     Model.toReal (ExecFloat.Binary.toModel (x * z)) ≥
     Model.toReal (ExecFloat.Binary.toModel (y * z)) := by
-  have hmul_x : Model.toReal (ExecFloat.Binary.toModel (x * z)) =
-      Model.roundAt FloatFormat.binary64
-        (Model.toReal (ExecFloat.Binary.toModel x) * Model.toReal (ExecFloat.Binary.toModel z)) := by
-    change Model.toReal (ExecFloat.Binary.toModel (ExecFloat.Binary.mul x z Model.IEEERoundingMode.nearestEven)) = _
-    rw [ExecFloat.Binary.toModel_mul]
-    exact Model.toReal_mul_eq_roundAt_of_abs_mul_le_posMaxFinite
-      (ExecFloat.Binary.toModel x) (ExecFloat.Binary.toModel z) (by rfl) hx hz hprod_x
-  have hmul_y : Model.toReal (ExecFloat.Binary.toModel (y * z)) =
-      Model.roundAt FloatFormat.binary64
-        (Model.toReal (ExecFloat.Binary.toModel y) * Model.toReal (ExecFloat.Binary.toModel z)) := by
-    change Model.toReal (ExecFloat.Binary.toModel (ExecFloat.Binary.mul y z Model.IEEERoundingMode.nearestEven)) = _
-    rw [ExecFloat.Binary.toModel_mul]
-    exact Model.toReal_mul_eq_roundAt_of_abs_mul_le_posMaxFinite
-      (ExecFloat.Binary.toModel y) (ExecFloat.Binary.toModel z) (by rfl) hy hz hprod_y
-  rw [hmul_x, hmul_y]
+  rw [toReal_mul_eq_roundAt_binary64 x z hx hz hprod_x]
+  rw [toReal_mul_eq_roundAt_binary64 y z hy hz hprod_y]
   have hle : Model.toReal (ExecFloat.Binary.toModel y) * Model.toReal (ExecFloat.Binary.toModel z) ≤
              Model.toReal (ExecFloat.Binary.toModel x) * Model.toReal (ExecFloat.Binary.toModel z) := by
     nlinarith
@@ -1089,17 +1107,11 @@ theorem binary64_mul_approx_rel (u v : Binary64) (u_I v_I : ℝ)
       have : 0 ≤ |rv| := abs_nonneg _
       nlinarith [hru_le, hrv_le]
     exact le_trans hbound maxCellBoundaryDistance_sq_le_posMaxFinite
-  have huv_fin : ExecFloat.Binary.isFinite (u * v) = true := by
-    change Model.isFinite (ExecFloat.Binary.toModel (ExecFloat.Binary.mul u v Model.IEEERoundingMode.nearestEven)) = true
-    rw [ExecFloat.Binary.toModel_mul]
-    exact Model.isFinite_mul_of_abs_mul_le_posMaxFinite
-      (ExecFloat.Binary.toModel u) (ExecFloat.Binary.toModel v) (by rfl) hu_fin hv_fin hprod_le_max
+  have huv_fin : ExecFloat.Binary.isFinite (u * v) = true :=
+    isFinite_mul_binary64 u v hu_fin hv_fin hprod_le_max
   have huv_toReal : Model.toReal (ExecFloat.Binary.toModel (u * v)) =
-      Model.roundAt FloatFormat.binary64 (ru * rv) := by
-    change Model.toReal (ExecFloat.Binary.toModel (ExecFloat.Binary.mul u v Model.IEEERoundingMode.nearestEven)) = _
-    rw [ExecFloat.Binary.toModel_mul]
-    exact Model.toReal_mul_eq_roundAt_of_abs_mul_le_posMaxFinite
-      (ExecFloat.Binary.toModel u) (ExecFloat.Binary.toModel v) (by rfl) hu_fin hv_fin hprod_le_max
+      Model.roundAt FloatFormat.binary64 (ru * rv) :=
+    toReal_mul_eq_roundAt_binary64 u v hu_fin hv_fin hprod_le_max
   have hprod_bpow : ru * rv = 0 ∨ Model.bpow (-300) ≤ |ru * rv| := by
     rcases hu_bpow with hu0 | hu_ge
     · left; rw [hu0, zero_mul]
