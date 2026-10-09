@@ -22,6 +22,7 @@ import AlgorithmDefs
 import proofs.MacroCellProofs
 
 local notation "ℕ" => Nat
+local notation "ℤ" => Int
 
 namespace Algorithm
 
@@ -295,5 +296,90 @@ theorem packLeafFrom4x4sUInt_zero_Impl :
 theorem computeLevel4NextGen16x16UInt_zero_Impl :
     computeLevel4NextGen16x16UInt 0 0 0 0 = 0 := by
   rfl
+
+theorem expandOffsetDelta_succ_Impl (k : ℕ) :
+    expandOffsetDelta (k + 1) = -3 * (2 : ℤ) ^ k := by
+  rfl
+
+theorem stepOffsetDelta_succ_Impl (k : ℕ) :
+    stepOffsetDelta (k + 2) = (2 : ℤ) ^ k := by
+  rfl
+
+theorem expandCentered_guarantees_confinement_Impl (k : ℕ) (nw ne sw se : MacroCell) :
+    isConfinedToSubSubnode (expandCentered (.node k nw ne sw se)) := by
+  unfold isConfinedToSubSubnode
+  exact expandCentered_confinement_Impl k nw ne sw se
+
+theorem quadrants_cover_center_Impl (k : ℕ) (sn : HashLifeSubnodes) :
+    (quadrantNW k sn).level = k ∧
+    (quadrantNE k sn).level = k ∧
+    (quadrantSW k sn).level = k ∧
+    (quadrantSE k sn).level = k := by
+  dsimp [quadrantNW, quadrantNE, quadrantSW, quadrantSE, MacroCell.level]
+  exact ⟨rfl, rfl, rfl, rfl⟩
+
+theorem macroCellToGrid_emptyNode_Impl : ∀ (k : ℕ) (ox oy : ℤ),
+    macroCellToGrid ox oy (emptyNode k) = []
+  | 0, _, _ => rfl
+  | k + 1, ox, oy => by
+    have ih := macroCellToGrid_emptyNode_Impl k
+    dsimp [emptyNode, macroCellToGrid]
+    rw [ih ox oy, ih (ox + MacroCell.subcellWidth (k + 1)) oy,
+        ih ox (oy + MacroCell.subcellWidth (k + 1)),
+        ih (ox + MacroCell.subcellWidth (k + 1)) (oy + MacroCell.subcellWidth (k + 1))]
+    rfl
+
+theorem hashLifeToGrid_emptyNode_Impl (k : ℕ) (ox oy : ℤ) :
+    hashLifeToGrid { offset := (ox, oy), macroCell := emptyNode k } = [] := by
+  dsimp [hashLifeToGrid]
+  exact macroCellToGrid_emptyNode_Impl k ox oy
+
+theorem hashLifeStepN_zero_Impl (st : HashLifeCellState) :
+    hashLifeStepN 0 st = st := by
+  rfl
+
+theorem hashLifeStepN_succ_Impl (n : ℕ) (st : HashLifeCellState) :
+    hashLifeStepN (n + 1) st = hashLifeStepN n (hashLifeNextGeneration st) := by
+  rfl
+
+theorem hashlife_stepN_induction_step_Impl (n : ℕ) (st : HashLifeCellState)
+    (h : hashLifeToGrid (hashLifeStepN n (hashLifeNextGeneration st)) =
+         stepN n (hashLifeToGrid (hashLifeNextGeneration st))) :
+    hashLifeToGrid (hashLifeStepN (n + 1) st) =
+    stepN n (hashLifeToGrid (hashLifeNextGeneration st)) := by
+  rw [hashLifeStepN_succ_Impl]
+  exact h
+
+theorem hashLifeStep_emptyNode_Impl : ∀ (k : ℕ),
+    hashLifeStep (emptyNode (k + 2)) = emptyNode (k + 1)
+  | 0 => hashLifeStep_empty2_Impl
+  | k + 1 => by
+    have ih := hashLifeStep_emptyNode_Impl k
+    have h_empty : emptyNode (k + 3) = .node (k + 3) (emptyNode (k + 2)) (emptyNode (k + 2)) (emptyNode (k + 2)) (emptyNode (k + 2)) := rfl
+    rw [h_empty]
+    rw [hashLifeStep]
+    rw [centeredSubnode_emptyNode_Impl k,
+        centeredHorizontalSubnode_emptyNode_Impl k,
+        centeredVerticalSubnode_emptyNode_Impl k]
+    rw [← h_empty]
+    rw [centeredSubSubnode_emptyNode_Impl k]
+    have h_sub : MacroCell.node (k + 2) (emptyNode (k + 1)) (emptyNode (k + 1)) (emptyNode (k + 1)) (emptyNode (k + 1)) = emptyNode (k + 2) := rfl
+    rw [h_sub]
+    rw [ih]
+    rfl
+
+theorem hashLifeNextGenerationStep_emptyNode_Impl (k : ℕ) (ox oy : ℤ) :
+    hashLifeToGrid (hashLifeNextGenerationStep { offset := (ox, oy), macroCell := emptyNode (k + 2) }) = [] := by
+  dsimp [hashLifeNextGenerationStep, hashLifeToGrid]
+  rw [hashLifeStep_emptyNode_Impl k]
+  exact macroCellToGrid_emptyNode_Impl (k + 1) (ox + stepOffsetDelta (emptyNode (k + 2)).level)
+    (oy + stepOffsetDelta (emptyNode (k + 2)).level)
+
+theorem hashlife_step_equivalence_empty_Impl (k : ℕ) (ox oy : ℤ) :
+    hashLifeToGrid (hashLifeNextGenerationStep { offset := (ox, oy), macroCell := emptyNode (k + 2) }) =
+    stepGrid (hashLifeToGrid { offset := (ox, oy), macroCell := emptyNode (k + 2) }) := by
+  rw [hashLifeNextGenerationStep_emptyNode_Impl k ox oy]
+  rw [hashLifeToGrid_emptyNode_Impl (k + 2) ox oy]
+  rw [stepGrid_empty]
 
 end Algorithm
