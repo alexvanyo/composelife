@@ -105,7 +105,12 @@ class HashLifeAlgorithm(
      */
     private val level4NodeMap: ObjectLongCache<MacroCell.Level4Node> =
         ObjectLongCache(
-            load = { key -> key.computeNextGeneration(false) },
+            load = { key ->
+                computeLevel4NextGeneration(
+                    node = key,
+                    computeLeafNextGen = { it.computeNextGenerationMemoized() },
+                )
+            },
             getGenerationIndex = { computedGenerations },
         )
 
@@ -185,10 +190,7 @@ class HashLifeAlgorithm(
             return@trace level4NodeMap[canonicalMacroCell]
         }
 
-        computeLevel4NextGeneration(
-            node = canonicalMacroCell,
-            computeLeafNextGen = { it.computeNextGenerationMemoized() },
-        )
+        computeLevel4NextGeneration(canonicalMacroCell)
     }
 
     /**
@@ -219,15 +221,15 @@ class HashLifeAlgorithm(
                 sw as MacroCell.Level4Node
                 se as MacroCell.Level4Node
 
-                val n00 = centeredSubnodeLevel4(nw)
-                val n01 = centeredHorizontalSubnodeLevel4(nw, ne)
-                val n02 = centeredSubnodeLevel4(ne)
-                val n10 = centeredVerticalSubnodeLevel4(nw, sw)
-                val n11 = centeredSubSubnodeLevel5(canonicalMacroCell)
-                val n12 = centeredVerticalSubnodeLevel4(ne, se)
-                val n20 = centeredSubnodeLevel4(sw)
-                val n21 = centeredHorizontalSubnodeLevel4(sw, se)
-                val n22 = centeredSubnodeLevel4(se)
+                val n00 = centeredSubnode(nw)
+                val n01 = centeredHorizontalSubnode(nw, ne)
+                val n02 = centeredSubnode(ne)
+                val n10 = centeredVerticalSubnode(nw, sw)
+                val n11 = centeredSubnode(centeredSubnode(this) as MacroCell.Level4Node)
+                val n12 = centeredVerticalSubnode(ne, se)
+                val n20 = centeredSubnode(sw)
+                val n21 = centeredHorizontalSubnode(sw, se)
+                val n22 = centeredSubnode(se)
 
                 MacroCell.Level4Node(
                     nw = MacroCell.Level4Node(
@@ -257,65 +259,21 @@ class HashLifeAlgorithm(
                 )
             }
 
-            6 -> {
-                nw as MacroCell.CellNode
-                ne as MacroCell.CellNode
-                sw as MacroCell.CellNode
-                se as MacroCell.CellNode
-
-                val n00 = centeredSubnodeLevel5(nw)
-                val n01 = centeredHorizontalSubnodeLevel5(nw, ne)
-                val n02 = centeredSubnodeLevel5(ne)
-                val n10 = centeredVerticalSubnodeLevel5(nw, sw)
-                val n11 = centeredSubSubnodeLevel6(canonicalMacroCell)
-                val n12 = centeredVerticalSubnodeLevel5(ne, se)
-                val n20 = centeredSubnodeLevel5(sw)
-                val n21 = centeredHorizontalSubnodeLevel5(sw, se)
-                val n22 = centeredSubnodeLevel5(se)
-
-                MacroCell.CellNode(
-                    nw = MacroCell.CellNode(
-                        nw = n00,
-                        ne = n01,
-                        sw = n10,
-                        se = n11,
-                    ).computeNextGeneration(),
-                    ne = MacroCell.CellNode(
-                        nw = n01,
-                        ne = n02,
-                        sw = n11,
-                        se = n12,
-                    ).computeNextGeneration(),
-                    sw = MacroCell.CellNode(
-                        nw = n10,
-                        ne = n11,
-                        sw = n20,
-                        se = n21,
-                    ).computeNextGeneration(),
-                    se = MacroCell.CellNode(
-                        nw = n11,
-                        ne = n12,
-                        sw = n21,
-                        se = n22,
-                    ).computeNextGeneration(),
-                )
-            }
-
             else -> {
                 nw as MacroCell.CellNode
                 ne as MacroCell.CellNode
                 sw as MacroCell.CellNode
                 se as MacroCell.CellNode
 
-                val n00 = centeredSubnodeLevel6(nw)
-                val n01 = centeredHorizontalSubnodeLevel6(nw, ne)
-                val n02 = centeredSubnodeLevel6(ne)
-                val n10 = centeredVerticalSubnodeLevel6(nw, sw)
-                val n11 = centeredSubSubnodeLevel7(canonicalMacroCell)
-                val n12 = centeredVerticalSubnodeLevel6(ne, se)
-                val n20 = centeredSubnodeLevel6(sw)
-                val n21 = centeredHorizontalSubnodeLevel6(sw, se)
-                val n22 = centeredSubnodeLevel6(se)
+                val n00 = centeredSubnode(nw)
+                val n01 = centeredHorizontalSubnode(nw, ne)
+                val n02 = centeredSubnode(ne)
+                val n10 = centeredVerticalSubnode(nw, sw)
+                val n11 = centeredSubSubnode(canonicalMacroCell)
+                val n12 = centeredVerticalSubnode(ne, se)
+                val n20 = centeredSubnode(sw)
+                val n21 = centeredHorizontalSubnode(sw, se)
+                val n22 = centeredSubnode(se)
 
                 MacroCell.CellNode(
                     nw = MacroCell.CellNode(
@@ -402,19 +360,7 @@ class HashLifeAlgorithm(
         val node = cellState.macroCell
         val needToExpand =
             node.level <= 4 ||
-                when (node) {
-                    is MacroCell.CellNode -> {
-                        when (node.level) {
-                            5 -> centeredSubSubnodeLevel5(node).size
-                            6 -> centeredSubSubnodeLevel6(node).size
-                            else -> centeredSubSubnodeLevel7(node).size
-                        }
-                    }
-
-                    is MacroCell.Level4Node -> {
-                        error("Impossible, since level is larger than 4")
-                    }
-                } != node.size
+                (node as MacroCell.CellNode).centeredSubSubnodeSize() != node.size
 
         if (!needToExpand) {
             return HashLifeCellState(
@@ -429,111 +375,27 @@ class HashLifeAlgorithm(
     }
 }
 
-private inline fun centeredSubnodeLevel6(node: MacroCell.CellNode): MacroCell.CellNode {
-    // require(node.level >= 6)
-    node.nw as MacroCell.CellNode
-    node.ne as MacroCell.CellNode
-    node.sw as MacroCell.CellNode
-    node.se as MacroCell.CellNode
-    return MacroCell.CellNode(
-        nw = node.nw.se,
-        ne = node.ne.sw,
-        sw = node.sw.ne,
-        se = node.se.nw,
-    )
+private inline fun MacroCell.CellNode.centeredSubSubnodeSize(): Int = when (val center = centeredSubnode(this)) {
+    is MacroCell.Level4Node -> centeredSubnode(center).size
+    is MacroCell.CellNode -> centeredSubnode(center).size
 }
 
-private inline fun centeredSubnodeLevel5(node: MacroCell.CellNode): MacroCell.Level4Node {
-    node.nw as MacroCell.Level4Node
-    node.ne as MacroCell.Level4Node
-    node.sw as MacroCell.Level4Node
-    node.se as MacroCell.Level4Node
-    return MacroCell.Level4Node(
-        nw = node.nw.se,
-        ne = node.ne.sw,
-        sw = node.sw.ne,
-        se = node.se.nw,
-    )
-}
-
-private inline fun centeredSubnodeLevel4(node: MacroCell.Level4Node): MacroCell.LeafNode = LeafNode(
+private inline fun centeredSubnode(node: MacroCell.Level4Node): MacroCell.LeafNode = LeafNode(
     nw = node.nw.se,
     ne = node.ne.sw,
     sw = node.sw.ne,
     se = node.se.nw,
 )
 
-private inline fun centeredHorizontalSubnodeLevel6(w: MacroCell.CellNode, e: MacroCell.CellNode): MacroCell.CellNode {
-    // require(e.level >= 6)
-    // require(e.level == w.level)
-    w.ne as MacroCell.CellNode
-    w.se as MacroCell.CellNode
-    e.nw as MacroCell.CellNode
-    e.sw as MacroCell.CellNode
-    return MacroCell.CellNode(
+private inline fun centeredHorizontalSubnode(w: MacroCell.Level4Node, e: MacroCell.Level4Node): MacroCell.LeafNode =
+    LeafNode(
         nw = w.ne.se,
         ne = e.nw.sw,
         sw = w.se.ne,
         se = e.sw.nw,
     )
-}
 
-private inline fun centeredHorizontalSubnodeLevel5(w: MacroCell.CellNode, e: MacroCell.CellNode): MacroCell.Level4Node {
-    // require(e.level == 5)
-    // require(e.level == w.level)
-    w.ne as MacroCell.Level4Node
-    w.se as MacroCell.Level4Node
-    e.nw as MacroCell.Level4Node
-    e.sw as MacroCell.Level4Node
-    return MacroCell.Level4Node(
-        nw = w.ne.se,
-        ne = e.nw.sw,
-        sw = w.se.ne,
-        se = e.sw.nw,
-    )
-}
-
-private inline fun centeredHorizontalSubnodeLevel4(
-    w: MacroCell.Level4Node,
-    e: MacroCell.Level4Node,
-): MacroCell.LeafNode = LeafNode(
-    nw = w.ne.se,
-    ne = e.nw.sw,
-    sw = w.se.ne,
-    se = e.sw.nw,
-)
-
-private inline fun centeredVerticalSubnodeLevel6(n: MacroCell.CellNode, s: MacroCell.CellNode): MacroCell.CellNode {
-    // require(n.level >= 6)
-    // require(s.level == n.level)
-    n.se as MacroCell.CellNode
-    n.sw as MacroCell.CellNode
-    s.nw as MacroCell.CellNode
-    s.ne as MacroCell.CellNode
-    return MacroCell.CellNode(
-        nw = n.sw.se,
-        ne = n.se.sw,
-        sw = s.nw.ne,
-        se = s.ne.nw,
-    )
-}
-
-private inline fun centeredVerticalSubnodeLevel5(n: MacroCell.CellNode, s: MacroCell.CellNode): MacroCell.Level4Node {
-    // require(n.level == 5)
-    // require(s.level == n.level)
-    n.se as MacroCell.Level4Node
-    n.sw as MacroCell.Level4Node
-    s.nw as MacroCell.Level4Node
-    s.ne as MacroCell.Level4Node
-    return MacroCell.Level4Node(
-        nw = n.sw.se,
-        ne = n.se.sw,
-        sw = s.nw.ne,
-        se = s.ne.nw,
-    )
-}
-
-private inline fun centeredVerticalSubnodeLevel4(n: MacroCell.Level4Node, s: MacroCell.Level4Node): MacroCell.LeafNode =
+private inline fun centeredVerticalSubnode(n: MacroCell.Level4Node, s: MacroCell.Level4Node): MacroCell.LeafNode =
     LeafNode(
         nw = n.sw.se,
         ne = n.se.sw,
@@ -541,55 +403,56 @@ private inline fun centeredVerticalSubnodeLevel4(n: MacroCell.Level4Node, s: Mac
         se = s.ne.nw,
     )
 
-private inline fun centeredSubSubnodeLevel7(node: MacroCell.CellNode): MacroCell.CellNode {
-    // require(node.level >= 7)
-    node.nw as MacroCell.CellNode
-    node.ne as MacroCell.CellNode
-    node.sw as MacroCell.CellNode
-    node.se as MacroCell.CellNode
-    node.nw.se as MacroCell.CellNode
-    node.ne.sw as MacroCell.CellNode
-    node.sw.ne as MacroCell.CellNode
-    node.se.nw as MacroCell.CellNode
-    return MacroCell.CellNode(
-        nw = node.nw.se.se,
-        ne = node.ne.sw.sw,
-        sw = node.sw.ne.ne,
-        se = node.se.nw.nw,
+private fun centeredSubnode(node: MacroCell.CellNode): MacroCell = when (val nw = node.nw) {
+    is MacroCell.Level4Node -> MacroCell.Level4Node(
+        nw = nw.se,
+        ne = (node.ne as MacroCell.Level4Node).sw,
+        sw = (node.sw as MacroCell.Level4Node).ne,
+        se = (node.se as MacroCell.Level4Node).nw,
+    )
+
+    is MacroCell.CellNode -> MacroCell.CellNode(
+        nw = nw.se,
+        ne = (node.ne as MacroCell.CellNode).sw,
+        sw = (node.sw as MacroCell.CellNode).ne,
+        se = (node.se as MacroCell.CellNode).nw,
     )
 }
 
-private inline fun centeredSubSubnodeLevel6(node: MacroCell.CellNode): MacroCell.Level4Node {
-    // require(node.level == 6)
-    node.nw as MacroCell.CellNode
-    node.ne as MacroCell.CellNode
-    node.sw as MacroCell.CellNode
-    node.se as MacroCell.CellNode
-    node.nw.se as MacroCell.Level4Node
-    node.ne.sw as MacroCell.Level4Node
-    node.sw.ne as MacroCell.Level4Node
-    node.se.nw as MacroCell.Level4Node
-    return MacroCell.Level4Node(
-        nw = node.nw.se.se,
-        ne = node.ne.sw.sw,
-        sw = node.sw.ne.ne,
-        se = node.se.nw.nw,
+private fun centeredHorizontalSubnode(w: MacroCell.CellNode, e: MacroCell.CellNode): MacroCell = when (val wNe = w.ne) {
+    is MacroCell.Level4Node -> MacroCell.Level4Node(
+        nw = wNe.se,
+        ne = (e.nw as MacroCell.Level4Node).sw,
+        sw = (w.se as MacroCell.Level4Node).ne,
+        se = (e.sw as MacroCell.Level4Node).nw,
+    )
+
+    is MacroCell.CellNode -> MacroCell.CellNode(
+        nw = wNe.se,
+        ne = (e.nw as MacroCell.CellNode).sw,
+        sw = (w.se as MacroCell.CellNode).ne,
+        se = (e.sw as MacroCell.CellNode).nw,
     )
 }
 
-private inline fun centeredSubSubnodeLevel5(node: MacroCell.CellNode): MacroCell.LeafNode {
-    // require(node.level == 5)
-    node.nw as MacroCell.Level4Node
-    node.ne as MacroCell.Level4Node
-    node.sw as MacroCell.Level4Node
-    node.se as MacroCell.Level4Node
-    return LeafNode(
-        nw = node.nw.se.se,
-        ne = node.ne.sw.sw,
-        sw = node.sw.ne.ne,
-        se = node.se.nw.nw,
+private fun centeredVerticalSubnode(n: MacroCell.CellNode, s: MacroCell.CellNode): MacroCell = when (val nSw = n.sw) {
+    is MacroCell.Level4Node -> MacroCell.Level4Node(
+        nw = nSw.se,
+        ne = (n.se as MacroCell.Level4Node).sw,
+        sw = (s.nw as MacroCell.Level4Node).ne,
+        se = (s.ne as MacroCell.Level4Node).nw,
+    )
+
+    is MacroCell.CellNode -> MacroCell.CellNode(
+        nw = nSw.se,
+        ne = (n.se as MacroCell.CellNode).sw,
+        sw = (s.nw as MacroCell.CellNode).ne,
+        se = (s.ne as MacroCell.CellNode).nw,
     )
 }
+
+private fun centeredSubSubnode(node: MacroCell.CellNode): MacroCell =
+    centeredSubnode(centeredSubnode(node) as MacroCell.CellNode)
 
 private fun interface Equivalence<in T> {
     fun isEquivalent(a: T, b: T): Boolean
