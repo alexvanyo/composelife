@@ -17,7 +17,6 @@
 import Geometry.Basic
 import Geometry.LineSegment
 import Geometry.FloatModel
-import Geometry.Bridge
 import GeometryDefs
 import GeometryProofs
 import GeometryTheorems
