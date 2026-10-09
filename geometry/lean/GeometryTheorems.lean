@@ -97,10 +97,23 @@ theorem rayMarchSegmentCoords_same_cell (x y : Float) (cx cy : Int32) :
     rayMarchSegmentCoords x y x y cx cy cx cy = #[(cx, cy)] :=
   rayMarchSegmentCoords_same_cell_Impl x y cx cy
 
+/--
+Master Refinement Theorem (Pattern B): The compiled production raymarching algorithm
+refines the formal floating-point intersection model under valid coordinate ranges.
+-/
+theorem rayMarchSegmentCoords_refines
+    (sx sy ex ey : Float) (cx cy ex' ey' : Int32)
+    (hPre : InRange sx sy ex ey cx cy ex' ey') :
+    toCells (rayMarchSegmentCoords sx sy ex ey cx cy ex' ey') =
+      cellIntersectionsSegmentFloat (toPoint32 sx sy) (toPoint32 ex ey) :=
+  rayMarchSegmentCoords_refines_Impl sx sy ex ey cx cy ex' ey' hPre
+
 end Geometry
 
 #print axioms Geometry.cellIntersectionsSegmentFloat_eq_ideal_of_clearance
 #print axioms Geometry.cellIntersectionsSegmentFloat_hausdorff_bound
 #print axioms Geometry.cellIntersectionsPathFloat_hausdorff_bound
 #print axioms Geometry.rayMarchSegmentCoords_same_cell
+#print axioms Geometry.rayMarchSegmentCoords_refines
+
 

@@ -213,23 +213,6 @@ def rayMarchWithWaypointsFloat (fuel : Nat) (start : Point32) (dx dy : Binary64)
       else rayMarchWithWaypointsFloat fuel start dx dy stepX stepY endCell nextCell
         (accCells ++ [nextCell]) (accWaypoints ++ [p])
 
-/--
-Equivalence theorem: `rayMarchWithWaypointsFloat` generates the exact same sequence of discrete
-grid cells as `rayMarchFloat`.
--/
-theorem rayMarchFloat_eq_fst (fuel : Nat) (start : Point32) (dx dy : Binary64) (stepX stepY : Int)
-    (endCell : Cell) (current : Cell) (acc : List Cell) (accW : List Point32) :
-    (rayMarchWithWaypointsFloat fuel start dx dy stepX stepY endCell current acc accW).1 =
-    rayMarchFloat fuel start dx dy stepX stepY endCell current acc := by
-  induction fuel generalizing current acc accW with
-  | zero => rfl
-  | succ fuel ih =>
-    unfold rayMarchWithWaypointsFloat rayMarchFloat
-    dsimp only []
-    split_ifs
-    · rfl
-    · rfl
-    · exact ih _ _ _
 
 /--
 Difference in X between two Point32s widened to Binary64.
@@ -281,29 +264,6 @@ def cellIntersectionsSegmentFloat (A B : Point32) : List Cell :=
     let maxSteps := (endCell.x - startCell.x).natAbs + (endCell.y - startCell.y).natAbs + 2
     dedupCells ([startCell, endCell] ++ rayMarchFloat maxSteps A dx dy stepX stepY endCell startCell [])
 
-/--
-Equivalence between `cellIntersectionsSegmentFloat` defined via `rayMarchFloat` and
-the waypoint-tracking formulation.
--/
-theorem cellIntersectionsSegmentFloat_eq_with_waypoints (A B : Point32) :
-    cellIntersectionsSegmentFloat A B =
-    let startCell := floorPoint32 A
-    let endCell := floorPoint32 B
-    if startCell == endCell then
-      [startCell]
-    else
-      let dx := deltaX A B
-      let dy := deltaY A B
-      let stepX : Int := if dx > 0.0 then 1 else if dx < 0.0 then -1 else 0
-      let stepY : Int := if dy > 0.0 then 1 else if dy < 0.0 then -1 else 0
-      let maxSteps := (endCell.x - startCell.x).natAbs + (endCell.y - startCell.y).natAbs + 2
-      let (cells, _) := rayMarchWithWaypointsFloat maxSteps A dx dy stepX stepY endCell startCell [] []
-      dedupCells ([startCell, endCell] ++ cells) := by
-  unfold cellIntersectionsSegmentFloat
-  cases h : (floorPoint32 A == floorPoint32 B)
-  · simp only [h, Bool.false_eq_true, ↓reduceIte]
-    rw [← rayMarchFloat_eq_fst]
-  · simp only [h, ↓reduceIte]
 
 /--
 Computes all grid cells intersected by a polyline path with 32-bit floating point points.
