@@ -110,6 +110,14 @@ theorem toModel_sub (x y : Binary32) :
     (ExecFloat.ModelCodec.liftBinary Model.Spec.sub x y) = _
   simp [Configured.Family.toModel, ExecFloat.Binary.toModel, Model.Proof.sub_eq_spec]
 
+theorem toModel_mul_binary64 (x y : Binary64) :
+    ExecFloat.Binary.toModel (x * y) = Model.mul (ExecFloat.Binary.toModel x) (ExecFloat.Binary.toModel y) := by
+  change ExecFloat.Binary.toModel (ExecFloat.mul x y) = _
+  rw [ExecFloat.Proof.mul_eq_spec]
+  change Configured.Family.toModel
+    (ExecFloat.ModelCodec.liftBinary Model.Spec.mul x y) = _
+  simp [Configured.Family.toModel, ExecFloat.Binary.toModel, Model.Proof.mul_eq_spec]
+
 theorem toModel_zero : ExecFloat.Binary.toModel (0.0 : Binary32) = Model.posZero _ := by
   change Configured.Family.toModel (Configured.Family.ofModel (Model.roundRatQ _ (OfScientific.ofScientific 0 true 1 : Rat))) = _
   rw [Configured.Family.toModel_ofModel]
@@ -430,14 +438,14 @@ theorem widen32To64_eq_roundRat (x : Binary32) (d : FloatLib.Numerics.Dyadic)
   have hdec := decodeTo_of_toDyadic? x d hd
   have hcast : (ExecFloat.cast (target := Binary64) x) =
       .success
-        (Configured.Family.ofModel (Model.roundRat FloatFormat.binary64 d.negative d.toRat.num.natAbs d.toRat.den))
+        (ExecFloat.Binary.ofModel (Model.roundRat FloatFormat.binary64 d.negative d.toRat.num.natAbs d.toRat.den))
         _ :=
     ExecFloat.Binary.Conversion.cast_eq_roundRat_of_decodeTo_eq_finite x (SignedRat.ofDyadic d) hdec
   unfold widen32To64
   change ExecFloat.Binary.toModel ((ExecFloat.cast (target := Binary64) x).value?.getD (0.0 : Binary64)) = _
   rw [hcast]
-  change ExecFloat.Binary.toModel (Configured.Family.ofModel _) = _
-  exact Configured.Family.toModel_ofModel _
+  change ExecFloat.Binary.toModel (ExecFloat.Binary.ofModel _) = _
+  exact ExecFloat.Binary.toModel_ofModel _
 
 theorem signedRat_toReal (exact : SignedRat) (hvalue : exact.value ≠ 0) :
     Model.signedScaledRatToReal exact.negative exact.value.num.natAbs exact.value.den 0 =
