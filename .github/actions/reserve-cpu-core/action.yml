@@ -1,0 +1,26 @@
+name: Reserve CPU Core
+description: Configures CPU affinity so one core is kept free at all times to prevent container unresponsiveness
+runs:
+  using: composite
+  steps:
+    - name: Configure CPU affinity
+      shell: bash
+      run: |
+        N=$(nproc --all 2>/dev/null || nproc)
+        if [ "$N" -gt 1 ]; then
+          CORES="0-$((N - 2))"
+        else
+          CORES="0"
+        fi
+        echo "Reserving 1 CPU core: pinning build processes to cores $CORES"
+        ENV_SCRIPT="$RUNNER_TEMP/reserve-cpu-core.sh"
+        cat << 'EOF' > "$ENV_SCRIPT"
+        N=$(nproc --all 2>/dev/null || nproc)
+        if [ "$N" -gt 1 ]; then
+          CORES="0-$((N - 2))"
+          taskset -cp "$CORES" $$ >/dev/null 2>&1 || true
+        fi
+        EOF
+        chmod +x "$ENV_SCRIPT"
+        echo "BASH_ENV=$ENV_SCRIPT" >> "$GITHUB_ENV"
+        taskset -cp "$CORES" $$ >/dev/null 2>&1 || true
