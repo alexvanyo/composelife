@@ -396,5 +396,15 @@ def computeLeafNextGen8x8FastUInt (w : UInt64) : UInt32 :=
 def computeLeafNextGen8x8BranchUInt (w : UInt64) : UInt32 :=
   if w == 0 then 0 else computeLeafNextGen8x8FastUInt w
 
+def verifyBitComputation4x4UInt (w : UInt32) : Bool :=
+  let bitCenter := centerBitsToCoords (computeNextGen4x4UInt w).toNat
+  let naiveCenter := naiveCenter2x2 w.toNat
+  bitCenter.all (naiveCenter.contains ·) && naiveCenter.all (bitCenter.contains ·)
+
+def verifyLeafComputation8x8UInt (w : UInt64) : Bool :=
+  let bitCenter := center4x4BitsToCoords (computeLeafNextGen8x8BranchUInt w).toNat
+  let naiveCenter := naiveCenter4x4 w.toNat
+  bitCenter.all (naiveCenter.contains ·) && naiveCenter.all (bitCenter.contains ·)
+
 end Algorithm
 

@@ -16,7 +16,6 @@
 
 import com.alexvanyo.composelife.buildlogic.FormFactor
 import com.alexvanyo.composelife.buildlogic.configureGradleManagedDevices
-import com.alexvanyo.composelife.buildlogic.heavyTaskLimitingBuildService
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
@@ -27,6 +26,7 @@ plugins {
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
+    alias(libs.plugins.convention.lean)
     kotlin("plugin.serialization") version libs.versions.kotlin
     alias(libs.plugins.gradleDependenciesSorter)
 }
@@ -41,123 +41,17 @@ composeCompiler {
     )
 }
 
-val leanPrefixProvider = providers.exec {
-    workingDir = file("lean")
-    commandLine("lean", "--print-prefix")
-}.standardOutput.asText.map { it.trim() }
-
-val cacheLean by tasks.registering(Exec::class) {
-    description = "Opportunistically downloads Lean cache"
-    group = LifecycleBasePlugin.VERIFICATION_GROUP
-    workingDir = file("lean")
-    commandLine("lake", "exe", "cache", "get")
-    isIgnoreExitValue = true
-    usesService(heavyTaskLimitingBuildService)
-}
-
-/**
- * Path to the custom Lean 4 binary with JVM bytecode backend support.
- * Override via the Gradle property `leanJvmBinary` or system property `leanJvmBinary`.
- * Defaults to the local Lean 4 fork build at ~/Projects/lean4.
- */
-val leanJvmBinaryProvider = providers.gradleProperty("leanJvmBinary")
-    .orElse(providers.systemProperty("leanJvmBinary"))
-    .orElse(
-        providers.provider {
-            "${System.getProperty("user.home")}/Projects/lean4/build/release/stage1/bin/lean"
-        },
-    )
-
-val verifyLean by tasks.registering(Exec::class) {
-    description = "Formally verifies session-value logic using Lean 4"
-    group = LifecycleBasePlugin.VERIFICATION_GROUP
-    dependsOn(cacheLean)
-    workingDir = file("lean")
-    commandLine("lake", "build", "SessionValue:static")
-    usesService(heavyTaskLimitingBuildService)
-}
-
-/**
- * Path to the custom Lean 4 binary with Kotlin codegen backend support.
- * Override via the Gradle property `leanBinary` or system property `leanBinary`.
- * Defaults to the local Lean 4 fork build at ~/Projects/lean4.
- */
-val leanBinaryProvider = providers.gradleProperty("leanBinary")
-    .orElse(providers.systemProperty("leanBinary"))
-    .orElse(
-        providers.provider {
-            "${System.getProperty("user.home")}/Projects/lean4/build/release/stage1/bin/lean"
-        },
-    )
-
-abstract class GenerateLeanSessionValueKotlinTask @javax.inject.Inject constructor(
-    private val execOperations: ExecOperations,
-) : DefaultTask() {
-    @get:InputFiles
-    abstract val leanFiles: ConfigurableFileCollection
-
-    @get:Input
-    abstract val leanBinary: Property<String>
-
-    @get:InputDirectory
-    abstract val workingDir: DirectoryProperty
-
-    @get:OutputFile
-    abstract val sessionValueFile: RegularFileProperty
-
-    @get:OutputFile
-    abstract val stateMachineFile: RegularFileProperty
-
-    @TaskAction
-    fun generate() {
-        val svFile = sessionValueFile.get().asFile
-        svFile.parentFile.mkdirs()
-        val smFile = stateMachineFile.get().asFile
-        smFile.parentFile.mkdirs()
-        val workDir = this@GenerateLeanSessionValueKotlinTask.workingDir.get().asFile
-        val leanPath = File(workDir, ".lake/build/lib/lean").absolutePath
-        execOperations.exec {
-            workingDir = workDir
-            environment("LEAN_PATH", leanPath)
-            commandLine(
-                leanBinary.get(),
-                "-Dcompiler.kotlin.pruneUnreachable=true",
-                "-Dcompiler.kotlin.package=com.alexvanyo.composelife.sessionvalue",
-                "-K",
-                svFile.absolutePath,
-                "SessionValue/Basic.lean",
-            )
+lean {
+    target = "SessionValue:static"
+    packageName = "com.alexvanyo.composelife.sessionvalue"
+    entries {
+        register("sessionValue") {
+            leanFile = "SessionValue/Basic.lean"
         }
-        execOperations.exec {
-            workingDir = workDir
-            environment("LEAN_PATH", leanPath)
-            commandLine(
-                leanBinary.get(),
-                "-Dcompiler.kotlin.pruneUnreachable=true",
-                "-Dcompiler.kotlin.package=com.alexvanyo.composelife.sessionvalue",
-                "-K",
-                smFile.absolutePath,
-                "SessionValue/StateMachine.lean",
-            )
+        register("sessionValueState") {
+            leanFile = "SessionValue/StateMachine.lean"
         }
     }
-}
-
-val generateLeanSessionValueKotlin by tasks.registering(GenerateLeanSessionValueKotlinTask::class) {
-    description = "Generates Kotlin code directly from Lean session-value formal model"
-    group = LifecycleBasePlugin.BUILD_GROUP
-    dependsOn(verifyLean)
-    leanFiles.from(
-        fileTree("lean") {
-            include("**/*.lean")
-            include("lakefile.toml")
-            include("lean-toolchain")
-        },
-    )
-    leanBinary.set(leanBinaryProvider)
-    workingDir.set(layout.projectDirectory.dir("lean"))
-    sessionValueFile.set(layout.buildDirectory.file("generated/sources/lean/kotlin/commonMain/com/alexvanyo/composelife/sessionvalue/SessionValueLean.kt"))
-    stateMachineFile.set(layout.buildDirectory.file("generated/sources/lean/kotlin/commonMain/com/alexvanyo/composelife/sessionvalue/SessionValueStateLean.kt"))
 }
 
 kotlin {
@@ -183,7 +77,6 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
-            kotlin.srcDir(generateLeanSessionValueKotlin.map { it.sessionValueFile.get().asFile.parentFile.parentFile.parentFile.parentFile.parentFile })
             dependencies {
                 api(libs.kotlinx.serialization.core)
             }
@@ -246,11 +139,3 @@ kotlin {
         }
     }
 }
-
-tasks.named("check") {
-    dependsOn(verifyLean)
-}
-
-
-
-

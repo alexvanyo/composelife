@@ -123,4 +123,52 @@ theorem computeLeafNextGen8x8Branch_eq_computeLeafNextGen8x8 (w : ℕ) :
     computeLeafNextGen8x8Branch w = computeLeafNextGen8x8 w :=
   computeLeafNextGen8x8Branch_eq_computeLeafNextGen8x8_Impl w
 
+theorem bit_comp_empty_uint_correct :
+    verifyBitComputation4x4UInt 0 = true :=
+  bit_comp_empty_uint_correct_Impl
+
+theorem bit_comp_blinker_h_uint_correct :
+    verifyBitComputation4x4UInt (2^3 + 2^6 + 2^7) = true :=
+  bit_comp_blinker_h_uint_correct_Impl
+
+theorem bit_comp_blinker_v_uint_correct :
+    verifyBitComputation4x4UInt (2^1 + 2^3 + 2^9) = true :=
+  bit_comp_blinker_v_uint_correct_Impl
+
+theorem bit_comp_block_uint_correct :
+    verifyBitComputation4x4UInt (2^3 + 2^6 + 2^9 + 2^12) = true :=
+  bit_comp_block_uint_correct_Impl
+
+theorem bit_comp_glider_sub_uint_correct :
+    verifyBitComputation4x4UInt (2^1 + 2^6 + 2^8 + 2^9 + 2^12) = true :=
+  bit_comp_glider_sub_uint_correct_Impl
+
+theorem bit_comp_tub_uint_correct :
+    verifyBitComputation4x4UInt (2^1 + 2^2 + 2^6 + 2^9) = true :=
+  bit_comp_tub_uint_correct_Impl
+
+theorem leaf_comp_empty_uint_correct :
+    verifyLeafComputation8x8UInt 0 = true :=
+  leaf_comp_empty_uint_correct_Impl
+
+theorem leaf_comp_centered_block_uint_correct :
+    verifyLeafComputation8x8UInt (2^0x0F + 2^0x1A + 2^0x25 + 2^0x30) = true :=
+  leaf_comp_centered_block_uint_correct_Impl
+
+theorem leaf_comp_centered_blinker_h_uint_correct :
+    verifyLeafComputation8x8UInt (2^0x0E + 2^0x0F + 2^0x1A) = true :=
+  leaf_comp_centered_blinker_h_uint_correct_Impl
+
+theorem leaf_comp_centered_tub_uint_correct :
+    verifyLeafComputation8x8UInt (2^0x0D + 2^0x0E + 2^0x1A + 2^0x25) = true :=
+  leaf_comp_centered_tub_uint_correct_Impl
+
+theorem computeLeafNextGen8x8FastUInt_zero :
+    computeLeafNextGen8x8FastUInt 0 = 0 :=
+  computeLeafNextGen8x8FastUInt_zero_Impl
+
+theorem computeLeafNextGen8x8BranchUInt_zero :
+    computeLeafNextGen8x8BranchUInt 0 = 0 :=
+  computeLeafNextGen8x8BranchUInt_zero_Impl
+
 end Algorithm

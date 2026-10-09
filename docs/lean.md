@@ -1,8 +1,21 @@
 # Lean 4 Formal Verification Architecture
 
-ComposeLife uses [Lean 4](https://lean-lang.org/) and [Mathlib](https://github.com/leanprover-community/mathlib4) to formally specify and verify core data structures, state machines, and algorithms. Verified Lean code is compiled via `lake` into static C libraries and bridged to Kotlin Multiplatform via C/JNI bindings.
+ComposeLife uses [Lean 4](https://lean-lang.org/) and [Mathlib](https://github.com/leanprover-community/mathlib4) to formally specify, model, and verify core state machines, cellular automata algorithms, and continuous geometry routines. Verified Lean code is compiled directly to multiplatform Kotlin source code using Lean's Kotlin backend (`lean -K`), running across Android, Desktop JVM, and WebAssembly (Wasm).
 
-This document describes the standard 4-role architecture, file organization, naming conventions, and build configurations required for all Lean projects in the repository.
+This document normatively defines the formalization rules, 4-role architecture, type disciplines, and build system integration required for all Lean components in the repository.
+
+---
+
+## Formalization Policy & Rules
+
+All code and verification in Lean must adhere to four strict rules, enforced by automated checks in the build system:
+
+| Rule | Name | Description | Enforcement |
+|:---:|---|---|---|
+| **R1** | **Complete Proof Coverage** | Every executable Lean definition compiled to Kotlin must be covered by Lean theorems/proofs, either directly or by a proven equivalence or refinement to a verified mathematical model. | Master theorems in `<Component>Theorems.lean` specify all exported functions. Lake verification checks all proofs. |
+| **R2** | **No Verbatim Kotlin in Build Scripts** | Verbatim Kotlin code must be kept to a minimum and must live exclusively in Kotlin source files (`src/commonMain/kotlin`) or Lean files (`FileSpec` / `kotlin_member`). **Never in Gradle build scripts (`*.gradle.kts`)**. | Automated build script hygiene check fails if any `*.gradle.kts` contains inline Kotlin blocks (`footerFile`, `preambleFile`, or Kotlin code strings). |
+| **R3** | **Fixed-Width Production Types** | Production (compiled) Lean code must use fixed-width programming types (`UInt8/16/32/64`, `Int8/16/32/64`, `Float`, `Bool`), never unbounded types (`Nat`, `Int`, `ℚ`) that emit `BigInteger`. Unbounded and continuous types are restricted to non-compiled specifications, models, and proofs. | `checkLeanGeneratedKotlin` fails if generated Kotlin code contains `BigInteger`, `Nat`, or `java.math`. |
+| **R4** | **Warnings as Errors** | All Lean builds and code generation invocations must treat warnings as fatal errors. | Lake verification runs with `--wfail`; Lean compiler runs with `-DwarningAsError=true`. |
 
 ---
 
@@ -15,16 +28,17 @@ To keep production code clean, maintain fast compilation, and clearly distinguis
 │  1. Production Executable Code                         │
 │     (<Component>.lean, <Component>/*.lean)             │
 │     - Pure executable definitions and algorithms       │
+│     - Fixed-width types only (UInt32/64, Int32, Float) │
 │     - 0 theorems, 0 proofs, 0 heavy tactic imports     │
-│     - Compiled to C for FFI                            │
+│     - Compiled directly to Kotlin via `lean -K`        │
 └────────────────────────────────────────────────────────┘
                            ▲
-                           │ specifies behavior
+                           │ specifies behavior / proven equivalent
 ┌──────────────────────────┴─────────────────────────────┐
 │  2. Specification Definitions                          │
 │     (<Component>Defs.lean)                             │
-│     - Non-executable definitions & predicates          │
-│     - Continuous models, invariants, relations         │
+│     - Mathematical definitions, models & predicates    │
+│     - Unbounded / continuous types (Nat, Int, ℚ, ℝ)    │
 │     - 0 proofs                                         │
 └──────────────────────────┬─────────────────────────────┘
                            │ used in signatures
@@ -47,164 +61,128 @@ To keep production code clean, maintain fast compilation, and clearly distinguis
 ```
 
 ### 1. Production Executable Code (`<Component>.lean`, `<Component>/*.lean`)
-- **Purpose**: Defines executable types, pure algorithms, and FFI bridging functions that run in production.
+- **Purpose**: Defines executable functions and state machines compiled to Kotlin.
 - **Rules**:
   - Must contain **executable code only**.
-  - Must contain **no proofs or non-equational theorems** (with the exception of trivial constructor/equational lemmas like `cell_beq_def ... := rfl`).
-  - Must **not** import proof-only libraries (e.g. `Mathlib.Tactic.*`, heavy analysis modules) that would bloat production compilation or runtime dependencies.
+  - Must use **fixed-width types** only (`UInt8/16/32/64`, `Int8/16/32/64`, `Float`, `Bool`).
+  - Must contain **no proofs or non-equational theorems**.
+  - Must **not** import proof-only modules (such as `Mathlib.Tactic.*` or analysis libraries).
+  - Must export clean entrypoints with `@[export]` or `kotlin_member`.
 
 ### 2. Specification Definitions (`<Component>Defs.lean`)
-- **Purpose**: Defines the mathematical concepts, continuous models, inductive invariants, bounding boxes, or transition relations necessary to state properties of the code.
+- **Purpose**: Defines the mathematical ideal, continuous geometry, game-of-life grid transitions, or transition invariants against which production code is evaluated.
 - **Rules**:
-  - Contains definitions (`def`, `inductive`, `structure`, `class`) and predicates (`... : Prop`), but **no proofs**.
-  - Provides a single point of truth for mathematical specifications imported by both master theorem files and tactical proof files.
+  - Contains definitions (`def`, `inductive`, `structure`, `class`) and predicates (`Prop`), but **no proofs**.
+  - May freely use unbounded types (`Nat`, `Int`, `ℚ`, `ℝ`).
+  - Is **never** compiled to Kotlin; exists solely to define correctness.
 
 ### 3. Master Theorems (`<Component>Theorems.lean` or `theorems/*.lean`)
-- **Purpose**: Represents the clean, readable public interface of the formal verification. Anyone reviewing the formal verification can read these files to see exactly what properties were proven without getting lost in tactic scripts.
+- **Purpose**: The public, human-readable specification contract. Reviewers can read these files to audit the exact mathematical guarantees without sifting through proof tactics.
 - **Rules**:
-  - Contains **only meaningful, important theorems** specifying the code.
-  - Contains **zero proof bodies** (no `by` tactics, `sorry`, or inline proofs).
-  - Every master theorem delegates directly to an analogous `_Impl` theorem:
+  - Contains **only meaningful specification theorems** covering compiled definitions.
+  - Contains **zero proof bodies** (no `by`, `sorry`, or inline tactics).
+  - Every master theorem delegates directly to its `_Impl` counterpart:
     ```lean
-    theorem stepGrid_preserves_finite (g : Grid) (h : g.Finite) :
-        (stepGrid g).Finite :=
-      stepGrid_preserves_finite_Impl g h
+    theorem computeNextGen4x4_correct (w : UInt32) (h : w < 65536) :
+        decode4x4Center (computeNextGen4x4 w) = naiveCenter2x2 (decode4x4 w) :=
+      computeNextGen4x4_correct_Impl w h
     ```
-  - **Hierarchy Rule**:
-    - **Single Domain / Component**: Placed in a single top-level file: `<Component>Theorems.lean` (e.g., `SessionValueTheorems.lean`, `GeometryTheorems.lean`).
-    - **Multiple Modules**: Placed in a `theorems/` subfolder with modular files (e.g., `theorems/PatternsTheorems.lean`, `theorems/HashLifeTheorems.lean`), re-exported by a top-level `<Component>Theorems.lean`.
 
 ### 4. Implementation Proofs (`<Component>Proofs.lean` or `proofs/*.lean`)
-- **Purpose**: Contains all tactical proofs, sub-lemmas, case analyses, and inductive arguments required to discharge the master theorems.
+- **Purpose**: Tactical proofs, intermediate lemmas, induction arguments, and solver invocations (`omega`, `linarith`, `ring`, `bv_decide`).
 - **Rules**:
-  - Contains the definitions of all `..._Impl` theorems referenced in `*Theorems.lean`.
-  - May freely use heavy tactical solvers (`omega`, `linarith`, `ring`, `aesop`, `positivity`).
-  - May be decomposed across multiple submodules and directories when proofs grow large.
-  - **Hierarchy Rule**:
-    - **Single Domain / Component**: Placed in `<Component>Proofs.lean` (e.g., `SessionValueProofs.lean`).
-    - **Multiple Modules**: Placed in a `proofs/` subfolder (e.g., `algorithm/lean/proofs/` or `geometry/lean/proofs/`), re-exported by `<Component>Proofs.lean`.
+  - Implements the `..._Impl` theorems referenced in master theorems.
+  - May import full Mathlib and tactical solvers.
 
 ---
 
-## Project Structure Examples
+## Specification vs. Production Types
 
-### 1. Simple / Single Component: `session-value`
-In `session-value/lean`, there is a single domain (session state machine and mutations):
-```
-session-value/lean/
-├── SessionValue.lean            # Root executable module (imports submodules)
-├── SessionValueDefs.lean        # Specification definitions (valid state predicates)
-├── SessionValueTheorems.lean    # Master theorems (delegating to *_Impl)
-├── SessionValueProofs.lean      # Complete tactical proofs of all *_Impl theorems
-├── SessionValue/
-│   ├── StateMachine.lean        # Pure executable state machine
-│   └── Mutations.lean           # Pure executable mutations
-└── lakefile.toml
-```
-
-### 2. Multi-Module Component: `algorithm`
-In `algorithm/lean`, multiple distinct subsystems exist (BitComputation, MacroCell, HashLife, Patterns). Theorems and proofs are split into dedicated subfolders:
-```
-algorithm/lean/
-├── Algorithm.lean               # Root executable module
-├── AlgorithmDefs.lean           # Shared specification definitions
-├── AlgorithmTheorems.lean       # Master orchestrator exporting all theorems
-├── AlgorithmProofs.lean         # Master orchestrator exporting all proofs
-├── Algorithm/
-│   ├── Basic.lean               # Executable grid representation
-│   ├── BitComputation.lean     # Executable bitboard operations
-│   ├── MacroCell.lean           # Executable quadtree nodes
-│   ├── MacroCellHash.lean       # Executable hash tables
-│   ├── HashLife.lean            # Executable HashLife algorithm
-│   └── Patterns.lean            # Executable Game of Life patterns
-├── theorems/
-│   ├── BitComputationTheorems.lean
-│   ├── MacroCellTheorems.lean
-│   ├── MacroCellHashTheorems.lean
-│   ├── HashLifeTheorems.lean
-│   ├── PatternsTheorems.lean
-│   └── PropertiesTheorems.lean
-├── proofs/
-│   ├── BitComputationProofs.lean
-│   ├── MacroCellProofs.lean
-│   ├── MacroCellHashProofs.lean
-│   ├── HashLifeProofs.lean
-│   ├── PatternsProofs.lean
-│   └── PropertiesProofs.lean
-└── lakefile.toml
-```
-
-### 3. Continuous Geometry & Floating-Point Component: `geometry`
-In `geometry/lean`, continuous raymarching algorithms, floating-point error bounds, and waypoint decompositions are verified:
-```
-geometry/lean/
-├── Geometry.lean                # Root executable module
-├── GeometryDefs.lean            # Specification definitions (intervals, Hausdorff metric, waypoints)
-├── GeometryTheorems.lean        # Master theorems (clearance equivalence & Hausdorff bounds)
-├── GeometryProofs.lean          # Master proof aggregator & reduction proofs
-├── Geometry/
-│   ├── Basic.lean               # Executable Point, Cell, and Grid definitions
-│   ├── LineSegment.lean         # Executable ideal rational raymarching
-│   ├── FloatModel.lean          # Executable floating-point raymarching
-│   └── Bridge.lean              # C-ABI export functions for Kotlin FFI
-├── proofs/
-│   ├── Interval.lean        # Parameter interval analysis
-│   ├── RayMarchStep.lean    # Single-step transition lemmas
-│   ├── Soundness.lean       # Soundness of raymarching
-│   ├── Completeness.lean    # Completeness of raymarching
-│   ├── FloatSemantics.lean  # Floating-point arithmetic semantics
-│   ├── FloatBounds.lean     # Coordinate bounds & step classifications
-│   ├── FloatAnalysis.lean   # Dyadic/Real rounding and error bounds
-│   ├── FloatProperties.lean # Clearance equivalence & Hausdorff bound proofs
-│   └── SegmentBound/        # Inductive sub-segment waypoint proofs
-│       ├── Waypoints.lean
-│       ├── PointBound.lean
-│       ├── MiniSegment.lean
-│       └── Hausdorff.lean
-└── lakefile.toml
-```
+| Concept | Production (Compiled) | Specification / Model (Non-compiled) |
+|---|---|---|
+| Integers | `UInt8`, `UInt16`, `UInt32`, `UInt64`, `Int8`, `Int16`, `Int32`, `Int64` | `Nat` ($\mathbb{N}$), `Int` ($\mathbb{Z}$) |
+| Reals / Fractions | `Float` (IEEE 754 float/double) | `Rat` ($\mathbb{Q}$), `Real` ($\mathbb{R}$) |
+| Collections | Fixed arrays, bitboards, primitive words | Lists, infinite grids `(ℤ × ℤ) → Bool`, Mathlib sets |
+| Generated Kotlin | Kotlin primitives: `Int`, `Long`, `UInt`, `ULong`, `Double`, `Float`, `Boolean` | Forbidden: emits `BigInteger` / `Nat` (fails build) |
 
 ---
 
-## Lake Build Configuration (`lakefile.toml`)
+## Proof Obligation Patterns
 
-To ensure Lake and CI check all definitions, master theorems, and proofs during builds, configure the `roots` option in `lakefile.toml` of the Lean package:
+Depending on the domain, master theorems cover compiled definitions via one of two patterns:
 
-```toml
-[package]
-name = "Algorithm"
-version = "0.1.0"
-
-[[lean_lib]]
-name = "Algorithm"
-roots = [
-  "Algorithm",
-  "AlgorithmDefs",
-  "AlgorithmTheorems",
-  "AlgorithmProofs",
-]
-
-[[lean_lib]]
-name = "AlgorithmFFI"
-srcDir = "."
-roots = ["Algorithm"]
+### Pattern A: Direct Equivalence
+Used when the compiled definition directly computes the discrete state update (e.g. cellular automata bitboards):
+```lean
+theorem computeNextGen4x4_correct (w : UInt32) (h : w < 65536) :
+    decode4x4Center (computeNextGen4x4 w) = naiveCenter2x2 (decode4x4 w) :=
+  computeNextGen4x4_correct_Impl w h
 ```
 
-This guarantees:
-1. `lake build <Component>:static` compiles only the production executable library into static C objects for FFI.
-2. `lake build <Component>Theorems` verifies that all master theorems compile cleanly and their `_Impl` proofs hold.
+### Pattern B: Continuous Model Refinement Under Preconditions
+Used when continuous or floating-point operations refine a real/rational model (e.g. geometry ray-marching):
+```lean
+theorem rayMarchSegmentCoords_refines
+    (sx sy ex ey : Float) (cx cy ex' ey' : Int32)
+    (hPre : InRange sx sy ex ey cx cy ex' ey') :
+    toCells (rayMarchSegmentCoords sx sy ex ey cx cy ex' ey') =
+      cellIntersectionsSegmentFloat (toPoint32 sx sy) (toPoint32 ex ey) :=
+  rayMarchSegmentCoords_refines_Impl sx sy ex ey cx cy ex' ey' hPre
+```
+The precondition (`InRange`) explicitly documents the domain constraints (such as coordinates strictly within $[-2^{30}, 2^{30}]$ to guarantee no integer overflow).
 
 ---
 
-## Coding Style & Verification Standards
+## Kotlin Integration & Code Boundaries
 
-1. **Apache 2.0 Header**: All `.lean` files must start with the standard Apache 2.0 license comment (from `config/license.template`).
-2. **No Ambiguous Mathlib Notations**: Avoid declaring `local notation "ℚ" => Rat` or `local notation "ℤ" => Int` in files where Mathlib is imported. Mathlib already exports `ℚ` and `ℤ`; redeclaring them creates ambiguity errors.
-3. **No Proofs in Master Theorem Files**: Master theorems in `*Theorems.lean` must strictly delegate to `:= <theorem>_Impl`. They should never contain tactic blocks or `by` tactics.
-4. **Zero Custom Axioms & Zero `sorry`s on Master Theorems**: Master theorems must depend only on standard Lean foundational axioms (`propext`, `Classical.choice`, `Quot.sound`). Verify with `#print axioms <theorem_name>`.
-5. **Gradle Integration**: In root directory, verify that Gradle runs all Lean checks and Kotlin tests:
+1. **Lean-to-Kotlin Compilation**:
+   The custom Lean 4 compiler generates Kotlin source code directly:
    ```bash
-   ./gradlew :session-value:check
-   ./gradlew :algorithm:check
-   ./gradlew :geometry:check
+   lean -DwarningAsError=true \
+        -Dcompiler.kotlin.pruneUnreachable=true \
+        -Dcompiler.kotlin.package=com.alexvanyo.composelife.algorithm \
+        -K build/generated/sources/lean/kotlin/commonMain/.../HashLifeLean.kt \
+        Algorithm/HashLife.lean
    ```
+2. **Minimal Verbatim Code**:
+   - Signature mapping, file layout, and package annotations are declared in Lean using `@[kotlin_file]` and `kotlin_member`.
+   - High-level idiomatic Kotlin APIs (such as Compose `Offset` extensions or `MacroCell` convenience wrappers) reside in `src/commonMain/kotlin/`.
+   - **Zero verbatim Kotlin is permitted in Gradle build scripts**.
+
+---
+
+## Standardized Build Logic (`convention-lean`)
+
+The Gradle convention plugin `com.alexvanyo.composelife.lean` (configured in `build-logic`) standardizes all Lean operations across modules:
+
+### Configured Tasks
+- `cacheLean`: Runs `lake exe cache get` with task concurrency limits.
+- `verifyLean`: Runs `lake build --wfail <Target>:static`, failing on any warning. Automatically hooked into `./gradlew check`.
+- `generateLeanKotlin`: Runs `lean` with `-DwarningAsError=true` and `-K`, outputting Kotlin into Gradle's generated sources directory. Automatically added to `commonMain` source set.
+- `checkLeanGeneratedKotlin`: Inspects generated Kotlin to ensure no `BigInteger`, `Nat`, or `java.math` imports are present.
+- `checkLeanBuildScriptHygiene`: Asserts no verbatim Kotlin code is embedded in `build.gradle.kts`.
+
+### Verification Commands
+```bash
+# Verify Lean formalization across modules
+./gradlew :session-value:verifyLean
+./gradlew :geometry:verifyLean
+./gradlew :algorithm:verifyLean
+
+# Full check including proof verification, codegen checks, and test suites
+./gradlew check
+```
+
+---
+
+## Axiom Auditing
+
+Every master theorem must depend only on standard Lean foundational axioms:
+- `propext`
+- `Classical.choice`
+- `Quot.sound`
+
+Master theorems must never depend on `sorry` or custom unverified axioms. Verify axiom dependencies in Lean via:
+```lean
+#print axioms computeNextGen4x4_correct
+```

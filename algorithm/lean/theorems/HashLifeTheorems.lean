@@ -235,4 +235,28 @@ theorem hashlife_step_flipY_commutes_blinker :
     hashLifeStepLevel2 (macroCellFlipY blinker4x4) = macroCellFlipY (hashLifeStepLevel2 blinker4x4) :=
   hashlife_step_flipY_commutes_blinker_Impl
 
+theorem centeredSubnodeLevel3BitsUInt_zero :
+    centeredSubnodeLevel3BitsUInt 0 = 0 :=
+  centeredSubnodeLevel3BitsUInt_zero_Impl
+
+theorem centeredHorizontalSubnodeLevel3BitsUInt_zero :
+    centeredHorizontalSubnodeLevel3BitsUInt 0 0 = 0 :=
+  centeredHorizontalSubnodeLevel3BitsUInt_zero_Impl
+
+theorem centeredVerticalSubnodeLevel3BitsUInt_zero :
+    centeredVerticalSubnodeLevel3BitsUInt 0 0 = 0 :=
+  centeredVerticalSubnodeLevel3BitsUInt_zero_Impl
+
+theorem centeredSubSubnodeLevel4BitsUInt_zero :
+    centeredSubSubnodeLevel4BitsUInt 0 0 0 0 = 0 :=
+  centeredSubSubnodeLevel4BitsUInt_zero_Impl
+
+theorem packLeafFrom4x4sUInt_zero :
+    packLeafFrom4x4sUInt 0 0 0 0 = 0 :=
+  packLeafFrom4x4sUInt_zero_Impl
+
+theorem computeLevel4NextGen16x16UInt_zero :
+    computeLevel4NextGen16x16UInt 0 0 0 0 = 0 :=
+  computeLevel4NextGen16x16UInt_zero_Impl
+
 end Algorithm
