@@ -436,7 +436,6 @@ theorem widen32To64_eq_roundRat (x : Binary32) (d : FloatLib.Numerics.Dyadic)
   unfold widen32To64
   change ExecFloat.Binary.toModel ((ExecFloat.cast (target := Binary64) x).value?.getD (0.0 : Binary64)) = _
   rw [hcast]
-  change ExecFloat.Binary.toModel (Configured.Family.ofModel _) = _
   exact Configured.Family.toModel_ofModel _
 
 theorem signedRat_toReal (exact : SignedRat) (hvalue : exact.value ≠ 0) :
