@@ -48,6 +48,9 @@ jobs:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.PAT }}
 
+      - name: Reserve CPU core
+        uses: ./.github/actions/reserve-cpu-core
+
       - name: Setup Lean
         uses: ./.github/actions/setup-lean
 
