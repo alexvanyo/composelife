@@ -298,5 +298,103 @@ Branching 8x8 computation with 0-short-circuiting matching Kotlin's fast path.
 def computeLeafNextGen8x8Branch (w : ℕ) : ℕ :=
   if w == 0 then 0 else computeLeafNextGen8x8Fast w
 
+-- =========================================================================
+-- Fixed-width UInt32 / UInt64 Bit Computations for Production Kotlin Codegen
+-- =========================================================================
+
+def neighborCount22UInt (w : UInt32) : UInt32 :=
+  ((w >>> 3) &&& (1 : UInt32)) + ((w >>> 6) &&& (1 : UInt32)) +
+  ((w >>> 7) &&& (1 : UInt32)) + ((w >>> 9) &&& (1 : UInt32)) +
+  ((w >>> 11) &&& (1 : UInt32)) + ((w >>> 13) &&& (1 : UInt32)) +
+  ((w >>> 14) &&& (1 : UInt32)) + ((w >>> 15) &&& (1 : UInt32))
+
+def neighborCount12UInt (w : UInt32) : UInt32 :=
+  ((w >>> 2) &&& (1 : UInt32)) + ((w >>> 3) &&& (1 : UInt32)) +
+  ((w >>> 6) &&& (1 : UInt32)) + ((w >>> 8) &&& (1 : UInt32)) +
+  ((w >>> 10) &&& (1 : UInt32)) + ((w >>> 11) &&& (1 : UInt32)) +
+  ((w >>> 12) &&& (1 : UInt32)) + ((w >>> 14) &&& (1 : UInt32))
+
+def neighborCount21UInt (w : UInt32) : UInt32 :=
+  ((w >>> 1) &&& (1 : UInt32)) + ((w >>> 3) &&& (1 : UInt32)) +
+  ((w >>> 4) &&& (1 : UInt32)) + ((w >>> 5) &&& (1 : UInt32)) +
+  ((w >>> 7) &&& (1 : UInt32)) + ((w >>> 9) &&& (1 : UInt32)) +
+  ((w >>> 12) &&& (1 : UInt32)) + ((w >>> 13) &&& (1 : UInt32))
+
+def neighborCount11UInt (w : UInt32) : UInt32 :=
+  ((w >>> 0) &&& (1 : UInt32)) + ((w >>> 1) &&& (1 : UInt32)) +
+  ((w >>> 2) &&& (1 : UInt32)) + ((w >>> 4) &&& (1 : UInt32)) +
+  ((w >>> 6) &&& (1 : UInt32)) + ((w >>> 8) &&& (1 : UInt32)) +
+  ((w >>> 9) &&& (1 : UInt32)) + ((w >>> 12) &&& (1 : UInt32))
+
+def bitRuleUInt (count : UInt32) (prevBit : UInt32) : UInt32 :=
+  if count == 3 || (count == 2 && prevBit == (1 : UInt32)) then 1 else 0
+
+@[export computeNextGen4x4UInt]
+def computeNextGen4x4UInt (w : UInt32) : UInt32 :=
+  let b22 := bitRuleUInt (neighborCount22UInt w) ((w >>> 12) &&& (1 : UInt32))
+  let b12 := bitRuleUInt (neighborCount12UInt w) ((w >>> 9) &&& (1 : UInt32))
+  let b21 := bitRuleUInt (neighborCount21UInt w) ((w >>> 6) &&& (1 : UInt32))
+  let b11 := bitRuleUInt (neighborCount11UInt w) ((w >>> 3) &&& (1 : UInt32))
+  (b22 <<< 3) ||| (b12 <<< 2) ||| (b21 <<< 1) ||| b11
+
+def extractCenterUInt (q : UInt32) : UInt32 :=
+  ((q >>> 3) &&& (1 : UInt32)) |||
+  (((q >>> 6) &&& (1 : UInt32)) <<< 1) |||
+  (((q >>> 9) &&& (1 : UInt32)) <<< 2) |||
+  (((q >>> 12) &&& (1 : UInt32)) <<< 3)
+
+def extractHorizontalMidUInt (leftQuad rightQuad : UInt32) : UInt32 :=
+  ((leftQuad >>> 7) &&& (1 : UInt32)) |||
+  (((rightQuad >>> 2) &&& (1 : UInt32)) <<< 1) |||
+  (((leftQuad >>> 13) &&& (1 : UInt32)) <<< 2) |||
+  (((rightQuad >>> 8) &&& (1 : UInt32)) <<< 3)
+
+def extractVerticalMidUInt (topQuad bottomQuad : UInt32) : UInt32 :=
+  ((topQuad >>> 11) &&& (1 : UInt32)) |||
+  (((topQuad >>> 14) &&& (1 : UInt32)) <<< 1) |||
+  (((bottomQuad >>> 1) &&& (1 : UInt32)) <<< 2) |||
+  (((bottomQuad >>> 4) &&& (1 : UInt32)) <<< 3)
+
+def extractCenterMidUInt (q0 q1 q2 q3 : UInt32) : UInt32 :=
+  ((q0 >>> 15) &&& (1 : UInt32)) |||
+  (((q1 >>> 10) &&& (1 : UInt32)) <<< 1) |||
+  (((q2 >>> 5) &&& (1 : UInt32)) <<< 2) |||
+  (((q3 >>> 0) &&& (1 : UInt32)) <<< 3)
+
+def quad0UInt (w : UInt64) : UInt32 := (w &&& (0xFFFF : UInt64)).toUInt32
+def quad1UInt (w : UInt64) : UInt32 := ((w >>> 16) &&& (0xFFFF : UInt64)).toUInt32
+def quad2UInt (w : UInt64) : UInt32 := ((w >>> 32) &&& (0xFFFF : UInt64)).toUInt32
+def quad3UInt (w : UInt64) : UInt32 := ((w >>> 48) &&& (0xFFFF : UInt64)).toUInt32
+
+def computeLeafNextGen8x8FastUInt (w : UInt64) : UInt32 :=
+  let q0 := quad0UInt w
+  let q1 := quad1UInt w
+  let q2 := quad2UInt w
+  let q3 := quad3UInt w
+
+  let n00 := extractCenterUInt q0
+  let n02 := extractCenterUInt q1
+  let n20 := extractCenterUInt q2
+  let n22 := extractCenterUInt q3
+
+  let n01 := extractHorizontalMidUInt q0 q1
+  let n21 := extractHorizontalMidUInt q2 q3
+
+  let n10 := extractVerticalMidUInt q0 q2
+  let n12 := extractVerticalMidUInt q1 q3
+
+  let n11 := extractCenterMidUInt q0 q1 q2 q3
+
+  let nw := computeNextGen4x4UInt (n00 ||| (n01 <<< 4) ||| (n10 <<< 8) ||| (n11 <<< 12))
+  let ne := computeNextGen4x4UInt (n01 ||| (n02 <<< 4) ||| (n11 <<< 8) ||| (n12 <<< 12))
+  let sw := computeNextGen4x4UInt (n10 ||| (n11 <<< 4) ||| (n20 <<< 8) ||| (n21 <<< 12))
+  let se := computeNextGen4x4UInt (n11 ||| (n12 <<< 4) ||| (n21 <<< 8) ||| (n22 <<< 12))
+
+  nw ||| (ne <<< 4) ||| (sw <<< 8) ||| (se <<< 12)
+
+@[export computeLeafNextGen8x8BranchUInt]
+def computeLeafNextGen8x8BranchUInt (w : UInt64) : UInt32 :=
+  if w == 0 then 0 else computeLeafNextGen8x8FastUInt w
+
 end Algorithm
 
