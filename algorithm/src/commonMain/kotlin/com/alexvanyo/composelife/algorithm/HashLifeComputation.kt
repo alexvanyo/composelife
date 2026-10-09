@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("TooManyFunctions")
+
 package com.alexvanyo.composelife.algorithm
 
 import com.alexvanyo.composelife.model.MacroCell
@@ -76,12 +78,24 @@ internal fun centeredSubSubnodeLevel4(node: MacroCell.Level4Node): Int =
 /**
  * Computes the next generation for a 16x16 Level 4 node, returning the centered 8x8 [Long] leaf node.
  */
+internal fun computeLevel4NextGeneration(nw: Long, ne: Long, sw: Long, se: Long): Long =
+    f_Algorithm_computeLevel4NextGen16x16UInt(
+        nw.toULong(),
+        ne.toULong(),
+        sw.toULong(),
+        se.toULong(),
+    ).toLong()
+
+/**
+ * Computes the next generation for a 16x16 Level 4 node, returning the centered 8x8 [Long] leaf node,
+ * delegating leaf computations to the provided [computeLeafNextGen] function.
+ */
 internal fun computeLevel4NextGeneration(
     nw: Long,
     ne: Long,
     sw: Long,
     se: Long,
-    computeLeafNextGen: (Long) -> Int = Long::computeNextGeneration,
+    computeLeafNextGen: (Long) -> Int,
 ): Long {
     val n00 = centeredSubnodeLevel3(nw)
     val n01 = centeredHorizontalSubnodeLevel3(nw, ne)
@@ -109,9 +123,20 @@ internal fun computeLevel4NextGeneration(
 /**
  * Computes the next generation for a [MacroCell.Level4Node], returning the centered 8x8 [Long] leaf node.
  */
+internal fun computeLevel4NextGeneration(node: MacroCell.Level4Node): MacroCell.LeafNode = computeLevel4NextGeneration(
+    nw = node.nw,
+    ne = node.ne,
+    sw = node.sw,
+    se = node.se,
+)
+
+/**
+ * Computes the next generation for a [MacroCell.Level4Node], returning the centered 8x8 [Long] leaf node,
+ * delegating leaf computations to the provided [computeLeafNextGen] function.
+ */
 internal fun computeLevel4NextGeneration(
     node: MacroCell.Level4Node,
-    computeLeafNextGen: (Long) -> Int = Long::computeNextGeneration,
+    computeLeafNextGen: (Long) -> Int,
 ): MacroCell.LeafNode = computeLevel4NextGeneration(
     nw = node.nw,
     ne = node.ne,
