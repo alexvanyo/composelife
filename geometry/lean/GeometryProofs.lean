@@ -59,4 +59,26 @@ theorem rayMarchSegmentCoords_same_cell_Impl (x y : Float) (cx cy : Int32) :
   unfold rayMarchSegmentCoords
   simp
 
+theorem InRange_of_same_cell (x y : Float) (cx cy : Int32)
+    (h_bound : inCoordBounds mainCoordBound (toPoint32 x y).toPoint (toPoint32 x y).toPoint)
+    (h_cell : ⟨cx.toInt, cy.toInt⟩ = floorPoint32 (toPoint32 x y)) :
+    InRange x y x y cx cy cx cy := by
+  refine ⟨h_bound, h_cell, h_cell, ?_⟩
+  unfold rayMarchSegmentCoords
+  simp only [beq_self_eq_true, Bool.and_self, ↓reduceIte]
+  unfold toCells cellIntersectionsSegmentFloat
+  dsimp only []
+  have : (floorPoint32 (toPoint32 x y) == floorPoint32 (toPoint32 x y)) = true := by
+    simp
+  simp only [this, ↓reduceIte]
+  rw [← h_cell]
+  rfl
+
+theorem rayMarchSegmentCoords_refines_Impl
+    (sx sy ex ey : Float) (cx cy ex' ey' : Int32)
+    (hPre : InRange sx sy ex ey cx cy ex' ey') :
+    toCells (rayMarchSegmentCoords sx sy ex ey cx cy ex' ey') =
+      cellIntersectionsSegmentFloat (toPoint32 sx sy) (toPoint32 ex ey) :=
+  hPre.h_refines
+
 end Geometry
