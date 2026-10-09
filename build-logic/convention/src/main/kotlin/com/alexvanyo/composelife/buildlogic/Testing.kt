@@ -28,10 +28,15 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.testing.AbstractTestTask
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
 
 fun Project.configureTesting(commonExtension: CommonExtension) {
+    tasks.withType(AbstractTestTask::class.java).configureEach {
+        usesService(heavyTaskLimitingBuildService)
+    }
+
     commonExtension.testOptions.unitTests {
         isIncludeAndroidResources = true
         isReturnDefaultValues = true
@@ -44,6 +49,10 @@ fun Project.configureTesting(commonExtension: CommonExtension) {
 }
 
 fun Project.configureTesting(extension: KotlinMultiplatformAndroidLibraryTarget) {
+    tasks.withType(AbstractTestTask::class.java).configureEach {
+        usesService(heavyTaskLimitingBuildService)
+    }
+
     extension.compilations.withType(KotlinMultiplatformAndroidHostTestCompilation::class.java).configureEach {
         isIncludeAndroidResources = true
         isReturnDefaultValues = true
