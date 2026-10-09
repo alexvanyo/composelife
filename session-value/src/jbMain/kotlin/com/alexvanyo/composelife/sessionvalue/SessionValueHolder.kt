@@ -172,7 +172,7 @@ private class SessionValueHolderImpl<T>(
      * Synchronizes the internal state from the upstream [SessionValue].
      */
     fun setValueFromUpstream(newUpstreamSessionValue: SessionValue<T>) {
-        state = state.stepSetValueFromUpstream(newUpstreamSessionValue)
+        state = state.stepSetValueFromUpstream(newUpstreamSessionValue, Uuid.random())
     }
 
     private val surrogate: Surrogate<T> get() =
