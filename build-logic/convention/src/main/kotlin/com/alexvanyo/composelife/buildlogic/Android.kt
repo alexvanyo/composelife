@@ -22,9 +22,11 @@ import com.android.build.api.dsl.CommonExtension
 import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
 import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
 import com.android.build.gradle.internal.lint.AndroidLintAnalysisTask
+import com.android.build.gradle.internal.lint.AndroidLintTask
 import com.android.build.gradle.internal.lint.LintModelWriterTask
 import com.android.build.gradle.internal.lint.VariantInputs
 import com.android.build.gradle.internal.tasks.R8Task
+import dev.detekt.gradle.Detekt
 import org.gradle.api.GradleException
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
@@ -88,9 +90,17 @@ fun Project.configureAndroid(commonExtension: CommonExtension) {
 
     dependencies.add("coreLibraryDesugaring", libs.findLibrary("android.desugarJdkLibs").get())
 
-    // Register R8 minification as heavy tasks
+    // Register R8 minification and Lint as heavy tasks
     tasks.withType(R8Task::class.java).configureEach {
         usesService(heavyTaskLimitingBuildService)
+    }
+    tasks.withType(AndroidLintTask::class.java).configureEach {
+        usesService(heavyTaskLimitingBuildService)
+        mustRunAfter(tasks.withType(Detekt::class.java))
+    }
+    tasks.withType(LintModelWriterTask::class.java).configureEach {
+        usesService(heavyTaskLimitingBuildService)
+        mustRunAfter(tasks.withType(Detekt::class.java))
     }
 }
 
@@ -151,6 +161,15 @@ fun Project.configureAndroid(extension: KotlinMultiplatformAndroidLibraryTarget)
     }
 
     dependencies.add("coreLibraryDesugaring", libs.findLibrary("android.desugarJdkLibs").get())
+
+    tasks.withType(AndroidLintTask::class.java).configureEach {
+        usesService(heavyTaskLimitingBuildService)
+        mustRunAfter(tasks.withType(Detekt::class.java))
+    }
+    tasks.withType(LintModelWriterTask::class.java).configureEach {
+        usesService(heavyTaskLimitingBuildService)
+        mustRunAfter(tasks.withType(Detekt::class.java))
+    }
 }
 
 // Adapted from https://github.com/androidx/androidx/blob/androidx-main/buildSrc/private/src/main/kotlin/androidx/build/LintConfiguration.kt

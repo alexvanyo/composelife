@@ -8,7 +8,7 @@ androidTools = "32.2.1"
 #androidxActivity
 androidxActivity = "1.14.0-alpha03"
 #androidxAnnotation
-androidxAnnotation = "1.11.0-rc01"
+androidxAnnotation = "1.11.0"
 #androidxAppcompat
 androidxAppcompat = "1.8.0"
 #androidxBenchmark
