@@ -19,8 +19,6 @@ package com.alexvanyo.composelife.model
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
-import com.alexvanyo.composelife.model.MacroCell.CellNode
-import com.alexvanyo.composelife.model.MacroCell.Level4Node
 import kotlin.math.ceil
 import kotlin.math.log2
 
@@ -60,120 +58,11 @@ internal fun CellState.toHashLifeCellState(): HashLifeCellState {
     )
 }
 
-@Suppress("LongMethod")
 internal fun HashLifeCellState.expandCentered(): HashLifeCellState {
-    val node = macroCell
-
-    val sameLevelEmptyCell = createEmptyMacroCell(node.level().toInt())
-
-    val nwSe: MacroCell
-    val neSw: MacroCell
-    val swNe: MacroCell
-    val seNw: MacroCell
-
-    when (node) {
-        is Level4Node -> {
-            nwSe =
-                Level4Node(
-                    nw = 0uL,
-                    ne = 0uL,
-                    sw = 0uL,
-                    se = node.nw,
-                )
-            neSw =
-                Level4Node(
-                    nw = 0uL,
-                    ne = 0uL,
-                    sw = node.ne,
-                    se = 0uL,
-                )
-            swNe =
-                Level4Node(
-                    nw = 0uL,
-                    ne = node.sw,
-                    sw = 0uL,
-                    se = 0uL,
-                )
-            seNw =
-                Level4Node(
-                    nw = node.se,
-                    ne = 0uL,
-                    sw = 0uL,
-                    se = 0uL,
-                )
-        }
-
-        is CellNode -> {
-            val smallerLevelEmptyCell = createEmptyMacroCell(node.level().toInt() - 1)
-
-            nwSe =
-                CellNode(
-                    nw = smallerLevelEmptyCell,
-                    ne = smallerLevelEmptyCell,
-                    sw = smallerLevelEmptyCell,
-                    se = node.nw,
-                )
-            neSw =
-                CellNode(
-                    nw = smallerLevelEmptyCell,
-                    ne = smallerLevelEmptyCell,
-                    sw = node.ne,
-                    se = smallerLevelEmptyCell,
-                )
-            swNe =
-                CellNode(
-                    nw = smallerLevelEmptyCell,
-                    ne = node.sw,
-                    sw = smallerLevelEmptyCell,
-                    se = smallerLevelEmptyCell,
-                )
-            seNw =
-                CellNode(
-                    nw = node.se,
-                    ne = smallerLevelEmptyCell,
-                    sw = smallerLevelEmptyCell,
-                    se = smallerLevelEmptyCell,
-                )
-        }
-    }
-
-    val cell =
-        CellNode(
-            nw =
-            CellNode(
-                nw = sameLevelEmptyCell,
-                ne = sameLevelEmptyCell,
-                sw = sameLevelEmptyCell,
-                se = nwSe,
-            ),
-            ne =
-            CellNode(
-                nw = sameLevelEmptyCell,
-                ne = sameLevelEmptyCell,
-                sw = neSw,
-                se = sameLevelEmptyCell,
-            ),
-            sw =
-            CellNode(
-                nw = sameLevelEmptyCell,
-                ne = swNe,
-                sw = sameLevelEmptyCell,
-                se = sameLevelEmptyCell,
-            ),
-            se =
-            CellNode(
-                nw = seNw,
-                ne = sameLevelEmptyCell,
-                sw = sameLevelEmptyCell,
-                se = sameLevelEmptyCell,
-            ),
-        )
-
-    val offsetDiff = 3 * (1 shl (node.level().toInt() - 1))
-
+    val delta = f_Algorithm_expandOffsetDeltaUInt(macroCell.level())
     return HashLifeCellState(
-        offset = offset + IntOffset(-offsetDiff, -offsetDiff),
-        macroCell = cell,
+        offset = offset + IntOffset(delta, delta),
+        macroCell = f_Algorithm_expandCentered(macroCell),
     )
 }
 
