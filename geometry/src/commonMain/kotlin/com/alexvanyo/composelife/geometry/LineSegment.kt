@@ -52,19 +52,19 @@ internal fun cellIntersections(start: Offset, end: Offset, destination: MutableS
         return
     }
 
-    val dx = end.x - start.x
-    val dy = end.y - start.y
+    val dx = end.x.toDouble() - start.x.toDouble()
+    val dy = end.y.toDouble() - start.y.toDouble()
 
-    val stepX = if (dx > 0f) {
+    val stepX = if (dx > 0.0) {
         1
-    } else if (dx < 0f) {
+    } else if (dx < 0.0) {
         -1
     } else {
         0
     }
-    val stepY = if (dy > 0f) {
+    val stepY = if (dy > 0.0) {
         1
-    } else if (dy < 0f) {
+    } else if (dy < 0.0) {
         -1
     } else {
         0
@@ -78,27 +78,27 @@ internal fun cellIntersections(start: Offset, end: Offset, destination: MutableS
     while ((currentX != endCell.x || currentY != endCell.y) && step < maxSteps) {
         step++
 
-        val xb = if (stepX > 0) (currentX + 1).toFloat() else currentX.toFloat()
-        val yb = if (stepY > 0) (currentY + 1).toFloat() else currentY.toFloat()
+        val xb = if (stepX > 0) (currentX + 1).toDouble() else currentX.toDouble()
+        val yb = if (stepY > 0) (currentY + 1).toDouble() else currentY.toDouble()
 
-        val absDx = dx.toDouble().absoluteValue
-        val absDy = dy.toDouble().absoluteValue
+        val absDx = dx.absoluteValue
+        val absDy = dy.absoluteValue
 
         if (stepX == 0) {
-            val remY = (yb.toDouble() - start.y.toDouble()).absoluteValue
+            val remY = (yb - start.y.toDouble()).absoluteValue
             if (remY >= absDy) {
                 break
             }
             currentY += stepY
         } else if (stepY == 0) {
-            val remX = (xb.toDouble() - start.x.toDouble()).absoluteValue
+            val remX = (xb - start.x.toDouble()).absoluteValue
             if (remX >= absDx) {
                 break
             }
             currentX += stepX
         } else {
-            val remX = (xb.toDouble() - start.x.toDouble()).absoluteValue
-            val remY = (yb.toDouble() - start.y.toDouble()).absoluteValue
+            val remX = (xb - start.x.toDouble()).absoluteValue
+            val remY = (yb - start.y.toDouble()).absoluteValue
             val crossX = remX * absDy
             val crossY = remY * absDx
             val limitCross = absDx * absDy
