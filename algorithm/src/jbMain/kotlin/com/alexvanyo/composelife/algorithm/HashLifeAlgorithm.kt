@@ -32,12 +32,9 @@ import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.HashLifeCellState
 import com.alexvanyo.composelife.model.LeafNode
 import com.alexvanyo.composelife.model.MacroCell
-import com.alexvanyo.composelife.model.expandCentered
-import com.alexvanyo.composelife.model.ne
-import com.alexvanyo.composelife.model.nw
-import com.alexvanyo.composelife.model.se
-import com.alexvanyo.composelife.model.size
-import com.alexvanyo.composelife.model.sw
+import com.alexvanyo.composelife.model.f_Algorithm_makeCanonicalCellNodeWith
+import com.alexvanyo.composelife.model.f_Algorithm_prepareStep
+import com.alexvanyo.composelife.model.f_Algorithm_stepCellNodeWith
 import com.alexvanyo.composelife.model.toHashLifeCellState
 import com.alexvanyo.composelife.tracing.Tracer
 import com.alexvanyo.composelife.tracing.trace
@@ -152,23 +149,7 @@ class HashLifeAlgorithm(
         } else {
             // Slow path: make all subnodes canonical, to check if we have an equivalent canonical node
             val withCanonicalSubNodes =
-                if (size() == 0u) {
-                    // Special case: if this is an empty node, then all subnodes will have the same canonical node.
-                    val smallerEmptyCellNode = nw.makeCanonical()
-                    MacroCell.CellNode(
-                        nw = smallerEmptyCellNode,
-                        ne = smallerEmptyCellNode,
-                        sw = smallerEmptyCellNode,
-                        se = smallerEmptyCellNode,
-                    )
-                } else {
-                    MacroCell.CellNode(
-                        nw = nw.makeCanonical(),
-                        ne = ne.makeCanonical(),
-                        sw = sw.makeCanonical(),
-                        se = se.makeCanonical(),
-                    )
-                }
+                f_Algorithm_makeCanonicalCellNodeWith(this) { it.makeCanonical() } as MacroCell.CellNode
 
             if (useMap) {
                 // If we're using the map, pull from it now with canonical cell nodes
@@ -214,95 +195,11 @@ class HashLifeAlgorithm(
             return@trace cellNodeMap[canonicalCellNodeEquivalence.wrap(canonicalMacroCell)]
         }
 
-        when (level()) {
-            5u -> {
-                nw as MacroCell.Level4Node
-                ne as MacroCell.Level4Node
-                sw as MacroCell.Level4Node
-                se as MacroCell.Level4Node
-
-                val n00 = centeredSubnode(nw)
-                val n01 = centeredHorizontalSubnode(nw, ne)
-                val n02 = centeredSubnode(ne)
-                val n10 = centeredVerticalSubnode(nw, sw)
-                val n11 = centeredSubnode(centeredSubnode(this) as MacroCell.Level4Node)
-                val n12 = centeredVerticalSubnode(ne, se)
-                val n20 = centeredSubnode(sw)
-                val n21 = centeredHorizontalSubnode(sw, se)
-                val n22 = centeredSubnode(se)
-
-                MacroCell.Level4Node(
-                    nw = MacroCell.Level4Node(
-                        nw = n00,
-                        ne = n01,
-                        sw = n10,
-                        se = n11,
-                    ).computeNextGeneration(),
-                    ne = MacroCell.Level4Node(
-                        nw = n01,
-                        ne = n02,
-                        sw = n11,
-                        se = n12,
-                    ).computeNextGeneration(),
-                    sw = MacroCell.Level4Node(
-                        nw = n10,
-                        ne = n11,
-                        sw = n20,
-                        se = n21,
-                    ).computeNextGeneration(),
-                    se = MacroCell.Level4Node(
-                        nw = n11,
-                        ne = n12,
-                        sw = n21,
-                        se = n22,
-                    ).computeNextGeneration(),
-                )
-            }
-
-            else -> {
-                nw as MacroCell.CellNode
-                ne as MacroCell.CellNode
-                sw as MacroCell.CellNode
-                se as MacroCell.CellNode
-
-                val n00 = centeredSubnode(nw)
-                val n01 = centeredHorizontalSubnode(nw, ne)
-                val n02 = centeredSubnode(ne)
-                val n10 = centeredVerticalSubnode(nw, sw)
-                val n11 = centeredSubSubnode(canonicalMacroCell)
-                val n12 = centeredVerticalSubnode(ne, se)
-                val n20 = centeredSubnode(sw)
-                val n21 = centeredHorizontalSubnode(sw, se)
-                val n22 = centeredSubnode(se)
-
-                MacroCell.CellNode(
-                    nw = MacroCell.CellNode(
-                        nw = n00,
-                        ne = n01,
-                        sw = n10,
-                        se = n11,
-                    ).computeNextGeneration(),
-                    ne = MacroCell.CellNode(
-                        nw = n01,
-                        ne = n02,
-                        sw = n11,
-                        se = n12,
-                    ).computeNextGeneration(),
-                    sw = MacroCell.CellNode(
-                        nw = n10,
-                        ne = n11,
-                        sw = n20,
-                        se = n21,
-                    ).computeNextGeneration(),
-                    se = MacroCell.CellNode(
-                        nw = n11,
-                        ne = n12,
-                        sw = n21,
-                        se = n22,
-                    ).computeNextGeneration(),
-                )
-            }
-        }.makeCanonical()
+        f_Algorithm_stepCellNodeWith(
+            canonicalMacroCell,
+            stepLevel4 = { (it as MacroCell.Level4Node).computeNextGeneration() },
+            stepCell = { (it as MacroCell.CellNode).computeNextGeneration() },
+        ).makeCanonical()
     }
 
     /**
@@ -356,104 +253,15 @@ class HashLifeAlgorithm(
         computeNextGenerationImpl(cellState)
     }
 
-    private tailrec fun computeNextGenerationImpl(cellState: HashLifeCellState): HashLifeCellState {
-        val node = cellState.macroCell
-        val needToExpand =
-            node.level() <= 4u ||
-                (node as MacroCell.CellNode).centeredSubSubnodeSize() != node.size()
-
-        if (!needToExpand) {
-            return HashLifeCellState(
-                offset = cellState.offset + IntOffset(
-                    1 shl (node.level().toInt() - 2),
-                    1 shl (node.level().toInt() - 2),
-                ),
-                macroCell = node.computeNextGeneration(),
-            )
-        }
-
-        // If our primary macro cell would be too small or the resulting macro cell wouldn't be the correct result
-        // (due to an expanding pattern), expand the main macro cell and compute.
-        return computeNextGenerationImpl(cellState.expandCentered())
+    private fun computeNextGenerationImpl(cellState: HashLifeCellState): HashLifeCellState {
+        val prep = f_Algorithm_prepareStep(cellState.macroCell)
+        val delta = prep.offsetDelta
+        return HashLifeCellState(
+            offset = cellState.offset + IntOffset(delta, delta),
+            macroCell = (prep.macroCell as MacroCell.CellNode).computeNextGeneration(),
+        )
     }
 }
-
-private inline fun MacroCell.CellNode.centeredSubSubnodeSize(): UInt = when (val center = centeredSubnode(this)) {
-    is MacroCell.Level4Node -> centeredSubnode(center).size.toUInt()
-    is MacroCell.CellNode -> centeredSubnode(center).size()
-}
-
-private inline fun centeredSubnode(node: MacroCell.Level4Node): LeafNode = LeafNode(
-    nw = node.nw.se,
-    ne = node.ne.sw,
-    sw = node.sw.ne,
-    se = node.se.nw,
-)
-
-private inline fun centeredHorizontalSubnode(w: MacroCell.Level4Node, e: MacroCell.Level4Node): LeafNode = LeafNode(
-    nw = w.ne.se,
-    ne = e.nw.sw,
-    sw = w.se.ne,
-    se = e.sw.nw,
-)
-
-private inline fun centeredVerticalSubnode(n: MacroCell.Level4Node, s: MacroCell.Level4Node): LeafNode = LeafNode(
-    nw = n.sw.se,
-    ne = n.se.sw,
-    sw = s.nw.ne,
-    se = s.ne.nw,
-)
-
-private fun centeredSubnode(node: MacroCell.CellNode): MacroCell = when (val nw = node.nw) {
-    is MacroCell.Level4Node -> MacroCell.Level4Node(
-        nw = nw.se,
-        ne = (node.ne as MacroCell.Level4Node).sw,
-        sw = (node.sw as MacroCell.Level4Node).ne,
-        se = (node.se as MacroCell.Level4Node).nw,
-    )
-
-    is MacroCell.CellNode -> MacroCell.CellNode(
-        nw = nw.se,
-        ne = (node.ne as MacroCell.CellNode).sw,
-        sw = (node.sw as MacroCell.CellNode).ne,
-        se = (node.se as MacroCell.CellNode).nw,
-    )
-}
-
-private fun centeredHorizontalSubnode(w: MacroCell.CellNode, e: MacroCell.CellNode): MacroCell = when (val wNe = w.ne) {
-    is MacroCell.Level4Node -> MacroCell.Level4Node(
-        nw = wNe.se,
-        ne = (e.nw as MacroCell.Level4Node).sw,
-        sw = (w.se as MacroCell.Level4Node).ne,
-        se = (e.sw as MacroCell.Level4Node).nw,
-    )
-
-    is MacroCell.CellNode -> MacroCell.CellNode(
-        nw = wNe.se,
-        ne = (e.nw as MacroCell.CellNode).sw,
-        sw = (w.se as MacroCell.CellNode).ne,
-        se = (e.sw as MacroCell.CellNode).nw,
-    )
-}
-
-private fun centeredVerticalSubnode(n: MacroCell.CellNode, s: MacroCell.CellNode): MacroCell = when (val nSw = n.sw) {
-    is MacroCell.Level4Node -> MacroCell.Level4Node(
-        nw = nSw.se,
-        ne = (n.se as MacroCell.Level4Node).sw,
-        sw = (s.nw as MacroCell.Level4Node).ne,
-        se = (s.ne as MacroCell.Level4Node).nw,
-    )
-
-    is MacroCell.CellNode -> MacroCell.CellNode(
-        nw = nSw.se,
-        ne = (n.se as MacroCell.CellNode).sw,
-        sw = (s.nw as MacroCell.CellNode).ne,
-        se = (s.ne as MacroCell.CellNode).nw,
-    )
-}
-
-private fun centeredSubSubnode(node: MacroCell.CellNode): MacroCell =
-    centeredSubnode(centeredSubnode(node) as MacroCell.CellNode)
 
 private fun interface Equivalence<in T> {
     fun isEquivalent(a: T, b: T): Boolean
