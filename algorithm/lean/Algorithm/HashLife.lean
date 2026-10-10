@@ -17,6 +17,9 @@
 import Algorithm.Basic
 import Algorithm.BitComputation
 import Algorithm.MacroCell
+import Lean.Compiler.Kotlin
+
+open Lean.Compiler.Kotlin
 
 local notation "ℕ" => Nat
 
@@ -190,8 +193,14 @@ def packLeafFrom4x4sUInt (q0 q1 q2 q3 : UInt32) : UInt64 :=
   ((q2.toUInt64 &&& (0xFFFF : UInt64)) <<< 32) |||
   ((q3.toUInt64 &&& (0xFFFF : UInt64)) <<< 48)
 
-@[export computeLevel4NextGen16x16UInt]
-def computeLevel4NextGen16x16UInt (nw ne sw se : UInt64) : UInt64 :=
+/--
+Computes the next generation for a 16x16 Level 4 node, delegating each 8x8 leaf
+computation to the provided `computeLeaf` callback.
+-/
+@[export computeLevel4NextGen16x16WithUInt]
+def computeLevel4NextGen16x16WithUInt
+    (nw ne sw se : UInt64)
+    (computeLeaf : UInt64 → UInt32) : UInt64 :=
   let n00 := centeredSubnodeLevel3BitsUInt nw
   let n01 := centeredHorizontalSubnodeLevel3BitsUInt nw ne
   let n02 := centeredSubnodeLevel3BitsUInt ne
@@ -207,12 +216,26 @@ def computeLevel4NextGen16x16UInt (nw ne sw se : UInt64) : UInt64 :=
   let leafSW := packLeafFrom4x4sUInt n10 n11 n20 n21
   let leafSE := packLeafFrom4x4sUInt n11 n12 n21 n22
 
-  let outNW := computeLeafNextGen8x8BranchUInt leafNW
-  let outNE := computeLeafNextGen8x8BranchUInt leafNE
-  let outSW := computeLeafNextGen8x8BranchUInt leafSW
-  let outSE := computeLeafNextGen8x8BranchUInt leafSE
+  let outNW := computeLeaf leafNW
+  let outNE := computeLeaf leafNE
+  let outSW := computeLeaf leafSW
+  let outSE := computeLeaf leafSE
 
   packLeafFrom4x4sUInt outNW outNE outSW outSE
+
+/--
+Computes the next generation for a Level4Node, delegating leaf stepping to `computeLeaf`.
+-/
+@[export macrocell_step_level4_node_with]
+def stepLevel4NodeWith (m : MacroCell) (computeLeaf : UInt64 → UInt32) : UInt64 :=
+  match m with
+  | .level4Node _ nw ne sw se =>
+    computeLevel4NextGen16x16WithUInt nw ne sw se computeLeaf
+  | _ => 0
+
+@[export computeLevel4NextGen16x16UInt]
+def computeLevel4NextGen16x16UInt (nw ne sw se : UInt64) : UInt64 :=
+  computeLevel4NextGen16x16WithUInt nw ne sw se computeLeafNextGen8x8BranchUInt
 
 @[export computeNextGen4x4UInt]
 def exportComputeNextGen4x4UInt (w : UInt32) : UInt32 :=
@@ -221,5 +244,15 @@ def exportComputeNextGen4x4UInt (w : UInt32) : UInt32 :=
 @[export computeLeafNextGen8x8BranchUInt]
 def exportComputeLeafNextGen8x8BranchUInt (w : UInt64) : UInt32 :=
   computeLeafNextGen8x8BranchUInt w
+
+@[kotlin_file]
+def hashLifeFileSpec : FileSpec := {
+  imports := #[
+    "import com.alexvanyo.composelife.model.MacroCell"
+  ]
+  items := #[
+    .topLevel
+  ]
+}
 
 end Algorithm

@@ -102,29 +102,12 @@ internal fun computeLevel4NextGeneration(
     sw: LeafNode,
     se: LeafNode,
     computeLeafNextGen: (LeafNode) -> Int,
-): LeafNode {
-    val n00 = centeredSubnodeLevel3(nw)
-    val n01 = centeredHorizontalSubnodeLevel3(nw, ne)
-    val n02 = centeredSubnodeLevel3(ne)
-    val n10 = centeredVerticalSubnodeLevel3(nw, sw)
-    val n11 = centeredSubSubnodeLevel4(nw, ne, sw, se)
-    val n12 = centeredVerticalSubnodeLevel3(ne, se)
-    val n20 = centeredSubnodeLevel3(sw)
-    val n21 = centeredHorizontalSubnodeLevel3(sw, se)
-    val n22 = centeredSubnodeLevel3(se)
-
-    val leafNW = packLeafNode(n00, n01, n10, n11)
-    val leafNE = packLeafNode(n01, n02, n11, n12)
-    val leafSW = packLeafNode(n10, n11, n20, n21)
-    val leafSE = packLeafNode(n11, n12, n21, n22)
-
-    val outNW = computeLeafNextGen(leafNW)
-    val outNE = computeLeafNextGen(leafNE)
-    val outSW = computeLeafNextGen(leafSW)
-    val outSE = computeLeafNextGen(leafSE)
-
-    return packLeafNode(outNW, outNE, outSW, outSE)
-}
+): LeafNode = f_Algorithm_computeLevel4NextGen16x16WithUInt(
+    nw = nw,
+    ne = ne,
+    sw = sw,
+    se = se,
+) { computeLeafNextGen(it).toUInt() }
 
 /**
  * Computes the next generation for a [MacroCell.Level4Node], returning the centered 8x8 [LeafNode] leaf node.
@@ -141,10 +124,4 @@ internal fun computeLevel4NextGeneration(node: MacroCell.Level4Node): LeafNode =
  * delegating leaf computations to the provided [computeLeafNextGen] function.
  */
 internal fun computeLevel4NextGeneration(node: MacroCell.Level4Node, computeLeafNextGen: (LeafNode) -> Int): LeafNode =
-    computeLevel4NextGeneration(
-        nw = node.nw,
-        ne = node.ne,
-        sw = node.sw,
-        se = node.se,
-        computeLeafNextGen = computeLeafNextGen,
-    )
+    f_Algorithm_stepLevel4NodeWith(node) { computeLeafNextGen(it).toUInt() }
