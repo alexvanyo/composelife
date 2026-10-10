@@ -50,7 +50,7 @@ androidxTestRunner = "1.7.0"
 #androidxTestUiAutomator
 androidxTestUiAutomator = "2.4.0"
 #androidxTracing
-androidxTracing = "2.0.2"
+androidxTracing = "2.0.3"
 #androidxWearCompose
 androidxWearCompose = "1.7.0"
 #androidxWearComposeMaterial3
@@ -154,7 +154,7 @@ sqldelightAndroidX = "0.5.0-alpha.11"
 #sqlJs
 sqlJs = "1.8.0"
 #testBalloon
-testBalloon = "1.2.0-Beta1"
+testBalloon = "1.2.0-RC"
 #testParameterInjector
 testParameterInjector = "1.24"
 #turbine
