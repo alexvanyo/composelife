@@ -125,8 +125,9 @@ def makeCellNode (nw ne sw se : MacroCell) : MacroCell :=
 The number of alive cells represented by this MacroCell.
 -/
 @[export macrocell_size]
-def MacroCell.size : MacroCell → UInt32
-  | .level4Node _ nw ne sw se => popcount64 nw + popcount64 ne + popcount64 sw + popcount64 se
+def MacroCell.size : MacroCell → UInt64
+  | .level4Node _ nw ne sw se =>
+    (popcount64 nw).toUInt64 + (popcount64 ne).toUInt64 + (popcount64 sw).toUInt64 + (popcount64 se).toUInt64
   | .cellNode _ nw ne sw se => nw.size + ne.size + sw.size + se.size
 
 /--
@@ -348,7 +349,7 @@ def centeredSubSubnode (m : MacroCell) : MacroCell :=
 Computes the population of the center sub-subnode.
 -/
 @[export macrocell_centered_sub_subnode_size]
-def centeredSubSubnodeSize (m : MacroCell) : UInt32 :=
+def centeredSubSubnodeSize (m : MacroCell) : UInt64 :=
   (centeredSubSubnode m).size
 
 def emptySubnode : MacroCell → MacroCell
@@ -473,35 +474,144 @@ def stepCellNodeWith
   else
     makeCellNode (stepCell q.nw) (stepCell q.ne) (stepCell q.sw) (stepCell q.se)
 
-/--
-Recursive Gosper step on MacroCell.
-Stepping a level 4 node returns the central 8x8 leaf wrapped in an empty level 4 node.
-Stepping a level 5 node returns a level 4 node.
-Stepping a level k+1 node returns a level k node.
--/
-def hashLifeStep : MacroCell → MacroCell
+def packCentralNibblesUInt (q0 q1 q2 q3 : UInt32) : UInt32 :=
+  q0 ||| (q1 <<< 4) ||| (q2 <<< 8) ||| (q3 <<< 12)
+
+@[export centeredSubnodeLevel3BitsUInt]
+def centeredSubnodeLevel3BitsUInt (leaf : UInt64) : UInt32 :=
+  let nw := (leaf &&& (0xFFFF : UInt64)).toUInt32
+  let ne := ((leaf >>> 16) &&& (0xFFFF : UInt64)).toUInt32
+  let sw := ((leaf >>> 32) &&& (0xFFFF : UInt64)).toUInt32
+  let se := ((leaf >>> 48) &&& (0xFFFF : UInt64)).toUInt32
+  let q0 := (nw >>> 12) &&& (0xF : UInt32)
+  let q1 := (ne >>> 8) &&& (0xF : UInt32)
+  let q2 := (sw >>> 4) &&& (0xF : UInt32)
+  let q3 := (se >>> 0) &&& (0xF : UInt32)
+  packCentralNibblesUInt q0 q1 q2 q3
+
+@[export centeredHorizontalSubnodeLevel3BitsUInt]
+def centeredHorizontalSubnodeLevel3BitsUInt (w e : UInt64) : UInt32 :=
+  let w_ne := ((w >>> 16) &&& (0xFFFF : UInt64)).toUInt32
+  let w_se := ((w >>> 48) &&& (0xFFFF : UInt64)).toUInt32
+  let e_nw := (e &&& (0xFFFF : UInt64)).toUInt32
+  let e_sw := ((e >>> 32) &&& (0xFFFF : UInt64)).toUInt32
+  let q0 := (w_ne >>> 12) &&& (0xF : UInt32)
+  let q1 := (e_nw >>> 8) &&& (0xF : UInt32)
+  let q2 := (w_se >>> 4) &&& (0xF : UInt32)
+  let q3 := (e_sw >>> 0) &&& (0xF : UInt32)
+  packCentralNibblesUInt q0 q1 q2 q3
+
+@[export centeredVerticalSubnodeLevel3BitsUInt]
+def centeredVerticalSubnodeLevel3BitsUInt (n s : UInt64) : UInt32 :=
+  let n_sw := ((n >>> 32) &&& (0xFFFF : UInt64)).toUInt32
+  let n_se := ((n >>> 48) &&& (0xFFFF : UInt64)).toUInt32
+  let s_nw := (s &&& (0xFFFF : UInt64)).toUInt32
+  let s_ne := ((s >>> 16) &&& (0xFFFF : UInt64)).toUInt32
+  let q0 := (n_sw >>> 12) &&& (0xF : UInt32)
+  let q1 := (n_se >>> 8) &&& (0xF : UInt32)
+  let q2 := (s_nw >>> 4) &&& (0xF : UInt32)
+  let q3 := (s_ne >>> 0) &&& (0xF : UInt32)
+  packCentralNibblesUInt q0 q1 q2 q3
+
+@[export centeredSubSubnodeLevel4BitsUInt]
+def centeredSubSubnodeLevel4BitsUInt (nw ne sw se : UInt64) : UInt32 :=
+  let nw_se := ((nw >>> 48) &&& (0xFFFF : UInt64)).toUInt32
+  let ne_sw := ((ne >>> 32) &&& (0xFFFF : UInt64)).toUInt32
+  let sw_ne := ((sw >>> 16) &&& (0xFFFF : UInt64)).toUInt32
+  let se_nw := (se &&& (0xFFFF : UInt64)).toUInt32
+  let q0 := (nw_se >>> 12) &&& (0xF : UInt32)
+  let q1 := (ne_sw >>> 8) &&& (0xF : UInt32)
+  let q2 := (sw_ne >>> 4) &&& (0xF : UInt32)
+  let q3 := (se_nw >>> 0) &&& (0xF : UInt32)
+  packCentralNibblesUInt q0 q1 q2 q3
+
+@[export packLeafFrom4x4sUInt]
+def packLeafFrom4x4sUInt (q0 q1 q2 q3 : UInt32) : UInt64 :=
+  (q0.toUInt64 &&& (0xFFFF : UInt64)) |||
+  ((q1.toUInt64 &&& (0xFFFF : UInt64)) <<< 16) |||
+  ((q2.toUInt64 &&& (0xFFFF : UInt64)) <<< 32) |||
+  ((q3.toUInt64 &&& (0xFFFF : UInt64)) <<< 48)
+
+@[export computeLevel4NextGen16x16WithUInt]
+def computeLevel4NextGen16x16WithUInt
+    (nw ne sw se : UInt64)
+    (computeLeaf : UInt64 → UInt32) : UInt64 :=
+  let n00 := centeredSubnodeLevel3BitsUInt nw
+  let n01 := centeredHorizontalSubnodeLevel3BitsUInt nw ne
+  let n02 := centeredSubnodeLevel3BitsUInt ne
+  let n10 := centeredVerticalSubnodeLevel3BitsUInt nw sw
+  let n11 := centeredSubSubnodeLevel4BitsUInt nw ne sw se
+  let n12 := centeredVerticalSubnodeLevel3BitsUInt ne se
+  let n20 := centeredSubnodeLevel3BitsUInt sw
+  let n21 := centeredHorizontalSubnodeLevel3BitsUInt sw se
+  let n22 := centeredSubnodeLevel3BitsUInt se
+
+  let leafNW := packLeafFrom4x4sUInt n00 n01 n10 n11
+  let leafNE := packLeafFrom4x4sUInt n01 n02 n11 n12
+  let leafSW := packLeafFrom4x4sUInt n10 n11 n20 n21
+  let leafSE := packLeafFrom4x4sUInt n11 n12 n21 n22
+
+  let outNW := computeLeaf leafNW
+  let outNE := computeLeaf leafNE
+  let outSW := computeLeaf leafSW
+  let outSE := computeLeaf leafSE
+
+  packLeafFrom4x4sUInt outNW outNE outSW outSE
+
+@[export computeLevel4NextGen16x16UInt]
+def computeLevel4NextGen16x16UInt (nw ne sw se : UInt64) : UInt64 :=
+  computeLevel4NextGen16x16WithUInt nw ne sw se computeLeafNextGen8x8BranchUInt
+
+@[export macrocell_step_level4_node_with]
+def stepLevel4NodeWith (m : MacroCell) (computeLeaf : UInt64 → UInt32) : UInt64 :=
+  match m with
   | .level4Node _ nw ne sw se =>
-    let outLeaf := centeredSubnodeLevel4 nw ne sw se
-    makeLevel4Node 0 0 0 outLeaf
-  | .cellNode _ (.level4Node _ nw1 ne1 sw1 se1) (.level4Node _ nw2 ne2 sw2 se2)
-                (.level4Node _ nw3 ne3 sw3 se3) (.level4Node _ nw4 ne4 sw4 se4) =>
-    let n00 := centeredSubnodeLevel4 nw1 ne1 sw1 se1
-    let n01 := centeredSubnodeLevel4 ne1 nw2 se1 sw2
-    let n02 := centeredSubnodeLevel4 nw2 ne2 sw2 se2
-    let n10 := centeredSubnodeLevel4 sw1 se1 nw3 ne3
-    let n11 := centeredSubnodeLevel4 se1 sw2 ne3 nw4
-    let n12 := centeredSubnodeLevel4 sw2 se2 nw4 ne4
-    let n20 := centeredSubnodeLevel4 nw3 ne3 sw3 se3
-    let n21 := centeredSubnodeLevel4 ne3 nw4 se3 sw4
-    let n22 := centeredSubnodeLevel4 nw4 ne4 sw4 se4
-    let q_nw := centeredSubnodeLevel4 n00 n01 n10 n11
-    let q_ne := centeredSubnodeLevel4 n01 n02 n11 n12
-    let q_sw := centeredSubnodeLevel4 n10 n11 n20 n21
-    let q_se := centeredSubnodeLevel4 n11 n12 n21 n22
-    makeLevel4Node q_nw q_ne q_sw q_se
-  | .cellNode _ nw _ _ _ =>
-    let sub := centeredSubnode nw
-    makeCellNode sub sub sub sub
+    computeLevel4NextGen16x16WithUInt nw ne sw se computeLeaf
+  | _ => 0
+
+@[export hashlife_step_level4_node]
+def stepLevel4Node (m : MacroCell) : UInt64 :=
+  match m with
+  | .level4Node _ nw ne sw se =>
+    computeLevel4NextGen16x16UInt nw ne sw se
+  | _ => 0
+
+/--
+The structural tree depth of this cell.
+Minimum depth is 4 for Level4Node.
+-/
+def MacroCell.depth : MacroCell → ℕ
+  | .level4Node .. => 4
+  | .cellNode _ nw _ _ _ => nw.depth + 1
+
+/--
+Fuel-indexed recursive model of HashLife stepping over quadtree levels.
+For level 4: steps to the central 8x8 leaf (placed in an empty level 4 node).
+For level 5: steps four level-4 quadrants via `stepLevel4Node` to yield a level 4 node.
+For level k > 5: steps four level-(k-1) quadrants recursively to yield a level-(k-1) node.
+-/
+def hashLifeStepRecursiveAux : ℕ → MacroCell → MacroCell
+  | 0, _ => emptyLevel4
+  | fuel + 1, m =>
+    match m with
+    | .level4Node _ nw ne sw se =>
+      makeLevel4Node 0 0 0 (computeLevel4NextGen16x16UInt nw ne sw se)
+    | .cellNode _ (.level4Node _ _ _ _ _) (.level4Node _ _ _ _ _)
+                  (.level4Node _ _ _ _ _) (.level4Node _ _ _ _ _) =>
+      let q := stepQuadrants m
+      makeLevel4Node (stepLevel4Node q.nw) (stepLevel4Node q.ne) (stepLevel4Node q.sw) (stepLevel4Node q.se)
+    | m@(.cellNode ..) =>
+      let q := stepQuadrants m
+      makeCellNode (hashLifeStepRecursiveAux fuel q.nw)
+                   (hashLifeStepRecursiveAux fuel q.ne)
+                   (hashLifeStepRecursiveAux fuel q.sw)
+                   (hashLifeStepRecursiveAux fuel q.se)
+
+def hashLifeStepRecursive (m : MacroCell) : MacroCell :=
+  hashLifeStepRecursiveAux m.depth m
+
+def hashLifeStep (m : MacroCell) : MacroCell :=
+  hashLifeStepRecursive m
 
 /--
 Suite of 5 caches mirroring HashLifeAlgorithm.kt:
@@ -595,7 +705,7 @@ def macroCellFileSpec : FileSpec := {
         .members,
         .verbatim "abstract val hash: UInt
 abstract fun level(): UInt
-abstract fun size(): UInt
+abstract fun size(): ULong
 fun cellHashCode(): UInt = hash
 override fun hashCode(): Int = hash.toInt()
 
@@ -613,13 +723,13 @@ class Level4Node(
 
     override fun level(): UInt = 4u
 
-    private val _size: UInt =
-        nw.countOneBits().toUInt() +
-            ne.countOneBits().toUInt() +
-            sw.countOneBits().toUInt() +
-            se.countOneBits().toUInt()
+    private val _size: ULong =
+        nw.countOneBits().toULong() +
+            ne.countOneBits().toULong() +
+            sw.countOneBits().toULong() +
+            se.countOneBits().toULong()
 
-    override fun size(): UInt = _size
+    override fun size(): ULong = _size
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -650,9 +760,9 @@ class CellNode(
 
     override fun level(): UInt = _level
 
-    private val _size: UInt = nw.size() + ne.size() + sw.size() + se.size()
+    private val _size: ULong = nw.size() + ne.size() + sw.size() + se.size()
 
-    override fun size(): UInt = _size
+    override fun size(): ULong = _size
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

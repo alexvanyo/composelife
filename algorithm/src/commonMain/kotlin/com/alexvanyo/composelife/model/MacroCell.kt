@@ -102,7 +102,7 @@ internal inline operator fun LeafNode.contains(target: IntOffset): Boolean {
  * This runs in O(level) time.
  */
 internal fun MacroCell.contains(x: Int, y: Int): Boolean =
-    if (size() == 0u) false else f_Algorithm_macroCellContains(this, x, y)
+    if (size() == 0uL) false else f_Algorithm_macroCellContains(this, x, y)
 
 internal inline operator fun MacroCell.contains(target: IntOffset): Boolean = contains(target.x, target.y)
 

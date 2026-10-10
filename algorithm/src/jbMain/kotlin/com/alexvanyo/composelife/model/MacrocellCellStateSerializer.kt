@@ -305,7 +305,7 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
             val leafNodeToIndexMap = mutableLongIntMapOf()
             val nodesToEmit = mutableListOf(hashLifeCellState.macroCell)
 
-            if (hashLifeCellState.macroCell.size() == 0u) {
+            if (hashLifeCellState.macroCell.size() == 0uL) {
                 // Fast path: if the cell state is empty, there's nothing to print
                 return@sequence
             } else if (hashLifeCellState.macroCell is Level4Node) {
@@ -359,7 +359,7 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
                 @Suppress("ComplexCondition")
                 if (node in macroCellToIndexMap) {
                     continue
-                } else if (node.size() == 0u) {
+                } else if (node.size() == 0uL) {
                     macroCellToIndexMap[node] = 0
                 } else {
                     when (node) {

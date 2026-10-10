@@ -403,14 +403,46 @@ theorem hashlife_stepN_induction_step_Impl (n : ℕ) (st : HashLifeCellState)
   rw [hashLifeStepN_succ_Impl]
   exact h
 
-theorem hashLifeStep_emptyNode_Impl : ∀ (k : ℕ),
-    hashLifeStep (emptyNode (k + 5)) = emptyNode (k + 4)
-  | 0 => hashLifeStep_empty2_Impl
+theorem emptyNode_depth_Impl : ∀ (k : ℕ),
+    (emptyNode (k + 4)).depth = k + 4
+  | 0 => rfl
   | k + 1 => by
-    have h := centeredSubnode_emptyNode_Impl k
-    change makeCellNode (centeredSubnode (emptyNode (k + 5))) (centeredSubnode (emptyNode (k + 5))) (centeredSubnode (emptyNode (k + 5))) (centeredSubnode (emptyNode (k + 5))) = emptyNode (k + 5)
-    rw [h]
+    dsimp [emptyNode, makeCellNode, MacroCell.depth]
+    rw [emptyNode_depth_Impl k]
+
+theorem stepQuadrants_emptyNode_Impl : ∀ (k : ℕ),
+    stepQuadrants (emptyNode (k + 6)) =
+      { nw := emptyNode (k + 5)
+      , ne := emptyNode (k + 5)
+      , sw := emptyNode (k + 5)
+      , se := emptyNode (k + 5) }
+  | 0 => rfl
+  | _ + 1 => rfl
+
+theorem hashLifeStepRecursiveAux_emptyNode_Impl : ∀ (fuel k : ℕ) (_h_fuel : fuel ≥ k + 1),
+    hashLifeStepRecursiveAux fuel (emptyNode (k + 5)) = emptyNode (k + 4)
+  | 0, _, h => by omega
+  | fuel + 1, 0, _ => rfl
+  | fuel + 1, k + 1, h => by
+    have h_fuel' : fuel ≥ k + 1 := by omega
+    show makeCellNode (hashLifeStepRecursiveAux fuel (stepQuadrants (emptyNode (k + 6))).nw)
+                      (hashLifeStepRecursiveAux fuel (stepQuadrants (emptyNode (k + 6))).ne)
+                      (hashLifeStepRecursiveAux fuel (stepQuadrants (emptyNode (k + 6))).sw)
+                      (hashLifeStepRecursiveAux fuel (stepQuadrants (emptyNode (k + 6))).se) =
+         emptyNode (k + 5)
+    rw [stepQuadrants_emptyNode_Impl k]
+    dsimp
+    rw [hashLifeStepRecursiveAux_emptyNode_Impl fuel k h_fuel']
     rfl
+
+theorem hashLifeStep_emptyNode_Impl (k : ℕ) :
+    hashLifeStep (emptyNode (k + 5)) = emptyNode (k + 4) := by
+  dsimp [hashLifeStep, hashLifeStepRecursive]
+  have h_depth : (emptyNode (k + 5)).depth = k + 5 := by
+    have := emptyNode_depth_Impl (k + 1)
+    exact this
+  rw [h_depth]
+  exact hashLifeStepRecursiveAux_emptyNode_Impl (k + 5) k (by omega)
 
 theorem hashLifeNextGenerationStep_emptyNode_Impl (k : ℕ) (ox oy : ℤ) :
     hashLifeToGrid (hashLifeNextGenerationStep { offset := (ox, oy), macroCell := emptyNode (k + 5) }) = [] := by
