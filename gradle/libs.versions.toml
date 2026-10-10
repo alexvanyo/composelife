@@ -158,7 +158,7 @@ sqlJs = "1.8.0"
 #testBalloon
 testBalloon = "1.2.0-Beta1"
 #testParameterInjector
-testParameterInjector = "1.23"
+testParameterInjector = "1.24"
 #turbine
 turbine = "1.2.1"
 #webPackPlugin
