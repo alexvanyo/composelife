@@ -140,6 +140,51 @@ When a verification file exceeds 1,500–2,000 lines, split it into a clean Dire
 
 ---
 
+## 🤖 Multi-Agent Proving Architecture & Cadence Management
+
+For non-trivial formal verification tasks, structuring the proving process across specialized subagents with strict cadences and automated supervisory audits ensures steady progress and prevents stalling:
+
+```mermaid
+graph TD
+    User["User Request"] --> Main["Main Agent (Supervisor & Auditor)"]
+    Main -->|Schedules| Cron["4-Min Recurring Check-In (schedule cron)"]
+    Main -->|Spawns & Oversees| PM["Proof Manager (Architect)"]
+    PM -->|Delegates 2-3 min lemmas| LP["Lemma Prover (Tactical)"]
+    LP -->|Proves & commits lemma| Code["Lean 4 Codebase"]
+    Code -->|lake build check| PM
+    Cron -.->|Wakes up & audits| Main
+    Main -->|Anti-cheat audit: 0 sorry, 0 axiom, unweakened signatures| Code
+```
+
+### Agent Roles & Separation of Concerns
+
+1. **Main Agent (Supervisor & Anti-Cheat Auditor)**:
+   - **High-level control**: Maintains the master plan, initiates the subagent team, and delivers the final walkthrough to the user.
+   - **Recurring audit cron**: Schedules a 4-minute recurring background check-in (`schedule` with `CronExpression: "*/4 * * * *"`, `IsDaemon: false`).
+   - **Anti-cheat enforcement**:
+     - Audits for 0 `sorry`s, 0 `admit`s, and 0 custom `axiom`s.
+     - Strictly verifies that **target theorem signatures are not weakened** (e.g. ensuring subagents do not add intermediate conditions or invariants as unproven hypotheses on the master theorem instead of discharging them).
+     - Confirms `#print axioms` strictly reports `[propext, Classical.choice, Quot.sound]`.
+     - Validates full builds via `lake build <Target>:static` and `./gradlew :<module>:check`.
+
+2. **`proof_manager` (Proof Architect & Manager)**:
+   - **Architecture & DAG**: Defines the roadmap of intermediate lemmas across domain submodules.
+   - **Delegation**: Supplies `lemma_prover` with precise lemma signatures, target files, and tactical hints.
+   - **Cadence management**: Enforces that `lemma_prover` must make progress on a ~3-minute cadence. If `lemma_prover` stalls or takes longer than 3 minutes on a single lemma, `proof_manager` immediately decomposes the lemma into smaller sub-lemmas.
+   - **Assembly**: Chains proven lemmas together into higher-level theorems and verifies static builds.
+
+3. **`lemma_prover` (Tactical Lemma Prover)**:
+   - **Single focus**: Proves isolated, tightly scoped lemmas and integrates them directly into the `.lean` files.
+   - **Tactic specialization**: Applies local solvers (`omega`, `linarith`, `ring`, `aesop`, `positivity`, `split_ifs`) without needing to understand the global architectural DAG.
+
+### Operational Rules
+
+- **The 3-Minute Progress Rule**: A lemma that takes longer than 3 minutes to discharge is almost always too large or missing a key structural helper (e.g., candidate set enumeration, monotonicity lemma, or domain partition). Decompose early.
+- **The 4-Minute Audit Loop**: The Main Agent uses background cron triggers to verify that active subagents are making observable git changes, compile builds cleanly, and respect all anti-cheat rules.
+- **Strict Signature Invariance**: Intermediate hypotheses (such as step sign equality or transition classifications) must be discharged as lemmas from the input preconditions, never hoisted into the master theorem's signature.
+
+---
+
 ## 🔍 Verification Commands & Audit Checklist
 
 Execute these exact verification checks before concluding any formal verification task:
