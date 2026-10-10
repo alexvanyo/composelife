@@ -84,11 +84,16 @@ def emptyNodeHashesList : List UInt32 :=
 -- MacroCell Size, Population Counting, and Well-Formedness
 -- =========================================================================
 
+/--
+Structural well-formedness: all four children of every CellNode have the same tree depth.
+Depth (rather than the UInt32 `level`) is compared so that equal levels cannot arise from
+UInt32 wraparound of differently-sized subtrees; equal depths imply equal levels.
+-/
 def isWellFormed : MacroCell → Prop
   | .level4Node _ _ _ _ _ => True
   | .cellNode _ nw ne sw se =>
     isWellFormed nw ∧ isWellFormed ne ∧ isWellFormed sw ∧ isWellFormed se ∧
-    nw.level = ne.level ∧ ne.level = sw.level ∧ sw.level = se.level
+    nw.depth = ne.depth ∧ ne.depth = sw.depth ∧ sw.depth = se.depth
 
 def macroCellSize : MacroCell → ℕ
   | .level4Node _ nw ne sw se => (popcount64 nw + popcount64 ne + popcount64 sw + popcount64 se).toNat
