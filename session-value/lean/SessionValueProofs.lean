@@ -16,20 +16,14 @@
 
 import SessionValue.Basic
 import SessionValue.StateMachine
+import SessionValueDefs
 
 namespace SessionValue
 
-/-!
-# Master Verification Theorems for `session-value`
-
-This file contains the formal proofs guaranteeing that the state machine, invariants,
-synchronicity, and concurrency semantics of `SessionValueHolder` hold unconditionally.
--/
-
 /--
-Theorem 1: Initial state satisfies the `ValidState` invariant.
+Implementation proof of `initialState_valid`.
 -/
-theorem initialState_valid (u0 : SessionValue α) (initLocalId : Uuid) :
+theorem initialState_valid_Impl (u0 : SessionValue α) (initLocalId : Uuid) :
     ValidState (initialState u0 initLocalId) := by
   constructor
   · intro _
@@ -38,9 +32,9 @@ theorem initialState_valid (u0 : SessionValue α) (initLocalId : Uuid) :
     contradiction
 
 /--
-Theorem 2: `stepSetValue` preserves the `ValidState` invariant.
+Implementation proof of `stepSetValue_preserves_valid`.
 -/
-theorem stepSetValue_preserves_valid (st : State α) (v : α) (vid : Uuid) :
+theorem stepSetValue_preserves_valid_Impl (st : State α) (v : α) (vid : Uuid) :
     ValidState (stepSetValue st v vid).1 := by
   constructor
   · intro h_none
@@ -53,10 +47,9 @@ theorem stepSetValue_preserves_valid (st : State α) (v : α) (vid : Uuid) :
     rfl
 
 /--
-Theorem 3: `stepSetValueFromUpstream` preserves the `ValidState` invariant,
-given fresh ID generation (`freshLocalSessionId ≠ newUpstream.sessionId`).
+Implementation proof of `stepSetValueFromUpstream_preserves_valid`.
 -/
-theorem stepSetValueFromUpstream_preserves_valid (st : State α) (newUpstream : SessionValue α)
+theorem stepSetValueFromUpstream_preserves_valid_Impl (st : State α) (newUpstream : SessionValue α)
     (freshLocalSessionId : Uuid) (h_valid : ValidState st)
     (h_fresh : freshLocalSessionId ≠ newUpstream.sessionId) :
     ValidState (stepSetValueFromUpstream st newUpstream freshLocalSessionId) := by
@@ -102,11 +95,9 @@ theorem stepSetValueFromUpstream_preserves_valid (st : State α) (newUpstream : 
           contradiction
 
 /--
-Theorem 4 (Local Synchronicity): Immediately after calling `stepSetValue`,
-the exposed `sessionValue` reflects the new value, new valueId, and local sessionId.
-Local UI components observe zero latency.
+Implementation proof of `local_synchronicity`.
 -/
-theorem local_synchronicity (st : State α) (v : α) (vid : Uuid) :
+theorem local_synchronicity_Impl (st : State α) (v : α) (vid : Uuid) :
     let st' := (stepSetValue st v vid).1
     st'.sessionValue.value = v ∧
     st'.sessionValue.sessionId = st.localSessionId ∧
@@ -115,10 +106,9 @@ theorem local_synchronicity (st : State α) (v : α) (vid : Uuid) :
   exact ⟨rfl, rfl, rfl⟩
 
 /--
-Theorem 5a (Local Session ID Stability): Upgrading from `Inactive` to `Active` via
-`stepSetValue` preserves `info.localSessionId`.
+Implementation proof of `id_stability_localSessionId`.
 -/
-theorem id_stability_localSessionId (st : State α) (v : α) (vid : Uuid)
+theorem id_stability_localSessionId_Impl (st : State α) (v : α) (vid : Uuid)
     (h_inactive : st.localSessionValue = none) :
     let st' := (stepSetValue st v vid).1
     st'.info.localSessionId = st.info.localSessionId := by
@@ -126,10 +116,9 @@ theorem id_stability_localSessionId (st : State α) (v : α) (vid : Uuid)
   rw [h_inactive]
 
 /--
-Theorem 5b (Pre-Local Session ID Stability): Upgrading from `Inactive` to `Active` via
-`stepSetValue` preserves `info.preLocalSessionId`.
+Implementation proof of `id_stability_preLocalSessionId`.
 -/
-theorem id_stability_preLocalSessionId (st : State α) (v : α) (vid : Uuid)
+theorem id_stability_preLocalSessionId_Impl (st : State α) (v : α) (vid : Uuid)
     (h_valid : ValidState st) (h_inactive : st.localSessionValue = none) :
     let st' := (stepSetValue st v vid).1
     st'.info.preLocalSessionId = st.info.preLocalSessionId := by
@@ -140,10 +129,9 @@ theorem id_stability_preLocalSessionId (st : State α) (v : α) (vid : Uuid)
   exact h_before
 
 /--
-Theorem 6a (Upstream Echo Keeps Active): When an upstream update echoes the local
-session ID, the local session remains active (`localSessionValue` is preserved).
+Implementation proof of `upstream_echo_keeps_active`.
 -/
-theorem upstream_echo_keeps_active (st : State α) (lv : SessionValue α) (newUpstream : SessionValue α)
+theorem upstream_echo_keeps_active_Impl (st : State α) (lv : SessionValue α) (newUpstream : SessionValue α)
     (freshId : Uuid)
     (h_active : st.localSessionValue = some lv)
     (h_echo : newUpstream.sessionId = lv.sessionId) :
@@ -160,11 +148,9 @@ theorem upstream_echo_keeps_active (st : State α) (lv : SessionValue α) (newUp
     rfl
 
 /--
-Theorem 6b (Upstream Echo Catches Up): When an upstream update matches both
-the local session ID and the latest local valueId, the holder state's info
-identifies the upstream as up-to-date.
+Implementation proof of `upstream_echo_up_to_date`.
 -/
-theorem upstream_echo_up_to_date (st : State α) (lv : SessionValue α) (newUpstream : SessionValue α)
+theorem upstream_echo_up_to_date_Impl (st : State α) (lv : SessionValue α) (newUpstream : SessionValue α)
     (freshId : Uuid)
     (h_valid : ValidState st)
     (h_active : st.localSessionValue = some lv)
@@ -208,11 +194,9 @@ theorem upstream_echo_up_to_date (st : State α) (lv : SessionValue α) (newUpst
     rfl
 
 /--
-Theorem 7 (Conflicting Session Invalidation & Safety): When an upstream update arrives
-from a foreign session (`newUpstream.sessionId ≠ lv.sessionId`), the local active session
-is cleanly invalidated (`localSessionValue = none`), reverting to the new upstream value.
+Implementation proof of `upstream_conflict_invalidates`.
 -/
-theorem upstream_conflict_invalidates (st : State α) (lv : SessionValue α) (newUpstream : SessionValue α)
+theorem upstream_conflict_invalidates_Impl (st : State α) (lv : SessionValue α) (newUpstream : SessionValue α)
     (freshId : Uuid)
     (h_changed : (newUpstream.sessionId != st.upstreamSessionValue.sessionId ||
                   newUpstream.valueId != st.upstreamSessionValue.valueId) = true)
@@ -233,11 +217,10 @@ theorem upstream_conflict_invalidates (st : State α) (lv : SessionValue α) (ne
   simp [h_diff, State.sessionValue, State.info, LocalSessionInfo.isLocalSessionActive]
 
 /--
-Theorem 8 (CAS Precondition Soundness): The `expected` session value emitted by
-`stepSetValue` matches the exact value currently held in the holder.
+Implementation proof of `cas_expected_soundness`.
 -/
-theorem cas_expected_soundness (st : State α) (v : α) (vid : Uuid) :
-    (stepSetValue st v vid).2.1 = st.sessionValue := by
+theorem cas_expected_soundness_Impl (st : State α) (v : α) (vid : Uuid) :
+    (stepSetValue st v vid).2.1 = st.sessionValue :=
   rfl
 
 end SessionValue
