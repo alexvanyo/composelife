@@ -61,6 +61,7 @@ kotlin {
                 implementation(projects.injectScopes)
                 implementation(projects.networkTestFixtures)
                 implementation(projects.preferencesTestFixtures)
+                implementation(projects.tracingTestFixtures)
                 implementation(projects.uiCommon)
                 implementation(projects.uiCommonTestFixtures)
                 implementation(projects.uiMobile)

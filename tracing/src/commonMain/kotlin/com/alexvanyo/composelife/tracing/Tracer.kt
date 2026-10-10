@@ -56,6 +56,13 @@ expect abstract class AbstractTraceDriver : AutoCloseable {
 }
 
 /**
+ * Common abstraction for `androidx.tracing.AbstractTraceDriver.Factory`.
+ */
+expect interface AbstractTraceDriverFactory {
+    fun create(): AbstractTraceDriver
+}
+
+/**
  * Common abstraction for `androidx.tracing.Tracer`.
  */
 @Suppress("AbstractClassCanBeInterface")

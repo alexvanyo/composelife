@@ -28,6 +28,7 @@ plugins {
 }
 
 metro {
+    enableRuntimeTracing.set(true)
     enableTopLevelFunctionInjection = true
     unusedGraphInputsSeverity = DiagnosticSeverity.NONE
 }
@@ -43,6 +44,7 @@ kotlin {
                 implementation(projects.injectScopes)
                 implementation(projects.logging)
                 implementation(projects.network)
+                implementation(projects.tracing)
                 implementation(projects.uiApp)
                 implementation(projects.uiMobile)
                 implementation(libs.androidx.compose.runtime)

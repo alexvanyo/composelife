@@ -29,6 +29,10 @@ plugins {
     alias(libs.plugins.metro)
 }
 
+metro {
+    enableRuntimeTracing.set(true)
+}
+
 kotlin {
     androidLibrary {
         namespace = "com.alexvanyo.composelife.appimpl"
