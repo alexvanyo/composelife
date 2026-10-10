@@ -18,7 +18,7 @@ androidxComposeBomAlpha = "2026.08.00"
 #androidxCollection
 androidxCollection = "1.6.0"
 #androidxCore
-androidxCore = "1.19.0"
+androidxCore = "1.19.1"
 #androidxCoreSplashscreen
 androidxCoreSplashscreen = "1.2.0"
 #androidxDataStore
