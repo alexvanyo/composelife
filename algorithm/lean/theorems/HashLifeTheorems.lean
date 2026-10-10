@@ -30,43 +30,43 @@ theorem macroCellSize_emptyNode : ∀ (k : ℕ), macroCellSize (emptyNode k) = 0
   macroCellSize_emptyNode_Impl
 
 theorem centeredSubSubnode_expandCentered (nw ne sw se : MacroCell) :
-    centeredSubSubnode (expandCentered (.cellNode nw ne sw se)) = .cellNode nw ne sw se :=
+    centeredSubSubnode (expandCentered (makeCellNode nw ne sw se)) = makeCellNode nw ne sw se :=
   centeredSubSubnode_expandCentered_Impl nw ne sw se
 
 theorem expandCentered_level (nw ne sw se : MacroCell) :
-    (expandCentered (.cellNode nw ne sw se)).level = nw.level + 1 + 1 + 1 :=
+    (expandCentered (makeCellNode nw ne sw se)).level = nw.level + 1 + 1 + 1 :=
   expandCentered_level_Impl nw ne sw se
 
 theorem expandCentered_size_node (nw ne sw se : MacroCell) :
-    macroCellSize (expandCentered (.cellNode nw ne sw se)) =
-    macroCellSize (.cellNode nw ne sw se) :=
+    macroCellSize (expandCentered (makeCellNode nw ne sw se)) =
+    macroCellSize (makeCellNode nw ne sw se) :=
   expandCentered_size_node_Impl nw ne sw se
 
 theorem expandCentered_confinement (nw ne sw se : MacroCell) :
-    macroCellSize (centeredSubSubnode (expandCentered (.cellNode nw ne sw se))) =
-    macroCellSize (expandCentered (.cellNode nw ne sw se)) :=
+    macroCellSize (centeredSubSubnode (expandCentered (makeCellNode nw ne sw se))) =
+    macroCellSize (expandCentered (makeCellNode nw ne sw se)) :=
   expandCentered_confinement_Impl nw ne sw se
 
 theorem subnodes_shared_center (sn : HashLifeSubnodes) :
     match quadrantNW sn, quadrantNE sn, quadrantSW sn, quadrantSE sn with
-    | .cellNode _ _ _ nw_se, .cellNode _ _ ne_sw _,
-      .cellNode _ sw_ne _ _, .cellNode se_nw _ _ _ =>
+    | .cellNode _ _ _ _ nw_se, .cellNode _ _ _ ne_sw _,
+      .cellNode _ _ sw_ne _ _, .cellNode _ se_nw _ _ _ =>
       nw_se = sn.n11 ∧ ne_sw = sn.n11 ∧ sw_ne = sn.n11 ∧ se_nw = sn.n11
     | _, _, _, _ => False :=
   subnodes_shared_center_Impl sn
 
 theorem subnodes_horizontal_alignment (sn : HashLifeSubnodes) :
     match quadrantNW sn, quadrantNE sn, quadrantSW sn, quadrantSE sn with
-    | .cellNode _ nw_ne _ nw_se, .cellNode ne_nw _ ne_sw _,
-      .cellNode _ sw_ne _ sw_se, .cellNode se_nw _ se_sw _ =>
+    | .cellNode _ _ nw_ne _ nw_se, .cellNode _ ne_nw _ ne_sw _,
+      .cellNode _ _ sw_ne _ sw_se, .cellNode _ se_nw _ se_sw _ =>
       nw_ne = ne_nw ∧ nw_se = ne_sw ∧ sw_ne = se_nw ∧ sw_se = se_sw
     | _, _, _, _ => False :=
   subnodes_horizontal_alignment_Impl sn
 
 theorem subnodes_vertical_alignment (sn : HashLifeSubnodes) :
     match quadrantNW sn, quadrantNE sn, quadrantSW sn, quadrantSE sn with
-    | .cellNode _ _ nw_sw nw_se, .cellNode _ _ ne_sw ne_se,
-      .cellNode sw_nw sw_ne _ _, .cellNode se_nw se_ne _ _ =>
+    | .cellNode _ _ _ nw_sw nw_se, .cellNode _ _ _ ne_sw ne_se,
+      .cellNode _ sw_nw sw_ne _ _, .cellNode _ se_nw se_ne _ _ =>
       nw_sw = sw_nw ∧ nw_se = se_nw ∧ ne_sw = sw_ne ∧ ne_se = se_ne
     | _, _, _, _ => False :=
   subnodes_vertical_alignment_Impl sn
@@ -260,6 +260,10 @@ theorem computeLevel4NextGen16x16UInt_zero :
     computeLevel4NextGen16x16UInt 0 0 0 0 = 0 :=
   computeLevel4NextGen16x16UInt_zero_Impl
 
+theorem computeLevel4NextGen16x16WithUInt_zero (f : UInt64 → UInt32) (hf : f 0 = 0) :
+    computeLevel4NextGen16x16WithUInt 0 0 0 0 f = 0 :=
+  computeLevel4NextGen16x16WithUInt_zero_Impl f hf
+
 theorem expandOffsetDelta_succ (k : ℕ) :
     expandOffsetDelta (k + 1) = -3 * (2 : ℤ) ^ k :=
   expandOffsetDelta_succ_Impl k
@@ -269,7 +273,7 @@ theorem stepOffsetDelta_succ (k : ℕ) :
   stepOffsetDelta_succ_Impl k
 
 theorem expandCentered_guarantees_confinement (nw ne sw se : MacroCell) :
-    isConfinedToSubSubnode (expandCentered (.cellNode nw ne sw se)) :=
+    isConfinedToSubSubnode (expandCentered (makeCellNode nw ne sw se)) :=
   expandCentered_guarantees_confinement_Impl nw ne sw se
 
 theorem quadrants_cover_center (sn : HashLifeSubnodes) :
@@ -314,5 +318,9 @@ theorem hashlife_step_equivalence_empty (k : ℕ) (ox oy : ℤ) :
     hashLifeToGrid (hashLifeNextGenerationStep { offset := (ox, oy), macroCell := emptyNode (k + 5) }) =
     stepGrid (hashLifeToGrid { offset := (ox, oy), macroCell := emptyNode (k + 5) }) :=
   hashlife_step_equivalence_empty_Impl k ox oy
+
+theorem stepLevel4NodeWith_zero (f : UInt64 → UInt32) (hf : f 0 = 0) :
+    stepLevel4NodeWith emptyLevel4 f = 0 :=
+  stepLevel4NodeWith_zero_Impl f hf
 
 end Algorithm

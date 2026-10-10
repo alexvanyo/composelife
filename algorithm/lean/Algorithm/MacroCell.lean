@@ -48,15 +48,47 @@ def popcount64 (x : UInt64) : UInt32 :=
   x4.toUInt32
 
 /--
+Converts relative coordinates (0..7, 0..7) into a Morton bit index within an 8x8 leaf.
+-/
+@[export cell_to_leaf_bit]
+def cellToLeafBitUInt (x y : UInt32) : UInt32 :=
+  (x &&& (1 : UInt32)) |||
+  ((y &&& (1 : UInt32)) <<< 1) |||
+  ((x &&& (2 : UInt32)) <<< 1) |||
+  ((y &&& (2 : UInt32)) <<< 2) |||
+  ((x &&& (4 : UInt32)) <<< 2) |||
+  ((y &&& (4 : UInt32)) <<< 3)
+
+/--
+Tests whether an 8x8 leaf has an active cell at relative coordinates (x, y).
+-/
+@[export leaf_contains]
+def leafContains (leaf : UInt64) (x y : UInt32) : Bool :=
+  let bit := cellToLeafBitUInt x y
+  ((leaf >>> bit.toUInt64) &&& (1 : UInt64)) == 1
+
+/--
+Sets or clears an active cell in an 8x8 leaf at relative coordinates (x, y).
+-/
+@[export leaf_with_cell]
+def leafWithCell (leaf : UInt64) (x y : UInt32) (isAlive : Bool) : UInt64 :=
+  let bit := cellToLeafBitUInt x y
+  let mask : UInt64 := (1 : UInt64) <<< bit.toUInt64
+  if isAlive then
+    leaf ||| mask
+  else
+    leaf &&& (~~~mask)
+
+/--
 A quadtree representation of the state of cells, matching Kotlin's `MacroCell`.
 A `MacroCell` is either:
 - A `Level4Node` with 4 64-bit `LeafNode` quadrants (16x16 cells).
 - A `CellNode` with 4 subnodes of equal level >= 4 (representing 2^(k+1) x 2^(k+1) cells).
 -/
-@[kotlin_class "data sealed interface MacroCell"]
+@[kotlin_class "sealed class MacroCell"]
 inductive MacroCell where
-  | level4Node (nw ne sw se : UInt64) : MacroCell
-  | cellNode (nw ne sw se : MacroCell) : MacroCell
+  | level4Node (hash : UInt32) (nw ne sw se : UInt64) : MacroCell
+  | cellNode (hash : UInt32) (nw ne sw se : MacroCell) : MacroCell
 deriving DecidableEq
 
 /--
@@ -65,32 +97,83 @@ Minimum level is 4.
 -/
 @[export macrocell_level]
 def MacroCell.level : MacroCell → UInt32
-  | .level4Node _ _ _ _ => 4
-  | .cellNode nw _ _ _ => nw.level + 1
-
-/--
-The number of alive cells represented by this MacroCell.
--/
-@[export macrocell_size]
-def MacroCell.size : MacroCell → UInt32
-  | .level4Node nw ne sw se => popcount64 nw + popcount64 ne + popcount64 sw + popcount64 se
-  | .cellNode nw ne sw se => nw.size + ne.size + sw.size + se.size
+  | .level4Node _ _ _ _ _ => 4
+  | .cellNode _ nw _ _ _ => nw.level + 1
 
 /--
 The memoized hashcode for MacroCell matching MacroCellHash.lean.
 Level4Node uses Stafford's Mix13 hash on the 4 leaves.
 CellNode uses MurmurHash3 fmix32 on level and the 4 child hashes.
 -/
-@[export macrocell_hash_code]
 def MacroCell.cellHashCode : MacroCell → UInt32
-  | .level4Node nw ne sw se => level4Hash nw ne sw se
-  | .cellNode nw ne sw se => cellNodeHash (nw.level + 1) nw.cellHashCode ne.cellHashCode sw.cellHashCode se.cellHashCode
+  | .level4Node h _ _ _ _ => h
+  | .cellNode h _ _ _ _ => h
+
+/--
+Smart constructor for Level4Node that automatically computes the hash.
+-/
+def makeLevel4Node (nw ne sw se : UInt64) : MacroCell :=
+  .level4Node (level4Hash nw ne sw se) nw ne sw se
+
+/--
+Smart constructor for CellNode that automatically computes the hash.
+-/
+def makeCellNode (nw ne sw se : MacroCell) : MacroCell :=
+  .cellNode (cellNodeHash (nw.level + 1) nw.cellHashCode ne.cellHashCode sw.cellHashCode se.cellHashCode) nw ne sw se
+
+/--
+The number of alive cells represented by this MacroCell.
+-/
+@[export macrocell_size]
+def MacroCell.size : MacroCell → UInt32
+  | .level4Node _ nw ne sw se => popcount64 nw + popcount64 ne + popcount64 sw + popcount64 se
+  | .cellNode _ nw ne sw se => nw.size + ne.size + sw.size + se.size
+
+/--
+Structural equality predicate for MacroCell.
+-/
+@[export macrocell_equals]
+def MacroCell.cellEquals (m : MacroCell) (other : MacroCell) : Bool :=
+  match m, other with
+  | .level4Node h1 nw1 ne1 sw1 se1, .level4Node h2 nw2 ne2 sw2 se2 =>
+    h1 == h2 && nw1 == nw2 && ne1 == ne2 && sw1 == sw2 && se1 == se2
+  | .cellNode h1 nw1 ne1 sw1 se1, .cellNode h2 nw2 ne2 sw2 se2 =>
+    h1 == h2 && cellEquals nw1 nw2 && cellEquals ne1 ne2 && cellEquals sw1 sw2 && cellEquals se1 se2
+  | _, _ => false
+
+/--
+Structural equality predicate for Level4Node.
+-/
+@[export macrocell_level4_node_equals]
+def Level4Node.cellEquals (m : MacroCell) (other : MacroCell) : Bool :=
+  match m, other with
+  | .level4Node h1 nw1 ne1 sw1 se1, .level4Node h2 nw2 ne2 sw2 se2 =>
+    h1 == h2 && nw1 == nw2 && ne1 == ne2 && sw1 == sw2 && se1 == se2
+  | _, _ => false
+
+/--
+Structural equality predicate for CellNode.
+-/
+@[export macrocell_cell_node_equals]
+def CellNode.cellEquals (m : MacroCell) (other : MacroCell) : Bool :=
+  match m, other with
+  | .cellNode h1 nw1 ne1 sw1 se1, .cellNode h2 nw2 ne2 sw2 se2 =>
+    h1 == h2 && MacroCell.cellEquals nw1 nw2 && MacroCell.cellEquals ne1 ne2 &&
+      MacroCell.cellEquals sw1 sw2 && MacroCell.cellEquals se1 se2
+  | _, _ => false
+
+/--
+Kotlin hashCode member delegating to cellHashCode.
+-/
+@[export macrocell_hash_code]
+def MacroCell.hashCode (m : MacroCell) : UInt32 :=
+  m.cellHashCode
 
 /--
 An empty (all dead) level 4 MacroCell.
 -/
 def emptyLevel4 : MacroCell :=
-  .level4Node 0 0 0 0
+  makeLevel4Node 0 0 0 0
 
 /--
 Creates an empty MacroCell at level k (k >= 4).
@@ -104,12 +187,81 @@ def emptyNode : ℕ → MacroCell
   | 4 => emptyLevel4
   | k + 5 =>
     let sub := emptyNode (k + 4)
-    .cellNode sub sub sub sub
+    makeCellNode sub sub sub sub
+
+/--
+Returns true if the MacroCell contains an alive cell at coordinates (x, y).
+-/
+@[export macrocell_contains]
+def macroCellContains (m : MacroCell) (x y : Int32) : Bool :=
+  let w : Int32 := (1 : Int32) <<< m.level.toInt32
+  if x < 0 || y < 0 || x >= w || y >= w then false
+  else
+      let half : Int32 := (1 : Int32) <<< (m.level.toInt32 - 1)
+      let isNorth : Bool := y < half
+      let isWest : Bool := x < half
+      match m with
+      | .level4Node _ nw ne sw se =>
+        match isNorth, isWest with
+        | true, true => leafContains nw x.toUInt32 y.toUInt32
+        | true, false => leafContains ne (x - half).toUInt32 y.toUInt32
+        | false, true => leafContains sw x.toUInt32 (y - half).toUInt32
+        | false, false => leafContains se (x - half).toUInt32 (y - half).toUInt32
+      | .cellNode _ nw ne sw se =>
+        match isNorth, isWest with
+        | true, true => macroCellContains nw x y
+        | true, false => macroCellContains ne (x - half) y
+        | false, true => macroCellContains sw x (y - half)
+        | false, false => macroCellContains se (x - half) (y - half)
+
+/--
+Sets or clears the cell at coordinates (x, y) in the MacroCell.
+-/
+@[export macrocell_with_cell]
+def macroCellWithCell (m : MacroCell) (x y : Int32) (isAlive : Bool) : MacroCell :=
+  let w : Int32 := (1 : Int32) <<< m.level.toInt32
+  if x < 0 || y < 0 || x >= w || y >= w then m
+  else
+    let half : Int32 := (1 : Int32) <<< (m.level.toInt32 - 1)
+    let isNorth : Bool := y < half
+    let isWest : Bool := x < half
+    match m with
+    | .level4Node _ nw ne sw se =>
+      match isNorth, isWest with
+      | true, true => makeLevel4Node (leafWithCell nw x.toUInt32 y.toUInt32 isAlive) ne sw se
+      | true, false => makeLevel4Node nw (leafWithCell ne (x - half).toUInt32 y.toUInt32 isAlive) sw se
+      | false, true => makeLevel4Node nw ne (leafWithCell sw x.toUInt32 (y - half).toUInt32 isAlive) se
+      | false, false => makeLevel4Node nw ne sw (leafWithCell se (x - half).toUInt32 (y - half).toUInt32 isAlive)
+    | .cellNode _ nw ne sw se =>
+      match isNorth, isWest with
+      | true, true => makeCellNode (macroCellWithCell nw x y isAlive) ne sw se
+      | true, false => makeCellNode nw (macroCellWithCell ne (x - half) y isAlive) sw se
+      | false, true => makeCellNode nw ne (macroCellWithCell sw x (y - half) isAlive) se
+      | false, false => makeCellNode nw ne sw (macroCellWithCell se (x - half) (y - half) isAlive)
+
+/--
+A four-quadrant container for the intermediate results of HashLife step decomposition.
+-/
+@[kotlin_class "class StepQuadrants"]
+structure StepQuadrants where
+  nw : MacroCell
+  ne : MacroCell
+  sw : MacroCell
+  se : MacroCell
+
+/--
+Result container for HashLife step preparation, pairing the offset delta with the prepared node.
+-/
+@[kotlin_class "class StepPreparation"]
+structure StepPreparation where
+  offsetDelta : Int32
+  macroCell : MacroCell
 
 /--
 Extracts the center 8x8 leaf from a 16x16 Level 4 node.
 In quadtree coordinates: nw = nw.se, ne = ne.sw, sw = sw.ne, se = se.nw.
 -/
+@[export macrocell_centered_subnode_level4]
 def centeredSubnodeLevel4 (nw ne sw se : UInt64) : UInt64 :=
   let nw_se := (nw >>> 48).toUInt32 &&& 0xFFFF
   let ne_sw := (ne >>> 32).toUInt32 &&& 0xFFFF
@@ -121,99 +273,205 @@ def centeredSubnodeLevel4 (nw ne sw se : UInt64) : UInt64 :=
   (se_nw.toUInt64 <<< 48)
 
 /--
+Extracts the horizontal center 8x8 leaf spanning between west and east 16x16 nodes.
+Matches centeredHorizontalSubnode(w, e) in Kotlin.
+-/
+@[export macrocell_centered_horizontal_subnode_level4]
+def centeredHorizontalSubnodeLevel4 (w_ne w_se e_nw e_sw : UInt64) : UInt64 :=
+  centeredSubnodeLevel4 w_ne e_nw w_se e_sw
+
+/--
+Extracts the vertical center 8x8 leaf spanning between north and south 16x16 nodes.
+Matches centeredVerticalSubnode(n, s) in Kotlin.
+-/
+@[export macrocell_centered_vertical_subnode_level4]
+def centeredVerticalSubnodeLevel4 (n_sw n_se s_nw s_ne : UInt64) : UInt64 :=
+  centeredSubnodeLevel4 n_sw n_se s_nw s_ne
+
+/--
 Extracts the center subnode of level k-1 from a level k CellNode.
 In quadtree coordinates, the center consists of:
   nw = nw.se, ne = ne.sw, sw = sw.ne, se = se.nw
 -/
+@[export macrocell_centered_subnode]
 def centeredSubnode : MacroCell → MacroCell
-  | .cellNode (.cellNode _ _ _ nw_se) (.cellNode _ _ ne_sw _)
-              (.cellNode _ sw_ne _ _) (.cellNode se_nw _ _ _) =>
-    .cellNode nw_se ne_sw sw_ne se_nw
-  | .cellNode (.level4Node nw1 ne1 sw1 se1) (.level4Node nw2 ne2 sw2 se2)
-              (.level4Node nw3 ne3 sw3 se3) (.level4Node nw4 ne4 sw4 se4) =>
-    .level4Node
-      (centeredSubnodeLevel4 nw1 ne1 sw1 se1)
-      (centeredSubnodeLevel4 nw2 ne2 sw2 se2)
-      (centeredSubnodeLevel4 nw3 ne3 sw3 se3)
-      (centeredSubnodeLevel4 nw4 ne4 sw4 se4)
+  | .cellNode _ (.cellNode _ _ _ _ nw_se) (.cellNode _ _ _ ne_sw _)
+              (.cellNode _ _ sw_ne _ _) (.cellNode _ se_nw _ _ _) =>
+    makeCellNode nw_se ne_sw sw_ne se_nw
+  | .cellNode _ (.level4Node _ _ _ _ nw_se) (.level4Node _ _ _ ne_sw _)
+              (.level4Node _ _ sw_ne _ _) (.level4Node _ se_nw _ _ _) =>
+    makeLevel4Node nw_se ne_sw sw_ne se_nw
+  | .level4Node _ nw ne sw se =>
+    makeLevel4Node 0 0 0 (centeredSubnodeLevel4 nw ne sw se)
   | m => m
 
 /--
 Extracts the horizontal center subnode spanning between west and east nodes.
 -/
+@[export macrocell_centered_horizontal_subnode]
 def centeredHorizontalSubnode : MacroCell → MacroCell → MacroCell
-  | .cellNode _ w_ne _ w_se, .cellNode e_nw _ e_sw _ =>
+  | .cellNode _ _ w_ne _ w_se, .cellNode _ e_nw _ e_sw _ =>
     match w_ne, w_se, e_nw, e_sw with
-    | .cellNode _ _ _ w_ne_se, .cellNode _ _ w_se_ne _,
-      .cellNode _ _ _ e_nw_sw, .cellNode _ e_sw_nw _ _ =>
-      .cellNode w_ne_se e_nw_sw w_se_ne e_sw_nw
-    | .level4Node _ _ _ w_ne_se, .level4Node _ _ w_se_ne _,
-      .level4Node _ _ _ e_nw_sw, .level4Node _ e_sw_nw _ _ =>
-      .level4Node w_ne_se e_nw_sw w_se_ne e_sw_nw
+    | .cellNode _ _ _ _ w_ne_se, .cellNode _ _ w_se_ne _ _,
+      .cellNode _ _ _ e_nw_sw _, .cellNode _ e_sw_nw _ _ _ =>
+      makeCellNode w_ne_se e_nw_sw w_se_ne e_sw_nw
+    | .level4Node _ _ _ _ w_ne_se, .level4Node _ _ w_se_ne _ _,
+      .level4Node _ _ _ e_nw_sw _, .level4Node _ e_sw_nw _ _ _ =>
+      makeLevel4Node w_ne_se e_nw_sw w_se_ne e_sw_nw
     | _, _, _, _ => emptyLevel4
   | w, _ => w
 
 /--
 Extracts the vertical center subnode spanning between north and south nodes.
 -/
+@[export macrocell_centered_vertical_subnode]
 def centeredVerticalSubnode : MacroCell → MacroCell → MacroCell
-  | .cellNode _ _ n_sw n_se, .cellNode s_nw s_ne _ _ =>
+  | .cellNode _ _ _ n_sw n_se, .cellNode _ s_nw s_ne _ _ =>
     match n_sw, n_se, s_nw, s_ne with
-    | .cellNode _ _ _ n_sw_se, .cellNode _ _ _ n_se_sw,
-      .cellNode _ _ s_nw_ne _, .cellNode _ s_ne_nw _ _ =>
-      .cellNode n_sw_se n_se_sw s_nw_ne s_ne_nw
-    | .level4Node _ _ _ n_sw_se, .level4Node _ _ _ n_se_sw,
-      .level4Node _ _ s_nw_ne _, .level4Node _ s_ne_nw _ _ =>
-      .level4Node n_sw_se n_se_sw s_nw_ne s_ne_nw
+    | .cellNode _ _ _ _ n_sw_se, .cellNode _ _ _ n_se_sw _,
+      .cellNode _ _ s_nw_ne _ _, .cellNode _ s_ne_nw _ _ _ =>
+      makeCellNode n_sw_se n_se_sw s_nw_ne s_ne_nw
+    | .level4Node _ _ _ _ n_sw_se, .level4Node _ _ _ n_se_sw _,
+      .level4Node _ _ s_nw_ne _ _, .level4Node _ s_ne_nw _ _ _ =>
+      makeLevel4Node n_sw_se n_se_sw s_nw_ne s_ne_nw
     | _, _, _, _ => emptyLevel4
   | n, _ => n
 
 /--
 Extracts the center sub-subnode from a node of level k >= 5.
 -/
+@[export macrocell_centered_sub_subnode]
 def centeredSubSubnode (m : MacroCell) : MacroCell :=
   centeredSubnode (centeredSubnode m)
 
 /--
 Computes the population of the center sub-subnode.
 -/
+@[export macrocell_centered_sub_subnode_size]
 def centeredSubSubnodeSize (m : MacroCell) : UInt32 :=
   (centeredSubSubnode m).size
 
 def emptySubnode : MacroCell → MacroCell
-  | .level4Node _ _ _ _ => emptyLevel4
-  | .cellNode nw _ _ _ =>
+  | .level4Node .. => emptyLevel4
+  | .cellNode _ nw _ _ _ =>
     let sub := emptySubnode nw
-    .cellNode sub sub sub sub
+    makeCellNode sub sub sub sub
 
 /--
 Surrounds a MacroCell with empty nodes of matching size, creating a centered
 macrocell of level k + 2.
 -/
+@[export macrocell_expand_centered]
 def expandCentered : MacroCell → MacroCell
-  | .level4Node nw ne sw se =>
+  | .level4Node _ nw ne sw se =>
     let e4 := emptyLevel4
-    let nw_se := MacroCell.level4Node 0 0 0 nw
-    let ne_sw := MacroCell.level4Node 0 0 ne 0
-    let sw_ne := MacroCell.level4Node 0 sw 0 0
-    let se_nw := MacroCell.level4Node se 0 0 0
-    let q_nw := MacroCell.cellNode e4 e4 e4 nw_se
-    let q_ne := MacroCell.cellNode e4 e4 ne_sw e4
-    let q_sw := MacroCell.cellNode e4 sw_ne e4 e4
-    let q_se := MacroCell.cellNode se_nw e4 e4 e4
-    .cellNode q_nw q_ne q_sw q_se
-  | .cellNode nw ne sw se =>
+    let nw_se := makeLevel4Node 0 0 0 nw
+    let ne_sw := makeLevel4Node 0 0 ne 0
+    let sw_ne := makeLevel4Node 0 sw 0 0
+    let se_nw := makeLevel4Node se 0 0 0
+    let q_nw := makeCellNode e4 e4 e4 nw_se
+    let q_ne := makeCellNode e4 e4 ne_sw e4
+    let q_sw := makeCellNode e4 sw_ne e4 e4
+    let q_se := makeCellNode se_nw e4 e4 e4
+    makeCellNode q_nw q_ne q_sw q_se
+  | .cellNode _ nw ne sw se =>
     let ek := emptySubnode nw
-    let nw_se := MacroCell.cellNode ek ek ek nw
-    let ne_sw := MacroCell.cellNode ek ek ne ek
-    let sw_ne := MacroCell.cellNode ek sw ek ek
-    let se_nw := MacroCell.cellNode se ek ek ek
-    let ek1 := MacroCell.cellNode ek ek ek ek
-    let q_nw := MacroCell.cellNode ek1 ek1 ek1 nw_se
-    let q_ne := MacroCell.cellNode ek1 ek1 ne_sw ek1
-    let q_sw := MacroCell.cellNode ek1 sw_ne ek1 ek1
-    let q_se := MacroCell.cellNode se_nw ek1 ek1 ek1
-    .cellNode q_nw q_ne q_sw q_se
+    let nw_se := makeCellNode ek ek ek nw
+    let ne_sw := makeCellNode ek ek ne ek
+    let sw_ne := makeCellNode ek sw ek ek
+    let se_nw := makeCellNode se ek ek ek
+    let ek1 := makeCellNode ek ek ek ek
+    let q_nw := makeCellNode ek1 ek1 ek1 nw_se
+    let q_ne := makeCellNode ek1 ek1 ne_sw ek1
+    let q_sw := makeCellNode ek1 sw_ne ek1 ek1
+    let q_se := makeCellNode se_nw ek1 ek1 ek1
+    makeCellNode q_nw q_ne q_sw q_se
+
+/--
+Offset delta in cells when expanding a MacroCell of the given level.
+-/
+@[export macrocell_expand_offset_delta]
+def expandOffsetDeltaUInt (level : UInt32) : Int32 :=
+  -3 * ((1 : Int32) <<< (level.toInt32 - 1))
+
+/--
+Offset delta in cells when stepping a MacroCell of the given level without expansion.
+-/
+@[export macrocell_step_offset_delta]
+def stepOffsetDeltaUInt (level : UInt32) : Int32 :=
+  (1 : Int32) <<< (level.toInt32 - 2)
+
+/--
+Determines if a MacroCell needs expansion before stepping.
+-/
+@[export macrocell_need_to_expand]
+def needToExpand (m : MacroCell) : Bool :=
+  m.level <= 4 || centeredSubSubnodeSize m != m.size
+
+/--
+Prepares a MacroCell for stepping by expanding if necessary and computing the cumulative offset delta.
+-/
+@[export macrocell_prepare_step]
+def prepareStep (m : MacroCell) : StepPreparation :=
+  if needToExpand m then
+    let exp := expandCentered m
+    { offsetDelta := expandOffsetDeltaUInt m.level + stepOffsetDeltaUInt exp.level
+    , macroCell := exp }
+  else
+    { offsetDelta := stepOffsetDeltaUInt m.level
+    , macroCell := m }
+
+/--
+Decomposes a CellNode into the 4 sub-quadrants of level k - 1 needed for HashLife recursive stepping.
+-/
+@[export macrocell_step_quadrants]
+def stepQuadrants : MacroCell → StepQuadrants
+  | .cellNode _ (.level4Node _ nw1 ne1 sw1 se1) (.level4Node _ nw2 ne2 sw2 se2)
+                (.level4Node _ nw3 ne3 sw3 se3) (.level4Node _ nw4 ne4 sw4 se4) =>
+    let n00 := centeredSubnodeLevel4 nw1 ne1 sw1 se1
+    let n01 := centeredSubnodeLevel4 ne1 nw2 se1 sw2
+    let n02 := centeredSubnodeLevel4 nw2 ne2 sw2 se2
+    let n10 := centeredSubnodeLevel4 sw1 se1 nw3 ne3
+    let n11 := centeredSubnodeLevel4 se1 sw2 ne3 nw4
+    let n12 := centeredSubnodeLevel4 sw2 se2 nw4 ne4
+    let n20 := centeredSubnodeLevel4 nw3 ne3 sw3 se3
+    let n21 := centeredSubnodeLevel4 ne3 nw4 se3 sw4
+    let n22 := centeredSubnodeLevel4 nw4 ne4 sw4 se4
+    { nw := makeLevel4Node n00 n01 n10 n11
+    , ne := makeLevel4Node n01 n02 n11 n12
+    , sw := makeLevel4Node n10 n11 n20 n21
+    , se := makeLevel4Node n11 n12 n21 n22 }
+  | m@(.cellNode _ nw ne sw se) =>
+    let n00 := centeredSubnode nw
+    let n01 := centeredHorizontalSubnode nw ne
+    let n02 := centeredSubnode ne
+    let n10 := centeredVerticalSubnode nw sw
+    let n11 := centeredSubSubnode m
+    let n12 := centeredVerticalSubnode ne se
+    let n20 := centeredSubnode sw
+    let n21 := centeredHorizontalSubnode sw se
+    let n22 := centeredSubnode se
+    { nw := makeCellNode n00 n01 n10 n11
+    , ne := makeCellNode n01 n02 n11 n12
+    , sw := makeCellNode n10 n11 n20 n21
+    , se := makeCellNode n11 n12 n21 n22 }
+  | m => { nw := m, ne := m, sw := m, se := m }
+
+/--
+Stepping stepCellNodeWith on a CellNode:
+If level == 5, steps each quadrant with stepLevel4 and returns a Level4Node.
+If level > 5, steps each quadrant with stepCell and returns a CellNode.
+-/
+@[export macrocell_step_cell_node_with]
+def stepCellNodeWith
+    (m : MacroCell)
+    (stepLevel4 : MacroCell → UInt64)
+    (stepCell : MacroCell → MacroCell) : MacroCell :=
+  let q := stepQuadrants m
+  if m.level == 5 then
+    makeLevel4Node (stepLevel4 q.nw) (stepLevel4 q.ne) (stepLevel4 q.sw) (stepLevel4 q.se)
+  else
+    makeCellNode (stepCell q.nw) (stepCell q.ne) (stepCell q.sw) (stepCell q.se)
 
 /--
 Recursive Gosper step on MacroCell.
@@ -222,11 +480,11 @@ Stepping a level 5 node returns a level 4 node.
 Stepping a level k+1 node returns a level k node.
 -/
 def hashLifeStep : MacroCell → MacroCell
-  | .level4Node nw ne sw se =>
+  | .level4Node _ nw ne sw se =>
     let outLeaf := centeredSubnodeLevel4 nw ne sw se
-    .level4Node 0 0 0 outLeaf
-  | .cellNode (.level4Node nw1 ne1 sw1 se1) (.level4Node nw2 ne2 sw2 se2)
-              (.level4Node nw3 ne3 sw3 se3) (.level4Node nw4 ne4 sw4 se4) =>
+    makeLevel4Node 0 0 0 outLeaf
+  | .cellNode _ (.level4Node _ nw1 ne1 sw1 se1) (.level4Node _ nw2 ne2 sw2 se2)
+                (.level4Node _ nw3 ne3 sw3 se3) (.level4Node _ nw4 ne4 sw4 se4) =>
     let n00 := centeredSubnodeLevel4 nw1 ne1 sw1 se1
     let n01 := centeredSubnodeLevel4 ne1 nw2 se1 sw2
     let n02 := centeredSubnodeLevel4 nw2 ne2 sw2 se2
@@ -240,10 +498,10 @@ def hashLifeStep : MacroCell → MacroCell
     let q_ne := centeredSubnodeLevel4 n01 n02 n11 n12
     let q_sw := centeredSubnodeLevel4 n10 n11 n20 n21
     let q_se := centeredSubnodeLevel4 n11 n12 n21 n22
-    .level4Node q_nw q_ne q_sw q_se
-  | .cellNode nw _ _ _ =>
+    makeLevel4Node q_nw q_ne q_sw q_se
+  | .cellNode _ nw _ _ _ =>
     let sub := centeredSubnode nw
-    .cellNode sub sub sub sub
+    makeCellNode sub sub sub sub
 
 /--
 Suite of 5 caches mirroring HashLifeAlgorithm.kt:
@@ -287,19 +545,34 @@ def pruneHashLifeCaches (caches : HashLifeCaches) (macroKeep leafKeep : UInt64) 
   , computedGenerations := caches.computedGenerations }
 
 /--
+Canonicalizes a CellNode by canonicalizing its subnodes with `canonicalize`.
+If size is 0, only canonicalizes nw once.
+-/
+@[export macrocell_make_canonical_cell_node_with]
+def makeCanonicalCellNodeWith (m : MacroCell) (canonicalize : MacroCell → MacroCell) : MacroCell :=
+  match m with
+  | .cellNode _ nw ne sw se =>
+    if m.size == 0 then
+      let c := canonicalize nw
+      makeCellNode c c c c
+    else
+      makeCellNode (canonicalize nw) (canonicalize ne) (canonicalize sw) (canonicalize se)
+  | _ => m
+
+/--
 Canonicalizes a MacroCell using the canonical caches (hash-consing).
 -/
 def makeCanonical (m : MacroCell) (caches : HashLifeCaches) : MacroCell × HashLifeCaches :=
   match m with
-  | .level4Node nw ne sw se =>
-    let (canon, newL4Map) := caches.canonicalLevel4Map.get id (.level4Node nw ne sw se) caches.computedGenerations
+  | .level4Node .. =>
+    let (canon, newL4Map) := caches.canonicalLevel4Map.get id m caches.computedGenerations
     (canon, { caches with canonicalLevel4Map := newL4Map })
-  | .cellNode nw ne sw se =>
+  | .cellNode _ nw ne sw se =>
     let (cnw, c1) := makeCanonical nw caches
     let (cne, c2) := makeCanonical ne c1
     let (csw, c3) := makeCanonical sw c2
     let (cse, c4) := makeCanonical se c3
-    let canonicalForm := MacroCell.cellNode cnw cne csw cse
+    let canonicalForm := makeCellNode cnw cne csw cse
     let (canon, newCellMap) := c4.canonicalCellNodeMap.get id canonicalForm c4.computedGenerations
     (canon, { c4 with canonicalCellNodeMap := newCellMap })
 
@@ -317,18 +590,27 @@ def macroCellFileSpec : FileSpec := {
   items := #[
     .cls {
       name := "MacroCell"
-      header := "sealed interface MacroCell"
+      header := "sealed class MacroCell"
       body := #[
-        .verbatim "fun level(): UInt
-fun size(): UInt
-fun cellHashCode(): UInt = hashCode().toUInt()
+        .members,
+        .verbatim "abstract val hash: UInt
+abstract fun level(): UInt
+abstract fun size(): UInt
+fun cellHashCode(): UInt = hash
+override fun hashCode(): Int = hash.toInt()
 
-data class Level4Node(
+class Level4Node(
+    override val hash: UInt,
     val nw: ULong,
     val ne: ULong,
     val sw: ULong,
     val se: ULong,
-) : MacroCell {
+) : MacroCell() {
+    companion object {
+        operator fun invoke(nw: ULong, ne: ULong, sw: ULong, se: ULong): Level4Node =
+            f_Algorithm_makeLevel4Node(nw, ne, sw, se) as Level4Node
+    }
+
     override fun level(): UInt = 4u
 
     private val _size: UInt =
@@ -339,17 +621,25 @@ data class Level4Node(
 
     override fun size(): UInt = _size
 
-    private val _hashCode: Int = f_Algorithm_level4Hash(nw, ne, sw, se).toInt()
-
-    override fun hashCode(): Int = _hashCode
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Level4Node) return false
+        return f_Algorithm_Level4Node_cellEquals(this, other)
+    }
 }
 
-data class CellNode(
+class CellNode(
+    override val hash: UInt,
     val nw: MacroCell,
     val ne: MacroCell,
     val sw: MacroCell,
     val se: MacroCell,
-) : MacroCell {
+) : MacroCell() {
+    companion object {
+        operator fun invoke(nw: MacroCell, ne: MacroCell, sw: MacroCell, se: MacroCell): CellNode =
+            f_Algorithm_makeCellNode(nw, ne, sw, se) as CellNode
+    }
+
     init {
         require(nw.level() == ne.level())
         require(ne.level() == sw.level())
@@ -364,16 +654,11 @@ data class CellNode(
 
     override fun size(): UInt = _size
 
-    private val _hashCode: Int =
-        f_Algorithm_cellNodeHash(
-            _level,
-            nw.hashCode().toUInt(),
-            ne.hashCode().toUInt(),
-            sw.hashCode().toUInt(),
-            se.hashCode().toUInt(),
-        ).toInt()
-
-    override fun hashCode(): Int = _hashCode
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CellNode) return false
+        return f_Algorithm_CellNode_cellEquals(this, other)
+    }
 }"
       ]
     },

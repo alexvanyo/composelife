@@ -73,14 +73,8 @@ internal inline val Int.ne: Int get() = ((this and 0b0000_0000_1111_0000) ushr 4
 internal inline val Int.sw: Int get() = ((this and 0b0000_1111_0000_0000) ushr 8)
 internal inline val Int.se: Int get() = ((this and 0b1111_0000_0000_0000) ushr 12)
 
-internal inline fun LeafNode.withCell(x: Int, y: Int, isAlive: Boolean): LeafNode {
-    val mask = cellToLeafMask(x, y)
-    return if (isAlive) {
-        or(mask)
-    } else {
-        and(mask.inv())
-    }
-}
+internal inline fun LeafNode.withCell(x: Int, y: Int, isAlive: Boolean): LeafNode =
+    f_Algorithm_leafWithCell(this, x.toUInt(), y.toUInt(), isAlive)
 
 internal inline fun LeafNode.withCell(target: IntOffset, isAlive: Boolean): LeafNode =
     withCell(target.x, target.y, isAlive)
@@ -91,88 +85,10 @@ internal inline fun LeafNode.withCell(target: IntOffset, isAlive: Boolean): Leaf
  *
  * This function will return a [MacroCell] with the same level.
  */
-@Suppress("LongMethod")
 internal fun MacroCell.withCell(x: Int, y: Int, isAlive: Boolean): MacroCell {
     val intLevel = level().toInt()
     require(x in 0 until (1 shl intLevel) && y in 0 until (1 shl intLevel))
-
-    val offsetDiff = 1 shl (intLevel - 1)
-    val isNorth = y < offsetDiff
-    val isWest = x < offsetDiff
-
-    return when (this) {
-        is Level4Node -> {
-            if (isNorth) {
-                if (isWest) {
-                    Level4Node(
-                        nw = nw.withCell(x, y, isAlive),
-                        ne = ne,
-                        sw = sw,
-                        se = se,
-                    )
-                } else {
-                    Level4Node(
-                        nw = nw,
-                        ne = ne.withCell(x - offsetDiff, y, isAlive),
-                        sw = sw,
-                        se = se,
-                    )
-                }
-            } else {
-                if (isWest) {
-                    Level4Node(
-                        nw = nw,
-                        ne = ne,
-                        sw = sw.withCell(x, y - offsetDiff, isAlive),
-                        se = se,
-                    )
-                } else {
-                    Level4Node(
-                        nw = nw,
-                        ne = ne,
-                        sw = sw,
-                        se = se.withCell(x - offsetDiff, y - offsetDiff, isAlive),
-                    )
-                }
-            }
-        }
-
-        is CellNode -> {
-            if (isNorth) {
-                if (isWest) {
-                    CellNode(
-                        nw = nw.withCell(x, y, isAlive),
-                        ne = ne,
-                        sw = sw,
-                        se = se,
-                    )
-                } else {
-                    CellNode(
-                        nw = nw,
-                        ne = ne.withCell(x - offsetDiff, y, isAlive),
-                        sw = sw,
-                        se = se,
-                    )
-                }
-            } else {
-                if (isWest) {
-                    CellNode(
-                        nw = nw,
-                        ne = ne,
-                        sw = sw.withCell(x, y - offsetDiff, isAlive),
-                        se = se,
-                    )
-                } else {
-                    CellNode(
-                        nw = nw,
-                        ne = ne,
-                        sw = sw,
-                        se = se.withCell(x - offsetDiff, y - offsetDiff, isAlive),
-                    )
-                }
-            }
-        }
-    }
+    return f_Algorithm_macroCellWithCell(this, x, y, isAlive)
 }
 
 internal inline fun MacroCell.withCell(target: IntOffset, isAlive: Boolean): MacroCell =
@@ -186,10 +102,10 @@ internal inline fun MacroCell.withCell(target: IntOffset, isAlive: Boolean): Mac
 internal fun createEmptyMacroCell(level: Int): MacroCell {
     require(level >= 4)
     return if (level == 4) {
-        Level4Node(0uL, 0uL, 0uL, 0uL)
+        f_Algorithm_makeLevel4Node(0uL, 0uL, 0uL, 0uL)
     } else {
         val smallerEmptyMacroCell = createEmptyMacroCell(level - 1)
-        CellNode(
+        f_Algorithm_makeCellNode(
             smallerEmptyMacroCell,
             smallerEmptyMacroCell,
             smallerEmptyMacroCell,
@@ -200,7 +116,7 @@ internal fun createEmptyMacroCell(level: Int): MacroCell {
 
 internal inline operator fun LeafNode.contains(target: IntOffset): Boolean {
     if (target.x !in 0..7 || target.y !in 0..7) return false
-    return (this and target.toMask()) != 0uL
+    return f_Algorithm_leafContains(this, target.x.toUInt(), target.y.toUInt())
 }
 
 /**
@@ -209,53 +125,8 @@ internal inline operator fun LeafNode.contains(target: IntOffset): Boolean {
  *
  * This runs in O(level) time.
  */
-@Suppress("NestedBlockDepth")
-internal tailrec fun MacroCell.contains(x: Int, y: Int): Boolean {
-    val intLevel = level().toInt()
-    val offsetDiff = 1 shl (intLevel - 1)
-    val isNorth = y < offsetDiff
-    val isWest = x < offsetDiff
-
-    return if (size() == 0u) {
-        false
-    } else if (x !in 0 until (1 shl intLevel) || y !in 0 until (1 shl intLevel)) {
-        false
-    } else {
-        when (this) {
-            is Level4Node -> {
-                if (isNorth) {
-                    if (isWest) {
-                        (nw and cellToLeafMask(x, y)) != 0uL
-                    } else {
-                        (ne and cellToLeafMask(x - offsetDiff, y)) != 0uL
-                    }
-                } else {
-                    if (isWest) {
-                        (sw and cellToLeafMask(x, y - offsetDiff)) != 0uL
-                    } else {
-                        (se and cellToLeafMask(x - offsetDiff, y - offsetDiff)) != 0uL
-                    }
-                }
-            }
-
-            is CellNode -> {
-                if (isNorth) {
-                    if (isWest) {
-                        nw.contains(x, y)
-                    } else {
-                        ne.contains(x - offsetDiff, y)
-                    }
-                } else {
-                    if (isWest) {
-                        sw.contains(x, y - offsetDiff)
-                    } else {
-                        se.contains(x - offsetDiff, y - offsetDiff)
-                    }
-                }
-            }
-        }
-    }
-}
+internal fun MacroCell.contains(x: Int, y: Int): Boolean =
+    if (size() == 0u) false else f_Algorithm_macroCellContains(this, x, y)
 
 internal inline operator fun MacroCell.contains(target: IntOffset): Boolean = contains(target.x, target.y)
 

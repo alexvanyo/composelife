@@ -32,12 +32,12 @@ theorem centeredSubnodeLevel4_zero_Impl :
     centeredSubnodeLevel4 0 0 0 0 = 0 := by
   rfl
 
-theorem macroCell_level_level4Node_Impl (nw ne sw se : UInt64) :
-    (MacroCell.level4Node nw ne sw se).level = 4 := by
+theorem macroCell_level_level4Node_Impl (hash : UInt32) (nw ne sw se : UInt64) :
+    (MacroCell.level4Node hash nw ne sw se).level = 4 := by
   rfl
 
-theorem macroCell_level_cellNode_Impl (nw ne sw se : MacroCell) :
-    (MacroCell.cellNode nw ne sw se).level = nw.level + 1 := by
+theorem macroCell_level_cellNode_Impl (hash : UInt32) (nw ne sw se : MacroCell) :
+    (MacroCell.cellNode hash nw ne sw se).level = nw.level + 1 := by
   rfl
 
 theorem macroCell_size_emptyLevel4_Impl :
@@ -52,7 +52,7 @@ theorem macroCell_size_emptyNode_Impl : ∀ (k : ℕ),
   | 3 => by rfl
   | 4 => by rfl
   | k + 5 => by
-    dsimp [emptyNode, MacroCell.size]
+    dsimp [emptyNode, makeCellNode, MacroCell.size]
     have ih := macroCell_size_emptyNode_Impl (k + 4)
     rw [ih]
     rfl
@@ -65,14 +65,14 @@ theorem macroCell_emptyNode_isWellFormed_Impl : ∀ (k : ℕ),
   | 3 => by trivial
   | 4 => by trivial
   | k + 5 => by
-    dsimp [emptyNode, isWellFormed]
+    dsimp [emptyNode, makeCellNode, isWellFormed, MacroCell.level]
     have ih := macroCell_emptyNode_isWellFormed_Impl (k + 4)
     exact ⟨ih, ih, ih, ih, rfl, rfl, rfl⟩
 
 theorem macroCell_flipX_involution_Impl : ∀ (m : MacroCell),
     macroCellFlipX (macroCellFlipX m) = m
-  | .level4Node nw ne sw se => by rfl
-  | .cellNode nw ne sw se => by
+  | .level4Node h nw ne sw se => by rfl
+  | .cellNode h nw ne sw se => by
     dsimp [macroCellFlipX]
     rw [macroCell_flipX_involution_Impl nw,
         macroCell_flipX_involution_Impl ne,
@@ -81,12 +81,104 @@ theorem macroCell_flipX_involution_Impl : ∀ (m : MacroCell),
 
 theorem macroCell_flipY_involution_Impl : ∀ (m : MacroCell),
     macroCellFlipY (macroCellFlipY m) = m
-  | .level4Node nw ne sw se => by rfl
-  | .cellNode nw ne sw se => by
+  | .level4Node h nw ne sw se => by rfl
+  | .cellNode h nw ne sw se => by
     dsimp [macroCellFlipY]
     rw [macroCell_flipY_involution_Impl nw,
         macroCell_flipY_involution_Impl ne,
         macroCell_flipY_involution_Impl sw,
         macroCell_flipY_involution_Impl se]
+
+theorem macroCell_cellEquals_refl_Impl (m : MacroCell) :
+    m.cellEquals m = true := by
+  induction m with
+  | level4Node h nw ne sw se =>
+    simp [MacroCell.cellEquals]
+  | cellNode h nw ne sw se ih_nw ih_ne ih_sw ih_se =>
+    simp [MacroCell.cellEquals, ih_nw, ih_ne, ih_sw, ih_se]
+
+theorem macroCell_cellEquals_iff_eq_Impl (m1 m2 : MacroCell) :
+    m1.cellEquals m2 = true ↔ m1 = m2 := by
+  induction m1 generalizing m2 with
+  | level4Node h1 nw1 ne1 sw1 se1 =>
+    cases m2 with
+    | level4Node h2 nw2 ne2 sw2 se2 =>
+      simp [MacroCell.cellEquals, and_assoc]
+    | cellNode h2 nw2 ne2 sw2 se2 =>
+      simp [MacroCell.cellEquals]
+  | cellNode h1 nw1 ne1 sw1 se1 ih_nw ih_ne ih_sw ih_se =>
+    cases m2 with
+    | level4Node h2 nw2 ne2 sw2 se2 =>
+      simp [MacroCell.cellEquals]
+    | cellNode h2 nw2 ne2 sw2 se2 =>
+      simp [MacroCell.cellEquals, ih_nw, ih_ne, ih_sw, ih_se, and_assoc]
+
+theorem macroCell_hashCode_eq_Impl (m : MacroCell) :
+    m.hashCode = m.cellHashCode := by
+  rfl
+
+theorem centeredHorizontalSubnodeLevel4_zero_Impl :
+    centeredHorizontalSubnodeLevel4 0 0 0 0 = 0 := by
+  rfl
+
+theorem centeredVerticalSubnodeLevel4_zero_Impl :
+    centeredVerticalSubnodeLevel4 0 0 0 0 = 0 := by
+  rfl
+
+theorem centeredSubSubnodeSize_emptyLevel4_Impl :
+    centeredSubSubnodeSize emptyLevel4 = 0 := by
+  rfl
+
+theorem expandOffsetDeltaUInt_four_Impl :
+    expandOffsetDeltaUInt 4 = -24 := by
+  rfl
+
+theorem stepOffsetDeltaUInt_four_Impl :
+    stepOffsetDeltaUInt 4 = 4 := by
+  rfl
+
+theorem needToExpand_emptyLevel4_Impl :
+    needToExpand emptyLevel4 = true := by
+  rfl
+
+theorem stepQuadrants_emptyLevel4_Impl :
+    stepQuadrants emptyLevel4 = { nw := emptyLevel4, ne := emptyLevel4, sw := emptyLevel4, se := emptyLevel4 } := by
+  rfl
+
+theorem stepCellNodeWith_level4Node_Impl
+    (hash : UInt32) (nw ne sw se : UInt64)
+    (stepLevel4 : MacroCell → UInt64)
+    (stepCell : MacroCell → MacroCell) :
+    stepCellNodeWith (.level4Node hash nw ne sw se) stepLevel4 stepCell =
+      makeCellNode (stepCell (.level4Node hash nw ne sw se))
+                   (stepCell (.level4Node hash nw ne sw se))
+                   (stepCell (.level4Node hash nw ne sw se))
+                   (stepCell (.level4Node hash nw ne sw se)) := by
+  rfl
+
+theorem makeCanonicalCellNodeWith_level4Node_Impl
+    (hash : UInt32) (nw ne sw se : UInt64)
+    (canonicalize : MacroCell → MacroCell) :
+    makeCanonicalCellNodeWith (.level4Node hash nw ne sw se) canonicalize =
+      .level4Node hash nw ne sw se := by
+  rfl
+
+theorem prepareStep_needToExpand_false_Impl (m : MacroCell) (h : needToExpand m = false) :
+    (prepareStep m).macroCell = m ∧ (prepareStep m).offsetDelta = stepOffsetDeltaUInt m.level := by
+  dsimp [prepareStep]
+  simp [h]
+
+theorem cellToLeafBitUInt_zero_Impl : cellToLeafBitUInt 0 0 = 0 := by
+  rfl
+
+theorem leafContains_zero_zero_Impl : leafContains 0 0 0 = false := by
+  decide
+
+theorem macroCellContains_emptyLevel4_zero_zero_Impl :
+    macroCellContains emptyLevel4 0 0 = false := by
+  decide
+
+theorem macroCellWithCell_neg_Impl : macroCellWithCell emptyLevel4 (-1) 0 false = emptyLevel4 := by
+  decide
 
 end Algorithm

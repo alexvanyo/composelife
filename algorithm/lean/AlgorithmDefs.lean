@@ -85,14 +85,14 @@ def emptyNodeHashesList : List UInt32 :=
 -- =========================================================================
 
 def isWellFormed : MacroCell → Prop
-  | .level4Node _ _ _ _ => True
-  | .cellNode nw ne sw se =>
+  | .level4Node _ _ _ _ _ => True
+  | .cellNode _ nw ne sw se =>
     isWellFormed nw ∧ isWellFormed ne ∧ isWellFormed sw ∧ isWellFormed se ∧
     nw.level = ne.level ∧ ne.level = sw.level ∧ sw.level = se.level
 
 def macroCellSize : MacroCell → ℕ
-  | .level4Node nw ne sw se => (popcount64 nw + popcount64 ne + popcount64 sw + popcount64 se).toNat
-  | .cellNode nw ne sw se =>
+  | .level4Node _ nw ne sw se => (popcount64 nw + popcount64 ne + popcount64 sw + popcount64 se).toNat
+  | .cellNode _ nw ne sw se =>
     macroCellSize nw + macroCellSize ne + macroCellSize sw + macroCellSize se
 
 def leafToGrid (ox oy : ℤ) (leaf : UInt64) : List Coord :=
@@ -105,12 +105,12 @@ def leafToGrid (ox oy : ℤ) (leaf : UInt64) : List Coord :=
   )
 
 def macroCellToGrid (ox oy : ℤ) : MacroCell → List Coord
-  | .level4Node nw ne sw se =>
+  | .level4Node _ nw ne sw se =>
     leafToGrid ox oy nw ++
     leafToGrid (ox + 8) oy ne ++
     leafToGrid ox (oy + 8) sw ++
     leafToGrid (ox + 8) (oy + 8) se
-  | .cellNode nw ne sw se =>
+  | .cellNode _ nw ne sw se =>
     let w : ℤ := (2 : ℤ) ^ (nw.level.toNat)
     macroCellToGrid ox oy nw ++
     macroCellToGrid (ox + w) oy ne ++
@@ -135,7 +135,7 @@ structure HashLifeSubnodes where
 
 def decomposeSubnodes (m : MacroCell) : HashLifeSubnodes :=
   match m with
-  | .cellNode nw ne sw se =>
+  | .cellNode _ nw ne sw se =>
     { n00 := centeredSubnode nw
     , n01 := centeredHorizontalSubnode nw ne
     , n02 := centeredSubnode ne
@@ -151,16 +151,16 @@ def decomposeSubnodes (m : MacroCell) : HashLifeSubnodes :=
     , n20 := m, n21 := m, n22 := m }
 
 def quadrantNW (sn : HashLifeSubnodes) : MacroCell :=
-  .cellNode sn.n00 sn.n01 sn.n10 sn.n11
+  makeCellNode sn.n00 sn.n01 sn.n10 sn.n11
 
 def quadrantNE (sn : HashLifeSubnodes) : MacroCell :=
-  .cellNode sn.n01 sn.n02 sn.n11 sn.n12
+  makeCellNode sn.n01 sn.n02 sn.n11 sn.n12
 
 def quadrantSW (sn : HashLifeSubnodes) : MacroCell :=
-  .cellNode sn.n10 sn.n11 sn.n20 sn.n21
+  makeCellNode sn.n10 sn.n11 sn.n20 sn.n21
 
 def quadrantSE (sn : HashLifeSubnodes) : MacroCell :=
-  .cellNode sn.n11 sn.n12 sn.n21 sn.n22
+  makeCellNode sn.n11 sn.n12 sn.n21 sn.n22
 
 -- =========================================================================
 -- Bounding Windows and Symmetries
@@ -170,14 +170,14 @@ def central2x2Window (coords : List Coord) : List Coord :=
   coords.filter (fun (x, y) => x >= 1 && x <= 2 && y >= 1 && y <= 2)
 
 def macroCellFlipX : MacroCell → MacroCell
-  | .level4Node nw ne sw se => .level4Node sw se nw ne
-  | .cellNode nw ne sw se =>
-    .cellNode (macroCellFlipX sw) (macroCellFlipX se) (macroCellFlipX nw) (macroCellFlipX ne)
+  | .level4Node h nw ne sw se => .level4Node h sw se nw ne
+  | .cellNode h nw ne sw se =>
+    .cellNode h (macroCellFlipX sw) (macroCellFlipX se) (macroCellFlipX nw) (macroCellFlipX ne)
 
 def macroCellFlipY : MacroCell → MacroCell
-  | .level4Node nw ne sw se => .level4Node ne nw se sw
-  | .cellNode nw ne sw se =>
-    .cellNode (macroCellFlipY ne) (macroCellFlipY nw) (macroCellFlipY se) (macroCellFlipY sw)
+  | .level4Node h nw ne sw se => .level4Node h ne nw se sw
+  | .cellNode h nw ne sw se =>
+    .cellNode h (macroCellFlipY ne) (macroCellFlipY nw) (macroCellFlipY se) (macroCellFlipY sw)
 
 inductive MicroCell where
   | leaf (alive : Bool)
@@ -308,9 +308,6 @@ def expandOffsetDelta (level : ℕ) : ℤ :=
 
 def isConfinedToSubSubnode (m : MacroCell) : Prop :=
   macroCellSize (centeredSubSubnode m) = macroCellSize m
-
-def needToExpand (m : MacroCell) : Bool :=
-  m.level <= 4 || (macroCellSize (centeredSubSubnode m) != macroCellSize m)
 
 def hashLifeNextGenerationStep (st : HashLifeCellState) : HashLifeCellState :=
   let nextNode := hashLifeStep st.macroCell
