@@ -103,10 +103,7 @@ class HashLifeAlgorithm(
     private val level4NodeMap: ObjectLongCache<MacroCell.Level4Node> =
         ObjectLongCache(
             load = { key ->
-                computeLevel4NextGeneration(
-                    node = key,
-                    computeLeafNextGen = { it.computeNextGenerationMemoized() },
-                )
+                f_Algorithm_stepLevel4NodeWith(key) { it.computeNextGenerationMemoized().toUInt() }
             },
             getGenerationIndex = { computedGenerations },
         )
@@ -171,7 +168,7 @@ class HashLifeAlgorithm(
             return@trace level4NodeMap[canonicalMacroCell]
         }
 
-        computeLevel4NextGeneration(canonicalMacroCell)
+        f_Algorithm_stepLevel4Node(canonicalMacroCell)
     }
 
     /**
@@ -256,9 +253,14 @@ class HashLifeAlgorithm(
     private fun computeNextGenerationImpl(cellState: HashLifeCellState): HashLifeCellState {
         val prep = f_Algorithm_prepareStep(cellState.macroCell)
         val delta = prep.offsetDelta
+        val nextMacro = f_Algorithm_stepCellNodeWith(
+            prep.macroCell,
+            stepLevel4 = { (it as MacroCell.Level4Node).computeNextGeneration() },
+            stepCell = { (it as MacroCell.CellNode).computeNextGeneration() },
+        ).makeCanonical()
         return HashLifeCellState(
             offset = cellState.offset + IntOffset(delta, delta),
-            macroCell = (prep.macroCell as MacroCell.CellNode).computeNextGeneration(),
+            macroCell = nextMacro,
         )
     }
 }

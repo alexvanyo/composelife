@@ -45,11 +45,6 @@ typealias CellNode = MacroCell.CellNode
 internal inline fun Level4Node(nw: Long, ne: Long, sw: Long, se: Long): MacroCell.Level4Node =
     MacroCell.Level4Node(nw.toULong(), ne.toULong(), sw.toULong(), se.toULong())
 
-internal inline fun LeafNode(nw: Int, ne: Int, sw: Int, se: Int): LeafNode = (nw.toULong() and 0xFFFFuL) or
-    ((ne.toULong() and 0xFFFFuL) shl 16) or
-    ((sw.toULong() and 0xFFFFuL) shl 32) or
-    ((se.toULong() and 0xFFFFuL) shl 48)
-
 internal inline fun LeafNode(aliveCells: Set<IntOffset>): LeafNode {
     var result = 0uL
     for (target in aliveCells) {
@@ -59,25 +54,6 @@ internal inline fun LeafNode(aliveCells: Set<IntOffset>): LeafNode {
 }
 
 internal inline val LeafNode.size: Int get() = countOneBits()
-
-internal inline val LeafNode.nw: Int get() = ((this and 0x000000000000FFFFuL) shr 0).toInt()
-
-internal inline val LeafNode.ne: Int get() = ((this and 0x00000000FFFF0000uL) shr 16).toInt()
-
-internal inline val LeafNode.sw: Int get() = ((this and 0x0000FFFF00000000uL) shr 32).toInt()
-
-internal inline val LeafNode.se: Int get() = ((this and 0xFFFF000000000000uL) shr 48).toInt()
-
-internal inline val Int.nw: Int get() = ((this and 0b0000_0000_0000_1111) ushr 0)
-internal inline val Int.ne: Int get() = ((this and 0b0000_0000_1111_0000) ushr 4)
-internal inline val Int.sw: Int get() = ((this and 0b0000_1111_0000_0000) ushr 8)
-internal inline val Int.se: Int get() = ((this and 0b1111_0000_0000_0000) ushr 12)
-
-internal inline fun LeafNode.withCell(x: Int, y: Int, isAlive: Boolean): LeafNode =
-    f_Algorithm_leafWithCell(this, x.toUInt(), y.toUInt(), isAlive)
-
-internal inline fun LeafNode.withCell(target: IntOffset, isAlive: Boolean): LeafNode =
-    withCell(target.x, target.y, isAlive)
 
 /**
  * Returns this [MacroCell] with the modification of setting the cell at the given (x, y) coordinates to [isAlive],

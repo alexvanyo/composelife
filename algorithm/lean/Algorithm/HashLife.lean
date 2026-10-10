@@ -237,6 +237,13 @@ def stepLevel4NodeWith (m : MacroCell) (computeLeaf : UInt64 → UInt32) : UInt6
 def computeLevel4NextGen16x16UInt (nw ne sw se : UInt64) : UInt64 :=
   computeLevel4NextGen16x16WithUInt nw ne sw se computeLeafNextGen8x8BranchUInt
 
+@[export hashlife_step_level4_node]
+def stepLevel4Node (m : MacroCell) : UInt64 :=
+  match m with
+  | .level4Node _ nw ne sw se =>
+    computeLevel4NextGen16x16UInt nw ne sw se
+  | _ => 0
+
 @[export computeNextGen4x4UInt]
 def exportComputeNextGen4x4UInt (w : UInt32) : UInt32 :=
   computeNextGen4x4UInt w
