@@ -323,4 +323,16 @@ theorem stepLevel4NodeWith_zero (f : UInt64 → UInt32) (hf : f 0 = 0) :
     stepLevel4NodeWith emptyLevel4 f = 0 :=
   stepLevel4NodeWith_zero_Impl f hf
 
+theorem stepLevel4Node_emptyLevel4 :
+    stepLevel4Node emptyLevel4 = 0 :=
+  stepLevel4Node_emptyLevel4_Impl
+
+theorem stepLevel4Node_zero (h : UInt32) :
+    stepLevel4Node (.level4Node h 0 0 0 0) = 0 :=
+  stepLevel4Node_zero_Impl h
+
+theorem stepLevel4Node_eq_stepLevel4NodeWith (m : MacroCell) :
+    stepLevel4Node m = stepLevel4NodeWith m computeLeafNextGen8x8BranchUInt :=
+  stepLevel4Node_eq_stepLevel4NodeWith_Impl m
+
 end Algorithm
