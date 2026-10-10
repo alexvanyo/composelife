@@ -67,11 +67,7 @@ abstract class LeanCodegenEntry @Inject constructor(private val name: String) : 
     abstract val packageName: Property<String>
 }
 
-data class LeanEntrySpec(
-    val leanFile: String,
-    val outputFile: String,
-    val packageName: String,
-) : java.io.Serializable
+data class LeanEntrySpec(val leanFile: String, val outputFile: String, val packageName: String) : java.io.Serializable
 
 @DisableCachingByDefault(because = "Downloads external cache from Lake")
 abstract class CacheLeanTask @Inject constructor(private val execOperations: ExecOperations) : DefaultTask() {

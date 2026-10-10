@@ -6,6 +6,7 @@ defaultTargets = ["Algorithm"]
 name = "Algorithm"
 roots = [
   "Algorithm",
+  "Algorithm.HashLifeEquivalence",
   "AlgorithmDefs",
   "AlgorithmTheorems",
   "AlgorithmProofs",
@@ -16,6 +17,7 @@ roots = [
   "theorems.MacroCellTheorems",
   "theorems.PatternsTheorems",
   "theorems.PropertiesTheorems",
+  "theorems.HashLifeEquivalenceTheorems",
   "proofs.BitComputationProofs",
   "proofs.CacheProofs",
   "proofs.HashLifeProofs",
@@ -23,4 +25,15 @@ roots = [
   "proofs.MacroCellProofs",
   "proofs.PatternsProofs",
   "proofs.PropertiesProofs",
+  "proofs.BitEquivalenceProofs",
+  "proofs.SpatialTilingProofs",
+  "proofs.ConfinementProofs",
+  "proofs.GridEquivalenceProofs",
+  "proofs.SemanticModelProofs",
+  "proofs.HashLifeKernelProofs",
+  "proofs.HashLifeStepProofs",
+  "proofs.HashLifeConfinementProofs",
+  "proofs.HashLifeSingleStepProofs",
+  "proofs.HashLifeEquivalenceProofs",
 ]
+

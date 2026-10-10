@@ -65,7 +65,7 @@ theorem macroCell_emptyNode_isWellFormed_Impl : ∀ (k : ℕ),
   | 3 => by trivial
   | 4 => by trivial
   | k + 5 => by
-    dsimp [emptyNode, makeCellNode, isWellFormed, MacroCell.level]
+    dsimp [emptyNode, makeCellNode, isWellFormed, MacroCell.depth]
     have ih := macroCell_emptyNode_isWellFormed_Impl (k + 4)
     exact ⟨ih, ih, ih, ih, rfl, rfl, rfl⟩
 

@@ -35,6 +35,8 @@ import com.alexvanyo.composelife.model.MacroCell
 import com.alexvanyo.composelife.model.f_Algorithm_makeCanonicalCellNodeWith
 import com.alexvanyo.composelife.model.f_Algorithm_prepareStep
 import com.alexvanyo.composelife.model.f_Algorithm_stepCellNodeWith
+import com.alexvanyo.composelife.model.f_Algorithm_stepLevel4Node
+import com.alexvanyo.composelife.model.f_Algorithm_stepLevel4NodeWith
 import com.alexvanyo.composelife.model.toHashLifeCellState
 import com.alexvanyo.composelife.tracing.Tracer
 import com.alexvanyo.composelife.tracing.trace
