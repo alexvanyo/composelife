@@ -26,7 +26,6 @@ import androidx.compose.foundation.progressSemantics
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderColors
 import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.SliderState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -106,10 +105,6 @@ fun <T : Comparable<T>> LabeledSlider(
     }
     val sliderValue = with(sliderBijection) { value.toSlider() }
     val sliderValueRange = with(sliderBijection) { valueRange.toSlider() }
-    val sliderState = remember(steps, sliderValueRange) {
-        SliderState(value = sliderValue, steps = steps, trackRange = sliderValueRange)
-    }
-    sliderState.value = sliderValue
 
     Column(
         modifier = modifier,
@@ -154,12 +149,16 @@ fun <T : Comparable<T>> LabeledSlider(
                     }
                 },
         ) {
+            // The state-based Slider overload isn't available in the JetBrains Compose Material 3 used on desktop.
+            @Suppress("DEPRECATION")
             Slider(
-                state = sliderState,
+                value = sliderValue,
                 onValueChange = {
                     onValueChange(with(sliderBijection) { it.toValue() })
                 },
                 enabled = enabled,
+                valueRange = sliderValueRange,
+                steps = steps,
                 onValueChangeFinished = onValueChangeFinished,
                 interactionSource = interactionSource,
                 colors = colors,
