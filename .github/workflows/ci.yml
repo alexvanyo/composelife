@@ -409,6 +409,11 @@ jobs:
         # Assemble with running benchmarks and generating baseline profile to ensure those compile
         run: ./gradlew assemble assembleAndroidTest -Pcom.alexvanyo.composelife.runBenchmarks=true -Pandroidx.baselineprofile.skipgeneration
 
+      - name: Build Lean
+        # assemble doesn't build the Lean projects, so build them explicitly to populate .lake before saving
+        if: ${{ steps.setup-lean.outputs.lake-cache-hit != 'true' }}
+        run: ./gradlew verifyLean --stacktrace
+
       - name: Save Lake packages and build outputs
         if: ${{ steps.setup-lean.outputs.lake-cache-hit != 'true' }}
         uses: actions/cache/save@v6
