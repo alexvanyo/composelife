@@ -5,6 +5,13 @@ inputs:
     description: 'Lean toolchain to install'
     required: false
     default: 'leanprover/lean4:v4.34.0'
+outputs:
+  lake-cache-key:
+    description: 'Primary key of the Lake cache, for saving it from a job that builds Lean'
+    value: ${{ steps.lake-cache.outputs.cache-primary-key }}
+  lake-cache-hit:
+    description: 'Whether the Lake cache was restored from an exact key match'
+    value: ${{ steps.lake-cache.outputs.cache-hit }}
 runs:
   using: composite
   steps:
@@ -25,3 +32,15 @@ runs:
         export PATH="$HOME/.elan/bin:$PATH"
         elan default "${{ inputs.toolchain }}"
         lean --version
+
+    - name: Restore Lake packages and build outputs
+      id: lake-cache
+      uses: actions/cache/restore@v6
+      with:
+        path: |
+          algorithm/lean/.lake
+          geometry/lean/.lake
+          session-value/lean/.lake
+        key: lake-${{ runner.os }}-${{ inputs.toolchain }}-${{ hashFiles('**/lean/lake-manifest.json', '**/lean/lakefile.toml', '**/lean/lean-toolchain') }}
+        restore-keys: |
+          lake-${{ runner.os }}-${{ inputs.toolchain }}-
