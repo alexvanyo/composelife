@@ -285,14 +285,10 @@ jobs:
           name: unit-code-coverage-${{ matrix.sdk }}
           path: "build/reports/jacoco/**/*.xml"
 
-  codecov-unit-coverage-upload:
-    needs: [build, config]
+  codecov-coverage-upload:
+    needs: [build, android-test-gmd]
     if: always()
     runs-on: ubuntu-slim
-
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(needs.config.outputs.build-matrix) }}
 
     steps:
       - name: Checkout
@@ -301,19 +297,32 @@ jobs:
       - name: Download code coverage from GitHub
         uses: actions/download-artifact@v8
         with:
-          name: unit-code-coverage-${{ matrix.sdk }}
+          pattern: '*-code-coverage-*'
           path: codecoverage
 
       - name: List code coverage
         run: ls -R codecoverage
 
+      - name: Install Codecov CLI
+        run: pip install codecov-cli
+
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v7
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: true
-          directory: codecoverage
-          flags: unit,${{ matrix.sdk }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: |
+          # Each artifact directory is named `<unit|device>-code-coverage-<variant>`
+          for dir in codecoverage/*/; do
+            name=$(basename "$dir")
+            kind=${name%%-code-coverage-*}
+            variant=${name#*-code-coverage-}
+            codecovcli do-upload \
+              --fail-on-error \
+              --report-type coverage \
+              --network-root-folder "$PWD" \
+              --flag "$kind" \
+              --flag "$variant" \
+              --coverage-files-search-root-folder "$dir"
+          done
 
   codecov-unit-test-upload:
     needs: [build, config]
@@ -577,36 +586,6 @@ jobs:
         with:
           name: device-code-coverage-${{ matrix.target }}-${{ matrix.device }}-${{ matrix.api-level }}
           path: "build/reports/jacoco/**/*.xml"
-
-  codecov-device-coverage-upload:
-    needs: [android-test-gmd, config]
-    if: always()
-    runs-on: ubuntu-slim
-
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(needs.config.outputs.android-test-gmd-matrix) }}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
-      - name: Download code coverage from GitHub
-        uses: actions/download-artifact@v8
-        with:
-          name: device-code-coverage-${{ matrix.target }}-${{ matrix.device }}-${{ matrix.api-level }}
-          path: codecoverage
-
-      - name: List code coverage
-        run: ls -R codecoverage
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v7
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: true
-          directory: codecoverage
-          flags: device,${{ matrix.target }}-${{ matrix.device }}-${{ matrix.api-level }}
 
   codecov-device-test-upload:
     needs: [android-test-gmd, config]
