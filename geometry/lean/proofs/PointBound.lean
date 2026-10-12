@@ -19,6 +19,7 @@ import Geometry.FloatModel
 import GeometryDefs
 import proofs.FloatAnalysis
 import proofs.Waypoints
+import Aesop
 import Mathlib.Tactic.Linarith
 
 namespace Geometry
