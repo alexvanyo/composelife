@@ -285,7 +285,7 @@ jobs:
           name: unit-code-coverage-${{ matrix.sdk }}
           path: "build/reports/jacoco/**/*.xml"
 
-  codecov-coverage-upload:
+  codecov-upload:
     needs: [build, android-test-gmd]
     if: always()
     runs-on: ubuntu-slim
@@ -299,6 +299,12 @@ jobs:
         with:
           pattern: '*-code-coverage-*'
           path: codecoverage
+
+      - name: Download test results from GitHub
+        uses: actions/download-artifact@v8
+        with:
+          pattern: '*-test-results-*'
+          path: testresults
 
       - name: List code coverage
         run: ls -R codecoverage
@@ -324,37 +330,25 @@ jobs:
               --coverage-files-search-root-folder "$dir"
           done
 
-  codecov-unit-test-upload:
-    needs: [build, config]
-    if: always()
-    runs-on: ubuntu-slim
-
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(needs.config.outputs.build-matrix) }}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
-      - name: Download test results from GitHub
-        uses: actions/download-artifact@v8
-        with:
-          name: unit-test-results-${{ matrix.sdk }}
-          path: testresults
-
-      - id: test-result-files
-        run: |
-          echo -n "files=" >> $GITHUB_OUTPUT
-          find testresults -name "*.xml" | paste -s -d "," - >> $GITHUB_OUTPUT
-
       - name: Upload test results to Codecov
-        uses: codecov/test-results-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: true
-          files: ${{ steps.test-result-files.outputs.files }}
-          flags: unit,${{ matrix.sdk }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: |
+          # Each artifact directory is named `<unit|device>-test-results-<variant>`
+          for dir in testresults/*/; do
+            name=$(basename "$dir")
+            kind=${name%%-test-results-*}
+            variant=${name#*-test-results-}
+            files=$(find "$dir" -name "*.xml" | sed 's/^/--file /' | paste -s -d " " -)
+            [ -n "$files" ] || continue
+            codecovcli do-upload \
+              --fail-on-error \
+              --report-type test_results \
+              --disable-search \
+              --flag "$kind" \
+              --flag "$variant" \
+              $files
+          done
 
   cache:
     if: github.ref == 'refs/heads/main'
@@ -587,34 +581,3 @@ jobs:
           name: device-code-coverage-${{ matrix.target }}-${{ matrix.device }}-${{ matrix.api-level }}
           path: "build/reports/jacoco/**/*.xml"
 
-  codecov-device-test-upload:
-    needs: [android-test-gmd, config]
-    if: always()
-    runs-on: ubuntu-slim
-
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(needs.config.outputs.android-test-gmd-matrix) }}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
-      - name: Download test results from GitHub
-        uses: actions/download-artifact@v8
-        with:
-          name: device-test-results-${{ matrix.target }}-${{ matrix.device }}-${{ matrix.api-level }}
-          path: testresults
-
-      - id: test-result-files
-        run: |
-          echo -n "files=" >> $GITHUB_OUTPUT
-          find testresults -name "*.xml" | paste -s -d "," - >> $GITHUB_OUTPUT
-
-      - name: Upload test results to Codecov
-        uses: codecov/test-results-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: true
-          files: ${{ steps.test-result-files.outputs.files }}
-          flags: device,${{ matrix.target }}-${{ matrix.device }}-${{ matrix.api-level }}
