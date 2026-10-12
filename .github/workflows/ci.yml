@@ -380,6 +380,7 @@ jobs:
         uses: ./.github/actions/reserve-cpu-core
 
       - name: Setup Lean
+        id: setup-lean
         uses: ./.github/actions/setup-lean
 
       - name: Copy ci-gradle.properties
@@ -404,6 +405,16 @@ jobs:
       - name: Assemble
         # Assemble with running benchmarks and generating baseline profile to ensure those compile
         run: ./gradlew assemble assembleAndroidTest -Pcom.alexvanyo.composelife.runBenchmarks=true -Pandroidx.baselineprofile.skipgeneration
+
+      - name: Save Lake packages and build outputs
+        if: ${{ steps.setup-lean.outputs.lake-cache-hit != 'true' }}
+        uses: actions/cache/save@v6
+        with:
+          path: |
+            algorithm/lean/.lake
+            geometry/lean/.lake
+            session-value/lean/.lake
+          key: ${{ steps.setup-lean.outputs.lake-cache-key }}
 
       - name: Upload APKs
         uses: actions/upload-artifact@v7
