@@ -149,9 +149,7 @@ fun <T : Comparable<T>> LabeledSlider(
                     }
                 },
         ) {
-            // The state-based Slider overload isn't available in the JetBrains Compose Material 3 used on desktop.
-            @Suppress("DEPRECATION")
-            Slider(
+            PlatformSlider(
                 value = sliderValue,
                 onValueChange = {
                     onValueChange(with(sliderBijection) { it.toValue() })
