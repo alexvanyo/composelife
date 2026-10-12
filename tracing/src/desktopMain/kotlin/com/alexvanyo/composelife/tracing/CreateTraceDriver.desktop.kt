@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife.tracing.di
+package com.alexvanyo.composelife.tracing
 
-import com.alexvanyo.composelife.tracing.AbstractTraceDriver
-import com.alexvanyo.composelife.tracing.Tracer
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.BindingContainer
-import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.Provides
-import dev.zacsweers.metro.SingleIn
+import androidx.tracing.wire.TraceDriver
+import androidx.tracing.wire.TraceSink
+import kotlinx.coroutines.Dispatchers
+import java.io.File
+import kotlin.coroutines.CoroutineContext
 
-@ContributesTo(AppScope::class)
-@BindingContainer
-interface TracingBindings {
-    companion object {
-        @SingleIn(AppScope::class)
-        @Provides
-        internal fun providesTracer(traceDriver: AbstractTraceDriver): Tracer = traceDriver.tracer
-    }
-}
+public fun createTraceDriver(
+    directory: File = File(System.getProperty("java.io.tmpdir")),
+    coroutineContext: CoroutineContext = Dispatchers.IO,
+): AbstractTraceDriver = TraceDriver(
+    sink = TraceSink(
+        directory = directory,
+        sequenceId = 1,
+        coroutineContext = coroutineContext,
+    ),
+)
