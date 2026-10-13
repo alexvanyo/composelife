@@ -224,3 +224,6 @@ cd <project-root>
 | `rcases` / `obtain` | Destructing existential hypotheses (`∃ x, ...`) and conjunctions without deeply nested indentation. |
 | `split_ifs with h` | Splitting conditional expressions while retaining the condition hypothesis $h$. |
 | `aesop` | Automated proof search for propositional logic, set memberships, and basic structural goals. |
+| `grind` / `simp_all` / `decide` | Core-Lean closers for mixed equalities, rewriting, and small decidable goals. |
+
+See the Proof Tactics Guide in `docs/lean.md` for when to use `aesop` and the other tactics.
