@@ -78,7 +78,7 @@ To keep production code clean, maintain fast compilation, and clearly distinguis
 - **Purpose**: Contains all tactical proofs, sub-lemmas, case analyses, and inductive arguments required to discharge the master theorems.
 - **Rules**:
   - Contains the definitions of all `..._Impl` theorems referenced in `*Theorems.lean`.
-  - May freely use heavy tactical solvers (`omega`, `linarith`, `ring`, `aesop`, `positivity`).
+  - May freely use heavy tactical solvers (`omega`, `linarith`, `ring`, `aesop`, `positivity`). See the [Proof Tactics Guide](#proof-tactics-guide).
   - May be decomposed across multiple submodules and directories when proofs grow large.
   - **Hierarchy Rule**:
     - **Single Domain / Component**: Placed in `<Component>Proofs.lean` (e.g., `SessionValueProofs.lean`).
@@ -208,3 +208,52 @@ This guarantees:
    ./gradlew :algorithm:check
    ./gradlew :geometry:check
    ```
+
+---
+
+## Proof Tactics Guide
+
+Tactics are used only in implementation proof files (`*Proofs.lean`, `proofs/*.lean`), never in production, `*Defs.lean`, or `*Theorems.lean` files.
+
+### Choosing a tactic
+
+| Goal shape | Tactic |
+| :--- | :--- |
+| Linear `Nat`/`Int` arithmetic, modulo, bounds | `omega` |
+| Linear inequalities over ordered fields (`ℚ`, `ℝ`) | `linarith` (`nlinarith` for products) |
+| Ring equalities | `ring` |
+| `0 < x`, `0 ≤ x`, `x ≠ 0` | `positivity` |
+| Numeric literals | `norm_num` |
+| Small, finite, decidable propositions | `decide` |
+| Rewriting with known equations | `simp`, `simp_all` |
+| Mixed equalities, case splits, and arithmetic (core Lean) | `grind` |
+| Branching on `if`/`match` | `split_ifs`, `split` |
+| Destructuring hypotheses, induction | `rcases`/`obtain`, `cases`, `induction` |
+| Propositional/structural leaves after the above | `aesop` |
+
+### When to use `aesop`
+
+`aesop` is a proof-search tactic: it normalizes with `simp`, then applies safe and unsafe rules (constructors, `cases`, hypotheses) until the goal closes. It either closes the goal or fails, so it never leaves a half-finished state.
+
+Use it for:
+- Leaves made up of conjunctions, disjunctions, existentials, set membership, or inductive predicates, such as `split_ifs <;> aesop` or `cases h <;> aesop`.
+- Goals that need `simp` plus a few `constructor`, `cases`, or `exact` steps.
+
+Avoid it for:
+- Arithmetic. Use `omega` or `linarith` first.
+- Large goals, as a first resort. Split the goal first, then call `aesop` on the leaves.
+- Goals that depend on unfolding your own definitions. `unfold` them first, or pass `aesop (add norm unfold foo)`.
+
+### Practices
+
+- Run `aesop?` while developing. It prints a `Try this` script. Replace a slow or flaky `aesop` call with that script to keep CI builds fast and stable.
+- Extend the rule set locally with `aesop (add safe foo)` or `aesop (add norm simp bar)`. Use `@[aesop safe]` attributes sparingly, and only in proof files.
+- If `aesop` fails, read the remaining goal in its error. Then try `simp_all`, `grind`, or manual steps.
+- Remove exploratory tactics (`exact?`, `apply?`, `rw?`, `simp?`, `aesop?`) before committing.
+
+### Availability
+
+`aesop` is a separate Lake package, also pulled in by Mathlib.
+- `geometry/lean` requires it explicitly in `lakefile.toml` and imports it with `import Aesop`.
+- `algorithm/lean` and `session-value/lean` depend only on core Lean, so `aesop` is not available there. Use `omega`, `simp`, `decide`, and `grind`.
+- To use it in another package, add a `[[require]]` for `aesop` (`git = "https://github.com/leanprover-community/aesop"`, `rev = "master"`). Import `Aesop` only from proof files so `lake build <Component>:static` stays free of it.

@@ -8,6 +8,11 @@ git = "https://github.com/lean-dojo/FloatLib"
 rev = "main"
 
 [[require]]
+name = "aesop"
+git = "https://github.com/leanprover-community/aesop"
+rev = "master"
+
+[[require]]
 name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4"
 rev = "v4.34.0"
