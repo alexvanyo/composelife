@@ -27,10 +27,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -82,10 +82,30 @@ private fun AnimatePlacementPreview() {
     val (animateContentSizeAlignmentName, animateContentSizeAlignment) =
         alignments[animateContentSizeAlignmentIndex.mod(alignments.size)]
 
-    var startFraction by remember { mutableFloatStateOf(0f) }
-    var endFraction by remember { mutableFloatStateOf(0f) }
-    var topFraction by remember { mutableFloatStateOf(0f) }
-    var bottomFraction by remember { mutableFloatStateOf(0f) }
+    val startFractionSliderState = remember {
+        SliderState(
+            value = 0f,
+            trackRange = 0f..0.3f,
+        )
+    }
+    val endFractionSliderState = remember {
+        SliderState(
+            value = 0f,
+            trackRange = 0f..0.3f,
+        )
+    }
+    val topFractionSliderState = remember {
+        SliderState(
+            value = 0f,
+            trackRange = 0f..0.3f,
+        )
+    }
+    val bottomFractionSliderState = remember {
+        SliderState(
+            value = 0f,
+            trackRange = 0f..0.3f,
+        )
+    }
 
     var isExpanded by remember { mutableStateOf(false) }
 
@@ -117,31 +137,27 @@ private fun AnimatePlacementPreview() {
         }
 
         Slider(
-            startFraction,
-            { startFraction = it },
-            valueRange = 0f..0.3f,
+            state = startFractionSliderState,
+            onValueChange = { startFractionSliderState.value = it },
         )
         Slider(
-            endFraction,
-            { endFraction = it },
-            valueRange = 0f..0.3f,
+            state = endFractionSliderState,
+            onValueChange = { endFractionSliderState.value = it },
         )
         Slider(
-            topFraction,
-            { topFraction = it },
-            valueRange = 0f..0.3f,
+            state = topFractionSliderState,
+            onValueChange = { topFractionSliderState.value = it },
         )
         Slider(
-            bottomFraction,
-            { bottomFraction = it },
-            valueRange = 0f..0.3f,
+            state = bottomFractionSliderState,
+            onValueChange = { bottomFractionSliderState.value = it },
         )
 
         Row(Modifier.size(400.dp)) {
-            Spacer(Modifier.fillMaxWidth(fraction = startFraction))
+            Spacer(Modifier.fillMaxWidth(fraction = startFractionSliderState.value))
 
             Column(Modifier.weight(1f)) {
-                Spacer(Modifier.fillMaxHeight(fraction = topFraction))
+                Spacer(Modifier.fillMaxHeight(fraction = topFractionSliderState.value))
 
                 Box(
                     Modifier
@@ -192,10 +208,10 @@ private fun AnimatePlacementPreview() {
                     )
                 }
 
-                Spacer(Modifier.fillMaxHeight(fraction = bottomFraction))
+                Spacer(Modifier.fillMaxHeight(fraction = bottomFractionSliderState.value))
             }
 
-            Spacer(Modifier.fillMaxWidth(fraction = endFraction))
+            Spacer(Modifier.fillMaxWidth(fraction = endFractionSliderState.value))
         }
     }
 }
