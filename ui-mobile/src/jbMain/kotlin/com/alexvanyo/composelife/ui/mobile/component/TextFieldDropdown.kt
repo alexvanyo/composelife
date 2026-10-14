@@ -46,7 +46,7 @@ import kotlinx.collections.immutable.ImmutableList
  * A styled drop-down menu to select between [allValues], with the given [currentValue].
  */
 @OptIn(ExperimentalMaterial3Api::class)
-@Suppress("LongMethod")
+@Suppress("LongMethod", "DEPRECATION")
 @Composable
 fun <T : DropdownOption> TextFieldDropdown(
     label: String,
