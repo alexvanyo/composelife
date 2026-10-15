@@ -366,5 +366,78 @@ theorem stepHashLifeStateWith_offset
       st.offsetY + (prepareStep st.macroCell).offsetDelta :=
   stepHashLifeStateWith_offset_Impl st stepPrepared
 
+theorem computeGenerationStep_finalState
+    (step : UInt32)
+    (st : HashLifeStepState)
+    (computedGenerations : UInt64)
+    (macroKeep leafKeep : UInt32)
+    (stepOneGen : HashLifeStepState → HashLifeStepState) :
+    (computeGenerationStep step st computedGenerations macroKeep leafKeep stepOneGen).finalState =
+      stepNGenerationsWith step st stepOneGen :=
+  computeGenerationStep_finalState_Impl step st computedGenerations macroKeep leafKeep stepOneGen
+
+theorem computeGenerationStep_thresholds
+    (step : UInt32)
+    (st : HashLifeStepState)
+    (computedGenerations : UInt64)
+    (macroKeep leafKeep : UInt32)
+    (stepOneGen : HashLifeStepState → HashLifeStepState) :
+    (computeGenerationStep step st computedGenerations macroKeep leafKeep stepOneGen).thresholds =
+      computePruneThresholds (computedGenerations + step.toUInt64) macroKeep leafKeep :=
+  computeGenerationStep_thresholds_Impl step st computedGenerations macroKeep leafKeep stepOneGen
+
+theorem minimumMacroCellLevel_ge_four (span : UInt32) :
+    4 ≤ minimumMacroCellLevel span :=
+  minimumMacroCellLevel_ge_four_Impl span
+
+theorem canonicalizeMacroCellWith_level4
+    (h nw ne sw se : UInt64)
+    (internLevel4 : MacroCell → MacroCell)
+    (findExistingCell : MacroCell → Option MacroCell)
+    (canonicalizeSubnode : MacroCell → MacroCell)
+    (internCell : MacroCell → MacroCell) :
+    canonicalizeMacroCellWith (.level4Node h.toUInt32 nw ne sw se) internLevel4 findExistingCell canonicalizeSubnode internCell =
+      internLevel4 (.level4Node h.toUInt32 nw ne sw se) :=
+  canonicalizeMacroCellWith_level4_Impl h nw ne sw se internLevel4 findExistingCell canonicalizeSubnode internCell
+
+theorem canonicalizeMacroCellWith_hit
+    (h : UInt32) (nw ne sw se : MacroCell) (existing : MacroCell)
+    (internLevel4 : MacroCell → MacroCell)
+    (findExistingCell : MacroCell → Option MacroCell)
+    (canonicalizeSubnode : MacroCell → MacroCell)
+    (internCell : MacroCell → MacroCell)
+    (hhit : findExistingCell (.cellNode h nw ne sw se) = some existing) :
+    canonicalizeMacroCellWith (.cellNode h nw ne sw se) internLevel4 findExistingCell canonicalizeSubnode internCell =
+      existing :=
+  canonicalizeMacroCellWith_hit_Impl h nw ne sw se existing internLevel4 findExistingCell canonicalizeSubnode internCell hhit
+
+theorem canonicalizeMacroCellWith_miss
+    (h : UInt32) (nw ne sw se : MacroCell)
+    (internLevel4 : MacroCell → MacroCell)
+    (findExistingCell : MacroCell → Option MacroCell)
+    (canonicalizeSubnode : MacroCell → MacroCell)
+    (internCell : MacroCell → MacroCell)
+    (hmiss : findExistingCell (.cellNode h nw ne sw se) = none)
+    (hsz : (.cellNode h nw ne sw se : MacroCell).size ≠ 0) :
+    canonicalizeMacroCellWith (.cellNode h nw ne sw se) internLevel4 findExistingCell canonicalizeSubnode internCell =
+      internCell (makeCellNode (canonicalizeSubnode nw) (canonicalizeSubnode ne) (canonicalizeSubnode sw) (canonicalizeSubnode se)) :=
+  canonicalizeMacroCellWith_miss_Impl h nw ne sw se internLevel4 findExistingCell canonicalizeSubnode internCell hmiss hsz
+
+theorem canonicalizeMacroCellWith_miss_zero
+    (h : UInt32) (nw ne sw se : MacroCell)
+    (internLevel4 : MacroCell → MacroCell)
+    (findExistingCell : MacroCell → Option MacroCell)
+    (canonicalizeSubnode : MacroCell → MacroCell)
+    (internCell : MacroCell → MacroCell)
+    (hmiss : findExistingCell (.cellNode h nw ne sw se) = none)
+    (hsz : (.cellNode h nw ne sw se : MacroCell).size = 0) :
+    canonicalizeMacroCellWith (.cellNode h nw ne sw se) internLevel4 findExistingCell canonicalizeSubnode internCell =
+      internCell (makeCellNode (canonicalizeSubnode nw) (canonicalizeSubnode nw) (canonicalizeSubnode nw) (canonicalizeSubnode nw)) :=
+  canonicalizeMacroCellWith_miss_zero_Impl h nw ne sw se internLevel4 findExistingCell canonicalizeSubnode internCell hmiss hsz
+
+theorem canonicalCellNodeEquals_same (a : MacroCell) :
+    canonicalCellNodeEquals a a = match a with | .cellNode .. => true | _ => false :=
+  canonicalCellNodeEquals_same_Impl a
+
 end Algorithm
 

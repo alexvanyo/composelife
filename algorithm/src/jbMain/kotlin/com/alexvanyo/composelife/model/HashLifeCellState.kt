@@ -19,8 +19,6 @@ package com.alexvanyo.composelife.model
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
-import kotlin.math.ceil
-import kotlin.math.log2
 
 /**
  * Converts the given [CellState] into the equivalent [HashLifeCellState].
@@ -36,13 +34,8 @@ internal fun CellState.toHashLifeCellState(): HashLifeCellState {
     val minY = yValues.minOrNull() ?: 0
     val maxY = yValues.maxOrNull() ?: 0
 
-    val minimumLevel =
-        ceil(
-            maxOf(
-                log2((maxX + 1 - minX).toDouble()),
-                log2((maxY + 1 - minY).toDouble()),
-            ),
-        ).toInt().coerceAtLeast(4)
+    val span = maxOf(maxX + 1 - minX, maxY + 1 - minY)
+    val minimumLevel = f_Algorithm_minimumMacroCellLevel(span.toUInt()).toInt()
 
     val offset = IntOffset(minX, minY)
     val macroCell =

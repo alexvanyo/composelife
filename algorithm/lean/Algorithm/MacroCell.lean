@@ -275,6 +275,15 @@ structure PruneThresholds where
   oldestMacroToKeep : UInt64
   oldestLeafToKeep : UInt64
 
+/--
+Result container for multi-generation batch execution, containing the final HashLifeStepState
+and the generational cache pruning thresholds.
+-/
+@[kotlin_class "class StepBatchResult"]
+structure StepBatchResult where
+  finalState : HashLifeStepState
+  thresholds : PruneThresholds
+
 
 /--
 Extracts the center 8x8 leaf from a 16x16 Level 4 node.
@@ -550,6 +559,73 @@ def computePruneThresholds
   let oldestMacro := if computedGenerations >= macroKeep then computedGenerations - macroKeep else 0
   let oldestLeaf := if computedGenerations >= leafKeep then computedGenerations - leafKeep else 0
   { oldestMacroToKeep := oldestMacro, oldestLeafToKeep := oldestLeaf }
+
+/--
+Executes a multi-generation step batch and computes generational cache pruning thresholds.
+-/
+@[export hashlife_compute_generation_step]
+def computeGenerationStep
+    (step : UInt32)
+    (st : HashLifeStepState)
+    (computedGenerations : UInt64)
+    (macroKeep leafKeep : UInt32)
+    (stepOneGen : HashLifeStepState → HashLifeStepState) : StepBatchResult :=
+  let finalSt := stepNGenerationsWith step st stepOneGen
+  let thresh := computePruneThresholds (computedGenerations + step.toUInt64) macroKeep leafKeep
+  { finalState := finalSt, thresholds := thresh }
+
+/--
+Computes the minimum MacroCell level (k >= 4) required to enclose a span of cells.
+Uses bit-length calculation via UInt32.log2 without floating point operations.
+-/
+@[export macrocell_minimum_level]
+def minimumMacroCellLevel (span : UInt32) : UInt32 :=
+  if span ≤ 16 then 4
+  else if (span - 1).log2 + 1 < 4 then 4
+  else (span - 1).log2 + 1
+
+/--
+Dispatches canonicalization of a MacroCell:
+- For Level4Node: delegates directly to `internLevel4`.
+- For CellNode: checks `findExistingCell m` (fast path). If missing, recursively canonicalizes
+  subnodes and interns the resulting node with `internCell`.
+-/
+@[export macrocell_canonicalize_with]
+def canonicalizeMacroCellWith
+    (m : MacroCell)
+    (internLevel4 : MacroCell → MacroCell)
+    (findExistingCell : MacroCell → Option MacroCell)
+    (canonicalizeSubnode : MacroCell → MacroCell)
+    (internCell : MacroCell → MacroCell) : MacroCell :=
+  match m with
+  | .level4Node .. => internLevel4 m
+  | .cellNode _ nw ne sw se =>
+    match findExistingCell m with
+    | some existing => existing
+    | none =>
+      let withCanonicalSubNodes :=
+        if m.size == 0 then
+          let c := canonicalizeSubnode nw
+          makeCellNode c c c c
+        else
+          makeCellNode
+            (canonicalizeSubnode nw)
+            (canonicalizeSubnode ne)
+            (canonicalizeSubnode sw)
+            (canonicalizeSubnode se)
+      internCell withCanonicalSubNodes
+
+/--
+Determines equivalence between two CellNodes with already-canonical subnodes based on hash and pointer equivalence.
+-/
+@[export macrocell_canonical_cell_node_equals]
+def canonicalCellNodeEquals (a b : MacroCell) : Bool :=
+  match a, b with
+  | .cellNode _ nw1 ne1 sw1 se1, .cellNode _ nw2 ne2 sw2 se2 =>
+    a.level == b.level &&
+    nw1.cellHashCode == nw2.cellHashCode && ne1.cellHashCode == ne2.cellHashCode &&
+    sw1.cellHashCode == sw2.cellHashCode && se1.cellHashCode == se2.cellHashCode
+  | _, _ => false
 
 
 def packCentralNibblesUInt (q0 q1 q2 q3 : UInt32) : UInt32 :=
