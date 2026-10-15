@@ -22,6 +22,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
@@ -37,7 +39,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResource
 import kotlinx.collections.immutable.ImmutableList
@@ -66,17 +67,14 @@ fun <T : DropdownOption> TextFieldDropdown(
     ) {
         val interactionSource = remember { MutableInteractionSource() }
 
-        OutlinedTextFieldDefaults.DecorationBox(
-            value = parameterizedStringResource(currentValue.displayText),
-            innerTextField = {
-                Text(
-                    parameterizedStringResource(currentValue.displayText),
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            },
+        val displayText = parameterizedStringResource(currentValue.displayText)
+        val textFieldState = remember(displayText) { TextFieldState(displayText) }
+
+        OutlinedTextFieldDefaults.decorator(
+            state = textFieldState,
             enabled = true,
-            singleLine = true,
-            visualTransformation = VisualTransformation.None,
+            lineLimits = TextFieldLineLimits.SingleLine,
+            outputTransformation = null,
             interactionSource = interactionSource,
             label = {
                 Text(text = label)
@@ -92,32 +90,38 @@ fun <T : DropdownOption> TextFieldDropdown(
                     contentDescription = null,
                 )
             },
-        ) {
-            Box(
-                propagateMinConstraints = true,
-            ) {
-                OutlinedTextFieldDefaults.Container(
-                    enabled = true,
-                    isError = false,
-                    interactionSource = interactionSource,
-                )
-
-                DropdownMenu(
-                    expanded = isShowingDropdownMenu,
-                    onDismissRequest = { isShowingDropdownMenu = false },
+            container = {
+                Box(
+                    propagateMinConstraints = true,
                 ) {
-                    allValues.forEach { value ->
-                        DropdownMenuItem(
-                            text = { Text(parameterizedStringResource(value.displayText)) },
-                            leadingIcon = value.leadingIcon,
-                            onClick = {
-                                setValue(value)
-                                isShowingDropdownMenu = false
-                            },
-                        )
+                    OutlinedTextFieldDefaults.Container(
+                        enabled = true,
+                        isError = false,
+                        interactionSource = interactionSource,
+                    )
+
+                    DropdownMenu(
+                        expanded = isShowingDropdownMenu,
+                        onDismissRequest = { isShowingDropdownMenu = false },
+                    ) {
+                        allValues.forEach { value ->
+                            DropdownMenuItem(
+                                text = { Text(parameterizedStringResource(value.displayText)) },
+                                leadingIcon = value.leadingIcon,
+                                onClick = {
+                                    setValue(value)
+                                    isShowingDropdownMenu = false
+                                },
+                            )
+                        }
                     }
                 }
-            }
+            },
+        ).Decoration {
+            Text(
+                displayText,
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
     }
 }
