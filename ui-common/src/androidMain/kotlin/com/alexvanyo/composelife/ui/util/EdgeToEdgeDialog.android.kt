@@ -30,7 +30,6 @@ import android.view.Window
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.ComponentDialog
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
@@ -570,7 +569,7 @@ internal fun EdgeToEdgeDialogPreview() {
 
     val context = LocalContext.current
     SideEffect {
-        (context as? ComponentActivity)?.enableEdgeToEdge()
+        (context as? ComponentActivity)?.window?.let(WindowCompat::enableEdgeToEdge)
     }
 
     Column(
