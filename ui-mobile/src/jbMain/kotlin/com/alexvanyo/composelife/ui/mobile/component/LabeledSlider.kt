@@ -149,7 +149,7 @@ fun <T : Comparable<T>> LabeledSlider(
                     }
                 },
         ) {
-            Slider(
+            PlatformSlider(
                 value = sliderValue,
                 onValueChange = {
                     onValueChange(with(sliderBijection) { it.toValue() })
