@@ -17,7 +17,6 @@
 package com.alexvanyo.composelife.ui.mobile.component
 
 import androidx.activity.ComponentActivity
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -59,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.view.WindowCompat
 import com.alexvanyo.composelife.ui.util.PlatformEdgeToEdgeDialog
 import kotlin.math.max
 
@@ -353,7 +353,7 @@ internal fun EdgeToEdgeAlertDialogPreview() {
 
     val context = LocalContext.current
     SideEffect {
-        (context as? ComponentActivity)?.enableEdgeToEdge()
+        (context as? ComponentActivity)?.window?.let(WindowCompat::enableEdgeToEdge)
     }
 
     Column(

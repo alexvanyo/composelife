@@ -17,7 +17,6 @@
 package com.alexvanyo.composelife.ui.mobile.component
 
 import androidx.activity.ComponentActivity
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.exponentialDecay
@@ -106,6 +105,7 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.view.WindowCompat
 import com.alexvanyo.composelife.ui.mobile.component.SheetState.Companion.Saver
 import com.alexvanyo.composelife.ui.util.CompletablePredictiveBackState
 import com.alexvanyo.composelife.ui.util.EdgeToEdgeDialog
@@ -693,7 +693,7 @@ internal fun EdgeToEdgeModalBottomSheetPreview() {
 
     val context = LocalContext.current
     SideEffect {
-        (context as? ComponentActivity)?.enableEdgeToEdge()
+        (context as? ComponentActivity)?.window?.let(WindowCompat::enableEdgeToEdge)
     }
 
     Column(
