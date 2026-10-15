@@ -524,5 +524,105 @@ theorem stepHashLifeStateWith_offset_Impl
   dsimp [stepHashLifeStateWith]
   exact ⟨rfl, rfl⟩
 
+theorem computeGenerationStep_finalState_Impl
+    (step : UInt32)
+    (st : HashLifeStepState)
+    (computedGenerations : UInt64)
+    (macroKeep leafKeep : UInt32)
+    (stepOneGen : HashLifeStepState → HashLifeStepState) :
+    (computeGenerationStep step st computedGenerations macroKeep leafKeep stepOneGen).finalState =
+      stepNGenerationsWith step st stepOneGen := by
+  rfl
+
+theorem computeGenerationStep_thresholds_Impl
+    (step : UInt32)
+    (st : HashLifeStepState)
+    (computedGenerations : UInt64)
+    (macroKeep leafKeep : UInt32)
+    (stepOneGen : HashLifeStepState → HashLifeStepState) :
+    (computeGenerationStep step st computedGenerations macroKeep leafKeep stepOneGen).thresholds =
+      computePruneThresholds (computedGenerations + step.toUInt64) macroKeep leafKeep := by
+  rfl
+
+theorem minimumMacroCellLevel_ge_four_Impl (span : UInt32) :
+    4 ≤ minimumMacroCellLevel span := by
+  dsimp [minimumMacroCellLevel]
+  split
+  · decide
+  · split
+    · decide
+    · next _ h2 =>
+      exact UInt32.not_lt.mp h2
+
+theorem canonicalizeMacroCellWith_level4_Impl
+    (h nw ne sw se : UInt64)
+    (internLevel4 : MacroCell → MacroCell)
+    (findExistingCell : MacroCell → Option MacroCell)
+    (canonicalizeSubnode : MacroCell → MacroCell)
+    (internCell : MacroCell → MacroCell) :
+    canonicalizeMacroCellWith (.level4Node h.toUInt32 nw ne sw se) internLevel4 findExistingCell canonicalizeSubnode internCell =
+      internLevel4 (.level4Node h.toUInt32 nw ne sw se) := by
+  rfl
+
+theorem canonicalizeMacroCellWith_hit_Impl
+    (h : UInt32) (nw ne sw se : MacroCell) (existing : MacroCell)
+    (internLevel4 : MacroCell → MacroCell)
+    (findExistingCell : MacroCell → Option MacroCell)
+    (canonicalizeSubnode : MacroCell → MacroCell)
+    (internCell : MacroCell → MacroCell)
+    (hhit : findExistingCell (.cellNode h nw ne sw se) = some existing) :
+    canonicalizeMacroCellWith (.cellNode h nw ne sw se) internLevel4 findExistingCell canonicalizeSubnode internCell =
+      existing := by
+  dsimp [canonicalizeMacroCellWith]
+  rw [hhit]
+
+theorem canonicalizeMacroCellWith_miss_Impl
+    (h : UInt32) (nw ne sw se : MacroCell)
+    (internLevel4 : MacroCell → MacroCell)
+    (findExistingCell : MacroCell → Option MacroCell)
+    (canonicalizeSubnode : MacroCell → MacroCell)
+    (internCell : MacroCell → MacroCell)
+    (hmiss : findExistingCell (.cellNode h nw ne sw se) = none)
+    (hsz : (.cellNode h nw ne sw se : MacroCell).size ≠ 0) :
+    canonicalizeMacroCellWith (.cellNode h nw ne sw se) internLevel4 findExistingCell canonicalizeSubnode internCell =
+      internCell (makeCellNode (canonicalizeSubnode nw) (canonicalizeSubnode ne) (canonicalizeSubnode sw) (canonicalizeSubnode se)) := by
+  dsimp [canonicalizeMacroCellWith]
+  rw [hmiss]
+  dsimp only
+  split
+  · next hzero =>
+    exfalso
+    apply hsz
+    exact beq_iff_eq.mp hzero
+  · rfl
+
+theorem canonicalizeMacroCellWith_miss_zero_Impl
+    (h : UInt32) (nw ne sw se : MacroCell)
+    (internLevel4 : MacroCell → MacroCell)
+    (findExistingCell : MacroCell → Option MacroCell)
+    (canonicalizeSubnode : MacroCell → MacroCell)
+    (internCell : MacroCell → MacroCell)
+    (hmiss : findExistingCell (.cellNode h nw ne sw se) = none)
+    (hsz : (.cellNode h nw ne sw se : MacroCell).size = 0) :
+    canonicalizeMacroCellWith (.cellNode h nw ne sw se) internLevel4 findExistingCell canonicalizeSubnode internCell =
+      internCell (makeCellNode (canonicalizeSubnode nw) (canonicalizeSubnode nw) (canonicalizeSubnode nw) (canonicalizeSubnode nw)) := by
+  dsimp [canonicalizeMacroCellWith]
+  rw [hmiss]
+  dsimp only
+  split
+  · rfl
+  · next hnotzero =>
+    exfalso
+    apply hnotzero
+    exact beq_iff_eq.mpr hsz
+
+theorem canonicalCellNodeEquals_same_Impl (a : MacroCell) :
+    canonicalCellNodeEquals a a = match a with | .cellNode .. => true | _ => false := by
+  cases a with
+  | level4Node hash nw ne sw se => rfl
+  | cellNode hash nw ne sw se =>
+    dsimp [canonicalCellNodeEquals]
+    simp
+
 end Algorithm
 
