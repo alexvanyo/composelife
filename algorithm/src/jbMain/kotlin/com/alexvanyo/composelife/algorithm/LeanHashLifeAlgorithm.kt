@@ -22,13 +22,16 @@ import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.HashLifeCellState
+import com.alexvanyo.composelife.model.HashLifeStepState
 import com.alexvanyo.composelife.model.LeafNode
 import com.alexvanyo.composelife.model.MacroCell
+import com.alexvanyo.composelife.model.f_Algorithm_computePruneThresholds
 import com.alexvanyo.composelife.model.f_Algorithm_makeCanonicalCellNodeWith
-import com.alexvanyo.composelife.model.f_Algorithm_prepareStep
 import com.alexvanyo.composelife.model.f_Algorithm_stepCellNodeWith
+import com.alexvanyo.composelife.model.f_Algorithm_stepHashLifeStateWith
 import com.alexvanyo.composelife.model.f_Algorithm_stepLevel4Node
 import com.alexvanyo.composelife.model.f_Algorithm_stepLevel4NodeWith
+import com.alexvanyo.composelife.model.f_Algorithm_stepNGenerationsWith
 import com.alexvanyo.composelife.model.toHashLifeCellState
 import com.alexvanyo.composelife.tracing.Tracer
 import com.alexvanyo.composelife.tracing.trace
@@ -213,48 +216,54 @@ class LeanHashLifeAlgorithm(
             }
         }
 
-    private tailrec fun computeGenerationWithStepImpl(
+    private fun stepPrepared(prepNode: MacroCell): MacroCell = f_Algorithm_stepCellNodeWith(
+        m = prepNode,
+        stepLevel4 = { (it as MacroCell.Level4Node).computeNextGeneration() },
+        stepCell = { (it as MacroCell.CellNode).computeNextGeneration() },
+    ).makeCanonical()
+
+    private fun computeGenerationWithStepImpl(
         cellState: HashLifeCellState,
         @IntRange(from = 0) step: Int,
-    ): HashLifeCellState = if (step == 0) {
-        val oldestGenerationToKeepInMacroCellMaps = computedGenerations - generationsToCacheInMacroCellMaps
+    ): HashLifeCellState {
+        val initialStepState = HashLifeStepState(
+            offsetX = cellState.offset.x,
+            offsetY = cellState.offset.y,
+            macroCell = cellState.macroCell,
+        )
+        val finalStepState = f_Algorithm_stepNGenerationsWith(
+            step = step.toUInt(),
+            st = initialStepState,
+            stepOneGen = { curr ->
+                tracer.trace(
+                    category = "LeanHashLifeAlgorithm",
+                    name = "computeNextGeneration",
+                ) {
+                    val next = f_Algorithm_stepHashLifeStateWith(
+                        st = curr as HashLifeStepState,
+                        stepPrepared = ::stepPrepared,
+                    )
+                    computedGenerations++
+                    next
+                }
+            },
+        )
+        val thresholds = f_Algorithm_computePruneThresholds(
+            computedGenerations = computedGenerations.toULong(),
+            generationsToCacheInMacroCellMaps = generationsToCacheInMacroCellMaps.toUInt(),
+            generationsToCacheInLeafNodeMap = generationsToCacheInLeafNodeMap.toUInt(),
+        )
+        val oldestGenerationToKeepInMacroCellMaps = thresholds.oldestMacroToKeep.toLong()
         canonicalCellNodeMap.prune(oldestGenerationToKeepInMacroCellMaps)
         canonicalLevel4NodeMap.prune(oldestGenerationToKeepInMacroCellMaps)
         cellNodeMap.prune(oldestGenerationToKeepInMacroCellMaps)
         level4NodeMap.prune(oldestGenerationToKeepInMacroCellMaps)
-        val oldestGenerationToKeepInLeafNodeMap = computedGenerations - generationsToCacheInLeafNodeMap
+        val oldestGenerationToKeepInLeafNodeMap = thresholds.oldestLeafToKeep.toLong()
         leafNodeMap.prune(oldestGenerationToKeepInLeafNodeMap)
-        cellState
-    } else {
-        val nextGeneration = computeNextGeneration(cellState)
-        computedGenerations++
-        computeGenerationWithStepImpl(
-            cellState = nextGeneration,
-            step = step - 1,
-        )
-    }
 
-    /**
-     * Returns the [HashLifeCellState] corresponding to the next generation.
-     */
-    private fun computeNextGeneration(cellState: HashLifeCellState): HashLifeCellState = tracer.trace(
-        category = "LeanHashLifeAlgorithm",
-        name = "computeNextGeneration",
-    ) {
-        computeNextGenerationImpl(cellState)
-    }
-
-    private fun computeNextGenerationImpl(cellState: HashLifeCellState): HashLifeCellState {
-        val prep = f_Algorithm_prepareStep(cellState.macroCell)
-        val delta = prep.offsetDelta
-        val nextMacro = f_Algorithm_stepCellNodeWith(
-            prep.macroCell,
-            stepLevel4 = { (it as MacroCell.Level4Node).computeNextGeneration() },
-            stepCell = { (it as MacroCell.CellNode).computeNextGeneration() },
-        ).makeCanonical()
         return HashLifeCellState(
-            offset = cellState.offset + IntOffset(delta, delta),
-            macroCell = nextMacro,
+            offset = IntOffset(finalStepState.offsetX, finalStepState.offsetY),
+            macroCell = finalStepState.macroCell,
         )
     }
 }
