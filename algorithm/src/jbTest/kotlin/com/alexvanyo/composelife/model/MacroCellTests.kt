@@ -250,4 +250,125 @@ class MacroCellTests {
             cell.withCell(IntOffset(16, 0), true)
         }
     }
+
+    @Test
+    fun minimumMacroCellLevel_is_correct() {
+        assertEquals(4u, f_Algorithm_minimumMacroCellLevel(0u))
+        assertEquals(4u, f_Algorithm_minimumMacroCellLevel(1u))
+        assertEquals(4u, f_Algorithm_minimumMacroCellLevel(16u))
+        assertEquals(5u, f_Algorithm_minimumMacroCellLevel(17u))
+        assertEquals(5u, f_Algorithm_minimumMacroCellLevel(32u))
+        assertEquals(6u, f_Algorithm_minimumMacroCellLevel(33u))
+    }
+
+    @Test
+    fun canonicalCellNodeEquals_is_correct() {
+        val empty4 = createEmptyMacroCell(4)
+        val empty5A = createEmptyMacroCell(5)
+        val empty5B = MacroCell.CellNode(empty4, empty4, empty4, empty4)
+
+        assertTrue(f_Algorithm_canonicalCellNodeEquals(empty5A, empty5B))
+        assertFalse(f_Algorithm_canonicalCellNodeEquals(empty4, empty4))
+
+        val nonZeroCell = empty4.withCell(IntOffset(0, 0), true)
+        val cellWithDiff = MacroCell.CellNode(nonZeroCell, empty4, empty4, empty4)
+        assertFalse(f_Algorithm_canonicalCellNodeEquals(empty5A, cellWithDiff))
+    }
+
+    @Test
+    fun canonicalizeMacroCellWith_level4_calls_internLevel4() {
+        val level4 = createEmptyMacroCell(4)
+        var called = false
+        val result = f_Algorithm_canonicalizeMacroCellWith(
+            m = level4,
+            internLevel4 = {
+                called = true
+                it
+            },
+            findExistingCell = { null },
+            canonicalizeSubnode = { it },
+            internCell = { it },
+        )
+        assertTrue(called)
+        assertEquals(level4, result)
+    }
+
+    @Test
+    fun canonicalizeMacroCellWith_hit_returns_existing() {
+        val cell = createEmptyMacroCell(5)
+        val existing = createEmptyMacroCell(5)
+        val result = f_Algorithm_canonicalizeMacroCellWith(
+            m = cell,
+            internLevel4 = { it },
+            findExistingCell = { existing },
+            canonicalizeSubnode = { it },
+            internCell = { it },
+        )
+        assertEquals(existing, result)
+    }
+
+    @Test
+    fun canonicalizeMacroCellWith_miss_zero_calls_canonicalize_once() {
+        val cell = createEmptyMacroCell(5)
+        var subnodeCallCount = 0
+        val result = f_Algorithm_canonicalizeMacroCellWith(
+            m = cell,
+            internLevel4 = { it },
+            findExistingCell = { null },
+            canonicalizeSubnode = {
+                subnodeCallCount++
+                it
+            },
+            internCell = { it },
+        )
+        assertEquals(1, subnodeCallCount)
+        assertEquals(cell, result)
+    }
+
+    @Test
+    fun canonicalizeMacroCellWith_miss_nonzero_calls_canonicalize_four_times() {
+        val cell = createEmptyMacroCell(5).withCell(IntOffset(0, 0), true)
+        var subnodeCallCount = 0
+        val result = f_Algorithm_canonicalizeMacroCellWith(
+            m = cell,
+            internLevel4 = { it },
+            findExistingCell = { null },
+            canonicalizeSubnode = {
+                subnodeCallCount++
+                it
+            },
+            internCell = { it },
+        )
+        assertEquals(4, subnodeCallCount)
+        assertEquals(cell, result)
+    }
+
+    @Test
+    fun computeGenerationStep_computes_steps_and_thresholds() {
+        val cell = createEmptyMacroCell(4)
+        val initial = HashLifeStepState(
+            offsetX = 10,
+            offsetY = 20,
+            macroCell = cell,
+        )
+        var stepCalls = 0
+        val res = f_Algorithm_computeGenerationStep(
+            step = 3u,
+            st = initial,
+            computedGenerations = 10uL,
+            macroKeep = 4u,
+            leafKeep = 8u,
+            stepOneGen = {
+                stepCalls++
+                it
+            },
+        )
+        assertEquals(3, stepCalls)
+        assertEquals(initial.offsetX, res.finalState.offsetX)
+        assertEquals(initial.offsetY, res.finalState.offsetY)
+        assertEquals(initial.macroCell, res.finalState.macroCell)
+        // 10 + 3 = 13. oldestMacro = max(0, 13 - 4) = 9. oldestLeaf = max(0, 13 - 8) = 5.
+        assertEquals(9uL, res.thresholds.oldestMacroToKeep)
+        assertEquals(5uL, res.thresholds.oldestLeafToKeep)
+    }
 }

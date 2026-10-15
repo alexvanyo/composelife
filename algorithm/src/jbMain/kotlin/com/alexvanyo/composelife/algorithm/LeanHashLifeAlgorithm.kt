@@ -25,13 +25,12 @@ import com.alexvanyo.composelife.model.HashLifeCellState
 import com.alexvanyo.composelife.model.HashLifeStepState
 import com.alexvanyo.composelife.model.LeafNode
 import com.alexvanyo.composelife.model.MacroCell
-import com.alexvanyo.composelife.model.f_Algorithm_computePruneThresholds
-import com.alexvanyo.composelife.model.f_Algorithm_makeCanonicalCellNodeWith
+import com.alexvanyo.composelife.model.f_Algorithm_canonicalizeMacroCellWith
+import com.alexvanyo.composelife.model.f_Algorithm_computeGenerationStep
 import com.alexvanyo.composelife.model.f_Algorithm_stepCellNodeWith
 import com.alexvanyo.composelife.model.f_Algorithm_stepHashLifeStateWith
 import com.alexvanyo.composelife.model.f_Algorithm_stepLevel4Node
 import com.alexvanyo.composelife.model.f_Algorithm_stepLevel4NodeWith
-import com.alexvanyo.composelife.model.f_Algorithm_stepNGenerationsWith
 import com.alexvanyo.composelife.model.toHashLifeCellState
 import com.alexvanyo.composelife.tracing.Tracer
 import com.alexvanyo.composelife.tracing.trace
@@ -75,13 +74,13 @@ class LeanHashLifeAlgorithm(
      */
     private val canonicalCellNodeMap: Cache<Equivalence.Wrapper<MacroCell.CellNode>, MacroCell.CellNode> =
         Cache(
-            load = { key -> key.value.makeCanonical(false) },
+            load = { key -> key.value },
             getGenerationIndex = { computedGenerations },
         )
 
     private val canonicalLevel4NodeMap: Cache<MacroCell.Level4Node, MacroCell.Level4Node> =
         Cache(
-            load = { key -> key.makeCanonical(false) },
+            load = { key -> key },
             getGenerationIndex = { computedGenerations },
         )
 
@@ -118,40 +117,20 @@ class LeanHashLifeAlgorithm(
         category = "LeanHashLifeAlgorithm",
         name = "makeCanonical",
     ) {
-        when (this) {
-            is MacroCell.Level4Node -> makeCanonical(useMap)
-            is MacroCell.CellNode -> makeCanonical(useMap)
-        }
-    }
-
-    private fun MacroCell.Level4Node.makeCanonical(useMap: Boolean = true): MacroCell.Level4Node = if (useMap) {
-        // If we're using the map, pull from it now
-        canonicalLevel4NodeMap[this]
-    } else {
-        // Otherwise, define the canonical cell
-        this
-    }
-
-    private fun MacroCell.CellNode.makeCanonical(useMap: Boolean = true): MacroCell.CellNode {
-        val currentEntry = canonicalCellNodeMap.map[canonicalCellNodeEquivalence.wrap(this)]
-
-        return if (currentEntry != null) {
-            // Fast path: return the canonical cell if already in the map
-            // There should be no reason to be making a cell canonical without the map if it is already in the map
-            check(useMap)
-            currentEntry
+        if (!useMap) {
+            this
         } else {
-            // Slow path: make all subnodes canonical, to check if we have an equivalent canonical node
-            val withCanonicalSubNodes =
-                f_Algorithm_makeCanonicalCellNodeWith(this) { it.makeCanonical() } as MacroCell.CellNode
-
-            if (useMap) {
-                // If we're using the map, pull from it now with canonical cell nodes
-                canonicalCellNodeMap[canonicalCellNodeEquivalence.wrap(withCanonicalSubNodes)]
-            } else {
-                // Otherwise, define the canonical cell
-                withCanonicalSubNodes
-            }
+            f_Algorithm_canonicalizeMacroCellWith(
+                m = this,
+                internLevel4 = { canonicalLevel4NodeMap[it as MacroCell.Level4Node] },
+                findExistingCell = {
+                    canonicalCellNodeMap.map[canonicalCellNodeEquivalence.wrap(it as MacroCell.CellNode)]
+                },
+                canonicalizeSubnode = { it.makeCanonical() },
+                internCell = {
+                    canonicalCellNodeMap[canonicalCellNodeEquivalence.wrap(it as MacroCell.CellNode)]
+                },
+            )
         }
     }
 
@@ -160,7 +139,7 @@ class LeanHashLifeAlgorithm(
         name = "Level4Node.computeNextGeneration",
     ) {
         // Ensure we are operating upon a canonical macro cell
-        val canonicalMacroCell = makeCanonical()
+        val canonicalMacroCell = makeCanonical(useMap) as MacroCell.Level4Node
         if (useMap) {
             return@trace level4NodeMap[canonicalMacroCell]
         }
@@ -184,7 +163,7 @@ class LeanHashLifeAlgorithm(
         name = "CellNode.computeNextGeneration",
     ) {
         // Ensure we are operating upon a canonical macro cell
-        val canonicalMacroCell = makeCanonical()
+        val canonicalMacroCell = makeCanonical(useMap) as MacroCell.CellNode
         if (useMap) {
             return@trace cellNodeMap[canonicalCellNodeEquivalence.wrap(canonicalMacroCell)]
         }
@@ -231,16 +210,19 @@ class LeanHashLifeAlgorithm(
             offsetY = cellState.offset.y,
             macroCell = cellState.macroCell,
         )
-        val finalStepState = f_Algorithm_stepNGenerationsWith(
+        val result = f_Algorithm_computeGenerationStep(
             step = step.toUInt(),
             st = initialStepState,
+            computedGenerations = computedGenerations.toULong(),
+            macroKeep = generationsToCacheInMacroCellMaps.toUInt(),
+            leafKeep = generationsToCacheInLeafNodeMap.toUInt(),
             stepOneGen = { curr ->
                 tracer.trace(
                     category = "LeanHashLifeAlgorithm",
                     name = "computeNextGeneration",
                 ) {
                     val next = f_Algorithm_stepHashLifeStateWith(
-                        st = curr as HashLifeStepState,
+                        st = curr,
                         stepPrepared = ::stepPrepared,
                     )
                     computedGenerations++
@@ -248,17 +230,13 @@ class LeanHashLifeAlgorithm(
                 }
             },
         )
-        val thresholds = f_Algorithm_computePruneThresholds(
-            computedGenerations = computedGenerations.toULong(),
-            generationsToCacheInMacroCellMaps = generationsToCacheInMacroCellMaps.toUInt(),
-            generationsToCacheInLeafNodeMap = generationsToCacheInLeafNodeMap.toUInt(),
-        )
-        val oldestGenerationToKeepInMacroCellMaps = thresholds.oldestMacroToKeep.toLong()
+        val finalStepState = result.finalState
+        val oldestGenerationToKeepInMacroCellMaps = result.thresholds.oldestMacroToKeep.toLong()
         canonicalCellNodeMap.prune(oldestGenerationToKeepInMacroCellMaps)
         canonicalLevel4NodeMap.prune(oldestGenerationToKeepInMacroCellMaps)
         cellNodeMap.prune(oldestGenerationToKeepInMacroCellMaps)
         level4NodeMap.prune(oldestGenerationToKeepInMacroCellMaps)
-        val oldestGenerationToKeepInLeafNodeMap = thresholds.oldestLeafToKeep.toLong()
+        val oldestGenerationToKeepInLeafNodeMap = result.thresholds.oldestLeafToKeep.toLong()
         leafNodeMap.prune(oldestGenerationToKeepInLeafNodeMap)
 
         return HashLifeCellState(
