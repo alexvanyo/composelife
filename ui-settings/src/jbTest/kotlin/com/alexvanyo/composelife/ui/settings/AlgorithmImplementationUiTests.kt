@@ -32,6 +32,7 @@ import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.AlgorithmType
 import com.alexvanyo.composelife.test.runComposeUiTest
 import com.alexvanyo.composelife.ui.settings.resources.HashLifeAlgorithm
+import com.alexvanyo.composelife.ui.settings.resources.LeanHashLifeAlgorithm
 import com.alexvanyo.composelife.ui.settings.resources.NaiveAlgorithm
 import com.alexvanyo.composelife.ui.settings.resources.Strings
 import kotlin.test.Test
@@ -79,6 +80,25 @@ class AlgorithmImplementationUiTests : BaseKmpTest() {
     }
 
     @Test
+    fun lean_hashlife_is_displayed_correctly() {
+        runComposeUiTest {
+            lateinit var resolver: (ParameterizedString) -> String
+
+            setContent {
+                resolver = parameterizedStringResolver()
+                AlgorithmImplementationUi(
+                    algorithmChoice = AlgorithmType.LeanHashLifeAlgorithm,
+                    setAlgorithmChoice = {},
+                )
+            }
+
+            onNodeWithText(resolver(Strings.LeanHashLifeAlgorithm))
+                .assertExists()
+                .assertHasClickAction()
+        }
+    }
+
+    @Test
     fun algorithm_implementation_popup_displays_options() {
         runComposeUiTest {
             var algorithmChoice: AlgorithmType by mutableStateOf(AlgorithmType.NaiveAlgorithm)
@@ -106,6 +126,39 @@ class AlgorithmImplementationUiTests : BaseKmpTest() {
                 .assertDoesNotExist()
 
             onNodeWithText(resolver(Strings.HashLifeAlgorithm))
+                .assertExists()
+                .assertHasClickAction()
+        }
+    }
+
+    @Test
+    fun algorithm_implementation_popup_can_select_lean_hashlife() {
+        runComposeUiTest {
+            var algorithmChoice: AlgorithmType by mutableStateOf(AlgorithmType.NaiveAlgorithm)
+
+            lateinit var resolver: (ParameterizedString) -> String
+
+            setContent {
+                resolver = parameterizedStringResolver()
+                AlgorithmImplementationUi(
+                    algorithmChoice = algorithmChoice,
+                    setAlgorithmChoice = { algorithmChoice = it },
+                )
+            }
+
+            onNodeWithText(resolver(Strings.NaiveAlgorithm))
+                .performClick()
+
+            onNode(hasAnyAncestor(isPopup()) and hasText(resolver(Strings.LeanHashLifeAlgorithm)))
+                .assertHasClickAction()
+                .performClick()
+
+            assertEquals(AlgorithmType.LeanHashLifeAlgorithm, algorithmChoice)
+
+            onNode(isPopup())
+                .assertDoesNotExist()
+
+            onNodeWithText(resolver(Strings.LeanHashLifeAlgorithm))
                 .assertExists()
                 .assertHasClickAction()
         }
