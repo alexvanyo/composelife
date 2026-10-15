@@ -259,6 +259,24 @@ structure StepPreparation where
   macroCell : MacroCell
 
 /--
+State container for HashLife stepping, tracking the (x, y) spatial offset and root MacroCell.
+-/
+@[kotlin_class "class HashLifeStepState"]
+structure HashLifeStepState where
+  offsetX : Int32
+  offsetY : Int32
+  macroCell : MacroCell
+
+/--
+Result container for generational cache pruning threshold calculation.
+-/
+@[kotlin_class "class PruneThresholds"]
+structure PruneThresholds where
+  oldestMacroToKeep : UInt64
+  oldestLeafToKeep : UInt64
+
+
+/--
 Extracts the center 8x8 leaf from a 16x16 Level 4 node.
 In quadtree coordinates: nw = nw.se, ne = ne.sw, sw = sw.ne, se = se.nw.
 -/
@@ -473,6 +491,66 @@ def stepCellNodeWith
     makeLevel4Node (stepLevel4 q.nw) (stepLevel4 q.ne) (stepLevel4 q.sw) (stepLevel4 q.se)
   else
     makeCellNode (stepCell q.nw) (stepCell q.ne) (stepCell q.sw) (stepCell q.se)
+
+
+/--
+Steps a HashLifeStepState by one generation, preparing the macrocell (expanding if necessary),
+stepping the prepared node with `stepPrepared`, and updating spatial offsets.
+-/
+@[export hashlife_step_state_with]
+def stepHashLifeStateWith
+    (st : HashLifeStepState)
+    (stepPrepared : MacroCell → MacroCell) : HashLifeStepState :=
+  let prep := prepareStep st.macroCell
+  let nextMacro := stepPrepared prep.macroCell
+  { offsetX := st.offsetX + prep.offsetDelta
+  , offsetY := st.offsetY + prep.offsetDelta
+  , macroCell := nextMacro }
+
+theorem uint32_sub_one_lt (n : UInt32) (h : n ≠ 0) : (n - 1).toNat < n.toNat := by
+  cases n with
+  | ofBitVec bv =>
+    have hbv_ne : bv ≠ 0 := by
+      intro hz
+      apply h
+      cases hz
+      rfl
+    have h1 : 1#32 ≤ bv := by bv_omega
+    have h2 : 1 ≤ bv.toNat := by bv_omega
+    have h3 : (bv - 1).toNat = bv.toNat - 1 := BitVec.toNat_sub_of_le h1
+    change (bv - 1).toNat < bv.toNat
+    omega
+
+/--
+Steps a HashLifeStepState by N generations using tail-recursive iteration.
+-/
+@[export hashlife_step_n_generations_with, kotlin_types "UInt" "Any?" "(Any?) -> Any?" "HashLifeStepState"]
+def stepNGenerationsWith
+    (step : UInt32)
+    (st : HashLifeStepState)
+    (stepOneGen : HashLifeStepState → HashLifeStepState) : HashLifeStepState :=
+  if h : step = 0 then st
+  else
+    have : (step - 1).toNat < step.toNat := uint32_sub_one_lt step h
+    stepNGenerationsWith (step - 1) (stepOneGen st) stepOneGen
+termination_by step.toNat
+
+
+
+/--
+Calculates the oldest generation index to retain for macrocell caches and leaf caches.
+-/
+@[export hashlife_compute_prune_thresholds]
+def computePruneThresholds
+    (computedGenerations : UInt64)
+    (generationsToCacheInMacroCellMaps : UInt32)
+    (generationsToCacheInLeafNodeMap : UInt32) : PruneThresholds :=
+  let macroKeep := generationsToCacheInMacroCellMaps.toUInt64
+  let leafKeep := generationsToCacheInLeafNodeMap.toUInt64
+  let oldestMacro := if computedGenerations >= macroKeep then computedGenerations - macroKeep else 0
+  let oldestLeaf := if computedGenerations >= leafKeep then computedGenerations - leafKeep else 0
+  { oldestMacroToKeep := oldestMacro, oldestLeafToKeep := oldestLeaf }
+
 
 def packCentralNibblesUInt (q0 q1 q2 q3 : UInt32) : UInt32 :=
   q0 ||| (q1 <<< 4) ||| (q2 <<< 8) ||| (q3 <<< 12)

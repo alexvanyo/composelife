@@ -476,4 +476,53 @@ theorem stepLevel4Node_eq_stepLevel4NodeWith_Impl (m : MacroCell) :
   | level4Node h nw ne sw se => rfl
   | cellNode h nw ne sw se => rfl
 
+theorem stepNGenerationsWith_zero_Impl (st : HashLifeStepState) (f : HashLifeStepState → HashLifeStepState) :
+    stepNGenerationsWith 0 st f = st := by
+  unfold stepNGenerationsWith
+  rfl
+
+theorem computePruneThresholds_macro_Impl
+    (gen : UInt64) (macroKeep leafKeep : UInt32)
+    (h : gen ≥ macroKeep.toUInt64) :
+    (computePruneThresholds gen macroKeep leafKeep).oldestMacroToKeep = gen - macroKeep.toUInt64 := by
+  dsimp [computePruneThresholds]
+  split
+  · rfl
+  · next h_not =>
+    exfalso
+    exact h_not h
+
+theorem computePruneThresholds_leaf_Impl
+    (gen : UInt64) (macroKeep leafKeep : UInt32)
+    (h : gen ≥ leafKeep.toUInt64) :
+    (computePruneThresholds gen macroKeep leafKeep).oldestLeafToKeep = gen - leafKeep.toUInt64 := by
+  dsimp [computePruneThresholds]
+  split
+  · rfl
+  · next h_not =>
+    exfalso
+    exact h_not h
+
+theorem computePruneThresholds_macro_zero_Impl
+    (gen : UInt64) (macroKeep leafKeep : UInt32)
+    (h : ¬(gen ≥ macroKeep.toUInt64)) :
+    (computePruneThresholds gen macroKeep leafKeep).oldestMacroToKeep = 0 := by
+  dsimp [computePruneThresholds]
+  split
+  · next h_is =>
+    exfalso
+    exact h h_is
+  · rfl
+
+theorem stepHashLifeStateWith_offset_Impl
+    (st : HashLifeStepState)
+    (stepPrepared : MacroCell → MacroCell) :
+    (stepHashLifeStateWith st stepPrepared).offsetX =
+      st.offsetX + (prepareStep st.macroCell).offsetDelta ∧
+    (stepHashLifeStateWith st stepPrepared).offsetY =
+      st.offsetY + (prepareStep st.macroCell).offsetDelta := by
+  dsimp [stepHashLifeStateWith]
+  exact ⟨rfl, rfl⟩
+
 end Algorithm
+
