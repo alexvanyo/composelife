@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.test
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.test.ComposeUiTest
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.window.WindowState
@@ -33,8 +34,10 @@ internal actual fun runPlatformUiTest(
     timeout: Duration,
     testBody: suspend ComposeUiTest.(uiGraphArguments: UiGraphArguments) -> Unit,
 ): TestResult = runComposeUiTest(
-    runTestContext = runTestContext,
-    testTimeout = timeout,
+    config = ComposeUiTestConfig(
+        runTestContext = runTestContext,
+        testTimeout = timeout,
+    ),
 ) {
     testBody(
         object : UiGraphArguments {
