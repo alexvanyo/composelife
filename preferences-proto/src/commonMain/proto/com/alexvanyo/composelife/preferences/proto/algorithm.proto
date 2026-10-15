@@ -24,4 +24,5 @@ enum AlgorithmProto {
   DEFAULT = 1;
   NAIVE = 2;
   HASHLIFE = 3;
+  LEAN_HASHLIFE = 4;
 }

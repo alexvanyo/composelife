@@ -114,6 +114,7 @@ private class PreferencesProtoTransform(previousPreferencesProto: PreferencesPro
         newPreferencesProto = newPreferencesProto.copy(
             algorithm = when (algorithm) {
                 AlgorithmType.HashLifeAlgorithm -> AlgorithmProto.HASHLIFE
+                AlgorithmType.LeanHashLifeAlgorithm -> AlgorithmProto.LEAN_HASHLIFE
                 AlgorithmType.NaiveAlgorithm -> AlgorithmProto.NAIVE
             },
         )
@@ -342,6 +343,8 @@ private fun PreferencesProto.toLoadedComposeLifePreferences(): LoadedComposeLife
             AlgorithmProto.DEFAULT,
             AlgorithmProto.HASHLIFE,
             -> AlgorithmType.HashLifeAlgorithm
+
+            AlgorithmProto.LEAN_HASHLIFE -> AlgorithmType.LeanHashLifeAlgorithm
 
             AlgorithmProto.NAIVE -> AlgorithmType.NaiveAlgorithm
         }

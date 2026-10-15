@@ -26,6 +26,7 @@ class AlgorithmImplementationDropdownOptionTests {
         assertEquals(
             listOf(
                 AlgorithmImplementationDropdownOption.HashLifeAlgorithm,
+                AlgorithmImplementationDropdownOption.LeanHashLifeAlgorithm,
                 AlgorithmImplementationDropdownOption.NaiveAlgorithm,
             ),
             AlgorithmImplementationDropdownOption.values,

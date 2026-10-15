@@ -52,12 +52,14 @@ class ConfigurableGameOfLifeAlgorithm(
     private val preferences: ComposeLifePreferences,
     private val naiveGameOfLifeAlgorithm: NaiveGameOfLifeAlgorithm,
     private val hashLifeAlgorithm: HashLifeAlgorithm,
+    private val leanHashLifeAlgorithm: LeanHashLifeAlgorithm,
 ) : GameOfLifeAlgorithm {
     private val currentAlgorithm get() =
         preferences.algorithmChoiceState.map { algorithmType ->
             when (algorithmType) {
                 AlgorithmType.NaiveAlgorithm -> naiveGameOfLifeAlgorithm
                 AlgorithmType.HashLifeAlgorithm -> hashLifeAlgorithm
+                AlgorithmType.LeanHashLifeAlgorithm -> leanHashLifeAlgorithm
             }
         }
 

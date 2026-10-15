@@ -74,6 +74,12 @@ val GameOfLifeAlgorithmTests by testSuite(
                     tracer = TestTraceDriver().tracer,
                 ) to Job().apply { complete() }
             },
+            GameOfLifeAlgorithmFactory("Lean HashLife Algorithm") {
+                LeanHashLifeAlgorithm(
+                    dispatchers = it,
+                    tracer = TestTraceDriver().tracer,
+                ) to Job().apply { complete() }
+            },
             GameOfLifeAlgorithmFactory("Configurable Algorithm") {
                 val preferences = TestComposeLifePreferences()
 
@@ -81,6 +87,8 @@ val GameOfLifeAlgorithmTests by testSuite(
                     launch {
                         while (true) {
                             preferences.setAlgorithmChoice(AlgorithmType.HashLifeAlgorithm)
+                            delay(10)
+                            preferences.setAlgorithmChoice(AlgorithmType.LeanHashLifeAlgorithm)
                             delay(10)
                             preferences.setAlgorithmChoice(AlgorithmType.NaiveAlgorithm)
                             delay(10)
@@ -91,6 +99,10 @@ val GameOfLifeAlgorithmTests by testSuite(
                     preferences = preferences,
                     naiveGameOfLifeAlgorithm = NaiveGameOfLifeAlgorithm(it),
                     hashLifeAlgorithm = HashLifeAlgorithm(
+                        dispatchers = it,
+                        tracer = TestTraceDriver().tracer,
+                    ),
+                    leanHashLifeAlgorithm = LeanHashLifeAlgorithm(
                         dispatchers = it,
                         tracer = TestTraceDriver().tracer,
                     ),
