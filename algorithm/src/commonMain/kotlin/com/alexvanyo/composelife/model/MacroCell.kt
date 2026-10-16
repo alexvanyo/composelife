@@ -42,6 +42,8 @@ typealias LeafNode = ULong
 typealias Level4Node = MacroCell.Level4Node
 typealias CellNode = MacroCell.CellNode
 
+val EMPTY_LEVEL_4: MacroCell = MacroCell.Level4Node(0uL, 0uL, 0uL, 0uL)
+
 internal inline fun Level4Node(nw: Long, ne: Long, sw: Long, se: Long): MacroCell.Level4Node =
     MacroCell.Level4Node(nw.toULong(), ne.toULong(), sw.toULong(), se.toULong())
 
