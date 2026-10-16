@@ -72,9 +72,9 @@ class LeanHashLifeAlgorithm(
      * The keys of this map must already have canonical subnodes, which is ensured by the implementation of
      * [makeCanonical].
      */
-    private val canonicalCellNodeMap: Cache<Equivalence.Wrapper<MacroCell.CellNode>, MacroCell.CellNode> =
+    private val canonicalCellNodeMap: Cache<MacroCell.CellNode, MacroCell.CellNode> =
         Cache(
-            load = { key -> key.value },
+            load = { key -> key },
             getGenerationIndex = { computedGenerations },
         )
 
@@ -87,11 +87,27 @@ class LeanHashLifeAlgorithm(
     /**
      * The memoization map for [MacroCell.CellNode.computeNextGeneration].
      */
-    private val cellNodeMap: Cache<Equivalence.Wrapper<MacroCell.CellNode>, MacroCell> =
+    private val cellNodeMap: Cache<MacroCell.CellNode, MacroCell> =
         Cache(
-            load = { key -> key.value.computeNextGeneration(false) },
+            load = { key -> key.computeNextGeneration(false) },
             getGenerationIndex = { computedGenerations },
         )
+
+    private val internLevel4Lambda: (MacroCell) -> MacroCell =
+        { canonicalLevel4NodeMap[it as MacroCell.Level4Node] }
+    private val findExistingCellLambda: (MacroCell) -> MacroCell? =
+        { canonicalCellNodeMap.map[it as MacroCell.CellNode] }
+    private val canonicalizeSubnodeLambda: (MacroCell) -> MacroCell =
+        { it.makeCanonical() }
+    private val internCellLambda: (MacroCell) -> MacroCell =
+        { canonicalCellNodeMap[it as MacroCell.CellNode] }
+
+    private val stepLevel4Lambda: (MacroCell) -> ULong =
+        { (it as MacroCell.Level4Node).computeNextGeneration() }
+    private val stepCellLambda: (MacroCell) -> MacroCell =
+        { (it as MacroCell.CellNode).computeNextGeneration() }
+    private val computeLeafMemoizedLambda: (ULong) -> UInt =
+        { it.computeNextGenerationMemoized().toUInt() }
 
     /**
      * The memoization map for [MacroCell.Level4Node.computeNextGeneration].
@@ -99,7 +115,7 @@ class LeanHashLifeAlgorithm(
     private val level4NodeMap: ObjectLongCache<MacroCell.Level4Node> =
         ObjectLongCache(
             load = { key ->
-                f_Algorithm_stepLevel4NodeWith(key) { it.computeNextGenerationMemoized().toUInt() }
+                f_Algorithm_stepLevel4NodeWith(key, computeLeafMemoizedLambda)
             },
             getGenerationIndex = { computedGenerations },
         )
@@ -122,14 +138,10 @@ class LeanHashLifeAlgorithm(
         } else {
             f_Algorithm_canonicalizeMacroCellWith(
                 m = this,
-                internLevel4 = { canonicalLevel4NodeMap[it as MacroCell.Level4Node] },
-                findExistingCell = {
-                    canonicalCellNodeMap.map[canonicalCellNodeEquivalence.wrap(it as MacroCell.CellNode)]
-                },
-                canonicalizeSubnode = { it.makeCanonical() },
-                internCell = {
-                    canonicalCellNodeMap[canonicalCellNodeEquivalence.wrap(it as MacroCell.CellNode)]
-                },
+                internLevel4 = internLevel4Lambda,
+                findExistingCell = findExistingCellLambda,
+                canonicalizeSubnode = canonicalizeSubnodeLambda,
+                internCell = internCellLambda,
             )
         }
     }
@@ -165,13 +177,13 @@ class LeanHashLifeAlgorithm(
         // Ensure we are operating upon a canonical macro cell
         val canonicalMacroCell = makeCanonical(useMap) as MacroCell.CellNode
         if (useMap) {
-            return@trace cellNodeMap[canonicalCellNodeEquivalence.wrap(canonicalMacroCell)]
+            return@trace cellNodeMap[canonicalMacroCell]
         }
 
         f_Algorithm_stepCellNodeWith(
             canonicalMacroCell,
-            stepLevel4 = { (it as MacroCell.Level4Node).computeNextGeneration() },
-            stepCell = { (it as MacroCell.CellNode).computeNextGeneration() },
+            stepLevel4 = stepLevel4Lambda,
+            stepCell = stepCellLambda,
         ).makeCanonical()
     }
 
@@ -197,8 +209,8 @@ class LeanHashLifeAlgorithm(
 
     private fun stepPrepared(prepNode: MacroCell): MacroCell = f_Algorithm_stepCellNodeWith(
         m = prepNode,
-        stepLevel4 = { (it as MacroCell.Level4Node).computeNextGeneration() },
-        stepCell = { (it as MacroCell.CellNode).computeNextGeneration() },
+        stepLevel4 = stepLevel4Lambda,
+        stepCell = stepCellLambda,
     ).makeCanonical()
 
     private fun computeGenerationWithStepImpl(
