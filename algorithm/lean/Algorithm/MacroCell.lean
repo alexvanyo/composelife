@@ -378,11 +378,55 @@ def centeredVerticalSubnode : MacroCell → MacroCell → MacroCell
   | n, _ => n
 
 /--
+Directly extracts the center sub-subnode without allocating intermediate nodes on the heap.
+-/
+@[export macrocell_centered_sub_subnode_fast]
+def centeredSubSubnodeFast (m : MacroCell) : MacroCell :=
+  match m with
+  | .cellNode _ (.level4Node _ _ _ _ nw_se) (.level4Node _ _ _ ne_sw _)
+                (.level4Node _ _ sw_ne _ _) (.level4Node _ se_nw _ _ _) =>
+    makeLevel4Node 0 0 0 (centeredSubnodeLevel4 nw_se ne_sw sw_ne se_nw)
+  | .cellNode _ (.cellNode _ _ _ _ (.cellNode _ _ _ _ a))
+                (.cellNode _ _ _ (.cellNode _ _ _ b _) _)
+                (.cellNode _ _ (.cellNode _ _ c _ _) _ _)
+                (.cellNode _ (.cellNode _ d _ _ _) _ _ _) =>
+    makeCellNode a b c d
+  | .cellNode _ (.cellNode _ _ _ _ (.level4Node _ _ _ _ a))
+                (.cellNode _ _ _ (.level4Node _ _ _ b _) _)
+                (.cellNode _ _ (.level4Node _ _ c _ _) _ _)
+                (.cellNode _ (.level4Node _ d _ _ _) _ _ _) =>
+    makeLevel4Node a b c d
+  | m => m
+
+/--
 Extracts the center sub-subnode from a node of level k >= 5.
 -/
 @[export macrocell_centered_sub_subnode]
 def centeredSubSubnode (m : MacroCell) : MacroCell :=
   centeredSubnode (centeredSubnode m)
+
+attribute [kotlin_expr "f_Algorithm_centeredSubSubnodeFast({0})"] centeredSubSubnode
+
+/--
+Direct scalar calculation of the population of the center sub-subnode without constructing any nodes.
+-/
+@[export macrocell_centered_sub_subnode_size_fast]
+def centeredSubSubnodeSizeFast (m : MacroCell) : UInt64 :=
+  match m with
+  | .cellNode _ (.level4Node _ _ _ _ nw_se) (.level4Node _ _ _ ne_sw _)
+                (.level4Node _ _ sw_ne _ _) (.level4Node _ se_nw _ _ _) =>
+    (popcount64 (centeredSubnodeLevel4 nw_se ne_sw sw_ne se_nw)).toUInt64
+  | .cellNode _ (.cellNode _ _ _ _ (.cellNode _ _ _ _ a))
+                (.cellNode _ _ _ (.cellNode _ _ _ b _) _)
+                (.cellNode _ _ (.cellNode _ _ c _ _) _ _)
+                (.cellNode _ (.cellNode _ d _ _ _) _ _ _) =>
+    a.size + b.size + c.size + d.size
+  | .cellNode _ (.cellNode _ _ _ _ (.level4Node _ _ _ _ a))
+                (.cellNode _ _ _ (.level4Node _ _ _ b _) _)
+                (.cellNode _ _ (.level4Node _ _ c _ _) _ _)
+                (.cellNode _ (.level4Node _ d _ _ _) _ _ _) =>
+    (popcount64 a + popcount64 b + popcount64 c + popcount64 d).toUInt64
+  | _ => 0
 
 /--
 Computes the population of the center sub-subnode.
@@ -391,13 +435,15 @@ Computes the population of the center sub-subnode.
 def centeredSubSubnodeSize (m : MacroCell) : UInt64 :=
   (centeredSubSubnode m).size
 
-attribute [kotlin_expr "{0}.centeredSubSubnodeSize()"] centeredSubSubnodeSize
+attribute [kotlin_expr "f_Algorithm_centeredSubSubnodeSizeFast({0})"] centeredSubSubnodeSize
 
 def emptySubnode : MacroCell → MacroCell
   | .level4Node .. => emptyLevel4
   | .cellNode _ nw _ _ _ =>
     let sub := emptySubnode nw
     makeCellNode sub sub sub sub
+
+attribute [kotlin_expr "com.alexvanyo.composelife.model.EMPTY_NODES[({0}.level()).toInt().coerceIn(0, 32)]"] emptySubnode
 
 /--
 Surrounds a MacroCell with empty nodes of matching size, creating a centered
@@ -912,7 +958,7 @@ def macroCellFileSpec : FileSpec := {
         .verbatim "abstract val hash: UInt
 abstract fun level(): UInt
 abstract fun size(): ULong
-abstract fun centeredSubSubnodeSize(): ULong
+fun centeredSubSubnodeSize(): ULong = f_Algorithm_centeredSubSubnodeSizeFast(this)
 fun cellHashCode(): UInt = hash
 override fun hashCode(): Int = hash.toInt()
 
@@ -937,8 +983,6 @@ class Level4Node(
             se.countOneBits().toULong()
 
     override fun size(): ULong = _size
-
-    override fun centeredSubSubnodeSize(): ULong = 0uL
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -974,44 +1018,6 @@ class CellNode(
     private val _size: ULong = nw.size() + ne.size() + sw.size() + se.size()
 
     override fun size(): ULong = _size
-
-    override fun centeredSubSubnodeSize(): ULong {
-        val nw = nw
-        val ne = ne
-        val sw = sw
-        val se = se
-        return when (nw) {
-            is Level4Node -> {
-                ne as Level4Node
-                sw as Level4Node
-                se as Level4Node
-                f_Algorithm_centeredSubnodeLevel4(nw.se, ne.sw, sw.ne, se.nw).countOneBits().toULong()
-            }
-            is CellNode -> {
-                ne as CellNode
-                sw as CellNode
-                se as CellNode
-                val c0 = nw.se
-                val c1 = ne.sw
-                val c2 = sw.ne
-                val c3 = se.nw
-                when (c0) {
-                    is CellNode -> {
-                        (c0 as CellNode).se.size() +
-                            (c1 as CellNode).sw.size() +
-                            (c2 as CellNode).ne.size() +
-                            (c3 as CellNode).nw.size()
-                    }
-                    is Level4Node -> {
-                        (c0 as Level4Node).se.countOneBits().toULong() +
-                            (c1 as Level4Node).sw.countOneBits().toULong() +
-                            (c2 as Level4Node).ne.countOneBits().toULong() +
-                            (c3 as Level4Node).nw.countOneBits().toULong()
-                    }
-                }
-            }
-        }
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
