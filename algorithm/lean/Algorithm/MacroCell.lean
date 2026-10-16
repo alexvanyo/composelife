@@ -119,12 +119,14 @@ attribute [kotlin_expr "{0}.hash"] MacroCell.cellHashCode
 /--
 Smart constructor for Level4Node that automatically computes the hash.
 -/
+@[export macrocell_make_level4_node]
 def makeLevel4Node (nw ne sw se : UInt64) : MacroCell :=
   .level4Node (level4Hash nw ne sw se) nw ne sw se
 
 /--
 Smart constructor for CellNode that automatically computes the hash.
 -/
+@[export macrocell_make_cell_node]
 def makeCellNode (nw ne sw se : MacroCell) : MacroCell :=
   .cellNode (cellNodeHash (nw.level + 1) nw.cellHashCode ne.cellHashCode sw.cellHashCode se.cellHashCode) nw ne sw se
 
@@ -308,6 +310,8 @@ def centeredSubnodeLevel4 (nw ne sw se : UInt64) : UInt64 :=
   (ne_sw.toUInt64 <<< 16) |||
   (sw_ne.toUInt64 <<< 32) |||
   (se_nw.toUInt64 <<< 48)
+
+attribute [kotlin_expr "((({0} shr 48) and 0xFFFFuL) or ((({1} shr 32) and 0xFFFFuL) shl 16) or ((({2} shr 16) and 0xFFFFuL) shl 32) or (({3} and 0xFFFFuL) shl 48))"] centeredSubnodeLevel4
 
 /--
 Extracts the horizontal center 8x8 leaf spanning between west and east 16x16 nodes.

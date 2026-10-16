@@ -31,7 +31,9 @@ internal fun interface Equivalence<in T> {
 
     fun hash(value: T): Int = value.hashCode()
 
-    class Wrapper<T>(private val equivalence: Equivalence<T>, val value: T) {
+    abstract class Wrapper<T>(internal val equivalence: Equivalence<T>) {
+        abstract val value: T
+
         @Suppress("UNCHECKED_CAST")
         override fun equals(other: Any?): Boolean = other is Wrapper<*> &&
             other.equivalence === equivalence &&
@@ -39,9 +41,25 @@ internal fun interface Equivalence<in T> {
 
         override fun hashCode(): Int = equivalence.hash(value)
     }
+
+    class FixedWrapper<T>(equivalence: Equivalence<T>, override val value: T) : Wrapper<T>(equivalence)
+
+    class ReusableWrapper<T : Any>(equivalence: Equivalence<T>) : Wrapper<T>(equivalence) {
+        private var _value: T? = null
+
+        override val value: T
+            get() = _value ?: error("ReusableWrapper value was not initialized")
+
+        fun set(newValue: T): ReusableWrapper<T> {
+            _value = newValue
+            return this
+        }
+
+        fun toPermanentWrapper(): FixedWrapper<T> = FixedWrapper(equivalence, value)
+    }
 }
 
-internal fun <T> Equivalence<T>.wrap(value: T): Equivalence.Wrapper<T> = Equivalence.Wrapper(this, value)
+internal fun <T> Equivalence<T>.wrap(value: T): Equivalence.FixedWrapper<T> = Equivalence.FixedWrapper(this, value)
 
 internal val canonicalCellNodeEquivalence: Equivalence<MacroCell.CellNode> =
     Equivalence { a: MacroCell.CellNode, b: MacroCell.CellNode ->
@@ -56,6 +74,20 @@ internal class Cache<K, V>(private val load: (K) -> V, private val getGeneration
 
     operator fun get(key: K): V = mutableMap.getOrPut(key) { load(key) }.also {
         lastAccessedGenerationMap[key] = getGenerationIndex()
+    }
+
+    fun getWithQuery(queryKey: K, createPermanentKey: () -> K): V {
+        val existing = mutableMap[queryKey]
+        return if (existing != null) {
+            lastAccessedGenerationMap[queryKey] = getGenerationIndex()
+            existing
+        } else {
+            val permanentKey = createPermanentKey()
+            val loaded = load(permanentKey)
+            mutableMap[permanentKey] = loaded
+            lastAccessedGenerationMap[permanentKey] = getGenerationIndex()
+            loaded
+        }
     }
 
     fun prune(oldestGenerationToKeep: Long) {
