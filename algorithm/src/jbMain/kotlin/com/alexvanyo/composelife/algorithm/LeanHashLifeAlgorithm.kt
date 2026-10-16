@@ -64,6 +64,8 @@ class LeanHashLifeAlgorithm(
      */
     private var computedGenerations = 0L
 
+    private val cellNodeQueryWrapper = Equivalence.ReusableWrapper(canonicalCellNodeEquivalence)
+
     /**
      * The map containing the "canonical" [MacroCell.CellNode]s. This ensures that there is exactly one instance of
      * each equivalent [MacroCell.CellNode] (which makes comparing [MacroCell.CellNode]s possible in O(1) with just
@@ -72,9 +74,9 @@ class LeanHashLifeAlgorithm(
      * The keys of this map must already have canonical subnodes, which is ensured by the implementation of
      * [makeCanonical].
      */
-    private val canonicalCellNodeMap: Cache<MacroCell.CellNode, MacroCell.CellNode> =
+    private val canonicalCellNodeMap: Cache<Equivalence.Wrapper<MacroCell.CellNode>, MacroCell.CellNode> =
         Cache(
-            load = { key -> key },
+            load = { key -> key.value },
             getGenerationIndex = { computedGenerations },
         )
 
@@ -87,20 +89,24 @@ class LeanHashLifeAlgorithm(
     /**
      * The memoization map for [MacroCell.CellNode.computeNextGeneration].
      */
-    private val cellNodeMap: Cache<MacroCell.CellNode, MacroCell> =
+    private val cellNodeMap: Cache<Equivalence.Wrapper<MacroCell.CellNode>, MacroCell> =
         Cache(
-            load = { key -> key.computeNextGeneration(false) },
+            load = { key -> key.value.computeNextGeneration(false) },
             getGenerationIndex = { computedGenerations },
         )
 
     private val internLevel4Lambda: (MacroCell) -> MacroCell =
         { canonicalLevel4NodeMap[it as MacroCell.Level4Node] }
     private val findExistingCellLambda: (MacroCell) -> MacroCell? =
-        { canonicalCellNodeMap.map[it as MacroCell.CellNode] }
+        { canonicalCellNodeMap.map[cellNodeQueryWrapper.set(it as MacroCell.CellNode)] }
     private val canonicalizeSubnodeLambda: (MacroCell) -> MacroCell =
         { it.makeCanonical() }
-    private val internCellLambda: (MacroCell) -> MacroCell =
-        { canonicalCellNodeMap[it as MacroCell.CellNode] }
+    private val internCellLambda: (MacroCell) -> MacroCell = {
+        val cell = it as MacroCell.CellNode
+        canonicalCellNodeMap.getWithQuery(cellNodeQueryWrapper.set(cell)) {
+            cellNodeQueryWrapper.toPermanentWrapper()
+        }
+    }
 
     private val stepLevel4Lambda: (MacroCell) -> ULong =
         { (it as MacroCell.Level4Node).computeNextGeneration() }
@@ -129,21 +135,16 @@ class LeanHashLifeAlgorithm(
             getGenerationIndex = { computedGenerations },
         )
 
-    private fun MacroCell.makeCanonical(useMap: Boolean = true): MacroCell = tracer.trace(
-        category = "LeanHashLifeAlgorithm",
-        name = "makeCanonical",
-    ) {
-        if (!useMap) {
-            this
-        } else {
-            f_Algorithm_canonicalizeMacroCellWith(
-                m = this,
-                internLevel4 = internLevel4Lambda,
-                findExistingCell = findExistingCellLambda,
-                canonicalizeSubnode = canonicalizeSubnodeLambda,
-                internCell = internCellLambda,
-            )
-        }
+    private fun MacroCell.makeCanonical(useMap: Boolean = true): MacroCell = if (!useMap) {
+        this
+    } else {
+        f_Algorithm_canonicalizeMacroCellWith(
+            m = this,
+            internLevel4 = internLevel4Lambda,
+            findExistingCell = findExistingCellLambda,
+            canonicalizeSubnode = canonicalizeSubnodeLambda,
+            internCell = internCellLambda,
+        )
     }
 
     private fun MacroCell.Level4Node.computeNextGeneration(useMap: Boolean = true): LeafNode = tracer.trace(
@@ -177,7 +178,9 @@ class LeanHashLifeAlgorithm(
         // Ensure we are operating upon a canonical macro cell
         val canonicalMacroCell = makeCanonical(useMap) as MacroCell.CellNode
         if (useMap) {
-            return@trace cellNodeMap[canonicalMacroCell]
+            return@trace cellNodeMap.getWithQuery(cellNodeQueryWrapper.set(canonicalMacroCell)) {
+                cellNodeQueryWrapper.toPermanentWrapper()
+            }
         }
 
         f_Algorithm_stepCellNodeWith(
