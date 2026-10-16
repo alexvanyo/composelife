@@ -40,7 +40,7 @@ androidxSavedState = "1.6.0-alpha04"
 #androidxSqlite
 androidxSqlite = "2.8.0-alpha01"
 #androidxTestCore
-androidxTestCore = "1.7.0"
+androidxTestCore = "1.8.0-alpha01"
 #androidxTestEspresso
 androidxTestEspresso = "3.7.0"
 #androidxTestExt
