@@ -17,6 +17,9 @@
 import Algorithm.Basic
 import Algorithm.BitComputation
 import Algorithm.MacroCell
+import Lean.Compiler.Kotlin
+
+open Lean.Compiler.Kotlin
 
 local notation "ℕ" => Nat
 
@@ -127,5 +130,28 @@ def computeLevel4NextGen16x16 (nw ne sw se : ℕ) : ℕ :=
   let outSE := computeLeafNextGen8x8Branch leafSE
 
   packLeafFrom4x4s outNW outNE outSW outSE
+
+-- =========================================================================
+-- Fixed-width UInt32 / UInt64 HashLife Computations are defined in Algorithm.MacroCell
+-- =========================================================================
+
+
+@[export computeNextGen4x4UInt]
+def exportComputeNextGen4x4UInt (w : UInt32) : UInt32 :=
+  computeNextGen4x4UInt w
+
+@[export computeLeafNextGen8x8BranchUInt]
+def exportComputeLeafNextGen8x8BranchUInt (w : UInt64) : UInt32 :=
+  computeLeafNextGen8x8BranchUInt w
+
+@[kotlin_file]
+def hashLifeFileSpec : FileSpec := {
+  imports := #[
+    "import com.alexvanyo.composelife.model.MacroCell"
+  ]
+  items := #[
+    .topLevel
+  ]
+}
 
 end Algorithm

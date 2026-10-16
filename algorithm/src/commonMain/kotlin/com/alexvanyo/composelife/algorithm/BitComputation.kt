@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("NOTHING_TO_INLINE")
 
 package com.alexvanyo.composelife.algorithm
 
 /**
  * Computes the next 2x2 [Int] generation for the given 4x4 [Int] in its center.
  */
-@Suppress("NOTHING_TO_INLINE")
 internal inline fun Int.computeNextGeneration(): Int {
     val count0 = (0b1110_1010_1100_1000 and this).countOneBits()
     val previousBit0 = (0b0001_0000_0000_0000 and this) shr 12
@@ -55,7 +55,7 @@ private val NEXT_GEN_4X4_LUT = ByteArray(65536) { it.computeNextGeneration().toB
  * A 256 KB lookup table indexed by a 16-bit 4x4 quadrant (`0..65535`) in Morton order.
  *
  * Pre-extracts and packs the sub-components of the quadrant into a single 32-bit [Int] to accelerate assembling
- * the four overlapping 4x4 subnodes (`subNW`, `subNE`, `subSW`, `subSE`) needed by [computeNextGeneration]:
+ * the four overlapping 4x4 subnodes (`subNW`, `subNE`, `subSW`, `subSE`) needed by [computeNextGenerationPureKotlin]:
  * - Bits 0..3: `center` (2x2 center cells of the quadrant).
  * - Bits 4..7: `right` (vertical edge cells at the right border of the quadrant, aligned for horizontal neighbors).
  * - Bits 8..11: `left` (vertical edge cells at the left border of the quadrant, aligned for horizontal neighbors).
@@ -80,9 +80,10 @@ private fun computeQuadInfo(q: Int): Int {
 }
 
 /**
- * Computes the 4x4 [Int] next generation for the given 8x8 64-bit Morton leaf node in its center.
+ * Computes the 4x4 [Int] next generation for the given 8x8 64-bit Morton leaf node in its center using
+ * pure Kotlin lookup tables.
  */
-fun Long.computeNextGeneration(): Int {
+fun Long.computeNextGenerationPureKotlin(): Int {
     if (this == 0L) return 0
 
     val q0 = (this and 0xFFFFL).toInt()
@@ -120,3 +121,9 @@ fun Long.computeNextGeneration(): Int {
 
     return nw or (ne shl 4) or (sw shl 8) or (se shl 12)
 }
+
+/**
+ * Computes the 4x4 [Int] next generation for the given 8x8 64-bit Morton leaf node in its center using
+ * pure Kotlin lookup tables.
+ */
+fun ULong.computeNextGenerationPureKotlin(): Int = this.toLong().computeNextGenerationPureKotlin()

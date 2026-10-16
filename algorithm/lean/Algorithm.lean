@@ -19,8 +19,8 @@ import Algorithm.BitComputation
 import Algorithm.Patterns
 import Algorithm.MacroCell
 import Algorithm.MacroCellHash
+import Algorithm.Cache
 import Algorithm.HashLife
-import Algorithm.Bridge
 import AlgorithmDefs
 import AlgorithmProofs
 import AlgorithmTheorems

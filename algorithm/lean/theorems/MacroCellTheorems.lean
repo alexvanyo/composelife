@@ -17,53 +17,195 @@
 import Algorithm.Basic
 import Algorithm.BitComputation
 import Algorithm.MacroCell
+import AlgorithmDefs
 import proofs.MacroCellProofs
+
+local notation "ℕ" => Nat
 
 namespace Algorithm
 
-theorem hashlife_empty_level2_stability :
-    hashLifeStepLevel2 (emptyNode 2) = emptyNode 1 :=
-  hashlife_empty_level2_stability_Impl
+/--
+Population count of an all-zero 64-bit leaf is 0.
+-/
+theorem popcount64_zero : popcount64 0 = 0 :=
+  popcount64_zero_Impl
 
-theorem hashlife_block_preservation :
-    let nw := makeLevel1 false false false true   -- (1, 1) is active
-    let ne := makeLevel1 false false true false   -- (2, 1) is active
-    let sw := makeLevel1 false true false false   -- (1, 2) is active
-    let se := makeLevel1 true false false false   -- (2, 2) is active
-    let block4x4 := makeLevel2 nw ne sw se
-    hashLifeStepLevel2 block4x4 = makeLevel1 true true true true :=
-  hashlife_block_preservation_Impl
+/--
+Extracting the center 8x8 leaf from four empty leaves produces an empty leaf.
+-/
+theorem centeredSubnodeLevel4_zero : centeredSubnodeLevel4 0 0 0 0 = 0 :=
+  centeredSubnodeLevel4_zero_Impl
 
-theorem hashlife_blinker_oscillation :
-    let nw := makeLevel1 false false false true   -- (1, 1) is active
-    let ne := makeLevel1 false false true true    -- (2, 1) and (3, 1) are active
-    let sw := makeLevel1 false false false false
-    let se := makeLevel1 false false false false
-    let blinker4x4 := makeLevel2 nw ne sw se
-    hashLifeStepLevel2 blinker4x4 = makeLevel1 false true false true :=
-  hashlife_blinker_oscillation_Impl
+/--
+Level 4 nodes have level 4.
+-/
+theorem macroCell_level_level4Node (hash : UInt32) (nw ne sw se : UInt64) :
+    (MacroCell.level4Node hash nw ne sw se).level = 4 :=
+  macroCell_level_level4Node_Impl hash nw ne sw se
 
-theorem hashlife_tub_preservation :
-    let nw := makeLevel1 false true true false    -- (1, 0) and (0, 1)
-    let ne := makeLevel1 false false true false   -- (2, 1)
-    let sw := makeLevel1 false true false false   -- (1, 2)
-    let se := makeLevel1 false false false false
-    let tub4x4 := makeLevel2 nw ne sw se
-    hashLifeStepLevel2 tub4x4 = makeLevel1 false true true false :=
-  hashlife_tub_preservation_Impl
+/--
+Cell nodes have level equal to child level + 1.
+-/
+theorem macroCell_level_cellNode (hash : UInt32) (nw ne sw se : MacroCell) :
+    (MacroCell.cellNode hash nw ne sw se).level = nw.level + 1 :=
+  macroCell_level_cellNode_Impl hash nw ne sw se
 
-theorem centered_subnode_level_correct
-    (nw_se ne_sw sw_ne se_nw : MacroCell)
-    (nw_nw nw_ne nw_sw : MacroCell)
-    (ne_nw ne_ne ne_se : MacroCell)
-    (sw_nw sw_sw sw_se : MacroCell)
-    (se_ne se_sw se_se : MacroCell) :
-    let nw := MacroCell.node 2 nw_nw nw_ne nw_sw nw_se
-    let ne := MacroCell.node 2 ne_nw ne_ne ne_sw ne_se
-    let sw := MacroCell.node 2 sw_nw sw_ne sw_sw sw_se
-    let se := MacroCell.node 2 se_nw se_ne se_sw se_se
-    (centeredSubnode (.node 3 nw ne sw se)).level = 2 :=
-  centered_subnode_level_correct_Impl nw_se ne_sw sw_ne se_nw
-    nw_nw nw_ne nw_sw ne_nw ne_ne ne_se sw_nw sw_sw sw_se se_ne se_sw se_se
+/--
+An empty level 4 node has size 0.
+-/
+theorem macroCell_size_emptyLevel4 : emptyLevel4.size = 0 :=
+  macroCell_size_emptyLevel4_Impl
+
+/--
+Empty nodes at any level have size 0.
+-/
+theorem macroCell_size_emptyNode (k : ℕ) : (emptyNode k).size = 0 :=
+  macroCell_size_emptyNode_Impl k
+
+/--
+Empty nodes at any level are well-formed.
+-/
+theorem macroCell_emptyNode_isWellFormed (k : ℕ) : isWellFormed (emptyNode k) :=
+  macroCell_emptyNode_isWellFormed_Impl k
+
+/--
+Horizontal reflection on MacroCell is an involution.
+-/
+theorem macroCell_flipX_involution (m : MacroCell) :
+    macroCellFlipX (macroCellFlipX m) = m :=
+  macroCell_flipX_involution_Impl m
+
+/--
+Vertical reflection on MacroCell is an involution.
+-/
+theorem macroCell_flipY_involution (m : MacroCell) :
+    macroCellFlipY (macroCellFlipY m) = m :=
+  macroCell_flipY_involution_Impl m
+
+/--
+Structural equality on MacroCell is reflexive.
+-/
+theorem macroCell_cellEquals_refl (m : MacroCell) :
+    m.cellEquals m = true :=
+  macroCell_cellEquals_refl_Impl m
+
+/--
+Structural equality on MacroCell is equivalent to propositional equality.
+-/
+theorem macroCell_cellEquals_iff_eq (m1 m2 : MacroCell) :
+    m1.cellEquals m2 = true ↔ m1 = m2 :=
+  macroCell_cellEquals_iff_eq_Impl m1 m2
+
+/--
+Kotlin hashCode matches cellHashCode.
+-/
+theorem macroCell_hashCode_eq (m : MacroCell) :
+    m.hashCode = m.cellHashCode :=
+  macroCell_hashCode_eq_Impl m
+
+/--
+Extracting the horizontal center 8x8 leaf from four empty leaves produces an empty leaf.
+-/
+theorem centeredHorizontalSubnodeLevel4_zero :
+    centeredHorizontalSubnodeLevel4 0 0 0 0 = 0 :=
+  centeredHorizontalSubnodeLevel4_zero_Impl
+
+/--
+Extracting the vertical center 8x8 leaf from four empty leaves produces an empty leaf.
+-/
+theorem centeredVerticalSubnodeLevel4_zero :
+    centeredVerticalSubnodeLevel4 0 0 0 0 = 0 :=
+  centeredVerticalSubnodeLevel4_zero_Impl
+
+/--
+The population of the central sub-subnode of an empty level 4 node is 0.
+-/
+theorem centeredSubSubnodeSize_emptyLevel4 :
+    centeredSubSubnodeSize emptyLevel4 = 0 :=
+  centeredSubSubnodeSize_emptyLevel4_Impl
+
+/--
+Expanding a level 4 node shifts the bounding box offset by -24 cells.
+-/
+theorem expandOffsetDeltaUInt_four :
+    expandOffsetDeltaUInt 4 = -24 :=
+  expandOffsetDeltaUInt_four_Impl
+
+/--
+Stepping a level 4 node shifts the center offset by 4 cells.
+-/
+theorem stepOffsetDeltaUInt_four :
+    stepOffsetDeltaUInt 4 = 4 :=
+  stepOffsetDeltaUInt_four_Impl
+
+/--
+An empty level 4 node requires expansion before stepping.
+-/
+theorem needToExpand_emptyLevel4 :
+    needToExpand emptyLevel4 = true :=
+  needToExpand_emptyLevel4_Impl
+
+/--
+Decomposing an empty level 4 node produces four empty level 4 nodes.
+-/
+theorem stepQuadrants_emptyLevel4 :
+    stepQuadrants emptyLevel4 = { nw := emptyLevel4, ne := emptyLevel4, sw := emptyLevel4, se := emptyLevel4 } :=
+  stepQuadrants_emptyLevel4_Impl
+
+/--
+Stepping a Level4Node with stepCellNodeWith delegates to stepCell.
+-/
+theorem stepCellNodeWith_level4Node
+    (hash : UInt32) (nw ne sw se : UInt64)
+    (stepLevel4 : MacroCell → UInt64)
+    (stepCell : MacroCell → MacroCell) :
+    stepCellNodeWith (.level4Node hash nw ne sw se) stepLevel4 stepCell =
+      makeCellNode (stepCell (.level4Node hash nw ne sw se))
+                   (stepCell (.level4Node hash nw ne sw se))
+                   (stepCell (.level4Node hash nw ne sw se))
+                   (stepCell (.level4Node hash nw ne sw se)) :=
+  stepCellNodeWith_level4Node_Impl hash nw ne sw se stepLevel4 stepCell
+
+/--
+Canonicalizing a non-CellNode with makeCanonicalCellNodeWith returns the node unchanged.
+-/
+theorem makeCanonicalCellNodeWith_level4Node
+    (hash : UInt32) (nw ne sw se : UInt64)
+    (canonicalize : MacroCell → MacroCell) :
+    makeCanonicalCellNodeWith (.level4Node hash nw ne sw se) canonicalize =
+      .level4Node hash nw ne sw se :=
+  makeCanonicalCellNodeWith_level4Node_Impl hash nw ne sw se canonicalize
+
+/--
+When a MacroCell does not need expansion, prepareStep leaves the node unchanged and returns stepOffsetDeltaUInt.
+-/
+theorem prepareStep_needToExpand_false (m : MacroCell) (h : needToExpand m = false) :
+    (prepareStep m).macroCell = m ∧ (prepareStep m).offsetDelta = stepOffsetDeltaUInt m.level :=
+  prepareStep_needToExpand_false_Impl m h
+
+/--
+Morton coordinate encoding of (0, 0) is bit index 0.
+-/
+theorem cellToLeafBitUInt_zero : cellToLeafBitUInt 0 0 = 0 :=
+  cellToLeafBitUInt_zero_Impl
+
+/--
+An all-zero leaf contains no active cells at (0, 0).
+-/
+theorem leafContains_zero_zero : leafContains 0 0 0 = false :=
+  leafContains_zero_zero_Impl
+
+/--
+An empty level 4 MacroCell contains no active cells at (0, 0).
+-/
+theorem macroCellContains_emptyLevel4_zero_zero :
+    macroCellContains emptyLevel4 0 0 = false :=
+  macroCellContains_emptyLevel4_zero_zero_Impl
+
+/--
+Setting cell at negative coordinates outside bounds leaves the MacroCell unchanged.
+-/
+theorem macroCellWithCell_neg : macroCellWithCell emptyLevel4 (-1) 0 false = emptyLevel4 :=
+  macroCellWithCell_neg_Impl
 
 end Algorithm

@@ -22,84 +22,85 @@ import AlgorithmDefs
 import proofs.HashLifeProofs
 
 local notation "ℕ" => Nat
+local notation "ℤ" => Int
 
 namespace Algorithm
 
 theorem macroCellSize_emptyNode : ∀ (k : ℕ), macroCellSize (emptyNode k) = 0 :=
   macroCellSize_emptyNode_Impl
 
-theorem centeredSubSubnode_expandCentered (k : ℕ) (nw ne sw se : MacroCell) :
-    centeredSubSubnode (expandCentered (.node k nw ne sw se)) = .node k nw ne sw se :=
-  centeredSubSubnode_expandCentered_Impl k nw ne sw se
+theorem centeredSubSubnode_expandCentered (nw ne sw se : MacroCell) :
+    centeredSubSubnode (expandCentered (makeCellNode nw ne sw se)) = makeCellNode nw ne sw se :=
+  centeredSubSubnode_expandCentered_Impl nw ne sw se
 
-theorem expandCentered_level (k : ℕ) (nw ne sw se : MacroCell) :
-    (expandCentered (.node k nw ne sw se)).level = k + 2 :=
-  expandCentered_level_Impl k nw ne sw se
+theorem expandCentered_level (nw ne sw se : MacroCell) :
+    (expandCentered (makeCellNode nw ne sw se)).level = nw.level + 1 + 1 + 1 :=
+  expandCentered_level_Impl nw ne sw se
 
-theorem expandCentered_size_node (k : ℕ) (nw ne sw se : MacroCell) :
-    macroCellSize (expandCentered (.node k nw ne sw se)) =
-    macroCellSize (.node k nw ne sw se) :=
-  expandCentered_size_node_Impl k nw ne sw se
+theorem expandCentered_size_node (nw ne sw se : MacroCell) :
+    macroCellSize (expandCentered (makeCellNode nw ne sw se)) =
+    macroCellSize (makeCellNode nw ne sw se) :=
+  expandCentered_size_node_Impl nw ne sw se
 
-theorem expandCentered_confinement (k : ℕ) (nw ne sw se : MacroCell) :
-    macroCellSize (centeredSubSubnode (expandCentered (.node k nw ne sw se))) =
-    macroCellSize (expandCentered (.node k nw ne sw se)) :=
-  expandCentered_confinement_Impl k nw ne sw se
+theorem expandCentered_confinement (nw ne sw se : MacroCell) :
+    macroCellSize (centeredSubSubnode (expandCentered (makeCellNode nw ne sw se))) =
+    macroCellSize (expandCentered (makeCellNode nw ne sw se)) :=
+  expandCentered_confinement_Impl nw ne sw se
 
-theorem subnodes_shared_center (k : ℕ) (sn : HashLifeSubnodes) :
-    match quadrantNW k sn, quadrantNE k sn, quadrantSW k sn, quadrantSE k sn with
-    | .node _ _ _ _ nw_se, .node _ _ _ ne_sw _,
-      .node _ _ sw_ne _ _, .node _ se_nw _ _ _ =>
+theorem subnodes_shared_center (sn : HashLifeSubnodes) :
+    match quadrantNW sn, quadrantNE sn, quadrantSW sn, quadrantSE sn with
+    | .cellNode _ _ _ _ nw_se, .cellNode _ _ _ ne_sw _,
+      .cellNode _ _ sw_ne _ _, .cellNode _ se_nw _ _ _ =>
       nw_se = sn.n11 ∧ ne_sw = sn.n11 ∧ sw_ne = sn.n11 ∧ se_nw = sn.n11
     | _, _, _, _ => False :=
-  subnodes_shared_center_Impl k sn
+  subnodes_shared_center_Impl sn
 
-theorem subnodes_horizontal_alignment (k : ℕ) (sn : HashLifeSubnodes) :
-    match quadrantNW k sn, quadrantNE k sn, quadrantSW k sn, quadrantSE k sn with
-    | .node _ _ nw_ne _ nw_se, .node _ ne_nw _ ne_sw _,
-      .node _ _ sw_ne _ sw_se, .node _ se_nw _ se_sw _ =>
+theorem subnodes_horizontal_alignment (sn : HashLifeSubnodes) :
+    match quadrantNW sn, quadrantNE sn, quadrantSW sn, quadrantSE sn with
+    | .cellNode _ _ nw_ne _ nw_se, .cellNode _ ne_nw _ ne_sw _,
+      .cellNode _ _ sw_ne _ sw_se, .cellNode _ se_nw _ se_sw _ =>
       nw_ne = ne_nw ∧ nw_se = ne_sw ∧ sw_ne = se_nw ∧ sw_se = se_sw
     | _, _, _, _ => False :=
-  subnodes_horizontal_alignment_Impl k sn
+  subnodes_horizontal_alignment_Impl sn
 
-theorem subnodes_vertical_alignment (k : ℕ) (sn : HashLifeSubnodes) :
-    match quadrantNW k sn, quadrantNE k sn, quadrantSW k sn, quadrantSE k sn with
-    | .node _ _ _ nw_sw nw_se, .node _ _ _ ne_sw ne_se,
-      .node _ sw_nw sw_ne _ _, .node _ se_nw se_ne _ _ =>
+theorem subnodes_vertical_alignment (sn : HashLifeSubnodes) :
+    match quadrantNW sn, quadrantNE sn, quadrantSW sn, quadrantSE sn with
+    | .cellNode _ _ _ nw_sw nw_se, .cellNode _ _ _ ne_sw ne_se,
+      .cellNode _ sw_nw sw_ne _ _, .cellNode _ se_nw se_ne _ _ =>
       nw_sw = sw_nw ∧ nw_se = se_nw ∧ ne_sw = sw_ne ∧ ne_se = se_ne
     | _, _, _, _ => False :=
-  subnodes_vertical_alignment_Impl k sn
+  subnodes_vertical_alignment_Impl sn
 
 theorem centeredSubnode_emptyNode : ∀ (k : ℕ),
-    centeredSubnode (emptyNode (k + 2)) = emptyNode (k + 1) :=
+    centeredSubnode (emptyNode (k + 5)) = emptyNode (k + 4) :=
   centeredSubnode_emptyNode_Impl
 
 theorem centeredHorizontalSubnode_emptyNode : ∀ (k : ℕ),
-    centeredHorizontalSubnode (emptyNode (k + 2)) (emptyNode (k + 2)) = emptyNode (k + 1) :=
+    centeredHorizontalSubnode (emptyNode (k + 5)) (emptyNode (k + 5)) = emptyNode (k + 4) :=
   centeredHorizontalSubnode_emptyNode_Impl
 
 theorem centeredVerticalSubnode_emptyNode : ∀ (k : ℕ),
-    centeredVerticalSubnode (emptyNode (k + 2)) (emptyNode (k + 2)) = emptyNode (k + 1) :=
+    centeredVerticalSubnode (emptyNode (k + 5)) (emptyNode (k + 5)) = emptyNode (k + 4) :=
   centeredVerticalSubnode_emptyNode_Impl
 
 theorem centeredSubSubnode_emptyNode : ∀ (k : ℕ),
-    centeredSubSubnode (emptyNode (k + 3)) = emptyNode (k + 1) :=
+    centeredSubSubnode (emptyNode (k + 6)) = emptyNode (k + 4) :=
   centeredSubSubnode_emptyNode_Impl
 
-theorem decomposeSubnodes_emptyNode (k : ℕ) :
-    decomposeSubnodes (emptyNode (k + 3)) =
-      { n00 := emptyNode (k + 1)
-      , n01 := emptyNode (k + 1)
-      , n02 := emptyNode (k + 1)
-      , n10 := emptyNode (k + 1)
-      , n11 := emptyNode (k + 1)
-      , n12 := emptyNode (k + 1)
-      , n20 := emptyNode (k + 1)
-      , n21 := emptyNode (k + 1)
-      , n22 := emptyNode (k + 1) } :=
-  decomposeSubnodes_emptyNode_Impl k
+theorem decomposeSubnodes_emptyNode : ∀ (k : ℕ),
+    decomposeSubnodes (emptyNode (k + 6)) =
+      { n00 := emptyNode (k + 4)
+      , n01 := emptyNode (k + 4)
+      , n02 := emptyNode (k + 4)
+      , n10 := emptyNode (k + 4)
+      , n11 := emptyNode (k + 4)
+      , n12 := emptyNode (k + 4)
+      , n20 := emptyNode (k + 4)
+      , n21 := emptyNode (k + 4)
+      , n22 := emptyNode (k + 4) } :=
+  decomposeSubnodes_emptyNode_Impl
 
-theorem hashLifeStep_empty2 : hashLifeStep (emptyNode 2) = emptyNode 1 :=
+theorem hashLifeStep_empty2 : hashLifeStep (emptyNode 5) = emptyNode 4 :=
   hashLifeStep_empty2_Impl
 
 theorem packCentralNibbles_extract_q0 (q0 q1 q2 q3 : ℕ) (h0 : q0 < 16) :
@@ -133,9 +134,9 @@ theorem hashlife_step_soundness_block :
     let sw := makeLevel1 false true false false   -- (1, 2) active
     let se := makeLevel1 true false false false   -- (2, 2) active
     let block4x4 := makeLevel2 nw ne sw se
-    let grid := macroCellToGrid 0 0 block4x4
+    let grid := microCellToGrid 0 0 block4x4
     let classicalStep := central2x2Window (stepGrid grid)
-    let hashLifeResult := macroCellToGrid 1 1 (hashLifeStepLevel2 block4x4)
+    let hashLifeResult := microCellToGrid 1 1 (hashLifeStepLevel2 block4x4)
     cellsEqual classicalStep hashLifeResult = true :=
   hashlife_step_soundness_block_Impl
 
@@ -145,9 +146,9 @@ theorem hashlife_step_soundness_blinker :
     let sw := makeLevel1 false false false false
     let se := makeLevel1 false false false false
     let blinker4x4 := makeLevel2 nw ne sw se
-    let grid := macroCellToGrid 0 0 blinker4x4
+    let grid := microCellToGrid 0 0 blinker4x4
     let classicalStep := central2x2Window (stepGrid grid)
-    let hashLifeResult := macroCellToGrid 1 1 (hashLifeStepLevel2 blinker4x4)
+    let hashLifeResult := microCellToGrid 1 1 (hashLifeStepLevel2 blinker4x4)
     cellsEqual classicalStep hashLifeResult = true :=
   hashlife_step_soundness_blinker_Impl
 
@@ -157,9 +158,9 @@ theorem hashlife_step_soundness_tub :
     let sw := makeLevel1 false true false false   -- (1, 2)
     let se := makeLevel1 false false false false
     let tub4x4 := makeLevel2 nw ne sw se
-    let grid := macroCellToGrid 0 0 tub4x4
+    let grid := microCellToGrid 0 0 tub4x4
     let classicalStep := central2x2Window (stepGrid grid)
-    let hashLifeResult := macroCellToGrid 1 1 (hashLifeStepLevel2 tub4x4)
+    let hashLifeResult := microCellToGrid 1 1 (hashLifeStepLevel2 tub4x4)
     cellsEqual classicalStep hashLifeResult = true :=
   hashlife_step_soundness_tub_Impl
 
@@ -169,9 +170,9 @@ theorem hashlife_step_soundness_boat :
     let sw := makeLevel1 false true false false   -- (1, 2)
     let se := makeLevel1 false true true false    -- (3, 2) and (2, 3)
     let boat4x4 := makeLevel2 nw ne sw se
-    let grid := macroCellToGrid 0 0 boat4x4
+    let grid := microCellToGrid 0 0 boat4x4
     let classicalStep := central2x2Window (stepGrid grid)
-    let hashLifeResult := macroCellToGrid 1 1 (hashLifeStepLevel2 boat4x4)
+    let hashLifeResult := microCellToGrid 1 1 (hashLifeStepLevel2 boat4x4)
     cellsEqual classicalStep hashLifeResult = true :=
   hashlife_step_soundness_boat_Impl
 
@@ -181,9 +182,9 @@ theorem hashlife_step_soundness_glider :
     let sw := makeLevel1 false false false false
     let se := makeLevel1 true true true false    -- (2, 2), (3, 2), (2, 3)
     let glider4x4 := makeLevel2 nw ne sw se
-    let grid := macroCellToGrid 0 0 glider4x4
+    let grid := microCellToGrid 0 0 glider4x4
     let classicalStep := central2x2Window (stepGrid grid)
-    let hashLifeResult := macroCellToGrid 1 1 (hashLifeStepLevel2 glider4x4)
+    let hashLifeResult := microCellToGrid 1 1 (hashLifeStepLevel2 glider4x4)
     cellsEqual classicalStep hashLifeResult = true :=
   hashlife_step_soundness_glider_Impl
 
@@ -205,7 +206,7 @@ theorem hashlife_step_flipX_commutes_block :
     let sw := makeLevel1 false true false false
     let se := makeLevel1 true false false false
     let block4x4 := makeLevel2 nw ne sw se
-    hashLifeStepLevel2 (macroCellFlipX block4x4) = macroCellFlipX (hashLifeStepLevel2 block4x4) :=
+    hashLifeStepLevel2 (microCellFlipX block4x4) = microCellFlipX (hashLifeStepLevel2 block4x4) :=
   hashlife_step_flipX_commutes_block_Impl
 
 theorem hashlife_step_flipY_commutes_block :
@@ -214,7 +215,7 @@ theorem hashlife_step_flipY_commutes_block :
     let sw := makeLevel1 false true false false
     let se := makeLevel1 true false false false
     let block4x4 := makeLevel2 nw ne sw se
-    hashLifeStepLevel2 (macroCellFlipY block4x4) = macroCellFlipY (hashLifeStepLevel2 block4x4) :=
+    hashLifeStepLevel2 (microCellFlipY block4x4) = microCellFlipY (hashLifeStepLevel2 block4x4) :=
   hashlife_step_flipY_commutes_block_Impl
 
 theorem hashlife_step_flipX_commutes_blinker :
@@ -223,7 +224,7 @@ theorem hashlife_step_flipX_commutes_blinker :
     let sw := makeLevel1 false false false false
     let se := makeLevel1 false false false false
     let blinker4x4 := makeLevel2 nw ne sw se
-    hashLifeStepLevel2 (macroCellFlipX blinker4x4) = macroCellFlipX (hashLifeStepLevel2 blinker4x4) :=
+    hashLifeStepLevel2 (microCellFlipX blinker4x4) = microCellFlipX (hashLifeStepLevel2 blinker4x4) :=
   hashlife_step_flipX_commutes_blinker_Impl
 
 theorem hashlife_step_flipY_commutes_blinker :
@@ -232,7 +233,138 @@ theorem hashlife_step_flipY_commutes_blinker :
     let sw := makeLevel1 false false false false
     let se := makeLevel1 false false false false
     let blinker4x4 := makeLevel2 nw ne sw se
-    hashLifeStepLevel2 (macroCellFlipY blinker4x4) = macroCellFlipY (hashLifeStepLevel2 blinker4x4) :=
+    hashLifeStepLevel2 (microCellFlipY blinker4x4) = microCellFlipY (hashLifeStepLevel2 blinker4x4) :=
   hashlife_step_flipY_commutes_blinker_Impl
 
+theorem centeredSubnodeLevel3BitsUInt_zero :
+    centeredSubnodeLevel3BitsUInt 0 = 0 :=
+  centeredSubnodeLevel3BitsUInt_zero_Impl
+
+theorem centeredHorizontalSubnodeLevel3BitsUInt_zero :
+    centeredHorizontalSubnodeLevel3BitsUInt 0 0 = 0 :=
+  centeredHorizontalSubnodeLevel3BitsUInt_zero_Impl
+
+theorem centeredVerticalSubnodeLevel3BitsUInt_zero :
+    centeredVerticalSubnodeLevel3BitsUInt 0 0 = 0 :=
+  centeredVerticalSubnodeLevel3BitsUInt_zero_Impl
+
+theorem centeredSubSubnodeLevel4BitsUInt_zero :
+    centeredSubSubnodeLevel4BitsUInt 0 0 0 0 = 0 :=
+  centeredSubSubnodeLevel4BitsUInt_zero_Impl
+
+theorem packLeafFrom4x4sUInt_zero :
+    packLeafFrom4x4sUInt 0 0 0 0 = 0 :=
+  packLeafFrom4x4sUInt_zero_Impl
+
+theorem computeLevel4NextGen16x16UInt_zero :
+    computeLevel4NextGen16x16UInt 0 0 0 0 = 0 :=
+  computeLevel4NextGen16x16UInt_zero_Impl
+
+theorem computeLevel4NextGen16x16WithUInt_zero (f : UInt64 → UInt32) (hf : f 0 = 0) :
+    computeLevel4NextGen16x16WithUInt 0 0 0 0 f = 0 :=
+  computeLevel4NextGen16x16WithUInt_zero_Impl f hf
+
+theorem expandOffsetDelta_succ (k : ℕ) :
+    expandOffsetDelta (k + 1) = -3 * (2 : ℤ) ^ k :=
+  expandOffsetDelta_succ_Impl k
+
+theorem stepOffsetDelta_succ (k : ℕ) :
+    stepOffsetDelta (k + 2) = (2 : ℤ) ^ k :=
+  stepOffsetDelta_succ_Impl k
+
+theorem expandCentered_guarantees_confinement (nw ne sw se : MacroCell) :
+    isConfinedToSubSubnode (expandCentered (makeCellNode nw ne sw se)) :=
+  expandCentered_guarantees_confinement_Impl nw ne sw se
+
+theorem quadrants_cover_center (sn : HashLifeSubnodes) :
+    (quadrantNW sn).level = sn.n00.level + 1 ∧
+    (quadrantNE sn).level = sn.n01.level + 1 ∧
+    (quadrantSW sn).level = sn.n10.level + 1 ∧
+    (quadrantSE sn).level = sn.n11.level + 1 :=
+  quadrants_cover_center_Impl sn
+
+theorem macroCellToGrid_emptyNode (k : ℕ) (ox oy : ℤ) :
+    macroCellToGrid ox oy (emptyNode k) = [] :=
+  macroCellToGrid_emptyNode_Impl k ox oy
+
+theorem hashLifeToGrid_emptyNode (k : ℕ) (ox oy : ℤ) :
+    hashLifeToGrid { offset := (ox, oy), macroCell := emptyNode k } = [] :=
+  hashLifeToGrid_emptyNode_Impl k ox oy
+
+theorem hashLifeStepN_zero (st : HashLifeCellState) :
+    hashLifeStepN 0 st = st :=
+  hashLifeStepN_zero_Impl st
+
+theorem hashLifeStepN_succ (n : ℕ) (st : HashLifeCellState) :
+    hashLifeStepN (n + 1) st = hashLifeStepN n (hashLifeNextGeneration st) :=
+  hashLifeStepN_succ_Impl n st
+
+theorem hashlife_stepN_induction_step (n : ℕ) (st : HashLifeCellState)
+    (h : hashLifeToGrid (hashLifeStepN n (hashLifeNextGeneration st)) =
+         stepN n (hashLifeToGrid (hashLifeNextGeneration st))) :
+    hashLifeToGrid (hashLifeStepN (n + 1) st) =
+    stepN n (hashLifeToGrid (hashLifeNextGeneration st)) :=
+  hashlife_stepN_induction_step_Impl n st h
+
+theorem hashLifeStep_emptyNode (k : ℕ) :
+    hashLifeStep (emptyNode (k + 5)) = emptyNode (k + 4) :=
+  hashLifeStep_emptyNode_Impl k
+
+theorem hashLifeNextGenerationStep_emptyNode (k : ℕ) (ox oy : ℤ) :
+    hashLifeToGrid (hashLifeNextGenerationStep { offset := (ox, oy), macroCell := emptyNode (k + 5) }) = [] :=
+  hashLifeNextGenerationStep_emptyNode_Impl k ox oy
+
+theorem hashlife_step_equivalence_empty (k : ℕ) (ox oy : ℤ) :
+    hashLifeToGrid (hashLifeNextGenerationStep { offset := (ox, oy), macroCell := emptyNode (k + 5) }) =
+    stepGrid (hashLifeToGrid { offset := (ox, oy), macroCell := emptyNode (k + 5) }) :=
+  hashlife_step_equivalence_empty_Impl k ox oy
+
+theorem stepLevel4NodeWith_zero (f : UInt64 → UInt32) (hf : f 0 = 0) :
+    stepLevel4NodeWith emptyLevel4 f = 0 :=
+  stepLevel4NodeWith_zero_Impl f hf
+
+theorem stepLevel4Node_emptyLevel4 :
+    stepLevel4Node emptyLevel4 = 0 :=
+  stepLevel4Node_emptyLevel4_Impl
+
+theorem stepLevel4Node_zero (h : UInt32) :
+    stepLevel4Node (.level4Node h 0 0 0 0) = 0 :=
+  stepLevel4Node_zero_Impl h
+
+theorem stepLevel4Node_eq_stepLevel4NodeWith (m : MacroCell) :
+    stepLevel4Node m = stepLevel4NodeWith m computeLeafNextGen8x8BranchUInt :=
+  stepLevel4Node_eq_stepLevel4NodeWith_Impl m
+
+theorem stepNGenerationsWith_zero (st : HashLifeStepState) (f : HashLifeStepState → HashLifeStepState) :
+    stepNGenerationsWith 0 st f = st :=
+  stepNGenerationsWith_zero_Impl st f
+
+theorem computePruneThresholds_macro
+    (gen : UInt64) (macroKeep leafKeep : UInt32)
+    (h : gen ≥ macroKeep.toUInt64) :
+    (computePruneThresholds gen macroKeep leafKeep).oldestMacroToKeep = gen - macroKeep.toUInt64 :=
+  computePruneThresholds_macro_Impl gen macroKeep leafKeep h
+
+theorem computePruneThresholds_leaf
+    (gen : UInt64) (macroKeep leafKeep : UInt32)
+    (h : gen ≥ leafKeep.toUInt64) :
+    (computePruneThresholds gen macroKeep leafKeep).oldestLeafToKeep = gen - leafKeep.toUInt64 :=
+  computePruneThresholds_leaf_Impl gen macroKeep leafKeep h
+
+theorem computePruneThresholds_macro_zero
+    (gen : UInt64) (macroKeep leafKeep : UInt32)
+    (h : ¬(gen ≥ macroKeep.toUInt64)) :
+    (computePruneThresholds gen macroKeep leafKeep).oldestMacroToKeep = 0 :=
+  computePruneThresholds_macro_zero_Impl gen macroKeep leafKeep h
+
+theorem stepHashLifeStateWith_offset
+    (st : HashLifeStepState)
+    (stepPrepared : MacroCell → MacroCell) :
+    (stepHashLifeStateWith st stepPrepared).offsetX =
+      st.offsetX + (prepareStep st.macroCell).offsetDelta ∧
+    (stepHashLifeStateWith st stepPrepared).offsetY =
+      st.offsetY + (prepareStep st.macroCell).offsetDelta :=
+  stepHashLifeStateWith_offset_Impl st stepPrepared
+
 end Algorithm
+

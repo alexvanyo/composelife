@@ -18,19 +18,14 @@ package com.alexvanyo.composelife.algorithm
 
 import com.alexvanyo.composelife.geometry.IntOffset
 import com.alexvanyo.composelife.model.MacroCell
+import com.alexvanyo.composelife.model.f_Algorithm_cellToLeafBitUInt
 
 /**
  * Maps 2D relative coordinates (within `0..7`) to a bit index within an 8x8 Morton leaf node.
  */
 internal fun cellToLeafBit(x: Int, y: Int): Int {
     require(x in 0..7 && y in 0..7)
-    val x0 = x and 1
-    val x1 = (x shr 1) and 1
-    val x2 = (x shr 2) and 1
-    val y0 = y and 1
-    val y1 = (y shr 1) and 1
-    val y2 = (y shr 2) and 1
-    return (x0 or (y0 shl 1)) or ((x1 or (y1 shl 1)) shl 2) or ((x2 or (y2 shl 1)) shl 4)
+    return f_Algorithm_cellToLeafBitUInt(x.toUInt(), y.toUInt()).toInt()
 }
 
 /**
@@ -74,8 +69,8 @@ internal fun coordinatesToLevel4(
     offsetX: Int = 0,
     offsetY: Int = 0,
 ): MacroCell.Level4Node = MacroCell.Level4Node(
-    nw = coordinatesToLeaf(coordinates, offsetX, offsetY),
-    ne = coordinatesToLeaf(coordinates, offsetX + 8, offsetY),
-    sw = coordinatesToLeaf(coordinates, offsetX, offsetY + 8),
-    se = coordinatesToLeaf(coordinates, offsetX + 8, offsetY + 8),
+    nw = coordinatesToLeaf(coordinates, offsetX, offsetY).toULong(),
+    ne = coordinatesToLeaf(coordinates, offsetX + 8, offsetY).toULong(),
+    sw = coordinatesToLeaf(coordinates, offsetX, offsetY + 8).toULong(),
+    se = coordinatesToLeaf(coordinates, offsetX + 8, offsetY + 8).toULong(),
 )

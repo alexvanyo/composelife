@@ -430,7 +430,7 @@ theorem widen32To64_eq_roundRat (x : Binary32) (d : FloatLib.Numerics.Dyadic)
   have hdec := decodeTo_of_toDyadic? x d hd
   have hcast : (ExecFloat.cast (target := Binary64) x) =
       .success
-        (Configured.Family.ofModel (Model.roundRat FloatFormat.binary64 d.negative d.toRat.num.natAbs d.toRat.den))
+        (ExecFloat.Binary.ofModel (Model.roundRat FloatFormat.binary64 d.negative d.toRat.num.natAbs d.toRat.den))
         _ :=
     ExecFloat.Binary.Conversion.cast_eq_roundRat_of_decodeTo_eq_finite x (SignedRat.ofDyadic d) hdec
   unfold widen32To64

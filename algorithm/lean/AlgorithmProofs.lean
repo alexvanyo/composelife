@@ -18,5 +18,16 @@ import proofs.PatternsProofs
 import proofs.PropertiesProofs
 import proofs.MacroCellProofs
 import proofs.MacroCellHashProofs
+import proofs.CacheProofs
 import proofs.BitComputationProofs
 import proofs.HashLifeProofs
+import proofs.BitEquivalenceProofs
+import proofs.SpatialTilingProofs
+import proofs.ConfinementProofs
+import proofs.GridEquivalenceProofs
+import proofs.SemanticModelProofs
+import proofs.HashLifeKernelProofs
+import proofs.HashLifeStepProofs
+import proofs.HashLifeConfinementProofs
+import proofs.HashLifeSingleStepProofs
+import proofs.HashLifeEquivalenceProofs
