@@ -49,7 +49,7 @@ internal inline fun Int.computeNextGeneration(): Int {
  * This precomputes Conway's Game of Life transition rule for all 65,536 possible 4x4 neighborhood states,
  * replacing runtime neighbor counting and bitwise branching with a single L1 data cache array load.
  */
-private val NEXT_GEN_4X4_LUT = ByteArray(65536) { it.computeNextGeneration().toByte() }
+internal val NEXT_GEN_4X4_LUT = ByteArray(65536) { it.computeNextGeneration().toByte() }
 
 /**
  * A 256 KB lookup table indexed by a 16-bit 4x4 quadrant (`0..65535`) in Morton order.
