@@ -42,7 +42,7 @@ androidxSqlite = "2.8.0-alpha01"
 #androidxTestCore
 androidxTestCore = "1.7.0"
 #androidxTestEspresso
-androidxTestEspresso = "3.7.0"
+androidxTestEspresso = "3.8.0-alpha01"
 #androidxTestExt
 androidxTestExt = "1.4.0-alpha01"
 #androidxTestRunner
