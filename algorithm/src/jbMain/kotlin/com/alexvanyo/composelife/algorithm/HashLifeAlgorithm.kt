@@ -363,11 +363,6 @@ class HashLifeAlgorithm(
     }
 }
 
-private inline fun MacroCell.CellNode.centeredSubSubnodeSize(): ULong = when (val center = centeredSubnode(this)) {
-    is MacroCell.Level4Node -> centeredSubnode(center).countOneBits().toULong()
-    is MacroCell.CellNode -> centeredSubnode(center).size()
-}
-
 private inline fun centeredSubnode(node: MacroCell.Level4Node): LeafNode = LeafNode(
     nw = node.nw.se,
     ne = node.ne.sw,
