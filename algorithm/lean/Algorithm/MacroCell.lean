@@ -98,7 +98,7 @@ deriving DecidableEq
 The tree level of this cell. A cell at level `k` represents 2^k x 2^k cells.
 Minimum level is 4.
 -/
-@[export macrocell_level]
+@[export macrocell_level, noinline]
 def MacroCell.level : MacroCell → UInt32
   | .level4Node _ _ _ _ _ => 4
   | .cellNode _ nw _ _ _ => nw.level + 1
@@ -110,6 +110,7 @@ The memoized hashcode for MacroCell matching MacroCellHash.lean.
 Level4Node uses Stafford's Mix13 hash on the 4 leaves.
 CellNode uses MurmurHash3 fmix32 on level and the 4 child hashes.
 -/
+@[noinline]
 def MacroCell.cellHashCode : MacroCell → UInt32
   | .level4Node h _ _ _ _ => h
   | .cellNode h _ _ _ _ => h
@@ -186,6 +187,8 @@ An empty (all dead) level 4 MacroCell.
 -/
 def emptyLevel4 : MacroCell :=
   makeLevel4Node 0 0 0 0
+
+attribute [kotlin_expr "com.alexvanyo.composelife.model.EMPTY_LEVEL_4"] emptyLevel4
 
 /--
 Creates an empty MacroCell at level k (k >= 4).
@@ -351,15 +354,13 @@ Extracts the horizontal center subnode spanning between west and east nodes.
 -/
 @[export macrocell_centered_horizontal_subnode]
 def centeredHorizontalSubnode : MacroCell → MacroCell → MacroCell
-  | .cellNode _ _ w_ne _ w_se, .cellNode _ e_nw _ e_sw _ =>
-    match w_ne, w_se, e_nw, e_sw with
-    | .cellNode _ _ _ _ w_ne_se, .cellNode _ _ w_se_ne _ _,
-      .cellNode _ _ _ e_nw_sw _, .cellNode _ e_sw_nw _ _ _ =>
-      makeCellNode w_ne_se e_nw_sw w_se_ne e_sw_nw
-    | .level4Node _ _ _ _ w_ne_se, .level4Node _ _ w_se_ne _ _,
-      .level4Node _ _ _ e_nw_sw _, .level4Node _ e_sw_nw _ _ _ =>
-      makeLevel4Node w_ne_se e_nw_sw w_se_ne e_sw_nw
-    | _, _, _, _ => emptyLevel4
+  | .cellNode _ _ (.cellNode _ _ _ _ w_ne_se) _ (.cellNode _ _ w_se_ne _ _),
+    .cellNode _ (.cellNode _ _ _ e_nw_sw _) _ (.cellNode _ e_sw_nw _ _ _) _ =>
+    makeCellNode w_ne_se e_nw_sw w_se_ne e_sw_nw
+  | .cellNode _ _ (.level4Node _ _ _ _ w_ne_se) _ (.level4Node _ _ w_se_ne _ _),
+    .cellNode _ (.level4Node _ _ _ e_nw_sw _) _ (.level4Node _ e_sw_nw _ _ _) _ =>
+    makeLevel4Node w_ne_se e_nw_sw w_se_ne e_sw_nw
+  | .cellNode .., .cellNode .. => emptyLevel4
   | w, _ => w
 
 /--
@@ -367,15 +368,13 @@ Extracts the vertical center subnode spanning between north and south nodes.
 -/
 @[export macrocell_centered_vertical_subnode]
 def centeredVerticalSubnode : MacroCell → MacroCell → MacroCell
-  | .cellNode _ _ _ n_sw n_se, .cellNode _ s_nw s_ne _ _ =>
-    match n_sw, n_se, s_nw, s_ne with
-    | .cellNode _ _ _ _ n_sw_se, .cellNode _ _ _ n_se_sw _,
-      .cellNode _ _ s_nw_ne _ _, .cellNode _ s_ne_nw _ _ _ =>
-      makeCellNode n_sw_se n_se_sw s_nw_ne s_ne_nw
-    | .level4Node _ _ _ _ n_sw_se, .level4Node _ _ _ n_se_sw _,
-      .level4Node _ _ s_nw_ne _ _, .level4Node _ s_ne_nw _ _ _ =>
-      makeLevel4Node n_sw_se n_se_sw s_nw_ne s_ne_nw
-    | _, _, _, _ => emptyLevel4
+  | .cellNode _ _ _ (.cellNode _ _ _ _ n_sw_se) (.cellNode _ _ _ n_se_sw _),
+    .cellNode _ (.cellNode _ _ s_nw_ne _ _) (.cellNode _ s_ne_nw _ _ _) _ _ =>
+    makeCellNode n_sw_se n_se_sw s_nw_ne s_ne_nw
+  | .cellNode _ _ _ (.level4Node _ _ _ _ n_sw_se) (.level4Node _ _ _ n_se_sw _),
+    .cellNode _ (.level4Node _ _ s_nw_ne _ _) (.level4Node _ s_ne_nw _ _ _) _ _ =>
+    makeLevel4Node n_sw_se n_se_sw s_nw_ne s_ne_nw
+  | .cellNode .., .cellNode .. => emptyLevel4
   | n, _ => n
 
 /--
@@ -688,6 +687,8 @@ def centeredSubnodeLevel3BitsUInt (leaf : UInt64) : UInt32 :=
   let q3 := (se >>> 0) &&& (0xF : UInt32)
   packCentralNibblesUInt q0 q1 q2 q3
 
+attribute [kotlin_expr "((({0} shr 12) and 0xFuL) or (({0} shr 20) and 0xF0uL) or (({0} shr 28) and 0xF00uL) or (({0} shr 36) and 0xF000uL)).toUInt()"] centeredSubnodeLevel3BitsUInt
+
 @[export centeredHorizontalSubnodeLevel3BitsUInt, inline]
 def centeredHorizontalSubnodeLevel3BitsUInt (w e : UInt64) : UInt32 :=
   let w_ne := ((w >>> 16) &&& (0xFFFF : UInt64)).toUInt32
@@ -699,6 +700,8 @@ def centeredHorizontalSubnodeLevel3BitsUInt (w e : UInt64) : UInt32 :=
   let q2 := (w_se >>> 4) &&& (0xF : UInt32)
   let q3 := (e_sw >>> 0) &&& (0xF : UInt32)
   packCentralNibblesUInt q0 q1 q2 q3
+
+attribute [kotlin_expr "((({0} shr 28) and 0xFuL) or (({1} shr 4) and 0xF0uL) or (({0} shr 44) and 0xF00uL) or (({1} shr 20) and 0xF000uL)).toUInt()"] centeredHorizontalSubnodeLevel3BitsUInt
 
 @[export centeredVerticalSubnodeLevel3BitsUInt, inline]
 def centeredVerticalSubnodeLevel3BitsUInt (n s : UInt64) : UInt32 :=
@@ -712,6 +715,8 @@ def centeredVerticalSubnodeLevel3BitsUInt (n s : UInt64) : UInt32 :=
   let q3 := (s_ne >>> 0) &&& (0xF : UInt32)
   packCentralNibblesUInt q0 q1 q2 q3
 
+attribute [kotlin_expr "((({0} shr 44) and 0xFuL) or (({0} shr 52) and 0xF0uL) or (({1} shl 4) and 0xF00uL) or (({1} shr 4) and 0xF000uL)).toUInt()"] centeredVerticalSubnodeLevel3BitsUInt
+
 @[export centeredSubSubnodeLevel4BitsUInt, inline]
 def centeredSubSubnodeLevel4BitsUInt (nw ne sw se : UInt64) : UInt32 :=
   let nw_se := ((nw >>> 48) &&& (0xFFFF : UInt64)).toUInt32
@@ -723,6 +728,8 @@ def centeredSubSubnodeLevel4BitsUInt (nw ne sw se : UInt64) : UInt32 :=
   let q2 := (sw_ne >>> 4) &&& (0xF : UInt32)
   let q3 := (se_nw >>> 0) &&& (0xF : UInt32)
   packCentralNibblesUInt q0 q1 q2 q3
+
+attribute [kotlin_expr "((({0} shr 60) and 0xFuL) or (({1} shr 36) and 0xF0uL) or (({2} shr 12) and 0xF00uL) or (({3} shl 12) and 0xF000uL)).toUInt()"] centeredSubSubnodeLevel4BitsUInt
 
 @[export packLeafFrom4x4sUInt, inline]
 def packLeafFrom4x4sUInt (q0 q1 q2 q3 : UInt32) : UInt64 :=
