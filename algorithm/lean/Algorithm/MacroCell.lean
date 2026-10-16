@@ -36,6 +36,7 @@ abbrev LeafNode := UInt64
 SWAR population count for 64-bit Morton leaf words.
 Computes the exact number of active cells in O(1) bitwise operations.
 -/
+@[inline]
 def popcount64 (x : UInt64) : UInt32 :=
   let m1 : UInt64 := 0x5555555555555555
   let m2 : UInt64 := 0x3333333333333333
@@ -46,6 +47,8 @@ def popcount64 (x : UInt64) : UInt32 :=
   let x3 := (x2 + (x2 >>> 4)) &&& m4
   let x4 := (x3 * h01) >>> 56
   x4.toUInt32
+
+attribute [kotlin_expr "{0}.countOneBits().toUInt()"] popcount64
 
 /--
 Converts relative coordinates (0..7, 0..7) into a Morton bit index within an 8x8 leaf.
@@ -100,6 +103,8 @@ def MacroCell.level : MacroCell → UInt32
   | .level4Node _ _ _ _ _ => 4
   | .cellNode _ nw _ _ _ => nw.level + 1
 
+attribute [kotlin_expr "{0}.level()"] MacroCell.level
+
 /--
 The memoized hashcode for MacroCell matching MacroCellHash.lean.
 Level4Node uses Stafford's Mix13 hash on the 4 leaves.
@@ -108,6 +113,8 @@ CellNode uses MurmurHash3 fmix32 on level and the 4 child hashes.
 def MacroCell.cellHashCode : MacroCell → UInt32
   | .level4Node h _ _ _ _ => h
   | .cellNode h _ _ _ _ => h
+
+attribute [kotlin_expr "{0}.hash"] MacroCell.cellHashCode
 
 /--
 Smart constructor for Level4Node that automatically computes the hash.
@@ -129,6 +136,8 @@ def MacroCell.size : MacroCell → UInt64
   | .level4Node _ nw ne sw se =>
     (popcount64 nw).toUInt64 + (popcount64 ne).toUInt64 + (popcount64 sw).toUInt64 + (popcount64 se).toUInt64
   | .cellNode _ nw ne sw se => nw.size + ne.size + sw.size + se.size
+
+attribute [kotlin_expr "{0}.size()"] MacroCell.size
 
 /--
 Structural equality predicate for MacroCell.
@@ -289,7 +298,7 @@ structure StepBatchResult where
 Extracts the center 8x8 leaf from a 16x16 Level 4 node.
 In quadtree coordinates: nw = nw.se, ne = ne.sw, sw = sw.ne, se = se.nw.
 -/
-@[export macrocell_centered_subnode_level4]
+@[export macrocell_centered_subnode_level4, inline]
 def centeredSubnodeLevel4 (nw ne sw se : UInt64) : UInt64 :=
   let nw_se := (nw >>> 48).toUInt32 &&& 0xFFFF
   let ne_sw := (ne >>> 32).toUInt32 &&& 0xFFFF
@@ -304,7 +313,7 @@ def centeredSubnodeLevel4 (nw ne sw se : UInt64) : UInt64 :=
 Extracts the horizontal center 8x8 leaf spanning between west and east 16x16 nodes.
 Matches centeredHorizontalSubnode(w, e) in Kotlin.
 -/
-@[export macrocell_centered_horizontal_subnode_level4]
+@[export macrocell_centered_horizontal_subnode_level4, inline]
 def centeredHorizontalSubnodeLevel4 (w_ne w_se e_nw e_sw : UInt64) : UInt64 :=
   centeredSubnodeLevel4 w_ne e_nw w_se e_sw
 
@@ -312,7 +321,7 @@ def centeredHorizontalSubnodeLevel4 (w_ne w_se e_nw e_sw : UInt64) : UInt64 :=
 Extracts the vertical center 8x8 leaf spanning between north and south 16x16 nodes.
 Matches centeredVerticalSubnode(n, s) in Kotlin.
 -/
-@[export macrocell_centered_vertical_subnode_level4]
+@[export macrocell_centered_vertical_subnode_level4, inline]
 def centeredVerticalSubnodeLevel4 (n_sw n_se s_nw s_ne : UInt64) : UInt64 :=
   centeredSubnodeLevel4 n_sw n_se s_nw s_ne
 
@@ -379,6 +388,8 @@ Computes the population of the center sub-subnode.
 def centeredSubSubnodeSize (m : MacroCell) : UInt64 :=
   (centeredSubSubnode m).size
 
+attribute [kotlin_expr "{0}.centeredSubSubnodeSize()"] centeredSubSubnodeSize
+
 def emptySubnode : MacroCell → MacroCell
   | .level4Node .. => emptyLevel4
   | .cellNode _ nw _ _ _ =>
@@ -418,14 +429,14 @@ def expandCentered : MacroCell → MacroCell
 /--
 Offset delta in cells when expanding a MacroCell of the given level.
 -/
-@[export macrocell_expand_offset_delta]
+@[export macrocell_expand_offset_delta, inline]
 def expandOffsetDeltaUInt (level : UInt32) : Int32 :=
   -3 * ((1 : Int32) <<< (level.toInt32 - 1))
 
 /--
 Offset delta in cells when stepping a MacroCell of the given level without expansion.
 -/
-@[export macrocell_step_offset_delta]
+@[export macrocell_step_offset_delta, inline]
 def stepOffsetDeltaUInt (level : UInt32) : Int32 :=
   (1 : Int32) <<< (level.toInt32 - 2)
 
@@ -495,11 +506,40 @@ def stepCellNodeWith
     (m : MacroCell)
     (stepLevel4 : MacroCell → UInt64)
     (stepCell : MacroCell → MacroCell) : MacroCell :=
-  let q := stepQuadrants m
-  if m.level == 5 then
-    makeLevel4Node (stepLevel4 q.nw) (stepLevel4 q.ne) (stepLevel4 q.sw) (stepLevel4 q.se)
-  else
-    makeCellNode (stepCell q.nw) (stepCell q.ne) (stepCell q.sw) (stepCell q.se)
+  match m with
+  | .cellNode _ (.level4Node _ nw1 ne1 sw1 se1) (.level4Node _ nw2 ne2 sw2 se2)
+                (.level4Node _ nw3 ne3 sw3 se3) (.level4Node _ nw4 ne4 sw4 se4) =>
+    let n00 := centeredSubnodeLevel4 nw1 ne1 sw1 se1
+    let n01 := centeredSubnodeLevel4 ne1 nw2 se1 sw2
+    let n02 := centeredSubnodeLevel4 nw2 ne2 sw2 se2
+    let n10 := centeredSubnodeLevel4 sw1 se1 nw3 ne3
+    let n11 := centeredSubnodeLevel4 se1 sw2 ne3 nw4
+    let n12 := centeredSubnodeLevel4 sw2 se2 nw4 ne4
+    let n20 := centeredSubnodeLevel4 nw3 ne3 sw3 se3
+    let n21 := centeredSubnodeLevel4 ne3 nw4 se3 sw4
+    let n22 := centeredSubnodeLevel4 nw4 ne4 sw4 se4
+    let q_nw := makeLevel4Node n00 n01 n10 n11
+    let q_ne := makeLevel4Node n01 n02 n11 n12
+    let q_sw := makeLevel4Node n10 n11 n20 n21
+    let q_se := makeLevel4Node n11 n12 n21 n22
+    makeLevel4Node (stepLevel4 q_nw) (stepLevel4 q_ne) (stepLevel4 q_sw) (stepLevel4 q_se)
+  | m@(.cellNode _ nw ne sw se) =>
+    let n00 := centeredSubnode nw
+    let n01 := centeredHorizontalSubnode nw ne
+    let n02 := centeredSubnode ne
+    let n10 := centeredVerticalSubnode nw sw
+    let n11 := centeredSubSubnode m
+    let n12 := centeredVerticalSubnode ne se
+    let n20 := centeredSubnode sw
+    let n21 := centeredHorizontalSubnode sw se
+    let n22 := centeredSubnode se
+    let q_nw := makeCellNode n00 n01 n10 n11
+    let q_ne := makeCellNode n01 n02 n11 n12
+    let q_sw := makeCellNode n10 n11 n20 n21
+    let q_se := makeCellNode n11 n12 n21 n22
+    makeCellNode (stepCell q_nw) (stepCell q_ne) (stepCell q_sw) (stepCell q_se)
+  | m =>
+    makeCellNode (stepCell m) (stepCell m) (stepCell m) (stepCell m)
 
 
 /--
@@ -628,10 +668,11 @@ def canonicalCellNodeEquals (a b : MacroCell) : Bool :=
   | _, _ => false
 
 
+@[inline]
 def packCentralNibblesUInt (q0 q1 q2 q3 : UInt32) : UInt32 :=
   q0 ||| (q1 <<< 4) ||| (q2 <<< 8) ||| (q3 <<< 12)
 
-@[export centeredSubnodeLevel3BitsUInt]
+@[export centeredSubnodeLevel3BitsUInt, inline]
 def centeredSubnodeLevel3BitsUInt (leaf : UInt64) : UInt32 :=
   let nw := (leaf &&& (0xFFFF : UInt64)).toUInt32
   let ne := ((leaf >>> 16) &&& (0xFFFF : UInt64)).toUInt32
@@ -643,7 +684,7 @@ def centeredSubnodeLevel3BitsUInt (leaf : UInt64) : UInt32 :=
   let q3 := (se >>> 0) &&& (0xF : UInt32)
   packCentralNibblesUInt q0 q1 q2 q3
 
-@[export centeredHorizontalSubnodeLevel3BitsUInt]
+@[export centeredHorizontalSubnodeLevel3BitsUInt, inline]
 def centeredHorizontalSubnodeLevel3BitsUInt (w e : UInt64) : UInt32 :=
   let w_ne := ((w >>> 16) &&& (0xFFFF : UInt64)).toUInt32
   let w_se := ((w >>> 48) &&& (0xFFFF : UInt64)).toUInt32
@@ -655,7 +696,7 @@ def centeredHorizontalSubnodeLevel3BitsUInt (w e : UInt64) : UInt32 :=
   let q3 := (e_sw >>> 0) &&& (0xF : UInt32)
   packCentralNibblesUInt q0 q1 q2 q3
 
-@[export centeredVerticalSubnodeLevel3BitsUInt]
+@[export centeredVerticalSubnodeLevel3BitsUInt, inline]
 def centeredVerticalSubnodeLevel3BitsUInt (n s : UInt64) : UInt32 :=
   let n_sw := ((n >>> 32) &&& (0xFFFF : UInt64)).toUInt32
   let n_se := ((n >>> 48) &&& (0xFFFF : UInt64)).toUInt32
@@ -667,7 +708,7 @@ def centeredVerticalSubnodeLevel3BitsUInt (n s : UInt64) : UInt32 :=
   let q3 := (s_ne >>> 0) &&& (0xF : UInt32)
   packCentralNibblesUInt q0 q1 q2 q3
 
-@[export centeredSubSubnodeLevel4BitsUInt]
+@[export centeredSubSubnodeLevel4BitsUInt, inline]
 def centeredSubSubnodeLevel4BitsUInt (nw ne sw se : UInt64) : UInt32 :=
   let nw_se := ((nw >>> 48) &&& (0xFFFF : UInt64)).toUInt32
   let ne_sw := ((ne >>> 32) &&& (0xFFFF : UInt64)).toUInt32
@@ -679,7 +720,7 @@ def centeredSubSubnodeLevel4BitsUInt (nw ne sw se : UInt64) : UInt32 :=
   let q3 := (se_nw >>> 0) &&& (0xF : UInt32)
   packCentralNibblesUInt q0 q1 q2 q3
 
-@[export packLeafFrom4x4sUInt]
+@[export packLeafFrom4x4sUInt, inline]
 def packLeafFrom4x4sUInt (q0 q1 q2 q3 : UInt32) : UInt64 :=
   (q0.toUInt64 &&& (0xFFFF : UInt64)) |||
   ((q1.toUInt64 &&& (0xFFFF : UInt64)) <<< 16) |||
@@ -860,6 +901,7 @@ def macroCellFileSpec : FileSpec := {
         .verbatim "abstract val hash: UInt
 abstract fun level(): UInt
 abstract fun size(): ULong
+abstract fun centeredSubSubnodeSize(): ULong
 fun cellHashCode(): UInt = hash
 override fun hashCode(): Int = hash.toInt()
 
@@ -885,9 +927,13 @@ class Level4Node(
 
     override fun size(): ULong = _size
 
+    override fun centeredSubSubnodeSize(): ULong = 0uL
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Level4Node) return false
+        if (hash != other.hash) return false
+        if (nw == other.nw && ne == other.ne && sw == other.sw && se == other.se) return true
         return f_Algorithm_Level4Node_cellEquals(this, other)
     }
 }
@@ -918,9 +964,50 @@ class CellNode(
 
     override fun size(): ULong = _size
 
+    override fun centeredSubSubnodeSize(): ULong {
+        val nw = nw
+        val ne = ne
+        val sw = sw
+        val se = se
+        return when (nw) {
+            is Level4Node -> {
+                ne as Level4Node
+                sw as Level4Node
+                se as Level4Node
+                f_Algorithm_centeredSubnodeLevel4(nw.se, ne.sw, sw.ne, se.nw).countOneBits().toULong()
+            }
+            is CellNode -> {
+                ne as CellNode
+                sw as CellNode
+                se as CellNode
+                val c0 = nw.se
+                val c1 = ne.sw
+                val c2 = sw.ne
+                val c3 = se.nw
+                when (c0) {
+                    is CellNode -> {
+                        (c0 as CellNode).se.size() +
+                            (c1 as CellNode).sw.size() +
+                            (c2 as CellNode).ne.size() +
+                            (c3 as CellNode).nw.size()
+                    }
+                    is Level4Node -> {
+                        (c0 as Level4Node).se.countOneBits().toULong() +
+                            (c1 as Level4Node).sw.countOneBits().toULong() +
+                            (c2 as Level4Node).ne.countOneBits().toULong() +
+                            (c3 as Level4Node).nw.countOneBits().toULong()
+                    }
+                }
+            }
+        }
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is CellNode) return false
+        if (hash != other.hash) return false
+        if (level() != other.level()) return false
+        if (nw === other.nw && ne === other.ne && sw === other.sw && se === other.se) return true
         return f_Algorithm_CellNode_cellEquals(this, other)
     }
 }"
