@@ -187,7 +187,7 @@ class LeanHashLifeAlgorithm(
             canonicalMacroCell,
             stepLevel4 = stepLevel4Lambda,
             stepCell = stepCellLambda,
-        ).makeCanonical()
+        )
     }
 
     /**
@@ -210,11 +210,13 @@ class LeanHashLifeAlgorithm(
             }
         }
 
-    private fun stepPrepared(prepNode: MacroCell): MacroCell = f_Algorithm_stepCellNodeWith(
-        m = prepNode,
-        stepLevel4 = stepLevel4Lambda,
-        stepCell = stepCellLambda,
-    ).makeCanonical()
+    private val stepPreparedLambda: (MacroCell) -> MacroCell = { prepNode ->
+        f_Algorithm_stepCellNodeWith(
+            m = prepNode,
+            stepLevel4 = stepLevel4Lambda,
+            stepCell = stepCellLambda,
+        ).makeCanonical()
+    }
 
     private fun computeGenerationWithStepImpl(
         cellState: HashLifeCellState,
@@ -238,7 +240,7 @@ class LeanHashLifeAlgorithm(
                 ) {
                     val next = f_Algorithm_stepHashLifeStateWith(
                         st = curr,
-                        stepPrepared = ::stepPrepared,
+                        stepPrepared = stepPreparedLambda,
                     )
                     computedGenerations++
                     next
