@@ -26,6 +26,7 @@ import com.android.build.gradle.internal.lint.AndroidLintTask
 import com.android.build.gradle.internal.lint.LintModelWriterTask
 import com.android.build.gradle.internal.lint.VariantInputs
 import com.android.build.gradle.internal.tasks.R8Task
+import com.google.devtools.ksp.gradle.KspAATask
 import dev.detekt.gradle.Detekt
 import org.gradle.api.GradleException
 import org.gradle.api.JavaVersion
@@ -224,12 +225,14 @@ private fun Project.addSourceSetsForAndroidMultiplatformAfterEvaluate() {
     // Add the new sources to the lint analysis tasks.
     tasks.withType(AndroidLintAnalysisTask::class.java).configureEach {
         variantInputs.addSourceSets()
+        mustRunAfter(tasks.withType(KspAATask::class.java))
     }
 
     // Also configure the model writing task, so that we don't run into mismatches between
     // analyzed sources in one module and a downstream module
     tasks.withType(LintModelWriterTask::class.java).configureEach {
         variantInputs.addSourceSets()
+        mustRunAfter(tasks.withType(KspAATask::class.java))
     }
 }
 
