@@ -42,19 +42,23 @@ typealias LeafNode = ULong
 typealias Level4Node = MacroCell.Level4Node
 typealias CellNode = MacroCell.CellNode
 
-val EMPTY_LEVEL_4: MacroCell = MacroCell.Level4Node(0uL, 0uL, 0uL, 0uL)
+@PublishedApi
+internal inline fun popcount64(value: ULong): UInt = value.countOneBits().toUInt()
 
-val EMPTY_NODES: Array<MacroCell> = run {
-    val nodes = ArrayList<MacroCell>(33)
-    repeat(5) {
-        nodes.add(EMPTY_LEVEL_4)
-    }
-    for (level in 5..32) {
-        val prev = nodes[level - 1]
-        nodes.add(MacroCell.CellNode(prev, prev, prev, prev))
-    }
-    nodes.toTypedArray()
-}
+@PublishedApi
+internal inline fun emptyLevel4(): MacroCell = EMPTY_LEVEL_4
+
+@PublishedApi
+internal inline fun emptySubnode(m: MacroCell): MacroCell = EMPTY_NODES[m.level().toInt().coerceIn(0, 32)]
+
+@PublishedApi
+internal inline fun macroCellLevel(m: MacroCell): UInt = m.level()
+
+@PublishedApi
+internal inline fun macroCellSize(m: MacroCell): ULong = m.size()
+
+@PublishedApi
+internal inline fun macroCellHashCode(m: MacroCell): UInt = m.cellHashCode()
 
 internal inline fun Level4Node(nw: Long, ne: Long, sw: Long, se: Long): MacroCell.Level4Node =
     MacroCell.Level4Node(nw.toULong(), ne.toULong(), sw.toULong(), se.toULong())

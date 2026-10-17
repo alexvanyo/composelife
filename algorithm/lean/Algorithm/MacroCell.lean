@@ -48,7 +48,7 @@ def popcount64 (x : UInt64) : UInt32 :=
   let x4 := (x3 * h01) >>> 56
   x4.toUInt32
 
-attribute [kotlin_expr "{0}.countOneBits().toUInt()"] popcount64
+attribute [kotlin_expr "popcount64({0})"] popcount64
 
 /--
 Converts relative coordinates (0..7, 0..7) into a Morton bit index within an 8x8 leaf.
@@ -103,7 +103,7 @@ def MacroCell.level : MacroCell → UInt32
   | .level4Node _ _ _ _ _ => 4
   | .cellNode _ nw _ _ _ => nw.level + 1
 
-attribute [kotlin_expr "{0}.level()"] MacroCell.level
+attribute [kotlin_expr "macroCellLevel({0})"] MacroCell.level
 
 /--
 The memoized hashcode for MacroCell matching MacroCellHash.lean.
@@ -115,7 +115,7 @@ def MacroCell.cellHashCode : MacroCell → UInt32
   | .level4Node h _ _ _ _ => h
   | .cellNode h _ _ _ _ => h
 
-attribute [kotlin_expr "{0}.hash"] MacroCell.cellHashCode
+attribute [kotlin_expr "macroCellHashCode({0})"] MacroCell.cellHashCode
 
 /--
 Smart constructor for Level4Node that automatically computes the hash.
@@ -140,7 +140,7 @@ def MacroCell.size : MacroCell → UInt64
     (popcount64 nw).toUInt64 + (popcount64 ne).toUInt64 + (popcount64 sw).toUInt64 + (popcount64 se).toUInt64
   | .cellNode _ nw ne sw se => nw.size + ne.size + sw.size + se.size
 
-attribute [kotlin_expr "{0}.size()"] MacroCell.size
+attribute [kotlin_expr "macroCellSize({0})"] MacroCell.size
 
 /--
 Structural equality predicate for MacroCell.
@@ -188,7 +188,7 @@ An empty (all dead) level 4 MacroCell.
 def emptyLevel4 : MacroCell :=
   makeLevel4Node 0 0 0 0
 
-attribute [kotlin_expr "com.alexvanyo.composelife.model.EMPTY_LEVEL_4"] emptyLevel4
+attribute [kotlin_expr "emptyLevel4()"] emptyLevel4
 
 /--
 Creates an empty MacroCell at level k (k >= 4).
@@ -313,8 +313,6 @@ def centeredSubnodeLevel4 (nw ne sw se : UInt64) : UInt64 :=
   (ne_sw.toUInt64 <<< 16) |||
   (sw_ne.toUInt64 <<< 32) |||
   (se_nw.toUInt64 <<< 48)
-
-attribute [kotlin_expr "((({0} shr 48) and 0xFFFFuL) or ((({1} shr 32) and 0xFFFFuL) shl 16) or ((({2} shr 16) and 0xFFFFuL) shl 32) or (({3} and 0xFFFFuL) shl 48))"] centeredSubnodeLevel4
 
 /--
 Extracts the horizontal center 8x8 leaf spanning between west and east 16x16 nodes.
@@ -443,7 +441,7 @@ def emptySubnode : MacroCell → MacroCell
     let sub := emptySubnode nw
     makeCellNode sub sub sub sub
 
-attribute [kotlin_expr "com.alexvanyo.composelife.model.EMPTY_NODES[({0}.level()).toInt().coerceIn(0, 32)]"] emptySubnode
+attribute [kotlin_expr "emptySubnode({0})"] emptySubnode
 
 /--
 Surrounds a MacroCell with empty nodes of matching size, creating a centered
@@ -733,8 +731,6 @@ def centeredSubnodeLevel3BitsUInt (leaf : UInt64) : UInt32 :=
   let q3 := (se >>> 0) &&& (0xF : UInt32)
   packCentralNibblesUInt q0 q1 q2 q3
 
-attribute [kotlin_expr "((({0} shr 12) and 0xFuL) or (({0} shr 20) and 0xF0uL) or (({0} shr 28) and 0xF00uL) or (({0} shr 36) and 0xF000uL)).toUInt()"] centeredSubnodeLevel3BitsUInt
-
 @[export centeredHorizontalSubnodeLevel3BitsUInt, inline]
 def centeredHorizontalSubnodeLevel3BitsUInt (w e : UInt64) : UInt32 :=
   let w_ne := ((w >>> 16) &&& (0xFFFF : UInt64)).toUInt32
@@ -746,8 +742,6 @@ def centeredHorizontalSubnodeLevel3BitsUInt (w e : UInt64) : UInt32 :=
   let q2 := (w_se >>> 4) &&& (0xF : UInt32)
   let q3 := (e_sw >>> 0) &&& (0xF : UInt32)
   packCentralNibblesUInt q0 q1 q2 q3
-
-attribute [kotlin_expr "((({0} shr 28) and 0xFuL) or (({1} shr 4) and 0xF0uL) or (({0} shr 44) and 0xF00uL) or (({1} shr 20) and 0xF000uL)).toUInt()"] centeredHorizontalSubnodeLevel3BitsUInt
 
 @[export centeredVerticalSubnodeLevel3BitsUInt, inline]
 def centeredVerticalSubnodeLevel3BitsUInt (n s : UInt64) : UInt32 :=
@@ -761,8 +755,6 @@ def centeredVerticalSubnodeLevel3BitsUInt (n s : UInt64) : UInt32 :=
   let q3 := (s_ne >>> 0) &&& (0xF : UInt32)
   packCentralNibblesUInt q0 q1 q2 q3
 
-attribute [kotlin_expr "((({0} shr 44) and 0xFuL) or (({0} shr 52) and 0xF0uL) or (({1} shl 4) and 0xF00uL) or (({1} shr 4) and 0xF000uL)).toUInt()"] centeredVerticalSubnodeLevel3BitsUInt
-
 @[export centeredSubSubnodeLevel4BitsUInt, inline]
 def centeredSubSubnodeLevel4BitsUInt (nw ne sw se : UInt64) : UInt32 :=
   let nw_se := ((nw >>> 48) &&& (0xFFFF : UInt64)).toUInt32
@@ -774,8 +766,6 @@ def centeredSubSubnodeLevel4BitsUInt (nw ne sw se : UInt64) : UInt32 :=
   let q2 := (sw_ne >>> 4) &&& (0xF : UInt32)
   let q3 := (se_nw >>> 0) &&& (0xF : UInt32)
   packCentralNibblesUInt q0 q1 q2 q3
-
-attribute [kotlin_expr "((({0} shr 60) and 0xFuL) or (({1} shr 36) and 0xF0uL) or (({2} shr 12) and 0xF00uL) or (({3} shl 12) and 0xF000uL)).toUInt()"] centeredSubSubnodeLevel4BitsUInt
 
 @[export packLeafFrom4x4sUInt, inline]
 def packLeafFrom4x4sUInt (q0 q1 q2 q3 : UInt32) : UInt64 :=
@@ -946,9 +936,31 @@ def cachedComputeNextGen (m : MacroCell) (caches : HashLifeCaches) : MacroCell �
   let (res, newStepMap) := c1.cellNodeMap.get hashLifeStep canon c1.computedGenerations
   (res, { c1 with cellNodeMap := newStepMap, computedGenerations := c1.computedGenerations + 1 })
 
+def generateEmptyNodesKotlin : String := Id.run do
+  let mut lines := #[]
+  lines := lines.push "val EMPTY_LEVEL_4: MacroCell.Level4Node = MacroCell.Level4Node(0uL, 0uL, 0uL, 0uL)"
+  for l in [5:33] do
+    let node := emptyNode l
+    match node with
+    | .cellNode h _ _ _ _ =>
+      let prev := if l == 5 then "EMPTY_LEVEL_4" else s!"emptyNode_{l-1}"
+      lines := lines.push s!"private val emptyNode_{l}: MacroCell.CellNode = MacroCell.CellNode({h}u, {prev}, {prev}, {prev}, {prev})"
+    | _ => pure ()
+
+  let mut arrElems := #[]
+  for _ in [:5] do
+    arrElems := arrElems.push "EMPTY_LEVEL_4"
+  for l in [5:33] do
+    arrElems := arrElems.push s!"emptyNode_{l}"
+
+  lines := lines.push s!"val EMPTY_NODES: Array<MacroCell> = arrayOf(\n    {String.intercalate ",\n    " arrElems.toList},\n)"
+  String.intercalate "\n\n" lines.toList
+
 @[kotlin_file]
 def macroCellFileSpec : FileSpec := {
-  imports := #[]
+  imports := #[
+    "import com.alexvanyo.composelife.algorithm.computeNextGen4x4"
+  ]
   items := #[
     .cls {
       name := "MacroCell"
@@ -1030,6 +1042,7 @@ class CellNode(
 }"
       ]
     },
+    .verbatim generateEmptyNodesKotlin,
     .topLevel
   ]
 }
