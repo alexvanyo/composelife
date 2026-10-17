@@ -136,6 +136,10 @@ def computeLevel4NextGen16x16 (nw ne sw se : ℕ) : ℕ :=
 -- =========================================================================
 
 
+@[export computeNextGen4x4BitwiseUInt]
+def exportComputeNextGen4x4BitwiseUInt (w : UInt32) : UInt32 :=
+  computeNextGen4x4BitwiseUInt w
+
 @[export computeNextGen4x4UInt]
 def exportComputeNextGen4x4UInt (w : UInt32) : UInt32 :=
   computeNextGen4x4UInt w
@@ -144,12 +148,48 @@ def exportComputeNextGen4x4UInt (w : UInt32) : UInt32 :=
 def exportComputeLeafNextGen8x8BranchUInt (w : UInt64) : UInt32 :=
   computeLeafNextGen8x8BranchUInt w
 
+def hexChar (n : UInt8) : Char :=
+  if n < 10 then (Char.ofNat (48 + n.toNat))
+  else (Char.ofNat (97 + (n.toNat - 10)))
+
+def generateLUTHex : String × String := Id.run do
+  let mut s0 := ""
+  let mut s1 := ""
+  for i in [:32768] do
+    let r0 := computeNextGen4x4BitwiseUInt i.toUInt32
+    s0 := s0.push (hexChar r0.toUInt8)
+    let r1 := computeNextGen4x4BitwiseUInt (i + 32768).toUInt32
+    s1 := s1.push (hexChar r1.toUInt8)
+  (s0, s1)
+
+def generateLUTKotlin : String := Id.run do
+  let (h0, h1) := generateLUTHex
+  s!"private const val LUT_HEX_0 = \"{h0}\"\n\n" ++
+  s!"private const val LUT_HEX_1 = \"{h1}\"\n\n" ++
+  "/**\n" ++
+  " * A 64 KB lookup table mapping any 16-bit 4x4 grid in Morton order to its next generation 2x2 center (4 bits).\n" ++
+  " *\n" ++
+  " * Precomputed from the formally verified Lean Conway transition rule for all 65,536 neighborhood states.\n" ++
+  " */\n" ++
+  "@PublishedApi\n" ++
+  "internal val NEXT_GEN_4X4_LUT: ByteArray = run {\n" ++
+  "    val arr = ByteArray(65536)\n" ++
+  "    for (i in 0 until 32768) {\n" ++
+  "        val c0 = LUT_HEX_0[i]\n" ++
+  "        arr[i] = if (c0 <= '9') (c0.code - 48).toByte() else (c0.code - 87).toByte()\n" ++
+  "        val c1 = LUT_HEX_1[i]\n" ++
+  "        arr[32768 + i] = if (c1 <= '9') (c1.code - 48).toByte() else (c1.code - 87).toByte()\n" ++
+  "    }\n" ++
+  "    arr\n" ++
+  "}"
+
 @[kotlin_file]
 def hashLifeFileSpec : FileSpec := {
   imports := #[
     "import com.alexvanyo.composelife.model.MacroCell"
   ]
   items := #[
+    .verbatim generateLUTKotlin,
     .topLevel
   ]
 }
