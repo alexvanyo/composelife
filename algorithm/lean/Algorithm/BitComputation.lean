@@ -344,16 +344,12 @@ def extractCenterUInt (q : UInt32) : UInt32 :=
   (((q >>> 9) &&& (1 : UInt32)) <<< 2) |||
   (((q >>> 12) &&& (1 : UInt32)) <<< 3)
 
-attribute [kotlin_expr "((({0} shr 3) and 1u) or ((({0} shr 6) and 1u) shl 1) or ((({0} shr 9) and 1u) shl 2) or ((({0} shr 12) and 1u) shl 3))"] extractCenterUInt
-
 @[inline]
 def extractHorizontalMidUInt (leftQuad rightQuad : UInt32) : UInt32 :=
   ((leftQuad >>> 7) &&& (1 : UInt32)) |||
   (((rightQuad >>> 2) &&& (1 : UInt32)) <<< 1) |||
   (((leftQuad >>> 13) &&& (1 : UInt32)) <<< 2) |||
   (((rightQuad >>> 8) &&& (1 : UInt32)) <<< 3)
-
-attribute [kotlin_expr "((({0} shr 7) and 1u) or ((({1} shr 2) and 1u) shl 1) or ((({0} shr 13) and 1u) shl 2) or ((({1} shr 8) and 1u) shl 3))"] extractHorizontalMidUInt
 
 @[inline]
 def extractVerticalMidUInt (topQuad bottomQuad : UInt32) : UInt32 :=
@@ -362,8 +358,6 @@ def extractVerticalMidUInt (topQuad bottomQuad : UInt32) : UInt32 :=
   (((bottomQuad >>> 1) &&& (1 : UInt32)) <<< 2) |||
   (((bottomQuad >>> 4) &&& (1 : UInt32)) <<< 3)
 
-attribute [kotlin_expr "((({0} shr 11) and 1u) or ((({0} shr 14) and 1u) shl 1) or ((({1} shr 1) and 1u) shl 2) or ((({1} shr 4) and 1u) shl 3))"] extractVerticalMidUInt
-
 @[inline]
 def extractCenterMidUInt (q0 q1 q2 q3 : UInt32) : UInt32 :=
   ((q0 >>> 15) &&& (1 : UInt32)) |||
@@ -371,37 +365,31 @@ def extractCenterMidUInt (q0 q1 q2 q3 : UInt32) : UInt32 :=
   (((q2 >>> 5) &&& (1 : UInt32)) <<< 2) |||
   (((q3 >>> 0) &&& (1 : UInt32)) <<< 3)
 
-attribute [kotlin_expr "((({0} shr 15) and 1u) or ((({1} shr 10) and 1u) shl 1) or ((({2} shr 5) and 1u) shl 2) or (({3} and 1u) shl 3))"] extractCenterMidUInt
-
 @[inline]
 def quad0UInt (w : UInt64) : UInt32 := (w &&& (0xFFFF : UInt64)).toUInt32
-
-attribute [kotlin_expr "(({0} and 0xFFFFuL).toUInt())"] quad0UInt
 
 @[inline]
 def quad1UInt (w : UInt64) : UInt32 := ((w >>> 16) &&& (0xFFFF : UInt64)).toUInt32
 
-attribute [kotlin_expr "((({0} shr 16) and 0xFFFFuL).toUInt())"] quad1UInt
-
 @[inline]
 def quad2UInt (w : UInt64) : UInt32 := ((w >>> 32) &&& (0xFFFF : UInt64)).toUInt32
-
-attribute [kotlin_expr "((({0} shr 32) and 0xFFFFuL).toUInt())"] quad2UInt
 
 @[inline]
 def quad3UInt (w : UInt64) : UInt32 := ((w >>> 48) &&& (0xFFFF : UInt64)).toUInt32
 
-attribute [kotlin_expr "(({0} shr 48).toUInt())"] quad3UInt
-
-@[export computeNextGen4x4UInt]
-def computeNextGen4x4UInt (w : UInt32) : UInt32 :=
+@[export computeNextGen4x4BitwiseUInt]
+def computeNextGen4x4BitwiseUInt (w : UInt32) : UInt32 :=
   let b22 := bitRuleUInt (neighborCount22UInt w) ((w >>> 12) &&& (1 : UInt32))
   let b12 := bitRuleUInt (neighborCount12UInt w) ((w >>> 9) &&& (1 : UInt32))
   let b21 := bitRuleUInt (neighborCount21UInt w) ((w >>> 6) &&& (1 : UInt32))
   let b11 := bitRuleUInt (neighborCount11UInt w) ((w >>> 3) &&& (1 : UInt32))
   (b22 <<< 3) ||| (b12 <<< 2) ||| (b21 <<< 1) ||| b11
 
-attribute [kotlin_expr "(com.alexvanyo.composelife.algorithm.NEXT_GEN_4X4_LUT[({0} and 0xFFFFu).toInt()].toUInt() and 0xFu)"] computeNextGen4x4UInt
+@[export computeNextGen4x4UInt, noinline]
+def computeNextGen4x4UInt (w : UInt32) : UInt32 :=
+  computeNextGen4x4BitwiseUInt w
+
+attribute [kotlin_expr "computeNextGen4x4({0})"] computeNextGen4x4UInt
 
 
 def computeLeafNextGen8x8FastUInt (w : UInt64) : UInt32 :=

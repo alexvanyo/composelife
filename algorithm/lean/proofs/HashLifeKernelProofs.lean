@@ -324,7 +324,7 @@ theorem level4_kernel_bits (a b c d : UInt64) :
           (d.toBitVec.getLsbD 14) (d.toBitVec.getLsbD 26) (d.toBitVec.getLsbD 36) (d.toBitVec.getLsbD 37)
           (d.toBitVec.getLsbD 48) := by
   unfold computeLevel4NextGen16x16UInt computeLevel4NextGen16x16WithUInt computeLeafNextGen8x8BranchUInt
-    computeLeafNextGen8x8FastUInt computeNextGen4x4UInt bitRuleUInt neighborCount11UInt neighborCount12UInt
+    computeLeafNextGen8x8FastUInt computeNextGen4x4UInt computeNextGen4x4BitwiseUInt bitRuleUInt neighborCount11UInt neighborCount12UInt
     neighborCount21UInt neighborCount22UInt extractCenterUInt extractHorizontalMidUInt extractVerticalMidUInt
     extractCenterMidUInt quad0UInt quad1UInt quad2UInt quad3UInt packLeafFrom4x4sUInt
     centeredSubnodeLevel3BitsUInt centeredHorizontalSubnodeLevel3BitsUInt centeredVerticalSubnodeLevel3BitsUInt
