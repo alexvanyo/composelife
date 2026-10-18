@@ -195,8 +195,8 @@ org.jetbrains.compose.ui:ui-unit:1.13.0-alpha02
 org.jetbrains.compose.ui:ui-util-android:1.13.0-alpha02
 org.jetbrains.compose.ui:ui-util:1.13.0-alpha02
 org.jetbrains.compose.ui:ui:1.13.0-alpha02
-org.jetbrains.kotlin:kotlin-stdlib-common:2.4.20
-org.jetbrains.kotlin:kotlin-stdlib:2.4.20
+org.jetbrains.kotlin:kotlin-stdlib-common:2.4.21
+org.jetbrains.kotlin:kotlin-stdlib:2.4.21
 org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0
 org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.11.0
 org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.11.0
