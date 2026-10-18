@@ -18,6 +18,7 @@ import Algorithm.Basic
 import Algorithm.BitComputation
 import Algorithm.MacroCell
 import Algorithm.MacroCellHash
+import Algorithm.FlatHashLife
 
 local notation "ℕ" => Nat
 local notation "ℤ" => Int
@@ -333,5 +334,184 @@ def hashLifeStepN : ℕ → HashLifeCellState → HashLifeCellState
   | 0, st => st
   | n + 1, st => hashLifeStepN n (hashLifeNextGeneration st)
 
+-- =========================================================================
+-- Flat HashLife Definitions and Representation
+-- =========================================================================
+
+def denoteLevel4 (arena : FlatHashLifeArena) (id : UInt32) : MacroCell :=
+  if id.toUSize < arena.l4Count.toUSize then
+    let idx := id.toNat
+    makeLevel4Node arena.l4Nw[idx]! arena.l4Ne[idx]! arena.l4Sw[idx]! arena.l4Se[idx]!
+  else
+    emptyLevel4
+
+def denoteCellNode (fuel : ℕ) (arena : FlatHashLifeArena) (lvl : UInt8) (id : UInt32) : MacroCell :=
+  match fuel with
+  | 0 => emptyLevel4
+  | fuel + 1 =>
+    if lvl <= 4 then
+      denoteLevel4 arena id
+    else if lvl == 5 then
+      if id.toUSize < arena.cellCount.toUSize then
+        let idx := id.toNat
+        let nw := denoteLevel4 arena arena.cellNw[idx]!
+        let ne := denoteLevel4 arena arena.cellNe[idx]!
+        let sw := denoteLevel4 arena arena.cellSw[idx]!
+        let se := denoteLevel4 arena arena.cellSe[idx]!
+        makeCellNode nw ne sw se
+      else
+        emptyNode lvl.toNat
+    else
+      if id.toUSize < arena.cellCount.toUSize then
+        let idx := id.toNat
+        let childLvl := lvl - 1
+        let nw := denoteCellNode fuel arena childLvl arena.cellNw[idx]!
+        let ne := denoteCellNode fuel arena childLvl arena.cellNe[idx]!
+        let sw := denoteCellNode fuel arena childLvl arena.cellSw[idx]!
+        let se := denoteCellNode fuel arena childLvl arena.cellSe[idx]!
+        makeCellNode nw ne sw se
+      else
+        emptyNode lvl.toNat
+
+structure FlatCellState where
+  offset : Coord
+  level : UInt8
+  nodeId : UInt32
+  deriving DecidableEq
+
+def flatToMacroCell (arena : FlatHashLifeArena) (st : FlatCellState) : MacroCell :=
+  denoteCellNode st.level.toNat arena st.level st.nodeId
+
+def flatToGrid (arena : FlatHashLifeArena) (st : FlatCellState) : List Coord :=
+  macroCellToGrid st.offset.1 st.offset.2 (flatToMacroCell arena st)
+
+/--
+Executes `n` consecutive generations of `stepOneGeneration` in the flat arena.
+Halts with `UNCOMPUTED` if any generation overflows or fails.
+-/
+def FlatHashLifeArena.stepOneGenerationN
+    (n : ℕ) (arena : FlatHashLifeArena) (ox oy : Int32) (rootId : UInt32) :
+    (Int32 × Int32 × UInt32) × FlatHashLifeArena :=
+  match n with
+  | 0 => ((ox, oy, rootId), arena)
+  | n + 1 =>
+    let ((ox1, oy1, id1), a1) := arena.stepOneGeneration ox oy rootId
+    if a1.overflow != 0 || id1 == UNCOMPUTED then
+      ((ox1, oy1, UNCOMPUTED), a1)
+    else
+      a1.stepOneGenerationN n ox1 oy1 id1
+
+/--
+Structural well-formedness of a Level 4 node in the flat arena:
+The index is strictly in bounds, and if a step memo is cached (`l4HasRes = 1`),
+it matches the true 16x16 next generation kernel.
+-/
+def l4NodeWellFormed (arena : FlatHashLifeArena) (id : UInt32) : Prop :=
+  id.toUSize < arena.l4Count.toUSize ∧
+  (arena.l4HasRes[id.toNat]! = 1 →
+    arena.l4StepRes[id.toNat]! =
+      computeLevel4NextGen16x16UInt
+        arena.l4Nw[id.toNat]! arena.l4Ne[id.toNat]!
+        arena.l4Sw[id.toNat]! arena.l4Se[id.toNat]!)
+
+/--
+Structural well-formedness of a Cell node in the flat arena:
+Node index is strictly in bounds, levels are consistent, children are strictly
+one level down and well-formed, and any cached memo denotes the true mathematical step.
+-/
+def cellNodeWellFormed (fuel : ℕ) (arena : FlatHashLifeArena) (lvl : UInt8) (id : UInt32) : Prop :=
+  match fuel with
+  | 0 => True
+  | fuel + 1 =>
+    id.toUSize < arena.cellCount.toUSize ∧
+    arena.cellLevel[id.toNat]! = lvl ∧
+    (if lvl == 5 then
+      l4NodeWellFormed arena arena.cellNw[id.toNat]! ∧
+      l4NodeWellFormed arena arena.cellNe[id.toNat]! ∧
+      l4NodeWellFormed arena arena.cellSw[id.toNat]! ∧
+      l4NodeWellFormed arena arena.cellSe[id.toNat]!
+    else
+      let childLvl := lvl - 1
+      cellNodeWellFormed fuel arena childLvl arena.cellNw[id.toNat]! ∧
+      cellNodeWellFormed fuel arena childLvl arena.cellNe[id.toNat]! ∧
+      cellNodeWellFormed fuel arena childLvl arena.cellSw[id.toNat]! ∧
+      cellNodeWellFormed fuel arena childLvl arena.cellSe[id.toNat]!) ∧
+    (arena.cellStepRes[id.toNat]! ≠ UNCOMPUTED →
+      denoteCellNode fuel arena (lvl - 1) arena.cellStepRes[id.toNat]! =
+        hashLifeStep (denoteCellNode (fuel + 1) arena lvl id))
+
+/--
+Pure structural well-formedness of an arena root node:
+- ID is in bounds and at level 5..60
+- The quadtree is recursively well-formed down to leaves
+- The denoted MacroCell satisfies functional well-formedness (`isWellFormed`)
+Crucially, this invariant is purely structural and does NOT mention `stepOneGeneration`.
+-/
+def isWellFormedArena (arena : FlatHashLifeArena) (rootId : UInt32) : Prop :=
+  rootId.toUSize < arena.cellCount.toUSize ∧
+  let lvl := arena.cellLevel[rootId.toNat]!
+  lvl ≥ 5 ∧ lvl ≤ 60 ∧
+  cellNodeWellFormed lvl.toNat arena lvl rootId ∧
+  isWellFormed (denoteCellNode lvl.toNat arena lvl rootId)
+
+/--
+$N$-step arena well-formedness across multi-step trajectories:
+Initial state is well-formed, and all intermediate stepping results that do not overflow
+preserve well-formedness.
+-/
+def isWellFormedArenaN (n : ℕ) (arena : FlatHashLifeArena) (rootId : UInt32) : Prop :=
+  match n with
+  | 0 => isWellFormedArena arena rootId
+  | n + 1 =>
+    isWellFormedArena arena rootId ∧
+    ∀ (ox oy : Int32),
+      let ((_, _, nextId), a') := arena.stepOneGeneration ox oy rootId
+      a'.overflow = 0 → isWellFormedArenaN n a' nextId
+
+/--
+Specification of the Level 5 Base Step Simulation Property:
+`arena.stepLevel5` on a well-formed level 5 node computes a result that denotes
+the mathematical `hashLifeStep` when the arena does not overflow.
+-/
+def arenaLevel5StepSimulates (arena : FlatHashLifeArena) (nodeId : UInt32) : Prop :=
+  let (resId, a') := arena.stepLevel5 nodeId
+  a'.overflow = 0 →
+    resId ≠ UNCOMPUTED ∧
+    denoteLevel4 a' resId = hashLifeStep (denoteCellNode 5 arena 5 nodeId)
+
+/--
+Specification of the Master Single-Step Executable Refinement Property:
+Executing `arena.stepOneGeneration` directly on a flat arena state produces a valid new node
+whose denoted cell coordinates equal Conway's Game of Life rule (`stepGrid`) applied to the
+input grid, provided the arena does not overflow.
+-/
+def arenaStepOneGenerationRefines (arena : FlatHashLifeArena) (st : FlatCellState) : Prop :=
+  let ((nextOx, nextOy, nextId), a') :=
+    arena.stepOneGeneration (Int32.ofInt st.offset.1) (Int32.ofInt st.offset.2) st.nodeId
+  a'.overflow = 0 →
+    nextId ≠ UNCOMPUTED ∧
+    (nextOx.toInt, nextOy.toInt) = (hashLifeNextGeneration { offset := st.offset, macroCell := flatToMacroCell arena st }).offset ∧
+    flatToMacroCell a' { offset := (nextOx.toInt, nextOy.toInt), level := getCellLevel a' nextId, nodeId := nextId } =
+      (hashLifeNextGeneration { offset := st.offset, macroCell := flatToMacroCell arena st }).macroCell ∧
+    cellsEqual
+      (flatToGrid a' { offset := (nextOx.toInt, nextOy.toInt), level := getCellLevel a' nextId, nodeId := nextId })
+      (stepGrid (flatToGrid arena st)) = true
+
+/--
+Specification of the Master Multi-Step Executable Refinement Property:
+Executing `n` consecutive generations via `arena.stepOneGenerationN` on a flat arena state
+produces a grid mathematically equal to `stepN n` (Conway's Law applied `n` times), provided all
+intermediate steps do not overflow.
+-/
+def arenaStepOneGenerationNRefines (n : ℕ) (arena : FlatHashLifeArena) (st : FlatCellState) : Prop :=
+  let ((nextOx, nextOy, nextId), a') :=
+    arena.stepOneGenerationN n (Int32.ofInt st.offset.1) (Int32.ofInt st.offset.2) st.nodeId
+  a'.overflow = 0 →
+    nextId ≠ UNCOMPUTED ∧
+    cellsEqual
+      (flatToGrid a' { offset := (nextOx.toInt, nextOy.toInt), level := getCellLevel a' nextId, nodeId := nextId })
+      (stepN n (flatToGrid arena st)) = true
+
 end Algorithm
+
 

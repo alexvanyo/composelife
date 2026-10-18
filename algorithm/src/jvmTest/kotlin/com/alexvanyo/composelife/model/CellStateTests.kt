@@ -23,6 +23,16 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
+private fun CellState.toFlatHashLifeCellState(capacityPow2: Int = 14): FlatHashLifeCellState {
+    val arena = createFlatArena(capacityPow2)
+    val (offset, rootId) = checkNotNull(buildQuadtreeBottomUp(this, arena))
+    return FlatHashLifeCellState(
+        offset = offset,
+        rootNodeId = rootId,
+        arena = arena,
+    )
+}
+
 private class CellStateFactory(private val cellStateName: String, val factory: (cellState: CellState) -> CellState) {
     override fun toString(): String = cellStateName
 }
@@ -32,6 +42,7 @@ val CellStateTests by testSuite {
         listOf(
             CellStateFactory("Default cell state") { CellState(it.aliveCells.toSet()) },
             CellStateFactory("Hash life cell state") { it.toHashLifeCellState() },
+            CellStateFactory("Flat hash life cell state") { it.toFlatHashLifeCellState() },
         )
 
     cellStateFactories.forEach { cellStateFactory ->

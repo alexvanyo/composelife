@@ -141,6 +141,33 @@ class DefaultComposeLifePreferencesTests {
     }
 
     @Test
+    fun setting_algorithm_choice_to_flat_lean_hashlife_updates_value() = runPreferencesTest { composelifePreferences ->
+        assertEquals(ResourceState.Loading, composelifePreferences.algorithmChoiceState)
+
+        delay(1.milliseconds)
+
+        assertEquals(
+            ResourceState.Success(AlgorithmType.HashLifeAlgorithm),
+            composelifePreferences.algorithmChoiceState,
+        )
+
+        composelifePreferences.setAlgorithmChoice(AlgorithmType.FlatLeanHashLifeAlgorithm)
+        delay(1.milliseconds)
+
+        assertEquals(
+            ResourceState.Success(AlgorithmType.FlatLeanHashLifeAlgorithm),
+            composelifePreferences.algorithmChoiceState,
+        )
+
+        val loadedPreferencesState = composelifePreferences.loadedPreferencesState
+        assertTrue(loadedPreferencesState.isSuccess())
+        assertEquals(
+            AlgorithmType.FlatLeanHashLifeAlgorithm,
+            loadedPreferencesState.value.algorithmChoice,
+        )
+    }
+
+    @Test
     fun default_current_shape_type_is_round_rectangle() = runPreferencesTest { composelifePreferences ->
         assertEquals(ResourceState.Loading, composelifePreferences.currentShapeTypeState)
 

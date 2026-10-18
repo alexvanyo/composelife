@@ -22,3 +22,4 @@ import theorems.CacheTheorems
 import theorems.BitComputationTheorems
 import theorems.HashLifeTheorems
 import theorems.HashLifeEquivalenceTheorems
+import theorems.FlatHashLifeTheorems
