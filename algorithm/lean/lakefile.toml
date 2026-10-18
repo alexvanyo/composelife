@@ -35,5 +35,8 @@ roots = [
   "proofs.HashLifeConfinementProofs",
   "proofs.HashLifeSingleStepProofs",
   "proofs.HashLifeEquivalenceProofs",
+  "Algorithm.FlatHashLife",
+  "theorems.FlatHashLifeTheorems",
+  "proofs.FlatHashLifeProofs",
 ]
 

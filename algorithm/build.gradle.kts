@@ -55,6 +55,9 @@ lean {
             leanFile = "Algorithm/MacroCell.lean"
             packageName = "com.alexvanyo.composelife.model"
         }
+        register("flatHashLife") {
+            leanFile = "Algorithm/FlatHashLife.lean"
+        }
     }
 }
 

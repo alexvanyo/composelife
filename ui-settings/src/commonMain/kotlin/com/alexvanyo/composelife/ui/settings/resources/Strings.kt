@@ -37,6 +37,8 @@ internal expect val Strings.HashLifeAlgorithm: ParameterizedString
 
 internal expect val Strings.LeanHashLifeAlgorithm: ParameterizedString
 
+internal expect val Strings.FlatLeanHashLifeAlgorithm: ParameterizedString
+
 internal expect val Strings.DoNotKeepProcess: ParameterizedString
 
 internal expect val Strings.DisableOpenGL: ParameterizedString
