@@ -29,6 +29,7 @@
     <string name="algorithm_implementation">Implementation</string>
     <string name="hash_life_algorithm">Hashlife</string>
     <string name="lean_hash_life_algorithm">Lean HashLife</string>
+    <string name="flat_lean_hash_life_algorithm">Flat Lean HashLife</string>
     <string name="naive_algorithm">Naïve</string>
     <string name="dark_theme_config">Theme</string>
     <string name="follow_system">Follow system</string>

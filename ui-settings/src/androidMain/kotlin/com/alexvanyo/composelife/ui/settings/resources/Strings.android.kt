@@ -46,6 +46,9 @@ internal actual val Strings.HashLifeAlgorithm: ParameterizedString get() =
 internal actual val Strings.LeanHashLifeAlgorithm: ParameterizedString get() =
     ParameterizedString(R.string.lean_hash_life_algorithm)
 
+internal actual val Strings.FlatLeanHashLifeAlgorithm: ParameterizedString get() =
+    ParameterizedString(R.string.flat_lean_hash_life_algorithm)
+
 internal actual val Strings.DoNotKeepProcess: ParameterizedString get() =
     ParameterizedString(R.string.do_not_keep_process)
 
