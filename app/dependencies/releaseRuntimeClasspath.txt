@@ -268,8 +268,8 @@ org.jetbrains.compose.ui:ui-util-android:1.13.0-alpha02
 org.jetbrains.compose.ui:ui-util:1.13.0-alpha02
 org.jetbrains.compose.ui:ui:1.13.0-alpha02
 org.jetbrains.kotlin:kotlin-bom:1.8.0
-org.jetbrains.kotlin:kotlin-stdlib-common:2.4.20
-org.jetbrains.kotlin:kotlin-stdlib:2.4.20
+org.jetbrains.kotlin:kotlin-stdlib-common:2.4.21
+org.jetbrains.kotlin:kotlin-stdlib:2.4.21
 org.jetbrains.kotlinx:atomicfu-jvm:0.33.0
 org.jetbrains.kotlinx:atomicfu:0.33.0
 org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.5.2
