@@ -31,3 +31,4 @@ import proofs.HashLifeStepProofs
 import proofs.HashLifeConfinementProofs
 import proofs.HashLifeSingleStepProofs
 import proofs.HashLifeEquivalenceProofs
+import proofs.FlatHashLifeProofs

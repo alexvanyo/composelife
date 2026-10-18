@@ -35,6 +35,8 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.isActive
@@ -53,6 +55,7 @@ class ConfigurableGameOfLifeAlgorithm(
     private val naiveGameOfLifeAlgorithm: NaiveGameOfLifeAlgorithm,
     private val hashLifeAlgorithm: HashLifeAlgorithm,
     private val leanHashLifeAlgorithm: LeanHashLifeAlgorithm,
+    private val flatLeanHashLifeAlgorithm: FlatLeanHashLifeAlgorithm,
 ) : GameOfLifeAlgorithm {
     private val currentAlgorithm get() =
         preferences.algorithmChoiceState.map { algorithmType ->
@@ -60,14 +63,59 @@ class ConfigurableGameOfLifeAlgorithm(
                 AlgorithmType.NaiveAlgorithm -> naiveGameOfLifeAlgorithm
                 AlgorithmType.HashLifeAlgorithm -> hashLifeAlgorithm
                 AlgorithmType.LeanHashLifeAlgorithm -> leanHashLifeAlgorithm
+                AlgorithmType.FlatLeanHashLifeAlgorithm -> flatLeanHashLifeAlgorithm
             }
         }
 
-    override suspend fun computeGenerationWithStep(cellState: CellState, step: Int): CellState =
-        snapshotFlow { currentAlgorithm }.firstSuccess().value.computeGenerationWithStep(
-            cellState = cellState,
+    override suspend fun computeGenerationWithStep(cellState: CellState, step: Int): CellState {
+        val algorithm = snapshotFlow { currentAlgorithm }.firstSuccess().value
+        return try {
+            algorithm.computeGenerationWithStep(
+                cellState = cellState,
+                step = step,
+            )
+        } catch (e: IllegalStateException) {
+            if (algorithm === flatLeanHashLifeAlgorithm) {
+                hashLifeAlgorithm.computeGenerationWithStep(
+                    cellState = cellState,
+                    step = step,
+                )
+            } else {
+                throw e
+            }
+        }
+    }
+
+    @Suppress("SwallowedException")
+    private fun GameOfLifeAlgorithm.computeGenerationsWithStepWithFallback(
+        originalCellState: CellState,
+        step: Int,
+    ): Flow<CellState> = if (this === flatLeanHashLifeAlgorithm) {
+        flow {
+            var lastState = originalCellState
+            try {
+                computeGenerationsWithStep(
+                    originalCellState = originalCellState,
+                    step = step,
+                ).collect { emitted ->
+                    lastState = emitted
+                    emit(emitted)
+                }
+            } catch (e: IllegalStateException) {
+                emitAll(
+                    hashLifeAlgorithm.computeGenerationsWithStep(
+                        originalCellState = lastState,
+                        step = step,
+                    ),
+                )
+            }
+        }
+    } else {
+        computeGenerationsWithStep(
+            originalCellState = originalCellState,
             step = step,
         )
+    }
 
     override fun computeGenerationsWithStep(originalCellState: CellState, step: Int): Flow<CellState> = channelFlow {
         // Start listening to algorithm changes
@@ -94,7 +142,7 @@ class ConfigurableGameOfLifeAlgorithm(
                     cellStateChannel?.cancel()
                     cellStateChannel =
                         it
-                            .computeGenerationsWithStep(
+                            .computeGenerationsWithStepWithFallback(
                                 originalCellState = cellState,
                                 step = step,
                             )
