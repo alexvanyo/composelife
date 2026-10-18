@@ -88,7 +88,7 @@ keeper = "0.16.1"
 #kermit
 kermit = "2.2.0"
 #kotlin
-kotlin = "2.4.21"
+kotlin = "2.5.0-Beta1"
 #kotlinPoet
 kotlinPoet = "2.4.0"
 #kotlinxBrowser
