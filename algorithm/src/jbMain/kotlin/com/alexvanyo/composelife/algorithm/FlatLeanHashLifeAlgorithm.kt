@@ -120,13 +120,11 @@ class FlatLeanHashLifeAlgorithm(
     private fun tryResolveInCurrentArena(cellState: CellState, arena: FlatHashLifeArena): Pair<IntOffset, UInt>? =
         when (cellState) {
             is FlatHashLifeCellState -> {
-                if (cellState.arena.cellCount > arena.remapCell.size.toUInt() ||
-                    cellState.arena.l4Count > arena.remapL4.size.toUInt()
-                ) {
+                if (!arena.canCopySubgraphFrom(cellState.arena)) {
                     tryResolveGenericCellStateInArena(cellState, arena)
                 } else {
                     val rootId = arena.copySubgraphFrom(cellState.arena, cellState.rootNodeId, false)
-                    if (arena.overflow == 0u.toUByte() && rootId != UNCOMPUTED_ID) {
+                    if (rootId != UNCOMPUTED_ID) {
                         cellState.offset to rootId
                     } else {
                         null
@@ -160,7 +158,9 @@ class FlatLeanHashLifeAlgorithm(
                         break
                     }
                 }
-                error("Failed to fit pattern into FlatHashLifeArena at maximum capacity ($maxCapacityPow2)")
+                throw FlatHashLifeArenaException(
+                    "Failed to fit pattern into FlatHashLifeArena at maximum capacity ($maxCapacityPow2)",
+                )
             }
             arena = compactOrGrowArena(arena, null, forceGrow = true).first
             resolved = tryResolveInCurrentArena(cellState, arena)
@@ -185,33 +185,34 @@ class FlatLeanHashLifeAlgorithm(
                             if (arena.isNearCapacity()) {
                                 val compacted = compactOrGrowArena(arena, currRootId, forceGrow = false)
                                 arena = compacted.first
-                                currRootId = checkNotNull(compacted.second) { "Compacted rootNodeId must not be null" }
+                                currRootId = compacted.second ?: throw compactionFailed()
                             }
 
                             var res = arena.stepOneGeneration(currOffset.x, currOffset.y, currRootId)
-                            var nextRootId = res.second.second
 
-                            while (arena.overflow != 0u.toUByte() || nextRootId == UNCOMPUTED_ID) {
-                                if (currentCapacityPow2 >= maxCapacityPow2 && arena.overflow != 0u.toUByte()) {
-                                    error(
+                            while (res.second.second == UNCOMPUTED_ID) {
+                                if (arena.overflow == 0u.toUByte()) {
+                                    // A step of a valid root only fails without the overflow flag when the next
+                                    // generation does not fit in the 32-bit coordinate range of the flat engine.
+                                    throw FlatHashLifeArenaException(
+                                        "Next generation exceeds the coordinate range of FlatHashLifeArena",
+                                    )
+                                }
+                                if (currentCapacityPow2 >= maxCapacityPow2) {
+                                    throw FlatHashLifeArenaException(
                                         "FlatHashLifeArena exceeded maximum capacity ($maxCapacityPow2) " +
                                             "during generation step",
                                     )
                                 }
                                 arena.overflow = 0u
-                                val compacted = compactOrGrowArena(
-                                    arena,
-                                    currRootId,
-                                    forceGrow = currentCapacityPow2 < maxCapacityPow2,
-                                )
+                                val compacted = compactOrGrowArena(arena, currRootId, forceGrow = true)
                                 arena = compacted.first
-                                currRootId = checkNotNull(compacted.second) { "Compacted rootNodeId must not be null" }
+                                currRootId = compacted.second ?: throw compactionFailed()
                                 res = arena.stepOneGeneration(currOffset.x, currOffset.y, currRootId)
-                                nextRootId = res.second.second
                             }
 
                             currOffset = IntOffset(res.first, res.second.first)
-                            currRootId = nextRootId
+                            currRootId = res.second.second
                         }
 
                         FlatHashLifeCellState(currOffset, currRootId, arena)
@@ -223,4 +224,8 @@ class FlatLeanHashLifeAlgorithm(
                 }
             }
         }
+
+    private fun compactionFailed(): FlatHashLifeArenaException = FlatHashLifeArenaException(
+        "Failed to compact the active pattern into FlatHashLifeArena at maximum capacity ($maxCapacityPow2)",
+    )
 }

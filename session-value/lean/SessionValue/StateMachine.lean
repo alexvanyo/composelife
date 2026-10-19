@@ -122,6 +122,18 @@ def stepSetValueFromUpstream (st : State α) (newUpstream : SessionValue α)
       localSessionValue := newLocalSessionValue
     }
 
+/--
+Returns `true` if `newValue` was written by the current local session.
+
+An update queued for upstream is still current exactly when its `newValue` carries the current
+`localSessionId`: every update emitted by `setValue` is tagged with the local session id, and a
+local session id is never reused once an upstream change invalidates the session.
+-/
+@[export session_value_is_current_session_update,
+  kotlin_member "LocalSessionInfo" "public extension" "isCurrentSessionUpdate"]
+def LocalSessionInfo.isCurrentSessionUpdate (info : LocalSessionInfo) (newValue : SessionValue α) : Bool :=
+  newValue.sessionId == info.localSessionId
+
 @[kotlin_file]
 def stateMachineFileSpec : FileSpec := {
   imports := #[

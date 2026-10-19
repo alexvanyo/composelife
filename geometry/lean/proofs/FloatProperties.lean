@@ -14,8 +14,8 @@
  * limitations under the License.
  -/
 
-import Geometry.Basic
-import Geometry.FloatModel
+import models.Basic
+import models.FloatModel
 import GeometryDefs
 import proofs.FloatSemantics
 import proofs.FloatBounds
@@ -241,6 +241,23 @@ theorem cellIntersectionsSegmentFloat_eq_ideal_of_step_eq
 
 
 /--
+Master Theorem 1 (Step Agreement Equivalence):
+When the floating-point raymarching steps agree with the idealized rational steps
+for finite inputs, the floating-point raymarching algorithm produces the exact same
+set of discrete intersected cells as the idealized rational algorithm.
+-/
+theorem cellIntersectionsSegmentFloat_eq_ideal_of_step_agreement_Impl
+    (A B : Point32)
+    (h_finiteA : A.isFinite)
+    (h_finiteB : B.isFinite)
+    (h_agree : StepAgreement A B) :
+    cellIntersectionsSegmentFloat A B = cellIntersectionsSegment A.toPoint B.toPoint := by
+  have h_floorA := floorPoint32_eq_floorPoint A h_finiteA
+  have h_floorB := floorPoint32_eq_floorPoint B h_finiteB
+  rcases h_agree with ⟨h_stepX, h_stepY, h_step⟩
+  exact cellIntersectionsSegmentFloat_eq_ideal_of_step_eq A B h_floorA h_floorB h_stepX h_stepY h_step
+
+/--
 Master Theorem 1 (Non-Grazing Equivalence):
 When the continuous line segment maintains sufficient clearance from integer grid corners,
 has coordinates bounded by `M`, and finite inputs, the floating-point raymarching algorithm
@@ -253,11 +270,11 @@ theorem cellIntersectionsSegmentFloat_eq_ideal_of_clearance_Impl
     (_h_bound : inCoordBounds M A.toPoint B.toPoint)
     (h_clear : HasCornerClearance A.toPoint B.toPoint M) :
     cellIntersectionsSegmentFloat A B = cellIntersectionsSegment A.toPoint B.toPoint := by
-  have h_floorA := floorPoint32_eq_floorPoint A h_finiteA
-  have h_floorB := floorPoint32_eq_floorPoint B h_finiteB
   rcases h_clear with ⟨_, h_steps⟩
-  rcases h_steps A B rfl rfl with ⟨h_stepX, h_stepY, h_step⟩
-  exact cellIntersectionsSegmentFloat_eq_ideal_of_step_eq A B h_floorA h_floorB h_stepX h_stepY h_step
+  have h_agree : StepAgreement A B := by
+    rcases h_steps A B rfl rfl with ⟨h_stepX, h_stepY, h_step⟩
+    exact ⟨h_stepX, h_stepY, h_step⟩
+  exact cellIntersectionsSegmentFloat_eq_ideal_of_step_agreement_Impl A B h_finiteA h_finiteB h_agree
 
 /--
 Master Theorem 2 (Cell Hausdorff Bound):

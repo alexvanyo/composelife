@@ -14,8 +14,8 @@
  * limitations under the License.
  -/
 
-import Geometry.Basic
-import Geometry.FloatModel
+import models.Basic
+import models.FloatModel
 import GeometryDefs
 import proofs.FloatSemantics
 import proofs.FloatProperties
@@ -1975,9 +1975,6 @@ theorem cellIntersectionsPathFloat_hausdorff_bound_Impl
   have hP_fin1 : (Ps.get ⟨i, by omega⟩).isFinite := h_fin _ (List.get_mem Ps ⟨i, by omega⟩)
   have hP_fin2 : (Ps.get ⟨i + 1, hi⟩).isFinite := h_fin _ (List.get_mem Ps ⟨i + 1, hi⟩)
   exact cellIntersectionsSegmentFloat_hausdorff_bound_Impl _ _ hP_fin1 hP_fin2 (h_bounds i hi)
-
-#print axioms cellIntersectionsSegmentFloat_hausdorff_bound_Impl
-#print axioms cellIntersectionsPathFloat_hausdorff_bound_Impl
 
 end Geometry
 
