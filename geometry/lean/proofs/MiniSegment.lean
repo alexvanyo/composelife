@@ -14,8 +14,8 @@
  * limitations under the License.
  -/
 
-import Geometry.Basic
-import Geometry.FloatModel
+import models.Basic
+import models.FloatModel
 import GeometryDefs
 import proofs.FloatSemantics
 import proofs.FloatBounds
@@ -1439,10 +1439,6 @@ theorem cellIntersectionsSegmentFloat_sub_hausdorff_one_of_adjacent_cells_of_cas
   cellIntersectionsSegmentFloat_sub_hausdorff_one_of_adjacent_cells A B h_finA h_finB h_bound h_dist
     (cellIntersectionsSegmentFloat_cells_near_endpoints A B h_finA h_finB h_bound h_dist
       h_step_axial_X h_step_axial_Y h_case8_hs2 h_case8_hs3 h_case9_hs2 h_case10_hs2 h_case10_hs3 h_case11_hs2)
-
-#print axioms cellIntersectionsSegmentFloat_cells_near_endpoints
-#print axioms cellIntersectionsSegmentFloat_sub_hausdorff_one_of_adjacent_cells
-#print axioms cellIntersectionsSegmentFloat_sub_hausdorff_one_of_adjacent_cells_of_cases
 
 end Geometry
 

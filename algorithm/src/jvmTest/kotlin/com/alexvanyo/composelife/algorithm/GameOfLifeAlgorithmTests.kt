@@ -387,7 +387,7 @@ val GameOfLifeAlgorithmTests by testSuite(
             }
         }
         val state = CellState(aliveCells)
-        assertFailsWith<IllegalStateException> {
+        assertFailsWith<FlatHashLifeArenaException> {
             tinyAlgorithm.computeGenerationWithStep(state, 1)
         }
 
@@ -439,6 +439,66 @@ val GameOfLifeAlgorithmTests by testSuite(
         val stepped = algorithm.computeGenerationWithStep(hashLifeState, 1)
         assertEquals(blockCells.size, stepped.aliveCells.size)
         assertEquals(blockCells, stepped.aliveCells.toSet())
+    }
+
+    test("flat_lean_hashlife_imports_level_4_hashlife_cell_state_with_offset") {
+        @OptIn(ExperimentalStdlibApi::class)
+        val dispatcher =
+            currentCoroutineContext()[ContinuationInterceptor] as CoroutineDispatcher
+        val dispatchers = TestComposeLifeDispatchers(
+            generalTestDispatcher = dispatcher,
+            cellTickerTestDispatcher = dispatcher,
+        )
+        val algorithm = FlatLeanHashLifeAlgorithm(
+            dispatchers = dispatchers,
+            tracer = TestTraceDriver().tracer,
+        )
+        val referenceAlgorithm = HashLifeAlgorithm(
+            dispatchers = dispatchers,
+            tracer = TestTraceDriver().tracer,
+        )
+        val glider = CellState(
+            setOf(
+                IntOffset(2, 0),
+                IntOffset(0, 1),
+                IntOffset(2, 1),
+                IntOffset(1, 2),
+                IntOffset(2, 2),
+            ).map { it + IntOffset(157, -72) }.toSet(),
+        )
+        val hashLifeState = glider.toHashLifeCellState()
+        assertEquals(4u, hashLifeState.macroCell.level())
+
+        assertCellStateEquals(glider, algorithm.computeGenerationWithStep(hashLifeState, 0))
+        assertCellStateEquals(
+            referenceAlgorithm.computeGenerationWithStep(glider, 1),
+            algorithm.computeGenerationWithStep(hashLifeState, 1),
+        )
+    }
+
+    test("flat_lean_hashlife_out_of_range_generation_fails_explicitly") {
+        @OptIn(ExperimentalStdlibApi::class)
+        val dispatcher =
+            currentCoroutineContext()[ContinuationInterceptor] as CoroutineDispatcher
+        val dispatchers = TestComposeLifeDispatchers(
+            generalTestDispatcher = dispatcher,
+            cellTickerTestDispatcher = dispatcher,
+        )
+        val algorithm = FlatLeanHashLifeAlgorithm(
+            dispatchers = dispatchers,
+            tracer = TestTraceDriver().tracer,
+        )
+        val block1 = setOf(
+            IntOffset(0, 0),
+            IntOffset(1, 0),
+            IntOffset(0, 1),
+            IntOffset(1, 1),
+        )
+        val block2 = block1.map { it + IntOffset(600_000_000, 0) }.toSet()
+        val state = CellState(block1 + block2)
+        assertFailsWith<FlatHashLifeArenaException> {
+            algorithm.computeGenerationWithStep(state, 1)
+        }
     }
 
     test("configurable_algorithm_falls_back_on_flat_lean_capacity_overflow") {

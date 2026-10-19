@@ -68,11 +68,13 @@ structure FlatHashLifeArena where
   cellCount : UInt32
   cellMask : UInt32
 
-  -- Scratch remapping tables for subgraph copying/compaction
+  -- Scratch tables: `remapL4` is the step work stack and the Level 4 copy remap table,
+  -- `remapCell` is the CellNode copy remap table followed by the copy work stack.
   remapL4 : Array UInt32
   remapCell : Array UInt32
 
-  -- Explicit capacity overflow flag (0 = ok, 1 = overflow occurred)
+  -- Sticky failure flag (0 = ok, 1 = capacity, step budget, or scratch space exhausted).
+  -- Once set, no further structural writes are made to the node tables.
   overflow : UInt8
 
 /--
@@ -83,6 +85,13 @@ Level k >= 5 empty node is at index (k - 5) in the cell table.
 @[inline]
 def emptyNodeForLevel (lvl : UInt32) : UInt32 :=
   if lvl <= 4 then 0 else lvl - 5
+
+/--
+`2 ^ k` as an `Int64`, for the small shift amounts used in offset arithmetic.
+-/
+@[inline]
+def pow2Int64 (k : UInt32) : Int64 :=
+  ((1 : UInt64) <<< k.toUInt64).toInt64
 
 /--
 Checks whether the arena is at or above 75% capacity in either table.
@@ -103,9 +112,8 @@ def FlatHashLifeArena.isOver60Percent (arena : FlatHashLifeArena) : Bool :=
   (arena.l4Count * 5 >= l4Cap * 3) || (arena.cellCount * 5 >= cellCap * 3)
 
 /--
-Tail-recursive helper to initialize empty nodes for levels 6 through 60 using fixed-width integers.
+Tail-recursive helper to initialize the pre-interned empty nodes for levels 6 through 60.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "initEmptyNodesLoop"]
 def FlatHashLifeArena.initEmptyNodesLoop (arena : FlatHashLifeArena) (fuel : UInt32) (i : UInt32) : FlatHashLifeArena :=
   if h : fuel = 0 then arena
   else if i >= 56 then arena
@@ -127,7 +135,7 @@ def FlatHashLifeArena.initEmptyNodesLoop (arena : FlatHashLifeArena) (fuel : UIn
 termination_by fuel.toNat
 
 /--
-Initializes pre-interned empty nodes for levels 4 through 60.
+Initializes the pre-interned empty nodes for levels 4 through 60 in a freshly allocated arena.
 -/
 @[kotlin_member "FlatHashLifeArena" "public" "initEmptyNodes"]
 def FlatHashLifeArena.initEmptyNodes (arena : FlatHashLifeArena) : FlatHashLifeArena :=
@@ -151,46 +159,6 @@ def FlatHashLifeArena.initEmptyNodes (arena : FlatHashLifeArena) : FlatHashLifeA
   }
   a2.initEmptyNodesLoop 60 1
 
-@[kotlin_member "FlatHashLifeArena" "public" "clearL4Loop"]
-def FlatHashLifeArena.clearL4Loop (arena : FlatHashLifeArena) (fuel : UInt32) (i : UInt32) (cap : UInt32) : FlatHashLifeArena :=
-  if h : fuel = 0 then arena
-  else if i >= cap then arena
-  else
-    have : (fuel - 1).toNat < fuel.toNat := uint32_sub_one_lt fuel h
-    let a' := { arena with
-      l4Buckets := arena.l4Buckets.set! i.toNat EMPTY_BUCKET,
-      l4Next := arena.l4Next.set! i.toNat EMPTY_BUCKET,
-      l4HasRes := arena.l4HasRes.set! i.toNat 0
-    }
-    a'.clearL4Loop (fuel - 1) (i + 1) cap
-termination_by fuel.toNat
-
-@[kotlin_member "FlatHashLifeArena" "public" "clearCellLoop"]
-def FlatHashLifeArena.clearCellLoop (arena : FlatHashLifeArena) (fuel : UInt32) (i : UInt32) (cap : UInt32) : FlatHashLifeArena :=
-  if h : fuel = 0 then arena
-  else if i >= cap then arena
-  else
-    have : (fuel - 1).toNat < fuel.toNat := uint32_sub_one_lt fuel h
-    let a' := { arena with
-      cellBuckets := arena.cellBuckets.set! i.toNat EMPTY_BUCKET,
-      cellNext := arena.cellNext.set! i.toNat EMPTY_BUCKET,
-      cellStepRes := arena.cellStepRes.set! i.toNat UNCOMPUTED
-    }
-    a'.clearCellLoop (fuel - 1) (i + 1) cap
-termination_by fuel.toNat
-
-/--
-Resets arena node counts and re-initializes canonical empty nodes.
--/
-@[kotlin_member "FlatHashLifeArena" "public" "clear"]
-def FlatHashLifeArena.clear (arena : FlatHashLifeArena) : FlatHashLifeArena :=
-  let l4Cap := arena.l4Mask + 1
-  let cellCap := arena.cellMask + 1
-  let a1 := arena.clearL4Loop l4Cap 0 l4Cap
-  let a2 := a1.clearCellLoop cellCap 0 cellCap
-  let a3 := { a2 with l4Count := 0, cellCount := 0, overflow := 0 }
-  a3.initEmptyNodes
-
 /--
 Probes the Level 4 hash-consing chain for existing node with given 4 leaves.
 -/
@@ -212,11 +180,12 @@ termination_by fuel.toNat
 /--
 Interns a Level 4 node (four 8x8 leaves) into the arena, returning its canonical 32-bit NodeId.
 Returns the existing NodeId on hit (0 allocations), or allocates a new index on miss.
-Sets `overflow := 1` and returns `UNCOMPUTED` if the table is full.
+Returns `UNCOMPUTED` (with `overflow` set) if the table is full or the arena has already failed.
 -/
 @[kotlin_member "FlatHashLifeArena" "public" "internLevel4"]
 def FlatHashLifeArena.internLevel4 (arena : FlatHashLifeArena) (nw ne sw se : UInt64) : UInt32 × FlatHashLifeArena :=
-  if nw == 0 && ne == 0 && sw == 0 && se == 0 && arena.l4Count > 0 then
+  if arena.overflow != 0 then (UNCOMPUTED, arena)
+  else if nw == 0 && ne == 0 && sw == 0 && se == 0 && arena.l4Count > 0 then
     (0, arena)
   else
     let h := level4Hash nw ne sw se
@@ -293,10 +262,12 @@ def computePopulation (arena : FlatHashLifeArena) (lvl : UInt8) (nw ne sw se : U
 /--
 Interns a CellNode (level >= 5) into the arena, returning its canonical 32-bit NodeId.
 Returns the existing NodeId on hit (0 allocations), or allocates a new index on miss.
-Sets `overflow := 1` and returns `UNCOMPUTED` if the table is full.
+Returns `UNCOMPUTED` (with `overflow` set) if the table is full or the arena has already failed.
 -/
 @[kotlin_member "FlatHashLifeArena" "public" "internCellNode"]
 def FlatHashLifeArena.internCellNode (arena : FlatHashLifeArena) (lvl : UInt8) (nw ne sw se : UInt32) : UInt32 × FlatHashLifeArena :=
+  if arena.overflow != 0 then (UNCOMPUTED, arena)
+  else
   let emptyChild := emptyNodeForLevel (lvl.toUInt32 - 1)
   if lvl >= 5 && lvl <= 60 && arena.cellCount >= 56 &&
      nw == emptyChild && ne == emptyChild && sw == emptyChild && se == emptyChild then
@@ -328,9 +299,46 @@ def FlatHashLifeArena.internCellNode (arena : FlatHashLifeArena) (lvl : UInt8) (
         (id, arena')
 
 /--
+Sets an entry in `remapL4`.
+-/
+def FlatHashLifeArena.setRemapL4 (arena : FlatHashLifeArena) (idx : UInt32) (val : UInt32) : FlatHashLifeArena :=
+  { arena with remapL4 := arena.remapL4.set! idx.toNat val }
+
+/--
+Sets an entry in `remapCell`.
+-/
+def FlatHashLifeArena.setRemapCell (arena : FlatHashLifeArena) (idx : UInt32) (val : UInt32) : FlatHashLifeArena :=
+  { arena with remapCell := arena.remapCell.set! idx.toNat val }
+
+/--
+Sets an entry in `cellStepRes`.
+-/
+def FlatHashLifeArena.setCellStepRes (arena : FlatHashLifeArena) (idx : UInt32) (val : UInt32) : FlatHashLifeArena :=
+  { arena with cellStepRes := arena.cellStepRes.set! idx.toNat val }
+
+/--
+Sets an entry in `l4StepRes` and marks `l4HasRes` as 1.
+-/
+def FlatHashLifeArena.setL4StepRes (arena : FlatHashLifeArena) (idx : UInt32) (val : UInt64) : FlatHashLifeArena :=
+  { arena with
+    l4StepRes := arena.l4StepRes.set! idx.toNat val,
+    l4HasRes := arena.l4HasRes.set! idx.toNat 1 }
+
+/--
+Sets the sticky `overflow` flag.
+-/
+def FlatHashLifeArena.setOverflow (arena : FlatHashLifeArena) : FlatHashLifeArena :=
+  { arena with overflow := 1 }
+
+/--
+Clears the sticky `overflow` flag, keeping every node and memo written so far.
+-/
+def FlatHashLifeArena.clearOverflow (arena : FlatHashLifeArena) : FlatHashLifeArena :=
+  { arena with overflow := 0 }
+
+/--
 Steps a Level 4 node (16x16) to its central 8x8 next generation leaf using memoization in l4StepRes.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "stepLevel4"]
 def FlatHashLifeArena.stepLevel4 (arena : FlatHashLifeArena) (l4Id : UInt32) : UInt64 × FlatHashLifeArena :=
   if l4Id >= arena.l4Count then (0, arena)
   else
@@ -343,16 +351,11 @@ def FlatHashLifeArena.stepLevel4 (arena : FlatHashLifeArena) (l4Id : UInt32) : U
       let sw := arena.l4Sw[idx]!
       let se := arena.l4Se[idx]!
       let res := computeLevel4NextGen16x16UInt nw ne sw se
-      let arena' := { arena with
-        l4StepRes := arena.l4StepRes.set! idx res,
-        l4HasRes := arena.l4HasRes.set! idx 1
-      }
-      (res, arena')
+      (res, arena.setL4StepRes l4Id res)
 
 /--
 Extracts the centered subnode of level k-1 from a node of level k.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "centeredSubnode"]
 def FlatHashLifeArena.centeredSubnode (arena : FlatHashLifeArena) (nodeId : UInt32) : UInt32 × FlatHashLifeArena :=
   if nodeId >= arena.cellCount then (0, arena)
   else
@@ -378,7 +381,6 @@ def FlatHashLifeArena.centeredSubnode (arena : FlatHashLifeArena) (nodeId : UInt
 /--
 Extracts the horizontal centered subnode spanning west and east nodes.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "centeredHorizontal"]
 def FlatHashLifeArena.centeredHorizontal (arena : FlatHashLifeArena) (wId eId : UInt32) : UInt32 × FlatHashLifeArena :=
   if wId >= arena.cellCount || eId >= arena.cellCount then (0, arena)
   else
@@ -405,7 +407,6 @@ def FlatHashLifeArena.centeredHorizontal (arena : FlatHashLifeArena) (wId eId : 
 /--
 Extracts the vertical centered subnode spanning north and south nodes.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "centeredVertical"]
 def FlatHashLifeArena.centeredVertical (arena : FlatHashLifeArena) (nId sId : UInt32) : UInt32 × FlatHashLifeArena :=
   if nId >= arena.cellCount || sId >= arena.cellCount then (0, arena)
   else
@@ -432,7 +433,6 @@ def FlatHashLifeArena.centeredVertical (arena : FlatHashLifeArena) (nId sId : UI
 /--
 Extracts the centered sub-subnode of level k-2 from a node of level k >= 6.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "centeredSubSubnode"]
 def FlatHashLifeArena.centeredSubSubnode (arena : FlatHashLifeArena) (nodeId : UInt32) : UInt32 × FlatHashLifeArena :=
   if nodeId >= arena.cellCount then (0, arena)
   else
@@ -487,7 +487,7 @@ def centeredSubSubnodeSizeCell (arena : FlatHashLifeArena) (nodeId : UInt32) : U
       let b := arena.l4Sw[ne_sw_id.toNat]!
       let c := arena.l4Ne[sw_ne_id.toNat]!
       let d := arena.l4Nw[se_nw_id.toNat]!
-      (popcount64 a + popcount64 b + popcount64 c + popcount64 d).toUInt64
+      (popcount64 a).toUInt64 + (popcount64 b).toUInt64 + (popcount64 c).toUInt64 + (popcount64 d).toUInt64
     else
       let nw_se_id := arena.cellSe[nwId.toNat]!
       let ne_sw_id := arena.cellSw[neId.toNat]!
@@ -497,14 +497,17 @@ def centeredSubSubnodeSizeCell (arena : FlatHashLifeArena) (nodeId : UInt32) : U
       let b_id := arena.cellSw[ne_sw_id.toNat]!
       let c_id := arena.cellNe[sw_ne_id.toNat]!
       let d_id := arena.cellNw[se_nw_id.toNat]!
-      arena.cellPop[a_id.toNat]! + arena.cellPop[b_id.toNat]! +
-      arena.cellPop[c_id.toNat]! + arena.cellPop[d_id.toNat]!
+      -- At level 7 the great-grandchildren are Level 4 nodes, whose populations are not in `cellPop`.
+      if lvl == 7 then
+        popLevel4Id arena a_id + popLevel4Id arena b_id + popLevel4Id arena c_id + popLevel4Id arena d_id
+      else
+        arena.cellPop[a_id.toNat]! + arena.cellPop[b_id.toNat]! +
+        arena.cellPop[c_id.toNat]! + arena.cellPop[d_id.toNat]!
 
 /--
 Checks whether a level >= 5 CellNode requires spatial expansion before stepping.
 Matches `MacroCell.needToExpand`.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "needToExpandCell"]
 def FlatHashLifeArena.needToExpandCell (arena : FlatHashLifeArena) (nodeId : UInt32) : Bool :=
   if nodeId >= arena.cellCount then true
   else
@@ -516,7 +519,6 @@ def FlatHashLifeArena.needToExpandCell (arena : FlatHashLifeArena) (nodeId : UIn
 Expands a Level 4 node (16x16) by two levels into a centered Level 6 CellNode (64x64)
 surrounded by empty borders. Matches `MacroCell.expandCentered` on `.level4Node`.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "expandLevel4Centered"]
 def FlatHashLifeArena.expandLevel4Centered (arena : FlatHashLifeArena) (l4Id : UInt32) : UInt32 × FlatHashLifeArena :=
   if l4Id >= arena.l4Count then (UNCOMPUTED, arena)
   else
@@ -537,10 +539,30 @@ def FlatHashLifeArena.expandLevel4Centered (arena : FlatHashLifeArena) (l4Id : U
     a8.internCellNode 6 q_nw q_ne q_sw q_se
 
 /--
+Interns a Level 4 node with leaves `nw ne sw se` whose top-left corner is at `(ox, oy)`, expanded to a
+centered Level 6 root so that it can be stepped. Returns `((ox', oy', rootId), arena)` where `(ox', oy')` is
+the top-left corner of the expanded root. Returns `UNCOMPUTED` with `overflow` set on capacity failure, and
+`UNCOMPUTED` with `overflow` unchanged if the expanded offset does not fit in `Int32`.
+-/
+@[kotlin_member "FlatHashLifeArena" "public" "importLevel4Root"]
+def FlatHashLifeArena.importLevel4Root
+    (arena : FlatHashLifeArena) (ox oy : Int32) (nw ne sw se : UInt64) :
+    (Int32 × Int32 × UInt32) × FlatHashLifeArena :=
+  let nx := ox.toInt64 - 24
+  let ny := oy.toInt64 - 24
+  if nx < -2147483648 || ny < -2147483648 then ((ox, oy, UNCOMPUTED), arena)
+  else
+    let (l4Id, a1) := arena.internLevel4 nw ne sw se
+    if a1.overflow != 0 then ((ox, oy, UNCOMPUTED), a1)
+    else
+      let (rootId, a2) := a1.expandLevel4Centered l4Id
+      if a2.overflow != 0 then ((ox, oy, UNCOMPUTED), a2)
+      else ((nx.toInt32, ny.toInt32, rootId), a2)
+
+/--
 Expands a level k >= 5 CellNode by two levels into a centered level (k + 2) CellNode
 surrounded by empty borders. Matches `MacroCell.expandCentered` on `.cellNode`.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "expandCentered"]
 def FlatHashLifeArena.expandCentered (arena : FlatHashLifeArena) (nodeId : UInt32) : UInt32 × FlatHashLifeArena :=
   if nodeId >= arena.cellCount then (UNCOMPUTED, arena)
   else
@@ -565,7 +587,6 @@ def FlatHashLifeArena.expandCentered (arena : FlatHashLifeArena) (nodeId : UInt3
 /--
 Returns the NW quadrant of a level >= 5 node ready for recursive stepping.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "quadrantNW"]
 def FlatHashLifeArena.quadrantNW (arena : FlatHashLifeArena) (nodeId : UInt32) : UInt32 × FlatHashLifeArena :=
   if nodeId >= arena.cellCount then (0, arena)
   else
@@ -600,7 +621,6 @@ def FlatHashLifeArena.quadrantNW (arena : FlatHashLifeArena) (nodeId : UInt32) :
 /--
 Returns the NE quadrant of a level >= 5 node ready for recursive stepping.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "quadrantNE"]
 def FlatHashLifeArena.quadrantNE (arena : FlatHashLifeArena) (nodeId : UInt32) : UInt32 × FlatHashLifeArena :=
   if nodeId >= arena.cellCount then (0, arena)
   else
@@ -635,7 +655,6 @@ def FlatHashLifeArena.quadrantNE (arena : FlatHashLifeArena) (nodeId : UInt32) :
 /--
 Returns the SW quadrant of a level >= 5 node ready for recursive stepping.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "quadrantSW"]
 def FlatHashLifeArena.quadrantSW (arena : FlatHashLifeArena) (nodeId : UInt32) : UInt32 × FlatHashLifeArena :=
   if nodeId >= arena.cellCount then (0, arena)
   else
@@ -670,7 +689,6 @@ def FlatHashLifeArena.quadrantSW (arena : FlatHashLifeArena) (nodeId : UInt32) :
 /--
 Returns the SE quadrant of a level >= 5 node ready for recursive stepping.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "quadrantSE"]
 def FlatHashLifeArena.quadrantSE (arena : FlatHashLifeArena) (nodeId : UInt32) : UInt32 × FlatHashLifeArena :=
   if nodeId >= arena.cellCount then (0, arena)
   else
@@ -706,7 +724,6 @@ def FlatHashLifeArena.quadrantSE (arena : FlatHashLifeArena) (nodeId : UInt32) :
 Steps a Level 5 CellNode (32x32) by 1 generation to produce its central 16x16 Level 4 NodeId,
 memoizing the result in `cellStepRes[nodeId]`.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "stepLevel5"]
 def FlatHashLifeArena.stepLevel5 (arena : FlatHashLifeArena) (nodeId : UInt32) : UInt32 × FlatHashLifeArena :=
   if nodeId >= arena.cellCount then (UNCOMPUTED, arena)
   else
@@ -726,54 +743,27 @@ def FlatHashLifeArena.stepLevel5 (arena : FlatHashLifeArena) (nodeId : UInt32) :
         let (resId, a9) := a8.internLevel4 r_nw r_ne r_sw r_se
         if a9.overflow != 0 then (UNCOMPUTED, a9)
         else
-          let a10 := { a9 with cellStepRes := a9.cellStepRes.set! nodeId.toNat resId }
-          (resId, a10)
+          (resId, a9.setCellStepRes nodeId resId)
 
 /--
 Combines 4 stepped quadrant results for a level >= 6 node into a level-(k-1) result node in the arena,
 and memoizes the result in `cellStepRes[nodeId]`.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "combineQuadrants"]
 def FlatHashLifeArena.combineQuadrants
     (arena : FlatHashLifeArena) (nodeId : UInt32) (lvl : UInt8) (r_nw r_ne r_sw r_se : UInt32) :
     UInt32 × FlatHashLifeArena :=
   let subLvl := lvl - 1
   let (resId, a1) := arena.internCellNode subLvl r_nw r_ne r_sw r_se
   if a1.overflow == 0 && nodeId < a1.cellCount then
-    let a2 := { a1 with cellStepRes := a1.cellStepRes.set! nodeId.toNat resId }
-    (resId, a2)
+    (resId, a1.setCellStepRes nodeId resId)
   else
     (UNCOMPUTED, a1)
 
 /--
-Sets an entry in `remapL4`.
+Returns `arena.overflow`.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "setRemapL4"]
-def FlatHashLifeArena.setRemapL4 (arena : FlatHashLifeArena) (idx : UInt32) (val : UInt32) : FlatHashLifeArena :=
-  { arena with remapL4 := arena.remapL4.set! idx.toNat val }
-
-/--
-Sets an entry in `remapCell`.
--/
-@[kotlin_member "FlatHashLifeArena" "public" "setRemapCell"]
-def FlatHashLifeArena.setRemapCell (arena : FlatHashLifeArena) (idx : UInt32) (val : UInt32) : FlatHashLifeArena :=
-  { arena with remapCell := arena.remapCell.set! idx.toNat val }
-
-/--
-Sets an entry in `cellStepRes`.
--/
-@[kotlin_member "FlatHashLifeArena" "public" "setCellStepRes"]
-def FlatHashLifeArena.setCellStepRes (arena : FlatHashLifeArena) (idx : UInt32) (val : UInt32) : FlatHashLifeArena :=
-  { arena with cellStepRes := arena.cellStepRes.set! idx.toNat val }
-
-/--
-Sets an entry in `l4StepRes` and marks `l4HasRes` as 1.
--/
-@[kotlin_member "FlatHashLifeArena" "public" "setL4StepRes"]
-def FlatHashLifeArena.setL4StepRes (arena : FlatHashLifeArena) (idx : UInt32) (val : UInt64) : FlatHashLifeArena :=
-  { arena with
-    l4StepRes := arena.l4StepRes.set! idx.toNat val,
-    l4HasRes := arena.l4HasRes.set! idx.toNat 1 }
+def getOverflow (arena : @& FlatHashLifeArena) : UInt8 :=
+  arena.overflow
 
 /--
 Returns `cellStepRes[nodeId]` or `UNCOMPUTED` if out of bounds.
@@ -795,12 +785,12 @@ def getRemapCell (arena : @& FlatHashLifeArena) (nodeId : UInt32) : UInt32 :=
 
 /--
 Tail-recursive work-stack loop for zero-allocation serial HashLife stepping of a level >= 5 CellNode.
-Uses an explicit stack in `remapL4` (depth `sp < 128`) so that the function compiles to a flat while-loop
-in Kotlin with zero heap or call-stack allocations.
+The explicit stack lives in `remapL4[0 ..< sp]`, so that the function compiles to a flat while-loop
+in Kotlin with zero heap or call-stack allocations. The loop stops early when the step budget (`fuel`)
+or the stack space runs out; `stepCellSerial` reports that as a failure.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "stepCellSerialLoop"]
 def FlatHashLifeArena.stepCellSerialLoop
-    (arena : FlatHashLifeArena) (sp : UInt32) (fuel : UInt32) : FlatHashLifeArena :=
+    (arena : FlatHashLifeArena) (sp : UInt32) (stackLimit : UInt32) (fuel : UInt32) : FlatHashLifeArena :=
   if h : fuel = 0 then arena
   else if sp == 0 || arena.overflow != 0 then arena
   else
@@ -808,162 +798,140 @@ def FlatHashLifeArena.stepCellSerialLoop
     let topIdx := (sp - 1).toNat
     let nodeId := arena.remapL4[topIdx]!
     if nodeId >= arena.cellCount then
-      arena.stepCellSerialLoop (sp - 1) (fuel - 1)
+      arena.stepCellSerialLoop (sp - 1) stackLimit (fuel - 1)
     else
       let idx := nodeId.toNat
       if arena.cellStepRes[idx]! != UNCOMPUTED then
-        arena.stepCellSerialLoop (sp - 1) (fuel - 1)
+        arena.stepCellSerialLoop (sp - 1) stackLimit (fuel - 1)
       else
         let lvl := arena.cellLevel[idx]!
         if lvl <= 5 then
           let (_, a1) := arena.stepLevel5 nodeId
-          a1.stepCellSerialLoop (sp - 1) (fuel - 1)
+          a1.stepCellSerialLoop (sp - 1) stackLimit (fuel - 1)
         else
           let (q_nw, a1) := arena.quadrantNW nodeId
           let (q_ne, a2) := a1.quadrantNE nodeId
           let (q_sw, a3) := a2.quadrantSW nodeId
           let (q_se, a4) := a3.quadrantSE nodeId
           if a4.overflow != 0 then
-            a4.stepCellSerialLoop 0 (fuel - 1)
+            a4.stepCellSerialLoop 0 stackLimit (fuel - 1)
           else
             let r_nw := getCellStepRes a4 q_nw
             let r_ne := getCellStepRes a4 q_ne
             let r_sw := getCellStepRes a4 q_sw
             let r_se := getCellStepRes a4 q_se
-            if r_nw == UNCOMPUTED then
-              let a5 := a4.setRemapL4 sp q_nw
-              a5.stepCellSerialLoop (sp + 1) (fuel - 1)
-            else if r_ne == UNCOMPUTED then
-              let a5 := a4.setRemapL4 sp q_ne
-              a5.stepCellSerialLoop (sp + 1) (fuel - 1)
-            else if r_sw == UNCOMPUTED then
-              let a5 := a4.setRemapL4 sp q_sw
-              a5.stepCellSerialLoop (sp + 1) (fuel - 1)
-            else if r_se == UNCOMPUTED then
-              let a5 := a4.setRemapL4 sp q_se
-              a5.stepCellSerialLoop (sp + 1) (fuel - 1)
+            if r_nw == UNCOMPUTED || r_ne == UNCOMPUTED || r_sw == UNCOMPUTED || r_se == UNCOMPUTED then
+              if sp >= stackLimit then
+                a4.stepCellSerialLoop 0 stackLimit (fuel - 1)
+              else
+                let child :=
+                  if r_nw == UNCOMPUTED then q_nw
+                  else if r_ne == UNCOMPUTED then q_ne
+                  else if r_sw == UNCOMPUTED then q_sw
+                  else q_se
+                let a5 := a4.setRemapL4 sp child
+                a5.stepCellSerialLoop (sp + 1) stackLimit (fuel - 1)
             else
               let (_, a5) := a4.combineQuadrants nodeId lvl r_nw r_ne r_sw r_se
-              a5.stepCellSerialLoop (sp - 1) (fuel - 1)
+              a5.stepCellSerialLoop (sp - 1) stackLimit (fuel - 1)
 termination_by fuel.toNat
 
 /--
-Returns `cellLevel[nodeId]` or `0` if out of bounds.
--/
-def getCellLevel (arena : @& FlatHashLifeArena) (nodeId : UInt32) : UInt8 :=
-  if nodeId < arena.cellCount then
-    arena.cellLevel[nodeId.toNat]!
-  else
-    0
-
-/--
-Returns `arena.overflow`.
--/
-def getOverflow (arena : @& FlatHashLifeArena) : UInt8 :=
-  arena.overflow
-
-/--
-Returns `arena.cellCount`.
--/
-def getCellCount (arena : @& FlatHashLifeArena) : UInt32 :=
-  arena.cellCount
-
-/--
-Returns `arena.l4Count`.
--/
-def getL4Count (arena : @& FlatHashLifeArena) : UInt32 :=
-  arena.l4Count
-
-/--
 Zero-allocation recursive HashLife step for a level >= 5 CellNode in the arena, returning its stepped NodeId.
+Returns `UNCOMPUTED` exactly when `overflow` is set: on capacity failure, or if the step budget or stack
+space ran out before the result was memoized.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "stepCellSerial"]
 def FlatHashLifeArena.stepCellSerial
     (arena : FlatHashLifeArena) (nodeId : UInt32) : UInt32 × FlatHashLifeArena :=
-  let maxSteps := (arena.cellMask + 1) * 8 + 1024
-  let a0 := arena.setRemapL4 0 nodeId
-  let a1 := a0.stepCellSerialLoop 1 maxSteps
-  let res := if getOverflow a1 != 0 then UNCOMPUTED else getCellStepRes a1 nodeId
-  (res, a1)
-
-/--
-Prepares a root CellNode (level >= 5) for stepping by expanding by 2 levels if `lvl <= 5`
-or if active cells border the outer boundary (`needToExpandCell`).
--/
-@[kotlin_member "FlatHashLifeArena" "public" "prepareRootForStep"]
-def FlatHashLifeArena.prepareRootForStep
-    (arena : FlatHashLifeArena) (rootId : UInt32) : UInt32 × FlatHashLifeArena :=
-  if rootId >= arena.cellCount then
-    (UNCOMPUTED, arena)
+  if arena.remapL4.size.toUInt32 == 0 then
+    (UNCOMPUTED, arena.setOverflow)
   else
-    let lvl := getCellLevel arena rootId
-    if lvl <= 5 || arena.needToExpandCell rootId then
-      arena.expandCentered rootId
-    else
-      (rootId, arena)
+    let maxSteps := (arena.cellMask + 1) * 8 + 1024
+    let a0 := arena.setRemapL4 0 nodeId
+    let a1 := a0.stepCellSerialLoop 1 arena.remapL4.size.toUInt32 maxSteps
+    let res := getCellStepRes a1 nodeId
+    if a1.overflow != 0 || res == UNCOMPUTED then (UNCOMPUTED, a1.setOverflow)
+    else (res, a1)
 
 /--
-Advances a simulation root centered at `(ox, oy)` with ID `rootNodeId` by exactly 1 generation
-in the arena, handling boundary expansion, offset tracking via `expandOffsetDeltaUInt` and
-`stepOffsetDeltaUInt`, and returns `((nextOx, nextOy, nextRootId), arena)`.
+Advances a simulation root whose top-left corner is at `(ox, oy)` by exactly 1 generation.
+
+The root is first expanded by two levels if it is at level 5 or has live cells outside its centered
+sub-subnode. Returns `((nextOx, nextOy, nextRootId), arena)`. On failure `nextRootId` is `UNCOMPUTED`:
+with `overflow` set if the arena ran out of capacity (or step budget or stack space), and with `overflow`
+unchanged if `rootNodeId` is not a node, the prepared root would exceed level 30, or the next offset would
+not fit in `Int32`.
 -/
 @[kotlin_member "FlatHashLifeArena" "public" "stepOneGeneration"]
 def FlatHashLifeArena.stepOneGeneration
     (arena : FlatHashLifeArena) (ox oy : Int32) (rootNodeId : UInt32) :
     (Int32 × Int32 × UInt32) × FlatHashLifeArena :=
-  let (prepId, a1) := arena.prepareRootForStep rootNodeId
-  if a1.overflow != 0 || prepId == UNCOMPUTED then
-    ((ox, oy, UNCOMPUTED), a1)
+  if rootNodeId >= arena.cellCount then ((ox, oy, UNCOMPUTED), arena)
   else
-    let origLvl := a1.cellLevel[rootNodeId.toNat]!
-    let (ox1, oy1) :=
-      if prepId != rootNodeId then
-        let expDelta := expandOffsetDeltaUInt origLvl.toUInt32
-        (ox + expDelta, oy + expDelta)
-      else
-        (ox, oy)
-    let currLvl := if prepId != rootNodeId then origLvl + 2 else origLvl
-    let stepDelta := stepOffsetDeltaUInt currLvl.toUInt32
-    let (nextId, a2) := a1.stepCellSerial prepId
-    if a2.overflow != 0 || nextId == UNCOMPUTED then
-      ((ox1, oy1, UNCOMPUTED), a2)
+    let lvl := arena.cellLevel[rootNodeId.toNat]!.toUInt32
+    let expand := lvl <= 5 || arena.needToExpandCell rootNodeId
+    let k := if expand then lvl + 2 else lvl
+    if k > 30 then ((ox, oy, UNCOMPUTED), arena)
     else
-      ((ox1 + stepDelta, oy1 + stepDelta, nextId), a2)
+      let delta : Int64 :=
+        (if expand then -(3 * pow2Int64 (lvl - 1)) else 0) + pow2Int64 (k - 2)
+      let nx := ox.toInt64 + delta
+      let ny := oy.toInt64 + delta
+      if nx < -2147483648 || nx > 2147483647 || ny < -2147483648 || ny > 2147483647 then
+        ((ox, oy, UNCOMPUTED), arena)
+      else
+        let (prepId, a1) := if expand then arena.expandCentered rootNodeId else (rootNodeId, arena)
+        if a1.overflow != 0 then ((ox, oy, UNCOMPUTED), a1)
+        else
+          let (nextId, a2) := a1.stepCellSerial prepId
+          if a2.overflow != 0 then ((ox, oy, UNCOMPUTED), a2)
+          else ((nx.toInt32, ny.toInt32, nextId), a2)
 
 /--
-Initializes the Level 4 remapping table up to `limit` before a subgraph copy.
+Initializes the Level 4 copy remapping table entries `i ..< limit`: the empty Level 4 node maps to
+itself and every other entry is `UNCOMPUTED`.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "initRemapL4Loop"]
 def FlatHashLifeArena.initRemapL4Loop
-    (arena : FlatHashLifeArena) (fuel : UInt32) (i : UInt32) (limit : UInt32) : FlatHashLifeArena :=
-  if h : fuel = 0 then arena
-  else if i >= limit then arena
-  else
-    have : (fuel - 1).toNat < fuel.toNat := uint32_sub_one_lt fuel h
+    (arena : FlatHashLifeArena) (i : UInt32) (limit : UInt32) : FlatHashLifeArena :=
+  if h : i < limit then
+    have : limit.toNat - (i + 1).toNat < limit.toNat - i.toNat := by
+      have h1 := UInt32.lt_iff_toNat_lt.mp h
+      have h2 : (i + 1).toNat = i.toNat + 1 := by
+        rw [UInt32.toNat_add]
+        have := UInt32.toNat_lt limit
+        simp only [UInt32.toNat_one]
+        omega
+      omega
     let val := if i == 0 then 0 else UNCOMPUTED
     let a' := arena.setRemapL4 i val
-    a'.initRemapL4Loop (fuel - 1) (i + 1) limit
-termination_by fuel.toNat
+    a'.initRemapL4Loop (i + 1) limit
+  else arena
+termination_by limit.toNat - i.toNat
 
 /--
-Initializes the CellNode remapping table up to `limit` before a subgraph copy.
+Initializes the CellNode copy remapping table entries `i ..< limit`: the 56 pre-interned empty nodes
+map to themselves and every other entry is `UNCOMPUTED`.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "initRemapCellLoop"]
 def FlatHashLifeArena.initRemapCellLoop
-    (arena : FlatHashLifeArena) (fuel : UInt32) (i : UInt32) (limit : UInt32) : FlatHashLifeArena :=
-  if h : fuel = 0 then arena
-  else if i >= limit then arena
-  else
-    have : (fuel - 1).toNat < fuel.toNat := uint32_sub_one_lt fuel h
+    (arena : FlatHashLifeArena) (i : UInt32) (limit : UInt32) : FlatHashLifeArena :=
+  if h : i < limit then
+    have : limit.toNat - (i + 1).toNat < limit.toNat - i.toNat := by
+      have h1 := UInt32.lt_iff_toNat_lt.mp h
+      have h2 : (i + 1).toNat = i.toNat + 1 := by
+        rw [UInt32.toNat_add]
+        have := UInt32.toNat_lt limit
+        simp only [UInt32.toNat_one]
+        omega
+      omega
     let val := if i < 56 then i else UNCOMPUTED
     let a' := arena.setRemapCell i val
-    a'.initRemapCellLoop (fuel - 1) (i + 1) limit
-termination_by fuel.toNat
+    a'.initRemapCellLoop (i + 1) limit
+  else arena
+termination_by limit.toNat - i.toNat
 
 /--
 Copies a Level 4 node (and optionally its memoized step result) from `src` into `dst`.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "copyL4From"]
 def FlatHashLifeArena.copyL4From
     (dst : FlatHashLifeArena) (src : @& FlatHashLifeArena) (l4Id : UInt32) (copyMemos : Bool) :
     UInt32 × FlatHashLifeArena :=
@@ -987,71 +955,72 @@ def FlatHashLifeArena.copyL4From
 Single non-recursive step of copying `cellId` from `src` into `dst`, assuming its children (and optional
 memoized step result) have already been remapped in `dst.remapCell` (or are Level 4 nodes).
 Returns the first uncopied child `cellId` if one is needed before `cellId` can be interned, or `UNCOMPUTED`
-once `cellId` has been remapped.
+once `cellId` has been remapped (or `overflow` is set).
 -/
 def copyCellTryStep
     (dst : FlatHashLifeArena) (src : @& FlatHashLifeArena) (cellId : UInt32) (copyMemos : Bool) :
     UInt32 × FlatHashLifeArena :=
   let idx := cellId.toNat
   let lvl := src.cellLevel[idx]!
-  if src.cellPop[idx]! == 0 && lvl >= 5 && lvl <= 60 then
-    let emptyId := lvl.toUInt32 - 5
-    (UNCOMPUTED, dst.setRemapCell cellId emptyId)
-  else
-    let nwSrc := src.cellNw[idx]!
-    let neSrc := src.cellNe[idx]!
-    let swSrc := src.cellSw[idx]!
-    let seSrc := src.cellSe[idx]!
-    let stepRes := src.cellStepRes[idx]!
-    if lvl == 5 then
-      let (nw, d1) := dst.copyL4From src nwSrc copyMemos
-      let (ne, d2) := d1.copyL4From src neSrc copyMemos
-      let (sw, d3) := d2.copyL4From src swSrc copyMemos
-      let (se, d4) := d3.copyL4From src seSrc copyMemos
-      if getOverflow d4 != 0 then (UNCOMPUTED, d4)
-      else
-        let (newId, d5) := d4.internCellNode 5 nw ne sw se
-        if getOverflow d5 != 0 then (UNCOMPUTED, d5)
-        else
-          let d6 :=
-            if copyMemos && stepRes != UNCOMPUTED then
-              let (remappedRes, d5m) := d5.copyL4From src stepRes copyMemos
-              if getOverflow d5m == 0 && remappedRes != UNCOMPUTED then
-                d5m.setCellStepRes newId remappedRes
-              else d5m
-            else d5
-          (UNCOMPUTED, d6.setRemapCell cellId newId)
+  let nwSrc := src.cellNw[idx]!
+  let neSrc := src.cellNe[idx]!
+  let swSrc := src.cellSw[idx]!
+  let seSrc := src.cellSe[idx]!
+  let stepRes := src.cellStepRes[idx]!
+  if lvl == 5 then
+    let (nw, d1) := dst.copyL4From src nwSrc copyMemos
+    let (ne, d2) := d1.copyL4From src neSrc copyMemos
+    let (sw, d3) := d2.copyL4From src swSrc copyMemos
+    let (se, d4) := d3.copyL4From src seSrc copyMemos
+    if d4.overflow != 0 then (UNCOMPUTED, d4)
     else
-      let nw := getRemapCell dst nwSrc
-      let ne := getRemapCell dst neSrc
-      let sw := getRemapCell dst swSrc
-      let se := getRemapCell dst seSrc
-      let remappedRes := if copyMemos && stepRes != UNCOMPUTED then getRemapCell dst stepRes else 0
-      if nw == UNCOMPUTED then (nwSrc, dst)
-      else if ne == UNCOMPUTED then (neSrc, dst)
-      else if sw == UNCOMPUTED then (swSrc, dst)
-      else if se == UNCOMPUTED then (seSrc, dst)
-      else if copyMemos && stepRes != UNCOMPUTED && remappedRes == UNCOMPUTED then (stepRes, dst)
+      let (newId, d5) := d4.internCellNode 5 nw ne sw se
+      if d5.overflow != 0 then (UNCOMPUTED, d5)
       else
-        let (newId, d1) := dst.internCellNode lvl nw ne sw se
-        if getOverflow d1 != 0 then (UNCOMPUTED, d1)
-        else
-          let d2 :=
-            if copyMemos && stepRes != UNCOMPUTED && remappedRes != UNCOMPUTED then
-              d1.setCellStepRes newId remappedRes
-            else d1
-          (UNCOMPUTED, d2.setRemapCell cellId newId)
+        let d6 :=
+          if copyMemos && stepRes != UNCOMPUTED then
+            let (remappedRes, d5m) := d5.copyL4From src stepRes copyMemos
+            if d5m.overflow == 0 then
+              d5m.setCellStepRes newId remappedRes
+            else d5m
+          else d5
+        (UNCOMPUTED, d6.setRemapCell cellId newId)
+  else
+    let nw := getRemapCell dst nwSrc
+    let ne := getRemapCell dst neSrc
+    let sw := getRemapCell dst swSrc
+    let se := getRemapCell dst seSrc
+    let remappedRes := if copyMemos && stepRes != UNCOMPUTED then getRemapCell dst stepRes else 0
+    if nw == UNCOMPUTED then (nwSrc, dst)
+    else if ne == UNCOMPUTED then (neSrc, dst)
+    else if sw == UNCOMPUTED then (swSrc, dst)
+    else if se == UNCOMPUTED then (seSrc, dst)
+    else if copyMemos && stepRes != UNCOMPUTED && remappedRes == UNCOMPUTED then (stepRes, dst)
+    else
+      let (newId, d1) := dst.internCellNode lvl nw ne sw se
+      if d1.overflow != 0 then (UNCOMPUTED, d1)
+      else
+        let d2 :=
+          if copyMemos && stepRes != UNCOMPUTED then
+            d1.setCellStepRes newId remappedRes
+          else d1
+        (UNCOMPUTED, d2.setRemapCell cellId newId)
 
 /--
-Tail-recursive subgraph copy loop using the upper end of `dst.remapCell` (starting at `stackBase`)
-as an explicit DFS stack. Compiles to a flat while-loop in Kotlin with zero heap allocations.
+Maximum depth of the explicit copy work stack stored after the remap entries in `remapCell`.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "copyCellFromLoop"]
+def copyStackDepth : UInt32 := 256
+
+/--
+Tail-recursive subgraph copy loop using `dst.remapCell[stackBase ..< stackBase + sp]` as an explicit DFS
+stack. Compiles to a flat while-loop in Kotlin with zero heap allocations. The loop stops early when the
+step budget (`fuel`) or the stack space runs out; `copySubgraphFrom` reports that as a failure.
+-/
 def FlatHashLifeArena.copyCellFromLoop
     (dst : FlatHashLifeArena) (src : @& FlatHashLifeArena) (copyMemos : Bool)
     (stackBase : UInt32) (sp : UInt32) (fuel : UInt32) : FlatHashLifeArena :=
   if h : fuel = 0 then dst
-  else if sp == 0 || getOverflow dst != 0 then dst
+  else if sp == 0 || dst.overflow != 0 then dst
   else
     have : (fuel - 1).toNat < fuel.toNat := uint32_sub_one_lt fuel h
     let topPos := stackBase + sp - 1
@@ -1062,46 +1031,61 @@ def FlatHashLifeArena.copyCellFromLoop
       dst.copyCellFromLoop src copyMemos stackBase (sp - 1) (fuel - 1)
     else
       let (missingChild, d1) := copyCellTryStep dst src cellId copyMemos
-      if getOverflow d1 != 0 then
+      if d1.overflow != 0 then
         d1.copyCellFromLoop src copyMemos stackBase 0 (fuel - 1)
       else if missingChild == UNCOMPUTED then
         d1.copyCellFromLoop src copyMemos stackBase (sp - 1) (fuel - 1)
+      else if sp >= copyStackDepth then
+        d1.copyCellFromLoop src copyMemos stackBase 0 (fuel - 1)
       else
         let d2 := d1.setRemapCell (stackBase + sp) missingChild
         d2.copyCellFromLoop src copyMemos stackBase (sp + 1) (fuel - 1)
 termination_by fuel.toNat
 
 /--
+Whether `dst` has enough scratch space to copy any subgraph of `src`: every Level 4 id of `src` fits in
+`dst.remapL4`, and every CellNode id of `src` plus the copy work stack fits in `dst.remapCell`.
+-/
+@[kotlin_member "FlatHashLifeArena" "public" "canCopySubgraphFrom"]
+def FlatHashLifeArena.canCopySubgraphFrom (dst : @& FlatHashLifeArena) (src : @& FlatHashLifeArena) : Bool :=
+  let remapCellSize := dst.remapCell.size.toUInt32
+  src.l4Count <= dst.remapL4.size.toUInt32 &&
+    remapCellSize >= copyStackDepth &&
+    src.cellCount <= remapCellSize - copyStackDepth
+
+/--
 Copies the reachable subgraph rooted at `rootId` from `src` into `dst`, optionally preserving step memos,
-and stores the remapped root ID at `dst.remapCell[rootId]`.
+and stores the remapped root ID at `dst.remapCell[rootId]`. Sets `overflow` if `dst` lacks the scratch
+space to copy from `src`.
 -/
 def copySubgraphInto
     (dst : FlatHashLifeArena) (src : @& FlatHashLifeArena) (rootId : UInt32) (copyMemos : Bool) :
     FlatHashLifeArena :=
-  let srcL4 := getL4Count src
-  let srcCells := getCellCount src
-  let d1 := dst.initRemapL4Loop (srcL4 + 1) 0 srcL4
-  let d2 := d1.initRemapCellLoop (srcCells + 1) 0 srcCells
-  if rootId >= srcCells then d2
+  if !dst.canCopySubgraphFrom src then dst.setOverflow
   else
-    let stackBase := srcCells
-    let d3 := d2.setRemapCell stackBase rootId
-    let maxSteps := (srcCells + 1) * 6 + 256
-    d3.copyCellFromLoop src copyMemos stackBase 1 maxSteps
+    let srcCells := src.cellCount
+    let d1 := dst.initRemapL4Loop 0 src.l4Count
+    let d2 := d1.initRemapCellLoop 0 srcCells
+    if rootId >= srcCells then d2
+    else
+      let stackBase := srcCells
+      let d3 := d2.setRemapCell stackBase rootId
+      let maxSteps := (srcCells + 1) * 6 + 256
+      d3.copyCellFromLoop src copyMemos stackBase 1 maxSteps
 
 /--
 Copies the reachable subgraph rooted at `rootId` from `src` into `dst`, optionally preserving step memos.
+Returns `UNCOMPUTED` exactly when `overflow` is set: on capacity failure, missing scratch space, or if the
+step budget or stack space ran out before the root was copied.
 -/
 @[kotlin_member "FlatHashLifeArena" "public" "copySubgraphFrom"]
 def FlatHashLifeArena.copySubgraphFrom
     (dst : FlatHashLifeArena) (src : @& FlatHashLifeArena) (rootId : UInt32) (copyMemos : Bool) :
     UInt32 × FlatHashLifeArena :=
   let d1 := copySubgraphInto dst src rootId copyMemos
-  let res :=
-    if rootId >= src.cellCount then 0
-    else if getOverflow d1 != 0 then UNCOMPUTED
-    else getRemapCell d1 rootId
-  (res, d1)
+  let res := if rootId >= src.cellCount then UNCOMPUTED else getRemapCell d1 rootId
+  if getOverflow d1 != 0 || res == UNCOMPUTED then (UNCOMPUTED, d1.setOverflow)
+  else (res, d1)
 
 /--
 Compacts `rootId` from `src` into `dst`. Attempts copying with memoized step results first.
@@ -1113,132 +1097,67 @@ def FlatHashLifeArena.compactRootFrom
     (dst : FlatHashLifeArena) (src : @& FlatHashLifeArena) (rootId : UInt32) :
     (UInt32 × UInt8) × FlatHashLifeArena :=
   if rootId >= src.cellCount || src.overflow != 0 then
-    ((0, 0), dst)
+    ((UNCOMPUTED, 0), dst)
   else
     let (id1, d1) := dst.copySubgraphFrom src rootId true
-    if d1.overflow == 0 && id1 != UNCOMPUTED then
+    if d1.overflow == 0 then
       ((id1, 1), d1)
     else
-      let d2 := { d1 with overflow := 0 }
+      let d2 := d1.clearOverflow
       let (id2, d3) := d2.copySubgraphFrom src rootId false
       ((id2, 0), d3)
 
 /--
-Tail-recursive work-stack loop that interns a `MacroCell` tree into the flat arena,
-storing the resulting root NodeId at `remapCell[0]`.
+Whether relative coordinates `(rx, ry)`, within `[0, 16)`, are alive in the Level 4 node `l4Id`.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "internMacroCellLoop"]
-def FlatHashLifeArena.internMacroCellLoop
-    (arena : FlatHashLifeArena) (todo : List (Sum MacroCell UInt8)) (sp : UInt32) (fuel : UInt32) :
-    FlatHashLifeArena :=
-  if h : fuel = 0 then arena
-  else if arena.overflow != 0 then arena
+@[inline]
+def containsLevel4 (arena : @& FlatHashLifeArena) (l4Id : UInt32) (rx ry : Int64) : Bool :=
+  if l4Id == 0 || l4Id >= arena.l4Count then false
   else
-    have : (fuel - 1).toNat < fuel.toNat := uint32_sub_one_lt fuel h
-    match todo with
-    | [] => arena
-    | item :: rest =>
-      match item with
-      | .inl (.level4Node _ nw ne sw se) =>
-        let (id, a1) := arena.internLevel4 nw ne sw se
-        let a2 := a1.setRemapCell sp id
-        a2.internMacroCellLoop rest (sp + 1) (fuel - 1)
-      | .inl cell@(.cellNode _ nw ne sw se) =>
-        let lvl := cell.level
-        if cell.size == 0 && lvl >= 5 && lvl <= 60 then
-          let a1 := arena.setRemapCell sp (emptyNodeForLevel lvl)
-          a1.internMacroCellLoop rest (sp + 1) (fuel - 1)
-        else
-          let todo' := (.inl nw) :: (.inl ne) :: (.inl sw) :: (.inl se) :: (.inr lvl.toUInt8) :: rest
-          arena.internMacroCellLoop todo' sp (fuel - 1)
-      | .inr lvl =>
-        let nw := getRemapCell arena (sp - 4)
-        let ne := getRemapCell arena (sp - 3)
-        let sw := getRemapCell arena (sp - 2)
-        let se := getRemapCell arena (sp - 1)
-        let (id, a1) := arena.internCellNode lvl nw ne sw se
-        let a2 := a1.setRemapCell (sp - 4) id
-        a2.internMacroCellLoop rest (sp - 3) (fuel - 1)
-termination_by fuel.toNat
+    let east := rx >= 8
+    let south := ry >= 8
+    let lx := (if east then rx - 8 else rx).toUInt64.toUInt32
+    let ly := (if south then ry - 8 else ry).toUInt64.toUInt32
+    let i := l4Id.toNat
+    let leaf :=
+      if south then (if east then arena.l4Se[i]! else arena.l4Sw[i]!)
+      else (if east then arena.l4Ne[i]! else arena.l4Nw[i]!)
+    leafContains leaf lx ly
 
 /--
-Interns a `MacroCell` into the flat arena and ensures the returned root is a CellNode at level >= 5.
+Tail-recursive zero-allocation traversal for `containsCell`: whether relative coordinates `(rx, ry)` are alive
+in the CellNode `nodeId` (level >= 5). Nodes of level 63 or more are wider than any `Int64` coordinate, so for
+them only the sign of the coordinates is checked and the west/north halves are always taken.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "internMacroCellAsRoot"]
-def FlatHashLifeArena.internMacroCellAsRoot
-    (arena : FlatHashLifeArena) (m : MacroCell) : UInt32 × FlatHashLifeArena :=
-  let maxSteps := (arena.cellMask + 1) * 8 + 4096
-  let a1 := arena.internMacroCellLoop [.inl m] 0 maxSteps
-  let rawId := getRemapCell a1 0
-  if getOverflow a1 != 0 || rawId == UNCOMPUTED then
-    (UNCOMPUTED, a1)
-  else if m.level == 4 then
-    a1.expandLevel4Centered rawId
-  else
-    (rawId, a1)
-
-/--
-Interns a `MacroCell` into the flat arena and returns `(FlatStepResult, arena)`.
-If the `MacroCell` is a Level 4 node, it expands it to a centered Level 6 node and shifts
-the offset by `expandOffsetDeltaUInt 4`.
--/
-@[kotlin_member "FlatHashLifeArena" "public" "internMacroCellWithOffset"]
-def FlatHashLifeArena.internMacroCellWithOffset
-    (arena : FlatHashLifeArena) (ox oy : Int32) (m : MacroCell) :
-    (Int32 × Int32 × UInt32) × FlatHashLifeArena :=
-  let (rootId, a1) := arena.internMacroCellAsRoot m
-  if a1.overflow != 0 || rootId == UNCOMPUTED then
-    ((ox, oy, UNCOMPUTED), a1)
-  else if m.level == 4 then
-    let expDelta := expandOffsetDeltaUInt 4
-    ((ox + expDelta, oy + expDelta, rootId), a1)
-  else
-    ((ox, oy, rootId), a1)
-
-/--
-Tests whether relative coordinates `(rx, ry)` are alive in the CellNode `nodeId` (level >= 5)
-using tail-recursive zero-allocation array traversal.
--/
-@[kotlin_member "FlatHashLifeArena" "public" "containsCell"]
-def FlatHashLifeArena.containsCell
-    (arena : @& FlatHashLifeArena) (nodeId : UInt32) (rx ry : Int32) (fuel : UInt32) : Bool :=
+def FlatHashLifeArena.containsCellLoop
+    (arena : @& FlatHashLifeArena) (nodeId : UInt32) (rx ry : Int64) (fuel : UInt32) : Bool :=
   if h : fuel = 0 then false
   else if nodeId >= arena.cellCount then false
   else
     let idx := nodeId.toNat
-    if arena.cellPop[idx]! == 0 then false
+    let lvl := arena.cellLevel[idx]!.toUInt32
+    if rx < 0 || ry < 0 || (lvl < 63 && (rx >= pow2Int64 lvl || ry >= pow2Int64 lvl)) then false
     else
-      let lvl := arena.cellLevel[idx]!.toUInt32.toInt32
-      let span : Int32 := (1 : Int32) <<< lvl
-      if rx < 0 || ry < 0 || rx >= span || ry >= span then false
+      let half := pow2Int64 (lvl - 1)
+      let east := lvl <= 63 && rx >= half
+      let south := lvl <= 63 && ry >= half
+      let rx' := if east then rx - half else rx
+      let ry' := if south then ry - half else ry
+      let childId :=
+        if south then (if east then arena.cellSe[idx]! else arena.cellSw[idx]!)
+        else (if east then arena.cellNe[idx]! else arena.cellNw[idx]!)
+      if lvl <= 5 then containsLevel4 arena childId rx' ry'
       else
-        let half : Int32 := (1 : Int32) <<< (lvl - 1)
-        let east := rx >= half
-        let south := ry >= half
-        let rx' := if east then rx - half else rx
-        let ry' := if south then ry - half else ry
-        let childId :=
-          if !east && !south then arena.cellNw[idx]!
-          else if east && !south then arena.cellNe[idx]!
-          else if !east && south then arena.cellSw[idx]!
-          else arena.cellSe[idx]!
-        if lvl <= 5 then
-          if childId == 0 || childId >= arena.l4Count then false
-          else
-            let east8 := rx' >= 8
-            let south8 := ry' >= 8
-            let lx := (if east8 then rx' - 8 else rx').toUInt32
-            let ly := (if south8 then ry' - 8 else ry').toUInt32
-            let leaf :=
-              if !east8 && !south8 then arena.l4Nw[childId.toNat]!
-              else if east8 && !south8 then arena.l4Ne[childId.toNat]!
-              else if !east8 && south8 then arena.l4Sw[childId.toNat]!
-              else arena.l4Se[childId.toNat]!
-            leafContains leaf lx ly
-        else
-          have : (fuel - 1).toNat < fuel.toNat := uint32_sub_one_lt fuel h
-          arena.containsCell childId rx' ry' (fuel - 1)
+        have : (fuel - 1).toNat < fuel.toNat := uint32_sub_one_lt fuel h
+        arena.containsCellLoop childId rx' ry' (fuel - 1)
 termination_by fuel.toNat
+
+/--
+Whether relative coordinates `(rx, ry)` (from the top-left corner) are alive in the CellNode `nodeId`.
+-/
+@[kotlin_member "FlatHashLifeArena" "public" "containsCell"]
+def FlatHashLifeArena.containsCell (arena : @& FlatHashLifeArena) (nodeId : UInt32) (rx ry : Int64) : Bool :=
+  arena.containsCellLoop nodeId rx ry 256
 
 @[kotlin_file]
 def flatHashLifeFileSpec : FileSpec := {
