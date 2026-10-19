@@ -14,9 +14,9 @@
  * limitations under the License.
  -/
 
-import Geometry.Basic
+import models.Basic
 import Geometry.LineSegment
-import Geometry.FloatModel
+import models.FloatModel
 
 
 namespace Geometry
@@ -226,13 +226,6 @@ inductive PointOnSegment (p A B : Point) : Prop where
       (hy : p.y = A.y + t * (B.y - A.y)) : PointOnSegment p A B
 
 /--
-A cell is traversed by the line segment if some continuous point on the segment
-falls into that half-open grid cell [c.x, c.x + 1) × [c.y, c.y + 1).
--/
-def CellTraversedBySegment (c : Cell) (A B : Point) : Prop :=
-  ∃ p : Point, PointOnSegment p A B ∧ floorPoint p = c
-
-/--
 A cell touches the closed line segment if some continuous point on the segment
 lies within the closed unit square [c.x, c.x + 1] × [c.y, c.y + 1].
 -/
@@ -242,20 +235,6 @@ def CellTouchesSegment (c : Cell) (A B : Point) : Prop :=
     ofInt c.y ≤ p.y ∧ p.y ≤ ofInt (c.y + 1)
 
 /--
-An isolated corner contact occurs when a cell touches the closed segment,
-but the line does not traverse the half-open cell (i.e. strictly diagonal corner contact).
--/
-def IsIsolatedCornerContact (c : Cell) (A B : Point) : Prop :=
-  CellTouchesSegment c A B ∧ ¬ CellTraversedBySegment c A B
-
-/--
-A cell's closed bounding square in the continuous 2D plane: [c.x, c.x + 1] × [c.y, c.y + 1].
--/
-def InClosedCell (c : Cell) (p : Point) : Prop :=
-  ofInt c.x ≤ p.x ∧ p.x ≤ ofInt (c.x + 1) ∧
-  ofInt c.y ≤ p.y ∧ p.y ≤ ofInt (c.y + 1)
-
-/--
 A cell's open interior in the continuous 2D plane: (c.x, c.x + 1) × (c.y, c.y + 1).
 -/
 def InInteriorCell (c : Cell) (p : Point) : Prop :=
@@ -263,11 +242,15 @@ def InInteriorCell (c : Cell) (p : Point) : Prop :=
   ofInt c.y < p.y ∧ p.y < ofInt (c.y + 1)
 
 /--
-A point is one of the four corner vertices of cell c.
+The segment crosses cell `c` if some point of the segment lies in the open interior of `c`.
+
+This is the completeness criterion for cell intersections. Cells whose closed square the segment
+only touches, along an edge or at a corner, may or may not be reported: a segment through a
+lattice point touches up to four cells there, and an algorithm should report only the cells it
+passes through.
 -/
-def IsCellCorner (c : Cell) (p : Point) : Prop :=
-  (p.x = ofInt c.x ∨ p.x = ofInt (c.x + 1)) ∧
-  (p.y = ofInt c.y ∨ p.y = ofInt (c.y + 1))
+def CellCrossedBySegment (c : Cell) (A B : Point) : Prop :=
+  ∃ p : Point, PointOnSegment p A B ∧ InInteriorCell c p
 
 /--
 A cell touches the closed line segment between A and B.
@@ -362,6 +345,14 @@ def idealCrossCorner (A B : Point) (xb yb : ℚ) : ℚ :=
   let remY := if yb ≥ A.y then yb - A.y else A.y - yb
   remX * absDy - remY * absDx
 
+/--
+Corner clearance for the segment `AB` at coordinate scale `M`, used internally by the Hausdorff
+proofs as one of the cases in which the floating-point and rational ray marches agree.
+
+The first clause is the numeric clearance condition. The second clause states step agreement
+(`StepAgreement`) for every `Point32` pair denoting `A` and `B`; the internal results derive output
+equality from the second clause alone. That the numeric clause implies step agreement is not proven.
+-/
 def HasCornerClearance (A B : Point) (M : ℚ) : Prop :=
   (∀ xb yb : ℤ,
     |idealCrossCorner A B (ofInt xb) (ofInt yb)| > gammaBound M ∨
@@ -381,9 +372,35 @@ def HasCornerClearance (A B : Point) (M : ℚ) : Prop :=
         (if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0) c))
 
 
+/--
+Agreement between floating-point ray marching steps and idealized rational ray marching steps.
+The floating-point branch decisions agree with the exact rational branch decisions for segment AB.
+-/
+def StepAgreement (A B : Point32) : Prop :=
+  let dx := widen32To64 B.x - widen32To64 A.x
+  let dy := widen32To64 B.y - widen32To64 A.y
+  (if dx > 0.0 then 1 else if dx < 0.0 then -1 else 0) =
+    (if B.toPoint.x - A.toPoint.x > 0 then 1 else if B.toPoint.x - A.toPoint.x < 0 then -1 else 0) ∧
+  (if dy > 0.0 then 1 else if dy < 0.0 then -1 else 0) =
+    (if B.toPoint.y - A.toPoint.y > 0 then 1 else if B.toPoint.y - A.toPoint.y < 0 then -1 else 0) ∧
+  (∀ c, rayMarchStepFloat A dx dy
+    (if dx > 0.0 then 1 else if dx < 0.0 then -1 else 0)
+    (if dy > 0.0 then 1 else if dy < 0.0 then -1 else 0) c =
+    rayMarchStep A.toPoint B.toPoint (B.toPoint.x - A.toPoint.x) (B.toPoint.y - A.toPoint.y)
+      (if B.toPoint.x - A.toPoint.x > 0 then 1 else if B.toPoint.x - A.toPoint.x < 0 then -1 else 0)
+      (if B.toPoint.y - A.toPoint.y > 0 then 1 else if B.toPoint.y - A.toPoint.y < 0 then -1 else 0) c)
+
 -- =========================================================================
 -- Hausdorff Metric and Step Classification
 -- =========================================================================
+
+/--
+A list of cells with no gaps: consecutive cells are equal or neighbors (king moves), so the cells
+of a line drawn through the list form one connected stroke.
+-/
+def CellPathConnected : List Cell → Prop
+  | a :: b :: rest => chebyshevDistance a b ≤ 1 ∧ CellPathConnected (b :: rest)
+  | _ => True
 
 def cellHausdorffDistanceLe (cells1 cells2 : List Cell) (d : Nat) : Prop :=
   (∀ c1 ∈ cells1, ∃ c2 ∈ cells2, chebyshevDistance c1 c2 ≤ d) ∧
@@ -404,19 +421,8 @@ def pointsToRational (pts : List Point32) : List Point :=
 def AllFinite (pts : List Point32) : Prop :=
   ∀ p ∈ pts, p.isFinite
 
-def ConsecutiveAdjacent (pts : List Point32) : Prop :=
-  ∀ (i : Nat) (hi : i + 1 < pts.length),
-    chebyshevDistance (floorPoint32 (pts.get ⟨i, by omega⟩))
-                      (floorPoint32 (pts.get ⟨i + 1, hi⟩)) ≤ 1
-
 def IsCellBoundaryPoint (p : Point32) : Prop :=
   (∃ k : ℤ, p.x = intToBinary32 k) ∨ (∃ k : ℤ, p.y = intToBinary32 k)
-
-def PartitionValid (start ptEnd : Point32) (waypoints : List Point32) : Prop :=
-  waypoints.head? = some start ∧
-  waypoints.getLast? = some ptEnd ∧
-  AllFinite waypoints ∧
-  ConsecutiveAdjacent waypoints
 
 -- =========================================================================
 -- Model Refinement Precondition (Pattern B)
@@ -429,23 +435,30 @@ def toCells (arr : Array (Int32 × Int32)) : List Cell :=
   arr.toList.map (fun (x, y) => ⟨x.toInt, y.toInt⟩)
 
 /--
-Maps floating-point coordinates to continuous Point32 representations.
+Coordinate bound under which the compiled ray march is proven to refine the float model.
+
+Within it, every cell the march can visit, its step budget, and every intermediate `Int32` and
+`Float` value stay far from overflow. It covers any drawing on a screen by many orders of magnitude.
 -/
-def toPoint32 (sx sy : Float) : Point32 :=
-  ⟨float32ToBinary32 (Float.toFloat32 sx), float32ToBinary32 (Float.toFloat32 sy)⟩
+def compiledCoordBound : ℚ := 2 ^ 28
 
 /--
-Precondition for continuous raymarching model refinement under Pattern B:
-1. Endpoints lie within the verified coordinate bounds [-mainCoordBoundNat, mainCoordBoundNat]².
-2. (cx, cy) and (ex', ey') are the discrete floor cell coordinates of the endpoints.
-3. The floating-point execution matches the formal float intersection model.
+Precondition for the compiled ray march `rayMarchSegmentCoords` to refine the float model
+`cellIntersectionsSegmentFloat A B`:
+1. The endpoints `A` and `B` are finite and within `compiledCoordBound`.
+2. The `Float` arguments are the binary64 widenings of the endpoint coordinates, which is what
+   `cellIntersections` in `LineSegment.kt` passes (`Offset.x.toDouble()`, an exact widening).
+3. `(cx, cy)` and `(ex', ey')` are the floored endpoint cells.
 -/
-structure InRange (sx sy ex ey : Float) (cx cy ex' ey' : Int32) : Prop where
-  h_bound : inCoordBounds mainCoordBound (toPoint32 sx sy).toPoint (toPoint32 ex ey).toPoint
-  h_start : ⟨cx.toInt, cy.toInt⟩ = floorPoint32 (toPoint32 sx sy)
-  h_end : ⟨ex'.toInt, ey'.toInt⟩ = floorPoint32 (toPoint32 ex ey)
-  h_refines : toCells (rayMarchSegmentCoords sx sy ex ey cx cy ex' ey') =
-    cellIntersectionsSegmentFloat (toPoint32 sx sy) (toPoint32 ex ey)
+structure InRange (A B : Point32) (sx sy ex ey : Float) (cx cy ex' ey' : Int32) : Prop where
+  h_finite : A.isFinite ∧ B.isFinite
+  h_bound : inCoordBounds compiledCoordBound A.toPoint B.toPoint
+  h_widen : FloatLib.Floats.ExecFloat.Binary.ofFloat sx = widen32To64 A.x ∧
+    FloatLib.Floats.ExecFloat.Binary.ofFloat sy = widen32To64 A.y ∧
+    FloatLib.Floats.ExecFloat.Binary.ofFloat ex = widen32To64 B.x ∧
+    FloatLib.Floats.ExecFloat.Binary.ofFloat ey = widen32To64 B.y
+  h_start : ⟨cx.toInt, cy.toInt⟩ = floorPoint32 A
+  h_end : ⟨ex'.toInt, ey'.toInt⟩ = floorPoint32 B
 
 end Geometry
 

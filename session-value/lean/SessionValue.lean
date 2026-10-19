@@ -16,9 +16,7 @@
 
 import SessionValue.Basic
 import SessionValue.StateMachine
-import SessionValue.Mapping
-import SessionValue.AsyncBatching
-import SessionValue.Mutations
 import SessionValueDefs
 import SessionValueProofs
 import SessionValueTheorems
+import proofs.Mutations

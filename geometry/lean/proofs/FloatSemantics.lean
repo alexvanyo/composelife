@@ -14,9 +14,9 @@
  * limitations under the License.
  -/
 
-import Geometry.Basic
+import models.Basic
 import Geometry.LineSegment
-import Geometry.FloatModel
+import models.FloatModel
 import GeometryDefs
 import FloatLib
 import Mathlib.Algebra.Order.Field.Basic
