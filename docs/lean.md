@@ -67,6 +67,7 @@ To keep production code clean, maintain fast compilation, and clearly distinguis
   - Must use **fixed-width types** only (`UInt8/16/32/64`, `Int8/16/32/64`, `Float`, `Bool`).
   - Must contain **no proofs or non-equational theorems**.
   - Must **not** import proof-only modules (such as `Mathlib.Tactic.*` or analysis libraries).
+  - Non-compiled specification models (such as `FloatModel.lean` or `Basic.lean`) must reside outside `<Component>/` in a dedicated directory (e.g. `models/`), ensuring only production code is compiled to Kotlin.
   - Must export clean entrypoints with `@[export]` or `kotlin_member`.
 
 ### 2. Specification Definitions (`<Component>Defs.lean`)
@@ -123,17 +124,31 @@ theorem computeNextGen4x4_correct (w : UInt32) (h : w < 65536) :
   computeNextGen4x4_correct_Impl w h
 ```
 
-### Pattern B: Continuous Model Refinement Under Preconditions
-Used when continuous or floating-point operations refine a real/rational model (e.g. geometry ray-marching):
+### Pattern B: Floating-Point Refinement Under Preconditions
+Used when compiled floating-point code refines a float model whose own properties are proven separately against an exact rational or real model (e.g. geometry ray-marching):
 ```lean
-theorem rayMarchSegmentCoords_refines
-    (sx sy ex ey : Float) (cx cy ex' ey' : Int32)
-    (hPre : InRange sx sy ex ey cx cy ex' ey') :
-    toCells (rayMarchSegmentCoords sx sy ex ey cx cy ex' ey') =
-      cellIntersectionsSegmentFloat (toPoint32 sx sy) (toPoint32 ex ey) :=
-  rayMarchSegmentCoords_refines_Impl sx sy ex ey cx cy ex' ey' hPre
+theorem rayMarchSegmentCoords_refines (A B : Point32) (sx sy ex ey : Float) (cx cy ex' ey' : Int32)
+    (hPre : InRange A B sx sy ex ey cx cy ex' ey') :
+    dedupCells (toCells (rayMarchSegmentCoords sx sy ex ey cx cy ex' ey')) =
+      cellIntersectionsSegmentFloat A B :=
+  rayMarchSegmentCoords_refines_Impl A B sx sy ex ey cx cy ex' ey' hPre
 ```
-The precondition (`InRange`) explicitly documents the domain constraints (such as coordinates strictly within $[-2^{30}, 2^{30}]$ to guarantee no integer overflow).
+The precondition (`InRange`) states only the domain of the compiled function, never its behavior:
+1. The model endpoints are finite and within a coordinate bound under which no `Int32` or `Float` intermediate overflows.
+2. The `Float` arguments are the values the Kotlin caller passes (here, the exact widenings of `Float32` coordinates).
+3. The `Int32` cell arguments are the floored endpoint cells.
+
+A precondition must **never** restate the conclusion, or any equation about the compiled function's output, under any name. If a property of the compiled code cannot be proven, the theorem is not a refinement theorem. Before adding such a hypothesis, check that it is satisfiable on real inputs: a hypothesis that is false for every interesting input makes the theorem vacuous.
+
+The output is deduplicated (`dedupCells`) because the compiled march may report a cell twice, while the Kotlin caller collects the cells into a `Set`.
+
+#### Native Floating-Point Semantics
+In Lean 4.34, native `Float` arithmetic, negation, comparisons and integer conversions have a logical model (`Float.Model`, an IEEE-754 binary64 word unpacked to `Float.Model.UnpackedFloat`); only transcendental functions and `Float32.toFloat` are opaque. Prove compiled floating-point code correct by relating each native operation to an independent library (FloatLib) and transferring that library's lemmas, as Lean's own model documentation recommends:
+- FloatLib proves addition and subtraction (`ofFloat_add_of_isFinite`, `ofFloat_sub_of_isFinite`) and the integer conversions.
+- `geometry/lean/proofs/NativeFloat.lean` adds multiplication (`ofFloat_mul_of_isFinite`), comparisons (`native_lt_iff`, `native_le_iff`), negation and `Int32.toFloat`, and packages them as `Agree`: a native float and a FloatLib value that are finite and denote the same real number, preserved by every operation the ray march uses.
+- `geometry/lean/proofs/CompiledRayMarch.lean` then proves the compiled loop equal to the model loop by induction on its fuel.
+
+These bridges are proofs about Lean's logical model of `Float`. Like every Pattern A or B theorem, they trust the compiler (here, the Kotlin backend's translation of `Float` operations to Kotlin `Double`) to implement that model.
 
 ---
 

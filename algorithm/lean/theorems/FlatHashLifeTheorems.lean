@@ -14,547 +14,232 @@
  * limitations under the License.
  -/
 
-import Algorithm.Basic
-import Algorithm.BitComputation
 import Algorithm.MacroCell
 import Algorithm.HashLife
-import Algorithm.FlatHashLife
 import Algorithm.HashLifeEquivalence
+import Algorithm.FlatHashLife
 import AlgorithmDefs
 import proofs.FlatHashLifeProofs
 
 local notation "ℕ" => Nat
-local notation "ℤ" => Int
 
 namespace Algorithm
 
-theorem flat_sentinels_eq :
-    EMPTY_BUCKET = 0xFFFFFFFF ∧ UNCOMPUTED = 0xFFFFFFFF :=
-  flat_sentinels_eq_Impl
-
-theorem emptyNodeForLevel_four :
-    emptyNodeForLevel 4 = 0 :=
-  emptyNodeForLevel_four_Impl
-
-theorem emptyNodeForLevel_ge_five (lvl : UInt32) (h : ¬ (lvl <= 4)) :
-    emptyNodeForLevel lvl = lvl - 5 :=
-  emptyNodeForLevel_ge_five_Impl lvl h
-
-theorem initEmptyNodesLoop_zero_fuel (arena : FlatHashLifeArena) (i : UInt32) :
-    arena.initEmptyNodesLoop 0 i = arena :=
-  initEmptyNodesLoop_zero_fuel_Impl arena i
-
-theorem initEmptyNodes_overflow_zero (arena : FlatHashLifeArena) :
-    (arena.initEmptyNodes).overflow = 0 :=
-  initEmptyNodes_overflow_zero_Impl arena
-
-theorem initEmptyNodes_l4Count (arena : FlatHashLifeArena) :
-    (arena.initEmptyNodes).l4Count = 1 :=
-  initEmptyNodes_l4Count_Impl arena
-
-theorem initEmptyNodes_cellCount (arena : FlatHashLifeArena) :
-    (arena.initEmptyNodes).cellCount = 56 :=
-  initEmptyNodes_cellCount_Impl arena
-
-theorem initEmptyNodes_l4Nw (arena : FlatHashLifeArena) :
-    (arena.initEmptyNodes).l4Nw = arena.l4Nw.set! 0 0 :=
-  initEmptyNodes_l4Nw_Impl arena
-
-theorem initEmptyNodes_l4Ne (arena : FlatHashLifeArena) :
-    (arena.initEmptyNodes).l4Ne = arena.l4Ne.set! 0 0 :=
-  initEmptyNodes_l4Ne_Impl arena
-
-theorem initEmptyNodes_l4Sw (arena : FlatHashLifeArena) :
-    (arena.initEmptyNodes).l4Sw = arena.l4Sw.set! 0 0 :=
-  initEmptyNodes_l4Sw_Impl arena
-
-theorem initEmptyNodes_l4Se (arena : FlatHashLifeArena) :
-    (arena.initEmptyNodes).l4Se = arena.l4Se.set! 0 0 :=
-  initEmptyNodes_l4Se_Impl arena
-
-theorem initEmptyNodes_l4StepRes (arena : FlatHashLifeArena) :
-    (arena.initEmptyNodes).l4StepRes = arena.l4StepRes.set! 0 0 :=
-  initEmptyNodes_l4StepRes_Impl arena
-
-theorem initEmptyNodes_l4HasRes (arena : FlatHashLifeArena) :
-    (arena.initEmptyNodes).l4HasRes = arena.l4HasRes.set! 0 1 :=
-  initEmptyNodes_l4HasRes_Impl arena
-
-theorem clearL4Loop_zero_fuel (arena : FlatHashLifeArena) (i cap : UInt32) :
-    arena.clearL4Loop 0 i cap = arena :=
-  clearL4Loop_zero_fuel_Impl arena i cap
-
-theorem clearCellLoop_zero_fuel (arena : FlatHashLifeArena) (i cap : UInt32) :
-    arena.clearCellLoop 0 i cap = arena :=
-  clearCellLoop_zero_fuel_Impl arena i cap
-
-theorem clear_overflow_zero (arena : FlatHashLifeArena) :
-    (arena.clear).overflow = 0 :=
-  clear_overflow_zero_Impl arena
-
-theorem probeLevel4_zero_fuel
-    (arena : FlatHashLifeArena) (head : UInt32) (nw ne sw se : UInt64) :
-    probeLevel4 arena head nw ne sw se 0 = none :=
-  probeLevel4_zero_fuel_Impl arena head nw ne sw se
-
-theorem probeLevel4_empty_bucket
-    (arena : FlatHashLifeArena) (nw ne sw se : UInt64) (fuel : UInt32) :
-    probeLevel4 arena EMPTY_BUCKET nw ne sw se fuel = none :=
-  probeLevel4_empty_bucket_Impl arena nw ne sw se fuel
-
-theorem internLevel4_empty_fastpath
-    (arena : FlatHashLifeArena) (h : (arena.l4Count > 0) = true) :
-    arena.internLevel4 0 0 0 0 = (0, arena) :=
-  internLevel4_empty_fastpath_Impl arena h
-
-theorem probeCellNode_zero_fuel
-    (arena : FlatHashLifeArena) (head : UInt32) (lvl : UInt8) (nw ne sw se : UInt32) :
-    probeCellNode arena head lvl nw ne sw se 0 = none :=
-  probeCellNode_zero_fuel_Impl arena head lvl nw ne sw se
-
-theorem probeCellNode_empty_bucket
-    (arena : FlatHashLifeArena) (lvl : UInt8) (nw ne sw se : UInt32) (fuel : UInt32) :
-    probeCellNode arena EMPTY_BUCKET lvl nw ne sw se fuel = none :=
-  probeCellNode_empty_bucket_Impl arena lvl nw ne sw se fuel
-
-theorem computePopulation_out_of_bounds
-    (arena : FlatHashLifeArena) (lvl : UInt8) (h_lvl : (lvl == 5) = false)
-    (nw ne sw se : UInt32)
-    (h_nw : ¬ (nw < arena.cellCount))
-    (h_ne : ¬ (ne < arena.cellCount))
-    (h_sw : ¬ (sw < arena.cellCount))
-    (h_se : ¬ (se < arena.cellCount)) :
-    computePopulation arena lvl nw ne sw se = 0 :=
-  computePopulation_out_of_bounds_Impl arena lvl h_lvl nw ne sw se h_nw h_ne h_sw h_se
-
-theorem popLevel4Id_zero (arena : FlatHashLifeArena)
-    (h_cnt : (0 < arena.l4Count) = true)
-    (h_nw : arena.l4Nw[0]! = 0)
-    (h_ne : arena.l4Ne[0]! = 0)
-    (h_sw : arena.l4Sw[0]! = 0)
-    (h_se : arena.l4Se[0]! = 0) :
-    popLevel4Id arena 0 = 0 :=
-  popLevel4Id_zero_Impl arena h_cnt h_nw h_ne h_sw h_se
-
-theorem popCellId_zero_pop (arena : FlatHashLifeArena) (id : UInt32)
-    (h_lt : (id < arena.cellCount) = true)
-    (h_pop : arena.cellPop[id.toNat]! = 0) :
-    popCellId arena id = 0 :=
-  popCellId_zero_pop_Impl arena id h_lt h_pop
-
-theorem computePopulation_level5_all_zero (arena : FlatHashLifeArena)
-    (nw ne sw se : UInt32)
-    (h_nw : popLevel4Id arena nw = 0)
-    (h_ne : popLevel4Id arena ne = 0)
-    (h_sw : popLevel4Id arena sw = 0)
-    (h_se : popLevel4Id arena se = 0) :
-    computePopulation arena 5 nw ne sw se = 0 :=
-  computePopulation_level5_all_zero_Impl arena nw ne sw se h_nw h_ne h_sw h_se
-
-theorem computePopulation_cell_all_zero (arena : FlatHashLifeArena) (lvl : UInt8)
-    (h_lvl : (lvl == 5) = false)
-    (nw ne sw se : UInt32)
-    (h_nw : popCellId arena nw = 0)
-    (h_ne : popCellId arena ne = 0)
-    (h_sw : popCellId arena sw = 0)
-    (h_se : popCellId arena se = 0) :
-    computePopulation arena lvl nw ne sw se = 0 :=
-  computePopulation_cell_all_zero_Impl arena lvl h_lvl nw ne sw se h_nw h_ne h_sw h_se
-
-theorem internCellNode_empty_fastpath
-    (arena : FlatHashLifeArena) (lvl : UInt8)
-    (h1 : (lvl >= 5) = true) (h2 : (lvl <= 60) = true) (h3 : (arena.cellCount >= 56) = true) :
-    let e := emptyNodeForLevel (lvl.toUInt32 - 1)
-    arena.internCellNode lvl e e e e = (emptyNodeForLevel lvl.toUInt32, arena) :=
-  internCellNode_empty_fastpath_Impl arena lvl h1 h2 h3
-
-theorem stepLevel4_out_of_bounds
-    (arena : FlatHashLifeArena) (l4Id : UInt32)
-    (h : l4Id >= arena.l4Count) :
-    arena.stepLevel4 l4Id = (0, arena) :=
-  stepLevel4_out_of_bounds_Impl arena l4Id h
-
-theorem stepLevel4_cached
-    (arena : FlatHashLifeArena) (l4Id : UInt32)
-    (h_not_ge : (l4Id >= arena.l4Count) = false)
-    (h_has : (arena.l4HasRes[l4Id.toNat]! == 1) = true) :
-    arena.stepLevel4 l4Id = (arena.l4StepRes[l4Id.toNat]!, arena) :=
-  stepLevel4_cached_Impl arena l4Id h_not_ge h_has
-
-theorem stepLevel4_zero_cached
-    (arena : FlatHashLifeArena)
-    (h_cnt : (0 >= arena.l4Count) = false)
-    (h_has : (arena.l4HasRes[0]! == 1) = true)
-    (h_res : arena.l4StepRes[0]! = 0) :
-    arena.stepLevel4 0 = (0, arena) :=
-  stepLevel4_zero_cached_Impl arena h_cnt h_has h_res
-
-theorem flat_centeredSubnode_out_of_bounds
-    (arena : FlatHashLifeArena) (id : UInt32)
-    (h : id >= arena.cellCount) :
-    arena.centeredSubnode id = (0, arena) :=
-  flat_centeredSubnode_out_of_bounds_Impl arena id h
-
-theorem flat_centeredHorizontal_out_of_bounds
-    (arena : FlatHashLifeArena) (wId eId : UInt32)
-    (h : wId >= arena.cellCount) :
-    arena.centeredHorizontal wId eId = (0, arena) :=
-  flat_centeredHorizontal_out_of_bounds_Impl arena wId eId h
-
-theorem flat_centeredVertical_out_of_bounds
-    (arena : FlatHashLifeArena) (nId sId : UInt32)
-    (h : nId >= arena.cellCount) :
-    arena.centeredVertical nId sId = (0, arena) :=
-  flat_centeredVertical_out_of_bounds_Impl arena nId sId h
-
-theorem flat_centeredSubSubnode_out_of_bounds
-    (arena : FlatHashLifeArena) (id : UInt32)
-    (h : id >= arena.cellCount) :
-    arena.centeredSubSubnode id = (0, arena) :=
-  flat_centeredSubSubnode_out_of_bounds_Impl arena id h
-
-theorem centeredSubSubnodeSizeCell_out_of_bounds
-    (arena : FlatHashLifeArena) (id : UInt32)
-    (h : id >= arena.cellCount) :
-    centeredSubSubnodeSizeCell arena id = 0 :=
-  centeredSubSubnodeSizeCell_out_of_bounds_Impl arena id h
-
-theorem needToExpandCell_out_of_bounds
-    (arena : FlatHashLifeArena) (id : UInt32)
-    (h : id >= arena.cellCount) :
-    arena.needToExpandCell id = true :=
-  needToExpandCell_out_of_bounds_Impl arena id h
-
-theorem needToExpandCell_eq_pop
-    (arena : FlatHashLifeArena) (id : UInt32)
-    (h_not_ge : (id >= arena.cellCount) = false)
-    (h_eq : centeredSubSubnodeSizeCell arena id = arena.cellPop[id.toNat]!) :
-    arena.needToExpandCell id = false :=
-  needToExpandCell_eq_pop_Impl arena id h_not_ge h_eq
-
-theorem needToExpandCell_ne_pop
-    (arena : FlatHashLifeArena) (id : UInt32)
-    (h_not_ge : (id >= arena.cellCount) = false)
-    (h_ne : centeredSubSubnodeSizeCell arena id ≠ arena.cellPop[id.toNat]!) :
-    arena.needToExpandCell id = true :=
-  needToExpandCell_ne_pop_Impl arena id h_not_ge h_ne
-
-theorem expandLevel4Centered_out_of_bounds
-    (arena : FlatHashLifeArena) (l4Id : UInt32)
-    (h : l4Id >= arena.l4Count) :
-    arena.expandLevel4Centered l4Id = (UNCOMPUTED, arena) :=
-  expandLevel4Centered_out_of_bounds_Impl arena l4Id h
-
-theorem expandCentered_out_of_bounds
-    (arena : FlatHashLifeArena) (id : UInt32)
-    (h : id >= arena.cellCount) :
-    arena.expandCentered id = (UNCOMPUTED, arena) :=
-  expandCentered_out_of_bounds_Impl arena id h
-
-theorem flat_quadrantNW_out_of_bounds
-    (arena : FlatHashLifeArena) (id : UInt32)
-    (h : id >= arena.cellCount) :
-    arena.quadrantNW id = (0, arena) :=
-  flat_quadrantNW_out_of_bounds_Impl arena id h
-
-theorem flat_quadrantNE_out_of_bounds
-    (arena : FlatHashLifeArena) (id : UInt32)
-    (h : id >= arena.cellCount) :
-    arena.quadrantNE id = (0, arena) :=
-  flat_quadrantNE_out_of_bounds_Impl arena id h
-
-theorem flat_quadrantSW_out_of_bounds
-    (arena : FlatHashLifeArena) (id : UInt32)
-    (h : id >= arena.cellCount) :
-    arena.quadrantSW id = (0, arena) :=
-  flat_quadrantSW_out_of_bounds_Impl arena id h
-
-theorem flat_quadrantSE_out_of_bounds
-    (arena : FlatHashLifeArena) (id : UInt32)
-    (h : id >= arena.cellCount) :
-    arena.quadrantSE id = (0, arena) :=
-  flat_quadrantSE_out_of_bounds_Impl arena id h
-
-theorem stepLevel5_out_of_bounds
-    (arena : FlatHashLifeArena) (id : UInt32)
-    (h : id >= arena.cellCount) :
-    arena.stepLevel5 id = (UNCOMPUTED, arena) :=
-  stepLevel5_out_of_bounds_Impl arena id h
-
-theorem stepLevel5_cached
-    (arena : FlatHashLifeArena) (id : UInt32)
-    (h_not_ge : (id >= arena.cellCount) = false)
-    (h_res : (arena.cellStepRes[id.toNat]! != UNCOMPUTED) = true) :
-    arena.stepLevel5 id = (arena.cellStepRes[id.toNat]!, arena) :=
-  stepLevel5_cached_Impl arena id h_not_ge h_res
-
-theorem stepLevel5_zero_cached
-    (arena : FlatHashLifeArena)
-    (h_cnt : (0 >= arena.cellCount) = false)
-    (h_res : arena.cellStepRes[0]! = 0) :
-    arena.stepLevel5 0 = (0, arena) :=
-  stepLevel5_zero_cached_Impl arena h_cnt h_res
-
-theorem isNearCapacity_eq
-    (arena : FlatHashLifeArena) :
-    arena.isNearCapacity =
-      ((arena.l4Count * 4 >= (arena.l4Mask + 1) * 3) ||
-       (arena.cellCount * 4 >= (arena.cellMask + 1) * 3)) :=
-  isNearCapacity_eq_Impl arena
-
-theorem isOver60Percent_eq
-    (arena : FlatHashLifeArena) :
-    arena.isOver60Percent =
-      ((arena.l4Count * 5 >= (arena.l4Mask + 1) * 3) ||
-       (arena.cellCount * 5 >= (arena.cellMask + 1) * 3)) :=
-  isOver60Percent_eq_Impl arena
-
-theorem combineQuadrants_overflow
-    (arena : FlatHashLifeArena) (nodeId : UInt32) (lvl : UInt8) (r_nw r_ne r_sw r_se : UInt32)
-    (h : ((arena.internCellNode (lvl - 1) r_nw r_ne r_sw r_se).2.overflow == 0) = false) :
-    (arena.combineQuadrants nodeId lvl r_nw r_ne r_sw r_se).1 = UNCOMPUTED :=
-  combineQuadrants_overflow_Impl arena nodeId lvl r_nw r_ne r_sw r_se h
-
-theorem setRemapL4_overflow_eq
-    (arena : FlatHashLifeArena) (idx val : UInt32) :
-    (arena.setRemapL4 idx val).overflow = arena.overflow :=
-  setRemapL4_overflow_eq_Impl arena idx val
-
-theorem setRemapCell_overflow_eq
-    (arena : FlatHashLifeArena) (idx val : UInt32) :
-    (arena.setRemapCell idx val).overflow = arena.overflow :=
-  setRemapCell_overflow_eq_Impl arena idx val
-
-theorem setCellStepRes_overflow_eq
-    (arena : FlatHashLifeArena) (idx val : UInt32) :
-    (arena.setCellStepRes idx val).overflow = arena.overflow :=
-  setCellStepRes_overflow_eq_Impl arena idx val
-
-theorem setL4StepRes_overflow_eq
-    (arena : FlatHashLifeArena) (idx : UInt32) (val : UInt64) :
-    (arena.setL4StepRes idx val).overflow = arena.overflow :=
-  setL4StepRes_overflow_eq_Impl arena idx val
-
-theorem getCellStepRes_out_of_bounds
-    (arena : FlatHashLifeArena) (nodeId : UInt32)
-    (h : ¬ (nodeId < arena.cellCount)) :
-    getCellStepRes arena nodeId = UNCOMPUTED :=
-  getCellStepRes_out_of_bounds_Impl arena nodeId h
-
-theorem getRemapCell_out_of_bounds
-    (arena : FlatHashLifeArena) (nodeId : UInt32)
-    (h : ¬ (nodeId < arena.remapCell.size.toUInt32)) :
-    getRemapCell arena nodeId = UNCOMPUTED :=
-  getRemapCell_out_of_bounds_Impl arena nodeId h
-
-theorem getCellLevel_out_of_bounds
-    (arena : FlatHashLifeArena) (nodeId : UInt32)
-    (h : ¬ (nodeId < arena.cellCount)) :
-    getCellLevel arena nodeId = 0 :=
-  getCellLevel_out_of_bounds_Impl arena nodeId h
-
-theorem getOverflow_eq
-    (arena : FlatHashLifeArena) :
-    getOverflow arena = arena.overflow :=
-  getOverflow_eq_Impl arena
-
-theorem getCellCount_eq
-    (arena : FlatHashLifeArena) :
-    getCellCount arena = arena.cellCount :=
-  getCellCount_eq_Impl arena
-
-theorem getL4Count_eq
-    (arena : FlatHashLifeArena) :
-    getL4Count arena = arena.l4Count :=
-  getL4Count_eq_Impl arena
-
-theorem stepCellSerialLoop_zero_fuel
-    (arena : FlatHashLifeArena) (sp : UInt32) :
-    arena.stepCellSerialLoop sp 0 = arena :=
-  stepCellSerialLoop_zero_fuel_Impl arena sp
-
-theorem stepCellSerial_snd_eq
-    (arena : FlatHashLifeArena) (nodeId : UInt32) :
-    (arena.stepCellSerial nodeId).2 =
-      (arena.setRemapL4 0 nodeId).stepCellSerialLoop 1 ((arena.cellMask + 1) * 8 + 1024) :=
-  stepCellSerial_snd_eq_Impl arena nodeId
-
-theorem prepareRootForStep_out_of_bounds
-    (arena : FlatHashLifeArena) (rootId : UInt32)
-    (h : rootId >= arena.cellCount) :
-    arena.prepareRootForStep rootId = (UNCOMPUTED, arena) :=
-  prepareRootForStep_out_of_bounds_Impl arena rootId h
-
-theorem prepareRootForStep_no_expand
-    (arena : FlatHashLifeArena) (rootId : UInt32)
-    (h_lt : ¬ (rootId >= arena.cellCount))
-    (h_lvl : ¬ (getCellLevel arena rootId <= 5))
-    (h_need : arena.needToExpandCell rootId = false) :
-    arena.prepareRootForStep rootId = (rootId, arena) :=
-  prepareRootForStep_no_expand_Impl arena rootId h_lt h_lvl h_need
-
-theorem stepOneGeneration_out_of_bounds
-    (arena : FlatHashLifeArena) (ox oy : Int32) (rootNodeId : UInt32)
-    (h : rootNodeId >= arena.cellCount) :
-    arena.stepOneGeneration ox oy rootNodeId = ((ox, oy, UNCOMPUTED), arena) :=
-  stepOneGeneration_out_of_bounds_Impl arena ox oy rootNodeId h
-
-
-theorem initRemapL4Loop_zero_fuel
-    (arena : FlatHashLifeArena) (i limit : UInt32) :
-    arena.initRemapL4Loop 0 i limit = arena :=
-  initRemapL4Loop_zero_fuel_Impl arena i limit
-
-theorem initRemapCellLoop_zero_fuel
-    (arena : FlatHashLifeArena) (i limit : UInt32) :
-    arena.initRemapCellLoop 0 i limit = arena :=
-  initRemapCellLoop_zero_fuel_Impl arena i limit
-
-theorem copyL4From_zero_id
-    (dst src : FlatHashLifeArena) (copyMemos : Bool) :
-    dst.copyL4From src 0 copyMemos = (0, dst) :=
-  copyL4From_zero_id_Impl dst src copyMemos
-
-theorem copyCellTryStep_empty_fastpath
-    (dst src : FlatHashLifeArena) (cellId : UInt32) (copyMemos : Bool)
-    (h_pop : (src.cellPop[cellId.toNat]! == 0) = true)
-    (h_min : (src.cellLevel[cellId.toNat]! >= 5) = true)
-    (h_max : (src.cellLevel[cellId.toNat]! <= 60) = true) :
-    copyCellTryStep dst src cellId copyMemos =
-      (UNCOMPUTED, dst.setRemapCell cellId (src.cellLevel[cellId.toNat]!.toUInt32 - 5)) :=
-  copyCellTryStep_empty_fastpath_Impl dst src cellId copyMemos h_pop h_min h_max
-
-theorem copyCellFromLoop_zero_fuel
-    (dst src : FlatHashLifeArena) (copyMemos : Bool) (stackBase sp : UInt32) :
-    dst.copyCellFromLoop src copyMemos stackBase sp 0 = dst :=
-  copyCellFromLoop_zero_fuel_Impl dst src copyMemos stackBase sp
-
-theorem copySubgraphInto_out_of_bounds
-    (dst src : FlatHashLifeArena) (rootId : UInt32) (copyMemos : Bool)
-    (h : rootId >= src.cellCount) :
-    copySubgraphInto dst src rootId copyMemos =
-      (dst.initRemapL4Loop (getL4Count src + 1) 0 (getL4Count src)).initRemapCellLoop
-        (getCellCount src + 1) 0 (getCellCount src) :=
-  copySubgraphInto_out_of_bounds_Impl dst src rootId copyMemos h
-
-theorem copySubgraphFrom_out_of_bounds
-    (dst src : FlatHashLifeArena) (rootId : UInt32) (copyMemos : Bool)
-    (h : rootId >= src.cellCount) :
-    (dst.copySubgraphFrom src rootId copyMemos).1 = 0 :=
-  copySubgraphFrom_out_of_bounds_Impl dst src rootId copyMemos h
-
-theorem compactRootFrom_out_of_bounds
-    (dst src : FlatHashLifeArena) (rootId : UInt32)
-    (h : (rootId >= src.cellCount) = true) :
-    dst.compactRootFrom src rootId = ((0, 0), dst) :=
-  compactRootFrom_out_of_bounds_Impl dst src rootId h
-
-theorem compactRootFrom_overflow
-    (dst src : FlatHashLifeArena) (rootId : UInt32)
-    (h : (src.overflow != 0) = true) :
-    dst.compactRootFrom src rootId = ((0, 0), dst) :=
-  compactRootFrom_overflow_Impl dst src rootId h
-
-theorem internMacroCellLoop_zero_fuel
-    (arena : FlatHashLifeArena) (todo : List (Sum MacroCell UInt8)) (sp : UInt32) :
-    arena.internMacroCellLoop todo sp 0 = arena :=
-  internMacroCellLoop_zero_fuel_Impl arena todo sp
-
-theorem internMacroCellAsRoot_overflow
-    (arena : FlatHashLifeArena) (m : MacroCell)
-    (h : (getOverflow (arena.internMacroCellLoop [.inl m] 0 ((arena.cellMask + 1) * 8 + 4096)) != 0) = true) :
-    (arena.internMacroCellAsRoot m).1 = UNCOMPUTED :=
-  internMacroCellAsRoot_overflow_Impl arena m h
-
-theorem internMacroCellWithOffset_overflow
-    (arena : FlatHashLifeArena) (ox oy : Int32) (m : MacroCell)
-    (h : (arena.internMacroCellAsRoot m).1 = UNCOMPUTED) :
-    (arena.internMacroCellWithOffset ox oy m).1.2.2 = UNCOMPUTED :=
-  internMacroCellWithOffset_overflow_Impl arena ox oy m h
-
-theorem containsCell_zero_fuel
-    (arena : FlatHashLifeArena) (nodeId : UInt32) (rx ry : Int32) :
-    arena.containsCell nodeId rx ry 0 = false :=
-  containsCell_zero_fuel_Impl arena nodeId rx ry
-
-theorem containsCell_zero_pop
-    (arena : FlatHashLifeArena) (nodeId : UInt32)
-    (rx ry : Int32) (fuel : UInt32)
-    (h_not_ge : (nodeId >= arena.cellCount) = false)
-    (h_pop : (arena.cellPop[nodeId.toNat]! == 0) = true) :
-    arena.containsCell nodeId rx ry fuel = false :=
-  containsCell_zero_pop_Impl arena nodeId rx ry fuel h_not_ge h_pop
-
-theorem containsCell_emptyNode
-    (arena : FlatHashLifeArena) (lvl : UInt8)
-    (rx ry : Int32) (fuel : UInt32)
-    (h_not_ge : (emptyNodeForLevel lvl.toUInt32 >= arena.cellCount) = false)
-    (h_pop : (arena.cellPop[(emptyNodeForLevel lvl.toUInt32).toNat]! == 0) = true) :
-    arena.containsCell (emptyNodeForLevel lvl.toUInt32) rx ry fuel = false :=
-  containsCell_emptyNode_Impl arena lvl rx ry fuel h_not_ge h_pop
-
-theorem denoteLevel4_out_of_bounds
-    (arena : FlatHashLifeArena) (id : UInt32)
-    (h : ¬ (id.toUSize < arena.l4Count.toUSize)) :
-    denoteLevel4 arena id = emptyLevel4 :=
-  denoteLevel4_out_of_bounds_Impl arena id h
-
-theorem denoteLevel4_empty
-    (arena : FlatHashLifeArena)
-    (h_cnt : (0 : USize) < arena.l4Count.toUSize)
-    (h_nw : arena.l4Nw[0]! = 0)
-    (h_ne : arena.l4Ne[0]! = 0)
-    (h_sw : arena.l4Sw[0]! = 0)
-    (h_se : arena.l4Se[0]! = 0) :
-    denoteLevel4 arena 0 = emptyLevel4 :=
-  denoteLevel4_empty_Impl arena h_cnt h_nw h_ne h_sw h_se
-
-theorem denoteCellNode_zero_fuel
-    (arena : FlatHashLifeArena) (lvl : UInt8) (id : UInt32) :
-    denoteCellNode 0 arena lvl id = emptyLevel4 :=
-  denoteCellNode_zero_fuel_Impl arena lvl id
-
-theorem denoteCellNode_out_of_bounds
-    (arena : FlatHashLifeArena) (fuel : ℕ) (lvl : UInt8) (id : UInt32)
-    (h_not_le : ¬ (lvl <= 4))
-    (h_id : ¬ (id.toUSize < arena.cellCount.toUSize)) :
-    denoteCellNode (fuel + 1) arena lvl id = emptyNode lvl.toNat :=
-  denoteCellNode_out_of_bounds_Impl arena fuel lvl id h_not_le h_id
-
-theorem emptyNode_five_eq :
-    emptyNode 5 = makeCellNode emptyLevel4 emptyLevel4 emptyLevel4 emptyLevel4 :=
-  emptyNode_five_eq_Impl
-
-theorem denoteCellNode_five_empty
-    (arena : FlatHashLifeArena) (fuel : ℕ)
-    (h_cnt : (0 : USize) < arena.cellCount.toUSize)
-    (h_nw : arena.cellNw[0]! = 0)
-    (h_ne : arena.cellNe[0]! = 0)
-    (h_sw : arena.cellSw[0]! = 0)
-    (h_se : arena.cellSe[0]! = 0)
-    (h_l4 : denoteLevel4 arena 0 = emptyLevel4) :
-    denoteCellNode (fuel + 1) arena 5 0 = emptyNode 5 :=
-  denoteCellNode_five_empty_Impl arena fuel h_cnt h_nw h_ne h_sw h_se h_l4
-
-theorem flat_single_step_equivalence
-    (arena : FlatHashLifeArena)
-    (st : FlatCellState)
-    (h_wf : isWellFormed (flatToMacroCell arena st))
-    (h_bounds : isInInt32Bounds { offset := st.offset, macroCell := flatToMacroCell arena st }) :
-    cellsEqual
-      (hashLifeToGrid (hashLifeNextGeneration { offset := st.offset, macroCell := flatToMacroCell arena st }))
-      (stepGrid (flatToGrid arena st)) = true :=
-  flat_single_step_equivalence_Impl arena st h_wf h_bounds
-
-theorem flat_n_step_equivalence
-    (n : ℕ)
-    (arena : FlatHashLifeArena)
-    (st : FlatCellState)
-    (h_wf : isWellFormed (flatToMacroCell arena st))
-    (h_bounds : isInInt32BoundsN n { offset := st.offset, macroCell := flatToMacroCell arena st }) :
-    cellsEqual
-      (hashLifeToGrid (hashLifeStepN n { offset := st.offset, macroCell := flatToMacroCell arena st }))
-      (stepN n (flatToGrid arena st)) = true :=
-  flat_n_step_equivalence_Impl n arena st h_wf h_bounds
+/-!
+# Flat HashLife arena: master theorems
+
+Master theorems for every public function of the compiled flat-arena engine (`FlatHashLifeArena`). They are
+stated in terms of the structural arena invariant `ArenaWF`, node preservation `NodesPreserved`, the
+denotation of arena nodes as MacroCells, and the reference HashLife and grid semantics. Every function reports
+failure explicitly (an `UNCOMPUTED` result and, where it can be caused by capacity, the `overflow` flag), and
+every result that is not reported as a failure is exact.
+-/
+
+/--
+Initializing a freshly allocated arena (whose node tables have room for their masks, and room for the 56
+pre-interned empty CellNodes) yields a well-formed arena that has not failed, holding exactly the pre-interned
+empty nodes, without touching the masks or the scratch tables.
+-/
+theorem flat_initEmptyNodes_wf {a : FlatHashLifeArena}
+    (hl4 :
+      a.l4Mask.toNat + 1 ≤ a.l4Nw.size ∧ a.l4Mask.toNat + 1 ≤ a.l4Ne.size ∧
+      a.l4Mask.toNat + 1 ≤ a.l4Sw.size ∧ a.l4Mask.toNat + 1 ≤ a.l4Se.size ∧
+      a.l4Mask.toNat + 1 ≤ a.l4StepRes.size ∧ a.l4Mask.toNat + 1 ≤ a.l4HasRes.size)
+    (hcell :
+      a.cellMask.toNat + 1 ≤ a.cellNw.size ∧ a.cellMask.toNat + 1 ≤ a.cellNe.size ∧
+      a.cellMask.toNat + 1 ≤ a.cellSw.size ∧ a.cellMask.toNat + 1 ≤ a.cellSe.size ∧
+      a.cellMask.toNat + 1 ≤ a.cellLevel.size ∧ a.cellMask.toNat + 1 ≤ a.cellPop.size ∧
+      a.cellMask.toNat + 1 ≤ a.cellStepRes.size)
+    (hmask : 55 ≤ a.cellMask.toNat) :
+    ArenaWF a.initEmptyNodes ∧ a.initEmptyNodes.overflow = 0 ∧ a.initEmptyNodes.l4Count = 1 ∧
+      a.initEmptyNodes.cellCount = 56 ∧ a.initEmptyNodes.l4Mask = a.l4Mask ∧
+      a.initEmptyNodes.cellMask = a.cellMask ∧ a.initEmptyNodes.remapL4 = a.remapL4 ∧
+      a.initEmptyNodes.remapCell = a.remapCell :=
+  flat_initEmptyNodes_Impl hl4 hcell hmask
+
+/--
+Interning a Level 4 node keeps the arena well-formed and every existing node intact, and unless the arena
+reports failure, returns a Level 4 node with exactly the requested leaves.
+-/
+theorem flat_internLevel4_correct {a : FlatHashLifeArena} (hwf : ArenaWF a) (nw ne sw se : UInt64) :
+    ArenaWF (a.internLevel4 nw ne sw se).2 ∧ NodesPreserved a (a.internLevel4 nw ne sw se).2 ∧
+    ((a.internLevel4 nw ne sw se).2.overflow = 0 →
+      (a.internLevel4 nw ne sw se).1 < (a.internLevel4 nw ne sw se).2.l4Count ∧
+      denoteLevel4 (a.internLevel4 nw ne sw se).2 (a.internLevel4 nw ne sw se).1 = makeLevel4Node nw ne sw se) :=
+  flat_internLevel4_Impl hwf nw ne sw se
+
+/--
+Interning a CellNode whose children are nodes one level down keeps the arena well-formed and every existing
+node intact, and unless the arena reports failure, returns a node at the requested level denoting the cell node
+of its children.
+-/
+theorem flat_internCellNode_correct {a : FlatHashLifeArena} (hwf : ArenaWF a) {lvl : UInt8} {h : ℕ}
+    (hl : lvl.toNat = h + 5) {nw ne sw se : UInt32} {m1 m2 m3 m4 : MacroCell}
+    (h1 : NodeIs a h nw m1) (h2 : NodeIs a h ne m2) (h3 : NodeIs a h sw m3) (h4 : NodeIs a h se m4) :
+    ArenaWF (a.internCellNode lvl nw ne sw se).2 ∧ NodesPreserved a (a.internCellNode lvl nw ne sw se).2 ∧
+    ((a.internCellNode lvl nw ne sw se).2.overflow = 0 →
+      NodeIs (a.internCellNode lvl nw ne sw se).2 (h + 1) (a.internCellNode lvl nw ne sw se).1
+        (makeCellNode m1 m2 m3 m4)) :=
+  flat_internCellNode_Impl hwf hl h1 h2 h3 h4
+
+/--
+Importing a Level 4 pattern whose top-left corner is `(ox, oy)` keeps the arena well-formed and every
+existing node intact. On success the new root is the centered two-level expansion of the pattern, its corner is
+24 cells up and to the left, and it has exactly the pattern's live cells. It succeeds whenever that corner is
+representable and the arena does not report running out of capacity.
+-/
+theorem flat_importLevel4Root_correct {a : FlatHashLifeArena} (hwf : ArenaWF a) (ox oy : Int32)
+    (nw ne sw se : UInt64) :
+    ArenaWF (a.importLevel4Root ox oy nw ne sw se).2 ∧ NodesPreserved a (a.importLevel4Root ox oy nw ne sw se).2 ∧
+    ((a.importLevel4Root ox oy nw ne sw se).1.2.2 ≠ UNCOMPUTED →
+      (a.importLevel4Root ox oy nw ne sw se).2.overflow = 0 ∧
+      (a.importLevel4Root ox oy nw ne sw se).1.2.2 < (a.importLevel4Root ox oy nw ne sw se).2.cellCount ∧
+      flatState (a.importLevel4Root ox oy nw ne sw se).2 (a.importLevel4Root ox oy nw ne sw se).1.1
+        (a.importLevel4Root ox oy nw ne sw se).1.2.1 (a.importLevel4Root ox oy nw ne sw se).1.2.2 =
+        { offset := (ox.toInt - 24, oy.toInt - 24), macroCell := expandCentered (makeLevel4Node nw ne sw se) } ∧
+      ∀ c, c ∈ hashLifeToGrid (flatState (a.importLevel4Root ox oy nw ne sw se).2
+          (a.importLevel4Root ox oy nw ne sw se).1.1 (a.importLevel4Root ox oy nw ne sw se).1.2.1
+          (a.importLevel4Root ox oy nw ne sw se).1.2.2) ↔
+        c ∈ hashLifeToGrid { offset := (ox.toInt, oy.toInt), macroCell := makeLevel4Node nw ne sw se }) ∧
+    (-2 ^ 31 ≤ ox.toInt - 24 → -2 ^ 31 ≤ oy.toInt - 24 →
+      (a.importLevel4Root ox oy nw ne sw se).2.overflow = 0 →
+      (a.importLevel4Root ox oy nw ne sw se).1.2.2 ≠ UNCOMPUTED) :=
+  flat_importLevel4Root_Impl hwf ox oy nw ne sw se
+
+/--
+The flat engine's generation function (`flatNextGeneration`: expand if needed, then one HashLife step)
+computes exactly one Conway generation of any well-formed state of depth at most 30.
+-/
+theorem flat_nextGeneration_equivalence (st : HashLifeCellState)
+    (h_wf : isWellFormed st.macroCell) (h_depth : st.macroCell.depth ≤ 30) :
+    isWellFormed (flatNextGeneration st).macroCell ∧
+    ∀ c, c ∈ hashLifeToGrid (flatNextGeneration st) ↔ c ∈ stepGrid (hashLifeToGrid st) :=
+  flat_nextGeneration_Impl st h_wf h_depth
+
+/--
+Master single-generation theorem for the compiled flat engine: `stepOneGeneration` keeps the arena
+well-formed and every existing node intact. Whenever it returns a root other than `UNCOMPUTED`, the arena has
+not failed, the new root and corner are exactly `flatNextGeneration` of the input, and the cells are exactly one
+Conway generation of the input cells. It succeeds whenever the input root is valid, the next generation is
+representable (`flatStepInRange`), and the arena does not report a failure.
+-/
+theorem flat_stepOneGeneration_correct {a : FlatHashLifeArena} (hwf : ArenaWF a) (ox oy : Int32) (root : UInt32) :
+    ArenaWF (a.stepOneGeneration ox oy root).2 ∧ NodesPreserved a (a.stepOneGeneration ox oy root).2 ∧
+    ((a.stepOneGeneration ox oy root).1.2.2 ≠ UNCOMPUTED →
+      (a.stepOneGeneration ox oy root).2.overflow = 0 ∧
+      (a.stepOneGeneration ox oy root).1.2.2 < (a.stepOneGeneration ox oy root).2.cellCount ∧
+      flatState (a.stepOneGeneration ox oy root).2 (a.stepOneGeneration ox oy root).1.1
+        (a.stepOneGeneration ox oy root).1.2.1 (a.stepOneGeneration ox oy root).1.2.2 =
+        flatNextGeneration (flatState a ox oy root) ∧
+      cellsEqual
+        (hashLifeToGrid (flatState (a.stepOneGeneration ox oy root).2 (a.stepOneGeneration ox oy root).1.1
+          (a.stepOneGeneration ox oy root).1.2.1 (a.stepOneGeneration ox oy root).1.2.2))
+        (stepGrid (hashLifeToGrid (flatState a ox oy root))) = true) ∧
+    (root < a.cellCount → flatStepInRange (flatState a ox oy root) →
+      (a.stepOneGeneration ox oy root).2.overflow = 0 → (a.stepOneGeneration ox oy root).1.2.2 ≠ UNCOMPUTED) :=
+  flat_stepOneGeneration_Impl hwf ox oy root
+
+/--
+Master multi-generation theorem: `n` successive successful steps compute exactly `n` generations of the
+flat engine and `n` Conway generations of the cells.
+-/
+theorem flat_stepOneGenerationN_correct (n : ℕ) {a : FlatHashLifeArena} (hwf : ArenaWF a) (ox oy : Int32)
+    (root : UInt32) (hid : root < a.cellCount) :
+    ArenaWF (a.stepOneGenerationN n ox oy root).2 ∧
+    ((a.stepOneGenerationN n ox oy root).1.2.2 ≠ UNCOMPUTED →
+      (a.stepOneGenerationN n ox oy root).1.2.2 < (a.stepOneGenerationN n ox oy root).2.cellCount ∧
+      flatState (a.stepOneGenerationN n ox oy root).2 (a.stepOneGenerationN n ox oy root).1.1
+        (a.stepOneGenerationN n ox oy root).1.2.1 (a.stepOneGenerationN n ox oy root).1.2.2 =
+        flatStepN n (flatState a ox oy root) ∧
+      cellsEqual
+        (hashLifeToGrid (flatState (a.stepOneGenerationN n ox oy root).2 (a.stepOneGenerationN n ox oy root).1.1
+          (a.stepOneGenerationN n ox oy root).1.2.1 (a.stepOneGenerationN n ox oy root).1.2.2))
+        (stepN n (hashLifeToGrid (flatState a ox oy root))) = true) :=
+  flat_stepOneGenerationN_Impl n hwf ox oy root hid
+
+/--
+`canCopySubgraphFrom` holds exactly when the destination's scratch tables can hold the remapping of every
+node of the source plus the copy work stack.
+-/
+theorem flat_canCopySubgraphFrom_iff (dst src : FlatHashLifeArena) (h1 : dst.remapL4.size < 2 ^ 32)
+    (h2 : dst.remapCell.size < 2 ^ 32) :
+    dst.canCopySubgraphFrom src = true ↔
+      src.l4Count.toNat ≤ dst.remapL4.size ∧ src.cellCount.toNat + 256 ≤ dst.remapCell.size :=
+  flat_canCopySubgraphFrom_Impl dst src h1 h2
+
+/--
+Copying a subgraph between well-formed arenas keeps the destination well-formed, keeps every existing node and
+the scratch table sizes, and succeeds exactly when it leaves the failure flag clear. On success the copied root
+has the source root's level and denotation, so it represents the same cells at any corner.
+-/
+theorem flat_copySubgraphFrom_correct {src dst : FlatHashLifeArena} (hsrc : ArenaWF src) (hwf : ArenaWF dst)
+    (rootId : UInt32) (copyMemos : Bool) :
+    ArenaWF (dst.copySubgraphFrom src rootId copyMemos).2 ∧
+    NodesPreserved dst (dst.copySubgraphFrom src rootId copyMemos).2 ∧
+    (dst.copySubgraphFrom src rootId copyMemos).2.remapL4.size = dst.remapL4.size ∧
+    (dst.copySubgraphFrom src rootId copyMemos).2.remapCell.size = dst.remapCell.size ∧
+    ((dst.copySubgraphFrom src rootId copyMemos).1 ≠ UNCOMPUTED ↔
+      (dst.copySubgraphFrom src rootId copyMemos).2.overflow = 0) ∧
+    ((dst.copySubgraphFrom src rootId copyMemos).1 ≠ UNCOMPUTED →
+      rootId < src.cellCount ∧
+      (dst.copySubgraphFrom src rootId copyMemos).1 < (dst.copySubgraphFrom src rootId copyMemos).2.cellCount ∧
+      cellLevelOf (dst.copySubgraphFrom src rootId copyMemos).2 (dst.copySubgraphFrom src rootId copyMemos).1 =
+        cellLevelOf src rootId ∧
+      denoteCell (dst.copySubgraphFrom src rootId copyMemos).2 (dst.copySubgraphFrom src rootId copyMemos).1 =
+        denoteCell src rootId ∧
+      ∀ ox oy : Int32, flatState (dst.copySubgraphFrom src rootId copyMemos).2 ox oy
+        (dst.copySubgraphFrom src rootId copyMemos).1 = flatState src ox oy rootId) :=
+  flat_copySubgraphFrom_Impl hsrc hwf rootId copyMemos
+
+/--
+Compacting a root into a destination arena keeps the destination well-formed, keeps every existing node and the
+scratch table sizes. On success the compacted root has the source root's level and denotation, so it represents
+the same cells at any corner. It succeeds whenever the root is a node of a non-failed source and the destination
+does not report running out of capacity.
+-/
+theorem flat_compactRootFrom_correct {src dst : FlatHashLifeArena} (hsrc : ArenaWF src) (hwf : ArenaWF dst)
+    (rootId : UInt32) :
+    ArenaWF (dst.compactRootFrom src rootId).2 ∧ NodesPreserved dst (dst.compactRootFrom src rootId).2 ∧
+    (dst.compactRootFrom src rootId).2.remapL4.size = dst.remapL4.size ∧
+    (dst.compactRootFrom src rootId).2.remapCell.size = dst.remapCell.size ∧
+    ((dst.compactRootFrom src rootId).1.1 ≠ UNCOMPUTED →
+      (dst.compactRootFrom src rootId).2.overflow = 0 ∧ rootId < src.cellCount ∧
+      (dst.compactRootFrom src rootId).1.1 < (dst.compactRootFrom src rootId).2.cellCount ∧
+      cellLevelOf (dst.compactRootFrom src rootId).2 (dst.compactRootFrom src rootId).1.1 =
+        cellLevelOf src rootId ∧
+      denoteCell (dst.compactRootFrom src rootId).2 (dst.compactRootFrom src rootId).1.1 = denoteCell src rootId ∧
+      ∀ ox oy : Int32, flatState (dst.compactRootFrom src rootId).2 ox oy (dst.compactRootFrom src rootId).1.1 =
+        flatState src ox oy rootId) ∧
+    (rootId < src.cellCount → src.overflow = 0 → (dst.compactRootFrom src rootId).2.overflow = 0 →
+      (dst.compactRootFrom src rootId).1.1 ≠ UNCOMPUTED) :=
+  flat_compactRootFrom_Impl hsrc hwf rootId
+
+/--
+For any root of a well-formed arena with top-left corner `(ox, oy)`, `containsCell` at the 64-bit offset of
+`(x, y)` is `true` exactly when `(x, y)` is a live cell of the state, at every level.
+-/
+theorem flat_containsCell_correct {a : FlatHashLifeArena} (hwf : ArenaWF a) {root : UInt32}
+    (hid : root < a.cellCount) (ox oy x y : Int32) :
+    a.containsCell root (x.toInt64 - ox.toInt64) (y.toInt64 - oy.toInt64) = true ↔
+      (x.toInt, y.toInt) ∈ hashLifeToGrid (flatState a ox oy root) :=
+  flat_containsCell_Impl hwf hid ox oy x y
+
+/--
+The compaction trigger `isNearCapacity` holds exactly when either node table is at least 75% full.
+-/
+theorem flat_isNearCapacity_iff {a : FlatHashLifeArena} (hwf : ArenaWF a) (hl : a.l4Mask.toNat < 2 ^ 29)
+    (hc : a.cellMask.toNat < 2 ^ 29) :
+    a.isNearCapacity = true ↔
+      3 * (a.l4Mask.toNat + 1) ≤ 4 * a.l4Count.toNat ∨ 3 * (a.cellMask.toNat + 1) ≤ 4 * a.cellCount.toNat :=
+  flat_isNearCapacity_Impl hwf hl hc
+
+/--
+The growth trigger `isOver60Percent` holds exactly when either node table is at least 60% full.
+-/
+theorem flat_isOver60Percent_iff {a : FlatHashLifeArena} (hwf : ArenaWF a) (hl : a.l4Mask.toNat < 2 ^ 29)
+    (hc : a.cellMask.toNat < 2 ^ 29) :
+    a.isOver60Percent = true ↔
+      3 * (a.l4Mask.toNat + 1) ≤ 5 * a.l4Count.toNat ∨ 3 * (a.cellMask.toNat + 1) ≤ 5 * a.cellCount.toNat :=
+  flat_isOver60Percent_Impl hwf hl hc
 
 end Algorithm

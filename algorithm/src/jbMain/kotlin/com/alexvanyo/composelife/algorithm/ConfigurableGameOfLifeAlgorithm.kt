@@ -74,7 +74,7 @@ class ConfigurableGameOfLifeAlgorithm(
                 cellState = cellState,
                 step = step,
             )
-        } catch (e: IllegalStateException) {
+        } catch (e: FlatHashLifeArenaException) {
             if (algorithm === flatLeanHashLifeAlgorithm) {
                 hashLifeAlgorithm.computeGenerationWithStep(
                     cellState = cellState,
@@ -101,7 +101,7 @@ class ConfigurableGameOfLifeAlgorithm(
                     lastState = emitted
                     emit(emitted)
                 }
-            } catch (e: IllegalStateException) {
+            } catch (e: FlatHashLifeArenaException) {
                 emitAll(
                     hashLifeAlgorithm.computeGenerationsWithStep(
                         originalCellState = lastState,

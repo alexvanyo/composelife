@@ -14,8 +14,8 @@
  * limitations under the License.
  -/
 
-import Geometry.Basic
-import Geometry.FloatModel
+import models.Basic
+import models.FloatModel
 import GeometryDefs
 import proofs.FloatSemantics
 import Geometry.LineSegment

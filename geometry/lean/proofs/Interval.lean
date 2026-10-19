@@ -14,7 +14,7 @@
  * limitations under the License.
  -/
 
-import Geometry.Basic
+import models.Basic
 import Geometry.LineSegment
 import GeometryDefs
 import Mathlib.Algebra.Order.Field.Basic

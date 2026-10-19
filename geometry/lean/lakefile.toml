@@ -24,7 +24,10 @@ roots = [
   "GeometryDefs",
   "GeometryTheorems",
   "GeometryProofs",
+  "models.Basic",
+  "models.FloatModel",
   "proofs.Interval",
+  "proofs.Continuous",
   "proofs.RayMarchStep",
   "proofs.Soundness",
   "proofs.Completeness",
@@ -37,5 +40,8 @@ roots = [
   "proofs.RayMarchLimits",
   "proofs.MiniSegment",
   "proofs.Hausdorff",
+  "proofs.NativeFloat",
+  "proofs.CompiledRayMarch",
+  "proofs.Connectivity",
 ]
 

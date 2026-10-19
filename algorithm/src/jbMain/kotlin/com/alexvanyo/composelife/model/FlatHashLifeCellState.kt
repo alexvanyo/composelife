@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import com.alexvanyo.composelife.algorithm.FlatHashLifeArena
+import com.alexvanyo.composelife.algorithm.FlatHashLifeArenaException
 
 internal const val UNCOMPUTED_ID: UInt = 0xFFFFFFFFu
 
@@ -126,10 +127,28 @@ internal fun buildQuadtreeBottomUp(cellState: CellState, arena: FlatHashLifeAren
  * Imports a [HashLifeCellState] into [arena] using a DAG-based bottom-up traversal with subtree memoization.
  *
  * This avoids exponential tree traversal costs on highly repetitive patterns where identical subtrees
- * are shared across quadrants.
+ * are shared across quadrants. A level 4 root is imported as its centered level 6 expansion.
+ *
+ * Returns `null` if [arena] runs out of capacity.
  */
 @Suppress("CyclomaticComplexMethod")
 internal fun internMacroCellDag(cellState: HashLifeCellState, arena: FlatHashLifeArena): Pair<IntOffset, UInt>? {
+    val root = cellState.macroCell
+    if (root is MacroCell.Level4Node) {
+        val (x, yAndRootId) =
+            arena.importLevel4Root(cellState.offset.x, cellState.offset.y, root.nw, root.ne, root.sw, root.se)
+        val (y, rootId) = yAndRootId
+        return when {
+            rootId != UNCOMPUTED_ID -> IntOffset(x, y) to rootId
+
+            arena.overflow != 0u.toUByte() -> null
+
+            else -> throw FlatHashLifeArenaException(
+                "Expanded pattern exceeds the coordinate range of FlatHashLifeArena",
+            )
+        }
+    }
+
     val memo = mutableMapOf<MacroCell, UInt>()
 
     fun internLevel4(node: MacroCell.Level4Node): UInt {
@@ -165,21 +184,8 @@ internal fun internMacroCellDag(cellState: HashLifeCellState, arena: FlatHashLif
         return id
     }
 
-    val root = cellState.macroCell
     val rootId = intern(root)
-    if (arena.overflow != 0u.toUByte() || rootId == UNCOMPUTED_ID) return null
-
-    return if (root.level() == 4u) {
-        val expandedId = arena.expandLevel4Centered(rootId)
-        if (arena.overflow != 0u.toUByte() || expandedId == UNCOMPUTED_ID) {
-            null
-        } else {
-            val expDelta = 1 shl 3
-            IntOffset(cellState.offset.x - expDelta, cellState.offset.y - expDelta) to expandedId
-        }
-    } else {
-        cellState.offset to rootId
-    }
+    return if (arena.overflow != 0u.toUByte() || rootId == UNCOMPUTED_ID) null else cellState.offset to rootId
 }
 
 /**
@@ -231,9 +237,8 @@ internal class FlatHashLifeCellState(val offset: IntOffset, val rootNodeId: UInt
 
     private fun containsOffset(element: IntOffset): Boolean = arena.containsCell(
         rootNodeId,
-        element.x - offset.x,
-        element.y - offset.y,
-        (rootLevel + 1).toUInt(),
+        element.x.toLong() - offset.x.toLong(),
+        element.y.toLong() - offset.y.toLong(),
     )
 
     private fun isWindowOutside(window: CellWindow, span: Int): Boolean = window.right < 1 || window.bottom < 1 ||
