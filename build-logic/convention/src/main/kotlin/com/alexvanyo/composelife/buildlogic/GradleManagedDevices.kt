@@ -241,6 +241,19 @@ private fun Project.configureManagedDevices(
 }
 
 private fun Project.configureRelatedGradleManagedDevices() {
+    // Create a limiting build service to only allow an maxConcurrentDevices amount of test tasks to run at a time
+    val runningLimitingService =
+        gradle.sharedServices.registerIfAbsent(
+            LimitingBuildServiceGMDRunning.KEY,
+            LimitingBuildServiceGMDRunning::class.java,
+        ) {
+            maxParallelUsages.set(
+                providers
+                    .gradleProperty("android.experimental.testOptions.managedDevices.maxConcurrentDevices")
+                    .map { value -> value.toIntOrNull() ?: 1 },
+            )
+        }
+
     if (OperatingSystem.current().isLinux) {
         tasks
             .withType(TestSuiteTestTask::class.java)
@@ -254,18 +267,6 @@ private fun Project.configureRelatedGradleManagedDevices() {
             }
     }
 
-    // Create a limiting build service to only allow an maxConcurrentDevices amount of test tasks to run at a time
-    val runningLimitingService =
-        gradle.sharedServices.registerIfAbsent(
-            LimitingBuildServiceGMDRunning.KEY,
-            LimitingBuildServiceGMDRunning::class.java,
-        ) {
-            maxParallelUsages.set(
-                providers
-                    .gradleProperty("android.experimental.testOptions.managedDevices.maxConcurrentDevices")
-                    .map { value -> value.toIntOrNull() ?: 1 },
-            )
-        }
     tasks.withType(TestSuiteTestTask::class.java).configureEach {
         usesService(runningLimitingService)
     }
