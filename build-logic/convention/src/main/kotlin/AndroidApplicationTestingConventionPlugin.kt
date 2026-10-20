@@ -65,7 +65,6 @@ class AndroidApplicationTestingConventionPlugin :
 
         configureAndroidTesting(
             extensions.getByType(ApplicationExtension::class.java),
-            extensions.getByType(ApplicationExtension::class.java),
         )
 
         if (enableKeeper.get()) {
