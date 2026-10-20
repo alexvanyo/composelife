@@ -31,7 +31,9 @@
 -dontwarn androidx.tracing.**
 
 -keep class kotlin.** { *; }
--keep class kotlinx.** { *; }
+-keep class kotlinx.coroutines.** { *; }
+-keep class kotlinx.collections.** { *; }
+-keep class kotlinx.datetime.** { *; }
 
 -keep class com.alexvanyo.composelife.** { *; }
 

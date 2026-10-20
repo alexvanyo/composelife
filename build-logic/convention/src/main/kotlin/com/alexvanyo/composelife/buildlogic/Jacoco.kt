@@ -221,7 +221,11 @@ fun Project.configureJacocoMerge() {
                     subprojects.flatMap {
                         it
                             .getUnitTestReportTasks(variant)
-                            .map(JacocoReportTask::coverageFiles)
+                            .map { task ->
+                                task.coverageFiles.asFileTree.matching {
+                                    include("**/*.exec", "**/*.ec")
+                                }
+                            }
                     },
                 )
 
@@ -254,7 +258,9 @@ fun Project.configureJacocoMerge() {
                         it
                             .getAndroidTestReportTasks()
                             .map { task ->
-                                task.coverageFiles.asFileTree
+                                task.coverageFiles.asFileTree.matching {
+                                    include("**/*.exec", "**/*.ec")
+                                }
                             }
                     },
             )
