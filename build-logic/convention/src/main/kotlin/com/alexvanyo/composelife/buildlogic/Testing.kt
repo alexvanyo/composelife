@@ -13,16 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("InternalAgpApiUsage")
-
 package com.alexvanyo.composelife.buildlogic
 
 import com.android.build.api.dsl.CommonExtension
 import com.android.build.api.dsl.KotlinMultiplatformAndroidHostTestCompilation
 import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
-import com.android.build.api.dsl.TestedExtension
+import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
-import com.android.build.gradle.tasks.TestSuiteTestTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
@@ -86,7 +83,7 @@ private val Project.useSharedTest: Provider<SharedTestConfig> get() =
         }
 
 @Suppress("LongMethod", "CyclomaticComplexMethod")
-fun Project.configureAndroidTesting(commonExtension: CommonExtension, testedExtension: TestedExtension) {
+fun Project.configureAndroidTesting(commonExtension: CommonExtension) {
     commonExtension.apply {
         defaultConfig.testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -104,16 +101,15 @@ fun Project.configureAndroidTesting(commonExtension: CommonExtension, testedExte
         }
     }
 
-    testedExtension.apply {
-        if (useSharedTest.get() == SharedTestConfig.Robolectric) {
-            // TODO: Replace with gradle-api API
-//            testVariants.configureEach {
-//                connectedInstrumentTestProvider.configure {
-//                    doFirst {
-//                        throw GradleException("useSharedTest is configured to only run robolectric tests!")
-//                    }
-//                }
-//            }
+    extensions.configure(ApplicationAndroidComponentsExtension::class.java) {
+        onVariants { variant ->
+            if (useSharedTest.get() == SharedTestConfig.Robolectric) {
+                variant.androidTest?.configureTestTask {
+                    it.doFirst {
+                        throw GradleException("useSharedTest is configured to only run robolectric tests!")
+                    }
+                }
+            }
         }
     }
 
@@ -153,17 +149,18 @@ fun Project.configureAndroidTesting(extension: KotlinMultiplatformAndroidLibrary
         }
     }
 
-    if (useSharedTest.get() == SharedTestConfig.Robolectric) {
-        // TODO: Replace with gradle-api API
-        tasks.withType(TestSuiteTestTask::class.java).configureEach {
-            doFirst {
-                throw GradleException("useSharedTest is configured to only run robolectric tests!")
-            }
-        }
-    }
-
     extensions.configure(KotlinMultiplatformAndroidComponentsExtension::class.java) {
         onVariants { variant ->
+            if (useSharedTest.get() == SharedTestConfig.Robolectric) {
+                variant.deviceTests.forEach { _, deviceTest ->
+                    deviceTest.configureTestTask { test ->
+                        test.doFirst {
+                            throw GradleException("useSharedTest is configured to only run robolectric tests!")
+                        }
+                    }
+                }
+            }
+
             variant.hostTests.forEach { _, hostTest ->
                 hostTest.configureTestTask { test ->
                     test.apply {
