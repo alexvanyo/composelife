@@ -338,16 +338,18 @@ jobs:
           for dir in testresults/*/; do
             name=$(basename "$dir")
             kind=${name%%-test-results-*}
-            variant=${name#*-test-results-}
-            files=$(find "$dir" -name "*.xml" | sed 's/^/--file /' | paste -s -d " " -)
-            [ -n "$files" ] || continue
+            args=()
+            while IFS= read -r -d '' file; do
+              args+=("--file" "$file")
+            done < <(find "$dir" -name "*.xml" -print0)
+            [ ${#args[@]} -gt 0 ] || continue
             codecovcli do-upload \
               --fail-on-error \
               --report-type test_results \
               --disable-search \
               --flag "$kind" \
               --flag "$variant" \
-              $files
+              "${args[@]}"
           done
 
   cache:
