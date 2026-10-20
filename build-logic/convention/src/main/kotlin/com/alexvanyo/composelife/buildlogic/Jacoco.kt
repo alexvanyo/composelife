@@ -75,19 +75,15 @@ fun Project.configureJacoco(commonExtension: CommonExtension) {
 
     tasks.register("createUnitTestCoverageReport") {
         dependsOn(
-            project.provider {
-                tasks.withType(JacocoReportTask::class.java).filter {
-                    it.name.contains("UnitTest", ignoreCase = true)
-                }
+            tasks.named { taskName ->
+                taskName.contains("UnitTest", ignoreCase = true) && taskName.endsWith("CoverageReport")
             },
         )
     }
     tasks.register("createAndroidTestCoverageReport") {
         dependsOn(
-            project.provider {
-                tasks.withType(JacocoReportTask::class.java).filter {
-                    it.name.contains("AndroidTest", ignoreCase = true)
-                }
+            tasks.named { taskName ->
+                taskName.contains("AndroidTest", ignoreCase = true) && taskName.endsWith("CoverageReport")
             },
         )
     }
@@ -145,19 +141,15 @@ fun Project.configureJacoco(extension: KotlinMultiplatformAndroidLibraryTarget) 
 
     tasks.register("createUnitTestCoverageReport") {
         dependsOn(
-            project.provider {
-                tasks.withType(JacocoReportTask::class.java).filter {
-                    it.name.contains("HostTest", ignoreCase = true)
-                }
+            tasks.named { taskName ->
+                taskName.contains("HostTest", ignoreCase = true) && taskName.endsWith("CoverageReport")
             },
         )
     }
     tasks.register("createAndroidTestCoverageReport") {
         dependsOn(
-            project.provider {
-                tasks.withType(JacocoReportTask::class.java).filter {
-                    it.name.contains("DeviceTest", ignoreCase = true)
-                }
+            tasks.named { taskName ->
+                taskName.contains("DeviceTest", ignoreCase = true) && taskName.endsWith("CoverageReport")
             },
         )
     }
@@ -244,25 +236,23 @@ fun Project.configureJacocoMerge() {
             )
 
             classDirectories.setFrom(
-                subprojects
-                    .map {
-                        it
-                            .getAndroidTestReportTasks()
-                            .map(JacocoReportTask::classFileCollection)
-                    },
+                subprojects.flatMap {
+                    it
+                        .getAndroidTestReportTasks()
+                        .map(JacocoReportTask::classFileCollection)
+                },
             )
             sourceDirectories.setFrom(sourceDirectoryFiles)
             executionData.setFrom(
-                subprojects
-                    .map {
-                        it
-                            .getAndroidTestReportTasks()
-                            .map { task ->
-                                task.coverageFiles.asFileTree.matching {
-                                    include("**/*.exec", "**/*.ec")
-                                }
+                subprojects.flatMap {
+                    it
+                        .getAndroidTestReportTasks()
+                        .map { task ->
+                            task.coverageFiles.asFileTree.matching {
+                                include("**/*.exec", "**/*.ec")
                             }
-                    },
+                        }
+                },
             )
 
             reports {
