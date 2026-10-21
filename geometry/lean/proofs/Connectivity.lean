@@ -379,10 +379,6 @@ theorem axis_done (a b : ℚ) (cx : ℤ) (hbox : AxisBox a b cx)
   · subst heq
     omega
 
-theorem axis_stay (a b : ℚ) (cx : ℤ) (hbox : AxisBox a b cx) :
-    AxisBox a b (cx + 0) ∧ axisPot a b (cx + 0) = axisPot a b cx := by
-  simp only [add_zero]; exact ⟨hbox, trivial⟩
-
 theorem axis_pot_zero (a b : ℚ) (cx : ℤ) (hbox : AxisBox a b cx) (h0 : axisPot a b cx = 0) :
     (cx - b.floor).natAbs ≤ 1 := by
   unfold axisPot at h0

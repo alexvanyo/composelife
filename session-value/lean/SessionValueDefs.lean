@@ -96,13 +96,6 @@ abbrev casApply [DecidableEq α] (current expected newValue : SessionValue α) :
   casApplyWith fullMatch current expected newValue
 
 /--
-Sequential compare-and-set by full equality.
--/
-abbrev casApplyAll [DecidableEq α] (current : SessionValue α) (q : List (Update α)) :
-    Option (SessionValue α) :=
-  casApplyAllWith fullMatch current q
-
-/--
 The stale-update pruning in `rememberAsyncSessionValueHolder`: queued updates are dropped from the
 front until the first one written by the current local session.
 -/
@@ -134,8 +127,9 @@ interleaving of local edits, upstream changes and flushes.
 - `setValue` appends the update emitted by `stepSetValue` to the queue.
 - An upstream change draws a fresh local session id, as `Uuid.random()` does: it differs from the
   new upstream session and from every session that wrote a queued update.
-- A flush sends the batch of the pruned queue and empties the queue. The Kotlin effect prunes when
-  the local session changes, before its next flush, and clears the whole list when it flushes.
+- A flush sends the batch of the pruned queue and empties the queue. The Kotlin flush loop prunes the queue
+  immediately before taking each batch, with no suspension in between, and clears the whole list when it
+  flushes.
 -/
 inductive AsyncReachable : State α → List (Update α) → Prop
   | init (u0 : SessionValue α) (localId : Uuid) (h_fresh : localId ≠ u0.sessionId) :

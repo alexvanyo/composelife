@@ -260,13 +260,31 @@ structure Grows (a b : FlatHashLifeArena) : Prop where
   remapL4 : b.remapL4 = a.remapL4
   remapCell : b.remapCell = a.remapCell
   ovf : b.overflow = 0 → a.overflow = 0
+  masks : b.l4Mask = a.l4Mask ∧ b.cellMask = a.cellMask
+  /-- The failure flag is only raised when a node table is at capacity. -/
+  cap : b.overflow ≠ 0 → a.overflow ≠ 0 ∨ ArenaFull b
+  /-- Memoized step results are never cleared. -/
+  memo : ∀ i, i < a.cellCount.toNat → a.cellStepRes[i]! ≠ UNCOMPUTED → b.cellStepRes[i]! ≠ UNCOMPUTED
+
+theorem ArenaFull.mono {b c : FlatHashLifeArena} (hf : ArenaFull b) (hext : Extends b c)
+    (hm : c.l4Mask = b.l4Mask ∧ c.cellMask = b.cellMask) : ArenaFull c := by
+  unfold ArenaFull at hf ⊢
+  rw [hm.1, hm.2]
+  have := hext.l4Count
+  have := hext.cellCount
+  rcases hf with h | h
+  · left; rw [ge_iff_le, u32_le_iff] at h ⊢; omega
+  · right; rw [ge_iff_le, u32_le_iff] at h ⊢; omega
 
 theorem Grows.refl {a : FlatHashLifeArena} (hwf : ArenaWF a) : Grows a a :=
-  ⟨hwf, Extends.refl a, rfl, rfl, fun h => h⟩
+  ⟨hwf, Extends.refl a, rfl, rfl, fun h => h, ⟨rfl, rfl⟩, fun h => Or.inl h, fun _ _ h => h⟩
 
 theorem Grows.trans {a b c : FlatHashLifeArena} (h1 : Grows a b) (h2 : Grows b c) : Grows a c :=
   ⟨h2.wf, h1.ext.trans h2.ext, h2.remapL4.trans h1.remapL4, h2.remapCell.trans h1.remapCell,
-    fun h => h1.ovf (h2.ovf h)⟩
+    fun h => h1.ovf (h2.ovf h), ⟨h2.masks.1.trans h1.masks.1, h2.masks.2.trans h1.masks.2⟩,
+    fun h => (h2.cap h).elim (fun h' => (h1.cap h').elim Or.inl (fun hf => Or.inr (hf.mono h2.ext h2.masks)))
+      Or.inr,
+    fun i hi hm => h2.memo i (Nat.lt_of_lt_of_le hi h1.ext.cellCount) (h1.memo i hi hm)⟩
 
 theorem Grows.node {a b : FlatHashLifeArena} (hwf : ArenaWF a) (hg : Grows a b) {h : ℕ} {id : UInt32}
     {m : MacroCell} (hn : NodeIs a h id m) : NodeIs b h id m :=
@@ -297,9 +315,25 @@ theorem SameNodes.setRemapL4 (a : FlatHashLifeArena) (i v : UInt32) : SameNodes 
 theorem SameNodes.setRemapCell (a : FlatHashLifeArena) (i v : UInt32) : SameNodes a (a.setRemapCell i v) :=
   ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩
 
-theorem Grows.setOverflow {a : FlatHashLifeArena} (hwf : ArenaWF a) : Grows a a.setOverflow :=
+theorem Grows.setOverflow {a : FlatHashLifeArena} (hwf : ArenaWF a) (hf : ArenaFull a) : Grows a a.setOverflow :=
   ⟨hwf.setOverflow, Extends.of_same (SameNodes.setOverflow a), rfl, rfl,
-    fun h => absurd h (show (1 : UInt8) ≠ 0 by decide)⟩
+    fun h => absurd h (show (1 : UInt8) ≠ 0 by decide), ⟨rfl, rfl⟩, fun _ => Or.inr hf, fun _ _ h => h⟩
+
+theorem NodeIs.ne_uncomputed {a : FlatHashLifeArena} {h : ℕ} {id : UInt32} {m : MacroCell} (hn : NodeIs a h id m) :
+    id ≠ UNCOMPUTED := by
+  intro e
+  subst e
+  cases h with
+  | zero =>
+    have := u32_lt_iff.mp hn.1
+    have := a.l4Count.toNat_lt
+    simp [UNCOMPUTED] at *
+    omega
+  | succ h =>
+    have := u32_lt_iff.mp hn.1
+    have := a.cellCount.toNat_lt
+    simp [UNCOMPUTED] at *
+    omega
 
 theorem ArenaWF.setRemapL4 {a : FlatHashLifeArena} (hwf : ArenaWF a) (i v : UInt32) :
     ArenaWF (a.setRemapL4 i v) :=
@@ -318,7 +352,7 @@ theorem Grows.setL4StepRes {a : FlatHashLifeArena} (hwf : ArenaWF a) {id : UInt3
       a.l4Se[id.toNat]!) :
     Grows a (a.setL4StepRes id v) := by
   have hs : SameNodes a (a.setL4StepRes id v) := ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩
-  refine ⟨?_, Extends.of_same hs, rfl, rfl, fun h => h⟩
+  refine ⟨?_, Extends.of_same hs, rfl, rfl, fun h => h, ⟨rfl, rfl⟩, fun h => Or.inl h, fun _ _ h => h⟩
   refine ArenaWF.of_same hwf hs rfl rfl (by simp only [FlatHashLifeArena.setL4StepRes, size_set!])
     (by simp only [FlatHashLifeArena.setL4StepRes, size_set!]) rfl rfl ?_ ?_
   · intro j hj hhas
@@ -339,10 +373,20 @@ theorem Grows.setCellStepRes {a : FlatHashLifeArena} (hwf : ArenaWF a) {id r : U
     (hn : NodeIs a (h + 1) id m) (hr : NodeIs a h r (hashLifeStep m)) :
     Grows a (a.setCellStepRes id r) := by
   have hs : SameNodes a (a.setCellStepRes id r) := ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩
-  refine ⟨?_, Extends.of_same hs, rfl, rfl, fun h => h⟩
   have hid := hn.lt_cell
   have hlt : id.toNat < a.cellStepRes.size := by
     have := u32_lt_iff.mp hid; have := hwf.cellCountLe; have := hwf.cellSize.2.2.2.2.2.2; omega
+  have hmemo : ∀ i, i < a.cellCount.toNat → a.cellStepRes[i]! ≠ UNCOMPUTED →
+      (a.setCellStepRes id r).cellStepRes[i]! ≠ UNCOMPUTED := by
+    intro i _ hm
+    show (a.cellStepRes.set! id.toNat r)[i]! ≠ UNCOMPUTED
+    by_cases hii : id.toNat = i
+    · subst hii
+      rw [getElem!_set!_self _ _ _ hlt]
+      exact hr.ne_uncomputed
+    · rw [getElem!_set!_ne _ _ _ _ hii]
+      exact hm
+  refine ⟨?_, Extends.of_same hs, rfl, rfl, fun h => h, ⟨rfl, rfl⟩, fun h => Or.inl h, hmemo⟩
   refine ArenaWF.of_same hwf hs rfl rfl rfl rfl rfl (by simp only [FlatHashLifeArena.setCellStepRes, size_set!]) ?_ ?_
   · intro j hj hhas
     exact hwf.l4Memo j hj hhas
@@ -359,7 +403,6 @@ theorem Grows.setCellStepRes {a : FlatHashLifeArena} (hwf : ArenaWF a) {id r : U
     · rw [getElem!_set!_ne _ _ _ _ hji]
       intro hne
       exact NodeIs.same hs (hwf.cellMemo j hj hne)
-
 
 -- =========================================================================
 -- Probing
@@ -505,7 +548,7 @@ theorem Grows.appendL4 {a : FlatHashLifeArena} (hwf : ArenaWF a) (nw ne sw se : 
     (try dsimp only)
     exact ⟨getElem!_set!_ne _ _ _ _ (hne i hi), getElem!_set!_ne _ _ _ _ (hne i hi),
       getElem!_set!_ne _ _ _ _ (hne i hi), getElem!_set!_ne _ _ _ _ (hne i hi)⟩
-  refine ⟨⟨?_, hext, rfl, rfl, fun h => h⟩, ?_⟩
+  refine ⟨⟨?_, hext, rfl, rfl, fun h => h, ⟨rfl, rfl⟩, fun h => Or.inl h, fun _ _ h => h⟩, ?_⟩
   · refine ArenaWF.transfer hwf hext ?_ hwf.cellSize ?_ hwf.cellCountLe ?_ (fun _ _ => rfl) (fun _ _ => rfl) ?_
     · simp only [size_set!]
       exact ⟨s1, s2, s3, s4, s5, s6⟩
@@ -659,7 +702,10 @@ theorem Grows.appendCell {a : FlatHashLifeArena} (hwf : ArenaWF a) (lvl : UInt8)
     (try dsimp only)
     rw [getElem!_set!_self _ _ _ (by omega), getElem!_set!_self _ _ _ (by omega),
       getElem!_set!_self _ _ _ (by omega), getElem!_set!_self _ _ _ (by omega), e1, e2, e3, e4]
-  refine ⟨⟨?_, hext, rfl, rfl, fun h => h⟩, hnode⟩
+  refine ⟨⟨?_, hext, rfl, rfl, fun h => h, ⟨rfl, rfl⟩, fun h => Or.inl h, fun i hi hm => by
+    (try dsimp only)
+    rw [getElem!_set!_ne _ _ _ _ (hne i hi)]
+    exact hm⟩, hnode⟩
   refine ArenaWF.transfer hwf hext hwf.l4Size ?_ hwf.l4CountLe ?_ hwf.l4Memo ?_ ?_ ?_
   · simp only [size_set!]
     exact ⟨c1, c2, c3, c4, c5, c6, c7⟩
@@ -739,7 +785,9 @@ theorem internLevel4_spec {a : FlatHashLifeArena} (hwf : ArenaWF a) (nw ne sw se
         refine ⟨Grows.refl hwf, fun _ => ⟨hid, ?_⟩⟩
         rw [denoteLevel4_of_lt hid, e1, e2, e3, e4]
       · split
-        · exact ⟨Grows.setOverflow hwf, fun h => absurd h (show (1 : UInt8) ≠ 0 by decide)⟩
+        · rename_i hfull
+          exact ⟨Grows.setOverflow hwf (by unfold ArenaFull; first | exact Or.inl hfull | exact Or.inr hfull),
+            fun h => absurd h (show (1 : UInt8) ≠ 0 by decide)⟩
         · rename_i hroom
           obtain ⟨hg, hn⟩ := Grows.appendL4 hwf nw ne sw se _ _ hroom
           exact ⟨hg, fun _ => hn⟩
@@ -809,15 +857,12 @@ theorem internCellNode_spec {a : FlatHashLifeArena} (hwf : ArenaWF a) {lvl : UIn
           rw [el, hl]
         · rw [denoteAt_succ_of_lt hid, e1, e2, e3, e4, h1.eq, h2.eq, h3.eq, h4.eq]
       · split
-        · exact ⟨Grows.setOverflow hwf, fun h => absurd h (show (1 : UInt8) ≠ 0 by decide)⟩
+        · rename_i hfull
+          exact ⟨Grows.setOverflow hwf (by unfold ArenaFull; first | exact Or.inl hfull | exact Or.inr hfull),
+            fun h => absurd h (show (1 : UInt8) ≠ 0 by decide)⟩
         · rename_i hroom
           obtain ⟨hg, hn⟩ := Grows.appendCell hwf lvl nw ne sw se hl h1 h2 h3 h4 _ _ hroom
           exact ⟨hg, fun _ => hn⟩
-
-theorem internLevel4_overflow {a : FlatHashLifeArena} (h : a.overflow ≠ 0) (nw ne sw se : UInt64) :
-    a.internLevel4 nw ne sw se = (UNCOMPUTED, a) := by
-  unfold FlatHashLifeArena.internLevel4
-  rw [ite_eq_left (by simpa using h)]
 
 theorem internCellNode_overflow {a : FlatHashLifeArena} (h : a.overflow ≠ 0) (lvl : UInt8) (nw ne sw se : UInt32) :
     a.internCellNode lvl nw ne sw se = (UNCOMPUTED, a) := by

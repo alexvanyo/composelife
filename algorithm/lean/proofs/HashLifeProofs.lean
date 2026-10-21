@@ -143,203 +143,6 @@ theorem decomposeSubnodes_emptyNode_Impl : ∀ (k : ℕ),
   | 0 => rfl
   | _ + 1 => rfl
 
-theorem hashLifeStep_empty2_Impl : hashLifeStep (emptyNode 5) = emptyNode 4 := by
-  rfl
-
-theorem packCentralNibbles_extract_q0_Impl (q0 q1 q2 q3 : ℕ) (h0 : q0 < 16) :
-    (packCentralNibbles q0 q1 q2 q3) % 16 = q0 := by
-  unfold packCentralNibbles
-  omega
-
-theorem packCentralNibbles_extract_q1_Impl (q0 q1 q2 q3 : ℕ) (h0 : q0 < 16) (h1 : q1 < 16) :
-    ((packCentralNibbles q0 q1 q2 q3) / 16) % 16 = q1 := by
-  unfold packCentralNibbles
-  omega
-
-theorem packCentralNibbles_extract_q2_Impl (q0 q1 q2 q3 : ℕ) (h0 : q0 < 16) (h1 : q1 < 16) (h2 : q2 < 16) :
-    ((packCentralNibbles q0 q1 q2 q3) / 256) % 16 = q2 := by
-  unfold packCentralNibbles
-  omega
-
-theorem packCentralNibbles_extract_q3_Impl (q0 q1 q2 q3 : ℕ) (h0 : q0 < 16) (h1 : q1 < 16) (h2 : q2 < 16) (h3 : q3 < 16) :
-    ((packCentralNibbles q0 q1 q2 q3) / 4096) % 16 = q3 := by
-  unfold packCentralNibbles
-  omega
-
-theorem packCentralNibbles_in_range_Impl (q0 q1 q2 q3 : ℕ)
-    (h0 : q0 < 16) (h1 : q1 < 16) (h2 : q2 < 16) (h3 : q3 < 16) :
-    packCentralNibbles q0 q1 q2 q3 < 65536 := by
-  unfold packCentralNibbles
-  omega
-
-theorem computeLevel4NextGen16x16_zero_Impl :
-    computeLevel4NextGen16x16 0 0 0 0 = 0 := by
-  rfl
-
-theorem hashlife_step_soundness_block_Impl :
-    let nw := makeLevel1 false false false true   -- (1, 1) active
-    let ne := makeLevel1 false false true false   -- (2, 1) active
-    let sw := makeLevel1 false true false false   -- (1, 2) active
-    let se := makeLevel1 true false false false   -- (2, 2) active
-    let block4x4 := makeLevel2 nw ne sw se
-    let grid := microCellToGrid 0 0 block4x4
-    let classicalStep := central2x2Window (stepGrid grid)
-    let hashLifeResult := microCellToGrid 1 1 (hashLifeStepLevel2 block4x4)
-    cellsEqual classicalStep hashLifeResult = true := by
-  decide
-
-theorem hashlife_step_soundness_blinker_Impl :
-    let nw := makeLevel1 false false false true   -- (1, 1) active
-    let ne := makeLevel1 false false true true    -- (2, 1) and (3, 1) active
-    let sw := makeLevel1 false false false false
-    let se := makeLevel1 false false false false
-    let blinker4x4 := makeLevel2 nw ne sw se
-    let grid := microCellToGrid 0 0 blinker4x4
-    let classicalStep := central2x2Window (stepGrid grid)
-    let hashLifeResult := microCellToGrid 1 1 (hashLifeStepLevel2 blinker4x4)
-    cellsEqual classicalStep hashLifeResult = true := by
-  decide
-
-theorem hashlife_step_soundness_tub_Impl :
-    let nw := makeLevel1 false true true false    -- (1, 0) and (0, 1)
-    let ne := makeLevel1 false false true false   -- (2, 1)
-    let sw := makeLevel1 false true false false   -- (1, 2)
-    let se := makeLevel1 false false false false
-    let tub4x4 := makeLevel2 nw ne sw se
-    let grid := microCellToGrid 0 0 tub4x4
-    let classicalStep := central2x2Window (stepGrid grid)
-    let hashLifeResult := microCellToGrid 1 1 (hashLifeStepLevel2 tub4x4)
-    cellsEqual classicalStep hashLifeResult = true := by
-  decide
-
-theorem hashlife_step_soundness_boat_Impl :
-    let nw := makeLevel1 false false false true   -- (1, 1)
-    let ne := makeLevel1 false false true false   -- (2, 1)
-    let sw := makeLevel1 false true false false   -- (1, 2)
-    let se := makeLevel1 false true true false    -- (3, 2) and (2, 3)
-    let boat4x4 := makeLevel2 nw ne sw se
-    let grid := microCellToGrid 0 0 boat4x4
-    let classicalStep := central2x2Window (stepGrid grid)
-    let hashLifeResult := microCellToGrid 1 1 (hashLifeStepLevel2 boat4x4)
-    cellsEqual classicalStep hashLifeResult = true := by
-  decide
-
-theorem hashlife_step_soundness_glider_Impl :
-    let nw := makeLevel1 false false false true   -- (1, 1)
-    let ne := makeLevel1 false false true false   -- (2, 1)
-    let sw := makeLevel1 false false false false
-    let se := makeLevel1 true true true false    -- (2, 2), (3, 2), (2, 3)
-    let glider4x4 := makeLevel2 nw ne sw se
-    let grid := microCellToGrid 0 0 glider4x4
-    let classicalStep := central2x2Window (stepGrid grid)
-    let hashLifeResult := microCellToGrid 1 1 (hashLifeStepLevel2 glider4x4)
-    cellsEqual classicalStep hashLifeResult = true := by
-  decide
-
-theorem macroCellFlipX_involution_Impl : ∀ (m : MacroCell), macroCellFlipX (macroCellFlipX m) = m
-  | .level4Node _ _ _ _ _ => rfl
-  | .cellNode _ nw ne sw se => by
-    simp [macroCellFlipX]
-    exact ⟨macroCellFlipX_involution_Impl nw, macroCellFlipX_involution_Impl ne,
-           macroCellFlipX_involution_Impl sw, macroCellFlipX_involution_Impl se⟩
-
-theorem macroCellFlipY_involution_Impl : ∀ (m : MacroCell), macroCellFlipY (macroCellFlipY m) = m
-  | .level4Node _ _ _ _ _ => rfl
-  | .cellNode _ nw ne sw se => by
-    simp [macroCellFlipY]
-    exact ⟨macroCellFlipY_involution_Impl nw, macroCellFlipY_involution_Impl ne,
-           macroCellFlipY_involution_Impl sw, macroCellFlipY_involution_Impl se⟩
-
-theorem macroCellFlipX_size_Impl : ∀ (m : MacroCell), macroCellSize (macroCellFlipX m) = macroCellSize m
-  | .level4Node _ nw ne sw se => by
-    dsimp [macroCellFlipX, macroCellSize]
-    have h : popcount64 sw + popcount64 se + popcount64 nw + popcount64 ne =
-             popcount64 nw + popcount64 ne + popcount64 sw + popcount64 se := by ac_rfl
-    rw [h]
-  | .cellNode _ nw ne sw se => by
-    dsimp [macroCellFlipX, macroCellSize]
-    rw [macroCellFlipX_size_Impl sw, macroCellFlipX_size_Impl se,
-        macroCellFlipX_size_Impl nw, macroCellFlipX_size_Impl ne]
-    omega
-
-theorem macroCellFlipY_size_Impl : ∀ (m : MacroCell), macroCellSize (macroCellFlipY m) = macroCellSize m
-  | .level4Node _ nw ne sw se => by
-    dsimp [macroCellFlipY, macroCellSize]
-    have h : popcount64 ne + popcount64 nw + popcount64 se + popcount64 sw =
-             popcount64 nw + popcount64 ne + popcount64 sw + popcount64 se := by ac_rfl
-    rw [h]
-  | .cellNode _ nw ne sw se => by
-    dsimp [macroCellFlipY, macroCellSize]
-    rw [macroCellFlipY_size_Impl ne, macroCellFlipY_size_Impl nw,
-        macroCellFlipY_size_Impl se, macroCellFlipY_size_Impl sw]
-    omega
-
-theorem hashlife_step_flipX_commutes_block_Impl :
-    let nw := makeLevel1 false false false true
-    let ne := makeLevel1 false false true false
-    let sw := makeLevel1 false true false false
-    let se := makeLevel1 true false false false
-    let block4x4 := makeLevel2 nw ne sw se
-    hashLifeStepLevel2 (microCellFlipX block4x4) = microCellFlipX (hashLifeStepLevel2 block4x4) := by
-  decide
-
-theorem hashlife_step_flipY_commutes_block_Impl :
-    let nw := makeLevel1 false false false true
-    let ne := makeLevel1 false false true false
-    let sw := makeLevel1 false true false false
-    let se := makeLevel1 true false false false
-    let block4x4 := makeLevel2 nw ne sw se
-    hashLifeStepLevel2 (microCellFlipY block4x4) = microCellFlipY (hashLifeStepLevel2 block4x4) := by
-  decide
-
-theorem hashlife_step_flipX_commutes_blinker_Impl :
-    let nw := makeLevel1 false false false true
-    let ne := makeLevel1 false false true true
-    let sw := makeLevel1 false false false false
-    let se := makeLevel1 false false false false
-    let blinker4x4 := makeLevel2 nw ne sw se
-    hashLifeStepLevel2 (microCellFlipX blinker4x4) = microCellFlipX (hashLifeStepLevel2 blinker4x4) := by
-  decide
-
-theorem hashlife_step_flipY_commutes_blinker_Impl :
-    let nw := makeLevel1 false false false true
-    let ne := makeLevel1 false false true true
-    let sw := makeLevel1 false false false false
-    let se := makeLevel1 false false false false
-    let blinker4x4 := makeLevel2 nw ne sw se
-    hashLifeStepLevel2 (microCellFlipY blinker4x4) = microCellFlipY (hashLifeStepLevel2 blinker4x4) := by
-  decide
-
-theorem centeredSubnodeLevel3BitsUInt_zero_Impl :
-    centeredSubnodeLevel3BitsUInt 0 = 0 := by
-  rfl
-
-theorem centeredHorizontalSubnodeLevel3BitsUInt_zero_Impl :
-    centeredHorizontalSubnodeLevel3BitsUInt 0 0 = 0 := by
-  rfl
-
-theorem centeredVerticalSubnodeLevel3BitsUInt_zero_Impl :
-    centeredVerticalSubnodeLevel3BitsUInt 0 0 = 0 := by
-  rfl
-
-theorem centeredSubSubnodeLevel4BitsUInt_zero_Impl :
-    centeredSubSubnodeLevel4BitsUInt 0 0 0 0 = 0 := by
-  rfl
-
-theorem packLeafFrom4x4sUInt_zero_Impl :
-    packLeafFrom4x4sUInt 0 0 0 0 = 0 := by
-  rfl
-
-theorem computeLevel4NextGen16x16UInt_zero_Impl :
-    computeLevel4NextGen16x16UInt 0 0 0 0 = 0 := by
-  rfl
-
-theorem computeLevel4NextGen16x16WithUInt_zero_Impl (f : UInt64 → UInt32) (hf : f 0 = 0) :
-    computeLevel4NextGen16x16WithUInt 0 0 0 0 f = 0 := by
-  change packLeafFrom4x4sUInt (f 0) (f 0) (f 0) (f 0) = 0
-  rw [hf]
-  rfl
-
 theorem expandOffsetDelta_succ_Impl (k : ℕ) :
     expandOffsetDelta (k + 1) = -3 * (2 : ℤ) ^ k := by
   rfl
@@ -395,14 +198,6 @@ theorem hashLifeStepN_succ_Impl (n : ℕ) (st : HashLifeCellState) :
     hashLifeStepN (n + 1) st = hashLifeStepN n (hashLifeNextGeneration st) := by
   rfl
 
-theorem hashlife_stepN_induction_step_Impl (n : ℕ) (st : HashLifeCellState)
-    (h : hashLifeToGrid (hashLifeStepN n (hashLifeNextGeneration st)) =
-         stepN n (hashLifeToGrid (hashLifeNextGeneration st))) :
-    hashLifeToGrid (hashLifeStepN (n + 1) st) =
-    stepN n (hashLifeToGrid (hashLifeNextGeneration st)) := by
-  rw [hashLifeStepN_succ_Impl]
-  exact h
-
 theorem emptyNode_depth_Impl : ∀ (k : ℕ),
     (emptyNode (k + 4)).depth = k + 4
   | 0 => rfl
@@ -444,42 +239,11 @@ theorem hashLifeStep_emptyNode_Impl (k : ℕ) :
   rw [h_depth]
   exact hashLifeStepRecursiveAux_emptyNode_Impl (k + 5) k (by omega)
 
-theorem hashLifeNextGenerationStep_emptyNode_Impl (k : ℕ) (ox oy : ℤ) :
-    hashLifeToGrid (hashLifeNextGenerationStep { offset := (ox, oy), macroCell := emptyNode (k + 5) }) = [] := by
-  dsimp [hashLifeNextGenerationStep, hashLifeToGrid]
-  rw [hashLifeStep_emptyNode_Impl k]
-  exact macroCellToGrid_emptyNode_Impl (k + 4) _ _
-
-theorem hashlife_step_equivalence_empty_Impl (k : ℕ) (ox oy : ℤ) :
-    hashLifeToGrid (hashLifeNextGenerationStep { offset := (ox, oy), macroCell := emptyNode (k + 5) }) =
-    stepGrid (hashLifeToGrid { offset := (ox, oy), macroCell := emptyNode (k + 5) }) := by
-  rw [hashLifeNextGenerationStep_emptyNode_Impl k ox oy]
-  rw [hashLifeToGrid_emptyNode_Impl (k + 5) ox oy]
-  rw [stepGrid_empty]
-
-theorem stepLevel4NodeWith_zero_Impl (f : UInt64 → UInt32) (hf : f 0 = 0) :
-    stepLevel4NodeWith emptyLevel4 f = 0 := by
-  dsimp [stepLevel4NodeWith, emptyLevel4, makeLevel4Node]
-  exact computeLevel4NextGen16x16WithUInt_zero_Impl f hf
-
-theorem stepLevel4Node_emptyLevel4_Impl :
-    stepLevel4Node emptyLevel4 = 0 := by
-  rfl
-
-theorem stepLevel4Node_zero_Impl (h : UInt32) :
-    stepLevel4Node (.level4Node h 0 0 0 0) = 0 := by
-  rfl
-
 theorem stepLevel4Node_eq_stepLevel4NodeWith_Impl (m : MacroCell) :
     stepLevel4Node m = stepLevel4NodeWith m computeLeafNextGen8x8BranchUInt := by
   cases m with
   | level4Node h nw ne sw se => rfl
   | cellNode h nw ne sw se => rfl
-
-theorem stepNGenerationsWith_zero_Impl (st : HashLifeStepState) (f : HashLifeStepState → HashLifeStepState) :
-    stepNGenerationsWith 0 st f = st := by
-  unfold stepNGenerationsWith
-  rfl
 
 theorem computePruneThresholds_macro_Impl
     (gen : UInt64) (macroKeep leafKeep : UInt32)
@@ -514,26 +278,6 @@ theorem computePruneThresholds_macro_zero_Impl
     exact h h_is
   · rfl
 
-theorem stepHashLifeStateWith_offset_Impl
-    (st : HashLifeStepState)
-    (stepPrepared : MacroCell → MacroCell) :
-    (stepHashLifeStateWith st stepPrepared).offsetX =
-      st.offsetX + (prepareStep st.macroCell).offsetDelta ∧
-    (stepHashLifeStateWith st stepPrepared).offsetY =
-      st.offsetY + (prepareStep st.macroCell).offsetDelta := by
-  dsimp [stepHashLifeStateWith]
-  exact ⟨rfl, rfl⟩
-
-theorem computeGenerationStep_finalState_Impl
-    (step : UInt32)
-    (st : HashLifeStepState)
-    (computedGenerations : UInt64)
-    (macroKeep leafKeep : UInt32)
-    (stepOneGen : HashLifeStepState → HashLifeStepState) :
-    (computeGenerationStep step st computedGenerations macroKeep leafKeep stepOneGen).finalState =
-      stepNGenerationsWith step st stepOneGen := by
-  rfl
-
 theorem computeGenerationStep_thresholds_Impl
     (step : UInt32)
     (st : HashLifeStepState)
@@ -543,86 +287,6 @@ theorem computeGenerationStep_thresholds_Impl
     (computeGenerationStep step st computedGenerations macroKeep leafKeep stepOneGen).thresholds =
       computePruneThresholds (computedGenerations + step.toUInt64) macroKeep leafKeep := by
   rfl
-
-theorem minimumMacroCellLevel_ge_four_Impl (span : UInt32) :
-    4 ≤ minimumMacroCellLevel span := by
-  dsimp [minimumMacroCellLevel]
-  split
-  · decide
-  · split
-    · decide
-    · next _ h2 =>
-      exact UInt32.not_lt.mp h2
-
-theorem canonicalizeMacroCellWith_level4_Impl
-    (h nw ne sw se : UInt64)
-    (internLevel4 : MacroCell → MacroCell)
-    (findExistingCell : MacroCell → Option MacroCell)
-    (canonicalizeSubnode : MacroCell → MacroCell)
-    (internCell : MacroCell → MacroCell) :
-    canonicalizeMacroCellWith (.level4Node h.toUInt32 nw ne sw se) internLevel4 findExistingCell canonicalizeSubnode internCell =
-      internLevel4 (.level4Node h.toUInt32 nw ne sw se) := by
-  rfl
-
-theorem canonicalizeMacroCellWith_hit_Impl
-    (h : UInt32) (nw ne sw se : MacroCell) (existing : MacroCell)
-    (internLevel4 : MacroCell → MacroCell)
-    (findExistingCell : MacroCell → Option MacroCell)
-    (canonicalizeSubnode : MacroCell → MacroCell)
-    (internCell : MacroCell → MacroCell)
-    (hhit : findExistingCell (.cellNode h nw ne sw se) = some existing) :
-    canonicalizeMacroCellWith (.cellNode h nw ne sw se) internLevel4 findExistingCell canonicalizeSubnode internCell =
-      existing := by
-  dsimp [canonicalizeMacroCellWith]
-  rw [hhit]
-
-theorem canonicalizeMacroCellWith_miss_Impl
-    (h : UInt32) (nw ne sw se : MacroCell)
-    (internLevel4 : MacroCell → MacroCell)
-    (findExistingCell : MacroCell → Option MacroCell)
-    (canonicalizeSubnode : MacroCell → MacroCell)
-    (internCell : MacroCell → MacroCell)
-    (hmiss : findExistingCell (.cellNode h nw ne sw se) = none)
-    (hsz : (.cellNode h nw ne sw se : MacroCell).size ≠ 0) :
-    canonicalizeMacroCellWith (.cellNode h nw ne sw se) internLevel4 findExistingCell canonicalizeSubnode internCell =
-      internCell (makeCellNode (canonicalizeSubnode nw) (canonicalizeSubnode ne) (canonicalizeSubnode sw) (canonicalizeSubnode se)) := by
-  dsimp [canonicalizeMacroCellWith]
-  rw [hmiss]
-  dsimp only
-  split
-  · next hzero =>
-    exfalso
-    apply hsz
-    exact beq_iff_eq.mp hzero
-  · rfl
-
-theorem canonicalizeMacroCellWith_miss_zero_Impl
-    (h : UInt32) (nw ne sw se : MacroCell)
-    (internLevel4 : MacroCell → MacroCell)
-    (findExistingCell : MacroCell → Option MacroCell)
-    (canonicalizeSubnode : MacroCell → MacroCell)
-    (internCell : MacroCell → MacroCell)
-    (hmiss : findExistingCell (.cellNode h nw ne sw se) = none)
-    (hsz : (.cellNode h nw ne sw se : MacroCell).size = 0) :
-    canonicalizeMacroCellWith (.cellNode h nw ne sw se) internLevel4 findExistingCell canonicalizeSubnode internCell =
-      internCell (makeCellNode (canonicalizeSubnode nw) (canonicalizeSubnode nw) (canonicalizeSubnode nw) (canonicalizeSubnode nw)) := by
-  dsimp [canonicalizeMacroCellWith]
-  rw [hmiss]
-  dsimp only
-  split
-  · rfl
-  · next hnotzero =>
-    exfalso
-    apply hnotzero
-    exact beq_iff_eq.mpr hsz
-
-theorem canonicalCellNodeEquals_same_Impl (a : MacroCell) :
-    canonicalCellNodeEquals a a = match a with | .cellNode .. => true | _ => false := by
-  cases a with
-  | level4Node hash nw ne sw se => rfl
-  | cellNode hash nw ne sw se =>
-    dsimp [canonicalCellNodeEquals]
-    simp
 
 end Algorithm
 

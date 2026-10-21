@@ -20,13 +20,16 @@ import Algorithm.FlatHashLife
 import AlgorithmDefs
 import proofs.MacroCellProofs
 import proofs.HashLifeProofs
-import proofs.BitEquivalenceProofs
 import proofs.FlatArenaBasics
 import proofs.FlatArenaIntern
 
 local notation "ℕ" => Nat
 
 namespace Algorithm
+
+theorem computeLevel4NextGen16x16UInt_zero_eq :
+    computeLevel4NextGen16x16UInt 0 0 0 0 = 0 := by
+  decide
 
 /-!
 # Flat HashLife arena: initialization

@@ -14,12 +14,10 @@
  * limitations under the License.
  -/
 
-
 import Algorithm.Basic
 import Algorithm.BitComputation
 import Algorithm.MacroCell
 import Algorithm.HashLife
-import Algorithm.HashLifeEquivalence
 import AlgorithmDefs
 import proofs.SemanticModelProofs
 import proofs.HashLifeKernelProofs

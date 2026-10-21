@@ -297,12 +297,12 @@ fun <T> rememberAsyncSessionValueHolder(
     )
 
     LaunchedEffect(sessionValueHolder.info.localSessionId) {
-        // Upon the local session id changing, clear out the updates written by earlier local sessions: those
-        // sessions were invalidated by an upstream change, so their updates must not be sent upstream
-        updateList.removeStaleUpdates(sessionValueHolder.info)
-
-        // All updates will now be for the current session
         while (true) {
+            // Before every batch, clear out the updates written by earlier local sessions: those sessions were
+            // invalidated by an upstream change, so their updates must not be sent upstream. Pruning here, with no
+            // suspension before the batch is taken, keeps the batch correct even if the local session changes
+            // while this effect is still running.
+            updateList.removeStaleUpdates(sessionValueHolder.info)
             var firstUpdate = updateList.firstOrNull()
             var lastUpdate = updateList.lastOrNull()
             while (firstUpdate != null) {
@@ -310,6 +310,7 @@ fun <T> rememberAsyncSessionValueHolder(
                 // Clear the update list, and batch the updates into a single update
                 updateList.clear()
                 setUpstreamSessionValue(firstUpdate.first, lastUpdate.second)
+                updateList.removeStaleUpdates(sessionValueHolder.info)
                 firstUpdate = updateList.firstOrNull()
                 lastUpdate = updateList.lastOrNull()
             }

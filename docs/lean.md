@@ -65,7 +65,8 @@ To keep production code clean, maintain fast compilation, and clearly distinguis
 - **Rules**:
   - Must contain **executable code only**.
   - Must use **fixed-width types** only (`UInt8/16/32/64`, `Int8/16/32/64`, `Float`, `Bool`).
-  - Must contain **no proofs or non-equational theorems**.
+  - Must contain **no proofs or non-equational theorems**. The one exception is a termination lemma that a
+    fuel-indexed loop's `decreasing_by` needs (such as `uint32_sub_one_lt` in `Algorithm/MacroCell.lean`).
   - Must **not** import proof-only modules (such as `Mathlib.Tactic.*` or analysis libraries).
   - Non-compiled specification models (such as `FloatModel.lean` or `Basic.lean`) must reside outside `<Component>/` in a dedicated directory (e.g. `models/`), ensuring only production code is compiled to Kotlin.
   - Must export clean entrypoints with `@[export]` or `kotlin_member`.
@@ -90,7 +91,7 @@ To keep production code clean, maintain fast compilation, and clearly distinguis
     ```
 
 ### 4. Implementation Proofs (`<Component>Proofs.lean` or `proofs/*.lean`)
-- **Purpose**: Tactical proofs, intermediate lemmas, induction arguments, and solver invocations (`omega`, `linarith`, `ring`, `bv_decide`).
+- **Purpose**: Tactical proofs, intermediate lemmas, induction arguments, and solver invocations (`omega`, `linarith`, `ring`, `decide`, `bv_check`).
   - Implements the `..._Impl` theorems referenced in master theorems.
   - May freely use heavy tactical solvers (`omega`, `linarith`, `ring`, `aesop`, `positivity`). See the [Proof Tactics Guide](#proof-tactics-guide).
   - May import full Mathlib and tactical solvers.
@@ -98,6 +99,18 @@ To keep production code clean, maintain fast compilation, and clearly distinguis
   - **Hierarchy Rule**:
     - **Single Domain / Component**: Placed in `<Component>Proofs.lean` (e.g., `SessionValueProofs.lean`).
     - **Multiple Modules**: Placed in a `proofs/` subfolder (e.g., `algorithm/lean/proofs/` or `geometry/lean/proofs/`), re-exported by `<Component>Proofs.lean`.
+
+### Mutation Proofs (`proofs/Mutations.lean`)
+Each package also has a `proofs/Mutations.lean`, evidence that its master theorems are strong:
+- **Mutants**: a plausible buggy variant of a compiled function (a kernel reading a shifted word, a lookup table
+  one bit too small, a ray march that skips cells), with a proof that it violates the property a master theorem
+  proves for the real function. A master theorem that a mutant also satisfies is too weak.
+- **Non-vacuity**: a proof that the hypotheses of the conditional master theorems hold together for real inputs
+  (for example `InRange` for a concrete `cellIntersections` call, or `ArenaWF` with the capacity bounds for an
+  arena as `createFlatArena` builds it). A theorem whose hypotheses never hold proves nothing.
+
+Prove concrete cases with `decide +kernel`, which evaluates in the kernel and adds no axioms. Mutation modules are
+roots of the dead-proof search and are covered by the axiom audit.
 
 ---
 
@@ -168,6 +181,36 @@ These bridges are proofs about Lean's logical model of `Float`. Like every Patte
    - High-level idiomatic Kotlin APIs (such as Compose `Offset` extensions or `MacroCell` convenience wrappers) reside in `src/commonMain/kotlin/`.
    - **Zero verbatim Kotlin is permitted in Gradle build scripts**.
 
+3. **Substitutions and Callbacks Need Their Own Theorems**:
+   R1 covers what actually runs in Kotlin, which is not always the Lean body of a function:
+   - `kotlin_expr` replaces calls to a Lean function with a Kotlin expression. Each substitution needs a theorem
+     that the replacement computes the same thing: for example, `computeNextGen4x4UInt_eq_lookup` (the 4x4 lookup
+     table), `centeredSubSubnodeFast_eq_centeredSubSubnode`, `emptySubnode_eq_emptyNode_of_WFd`,
+     `macroCell_level_eq_depth` and `macroCell_size_eq` (the cached `level()` and `size()` of `MacroCell.kt`).
+     Check the generated Kotlin as well: an `@[inline]` function is inlined before `kotlin_expr` applies (as
+     `popcount64` is), so its Lean body is what runs.
+   - A compiled function that takes callbacks (`stepCellNodeWith`, `canonicalizeMacroCellWith`) is specified for
+     every callback that satisfies a contract describing the Kotlin side, such as "a canonical map returns a
+     value equal to its key". The contract describes the callback, never the compiled function's output.
+   - Hand-written Kotlin loops that drive compiled functions are modeled as reachability relations or iterations
+     and proven correct: `FlatRun` (`FlatLeanHashLifeAlgorithm`), `AsyncReachable` (`rememberAsyncSessionValueHolder`),
+     `compiledPathCells` (`cellIntersections(points)`), `DagIntern` (the memoized recursion of `internMacroCellDag`,
+     which imports each node with `importMacroCellNode`).
+   - A lazy Kotlin iterator runs a compiled Lean step function on an explicit stack: the cell cursor
+     (`cellCursorStepAll`, `cellCursorStepInWindow`) pops a frame and pushes its pieces, or emits the live cells of
+     one leaf as a 64-bit mask. `cellCursorRun` models the Kotlin loop (step until the stack is empty, then emit
+     the set bits of each mask in increasing order), and `flat_cellCursorAll_correct`/`_InWindow_correct` prove it
+     stops and emits each live cell exactly once. `fitsInIntRange` runs the same cursor over the regions past
+     `Int.MAX_VALUE` (`flat_fitsInIntRange_correct`). The cursor's frames, not a callback, carry its progress,
+     so nothing about how often Kotlin calls it is trusted.
+
+   What remains trusted: the Lean-to-Kotlin compiler; verbatim Kotlin emitted from Lean (`FileSpec` items such as
+   the `MacroCell` class body and the table initializers); Kotlin's own `countOneBits`, `Uuid` equality and
+   `Double` arithmetic and the `countTrailingZeroBits`/`mask and (mask - 1)` walk over a mask's set bits; the
+   Kotlin memo tables and canonical maps meeting their contracts (including the
+   `internMacroCellDag` memo returning, for a node, an id stored for an equal node); and the small Kotlin glue that
+   packs cells into keys (`coordKey`) and decodes them (`keyCoord`), proven inverse in Lean.
+
 ### Custom Lean Compiler (`av/jvm`)
 Code generation requires a custom Lean 4 compiler fork supporting the Kotlin emission backend (`-K`).
 - **Repository**: [`https://github.com/alexvanyo/lean4.git`](https://github.com/alexvanyo/lean4.git)
@@ -222,10 +265,67 @@ Every master theorem must depend only on standard Lean foundational axioms:
 - `Classical.choice`
 - `Quot.sound`
 
-Master theorems must never depend on `sorry` or custom unverified axioms. Verify axiom dependencies in Lean via:
+plus the axioms that `bv_check` adds. Each `bv_check` (like `bv_decide`) adds an axiom such as
+`foo._native.bv_decide.ax_1_5`, which asserts that Lean's compiled LRAT checker accepted the stored certificate.
+This trust in the compiled checker is accepted for bit-level proofs (see [Bit-Level Proofs](#bit-level-proofs)).
+
+Master theorems must never depend on `sorry`, custom axioms, or `native_decide`, which trusts arbitrary compiled
+code. A plain `grep axiom` does not find natively evaluated axioms; only `#print axioms` does.
+
+Each package checks this on every build. Its `AxiomAudit.lean` root module runs `#audit_master_theorem_axioms`,
+which collects the axioms of every theorem in the master theorem and mutation modules and fails the build if any
+is neither standard nor a `bv_check` axiom (named `<declaration>._native.bv_decide.ax_<n>` and stating
+`verifyBVExpr … = true`). Because a hand-written `axiom` could copy that name and statement, `checkLeanBvCheck`
+also rejects every `axiom` declaration in the Lean sources. `verifyLean` (`lake build --wfail`)
+therefore fails on any other axiom. To inspect a single theorem:
 ```lean
 #print axioms computeNextGen4x4_correct
 ```
+
+---
+
+## Pruning Dead Proofs
+
+A theorem in a proof module that no master theorem depends on proves nothing about the compiled code. Such
+theorems pile up as proofs are restructured (superseded lemmas, abandoned approaches, aliases of old names), and
+they can hide weak or circular statements that look load-bearing. Prune them with
+`script/prune-dead-lean-proofs.py`:
+
+```bash
+# From the repository root, after `lake build` in the package:
+script/prune-dead-lean-proofs.py algorithm/lean            # report dead theorems
+script/prune-dead-lean-proofs.py algorithm/lean --defs     # also report dead definitions in specs and models
+script/prune-dead-lean-proofs.py algorithm/lean --apply    # delete what it reports
+```
+
+How it works:
+1. It loads every module in the package's `lakefile.toml` roots into a temporary Lean file and runs it with
+   `lake env lean`.
+2. The roots of the search are the master theorems (every theorem in a module named `*Theorems` or `theorems.*`)
+   and the mutation proofs (modules named `*Mutations`), which are kept as evidence that the theorems are strong.
+3. It marks as live everything reachable from the roots by following the constants used in each declaration's
+   type and value. This covers lemmas used by `simp`, `omega`, `decide` and other tactics, because they appear
+   in the elaborated proof terms. Theorem bodies are read with `ConstantInfo.value? (allowOpaque := true)`.
+4. It reports every theorem in a proof module (`proofs.*`, `*Proofs`) that is not live. With `--defs` it also
+   reports definitions in specification and model modules (`*Defs`, `models.*`). Production modules, structure
+   projections, derived instances, elaborator-generated auxiliary declarations, and tactics, macros and their
+   meta-level helpers are never reported.
+5. It keeps any reported declaration whose name still appears in source text outside the reported
+   declarations themselves. A lemma that `simp` or `dsimp` uses by `rfl` leaves no trace in the proof term.
+6. With `--apply` it deletes each reported declaration, together with its docstring, attributes and
+   `set_option ... in` lines, up to the next top-level command.
+
+Deleting dead declarations never breaks a live one. It can still leave aliases (`abbrev foo := @deadTheorem`),
+comments or modules that are now empty. After `--apply`:
+1. Run `lake build --wfail`, and fix what references deleted names.
+2. Rerun the script until it reports nothing. Removing a dead alias or definition can expose more dead code.
+3. Delete modules left without declarations, and remove them from imports and `lakefile.toml`.
+4. Review the diff. If a deleted theorem states something worth guaranteeing, restore it and promote it to a
+   master theorem instead.
+
+Before removing a master theorem, check what it is for. A master theorem whose hypothesis restates its
+conclusion (for example, assuming the compiled step function agrees with the model step function) should be
+removed. The lemmas it alone kept alive then become dead and can be pruned.
 
 ---
 
@@ -275,3 +375,26 @@ Avoid it for:
 - `geometry/lean` requires it explicitly in `lakefile.toml` and imports it with `import Aesop`.
 - `algorithm/lean` and `session-value/lean` depend only on core Lean, so `aesop` is not available there. Use `omega`, `simp`, `decide`, and `grind`.
 - To use it in another package, add a `[[require]]` for `aesop` (`git = "https://github.com/leanprover-community/aesop"`, `rev = "master"`). Import `Aesop` only from proof files so `lake build <Component>:static` stays free of it.
+
+### Bit-Level Proofs
+
+Prove fixed-width bit-manipulation facts (`UInt32`/`UInt64`/`BitVec` goals built from shifts, masks, `+`, `*`,
+comparisons and `cpop`) with `bv_decide`, and commit them as `bv_check` with a stored LRAT certificate so builds
+check the stored proof instead of running the SAT solver:
+
+1. Write `bv_decide?` where the proof goes, after unfolding the definitions involved. State one goal per call: a
+   conjunction proved by one `bv_decide?` is cheaper than many calls, and a `bv_decide?` reached by several goals
+   (for example after `<;>`) cannot be stored, because each goal needs its own certificate.
+2. Once the package's dependencies are built, run
+   ```bash
+   script/lean-bv-check.py algorithm/lean proofs/HashLifeKernelProofs.lean
+   ```
+   It elaborates the file, moves each certificate into `proofs/lrat/<File>.<full declaration name>[-<n>].lrat`, and replaces
+   each `bv_decide?` with the `bv_check "lrat/..."` that reads it.
+3. Commit the `.lrat` files with the Lean file. When a goal proved by `bv_check` changes, put `bv_decide?` back in
+   its place and rerun the script.
+
+Do not leave `bv_decide` or `bv_decide?` in committed proofs. They add the same axioms as `bv_check`, so the axiom
+audit cannot catch them; `checkLeanBvCheck` (run by `verifyLean`) fails the build instead. For a fact needed at
+many goals of one tactic block, prove a general lemma once (with `bv_check` or plain `simp`) and apply it at each
+goal.
