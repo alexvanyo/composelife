@@ -1,0 +1,89 @@
+name: Setup Custom Lean
+description: Resolves, caches, and optionally builds the custom Lean 4 compiler fork (branch av/jvm)
+inputs:
+  build-if-missing:
+    description: 'Whether to build the compiler from source if not found in cache'
+    required: false
+    default: 'false'
+  prefix:
+    description: 'Installation prefix path'
+    required: false
+    default: '~/.lean-custom'
+  ref:
+    description: 'Git branch or commit SHA of the custom Lean fork'
+    required: false
+    default: 'av/jvm'
+  repo:
+    description: 'Git repository URL of the custom Lean fork'
+    required: false
+    default: 'https://github.com/alexvanyo/lean4.git'
+outputs:
+  custom-lean-sha:
+    description: 'Resolved commit SHA of the custom Lean compiler'
+    value: ${{ steps.lean-sha.outputs.sha }}
+  custom-lean-cache-key:
+    description: 'Cache key used for the custom Lean compiler'
+    value: ${{ steps.lean-sha.outputs.cache-key }}
+  cache-hit:
+    description: 'Whether the custom Lean compiler was restored from cache'
+    value: ${{ steps.custom-lean-cache.outputs.cache-hit }}
+runs:
+  using: composite
+  steps:
+    - name: Resolve custom Lean SHA
+      id: lean-sha
+      shell: bash
+      run: |
+        REF="${{ inputs.ref }}"
+        REPO="${{ inputs.repo }}"
+        if [[ "$REF" =~ ^[0-9a-f]{40}$ ]]; then
+          SHA="$REF"
+        else
+          SHA=$(git ls-remote "$REPO" "refs/heads/$REF" | awk '{print $1}')
+          if [[ -z "$SHA" ]]; then
+            SHA=$(git ls-remote "$REPO" "$REF" | head -n1 | awk '{print $1}')
+          fi
+        fi
+        if [[ -z "$SHA" ]]; then
+          echo "Error: Could not resolve git SHA for ref '$REF' from $REPO" >&2
+          exit 1
+        fi
+        echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+        echo "cache-key=lean-custom-${{ runner.os }}-$SHA" >> "$GITHUB_OUTPUT"
+
+    - name: Restore custom Lean compiler cache
+      id: custom-lean-cache
+      uses: actions/cache/restore@v6
+      with:
+        path: ${{ inputs.prefix }}
+        key: ${{ steps.lean-sha.outputs.cache-key }}
+
+    - name: Build custom Lean compiler
+      if: ${{ steps.custom-lean-cache.outputs.cache-hit != 'true' && inputs.build-if-missing == 'true' }}
+      shell: bash
+      run: |
+        sudo apt-get update && sudo apt-get install -y libgmp-dev libuv1-dev libssl-dev clang cmake ccache pkgconf
+        PREFIX_EXPANDED="${{ inputs.prefix }}"
+        PREFIX_EXPANDED="${PREFIX_EXPANDED/#\~/$HOME}"
+        ./script/build-custom-lean.sh --prefix "$PREFIX_EXPANDED" --repo "${{ inputs.repo }}" --ref "${{ steps.lean-sha.outputs.sha }}"
+
+    - name: Save custom Lean compiler cache
+      if: ${{ steps.custom-lean-cache.outputs.cache-hit != 'true' && inputs.build-if-missing == 'true' }}
+      uses: actions/cache/save@v6
+      with:
+        path: ${{ inputs.prefix }}
+        key: ${{ steps.lean-sha.outputs.cache-key }}
+
+    - name: Configure Lean Environment
+      shell: bash
+      run: |
+        PREFIX_EXPANDED="${{ inputs.prefix }}"
+        PREFIX_EXPANDED="${PREFIX_EXPANDED/#\~/$HOME}"
+        if [ -x "$PREFIX_EXPANDED/bin/lean" ]; then
+          echo "LEAN_BINARY=$PREFIX_EXPANDED/bin/lean" >> "$GITHUB_ENV"
+          echo "$PREFIX_EXPANDED/bin" >> "$GITHUB_PATH"
+          "$PREFIX_EXPANDED/bin/lean" --version
+        elif [ "${{ inputs.build-if-missing }}" = "true" ]; then
+          echo "Error: Custom Lean binary not found at $PREFIX_EXPANDED/bin/lean after build" >&2
+          exit 1
+        fi

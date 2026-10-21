@@ -168,6 +168,27 @@ These bridges are proofs about Lean's logical model of `Float`. Like every Patte
    - High-level idiomatic Kotlin APIs (such as Compose `Offset` extensions or `MacroCell` convenience wrappers) reside in `src/commonMain/kotlin/`.
    - **Zero verbatim Kotlin is permitted in Gradle build scripts**.
 
+### Custom Lean Compiler (`av/jvm`)
+Code generation requires a custom Lean 4 compiler fork supporting the Kotlin emission backend (`-K`).
+- **Repository**: [`https://github.com/alexvanyo/lean4.git`](https://github.com/alexvanyo/lean4.git)
+- **Branch**: `av/jvm`
+- **Local Setup**:
+  To build and install the compiler locally:
+  ```bash
+  ./script/build-custom-lean.sh
+  ```
+  This clones the fork, compiles `stage1` with release optimizations, strips debug symbols to minimize disk footprint (~3GB uncompressed), and installs into `~/.lean-custom/bin/lean`.
+- **Compiler Resolution Order**:
+  The Gradle plugin resolves the Lean compiler binary in the following order:
+  1. Gradle property `-PleanBinary=...`
+  2. System property `-DleanBinary=...`
+  3. Environment variable `export LEAN_BINARY=...`
+  4. Standard user install path: `~/.lean-custom/bin/lean`
+  5. Local build directory: `~/Projects/lean4/build/release/stage1/bin/lean`
+  6. Project directory path: `.lean-custom/bin/lean`
+- **CI Caching**:
+  In CI workflows, `setup-custom-lean` resolves the remote commit SHA of `alexvanyo/lean4:av/jvm` and caches the stripped distribution with `actions/cache@v6` under `lean-custom-${{ runner.os }}-${{ sha }}`. Parallel matrix jobs restore the cached compiler in ~5 seconds.
+
 ---
 
 ## Standardized Build Logic (`convention-lean`)

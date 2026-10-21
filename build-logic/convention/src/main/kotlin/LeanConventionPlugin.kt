@@ -26,6 +26,7 @@ import com.alexvanyo.composelife.buildlogic.heavyTaskLimitingBuildService
 import org.gradle.api.Task
 import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import java.io.File
 
 class LeanConventionPlugin :
     ConventionPlugin({
@@ -33,9 +34,17 @@ class LeanConventionPlugin :
 
         val defaultLeanBinaryProvider = providers.gradleProperty("leanBinary")
             .orElse(providers.systemProperty("leanBinary"))
+            .orElse(providers.environmentVariable("LEAN_BINARY"))
             .orElse(
                 providers.provider {
-                    "${System.getProperty("user.home")}/Projects/lean4/build/release/stage1/bin/lean"
+                    val home = System.getProperty("user.home")
+                    val candidates = listOf(
+                        File(home, ".lean-custom/bin/lean"),
+                        File(home, "Projects/lean4/build/release/stage1/bin/lean"),
+                        layout.projectDirectory.file(".lean-custom/bin/lean").asFile,
+                    )
+                    candidates.firstOrNull { it.canExecute() }?.absolutePath
+                        ?: File(home, ".lean-custom/bin/lean").absolutePath
                 },
             )
 
