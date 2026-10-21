@@ -30,6 +30,7 @@ import proofs.Continuous
 import proofs.Hausdorff
 import proofs.CompiledRayMarch
 import proofs.Connectivity
+import proofs.CompiledPath
 
 namespace Geometry
 
@@ -121,13 +122,6 @@ theorem rayMarchSegmentCoords_same_cell_Impl (x y : Float) (cx cy : Int32) :
     rayMarchSegmentCoords x y x y cx cy cx cy = #[(cx, cy)] := by
   unfold rayMarchSegmentCoords
   simp
-
-theorem inCoordBounds_main_of_compiled {A B : Point} (h : inCoordBounds compiledCoordBound A B) :
-    inCoordBounds mainCoordBound A B := by
-  have hle : compiledCoordBound ≤ mainCoordBound := by
-    unfold compiledCoordBound mainCoordBound mainCoordBoundNat; norm_num
-  obtain ⟨h1, h2, h3, h4⟩ := h
-  exact ⟨le_trans h1 hle, le_trans h2 hle, le_trans h3 hle, le_trans h4 hle⟩
 
 theorem rayMarchSegmentCoords_hausdorff_bound_Impl (A B : Point32) (sx sy ex ey : Float)
     (cx cy ex' ey' : Int32) (hPre : InRange A B sx sy ex ey cx cy ex' ey') :

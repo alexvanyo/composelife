@@ -18,11 +18,7 @@ import proofs.PatternsProofs
 import proofs.PropertiesProofs
 import proofs.MacroCellProofs
 import proofs.MacroCellHashProofs
-import proofs.CacheProofs
-import proofs.BitComputationProofs
 import proofs.HashLifeProofs
-import proofs.BitEquivalenceProofs
-import proofs.SpatialTilingProofs
 import proofs.ConfinementProofs
 import proofs.GridEquivalenceProofs
 import proofs.SemanticModelProofs
@@ -32,3 +28,9 @@ import proofs.HashLifeConfinementProofs
 import proofs.HashLifeSingleStepProofs
 import proofs.HashLifeEquivalenceProofs
 import proofs.FlatHashLifeProofs
+import proofs.FlatArenaLiveness
+import proofs.FlatArenaBudget
+import proofs.FlatArenaConvert
+import proofs.FlatArenaCursor
+import proofs.MacroCellEngineProofs
+import proofs.MacroCellQueryProofs

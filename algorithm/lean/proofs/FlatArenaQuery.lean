@@ -16,7 +16,6 @@
 
 import Algorithm.MacroCell
 import Algorithm.HashLife
-import Algorithm.HashLifeEquivalence
 import Algorithm.FlatHashLife
 import AlgorithmDefs
 import proofs.SemanticModelProofs

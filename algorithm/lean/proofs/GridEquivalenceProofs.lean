@@ -27,13 +27,6 @@ namespace Algorithm
 -- List Deduplication and cellsEqual Equivalence Infrastructure
 -- =========================================================================
 
-theorem list_all_contains_self [DecidableEq α] (l : List α) :
-    l.all (l.contains ·) = true := by
-  rw [List.all_eq_true]
-  intro x hx
-  rw [List.contains_iff_mem]
-  exact hx
-
 private def dedupStep [DecidableEq α] (acc : List α) (y : α) : List α :=
   if acc.contains y then acc else acc.concat y
 
@@ -147,15 +140,6 @@ theorem cellsEqual_trans {a b c : List Coord}
   intro x
   rw [h1 x, h2 x]
 
-theorem cellsEqual_append_append {a1 a2 b1 b2 : List Coord}
-    (h1 : cellsEqual a1 b1 = true)
-    (h2 : cellsEqual a2 b2 = true) :
-    cellsEqual (a1 ++ a2) (b1 ++ b2) = true := by
-  rw [cellsEqual_iff_mem] at h1 h2 ⊢
-  intro x
-  simp only [List.mem_append]
-  rw [h1 x, h2 x]
-
 private theorem foldl_dedupStep_of_nodup [DecidableEq α] (xs : List α) (acc : List α)
     (h_nodup : xs.Nodup) (h_disj : ∀ x ∈ xs, ¬ x ∈ acc) :
     xs.foldl dedupStep acc = acc ++ xs := by
@@ -226,20 +210,10 @@ theorem deduplicate_idempotent [DecidableEq α] (xs : List α) :
     deduplicate (deduplicate xs) = deduplicate xs :=
   deduplicate_of_nodup (deduplicate xs) (nodup_deduplicate xs)
 
-theorem cellsEqual_of_eq {a b : List Coord} (h : a = b) :
-    cellsEqual a b = true := by
-  subst h
-  exact cellsEqual_refl a
-
 theorem stepGrid_deduplicate (s : List Coord) :
     stepGrid (deduplicate s) = stepGrid s := by
   dsimp [stepGrid]
   rw [deduplicate_idempotent]
-
-theorem stepN_zero_cellsEqual (s : List Coord) :
-    cellsEqual s (stepN 0 s) = true := by
-  dsimp [stepN]
-  exact cellsEqual_deduplicate_self s
 
 theorem stepGrid_cellsEqual_stepGrid {a b : List Coord}
     (h : cellsEqual a b = true) :
@@ -416,39 +390,5 @@ theorem mem_stepGrid_iff (c : Coord) (alive : List Coord) :
   constructor
   · intro ⟨_, h_rule⟩; exact h_rule
   · intro h_rule; refine ⟨candidateCells_of_lifeRule c alive h_rule, h_rule⟩
-
-theorem non_candidate_dead_sg (alive : List Coord) (c : Coord)
-    (h_not_cand : ¬ c ∈ candidateCells (deduplicate alive)) :
-    ¬ c ∈ stepGrid alive := by
-  intro h_in
-  dsimp [stepGrid] at h_in
-  rw [List.mem_filter] at h_in
-  exact h_not_cand h_in.1
-
-theorem not_mem_candidateCells_of_chebyshevDist_gt_one
-    (alive : List Coord) (c : Coord)
-    (h_dist : ∀ p ∈ deduplicate alive, chebyshevDist c p > 1) :
-    ¬ c ∈ candidateCells (deduplicate alive) := by
-  intro h_cand
-  dsimp [candidateCells] at h_cand
-  rw [mem_deduplicate_iff] at h_cand
-  rw [List.mem_append] at h_cand
-  rcases h_cand with h_self | h_nbr
-  · have h0 := h_dist c h_self
-    dsimp [chebyshevDist] at h0
-    omega
-  · rw [List.mem_flatMap] at h_nbr
-    rcases h_nbr with ⟨p, hp, hcp⟩
-    have hd := h_dist p hp
-    dsimp [mooreNeighbors] at hcp
-    rw [List.mem_map] at hcp
-    rcases hcp with ⟨⟨dx, dy⟩, hoff, heq⟩
-    have hcheb := mooreOffsets_chebyshevDist (dx, dy) hoff
-    rw [← heq] at hd
-    dsimp [chebyshevDist] at hd
-    have hx : p.1 + dx - p.1 = dx := by omega
-    have hy : p.2 + dy - p.2 = dy := by omega
-    rw [hx, hy] at hd
-    omega
 
 end Algorithm

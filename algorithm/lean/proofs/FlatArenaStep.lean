@@ -95,13 +95,14 @@ theorem stepLevel4_spec {a : FlatHashLifeArena} (hwf : ArenaWF a) {id : UInt32} 
 theorem stepLevel5_spec {a : FlatHashLifeArena} (hwf : ArenaWF a) {id : UInt32} {m : MacroCell}
     (hn : NodeIs a 1 id m) :
     Grows a (a.stepLevel5 id).2 ∧
-    ((a.stepLevel5 id).2.overflow = 0 → NodeIs (a.stepLevel5 id).2 0 (a.stepLevel5 id).1 (hashLifeStep m)) := by
+    ((a.stepLevel5 id).2.overflow = 0 → NodeIs (a.stepLevel5 id).2 0 (a.stepLevel5 id).1 (hashLifeStep m)) ∧
+    ((a.stepLevel5 id).2.overflow = 0 → (a.stepLevel5 id).2.cellStepRes[id.toNat]! ≠ UNCOMPUTED) := by
   unfold FlatHashLifeArena.stepLevel5
   rw [ite_eq_right (node_not_ge hn)]
   dsimp only
   split
   · rename_i hcached
-    refine ⟨Grows.refl hwf, fun _ => ?_⟩
+    refine ⟨Grows.refl hwf, fun _ => ?_, fun _ => by simpa using hcached⟩
     have hmemo := hwf.cellMemo id hn.lt_cell (by simpa using hcached)
     rw [hn.level, hn.denoteCell_eq] at hmemo
     exact hmemo
@@ -129,7 +130,7 @@ theorem stepLevel5_spec {a : FlatHashLifeArena} (hwf : ArenaWF a) {id : UInt32} 
     have g14 := ((g1.trans g2).trans g3).trans g4
     split
     · rename_i hov
-      exact ⟨g14, fun h => absurd h (by simpa using hov)⟩
+      exact ⟨g14, fun h => absurd h (by simpa using hov), fun h => absurd h (by simpa using hov)⟩
     · rename_i hov
       have hov4 : a4.overflow = 0 := by simpa using hov
       have hov3 := g4.ovf hov4
@@ -170,7 +171,7 @@ theorem stepLevel5_spec {a : FlatHashLifeArena} (hwf : ArenaWF a) {id : UInt32} 
       have g19 := g18.trans g9
       split
       · rename_i hov9
-        exact ⟨g19, fun h => absurd h (by simpa using hov9)⟩
+        exact ⟨g19, fun h => absurd h (by simpa using hov9), fun h => absurd h (by simpa using hov9)⟩
       · rename_i hov9
         have hov9' : a9.overflow = 0 := by simpa using hov9
         have hres := r9 hov9'
@@ -181,7 +182,13 @@ theorem stepLevel5_spec {a : FlatHashLifeArena} (hwf : ArenaWF a) {id : UInt32} 
             (WFd_makeLevel4Node _ _ _ _) (WFd_makeLevel4Node _ _ _ _)
         rw [← hstep] at hres
         have gm := Grows.setCellStepRes w9 (g19.node hwf hn) hres
-        exact ⟨g19.trans gm, fun _ => gm.node w9 hres⟩
+        refine ⟨g19.trans gm, fun _ => gm.node w9 hres, fun _ => ?_⟩
+        have hid9 := (g19.node hwf hn).lt_cell
+        have hlt : id.toNat < a9.cellStepRes.size := by
+          have := u32_lt_iff.mp hid9; have := w9.cellCountLe; have := w9.cellSize.2.2.2.2.2.2; omega
+        show (a9.cellStepRes.set! id.toNat res)[id.toNat]! ≠ UNCOMPUTED
+        rw [getElem!_set!_self _ _ _ hlt]
+        exact hres.ne_uncomputed
 
 -- =========================================================================
 -- Combining quadrant results
@@ -195,7 +202,9 @@ theorem combineQuadrants_spec {a : FlatHashLifeArena} (hwf : ArenaWF a) {h : ℕ
     (m2 : NodeIs a h r2 (hashLifeStep (stepQuadrants m).ne))
     (m3 : NodeIs a h r3 (hashLifeStep (stepQuadrants m).sw))
     (m4 : NodeIs a h r4 (hashLifeStep (stepQuadrants m).se)) :
-    Grows a (a.combineQuadrants id a.cellLevel[id.toNat]! r1 r2 r3 r4).2 := by
+    Grows a (a.combineQuadrants id a.cellLevel[id.toNat]! r1 r2 r3 r4).2 ∧
+    ((a.combineQuadrants id a.cellLevel[id.toNat]! r1 r2 r3 r4).2.overflow = 0 →
+      (a.combineQuadrants id a.cellLevel[id.toNat]! r1 r2 r3 r4).2.cellStepRes[id.toNat]! ≠ UNCOMPUTED) := by
   unfold FlatHashLifeArena.combineQuadrants
   dsimp only
   have hl : (a.cellLevel[id.toNat]! - 1).toNat = h + 5 := by
@@ -219,8 +228,16 @@ theorem combineQuadrants_spec {a : FlatHashLifeArena} (hwf : ArenaWF a) {h : ℕ
       rw [hm] at n1 n2 n3 n4
       exact hashLifeStep_cell c1.WFd c2.WFd c3.WFd c4.WFd n1.WFd n2.WFd n3.WFd n4.WFd
     rw [← hstep] at hres
-    exact g1.trans (Grows.setCellStepRes w1 (g1.node hwf hn) hres)
-  · exact g1
+    refine ⟨g1.trans (Grows.setCellStepRes w1 (g1.node hwf hn) hres), fun _ => ?_⟩
+    have hlt : id.toNat < a1.cellStepRes.size := by
+      have := u32_lt_iff.mp hc.2; have := w1.cellCountLe; have := w1.cellSize.2.2.2.2.2.2; omega
+    show (a1.cellStepRes.set! id.toNat res)[id.toNat]! ≠ UNCOMPUTED
+    rw [getElem!_set!_self _ _ _ hlt]
+    exact hres.ne_uncomputed
+  · rename_i hc
+    refine ⟨g1, fun hov => absurd ?_ hc⟩
+    simp only [Bool.and_eq_true, beq_iff_eq, decide_eq_true_eq]
+    exact ⟨hov, (g1.node hwf hn).lt_cell⟩
 
 -- =========================================================================
 -- The work-stack loop
@@ -234,22 +251,26 @@ structure LoopOK (a b : FlatHashLifeArena) : Prop where
   ext : Extends a b
   ovf : b.overflow = 0 → a.overflow = 0
   remapCell : b.remapCell = a.remapCell
+  masks : b.l4Mask = a.l4Mask ∧ b.cellMask = a.cellMask
+  remapL4Size : b.remapL4.size = a.remapL4.size
 
 theorem LoopOK.refl {a : FlatHashLifeArena} (hwf : ArenaWF a) : LoopOK a a :=
-  ⟨hwf, Extends.refl a, fun h => h, rfl⟩
+  ⟨hwf, Extends.refl a, fun h => h, rfl, ⟨rfl, rfl⟩, rfl⟩
 
 theorem LoopOK.trans {a b c : FlatHashLifeArena} (h1 : LoopOK a b) (h2 : LoopOK b c) : LoopOK a c :=
-  ⟨h2.wf, h1.ext.trans h2.ext, fun h => h1.ovf (h2.ovf h), h2.remapCell.trans h1.remapCell⟩
+  ⟨h2.wf, h1.ext.trans h2.ext, fun h => h1.ovf (h2.ovf h), h2.remapCell.trans h1.remapCell,
+    ⟨h2.masks.1.trans h1.masks.1, h2.masks.2.trans h1.masks.2⟩, h2.remapL4Size.trans h1.remapL4Size⟩
 
 theorem Grows.loopOK {a b : FlatHashLifeArena} (g : Grows a b) : LoopOK a b :=
-  ⟨g.wf, g.ext, g.ovf, g.remapCell⟩
+  ⟨g.wf, g.ext, g.ovf, g.remapCell, g.masks, by rw [g.remapL4]⟩
 
 theorem LoopOK.setRemapL4 {a : FlatHashLifeArena} (hwf : ArenaWF a) (i v : UInt32) :
     LoopOK a (a.setRemapL4 i v) :=
-  ⟨hwf.setRemapL4 i v, Extends.of_same (SameNodes.setRemapL4 a i v), fun h => h, rfl⟩
+  ⟨hwf.setRemapL4 i v, Extends.of_same (SameNodes.setRemapL4 a i v), fun h => h, rfl, ⟨rfl, rfl⟩, size_set! _ _ _⟩
 
 theorem LoopOK.setOverflow {a : FlatHashLifeArena} (hwf : ArenaWF a) : LoopOK a a.setOverflow :=
-  (Grows.setOverflow hwf).loopOK
+  ⟨hwf.setOverflow, Extends.of_same (SameNodes.setOverflow a), fun h => absurd h (show (1 : UInt8) ≠ 0 by decide),
+    rfl, ⟨rfl, rfl⟩, rfl⟩
 
 theorem getCellStepRes_memo {a : FlatHashLifeArena} (hwf : ArenaWF a) {h : ℕ} {q : UInt32} {Q : MacroCell}
     (hq : NodeIs a (h + 1) q Q) (hr : getCellStepRes a q ≠ UNCOMPUTED) :
@@ -368,7 +389,7 @@ theorem stepCellSerialLoop_spec (stackLimit : UInt32) (n : ℕ) :
                     a.cellLevel[(a.remapL4[(sp - 1).toNat]!).toNat]! (getCellStepRes a4 q1)
                     (getCellStepRes a4 q2) (getCellStepRes a4 q3) (getCellStepRes a4 q4) with ⟨res, a5⟩
                 rw [e5] at gc
-                exact (g14.trans gc).loopOK.trans (ih' a5 (sp - 1) gc.wf)
+                exact (g14.trans gc.1).loopOK.trans (ih' a5 (sp - 1) gc.1.wf)
 
 /--
 Flat `stepCellSerial` keeps the invariant and, unless it reports failure, returns a node denoting

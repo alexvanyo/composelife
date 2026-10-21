@@ -40,18 +40,6 @@ def binary32ToRat (b : Binary32) : ℚ :=
   (ExecFloat.Binary.toRat? b).getD 0
 
 /--
-Converts a Binary32 value to a 64-bit Float for evaluation.
--/
-def binary32ToFloat (b : Binary32) : Float :=
-  (Float32.ofBits (UInt32.ofNat (ExecFloat.Binary.toNatBits b))).toFloat
-
-/--
-Converts a Float32 to Binary32 preserving IEEE-754 bit representations.
--/
-def float32ToBinary32 (f : Float32) : Binary32 :=
-  ExecFloat.Binary.ofNatBits f.toBits.toNat
-
-/--
 Floors a Binary32 value to an Int, matching Kotlin's kotlin.math.floor.
 -/
 def floorBinary32 (f : Binary32) : Int :=
@@ -80,18 +68,11 @@ Converts a 32-bit floating point point to its exact rational representation.
 def Point32.toPoint (p : Point32) : Point :=
   ⟨binary32ToRat p.x, binary32ToRat p.y⟩
 
-
 /--
 Floors a continuous Point32 into discrete Cell coordinates.
 -/
 def floorPoint32 (p : Point32) : Cell :=
   ⟨floorBinary32 p.x, floorBinary32 p.y⟩
-
-/--
-Converts an integer cell coordinate to a 32-bit float value.
--/
-def intToBinary32 (n : Int) : Binary32 :=
-  ExecFloat.Binary.ofFloat32 (Float32.ofInt n)
 
 /--
 Converts an integer cell coordinate directly to a 64-bit float (Double) value,
@@ -105,12 +86,6 @@ Widening cast from 32-bit Binary32 to 64-bit Binary64 (Double).
 -/
 def widen32To64 (x : Binary32) : Binary64 :=
   (x.cast (target := Binary64)).value?.getD (0.0 : Binary64)
-
-/--
-Narrowing cast from 64-bit Binary64 (Double) to 32-bit Binary32.
--/
-def narrow64To32 (x : Binary64) : Binary32 :=
-  (x.cast (target := Binary32)).value?.getD (0.0 : Binary32)
 
 /--
 Determines the next cell transition in ray-marching using 32-bit floating point points
@@ -149,38 +124,6 @@ def rayMarchStepFloat (start : Point32) (dx dy : Binary64) (stepX stepY : Int) (
       (⟨c.x + stepX, c.y + stepY⟩, false)
 
 /--
-Extracts the intermediate continuous floating-point boundary crossing waypoint associated
-with the transition from cell `c` during ray-marching.
-The returned point lines up with at least one discrete integer grid line (x = currentX or y = currentY).
--/
-def rayMarchStepWaypointFloat (start : Point32) (dx dy : Binary64) (stepX stepY : Int) (c : Cell) : Point32 :=
-  let currentX := if stepX > 0 then c.x + 1 else c.x
-  let currentY := if stepY > 0 then c.y + 1 else c.y
-  let xb : Binary64 := intToBinary64 currentX
-  let yb : Binary64 := intToBinary64 currentY
-  let startX : Binary64 := widen32To64 start.x
-  let startY : Binary64 := widen32To64 start.y
-  let absDx : Binary64 := ExecFloat.Binary.abs dx
-  let absDy : Binary64 := ExecFloat.Binary.abs dy
-  if stepX == 0 then
-    ⟨start.x, intToBinary32 currentY⟩
-  else if stepY == 0 then
-    ⟨intToBinary32 currentX, start.y⟩
-  else
-    let remX : Binary64 := ExecFloat.Binary.abs (xb - startX)
-    let remY : Binary64 := ExecFloat.Binary.abs (yb - startY)
-    let crossX : Binary64 := remX * absDy
-    let crossY : Binary64 := remY * absDx
-    if crossX < crossY then
-      let interpY := narrow64To32 (startY + (xb - startX) * dy / dx)
-      ⟨intToBinary32 currentX, interpY⟩
-    else if crossY < crossX then
-      let interpX := narrow64To32 (startX + (yb - startY) * dx / dy)
-      ⟨interpX, intToBinary32 currentY⟩
-    else
-      ⟨intToBinary32 currentX, intToBinary32 currentY⟩
-
-/--
 Ray-marches from `startCell` towards `endCell` using floating-point operations.
 Matches the while loop in `LineSegment.kt`.
 -/
@@ -196,25 +139,6 @@ def rayMarchFloat (fuel : Nat) (start : Point32) (dx dy : Binary64) (stepX stepY
       else rayMarchFloat fuel start dx dy stepX stepY endCell nextCell (acc ++ [nextCell])
 
 /--
-Ray-marches from `startCell` towards `endCell` while tracking both visited discrete cells
-and intermediate continuous boundary crossing waypoints.
--/
-def rayMarchWithWaypointsFloat (fuel : Nat) (start : Point32) (dx dy : Binary64) (stepX stepY : Int)
-    (endCell : Cell) (current : Cell)
-    (accCells : List Cell) (accWaypoints : List Point32) : List Cell × List Point32 :=
-  match fuel with
-  | 0 => (accCells, accWaypoints)
-  | fuel + 1 =>
-    if current == endCell then (accCells, accWaypoints)
-    else
-      let (nextCell, done) := rayMarchStepFloat start dx dy stepX stepY current
-      let p := rayMarchStepWaypointFloat start dx dy stepX stepY current
-      if done then (accCells, accWaypoints)
-      else rayMarchWithWaypointsFloat fuel start dx dy stepX stepY endCell nextCell
-        (accCells ++ [nextCell]) (accWaypoints ++ [p])
-
-
-/--
 Difference in X between two Point32s widened to Binary64.
 Matches `end.x.toDouble() - start.x.toDouble()` in Kotlin's LineSegment.kt.
 -/
@@ -227,24 +151,6 @@ Matches `end.y.toDouble() - start.y.toDouble()` in Kotlin's LineSegment.kt.
 -/
 def deltaY (A B : Point32) : Binary64 :=
   widen32To64 B.y - widen32To64 A.y
-
-/--
-Extracts the full list of floating-point waypoints for segment AB, starting at A, passing through
-all intermediate grid-boundary crossing points, and ending at B.
--/
-def segmentWaypointsFloat (A B : Point32) : List Point32 :=
-  let startCell := floorPoint32 A
-  let endCell := floorPoint32 B
-  if startCell == endCell then
-    [A, B]
-  else
-    let dx := deltaX A B
-    let dy := deltaY A B
-    let stepX : Int := if dx > 0.0 then 1 else if dx < 0.0 then -1 else 0
-    let stepY : Int := if dy > 0.0 then 1 else if dy < 0.0 then -1 else 0
-    let maxSteps := (endCell.x - startCell.x).natAbs + (endCell.y - startCell.y).natAbs + 2
-    let (_, waypoints) := rayMarchWithWaypointsFloat maxSteps A dx dy stepX stepY endCell startCell [] []
-    [A] ++ waypoints ++ [B]
 
 /--
 Computes the set of discrete grid cells intersected by the line segment from `A` to `B`
@@ -263,7 +169,6 @@ def cellIntersectionsSegmentFloat (A B : Point32) : List Cell :=
     let stepY : Int := if dy > 0.0 then 1 else if dy < 0.0 then -1 else 0
     let maxSteps := (endCell.x - startCell.x).natAbs + (endCell.y - startCell.y).natAbs + 2
     dedupCells ([startCell, endCell] ++ rayMarchFloat maxSteps A dx dy stepX stepY endCell startCell [])
-
 
 /--
 Computes all grid cells intersected by a polyline path with 32-bit floating point points.
