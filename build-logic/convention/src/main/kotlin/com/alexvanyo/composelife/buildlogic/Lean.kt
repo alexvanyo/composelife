@@ -126,6 +126,13 @@ abstract class GenerateLeanKotlinTask @Inject constructor(private val execOperat
 
     @TaskAction
     fun generate() {
+        val binary = File(leanBinary.get())
+        check(binary.exists() && binary.canExecute()) {
+            "Lean binary not found or not executable at '${binary.absolutePath}'. " +
+                "Please set the 'leanBinary' Gradle property, LEAN_BINARY environment variable, " +
+                "or run ./script/build-custom-lean.sh to build the custom Lean compiler (branch av/jvm)."
+        }
+
         val workDir = workingDir.get().asFile
         val leanPath = File(workDir, ".lake/build/lib/lean").absolutePath
 
