@@ -11,4 +11,5 @@ This directory contains configurations for GitHub-specific features, primarily C
   - **`clear-caches.yml`**: This workflow provides a way to manually or automatically clear caches used by GitHub Actions, which can be useful for resolving build issues.
 - **`actions/`**: This directory contains reusable composite actions.
   - **`setup-lean/`**: Composite action that installs and caches elan and the Lean 4 toolchain (`leanprover/lean4:v4.34.0`) so that Gradle verification tasks and C bridge compilations can run on CI runners.
+  - **`setup-custom-lean/`**: Composite action that resolves, caches, and compiles the custom Lean 4 compiler fork (`av/jvm`) for Kotlin code generation.
 - **`ci-gradle.properties`**: This file contains Gradle properties that are specific to the CI environment, allowing for different configurations when building on GitHub Actions compared to local development.
