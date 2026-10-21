@@ -213,3 +213,41 @@ abstract class CheckLeanBuildScriptHygieneTask : DefaultTask() {
         }
     }
 }
+
+/**
+ * Fails if a Lean source uses `bv_decide` or `bv_decide?` as a tactic, or declares an axiom.
+ *
+ * Bit-level proofs are committed as `bv_check` with a stored LRAT certificate (see `script/lean-bv-check.py`), so
+ * builds never rerun the SAT solver. Both tactics add the same axioms as `bv_check`, so the axiom audit cannot tell
+ * them apart. The audit accepts those axioms by their name and statement, which a hand-written `axiom` could copy;
+ * rejecting `axiom` declarations leaves the tactic as the only way to add one.
+ */
+@DisableCachingByDefault(because = "Scanning the sources is cheaper than caching the result")
+abstract class CheckLeanBvCheckTask : DefaultTask() {
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    @get:InputFiles
+    abstract val leanFiles: ConfigurableFileCollection
+
+    @TaskAction
+    fun check() {
+        // A mention in backticks, a string or a dotted name (such as an axiom name) is not a use.
+        val tactic = Regex("""(?<![`".\w])bv_decide\??(?![`".\w])""")
+        val axiom = Regex("""^\s*(@\[[^]]*]\s*)?((private|protected|noncomputable|unsafe)\s+)*axiom\s""")
+        fun matches(regex: Regex) = leanFiles.files.sortedBy { it.path }.flatMap { file ->
+            file.readLines().withIndex()
+                .filter { (_, line) -> regex.containsMatchIn(line) }
+                .map { (index, line) -> "${file.path}:${index + 1}: ${line.trim()}" }
+        }
+        val uses = matches(tactic)
+        if (uses.isNotEmpty()) {
+            error(
+                "Lean sources use bv_decide; replace it with bv_check of a stored certificate " +
+                    "(run script/lean-bv-check.py on bv_decide?):\n" + uses.joinToString("\n"),
+            )
+        }
+        val axioms = matches(axiom)
+        if (axioms.isNotEmpty()) {
+            error("Lean sources declare axioms, which master theorems may not depend on:\n" + axioms.joinToString("\n"))
+        }
+    }
+}

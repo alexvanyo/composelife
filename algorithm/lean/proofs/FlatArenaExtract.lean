@@ -700,9 +700,6 @@ theorem level4_size_eq (nw ne sw se : UInt64) :
       (popcount64 nw).toUInt64 + (popcount64 ne).toUInt64 + (popcount64 sw).toUInt64 +
         (popcount64 se).toUInt64 := rfl
 
-theorem cell_size_eq (nw ne sw se : MacroCell) :
-    (makeCellNode nw ne sw se).size = nw.size + ne.size + sw.size + se.size := rfl
-
 theorem popLevel4Id_eq {a : FlatHashLifeArena} {id : UInt32} {m : MacroCell} (hn : NodeIs a 0 id m) :
     popLevel4Id a id = m.size := by
   unfold popLevel4Id

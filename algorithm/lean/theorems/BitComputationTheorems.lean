@@ -14,161 +14,60 @@
  * limitations under the License.
  -/
 
-import Algorithm.Basic
 import Algorithm.BitComputation
+import Algorithm.MacroCell
+import Algorithm.HashLife
 import AlgorithmDefs
-import proofs.BitComputationProofs
+import proofs.HashLifeKernelProofs
 
 local notation "ℕ" => Nat
+local notation "ℤ" => Int
 
 namespace Algorithm
 
-theorem bit_comp_empty_correct :
-    verifyBitComputation4x4 0 = true :=
-  bit_comp_empty_correct_Impl
+/-!
+# Bit-level stepping kernels
 
-theorem bit_comp_blinker_h_correct :
-    verifyBitComputation4x4 (2^3 + 2^6 + 2^7) = true :=
-  bit_comp_blinker_h_correct_Impl
+Each compiled kernel computes one Conway generation of the cells it covers, for every input word. The cell
+functions are `grid4At` (a 4x4 grid in Morton order), `leafAt` (an 8x8 leaf) and `quadSel` of four leaves (a
+16x16 Level 4 node), and the rule is `nextGenAt`.
+-/
 
-theorem bit_comp_blinker_v_correct :
-    verifyBitComputation4x4 (2^1 + 2^3 + 2^9) = true :=
-  bit_comp_blinker_v_correct_Impl
+/-- The 4x4 kernel: each of its four output bits is one generation of the corresponding center cell. -/
+theorem computeNextGen4x4UInt_correct (w : UInt32) (x y : ℤ) (hx : 1 ≤ x ∧ x ≤ 2) (hy : 1 ≤ y ∧ y ≤ 2) :
+    (computeNextGen4x4UInt w).toBitVec.getLsbD (mortonIndex4 (x - 1).toNat (y - 1).toNat) =
+      nextGenAt (grid4At w) x y :=
+  computeNextGen4x4UInt_spec w x y hx hy
 
-theorem bit_comp_block_correct :
-    verifyBitComputation4x4 (2^3 + 2^6 + 2^9 + 2^12) = true :=
-  bit_comp_block_correct_Impl
+/-- The 4x4 kernel's result fits in 4 bits. -/
+theorem computeNextGen4x4UInt_lt_16 (w : UInt32) : (computeNextGen4x4UInt w).toNat < 16 :=
+  computeNextGen4x4UInt_lt w
 
-theorem bit_comp_glider_sub_correct :
-    verifyBitComputation4x4 (2^1 + 2^6 + 2^8 + 2^9 + 2^12) = true :=
-  bit_comp_glider_sub_correct_Impl
+/--
+The generated Kotlin replaces `computeNextGen4x4UInt w` by `computeNextGen4x4(w)`, which reads entry
+`w and 0xFFFF` of `NEXT_GEN_4X4_LUT` (filled with `computeNextGen4x4BitwiseUInt`) and keeps 4 bits. This is the
+same function.
+-/
+theorem computeNextGen4x4UInt_eq_lookup (w : UInt32) :
+    computeNextGen4x4UInt w = computeNextGen4x4BitwiseUInt (w &&& 0xFFFF) &&& 0xF :=
+  computeNextGen4x4UInt_eq_table w
 
-theorem bit_comp_tub_correct :
-    verifyBitComputation4x4 (2^1 + 2^2 + 2^6 + 2^9) = true :=
-  bit_comp_tub_correct_Impl
+/-- The 8x8 leaf kernel: each of its 16 output bits is one generation of the corresponding center cell. -/
+theorem computeLeafNextGen8x8BranchUInt_correct (w : UInt64) (x y : ℤ) (hx : 2 ≤ x ∧ x < 6) (hy : 2 ≤ y ∧ y < 6) :
+    (computeLeafNextGen8x8BranchUInt w).toBitVec.getLsbD (mortonIndex4 (x - 2).toNat (y - 2).toNat) =
+      nextGenAt (leafAt w) x y :=
+  computeLeafNextGen8x8BranchUInt_spec w x y hx hy
 
-theorem leaf_comp_empty_correct :
-    verifyLeafComputation8x8 0 = true :=
-  leaf_comp_empty_correct_Impl
+/-- The 16x16 Level 4 kernel: its output leaf is one generation of the central 8x8 cells. -/
+theorem computeLevel4NextGen16x16UInt_correct (a b c d : UInt64) (x y : ℤ)
+    (hx0 : 0 ≤ x) (hx : x < 8) (hy0 : 0 ≤ y) (hy : y < 8) :
+    leafAt (computeLevel4NextGen16x16UInt a b c d) x y =
+      nextGenAt (quadSel (leafAt a) (leafAt b) (leafAt c) (leafAt d) 8) (x + 4) (y + 4) :=
+  leafAt_computeLevel4NextGen16x16UInt a b c d x y hx0 hx hy0 hy
 
-theorem leaf_comp_centered_block_correct :
-    verifyLeafComputation8x8 (2^0x0F + 2^0x1A + 2^0x25 + 2^0x30) = true :=
-  leaf_comp_centered_block_correct_Impl
-
-theorem leaf_comp_centered_blinker_h_correct :
-    verifyLeafComputation8x8 (2^0x0E + 2^0x0F + 2^0x1A) = true :=
-  leaf_comp_centered_blinker_h_correct_Impl
-
-theorem leaf_comp_centered_tub_correct :
-    verifyLeafComputation8x8 (2^0x0D + 2^0x0E + 2^0x1A + 2^0x25) = true :=
-  leaf_comp_centered_tub_correct_Impl
-
-theorem bitRule_equals_lifeRule (alive : Bool) (n : ℕ) :
-    bitRule n alive = lifeRule alive n :=
-  bitRule_equals_lifeRule_Impl alive n
-
-theorem mask11_is_exact_moore_neighborhood :
-    mask11Neighbors.all (mooreNeighbors (1, 1)).contains ∧
-    (mooreNeighbors (1, 1)).all mask11Neighbors.contains ∧
-    mask11Neighbors.length = 8 :=
-  mask11_is_exact_moore_neighborhood_Impl
-
-theorem mask21_is_exact_moore_neighborhood :
-    mask21Neighbors.all (mooreNeighbors (2, 1)).contains ∧
-    (mooreNeighbors (2, 1)).all mask21Neighbors.contains ∧
-    mask21Neighbors.length = 8 :=
-  mask21_is_exact_moore_neighborhood_Impl
-
-theorem mask12_is_exact_moore_neighborhood :
-    mask12Neighbors.all (mooreNeighbors (1, 2)).contains ∧
-    (mooreNeighbors (1, 2)).all mask12Neighbors.contains ∧
-    mask12Neighbors.length = 8 :=
-  mask12_is_exact_moore_neighborhood_Impl
-
-theorem mask22_is_exact_moore_neighborhood :
-    mask22Neighbors.all (mooreNeighbors (2, 2)).contains ∧
-    (mooreNeighbors (2, 2)).all mask22Neighbors.contains ∧
-    mask22Neighbors.length = 8 :=
-  mask22_is_exact_moore_neighborhood_Impl
-
-theorem nw_quadrant_contains_all_moore_neighbors :
-    let centerNW : List Coord := [(2, 2), (3, 2), (2, 3), (3, 3)]
-    centerNW.all (fun c => (mooreNeighbors c).all nwQuadrantCoords.contains) = true :=
-  nw_quadrant_contains_all_moore_neighbors_Impl
-
-theorem ne_quadrant_contains_all_moore_neighbors :
-    let centerNE : List Coord := [(4, 2), (5, 2), (4, 3), (5, 3)]
-    centerNE.all (fun c => (mooreNeighbors c).all neQuadrantCoords.contains) = true :=
-  ne_quadrant_contains_all_moore_neighbors_Impl
-
-theorem sw_quadrant_contains_all_moore_neighbors :
-    let centerSW : List Coord := [(2, 4), (3, 4), (2, 5), (3, 5)]
-    centerSW.all (fun c => (mooreNeighbors c).all swQuadrantCoords.contains) = true :=
-  sw_quadrant_contains_all_moore_neighbors_Impl
-
-theorem se_quadrant_contains_all_moore_neighbors :
-    let centerSE : List Coord := [(4, 4), (5, 4), (4, 5), (5, 5)]
-    centerSE.all (fun c => (mooreNeighbors c).all seQuadrantCoords.contains) = true :=
-  se_quadrant_contains_all_moore_neighbors_Impl
-
-theorem computeLeafNextGen8x8Fast_eq_computeLeafNextGen8x8 (w : ℕ) :
-    computeLeafNextGen8x8Fast w = computeLeafNextGen8x8 w :=
-  computeLeafNextGen8x8Fast_eq_computeLeafNextGen8x8_Impl w
-
-theorem computeLeafNextGen8x8Fast_zero :
-    computeLeafNextGen8x8Fast 0 = 0 :=
-  computeLeafNextGen8x8Fast_zero_Impl
-
-theorem computeLeafNextGen8x8Branch_eq_computeLeafNextGen8x8 (w : ℕ) :
-    computeLeafNextGen8x8Branch w = computeLeafNextGen8x8 w :=
-  computeLeafNextGen8x8Branch_eq_computeLeafNextGen8x8_Impl w
-
-theorem bit_comp_empty_uint_correct :
-    verifyBitComputation4x4UInt 0 = true :=
-  bit_comp_empty_uint_correct_Impl
-
-theorem bit_comp_blinker_h_uint_correct :
-    verifyBitComputation4x4UInt (2^3 + 2^6 + 2^7) = true :=
-  bit_comp_blinker_h_uint_correct_Impl
-
-theorem bit_comp_blinker_v_uint_correct :
-    verifyBitComputation4x4UInt (2^1 + 2^3 + 2^9) = true :=
-  bit_comp_blinker_v_uint_correct_Impl
-
-theorem bit_comp_block_uint_correct :
-    verifyBitComputation4x4UInt (2^3 + 2^6 + 2^9 + 2^12) = true :=
-  bit_comp_block_uint_correct_Impl
-
-theorem bit_comp_glider_sub_uint_correct :
-    verifyBitComputation4x4UInt (2^1 + 2^6 + 2^8 + 2^9 + 2^12) = true :=
-  bit_comp_glider_sub_uint_correct_Impl
-
-theorem bit_comp_tub_uint_correct :
-    verifyBitComputation4x4UInt (2^1 + 2^2 + 2^6 + 2^9) = true :=
-  bit_comp_tub_uint_correct_Impl
-
-theorem leaf_comp_empty_uint_correct :
-    verifyLeafComputation8x8UInt 0 = true :=
-  leaf_comp_empty_uint_correct_Impl
-
-theorem leaf_comp_centered_block_uint_correct :
-    verifyLeafComputation8x8UInt (2^0x0F + 2^0x1A + 2^0x25 + 2^0x30) = true :=
-  leaf_comp_centered_block_uint_correct_Impl
-
-theorem leaf_comp_centered_blinker_h_uint_correct :
-    verifyLeafComputation8x8UInt (2^0x0E + 2^0x0F + 2^0x1A) = true :=
-  leaf_comp_centered_blinker_h_uint_correct_Impl
-
-theorem leaf_comp_centered_tub_uint_correct :
-    verifyLeafComputation8x8UInt (2^0x0D + 2^0x0E + 2^0x1A + 2^0x25) = true :=
-  leaf_comp_centered_tub_uint_correct_Impl
-
-theorem computeLeafNextGen8x8FastUInt_zero :
-    computeLeafNextGen8x8FastUInt 0 = 0 :=
-  computeLeafNextGen8x8FastUInt_zero_Impl
-
-theorem computeLeafNextGen8x8BranchUInt_zero :
-    computeLeafNextGen8x8BranchUInt 0 = 0 :=
-  computeLeafNextGen8x8BranchUInt_zero_Impl
+/-- The empty-leaf shortcut of `computeLeafNextGen8x8BranchUInt` does not change its result. -/
+theorem computeLeafNextGen8x8BranchUInt_eq_fastUInt (w : UInt64) :
+    computeLeafNextGen8x8BranchUInt w = computeLeafNextGen8x8FastUInt w :=
+  computeLeafNextGen8x8BranchUInt_eq_fast w
 
 end Algorithm

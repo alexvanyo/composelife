@@ -55,17 +55,4 @@ def stepN : ℕ → List Coord → List Coord
   | 0, s => deduplicate s
   | n + 1, s => stepGrid (stepN n s)
 
-theorem stepN_zero (s : List Coord) : stepN 0 s = deduplicate s := rfl
-
-theorem stepN_succ (n : ℕ) (s : List Coord) : stepN (n + 1) s = stepGrid (stepN n s) := rfl
-
-theorem stepGrid_empty : stepGrid [] = [] := by
-  rfl
-
-theorem stepN_empty (n : ℕ) : stepN n [] = [] := by
-  induction n with
-  | zero => rfl
-  | succ k ih =>
-    simp [stepN, ih, stepGrid_empty]
-
 end Algorithm

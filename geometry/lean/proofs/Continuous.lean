@@ -44,14 +44,6 @@ theorem floorPoint_end_touches (A B : Point) : CellTouchesSegment (floorPoint B)
   · exact Rat.floor_le B.y
   · exact le_of_lt (Rat.lt_floor_add_one B.y)
 
-/--
-A cell whose open interior the segment crosses touches the segment.
--/
-theorem cellCrossedBySegment_touches_segment (c : Cell) (A B : Point)
-    (h_cross : CellCrossedBySegment c A B) : CellTouchesSegment c A B := by
-  rcases h_cross with ⟨p, h_seg, hx0, hx1, hy0, hy1⟩
-  exact ⟨p, h_seg, le_of_lt hx0, le_of_lt hx1, le_of_lt hy0, le_of_lt hy1⟩
-
 theorem cellIntersectionInterval_eq_none_of_dx_zero_out
     (c : Cell) (A B : Point) (hdx : B.x - A.x = 0)
     (h_out : A.x < ofInt c.x ∨ ofInt (c.x + 1) < A.x) :

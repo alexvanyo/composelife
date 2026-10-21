@@ -52,14 +52,19 @@ structure CopyOK (src a b : FlatHashLifeArena) : Prop where
   remap : RemapOK src b
   remapL4Size : b.remapL4.size = a.remapL4.size
   remapCellSize : b.remapCell.size = a.remapCell.size
+  masks : b.l4Mask = a.l4Mask ∧ b.cellMask = a.cellMask
+  /-- The failure flag is only raised when a node table is at capacity. -/
+  cap : b.overflow ≠ 0 → a.overflow ≠ 0 ∨ ArenaFull b
 
 theorem CopyOK.refl {src a : FlatHashLifeArena} (hwf : ArenaWF a) (hr : RemapOK src a) : CopyOK src a a :=
-  ⟨hwf, Extends.refl a, fun h => h, hr, rfl, rfl⟩
+  ⟨hwf, Extends.refl a, fun h => h, hr, rfl, rfl, ⟨rfl, rfl⟩, Or.inl⟩
 
 theorem CopyOK.trans {src a b c : FlatHashLifeArena} (h1 : CopyOK src a b) (h2 : CopyOK src b c) :
     CopyOK src a c :=
   ⟨h2.wf, h1.ext.trans h2.ext, fun h => h1.ovf (h2.ovf h), h2.remap, h2.remapL4Size.trans h1.remapL4Size,
-    h2.remapCellSize.trans h1.remapCellSize⟩
+    h2.remapCellSize.trans h1.remapCellSize, ⟨h2.masks.1.trans h1.masks.1, h2.masks.2.trans h1.masks.2⟩,
+    fun h => (h2.cap h).elim (fun h' => (h1.cap h').elim Or.inl (fun hf => Or.inr (hf.mono h2.ext h2.masks)))
+      Or.inr⟩
 
 theorem getRemapCell_same {a b : FlatHashLifeArena} (h : b.remapCell = a.remapCell) (j : UInt32) :
     getRemapCell b j = getRemapCell a j := by
@@ -77,7 +82,7 @@ theorem RemapOK.grows {src a b : FlatHashLifeArena} (hwf : ArenaWF a) (hr : Rema
 
 theorem CopyOK.of_grows {src a b : FlatHashLifeArena} (hwf : ArenaWF a) (hr : RemapOK src a) (g : Grows a b) :
     CopyOK src a b :=
-  ⟨g.wf, g.ext, g.ovf, hr.grows hwf g, by rw [g.remapL4], by rw [g.remapCell]⟩
+  ⟨g.wf, g.ext, g.ovf, hr.grows hwf g, by rw [g.remapL4], by rw [g.remapCell], g.masks, g.cap⟩
 
 theorem lt_of_lt_toUInt32 {j : UInt32} {n : ℕ} (h : j < n.toUInt32) : j.toNat < n := by
   rw [u32_lt_iff, Nat.toUInt32, UInt32.toNat_ofNat'] at h
@@ -103,7 +108,8 @@ theorem CopyOK.setRemapCell {src a : FlatHashLifeArena} (hwf : ArenaWF a) (hr : 
       NodeIs a (cellLevelOf src j - 4) v (denoteCell src j)) :
     CopyOK src a (a.setRemapCell j v) := by
   have hs := SameNodes.setRemapCell a j v
-  refine ⟨hwf.setRemapCell j v, Extends.of_same hs, fun h => h, ⟨?_, ?_⟩, rfl, by simp [FlatHashLifeArena.setRemapCell]⟩
+  refine ⟨hwf.setRemapCell j v, Extends.of_same hs, fun h => h, ⟨?_, ?_⟩, rfl, by simp [FlatHashLifeArena.setRemapCell],
+    ⟨rfl, rfl⟩, Or.inl⟩
   · intro i hi hne
     exact NodeIs.same hs (hr.l4 i hi hne)
   · intro i hi hne
@@ -121,7 +127,7 @@ theorem CopyOK.setRemapL4 {src a : FlatHashLifeArena} (hwf : ArenaWF a) (hr : Re
     CopyOK src a (a.setRemapL4 j v) := by
   have hs := SameNodes.setRemapL4 a j v
   refine ⟨hwf.setRemapL4 j v, Extends.of_same hs, fun h => h, ⟨?_, ?_⟩,
-    by simp [FlatHashLifeArena.setRemapL4], rfl⟩
+    by simp [FlatHashLifeArena.setRemapL4], rfl, ⟨rfl, rfl⟩, Or.inl⟩
   · intro i hi hne
     simp only [FlatHashLifeArena.setRemapL4] at hne ⊢
     by_cases hij : j.toNat = i.toNat

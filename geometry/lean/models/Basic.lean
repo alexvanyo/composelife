@@ -62,30 +62,9 @@ def floorPoint (p : Point) : Cell :=
   ⟨toInt p.x, toInt p.y⟩
 
 /--
-Returns 1.0 if positive, -1.0 if negative, and 0.0 otherwise.
--/
-def sign (f : ℚ) : ℚ :=
-  if f > 0 then 1
-  else if f < 0 then -1
-  else 0
-
-/--
-Determines which side of the directed line from `start` to `ptEnd` the point `p` lies on.
-Returns 1.0 for right, -1.0 for left, and 0.0 for collinear.
--/
-def sideOfLine (p start ptEnd : Point) : ℚ :=
-  sign ((ptEnd.x - start.x) * (p.y - start.y) - (ptEnd.y - start.y) * (p.x - start.x))
-
-/--
 Calculates the Chebyshev (L_infinity) distance between two cells.
 -/
 def chebyshevDistance (a b : Cell) : ℕ :=
   max (a.x - b.x).natAbs (a.y - b.y).natAbs
-
-/--
-Calculates the Manhattan (L_1) distance between two cells.
--/
-def manhattanDistance (a b : Cell) : ℕ :=
-  (a.x - b.x).natAbs + (a.y - b.y).natAbs
 
 end Geometry

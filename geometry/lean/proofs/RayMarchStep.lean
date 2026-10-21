@@ -59,8 +59,6 @@ lemma rayMarch_reaches_target (fuel : ℕ) (start ptEnd : Point) (dx dy : ℚ) (
     · rw [h_done] at h_not_done
       contradiction
 
-
-
 /-!
 # Part 4: rayMarchStep possible outputs
 -/
@@ -124,28 +122,6 @@ theorem rayMarchStep_mem (start ptEnd : Point) (dx dy : ℚ) (stepX stepY : ℤ)
                 if dy ≥ 0 then dy else -dy
           · simp only [hyx, ite_true]; exact h_in3
           · simp only [hyx, ite_false]; exact h_in4
-
-theorem rayMarchStep_fst_cases (start ptEnd : Point) (dx dy : ℚ) (stepX stepY : ℤ) (c : Cell)
-    (h_not_done : (rayMarchStep start ptEnd dx dy stepX stepY c).2 = false) :
-    (rayMarchStep start ptEnd dx dy stepX stepY c).1 = ⟨c.x + stepX, c.y⟩ ∨
-    (rayMarchStep start ptEnd dx dy stepX stepY c).1 = ⟨c.x, c.y + stepY⟩ ∨
-    (rayMarchStep start ptEnd dx dy stepX stepY c).1 = ⟨c.x + stepX, c.y + stepY⟩ := by
-  have h_mem := rayMarchStep_mem start ptEnd dx dy stepX stepY c
-  dsimp only [] at h_mem
-  simp only [List.mem_cons, List.not_mem_nil, or_false] at h_mem
-  rcases h_mem with h1 | h2 | h3 | h4
-  · have : (rayMarchStep start ptEnd dx dy stepX stepY c).2 = true := by rw [h1]
-    rw [this] at h_not_done
-    contradiction
-  · left
-    exact congrArg Prod.fst h2
-  · right; left
-    exact congrArg Prod.fst h3
-  · right; right
-    exact congrArg Prod.fst h4
-
-
-
 
 /-! # 1. crossY < crossX when cx = xx -/
 
@@ -408,7 +384,6 @@ theorem cross_ge_neg_neg (cx cy xx xy : ℤ) (Ax Ay dx dy tEnter tExit : ℚ)
   have h_cross := (cross_lt_cross_iff_div_lt_div remX remY absDx absDy habsDx habsDy).mpr h_lt
   linarith
 
-
 /-! # 3. min crossX crossY < limitCross when cx not reached or cy not reached -/
 
 theorem min_cross_lt_limit_pos_pos (cx cy xx xy : ℤ) (Ax Ay dx dy tEnter tExit : ℚ)
@@ -575,7 +550,6 @@ theorem min_cross_lt_limit_neg_neg (cx cy xx xy : ℤ) (Ax Ay dx dy tEnter tExit
     have : remY / absDy < 1 := by linarith
     exact (div_lt_one habsDy).mp this
 
-
 theorem rayMarchStep_sx_zero (A B : Point) (c : Cell)
     (dy : ℚ) (stepY : ℤ) :
     let stepX : ℤ := 0
@@ -709,7 +683,6 @@ theorem step_sx_zero (A B : Point) (x c : Cell) (tEnter tExit : ℚ)
     · rw [hsy]; omega
     · rw [hsy]; omega
     · rw [hsy]; omega
-
 
 theorem rayMarchStep_sy_zero (A B : Point) (c : Cell)
     (dx : ℚ) (stepX : ℤ) (hx : (stepX == 0) = false) :
@@ -852,9 +825,6 @@ theorem step_sy_zero (A B : Point) (x c : Cell) (tEnter tExit : ℚ)
     · rw [hsx]; omega
     · rw [hsx]; omega
 
-
-
-
 theorem rayMarchStep_diag (A B : Point) (c : Cell)
     (dx dy : ℚ) (stepX stepY : ℤ) (hx : (stepX == 0) = false) (hy : (stepY == 0) = false) :
     let xb : ℚ := if stepX > 0 then ofInt (c.x + 1) else ofInt c.x
@@ -877,21 +847,15 @@ theorem rayMarchStep_diag (A B : Point) (c : Cell)
   simp only [hx, hy, Bool.false_eq_true, ↓reduceIte]
   rfl
 
-
-
 def absVal (r : ℚ) : ℚ := if r ≥ 0 then r else -r
-
 
 def remX_val (start : Point) (stepX : ℤ) (c : Cell) : ℚ :=
   let xb := if stepX > 0 then ofInt (c.x + 1) else ofInt c.x
   if xb ≥ start.x then xb - start.x else start.x - xb
 
-
 def remY_val (start : Point) (stepY : ℤ) (c : Cell) : ℚ :=
   let yb := if stepY > 0 then ofInt (c.y + 1) else ofInt c.y
   if yb ≥ start.y then yb - start.y else start.y - yb
-
-
 
 theorem rayMarchStep_cases (start ptEnd : Point) (dx dy : ℚ) (stepX stepY : ℤ) (c : Cell) :
     rayMarchStep start ptEnd dx dy stepX stepY c = (c, true) ∨
@@ -902,23 +866,6 @@ theorem rayMarchStep_cases (start ptEnd : Point) (dx dy : ℚ) (stepX stepY : �
   simp only [List.mem_cons, List.not_mem_nil, or_false] at h_mem
   exact h_mem
 
-
-theorem rayMarchStep_not_done_cases (start ptEnd : Point) (dx dy : ℚ) (stepX stepY : ℤ) (c : Cell)
-    (h_not_done : (rayMarchStep start ptEnd dx dy stepX stepY c).2 = false) :
-    let next := (rayMarchStep start ptEnd dx dy stepX stepY c).1
-    next = ⟨c.x + stepX, c.y⟩ ∨ next = ⟨c.x, c.y + stepY⟩ ∨ next = ⟨c.x + stepX, c.y + stepY⟩ := by
-  have h := rayMarchStep_cases start ptEnd dx dy stepX stepY c
-  rcases h with h1 | h2 | h3 | h4
-  · rw [h1] at h_not_done
-    contradiction
-  · rw [h2]
-    exact Or.inl rfl
-  · rw [h3]
-    exact Or.inr (Or.inl rfl)
-  · rw [h4]
-    exact Or.inr (Or.inr rfl)
-
-
 theorem rayMarch_same_endpoints (fuel : ℕ) (A B : Point) (dx dy : ℚ) (stepX stepY : ℤ)
     (h : floorPoint A = floorPoint B) :
     rayMarch (fuel + 1) A B dx dy stepX stepY (floorPoint B) (floorPoint A) [] = [] := by
@@ -926,7 +873,6 @@ theorem rayMarch_same_endpoints (fuel : ℕ) (A B : Point) (dx dy : ℚ) (stepX 
   dsimp only []
   have : (floorPoint A == floorPoint B) = true := by rw [h]; exact beq_self_eq_true _
   simp [this]
-
 
 theorem floor_mono {x y : ℚ} (h : x ≤ y) : Rat.floor x ≤ Rat.floor y := by
   have h1 : ((Rat.floor x : ℤ) : ℚ) ≤ x := Rat.floor_le x
@@ -937,7 +883,6 @@ theorem floor_mono {x y : ℚ} (h : x ≤ y) : Rat.floor x ≤ Rat.floor y := by
   have h_lt_cast : y < ((Rat.floor y + 1 : ℤ) : ℚ) := Rat.lt_floor_add_one y
   linarith
 
-
 theorem floor_le_sub_one_of_lt (y : ℚ) (cy : ℤ) (h : y < ofInt cy) :
     Rat.floor y ≤ cy - 1 := by
   have h1 : ((Rat.floor y : ℤ) : ℚ) ≤ y := Rat.floor_le y
@@ -946,7 +891,6 @@ theorem floor_le_sub_one_of_lt (y : ℚ) (cy : ℤ) (h : y < ofInt cy) :
   change ((Rat.floor y : ℤ) : ℚ) < ((cy : ℤ) : ℚ) at h2
   have h3 : Rat.floor y < cy := Int.cast_lt.mp h2
   omega
-
 
 theorem stepX_pos_next_le_end (cx : ℤ) (Ax : ℚ) (B : Point)
     (_hdx : 0 < B.x - Ax)
@@ -958,7 +902,6 @@ theorem stepX_pos_next_le_end (cx : ℤ) (Ax : ℚ) (B : Point)
   unfold floorPoint toInt; dsimp
   exact le_floor_of_le cx B.x h_lt
 
-
 theorem stepY_pos_next_le_end (cy : ℤ) (Ay : ℚ) (B : Point)
     (_hdy : 0 < B.y - Ay)
     (h_bnd : ofInt cy - Ay < B.y - Ay) :
@@ -968,7 +911,6 @@ theorem stepY_pos_next_le_end (cy : ℤ) (Ay : ℚ) (B : Point)
     linarith
   unfold floorPoint toInt; dsimp
   exact le_floor_of_le cy B.y h_lt
-
 
 theorem stepX_neg_next_ge_end (cx : ℤ) (Ax : ℚ) (B : Point)
     (hdx : B.x - Ax < 0)
@@ -980,7 +922,6 @@ theorem stepX_neg_next_ge_end (cx : ℤ) (Ax : ℚ) (B : Point)
   unfold floorPoint toInt; dsimp
   exact floor_le_sub_one_of_lt B.x cx h_gt
 
-
 theorem stepY_neg_next_ge_end (cy : ℤ) (Ay : ℚ) (B : Point)
     (hdy : B.y - Ay < 0)
     (h_bnd : (ofInt cy - Ay) / (B.y - Ay) < 1) :
@@ -990,7 +931,6 @@ theorem stepY_neg_next_ge_end (cy : ℤ) (Ay : ℚ) (B : Point)
     linarith
   unfold floorPoint toInt; dsimp
   exact floor_le_sub_one_of_lt B.y cy h_gt
-
 
 theorem inBoundingBox_stepX_forward (c : Cell) (A B : Point)
     (hdx : 0 < B.x - A.x)
@@ -1007,7 +947,6 @@ theorem inBoundingBox_stepX_forward (c : Cell) (A B : Point)
   rcases h_bbox with ⟨⟨⟨h1, h2⟩, h3⟩, h4⟩
   exact ⟨⟨⟨by omega, h_next⟩, h3⟩, h4⟩
 
-
 theorem inBoundingBox_stepX_backward (c : Cell) (A B : Point)
     (hdx : B.x - A.x < 0)
     (h_bbox : inBoundingBox c A B = true)
@@ -1022,7 +961,6 @@ theorem inBoundingBox_stepX_backward (c : Cell) (A B : Point)
   simp only [Bool.and_eq_true, decide_eq_true_iff] at h_bbox ⊢
   rcases h_bbox with ⟨⟨⟨h1, h2⟩, h3⟩, h4⟩
   exact ⟨⟨⟨h_next, by omega⟩, h3⟩, h4⟩
-
 
 theorem inBoundingBox_stepY_forward (c : Cell) (A B : Point)
     (hdy : 0 < B.y - A.y)
@@ -1039,7 +977,6 @@ theorem inBoundingBox_stepY_forward (c : Cell) (A B : Point)
   rcases h_bbox with ⟨⟨⟨h1, h2⟩, h3⟩, h4⟩
   exact ⟨⟨⟨h1, h2⟩, by omega⟩, h_next⟩
 
-
 theorem inBoundingBox_stepY_backward (c : Cell) (A B : Point)
     (hdy : B.y - A.y < 0)
     (h_bbox : inBoundingBox c A B = true)
@@ -1054,7 +991,6 @@ theorem inBoundingBox_stepY_backward (c : Cell) (A B : Point)
   simp only [Bool.and_eq_true, decide_eq_true_iff] at h_bbox ⊢
   rcases h_bbox with ⟨⟨⟨h1, h2⟩, h3⟩, h4⟩
   exact ⟨⟨⟨h1, h2⟩, h_next⟩, by omega⟩
-
 
 theorem stepX_interval_lt_neg (tx1 ty0 ty1 dx : ℚ) (dx_neg : dx < 0)
     (h_cross : tx1 < ty1)
@@ -1078,7 +1014,6 @@ theorem stepX_interval_lt_neg (tx1 ty0 ty1 dx : ℚ) (dx_neg : dx < 0)
   rw [lt_min_iff]
   exact ⟨h2, h3⟩
 
-
 theorem stepY_interval_lt_neg (ty1 tx0 tx1 dy : ℚ) (dy_neg : dy < 0)
     (h_cross : ty1 < tx1)
     (h_lim : ty1 < 1)
@@ -1100,7 +1035,5 @@ theorem stepY_interval_lt_neg (ty1 tx0 tx1 dy : ℚ) (dy_neg : dy < 0)
   refine ⟨h1, ?_⟩
   rw [lt_min_iff]
   exact ⟨h2, h3⟩
-
-
 
 end Geometry

@@ -15,12 +15,10 @@
  -/
 
 
-import Std.Tactic.BVDecide
 import Algorithm.Basic
 import Algorithm.BitComputation
 import Algorithm.MacroCell
 import Algorithm.HashLife
-import Algorithm.HashLifeEquivalence
 import AlgorithmDefs
 import proofs.SemanticModelProofs
 import proofs.HashLifeKernelProofs
@@ -130,7 +128,7 @@ theorem leafAt_chunk_se {l : UInt64} {x y : ℤ} (h : leafAt l x y = true) :
       | (exfalso; omega)
       | (simp only [leafAt, mortonIndex, Int.reduceLT, Int.reduceLE, Int.reduceToNat, Nat.reduceMod,
           Nat.reduceDiv, Nat.reduceMul, Nat.reduceAdd, ↓reduceIte, and_self] at h
-         bv_decide)
+         exact UInt64.and_ne_zero_of_getLsbD h (by decide))
     have hpc : popcount64 (l &&& 0x0000FFFFFFFFFFFF) ≠ 0 :=
       fun hz => hne ((popcount64_eq_zero_iff _).mp hz)
     have h0 : (popcount64 (l &&& 0x0000FFFFFFFFFFFF)).toNat ≠ 0 :=
@@ -152,7 +150,7 @@ theorem leafAt_chunk_sw {l : UInt64} {x y : ℤ} (h : leafAt l x y = true) :
       | (exfalso; omega)
       | (simp only [leafAt, mortonIndex, Int.reduceLT, Int.reduceLE, Int.reduceToNat, Nat.reduceMod,
           Nat.reduceDiv, Nat.reduceMul, Nat.reduceAdd, ↓reduceIte, and_self] at h
-         bv_decide)
+         exact UInt64.and_ne_zero_of_getLsbD h (by decide))
     have hpc : popcount64 (l &&& 0xFFFF0000FFFFFFFF) ≠ 0 :=
       fun hz => hne ((popcount64_eq_zero_iff _).mp hz)
     have h0 : (popcount64 (l &&& 0xFFFF0000FFFFFFFF)).toNat ≠ 0 :=
@@ -174,7 +172,7 @@ theorem leafAt_chunk_ne {l : UInt64} {x y : ℤ} (h : leafAt l x y = true) :
       | (exfalso; omega)
       | (simp only [leafAt, mortonIndex, Int.reduceLT, Int.reduceLE, Int.reduceToNat, Nat.reduceMod,
           Nat.reduceDiv, Nat.reduceMul, Nat.reduceAdd, ↓reduceIte, and_self] at h
-         bv_decide)
+         exact UInt64.and_ne_zero_of_getLsbD h (by decide))
     have hpc : popcount64 (l &&& 0xFFFFFFFF0000FFFF) ≠ 0 :=
       fun hz => hne ((popcount64_eq_zero_iff _).mp hz)
     have h0 : (popcount64 (l &&& 0xFFFFFFFF0000FFFF)).toNat ≠ 0 :=
@@ -196,7 +194,7 @@ theorem leafAt_chunk_nw {l : UInt64} {x y : ℤ} (h : leafAt l x y = true) :
       | (exfalso; omega)
       | (simp only [leafAt, mortonIndex, Int.reduceLT, Int.reduceLE, Int.reduceToNat, Nat.reduceMod,
           Nat.reduceDiv, Nat.reduceMul, Nat.reduceAdd, ↓reduceIte, and_self] at h
-         bv_decide)
+         exact UInt64.and_ne_zero_of_getLsbD h (by decide))
     have hpc : popcount64 (l &&& 0xFFFFFFFFFFFF0000) ≠ 0 :=
       fun hz => hne ((popcount64_eq_zero_iff _).mp hz)
     have h0 : (popcount64 (l &&& 0xFFFFFFFFFFFF0000)).toNat ≠ 0 :=

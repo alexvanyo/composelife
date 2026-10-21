@@ -148,7 +148,6 @@ theorem compare_pos_finite {m1 m2 : ℕ} {e1 e2 : ℤ}
   · rw [(compare_gt_iff_gt).mpr h, Ordering.gt_then]
     exact ((compare_gt_iff_gt).mpr (mag_lt_of_exp_lt c2.1 c1.2.2 c2.2.1 h)).symm
 
-
 theorem compare_neg_neg (a b : ℝ) : compare (-a) (-b) = (compare a b).swap := by
   rcases lt_trichotomy a b with h | h | h
   · rw [(compare_lt_iff_lt).mpr h, (compare_gt_iff_gt).mpr (neg_lt_neg h)]; rfl
@@ -457,9 +456,6 @@ structure Agree (x : Float) (b : Binary64) : Prop where
   nfin : x.isFinite = true
   bfin : ExecFloat.Binary.isFinite b = true
   real : nreal x = breal b
-
-theorem Agree.ofFloat_self {x : Float} (hx : x.isFinite = true) : Agree x (ExecFloat.Binary.ofFloat x) :=
-  ⟨hx, by rw [ofFloat_isFinite]; exact hx, rfl⟩
 
 theorem ofFloat_isFinite' {x : Float} (hx : x.isFinite = true) :
     ExecFloat.Binary.isFinite (ExecFloat.Binary.ofFloat x) = true := by

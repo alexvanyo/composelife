@@ -16,6 +16,7 @@
 
 import com.alexvanyo.composelife.buildlogic.CacheLeanTask
 import com.alexvanyo.composelife.buildlogic.CheckLeanBuildScriptHygieneTask
+import com.alexvanyo.composelife.buildlogic.CheckLeanBvCheckTask
 import com.alexvanyo.composelife.buildlogic.CheckLeanGeneratedKotlinTask
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.GenerateLeanKotlinTask
@@ -75,10 +76,21 @@ class LeanConventionPlugin :
             usesService(heavyTaskLimitingBuildService)
         }
 
+        val checkLeanBvCheck = tasks.register("checkLeanBvCheck", CheckLeanBvCheckTask::class.java) {
+            description = "Checks that Lean bit-level proofs use bv_check with stored certificates, not bv_decide"
+            group = LifecycleBasePlugin.VERIFICATION_GROUP
+            leanFiles.from(
+                leanExtension.leanDirectory.asFileTree.matching {
+                    include("**/*.lean")
+                    exclude(".lake/**")
+                },
+            )
+        }
+
         val verifyLean = tasks.register("verifyLean", VerifyLeanTask::class.java) {
             description = "Formally verifies Lean logic using Lean 4 with warnings as errors (--wfail)"
             group = LifecycleBasePlugin.VERIFICATION_GROUP
-            dependsOn(cacheLean)
+            dependsOn(cacheLean, checkLeanBvCheck)
             workingDir.set(leanExtension.leanDirectory)
             target.set(leanExtension.target)
             usesService(heavyTaskLimitingBuildService)

@@ -262,20 +262,6 @@ class MacroCellTests {
     }
 
     @Test
-    fun canonicalCellNodeEquals_is_correct() {
-        val empty4 = createEmptyMacroCell(4)
-        val empty5A = createEmptyMacroCell(5)
-        val empty5B = MacroCell.CellNode(empty4, empty4, empty4, empty4)
-
-        assertTrue(f_Algorithm_canonicalCellNodeEquals(empty5A, empty5B))
-        assertFalse(f_Algorithm_canonicalCellNodeEquals(empty4, empty4))
-
-        val nonZeroCell = empty4.withCell(IntOffset(0, 0), true)
-        val cellWithDiff = MacroCell.CellNode(nonZeroCell, empty4, empty4, empty4)
-        assertFalse(f_Algorithm_canonicalCellNodeEquals(empty5A, cellWithDiff))
-    }
-
-    @Test
     fun canonicalizeMacroCellWith_level4_calls_internLevel4() {
         val level4 = createEmptyMacroCell(4)
         var called = false

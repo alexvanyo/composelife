@@ -16,7 +16,6 @@
 
 import Algorithm.MacroCell
 import Algorithm.FlatHashLife
-import Algorithm.HashLifeEquivalence
 import AlgorithmDefs
 import proofs.SemanticModelProofs
 
@@ -54,10 +53,6 @@ theorem getElem!_setIfInBounds_ne {α : Type} [Inhabited α] (a : Array α) (i j
   rw [getElem!_setIfInBounds_eq]
   simp [h]
 
-theorem getElem!_set!_eq {α : Type} [Inhabited α] (a : Array α) (i j : ℕ) (v : α) :
-    (a.set! i v)[j]! = if i = j ∧ i < a.size then v else a[j]! :=
-  getElem!_setIfInBounds_eq a i j v
-
 theorem getElem!_set!_self {α : Type} [Inhabited α] (a : Array α) (i : ℕ) (v : α)
     (h : i < a.size) : (a.set! i v)[i]! = v :=
   getElem!_setIfInBounds_self a i v h
@@ -76,10 +71,6 @@ theorem size_set! {α : Type} (a : Array α) (i : ℕ) (v : α) : (a.set! i v).s
 theorem u32_lt_iff {a b : UInt32} : a < b ↔ a.toNat < b.toNat := UInt32.lt_iff_toNat_lt
 
 theorem u32_le_iff {a b : UInt32} : a ≤ b ↔ a.toNat ≤ b.toNat := UInt32.le_iff_toNat_le
-
-theorem u32_ge_false {a b : UInt32} : (a ≥ b) = False ↔ a.toNat < b.toNat := by
-  rw [ge_iff_le, u32_le_iff]
-  simp
 
 theorem u32_toNat_lt (a : UInt32) : a.toNat < 2 ^ 32 := UInt32.toNat_lt a
 
@@ -103,10 +94,6 @@ theorem u32_ofNat_toNat {n : ℕ} (h : n < 2 ^ 32) : n.toUInt32.toNat = n := by
 
 theorem u32_eq_of_toNat {a b : UInt32} (h : a.toNat = b.toNat) : a = b := UInt32.toNat.inj h
 
-theorem u32_ne_of_toNat {a b : UInt32} (h : a.toNat ≠ b.toNat) : a ≠ b := by
-  intro e
-  exact h (congrArg UInt32.toNat e)
-
 theorem uncomputed_toNat : UNCOMPUTED.toNat = 2 ^ 32 - 1 := rfl
 
 theorem ne_uncomputed_of_lt {id c : UInt32} (h : id < c) : id ≠ UNCOMPUTED := by
@@ -122,10 +109,6 @@ theorem u8_toNat_lt (a : UInt8) : a.toNat < 2 ^ 8 := UInt8.toNat_lt a
 theorem u8_toNat_sub {a b : UInt8} (h : b.toNat ≤ a.toNat) : (a - b).toNat = a.toNat - b.toNat := by
   rw [UInt8.toNat_sub_of_le]
   exact UInt8.le_iff_toNat_le.mpr h
-
-theorem u8_toNat_add {a b : UInt8} (h : a.toNat + b.toNat < 2 ^ 8) : (a + b).toNat = a.toNat + b.toNat := by
-  rw [UInt8.toNat_add]
-  omega
 
 theorem u8_eq_iff_toNat {a b : UInt8} : a = b ↔ a.toNat = b.toNat :=
   ⟨fun h => congrArg UInt8.toNat h, fun h => UInt8.toNat.inj h⟩
@@ -144,8 +127,6 @@ theorem u8_toUInt32_toNat (a : UInt8) : a.toUInt32.toNat = a.toNat := UInt8.toNa
 theorem emptyNode_succ_four (k : ℕ) :
     emptyNode (k + 5) = makeCellNode (emptyNode (k + 4)) (emptyNode (k + 4))
       (emptyNode (k + 4)) (emptyNode (k + 4)) := rfl
-
-theorem emptyNode_four : emptyNode 4 = emptyLevel4 := rfl
 
 theorem WFd_emptyNode : ∀ k : ℕ, WFd (emptyNode (k + 4)) (k + 4)
   | 0 => rfl
@@ -167,14 +148,6 @@ theorem denoteAt_WFd : ∀ (h : ℕ) (a : FlatHashLifeArena) (id : UInt32), WFd 
     · exact WFd_makeCellNode (denoteAt_WFd h a _) (denoteAt_WFd h a _) (denoteAt_WFd h a _)
         (denoteAt_WFd h a _)
     · exact WFd_emptyNode (h + 1)
-
-theorem denoteAt_level (h : ℕ) (a : FlatHashLifeArena) (id : UInt32) (hh : h + 4 < 2 ^ 32) :
-    (denoteAt h a id).level.toNat = h + 4 :=
-  WFd_level_toNat (denoteAt_WFd h a id) hh
-
-theorem denoteAt_depth (h : ℕ) (a : FlatHashLifeArena) (id : UInt32) :
-    (denoteAt h a id).depth = h + 4 :=
-  WFd_depth (denoteAt_WFd h a id)
 
 theorem denoteAt_succ_of_lt {h : ℕ} {a : FlatHashLifeArena} {id : UInt32} (hid : id < a.cellCount) :
     denoteAt (h + 1) a id =
@@ -337,11 +310,6 @@ theorem NodeIs.extend {a b : FlatHashLifeArena} (hwf : ArenaWF a) (hext : Extend
 theorem NodesPreserved.of_extends {a b : FlatHashLifeArena} (hwf : ArenaWF a) (hext : Extends a b) :
     NodesPreserved a b :=
   fun _ _ _ hn => NodeIs.extend hwf hext hn
-
-theorem NodesPreserved.refl (a : FlatHashLifeArena) : NodesPreserved a a := fun _ _ _ h => h
-
-theorem NodesPreserved.trans {a b c : FlatHashLifeArena} (h1 : NodesPreserved a b) (h2 : NodesPreserved b c) :
-    NodesPreserved a c := fun _ _ _ h => h2 _ _ _ (h1 _ _ _ h)
 
 -- =========================================================================
 -- Pre-interned empty nodes

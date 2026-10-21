@@ -18,10 +18,12 @@
 package com.alexvanyo.composelife.model
 
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.IntSize
 import com.alexvanyo.composelife.algorithm.FlatHashLifeArena
 import com.alexvanyo.composelife.algorithm.FlatHashLifeArenaException
+import com.alexvanyo.composelife.algorithm.f_Algorithm_cellCursorDone
+import com.alexvanyo.composelife.algorithm.f_Algorithm_cellsToMacroCell
+import com.alexvanyo.composelife.algorithm.f_Algorithm_importNeedsChildren
+import com.alexvanyo.composelife.algorithm.f_Algorithm_leafChunkKey
 
 internal const val UNCOMPUTED_ID: UInt = 0xFFFFFFFFu
 
@@ -58,70 +60,49 @@ internal fun createFlatArena(capacityPow2: Int, maxCapacityPow2: Int = 18): Flat
     return arena
 }
 
-private fun createLevel4Tiles(
-    cellState: CellState,
-    arena: FlatHashLifeArena,
-    minX: Int,
-    minY: Int,
-): Map<IntOffset, UInt>? {
-    val tileGroups = cellState.aliveCells.groupBy {
-        IntOffset((it.x - minX).floorDiv(16), (it.y - minY).floorDiv(16))
+/**
+ * The key of a cell, as `cellKeyOf` in Lean computes it: `x + 2^31` in the high 32 bits and `y + 2^31` in the low
+ * 32 bits.
+ */
+private fun cellKeyOf(cell: IntOffset): ULong =
+    ((cell.x.toLong() + KEY_BIAS).toULong() shl 32) or (cell.y.toLong() + KEY_BIAS).toULong()
+
+/**
+ * The coordinate of 32 bits of a key (`keyCoord` in Lean).
+ */
+private fun keyCoordinate(bits: ULong): Int = (bits.toLong() - KEY_BIAS).toInt()
+
+/**
+ * The cell of a key (`keyCoord` in Lean).
+ */
+private fun keyCell(key: ULong): IntOffset = IntOffset(keyCoordinate(key shr 32), keyCoordinate(key and 0xFFFFFFFFuL))
+
+private const val KEY_BIAS = 2147483648L
+
+/**
+ * Imports the alive cells of any [CellState] into [arena]: `cellsToMacroCell` (verified in Lean) builds their quadtree
+ * at the corner of their bounding box, which is then imported with [internMacroCellDag].
+ *
+ * Returns `null` if [arena] runs out of capacity, and throws [FlatHashLifeArenaException] if the pattern has too many
+ * cells or does not fit the arena's levels or coordinate range.
+ */
+internal fun buildQuadtreeBottomUp(cellState: CellState, arena: FlatHashLifeArena): Pair<IntOffset, UInt>? {
+    val cells = cellState.aliveCells
+    // A set reports `Int.MAX_VALUE` when it holds at least that many cells, more than an array can hold.
+    if (cells.size == Int.MAX_VALUE) {
+        throw FlatHashLifeArenaException("Pattern has too many live cells to import into FlatHashLifeArena")
     }
-    val currentCoords = mutableMapOf<IntOffset, UInt>()
-    for ((tileCoord, _) in tileGroups) {
-        val tileOrigin = IntOffset(minX + tileCoord.x * 16, minY + tileCoord.y * 16)
-        val nw = createLeafNode(cellState, tileOrigin)
-        val ne = createLeafNode(cellState, tileOrigin + IntOffset(8, 0))
-        val sw = createLeafNode(cellState, tileOrigin + IntOffset(0, 8))
-        val se = createLeafNode(cellState, tileOrigin + IntOffset(8, 8))
-        val l4Id = arena.internLevel4(nw, ne, sw, se)
-        if (arena.overflow != 0u.toUByte() || l4Id == UNCOMPUTED_ID) return null
-        currentCoords[tileCoord] = l4Id
+    val keys = ArrayList<Any?>(cells.size)
+    for (cell in cells) {
+        keys.add(cellKeyOf(cell))
     }
-    return currentCoords
+    val (cornerX, cornerYAndMacroCell) = f_Algorithm_cellsToMacroCell(keys.toTypedArray())
+    val (cornerY, macroCell) = cornerYAndMacroCell
+    return internMacroCellDag(
+        HashLifeCellState(IntOffset(keyCoordinate(cornerX), keyCoordinate(cornerY)), macroCell),
+        arena,
+    )
 }
-
-private fun buildQuadtreeLevels(initialCoords: Map<IntOffset, UInt>, arena: FlatHashLifeArena): UInt? {
-    var currentCoords = initialCoords
-    var currentLevel = 4
-    while (currentCoords.size > 1 || currentLevel < 5) {
-        val nextLevel = currentLevel + 1
-        val emptyChild = if (currentLevel <= 4) 0u else (currentLevel - 5).toUInt()
-        val nextCoords = mutableMapOf<IntOffset, UInt>()
-        val processedParents = mutableSetOf<IntOffset>()
-        for (coord in currentCoords.keys) {
-            val parent = IntOffset(coord.x shr 1, coord.y shr 1)
-            if (!processedParents.add(parent)) continue
-
-            val nw = currentCoords[IntOffset(parent.x * 2, parent.y * 2)] ?: emptyChild
-            val ne = currentCoords[IntOffset(parent.x * 2 + 1, parent.y * 2)] ?: emptyChild
-            val sw = currentCoords[IntOffset(parent.x * 2, parent.y * 2 + 1)] ?: emptyChild
-            val se = currentCoords[IntOffset(parent.x * 2 + 1, parent.y * 2 + 1)] ?: emptyChild
-
-            val cellId = arena.internCellNode(nextLevel.toUByte(), nw, ne, sw, se)
-            if (arena.overflow != 0u.toUByte() || cellId == UNCOMPUTED_ID) return null
-            nextCoords[parent] = cellId
-        }
-        currentCoords = nextCoords
-        currentLevel = nextLevel
-    }
-    return currentCoords.values.single()
-}
-
-internal fun buildQuadtreeBottomUp(cellState: CellState, arena: FlatHashLifeArena): Pair<IntOffset, UInt>? =
-    if (cellState.aliveCells.isEmpty()) {
-        IntOffset.Zero to 0u
-    } else {
-        var minX = Int.MAX_VALUE
-        var minY = Int.MAX_VALUE
-        for (cell in cellState.aliveCells) {
-            minX = minOf(minX, cell.x)
-            minY = minOf(minY, cell.y)
-        }
-        val initialCoords = createLevel4Tiles(cellState, arena, minX, minY)
-        val rootId = initialCoords?.let { buildQuadtreeLevels(it, arena) }
-        rootId?.let { IntOffset(minX, minY) to it }
-    }
 
 /**
  * Imports a [HashLifeCellState] into [arena] using a DAG-based bottom-up traversal with subtree memoization.
@@ -129,9 +110,9 @@ internal fun buildQuadtreeBottomUp(cellState: CellState, arena: FlatHashLifeAren
  * This avoids exponential tree traversal costs on highly repetitive patterns where identical subtrees
  * are shared across quadrants. A level 4 root is imported as its centered level 6 expansion.
  *
- * Returns `null` if [arena] runs out of capacity.
+ * Returns `null` if [arena] runs out of capacity, and throws [FlatHashLifeArenaException] if the pattern is above
+ * level 60 or its expansion does not fit the arena's coordinate range.
  */
-@Suppress("CyclomaticComplexMethod")
 internal fun internMacroCellDag(cellState: HashLifeCellState, arena: FlatHashLifeArena): Pair<IntOffset, UInt>? {
     val root = cellState.macroCell
     if (root is MacroCell.Level4Node) {
@@ -149,43 +130,43 @@ internal fun internMacroCellDag(cellState: HashLifeCellState, arena: FlatHashLif
         }
     }
 
-    val memo = mutableMapOf<MacroCell, UInt>()
-
-    fun internLevel4(node: MacroCell.Level4Node): UInt {
-        val l4Id = arena.internLevel4(node.nw, node.ne, node.sw, node.se)
-        return if (arena.overflow != 0u.toUByte()) UNCOMPUTED_ID else l4Id
-    }
+    // The memoized recursion modeled by `DagIntern` in Lean: each node is imported by `importMacroCellNode` from the
+    // ids of its children. The memo is keyed by identity: structural equality of `MacroCell` does not short-circuit
+    // on shared children, so comparing two equal but separately built subtrees walks every path through them.
+    val memo = mutableMapOf<IdentityKey, UInt>()
 
     fun intern(node: MacroCell): UInt {
-        memo[node]?.let { return it }
-        val id = when (node) {
-            is MacroCell.Level4Node -> internLevel4(node)
-
-            is MacroCell.CellNode -> {
-                val lvl = node.level()
-                if (node.size() == 0uL && lvl in 5u..60u) {
-                    lvl - 5u
-                } else {
-                    val nwId = intern(node.nw)
-                    val neId = intern(node.ne)
-                    val swId = intern(node.sw)
-                    val seId = intern(node.se)
-                    val anyUncomputed = nwId == UNCOMPUTED_ID || neId == UNCOMPUTED_ID
-                    if (anyUncomputed || swId == UNCOMPUTED_ID || seId == UNCOMPUTED_ID) {
-                        UNCOMPUTED_ID
-                    } else {
-                        val cellId = arena.internCellNode(lvl.toUByte(), nwId, neId, swId, seId)
-                        if (arena.overflow != 0u.toUByte()) UNCOMPUTED_ID else cellId
-                    }
-                }
-            }
+        val key = IdentityKey(node)
+        memo[key]?.let { return it }
+        val id = if (f_Algorithm_importNeedsChildren(node)) {
+            val cellNode = node as MacroCell.CellNode
+            val nwId = intern(cellNode.nw)
+            val neId = intern(cellNode.ne)
+            val swId = intern(cellNode.sw)
+            val seId = intern(cellNode.se)
+            arena.importMacroCellNode(node, nwId, neId, swId, seId)
+        } else {
+            arena.importMacroCellNode(node, UNCOMPUTED_ID, UNCOMPUTED_ID, UNCOMPUTED_ID, UNCOMPUTED_ID)
         }
-        memo[node] = id
+        memo[key] = id
         return id
     }
 
     val rootId = intern(root)
-    return if (arena.overflow != 0u.toUByte() || rootId == UNCOMPUTED_ID) null else cellState.offset to rootId
+    return when {
+        rootId != UNCOMPUTED_ID -> cellState.offset to rootId
+        arena.overflow != 0u.toUByte() -> null
+        else -> throw FlatHashLifeArenaException("Pattern exceeds the levels of FlatHashLifeArena")
+    }
+}
+
+/**
+ * A [MacroCell] compared by identity, so a memo lookup costs one hash and one reference comparison.
+ */
+private class IdentityKey(val node: MacroCell) {
+    override fun equals(other: Any?): Boolean = other is IdentityKey && other.node === node
+
+    override fun hashCode(): Int = node.hashCode()
 }
 
 /**
@@ -193,47 +174,41 @@ internal fun internMacroCellDag(cellState: HashLifeCellState, arena: FlatHashLif
  *
  * Within an arena epoch, every structural slot is write-once within an arena and never mutated after creation.
  * This allows $O(1)$ zero-copy snapshot creation per generation and $O(1)$ root handoff on consecutive steps,
- * while allowing the UI thread to traverse the quadtree lock-free without allocating `MacroCell` objects.
+ * while allowing the UI thread to traverse the quadtree lock-free without allocating `MacroCell` objects: the cell
+ * iterators lazily run the verified Lean cell cursor, which emits the live cells of one leaf per step.
  */
 internal class FlatHashLifeCellState(val offset: IntOffset, val rootNodeId: UInt, val arena: FlatHashLifeArena) :
     CellState() {
 
-    private val l4Nw = arena.l4Nw
-    private val l4Ne = arena.l4Ne
-    private val l4Sw = arena.l4Sw
-    private val l4Se = arena.l4Se
-    private val cellNw = arena.cellNw
-    private val cellNe = arena.cellNe
-    private val cellSw = arena.cellSw
-    private val cellSe = arena.cellSe
-    private val cellLevel = arena.cellLevel
-    private val cellPop = arena.cellPop
-
-    val rootLevel: Int = cellLevel[rootNodeId.toInt()].toInt()
+    private val population: ULong = arena.cellPop[rootNodeId.toInt()]
 
     override val aliveCells: Set<IntOffset> =
         object : Set<IntOffset> {
-            override val size: Int = cellPop[rootNodeId.toInt()].toInt()
+            // Like other collections, the set reports at most `Int.MAX_VALUE` elements.
+            override val size: Int = population.coerceAtMost(Int.MAX_VALUE.toULong()).toInt()
 
             override fun contains(element: IntOffset): Boolean = containsOffset(element)
 
-            override fun containsAll(elements: Collection<IntOffset>): Boolean =
-                elements.isEmpty() || (size >= elements.size && elements.all(::containsOffset))
+            override fun containsAll(elements: Collection<IntOffset>): Boolean = elements.all(::containsOffset)
 
             override fun isEmpty(): Boolean = size == 0
 
-            override fun iterator(): Iterator<IntOffset> {
-                val windowSize = if (rootLevel >= 30) Int.MAX_VALUE else (1 shl rootLevel)
-                return windowIterator(
-                    CellWindow(
-                        IntRect(
-                            IntOffset.Zero,
-                            IntSize(windowSize, windowSize),
-                        ),
-                    ),
-                )
-            }
+            override fun iterator(): Iterator<IntOffset> = CellCursorIterator(
+                stack = arena.cellCursorStart(rootNodeId, offset.x, offset.y),
+                step = arena::cellCursorStepAll,
+                expectedCount = population,
+            )
         }
+
+    /**
+     * Whether every live cell lies in the `Int` coordinate range: whether the cursors over the cells at or past
+     * `x = 2^31` and at or past `y = 2^31` (`flat_fitsInIntRange_correct` in Lean) emit nothing. They skip every
+     * subtree that misses those regions, so this only visits the nodes along the edge of the range.
+     */
+    internal fun fitsInIntRange(): Boolean {
+        val start = arena.cellCursorStart(rootNodeId, offset.x, offset.y)
+        return !emitsAnyCell(start, arena::cellCursorStepPastX) && !emitsAnyCell(start, arena::cellCursorStepPastY)
+    }
 
     private fun containsOffset(element: IntOffset): Boolean = arena.containsCell(
         rootNodeId,
@@ -241,108 +216,15 @@ internal class FlatHashLifeCellState(val offset: IntOffset, val rootNodeId: UInt
         element.y.toLong() - offset.y.toLong(),
     )
 
-    private fun isWindowOutside(window: CellWindow, span: Int): Boolean = window.right < 1 || window.bottom < 1 ||
-        (span != Int.MAX_VALUE && (window.left >= span || window.top >= span))
-
-    private suspend fun SequenceScope<IntOffset>.yieldLevel4(l4Id: Int, nodeOffset: IntOffset, window: CellWindow) {
-        if (l4Id == 0 || isWindowOutside(window, 16)) {
-            return
-        }
-        val nw = l4Nw[l4Id]
-        if (nw != 0uL) {
-            yieldLeafNode(nw, nodeOffset, window)
-        }
-        val ne = l4Ne[l4Id]
-        if (ne != 0uL) {
-            yieldLeafNode(
-                ne,
-                nodeOffset + IntOffset(8, 0),
-                window.translate(IntOffset(-8, 0)),
-            )
-        }
-        val sw = l4Sw[l4Id]
-        if (sw != 0uL) {
-            yieldLeafNode(
-                sw,
-                nodeOffset + IntOffset(0, 8),
-                window.translate(IntOffset(0, -8)),
-            )
-        }
-        val se = l4Se[l4Id]
-        if (se != 0uL) {
-            yieldLeafNode(
-                se,
-                nodeOffset + IntOffset(8, 8),
-                window.translate(IntOffset(-8, -8)),
-            )
-        }
+    override fun offsetBy(offset: IntOffset): CellState {
+        val shifted = FlatHashLifeCellState(
+            offset = this.offset + offset,
+            rootNodeId = rootNodeId,
+            arena = arena,
+        )
+        // A shift can move cells past `Int.MAX_VALUE`, which the arena cannot list; wrap them like other states do.
+        return if (shifted.fitsInIntRange()) shifted else CellState(aliveCells.mapTo(HashSet()) { it + offset })
     }
-
-    private suspend fun SequenceScope<IntOffset>.yieldCell(
-        id: Int,
-        level: Int,
-        nodeOffset: IntOffset,
-        window: CellWindow,
-    ) {
-        val span = if (level >= 30) Int.MAX_VALUE else (1 shl level)
-        if (cellPop[id] == 0uL || isWindowOutside(window, span)) {
-            return
-        }
-        val half = if (level >= 31) 1 shl 30 else (1 shl (level - 1))
-        val nwId = cellNw[id].toInt()
-        val neId = cellNe[id].toInt()
-        val swId = cellSw[id].toInt()
-        val seId = cellSe[id].toInt()
-        if (level == 5) {
-            yieldLevel4(nwId, nodeOffset, window)
-            yieldLevel4(
-                neId,
-                nodeOffset + IntOffset(half, 0),
-                window.translate(IntOffset(-half, 0)),
-            )
-            yieldLevel4(
-                swId,
-                nodeOffset + IntOffset(0, half),
-                window.translate(IntOffset(0, -half)),
-            )
-            yieldLevel4(
-                seId,
-                nodeOffset + IntOffset(half, half),
-                window.translate(IntOffset(-half, -half)),
-            )
-        } else {
-            val childLvl = level - 1
-            yieldCell(nwId, childLvl, nodeOffset, window)
-            yieldCell(
-                neId,
-                childLvl,
-                nodeOffset + IntOffset(half, 0),
-                window.translate(IntOffset(-half, 0)),
-            )
-            yieldCell(
-                swId,
-                childLvl,
-                nodeOffset + IntOffset(0, half),
-                window.translate(IntOffset(0, -half)),
-            )
-            yieldCell(
-                seId,
-                childLvl,
-                nodeOffset + IntOffset(half, half),
-                window.translate(IntOffset(-half, -half)),
-            )
-        }
-    }
-
-    private fun windowIterator(window: CellWindow): Iterator<IntOffset> = iterator {
-        yieldCell(rootNodeId.toInt(), rootLevel, offset, window)
-    }
-
-    override fun offsetBy(offset: IntOffset): CellState = FlatHashLifeCellState(
-        offset = this.offset + offset,
-        rootNodeId = rootNodeId,
-        arena = arena,
-    )
 
     override fun withCell(offset: IntOffset, isAlive: Boolean): CellState = if (containsOffset(offset) == isAlive) {
         this
@@ -350,8 +232,81 @@ internal class FlatHashLifeCellState(val offset: IntOffset, val rootNodeId: UInt
         toHashLifeCellState().withCell(offset, isAlive)
     }
 
-    override fun getAliveCellsInWindow(cellWindow: CellWindow): Iterable<IntOffset> =
-        Iterable { windowIterator(cellWindow.translate(-offset)) }
+    override fun getAliveCellsInWindow(cellWindow: CellWindow): Iterable<IntOffset> = Iterable {
+        CellCursorIterator(
+            stack = arena.cellCursorStart(rootNodeId, offset.x, offset.y),
+            step = { stack ->
+                arena.cellCursorStepInWindow(
+                    cellWindow.left,
+                    cellWindow.top,
+                    cellWindow.right,
+                    cellWindow.bottom,
+                    stack,
+                )
+            },
+            expectedCount = null,
+        )
+    }
 
     override fun toString(): String = "FlatHashLifeCellState(${aliveCells.toSet()})"
+}
+
+/**
+ * A step of the Lean cell cursor (`cellCursorStepAll`, `cellCursorStepInWindow`, ...): the `leafRowMask` of the cells
+ * it emits (zero for none), the top-left corner of their leaf, and the new stack.
+ */
+private typealias CellCursorStep = (Any?) -> Pair<ULong, Pair<Long, Pair<Long, Any?>>>
+
+/**
+ * Lazily iterates the cells the Lean cell cursor emits, as `cellCursorRun` (`flat_cellCursorAll_correct` and
+ * `flat_cellCursorInWindow_correct`) runs it: [step] is called until the stack is empty, and the set bits of each
+ * emitted mask, in increasing order, are the cells `leafChunkKey` names.
+ *
+ * With an [expectedCount], iteration fails if the cursor emits a different number of cells, which happens when some
+ * live cells lie past the `Int` coordinate range.
+ */
+private class CellCursorIterator(
+    private var stack: Any?,
+    private val step: CellCursorStep,
+    private val expectedCount: ULong?,
+) : Iterator<IntOffset> {
+    private var mask = 0uL
+    private var x0 = 0L
+    private var y0 = 0L
+    private var count = 0uL
+
+    override fun hasNext(): Boolean {
+        while (mask == 0uL && !f_Algorithm_cellCursorDone(stack)) {
+            val (chunk, rest) = step(stack)
+            val (chunkX0, rest2) = rest
+            val (chunkY0, nextStack) = rest2
+            mask = chunk
+            x0 = chunkX0
+            y0 = chunkY0
+            stack = nextStack
+        }
+        if (mask == 0uL && expectedCount != null && count != expectedCount) {
+            throw FlatHashLifeArenaException("Pattern exceeds the coordinate range of FlatHashLifeArena")
+        }
+        return mask != 0uL
+    }
+
+    override fun next(): IntOffset {
+        if (!hasNext()) throw NoSuchElementException()
+        val k = mask.countTrailingZeroBits()
+        mask = mask and (mask - 1uL)
+        count++
+        return keyCell(f_Algorithm_leafChunkKey(x0, y0, k.toUInt()))
+    }
+}
+
+/** Whether the Lean cell cursor, run from [start] with [step], emits any cell. */
+private fun emitsAnyCell(start: Any?, step: CellCursorStep): Boolean {
+    var stack = start
+    while (!f_Algorithm_cellCursorDone(stack)) {
+        val (mask, rest) = step(stack)
+        if (mask != 0uL) return true
+        stack = rest.second.second
+    }
+    return false
 }

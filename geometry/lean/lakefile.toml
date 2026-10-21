@@ -35,13 +35,14 @@ roots = [
   "proofs.FloatBounds",
   "proofs.FloatAnalysis",
   "proofs.FloatProperties",
-  "proofs.Waypoints",
-  "proofs.PointBound",
   "proofs.RayMarchLimits",
   "proofs.MiniSegment",
   "proofs.Hausdorff",
   "proofs.NativeFloat",
   "proofs.CompiledRayMarch",
   "proofs.Connectivity",
+  "proofs.CompiledPath",
+  "proofs.Mutations",
+  "AxiomAudit",
 ]
 

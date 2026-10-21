@@ -560,6 +560,49 @@ def FlatHashLifeArena.importLevel4Root
       else ((nx.toInt32, ny.toInt32, rootId), a2)
 
 /--
+Whether `importMacroCellNode` maps `m` directly to a pre-interned empty node: a CellNode of level at most 31
+with no live cells (at those levels the cached population cannot wrap around).
+-/
+def importsAsEmpty (m : MacroCell) : Bool :=
+  match m with
+  | .level4Node .. => false
+  | .cellNode .. => m.size == 0 && m.level <= 31
+
+/--
+Whether `importMacroCellNode` needs the ids the children of `m` were imported as: true for every CellNode of
+level at most 60 that is not mapped directly to a pre-interned empty node. A node above level 60 is rejected
+without importing its children.
+-/
+@[export import_needs_children]
+def importNeedsChildren (m : MacroCell) : Bool :=
+  match m with
+  | .level4Node .. => false
+  | .cellNode .. => !importsAsEmpty m && m.level <= 60
+
+/--
+Imports one node of a `MacroCell` DAG into the arena, given the ids its four children were imported as (unused
+unless `importNeedsChildren m`). A Level 4 node is interned from its leaves, an empty CellNode maps to its
+pre-interned empty node, and any other CellNode is interned from its children's ids. Returns `UNCOMPUTED` if a
+child failed to import, if the node is above level 60, or (with `overflow` set) if the arena ran out of capacity.
+-/
+@[kotlin_member "FlatHashLifeArena" "public" "importMacroCellNode"]
+def FlatHashLifeArena.importMacroCellNode
+    (arena : FlatHashLifeArena) (m : MacroCell) (nwId neId swId seId : UInt32) : UInt32 × FlatHashLifeArena :=
+  match m with
+  | .level4Node _ nw ne sw se =>
+    let (l4Id, a1) := arena.internLevel4 nw ne sw se
+    if a1.overflow != 0 then (UNCOMPUTED, a1) else (l4Id, a1)
+  | .cellNode .. =>
+    let lvl := m.level
+    if importsAsEmpty m then (lvl - 5, arena)
+    else if lvl > 60 then (UNCOMPUTED, arena)
+    else if nwId == UNCOMPUTED || neId == UNCOMPUTED || swId == UNCOMPUTED || seId == UNCOMPUTED then
+      (UNCOMPUTED, arena)
+    else
+      let (cellId, a1) := arena.internCellNode lvl.toUInt8 nwId neId swId seId
+      if a1.overflow != 0 then (UNCOMPUTED, a1) else (cellId, a1)
+
+/--
 Expands a level k >= 5 CellNode by two levels into a centered level (k + 2) CellNode
 surrounded by empty borders. Matches `MacroCell.expandCentered` on `.cellNode`.
 -/
@@ -1159,6 +1202,327 @@ Whether relative coordinates `(rx, ry)` (from the top-left corner) are alive in 
 def FlatHashLifeArena.containsCell (arena : @& FlatHashLifeArena) (nodeId : UInt32) (rx ry : Int64) : Bool :=
   arena.containsCellLoop nodeId rx ry 256
 
+/--
+The key of the cell `(x, y)` with 32-bit coordinates: `x + 2 ^ 31` in the high 32 bits and `y + 2 ^ 31` in the low
+32 bits.
+-/
+@[inline]
+def cellKeyOf (x y : Int64) : UInt64 :=
+  ((x + 2147483648).toUInt64 <<< 32) + (y + 2147483648).toUInt64
+
+/--
+The cells `i ..< 64` (in row-major order) of the 8x8 leaf `leaf`, whose top-left corner is at `(x0, y0)`, that are
+live and lie in the window `[l, r) × [t, b)`, as a mask with bit `y * 8 + x` set for the live cell `(x, y)`.
+-/
+def leafRowMask (leaf : UInt64) (x0 y0 l t r b : Int64) (i : UInt32) : UInt64 :=
+  if h : i < 64 then
+    have : 64 - (i + 1).toNat < 64 - i.toNat := by
+      have h64 : (64 : UInt32).toNat = 64 := rfl
+      have h1 := UInt32.lt_iff_toNat_lt.mp h
+      rw [h64] at h1
+      have h2 : (i + 1).toNat = i.toNat + 1 := by
+        rw [UInt32.toNat_add]
+        simp only [UInt32.toNat_one]
+        omega
+      omega
+    let x := i &&& 7
+    let y := i >>> 3
+    let cx := x0 + x.toUInt64.toInt64
+    let cy := y0 + y.toUInt64.toInt64
+    let rest := leafRowMask leaf x0 y0 l t r b (i + 1)
+    if leafContains leaf x y && l <= cx && cx < r && t <= cy && cy < b then rest ||| (1 <<< i.toUInt64) else rest
+  else 0
+termination_by 64 - i.toNat
+
+/--
+The key (`cellKeyOf`) of cell `k` (in row-major order, `k < 64`) of the 8x8 leaf whose top-left corner is at
+`(x0, y0)`: the cell `(x0 + k % 8, y0 + k / 8)`.
+-/
+@[export leaf_chunk_key]
+def leafChunkKey (x0 y0 : Int64) (k : UInt32) : UInt64 :=
+  cellKeyOf (x0 + (k &&& 7).toUInt64.toInt64) (y0 + (k >>> 3).toUInt64.toInt64)
+
+/--
+A pending piece of a cell enumeration: a CellNode (with the recursion depth left), a Level 4 node, or a leaf, each
+with its top-left corner `(x0, y0)`.
+-/
+@[kotlin_class "sealed class CellFrame"]
+inductive CellFrame where
+  | node (id : UInt32) (x0 y0 : Int64) (fuel : UInt32)
+  | l4 (id : UInt32) (x0 y0 : Int64)
+  | leaf (bits : UInt64) (x0 y0 : Int64)
+
+/--
+Child `q` (`0` nw, `1` ne, `2` sw, otherwise se) of the CellNode `id`. It is not inlined so that the frames built
+from it get their fields directly: the Kotlin backend misses field writes to a new frame that come after unboxing
+an array element.
+-/
+@[noinline]
+def FlatHashLifeArena.cellChild (arena : @& FlatHashLifeArena) (id : UInt32) (q : UInt8) : UInt32 :=
+  match q with
+  | 0 => arena.cellNw[id.toNat]!
+  | 1 => arena.cellNe[id.toNat]!
+  | 2 => arena.cellSw[id.toNat]!
+  | _ => arena.cellSe[id.toNat]!
+
+/-- Leaf `q` (`0` nw, `1` ne, `2` sw, otherwise se) of the Level 4 node `id`, not inlined like `cellChild`. -/
+@[noinline]
+def FlatHashLifeArena.l4Leaf (arena : @& FlatHashLifeArena) (id : UInt32) (q : UInt8) : UInt64 :=
+  match q with
+  | 0 => arena.l4Nw[id.toNat]!
+  | 1 => arena.l4Ne[id.toNat]!
+  | 2 => arena.l4Sw[id.toNat]!
+  | _ => arena.l4Se[id.toNat]!
+
+/-- Pushes the leaf frame of `bits` at `(x0, y0)` onto `rest`, unless the leaf has no live cells. -/
+@[inline]
+def pushLeafFrame (bits : UInt64) (x0 y0 : Int64) (rest : List CellFrame) : List CellFrame :=
+  if bits == 0 then rest else .leaf bits x0 y0 :: rest
+
+/--
+One step of the enumeration of the live cells in the window `[l, r) × [t, b)`: pops the top frame of `stack` and
+either pushes its pieces or emits the cells of one leaf. Returns the emitted cells as a `leafRowMask` (zero if none)
+with the leaf's top-left corner, and the new stack. Subtrees that miss the window or (up to level 31) have no live
+cells, and empty leaves, are skipped.
+-/
+def FlatHashLifeArena.cellCursorStepWith (arena : @& FlatHashLifeArena) (l t r b : Int64) (stack : @& List CellFrame) :
+    UInt64 × Int64 × Int64 × List CellFrame :=
+  match stack with
+  | [] => (0, 0, 0, [])
+  | .node id x0 y0 fuel :: rest =>
+    if fuel == 0 || id >= arena.cellCount then (0, 0, 0, rest)
+    else
+      let idx := id.toNat
+      let lvl := arena.cellLevel[idx]!.toUInt32
+      if lvl > 62 || (lvl <= 31 && arena.cellPop[idx]! == 0) then (0, 0, 0, rest)
+      else
+        let span := pow2Int64 lvl
+        if r <= x0 || b <= y0 || x0 + span <= l || y0 + span <= t then (0, 0, 0, rest)
+        else
+          let half := pow2Int64 (lvl - 1)
+          let nw := arena.cellChild id 0
+          let ne := arena.cellChild id 1
+          let sw := arena.cellChild id 2
+          let se := arena.cellChild id 3
+          if lvl <= 5 then
+            (0, 0, 0, .l4 nw x0 y0 :: .l4 ne (x0 + half) y0 :: .l4 sw x0 (y0 + half) ::
+              .l4 se (x0 + half) (y0 + half) :: rest)
+          else
+            (0, 0, 0, .node nw x0 y0 (fuel - 1) :: .node ne (x0 + half) y0 (fuel - 1) ::
+              .node sw x0 (y0 + half) (fuel - 1) :: .node se (x0 + half) (y0 + half) (fuel - 1) :: rest)
+  | .l4 id x0 y0 :: rest =>
+    if id == 0 || id >= arena.l4Count || r <= x0 || b <= y0 || x0 + 16 <= l || y0 + 16 <= t then (0, 0, 0, rest)
+    else
+      (0, 0, 0, pushLeafFrame (arena.l4Leaf id 0) x0 y0 (pushLeafFrame (arena.l4Leaf id 1) (x0 + 8) y0
+        (pushLeafFrame (arena.l4Leaf id 2) x0 (y0 + 8) (pushLeafFrame (arena.l4Leaf id 3) (x0 + 8) (y0 + 8) rest))))
+  | .leaf bits x0 y0 :: rest => (leafRowMask bits x0 y0 l t r b 0, x0, y0, rest)
+
+/-- The stack that starts the enumeration of the live cells of the CellNode `rootId` with top-left corner `(ox, oy)`. -/
+@[kotlin_member "FlatHashLifeArena" "public" "cellCursorStart"]
+def FlatHashLifeArena.cellCursorStart (_arena : @& FlatHashLifeArena) (rootId : UInt32) (ox oy : Int32) :
+    List CellFrame :=
+  [.node rootId ox.toInt64 oy.toInt64 64]
+
+/-- Whether an enumeration stack is exhausted. -/
+@[export cell_cursor_done]
+def cellCursorDone (stack : List CellFrame) : Bool := stack.isEmpty
+
+/--
+One step (`cellCursorStepWith`) of the enumeration of the live cells in the window `[l, r) × [t, b)`, the iterator
+of `FlatHashLifeCellState.getAliveCellsInWindow`.
+-/
+@[kotlin_member "FlatHashLifeArena" "public" "cellCursorStepInWindow"]
+def FlatHashLifeArena.cellCursorStepInWindow (arena : @& FlatHashLifeArena) (l t r b : Int32)
+    (stack : @& List CellFrame) : UInt64 × Int64 × Int64 × List CellFrame :=
+  arena.cellCursorStepWith l.toInt64 t.toInt64 r.toInt64 b.toInt64 stack
+
+/--
+One step (`cellCursorStepWith`) of the enumeration of the live cells with 32-bit coordinates, the iterator of
+`FlatHashLifeCellState.aliveCells`.
+-/
+@[kotlin_member "FlatHashLifeArena" "public" "cellCursorStepAll"]
+def FlatHashLifeArena.cellCursorStepAll (arena : @& FlatHashLifeArena) (stack : @& List CellFrame) :
+    UInt64 × Int64 × Int64 × List CellFrame :=
+  arena.cellCursorStepWith (-2147483648) (-2147483648) 2147483648 2147483648 stack
+
+/--
+One step (`cellCursorStepWith`) of the enumeration of the live cells with `x ≥ 2 ^ 31`, which have no 32-bit
+coordinates; used by `FlatHashLifeCellState.fitsInIntRange`.
+-/
+@[kotlin_member "FlatHashLifeArena" "public" "cellCursorStepPastX"]
+def FlatHashLifeArena.cellCursorStepPastX (arena : @& FlatHashLifeArena) (stack : @& List CellFrame) :
+    UInt64 × Int64 × Int64 × List CellFrame :=
+  arena.cellCursorStepWith 2147483648 (-9223372036854775808) 9223372036854775807 9223372036854775807 stack
+
+/--
+One step (`cellCursorStepWith`) of the enumeration of the live cells with `y ≥ 2 ^ 31`, which have no 32-bit
+coordinates; used by `FlatHashLifeCellState.fitsInIntRange`.
+-/
+@[kotlin_member "FlatHashLifeArena" "public" "cellCursorStepPastY"]
+def FlatHashLifeArena.cellCursorStepPastY (arena : @& FlatHashLifeArena) (stack : @& List CellFrame) :
+    UInt64 × Int64 × Int64 × List CellFrame :=
+  arena.cellCursorStepWith (-9223372036854775808) 2147483648 9223372036854775807 9223372036854775807 stack
+
+/-- The high 32 bits of a key. -/
+@[inline]
+def keyHi (k : UInt64) : UInt64 := k >>> 32
+
+/-- The low 32 bits of a key. -/
+@[inline]
+def keyLo (k : UInt64) : UInt64 := k &&& 0xFFFFFFFF
+
+set_option compiler.kotlin.typedArrays false in
+/--
+The bounding box `(minX, minY, maxX, maxY)`, in key coordinates, of the cell keys `i ..< limit` of `cells`, started
+from the box `minX ..= maxX`, `minY ..= maxY`.
+-/
+def cellBoundsLoop (cells : Array UInt64) (i limit : UInt32) (minX minY maxX maxY : UInt64) :
+    UInt64 × UInt64 × UInt64 × UInt64 :=
+  if h : i < limit then
+    have : limit.toNat - (i + 1).toNat < limit.toNat - i.toNat := by
+      have h1 := UInt32.lt_iff_toNat_lt.mp h
+      have h2 : (i + 1).toNat = i.toNat + 1 := by
+        rw [UInt32.toNat_add]
+        have := UInt32.toNat_lt limit
+        simp only [UInt32.toNat_one]
+        omega
+      omega
+    let k := cells[i.toNat]!
+    cellBoundsLoop cells (i + 1) limit (min minX (keyHi k)) (min minY (keyLo k)) (max maxX (keyHi k))
+      (max maxY (keyLo k))
+  else (minX, minY, maxX, maxY)
+termination_by limit.toNat - i.toNat
+
+set_option compiler.kotlin.typedArrays false in
+/--
+Adds to `acc` the keys, relative to the corner `(minX, minY)` (in key coordinates), of the cell keys `i ..< limit` of
+`cells`.
+-/
+def relativeKeysLoop (cells : Array UInt64) (i limit : UInt32) (minX minY : UInt64) (acc : List UInt64) :
+    List UInt64 :=
+  if h : i < limit then
+    have : limit.toNat - (i + 1).toNat < limit.toNat - i.toNat := by
+      have h1 := UInt32.lt_iff_toNat_lt.mp h
+      have h2 : (i + 1).toNat = i.toNat + 1 := by
+        rw [UInt32.toNat_add]
+        have := UInt32.toNat_lt limit
+        simp only [UInt32.toNat_one]
+        omega
+      omega
+    let k := cells[i.toNat]!
+    relativeKeysLoop cells (i + 1) limit minX minY (((((keyHi k) - minX) <<< 32) + ((keyLo k) - minY)) :: acc)
+  else acc
+termination_by limit.toNat - i.toNat
+
+/--
+Splits `keys` into the keys of the four quadrants split at `(midX, midY)` in one pass, prepending them to
+`nw`, `ne`, `sw` and `se`.
+-/
+def splitKeys (keys : List UInt64) (midX midY : UInt64) (nw ne sw se : List UInt64) :
+    List UInt64 × List UInt64 × List UInt64 × List UInt64 :=
+  match keys with
+  | [] => (nw, ne, sw, se)
+  | k :: rest =>
+    if keyLo k ≥ midY then
+      if keyHi k ≥ midX then splitKeys rest midX midY nw ne sw (k :: se)
+      else splitKeys rest midX midY nw ne (k :: sw) se
+    else if keyHi k ≥ midX then splitKeys rest midX midY nw (k :: ne) sw se
+    else splitKeys rest midX midY (k :: nw) ne sw se
+
+/--
+Sets in `leaf` the cells of the keys of `keys` that lie in the 8x8 leaf whose top-left corner is at `(x0, y0)`.
+-/
+def leafFromKeys (keys : List UInt64) (x0 y0 : UInt64) (leaf : UInt64) : UInt64 :=
+  match keys with
+  | [] => leaf
+  | k :: rest =>
+    let kx := keyHi k
+    let ky := keyLo k
+    leafFromKeys rest x0 y0
+      (if x0 <= kx && kx < x0 + 8 && y0 <= ky && ky < y0 + 8 then
+        leafWithCell leaf (kx - x0).toUInt32 (ky - y0).toUInt32 true
+      else leaf)
+
+/--
+The empty MacroCell of height `h` (level `h + 4`).
+-/
+def emptyAtHeight (h : UInt32) : MacroCell :=
+  if hh : h = 0 then emptyLevel4
+  else
+    have : (h - 1).toNat < h.toNat := uint32_sub_one_lt h hh
+    let e := emptyAtHeight (h - 1)
+    makeCellNode e e e e
+termination_by h.toNat
+
+/-- The north-west child of a CellNode, which for an empty node is the empty node one level down. -/
+def nwChild (m : MacroCell) : MacroCell :=
+  match m with
+  | .cellNode _ nw _ _ _ => nw
+  | _ => m
+
+/--
+The MacroCell of height `h` (level `h + 4`) whose top-left corner is at key coordinates `(x0, y0)` and whose live
+cells are exactly the cells of `keys` (all of which lie in it), given the empty node `empty` of height `h`, which
+every empty quadrant shares.
+-/
+def keysToMacroCell (keys : List UInt64) (x0 y0 : UInt64) (h : UInt32) (empty : MacroCell) : MacroCell :=
+  match keys with
+  | [] => empty
+  | _ :: _ =>
+    if hh : h = 0 then
+      makeLevel4Node (leafFromKeys keys x0 y0 0) (leafFromKeys keys (x0 + 8) y0 0)
+        (leafFromKeys keys x0 (y0 + 8) 0) (leafFromKeys keys (x0 + 8) (y0 + 8) 0)
+    else
+      have : (h - 1).toNat < h.toNat := uint32_sub_one_lt h hh
+      let half := (1 : UInt64) <<< (h + 3).toUInt64
+      let midX := x0 + half
+      let midY := y0 + half
+      let parts := splitKeys keys midX midY [] [] [] []
+      let e := nwChild empty
+      makeCellNode
+        (keysToMacroCell parts.1 x0 y0 (h - 1) e)
+        (keysToMacroCell parts.2.1 midX y0 (h - 1) e)
+        (keysToMacroCell parts.2.2.1 x0 midY (h - 1) e)
+        (keysToMacroCell parts.2.2.2 midX midY (h - 1) e)
+termination_by h.toNat
+
+/--
+The smallest level `L` with `lvl ≤ L ≤ 32` and `span ≤ 2 ^ L`.
+-/
+def levelForSpanLoop (span : UInt64) (lvl : UInt32) : UInt32 :=
+  if h : lvl < 32 ∧ (1 : UInt64) <<< lvl.toUInt64 < span then
+    have : 32 - (lvl + 1).toNat < 32 - lvl.toNat := by
+      have h1 := UInt32.lt_iff_toNat_lt.mp h.1
+      have h32 : (32 : UInt32).toNat = 32 := rfl
+      rw [h32] at h1
+      have h2 : (lvl + 1).toNat = lvl.toNat + 1 := by
+        rw [UInt32.toNat_add]
+        simp only [UInt32.toNat_one]
+        omega
+      omega
+    levelForSpanLoop span (lvl + 1)
+  else lvl
+termination_by 32 - lvl.toNat
+
+set_option compiler.kotlin.typedArrays false in
+/--
+The quadtree of the cells whose keys (`cellKeyOf`) are `cells`, with its top-left corner at the corner of their
+bounding box, at the smallest level (at least 5) that holds them: `(ox, oy, macroCell)`, with the corner in key
+coordinates. No cells give the empty Level 5 node at the origin (key coordinates `(2 ^ 31, 2 ^ 31)`).
+`buildQuadtreeBottomUp` in `FlatHashLifeCellState.kt` imports the result into an arena with `internMacroCellDag`.
+-/
+@[export flat_cells_to_macro_cell]
+def cellsToMacroCell (cells : Array UInt64) : UInt64 × UInt64 × MacroCell :=
+  let n := cells.size.toUInt32
+  if n == 0 then (2147483648, 2147483648, emptyAtHeight 1)
+  else
+    let k := cells[0]!
+    let (minX, minY, maxX, maxY) := cellBoundsLoop cells 1 n (keyHi k) (keyLo k) (keyHi k) (keyLo k)
+    let span := max (maxX - minX) (maxY - minY) + 1
+    let lvl := levelForSpanLoop span 5
+    (minX, minY,
+      keysToMacroCell (relativeKeysLoop cells 0 n minX minY []) 0 0 (lvl - 4) (emptyAtHeight (lvl - 4)))
+
 @[kotlin_file]
 def flatHashLifeFileSpec : FileSpec := {
   fileAnnotations := #[
@@ -1166,6 +1530,8 @@ def flatHashLifeFileSpec : FileSpec := {
   ]
   imports := #[
     "import com.alexvanyo.composelife.model.MacroCell",
+    "import com.alexvanyo.composelife.model.emptyLevel4",
+    "import com.alexvanyo.composelife.model.macroCellHashCode",
     "import com.alexvanyo.composelife.model.macroCellLevel",
     "import com.alexvanyo.composelife.model.macroCellSize"
   ]
