@@ -122,4 +122,11 @@ echo "Stripping remaining debug symbols to reduce cache footprint..."
 find "$PREFIX" -type f \( -name "*.so*" -o -name "*.a" -o -perm /111 \) -exec strip -g {} + 2>/dev/null || true
 
 echo "$ACTUAL_SHA" > "$COMMIT_FILE"
+
+if command -v elan >/dev/null 2>&1; then
+  echo "Registering custom-lean toolchain with elan..."
+  elan toolchain uninstall custom-lean 2>/dev/null || true
+  elan toolchain link custom-lean "$PREFIX"
+fi
+
 echo "Successfully built custom Lean compiler at $LEAN_BIN ($ACTUAL_SHA)."

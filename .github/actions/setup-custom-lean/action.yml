@@ -81,8 +81,19 @@ runs:
         PREFIX_EXPANDED="${PREFIX_EXPANDED/#\~/$HOME}"
         if [ -x "$PREFIX_EXPANDED/bin/lean" ]; then
           echo "LEAN_BINARY=$PREFIX_EXPANDED/bin/lean" >> "$GITHUB_ENV"
-          echo "$PREFIX_EXPANDED/bin" >> "$GITHUB_PATH"
           "$PREFIX_EXPANDED/bin/lean" --version
+          export PATH="$HOME/.elan/bin:$PATH"
+          if command -v elan >/dev/null 2>&1; then
+            elan toolchain uninstall custom-lean 2>/dev/null || true
+            elan toolchain link custom-lean "$PREFIX_EXPANDED"
+            REPO_ROOT="${GITHUB_WORKSPACE:-$(pwd)}"
+            if [ -d "$REPO_ROOT/algorithm/lean" ]; then
+              (cd "$REPO_ROOT/algorithm/lean" && elan override set custom-lean)
+            fi
+            if [ -d "$REPO_ROOT/session-value/lean" ]; then
+              (cd "$REPO_ROOT/session-value/lean" && elan override set custom-lean)
+            fi
+          fi
         elif [ "${{ inputs.build-if-missing }}" = "true" ]; then
           echo "Error: Custom Lean binary not found at $PREFIX_EXPANDED/bin/lean after build" >&2
           exit 1
