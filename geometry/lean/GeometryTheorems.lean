@@ -47,13 +47,6 @@ theorem cellIntersectionsSegment_contains_endpoints (A B : Point) :
     floorPoint A ∈ cellIntersectionsSegment A B ∧ floorPoint B ∈ cellIntersectionsSegment A B :=
   cellIntersectionsSegment_contains_endpoints_Impl A B
 
-/-- Float Step-Agreement Master Theorem: Exact equality between float and rational outputs under step agreement. -/
-theorem cellIntersectionsSegmentFloat_eq_ideal_of_step_agreement
-    (A B : Point32) (h_finA : A.isFinite) (h_finB : B.isFinite)
-    (h_agree : StepAgreement A B) :
-    cellIntersectionsSegmentFloat A B = cellIntersectionsSegment A.toPoint B.toPoint :=
-  cellIntersectionsSegmentFloat_eq_ideal_of_step_agreement_Impl A B h_finA h_finB h_agree
-
 /-- Float Endpoints Master Theorem: Endpoints are always contained in the floating-point cell output. -/
 theorem cellIntersectionsSegmentFloat_contains_endpoints (A B : Point32) :
     floorPoint32 A ∈ cellIntersectionsSegmentFloat A B ∧ floorPoint32 B ∈ cellIntersectionsSegmentFloat A B :=
@@ -69,18 +62,6 @@ theorem cellIntersectionsSegmentFloat_connected (A B : Point32) (h_finA : A.isFi
       CellPathConnected path ∧ ∀ c, c ∈ path ↔ c ∈ cellIntersectionsSegmentFloat A B :=
   cellIntersectionsSegmentFloat_connected_Impl A B h_finA h_finB h_bound
 
-/-- Sub-segment Path Master Theorem: Inductive Hausdorff bound along any waypoint sequence. -/
-theorem cellIntersectionsPathFloat_hausdorff_bound_of_segments
-    (Ps : List Point32) (h_fin : AllFinite Ps)
-    (h_seg : ∀ (i : Nat) (hi : i + 1 < Ps.length),
-      cellHausdorffDistanceLe
-        (cellIntersectionsSegmentFloat (Ps.get ⟨i, by omega⟩) (Ps.get ⟨i + 1, hi⟩))
-        (cellIntersectionsSegment (Ps.get ⟨i, by omega⟩).toPoint (Ps.get ⟨i + 1, hi⟩).toPoint) 1) :
-    cellHausdorffDistanceLe
-      (cellIntersectionsPathFloat Ps)
-      (cellIntersectionsPath (pointsToRational Ps)) 1 :=
-  cellIntersectionsPathFloat_hausdorff_bound_of_segments_Impl Ps h_fin h_seg
-
 /-- Unconditional Hausdorff bound for segments whose endpoints lie in the same cell. -/
 theorem cellIntersectionsSegmentFloat_hausdorff_bound_of_same_cell
     (A B : Point32) (h_finA : A.isFinite) (h_finB : B.isFinite)
@@ -89,16 +70,6 @@ theorem cellIntersectionsSegmentFloat_hausdorff_bound_of_same_cell
       (cellIntersectionsSegmentFloat A B)
       (cellIntersectionsSegment A.toPoint B.toPoint) 1 :=
   cellIntersectionsSegmentFloat_hausdorff_bound_of_same_cell_Impl A B h_finA h_finB h_same
-
-/-- Path formulation along same-cell waypoint steps. -/
-theorem cellIntersectionsPathFloat_hausdorff_bound_of_same_cell_steps
-    (Ps : List Point32) (h_fin : AllFinite Ps)
-    (h_steps : ∀ (i : Nat) (hi : i + 1 < Ps.length),
-      floorPoint32 (Ps.get ⟨i, by omega⟩) = floorPoint32 (Ps.get ⟨i + 1, hi⟩)) :
-    cellHausdorffDistanceLe
-      (cellIntersectionsPathFloat Ps)
-      (cellIntersectionsPath (pointsToRational Ps)) 1 :=
-  cellIntersectionsPathFloat_hausdorff_bound_of_same_cell_steps_Impl Ps h_fin h_steps
 
 /--
 Master Segment Theorem: Global Hausdorff bound for any segment within `mainCoordBound` ([-2147483645, 2147483645]²).
@@ -163,6 +134,25 @@ theorem rayMarchSegmentCoords_connected (A B : Point32) (sx sy ex ey : Float) (c
       CellPathConnected path ∧
       ∀ c, c ∈ path ↔ c ∈ toCells (rayMarchSegmentCoords sx sy ex ey cx cy ex' ey') :=
   rayMarchSegmentCoords_connected_Impl A B sx sy ex ey cx cy ex' ey' hPre
+
+/--
+Compiled Polyline Refinement Master Theorem: for a polyline of at least two points whose segments are each
+marched by the compiled ray march within `InRange` (as `cellIntersections(points)` in `LineSegment.kt` does),
+the collected cells are exactly the cells of the float polyline model.
+-/
+theorem compiledPathCells_mem_iff (Ps : List Point32) (calls : List SegmentCall) (hlen : 2 ≤ Ps.length)
+    (h : PathInRange Ps calls) (c : Cell) :
+    c ∈ compiledPathCells calls ↔ c ∈ cellIntersectionsPathFloat Ps :=
+  compiledPathCells_mem_iff_Impl Ps calls hlen h c
+
+/--
+Compiled Polyline Hausdorff Master Theorem: the cells collected by the compiled polyline march are within
+Chebyshev Hausdorff distance 1 of the exact rational cell intersections of the polyline.
+-/
+theorem compiledPathCells_hausdorff_bound (Ps : List Point32) (calls : List SegmentCall) (hlen : 2 ≤ Ps.length)
+    (h : PathInRange Ps calls) :
+    cellHausdorffDistanceLe (compiledPathCells calls) (cellIntersectionsPath (pointsToRational Ps)) 1 :=
+  compiledPathCells_hausdorff_bound_Impl Ps calls hlen h
 
 end Geometry
 

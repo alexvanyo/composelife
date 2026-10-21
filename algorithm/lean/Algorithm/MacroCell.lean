@@ -17,7 +17,6 @@
 import Algorithm.Basic
 import Algorithm.BitComputation
 import Algorithm.MacroCellHash
-import Algorithm.Cache
 import Lean.Compiler.Kotlin
 
 open Lean.Compiler.Kotlin
@@ -702,18 +701,6 @@ def canonicalizeMacroCellWith
             (canonicalizeSubnode se)
       internCell withCanonicalSubNodes
 
-/--
-Determines equivalence between two CellNodes with already-canonical subnodes based on hash and pointer equivalence.
--/
-@[export macrocell_canonical_cell_node_equals]
-def canonicalCellNodeEquals (a b : MacroCell) : Bool :=
-  match a, b with
-  | .cellNode _ nw1 ne1 sw1 se1, .cellNode _ nw2 ne2 sw2 se2 =>
-    a.level == b.level &&
-    nw1.cellHashCode == nw2.cellHashCode && ne1.cellHashCode == ne2.cellHashCode &&
-    sw1.cellHashCode == sw2.cellHashCode && se1.cellHashCode == se2.cellHashCode
-  | _, _ => false
-
 
 @[inline]
 def packCentralNibblesUInt (q0 q1 q2 q3 : UInt32) : UInt32 :=
@@ -854,87 +841,6 @@ def hashLifeStepRecursive (m : MacroCell) : MacroCell :=
 
 def hashLifeStep (m : MacroCell) : MacroCell :=
   hashLifeStepRecursive m
-
-/--
-Suite of 5 caches mirroring HashLifeAlgorithm.kt:
-- canonicalLevel4Map
-- canonicalCellNodeMap
-- cellNodeMap
-- level4NodeMap
-- leafNodeMap
--/
-structure HashLifeCaches where
-  canonicalLevel4Map : Cache MacroCell MacroCell
-  canonicalCellNodeMap : Cache MacroCell MacroCell
-  cellNodeMap : Cache MacroCell MacroCell
-  level4NodeMap : ObjectLongCache MacroCell
-  leafNodeMap : LongIntCache
-  computedGenerations : UInt64
-deriving DecidableEq
-
-/--
-Initializes an empty HashLife cache suite.
--/
-def initHashLifeCaches : HashLifeCaches :=
-  { canonicalLevel4Map := Cache.empty
-  , canonicalCellNodeMap := Cache.empty
-  , cellNodeMap := Cache.empty
-  , level4NodeMap := Cache.empty
-  , leafNodeMap := Cache.empty
-  , computedGenerations := 0 }
-
-/--
-Prunes all caches to the specified generational thresholds.
--/
-def pruneHashLifeCaches (caches : HashLifeCaches) (macroKeep leafKeep : UInt64) : HashLifeCaches :=
-  let oldestMacro := if caches.computedGenerations >= macroKeep then caches.computedGenerations - macroKeep else 0
-  let oldestLeaf := if caches.computedGenerations >= leafKeep then caches.computedGenerations - leafKeep else 0
-  { canonicalLevel4Map := caches.canonicalLevel4Map.prune oldestMacro
-  , canonicalCellNodeMap := caches.canonicalCellNodeMap.prune oldestMacro
-  , cellNodeMap := caches.cellNodeMap.prune oldestMacro
-  , level4NodeMap := caches.level4NodeMap.prune oldestMacro
-  , leafNodeMap := caches.leafNodeMap.prune oldestLeaf
-  , computedGenerations := caches.computedGenerations }
-
-/--
-Canonicalizes a CellNode by canonicalizing its subnodes with `canonicalize`.
-If size is 0, only canonicalizes nw once.
--/
-@[export macrocell_make_canonical_cell_node_with]
-def makeCanonicalCellNodeWith (m : MacroCell) (canonicalize : MacroCell → MacroCell) : MacroCell :=
-  match m with
-  | .cellNode _ nw ne sw se =>
-    if m.size == 0 then
-      let c := canonicalize nw
-      makeCellNode c c c c
-    else
-      makeCellNode (canonicalize nw) (canonicalize ne) (canonicalize sw) (canonicalize se)
-  | _ => m
-
-/--
-Canonicalizes a MacroCell using the canonical caches (hash-consing).
--/
-def makeCanonical (m : MacroCell) (caches : HashLifeCaches) : MacroCell × HashLifeCaches :=
-  match m with
-  | .level4Node .. =>
-    let (canon, newL4Map) := caches.canonicalLevel4Map.get id m caches.computedGenerations
-    (canon, { caches with canonicalLevel4Map := newL4Map })
-  | .cellNode _ nw ne sw se =>
-    let (cnw, c1) := makeCanonical nw caches
-    let (cne, c2) := makeCanonical ne c1
-    let (csw, c3) := makeCanonical sw c2
-    let (cse, c4) := makeCanonical se c3
-    let canonicalForm := makeCellNode cnw cne csw cse
-    let (canon, newCellMap) := c4.canonicalCellNodeMap.get id canonicalForm c4.computedGenerations
-    (canon, { c4 with canonicalCellNodeMap := newCellMap })
-
-/--
-Cached next generation computation using `cellNodeMap` and `level4NodeMap`.
--/
-def cachedComputeNextGen (m : MacroCell) (caches : HashLifeCaches) : MacroCell × HashLifeCaches :=
-  let (canon, c1) := makeCanonical m caches
-  let (res, newStepMap) := c1.cellNodeMap.get hashLifeStep canon c1.computedGenerations
-  (res, { c1 with cellNodeMap := newStepMap, computedGenerations := c1.computedGenerations + 1 })
 
 def generateEmptyNodesKotlin : String := Id.run do
   let mut lines := #[]

@@ -19,7 +19,6 @@ import Algorithm.Basic
 import Algorithm.BitComputation
 import Algorithm.MacroCell
 import Algorithm.HashLife
-import Algorithm.HashLifeEquivalence
 import AlgorithmDefs
 import proofs.GridEquivalenceProofs
 import proofs.SemanticModelProofs
@@ -119,15 +118,16 @@ theorem nextGenerationStep_correct (st : HashLifeCellState) {K : ℕ} (hm : WFd 
 
 /--
 One full HashLife generation (expanding first when needed) computes exactly one Conway generation,
-and preserves well-formedness.
+preserves well-formedness, and grows the tree depth by at most one.
 -/
 theorem hashLifeNextGeneration_correct (st : HashLifeCellState)
-    (h_wf : isWellFormed st.macroCell) (h_bounds : isInInt32Bounds st) :
+    (h_wf : isWellFormed st.macroCell) (h_depth : st.macroCell.depth ≤ 30) :
     isWellFormed (hashLifeNextGeneration st).macroCell ∧
+    (hashLifeNextGeneration st).macroCell.depth ≤ st.macroCell.depth + 1 ∧
     ∀ c, c ∈ hashLifeToGrid (hashLifeNextGeneration st) ↔ c ∈ stepGrid (hashLifeToGrid st) := by
   obtain ⟨⟨o1, o2⟩, m⟩ := st
-  obtain ⟨_, _, _, _, _, _, _, _, hdepth⟩ := h_bounds
-  simp only at h_wf hdepth
+  have hdepth := h_depth
+  simp only at h_wf hdepth ⊢
   have hm := WFd_of_isWellFormed h_wf
   have hpop : macroCellSize m < 2 ^ 64 := by
     have h1 := macroCellSize_le_pow hm
@@ -163,12 +163,12 @@ theorem hashLifeNextGeneration_correct (st : HashLifeCellState)
         rw [hgrid]
         simp only [hcE, expandOffsetDelta, hl]
         constructor <;> intro h <;> refine (fn_congr2 _ ?_ ?_).trans h <;> omega)
-    exact ⟨isWellFormed_of_WFd hw, hc⟩
+    exact ⟨isWellFormed_of_WFd hw, by rw [WFd_depth hw]; omega, hc⟩
   · rename_i hne
     have hne' : needToExpand m = false := by simpa using hne
     obtain ⟨h5, hconf⟩ := confine_of_not_needToExpand hm (by omega) hpop hne'
     obtain ⟨hw, hc⟩ := nextGenerationStep_correct { offset := (o1, o2), macroCell := m } hm h5
       (by omega) hconf (hashLifeToGrid { offset := (o1, o2), macroCell := m }) hgrid
-    exact ⟨isWellFormed_of_WFd hw, hc⟩
+    exact ⟨isWellFormed_of_WFd hw, by rw [WFd_depth hw]; omega, hc⟩
 
 end Algorithm

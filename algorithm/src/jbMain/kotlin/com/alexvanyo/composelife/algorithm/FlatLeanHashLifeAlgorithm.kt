@@ -215,7 +215,14 @@ class FlatLeanHashLifeAlgorithm(
                             currRootId = res.second.second
                         }
 
-                        FlatHashLifeCellState(currOffset, currRootId, arena)
+                        val result = FlatHashLifeCellState(currOffset, currRootId, arena)
+                        // The arena computes relative coordinates exactly, so only the result has to fit in `Int`.
+                        if (!result.fitsInIntRange()) {
+                            throw FlatHashLifeArenaException(
+                                "Pattern exceeds the coordinate range of FlatHashLifeArena",
+                            )
+                        }
+                        result
                     } catch (t: Throwable) {
                         mainArena = null
                         currentCapacityPow2 = initialCapacityPow2

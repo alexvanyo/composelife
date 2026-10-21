@@ -48,6 +48,7 @@ import kotlin.coroutines.ContinuationInterceptor
 import kotlin.random.Random
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -498,6 +499,44 @@ val GameOfLifeAlgorithmTests by testSuite(
         val state = CellState(block1 + block2)
         assertFailsWith<FlatHashLifeArenaException> {
             algorithm.computeGenerationWithStep(state, 1)
+        }
+    }
+
+    test("flat_lean_hashlife_cells_past_int_max_fail_explicitly") {
+        @OptIn(ExperimentalStdlibApi::class)
+        val dispatcher =
+            currentCoroutineContext()[ContinuationInterceptor] as CoroutineDispatcher
+        val dispatchers = TestComposeLifeDispatchers(
+            generalTestDispatcher = dispatcher,
+            cellTickerTestDispatcher = dispatcher,
+        )
+        val algorithm = FlatLeanHashLifeAlgorithm(
+            dispatchers = dispatchers,
+            tracer = TestTraceDriver().tracer,
+        )
+        // A glider moving one cell right and down every 4 generations, 3 cells left of `Int.MAX_VALUE`.
+        val origin = IntOffset(Int.MAX_VALUE - 5, 0)
+        val glider = setOf(
+            IntOffset(1, 0),
+            IntOffset(2, 1),
+            IntOffset(0, 2),
+            IntOffset(1, 2),
+            IntOffset(2, 2),
+        )
+        val state = CellState(glider.map { it + origin }.toSet())
+
+        val moved = algorithm.computeGenerationWithStep(state, 8)
+        assertEquals(glider.map { it + origin + IntOffset(2, 2) }.toSet(), moved.aliveCells.toSet())
+        // A collection with repeated cells is contained when each of its cells is.
+        val cell = glider.first() + origin + IntOffset(2, 2)
+        assertTrue(moved.aliveCells.containsAll(listOf(cell, cell, cell, cell, cell, cell)))
+        // Shifting the cells past `Int.MAX_VALUE` wraps them, as for every other cell state.
+        assertEquals(
+            glider.map { it + origin + IntOffset(2, 2) + IntOffset(4, 0) }.toSet(),
+            moved.offsetBy(IntOffset(4, 0)).aliveCells.toSet(),
+        )
+        assertFailsWith<FlatHashLifeArenaException> {
+            algorithm.computeGenerationWithStep(state, 16)
         }
     }
 

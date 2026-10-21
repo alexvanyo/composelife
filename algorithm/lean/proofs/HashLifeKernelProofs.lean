@@ -20,9 +20,9 @@ import Algorithm.Basic
 import Algorithm.BitComputation
 import Algorithm.MacroCell
 import Algorithm.HashLife
-import Algorithm.HashLifeEquivalence
 import AlgorithmDefs
 import proofs.SemanticModelProofs
+import proofs.PopcountProofs
 
 local notation "ℕ" => Nat
 local notation "ℤ" => Int
@@ -54,6 +54,109 @@ theorem nextGenAt_eq_lifeB (f : ℤ → ℤ → Bool) (x y : ℤ) :
       (f (x - 1) y) (f (x + 1) y) (f (x - 1) (y + 1)) (f x (y + 1)) (f (x + 1) (y + 1)) := by
   unfold nextGenAt
   rw [neighborCountAt_eq, lifeRule_eq_lifeB]
+
+/-- The 4x4 kernel: each of its four output bits is Conway's rule on its 3x3 neighborhood, and the rest are zero. -/
+theorem nextGen4x4_bits (w : UInt32) :
+    (computeNextGen4x4UInt w).toBitVec.getLsbD 0 =
+      lifeB (w.toBitVec.getLsbD 3) (w.toBitVec.getLsbD 0) (w.toBitVec.getLsbD 1) (w.toBitVec.getLsbD 4)
+          (w.toBitVec.getLsbD 2) (w.toBitVec.getLsbD 6) (w.toBitVec.getLsbD 8) (w.toBitVec.getLsbD 9)
+          (w.toBitVec.getLsbD 12) ∧
+    (computeNextGen4x4UInt w).toBitVec.getLsbD 1 =
+      lifeB (w.toBitVec.getLsbD 6) (w.toBitVec.getLsbD 1) (w.toBitVec.getLsbD 4) (w.toBitVec.getLsbD 5)
+          (w.toBitVec.getLsbD 3) (w.toBitVec.getLsbD 7) (w.toBitVec.getLsbD 9) (w.toBitVec.getLsbD 12)
+          (w.toBitVec.getLsbD 13) ∧
+    (computeNextGen4x4UInt w).toBitVec.getLsbD 2 =
+      lifeB (w.toBitVec.getLsbD 9) (w.toBitVec.getLsbD 2) (w.toBitVec.getLsbD 3) (w.toBitVec.getLsbD 6)
+          (w.toBitVec.getLsbD 8) (w.toBitVec.getLsbD 12) (w.toBitVec.getLsbD 10) (w.toBitVec.getLsbD 11)
+          (w.toBitVec.getLsbD 14) ∧
+    (computeNextGen4x4UInt w).toBitVec.getLsbD 3 =
+      lifeB (w.toBitVec.getLsbD 12) (w.toBitVec.getLsbD 3) (w.toBitVec.getLsbD 6) (w.toBitVec.getLsbD 7)
+          (w.toBitVec.getLsbD 9) (w.toBitVec.getLsbD 13) (w.toBitVec.getLsbD 11) (w.toBitVec.getLsbD 14)
+          (w.toBitVec.getLsbD 15) ∧
+    computeNextGen4x4UInt w < 16 := by
+  unfold computeNextGen4x4UInt computeNextGen4x4BitwiseUInt bitRuleUInt neighborCount22UInt neighborCount12UInt
+    neighborCount21UInt neighborCount11UInt lifeB
+  bv_check "lrat/HashLifeKernelProofs.Algorithm.nextGen4x4_bits.lrat"
+
+/-- The 8x8 leaf kernel: each of its 16 output bits is Conway's rule on its 3x3 neighborhood. -/
+theorem leafNextGen_bits (w : UInt64) :
+    (computeLeafNextGen8x8FastUInt w).toBitVec.getLsbD 0 =
+      lifeB (w.toBitVec.getLsbD 12) (w.toBitVec.getLsbD 3) (w.toBitVec.getLsbD 6) (w.toBitVec.getLsbD 7)
+          (w.toBitVec.getLsbD 9) (w.toBitVec.getLsbD 13) (w.toBitVec.getLsbD 11) (w.toBitVec.getLsbD 14)
+          (w.toBitVec.getLsbD 15) ∧
+    (computeLeafNextGen8x8FastUInt w).toBitVec.getLsbD 1 =
+      lifeB (w.toBitVec.getLsbD 13) (w.toBitVec.getLsbD 6) (w.toBitVec.getLsbD 7) (w.toBitVec.getLsbD 18)
+          (w.toBitVec.getLsbD 12) (w.toBitVec.getLsbD 24) (w.toBitVec.getLsbD 14) (w.toBitVec.getLsbD 15)
+          (w.toBitVec.getLsbD 26) ∧
+    (computeLeafNextGen8x8FastUInt w).toBitVec.getLsbD 2 =
+      lifeB (w.toBitVec.getLsbD 14) (w.toBitVec.getLsbD 9) (w.toBitVec.getLsbD 12) (w.toBitVec.getLsbD 13)
+          (w.toBitVec.getLsbD 11) (w.toBitVec.getLsbD 15) (w.toBitVec.getLsbD 33) (w.toBitVec.getLsbD 36)
+          (w.toBitVec.getLsbD 37) ∧
+    (computeLeafNextGen8x8FastUInt w).toBitVec.getLsbD 3 =
+      lifeB (w.toBitVec.getLsbD 15) (w.toBitVec.getLsbD 12) (w.toBitVec.getLsbD 13) (w.toBitVec.getLsbD 24)
+          (w.toBitVec.getLsbD 14) (w.toBitVec.getLsbD 26) (w.toBitVec.getLsbD 36) (w.toBitVec.getLsbD 37)
+          (w.toBitVec.getLsbD 48) ∧
+    (computeLeafNextGen8x8FastUInt w).toBitVec.getLsbD 4 =
+      lifeB (w.toBitVec.getLsbD 24) (w.toBitVec.getLsbD 7) (w.toBitVec.getLsbD 18) (w.toBitVec.getLsbD 19)
+          (w.toBitVec.getLsbD 13) (w.toBitVec.getLsbD 25) (w.toBitVec.getLsbD 15) (w.toBitVec.getLsbD 26)
+          (w.toBitVec.getLsbD 27) ∧
+    (computeLeafNextGen8x8FastUInt w).toBitVec.getLsbD 5 =
+      lifeB (w.toBitVec.getLsbD 25) (w.toBitVec.getLsbD 18) (w.toBitVec.getLsbD 19) (w.toBitVec.getLsbD 22)
+          (w.toBitVec.getLsbD 24) (w.toBitVec.getLsbD 28) (w.toBitVec.getLsbD 26) (w.toBitVec.getLsbD 27)
+          (w.toBitVec.getLsbD 30) ∧
+    (computeLeafNextGen8x8FastUInt w).toBitVec.getLsbD 6 =
+      lifeB (w.toBitVec.getLsbD 26) (w.toBitVec.getLsbD 13) (w.toBitVec.getLsbD 24) (w.toBitVec.getLsbD 25)
+          (w.toBitVec.getLsbD 15) (w.toBitVec.getLsbD 27) (w.toBitVec.getLsbD 37) (w.toBitVec.getLsbD 48)
+          (w.toBitVec.getLsbD 49) ∧
+    (computeLeafNextGen8x8FastUInt w).toBitVec.getLsbD 7 =
+      lifeB (w.toBitVec.getLsbD 27) (w.toBitVec.getLsbD 24) (w.toBitVec.getLsbD 25) (w.toBitVec.getLsbD 28)
+          (w.toBitVec.getLsbD 26) (w.toBitVec.getLsbD 30) (w.toBitVec.getLsbD 48) (w.toBitVec.getLsbD 49)
+          (w.toBitVec.getLsbD 52) ∧
+    (computeLeafNextGen8x8FastUInt w).toBitVec.getLsbD 8 =
+      lifeB (w.toBitVec.getLsbD 36) (w.toBitVec.getLsbD 11) (w.toBitVec.getLsbD 14) (w.toBitVec.getLsbD 15)
+          (w.toBitVec.getLsbD 33) (w.toBitVec.getLsbD 37) (w.toBitVec.getLsbD 35) (w.toBitVec.getLsbD 38)
+          (w.toBitVec.getLsbD 39) ∧
+    (computeLeafNextGen8x8FastUInt w).toBitVec.getLsbD 9 =
+      lifeB (w.toBitVec.getLsbD 37) (w.toBitVec.getLsbD 14) (w.toBitVec.getLsbD 15) (w.toBitVec.getLsbD 26)
+          (w.toBitVec.getLsbD 36) (w.toBitVec.getLsbD 48) (w.toBitVec.getLsbD 38) (w.toBitVec.getLsbD 39)
+          (w.toBitVec.getLsbD 50) ∧
+    (computeLeafNextGen8x8FastUInt w).toBitVec.getLsbD 10 =
+      lifeB (w.toBitVec.getLsbD 38) (w.toBitVec.getLsbD 33) (w.toBitVec.getLsbD 36) (w.toBitVec.getLsbD 37)
+          (w.toBitVec.getLsbD 35) (w.toBitVec.getLsbD 39) (w.toBitVec.getLsbD 41) (w.toBitVec.getLsbD 44)
+          (w.toBitVec.getLsbD 45) ∧
+    (computeLeafNextGen8x8FastUInt w).toBitVec.getLsbD 11 =
+      lifeB (w.toBitVec.getLsbD 39) (w.toBitVec.getLsbD 36) (w.toBitVec.getLsbD 37) (w.toBitVec.getLsbD 48)
+          (w.toBitVec.getLsbD 38) (w.toBitVec.getLsbD 50) (w.toBitVec.getLsbD 44) (w.toBitVec.getLsbD 45)
+          (w.toBitVec.getLsbD 56) ∧
+    (computeLeafNextGen8x8FastUInt w).toBitVec.getLsbD 12 =
+      lifeB (w.toBitVec.getLsbD 48) (w.toBitVec.getLsbD 15) (w.toBitVec.getLsbD 26) (w.toBitVec.getLsbD 27)
+          (w.toBitVec.getLsbD 37) (w.toBitVec.getLsbD 49) (w.toBitVec.getLsbD 39) (w.toBitVec.getLsbD 50)
+          (w.toBitVec.getLsbD 51) ∧
+    (computeLeafNextGen8x8FastUInt w).toBitVec.getLsbD 13 =
+      lifeB (w.toBitVec.getLsbD 49) (w.toBitVec.getLsbD 26) (w.toBitVec.getLsbD 27) (w.toBitVec.getLsbD 30)
+          (w.toBitVec.getLsbD 48) (w.toBitVec.getLsbD 52) (w.toBitVec.getLsbD 50) (w.toBitVec.getLsbD 51)
+          (w.toBitVec.getLsbD 54) ∧
+    (computeLeafNextGen8x8FastUInt w).toBitVec.getLsbD 14 =
+      lifeB (w.toBitVec.getLsbD 50) (w.toBitVec.getLsbD 37) (w.toBitVec.getLsbD 48) (w.toBitVec.getLsbD 49)
+          (w.toBitVec.getLsbD 39) (w.toBitVec.getLsbD 51) (w.toBitVec.getLsbD 45) (w.toBitVec.getLsbD 56)
+          (w.toBitVec.getLsbD 57) ∧
+    (computeLeafNextGen8x8FastUInt w).toBitVec.getLsbD 15 =
+      lifeB (w.toBitVec.getLsbD 51) (w.toBitVec.getLsbD 48) (w.toBitVec.getLsbD 49) (w.toBitVec.getLsbD 52)
+          (w.toBitVec.getLsbD 50) (w.toBitVec.getLsbD 54) (w.toBitVec.getLsbD 56) (w.toBitVec.getLsbD 57)
+          (w.toBitVec.getLsbD 60) := by
+  unfold computeLeafNextGen8x8FastUInt extractCenterUInt extractHorizontalMidUInt extractVerticalMidUInt
+    extractCenterMidUInt quad0UInt quad1UInt quad2UInt quad3UInt computeNextGen4x4UInt computeNextGen4x4BitwiseUInt
+    bitRuleUInt neighborCount22UInt neighborCount12UInt neighborCount21UInt neighborCount11UInt lifeB
+  bv_check "lrat/HashLifeKernelProofs.Algorithm.leafNextGen_bits.lrat"
+
+theorem computeLeafNextGen8x8BranchUInt_eq_fast (w : UInt64) :
+    computeLeafNextGen8x8BranchUInt w = computeLeafNextGen8x8FastUInt w := by
+  unfold computeLeafNextGen8x8BranchUInt
+  split
+  · rename_i h
+    rw [eq_of_beq h]
+    decide
+  · rfl
 
 -- =========================================================================
 -- Level 4 Stepping Kernel (16x16 -> central 8x8, one generation)
@@ -324,12 +427,12 @@ theorem level4_kernel_bits (a b c d : UInt64) :
           (d.toBitVec.getLsbD 14) (d.toBitVec.getLsbD 26) (d.toBitVec.getLsbD 36) (d.toBitVec.getLsbD 37)
           (d.toBitVec.getLsbD 48) := by
   unfold computeLevel4NextGen16x16UInt computeLevel4NextGen16x16WithUInt computeLeafNextGen8x8BranchUInt
-    computeLeafNextGen8x8FastUInt computeNextGen4x4UInt computeNextGen4x4BitwiseUInt bitRuleUInt neighborCount11UInt neighborCount12UInt
-    neighborCount21UInt neighborCount22UInt extractCenterUInt extractHorizontalMidUInt extractVerticalMidUInt
-    extractCenterMidUInt quad0UInt quad1UInt quad2UInt quad3UInt packLeafFrom4x4sUInt
+    computeLeafNextGen8x8FastUInt computeNextGen4x4UInt computeNextGen4x4BitwiseUInt bitRuleUInt neighborCount11UInt
+    neighborCount12UInt neighborCount21UInt neighborCount22UInt extractCenterUInt extractHorizontalMidUInt
+    extractVerticalMidUInt extractCenterMidUInt quad0UInt quad1UInt quad2UInt quad3UInt packLeafFrom4x4sUInt
     centeredSubnodeLevel3BitsUInt centeredHorizontalSubnodeLevel3BitsUInt centeredVerticalSubnodeLevel3BitsUInt
     centeredSubSubnodeLevel4BitsUInt packCentralNibblesUInt lifeB
-  bv_decide (config := {timeout := 600})
+  bv_check "lrat/HashLifeKernelProofs.Algorithm.level4_kernel_bits.lrat"
 
 set_option maxHeartbeats 0 in
 set_option maxRecDepth 100000 in
@@ -403,7 +506,7 @@ theorem centeredSubnodeLevel4_bits (a b c d : UInt64) :
     (centeredSubnodeLevel4 a b c d).toBitVec.getLsbD 62 = d.toBitVec.getLsbD 14 ∧
     (centeredSubnodeLevel4 a b c d).toBitVec.getLsbD 63 = d.toBitVec.getLsbD 15 := by
   unfold centeredSubnodeLevel4
-  bv_decide
+  bv_check "lrat/HashLifeKernelProofs.Algorithm.centeredSubnodeLevel4_bits.lrat"
 
 set_option linter.unusedSimpArgs false in
 theorem leafAt_computeLevel4NextGen16x16UInt (a b c d : UInt64) (x y : ℤ)
@@ -449,47 +552,57 @@ theorem leafAt_centeredSubnodeLevel4 (a b c d : UInt64) (x y : ℤ)
       k46, k47, k48, k49, k50, k51, k52, k53, k54, k55, k56, k57, k58, k59, k60, k61, k62, k63]
 
 -- =========================================================================
--- Population Count Facts
+-- Population Count of a Centered Subnode
 -- =========================================================================
-
-theorem popcount64_eq_zero_iff (x : UInt64) : popcount64 x = 0 ↔ x = 0 := by
-  unfold popcount64
-  constructor <;> intro h <;> bv_decide
-
-theorem popcount64_le (x : UInt64) : popcount64 x ≤ 64 := by
-  unfold popcount64
-  bv_decide
-
-theorem popcount64_toNat_le (x : UInt64) : (popcount64 x).toNat ≤ 64 := by
-  have := popcount64_le x
-  rw [UInt32.le_iff_toNat_le] at this
-  simpa using this
-
-theorem popcount64_split_se (a : UInt64) :
-    popcount64 a = popcount64 (a &&& 0xFFFF000000000000) + popcount64 (a &&& 0x0000FFFFFFFFFFFF) := by
-  unfold popcount64
-  bv_decide
-
-theorem popcount64_split_sw (a : UInt64) :
-    popcount64 a = popcount64 (a &&& 0x0000FFFF00000000) + popcount64 (a &&& 0xFFFF0000FFFFFFFF) := by
-  unfold popcount64
-  bv_decide
-
-theorem popcount64_split_ne (a : UInt64) :
-    popcount64 a = popcount64 (a &&& 0x00000000FFFF0000) + popcount64 (a &&& 0xFFFFFFFF0000FFFF) := by
-  unfold popcount64
-  bv_decide
-
-theorem popcount64_split_nw (a : UInt64) :
-    popcount64 a = popcount64 (a &&& 0x000000000000FFFF) + popcount64 (a &&& 0xFFFFFFFFFFFF0000) := by
-  unfold popcount64
-  bv_decide
 
 theorem popcount64_centeredSubnodeLevel4 (a b c d : UInt64) :
     popcount64 (centeredSubnodeLevel4 a b c d) =
     popcount64 (a &&& 0xFFFF000000000000) + popcount64 (b &&& 0x0000FFFF00000000) +
     popcount64 (c &&& 0x00000000FFFF0000) + popcount64 (d &&& 0x000000000000FFFF) := by
   unfold popcount64 centeredSubnodeLevel4
-  bv_decide
+  bv_check "lrat/HashLifeKernelProofs.Algorithm.popcount64_centeredSubnodeLevel4.lrat"
+
+-- =========================================================================
+-- Universal Kernel Specifications
+-- =========================================================================
+
+/-- Each output bit of the 4x4 kernel is one Conway generation of its cell of the 4x4 grid. -/
+theorem computeNextGen4x4UInt_spec (w : UInt32) (x y : ℤ) (hx : 1 ≤ x ∧ x ≤ 2) (hy : 1 ≤ y ∧ y ≤ 2) :
+    (computeNextGen4x4UInt w).toBitVec.getLsbD (mortonIndex4 (x - 1).toNat (y - 1).toNat) = nextGenAt (grid4At w) x y := by
+  obtain ⟨k0, k1, k2, k3, -⟩ := nextGen4x4_bits w
+  rw [nextGenAt_eq_lifeB]
+  have hx' : x = 1 ∨ x = 2 := by omega
+  have hy' : y = 1 ∨ y = 2 := by omega
+  rcases hx' with rfl | rfl <;> rcases hy' with rfl | rfl <;>
+    simp only [grid4At, mortonIndex4, Int.reduceAdd, Int.reduceSub, Int.reduceLT, Int.reduceLE, Int.reduceToNat,
+      Nat.reduceMod, Nat.reduceDiv, Nat.reduceMul, Nat.reduceAdd, ↓reduceIte, and_self,
+      k0, k1, k2, k3]
+
+/-- The 4x4 kernel's result fits in 4 bits. -/
+theorem computeNextGen4x4UInt_lt (w : UInt32) : (computeNextGen4x4UInt w).toNat < 16 :=
+  UInt32.lt_iff_toNat_lt.mp (nextGen4x4_bits w).2.2.2.2
+
+/--
+Kotlin's `computeNextGen4x4(w)` reads entry `w and 0xFFFF` of a table holding `computeNextGen4x4BitwiseUInt` and
+keeps 4 bits; this is `computeNextGen4x4UInt w`.
+-/
+theorem computeNextGen4x4UInt_eq_table (w : UInt32) :
+    computeNextGen4x4UInt w = computeNextGen4x4BitwiseUInt (w &&& 0xFFFF) &&& 0xF := by
+  unfold computeNextGen4x4UInt computeNextGen4x4BitwiseUInt bitRuleUInt neighborCount22UInt neighborCount12UInt
+    neighborCount21UInt neighborCount11UInt
+  bv_check "lrat/HashLifeKernelProofs.Algorithm.computeNextGen4x4UInt_eq_table.lrat"
+
+/-- Each of the 16 output bits of the 8x8 leaf kernel is one Conway generation of its cell of the leaf. -/
+theorem computeLeafNextGen8x8BranchUInt_spec (w : UInt64) (x y : ℤ) (hx : 2 ≤ x ∧ x < 6) (hy : 2 ≤ y ∧ y < 6) :
+    (computeLeafNextGen8x8BranchUInt w).toBitVec.getLsbD (mortonIndex4 (x - 2).toNat (y - 2).toNat) =
+      nextGenAt (leafAt w) x y := by
+  obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15⟩ := leafNextGen_bits w
+  rw [nextGenAt_eq_lifeB, computeLeafNextGen8x8BranchUInt_eq_fast]
+  have hx' : x = 2 ∨ x = 3 ∨ x = 4 ∨ x = 5 := by omega
+  have hy' : y = 2 ∨ y = 3 ∨ y = 4 ∨ y = 5 := by omega
+  rcases hx' with rfl | rfl | rfl | rfl <;> rcases hy' with rfl | rfl | rfl | rfl <;>
+    simp only [leafAt, mortonIndex, mortonIndex4, Int.reduceAdd, Int.reduceSub, Int.reduceLT, Int.reduceLE,
+      Int.reduceToNat, Nat.reduceMod, Nat.reduceDiv, Nat.reduceMul, Nat.reduceAdd, ↓reduceIte, and_self,
+      k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15]
 
 end Algorithm
