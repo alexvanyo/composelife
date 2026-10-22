@@ -761,7 +761,7 @@ def packLeafFrom4x4sUInt (q0 q1 q2 q3 : UInt32) : UInt64 :=
   ((q2.toUInt64 &&& (0xFFFF : UInt64)) <<< 32) |||
   ((q3.toUInt64 &&& (0xFFFF : UInt64)) <<< 48)
 
-@[export computeLevel4NextGen16x16WithUInt]
+@[export computeLevel4NextGen16x16WithUInt, specialize]
 def computeLevel4NextGen16x16WithUInt
     (nw ne sw se : UInt64)
     (computeLeaf : UInt64 → UInt32) : UInt64 :=
