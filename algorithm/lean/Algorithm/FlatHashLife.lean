@@ -831,10 +831,38 @@ def getRemapCell (arena : @& FlatHashLifeArena) (nodeId : UInt32) : UInt32 :=
     UNCOMPUTED
 
 /--
+Width of a frame of the step work stack in `remapL4`: frame `i` holds a CellNode id at `5 * i` and, once the node
+has been expanded, the ids of its four quadrants (`quadrantNW` .. `quadrantSE`) at `5 * i + 1 ..< 5 * i + 5`. An
+unexpanded frame has `UNCOMPUTED` at `5 * i + 1`.
+-/
+def stepFrameWidth : UInt32 := 5
+
+/--
+Expands the step frame at `base` of the CellNode `nodeId` (level >= 6): interns its four quadrants and stores them in
+`remapL4[base + 1 ..< base + 5]`, unless the arena fails.
+-/
+def FlatHashLifeArena.expandFrame (arena : FlatHashLifeArena) (nodeId base : UInt32) : FlatHashLifeArena :=
+  let (q_nw, a1) := arena.quadrantNW nodeId
+  let (q_ne, a2) := a1.quadrantNE nodeId
+  let (q_sw, a3) := a2.quadrantSW nodeId
+  let (q_se, a4) := a3.quadrantSE nodeId
+  if a4.overflow != 0 then a4
+  else
+    (((a4.setRemapL4 (base + 1) q_nw).setRemapL4 (base + 2) q_ne).setRemapL4 (base + 3) q_sw).setRemapL4
+      (base + 4) q_se
+
+/--
+Expands the step frame at `base` of the CellNode `nodeId` unless it has already been expanded.
+-/
+def FlatHashLifeArena.expandFrameIfNeeded (arena : FlatHashLifeArena) (nodeId base : UInt32) : FlatHashLifeArena :=
+  if arena.remapL4[(base + 1).toNat]! == UNCOMPUTED then arena.expandFrame nodeId base else arena
+
+/--
 Tail-recursive work-stack loop for zero-allocation serial HashLife stepping of a level >= 5 CellNode.
-The explicit stack lives in `remapL4[0 ..< sp]`, so that the function compiles to a flat while-loop
-in Kotlin with zero heap or call-stack allocations. The loop stops early when the step budget (`fuel`)
-or the stack space runs out; `stepCellSerial` reports that as a failure.
+The explicit stack of `sp` frames (`stepFrameWidth`) lives in `remapL4`, so that the function compiles to a flat
+while-loop in Kotlin with zero heap or call-stack allocations. A node's quadrants are interned once, when its frame
+is first expanded, and read back from the frame on later visits. The loop stops early when the step budget (`fuel`)
+or the stack space (`stackLimit` frames) runs out; `stepCellSerial` reports that as a failure.
 -/
 def FlatHashLifeArena.stepCellSerialLoop
     (arena : FlatHashLifeArena) (sp : UInt32) (stackLimit : UInt32) (fuel : UInt32) : FlatHashLifeArena :=
@@ -842,8 +870,8 @@ def FlatHashLifeArena.stepCellSerialLoop
   else if sp == 0 || arena.overflow != 0 then arena
   else
     have : (fuel - 1).toNat < fuel.toNat := uint32_sub_one_lt fuel h
-    let topIdx := (sp - 1).toNat
-    let nodeId := arena.remapL4[topIdx]!
+    let base := (sp - 1) * stepFrameWidth
+    let nodeId := arena.remapL4[base.toNat]!
     if nodeId >= arena.cellCount then
       arena.stepCellSerialLoop (sp - 1) stackLimit (fuel - 1)
     else
@@ -856,13 +884,14 @@ def FlatHashLifeArena.stepCellSerialLoop
           let (_, a1) := arena.stepLevel5 nodeId
           a1.stepCellSerialLoop (sp - 1) stackLimit (fuel - 1)
         else
-          let (q_nw, a1) := arena.quadrantNW nodeId
-          let (q_ne, a2) := a1.quadrantNE nodeId
-          let (q_sw, a3) := a2.quadrantSW nodeId
-          let (q_se, a4) := a3.quadrantSE nodeId
+          let a4 := arena.expandFrameIfNeeded nodeId base
           if a4.overflow != 0 then
             a4.stepCellSerialLoop 0 stackLimit (fuel - 1)
           else
+            let q_nw := a4.remapL4[(base + 1).toNat]!
+            let q_ne := a4.remapL4[(base + 2).toNat]!
+            let q_sw := a4.remapL4[(base + 3).toNat]!
+            let q_se := a4.remapL4[(base + 4).toNat]!
             let r_nw := getCellStepRes a4 q_nw
             let r_ne := getCellStepRes a4 q_ne
             let r_sw := getCellStepRes a4 q_sw
@@ -876,7 +905,8 @@ def FlatHashLifeArena.stepCellSerialLoop
                   else if r_ne == UNCOMPUTED then q_ne
                   else if r_sw == UNCOMPUTED then q_sw
                   else q_se
-                let a5 := a4.setRemapL4 sp child
+                let top := sp * stepFrameWidth
+                let a5 := (a4.setRemapL4 top child).setRemapL4 (top + 1) UNCOMPUTED
                 a5.stepCellSerialLoop (sp + 1) stackLimit (fuel - 1)
             else
               let (_, a5) := a4.combineQuadrants nodeId lvl r_nw r_ne r_sw r_se
@@ -890,12 +920,13 @@ space ran out before the result was memoized.
 -/
 def FlatHashLifeArena.stepCellSerial
     (arena : FlatHashLifeArena) (nodeId : UInt32) : UInt32 × FlatHashLifeArena :=
-  if arena.remapL4.size.toUInt32 == 0 then
+  let stackLimit := arena.remapL4.size.toUInt32 / stepFrameWidth
+  if stackLimit == 0 then
     (UNCOMPUTED, arena.setOverflow)
   else
     let maxSteps := (arena.cellMask + 1) * 8 + 1024
-    let a0 := arena.setRemapL4 0 nodeId
-    let a1 := a0.stepCellSerialLoop 1 arena.remapL4.size.toUInt32 maxSteps
+    let a0 := (arena.setRemapL4 0 nodeId).setRemapL4 1 UNCOMPUTED
+    let a1 := a0.stepCellSerialLoop 1 stackLimit maxSteps
     let res := getCellStepRes a1 nodeId
     if a1.overflow != 0 || res == UNCOMPUTED then (UNCOMPUTED, a1.setOverflow)
     else (res, a1)

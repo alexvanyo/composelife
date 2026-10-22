@@ -52,7 +52,7 @@ internal fun createFlatArena(capacityPow2: Int, maxCapacityPow2: Int = 18): Flat
         cellNext = UIntArray(cap) { UNCOMPUTED_ID },
         cellCount = 0u,
         cellMask = mask,
-        remapL4 = UIntArray(maxOf(128, (1 shl maxCapacityPow2) + 128)),
+        remapL4 = UIntArray(maxOf(256, (1 shl maxCapacityPow2) + 128)),
         remapCell = UIntArray((1 shl maxCapacityPow2) + 256),
         overflow = 0u,
     )
