@@ -1252,28 +1252,6 @@ inductive CellFrame where
   | l4 (id : UInt32) (x0 y0 : Int64)
   | leaf (bits : UInt64) (x0 y0 : Int64)
 
-/--
-Child `q` (`0` nw, `1` ne, `2` sw, otherwise se) of the CellNode `id`. It is not inlined so that the frames built
-from it get their fields directly: the Kotlin backend misses field writes to a new frame that come after unboxing
-an array element.
--/
-@[noinline]
-def FlatHashLifeArena.cellChild (arena : @& FlatHashLifeArena) (id : UInt32) (q : UInt8) : UInt32 :=
-  match q with
-  | 0 => arena.cellNw[id.toNat]!
-  | 1 => arena.cellNe[id.toNat]!
-  | 2 => arena.cellSw[id.toNat]!
-  | _ => arena.cellSe[id.toNat]!
-
-/-- Leaf `q` (`0` nw, `1` ne, `2` sw, otherwise se) of the Level 4 node `id`, not inlined like `cellChild`. -/
-@[noinline]
-def FlatHashLifeArena.l4Leaf (arena : @& FlatHashLifeArena) (id : UInt32) (q : UInt8) : UInt64 :=
-  match q with
-  | 0 => arena.l4Nw[id.toNat]!
-  | 1 => arena.l4Ne[id.toNat]!
-  | 2 => arena.l4Sw[id.toNat]!
-  | _ => arena.l4Se[id.toNat]!
-
 /-- Pushes the leaf frame of `bits` at `(x0, y0)` onto `rest`, unless the leaf has no live cells. -/
 @[inline]
 def pushLeafFrame (bits : UInt64) (x0 y0 : Int64) (rest : List CellFrame) : List CellFrame :=
@@ -1300,10 +1278,10 @@ def FlatHashLifeArena.cellCursorStepWith (arena : @& FlatHashLifeArena) (l t r b
         if r <= x0 || b <= y0 || x0 + span <= l || y0 + span <= t then (0, 0, 0, rest)
         else
           let half := pow2Int64 (lvl - 1)
-          let nw := arena.cellChild id 0
-          let ne := arena.cellChild id 1
-          let sw := arena.cellChild id 2
-          let se := arena.cellChild id 3
+          let nw := arena.cellNw[idx]!
+          let ne := arena.cellNe[idx]!
+          let sw := arena.cellSw[idx]!
+          let se := arena.cellSe[idx]!
           if lvl <= 5 then
             (0, 0, 0, .l4 nw x0 y0 :: .l4 ne (x0 + half) y0 :: .l4 sw x0 (y0 + half) ::
               .l4 se (x0 + half) (y0 + half) :: rest)
@@ -1313,8 +1291,9 @@ def FlatHashLifeArena.cellCursorStepWith (arena : @& FlatHashLifeArena) (l t r b
   | .l4 id x0 y0 :: rest =>
     if id == 0 || id >= arena.l4Count || r <= x0 || b <= y0 || x0 + 16 <= l || y0 + 16 <= t then (0, 0, 0, rest)
     else
-      (0, 0, 0, pushLeafFrame (arena.l4Leaf id 0) x0 y0 (pushLeafFrame (arena.l4Leaf id 1) (x0 + 8) y0
-        (pushLeafFrame (arena.l4Leaf id 2) x0 (y0 + 8) (pushLeafFrame (arena.l4Leaf id 3) (x0 + 8) (y0 + 8) rest))))
+      let idx := id.toNat
+      (0, 0, 0, pushLeafFrame arena.l4Nw[idx]! x0 y0 (pushLeafFrame arena.l4Ne[idx]! (x0 + 8) y0
+        (pushLeafFrame arena.l4Sw[idx]! x0 (y0 + 8) (pushLeafFrame arena.l4Se[idx]! (x0 + 8) (y0 + 8) rest))))
   | .leaf bits x0 y0 :: rest => (leafRowMask bits x0 y0 l t r b 0, x0, y0, rest)
 
 /-- The stack that starts the enumeration of the live cells of the CellNode `rootId` with top-left corner `(ox, oy)`. -/
