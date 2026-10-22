@@ -303,6 +303,13 @@ def FlatHashLifeArena.internCellNode (arena : FlatHashLifeArena) (lvl : UInt8) (
         (id, arena')
 
 /--
+The arena with its scratch tables `remapL4` and `remapCell` replaced, as `FlatHashLifeCellState.kt` does to give an
+arena room to copy from a larger one.
+-/
+def FlatHashLifeArena.withScratch (arena : FlatHashLifeArena) (l4 cell : Array UInt32) : FlatHashLifeArena :=
+  { arena with remapL4 := l4, remapCell := cell }
+
+/--
 Sets an entry in `remapL4`.
 -/
 def FlatHashLifeArena.setRemapL4 (arena : FlatHashLifeArena) (idx : UInt32) (val : UInt32) : FlatHashLifeArena :=
@@ -1393,6 +1400,18 @@ coordinates; used by `FlatHashLifeCellState.fitsInIntRange`.
 def FlatHashLifeArena.cellCursorStepPastY (arena : @& FlatHashLifeArena) (stack : @& List CellFrame) :
     UInt64 × Int64 × Int64 × List CellFrame :=
   arena.cellCursorStepWith (-9223372036854775808) 2147483648 9223372036854775807 9223372036854775807 stack
+
+/--
+Whether the square of the CellNode `rootId` with top-left corner `(ox, oy)` lies in the 32-bit coordinate range: an
+O(1) sufficient condition, without allocating, for every live cell to have 32-bit coordinates, which
+`FlatHashLifeCellState.fitsInIntRange` checks before running the cursors.
+-/
+@[kotlin_member "FlatHashLifeArena" "public" "rootFitsInIntRange"]
+def FlatHashLifeArena.rootFitsInIntRange (arena : @& FlatHashLifeArena) (rootId : UInt32) (ox oy : Int32) : Bool :=
+  if rootId >= arena.cellCount then false
+  else
+    let lvl := arena.cellLevel[rootId.toNat]!.toUInt32
+    lvl <= 31 && ox.toInt64 + pow2Int64 lvl <= 2147483648 && oy.toInt64 + pow2Int64 lvl <= 2147483648
 
 /-- The high 32 bits of a key. -/
 @[inline]

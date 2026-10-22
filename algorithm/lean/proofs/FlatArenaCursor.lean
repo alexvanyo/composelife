@@ -497,4 +497,48 @@ theorem fitsInIntRange_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) {root : UI
       have := (h c hg).2.2.2
       omega
 
+/--
+`rootFitsInIntRange` is sound: when it holds, every live cell of the state has 32-bit coordinates.
+-/
+theorem rootFitsInIntRange_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) {root : UInt32} (ox oy : Int32)
+    (h : a.rootFitsInIntRange root ox oy = true) :
+    ∀ c ∈ hashLifeToGrid (flatState a ox oy root), InWindow (-2 ^ 31) (-2 ^ 31) (2 ^ 31) (2 ^ 31) c := by
+  unfold FlatHashLifeArena.rootFitsInIntRange at h
+  split at h
+  · exact absurd h (by simp)
+  rename_i hlt
+  have hid : root < a.cellCount := by
+    rw [ge_iff_le, u32_le_iff] at hlt
+    rw [u32_lt_iff]
+    omega
+  obtain ⟨k, hk, hn⟩ := NodeIs.of_lt' hwf hid
+  have hL : (a.cellLevel[root.toNat]!.toUInt32).toNat = k + 5 := by
+    rw [u8_toUInt32_toNat]
+    exact hk
+  simp only [Bool.and_eq_true, decide_eq_true_eq] at h
+  obtain ⟨⟨h31, hx⟩, hy⟩ := h
+  rw [u32_le_iff, hL] at h31
+  have h31' : k + 5 ≤ 31 := by simpa using h31
+  have hp := pow2Int64_toInt (k := a.cellLevel[root.toNat]!.toUInt32) (by rw [hL]; omega)
+  rw [hL] at hp
+  have hpw : (2 : ℤ) ^ (k + 5) ≤ 2 ^ 31 := pow_two_le_pow h31'
+  have hpp := pow_two_pos' (k + 5)
+  have h31v : (2 : ℤ) ^ 31 = 2147483648 := by decide
+  have hx1 := Int32.le_toInt ox
+  have hx2 := Int32.toInt_lt ox
+  have hy1 := Int32.le_toInt oy
+  have hy2 := Int32.toInt_lt oy
+  have e : (2147483648 : Int64).toInt = 2 ^ 31 := by decide
+  rw [Int64.le_iff_toInt_le, i64_add_toInt (by rw [Int32.toInt_toInt64, hp]; omega)
+    (by rw [Int32.toInt_toInt64, hp]; omega), Int32.toInt_toInt64, hp, e] at hx hy
+  intro c hc
+  have hW := hn.WFd
+  unfold hashLifeToGrid flatState at hc
+  dsimp only at hc
+  rw [hn.denoteCell_eq, mem_macroCellToGrid_iff hW (by omega)] at hc
+  have hb := cellAt_bounds hW (by omega) hc
+  rw [show k + 1 + 4 = k + 5 by omega] at hb
+  unfold InWindow
+  omega
+
 end Algorithm

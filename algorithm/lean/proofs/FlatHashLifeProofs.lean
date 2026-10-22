@@ -250,4 +250,14 @@ theorem flat_containsCell_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) {root :
       (x.toInt, y.toInt) ∈ hashLifeToGrid (flatState a ox oy root) :=
   containsCell_grid hwf hid ox oy x y
 
+theorem withScratch_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) (l4 cell : Array UInt32) :
+    ArenaWF (a.withScratch l4 cell) ∧ NodesPreserved a (a.withScratch l4 cell) ∧
+    (a.withScratch l4 cell).overflow = a.overflow ∧ (a.withScratch l4 cell).cellCount = a.cellCount ∧
+    ∀ (ox oy : Int32) (root : UInt32), flatState (a.withScratch l4 cell) ox oy root = flatState a ox oy root := by
+  have hs : SameNodes a (a.withScratch l4 cell) := ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩
+  refine ⟨ArenaWF.of_same_memos hwf hs rfl rfl rfl rfl rfl rfl, fun _ _ _ hn => NodeIs.same hs hn, rfl, rfl,
+    fun ox oy root => ?_⟩
+  unfold flatState
+  rw [denoteCell_same hs]
+
 end Algorithm

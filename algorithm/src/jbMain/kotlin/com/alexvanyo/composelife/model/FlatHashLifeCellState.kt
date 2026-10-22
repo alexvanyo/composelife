@@ -27,7 +27,7 @@ import com.alexvanyo.composelife.algorithm.f_Algorithm_leafChunkKey
 
 internal const val UNCOMPUTED_ID: UInt = 0xFFFFFFFFu
 
-internal fun createFlatArena(capacityPow2: Int, maxCapacityPow2: Int = 18): FlatHashLifeArena {
+internal fun createFlatArena(capacityPow2: Int): FlatHashLifeArena {
     val cap = 1 shl capacityPow2
     val mask = (cap - 1).toUInt()
     val arena = FlatHashLifeArena(
@@ -52,13 +52,39 @@ internal fun createFlatArena(capacityPow2: Int, maxCapacityPow2: Int = 18): Flat
         cellNext = UIntArray(cap) { UNCOMPUTED_ID },
         cellCount = 0u,
         cellMask = mask,
-        remapL4 = UIntArray(maxOf(256, (1 shl maxCapacityPow2) + 128)),
-        remapCell = UIntArray((1 shl maxCapacityPow2) + 256),
+        // Room to copy from any arena of at most this capacity; `ensureScratchFor` grows them for larger sources.
+        remapL4 = UIntArray(maxOf(MIN_REMAP_L4_SIZE, cap)),
+        remapCell = UIntArray(cap + COPY_STACK_DEPTH),
         overflow = 0u,
     )
     arena.initEmptyNodes()
     return arena
 }
+
+/**
+ * Grows the scratch tables of this arena, if needed, so that it can copy any subgraph of [src]
+ * (`canCopySubgraphFrom`). Replacing the scratch tables is `withScratch` in Lean, which keeps the arena well-formed
+ * with the same nodes and states (`flat_withScratch_correct`).
+ */
+internal fun FlatHashLifeArena.ensureScratchFor(src: FlatHashLifeArena) {
+    val l4Size = maxOf(MIN_REMAP_L4_SIZE, src.l4Count.toInt())
+    if (remapL4.size < l4Size) {
+        remapL4 = UIntArray(l4Size)
+    }
+    val cellSize = src.cellCount.toInt() + COPY_STACK_DEPTH
+    if (remapCell.size < cellSize) {
+        remapCell = UIntArray(cellSize)
+    }
+}
+
+/**
+ * The smallest `remapL4`: the step work stack needs 26 frames of 5 entries
+ * (`flat_stepOneGeneration_fails_only_when_full`).
+ */
+private const val MIN_REMAP_L4_SIZE = 256
+
+/** The copy work stack that `remapCell` holds after its remap entries (`copyStackDepth` in Lean). */
+private const val COPY_STACK_DEPTH = 256
 
 /**
  * The key of a cell, as `cellKeyOf` in Lean computes it: `x + 2^31` in the high 32 bits and `y + 2^31` in the low
@@ -201,11 +227,14 @@ internal class FlatHashLifeCellState(val offset: IntOffset, val rootNodeId: UInt
         }
 
     /**
-     * Whether every live cell lies in the `Int` coordinate range: whether the cursors over the cells at or past
-     * `x = 2^31` and at or past `y = 2^31` (`flat_fitsInIntRange_correct` in Lean) emit nothing. They skip every
-     * subtree that misses those regions, so this only visits the nodes along the edge of the range.
+     * Whether every live cell lies in the `Int` coordinate range: whether the root's square does
+     * (`flat_rootFitsInIntRange_sound` in Lean), or else whether the cursors over the cells at or past `x = 2^31` and
+     * at or past `y = 2^31` (`flat_fitsInIntRange_correct`) emit nothing. They skip every subtree that misses those
+     * regions, so this only visits the nodes along the edge of the range.
      */
     internal fun fitsInIntRange(): Boolean {
+        // The O(1) check of the root's square (`flat_rootFitsInIntRange_sound`) settles almost every state.
+        if (arena.rootFitsInIntRange(rootNodeId, offset.x, offset.y)) return true
         val start = arena.cellCursorStart(rootNodeId, offset.x, offset.y)
         return !emitsAnyCell(start, arena::cellCursorStepPastX) && !emitsAnyCell(start, arena::cellCursorStepPastY)
     }
