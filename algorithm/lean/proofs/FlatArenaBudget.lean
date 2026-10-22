@@ -32,7 +32,7 @@ namespace Algorithm
 
 `stepCellSerialLoop` stops early when its step budget (`fuel`) or its work stack runs out, and `stepCellSerial`
 reports that as a failure through `overflow`, the same flag that reports a full node table. This module proves
-neither limit is ever reached when the work stack has room for 26 entries and the CellNode table has at most
+neither limit is ever reached when the work stack has room for 26 frames and the CellNode table has at most
 `2 ^ 28` slots: the engine then fails only when a node table is full (`ArenaFull`). The subgraph copy loop
 `copyCellFromLoop` has the same kind of budget and stack, and the same argument (with remapped source CellNodes
 in place of memoized ones) shows that copying and compaction also fail only when a node table is full.
@@ -88,18 +88,18 @@ def memoAt (b : FlatHashLifeArena) (j : ℕ) : Bool := b.cellStepRes[j]! != UNCO
 /-- The number of CellNodes with a memoized step result. -/
 def memoCount (b : FlatHashLifeArena) : ℕ := (List.range b.cellCount.toNat).countP (memoAt b)
 
-/-- The CellNode ids on the work stack `remapL4[0 ..< k]`. -/
-def stk (b : FlatHashLifeArena) (k : ℕ) : List ℕ := (List.range k).map fun i => (b.remapL4[i]!).toNat
+/-- The CellNode ids of the `k` frames (`stepFrameWidth`) of the work stack in `remapL4`. -/
+def stk (b : FlatHashLifeArena) (k : ℕ) : List ℕ := (List.range k).map fun i => (b.remapL4[5 * i]!).toNat
 
 /-- The number of work-stack entries with a memoized step result. -/
 def memoStack (b : FlatHashLifeArena) (k : ℕ) : ℕ := (stk b k).countP (memoAt b)
 
 /--
-The work stack of `stepCellSerialLoop` from a root of level `L0`: entry `i` is a CellNode of level `L0 - i` (each
-entry is a quadrant of the one below it).
+The work stack of `stepCellSerialLoop` from a root of level `L0`: its `k` frames fit in `remapL4`, and the node of
+frame `i` is a CellNode of level `L0 - i` (each entry is a quadrant of the one below it).
 -/
 def StackInv (b : FlatHashLifeArena) (k L0 : ℕ) : Prop :=
-  k ≤ b.remapL4.size ∧ ∀ i < k, b.remapL4[i]! < b.cellCount ∧ cellLevelOf b b.remapL4[i]! = L0 - i
+  5 * k ≤ b.remapL4.size ∧ ∀ i < k, b.remapL4[5 * i]! < b.cellCount ∧ cellLevelOf b b.remapL4[5 * i]! = L0 - i
 
 /--
 The potential of the work-stack loop: every iteration that does not end the loop decreases it by at least one.
@@ -107,14 +107,17 @@ The potential of the work-stack loop: every iteration that does not end the loop
 def pot (b : FlatHashLifeArena) (k : ℕ) : ℤ :=
   2 * ((b.cellMask.toNat + 1 : ℕ) : ℤ) - 2 * (memoCount b : ℤ) + 2 * (memoStack b k : ℤ) - (k : ℤ)
 
-theorem stk_succ (b : FlatHashLifeArena) (k : ℕ) : stk b (k + 1) = stk b k ++ [(b.remapL4[k]!).toNat] := by
+theorem stk_succ (b : FlatHashLifeArena) (k : ℕ) : stk b (k + 1) = stk b k ++ [(b.remapL4[5 * k]!).toNat] := by
   simp [stk, List.range_succ]
 
 theorem StackInv.lt {b : FlatHashLifeArena} {k L0 : ℕ} (h : StackInv b k L0) {i : ℕ} (hi : i < k) :
-    b.remapL4[i]! < b.cellCount := (h.2 i hi).1
+    b.remapL4[5 * i]! < b.cellCount := (h.2 i hi).1
+
+theorem StackInv.le {b : FlatHashLifeArena} {k j L0 : ℕ} (h : StackInv b k L0) (hj : j ≤ k) : StackInv b j L0 :=
+  ⟨by have := h.1; omega, fun i hi => h.2 i (by omega)⟩
 
 theorem StackInv.mono {b : FlatHashLifeArena} {k L0 : ℕ} (h : StackInv b (k + 1) L0) : StackInv b k L0 :=
-  ⟨by have := h.1; omega, fun i hi => h.2 i (by omega)⟩
+  h.le (by omega)
 
 theorem StackInv.bound {b : FlatHashLifeArena} (hwf : ArenaWF b) {k L0 : ℕ} (h : StackInv b k L0) (hk : 1 ≤ k) :
     k + 4 ≤ L0 := by
@@ -134,7 +137,7 @@ theorem stk_nodup {b : FlatHashLifeArena} (hwf : ArenaWF b) {L0 : ℕ} :
     subst hxy hy
     simp only [stk, List.mem_map, List.mem_range] at hx
     obtain ⟨i, hi, he⟩ := hx
-    have e : b.remapL4[i]! = b.remapL4[k]! := UInt32.toNat_inj.mp he
+    have e : b.remapL4[5 * i]! = b.remapL4[5 * k]! := UInt32.toNat_inj.mp he
     have l1 := (h.2 i (by omega)).2
     have l2 := (h.2 k (by omega)).2
     rw [e] at l1
@@ -148,11 +151,21 @@ theorem pot_lower {b : FlatHashLifeArena} (hwf : ArenaWF b) (k : ℕ) : -(k : �
   unfold pot
   omega
 
-theorem grows_pot {b b' : FlatHashLifeArena} (hwf : ArenaWF b) (g : Grows b b') {k L0 : ℕ} (h : StackInv b k L0) :
+/--
+Growth that keeps the node slots of the first `k` frames keeps the stack invariant and does not increase the
+potential.
+-/
+theorem grows_pot {b b' : FlatHashLifeArena} (hwf : ArenaWF b) {lo : ℕ} (g : GrowsAbove b b' lo) {k L0 : ℕ}
+    (hlo : 5 * k ≤ lo + 4) (h : StackInv b k L0) :
     StackInv b' k L0 ∧ pot b' k ≤ pot b k := by
-  have hstk : stk b' k = stk b k := by simp only [stk, g.remapL4]
-  have hinv : StackInv b' k L0 := ⟨by rw [g.remapL4]; exact h.1, fun i hi => by
-    rw [g.remapL4]
+  have hslot : ∀ i, i < k → b'.remapL4[5 * i]! = b.remapL4[5 * i]! := fun i hi => g.below _ (by omega)
+  have hstk : stk b' k = stk b k := by
+    unfold stk
+    apply List.map_congr_left
+    intro i hi
+    rw [hslot i (List.mem_range.mp hi)]
+  have hinv : StackInv b' k L0 := ⟨by rw [g.size]; exact h.1, fun i hi => by
+    rw [hslot i hi]
     exact ⟨g.ext.cell_lt (h.lt hi), by rw [g.ext.cellLevelOf (h.lt hi)]; exact (h.2 i hi).2⟩⟩
   refine ⟨hinv, ?_⟩
   have hnd := stk_nodup hwf k h
@@ -181,14 +194,14 @@ theorem grows_pot {b b' : FlatHashLifeArena} (hwf : ArenaWF b) (g : Grows b b') 
   omega
 
 theorem memoStack_succ (b : FlatHashLifeArena) (k : ℕ) :
-    memoStack b (k + 1) = memoStack b k + if memoAt b (b.remapL4[k]!).toNat then 1 else 0 := by
+    memoStack b (k + 1) = memoStack b k + if memoAt b (b.remapL4[5 * k]!).toNat then 1 else 0 := by
   unfold memoStack
   rw [stk_succ, List.countP_append]
   simp only [List.countP_cons, List.countP_nil]
   split <;> simp_all
 
 /-- Popping a memoized entry decreases the potential by one. -/
-theorem pot_pop {b : FlatHashLifeArena} {k : ℕ} (hm : memoAt b (b.remapL4[k]!).toNat = true) :
+theorem pot_pop {b : FlatHashLifeArena} {k : ℕ} (hm : memoAt b (b.remapL4[5 * k]!).toNat = true) :
     pot b k = pot b (k + 1) - 1 := by
   unfold pot
   rw [memoStack_succ]
@@ -196,41 +209,46 @@ theorem pot_pop {b : FlatHashLifeArena} {k : ℕ} (hm : memoAt b (b.remapL4[k]!)
   push_cast
   omega
 
-/-- Pushing an unmemoized child of the right level keeps the stack invariant and decreases the potential by one. -/
-theorem push_pot {b : FlatHashLifeArena} {k L0 : ℕ} (h : StackInv b k L0) {sp : UInt32} (hsp : sp.toNat = k)
-    (hk : k < b.remapL4.size) {c : UInt32} (hc : c < b.cellCount) (hl : cellLevelOf b c = L0 - k)
-    (hm : memoAt b c.toNat = false) :
-    StackInv (b.setRemapL4 sp c) (k + 1) L0 ∧ pot (b.setRemapL4 sp c) (k + 1) = pot b k - 1 := by
-  have hget : ∀ i, i < k → (b.setRemapL4 sp c).remapL4[i]! = b.remapL4[i]! := fun i hi => by
-    show (b.remapL4.set! sp.toNat c)[i]! = b.remapL4[i]!
-    exact getElem!_set!_ne _ _ _ _ (by omega)
-  have htop : (b.setRemapL4 sp c).remapL4[k]! = c := by
-    show (b.remapL4.set! sp.toNat c)[k]! = c
-    rw [hsp]
-    exact getElem!_set!_self _ _ _ hk
-  have hsize : (b.setRemapL4 sp c).remapL4.size = b.remapL4.size := size_set! _ _ _
-  have hlev : ∀ x, cellLevelOf (b.setRemapL4 sp c) x = cellLevelOf b x := fun _ => rfl
-  refine ⟨⟨by omega, fun i hi => ?_⟩, ?_⟩
+/--
+Pushing a fresh frame of an unmemoized child of the right level keeps the stack invariant and decreases the
+potential by one.
+-/
+theorem push_pot {b : FlatHashLifeArena} {k L0 : ℕ} (h : StackInv b k L0) {i i' : UInt32} (hi : i.toNat = 5 * k)
+    (hi' : i'.toNat = 5 * k + 1) (hk : 5 * k + 5 ≤ b.remapL4.size) {c : UInt32} (hc : c < b.cellCount)
+    (hl : cellLevelOf b c = L0 - k) (hm : memoAt b c.toNat = false) :
+    StackInv ((b.setRemapL4 i c).setRemapL4 i' UNCOMPUTED) (k + 1) L0 ∧
+      pot ((b.setRemapL4 i c).setRemapL4 i' UNCOMPUTED) (k + 1) = pot b k - 1 := by
+  let b' := (b.setRemapL4 i c).setRemapL4 i' UNCOMPUTED
+  have hrm : b'.remapL4 = (b.remapL4.set! (5 * k) c).set! (5 * k + 1) UNCOMPUTED := by
+    show (b.remapL4.set! i.toNat c).set! i'.toNat UNCOMPUTED = _
+    rw [hi, hi']
+  have hget : ∀ j, j < k → b'.remapL4[5 * j]! = b.remapL4[5 * j]! := fun j hj => by
+    rw [hrm, getElem!_set!_ne _ _ _ _ (by omega), getElem!_set!_ne _ _ _ _ (by omega)]
+  have htop : b'.remapL4[5 * k]! = c := by
+    rw [hrm, getElem!_set!_ne _ _ _ _ (by omega), getElem!_set!_self _ _ _ (by omega)]
+  have hsize : b'.remapL4.size = b.remapL4.size := by rw [hrm, size_set!, size_set!]
+  have hlev : ∀ x, cellLevelOf b' x = cellLevelOf b x := fun _ => rfl
+  refine ⟨⟨by rw [hsize]; omega, fun j hj => ?_⟩, ?_⟩
   · rw [hlev]
-    by_cases e : i = k
+    by_cases e : j = k
     · subst e
       rw [htop]
       exact ⟨hc, hl⟩
-    · rw [hget i (by omega)]
-      exact h.2 i (by omega)
-  · have hstk : stk (b.setRemapL4 sp c) k = stk b k := by
+    · rw [hget j (by omega)]
+      exact h.2 j (by omega)
+  · have hstk : stk b' k = stk b k := by
       unfold stk
       apply List.map_congr_left
-      intro i hi
-      rw [hget i (List.mem_range.mp hi)]
-    have hmemo : memoAt (b.setRemapL4 sp c) = memoAt b := rfl
+      intro j hj
+      rw [hget j (List.mem_range.mp hj)]
+    have hmemo : memoAt b' = memoAt b := rfl
     unfold pot
     rw [memoStack_succ, htop, hmemo, hm]
     unfold memoStack
     rw [hstk, hmemo]
     simp only [Bool.false_eq_true, ite_false, Nat.add_zero]
-    have : memoCount (b.setRemapL4 sp c) = memoCount b := rfl
-    have hmask : (b.setRemapL4 sp c).cellMask = b.cellMask := rfl
+    have : memoCount b' = memoCount b := rfl
+    have hmask : b'.cellMask = b.cellMask := rfl
     rw [this, hmask]
     push_cast
     omega
@@ -262,80 +280,99 @@ theorem u32_sub_one_toNat {n : UInt32} (h : 1 ≤ n.toNat) : (n - 1).toNat = n.t
   rw [UInt32.toNat_sub_of_le n 1 h1]
   rfl
 
-theorem StackInv.le {b : FlatHashLifeArena} {k j L0 : ℕ} (h : StackInv b k L0) (hj : j ≤ k) : StackInv b j L0 :=
-  ⟨by have := h.1; omega, fun i hi => h.2 i (by omega)⟩
-
 /-- What the work-stack loop guarantees about the arena `r` it returns, for the root `root` at the stack bottom. -/
 def LoopGoal (r : FlatHashLifeArena) (root : UInt32) : Prop :=
   (r.overflow = 0 → memoAt r root.toNat = true) ∧ (r.overflow ≠ 0 → ArenaFull r)
 
-/-- A state of the work-stack loop with `k` entries, from a root of level `L0`. -/
+/-- A state of the work-stack loop with `k` frames, from a root of level `L0`. -/
 structure LoopState (b : FlatHashLifeArena) (k L0 : ℕ) (root stackLimit : UInt32) : Prop where
   wf : ArenaWF b
   ovf : b.overflow = 0
   inv : StackInv b k L0
+  frames : FramesOK b k
   pos : 1 ≤ k
   root : b.remapL4[0]! = root
-  lvl : L0 ≤ b.remapL4.size + 4
-  lim : stackLimit.toNat = b.remapL4.size
+  sl : k ≤ stackLimit.toNat
+  lvl : L0 ≤ stackLimit.toNat + 4
+  lim : 5 * stackLimit.toNat ≤ b.remapL4.size
+  lim32 : 5 * stackLimit.toNat < 2 ^ 32
 
 /-- The work-stack loop meets `LoopGoal` from every state whose potential fits in `fuel`. -/
 def LoopIH (L0 : ℕ) (root stackLimit fuel : UInt32) : Prop :=
   ∀ (b : FlatHashLifeArena) (sp : UInt32), LoopState b sp.toNat L0 root stackLimit →
     pot b sp.toNat + L0 ≤ fuel.toNat → LoopGoal (b.stepCellSerialLoop sp stackLimit fuel) root
 
-/-- Popping the top entry after it was memoized (or after the arena filled up). -/
+/-- Popping the top frame after its node was memoized (or after the arena filled up). -/
 theorem loop_pop {L0 : ℕ} {root stackLimit fuel : UInt32} (ih : LoopIH L0 root stackLimit fuel)
     {b b' : FlatHashLifeArena} {sp : UInt32} (hs : LoopState b sp.toNat L0 root stackLimit)
-    (hfuel : pot b sp.toNat + L0 ≤ fuel.toNat + 1) (g : Grows b b')
-    (hm : b'.overflow = 0 → memoAt b' (b.remapL4[sp.toNat - 1]!).toNat = true) :
+    (hfuel : pot b sp.toNat + L0 ≤ fuel.toNat + 1) (g : GrowsAbove b b' (5 * (sp.toNat - 1) + 1))
+    (hm : b'.overflow = 0 → memoAt b' (b.remapL4[5 * (sp.toNat - 1)]!).toNat = true) :
     LoopGoal (b'.stepCellSerialLoop (sp - 1) stackLimit fuel) root := by
   by_cases hov : b'.overflow = 0
   · have hm' := hm hov
     have hsp : (sp - 1).toNat = sp.toNat - 1 := u32_sub_one_toNat hs.pos
-    obtain ⟨hinv', hpot⟩ := grows_pot hs.wf g hs.inv
+    obtain ⟨hinv', hpot⟩ := grows_pot hs.wf g (by omega) hs.inv
     have e : sp.toNat - 1 + 1 = sp.toNat := by have := hs.pos; omega
-    have hpop := pot_pop (b := b') (k := sp.toNat - 1) (by rw [g.remapL4]; exact hm')
+    have htop : b'.remapL4[5 * (sp.toNat - 1)]! = b.remapL4[5 * (sp.toNat - 1)]! := g.below _ (by omega)
+    have hpop := pot_pop (b := b') (k := sp.toNat - 1) (by rw [htop]; exact hm')
     rw [e] at hpop
+    have h0 : b'.remapL4[0]! = root := by rw [g.below 0 (by omega)]; exact hs.root
     by_cases hk : sp.toNat - 1 = 0
     · have hsp0 : sp - 1 = 0 := u32_eq_of_toNat (by rw [hsp, hk]; rfl)
       rw [hsp0, stepCellSerialLoop_empty]
       refine ⟨fun _ => ?_, fun h => absurd hov h⟩
-      rw [← hs.root, ← hk]
-      exact hm'
+      rw [hk] at hm'
+      rw [← hs.root]
+      simpa using hm'
     · apply ih b' (sp - 1)
       · rw [hsp]
-        exact ⟨g.wf, hov, hinv'.le (by omega), by omega, by rw [g.remapL4]; exact hs.root,
-          by rw [g.remapL4]; exact hs.lvl, by rw [g.remapL4]; exact hs.lim⟩
+        exact ⟨g.wf, hov, hinv'.le (by omega), (hs.frames.mono (j := sp.toNat - 1) (by omega)).transfer hs.wf g
+          (by omega),
+          by omega, h0, by have := hs.sl; omega, hs.lvl, by rw [g.size]; exact hs.lim, hs.lim32⟩
       · rw [hsp]
         omega
   · rw [stepCellSerialLoop_overflow hov]
     exact ⟨fun h => absurd h hov, fun _ => (g.cap hov).resolve_left (fun h => h hs.ovf)⟩
 
-/-- Pushing an unmemoized quadrant of the top entry. -/
+/-- Pushing a fresh frame of an unmemoized quadrant of the top node. -/
 theorem loop_push {L0 : ℕ} {root stackLimit fuel : UInt32} (ih : LoopIH L0 root stackLimit fuel)
     {b b4 : FlatHashLifeArena} {sp : UInt32} (hs : LoopState b sp.toNat L0 root stackLimit)
-    (hfuel : pot b sp.toNat + L0 ≤ fuel.toNat + 1) (g : Grows b b4) (hov : b4.overflow = 0)
-    (hlt : sp.toNat < b.remapL4.size) {c : UInt32} (hc : c < b4.cellCount)
-    (hl : cellLevelOf b4 c = L0 - sp.toNat) (hm : memoAt b4 c.toNat = false) :
-    LoopGoal ((b4.setRemapL4 sp c).stepCellSerialLoop (sp + 1) stackLimit fuel) root := by
-  obtain ⟨hinv4, hpot4⟩ := grows_pot hs.wf g hs.inv
-  have hlt4 : sp.toNat < b4.remapL4.size := by rw [g.remapL4]; exact hlt
-  obtain ⟨hinv5, hpot5⟩ := push_pot hinv4 rfl hlt4 hc hl hm
-  have hsp : (sp + 1).toNat = sp.toNat + 1 :=
-    u32_toNat_add_one (by have := hs.lim; have := u32_toNat_lt stackLimit; omega)
+    (hfuel : pot b sp.toNat + L0 ≤ fuel.toNat + 1) (g : GrowsAbove b b4 (5 * (sp.toNat - 1) + 1))
+    (htopf : FrameOK b4 (sp.toNat - 1)) (hov : b4.overflow = 0) (hlt : sp.toNat < stackLimit.toNat)
+    {c : UInt32} (hc : c < b4.cellCount) (hl : cellLevelOf b4 c = L0 - sp.toNat) (hm : memoAt b4 c.toNat = false) :
+    LoopGoal (((b4.setRemapL4 (sp * stepFrameWidth) c).setRemapL4 (sp * stepFrameWidth + 1)
+      UNCOMPUTED).stepCellSerialLoop
+      (sp + 1) stackLimit fuel) root := by
+  have ht := frame_toNat (sp := sp) (by have := hs.lim32; omega)
+  have ht1' : (sp * stepFrameWidth + 1).toNat = (sp * stepFrameWidth).toNat + 1 :=
+    u32_add_small_toNat (k := 1) (by decide) (by have := hs.lim32; omega)
+  have ht1 : (sp * stepFrameWidth + 1).toNat = 5 * sp.toNat + 1 := by rw [ht1', ht]
+  obtain ⟨hinv4, hpot4⟩ := grows_pot hs.wf g (by omega) hs.inv
+  have hsz4 : 5 * sp.toNat + 5 ≤ b4.remapL4.size := by rw [g.size]; have := hs.lim; omega
+  obtain ⟨hinv5, hpot5⟩ := push_pot hinv4 ht ht1 hsz4 hc hl hm
+  have w4 := g.wf
+  have k1 := GrowsAbove.setRemapL4 w4 (lo := 5 * sp.toNat) (i := sp * stepFrameWidth) (by omega) c
+  have k2 := GrowsAbove.setRemapL4 k1.wf (lo := 5 * sp.toNat) (i := sp * stepFrameWidth + 1) (by omega) UNCOMPUTED
+  have k12 := k1.trans k2
+  have hsp : (sp + 1).toNat = sp.toNat + 1 := u32_toNat_add_one (by have := hs.lim32; omega)
   apply ih
   · rw [hsp]
-    refine ⟨g.wf.setRemapL4 _ _, hov, hinv5, by omega, ?_, ?_, ?_⟩
-    · show (b4.remapL4.set! sp.toNat c)[0]! = root
-      rw [getElem!_set!_ne _ _ _ _ (by have := hs.pos; omega), g.remapL4]
+    refine ⟨k12.wf, hov, hinv5, ?_, by omega, ?_, by omega, hs.lvl, by rw [k12.size, g.size]; exact hs.lim, hs.lim32⟩
+    · intro f hf
+      by_cases hfe : f = sp.toNat
+      · subst hfe
+        apply FrameOK.fresh
+        show ((b4.remapL4.set! (sp * stepFrameWidth).toNat c).set! (sp * stepFrameWidth + 1).toNat
+          UNCOMPUTED)[5 * sp.toNat + 1]! = UNCOMPUTED
+        rw [ht1, getElem!_set!_self _ _ _ (by rw [size_set!]; omega)]
+      · have hfa : FrameOK b4 f := by
+          by_cases hft : f = sp.toNat - 1
+          · subst hft; exact htopf
+          · have hf2 : f + 2 ≤ sp.toNat := by omega
+            exact (hs.frames f (by omega)).transfer hs.wf g (by omega)
+        exact hfa.transfer w4 k12 (by omega)
+    · rw [k12.below 0 (by have := hs.pos; omega), g.below 0 (by omega)]
       exact hs.root
-    · show L0 ≤ (b4.remapL4.set! sp.toNat c).size + 4
-      rw [size_set!, g.remapL4]
-      exact hs.lvl
-    · show stackLimit.toNat = (b4.remapL4.set! sp.toNat c).size
-      rw [size_set!, g.remapL4]
-      exact hs.lim
   · rw [hsp]
     omega
 
@@ -384,17 +421,18 @@ theorem stepCellSerialLoop_budget (L0 : ℕ) (root stackLimit : UInt32) (n : ℕ
     have hcond : (sp == 0 || b.overflow != 0) = false := by simp [hsp0, hs.ovf]
     rw [hcond]
     simp only [Bool.false_eq_true, ite_false]
-    have htop : (sp - 1).toNat = sp.toNat - 1 := u32_sub_one_toNat hs.pos
-    have hid : b.remapL4[(sp - 1).toNat]! < b.cellCount := by
-      rw [htop]
+    have hbase := frame_pred_toNat hs.pos (by have := hs.sl; have := hs.lim32; omega)
+    have hid : b.remapL4[((sp - 1) * stepFrameWidth).toNat]! < b.cellCount := by
+      rw [hbase]
       exact hs.inv.lt (by have := hs.pos; omega)
     have hlev0 := (hs.inv.2 (sp.toNat - 1) (by have := hs.pos; omega)).2
-    rw [← htop] at hlev0
+    rw [← hbase] at hlev0
     rw [ite_eq_right (by rw [ge_iff_le, u32_le_iff]; have := u32_lt_iff.mp hid; omega)]
     obtain ⟨k, hk, hnode⟩ := NodeIs.of_lt' hs.wf hid
     split
     · rename_i hmemo
-      exact loop_pop ih' hs hfuel' (Grows.refl hs.wf) (fun _ => by rw [← htop]; simpa [memoAt] using hmemo)
+      exact loop_pop ih' hs hfuel' (GrowsAbove.refl hs.wf _)
+        (fun _ => by rw [← hbase]; simpa [memoAt] using hmemo)
     · split
       · -- level 5
         rename_i hle
@@ -404,10 +442,10 @@ theorem stepCellSerialLoop_budget (L0 : ℕ) (root stackLimit : UInt32) (n : ℕ
           have h5 : (5 : UInt8).toNat = 5 := rfl
           omega
         subst hk0
-        rcases e : b.stepLevel5 b.remapL4[(sp - 1).toNat]! with ⟨r, a1⟩
+        rcases e : b.stepLevel5 b.remapL4[((sp - 1) * stepFrameWidth).toNat]! with ⟨r, a1⟩
         have s := stepLevel5_spec hs.wf hnode
         rw [e] at s
-        exact loop_pop ih' hs hfuel' s.1 (fun h => by rw [← htop]; simpa [memoAt] using s.2.2 h)
+        exact loop_pop ih' hs hfuel' (s.1.above _) (fun h => by rw [← hbase]; simpa [memoAt] using s.2.2 h)
       · -- level ≥ 6
         rename_i hle
         obtain ⟨j, rfl⟩ : ∃ j, k = j + 1 := by
@@ -416,76 +454,74 @@ theorem stepCellSerialLoop_budget (L0 : ℕ) (root stackLimit : UInt32) (n : ℕ
           have h5 : (5 : UInt8).toNat = 5 := rfl
           exact ⟨k - 1, by omega⟩
         have hwf := hs.wf
-        rcases e1 : b.quadrantNW b.remapL4[(sp - 1).toNat]! with ⟨q1, a1⟩
-        have s1 := quadrantNW_spec hwf hnode
-        rw [e1] at s1
-        obtain ⟨g1, r1⟩ := s1
-        have w1 := g1.wf
-        rcases e2 : a1.quadrantNE b.remapL4[(sp - 1).toNat]! with ⟨q2, a2⟩
-        have s2 := quadrantNE_spec w1 (g1.node hwf hnode)
-        rw [e2] at s2
-        obtain ⟨g2, r2⟩ := s2
-        have w2 := g2.wf
-        rcases e3 : a2.quadrantSW b.remapL4[(sp - 1).toNat]! with ⟨q3, a3⟩
-        have s3 := quadrantSW_spec w2 ((g1.trans g2).node hwf hnode)
-        rw [e3] at s3
-        obtain ⟨g3, r3⟩ := s3
-        have w3 := g3.wf
-        rcases e4 : a3.quadrantSE b.remapL4[(sp - 1).toNat]! with ⟨q4, a4⟩
-        have s4 := quadrantSE_spec w3 (((g1.trans g2).trans g3).node hwf hnode)
-        rw [e4] at s4
-        obtain ⟨g4, r4⟩ := s4
+        have hsl := hs.sl
+        have hlim := hs.lim
+        have hlim32 := hs.lim32
+        have hpos := hs.pos
+        have T := topFrame_spec hwf hbase (f := sp.toNat - 1) (by omega) (by omega)
+          (hs.frames (sp.toNat - 1) (by omega)) hnode
+        generalize b.expandFrameIfNeeded b.remapL4[((sp - 1) * stepFrameWidth).toNat]!
+          ((sp - 1) * stepFrameWidth) = a4 at T ⊢
+        obtain ⟨g4, r4⟩ := T
         have w4 := g4.wf
-        dsimp only at g1 g2 g3 g4 r1 r2 r3 r4 w1 w2 w3 w4 ⊢
-        have g14 := ((g1.trans g2).trans g3).trans g4
         split
         · rename_i hov
           have hov4 : a4.overflow ≠ 0 := by simpa using hov
           rw [stepCellSerialLoop_empty]
-          exact ⟨fun h => absurd h hov4, fun _ => (g14.cap hov4).resolve_left (fun h => h hs.ovf)⟩
+          exact ⟨fun h => absurd h hov4, fun _ => (g4.cap hov4).resolve_left (fun h => h hs.ovf)⟩
         · rename_i hov
           have hov4 : a4.overflow = 0 := by simpa using hov
-          have hov3 := g4.ovf hov4
-          have hov2 := g3.ovf hov3
-          have hov1 := g2.ovf hov2
-          have n1 := ((g2.trans g3).trans g4).node w1 (r1 hov1)
-          have n2 := (g3.trans g4).node w2 (r2 hov2)
-          have n3 := g4.node w3 (r3 hov3)
-          have n4 := r4 hov4
+          obtain ⟨hf4, n1, n2, n3, n4⟩ := r4 hov4
+          have h32 : 5 * sp.toNat < 2 ^ 32 := by have := hs.sl; have := hs.lim32; omega
+          have q1' : ((sp - 1) * stepFrameWidth + 1).toNat = ((sp - 1) * stepFrameWidth).toNat + 1 :=
+            u32_add_small_toNat (k := 1) (by decide) (by omega)
+          have q1 : ((sp - 1) * stepFrameWidth + 1).toNat = 5 * (sp.toNat - 1) + 1 := by rw [q1', hbase]
+          have q2' : ((sp - 1) * stepFrameWidth + 2).toNat = ((sp - 1) * stepFrameWidth).toNat + 2 :=
+            u32_add_small_toNat (k := 2) (by decide) (by omega)
+          have q2 : ((sp - 1) * stepFrameWidth + 2).toNat = 5 * (sp.toNat - 1) + 2 := by rw [q2', hbase]
+          have q3' : ((sp - 1) * stepFrameWidth + 3).toNat = ((sp - 1) * stepFrameWidth).toNat + 3 :=
+            u32_add_small_toNat (k := 3) (by decide) (by omega)
+          have q3 : ((sp - 1) * stepFrameWidth + 3).toNat = 5 * (sp.toNat - 1) + 3 := by rw [q3', hbase]
+          have q4' : ((sp - 1) * stepFrameWidth + 4).toNat = ((sp - 1) * stepFrameWidth).toNat + 4 :=
+            u32_add_small_toNat (k := 4) (by decide) (by omega)
+          have q4 : ((sp - 1) * stepFrameWidth + 4).toNat = 5 * (sp.toNat - 1) + 4 := by rw [q4', hbase]
+          simp only [q1, q2, q3, q4]
           have hlvq : j + 5 = L0 - sp.toNat := by
             rw [hk] at hlev0
-            rw [htop] at hlev0
-            have := hs.pos
-            omega
-          have hlt : sp.toNat < b.remapL4.size := by
-            have := hs.lvl
-            rw [hk] at hlev0
-            rw [htop] at hlev0
             omega
           have push : ∀ c : UInt32, (∃ M, NodeIs a4 (j + 1) c M) → getCellStepRes a4 c = UNCOMPUTED →
-              LoopGoal ((a4.setRemapL4 sp c).stepCellSerialLoop (sp + 1) stackLimit (fuel - 1)) root := by
-            rintro c ⟨M, hc⟩ hr
-            exact loop_push ih' hs hfuel' g14 hov4 hlt hc.lt_cell (by rw [hc.level]; exact hlvq)
+              sp.toNat < stackLimit.toNat →
+              LoopGoal (((a4.setRemapL4 (sp * stepFrameWidth) c).setRemapL4 (sp * stepFrameWidth + 1)
+                UNCOMPUTED).stepCellSerialLoop (sp + 1) stackLimit (fuel - 1)) root := by
+            rintro c ⟨M, hc⟩ hr hroom
+            exact loop_push ih' hs hfuel' g4 hf4 hov4 hroom hc.lt_cell (by rw [hc.level]; exact hlvq)
               (memoAt_of_getCellStepRes hc.lt_cell hr)
           split
           · rename_i hany
             split
             · rename_i hfull
+              rw [stepCellSerialLoop_empty]
               exfalso
-              rw [ge_iff_le, u32_le_iff, hs.lim] at hfull
+              rw [ge_iff_le, u32_le_iff] at hfull
+              have := hs.lvl
+              rw [hk] at hlev0
               omega
-            · split
+            · rename_i hroom
+              have hroom' : sp.toNat < stackLimit.toNat := by
+                rw [ge_iff_le, u32_le_iff] at hroom
+                omega
+              split
               · rename_i h1
-                exact push q1 ⟨_, n1⟩ (by simpa using h1)
+                exact push _ ⟨_, n1⟩ (by simpa using h1) hroom'
               · split
                 · rename_i _ h2
-                  exact push q2 ⟨_, n2⟩ (by simpa using h2)
+                  exact push _ ⟨_, n2⟩ (by simpa using h2) hroom'
                 · split
                   · rename_i _ _ h3
-                    exact push q3 ⟨_, n3⟩ (by simpa using h3)
+                    exact push _ ⟨_, n3⟩ (by simpa using h3) hroom'
                   · rename_i h1 h2 h3
                     simp only [Bool.or_eq_true, beq_iff_eq] at hany h1 h2 h3
-                    exact push q4 ⟨_, n4⟩ (hany.resolve_left fun h => h.elim (fun h => h.elim h1 h2) h3)
+                    exact push _ ⟨_, n4⟩ (hany.resolve_left fun h => h.elim (fun h => h.elim h1 h2) h3) hroom'
           · rename_i hall
             simp only [Bool.or_eq_true, beq_iff_eq, not_or] at hall
             obtain ⟨⟨⟨hr1, hr2⟩, hr3⟩, hr4⟩ := hall
@@ -493,16 +529,20 @@ theorem stepCellSerialLoop_budget (L0 : ℕ) (root stackLimit : UInt32) (n : ℕ
             have m2 := getCellStepRes_memo w4 n2 hr2
             have m3 := getCellStepRes_memo w4 n3 hr3
             have m4 := getCellStepRes_memo w4 n4 hr4
-            have hlv : a4.cellLevel[(b.remapL4[(sp - 1).toNat]!).toNat]! =
-                b.cellLevel[(b.remapL4[(sp - 1).toNat]!).toNat]! :=
-              (g14.ext.cell _ (u32_lt_iff.mp hid)).2.2.2.2
-            have gc := combineQuadrants_spec w4 (g14.node hwf hnode) n1 n2 n3 n4 m1 m2 m3 m4
+            have hlv : a4.cellLevel[(b.remapL4[((sp - 1) * stepFrameWidth).toNat]!).toNat]! =
+                b.cellLevel[(b.remapL4[((sp - 1) * stepFrameWidth).toNat]!).toNat]! :=
+              (g4.ext.cell _ (u32_lt_iff.mp hid)).2.2.2.2
+            have gc := combineQuadrants_spec w4 (NodeIs.extend hwf g4.ext hnode) n1 n2 n3 n4 m1 m2 m3 m4
             rw [hlv] at gc
-            rcases e5 : a4.combineQuadrants b.remapL4[(sp - 1).toNat]!
-                b.cellLevel[(b.remapL4[(sp - 1).toNat]!).toNat]! (getCellStepRes a4 q1)
-                (getCellStepRes a4 q2) (getCellStepRes a4 q3) (getCellStepRes a4 q4) with ⟨res, a5⟩
+            rcases e5 : a4.combineQuadrants b.remapL4[((sp - 1) * stepFrameWidth).toNat]!
+                b.cellLevel[(b.remapL4[((sp - 1) * stepFrameWidth).toNat]!).toNat]!
+                (getCellStepRes a4 a4.remapL4[5 * (sp.toNat - 1) + 1]!)
+                (getCellStepRes a4 a4.remapL4[5 * (sp.toNat - 1) + 2]!)
+                (getCellStepRes a4 a4.remapL4[5 * (sp.toNat - 1) + 3]!)
+                (getCellStepRes a4 a4.remapL4[5 * (sp.toNat - 1) + 4]!) with ⟨res, a5⟩
             rw [e5] at gc
-            exact loop_pop ih' hs hfuel' (g14.trans gc.1) (fun h => by rw [← htop]; simpa [memoAt] using gc.2 h)
+            exact loop_pop ih' hs hfuel' (g4.trans (gc.1.above _))
+              (fun h => by rw [← hbase]; simpa [memoAt] using gc.2 h)
 
 theorem memoStack_le (b : FlatHashLifeArena) (k : ℕ) : memoStack b k ≤ k := by
   have := List.countP_le_length (p := memoAt b) (l := stk b k)
@@ -510,11 +550,11 @@ theorem memoStack_le (b : FlatHashLifeArena) (k : ℕ) : memoStack b k ≤ k := 
 
 /--
 `stepCellSerial` on a node of level `h + 5` fails only when a node table is full, provided the work stack
-`remapL4` has room for `h + 1` entries and the CellNode table has at most `2 ^ 28` slots (so the step budget
-`(cellMask + 1) * 8 + 1024` does not wrap around).
+`remapL4` has room for `h + 1` frames (`stepFrameWidth`) and the CellNode table has at most `2 ^ 28` slots (so the
+step budget `(cellMask + 1) * 8 + 1024` does not wrap around).
 -/
 theorem stepCellSerial_budget {a : FlatHashLifeArena} (hwf : ArenaWF a) (hov : a.overflow = 0) {h : ℕ}
-    {id : UInt32} {m : MacroCell} (hn : NodeIs a (h + 1) id m) (hsz : h + 1 ≤ a.remapL4.size)
+    {id : UInt32} {m : MacroCell} (hn : NodeIs a (h + 1) id m) (hsz : 5 * (h + 1) ≤ a.remapL4.size)
     (hsz' : a.remapL4.size < 2 ^ 32) (hmask : a.cellMask.toNat < 2 ^ 28) :
     (a.stepCellSerial id).2.overflow ≠ 0 → ArenaFull (a.stepCellSerial id).2 := by
   have hl := hn.level
@@ -522,46 +562,60 @@ theorem stepCellSerial_budget {a : FlatHashLifeArena} (hwf : ArenaWF a) (hov : a
     have := u8_toNat_lt (a.cellLevel[id.toNat]!)
     unfold cellLevelOf at hl
     omega
-  have hlim : a.remapL4.size.toUInt32.toNat = a.remapL4.size := by
+  have hlimN : (a.remapL4.size.toUInt32 / stepFrameWidth).toNat = a.remapL4.size / 5 := by
+    rw [UInt32.toNat_div, stepFrameWidth_toNat]
     simp only [Nat.toUInt32_eq, UInt32.toNat_ofNat']
-    omega
-  have hne : a.remapL4.size.toUInt32 ≠ 0 := fun h0 => by
-    have := congrArg UInt32.toNat h0
-    rw [hlim, UInt32.toNat_zero] at this
-    omega
+    rw [Nat.mod_eq_of_lt hsz']
+  have hne : (a.remapL4.size.toUInt32 / stepFrameWidth == 0) = false := by
+    have : (a.remapL4.size.toUInt32 / stepFrameWidth).toNat ≠ 0 := by rw [hlimN]; omega
+    simpa using fun h0 => this (by rw [h0]; rfl)
   unfold FlatHashLifeArena.stepCellSerial
-  rw [ite_eq_right (by simpa using hne)]
   dsimp only
+  rw [hne]
+  simp only [Bool.false_eq_true, ite_false]
   have hfuel : ((a.cellMask + 1) * 8 + 1024).toNat = (a.cellMask.toNat + 1) * 8 + 1024 := by
     simp only [UInt32.toNat_add, UInt32.toNat_mul, UInt32.reduceToNat]
     omega
-  have hsize0 : 0 < a.remapL4.size := by omega
-  have hroot : (a.setRemapL4 0 id).remapL4[0]! = id := getElem!_set!_self _ _ _ hsize0
-  have hsz0 : (a.setRemapL4 0 id).remapL4.size = a.remapL4.size := size_set! _ _ _
-  have hs0 : LoopState (a.setRemapL4 0 id) (UInt32.toNat 1) (h + 5) id a.remapL4.size.toUInt32 := by
-    refine ⟨hwf.setRemapL4 0 id, hov, ⟨?_, fun i hi => ?_⟩, by decide, hroot, by omega, by rw [hsz0]; exact hlim⟩
+  let a0 := (a.setRemapL4 0 id).setRemapL4 1 UNCOMPUTED
+  have hrm : a0.remapL4 = (a.remapL4.set! 0 id).set! 1 UNCOMPUTED := rfl
+  have hsz0 : a0.remapL4.size = a.remapL4.size := by rw [hrm, size_set!, size_set!]
+  have hroot : a0.remapL4[0]! = id := by
+    rw [hrm, getElem!_set!_ne _ _ _ _ (by omega), getElem!_set!_self _ _ _ (by omega)]
+  have hq : a0.remapL4[5 * 0 + 1]! = UNCOMPUTED := by
+    rw [hrm, getElem!_set!_self _ _ _ (by rw [size_set!]; omega)]
+  have w0 : ArenaWF a0 := (hwf.setRemapL4 0 id).setRemapL4 1 UNCOMPUTED
+  have hs0 : LoopState a0 (UInt32.toNat 1) (h + 5) id (a.remapL4.size.toUInt32 / stepFrameWidth) := by
+    refine ⟨w0, hov, ⟨?_, fun i hi => ?_⟩, ?_, by decide, hroot, ?_, ?_, ?_, ?_⟩
     · rw [hsz0]
       simp only [UInt32.reduceToNat]
       omega
     · simp only [UInt32.reduceToNat] at hi
       obtain rfl : i = 0 := by omega
-      rw [hroot]
+      rw [Nat.mul_zero, hroot]
       exact ⟨hn.lt_cell, hl⟩
-  have hpot : pot (a.setRemapL4 0 id) (UInt32.toNat 1) + ((h + 5 : ℕ) : ℤ) ≤
-      (((a.cellMask + 1) * 8 + 1024).toNat : ℤ) := by
+    · intro f hf
+      simp only [UInt32.reduceToNat] at hf
+      obtain rfl : f = 0 := by omega
+      exact FrameOK.fresh hq
+    · rw [hlimN]; simp only [UInt32.reduceToNat]; omega
+    · rw [hlimN]; omega
+    · rw [hlimN, hsz0]; omega
+    · rw [hlimN]; omega
+  have hpot : pot a0 (UInt32.toNat 1) + ((h + 5 : ℕ) : ℤ) ≤ (((a.cellMask + 1) * 8 + 1024).toNat : ℤ) := by
     rw [hfuel]
-    have := memoStack_le (a.setRemapL4 0 id) 1
+    have := memoStack_le a0 1
     unfold pot
-    have hm : (a.setRemapL4 0 id).cellMask = a.cellMask := rfl
+    have hm : a0.cellMask = a.cellMask := rfl
     rw [hm]
     simp only [UInt32.reduceToNat]
     omega
-  have G := stepCellSerialLoop_budget (h + 5) id a.remapL4.size.toUInt32 _ _ (Nat.le_refl _) _ 1 hs0 hpot
-  have l1 := stepCellSerialLoop_spec (a.remapL4.size.toUInt32)
-    ((a.cellMask + 1) * 8 + 1024).toNat (a.setRemapL4 0 id) 1 ((a.cellMask + 1) * 8 + 1024) (Nat.le_refl _)
-    (hwf.setRemapL4 0 id)
-  have hid1 := l1.ext.cell_lt (show id < (a.setRemapL4 0 id).cellCount from hn.lt_cell)
-  generalize (a.setRemapL4 0 id).stepCellSerialLoop 1 a.remapL4.size.toUInt32 ((a.cellMask + 1) * 8 + 1024) = a1
+  have G := stepCellSerialLoop_budget (h + 5) id (a.remapL4.size.toUInt32 / stepFrameWidth) _ _ (Nat.le_refl _) _ 1
+    hs0 hpot
+  have l1 := stepCellSerialLoop_spec (a.remapL4.size.toUInt32 / stepFrameWidth) hs0.lim32
+    ((a.cellMask + 1) * 8 + 1024).toNat a0 1 ((a.cellMask + 1) * 8 + 1024) (Nat.le_refl _) w0 hs0.sl hs0.lim
+    hs0.frames
+  have hid1 := l1.ext.cell_lt (show id < a0.cellCount from hn.lt_cell)
+  generalize a0.stepCellSerialLoop 1 (a.remapL4.size.toUInt32 / stepFrameWidth) ((a.cellMask + 1) * 8 + 1024) = a1
     at G l1 hid1
   split
   · rename_i hc
@@ -584,10 +638,10 @@ theorem stepCellSerial_budget {a : FlatHashLifeArena} (hwf : ArenaWF a) (hov : a
 
 /--
 `stepOneGeneration` fails only when the arena had already failed or a node table is full, provided the work
-stack `remapL4` has room for 26 entries and the CellNode table has at most `2 ^ 28` slots.
+stack `remapL4` has room for 26 frames (130 entries) and the CellNode table has at most `2 ^ 28` slots.
 -/
 theorem stepOneGeneration_budget {a : FlatHashLifeArena} (hwf : ArenaWF a) (ox oy : Int32) (root : UInt32)
-    (hsz : 26 ≤ a.remapL4.size) (hsz' : a.remapL4.size < 2 ^ 32) (hmask : a.cellMask.toNat < 2 ^ 28) :
+    (hsz : 130 ≤ a.remapL4.size) (hsz' : a.remapL4.size < 2 ^ 32) (hmask : a.cellMask.toNat < 2 ^ 28) :
     (a.stepOneGeneration ox oy root).2.overflow ≠ 0 →
       a.overflow ≠ 0 ∨ ArenaFull (a.stepOneGeneration ox oy root).2 := by
   by_cases hov : a.overflow ≠ 0
@@ -658,10 +712,10 @@ theorem stepOneGeneration_budget {a : FlatHashLifeArena} (hwf : ArenaWF a) (ox o
         exact absurd (by simpa using hov2) h
 /--
 `n` steps of the flat engine fail only when the arena had already failed or a node table is full, provided the
-work stack `remapL4` has room for 26 entries and the CellNode table has at most `2 ^ 28` slots.
+work stack `remapL4` has room for 26 frames (130 entries) and the CellNode table has at most `2 ^ 28` slots.
 -/
 theorem stepOneGenerationN_budget (n : ℕ) :
-    ∀ {a : FlatHashLifeArena} (_ : ArenaWF a) (ox oy : Int32) (root : UInt32), 26 ≤ a.remapL4.size →
+    ∀ {a : FlatHashLifeArena} (_ : ArenaWF a) (ox oy : Int32) (root : UInt32), 130 ≤ a.remapL4.size →
       a.remapL4.size < 2 ^ 32 → a.cellMask.toNat < 2 ^ 28 →
       (a.stepOneGenerationN n ox oy root).2.overflow ≠ 0 →
         a.overflow ≠ 0 ∨ ArenaFull (a.stepOneGenerationN n ox oy root).2 := by

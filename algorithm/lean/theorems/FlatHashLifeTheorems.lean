@@ -158,14 +158,14 @@ theorem flat_stepOneGeneration_succeeds {a : FlatHashLifeArena} (hwf : ArenaWF a
     (flatStepInRange_of_center _ (flatState_isWellFormed hwf hid ox oy) hd hcx hcy) hov
 
 /--
-A full node table is the only failure one step can report: when the work stack `remapL4` has room for 26 entries
-and the CellNode table has at most `2 ^ 28` slots (the Kotlin arenas have at least 128 entries and `2 ^ 18`
-slots), `stepOneGeneration` raises the failure flag only if the arena had already failed or a node table is
+A full node table is the only failure one step can report: when the work stack `remapL4` has room for 26 frames
+(130 entries) and the CellNode table has at most `2 ^ 28` slots (the Kotlin arenas have at least 256 entries and
+`2 ^ 18` slots), `stepOneGeneration` raises the failure flag only if the arena had already failed or a node table is
 full afterwards. Its step budget and work stack never run out. With `flat_stepOneGeneration_succeeds`, a step of
 a valid, representable root in a healthy arena returns the next generation unless a node table fills up.
 -/
 theorem flat_stepOneGeneration_fails_only_when_full {a : FlatHashLifeArena} (hwf : ArenaWF a) (ox oy : Int32)
-    (root : UInt32) (hsz : 26 ≤ a.remapL4.size) (hsz' : a.remapL4.size < 2 ^ 32)
+    (root : UInt32) (hsz : 130 ≤ a.remapL4.size) (hsz' : a.remapL4.size < 2 ^ 32)
     (hmask : a.cellMask.toNat < 2 ^ 28) :
     (a.stepOneGeneration ox oy root).2.overflow ≠ 0 →
       a.overflow ≠ 0 ∨ ArenaFull (a.stepOneGeneration ox oy root).2 :=
@@ -202,7 +202,7 @@ A full node table is the only failure `n` steps can report, under the capacity a
 `flat_stepOneGeneration_fails_only_when_full`.
 -/
 theorem flat_stepOneGenerationN_fails_only_when_full (n : ℕ) {a : FlatHashLifeArena} (hwf : ArenaWF a)
-    (ox oy : Int32) (root : UInt32) (hsz : 26 ≤ a.remapL4.size) (hsz' : a.remapL4.size < 2 ^ 32)
+    (ox oy : Int32) (root : UInt32) (hsz : 130 ≤ a.remapL4.size) (hsz' : a.remapL4.size < 2 ^ 32)
     (hmask : a.cellMask.toNat < 2 ^ 28) :
     (a.stepOneGenerationN n ox oy root).2.overflow ≠ 0 →
       a.overflow ≠ 0 ∨ ArenaFull (a.stepOneGenerationN n ox oy root).2 :=
