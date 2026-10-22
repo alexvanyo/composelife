@@ -160,17 +160,19 @@ def FlatHashLifeArena.initEmptyNodes (arena : FlatHashLifeArena) : FlatHashLifeA
   a2.initEmptyNodesLoop 60 1
 
 /--
-Probes the Level 4 hash-consing chain for existing node with given 4 leaves.
+Probes the Level 4 hash-consing chain for existing node with given 4 leaves, returning its id, or
+`EMPTY_BUCKET` if there is none. A found id is below `l4Count`, so it is never `EMPTY_BUCKET`. The result is
+an unboxed `UInt32` rather than an `Option`, which would be boxed on every hit in Kotlin.
 -/
-def probeLevel4 (arena : FlatHashLifeArena) (head : UInt32) (nw ne sw se : UInt64) (fuel : UInt32) : Option UInt32 :=
-  if h : fuel = 0 then none
-  else if head == EMPTY_BUCKET then none
-  else if head >= arena.l4Count then none
+def probeLevel4 (arena : FlatHashLifeArena) (head : UInt32) (nw ne sw se : UInt64) (fuel : UInt32) : UInt32 :=
+  if h : fuel = 0 then EMPTY_BUCKET
+  else if head == EMPTY_BUCKET then EMPTY_BUCKET
+  else if head >= arena.l4Count then EMPTY_BUCKET
   else
     let idx := head.toNat
     if arena.l4Nw[idx]! == nw && arena.l4Ne[idx]! == ne &&
        arena.l4Sw[idx]! == sw && arena.l4Se[idx]! == se then
-      some head
+      head
     else
       let nextHead := arena.l4Next[idx]!
       have : (fuel - 1).toNat < fuel.toNat := uint32_sub_one_lt fuel h
@@ -191,9 +193,9 @@ def FlatHashLifeArena.internLevel4 (arena : FlatHashLifeArena) (nw ne sw se : UI
     let h := level4Hash nw ne sw se
     let bucket := h &&& arena.l4Mask
     let head := arena.l4Buckets[bucket.toNat]!
-    match probeLevel4 arena head nw ne sw se (arena.l4Count + 1) with
-    | some id => (id, arena)
-    | none =>
+    let found := probeLevel4 arena head nw ne sw se (arena.l4Count + 1)
+    if found != EMPTY_BUCKET then (found, arena)
+    else
       let id := arena.l4Count
       if id >= arena.l4Mask + 1 then
         (UNCOMPUTED, { arena with overflow := 1 })
@@ -212,18 +214,20 @@ def FlatHashLifeArena.internLevel4 (arena : FlatHashLifeArena) (nw ne sw se : UI
         (id, arena')
 
 /--
-Probes the CellNode hash-consing chain for existing node with given level and 4 child NodeIds.
+Probes the CellNode hash-consing chain for existing node with given level and 4 child NodeIds, returning its
+id, or `EMPTY_BUCKET` if there is none (as `probeLevel4`).
 -/
-def probeCellNode (arena : FlatHashLifeArena) (head : UInt32) (lvl : UInt8) (nw ne sw se : UInt32) (fuel : UInt32) : Option UInt32 :=
-  if h : fuel = 0 then none
-  else if head == EMPTY_BUCKET then none
-  else if head >= arena.cellCount then none
+def probeCellNode (arena : FlatHashLifeArena) (head : UInt32) (lvl : UInt8) (nw ne sw se : UInt32) (fuel : UInt32) :
+    UInt32 :=
+  if h : fuel = 0 then EMPTY_BUCKET
+  else if head == EMPTY_BUCKET then EMPTY_BUCKET
+  else if head >= arena.cellCount then EMPTY_BUCKET
   else
     let idx := head.toNat
     if arena.cellLevel[idx]! == lvl &&
        arena.cellNw[idx]! == nw && arena.cellNe[idx]! == ne &&
        arena.cellSw[idx]! == sw && arena.cellSe[idx]! == se then
-      some head
+      head
     else
       let nextHead := arena.cellNext[idx]!
       have : (fuel - 1).toNat < fuel.toNat := uint32_sub_one_lt fuel h
@@ -276,9 +280,9 @@ def FlatHashLifeArena.internCellNode (arena : FlatHashLifeArena) (lvl : UInt8) (
     let h := cellNodeHash lvl.toUInt32 nw ne sw se
     let bucket := h &&& arena.cellMask
     let head := arena.cellBuckets[bucket.toNat]!
-    match probeCellNode arena head lvl nw ne sw se (arena.cellCount + 1) with
-    | some id => (id, arena)
-    | none =>
+    let found := probeCellNode arena head lvl nw ne sw se (arena.cellCount + 1)
+    if found != EMPTY_BUCKET then (found, arena)
+    else
       let id := arena.cellCount
       if id >= arena.cellMask + 1 then
         (UNCOMPUTED, { arena with overflow := 1 })
