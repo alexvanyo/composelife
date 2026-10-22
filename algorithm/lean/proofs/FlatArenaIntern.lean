@@ -408,30 +408,32 @@ theorem Grows.setCellStepRes {a : FlatHashLifeArena} (hwf : ArenaWF a) {id r : U
 -- Probing
 -- =========================================================================
 
-theorem probeLevel4_some {a : FlatHashLifeArena} {nw ne sw se : UInt64} :
-    ∀ {head fuel id : UInt32}, probeLevel4 a head nw ne sw se fuel = some id →
+theorem probeLevel4_found {a : FlatHashLifeArena} {nw ne sw se : UInt64} :
+    ∀ {head fuel id : UInt32}, probeLevel4 a head nw ne sw se fuel = id → id ≠ EMPTY_BUCKET →
       id < a.l4Count ∧ a.l4Nw[id.toNat]! = nw ∧ a.l4Ne[id.toNat]! = ne ∧ a.l4Sw[id.toNat]! = sw ∧
         a.l4Se[id.toNat]! = se := by
   intro head fuel
   induction head, fuel using probeLevel4.induct (arena := a) (nw := nw) (ne := ne) (sw := sw) (se := se) with
   | case1 head =>
-    intro id h
+    intro id h hne
     rw [probeLevel4.eq_1] at h
     simp at h
+    exact absurd h.symm hne
   | case2 head fuel hf hb =>
-    intro id h
+    intro id h hne
     rw [probeLevel4.eq_1] at h
     simp [hf, hb] at h
+    exact absurd h.symm hne
   | case3 head fuel hf hb hc =>
-    intro id h
+    intro id h hne
     rw [probeLevel4.eq_1] at h
     simp [hf, hb, hc] at h
+    exact absurd h.symm hne
   | case4 head fuel hf hb hc _ hm =>
-    intro id h
+    intro id h hne
     rw [probeLevel4.eq_1] at h
     simp only [hf, hb, hc, dite_false, ite_false, Bool.false_eq_true] at h
     rw [ite_eq_left hm] at h
-    simp only [Option.some.injEq] at h
     subst h
     simp only [Bool.and_eq_true, beq_iff_eq] at hm
     obtain ⟨⟨⟨e1, e2⟩, e3⟩, e4⟩ := hm
@@ -440,37 +442,39 @@ theorem probeLevel4_some {a : FlatHashLifeArena} {nw ne sw se : UInt64} :
     rw [ge_iff_le, u32_le_iff] at hc
     omega
   | case5 head fuel hf hb hc _ hm _ _ ih =>
-    intro id h
+    intro id h hne
     rw [probeLevel4.eq_1] at h
     simp only [hf, hb, hc, dite_false, ite_false, Bool.false_eq_true] at h
     rw [ite_eq_right hm] at h
-    exact ih h
+    exact ih h hne
 
-theorem probeCellNode_some {a : FlatHashLifeArena} {lvl : UInt8} {nw ne sw se : UInt32} :
-    ∀ {head fuel id : UInt32}, probeCellNode a head lvl nw ne sw se fuel = some id →
+theorem probeCellNode_found {a : FlatHashLifeArena} {lvl : UInt8} {nw ne sw se : UInt32} :
+    ∀ {head fuel id : UInt32}, probeCellNode a head lvl nw ne sw se fuel = id → id ≠ EMPTY_BUCKET →
       id < a.cellCount ∧ a.cellLevel[id.toNat]! = lvl ∧ a.cellNw[id.toNat]! = nw ∧ a.cellNe[id.toNat]! = ne ∧
         a.cellSw[id.toNat]! = sw ∧ a.cellSe[id.toNat]! = se := by
   intro head fuel
   induction head, fuel using probeCellNode.induct (arena := a) (lvl := lvl) (nw := nw) (ne := ne) (sw := sw)
     (se := se) with
   | case1 head =>
-    intro id h
+    intro id h hne
     rw [probeCellNode.eq_1] at h
     simp at h
+    exact absurd h.symm hne
   | case2 head fuel hf hb =>
-    intro id h
+    intro id h hne
     rw [probeCellNode.eq_1] at h
     simp [hf, hb] at h
+    exact absurd h.symm hne
   | case3 head fuel hf hb hc =>
-    intro id h
+    intro id h hne
     rw [probeCellNode.eq_1] at h
     simp [hf, hb, hc] at h
+    exact absurd h.symm hne
   | case4 head fuel hf hb hc _ hm =>
-    intro id h
+    intro id h hne
     rw [probeCellNode.eq_1] at h
     simp only [hf, hb, hc, dite_false, ite_false, Bool.false_eq_true] at h
     rw [ite_eq_left hm] at h
-    simp only [Option.some.injEq] at h
     subst h
     simp only [Bool.and_eq_true, beq_iff_eq] at hm
     obtain ⟨⟨⟨⟨e0, e1⟩, e2⟩, e3⟩, e4⟩ := hm
@@ -479,11 +483,11 @@ theorem probeCellNode_some {a : FlatHashLifeArena} {lvl : UInt8} {nw ne sw se : 
     rw [ge_iff_le, u32_le_iff] at hc
     omega
   | case5 head fuel hf hb hc _ hm _ _ ih =>
-    intro id h
+    intro id h hne
     rw [probeCellNode.eq_1] at h
     simp only [hf, hb, hc, dite_false, ite_false, Bool.false_eq_true] at h
     rw [ite_eq_right hm] at h
-    exact ih h
+    exact ih h hne
 
 -- =========================================================================
 -- Appending slots
@@ -780,8 +784,10 @@ theorem internLevel4_spec {a : FlatHashLifeArena} (hwf : ArenaWF a) (nw ne sw se
       exact ⟨Grows.refl hwf, fun _ => NodeIs.emptyL4 hwf⟩
     · dsimp only
       split
-      · rename_i id hp
-        obtain ⟨hid, e1, e2, e3, e4⟩ := probeLevel4_some hp
+      · rename_i hp
+        rw [bne_iff_ne, ne_eq] at hp
+        obtain ⟨hid, e1, e2, e3, e4⟩ := probeLevel4_found rfl hp
+        dsimp only
         refine ⟨Grows.refl hwf, fun _ => ⟨hid, ?_⟩⟩
         rw [denoteLevel4_of_lt hid, e1, e2, e3, e4]
       · split
@@ -850,8 +856,10 @@ theorem internCellNode_spec {a : FlatHashLifeArena} (hwf : ArenaWF a) {lvl : UIn
       have := NodeIs.emptyCell hwf h h60'
       rw [show h + 4 + 1 = h + 1 + 4 by omega] at this ⊢ <;> assumption
     · split
-      · rename_i id hp
-        obtain ⟨hid, el, e1, e2, e3, e4⟩ := probeCellNode_some hp
+      · rename_i hp
+        rw [bne_iff_ne, ne_eq] at hp
+        obtain ⟨hid, el, e1, e2, e3, e4⟩ := probeCellNode_found rfl hp
+        dsimp only
         refine ⟨Grows.refl hwf, fun _ => ⟨hid, ?_, ?_⟩⟩
         · unfold cellLevelOf
           rw [el, hl]
