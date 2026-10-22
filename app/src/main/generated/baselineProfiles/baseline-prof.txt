@@ -739,6 +739,7 @@ HSPLandroidx/collection/MutableScatterMap;-><init>(I)V
 HSPLandroidx/collection/MutableScatterMap;-><init>(IILkotlin/jvm/internal/DefaultConstructorMarker;)V
 HSPLandroidx/collection/MutableScatterMap;->adjustStorage$collection()V
 HSPLandroidx/collection/MutableScatterMap;->clear()V
+PLandroidx/collection/MutableScatterMap;->dropDeletes$collection()V
 HSPLandroidx/collection/MutableScatterMap;->findFirstAvailableSlot(I)I
 HSPLandroidx/collection/MutableScatterMap;->findInsertIndex(Ljava/lang/Object;)I
 HSPLandroidx/collection/MutableScatterMap;->initializeGrowth()V
@@ -872,6 +873,7 @@ PLandroidx/collection/internal/LruHashMap;->get(Ljava/lang/Object;)Ljava/lang/Ob
 HSPLandroidx/collection/internal/LruHashMap;->isEmpty()Z
 HSPLandroidx/collection/internal/LruHashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 HSPLandroidx/collection/internal/LruHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
+Landroidx/collection/internal/RuntimeHelpersKt;
 Landroidx/compose/animation/AnimatedContentDefaults;
 HSPLandroidx/compose/animation/AnimatedContentDefaults;-><clinit>()V
 HSPLandroidx/compose/animation/AnimatedContentDefaults;-><init>()V
@@ -997,6 +999,7 @@ HSPLandroidx/compose/animation/AnimatedVisibilityKt;->getExitFinished(Landroidx/
 HSPLandroidx/compose/animation/AnimatedVisibilityKt;->targetEnterExit(Landroidx/compose/animation/core/Transition;Lkotlin/jvm/functions/Function1;Ljava/lang/Object;Landroidx/compose/runtime/Composer;I)Landroidx/compose/animation/EnterExitState;
 Landroidx/compose/animation/AnimatedVisibilityKt$$ExternalSyntheticLambda0;
 HSPLandroidx/compose/animation/AnimatedVisibilityKt$$ExternalSyntheticLambda0;-><init>(Landroidx/compose/animation/core/Transition;Lkotlin/jvm/functions/Function2;)V
+Landroidx/compose/animation/AnimatedVisibilityKt$$ExternalSyntheticLambda11;
 PLandroidx/compose/animation/AnimatedVisibilityKt$$ExternalSyntheticLambda13;-><init>(Landroidx/compose/ui/layout/Placeable;)V
 PLandroidx/compose/animation/AnimatedVisibilityKt$$ExternalSyntheticLambda13;->invoke(Ljava/lang/Object;)Ljava/lang/Object;
 Landroidx/compose/animation/AnimatedVisibilityKt$$ExternalSyntheticLambda14;
@@ -1847,6 +1850,7 @@ HSPLandroidx/compose/animation/core/MutatorMutex$mutate$2;->create(Ljava/lang/Ob
 HSPLandroidx/compose/animation/core/MutatorMutex$mutate$2;->invoke(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 HSPLandroidx/compose/animation/core/MutatorMutex$mutate$2;->invoke(Lkotlinx/coroutines/CoroutineScope;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 HSPLandroidx/compose/animation/core/MutatorMutex$mutate$2;->invokeSuspend(Ljava/lang/Object;)Ljava/lang/Object;
+Landroidx/compose/animation/core/PreconditionsKt;
 Landroidx/compose/animation/core/RepeatMode;
 HSPLandroidx/compose/animation/core/RepeatMode;->$values()[Landroidx/compose/animation/core/RepeatMode;
 HSPLandroidx/compose/animation/core/RepeatMode;-><clinit>()V
@@ -2275,7 +2279,7 @@ HPLandroidx/compose/foundation/AbstractClickableNode;->onObservedReadsChanged$la
 HSPLandroidx/compose/foundation/AbstractClickableNode;->onObservedReadsChanged()V
 HSPLandroidx/compose/foundation/AbstractClickableNode;->shouldLazilyCreateIndication()Z
 HPLandroidx/compose/foundation/AbstractClickableNode;->updateCommon-O2vRcR0(Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/foundation/IndicationNodeFactory;ZZLjava/lang/String;Landroidx/compose/ui/semantics/Role;Lkotlin/jvm/functions/Function0;)V
-PLandroidx/compose/foundation/AbstractClickableNode$$ExternalSyntheticLambda0;-><init>(Landroidx/compose/foundation/AbstractClickableNode;)V
+HPLandroidx/compose/foundation/AbstractClickableNode$$ExternalSyntheticLambda0;-><init>(Landroidx/compose/foundation/AbstractClickableNode;)V
 HPLandroidx/compose/foundation/AbstractClickableNode$$ExternalSyntheticLambda0;->invoke()Ljava/lang/Object;
 Landroidx/compose/foundation/AbstractClickableNode$$ExternalSyntheticLambda2;
 HSPLandroidx/compose/foundation/AbstractClickableNode$$ExternalSyntheticLambda2;-><init>(Landroidx/compose/foundation/AbstractClickableNode;)V
@@ -3068,7 +3072,7 @@ HSPLandroidx/compose/foundation/layout/PaddingValuesImpl;-><init>(FFFF)V
 HSPLandroidx/compose/foundation/layout/PaddingValuesImpl;-><init>(FFFFLkotlin/jvm/internal/DefaultConstructorMarker;)V
 PLandroidx/compose/foundation/layout/RowColumnImplKt;->getCrossAxisAlignment(Landroidx/compose/foundation/layout/RowColumnParentData;)Landroidx/compose/foundation/layout/CrossAxisAlignment;
 PLandroidx/compose/foundation/layout/RowColumnImplKt;->getFill(Landroidx/compose/foundation/layout/RowColumnParentData;)Z
-PLandroidx/compose/foundation/layout/RowColumnImplKt;->getRowColumnParentData(Landroidx/compose/ui/layout/IntrinsicMeasurable;)Landroidx/compose/foundation/layout/RowColumnParentData;
+HPLandroidx/compose/foundation/layout/RowColumnImplKt;->getRowColumnParentData(Landroidx/compose/ui/layout/IntrinsicMeasurable;)Landroidx/compose/foundation/layout/RowColumnParentData;
 PLandroidx/compose/foundation/layout/RowColumnImplKt;->getRowColumnParentData(Landroidx/compose/ui/layout/Placeable;)Landroidx/compose/foundation/layout/RowColumnParentData;
 PLandroidx/compose/foundation/layout/RowColumnImplKt;->getWeight(Landroidx/compose/foundation/layout/RowColumnParentData;)F
 PLandroidx/compose/foundation/layout/RowColumnImplKt;->isRelative(Landroidx/compose/foundation/layout/RowColumnParentData;)Z
@@ -4478,7 +4482,6 @@ Landroidx/compose/runtime/ComposablesKt;
 HSPLandroidx/compose/runtime/ComposablesKt;->getCurrentCompositeKeyHashCode(Landroidx/compose/runtime/Composer;I)J
 HSPLandroidx/compose/runtime/ComposablesKt;->rememberCompositionContext(Landroidx/compose/runtime/Composer;I)Landroidx/compose/runtime/CompositionContext;
 Landroidx/compose/runtime/ComposeNodeLifecycleCallback;
-Landroidx/compose/runtime/ComposeRuntimeError;
 Landroidx/compose/runtime/ComposeRuntimeFlags;
 HSPLandroidx/compose/runtime/ComposeRuntimeFlags;-><clinit>()V
 HSPLandroidx/compose/runtime/ComposeRuntimeFlags;-><init>()V
@@ -4521,9 +4524,8 @@ HSPLandroidx/compose/runtime/CompositionContextKt;->access$getEmptyPersistentCom
 Landroidx/compose/runtime/CompositionImpl;
 HSPLandroidx/compose/runtime/CompositionImpl;-><clinit>()V
 HSPLandroidx/compose/runtime/CompositionImpl;-><init>(Landroidx/compose/runtime/CompositionContext;Landroidx/compose/runtime/Applier;)V
+HSPLandroidx/compose/runtime/CompositionImpl;->access$getCurrentComputedState$p(Landroidx/compose/runtime/CompositionImpl;)Landroidx/compose/runtime/ComputedState;
 HSPLandroidx/compose/runtime/CompositionImpl;->access$getObservations$p(Landroidx/compose/runtime/CompositionImpl;)Landroidx/collection/MutableScatterMap;
-PLandroidx/compose/runtime/CompositionImpl;->access$getRecordedIndirectStateValues$p(Landroidx/compose/runtime/CompositionImpl;)Landroidx/collection/MutableScatterMap;
-HSPLandroidx/compose/runtime/CompositionImpl;->addPendingInvalidationsForDerivedStatesLocked(Ljava/lang/Object;Z)V
 HSPLandroidx/compose/runtime/CompositionImpl;->addPendingInvalidationsLocked(Ljava/lang/Object;Z)V
 HSPLandroidx/compose/runtime/CompositionImpl;->addPendingInvalidationsLocked(Ljava/util/Set;Z)V
 HSPLandroidx/compose/runtime/CompositionImpl;->applyChanges()V
@@ -4614,6 +4616,7 @@ HSPLandroidx/compose/runtime/CompositionObserverHolder;->pin()Landroidx/compose/
 HSPLandroidx/compose/runtime/CompositionObserverHolder;->unpin()V
 Landroidx/compose/runtime/CompositionServiceKey;
 Landroidx/compose/runtime/CompositionServices;
+Landroidx/compose/runtime/CompositionTracer;
 Landroidx/compose/runtime/ComputedProvidableCompositionLocal;
 HSPLandroidx/compose/runtime/ComputedProvidableCompositionLocal;-><clinit>()V
 HSPLandroidx/compose/runtime/ComputedProvidableCompositionLocal;-><init>(Lkotlin/jvm/functions/Function1;)V
@@ -5346,6 +5349,7 @@ Landroidx/compose/runtime/ScopeInvalidated;
 HSPLandroidx/compose/runtime/ScopeInvalidated;-><clinit>()V
 HSPLandroidx/compose/runtime/ScopeInvalidated;-><init>()V
 Landroidx/compose/runtime/ScopeUpdateScope;
+Landroidx/compose/runtime/ShouldPauseCallback;
 Landroidx/compose/runtime/SingleSubscriptionSnapshotFlowManager;
 HSPLandroidx/compose/runtime/SingleSubscriptionSnapshotFlowManager;-><init>()V
 HSPLandroidx/compose/runtime/SingleSubscriptionSnapshotFlowManager;->clearWatchSet$androidx_compose_runtime_runtime(Lkotlinx/coroutines/channels/SendChannel;)V
@@ -7035,7 +7039,6 @@ Landroidx/compose/runtime/snapshots/SnapshotWeakSet;
 HSPLandroidx/compose/runtime/snapshots/SnapshotWeakSet;-><clinit>()V
 HSPLandroidx/compose/runtime/snapshots/SnapshotWeakSet;-><init>()V
 HSPLandroidx/compose/runtime/snapshots/SnapshotWeakSet;->add(Ljava/lang/Object;)Z
-HSPLandroidx/compose/runtime/snapshots/SnapshotWeakSet;->find(Ljava/lang/Object;I)I
 HSPLandroidx/compose/runtime/snapshots/SnapshotWeakSet;->getHashes$androidx_compose_runtime_runtime()[I
 HSPLandroidx/compose/runtime/snapshots/SnapshotWeakSet;->getSize$androidx_compose_runtime_runtime()I
 HSPLandroidx/compose/runtime/snapshots/SnapshotWeakSet;->getValues$androidx_compose_runtime_runtime()[Landroidx/compose/runtime/internal/WeakReference;
@@ -7859,7 +7862,7 @@ PLandroidx/compose/ui/graphics/AndroidPath;->getInternalPath()Landroid/graphics/
 PLandroidx/compose/ui/graphics/AndroidPath;->lineTo(FF)V
 PLandroidx/compose/ui/graphics/AndroidPath;->moveTo(FF)V
 PLandroidx/compose/ui/graphics/AndroidPath;->relativeCubicTo(FFFFFF)V
-PLandroidx/compose/ui/graphics/AndroidPath;->relativeLineTo(FF)V
+HPLandroidx/compose/ui/graphics/AndroidPath;->relativeLineTo(FF)V
 PLandroidx/compose/ui/graphics/AndroidPath;->rewind()V
 HSPLandroidx/compose/ui/graphics/AndroidPath;->setFillType-oQ8Xj4U(I)V
 Landroidx/compose/ui/graphics/AndroidPath_androidKt;
@@ -8040,6 +8043,7 @@ PLandroidx/compose/ui/graphics/ImageBitmapConfig$Companion;->getAlpha8-_sVssgQ()
 HSPLandroidx/compose/ui/graphics/ImageBitmapConfig$Companion;->getArgb8888-_sVssgQ()I
 PLandroidx/compose/ui/graphics/ImageBitmapKt;->ImageBitmap-x__-hDU$default(IIIZLandroidx/compose/ui/graphics/colorspace/ColorSpace;ILjava/lang/Object;)Landroidx/compose/ui/graphics/ImageBitmap;
 PLandroidx/compose/ui/graphics/ImageBitmapKt;->ImageBitmap-x__-hDU(IIIZLandroidx/compose/ui/graphics/colorspace/ColorSpace;)Landroidx/compose/ui/graphics/ImageBitmap;
+Landroidx/compose/ui/graphics/InlineClassHelperKt;
 Landroidx/compose/ui/graphics/Interpolatable;
 Landroidx/compose/ui/graphics/LayerOutsets;
 HSPLandroidx/compose/ui/graphics/LayerOutsets;-><clinit>()V
@@ -9171,7 +9175,6 @@ PLandroidx/compose/ui/input/pointer/SuspendingPointerInputModifierNodeImpl;->get
 PLandroidx/compose/ui/input/pointer/SuspendingPointerInputModifierNodeImpl;->update$androidx_compose_ui_ui(Ljava/lang/Object;Ljava/lang/Object;[Ljava/lang/Object;Landroidx/compose/ui/input/pointer/PointerInputEventHandler;)V
 Landroidx/compose/ui/input/pointer/SuspendingPointerInputModifierNodeImpl$PointerEventHandlerCoroutine;
 Landroidx/compose/ui/input/rotary/RotaryInputModifierNode;
-Landroidx/compose/ui/internal/InlineClassHelperKt;
 Landroidx/compose/ui/internal/PlatformOptimizedCancellationException;
 HSPLandroidx/compose/ui/internal/PlatformOptimizedCancellationException;-><clinit>()V
 HSPLandroidx/compose/ui/internal/PlatformOptimizedCancellationException;-><init>(Ljava/lang/String;)V
@@ -10143,7 +10146,6 @@ HSPLandroidx/compose/ui/node/LayoutNodeLayoutDelegate;->setNextChildPlaceOrder$a
 HSPLandroidx/compose/ui/node/LayoutNodeLayoutDelegate;->updateParentData()V
 Landroidx/compose/ui/node/LayoutNodeLayoutDelegateKt;
 HSPLandroidx/compose/ui/node/LayoutNodeLayoutDelegateKt;->isOutMostLookaheadRoot(Landroidx/compose/ui/node/LayoutNode;)Z
-Landroidx/compose/ui/node/LayoutTreeConsistencyChecker;
 Landroidx/compose/ui/node/LookaheadAlignmentLines;
 HSPLandroidx/compose/ui/node/LookaheadAlignmentLines;-><clinit>()V
 HSPLandroidx/compose/ui/node/LookaheadAlignmentLines;-><init>(Landroidx/compose/ui/node/AlignmentLinesOwner;)V
@@ -10328,7 +10330,7 @@ HSPLandroidx/compose/ui/node/MeasureAndLayoutDelegate;->measurePending(Landroidx
 HSPLandroidx/compose/ui/node/MeasureAndLayoutDelegate;->onNodeDetached(Landroidx/compose/ui/node/LayoutNode;)V
 HSPLandroidx/compose/ui/node/MeasureAndLayoutDelegate;->onlyRemeasureIfPending(Landroidx/compose/ui/node/LayoutNode;Z)V
 HSPLandroidx/compose/ui/node/MeasureAndLayoutDelegate;->remeasureAndRelayoutIfNeeded(Landroidx/compose/ui/node/LayoutNode;Z)Z
-HSPLandroidx/compose/ui/node/MeasureAndLayoutDelegate;->remeasureIfNeeded$default(Landroidx/compose/ui/node/MeasureAndLayoutDelegate;Landroidx/compose/ui/node/LayoutNode;ZZILjava/lang/Object;)Z
+PLandroidx/compose/ui/node/MeasureAndLayoutDelegate;->remeasureIfNeeded$default(Landroidx/compose/ui/node/MeasureAndLayoutDelegate;Landroidx/compose/ui/node/LayoutNode;ZZILjava/lang/Object;)Z
 HSPLandroidx/compose/ui/node/MeasureAndLayoutDelegate;->remeasureIfNeeded(Landroidx/compose/ui/node/LayoutNode;ZZ)Z
 HSPLandroidx/compose/ui/node/MeasureAndLayoutDelegate;->remeasureOnly(Landroidx/compose/ui/node/LayoutNode;Z)V
 PLandroidx/compose/ui/node/MeasureAndLayoutDelegate;->requestLookaheadRelayout(Landroidx/compose/ui/node/LayoutNode;Z)Z
@@ -10383,8 +10385,8 @@ HSPLandroidx/compose/ui/node/MeasurePassDelegate;->markLayoutPending()V
 HSPLandroidx/compose/ui/node/MeasurePassDelegate;->markMeasurePending$androidx_compose_ui_ui()V
 HSPLandroidx/compose/ui/node/MeasurePassDelegate;->markNodeAndSubtreeAsPlaced()V
 HSPLandroidx/compose/ui/node/MeasurePassDelegate;->measure-BRTryo0(J)Landroidx/compose/ui/layout/Placeable;
-PLandroidx/compose/ui/node/MeasurePassDelegate;->minIntrinsicHeight(I)I
-PLandroidx/compose/ui/node/MeasurePassDelegate;->minIntrinsicWidth(I)I
+HPLandroidx/compose/ui/node/MeasurePassDelegate;->minIntrinsicHeight(I)I
+HPLandroidx/compose/ui/node/MeasurePassDelegate;->minIntrinsicWidth(I)I
 HSPLandroidx/compose/ui/node/MeasurePassDelegate;->onBeforeLayoutChildren()V
 HPLandroidx/compose/ui/node/MeasurePassDelegate;->onIntrinsicsQueried()V
 HSPLandroidx/compose/ui/node/MeasurePassDelegate;->onNodeDetached()V
@@ -11641,7 +11643,7 @@ HSPLandroidx/compose/ui/semantics/Role;->access$constructor-impl(I)I
 HSPLandroidx/compose/ui/semantics/Role;->box-impl(I)Landroidx/compose/ui/semantics/Role;
 HSPLandroidx/compose/ui/semantics/Role;->constructor-impl(I)I
 HPLandroidx/compose/ui/semantics/Role;->equals(Ljava/lang/Object;)Z
-PLandroidx/compose/ui/semantics/Role;->equals-impl(ILjava/lang/Object;)Z
+HPLandroidx/compose/ui/semantics/Role;->equals-impl(ILjava/lang/Object;)Z
 HSPLandroidx/compose/ui/semantics/Role;->unbox-impl()I
 Landroidx/compose/ui/semantics/Role$Companion;
 HSPLandroidx/compose/ui/semantics/Role$Companion;-><init>()V
@@ -11844,7 +11846,7 @@ Landroidx/compose/ui/spatial/RectList;
 HSPLandroidx/compose/ui/spatial/RectList;-><clinit>()V
 HSPLandroidx/compose/ui/spatial/RectList;-><init>()V
 HSPLandroidx/compose/ui/spatial/RectList;->clearUpdated()V
-HSPLandroidx/compose/ui/spatial/RectList;->defragment()V
+HPLandroidx/compose/ui/spatial/RectList;->defragment()V
 HSPLandroidx/compose/ui/spatial/RectList;->getTopLeftAt(I)J
 PLandroidx/compose/ui/spatial/RectList;->indexOf(I)I
 HSPLandroidx/compose/ui/spatial/RectList;->insert(IIIIIIIZZZ)I
@@ -12591,8 +12593,8 @@ Landroidx/compose/ui/text/intl/LocaleList;
 HSPLandroidx/compose/ui/text/intl/LocaleList;-><clinit>()V
 HSPLandroidx/compose/ui/text/intl/LocaleList;-><init>(Ljava/util/List;)V
 PLandroidx/compose/ui/text/intl/LocaleList;->access$getEmpty$cp()Landroidx/compose/ui/text/intl/LocaleList;
+PLandroidx/compose/ui/text/intl/LocaleList;->get(I)Landroidx/compose/ui/text/intl/Locale;
 PLandroidx/compose/ui/text/intl/LocaleList;->getSize()I
-PLandroidx/compose/ui/text/intl/LocaleList;->iterator()Ljava/util/Iterator;
 PLandroidx/compose/ui/text/intl/LocaleList;->size()I
 Landroidx/compose/ui/text/intl/LocaleList$Companion;
 HSPLandroidx/compose/ui/text/intl/LocaleList$Companion;-><init>()V
@@ -13293,6 +13295,7 @@ HSPLandroidx/concurrent/futures/AbstractResolvableFuture;-><clinit>()V
 HSPLandroidx/concurrent/futures/AbstractResolvableFuture;-><init>()V
 HSPLandroidx/concurrent/futures/AbstractResolvableFuture;->addListener(Ljava/lang/Runnable;Ljava/util/concurrent/Executor;)V
 HSPLandroidx/concurrent/futures/AbstractResolvableFuture;->afterDone()V
+PLandroidx/concurrent/futures/AbstractResolvableFuture;->cancel(Z)Z
 HSPLandroidx/concurrent/futures/AbstractResolvableFuture;->checkNotNull(Ljava/lang/Object;)Ljava/lang/Object;
 HSPLandroidx/concurrent/futures/AbstractResolvableFuture;->clearListeners(Landroidx/concurrent/futures/AbstractResolvableFuture$Listener;)Landroidx/concurrent/futures/AbstractResolvableFuture$Listener;
 HSPLandroidx/concurrent/futures/AbstractResolvableFuture;->complete(Landroidx/concurrent/futures/AbstractResolvableFuture;)V
@@ -13328,13 +13331,14 @@ HSPLandroidx/concurrent/futures/CallbackToFutureAdapter;->getFuture(Landroidx/co
 Landroidx/concurrent/futures/CallbackToFutureAdapter$Completer;
 HSPLandroidx/concurrent/futures/CallbackToFutureAdapter$Completer;-><init>()V
 HSPLandroidx/concurrent/futures/CallbackToFutureAdapter$Completer;->addCancellationListener(Ljava/lang/Runnable;Ljava/util/concurrent/Executor;)V
-PLandroidx/concurrent/futures/CallbackToFutureAdapter$Completer;->finalize()V
+HSPLandroidx/concurrent/futures/CallbackToFutureAdapter$Completer;->finalize()V
 HSPLandroidx/concurrent/futures/CallbackToFutureAdapter$Completer;->set(Ljava/lang/Object;)Z
 HSPLandroidx/concurrent/futures/CallbackToFutureAdapter$Completer;->setCompletedNormally()V
 Landroidx/concurrent/futures/CallbackToFutureAdapter$Resolver;
 Landroidx/concurrent/futures/CallbackToFutureAdapter$SafeFuture;
 HSPLandroidx/concurrent/futures/CallbackToFutureAdapter$SafeFuture;-><init>(Landroidx/concurrent/futures/CallbackToFutureAdapter$Completer;)V
 HSPLandroidx/concurrent/futures/CallbackToFutureAdapter$SafeFuture;->addListener(Ljava/lang/Runnable;Ljava/util/concurrent/Executor;)V
+PLandroidx/concurrent/futures/CallbackToFutureAdapter$SafeFuture;->cancel(Z)Z
 HSPLandroidx/concurrent/futures/CallbackToFutureAdapter$SafeFuture;->get()Ljava/lang/Object;
 HSPLandroidx/concurrent/futures/CallbackToFutureAdapter$SafeFuture;->isCancelled()Z
 HSPLandroidx/concurrent/futures/CallbackToFutureAdapter$SafeFuture;->isDone()Z
@@ -13372,7 +13376,7 @@ HSPLandroidx/core/app/CoreComponentFactory;->instantiateActivity(Ljava/lang/Clas
 HSPLandroidx/core/app/CoreComponentFactory;->instantiateApplication(Ljava/lang/ClassLoader;Ljava/lang/String;)Landroid/app/Application;
 HSPLandroidx/core/app/CoreComponentFactory;->instantiateProvider(Ljava/lang/ClassLoader;Ljava/lang/String;)Landroid/content/ContentProvider;
 PLandroidx/core/app/CoreComponentFactory;->instantiateReceiver(Ljava/lang/ClassLoader;Ljava/lang/String;Landroid/content/Intent;)Landroid/content/BroadcastReceiver;
-HSPLandroidx/core/app/CoreComponentFactory;->instantiateService(Ljava/lang/ClassLoader;Ljava/lang/String;Landroid/content/Intent;)Landroid/app/Service;
+PLandroidx/core/app/CoreComponentFactory;->instantiateService(Ljava/lang/ClassLoader;Ljava/lang/String;Landroid/content/Intent;)Landroid/app/Service;
 Landroidx/core/app/CoreComponentFactory$CompatWrapped;
 Landroidx/core/app/MultiWindowModeChangedInfo;
 Landroidx/core/app/NavUtils;
@@ -13512,8 +13516,7 @@ PLandroidx/core/view/AccessibilityDelegateCompat$AccessibilityDelegateAdapter;->
 HSPLandroidx/core/view/AccessibilityDelegateCompat$AccessibilityDelegateAdapter;->sendAccessibilityEventUnchecked(Landroid/view/View;Landroid/view/accessibility/AccessibilityEvent;)V
 Landroidx/core/view/DisplayCompat;
 HSPLandroidx/core/view/DisplayCompat;->getRoundedCorner(Landroid/view/Display;I)Landroidx/core/view/RoundedCornerCompat;
-Landroidx/core/view/DisplayCutoutCompat;
-HSPLandroidx/core/view/DisplayCutoutCompat;->wrap(Landroid/view/DisplayCutout;)Landroidx/core/view/DisplayCutoutCompat;
+PLandroidx/core/view/DisplayCutoutCompat;->wrap(Landroid/view/DisplayCutout;)Landroidx/core/view/DisplayCutoutCompat;
 Landroidx/core/view/DisplayShapeCompat;
 HSPLandroidx/core/view/DisplayShapeCompat;-><clinit>()V
 HSPLandroidx/core/view/DisplayShapeCompat;-><init>(Ljava/lang/String;IIFIIIF)V
@@ -15542,6 +15545,7 @@ Landroidx/sqlite/SQLiteConnection;
 Landroidx/sqlite/SQLiteDriver;
 Landroidx/sqlite/SQLiteStatement;
 HSPLandroidx/sqlite/SQLiteStatement;->getBoolean(I)Z
+Landroidx/sqlite/SQLite__SQLiteKt;
 Landroidx/sqlite/SQLite__SQLite_nonWebKt;
 HSPLandroidx/sqlite/SQLite__SQLite_nonWebKt;->execSQL(Landroidx/sqlite/SQLiteConnection;Ljava/lang/String;)V
 Landroidx/sqlite/async/SQLiteAsync;
@@ -16530,6 +16534,7 @@ HSPLandroidx/work/Constraints$Companion;-><init>(Lkotlin/jvm/internal/DefaultCon
 Landroidx/work/CoroutineWorker;
 HSPLandroidx/work/CoroutineWorker;-><init>(Landroid/content/Context;Landroidx/work/WorkerParameters;)V
 PLandroidx/work/CoroutineWorker;->getCoroutineContext()Lkotlinx/coroutines/CoroutineDispatcher;
+PLandroidx/work/CoroutineWorker;->onStopped()V
 PLandroidx/work/CoroutineWorker;->startWork()Lcom/google/common/util/concurrent/ListenableFuture;
 Landroidx/work/CoroutineWorker$DeprecatedDispatcher;
 HSPLandroidx/work/CoroutineWorker$DeprecatedDispatcher;-><clinit>()V
@@ -16591,7 +16596,9 @@ HSPLandroidx/work/ListenableFutureKt$launchFuture$1$2;->invokeSuspend(Ljava/lang
 Landroidx/work/ListenableWorker;
 HSPLandroidx/work/ListenableWorker;-><init>(Landroid/content/Context;Landroidx/work/WorkerParameters;)V
 HSPLandroidx/work/ListenableWorker;->isUsed()Z
+PLandroidx/work/ListenableWorker;->onStopped()V
 HSPLandroidx/work/ListenableWorker;->setUsed()V
+PLandroidx/work/ListenableWorker;->stop(I)V
 PLandroidx/work/ListenableWorker$Result;-><init>()V
 PLandroidx/work/ListenableWorker$Result;->success()Landroidx/work/ListenableWorker$Result;
 PLandroidx/work/ListenableWorker$Result$Success;-><init>()V
@@ -16606,6 +16613,7 @@ Landroidx/work/Logger$LogcatLogger;
 HSPLandroidx/work/Logger$LogcatLogger;-><init>(I)V
 HSPLandroidx/work/Logger$LogcatLogger;->debug(Ljava/lang/String;Ljava/lang/String;)V
 PLandroidx/work/Logger$LogcatLogger;->info(Ljava/lang/String;Ljava/lang/String;)V
+PLandroidx/work/Logger$LogcatLogger;->info(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)V
 Landroidx/work/NetworkType;
 HSPLandroidx/work/NetworkType;->$values()[Landroidx/work/NetworkType;
 HSPLandroidx/work/NetworkType;-><clinit>()V
@@ -16765,13 +16773,20 @@ HSPLandroidx/work/impl/Processor;-><init>(Landroid/content/Context;Landroidx/wor
 HSPLandroidx/work/impl/Processor;->addExecutionListener(Landroidx/work/impl/ExecutionListener;)V
 PLandroidx/work/impl/Processor;->cleanUpWorkerUnsafe(Ljava/lang/String;)Landroidx/work/impl/WorkerWrapper;
 HSPLandroidx/work/impl/Processor;->getWorkerWrapperUnsafe(Ljava/lang/String;)Landroidx/work/impl/WorkerWrapper;
+PLandroidx/work/impl/Processor;->interrupt(Ljava/lang/String;Landroidx/work/impl/WorkerWrapper;I)Z
 PLandroidx/work/impl/Processor;->isCancelled(Ljava/lang/String;)Z
 HSPLandroidx/work/impl/Processor;->isEnqueued(Ljava/lang/String;)Z
+PLandroidx/work/impl/Processor;->lambda$runOnExecuted$2$androidx-work-impl-Processor(Landroidx/work/impl/model/WorkGenerationalId;Z)V
 HSPLandroidx/work/impl/Processor;->lambda$startWork$0$androidx-work-impl-Processor(Ljava/util/ArrayList;Ljava/lang/String;)Landroidx/work/impl/model/WorkSpec;
 PLandroidx/work/impl/Processor;->lambda$startWork$1$androidx-work-impl-Processor(Lcom/google/common/util/concurrent/ListenableFuture;Landroidx/work/impl/WorkerWrapper;)V
 PLandroidx/work/impl/Processor;->onExecuted(Landroidx/work/impl/WorkerWrapper;Z)V
 PLandroidx/work/impl/Processor;->removeExecutionListener(Landroidx/work/impl/ExecutionListener;)V
+HSPLandroidx/work/impl/Processor;->runOnExecuted(Landroidx/work/impl/model/WorkGenerationalId;Z)V
 HSPLandroidx/work/impl/Processor;->startWork(Landroidx/work/impl/StartStopToken;Landroidx/work/WorkerParameters$RuntimeExtras;)Z
+PLandroidx/work/impl/Processor;->stopWork(Landroidx/work/impl/StartStopToken;I)Z
+Landroidx/work/impl/Processor$$ExternalSyntheticLambda0;
+HSPLandroidx/work/impl/Processor$$ExternalSyntheticLambda0;-><init>(Landroidx/work/impl/Processor;Landroidx/work/impl/model/WorkGenerationalId;Z)V
+PLandroidx/work/impl/Processor$$ExternalSyntheticLambda0;->run()V
 Landroidx/work/impl/Processor$$ExternalSyntheticLambda1;
 HSPLandroidx/work/impl/Processor$$ExternalSyntheticLambda1;-><init>(Landroidx/work/impl/Processor;Ljava/util/ArrayList;Ljava/lang/String;)V
 HSPLandroidx/work/impl/Processor$$ExternalSyntheticLambda1;->call()Ljava/lang/Object;
@@ -16801,7 +16816,7 @@ HSPLandroidx/work/impl/StartStopToken;->getId()Landroidx/work/impl/model/WorkGen
 Landroidx/work/impl/StartStopTokens;
 HSPLandroidx/work/impl/StartStopTokens;-><clinit>()V
 HSPLandroidx/work/impl/StartStopTokens;->create()Landroidx/work/impl/StartStopTokens;
-HSPLandroidx/work/impl/StartStopTokens;->create(Z)Landroidx/work/impl/StartStopTokens;
+PLandroidx/work/impl/StartStopTokens;->create(Z)Landroidx/work/impl/StartStopTokens;
 HSPLandroidx/work/impl/StartStopTokens;->tokenFor(Landroidx/work/impl/model/WorkSpec;)Landroidx/work/impl/StartStopToken;
 Landroidx/work/impl/StartStopTokens$Companion;
 HSPLandroidx/work/impl/StartStopTokens$Companion;-><clinit>()V
@@ -16937,10 +16952,13 @@ HSPLandroidx/work/impl/WorkDatabase_Impl$createOpenDelegate$_openDelegate$1;->on
 HSPLandroidx/work/impl/WorkDatabase_Impl$createOpenDelegate$_openDelegate$1;->onOpen(Landroidx/sqlite/SQLiteConnection;)V
 Landroidx/work/impl/WorkLauncher;
 HSPLandroidx/work/impl/WorkLauncher;->startWork(Landroidx/work/impl/StartStopToken;)V
+PLandroidx/work/impl/WorkLauncher;->stopWork(Landroidx/work/impl/StartStopToken;)V
+PLandroidx/work/impl/WorkLauncher;->stopWorkWithReason(Landroidx/work/impl/StartStopToken;I)V
 Landroidx/work/impl/WorkLauncherImpl;
 HSPLandroidx/work/impl/WorkLauncherImpl;-><init>(Landroidx/work/impl/Processor;Landroidx/work/impl/utils/taskexecutor/TaskExecutor;)V
 HSPLandroidx/work/impl/WorkLauncherImpl;->startWork$lambda$0(Landroidx/work/impl/WorkLauncherImpl;Landroidx/work/impl/StartStopToken;Landroidx/work/WorkerParameters$RuntimeExtras;)V
 HSPLandroidx/work/impl/WorkLauncherImpl;->startWork(Landroidx/work/impl/StartStopToken;Landroidx/work/WorkerParameters$RuntimeExtras;)V
+PLandroidx/work/impl/WorkLauncherImpl;->stopWork(Landroidx/work/impl/StartStopToken;I)V
 Landroidx/work/impl/WorkLauncherImpl$$ExternalSyntheticLambda0;
 HSPLandroidx/work/impl/WorkLauncherImpl$$ExternalSyntheticLambda0;-><init>(Landroidx/work/impl/WorkLauncherImpl;Landroidx/work/impl/StartStopToken;Landroidx/work/WorkerParameters$RuntimeExtras;)V
 HSPLandroidx/work/impl/WorkLauncherImpl$$ExternalSyntheticLambda0;->run()V
@@ -16980,6 +16998,8 @@ HSPLandroidx/work/impl/WorkManagerImplExtKt$WorkManagerImpl$1;->invoke(Ljava/lan
 Landroidx/work/impl/WorkMigration9To10;
 HSPLandroidx/work/impl/WorkMigration9To10;-><init>(Landroid/content/Context;)V
 Landroidx/work/impl/WorkerStoppedException;
+PLandroidx/work/impl/WorkerStoppedException;-><init>(I)V
+PLandroidx/work/impl/WorkerStoppedException;->getReason()I
 Landroidx/work/impl/WorkerUpdater;
 HSPLandroidx/work/impl/WorkerUpdater;->$r8$lambda$9JXZse5xPyFPgJhohmdEDwziSDo(Landroidx/work/WorkRequest;Landroidx/work/impl/WorkManagerImpl;Ljava/lang/String;)Lkotlin/Unit;
 HSPLandroidx/work/impl/WorkerUpdater;->enqueueUniquelyNamedPeriodic$lambda$0$0(Landroidx/work/WorkRequest;Landroidx/work/impl/WorkManagerImpl;Ljava/lang/String;)Lkotlin/Unit;
@@ -17011,6 +17031,7 @@ HSPLandroidx/work/impl/WorkerWrapper;->createWorkDescription(Ljava/util/List;)Lj
 PLandroidx/work/impl/WorkerWrapper;->getWorkGenerationalId()Landroidx/work/impl/model/WorkGenerationalId;
 PLandroidx/work/impl/WorkerWrapper;->getWorkSpec()Landroidx/work/impl/model/WorkSpec;
 PLandroidx/work/impl/WorkerWrapper;->handleResult(Landroidx/work/ListenableWorker$Result;)Z
+PLandroidx/work/impl/WorkerWrapper;->interrupt(I)V
 HSPLandroidx/work/impl/WorkerWrapper;->launch()Lcom/google/common/util/concurrent/ListenableFuture;
 PLandroidx/work/impl/WorkerWrapper;->onWorkFinished(Landroidx/work/ListenableWorker$Result;)Z
 PLandroidx/work/impl/WorkerWrapper;->resetPeriodic()Z
@@ -17046,6 +17067,8 @@ PLandroidx/work/impl/WorkerWrapper$Resolution;-><init>()V
 PLandroidx/work/impl/WorkerWrapper$Resolution;-><init>(Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 PLandroidx/work/impl/WorkerWrapper$Resolution$Finished;-><init>(Landroidx/work/ListenableWorker$Result;)V
 PLandroidx/work/impl/WorkerWrapper$Resolution$Finished;->getResult()Landroidx/work/ListenableWorker$Result;
+PLandroidx/work/impl/WorkerWrapper$Resolution$Stopped;-><init>(I)V
+PLandroidx/work/impl/WorkerWrapper$Resolution$Stopped;->getReason()I
 PLandroidx/work/impl/WorkerWrapper$Resolution$WorkerWrapperFailure;-><init>(Z)V
 PLandroidx/work/impl/WorkerWrapper$Resolution$WorkerWrapperFailure;->getRecoverable()Z
 Landroidx/work/impl/WorkerWrapper$launch$1;
@@ -17076,6 +17099,8 @@ PLandroidx/work/impl/WorkerWrapperKt;->access$getUninterruptibly(Ljava/util/conc
 PLandroidx/work/impl/WorkerWrapperKt;->awaitWithin(Lcom/google/common/util/concurrent/ListenableFuture;Landroidx/work/ListenableWorker;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 PLandroidx/work/impl/WorkerWrapperKt;->getUninterruptibly(Ljava/util/concurrent/Future;)Ljava/lang/Object;
 PLandroidx/work/impl/WorkerWrapperKt$awaitWithin$2$1;-><init>(Landroidx/work/ListenableWorker;Lcom/google/common/util/concurrent/ListenableFuture;)V
+PLandroidx/work/impl/WorkerWrapperKt$awaitWithin$2$1;->invoke(Ljava/lang/Object;)Ljava/lang/Object;
+PLandroidx/work/impl/WorkerWrapperKt$awaitWithin$2$1;->invoke(Ljava/lang/Throwable;)V
 Landroidx/work/impl/background/greedy/DelayedWorkTracker;
 HSPLandroidx/work/impl/background/greedy/DelayedWorkTracker;-><clinit>()V
 HSPLandroidx/work/impl/background/greedy/DelayedWorkTracker;-><init>(Landroidx/work/impl/Scheduler;Landroidx/work/RunnableScheduler;Landroidx/work/Clock;)V
@@ -17083,6 +17108,7 @@ HSPLandroidx/work/impl/background/greedy/DelayedWorkTracker;->schedule(Landroidx
 HSPLandroidx/work/impl/background/greedy/DelayedWorkTracker;->unschedule(Ljava/lang/String;)V
 Landroidx/work/impl/background/greedy/DelayedWorkTracker$1;
 HSPLandroidx/work/impl/background/greedy/DelayedWorkTracker$1;-><init>(Landroidx/work/impl/background/greedy/DelayedWorkTracker;Landroidx/work/impl/model/WorkSpec;)V
+PLandroidx/work/impl/background/greedy/DelayedWorkTracker$1;->run()V
 Landroidx/work/impl/background/greedy/GreedyScheduler;
 HSPLandroidx/work/impl/background/greedy/GreedyScheduler;-><clinit>()V
 HSPLandroidx/work/impl/background/greedy/GreedyScheduler;-><init>(Landroid/content/Context;Landroidx/work/Configuration;Landroidx/work/impl/constraints/trackers/Trackers;Landroidx/work/impl/Processor;Landroidx/work/impl/WorkLauncher;Landroidx/work/impl/utils/taskexecutor/TaskExecutor;)V
@@ -17138,10 +17164,10 @@ HSPLandroidx/work/impl/background/systemjob/SystemJobScheduler;->reconcileJobs(L
 HSPLandroidx/work/impl/background/systemjob/SystemJobScheduler;->schedule([Landroidx/work/impl/model/WorkSpec;)V
 HSPLandroidx/work/impl/background/systemjob/SystemJobScheduler;->scheduleInternal(Landroidx/work/impl/model/WorkSpec;I)V
 Landroidx/work/impl/background/systemjob/SystemJobService;
-HSPLandroidx/work/impl/background/systemjob/SystemJobService;-><clinit>()V
-HSPLandroidx/work/impl/background/systemjob/SystemJobService;-><init>()V
+PLandroidx/work/impl/background/systemjob/SystemJobService;-><clinit>()V
+PLandroidx/work/impl/background/systemjob/SystemJobService;-><init>()V
 PLandroidx/work/impl/background/systemjob/SystemJobService;->assertMainThread(Ljava/lang/String;)V
-HSPLandroidx/work/impl/background/systemjob/SystemJobService;->onCreate()V
+PLandroidx/work/impl/background/systemjob/SystemJobService;->onCreate()V
 PLandroidx/work/impl/background/systemjob/SystemJobService;->onDestroy()V
 PLandroidx/work/impl/background/systemjob/SystemJobService;->onExecuted(Landroidx/work/impl/model/WorkGenerationalId;Z)V
 PLandroidx/work/impl/background/systemjob/SystemJobService;->onStartJob(Landroid/app/job/JobParameters;)Z
@@ -17419,6 +17445,7 @@ HSPLandroidx/work/impl/model/WorkSpec$Companion;-><init>()V
 HSPLandroidx/work/impl/model/WorkSpec$Companion;-><init>(Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 HSPLandroidx/work/impl/model/WorkSpec$Companion;->calculateNextRunTime(ZILandroidx/work/BackoffPolicy;JJIZJJJJ)J
 Landroidx/work/impl/model/WorkSpec$IdAndState;
+HSPLandroidx/work/impl/model/WorkSpec$IdAndState;-><init>(Ljava/lang/String;Landroidx/work/WorkInfo$State;)V
 Landroidx/work/impl/model/WorkSpecDao;
 Landroidx/work/impl/model/WorkSpecDao_Impl;
 HSPLandroidx/work/impl/model/WorkSpecDao_Impl;-><clinit>()V
@@ -17672,6 +17699,8 @@ HSPLandroidx/work/impl/utils/SerialExecutorImpl;->scheduleNext()V
 Landroidx/work/impl/utils/SerialExecutorImpl$Task;
 HSPLandroidx/work/impl/utils/SerialExecutorImpl$Task;-><init>(Landroidx/work/impl/utils/SerialExecutorImpl;Ljava/lang/Runnable;)V
 HSPLandroidx/work/impl/utils/SerialExecutorImpl$Task;->run()V
+PLandroidx/work/impl/utils/StopWorkRunnable;-><init>(Landroidx/work/impl/Processor;Landroidx/work/impl/StartStopToken;ZI)V
+PLandroidx/work/impl/utils/StopWorkRunnable;->run()V
 PLandroidx/work/impl/utils/WorkForegroundKt;-><clinit>()V
 PLandroidx/work/impl/utils/WorkForegroundKt;->workForeground(Landroid/content/Context;Landroidx/work/impl/model/WorkSpec;Landroidx/work/ListenableWorker;Landroidx/work/ForegroundUpdater;Landroidx/work/impl/utils/taskexecutor/TaskExecutor;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 Landroidx/work/impl/utils/WorkForegroundUpdater;
@@ -20071,15 +20100,17 @@ HSPLcom/alexvanyo/composelife/network/di/NetworkBindings$Companion$providesHttpC
 HSPLcom/alexvanyo/composelife/network/di/NetworkBindings$Companion$providesHttpClientClosingIntoUpdatable$1;->update(Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 Lcom/alexvanyo/composelife/network/di/NetworkBindings$Companion$providesHttpClientClosingIntoUpdatable$1$update$1;
 HSPLcom/alexvanyo/composelife/network/di/NetworkBindings$Companion$providesHttpClientClosingIntoUpdatable$1$update$1;-><init>(Lcom/alexvanyo/composelife/network/di/NetworkBindings$Companion$providesHttpClientClosingIntoUpdatable$1;Lkotlin/coroutines/Continuation;)V
-PLcom/alexvanyo/composelife/openglrenderer/GameOfLifeShape;-><clinit>()V
-PLcom/alexvanyo/composelife/openglrenderer/GameOfLifeShape;-><init>(I)V
-PLcom/alexvanyo/composelife/openglrenderer/GameOfLifeShape;-><init>(IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+Lcom/alexvanyo/composelife/openglrenderer/GameOfLifeShape;
+HSPLcom/alexvanyo/composelife/openglrenderer/GameOfLifeShape;-><clinit>()V
+HSPLcom/alexvanyo/composelife/openglrenderer/GameOfLifeShape;-><init>(I)V
+HSPLcom/alexvanyo/composelife/openglrenderer/GameOfLifeShape;-><init>(IILkotlin/jvm/internal/DefaultConstructorMarker;)V
 PLcom/alexvanyo/composelife/openglrenderer/GameOfLifeShape;->draw([F)V
 PLcom/alexvanyo/composelife/openglrenderer/GameOfLifeShape;->setScreenShapeParameters(Lcom/alexvanyo/composelife/openglrenderer/GameOfLifeShapeParameters;)V
 PLcom/alexvanyo/composelife/openglrenderer/GameOfLifeShape;->setSize(II)V
-PLcom/alexvanyo/composelife/openglrenderer/GameOfLifeShapeKt;-><clinit>()V
-PLcom/alexvanyo/composelife/openglrenderer/GameOfLifeShapeKt;->access$getFragmentShaderCode$p()Ljava/lang/String;
-PLcom/alexvanyo/composelife/openglrenderer/GameOfLifeShapeKt;->access$getVertexShaderCode$p()Ljava/lang/String;
+Lcom/alexvanyo/composelife/openglrenderer/GameOfLifeShapeKt;
+HSPLcom/alexvanyo/composelife/openglrenderer/GameOfLifeShapeKt;-><clinit>()V
+HSPLcom/alexvanyo/composelife/openglrenderer/GameOfLifeShapeKt;->access$getFragmentShaderCode$p()Ljava/lang/String;
+HSPLcom/alexvanyo/composelife/openglrenderer/GameOfLifeShapeKt;->access$getVertexShaderCode$p()Ljava/lang/String;
 Lcom/alexvanyo/composelife/openglrenderer/GameOfLifeShapeParameters;
 Lcom/alexvanyo/composelife/openglrenderer/GameOfLifeShapeParameters$RoundRectangle;
 HSPLcom/alexvanyo/composelife/openglrenderer/GameOfLifeShapeParameters$RoundRectangle;-><clinit>()V
@@ -20094,9 +20125,10 @@ PLcom/alexvanyo/composelife/openglrenderer/GameOfLifeShapeParameters$RoundRectan
 PLcom/alexvanyo/composelife/openglrenderer/GameOfLifeShapeParameters$RoundRectangle;->getPixelOffsetFromCenter-F1C5BW0()J
 PLcom/alexvanyo/composelife/openglrenderer/GameOfLifeShapeParameters$RoundRectangle;->getScaledCellPixelSize()F
 PLcom/alexvanyo/composelife/openglrenderer/GameOfLifeShapeParameters$RoundRectangle;->getSizeFraction()F
+Lcom/alexvanyo/composelife/openglrenderer/OpenGLUtilsKt;
 PLcom/alexvanyo/composelife/openglrenderer/OpenGLUtilsKt;->checkOpenGLError()V
 PLcom/alexvanyo/composelife/openglrenderer/OpenGLUtilsKt;->getTextureReference(I)I
-PLcom/alexvanyo/composelife/openglrenderer/OpenGLUtilsKt;->loadShader(ILjava/lang/String;)I
+HSPLcom/alexvanyo/composelife/openglrenderer/OpenGLUtilsKt;->loadShader(ILjava/lang/String;)I
 Lcom/alexvanyo/composelife/parameterizedstring/ParameterizedString;
 HSPLcom/alexvanyo/composelife/parameterizedstring/ParameterizedString;-><clinit>()V
 HSPLcom/alexvanyo/composelife/parameterizedstring/ParameterizedString;-><init>()V
@@ -21825,7 +21857,7 @@ HSPLcom/alexvanyo/composelife/ui/cells/CellWindowImplKt;->CellWindowImpl__2aneaI
 PLcom/alexvanyo/composelife/ui/cells/CellWindowImplKt;->CellWindowImpl__2aneaI$lambda$7$6$0(Lcom/alexvanyo/composelife/ui/cells/CellWindowViewport;Lcom/alexvanyo/composelife/ui/cells/MutableCellWindowViewportState;Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;)Lkotlin/Unit;
 HSPLcom/alexvanyo/composelife/ui/cells/CellWindowImplKt;->CellWindowImpl__2aneaI$lambda$7(Lcom/alexvanyo/composelife/ui/cells/ViewportInteractionConfig;FJLjava/util/Set;Landroidx/compose/runtime/MutableState;Lcom/alexvanyo/composelife/ui/cells/CellWindowUiState;Lcom/alexvanyo/composelife/ui/cells/SelectionOverlay;Lcom/alexvanyo/composelife/ui/cells/NonInteractableCells;Lcom/alexvanyo/composelife/ui/cells/InteractableCells;ZLandroidx/compose/foundation/layout/BoxWithConstraintsScope;Landroidx/compose/runtime/Composer;I)Lkotlin/Unit;
 HSPLcom/alexvanyo/composelife/ui/cells/CellWindowImplKt;->isEditable(Lcom/alexvanyo/composelife/ui/cells/CellWindowUiState;ZF)Z
-HSPLcom/alexvanyo/composelife/ui/cells/CellWindowImplKt;->rememberOnGesture-YqVAtuI(FJLcom/alexvanyo/composelife/ui/cells/MutableCellWindowViewportState;Landroidx/compose/runtime/Composer;I)Landroidx/compose/runtime/State;
+PLcom/alexvanyo/composelife/ui/cells/CellWindowImplKt;->rememberOnGesture-YqVAtuI(FJLcom/alexvanyo/composelife/ui/cells/MutableCellWindowViewportState;Landroidx/compose/runtime/Composer;I)Landroidx/compose/runtime/State;
 Lcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$$ExternalSyntheticLambda0;
 HSPLcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$$ExternalSyntheticLambda0;-><init>()V
 HSPLcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$$ExternalSyntheticLambda0;->invoke(Ljava/lang/Object;)Ljava/lang/Object;
@@ -21845,21 +21877,17 @@ HSPLcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$$ExternalSyntheticLambda
 HSPLcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$$ExternalSyntheticLambda4;->invoke(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 Lcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$$ExternalSyntheticLambda5;
 HSPLcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$$ExternalSyntheticLambda5;-><init>(Lcom/alexvanyo/composelife/ui/cells/NonInteractableCells;Lcom/alexvanyo/composelife/ui/cells/InteractableCells;Lcom/alexvanyo/composelife/preferences/LoadedComposeLifePreferencesHolder;Lcom/alexvanyo/composelife/model/CellStateParser;Lcom/alexvanyo/composelife/ui/cells/SelectionOverlay;Lcom/alexvanyo/composelife/ui/cells/CellWindowUiState;FJZLandroidx/compose/ui/Modifier;II)V
-Lcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$$ExternalSyntheticLambda6;
-HSPLcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$$ExternalSyntheticLambda6;-><init>(Lcom/alexvanyo/composelife/ui/cells/MutableCellWindowViewportState;FJ)V
+PLcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$$ExternalSyntheticLambda6;-><init>(Lcom/alexvanyo/composelife/ui/cells/MutableCellWindowViewportState;FJ)V
 Lcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$$ExternalSyntheticLambda7;
 HSPLcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$$ExternalSyntheticLambda7;-><init>()V
 Lcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$$ExternalSyntheticLambda8;
 HSPLcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$$ExternalSyntheticLambda8;-><init>(Ljava/util/List;Lcom/alexvanyo/composelife/ui/cells/CellWindowViewport;)V
 HSPLcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$$ExternalSyntheticLambda8;->invoke(Ljava/lang/Object;)Ljava/lang/Object;
-Lcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$$ExternalSyntheticLambda9;
-HSPLcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$$ExternalSyntheticLambda9;-><init>(Lcom/alexvanyo/composelife/ui/cells/CellWindowViewport;Lcom/alexvanyo/composelife/ui/cells/MutableCellWindowViewportState;)V
+PLcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$$ExternalSyntheticLambda9;-><init>(Lcom/alexvanyo/composelife/ui/cells/CellWindowViewport;Lcom/alexvanyo/composelife/ui/cells/MutableCellWindowViewportState;)V
 PLcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$$ExternalSyntheticLambda9;->invoke(Ljava/lang/Object;)Ljava/lang/Object;
 PLcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$CellWindowImpl$2$2$2$2$1;-><init>(Ljava/lang/Object;)V
-Lcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$CellWindowImpl$2$navigableModifier$2$1;
-HSPLcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$CellWindowImpl$2$navigableModifier$2$1;-><init>(Ljava/util/Set;Landroidx/compose/runtime/MutableState;Landroidx/compose/runtime/State;)V
-Lcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$CellWindowImpl$2$navigableModifier$3$1;
-HSPLcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$CellWindowImpl$2$navigableModifier$3$1;-><init>(Landroidx/compose/runtime/State;)V
+PLcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$CellWindowImpl$2$navigableModifier$2$1;-><init>(Ljava/util/Set;Landroidx/compose/runtime/MutableState;Landroidx/compose/runtime/State;)V
+PLcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$CellWindowImpl$2$navigableModifier$3$1;-><init>(Landroidx/compose/runtime/State;)V
 Lcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$CellWindowImpl__2aneaI$lambda$3$0$$inlined$onDispose$1;
 HSPLcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$CellWindowImpl__2aneaI$lambda$3$0$$inlined$onDispose$1;-><init>()V
 HSPLcom/alexvanyo/composelife/ui/cells/CellWindowImplKt$CellWindowImpl__2aneaI$lambda$3$0$$inlined$onDispose$1;->dispose()V
@@ -21888,8 +21916,8 @@ HSPLcom/alexvanyo/composelife/ui/cells/CellWindowUiState$MutableState;-><clinit>
 HSPLcom/alexvanyo/composelife/ui/cells/CellWindowUiState$MutableState;-><init>(Lcom/alexvanyo/composelife/model/MutableGameOfLifeState;Lcom/alexvanyo/composelife/ui/cells/MutableCellWindowInteractionState;Lkotlin/jvm/functions/Function2;)V
 HSPLcom/alexvanyo/composelife/ui/cells/CellWindowUiState$MutableState;->getCellWindowInteractionState()Lcom/alexvanyo/composelife/ui/cells/CellWindowInteractionState;
 HSPLcom/alexvanyo/composelife/ui/cells/CellWindowUiState$MutableState;->getCellWindowInteractionState()Lcom/alexvanyo/composelife/ui/cells/MutableCellWindowInteractionState;
-HSPLcom/alexvanyo/composelife/ui/cells/CellWindowUiState$MutableState;->getGameOfLifeState()Lcom/alexvanyo/composelife/model/GameOfLifeState;
-HSPLcom/alexvanyo/composelife/ui/cells/CellWindowUiState$MutableState;->getGameOfLifeState()Lcom/alexvanyo/composelife/model/MutableGameOfLifeState;
+PLcom/alexvanyo/composelife/ui/cells/CellWindowUiState$MutableState;->getGameOfLifeState()Lcom/alexvanyo/composelife/model/GameOfLifeState;
+PLcom/alexvanyo/composelife/ui/cells/CellWindowUiState$MutableState;->getGameOfLifeState()Lcom/alexvanyo/composelife/model/MutableGameOfLifeState;
 PLcom/alexvanyo/composelife/ui/cells/CellWindowUiState$MutableState;->isEditable()Lkotlin/jvm/functions/Function2;
 Lcom/alexvanyo/composelife/ui/cells/CellWindowViewport;
 HSPLcom/alexvanyo/composelife/ui/cells/CellWindowViewport;-><clinit>()V
@@ -21962,7 +21990,7 @@ HSPLcom/alexvanyo/composelife/ui/cells/ImmutableCellWindow$MetroFactory$Companio
 HSPLcom/alexvanyo/composelife/ui/cells/ImmutableCellWindow$MetroFactory$Companion;->newInstance(Ldev/zacsweers/metro/Provider;)Lcom/alexvanyo/composelife/ui/cells/ImmutableCellWindow;
 HPLcom/alexvanyo/composelife/ui/cells/InteractableCellKt;->$r8$lambda$VOpbRiKfxkI-Mf3cz9WzI55z08U(Lcom/alexvanyo/composelife/ui/cells/DrawState;JJJLcom/alexvanyo/composelife/preferences/CurrentShape;Landroidx/compose/ui/graphics/drawscope/DrawScope;)Lkotlin/Unit;
 HPLcom/alexvanyo/composelife/ui/cells/InteractableCellKt;->$r8$lambda$mAPr-KyK55F7GxHs_QB5TAiAafA(Landroidx/compose/ui/state/ToggleableState;Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;)Lkotlin/Unit;
-PLcom/alexvanyo/composelife/ui/cells/InteractableCellKt;->$r8$lambda$u9qbyYWBWRVWs2VdNsM761mo8Ms(Ljava/lang/String;Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;)Lkotlin/Unit;
+HPLcom/alexvanyo/composelife/ui/cells/InteractableCellKt;->$r8$lambda$u9qbyYWBWRVWs2VdNsM761mo8Ms(Ljava/lang/String;Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;)Lkotlin/Unit;
 HPLcom/alexvanyo/composelife/ui/cells/InteractableCellKt;->InteractableCell$lambda$1$0(Ljava/lang/String;Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;)Lkotlin/Unit;
 HPLcom/alexvanyo/composelife/ui/cells/InteractableCellKt;->InteractableCell$lambda$2$0(Landroidx/compose/ui/state/ToggleableState;Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;)Lkotlin/Unit;
 HPLcom/alexvanyo/composelife/ui/cells/InteractableCellKt;->InteractableCell$lambda$3$0(Lcom/alexvanyo/composelife/ui/cells/DrawState;JJJLcom/alexvanyo/composelife/preferences/CurrentShape;Landroidx/compose/ui/graphics/drawscope/DrawScope;)Lkotlin/Unit;
@@ -22226,7 +22254,7 @@ HSPLcom/alexvanyo/composelife/ui/cells/OpenGLNonInteractableCellsKt$OpenGLNonInt
 PLcom/alexvanyo/composelife/ui/cells/OpenGLNonInteractableCellsKt$OpenGLNonInteractableCells$1$1$1$renderer$1;->getGameOfLifeShape()Lcom/alexvanyo/composelife/openglrenderer/GameOfLifeShape;
 PLcom/alexvanyo/composelife/ui/cells/OpenGLNonInteractableCellsKt$OpenGLNonInteractableCells$1$1$1$renderer$1;->onDrawFrame(Ljavax/microedition/khronos/opengles/GL10;)V
 PLcom/alexvanyo/composelife/ui/cells/OpenGLNonInteractableCellsKt$OpenGLNonInteractableCells$1$1$1$renderer$1;->onSurfaceChanged(Ljavax/microedition/khronos/opengles/GL10;II)V
-PLcom/alexvanyo/composelife/ui/cells/OpenGLNonInteractableCellsKt$OpenGLNonInteractableCells$1$1$1$renderer$1;->onSurfaceCreated(Ljavax/microedition/khronos/opengles/GL10;Ljavax/microedition/khronos/egl/EGLConfig;)V
+HSPLcom/alexvanyo/composelife/ui/cells/OpenGLNonInteractableCellsKt$OpenGLNonInteractableCells$1$1$1$renderer$1;->onSurfaceCreated(Ljavax/microedition/khronos/opengles/GL10;Ljavax/microedition/khronos/egl/EGLConfig;)V
 PLcom/alexvanyo/composelife/ui/cells/OpenGLNonInteractableCellsKt$OpenGLNonInteractableCells$1$1$1$renderer$1;->setGameOfLifeShape(Lcom/alexvanyo/composelife/openglrenderer/GameOfLifeShape;)V
 HSPLcom/alexvanyo/composelife/ui/cells/OpenGLNonInteractableCellsKt$OpenGLNonInteractableCells$1$1$1$renderer$1;->setParameters(Lcom/alexvanyo/composelife/openglrenderer/GameOfLifeShapeParameters;)V
 Lcom/alexvanyo/composelife/ui/cells/OpenGLNonInteractableCellsKt$OpenGLNonInteractableCells$1$1$2$1;
@@ -22299,6 +22327,7 @@ PLcom/alexvanyo/composelife/ui/cells/SelectionOverlayKt;->SelectionOverlay_lp7fD
 PLcom/alexvanyo/composelife/ui/cells/SelectionOverlayKt$$ExternalSyntheticLambda1;-><init>(Lcom/alexvanyo/composelife/model/CellStateParser;Lcom/alexvanyo/composelife/ui/cells/SelectionBoxOverlay;Lcom/alexvanyo/composelife/sessionvalue/SessionValue;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;FLandroidx/compose/ui/unit/IntRect;JLandroidx/compose/ui/Modifier;II)V
 PLcom/alexvanyo/composelife/ui/cells/SelectionOverlayKt$$ExternalSyntheticLambda10;-><init>(Lcom/alexvanyo/composelife/ui/cells/MutableCellStateDropStateHolder;FJ)V
 PLcom/alexvanyo/composelife/ui/cells/SelectionOverlayKt$$ExternalSyntheticLambda10;->invoke(Ljava/lang/Object;)Ljava/lang/Object;
+Lcom/alexvanyo/composelife/ui/cells/SelectionOverlayKt$$ExternalSyntheticLambda11;
 PLcom/alexvanyo/composelife/ui/cells/SelectionOverlayKt$$ExternalSyntheticLambda11;-><init>()V
 PLcom/alexvanyo/composelife/ui/cells/SelectionOverlayKt$$ExternalSyntheticLambda11;->invoke(Ljava/lang/Object;)Ljava/lang/Object;
 PLcom/alexvanyo/composelife/ui/cells/SelectionOverlayKt$$ExternalSyntheticLambda12;-><init>(Lcom/alexvanyo/composelife/sessionvalue/SessionValueHolder;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/unit/IntRect;Lcom/alexvanyo/composelife/ui/cells/SelectionBoxOverlay;F)V
@@ -22384,9 +22413,8 @@ Lcom/alexvanyo/composelife/ui/cells/ViewportInteractionConfig$Navigable;
 HSPLcom/alexvanyo/composelife/ui/cells/ViewportInteractionConfig$Navigable;-><clinit>()V
 HSPLcom/alexvanyo/composelife/ui/cells/ViewportInteractionConfig$Navigable;-><init>(Lcom/alexvanyo/composelife/ui/cells/MutableCellWindowViewportState;Ljava/util/List;)V
 HSPLcom/alexvanyo/composelife/ui/cells/ViewportInteractionConfig$Navigable;-><init>(Lcom/alexvanyo/composelife/ui/cells/MutableCellWindowViewportState;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-HSPLcom/alexvanyo/composelife/ui/cells/ViewportInteractionConfig$Navigable;->getMutableCellWindowViewportState()Lcom/alexvanyo/composelife/ui/cells/MutableCellWindowViewportState;
-HSPLcom/alexvanyo/composelife/ui/cells/ViewportInteractionConfig$Navigable;->getSyncableMutableCellWindowViewportStates()Ljava/util/List;
-Lcom/alexvanyo/composelife/ui/cells/ViewportInteractionConfig$Tracking;
+PLcom/alexvanyo/composelife/ui/cells/ViewportInteractionConfig$Navigable;->getMutableCellWindowViewportState()Lcom/alexvanyo/composelife/ui/cells/MutableCellWindowViewportState;
+PLcom/alexvanyo/composelife/ui/cells/ViewportInteractionConfig$Navigable;->getSyncableMutableCellWindowViewportStates()Ljava/util/List;
 Lcom/alexvanyo/composelife/ui/cells/__GENERATED__CALLABLES__Kt;
 HSPLcom/alexvanyo/composelife/ui/cells/__GENERATED__CALLABLES__Kt;->CellWindowImpl-EgBSTNo(Lcom/alexvanyo/composelife/ui/cells/CellWindowImpl;Lcom/alexvanyo/composelife/ui/cells/CellWindowUiState;FJZLandroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;I)V
 HSPLcom/alexvanyo/composelife/ui/cells/__GENERATED__CALLABLES__Kt;->ImmutableCellWindow-3xixttE(Lcom/alexvanyo/composelife/ui/cells/ImmutableCellWindow;Lcom/alexvanyo/composelife/model/GameOfLifeState;Lcom/alexvanyo/composelife/ui/cells/CellWindowInteractionState;Landroidx/compose/ui/Modifier;FLandroidx/compose/runtime/Composer;I)V
@@ -22829,6 +22857,7 @@ HSPLcom/alexvanyo/composelife/ui/util/AnimatedContentKt$rememberAnimatedContentS
 Lcom/alexvanyo/composelife/ui/util/AnimatedContentKt$rememberAnimatedContentState$3$1$2$$ExternalSyntheticLambda5;
 HSPLcom/alexvanyo/composelife/ui/util/AnimatedContentKt$rememberAnimatedContentState$3$1$2$$ExternalSyntheticLambda5;-><init>(Ljava/lang/String;Lcom/alexvanyo/composelife/ui/util/TargetState;)V
 HSPLcom/alexvanyo/composelife/ui/util/AnimatedContentKt$rememberAnimatedContentState$3$1$2$$ExternalSyntheticLambda5;->invoke()Ljava/lang/Object;
+Lcom/alexvanyo/composelife/ui/util/AnimatedContentKt$rememberAnimatedContentState$5$1$1;
 Lcom/alexvanyo/composelife/ui/util/AnimatedContentKt$rememberAnimatedContentState$6$1;
 HSPLcom/alexvanyo/composelife/ui/util/AnimatedContentKt$rememberAnimatedContentState$6$1;-><init>(Landroidx/compose/runtime/State;Landroidx/compose/runtime/State;Landroidx/compose/animation/core/Transition;Landroidx/compose/runtime/State;Landroidx/compose/runtime/State;)V
 HSPLcom/alexvanyo/composelife/ui/util/AnimatedContentKt$rememberAnimatedContentState$6$1;->getContentKey()Lkotlin/jvm/functions/Function1;
@@ -24992,6 +25021,7 @@ HSPLkotlin/text/StringsKt__IndentKt;->trimMargin(Ljava/lang/String;Ljava/lang/St
 Lkotlin/text/StringsKt__IndentKt$$ExternalSyntheticLambda1;
 HSPLkotlin/text/StringsKt__IndentKt$$ExternalSyntheticLambda1;-><init>()V
 HSPLkotlin/text/StringsKt__IndentKt$$ExternalSyntheticLambda1;->invoke(Ljava/lang/Object;)Ljava/lang/Object;
+Lkotlin/text/StringsKt__IndentKt$$ExternalSyntheticLambda2;
 Lkotlin/text/StringsKt__RegexExtensionsJVMKt;
 Lkotlin/text/StringsKt__RegexExtensionsKt;
 Lkotlin/text/StringsKt__StringBuilderJVMKt;
@@ -25266,7 +25296,7 @@ HSPLkotlinx/coroutines/CancellableContinuationImpl;-><init>(Lkotlin/coroutines/C
 HSPLkotlinx/coroutines/CancellableContinuationImpl;->callCancelHandler(Lkotlinx/coroutines/CancelHandler;Ljava/lang/Throwable;)V
 HSPLkotlinx/coroutines/CancellableContinuationImpl;->callSegmentOnCancellation(Lkotlinx/coroutines/internal/Segment;Ljava/lang/Throwable;)V
 HSPLkotlinx/coroutines/CancellableContinuationImpl;->cancel(Ljava/lang/Throwable;)Z
-PLkotlinx/coroutines/CancellableContinuationImpl;->cancelCompletedResult$kotlinx_coroutines_core(Ljava/lang/Object;Ljava/lang/Throwable;)V
+HSPLkotlinx/coroutines/CancellableContinuationImpl;->cancelCompletedResult$kotlinx_coroutines_core(Ljava/lang/Object;Ljava/lang/Throwable;)V
 HSPLkotlinx/coroutines/CancellableContinuationImpl;->cancelLater(Ljava/lang/Throwable;)Z
 HSPLkotlinx/coroutines/CancellableContinuationImpl;->completeResume(Ljava/lang/Object;)V
 HSPLkotlinx/coroutines/CancellableContinuationImpl;->detachChild$kotlinx_coroutines_core()V
@@ -25294,7 +25324,6 @@ HSPLkotlinx/coroutines/CancellableContinuationImpl;->isReusable()Z
 HSPLkotlinx/coroutines/CancellableContinuationImpl;->parentCancelled$kotlinx_coroutines_core(Ljava/lang/Throwable;)V
 HSPLkotlinx/coroutines/CancellableContinuationImpl;->releaseClaimedReusableContinuation$kotlinx_coroutines_core()V
 HSPLkotlinx/coroutines/CancellableContinuationImpl;->resetStateReusable()Z
-HSPLkotlinx/coroutines/CancellableContinuationImpl;->resume(Ljava/lang/Object;Lkotlin/jvm/functions/Function3;)V
 HSPLkotlinx/coroutines/CancellableContinuationImpl;->resumeImpl$kotlinx_coroutines_core$default(Lkotlinx/coroutines/CancellableContinuationImpl;Ljava/lang/Object;ILkotlin/jvm/functions/Function3;ILjava/lang/Object;)V
 HSPLkotlinx/coroutines/CancellableContinuationImpl;->resumeImpl$kotlinx_coroutines_core(Ljava/lang/Object;ILkotlin/jvm/functions/Function3;)V
 HSPLkotlinx/coroutines/CancellableContinuationImpl;->resumeUndispatched(Lkotlinx/coroutines/CoroutineDispatcher;Ljava/lang/Object;)V
@@ -25426,6 +25455,7 @@ HSPLkotlinx/coroutines/DebugStringsKt;->getClassSimpleName(Ljava/lang/Object;)Lj
 Lkotlinx/coroutines/DefaultExecutor;
 HSPLkotlinx/coroutines/DefaultExecutor;-><clinit>()V
 HSPLkotlinx/coroutines/DefaultExecutor;-><init>()V
+PLkotlinx/coroutines/DefaultExecutor;->acknowledgeShutdownIfNeeded()V
 HSPLkotlinx/coroutines/DefaultExecutor;->createThreadSync()Ljava/lang/Thread;
 HSPLkotlinx/coroutines/DefaultExecutor;->getThread()Ljava/lang/Thread;
 HSPLkotlinx/coroutines/DefaultExecutor;->isShutdownRequested()Z
@@ -25457,7 +25487,7 @@ HSPLkotlinx/coroutines/DispatchedCoroutine;->tryResume()Z
 HSPLkotlinx/coroutines/DispatchedCoroutine;->trySuspend()Z
 Lkotlinx/coroutines/DispatchedTask;
 HSPLkotlinx/coroutines/DispatchedTask;-><init>(I)V
-HSPLkotlinx/coroutines/DispatchedTask;->cancelCompletedResult$kotlinx_coroutines_core(Ljava/lang/Object;Ljava/lang/Throwable;)V
+PLkotlinx/coroutines/DispatchedTask;->cancelCompletedResult$kotlinx_coroutines_core(Ljava/lang/Object;Ljava/lang/Throwable;)V
 HSPLkotlinx/coroutines/DispatchedTask;->getExceptionalResult$kotlinx_coroutines_core(Ljava/lang/Object;)Ljava/lang/Throwable;
 HSPLkotlinx/coroutines/DispatchedTask;->getSuccessfulResult$kotlinx_coroutines_core(Ljava/lang/Object;)Ljava/lang/Object;
 HSPLkotlinx/coroutines/DispatchedTask;->run()V
@@ -25494,6 +25524,7 @@ HSPLkotlinx/coroutines/EventLoop;->getNextTime()J
 HSPLkotlinx/coroutines/EventLoop;->incrementUseCount$default(Lkotlinx/coroutines/EventLoop;ZILjava/lang/Object;)V
 HSPLkotlinx/coroutines/EventLoop;->incrementUseCount(Z)V
 HSPLkotlinx/coroutines/EventLoop;->isUnconfinedLoopActive()Z
+PLkotlinx/coroutines/EventLoop;->isUnconfinedQueueEmpty()Z
 HSPLkotlinx/coroutines/EventLoop;->processUnconfinedEvent()Z
 Lkotlinx/coroutines/EventLoopImplBase;
 HSPLkotlinx/coroutines/EventLoopImplBase;-><clinit>()V
@@ -25510,6 +25541,7 @@ HSPLkotlinx/coroutines/EventLoopImplBase;->get_delayed$volatile$FU()Ljava/util/c
 HSPLkotlinx/coroutines/EventLoopImplBase;->get_isCompleted$volatile$FU()Ljava/util/concurrent/atomic/AtomicIntegerFieldUpdater;
 HSPLkotlinx/coroutines/EventLoopImplBase;->get_queue$volatile$FU()Ljava/util/concurrent/atomic/AtomicReferenceFieldUpdater;
 HSPLkotlinx/coroutines/EventLoopImplBase;->isCompleted()Z
+PLkotlinx/coroutines/EventLoopImplBase;->isEmpty()Z
 HSPLkotlinx/coroutines/EventLoopImplBase;->processNextEvent()J
 HSPLkotlinx/coroutines/EventLoopImplBase;->rescheduleAllDelayed()V
 HSPLkotlinx/coroutines/EventLoopImplBase;->schedule(JLkotlinx/coroutines/EventLoopImplBase$DelayedTask;)V
@@ -25523,6 +25555,8 @@ HSPLkotlinx/coroutines/EventLoopImplBase$DelayedResumeTask;-><init>(Lkotlinx/cor
 HSPLkotlinx/coroutines/EventLoopImplBase$DelayedResumeTask;->run()V
 Lkotlinx/coroutines/EventLoopImplBase$DelayedTask;
 HSPLkotlinx/coroutines/EventLoopImplBase$DelayedTask;-><init>(J)V
+HSPLkotlinx/coroutines/EventLoopImplBase$DelayedTask;->compareTo(Ljava/lang/Object;)I
+HSPLkotlinx/coroutines/EventLoopImplBase$DelayedTask;->compareTo(Lkotlinx/coroutines/EventLoopImplBase$DelayedTask;)I
 HSPLkotlinx/coroutines/EventLoopImplBase$DelayedTask;->dispose()V
 HSPLkotlinx/coroutines/EventLoopImplBase$DelayedTask;->getHeap()Lkotlinx/coroutines/internal/ThreadSafeHeap;
 HSPLkotlinx/coroutines/EventLoopImplBase$DelayedTask;->getIndex()I
@@ -25568,6 +25602,7 @@ Lkotlinx/coroutines/Incomplete;
 Lkotlinx/coroutines/IncompleteStateBox;
 Lkotlinx/coroutines/InvokeOnCompletion;
 HSPLkotlinx/coroutines/InvokeOnCompletion;-><init>(Lkotlin/jvm/functions/Function1;)V
+PLkotlinx/coroutines/InvokeOnCompletion;->getOnCancelling()Z
 PLkotlinx/coroutines/InvokeOnCompletion;->invoke(Ljava/lang/Throwable;)V
 Lkotlinx/coroutines/Job;
 HSPLkotlinx/coroutines/Job;-><clinit>()V
@@ -25880,7 +25915,6 @@ HSPLkotlinx/coroutines/channels/BufferedChannel;->trySend-JP2dKIU(Ljava/lang/Obj
 HSPLkotlinx/coroutines/channels/BufferedChannel;->updateCellReceive(Lkotlinx/coroutines/channels/ChannelSegment;IJLjava/lang/Object;)Ljava/lang/Object;
 HSPLkotlinx/coroutines/channels/BufferedChannel;->updateCellReceiveSlow(Lkotlinx/coroutines/channels/ChannelSegment;IJLjava/lang/Object;)Ljava/lang/Object;
 HSPLkotlinx/coroutines/channels/BufferedChannel;->updateCellSend(Lkotlinx/coroutines/channels/ChannelSegment;ILjava/lang/Object;JLjava/lang/Object;Z)I
-PLkotlinx/coroutines/channels/BufferedChannel;->updateCellSendSlow(Lkotlinx/coroutines/channels/ChannelSegment;ILjava/lang/Object;JLjava/lang/Object;Z)I
 HSPLkotlinx/coroutines/channels/BufferedChannel;->waitExpandBufferCompletion$kotlinx_coroutines_core(J)V
 Lkotlinx/coroutines/channels/BufferedChannel$BufferedChannelIterator;
 HSPLkotlinx/coroutines/channels/BufferedChannel$BufferedChannelIterator;-><init>(Lkotlinx/coroutines/channels/BufferedChannel;)V
@@ -25965,9 +25999,11 @@ HSPLkotlinx/coroutines/channels/ChannelResult;->constructor-impl(Ljava/lang/Obje
 HSPLkotlinx/coroutines/channels/ChannelResult;->getOrNull-impl(Ljava/lang/Object;)Ljava/lang/Object;
 HSPLkotlinx/coroutines/channels/ChannelResult;->unbox-impl()Ljava/lang/Object;
 Lkotlinx/coroutines/channels/ChannelResult$Closed;
+HSPLkotlinx/coroutines/channels/ChannelResult$Closed;-><init>(Ljava/lang/Throwable;)V
 Lkotlinx/coroutines/channels/ChannelResult$Companion;
 HSPLkotlinx/coroutines/channels/ChannelResult$Companion;-><init>()V
 HSPLkotlinx/coroutines/channels/ChannelResult$Companion;-><init>(Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+HSPLkotlinx/coroutines/channels/ChannelResult$Companion;->closed-JP2dKIU(Ljava/lang/Throwable;)Ljava/lang/Object;
 HSPLkotlinx/coroutines/channels/ChannelResult$Companion;->failure-PtdJZtk()Ljava/lang/Object;
 HSPLkotlinx/coroutines/channels/ChannelResult$Companion;->success-JP2dKIU(Ljava/lang/Object;)Ljava/lang/Object;
 Lkotlinx/coroutines/channels/ChannelResult$Failed;
@@ -25976,7 +26012,6 @@ Lkotlinx/coroutines/channels/ChannelSegment;
 HSPLkotlinx/coroutines/channels/ChannelSegment;-><init>(JLkotlinx/coroutines/channels/ChannelSegment;Lkotlinx/coroutines/channels/BufferedChannel;I)V
 HSPLkotlinx/coroutines/channels/ChannelSegment;->casState$kotlinx_coroutines_core(ILjava/lang/Object;Ljava/lang/Object;)Z
 HSPLkotlinx/coroutines/channels/ChannelSegment;->cleanElement$kotlinx_coroutines_core(I)V
-HSPLkotlinx/coroutines/channels/ChannelSegment;->getAndSetState$kotlinx_coroutines_core(ILjava/lang/Object;)Ljava/lang/Object;
 HSPLkotlinx/coroutines/channels/ChannelSegment;->getChannel()Lkotlinx/coroutines/channels/BufferedChannel;
 HSPLkotlinx/coroutines/channels/ChannelSegment;->getData()Ljava/util/concurrent/atomic/AtomicReferenceArray;
 HSPLkotlinx/coroutines/channels/ChannelSegment;->getElement$kotlinx_coroutines_core(I)Ljava/lang/Object;
@@ -26529,7 +26564,7 @@ HSPLkotlinx/coroutines/flow/internal/CombineKt$zipImpl$1$1$second$1$1;-><init>(L
 HSPLkotlinx/coroutines/flow/internal/CombineKt$zipImpl$1$1$second$1$1;->emit(Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 Lkotlinx/coroutines/flow/internal/CombineKt$zipImpl$1$1$second$1$1$emit$1;
 HSPLkotlinx/coroutines/flow/internal/CombineKt$zipImpl$1$1$second$1$1$emit$1;-><init>(Lkotlinx/coroutines/flow/internal/CombineKt$zipImpl$1$1$second$1$1;Lkotlin/coroutines/Continuation;)V
-PLkotlinx/coroutines/flow/internal/CombineKt$zipImpl$1$1$second$1$1$emit$1;->invokeSuspend(Ljava/lang/Object;)Ljava/lang/Object;
+HSPLkotlinx/coroutines/flow/internal/CombineKt$zipImpl$1$1$second$1$1$emit$1;->invokeSuspend(Ljava/lang/Object;)Ljava/lang/Object;
 Lkotlinx/coroutines/flow/internal/DownstreamExceptionContext;
 HSPLkotlinx/coroutines/flow/internal/DownstreamExceptionContext;-><init>(Ljava/lang/Throwable;Lkotlin/coroutines/CoroutineContext;)V
 HSPLkotlinx/coroutines/flow/internal/DownstreamExceptionContext;->get(Lkotlin/coroutines/CoroutineContext$Key;)Lkotlin/coroutines/CoroutineContext$Element;
@@ -26694,14 +26729,10 @@ Lkotlinx/coroutines/internal/LockFreeTaskQueueCore;
 HSPLkotlinx/coroutines/internal/LockFreeTaskQueueCore;-><clinit>()V
 HSPLkotlinx/coroutines/internal/LockFreeTaskQueueCore;-><init>(IZ)V
 HSPLkotlinx/coroutines/internal/LockFreeTaskQueueCore;->addLast(Ljava/lang/Object;)I
-HSPLkotlinx/coroutines/internal/LockFreeTaskQueueCore;->allocateNextCopy(J)Lkotlinx/coroutines/internal/LockFreeTaskQueueCore;
-HSPLkotlinx/coroutines/internal/LockFreeTaskQueueCore;->allocateOrGetNextCopy(J)Lkotlinx/coroutines/internal/LockFreeTaskQueueCore;
+PLkotlinx/coroutines/internal/LockFreeTaskQueueCore;->allocateNextCopy(J)Lkotlinx/coroutines/internal/LockFreeTaskQueueCore;
 HSPLkotlinx/coroutines/internal/LockFreeTaskQueueCore;->getArray()Ljava/util/concurrent/atomic/AtomicReferenceArray;
 HSPLkotlinx/coroutines/internal/LockFreeTaskQueueCore;->getSize()I
-HSPLkotlinx/coroutines/internal/LockFreeTaskQueueCore;->get_next$volatile$FU()Ljava/util/concurrent/atomic/AtomicReferenceFieldUpdater;
 HSPLkotlinx/coroutines/internal/LockFreeTaskQueueCore;->get_state$volatile$FU()Ljava/util/concurrent/atomic/AtomicLongFieldUpdater;
-HSPLkotlinx/coroutines/internal/LockFreeTaskQueueCore;->markFrozen()J
-HSPLkotlinx/coroutines/internal/LockFreeTaskQueueCore;->next()Lkotlinx/coroutines/internal/LockFreeTaskQueueCore;
 HSPLkotlinx/coroutines/internal/LockFreeTaskQueueCore;->removeFirstOrNull()Ljava/lang/Object;
 Lkotlinx/coroutines/internal/LockFreeTaskQueueCore$Companion;
 HSPLkotlinx/coroutines/internal/LockFreeTaskQueueCore$Companion;-><init>()V
@@ -26726,7 +26757,7 @@ HSPLkotlinx/coroutines/internal/ResizableAtomicArray;->get(I)Ljava/lang/Object;
 HSPLkotlinx/coroutines/internal/ResizableAtomicArray;->setSynchronized(ILjava/lang/Object;)V
 Lkotlinx/coroutines/internal/ScopeCoroutine;
 HSPLkotlinx/coroutines/internal/ScopeCoroutine;-><init>(Lkotlin/coroutines/CoroutineContext;Lkotlin/coroutines/Continuation;)V
-PLkotlinx/coroutines/internal/ScopeCoroutine;->afterCompletion(Ljava/lang/Object;)V
+HSPLkotlinx/coroutines/internal/ScopeCoroutine;->afterCompletion(Ljava/lang/Object;)V
 HSPLkotlinx/coroutines/internal/ScopeCoroutine;->afterCompletionUndispatched()V
 HSPLkotlinx/coroutines/internal/ScopeCoroutine;->afterResume(Ljava/lang/Object;)V
 HSPLkotlinx/coroutines/internal/ScopeCoroutine;->isScopedCoroutine()Z
@@ -26785,7 +26816,9 @@ HSPLkotlinx/coroutines/internal/ThreadSafeHeap;->realloc()[Lkotlinx/coroutines/i
 HSPLkotlinx/coroutines/internal/ThreadSafeHeap;->remove(Lkotlinx/coroutines/internal/ThreadSafeHeapNode;)Z
 HSPLkotlinx/coroutines/internal/ThreadSafeHeap;->removeAtImpl(I)Lkotlinx/coroutines/internal/ThreadSafeHeapNode;
 HSPLkotlinx/coroutines/internal/ThreadSafeHeap;->setSize(I)V
+HSPLkotlinx/coroutines/internal/ThreadSafeHeap;->siftDownFrom(I)V
 HSPLkotlinx/coroutines/internal/ThreadSafeHeap;->siftUpFrom(I)V
+HSPLkotlinx/coroutines/internal/ThreadSafeHeap;->swap(II)V
 Lkotlinx/coroutines/internal/ThreadSafeHeapNode;
 Lkotlinx/coroutines/intrinsics/CancellableKt;
 HSPLkotlinx/coroutines/intrinsics/CancellableKt;->startCoroutineCancellable(Lkotlin/jvm/functions/Function2;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)V
@@ -26919,7 +26952,6 @@ HSPLkotlinx/coroutines/selects/SelectImplementation;-><init>(Lkotlin/coroutines/
 HSPLkotlinx/coroutines/selects/SelectImplementation;->access$doSelectSuspend(Lkotlinx/coroutines/selects/SelectImplementation;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 HSPLkotlinx/coroutines/selects/SelectImplementation;->access$getInternalResult$p(Lkotlinx/coroutines/selects/SelectImplementation;)Ljava/lang/Object;
 HSPLkotlinx/coroutines/selects/SelectImplementation;->access$getState$volatile$FU()Ljava/util/concurrent/atomic/AtomicReferenceFieldUpdater;
-HSPLkotlinx/coroutines/selects/SelectImplementation;->access$reregisterClause(Lkotlinx/coroutines/selects/SelectImplementation;Ljava/lang/Object;)V
 HSPLkotlinx/coroutines/selects/SelectImplementation;->checkClauseObject(Ljava/lang/Object;)V
 HSPLkotlinx/coroutines/selects/SelectImplementation;->cleanup(Lkotlinx/coroutines/selects/SelectImplementation$ClauseData;)V
 HSPLkotlinx/coroutines/selects/SelectImplementation;->complete(Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -26935,8 +26967,7 @@ HSPLkotlinx/coroutines/selects/SelectImplementation;->invokeOnCancellation(Lkotl
 HSPLkotlinx/coroutines/selects/SelectImplementation;->isSelected()Z
 HSPLkotlinx/coroutines/selects/SelectImplementation;->register$default(Lkotlinx/coroutines/selects/SelectImplementation;Lkotlinx/coroutines/selects/SelectImplementation$ClauseData;ZILjava/lang/Object;)V
 HSPLkotlinx/coroutines/selects/SelectImplementation;->register(Lkotlinx/coroutines/selects/SelectImplementation$ClauseData;Z)V
-HSPLkotlinx/coroutines/selects/SelectImplementation;->reregisterClause(Ljava/lang/Object;)V
-HSPLkotlinx/coroutines/selects/SelectImplementation;->selectInRegistrationPhase(Ljava/lang/Object;)V
+PLkotlinx/coroutines/selects/SelectImplementation;->selectInRegistrationPhase(Ljava/lang/Object;)V
 HSPLkotlinx/coroutines/selects/SelectImplementation;->trySelect(Ljava/lang/Object;Ljava/lang/Object;)Z
 HSPLkotlinx/coroutines/selects/SelectImplementation;->trySelectInternal(Ljava/lang/Object;Ljava/lang/Object;)I
 HSPLkotlinx/coroutines/selects/SelectImplementation;->waitUntilSelected(Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
