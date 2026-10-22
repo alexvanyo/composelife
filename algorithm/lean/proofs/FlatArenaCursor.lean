@@ -183,16 +183,6 @@ theorem foldLeafCells_chunk {α : Type} (leaf : UInt64) (x0 y0 l t r b : Int64) 
   rfl
 
 
-theorem cellChild_eq (a : FlatHashLifeArena) (id : UInt32) :
-    a.cellChild id 0 = a.cellNw[id.toNat]! ∧ a.cellChild id 1 = a.cellNe[id.toNat]! ∧
-      a.cellChild id 2 = a.cellSw[id.toNat]! ∧ a.cellChild id 3 = a.cellSe[id.toNat]! :=
-  ⟨rfl, rfl, rfl, rfl⟩
-
-theorem l4Leaf_eq (a : FlatHashLifeArena) (id : UInt32) :
-    a.l4Leaf id 0 = a.l4Nw[id.toNat]! ∧ a.l4Leaf id 1 = a.l4Ne[id.toNat]! ∧
-      a.l4Leaf id 2 = a.l4Sw[id.toNat]! ∧ a.l4Leaf id 3 = a.l4Se[id.toNat]! :=
-  ⟨rfl, rfl, rfl, rfl⟩
-
 theorem foldStack_pushLeafFrame {α : Type} (a : FlatHashLifeArena) (l t r b : Int64) (f : α → UInt64 → α) (acc : α)
     (bits : UInt64) (x0 y0 : Int64) (rest : List CellFrame) :
     a.foldStack l t r b f acc (pushLeafFrame bits x0 y0 rest) =
@@ -221,15 +211,13 @@ theorem foldStack_step {α : Type} (a : FlatHashLifeArena) (l t r b : Int64) (f 
     simp only [FlatHashLifeArena.cellCursorStepWith, FlatHashLifeArena.foldFrame]
     rw [foldLeafCells_chunk]
   | l4 id x0 y0 =>
-    simp only [FlatHashLifeArena.cellCursorStepWith, FlatHashLifeArena.foldFrame, (l4Leaf_eq a id).1, (l4Leaf_eq a id).2.1, (l4Leaf_eq a id).2.2.1,
-      (l4Leaf_eq a id).2.2.2]
+    simp only [FlatHashLifeArena.cellCursorStepWith, FlatHashLifeArena.foldFrame]
     unfold FlatHashLifeArena.foldLevel4Cells
     split
     · simp [chunkKeys_zero]
     · simp only [chunkKeys_zero, List.foldl_nil, foldStack_pushLeafFrame]
   | node id x0 y0 fuel =>
-    simp only [FlatHashLifeArena.cellCursorStepWith, FlatHashLifeArena.foldFrame, (cellChild_eq a id).1, (cellChild_eq a id).2.1,
-      (cellChild_eq a id).2.2.1, (cellChild_eq a id).2.2.2]
+    simp only [FlatHashLifeArena.cellCursorStepWith, FlatHashLifeArena.foldFrame]
     rw [FlatHashLifeArena.foldCellsLoop]
     by_cases h0 : fuel = 0
     · simp [h0, chunkKeys_zero]
@@ -273,8 +261,7 @@ theorem stackWeight_step (a : FlatHashLifeArena) (l t r b : Int64) (frame : Cell
     simp only [FlatHashLifeArena.cellCursorStepWith, frameWeight]
     omega
   | l4 id x0 y0 =>
-    simp only [FlatHashLifeArena.cellCursorStepWith, frameWeight, (l4Leaf_eq a id).1, (l4Leaf_eq a id).2.1, (l4Leaf_eq a id).2.2.1,
-      (l4Leaf_eq a id).2.2.2]
+    simp only [FlatHashLifeArena.cellCursorStepWith, frameWeight]
     split
     · dsimp only; omega
     · have h1 := stackWeight_pushLeafFrame a.l4Se[id.toNat]! (x0 + 8) (y0 + 8) rest
@@ -287,8 +274,7 @@ theorem stackWeight_step (a : FlatHashLifeArena) (l t r b : Int64) (frame : Cell
       dsimp only
       omega
   | node id x0 y0 fuel =>
-    simp only [FlatHashLifeArena.cellCursorStepWith, frameWeight, (cellChild_eq a id).1, (cellChild_eq a id).2.1,
-      (cellChild_eq a id).2.2.1, (cellChild_eq a id).2.2.2]
+    simp only [FlatHashLifeArena.cellCursorStepWith, frameWeight]
     have hp : 0 < 5 ^ fuel.toNat := Nat.pow_pos (by omega)
     split
     · dsimp only; omega
