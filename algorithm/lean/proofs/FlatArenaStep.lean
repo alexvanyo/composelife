@@ -213,6 +213,7 @@ theorem combineQuadrants_spec {a : FlatHashLifeArena} (hwf : ArenaWF a) {h : ℕ
   rcases e1 : a.internCellNode (a.cellLevel[id.toNat]! - 1) r1 r2 r3 r4 with ⟨res, a1⟩
   have s1 := internCellNode_spec hwf hl m1 m2 m3 m4
   rw [e1] at s1
+  dsimp only at s1
   obtain ⟨g1, r⟩ := s1
   have w1 := g1.wf
   dsimp only at g1 r w1 ⊢
@@ -412,6 +413,11 @@ theorem frame_writes (a : FlatHashLifeArena) {b : ℕ} {i1 i2 i3 i4 : UInt32} (h
   · rw [getElem!_set!_ne _ _ _ _ (by omega), getElem!_set!_self _ _ _ (by rw [s2]; omega)]
   · rw [getElem!_set!_self _ _ _ (by rw [s3]; omega)]
 
+/-- A node that is correct in `b` once `b` has not failed stays correct in any growth of `b`. -/
+theorem Grows.lift {b c : FlatHashLifeArena} (hb : ArenaWF b) (g : Grows b c) {h : ℕ} {x : UInt32} {X : MacroCell}
+    (r : b.overflow = 0 → NodeIs b h x X) : c.overflow = 0 → NodeIs c h x X :=
+  fun hc => g.node hb (r (g.ovf hc))
+
 /--
 Expanding a frame keeps the invariant, changes only the frame's quadrant slots, and unless the arena fails, stores
 the four quadrants of the node there.
@@ -426,61 +432,183 @@ theorem expandFrame_spec {a : FlatHashLifeArena} (hwf : ArenaWF a) {h : ℕ} {id
       NodeIs (a.expandFrame id base) (h + 1) (a.expandFrame id base).remapL4[base.toNat + 3]! (stepQuadrants m).sw ∧
       NodeIs (a.expandFrame id base) (h + 1) (a.expandFrame id base).remapL4[base.toNat + 4]!
         (stepQuadrants m).se) := by
-  unfold FlatHashLifeArena.expandFrame
-  rcases e1 : a.quadrantNW id with ⟨q1, a1⟩
-  dsimp only
-  have s1 := quadrantNW_spec hwf hn
-  rw [e1] at s1
-  obtain ⟨g1, r1⟩ := s1
+  generalize hr : a.expandFrame id base = r
+  unfold FlatHashLifeArena.expandFrame at hr
+  rw [ite_eq_right (node_not_ge hn)] at hr
+  dsimp (config := { etaStruct := .none }) only at hr
+  have hl := node_level_toNat hn
+  obtain ⟨c1, c2, c3, c4, hm⟩ := hn.children hwf
+  have hidN : id.toNat < a.cellCount.toNat := u32_lt_iff.mp hn.lt_cell
+  -- the nine pieces
+  rcases e1 : a.centeredSubnode a.cellNw[id.toNat]! with ⟨n00, a1⟩
+  rw [e1] at hr
+  dsimp (config := { etaStruct := .none }) only at hr
+  have sg1 := flatCenteredSubnode_spec hwf c1
+  rw [e1] at sg1
+  dsimp only at sg1
+  obtain ⟨g1, r1⟩ := sg1
   have w1 := g1.wf
-  rcases e2 : a1.quadrantNE id with ⟨q2, a2⟩
-  dsimp only
-  have s2 := quadrantNE_spec w1 (g1.node hwf hn)
-  rw [e2] at s2
-  obtain ⟨g2, r2⟩ := s2
+  have G1 := g1
+  rw [(G1.ext.cell _ hidN).1, (G1.ext.cell _ hidN).2.1] at hr
+  rcases e2 : a1.centeredHorizontal a.cellNw[id.toNat]! a.cellNe[id.toNat]! with ⟨n01, a2⟩
+  rw [e2] at hr
+  dsimp (config := { etaStruct := .none }) only at hr
+  have sg2 := centeredHorizontal_spec w1 (G1.node hwf c1) (G1.node hwf c2)
+  rw [e2] at sg2
+  dsimp only at sg2
+  obtain ⟨g2, r2⟩ := sg2
   have w2 := g2.wf
-  rcases e3 : a2.quadrantSW id with ⟨q3, a3⟩
-  dsimp only
-  have s3 := quadrantSW_spec w2 ((g1.trans g2).node hwf hn)
-  rw [e3] at s3
-  obtain ⟨g3, r3⟩ := s3
+  have G2 := G1.trans g2
+  rw [(G2.ext.cell _ hidN).2.1] at hr
+  rcases e3 : a2.centeredSubnode a.cellNe[id.toNat]! with ⟨n02, a3⟩
+  rw [e3] at hr
+  dsimp (config := { etaStruct := .none }) only at hr
+  have sg3 := flatCenteredSubnode_spec w2 (G2.node hwf c2)
+  rw [e3] at sg3
+  dsimp only at sg3
+  obtain ⟨g3, r3⟩ := sg3
   have w3 := g3.wf
-  rcases e4 : a3.quadrantSE id with ⟨q4, a4⟩
-  dsimp only
-  have s4 := quadrantSE_spec w3 (((g1.trans g2).trans g3).node hwf hn)
-  rw [e4] at s4
-  obtain ⟨g4, r4⟩ := s4
+  have G3 := G2.trans g3
+  rw [(G3.ext.cell _ hidN).1, (G3.ext.cell _ hidN).2.2.1] at hr
+  rcases e4 : a3.centeredVertical a.cellNw[id.toNat]! a.cellSw[id.toNat]! with ⟨n10, a4⟩
+  rw [e4] at hr
+  dsimp (config := { etaStruct := .none }) only at hr
+  have sg4 := centeredVertical_spec w3 (G3.node hwf c1) (G3.node hwf c3)
+  rw [e4] at sg4
+  dsimp only at sg4
+  obtain ⟨g4, r4⟩ := sg4
   have w4 := g4.wf
-  dsimp only at g1 g2 g3 g4 r1 r2 r3 r4 w1 w2 w3 w4
-  have g14 := ((g1.trans g2).trans g3).trans g4
-  split
+  have G4 := G3.trans g4
+  rcases e5 : a4.centeredSubSubnode id with ⟨n11, a5⟩
+  rw [e5] at hr
+  dsimp (config := { etaStruct := .none }) only at hr
+  have sg5 := centeredSubSubnode_spec w4 (G4.node hwf hn)
+  rw [e5] at sg5
+  dsimp only at sg5
+  obtain ⟨g5, r5⟩ := sg5
+  have w5 := g5.wf
+  have G5 := G4.trans g5
+  rw [(G5.ext.cell _ hidN).2.1, (G5.ext.cell _ hidN).2.2.2.1] at hr
+  rcases e6 : a5.centeredVertical a.cellNe[id.toNat]! a.cellSe[id.toNat]! with ⟨n12, a6⟩
+  rw [e6] at hr
+  dsimp (config := { etaStruct := .none }) only at hr
+  have sg6 := centeredVertical_spec w5 (G5.node hwf c2) (G5.node hwf c4)
+  rw [e6] at sg6
+  dsimp only at sg6
+  obtain ⟨g6, r6⟩ := sg6
+  have w6 := g6.wf
+  have G6 := G5.trans g6
+  rw [(G6.ext.cell _ hidN).2.2.1] at hr
+  rcases e7 : a6.centeredSubnode a.cellSw[id.toNat]! with ⟨n20, a7⟩
+  rw [e7] at hr
+  dsimp (config := { etaStruct := .none }) only at hr
+  have sg7 := flatCenteredSubnode_spec w6 (G6.node hwf c3)
+  rw [e7] at sg7
+  dsimp only at sg7
+  obtain ⟨g7, r7⟩ := sg7
+  have w7 := g7.wf
+  have G7 := G6.trans g7
+  rw [(G7.ext.cell _ hidN).2.2.1, (G7.ext.cell _ hidN).2.2.2.1] at hr
+  rcases e8 : a7.centeredHorizontal a.cellSw[id.toNat]! a.cellSe[id.toNat]! with ⟨n21, a8⟩
+  rw [e8] at hr
+  dsimp (config := { etaStruct := .none }) only at hr
+  have sg8 := centeredHorizontal_spec w7 (G7.node hwf c3) (G7.node hwf c4)
+  rw [e8] at sg8
+  dsimp only at sg8
+  obtain ⟨g8, r8⟩ := sg8
+  have w8 := g8.wf
+  have G8 := G7.trans g8
+  rw [(G8.ext.cell _ hidN).2.2.2.1] at hr
+  rcases e9 : a8.centeredSubnode a.cellSe[id.toNat]! with ⟨n22, a9⟩
+  rw [e9] at hr
+  dsimp (config := { etaStruct := .none }) only at hr
+  have sg9 := flatCenteredSubnode_spec w8 (G8.node hwf c4)
+  rw [e9] at sg9
+  dsimp only at sg9
+  obtain ⟨g9, r9⟩ := sg9
+  have w9 := g9.wf
+  have G9 := G8.trans g9
+  -- every piece is correct in `a9` unless it failed
+  have p00 := ((((((((g2.trans g3).trans g4).trans g5).trans g6).trans g7).trans g8).trans g9).lift w1 r1)
+  have p01 := (((((((g3.trans g4).trans g5).trans g6).trans g7).trans g8).trans g9).lift w2 r2)
+  have p02 := ((((((g4.trans g5).trans g6).trans g7).trans g8).trans g9).lift w3 r3)
+  have p10 := (((((g5.trans g6).trans g7).trans g8).trans g9).lift w4 r4)
+  have p11 := ((((g6.trans g7).trans g8).trans g9).lift w5 r5)
+  have p12 := (((g7.trans g8).trans g9).lift w6 r6)
+  have p20 := ((g8.trans g9).lift w7 r7)
+  have p21 := (g9.lift w8 r8)
+  have p22 := r9
+  -- the four quadrants
+  have hl1 : (a.cellLevel[id.toNat]! - 1).toNat = h + 5 := by have := u8_sub_one_toNat hl; omega
+  rw [(G9.ext.cell _ hidN).2.2.2.2] at hr
+  rcases f1 : a9.internCellNode (a.cellLevel[id.toNat]! - 1) n00 n01 n10 n11 with ⟨q1, b1⟩
+  rw [f1] at hr
+  dsimp (config := { etaStruct := .none }) only at hr
+  have sk1 := internCellNode_spec' w9 hl1 (fun hov => ⟨p00 hov, p01 hov, p10 hov, p11 hov⟩)
+  rw [f1] at sk1
+  dsimp only at sk1
+  obtain ⟨k1, s1⟩ := sk1
+  have v1 := k1.wf
+  rcases f2 : b1.internCellNode (a.cellLevel[id.toNat]! - 1) n01 n02 n11 n12 with ⟨q2, b2⟩
+  rw [f2] at hr
+  dsimp (config := { etaStruct := .none }) only at hr
+  have sk2 := internCellNode_spec' v1 hl1 (fun hov => ⟨k1.lift w9 p01 hov, k1.lift w9 p02 hov,
+      k1.lift w9 p11 hov, k1.lift w9 p12 hov⟩)
+  rw [f2] at sk2
+  dsimp only at sk2
+  obtain ⟨k2, s2⟩ := sk2
+  have v2 := k2.wf
+  have K2 := k1.trans k2
+  rcases f3 : b2.internCellNode (a.cellLevel[id.toNat]! - 1) n10 n11 n20 n21 with ⟨q3, b3⟩
+  rw [f3] at hr
+  dsimp (config := { etaStruct := .none }) only at hr
+  have sk3 := internCellNode_spec' v2 hl1 (fun hov => ⟨K2.lift w9 p10 hov, K2.lift w9 p11 hov,
+      K2.lift w9 p20 hov, K2.lift w9 p21 hov⟩)
+  rw [f3] at sk3
+  dsimp only at sk3
+  obtain ⟨k3, s3⟩ := sk3
+  have v3 := k3.wf
+  have K3 := K2.trans k3
+  rcases f4 : b3.internCellNode (a.cellLevel[id.toNat]! - 1) n11 n12 n21 n22 with ⟨q4, b4⟩
+  rw [f4] at hr
+  dsimp (config := { etaStruct := .none }) only at hr
+  have sk4 := internCellNode_spec' v3 hl1 (fun hov => ⟨K3.lift w9 p11 hov, K3.lift w9 p12 hov,
+      K3.lift w9 p21 hov, K3.lift w9 p22 hov⟩)
+  rw [f4] at sk4
+  dsimp only at sk4
+  obtain ⟨k4, s4⟩ := sk4
+  have v4 := k4.wf
+  have K4 := K3.trans k4
+  have g14 := G9.trans K4
+  rw [hm, stepQuadrants_cell c1.WFd c2.WFd c3.WFd c4.WFd]
+  split at hr
   · rename_i hov
+    subst hr
     exact ⟨g14.above _, fun h => absurd h (by simpa using hov)⟩
   · rename_i hov
-    have hov4 : a4.overflow = 0 := by simpa using hov
-    have hov3 := g4.ovf hov4
-    have hov2 := g3.ovf hov3
-    have hov1 := g2.ovf hov2
-    have n1 := ((g2.trans g3).trans g4).node w1 (r1 hov1)
-    have n2 := (g3.trans g4).node w2 (r2 hov2)
-    have n3 := g4.node w3 (r3 hov3)
-    have n4 := r4 hov4
+    subst hr
+    have hov4 : b4.overflow = 0 := by simpa using hov
+    have n1 := ((k2.trans k3).trans k4).lift v1 s1 hov4
+    have n2 := (k3.trans k4).lift v2 s2 hov4
+    have n3 := k4.lift v3 s3 hov4
+    have n4 := s4 hov4
+    rw [hm] at n1 n2 n3 n4
     have i1 : (base + 1).toNat = base.toNat + 1 := u32_add_small_toNat (k := 1) (by decide) (by omega)
     have i2 : (base + 2).toNat = base.toNat + 2 := u32_add_small_toNat (k := 2) (by decide) (by omega)
     have i3 : (base + 3).toNat = base.toNat + 3 := u32_add_small_toNat (k := 3) (by decide) (by omega)
     have i4 : (base + 4).toNat = base.toNat + 4 := u32_add_small_toNat (k := 4) (by decide) (by omega)
-    have k1 := GrowsAbove.setRemapL4 w4 (lo := base.toNat + 1) (i := base + 1) (by omega) q1
-    have k2 := GrowsAbove.setRemapL4 k1.wf (lo := base.toNat + 1) (i := base + 2) (by omega) q2
-    have k3 := GrowsAbove.setRemapL4 k2.wf (lo := base.toNat + 1) (i := base + 3) (by omega) q3
-    have k4 := GrowsAbove.setRemapL4 k3.wf (lo := base.toNat + 1) (i := base + 4) (by omega) q4
-    have k14 := ((k1.trans k2).trans k3).trans k4
-    have hsz4 : base.toNat + 5 ≤ a4.remapL4.size := by rw [g14.remapL4]; exact hb
-    obtain ⟨f1, f2, f3, f4⟩ := frame_writes a4 i1 i2 i3 i4 hsz4 q1 q2 q3 q4
-    refine ⟨(g14.above _).trans k14, fun _ => ⟨?_, ?_, ?_, ?_⟩⟩
-    · rw [f1]; exact NodeIs.extend w4 k14.ext n1
-    · rw [f2]; exact NodeIs.extend w4 k14.ext n2
-    · rw [f3]; exact NodeIs.extend w4 k14.ext n3
-    · rw [f4]; exact NodeIs.extend w4 k14.ext n4
+    have j1 := GrowsAbove.setRemapL4 v4 (lo := base.toNat + 1) (i := base + 1) (by omega) q1
+    have j2 := GrowsAbove.setRemapL4 j1.wf (lo := base.toNat + 1) (i := base + 2) (by omega) q2
+    have j3 := GrowsAbove.setRemapL4 j2.wf (lo := base.toNat + 1) (i := base + 3) (by omega) q3
+    have j4 := GrowsAbove.setRemapL4 j3.wf (lo := base.toNat + 1) (i := base + 4) (by omega) q4
+    have j14 := ((j1.trans j2).trans j3).trans j4
+    have hsz4 : base.toNat + 5 ≤ b4.remapL4.size := by rw [g14.remapL4]; exact hb
+    obtain ⟨f1', f2', f3', f4'⟩ := frame_writes b4 i1 i2 i3 i4 hsz4 q1 q2 q3 q4
+    refine ⟨(g14.above _).trans j14, fun _ => ⟨?_, ?_, ?_, ?_⟩⟩
+    · rw [f1']; exact NodeIs.extend v4 j14.ext n1
+    · rw [f2']; exact NodeIs.extend v4 j14.ext n2
+    · rw [f3']; exact NodeIs.extend v4 j14.ext n3
+    · rw [f4']; exact NodeIs.extend v4 j14.ext n4
 
 /--
 The top frame `f` of the work stack, expanded if needed (`expandFrameIfNeeded`): only the frame's quadrant slots

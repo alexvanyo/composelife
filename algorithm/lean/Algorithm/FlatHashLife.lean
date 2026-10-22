@@ -838,18 +838,35 @@ unexpanded frame has `UNCOMPUTED` at `5 * i + 1`.
 def stepFrameWidth : UInt32 := 5
 
 /--
-Expands the step frame at `base` of the CellNode `nodeId` (level >= 6): interns its four quadrants and stores them in
-`remapL4[base + 1 ..< base + 5]`, unless the arena fails.
+Expands the step frame at `base` of the CellNode `nodeId` (level >= 6): interns the nine overlapping pieces of its
+grandchildren once, builds its four quadrants (`stepQuadrants`) from them, and stores the quadrants in
+`remapL4[base + 1 ..< base + 5]`, unless the arena fails. (Building each quadrant on its own, as `quadrantNW` ..
+`quadrantSE` do, would intern sixteen pieces.)
 -/
 def FlatHashLifeArena.expandFrame (arena : FlatHashLifeArena) (nodeId base : UInt32) : FlatHashLifeArena :=
-  let (q_nw, a1) := arena.quadrantNW nodeId
-  let (q_ne, a2) := a1.quadrantNE nodeId
-  let (q_sw, a3) := a2.quadrantSW nodeId
-  let (q_se, a4) := a3.quadrantSE nodeId
-  if a4.overflow != 0 then a4
+  if nodeId >= arena.cellCount then arena
   else
-    (((a4.setRemapL4 (base + 1) q_nw).setRemapL4 (base + 2) q_ne).setRemapL4 (base + 3) q_sw).setRemapL4
-      (base + 4) q_se
+    -- Each child id is read from the arena it is passed with (interning never changes an existing node), so that
+    -- every read happens before the arena is updated in place.
+    let idx := nodeId.toNat
+    let (n00, a1) := arena.centeredSubnode arena.cellNw[idx]!
+    let (n01, a2) := a1.centeredHorizontal a1.cellNw[idx]! a1.cellNe[idx]!
+    let (n02, a3) := a2.centeredSubnode a2.cellNe[idx]!
+    let (n10, a4) := a3.centeredVertical a3.cellNw[idx]! a3.cellSw[idx]!
+    let (n11, a5) := a4.centeredSubSubnode nodeId
+    let (n12, a6) := a5.centeredVertical a5.cellNe[idx]! a5.cellSe[idx]!
+    let (n20, a7) := a6.centeredSubnode a6.cellSw[idx]!
+    let (n21, a8) := a7.centeredHorizontal a7.cellSw[idx]! a7.cellSe[idx]!
+    let (n22, a9) := a8.centeredSubnode a8.cellSe[idx]!
+    let sub := a9.cellLevel[idx]! - 1
+    let (q_nw, b1) := a9.internCellNode sub n00 n01 n10 n11
+    let (q_ne, b2) := b1.internCellNode sub n01 n02 n11 n12
+    let (q_sw, b3) := b2.internCellNode sub n10 n11 n20 n21
+    let (q_se, b4) := b3.internCellNode sub n11 n12 n21 n22
+    if b4.overflow != 0 then b4
+    else
+      (((b4.setRemapL4 (base + 1) q_nw).setRemapL4 (base + 2) q_ne).setRemapL4 (base + 3) q_sw).setRemapL4
+        (base + 4) q_se
 
 /--
 Expands the step frame at `base` of the CellNode `nodeId` unless it has already been expanded.
