@@ -50,7 +50,7 @@ androidxTestRunner = "1.8.0-alpha01"
 #androidxTestUiAutomator
 androidxTestUiAutomator = "2.4.0"
 #androidxTracing
-androidxTracing = "2.0.4"
+androidxTracing = "2.0.5"
 #androidxWearCompose
 androidxWearCompose = "1.8.0-alpha02"
 #androidxWearComposeMaterial3
