@@ -27,6 +27,7 @@ import com.alexvanyo.composelife.model.HashLifeCellState
 import com.alexvanyo.composelife.model.UNCOMPUTED_ID
 import com.alexvanyo.composelife.model.buildQuadtreeBottomUp
 import com.alexvanyo.composelife.model.createFlatArena
+import com.alexvanyo.composelife.model.ensureScratchFor
 import com.alexvanyo.composelife.model.internMacroCellDag
 import com.alexvanyo.composelife.tracing.Tracer
 import com.alexvanyo.composelife.tracing.traceCoroutine
@@ -60,7 +61,7 @@ class FlatLeanHashLifeAlgorithm(
     private var currentCapacityPow2: Int = initialCapacityPow2.coerceIn(6, maxCapacityPow2)
     private var mainArena: FlatHashLifeArena? = null
 
-    private fun createArena(capacityPow2: Int): FlatHashLifeArena = createFlatArena(capacityPow2, maxCapacityPow2)
+    private fun createArena(capacityPow2: Int): FlatHashLifeArena = createFlatArena(capacityPow2)
 
     private fun getOrCreateMainArena(): FlatHashLifeArena {
         var arena = mainArena
@@ -92,6 +93,7 @@ class FlatLeanHashLifeAlgorithm(
                 mainArena = newArena
                 result = newArena to null
             } else {
+                newArena.ensureScratchFor(oldArena)
                 val res = newArena.compactRootFrom(oldArena, activeRootId)
                 val newRootId = res.first
                 if (newArena.overflow == 0u.toUByte() && newRootId != UNCOMPUTED_ID) {
@@ -120,6 +122,7 @@ class FlatLeanHashLifeAlgorithm(
     private fun tryResolveInCurrentArena(cellState: CellState, arena: FlatHashLifeArena): Pair<IntOffset, UInt>? =
         when (cellState) {
             is FlatHashLifeCellState -> {
+                arena.ensureScratchFor(cellState.arena)
                 if (!arena.canCopySubgraphFrom(cellState.arena)) {
                     tryResolveGenericCellStateInArena(cellState, arena)
                 } else {

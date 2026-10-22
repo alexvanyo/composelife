@@ -401,6 +401,16 @@ theorem flat_fitsInIntRange_correct {a : FlatHashLifeArena} (hwf : ArenaWF a) {r
       ∀ c ∈ hashLifeToGrid (flatState a ox oy root), InWindow (-2 ^ 31) (-2 ^ 31) (2 ^ 31) (2 ^ 31) c) :=
   fitsInIntRange_Impl hwf hid hlv ox oy
 
+/--
+`FlatHashLifeCellState.fitsInIntRange`'s fast path: when `rootFitsInIntRange` holds (the root's square lies in the
+32-bit coordinate range, checked in O(1)), every live cell of the state has 32-bit coordinates, so the cursors of
+`flat_fitsInIntRange_correct` need not run.
+-/
+theorem flat_rootFitsInIntRange_sound {a : FlatHashLifeArena} (hwf : ArenaWF a) {root : UInt32} (ox oy : Int32)
+    (h : a.rootFitsInIntRange root ox oy = true) :
+    ∀ c ∈ hashLifeToGrid (flatState a ox oy root), InWindow (-2 ^ 31) (-2 ^ 31) (2 ^ 31) (2 ^ 31) c :=
+  rootFitsInIntRange_Impl hwf ox oy h
+
 /-- A step of the cursor emits no cell exactly when its mask is zero, where the Kotlin iterators skip it. -/
 theorem flat_chunkKeys_eq_nil_iff (mask : UInt64) (x0 y0 : Int64) : chunkKeys mask x0 y0 = [] ↔ mask = 0 :=
   chunkKeys_eq_nil_iff mask x0 y0
@@ -409,6 +419,17 @@ theorem flat_chunkKeys_eq_nil_iff (mask : UInt64) (x0 y0 : Int64) : chunkKeys ma
 theorem flat_keyCoord_coordKey {c : Coord} (h : InWindow (-2 ^ 31) (-2 ^ 31) (2 ^ 31) (2 ^ 31) c) :
     keyCoord (coordKey c) = c :=
   keyCoord_coordKey h
+
+/--
+Replacing an arena's scratch tables (`withScratch`, as `FlatHashLifeCellState.kt` does to make room for a copy) keeps
+it well-formed, with the same nodes, failure flag and states, so it can start a generation loop (`FlatRun.start`) or
+receive a compaction (`FlatRun.compact`) as before.
+-/
+theorem flat_withScratch_correct {a : FlatHashLifeArena} (hwf : ArenaWF a) (l4 cell : Array UInt32) :
+    ArenaWF (a.withScratch l4 cell) ∧ NodesPreserved a (a.withScratch l4 cell) ∧
+    (a.withScratch l4 cell).overflow = a.overflow ∧ (a.withScratch l4 cell).cellCount = a.cellCount ∧
+    ∀ (ox oy : Int32) (root : UInt32), flatState (a.withScratch l4 cell) ox oy root = flatState a ox oy root :=
+  withScratch_Impl hwf l4 cell
 
 /--
 The compaction trigger `isNearCapacity` holds exactly when either node table is at least 75% full.
