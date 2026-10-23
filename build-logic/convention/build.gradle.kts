@@ -146,6 +146,10 @@ configure<GradlePluginDevelopmentExtension> {
             id = "com.alexvanyo.composelife.kotlinMultiplatformCompose"
             implementationClass = "KotlinMultiplatformComposeConventionPlugin"
         }
+        register("lean") {
+            id = "com.alexvanyo.composelife.lean"
+            implementationClass = "LeanConventionPlugin"
+        }
         register("mergeJacoco") {
             id = "com.alexvanyo.composelife.mergeJacoco"
             implementationClass = "MergeJacocoConventionPlugin"

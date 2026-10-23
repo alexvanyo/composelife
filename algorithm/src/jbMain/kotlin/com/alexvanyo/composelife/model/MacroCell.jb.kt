@@ -20,13 +20,12 @@ package com.alexvanyo.composelife.model
 import androidx.annotation.IntRange
 import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.model.MacroCell.CellNode
-import com.alexvanyo.composelife.model.MacroCell.LeafNode
 import com.alexvanyo.composelife.model.MacroCell.Level4Node
 
 internal inline fun createLeafNode(cellState: CellState, offset: IntOffset): LeafNode {
-    var result = 0L
+    var result = 0uL
     for (i in 0..63) {
-        val inAliveCells = if ((offset + intOffsetFromBit(i)) in cellState.aliveCells) 1L else 0L
+        val inAliveCells = if ((offset + intOffsetFromBit(i)) in cellState.aliveCells) 1uL else 0uL
         result = result or (inAliveCells shl i)
     }
     return result
@@ -60,7 +59,7 @@ internal suspend inline fun SequenceScope<IntOffset>.yieldLeafNode(
     cellWindow: CellWindow,
 ) {
     for (i in 0..63) {
-        if ((leafNode and (1L shl i)) != 0L) {
+        if ((leafNode and (1uL shl i)) != 0uL) {
             val intOffsetFromBit = intOffsetFromBit(i)
             if (intOffsetFromBit.x in cellWindow.left until cellWindow.right &&
                 intOffsetFromBit.y in cellWindow.top until cellWindow.bottom
@@ -77,15 +76,16 @@ internal suspend inline fun SequenceScope<IntOffset>.yieldLeafNode(
  */
 internal fun MacroCell.iterator(offset: IntOffset, cellWindow: CellWindow): Iterator<IntOffset> {
     val macroCell = this
-    val offsetDiff = 1 shl (level - 1)
+    val intLevel = level().toInt()
+    val offsetDiff = 1 shl (intLevel - 1)
     return iterator {
         @Suppress("ComplexCondition")
         if (
-            size > 0 &&
+            size() > 0u &&
             cellWindow.right >= 1 &&
             cellWindow.bottom >= 1 &&
-            cellWindow.left < 1 shl level &&
-            cellWindow.top < 1 shl level
+            cellWindow.left < 1 shl intLevel &&
+            cellWindow.top < 1 shl intLevel
         ) {
             when (macroCell) {
                 is Level4Node -> {
@@ -135,7 +135,7 @@ internal fun MacroCell.iterator(offset: IntOffset, cellWindow: CellWindow): Iter
 
 private inline fun LeafNode.containsAll(targets: Collection<IntOffset>): Boolean {
     for (target in targets) {
-        if ((this and target.toMask()) == 0L) {
+        if ((this and target.toMask()) == 0uL) {
             return false
         }
     }
@@ -153,17 +153,19 @@ internal fun MacroCell.containsAll(targets: Collection<IntOffset>): Boolean {
     if (targets.isEmpty()) return true
 
     // Fast path: if our size is less than the total number of targets, we can't possibly contain all
-    if (size < targets.size) return false
+    if (size() < targets.size.toUInt()) return false
 
     // Invariant: if size was zero, but size < targets.size, then targets.size == 0, so we also should have returned
-    check(size > 0)
+    check(size() > 0u)
+
+    val intLevel = level().toInt()
 
     // We can't contain targets outside of the representation
-    if (targets.any { target -> target.x !in 0 until (1 shl level) || target.y !in 0 until (1 shl level) }) {
+    if (targets.any { target -> target.x !in 0 until (1 shl intLevel) || target.y !in 0 until (1 shl intLevel) }) {
         return false
     }
 
-    val offsetDiff = 1 shl (level - 1)
+    val offsetDiff = 1 shl (intLevel - 1)
 
     val (northTargets, southTargets) =
         targets.partition { target ->
