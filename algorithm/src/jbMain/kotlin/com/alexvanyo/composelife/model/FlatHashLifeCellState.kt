@@ -219,9 +219,9 @@ internal class FlatHashLifeCellState(val offset: IntOffset, val rootNodeId: UInt
 
             override fun isEmpty(): Boolean = size == 0
 
-            override fun iterator(): Iterator<IntOffset> = CellCursorIterator(
+            override fun iterator(): Iterator<IntOffset> = AllCellsIterator(
+                arena = arena,
                 stack = arena.cellCursorStart(rootNodeId, offset.x, offset.y),
-                step = arena::cellCursorStepAll,
                 expectedCount = population,
             )
         }
@@ -236,7 +236,7 @@ internal class FlatHashLifeCellState(val offset: IntOffset, val rootNodeId: UInt
         // The O(1) check of the root's square (`flat_rootFitsInIntRange_sound`) settles almost every state.
         if (arena.rootFitsInIntRange(rootNodeId, offset.x, offset.y)) return true
         val start = arena.cellCursorStart(rootNodeId, offset.x, offset.y)
-        return !emitsAnyCell(start, arena::cellCursorStepPastX) && !emitsAnyCell(start, arena::cellCursorStepPastY)
+        return !arena.emitsAnyCellPastX(start) && !arena.emitsAnyCellPastY(start)
     }
 
     private fun containsOffset(element: IntOffset): Boolean = arena.containsCell(
@@ -262,18 +262,10 @@ internal class FlatHashLifeCellState(val offset: IntOffset, val rootNodeId: UInt
     }
 
     override fun getAliveCellsInWindow(cellWindow: CellWindow): Iterable<IntOffset> = Iterable {
-        CellCursorIterator(
+        WindowCellsIterator(
+            arena = arena,
             stack = arena.cellCursorStart(rootNodeId, offset.x, offset.y),
-            step = { stack ->
-                arena.cellCursorStepInWindow(
-                    cellWindow.left,
-                    cellWindow.top,
-                    cellWindow.right,
-                    cellWindow.bottom,
-                    stack,
-                )
-            },
-            expectedCount = null,
+            cellWindow = cellWindow,
         )
     }
 
@@ -281,38 +273,30 @@ internal class FlatHashLifeCellState(val offset: IntOffset, val rootNodeId: UInt
 }
 
 /**
- * A step of the Lean cell cursor (`cellCursorStepAll`, `cellCursorStepInWindow`, ...): the `leafRowMask` of the cells
- * it emits (zero for none), the top-left corner of their leaf, and the new stack.
- */
-private typealias CellCursorStep = (Any?) -> Pair<ULong, Pair<Long, Pair<Long, Any?>>>
-
-/**
  * Lazily iterates the cells the Lean cell cursor emits, as `cellCursorRun` (`flat_cellCursorAll_correct` and
  * `flat_cellCursorInWindow_correct`) runs it: [step] is called until the stack is empty, and the set bits of each
  * emitted mask, in increasing order, are the cells `leafChunkKey` names.
  *
+ * Each step calls an `...Into` member of the arena, which passes the step's result (the `leafRowMask` of the cells it
+ * emits, zero for none, the top-left corner of their leaf, and the new stack) to an inline lambda instead of
+ * returning a tuple (`flat_cellCursorStepInto_eq`), so a step allocates no tuple.
+ *
  * With an [expectedCount], iteration fails if the cursor emits a different number of cells, which happens when some
  * live cells lie past the `Int` coordinate range.
  */
-private class CellCursorIterator(
-    private var stack: Any?,
-    private val step: CellCursorStep,
-    private val expectedCount: ULong?,
-) : Iterator<IntOffset> {
-    private var mask = 0uL
-    private var x0 = 0L
-    private var y0 = 0L
+private abstract class CellCursorIterator(protected var stack: Any?, private val expectedCount: ULong?) :
+    Iterator<IntOffset> {
+    protected var mask = 0uL
+    protected var x0 = 0L
+    protected var y0 = 0L
     private var count = 0uL
+
+    /** Runs one step of the cursor on [stack], storing its result in [mask], [x0], [y0] and [stack]. */
+    protected abstract fun step()
 
     override fun hasNext(): Boolean {
         while (mask == 0uL && !f_Algorithm_cellCursorDone(stack)) {
-            val (chunk, rest) = step(stack)
-            val (chunkX0, rest2) = rest
-            val (chunkY0, nextStack) = rest2
-            mask = chunk
-            x0 = chunkX0
-            y0 = chunkY0
-            stack = nextStack
+            step()
         }
         if (mask == 0uL && expectedCount != null && count != expectedCount) {
             throw FlatHashLifeArenaException("Pattern exceeds the coordinate range of FlatHashLifeArena")
@@ -329,13 +313,63 @@ private class CellCursorIterator(
     }
 }
 
-/** Whether the Lean cell cursor, run from [start] with [step], emits any cell. */
-private fun emitsAnyCell(start: Any?, step: CellCursorStep): Boolean {
-    var stack = start
-    while (!f_Algorithm_cellCursorDone(stack)) {
-        val (mask, rest) = step(stack)
-        if (mask != 0uL) return true
-        stack = rest.second.second
+/** The cells with 32-bit coordinates (`cellCursorStepAll`). */
+private class AllCellsIterator(private val arena: FlatHashLifeArena, stack: Any?, expectedCount: ULong) :
+    CellCursorIterator(stack, expectedCount) {
+    override fun step() {
+        arena.cellCursorStepAllInto(stack) { chunk, chunkX0, chunkY0, nextStack ->
+            mask = chunk
+            x0 = chunkX0
+            y0 = chunkY0
+            stack = nextStack
+        }
     }
-    return false
+}
+
+/** The cells in [cellWindow] (`cellCursorStepInWindow`). */
+private class WindowCellsIterator(
+    private val arena: FlatHashLifeArena,
+    stack: Any?,
+    private val cellWindow: CellWindow,
+) : CellCursorIterator(stack, expectedCount = null) {
+    override fun step() {
+        arena.cellCursorStepInWindowInto(
+            cellWindow.left,
+            cellWindow.top,
+            cellWindow.right,
+            cellWindow.bottom,
+            stack,
+        ) { chunk, chunkX0, chunkY0, nextStack ->
+            mask = chunk
+            x0 = chunkX0
+            y0 = chunkY0
+            stack = nextStack
+        }
+    }
+}
+
+/** Whether the Lean cell cursor over the cells with `x ≥ 2^31` (`cellCursorStepPastX`), run from [start], emits any. */
+private fun FlatHashLifeArena.emitsAnyCellPastX(start: Any?): Boolean {
+    var stack = start
+    var mask = 0uL
+    while (mask == 0uL && !f_Algorithm_cellCursorDone(stack)) {
+        cellCursorStepPastXInto(stack) { chunk, _, _, nextStack ->
+            mask = chunk
+            stack = nextStack
+        }
+    }
+    return mask != 0uL
+}
+
+/** Whether the Lean cell cursor over the cells with `y ≥ 2^31` (`cellCursorStepPastY`), run from [start], emits any. */
+private fun FlatHashLifeArena.emitsAnyCellPastY(start: Any?): Boolean {
+    var stack = start
+    var mask = 0uL
+    while (mask == 0uL && !f_Algorithm_cellCursorDone(stack)) {
+        cellCursorStepPastYInto(stack) { chunk, _, _, nextStack ->
+            mask = chunk
+            stack = nextStack
+        }
+    }
+    return mask != 0uL
 }
