@@ -200,7 +200,11 @@ These bridges are proofs about Lean's logical model of `Float`. Like every Patte
      (`cellCursorStepAll`, `cellCursorStepInWindow`) pops a frame and pushes its pieces, or emits the live cells of
      one leaf as a 64-bit mask. `cellCursorRun` models the Kotlin loop (step until the stack is empty, then emit
      the set bits of each mask in increasing order), and `flat_cellCursorAll_correct`/`_InWindow_correct` prove it
-     stops and emits each live cell exactly once. `fitsInIntRange` runs the same cursor over the regions past
+     stops and emits each live cell exactly once. Kotlin calls each step through an `...Into` member, which passes
+     the step's result to an inline lambda instead of returning a tuple (`flat_cellCursorStepInto_eq`), as the
+     generation loop does with `stepOneGenerationInto` (`flat_stepOneGenerationInto_eq`). These need the Lean fork
+     to support type parameters after a member's receiver (`tests/kotlin/generic_members.lean` there).
+     `fitsInIntRange` runs the same cursor over the regions past
      `Int.MAX_VALUE` (`flat_fitsInIntRange_correct`), unless the O(1) check of the root's square settles it
      (`flat_rootFitsInIntRange_sound`). The cursor's frames, not a callback, carry its progress, so nothing about
      how often Kotlin calls it is trusted.
