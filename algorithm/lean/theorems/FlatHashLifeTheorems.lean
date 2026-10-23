@@ -172,6 +172,18 @@ theorem flat_stepOneGeneration_fails_only_when_full {a : FlatHashLifeArena} (hwf
   stepOneGeneration_budget hwf ox oy root hsz hsz' hmask
 
 /--
+`FlatLeanHashLifeAlgorithm` steps with `stepOneGenerationInto`, which passes exactly the components of
+`stepOneGeneration`'s result to its continuation and leaves the same arena, so every theorem about
+`stepOneGeneration` (and `FlatRun`) covers it.
+-/
+theorem flat_stepOneGenerationInto_eq {β : Type} (a : FlatHashLifeArena) (ox oy : Int32) (root : UInt32)
+    (k : Int32 → Int32 → UInt32 → β) :
+    a.stepOneGenerationInto ox oy root k =
+      (k (a.stepOneGeneration ox oy root).1.1 (a.stepOneGeneration ox oy root).1.2.1
+        (a.stepOneGeneration ox oy root).1.2.2, (a.stepOneGeneration ox oy root).2) :=
+  rfl
+
+/--
 Master multi-generation theorem: `n` successive steps keep the arena well-formed and every existing node intact;
 when they succeed they compute exactly `n` generations of the flat engine and `n` Conway generations of the
 cells; and they succeed whenever the root's depth `d` satisfies `d + n ≤ 29`, its window center lies within
@@ -410,6 +422,27 @@ theorem flat_rootFitsInIntRange_sound {a : FlatHashLifeArena} (hwf : ArenaWF a) 
     (h : a.rootFitsInIntRange root ox oy = true) :
     ∀ c ∈ hashLifeToGrid (flatState a ox oy root), InWindow (-2 ^ 31) (-2 ^ 31) (2 ^ 31) (2 ^ 31) c :=
   rootFitsInIntRange_Impl hwf ox oy h
+
+/--
+`FlatHashLifeCellState`'s iterators step the cursor with the `...Into` members, which pass exactly the components of
+the corresponding step's result to their continuation, so `flat_cellCursorAll_correct`,
+`flat_cellCursorInWindow_correct` and `flat_fitsInIntRange_correct` cover them.
+-/
+theorem flat_cellCursorStepInto_eq {β : Type} (a : FlatHashLifeArena) (stack : List CellFrame)
+    (k : UInt64 → Int64 → Int64 → List CellFrame → β) (l t r b : Int32) :
+    a.cellCursorStepInWindowInto l t r b stack k =
+      k (a.cellCursorStepInWindow l t r b stack).1 (a.cellCursorStepInWindow l t r b stack).2.1
+        (a.cellCursorStepInWindow l t r b stack).2.2.1 (a.cellCursorStepInWindow l t r b stack).2.2.2 ∧
+    a.cellCursorStepAllInto stack k =
+      k (a.cellCursorStepAll stack).1 (a.cellCursorStepAll stack).2.1 (a.cellCursorStepAll stack).2.2.1
+        (a.cellCursorStepAll stack).2.2.2 ∧
+    a.cellCursorStepPastXInto stack k =
+      k (a.cellCursorStepPastX stack).1 (a.cellCursorStepPastX stack).2.1 (a.cellCursorStepPastX stack).2.2.1
+        (a.cellCursorStepPastX stack).2.2.2 ∧
+    a.cellCursorStepPastYInto stack k =
+      k (a.cellCursorStepPastY stack).1 (a.cellCursorStepPastY stack).2.1 (a.cellCursorStepPastY stack).2.2.1
+        (a.cellCursorStepPastY stack).2.2.2 :=
+  ⟨rfl, rfl, rfl, rfl⟩
 
 /-- A step of the cursor emits no cell exactly when its mask is zero, where the Kotlin iterators skip it. -/
 theorem flat_chunkKeys_eq_nil_iff (mask : UInt64) (x0 y0 : Int64) : chunkKeys mask x0 y0 = [] ↔ mask = 0 :=

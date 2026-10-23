@@ -191,9 +191,18 @@ class FlatLeanHashLifeAlgorithm(
                                 currRootId = compacted.second ?: throw compactionFailed()
                             }
 
-                            var res = arena.stepOneGeneration(currOffset.x, currOffset.y, currRootId)
-
-                            while (res.second.second == UNCOMPUTED_ID) {
+                            // `stepOneGenerationInto` passes the next corner and root to an inline lambda
+                            // (`flat_stepOneGenerationInto_eq`), so a step allocates no tuple. The lambda returns
+                            // `Unit` rather than the root, which would box it through the erased result type.
+                            var nextOffset = currOffset
+                            var nextRootId: UInt
+                            while (true) {
+                                nextRootId = UNCOMPUTED_ID
+                                arena.stepOneGenerationInto(currOffset.x, currOffset.y, currRootId) { x, y, id ->
+                                    nextOffset = IntOffset(x, y)
+                                    nextRootId = id
+                                }
+                                if (nextRootId != UNCOMPUTED_ID) break
                                 if (arena.overflow == 0u.toUByte()) {
                                     // A step of a valid root only fails without the overflow flag when the next
                                     // generation does not fit in the 32-bit coordinate range of the flat engine.
@@ -211,11 +220,10 @@ class FlatLeanHashLifeAlgorithm(
                                 val compacted = compactOrGrowArena(arena, currRootId, forceGrow = true)
                                 arena = compacted.first
                                 currRootId = compacted.second ?: throw compactionFailed()
-                                res = arena.stepOneGeneration(currOffset.x, currOffset.y, currRootId)
                             }
 
-                            currOffset = IntOffset(res.first, res.second.first)
-                            currRootId = res.second.second
+                            currOffset = nextOffset
+                            currRootId = nextRootId
                         }
 
                         val result = FlatHashLifeCellState(currOffset, currRootId, arena)
