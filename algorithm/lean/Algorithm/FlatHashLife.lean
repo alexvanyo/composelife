@@ -964,7 +964,7 @@ with `overflow` set if the arena ran out of capacity (or step budget or stack sp
 unchanged if `rootNodeId` is not a node, the prepared root would exceed level 30, or the next offset would
 not fit in `Int32`.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "stepOneGeneration"]
+@[inline]
 def FlatHashLifeArena.stepOneGeneration
     (arena : FlatHashLifeArena) (ox oy : Int32) (rootNodeId : UInt32) :
     (Int32 × Int32 × UInt32) × FlatHashLifeArena :=
@@ -988,6 +988,17 @@ def FlatHashLifeArena.stepOneGeneration
           let (nextId, a2) := a1.stepCellSerial prepId
           if a2.overflow != 0 then ((ox, oy, UNCOMPUTED), a2)
           else ((nx.toInt32, ny.toInt32, nextId), a2)
+
+/--
+`stepOneGeneration` with its result `(nextOx, nextOy, nextRootId)` passed to `k` instead of returned as a tuple. The
+Kotlin member is an inline function whose continuation is inlined at the call site, so a step allocates no tuple.
+-/
+@[inline, kotlin_member "FlatHashLifeArena" "public" "stepOneGenerationInto",
+  kotlin_contract "callsInPlace(k, kotlin.contracts.InvocationKind.EXACTLY_ONCE)"]
+def FlatHashLifeArena.stepOneGenerationInto (arena : FlatHashLifeArena) {β : Type} (ox oy : Int32)
+    (rootNodeId : UInt32) (k : Int32 → Int32 → UInt32 → β) : β × FlatHashLifeArena :=
+  let ((nx, ny, nextId), a) := arena.stepOneGeneration ox oy rootNodeId
+  (k nx ny nextId, a)
 
 /--
 Initializes the Level 4 copy remapping table entries `i ..< limit`: the empty Level 4 node maps to
@@ -1322,6 +1333,7 @@ either pushes its pieces or emits the cells of one leaf. Returns the emitted cel
 with the leaf's top-left corner, and the new stack. Subtrees that miss the window or (up to level 31) have no live
 cells, and empty leaves, are skipped.
 -/
+@[inline]
 def FlatHashLifeArena.cellCursorStepWith (arena : @& FlatHashLifeArena) (l t r b : Int64) (stack : @& List CellFrame) :
     UInt64 × Int64 × Int64 × List CellFrame :=
   match stack with
@@ -1369,7 +1381,7 @@ def cellCursorDone (stack : List CellFrame) : Bool := stack.isEmpty
 One step (`cellCursorStepWith`) of the enumeration of the live cells in the window `[l, r) × [t, b)`, the iterator
 of `FlatHashLifeCellState.getAliveCellsInWindow`.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "cellCursorStepInWindow"]
+@[inline]
 def FlatHashLifeArena.cellCursorStepInWindow (arena : @& FlatHashLifeArena) (l t r b : Int32)
     (stack : @& List CellFrame) : UInt64 × Int64 × Int64 × List CellFrame :=
   arena.cellCursorStepWith l.toInt64 t.toInt64 r.toInt64 b.toInt64 stack
@@ -1378,7 +1390,7 @@ def FlatHashLifeArena.cellCursorStepInWindow (arena : @& FlatHashLifeArena) (l t
 One step (`cellCursorStepWith`) of the enumeration of the live cells with 32-bit coordinates, the iterator of
 `FlatHashLifeCellState.aliveCells`.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "cellCursorStepAll"]
+@[inline]
 def FlatHashLifeArena.cellCursorStepAll (arena : @& FlatHashLifeArena) (stack : @& List CellFrame) :
     UInt64 × Int64 × Int64 × List CellFrame :=
   arena.cellCursorStepWith (-2147483648) (-2147483648) 2147483648 2147483648 stack
@@ -1387,7 +1399,7 @@ def FlatHashLifeArena.cellCursorStepAll (arena : @& FlatHashLifeArena) (stack : 
 One step (`cellCursorStepWith`) of the enumeration of the live cells with `x ≥ 2 ^ 31`, which have no 32-bit
 coordinates; used by `FlatHashLifeCellState.fitsInIntRange`.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "cellCursorStepPastX"]
+@[inline]
 def FlatHashLifeArena.cellCursorStepPastX (arena : @& FlatHashLifeArena) (stack : @& List CellFrame) :
     UInt64 × Int64 × Int64 × List CellFrame :=
   arena.cellCursorStepWith 2147483648 (-9223372036854775808) 9223372036854775807 9223372036854775807 stack
@@ -1396,10 +1408,45 @@ def FlatHashLifeArena.cellCursorStepPastX (arena : @& FlatHashLifeArena) (stack 
 One step (`cellCursorStepWith`) of the enumeration of the live cells with `y ≥ 2 ^ 31`, which have no 32-bit
 coordinates; used by `FlatHashLifeCellState.fitsInIntRange`.
 -/
-@[kotlin_member "FlatHashLifeArena" "public" "cellCursorStepPastY"]
+@[inline]
 def FlatHashLifeArena.cellCursorStepPastY (arena : @& FlatHashLifeArena) (stack : @& List CellFrame) :
     UInt64 × Int64 × Int64 × List CellFrame :=
   arena.cellCursorStepWith (-9223372036854775808) 2147483648 9223372036854775807 9223372036854775807 stack
+
+/--
+`cellCursorStepInWindow` with its result `(mask, x0, y0, stack)` passed to `k` instead of returned as a tuple; the
+Kotlin member is an inline function, so a step allocates no tuple (`flat_cellCursorStepInto_eq`).
+-/
+@[inline, kotlin_member "FlatHashLifeArena" "public" "cellCursorStepInWindowInto",
+  kotlin_contract "callsInPlace(k, kotlin.contracts.InvocationKind.EXACTLY_ONCE)"]
+def FlatHashLifeArena.cellCursorStepInWindowInto (arena : @& FlatHashLifeArena) {β : Type} (l t r b : Int32)
+    (stack : @& List CellFrame) (k : UInt64 → Int64 → Int64 → List CellFrame → β) : β :=
+  let (mask, x0, y0, rest) := arena.cellCursorStepInWindow l t r b stack
+  k mask x0 y0 rest
+
+/-- `cellCursorStepAll` with its result passed to `k` (as `cellCursorStepInWindowInto`). -/
+@[inline, kotlin_member "FlatHashLifeArena" "public" "cellCursorStepAllInto",
+  kotlin_contract "callsInPlace(k, kotlin.contracts.InvocationKind.EXACTLY_ONCE)"]
+def FlatHashLifeArena.cellCursorStepAllInto (arena : @& FlatHashLifeArena) {β : Type} (stack : @& List CellFrame)
+    (k : UInt64 → Int64 → Int64 → List CellFrame → β) : β :=
+  let (mask, x0, y0, rest) := arena.cellCursorStepAll stack
+  k mask x0 y0 rest
+
+/-- `cellCursorStepPastX` with its result passed to `k` (as `cellCursorStepInWindowInto`). -/
+@[inline, kotlin_member "FlatHashLifeArena" "public" "cellCursorStepPastXInto",
+  kotlin_contract "callsInPlace(k, kotlin.contracts.InvocationKind.EXACTLY_ONCE)"]
+def FlatHashLifeArena.cellCursorStepPastXInto (arena : @& FlatHashLifeArena) {β : Type} (stack : @& List CellFrame)
+    (k : UInt64 → Int64 → Int64 → List CellFrame → β) : β :=
+  let (mask, x0, y0, rest) := arena.cellCursorStepPastX stack
+  k mask x0 y0 rest
+
+/-- `cellCursorStepPastY` with its result passed to `k` (as `cellCursorStepInWindowInto`). -/
+@[inline, kotlin_member "FlatHashLifeArena" "public" "cellCursorStepPastYInto",
+  kotlin_contract "callsInPlace(k, kotlin.contracts.InvocationKind.EXACTLY_ONCE)"]
+def FlatHashLifeArena.cellCursorStepPastYInto (arena : @& FlatHashLifeArena) {β : Type} (stack : @& List CellFrame)
+    (k : UInt64 → Int64 → Int64 → List CellFrame → β) : β :=
+  let (mask, x0, y0, rest) := arena.cellCursorStepPastY stack
+  k mask x0 y0 rest
 
 /--
 Whether the square of the CellNode `rootId` with top-left corner `(ox, oy)` lies in the 32-bit coordinate range: an
