@@ -38,7 +38,7 @@ androidxProfileInstaller = "1.4.1"
 #androidxSavedState
 androidxSavedState = "1.6.0-alpha04"
 #androidxSqlite
-androidxSqlite = "2.8.0-alpha01"
+androidxSqlite = "2.8.0-alpha03"
 #androidxTestCore
 androidxTestCore = "1.8.0-alpha01"
 #androidxTestEspresso
