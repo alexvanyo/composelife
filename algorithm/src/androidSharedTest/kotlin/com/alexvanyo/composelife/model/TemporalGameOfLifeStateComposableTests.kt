@@ -513,6 +513,8 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
         testDispatcher.scheduler.advanceTimeBy(9)
         waitForIdle()
 
+        assertFalse(isFirstCancelled)
+
         assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
             val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
@@ -525,8 +527,6 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
         testDispatcher.scheduler.advanceTimeBy(8)
         waitForIdle()
 
-        assertFalse(isFirstCancelled)
-
         assertEquals(SixLongLinePattern.cellStates[2], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->
             val _ = assertIs<TemporalGameOfLifeState.EvolutionStatus.Running>(status)
@@ -535,8 +535,6 @@ class TemporalGameOfLifeStateComposableTests : BaseKmpTest() {
 
         testDispatcher.scheduler.advanceTimeBy(9)
         waitForIdle()
-
-        assertFalse(isFirstCancelled)
 
         assertEquals(SixLongLinePattern.cellStates[3], temporalGameOfLifeState.cellState)
         temporalGameOfLifeState.status.let { status ->

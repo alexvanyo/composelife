@@ -97,4 +97,7 @@ runs:
         elif [ "${{ inputs.build-if-missing }}" = "true" ]; then
           echo "Error: Custom Lean binary not found at $PREFIX_EXPANDED/bin/lean after build" >&2
           exit 1
+        else
+          echo "Error: Custom Lean binary not found at $PREFIX_EXPANDED/bin/lean (cache miss or expired). Please re-run setup-custom-lean or the full workflow." >&2
+          exit 1
         fi
