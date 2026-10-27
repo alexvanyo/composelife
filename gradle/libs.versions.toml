@@ -134,7 +134,7 @@ leakCanary = "3.0-alpha-8"
 #lean
 lean = "4.0.0"
 #metro
-metro = "1.4.5"
+metro = "1.5.0"
 #molecule
 molecule = "2.2.0"
 #okio
