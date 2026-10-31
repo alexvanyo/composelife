@@ -25,13 +25,6 @@
 
 -dontwarn javax.lang.model.element.Modifier
 
--keep,allowoptimization class **.*$$$MetroContribution* {
-    *;
-}
--keep,allowoptimization class **.*GraphImpl {
-    *;
-}
-
 -keep class j$.** { *; }
 -dontwarn j$.**
 
