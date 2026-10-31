@@ -17,44 +17,50 @@
 import Algorithm.Basic
 import AlgorithmDefs
 import proofs.PropertiesProofs
+import proofs.SymmetryProofs
+import proofs.GridEquivalenceProofs
 
 local notation "ℕ" => Nat
+local notation "ℤ" => Int
 
 namespace Algorithm
 
-theorem stepN_composition_step (n : ℕ) (s : List Coord) :
-    stepN (n + 1) s = stepGrid (stepN n s) :=
-  stepN_composition_step_Impl n s
+/-!
+# Properties of Conway's rule on finite grids
+-/
 
 theorem extinction_stability (n : ℕ) :
     stepN n [] = [] :=
   extinction_stability_Impl n
 
-theorem blinker_translation_commutes :
-    let b := [(0, 1), (1, 1), (2, 1)]
-    let tb := translateGrid 157 72 b
-    cellsEqual (stepGrid tb) (translateGrid 157 72 (stepGrid b)) = true :=
-  blinker_translation_commutes_Impl
+/-- Speed of light: every live cell of the next generation is a Moore neighbor (or itself) of a live cell. -/
+theorem stepGrid_speed_of_light (s : List Coord) (c : Coord) (hc : c ∈ stepGrid s) :
+    ∃ p ∈ s, max (c.1 - p.1).natAbs (c.2 - p.2).natAbs ≤ 1 :=
+  stepGrid_support s c hc
 
-theorem blinker_flipX_commutes :
-    let b := [(0, 1), (1, 1), (2, 1)]
-    cellsEqual (stepGrid (flipXGrid b)) (flipXGrid (stepGrid b)) = true :=
-  blinker_flipX_commutes_Impl
+/-- Conway's rule commutes with every translation. -/
+theorem stepGrid_translate_comm (dx dy : ℤ) (s : List Coord) :
+    cellsEqual (stepGrid (translateGrid dx dy s)) (translateGrid dx dy (stepGrid s)) = true :=
+  stepGrid_translate_Impl dx dy s
 
-theorem blinker_flipY_commutes :
-    let b := [(0, 1), (1, 1), (2, 1)]
-    cellsEqual (stepGrid (flipYGrid b)) (flipYGrid (stepGrid b)) = true :=
-  blinker_flipY_commutes_Impl
+/-- Conway's rule commutes with the reflection across the x axis. -/
+theorem stepGrid_flipX_comm (s : List Coord) :
+    cellsEqual (stepGrid (flipXGrid s)) (flipXGrid (stepGrid s)) = true :=
+  stepGrid_flipX_Impl s
 
-theorem blinker_flipDiag_commutes :
-    let b := [(0, 1), (1, 1), (2, 1)]
-    cellsEqual (stepGrid (flipDiagGrid b)) (flipDiagGrid (stepGrid b)) = true :=
-  blinker_flipDiag_commutes_Impl
+/-- Conway's rule commutes with the reflection across the y axis. -/
+theorem stepGrid_flipY_comm (s : List Coord) :
+    cellsEqual (stepGrid (flipYGrid s)) (flipYGrid (stepGrid s)) = true :=
+  stepGrid_flipY_Impl s
 
-theorem glider_translation_commutes :
-    let g := [(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)]
-    let tg := translateGrid 157 72 g
-    cellsEqual (stepGrid tg) (translateGrid 157 72 (stepGrid g)) = true :=
-  glider_translation_commutes_Impl
+/-- Conway's rule commutes with the reflection across the diagonal. -/
+theorem stepGrid_flipDiag_comm (s : List Coord) :
+    cellsEqual (stepGrid (flipDiagGrid s)) (flipDiagGrid (stepGrid s)) = true :=
+  stepGrid_flipDiag_Impl s
+
+/-- Conway's rule commutes with the rotation by 90 degrees. -/
+theorem stepGrid_rotate90_comm (s : List Coord) :
+    cellsEqual (stepGrid (rotate90Grid s)) (rotate90Grid (stepGrid s)) = true :=
+  stepGrid_rotate90_Impl s
 
 end Algorithm

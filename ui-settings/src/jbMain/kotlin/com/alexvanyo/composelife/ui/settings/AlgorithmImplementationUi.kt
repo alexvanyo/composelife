@@ -30,7 +30,9 @@ import com.alexvanyo.composelife.preferences.setAlgorithmChoice
 import com.alexvanyo.composelife.ui.mobile.component.DropdownOption
 import com.alexvanyo.composelife.ui.mobile.component.TextFieldDropdown
 import com.alexvanyo.composelife.ui.settings.resources.AlgorithmImplementation
+import com.alexvanyo.composelife.ui.settings.resources.FlatLeanHashLifeAlgorithm
 import com.alexvanyo.composelife.ui.settings.resources.HashLifeAlgorithm
+import com.alexvanyo.composelife.ui.settings.resources.LeanHashLifeAlgorithm
 import com.alexvanyo.composelife.ui.settings.resources.NaiveAlgorithm
 import com.alexvanyo.composelife.ui.settings.resources.Strings
 import com.livefront.sealedenum.GenSealedEnum
@@ -65,7 +67,13 @@ fun AlgorithmImplementationUi(
     TextFieldDropdown(
         label = parameterizedStringResource(Strings.AlgorithmImplementation),
         currentValue = when (algorithmChoice) {
+            AlgorithmType.FlatLeanHashLifeAlgorithm ->
+                AlgorithmImplementationDropdownOption.FlatLeanHashLifeAlgorithm
+
             AlgorithmType.HashLifeAlgorithm -> AlgorithmImplementationDropdownOption.HashLifeAlgorithm
+
+            AlgorithmType.LeanHashLifeAlgorithm -> AlgorithmImplementationDropdownOption.LeanHashLifeAlgorithm
+
             AlgorithmType.NaiveAlgorithm -> AlgorithmImplementationDropdownOption.NaiveAlgorithm
         },
         allValues = AlgorithmImplementationDropdownOption._values.toImmutableList(),
@@ -73,8 +81,14 @@ fun AlgorithmImplementationUi(
             coroutineScope.launch {
                 setAlgorithmChoice(
                     when (option) {
+                        AlgorithmImplementationDropdownOption.FlatLeanHashLifeAlgorithm ->
+                            AlgorithmType.FlatLeanHashLifeAlgorithm
+
                         AlgorithmImplementationDropdownOption.HashLifeAlgorithm ->
                             AlgorithmType.HashLifeAlgorithm
+
+                        AlgorithmImplementationDropdownOption.LeanHashLifeAlgorithm ->
+                            AlgorithmType.LeanHashLifeAlgorithm
 
                         AlgorithmImplementationDropdownOption.NaiveAlgorithm ->
                             AlgorithmType.NaiveAlgorithm
@@ -87,8 +101,14 @@ fun AlgorithmImplementationUi(
 }
 
 sealed interface AlgorithmImplementationDropdownOption : DropdownOption {
+    data object FlatLeanHashLifeAlgorithm : AlgorithmImplementationDropdownOption {
+        override val displayText: ParameterizedString = Strings.FlatLeanHashLifeAlgorithm
+    }
     data object HashLifeAlgorithm : AlgorithmImplementationDropdownOption {
         override val displayText: ParameterizedString = Strings.HashLifeAlgorithm
+    }
+    data object LeanHashLifeAlgorithm : AlgorithmImplementationDropdownOption {
+        override val displayText: ParameterizedString = Strings.LeanHashLifeAlgorithm
     }
     data object NaiveAlgorithm : AlgorithmImplementationDropdownOption {
         override val displayText: ParameterizedString = Strings.NaiveAlgorithm

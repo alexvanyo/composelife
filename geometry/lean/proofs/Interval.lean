@@ -14,7 +14,7 @@
  * limitations under the License.
  -/
 
-import Geometry.Basic
+import models.Basic
 import Geometry.LineSegment
 import GeometryDefs
 import Mathlib.Algebra.Order.Field.Basic
@@ -24,24 +24,30 @@ import Mathlib.Tactic.Ring
 
 namespace Geometry
 
+theorem cell_beq_def (a b : Cell) : (a == b) = (a.x == b.x && a.y == b.y) := rfl
 
-/--
-Helper: Consecutive pairs along a polyline path.
--/
-def consecutivePairs : List Point → List (Point × Point)
-  | [] => []
-  | [_] => []
-  | p1 :: p2 :: rest => (p1, p2) :: consecutivePairs (p2 :: rest)
+instance : LawfulBEq Cell where
+  eq_of_beq {a b} h := by
+    rw [cell_beq_def] at h
+    have h1 : (a.x == b.x) = true := by
+      revert h
+      cases a.x == b.x <;> simp
+    have h2 : (a.y == b.y) = true := by
+      revert h
+      cases a.x == b.x <;> cases a.y == b.y <;> simp
+    have hx : a.x = b.x := eq_of_beq h1
+    have hy : a.y = b.y := eq_of_beq h2
+    cases a; cases b
+    simp only at hx hy
+    rw [hx, hy]
+  rfl {a} := by
+    rw [cell_beq_def]
+    simp
 
-/--
-A cell is an active intersected cell of a polyline path:
-either it is the sole floored cell of a singleton path, or it is an active intersected cell
-of at least one segment along the path.
--/
-def ActiveIntersectedCellPath : List Point → Cell → Prop
-  | [], _ => False
-  | [p], c => c = floorPoint p
-  | p1 :: p2 :: rest, c => ActiveIntersectedCell c p1 p2 ∨ ActiveIntersectedCellPath (p2 :: rest) c
+instance : ReflBEq Cell where
+  rfl {a} := by
+    rw [cell_beq_def]
+    simp
 
 /-!
 # Foundational Lemmas: Cells and Deduplication
@@ -62,98 +68,12 @@ theorem cell_ext {c1 c2 : Cell} (hx : c1.x = c2.x) (hy : c1.y = c2.y) : c1 = c2 
   congr
 
 /--
-Theorem: Deduplicating a list of two identical cells yields the singleton cell.
--/
-theorem dedupCells_same (c : Cell) : dedupCells [c, c] = [c] := by
-  unfold dedupCells
-  rw [List.eraseDups_cons]
-  have _hbeq : (c == c) = true := beq_self_eq_true c
-  simp [List.eraseDups_nil]
-
-/--
-Theorem: Deduplicating a two-element list of distinct cells returns the original list.
--/
-theorem dedupCells_pair {c1 c2 : Cell} (hne : c1 ≠ c2) :
-    dedupCells [c1, c2] = [c1, c2] := by
-  unfold dedupCells
-  rw [List.eraseDups_cons]
-  have hbeq : (c2 == c1) = false := by
-    rw [Bool.eq_false_iff]
-    intro heq
-    have hcell : c2 = c1 := eq_of_beq heq
-    exact hne hcell.symm
-  simp [hbeq]
-  rw [List.eraseDups_cons]
-  simp [List.eraseDups_nil]
-
-/--
-Theorem: Manhattan distance between identical cells is zero.
--/
-theorem manhattanDistance_self (c : Cell) :
-    manhattanDistance c c = 0 := by
-  unfold manhattanDistance
-  simp
-
-/--
 Theorem: Chebyshev distance between identical cells is zero.
 -/
 theorem chebyshevDistance_self (c : Cell) :
     chebyshevDistance c c = 0 := by
   unfold chebyshevDistance
   simp
-
-/--
-Theorem: Chebyshev distance is always bounded above by Manhattan distance.
--/
-theorem chebyshev_le_manhattan (a b : Cell) :
-    chebyshevDistance a b ≤ manhattanDistance a b := by
-  unfold chebyshevDistance manhattanDistance
-  omega
-
-/--
-Theorem: Manhattan distance between two cells is zero if and only if the cells are identical.
--/
-theorem manhattanDistance_eq_zero (a b : Cell) :
-    manhattanDistance a b = 0 ↔ a = b := by
-  constructor
-  · intro h
-    unfold manhattanDistance at h
-    have hx : (a.x - b.x).natAbs = 0 := by omega
-    have hy : (a.y - b.y).natAbs = 0 := by omega
-    have hx2 : a.x = b.x := by
-      have := Int.natAbs_eq_zero.mp hx
-      omega
-    have hy2 : a.y = b.y := by
-      have := Int.natAbs_eq_zero.mp hy
-      omega
-    exact cell_ext hx2 hy2
-  · intro h
-    rw [h]
-    exact manhattanDistance_self b
-
-/--
-Theorem: Manhattan distance is symmetric.
--/
-theorem manhattanDistance_comm (a b : Cell) :
-    manhattanDistance a b = manhattanDistance b a := by
-  unfold manhattanDistance
-  omega
-
-/--
-Theorem: Chebyshev distance is symmetric.
--/
-theorem chebyshevDistance_comm (a b : Cell) :
-    chebyshevDistance a b = chebyshevDistance b a := by
-  unfold chebyshevDistance
-  omega
-
-/--
-Theorem: Manhattan distance satisfies the triangle inequality.
--/
-theorem manhattanDistance_triangle (a b c : Cell) :
-    manhattanDistance a c ≤ manhattanDistance a b + manhattanDistance b c := by
-  unfold manhattanDistance
-  omega
 
 /-!
 # Supporting Lemmas for LineSegment Cell Intersections
@@ -315,33 +235,6 @@ theorem inBoundingBox_iff_mem_candidateCells (A B : Point) (c : Cell) :
   omega
 
 /--
-Theorem: Both floored endpoints are always active intersected cells.
--/
-theorem endpoints_activeIntersectedCell (A B : Point) :
-    ActiveIntersectedCell (floorPoint A) A B ∧ ActiveIntersectedCell (floorPoint B) A B := by
-  unfold ActiveIntersectedCell SegmentIntersectsCell IsOffAxisCornerIntersection
-  constructor
-  · refine ⟨Or.inl rfl, ?_⟩
-    intro ⟨h1, _, _⟩
-    exact h1 rfl
-  · refine ⟨Or.inr (Or.inl rfl), ?_⟩
-    intro ⟨_, h2, _⟩
-    exact h2 rfl
-
-/--
-Theorem: Cells outside candidateCells are never active intersected cells.
--/
-theorem not_active_of_not_mem_candidates (A B : Point) (c : Cell)
-    (h : c ∉ candidateCells A B) : ¬ ActiveIntersectedCell c A B := by
-  have hend := endpoints_in_candidateCells A B
-  intro h_act
-  unfold ActiveIntersectedCell SegmentIntersectsCell at h_act
-  rcases h_act.1 with rfl | rfl | ⟨hc_cand, _⟩
-  · exact h hend.1
-  · exact h hend.2
-  · exact h hc_cand
-
-/--
 Theorem: When endpoints differ, cellIntersectionsSegment membership reduces to endpoints or rayMarch.
 -/
 theorem mem_cellIntersectionsSegment_of_ne (A B : Point) (c : Cell)
@@ -404,16 +297,6 @@ theorem rayMarch_acc (fuel : ℕ) (start ptEnd : Point) (dx dy : ℚ) (stepX ste
     · simp
 
 /--
-Theorem: Membership in rayMarch with accumulator splits into accumulator or empty accumulator.
--/
-theorem mem_rayMarch (fuel : ℕ) (start ptEnd : Point) (dx dy : ℚ) (stepX stepY : ℤ)
-    (endCell current : Cell) (acc : List Cell) (c : Cell) :
-    c ∈ rayMarch fuel start ptEnd dx dy stepX stepY endCell current acc ↔
-      c ∈ acc ∨ c ∈ rayMarch fuel start ptEnd dx dy stepX stepY endCell current [] := by
-  rw [rayMarch_acc]
-  simp
-
-/--
 Theorem: Unfolding step equation for rayMarch with empty accumulator.
 -/
 theorem rayMarch_succ (fuel : ℕ) (start ptEnd : Point) (dx dy : ℚ) (stepX stepY : ℤ)
@@ -436,67 +319,6 @@ theorem rayMarch_succ (fuel : ℕ) (start ptEnd : Point) (dx dy : ℚ) (stepX st
       rfl
     · rfl
   · rfl
-
-/--
-Theorem: Base case for rayMarch with zero fuel.
--/
-theorem rayMarch_zero (start ptEnd : Point) (dx dy : ℚ) (stepX stepY : ℤ)
-    (endCell current : Cell) (acc : List Cell) :
-    rayMarch 0 start ptEnd dx dy stepX stepY endCell current acc = acc := by
-  rfl
-
-/--
-Theorem: When current reaches endCell, rayMarch terminates and returns acc.
--/
-theorem rayMarch_at_end (fuel : ℕ) (start ptEnd : Point) (dx dy : ℚ) (stepX stepY : ℤ)
-    (endCell current : Cell) (acc : List Cell) (h : (current == endCell) = true) :
-    rayMarch (fuel + 1) start ptEnd dx dy stepX stepY endCell current acc = acc := by
-  conv =>
-    lhs
-    rw [rayMarch]
-  dsimp
-  rw [h]
-  simp
-
-/--
-Theorem: When rayMarchStep indicates done, rayMarch terminates and returns acc.
--/
-theorem rayMarch_step_done (fuel : ℕ) (start ptEnd : Point) (dx dy : ℚ) (stepX stepY : ℤ)
-    (endCell current : Cell) (acc : List Cell)
-    (h_not_end : (current == endCell) = false)
-    (h_done : (rayMarchStep start ptEnd dx dy stepX stepY current).snd = true) :
-    rayMarch (fuel + 1) start ptEnd dx dy stepX stepY endCell current acc = acc := by
-  conv =>
-    lhs
-    rw [rayMarch]
-  dsimp
-  rw [h_not_end]
-  dsimp
-  cases hd : (rayMarchStep start ptEnd dx dy stepX stepY current).snd
-  · rw [hd] at h_done
-    contradiction
-  · simp
-
-/--
-Theorem: When rayMarchStep produces nextCell without terminating, rayMarch recurses on nextCell.
--/
-theorem rayMarch_step_continue (fuel : ℕ) (start ptEnd : Point) (dx dy : ℚ) (stepX stepY : ℤ)
-    (endCell current : Cell) (acc : List Cell)
-    (h_not_end : (current == endCell) = false)
-    (h_not_done : (rayMarchStep start ptEnd dx dy stepX stepY current).snd = false) :
-    rayMarch (fuel + 1) start ptEnd dx dy stepX stepY endCell current acc =
-      rayMarch fuel start ptEnd dx dy stepX stepY endCell
-        (rayMarchStep start ptEnd dx dy stepX stepY current).fst (acc ++ [(rayMarchStep start ptEnd dx dy stepX stepY current).fst]) := by
-  conv =>
-    lhs
-    rw [rayMarch]
-  dsimp
-  rw [h_not_end]
-  dsimp
-  cases hd : (rayMarchStep start ptEnd dx dy stepX stepY current).snd
-  · simp
-  · rw [hd] at h_not_done
-    contradiction
 
 /--
 Theorem: If an invariant on cells is preserved by each non-terminating rayMarchStep,
@@ -568,82 +390,6 @@ theorem inBoundingBox_startCell (A B : Point) :
     inBoundingBox (floorPoint A) A B = true := by
   rw [inBoundingBox_iff_mem_candidateCells]
   exact (endpoints_in_candidateCells A B).1
-
-/--
-Theorem: The end cell floorPoint B is in the bounding box.
--/
-theorem inBoundingBox_endCell (A B : Point) :
-    inBoundingBox (floorPoint B) A B = true := by
-  rw [inBoundingBox_iff_mem_candidateCells]
-  exact (endpoints_in_candidateCells A B).2
-
-/--
-Theorem: When endpoints floor to the same cell, rayMarchIntermediateCells is empty.
--/
-theorem rayMarchIntermediateCells_of_same (A B : Point) (h : floorPoint A = floorPoint B) :
-    rayMarchIntermediateCells A B = [] := by
-  unfold rayMarchIntermediateCells
-  have hstart_end : (floorPoint A == floorPoint B) = true := by
-    rw [h]
-    exact beq_self_eq_true (floorPoint B)
-  have hx : (floorPoint B).x - (floorPoint A).x = 0 := by rw [h]; omega
-  have hy : (floorPoint B).y - (floorPoint A).y = 0 := by rw [h]; omega
-  have hstep : (0 : ℤ).natAbs + (0 : ℤ).natAbs + 2 = 2 := rfl
-  dsimp
-  rw [hx, hy, hstep]
-  change List.filter _ (rayMarch (1 + 1) _ _ _ _ _ _ (floorPoint B) (floorPoint A) []) = []
-  conv =>
-    lhs
-    arg 2
-    rw [rayMarch]
-  dsimp
-  rw [hstart_end]
-  rfl
-
-/--
-Theorem: When endpoints floor to the same cell, intermediateCells is empty.
--/
-theorem intermediateCells_of_same (A B : Point) (h : floorPoint A = floorPoint B) :
-    intermediateCells A B = [] := by
-  unfold intermediateCells
-  rw [candidateCells_of_same A B h]
-  dsimp
-  simp
-
-/--
-Theorem: When endpoints floor to the same cell, rayMarchIntermediateCells equals intermediateCells.
--/
-theorem rayMarchIntermediateCells_eq_intermediateCells_of_same (A B : Point)
-    (h : floorPoint A = floorPoint B) :
-    rayMarchIntermediateCells A B = intermediateCells A B := by
-  rw [rayMarchIntermediateCells_of_same A B h]
-  rw [intermediateCells_of_same A B h]
-
-/--
-Theorem: Floored endpoints are never members of intermediateCells.
--/
-theorem not_mem_intermediateCells_endpoints (A B : Point) :
-    floorPoint A ∉ intermediateCells A B ∧ floorPoint B ∉ intermediateCells A B := by
-  unfold intermediateCells
-  rw [List.mem_filter, List.mem_filter]
-  constructor
-  · rintro ⟨_, h_pred⟩
-    simp at h_pred
-  · rintro ⟨_, h_pred⟩
-    simp at h_pred
-
-/--
-Theorem: Floored endpoints are never members of rayMarchIntermediateCells.
--/
-theorem not_mem_rayMarchIntermediateCells_endpoints (A B : Point) :
-    floorPoint A ∉ rayMarchIntermediateCells A B ∧ floorPoint B ∉ rayMarchIntermediateCells A B := by
-  unfold rayMarchIntermediateCells
-  rw [List.mem_filter, List.mem_filter]
-  constructor
-  · rintro ⟨_, h_pred⟩
-    simp at h_pred
-  · rintro ⟨_, h_pred⟩
-    simp at h_pred
 
 /--
 Theorem: ActiveIntersectedCell is equivalent to endpoints or membership in intermediateCells.
@@ -736,25 +482,6 @@ theorem cross_eq_cross_iff_div_eq_div (remX remY absDx absDy : ℚ)
     exact le_antisymm h1 h2
 
 /--
-Theorem: `min crossX crossY ≥ limitCross` is equivalent to
-`remX ≥ absDx ∧ remY ≥ absDy` (i.e. both exit times are ≥ 1).
--/
-theorem min_cross_ge_limit_iff (remX remY absDx absDy : ℚ)
-    (hdx : 0 < absDx) (hdy : 0 < absDy) :
-    min (remX * absDy) (remY * absDx) ≥ absDx * absDy ↔
-      remX ≥ absDx ∧ remY ≥ absDy := by
-  rw [ge_iff_le, le_min_iff]
-  constructor
-  · rintro ⟨h1, h2⟩
-    constructor
-    · nlinarith
-    · nlinarith
-  · rintro ⟨h1, h2⟩
-    constructor
-    · nlinarith
-    · nlinarith
-
-/--
 Theorem: The negation `min crossX crossY < limitCross` means at least one
 boundary is crossed before t = 1.
 -/
@@ -845,18 +572,6 @@ theorem stepX_next_le_end (cx : ℤ) (Ax Bx : ℚ)
   exact int_le_floor_of_lt (cx + 1) Bx h_lt
 
 /--
-Theorem: Directional bounding for X step backward (dx < 0).
--/
-theorem stepX_next_ge_end (cx : ℤ) (Ax Bx : ℚ)
-    (h_rem : Ax - ((cx : ℤ) : ℚ) < Ax - Bx) :
-    (floorPoint ⟨Bx, 0⟩).x ≤ cx - 1 := by
-  have h_lt : Bx < ((cx : ℤ) : ℚ) := by linarith
-  have h_floor_lt := floor_lt_of_lt cx Bx h_lt
-  unfold floorPoint toInt
-  dsimp
-  exact Int.le_sub_one_of_lt h_floor_lt
-
-/--
 Theorem: Directional bounding for Y step forward (dy > 0).
 -/
 theorem stepY_next_le_end (cy : ℤ) (Ay By : ℚ)
@@ -866,18 +581,6 @@ theorem stepY_next_le_end (cy : ℤ) (Ay By : ℚ)
   unfold floorPoint toInt
   dsimp
   exact int_le_floor_of_lt (cy + 1) By h_lt
-
-/--
-Theorem: Directional bounding for Y step backward (dy < 0).
--/
-theorem stepY_next_ge_end (cy : ℤ) (Ay By : ℚ)
-    (h_rem : Ay - ((cy : ℤ) : ℚ) < Ay - By) :
-    (floorPoint ⟨0, By⟩).y ≤ cy - 1 := by
-  have h_lt : By < ((cy : ℤ) : ℚ) := by linarith
-  have h_floor_lt := floor_lt_of_lt cy By h_lt
-  unfold floorPoint toInt
-  dsimp
-  exact Int.le_sub_one_of_lt h_floor_lt
 
 /--
 Theorem: Positive interval length for X step transition.
@@ -1082,38 +785,6 @@ theorem mem_rayMarchIntermediateCells (A B : Point) (c : Cell)
 
 /--
 Theorem: Equivalence between rayMarch and intermediateCells for non-endpoints follows from
-rayMarchIntermediateCells = intermediateCells and the fact that rayMarch contains no off-axis corners.
--/
-theorem rayMarch_iff_intermediate_of_eq (A B : Point) (c : Cell)
-    (hcA : c ≠ floorPoint A) (hcB : c ≠ floorPoint B)
-    (h_eq : rayMarchIntermediateCells A B = intermediateCells A B)
-    (h_not_off : c ∈ rayMarch (((floorPoint B).x - (floorPoint A).x).natAbs + ((floorPoint B).y - (floorPoint A).y).natAbs + 2)
-      A B (B.x - A.x) (B.y - A.y)
-      (if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else 0)
-      (if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0)
-      (floorPoint B) (floorPoint A) [] → isOffAxisCornerBool c A B = false) :
-    (c ∈ rayMarch (((floorPoint B).x - (floorPoint A).x).natAbs + ((floorPoint B).y - (floorPoint A).y).natAbs + 2)
-      A B (B.x - A.x) (B.y - A.y)
-      (if B.x - A.x > 0 then 1 else if B.x - A.x < 0 then -1 else 0)
-      (if B.y - A.y > 0 then 1 else if B.y - A.y < 0 then -1 else 0)
-      (floorPoint B) (floorPoint A) [] ↔ c ∈ intermediateCells A B) := by
-  constructor
-  · intro hray
-    have h_off := h_not_off hray
-    have h_mem : c ∈ rayMarchIntermediateCells A B := by
-      rw [mem_rayMarchIntermediateCells A B c hcA hcB]
-      exact ⟨hray, h_off⟩
-    rw [h_eq] at h_mem
-    exact h_mem
-  · intro hinter
-    have h_mem : c ∈ rayMarchIntermediateCells A B := by
-      rw [h_eq]
-      exact hinter
-    rw [mem_rayMarchIntermediateCells A B c hcA hcB] at h_mem
-    exact h_mem.1
-
-/--
-Theorem: Equivalence between rayMarch and intermediateCells for non-endpoints follows from
 set membership equivalence between rayMarchIntermediateCells and intermediateCells.
 -/
 theorem rayMarch_iff_intermediate_of_mem_eq (A B : Point) (c : Cell)
@@ -1204,8 +875,6 @@ theorem cellIntersectionsSegment_exact_iff_reduction (A B : Point) (c : Cell)
         simp
       · simp only [hcA, hcB, false_or]
         exact h_ray_inter h hcA hcB
-
-
 
 /-!
 # Part 1: Floor monotonicity and interval bounds
@@ -1463,6 +1132,5 @@ theorem bbox_sy_zero (x : Cell) (A B : Point) (h_bbox : inBoundingBox x A B = tr
   rw [min_self] at h_minY
   rw [max_self] at h_maxY
   exact ⟨by linarith, by linarith⟩
-
 
 end Geometry

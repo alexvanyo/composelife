@@ -14,10 +14,9 @@
  * limitations under the License.
  -/
 
-import Geometry.Basic
+import models.Basic
 import Geometry.LineSegment
-import Geometry.FloatModel
-import Geometry.Bridge
+import models.FloatModel
 import GeometryDefs
 import GeometryProofs
 import GeometryTheorems

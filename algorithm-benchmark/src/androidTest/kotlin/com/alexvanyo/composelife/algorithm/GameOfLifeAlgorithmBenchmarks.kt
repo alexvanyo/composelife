@@ -59,6 +59,18 @@ class GameOfLifeAlgorithmBenchmarks {
                         tracer = TestTraceDriver().tracer,
                     )
                 },
+                GameOfLifeAlgorithmFactory("Lean HashLife Algorithm") {
+                    LeanHashLifeAlgorithm(
+                        dispatchers = it,
+                        tracer = TestTraceDriver().tracer,
+                    )
+                },
+                GameOfLifeAlgorithmFactory("Flat Lean HashLife Algorithm") {
+                    FlatLeanHashLifeAlgorithm(
+                        dispatchers = it,
+                        tracer = TestTraceDriver().tracer,
+                    )
+                },
             )
         }
     }
