@@ -174,11 +174,11 @@ kotlin {
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.kmpStateRestorationTester)
                 implementation(projects.testActivity)
+                implementation(libs.androidx.appstate.transform)
                 implementation(libs.jetbrains.compose.uiTest)
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.kotlinx.io.core)
                 implementation(libs.kotlinx.serialization.json)
-                implementation(libs.molecule)
                 implementation(libs.turbine)
             }
         }
