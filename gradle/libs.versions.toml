@@ -100,7 +100,7 @@ kotlinxCoroutines = "1.11.0"
 #kotlinxDatetime
 kotlinxDatetime = "0.8.0-0.6.x-compat"
 #kotlinxIo
-kotlinxIo = "0.9.1"
+kotlinxIo = "0.9.2"
 #kotlinxSerialization
 kotlinxSerialization = "1.12.0"
 #ksp
