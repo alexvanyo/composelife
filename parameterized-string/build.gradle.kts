@@ -65,6 +65,9 @@ kotlin {
         }
         val jbNonAndroidMain by creating {
             dependsOn(jbMain)
+            dependencies {
+                implementation(libs.jetbrains.compose.ui)
+            }
         }
         val jvmMain by creating {
             dependsOn(jbMain)
@@ -86,9 +89,6 @@ kotlin {
         }
         val wasmJsMain by getting {
             dependsOn(jbNonAndroidMain)
-            dependencies {
-                implementation(libs.jetbrains.compose.ui)
-            }
         }
         val commonTest by getting {
             dependencies {
