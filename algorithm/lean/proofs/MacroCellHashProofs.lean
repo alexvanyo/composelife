@@ -14,6 +14,7 @@
  * limitations under the License.
  -/
 
+import Std.Tactic.BVDecide
 import Algorithm.Basic
 import Algorithm.MacroCellHash
 import AlgorithmDefs
@@ -37,58 +38,63 @@ theorem inv_C_se_32_valid_Impl  : C_se_32  * inv_C_se_32  = 1 := by rfl
 theorem inv_mix32_1_valid_Impl  : mix32_1  * inv_mix32_1  = 1 := by rfl
 theorem inv_mix32_2_valid_Impl  : mix32_2  * inv_mix32_2  = 1 := by rfl
 
-theorem mix13_invertible_zero_Impl : unmix13 (mix13 0) = 0 := by rfl
-theorem mix13_invertible_one_Impl : unmix13 (mix13 1) = 1 := by rfl
-theorem mix13_invertible_max_Impl : unmix13 (mix13 0xFFFFFFFFFFFFFFFF) = 0xFFFFFFFFFFFFFFFF := by rfl
-theorem mix13_invertible_alt1_Impl : unmix13 (mix13 0x5555555555555555) = 0x5555555555555555 := by rfl
-theorem mix13_invertible_alt2_Impl : unmix13 (mix13 0xAAAAAAAAAAAAAAAA) = 0xAAAAAAAAAAAAAAAA := by rfl
-theorem mix13_invertible_sample_Impl : unmix13 (mix13 0x123456789ABCDEF0) = 0x123456789ABCDEF0 := by rfl
-
-theorem fmix32_invertible_zero_Impl : unfmix32 (fmix32 0) = 0 := by rfl
-theorem fmix32_invertible_one_Impl : unfmix32 (fmix32 1) = 1 := by rfl
-theorem fmix32_invertible_max_Impl : unfmix32 (fmix32 0xFFFFFFFF) = 0xFFFFFFFF := by rfl
-theorem fmix32_invertible_alt1_Impl : unfmix32 (fmix32 0x55555555) = 0x55555555 := by rfl
-theorem fmix32_invertible_alt2_Impl : unfmix32 (fmix32 0xAAAAAAAA) = 0xAAAAAAAA := by rfl
-theorem fmix32_invertible_sample_Impl : unfmix32 (fmix32 0x12345678) = 0x12345678 := by rfl
-
-theorem legacy_symmetric_leaf_collides_with_zero_Impl :
-    let northHalf : UInt64 := 0x12345678
-    let symmetricLeaf : UInt64 := northHalf ||| (northHalf <<< 32)
-    legacyLevel4Hash symmetricLeaf 0 0 0 = legacyLevel4Hash 0 0 0 0 := by
-  rfl
-
-theorem new_symmetric_leaf_does_not_collide_Impl :
-    let northHalf : UInt64 := 0x12345678
-    let symmetricLeaf : UInt64 := northHalf ||| (northHalf <<< 32)
-    (level4Hash symmetricLeaf 0 0 0 == level4Hash 0 0 0 0) = false := by
-  rfl
-
-theorem level4_quadrant_permutations_distinct_Impl :
-    let a : UInt64 := 0x0123456789ABCDEF
-    let b : UInt64 := 0xFEDCBA9876543210
-    let c : UInt64 := 0x5555AAAA5555AAAA
-    let d : UInt64 := 0x3333CCCC3333CCCC
-    let h1 := level4Hash a b c d
-    let h2 := level4Hash b a c d
-    let h3 := level4Hash a c b d
-    let h4 := level4Hash d c b a
-    (h1 != h2 && h1 != h3 && h1 != h4 && h2 != h3 && h2 != h4 && h3 != h4) = true := by
-  rfl
-
-theorem cellnode_quadrant_permutations_distinct_Impl :
-    let a : UInt32 := 0x11111111
-    let b : UInt32 := 0x22222222
-    let c : UInt32 := 0x44444444
-    let d : UInt32 := 0x88888888
-    let h1 := cellNodeHash 5 a b c d
-    let h2 := cellNodeHash 5 b a c d
-    let h3 := cellNodeHash 5 a c b d
-    let h4 := cellNodeHash 5 d c b a
-    (h1 != h2 && h1 != h3 && h1 != h4 && h2 != h3 && h2 != h4 && h3 != h4) = true := by
-  rfl
-
 theorem empty_node_hashes_all_distinct_Impl :
     (deduplicate emptyNodeHashesList).length = 27 := by
   rfl
+
+-- =========================================================================
+-- Invertibility of the Finalizers
+-- =========================================================================
+
+theorem unxorshift64_31 (h : UInt64) :
+    let y := h ^^^ (h >>> 31)
+    let z := y ^^^ (y >>> 31)
+    z ^^^ (z >>> 62) = h := by
+  simp only
+  bv_check "lrat/MacroCellHashProofs.Algorithm.unxorshift64_31.lrat"
+
+theorem unxorshift64_27 (h : UInt64) :
+    let y := h ^^^ (h >>> 27)
+    let z := y ^^^ (y >>> 27)
+    z ^^^ (z >>> 54) = h := by
+  simp only
+  bv_check "lrat/MacroCellHashProofs.Algorithm.unxorshift64_27.lrat"
+
+theorem unxorshift64_30 (h : UInt64) :
+    let y := h ^^^ (h >>> 30)
+    let z := y ^^^ (y >>> 30)
+    z ^^^ (z >>> 60) = h := by
+  simp only
+  bv_check "lrat/MacroCellHashProofs.Algorithm.unxorshift64_30.lrat"
+
+theorem unxorshift32_13 (h : UInt32) :
+    let y := h ^^^ (h >>> 13)
+    let z := y ^^^ (y >>> 13)
+    z ^^^ (z >>> 26) = h := by
+  simp only
+  bv_check "lrat/MacroCellHashProofs.Algorithm.unxorshift32_13.lrat"
+
+theorem unxorshift32_16 (h : UInt32) : (h ^^^ (h >>> 16)) ^^^ ((h ^^^ (h >>> 16)) >>> 16) = h := by
+  bv_check "lrat/MacroCellHashProofs.Algorithm.unxorshift32_16.lrat"
+
+theorem mul_inv_cancel64 {a m minv : UInt64} (h : m * minv = 1) : a * m * minv = a := by
+  rw [UInt64.mul_assoc, h, UInt64.mul_one]
+
+theorem mul_inv_cancel32 {a m minv : UInt32} (h : m * minv = 1) : a * m * minv = a := by
+  rw [UInt32.mul_assoc, h, UInt32.mul_one]
+
+/-- `unmix13` inverts the Mix13 finalizer of `level4Hash`, so `mix13` is a bijection of `UInt64`. -/
+theorem unmix13_mix13 (x : UInt64) : unmix13 (mix13 x) = x := by
+  unfold unmix13 mix13
+  simp only
+  rw [unxorshift64_31, mul_inv_cancel64 inv_mix64_2_valid_Impl, unxorshift64_27,
+    mul_inv_cancel64 inv_mix64_1_valid_Impl, unxorshift64_30]
+
+/-- `unfmix32` inverts the fmix32 finalizer of `cellNodeHash`, so `fmix32` is a bijection of `UInt32`. -/
+theorem unfmix32_fmix32 (x : UInt32) : unfmix32 (fmix32 x) = x := by
+  unfold unfmix32 fmix32
+  simp only
+  rw [unxorshift32_16, mul_inv_cancel32 inv_mix32_2_valid_Impl, unxorshift32_13,
+    mul_inv_cancel32 inv_mix32_1_valid_Impl, unxorshift32_16]
 
 end Algorithm

@@ -20,3 +20,6 @@ import theorems.MacroCellTheorems
 import theorems.MacroCellHashTheorems
 import theorems.BitComputationTheorems
 import theorems.HashLifeTheorems
+import theorems.HashLifeEquivalenceTheorems
+import theorems.FlatHashLifeTheorems
+import theorems.MacroCellEngineTheorems
