@@ -18,6 +18,7 @@ package com.alexvanyo.composelife.parameterizedstring
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.text.intl.Locale
 
 /**
@@ -51,7 +52,7 @@ fun getParameterizedString(locale: Locale, parameterizedString: ParameterizedStr
  */
 @Composable
 actual fun parameterizedStringResolver(): (ParameterizedString) -> String {
-    val locale = Locale.current
+    val locale = LocalLocale.current
     return {
         getParameterizedString(locale, it)
     }
@@ -63,4 +64,4 @@ actual fun parameterizedStringResolver(): (ParameterizedString) -> String {
 @Composable
 @ReadOnlyComposable
 actual fun parameterizedStringResource(parameterizedString: ParameterizedString): String =
-    getParameterizedString(Locale.current, parameterizedString)
+    getParameterizedString(LocalLocale.current, parameterizedString)
