@@ -43,7 +43,9 @@ import androidx.compose.ui.unit.DpSize
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.test.platform.graphics.HardwareRendererCompat
 import com.airbnb.android.showkase.models.ShowkaseBrowserComponent
+import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
 import com.github.takahirom.roborazzi.captureRoboImage
+import com.github.takahirom.roborazzi.provideRoborazziContext
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterValuesProvider
 import org.junit.runner.RunWith
@@ -64,7 +66,7 @@ import kotlin.time.Duration.Companion.minutes
  *
  * If specified, [contentWrapper] will wrap
  */
-@OptIn(ExperimentalTestApi::class)
+@OptIn(ExperimentalRoborazziApi::class, ExperimentalTestApi::class)
 @RunWith(RobolectricTestParameterInjector::class)
 @Config(
     qualifiers = "w1280dp-h1280dp",
@@ -140,18 +142,32 @@ abstract class BaseRoborazziTest(
             currentParameterization = parameterization
 
             waitForIdle()
-            val semanticsNodeInteraction = onNodeWithTag("contentContainer")
-            semanticsNodeInteraction.captureRoboImage(
-                file = File(
-                    "src/androidHostTest/snapshots/${parameterization.showkaseBrowserComponent.componentKey}",
-                    "${parameterization.size}." +
-                        "${ if (parameterization.darkTheme) "dark" else "light" }." +
-                        "${ if (parameterization.isScreenRound) "round" else "notRound" }." +
-                        "font-${parameterization.fontScale}." +
-                        "png",
-                ),
-            )
+            onNodeWithTag("contentContainer").captureParameterization(parameterization)
         }
+    }
+
+    private fun androidx.compose.ui.test.SemanticsNodeInteraction.captureParameterization(
+        parameterization: SingleRoborazziParameterization,
+    ) {
+        val defaultOptions = provideRoborazziContext().options
+        val optionsWithHashReporter = defaultOptions.copy(
+            reportOptions = defaultOptions.reportOptions.copy(
+                captureResultReporter = HashCaptureResultReporter(
+                    delegate = defaultOptions.reportOptions.captureResultReporter,
+                ),
+            ),
+        )
+        captureRoboImage(
+            file = File(
+                "src/androidHostTest/snapshots/${parameterization.showkaseBrowserComponent.componentKey}",
+                "${parameterization.size}." +
+                    "${ if (parameterization.darkTheme) "dark" else "light" }." +
+                    "${ if (parameterization.isScreenRound) "round" else "notRound" }." +
+                    "font-${parameterization.fontScale}." +
+                    "png",
+            ),
+            roborazziOptions = optionsWithHashReporter,
+        )
     }
 }
 
