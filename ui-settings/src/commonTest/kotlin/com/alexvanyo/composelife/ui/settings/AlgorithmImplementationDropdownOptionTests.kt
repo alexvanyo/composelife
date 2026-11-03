@@ -25,7 +25,9 @@ class AlgorithmImplementationDropdownOptionTests {
     fun algorithm_implementation_dropdown_options_are_correct() {
         assertEquals(
             listOf(
+                AlgorithmImplementationDropdownOption.FlatLeanHashLifeAlgorithm,
                 AlgorithmImplementationDropdownOption.HashLifeAlgorithm,
+                AlgorithmImplementationDropdownOption.LeanHashLifeAlgorithm,
                 AlgorithmImplementationDropdownOption.NaiveAlgorithm,
             ),
             AlgorithmImplementationDropdownOption.values,

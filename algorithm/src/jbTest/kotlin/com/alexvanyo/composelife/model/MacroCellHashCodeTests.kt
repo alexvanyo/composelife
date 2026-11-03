@@ -35,10 +35,10 @@ class MacroCellHashCodeTests {
 
     @Test
     fun level4_quadrant_permutations_have_distinct_hashes() {
-        val leafA = 0x0123_4567_89AB_CDEFL
-        val leafB = 0xFEDC_BA98_7654_3210uL.toLong()
-        val leafC = 0x5555_AAAA_5555_AAAAL
-        val leafD = 0x3333_CCCC_3333_CCCCL
+        val leafA = 0x0123_4567_89AB_CDEFuL
+        val leafB = 0xFEDC_BA98_7654_3210uL
+        val leafC = 0x5555_AAAA_5555_AAAAuL
+        val leafD = 0x3333_CCCC_3333_CCCCuL
 
         val n1 = MacroCell.Level4Node(leafA, leafB, leafC, leafD)
         val n2 = MacroCell.Level4Node(leafB, leafA, leafC, leafD)
@@ -51,10 +51,10 @@ class MacroCellHashCodeTests {
 
     @Test
     fun cellnode_quadrant_permutations_have_distinct_hashes() {
-        val nA = MacroCell.Level4Node(1L, 0L, 0L, 0L)
-        val nB = MacroCell.Level4Node(0L, 2L, 0L, 0L)
-        val nC = MacroCell.Level4Node(0L, 0L, 4L, 0L)
-        val nD = MacroCell.Level4Node(0L, 0L, 0L, 8L)
+        val nA = MacroCell.Level4Node(1uL, 0uL, 0uL, 0uL)
+        val nB = MacroCell.Level4Node(0uL, 2uL, 0uL, 0uL)
+        val nC = MacroCell.Level4Node(0uL, 0uL, 4uL, 0uL)
+        val nD = MacroCell.Level4Node(0uL, 0uL, 0uL, 8uL)
 
         val c1 = MacroCell.CellNode(nA, nB, nC, nD)
         val c2 = MacroCell.CellNode(nB, nA, nC, nD)
@@ -69,11 +69,11 @@ class MacroCellHashCodeTests {
     fun vertically_symmetric_leaves_do_not_collide_with_zero() {
         // A pattern with identical cells in north (bits 0..31) and south (bits 32..63)
         // With Long.hashCode() = (x xor (x ushr 32)).toInt(), this would hash to 0!
-        val northHalf = 0x1234_5678L
+        val northHalf = 0x1234_5678uL
         val symmetricLeaf = northHalf or (northHalf shl 32)
 
-        val node = MacroCell.Level4Node(symmetricLeaf, 0L, 0L, 0L)
-        val emptyNode = MacroCell.Level4Node(0L, 0L, 0L, 0L)
+        val node = MacroCell.Level4Node(symmetricLeaf, 0uL, 0uL, 0uL)
+        val emptyNode = MacroCell.Level4Node(0uL, 0uL, 0uL, 0uL)
 
         assertNotEquals(emptyNode.hashCode(), node.hashCode(), "Symmetric leaf must not collide with empty node")
     }
@@ -82,11 +82,11 @@ class MacroCellHashCodeTests {
     fun horizontally_symmetric_leaves_do_not_collide_with_zero() {
         // In Morton order, quadrant 0 is NW and quadrant 1 is NE.
         // A horizontally symmetric pattern has identical cells in q0 and q1.
-        val q0 = 0x1234L
+        val q0 = 0x1234uL
         val symmetricLeaf = q0 or (q0 shl 16)
 
-        val node = MacroCell.Level4Node(symmetricLeaf, 0L, 0L, 0L)
-        val emptyNode = MacroCell.Level4Node(0L, 0L, 0L, 0L)
+        val node = MacroCell.Level4Node(symmetricLeaf, 0uL, 0uL, 0uL)
+        val emptyNode = MacroCell.Level4Node(0uL, 0uL, 0uL, 0uL)
 
         assertNotEquals(emptyNode.hashCode(), node.hashCode(), "Symmetric leaf must not collide with empty node")
     }
@@ -100,10 +100,10 @@ class MacroCellHashCodeTests {
         val level4Hashes = HashSet<Int>(sampleSize)
 
         repeat(sampleSize) {
-            val nw = if (random.nextBoolean()) 0L else random.nextLong()
-            val ne = if (random.nextBoolean()) 0L else random.nextLong()
-            val sw = if (random.nextBoolean()) 0L else random.nextLong()
-            val se = if (random.nextBoolean()) 0L else random.nextLong()
+            val nw = if (random.nextBoolean()) 0uL else random.nextLong().toULong()
+            val ne = if (random.nextBoolean()) 0uL else random.nextLong().toULong()
+            val sw = if (random.nextBoolean()) 0uL else random.nextLong().toULong()
+            val se = if (random.nextBoolean()) 0uL else random.nextLong().toULong()
 
             val node = MacroCell.Level4Node(nw, ne, sw, se)
             level4Nodes.add(node)
@@ -125,7 +125,12 @@ class MacroCellHashCodeTests {
 
         val e4 = createEmptyMacroCell(4)
         val baseNodes = Array(100) {
-            MacroCell.Level4Node(random.nextLong(), random.nextLong(), random.nextLong(), random.nextLong())
+            MacroCell.Level4Node(
+                random.nextLong().toULong(),
+                random.nextLong().toULong(),
+                random.nextLong().toULong(),
+                random.nextLong().toULong(),
+            )
         }
 
         val cellNodes = HashSet<MacroCell.CellNode>(sampleSize)

@@ -68,6 +68,7 @@ def inv_C_se_32  : UInt32 := 0xae398151
 Stafford Mix13 / MurmurHash3 64-bit mixer:
 Applies shift-xor and prime multiplication to spread bits across the entire 64-bit space.
 -/
+@[inline]
 def mix13 (h : UInt64) : UInt64 :=
   let h1 := (h ^^^ (h >>> 30)) * mix64_1
   let h2 := (h1 ^^^ (h1 >>> 27)) * mix64_2
@@ -91,6 +92,7 @@ def unmix13 (y : UInt64) : UInt64 :=
 MurmurHash3 fmix32 finalizer:
 Applies shift-xor and prime multiplication to achieve full bit avalanche on 32-bit hashes.
 -/
+@[inline]
 def fmix32 (h : UInt32) : UInt32 :=
   let h1 := (h ^^^ (h >>> 16)) * mix32_1
   let h2 := (h1 ^^^ (h1 >>> 13)) * mix32_2
@@ -111,6 +113,7 @@ def unfmix32 (y : UInt32) : UInt32 :=
 /--
 New optimal hashcode for Level4Node.
 -/
+@[export macrocell_level4_hash]
 def level4Hash (nw ne sw se : UInt64) : UInt32 :=
   let sum := seed_64 + (nw * M_nw_64) + (ne * M_ne_64) + (sw * M_sw_64) + (se * M_se_64)
   let mixed := mix13 sum
@@ -119,6 +122,7 @@ def level4Hash (nw ne sw se : UInt64) : UInt32 :=
 /--
 New optimal hashcode for CellNode.
 -/
+@[export macrocell_cell_node_hash]
 def cellNodeHash (level : UInt32) (nw ne sw se : UInt32) : UInt32 :=
   let sum := (level * C_lvl_32) + (nw * C_nw_32) + (ne * C_ne_32) + (sw * C_sw_32) + (se * C_se_32)
   fmix32 sum

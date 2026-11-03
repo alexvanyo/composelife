@@ -5,6 +5,10 @@ inputs:
     description: 'Lean toolchain to install'
     required: false
     default: 'leanprover/lean4:v4.34.0'
+  custom-lean-ref:
+    description: 'Git branch or commit SHA of the custom Lean fork'
+    required: false
+    default: 'av/jvm'
 outputs:
   lake-cache-key:
     description: 'Primary key of the Lake cache, for saving it from a job that builds Lean'
@@ -44,3 +48,9 @@ runs:
         key: lake-${{ runner.os }}-${{ inputs.toolchain }}-${{ hashFiles('**/lean/lake-manifest.json', '**/lean/lakefile.toml', '**/lean/lean-toolchain') }}
         restore-keys: |
           lake-${{ runner.os }}-${{ inputs.toolchain }}-
+
+    - name: Setup Custom Lean
+      uses: ./.github/actions/setup-custom-lean
+      with:
+        build-if-missing: false
+        ref: ${{ inputs.custom-lean-ref }}

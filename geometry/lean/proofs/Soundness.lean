@@ -14,8 +14,9 @@
  * limitations under the License.
  -/
 
-import Geometry.Basic
+import models.Basic
 import Geometry.LineSegment
+import GeometryDefs
 import proofs.Interval
 import proofs.RayMarchStep
 import Mathlib.Algebra.Order.Field.Basic
