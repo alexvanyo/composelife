@@ -386,6 +386,44 @@ class SessionValueHolderComposableTests {
     }
 
     @Test
+    fun withTransform_whenSetValueWithExplicitValueId_valueIdIsPreserved() = runTest(broadcastFrameClock) {
+        val sessionId1 = Uuid.random()
+        val valueId1 = Uuid.random()
+        val customValueId = Uuid.random()
+
+        val pendingUpstreamSessionValues = mutableStateListOf<Pair<SessionValue<Float>, SessionValue<Float>>>()
+
+        val upstreamSessionValue by mutableStateOf(SessionValue(sessionId1, valueId1, 0f))
+
+        moleculeFlow(RecompositionMode.ContextClock) {
+            val floatSessionValueHolder = rememberSessionValueHolder(
+                upstreamSessionValue = upstreamSessionValue,
+                setUpstreamSessionValue = { expected, newValue ->
+                    pendingUpstreamSessionValues.add(expected to newValue)
+                },
+            )
+
+            val stringSessionValueHolder = remember(floatSessionValueHolder) {
+                floatSessionValueHolder.map(
+                    transformTo = Float::toString,
+                    transformFrom = String::toFloat,
+                )
+            }
+
+            stringSessionValueHolder
+        }
+            .distinctUntilChanged()
+            .test {
+                val sessionValueHolder = awaitItem()
+                sessionValueHolder.setValue("2.5", customValueId)
+                broadcastFrameClock.sendFrame(1)
+
+                assertEquals("2.5", sessionValueHolder.sessionValue.value)
+                assertEquals(customValueId, sessionValueHolder.sessionValue.valueId)
+            }
+    }
+
+    @Test
     fun whenCreatingLocalSession_stateIsCorrect() = runTest(broadcastFrameClock) {
         val sessionId1 = Uuid.random()
         val valueId1 = Uuid.random()

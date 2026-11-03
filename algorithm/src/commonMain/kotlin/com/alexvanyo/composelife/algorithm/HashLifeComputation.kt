@@ -16,25 +16,47 @@
 
 package com.alexvanyo.composelife.algorithm
 
+import com.alexvanyo.composelife.model.LeafNode
 import com.alexvanyo.composelife.model.MacroCell
+
+/**
+ * Computes the 4x4 [Int] next generation for the given 8x8 64-bit Morton leaf node in its center using
+ * the Lean-generated algorithm.
+ */
+fun ULong.computeNextGeneration(): Int = f_Algorithm_exportComputeLeafNextGen8x8BranchUInt(this).toInt()
+
+/**
+ * Computes the 4x4 [Int] next generation for the given 8x8 64-bit Morton leaf node in its center using
+ * the Lean-generated algorithm.
+ */
+fun Long.computeNextGeneration(): Int = this.toULong().computeNextGeneration()
 
 /**
  * Packs four 16-bit 4x4 quadrants in Morton order into an 8x8 64-bit leaf node.
  */
-internal fun packLeafNode(nw: Int, ne: Int, sw: Int, se: Int): Long = (nw.toLong() and 0xFFFFL) or
-    ((ne.toLong() and 0xFFFFL) shl 16) or
-    ((sw.toLong() and 0xFFFFL) shl 32) or
-    ((se.toLong() and 0xFFFFL) shl 48)
+internal fun packLeafNode(nw: Int, ne: Int, sw: Int, se: Int): ULong = (
+    (nw.toLong() and 0xFFFFL) or
+        ((ne.toLong() and 0xFFFFL) shl 16) or
+        ((sw.toLong() and 0xFFFFL) shl 32) or
+        ((se.toLong() and 0xFFFFL) shl 48)
+    ).toULong()
+
+internal fun LeafNode(nw: Int, ne: Int, sw: Int, se: Int): LeafNode = packLeafNode(nw, ne, sw, se)
+
+internal inline val LeafNode.nw: Int get() = (this and 0xFFFFuL).toInt()
+internal inline val LeafNode.ne: Int get() = ((this shr 16) and 0xFFFFuL).toInt()
+internal inline val LeafNode.sw: Int get() = ((this shr 32) and 0xFFFFuL).toInt()
+internal inline val LeafNode.se: Int get() = (this shr 48).toInt()
 
 /**
  * Extracts the central 4x4 from an 8x8 64-bit leaf node.
  * Matches `centeredSubnodeLevel3` in `HashLifeAlgorithm`.
  */
-internal fun centeredSubnodeLevel3(node: Long): Int {
-    val nw = (node and 0xFFFFL).toInt()
-    val ne = ((node ushr 16) and 0xFFFFL).toInt()
-    val sw = ((node ushr 32) and 0xFFFFL).toInt()
-    val se = (node ushr 48).toInt()
+internal fun centeredSubnodeLevel3(node: ULong): Int {
+    val nw = (node and 0xFFFFuL).toInt()
+    val ne = ((node shr 16) and 0xFFFFuL).toInt()
+    val sw = ((node shr 32) and 0xFFFFuL).toInt()
+    val se = (node shr 48).toInt()
 
     val q0 = (nw ushr 12) and 0xF
     val q1 = (ne ushr 8) and 0xF
@@ -48,11 +70,11 @@ internal fun centeredSubnodeLevel3(node: Long): Int {
  * Extracts the horizontal central 4x4 spanning west and east 8x8 leaf nodes.
  * Matches `centeredHorizontalSubnodeLevel3` in `HashLifeAlgorithm`.
  */
-internal fun centeredHorizontalSubnodeLevel3(w: Long, e: Long): Int {
-    val wNe = ((w ushr 16) and 0xFFFFL).toInt()
-    val wSe = (w ushr 48).toInt()
-    val eNw = (e and 0xFFFFL).toInt()
-    val eSw = ((e ushr 32) and 0xFFFFL).toInt()
+internal fun centeredHorizontalSubnodeLevel3(w: ULong, e: ULong): Int {
+    val wNe = ((w shr 16) and 0xFFFFuL).toInt()
+    val wSe = (w shr 48).toInt()
+    val eNw = (e and 0xFFFFuL).toInt()
+    val eSw = ((e shr 32) and 0xFFFFuL).toInt()
 
     val q0 = (wNe ushr 12) and 0xF
     val q1 = (eNw ushr 8) and 0xF
@@ -66,11 +88,11 @@ internal fun centeredHorizontalSubnodeLevel3(w: Long, e: Long): Int {
  * Extracts the vertical central 4x4 spanning north and south 8x8 leaf nodes.
  * Matches `centeredVerticalSubnodeLevel3` in `HashLifeAlgorithm`.
  */
-internal fun centeredVerticalSubnodeLevel3(n: Long, s: Long): Int {
-    val nSw = ((n ushr 32) and 0xFFFFL).toInt()
-    val nSe = (n ushr 48).toInt()
-    val sNw = (s and 0xFFFFL).toInt()
-    val sNe = ((s ushr 16) and 0xFFFFL).toInt()
+internal fun centeredVerticalSubnodeLevel3(n: ULong, s: ULong): Int {
+    val nSw = ((n shr 32) and 0xFFFFuL).toInt()
+    val nSe = (n shr 48).toInt()
+    val sNw = (s and 0xFFFFuL).toInt()
+    val sNe = ((s shr 16) and 0xFFFFuL).toInt()
 
     val q0 = (nSw ushr 12) and 0xF
     val q1 = (nSe ushr 8) and 0xF
@@ -84,11 +106,11 @@ internal fun centeredVerticalSubnodeLevel3(n: Long, s: Long): Int {
  * Extracts the central 4x4 from a 16x16 Level 4 node consisting of four 8x8 leaf nodes.
  * Matches `centeredSubSubnodeLevel4` in `HashLifeAlgorithm`.
  */
-internal fun centeredSubSubnodeLevel4(nw: Long, ne: Long, sw: Long, se: Long): Int {
-    val nwSe = (nw ushr 48).toInt()
-    val neSw = ((ne ushr 32) and 0xFFFFL).toInt()
-    val swNe = ((sw ushr 16) and 0xFFFFL).toInt()
-    val seNw = (se and 0xFFFFL).toInt()
+internal fun centeredSubSubnodeLevel4(nw: ULong, ne: ULong, sw: ULong, se: ULong): Int {
+    val nwSe = (nw shr 48).toInt()
+    val neSw = ((ne shr 32) and 0xFFFFuL).toInt()
+    val swNe = ((sw shr 16) and 0xFFFFuL).toInt()
+    val seNw = (se and 0xFFFFuL).toInt()
 
     val q0 = (nwSe ushr 12) and 0xF
     val q1 = (neSw ushr 8) and 0xF
@@ -105,16 +127,16 @@ internal fun centeredSubSubnodeLevel4(node: MacroCell.Level4Node): Int =
     centeredSubSubnodeLevel4(node.nw, node.ne, node.sw, node.se)
 
 /**
- * Computes the next generation for a 16x16 Level 4 node, returning the centered 8x8 [Long] leaf node.
- * Matches `Level4Node.computeNextGeneration` in `HashLifeAlgorithm`.
+ * Computes the next generation for a 16x16 Level 4 node, returning the centered 8x8 [ULong] leaf node.
+ * Matches `Level4Node.computeNextGeneration` in pure Kotlin `HashLifeAlgorithm`.
  */
 internal fun computeLevel4NextGeneration(
-    nw: Long,
-    ne: Long,
-    sw: Long,
-    se: Long,
-    computeLeafNextGen: (Long) -> Int = Long::computeNextGeneration,
-): Long {
+    nw: ULong,
+    ne: ULong,
+    sw: ULong,
+    se: ULong,
+    computeLeafNextGen: (ULong) -> Int = ULong::computeNextGenerationPureKotlin,
+): ULong {
     val n00 = centeredSubnodeLevel3(nw)
     val n01 = centeredHorizontalSubnodeLevel3(nw, ne)
     val n02 = centeredSubnodeLevel3(ne)
@@ -139,12 +161,12 @@ internal fun computeLevel4NextGeneration(
 }
 
 /**
- * Computes the next generation for a [MacroCell.Level4Node], returning the centered 8x8 [Long] leaf node.
+ * Computes the next generation for a [MacroCell.Level4Node], returning the centered 8x8 [ULong] leaf node.
  */
 internal fun computeLevel4NextGeneration(
     node: MacroCell.Level4Node,
-    computeLeafNextGen: (Long) -> Int = Long::computeNextGeneration,
-): MacroCell.LeafNode = computeLevel4NextGeneration(
+    computeLeafNextGen: (ULong) -> Int = ULong::computeNextGenerationPureKotlin,
+): LeafNode = computeLevel4NextGeneration(
     nw = node.nw,
     ne = node.ne,
     sw = node.sw,

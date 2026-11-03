@@ -106,8 +106,19 @@ jobs:
           echo $matrix
           echo $matrix | jq .
 
+  setup-custom-lean:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Custom Lean
+        uses: ./.github/actions/setup-custom-lean
+        with:
+          build-if-missing: true
+
   build:
-    needs: config
+    needs: [config, setup-custom-lean]
     runs-on: ubuntu-latest
     timeout-minutes: 180
 
@@ -354,6 +365,7 @@ jobs:
 
   cache:
     if: github.ref == 'refs/heads/main'
+    needs: [config, setup-custom-lean]
     runs-on: ubuntu-latest
 
     concurrency:
@@ -434,6 +446,7 @@ jobs:
 
   assemble:
     if: github.ref != 'refs/heads/main'
+    needs: [config, setup-custom-lean]
     runs-on: ubuntu-latest
 
     concurrency:
@@ -497,7 +510,7 @@ jobs:
           path: "**/build/outputs/apk/**/*.apk"
 
   android-test-gmd:
-    needs: config
+    needs: [config, setup-custom-lean]
     runs-on: ubuntu-latest
     timeout-minutes: 120
 
