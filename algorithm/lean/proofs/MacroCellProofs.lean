@@ -17,51 +17,64 @@
 import Algorithm.Basic
 import Algorithm.BitComputation
 import Algorithm.MacroCell
+import AlgorithmDefs
+
+local notation "ℕ" => Nat
+local notation "ℤ" => Int
 
 namespace Algorithm
 
-theorem hashlife_empty_level2_stability_Impl :
-    hashLifeStepLevel2 (emptyNode 2) = emptyNode 1 := by
+theorem macroCell_level_level4Node_Impl (hash : UInt32) (nw ne sw se : UInt64) :
+    (MacroCell.level4Node hash nw ne sw se).level = 4 := by
   rfl
 
-theorem hashlife_block_preservation_Impl :
-    let nw := makeLevel1 false false false true   -- (1, 1) is active
-    let ne := makeLevel1 false false true false   -- (2, 1) is active
-    let sw := makeLevel1 false true false false   -- (1, 2) is active
-    let se := makeLevel1 true false false false   -- (2, 2) is active
-    let block4x4 := makeLevel2 nw ne sw se
-    hashLifeStepLevel2 block4x4 = makeLevel1 true true true true := by
-  decide
+theorem macroCell_level_cellNode_Impl (hash : UInt32) (nw ne sw se : MacroCell) :
+    (MacroCell.cellNode hash nw ne sw se).level = nw.level + 1 := by
+  rfl
 
-theorem hashlife_blinker_oscillation_Impl :
-    let nw := makeLevel1 false false false true   -- (1, 1) is active
-    let ne := makeLevel1 false false true true    -- (2, 1) and (3, 1) are active
-    let sw := makeLevel1 false false false false
-    let se := makeLevel1 false false false false
-    let blinker4x4 := makeLevel2 nw ne sw se
-    hashLifeStepLevel2 blinker4x4 = makeLevel1 false true false true := by
-  decide
+theorem macroCell_size_emptyNode_Impl : ∀ (k : ℕ),
+    (emptyNode k).size = 0
+  | 0 => by rfl
+  | 1 => by rfl
+  | 2 => by rfl
+  | 3 => by rfl
+  | 4 => by rfl
+  | k + 5 => by
+    dsimp [emptyNode, makeCellNode, MacroCell.size]
+    have ih := macroCell_size_emptyNode_Impl (k + 4)
+    rw [ih]
+    rfl
 
-theorem hashlife_tub_preservation_Impl :
-    let nw := makeLevel1 false true true false    -- (1, 0) and (0, 1)
-    let ne := makeLevel1 false false true false   -- (2, 1)
-    let sw := makeLevel1 false true false false   -- (1, 2)
-    let se := makeLevel1 false false false false
-    let tub4x4 := makeLevel2 nw ne sw se
-    hashLifeStepLevel2 tub4x4 = makeLevel1 false true true false := by
-  decide
+theorem macroCell_emptyNode_isWellFormed_Impl : ∀ (k : ℕ),
+    isWellFormed (emptyNode k)
+  | 0 => by trivial
+  | 1 => by trivial
+  | 2 => by trivial
+  | 3 => by trivial
+  | 4 => by trivial
+  | k + 5 => by
+    dsimp [emptyNode, makeCellNode, isWellFormed, MacroCell.depth]
+    have ih := macroCell_emptyNode_isWellFormed_Impl (k + 4)
+    exact ⟨ih, ih, ih, ih, rfl, rfl, rfl⟩
 
-theorem centered_subnode_level_correct_Impl
-    (nw_se ne_sw sw_ne se_nw : MacroCell)
-    (nw_nw nw_ne nw_sw : MacroCell)
-    (ne_nw ne_ne ne_se : MacroCell)
-    (sw_nw sw_sw sw_se : MacroCell)
-    (se_ne se_sw se_se : MacroCell) :
-    let nw := MacroCell.node 2 nw_nw nw_ne nw_sw nw_se
-    let ne := MacroCell.node 2 ne_nw ne_ne ne_sw ne_se
-    let sw := MacroCell.node 2 sw_nw sw_ne sw_sw sw_se
-    let se := MacroCell.node 2 se_nw se_ne se_sw se_se
-    (centeredSubnode (.node 3 nw ne sw se)).level = 2 := by
+theorem macroCell_cellEquals_iff_eq_Impl (m1 m2 : MacroCell) :
+    m1.cellEquals m2 = true ↔ m1 = m2 := by
+  induction m1 generalizing m2 with
+  | level4Node h1 nw1 ne1 sw1 se1 =>
+    cases m2 with
+    | level4Node h2 nw2 ne2 sw2 se2 =>
+      simp [MacroCell.cellEquals, and_assoc]
+    | cellNode h2 nw2 ne2 sw2 se2 =>
+      simp [MacroCell.cellEquals]
+  | cellNode h1 nw1 ne1 sw1 se1 ih_nw ih_ne ih_sw ih_se =>
+    cases m2 with
+    | level4Node h2 nw2 ne2 sw2 se2 =>
+      simp [MacroCell.cellEquals]
+    | cellNode h2 nw2 ne2 sw2 se2 =>
+      simp [MacroCell.cellEquals, ih_nw, ih_ne, ih_sw, ih_se, and_assoc]
+
+theorem macroCell_hashCode_eq_Impl (m : MacroCell) :
+    m.hashCode = m.cellHashCode := by
   rfl
 
 end Algorithm

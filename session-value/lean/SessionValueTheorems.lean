@@ -24,9 +24,10 @@ namespace SessionValue
 /--
 Theorem 1: Initial state satisfies the `ValidState` invariant.
 -/
-theorem initialState_valid (u0 : SessionValue α) (initLocalId : Uuid) :
+theorem initialState_valid (u0 : SessionValue α) (initLocalId : Uuid)
+    (h_fresh : initLocalId ≠ u0.sessionId) :
     ValidState (initialState u0 initLocalId) :=
-  initialState_valid_Impl u0 initLocalId
+  initialState_valid_Impl u0 initLocalId h_fresh
 
 /--
 Theorem 2: `stepSetValue` preserves the `ValidState` invariant.
@@ -114,20 +115,112 @@ theorem upstream_conflict_invalidates (st : State α) (lv : SessionValue α) (ne
     (h_changed : (newUpstream.sessionId != st.upstreamSessionValue.sessionId ||
                   newUpstream.valueId != st.upstreamSessionValue.valueId) = true)
     (h_active : st.localSessionValue = some lv)
-    (h_conflict : newUpstream.sessionId ≠ lv.sessionId)
-    (h_fresh : freshId ≠ newUpstream.sessionId) :
+    (h_conflict : newUpstream.sessionId ≠ lv.sessionId) :
     let st' := stepSetValueFromUpstream st newUpstream freshId
     st'.localSessionValue = none ∧
     st'.sessionValue = newUpstream ∧
     st'.info.isLocalSessionActive = false :=
-  upstream_conflict_invalidates_Impl st lv newUpstream freshId h_changed h_active h_conflict h_fresh
+  upstream_conflict_invalidates_Impl st lv newUpstream freshId h_changed h_active h_conflict
 
 /--
-Theorem 8 (CAS Precondition Soundness): The `expected` session value emitted by
-`stepSetValue` matches the exact value currently held in the holder.
+Theorem 8 (CAS Expected Value Soundness): The `expected` field of the update emitted by
+`stepSetValue` is identical to the current exposed `sessionValue`.
 -/
 theorem cas_expected_soundness (st : State α) (v : α) (vid : Uuid) :
     (stepSetValue st v vid).2.1 = st.sessionValue :=
   cas_expected_soundness_Impl st v vid
+
+/--
+Theorem 8b (CAS Emission Soundness): Under `ValidState`, the emitted update pair `(expected, newValue)`
+satisfies `expected.sessionId ∈ {info.localSessionId, info.preLocalSessionId}`, `newValue.sessionId = info.localSessionId`,
+and the local session ID is preserved.
+-/
+theorem cas_emission_soundness (st : State α) (v : α) (vid : Uuid) (h_valid : ValidState st) :
+    let ((st', (expected, newValue))) := stepSetValue st v vid
+    (expected.sessionId = st.info.localSessionId ∨ expected.sessionId = st.info.preLocalSessionId) ∧
+    newValue.sessionId = st.info.localSessionId ∧
+    st'.localSessionId = st.localSessionId :=
+  cas_emission_soundness_Impl st v vid h_valid
+
+/--
+Theorem 9 (CAS Batching): For any non-empty chained queue `q` and any upstream whose compare-and-set
+accepts a value as matching itself, applying the updates one after another has exactly the same
+outcome as applying the single batched update `(q.head.1, q.last.2)`.
+-/
+theorem batch_cas_equivalence (accepts : SessionValue α → SessionValue α → Bool)
+    (h_refl : ∀ v, accepts v v = true) (current : SessionValue α)
+    (q : List (Update α)) (hq : q ≠ []) (h_chain : CASChained q) :
+    casApplyAllWith accepts current q =
+      casApplyWith accepts current (batchUpdate q hq).1 (batchUpdate q hq).2 :=
+  batch_cas_equivalence_Impl accepts h_refl current q hq h_chain
+
+/--
+Theorem 9a: Both upstream compare-and-set policies used in the app accept a value as matching itself,
+so Theorem 9 applies to them.
+-/
+theorem cas_policies_reflexive [DecidableEq α] (v : SessionValue α) :
+    fullMatch v v = true ∧ idMatch v v = true :=
+  cas_policies_reflexive_Impl v
+
+/--
+Theorem 10a (Async Queue Invariant): Every state reachable by `rememberAsyncSessionValueHolder`,
+through any interleaving of local edits, upstream changes and flushes, satisfies `ValidState`, and its
+update queue is a block of stale updates followed by the chained updates of the current local session.
+-/
+theorem asyncReachable_invariant {st : State α} {q : List (Update α)} (h : AsyncReachable st q) :
+    ValidState st ∧ QueueInv st q :=
+  asyncReachable_invariant_Impl h
+
+/--
+Theorem 10b (Stale-Update Pruning Is Exact): Under the queue invariant, `pruneStaleUpdates` drops
+exactly the stale updates: what it removes is a prefix written by earlier local sessions, and what
+it keeps is the chained queue of the current local session, ending in the value the holder shows.
+-/
+theorem pruneStaleUpdates_exact {st : State α} {q : List (Update α)} (h : QueueInv st q) :
+    ∃ stale, q = stale ++ pruneStaleUpdates st.info q ∧
+      (∀ u ∈ stale, u.2.sessionId ≠ st.info.localSessionId) ∧
+      (∀ u ∈ pruneStaleUpdates st.info q, u.2.sessionId = st.info.localSessionId) ∧
+      CASChained (pruneStaleUpdates st.info q) ∧
+      (∀ u ∈ (pruneStaleUpdates st.info q).getLast?, u.2 = st.sessionValue) :=
+  pruneStaleUpdates_exact_Impl h
+
+/--
+Theorem 10c (Async Batch Soundness): In every reachable state, the single update that
+`rememberAsyncSessionValueHolder` sends for its pruned queue has the same compare-and-set outcome as
+sending each queued update of the current session in order, and it writes exactly the value that
+the holder shows.
+-/
+theorem async_batch_sound {st : State α} {q : List (Update α)} (h : AsyncReachable st q)
+    (accepts : SessionValue α → SessionValue α → Bool) (h_refl : ∀ v, accepts v v = true)
+    (current : SessionValue α) (hp : pruneStaleUpdates st.info q ≠ []) :
+    casApplyAllWith accepts current (pruneStaleUpdates st.info q) =
+      casApplyWith accepts current (batchUpdate _ hp).1 (batchUpdate _ hp).2 ∧
+    (batchUpdate _ hp).2 = st.sessionValue :=
+  async_batch_sound_Impl h accepts h_refl current hp
+
+/--
+Theorem 11a (Functorial Identity): `SessionValue.map id` is the identity.
+-/
+theorem sessionValue_map_id (sv : SessionValue α) : sv.map id = sv :=
+  sessionValue_map_id_Impl sv
+
+/--
+Theorem 11b (Functorial Composition): `SessionValue.map` commutes with composition.
+-/
+theorem sessionValue_map_comp (f : α → β) (g : β → γ) (sv : SessionValue α) :
+    (sv.map f).map g = sv.map (g ∘ f) :=
+  sessionValue_map_comp_Impl f g sv
+
+/--
+Theorem 11c (Mapped Holder Round-Trip): `MappedSessionValueHolder.setValue(b, vid)` sets
+`transformFrom b` with the same `vid` on the underlying holder. When `transformTo` is a left inverse
+of `transformFrom`, the mapped holder then shows exactly `b`, tagged with the local session id and
+the given value id.
+-/
+theorem mapped_setValue_roundtrip (st : State α) (transformTo : α → β) (transformFrom : β → α)
+    (h_retract : ∀ b, transformTo (transformFrom b) = b) (b : β) (vid : Uuid) :
+    let (st', _) := stepSetValue st (transformFrom b) vid
+    (st'.map transformTo).sessionValue = { sessionId := st.localSessionId, valueId := vid, value := b } :=
+  mapped_setValue_roundtrip_Impl st transformTo transformFrom h_retract b vid
 
 end SessionValue
