@@ -14,9 +14,9 @@
  * limitations under the License.
  -/
 
-import Geometry.Basic
+import models.Basic
 import Geometry.LineSegment
-import Geometry.FloatModel
+import models.FloatModel
 import GeometryDefs
 import FloatLib
 import Mathlib.Algebra.Order.Field.Basic
@@ -28,90 +28,8 @@ namespace Geometry
 
 open FloatLib.Floats
 
-theorem eps32_pos : 0 < eps32 := by
-  change 0 < (1 : ℚ) / (2^24)
-  positivity
-
-theorem eps64_pos : 0 < eps64 := by
-  change 0 < (1 : ℚ) / (2^53)
-  positivity
-
 theorem epsRayMarch_pos : 0 < epsRayMarch := by
   unfold epsRayMarch eps64
-  norm_num
-
-/--
-Monotonicity of inCoordBounds: bounds transfer to any larger bound.
--/
-theorem inCoordBounds_le {M1 M2 : ℚ} (hM : M1 ≤ M2) {A B : Point} (h : inCoordBounds M1 A B) :
-    inCoordBounds M2 A B := by
-  rcases h with ⟨h1, h2, h3, h4⟩
-  exact ⟨le_trans h1 hM, le_trans h2 hM, le_trans h3 hM, le_trans h4 hM⟩
-
-theorem gammaBound_nonneg (M : ℚ) (hM : 0 ≤ M) : 0 ≤ gammaBound M := by
-  unfold gammaBound
-  have h1 : 0 ≤ 8 * M * M + 8 * M := by
-    have h2 : 0 ≤ 8 * M * M := by positivity
-    have h3 : 0 ≤ 8 * M := by positivity
-    linarith
-  have h_eps : 0 ≤ epsRayMarch := le_of_lt epsRayMarch_pos
-  positivity
-
-/--
-The cross-product discrepancy bound at coordinate scale M = clearanceCoordBound is strictly less than 1.
--/
-theorem gammaBound_clearanceCoordBound_lt_one : gammaBound clearanceCoordBound < 1 := by
-  unfold gammaBound epsRayMarch eps64 clearanceCoordBound clearanceCoordBoundNat
-  norm_num
-
-/--
-The cross-product discrepancy bound at coordinate scale M = 19372659 is strictly less than 1.
--/
-theorem gammaBound_19372659_lt_one : gammaBound 19372659 < 1 := by
-  unfold gammaBound epsRayMarch eps64
-  norm_num
-
-/--
-Counterexample: at scale M = 19372660, the cross-product discrepancy bound fails (gammaBound 19372660 ≥ 1).
--/
-theorem gammaBound_19372660_ge_one : gammaBound 19372660 ≥ 1 := by
-  unfold gammaBound epsRayMarch eps64
-  norm_num
-
-/--
-The maximum cell boundary distance is strictly within 2^33 capacity.
--/
-theorem maxCellBoundaryDistance_lt_2_pow_33_rat : maxCellBoundaryDistance < 8589934592 := by
-  unfold maxCellBoundaryDistance maxCellBoundaryDistanceNat mainCoordBoundNat
-  norm_num
-
-/--
-The maximum cell boundary distance is strictly within 2^33 capacity.
--/
-theorem maxCellBoundaryDistance_lt_2_pow_33 : (maxCellBoundaryDistance : ℝ) < 8589934592 := by
-  unfold maxCellBoundaryDistance maxCellBoundaryDistanceNat mainCoordBoundNat
-  norm_num
-
-/--
-The maximum coordinate span is strictly within 2^33 capacity.
--/
-theorem maxCoordDelta_lt_2_pow_33_rat : maxCoordDelta < 8589934592 := by
-  unfold maxCoordDelta maxCoordDeltaNat mainCoordBoundNat
-  norm_num
-
-/--
-The maximum coordinate span is strictly within 2^33 capacity.
--/
-theorem maxCoordDelta_lt_2_pow_33 : (maxCoordDelta : ℝ) < 8589934592 := by
-  unfold maxCoordDelta maxCoordDeltaNat mainCoordBoundNat
-  norm_num
-
-/--
-The maximum relative error on cell boundary distances is at most 1/4 (rational).
--/
-theorem maxCellBoundaryDistance_mul_eps_le_quarter_rat :
-    (1 / 9007199254740992 : ℚ) * maxCellBoundaryDistance ≤ 1/4 := by
-  unfold maxCellBoundaryDistance maxCellBoundaryDistanceNat mainCoordBoundNat
   norm_num
 
 /--
@@ -120,13 +38,6 @@ The maximum relative error on cell boundary distances is at most 1/4.
 theorem maxCellBoundaryDistance_mul_eps_le_quarter :
     (1 / 9007199254740992 : ℝ) * (maxCellBoundaryDistance : ℝ) ≤ 1/4 := by
   unfold maxCellBoundaryDistance maxCellBoundaryDistanceNat mainCoordBoundNat
-  norm_num
-
-/--
-The maximum relative error on coordinate spans is at most 1/4 (rational).
--/
-theorem maxCoordDelta_mul_eps_le_quarter_rat : (1 / 9007199254740992 : ℚ) * maxCoordDelta ≤ 1/4 := by
-  unfold maxCoordDelta maxCoordDeltaNat mainCoordBoundNat
   norm_num
 
 /--

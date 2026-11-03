@@ -21,39 +21,17 @@ local notation "ℕ" => Nat
 
 namespace Algorithm
 
-theorem stepN_composition_step_Impl (n : ℕ) (s : List Coord) :
-    stepN (n + 1) s = stepGrid (stepN n s) :=
+theorem stepGrid_empty : stepGrid [] = [] := by
   rfl
+
+theorem stepN_empty (n : ℕ) : stepN n [] = [] := by
+  induction n with
+  | zero => rfl
+  | succ k ih =>
+    simp [stepN, ih, stepGrid_empty]
 
 theorem extinction_stability_Impl (n : ℕ) :
     stepN n [] = [] :=
   stepN_empty n
-
-theorem blinker_translation_commutes_Impl :
-    let b := [(0, 1), (1, 1), (2, 1)]
-    let tb := translateGrid 157 72 b
-    cellsEqual (stepGrid tb) (translateGrid 157 72 (stepGrid b)) = true := by
-  decide
-
-theorem blinker_flipX_commutes_Impl :
-    let b := [(0, 1), (1, 1), (2, 1)]
-    cellsEqual (stepGrid (flipXGrid b)) (flipXGrid (stepGrid b)) = true := by
-  decide
-
-theorem blinker_flipY_commutes_Impl :
-    let b := [(0, 1), (1, 1), (2, 1)]
-    cellsEqual (stepGrid (flipYGrid b)) (flipYGrid (stepGrid b)) = true := by
-  decide
-
-theorem blinker_flipDiag_commutes_Impl :
-    let b := [(0, 1), (1, 1), (2, 1)]
-    cellsEqual (stepGrid (flipDiagGrid b)) (flipDiagGrid (stepGrid b)) = true := by
-  decide
-
-theorem glider_translation_commutes_Impl :
-    let g := [(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)]
-    let tg := translateGrid 157 72 g
-    cellsEqual (stepGrid tg) (translateGrid 157 72 (stepGrid g)) = true := by
-  decide
 
 end Algorithm

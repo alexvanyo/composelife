@@ -172,7 +172,7 @@ private class SessionValueHolderImpl<T>(
      * Synchronizes the internal state from the upstream [SessionValue].
      */
     fun setValueFromUpstream(newUpstreamSessionValue: SessionValue<T>) {
-        state = state.stepSetValueFromUpstream(newUpstreamSessionValue)
+        state = state.stepSetValueFromUpstream(newUpstreamSessionValue, Uuid.random())
     }
 
     private val surrogate: Surrogate<T> get() =
@@ -297,21 +297,12 @@ fun <T> rememberAsyncSessionValueHolder(
     )
 
     LaunchedEffect(sessionValueHolder.info.localSessionId) {
-        // Upon the local session id changing, clear out any updates that are no longer valid because they
-        // are not for the current local session id or the current pre local session id
-        while (
-            run {
-                val firstUpdate = updateList.firstOrNull()
-                firstUpdate != null &&
-                    firstUpdate.first.sessionId != sessionValueHolder.info.localSessionId &&
-                    firstUpdate.first.sessionId != sessionValueHolder.info.preLocalSessionId
-            }
-        ) {
-            updateList.removeFirstKt()
-        }
-
-        // All updates will now be for the current session
         while (true) {
+            // Before every batch, clear out the updates written by earlier local sessions: those sessions were
+            // invalidated by an upstream change, so their updates must not be sent upstream. Pruning here, with no
+            // suspension before the batch is taken, keeps the batch correct even if the local session changes
+            // while this effect is still running.
+            updateList.removeStaleUpdates(sessionValueHolder.info)
             var firstUpdate = updateList.firstOrNull()
             var lastUpdate = updateList.lastOrNull()
             while (firstUpdate != null) {
@@ -319,6 +310,7 @@ fun <T> rememberAsyncSessionValueHolder(
                 // Clear the update list, and batch the updates into a single update
                 updateList.clear()
                 setUpstreamSessionValue(firstUpdate.first, lastUpdate.second)
+                updateList.removeStaleUpdates(sessionValueHolder.info)
                 firstUpdate = updateList.firstOrNull()
                 lastUpdate = updateList.lastOrNull()
             }
@@ -328,6 +320,20 @@ fun <T> rememberAsyncSessionValueHolder(
     }
 
     return sessionValueHolder
+}
+
+/**
+ * Removes the queued `(expected, newValue)` updates that were not written by the current local session of [info].
+ *
+ * Updates are queued in the order they are made, so the updates of earlier local sessions all precede the updates of
+ * the current local session. An update is matched by the session that wrote its `newValue`, not by its `expected`
+ * value: the first update of an invalidated local session can expect a value from the same upstream session as the
+ * current local session does, and sending it would make the batched update fail.
+ */
+internal fun <T> MutableList<Pair<SessionValue<T>, SessionValue<T>>>.removeStaleUpdates(info: LocalSessionInfo) {
+    while (isNotEmpty() && !info.isCurrentSessionUpdate(first().second)) {
+        removeFirstKt()
+    }
 }
 
 private class MappedSessionValueHolder<T, R>(
@@ -340,7 +346,7 @@ private class MappedSessionValueHolder<T, R>(
     override val info: LocalSessionInfo
         get() = sessionValueHolder.info
     override fun setValue(value: R, valueId: Uuid) {
-        sessionValueHolder.setValue(transformFrom(value))
+        sessionValueHolder.setValue(transformFrom(value), valueId)
     }
 }
 
