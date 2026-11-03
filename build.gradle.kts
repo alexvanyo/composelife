@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import com.alexvanyo.composelife.buildlogic.CheckNoCommittedSnapshotImagesTask
+
 plugins {
     // Satisfy Gradle plugin versioning alignment by adding all unversioned convention plugins here
     // (but only applying used ones)
@@ -57,11 +59,25 @@ tasks.named { it == "clean" }.configureEach {
     delete(rootProject.layout.buildDirectory)
 }
 
+val checkNoCommittedSnapshotImages = tasks.register<CheckNoCommittedSnapshotImagesTask>("checkNoCommittedSnapshotImages") {
+    group = "verification"
+    description = "Verifies that no snapshot PNG images are committed to Git."
+}
+
+tasks.register<Exec>("compareScreenshotsWithBase") {
+    group = "roborazzi"
+    description = "Compares current screenshot tests with a base git ref (default: HEAD or origin/main)"
+    val baseRef = providers.gradleProperty("baseRef").orElse("HEAD")
+    val module = providers.gradleProperty("module").orElse("")
+    commandLine("./scripts/compare-screenshots.sh", baseRef.get(), module.get())
+}
+
 tasks.named { it == "check" }.configureEach {
+    dependsOn(checkNoCommittedSnapshotImages)
     dependsOn(
         gradle.includedBuilds.map {
             it.task(":check")
-        }
+        },
     )
 }
 
