@@ -129,4 +129,14 @@ theorem mutantSerializeLife106_violates_header :
   revert this
   decide
 
+/--
+Mutant 4: a Plaintext serializer that outputs dead cell "." even for live cells.
+-/
+def mutantSerializePlaintextAllDead (_cells : Array (Int32 × Int32)) (_minX _maxX _minY _maxY : Int32) : Array String := #["."]
+
+/-- Mutant 4 violates `serializePlaintext_single`. -/
+theorem mutantSerializePlaintext_violates_single :
+    mutantSerializePlaintextAllDead #[(0, 0)] 0 0 0 0 ≠ serializePlaintext #[(0, 0)] 0 0 0 0 := by
+  decide +kernel
+
 end Algorithm
