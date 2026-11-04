@@ -149,4 +149,14 @@ theorem mutantSerializeLife105_violates_empty :
     mutantSerializeLife105BlockEmpty #[] 0 0 0 ≠ serializeLife105Block #[] 0 0 0 := by
   decide +kernel
 
+/--
+Mutant 6: an RLE run combiner that fails to combine identical runs.
+-/
+def mutantRleCombineNoMerge (items : Array (UInt8 × UInt32)) : Array (UInt8 × UInt32) := items
+
+/-- Mutant 6 violates `rleCombine_combine`. -/
+theorem mutantRleCombine_violates_combine :
+    mutantRleCombineNoMerge #[(111, 2), (111, 3)] ≠ rleCombine #[(111, 2), (111, 3)] := by
+  decide +kernel
+
 end Algorithm
