@@ -17,93 +17,36 @@
 package com.alexvanyo.composelife.model
 
 import androidx.compose.ui.unit.IntOffset
-import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 
 object PlaintextCellStateSerializer : FixedFormatCellStateSerializer {
     override val format: CellStateFormat.FixedFormat = CellStateFormat.FixedFormat.Plaintext
 
-    private data class LineLengthInfo(val index: Int, val length: Int)
-
-    @Suppress("LongMethod")
+    @Suppress("UNCHECKED_CAST")
     override fun deserializeToCellState(lines: Sequence<String>): DeserializationResult {
-        val warnings = mutableListOf<ParameterizedString>()
-        val points = mutableSetOf<IntOffset>()
+        val linesArray = lines.toList().toTypedArray()
+        val result = f_Algorithm_deserializePlaintext(linesArray as Array<Any?>)
 
-        var longestLine: LineLengthInfo? = null
+        val warnings = result.warnings.map {
+            val w = it as PlaintextWarning
+            when (w.tag) {
+                0u -> UnexpectedBlankLineMessage(w.lineIndex.toInt())
 
-        var lineIndex = 0
-        var rowIndex = 0
+                1u -> UnexpectedShortLineMessage(w.lineIndex.toInt())
 
-        val iterator = lines.iterator()
-
-        while (iterator.hasNext()) {
-            val line = iterator.next()
-
-            when (line.firstOrNull()) {
-                '!' -> {
-                    // Comment line, continue
-                }
-
-                null -> {
-                    if (iterator.hasNext()) {
-                        warnings.add(UnexpectedBlankLineMessage(lineIndex + 1))
-                    }
-                }
-
-                else -> {
-                    if (longestLine == null) {
-                        longestLine =
-                            LineLengthInfo(
-                                index = lineIndex,
-                                length = line.length,
-                            )
-                    } else if (line.length > longestLine.length) {
-                        warnings.add(UnexpectedShortLineMessage(longestLine.index + 1))
-                        longestLine =
-                            LineLengthInfo(
-                                index = lineIndex,
-                                length = line.length,
-                            )
-                    } else if (line.length < longestLine.length) {
-                        warnings.add(UnexpectedShortLineMessage(lineIndex + 1))
-                    }
-
-                    points.addAll(
-                        line
-                            .withIndex()
-                            .filter { (columnIndex, c) ->
-                                when (c) {
-                                    '.' -> {
-                                        false
-                                    }
-
-                                    'O' -> {
-                                        true
-                                    }
-
-                                    else -> {
-                                        warnings.add(
-                                            UnexpectedCharacterMessage(
-                                                c,
-                                                lineIndex + 1,
-                                                columnIndex + 1,
-                                            ),
-                                        )
-                                        when (c) {
-                                            ' ' -> false
-                                            else -> true
-                                        }
-                                    }
-                                }
-                            }.map { (columnIndex, _) -> IntOffset(columnIndex, rowIndex) },
-                    )
-
-                    rowIndex++
-                }
+                else -> UnexpectedCharacterMessage(
+                    w.charVal.toInt().toChar(),
+                    w.lineIndex.toInt(),
+                    w.columnIndex.toInt(),
+                )
             }
-
-            lineIndex++
         }
+
+        val points = result.cells.map {
+            val pair = it as Pair<*, *>
+            val x = if (pair.first is UInt) (pair.first as UInt).toInt() else (pair.first as Int)
+            val y = if (pair.second is UInt) (pair.second as UInt).toInt() else (pair.second as Int)
+            IntOffset(x, y)
+        }.toSet()
 
         return DeserializationResult.Successful(
             warnings = warnings,
@@ -112,28 +55,15 @@ object PlaintextCellStateSerializer : FixedFormatCellStateSerializer {
         )
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun serializeToString(cellState: CellState): Sequence<String> {
         val minX = cellState.aliveCells.minOfOrNull { it.x } ?: 0
         val maxX = cellState.aliveCells.maxOfOrNull { it.x } ?: 0
         val minY = cellState.aliveCells.minOfOrNull { it.y } ?: 0
         val maxY = cellState.aliveCells.maxOfOrNull { it.y } ?: 0
 
-        return sequence {
-            for (y in minY..maxY) {
-                yield(
-                    buildString {
-                        for (x in minX..maxX) {
-                            append(
-                                if (IntOffset(x, y) in cellState.aliveCells) {
-                                    'O'
-                                } else {
-                                    '.'
-                                },
-                            )
-                        }
-                    },
-                )
-            }
-        }
+        val cells = cellState.aliveCells.map { Pair(it.x.toUInt(), it.y.toUInt()) }.toTypedArray()
+        val lines = f_Algorithm_serializePlaintext(cells as Array<Any?>, minX, maxX, minY, maxY)
+        return lines.asSequence().map { it as String }
     }
 }
