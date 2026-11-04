@@ -115,4 +115,18 @@ theorem flat_capacity_hypotheses_satisfiable :
   rw [hl, hc, hr4, hrc]
   decide +kernel
 
+/--
+Mutant 3: a Life 1.06 serializer that forgets to output the header line.
+-/
+def mutantSerializeLife106MissingHeader (_cells : Array (Int32 × Int32)) : Array String := #[]
+
+/-- Mutant 3 violates `serializeLife106_empty`. -/
+theorem mutantSerializeLife106_violates_header :
+    mutantSerializeLife106MissingHeader #[] ≠ serializeLife106 #[] := by
+  unfold mutantSerializeLife106MissingHeader serializeLife106 serializeLife106.loop
+  intro h
+  have : #[].size = #["#Life 1.06"].size := congrArg Array.size h
+  revert this
+  decide
+
 end Algorithm
