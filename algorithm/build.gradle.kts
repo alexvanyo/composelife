@@ -58,6 +58,10 @@ lean {
         register("flatHashLife") {
             leanFile = "Algorithm/FlatHashLife.lean"
         }
+        register("life106") {
+            leanFile = "Algorithm/Life106.lean"
+            packageName = "com.alexvanyo.composelife.model"
+        }
     }
 }
 

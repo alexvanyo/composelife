@@ -52,6 +52,9 @@ roots = [
   "proofs.MacroCellEngineProofs",
   "proofs.MacroCellQueryProofs",
   "proofs.SymmetryProofs",
+  "Algorithm.Life106",
+  "proofs.Life106Proofs",
+  "theorems.Life106Theorems",
   "AxiomAudit",
 ]
 
