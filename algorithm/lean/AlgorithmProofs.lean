@@ -34,3 +34,4 @@ import proofs.FlatArenaConvert
 import proofs.FlatArenaCursor
 import proofs.MacroCellEngineProofs
 import proofs.MacroCellQueryProofs
+import proofs.Life106Proofs
