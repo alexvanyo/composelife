@@ -61,6 +61,9 @@ roots = [
   "Algorithm.Life105",
   "proofs.Life105Proofs",
   "theorems.Life105Theorems",
+  "Algorithm.RLE",
+  "proofs.RLEProofs",
+  "theorems.RLETheorems",
   "AxiomAudit",
 ]
 
