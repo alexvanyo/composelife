@@ -64,6 +64,8 @@ roots = [
   "Algorithm.RLE",
   "proofs.RLEProofs",
   "theorems.RLETheorems",
+  "proofs.MacrocellProofs",
+  "theorems.MacrocellTheorems",
   "AxiomAudit",
 ]
 
