@@ -22,6 +22,7 @@ import Algorithm.MacroCellHash
 import Algorithm.HashLife
 import Algorithm.Life106
 import Algorithm.Plaintext
+import Algorithm.Life105
 import AlgorithmDefs
 import AlgorithmProofs
 import AlgorithmTheorems

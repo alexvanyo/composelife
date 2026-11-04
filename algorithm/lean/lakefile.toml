@@ -58,6 +58,9 @@ roots = [
   "Algorithm.Plaintext",
   "proofs.PlaintextProofs",
   "theorems.PlaintextTheorems",
+  "Algorithm.Life105",
+  "proofs.Life105Proofs",
+  "theorems.Life105Theorems",
   "AxiomAudit",
 ]
 

@@ -139,4 +139,14 @@ theorem mutantSerializePlaintext_violates_single :
     mutantSerializePlaintextAllDead #[(0, 0)] 0 0 0 0 ≠ serializePlaintext #[(0, 0)] 0 0 0 0 := by
   decide +kernel
 
+/--
+Mutant 5: a Life 1.05 block serializer that outputs no rows.
+-/
+def mutantSerializeLife105BlockEmpty (_cells : Array (Int32 × Int32)) (_minX _minY _maxY : Int32) : Array String := #[]
+
+/-- Mutant 5 violates `serializeLife105Block_empty`. -/
+theorem mutantSerializeLife105_violates_empty :
+    mutantSerializeLife105BlockEmpty #[] 0 0 0 ≠ serializeLife105Block #[] 0 0 0 := by
+  decide +kernel
+
 end Algorithm
