@@ -66,6 +66,10 @@ lean {
             leanFile = "Algorithm/Plaintext.lean"
             packageName = "com.alexvanyo.composelife.model"
         }
+        register("life105") {
+            leanFile = "Algorithm/Life105.lean"
+            packageName = "com.alexvanyo.composelife.model"
+        }
     }
 }
 
