@@ -57,7 +57,7 @@ baselineProfile {
 
 afterEvaluate {
     tasks {
-        if (project.properties.containsKey("androidx.baselineprofile.skipgeneration")) {
+        if (providers.gradleProperty("androidx.baselineprofile.skipgeneration").isPresent) {
             named("${wearwearoslargeroundapi28.taskPrefix}Setup") {
                 enabled = false
             }

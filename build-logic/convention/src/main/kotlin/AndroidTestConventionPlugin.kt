@@ -39,7 +39,7 @@ class AndroidTestConventionPlugin :
                 named("debug") {
                     keyAlias = "debug"
                     keyPassword = "android"
-                    storeFile = file("$rootDir/keystore/debug.jks")
+                    storeFile = isolated.rootProject.projectDirectory.file("keystore/debug.jks").asFile
                     storePassword = "android"
                 }
             }

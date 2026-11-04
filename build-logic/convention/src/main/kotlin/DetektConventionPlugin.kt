@@ -31,7 +31,7 @@ class DetektConventionPlugin :
             buildUponDefaultConfig.set(true)
             allRules.set(false)
             autoCorrect.set(true)
-            config.setFrom("$rootDir/config/detekt.yml")
+            config.setFrom(isolated.rootProject.projectDirectory.file("config/detekt.yml"))
             source.setFrom("src")
         }
 

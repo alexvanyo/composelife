@@ -54,7 +54,7 @@ buildscript {
 }
 
 tasks.named { it == "clean" }.configureEach {
-    delete(rootProject.layout.buildDirectory)
+    delete(layout.buildDirectory)
 }
 
 tasks.named { it == "check" }.configureEach {
