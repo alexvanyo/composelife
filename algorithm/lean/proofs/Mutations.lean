@@ -159,4 +159,14 @@ theorem mutantRleCombine_violates_combine :
     mutantRleCombineNoMerge #[(111, 2), (111, 3)] ≠ rleCombine #[(111, 2), (111, 3)] := by
   decide +kernel
 
+/--
+Mutant 7: a Macrocell leaf parser that ignores all live cells.
+-/
+def mutantParseLeafNodeAllDead (_s : String) : UInt64 := 0
+
+/-- Mutant 7 violates `parseLeafNode_star_dollar`. -/
+theorem mutantParseLeafNode_violates_star_dollar :
+    mutantParseLeafNodeAllDead "*$" ≠ parseLeafNode "*$" := by
+  decide +kernel
+
 end Algorithm

@@ -27,3 +27,4 @@ import theorems.Life106Theorems
 import theorems.PlaintextTheorems
 import theorems.Life105Theorems
 import theorems.RLETheorems
+import theorems.MacrocellTheorems
