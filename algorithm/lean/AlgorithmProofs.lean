@@ -36,3 +36,4 @@ import proofs.MacroCellEngineProofs
 import proofs.MacroCellQueryProofs
 import proofs.Life106Proofs
 import proofs.PlaintextProofs
+import proofs.Life105Proofs
