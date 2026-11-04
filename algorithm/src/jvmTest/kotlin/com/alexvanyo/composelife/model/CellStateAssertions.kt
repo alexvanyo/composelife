@@ -21,23 +21,27 @@ import kotlin.test.assertTrue
 
 fun assertCellStateEquals(expected: CellState, actual: CellState, equalsModuleOffset: Boolean = false) {
     if (equalsModuleOffset) {
-        assertTrue(
-            expected.equalsModuloOffset(actual),
-            message = "Expected modulo offset ${RunLengthEncodedCellStateSerializer.serializeToString(
-                expected,
-            ).joinToString(
-                "\n",
-            )} but was ${RunLengthEncodedCellStateSerializer.serializeToString(actual).joinToString("\n")}",
-        )
+        if (!expected.equalsModuloOffset(actual)) {
+            assertTrue(
+                false,
+                message = "Expected modulo offset ${RunLengthEncodedCellStateSerializer.serializeToString(
+                    expected,
+                ).joinToString(
+                    "\n",
+                )} but was ${RunLengthEncodedCellStateSerializer.serializeToString(actual).joinToString("\n")}",
+            )
+        }
     } else {
-        assertEquals(
-            expected = expected,
-            actual = actual,
-            message = "Expected ${RunLengthEncodedCellStateSerializer.serializeToString(
-                expected,
-            ).joinToString(
-                "\n",
-            )} but was ${RunLengthEncodedCellStateSerializer.serializeToString(actual).joinToString("\n")}",
-        )
+        if (expected != actual) {
+            assertEquals(
+                expected = expected,
+                actual = actual,
+                message = "Expected ${RunLengthEncodedCellStateSerializer.serializeToString(
+                    expected,
+                ).joinToString(
+                    "\n",
+                )} but was ${RunLengthEncodedCellStateSerializer.serializeToString(actual).joinToString("\n")}",
+            )
+        }
     }
 }
