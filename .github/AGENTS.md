@@ -9,6 +9,7 @@ This directory contains configurations for GitHub-specific features, primarily C
   - **`baseline-profile.yml`**: This workflow is responsible for generating and updating Android Baseline Profiles, which are crucial for application performance. It runs on every PR merge.
   - **`ci.yml`**: This is the main Continuous Integration workflow. It runs on every push and pull request to build the project, run tests (unit and screenshot), and perform static analysis (like Detekt).
   - **`clear-caches.yml`**: This workflow provides a way to manually or automatically clear caches used by GitHub Actions, which can be useful for resolving build issues.
+  - **`deploy-website.yml`**: This workflow builds and deploys the WebAssembly web application to GitHub Pages upon push to `main`.
 - **`actions/`**: This directory contains reusable composite actions.
   - **`setup-lean/`**: Composite action that installs and caches elan and the Lean 4 toolchain (`leanprover/lean4:v4.34.0`) so that Gradle verification tasks and C bridge compilations can run on CI runners.
   - **`setup-custom-lean/`**: Composite action that resolves, caches, and compiles the custom Lean 4 compiler fork (`av/jvm`) for Kotlin code generation.
