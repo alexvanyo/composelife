@@ -1,0 +1,7 @@
+name = "Navigation"
+version = "0.1.0"
+defaultTargets = ["Navigation"]
+
+[[lean_lib]]
+name = "Navigation"
+roots = ["Navigation", "NavigationDefs", "NavigationTheorems", "NavigationProofs", "proofs.Mutations", "AxiomAudit"]
