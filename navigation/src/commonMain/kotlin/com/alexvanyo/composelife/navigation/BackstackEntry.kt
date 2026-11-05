@@ -31,13 +31,9 @@ import kotlin.uuid.Uuid
 class BackstackEntry<T>(val value: T, val previous: BackstackEntry<T>?, override val id: Uuid = Uuid.random()) :
     NavigationEntry,
     Iterable<BackstackEntry<T>> {
-    override fun iterator(): Iterator<BackstackEntry<T>> = iterator {
-        var current: BackstackEntry<T>? = this@BackstackEntry
-        while (current != null) {
-            yield(current)
-            current = current.previous
-        }
-    }
+    @Suppress("UNCHECKED_CAST")
+    override fun iterator(): Iterator<BackstackEntry<T>> =
+        f_Navigation_iterateBackstackEntry<T>(this).asSequence().map { it as BackstackEntry<T> }.iterator()
 
     override fun toString(): String = "BackstackEntry(id=$id, value=$value, previous=$previous)"
 }
