@@ -17,71 +17,62 @@
 package com.alexvanyo.composelife.model
 
 import androidx.compose.ui.unit.IntOffset
-import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 
 object Life106CellStateSerializer : FixedFormatCellStateSerializer {
     override val format: CellStateFormat.FixedFormat = CellStateFormat.FixedFormat.Life106
 
-    @Suppress("ReturnCount")
+    @Suppress("UNCHECKED_CAST")
     override fun deserializeToCellState(lines: Sequence<String>): DeserializationResult {
-        val warnings = mutableListOf<ParameterizedString>()
-        var lineIndex = 0
+        val linesArray = lines.toList().toTypedArray()
+        val result = f_Algorithm_deserializeLife106(linesArray as Array<Any?>)
 
-        val iterator = lines.iterator()
+        return when (result.status) {
+            0u -> {
+                val aliveCells = result.cells.map {
+                    val pair = it as Pair<*, *>
+                    val x = if (pair.first is UInt) (pair.first as UInt).toInt() else (pair.first as Int)
+                    val y = if (pair.second is UInt) (pair.second as UInt).toInt() else (pair.second as Int)
+                    IntOffset(x, y)
+                }.toSet()
+                DeserializationResult.Successful(
+                    warnings = emptyList(),
+                    cellState = CellState(aliveCells),
+                    format = CellStateFormat.FixedFormat.Life106,
+                )
+            }
 
-        if (!iterator.hasNext()) {
-            warnings.add(UnexpectedEmptyFileMessage)
+            1u -> {
+                DeserializationResult.Successful(
+                    warnings = listOf(UnexpectedEmptyFileMessage),
+                    cellState = emptyCellState(),
+                    format = CellStateFormat.FixedFormat.Life106,
+                )
+            }
 
-            return DeserializationResult.Successful(
-                warnings = warnings,
-                cellState = emptyCellState(),
-                format = CellStateFormat.FixedFormat.Life106,
-            )
-        }
-
-        val headerLine = iterator.next()
-        if (headerLine != "#Life 1.06") {
-            return DeserializationResult.Unsuccessful(
-                warnings = warnings,
-                errors =
-                listOf(
-                    UnexpectedHeaderMessage(headerLine),
-                ),
-            )
-        }
-        lineIndex++
-
-        val aliveCells = mutableSetOf<IntOffset>()
-
-        while (iterator.hasNext()) {
-            val line = iterator.next()
-
-            val matchResult = Regex("""(\d+) (\d+)""").matchEntire(line)
-
-            if (matchResult == null) {
-                return DeserializationResult.Unsuccessful(
-                    warnings = warnings,
-                    errors =
-                    listOf(
-                        UnexpectedInputMessage(line, lineIndex + 1, 0),
+            2u -> {
+                DeserializationResult.Unsuccessful(
+                    warnings = emptyList(),
+                    errors = listOf(
+                        UnexpectedHeaderMessage(result.errLineContent),
                     ),
                 )
-            } else {
-                val x = matchResult.groupValues[1].toInt()
-                val y = matchResult.groupValues[2].toInt()
-                aliveCells.add(IntOffset(x, y))
+            }
+
+            else -> {
+                DeserializationResult.Unsuccessful(
+                    warnings = emptyList(),
+                    errors = listOf(
+                        UnexpectedInputMessage(result.errLineContent, result.errLineIndex.toInt(), 0),
+                    ),
+                )
             }
         }
-
-        return DeserializationResult.Successful(
-            warnings = warnings,
-            cellState = CellState(aliveCells),
-            format = CellStateFormat.FixedFormat.Life106,
-        )
     }
 
-    override fun serializeToString(cellState: CellState): Sequence<String> = sequence {
-        yield("#Life 1.06")
-        yieldAll(cellState.aliveCells.map { "${it.x} ${it.y}" })
+    @Suppress("UNCHECKED_CAST")
+    override fun serializeToString(cellState: CellState): Sequence<String> {
+        val cells = cellState.aliveCells.map { Pair(it.x.toUInt(), it.y.toUInt()) }.toTypedArray()
+        val lines = f_Algorithm_serializeLife106(cells as Array<Any?>)
+        return lines.asSequence().map { it as String }
     }
 }

@@ -29,3 +29,9 @@ interface FixedFormatCellStateSerializer {
 
     fun serializeToString(cellState: CellState): Sequence<String>
 }
+
+/**
+ * The [Char] for a Unicode code point reported by a deserializer, or the replacement character if it doesn't fit in
+ * a single [Char].
+ */
+internal fun codePointToChar(codePoint: UInt): Char = if (codePoint <= 0xFFFFu) codePoint.toInt().toChar() else '�'
