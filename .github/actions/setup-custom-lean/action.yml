@@ -51,34 +51,58 @@ runs:
         echo "sha=$SHA" >> "$GITHUB_OUTPUT"
         echo "cache-key=lean-custom-${{ runner.os }}-$SHA" >> "$GITHUB_OUTPUT"
 
+    - name: Expand prefix path
+      id: prefix
+      shell: bash
+      run: |
+        PREFIX_EXPANDED="${{ inputs.prefix }}"
+        PREFIX_EXPANDED="${PREFIX_EXPANDED/#\~/$HOME}"
+        echo "path=$PREFIX_EXPANDED" >> "$GITHUB_OUTPUT"
+
     - name: Restore custom Lean compiler cache
       id: custom-lean-cache
       uses: actions/cache/restore@v6
       with:
-        path: ${{ inputs.prefix }}
+        path: ${{ steps.prefix.outputs.path }}
         key: ${{ steps.lean-sha.outputs.cache-key }}
 
+    - name: Download custom Lean artifact fallback
+      if: ${{ steps.custom-lean-cache.outputs.cache-hit != 'true' && inputs.build-if-missing != 'true' }}
+      id: custom-lean-artifact
+      continue-on-error: true
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ steps.lean-sha.outputs.cache-key }}
+        path: ${{ steps.prefix.outputs.path }}
+
     - name: Build custom Lean compiler
-      if: ${{ steps.custom-lean-cache.outputs.cache-hit != 'true' && inputs.build-if-missing == 'true' }}
+      if: ${{ steps.custom-lean-cache.outputs.cache-hit != 'true' && steps.custom-lean-artifact.outcome != 'success' && inputs.build-if-missing == 'true' }}
       shell: bash
       run: |
         sudo apt-get update && sudo apt-get install -y libgmp-dev libuv1-dev libssl-dev clang cmake ccache pkgconf
-        PREFIX_EXPANDED="${{ inputs.prefix }}"
-        PREFIX_EXPANDED="${PREFIX_EXPANDED/#\~/$HOME}"
+        PREFIX_EXPANDED="${{ steps.prefix.outputs.path }}"
         ./script/build-custom-lean.sh --prefix "$PREFIX_EXPANDED" --repo "${{ inputs.repo }}" --ref "${{ steps.lean-sha.outputs.sha }}"
 
     - name: Save custom Lean compiler cache
       if: ${{ steps.custom-lean-cache.outputs.cache-hit != 'true' && inputs.build-if-missing == 'true' }}
       uses: actions/cache/save@v6
       with:
-        path: ${{ inputs.prefix }}
+        path: ${{ steps.prefix.outputs.path }}
         key: ${{ steps.lean-sha.outputs.cache-key }}
+
+    - name: Upload custom Lean artifact
+      if: ${{ inputs.build-if-missing == 'true' }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ steps.lean-sha.outputs.cache-key }}
+        path: ${{ steps.prefix.outputs.path }}
+        retention-days: 1
 
     - name: Configure Lean Environment
       shell: bash
       run: |
-        PREFIX_EXPANDED="${{ inputs.prefix }}"
-        PREFIX_EXPANDED="${PREFIX_EXPANDED/#\~/$HOME}"
+        PREFIX_EXPANDED="${{ steps.prefix.outputs.path }}"
+        chmod +x "$PREFIX_EXPANDED/bin"/* 2>/dev/null || true
         if [ -x "$PREFIX_EXPANDED/bin/lean" ]; then
           echo "LEAN_BINARY=$PREFIX_EXPANDED/bin/lean" >> "$GITHUB_ENV"
           "$PREFIX_EXPANDED/bin/lean" --version

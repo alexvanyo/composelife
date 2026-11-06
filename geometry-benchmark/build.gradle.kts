@@ -44,7 +44,10 @@ android {
         testInstrumentationRunnerArguments["androidx.benchmark.requireLockedClocks"] = "false"
     }
     testBuildType = "staging"
-    configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
+    val runBenchmarks = findProperty("com.alexvanyo.composelife.runBenchmarks") == "true"
+    if (runBenchmarks) {
+        configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
+    }
 }
 
 dependencies {
