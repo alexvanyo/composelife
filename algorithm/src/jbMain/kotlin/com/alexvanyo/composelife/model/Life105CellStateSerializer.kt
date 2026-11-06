@@ -84,7 +84,6 @@ object Life105CellStateSerializer : FixedFormatCellStateSerializer {
             val minY = remainingCells.minOf(IntOffset::y)
             val maxY = remainingCells.maxOf(IntOffset::y)
 
-            yield("#P $minX $minY")
             val cellsArray = remainingCells.map { Pair(it.x.toUInt(), it.y.toUInt()) }.toTypedArray()
             val rows = f_Algorithm_serializeLife105Block(cellsArray as Array<Any?>, minX, minY, maxY)
             for (row in rows) {

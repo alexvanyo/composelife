@@ -67,7 +67,7 @@ object RunLengthEncodedCellStateSerializer : FixedFormatCellStateSerializer {
                         UnexpectedInputMessage(
                             input = result.errLine,
                             lineIndex = result.errLineIndex.toInt(),
-                            characterIndex = 1,
+                            characterIndex = result.errColumnIndex.toInt(),
                         ),
                     ),
                 )
@@ -81,7 +81,7 @@ object RunLengthEncodedCellStateSerializer : FixedFormatCellStateSerializer {
         1u -> DuplicateTopLeftCoordinateMessage(IntOffset(warn.offsetX, warn.offsetY))
 
         2u -> UnexpectedCharacterMessage(
-            character = warn.charVal.toInt().toChar(),
+            character = codePointToChar(warn.charVal),
             lineIndex = warn.lineIndex.toInt(),
             characterIndex = warn.columnIndex.toInt(),
         )
@@ -93,7 +93,7 @@ object RunLengthEncodedCellStateSerializer : FixedFormatCellStateSerializer {
         )
 
         else -> UnexpectedInputMessage(
-            input = "IndexedValue(index=${warn.columnIndex - 1u}, value=${warn.charVal.toInt().toChar()})",
+            input = "IndexedValue(index=${warn.columnIndex - 1u}, value=${codePointToChar(warn.charVal)})",
             lineIndex = warn.lineIndex.toInt(),
             characterIndex = warn.columnIndex.toInt(),
         )

@@ -19,138 +19,87 @@ import proofs.MacrocellProofs
 
 namespace Algorithm
 
-theorem serializeMacrocell_empty :
-    serializeMacrocell emptyLevel4 = #["[M2] (ComposeLife 1.0)"] :=
-  serializeMacrocell_empty_Impl
+/-!
+# Macrocell Master Theorems
 
-theorem formatLeafNode_zero :
-    formatLeafNode 0 = "$" :=
-  formatLeafNode_zero_Impl
+Deserialization returns a well-formed node of bounded depth for every input; serialization reads back as exactly
+the same tree for every pattern of smart-constructed nodes; and concrete checks of the format, including the
+rejected levels.
+-/
 
-theorem parseLeafNode_dollar :
-    parseLeafNode "$" = 0 :=
-  parseLeafNode_dollar_Impl
+/-- Whatever the input, deserialization returns a well-formed node (the children of every node have equal depths,
+so building it never fails) of depth at most 63. -/
+theorem deserializeMacrocell_wellFormed (lines : Array String) :
+    isWellFormed (deserializeMacrocell lines).macroCell ∧ (deserializeMacrocell lines).macroCell.depth ≤ 63 :=
+  deserializeMacrocell_ok lines
 
-theorem parseLeafNode_star_dollar :
-    parseLeafNode "*$" = 1 :=
-  parseLeafNode_star_dollar_Impl
+/--
+Every nonempty pattern of smart-constructed nodes (see `Canonical`), of depth at most 63 and not a single leaf,
+reads back as exactly the same tree, with no warnings. The writer numbers nodes by line, so it must write fewer
+than 2 ^ 31 lines.
+-/
+theorem macrocell_round_trip_spec (m : MacroCell) (hcan : Canonical m) (hd : m.depth ≤ 63)
+    (hsl : macrocellSingleLeaf m = none) (hne : m ≠ emptyMacroCellUInt32 m.level)
+    (hlen : ((⟨[macrocellHeader], [], []⟩ : MacrocellWriterState).addTree m).2.lines.length < 2 ^ 31) :
+    deserializeMacrocell (serializeMacrocell m) = ⟨0, "", 0, 0, 0, 0, #[], m⟩ :=
+  macrocell_round_trip m hcan hd hsl hne hlen
 
-theorem formatLeafNode_one :
-    formatLeafNode 1 = "*$" :=
-  formatLeafNode_one_Impl
-
-theorem leafContains_star_dollar :
-    leafContains (parseLeafNode "*$") 0 0 = true :=
-  leafContains_star_dollar_Impl
-
-theorem parseLeafNode_empty :
-    parseLeafNode "" = 0 :=
-  parseLeafNode_empty_Impl
-
-theorem macrocell_leaf_roundtrip_zero :
-    parseLeafNode (formatLeafNode 0) = 0 :=
-  macrocell_leaf_roundtrip_zero_Impl
-
-theorem macrocell_leaf_roundtrip_one :
-    parseLeafNode (formatLeafNode 1) = 1 :=
-  macrocell_leaf_roundtrip_one_Impl
-
-theorem macrocell_leaf_roundtrip_row1 :
-    parseLeafNode (formatLeafNode ((1 : UInt64) <<< 8)) = ((1 : UInt64) <<< 8) :=
-  macrocell_leaf_roundtrip_row1_Impl
-
-theorem macrocell_leaf_roundtrip_last_bit :
-    parseLeafNode (formatLeafNode ((1 : UInt64) <<< 63)) = ((1 : UInt64) <<< 63) :=
-  macrocell_leaf_roundtrip_last_bit_Impl
-
-theorem macrocell_leaf_roundtrip_all_ones :
-    parseLeafNode (formatLeafNode (~~~(0 : UInt64))) = ~~~(0 : UInt64) :=
-  macrocell_leaf_roundtrip_all_ones_Impl
-
-theorem macrocell_leaf_roundtrip_checkerboard :
-    parseLeafNode (formatLeafNode 0x5555555555555555) = 0x5555555555555555 :=
-  macrocell_leaf_roundtrip_checkerboard_Impl
-
-theorem macrocell_leaf_roundtrip_inv_checkerboard :
-    parseLeafNode (formatLeafNode 0xAAAAAAAAAAAAAAAA) = 0xAAAAAAAAAAAAAAAA :=
-  macrocell_leaf_roundtrip_inv_checkerboard_Impl
-
-theorem macrocell_leaf_roundtrip_full_row0 :
-    parseLeafNode (formatLeafNode 0xFF) = 0xFF :=
-  macrocell_leaf_roundtrip_full_row0_Impl
-
-theorem macrocell_leaf_roundtrip_full_col0 :
-    parseLeafNode (formatLeafNode 0x0101010101010101) = 0x0101010101010101 :=
-  macrocell_leaf_roundtrip_full_col0_Impl
-
-theorem macrocell_leaf_roundtrip_all_single_bits :
-    allSingleBitsRoundTrip = true :=
-  macrocell_leaf_roundtrip_all_single_bits_Impl
-
-theorem macrocell_leaf_roundtrip_all_single_bits_universal (k : Nat) (hk : k < 64) :
-    parseLeafNode (formatLeafNode ((1 : UInt64) <<< k.toUInt64)) = (1 : UInt64) <<< k.toUInt64 :=
-  macrocell_leaf_roundtrip_all_single_bits_universal_Impl k hk
-
-theorem macrocell_leaf_roundtrip_all_single_rows :
-    allSingleRowsRoundTrip = true :=
-  macrocell_leaf_roundtrip_all_single_rows_Impl
-
-theorem macrocell_leaf_roundtrip_all_single_rows_universal (y : Nat) (hy : y < 8) (n : Nat) (hn : n < 256) :
-    let w := n.toUInt8
-    let leaf := makeLeafRow w y.toUInt32
-    parseLeafNode (formatLeafNode leaf) = leaf :=
-  macrocell_leaf_roundtrip_all_single_rows_universal_Impl y hy n hn
+/-- A Level 4 node with a single nonempty leaf is written as just that leaf, which reads back in the northwest
+quadrant. -/
+theorem macrocell_round_trip_single_leaf_spec (m : MacroCell) (leaf : UInt64)
+    (hsl : macrocellSingleLeaf m = some leaf) :
+    deserializeMacrocell (serializeMacrocell m) = ⟨0, "", 0, 0, 0, 0, #[], makeLevel4Node leaf 0 0 0⟩ :=
+  macrocell_round_trip_single_leaf m leaf hsl
 
 theorem deserializeMacrocell_empty :
-    deserializeMacrocell #[] = ⟨1, "", 0, 0, 0, 0, #[⟨0, 0, 0, ""⟩], emptyLevel4⟩ :=
-  deserializeMacrocell_empty_Impl
-
-theorem deserializeMacrocell_header_only :
-    deserializeMacrocell #["[M2] (ComposeLife 1.0)"] = ⟨0, "", 0, 0, 0, 0, #[], emptyLevel4⟩ :=
-  deserializeMacrocell_header_only_Impl
+    deserializeMacrocell #[] = ⟨1, "", 0, 0, 0, 0, #[⟨0, 0, 0, ""⟩], emptyLevel4⟩ := by
+  decide +kernel
 
 theorem deserializeMacrocell_invalid_header :
-    deserializeMacrocell #["[INVALID]"] = ⟨2, "[INVALID]", 1, 0, 0, 0, #[], emptyLevel4⟩ :=
-  deserializeMacrocell_invalid_header_Impl
+    deserializeMacrocell #["invalid"] = ⟨2, "invalid", 1, 0, 0, 0, #[], emptyLevel4⟩ := by
+  decide +kernel
+
+/-- A node of level 0 is rejected, rather than building empty nodes up to level 2^32 - 1. -/
+theorem deserializeMacrocell_level_0 :
+    deserializeMacrocell #["[M2]", "0 0 0 0 0"] = ⟨3, "0 0 0 0 0", 1, 0, 0, 0, #[], emptyLevel4⟩ := by
+  decide +kernel
+
+/-- A level above 63 is rejected. -/
+theorem deserializeMacrocell_level_too_high :
+    (deserializeMacrocell #["[M2]", "4000000000 0 0 0 0"]).status = 3 := by
+  decide +kernel
+
+/-- A child of the wrong level is rejected, with the range of its number. -/
+theorem deserializeMacrocell_child_level_mismatch :
+    deserializeMacrocell #["[M2]", "*$", "4 1 0 0 0", "6 2 0 0 0"] =
+      ⟨4, "6 2 0 0 0", 3, 0, 2, 2, #[], emptyLevel4⟩ := by
+  decide +kernel
+
+/-- Cells outside the 8 by 8 leaf are ignored. -/
+theorem deserializeMacrocell_leaf_bounds :
+    deserializeMacrocell #["[M2]", "........*$$$$$$$$*$"] = ⟨0, "", 0, 0, 0, 0, #[], makeLevel4Node 0 0 0 0⟩ := by
+  decide +kernel
 
 theorem deserializeMacrocell_single_leaf :
-    deserializeMacrocell #["[M2] (ComposeLife 1.0)", "*$"] =
-    ⟨0, "", 0, 0, 0, 0, #[], makeLevel4Node 1 0 0 0⟩ :=
-  deserializeMacrocell_single_leaf_Impl
+    deserializeMacrocell #["[M2] (ComposeLife 1.0)", "*$"] = ⟨0, "", 0, 0, 0, 0, #[], makeLevel4Node 1 0 0 0⟩ := by
+  decide +kernel
 
-theorem macrocell_roundtrip_empty :
-    deserializeMacrocell (serializeMacrocell emptyLevel4) =
-    ⟨0, "", 0, 0, 0, 0, #[], emptyLevel4⟩ :=
-  macrocell_roundtrip_empty_Impl
+theorem serializeMacrocell_empty : serializeMacrocell emptyLevel4 = #["[M2] (ComposeLife 1.0)"] := by
+  decide +kernel
 
-theorem macrocell_roundtrip_single_leaf :
-    deserializeMacrocell (serializeMacrocell (makeLevel4Node 1 0 0 0)) =
-    ⟨0, "", 0, 0, 0, 0, #[], makeLevel4Node 1 0 0 0⟩ :=
-  macrocell_roundtrip_single_leaf_Impl
+/-- Equal leaves are written once. -/
+theorem serializeMacrocell_shared_leaves :
+    serializeMacrocell (makeLevel4Node 1 1 0 1) = #["[M2] (ComposeLife 1.0)", "*$", "4 1 1 0 1"] := by
+  decide +kernel
 
-theorem macrocell_roundtrip_row1 :
-    deserializeMacrocell (serializeMacrocell (makeLevel4Node ((1 : UInt64) <<< 8) 0 0 0)) =
-    ⟨0, "", 0, 0, 0, 0, #[], makeLevel4Node ((1 : UInt64) <<< 8) 0 0 0⟩ :=
-  macrocell_roundtrip_row1_Impl
+theorem macrocell_round_trip_level4 :
+    (deserializeMacrocell (serializeMacrocell (makeLevel4Node 1 2 3 4))).macroCell = makeLevel4Node 1 2 3 4 := by
+  decide +kernel
 
-theorem macrocell_roundtrip_last_bit :
-    deserializeMacrocell (serializeMacrocell (makeLevel4Node ((1 : UInt64) <<< 63) 0 0 0)) =
-    ⟨0, "", 0, 0, 0, 0, #[], makeLevel4Node ((1 : UInt64) <<< 63) 0 0 0⟩ :=
-  macrocell_roundtrip_last_bit_Impl
-
-theorem macrocell_roundtrip_all_ones :
-    deserializeMacrocell (serializeMacrocell (makeLevel4Node (~~~(0 : UInt64)) 0 0 0)) =
-    ⟨0, "", 0, 0, 0, 0, #[], makeLevel4Node (~~~(0 : UInt64)) 0 0 0⟩ :=
-  macrocell_roundtrip_all_ones_Impl
-
-theorem macrocell_roundtrip_full_level4 :
-    deserializeMacrocell (serializeMacrocell (makeLevel4Node 1 2 3 4)) =
-    ⟨0, "", 0, 0, 0, 0, #[], makeLevel4Node 1 2 3 4⟩ :=
-  macrocell_roundtrip_full_level4_Impl
-
-theorem macrocell_roundtrip_level5_cellnode :
-    deserializeMacrocell (serializeMacrocell (makeCellNode (makeLevel4Node 1 0 0 0) emptyLevel4 emptyLevel4 emptyLevel4)) =
-    ⟨0, "", 0, 0, 0, 0, #[], makeCellNode (makeLevel4Node 1 0 0 0) emptyLevel4 emptyLevel4 emptyLevel4⟩ :=
-  macrocell_roundtrip_level5_cellnode_Impl
+theorem macrocell_round_trip_level5 :
+    (deserializeMacrocell (serializeMacrocell
+      (makeCellNode (makeLevel4Node 1 0 0 0) emptyLevel4 emptyLevel4 (makeLevel4Node 1 0 0 0)))).macroCell =
+      makeCellNode (makeLevel4Node 1 0 0 0) emptyLevel4 emptyLevel4 (makeLevel4Node 1 0 0 0) := by
+  decide +kernel
 
 end Algorithm

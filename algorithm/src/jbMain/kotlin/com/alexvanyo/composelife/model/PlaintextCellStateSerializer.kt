@@ -34,7 +34,7 @@ object PlaintextCellStateSerializer : FixedFormatCellStateSerializer {
                 1u -> UnexpectedShortLineMessage(w.lineIndex.toInt())
 
                 else -> UnexpectedCharacterMessage(
-                    w.charVal.toInt().toChar(),
+                    codePointToChar(w.charVal),
                     w.lineIndex.toInt(),
                     w.columnIndex.toInt(),
                 )
