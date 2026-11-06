@@ -44,7 +44,7 @@ interface MutableBackstackNavigationController<T> : BackstackState<T> {
  * `true` if [popBackstack] is possible.
  */
 val <T> MutableBackstackNavigationController<T>.canNavigateBack
-    get() = currentEntry.previous != null
+    get() = f_Navigation_canNavigateBack<T>(currentEntry)
 
 @Composable
 inline fun <reified T> rememberMutableBackstackNavigationController(
@@ -102,7 +102,7 @@ fun <T> rememberMutableBackstackNavigationController(
 fun <N : NavigationState<T>, T : NavigationEntry> N.withExpectedActor(
     actorEntryId: Uuid?,
     block: N.(currentEntry: T) -> Unit,
-): Boolean = if (actorEntryId == null || actorEntryId == currentEntryId) {
+): Boolean = if (f_Navigation_isExpectedActor(currentEntryId, actorEntryId)) {
     block(currentEntry)
     true
 } else {

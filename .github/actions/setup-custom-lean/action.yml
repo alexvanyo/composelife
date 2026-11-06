@@ -90,6 +90,9 @@ runs:
             if [ -d "$REPO_ROOT/algorithm/lean" ]; then
               (cd "$REPO_ROOT/algorithm/lean" && elan override set custom-lean)
             fi
+            if [ -d "$REPO_ROOT/navigation/lean" ]; then
+              (cd "$REPO_ROOT/navigation/lean" && elan override set custom-lean)
+            fi
             if [ -d "$REPO_ROOT/session-value/lean" ]; then
               (cd "$REPO_ROOT/session-value/lean" && elan override set custom-lean)
             fi
