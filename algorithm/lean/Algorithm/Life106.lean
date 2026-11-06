@@ -14,99 +14,60 @@
  * limitations under the License.
  -/
 
-import Lean.Compiler.Kotlin
-import Init.Data.UInt
+import Algorithm.SerialCore
 
 namespace Algorithm
 
+/-!
+# Life 1.06
+
+A `#Life 1.06` header line followed by one `x y` coordinate line per alive cell.
+-/
+
 @[kotlin_class "Life106Result"]
 structure Life106Result where
+  /-- 0: success, 1: empty file, 2: invalid header, 3: invalid line. -/
   status : UInt32
+  /-- The 1-based index of the line with the error. -/
   errLineIndex : UInt32
   errLineContent : String
   cells : Array (Int32 × Int32)
   deriving DecidableEq, Repr
 
-@[inline]
-def isDigit (b : UInt8) : Bool := b >= 48 && b <= 57
+/-- Parses an `x y` coordinate line. Surrounding spaces are allowed; out-of-range values are rejected. -/
+def parseCoordLine (line : String) : Option (Int32 × Int32) :=
+  let bytes := line.toByteArray
+  let limit := bytes.size.toUInt32
+  let p0 := skipSpaces bytes 0 limit
+  match parseInt32At bytes p0 limit with
+  | none => none
+  | some r1 =>
+    if r1.next < limit && isSpaceByte (bytes.get! r1.next.toNat) then
+      let p1 := skipSpaces bytes r1.next limit
+      match parseInt32At bytes p1 limit with
+      | none => none
+      | some r2 => if skipSpaces bytes r2.next limit == limit then some (r1.val, r2.val) else none
+    else none
 
-@[inline]
-def isSpace (b : UInt8) : Bool := b == 32 || b == 9 || b == 13
-
-structure ParseIntResult where
-  val : Int32
-  nextPos : UInt32
-  deriving DecidableEq, Repr
-
-def parseSignedIntAt (bytes : ByteArray) (pos limit : UInt32) : Option ParseIntResult :=
-  if pos >= limit then none
-  else
-    let isNeg := bytes.get! pos.toNat == 45
-    let startDigits := if isNeg then pos + 1 else pos
-    if startDigits >= limit then none
-    else
-      let rec loop (p : UInt32) (acc : UInt32) (hasDigits : Bool) : Option ParseIntResult :=
-        if h : p < limit then
-          have : limit.toNat - (p + 1).toNat < limit.toNat - p.toNat := by
-            have h1 := UInt32.lt_iff_toNat_lt.mp h
-            have h2 : (p + 1).toNat = p.toNat + 1 := by
-              rw [UInt32.toNat_add]
-              have := UInt32.toNat_lt limit
-              simp only [UInt32.toNat_one]
-              omega
-            omega
-          let b := bytes.get! p.toNat
-          if isDigit b then
-            loop (p + 1) (acc * 10 + (b.toUInt32 - 48)) true
-          else if hasDigits then
-            let v := if isNeg then (0 : Int32) - acc.toInt32 else acc.toInt32
-            some ⟨v, p⟩
-          else
-            none
-        else if hasDigits then
-          let v := if isNeg then (0 : Int32) - acc.toInt32 else acc.toInt32
-          some ⟨v, p⟩
-        else
-          none
-      termination_by limit.toNat - p.toNat
-      loop startDigits 0 false
-
-def skipSpaces (bytes : ByteArray) (pos limit : UInt32) : UInt32 :=
-  if h : pos < limit then
-    have : limit.toNat - (pos + 1).toNat < limit.toNat - pos.toNat := by
+/-- Parses lines `i` onward as coordinate lines. -/
+def deserializeLife106.loop (lines : Array String) (i : UInt32) (limit : UInt32)
+    (acc : GrowBuf (Int32 × Int32)) : Life106Result :=
+  if h : i < limit then
+    have : limit.toNat - (i + 1).toNat < limit.toNat - i.toNat := by
       have h1 := UInt32.lt_iff_toNat_lt.mp h
-      have h2 : (pos + 1).toNat = pos.toNat + 1 := by
+      have h2 : (i + 1).toNat = i.toNat + 1 := by
         rw [UInt32.toNat_add]
         have := UInt32.toNat_lt limit
         simp only [UInt32.toNat_one]
         omega
       omega
-    if isSpace (bytes.get! pos.toNat) then
-      skipSpaces bytes (pos + 1) limit
-    else
-      pos
+    let line := lines[i.toNat]!
+    match parseCoordLine line with
+    | some coord => deserializeLife106.loop lines (i + 1) limit (acc.push coord)
+    | none => ⟨3, i + 1, line, #[]⟩
   else
-    pos
-termination_by limit.toNat - pos.toNat
-
-def parseCoordLine (line : String) : Option (Int32 × Int32) :=
-  let bytes := line.toByteArray
-  let limit := bytes.size.toUInt32
-  let p0 := skipSpaces bytes 0 limit
-  match parseSignedIntAt bytes p0 limit with
-  | none => none
-  | some res1 =>
-    if res1.nextPos >= limit || !isSpace (bytes.get! res1.nextPos.toNat) then none
-    else
-      let p1 := skipSpaces bytes res1.nextPos limit
-      match parseSignedIntAt bytes p1 limit with
-      | none => none
-      | some res2 =>
-        let p2 := skipSpaces bytes res2.nextPos limit
-        if p2 == limit then
-          some (res1.val, res2.val)
-        else
-          none
+    ⟨0, 0, "", acc.toArray⟩
+termination_by limit.toNat - i.toNat
 
 @[export life106_deserialize]
 def deserializeLife106 (lines : Array String) : Life106Result :=
@@ -117,42 +78,32 @@ def deserializeLife106 (lines : Array String) : Life106Result :=
     if header != "#Life 1.06" then
       ⟨2, 1, header, #[]⟩
     else
-      let rec loop (i : UInt32) (limit : UInt32) (acc : Array (Int32 × Int32)) : Life106Result :=
-        if h : i < limit then
-          have : limit.toNat - (i + 1).toNat < limit.toNat - i.toNat := by
-            have h1 := UInt32.lt_iff_toNat_lt.mp h
-            have h2 : (i + 1).toNat = i.toNat + 1 := by
-              rw [UInt32.toNat_add]
-              have := UInt32.toNat_lt limit
-              simp only [UInt32.toNat_one]
-              omega
-            omega
-          let line := lines[i.toNat]!
-          match parseCoordLine line with
-          | some coord => loop (i + 1) limit (acc.push coord)
-          | none => ⟨3, i + 1, line, #[]⟩
-        else
-          ⟨0, 0, "", acc⟩
-      termination_by limit.toNat - i.toNat
-      loop 1 lines.size.toUInt32 #[]
+      deserializeLife106.loop lines 1 lines.size.toUInt32 GrowBuf.empty
 
-@[export life106_serialize]
-def serializeLife106 (cells : Array (Int32 × Int32)) : Array String :=
-  let rec loop (i : UInt32) (limit : UInt32) (acc : Array String) : Array String :=
-    if h : i < limit then
-      have : limit.toNat - (i + 1).toNat < limit.toNat - i.toNat := by
-        have h1 := UInt32.lt_iff_toNat_lt.mp h
-        have h2 : (i + 1).toNat = i.toNat + 1 := by
-          rw [UInt32.toNat_add]
-          have := UInt32.toNat_lt limit
-          simp only [UInt32.toNat_one]
-          omega
+/-- The coordinate line for the cell at (`x`, `y`), given as the bits of the coordinates. -/
+def formatCoordLine (x y : UInt32) : String := s!"{x.toInt32} {y.toInt32}"
+
+/-- Appends the coordinate lines for cells (as `cellBits`) `i` onward. -/
+def serializeLife106.loop (cells : Array (UInt32 × UInt32)) (i : UInt32) (limit : UInt32)
+    (acc : GrowBuf String) : GrowBuf String :=
+  if h : i < limit then
+    have : limit.toNat - (i + 1).toNat < limit.toNat - i.toNat := by
+      have h1 := UInt32.lt_iff_toNat_lt.mp h
+      have h2 : (i + 1).toNat = i.toNat + 1 := by
+        rw [UInt32.toNat_add]
+        have := UInt32.toNat_lt limit
+        simp only [UInt32.toNat_one]
         omega
-      let (x, y) := cells[i.toNat]!
-      loop (i + 1) limit (acc.push s!"{x} {y}")
-    else
-      acc
-  termination_by limit.toNat - i.toNat
-  loop 0 cells.size.toUInt32 #["#Life 1.06"]
+      omega
+    let (x, y) := cells[i.toNat]!
+    serializeLife106.loop cells (i + 1) limit (acc.push (formatCoordLine x y))
+  else
+    acc
+termination_by limit.toNat - i.toNat
+
+/-- Serializes cells, given as `cellBits`. -/
+@[export life106_serialize]
+def serializeLife106 (cells : Array (UInt32 × UInt32)) : Array String :=
+  (serializeLife106.loop cells 0 cells.size.toUInt32 (GrowBuf.empty.push "#Life 1.06")).toArray
 
 end Algorithm

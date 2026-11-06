@@ -29,9 +29,10 @@ object Life106CellStateSerializer : FixedFormatCellStateSerializer {
         return when (result.status) {
             0u -> {
                 val aliveCells = result.cells.map {
-                    @Suppress("UNCHECKED_CAST")
-                    val pair = it as Pair<Int, Int>
-                    IntOffset(pair.first, pair.second)
+                    val pair = it as Pair<*, *>
+                    val x = if (pair.first is UInt) (pair.first as UInt).toInt() else (pair.first as Int)
+                    val y = if (pair.second is UInt) (pair.second as UInt).toInt() else (pair.second as Int)
+                    IntOffset(x, y)
                 }.toSet()
                 DeserializationResult.Successful(
                     warnings = emptyList(),

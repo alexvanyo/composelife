@@ -22,92 +22,74 @@ namespace Algorithm
 /-!
 # Life 1.05 Master Theorems
 
-Public specification theorems guaranteeing correct parsing, error detection, and serialization
-for the Life 1.05 format.
+The rule line is checked by its digit sets, for every pair of digit lists; and concrete checks of the format.
 -/
 
-/-- An empty line sequence produces the empty file warning and 0 cells. -/
+open Classical in
+/-- A `#R survival/birth` line is Conway's rules exactly when the survival digits are {2, 3} and the birth digits
+are {3}, in any order and with repeats. -/
+theorem checkRuleLine_spec (s b : List UInt8) (hs : s ≠ []) (hb : b ≠ [])
+    (hsd : ∀ d ∈ s, isDigitByte d = true) (hbd : ∀ d ∈ b, isDigitByte d = true)
+    (hsz : s.length + b.length + 4 < 2 ^ 32) :
+    checkRuleLine ⟨(35 :: 82 :: 32 :: (s ++ 47 :: b)).toArray⟩ =
+      if ((∀ d ∈ s, d = 50 ∨ d = 51) ∧ 50 ∈ s ∧ 51 ∈ s) ∧ ((∀ d ∈ b, d = 51) ∧ 51 ∈ b) then 0 else 2 :=
+  checkRuleLine_digits s b hs hb hsd hbd hsz
+
+/-- A file of serialized blocks deserializes, with no warnings, to the alive cells of the blocks, in order. -/
+theorem deserializeLife105_serialized_blocks (bs : List Life105Block)
+    (hbs : ∀ b ∈ bs, b.1.size < 2 ^ 32 ∧ 80 * b.height < 2 ^ 31)
+    (hsz : 80 * ((bs.flatMap Life105Block.lines).length + 2) < 2 ^ 31) :
+    deserializeLife105 (#["#Life 1.05", "#N"] ++ (bs.flatMap Life105Block.lines).toArray) =
+      ⟨0, "", 0, 0, #[], (bs.flatMap Life105Block.cells).toArray⟩ :=
+  deserializeLife105_blocks bs hbs hsz
+
+/-- Round trip: the cells read back are exactly the cells of the blocks that are inside their block. -/
+theorem life105_round_trip_spec (bs : List Life105Block)
+    (hbs : ∀ b ∈ bs, b.1.size < 2 ^ 32 ∧ 80 * b.height < 2 ^ 31)
+    (hsz : 80 * ((bs.flatMap Life105Block.lines).length + 2) < 2 ^ 31) :
+    let r := deserializeLife105 (#["#Life 1.05", "#N"] ++ (bs.flatMap Life105Block.lines).toArray)
+    r.status = 0 ∧ r.warnings = #[] ∧
+      ∀ q, q ∈ r.cells ↔ ∃ b ∈ bs, ∃ c ∈ b.1,
+        (gridIndex b.2.1 b.2.2.1 80 (b.2.2.2 - b.2.2.1 + 1).toUInt32 (c.1.toInt32, c.2.toInt32)).isSome ∧
+          q = (c.1.toInt32, c.2.toInt32) :=
+  life105_round_trip bs hbs hsz
+
+/-- Every block header line parses back to its coordinates. -/
+theorem parseBlockHeader_round_trip (x y : Int32) :
+    parseBlockHeader (formatBlockHeader x y).toByteArray = some ⟨x, y⟩ :=
+  parseBlockHeader_format x y
+
 theorem deserializeLife105_empty :
-    deserializeLife105 #[] = ⟨0, "", 0, 0, #[⟨0, "", 0, 0⟩], #[]⟩ :=
-  deserializeLife105_empty_Impl
+    deserializeLife105 #[] = ⟨0, "", 0, 0, #[⟨0, "", 0, 0⟩], #[]⟩ := by
+  decide +kernel
 
-/-- An empty pattern with '#Life 1.05' and '#N' succeeds with 0 cells and no warnings. -/
-theorem deserializeLife105_empty_pattern :
-    deserializeLife105 #["#Life 1.05", "#N"] = ⟨0, "", 0, 0, #[], #[]⟩ :=
-  deserializeLife105_empty_pattern_Impl
+theorem deserializeLife105_invalid_header :
+    deserializeLife105 #["#Life 1.06"] = ⟨1, "#Life 1.06", 1, 0, #[], #[]⟩ := by
+  decide +kernel
 
-/-- A line sequence whose header is not '#Life 1.05' produces the invalid header status. -/
-theorem deserializeLife105_invalid_header (hdr : String) (h : hdr ≠ "#Life 1.05") :
-    deserializeLife105 #[hdr] = ⟨1, hdr, 1, 0, #[], #[]⟩ :=
-  deserializeLife105_invalid_header_Impl hdr h
+/-- The rule digits are sets: their order and repeats don't matter. -/
+theorem checkRuleLine_digit_sets :
+    checkRuleLine "#R 23/3".toByteArray = 0 ∧ checkRuleLine "#R 32/3".toByteArray = 0 ∧
+      checkRuleLine "#R 3223/33".toByteArray = 0 ∧ checkRuleLine "#R 23/36".toByteArray = 2 ∧
+      checkRuleLine "#R 2/3".toByteArray = 2 ∧ checkRuleLine "#R 23".toByteArray = 1 ∧
+      checkRuleLine "#R /3".toByteArray = 1 := by
+  decide +kernel
 
-/-- Serializing an empty single row block produces 80 '.' characters. -/
-theorem serializeLife105Block_empty :
-    serializeLife105Block #[] 0 0 0 =
-    #["................................................................................"] :=
-  serializeLife105Block_empty_Impl
+/-- A block offset that doesn't fit in an `Int32` is rejected rather than wrapped. -/
+theorem deserializeLife105_out_of_range_offset :
+    (deserializeLife105 #["#Life 1.05", "#P 4294967297 0", "*"]).status = 3 := by
+  decide +kernel
 
-/-- Conway's life rule #R 23/3 is recognized as supported (code 0). -/
-theorem checkRuleLine_conway :
-    checkRuleLine "#R 23/3".toByteArray = 0 :=
-  checkRuleLine_conway_Impl
-
-/-- Non-standard rule #R 23/4 is recognized as unsupported rule (code 2). -/
-theorem checkRuleLine_unsupported :
-    checkRuleLine "#R 23/4".toByteArray = 2 :=
-  checkRuleLine_unsupported_Impl
-
-/-- Malformed rule #R invalid is recognized as malformed input (code 1). -/
-theorem checkRuleLine_malformed :
-    checkRuleLine "#R invalid".toByteArray = 1 :=
-  checkRuleLine_malformed_Impl
-
-/-- Parsing a valid '#P 0 0' block header correctly extracts (0, 0). -/
-theorem parseBlockHeader_valid :
-    parseBlockHeader "#P 0 0".toByteArray = some ⟨0, 0⟩ :=
-  parseBlockHeader_valid_Impl
-
-/-- Parsing signed block headers '#P -10 25' correctly extracts (-10, 25). -/
-theorem parseBlockHeader_negative :
-    parseBlockHeader "#P -10 25".toByteArray = some ⟨-10, 25⟩ :=
-  parseBlockHeader_negative_Impl
-
-/-- Valid row containing only '.' and '*' is recognized. -/
-theorem isRowLine_valid :
-    isRowLine "*.*.*".toByteArray = true :=
-  isRowLine_valid_Impl
-
-/-- Row containing invalid characters is rejected. -/
-theorem isRowLine_invalid :
-    isRowLine "*.*X*".toByteArray = false :=
-  isRowLine_invalid_Impl
-
-/-- Deserializing a single cell pattern succeeds. -/
-theorem deserializeLife105_single_cell :
-    deserializeLife105 #["#Life 1.05", "#N", "#P 0 0", "*"] =
-    ⟨0, "", 0, 0, #[], #[(0, 0)]⟩ :=
-  deserializeLife105_single_cell_Impl
-
-/-- Roundtrip: serializing a single cell and deserializing it preserves the cell coordinate. -/
-theorem life105_block_roundtrip_single :
-    deserializeLife105 (#["#Life 1.05", "#N", "#P 0 0"] ++ serializeLife105Block #[(0, 0)] 0 0 0) =
-    ⟨0, "", 0, 0, #[], #[(0, 0)]⟩ :=
-  life105_block_roundtrip_single_Impl
-
-/-- Roundtrip: serializing a 2x2 block and deserializing it recovers all 4 cell coordinates. -/
-theorem life105_block_roundtrip_block :
+theorem life105_block_round_trip_glider :
     deserializeLife105
-      (#["#Life 1.05", "#N", "#P 0 0"] ++
-        serializeLife105Block #[(0, 0), (1, 0), (0, 1), (1, 1)] 0 0 1) =
-    ⟨0, "", 0, 0, #[], #[(0, 0), (1, 0), (0, 1), (1, 1)]⟩ :=
-  life105_block_roundtrip_block_Impl
+        (#["#Life 1.05", "#N"] ++ serializeLife105Block #[(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)] 0 0 2) =
+      ⟨0, "", 0, 0, #[], #[(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)]⟩ := by
+  decide +kernel
 
-/-- Roundtrip: serializing a blinker and deserializing it recovers all 3 cell coordinates. -/
-theorem life105_block_roundtrip_blinker :
-    deserializeLife105
-      (#["#Life 1.05", "#N", "#P 0 0"] ++
-        serializeLife105Block #[(0, 0), (1, 0), (2, 0)] 0 0 0) =
-    ⟨0, "", 0, 0, #[], #[(0, 0), (1, 0), (2, 0)]⟩ :=
-  life105_block_roundtrip_blinker_Impl
+/-- Cells outside the block are left for another block. -/
+theorem serializeLife105Block_skips_outside :
+    serializeLife105Block #[(0, 0), (80, 0)] 0 0 0 =
+      #["#P 0 0", "*" ++ String.ofList (List.replicate 79 '.')] := by
+  decide +kernel
 
 end Algorithm

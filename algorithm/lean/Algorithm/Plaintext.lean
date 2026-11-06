@@ -14,16 +14,27 @@
  * limitations under the License.
  -/
 
-import Lean.Compiler.Kotlin
-import Init.Data.UInt
+import Algorithm.SerialCore
 
 namespace Algorithm
 
+/-!
+# Plaintext
+
+Rows of `.` (dead) and `O` (alive) characters. Lines starting with `!` are comments.
+
+Lines are read as UTF-8, and columns count characters.
+-/
+
 @[kotlin_class "PlaintextWarning"]
 structure PlaintextWarning where
+  /-- 0: unexpected blank line, 1: unexpected short line, 2: unexpected character. -/
   tag : UInt32
+  /-- 1-based line index. -/
   lineIndex : UInt32
+  /-- 1-based character index, for unexpected characters. -/
   columnIndex : UInt32
+  /-- The code point, for unexpected characters. -/
   charVal : UInt32
   deriving DecidableEq, Repr
 
@@ -33,124 +44,100 @@ structure PlaintextResult where
   cells : Array (Int32 × Int32)
   deriving DecidableEq, Repr
 
-def cellContains (cells : Array (Int32 × Int32)) (x y : Int32) : Bool :=
-  let rec loop (i : UInt32) (limit : UInt32) : Bool :=
-    if h : i < limit then
-      have : limit.toNat - (i + 1).toNat < limit.toNat - i.toNat := by
-        have h1 := UInt32.lt_iff_toNat_lt.mp h
-        have h2 : (i + 1).toNat = i.toNat + 1 := by
-          rw [UInt32.toNat_add]
-          have := UInt32.toNat_lt limit
-          simp only [UInt32.toNat_one]
-          omega
-        omega
-      let (cx, cy) := cells[i.toNat]!
-      if cx == x && cy == y then true
-      else loop (i + 1) limit
-    else false
-  termination_by limit.toNat - i.toNat
-  loop 0 cells.size.toUInt32
+/-- The number of characters in `bytes` from `p` on, plus `n`. -/
+def countChars (bytes : ByteArray) (limit : UInt32) (p : UInt32) (n : UInt32) : UInt32 :=
+  if h : p < limit then
+    countChars bytes limit (decodeCharAt bytes p limit).2 (n + 1)
+  else n
+termination_by limit.toNat - p.toNat
+decreasing_by have := decodeCharAt_next bytes p limit h; omega
 
-def parsePlaintextLine (lineBytes : ByteArray) (lineIdx rowIdx : UInt32)
-    (warns : Array PlaintextWarning) (cells : Array (Int32 × Int32)) :
-    Array PlaintextWarning × Array (Int32 × Int32) :=
-  let rec loop (col : UInt32) (limit : UInt32) (warns : Array PlaintextWarning) (cells : Array (Int32 × Int32)) :
-      Array PlaintextWarning × Array (Int32 × Int32) :=
-    if h : col < limit then
-      have : limit.toNat - (col + 1).toNat < limit.toNat - col.toNat := by
-        have h1 := UInt32.lt_iff_toNat_lt.mp h
-        have h2 : (col + 1).toNat = col.toNat + 1 := by
-          rw [UInt32.toNat_add]
-          have := UInt32.toNat_lt limit
-          simp only [UInt32.toNat_one]
-          omega
+/--
+Reads lines `i` onward. In a pattern row (`inRow`), `bytes` is the current line, `p` the byte position and `col`
+the character position. `longestIdx` and `longestLen` describe the longest pattern row so far, if any.
+-/
+def deserializePlaintext.loop (lines : Array String) (numLines : UInt32) (i : UInt32) (inRow : Bool)
+    (bytes : ByteArray) (limit : UInt32) (p col : UInt32) (rowIdx : UInt32) (longestIdx longestLen : UInt32)
+    (hasLongest : Bool) (warns : GrowBuf PlaintextWarning) (cells : GrowBuf (Int32 × Int32)) :
+    PlaintextResult :=
+  if hi : i < numLines then
+    have hi1 : numLines.toNat - (i + 1).toNat < numLines.toNat - i.toNat := by
+      have h1 := UInt32.lt_iff_toNat_lt.mp hi
+      have h2 : (i + 1).toNat = i.toNat + 1 := by
+        rw [UInt32.toNat_add]
+        have := UInt32.toNat_lt numLines
+        simp only [UInt32.toNat_one]
         omega
-      let b := lineBytes.get! col.toNat
-      if b == 46 then -- '.'
-        loop (col + 1) limit warns cells
-      else if b == 79 then -- 'O'
-        loop (col + 1) limit warns (cells.push (col.toInt32, rowIdx.toInt32))
+      omega
+    if inRow then
+      if hp : p < limit then
+        let r := decodeCharAt bytes p limit
+        have := decodeCharAt_next bytes p limit hp
+        let cp := r.1
+        if cp == 46 then -- '.'
+          deserializePlaintext.loop lines numLines i true bytes limit r.2 (col + 1) rowIdx longestIdx longestLen
+            hasLongest warns cells
+        else if cp == 79 then -- 'O'
+          deserializePlaintext.loop lines numLines i true bytes limit r.2 (col + 1) rowIdx longestIdx longestLen
+            hasLongest warns (cells.push (col.toInt32, rowIdx.toInt32))
+        else
+          -- Anything else is a warning, and alive unless it is a space.
+          let newWarns := warns.push ⟨2, i + 1, col + 1, cp⟩
+          let newCells := if cp == 32 then cells else cells.push (col.toInt32, rowIdx.toInt32)
+          deserializePlaintext.loop lines numLines i true bytes limit r.2 (col + 1) rowIdx longestIdx longestLen
+            hasLongest newWarns newCells
       else
-        let newWarns := warns.push ⟨2, lineIdx, col + 1, b.toUInt32⟩
-        let newCells := if b == 32 then cells else cells.push (col.toInt32, rowIdx.toInt32)
-        loop (col + 1) limit newWarns newCells
-    else (warns, cells)
-  termination_by limit.toNat - col.toNat
-  loop 0 lineBytes.size.toUInt32 warns cells
+        deserializePlaintext.loop lines numLines (i + 1) false bytes limit 0 0 (rowIdx + 1) longestIdx longestLen
+          hasLongest warns cells
+    else
+      let bytes := lines[i.toNat]!.toByteArray
+      let limit := bytes.size.toUInt32
+      if limit == 0 then
+        let newWarns := if i + 1 < numLines then warns.push ⟨0, i + 1, 0, 0⟩ else warns
+        deserializePlaintext.loop lines numLines (i + 1) false bytes limit 0 0 rowIdx longestIdx longestLen
+          hasLongest newWarns cells
+      else if bytes.get! 0 == 33 then -- '!'
+        deserializePlaintext.loop lines numLines (i + 1) false bytes limit 0 0 rowIdx longestIdx longestLen
+          hasLongest warns cells
+      else
+        let len := countChars bytes limit 0 0
+        if !hasLongest then
+          deserializePlaintext.loop lines numLines i true bytes limit 0 0 rowIdx (i + 1) len true warns cells
+        else if len > longestLen then
+          deserializePlaintext.loop lines numLines i true bytes limit 0 0 rowIdx (i + 1) len true
+            (warns.push ⟨1, longestIdx, 0, 0⟩) cells
+        else
+          let lenWarns := if len < longestLen then warns.push ⟨1, i + 1, 0, 0⟩ else warns
+          deserializePlaintext.loop lines numLines i true bytes limit 0 0 rowIdx longestIdx longestLen true
+            lenWarns cells
+  else ⟨warns.toArray, cells.toArray⟩
+termination_by (numLines.toNat - i.toNat) * 2 ^ 33 + (if inRow then limit.toNat - p.toNat else 2 ^ 32)
+decreasing_by
+  all_goals
+    simp_all only [ite_true, Bool.false_eq_true, ite_false]
+    first
+      | omega
+      | (have := UInt32.toNat_lt limit; omega)
+      | (have := UInt32.toNat_lt (ByteArray.size lines[i.toNat]!.toByteArray).toUInt32; omega)
 
 @[export plaintext_deserialize]
 def deserializePlaintext (lines : Array String) : PlaintextResult :=
-  let rec loop (i : UInt32) (numLines : UInt32) (rowIdx : UInt32) (longestLineIdx longestLen : UInt32)
-      (hasLongest : Bool) (warns : Array PlaintextWarning) (cells : Array (Int32 × Int32)) : PlaintextResult :=
-    if h : i < numLines then
-      have : numLines.toNat - (i + 1).toNat < numLines.toNat - i.toNat := by
-        have h1 := UInt32.lt_iff_toNat_lt.mp h
-        have h2 : (i + 1).toNat = i.toNat + 1 := by
-          rw [UInt32.toNat_add]
-          have := UInt32.toNat_lt numLines
-          simp only [UInt32.toNat_one]
-          omega
-        omega
-      let line := lines[i.toNat]!
-      let bytes := line.toByteArray
-      let len := bytes.size.toUInt32
-      if len == 0 then
-        let newWarns := if i + 1 < numLines then warns.push ⟨0, i + 1, 0, 0⟩ else warns
-        loop (i + 1) numLines rowIdx longestLineIdx longestLen hasLongest newWarns cells
-      else if bytes.get! 0 == 33 then -- '!'
-        loop (i + 1) numLines rowIdx longestLineIdx longestLen hasLongest warns cells
-      else
-        let (curLongestIdx, curLongestLen, nextHasLongest, lenWarns) :=
-          if !hasLongest then
-            (i + 1, len, true, warns)
-          else if len > longestLen then
-            (i + 1, len, true, warns.push ⟨1, longestLineIdx, 0, 0⟩)
-          else if len < longestLen then
-            (longestLineIdx, longestLen, true, warns.push ⟨1, i + 1, 0, 0⟩)
-          else
-            (longestLineIdx, longestLen, true, warns)
-        let (allWarns, allCells) := parsePlaintextLine bytes (i + 1) rowIdx lenWarns cells
-        loop (i + 1) numLines (rowIdx + 1) curLongestIdx curLongestLen nextHasLongest allWarns allCells
-    else ⟨warns, cells⟩
-  termination_by numLines.toNat - i.toNat
-  loop 0 lines.size.toUInt32 0 0 0 false #[] #[]
+  deserializePlaintext.loop lines lines.size.toUInt32 0 false ByteArray.empty 0 0 0 0 0 0 false GrowBuf.empty
+    GrowBuf.empty
 
+/--
+Serializes the cells (as `cellBits`) in the bounding box from (`minX`, `minY`) to (`maxX`, `maxY`), one row per
+line. Cells
+outside the box are skipped.
+-/
 @[export plaintext_serialize]
-def serializePlaintext (cells : Array (Int32 × Int32)) (minX maxX minY maxY : Int32) : Array String :=
+def serializePlaintext (cells : Array (UInt32 × UInt32)) (minX maxX minY maxY : Int32) : Array String :=
   if cells.size.toUInt32 == 0 then #["."]
   else
     let width : UInt32 := (maxX - minX + 1).toUInt32
     let height : UInt32 := (maxY - minY + 1).toUInt32
-    let rec buildRow (y : Int32) (col : UInt32) (width : UInt32) (acc : String) : String :=
-      if h : col < width then
-        have : width.toNat - (col + 1).toNat < width.toNat - col.toNat := by
-          have h1 := UInt32.lt_iff_toNat_lt.mp h
-          have h2 : (col + 1).toNat = col.toNat + 1 := by
-            rw [UInt32.toNat_add]
-            have := UInt32.toNat_lt width
-            simp only [UInt32.toNat_one]
-            omega
-          omega
-        let x := minX + col.toInt32
-        let ch := if cellContains cells x y then "O" else "."
-        buildRow y (col + 1) width (acc ++ ch)
-      else acc
-    termination_by width.toNat - col.toNat
-    let rec buildRows (row : UInt32) (height : UInt32) (acc : Array String) : Array String :=
-      if h : row < height then
-        have : height.toNat - (row + 1).toNat < height.toNat - row.toNat := by
-          have h1 := UInt32.lt_iff_toNat_lt.mp h
-          have h2 : (row + 1).toNat = row.toNat + 1 := by
-            rw [UInt32.toNat_add]
-            have := UInt32.toNat_lt height
-            simp only [UInt32.toNat_one]
-            omega
-          omega
-        let y := minY + row.toInt32
-        let rowStr := buildRow y 0 width ""
-        buildRows (row + 1) height (acc.push rowStr)
-      else acc
-    termination_by height.toNat - row.toNat
-    buildRows 0 height #[]
+    let grid := fillGrid cells minX minY width height 79 (by decide) 0 cells.size.toUInt32
+      (AsciiBytes.replicate (width * height) 46 (by decide))
+    (gridRows grid width height 0 GrowBuf.empty).toArray
 
 end Algorithm

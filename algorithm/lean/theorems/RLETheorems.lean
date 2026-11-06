@@ -20,138 +20,108 @@ import proofs.RLEProofs
 namespace Algorithm
 
 /-!
-# Run-Length Encoding (RLE) Master Theorems
+# RLE Master Theorems
 
-Public specification theorems guaranteeing correct run-length encoding compression,
-line wrapping, and serialization for the RLE format.
+The rule is checked by its digit sets in both notations, for every pair of digit lists; and concrete checks of
+the format, including round trips. Every cell array inside its bounding box reads back exactly.
 -/
 
-/-- An empty run sequence produces an empty combined run array. -/
-theorem rleCombine_empty :
-    rleCombine #[] = #[] :=
-  rleCombine_empty_Impl
+open Classical in
+/-- A rule `B<birth>/S<survival>` is Conway's rules exactly when the birth digits are {3} and the survival digits
+are {2, 3}, in any order and with repeats, with letters of either case. -/
+theorem checkRLERule_letters_spec (pre b s : List UInt8) (cB cS : UInt8) (hcB : cB = 66 ∨ cB = 98)
+    (hcS : cS = 83 ∨ cS = 115) (hb : b ≠ []) (hs : s ≠ []) (hbd : ∀ d ∈ b, isDigitByte d = true)
+    (hsd : ∀ d ∈ s, isDigitByte d = true) (hsz : pre.length + b.length + s.length + 3 < 2 ^ 32) :
+    checkRLERule ⟨(pre ++ cB :: (b ++ 47 :: cS :: s)).toArray⟩ pre.length.toUInt32
+        (⟨(pre ++ cB :: (b ++ 47 :: cS :: s)).toArray⟩ : ByteArray).size.toUInt32 =
+      if ((∀ d ∈ b, d = 51) ∧ 51 ∈ b) ∧ ((∀ d ∈ s, d = 50 ∨ d = 51) ∧ 50 ∈ s ∧ 51 ∈ s) then 0 else 3 :=
+  checkRLERule_letters pre b s cB cS hcB hcS hb hs hbd hsd hsz
 
-/-- Consecutive runs with the same character are combined into their sum. -/
-theorem rleCombine_combine :
-    rleCombine #[(111, 2), (111, 3)] = #[(111, 5)] :=
-  rleCombine_combine_Impl
+open Classical in
+/-- A rule `<survival>/<birth>` is Conway's rules exactly when the survival digits are {2, 3} and the birth digits
+are {3}, in any order and with repeats. -/
+theorem checkRLERule_digits_spec (pre s b : List UInt8) (hs : s ≠ []) (hb : b ≠ [])
+    (hsd : ∀ d ∈ s, isDigitByte d = true) (hbd : ∀ d ∈ b, isDigitByte d = true)
+    (hsz : pre.length + s.length + b.length + 1 < 2 ^ 32) :
+    checkRLERule ⟨(pre ++ (s ++ 47 :: b)).toArray⟩ pre.length.toUInt32
+        (⟨(pre ++ (s ++ 47 :: b)).toArray⟩ : ByteArray).size.toUInt32 =
+      if ((∀ d ∈ s, d = 50 ∨ d = 51) ∧ 50 ∈ s ∧ 51 ∈ s) ∧ ((∀ d ∈ b, d = 51) ∧ 51 ∈ b) then 0 else 3 :=
+  checkRLERule_digits pre s b hs hb hsd hbd hsz
 
-/-- Consecutive runs with distinct characters are preserved. -/
-theorem rleCombine_distinct :
-    rleCombine #[(111, 1), (98, 1)] = #[(111, 1), (98, 1)] :=
-  rleCombine_distinct_Impl
-
-/-- Serializing empty cell state produces the 0x0 header and terminating '!'. -/
-theorem serializeRLE_empty :
-    serializeRLE #[] 0 0 0 0 = #["#R 0 0", "x = 0, y = 0, rule = B3/S23", "!"] :=
-  serializeRLE_empty_Impl
-
-/-- Serializing a single alive cell produces the 1x1 header and 'o!'. -/
-theorem serializeRLE_single :
-    serializeRLE #[(0, 0)] 0 0 0 0 = #["#R 0 0", "x = 1, y = 1, rule = B3/S23", "o!"] :=
-  serializeRLE_single_Impl
-
-/-- Decoding a single alive run of count 1 at (0, 0) yields [(0, 0)]. -/
-theorem decodeRLERuns_single_alive :
-    decodeRLERuns #[(2, 1)] 0 0 = #[(0, 0)] :=
-  decodeRLERuns_single_alive_Impl
-
-/-- Decoding empty run sequence produces empty coordinates. -/
-theorem decodeRLERuns_empty (x y : Int32) :
-    decodeRLERuns #[] x y = #[] :=
-  decodeRLERuns_empty_Impl x y
-
-/-- Combining a single run is the identity for any tag and count. -/
-theorem rleCombine_single_run (tag : UInt8) (count : UInt32) :
-    rleCombine #[(tag, count)] = #[(tag, count)] :=
-  rleCombine_single_run_Impl tag count
-
-/-- Combining a single run is idempotent for any tag and count. -/
-theorem rleCombine_idempotent_single_run (tag : UInt8) (count : UInt32) :
-    rleCombine (rleCombine #[(tag, count)]) = rleCombine #[(tag, count)] :=
-  rleCombine_idempotent_single_run_Impl tag count
-
-/-- Combining three identical consecutive runs sums their lengths. -/
-theorem rleCombine_triple_same (tag : UInt8) :
-    rleCombine #[(tag, 1), (tag, 2), (tag, 3)] = #[(tag, 6)] :=
-  rleCombine_triple_same_Impl tag
-
-/-- Decoding an alive run of count 2 at (5, 10) yields coordinates [(5, 10), (6, 10)]. -/
-theorem decodeRLERuns_two_cells :
-    decodeRLERuns #[(2, 2)] 5 10 = #[(5, 10), (6, 10)] :=
-  decodeRLERuns_two_cells_Impl
-
-/-- Decoding alive runs separated by row advance (0, 1) yields vertically displaced cells. -/
-theorem decodeRLERuns_row_advance :
-    decodeRLERuns #[(2, 1), (0, 1), (2, 1)] 0 0 = #[(0, 0), (0, 1)] :=
-  decodeRLERuns_row_advance_Impl
-
-/-- Serializing a 3-cell blinker pattern produces header with '3o!' compression. -/
-theorem serializeRLE_blinker :
-    serializeRLE #[(-1, 0), (0, 0), (1, 0)] (-1) 1 0 0 =
-    #["#R -1 0", "x = 3, y = 1, rule = B3/S23", "3o!"] :=
-  serializeRLE_blinker_Impl
-
-/-- Deserializing an empty line array produces status 1 (unexpected empty file). -/
 theorem deserializeRLE_empty :
-    deserializeRLE #[] = ⟨1, "", 0, #[⟨0, 0, 0, 0, "", zeroOffset, zeroOffset⟩], #[]⟩ :=
-  deserializeRLE_empty_Impl
+    deserializeRLE #[] = ⟨1, "", 0, 0, #[⟨0, 0, 0, 0, "", 0, 0⟩], #[]⟩ := by
+  decide +kernel
 
-/-- Valid standard header with Conway rule B3/S23 is accepted. -/
-theorem parseRLEHeader_valid :
-    parseRLEHeader "x = 3, y = 1, rule = B3/S23".toByteArray = 0 :=
-  parseRLEHeader_valid_Impl
+/-- The rule digits are sets: their order and repeats don't matter, in both rule notations. -/
+theorem parseRLEHeader_rule_digit_sets :
+    parseRLEHeader "x = 1, y = 1, rule = B3/S23".toByteArray = 0 ∧
+      parseRLEHeader "x = 1, y = 1, rule = B3/S32".toByteArray = 0 ∧
+      parseRLEHeader "x = 1, y = 1, rule = b33/s322".toByteArray = 0 ∧
+      parseRLEHeader "x = 1, y = 1, rule = 23/3".toByteArray = 0 ∧
+      parseRLEHeader "x = 1, y = 1, rule = 32/3".toByteArray = 0 ∧
+      parseRLEHeader "x = 1, y = 1".toByteArray = 0 ∧
+      parseRLEHeader "x = 1, y = 1, rule = B3/S234".toByteArray = 3 ∧
+      parseRLEHeader "x = 1, y = 1, rule = 23/34".toByteArray = 3 ∧
+      parseRLEHeader "x = 1, y = 1, rule = B3/S".toByteArray = 2 ∧
+      parseRLEHeader "x = -1, y = 1".toByteArray = 2 := by
+  decide +kernel
 
-/-- Header with unsupported rule is rejected with status 3. -/
-theorem parseRLEHeader_unsupported_rule :
-    parseRLEHeader "x = 3, y = 1, rule = B3/S24".toByteArray = 3 :=
-  parseRLEHeader_unsupported_rule_Impl
+/-- A run count that doesn't fit in an `Int32` is rejected rather than wrapped. -/
+theorem deserializeRLE_out_of_range_count :
+    deserializeRLE #["x = 1, y = 1", "4294967297o!"] = ⟨4, "4294967297", 2, 1, #[], #[]⟩ := by
+  decide +kernel
 
-/-- Malformed header is rejected with status 2. -/
-theorem parseRLEHeader_invalid :
-    parseRLEHeader "invalid".toByteArray = 2 :=
-  parseRLEHeader_invalid_Impl
+/-- A count before `!` is reported as written, at its first digit. -/
+theorem deserializeRLE_count_before_end :
+    (deserializeRLE #["x = 1, y = 1", "o007!"]).warnings = #[⟨3, 2, 2, 0, "007!", 0, 0⟩] := by
+  decide +kernel
 
-/-- Deserializing a single alive cell without offset defaults to (0, 0). -/
-theorem deserializeRLE_single_alive :
-    deserializeRLE #["x = 1, y = 1, rule = B3/S23", "o!"] =
-    ⟨0, "", 0, #[], #[(0, 0)]⟩ :=
-  deserializeRLE_single_alive_Impl
+/-- A count at the end of a line is dropped, so a `!` on the next line has no count. -/
+theorem deserializeRLE_count_at_line_end :
+    deserializeRLE #["x = 1, y = 1", "o12", "!"] = ⟨0, "", 0, 0, #[], #[(0, 0)]⟩ := by
+  decide +kernel
 
-/-- Deserializing a single alive cell with #R offset sets cell coordinate. -/
-theorem deserializeRLE_offset_single_alive :
-    deserializeRLE #["#R 10 20", "x = 1, y = 1, rule = B3/S23", "o!"] =
-    ⟨0, "", 0, #[], #[(10, 20)]⟩ :=
-  deserializeRLE_offset_single_alive_Impl
+/-- A non-ASCII character is one character: one warning with its code point, at its character index. -/
+theorem deserializeRLE_non_ascii :
+    deserializeRLE #["x = 3, y = 1", "oéo!"] =
+      ⟨0, "", 0, 0, #[⟨2, 2, 2, 233, "", 0, 0⟩], #[(0, 0), (1, 0), (2, 0)]⟩ := by
+  decide +kernel
 
-/-- Roundtrip: empty cell pattern serialized to RLE and deserialized produces 0 cells. -/
-theorem rle_roundtrip_empty :
-    deserializeRLE (serializeRLE #[] 0 0 0 0) =
-    ⟨0, "", 0, #[], #[]⟩ :=
-  rle_roundtrip_empty_Impl
+theorem serializeRLE_empty : serializeRLE #[] 0 0 0 0 = #["#R 0 0", "x = 0, y = 0, rule = B3/S23", "!"] := by
+  decide +kernel
 
-/-- Roundtrip: single cell serialized to RLE and deserialized preserves (0, 0). -/
-theorem rle_roundtrip_single :
-    deserializeRLE (serializeRLE #[(0, 0)] 0 0 0 0) =
-    ⟨0, "", 0, #[], #[(0, 0)]⟩ :=
-  rle_roundtrip_single_Impl
+theorem serializeRLE_glider :
+    serializeRLE #[(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)] 0 2 0 2 =
+      #["#R 0 0", "x = 3, y = 3, rule = B3/S23", "bo$2bo$3o!"] := by
+  decide +kernel
 
-/-- Roundtrip: 3-cell blinker serialized to RLE and deserialized preserves all coordinates. -/
-theorem rle_roundtrip_blinker :
-    deserializeRLE (serializeRLE #[(-1, 0), (0, 0), (1, 0)] (-1) 1 0 0) =
-    ⟨0, "", 0, #[], #[(-1, 0), (0, 0), (1, 0)]⟩ :=
-  rle_roundtrip_blinker_Impl
+/-- Empty rows are merged into one end of row with a count. -/
+theorem serializeRLE_empty_rows :
+    serializeRLE #[(0, 0), (0, 3)] 0 0 0 3 = #["#R 0 0", "x = 1, y = 4, rule = B3/S23", "o3$o!"] := by
+  decide +kernel
 
-/-- Roundtrip: 4-cell block serialized to RLE and deserialized preserves all coordinates. -/
-theorem rle_roundtrip_block :
-    deserializeRLE (serializeRLE #[(0, 0), (1, 0), (0, 1), (1, 1)] 0 1 0 1) =
-    ⟨0, "", 0, #[], #[(0, 0), (1, 0), (0, 1), (1, 1)]⟩ :=
-  rle_roundtrip_block_Impl
+/--
+Deserializing serialized cells succeeds with no warnings and gives back exactly the cells, at their own
+coordinates, for every cell array inside its bounding box (of fewer than 2 ^ 25 cells).
+-/
+theorem rle_round_trip_spec (cells : Array (Int32 × Int32)) (minX maxX minY maxY : Int32)
+    (hne : cells.size ≠ 0) (hcs : cells.size < 2 ^ 31)
+    (hbox : ∀ c ∈ cells, minX.toInt ≤ c.1.toInt ∧ c.1.toInt ≤ maxX.toInt ∧
+      minY.toInt ≤ c.2.toInt ∧ c.2.toInt ≤ maxY.toInt)
+    (hsize : 64 * ((maxX.toInt - minX.toInt + 1) * (maxY.toInt - minY.toInt + 1)) < 2 ^ 31) :
+    (deserializeRLE (serializeRLE (cells.map cellBits) minX maxX minY maxY)).status = 0 ∧
+      (deserializeRLE (serializeRLE (cells.map cellBits) minX maxX minY maxY)).warnings = #[] ∧
+      ∀ q, q ∈ (deserializeRLE (serializeRLE (cells.map cellBits) minX maxX minY maxY)).cells ↔ q ∈ cells :=
+  rle_round_trip_box cells minX maxX minY maxY hne hcs hbox hsize
 
-/-- Roundtrip: 5-cell glider serialized to RLE and deserialized preserves all coordinates. -/
-theorem rle_roundtrip_glider :
+theorem rle_round_trip_glider :
     deserializeRLE (serializeRLE #[(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)] 0 2 0 2) =
-    ⟨0, "", 0, #[], #[(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)]⟩ :=
-  rle_roundtrip_glider_Impl
+      ⟨0, "", 0, 0, #[], #[(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)]⟩ := by
+  decide +kernel
+
+theorem rle_round_trip_offset :
+    deserializeRLE (serializeRLE #[(-1, 5), (0, 5), (1, 5)] (-1) 1 5 5) =
+      ⟨0, "", 0, 0, #[], #[(-1, 5), (0, 5), (1, 5)]⟩ := by
+  decide +kernel
 
 end Algorithm
