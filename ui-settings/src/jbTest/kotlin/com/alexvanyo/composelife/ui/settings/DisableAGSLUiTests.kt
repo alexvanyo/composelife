@@ -76,6 +76,8 @@ class DisableAGSLUiTests : BaseKmpTest() {
             onNodeWithContentDescription(resolver(Strings.DisableAGSL))
                 .performClick()
 
+            waitForIdle()
+
             assertFalse(disableAGSL)
         }
     }
@@ -117,6 +119,8 @@ class DisableAGSLUiTests : BaseKmpTest() {
 
             onNodeWithContentDescription(resolver(Strings.DisableAGSL))
                 .performClick()
+
+            waitForIdle()
 
             assertTrue(disableAGSL)
         }

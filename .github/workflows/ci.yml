@@ -588,11 +588,12 @@ jobs:
         with:
           cache-read-only: true # Don't write caches for GMD tests
 
-      - name: Run device checks
+      - name: Run device checks and generate coverage report
         run: |
-          # run the tests, with one retry attempt
-          run () { ./gradlew ${{ matrix.target }}${{ matrix.device }}api${{ matrix.api-level }}Check --no-parallel -Dorg.gradle.workers.max=1 --stacktrace; }
-          (echo "==== Attempt 1 ====" && run) || (echo "==== Attempt 2 ====" && run) || (echo "==== Both attempts failed ====" && exit 1)
+          # run the tests and generate coverage report in a single invocation, with one retry attempt
+          run () { ./gradlew ${{ matrix.target }}${{ matrix.device }}api${{ matrix.api-level }}Check jacocoAndroidTestCoverageReport --no-parallel -Dorg.gradle.workers.max=1 --stacktrace; }
+          cleanup () { pkill -9 -f "emulator|qemu" || true; adb kill-server || true; sleep 5; }
+          (echo "==== Attempt 1 ====" && run) || (echo "==== Attempt 1 failed, resetting device state ====" && cleanup && echo "==== Attempt 2 ====" && run) || (echo "==== Both attempts failed ====" && exit 1)
 
       - name: Upload device test results
         if: ${{ !cancelled() }}
@@ -601,12 +602,8 @@ jobs:
           name: device-test-results-${{ matrix.target }}-${{ matrix.device }}-${{ matrix.api-level }}
           path: '**/build/outputs/androidTest-results/managedDevice/**/TEST*.xml'
 
-      - name: Generate coverage report
-        run: |
-          run () { ./gradlew jacocoAndroidTestCoverageReport --stacktrace; }
-          (echo "==== Attempt 1 ====" && run) || (echo "==== Attempt 2 ====" && run) || (echo "==== Both attempts failed ====" && exit 1)
-
       - name: Upload code coverage to GitHub
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7
         with:
           name: device-code-coverage-${{ matrix.target }}-${{ matrix.device }}-${{ matrix.api-level }}
