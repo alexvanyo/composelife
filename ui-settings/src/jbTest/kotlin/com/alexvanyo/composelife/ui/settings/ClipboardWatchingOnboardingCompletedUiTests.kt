@@ -78,6 +78,8 @@ class ClipboardWatchingOnboardingCompletedUiTests : BaseKmpTest() {
             onNodeWithContentDescription(resolver(Strings.ClipboardWatchingOnboardingCompleted))
                 .performClick()
 
+            waitForIdle()
+
             assertTrue(completedClipboardWatchingOnboarding)
         }
     }
@@ -121,6 +123,8 @@ class ClipboardWatchingOnboardingCompletedUiTests : BaseKmpTest() {
 
             onNodeWithContentDescription(resolver(Strings.ClipboardWatchingOnboardingCompleted))
                 .performClick()
+
+            waitForIdle()
 
             assertFalse(completedClipboardWatchingOnboarding)
         }

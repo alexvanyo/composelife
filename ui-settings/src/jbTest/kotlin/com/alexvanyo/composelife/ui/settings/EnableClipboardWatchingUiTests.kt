@@ -78,6 +78,8 @@ class EnableClipboardWatchingUiTests : BaseKmpTest() {
             onNodeWithContentDescription(resolver(Strings.EnableClipboardWatching))
                 .performClick()
 
+            waitForIdle()
+
             assertTrue(enableClipboardWatching)
         }
     }
@@ -121,6 +123,8 @@ class EnableClipboardWatchingUiTests : BaseKmpTest() {
 
             onNodeWithContentDescription(resolver(Strings.EnableClipboardWatching))
                 .performClick()
+
+            waitForIdle()
 
             assertFalse(enableClipboardWatching)
         }

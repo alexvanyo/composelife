@@ -76,6 +76,8 @@ class DoNotKeepProcessUiTests : BaseKmpTest() {
             onNodeWithContentDescription(resolver(Strings.DoNotKeepProcess))
                 .performClick()
 
+            waitForIdle()
+
             assertFalse(doNotKeepProcess)
         }
     }
@@ -117,6 +119,8 @@ class DoNotKeepProcessUiTests : BaseKmpTest() {
 
             onNodeWithContentDescription(resolver(Strings.DoNotKeepProcess))
                 .performClick()
+
+            waitForIdle()
 
             assertTrue(doNotKeepProcess)
         }

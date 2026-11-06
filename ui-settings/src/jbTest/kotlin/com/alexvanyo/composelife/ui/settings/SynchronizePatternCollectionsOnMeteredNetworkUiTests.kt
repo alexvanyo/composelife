@@ -78,6 +78,8 @@ class SynchronizePatternCollectionsOnMeteredNetworkUiTests : BaseKmpTest() {
             onNodeWithContentDescription(resolver(Strings.SynchronizePatternCollectionsOnMeteredNetwork))
                 .performClick()
 
+            waitForIdle()
+
             assertFalse(synchronizePatternCollectionsOnMeteredNetwork)
         }
     }
@@ -121,6 +123,8 @@ class SynchronizePatternCollectionsOnMeteredNetworkUiTests : BaseKmpTest() {
 
             onNodeWithContentDescription(resolver(Strings.SynchronizePatternCollectionsOnMeteredNetwork))
                 .performClick()
+
+            waitForIdle()
 
             assertTrue(synchronizePatternCollectionsOnMeteredNetwork)
         }
