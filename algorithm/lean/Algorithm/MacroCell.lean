@@ -17,6 +17,7 @@
 import Algorithm.Basic
 import Algorithm.BitComputation
 import Algorithm.MacroCellHash
+import Algorithm.SerialCore
 import Lean.Compiler.Kotlin
 
 open Lean.Compiler.Kotlin
@@ -844,6 +845,13 @@ def hashLifeStep (m : MacroCell) : MacroCell :=
 
 instance : Inhabited MacroCell := ⟨emptyLevel4⟩
 
+/-! ## The Macrocell format
+
+A `[M2]` header, then one line per node, numbered from 1: a leaf is rows of `.` and `*` ended by `$`, and a
+node of level `k ≥ 4` is `k nw ne sw se` with the numbers of its children (0 for an empty child).
+-/
+
+/-- The last alive column of row `y` of a leaf, if any. -/
 def findLastLeafX (leaf : UInt64) (y : UInt32) : Option UInt32 :=
   if leafContains leaf 7 y then some 7
   else if leafContains leaf 6 y then some 6
@@ -855,6 +863,7 @@ def findLastLeafX (leaf : UInt64) (y : UInt32) : Option UInt32 :=
   else if leafContains leaf 0 y then some 0
   else none
 
+/-- Row `y` of a leaf, up to its last alive cell. -/
 def formatLeafRow (leaf : UInt64) (y : UInt32) : String :=
   match findLastLeafX leaf y with
   | none => ""
@@ -875,17 +884,19 @@ def formatLeafRow (leaf : UInt64) (y : UInt32) : String :=
     termination_by limit.toNat - x.toNat
     loop 0 (lastX + 1) ""
 
+/-- The last row of a leaf with an alive cell, if any. -/
 def findLastLeafRow (leaf : UInt64) : Option UInt32 :=
-  if (formatLeafRow leaf 7).length.toUInt32 != (0 : UInt32) then some 7
-  else if (formatLeafRow leaf 6).length.toUInt32 != (0 : UInt32) then some 6
-  else if (formatLeafRow leaf 5).length.toUInt32 != (0 : UInt32) then some 5
-  else if (formatLeafRow leaf 4).length.toUInt32 != (0 : UInt32) then some 4
-  else if (formatLeafRow leaf 3).length.toUInt32 != (0 : UInt32) then some 3
-  else if (formatLeafRow leaf 2).length.toUInt32 != (0 : UInt32) then some 2
-  else if (formatLeafRow leaf 1).length.toUInt32 != (0 : UInt32) then some 1
-  else if (formatLeafRow leaf 0).length.toUInt32 != (0 : UInt32) then some 0
+  if findLastLeafX leaf 7 != none then some 7
+  else if findLastLeafX leaf 6 != none then some 6
+  else if findLastLeafX leaf 5 != none then some 5
+  else if findLastLeafX leaf 4 != none then some 4
+  else if findLastLeafX leaf 3 != none then some 3
+  else if findLastLeafX leaf 2 != none then some 2
+  else if findLastLeafX leaf 1 != none then some 1
+  else if findLastLeafX leaf 0 != none then some 0
   else none
 
+/-- The line of a leaf: its rows up to the last alive one, each ended by `$`. -/
 @[export macrocell_format_leaf]
 def formatLeafNode (leaf : UInt64) : String :=
   match findLastLeafRow leaf with
@@ -901,155 +912,102 @@ def formatLeafNode (leaf : UInt64) : String :=
             simp only [UInt32.toNat_one]
             omega
           omega
-        let rowStr := formatLeafRow leaf y
-        let nextAcc := if y == 0 then rowStr else acc ++ "$" ++ rowStr
-        loop (y + 1) limit nextAcc
-      else acc ++ "$"
+        loop (y + 1) limit (acc ++ formatLeafRow leaf y ++ "$")
+      else acc
     termination_by limit.toNat - y.toNat
     loop 0 (lastY + 1) ""
 
-@[export macrocell_parse_leaf]
-def parseLeafNode (s : String) : UInt64 :=
-  let bytes := s.toByteArray
-  let limit := bytes.size.toUInt32
-  let rec loop (i : UInt32) (limit : UInt32) (x y : UInt32) (acc : UInt64) : UInt64 :=
-    if h : i < limit then
-      have : limit.toNat - (i + 1).toNat < limit.toNat - i.toNat := by
-        have h1 := UInt32.lt_iff_toNat_lt.mp h
-        have h2 : (i + 1).toNat = i.toNat + 1 := by
-          rw [UInt32.toNat_add]
-          have := UInt32.toNat_lt limit
-          simp only [UInt32.toNat_one]
-          omega
-        omega
-      let b := bytes.get! i.toNat
-      if b == 36 then -- '$'
-        loop (i + 1) limit 0 (y + 1) acc
-      else if b == 42 then -- '*'
-        let bit := cellToLeafBitUInt x y
-        let mask : UInt64 := (1 : UInt64) <<< bit.toUInt64
-        loop (i + 1) limit (x + 1) y (acc ||| mask)
-      else -- '.' or other
-        loop (i + 1) limit (x + 1) y acc
-    else acc
-  termination_by limit.toNat - i.toNat
-  loop 0 limit 0 0 0
+/-- The line of a node of level `level` with children numbered `nw`, `ne`, `sw` and `se`. -/
+@[export macrocell_format_node]
+def formatMacrocellNode (level nw ne sw se : UInt32) : String :=
+  s!"{level} {nw} {ne} {sw} {se}"
 
-structure SerializerState where
-  leafMap : Array (UInt64 × UInt32)
-  cellMap : Array (MacroCell × UInt32)
-  lines : Array String
+/-- The header line written by the serializer. -/
+@[export macrocell_header]
+def macrocellHeader : String := "[M2] (ComposeLife 1.0)"
 
-def findLeafIndex (leaves : Array (UInt64 × UInt32)) (leaf : UInt64) : UInt32 :=
-  let limit := leaves.size.toUInt32
-  let rec loop (i : UInt32) (limit : UInt32) : UInt32 :=
-    if h : i < limit then
-      have : limit.toNat - (i + 1).toNat < limit.toNat - i.toNat := by
-        have h1 := UInt32.lt_iff_toNat_lt.mp h
-        have h2 : (i + 1).toNat = i.toNat + 1 := by
-          rw [UInt32.toNat_add]
-          have := UInt32.toNat_lt limit
-          simp only [UInt32.toNat_one]
-          omega
-        omega
-      let (k, v) := leaves[i.toNat]!
-      if k == leaf then v
-      else loop (i + 1) limit
-    else 0
-  termination_by limit.toNat - i.toNat
-  loop 0 limit
+/--
+If `m` is a Level 4 node with exactly one nonempty leaf, that leaf: the serializer writes such a node as just the
+leaf.
+-/
+@[export macrocell_single_leaf]
+def macrocellSingleLeaf (m : MacroCell) : Option UInt64 :=
+  match m with
+  | .level4Node _ nw ne sw se =>
+    if nw != 0 && ne == 0 && sw == 0 && se == 0 then some nw
+    else if nw == 0 && ne != 0 && sw == 0 && se == 0 then some ne
+    else if nw == 0 && ne == 0 && sw != 0 && se == 0 then some sw
+    else if nw == 0 && ne == 0 && sw == 0 && se != 0 then some se
+    else none
+  | .cellNode .. => none
 
-def findCellIndex (cells : Array (MacroCell × UInt32)) (cell : MacroCell) : UInt32 :=
-  let limit := cells.size.toUInt32
-  let rec loop (i : UInt32) (limit : UInt32) : UInt32 :=
-    if h : i < limit then
-      have : limit.toNat - (i + 1).toNat < limit.toNat - i.toNat := by
-        have h1 := UInt32.lt_iff_toNat_lt.mp h
-        have h2 : (i + 1).toNat = i.toNat + 1 := by
-          rw [UInt32.toNat_add]
-          have := UInt32.toNat_lt limit
-          simp only [UInt32.toNat_one]
-          omega
-        omega
-      let (k, v) := cells[i.toNat]!
-      if MacroCell.cellEquals k cell then v
-      else loop (i + 1) limit
-    else 0
-  termination_by limit.toNat - i.toNat
-  loop 0 limit
+/-! ### Serialization model
 
-def visitLeaf (leaf : UInt64) (st : SerializerState) : UInt32 × SerializerState :=
+`MacrocellCellStateSerializer.serializeToString` writes the lines of `serializeMacrocell`, memoizing nodes by
+identity and by the numbers of their children (see `MacrocellWrite`). -/
+
+/-- The state of the serializer: the lines so far, and the numbers given to leaves and nodes. -/
+structure MacrocellWriterState where
+  lines : List String
+  leaves : List (UInt64 × UInt32)
+  nodes : List ((UInt32 × UInt32 × UInt32 × UInt32 × UInt32) × UInt32)
+
+/-- The number of the next line. -/
+def MacrocellWriterState.nextId (st : MacrocellWriterState) : UInt32 := st.lines.length.toUInt32
+
+/-- Writes a leaf if it is new, returning its number (0 for an empty leaf). -/
+def MacrocellWriterState.addLeaf (st : MacrocellWriterState) (leaf : UInt64) : UInt32 × MacrocellWriterState :=
   if leaf == 0 then (0, st)
-  else
-    let idx := findLeafIndex st.leafMap leaf
-    if idx != 0 then (idx, st)
-    else
-      let newIdx := st.leafMap.size.toUInt32 + st.cellMap.size.toUInt32 + (1 : UInt32)
-      let newLeafMap := st.leafMap.push (leaf, newIdx)
-      let newLines := st.lines.push (formatLeafNode leaf)
-      (newIdx, { st with leafMap := newLeafMap, lines := newLines })
+  else match st.leaves.lookup leaf with
+    | some id => (id, st)
+    | none =>
+      let id := st.nextId
+      let line := formatLeafNode leaf
+      (id, { st with lines := st.lines ++ [line], leaves := (leaf, id) :: st.leaves })
 
-def serializeTree (m : MacroCell) (st : SerializerState) : UInt32 × SerializerState :=
-  if m.size == 0 then (0, st)
-  else
-    let idx := findCellIndex st.cellMap m
-    if idx != 0 then (idx, st)
-    else
-      match m with
-      | .level4Node _ nw ne sw se =>
-        let (nwId, st1) := visitLeaf nw st
-        let (neId, st2) := visitLeaf ne st1
-        let (swId, st3) := visitLeaf sw st2
-        let (seId, st4) := visitLeaf se st3
-        let newIdx := st4.leafMap.size.toUInt32 + st4.cellMap.size.toUInt32 + (1 : UInt32)
-        let newCellMap := st4.cellMap.push (m, newIdx)
-        let line := s!"4 {nwId} {neId} {swId} {seId}"
-        let newLines := st4.lines.push line
-        (newIdx, { st4 with cellMap := newCellMap, lines := newLines })
-      | .cellNode _ nw ne sw se =>
-        let (nwId, st1) := serializeTree nw st
-        let (neId, st2) := serializeTree ne st1
-        let (swId, st3) := serializeTree sw st2
-        let (seId, st4) := serializeTree se st3
-        let newIdx := st4.leafMap.size.toUInt32 + st4.cellMap.size.toUInt32 + (1 : UInt32)
-        let newCellMap := st4.cellMap.push (m, newIdx)
-        let line := s!"{m.level} {nwId} {neId} {swId} {seId}"
-        let newLines := st4.lines.push line
-        (newIdx, { st4 with cellMap := newCellMap, lines := newLines })
+/-- Writes a node with the given children if it is new, returning its number. -/
+def MacrocellWriterState.addNode (st : MacrocellWriterState) (level nw ne sw se : UInt32) :
+    UInt32 × MacrocellWriterState :=
+  match st.nodes.lookup (level, nw, ne, sw, se) with
+  | some id => (id, st)
+  | none =>
+    let id := st.nextId
+    let line := formatMacrocellNode level nw ne sw se
+    (id, { st with lines := st.lines ++ [line], nodes := ((level, nw, ne, sw, se), id) :: st.nodes })
 
-@[export macrocell_serialize]
+/--
+Writes the nodes of `m` (children first), returning the number of `m` (0 if it is empty). Emptiness is read from
+the children, not from `size`, which wraps for nodes of 2 ^ 64 or more alive cells.
+-/
+def MacrocellWriterState.addTree (st : MacrocellWriterState) : MacroCell → UInt32 × MacrocellWriterState
+  | .level4Node _ nw ne sw se =>
+    if nw == 0 && ne == 0 && sw == 0 && se == 0 then (0, st)
+    else
+      let (i1, st) := st.addLeaf nw
+      let (i2, st) := st.addLeaf ne
+      let (i3, st) := st.addLeaf sw
+      let (i4, st) := st.addLeaf se
+      st.addNode 4 i1 i2 i3 i4
+  | .cellNode _ nw ne sw se =>
+    let (i1, st) := st.addTree nw
+    let (i2, st) := st.addTree ne
+    let (i3, st) := st.addTree sw
+    let (i4, st) := st.addTree se
+    if i1 == 0 && i2 == 0 && i3 == 0 && i4 == 0 then (0, st)
+    else st.addNode (nw.level + 1) i1 i2 i3 i4
+
+/-- The lines of a pattern in the Macrocell format. -/
 def serializeMacrocell (m : MacroCell) : Array String :=
-  if m.size == 0 then
-    #["[M2] (ComposeLife 1.0)"]
-  else
-    match m with
-    | .level4Node _ nw ne sw se =>
-      let nonZeroCount : UInt32 := (if nw != 0 then 1 else 0) +
-                                   (if ne != 0 then 1 else 0) +
-                                   (if sw != 0 then 1 else 0) +
-                                   (if se != 0 then 1 else 0)
-      if nonZeroCount == 1 then
-        let leaf := if nw != 0 then nw else if ne != 0 then ne else if sw != 0 then sw else se
-        #["[M2] (ComposeLife 1.0)", formatLeafNode leaf]
-      else
-        let initSt : SerializerState := {
-          leafMap := #[],
-          cellMap := #[],
-          lines := #["[M2] (ComposeLife 1.0)"],
-        }
-        let (_, finalSt) := serializeTree m initSt
-        finalSt.lines
-    | _ =>
-      let initSt : SerializerState := {
-        leafMap := #[],
-        cellMap := #[],
-        lines := #["[M2] (ComposeLife 1.0)"],
-      }
-      let (_, finalSt) := serializeTree m initSt
-      finalSt.lines
+  let st : MacrocellWriterState := ⟨[macrocellHeader], [], []⟩
+  match macrocellSingleLeaf m with
+  | some leaf => #[macrocellHeader, formatLeafNode leaf]
+  | none => (st.addTree m).2.lines.toArray
+
+/-! ### Deserialization -/
 
 @[kotlin_class "MacrocellWarning"]
 structure MacrocellWarning where
+  /-- 0: unexpected empty file, 1: unexpected blank line, 2: unexpected input. -/
   tag : UInt32
   lineIndex : UInt32
   columnIndex : UInt32
@@ -1058,12 +1016,8 @@ structure MacrocellWarning where
 
 @[kotlin_class "MacrocellResult"]
 structure MacrocellResult where
+  /-- 0: success, 1: unexpected empty file, 2: unexpected header, 3: unexpected input, 4: unexpected node id. -/
   status : UInt32
-  -- 0: Success
-  -- 1: UnexpectedEmptyFile
-  -- 2: UnexpectedHeader
-  -- 3: UnexpectedInput
-  -- 4: UnexpectedNodeId
   errLine : String
   errLineIndex : UInt32
   errColIndex : UInt32
@@ -1073,62 +1027,7 @@ structure MacrocellResult where
   macroCell : MacroCell
   deriving DecidableEq
 
-@[inline]
-def isDigitByteMC (b : UInt8) : Bool := b >= 48 && b <= 57
-
-@[inline]
-def isSpaceByteMC (b : UInt8) : Bool := b == 32 || b == 9 || b == 13
-
-structure MCParseIntResult where
-  val : UInt32
-  nextPos : UInt32
-  deriving DecidableEq, Repr
-
-def parseUInt32AtMC (bytes : ByteArray) (pos limit : UInt32) : Option MCParseIntResult :=
-  if pos >= limit then none
-  else
-    let rec loop (p : UInt32) (acc : UInt32) (hasDigits : Bool) : Option MCParseIntResult :=
-      if h : p < limit then
-        have : limit.toNat - (p + 1).toNat < limit.toNat - p.toNat := by
-          have h1 := UInt32.lt_iff_toNat_lt.mp h
-          have h2 : (p + 1).toNat = p.toNat + 1 := by
-            rw [UInt32.toNat_add]
-            have := UInt32.toNat_lt limit
-            simp only [UInt32.toNat_one]
-            omega
-          omega
-        let b := bytes.get! p.toNat
-        if isDigitByteMC b then
-          loop (p + 1) (acc * 10 + (b.toUInt32 - 48)) true
-        else if hasDigits then
-          some ⟨acc, p⟩
-        else
-          none
-      else if hasDigits then
-        some ⟨acc, p⟩
-      else
-        none
-    termination_by limit.toNat - p.toNat
-    loop pos 0 false
-
-def skipSpacesMC (bytes : ByteArray) (pos limit : UInt32) : UInt32 :=
-  if h : pos < limit then
-    have : limit.toNat - (pos + 1).toNat < limit.toNat - pos.toNat := by
-      have h1 := UInt32.lt_iff_toNat_lt.mp h
-      have h2 : (pos + 1).toNat = pos.toNat + 1 := by
-        rw [UInt32.toNat_add]
-        have := UInt32.toNat_lt limit
-        simp only [UInt32.toNat_one]
-        omega
-      omega
-    if isSpaceByteMC (bytes.get! pos.toNat) then
-      skipSpacesMC bytes (pos + 1) limit
-    else
-      pos
-  else
-    pos
-termination_by limit.toNat - pos.toNat
-
+/-- A parsed node line `level nw ne sw se`, with the byte ranges of the children's numbers. -/
 structure MCNodeLine where
   level : UInt32
   nw : UInt32
@@ -1145,96 +1044,35 @@ structure MCNodeLine where
   seEnd : UInt32
   deriving DecidableEq, Repr
 
+/-- Parses a node line `level nw ne sw se` of five numbers separated by spaces. -/
 def parseMCNodeLine (bytes : ByteArray) : Option MCNodeLine :=
   let limit := bytes.size.toUInt32
-  let p0 := skipSpacesMC bytes 0 limit
-  match parseUInt32AtMC bytes p0 limit with
+  let q0 := skipSpaces bytes 0 limit
+  match parseUInt32At bytes q0 limit with
   | none => none
-  | some rLevel =>
-    let p1 := skipSpacesMC bytes rLevel.nextPos limit
-    match parseUInt32AtMC bytes p1 limit with
+  | some r0 =>
+    let q1 := skipSpaces bytes r0.next limit
+    match parseUInt32At bytes q1 limit with
     | none => none
-    | some rNW =>
-      let p2 := skipSpacesMC bytes rNW.nextPos limit
-      match parseUInt32AtMC bytes p2 limit with
+    | some r1 =>
+      let q2 := skipSpaces bytes r1.next limit
+      match parseUInt32At bytes q2 limit with
       | none => none
-      | some rNE =>
-        let p3 := skipSpacesMC bytes rNE.nextPos limit
-        match parseUInt32AtMC bytes p3 limit with
+      | some r2 =>
+        let q3 := skipSpaces bytes r2.next limit
+        match parseUInt32At bytes q3 limit with
         | none => none
-        | some rSW =>
-          let p4 := skipSpacesMC bytes rSW.nextPos limit
-          match parseUInt32AtMC bytes p4 limit with
+        | some r3 =>
+          let q4 := skipSpaces bytes r3.next limit
+          match parseUInt32At bytes q4 limit with
           | none => none
-          | some rSE =>
-            let p5 := skipSpacesMC bytes rSE.nextPos limit
-            if p5 == limit then
-              some ⟨rLevel.val, rNW.val, p1, rNW.nextPos - 1, rNE.val, p2, rNE.nextPos - 1,
-                    rSW.val, p3, rSW.nextPos - 1, rSE.val, p4, rSE.nextPos - 1⟩
+          | some r4 =>
+            if skipSpaces bytes r4.next limit == limit then
+              some ⟨r0.val, r1.val, q1, r1.next - 1, r2.val, q2, r2.next - 1, r3.val, q3, r3.next - 1,
+                r4.val, q4, r4.next - 1⟩
             else none
 
-instance : Inhabited MacroCell := ⟨emptyLevel4⟩
-
-@[kotlin_class "MCFindLeafResult"]
-structure MCFindLeafResult where
-  found : Bool
-  val : UInt64
-  deriving Inhabited, DecidableEq
-
-@[kotlin_class "MCFindCellResult"]
-structure MCFindCellResult where
-  found : Bool
-  val : MacroCell
-  deriving Inhabited, DecidableEq
-
-def findLeafMC (leafIds : Array UInt32) (leafVals : Array UInt64) (id : UInt32) : MCFindLeafResult :=
-  let limit := leafIds.size.toUInt32
-  let rec loop (i : UInt32) (limit : UInt32) : MCFindLeafResult :=
-    if h : i < limit then
-      have : limit.toNat - (i + 1).toNat < limit.toNat - i.toNat := by
-        have h1 := UInt32.lt_iff_toNat_lt.mp h
-        have h2 : (i + 1).toNat = i.toNat + 1 := by
-          rw [UInt32.toNat_add]
-          have := UInt32.toNat_lt limit
-          simp only [UInt32.toNat_one]
-          omega
-        omega
-      if leafIds[i.toNat]! == id then ⟨true, leafVals[i.toNat]!⟩
-      else loop (i + 1) limit
-    else ⟨false, 0⟩
-  termination_by limit.toNat - i.toNat
-  loop 0 limit
-
-@[noinline]
-def getCellAt (cellVals : Array MacroCell) (i : UInt32) : MacroCell :=
-  let limit := cellVals.size.toUInt32
-  if i < limit then
-    match cellVals[i.toNat]! with
-    | .level4Node _ nw ne sw se => makeLevel4Node nw ne sw se
-    | other =>
-      match other with
-      | .cellNode _ nw ne sw se => makeCellNode nw ne sw se
-      | _ => emptyLevel4
-  else emptyLevel4
-
-def findCellMC (cellIds : Array UInt32) (cellVals : Array MacroCell) (id : UInt32) : MCFindCellResult :=
-  let limit := cellIds.size.toUInt32
-  let rec loop (i : UInt32) (limit : UInt32) : MCFindCellResult :=
-    if h : i < limit then
-      have : limit.toNat - (i + 1).toNat < limit.toNat - i.toNat := by
-        have h1 := UInt32.lt_iff_toNat_lt.mp h
-        have h2 : (i + 1).toNat = i.toNat + 1 := by
-          rw [UInt32.toNat_add]
-          have := UInt32.toNat_lt limit
-          simp only [UInt32.toNat_one]
-          omega
-        omega
-      if cellIds[i.toNat]! == id then ⟨true, getCellAt cellVals i⟩
-      else loop (i + 1) limit
-    else ⟨false, emptyLevel4⟩
-  termination_by limit.toNat - i.toNat
-  loop 0 limit
-
+/-- An empty node of level `level ≥ 4`. -/
 def emptyMacroCellUInt32 (level : UInt32) : MacroCell :=
   let rec loop (curLevel : UInt32) (curNode : MacroCell) : MacroCell :=
     if h : curLevel < level then
@@ -1249,8 +1087,138 @@ def emptyMacroCellUInt32 (level : UInt32) : MacroCell :=
       loop (curLevel + 1) (makeCellNode curNode curNode curNode curNode)
     else curNode
   termination_by level.toNat - curLevel.toNat
-  if level <= 4 then emptyLevel4
-  else loop 4 emptyLevel4
+  loop 4 emptyLevel4
+
+/-- The highest level a node line may have. -/
+def maxMacrocellLevel : UInt32 := 63
+
+/--
+The leaf numbered `id` (0 for an empty leaf), the child of a Level 4 node. `leaves` holds the numbered nodes'
+leaves and `isLeaf` which of them are leaves.
+-/
+def macrocellLeafChild (leaves : GrowBuf UInt64) (isLeaf : GrowBuf Bool) (id : UInt32) : Option UInt64 :=
+  if id == 0 then some 0
+  else if id > isLeaf.size then none
+  else if isLeaf.data[(id - 1).toNat]! then some leaves.data[(id - 1).toNat]!
+  else none
+
+/--
+A copy of node `i` of `nodes`, rebuilt with the smart constructors (so it equals the node when the node was built
+with them). The copy is a fresh value that the Kotlin backend knows the type of, unlike an element read from a
+generic array.
+-/
+@[noinline]
+def macroCellAt (nodes : Array MacroCell) (i : UInt32) : MacroCell :=
+  match nodes[i.toNat]! with
+  | .level4Node _ nw ne sw se => makeLevel4Node nw ne sw se
+  | .cellNode _ nw ne sw se => makeCellNode nw ne sw se
+
+/--
+The node numbered `id` (0 for an empty node), the child of a node of level `level ≥ 5`, which must be of level
+`level - 1`. `nodes` holds the numbered nodes and `isLeaf` which of them are leaves.
+-/
+def macrocellCellChild (nodes : GrowBuf MacroCell) (isLeaf : GrowBuf Bool) (level : UInt32) (emptySub : MacroCell)
+    (id : UInt32) : Option MacroCell :=
+  if id == 0 then some emptySub
+  else if id > isLeaf.size then none
+  else if isLeaf.data[(id - 1).toNat]! then none
+  else
+    let e := macroCellAt nodes.data (id - 1)
+    if e.level + 1 == level then some e else none
+
+/--
+Reads lines `i` onward. In a leaf line (`inLeaf`), `bytes` is the line, `p` the byte position, `col` the character
+position and (`x`, `y`) the cell, with the alive cells so far in `leaf`.
+-/
+def deserializeMacrocell.loop (lines : Array String) (numLines : UInt32) (i : UInt32) (inLeaf : Bool)
+    (bytes : ByteArray) (limit p col x y : UInt32) (leaf : UInt64) (nodes : GrowBuf MacroCell)
+    (leaves : GrowBuf UInt64) (isLeaf : GrowBuf Bool) (warns : GrowBuf MacrocellWarning) : MacrocellResult :=
+  if hi : i < numLines then
+    have hi1 : numLines.toNat - (i + 1).toNat < numLines.toNat - i.toNat := by
+      have h1 := UInt32.lt_iff_toNat_lt.mp hi
+      have h2 : (i + 1).toNat = i.toNat + 1 := by
+        rw [UInt32.toNat_add]
+        have := UInt32.toNat_lt numLines
+        simp only [UInt32.toNat_one]
+        omega
+      omega
+    if inLeaf then
+      if hp : p < limit then
+        let r := decodeCharAt bytes p limit
+        have := decodeCharAt_next bytes p limit hp
+        let cp := r.1
+        if cp == 36 then -- '$'
+          deserializeMacrocell.loop lines numLines i true bytes limit r.2 (col + 1) 0 (y + 1) leaf nodes leaves isLeaf
+            warns
+        else
+          -- Cells outside the 8 by 8 leaf are ignored.
+          let leaf := if cp == 42 && x < 8 && y < 8 then leafWithCell leaf x y true else leaf
+          let warns := if cp != 46 && cp != 42 then warns.push ⟨2, i, col, lines[i.toNat]!⟩ else warns
+          deserializeMacrocell.loop lines numLines i true bytes limit r.2 (col + 1) (x + 1) y leaf nodes leaves
+            isLeaf warns
+      else
+        deserializeMacrocell.loop lines numLines (i + 1) false bytes limit 0 0 0 0 0
+          (nodes.push (makeLevel4Node leaf 0 0 0)) (leaves.push leaf) (isLeaf.push true) warns
+    else
+      let line := lines[i.toNat]!
+      let bytes := line.toByteArray
+      let lineLen := bytes.size.toUInt32
+      if lineLen == 0 then
+        let warns := if i + 1 < numLines then warns.push ⟨1, i + 1, 0, ""⟩ else warns
+        deserializeMacrocell.loop lines numLines (i + 1) false bytes lineLen 0 0 0 0 0 nodes leaves isLeaf warns
+      else if bytes.get! 0 == 35 then -- '#'
+        deserializeMacrocell.loop lines numLines (i + 1) false bytes lineLen 0 0 0 0 0 nodes leaves isLeaf warns
+      else if isDigitByte (bytes.get! 0) then
+        match parseMCNodeLine bytes with
+        | none => ⟨3, line, i, 0, 0, 0, warns.toArray, emptyLevel4⟩
+        | some n =>
+          if n.level < 4 || n.level > maxMacrocellLevel then ⟨3, line, i, 0, 0, 0, warns.toArray, emptyLevel4⟩
+          else
+            if n.level == 4 then
+              match macrocellLeafChild leaves isLeaf n.nw with
+              | none => ⟨4, line, i, 0, n.nwStart, n.nwEnd, warns.toArray, emptyLevel4⟩
+              | some c1 =>
+              match macrocellLeafChild leaves isLeaf n.ne with
+              | none => ⟨4, line, i, 0, n.neStart, n.neEnd, warns.toArray, emptyLevel4⟩
+              | some c2 =>
+              match macrocellLeafChild leaves isLeaf n.sw with
+              | none => ⟨4, line, i, 0, n.swStart, n.swEnd, warns.toArray, emptyLevel4⟩
+              | some c3 =>
+              match macrocellLeafChild leaves isLeaf n.se with
+              | none => ⟨4, line, i, 0, n.seStart, n.seEnd, warns.toArray, emptyLevel4⟩
+              | some c4 =>
+                deserializeMacrocell.loop lines numLines (i + 1) false bytes lineLen 0 0 0 0 0
+                  (nodes.push (makeLevel4Node c1 c2 c3 c4)) (leaves.push 0) (isLeaf.push false) warns
+            else
+              let emptySub := emptyMacroCellUInt32 (n.level - 1)
+              match macrocellCellChild nodes isLeaf n.level emptySub n.nw with
+              | none => ⟨4, line, i, 0, n.nwStart, n.nwEnd, warns.toArray, emptyLevel4⟩
+              | some c1 =>
+              match macrocellCellChild nodes isLeaf n.level emptySub n.ne with
+              | none => ⟨4, line, i, 0, n.neStart, n.neEnd, warns.toArray, emptyLevel4⟩
+              | some c2 =>
+              match macrocellCellChild nodes isLeaf n.level emptySub n.sw with
+              | none => ⟨4, line, i, 0, n.swStart, n.swEnd, warns.toArray, emptyLevel4⟩
+              | some c3 =>
+              match macrocellCellChild nodes isLeaf n.level emptySub n.se with
+              | none => ⟨4, line, i, 0, n.seStart, n.seEnd, warns.toArray, emptyLevel4⟩
+              | some c4 =>
+                deserializeMacrocell.loop lines numLines (i + 1) false bytes lineLen 0 0 0 0 0
+                  (nodes.push (makeCellNode c1 c2 c3 c4)) (leaves.push 0) (isLeaf.push false) warns
+      else
+        deserializeMacrocell.loop lines numLines i true bytes lineLen 0 0 0 0 0 nodes leaves isLeaf warns
+  else
+    if nodes.size == 0 then ⟨0, "", 0, 0, 0, 0, warns.toArray, emptyLevel4⟩
+    else
+      ⟨0, "", 0, 0, 0, 0, warns.toArray, macroCellAt nodes.data (nodes.size - 1)⟩
+termination_by (numLines.toNat - i.toNat) * 2 ^ 33 + (if inLeaf then limit.toNat - p.toNat else 2 ^ 32)
+decreasing_by
+  all_goals
+    simp_all only [ite_true, Bool.false_eq_true, ite_false]
+    first
+      | omega
+      | (have := UInt32.toNat_lt limit; omega)
+      | (have := UInt32.toNat_lt (ByteArray.size lines[i.toNat]!.toByteArray).toUInt32; omega)
 
 @[export macrocell_deserialize]
 def deserializeMacrocell (lines : Array String) : MacrocellResult :=
@@ -1258,105 +1226,13 @@ def deserializeMacrocell (lines : Array String) : MacrocellResult :=
   if numLines == 0 then
     ⟨1, "", 0, 0, 0, 0, #[⟨0, 0, 0, ""⟩], emptyLevel4⟩
   else
-    let headerLine := lines[0]!
-    let hBytes := headerLine.toByteArray
-    let hLimit := hBytes.size.toUInt32
-    if hLimit < 4 || hBytes.get! 0 != 91 || hBytes.get! 1 != 77 || hBytes.get! 2 != 50 || hBytes.get! 3 != 93 then
-      ⟨2, headerLine, 1, 0, 0, 0, #[], emptyLevel4⟩
+    let hBytes := lines[0]!.toByteArray
+    if hBytes.size.toUInt32 < 4 || hBytes.get! 0 != 91 || hBytes.get! 1 != 77 || hBytes.get! 2 != 50 ||
+        hBytes.get! 3 != 93 then -- "[M2]"
+      ⟨2, lines[0]!, 1, 0, 0, 0, #[], emptyLevel4⟩
     else
-      let rec loopLines (i : UInt32) (numLines : UInt32) (nodeIdx : UInt32)
-          (leafIds : Array UInt32) (leafVals : Array UInt64)
-          (cellIds : Array UInt32) (cellVals : Array MacroCell)
-          (warns : Array MacrocellWarning) : MacrocellResult :=
-        if hl : i < numLines then
-          have : numLines.toNat - (i + 1).toNat < numLines.toNat - i.toNat := by
-            have h1 := UInt32.lt_iff_toNat_lt.mp hl
-            have h2 : (i + 1).toNat = i.toNat + 1 := by
-              rw [UInt32.toNat_add]
-              have := UInt32.toNat_lt numLines
-              simp only [UInt32.toNat_one]
-              omega
-            omega
-          let line := lines[i.toNat]!
-          let bytes := line.toByteArray
-          let lineLen := bytes.size.toUInt32
-          if lineLen == 0 then
-            let newWarns := if i + 1 < numLines then warns.push ⟨1, i + 1, 0, ""⟩ else warns
-            loopLines (i + 1) numLines nodeIdx leafIds leafVals cellIds cellVals newWarns
-          else if bytes.get! 0 == 35 then -- '#'
-            loopLines (i + 1) numLines nodeIdx leafIds leafVals cellIds cellVals warns
-          else if isDigitByteMC (bytes.get! 0) then
-            match parseMCNodeLine bytes with
-            | none => ⟨3, line, i, 0, 0, 0, warns, emptyLevel4⟩
-            | some nodeLine =>
-              if nodeLine.level == 4 then
-                let nwRes := if nodeLine.nw == 0 then ⟨true, 0⟩ else findLeafMC leafIds leafVals nodeLine.nw
-                if !nwRes.found then ⟨4, line, i, 0, nodeLine.nwStart, nodeLine.nwEnd, warns, emptyLevel4⟩
-                else
-                  let neRes := if nodeLine.ne == 0 then ⟨true, 0⟩ else findLeafMC leafIds leafVals nodeLine.ne
-                  if !neRes.found then ⟨4, line, i, 0, nodeLine.neStart, nodeLine.neEnd, warns, emptyLevel4⟩
-                  else
-                    let swRes := if nodeLine.sw == 0 then ⟨true, 0⟩ else findLeafMC leafIds leafVals nodeLine.sw
-                    if !swRes.found then ⟨4, line, i, 0, nodeLine.swStart, nodeLine.swEnd, warns, emptyLevel4⟩
-                    else
-                      let seRes := if nodeLine.se == 0 then ⟨true, 0⟩ else findLeafMC leafIds leafVals nodeLine.se
-                      if !seRes.found then ⟨4, line, i, 0, nodeLine.seStart, nodeLine.seEnd, warns, emptyLevel4⟩
-                      else
-                        let newNode := makeLevel4Node nwRes.val neRes.val swRes.val seRes.val
-                        loopLines (i + 1) numLines (nodeIdx + 1) leafIds leafVals (cellIds.push nodeIdx) (cellVals.push newNode) warns
-              else
-                let emptySub := emptyMacroCellUInt32 (nodeLine.level - 1)
-                let nwRes := if nodeLine.nw == 0 then ⟨true, emptySub⟩ else findCellMC cellIds cellVals nodeLine.nw
-                if !nwRes.found then ⟨4, line, i, 0, nodeLine.nwStart, nodeLine.nwEnd, warns, emptyLevel4⟩
-                else
-                  let neRes := if nodeLine.ne == 0 then ⟨true, emptySub⟩ else findCellMC cellIds cellVals nodeLine.ne
-                  if !neRes.found then ⟨4, line, i, 0, nodeLine.neStart, nodeLine.neEnd, warns, emptyLevel4⟩
-                  else
-                    let swRes := if nodeLine.sw == 0 then ⟨true, emptySub⟩ else findCellMC cellIds cellVals nodeLine.sw
-                    if !swRes.found then ⟨4, line, i, 0, nodeLine.swStart, nodeLine.swEnd, warns, emptyLevel4⟩
-                    else
-                      let seRes := if nodeLine.se == 0 then ⟨true, emptySub⟩ else findCellMC cellIds cellVals nodeLine.se
-                      if !seRes.found then ⟨4, line, i, 0, nodeLine.seStart, nodeLine.seEnd, warns, emptyLevel4⟩
-                      else
-                        let newNode := makeCellNode nwRes.val neRes.val swRes.val seRes.val
-                        loopLines (i + 1) numLines (nodeIdx + 1) leafIds leafVals (cellIds.push nodeIdx) (cellVals.push newNode) warns
-          else
-            let rec checkLeafChars (col : UInt32) (limit : UInt32) (accWarns : Array MacrocellWarning) : Array MacrocellWarning :=
-              if hc : col < limit then
-                have : limit.toNat - (col + 1).toNat < limit.toNat - col.toNat := by
-                  have h1 := UInt32.lt_iff_toNat_lt.mp hc
-                  have h2 : (col + 1).toNat = col.toNat + 1 := by
-                    rw [UInt32.toNat_add]
-                    have := UInt32.toNat_lt limit
-                    simp only [UInt32.toNat_one]
-                    omega
-                  omega
-                let b := bytes.get! col.toNat
-                let newAcc :=
-                  if b != 36 && b != 46 && b != 42 then -- not in '$', '.', '*'
-                    accWarns.push ⟨2, i, col, line⟩
-                  else accWarns
-                checkLeafChars (col + 1) limit newAcc
-              else accWarns
-            termination_by limit.toNat - col.toNat
-            let leafWarns := checkLeafChars 0 lineLen warns
-            let leafVal := parseLeafNode line
-            loopLines (i + 1) numLines (nodeIdx + 1) (leafIds.push nodeIdx) (leafVals.push leafVal) cellIds cellVals leafWarns
-        else
-          if nodeIdx == 1 then
-            ⟨0, "", 0, 0, 0, 0, warns, emptyLevel4⟩
-          else
-            let rootRes := findCellMC cellIds cellVals (nodeIdx - 1)
-            if rootRes.found then
-              ⟨0, "", 0, 0, 0, 0, warns, rootRes.val⟩
-            else
-              let leafRes := findLeafMC leafIds leafVals (nodeIdx - 1)
-              if leafRes.found then
-                ⟨0, "", 0, 0, 0, 0, warns, makeLevel4Node leafRes.val 0 0 0⟩
-              else
-                ⟨3, "", 0, 0, 0, 0, warns, emptyLevel4⟩
-      termination_by numLines.toNat - i.toNat
-      loopLines 1 numLines 1 #[] #[] #[] #[] #[]
+      deserializeMacrocell.loop lines numLines 1 false hBytes 0 0 0 0 0 0 GrowBuf.empty GrowBuf.empty
+        GrowBuf.empty GrowBuf.empty
 
 def generateEmptyNodesKotlin : String := Id.run do
   let mut lines := #[]

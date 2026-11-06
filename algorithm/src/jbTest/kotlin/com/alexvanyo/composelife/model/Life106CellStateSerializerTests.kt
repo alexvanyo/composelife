@@ -137,4 +137,28 @@ class Life106CellStateSerializerTests {
             ),
         )
     }
+
+    @Test
+    fun deserialization_with_out_of_range_coordinate_returns_unsuccessful() {
+        assertEquals(
+            DeserializationResult.Unsuccessful(
+                warnings = emptyList(),
+                errors = listOf(UnexpectedInputMessage("4294967297 0", 2, 0)),
+            ),
+            serializer.deserializeToCellState(sequenceOf("#Life 1.06", "4294967297 0")),
+        )
+    }
+
+    @Test
+    fun extreme_coordinates_round_trip() {
+        val cellState = setOf(Int.MIN_VALUE to Int.MAX_VALUE, Int.MAX_VALUE to Int.MIN_VALUE).toCellState()
+        assertEquals(
+            DeserializationResult.Successful(
+                warnings = emptyList(),
+                cellState = cellState,
+                format = CellStateFormat.FixedFormat.Life106,
+            ),
+            serializer.deserializeToCellState(serializer.serializeToString(cellState)),
+        )
+    }
 }

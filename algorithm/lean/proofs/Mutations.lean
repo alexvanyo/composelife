@@ -120,53 +120,56 @@ Mutant 3: a Life 1.06 serializer that forgets to output the header line.
 -/
 def mutantSerializeLife106MissingHeader (_cells : Array (Int32 × Int32)) : Array String := #[]
 
-/-- Mutant 3 violates `serializeLife106_empty`. -/
+/-- Mutant 3 violates `serializeLife106_spec`. -/
 theorem mutantSerializeLife106_violates_header :
-    mutantSerializeLife106MissingHeader #[] ≠ serializeLife106 #[] := by
-  unfold mutantSerializeLife106MissingHeader serializeLife106 serializeLife106.loop
-  intro h
-  have : #[].size = #["#Life 1.06"].size := congrArg Array.size h
-  revert this
-  decide
+    mutantSerializeLife106MissingHeader #[] ≠
+      #["#Life 1.06"] ++ (#[] : Array (UInt32 × UInt32)).map (fun c => formatCoordLine c.1 c.2) := by
+  decide +kernel
 
 /--
 Mutant 4: a Plaintext serializer that outputs dead cell "." even for live cells.
 -/
-def mutantSerializePlaintextAllDead (_cells : Array (Int32 × Int32)) (_minX _maxX _minY _maxY : Int32) : Array String := #["."]
+def mutantSerializePlaintextAllDead (_cells : Array (Int32 × Int32)) (_minX _maxX _minY _maxY : Int32) :
+    Array String := #["."]
 
-/-- Mutant 4 violates `serializePlaintext_single`. -/
-theorem mutantSerializePlaintext_violates_single :
-    mutantSerializePlaintextAllDead #[(0, 0)] 0 0 0 0 ≠ serializePlaintext #[(0, 0)] 0 0 0 0 := by
+/-- Mutant 4 violates `plaintext_round_trip_spec`: the cell does not read back. -/
+theorem mutantSerializePlaintext_violates_round_trip :
+    (deserializePlaintext (mutantSerializePlaintextAllDead #[(0, 0)] 0 0 0 0)).cells ≠ #[(0, 0)] := by
   decide +kernel
 
 /--
-Mutant 5: a Life 1.05 block serializer that outputs no rows.
+Mutant 5: a Life 1.06 coordinate parser that wraps out-of-range values around, as `UInt32` arithmetic does.
 -/
-def mutantSerializeLife105BlockEmpty (_cells : Array (Int32 × Int32)) (_minX _minY _maxY : Int32) : Array String := #[]
+def mutantParseCoordWrapping (line : String) : Option (Int32 × Int32) :=
+  if line = "4294967297 0" then some (1, 0) else parseCoordLine line
 
-/-- Mutant 5 violates `serializeLife105Block_empty`. -/
-theorem mutantSerializeLife105_violates_empty :
-    mutantSerializeLife105BlockEmpty #[] 0 0 0 ≠ serializeLife105Block #[] 0 0 0 := by
+/-- Mutant 5 violates `parseCoordLine_rejects_out_of_range`. -/
+theorem mutantParseCoordWrapping_violates_range :
+    mutantParseCoordWrapping (toString (4294967297 : Nat) ++ " 0") ≠
+      parseCoordLine (toString (4294967297 : Nat) ++ " 0") := by
   decide +kernel
 
 /--
-Mutant 6: an RLE run combiner that fails to combine identical runs.
+Mutant 6: an RLE header check that only accepts the rule spelled `B3/S23`, not `B3/S32`.
 -/
-def mutantRleCombineNoMerge (items : Array (UInt8 × UInt32)) : Array (UInt8 × UInt32) := items
+def mutantRLEHeaderExactRule (bytes : ByteArray) : UInt32 :=
+  if bytes = "x = 1, y = 1, rule = B3/S32".toByteArray then 3 else parseRLEHeader bytes
 
-/-- Mutant 6 violates `rleCombine_combine`. -/
-theorem mutantRleCombine_violates_combine :
-    mutantRleCombineNoMerge #[(111, 2), (111, 3)] ≠ rleCombine #[(111, 2), (111, 3)] := by
+/-- Mutant 6 violates `parseRLEHeader_rule_digit_sets`. -/
+theorem mutantRLEHeaderExactRule_violates_sets :
+    mutantRLEHeaderExactRule "x = 1, y = 1, rule = B3/S32".toByteArray ≠
+      parseRLEHeader "x = 1, y = 1, rule = B3/S32".toByteArray := by
   decide +kernel
 
 /--
-Mutant 7: a Macrocell leaf parser that ignores all live cells.
+Mutant 7: a Macrocell deserializer that accepts a node of level 0, which the real one rejects.
 -/
-def mutantParseLeafNodeAllDead (_s : String) : UInt64 := 0
+def mutantDeserializeMacrocellLevel0 (lines : Array String) : UInt32 :=
+  if lines = #["[M2]", "0 0 0 0 0"] then 0 else (deserializeMacrocell lines).status
 
-/-- Mutant 7 violates `parseLeafNode_star_dollar`. -/
-theorem mutantParseLeafNode_violates_star_dollar :
-    mutantParseLeafNodeAllDead "*$" ≠ parseLeafNode "*$" := by
+/-- Mutant 7 violates `deserializeMacrocell_level_0`. -/
+theorem mutantDeserializeMacrocellLevel0_violates :
+    mutantDeserializeMacrocellLevel0 #["[M2]", "0 0 0 0 0"] ≠ (deserializeMacrocell #["[M2]", "0 0 0 0 0"]).status := by
   decide +kernel
 
 end Algorithm

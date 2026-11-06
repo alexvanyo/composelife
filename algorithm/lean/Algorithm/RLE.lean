@@ -14,26 +14,25 @@
  * limitations under the License.
  -/
 
-import Lean.Compiler.Kotlin
-import Init.Data.UInt
-
-open Lean.Compiler.Kotlin
+import Algorithm.SerialCore
 
 namespace Algorithm
 
-@[kotlin_class "RLERunItem"]
-structure RLERunItem where
-  tag : UInt32 -- 0: RowEnd, 1: DeadRun, 2: AliveRun
-  count : UInt32
-  deriving DecidableEq, Repr
+/-!
+# Run Length Encoded (RLE)
+
+`#` comment lines (`#R x y` or `#P x y` give the top-left coordinate), an `x = w, y = h, rule = ...` header, and
+the pattern: runs `<count><tag>` with tags `b` (dead), `o` (alive) and `$` (end of row), ended by `!`. A count
+applies to the tag right after it on the same line. Whitespace is ignored.
+-/
 
 @[kotlin_class "RLEWarning"]
 structure RLEWarning where
+  /--
+  0: unexpected empty file, 1: duplicate top-left coordinate, 2: unexpected character, 3: unexpected input
+  (`strVal`), 4: unexpected character after `!`.
+  -/
   tag : UInt32
-  -- tag 0: UnexpectedEmptyFile
-  -- tag 1: DuplicateTopLeftCoordinate
-  -- tag 2: UnexpectedCharacter
-  -- tag 3: UnexpectedInput
   lineIndex : UInt32
   columnIndex : UInt32
   charVal : UInt32
@@ -42,405 +41,308 @@ structure RLEWarning where
   offsetY : Int32
   deriving DecidableEq, Repr
 
-@[kotlin_class "RLEOffset"]
-structure RLEOffset where
-  offsetX : Int32
-  offsetY : Int32
-  deriving DecidableEq, Repr
-
-@[kotlin_class "RLECommentResult"]
-structure RLECommentResult where
-  headerIdx : UInt32
-  offsetX : Int32
-  offsetY : Int32
-  warnings : Array RLEWarning
-  deriving DecidableEq, Repr
-
-@[kotlin_class "RLECharsResult"]
-structure RLECharsResult where
-  curCount : UInt32
-  hasCount : Bool
-  finished : Bool
-  runs : Array (UInt32 × UInt32)
-  warnings : Array RLEWarning
-  deriving DecidableEq, Repr
-
-@[kotlin_class "RLELinesResult"]
-structure RLELinesResult where
-  runs : Array (UInt32 × UInt32)
-  warnings : Array RLEWarning
-  deriving DecidableEq, Repr
-
-@[noinline]
-def zeroOffset : Int32 := 0
-
 @[kotlin_class "RLEResult"]
 structure RLEResult where
+  /-- 0: success, 1: unexpected empty file, 2: unexpected header, 3: rule not supported, 4: unexpected input. -/
   status : UInt32
-  -- 0: Success
-  -- 1: UnexpectedEmptyFile
-  -- 2: UnexpectedHeader
-  -- 3: RuleNotSupported
   errLine : String
   errLineIndex : UInt32
+  errColumnIndex : UInt32
   warnings : Array RLEWarning
   cells : Array (Int32 × Int32)
   deriving DecidableEq, Repr
 
-@[inline]
-def isDigitByteRLE (b : UInt8) : Bool := b >= 48 && b <= 57
+/-- Zero, for the offset of warnings without one. Not inlined, as the Kotlin backend emits an `Int32` literal
+in a constructor as unsigned. -/
+@[noinline]
+def zeroOffset : Int32 := 0
 
-@[inline]
-def isSpaceByteRLE (b : UInt8) : Bool := b == 32 || b == 9 || b == 13
-
-structure RLEParseIntResult where
-  val : Int32
-  nextPos : UInt32
-  deriving DecidableEq, Repr
-
-def parseSignedIntAtRLE (bytes : ByteArray) (pos limit : UInt32) : Option RLEParseIntResult :=
-  if pos >= limit then none
+/-- Parses a `#R x y` or `#P x y` top-left coordinate line. -/
+def parseRLEOffset (bytes : ByteArray) : Option ParsedCoords :=
+  let limit := bytes.size.toUInt32
+  if limit < 3 || bytes.get! 0 != 35 || (bytes.get! 1 != 82 && bytes.get! 1 != 80) || bytes.get! 2 != 32 then none
   else
-    let isNeg := bytes.get! pos.toNat == 45
-    let startDigits := if isNeg then pos + 1 else pos
-    if startDigits >= limit then none
-    else
-      let rec loop (p : UInt32) (acc : UInt32) (hasDigits : Bool) : Option RLEParseIntResult :=
-        if h : p < limit then
-          have : limit.toNat - (p + 1).toNat < limit.toNat - p.toNat := by
-            have h1 := UInt32.lt_iff_toNat_lt.mp h
-            have h2 : (p + 1).toNat = p.toNat + 1 := by
-              rw [UInt32.toNat_add]
-              have := UInt32.toNat_lt limit
-              simp only [UInt32.toNat_one]
-              omega
-            omega
-          let b := bytes.get! p.toNat
-          if isDigitByteRLE b then
-            loop (p + 1) (acc * 10 + (b.toUInt32 - 48)) true
-          else if hasDigits then
-            let v := if isNeg then (0 : Int32) - acc.toInt32 else acc.toInt32
-            some ⟨v, p⟩
-          else
-            none
-        else if hasDigits then
-          let v := if isNeg then (0 : Int32) - acc.toInt32 else acc.toInt32
-          some ⟨v, p⟩
-        else
-          none
-      termination_by limit.toNat - p.toNat
-      loop startDigits 0 false
+    match parseInt32At bytes 3 limit with
+    | none => none
+    | some r1 =>
+      if r1.next < limit && bytes.get! r1.next.toNat == 32 then
+        match parseInt32At bytes (r1.next + 1) limit with
+        | none => none
+        | some r2 => if r2.next == limit then some ⟨r1.val, r2.val⟩ else none
+      else none
 
-def skipSpacesRLE (bytes : ByteArray) (pos limit : UInt32) : UInt32 :=
-  if h : pos < limit then
-    have : limit.toNat - (pos + 1).toNat < limit.toNat - pos.toNat := by
+/-- Whether `b` is `c` in either case, for an ASCII letter `c`. -/
+@[inline]
+def isLetterByte (b : UInt8) (c : UInt8) : Bool := b == c || b == c - 32
+
+/--
+Checks the rule after `rule =`: 0 for Conway's rules (birth digits {3}, survival digits {2, 3}, in any order and
+with repeats), 2 if it is malformed and 3 for any other rule. The rule is `B<birth>/S<survival>` or
+`<survival>/<birth>`.
+-/
+def checkRLERule (bytes : ByteArray) (pos limit : UInt32) : UInt32 :=
+  let p0 := skipSpaces bytes pos limit
+  let hasLetters := p0 < limit && isLetterByte (bytes.get! p0.toNat) 98
+  let s1 := if hasLetters then p0 + 1 else p0
+  let (e1, first) := scanDigitSet bytes limit s1 0
+  if e1 == s1 || !(e1 < limit) || bytes.get! e1.toNat != 47 then 2 -- '/'
+  else
+    let lettersOk := !hasLetters || (e1 + 1 < limit && isLetterByte (bytes.get! (e1 + 1).toNat) 115)
+    if !lettersOk then 2
+    else
+      let s2 := if hasLetters then e1 + 2 else e1 + 1
+      let (e2, second) := scanDigitSet bytes limit s2 0
+      if e2 == s2 || skipSpaces bytes e2 limit != limit then 2
+      else
+        let (birth, survival) := if hasLetters then (first, second) else (second, first)
+        if birth == birth3Mask && survival == survival23Mask then 0 else 3
+
+/--
+Checks an `x = w, y = h[, rule = r]` header line: 0 if it is valid with Conway's rules, 2 if it is malformed and 3
+for another rule. Spaces around the parts are allowed.
+-/
+def parseRLEHeader (bytes : ByteArray) : UInt32 :=
+  let limit := bytes.size.toUInt32
+  let expect (p : UInt32) (c : UInt8) : Option UInt32 :=
+    let q := skipSpaces bytes p limit
+    if q < limit && bytes.get! q.toNat == c then some (q + 1) else none
+  let expectNum (p : UInt32) : Option UInt32 :=
+    match parseUInt32At bytes (skipSpaces bytes p limit) limit with
+    | some r => some r.next
+    | none => none
+  match expect 0 120 >>= (expect · 61) >>= expectNum >>= (expect · 44) >>= (expect · 121) >>= (expect · 61)
+      >>= expectNum with -- "x = w, y = h"
+  | none => 2
+  | some p =>
+    let q := skipSpaces bytes p limit
+    if q == limit then 0
+    else
+      match expect q 44 with -- ','
+      | none => 2
+      | some p1 =>
+        let r := skipSpaces bytes p1 limit
+        if r + 4 <= limit && limit - r >= 4 && isLetterByte (bytes.get! r.toNat) 114 &&
+            isLetterByte (bytes.get! (r + 1).toNat) 117 && isLetterByte (bytes.get! (r + 2).toNat) 108 &&
+            isLetterByte (bytes.get! (r + 3).toNat) 101 then -- "rule"
+          match expect (r + 4) 61 with -- '='
+          | none => 2
+          | some p2 => checkRLERule bytes p2 limit
+        else 2
+
+/-- Copies the ASCII bytes among `bytes[s + k]` for `k` from `k` until `n` into `g`. -/
+def copyAscii (bytes : ByteArray) (s n : UInt32) (k : UInt32) (g : AsciiBytes) : AsciiBytes :=
+  if h : k < n then
+    have : n.toNat - (k + 1).toNat < n.toNat - k.toNat := by
       have h1 := UInt32.lt_iff_toNat_lt.mp h
-      have h2 : (pos + 1).toNat = pos.toNat + 1 := by
+      have h2 : (k + 1).toNat = k.toNat + 1 := by
         rw [UInt32.toNat_add]
-        have := UInt32.toNat_lt limit
+        have := UInt32.toNat_lt n
         simp only [UInt32.toNat_one]
         omega
       omega
-    if isSpaceByteRLE (bytes.get! pos.toNat) then
-      skipSpacesRLE bytes (pos + 1) limit
-    else
-      pos
-  else
-    pos
-termination_by limit.toNat - pos.toNat
+    let b := bytes.get! (s + k).toNat
+    copyAscii bytes s n (k + 1) (if hb : b < 128 then g.set k b hb else g)
+  else g
+termination_by n.toNat - k.toNat
 
-def parseRLEOffset (bytes : ByteArray) : Option RLEOffset :=
-  let limit := bytes.size.toUInt32
-  if limit < 4 then none
-  else if bytes.get! 0 == 35 && (bytes.get! 1 == 82 || bytes.get! 1 == 80) && bytes.get! 2 == 32 then
-    let p0 := skipSpacesRLE bytes 3 limit
-    match parseSignedIntAtRLE bytes p0 limit with
-    | none => none
-    | some res1 =>
-      let p1 := skipSpacesRLE bytes res1.nextPos limit
-      match parseSignedIntAtRLE bytes p1 limit with
-      | none => none
-      | some res2 => some ⟨res1.val, res2.val⟩
-  else none
+/-- The bytes `s` until `e` as a string, with any byte that isn't ASCII replaced by `?`. -/
+def asciiStringLossy (bytes : ByteArray) (s e : UInt32) : String :=
+  let n := e - s
+  (copyAscii bytes s n 0 (AsciiBytes.replicate n 63 (by decide))).toStringRange 0 n
 
-def cellContainsRLE (cells : Array (Int32 × Int32)) (x y : Int32) : Bool :=
-  let limit := cells.size.toUInt32
-  let rec loop (i : UInt32) (limit : UInt32) : Bool :=
-    if h : i < limit then
-      have : limit.toNat - (i + 1).toNat < limit.toNat - i.toNat := by
-        have h1 := UInt32.lt_iff_toNat_lt.mp h
-        have h2 : (i + 1).toNat = i.toNat + 1 := by
-          rw [UInt32.toNat_add]
-          have := UInt32.toNat_lt limit
-          simp only [UInt32.toNat_one]
-          omega
-        omega
-      let (cx, cy) := cells[i.toNat]!
-      if cx == x && cy == y then true
-      else loop (i + 1) limit
-    else false
-  termination_by limit.toNat - i.toNat
-  loop 0 limit
+/-- The largest run count. -/
+def maxRunCount : UInt64 := 2147483647
 
-def rleCombine (items : Array (UInt8 × UInt32)) : Array (UInt8 × UInt32) :=
-  let limit := items.size.toUInt32
-  if limit == 0 then #[]
-  else
-    let (firstChar, firstCount) := items[0]!
-    let rec loop (i : UInt32) (limit : UInt32) (curChar : UInt8) (curCount : UInt32)
-        (acc : Array (UInt8 × UInt32)) : Array (UInt8 × UInt32) :=
-      if h : i < limit then
-        have : limit.toNat - (i + 1).toNat < limit.toNat - i.toNat := by
-          have h1 := UInt32.lt_iff_toNat_lt.mp h
-          have h2 : (i + 1).toNat = i.toNat + 1 := by
-            rw [UInt32.toNat_add]
-            have := UInt32.toNat_lt limit
-            simp only [UInt32.toNat_one]
+/-- Adds the cells of alive runs `j` onward (with `k` cells of run `j` done). Runs are `(tag, count)` with tag 0
+for an end of row, 1 for dead cells and 2 for alive cells. -/
+def expandRuns (runs : Array (UInt32 × UInt32)) (numRuns : UInt32) (j k : UInt32) (x y startX : Int32)
+    (cells : GrowBuf (Int32 × Int32)) : GrowBuf (Int32 × Int32) :=
+  if hj : j < numRuns then
+    have hk0 := UInt32.toNat_lt k
+    have hnext : (numRuns.toNat - (j + 1).toNat) * 2 ^ 33 + (2 ^ 32 - (0 : UInt32).toNat) <
+        (numRuns.toNat - j.toNat) * 2 ^ 33 + (2 ^ 32 - k.toNat) := by
+      have hj1 := UInt32.lt_iff_toNat_lt.mp hj
+      have hj2 : (j + 1).toNat = j.toNat + 1 := by
+        rw [UInt32.toNat_add]; have := UInt32.toNat_lt numRuns; simp only [UInt32.toNat_one]; omega
+      rw [hj2, UInt32.toNat_zero]
+      have : numRuns.toNat - j.toNat = (numRuns.toNat - (j.toNat + 1)) + 1 := by omega
+      rw [this, Nat.add_mul]; omega
+    match runs[j.toNat]! with
+    | (tag, count) =>
+      if tag == 2 then
+        if hk : k < count then
+          have : (numRuns.toNat - j.toNat) * 2 ^ 33 + (2 ^ 32 - (k + 1).toNat) <
+              (numRuns.toNat - j.toNat) * 2 ^ 33 + (2 ^ 32 - k.toNat) := by
+            have hk1 := UInt32.lt_iff_toNat_lt.mp hk
+            have hc := UInt32.toNat_lt count
+            have hk2 : (k + 1).toNat = k.toNat + 1 := by
+              rw [UInt32.toNat_add, UInt32.toNat_one]; omega
+            rw [hk2]
+            apply Nat.add_lt_add_left
             omega
-          omega
-        let (ch, cnt) := items[i.toNat]!
-        if ch == curChar then
-          loop (i + 1) limit curChar (curCount + cnt) acc
+          expandRuns runs numRuns j (k + 1) x y startX (cells.push (x + k.toInt32, y))
         else
-          loop (i + 1) limit ch cnt (acc.push (curChar, curCount))
-      else acc.push (curChar, curCount)
-    termination_by limit.toNat - i.toNat
-    loop 1 limit firstChar firstCount #[]
-
-def trimTrailingDead (items : Array (UInt8 × UInt32)) : Array (UInt8 × UInt32) :=
-  let limit := items.size.toUInt32
-  let rec loop (i : UInt32) (limit : UInt32) (acc : Array (UInt8 × UInt32)) : Array (UInt8 × UInt32) :=
-    if h : i < limit then
-      have : limit.toNat - (i + 1).toNat < limit.toNat - i.toNat := by
-        have h1 := UInt32.lt_iff_toNat_lt.mp h
-        have h2 : (i + 1).toNat = i.toNat + 1 := by
-          rw [UInt32.toNat_add]
-          have := UInt32.toNat_lt limit
-          simp only [UInt32.toNat_one]
-          omega
-        omega
-      let (ch, cnt) := items[i.toNat]!
-      if i + 1 < limit then
-        let (nextCh, _) := items[(i + 1).toNat]!
-        if ch == 98 && (nextCh == 36 || nextCh == 33) then -- 'b' before '$' or '!'
-          loop (i + 1) limit acc
-        else
-          loop (i + 1) limit (acc.push (ch, cnt))
+          expandRuns runs numRuns (j + 1) 0 (x + count.toInt32) y startX cells
+      else if tag == 1 then
+        expandRuns runs numRuns (j + 1) 0 (x + count.toInt32) y startX cells
       else
-        loop (i + 1) limit (acc.push (ch, cnt))
-    else acc
-  termination_by limit.toNat - i.toNat
-  loop 0 limit #[]
+        expandRuns runs numRuns (j + 1) 0 startX (y + count.toInt32) startX cells
+  else cells
+termination_by (numRuns.toNat - j.toNat) * 2 ^ 33 + (2 ^ 32 - k.toNat)
+decreasing_by all_goals first | exact this | exact hnext
 
-def formatRLEItem (ch : UInt8) (cnt : UInt32) : String :=
-  let tagStr := if ch == 111 then "o" else if ch == 98 then "b" else if ch == 36 then "$" else "!"
-  if cnt == 1 then tagStr
-  else s!"{cnt}{tagStr}"
+/-- The successful result for the runs read so far. -/
+def finishRLE (warns : GrowBuf RLEWarning) (runs : GrowBuf (UInt32 × UInt32)) (startX startY : Int32) : RLEResult :=
+  let runArr := runs.toArray
+  ⟨0, "", 0, 0, warns.toArray, (expandRuns runArr runArr.size.toUInt32 0 0 startX startY startX GrowBuf.empty).toArray⟩
 
-def wrapRLELines (items : Array String) : Array String :=
-  let limit := items.size.toUInt32
-  if limit == 0 then #[]
-  else
-    let rec loop (i : UInt32) (limit : UInt32) (curLine : String) (acc : Array String) : Array String :=
-      if h : i < limit then
-        have : limit.toNat - (i + 1).toNat < limit.toNat - i.toNat := by
-          have h1 := UInt32.lt_iff_toNat_lt.mp h
-          have h2 : (i + 1).toNat = i.toNat + 1 := by
-            rw [UInt32.toNat_add]
-            have := UInt32.toNat_lt limit
-            simp only [UInt32.toNat_one]
-            omega
-          omega
-        let item := items[i.toNat]!
-        if curLine.length.toUInt32 + item.length.toUInt32 > (70 : UInt32) then
-          loop (i + 1) limit item (acc.push curLine)
+/--
+Reads the pattern from line `i` on. In a line (`inLine`), `bytes` is the line, `p` the byte position and `col`
+the character position; `count` is the pending run count, which started at byte `countP` (character
+`countCol`).
+-/
+def parseRLEData (lines : Array String) (numLines : UInt32) (i : UInt32) (inLine : Bool) (bytes : ByteArray)
+    (limit p col : UInt32) (count : UInt64) (hasCount : Bool) (countP countCol : UInt32)
+    (warns : GrowBuf RLEWarning) (runs : GrowBuf (UInt32 × UInt32)) (startX startY : Int32) : RLEResult :=
+  if hi : i < numLines then
+    have hi1 : numLines.toNat - (i + 1).toNat < numLines.toNat - i.toNat := by
+      have h1 := UInt32.lt_iff_toNat_lt.mp hi
+      have h2 : (i + 1).toNat = i.toNat + 1 := by
+        rw [UInt32.toNat_add]
+        have := UInt32.toNat_lt numLines
+        simp only [UInt32.toNat_one]
+        omega
+      omega
+    if inLine then
+      if hp : p < limit then
+        let r := decodeCharAt bytes p limit
+        have := decodeCharAt_next bytes p limit hp
+        let cp := r.1
+        if cp >= 48 && cp <= 57 then -- digit
+          let newCount := if count > 4294967296 then count else count * 10 + (cp.toUInt64 - 48)
+          parseRLEData lines numLines i true bytes limit r.2 (col + 1) newCount true
+            (if hasCount then countP else p) (if hasCount then countCol else col) warns runs startX startY
+        else if cp == 33 then -- '!'
+          let warns := if hasCount then
+              warns.push ⟨3, i + 1, countCol + 1, 0, asciiStringLossy bytes countP r.2, zeroOffset, zeroOffset⟩
+            else warns
+          let warns := if r.2 < limit then
+              warns.push ⟨4, i + 1, col + 2, (decodeCharAt bytes r.2 limit).1, "", zeroOffset, zeroOffset⟩
+            else if i + 1 < numLines then
+              warns.push ⟨3, i + 2, 1, 0, lines[(i + 1).toNat]!, zeroOffset, zeroOffset⟩
+            else warns
+          finishRLE warns (runs.push (0, 1)) startX startY
+        else if cp == 32 || cp == 9 || cp == 13 then -- whitespace
+          parseRLEData lines numLines i true bytes limit r.2 (col + 1) count hasCount countP countCol warns runs
+            startX startY
+        else if hasCount && count > maxRunCount then
+          ⟨4, asciiStringLossy bytes countP p, i + 1, countCol + 1, #[], #[]⟩
         else
-          loop (i + 1) limit (curLine ++ item) acc
-      else if curLine.length.toUInt32 > (0 : UInt32) then acc.push curLine
-      else acc
-    termination_by limit.toNat - i.toNat
-    loop 0 limit "" #[]
-
-def buildRawTags (cells : Array (Int32 × Int32)) (minX maxX minY maxY : Int32) : Array (UInt8 × UInt32) :=
-  let width : UInt32 := (maxX - minX + 1).toUInt32
-  let height : UInt32 := (maxY - minY + 1).toUInt32
-  let rec loopRow (row : UInt32) (height : UInt32) (acc : Array (UInt8 × UInt32)) : Array (UInt8 × UInt32) :=
-    if hr : row < height then
-      have : height.toNat - (row + 1).toNat < height.toNat - row.toNat := by
-        have h1 := UInt32.lt_iff_toNat_lt.mp hr
-        have h2 : (row + 1).toNat = row.toNat + 1 := by
-          rw [UInt32.toNat_add]
-          have := UInt32.toNat_lt height
-          simp only [UInt32.toNat_one]
-          omega
-        omega
-      let y := minY + row.toInt32
-      let rec loopCol (col : UInt32) (width : UInt32) (rowAcc : Array (UInt8 × UInt32)) : Array (UInt8 × UInt32) :=
-        if hc : col < width then
-          have : width.toNat - (col + 1).toNat < width.toNat - col.toNat := by
-            have h1 := UInt32.lt_iff_toNat_lt.mp hc
-            have h2 : (col + 1).toNat = col.toNat + 1 := by
-              rw [UInt32.toNat_add]
-              have := UInt32.toNat_lt width
-              simp only [UInt32.toNat_one]
-              omega
-            omega
-          let x := minX + col.toInt32
-          let tag : UInt8 := if cellContainsRLE cells x y then 111 else 98
-          loopCol (col + 1) width (rowAcc.push (tag, 1))
-        else rowAcc
-      termination_by width.toNat - col.toNat
-      let rowTags := loopCol 0 width acc
-      let rowTagsWithEnd := if row + 1 < height then rowTags.push (36, 1) else rowTags
-      loopRow (row + 1) height rowTagsWithEnd
-    else acc.push (33, 1)
-  termination_by height.toNat - row.toNat
-  loopRow 0 height #[]
-
-@[export rle_serialize]
-def serializeRLE (cells : Array (Int32 × Int32)) (minX maxX minY maxY : Int32) : Array String :=
-  if cells.size == 0 then
-    #["#R 0 0", "x = 0, y = 0, rule = B3/S23", "!"]
-  else
-    let width : UInt32 := (maxX - minX + 1).toUInt32
-    let height : UInt32 := (maxY - minY + 1).toUInt32
-    let rawTags := buildRawTags cells minX maxX minY maxY
-    let rle1 := rleCombine rawTags
-    let trimmed := trimTrailingDead rle1
-    let rle2 := rleCombine trimmed
-    let rec formatLoop (i : UInt32) (limit : UInt32) (acc : Array String) : Array String :=
-      if h : i < limit then
-        have : limit.toNat - (i + 1).toNat < limit.toNat - i.toNat := by
-          have h1 := UInt32.lt_iff_toNat_lt.mp h
-          have h2 : (i + 1).toNat = i.toNat + 1 := by
-            rw [UInt32.toNat_add]
-            have := UInt32.toNat_lt limit
-            simp only [UInt32.toNat_one]
-            omega
-          omega
-        let (ch, cnt) := rle2[i.toNat]!
-        formatLoop (i + 1) limit (acc.push (formatRLEItem ch cnt))
-      else acc
-    termination_by limit.toNat - i.toNat
-    let formatted := formatLoop 0 rle2.size.toUInt32 #[]
-    let wrapped := wrapRLELines formatted
-    let header1 := s!"#R {minX} {minY}"
-    let header2 := s!"x = {width}, y = {height}, rule = B3/S23"
-    let rec prependHeaders (i : UInt32) (limit : UInt32) (acc : Array String) : Array String :=
-      if h : i < limit then
-        have : limit.toNat - (i + 1).toNat < limit.toNat - i.toNat := by
-          have h1 := UInt32.lt_iff_toNat_lt.mp h
-          have h2 : (i + 1).toNat = i.toNat + 1 := by
-            rw [UInt32.toNat_add]
-            have := UInt32.toNat_lt limit
-            simp only [UInt32.toNat_one]
-            omega
-          omega
-        prependHeaders (i + 1) limit (acc.push wrapped[i.toNat]!)
-      else acc
-    termination_by limit.toNat - i.toNat
-    prependHeaders 0 wrapped.size.toUInt32 #[header1, header2]
-
-@[export rle_decode_runs]
-def decodeRLERuns (runs : Array (UInt32 × UInt32)) (startX startY : Int32) : Array (Int32 × Int32) :=
-  let limit := runs.size.toUInt32
-  let rec loop (i : UInt32) (limit : UInt32) (x y : Int32) (acc : Array (Int32 × Int32)) : Array (Int32 × Int32) :=
-    if h : i < limit then
-      have : limit.toNat - (i + 1).toNat < limit.toNat - i.toNat := by
-        have h1 := UInt32.lt_iff_toNat_lt.mp h
-        have h2 : (i + 1).toNat = i.toNat + 1 := by
-          rw [UInt32.toNat_add]
-          have := UInt32.toNat_lt limit
-          simp only [UInt32.toNat_one]
-          omega
-        omega
-      let (tag, count) := runs[i.toNat]!
-      if tag == 0 then -- RowEnd
-        loop (i + 1) limit startX (y + count.toInt32) acc
-      else if tag == 1 then -- DeadRun
-        loop (i + 1) limit (x + count.toInt32) y acc
-      else -- AliveRun
-        let rec addCells (k : UInt32) (kLimit : UInt32) (cellsAcc : Array (Int32 × Int32)) : Array (Int32 × Int32) :=
-          if hk : k < kLimit then
-            have : kLimit.toNat - (k + 1).toNat < kLimit.toNat - k.toNat := by
-              have h1 := UInt32.lt_iff_toNat_lt.mp hk
-              have h2 : (k + 1).toNat = k.toNat + 1 := by
-                rw [UInt32.toNat_add]
-                have := UInt32.toNat_lt kLimit
-                simp only [UInt32.toNat_one]
-                omega
-              omega
-            addCells (k + 1) kLimit (cellsAcc.push (x + k.toInt32, y))
-          else cellsAcc
-        termination_by kLimit.toNat - k.toNat
-        let nextAcc := addCells 0 count acc
-        loop (i + 1) limit (x + count.toInt32) y nextAcc
-    else acc
-  termination_by limit.toNat - i.toNat
-  loop 0 limit startX startY #[]
-
-def checkRLEHeaderRule (bytes : ByteArray) (pos limit : UInt32) : UInt32 :=
-  let p0 := skipSpacesRLE bytes pos limit
-  if p0 >= limit then 0 -- default Conway
-  else if bytes.get! p0.toNat != 44 then 2 -- expected ','
-  else
-    let p1 := skipSpacesRLE bytes (p0 + 1) limit
-    if p1 + 4 <= limit &&
-       (bytes.get! p1.toNat == 114 || bytes.get! p1.toNat == 82) && -- 'r' / 'R'
-       (bytes.get! (p1 + 1).toNat == 117 || bytes.get! (p1 + 1).toNat == 85) && -- 'u' / 'U'
-       (bytes.get! (p1 + 2).toNat == 108 || bytes.get! (p1 + 2).toNat == 76) && -- 'l' / 'L'
-       (bytes.get! (p1 + 3).toNat == 101 || bytes.get! (p1 + 3).toNat == 69) then -- 'e' / 'E'
-      let p2 := skipSpacesRLE bytes (p1 + 4) limit
-      if p2 < limit && bytes.get! p2.toNat == 61 then -- '='
-        let p3 := skipSpacesRLE bytes (p2 + 1) limit
-        -- Check "B3/S23" (or "b3/s23")
-        if p3 + 6 <= limit &&
-           (bytes.get! p3.toNat == 66 || bytes.get! p3.toNat == 98) &&
-           bytes.get! (p3 + 1).toNat == 51 &&
-           bytes.get! (p3 + 2).toNat == 47 &&
-           (bytes.get! (p3 + 3).toNat == 83 || bytes.get! (p3 + 3).toNat == 115) &&
-           bytes.get! (p3 + 4).toNat == 50 &&
-           bytes.get! (p3 + 5).toNat == 51 &&
-           skipSpacesRLE bytes (p3 + 6) limit == limit then 0
-        -- Check "23/3"
-        else if p3 + 4 <= limit &&
-           bytes.get! p3.toNat == 50 &&
-           bytes.get! (p3 + 1).toNat == 51 &&
-           bytes.get! (p3 + 2).toNat == 47 &&
-           bytes.get! (p3 + 3).toNat == 51 &&
-           skipSpacesRLE bytes (p3 + 4) limit == limit then 0
-        else 3 -- unsupported rule
-      else 2 -- expected '='
-    else 2 -- expected "rule"
-
-def parseRLEHeader (bytes : ByteArray) : UInt32 :=
-  let limit := bytes.size.toUInt32
-  let p0 := skipSpacesRLE bytes 0 limit
-  if p0 >= limit || bytes.get! p0.toNat != 120 then 2 -- 'x'
-  else
-    let p1 := skipSpacesRLE bytes (p0 + 1) limit
-    if p1 >= limit || bytes.get! p1.toNat != 61 then 2 -- '='
+          let n : UInt32 := if hasCount then count.toUInt32 else 1
+          -- '$' ends rows, 'b' is dead, and anything else is alive, with a warning unless it is 'o'.
+          let tag : UInt32 := if cp == 36 then 0 else if cp == 98 then 1 else 2
+          let warns := if tag == 2 && cp != 111 then
+              warns.push ⟨2, i + 1, col + 1, cp, "", zeroOffset, zeroOffset⟩
+            else warns
+          parseRLEData lines numLines i true bytes limit r.2 (col + 1) 0 false 0 0 warns (runs.push (tag, n))
+            startX startY
+      else
+        -- A count at the end of a line is dropped.
+        parseRLEData lines numLines (i + 1) false bytes limit 0 0 0 false 0 0 warns runs startX startY
     else
-      let p2 := skipSpacesRLE bytes (p1 + 1) limit
-      match parseSignedIntAtRLE bytes p2 limit with
-      | none => 2
-      | some resX =>
-        let p3 := skipSpacesRLE bytes resX.nextPos limit
-        if p3 >= limit || bytes.get! p3.toNat != 44 then 2 -- ','
-        else
-          let p4 := skipSpacesRLE bytes (p3 + 1) limit
-          if p4 >= limit || bytes.get! p4.toNat != 121 then 2 -- 'y'
-          else
-            let p5 := skipSpacesRLE bytes (p4 + 1) limit
-            if p5 >= limit || bytes.get! p5.toNat != 61 then 2 -- '='
-            else
-              let p6 := skipSpacesRLE bytes (p5 + 1) limit
-              match parseSignedIntAtRLE bytes p6 limit with
-              | none => 2
-              | some resY =>
-                checkRLEHeaderRule bytes resY.nextPos limit
+      let bytes := lines[i.toNat]!.toByteArray
+      parseRLEData lines numLines i true bytes bytes.size.toUInt32 0 0 0 false 0 0 warns runs startX startY
+  else finishRLE warns runs startX startY
+termination_by (numLines.toNat - i.toNat) * 2 ^ 33 + (if inLine then limit.toNat - p.toNat else 2 ^ 32)
+decreasing_by
+  all_goals
+    simp_all only [ite_true, Bool.false_eq_true, ite_false]
+    first
+      | omega
+      | (have := UInt32.toNat_lt limit; omega)
+      | (have := UInt32.toNat_lt (ByteArray.size lines[i.toNat]!.toByteArray).toUInt32; omega)
 
-def natDigitCount (n : UInt32) : UInt32 :=
+/-- Reads the comment lines from `i` on, then the header and the pattern. -/
+def parseRLEComments (lines : Array String) (numLines : UInt32) (i : UInt32) (offsetX offsetY : Int32)
+    (hasOffset : Bool) (warns : GrowBuf RLEWarning) : RLEResult :=
+  if h : i < numLines then
+    have : numLines.toNat - (i + 1).toNat < numLines.toNat - i.toNat := by
+      have h1 := UInt32.lt_iff_toNat_lt.mp h
+      have h2 : (i + 1).toNat = i.toNat + 1 := by
+        rw [UInt32.toNat_add]
+        have := UInt32.toNat_lt numLines
+        simp only [UInt32.toNat_one]
+        omega
+      omega
+    let line := lines[i.toNat]!
+    let bytes := line.toByteArray
+    if bytes.size.toUInt32 != 0 && bytes.get! 0 == 35 then -- '#'
+      match parseRLEOffset bytes with
+      | some c =>
+        let warns := if hasOffset then warns.push ⟨1, i + 1, 0, 0, "", c.x, c.y⟩ else warns
+        parseRLEComments lines numLines (i + 1) c.x c.y true warns
+      | none => parseRLEComments lines numLines (i + 1) offsetX offsetY hasOffset warns
+    else
+      let status := parseRLEHeader bytes
+      if status != 0 then ⟨status, line, i + 1, 0, warns.toArray, #[]⟩
+      else
+        parseRLEData lines numLines (i + 1) false bytes 0 0 0 0 false 0 0 warns GrowBuf.empty offsetX offsetY
+  else ⟨2, "none", numLines, 0, warns.toArray, #[]⟩
+termination_by numLines.toNat - i.toNat
+
+@[export rle_deserialize]
+def deserializeRLE (lines : Array String) : RLEResult :=
+  if lines.size.toUInt32 == 0 then
+    ⟨1, "", 0, 0, #[⟨0, 0, 0, 0, "", zeroOffset, zeroOffset⟩], #[]⟩
+  else
+    parseRLEComments lines lines.size.toUInt32 0 0 0 false GrowBuf.empty
+
+/-- The tags of runs. -/
+def rleDead : UInt8 := 98
+def rleAlive : UInt8 := 111
+def rleRowEnd : UInt8 := 36
+def rleEnd : UInt8 := 33
+
+/--
+Turns grid cells `k` onward (row `k / w`, column `k % w`) into run items `(tag, count)`, merging runs of the same
+tag. Dead runs at the end of a row are dropped, and consecutive ends of rows are merged. `runTag` and `runLen`
+are the current run (`runLen = 0` for none), and `rowEnds` the pending ends of rows, emitted before the next run.
+-/
+def gridItems (g : AsciiBytes) (w total : UInt32) (k : UInt32) (runTag : UInt8) (runLen : UInt32)
+    (rowEnds : UInt32) (items : GrowBuf (UInt8 × UInt32)) : GrowBuf (UInt8 × UInt32) :=
+  if h : k < total then
+    have : total.toNat - (k + 1).toNat < total.toNat - k.toNat := by
+      have h1 := UInt32.lt_iff_toNat_lt.mp h
+      have h2 : (k + 1).toNat = k.toNat + 1 := by
+        rw [UInt32.toNat_add]
+        have := UInt32.toNat_lt total
+        simp only [UInt32.toNat_one]
+        omega
+      omega
+    let tag := g.1.get! k.toNat
+    let grows := runLen != 0 && tag == runTag
+    -- A run that ends before the end of the row is emitted, after any pending ends of rows.
+    let flush := runLen != 0 && !grows
+    let items := if flush && rowEnds != 0 then items.push (rleRowEnd, rowEnds) else items
+    let items := if flush then items.push (runTag, runLen) else items
+    let rowEnds := if flush then 0 else rowEnds
+    let curTag := if grows then runTag else tag
+    let curLen := if grows then runLen + 1 else 1
+    if (k + 1) % w == 0 then
+      -- The run ends with the row; a dead run there is dropped.
+      let emit := curTag == rleAlive
+      let items := if emit && rowEnds != 0 then items.push (rleRowEnd, rowEnds) else items
+      let items := if emit then items.push (rleAlive, curLen) else items
+      let rowEnds := if emit then 0 else rowEnds
+      -- The end of this row is pending; one after the last row is never emitted.
+      gridItems g w total (k + 1) rleDead 0 (rowEnds + 1) items
+    else
+      gridItems g w total (k + 1) curTag curLen rowEnds items
+  else items
+termination_by total.toNat - k.toNat
+
+/-- The number of decimal digits of `n`. -/
+def decimalLength (n : UInt32) : UInt32 :=
   if n < 10 then 1
   else if n < 100 then 2
   else if n < 1000 then 3
@@ -452,118 +354,57 @@ def natDigitCount (n : UInt32) : UInt32 :=
   else if n < 1000000000 then 9
   else 10
 
-@[export rle_deserialize]
-def deserializeRLE (lines : Array String) : RLEResult :=
-  let numLines := lines.size.toUInt32
-  if numLines == 0 then
-    ⟨1, "", 0, #[⟨0, 0, 0, 0, "", zeroOffset, zeroOffset⟩], #[]⟩
+/-- The text of a run item; a count of 1 is left out. -/
+def formatRLEItem (tag : UInt8) (count : UInt32) : String :=
+  let tagStr := if tag == rleAlive then "o" else if tag == rleDead then "b" else if tag == rleRowEnd then "$" else "!"
+  if count == 1 then tagStr else s!"{count}{tagStr}"
+
+/-- The length of `formatRLEItem tag count`. -/
+def formatRLEItemLength (count : UInt32) : UInt32 :=
+  if count == 1 then 1 else decimalLength count + 1
+
+/-- Lays out items `j` onward in lines of at most 70 characters, without splitting items. -/
+def wrapRLEItems (items : Array (UInt8 × UInt32)) (numItems : UInt32) (j : UInt32) (line : String)
+    (lineLen : UInt32) (out : GrowBuf String) : GrowBuf String :=
+  if h : j < numItems then
+    have : numItems.toNat - (j + 1).toNat < numItems.toNat - j.toNat := by
+      have h1 := UInt32.lt_iff_toNat_lt.mp h
+      have h2 : (j + 1).toNat = j.toNat + 1 := by
+        rw [UInt32.toNat_add]
+        have := UInt32.toNat_lt numItems
+        simp only [UInt32.toNat_one]
+        omega
+      omega
+    let item := items[j.toNat]!
+    let text := formatRLEItem item.1 item.2
+    let len := formatRLEItemLength item.2
+    if lineLen + len > 70 then
+      wrapRLEItems items numItems (j + 1) text len (out.push line)
+    else
+      wrapRLEItems items numItems (j + 1) (line ++ text) (lineLen + len) out
+  else if lineLen != 0 then out.push line else out
+termination_by numItems.toNat - j.toNat
+
+/-- The header lines for the box at (`minX`, `minY`) of size `width` by `height`. -/
+def formatRLEHeader (minX minY : Int32) (width height : UInt32) : Array String :=
+  #[s!"#R {minX} {minY}", s!"x = {width}, y = {height}, rule = B3/S23"]
+
+/--
+Serializes the cells in the bounding box from (`minX`, `minY`) to (`maxX`, `maxY`). Cells outside the box are
+skipped.
+-/
+@[export rle_serialize]
+def serializeRLE (cells : Array (UInt32 × UInt32)) (minX maxX minY maxY : Int32) : Array String :=
+  if cells.size.toUInt32 == 0 then
+    #["#R 0 0", "x = 0, y = 0, rule = B3/S23", "!"]
   else
-    let rec parseComments (i : UInt32) (numLines : UInt32) (offsetX offsetY : Int32) (hasOffset : Bool)
-        (warns : Array RLEWarning) : Option RLECommentResult :=
-      if h : i < numLines then
-        have : numLines.toNat - (i + 1).toNat < numLines.toNat - i.toNat := by
-          have h1 := UInt32.lt_iff_toNat_lt.mp h
-          have h2 : (i + 1).toNat = i.toNat + 1 := by
-            rw [UInt32.toNat_add]
-            have := UInt32.toNat_lt numLines
-            simp only [UInt32.toNat_one]
-            omega
-          omega
-        let line := lines[i.toNat]!
-        let bytes := line.toByteArray
-        if bytes.size.toUInt32 > 0 && bytes.get! 0 == 35 then -- '#'
-          match parseRLEOffset bytes with
-          | some off =>
-            let newWarns := if hasOffset then warns.push ⟨1, i + 1, 0, 0, "", off.offsetX, off.offsetY⟩ else warns
-            parseComments (i + 1) numLines off.offsetX off.offsetY true newWarns
-          | none =>
-            parseComments (i + 1) numLines offsetX offsetY hasOffset warns
-        else
-          some ⟨i, offsetX, offsetY, warns⟩
-      else none
-    termination_by numLines.toNat - i.toNat
-    match parseComments 0 numLines 0 0 false #[] with
-    | none => ⟨2, "none", numLines, #[], #[]⟩
-    | some commRes =>
-      let headerLine := lines[commRes.headerIdx.toNat]!
-      let headerStatus := parseRLEHeader headerLine.toByteArray
-      if headerStatus != 0 then
-        ⟨headerStatus, headerLine, commRes.headerIdx + 1, commRes.warnings, #[]⟩
-      else
-        let rec parseLines (lineIdx : UInt32) (numLines : UInt32) (curCount : UInt32) (hasCount : Bool)
-            (finished : Bool) (runs : Array (UInt32 × UInt32)) (warns : Array RLEWarning) :
-            RLELinesResult :=
-          if hl : lineIdx < numLines then
-            have : numLines.toNat - (lineIdx + 1).toNat < numLines.toNat - lineIdx.toNat := by
-              have h1 := UInt32.lt_iff_toNat_lt.mp hl
-              have h2 : (lineIdx + 1).toNat = lineIdx.toNat + 1 := by
-                rw [UInt32.toNat_add]
-                have := UInt32.toNat_lt numLines
-                simp only [UInt32.toNat_one]
-                omega
-              omega
-            let line := lines[lineIdx.toNat]!
-            let bytes := line.toByteArray
-            let lineLen := bytes.size.toUInt32
-            let rec parseChars (col : UInt32) (lineLen : UInt32) (curCount : UInt32) (hasCount : Bool)
-                (runs : Array (UInt32 × UInt32)) (warns : Array RLEWarning) :
-                RLECharsResult :=
-              if hc : col < lineLen then
-                have : lineLen.toNat - (col + 1).toNat < lineLen.toNat - col.toNat := by
-                  have h1 := UInt32.lt_iff_toNat_lt.mp hc
-                  have h2 : (col + 1).toNat = col.toNat + 1 := by
-                    rw [UInt32.toNat_add]
-                    have := UInt32.toNat_lt lineLen
-                    simp only [UInt32.toNat_one]
-                    omega
-                  omega
-                let b := bytes.get! col.toNat
-                if isDigitByteRLE b then
-                  let newCount := curCount * 10 + (b.toUInt32 - 48)
-                  parseChars (col + 1) lineLen newCount true runs warns
-                else if b == 36 then -- '$'
-                  let count := if hasCount then curCount else 1
-                  let newRuns := runs.push (0, count)
-                  parseChars (col + 1) lineLen 0 false newRuns warns
-                else if b == 33 then -- '!'
-                  let newRuns := runs.push (0, 1)
-                  let countWarns :=
-                    if hasCount then
-                      let countLen := natDigitCount curCount
-                      warns.push ⟨3, lineIdx + 1, col + 1 - countLen, 0, s!"{curCount}!", zeroOffset, zeroOffset⟩
-                    else warns
-                  let finalWarns :=
-                    if col + 1 < lineLen then
-                      countWarns.push ⟨4, lineIdx + 1, col + 2, (bytes.get! (col + 1).toNat).toUInt32, "", zeroOffset, zeroOffset⟩
-                    else if lineIdx + 1 < numLines then
-                      countWarns.push ⟨3, lineIdx + 2, 1, 0, lines[(lineIdx + 1).toNat]!, zeroOffset, zeroOffset⟩
-                    else countWarns
-                  ⟨0, false, true, newRuns, finalWarns⟩
-                else if b == 98 then -- 'b'
-                  let count := if hasCount then curCount else 1
-                  let newRuns := runs.push (1, count)
-                  parseChars (col + 1) lineLen 0 false newRuns warns
-                else if isSpaceByteRLE b then
-                  parseChars (col + 1) lineLen curCount hasCount runs warns
-                else -- alive cell 'o' or unrecognized
-                  let newWarns :=
-                    if b != 111 then
-                      warns.push ⟨2, lineIdx + 1, col + 1, b.toUInt32, "", zeroOffset, zeroOffset⟩
-                    else warns
-                  let count := if hasCount then curCount else 1
-                  let newRuns := runs.push (2, count)
-                  parseChars (col + 1) lineLen 0 false newRuns newWarns
-              else ⟨curCount, hasCount, false, runs, warns⟩
-            termination_by lineLen.toNat - col.toNat
-            let charRes := parseChars 0 lineLen curCount hasCount runs warns
-            if charRes.finished then
-              ⟨charRes.runs, charRes.warnings⟩
-            else
-              parseLines (lineIdx + 1) numLines charRes.curCount charRes.hasCount false charRes.runs charRes.warnings
-          else ⟨runs, warns⟩
-        termination_by numLines.toNat - lineIdx.toNat
-        let linesRes := parseLines (commRes.headerIdx + 1) numLines 0 false false #[] commRes.warnings
-        let cells := decodeRLERuns linesRes.runs commRes.offsetX commRes.offsetY
-        ⟨0, "", 0, linesRes.warnings, cells⟩
+    let width : UInt32 := (maxX - minX + 1).toUInt32
+    let height : UInt32 := (maxY - minY + 1).toUInt32
+    let grid := fillGrid cells minX minY width height rleAlive (by decide) 0 cells.size.toUInt32
+      (AsciiBytes.replicate (width * height) rleDead (by decide))
+    let items := (gridItems grid width (width * height) 0 rleDead 0 0 GrowBuf.empty).toArray
+    let items := items.push (rleEnd, 1)
+    let header := formatRLEHeader minX minY width height
+    (wrapRLEItems items items.size.toUInt32 0 "" 0 (GrowBuf.empty.push header[0]! |>.push header[1]!)).toArray
 
 end Algorithm

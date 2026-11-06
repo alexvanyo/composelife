@@ -22,103 +22,78 @@ namespace Algorithm
 /-!
 # Life 1.06 Master Theorems
 
-Public specification theorems guaranteeing correct parsing, error detection, and serialization
-for the Life 1.06 format.
+Full specifications of Life 1.06 serialization and deserialization, the round trip for every coordinate array,
+and rejection of coordinates that don't fit in an `Int32`.
 -/
 
-/-- An empty line sequence produces the emptyFile result status. -/
-theorem deserializeLife106_empty :
-    deserializeLife106 #[] = ⟨1, 0, "", #[]⟩ :=
-  deserializeLife106_empty_Impl
+/-- Integer parsing reads an optional minus sign and then as many digits as there are, and fails if there are
+no digits or the value doesn't fit in an `Int32`. -/
+theorem parseInt32At_eq (b : ByteArray) (hb : b.size < 2 ^ 32) (pos : UInt32) (hp : pos.toNat ≤ b.size) :
+    parseInt32At b pos b.size.toUInt32 =
+      (parseInt32Spec (bytesFrom b pos.toNat)).map (fun r => ⟨r.1, pos + r.2.toUInt32⟩) :=
+  parseInt32At_spec b hb pos hp
 
-/-- A line sequence whose header is not '#Life 1.06' produces the invalidHeader result status. -/
-theorem deserializeLife106_invalid_header (hdr : String) (h : hdr ≠ "#Life 1.06") :
-    deserializeLife106 #[hdr] = ⟨2, 1, hdr, #[]⟩ :=
-  deserializeLife106_invalid_header_Impl hdr h
+/-- Integer parsing reads back the decimal form of every `Int32`. -/
+theorem parseInt32Spec_of_toString (x : Int32) (rest : List UInt8)
+    (hrest : ∀ y, rest.head? = some y → isDigitByte y = false) :
+    parseInt32Spec ((toString x).toByteArray.data.toList ++ rest) =
+      some (x, (toString x).toByteArray.data.toList.length) :=
+  parseInt32Spec_toString x rest hrest
 
-/-- Serializing the empty coordinate set produces exactly the header line. -/
-theorem serializeLife106_empty :
-    serializeLife106 #[] = #["#Life 1.06"] :=
-  serializeLife106_empty_Impl
+/-- Serialization is the header followed by one `x y` line per cell, in order. -/
+theorem serializeLife106_spec (cells : Array (UInt32 × UInt32)) (hc : cells.size + 2 < 2 ^ 31) :
+    serializeLife106 cells = #["#Life 1.06"] ++ cells.map (fun c => formatCoordLine c.1 c.2) :=
+  serializeLife106_eq cells hc
 
-/-- Serializing and deserializing the empty coordinate set round-trips to success. -/
-theorem deserializeLife106_round_trip_empty :
-    deserializeLife106 (serializeLife106 #[]) = ⟨0, 0, "", #[]⟩ :=
-  deserializeLife106_round_trip_empty_Impl
+/-- Deserialization reports an empty file, a bad header or the first line that isn't a coordinate pair, and
+otherwise returns the coordinates of every line, in order. -/
+theorem deserializeLife106_spec (lines : Array String) (hl : lines.size < 2 ^ 31) :
+    deserializeLife106 lines =
+      if lines.size = 0 then ⟨1, 0, "", #[]⟩
+      else if lines[0]! ≠ "#Life 1.06" then ⟨2, 1, lines[0]!, #[]⟩
+      else
+        match (lines.toList.drop 1).mapM parseCoordLine with
+        | some cells => ⟨0, 0, "", cells.toArray⟩
+        | none =>
+          let j := (lines.toList.drop 1).findIdx (fun l => (parseCoordLine l).isNone)
+          ⟨3, (j + 2).toUInt32, lines[j + 1]!, #[]⟩ :=
+  deserializeLife106_eq lines hl
 
-/-- Any input line that cannot be parsed as a coordinate pair produces the invalidLine status at line 2. -/
-theorem deserializeLife106_invalid_line (badLine : String) (h : parseCoordLine badLine = none) :
-    deserializeLife106 #["#Life 1.06", badLine] = ⟨3, 2, badLine, #[]⟩ :=
-  deserializeLife106_invalid_line_Impl badLine h
+/-- Every coordinate line parses back to its cell. -/
+theorem parseCoordLine_format (c : Int32 × Int32) :
+    parseCoordLine (formatCoordLine c.1.toUInt32 c.2.toUInt32) = some c :=
+  parseCoordLine_formatCoordLine c
 
-/-- A single valid coordinate serialized in Life 1.06 produces header plus coordinate line. -/
-theorem serializeLife106_single (c : Int32 × Int32) :
-    serializeLife106 #[c] = #["#Life 1.06", s!"{c.1} {c.2}"] :=
-  serializeLife106_single_Impl c
+/-- Deserializing serialized cells gives back exactly those cells, in order. -/
+theorem deserializeLife106_round_trip (cells : Array (Int32 × Int32)) (hc : cells.size + 2 < 2 ^ 31) :
+    deserializeLife106 (serializeLife106 (cells.map cellBits)) = ⟨0, 0, "", cells⟩ :=
+  deserializeLife106_serializeLife106 cells hc
 
-/-- Two valid coordinates serialized in Life 1.06 produce header plus both coordinate lines in order. -/
-theorem serializeLife106_double (c1 c2 : Int32 × Int32) :
-    serializeLife106 #[c1, c2] = #["#Life 1.06", s!"{c1.1} {c1.2}", s!"{c2.1} {c2.2}"] :=
-  serializeLife106_double_Impl c1 c2
+/-- A coordinate line whose first number doesn't fit in an `Int32` is rejected rather than wrapped. -/
+theorem parseCoordLine_rejects_out_of_range (neg : Bool) (n : Nat) (rest : String)
+    (hn : if neg then 2 ^ 31 < n else 2 ^ 31 ≤ n)
+    (hsz : ((if neg then "-" else "") ++ toString n ++ rest).toByteArray.size < 2 ^ 32)
+    (hrest : ∀ y, rest.toByteArray.data.toList.head? = some y → isDigitByte y = false) :
+    parseCoordLine ((if neg then "-" else "") ++ toString n ++ rest) = none :=
+  parseCoordLine_first_out_of_range neg n rest hn hsz hrest
 
-/-- Deserializing a valid header with a single coordinate (10, 20) succeeds and recovers the coordinate. -/
+/-- An empty line sequence produces the empty file status. -/
+theorem deserializeLife106_empty : deserializeLife106 #[] = ⟨1, 0, "", #[]⟩ := by
+  decide +kernel
+
+/-- Deserializing a valid header with a single coordinate recovers the coordinate. -/
 theorem deserializeLife106_single_coord :
-    deserializeLife106 #["#Life 1.06", "10 20"] = ⟨0, 0, "", #[(10, 20)]⟩ :=
-  deserializeLife106_single_coord_Impl
+    deserializeLife106 #["#Life 1.06", "10 -20"] = ⟨0, 0, "", #[(10, -20)]⟩ := by
+  decide +kernel
 
-/-- Round-trip theorem for the origin coordinate (0, 0). -/
-theorem deserializeLife106_roundtrip_origin :
-    deserializeLife106 (serializeLife106 #[(0, 0)]) = ⟨0, 0, "", #[(0, 0)]⟩ :=
-  deserializeLife106_roundtrip_origin_Impl
+/-- The extreme `Int32` values parse. -/
+theorem deserializeLife106_extremes :
+    deserializeLife106 #["#Life 1.06", "-2147483648 2147483647"] = ⟨0, 0, "", #[(-2147483648, 2147483647)]⟩ := by
+  decide +kernel
 
-/-- Round-trip theorem for non-trivial negative and positive coordinates. -/
-theorem deserializeLife106_roundtrip_sample :
-    deserializeLife106 (serializeLife106 #[(-5, 12), (42, -99)]) = ⟨0, 0, "", #[(-5, 12), (42, -99)]⟩ :=
-  deserializeLife106_roundtrip_sample_Impl
-
-/-- Serializing 3 valid coordinates in Life 1.06 produces header plus all 3 coordinate lines in order. -/
-theorem serializeLife106_triple (c1 c2 c3 : Int32 × Int32) :
-    serializeLife106 #[c1, c2, c3] = #["#Life 1.06", s!"{c1.1} {c1.2}", s!"{c2.1} {c2.2}", s!"{c3.1} {c3.2}"] :=
-  serializeLife106_triple_Impl c1 c2 c3
-
-/-- Universal round-trip for any coordinate array whose string representations invert under parseCoordLine. -/
-theorem deserializeLife106_roundtrip_universal (cells : Array (Int32 × Int32))
-    (h_valid : ValidLife106Coords cells) :
-    deserializeLife106 (serializeLife106 cells) = ⟨0, 0, "", cells⟩ :=
-  deserializeLife106_roundtrip_universal_Impl cells h_valid
-
-/-- Universal round-trip for any single coordinate whose string representation inverts under parseCoordLine. -/
-theorem deserializeLife106_roundtrip_single_arbitrary (c : Int32 × Int32)
-    (h_parse : parseCoordLine s!"{c.1} {c.2}" = some c) :
-    deserializeLife106 (serializeLife106 #[c]) = ⟨0, 0, "", #[c]⟩ :=
-  deserializeLife106_roundtrip_single_arbitrary_Impl c h_parse
-
-/-- Universal round-trip for any two coordinates whose string representations invert under parseCoordLine. -/
-theorem deserializeLife106_roundtrip_double_arbitrary (c1 c2 : Int32 × Int32)
-    (h_parse1 : parseCoordLine s!"{c1.1} {c1.2}" = some c1)
-    (h_parse2 : parseCoordLine s!"{c2.1} {c2.2}" = some c2) :
-    deserializeLife106 (serializeLife106 #[c1, c2]) = ⟨0, 0, "", #[c1, c2]⟩ :=
-  deserializeLife106_roundtrip_double_arbitrary_Impl c1 c2 h_parse1 h_parse2
-
-/-- Universal round-trip for any three coordinates whose string representations invert under parseCoordLine. -/
-theorem deserializeLife106_roundtrip_triple_arbitrary (c1 c2 c3 : Int32 × Int32)
-    (h_parse1 : parseCoordLine s!"{c1.1} {c1.2}" = some c1)
-    (h_parse2 : parseCoordLine s!"{c2.1} {c2.2}" = some c2)
-    (h_parse3 : parseCoordLine s!"{c3.1} {c3.2}" = some c3) :
-    deserializeLife106 (serializeLife106 #[c1, c2, c3]) = ⟨0, 0, "", #[c1, c2, c3]⟩ :=
-  deserializeLife106_roundtrip_triple_arbitrary_Impl c1 c2 c3 h_parse1 h_parse2 h_parse3
-
-/-- For all input line sequences, deserialization returns a status in {0, 1, 2, 3}. -/
-theorem deserializeLife106_status_cases (lines : Array String) :
-    (deserializeLife106 lines).status = 0 ∨
-    (deserializeLife106 lines).status = 1 ∨
-    (deserializeLife106 lines).status = 2 ∨
-    (deserializeLife106 lines).status = 3 :=
-  deserializeLife106_status_cases_Impl lines
-
-/-- The result status of deserializeLife106 is always bounded by 3 for any input. -/
-theorem deserializeLife106_status_le_3 (lines : Array String) :
-    (deserializeLife106 lines).status ≤ 3 :=
-  deserializeLife106_status_le_3_Impl lines
+/-- A value that would wrap around to a valid coordinate is rejected. -/
+theorem deserializeLife106_wrapping_value :
+    deserializeLife106 #["#Life 1.06", "4294967297 0"] = ⟨3, 2, "4294967297 0", #[]⟩ := by
+  decide +kernel
 
 end Algorithm
