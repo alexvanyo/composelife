@@ -76,6 +76,8 @@ class EnableWindowShapeClippingUiTests : BaseKmpTest() {
             onNodeWithContentDescription(resolver(Strings.EnableWindowShapeClipping))
                 .performClick()
 
+            waitForIdle()
+
             assertFalse(enableWindowShapeClipping)
         }
     }
@@ -117,6 +119,8 @@ class EnableWindowShapeClippingUiTests : BaseKmpTest() {
 
             onNodeWithContentDescription(resolver(Strings.EnableWindowShapeClipping))
                 .performClick()
+
+            waitForIdle()
 
             assertTrue(enableWindowShapeClipping)
         }

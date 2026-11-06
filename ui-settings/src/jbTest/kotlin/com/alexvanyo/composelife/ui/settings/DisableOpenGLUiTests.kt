@@ -76,6 +76,8 @@ class DisableOpenGLUiTests : BaseKmpTest() {
             onNodeWithContentDescription(resolver(Strings.DisableOpenGL))
                 .performClick()
 
+            waitForIdle()
+
             assertFalse(disableOpenGL)
         }
     }
@@ -117,6 +119,8 @@ class DisableOpenGLUiTests : BaseKmpTest() {
 
             onNodeWithContentDescription(resolver(Strings.DisableOpenGL))
                 .performClick()
+
+            waitForIdle()
 
             assertTrue(disableOpenGL)
         }
