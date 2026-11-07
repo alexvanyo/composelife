@@ -16,15 +16,12 @@
 
 package com.alexvanyo.composelife.model
 
-import androidx.compose.ui.unit.IntOffset
-
+@OptIn(ExperimentalUnsignedTypes::class)
 object PlaintextCellStateSerializer : FixedFormatCellStateSerializer {
     override val format: CellStateFormat.FixedFormat = CellStateFormat.FixedFormat.Plaintext
 
-    @Suppress("UNCHECKED_CAST")
     override fun deserializeToCellState(lines: Sequence<String>): DeserializationResult {
-        val linesArray = lines.toList().toTypedArray()
-        val result = f_Algorithm_deserializePlaintext(linesArray as Array<Any?>)
+        val result = f_Algorithm_deserializePlaintext(lines.toList().toTypedArray())
 
         val warnings = result.warnings.map {
             val w = it as PlaintextWarning
@@ -41,12 +38,7 @@ object PlaintextCellStateSerializer : FixedFormatCellStateSerializer {
             }
         }
 
-        val points = result.cells.map {
-            val pair = it as Pair<*, *>
-            val x = if (pair.first is UInt) (pair.first as UInt).toInt() else (pair.first as Int)
-            val y = if (pair.second is UInt) (pair.second as UInt).toInt() else (pair.second as Int)
-            IntOffset(x, y)
-        }.toSet()
+        val points = leanCellsToOffsets(result.cells)
 
         return DeserializationResult.Successful(
             warnings = warnings,
@@ -55,15 +47,13 @@ object PlaintextCellStateSerializer : FixedFormatCellStateSerializer {
         )
     }
 
-    @Suppress("UNCHECKED_CAST")
     override fun serializeToString(cellState: CellState): Sequence<String> {
         val minX = cellState.aliveCells.minOfOrNull { it.x } ?: 0
         val maxX = cellState.aliveCells.maxOfOrNull { it.x } ?: 0
         val minY = cellState.aliveCells.minOfOrNull { it.y } ?: 0
         val maxY = cellState.aliveCells.maxOfOrNull { it.y } ?: 0
 
-        val cells = cellState.aliveCells.map { Pair(it.x.toUInt(), it.y.toUInt()) }.toTypedArray()
-        val lines = f_Algorithm_serializePlaintext(cells as Array<Any?>, minX, maxX, minY, maxY)
+        val lines = f_Algorithm_serializePlaintext(cellState.aliveCells.toLeanCells(), minX, maxX, minY, maxY)
         return lines.asSequence().map { it as String }
     }
 }

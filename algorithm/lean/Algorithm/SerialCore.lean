@@ -17,6 +17,8 @@
 import Lean.Compiler.Kotlin
 import Init.Data.UInt
 
+set_option compiler.kotlin.typedArrays true
+
 namespace Algorithm
 
 /-!
@@ -24,6 +26,10 @@ namespace Algorithm
 
 The Kotlin backend lowers `Array.push` to a full copy, so building an array by repeated pushes costs O(n²).
 `GrowBuf` keeps spare capacity so a push is amortized O(1); `set!` on a uniquely owned array is in place.
+
+`GrowBuf` is generic, so the Kotlin backend boxes its elements. Cells are instead kept as `UInt64` keys (see
+`cellKey`) in a `U64Buf`, which the Kotlin backend emits as a single `ULongArray` (with
+`compiler.kotlin.typedArrays`, which the Gradle build must also pass for the modules using it).
 
 The parsers read lines as UTF-8 bytes. `parseInt32At` and `parseUInt32At` fail on values that don't fit
 instead of wrapping around.
@@ -81,6 +87,45 @@ def GrowBuf.push (b : GrowBuf α) (x : α) : GrowBuf α :=
 /-- The live elements of the buffer. -/
 def GrowBuf.toArray (b : GrowBuf α) : Array α :=
   b.data.extract 0 b.size.toNat
+
+/-- `copyPrefix` for `UInt64`s, which the Kotlin backend emits on `ULongArray`s rather than boxed arrays. -/
+def copyU64 (src : Array UInt64) (n : UInt32) (i : UInt32) (dst : Array UInt64) : Array UInt64 :=
+  if h : i < n then
+    have : n.toNat - (i + 1).toNat < n.toNat - i.toNat := by
+      have h1 := UInt32.lt_iff_toNat_lt.mp h
+      have h2 : (i + 1).toNat = i.toNat + 1 := by
+        rw [UInt32.toNat_add]
+        have := UInt32.toNat_lt n
+        simp only [UInt32.toNat_one]
+        omega
+      omega
+    copyU64 src n (i + 1) (dst.set! i.toNat src[i.toNat]!)
+  else dst
+termination_by n.toNat - i.toNat
+
+/--
+A growable array of `UInt64`s held in a single array: element 0 is the number of live elements, which follow it,
+and the rest is spare capacity. The Kotlin backend emits it as one `ULongArray`, so a push neither boxes its element
+nor allocates, except when the capacity doubles.
+-/
+abbrev U64Buf := Array UInt64
+
+/-- An empty buffer. Each use is a separate allocation, so two buffers never share storage. -/
+@[never_extract, noinline]
+def U64Buf.empty : U64Buf := Array.replicate 16 0
+
+/-- Appends `x`, doubling the capacity when the buffer is full. -/
+def U64Buf.push (b : U64Buf) (x : UInt64) : U64Buf :=
+  let n := b[0]!.toUInt32 + 1
+  if n < b.size.toUInt32 then
+    (b.set! n.toNat x).set! 0 n.toUInt64
+  else
+    let cap := b.size.toUInt32
+    ((copyU64 b cap 0 (Array.replicate (2 * cap + 1).toNat 0)).set! n.toNat x).set! 0 n.toUInt64
+
+/-- The live elements of the buffer. -/
+def U64Buf.toArray (b : U64Buf) : Array UInt64 :=
+  b.extract 1 (b[0]!.toUInt32 + 1).toNat
 
 /--
 Scans decimal digits starting at `p`, returning the position after the last digit and the value accumulated
@@ -320,16 +365,42 @@ def AsciiBytes.toStringRange (g : AsciiBytes) (s e : UInt32) : String :=
     exact g.2 _ _)
 
 /--
-The bits of a cell's coordinates. Serializers take cells this way: the Kotlin backend reads `Int32`s from a
-generic array inconsistently, as `Int` or `UInt`, while `UInt32`s are always `UInt`.
+The key of the cell whose coordinates have the bits `x` and `y`: `x` in the high half, `y` in the low half.
+
+The mask changes nothing in Lean. The Kotlin backend erases `Int32.toUInt32` (both are 32-bit scalars in its IR),
+so `y` may be an `Int` there, and `UInt32.toUInt64` on it sign-extends into the high half.
 -/
-def cellBits (c : Int32 × Int32) : UInt32 × UInt32 := (c.1.toUInt32, c.2.toUInt32)
+@[inline]
+def cellKey (x y : UInt32) : UInt64 := (x.toUInt64 <<< 32) + (y.toUInt64 &&& 0xFFFFFFFF)
+
+/-- The bits of the x coordinate of the cell with key `k`. -/
+@[inline]
+def cellKeyX (k : UInt64) : UInt32 := (k >>> 32).toUInt32
+
+/-- The bits of the y coordinate of the cell with key `k`. -/
+@[inline]
+def cellKeyY (k : UInt64) : UInt32 := k.toUInt32
+
+/--
+No cells. A separate declaration, rather than `#[]` where it is used: the Kotlin backend may otherwise share one empty
+array between it and an empty array of another element type, and with `compiler.kotlin.typedArrays` those are
+different Kotlin types (a `ULongArray` and an `Array<Any?>`).
+-/
+@[noinline, simp]
+def noCells : Array UInt64 := #[]
+
+/--
+The key of a cell. Serializers take cells, and deserializers return them, as keys: a `UInt64` array is a Kotlin
+`ULongArray`, while an array of pairs boxes every pair and coordinate.
+-/
+@[inline]
+def cellBits (c : Int32 × Int32) : UInt64 := cellKey c.1.toUInt32 c.2.toUInt32
 
 /--
 Sets the grid byte of every cell (as `cellBits`) inside the `width` by `height` box at (`minX`, `minY`) to
 `alive`. The grid is row major. Cells outside the box are skipped.
 -/
-def fillGrid (cells : Array (UInt32 × UInt32)) (minX minY : Int32) (width height : UInt32) (alive : UInt8)
+def fillGrid (cells : Array UInt64) (minX minY : Int32) (width height : UInt32) (alive : UInt8)
     (halive : alive < 128) (i : UInt32) (limit : UInt32) (g : AsciiBytes) : AsciiBytes :=
   if h : i < limit then
     have : limit.toNat - (i + 1).toNat < limit.toNat - i.toNat := by
@@ -341,8 +412,8 @@ def fillGrid (cells : Array (UInt32 × UInt32)) (minX minY : Int32) (width heigh
         omega
       omega
     let c := cells[i.toNat]!
-    let dx := (c.1.toInt32 - minX).toUInt32
-    let dy := (c.2.toInt32 - minY).toUInt32
+    let dx := ((cellKeyX c).toInt32 - minX).toUInt32
+    let dy := ((cellKeyY c).toInt32 - minY).toUInt32
     let g := if dx < width && dy < height then g.set (dy * width + dx) alive halive else g
     fillGrid cells minX minY width height alive halive (i + 1) limit g
   else g

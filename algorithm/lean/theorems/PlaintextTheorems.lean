@@ -34,21 +34,21 @@ theorem plaintext_round_trip_spec (cells : Array (Int32 × Int32)) (minX maxX mi
       minY.toInt ≤ c.2.toInt ∧ c.2.toInt ≤ maxY.toInt)
     (hsize : (maxX.toInt - minX.toInt + 1) * (maxY.toInt - minY.toInt + 1) < 2 ^ 31) :
     (deserializePlaintext (serializePlaintext (cells.map cellBits) minX maxX minY maxY)).warnings = #[] ∧
-      ∀ q, q ∈ (deserializePlaintext (serializePlaintext (cells.map cellBits) minX maxX minY maxY)).cells ↔
+      ∀ q, cellBits q ∈ (deserializePlaintext (serializePlaintext (cells.map cellBits) minX maxX minY maxY)).cells ↔
         ∃ c ∈ cells, q = (c.1 - minX, c.2 - minY) :=
   plaintext_round_trip_box cells minX maxX minY maxY hne hcs hbox hsize
 
 /-- Lines of `.` and `O` of one common width deserialize to the `O` positions, row by row, with no warnings. -/
 theorem deserializePlaintext_pattern_rows (lines : Array String) (w : Nat) (hl : IsRowLines lines w)
     (hls : lines.size * w < 2 ^ 31) (hne : 1 ≤ lines.size) :
-    deserializePlaintext lines = ⟨#[], (linesCells lines 0).toArray⟩ :=
+    deserializePlaintext lines = ⟨#[], (linesCells lines 0).toArray.map cellBits⟩ :=
   deserializePlaintext_rows lines w hl hls hne
 
 theorem deserializePlaintext_empty : deserializePlaintext #[] = ⟨#[], #[]⟩ := by
   decide +kernel
 
 theorem deserializePlaintext_comments_ignored :
-    deserializePlaintext #["! comment", "O"] = ⟨#[], #[(0, 0)]⟩ := by
+    deserializePlaintext #["! comment", "O"] = ⟨#[], (#[(0, 0)] : Array (Int32 × Int32)).map cellBits⟩ := by
   decide +kernel
 
 /-- Serializing no cells gives a single dead cell, which reads back as no cells. -/
@@ -57,8 +57,10 @@ theorem plaintext_round_trip_empty :
   decide +kernel
 
 theorem plaintext_round_trip_glider :
-    deserializePlaintext (serializePlaintext #[(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)] 0 2 0 2) =
-    ⟨#[], #[(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)]⟩ := by
+    deserializePlaintext
+        (serializePlaintext ((#[(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)] : Array (Int32 × Int32)).map cellBits)
+          0 2 0 2) =
+      ⟨#[], (#[(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)] : Array (Int32 × Int32)).map cellBits⟩ := by
   decide +kernel
 
 /-- Blank lines, short lines and unexpected characters give warnings; unexpected characters other than spaces
@@ -66,12 +68,13 @@ are alive. -/
 theorem deserializePlaintext_warnings :
     deserializePlaintext #["O.O", "", "O", "x O"] =
       ⟨#[⟨0, 2, 0, 0⟩, ⟨1, 3, 0, 0⟩, ⟨2, 4, 1, 120⟩, ⟨2, 4, 2, 32⟩],
-        #[(0, 0), (2, 0), (0, 1), (0, 2), (2, 2)]⟩ := by
+        (#[(0, 0), (2, 0), (0, 1), (0, 2), (2, 2)] : Array (Int32 × Int32)).map cellBits⟩ := by
   decide +kernel
 
 /-- A non-ASCII character counts as one character: one warning with its code point, and one alive cell. -/
 theorem deserializePlaintext_non_ascii :
-    deserializePlaintext #["OéO"] = ⟨#[⟨2, 1, 2, 233⟩], #[(0, 0), (1, 0), (2, 0)]⟩ := by
+    deserializePlaintext #["OéO"] =
+      ⟨#[⟨2, 1, 2, 233⟩], (#[(0, 0), (1, 0), (2, 0)] : Array (Int32 × Int32)).map cellBits⟩ := by
   decide +kernel
 
 end Algorithm

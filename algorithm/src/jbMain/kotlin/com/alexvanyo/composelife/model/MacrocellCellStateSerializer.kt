@@ -22,10 +22,8 @@ import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
     override val format: CellStateFormat.FixedFormat = CellStateFormat.FixedFormat.Macrocell
 
-    @Suppress("UNCHECKED_CAST")
     override fun deserializeToCellState(lines: Sequence<String>): DeserializationResult {
-        val linesArray = lines.toList().toTypedArray()
-        val result = f_Algorithm_deserializeMacrocell(linesArray as Array<Any?>)
+        val result = f_Algorithm_deserializeMacrocell(lines.toList().toTypedArray())
         val warnings = result.warnings.map { mapMacrocellWarning(it as MacrocellWarning) }
 
         return when (result.status) {

@@ -16,6 +16,8 @@
 
 import Algorithm.SerialCore
 
+set_option compiler.kotlin.typedArrays true
+
 namespace Algorithm
 
 /-!
@@ -49,7 +51,8 @@ structure RLEResult where
   errLineIndex : UInt32
   errColumnIndex : UInt32
   warnings : Array RLEWarning
-  cells : Array (Int32 × Int32)
+  /-- The keys (`cellBits`) of the cells. -/
+  cells : Array UInt64
   deriving DecidableEq, Repr
 
 /-- Zero, for the offset of warnings without one. Not inlined, as the Kotlin backend emits an `Int32` literal
@@ -156,7 +159,7 @@ def maxRunCount : UInt64 := 2147483647
 /-- Adds the cells of alive runs `j` onward (with `k` cells of run `j` done). Runs are `(tag, count)` with tag 0
 for an end of row, 1 for dead cells and 2 for alive cells. -/
 def expandRuns (runs : Array (UInt32 × UInt32)) (numRuns : UInt32) (j k : UInt32) (x y startX : Int32)
-    (cells : GrowBuf (Int32 × Int32)) : GrowBuf (Int32 × Int32) :=
+    (cells : U64Buf) : U64Buf :=
   if hj : j < numRuns then
     have hk0 := UInt32.toNat_lt k
     have hnext : (numRuns.toNat - (j + 1).toNat) * 2 ^ 33 + (2 ^ 32 - (0 : UInt32).toNat) <
@@ -180,7 +183,7 @@ def expandRuns (runs : Array (UInt32 × UInt32)) (numRuns : UInt32) (j k : UInt3
             rw [hk2]
             apply Nat.add_lt_add_left
             omega
-          expandRuns runs numRuns j (k + 1) x y startX (cells.push (x + k.toInt32, y))
+          expandRuns runs numRuns j (k + 1) x y startX (U64Buf.push cells (cellBits (x + k.toInt32, y)))
         else
           expandRuns runs numRuns (j + 1) 0 (x + count.toInt32) y startX cells
       else if tag == 1 then
@@ -194,7 +197,8 @@ decreasing_by all_goals first | exact this | exact hnext
 /-- The successful result for the runs read so far. -/
 def finishRLE (warns : GrowBuf RLEWarning) (runs : GrowBuf (UInt32 × UInt32)) (startX startY : Int32) : RLEResult :=
   let runArr := runs.toArray
-  ⟨0, "", 0, 0, warns.toArray, (expandRuns runArr runArr.size.toUInt32 0 0 startX startY startX GrowBuf.empty).toArray⟩
+  ⟨0, "", 0, 0, warns.toArray,
+    U64Buf.toArray (expandRuns runArr runArr.size.toUInt32 0 0 startX startY startX U64Buf.empty)⟩
 
 /--
 Reads the pattern from line `i` on. In a line (`inLine`), `bytes` is the line, `p` the byte position and `col`
@@ -236,7 +240,7 @@ def parseRLEData (lines : Array String) (numLines : UInt32) (i : UInt32) (inLine
           parseRLEData lines numLines i true bytes limit r.2 (col + 1) count hasCount countP countCol warns runs
             startX startY
         else if hasCount && count > maxRunCount then
-          ⟨4, asciiStringLossy bytes countP p, i + 1, countCol + 1, #[], #[]⟩
+          ⟨4, asciiStringLossy bytes countP p, i + 1, countCol + 1, #[], noCells⟩
         else
           let n : UInt32 := if hasCount then count.toUInt32 else 1
           -- '$' ends rows, 'b' is dead, and anything else is alive, with a warning unless it is 'o'.
@@ -284,16 +288,16 @@ def parseRLEComments (lines : Array String) (numLines : UInt32) (i : UInt32) (of
       | none => parseRLEComments lines numLines (i + 1) offsetX offsetY hasOffset warns
     else
       let status := parseRLEHeader bytes
-      if status != 0 then ⟨status, line, i + 1, 0, warns.toArray, #[]⟩
+      if status != 0 then ⟨status, line, i + 1, 0, warns.toArray, noCells⟩
       else
         parseRLEData lines numLines (i + 1) false bytes 0 0 0 0 false 0 0 warns GrowBuf.empty offsetX offsetY
-  else ⟨2, "none", numLines, 0, warns.toArray, #[]⟩
+  else ⟨2, "none", numLines, 0, warns.toArray, noCells⟩
 termination_by numLines.toNat - i.toNat
 
-@[export rle_deserialize]
+@[export rle_deserialize, kotlin_types "Array<String>" "_"]
 def deserializeRLE (lines : Array String) : RLEResult :=
   if lines.size.toUInt32 == 0 then
-    ⟨1, "", 0, 0, #[⟨0, 0, 0, 0, "", zeroOffset, zeroOffset⟩], #[]⟩
+    ⟨1, "", 0, 0, #[⟨0, 0, 0, 0, "", zeroOffset, zeroOffset⟩], noCells⟩
   else
     parseRLEComments lines lines.size.toUInt32 0 0 0 false GrowBuf.empty
 
@@ -394,7 +398,7 @@ Serializes the cells in the bounding box from (`minX`, `minY`) to (`maxX`, `maxY
 skipped.
 -/
 @[export rle_serialize]
-def serializeRLE (cells : Array (UInt32 × UInt32)) (minX maxX minY maxY : Int32) : Array String :=
+def serializeRLE (cells : Array UInt64) (minX maxX minY maxY : Int32) : Array String :=
   if cells.size.toUInt32 == 0 then
     #["#R 0 0", "x = 0, y = 0, rule = B3/S23", "!"]
   else

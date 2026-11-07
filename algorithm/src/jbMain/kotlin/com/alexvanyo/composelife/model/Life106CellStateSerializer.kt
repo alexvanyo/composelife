@@ -16,27 +16,18 @@
 
 package com.alexvanyo.composelife.model
 
-import androidx.compose.ui.unit.IntOffset
-
+@OptIn(ExperimentalUnsignedTypes::class)
 object Life106CellStateSerializer : FixedFormatCellStateSerializer {
     override val format: CellStateFormat.FixedFormat = CellStateFormat.FixedFormat.Life106
 
-    @Suppress("UNCHECKED_CAST")
     override fun deserializeToCellState(lines: Sequence<String>): DeserializationResult {
-        val linesArray = lines.toList().toTypedArray()
-        val result = f_Algorithm_deserializeLife106(linesArray as Array<Any?>)
+        val result = f_Algorithm_deserializeLife106(lines.toList().toTypedArray())
 
         return when (result.status) {
             0u -> {
-                val aliveCells = result.cells.map {
-                    val pair = it as Pair<*, *>
-                    val x = if (pair.first is UInt) (pair.first as UInt).toInt() else (pair.first as Int)
-                    val y = if (pair.second is UInt) (pair.second as UInt).toInt() else (pair.second as Int)
-                    IntOffset(x, y)
-                }.toSet()
                 DeserializationResult.Successful(
                     warnings = emptyList(),
-                    cellState = CellState(aliveCells),
+                    cellState = CellState(leanCellsToOffsets(result.cells)),
                     format = CellStateFormat.FixedFormat.Life106,
                 )
             }
@@ -69,10 +60,8 @@ object Life106CellStateSerializer : FixedFormatCellStateSerializer {
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
     override fun serializeToString(cellState: CellState): Sequence<String> {
-        val cells = cellState.aliveCells.map { Pair(it.x.toUInt(), it.y.toUInt()) }.toTypedArray()
-        val lines = f_Algorithm_serializeLife106(cells as Array<Any?>)
+        val lines = f_Algorithm_serializeLife106(cellState.aliveCells.toLeanCells())
         return lines.asSequence().map { it as String }
     }
 }

@@ -70,9 +70,10 @@ theorem rowCells_of_lt (B : ByteArray) (p : Nat) (row : UInt32) (h : p < B.size)
 theorem loop_row (lines : Array String) (numLines i : UInt32) (B : ByteArray) (hB : IsRowBytes B)
     (hb : B.size < 2 ^ 31) (hi : i < numLines) (rowIdx li ll : UInt32) (hl : Bool)
     (warns : GrowBuf PlaintextWarning) :
-    ∀ (n : Nat) (p : UInt32) (cells : GrowBuf (Int32 × Int32)) (a : Array (Int32 × Int32)),
-      B.size - p.toNat = n → p.toNat ≤ B.size → cells.Rep a → a.size + (B.size - p.toNat) < 2 ^ 31 →
-      ∃ cells' : GrowBuf (Int32 × Int32), cells'.Rep (a ++ (rowCells B p.toNat rowIdx).toArray) ∧
+    ∀ (n : Nat) (p : UInt32) (cells : U64Buf) (a : Array (Int32 × Int32)),
+      B.size - p.toNat = n → p.toNat ≤ B.size → U64Buf.Rep cells (a.map cellBits) →
+      a.size + (B.size - p.toNat) < 2 ^ 31 →
+      ∃ cells' : U64Buf, U64Buf.Rep cells' ((a ++ (rowCells B p.toNat rowIdx).toArray).map cellBits) ∧
         deserializePlaintext.loop lines numLines i true B B.size.toUInt32 p p rowIdx li ll hl warns cells =
         deserializePlaintext.loop lines numLines (i + 1) false B B.size.toUInt32 0 0 (rowIdx + 1) li ll hl warns
           cells' := by
@@ -108,7 +109,8 @@ theorem loop_row (lines : Array String) (numLines i : UInt32) (B : ByteArray) (h
     · rw [h79]
       simp only [show ((79 : UInt8).toUInt32 == 46) = false by decide, Bool.false_eq_true, ite_false,
         show ((79 : UInt8).toUInt32 == 79) = true by decide, ite_true]
-      have hpush := GrowBuf.rep_push hrep (p.toInt32, rowIdx.toInt32) (by omega)
+      have hpush := U64Buf.rep_push hrep (cellBits (p.toInt32, rowIdx.toInt32)) (by simp only [Array.size_map]; omega)
+      rw [← Array.map_push] at hpush
       obtain ⟨c', hc', heq⟩ := ih (p + 1) _ _ (by omega) (by omega) hpush (by simp only [Array.size_push]; omega)
       rw [hsucc] at hc'
       refine ⟨c', ?_, heq⟩
@@ -154,11 +156,11 @@ theorem linesCells_length_le (lines : Array String) (w : Nat) (hl : IsRowLines l
 
 theorem loop_rows (lines : Array String) (w : Nat) (hl : IsRowLines lines w) (hls : lines.size * w < 2 ^ 31) :
     ∀ (n : Nat) (i : UInt32) (B : ByteArray) (L : UInt32) (li : UInt32) (warns : GrowBuf PlaintextWarning)
-      (wa : Array PlaintextWarning) (cells : GrowBuf (Int32 × Int32)) (a : Array (Int32 × Int32)),
-      lines.size - i.toNat = n → i.toNat ≤ lines.size → warns.Rep wa → cells.Rep a →
+      (wa : Array PlaintextWarning) (cells : U64Buf) (a : Array (Int32 × Int32)),
+      lines.size - i.toNat = n → i.toNat ≤ lines.size → warns.Rep wa → U64Buf.Rep cells (a.map cellBits) →
       a.size + (lines.size - i.toNat) * w < 2 ^ 31 →
       deserializePlaintext.loop lines lines.size.toUInt32 i false B L 0 0 i li w.toUInt32 true warns cells =
-        ⟨wa, a ++ (linesCells lines i.toNat).toArray⟩ := by
+        ⟨wa, (a ++ (linesCells lines i.toNat).toArray).map cellBits⟩ := by
   have hw := hl.1
   have hsz32 : lines.size < 2 ^ 32 := by
     have : lines.size ≤ lines.size * w := Nat.le_mul_of_pos_right _ (by omega)
@@ -217,7 +219,7 @@ theorem loop_rows (lines : Array String) (w : Nat) (hl : IsRowLines lines w) (hl
 /-- Deserializing pattern rows gives their alive cells, in row-major order, with no warnings. -/
 theorem deserializePlaintext_rows (lines : Array String) (w : Nat) (hl : IsRowLines lines w)
     (hls : lines.size * w < 2 ^ 31) (hne : 1 ≤ lines.size) :
-    deserializePlaintext lines = ⟨#[], (linesCells lines 0).toArray⟩ := by
+    deserializePlaintext lines = ⟨#[], (linesCells lines 0).toArray.map cellBits⟩ := by
   have hw := hl.1
   have hsz32 : lines.size < 2 ^ 32 := by
     have : lines.size ≤ lines.size * w := Nat.le_mul_of_pos_right _ (by omega)
@@ -247,7 +249,7 @@ theorem deserializePlaintext_rows (lines : Array String) (w : Nat) (hl : IsRowLi
   simp only [hyes, ↓reduceDIte, Bool.false_eq_true, ite_false, hB', hne0, hfirst, hcount, Bool.not_false,
     ite_true]
   obtain ⟨c', hc', heq⟩ := loop_row lines lines.size.toUInt32 0 B' hrow (by omega) hyes 0 (0 + 1) w.toUInt32 true
-    GrowBuf.empty _ 0 GrowBuf.empty #[] rfl (by simp) GrowBuf.rep_empty (by simp; omega)
+    GrowBuf.empty _ 0 U64Buf.empty #[] rfl (by simp) (by simpa using U64Buf.rep_empty) (by simp; omega)
   simp only [UInt32.toNat_zero] at hc'
   rw [heq]
   rw [loop_rows lines w hl hls _ (0 + 1) B' B'.size.toUInt32 (0 + 1) GrowBuf.empty #[] c' _ rfl (by simp; omega)
@@ -263,12 +265,12 @@ theorem deserializePlaintext_rows (lines : Array String) (w : Nat) (hl : IsRowLi
 /-! ## Serialization -/
 
 /-- The grid of the serialized cells. -/
-def plaintextGrid (cells : Array (UInt32 × UInt32)) (minX maxX minY maxY : Int32) : AsciiBytes :=
+def plaintextGrid (cells : Array UInt64) (minX maxX minY maxY : Int32) : AsciiBytes :=
   let w : UInt32 := (maxX - minX + 1).toUInt32
   let h : UInt32 := (maxY - minY + 1).toUInt32
   fillGrid cells minX minY w h 79 (by decide) 0 cells.size.toUInt32 (AsciiBytes.replicate (w * h) 46 (by decide))
 
-theorem serializePlaintext_eq (cells : Array (UInt32 × UInt32)) (minX maxX minY maxY : Int32)
+theorem serializePlaintext_eq (cells : Array UInt64) (minX maxX minY maxY : Int32)
     (hne : cells.size ≠ 0) (hcs : cells.size < 2 ^ 32) (hh : (maxY - minY + 1).toUInt32.toNat < 2 ^ 31) :
     serializePlaintext cells minX maxX minY maxY =
       ((List.range (maxY - minY + 1).toUInt32.toNat).map (fun k =>
@@ -288,7 +290,7 @@ theorem serializePlaintext_eq (cells : Array (UInt32 × UInt32)) (minX maxX minY
 
 open Classical in
 /-- What the serialized grid holds. -/
-theorem plaintextGrid_spec (cells : Array (UInt32 × UInt32)) (minX maxX minY maxY : Int32)
+theorem plaintextGrid_spec (cells : Array UInt64) (minX maxX minY maxY : Int32)
     (hcs : cells.size < 2 ^ 32)
     (hwh : (maxX - minX + 1).toUInt32.toNat * (maxY - minY + 1).toUInt32.toNat < 2 ^ 32) :
     (plaintextGrid cells minX maxX minY maxY).1.size =
@@ -296,7 +298,7 @@ theorem plaintextGrid_spec (cells : Array (UInt32 × UInt32)) (minX maxX minY ma
       ∀ (k : Nat), k < (maxX - minX + 1).toUInt32.toNat * (maxY - minY + 1).toUInt32.toNat →
         (plaintextGrid cells minX maxX minY maxY).1[k]! =
           if ∃ c ∈ cells, gridIndex minX minY (maxX - minX + 1).toUInt32 (maxY - minY + 1).toUInt32
-            (c.1.toInt32, c.2.toInt32) = some k
+            ((cellKeyX c).toInt32, (cellKeyY c).toInt32) = some k
           then 79 else 46 := by
   generalize hw : (maxX - minX + 1).toUInt32 = w at hwh ⊢
   generalize hh : (maxY - minY + 1).toUInt32 = h at hwh ⊢
@@ -347,7 +349,7 @@ theorem plaintext_round_trip (cells : Array (Int32 × Int32)) (minX maxX minY ma
     (hw : 1 ≤ (maxX - minX + 1).toUInt32.toNat) (hh : 1 ≤ (maxY - minY + 1).toUInt32.toNat)
     (hwh : (maxX - minX + 1).toUInt32.toNat * (maxY - minY + 1).toUInt32.toNat < 2 ^ 31) :
     (deserializePlaintext (serializePlaintext (cells.map cellBits) minX maxX minY maxY)).warnings = #[] ∧
-      ∀ q, q ∈ (deserializePlaintext (serializePlaintext (cells.map cellBits) minX maxX minY maxY)).cells ↔
+      ∀ q, cellBits q ∈ (deserializePlaintext (serializePlaintext (cells.map cellBits) minX maxX minY maxY)).cells ↔
         ∃ c ∈ cells, (gridIndex minX minY (maxX - minX + 1).toUInt32 (maxY - minY + 1).toUInt32 c).isSome ∧
           q = (c.1 - minX, c.2 - minY) := by
   generalize hW : (maxX - minX + 1).toUInt32 = w at hw hwh
@@ -414,7 +416,8 @@ theorem plaintext_round_trip (cells : Array (Int32 × Int32)) (minX maxX minY ma
       rw [hLrow r hr, ByteArray.size_extract, hgsize]; omega
   rw [deserializePlaintext_rows L w.toNat hrows (by rw [hLsize, Nat.mul_comm]; exact hwh) (by omega)]
   refine ⟨rfl, fun q => ?_⟩
-  simp only [List.mem_toArray, mem_linesCells, mem_rowCells]
+  rw [List.map_toArray, List.mem_toArray, cellBits_mem_map]
+  simp only [mem_linesCells, mem_rowCells]
   constructor
   · rintro ⟨r, hr, c, hc, h79, rfl⟩
     have hsz : L[r]!.toByteArray.size = w.toNat := by rw [getElem!_pos L r hr]; exact (hrows.2 r hr).2
@@ -428,7 +431,7 @@ theorem plaintext_round_trip (cells : Array (Int32 × Int32)) (minX maxX minY ma
     · rename_i hex
       obtain ⟨cb, hcb, hidx'⟩ := hex
       obtain ⟨cell, hcell, rfl⟩ := Array.mem_map.mp hcb
-      simp only [cellBits, Int32.toInt32_toUInt32] at hidx'
+      simp only [keyX_cellBits, keyY_cellBits, Int32.toInt32_toUInt32] at hidx'
       obtain ⟨hx, hy, hrr, hcc⟩ := (gridIndex_eq_iff hc).mp hidx'
       refine ⟨cell, hcell, by rw [hidx']; rfl, ?_⟩
       have h1 : c.toUInt32 = (cell.1 - minX).toUInt32 := by
@@ -452,7 +455,7 @@ theorem plaintext_round_trip (cells : Array (Int32 × Int32)) (minX maxX minY ma
         have hk' : (cell.2 - minY).toUInt32.toNat * w.toNat + (cell.1 - minX).toUInt32.toNat < w.toNat * h.toNat :=
           gridIndex_lt (k := _) (by unfold gridIndex; rw [ite_eq_left hin])
         rw [hgget _ hk', ite_eq_left ⟨cellBits cell, Array.mem_map_of_mem hcell, by
-          simp only [cellBits, Int32.toInt32_toUInt32]; unfold gridIndex; rw [ite_eq_left hin]⟩]
+          simp only [keyX_cellBits, keyY_cellBits, Int32.toInt32_toUInt32]; unfold gridIndex; rw [ite_eq_left hin]⟩]
       · simp
     · simp at hk
 
@@ -466,7 +469,7 @@ theorem plaintext_round_trip_box (cells : Array (Int32 × Int32)) (minX maxX min
       minY.toInt ≤ c.2.toInt ∧ c.2.toInt ≤ maxY.toInt)
     (hsize : (maxX.toInt - minX.toInt + 1) * (maxY.toInt - minY.toInt + 1) < 2 ^ 31) :
     (deserializePlaintext (serializePlaintext (cells.map cellBits) minX maxX minY maxY)).warnings = #[] ∧
-      ∀ q, q ∈ (deserializePlaintext (serializePlaintext (cells.map cellBits) minX maxX minY maxY)).cells ↔
+      ∀ q, cellBits q ∈ (deserializePlaintext (serializePlaintext (cells.map cellBits) minX maxX minY maxY)).cells ↔
         ∃ c ∈ cells, q = (c.1 - minX, c.2 - minY) := by
   obtain ⟨c0, hc0⟩ : ∃ c, c ∈ cells := ⟨cells[0]'(by omega), Array.getElem_mem _⟩
   obtain ⟨hx1, hx2, hy1, hy2⟩ := hbox c0 hc0

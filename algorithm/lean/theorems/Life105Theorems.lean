@@ -40,7 +40,7 @@ theorem deserializeLife105_serialized_blocks (bs : List Life105Block)
     (hbs : ∀ b ∈ bs, b.1.size < 2 ^ 32 ∧ 80 * b.height < 2 ^ 31)
     (hsz : 80 * ((bs.flatMap Life105Block.lines).length + 2) < 2 ^ 31) :
     deserializeLife105 (#["#Life 1.05", "#N"] ++ (bs.flatMap Life105Block.lines).toArray) =
-      ⟨0, "", 0, 0, #[], (bs.flatMap Life105Block.cells).toArray⟩ :=
+      ⟨0, "", 0, 0, #[], (bs.flatMap Life105Block.cells).toArray.map cellBits⟩ :=
   deserializeLife105_blocks bs hbs hsz
 
 /-- Round trip: the cells read back are exactly the cells of the blocks that are inside their block. -/
@@ -49,9 +49,9 @@ theorem life105_round_trip_spec (bs : List Life105Block)
     (hsz : 80 * ((bs.flatMap Life105Block.lines).length + 2) < 2 ^ 31) :
     let r := deserializeLife105 (#["#Life 1.05", "#N"] ++ (bs.flatMap Life105Block.lines).toArray)
     r.status = 0 ∧ r.warnings = #[] ∧
-      ∀ q, q ∈ r.cells ↔ ∃ b ∈ bs, ∃ c ∈ b.1,
-        (gridIndex b.2.1 b.2.2.1 80 (b.2.2.2 - b.2.2.1 + 1).toUInt32 (c.1.toInt32, c.2.toInt32)).isSome ∧
-          q = (c.1.toInt32, c.2.toInt32) :=
+      ∀ q, cellBits q ∈ r.cells ↔ ∃ b ∈ bs, ∃ c ∈ b.1,
+        (gridIndex b.2.1 b.2.2.1 80 (b.2.2.2 - b.2.2.1 + 1).toUInt32 ((cellKeyX c).toInt32, (cellKeyY c).toInt32)).isSome ∧
+          q = ((cellKeyX c).toInt32, (cellKeyY c).toInt32) :=
   life105_round_trip bs hbs hsz
 
 /-- Every block header line parses back to its coordinates. -/
@@ -82,13 +82,15 @@ theorem deserializeLife105_out_of_range_offset :
 
 theorem life105_block_round_trip_glider :
     deserializeLife105
-        (#["#Life 1.05", "#N"] ++ serializeLife105Block #[(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)] 0 0 2) =
-      ⟨0, "", 0, 0, #[], #[(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)]⟩ := by
+        (#["#Life 1.05", "#N"] ++
+          serializeLife105Block ((#[(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)] : Array (Int32 × Int32)).map cellBits)
+            0 0 2) =
+      ⟨0, "", 0, 0, #[], (#[(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)] : Array (Int32 × Int32)).map cellBits⟩ := by
   decide +kernel
 
 /-- Cells outside the block are left for another block. -/
 theorem serializeLife105Block_skips_outside :
-    serializeLife105Block #[(0, 0), (80, 0)] 0 0 0 =
+    serializeLife105Block ((#[(0, 0), (80, 0)] : Array (Int32 × Int32)).map cellBits) 0 0 0 =
       #["#P 0 0", "*" ++ String.ofList (List.replicate 79 '.')] := by
   decide +kernel
 

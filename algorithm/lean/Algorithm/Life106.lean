@@ -16,6 +16,8 @@
 
 import Algorithm.SerialCore
 
+set_option compiler.kotlin.typedArrays true
+
 namespace Algorithm
 
 /-!
@@ -31,7 +33,8 @@ structure Life106Result where
   /-- The 1-based index of the line with the error. -/
   errLineIndex : UInt32
   errLineContent : String
-  cells : Array (Int32 × Int32)
+  /-- The keys (`cellBits`) of the cells. -/
+  cells : Array UInt64
   deriving DecidableEq, Repr
 
 /-- Parses an `x y` coordinate line. Surrounding spaces are allowed; out-of-range values are rejected. -/
@@ -51,7 +54,7 @@ def parseCoordLine (line : String) : Option (Int32 × Int32) :=
 
 /-- Parses lines `i` onward as coordinate lines. -/
 def deserializeLife106.loop (lines : Array String) (i : UInt32) (limit : UInt32)
-    (acc : GrowBuf (Int32 × Int32)) : Life106Result :=
+    (acc : U64Buf) : Life106Result :=
   if h : i < limit then
     have : limit.toNat - (i + 1).toNat < limit.toNat - i.toNat := by
       have h1 := UInt32.lt_iff_toNat_lt.mp h
@@ -63,28 +66,28 @@ def deserializeLife106.loop (lines : Array String) (i : UInt32) (limit : UInt32)
       omega
     let line := lines[i.toNat]!
     match parseCoordLine line with
-    | some coord => deserializeLife106.loop lines (i + 1) limit (acc.push coord)
-    | none => ⟨3, i + 1, line, #[]⟩
+    | some coord => deserializeLife106.loop lines (i + 1) limit (U64Buf.push acc (cellBits coord))
+    | none => ⟨3, i + 1, line, noCells⟩
   else
-    ⟨0, 0, "", acc.toArray⟩
+    ⟨0, 0, "", U64Buf.toArray acc⟩
 termination_by limit.toNat - i.toNat
 
-@[export life106_deserialize]
+@[export life106_deserialize, kotlin_types "Array<String>" "_"]
 def deserializeLife106 (lines : Array String) : Life106Result :=
   if lines.size.toUInt32 == 0 then
-    ⟨1, 0, "", #[]⟩
+    ⟨1, 0, "", noCells⟩
   else
     let header := lines[0]!
     if header != "#Life 1.06" then
-      ⟨2, 1, header, #[]⟩
+      ⟨2, 1, header, noCells⟩
     else
-      deserializeLife106.loop lines 1 lines.size.toUInt32 GrowBuf.empty
+      deserializeLife106.loop lines 1 lines.size.toUInt32 U64Buf.empty
 
 /-- The coordinate line for the cell at (`x`, `y`), given as the bits of the coordinates. -/
 def formatCoordLine (x y : UInt32) : String := s!"{x.toInt32} {y.toInt32}"
 
 /-- Appends the coordinate lines for cells (as `cellBits`) `i` onward. -/
-def serializeLife106.loop (cells : Array (UInt32 × UInt32)) (i : UInt32) (limit : UInt32)
+def serializeLife106.loop (cells : Array UInt64) (i : UInt32) (limit : UInt32)
     (acc : GrowBuf String) : GrowBuf String :=
   if h : i < limit then
     have : limit.toNat - (i + 1).toNat < limit.toNat - i.toNat := by
@@ -95,15 +98,15 @@ def serializeLife106.loop (cells : Array (UInt32 × UInt32)) (i : UInt32) (limit
         simp only [UInt32.toNat_one]
         omega
       omega
-    let (x, y) := cells[i.toNat]!
-    serializeLife106.loop cells (i + 1) limit (acc.push (formatCoordLine x y))
+    let k := cells[i.toNat]!
+    serializeLife106.loop cells (i + 1) limit (acc.push (formatCoordLine (cellKeyX k) (cellKeyY k)))
   else
     acc
 termination_by limit.toNat - i.toNat
 
 /-- Serializes cells, given as `cellBits`. -/
 @[export life106_serialize]
-def serializeLife106 (cells : Array (UInt32 × UInt32)) : Array String :=
+def serializeLife106 (cells : Array UInt64) : Array String :=
   (serializeLife106.loop cells 0 cells.size.toUInt32 (GrowBuf.empty.push "#Life 1.06")).toArray
 
 end Algorithm

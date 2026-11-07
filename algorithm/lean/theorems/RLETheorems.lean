@@ -78,26 +78,29 @@ theorem deserializeRLE_count_before_end :
 
 /-- A count at the end of a line is dropped, so a `!` on the next line has no count. -/
 theorem deserializeRLE_count_at_line_end :
-    deserializeRLE #["x = 1, y = 1", "o12", "!"] = ⟨0, "", 0, 0, #[], #[(0, 0)]⟩ := by
+    deserializeRLE #["x = 1, y = 1", "o12", "!"] =
+      ⟨0, "", 0, 0, #[], ((#[(0, 0)] : Array (Int32 × Int32)).map cellBits)⟩ := by
   decide +kernel
 
 /-- A non-ASCII character is one character: one warning with its code point, at its character index. -/
 theorem deserializeRLE_non_ascii :
     deserializeRLE #["x = 3, y = 1", "oéo!"] =
-      ⟨0, "", 0, 0, #[⟨2, 2, 2, 233, "", 0, 0⟩], #[(0, 0), (1, 0), (2, 0)]⟩ := by
+      ⟨0, "", 0, 0, #[⟨2, 2, 2, 233, "", 0, 0⟩],
+        ((#[(0, 0), (1, 0), (2, 0)] : Array (Int32 × Int32)).map cellBits)⟩ := by
   decide +kernel
 
 theorem serializeRLE_empty : serializeRLE #[] 0 0 0 0 = #["#R 0 0", "x = 0, y = 0, rule = B3/S23", "!"] := by
   decide +kernel
 
 theorem serializeRLE_glider :
-    serializeRLE #[(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)] 0 2 0 2 =
+    serializeRLE ((#[(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)] : Array (Int32 × Int32)).map cellBits) 0 2 0 2 =
       #["#R 0 0", "x = 3, y = 3, rule = B3/S23", "bo$2bo$3o!"] := by
   decide +kernel
 
 /-- Empty rows are merged into one end of row with a count. -/
 theorem serializeRLE_empty_rows :
-    serializeRLE #[(0, 0), (0, 3)] 0 0 0 3 = #["#R 0 0", "x = 1, y = 4, rule = B3/S23", "o3$o!"] := by
+    serializeRLE ((#[(0, 0), (0, 3)] : Array (Int32 × Int32)).map cellBits) 0 0 0 3 =
+      #["#R 0 0", "x = 1, y = 4, rule = B3/S23", "o3$o!"] := by
   decide +kernel
 
 /--
@@ -111,17 +114,18 @@ theorem rle_round_trip_spec (cells : Array (Int32 × Int32)) (minX maxX minY max
     (hsize : 64 * ((maxX.toInt - minX.toInt + 1) * (maxY.toInt - minY.toInt + 1)) < 2 ^ 31) :
     (deserializeRLE (serializeRLE (cells.map cellBits) minX maxX minY maxY)).status = 0 ∧
       (deserializeRLE (serializeRLE (cells.map cellBits) minX maxX minY maxY)).warnings = #[] ∧
-      ∀ q, q ∈ (deserializeRLE (serializeRLE (cells.map cellBits) minX maxX minY maxY)).cells ↔ q ∈ cells :=
+      ∀ q, cellBits q ∈ (deserializeRLE (serializeRLE (cells.map cellBits) minX maxX minY maxY)).cells ↔ q ∈ cells :=
   rle_round_trip_box cells minX maxX minY maxY hne hcs hbox hsize
 
 theorem rle_round_trip_glider :
-    deserializeRLE (serializeRLE #[(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)] 0 2 0 2) =
-      ⟨0, "", 0, 0, #[], #[(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)]⟩ := by
+    deserializeRLE
+        (serializeRLE ((#[(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)] : Array (Int32 × Int32)).map cellBits) 0 2 0 2) =
+      ⟨0, "", 0, 0, #[], ((#[(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)] : Array (Int32 × Int32)).map cellBits)⟩ := by
   decide +kernel
 
 theorem rle_round_trip_offset :
-    deserializeRLE (serializeRLE #[(-1, 5), (0, 5), (1, 5)] (-1) 1 5 5) =
-      ⟨0, "", 0, 0, #[], #[(-1, 5), (0, 5), (1, 5)]⟩ := by
+    deserializeRLE (serializeRLE ((#[(-1, 5), (0, 5), (1, 5)] : Array (Int32 × Int32)).map cellBits) (-1) 1 5 5) =
+      ⟨0, "", 0, 0, #[], ((#[(-1, 5), (0, 5), (1, 5)] : Array (Int32 × Int32)).map cellBits)⟩ := by
   decide +kernel
 
 end Algorithm

@@ -40,20 +40,20 @@ theorem parseInt32Spec_of_toString (x : Int32) (rest : List UInt8)
       some (x, (toString x).toByteArray.data.toList.length) :=
   parseInt32Spec_toString x rest hrest
 
-/-- Serialization is the header followed by one `x y` line per cell, in order. -/
-theorem serializeLife106_spec (cells : Array (UInt32 × UInt32)) (hc : cells.size + 2 < 2 ^ 31) :
-    serializeLife106 cells = #["#Life 1.06"] ++ cells.map (fun c => formatCoordLine c.1 c.2) :=
+/-- Serialization is the header followed by one `x y` line per cell (given by its key), in order. -/
+theorem serializeLife106_spec (cells : Array UInt64) (hc : cells.size + 2 < 2 ^ 31) :
+    serializeLife106 cells = #["#Life 1.06"] ++ cells.map (fun k => formatCoordLine (cellKeyX k) (cellKeyY k)) :=
   serializeLife106_eq cells hc
 
 /-- Deserialization reports an empty file, a bad header or the first line that isn't a coordinate pair, and
-otherwise returns the coordinates of every line, in order. -/
+otherwise returns the keys of the coordinates of every line, in order. -/
 theorem deserializeLife106_spec (lines : Array String) (hl : lines.size < 2 ^ 31) :
     deserializeLife106 lines =
       if lines.size = 0 then ⟨1, 0, "", #[]⟩
       else if lines[0]! ≠ "#Life 1.06" then ⟨2, 1, lines[0]!, #[]⟩
       else
         match (lines.toList.drop 1).mapM parseCoordLine with
-        | some cells => ⟨0, 0, "", cells.toArray⟩
+        | some cells => ⟨0, 0, "", (cells.map cellBits).toArray⟩
         | none =>
           let j := (lines.toList.drop 1).findIdx (fun l => (parseCoordLine l).isNone)
           ⟨3, (j + 2).toUInt32, lines[j + 1]!, #[]⟩ :=
@@ -66,7 +66,7 @@ theorem parseCoordLine_format (c : Int32 × Int32) :
 
 /-- Deserializing serialized cells gives back exactly those cells, in order. -/
 theorem deserializeLife106_round_trip (cells : Array (Int32 × Int32)) (hc : cells.size + 2 < 2 ^ 31) :
-    deserializeLife106 (serializeLife106 (cells.map cellBits)) = ⟨0, 0, "", cells⟩ :=
+    deserializeLife106 (serializeLife106 (cells.map cellBits)) = ⟨0, 0, "", cells.map cellBits⟩ :=
   deserializeLife106_serializeLife106 cells hc
 
 /-- A coordinate line whose first number doesn't fit in an `Int32` is rejected rather than wrapped. -/
@@ -83,12 +83,13 @@ theorem deserializeLife106_empty : deserializeLife106 #[] = ⟨1, 0, "", #[]⟩ 
 
 /-- Deserializing a valid header with a single coordinate recovers the coordinate. -/
 theorem deserializeLife106_single_coord :
-    deserializeLife106 #["#Life 1.06", "10 -20"] = ⟨0, 0, "", #[(10, -20)]⟩ := by
+    deserializeLife106 #["#Life 1.06", "10 -20"] = ⟨0, 0, "", #[cellBits (10, -20)]⟩ := by
   decide +kernel
 
 /-- The extreme `Int32` values parse. -/
 theorem deserializeLife106_extremes :
-    deserializeLife106 #["#Life 1.06", "-2147483648 2147483647"] = ⟨0, 0, "", #[(-2147483648, 2147483647)]⟩ := by
+    deserializeLife106 #["#Life 1.06", "-2147483648 2147483647"] = ⟨0, 0, "",
+      #[cellBits (-2147483648, 2147483647)]⟩ := by
   decide +kernel
 
 /-- A value that would wrap around to a valid coordinate is rejected. -/
