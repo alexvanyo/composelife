@@ -119,6 +119,7 @@ class LeanConventionPlugin :
                             leanFile = entry.leanFile.get(),
                             outputFile = entry.outputFile.get().asFile.absolutePath,
                             packageName = entry.packageName.get(),
+                            typedArrays = entry.typedArrays.getOrElse(false),
                         )
                     }
                 },

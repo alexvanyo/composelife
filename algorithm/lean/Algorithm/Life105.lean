@@ -16,6 +16,8 @@
 
 import Algorithm.SerialCore
 
+set_option compiler.kotlin.typedArrays true
+
 namespace Algorithm
 
 /-!
@@ -42,7 +44,8 @@ structure Life105Result where
   errLineIndex : UInt32
   errColumnIndex : UInt32
   warnings : Array Life105Warning
-  cells : Array (Int32 × Int32)
+  /-- The keys (`cellBits`) of the cells. -/
+  cells : Array UInt64
   deriving DecidableEq, Repr
 
 /--
@@ -121,7 +124,7 @@ the row is at `blockY + rowIndex`.
 -/
 def parseBlocks (lines : Array String) (numLines : UInt32) (i : UInt32) (inRow : Bool) (bytes : ByteArray)
     (limit p : UInt32) (hasBlock : Bool) (blockX blockY : Int32) (rowIndex : Int32) (warns : Array Life105Warning)
-    (cells : GrowBuf (Int32 × Int32)) : Life105Result :=
+    (cells : U64Buf) : Life105Result :=
   if hi : i < numLines then
     have hi1 : numLines.toNat - (i + 1).toNat < numLines.toNat - i.toNat := by
       have h1 := UInt32.lt_iff_toNat_lt.mp hi
@@ -142,7 +145,8 @@ def parseBlocks (lines : Array String) (numLines : UInt32) (i : UInt32) (inRow :
             omega
           omega
         let newCells :=
-          if bytes.get! p.toNat == 42 then cells.push (blockX + p.toInt32, blockY + rowIndex) else cells
+          if bytes.get! p.toNat == 42 then U64Buf.push cells (cellBits (blockX + p.toInt32, blockY + rowIndex))
+          else cells
         parseBlocks lines numLines i true bytes limit (p + 1) hasBlock blockX blockY rowIndex warns newCells
       else
         parseBlocks lines numLines (i + 1) false bytes limit 0 hasBlock blockX blockY (rowIndex + 1) warns cells
@@ -151,14 +155,14 @@ def parseBlocks (lines : Array String) (numLines : UInt32) (i : UInt32) (inRow :
       let bytes := line.toByteArray
       if startsWithHash bytes 80 then -- "#P"
         match parseBlockHeader bytes with
-        | none => ⟨3, line, i + 1, 3, warns, #[]⟩
+        | none => ⟨3, line, i + 1, 3, warns, noCells⟩
         | some c => parseBlocks lines numLines (i + 1) false bytes limit 0 true c.x c.y 0 warns cells
       else if isRowLine bytes && hasBlock then
         parseBlocks lines numLines i true bytes bytes.size.toUInt32 0 true blockX blockY rowIndex warns cells
       else
-        ⟨3, line, i + 1, 1, warns, #[]⟩
+        ⟨3, line, i + 1, 1, warns, noCells⟩
   else
-    ⟨0, "", 0, 0, warns, cells.toArray⟩
+    ⟨0, "", 0, 0, warns, U64Buf.toArray cells⟩
 termination_by (numLines.toNat - i.toNat) * 2 ^ 33 + (if inRow then limit.toNat - p.toNat else 2 ^ 32)
 decreasing_by
   all_goals
@@ -168,15 +172,15 @@ decreasing_by
       | (have := UInt32.toNat_lt limit; omega)
       | (have := UInt32.toNat_lt (ByteArray.size lines[i.toNat]!.toByteArray).toUInt32; omega)
 
-@[export life105_deserialize]
+@[export life105_deserialize, kotlin_types "Array<String>" "_"]
 def deserializeLife105 (lines : Array String) : Life105Result :=
   let numLines := lines.size.toUInt32
   if numLines == 0 then
-    ⟨0, "", 0, 0, #[⟨0, "", 0, 0⟩], #[]⟩
+    ⟨0, "", 0, 0, #[⟨0, "", 0, 0⟩], noCells⟩
   else
     let header := lines[0]!
     if header != "#Life 1.05" then
-      ⟨1, header, 1, 0, #[], #[]⟩
+      ⟨1, header, 1, 0, #[], noCells⟩
     else
       let i := skipDescriptions lines numLines 1
       if i < numLines then
@@ -184,16 +188,16 @@ def deserializeLife105 (lines : Array String) : Life105Result :=
         let bytes := ruleLine.toByteArray
         if startsWithHash bytes 78 then -- "#N"
           let warns := if ruleLine != "#N" then #[⟨1, ruleLine, i + 1, 3⟩] else #[]
-          parseBlocks lines numLines (i + 1) false bytes 0 0 false 0 0 0 warns GrowBuf.empty
+          parseBlocks lines numLines (i + 1) false bytes 0 0 false 0 0 0 warns U64Buf.empty
         else if startsWithHash bytes 82 then -- "#R"
           let status := checkRuleLine bytes
-          if status == 0 then parseBlocks lines numLines (i + 1) false bytes 0 0 false 0 0 0 #[] GrowBuf.empty
-          else if status == 1 then ⟨3, ruleLine, i + 1, 3, #[], #[]⟩
-          else ⟨2, "", 0, 0, #[], #[]⟩
+          if status == 0 then parseBlocks lines numLines (i + 1) false bytes 0 0 false 0 0 0 #[] U64Buf.empty
+          else if status == 1 then ⟨3, ruleLine, i + 1, 3, #[], noCells⟩
+          else ⟨2, "", 0, 0, #[], noCells⟩
         else
-          parseBlocks lines numLines i false bytes 0 0 false 0 0 0 #[] GrowBuf.empty
+          parseBlocks lines numLines i false bytes 0 0 false 0 0 0 #[] U64Buf.empty
       else
-        ⟨0, "", 0, 0, #[], #[]⟩
+        ⟨0, "", 0, 0, #[], noCells⟩
 
 /-- The block header line for a block at (`x`, `y`). -/
 def formatBlockHeader (x y : Int32) : String := s!"#P {x} {y}"
@@ -203,7 +207,7 @@ Serializes the block of cells from (`minX`, `minY`) to (`minX + 79`, `maxY`): th
 characters per line. Cells outside the block are skipped.
 -/
 @[export life105_serialize_block]
-def serializeLife105Block (cells : Array (UInt32 × UInt32)) (minX minY maxY : Int32) : Array String :=
+def serializeLife105Block (cells : Array UInt64) (minX minY maxY : Int32) : Array String :=
   let height : UInt32 := (maxY - minY + 1).toUInt32
   let grid := fillGrid cells minX minY 80 height 42 (by decide) 0 cells.size.toUInt32
     (AsciiBytes.replicate (80 * height) 46 (by decide))

@@ -20,6 +20,8 @@ import Algorithm.MacroCellHash
 import Algorithm.SerialCore
 import Lean.Compiler.Kotlin
 
+set_option compiler.kotlin.typedArrays true
+
 open Lean.Compiler.Kotlin
 
 local notation "ℕ" => Nat
@@ -1220,7 +1222,7 @@ decreasing_by
       | (have := UInt32.toNat_lt limit; omega)
       | (have := UInt32.toNat_lt (ByteArray.size lines[i.toNat]!.toByteArray).toUInt32; omega)
 
-@[export macrocell_deserialize]
+@[export macrocell_deserialize, kotlin_types "Array<String>" "_"]
 def deserializeMacrocell (lines : Array String) : MacrocellResult :=
   let numLines := lines.size.toUInt32
   if numLines == 0 then

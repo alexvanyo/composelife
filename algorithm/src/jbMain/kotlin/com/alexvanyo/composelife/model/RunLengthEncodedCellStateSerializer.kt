@@ -19,21 +19,19 @@ package com.alexvanyo.composelife.model
 import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 
+@OptIn(ExperimentalUnsignedTypes::class)
 object RunLengthEncodedCellStateSerializer : FixedFormatCellStateSerializer {
     override val format: CellStateFormat.FixedFormat = CellStateFormat.FixedFormat.RunLengthEncoding
 
-    @Suppress("UNCHECKED_CAST")
     override fun deserializeToCellState(lines: Sequence<String>): DeserializationResult {
-        val linesArray = lines.toList().toTypedArray()
-        val result = f_Algorithm_deserializeRLE(linesArray as Array<Any?>)
+        val result = f_Algorithm_deserializeRLE(lines.toList().toTypedArray())
         val warnings = result.warnings.map { mapRLEWarning(it as RLEWarning) }
 
         return when (result.status) {
             0u -> {
-                val aliveCells = parseAliveCells(result.cells)
                 DeserializationResult.Successful(
                     warnings = warnings,
-                    cellState = CellState(aliveCells),
+                    cellState = CellState(leanCellsToOffsets(result.cells)),
                     format = CellStateFormat.FixedFormat.RunLengthEncoding,
                 )
             }
@@ -99,22 +97,13 @@ object RunLengthEncodedCellStateSerializer : FixedFormatCellStateSerializer {
         )
     }
 
-    private fun parseAliveCells(cells: Array<Any?>): Set<IntOffset> = cells.map {
-        val pair = it as Pair<*, *>
-        val cellX = if (pair.first is UInt) (pair.first as UInt).toInt() else (pair.first as Int)
-        val cellY = if (pair.second is UInt) (pair.second as UInt).toInt() else (pair.second as Int)
-        IntOffset(cellX, cellY)
-    }.toSet()
-
-    @Suppress("UNCHECKED_CAST")
     override fun serializeToString(cellState: CellState): Sequence<String> {
         val boundingBox = cellState.boundingBox
-        val cells = cellState.aliveCells.map { Pair(it.x.toUInt(), it.y.toUInt()) }.toTypedArray()
         val minX = boundingBox.left
         val maxX = boundingBox.right - 1
         val minY = boundingBox.top
         val maxY = boundingBox.bottom - 1
-        val lines = f_Algorithm_serializeRLE(cells as Array<Any?>, minX, maxX, minY, maxY)
+        val lines = f_Algorithm_serializeRLE(cellState.aliveCells.toLeanCells(), minX, maxX, minY, maxY)
         return lines.asSequence().map { it as String }
     }
 }

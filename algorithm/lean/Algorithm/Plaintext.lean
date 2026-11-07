@@ -16,6 +16,8 @@
 
 import Algorithm.SerialCore
 
+set_option compiler.kotlin.typedArrays true
+
 namespace Algorithm
 
 /-!
@@ -41,7 +43,8 @@ structure PlaintextWarning where
 @[kotlin_class "PlaintextResult"]
 structure PlaintextResult where
   warnings : Array PlaintextWarning
-  cells : Array (Int32 × Int32)
+  /-- The keys (`cellBits`) of the cells. -/
+  cells : Array UInt64
   deriving DecidableEq, Repr
 
 /-- The number of characters in `bytes` from `p` on, plus `n`. -/
@@ -58,7 +61,7 @@ the character position. `longestIdx` and `longestLen` describe the longest patte
 -/
 def deserializePlaintext.loop (lines : Array String) (numLines : UInt32) (i : UInt32) (inRow : Bool)
     (bytes : ByteArray) (limit : UInt32) (p col : UInt32) (rowIdx : UInt32) (longestIdx longestLen : UInt32)
-    (hasLongest : Bool) (warns : GrowBuf PlaintextWarning) (cells : GrowBuf (Int32 × Int32)) :
+    (hasLongest : Bool) (warns : GrowBuf PlaintextWarning) (cells : U64Buf) :
     PlaintextResult :=
   if hi : i < numLines then
     have hi1 : numLines.toNat - (i + 1).toNat < numLines.toNat - i.toNat := by
@@ -79,11 +82,11 @@ def deserializePlaintext.loop (lines : Array String) (numLines : UInt32) (i : UI
             hasLongest warns cells
         else if cp == 79 then -- 'O'
           deserializePlaintext.loop lines numLines i true bytes limit r.2 (col + 1) rowIdx longestIdx longestLen
-            hasLongest warns (cells.push (col.toInt32, rowIdx.toInt32))
+            hasLongest warns (U64Buf.push cells (cellBits (col.toInt32, rowIdx.toInt32)))
         else
           -- Anything else is a warning, and alive unless it is a space.
           let newWarns := warns.push ⟨2, i + 1, col + 1, cp⟩
-          let newCells := if cp == 32 then cells else cells.push (col.toInt32, rowIdx.toInt32)
+          let newCells := if cp == 32 then cells else U64Buf.push cells (cellBits (col.toInt32, rowIdx.toInt32))
           deserializePlaintext.loop lines numLines i true bytes limit r.2 (col + 1) rowIdx longestIdx longestLen
             hasLongest newWarns newCells
       else
@@ -110,7 +113,7 @@ def deserializePlaintext.loop (lines : Array String) (numLines : UInt32) (i : UI
           let lenWarns := if len < longestLen then warns.push ⟨1, i + 1, 0, 0⟩ else warns
           deserializePlaintext.loop lines numLines i true bytes limit 0 0 rowIdx longestIdx longestLen true
             lenWarns cells
-  else ⟨warns.toArray, cells.toArray⟩
+  else ⟨warns.toArray, U64Buf.toArray cells⟩
 termination_by (numLines.toNat - i.toNat) * 2 ^ 33 + (if inRow then limit.toNat - p.toNat else 2 ^ 32)
 decreasing_by
   all_goals
@@ -120,10 +123,10 @@ decreasing_by
       | (have := UInt32.toNat_lt limit; omega)
       | (have := UInt32.toNat_lt (ByteArray.size lines[i.toNat]!.toByteArray).toUInt32; omega)
 
-@[export plaintext_deserialize]
+@[export plaintext_deserialize, kotlin_types "Array<String>" "_"]
 def deserializePlaintext (lines : Array String) : PlaintextResult :=
   deserializePlaintext.loop lines lines.size.toUInt32 0 false ByteArray.empty 0 0 0 0 0 0 false GrowBuf.empty
-    GrowBuf.empty
+    U64Buf.empty
 
 /--
 Serializes the cells (as `cellBits`) in the bounding box from (`minX`, `minY`) to (`maxX`, `maxY`), one row per
@@ -131,7 +134,7 @@ line. Cells
 outside the box are skipped.
 -/
 @[export plaintext_serialize]
-def serializePlaintext (cells : Array (UInt32 × UInt32)) (minX maxX minY maxY : Int32) : Array String :=
+def serializePlaintext (cells : Array UInt64) (minX maxX minY maxY : Int32) : Array String :=
   if cells.size.toUInt32 == 0 then #["."]
   else
     let width : UInt32 := (maxX - minX + 1).toUInt32

@@ -118,23 +118,23 @@ theorem flat_capacity_hypotheses_satisfiable :
 /--
 Mutant 3: a Life 1.06 serializer that forgets to output the header line.
 -/
-def mutantSerializeLife106MissingHeader (_cells : Array (Int32 × Int32)) : Array String := #[]
+def mutantSerializeLife106MissingHeader (_cells : Array UInt64) : Array String := #[]
 
 /-- Mutant 3 violates `serializeLife106_spec`. -/
 theorem mutantSerializeLife106_violates_header :
     mutantSerializeLife106MissingHeader #[] ≠
-      #["#Life 1.06"] ++ (#[] : Array (UInt32 × UInt32)).map (fun c => formatCoordLine c.1 c.2) := by
+      #["#Life 1.06"] ++ (#[] : Array UInt64).map (fun k => formatCoordLine (cellKeyX k) (cellKeyY k)) := by
   decide +kernel
 
 /--
 Mutant 4: a Plaintext serializer that outputs dead cell "." even for live cells.
 -/
-def mutantSerializePlaintextAllDead (_cells : Array (Int32 × Int32)) (_minX _maxX _minY _maxY : Int32) :
+def mutantSerializePlaintextAllDead (_cells : Array UInt64) (_minX _maxX _minY _maxY : Int32) :
     Array String := #["."]
 
 /-- Mutant 4 violates `plaintext_round_trip_spec`: the cell does not read back. -/
 theorem mutantSerializePlaintext_violates_round_trip :
-    (deserializePlaintext (mutantSerializePlaintextAllDead #[(0, 0)] 0 0 0 0)).cells ≠ #[(0, 0)] := by
+    (deserializePlaintext (mutantSerializePlaintextAllDead #[cellBits (0, 0)] 0 0 0 0)).cells ≠ #[cellBits (0, 0)] := by
   decide +kernel
 
 /--

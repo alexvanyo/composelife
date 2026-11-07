@@ -673,4 +673,17 @@ class RunLengthEncodingCellStateSerializerTests {
             serializer.deserializeToCellState(sequenceOf("x = 3, y = 1", "o\u00e9o!")),
         )
     }
+
+    @Test
+    fun negative_coordinates_round_trip() {
+        val cellState = setOf(-1 to -2, 0 to -1, -3 to 0, 2 to -5, -100 to 7).toCellState()
+        assertEquals(
+            DeserializationResult.Successful(
+                warnings = emptyList(),
+                cellState = cellState,
+                format = CellStateFormat.FixedFormat.RunLengthEncoding,
+            ),
+            serializer.deserializeToCellState(serializer.serializeToString(cellState)),
+        )
+    }
 }

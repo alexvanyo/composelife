@@ -128,6 +128,176 @@ theorem GrowBuf.rep_push {b : GrowBuf α} {a : Array α} (h : b.Rep a) (x : α) 
       · rw [ite_eq_right (by omega), dite_eq_right hka]
         simp
 
+/-! ## U64Buf -/
+
+theorem copyU64_eq (src : Array UInt64) (n : UInt32) :
+    ∀ (m : Nat) (i : UInt32) (dst : Array UInt64), n.toNat - i.toNat = m →
+      copyU64 src n i dst = copyPrefix src n i dst := by
+  intro m
+  induction m with
+  | zero =>
+    intro i dst hm
+    have hnot : ¬ i < n := by rw [UInt32.lt_iff_toNat_lt]; omega
+    rw [copyU64, copyPrefix]
+    simp only [hnot, ↓reduceDIte]
+  | succ m ih =>
+    intro i dst hm
+    have hlt : i < n := by rw [UInt32.lt_iff_toNat_lt]; omega
+    have hsucc : (i + 1).toNat = i.toNat + 1 := by
+      rw [UInt32.toNat_add]; have := UInt32.toNat_lt n; simp only [UInt32.toNat_one]; omega
+    rw [copyU64, copyPrefix]
+    simp only [hlt, ↓reduceDIte]
+    exact ih (i + 1) _ (by omega)
+
+/-- `b` holds exactly the elements of `a`. -/
+def U64Buf.Rep (b : U64Buf) (a : Array UInt64) : Prop :=
+  b[0]!.toNat = a.size ∧ a.size < b.size ∧ b.size < 2 ^ 32 ∧ U64Buf.toArray b = a
+
+theorem U64Buf.rep_empty : U64Buf.Rep U64Buf.empty #[] := by
+  refine ⟨?_, by simp [U64Buf.empty], by simp [U64Buf.empty], ?_⟩
+  · simp [U64Buf.empty]
+  · simp [U64Buf.empty, U64Buf.toArray]
+
+theorem U64Buf.toArray_of_rep {b : U64Buf} {a : Array UInt64} (h : U64Buf.Rep b a) : U64Buf.toArray b = a :=
+  h.2.2.2
+
+theorem U64Buf.rep_push {b : U64Buf} {a : Array UInt64} (h : U64Buf.Rep b a) (x : UInt64)
+    (hs : a.size + 1 < 2 ^ 31) : U64Buf.Rep (U64Buf.push b x) (a.push x) := by
+  obtain ⟨h0, hlt, hb32, harr⟩ := h
+  have hn : (b[0]!.toUInt32 + 1).toNat = a.size + 1 := by
+    rw [UInt32.toNat_add, UInt64.toNat_toUInt32, h0]; simp; omega
+  have hn64 : ((b[0]!.toUInt32 + 1).toUInt64).toNat = a.size + 1 := by
+    rw [UInt32.toNat_toUInt64, hn]
+  have hbsz : b.size.toUInt32.toNat = b.size := u32_size_toNat' hb32
+  -- The elements of `b` after element 0.
+  have helem : ∀ k (hk : k < a.size), b[k + 1]! = a[k] := by
+    intro k hk
+    have hsz : (U64Buf.toArray b).size = a.size := by rw [harr]
+    have hk' : k < (U64Buf.toArray b).size := by omega
+    have : a[k] = (U64Buf.toArray b)[k] := by simp only [harr]
+    rw [this]
+    simp only [U64Buf.toArray, Array.getElem_extract]
+    simp only [U64Buf.toArray, Array.size_extract] at hk'
+    rw [getElem!_pos b (k + 1) (by omega)]
+    congr 1; omega
+  unfold U64Buf.push
+  dsimp only
+  generalize hN : b[0]!.toUInt32 + 1 = N at hn hn64
+  have hN32 : N.toUInt64.toUInt32 = N := by
+    apply UInt32.toNat_inj.mp; rw [UInt64.toNat_toUInt32, UInt32.toNat_toUInt64]; have := UInt32.toNat_lt N; omega
+  have hN1 : (N + 1).toNat = a.size + 2 := by rw [UInt32.toNat_add, hn]; simp; omega
+  split
+  · rename_i hcap
+    rw [UInt32.lt_iff_toNat_lt, hn, hbsz] at hcap
+    simp only [Array.set!_eq_setIfInBounds]
+    have h0' : ((b.setIfInBounds N.toNat x).setIfInBounds 0 N.toUInt64)[0]! = N.toUInt64 := by
+      rw [getElem!_pos _ 0 (by simp; omega)]; simp
+    refine ⟨by rw [h0', hn64, Array.size_push], by simp; omega, by simp; omega, ?_⟩
+    simp only [U64Buf.toArray, h0', hN32, hN1]
+    apply Array.ext
+    · simp; omega
+    · intro k hk1 hk2
+      have hk2' : k < a.size + 1 := by simpa using hk2
+      simp only [Array.getElem_extract, Array.getElem_push]
+      rw [Array.getElem_setIfInBounds_ne (by simp; omega) (by omega)]
+      by_cases hka : k < a.size
+      · rw [Array.getElem_setIfInBounds_ne (by omega) (by omega), dite_eq_left hka]
+        have := helem k hka
+        rw [getElem!_pos b (k + 1) (by omega)] at this
+        rw [← this]; congr 1; omega
+      · rw [dite_eq_right hka]
+        have : k = a.size := by omega
+        subst this
+        rw [Array.getElem_setIfInBounds (by first | omega | (simp; omega)), ite_eq_left (by omega)]
+  · rename_i hcap
+    rw [UInt32.lt_iff_toNat_lt, hn, hbsz] at hcap
+    have heq : b.size = a.size + 1 := by omega
+    have hnew : (2 * b.size.toUInt32 + 1).toNat = 2 * b.size + 1 := by
+      rw [UInt32.toNat_add, UInt32.toNat_mul, hbsz]; simp; omega
+    rw [copyU64_eq _ _ _ 0 _ rfl]
+    have hcp := copyPrefix_spec b b.size.toUInt32 _ 0
+      (Array.replicate (2 * b.size.toUInt32 + 1).toNat 0) rfl (by simp [hnew, hbsz]; omega)
+    generalize hg : copyPrefix b b.size.toUInt32 0 (Array.replicate (2 * b.size.toUInt32 + 1).toNat 0) = g at hcp ⊢
+    obtain ⟨hgs, hgg⟩ := hcp
+    simp only [Array.size_replicate, hnew, hbsz] at hgs hgg
+    simp only [Array.set!_eq_setIfInBounds]
+    have h0' : ((g.setIfInBounds N.toNat x).setIfInBounds 0 N.toUInt64)[0]! = N.toUInt64 := by
+      rw [getElem!_pos _ 0 (by simp; omega)]; simp
+    refine ⟨by rw [h0', hn64, Array.size_push], by simp; omega, by simp; omega, ?_⟩
+    simp only [U64Buf.toArray, h0', hN32, hN1]
+    apply Array.ext
+    · simp; omega
+    · intro k hk1 hk2
+      have hk2' : k < a.size + 1 := by simpa using hk2
+      simp only [Array.getElem_extract, Array.getElem_push]
+      rw [Array.getElem_setIfInBounds_ne (by simp; omega) (by omega)]
+      by_cases hka : k < a.size
+      · rw [Array.getElem_setIfInBounds_ne (by omega) (by omega), dite_eq_left hka]
+        have := hgg (1 + k) (by omega)
+        rw [getElem!_pos g (1 + k) (by omega), ite_eq_left ⟨Nat.zero_le _, by omega⟩] at this
+        rw [this]
+        have := helem k hka
+        rw [show 1 + k = k + 1 by omega, this]
+      · rw [dite_eq_right hka]
+        have : k = a.size := by omega
+        subst this
+        rw [Array.getElem_setIfInBounds (by first | omega | (simp; omega)), ite_eq_left (by omega)]
+
+/-! ## Cell keys -/
+
+theorem cellKey_toNat (x y : UInt32) : (cellKey x y).toNat = x.toNat * 2 ^ 32 + y.toNat := by
+  have hx := UInt32.toNat_lt x
+  have hy := UInt32.toNat_lt y
+  have hmask : (y.toUInt64 &&& 0xFFFFFFFF).toNat = y.toNat := by
+    rw [UInt64.toNat_and, UInt32.toNat_toUInt64, show (0xFFFFFFFF : UInt64).toNat = 2 ^ 32 - 1 from rfl,
+      Nat.and_two_pow_sub_one_eq_mod, Nat.mod_eq_of_lt hy]
+  simp only [cellKey, UInt64.toNat_add, UInt64.toNat_shiftLeft, UInt32.toNat_toUInt64, Nat.shiftLeft_eq, hmask]
+  simp
+  omega
+
+theorem keyX_cellKey (x y : UInt32) : cellKeyX (cellKey x y) = x := by
+  apply UInt32.toNat_inj.mp
+  have hy := UInt32.toNat_lt y
+  have hx := UInt32.toNat_lt x
+  simp only [cellKeyX, UInt64.toNat_toUInt32, UInt64.toNat_shiftRight, cellKey_toNat, Nat.shiftRight_eq_div_pow]
+  simp
+  omega
+
+theorem keyY_cellKey (x y : UInt32) : cellKeyY (cellKey x y) = y := by
+  apply UInt32.toNat_inj.mp
+  have hy := UInt32.toNat_lt y
+  simp only [cellKeyY, UInt64.toNat_toUInt32, cellKey_toNat]
+  omega
+
+theorem cellKey_keys (k : UInt64) : cellKey (cellKeyX k) (cellKeyY k) = k := by
+  apply UInt64.toNat_inj.mp
+  have hk := UInt64.toNat_lt k
+  rw [cellKey_toNat]
+  simp only [cellKeyX, cellKeyY, UInt64.toNat_toUInt32, UInt64.toNat_shiftRight, Nat.shiftRight_eq_div_pow]
+  simp
+  omega
+
+theorem cellBits_inj {c d : Int32 × Int32} (h : cellBits c = cellBits d) : c = d := by
+  have h1 := congrArg cellKeyX h
+  have h2 := congrArg cellKeyY h
+  simp only [cellBits, keyX_cellKey, keyY_cellKey] at h1 h2
+  have e1 : c.1 = d.1 := by
+    have := congrArg UInt32.toInt32 h1; simpa using this
+  have e2 : c.2 = d.2 := by
+    have := congrArg UInt32.toInt32 h2; simpa using this
+  exact Prod.ext e1 e2
+
+@[simp] theorem keyX_cellBits (c : Int32 × Int32) : cellKeyX (cellBits c) = c.1.toUInt32 := keyX_cellKey _ _
+
+@[simp] theorem keyY_cellBits (c : Int32 × Int32) : cellKeyY (cellBits c) = c.2.toUInt32 := keyY_cellKey _ _
+
+theorem cellBits_mem_map {c : Int32 × Int32} {l : List (Int32 × Int32)} : cellBits c ∈ l.map cellBits ↔ c ∈ l := by
+  constructor
+  · intro h
+    obtain ⟨d, hd, he⟩ := List.mem_map.mp h
+    rwa [cellBits_inj he] at hd
+  · exact List.mem_map_of_mem
+
 /-! ## Byte views -/
 
 /-- The bytes of `b` from position `p` on. -/
@@ -685,7 +855,7 @@ theorem gridIndex_lt {minX minY : Int32} {w h : UInt32} {c : Int32 × Int32} {k 
   · simp at hk
 
 open Classical in
-theorem fillGrid_spec (cells : Array (UInt32 × UInt32)) (minX minY : Int32) (w h : UInt32) (alive : UInt8)
+theorem fillGrid_spec (cells : Array UInt64) (minX minY : Int32) (w h : UInt32) (alive : UInt8)
     (ha : alive < 128) (hwh : w.toNat * h.toNat < 2 ^ 32) (hc : cells.size < 2 ^ 32) :
     ∀ (n : Nat) (i : UInt32) (g : AsciiBytes), cells.size - i.toNat = n → i.toNat ≤ cells.size →
       g.1.size = w.toNat * h.toNat →
@@ -693,7 +863,7 @@ theorem fillGrid_spec (cells : Array (UInt32 × UInt32)) (minX minY : Int32) (w 
       ∀ (k : Nat) (hk : k < g.1.size),
         (fillGrid cells minX minY w h alive ha i cells.size.toUInt32 g).1[k]! =
           if ∃ j, i.toNat ≤ j ∧ ∃ (hj : j < cells.size),
-              gridIndex minX minY w h (cells[j].1.toInt32, cells[j].2.toInt32) = some k then alive
+              gridIndex minX minY w h ((cellKeyX cells[j]).toInt32, (cellKeyY cells[j]).toInt32) = some k then alive
           else g.1[k] := by
   intro n
   induction n with
@@ -705,7 +875,7 @@ theorem fillGrid_spec (cells : Array (UInt32 × UInt32)) (minX minY : Int32) (w 
     intro k hk
     rw [getElem!_pos g.1 k hk]
     have : ¬ ∃ j, i.toNat ≤ j ∧ ∃ (hj : j < cells.size),
-        gridIndex minX minY w h (cells[j].1.toInt32, cells[j].2.toInt32) = some k := by
+        gridIndex minX minY w h ((cellKeyX cells[j]).toInt32, (cellKeyY cells[j]).toInt32) = some k := by
       rintro ⟨j, hj1, hj2, -⟩; omega
     simp [this]
   | succ n ih =>
@@ -716,10 +886,8 @@ theorem fillGrid_spec (cells : Array (UInt32 × UInt32)) (minX minY : Int32) (w 
     rw [fillGrid]
     simp only [hyes, ↓reduceDIte, getElem!_pos cells i.toNat hlt]
     generalize hc' : cells[i.toNat] = cb
-    obtain ⟨cx, cy⟩ := cb
-    simp only
-    generalize hx : cx.toInt32 = x
-    generalize hy : cy.toInt32 = y
+    generalize hx : (cellKeyX cb).toInt32 = x
+    generalize hy : (cellKeyY cb).toInt32 = y
     -- The grid after this cell.
     generalize hg' : (if (x - minX).toUInt32 < w && (y - minY).toUInt32 < h then
       g.set ((y - minY).toUInt32 * w + (x - minX).toUInt32) alive ha else g) = g'
@@ -761,9 +929,9 @@ theorem fillGrid_spec (cells : Array (UInt32 × UInt32)) (minX minY : Int32) (w 
     rw [ihg k (by rw [hg'size]; exact hk), hsucc]
     have hk' : k < g'.1.size := by rw [hg'size]; exact hk
     by_cases hlater : ∃ j, i.toNat + 1 ≤ j ∧ ∃ (hj : j < cells.size),
-        gridIndex minX minY w h (cells[j].1.toInt32, cells[j].2.toInt32) = some k
+        gridIndex minX minY w h ((cellKeyX cells[j]).toInt32, (cellKeyY cells[j]).toInt32) = some k
     · have : ∃ j, i.toNat ≤ j ∧ ∃ (hj : j < cells.size),
-          gridIndex minX minY w h (cells[j].1.toInt32, cells[j].2.toInt32) = some k := by
+          gridIndex minX minY w h ((cellKeyX cells[j]).toInt32, (cellKeyY cells[j]).toInt32) = some k := by
         obtain ⟨j, hj1, hj2⟩ := hlater; exact ⟨j, by omega, hj2⟩
       simp [hlater, this]
     · simp only [hlater, ite_false]
@@ -771,11 +939,11 @@ theorem fillGrid_spec (cells : Array (UInt32 × UInt32)) (minX minY : Int32) (w 
       rw [hgk, hg'get k hk]
       by_cases hthis : gridIndex minX minY w h (x, y) = some k
       · have : ∃ j, i.toNat ≤ j ∧ ∃ (hj : j < cells.size),
-            gridIndex minX minY w h (cells[j].1.toInt32, cells[j].2.toInt32) = some k :=
+            gridIndex minX minY w h ((cellKeyX cells[j]).toInt32, (cellKeyY cells[j]).toInt32) = some k :=
           ⟨i.toNat, Nat.le_refl _, hlt, by rw [hc']; simp only [hx, hy]; exact hthis⟩
         simp [hthis, this]
       · have : ¬ ∃ j, i.toNat ≤ j ∧ ∃ (hj : j < cells.size),
-            gridIndex minX minY w h (cells[j].1.toInt32, cells[j].2.toInt32) = some k := by
+            gridIndex minX minY w h ((cellKeyX cells[j]).toInt32, (cellKeyY cells[j]).toInt32) = some k := by
           rintro ⟨j, hj1, hj2, hj3⟩
           by_cases hji : j = i.toNat
           · subst hji; rw [hc'] at hj3; simp only [hx, hy] at hj3; exact hthis hj3
@@ -1056,14 +1224,14 @@ theorem byteArray_eq_of_toList {b : ByteArray} {L : List UInt8} (h : b.data.toLi
 
 open Classical in
 /-- What a grid of `dead` holds after filling the cells with `alive`. -/
-theorem fillGrid_replicate_spec (cells : Array (UInt32 × UInt32)) (minX minY : Int32) (w h : UInt32)
+theorem fillGrid_replicate_spec (cells : Array UInt64) (minX minY : Int32) (w h : UInt32)
     (alive dead : UInt8) (ha : alive < 128) (hd : dead < 128) (hcs : cells.size < 2 ^ 32)
     (hwh : w.toNat * h.toNat < 2 ^ 32) :
     (fillGrid cells minX minY w h alive ha 0 cells.size.toUInt32 (AsciiBytes.replicate (w * h) dead hd)).1.size =
         w.toNat * h.toNat ∧
       ∀ (k : Nat), k < w.toNat * h.toNat →
         (fillGrid cells minX minY w h alive ha 0 cells.size.toUInt32 (AsciiBytes.replicate (w * h) dead hd)).1[k]! =
-          if ∃ c ∈ cells, gridIndex minX minY w h (c.1.toInt32, c.2.toInt32) = some k then alive else dead := by
+          if ∃ c ∈ cells, gridIndex minX minY w h ((cellKeyX c).toInt32, (cellKeyY c).toInt32) = some k then alive else dead := by
   have hsz : (AsciiBytes.replicate (w * h) dead hd).1.size = w.toNat * h.toNat := by
     simp [AsciiBytes.replicate, ByteArray.size, UInt32.toNat_mul, Nat.mod_eq_of_lt hwh]
   have := fillGrid_spec cells minX minY w h alive ha hwh hcs _ 0 _ rfl (by simp) hsz

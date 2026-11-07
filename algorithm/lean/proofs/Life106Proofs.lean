@@ -120,11 +120,11 @@ theorem parseCoordLine_formatCoordLine (c : Int32 × Int32) :
 /-! ## Deserialization -/
 
 /-- What the deserialization loop computes from the remaining lines; `i` is the index of the next line. -/
-def life106LoopSpec : List String → Nat → Array (Int32 × Int32) → Life106Result
+def life106LoopSpec : List String → Nat → Array UInt64 → Life106Result
   | [], _, a => ⟨0, 0, "", a⟩
   | l :: ls, i, a =>
     match parseCoordLine l with
-    | some c => life106LoopSpec ls (i + 1) (a.push c)
+    | some c => life106LoopSpec ls (i + 1) (a.push (cellBits c))
     | none => ⟨3, (i + 1).toUInt32, l, #[]⟩
 
 theorem array_toList_drop_of_lt {α : Type} (xs : Array α) (i : Nat) (h : i < xs.size) :
@@ -132,8 +132,8 @@ theorem array_toList_drop_of_lt {α : Type} (xs : Array α) (i : Nat) (h : i < x
   rw [List.drop_eq_getElem_cons (by simpa using h), Array.getElem_toList]
 
 theorem deserializeLife106_loop_eq (lines : Array String) (hl : lines.size < 2 ^ 31) :
-    ∀ (n : Nat) (i : UInt32) (acc : GrowBuf (Int32 × Int32)) (a : Array (Int32 × Int32)),
-      lines.size - i.toNat = n → i.toNat ≤ lines.size → acc.Rep a → a.size + 1 = i.toNat →
+    ∀ (n : Nat) (i : UInt32) (acc : U64Buf) (a : Array UInt64),
+      lines.size - i.toNat = n → i.toNat ≤ lines.size → U64Buf.Rep acc a → a.size + 1 = i.toNat →
       deserializeLife106.loop lines i lines.size.toUInt32 acc =
         life106LoopSpec (lines.toList.drop i.toNat) i.toNat a := by
   have hl32 : lines.size < 2 ^ 32 := by omega
@@ -155,21 +155,22 @@ theorem deserializeLife106_loop_eq (lines : Array String) (hl : lines.size < 2 ^
       getElem!_pos lines i.toNat hlt]
     cases hp : parseCoordLine lines[i.toNat] with
     | none =>
-      simp only
+      simp only [noCells]
       have : (i + 1) = (i.toNat + 1).toUInt32 := by
         apply UInt32.toNat_inj.mp
         rw [hsucc, u32_size_toNat (by omega)]
       rw [this]
     | some c =>
       simp only
-      rw [ih (i + 1) (acc.push c) (a.push c) (by omega) (by omega) (GrowBuf.rep_push hrep c (by omega))
+      rw [ih (i + 1) (U64Buf.push acc (cellBits c)) (a.push (cellBits c)) (by omega) (by omega)
+        (U64Buf.rep_push hrep (cellBits c) (by omega))
         (by simp; omega), hsucc]
 
 /-- The deserialization loop either fails at the first line that doesn't parse or returns all coordinates. -/
-theorem life106LoopSpec_eq (ls : List String) : ∀ (i : Nat) (a : Array (Int32 × Int32)),
+theorem life106LoopSpec_eq (ls : List String) : ∀ (i : Nat) (a : Array UInt64),
     life106LoopSpec ls i a =
       match ls.mapM parseCoordLine with
-      | some cs => ⟨0, 0, "", a ++ cs.toArray⟩
+      | some cs => ⟨0, 0, "", a ++ (cs.map cellBits).toArray⟩
       | none =>
         let j := ls.findIdx (fun l => (parseCoordLine l).isNone)
         ⟨3, (i + j + 1).toUInt32, ls[j]!, #[]⟩ := by
@@ -200,7 +201,7 @@ theorem deserializeLife106_eq (lines : Array String) (hl : lines.size < 2 ^ 31) 
       else if lines[0]! ≠ "#Life 1.06" then ⟨2, 1, lines[0]!, #[]⟩
       else
         match (lines.toList.drop 1).mapM parseCoordLine with
-        | some cells => ⟨0, 0, "", cells.toArray⟩
+        | some cells => ⟨0, 0, "", (cells.map cellBits).toArray⟩
         | none =>
           let j := (lines.toList.drop 1).findIdx (fun l => (parseCoordLine l).isNone)
           ⟨3, (j + 2).toUInt32, lines[j + 1]!, #[]⟩ := by
@@ -214,7 +215,7 @@ theorem deserializeLife106_eq (lines : Array String) (hl : lines.size < 2 ^ 31) 
     simp only [this, Bool.false_eq_true, ite_false, h0, bne_iff_ne, ne_eq]
     split
     · rfl
-    · rw [deserializeLife106_loop_eq lines hl _ 1 GrowBuf.empty #[] rfl (by simp; omega) GrowBuf.rep_empty rfl,
+    · rw [deserializeLife106_loop_eq lines hl _ 1 U64Buf.empty #[] rfl (by simp; omega) U64Buf.rep_empty rfl,
         life106LoopSpec_eq]
       simp only [UInt32.toNat_one, Array.empty_append]
       cases (lines.toList.drop 1).mapM parseCoordLine with
@@ -226,11 +227,11 @@ theorem deserializeLife106_eq (lines : Array String) (hl : lines.size < 2 ^ 31) 
 
 /-! ## Serialization -/
 
-theorem serializeLife106_loop_eq (cells : Array (UInt32 × UInt32)) (hc : cells.size + 2 < 2 ^ 31) :
+theorem serializeLife106_loop_eq (cells : Array UInt64) (hc : cells.size + 2 < 2 ^ 31) :
     ∀ (n : Nat) (i : UInt32) (acc : GrowBuf String) (a : Array String),
       cells.size - i.toNat = n → i.toNat ≤ cells.size → acc.Rep a → a.size = i.toNat + 1 →
       (serializeLife106.loop cells i cells.size.toUInt32 acc).Rep
-        (a ++ (cells.toList.drop i.toNat).toArray.map (fun c => formatCoordLine c.1 c.2)) := by
+        (a ++ (cells.toList.drop i.toNat).toArray.map (fun k => formatCoordLine (cellKeyX k) (cellKeyY k))) := by
   have hc32 : cells.size < 2 ^ 32 := by omega
   intro n
   induction n with
@@ -248,14 +249,14 @@ theorem serializeLife106_loop_eq (cells : Array (UInt32 × UInt32)) (hc : cells.
     rw [serializeLife106.loop]
     simp only [hyes, ↓reduceDIte, getElem!_pos cells i.toNat hlt]
     have := ih (i + 1) _ _ (by omega) (by omega)
-      (GrowBuf.rep_push hrep (formatCoordLine cells[i.toNat].1 cells[i.toNat].2) (by omega)) (by simp; omega)
+      (GrowBuf.rep_push hrep (formatCoordLine (cellKeyX cells[i.toNat]) (cellKeyY cells[i.toNat])) (by omega)) (by simp; omega)
     rw [hsucc] at this
     rw [array_toList_drop_of_lt cells i.toNat hlt]
     simpa using this
 
 /-- Full specification of Life 1.06 serialization. -/
-theorem serializeLife106_eq (cells : Array (UInt32 × UInt32)) (hc : cells.size + 2 < 2 ^ 31) :
-    serializeLife106 cells = #["#Life 1.06"] ++ cells.map (fun c => formatCoordLine c.1 c.2) := by
+theorem serializeLife106_eq (cells : Array UInt64) (hc : cells.size + 2 < 2 ^ 31) :
+    serializeLife106 cells = #["#Life 1.06"] ++ cells.map (fun k => formatCoordLine (cellKeyX k) (cellKeyY k)) := by
   have h1 := GrowBuf.rep_push (GrowBuf.rep_empty (α := String)) "#Life 1.06" (by decide)
   have := serializeLife106_loop_eq cells hc _ 0 _ _ rfl (by simp) h1 (by simp)
   unfold serializeLife106
@@ -272,18 +273,24 @@ theorem mapM_parse_map_format (l : List (Int32 × Int32)) :
 
 /-- Deserializing serialized cells gives back exactly those cells, in order. -/
 theorem deserializeLife106_serializeLife106 (cells : Array (Int32 × Int32)) (hc : cells.size + 2 < 2 ^ 31) :
-    deserializeLife106 (serializeLife106 (cells.map cellBits)) = ⟨0, 0, "", cells⟩ := by
+    deserializeLife106 (serializeLife106 (cells.map cellBits)) = ⟨0, 0, "", cells.map cellBits⟩ := by
   rw [serializeLife106_eq _ (by simpa using hc), deserializeLife106_eq _ (by simp; omega)]
-  have hmap : ((#["#Life 1.06"] ++ (cells.map cellBits).map (fun c => formatCoordLine c.1 c.2)).toList.drop 1).mapM
+  have hmap : ((#["#Life 1.06"] ++ (cells.map cellBits).map (fun k => formatCoordLine (cellKeyX k) (cellKeyY k))).toList.drop 1).mapM
       parseCoordLine = some cells.toList := by
     simp only [Array.toList_append, Array.toList_map, List.singleton_append, List.drop_succ_cons,
       List.drop_zero, List.map_map]
+    have : ((fun k => formatCoordLine (cellKeyX k) (cellKeyY k)) ∘ cellBits) =
+        (fun c : Int32 × Int32 => formatCoordLine c.1.toUInt32 c.2.toUInt32) := by
+      funext c; simp
+    rw [this]
     exact mapM_parse_map_format cells.toList
-  have h0 : (#["#Life 1.06"] ++ (cells.map cellBits).map (fun c => formatCoordLine c.1 c.2))[0]! = "#Life 1.06" := by
+  have h0 : (#["#Life 1.06"] ++ (cells.map cellBits).map (fun k => formatCoordLine (cellKeyX k) (cellKeyY k)))[0]! =
+      "#Life 1.06" := by
     rw [getElem!_pos _ 0 (by simp; omega)]
     simp
   simp only [h0, hmap]
   simp
+  apply Array.ext <;> simp
 
 /-! ## Out-of-range coordinates -/
 

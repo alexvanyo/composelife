@@ -258,9 +258,10 @@ theorem runCells_of_ge (x y : Int32) (k n : Nat) (h : n ≤ k) : runCells x y k 
 
 theorem expandRuns_alive (runs : Array (UInt32 × UInt32)) (numRuns j : UInt32) (hj : j < numRuns) (count : UInt32)
     (hrun : runs[j.toNat]! = (2, count)) (x y sx : Int32) :
-    ∀ (m : Nat) (k : UInt32) (cells : GrowBuf (Int32 × Int32)) (a : Array (Int32 × Int32)),
-      count.toNat - k.toNat = m → k.toNat ≤ count.toNat → cells.Rep a → a.size + (count.toNat - k.toNat) < 2 ^ 31 →
-      ∃ cells', cells'.Rep (a ++ (runCells x y k.toNat count.toNat).toArray) ∧
+    ∀ (m : Nat) (k : UInt32) (cells : U64Buf) (a : Array (Int32 × Int32)),
+      count.toNat - k.toNat = m → k.toNat ≤ count.toNat → U64Buf.Rep cells (a.map cellBits) →
+      a.size + (count.toNat - k.toNat) < 2 ^ 31 →
+      ∃ cells', U64Buf.Rep cells' ((a ++ (runCells x y k.toNat count.toNat).toArray).map cellBits) ∧
         expandRuns runs numRuns j k x y sx cells = expandRuns runs numRuns (j + 1) 0 (x + count.toInt32) y sx cells' := by
   intro m
   induction m with
@@ -277,8 +278,9 @@ theorem expandRuns_alive (runs : Array (UInt32 × UInt32)) (numRuns j : UInt32) 
       rw [UInt32.toNat_add]; have := UInt32.toNat_lt count; simp only [UInt32.toNat_one]; omega
     rw [expandRuns]
     simp only [hj, ↓reduceDIte, hrun, show ((2 : UInt32) == 2) = true from rfl, ite_true, hlt]
-    obtain ⟨c', hc', heq⟩ := ih (k + 1) _ _ (by omega) (by omega) (GrowBuf.rep_push hrep (x + k.toInt32, y) (by omega))
-      (by simp only [Array.size_push]; omega)
+    have hpush := U64Buf.rep_push hrep (cellBits (x + k.toInt32, y)) (by simp only [Array.size_map]; omega)
+    rw [← Array.map_push] at hpush
+    obtain ⟨c', hc', heq⟩ := ih (k + 1) _ _ (by omega) (by omega) hpush (by simp only [Array.size_push]; omega)
     refine ⟨c', ?_, heq⟩
     rw [runCells_of_lt _ _ _ _ (by omega)]
     rw [hsucc] at hc'
@@ -289,11 +291,11 @@ theorem runCells_length (x y : Int32) (k n : Nat) : (runCells x y k n).length = 
   simp [runCells]
 
 theorem expandRuns_spec (runs : Array (UInt32 × UInt32)) (hn : runs.size < 2 ^ 32) (sx : Int32) :
-    ∀ (m : Nat) (j : Nat) (x y : Int32) (cells : GrowBuf (Int32 × Int32)) (a : Array (Int32 × Int32)),
-      runs.size - j = m → j ≤ runs.size → cells.Rep a →
+    ∀ (m : Nat) (j : Nat) (x y : Int32) (cells : U64Buf) (a : Array (Int32 × Int32)),
+      runs.size - j = m → j ≤ runs.size → U64Buf.Rep cells (a.map cellBits) →
       a.size + (decodeRuns sx (runs.toList.drop j) x y).length < 2 ^ 31 →
-      (expandRuns runs runs.size.toUInt32 j.toUInt32 0 x y sx cells).Rep
-        (a ++ (decodeRuns sx (runs.toList.drop j) x y).toArray) := by
+      U64Buf.Rep (expandRuns runs runs.size.toUInt32 j.toUInt32 0 x y sx cells)
+        ((a ++ (decodeRuns sx (runs.toList.drop j) x y).toArray).map cellBits) := by
   intro m
   induction m with
   | zero =>
@@ -1507,11 +1509,11 @@ theorem length_le_flatten {α : Type} (Gs : List (List α)) (h : ∀ g ∈ Gs, g
     omega
 
 /-- The grid that `serializeRLE` reads items from. -/
-def rleGrid (cells : Array (UInt32 × UInt32)) (minX minY : Int32) (w h : UInt32) : AsciiBytes :=
+def rleGrid (cells : Array UInt64) (minX minY : Int32) (w h : UInt32) : AsciiBytes :=
   fillGrid cells minX minY w h rleAlive (by decide) 0 cells.size.toUInt32
     (AsciiBytes.replicate (w * h) rleDead (by decide))
 
-theorem serializeRLE_spec (cells : Array (UInt32 × UInt32)) (minX maxX minY maxY : Int32) (w h : UInt32)
+theorem serializeRLE_spec (cells : Array UInt64) (minX maxX minY maxY : Int32) (w h : UInt32)
     (hW : (maxX - minX + 1).toUInt32 = w) (hH : (maxY - minY + 1).toUInt32 = h)
     (hne : cells.size ≠ 0) (hcs : cells.size < 2 ^ 31) (hw : 1 ≤ w.toNat)
     (hwh : 64 * (w.toNat * h.toNat) < 2 ^ 31) :
@@ -1653,12 +1655,13 @@ theorem gridCells_length_le (g : AsciiBytes) (W : Nat) (minX minY : Int32) (k : 
   simpa using this
 
 /-- The cells that `deserializeRLE` gives for serialized cells: the alive cells of the grid. -/
-theorem rle_round_trip_grid (cells : Array (UInt32 × UInt32)) (minX maxX minY maxY : Int32) (w h : UInt32)
+theorem rle_round_trip_grid (cells : Array UInt64) (minX maxX minY maxY : Int32) (w h : UInt32)
     (hW : (maxX - minX + 1).toUInt32 = w) (hH : (maxY - minY + 1).toUInt32 = h)
     (hne : cells.size ≠ 0) (hcs : cells.size < 2 ^ 31) (hw : 1 ≤ w.toNat)
     (hwh : 64 * (w.toNat * h.toNat) < 2 ^ 31) :
     deserializeRLE (serializeRLE cells minX maxX minY maxY) =
-      ⟨0, "", 0, 0, #[], (gridCells (rleGrid cells minX minY w h) w.toNat minX minY (w.toNat * h.toNat)).toArray⟩ := by
+      ⟨0, "", 0, 0, #[],
+        (gridCells (rleGrid cells minX minY w h) w.toNat minX minY (w.toNat * h.toNat)).toArray.map cellBits⟩ := by
   obtain ⟨Gs, last, re, hL, hgne, hv, hlv, hlen, heq⟩ :=
     serializeRLE_spec cells minX maxX minY maxY w h hW hH hne hcs hw hwh
   obtain ⟨runs', hr, hd⟩ := deserializeRLE_lines _ minX minY w h Gs last hL hgne hv hlv (by omega)
@@ -1684,7 +1687,7 @@ theorem rle_round_trip_grid (cells : Array (UInt32 × UInt32)) (minX maxX minY m
   have hRs : (((Gs.flatten ++ last ++ [(rleEnd, 1)]).map itemRun).toArray).size < 2 ^ 32 := by
     simp only [List.size_toArray, List.length_map, List.length_append, List.length_singleton] at hlen ⊢; omega
   have hex := expandRuns_spec (((Gs.flatten ++ last ++ [(rleEnd, 1)]).map itemRun).toArray) hRs minX _ 0 minX minY
-    GrowBuf.empty #[] rfl (by simp) GrowBuf.rep_empty (by
+    U64Buf.empty #[] rfl (by simp) (by simpa using U64Buf.rep_empty) (by
       simp only [List.drop_zero, hdec, Array.size_empty, Nat.zero_add]
       have := gridCells_length_le (rleGrid cells minX minY w h) w.toNat minX minY (w.toNat * h.toNat)
       omega)
@@ -1722,7 +1725,7 @@ theorem mem_gridCells_rleGrid (cells : Array (Int32 × Int32)) (minX minY : Int3
       · rename_i hex
         obtain ⟨cb, hcb, hidx⟩ := hex
         obtain ⟨cell, hcell, rfl⟩ := Array.mem_map.mp hcb
-        simp only [cellBits, Int32.toInt32_toUInt32] at hidx
+        simp only [keyX_cellBits, keyY_cellBits, Int32.toInt32_toUInt32] at hidx
         have hj' : j = (j / w.toNat) * w.toNat + j % w.toNat := (Nat.div_add_mod' j w.toNat).symm
         rw [hj'] at hidx
         obtain ⟨-, -, hrr, hcc⟩ := (gridIndex_eq_iff (Nat.mod_lt _ (by omega))).mp hidx
@@ -1736,7 +1739,7 @@ theorem mem_gridCells_rleGrid (cells : Array (Int32 × Int32)) (minX minY : Int3
     have hal : (rleGrid (cells.map cellBits) minX minY w h).1[k]! = rleAlive := by
       unfold rleGrid
       rw [hgget k hklt, ite_eq_left ⟨cellBits q, Array.mem_map_of_mem hq, by
-        simp only [cellBits, Int32.toInt32_toUInt32]; exact hk⟩]
+        simp only [keyX_cellBits, keyY_cellBits, Int32.toInt32_toUInt32]; exact hk⟩]
     simp only [hal, ite_true, List.mem_singleton]
     unfold gridIndex at hk
     split at hk
@@ -1763,14 +1766,14 @@ theorem rle_round_trip (cells : Array (Int32 × Int32)) (minX maxX minY maxY : I
     (hwh : 64 * ((maxX - minX + 1).toUInt32.toNat * (maxY - minY + 1).toUInt32.toNat) < 2 ^ 31) :
     (deserializeRLE (serializeRLE (cells.map cellBits) minX maxX minY maxY)).status = 0 ∧
       (deserializeRLE (serializeRLE (cells.map cellBits) minX maxX minY maxY)).warnings = #[] ∧
-      ∀ q, q ∈ (deserializeRLE (serializeRLE (cells.map cellBits) minX maxX minY maxY)).cells ↔
+      ∀ q, cellBits q ∈ (deserializeRLE (serializeRLE (cells.map cellBits) minX maxX minY maxY)).cells ↔
         ∃ c ∈ cells, (gridIndex minX minY (maxX - minX + 1).toUInt32 (maxY - minY + 1).toUInt32 c).isSome ∧ q = c := by
   generalize hW : (maxX - minX + 1).toUInt32 = w at hw hwh
   generalize hH : (maxY - minY + 1).toUInt32 = h at hwh
   rw [rle_round_trip_grid (cells.map cellBits) minX maxX minY maxY w h hW hH (by simpa using hne) (by simpa using hcs)
     hw hwh]
   refine ⟨rfl, rfl, fun q => ?_⟩
-  rw [List.mem_toArray]
+  rw [List.map_toArray, List.mem_toArray, cellBits_mem_map]
   exact mem_gridCells_rleGrid cells minX minY w h hw (by omega) (by omega) q
 
 /-- Round trip for cells inside their bounding box: deserializing gives exactly the cells, with no warnings. -/
@@ -1781,7 +1784,7 @@ theorem rle_round_trip_box (cells : Array (Int32 × Int32)) (minX maxX minY maxY
     (hsize : 64 * ((maxX.toInt - minX.toInt + 1) * (maxY.toInt - minY.toInt + 1)) < 2 ^ 31) :
     (deserializeRLE (serializeRLE (cells.map cellBits) minX maxX minY maxY)).status = 0 ∧
       (deserializeRLE (serializeRLE (cells.map cellBits) minX maxX minY maxY)).warnings = #[] ∧
-      ∀ q, q ∈ (deserializeRLE (serializeRLE (cells.map cellBits) minX maxX minY maxY)).cells ↔ q ∈ cells := by
+      ∀ q, cellBits q ∈ (deserializeRLE (serializeRLE (cells.map cellBits) minX maxX minY maxY)).cells ↔ q ∈ cells := by
   obtain ⟨c0, hc0⟩ : ∃ c, c ∈ cells := ⟨cells[0]'(by omega), Array.getElem_mem _⟩
   obtain ⟨hx1, hx2, hy1, hy2⟩ := hbox c0 hc0
   have hw1 : 1 ≤ maxX.toInt - minX.toInt + 1 := by omega

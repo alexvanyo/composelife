@@ -199,9 +199,9 @@ theorem rowCells105_of_lt (B : ByteArray) (p : Nat) (x0 y : Int32) (h : p < B.si
 
 theorem parseBlocks_row (lines : Array String) (numLines i : UInt32) (B : ByteArray) (hB : IsRow105 B)
     (hb : B.size < 2 ^ 31) (hi : i < numLines) (hasBlock : Bool) (bx bY ri : Int32) (warns : Array Life105Warning) :
-    ∀ (n : Nat) (p : UInt32) (cells : GrowBuf (Int32 × Int32)) (a : Array (Int32 × Int32)),
-      B.size - p.toNat = n → p.toNat ≤ B.size → cells.Rep a → a.size + (B.size - p.toNat) < 2 ^ 31 →
-      ∃ cells' : GrowBuf (Int32 × Int32), cells'.Rep (a ++ (rowCells105 B p.toNat bx (bY + ri)).toArray) ∧
+    ∀ (n : Nat) (p : UInt32) (cells : U64Buf) (a : Array (Int32 × Int32)),
+      B.size - p.toNat = n → p.toNat ≤ B.size → U64Buf.Rep cells (a.map cellBits) → a.size + (B.size - p.toNat) < 2 ^ 31 →
+      ∃ cells' : U64Buf, U64Buf.Rep cells' ((a ++ (rowCells105 B p.toNat bx (bY + ri)).toArray).map cellBits) ∧
         parseBlocks lines numLines i true B B.size.toUInt32 p hasBlock bx bY ri warns cells =
         parseBlocks lines numLines (i + 1) false B B.size.toUInt32 0 hasBlock bx bY (ri + 1) warns cells' := by
   have hb32 : B.size < 2 ^ 32 := by omega
@@ -231,7 +231,8 @@ theorem parseBlocks_row (lines : Array String) (numLines i : UInt32) (B : ByteAr
       exact ⟨c', hc', heq⟩
     · rw [h42]
       simp only [show ((42 : UInt8) == 42) = true by decide, ite_true]
-      have hpush := GrowBuf.rep_push hrep (bx + p.toInt32, bY + ri) (by omega)
+      have hpush := U64Buf.rep_push hrep (cellBits (bx + p.toInt32, bY + ri)) (by simp only [Array.size_map]; omega)
+      rw [← Array.map_push] at hpush
       obtain ⟨c', hc', heq⟩ := ih (p + 1) _ _ (by omega) (by omega) hpush
         (by simp only [Array.size_push]; omega)
       rw [hsucc] at hc'
@@ -241,15 +242,15 @@ theorem parseBlocks_row (lines : Array String) (numLines i : UInt32) (B : ByteAr
 /-! ## Blocks -/
 
 /-- The grid of a serialized block. -/
-def life105Grid (cells : Array (UInt32 × UInt32)) (minX minY maxY : Int32) : AsciiBytes :=
+def life105Grid (cells : Array UInt64) (minX minY maxY : Int32) : AsciiBytes :=
   fillGrid cells minX minY 80 (maxY - minY + 1).toUInt32 42 (by decide) 0 cells.size.toUInt32
     (AsciiBytes.replicate (80 * (maxY - minY + 1).toUInt32) 46 (by decide))
 
 /-- Row `r` of a serialized block. -/
-def life105Row (cells : Array (UInt32 × UInt32)) (minX minY maxY : Int32) (r : Nat) : String :=
+def life105Row (cells : Array UInt64) (minX minY maxY : Int32) (r : Nat) : String :=
   (life105Grid cells minX minY maxY).toStringRange (r.toUInt32 * 80) (r.toUInt32 * 80 + 80)
 
-theorem serializeLife105Block_eq (cells : Array (UInt32 × UInt32)) (minX minY maxY : Int32)
+theorem serializeLife105Block_eq (cells : Array UInt64) (minX minY maxY : Int32)
     (hh : (maxY - minY + 1).toUInt32.toNat + 2 < 2 ^ 31) :
     serializeLife105Block cells minX minY maxY =
       #[formatBlockHeader minX minY] ++
@@ -260,11 +261,11 @@ theorem serializeLife105Block_eq (cells : Array (UInt32 × UInt32)) (minX minY m
   rfl
 
 /-- The alive cells of a serialized block, row by row. -/
-def life105BlockCells (cells : Array (UInt32 × UInt32)) (minX minY maxY : Int32) (r : Nat) : List (Int32 × Int32) :=
+def life105BlockCells (cells : Array UInt64) (minX minY maxY : Int32) (r : Nat) : List (Int32 × Int32) :=
   (List.range' r ((maxY - minY + 1).toUInt32.toNat - r)).flatMap
     (fun k => rowCells105 (life105Row cells minX minY maxY k).toByteArray 0 minX (minY + k.toUInt32.toInt32))
 
-theorem life105_row_facts (cells : Array (UInt32 × UInt32)) (minX minY maxY : Int32) (hcs : cells.size < 2 ^ 32)
+theorem life105_row_facts (cells : Array UInt64) (minX minY maxY : Int32) (hcs : cells.size < 2 ^ 32)
     (hwh : 80 * (maxY - minY + 1).toUInt32.toNat < 2 ^ 31) (r : Nat) (hr : r < (maxY - minY + 1).toUInt32.toNat) :
     (life105Row cells minX minY maxY r).toByteArray.size = 80 ∧
       IsRow105 (life105Row cells minX minY maxY r).toByteArray := by
@@ -321,7 +322,7 @@ theorem life105_row_not_header (B : ByteArray) (hB : IsRow105 B) (hs : B.size = 
     rw [isRowRest_of_row B hB (by omega) _ 0 rfl, hsz]
     decide
 
-theorem life105BlockCells_of_lt (cells : Array (UInt32 × UInt32)) (minX minY maxY : Int32) (r : Nat)
+theorem life105BlockCells_of_lt (cells : Array UInt64) (minX minY maxY : Int32) (r : Nat)
     (hr : r < (maxY - minY + 1).toUInt32.toNat) :
     life105BlockCells cells minX minY maxY r =
       rowCells105 (life105Row cells minX minY maxY r).toByteArray 0 minX (minY + r.toUInt32.toInt32) ++
@@ -334,16 +335,16 @@ theorem rowCells105_length_le (B : ByteArray) (p : Nat) (x0 y : Int32) : (rowCel
   unfold rowCells105
   exact Nat.le_trans (List.length_filterMap_le _ _) (by simp)
 
-theorem parseBlocks_rows (L : Array String) (hL : L.size < 2 ^ 31) (cs : Array (UInt32 × UInt32))
+theorem parseBlocks_rows (L : Array String) (hL : L.size < 2 ^ 31) (cs : Array UInt64)
     (minX minY maxY : Int32) (hcs : cs.size < 2 ^ 32) (hwh : 80 * (maxY - minY + 1).toUInt32.toNat < 2 ^ 31)
     (i0 : Nat) (hi0 : i0 + 1 ≤ L.size) (rest : List String)
     (hsplit : L.toList.drop (i0 + 1) =
       (List.range (maxY - minY + 1).toUInt32.toNat).map (life105Row cs minX minY maxY) ++ rest) :
-    ∀ (n r : Nat) (B : ByteArray) (Lim : UInt32) (warns : Array Life105Warning) (cells : GrowBuf (Int32 × Int32))
+    ∀ (n r : Nat) (B : ByteArray) (Lim : UInt32) (warns : Array Life105Warning) (cells : U64Buf)
       (a : Array (Int32 × Int32)), (maxY - minY + 1).toUInt32.toNat - r = n → r ≤ (maxY - minY + 1).toUInt32.toNat →
-      cells.Rep a → a.size + 80 * ((maxY - minY + 1).toUInt32.toNat - r) < 2 ^ 31 →
-      ∃ (B' : ByteArray) (Lim' : UInt32) (cells' : GrowBuf (Int32 × Int32)),
-        cells'.Rep (a ++ (life105BlockCells cs minX minY maxY r).toArray) ∧
+      U64Buf.Rep cells (a.map cellBits) → a.size + 80 * ((maxY - minY + 1).toUInt32.toNat - r) < 2 ^ 31 →
+      ∃ (B' : ByteArray) (Lim' : UInt32) (cells' : U64Buf),
+        U64Buf.Rep cells' ((a ++ (life105BlockCells cs minX minY maxY r).toArray).map cellBits) ∧
         parseBlocks L L.size.toUInt32 (i0 + 1 + r).toUInt32 false B Lim 0 true minX minY r.toUInt32.toInt32 warns
             cells =
           parseBlocks L L.size.toUInt32 (i0 + 1 + (maxY - minY + 1).toUInt32.toNat).toUInt32 false B' Lim' 0 true minX
@@ -425,14 +426,14 @@ theorem startsWithHash_formatBlockHeader (x y : Int32) :
   simp [h0, h1, this]
 
 /-- Reading a serialized block adds its alive cells, and leaves the reader after its last row. -/
-theorem parseBlocks_block (L : Array String) (hL : L.size < 2 ^ 31) (cs : Array (UInt32 × UInt32))
+theorem parseBlocks_block (L : Array String) (hL : L.size < 2 ^ 31) (cs : Array UInt64)
     (minX minY maxY : Int32) (hcs : cs.size < 2 ^ 32) (hwh : 80 * (maxY - minY + 1).toUInt32.toNat < 2 ^ 31)
     (i0 : Nat) (rest : List String) (hsplit : L.toList.drop i0 = (serializeLife105Block cs minX minY maxY).toList ++ rest)
     (hasBlock : Bool) (bx bY ri : Int32) (B : ByteArray) (Lim : UInt32) (warns : Array Life105Warning)
-    (cells : GrowBuf (Int32 × Int32)) (a : Array (Int32 × Int32)) (hrep : cells.Rep a)
+    (cells : U64Buf) (a : Array (Int32 × Int32)) (hrep : U64Buf.Rep cells (a.map cellBits))
     (ha : a.size + 80 * (maxY - minY + 1).toUInt32.toNat < 2 ^ 31) :
-    ∃ (B' : ByteArray) (Lim' : UInt32) (cells' : GrowBuf (Int32 × Int32)),
-      cells'.Rep (a ++ (life105BlockCells cs minX minY maxY 0).toArray) ∧
+    ∃ (B' : ByteArray) (Lim' : UInt32) (cells' : U64Buf),
+      U64Buf.Rep cells' ((a ++ (life105BlockCells cs minX minY maxY 0).toArray).map cellBits) ∧
       parseBlocks L L.size.toUInt32 i0.toUInt32 false B Lim 0 hasBlock bx bY ri warns cells =
         parseBlocks L L.size.toUInt32 (i0 + 1 + (maxY - minY + 1).toUInt32.toNat).toUInt32 false B' Lim' 0 true minX
           minY (maxY - minY + 1).toUInt32.toNat.toUInt32.toInt32 warns cells' := by
@@ -465,7 +466,7 @@ theorem parseBlocks_block (L : Array String) (hL : L.size < 2 ^ 31) (cs : Array 
 /-! ## Files of blocks -/
 
 /-- A block to serialize: its cells (as `cellBits`), `minX`, `minY` and `maxY`. -/
-abbrev Life105Block := Array (UInt32 × UInt32) × Int32 × Int32 × Int32
+abbrev Life105Block := Array UInt64 × Int32 × Int32 × Int32
 
 /-- The height of a block. -/
 def Life105Block.height (b : Life105Block) : Nat := (b.2.2.2 - b.2.2.1 + 1).toUInt32.toNat
@@ -476,7 +477,7 @@ def Life105Block.lines (b : Life105Block) : List String := (serializeLife105Bloc
 /-- The alive cells of a serialized block. -/
 def Life105Block.cells (b : Life105Block) : List (Int32 × Int32) := life105BlockCells b.1 b.2.1 b.2.2.1 b.2.2.2 0
 
-theorem life105BlockCells_length_le (cs : Array (UInt32 × UInt32)) (minX minY maxY : Int32) (hcs : cs.size < 2 ^ 32)
+theorem life105BlockCells_length_le (cs : Array UInt64) (minX minY maxY : Int32) (hcs : cs.size < 2 ^ 32)
     (hwh : 80 * (maxY - minY + 1).toUInt32.toNat < 2 ^ 31) :
     ∀ r, (life105BlockCells cs minX minY maxY r).length ≤ 80 * ((maxY - minY + 1).toUInt32.toNat - r) := by
   intro r
@@ -499,12 +500,12 @@ theorem Life105Block.lines_length (b : Life105Block) (hh : b.height + 2 < 2 ^ 31
 
 theorem parseBlocks_blocks (L : Array String) (hL : 80 * L.size < 2 ^ 31) (warns : Array Life105Warning) :
     ∀ (bs : List Life105Block) (i0 : Nat) (hasBlock : Bool) (bx bY ri : Int32) (B : ByteArray) (Lim : UInt32)
-      (cells : GrowBuf (Int32 × Int32)) (a : Array (Int32 × Int32)),
+      (cells : U64Buf) (a : Array (Int32 × Int32)),
       (∀ b ∈ bs, b.1.size < 2 ^ 32 ∧ 80 * b.height < 2 ^ 31) → i0 ≤ L.size →
-      L.toList.drop i0 = bs.flatMap Life105Block.lines → cells.Rep a →
+      L.toList.drop i0 = bs.flatMap Life105Block.lines → U64Buf.Rep cells (a.map cellBits) →
       a.size + 80 * (L.size - i0) < 2 ^ 31 →
       parseBlocks L L.size.toUInt32 i0.toUInt32 false B Lim 0 hasBlock bx bY ri warns cells =
-        ⟨0, "", 0, 0, warns, a ++ (bs.flatMap Life105Block.cells).toArray⟩ := by
+        ⟨0, "", 0, 0, warns, (a ++ (bs.flatMap Life105Block.cells).toArray).map cellBits⟩ := by
   have hL32 : L.size < 2 ^ 32 := by omega
   intro bs
   induction bs with
@@ -560,7 +561,7 @@ block and row by row.
 theorem deserializeLife105_blocks (bs : List Life105Block) (hbs : ∀ b ∈ bs, b.1.size < 2 ^ 32 ∧ 80 * b.height < 2 ^ 31)
     (hsz : 80 * ((bs.flatMap Life105Block.lines).length + 2) < 2 ^ 31) :
     deserializeLife105 (#["#Life 1.05", "#N"] ++ (bs.flatMap Life105Block.lines).toArray) =
-      ⟨0, "", 0, 0, #[], (bs.flatMap Life105Block.cells).toArray⟩ := by
+      ⟨0, "", 0, 0, #[], (bs.flatMap Life105Block.cells).toArray.map cellBits⟩ := by
   generalize hL : #["#Life 1.05", "#N"] ++ (bs.flatMap Life105Block.lines).toArray = L
   have hLsize : L.size = (bs.flatMap Life105Block.lines).length + 2 := by rw [← hL]; simp
   have hL32 : L.size < 2 ^ 32 := by omega
@@ -578,8 +579,8 @@ theorem deserializeLife105_blocks (bs : List Life105Block) (hbs : ∀ b ∈ bs, 
   have hN : startsWithHash "#N".toByteArray 78 = true := by decide
   simp only [hne, Bool.false_eq_true, ite_false, h0, bne_self_eq_false, hskip, h1lt, ite_true, h1, hN]
   rw [show (1 : UInt32) + 1 = (2 : Nat).toUInt32 from rfl]
-  rw [parseBlocks_blocks L (by omega) #[] bs 2 false 0 0 0 _ 0 GrowBuf.empty #[] hbs (by omega)
-    (by rw [← hL]; simp) GrowBuf.rep_empty (by simp; omega)]
+  rw [parseBlocks_blocks L (by omega) #[] bs 2 false 0 0 0 _ 0 U64Buf.empty #[] hbs (by omega)
+    (by rw [← hL]; simp) (by simpa using U64Buf.rep_empty) (by simp; omega)]
   simp
 
 theorem mem_rowCells105 (B : ByteArray) (x0 y : Int32) (q : Int32 × Int32) :
@@ -595,11 +596,11 @@ theorem mem_rowCells105 (B : ByteArray) (x0 y : Int32) (q : Int32 × Int32) :
     exact ⟨c, ⟨Nat.zero_le _, hc⟩, by simp [h42]⟩
 
 /-- The alive cells of a block are exactly its cells inside the block. -/
-theorem mem_life105BlockCells (cs : Array (UInt32 × UInt32)) (minX minY maxY : Int32) (hcs : cs.size < 2 ^ 32)
+theorem mem_life105BlockCells (cs : Array UInt64) (minX minY maxY : Int32) (hcs : cs.size < 2 ^ 32)
     (hwh : 80 * (maxY - minY + 1).toUInt32.toNat < 2 ^ 31) (q : Int32 × Int32) :
     q ∈ life105BlockCells cs minX minY maxY 0 ↔
-      ∃ c ∈ cs, (gridIndex minX minY 80 (maxY - minY + 1).toUInt32 (c.1.toInt32, c.2.toInt32)).isSome ∧
-        q = (c.1.toInt32, c.2.toInt32) := by
+      ∃ c ∈ cs, (gridIndex minX minY 80 (maxY - minY + 1).toUInt32 ((cellKeyX c).toInt32, (cellKeyY c).toInt32)).isSome ∧
+        q = ((cellKeyX c).toInt32, (cellKeyY c).toInt32) := by
   have hrowf := life105_row_facts cs minX minY maxY hcs hwh
   unfold life105BlockCells
   simp only [List.mem_flatMap, List.mem_range'_1, Nat.zero_add, Nat.sub_zero, mem_rowCells105]
@@ -625,9 +626,9 @@ theorem mem_life105BlockCells (cs : Array (UInt32 × UInt32)) (minX minY maxY : 
       obtain ⟨cell, hcell, hidx⟩ := hex
       obtain ⟨-, -, hrr, hcc⟩ := (gridIndex_eq_iff (w := 80) (by rw [h80]; exact hcol)).mp (by rw [h80]; exact hidx)
       refine ⟨cell, hcell, by rw [hidx]; rfl, ?_⟩
-      have h1 : col.toUInt32 = (cell.1.toInt32 - minX).toUInt32 := by
+      have h1 : col.toUInt32 = ((cellKeyX cell).toInt32 - minX).toUInt32 := by
         apply UInt32.toNat_inj.mp; rw [u32_size_toNat (by omega), hcc]
-      have h2 : r.toUInt32 = (cell.2.toInt32 - minY).toUInt32 := by
+      have h2 : r.toUInt32 = ((cellKeyY cell).toInt32 - minY).toUInt32 := by
         apply UInt32.toNat_inj.mp; rw [u32_size_toNat (by have := UInt32.toNat_lt H; omega), hrr]
       rw [h1, h2]
       simp only [Int32.toInt32_toUInt32]
@@ -643,11 +644,11 @@ theorem mem_life105BlockCells (cs : Array (UInt32 × UInt32)) (minX minY maxY : 
       have hx := UInt32.lt_iff_toNat_lt.mp hin.1
       have hy := UInt32.lt_iff_toNat_lt.mp hin.2
       rw [h80] at hx
-      refine ⟨(cell.2.toInt32 - minY).toUInt32.toNat, ⟨Nat.zero_le _, hy⟩, (cell.1.toInt32 - minX).toUInt32.toNat,
+      refine ⟨((cellKeyY cell).toInt32 - minY).toUInt32.toNat, ⟨Nat.zero_le _, hy⟩, ((cellKeyX cell).toInt32 - minX).toUInt32.toNat,
         by rw [(hrow _ hy).1]; exact hx, ?_, ?_⟩
       · rw [(hrow _ hy).2 _ hx]
-        have hk' : (cell.2.toInt32 - minY).toUInt32.toNat * 80 + (cell.1.toInt32 - minX).toUInt32.toNat < 80 * H.toNat := by
-          have : ((cell.2.toInt32 - minY).toUInt32.toNat + 1) * 80 ≤ H.toNat * 80 := Nat.mul_le_mul_right _ (by omega)
+        have hk' : ((cellKeyY cell).toInt32 - minY).toUInt32.toNat * 80 + ((cellKeyX cell).toInt32 - minX).toUInt32.toNat < 80 * H.toNat := by
+          have : (((cellKeyY cell).toInt32 - minY).toUInt32.toNat + 1) * 80 ≤ H.toNat * 80 := Nat.mul_le_mul_right _ (by omega)
           omega
         rw [hg.2 _ hk', ite_eq_left ⟨cell, hcell, by unfold gridIndex; rw [ite_eq_left hin, h80]⟩]
       · simp only [UInt32.ofNat_toNat, Int32.toInt32_toUInt32]
@@ -662,12 +663,13 @@ theorem life105_round_trip (bs : List Life105Block) (hbs : ∀ b ∈ bs, b.1.siz
     (hsz : 80 * ((bs.flatMap Life105Block.lines).length + 2) < 2 ^ 31) :
     let r := deserializeLife105 (#["#Life 1.05", "#N"] ++ (bs.flatMap Life105Block.lines).toArray)
     r.status = 0 ∧ r.warnings = #[] ∧
-      ∀ q, q ∈ r.cells ↔ ∃ b ∈ bs, ∃ c ∈ b.1,
-        (gridIndex b.2.1 b.2.2.1 80 (b.2.2.2 - b.2.2.1 + 1).toUInt32 (c.1.toInt32, c.2.toInt32)).isSome ∧
-          q = (c.1.toInt32, c.2.toInt32) := by
+      ∀ q, cellBits q ∈ r.cells ↔ ∃ b ∈ bs, ∃ c ∈ b.1,
+        (gridIndex b.2.1 b.2.2.1 80 (b.2.2.2 - b.2.2.1 + 1).toUInt32 ((cellKeyX c).toInt32, (cellKeyY c).toInt32)).isSome ∧
+          q = ((cellKeyX c).toInt32, (cellKeyY c).toInt32) := by
   simp only [deserializeLife105_blocks bs hbs hsz]
   refine ⟨trivial, trivial, fun q => ?_⟩
-  simp only [List.mem_toArray, List.mem_flatMap]
+  rw [List.map_toArray, List.mem_toArray, cellBits_mem_map]
+  simp only [List.mem_flatMap]
   constructor
   · rintro ⟨⟨cs, minX, minY, maxY⟩, hb, hq⟩
     obtain ⟨h1, h2⟩ := hbs _ hb

@@ -18,13 +18,12 @@ package com.alexvanyo.composelife.model
 
 import androidx.compose.ui.unit.IntOffset
 
+@OptIn(ExperimentalUnsignedTypes::class)
 object Life105CellStateSerializer : FixedFormatCellStateSerializer {
     override val format: CellStateFormat.FixedFormat = CellStateFormat.FixedFormat.Life105
 
-    @Suppress("UNCHECKED_CAST")
     override fun deserializeToCellState(lines: Sequence<String>): DeserializationResult {
-        val linesArray = lines.toList().toTypedArray()
-        val result = f_Algorithm_deserializeLife105(linesArray as Array<Any?>)
+        val result = f_Algorithm_deserializeLife105(lines.toList().toTypedArray())
 
         val warnings = result.warnings.map {
             val w = it as Life105Warning
@@ -36,15 +35,9 @@ object Life105CellStateSerializer : FixedFormatCellStateSerializer {
 
         return when (result.status) {
             0u -> {
-                val points = result.cells.map {
-                    val pair = it as Pair<*, *>
-                    val x = if (pair.first is UInt) (pair.first as UInt).toInt() else (pair.first as Int)
-                    val y = if (pair.second is UInt) (pair.second as UInt).toInt() else (pair.second as Int)
-                    IntOffset(x, y)
-                }.toSet()
                 DeserializationResult.Successful(
                     warnings = warnings,
-                    cellState = CellState(points),
+                    cellState = CellState(leanCellsToOffsets(result.cells)),
                     format = CellStateFormat.FixedFormat.Life105,
                 )
             }
@@ -72,7 +65,6 @@ object Life105CellStateSerializer : FixedFormatCellStateSerializer {
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
     override fun serializeToString(cellState: CellState): Sequence<String> = sequence {
         yield("#Life 1.05")
         yield("#N")
@@ -84,8 +76,7 @@ object Life105CellStateSerializer : FixedFormatCellStateSerializer {
             val minY = remainingCells.minOf(IntOffset::y)
             val maxY = remainingCells.maxOf(IntOffset::y)
 
-            val cellsArray = remainingCells.map { Pair(it.x.toUInt(), it.y.toUInt()) }.toTypedArray()
-            val rows = f_Algorithm_serializeLife105Block(cellsArray as Array<Any?>, minX, minY, maxY)
+            val rows = f_Algorithm_serializeLife105Block(remainingCells.toLeanCells(), minX, minY, maxY)
             for (row in rows) {
                 yield(row as String)
             }
