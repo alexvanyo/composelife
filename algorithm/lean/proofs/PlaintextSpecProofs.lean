@@ -311,7 +311,7 @@ theorem loop_lines_spec (lines : Array String) (hls : lines.size < 2 ^ 31) :
               simp
 
 /-- Deserialization of any lines (of fewer than 2 ^ 31 bytes in all) is `linesSpec`. -/
-theorem deserializePlaintext_eq_spec (lines : Array String) (hls : lines.size < 2 ^ 31)
+theorem deserializePlaintext_eq_linesSpec_Impl (lines : Array String) (hls : lines.size < 2 ^ 31)
     (hb : remBytes lines.toList < 2 ^ 31) :
     deserializePlaintext lines =
       ⟨(linesSpec lines.toList 0 0 none).1.toArray, (linesSpec lines.toList 0 0 none).2.toArray.map cellBits⟩ := by
@@ -319,5 +319,42 @@ theorem deserializePlaintext_eq_spec (lines : Array String) (hls : lines.size < 
   rw [loop_lines_spec lines hls _ 0 ByteArray.empty 0 0 0 0 false GrowBuf.empty #[] U64Buf.empty #[] rfl (by simp)
     GrowBuf.rep_empty (by simpa using U64Buf.rep_empty) (by simpa using hb) (by simpa using hb)]
   simp
+
+/-! ## Concrete checks of the master theorems -/
+
+/-- Proof of `deserializePlaintext_empty`. -/
+theorem deserializePlaintext_empty_Impl : deserializePlaintext #[] = ⟨#[], #[]⟩ := by
+  decide +kernel
+
+/-- Proof of `deserializePlaintext_comments_ignored`. -/
+theorem deserializePlaintext_comments_ignored_Impl :
+    deserializePlaintext #["! comment", "O"] = ⟨#[], (#[(0, 0)] : Array (Int32 × Int32)).map cellBits⟩ := by
+  decide +kernel
+
+/-- Proof of `plaintext_round_trip_empty`. -/
+theorem plaintext_round_trip_empty_Impl :
+    deserializePlaintext (serializePlaintext #[] 0 0 0 0) = ⟨#[], #[]⟩ := by
+  decide +kernel
+
+/-- Proof of `plaintext_round_trip_glider`. -/
+theorem plaintext_round_trip_glider_Impl :
+    deserializePlaintext
+        (serializePlaintext ((#[(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)] : Array (Int32 × Int32)).map cellBits)
+          0 2 0 2) =
+      ⟨#[], (#[(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)] : Array (Int32 × Int32)).map cellBits⟩ := by
+  decide +kernel
+
+/-- Proof of `deserializePlaintext_warnings`. -/
+theorem deserializePlaintext_warnings_Impl :
+    deserializePlaintext #["O.O", "", "O", "x O"] =
+      ⟨#[.blankLine 2, .shortLine 3, .unexpectedChar 4 1 120, .unexpectedChar 4 2 32],
+        (#[(0, 0), (2, 0), (0, 1), (0, 2), (2, 2)] : Array (Int32 × Int32)).map cellBits⟩ := by
+  decide +kernel
+
+/-- Proof of `deserializePlaintext_non_ascii`. -/
+theorem deserializePlaintext_non_ascii_Impl :
+    deserializePlaintext #["OéO"] =
+      ⟨#[.unexpectedChar 1 2 233], (#[(0, 0), (1, 0), (2, 0)] : Array (Int32 × Int32)).map cellBits⟩ := by
+  decide +kernel
 
 end Algorithm

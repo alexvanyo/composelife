@@ -538,7 +538,7 @@ theorem DagWriter.rep_initial (n : Nat) (hn : n < 2 ^ 29) :
 Round trip of the DAG writer: for the distinct subtrees `entries` of a tree, children first and the tree last, the
 lines read back as the tree. (The writer numbers nodes by line, so it must write fewer than 2 ^ 31 lines.)
 -/
-theorem macrocell_dag_round_trip (entries : Array MacroCell) (kids : Array UInt32) (hwf : DagWF entries kids)
+theorem macrocell_dag_round_trip_Impl (entries : Array MacroCell) (kids : Array UInt32) (hwf : DagWF entries kids)
     (h0 : 0 < entries.size) (hn : entries.size < 2 ^ 29)
     (hcan : ∀ m ∈ entries, Canonical m ∧ m.depth ≤ 63)
     (hlev : ∀ j < entries.size - 1, entries[j]!.level.toNat < entries[entries.size - 1]!.level.toNat)
@@ -598,7 +598,7 @@ theorem macrocell_dag_round_trip (entries : Array MacroCell) (kids : Array UInt3
   rw [deserializeMacrocell_reads hr _ (by simp [hls]) (by simpa using hll) hN, hm]
 
 /-- A single leaf is written as just its leaf line, as by `serializeMacrocell`. -/
-theorem serializeMacrocellDag_single_leaf (entries : Array MacroCell) (kids : Array UInt32) (h0 : 0 < entries.size)
+theorem serializeMacrocellDag_single_leaf_Impl (entries : Array MacroCell) (kids : Array UInt32) (h0 : 0 < entries.size)
     (hs : entries.size < 2 ^ 32) (leaf : UInt64)
     (hsl : macrocellSingleLeaf entries[entries.size - 1]! = some leaf) :
     serializeMacrocellDag entries kids = serializeMacrocell entries[entries.size - 1]! := by
@@ -607,5 +607,64 @@ theorem serializeMacrocellDag_single_leaf (entries : Array MacroCell) (kids : Ar
       u32_size_toNat hs]; simp
   unfold serializeMacrocellDag serializeMacrocell
   simp only [hlast, hsl]
+
+/-! ## Concrete checks of the master theorems -/
+
+/-- Proof of `deserializeMacrocell_empty`. -/
+theorem deserializeMacrocell_empty_Impl :
+    deserializeMacrocell #[] = ⟨.emptyFile, #[.emptyFile], emptyLevel4⟩ := by
+  decide +kernel
+
+/-- Proof of `deserializeMacrocell_invalid_header`. -/
+theorem deserializeMacrocell_invalid_header_Impl :
+    deserializeMacrocell #["invalid"] = ⟨.invalidHeader "invalid", #[], emptyLevel4⟩ := by
+  decide +kernel
+
+/-- Proof of `deserializeMacrocell_level_0`. -/
+theorem deserializeMacrocell_level_0_Impl :
+    deserializeMacrocell #["[M2]", "0 0 0 0 0"] = ⟨.unexpectedInput ("0 0 0 0 0") 1, #[], emptyLevel4⟩ := by
+  decide +kernel
+
+/-- Proof of `deserializeMacrocell_level_too_high`. -/
+theorem deserializeMacrocell_level_too_high_Impl :
+    (deserializeMacrocell #["[M2]", "4000000000 0 0 0 0"]).status = .unexpectedInput "4000000000 0 0 0 0" 1 := by
+  decide +kernel
+
+/-- Proof of `deserializeMacrocell_child_level_mismatch`. -/
+theorem deserializeMacrocell_child_level_mismatch_Impl :
+    deserializeMacrocell #["[M2]", "*$", "4 1 0 0 0", "6 2 0 0 0"] =
+      ⟨.unexpectedNodeId ("6 2 0 0 0") 3 2 2, #[], emptyLevel4⟩ := by
+  decide +kernel
+
+/-- Proof of `deserializeMacrocell_leaf_bounds`. -/
+theorem deserializeMacrocell_leaf_bounds_Impl :
+    deserializeMacrocell #["[M2]", "........*$$$$$$$$*$"] = ⟨.ok, #[], makeLevel4Node 0 0 0 0⟩ := by
+  decide +kernel
+
+/-- Proof of `deserializeMacrocell_single_leaf`. -/
+theorem deserializeMacrocell_single_leaf_Impl :
+    deserializeMacrocell #["[M2] (ComposeLife 1.0)", "*$"] = ⟨.ok, #[], makeLevel4Node 1 0 0 0⟩ := by
+  decide +kernel
+
+/-- Proof of `serializeMacrocell_empty`. -/
+theorem serializeMacrocell_empty_Impl : serializeMacrocell emptyLevel4 = #["[M2] (ComposeLife 1.0)"] := by
+  decide +kernel
+
+/-- Proof of `serializeMacrocell_shared_leaves`. -/
+theorem serializeMacrocell_shared_leaves_Impl :
+    serializeMacrocell (makeLevel4Node 1 1 0 1) = #["[M2] (ComposeLife 1.0)", "*$", "4 1 1 0 1"] := by
+  decide +kernel
+
+/-- Proof of `macrocell_round_trip_level4`. -/
+theorem macrocell_round_trip_level4_Impl :
+    (deserializeMacrocell (serializeMacrocell (makeLevel4Node 1 2 3 4))).macroCell = makeLevel4Node 1 2 3 4 := by
+  decide +kernel
+
+/-- Proof of `macrocell_round_trip_level5`. -/
+theorem macrocell_round_trip_level5_Impl :
+    (deserializeMacrocell (serializeMacrocell
+      (makeCellNode (makeLevel4Node 1 0 0 0) emptyLevel4 emptyLevel4 (makeLevel4Node 1 0 0 0)))).macroCell =
+      makeCellNode (makeLevel4Node 1 0 0 0) emptyLevel4 emptyLevel4 (makeLevel4Node 1 0 0 0) := by
+  decide +kernel
 
 end Algorithm

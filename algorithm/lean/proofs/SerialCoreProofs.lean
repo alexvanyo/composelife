@@ -583,6 +583,12 @@ theorem parseInt32At_spec (b : ByteArray) (hb : b.size < 2 ^ 32) (pos : UInt32) 
         simp only [hv, ite_true, hbig, ite_false, Option.map_some, hepos]
         rw [show uint32ToInt32 v.toUInt32 = v.toUInt32.toInt32 from rfl, u64_toUInt32_toInt32 v, hvle]
 
+/-- Proof of `parseInt32At_eq`. -/
+theorem parseInt32At_eq_Impl (b : ByteArray) (hb : b.size < 2 ^ 32) (pos : UInt32) (hp : pos.toNat ≤ b.size) :
+    parseInt32At b pos b.size.toUInt32 =
+      (parseInt32Spec (bytesFrom b pos.toNat)).map (fun r => ⟨r.1, pos + r.2.toUInt32⟩) :=
+  parseInt32At_spec b hb pos hp
+
 /-! ## Decimal formatting -/
 
 /-- The ASCII bytes of the decimal digits of `n`. -/
@@ -726,6 +732,13 @@ theorem parseInt32Spec_toString (x : Int32) (rest : List UInt8)
     apply Int32.toInt_inj.mp
     rw [Int32.toInt_ofNat_of_lt (by omega)]
     omega
+
+/-- Proof of `parseInt32Spec_of_toString`. -/
+theorem parseInt32Spec_of_toString_Impl (x : Int32) (rest : List UInt8)
+    (hrest : ∀ y, rest.head? = some y → isDigitByte y = false) :
+    parseInt32Spec ((toString x).toByteArray.data.toList ++ rest) =
+      some (x, (toString x).toByteArray.data.toList.length) :=
+  parseInt32Spec_toString x rest hrest
 
 /-! ## Spaces -/
 

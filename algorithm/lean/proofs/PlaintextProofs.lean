@@ -262,6 +262,12 @@ theorem deserializePlaintext_rows (lines : Array String) (w : Nat) (hl : IsRowLi
   rw [linesCells_of_lt lines 0 (by omega), getElem!_pos lines 0 (by omega), hB]
   simp
 
+/-- Proof of `deserializePlaintext_pattern_rows`. -/
+theorem deserializePlaintext_pattern_rows_Impl (lines : Array String) (w : Nat) (hl : IsRowLines lines w)
+    (hls : lines.size * w < 2 ^ 31) (hne : 1 ≤ lines.size) :
+    deserializePlaintext lines = ⟨#[], (linesCells lines 0).toArray.map cellBits⟩ :=
+  deserializePlaintext_rows lines w hl hls hne
+
 /-! ## Serialization -/
 
 /-- The grid of the serialized cells. -/
@@ -463,7 +469,7 @@ theorem plaintext_round_trip (cells : Array (Int32 × Int32)) (minX maxX minY ma
 Round trip for cells inside their bounding box: deserializing gives no warnings, and exactly the cells, moved so
 the box starts at the origin.
 -/
-theorem plaintext_round_trip_box (cells : Array (Int32 × Int32)) (minX maxX minY maxY : Int32)
+theorem plaintext_round_trip_box_Impl (cells : Array (Int32 × Int32)) (minX maxX minY maxY : Int32)
     (hne : cells.size ≠ 0) (hcs : cells.size < 2 ^ 31)
     (hbox : ∀ c ∈ cells, minX.toInt ≤ c.1.toInt ∧ c.1.toInt ≤ maxX.toInt ∧
       minY.toInt ≤ c.2.toInt ∧ c.2.toInt ≤ maxY.toInt)
@@ -502,7 +508,7 @@ theorem plaintext_round_trip_box (cells : Array (Int32 × Int32)) (minX maxX min
 Round trip of whole patterns: `serializePlaintextCells` writes the cells in their bounding box, and deserializing
 gives no warnings and exactly the cells, moved so the least x and the least y are 0.
 -/
-theorem plaintext_round_trip_cells (cells : Array (Int32 × Int32)) (hne : cells.size ≠ 0) (hcs : cells.size < 2 ^ 31)
+theorem plaintext_round_trip_cells_Impl (cells : Array (Int32 × Int32)) (hne : cells.size ≠ 0) (hcs : cells.size < 2 ^ 31)
     (hsize : ∀ c ∈ cells, ∀ d ∈ cells, ∀ e ∈ cells, ∀ f ∈ cells,
       (c.1.toInt - d.1.toInt + 1) * (e.2.toInt - f.2.toInt + 1) < 2 ^ 31) :
     let b := cellBox (cells.map cellBits)
@@ -519,13 +525,13 @@ theorem plaintext_round_trip_cells (cells : Array (Int32 × Int32)) (hne : cells
   rw [hser]
   have := hsize c2 hc2 c1 hc1 c4 hc4 c3 hc3
   rw [e1, e2, e3, e4] at this
-  obtain ⟨hw, hm⟩ := plaintext_round_trip_box cells b.1 b.2.1 b.2.2.1 b.2.2.2 hne hcs hall this
+  obtain ⟨hw, hm⟩ := plaintext_round_trip_box_Impl cells b.1 b.2.1 b.2.2.1 b.2.2.2 hne hcs hall this
   exact ⟨fun c hc => ⟨(hall c hc).1, (hall c hc).2.2.1⟩, ⟨c1, hc1, e1⟩, ⟨c3, hc3, e3⟩, hw, hm⟩
 
 /--
 Serialized cells are `h` pattern rows of `w` characters, each `.` or `O`, for the `w` by `h` bounding box.
 -/
-theorem serializePlaintext_rows (cells : Array UInt64) (minX maxX minY maxY : Int32)
+theorem serializePlaintext_rows_Impl (cells : Array UInt64) (minX maxX minY maxY : Int32)
     (hne : cells.size ≠ 0) (hcs : cells.size < 2 ^ 31)
     (hw : 1 ≤ (maxX - minX + 1).toUInt32.toNat) (hh : 1 ≤ (maxY - minY + 1).toUInt32.toNat)
     (hwh : (maxX - minX + 1).toUInt32.toNat * (maxY - minY + 1).toUInt32.toNat < 2 ^ 31) :
