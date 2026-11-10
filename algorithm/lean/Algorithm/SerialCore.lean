@@ -396,6 +396,35 @@ The key of a cell. Serializers take cells, and deserializers return them, as key
 @[inline]
 def cellBits (c : Int32 × Int32) : UInt64 := cellKey c.1.toUInt32 c.2.toUInt32
 
+/-- The least and greatest x and y of the given bounds and the cells `i` onward (as `cellBits`). -/
+def cellBounds (cells : Array UInt64) (i limit : UInt32) (minX maxX minY maxY : Int32) :
+    Int32 × Int32 × Int32 × Int32 :=
+  if h : i < limit then
+    have : limit.toNat - (i + 1).toNat < limit.toNat - i.toNat := by
+      have h1 := UInt32.lt_iff_toNat_lt.mp h
+      have h2 : (i + 1).toNat = i.toNat + 1 := by
+        rw [UInt32.toNat_add]
+        have := UInt32.toNat_lt limit
+        simp only [UInt32.toNat_one]
+        omega
+      omega
+    let k := cells[i.toNat]!
+    let x := (cellKeyX k).toInt32
+    let y := (cellKeyY k).toInt32
+    cellBounds cells (i + 1) limit (if x < minX then x else minX) (if maxX < x then x else maxX)
+      (if y < minY then y else minY) (if maxY < y then y else maxY)
+  else (minX, maxX, minY, maxY)
+termination_by limit.toNat - i.toNat
+
+/-- The bounding box `(minX, maxX, minY, maxY)` of the cells (as `cellBits`), or zeros if there are none. -/
+def cellBox (cells : Array UInt64) : Int32 × Int32 × Int32 × Int32 :=
+  if cells.size.toUInt32 == 0 then (0, 0, 0, 0)
+  else
+    let k := cells[0]!
+    let x := (cellKeyX k).toInt32
+    let y := (cellKeyY k).toInt32
+    cellBounds cells 1 cells.size.toUInt32 x x y y
+
 /--
 Sets the grid byte of every cell (as `cellBits`) inside the `width` by `height` box at (`minX`, `minY`) to
 `alive`. The grid is row major. Cells outside the box are skipped.

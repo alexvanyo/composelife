@@ -28,16 +28,15 @@ Rows of `.` (dead) and `O` (alive) characters. Lines starting with `!` are comme
 Lines are read as UTF-8, and columns count characters.
 -/
 
-@[kotlin_class "PlaintextWarning"]
-structure PlaintextWarning where
-  /-- 0: unexpected blank line, 1: unexpected short line, 2: unexpected character. -/
-  tag : UInt32
-  /-- 1-based line index. -/
-  lineIndex : UInt32
-  /-- 1-based character index, for unexpected characters. -/
-  columnIndex : UInt32
-  /-- The code point, for unexpected characters. -/
-  charVal : UInt32
+/-- A problem that deserialization recovered from. Line and column indices are 1-based. -/
+@[kotlin_class "sealed class PlaintextWarning"]
+inductive PlaintextWarning where
+  /-- A blank line between pattern rows. -/
+  | blankLine (lineIndex : UInt32)
+  /-- A pattern row shorter than the longest one. -/
+  | shortLine (lineIndex : UInt32)
+  /-- A character other than `.` and `O`, with its code point. -/
+  | unexpectedChar (lineIndex columnIndex codePoint : UInt32)
   deriving DecidableEq, Repr
 
 @[kotlin_class "PlaintextResult"]
@@ -85,7 +84,7 @@ def deserializePlaintext.loop (lines : Array String) (numLines : UInt32) (i : UI
             hasLongest warns (U64Buf.push cells (cellBits (col.toInt32, rowIdx.toInt32)))
         else
           -- Anything else is a warning, and alive unless it is a space.
-          let newWarns := warns.push ⟨2, i + 1, col + 1, cp⟩
+          let newWarns := warns.push (.unexpectedChar (i + 1) (col + 1) cp)
           let newCells := if cp == 32 then cells else U64Buf.push cells (cellBits (col.toInt32, rowIdx.toInt32))
           deserializePlaintext.loop lines numLines i true bytes limit r.2 (col + 1) rowIdx longestIdx longestLen
             hasLongest newWarns newCells
@@ -96,7 +95,7 @@ def deserializePlaintext.loop (lines : Array String) (numLines : UInt32) (i : UI
       let bytes := lines[i.toNat]!.toByteArray
       let limit := bytes.size.toUInt32
       if limit == 0 then
-        let newWarns := if i + 1 < numLines then warns.push ⟨0, i + 1, 0, 0⟩ else warns
+        let newWarns := if i + 1 < numLines then warns.push (.blankLine (i + 1)) else warns
         deserializePlaintext.loop lines numLines (i + 1) false bytes limit 0 0 rowIdx longestIdx longestLen
           hasLongest newWarns cells
       else if bytes.get! 0 == 33 then -- '!'
@@ -108,9 +107,9 @@ def deserializePlaintext.loop (lines : Array String) (numLines : UInt32) (i : UI
           deserializePlaintext.loop lines numLines i true bytes limit 0 0 rowIdx (i + 1) len true warns cells
         else if len > longestLen then
           deserializePlaintext.loop lines numLines i true bytes limit 0 0 rowIdx (i + 1) len true
-            (warns.push ⟨1, longestIdx, 0, 0⟩) cells
+            (warns.push (.shortLine longestIdx)) cells
         else
-          let lenWarns := if len < longestLen then warns.push ⟨1, i + 1, 0, 0⟩ else warns
+          let lenWarns := if len < longestLen then warns.push (.shortLine (i + 1)) else warns
           deserializePlaintext.loop lines numLines i true bytes limit 0 0 rowIdx longestIdx longestLen true
             lenWarns cells
   else ⟨warns.toArray, U64Buf.toArray cells⟩
@@ -142,5 +141,11 @@ def serializePlaintext (cells : Array UInt64) (minX maxX minY maxY : Int32) : Ar
     let grid := fillGrid cells minX minY width height 79 (by decide) 0 cells.size.toUInt32
       (AsciiBytes.replicate (width * height) 46 (by decide))
     (gridRows grid width height 0 GrowBuf.empty).toArray
+
+/-- Serializes the cells (as `cellBits`) in their bounding box. -/
+@[export plaintext_serialize_cells]
+def serializePlaintextCells (cells : Array UInt64) : Array String :=
+  let b := cellBox cells
+  serializePlaintext cells b.1 b.2.1 b.2.2.1 b.2.2.2
 
 end Algorithm

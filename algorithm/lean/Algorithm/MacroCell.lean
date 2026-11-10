@@ -1007,24 +1007,33 @@ def serializeMacrocell (m : MacroCell) : Array String :=
 
 /-! ### Deserialization -/
 
-@[kotlin_class "MacrocellWarning"]
-structure MacrocellWarning where
-  /-- 0: unexpected empty file, 1: unexpected blank line, 2: unexpected input. -/
-  tag : UInt32
-  lineIndex : UInt32
-  columnIndex : UInt32
-  input : String
+/-- A problem that deserialization recovered from. Line and column indices are 1-based. -/
+@[kotlin_class "sealed class MacrocellWarning"]
+inductive MacrocellWarning where
+  | emptyFile
+  /-- A blank line. -/
+  | blankLine (lineIndex : UInt32)
+  /-- A character other than `.`, `*`, `$` and digits in a leaf line. -/
+  | unexpectedInput (lineIndex columnIndex : UInt32) (input : String)
+  deriving DecidableEq, Repr
+
+/-- How deserialization ended. -/
+@[kotlin_class "sealed class MacrocellStatus"]
+inductive MacrocellStatus where
+  | ok
+  | emptyFile
+  /-- The first line is not a `[M2]` header. -/
+  | invalidHeader (line : String)
+  /-- Line `lineIndex` is neither a leaf nor a node line. -/
+  | unexpectedInput (line : String) (lineIndex : UInt32)
+  /-- A child number of the node on line `lineIndex`, in bytes `rangeStart` to `rangeEnd`, is not an earlier node
+  of the right level. -/
+  | unexpectedNodeId (line : String) (lineIndex rangeStart rangeEnd : UInt32)
   deriving DecidableEq, Repr
 
 @[kotlin_class "MacrocellResult"]
 structure MacrocellResult where
-  /-- 0: success, 1: unexpected empty file, 2: unexpected header, 3: unexpected input, 4: unexpected node id. -/
-  status : UInt32
-  errLine : String
-  errLineIndex : UInt32
-  errColIndex : UInt32
-  errRangeStart : UInt32
-  errRangeEnd : UInt32
+  status : MacrocellStatus
   warnings : Array MacrocellWarning
   macroCell : MacroCell
   deriving DecidableEq
@@ -1155,7 +1164,7 @@ def deserializeMacrocell.loop (lines : Array String) (numLines : UInt32) (i : UI
         else
           -- Cells outside the 8 by 8 leaf are ignored.
           let leaf := if cp == 42 && x < 8 && y < 8 then leafWithCell leaf x y true else leaf
-          let warns := if cp != 46 && cp != 42 then warns.push ⟨2, i, col, lines[i.toNat]!⟩ else warns
+          let warns := if cp != 46 && cp != 42 then warns.push (.unexpectedInput i col (lines[i.toNat]!)) else warns
           deserializeMacrocell.loop lines numLines i true bytes limit r.2 (col + 1) (x + 1) y leaf nodes leaves
             isLeaf warns
       else
@@ -1166,53 +1175,53 @@ def deserializeMacrocell.loop (lines : Array String) (numLines : UInt32) (i : UI
       let bytes := line.toByteArray
       let lineLen := bytes.size.toUInt32
       if lineLen == 0 then
-        let warns := if i + 1 < numLines then warns.push ⟨1, i + 1, 0, ""⟩ else warns
+        let warns := if i + 1 < numLines then warns.push (.blankLine (i + 1)) else warns
         deserializeMacrocell.loop lines numLines (i + 1) false bytes lineLen 0 0 0 0 0 nodes leaves isLeaf warns
       else if bytes.get! 0 == 35 then -- '#'
         deserializeMacrocell.loop lines numLines (i + 1) false bytes lineLen 0 0 0 0 0 nodes leaves isLeaf warns
       else if isDigitByte (bytes.get! 0) then
         match parseMCNodeLine bytes with
-        | none => ⟨3, line, i, 0, 0, 0, warns.toArray, emptyLevel4⟩
+        | none => ⟨.unexpectedInput line i, warns.toArray, emptyLevel4⟩
         | some n =>
-          if n.level < 4 || n.level > maxMacrocellLevel then ⟨3, line, i, 0, 0, 0, warns.toArray, emptyLevel4⟩
+          if n.level < 4 || n.level > maxMacrocellLevel then ⟨.unexpectedInput line i, warns.toArray, emptyLevel4⟩
           else
             if n.level == 4 then
               match macrocellLeafChild leaves isLeaf n.nw with
-              | none => ⟨4, line, i, 0, n.nwStart, n.nwEnd, warns.toArray, emptyLevel4⟩
+              | none => ⟨.unexpectedNodeId line i n.nwStart n.nwEnd, warns.toArray, emptyLevel4⟩
               | some c1 =>
               match macrocellLeafChild leaves isLeaf n.ne with
-              | none => ⟨4, line, i, 0, n.neStart, n.neEnd, warns.toArray, emptyLevel4⟩
+              | none => ⟨.unexpectedNodeId line i n.neStart n.neEnd, warns.toArray, emptyLevel4⟩
               | some c2 =>
               match macrocellLeafChild leaves isLeaf n.sw with
-              | none => ⟨4, line, i, 0, n.swStart, n.swEnd, warns.toArray, emptyLevel4⟩
+              | none => ⟨.unexpectedNodeId line i n.swStart n.swEnd, warns.toArray, emptyLevel4⟩
               | some c3 =>
               match macrocellLeafChild leaves isLeaf n.se with
-              | none => ⟨4, line, i, 0, n.seStart, n.seEnd, warns.toArray, emptyLevel4⟩
+              | none => ⟨.unexpectedNodeId line i n.seStart n.seEnd, warns.toArray, emptyLevel4⟩
               | some c4 =>
                 deserializeMacrocell.loop lines numLines (i + 1) false bytes lineLen 0 0 0 0 0
                   (nodes.push (makeLevel4Node c1 c2 c3 c4)) (leaves.push 0) (isLeaf.push false) warns
             else
               let emptySub := emptyMacroCellUInt32 (n.level - 1)
               match macrocellCellChild nodes isLeaf n.level emptySub n.nw with
-              | none => ⟨4, line, i, 0, n.nwStart, n.nwEnd, warns.toArray, emptyLevel4⟩
+              | none => ⟨.unexpectedNodeId line i n.nwStart n.nwEnd, warns.toArray, emptyLevel4⟩
               | some c1 =>
               match macrocellCellChild nodes isLeaf n.level emptySub n.ne with
-              | none => ⟨4, line, i, 0, n.neStart, n.neEnd, warns.toArray, emptyLevel4⟩
+              | none => ⟨.unexpectedNodeId line i n.neStart n.neEnd, warns.toArray, emptyLevel4⟩
               | some c2 =>
               match macrocellCellChild nodes isLeaf n.level emptySub n.sw with
-              | none => ⟨4, line, i, 0, n.swStart, n.swEnd, warns.toArray, emptyLevel4⟩
+              | none => ⟨.unexpectedNodeId line i n.swStart n.swEnd, warns.toArray, emptyLevel4⟩
               | some c3 =>
               match macrocellCellChild nodes isLeaf n.level emptySub n.se with
-              | none => ⟨4, line, i, 0, n.seStart, n.seEnd, warns.toArray, emptyLevel4⟩
+              | none => ⟨.unexpectedNodeId line i n.seStart n.seEnd, warns.toArray, emptyLevel4⟩
               | some c4 =>
                 deserializeMacrocell.loop lines numLines (i + 1) false bytes lineLen 0 0 0 0 0
                   (nodes.push (makeCellNode c1 c2 c3 c4)) (leaves.push 0) (isLeaf.push false) warns
       else
         deserializeMacrocell.loop lines numLines i true bytes lineLen 0 0 0 0 0 nodes leaves isLeaf warns
   else
-    if nodes.size == 0 then ⟨0, "", 0, 0, 0, 0, warns.toArray, emptyLevel4⟩
+    if nodes.size == 0 then ⟨.ok, warns.toArray, emptyLevel4⟩
     else
-      ⟨0, "", 0, 0, 0, 0, warns.toArray, macroCellAt nodes.data (nodes.size - 1)⟩
+      ⟨.ok, warns.toArray, macroCellAt nodes.data (nodes.size - 1)⟩
 termination_by (numLines.toNat - i.toNat) * 2 ^ 33 + (if inLeaf then limit.toNat - p.toNat else 2 ^ 32)
 decreasing_by
   all_goals
@@ -1226,12 +1235,12 @@ decreasing_by
 def deserializeMacrocell (lines : Array String) : MacrocellResult :=
   let numLines := lines.size.toUInt32
   if numLines == 0 then
-    ⟨1, "", 0, 0, 0, 0, #[⟨0, 0, 0, ""⟩], emptyLevel4⟩
+    ⟨.emptyFile, #[.emptyFile], emptyLevel4⟩
   else
     let hBytes := lines[0]!.toByteArray
     if hBytes.size.toUInt32 < 4 || hBytes.get! 0 != 91 || hBytes.get! 1 != 77 || hBytes.get! 2 != 50 ||
         hBytes.get! 3 != 93 then -- "[M2]"
-      ⟨2, lines[0]!, 1, 0, 0, 0, #[], emptyLevel4⟩
+      ⟨.invalidHeader lines[0]!, #[], emptyLevel4⟩
     else
       deserializeMacrocell.loop lines numLines 1 false hBytes 0 0 0 0 0 0 GrowBuf.empty GrowBuf.empty
         GrowBuf.empty GrowBuf.empty

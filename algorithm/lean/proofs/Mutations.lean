@@ -164,8 +164,8 @@ theorem mutantRLEHeaderExactRule_violates_sets :
 /--
 Mutant 7: a Macrocell deserializer that accepts a node of level 0, which the real one rejects.
 -/
-def mutantDeserializeMacrocellLevel0 (lines : Array String) : UInt32 :=
-  if lines = #["[M2]", "0 0 0 0 0"] then 0 else (deserializeMacrocell lines).status
+def mutantDeserializeMacrocellLevel0 (lines : Array String) : MacrocellStatus :=
+  if lines = #["[M2]", "0 0 0 0 0"] then .ok else (deserializeMacrocell lines).status
 
 /-- Mutant 7 violates `deserializeMacrocell_level_0`. -/
 theorem mutantDeserializeMacrocellLevel0_violates :

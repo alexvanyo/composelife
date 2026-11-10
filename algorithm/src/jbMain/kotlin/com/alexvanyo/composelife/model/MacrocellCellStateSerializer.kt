@@ -26,69 +26,59 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
         val result = f_Algorithm_deserializeMacrocell(lines.toList().toTypedArray())
         val warnings = result.warnings.map { mapMacrocellWarning(it as MacrocellWarning) }
 
-        return when (result.status) {
-            0u -> {
-                DeserializationResult.Successful(
-                    warnings = warnings,
-                    cellState = HashLifeCellState(
-                        offset = IntOffset.Zero,
-                        macroCell = result.macroCell,
+        return when (val status = result.status) {
+            is MacrocellStatus.Ok -> DeserializationResult.Successful(
+                warnings = warnings,
+                cellState = HashLifeCellState(
+                    offset = IntOffset.Zero,
+                    macroCell = result.macroCell,
+                ),
+                format = CellStateFormat.FixedFormat.Macrocell,
+            )
+
+            is MacrocellStatus.EmptyFile -> DeserializationResult.Successful(
+                warnings = listOf(UnexpectedEmptyFileMessage),
+                cellState = emptyCellState(),
+                format = CellStateFormat.FixedFormat.Macrocell,
+            )
+
+            is MacrocellStatus.InvalidHeader -> DeserializationResult.Unsuccessful(
+                warnings = warnings,
+                errors = listOf(UnexpectedHeaderMessage(status.line)),
+            )
+
+            is MacrocellStatus.UnexpectedInput -> DeserializationResult.Unsuccessful(
+                warnings = warnings,
+                errors = listOf(
+                    UnexpectedInputMessage(
+                        input = status.line,
+                        lineIndex = status.lineIndex.toInt(),
+                        characterIndex = 0,
                     ),
-                    format = CellStateFormat.FixedFormat.Macrocell,
-                )
-            }
+                ),
+            )
 
-            1u -> {
-                DeserializationResult.Successful(
-                    warnings = listOf(UnexpectedEmptyFileMessage),
-                    cellState = emptyCellState(),
-                    format = CellStateFormat.FixedFormat.Macrocell,
-                )
-            }
-
-            2u -> {
-                DeserializationResult.Unsuccessful(
-                    warnings = warnings,
-                    errors = listOf(UnexpectedHeaderMessage(result.errLine)),
-                )
-            }
-
-            3u -> {
-                DeserializationResult.Unsuccessful(
-                    warnings = warnings,
-                    errors = listOf(
-                        UnexpectedInputMessage(
-                            input = result.errLine,
-                            lineIndex = result.errLineIndex.toInt(),
-                            characterIndex = result.errColIndex.toInt(),
-                        ),
+            is MacrocellStatus.UnexpectedNodeId -> DeserializationResult.Unsuccessful(
+                warnings = warnings,
+                errors = listOf(
+                    UnexpectedNodeIdMessage(
+                        lineIndex = status.lineIndex.toInt(),
+                        characterIndices = status.rangeStart.toInt()..status.rangeEnd.toInt(),
                     ),
-                )
-            }
-
-            else -> {
-                DeserializationResult.Unsuccessful(
-                    warnings = warnings,
-                    errors = listOf(
-                        UnexpectedNodeIdMessage(
-                            lineIndex = result.errLineIndex.toInt(),
-                            characterIndices = result.errRangeStart.toInt()..result.errRangeEnd.toInt(),
-                        ),
-                    ),
-                )
-            }
+                ),
+            )
         }
     }
 
-    private fun mapMacrocellWarning(warn: MacrocellWarning): ParameterizedString = when (warn.tag) {
-        0u -> UnexpectedEmptyFileMessage
+    private fun mapMacrocellWarning(warning: MacrocellWarning): ParameterizedString = when (warning) {
+        is MacrocellWarning.EmptyFile -> UnexpectedEmptyFileMessage
 
-        1u -> UnexpectedBlankLineMessage(warn.lineIndex.toInt())
+        is MacrocellWarning.BlankLine -> UnexpectedBlankLineMessage(warning.lineIndex.toInt())
 
-        else -> UnexpectedInputMessage(
-            input = warn.input,
-            lineIndex = warn.lineIndex.toInt(),
-            characterIndex = warn.columnIndex.toInt(),
+        is MacrocellWarning.UnexpectedInput -> UnexpectedInputMessage(
+            input = warning.input,
+            lineIndex = warning.lineIndex.toInt(),
+            characterIndex = warning.columnIndex.toInt(),
         )
     }
 

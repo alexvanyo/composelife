@@ -1348,4 +1348,175 @@ theorem skipSpaces_list (L : List UInt8) (hL : L.length < 2 ^ 32) (p : UInt32) (
       simp [List.takeWhile_cons_of_neg this]
   rw [this, List.length_replicate]
 
+/-- The coordinates of the cell with key `k`. -/
+def keyCell (k : UInt64) : Int32 × Int32 := ((cellKeyX k).toInt32, (cellKeyY k).toInt32)
+
+@[simp] theorem keyCell_cellBits (c : Int32 × Int32) : keyCell (cellBits c) = c := by
+  simp [keyCell]
+
+theorem toList_drop_eq_cons {α : Type} (xs : Array α) (i : Nat) (h : i < xs.size) :
+    xs.toList.drop i = xs[i] :: xs.toList.drop (i + 1) := by
+  rw [List.drop_eq_getElem_cons (by simpa using h), Array.getElem_toList]
+
+/-! ## Bounding boxes -/
+
+/-- One step of `cellBounds`. -/
+def boxStep (b : Int32 × Int32 × Int32 × Int32) (k : UInt64) : Int32 × Int32 × Int32 × Int32 :=
+  let x := (cellKeyX k).toInt32
+  let y := (cellKeyY k).toInt32
+  (if x < b.1 then x else b.1, if b.2.1 < x then x else b.2.1, if y < b.2.2.1 then y else b.2.2.1,
+    if b.2.2.2 < y then y else b.2.2.2)
+
+theorem cellBounds_eq (cells : Array UInt64) (hc : cells.size < 2 ^ 32) :
+    ∀ (n : Nat) (i : UInt32) (b : Int32 × Int32 × Int32 × Int32), cells.size - i.toNat = n →
+      i.toNat ≤ cells.size →
+      cellBounds cells i cells.size.toUInt32 b.1 b.2.1 b.2.2.1 b.2.2.2 =
+        (cells.toList.drop i.toNat).foldl boxStep b := by
+  intro n
+  induction n with
+  | zero =>
+    intro i b hn hi
+    have hnot : ¬ i < cells.size.toUInt32 := by rw [u32_lt_size_iff hc]; omega
+    rw [cellBounds]
+    simp [hnot, List.drop_eq_nil_of_le (show cells.toList.length ≤ i.toNat by simp; omega)]
+  | succ n ih =>
+    intro i b hn hi
+    have hlt : i.toNat < cells.size := by omega
+    have hyes : i < cells.size.toUInt32 := by rw [u32_lt_size_iff hc]; exact hlt
+    have hsucc := u32_toNat_succ hlt hc
+    rw [cellBounds]
+    simp only [hyes, ↓reduceDIte, getElem!_pos cells i.toNat hlt, toList_drop_eq_cons cells i.toNat hlt,
+      List.foldl_cons]
+    have := ih (i + 1) (boxStep b cells[i.toNat]) (by omega) (by omega)
+    rw [hsucc] at this
+    exact this
+
+theorem int32_ite_lt_min (x a : Int32) : (if x < a then x else a).toInt = min x.toInt a.toInt := by
+  by_cases c : x < a
+  · rw [ite_eq_left c]; have := Int32.lt_iff_toInt_lt.mp c; omega
+  · rw [ite_eq_right c]; have := mt Int32.lt_iff_toInt_lt.mpr c; omega
+
+theorem int32_ite_lt_max (x a : Int32) : (if a < x then x else a).toInt = max x.toInt a.toInt := by
+  by_cases c : a < x
+  · rw [ite_eq_left c]; have := Int32.lt_iff_toInt_lt.mp c; omega
+  · rw [ite_eq_right c]; have := mt Int32.lt_iff_toInt_lt.mpr c; omega
+
+/-- What `cellBounds` gives, from the bounds `b` and the cells `l`. -/
+theorem foldl_boxStep (l : List UInt64) : ∀ (b : Int32 × Int32 × Int32 × Int32),
+    let r := l.foldl boxStep b
+    r.1.toInt ≤ b.1.toInt ∧ b.2.1.toInt ≤ r.2.1.toInt ∧ r.2.2.1.toInt ≤ b.2.2.1.toInt ∧
+      b.2.2.2.toInt ≤ r.2.2.2.toInt ∧
+      (∀ k ∈ l, r.1.toInt ≤ (keyCell k).1.toInt ∧ (keyCell k).1.toInt ≤ r.2.1.toInt ∧
+        r.2.2.1.toInt ≤ (keyCell k).2.toInt ∧ (keyCell k).2.toInt ≤ r.2.2.2.toInt) ∧
+      (r.1 = b.1 ∨ ∃ k ∈ l, (keyCell k).1 = r.1) ∧ (r.2.1 = b.2.1 ∨ ∃ k ∈ l, (keyCell k).1 = r.2.1) ∧
+      (r.2.2.1 = b.2.2.1 ∨ ∃ k ∈ l, (keyCell k).2 = r.2.2.1) ∧
+      (r.2.2.2 = b.2.2.2 ∨ ∃ k ∈ l, (keyCell k).2 = r.2.2.2) := by
+  induction l with
+  | nil => intro b; simp
+  | cons k ks ih =>
+    intro b
+    simp only [List.foldl_cons]
+    obtain ⟨h1, h2, h3, h4, h5, h6, h7, h8, h9⟩ := ih (boxStep b k)
+    generalize ks.foldl boxStep (boxStep b k) = r at h1 h2 h3 h4 h5 h6 h7 h8 h9 ⊢
+    have ex : (keyCell k).1 = (cellKeyX k).toInt32 := rfl
+    have ey : (keyCell k).2 = (cellKeyY k).toInt32 := rfl
+    simp only [boxStep] at h1 h2 h3 h4 h6 h7 h8 h9
+    generalize (cellKeyX k).toInt32 = x at h1 h2 h6 h7 ex
+    generalize (cellKeyY k).toInt32 = y at h3 h4 h8 h9 ey
+    rw [int32_ite_lt_min] at h1 h3
+    rw [int32_ite_lt_max] at h2 h4
+    refine ⟨by omega, by omega, by omega, by omega, ?_, ?_, ?_, ?_, ?_⟩
+    · intro c hc
+      rcases List.mem_cons.mp hc with rfl | hc
+      · rw [ex, ey]; exact ⟨by omega, by omega, by omega, by omega⟩
+      · exact h5 c hc
+    · rcases h6 with h | ⟨c, hc, h⟩
+      · split at h
+        · exact Or.inr ⟨k, by simp, by rw [ex, h]⟩
+        · exact Or.inl h
+      · exact Or.inr ⟨c, by simp [hc], h⟩
+    · rcases h7 with h | ⟨c, hc, h⟩
+      · split at h
+        · exact Or.inr ⟨k, by simp, by rw [ex, h]⟩
+        · exact Or.inl h
+      · exact Or.inr ⟨c, by simp [hc], h⟩
+    · rcases h8 with h | ⟨c, hc, h⟩
+      · split at h
+        · exact Or.inr ⟨k, by simp, by rw [ey, h]⟩
+        · exact Or.inl h
+      · exact Or.inr ⟨c, by simp [hc], h⟩
+    · rcases h9 with h | ⟨c, hc, h⟩
+      · split at h
+        · exact Or.inr ⟨k, by simp, by rw [ey, h]⟩
+        · exact Or.inl h
+      · exact Or.inr ⟨c, by simp [hc], h⟩
+
+/-- The bounding box of cells holds every cell, and each of its sides is a cell's coordinate. -/
+theorem cellBox_facts (cells : Array UInt64) (hc : cells.size < 2 ^ 32) (h0 : cells.size ≠ 0)
+    (b : Int32 × Int32 × Int32 × Int32) (hb : cellBox cells = b) :
+    (∀ c ∈ cells, b.1.toInt ≤ (keyCell c).1.toInt ∧ (keyCell c).1.toInt ≤ b.2.1.toInt ∧
+        b.2.2.1.toInt ≤ (keyCell c).2.toInt ∧ (keyCell c).2.toInt ≤ b.2.2.2.toInt) ∧
+      (∃ c ∈ cells, (keyCell c).1 = b.1) ∧ (∃ c ∈ cells, (keyCell c).1 = b.2.1) ∧
+      (∃ c ∈ cells, (keyCell c).2 = b.2.2.1) ∧ (∃ c ∈ cells, (keyCell c).2 = b.2.2.2) := by
+  have hne : (cells.size.toUInt32 == 0) = false := by
+    rw [beq_eq_false_iff_ne]; intro h
+    have := congrArg UInt32.toNat h; rw [u32_size_toNat hc, UInt32.toNat_zero] at this; omega
+  have hpos : 0 < cells.size := by omega
+  have hk : cells[0]! = cells[0] := getElem!_pos cells 0 hpos
+  unfold cellBox at hb
+  simp only [hne, Bool.false_eq_true, ite_false, hk] at hb
+  have hB := cellBounds_eq cells hc _ 1
+    ((cellKeyX cells[0]).toInt32, (cellKeyX cells[0]).toInt32, (cellKeyY cells[0]).toInt32,
+      (cellKeyY cells[0]).toInt32) rfl (by rw [UInt32.toNat_one]; omega)
+  rw [hb, UInt32.toNat_one] at hB
+  have hl : cells.toList = cells[0] :: cells.toList.drop 1 := by
+    simpa using toList_drop_eq_cons cells 0 hpos
+  obtain ⟨h1, h2, h3, h4, h5, h6, h7, h8, h9⟩ := foldl_boxStep (cells.toList.drop 1)
+    ((cellKeyX cells[0]).toInt32, (cellKeyX cells[0]).toInt32, (cellKeyY cells[0]).toInt32,
+      (cellKeyY cells[0]).toInt32)
+  rw [← hB] at h1 h2 h3 h4 h5 h6 h7 h8 h9
+  have hmem : ∀ c, c ∈ cells ↔ c = cells[0] ∨ c ∈ cells.toList.drop 1 := by
+    intro c; rw [← Array.mem_toList_iff, hl]; simp
+  have hm0 : cells[0] ∈ cells := Array.getElem_mem hpos
+  refine ⟨fun c hc => ?_, ?_, ?_, ?_, ?_⟩
+  · rcases (hmem c).mp hc with rfl | hc
+    · exact ⟨h1, h2, h3, h4⟩
+    · exact h5 c hc
+  · rcases h6 with h | ⟨c, hc, h⟩
+    · exact ⟨cells[0], hm0, h.symm⟩
+    · exact ⟨c, (hmem c).mpr (Or.inr hc), h⟩
+  · rcases h7 with h | ⟨c, hc, h⟩
+    · exact ⟨cells[0], hm0, h.symm⟩
+    · exact ⟨c, (hmem c).mpr (Or.inr hc), h⟩
+  · rcases h8 with h | ⟨c, hc, h⟩
+    · exact ⟨cells[0], hm0, h.symm⟩
+    · exact ⟨c, (hmem c).mpr (Or.inr hc), h⟩
+  · rcases h9 with h | ⟨c, hc, h⟩
+    · exact ⟨cells[0], hm0, h.symm⟩
+    · exact ⟨c, (hmem c).mpr (Or.inr hc), h⟩
+
+/-- `cellBox_facts` for cells given by their coordinates. -/
+theorem cellBox_map_facts (cells : Array (Int32 × Int32)) (hc : cells.size < 2 ^ 32) (h0 : cells.size ≠ 0)
+    (b : Int32 × Int32 × Int32 × Int32) (hb : cellBox (cells.map cellBits) = b) :
+    (∀ c ∈ cells, b.1.toInt ≤ c.1.toInt ∧ c.1.toInt ≤ b.2.1.toInt ∧ b.2.2.1.toInt ≤ c.2.toInt ∧
+        c.2.toInt ≤ b.2.2.2.toInt) ∧
+      (∃ c ∈ cells, c.1 = b.1) ∧ (∃ c ∈ cells, c.1 = b.2.1) ∧ (∃ c ∈ cells, c.2 = b.2.2.1) ∧
+      (∃ c ∈ cells, c.2 = b.2.2.2) := by
+  obtain ⟨hall, ⟨k1, hk1, e1⟩, ⟨k2, hk2, e2⟩, ⟨k3, hk3, e3⟩, ⟨k4, hk4, e4⟩⟩ :=
+    cellBox_facts (cells.map cellBits) (by simpa using hc) (by simpa using h0) b hb
+  obtain ⟨d1, hd1, rfl⟩ := Array.mem_map.mp hk1
+  obtain ⟨d2, hd2, rfl⟩ := Array.mem_map.mp hk2
+  obtain ⟨d3, hd3, rfl⟩ := Array.mem_map.mp hk3
+  obtain ⟨d4, hd4, rfl⟩ := Array.mem_map.mp hk4
+  simp only [keyCell_cellBits] at e1 e2 e3 e4
+  refine ⟨fun c hc => ?_, ⟨d1, hd1, e1⟩, ⟨d2, hd2, e2⟩, ⟨d3, hd3, e3⟩, ⟨d4, hd4, e4⟩⟩
+  simpa using hall (cellBits c) (Array.mem_map_of_mem hc)
+
+/-- The bytes of lines, plus one for each line: a bound on their warnings and on their cells. -/
+def remBytes (ls : List String) : Nat := (ls.map (fun l => l.toByteArray.size + 1)).sum
+
+theorem remBytes_cons (l : String) (ls : List String) :
+    remBytes (l :: ls) = l.toByteArray.size + 1 + remBytes ls := by
+  simp only [remBytes, List.map_cons, List.sum_cons]
+
 end Algorithm

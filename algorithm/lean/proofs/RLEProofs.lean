@@ -773,11 +773,15 @@ theorem formatRLEItemLength_bounds (n : UInt32) :
   · have := decimalLength_le n
     rw [UInt32.toNat_add]; simp; omega
 
+/-- The width of the text of items, by `formatRLEItemLength`. -/
+def itemsWidth (g : List (UInt8 × UInt32)) : Nat := (g.map (fun it => (formatRLEItemLength it.2).toNat)).sum
+
 theorem wrapRLEItems_spec (items : Array (UInt8 × UInt32)) (hn : items.size < 2 ^ 31) :
     ∀ (m j : Nat) (cur : List (UInt8 × UInt32)) (lineLen : UInt32) (out : GrowBuf String) (o : Array String),
-      items.size - j = m → j ≤ items.size → lineLen.toNat ≤ 70 → (lineLen = 0 ↔ cur = []) → out.Rep o →
+      items.size - j = m → j ≤ items.size → lineLen.toNat ≤ 70 → (lineLen = 0 ↔ cur = []) →
+      itemsWidth cur = lineLen.toNat → out.Rep o →
       o.size + (items.size - j) + 1 < 2 ^ 31 →
-      ∃ groups : List (List (UInt8 × UInt32)), (∀ g ∈ groups, g ≠ []) ∧
+      ∃ groups : List (List (UInt8 × UInt32)), (∀ g ∈ groups, g ≠ []) ∧ (∀ g ∈ groups, itemsWidth g ≤ 70) ∧
         groups.flatten = cur ++ items.toList.drop j ∧
         (wrapRLEItems items items.size.toUInt32 j.toUInt32 (lineOf cur) lineLen out).Rep
           (o ++ (groups.map lineOf).toArray) := by
@@ -785,23 +789,23 @@ theorem wrapRLEItems_spec (items : Array (UInt8 × UInt32)) (hn : items.size < 2
   intro m
   induction m with
   | zero =>
-    intro j cur lineLen out o hm hj _ hcur hrep _
+    intro j cur lineLen out o hm hj hlen hcur hw hrep _
     have hnot : ¬ j.toUInt32 < items.size.toUInt32 := by
       rw [u32_lt_size_iff hn32, u32_size_toNat (by omega)]; omega
     rw [wrapRLEItems]
     simp only [hnot, ↓reduceDIte]
     have hdrop : items.toList.drop j = [] := List.drop_eq_nil_of_le (by simp; omega)
     by_cases h0 : lineLen = 0
-    · refine ⟨[], by simp, by simp [hdrop, hcur.mp h0], ?_⟩
+    · refine ⟨[], by simp, by simp, by simp [hdrop, hcur.mp h0], ?_⟩
       simp only [h0, bne_self_eq_false, Bool.false_eq_true, ite_false]
       simpa using hrep
     · have hne : cur ≠ [] := fun h => h0 (hcur.mpr h)
-      refine ⟨[cur], by simpa using hne, by simp [hdrop], ?_⟩
+      refine ⟨[cur], by simpa using hne, by simp; omega, by simp [hdrop], ?_⟩
       have : (lineLen != 0) = true := by simpa using h0
       simp only [this, ite_true]
       simpa using GrowBuf.rep_push hrep (lineOf cur) (by omega)
   | succ m ih =>
-    intro j cur lineLen out o hm hj hlen hcur hrep ho
+    intro j cur lineLen out o hm hj hlen hcur hw hrep ho
     have hlt : j < items.size := by omega
     have hjU : j.toUInt32.toNat = j := u32_size_toNat (by omega)
     have hyes : j.toUInt32 < items.size.toUInt32 := by rw [u32_lt_size_iff hn32, hjU]; exact hlt
@@ -820,16 +824,20 @@ theorem wrapRLEItems_spec (items : Array (UInt8 × UInt32)) (hn : items.size < 2
         rw [← hsum]; exact (show (70 : UInt32).toNat = 70 from rfl) ▸ UInt32.lt_iff_toNat_lt.mp hgt
       simp only [hgt, ite_true]
       have hne : cur ≠ [] := fun h => by have := hcur.mpr h; subst this; simp at hgt'; omega
-      obtain ⟨gs, hgs, hflat, hres⟩ := ih (j + 1) [it] (formatRLEItemLength it.2) (out.push (lineOf cur))
+      obtain ⟨gs, hgs, hgw, hflat, hres⟩ := ih (j + 1) [it] (formatRLEItemLength it.2) (out.push (lineOf cur))
         (o.push (lineOf cur)) (by omega) (by omega) (by omega)
         (by constructor
             · intro h; have := congrArg UInt32.toNat h; simp at this; omega
             · intro h; simp at h)
+        (by simp [itemsWidth])
         (GrowBuf.rep_push hrep (lineOf cur) (by omega)) (by simp; omega)
-      refine ⟨cur :: gs, ?_, ?_, ?_⟩
+      refine ⟨cur :: gs, ?_, ?_, ?_, ?_⟩
       · intro g hg; simp at hg; rcases hg with rfl | hg
         · exact hne
         · exact hgs g hg
+      · intro g hg; simp at hg; rcases hg with rfl | hg
+        · omega
+        · exact hgw g hg
       · rw [List.flatten_cons, hflat, hdrop]; simp
       · have : lineOf [it] = formatRLEItem it.1 it.2 := by simp [lineOf]
         rw [this] at hres
@@ -839,12 +847,13 @@ theorem wrapRLEItems_spec (items : Array (UInt8 × UInt32)) (hn : items.size < 2
       simp only [hgt, ite_false]
       have hline : lineOf cur ++ formatRLEItem it.1 it.2 = lineOf (cur ++ [it]) := by simp [lineOf, List.foldl_append]
       rw [hline]
-      obtain ⟨gs, hgs, hflat, hres⟩ := ih (j + 1) (cur ++ [it]) (lineLen + formatRLEItemLength it.2) out o
+      obtain ⟨gs, hgs, hgw, hflat, hres⟩ := ih (j + 1) (cur ++ [it]) (lineLen + formatRLEItemLength it.2) out o
         (by omega) (by omega) (by rw [hsum]; omega)
         (by constructor
             · intro h; have := congrArg UInt32.toNat h; rw [hsum] at this; simp at this; omega
-            · intro h; simp at h) hrep (by omega)
-      exact ⟨gs, hgs, by rw [hflat, hdrop]; simp, hres⟩
+            · intro h; simp at h)
+        (by rw [hsum]; simp [itemsWidth] at hw ⊢; omega) hrep (by omega)
+      exact ⟨gs, hgs, hgw, by rw [hflat, hdrop]; simp, hres⟩
 
 /-! ## Parsing items -/
 
@@ -1524,7 +1533,8 @@ theorem serializeRLE_spec (cells : Array UInt64) (minX maxX minY maxY : Int32) (
       (∀ g ∈ Gs, g ≠ []) ∧ (∀ g ∈ Gs, ∀ it ∈ g, ValidItem it) ∧ (∀ it ∈ last, ValidItem it) ∧
       (Gs.flatten ++ last).length ≤ 4 * (w.toNat * h.toNat) ∧
       RunsEq minX (((Gs.flatten ++ last) ++ pendItems rleDead 0 re).map itemRun)
-        ((rawItems (rleGrid cells minX minY w h) w.toNat (w.toNat * h.toNat)).map itemRun) := by
+        ((rawItems (rleGrid cells minX minY w h) w.toNat (w.toNat * h.toNat)).map itemRun) ∧
+      (∀ g ∈ Gs ++ [last ++ [(rleEnd, 1)]], itemsWidth g ≤ 70) := by
   have hT : (w * h).toNat = w.toNat * h.toNat := by rw [UInt32.toNat_mul, Nat.mod_eq_of_lt (by omega)]
   obtain ⟨hgs, hgget⟩ := fillGrid_replicate_spec cells minX minY w h rleAlive rleDead (by decide) (by decide)
     (by omega) (by omega)
@@ -1547,8 +1557,8 @@ theorem serializeRLE_spec (cells : Array UInt64) (minX maxX minY maxY : Int32) (
   rw [hser, hrep.2.2.2]
   have ho := GrowBuf.rep_push (GrowBuf.rep_push (GrowBuf.rep_empty (α := String))
     (formatRLEHeader minX minY w h)[0]! (by decide)) (formatRLEHeader minX minY w h)[1]! (by simp)
-  obtain ⟨groups, hgne, hflat, hrep2⟩ := wrapRLEItems_spec (a'.push (rleEnd, 1)) (by simp; omega) _ 0 [] 0 _ _ rfl
-    (by simp) (by simp) (by simp) ho (by simp; omega)
+  obtain ⟨groups, hgne, hgw, hflat, hrep2⟩ := wrapRLEItems_spec (a'.push (rleEnd, 1)) (by simp; omega) _ 0 [] 0 _ _ rfl
+    (by simp) (by simp) (by simp) (by simp [itemsWidth]) ho (by simp; omega)
   have e := hrep2.2.2.2
   simp only [show lineOf [] = "" from rfl, show (0 : Nat).toUInt32 = 0 from rfl] at e
   rw [e]
@@ -1561,13 +1571,14 @@ theorem serializeRLE_spec (cells : Array UInt64) (minX maxX minY maxY : Int32) (
     ← List.append_assoc] at hfl
   obtain ⟨hA, hx⟩ := List.append_inj' hfl rfl
   simp only [List.cons.injEq, and_true] at hx; subst hx
-  refine ⟨Gs, last, re, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  refine ⟨Gs, last, re, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
   · simp
   · intro g hg; exact hgne g (by simp [hg])
   · intro g hg it hit; exact hval it (by rw [← hA]; simp; exact Or.inl ⟨g, hg, hit⟩)
   · intro it hit; exact hval it (by rw [← hA]; simp [hit])
   · rw [hA, hT] at *; simpa using hsz
   · rw [hA, ← hT]; exact heq
+  · intro g hg; exact hgw g (by simpa using hg)
 
 theorem deserializeRLE_lines (L : Array String) (minX minY : Int32) (w h : UInt32)
     (Gs : List (List (UInt8 × UInt32))) (last : List (UInt8 × UInt32))
@@ -1619,7 +1630,8 @@ theorem deserializeRLE_lines (L : Array String) (minX minY : Int32) (w h : UInt3
     rw [eq_iff_iff, iff_true, u32_lt_size_iff (by omega), UInt32.toNat_add, UInt32.toNat_zero, UInt32.toNat_one]
     omega)]
   have hps : parseRLEHeader (formatRLEHeader 0 0 w h)[1]!.toByteArray = 0 := parseRLEHeader_sizeLine 0 0 w h
-  simp only [hA1, c1, hps, Bool.false_eq_true, ite_false, bne_self_eq_false]
+  simp only [hA1, c1, hps, Bool.false_eq_true, ite_false, bne_self_eq_false,
+    show ((0 : UInt32) == 3) = false from rfl]
   have hl1 := flatMap_itemBytes_length (last ++ [(rleEnd, 1)])
   rw [List.length_append, List.length_singleton] at hl1
   obtain ⟨runs', hr, hp⟩ := parseRLEData_groups (Array.mk A) (by omega) GrowBuf.empty minX minY last hlv
@@ -1660,9 +1672,9 @@ theorem rle_round_trip_grid (cells : Array UInt64) (minX maxX minY maxY : Int32)
     (hne : cells.size ≠ 0) (hcs : cells.size < 2 ^ 31) (hw : 1 ≤ w.toNat)
     (hwh : 64 * (w.toNat * h.toNat) < 2 ^ 31) :
     deserializeRLE (serializeRLE cells minX maxX minY maxY) =
-      ⟨0, "", 0, 0, #[],
+      ⟨.ok, #[],
         (gridCells (rleGrid cells minX minY w h) w.toNat minX minY (w.toNat * h.toNat)).toArray.map cellBits⟩ := by
-  obtain ⟨Gs, last, re, hL, hgne, hv, hlv, hlen, heq⟩ :=
+  obtain ⟨Gs, last, re, hL, hgne, hv, hlv, hlen, heq, -⟩ :=
     serializeRLE_spec cells minX maxX minY maxY w h hW hH hne hcs hw hwh
   obtain ⟨runs', hr, hd⟩ := deserializeRLE_lines _ minX minY w h Gs last hL hgne hv hlv (by omega)
   rw [hd]
@@ -1764,7 +1776,7 @@ theorem rle_round_trip (cells : Array (Int32 × Int32)) (minX maxX minY maxY : I
     (hne : cells.size ≠ 0) (hcs : cells.size < 2 ^ 31)
     (hw : 1 ≤ (maxX - minX + 1).toUInt32.toNat)
     (hwh : 64 * ((maxX - minX + 1).toUInt32.toNat * (maxY - minY + 1).toUInt32.toNat) < 2 ^ 31) :
-    (deserializeRLE (serializeRLE (cells.map cellBits) minX maxX minY maxY)).status = 0 ∧
+    (deserializeRLE (serializeRLE (cells.map cellBits) minX maxX minY maxY)).status = .ok ∧
       (deserializeRLE (serializeRLE (cells.map cellBits) minX maxX minY maxY)).warnings = #[] ∧
       ∀ q, cellBits q ∈ (deserializeRLE (serializeRLE (cells.map cellBits) minX maxX minY maxY)).cells ↔
         ∃ c ∈ cells, (gridIndex minX minY (maxX - minX + 1).toUInt32 (maxY - minY + 1).toUInt32 c).isSome ∧ q = c := by
@@ -1776,15 +1788,14 @@ theorem rle_round_trip (cells : Array (Int32 × Int32)) (minX maxX minY maxY : I
   rw [List.map_toArray, List.mem_toArray, cellBits_mem_map]
   exact mem_gridCells_rleGrid cells minX minY w h hw (by omega) (by omega) q
 
-/-- Round trip for cells inside their bounding box: deserializing gives exactly the cells, with no warnings. -/
-theorem rle_round_trip_box (cells : Array (Int32 × Int32)) (minX maxX minY maxY : Int32)
-    (hne : cells.size ≠ 0) (hcs : cells.size < 2 ^ 31)
+/-- The sizes of a box holding a cell, from a bound on its area. -/
+theorem rle_box_dims (cells : Array (Int32 × Int32)) (minX maxX minY maxY : Int32) (hne : cells.size ≠ 0)
     (hbox : ∀ c ∈ cells, minX.toInt ≤ c.1.toInt ∧ c.1.toInt ≤ maxX.toInt ∧
       minY.toInt ≤ c.2.toInt ∧ c.2.toInt ≤ maxY.toInt)
     (hsize : 64 * ((maxX.toInt - minX.toInt + 1) * (maxY.toInt - minY.toInt + 1)) < 2 ^ 31) :
-    (deserializeRLE (serializeRLE (cells.map cellBits) minX maxX minY maxY)).status = 0 ∧
-      (deserializeRLE (serializeRLE (cells.map cellBits) minX maxX minY maxY)).warnings = #[] ∧
-      ∀ q, cellBits q ∈ (deserializeRLE (serializeRLE (cells.map cellBits) minX maxX minY maxY)).cells ↔ q ∈ cells := by
+    1 ≤ (maxX - minX + 1).toUInt32.toNat ∧
+      64 * ((maxX - minX + 1).toUInt32.toNat * (maxY - minY + 1).toUInt32.toNat) < 2 ^ 31 ∧
+      maxX.toInt - minX.toInt + 1 < 2 ^ 31 ∧ maxY.toInt - minY.toInt + 1 < 2 ^ 31 := by
   obtain ⟨c0, hc0⟩ : ∃ c, c ∈ cells := ⟨cells[0]'(by omega), Array.getElem_mem _⟩
   obtain ⟨hx1, hx2, hy1, hy2⟩ := hbox c0 hc0
   have hw1 : 1 ≤ maxX.toInt - minX.toInt + 1 := by omega
@@ -1804,7 +1815,19 @@ theorem rle_round_trip_box (cells : Array (Int32 × Int32)) (minX maxX minY maxY
     have : ((64 * ((maxX - minX + 1).toUInt32.toNat * (maxY - minY + 1).toUInt32.toNat) : Nat) : Int) < 2 ^ 31 := by
       rw [Int.natCast_mul, Int.natCast_mul, hW, hH]; exact hsize
     omega
-  obtain ⟨hst, hwarn, hcells⟩ := rle_round_trip cells minX maxX minY maxY hne hcs (by omega) hwh
+  exact ⟨by omega, hwh, hw, hh⟩
+
+/-- Round trip for cells inside their bounding box: deserializing gives exactly the cells, with no warnings. -/
+theorem rle_round_trip_box (cells : Array (Int32 × Int32)) (minX maxX minY maxY : Int32)
+    (hne : cells.size ≠ 0) (hcs : cells.size < 2 ^ 31)
+    (hbox : ∀ c ∈ cells, minX.toInt ≤ c.1.toInt ∧ c.1.toInt ≤ maxX.toInt ∧
+      minY.toInt ≤ c.2.toInt ∧ c.2.toInt ≤ maxY.toInt)
+    (hsize : 64 * ((maxX.toInt - minX.toInt + 1) * (maxY.toInt - minY.toInt + 1)) < 2 ^ 31) :
+    (deserializeRLE (serializeRLE (cells.map cellBits) minX maxX minY maxY)).status = .ok ∧
+      (deserializeRLE (serializeRLE (cells.map cellBits) minX maxX minY maxY)).warnings = #[] ∧
+      ∀ q, cellBits q ∈ (deserializeRLE (serializeRLE (cells.map cellBits) minX maxX minY maxY)).cells ↔ q ∈ cells := by
+  obtain ⟨hw', hwh, hw, hh⟩ := rle_box_dims cells minX maxX minY maxY hne hbox hsize
+  obtain ⟨hst, hwarn, hcells⟩ := rle_round_trip cells minX maxX minY maxY hne hcs hw' hwh
   refine ⟨hst, hwarn, fun q => ?_⟩
   rw [hcells]
   constructor
@@ -1812,5 +1835,98 @@ theorem rle_round_trip_box (cells : Array (Int32 × Int32)) (minX maxX minY maxY
   · intro hq
     obtain ⟨hx1, hx2, hy1, hy2⟩ := hbox q hq
     exact ⟨q, hq, gridIndex_isSome_of_mem_box minX maxX minY maxY q hx1 hx2 hy1 hy2 hw hh, rfl⟩
+
+/--
+Round trip of whole patterns: `serializeRLECells` writes the cells in their bounding box, and deserializing succeeds
+with no warnings and gives back exactly the cells.
+-/
+theorem rle_round_trip_cells (cells : Array (Int32 × Int32)) (hne : cells.size ≠ 0) (hcs : cells.size < 2 ^ 31)
+    (hsize : ∀ c ∈ cells, ∀ d ∈ cells, ∀ e ∈ cells, ∀ f ∈ cells,
+      64 * ((c.1.toInt - d.1.toInt + 1) * (e.2.toInt - f.2.toInt + 1)) < 2 ^ 31) :
+    (deserializeRLE (serializeRLECells (cells.map cellBits))).status = .ok ∧
+      (deserializeRLE (serializeRLECells (cells.map cellBits))).warnings = #[] ∧
+      ∀ q, cellBits q ∈ (deserializeRLE (serializeRLECells (cells.map cellBits))).cells ↔ q ∈ cells := by
+  generalize hb : cellBox (cells.map cellBits) = b
+  obtain ⟨hall, ⟨c1, hc1, e1⟩, ⟨c2, hc2, e2⟩, ⟨c3, hc3, e3⟩, ⟨c4, hc4, e4⟩⟩ :=
+    cellBox_map_facts cells (by omega) hne b hb
+  have hser : serializeRLECells (cells.map cellBits) = serializeRLE (cells.map cellBits) b.1 b.2.1 b.2.2.1 b.2.2.2 := by
+    unfold serializeRLECells; rw [hb]
+  rw [hser]
+  have := hsize c2 hc2 c1 hc1 c4 hc4 c3 hc3
+  rw [e1, e2, e3, e4] at this
+  exact rle_round_trip_box cells b.1 b.2.1 b.2.2.1 b.2.2.2 hne hcs hall this
+
+theorem toDigits_length_le_decimalLength (n : UInt32) :
+    (Nat.toDigits 10 n.toNat).length ≤ (decimalLength n).toNat := by
+  have hn := UInt32.toNat_lt n
+  unfold decimalLength
+  repeat' split
+  all_goals simp only [UInt32.reduceToNat]
+  all_goals first
+    | (rename_i h
+       exact (Nat.length_toDigits_le_iff (by decide) (by decide)).mpr
+         (by have := UInt32.lt_iff_toNat_lt.mp h; simpa using this))
+    | exact (Nat.length_toDigits_le_iff (by decide) (by decide)).mpr (by omega)
+
+theorem itemBytes_length_le_width (it : UInt8 × UInt32) :
+    (itemBytes it).length ≤ (formatRLEItemLength it.2).toNat := by
+  unfold itemBytes formatRLEItemLength
+  have := decimalLength_le it.2
+  split
+  · simp
+  · have h := toDigits_length_le_decimalLength it.2
+    simp only [natDigitBytes, List.length_append, List.length_map, List.length_singleton]
+    rw [UInt32.toNat_add]; simp; omega
+
+theorem lineOf_size_le_width (g : List (UInt8 × UInt32)) : (lineOf g).toByteArray.size ≤ itemsWidth g := by
+  rw [lineOf_size]
+  induction g with
+  | nil => simp [itemsWidth]
+  | cons it g ih =>
+    simp only [List.flatMap_cons, List.length_append, itemsWidth, List.map_cons, List.sum_cons] at ih ⊢
+    have := itemBytes_length_le_width it
+    omega
+
+/-- Every line of serialized cells has at most 70 bytes. -/
+theorem serializeRLE_lines_le (cells : Array UInt64) (minX maxX minY maxY : Int32) (w h : UInt32)
+    (hW : (maxX - minX + 1).toUInt32 = w) (hH : (maxY - minY + 1).toUInt32 = h)
+    (hne : cells.size ≠ 0) (hcs : cells.size < 2 ^ 31) (hw : 1 ≤ w.toNat)
+    (hwh : 64 * (w.toNat * h.toNat) < 2 ^ 31) :
+    ∀ l ∈ serializeRLE cells minX maxX minY maxY, l.toByteArray.size ≤ 70 := by
+  obtain ⟨Gs, last, re, hL, -, -, -, -, -, hwid⟩ :=
+    serializeRLE_spec cells minX maxX minY maxY w h hW hH hne hcs hw hwh
+  intro l hl
+  rw [← Array.mem_toList_iff, hL] at hl
+  simp only [List.mem_cons, List.mem_map] at hl
+  rcases hl with rfl | rfl | ⟨g, hg, rfl⟩
+  · have h0 : (formatRLEHeader minX minY w h)[0]! = (formatRLEHeader minX minY 0 0)[0]! := rfl
+    rw [h0, byteArray_size_eq_length, bytes_rleOffsetLine]
+    have := bytes_toString_int32_length minX
+    have := bytes_toString_int32_length minY
+    simp only [List.length_append, List.length_cons, List.length_nil]
+    omega
+  · have h1 : (formatRLEHeader minX minY w h)[1]! = (formatRLEHeader 0 0 w h)[1]! := rfl
+    rw [h1, byteArray_size_eq_length, bytes_rleSizeLine]
+    have := natDigitBytes_length_le w.toNat (by have := UInt32.toNat_lt w; omega)
+    have := natDigitBytes_length_le h.toNat (by have := UInt32.toNat_lt h; omega)
+    simp only [List.length_append, List.length_cons, List.length_nil]
+    omega
+  · exact Nat.le_trans (lineOf_size_le_width g) (hwid g hg)
+
+/-- Every line of a serialized pattern has at most 70 bytes. -/
+theorem serializeRLECells_lines_le (cells : Array (Int32 × Int32)) (hne : cells.size ≠ 0) (hcs : cells.size < 2 ^ 31)
+    (hsize : ∀ c ∈ cells, ∀ d ∈ cells, ∀ e ∈ cells, ∀ f ∈ cells,
+      64 * ((c.1.toInt - d.1.toInt + 1) * (e.2.toInt - f.2.toInt + 1)) < 2 ^ 31) :
+    ∀ l ∈ serializeRLECells (cells.map cellBits), l.toByteArray.size ≤ 70 := by
+  generalize hb : cellBox (cells.map cellBits) = b
+  obtain ⟨hall, ⟨c1, hc1, e1⟩, ⟨c2, hc2, e2⟩, ⟨c3, hc3, e3⟩, ⟨c4, hc4, e4⟩⟩ :=
+    cellBox_map_facts cells (by omega) hne b hb
+  have hser : serializeRLECells (cells.map cellBits) = serializeRLE (cells.map cellBits) b.1 b.2.1 b.2.2.1 b.2.2.2 := by
+    unfold serializeRLECells; rw [hb]
+  rw [hser]
+  have := hsize c2 hc2 c1 hc1 c4 hc4 c3 hc3
+  rw [e1, e2, e3, e4] at this
+  obtain ⟨hw, hwh, -, -⟩ := rle_box_dims cells b.1 b.2.1 b.2.2.1 b.2.2.2 hne hall this
+  exact serializeRLE_lines_le _ _ _ _ _ _ _ rfl rfl (by simpa using hne) (by simpa using hcs) hw hwh
 
 end Algorithm

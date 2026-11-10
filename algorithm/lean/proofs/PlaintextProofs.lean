@@ -498,4 +498,101 @@ theorem plaintext_round_trip_box (cells : Array (Int32 × Int32)) (minX maxX min
     obtain ⟨hx1, hx2, hy1, hy2⟩ := hbox c hc
     exact ⟨c, hc, gridIndex_isSome_of_mem_box minX maxX minY maxY c hx1 hx2 hy1 hy2 hw hh, rfl⟩
 
+/--
+Round trip of whole patterns: `serializePlaintextCells` writes the cells in their bounding box, and deserializing
+gives no warnings and exactly the cells, moved so the least x and the least y are 0.
+-/
+theorem plaintext_round_trip_cells (cells : Array (Int32 × Int32)) (hne : cells.size ≠ 0) (hcs : cells.size < 2 ^ 31)
+    (hsize : ∀ c ∈ cells, ∀ d ∈ cells, ∀ e ∈ cells, ∀ f ∈ cells,
+      (c.1.toInt - d.1.toInt + 1) * (e.2.toInt - f.2.toInt + 1) < 2 ^ 31) :
+    let b := cellBox (cells.map cellBits)
+    (∀ c ∈ cells, b.1.toInt ≤ c.1.toInt ∧ b.2.2.1.toInt ≤ c.2.toInt) ∧ (∃ c ∈ cells, c.1 = b.1) ∧
+      (∃ c ∈ cells, c.2 = b.2.2.1) ∧
+      (deserializePlaintext (serializePlaintextCells (cells.map cellBits))).warnings = #[] ∧
+      ∀ q, cellBits q ∈ (deserializePlaintext (serializePlaintextCells (cells.map cellBits))).cells ↔
+        ∃ c ∈ cells, q = (c.1 - b.1, c.2 - b.2.2.1) := by
+  intro b
+  obtain ⟨hall, ⟨c1, hc1, e1⟩, ⟨c2, hc2, e2⟩, ⟨c3, hc3, e3⟩, ⟨c4, hc4, e4⟩⟩ :=
+    cellBox_map_facts cells (by omega) hne b rfl
+  have hser : serializePlaintextCells (cells.map cellBits) =
+      serializePlaintext (cells.map cellBits) b.1 b.2.1 b.2.2.1 b.2.2.2 := rfl
+  rw [hser]
+  have := hsize c2 hc2 c1 hc1 c4 hc4 c3 hc3
+  rw [e1, e2, e3, e4] at this
+  obtain ⟨hw, hm⟩ := plaintext_round_trip_box cells b.1 b.2.1 b.2.2.1 b.2.2.2 hne hcs hall this
+  exact ⟨fun c hc => ⟨(hall c hc).1, (hall c hc).2.2.1⟩, ⟨c1, hc1, e1⟩, ⟨c3, hc3, e3⟩, hw, hm⟩
+
+/--
+Serialized cells are `h` pattern rows of `w` characters, each `.` or `O`, for the `w` by `h` bounding box.
+-/
+theorem serializePlaintext_rows (cells : Array UInt64) (minX maxX minY maxY : Int32)
+    (hne : cells.size ≠ 0) (hcs : cells.size < 2 ^ 31)
+    (hw : 1 ≤ (maxX - minX + 1).toUInt32.toNat) (hh : 1 ≤ (maxY - minY + 1).toUInt32.toNat)
+    (hwh : (maxX - minX + 1).toUInt32.toNat * (maxY - minY + 1).toUInt32.toNat < 2 ^ 31) :
+    IsRowLines (serializePlaintext cells minX maxX minY maxY) (maxX - minX + 1).toUInt32.toNat ∧
+      (serializePlaintext cells minX maxX minY maxY).size = (maxY - minY + 1).toUInt32.toNat := by
+  generalize hW : (maxX - minX + 1).toUInt32 = w at hw hwh
+  generalize hH : (maxY - minY + 1).toUInt32 = h at hh hwh
+  have hH31 : h.toNat < 2 ^ 31 := by
+    have : h.toNat ≤ w.toNat * h.toNat := Nat.le_mul_of_pos_left _ (by omega)
+    omega
+  have hW31 : w.toNat < 2 ^ 31 := by
+    have : w.toNat ≤ w.toNat * h.toNat := Nat.le_mul_of_pos_right _ (by omega)
+    omega
+  have hser := serializePlaintext_eq cells minX maxX minY maxY hne (by omega)
+    (by rw [hH]; exact hH31)
+  rw [hW, hH] at hser
+  obtain ⟨hgsize, hgget⟩ := plaintextGrid_spec cells minX maxX minY maxY (by omega)
+    (by rw [hW, hH]; omega)
+  rw [hW, hH] at hgsize hgget
+  generalize hg : plaintextGrid cells minX maxX minY maxY = g at hser hgsize hgget
+  generalize hL : serializePlaintext cells minX maxX minY maxY = L at hser
+  -- Row `r` of the output holds bytes `r * w` until `(r + 1) * w` of the grid.
+  have hLsize : L.size = h.toNat := by rw [hser]; simp
+  have hidx : ∀ r, r < h.toNat → (r.toUInt32 * w).toNat = r * w.toNat ∧
+      (r.toUInt32 * w + w).toNat = r * w.toNat + w.toNat := by
+    intro r hr
+    have hle : (r + 1) * w.toNat ≤ h.toNat * w.toNat := Nat.mul_le_mul_right _ (by omega)
+    rw [Nat.add_mul, Nat.one_mul, Nat.mul_comm h.toNat] at hle
+    have h1 : (r.toUInt32 * w).toNat = r * w.toNat := by
+      rw [UInt32.toNat_mul, u32_size_toNat (by omega), Nat.mod_eq_of_lt (by omega)]
+    refine ⟨h1, ?_⟩
+    rw [UInt32.toNat_add, h1, Nat.mod_eq_of_lt (by omega)]
+  have hLrow : ∀ r (hr : r < L.size), L[r].toByteArray = g.1.extract (r * w.toNat) (r * w.toNat + w.toNat) := by
+    intro r hr
+    have hr' : r < h.toNat := by omega
+    simp only [hser, List.getElem_toArray, List.getElem_map, List.getElem_range]
+    show (g.1.extract _ _) = _
+    rw [(hidx r hr').1, (hidx r hr').2]
+  have hrowbyte : ∀ r (hr : r < L.size) c, c < w.toNat → L[r].toByteArray[c]! = g.1[r * w.toNat + c]! := by
+    intro r hr c hc
+    have hr' : r < h.toNat := by omega
+    have hle : (r + 1) * w.toNat ≤ h.toNat * w.toNat := Nat.mul_le_mul_right _ (by omega)
+    rw [Nat.add_mul, Nat.one_mul, Nat.mul_comm h.toNat] at hle
+    rw [hLrow r hr]
+    have hcs' : c < (g.1.extract (r * w.toNat) (r * w.toNat + w.toNat)).size := by
+      rw [ByteArray.size_extract, hgsize]; omega
+    rw [getElem!_pos _ c hcs', ByteArray.getElem_extract, getElem!_pos g.1 _ (by rw [hgsize]; omega)]
+  have hgval : ∀ k, k < w.toNat * h.toNat → g.1[k]! = 46 ∨ g.1[k]! = 79 := by
+    intro k hk
+    rw [hgget k hk]
+    split <;> simp
+  -- The output is pattern rows.
+  have hrows : IsRowLines L w.toNat := by
+    refine ⟨hw, fun r hr => ⟨fun c hc => ?_, ?_⟩⟩
+    · have hsz : L[r].toByteArray.size = w.toNat := by
+        have hle : (r + 1) * w.toNat ≤ h.toNat * w.toNat := Nat.mul_le_mul_right _ (by omega)
+        rw [Nat.add_mul, Nat.one_mul, Nat.mul_comm h.toNat] at hle
+        rw [hLrow r hr, ByteArray.size_extract, hgsize]; omega
+      have := hrowbyte r hr c (by omega)
+      rw [getElem!_pos _ c hc] at this
+      rw [this]
+      have hle : (r + 1) * w.toNat ≤ h.toNat * w.toNat := Nat.mul_le_mul_right _ (by omega)
+      rw [Nat.add_mul, Nat.one_mul, Nat.mul_comm h.toNat] at hle
+      exact hgval _ (by omega)
+    · have hle : (r + 1) * w.toNat ≤ h.toNat * w.toNat := Nat.mul_le_mul_right _ (by omega)
+      rw [Nat.add_mul, Nat.one_mul, Nat.mul_comm h.toNat] at hle
+      rw [hLrow r hr, ByteArray.size_extract, hgsize]; omega
+  exact ⟨hrows, hLsize⟩
+
 end Algorithm

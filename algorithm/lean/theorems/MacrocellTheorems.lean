@@ -41,47 +41,47 @@ than 2 ^ 31 lines.
 theorem macrocell_round_trip_spec (m : MacroCell) (hcan : Canonical m) (hd : m.depth ≤ 63)
     (hsl : macrocellSingleLeaf m = none) (hne : m ≠ emptyMacroCellUInt32 m.level)
     (hlen : ((⟨[macrocellHeader], [], []⟩ : MacrocellWriterState).addTree m).2.lines.length < 2 ^ 31) :
-    deserializeMacrocell (serializeMacrocell m) = ⟨0, "", 0, 0, 0, 0, #[], m⟩ :=
+    deserializeMacrocell (serializeMacrocell m) = ⟨.ok, #[], m⟩ :=
   macrocell_round_trip m hcan hd hsl hne hlen
 
 /-- A Level 4 node with a single nonempty leaf is written as just that leaf, which reads back in the northwest
 quadrant. -/
 theorem macrocell_round_trip_single_leaf_spec (m : MacroCell) (leaf : UInt64)
     (hsl : macrocellSingleLeaf m = some leaf) :
-    deserializeMacrocell (serializeMacrocell m) = ⟨0, "", 0, 0, 0, 0, #[], makeLevel4Node leaf 0 0 0⟩ :=
+    deserializeMacrocell (serializeMacrocell m) = ⟨.ok, #[], makeLevel4Node leaf 0 0 0⟩ :=
   macrocell_round_trip_single_leaf m leaf hsl
 
 theorem deserializeMacrocell_empty :
-    deserializeMacrocell #[] = ⟨1, "", 0, 0, 0, 0, #[⟨0, 0, 0, ""⟩], emptyLevel4⟩ := by
+    deserializeMacrocell #[] = ⟨.emptyFile, #[.emptyFile], emptyLevel4⟩ := by
   decide +kernel
 
 theorem deserializeMacrocell_invalid_header :
-    deserializeMacrocell #["invalid"] = ⟨2, "invalid", 1, 0, 0, 0, #[], emptyLevel4⟩ := by
+    deserializeMacrocell #["invalid"] = ⟨.invalidHeader "invalid", #[], emptyLevel4⟩ := by
   decide +kernel
 
 /-- A node of level 0 is rejected, rather than building empty nodes up to level 2^32 - 1. -/
 theorem deserializeMacrocell_level_0 :
-    deserializeMacrocell #["[M2]", "0 0 0 0 0"] = ⟨3, "0 0 0 0 0", 1, 0, 0, 0, #[], emptyLevel4⟩ := by
+    deserializeMacrocell #["[M2]", "0 0 0 0 0"] = ⟨.unexpectedInput ("0 0 0 0 0") 1, #[], emptyLevel4⟩ := by
   decide +kernel
 
 /-- A level above 63 is rejected. -/
 theorem deserializeMacrocell_level_too_high :
-    (deserializeMacrocell #["[M2]", "4000000000 0 0 0 0"]).status = 3 := by
+    (deserializeMacrocell #["[M2]", "4000000000 0 0 0 0"]).status = .unexpectedInput "4000000000 0 0 0 0" 1 := by
   decide +kernel
 
 /-- A child of the wrong level is rejected, with the range of its number. -/
 theorem deserializeMacrocell_child_level_mismatch :
     deserializeMacrocell #["[M2]", "*$", "4 1 0 0 0", "6 2 0 0 0"] =
-      ⟨4, "6 2 0 0 0", 3, 0, 2, 2, #[], emptyLevel4⟩ := by
+      ⟨.unexpectedNodeId ("6 2 0 0 0") 3 2 2, #[], emptyLevel4⟩ := by
   decide +kernel
 
 /-- Cells outside the 8 by 8 leaf are ignored. -/
 theorem deserializeMacrocell_leaf_bounds :
-    deserializeMacrocell #["[M2]", "........*$$$$$$$$*$"] = ⟨0, "", 0, 0, 0, 0, #[], makeLevel4Node 0 0 0 0⟩ := by
+    deserializeMacrocell #["[M2]", "........*$$$$$$$$*$"] = ⟨.ok, #[], makeLevel4Node 0 0 0 0⟩ := by
   decide +kernel
 
 theorem deserializeMacrocell_single_leaf :
-    deserializeMacrocell #["[M2] (ComposeLife 1.0)", "*$"] = ⟨0, "", 0, 0, 0, 0, #[], makeLevel4Node 1 0 0 0⟩ := by
+    deserializeMacrocell #["[M2] (ComposeLife 1.0)", "*$"] = ⟨.ok, #[], makeLevel4Node 1 0 0 0⟩ := by
   decide +kernel
 
 theorem serializeMacrocell_empty : serializeMacrocell emptyLevel4 = #["[M2] (ComposeLife 1.0)"] := by

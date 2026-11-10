@@ -121,11 +121,11 @@ theorem parseCoordLine_formatCoordLine (c : Int32 × Int32) :
 
 /-- What the deserialization loop computes from the remaining lines; `i` is the index of the next line. -/
 def life106LoopSpec : List String → Nat → Array UInt64 → Life106Result
-  | [], _, a => ⟨0, 0, "", a⟩
+  | [], _, a => ⟨.ok, a⟩
   | l :: ls, i, a =>
     match parseCoordLine l with
     | some c => life106LoopSpec ls (i + 1) (a.push (cellBits c))
-    | none => ⟨3, (i + 1).toUInt32, l, #[]⟩
+    | none => ⟨.invalidLine ((i + 1).toUInt32) l, #[]⟩
 
 theorem array_toList_drop_of_lt {α : Type} (xs : Array α) (i : Nat) (h : i < xs.size) :
     xs.toList.drop i = xs[i] :: xs.toList.drop (i + 1) := by
@@ -170,10 +170,10 @@ theorem deserializeLife106_loop_eq (lines : Array String) (hl : lines.size < 2 ^
 theorem life106LoopSpec_eq (ls : List String) : ∀ (i : Nat) (a : Array UInt64),
     life106LoopSpec ls i a =
       match ls.mapM parseCoordLine with
-      | some cs => ⟨0, 0, "", a ++ (cs.map cellBits).toArray⟩
+      | some cs => ⟨.ok, a ++ (cs.map cellBits).toArray⟩
       | none =>
         let j := ls.findIdx (fun l => (parseCoordLine l).isNone)
-        ⟨3, (i + j + 1).toUInt32, ls[j]!, #[]⟩ := by
+        ⟨.invalidLine ((i + j + 1).toUInt32) ls[j]!, #[]⟩ := by
   induction ls with
   | nil => intro i a; simp [life106LoopSpec]
   | cons l ls ih =>
@@ -186,7 +186,7 @@ theorem life106LoopSpec_eq (ls : List String) : ∀ (i : Nat) (a : Array UInt64)
       cases hm : ls.mapM parseCoordLine with
       | none =>
         simp only
-        congr 1
+        congr 2
         congr 1; omega
       | some cs => simp
 
@@ -197,14 +197,14 @@ theorem list_drop_one_getElem! {α : Type} [Inhabited α] (xs : Array α) (j : N
 /-- Full specification of Life 1.06 deserialization. -/
 theorem deserializeLife106_eq (lines : Array String) (hl : lines.size < 2 ^ 31) :
     deserializeLife106 lines =
-      if lines.size = 0 then ⟨1, 0, "", #[]⟩
-      else if lines[0]! ≠ "#Life 1.06" then ⟨2, 1, lines[0]!, #[]⟩
+      if lines.size = 0 then ⟨.emptyFile, #[]⟩
+      else if lines[0]! ≠ "#Life 1.06" then ⟨.invalidHeader lines[0]!, #[]⟩
       else
         match (lines.toList.drop 1).mapM parseCoordLine with
-        | some cells => ⟨0, 0, "", (cells.map cellBits).toArray⟩
+        | some cells => ⟨.ok, (cells.map cellBits).toArray⟩
         | none =>
           let j := (lines.toList.drop 1).findIdx (fun l => (parseCoordLine l).isNone)
-          ⟨3, (j + 2).toUInt32, lines[j + 1]!, #[]⟩ := by
+          ⟨.invalidLine ((j + 2).toUInt32) lines[j + 1]!, #[]⟩ := by
   have hl32 : lines.size < 2 ^ 32 := by omega
   unfold deserializeLife106
   by_cases h0 : lines.size = 0
@@ -223,7 +223,7 @@ theorem deserializeLife106_eq (lines : Array String) (hl : lines.size < 2 ^ 31) 
       | none =>
         simp only [list_drop_one_getElem!]
         congr 2
-        omega
+        congr 1; omega
 
 /-! ## Serialization -/
 
@@ -273,7 +273,7 @@ theorem mapM_parse_map_format (l : List (Int32 × Int32)) :
 
 /-- Deserializing serialized cells gives back exactly those cells, in order. -/
 theorem deserializeLife106_serializeLife106 (cells : Array (Int32 × Int32)) (hc : cells.size + 2 < 2 ^ 31) :
-    deserializeLife106 (serializeLife106 (cells.map cellBits)) = ⟨0, 0, "", cells.map cellBits⟩ := by
+    deserializeLife106 (serializeLife106 (cells.map cellBits)) = ⟨.ok, cells.map cellBits⟩ := by
   rw [serializeLife106_eq _ (by simpa using hc), deserializeLife106_eq _ (by simp; omega)]
   have hmap : ((#["#Life 1.06"] ++ (cells.map cellBits).map (fun k => formatCoordLine (cellKeyX k) (cellKeyY k))).toList.drop 1).mapM
       parseCoordLine = some cells.toList := by

@@ -28,37 +28,40 @@ the pattern: runs `<count><tag>` with tags `b` (dead), `o` (alive) and `$` (end 
 applies to the tag right after it on the same line. Whitespace is ignored.
 -/
 
-@[kotlin_class "RLEWarning"]
-structure RLEWarning where
-  /--
-  0: unexpected empty file, 1: duplicate top-left coordinate, 2: unexpected character, 3: unexpected input
-  (`strVal`), 4: unexpected character after `!`.
-  -/
-  tag : UInt32
-  lineIndex : UInt32
-  columnIndex : UInt32
-  charVal : UInt32
-  strVal : String
-  offsetX : Int32
-  offsetY : Int32
+/-- A problem that deserialization recovered from. Line and column indices are 1-based. -/
+@[kotlin_class "sealed class RLEWarning"]
+inductive RLEWarning where
+  | emptyFile
+  /-- Another `#R` line; its offset (`x`, `y`) replaces the earlier one. -/
+  | duplicateOffset (lineIndex : UInt32) (x y : Int32)
+  /-- A character that is not part of the pattern, with its code point. -/
+  | unexpectedChar (lineIndex columnIndex codePoint : UInt32)
+  /-- Unexpected input, such as a count that no tag follows. -/
+  | unexpectedInput (lineIndex columnIndex : UInt32) (input : String)
+  /-- A character after the `!` that ends the pattern, with its code point. -/
+  | charAfterEnd (lineIndex columnIndex codePoint : UInt32)
+  deriving DecidableEq, Repr
+
+/-- How deserialization ended. -/
+@[kotlin_class "sealed class RLEStatus"]
+inductive RLEStatus where
+  | ok
+  | emptyFile
+  /-- The header line is missing or malformed. -/
+  | invalidHeader (line : String)
+  /-- The header's rule is not Conway's rules. -/
+  | ruleNotSupported
+  /-- Unexpected input, such as a count too large for a run, on line `lineIndex` at column `columnIndex`. -/
+  | unexpectedInput (input : String) (lineIndex columnIndex : UInt32)
   deriving DecidableEq, Repr
 
 @[kotlin_class "RLEResult"]
 structure RLEResult where
-  /-- 0: success, 1: unexpected empty file, 2: unexpected header, 3: rule not supported, 4: unexpected input. -/
-  status : UInt32
-  errLine : String
-  errLineIndex : UInt32
-  errColumnIndex : UInt32
+  status : RLEStatus
   warnings : Array RLEWarning
   /-- The keys (`cellBits`) of the cells. -/
   cells : Array UInt64
   deriving DecidableEq, Repr
-
-/-- Zero, for the offset of warnings without one. Not inlined, as the Kotlin backend emits an `Int32` literal
-in a constructor as unsigned. -/
-@[noinline]
-def zeroOffset : Int32 := 0
 
 /-- Parses a `#R x y` or `#P x y` top-left coordinate line. -/
 def parseRLEOffset (bytes : ByteArray) : Option ParsedCoords :=
@@ -197,7 +200,7 @@ decreasing_by all_goals first | exact this | exact hnext
 /-- The successful result for the runs read so far. -/
 def finishRLE (warns : GrowBuf RLEWarning) (runs : GrowBuf (UInt32 × UInt32)) (startX startY : Int32) : RLEResult :=
   let runArr := runs.toArray
-  ⟨0, "", 0, 0, warns.toArray,
+  ⟨.ok, warns.toArray,
     U64Buf.toArray (expandRuns runArr runArr.size.toUInt32 0 0 startX startY startX U64Buf.empty)⟩
 
 /--
@@ -228,25 +231,25 @@ def parseRLEData (lines : Array String) (numLines : UInt32) (i : UInt32) (inLine
             (if hasCount then countP else p) (if hasCount then countCol else col) warns runs startX startY
         else if cp == 33 then -- '!'
           let warns := if hasCount then
-              warns.push ⟨3, i + 1, countCol + 1, 0, asciiStringLossy bytes countP r.2, zeroOffset, zeroOffset⟩
+              warns.push (.unexpectedInput (i + 1) (countCol + 1) (asciiStringLossy bytes countP r.2))
             else warns
           let warns := if r.2 < limit then
-              warns.push ⟨4, i + 1, col + 2, (decodeCharAt bytes r.2 limit).1, "", zeroOffset, zeroOffset⟩
+              warns.push (.charAfterEnd (i + 1) (col + 2) ((decodeCharAt bytes r.2 limit).1))
             else if i + 1 < numLines then
-              warns.push ⟨3, i + 2, 1, 0, lines[(i + 1).toNat]!, zeroOffset, zeroOffset⟩
+              warns.push (.unexpectedInput (i + 2) 1 (lines[(i + 1).toNat]!))
             else warns
           finishRLE warns (runs.push (0, 1)) startX startY
         else if cp == 32 || cp == 9 || cp == 13 then -- whitespace
           parseRLEData lines numLines i true bytes limit r.2 (col + 1) count hasCount countP countCol warns runs
             startX startY
         else if hasCount && count > maxRunCount then
-          ⟨4, asciiStringLossy bytes countP p, i + 1, countCol + 1, #[], noCells⟩
+          ⟨.unexpectedInput (asciiStringLossy bytes countP p) (i + 1) (countCol + 1), #[], noCells⟩
         else
           let n : UInt32 := if hasCount then count.toUInt32 else 1
           -- '$' ends rows, 'b' is dead, and anything else is alive, with a warning unless it is 'o'.
           let tag : UInt32 := if cp == 36 then 0 else if cp == 98 then 1 else 2
           let warns := if tag == 2 && cp != 111 then
-              warns.push ⟨2, i + 1, col + 1, cp, "", zeroOffset, zeroOffset⟩
+              warns.push (.unexpectedChar (i + 1) (col + 1) cp)
             else warns
           parseRLEData lines numLines i true bytes limit r.2 (col + 1) 0 false 0 0 warns (runs.push (tag, n))
             startX startY
@@ -283,21 +286,22 @@ def parseRLEComments (lines : Array String) (numLines : UInt32) (i : UInt32) (of
     if bytes.size.toUInt32 != 0 && bytes.get! 0 == 35 then -- '#'
       match parseRLEOffset bytes with
       | some c =>
-        let warns := if hasOffset then warns.push ⟨1, i + 1, 0, 0, "", c.x, c.y⟩ else warns
+        let warns := if hasOffset then warns.push (.duplicateOffset (i + 1) c.x c.y) else warns
         parseRLEComments lines numLines (i + 1) c.x c.y true warns
       | none => parseRLEComments lines numLines (i + 1) offsetX offsetY hasOffset warns
     else
       let status := parseRLEHeader bytes
-      if status != 0 then ⟨status, line, i + 1, 0, warns.toArray, noCells⟩
+      if status == 3 then ⟨.ruleNotSupported, warns.toArray, noCells⟩
+      else if status != 0 then ⟨.invalidHeader line, warns.toArray, noCells⟩
       else
         parseRLEData lines numLines (i + 1) false bytes 0 0 0 0 false 0 0 warns GrowBuf.empty offsetX offsetY
-  else ⟨2, "none", numLines, 0, warns.toArray, noCells⟩
+  else ⟨.invalidHeader "none", warns.toArray, noCells⟩
 termination_by numLines.toNat - i.toNat
 
 @[export rle_deserialize, kotlin_types "Array<String>" "_"]
 def deserializeRLE (lines : Array String) : RLEResult :=
   if lines.size.toUInt32 == 0 then
-    ⟨1, "", 0, 0, #[⟨0, 0, 0, 0, "", zeroOffset, zeroOffset⟩], noCells⟩
+    ⟨.emptyFile, #[.emptyFile], noCells⟩
   else
     parseRLEComments lines lines.size.toUInt32 0 0 0 false GrowBuf.empty
 
@@ -410,5 +414,11 @@ def serializeRLE (cells : Array UInt64) (minX maxX minY maxY : Int32) : Array St
     let items := items.push (rleEnd, 1)
     let header := formatRLEHeader minX minY width height
     (wrapRLEItems items items.size.toUInt32 0 "" 0 (GrowBuf.empty.push header[0]! |>.push header[1]!)).toArray
+
+/-- Serializes the cells (as `cellBits`) in their bounding box. -/
+@[export rle_serialize_cells]
+def serializeRLECells (cells : Array UInt64) : Array String :=
+  let b := cellBox cells
+  serializeRLE cells b.1 b.2.1 b.2.2.1 b.2.2.2
 
 end Algorithm
