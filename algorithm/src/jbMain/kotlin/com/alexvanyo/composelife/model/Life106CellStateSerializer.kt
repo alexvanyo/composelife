@@ -23,40 +23,28 @@ object Life106CellStateSerializer : FixedFormatCellStateSerializer {
     override fun deserializeToCellState(lines: Sequence<String>): DeserializationResult {
         val result = f_Algorithm_deserializeLife106(lines.toList().toTypedArray())
 
-        return when (result.status) {
-            0u -> {
-                DeserializationResult.Successful(
-                    warnings = emptyList(),
-                    cellState = CellState(leanCellsToOffsets(result.cells)),
-                    format = CellStateFormat.FixedFormat.Life106,
-                )
-            }
+        return when (val status = result.status) {
+            is Life106Status.Ok -> DeserializationResult.Successful(
+                warnings = emptyList(),
+                cellState = CellState(leanCellsToOffsets(result.cells)),
+                format = CellStateFormat.FixedFormat.Life106,
+            )
 
-            1u -> {
-                DeserializationResult.Successful(
-                    warnings = listOf(UnexpectedEmptyFileMessage),
-                    cellState = emptyCellState(),
-                    format = CellStateFormat.FixedFormat.Life106,
-                )
-            }
+            is Life106Status.EmptyFile -> DeserializationResult.Successful(
+                warnings = listOf(UnexpectedEmptyFileMessage),
+                cellState = emptyCellState(),
+                format = CellStateFormat.FixedFormat.Life106,
+            )
 
-            2u -> {
-                DeserializationResult.Unsuccessful(
-                    warnings = emptyList(),
-                    errors = listOf(
-                        UnexpectedHeaderMessage(result.errLineContent),
-                    ),
-                )
-            }
+            is Life106Status.InvalidHeader -> DeserializationResult.Unsuccessful(
+                warnings = emptyList(),
+                errors = listOf(UnexpectedHeaderMessage(status.line)),
+            )
 
-            else -> {
-                DeserializationResult.Unsuccessful(
-                    warnings = emptyList(),
-                    errors = listOf(
-                        UnexpectedInputMessage(result.errLineContent, result.errLineIndex.toInt(), 0),
-                    ),
-                )
-            }
+            is Life106Status.InvalidLine -> DeserializationResult.Unsuccessful(
+                warnings = emptyList(),
+                errors = listOf(UnexpectedInputMessage(status.line, status.lineIndex.toInt(), 0)),
+            )
         }
     }
 

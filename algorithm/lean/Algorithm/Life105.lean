@@ -27,22 +27,29 @@ A `#Life 1.05` header, `#D` description lines, an optional `#N` or `#R survival/
 `#P x y` line followed by rows of `.` (dead) and `*` (alive).
 -/
 
-@[kotlin_class "Life105Warning"]
-structure Life105Warning where
-  /-- 0: unexpected empty file, 1: unexpected input. -/
-  tag : UInt32
-  line : String
-  lineIndex : UInt32
-  columnIndex : UInt32
+/-- A problem that deserialization recovered from. -/
+@[kotlin_class "sealed class Life105Warning"]
+inductive Life105Warning where
+  | emptyFile
+  /-- Unexpected input in `line`, line `lineIndex` (1-based), at column `columnIndex`. -/
+  | unexpectedInput (line : String) (lineIndex columnIndex : UInt32)
+  deriving DecidableEq, Repr
+
+/-- How deserialization ended. -/
+@[kotlin_class "sealed class Life105Status"]
+inductive Life105Status where
+  | ok
+  /-- The first line is not the `#Life 1.05` header. -/
+  | invalidHeader (line : String)
+  /-- The rule line is not Conway's rules. -/
+  | ruleNotSupported
+  /-- Unexpected input in `line`, line `lineIndex` (1-based), at column `columnIndex`. -/
+  | unexpectedInput (line : String) (lineIndex columnIndex : UInt32)
   deriving DecidableEq, Repr
 
 @[kotlin_class "Life105Result"]
 structure Life105Result where
-  /-- 0: success, 1: unexpected header, 2: rule not supported, 3: unexpected input. -/
-  status : UInt32
-  errLine : String
-  errLineIndex : UInt32
-  errColumnIndex : UInt32
+  status : Life105Status
   warnings : Array Life105Warning
   /-- The keys (`cellBits`) of the cells. -/
   cells : Array UInt64
@@ -155,14 +162,14 @@ def parseBlocks (lines : Array String) (numLines : UInt32) (i : UInt32) (inRow :
       let bytes := line.toByteArray
       if startsWithHash bytes 80 then -- "#P"
         match parseBlockHeader bytes with
-        | none => ⟨3, line, i + 1, 3, warns, noCells⟩
+        | none => ⟨.unexpectedInput line (i + 1) 3, warns, noCells⟩
         | some c => parseBlocks lines numLines (i + 1) false bytes limit 0 true c.x c.y 0 warns cells
       else if isRowLine bytes && hasBlock then
         parseBlocks lines numLines i true bytes bytes.size.toUInt32 0 true blockX blockY rowIndex warns cells
       else
-        ⟨3, line, i + 1, 1, warns, noCells⟩
+        ⟨.unexpectedInput line (i + 1) 1, warns, noCells⟩
   else
-    ⟨0, "", 0, 0, warns, U64Buf.toArray cells⟩
+    ⟨.ok, warns, U64Buf.toArray cells⟩
 termination_by (numLines.toNat - i.toNat) * 2 ^ 33 + (if inRow then limit.toNat - p.toNat else 2 ^ 32)
 decreasing_by
   all_goals
@@ -176,28 +183,28 @@ decreasing_by
 def deserializeLife105 (lines : Array String) : Life105Result :=
   let numLines := lines.size.toUInt32
   if numLines == 0 then
-    ⟨0, "", 0, 0, #[⟨0, "", 0, 0⟩], noCells⟩
+    ⟨.ok, #[.emptyFile], noCells⟩
   else
     let header := lines[0]!
     if header != "#Life 1.05" then
-      ⟨1, header, 1, 0, #[], noCells⟩
+      ⟨.invalidHeader header, #[], noCells⟩
     else
       let i := skipDescriptions lines numLines 1
       if i < numLines then
         let ruleLine := lines[i.toNat]!
         let bytes := ruleLine.toByteArray
         if startsWithHash bytes 78 then -- "#N"
-          let warns := if ruleLine != "#N" then #[⟨1, ruleLine, i + 1, 3⟩] else #[]
+          let warns := if ruleLine != "#N" then #[.unexpectedInput ruleLine (i + 1) 3] else #[]
           parseBlocks lines numLines (i + 1) false bytes 0 0 false 0 0 0 warns U64Buf.empty
         else if startsWithHash bytes 82 then -- "#R"
           let status := checkRuleLine bytes
           if status == 0 then parseBlocks lines numLines (i + 1) false bytes 0 0 false 0 0 0 #[] U64Buf.empty
-          else if status == 1 then ⟨3, ruleLine, i + 1, 3, #[], noCells⟩
-          else ⟨2, "", 0, 0, #[], noCells⟩
+          else if status == 1 then ⟨.unexpectedInput ruleLine (i + 1) 3, #[], noCells⟩
+          else ⟨.ruleNotSupported, #[], noCells⟩
         else
           parseBlocks lines numLines i false bytes 0 0 false 0 0 0 #[] U64Buf.empty
       else
-        ⟨0, "", 0, 0, #[], noCells⟩
+        ⟨.ok, #[], noCells⟩
 
 /-- The block header line for a block at (`x`, `y`). -/
 def formatBlockHeader (x y : Int32) : String := s!"#P {x} {y}"
@@ -212,5 +219,84 @@ def serializeLife105Block (cells : Array UInt64) (minX minY maxY : Int32) : Arra
   let grid := fillGrid cells minX minY 80 height 42 (by decide) 0 cells.size.toUInt32
     (AsciiBytes.replicate (80 * height) 46 (by decide))
   (gridRows grid 80 height 0 (GrowBuf.empty.push (formatBlockHeader minX minY))).toArray
+
+/--
+The least x, least y and greatest y of `minX`, `minY`, `maxY` and the cells `i` onward (as `cellBits`).
+-/
+def life105Bounds (cells : Array UInt64) (i limit : UInt32) (minX minY maxY : Int32) : Int32 × Int32 × Int32 :=
+  if h : i < limit then
+    have : limit.toNat - (i + 1).toNat < limit.toNat - i.toNat := by
+      have h1 := UInt32.lt_iff_toNat_lt.mp h
+      have h2 : (i + 1).toNat = i.toNat + 1 := by
+        rw [UInt32.toNat_add]
+        have := UInt32.toNat_lt limit
+        simp only [UInt32.toNat_one]
+        omega
+      omega
+    let k := cells[i.toNat]!
+    let x := (cellKeyX k).toInt32
+    let y := (cellKeyY k).toInt32
+    life105Bounds cells (i + 1) limit (if x < minX then x else minX) (if y < minY then y else minY)
+      (if maxY < y then y else maxY)
+  else (minX, minY, maxY)
+termination_by limit.toNat - i.toNat
+
+/-- Whether the cell with key `k` is in the 80 columns from `minX`. -/
+@[inline]
+def inLife105Block (minX : Int32) (k : UInt64) : Bool := ((cellKeyX k).toInt32 - minX).toUInt32 < 80
+
+/-- Adds the cells `i` onward that are not in the 80 columns from `minX`. -/
+def life105Rest (cells : Array UInt64) (minX : Int32) (i limit : UInt32) (acc : U64Buf) : U64Buf :=
+  if h : i < limit then
+    have : limit.toNat - (i + 1).toNat < limit.toNat - i.toNat := by
+      have h1 := UInt32.lt_iff_toNat_lt.mp h
+      have h2 : (i + 1).toNat = i.toNat + 1 := by
+        rw [UInt32.toNat_add]
+        have := UInt32.toNat_lt limit
+        simp only [UInt32.toNat_one]
+        omega
+      omega
+    let k := cells[i.toNat]!
+    life105Rest cells minX (i + 1) limit (if inLife105Block minX k then acc else U64Buf.push acc k)
+  else acc
+termination_by limit.toNat - i.toNat
+
+/--
+Appends lines `j` onward of `block`, and then the blocks of `cells`: the block of the 80 columns from the least x,
+from the least to the greatest y of the cells, and then the blocks of the cells outside it. Each block has a cell,
+so `fuel` blocks are enough for `fuel` cells.
+-/
+def serializeLife105.loop (fuel : UInt32) (cells : Array UInt64) (block : Array String) (j : UInt32)
+    (acc : GrowBuf String) : GrowBuf String :=
+  if hj : j < block.size.toUInt32 then
+    have : block.size.toUInt32.toNat - (j + 1).toNat < block.size.toUInt32.toNat - j.toNat := by
+      have h1 := UInt32.lt_iff_toNat_lt.mp hj
+      have h2 : (j + 1).toNat = j.toNat + 1 := by
+        rw [UInt32.toNat_add]
+        have := UInt32.toNat_lt block.size.toUInt32
+        simp only [UInt32.toNat_one]
+        omega
+      omega
+    serializeLife105.loop fuel cells block (j + 1) (acc.push block[j.toNat]!)
+  else if hf : fuel = 0 then acc
+  else if cells.size.toUInt32 == 0 then acc
+  else
+    have : (fuel - 1).toNat < fuel.toNat := by
+      have h1 : fuel.toNat ≠ 0 := fun h => hf (UInt32.toNat_inj.mp (by simpa using h))
+      rw [UInt32.toNat_sub_of_le _ _ (by rw [UInt32.le_iff_toNat_le]; simp; omega)]
+      simp; omega
+    let k := cells[0]!
+    let y := (cellKeyY k).toInt32
+    let bounds := life105Bounds cells 1 cells.size.toUInt32 (cellKeyX k).toInt32 y y
+    let minX := bounds.1
+    let block := serializeLife105Block cells minX bounds.2.1 bounds.2.2
+    let rest := U64Buf.toArray (life105Rest cells minX 0 cells.size.toUInt32 U64Buf.empty)
+    serializeLife105.loop (fuel - 1) rest block 0 acc
+termination_by (fuel.toNat, block.size.toUInt32.toNat - j.toNat)
+
+/-- Serializes cells (as `cellBits`): the header lines and then blocks of 80 columns covering every cell. -/
+@[export life105_serialize]
+def serializeLife105 (cells : Array UInt64) : Array String :=
+  (serializeLife105.loop cells.size.toUInt32 cells #[] 0 ((GrowBuf.empty.push "#Life 1.05").push "#N")).toArray
 
 end Algorithm

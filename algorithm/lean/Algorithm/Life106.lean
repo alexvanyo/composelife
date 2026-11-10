@@ -26,13 +26,20 @@ namespace Algorithm
 A `#Life 1.06` header line followed by one `x y` coordinate line per alive cell.
 -/
 
+/-- How deserialization ended. -/
+@[kotlin_class "sealed class Life106Status"]
+inductive Life106Status where
+  | ok
+  | emptyFile
+  /-- The first line is not the `#Life 1.06` header. -/
+  | invalidHeader (line : String)
+  /-- Line `lineIndex` (1-based) is not a coordinate line. -/
+  | invalidLine (lineIndex : UInt32) (line : String)
+  deriving DecidableEq, Repr
+
 @[kotlin_class "Life106Result"]
 structure Life106Result where
-  /-- 0: success, 1: empty file, 2: invalid header, 3: invalid line. -/
-  status : UInt32
-  /-- The 1-based index of the line with the error. -/
-  errLineIndex : UInt32
-  errLineContent : String
+  status : Life106Status
   /-- The keys (`cellBits`) of the cells. -/
   cells : Array UInt64
   deriving DecidableEq, Repr
@@ -67,19 +74,19 @@ def deserializeLife106.loop (lines : Array String) (i : UInt32) (limit : UInt32)
     let line := lines[i.toNat]!
     match parseCoordLine line with
     | some coord => deserializeLife106.loop lines (i + 1) limit (U64Buf.push acc (cellBits coord))
-    | none => ⟨3, i + 1, line, noCells⟩
+    | none => ⟨.invalidLine (i + 1) line, noCells⟩
   else
-    ⟨0, 0, "", U64Buf.toArray acc⟩
+    ⟨.ok, U64Buf.toArray acc⟩
 termination_by limit.toNat - i.toNat
 
 @[export life106_deserialize, kotlin_types "Array<String>" "_"]
 def deserializeLife106 (lines : Array String) : Life106Result :=
   if lines.size.toUInt32 == 0 then
-    ⟨1, 0, "", noCells⟩
+    ⟨.emptyFile, noCells⟩
   else
     let header := lines[0]!
     if header != "#Life 1.06" then
-      ⟨2, 1, header, noCells⟩
+      ⟨.invalidHeader header, noCells⟩
     else
       deserializeLife106.loop lines 1 lines.size.toUInt32 U64Buf.empty
 

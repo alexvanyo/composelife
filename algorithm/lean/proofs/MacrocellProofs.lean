@@ -884,35 +884,35 @@ theorem loop_nodeLine_prefix (lines : Array String) (numLines i : UInt32) (hi : 
     ∃ n : MCNodeLine, n.level = level ∧ n.nw = a ∧ n.ne = b ∧ n.sw = c ∧ n.se = d ∧
       deserializeMacrocell.loop lines numLines i false B lim p col x y l nodes leaves isLeaf warns =
         (if n.level < 4 || n.level > maxMacrocellLevel then
-          (⟨3, formatMacrocellNode level a b c d, i, 0, 0, 0, warns.toArray, emptyLevel4⟩ : MacrocellResult)
+          (⟨.unexpectedInput (formatMacrocellNode level a b c d) i, warns.toArray, emptyLevel4⟩ : MacrocellResult)
         else if n.level == 4 then
           match macrocellLeafChild leaves isLeaf n.nw with
-          | none => ⟨4, formatMacrocellNode level a b c d, i, 0, n.nwStart, n.nwEnd, warns.toArray, emptyLevel4⟩
+          | none => ⟨.unexpectedNodeId (formatMacrocellNode level a b c d) i n.nwStart n.nwEnd, warns.toArray, emptyLevel4⟩
           | some c1 =>
           match macrocellLeafChild leaves isLeaf n.ne with
-          | none => ⟨4, formatMacrocellNode level a b c d, i, 0, n.neStart, n.neEnd, warns.toArray, emptyLevel4⟩
+          | none => ⟨.unexpectedNodeId (formatMacrocellNode level a b c d) i n.neStart n.neEnd, warns.toArray, emptyLevel4⟩
           | some c2 =>
           match macrocellLeafChild leaves isLeaf n.sw with
-          | none => ⟨4, formatMacrocellNode level a b c d, i, 0, n.swStart, n.swEnd, warns.toArray, emptyLevel4⟩
+          | none => ⟨.unexpectedNodeId (formatMacrocellNode level a b c d) i n.swStart n.swEnd, warns.toArray, emptyLevel4⟩
           | some c3 =>
           match macrocellLeafChild leaves isLeaf n.se with
-          | none => ⟨4, formatMacrocellNode level a b c d, i, 0, n.seStart, n.seEnd, warns.toArray, emptyLevel4⟩
+          | none => ⟨.unexpectedNodeId (formatMacrocellNode level a b c d) i n.seStart n.seEnd, warns.toArray, emptyLevel4⟩
           | some c4 =>
             deserializeMacrocell.loop lines numLines (i + 1) false (formatMacrocellNode level a b c d).toByteArray
               (formatMacrocellNode level a b c d).toByteArray.size.toUInt32 0 0 0 0 0
               (nodes.push (makeLevel4Node c1 c2 c3 c4)) (leaves.push 0) (isLeaf.push false) warns
         else
           match macrocellCellChild nodes isLeaf n.level (emptyMacroCellUInt32 (n.level - 1)) n.nw with
-          | none => ⟨4, formatMacrocellNode level a b c d, i, 0, n.nwStart, n.nwEnd, warns.toArray, emptyLevel4⟩
+          | none => ⟨.unexpectedNodeId (formatMacrocellNode level a b c d) i n.nwStart n.nwEnd, warns.toArray, emptyLevel4⟩
           | some c1 =>
           match macrocellCellChild nodes isLeaf n.level (emptyMacroCellUInt32 (n.level - 1)) n.ne with
-          | none => ⟨4, formatMacrocellNode level a b c d, i, 0, n.neStart, n.neEnd, warns.toArray, emptyLevel4⟩
+          | none => ⟨.unexpectedNodeId (formatMacrocellNode level a b c d) i n.neStart n.neEnd, warns.toArray, emptyLevel4⟩
           | some c2 =>
           match macrocellCellChild nodes isLeaf n.level (emptyMacroCellUInt32 (n.level - 1)) n.sw with
-          | none => ⟨4, formatMacrocellNode level a b c d, i, 0, n.swStart, n.swEnd, warns.toArray, emptyLevel4⟩
+          | none => ⟨.unexpectedNodeId (formatMacrocellNode level a b c d) i n.swStart n.swEnd, warns.toArray, emptyLevel4⟩
           | some c3 =>
           match macrocellCellChild nodes isLeaf n.level (emptyMacroCellUInt32 (n.level - 1)) n.se with
-          | none => ⟨4, formatMacrocellNode level a b c d, i, 0, n.seStart, n.seEnd, warns.toArray, emptyLevel4⟩
+          | none => ⟨.unexpectedNodeId (formatMacrocellNode level a b c d) i n.seStart n.seEnd, warns.toArray, emptyLevel4⟩
           | some c4 =>
             deserializeMacrocell.loop lines numLines (i + 1) false (formatMacrocellNode level a b c d).toByteArray
               (formatMacrocellNode level a b c d).toByteArray.size.toUInt32 0 0 0 0 0
@@ -1064,7 +1064,7 @@ theorem macrocellHeader_check :
 theorem deserializeMacrocell_reads {ls : List String} {N : Array MacroCell} {Lv : Array UInt64} {IL : Array Bool}
     (h : Reads ls N Lv IL) (lines : Array String) (hl : lines.toList = macrocellHeader :: ls)
     (hsz : lines.size < 2 ^ 31) (hne : N.size ≠ 0) :
-    deserializeMacrocell lines = ⟨0, "", 0, 0, 0, 0, #[], macroCellAt N (N.size - 1).toUInt32⟩ := by
+    deserializeMacrocell lines = ⟨.ok, #[], macroCellAt N (N.size - 1).toUInt32⟩ := by
   have hsizes := h.sizes
   have hlen : lines.size = ls.length + 1 := by rw [← Array.length_toList, hl]; simp
   have h0 : lines[0]! = macrocellHeader := by
@@ -1693,7 +1693,7 @@ stay below 2 ^ 31.)
 theorem macrocell_round_trip (m : MacroCell) (hcan : Canonical m) (hd : m.depth ≤ 63)
     (hsl : macrocellSingleLeaf m = none) (hne : m ≠ emptyMacroCellUInt32 m.level)
     (hlen : ((⟨[macrocellHeader], [], []⟩ : MacrocellWriterState).addTree m).2.lines.length < 2 ^ 31) :
-    deserializeMacrocell (serializeMacrocell m) = ⟨0, "", 0, 0, 0, 0, #[], m⟩ := by
+    deserializeMacrocell (serializeMacrocell m) = ⟨.ok, #[], m⟩ := by
   obtain ⟨N', Lv', IL', hinv, -, hc, -, hlast⟩ := addTree_spec m _ #[] #[] #[] Inv.initial hcan hd hlen
   have hid : ((⟨[macrocellHeader], [], []⟩ : MacrocellWriterState).addTree m).1 ≠ 0 := by
     intro h0
@@ -1708,7 +1708,7 @@ theorem macrocell_round_trip (m : MacroCell) (hcan : Canonical m) (hd : m.depth 
 
 /-- A single leaf is written as just its leaf line, and reads back as the leaf in the northwest quadrant. -/
 theorem macrocell_round_trip_single_leaf (m : MacroCell) (leaf : UInt64) (hsl : macrocellSingleLeaf m = some leaf) :
-    deserializeMacrocell (serializeMacrocell m) = ⟨0, "", 0, 0, 0, 0, #[], makeLevel4Node leaf 0 0 0⟩ := by
+    deserializeMacrocell (serializeMacrocell m) = ⟨.ok, #[], makeLevel4Node leaf 0 0 0⟩ := by
   unfold serializeMacrocell
   simp only [hsl]
   have hr := Reads.leaf leaf Reads.nil

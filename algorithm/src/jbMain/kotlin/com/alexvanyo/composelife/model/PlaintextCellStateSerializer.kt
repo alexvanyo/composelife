@@ -24,16 +24,15 @@ object PlaintextCellStateSerializer : FixedFormatCellStateSerializer {
         val result = f_Algorithm_deserializePlaintext(lines.toList().toTypedArray())
 
         val warnings = result.warnings.map {
-            val w = it as PlaintextWarning
-            when (w.tag) {
-                0u -> UnexpectedBlankLineMessage(w.lineIndex.toInt())
+            when (val warning = it as PlaintextWarning) {
+                is PlaintextWarning.BlankLine -> UnexpectedBlankLineMessage(warning.lineIndex.toInt())
 
-                1u -> UnexpectedShortLineMessage(w.lineIndex.toInt())
+                is PlaintextWarning.ShortLine -> UnexpectedShortLineMessage(warning.lineIndex.toInt())
 
-                else -> UnexpectedCharacterMessage(
-                    codePointToChar(w.charVal),
-                    w.lineIndex.toInt(),
-                    w.columnIndex.toInt(),
+                is PlaintextWarning.UnexpectedChar -> UnexpectedCharacterMessage(
+                    codePointToChar(warning.codePoint),
+                    warning.lineIndex.toInt(),
+                    warning.columnIndex.toInt(),
                 )
             }
         }
@@ -47,13 +46,6 @@ object PlaintextCellStateSerializer : FixedFormatCellStateSerializer {
         )
     }
 
-    override fun serializeToString(cellState: CellState): Sequence<String> {
-        val minX = cellState.aliveCells.minOfOrNull { it.x } ?: 0
-        val maxX = cellState.aliveCells.maxOfOrNull { it.x } ?: 0
-        val minY = cellState.aliveCells.minOfOrNull { it.y } ?: 0
-        val maxY = cellState.aliveCells.maxOfOrNull { it.y } ?: 0
-
-        val lines = f_Algorithm_serializePlaintext(cellState.aliveCells.toLeanCells(), minX, maxX, minY, maxY)
-        return lines.asSequence().map { it as String }
-    }
+    override fun serializeToString(cellState: CellState): Sequence<String> =
+        f_Algorithm_serializePlaintextCells(cellState.aliveCells.toLeanCells()).asSequence().map { it as String }
 }

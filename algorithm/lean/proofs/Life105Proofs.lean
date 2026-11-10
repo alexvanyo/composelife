@@ -505,7 +505,7 @@ theorem parseBlocks_blocks (L : Array String) (hL : 80 * L.size < 2 ^ 31) (warns
       L.toList.drop i0 = bs.flatMap Life105Block.lines → U64Buf.Rep cells (a.map cellBits) →
       a.size + 80 * (L.size - i0) < 2 ^ 31 →
       parseBlocks L L.size.toUInt32 i0.toUInt32 false B Lim 0 hasBlock bx bY ri warns cells =
-        ⟨0, "", 0, 0, warns, (a ++ (bs.flatMap Life105Block.cells).toArray).map cellBits⟩ := by
+        ⟨.ok, warns, (a ++ (bs.flatMap Life105Block.cells).toArray).map cellBits⟩ := by
   have hL32 : L.size < 2 ^ 32 := by omega
   intro bs
   induction bs with
@@ -561,7 +561,7 @@ block and row by row.
 theorem deserializeLife105_blocks (bs : List Life105Block) (hbs : ∀ b ∈ bs, b.1.size < 2 ^ 32 ∧ 80 * b.height < 2 ^ 31)
     (hsz : 80 * ((bs.flatMap Life105Block.lines).length + 2) < 2 ^ 31) :
     deserializeLife105 (#["#Life 1.05", "#N"] ++ (bs.flatMap Life105Block.lines).toArray) =
-      ⟨0, "", 0, 0, #[], (bs.flatMap Life105Block.cells).toArray.map cellBits⟩ := by
+      ⟨.ok, #[], (bs.flatMap Life105Block.cells).toArray.map cellBits⟩ := by
   generalize hL : #["#Life 1.05", "#N"] ++ (bs.flatMap Life105Block.lines).toArray = L
   have hLsize : L.size = (bs.flatMap Life105Block.lines).length + 2 := by rw [← hL]; simp
   have hL32 : L.size < 2 ^ 32 := by omega
@@ -662,7 +662,7 @@ inside their block (the 80 columns from `minX`, and the rows from `minY` to `max
 theorem life105_round_trip (bs : List Life105Block) (hbs : ∀ b ∈ bs, b.1.size < 2 ^ 32 ∧ 80 * b.height < 2 ^ 31)
     (hsz : 80 * ((bs.flatMap Life105Block.lines).length + 2) < 2 ^ 31) :
     let r := deserializeLife105 (#["#Life 1.05", "#N"] ++ (bs.flatMap Life105Block.lines).toArray)
-    r.status = 0 ∧ r.warnings = #[] ∧
+    r.status = .ok ∧ r.warnings = #[] ∧
       ∀ q, cellBits q ∈ r.cells ↔ ∃ b ∈ bs, ∃ c ∈ b.1,
         (gridIndex b.2.1 b.2.2.1 80 (b.2.2.2 - b.2.2.1 + 1).toUInt32 ((cellKeyX c).toInt32, (cellKeyY c).toInt32)).isSome ∧
           q = ((cellKeyX c).toInt32, (cellKeyY c).toInt32) := by

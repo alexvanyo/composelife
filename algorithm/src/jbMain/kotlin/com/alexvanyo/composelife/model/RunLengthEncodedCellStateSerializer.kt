@@ -27,83 +27,66 @@ object RunLengthEncodedCellStateSerializer : FixedFormatCellStateSerializer {
         val result = f_Algorithm_deserializeRLE(lines.toList().toTypedArray())
         val warnings = result.warnings.map { mapRLEWarning(it as RLEWarning) }
 
-        return when (result.status) {
-            0u -> {
-                DeserializationResult.Successful(
-                    warnings = warnings,
-                    cellState = CellState(leanCellsToOffsets(result.cells)),
-                    format = CellStateFormat.FixedFormat.RunLengthEncoding,
-                )
-            }
+        return when (val status = result.status) {
+            is RLEStatus.Ok -> DeserializationResult.Successful(
+                warnings = warnings,
+                cellState = CellState(leanCellsToOffsets(result.cells)),
+                format = CellStateFormat.FixedFormat.RunLengthEncoding,
+            )
 
-            1u -> {
-                DeserializationResult.Successful(
-                    warnings = warnings,
-                    cellState = emptyCellState(),
-                    format = CellStateFormat.FixedFormat.RunLengthEncoding,
-                )
-            }
+            is RLEStatus.EmptyFile -> DeserializationResult.Successful(
+                warnings = warnings,
+                cellState = emptyCellState(),
+                format = CellStateFormat.FixedFormat.RunLengthEncoding,
+            )
 
-            2u -> {
-                DeserializationResult.Unsuccessful(
-                    warnings = warnings,
-                    errors = listOf(UnexpectedHeaderMessage(result.errLine)),
-                )
-            }
+            is RLEStatus.InvalidHeader -> DeserializationResult.Unsuccessful(
+                warnings = warnings,
+                errors = listOf(UnexpectedHeaderMessage(status.line)),
+            )
 
-            3u -> {
-                DeserializationResult.Unsuccessful(
-                    warnings = warnings,
-                    errors = listOf(RuleNotSupportedMessage),
-                )
-            }
+            is RLEStatus.RuleNotSupported -> DeserializationResult.Unsuccessful(
+                warnings = warnings,
+                errors = listOf(RuleNotSupportedMessage),
+            )
 
-            else -> {
-                DeserializationResult.Unsuccessful(
-                    warnings = warnings,
-                    errors = listOf(
-                        UnexpectedInputMessage(
-                            input = result.errLine,
-                            lineIndex = result.errLineIndex.toInt(),
-                            characterIndex = result.errColumnIndex.toInt(),
-                        ),
+            is RLEStatus.UnexpectedInput -> DeserializationResult.Unsuccessful(
+                warnings = warnings,
+                errors = listOf(
+                    UnexpectedInputMessage(
+                        input = status.input,
+                        lineIndex = status.lineIndex.toInt(),
+                        characterIndex = status.columnIndex.toInt(),
                     ),
-                )
-            }
+                ),
+            )
         }
     }
 
-    private fun mapRLEWarning(warn: RLEWarning): ParameterizedString = when (warn.tag) {
-        0u -> UnexpectedEmptyFileMessage
+    private fun mapRLEWarning(warning: RLEWarning): ParameterizedString = when (warning) {
+        is RLEWarning.EmptyFile -> UnexpectedEmptyFileMessage
 
-        1u -> DuplicateTopLeftCoordinateMessage(IntOffset(warn.offsetX, warn.offsetY))
+        is RLEWarning.DuplicateOffset -> DuplicateTopLeftCoordinateMessage(IntOffset(warning.x, warning.y))
 
-        2u -> UnexpectedCharacterMessage(
-            character = codePointToChar(warn.charVal),
-            lineIndex = warn.lineIndex.toInt(),
-            characterIndex = warn.columnIndex.toInt(),
+        is RLEWarning.UnexpectedChar -> UnexpectedCharacterMessage(
+            character = codePointToChar(warning.codePoint),
+            lineIndex = warning.lineIndex.toInt(),
+            characterIndex = warning.columnIndex.toInt(),
         )
 
-        3u -> UnexpectedInputMessage(
-            input = warn.strVal,
-            lineIndex = warn.lineIndex.toInt(),
-            characterIndex = warn.columnIndex.toInt(),
+        is RLEWarning.UnexpectedInput -> UnexpectedInputMessage(
+            input = warning.input,
+            lineIndex = warning.lineIndex.toInt(),
+            characterIndex = warning.columnIndex.toInt(),
         )
 
-        else -> UnexpectedInputMessage(
-            input = "IndexedValue(index=${warn.columnIndex - 1u}, value=${codePointToChar(warn.charVal)})",
-            lineIndex = warn.lineIndex.toInt(),
-            characterIndex = warn.columnIndex.toInt(),
+        is RLEWarning.CharAfterEnd -> UnexpectedInputMessage(
+            input = "IndexedValue(index=${warning.columnIndex - 1u}, value=${codePointToChar(warning.codePoint)})",
+            lineIndex = warning.lineIndex.toInt(),
+            characterIndex = warning.columnIndex.toInt(),
         )
     }
 
-    override fun serializeToString(cellState: CellState): Sequence<String> {
-        val boundingBox = cellState.boundingBox
-        val minX = boundingBox.left
-        val maxX = boundingBox.right - 1
-        val minY = boundingBox.top
-        val maxY = boundingBox.bottom - 1
-        val lines = f_Algorithm_serializeRLE(cellState.aliveCells.toLeanCells(), minX, maxX, minY, maxY)
-        return lines.asSequence().map { it as String }
-    }
+    override fun serializeToString(cellState: CellState): Sequence<String> =
+        f_Algorithm_serializeRLECells(cellState.aliveCells.toLeanCells()).asSequence().map { it as String }
 }
