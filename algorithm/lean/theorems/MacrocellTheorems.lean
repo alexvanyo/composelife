@@ -15,7 +15,7 @@
  -/
 
 import Algorithm.MacroCell
-import proofs.MacrocellProofs
+import proofs.MacrocellDagProofs
 
 namespace Algorithm
 
@@ -101,5 +101,27 @@ theorem macrocell_round_trip_level5 :
       (makeCellNode (makeLevel4Node 1 0 0 0) emptyLevel4 emptyLevel4 (makeLevel4Node 1 0 0 0)))).macroCell =
       makeCellNode (makeLevel4Node 1 0 0 0) emptyLevel4 emptyLevel4 (makeLevel4Node 1 0 0 0) := by
   decide +kernel
+
+/--
+Round trip of the writer that runs: `serializeMacrocellDag` writes the distinct subtrees `entries` of a tree (children
+first, the tree last, with the entry numbers of each node's children in `kids`) with hash tables, and its lines read
+back as the tree, for the same trees as `macrocell_round_trip_spec`.
+-/
+theorem macrocell_dag_round_trip_spec (entries : Array MacroCell) (kids : Array UInt32) (hwf : DagWF entries kids)
+    (h0 : 0 < entries.size) (hn : entries.size < 2 ^ 29)
+    (hcan : ∀ m ∈ entries, Canonical m ∧ m.depth ≤ 63)
+    (hlev : ∀ j < entries.size - 1, entries[j]!.level.toNat < entries[entries.size - 1]!.level.toNat)
+    (hsl : macrocellSingleLeaf entries[entries.size - 1]! = none)
+    (hne : entries[entries.size - 1]! ≠ emptyMacroCellUInt32 entries[entries.size - 1]!.level)
+    (hlen : (addTrees ⟨[macrocellHeader], [], []⟩ entries.toList).lines.length < 2 ^ 31) :
+    deserializeMacrocell (serializeMacrocellDag entries kids) = ⟨.ok, #[], entries[entries.size - 1]!⟩ :=
+  macrocell_dag_round_trip entries kids hwf h0 hn hcan hlev hsl hne hlen
+
+/-- A single leaf is written by the DAG writer as by `serializeMacrocell`. -/
+theorem serializeMacrocellDag_single_leaf_spec (entries : Array MacroCell) (kids : Array UInt32)
+    (h0 : 0 < entries.size) (hs : entries.size < 2 ^ 32) (leaf : UInt64)
+    (hsl : macrocellSingleLeaf entries[entries.size - 1]! = some leaf) :
+    serializeMacrocellDag entries kids = serializeMacrocell entries[entries.size - 1]! :=
+  serializeMacrocellDag_single_leaf entries kids h0 hs leaf hsl
 
 end Algorithm

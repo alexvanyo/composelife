@@ -1005,6 +1005,117 @@ def serializeMacrocell (m : MacroCell) : Array String :=
   | some leaf => #[macrocellHeader, formatLeafNode leaf]
   | none => (st.addTree m).2.lines.toArray
 
+/-! ### Serialization of a DAG
+
+`serializeMacrocellDag` writes the same lines as `serializeMacrocell` would for the tree of its last entry, but
+walks each shared subtree once: the entries are the distinct subtrees, children first, and `kids` holds the entry
+numbers of the children of each node entry (4 per entry). Leaves and nodes are memoized in chained hash tables.
+-/
+
+/-- A hash table of numbers: buckets of association lists. -/
+abbrev ChainTable (K : Type) := Array (List (K × UInt32))
+
+/-- The number at key `k` in bucket `s`. -/
+@[inline]
+def ChainTable.get {K : Type} [BEq K] (t : ChainTable K) (s : UInt32) (k : K) : Option UInt32 :=
+  (t[s.toNat]!).lookup k
+
+/-- Adds `v` at key `k` to bucket `s`. -/
+@[inline]
+def ChainTable.insert {K : Type} (t : ChainTable K) (s : UInt32) (k : K) (v : UInt32) : ChainTable K :=
+  t.set! s.toNat ((k, v) :: t[s.toNat]!)
+
+/-- The bucket of a leaf, of `cap` buckets. -/
+@[inline]
+def leafSlot (k : UInt64) (cap : UInt32) : UInt32 := ((k * 0x9E3779B97F4A7C15) >>> 32).toUInt32 % cap
+
+/-- The bucket of a node, of `cap` buckets. -/
+@[inline]
+def nodeSlot (key : UInt32 × UInt32 × UInt32 × UInt32 × UInt32) (cap : UInt32) : UInt32 :=
+  let h := ((((key.1.toUInt64 * 31 + key.2.1.toUInt64) * 31 + key.2.2.1.toUInt64) * 31 + key.2.2.2.1.toUInt64) * 31 +
+    key.2.2.2.2.toUInt64) * 0x9E3779B97F4A7C15
+  (h >>> 32).toUInt32 % cap
+
+/-- The state of the DAG writer: the lines so far, and the numbers given to leaves and nodes. -/
+structure DagWriter where
+  lines : GrowBuf String
+  leafT : ChainTable UInt64
+  nodeT : ChainTable (UInt32 × UInt32 × UInt32 × UInt32 × UInt32)
+
+/-- Writes a nonzero leaf, in bucket `s`, if it is new. -/
+def DagWriter.addLeafAt (w : DagWriter) (leaf : UInt64) (s : UInt32) : UInt32 × DagWriter :=
+  match w.leafT.get s leaf with
+  | some id => (id, w)
+  | none => (w.lines.size, ⟨w.lines.push (formatLeafNode leaf), w.leafT.insert s leaf w.lines.size, w.nodeT⟩)
+
+/-- `MacrocellWriterState.addLeaf` with a hash table. -/
+def DagWriter.addLeaf (w : DagWriter) (leaf : UInt64) : UInt32 × DagWriter :=
+  if leaf == 0 then (0, w) else w.addLeafAt leaf (leafSlot leaf w.leafT.size.toUInt32)
+
+/-- Writes a node, in bucket `s`, if it is new. -/
+def DagWriter.addNodeAt (w : DagWriter) (key : UInt32 × UInt32 × UInt32 × UInt32 × UInt32) (s : UInt32) :
+    UInt32 × DagWriter :=
+  match w.nodeT.get s key with
+  | some id => (id, w)
+  | none =>
+    (w.lines.size, ⟨w.lines.push (formatMacrocellNode key.1 key.2.1 key.2.2.1 key.2.2.2.1 key.2.2.2.2), w.leafT,
+      w.nodeT.insert s key w.lines.size⟩)
+
+/-- `MacrocellWriterState.addNode` with a hash table. -/
+def DagWriter.addNode (w : DagWriter) (level nw ne sw se : UInt32) : UInt32 × DagWriter :=
+  w.addNodeAt (level, nw, ne, sw, se) (nodeSlot (level, nw, ne, sw, se) w.nodeT.size.toUInt32)
+
+/-- Writes the entry `m`, whose children (if it is a node of cells) have the numbers `c1` to `c4`. -/
+def DagWriter.addEntry (w : DagWriter) (m : MacroCell) (c1 c2 c3 c4 : UInt32) : UInt32 × DagWriter :=
+  match m with
+  | .level4Node _ nw ne sw se =>
+    if nw == 0 && ne == 0 && sw == 0 && se == 0 then (0, w)
+    else
+      let (i1, w) := w.addLeaf nw
+      let (i2, w) := w.addLeaf ne
+      let (i3, w) := w.addLeaf sw
+      let (i4, w) := w.addLeaf se
+      w.addNode 4 i1 i2 i3 i4
+  | .cellNode _ nw _ _ _ =>
+    if c1 == 0 && c2 == 0 && c3 == 0 && c4 == 0 then (0, w)
+    else w.addNode (nw.level + 1) c1 c2 c3 c4
+
+/-- The number of entry `j`, of the numbers `ids` of the entries written so far. -/
+@[inline]
+def entryId (ids : U64Buf) (j : UInt32) : UInt32 := ids[(j + 1).toNat]!.toUInt32
+
+/-- Writes entries `k` onward. -/
+def writeDag (entries : Array MacroCell) (kids : Array UInt32) (k n : UInt32) (ids : U64Buf) (w : DagWriter) :
+    DagWriter :=
+  if h : k < n then
+    have : n.toNat - (k + 1).toNat < n.toNat - k.toNat := by
+      have h1 := UInt32.lt_iff_toNat_lt.mp h
+      have h2 : (k + 1).toNat = k.toNat + 1 := by
+        rw [UInt32.toNat_add]
+        have := UInt32.toNat_lt n
+        simp only [UInt32.toNat_one]
+        omega
+      omega
+    let r := w.addEntry entries[k.toNat]! (entryId ids kids[(4 * k).toNat]!) (entryId ids kids[(4 * k + 1).toNat]!)
+      (entryId ids kids[(4 * k + 2).toNat]!) (entryId ids kids[(4 * k + 3).toNat]!)
+    writeDag entries kids (k + 1) n (U64Buf.push ids r.1.toUInt64) r.2
+  else w
+termination_by n.toNat - k.toNat
+
+/--
+The lines of the pattern of the last entry, which `MacrocellCellStateSerializer.serializeToString` writes: `entries`
+are its distinct subtrees, children first, and `kids` the entry numbers of the children of each node entry.
+-/
+@[export macrocell_serialize_dag]
+def serializeMacrocellDag (entries : Array MacroCell) (kids : Array UInt32) : Array String :=
+  let n := entries.size.toUInt32
+  match macrocellSingleLeaf entries[(n - 1).toNat]! with
+  | some leaf => #[macrocellHeader, formatLeafNode leaf]
+  | none =>
+    let cap := (4 * n + 1).toNat
+    let w : DagWriter := ⟨GrowBuf.empty.push macrocellHeader, Array.replicate cap [], Array.replicate cap []⟩
+    (writeDag entries kids 0 n U64Buf.empty w).lines.toArray
+
 /-! ### Deserialization -/
 
 /-- A problem that deserialization recovered from. Line and column indices are 1-based. -/

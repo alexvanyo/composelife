@@ -71,6 +71,7 @@ roots = [
   "proofs.RLESpecProofs",
   "theorems.RLETheorems",
   "proofs.MacrocellProofs",
+  "proofs.MacrocellDagProofs",
   "theorems.MacrocellTheorems",
   "AxiomAudit",
 ]
