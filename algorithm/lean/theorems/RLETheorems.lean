@@ -15,7 +15,7 @@
  -/
 
 import Algorithm.RLE
-import proofs.RLEProofs
+import proofs.RLESpecProofs
 
 namespace Algorithm
 
@@ -146,5 +146,16 @@ theorem rle_lines_le_70_spec (cells : Array (Int32 × Int32)) (hne : cells.size 
       64 * ((c.1.toInt - d.1.toInt + 1) * (e.2.toInt - f.2.toInt + 1)) < 2 ^ 31) :
     ∀ l ∈ serializeRLECells (cells.map cellBits), l.toByteArray.size ≤ 70 :=
   serializeRLECells_lines_le cells hne hcs hsize
+
+/--
+Deserialization of any input is `rleSpec`: comment lines (`#`, where `#R x y` sets the offset), the
+`x = w, y = h[, rule = r]` header, and then the pattern characters (`rleLineSpec`): counts, `b`, `o` and `$` runs,
+whitespace, and `!`; the cells are the decoded runs. This holds for inputs of fewer than 2 ^ 30 bytes whose pattern
+has fewer than 2 ^ 31 alive cells.
+-/
+theorem deserializeRLE_spec (lines : Array String) (hls : lines.size < 2 ^ 31)
+    (hb : remBytes lines.toList < 2 ^ 30) (hc : (rleSpec lines.toList).cells.size < 2 ^ 31) :
+    deserializeRLE lines = rleSpec lines.toList :=
+  deserializeRLE_eq_spec lines hls hb hc
 
 end Algorithm
