@@ -408,7 +408,7 @@ theorem serializeLife105_eq (cells : Array UInt64) (hc : cells.size < 2 ^ 31)
 Round trip: deserializing serialized cells succeeds with no warnings and gives back exactly the cells. `h` bounds
 the differences of the y coordinates of the cells.
 -/
-theorem life105_full_round_trip (cells : Array (Int32 × Int32)) (h : Nat) (hc : cells.size < 2 ^ 31)
+theorem life105_full_round_trip_Impl (cells : Array (Int32 × Int32)) (h : Nat) (hc : cells.size < 2 ^ 31)
     (hy : ∀ c ∈ cells, ∀ d ∈ cells, c.2.toInt - d.2.toInt < h)
     (hsz : 80 * (cells.size * (h + 1) + 2) < 2 ^ 31) :
     let r := deserializeLife105 (serializeLife105 (cells.map cellBits))
@@ -427,7 +427,7 @@ theorem life105_full_round_trip (cells : Array (Int32 × Int32)) (h : Nat) (hc :
   have hlen' : 80 * (((life105Split (cells.map cellBits).size (cells.map cellBits)).flatMap
       Life105Block.lines).length + 2) < 2 ^ 31 := by rw [hks] at hlen ⊢; omega
   have hser := serializeLife105_eq (cells.map cellBits) (by omega) (by omega)
-  obtain ⟨hst, hw, hmem⟩ := life105_round_trip _ hbs hlen'
+  obtain ⟨hst, hw, hmem⟩ := life105_round_trip_Impl _ hbs hlen'
   simp only [r, hser]
   refine ⟨hst, hw, fun q => ?_⟩
   rw [hmem q]
@@ -455,7 +455,7 @@ theorem serializeLife105Block_rows (cells : Array UInt64) (minX minY maxY : Int3
 /--
 Every line of serialized cells is a header line, a `#P` block line or a row of 80 `.` and `*` characters.
 -/
-theorem serializeLife105_lines (cells : Array (Int32 × Int32)) (h : Nat) (hc : cells.size < 2 ^ 31)
+theorem serializeLife105_lines_Impl (cells : Array (Int32 × Int32)) (h : Nat) (hc : cells.size < 2 ^ 31)
     (hy : ∀ c ∈ cells, ∀ d ∈ cells, c.2.toInt - d.2.toInt < h)
     (hsz : 80 * (cells.size * (h + 1) + 2) < 2 ^ 31) :
     ∀ l ∈ serializeLife105 (cells.map cellBits), l = "#Life 1.05" ∨ l = "#N" ∨

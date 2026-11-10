@@ -117,6 +117,11 @@ theorem parseCoordLine_formatCoordLine (c : Int32 × Int32) :
     intro z hz; rw [u32_size_toNat hb32, bytesFrom_of_ge (Nat.le_refl _)] at hz; simp at hz)]
   simp
 
+/-- Proof of `parseCoordLine_format`. -/
+theorem parseCoordLine_format_Impl (c : Int32 × Int32) :
+    parseCoordLine (formatCoordLine c.1.toUInt32 c.2.toUInt32) = some c :=
+  parseCoordLine_formatCoordLine c
+
 /-! ## Deserialization -/
 
 /-- What the deserialization loop computes from the remaining lines; `i` is the index of the next line. -/
@@ -195,7 +200,7 @@ theorem list_drop_one_getElem! {α : Type} [Inhabited α] (xs : Array α) (j : N
   simp [getElem!_def]
 
 /-- Full specification of Life 1.06 deserialization. -/
-theorem deserializeLife106_eq (lines : Array String) (hl : lines.size < 2 ^ 31) :
+theorem deserializeLife106_eq_Impl (lines : Array String) (hl : lines.size < 2 ^ 31) :
     deserializeLife106 lines =
       if lines.size = 0 then ⟨.emptyFile, #[]⟩
       else if lines[0]! ≠ "#Life 1.06" then ⟨.invalidHeader lines[0]!, #[]⟩
@@ -255,7 +260,7 @@ theorem serializeLife106_loop_eq (cells : Array UInt64) (hc : cells.size + 2 < 2
     simpa using this
 
 /-- Full specification of Life 1.06 serialization. -/
-theorem serializeLife106_eq (cells : Array UInt64) (hc : cells.size + 2 < 2 ^ 31) :
+theorem serializeLife106_eq_Impl (cells : Array UInt64) (hc : cells.size + 2 < 2 ^ 31) :
     serializeLife106 cells = #["#Life 1.06"] ++ cells.map (fun k => formatCoordLine (cellKeyX k) (cellKeyY k)) := by
   have h1 := GrowBuf.rep_push (GrowBuf.rep_empty (α := String)) "#Life 1.06" (by decide)
   have := serializeLife106_loop_eq cells hc _ 0 _ _ rfl (by simp) h1 (by simp)
@@ -272,9 +277,9 @@ theorem mapM_parse_map_format (l : List (Int32 × Int32)) :
   | cons c cs ih => simp [List.mapM_cons, parseCoordLine_formatCoordLine, ih]
 
 /-- Deserializing serialized cells gives back exactly those cells, in order. -/
-theorem deserializeLife106_serializeLife106 (cells : Array (Int32 × Int32)) (hc : cells.size + 2 < 2 ^ 31) :
+theorem deserializeLife106_round_trip_Impl (cells : Array (Int32 × Int32)) (hc : cells.size + 2 < 2 ^ 31) :
     deserializeLife106 (serializeLife106 (cells.map cellBits)) = ⟨.ok, cells.map cellBits⟩ := by
-  rw [serializeLife106_eq _ (by simpa using hc), deserializeLife106_eq _ (by simp; omega)]
+  rw [serializeLife106_eq_Impl _ (by simpa using hc), deserializeLife106_eq_Impl _ (by simp; omega)]
   have hmap : ((#["#Life 1.06"] ++ (cells.map cellBits).map (fun k => formatCoordLine (cellKeyX k) (cellKeyY k))).toList.drop 1).mapM
       parseCoordLine = some cells.toList := by
     simp only [Array.toList_append, Array.toList_map, List.singleton_append, List.drop_succ_cons,
@@ -295,7 +300,7 @@ theorem deserializeLife106_serializeLife106 (cells : Array (Int32 × Int32)) (hc
 /-! ## Out-of-range coordinates -/
 
 /-- A coordinate line whose first number, `sign ++ n`, doesn't fit in an `Int32` is rejected. -/
-theorem parseCoordLine_first_out_of_range (neg : Bool) (n : Nat) (rest : String)
+theorem parseCoordLine_rejects_out_of_range_Impl (neg : Bool) (n : Nat) (rest : String)
     (hn : if neg then 2 ^ 31 < n else 2 ^ 31 ≤ n)
     (hsz : ((if neg then "-" else "") ++ toString n ++ rest).toByteArray.size < 2 ^ 32)
     (hrest : ∀ y, rest.toByteArray.data.toList.head? = some y → isDigitByte y = false) :
@@ -338,5 +343,27 @@ theorem parseCoordLine_first_out_of_range (neg : Bool) (n : Nat) (rest : String)
     simp only [List.cons_append, List.head?_cons, Option.some.injEq, hz45, ite_false]
     rw [← List.cons_append, htw, ← hz, hv]
     simp [hn]
+
+/-! ## Concrete checks of the master theorems -/
+
+/-- Proof of `deserializeLife106_empty`. -/
+theorem deserializeLife106_empty_Impl : deserializeLife106 #[] = ⟨.emptyFile, #[]⟩ := by
+  decide +kernel
+
+/-- Proof of `deserializeLife106_single_coord`. -/
+theorem deserializeLife106_single_coord_Impl :
+    deserializeLife106 #["#Life 1.06", "10 -20"] = ⟨.ok, #[cellBits (10, -20)]⟩ := by
+  decide +kernel
+
+/-- Proof of `deserializeLife106_extremes`. -/
+theorem deserializeLife106_extremes_Impl :
+    deserializeLife106 #["#Life 1.06", "-2147483648 2147483647"] =
+      ⟨.ok, #[cellBits (-2147483648, 2147483647)]⟩ := by
+  decide +kernel
+
+/-- Proof of `deserializeLife106_wrapping_value`. -/
+theorem deserializeLife106_wrapping_value_Impl :
+    deserializeLife106 #["#Life 1.06", "4294967297 0"] = ⟨.invalidLine 2 "4294967297 0", #[]⟩ := by
+  decide +kernel
 
 end Algorithm

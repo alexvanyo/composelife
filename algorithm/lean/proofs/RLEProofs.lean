@@ -38,7 +38,7 @@ A rule `B<birth>/S<survival>` (with either case of letters) after `prefix` is Co
 birth digits are {3} and the survival digits are {2, 3}, in any order and with repeats, and another rule (3)
 otherwise.
 -/
-theorem checkRLERule_letters (pre b s : List UInt8) (cB cS : UInt8) (hcB : cB = 66 ∨ cB = 98)
+theorem checkRLERule_letters_Impl (pre b s : List UInt8) (cB cS : UInt8) (hcB : cB = 66 ∨ cB = 98)
     (hcS : cS = 83 ∨ cS = 115) (hb : b ≠ []) (hs : s ≠ []) (hbd : ∀ d ∈ b, isDigitByte d = true)
     (hsd : ∀ d ∈ s, isDigitByte d = true) (hsz : pre.length + b.length + s.length + 3 < 2 ^ 32) :
     checkRLERule ⟨(pre ++ cB :: (b ++ 47 :: cS :: s)).toArray⟩ pre.length.toUInt32
@@ -142,7 +142,7 @@ open Classical in
 A rule `<survival>/<birth>` after `prefix` is Conway's rules (0) exactly when the survival digits are {2, 3} and
 the birth digits are {3}, in any order and with repeats, and another rule (3) otherwise.
 -/
-theorem checkRLERule_digits (pre s b : List UInt8) (hs : s ≠ []) (hb : b ≠ [])
+theorem checkRLERule_digits_Impl (pre s b : List UInt8) (hs : s ≠ []) (hb : b ≠ [])
     (hsd : ∀ d ∈ s, isDigitByte d = true) (hbd : ∀ d ∈ b, isDigitByte d = true)
     (hsz : pre.length + s.length + b.length + 1 < 2 ^ 32) :
     checkRLERule ⟨(pre ++ (s ++ 47 :: b)).toArray⟩ pre.length.toUInt32
@@ -1487,7 +1487,7 @@ theorem parseRLEHeader_sizeLine (minX minY : Int32) (w h : UInt32) :
   rw [hsplitL]
   rw [show (10 + W.length + H.length + 9).toUInt32 = (L.take (10 + W.length + H.length + 9)).length.toUInt32 by
     rw [htl]]
-  rw [checkRLERule_letters _ [51] [50, 51] 66 83 (Or.inl rfl) (Or.inl rfl) (by simp) (by simp) (by decide) (by decide)
+  rw [checkRLERule_letters_Impl _ [51] [50, 51] 66 83 (Or.inl rfl) (Or.inl rfl) (by simp) (by simp) (by decide) (by decide)
     (by rw [htl]; simp; omega)]
   rw [ite_eq_left (by decide)]
 
@@ -1818,7 +1818,7 @@ theorem rle_box_dims (cells : Array (Int32 × Int32)) (minX maxX minY maxY : Int
   exact ⟨by omega, hwh, hw, hh⟩
 
 /-- Round trip for cells inside their bounding box: deserializing gives exactly the cells, with no warnings. -/
-theorem rle_round_trip_box (cells : Array (Int32 × Int32)) (minX maxX minY maxY : Int32)
+theorem rle_round_trip_box_Impl (cells : Array (Int32 × Int32)) (minX maxX minY maxY : Int32)
     (hne : cells.size ≠ 0) (hcs : cells.size < 2 ^ 31)
     (hbox : ∀ c ∈ cells, minX.toInt ≤ c.1.toInt ∧ c.1.toInt ≤ maxX.toInt ∧
       minY.toInt ≤ c.2.toInt ∧ c.2.toInt ≤ maxY.toInt)
@@ -1840,7 +1840,7 @@ theorem rle_round_trip_box (cells : Array (Int32 × Int32)) (minX maxX minY maxY
 Round trip of whole patterns: `serializeRLECells` writes the cells in their bounding box, and deserializing succeeds
 with no warnings and gives back exactly the cells.
 -/
-theorem rle_round_trip_cells (cells : Array (Int32 × Int32)) (hne : cells.size ≠ 0) (hcs : cells.size < 2 ^ 31)
+theorem rle_round_trip_cells_Impl (cells : Array (Int32 × Int32)) (hne : cells.size ≠ 0) (hcs : cells.size < 2 ^ 31)
     (hsize : ∀ c ∈ cells, ∀ d ∈ cells, ∀ e ∈ cells, ∀ f ∈ cells,
       64 * ((c.1.toInt - d.1.toInt + 1) * (e.2.toInt - f.2.toInt + 1)) < 2 ^ 31) :
     (deserializeRLE (serializeRLECells (cells.map cellBits))).status = .ok ∧
@@ -1854,7 +1854,7 @@ theorem rle_round_trip_cells (cells : Array (Int32 × Int32)) (hne : cells.size 
   rw [hser]
   have := hsize c2 hc2 c1 hc1 c4 hc4 c3 hc3
   rw [e1, e2, e3, e4] at this
-  exact rle_round_trip_box cells b.1 b.2.1 b.2.2.1 b.2.2.2 hne hcs hall this
+  exact rle_round_trip_box_Impl cells b.1 b.2.1 b.2.2.1 b.2.2.2 hne hcs hall this
 
 theorem toDigits_length_le_decimalLength (n : UInt32) :
     (Nat.toDigits 10 n.toNat).length ≤ (decimalLength n).toNat := by
@@ -1914,7 +1914,7 @@ theorem serializeRLE_lines_le (cells : Array UInt64) (minX maxX minY maxY : Int3
   · exact Nat.le_trans (lineOf_size_le_width g) (hwid g hg)
 
 /-- Every line of a serialized pattern has at most 70 bytes. -/
-theorem serializeRLECells_lines_le (cells : Array (Int32 × Int32)) (hne : cells.size ≠ 0) (hcs : cells.size < 2 ^ 31)
+theorem rle_lines_le_70_Impl (cells : Array (Int32 × Int32)) (hne : cells.size ≠ 0) (hcs : cells.size < 2 ^ 31)
     (hsize : ∀ c ∈ cells, ∀ d ∈ cells, ∀ e ∈ cells, ∀ f ∈ cells,
       64 * ((c.1.toInt - d.1.toInt + 1) * (e.2.toInt - f.2.toInt + 1)) < 2 ^ 31) :
     ∀ l ∈ serializeRLECells (cells.map cellBits), l.toByteArray.size ≤ 70 := by

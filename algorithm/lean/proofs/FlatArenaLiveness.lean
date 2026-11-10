@@ -205,23 +205,23 @@ Every state reachable by the generation loop of `FlatLeanHashLifeAlgorithm` afte
 a well-formed arena whose root denotes exactly `k` generations of the flat engine from the start, and whose cells
 are exactly `k` Conway generations of the starting cells.
 -/
-theorem flatRun_correct {st0 : HashLifeCellState} {k : ℕ} {a : FlatHashLifeArena} {ox oy : Int32} {root : UInt32}
+theorem flat_generationLoop_correct_Impl {st0 : HashLifeCellState} {k : ℕ} {a : FlatHashLifeArena} {ox oy : Int32} {root : UInt32}
     (h : FlatRun st0 k a ox oy root) :
     ArenaWF a ∧ root < a.cellCount ∧ flatState a ox oy root = flatStepN k st0 ∧
       cellsEqual (hashLifeToGrid (flatState a ox oy root)) (stepN k (hashLifeToGrid st0)) = true := by
   induction h with
   | start hwf hid heq =>
     subst heq
-    exact ⟨hwf, hid, rfl, cellsEqual_deduplicate_self _⟩
+    exact ⟨hwf, hid, rfl, cellsEqual_deduplicate_self_Impl _⟩
   | step _ hs ih =>
     obtain ⟨hwf, hid, heq, hcells⟩ := ih
-    obtain ⟨hwf', _, hsucc, _⟩ := flat_stepOneGeneration_Impl hwf _ _ _
+    obtain ⟨hwf', _, hsucc, _⟩ := flat_stepOneGeneration_correct_Impl hwf _ _ _
     obtain ⟨_, hid', heq', hgrid⟩ := hsucc hs
     refine ⟨hwf', hid', by rw [heq', heq, flatStepN_succ'], ?_⟩
     exact cellsEqual_trans hgrid (stepGrid_cellsEqual_stepGrid hcells)
   | failedStep _ _ ih =>
     obtain ⟨hwf, hid, heq, hcells⟩ := ih
-    obtain ⟨hwf', hp, _⟩ := flat_stepOneGeneration_Impl hwf _ _ _
+    obtain ⟨hwf', hp, _⟩ := flat_stepOneGeneration_correct_Impl hwf _ _ _
     obtain ⟨hid', hst⟩ := flatState_of_preserved hwf hp hid _ _
     exact ⟨hwf', hid', by rw [hst, heq], by rw [hst]; exact hcells⟩
   | clearOverflow _ ih =>
@@ -231,8 +231,39 @@ theorem flatRun_correct {st0 : HashLifeCellState} {k : ℕ} {a : FlatHashLifeAre
     exact ⟨hwf.clearOverflow, hid', hst.trans heq, hst ▸ hcells⟩
   | compact _ hdst hs ih =>
     obtain ⟨hwf, hid, heq, hcells⟩ := ih
-    obtain ⟨hwf', _, _, _, hsucc, _⟩ := flat_compactRootFrom_Impl hwf hdst _
+    obtain ⟨hwf', _, _, _, hsucc, _⟩ := flat_compactRootFrom_correct_Impl hwf hdst _
     obtain ⟨_, _, hid', _, _, hst⟩ := hsucc hs
     exact ⟨hwf', hid', by rw [hst, heq], by rw [hst]; exact hcells⟩
+
+/-- Proof of `flat_stepOneGeneration_succeeds`. -/
+theorem flat_stepOneGeneration_succeeds_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) (ox oy : Int32) (root : UInt32)
+    (hid : root < a.cellCount) (hd : (flatState a ox oy root).macroCell.depth ≤ 28)
+    (hcx : -2 ^ 30 ≤ (windowCenter (flatState a ox oy root)).1 ∧ (windowCenter (flatState a ox oy root)).1 ≤ 2 ^ 30)
+    (hcy : -2 ^ 30 ≤ (windowCenter (flatState a ox oy root)).2 ∧ (windowCenter (flatState a ox oy root)).2 ≤ 2 ^ 30)
+    (hov : (a.stepOneGeneration ox oy root).2.overflow = 0) :
+    (a.stepOneGeneration ox oy root).1.2.2 ≠ UNCOMPUTED :=
+  (flat_stepOneGeneration_correct_Impl hwf ox oy root).2.2.2 hid
+    (flatStepInRange_of_center _ (flatState_isWellFormed hwf hid ox oy) hd hcx hcy) hov
+
+/-- Proof of `flat_stepOneGenerationN_correct`. -/
+theorem flat_stepOneGenerationN_correct_Impl (n : ℕ) {a : FlatHashLifeArena} (hwf : ArenaWF a) (ox oy : Int32)
+    (root : UInt32) (hid : root < a.cellCount) :
+    ArenaWF (a.stepOneGenerationN n ox oy root).2 ∧ NodesPreserved a (a.stepOneGenerationN n ox oy root).2 ∧
+    ((a.stepOneGenerationN n ox oy root).1.2.2 ≠ UNCOMPUTED →
+      (a.stepOneGenerationN n ox oy root).1.2.2 < (a.stepOneGenerationN n ox oy root).2.cellCount ∧
+      flatState (a.stepOneGenerationN n ox oy root).2 (a.stepOneGenerationN n ox oy root).1.1
+        (a.stepOneGenerationN n ox oy root).1.2.1 (a.stepOneGenerationN n ox oy root).1.2.2 =
+        flatStepN n (flatState a ox oy root) ∧
+      cellsEqual
+        (hashLifeToGrid (flatState (a.stepOneGenerationN n ox oy root).2 (a.stepOneGenerationN n ox oy root).1.1
+          (a.stepOneGenerationN n ox oy root).1.2.1 (a.stepOneGenerationN n ox oy root).1.2.2))
+        (stepN n (hashLifeToGrid (flatState a ox oy root))) = true) ∧
+    ((flatState a ox oy root).macroCell.depth + n ≤ 29 →
+      (-2 ^ 30 ≤ (windowCenter (flatState a ox oy root)).1 ∧ (windowCenter (flatState a ox oy root)).1 ≤ 2 ^ 30) →
+      (-2 ^ 30 ≤ (windowCenter (flatState a ox oy root)).2 ∧ (windowCenter (flatState a ox oy root)).2 ≤ 2 ^ 30) →
+      (a.stepOneGenerationN n ox oy root).2.overflow = 0 → (a.stepOneGenerationN n ox oy root).1.2.2 ≠ UNCOMPUTED) :=
+  have h := flat_stepOneGenerationN_wf n hwf ox oy root hid
+  have l := stepOneGenerationN_live n hwf ox oy root hid
+  ⟨h.1, l.1, h.2, l.2⟩
 
 end Algorithm

@@ -177,7 +177,7 @@ theorem skipDescriptions_spec (lines : Array String) (hs : lines.size < 2 ^ 32) 
     · exact ⟨Nat.le_refl _, by omega, toList_drop_eq_cons lines k.toNat hlt⟩
 
 /-- Deserialization of any lines (of fewer than 2 ^ 31 bytes in all) is `life105Spec`. -/
-theorem deserializeLife105_eq_spec (lines : Array String) (hls : lines.size < 2 ^ 31)
+theorem deserializeLife105_eq_life105Spec_Impl (lines : Array String) (hls : lines.size < 2 ^ 31)
     (hb : remBytes lines.toList < 2 ^ 31) :
     deserializeLife105 lines = life105Spec lines.toList := by
   have hs32 : lines.size < 2 ^ 32 := by omega
@@ -245,5 +245,46 @@ theorem deserializeLife105_eq_spec (lines : Array String) (hls : lines.size < 2 
       rw [List.drop_eq_nil_of_le (by simp; omega)]
       simp [hjl]
   · simp [hH]
+
+/-! ## Concrete checks of the master theorems -/
+
+/-- Proof of `deserializeLife105_empty`. -/
+theorem deserializeLife105_empty_Impl :
+    deserializeLife105 #[] = ⟨.ok, #[.emptyFile], #[]⟩ := by
+  decide +kernel
+
+/-- Proof of `deserializeLife105_invalid_header`. -/
+theorem deserializeLife105_invalid_header_Impl :
+    deserializeLife105 #["#Life 1.06"] = ⟨.invalidHeader "#Life 1.06", #[], #[]⟩ := by
+  decide +kernel
+
+/-- Proof of `checkRuleLine_digit_sets`. -/
+theorem checkRuleLine_digit_sets_Impl :
+    checkRuleLine "#R 23/3".toByteArray = 0 ∧ checkRuleLine "#R 32/3".toByteArray = 0 ∧
+      checkRuleLine "#R 3223/33".toByteArray = 0 ∧ checkRuleLine "#R 23/36".toByteArray = 2 ∧
+      checkRuleLine "#R 2/3".toByteArray = 2 ∧ checkRuleLine "#R 23".toByteArray = 1 ∧
+      checkRuleLine "#R /3".toByteArray = 1 := by
+  decide +kernel
+
+/-- Proof of `deserializeLife105_out_of_range_offset`. -/
+theorem deserializeLife105_out_of_range_offset_Impl :
+    (deserializeLife105 #["#Life 1.05", "#P 4294967297 0", "*"]).status =
+      .unexpectedInput "#P 4294967297 0" 2 3 := by
+  decide +kernel
+
+/-- Proof of `life105_block_round_trip_glider`. -/
+theorem life105_block_round_trip_glider_Impl :
+    deserializeLife105
+        (#["#Life 1.05", "#N"] ++
+          serializeLife105Block ((#[(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)] : Array (Int32 × Int32)).map cellBits)
+            0 0 2) =
+      ⟨.ok, #[], (#[(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)] : Array (Int32 × Int32)).map cellBits⟩ := by
+  decide +kernel
+
+/-- Proof of `serializeLife105Block_skips_outside`. -/
+theorem serializeLife105Block_skips_outside_Impl :
+    serializeLife105Block ((#[(0, 0), (80, 0)] : Array (Int32 × Int32)).map cellBits) 0 0 0 =
+      #["#P 0 0", "*" ++ String.ofList (List.replicate 79 '.')] := by
+  decide +kernel
 
 end Algorithm

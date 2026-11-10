@@ -380,7 +380,7 @@ theorem parseRLEComments_spec (lines : Array String) (hls : lines.size < 2 ^ 31)
 Deserialization of any lines (of fewer than 2 ^ 30 bytes in all) whose pattern has fewer than 2 ^ 31 alive cells is
 `rleSpec`.
 -/
-theorem deserializeRLE_eq_spec (lines : Array String) (hls : lines.size < 2 ^ 31)
+theorem deserializeRLE_eq_rleSpec_Impl (lines : Array String) (hls : lines.size < 2 ^ 31)
     (hb : remBytes lines.toList < 2 ^ 30) (hc : (rleSpec lines.toList).cells.size < 2 ^ 31) :
     deserializeRLE lines = rleSpec lines.toList := by
   have hs32 : lines.size < 2 ^ 32 := by omega
@@ -401,5 +401,78 @@ theorem deserializeRLE_eq_spec (lines : Array String) (hls : lines.size < 2 ^ 31
   have := parseRLEComments_spec lines hls _ 0 0 0 false GrowBuf.empty #[] rfl (by simp) GrowBuf.rep_empty
     (by simp; omega) (by simp; omega) (by simpa using hc)
   simpa using this
+
+/-! ## Concrete checks of the master theorems -/
+
+/-- Proof of `deserializeRLE_empty`. -/
+theorem deserializeRLE_empty_Impl :
+    deserializeRLE #[] = ⟨.emptyFile, #[.emptyFile], #[]⟩ := by
+  decide +kernel
+
+/-- Proof of `parseRLEHeader_rule_digit_sets`. -/
+theorem parseRLEHeader_rule_digit_sets_Impl :
+    parseRLEHeader "x = 1, y = 1, rule = B3/S23".toByteArray = 0 ∧
+      parseRLEHeader "x = 1, y = 1, rule = B3/S32".toByteArray = 0 ∧
+      parseRLEHeader "x = 1, y = 1, rule = b33/s322".toByteArray = 0 ∧
+      parseRLEHeader "x = 1, y = 1, rule = 23/3".toByteArray = 0 ∧
+      parseRLEHeader "x = 1, y = 1, rule = 32/3".toByteArray = 0 ∧
+      parseRLEHeader "x = 1, y = 1".toByteArray = 0 ∧
+      parseRLEHeader "x = 1, y = 1, rule = B3/S234".toByteArray = 3 ∧
+      parseRLEHeader "x = 1, y = 1, rule = 23/34".toByteArray = 3 ∧
+      parseRLEHeader "x = 1, y = 1, rule = B3/S".toByteArray = 2 ∧
+      parseRLEHeader "x = -1, y = 1".toByteArray = 2 := by
+  decide +kernel
+
+/-- Proof of `deserializeRLE_out_of_range_count`. -/
+theorem deserializeRLE_out_of_range_count_Impl :
+    deserializeRLE #["x = 1, y = 1", "4294967297o!"] = ⟨.unexpectedInput "4294967297" 2 1, #[], #[]⟩ := by
+  decide +kernel
+
+/-- Proof of `deserializeRLE_count_before_end`. -/
+theorem deserializeRLE_count_before_end_Impl :
+    (deserializeRLE #["x = 1, y = 1", "o007!"]).warnings = #[.unexpectedInput 2 2 "007!"] := by
+  decide +kernel
+
+/-- Proof of `deserializeRLE_count_at_line_end`. -/
+theorem deserializeRLE_count_at_line_end_Impl :
+    deserializeRLE #["x = 1, y = 1", "o12", "!"] =
+      ⟨.ok, #[], ((#[(0, 0)] : Array (Int32 × Int32)).map cellBits)⟩ := by
+  decide +kernel
+
+/-- Proof of `deserializeRLE_non_ascii`. -/
+theorem deserializeRLE_non_ascii_Impl :
+    deserializeRLE #["x = 3, y = 1", "oéo!"] =
+      ⟨.ok, #[.unexpectedChar 2 2 233],
+        ((#[(0, 0), (1, 0), (2, 0)] : Array (Int32 × Int32)).map cellBits)⟩ := by
+  decide +kernel
+
+/-- Proof of `serializeRLE_empty`. -/
+theorem serializeRLE_empty_Impl : serializeRLE #[] 0 0 0 0 = #["#R 0 0", "x = 0, y = 0, rule = B3/S23", "!"] := by
+  decide +kernel
+
+/-- Proof of `serializeRLE_glider`. -/
+theorem serializeRLE_glider_Impl :
+    serializeRLE ((#[(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)] : Array (Int32 × Int32)).map cellBits) 0 2 0 2 =
+      #["#R 0 0", "x = 3, y = 3, rule = B3/S23", "bo$2bo$3o!"] := by
+  decide +kernel
+
+/-- Proof of `serializeRLE_empty_rows`. -/
+theorem serializeRLE_empty_rows_Impl :
+    serializeRLE ((#[(0, 0), (0, 3)] : Array (Int32 × Int32)).map cellBits) 0 0 0 3 =
+      #["#R 0 0", "x = 1, y = 4, rule = B3/S23", "o3$o!"] := by
+  decide +kernel
+
+/-- Proof of `rle_round_trip_glider`. -/
+theorem rle_round_trip_glider_Impl :
+    deserializeRLE
+        (serializeRLE ((#[(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)] : Array (Int32 × Int32)).map cellBits) 0 2 0 2) =
+      ⟨.ok, #[], ((#[(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)] : Array (Int32 × Int32)).map cellBits)⟩ := by
+  decide +kernel
+
+/-- Proof of `rle_round_trip_offset`. -/
+theorem rle_round_trip_offset_Impl :
+    deserializeRLE (serializeRLE ((#[(-1, 5), (0, 5), (1, 5)] : Array (Int32 × Int32)).map cellBits) (-1) 1 5 5) =
+      ⟨.ok, #[], ((#[(-1, 5), (0, 5), (1, 5)] : Array (Int32 × Int32)).map cellBits)⟩ := by
+  decide +kernel
 
 end Algorithm

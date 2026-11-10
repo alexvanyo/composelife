@@ -213,7 +213,7 @@ theorem deserializeMacrocell_loop_ok (lines : Array String) (numLines : UInt32) 
 Deserialization always returns a well-formed node (the children of every node have equal depths) of depth at most
 63, whatever the input.
 -/
-theorem deserializeMacrocell_ok (lines : Array String) :
+theorem deserializeMacrocell_wellFormed_Impl (lines : Array String) :
     isWellFormed (deserializeMacrocell lines).macroCell ∧ (deserializeMacrocell lines).macroCell.depth ≤ 63 := by
   have hempty : isWellFormed emptyLevel4 ∧ emptyLevel4.depth ≤ 63 := by
     have := wf_makeLevel4Node 0 0 0 0
@@ -1690,7 +1690,7 @@ Round trip: a nonempty pattern of smart-constructed nodes, of depth at most 63, 
 back as exactly the same tree, with no warnings. (The writer numbers nodes by line, so the number of lines must
 stay below 2 ^ 31.)
 -/
-theorem macrocell_round_trip (m : MacroCell) (hcan : Canonical m) (hd : m.depth ≤ 63)
+theorem macrocell_round_trip_Impl (m : MacroCell) (hcan : Canonical m) (hd : m.depth ≤ 63)
     (hsl : macrocellSingleLeaf m = none) (hne : m ≠ emptyMacroCellUInt32 m.level)
     (hlen : ((⟨[macrocellHeader], [], []⟩ : MacrocellWriterState).addTree m).2.lines.length < 2 ^ 31) :
     deserializeMacrocell (serializeMacrocell m) = ⟨.ok, #[], m⟩ := by
@@ -1707,7 +1707,7 @@ theorem macrocell_round_trip (m : MacroCell) (hcan : Canonical m) (hd : m.depth 
   rw [deserializeMacrocell_reads hr _ (by simp [hls]) (by simpa using hll) hN, hm]
 
 /-- A single leaf is written as just its leaf line, and reads back as the leaf in the northwest quadrant. -/
-theorem macrocell_round_trip_single_leaf (m : MacroCell) (leaf : UInt64) (hsl : macrocellSingleLeaf m = some leaf) :
+theorem macrocell_round_trip_single_leaf_Impl (m : MacroCell) (leaf : UInt64) (hsl : macrocellSingleLeaf m = some leaf) :
     deserializeMacrocell (serializeMacrocell m) = ⟨.ok, #[], makeLevel4Node leaf 0 0 0⟩ := by
   unfold serializeMacrocell
   simp only [hsl]

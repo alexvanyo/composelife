@@ -27,7 +27,7 @@ open Classical in
 A `#R survival/birth` line with nonempty digit lists is Conway's rules (0) exactly when the survival digits are
 {2, 3} and the birth digits are {3}, and another rule (2) otherwise.
 -/
-theorem checkRuleLine_digits (s b : List UInt8) (hs : s ≠ []) (hb : b ≠ [])
+theorem checkRuleLine_digits_Impl (s b : List UInt8) (hs : s ≠ []) (hb : b ≠ [])
     (hsd : ∀ d ∈ s, isDigitByte d = true) (hbd : ∀ d ∈ b, isDigitByte d = true)
     (hsz : s.length + b.length + 4 < 2 ^ 32) :
     checkRuleLine ⟨(35 :: 82 :: 32 :: (s ++ 47 :: b)).toArray⟩ =
@@ -176,6 +176,11 @@ theorem parseBlockHeader_format (x y : Int32) :
     rw [UInt32.toNat_add, hidx _ (by omega), hlimit, u32_size_toNat (by omega)]; omega
   rw [hy]
   simp
+
+/-- Proof of `parseBlockHeader_round_trip`. -/
+theorem parseBlockHeader_round_trip_Impl (x y : Int32) :
+    parseBlockHeader (formatBlockHeader x y).toByteArray = some ⟨x, y⟩ :=
+  parseBlockHeader_format x y
 
 /-! ## Rows -/
 
@@ -583,6 +588,14 @@ theorem deserializeLife105_blocks (bs : List Life105Block) (hbs : ∀ b ∈ bs, 
     (by rw [← hL]; simp) (by simpa using U64Buf.rep_empty) (by simp; omega)]
   simp
 
+/-- Proof of `deserializeLife105_serialized_blocks`. -/
+theorem deserializeLife105_serialized_blocks_Impl (bs : List Life105Block)
+    (hbs : ∀ b ∈ bs, b.1.size < 2 ^ 32 ∧ 80 * b.height < 2 ^ 31)
+    (hsz : 80 * ((bs.flatMap Life105Block.lines).length + 2) < 2 ^ 31) :
+    deserializeLife105 (#["#Life 1.05", "#N"] ++ (bs.flatMap Life105Block.lines).toArray) =
+      ⟨.ok, #[], (bs.flatMap Life105Block.cells).toArray.map cellBits⟩ :=
+  deserializeLife105_blocks bs hbs hsz
+
 theorem mem_rowCells105 (B : ByteArray) (x0 y : Int32) (q : Int32 × Int32) :
     q ∈ rowCells105 B 0 x0 y ↔ ∃ c, c < B.size ∧ B[c]! = 42 ∧ q = (x0 + c.toUInt32.toInt32, y) := by
   unfold rowCells105
@@ -659,7 +672,7 @@ theorem mem_life105BlockCells (cs : Array UInt64) (minX minY maxY : Int32) (hcs 
 Round trip: a file of serialized blocks deserializes, with no warnings, to exactly the cells of the blocks that are
 inside their block (the 80 columns from `minX`, and the rows from `minY` to `maxY`).
 -/
-theorem life105_round_trip (bs : List Life105Block) (hbs : ∀ b ∈ bs, b.1.size < 2 ^ 32 ∧ 80 * b.height < 2 ^ 31)
+theorem life105_round_trip_Impl (bs : List Life105Block) (hbs : ∀ b ∈ bs, b.1.size < 2 ^ 32 ∧ 80 * b.height < 2 ^ 31)
     (hsz : 80 * ((bs.flatMap Life105Block.lines).length + 2) < 2 ^ 31) :
     let r := deserializeLife105 (#["#Life 1.05", "#N"] ++ (bs.flatMap Life105Block.lines).toArray)
     r.status = .ok ∧ r.warnings = #[] ∧
