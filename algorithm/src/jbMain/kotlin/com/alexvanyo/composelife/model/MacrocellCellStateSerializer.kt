@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.model
 import androidx.compose.ui.unit.IntOffset
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 
+@OptIn(ExperimentalUnsignedTypes::class)
 object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
     override val format: CellStateFormat.FixedFormat = CellStateFormat.FixedFormat.Macrocell
 
@@ -83,34 +84,28 @@ object MacrocellCellStateSerializer : FixedFormatCellStateSerializer {
     }
 
     override fun serializeToString(cellState: CellState): Sequence<String> {
-        val root = cellState.toHashLifeCellState().macroCell
-        f_Algorithm_macrocellSingleLeaf(root)?.let { leaf ->
-            return sequenceOf(f_Algorithm_macrocellHeader(), f_Algorithm_formatLeafNode(leaf))
-        }
-        val writer = MacrocellWriter()
-        writer.addTree(root)
-        return writer.lines.asSequence()
+        val dag = MacrocellDag()
+        dag.add(cellState.toHashLifeCellState().macroCell)
+        return f_Algorithm_serializeMacrocellDag(dag.entries(), dag.kids()).asSequence().map { it as String }
     }
 }
 
 /**
- * Writes the lines of `serializeMacrocell` in Lean, which models this with `MacrocellWriterState.addTree`.
+ * The distinct subtrees of a tree, children first and the tree last, for `serializeMacrocellDag` in Lean, which
+ * numbers and writes them (see `macrocell_dag_round_trip`).
  *
- * Nodes are numbered by line. Leaves are memoized by value and nodes by the numbers of their children, so equal
- * subtrees are written once. Subtrees are also memoized by identity, so a shared subtree is walked once:
- * structural equality of [MacroCell] does not short-circuit on shared children, so comparing two equal but
- * separately built subtrees would walk every path through them.
+ * Subtrees are collected by identity, so a shared subtree is one entry and is walked once: structural equality of
+ * [MacroCell] does not short-circuit on shared children, so comparing two equal but separately built subtrees would
+ * walk every path through them. Equal subtrees that are not shared are merged by Lean, which memoizes leaves by value
+ * and nodes by the numbers of their children.
  */
-private class MacrocellWriter {
-    val lines = mutableListOf(f_Algorithm_macrocellHeader())
+@OptIn(ExperimentalUnsignedTypes::class)
+private class MacrocellDag {
+    private val entries = mutableListOf<MacroCell>()
 
-    private val leafIds = mutableMapOf<ULong, UInt>()
+    private var kids = UIntArray(INITIAL_KIDS)
 
-    private val nodeIds = mutableMapOf<NodeKey, UInt>()
-
-    private val treeIds = mutableMapOf<IdentityKey, UInt>()
-
-    private data class NodeKey(val level: UInt, val nw: UInt, val ne: UInt, val sw: UInt, val se: UInt)
+    private val entryIds = mutableMapOf<IdentityKey, UInt>()
 
     private class IdentityKey(val node: MacroCell) {
         override fun equals(other: Any?): Boolean = other is IdentityKey && other.node === node
@@ -118,52 +113,35 @@ private class MacrocellWriter {
         override fun hashCode(): Int = node.hashCode()
     }
 
-    private fun nextId(): UInt = lines.size.toUInt()
-
-    private fun addLeaf(leaf: ULong): UInt = if (leaf == 0uL) {
-        0u
-    } else {
-        leafIds.getOrPut(leaf) {
-            val id = nextId()
-            lines.add(f_Algorithm_formatLeafNode(leaf))
-            id
-        }
-    }
-
-    private fun addNode(level: UInt, nw: UInt, ne: UInt, sw: UInt, se: UInt): UInt =
-        nodeIds.getOrPut(NodeKey(level, nw, ne, sw, se)) {
-            val id = nextId()
-            lines.add(f_Algorithm_formatMacrocellNode(level, nw, ne, sw, se))
-            id
-        }
-
     /**
-     * Returns the number of [node], or 0 if it is empty. Emptiness is read from the children, not from
-     * [MacroCell.size], which wraps for nodes of 2^64 or more alive cells.
+     * Returns the entry number of [node], adding it and its subtrees if they are new.
      */
-    fun addTree(node: MacroCell): UInt {
-        // Not getOrPut: the children are added first, which adds to treeIds.
+    fun add(node: MacroCell): UInt {
+        // Not getOrPut: the children are added first, which adds to entryIds.
         val key = IdentityKey(node)
-        return treeIds[key] ?: addNewTree(node).also { treeIds[key] = it }
+        return entryIds[key] ?: addNew(node).also { entryIds[key] = it }
     }
 
-    private fun addNewTree(node: MacroCell): UInt = when (node) {
-        is MacroCell.Level4Node -> if ((node.nw or node.ne or node.sw or node.se) == 0uL) {
-            0u
-        } else {
-            val nw = addLeaf(node.nw)
-            val ne = addLeaf(node.ne)
-            val sw = addLeaf(node.sw)
-            val se = addLeaf(node.se)
-            addNode(4u, nw, ne, sw, se)
+    private fun addNew(node: MacroCell): UInt {
+        val children = when (node) {
+            is MacroCell.Level4Node -> uintArrayOf(0u, 0u, 0u, 0u)
+            is MacroCell.CellNode -> uintArrayOf(add(node.nw), add(node.ne), add(node.sw), add(node.se))
         }
+        val id = entries.size
+        entries.add(node)
+        if (kids.size < KIDS_PER_ENTRY * entries.size) {
+            kids = kids.copyOf(2 * kids.size)
+        }
+        children.copyInto(kids, KIDS_PER_ENTRY * id)
+        return id.toUInt()
+    }
 
-        is MacroCell.CellNode -> {
-            val nw = addTree(node.nw)
-            val ne = addTree(node.ne)
-            val sw = addTree(node.sw)
-            val se = addTree(node.se)
-            if ((nw or ne or sw or se) == 0u) 0u else addNode(node.level(), nw, ne, sw, se)
-        }
+    fun entries(): Array<Any?> = Array(entries.size) { entries[it] }
+
+    fun kids(): UIntArray = kids.copyOf(KIDS_PER_ENTRY * entries.size)
+
+    private companion object {
+        const val KIDS_PER_ENTRY = 4
+        const val INITIAL_KIDS = 64
     }
 }
