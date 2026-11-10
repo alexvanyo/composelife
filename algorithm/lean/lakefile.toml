@@ -68,6 +68,7 @@ roots = [
   "theorems.Life105Theorems",
   "Algorithm.RLE",
   "proofs.RLEProofs",
+  "proofs.RLESpecProofs",
   "theorems.RLETheorems",
   "proofs.MacrocellProofs",
   "theorems.MacrocellTheorems",
