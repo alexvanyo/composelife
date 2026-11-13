@@ -65,3 +65,41 @@ elab "#audit_master_theorem_axioms" : command => do
     logError "no master theorems found"
 
 #audit_master_theorem_axioms
+
+open Lean Elab Command in
+/--
+Checks the `X` / `X_Impl` naming pattern of `docs/lean.md`: each master theorem `X` has no `_Impl`, `_spec` or
+`_thm` suffix and is exactly `X_Impl` applied to its parameters, and each `_Impl` theorem in a proof module is the
+proof of a master theorem.
+-/
+elab "#audit_master_theorem_names" : command => do
+  let env ← getEnv
+  let moduleOf (n : Name) : Option Name := (env.getModuleIdxFor? n).map (env.header.moduleNames[·.toNat]!)
+  let isMaster (mod : Name) : Bool := mod == `GeometryTheorems
+  let isProof (mod : Name) : Bool := mod.getRoot == `proofs || mod == `GeometryProofs
+  let mut masters : NameSet := {}
+  for (n, ci) in env.constants.toList do
+    let some mod := moduleOf n | continue
+    unless isMaster mod do continue
+    let .thmInfo info := ci | continue
+    if n.isInternal then continue
+    masters := masters.insert n
+    let .str _ last := n | continue
+    for suffix in ["_Impl", "_spec", "_thm"] do
+      if last.endsWith suffix then
+        logError m!"master theorem {n} ends in `{suffix}`: name it for what it states"
+    let impl := n.appendAfter "_Impl"
+    let mut body := info.value
+    while body.isLambda do body := body.bindingBody!
+    unless body.getAppFn.isConstOf impl && body.getAppArgs.all (·.isBVar) do
+      logError m!"master theorem {n} must be `{impl}` applied to its parameters"
+  for (n, ci) in env.constants.toList do
+    unless ci matches .thmInfo _ do continue
+    let .str pre last := n | continue
+    unless last.endsWith "_Impl" do continue
+    let some mod := moduleOf n | continue
+    unless isProof mod do continue
+    unless masters.contains (.str pre (last.dropEnd 5).toString) do
+      logError m!"{n} is not the proof of a master theorem `{(last.dropEnd 5).toString}`"
+
+#audit_master_theorem_names
