@@ -136,14 +136,27 @@ jobs:
         with:
           remove_dotnet: true
           remove_haskell: true
-          remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox postgresql* *llvm* mysql* dotnet-sdk-*"
+          remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable firefox postgresql* *llvm* mysql* dotnet-sdk-*"
           remove_folders: "/usr/share/swift /usr/share/miniconda /usr/share/az* /usr/local/lib/node_modules /usr/local/share/powershell /usr/local/julia /usr/local/aws-cli /usr/local/aws-sam-cli"
           rm_cmd: "rmz"
           rmz_version: "3.1.1"
 
       - name: Re-install needed packages
         run: |
-          sudo apt-get update && sudo apt-get install -y libgl1 chromium python3-fonttools clang
+          sudo apt-get update && sudo apt-get install -y libgl1 python3-fonttools clang
+          if ! command -v google-chrome &> /dev/null && ! command -v chromium &> /dev/null; then
+            wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+            sudo apt-get install -y ./google-chrome-stable_current_amd64.deb
+            rm -f google-chrome-stable_current_amd64.deb
+          fi
+          CHROME_PATH=$(command -v google-chrome || command -v chromium || true)
+          if [ -n "$CHROME_PATH" ]; then
+            if ! command -v chromium &> /dev/null; then
+              sudo ln -sf "$CHROME_PATH" /usr/bin/chromium
+            fi
+            echo "CHROME_BIN=$CHROME_PATH" >> $GITHUB_ENV
+            echo "CHROMIUM_BIN=$CHROME_PATH" >> $GITHUB_ENV
+          fi
 
       - name: Set ANDROID_USER_HOME
         run: echo "ANDROID_USER_HOME=$HOME/.android" >> $GITHUB_ENV
@@ -378,14 +391,14 @@ jobs:
         with:
           remove_dotnet: true
           remove_haskell: true
-          remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox postgresql* *llvm* mysql* dotnet-sdk-*"
+          remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable firefox postgresql* *llvm* mysql* dotnet-sdk-*"
           remove_folders: "/usr/share/swift /usr/share/miniconda /usr/share/az* /usr/local/lib/node_modules /usr/local/share/powershell /usr/local/julia /usr/local/aws-cli /usr/local/aws-sam-cli"
           rm_cmd: "rmz"
           rmz_version: "3.1.1"
 
       - name: Re-install needed packages
         run: |
-          sudo apt-get update && sudo apt-get install -y libgl1 chromium python3-fonttools clang
+          sudo apt-get update && sudo apt-get install -y libgl1 python3-fonttools clang
 
       - name: Set ANDROID_USER_HOME
         run: echo "ANDROID_USER_HOME=$HOME/.android" >> $GITHUB_ENV
@@ -459,14 +472,14 @@ jobs:
         with:
           remove_dotnet: true
           remove_haskell: true
-          remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox postgresql* *llvm* mysql* dotnet-sdk-*"
+          remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable firefox postgresql* *llvm* mysql* dotnet-sdk-*"
           remove_folders: "/usr/share/swift /usr/share/miniconda /usr/share/az* /usr/local/lib/node_modules /usr/local/share/powershell /usr/local/julia /usr/local/aws-cli /usr/local/aws-sam-cli"
           rm_cmd: "rmz"
           rmz_version: "3.1.1"
 
       - name: Re-install needed packages
         run: |
-          sudo apt-get update && sudo apt-get install -y libgl1 chromium python3-fonttools clang
+          sudo apt-get update && sudo apt-get install -y libgl1 python3-fonttools clang
 
       - name: Set ANDROID_USER_HOME
         run: echo "ANDROID_USER_HOME=$HOME/.android" >> $GITHUB_ENV
