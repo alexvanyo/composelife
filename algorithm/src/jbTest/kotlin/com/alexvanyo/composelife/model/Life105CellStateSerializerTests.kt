@@ -266,4 +266,17 @@ class Life105CellStateSerializerTests {
             ).joinToString("\n"),
         )
     }
+
+    @Test
+    fun negative_coordinates_round_trip() {
+        val cellState = setOf(-1 to -2, 0 to -1, -3 to 0, 2 to -5, -100 to 7).toCellState()
+        assertEquals(
+            DeserializationResult.Successful(
+                warnings = emptyList(),
+                cellState = cellState,
+                format = CellStateFormat.FixedFormat.Life105,
+            ),
+            serializer.deserializeToCellState(serializer.serializeToString(cellState)),
+        )
+    }
 }

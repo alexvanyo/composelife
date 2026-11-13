@@ -115,4 +115,61 @@ theorem flat_capacity_hypotheses_satisfiable :
   rw [hl, hc, hr4, hrc]
   decide +kernel
 
+/--
+Mutant 3: a Life 1.06 serializer that forgets to output the header line.
+-/
+def mutantSerializeLife106MissingHeader (_cells : Array UInt64) : Array String := #[]
+
+/-- Mutant 3 violates `serializeLife106_eq`. -/
+theorem mutantSerializeLife106_violates_header :
+    mutantSerializeLife106MissingHeader #[] ≠
+      #["#Life 1.06"] ++ (#[] : Array UInt64).map (fun k => formatCoordLine (cellKeyX k) (cellKeyY k)) := by
+  decide +kernel
+
+/--
+Mutant 4: a Plaintext serializer that outputs dead cell "." even for live cells.
+-/
+def mutantSerializePlaintextAllDead (_cells : Array UInt64) (_minX _maxX _minY _maxY : Int32) :
+    Array String := #["."]
+
+/-- Mutant 4 violates `plaintext_round_trip_box`: the cell does not read back. -/
+theorem mutantSerializePlaintext_violates_round_trip :
+    (deserializePlaintext (mutantSerializePlaintextAllDead #[cellBits (0, 0)] 0 0 0 0)).cells ≠ #[cellBits (0, 0)] := by
+  decide +kernel
+
+/--
+Mutant 5: a Life 1.06 coordinate parser that wraps out-of-range values around, as `UInt32` arithmetic does.
+-/
+def mutantParseCoordWrapping (line : String) : Option (Int32 × Int32) :=
+  if line = "4294967297 0" then some (1, 0) else parseCoordLine line
+
+/-- Mutant 5 violates `parseCoordLine_rejects_out_of_range`. -/
+theorem mutantParseCoordWrapping_violates_range :
+    mutantParseCoordWrapping (toString (4294967297 : Nat) ++ " 0") ≠
+      parseCoordLine (toString (4294967297 : Nat) ++ " 0") := by
+  decide +kernel
+
+/--
+Mutant 6: an RLE header check that only accepts the rule spelled `B3/S23`, not `B3/S32`.
+-/
+def mutantRLEHeaderExactRule (bytes : ByteArray) : UInt32 :=
+  if bytes = "x = 1, y = 1, rule = B3/S32".toByteArray then 3 else parseRLEHeader bytes
+
+/-- Mutant 6 violates `parseRLEHeader_rule_digit_sets`. -/
+theorem mutantRLEHeaderExactRule_violates_sets :
+    mutantRLEHeaderExactRule "x = 1, y = 1, rule = B3/S32".toByteArray ≠
+      parseRLEHeader "x = 1, y = 1, rule = B3/S32".toByteArray := by
+  decide +kernel
+
+/--
+Mutant 7: a Macrocell deserializer that accepts a node of level 0, which the real one rejects.
+-/
+def mutantDeserializeMacrocellLevel0 (lines : Array String) : MacrocellStatus :=
+  if lines = #["[M2]", "0 0 0 0 0"] then .ok else (deserializeMacrocell lines).status
+
+/-- Mutant 7 violates `deserializeMacrocell_level_0`. -/
+theorem mutantDeserializeMacrocellLevel0_violates :
+    mutantDeserializeMacrocellLevel0 #["[M2]", "0 0 0 0 0"] ≠ (deserializeMacrocell #["[M2]", "0 0 0 0 0"]).status := by
+  decide +kernel
+
 end Algorithm
