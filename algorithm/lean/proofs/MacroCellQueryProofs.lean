@@ -34,6 +34,11 @@ namespace Algorithm
 theorem cellToLeafBit_morton : ∀ a < 8, ∀ b < 8, (cellToLeafBitUInt a.toUInt32 b.toUInt32).toNat = mortonIndex a b := by
   decide +kernel
 
+/-- Proof of `cellToLeafBitUInt_eq_mortonIndex`. -/
+theorem cellToLeafBitUInt_eq_mortonIndex_Impl (x y : ℕ) (hx : x < 8) (hy : y < 8) :
+    (cellToLeafBitUInt x.toUInt32 y.toUInt32).toNat = mortonIndex x y :=
+  cellToLeafBit_morton x hx y hy
+
 theorem shr_and_one_eq_one (w k : UInt64) (hk : k.toNat < 64) :
     ((w >>> k) &&& 1 == 1) = w.toBitVec.getLsbD k.toNat := by
   have key : (w >>> k) &&& 1 = if w.toBitVec.getLsbD k.toNat then 1 else 0 := by
@@ -58,6 +63,11 @@ theorem leafContains_toNat (leaf : UInt64) (x y : UInt32) (hx : x.toNat < 8) (hy
   intro _
   exact ⟨by omega, by omega⟩
 
+/-- Proof of `leafContains_eq_leafAt`. -/
+theorem leafContains_eq_leafAt_Impl (leaf : UInt64) (x y : UInt32) (hx : x.toNat < 8) (hy : y.toNat < 8) :
+    leafContains leaf x y = leafAt leaf x.toNat y.toNat :=
+  leafContains_toNat leaf x y hx hy
+
 theorem int32_shl_one : ∀ L < 31, ((1 : Int32) <<< L.toUInt32.toInt32).toInt = 2 ^ L := by decide +kernel
 
 theorem int32_shl_one_pred : ∀ L < 31, 1 ≤ L → ((1 : Int32) <<< (L.toUInt32.toInt32 - 1)).toInt = 2 ^ (L - 1) := by
@@ -81,7 +91,7 @@ theorem leafContains_int32 (leaf : UInt64) (x y : Int32) (hx0 : 0 ≤ x.toInt) (
   rw [leafContains_toNat _ _ _ (by omega) (by omega), ex, ey]
 
 /-- The Kotlin `contains` query of a MacroCell is its cell function, at every `Int32` coordinate. -/
-theorem macroCellContains_correct : ∀ (m : MacroCell) {d : ℕ}, WFd m d → d ≤ 30 → ∀ x y : Int32,
+theorem macroCellContains_eq_cellAt_Impl : ∀ (m : MacroCell) {d : ℕ}, WFd m d → d ≤ 30 → ∀ x y : Int32,
     macroCellContains m x y = cellAt m x.toInt y.toInt := by
   intro m
   induction m with
@@ -222,6 +232,12 @@ theorem leafAt_leafWithCell (leaf : UInt64) (x y : UInt32) (hx : x.toNat < 8) (h
   · have hne : ¬ (x' = x.toNat ∧ y' = y.toNat) := by omega
     simp [hin, hne]
 
+/-- Proof of `leafAt_leafWithCell_eq`. -/
+theorem leafAt_leafWithCell_eq_Impl (leaf : UInt64) (x y : UInt32) (hx : x.toNat < 8) (hy : y.toNat < 8) (b : Bool)
+    (x' y' : ℤ) :
+    leafAt (leafWithCell leaf x y b) x' y' = if x' = x.toNat ∧ y' = y.toNat then b else leafAt leaf x' y' :=
+  leafAt_leafWithCell leaf x y hx hy b x' y'
+
 /-- Updating one cell of one quadrant of a `quadSel` updates that cell of the whole. -/
 theorem quadSel_update (f1 f2 f3 f4 g1 g2 g3 g4 : ℤ → ℤ → Bool) (w a c : ℤ) (b : Bool)
     (ha : 0 ≤ a ∧ a < 2 * w) (hc : 0 ≤ c ∧ c < 2 * w)
@@ -315,7 +331,7 @@ theorem leafAt_leafWithCell_fun (leaf : UInt64) (u v : Int32) (a c : ℤ) (hu : 
 The Kotlin `withCell` update of a MacroCell keeps it well-formed and hash-consistent, and sets exactly the cell
 `(x, y)` to `b` (leaving the node unchanged when `(x, y)` is outside it).
 -/
-theorem macroCellWithCell_correct : ∀ (m : MacroCell) {d : ℕ}, WFd m d → d ≤ 30 → HashOK m →
+theorem macroCellWithCell_correct_Impl : ∀ (m : MacroCell) {d : ℕ}, WFd m d → d ≤ 30 → HashOK m →
     ∀ (x y : Int32) (b : Bool),
       WFd (macroCellWithCell m x y b) d ∧ HashOK (macroCellWithCell m x y b) ∧
       ∀ x' y', cellAt (macroCellWithCell m x y b) x' y' =
@@ -445,7 +461,7 @@ theorem UInt32.toNat_log2' (a : UInt32) : a.log2.toNat = a.toNat.log2 := rfl
 /--
 `minimumMacroCellLevel span` is the smallest level of at least 4 whose width `2 ^ level` covers `span` cells.
 -/
-theorem minimumMacroCellLevel_spec (span : UInt32) :
+theorem minimumMacroCellLevel_correct_Impl (span : UInt32) :
     4 ≤ (minimumMacroCellLevel span).toNat ∧ span.toNat ≤ 2 ^ (minimumMacroCellLevel span).toNat ∧
       ((minimumMacroCellLevel span).toNat = 4 ∨ 2 ^ ((minimumMacroCellLevel span).toNat - 1) < span.toNat) := by
   unfold minimumMacroCellLevel
@@ -473,7 +489,7 @@ theorem minimumMacroCellLevel_spec (span : UInt32) :
       omega
 
 /-- Kotlin's `emptySubnode` is the pre-built empty node of the argument's level (`EMPTY_NODES[level]`). -/
-theorem emptySubnode_eq_emptyNode {m : MacroCell} {d : ℕ} (hm : WFd m d) : emptySubnode m = emptyNode d := by
+theorem emptySubnode_eq_emptyNode_of_WFd_Impl {m : MacroCell} {d : ℕ} (hm : WFd m d) : emptySubnode m = emptyNode d := by
   have h4 := WFd_ge_four hm
   have := emptySubnode_of_WFd (d := d - 4) (by rwa [show d - 4 + 4 = d by omega])
   rwa [show d - 4 + 4 = d by omega] at this
@@ -483,13 +499,13 @@ theorem emptySubnode_eq_emptyNode {m : MacroCell} {d : ℕ} (hm : WFd m d) : emp
 -- =========================================================================
 
 /-- `Level4Node.cellEquals` (Kotlin's `Level4Node.equals`) is equality of Level 4 nodes. -/
-theorem level4Node_cellEquals_iff (h1 h2 : UInt32) (a1 b1 c1 d1 a2 b2 c2 d2 : UInt64) :
+theorem level4Node_cellEquals_iff_eq_Impl (h1 h2 : UInt32) (a1 b1 c1 d1 a2 b2 c2 d2 : UInt64) :
     Level4Node.cellEquals (.level4Node h1 a1 b1 c1 d1) (.level4Node h2 a2 b2 c2 d2) = true ↔
       MacroCell.level4Node h1 a1 b1 c1 d1 = .level4Node h2 a2 b2 c2 d2 := by
   simp [Level4Node.cellEquals, and_assoc]
 
 /-- `CellNode.cellEquals` (Kotlin's `CellNode.equals`) is equality of CellNodes. -/
-theorem cellNode_cellEquals_iff (h1 h2 : UInt32) (a1 b1 c1 d1 a2 b2 c2 d2 : MacroCell) :
+theorem cellNode_cellEquals_iff_eq_Impl (h1 h2 : UInt32) (a1 b1 c1 d1 a2 b2 c2 d2 : MacroCell) :
     CellNode.cellEquals (.cellNode h1 a1 b1 c1 d1) (.cellNode h2 a2 b2 c2 d2) = true ↔
       MacroCell.cellNode h1 a1 b1 c1 d1 = .cellNode h2 a2 b2 c2 d2 := by
   simp only [CellNode.cellEquals, Bool.and_eq_true, beq_iff_eq, macroCell_cellEquals_iff_eq_Impl,
@@ -505,5 +521,9 @@ theorem size_toNat_of_WFd {m : MacroCell} {d : ℕ} (hm : WFd m d) (hd : d ≤ 3
   have h2 : 4 ^ d ≤ 4 ^ 31 := Nat.pow_le_pow_right (by decide) hd
   have h3 : (4 : ℕ) ^ 31 < 2 ^ 64 := by decide
   exact Nat.mod_eq_of_lt (by omega)
+
+/-- Proof of `macroCell_size_eq`. -/
+theorem macroCell_size_eq_Impl {m : MacroCell} {d : ℕ} (hm : WFd m d) (hd : d ≤ 31) : m.size.toNat = macroCellSize m :=
+  size_toNat_of_WFd hm hd
 
 end Algorithm

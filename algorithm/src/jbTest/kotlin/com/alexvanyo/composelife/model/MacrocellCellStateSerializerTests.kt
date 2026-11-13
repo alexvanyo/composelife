@@ -733,4 +733,36 @@ class MacrocellCellStateSerializerTests {
             serializer.serializeToString(hashLifeCellState).toList(),
         )
     }
+
+    @Test
+    fun deserialization_with_level_0_node_returns_unsuccessful() {
+        assertEquals(
+            DeserializationResult.Unsuccessful(
+                warnings = emptyList(),
+                errors = listOf(UnexpectedInputMessage(input = "0 0 0 0 0", lineIndex = 1, characterIndex = 0)),
+            ),
+            serializer.deserializeToCellState(sequenceOf("[M2]", "0 0 0 0 0")),
+        )
+    }
+
+    @Test
+    fun deserialization_with_child_of_wrong_level_returns_unsuccessful() {
+        assertEquals(
+            DeserializationResult.Unsuccessful(
+                warnings = emptyList(),
+                errors = listOf(UnexpectedNodeIdMessage(lineIndex = 3, characterIndices = 2..2)),
+            ),
+            serializer.deserializeToCellState(sequenceOf("[M2]", "*$", "4 1 0 0 0", "6 2 0 0 0")),
+        )
+    }
+
+    @Test
+    fun serialization_of_deeply_shared_tree_writes_each_node_once() {
+        // Every level has four references to the same child, so the tree has 4^26 paths but 28 distinct nodes.
+        var node: MacroCell = MacroCell.Level4Node(1uL, 1uL, 1uL, 1uL)
+        repeat(26) { node = MacroCell.CellNode(node, node, node, node) }
+        val lines = serializer.serializeToString(HashLifeCellState(offset = IntOffset.Zero, macroCell = node)).toList()
+        // The header, the leaf, the Level 4 node and one node per level above it.
+        assertEquals(1 + 1 + 1 + 26, lines.size)
+    }
 }

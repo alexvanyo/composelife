@@ -42,11 +42,11 @@ theorem macroCell_level_cellNode (hash : UInt32) (nw ne sw se : MacroCell) :
 
 /-- The `UInt32` level of a well-formed node is its depth. -/
 theorem macroCell_level_eq_depth {m : MacroCell} {d : ℕ} (hm : WFd m d) (hd : d < 2 ^ 32) : m.level.toNat = d :=
-  WFd_level_toNat hm hd
+  macroCell_level_eq_depth_Impl hm hd
 
 /-- The `UInt64` population of a well-formed node of depth at most 31 is its exact number of live cells. -/
 theorem macroCell_size_eq {m : MacroCell} {d : ℕ} (hm : WFd m d) (hd : d ≤ 31) : m.size.toNat = macroCellSize m :=
-  size_toNat_of_WFd hm hd
+  macroCell_size_eq_Impl hm hd
 
 /-- Empty nodes at any level have size 0. -/
 theorem macroCell_size_emptyNode (k : ℕ) : (emptyNode k).size = 0 :=
@@ -65,13 +65,13 @@ theorem macroCell_cellEquals_iff_eq (m1 m2 : MacroCell) :
 theorem level4Node_cellEquals_iff_eq (h1 h2 : UInt32) (a1 b1 c1 d1 a2 b2 c2 d2 : UInt64) :
     Level4Node.cellEquals (.level4Node h1 a1 b1 c1 d1) (.level4Node h2 a2 b2 c2 d2) = true ↔
       MacroCell.level4Node h1 a1 b1 c1 d1 = .level4Node h2 a2 b2 c2 d2 :=
-  level4Node_cellEquals_iff h1 h2 a1 b1 c1 d1 a2 b2 c2 d2
+  level4Node_cellEquals_iff_eq_Impl h1 h2 a1 b1 c1 d1 a2 b2 c2 d2
 
 /-- `CellNode.cellEquals`, which Kotlin's `CellNode.equals` falls back to, is equality. -/
 theorem cellNode_cellEquals_iff_eq (h1 h2 : UInt32) (a1 b1 c1 d1 a2 b2 c2 d2 : MacroCell) :
     CellNode.cellEquals (.cellNode h1 a1 b1 c1 d1) (.cellNode h2 a2 b2 c2 d2) = true ↔
       MacroCell.cellNode h1 a1 b1 c1 d1 = .cellNode h2 a2 b2 c2 d2 :=
-  cellNode_cellEquals_iff h1 h2 a1 b1 c1 d1 a2 b2 c2 d2
+  cellNode_cellEquals_iff_eq_Impl h1 h2 a1 b1 c1 d1 a2 b2 c2 d2
 
 /-- Kotlin hashCode matches cellHashCode. -/
 theorem macroCell_hashCode_eq (m : MacroCell) :
