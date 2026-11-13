@@ -26,8 +26,19 @@ plugins {
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
+    alias(libs.plugins.convention.lean)
     kotlin("plugin.serialization") version libs.versions.kotlin
     alias(libs.plugins.gradleDependenciesSorter)
+}
+
+lean {
+    target = "Navigation:static"
+    packageName = "com.alexvanyo.composelife.navigation"
+    entries {
+        register("backstackNavigation") {
+            leanFile = "Navigation/Backstack.lean"
+        }
+    }
 }
 
 kotlin {
