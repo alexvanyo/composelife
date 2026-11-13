@@ -22,18 +22,14 @@ import androidx.work.WorkManager
 import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.WorkManagerTestInitHelper
 import com.alexvanyo.composelife.scopes.ApplicationContext
-import com.alexvanyo.composelife.updatable.Updatable
 import com.alexvanyo.composelife.work.AssistedWorkerFactory
 import com.alexvanyo.composelife.work.InjectWorkerFactory
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.ForScope
-import dev.zacsweers.metro.IntoSet
 import dev.zacsweers.metro.Multibinds
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
-import kotlinx.coroutines.awaitCancellation
 import kotlin.reflect.KClass
 
 @ContributesTo(AppScope::class, replaces = [WorkManagerBindings::class])
@@ -67,21 +63,8 @@ interface TestWorkManagerBindings {
             WorkManagerTestInitHelper.initializeTestWorkManager(
                 context,
                 workManagerConfiguration,
-                WorkManagerTestInitHelper.ExecutorsMode.PRESERVE_EXECUTORS,
             )
             return WorkManager.getInstance(context)
-        }
-
-        @Provides
-        @SingleIn(AppScope::class)
-        @IntoSet
-        @ForScope(AppScope::class)
-        internal fun providesWorkManagerIntoUpdatable(): Updatable = object : Updatable {
-            override suspend fun update(): Nothing = try {
-                awaitCancellation()
-            } finally {
-                WorkManagerTestInitHelper.closeWorkDatabase()
-            }
         }
     }
 }
