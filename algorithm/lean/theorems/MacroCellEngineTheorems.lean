@@ -38,21 +38,21 @@ what the Kotlin memo tables and canonical maps return, never by what the compile
 
 /-- `popcount64` (the SWAR count inlined into the generated Kotlin) counts the set bits, like `countOneBits()`. -/
 theorem popcount64_eq_cpop (x : UInt64) : (popcount64 x).toNat = x.toBitVec.cpop.toNat :=
-  popcount64_toNat_eq_cpop x
+  popcount64_eq_cpop_Impl x
 
 /-- The generated code computes `centeredSubSubnode` with `centeredSubSubnodeFast`; they agree on every node. -/
 theorem centeredSubSubnodeFast_eq_centeredSubSubnode {m : MacroCell} {d : ℕ} (hm : WFd m d) (h5 : 5 ≤ d) :
     centeredSubSubnodeFast m = centeredSubSubnode m :=
-  centeredSubSubnodeFast_eq hm h5
+  centeredSubSubnodeFast_eq_centeredSubSubnode_Impl hm h5
 
 /-- The generated code computes `centeredSubSubnodeSize` with `centeredSubSubnodeSizeFast`; they agree. -/
 theorem centeredSubSubnodeSizeFast_eq_centeredSubSubnodeSize {m : MacroCell} {d : ℕ} (hm : WFd m d) (h5 : 5 ≤ d) :
     centeredSubSubnodeSizeFast m = centeredSubSubnodeSize m :=
-  centeredSubSubnodeSizeFast_eq hm h5
+  centeredSubSubnodeSizeFast_eq_centeredSubSubnodeSize_Impl hm h5
 
 /-- The generated code computes `emptySubnode m` as the pre-built empty node of `m`'s level. -/
 theorem emptySubnode_eq_emptyNode_of_WFd {m : MacroCell} {d : ℕ} (hm : WFd m d) : emptySubnode m = emptyNode d :=
-  emptySubnode_eq_emptyNode hm
+  emptySubnode_eq_emptyNode_of_WFd_Impl hm
 
 -- =========================================================================
 -- Stepping
@@ -60,12 +60,12 @@ theorem emptySubnode_eq_emptyNode_of_WFd {m : MacroCell} {d : ℕ} (hm : WFd m d
 
 /-- HashLife's step keeps every node hash-consistent. -/
 theorem hashLifeStep_hashOK (m : MacroCell) : HashOK (hashLifeStep m) :=
-  HashOK_hashLifeStep m
+  hashLifeStep_hashOK_Impl m
 
 /-- With the exact callbacks, `stepCellNodeWith` is HashLife's step. -/
 theorem stepCellNodeWith_eq_hashLifeStep {m : MacroCell} {d : ℕ} (hm : WFd m d) (h5 : 5 ≤ d) (hd : d < 2 ^ 32) :
     stepCellNodeWith m stepLevel4Node hashLifeStep = hashLifeStep m :=
-  stepCellNodeWith_exact hm h5 hd
+  stepCellNodeWith_eq_hashLifeStep_Impl hm h5 hd
 
 /--
 The canonicalization of `LeanHashLifeAlgorithm` returns its argument: `canonicalizeMacroCellWith` is the identity
@@ -81,8 +81,7 @@ theorem canonicalizeMacroCellWith_eq_self (internLevel4 : MacroCell → MacroCel
       canonicalizeMacroCellWith q internLevel4 findExistingCell canonicalizeSubnode internCell)
     {q : MacroCell} {d : ℕ} (hq : WFd q d) (hd : d ≤ 30) (H : HashOK q) :
     canonicalizeMacroCellWith q internLevel4 findExistingCell canonicalizeSubnode internCell = q :=
-  canonicalize_fixpoint internLevel4 findExistingCell canonicalizeSubnode internCell hI4 hFe hIc
-    (fun q _ _ _ _ => hS q) d q hq hd H
+  canonicalizeMacroCellWith_eq_self_Impl internLevel4 findExistingCell canonicalizeSubnode internCell hI4 hFe hIc hS hq hd H
 
 /--
 The prepared-node step of `LeanHashLifeAlgorithm` (`stepCellNodeWith` with its memoized callbacks, followed by
@@ -104,14 +103,14 @@ theorem leanHashLife_preparedStep_eq (L : UInt64 → UInt32) (G : MacroCell → 
     {q : MacroCell} {d : ℕ} (hq : WFd q d) (h5 : 5 ≤ d) (hd : d ≤ 30) (H : HashOK q) :
     canonicalizeMacroCellWith (stepCellNodeWith q G F) internLevel4 findExistingCell canonicalizeSubnode internCell =
       hashLifeStep q :=
-  leanHashLife_preparedStep L G F internLevel4 findExistingCell canonicalizeSubnode internCell hL hG hF hI4 hFe hIc hS
+  leanHashLife_preparedStep_eq_Impl L G F internLevel4 findExistingCell canonicalizeSubnode internCell hL hG hF hI4 hFe hIc hS
     q d hq h5 hd H
 
 /-- Every HashLife generation keeps the center of the window fixed. -/
 theorem windowCenter_nextGeneration (st : HashLifeCellState) (hwf : isWellFormed st.macroCell)
     (hd : st.macroCell.depth ≤ 30) :
     windowCenter (hashLifeNextGeneration st) = windowCenter st :=
-  windowCenter_hashLifeNextGeneration st hwf hd
+  windowCenter_nextGeneration_Impl st hwf hd
 
 /--
 One generation of `LeanHashLifeAlgorithm`: `stepHashLifeStateWith` with a prepared-node step that is HashLife's
@@ -125,7 +124,7 @@ theorem stepHashLifeStateWith_eq_nextGeneration (st : HashLifeStepState) (P : Ma
     (hcx : -2 ^ 30 ≤ (windowCenter st.toCellState).1 ∧ (windowCenter st.toCellState).1 ≤ 2 ^ 30)
     (hcy : -2 ^ 30 ≤ (windowCenter st.toCellState).2 ∧ (windowCenter st.toCellState).2 ≤ 2 ^ 30) :
     (stepHashLifeStateWith st P).toCellState = hashLifeNextGeneration st.toCellState :=
-  stepHashLifeStateWith_correct st P hP hwf hok hd hcx hcy
+  stepHashLifeStateWith_eq_nextGeneration_Impl st P hP hwf hok hd hcx hcy
 
 /--
 Master theorem for `LeanHashLifeAlgorithm.computeGenerationWithStep`: `n` generations by `computeGenerationStep`
@@ -145,10 +144,8 @@ theorem computeGenerationStep_correct (P : MacroCell → MacroCell)
     cellsEqual
       (hashLifeToGrid (computeGenerationStep n st computedGenerations macroKeep leafKeep
         (fun s => stepHashLifeStateWith s P)).finalState.toCellState)
-      (stepN n.toNat (hashLifeToGrid st.toCellState)) = true := by
-  have h := stepNGenerationsWith_stepHashLifeStateWith P hP n.toNat n st rfl hwf hok hd hcx hcy
-  exact ⟨h, h ▸ hashlife_n_step_equivalence_Impl n.toNat st.toCellState hwf (by
-    simp [HashLifeStepState.toCellState]; omega)⟩
+      (stepN n.toNat (hashLifeToGrid st.toCellState)) = true :=
+  computeGenerationStep_correct_Impl P hP n st computedGenerations macroKeep leafKeep hwf hok hd hcx hcy
 
 -- =========================================================================
 -- Cell queries
@@ -157,41 +154,41 @@ theorem computeGenerationStep_correct (P : MacroCell → MacroCell)
 /-- `cellToLeafBitUInt` is the Morton index of a leaf coordinate. -/
 theorem cellToLeafBitUInt_eq_mortonIndex (x y : ℕ) (hx : x < 8) (hy : y < 8) :
     (cellToLeafBitUInt x.toUInt32 y.toUInt32).toNat = mortonIndex x y :=
-  cellToLeafBit_morton x hx y hy
+  cellToLeafBitUInt_eq_mortonIndex_Impl x y hx hy
 
 /-- `leafContains` reads the leaf's cell function. -/
 theorem leafContains_eq_leafAt (leaf : UInt64) (x y : UInt32) (hx : x.toNat < 8) (hy : y.toNat < 8) :
     leafContains leaf x y = leafAt leaf x.toNat y.toNat :=
-  leafContains_toNat leaf x y hx hy
+  leafContains_eq_leafAt_Impl leaf x y hx hy
 
 /-- `leafWithCell` sets exactly one cell of a leaf. -/
 theorem leafAt_leafWithCell_eq (leaf : UInt64) (x y : UInt32) (hx : x.toNat < 8) (hy : y.toNat < 8) (b : Bool)
     (x' y' : ℤ) :
     leafAt (leafWithCell leaf x y b) x' y' = if x' = x.toNat ∧ y' = y.toNat then b else leafAt leaf x' y' :=
-  leafAt_leafWithCell leaf x y hx hy b x' y'
+  leafAt_leafWithCell_eq_Impl leaf x y hx hy b x' y'
 
 /-- `macroCellContains` (Kotlin's `MacroCell.contains`) is the cell function, at every `Int32` coordinate. -/
 theorem macroCellContains_eq_cellAt {m : MacroCell} {d : ℕ} (hm : WFd m d) (hd : d ≤ 30) (x y : Int32) :
     macroCellContains m x y = cellAt m x.toInt y.toInt :=
-  macroCellContains_correct m hm hd x y
+  macroCellContains_eq_cellAt_Impl m hm hd x y
 
 /--
 `macroCellWithCell` (Kotlin's `MacroCell.withCell`) keeps the node well-formed and hash-consistent and sets
 exactly the cell `(x, y)` if it lies inside the node, leaving the node unchanged otherwise.
 -/
-theorem macroCellWithCell_spec {m : MacroCell} {d : ℕ} (hm : WFd m d) (hd : d ≤ 30) (H : HashOK m)
+theorem macroCellWithCell_correct {m : MacroCell} {d : ℕ} (hm : WFd m d) (hd : d ≤ 30) (H : HashOK m)
     (x y : Int32) (b : Bool) :
     WFd (macroCellWithCell m x y b) d ∧ HashOK (macroCellWithCell m x y b) ∧
     ∀ x' y', cellAt (macroCellWithCell m x y b) x' y' =
       if 0 ≤ x.toInt ∧ x.toInt < 2 ^ d ∧ 0 ≤ y.toInt ∧ y.toInt < 2 ^ d then
         (if x' = x.toInt ∧ y' = y.toInt then b else cellAt m x' y')
       else cellAt m x' y' :=
-  macroCellWithCell_correct m hm hd H x y b
+  macroCellWithCell_correct_Impl m hm hd H x y b
 
 /-- `minimumMacroCellLevel span` is the smallest level of at least 4 whose width covers `span` cells. -/
 theorem minimumMacroCellLevel_correct (span : UInt32) :
     4 ≤ (minimumMacroCellLevel span).toNat ∧ span.toNat ≤ 2 ^ (minimumMacroCellLevel span).toNat ∧
       ((minimumMacroCellLevel span).toNat = 4 ∨ 2 ^ ((minimumMacroCellLevel span).toNat - 1) < span.toNat) :=
-  minimumMacroCellLevel_spec span
+  minimumMacroCellLevel_correct_Impl span
 
 end Algorithm

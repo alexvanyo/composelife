@@ -82,17 +82,43 @@ To keep production code clean, maintain fast compilation, and clearly distinguis
 - **Purpose**: The public, human-readable specification contract. Reviewers can read these files to audit the exact mathematical guarantees without sifting through proof tactics.
 - **Rules**:
   - Contains **only meaningful specification theorems** covering compiled definitions.
-  - Contains **zero proof bodies** (no `by`, `sorry`, or inline tactics).
+  - Contains **zero proof bodies** (no `by`, `sorry`, `rfl`, anonymous constructors or inline tactics), including
+    for concrete checks such as `deserializeRLE #[] = ⟨.emptyFile, #[.emptyFile], #[]⟩`.
   - Every master theorem delegates directly to its `_Impl` counterpart:
     ```lean
     theorem computeNextGen4x4_correct (w : UInt32) (h : w < 65536) :
         decode4x4Center (computeNextGen4x4 w) = naiveCenter2x2 (decode4x4 w) :=
       computeNextGen4x4_correct_Impl w h
     ```
+- **Naming** (`X` / `X_Impl`):
+  - A master theorem `X` has a plain, descriptive name: what it states (`deserializeRLE_eq_rleSpec`,
+    `rle_round_trip_box`, `flat_internLevel4_correct`). It never ends in `_Impl`, `_spec` or `_thm`. When the
+    obvious name is taken by a definition (`deserializeRLE`), name the statement (`deserializeRLE_eq_rleSpec`)
+    rather than adding a suffix.
+  - Its proof is exactly `X_Impl`, in an implementation proof module, with the same statement and parameters. The
+    body of `X` is `X_Impl` applied to the explicit parameters of `X`, in order, and nothing else.
+  - Every `_Impl` theorem is the proof of exactly one master theorem: no master theorem without an `_Impl`, and
+    no `_Impl` without a master theorem.
+  - Each package's `AxiomAudit.lean` enforces these rules with `#audit_master_theorem_names`, which fails the build
+    on a master theorem with a `_Impl`, `_spec` or `_thm` suffix, a master theorem that is not `X_Impl` applied to
+    its parameters, or an `_Impl` theorem in a proof module with no master theorem.
 
 ### 4. Implementation Proofs (`<Component>Proofs.lean` or `proofs/*.lean`)
 - **Purpose**: Tactical proofs, intermediate lemmas, induction arguments, and solver invocations (`omega`, `linarith`, `ring`, `decide`, `bv_check`).
   - Implements the `..._Impl` theorems referenced in master theorems.
+  - **Naming**:
+    - `X_Impl` is reserved for the proof of the master theorem `X` (see [Master Theorems](#3-master-theorems-componenttheoremslean-or-theoremslean)).
+      Other proofs use it like any lemma, but nothing else is named `_Impl`.
+    - When a master theorem is a lemma that the proofs also use widely (for example `WFd_level_toNat`, or
+      `parseInt32At_spec`), keep the lemma's name and add a one-line `X_Impl` beside it that restates `X` and
+      applies the lemma, rather than renaming the lemma after `X`.
+    - When `X` combines several lemmas (`⟨h.1, l.1, h.2, l.2⟩`, `(lemma ...).2 h`), that term is the body of
+      `X_Impl`, not of `X`.
+    - Concrete checks (`decide +kernel`, `rfl`) are `X_Impl` theorems too, conventionally grouped under a
+      `Concrete checks of the master theorems` heading at the end of a proof module.
+    - Internal lemmas are named for what they state. `f_spec` is a lemma stating what the definition `f`
+      computes (`scanDigits_spec`, `expandRuns_spec`); a specification *definition* is named `fooSpec`
+      (`rleSpec`, `linesSpec`) and lives with the proofs or in `<Component>Defs.lean`.
   - May freely use heavy tactical solvers (`omega`, `linarith`, `ring`, `aesop`, `positivity`). See the [Proof Tactics Guide](#proof-tactics-guide).
   - May import full Mathlib and tactical solvers.
   - May be decomposed across multiple submodules and directories when proofs grow large.
@@ -289,6 +315,9 @@ therefore fails on any other axiom. To inspect a single theorem:
 ```lean
 #print axioms computeNextGen4x4_correct
 ```
+
+The same module also runs `#audit_master_theorem_names`, which checks the `X` / `X_Impl` naming pattern of the
+master theorems (see [Master Theorems](#3-master-theorems-componenttheoremslean-or-theoremslean)).
 
 ---
 

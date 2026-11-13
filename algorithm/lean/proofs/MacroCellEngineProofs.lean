@@ -38,7 +38,7 @@ local notation "ℤ" => Int
 
 namespace Algorithm
 
-theorem centeredSubSubnodeFast_eq {m : MacroCell} {d : ℕ} (hm : WFd m d) (h5 : 5 ≤ d) :
+theorem centeredSubSubnodeFast_eq_centeredSubSubnode_Impl {m : MacroCell} {d : ℕ} (hm : WFd m d) (h5 : 5 ≤ d) :
     centeredSubSubnodeFast m = centeredSubSubnode m := by
   obtain ⟨h, A, B, C, D, rfl, hA, hB, hC, hD⟩ := WFd_cell hm h5
   by_cases h5' : d = 5
@@ -74,7 +74,7 @@ theorem popcount64_sum4_toUInt64 (a b c d : UInt64) :
   simp only [UInt32.toNat_toUInt64, UInt32.toNat_add, UInt64.toNat_add]
   omega
 
-theorem centeredSubSubnodeSizeFast_eq {m : MacroCell} {d : ℕ} (hm : WFd m d) (h5 : 5 ≤ d) :
+theorem centeredSubSubnodeSizeFast_eq_centeredSubSubnodeSize_Impl {m : MacroCell} {d : ℕ} (hm : WFd m d) (h5 : 5 ≤ d) :
     centeredSubSubnodeSizeFast m = centeredSubSubnodeSize m := by
   obtain ⟨h, A, B, C, D, rfl, hA, hB, hC, hD⟩ := WFd_cell hm h5
   by_cases h5' : d = 5
@@ -154,6 +154,11 @@ theorem stepCellNodeWith_exact {m : MacroCell} {d : ℕ} (hm : WFd m d) (h5 : 5 
 -- Hash Consistency
 -- =========================================================================
 
+/-- Proof of `stepCellNodeWith_eq_hashLifeStep`. -/
+theorem stepCellNodeWith_eq_hashLifeStep_Impl {m : MacroCell} {d : ℕ} (hm : WFd m d) (h5 : 5 ≤ d) (hd : d < 2 ^ 32) :
+    stepCellNodeWith m stepLevel4Node hashLifeStep = hashLifeStep m :=
+  stepCellNodeWith_exact hm h5 hd
+
 theorem HashOK_makeLevel4Node (nw ne sw se : UInt64) : HashOK (makeLevel4Node nw ne sw se) := rfl
 
 theorem HashOK_makeCellNode {nw ne sw se : MacroCell} (h1 : HashOK nw) (h2 : HashOK ne) (h3 : HashOK sw)
@@ -181,6 +186,10 @@ theorem HashOK_hashLifeStepRecursiveAux : ∀ (fuel : ℕ) (m : MacroCell), Hash
 
 theorem HashOK_hashLifeStep (m : MacroCell) : HashOK (hashLifeStep m) :=
   HashOK_hashLifeStepRecursiveAux _ _
+
+/-- Proof of `hashLifeStep_hashOK`. -/
+theorem hashLifeStep_hashOK_Impl (m : MacroCell) : HashOK (hashLifeStep m) :=
+  HashOK_hashLifeStep m
 
 theorem HashOK_centeredSubnode {n : MacroCell} {L : ℕ} (hn : WFd n L) (h5 : 5 ≤ L) (H : HashOK n) :
     HashOK (centeredSubnode n) := by
@@ -365,6 +374,19 @@ theorem canonicalize_fixpoint (internLevel4 : MacroCell → MacroCell) (findExis
 -- Stepping
 -- =========================================================================
 
+/-- Proof of `canonicalizeMacroCellWith_eq_self`. -/
+theorem canonicalizeMacroCellWith_eq_self_Impl (internLevel4 : MacroCell → MacroCell)
+    (findExistingCell : MacroCell → Option MacroCell) (canonicalizeSubnode internCell : MacroCell → MacroCell)
+    (hI4 : ∀ q, internLevel4 q = q)
+    (hFe : ∀ q e, HashOK q → findExistingCell q = some e → e = q)
+    (hIc : ∀ q, HashOK q → internCell q = q)
+    (hS : ∀ q, canonicalizeSubnode q =
+      canonicalizeMacroCellWith q internLevel4 findExistingCell canonicalizeSubnode internCell)
+    {q : MacroCell} {d : ℕ} (hq : WFd q d) (hd : d ≤ 30) (H : HashOK q) :
+    canonicalizeMacroCellWith q internLevel4 findExistingCell canonicalizeSubnode internCell = q :=
+  canonicalize_fixpoint internLevel4 findExistingCell canonicalizeSubnode internCell hI4 hFe hIc
+    (fun q _ _ _ _ => hS q) d q hq hd H
+
 /--
 `stepCellNodeWith` with callbacks that agree with HashLife on the four quadrants (the Level 4 step on depth 4
 quadrants, the HashLife step on deeper ones) is HashLife's step.
@@ -503,6 +525,12 @@ theorem windowCenter_hashLifeNextGeneration (st : HashLifeCellState) (hwf : isWe
     simp only [Prod.mk.injEq]
     constructor <;> omega
 
+/-- Proof of `windowCenter_nextGeneration`. -/
+theorem windowCenter_nextGeneration_Impl (st : HashLifeCellState) (hwf : isWellFormed st.macroCell)
+    (hd : st.macroCell.depth ≤ 30) :
+    windowCenter (hashLifeNextGeneration st) = windowCenter st :=
+  windowCenter_hashLifeNextGeneration st hwf hd
+
 theorem pow_two_le_pow_two_30 : ∀ k < 31, (2 : ℤ) ^ k ≤ 2 ^ 30 := by decide +kernel
 
 theorem pow_two_mono {j k : ℕ} (h : j ≤ k) : (2 : ℤ) ^ j ≤ 2 ^ k := by
@@ -571,6 +599,15 @@ theorem stepHashLifeStateWith_correct (st : HashLifeStepState) (P : MacroCell �
     · rw [int32_toInt_add_of_range _ _ (by omega) (by omega), hdl]; omega
     · rw [int32_toInt_add_of_range _ _ (by omega) (by omega), hdl]; omega
 
+/-- Proof of `stepHashLifeStateWith_eq_nextGeneration`. -/
+theorem stepHashLifeStateWith_eq_nextGeneration_Impl (st : HashLifeStepState) (P : MacroCell → MacroCell)
+    (hP : ∀ q d, WFd q d → 5 ≤ d → d ≤ 30 → HashOK q → P q = hashLifeStep q)
+    (hwf : isWellFormed st.macroCell) (hok : HashOK st.macroCell) (hd : st.macroCell.depth ≤ 28)
+    (hcx : -2 ^ 30 ≤ (windowCenter st.toCellState).1 ∧ (windowCenter st.toCellState).1 ≤ 2 ^ 30)
+    (hcy : -2 ^ 30 ≤ (windowCenter st.toCellState).2 ∧ (windowCenter st.toCellState).2 ≤ 2 ^ 30) :
+    (stepHashLifeStateWith st P).toCellState = hashLifeNextGeneration st.toCellState :=
+  stepHashLifeStateWith_correct st P hP hwf hok hd hcx hcy
+
 theorem stepNGenerationsWith_ne_zero (f : HashLifeStepState → HashLifeStepState) (n : UInt32) (st : HashLifeStepState)
     (hn : n ≠ 0) : stepNGenerationsWith n st f = stepNGenerationsWith (n - 1) (f st) f := by
   rw [stepNGenerationsWith]
@@ -634,7 +671,7 @@ The prepared-node step of `LeanHashLifeAlgorithm` is HashLife's step. The callba
   and a CellNode by its level and identical children, which for hash-consistent nodes is the same value;
 - `canonicalizeSubnode` is the same canonicalization.
 -/
-theorem leanHashLife_preparedStep (L : UInt64 → UInt32) (G : MacroCell → UInt64) (F : MacroCell → MacroCell)
+theorem leanHashLife_preparedStep_eq_Impl (L : UInt64 → UInt32) (G : MacroCell → UInt64) (F : MacroCell → MacroCell)
     (internLevel4 : MacroCell → MacroCell) (findExistingCell : MacroCell → Option MacroCell)
     (canonicalizeSubnode internCell : MacroCell → MacroCell)
     (hL : ∀ w, L w = computeLeafNextGen8x8BranchUInt w)
@@ -665,5 +702,22 @@ theorem leanHashLife_preparedStep (L : UInt64 → UInt32) (G : MacroCell → UIn
   rw [stepCellNodeWith_spec G F hq h5 (by omega) H hG'
     (fun _ c hc Hc => hstep (d - 1) c hc (by omega) (by omega) Hc)]
   exact hcanon (d - 1) _ (depth_hashLifeStep hq h5 (by omega)) (by omega) (HashOK_hashLifeStep q)
+
+/-- Proof of `computeGenerationStep_correct`. -/
+theorem computeGenerationStep_correct_Impl (P : MacroCell → MacroCell)
+    (hP : ∀ q d, WFd q d → 5 ≤ d → d ≤ 30 → HashOK q → P q = hashLifeStep q)
+    (n : UInt32) (st : HashLifeStepState) (computedGenerations : UInt64) (macroKeep leafKeep : UInt32)
+    (hwf : isWellFormed st.macroCell) (hok : HashOK st.macroCell) (hd : st.macroCell.depth + n.toNat ≤ 29)
+    (hcx : -2 ^ 30 ≤ (windowCenter st.toCellState).1 ∧ (windowCenter st.toCellState).1 ≤ 2 ^ 30)
+    (hcy : -2 ^ 30 ≤ (windowCenter st.toCellState).2 ∧ (windowCenter st.toCellState).2 ≤ 2 ^ 30) :
+    (computeGenerationStep n st computedGenerations macroKeep leafKeep
+        (fun s => stepHashLifeStateWith s P)).finalState.toCellState = hashLifeStepN n.toNat st.toCellState ∧
+    cellsEqual
+      (hashLifeToGrid (computeGenerationStep n st computedGenerations macroKeep leafKeep
+        (fun s => stepHashLifeStateWith s P)).finalState.toCellState)
+      (stepN n.toNat (hashLifeToGrid st.toCellState)) = true := by
+  have h := stepNGenerationsWith_stepHashLifeStateWith P hP n.toNat n st rfl hwf hok hd hcx hcy
+  exact ⟨h, h ▸ hashlife_n_step_equivalence_Impl n.toNat st.toCellState hwf (by
+    simp [HashLifeStepState.toCellState]; omega)⟩
 
 end Algorithm
