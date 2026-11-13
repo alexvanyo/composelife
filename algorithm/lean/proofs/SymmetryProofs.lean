@@ -66,7 +66,7 @@ theorem stepGrid_map_comm {T Ti : Coord → Coord} (h1 : ∀ c, Ti (T c) = c) (h
     (hT : ∀ (c : Coord) (d : ℤ × ℤ), Ti (c.1 + d.1, c.2 + d.2) = ((Ti c).1 + (σ d).1, (Ti c).2 + (σ d).2))
     (s : List Coord) :
     cellsEqual (stepGrid (s.map T)) ((stepGrid s).map T) = true := by
-  apply cellsEqual_of_same_elements
+  apply cellsEqual_of_same_elements_Impl
   intro c
   have hs : ∀ c, c ∈ s ↔ (fun x y => s.contains (x, y)) c.1 c.2 = true := fun c => by simp
   have hs' : ∀ c, c ∈ s.map T ↔ (fun x y => s.contains (Ti (x, y))) c.1 c.2 = true := fun c => by
@@ -76,29 +76,29 @@ theorem stepGrid_map_comm {T Ti : Coord → Coord} (h1 : ∀ c, Ti (T c) = c) (h
   rw [nextGenAt_of_perm σ hσ (fun x y => s.contains (Ti (x, y))) (fun x y => s.contains (x, y)) c.1 c.2 (Ti c).1
     (Ti c).2 rfl (fun d _ => by show s.contains (Ti _) = _; rw [hT c d])]
 
-theorem stepGrid_translate_Impl (dx dy : ℤ) (s : List Coord) :
+theorem stepGrid_translate_comm_Impl (dx dy : ℤ) (s : List Coord) :
     cellsEqual (stepGrid (translateGrid dx dy s)) (translateGrid dx dy (stepGrid s)) = true :=
   stepGrid_map_comm (T := fun c => (c.1 + dx, c.2 + dy)) (Ti := fun c => (c.1 - dx, c.2 - dy))
     (fun c => by simp) (fun c => by simp) id (by simp) (fun c d => by simp only [id]; congr 1 <;> omega) s
 
-theorem stepGrid_flipX_Impl (s : List Coord) :
+theorem stepGrid_flipX_comm_Impl (s : List Coord) :
     cellsEqual (stepGrid (flipXGrid s)) (flipXGrid (stepGrid s)) = true :=
   stepGrid_map_comm (T := fun c => (c.1, -c.2)) (Ti := fun c => (c.1, -c.2))
     (fun c => by simp) (fun c => by simp) (fun d => (d.1, -d.2)) (by decide)
     (fun c d => by simp only; congr 1; omega) s
 
-theorem stepGrid_flipY_Impl (s : List Coord) :
+theorem stepGrid_flipY_comm_Impl (s : List Coord) :
     cellsEqual (stepGrid (flipYGrid s)) (flipYGrid (stepGrid s)) = true :=
   stepGrid_map_comm (T := fun c => (-c.1, c.2)) (Ti := fun c => (-c.1, c.2))
     (fun c => by simp) (fun c => by simp) (fun d => (-d.1, d.2)) (by decide)
     (fun c d => by simp only; congr 1; omega) s
 
-theorem stepGrid_flipDiag_Impl (s : List Coord) :
+theorem stepGrid_flipDiag_comm_Impl (s : List Coord) :
     cellsEqual (stepGrid (flipDiagGrid s)) (flipDiagGrid (stepGrid s)) = true :=
   stepGrid_map_comm (T := fun c => (c.2, c.1)) (Ti := fun c => (c.2, c.1))
     (fun c => by simp) (fun c => by simp) (fun d => (d.2, d.1)) (by decide) (fun c d => by simp) s
 
-theorem stepGrid_rotate90_Impl (s : List Coord) :
+theorem stepGrid_rotate90_comm_Impl (s : List Coord) :
     cellsEqual (stepGrid (rotate90Grid s)) (rotate90Grid (stepGrid s)) = true :=
   stepGrid_map_comm (T := fun c => (-c.2, c.1)) (Ti := fun c => (c.2, -c.1))
     (fun c => by simp) (fun c => by simp) (fun d => (d.2, -d.1)) (by decide)
