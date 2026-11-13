@@ -16,6 +16,8 @@
 
 package com.alexvanyo.composelife.model
 
+import androidx.compose.ui.unit.IntOffset
+
 /**
  * A serializer for a [CellStateFormat.FixedFormat].
  *
@@ -28,4 +30,35 @@ interface FixedFormatCellStateSerializer {
     fun deserializeToCellState(lines: Sequence<String>): DeserializationResult
 
     fun serializeToString(cellState: CellState): Sequence<String>
+}
+
+/**
+ * The [Char] for a Unicode code point reported by a deserializer, or the replacement character if it doesn't fit in
+ * a single [Char].
+ */
+internal fun codePointToChar(codePoint: UInt): Char = if (codePoint <= 0xFFFFu) codePoint.toInt().toChar() else '�'
+
+/**
+ * The cells as the keys the Lean serializers take (`cellBits`): the bits of the x coordinate in the high half, and of
+ * the y coordinate in the low half.
+ */
+@OptIn(ExperimentalUnsignedTypes::class)
+internal fun Collection<IntOffset>.toLeanCells(): ULongArray {
+    val keys = ULongArray(size)
+    forEachIndexed { index, cell ->
+        keys[index] = (cell.x.toUInt().toULong() shl 32) or cell.y.toUInt().toULong()
+    }
+    return keys
+}
+
+/**
+ * The cells whose keys a Lean deserializer returned (see [toLeanCells]).
+ */
+@OptIn(ExperimentalUnsignedTypes::class)
+internal fun leanCellsToOffsets(keys: ULongArray): Set<IntOffset> {
+    val cells = HashSet<IntOffset>(keys.size)
+    for (key in keys) {
+        cells.add(IntOffset((key shr 32).toUInt().toInt(), key.toUInt().toInt()))
+    }
+    return cells
 }

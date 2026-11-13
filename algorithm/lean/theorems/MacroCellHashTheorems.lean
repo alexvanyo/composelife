@@ -62,11 +62,11 @@ theorem inv_mix32_2_valid : mix32_2 * inv_mix32_2 = 1 :=
 
 /-- `mix13` (the finalizer of `level4Hash`) is a bijection: `unmix13` inverts it. -/
 theorem mix13_invertible (x : UInt64) : unmix13 (mix13 x) = x :=
-  unmix13_mix13 x
+  mix13_invertible_Impl x
 
 /-- `fmix32` (the finalizer of `cellNodeHash`) is a bijection: `unfmix32` inverts it. -/
 theorem fmix32_invertible (x : UInt32) : unfmix32 (fmix32 x) = x :=
-  unfmix32_fmix32 x
+  fmix32_invertible_Impl x
 
 /-- The pre-built empty nodes of levels 4 to 30 have distinct hashes. -/
 theorem empty_node_hashes_all_distinct :

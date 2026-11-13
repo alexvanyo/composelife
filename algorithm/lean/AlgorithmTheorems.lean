@@ -23,3 +23,8 @@ import theorems.HashLifeTheorems
 import theorems.HashLifeEquivalenceTheorems
 import theorems.FlatHashLifeTheorems
 import theorems.MacroCellEngineTheorems
+import theorems.Life106Theorems
+import theorems.PlaintextTheorems
+import theorems.Life105Theorems
+import theorems.RLETheorems
+import theorems.MacrocellTheorems

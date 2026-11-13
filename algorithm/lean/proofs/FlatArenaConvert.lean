@@ -244,7 +244,7 @@ non-failed well-formed arena, by the recursion of `internMacroCellDag` from an e
 of the arena, returns a root denoting exactly the state at the same corner, and fails only when a node table is
 full.
 -/
-theorem internMacroCellDag_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) (hov : a.overflow = 0)
+theorem flat_internMacroCellDag_correct_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) (hov : a.overflow = 0)
     (st : HashLifeCellState) (ox oy : Int32) (hoff : st.offset = (ox.toInt, oy.toInt)) {d : ℕ}
     (hm : WFd st.macroCell d) (h5 : 5 ≤ d) (h60 : d ≤ 60) (H : HashOK st.macroCell)
     {id : UInt32} {memo : List (MacroCell × UInt32)} {a' : FlatHashLifeArena}
@@ -347,7 +347,7 @@ theorem cellKeyOf_eq {x y : Int64} (hx1 : -2 ^ 31 ≤ x.toInt) (hx2 : x.toInt < 
   dsimp only
   omega
 
-theorem keyCoord_coordKey {c : Coord} (h : InWindow (-2 ^ 31) (-2 ^ 31) (2 ^ 31) (2 ^ 31) c) :
+theorem flat_keyCoord_coordKey_Impl {c : Coord} (h : InWindow (-2 ^ 31) (-2 ^ 31) (2 ^ 31) (2 ^ 31) c) :
     keyCoord (coordKey c) = c := by
   obtain ⟨h1, h2, h3, h4⟩ := h
   unfold keyCoord coordKey
@@ -1302,7 +1302,7 @@ theorem mem_toList_map_iff (cells : Array UInt64) (c : Coord) :
 `cellsToMacroCell` builds, at the corner of the cells' bounding box, a well-formed, hash-consistent node of level
 between 5 and 32 whose state has exactly the cells of the keys.
 -/
-theorem cellsToMacroCell_Impl (cells : Array UInt64) (hsz : cells.size < 2 ^ 32) :
+theorem flat_cellsToMacroCell_correct_Impl (cells : Array UInt64) (hsz : cells.size < 2 ^ 32) :
     ∃ L, 5 ≤ L ∧ L ≤ 32 ∧ WFd (cellsToMacroCell cells).2.2 L ∧ HashOK (cellsToMacroCell cells).2.2 ∧
       ∀ c, c ∈ hashLifeToGrid ⟨(((cellsToMacroCell cells).1.toNat : ℤ) - 2 ^ 31,
         ((cellsToMacroCell cells).2.1.toNat : ℤ) - 2 ^ 31), (cellsToMacroCell cells).2.2⟩ ↔
@@ -1422,7 +1422,7 @@ theorem cellsToMacroCell_Impl (cells : Array UInt64) (hsz : cells.size < 2 ^ 32)
 `buildQuadtreeBottomUp` (`cellsToMacroCell`, then the DAG import of the result at the corner `(ox, oy)` that Kotlin
 decodes from the returned key coordinates) imports exactly the given cells.
 -/
-theorem buildQuadtree_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) (hov : a.overflow = 0) (cells : Array UInt64)
+theorem flat_buildQuadtree_correct_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) (hov : a.overflow = 0) (cells : Array UInt64)
     (hsz : cells.size < 2 ^ 32) (ox oy : Int32) (hox : ox.toInt = ((cellsToMacroCell cells).1.toNat : ℤ) - 2 ^ 31)
     (hoy : oy.toInt = ((cellsToMacroCell cells).2.1.toNat : ℤ) - 2 ^ 31) {id : UInt32}
     {memo : List (MacroCell × UInt32)} {a' : FlatHashLifeArena}
@@ -1431,8 +1431,8 @@ theorem buildQuadtree_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) (hov : a.ov
     (id ≠ UNCOMPUTED → id < a'.cellCount ∧ cellLevelOf a' id ≤ 32 ∧
       ∀ c, c ∈ hashLifeToGrid (flatState a' ox oy id) ↔ c ∈ cells.toList.map keyCoord) ∧
     (id = UNCOMPUTED → ArenaFull a') := by
-  obtain ⟨L, h5, h32, hw, H, hgrid⟩ := cellsToMacroCell_Impl cells hsz
-  obtain ⟨w', p', hs, hu⟩ := internMacroCellDag_Impl hwf hov
+  obtain ⟨L, h5, h32, hw, H, hgrid⟩ := flat_cellsToMacroCell_correct_Impl cells hsz
+  obtain ⟨w', p', hs, hu⟩ := flat_internMacroCellDag_correct_Impl hwf hov
     ⟨(ox.toInt, oy.toInt), (cellsToMacroCell cells).2.2⟩ ox oy rfl hw h5 (by omega) H hrun
   refine ⟨w', p', fun hne => ?_, hu⟩
   obtain ⟨hlt, heq⟩ := hs hne
