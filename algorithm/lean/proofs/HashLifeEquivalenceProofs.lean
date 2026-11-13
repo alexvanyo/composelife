@@ -58,7 +58,7 @@ theorem hashlife_single_step_equivalence_Impl
     cellsEqual
       (hashLifeToGrid (hashLifeNextGeneration st))
       (stepGrid (hashLifeToGrid st)) = true := by
-  apply cellsEqual_of_same_elements
+  apply cellsEqual_of_same_elements_Impl
   intro c
   constructor
   · exact hashlife_single_step_soundness st h_wf h_depth c
@@ -74,7 +74,7 @@ theorem hashlife_n_step_equivalence_aux
   induction n generalizing st with
   | zero =>
     dsimp [hashLifeStepN, stepN]
-    exact cellsEqual_deduplicate_self (hashLifeToGrid st)
+    exact cellsEqual_deduplicate_self_Impl (hashLifeToGrid st)
   | succ n ih =>
     dsimp [hashLifeStepN]
     have h0 := h_ok 0 (by omega)
