@@ -48,6 +48,10 @@ theorem popcount64_toNat_eq_cpop (x : UInt64) : (popcount64 x).toNat = x.toBitVe
     bv_check "lrat/PopcountProofs.Algorithm.popcount64_toNat_eq_cpop.lrat"
   rw [h, BitVec.toNat_setWidth, UInt32.toNat_toBitVec, Nat.mod_eq_of_lt (by have := popcount64_toNat_le x; omega)]
 
+/-- Proof of `popcount64_eq_cpop`. -/
+theorem popcount64_eq_cpop_Impl (x : UInt64) : (popcount64 x).toNat = x.toBitVec.cpop.toNat :=
+  popcount64_toNat_eq_cpop x
+
 theorem popcount64_split_se (a : UInt64) :
     popcount64 a = popcount64 (a &&& 0xFFFF000000000000) + popcount64 (a &&& 0x0000FFFFFFFFFFFF) := by
   unfold popcount64

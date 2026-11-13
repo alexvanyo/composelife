@@ -135,7 +135,7 @@ theorem stepOneGeneration_grid {a : FlatHashLifeArena} (hwf : ArenaWF a) (ox oy 
   obtain ⟨_, hs, _⟩ := stepOneGeneration_spec hwf ox oy root
   obtain ⟨_, hid, _, heq, hrange⟩ := hs hok
   rw [heq]
-  apply cellsEqual_of_same_elements
+  apply cellsEqual_of_same_elements_Impl
   exact (flatNextGeneration_correct _ (flatState_isWellFormed hwf hid ox oy)
     (flatStepInRange_depth hwf hid hrange)).2
 
@@ -158,7 +158,7 @@ theorem stepOneGenerationN_spec (n : ℕ) :
   | zero =>
     intro a hwf ox oy root hid
     refine ⟨hwf, fun _ => ⟨hid, rfl, ?_⟩⟩
-    exact cellsEqual_deduplicate_self _
+    exact cellsEqual_deduplicate_self_Impl _
   | succ n ih =>
     intro a hwf ox oy root hid
     have hstep := stepOneGeneration_spec hwf ox oy root
