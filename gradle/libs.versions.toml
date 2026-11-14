@@ -48,7 +48,7 @@ androidxTestExt = "1.4.0-alpha03"
 #androidxTestRunner
 androidxTestRunner = "1.8.0-alpha03"
 #androidxTestUiAutomator
-androidxTestUiAutomator = "2.4.0"
+androidxTestUiAutomator = "2.4.1"
 #androidxTracing
 androidxTracing = "2.0.5"
 #androidxWearCompose
