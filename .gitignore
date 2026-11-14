@@ -83,3 +83,7 @@ resources/com/alexvanyo/composelife/robolectric.properties
 # Lean
 .lake/
 
+# Roborazzi snapshot images (stored as hashes)
+**/src/androidHostTest/snapshots/**/*.png
+!**/src/androidHostTest/snapshots/**/*.png.sha256
+
