@@ -43,6 +43,7 @@ roots = [
   "proofs.Connectivity",
   "proofs.CompiledPath",
   "proofs.Mutations",
+  "JvmSemantics",
   "AxiomAudit",
 ]
 

@@ -22,6 +22,7 @@ import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.GenerateLeanKotlinTask
 import com.alexvanyo.composelife.buildlogic.LeanEntrySpec
 import com.alexvanyo.composelife.buildlogic.LeanExtension
+import com.alexvanyo.composelife.buildlogic.VerifyLeanJvmBytecodeTask
 import com.alexvanyo.composelife.buildlogic.VerifyLeanTask
 import com.alexvanyo.composelife.buildlogic.heavyTaskLimitingBuildService
 import org.gradle.api.Task
@@ -145,7 +146,43 @@ class LeanConventionPlugin :
             buildFile.set(layout.projectDirectory.file("build.gradle.kts"))
         }
 
+        val desktopClassesDir = layout.buildDirectory.dir("classes/kotlin/desktop/main")
+        val verifyLeanJvmBytecode = tasks.register(
+            "verifyLeanJvmBytecode",
+            VerifyLeanJvmBytecodeTask::class.java,
+        ) {
+            description = "Lifts compiled JVM .class bytecode into Lean and verifies equivalence proofs"
+            group = LifecycleBasePlugin.VERIFICATION_GROUP
+            dependsOn(verifyLean, checkLeanBvCheck, generateLeanKotlin)
+            workingDir.set(leanExtension.leanDirectory)
+            leanFiles.from(
+                leanExtension.leanDirectory.asFileTree.matching {
+                    include("**/*.lean")
+                    include("**/lrat/*.lrat")
+                    exclude(".lake/**")
+                },
+            )
+            scriptFile.set(rootProject.layout.projectDirectory.file("script/jvm-bytecode2lean.py"))
+            moduleNamespace.set(leanExtension.target.map { it.substringBefore(':') })
+            generatedBytecodeDir.set(layout.buildDirectory.dir("generated/lean/jvm"))
+            classFiles.from(
+                provider {
+                    leanExtension.entries.map { entry ->
+                        val packagePath = entry.packageName.get().replace('.', '/')
+                        val capitalizedName = entry.name.replaceFirstChar {
+                            if (it.isLowerCase()) it.titlecase() else it.toString()
+                        }
+                        desktopClassesDir.get().file("$packagePath/${capitalizedName}LeanKt.class")
+                    }
+                },
+            )
+            usesService(heavyTaskLimitingBuildService)
+        }
+
         pluginManager.withPlugin("org.jetbrains.kotlin.multiplatform") {
+            verifyLeanJvmBytecode.configure {
+                dependsOn("compileKotlinDesktop")
+            }
             extensions.configure(KotlinMultiplatformExtension::class.java) {
                 sourceSets.named("commonMain").configure {
                     kotlin.srcDir(generateLeanKotlin.flatMap { it.generatedSourcesDir })
@@ -154,6 +191,11 @@ class LeanConventionPlugin :
         }
 
         tasks.withType(Task::class.java).named { it == LifecycleBasePlugin.CHECK_TASK_NAME }.configureEach {
-            dependsOn(verifyLean, checkLeanGeneratedKotlin, checkLeanBuildScriptHygiene)
+            dependsOn(
+                verifyLean,
+                checkLeanGeneratedKotlin,
+                checkLeanBuildScriptHygiene,
+                verifyLeanJvmBytecode,
+            )
         }
     })
