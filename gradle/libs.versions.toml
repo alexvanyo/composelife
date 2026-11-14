@@ -142,7 +142,7 @@ okio = "3.18.2"
 #proguard
 proguard = "7.8.0"
 #robolectric
-robolectric = "4.18-beta-1"
+robolectric = "4.18"
 #roborazzi
 roborazzi = "1.79.0"
 #slf4j
