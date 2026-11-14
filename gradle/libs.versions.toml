@@ -44,7 +44,7 @@ androidxTestCore = "1.8.0-alpha04"
 #androidxTestEspresso
 androidxTestEspresso = "3.8.0-alpha03"
 #androidxTestExt
-androidxTestExt = "1.4.0-alpha03"
+androidxTestExt = "1.4.0-alpha04"
 #androidxTestRunner
 androidxTestRunner = "1.8.0-alpha03"
 #androidxTestUiAutomator
