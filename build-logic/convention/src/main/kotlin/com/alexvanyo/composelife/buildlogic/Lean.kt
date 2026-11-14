@@ -264,3 +264,89 @@ abstract class CheckLeanBvCheckTask : DefaultTask() {
         }
     }
 }
+
+@DisableCachingByDefault(because = "JVM bytecode verification runs Lean verification on compiled .class outputs")
+abstract class VerifyLeanJvmBytecodeTask @Inject constructor(
+    private val execOperations: ExecOperations,
+) : DefaultTask() {
+    @get:Internal
+    abstract val workingDir: DirectoryProperty
+
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    @get:InputFiles
+    abstract val leanFiles: ConfigurableFileCollection
+
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    @get:InputFile
+    abstract val scriptFile: RegularFileProperty
+
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    @get:InputFiles
+    abstract val classFiles: ConfigurableFileCollection
+
+    @get:Input
+    abstract val moduleNamespace: Property<String>
+
+    @get:OutputDirectory
+    abstract val generatedBytecodeDir: DirectoryProperty
+
+    @TaskAction
+    fun verify() {
+        val existingClassFiles = classFiles.files.filter { it.isFile }.sortedBy { it.path }
+        check(existingClassFiles.isNotEmpty()) {
+            "Expected compiled Lean JVM .class files, but found none in: ${classFiles.files}"
+        }
+
+        val workDir = workingDir.get().asFile
+        val bytecodeOutDir = generatedBytecodeDir.get().asFile
+        bytecodeOutDir.mkdirs()
+        val bytecodeLeanFile = File(bytecodeOutDir, "JvmBytecode.lean")
+        val ns = moduleNamespace.get()
+
+        val liftArgs = buildList {
+            add("python3")
+            add(scriptFile.get().asFile.absolutePath)
+            for (cf in existingClassFiles) {
+                add("--class-file")
+                add(cf.absolutePath)
+            }
+            add("--import")
+            add("JvmSemantics")
+            add("--namespace")
+            add("$ns.JvmBytecode")
+            add("--instr-type")
+            add("$ns.JvmVerification.JvmInstr")
+            add("-o")
+            add(bytecodeLeanFile.absolutePath)
+        }
+        execOperations.exec {
+            commandLine(liftArgs)
+        }
+
+        val oleanFile = File(workDir, ".lake/build/lib/lean/JvmBytecode.olean")
+        oleanFile.parentFile.mkdirs()
+        execOperations.exec {
+            workingDir = workDir
+            commandLine(
+                "lake",
+                "env",
+                "lean",
+                "--root=${bytecodeOutDir.absolutePath}",
+                "-o",
+                oleanFile.absolutePath,
+                bytecodeLeanFile.absolutePath,
+            )
+        }
+
+        execOperations.exec {
+            workingDir = workDir
+            commandLine(
+                "lake",
+                "env",
+                "lean",
+                "-DwarningAsError=true",
+                "proofs/JvmEquiv.lean",
+            )
+        }
+    }
+}

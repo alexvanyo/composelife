@@ -73,6 +73,7 @@ roots = [
   "proofs.MacrocellProofs",
   "proofs.MacrocellDagProofs",
   "theorems.MacrocellTheorems",
+  "JvmSemantics",
   "AxiomAudit",
 ]
 
