@@ -3,5 +3,10 @@ version = "0.1.0"
 defaultTargets = ["SessionValue"]
 
 [[lean_lib]]
+name = "Jvm"
+srcDir = "../../jvm-lean"
+roots = ["Jvm", "Jvm.Instr", "Jvm.Semantics", "Jvm.FastExec"]
+
+[[lean_lib]]
 name = "SessionValue"
 roots = ["SessionValue", "SessionValueDefs", "SessionValueTheorems", "SessionValueProofs", "proofs.Mutations", "JvmSemantics", "AxiomAudit"]

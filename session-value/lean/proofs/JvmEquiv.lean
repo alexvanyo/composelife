@@ -23,84 +23,87 @@ namespace SessionValue.JvmVerification
 open SessionValue.JvmBytecode
 
 theorem svMap_equiv (sv : SessionValue Nat) (f : Nat → Nat) :
-    runJvm 30 f_SessionValue_SessionValue_map___redArg_prog (initJvmState [(0, .sv sv), (1, .fn f)]) =
-      some (.sv (sv.map f)) := by
+    runJvm 30 f_SessionValue_SessionValue_map___redArg_prog
+        (initJvmState [(0, .ext (.sv sv)), (1, .ext (.fn f))]) =
+      some (.ext (.sv (sv.map f))) := by
   rfl
 
 theorem getLocalSessionId_equiv (info : LocalSessionInfo) :
-    runJvm 30 getLocalSessionId_prog (initJvmState [(0, .info info)]) =
-      some (.uuid info.localSessionId) := by
+    runJvm 30 getLocalSessionId_prog (initJvmState [(0, .ext (.info info))]) =
+      some (.ext (.uuid info.localSessionId)) := by
   cases info <;> rfl
 
 theorem getPreLocalSessionId_equiv (info : LocalSessionInfo) :
-    runJvm 30 getPreLocalSessionId_prog (initJvmState [(0, .info info)]) =
-      some (.uuid info.preLocalSessionId) := by
+    runJvm 30 getPreLocalSessionId_prog (initJvmState [(0, .ext (.info info))]) =
+      some (.ext (.uuid info.preLocalSessionId)) := by
   cases info <;> rfl
 
 theorem isLocalSessionActive_equiv (info : LocalSessionInfo) :
-    runJvm 30 isLocalSessionActive_prog (initJvmState [(0, .info info)]) =
+    runJvm 30 isLocalSessionActive_prog (initJvmState [(0, .ext (.info info))]) =
       some (.bool info.isLocalSessionActive) := by
   cases info <;> rfl
 
 theorem stateSessionValue_equiv (st : State Nat) :
-    runJvm 30 f_SessionValue_State_sessionValue___redArg_prog (initJvmState [(0, .st st)]) =
-      some (.sv st.sessionValue) := by
+    runJvm 30 f_SessionValue_State_sessionValue___redArg_prog (initJvmState [(0, .ext (.st st))]) =
+      some (.ext (.sv st.sessionValue)) := by
   cases h : st.localSessionValue <;>
-    simp [runJvm, stepInstr, f_SessionValue_State_sessionValue___redArg_prog, initJvmState, setLocal,
-      List.foldl, optSvToVal, JvmVal.isNull, SessionValue.State.sessionValue, Option.getD, h]
+    simp [runJvm, Jvm.runJvm, Jvm.stepInstr, Jvm.stepInvokeVirtualGeneric,
+      Jvm.stepInvokeStaticGeneric, svHooks, f_SessionValue_State_sessionValue___redArg_prog,
+      initJvmState, Jvm.initJvmState, setLocal, List.foldl, optSvToVal, JvmVal.isNull,
+      SessionValue.State.sessionValue, Option.getD, h]
 
 theorem stateInfo_equiv (st : State Nat) :
-    runJvm 60 f_SessionValue_State_info___redArg_prog (initJvmState [(0, .st st)]) =
-      some (.info st.info) := by
+    runJvm 60 f_SessionValue_State_info___redArg_prog (initJvmState [(0, .ext (.st st))]) =
+      some (.ext (.info st.info)) := by
   rcases st with ⟨ub, uv, lid, _ | lv⟩
   · rfl
-  · change some (JvmVal.info _) = some (JvmVal.info _)
-    congr 2
+  · change some (JvmVal.ext (SvExt.info _)) = some (JvmVal.ext (SvExt.info _))
+    congr 3
     by_cases h1 : (uv.sessionId == lv.sessionId) = true <;>
       by_cases h2 : (uv.valueId == lv.valueId) = true <;>
-      simp [setLocal, JvmVal.beqVal, JvmVal.isTruthy, SessionValue.State.info, h1, h2]
+      simp [setLocal, JvmVal.isTruthy, SessionValue.State.info, h1, h2]
 
 theorem stepSetValue_redArg_equiv (st : State Nat) (v : Nat) (vid : Uuid) :
     runJvm 50 f_SessionValue_stepSetValue___redArg_prog
-      (initJvmState [(0, .st st), (1, .obj v), (2, .uuid vid)]) =
+      (initJvmState [(0, .ext (.st st)), (1, .ext (.obj v)), (2, .ext (.uuid vid))]) =
       let res := SessionValue.stepSetValue st v vid
-      some (.pair (.st res.1) (.pair (.sv res.2.1) (.sv res.2.2))) := by
+      some (.pair (.ext (.st res.1)) (.pair (.ext (.sv res.2.1)) (.ext (.sv res.2.2)))) := by
   rfl
 
 theorem stepSetValue_equiv (st : State Nat) (v : Nat) (vid : Uuid) :
     runJvm 80 stepSetValue_prog
-      (initJvmState [(0, .st st), (1, .obj v), (2, .uuid vid)]) =
+      (initJvmState [(0, .ext (.st st)), (1, .ext (.obj v)), (2, .ext (.uuid vid))]) =
       let res := SessionValue.stepSetValue st v vid
-      some (.pair (.st res.1) (.pair (.sv res.2.1) (.sv res.2.2))) := by
+      some (.pair (.ext (.st res.1)) (.pair (.ext (.sv res.2.1)) (.ext (.sv res.2.2)))) := by
   rfl
 
 theorem isCurrentSessionUpdate_redArg_equiv (info : LocalSessionInfo) (newVal : SessionValue Nat) :
     runJvm 30 f_SessionValue_LocalSessionInfo_isCurrentSessionUpdate___redArg_prog
-      (initJvmState [(0, .info info), (1, .sv newVal)]) =
+      (initJvmState [(0, .ext (.info info)), (1, .ext (.sv newVal))]) =
       some (.bool (info.isCurrentSessionUpdate newVal)) := by
   cases info <;> rfl
 
 theorem isCurrentSessionUpdate_equiv (info : LocalSessionInfo) (newVal : SessionValue Nat) :
     runJvm 30 isCurrentSessionUpdate_prog
-      (initJvmState [(0, .info info), (1, .sv newVal)]) =
+      (initJvmState [(0, .ext (.info info)), (1, .ext (.sv newVal))]) =
       some (.bool (info.isCurrentSessionUpdate newVal)) := by
   rfl
 
 theorem stepSetValueFromUpstream_redArg_equiv (st : State Nat) (newUp : SessionValue Nat) (fresh : Uuid) :
     runJvm 140 f_SessionValue_stepSetValueFromUpstream___redArg_prog
-      (initJvmState [(0, .st st), (1, .sv newUp), (2, .uuid fresh)]) =
-      some (.st (SessionValue.stepSetValueFromUpstream st newUp fresh)) := by
+      (initJvmState [(0, .ext (.st st)), (1, .ext (.sv newUp)), (2, .ext (.uuid fresh))]) =
+      some (.ext (.st (SessionValue.stepSetValueFromUpstream st newUp fresh))) := by
   rcases st with ⟨ub, uv, lid, _ | lv⟩
-  · change some (JvmVal.st _) = some (JvmVal.st _)
-    congr 2
+  · change some (JvmVal.ext (SvExt.st _)) = some (JvmVal.ext (SvExt.st _))
+    congr 3
     by_cases hSid : newUp.sessionId = uv.sessionId <;>
       by_cases hVid : newUp.valueId = uv.valueId <;>
       by_cases hFresh : fresh = newUp.sessionId <;>
-      simp [initJvmState, setLocal, List.foldl, valToOptSv,
-        JvmVal.beqVal, JvmVal.isTruthy, SessionValue.stepSetValueFromUpstream, bne,
+      simp [initJvmState, Jvm.initJvmState, setLocal, List.foldl,
+        JvmVal.isTruthy, SessionValue.stepSetValueFromUpstream, bne,
         hSid, hVid, hFresh]
-  · change some (JvmVal.st _) = some (JvmVal.st _)
-    congr 2
+  · change some (JvmVal.ext (SvExt.st _)) = some (JvmVal.ext (SvExt.st _))
+    congr 3
     have hSymm : (lv.sessionId = uv.sessionId) ↔ (uv.sessionId = lv.sessionId) := eq_comm
     by_cases hSid : newUp.sessionId = uv.sessionId <;>
       by_cases hVid : newUp.valueId = uv.valueId <;>
@@ -108,14 +111,14 @@ theorem stepSetValueFromUpstream_redArg_equiv (st : State Nat) (newUp : SessionV
       by_cases hFresh : fresh = newUp.sessionId <;>
       by_cases hStSid : lid = newUp.sessionId <;>
       by_cases hUvLvSid : uv.sessionId = lv.sessionId <;>
-      simp [initJvmState, setLocal, List.foldl, optSvToVal, valToOptSv,
-        JvmVal.beqVal, JvmVal.isTruthy, SessionValue.stepSetValueFromUpstream, bne,
+      simp [initJvmState, Jvm.initJvmState, setLocal, List.foldl,
+        JvmVal.isTruthy, SessionValue.stepSetValueFromUpstream, bne,
         hSymm, hSid, hVid, hLvSid, hFresh, hStSid, hUvLvSid]
 
 theorem stepSetValueFromUpstream_equiv (st : State Nat) (newUp : SessionValue Nat) (fresh : Uuid) :
     runJvm 30 stepSetValueFromUpstream_prog
-      (initJvmState [(0, .st st), (1, .sv newUp), (2, .uuid fresh)]) =
-      some (.st (SessionValue.stepSetValueFromUpstream st newUp fresh)) := by
+      (initJvmState [(0, .ext (.st st)), (1, .ext (.sv newUp)), (2, .ext (.uuid fresh))]) =
+      some (.ext (.st (SessionValue.stepSetValueFromUpstream st newUp fresh))) := by
   rfl
 
 end SessionValue.JvmVerification

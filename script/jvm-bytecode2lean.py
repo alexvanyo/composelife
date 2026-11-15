@@ -16,7 +16,7 @@
 #
 """Generic JVM `.class` bytecode-to-Lean 4 lifter.
 
-Disassembles compiled JVM `.class` files with `javap -c -p` and translates each
+Disassembles compiled JVM `.class` files with `javap -v -p` and translates each
 method's bytecode instructions into pure Lean 4 `List JvmInstr` definitions.
 All operational semantics, equivalence theorems, and proofs live in `.lean`
 source files rather than in this script.
@@ -36,6 +36,7 @@ import argparse
 from dataclasses import dataclass
 from pathlib import Path
 import re
+import struct
 import subprocess
 import sys
 
@@ -44,32 +45,59 @@ SIMPLE_OPCODES = frozenset({
     "nop", "dup", "pop", "swap", "athrow",
     "iadd", "isub", "imul", "ineg", "iand", "ior", "ixor", "ishl", "ishr", "iushr",
     "ladd", "lsub", "lmul", "land", "lor", "lxor", "lshl", "lshr", "lushr",
-    "dneg", "dcmpg", "dcmpl",
-    "i2l", "l2i", "i2b", "lcmp",
+    "dadd", "dsub", "dmul", "ddiv", "dneg", "dcmpg", "dcmpl",
+    "i2l", "l2i", "i2b", "i2c", "i2d", "d2i", "lcmp",
+    "arraylength",
+    "aaload", "aastore",
+    "baload", "bastore",
+    "caload", "castore",
+    "iaload", "iastore",
+    "laload", "lastore",
+    "daload", "dastore",
     "ireturn", "lreturn", "areturn", "dreturn",
 })
 
 BRANCH_OPCODES = frozenset({
     "ifeq", "ifne", "iflt", "ifle", "ifgt", "ifge",
     "ifnull", "ifnonnull",
-    "if_icmpeq", "if_icmpne", "if_icmplt", "goto",
+    "if_icmpeq", "if_icmpne", "if_icmplt", "if_icmpge", "if_icmpgt", "if_icmple",
+    "if_acmpeq", "if_acmpne",
+    "goto",
 })
+
+_CODE_SECTION_END_PREFIXES = (
+    "Exception table:",
+    "LineNumberTable:",
+    "LocalVariableTable:",
+    "LocalVariableTypeTable:",
+    "StackMapTable:",
+    "RuntimeVisibleTypeAnnotations:",
+    "RuntimeInvisibleTypeAnnotations:",
+)
 
 
 @dataclass(frozen=True)
 class DisassembledMethod:
-    """A single JVM method disassembled by `javap -c -p`."""
+    """A single JVM method disassembled by `javap -v -p`."""
 
     owner_internal: str
     jvm_name: str
     descriptor_params: str
     raw_instrs: list[tuple[int, str, str]]
+    const_pool: dict[int, tuple[str, str]]
+    bootstrap_methods: dict[int, tuple[str, str]]
 
 
 def to_u32_lit(val: int | str) -> str:
     """Formats a signed 32-bit integer as an unsigned 32-bit Lean literal."""
     v = int(val)
     return str((1 << 32) + v if v < 0 else v)
+
+
+def to_i32_lit(val: int | str) -> str:
+    """Formats a signed 32-bit integer as a Lean `Int32` literal."""
+    v = int(val)
+    return f"({v})" if v < 0 else str(v)
 
 
 def to_u64_lit(val_str: str) -> str:
@@ -80,14 +108,96 @@ def to_u64_lit(val_str: str) -> str:
 
 def lean_str_lit(s: str) -> str:
     """Escapes a Python string as a Lean 4 string literal."""
-    escaped = (
-        s.replace("\\", "\\\\")
-        .replace('"', '\\"')
-        .replace("\n", "\\n")
-        .replace("\r", "\\r")
-        .replace("\t", "\\t")
-    )
-    return f'"{escaped}"'
+    out: list[str] = ['"']
+    for ch in s:
+        code = ord(ch)
+        if ch == "\\":
+            out.append("\\\\")
+        elif ch == '"':
+            out.append('\\"')
+        elif ch == "\n":
+            out.append("\\n")
+        elif ch == "\r":
+            out.append("\\r")
+        elif ch == "\t":
+            out.append("\\t")
+        elif code < 0x20 or code == 0x7F:
+            out.append(f"\\x{code:02x}")
+        else:
+            out.append(ch)
+    out.append('"')
+    return "".join(out)
+
+
+def read_class_utf8_pool(class_file: Path) -> dict[int, str]:
+    """Reads exact `CONSTANT_Utf8` entries from a binary `.class` file (preserving whitespace)."""
+    data = class_file.read_bytes()
+    if len(data) < 10 or struct.unpack_from(">I", data, 0)[0] != 0xCAFEBABE:
+        raise ValueError(f"Not a valid JVM class file: {class_file}")
+    cp_count = struct.unpack_from(">H", data, 8)[0]
+    pos = 10
+    utf8_pool: dict[int, str] = {}
+    idx = 1
+    while idx < cp_count:
+        tag = data[pos]
+        pos += 1
+        if tag == 1:  # CONSTANT_Utf8
+            length = struct.unpack_from(">H", data, pos)[0]
+            pos += 2
+            raw = data[pos:pos + length]
+            pos += length
+            s = raw.replace(b"\xc0\x80", b"\x00").decode("utf-8", errors="surrogatepass")
+            try:
+                s = s.encode("utf-16", errors="surrogatepass").decode("utf-16")
+            except UnicodeDecodeError:
+                pass
+            utf8_pool[idx] = s
+            idx += 1
+        elif tag in (3, 4):  # Integer, Float
+            pos += 4
+            idx += 1
+        elif tag in (5, 6):  # Long, Double
+            pos += 8
+            idx += 2
+        elif tag in (7, 8, 16, 19, 20):  # Class, String, MethodType, Module, Package
+            pos += 2
+            idx += 1
+        elif tag in (9, 10, 11, 12, 17, 18):  # Fieldref..InvokeDynamic
+            pos += 4
+            idx += 1
+        elif tag == 15:  # MethodHandle
+            pos += 3
+            idx += 1
+        else:
+            raise ValueError(f"Unsupported constant pool tag {tag} in {class_file} at {pos - 1}")
+    return utf8_pool
+
+
+def unescape_javap_utf8(raw: str) -> str:
+    """Decodes `javap -v` constant-pool Utf8 escape sequences into a Python string."""
+    out: list[str] = []
+    i = 0
+    n = len(raw)
+    while i < n:
+        ch = raw[i]
+        if ch == "\\" and i + 1 < n:
+            nxt = raw[i + 1]
+            if nxt == "u" and i + 5 < n:
+                hex_part = raw[i + 2:i + 6]
+                try:
+                    out.append(chr(int(hex_part, 16)))
+                    i += 6
+                    continue
+                except ValueError:
+                    pass
+            escapes = {"n": "\n", "r": "\r", "t": "\t", "b": "\b", "f": "\f", "\\": "\\", '"': '"', "'": "'"}
+            if nxt in escapes:
+                out.append(escapes[nxt])
+                i += 2
+                continue
+        out.append(ch)
+        i += 1
+    return "".join(out)
 
 
 def parse_method_ref(comment: str, default_owner: str) -> tuple[str, str, str]:
@@ -103,7 +213,7 @@ def parse_method_ref(comment: str, default_owner: str) -> tuple[str, str, str]:
         owner, _, member = target.partition(".")
     else:
         owner, member = default_owner, target
-    return owner, member.strip('"'), desc
+    return owner.strip('"'), member.strip('"'), desc
 
 
 def parse_field_ref(comment: str, default_owner: str) -> tuple[str, str, str]:
@@ -119,7 +229,7 @@ def parse_field_ref(comment: str, default_owner: str) -> tuple[str, str, str]:
         owner, _, member = target.partition(".")
     else:
         owner, member = default_owner, target
-    return owner, member.strip('"'), desc
+    return owner.strip('"'), member.strip('"'), desc
 
 
 def parse_class_ref(comment: str) -> str:
@@ -130,21 +240,127 @@ def parse_class_ref(comment: str) -> str:
     return m.group(1).strip('"')
 
 
+def parse_invokedynamic_ref(comment: str) -> tuple[int, str, str]:
+    """Extracts `(bsm_index, method_name, descriptor)` from a `javap` InvokeDynamic comment."""
+    m = re.search(r"//\s*InvokeDynamic\s+#(\d+):([^:]+):(\S+)", comment)
+    if not m:
+        raise ValueError(f"Expected InvokeDynamic comment, got: {comment!r}")
+    return int(m.group(1)), m.group(2).strip('"'), m.group(3)
+
+
 def disassemble_class_file(class_file: Path) -> list[DisassembledMethod]:
-    """Disassembles one `.class` file with `javap -c -p`."""
-    output = subprocess.check_output(["javap", "-c", "-p", str(class_file)], text=True)
-    class_re = re.compile(r"class\s+([A-Za-z0-9_.$-]+)")
-    sig_re = re.compile(
-        r"^\s{2}(?:.*\s)([A-Za-z0-9_$-]+)\(([^)]*)\);$"
-    )
-    instr_re = re.compile(r"^\s+(\d+):\s+(\S+)(?:\s+(.*))?$")
+    """Disassembles one `.class` file with `javap -v -p`."""
+    output = subprocess.check_output(["javap", "-v", "-p", str(class_file)], text=True)
+    class_re = re.compile(r"(?:class|interface|enum)\s+([A-Za-z0-9_.$-]+)")
+    cp_re = re.compile(r"^\s+#(\d+)\s+=\s+(\S+)(.*)$")
+    sig_re = re.compile(r"^\s{2}(?:.*\s)?([A-Za-z0-9_.$-]+)\(([^)]*)\)(?:\s+throws\s+[^;]+)?;")
+    clinit_re = re.compile(r"^\s{2}static\s*\{\};$")
+    instr_re = re.compile(r"^\s+(\d+):\s+([a-z][a-z0-9_]*)(?:\s+(.*))?$")
+    bsm_entry_re = re.compile(r"^\s{2}(\d+):\s+#\d+\s+(.*)$")
+    bsm_arg_re = re.compile(r"^\s+#(\d+)\s*(.*)$")
 
     owner_internal = class_file.stem
+    utf8_pool: dict[int, str] = {}
+    const_pool_raw: dict[int, tuple[str, str]] = {}
+    bootstrap_methods_raw: dict[int, tuple[str, int | None, str]] = {}
+
+    lines = output.splitlines()
+    in_cp = False
+    in_bsm = False
+    cur_bsm_idx: int | None = None
+    in_bsm_args = False
+
+    # First pass: collect constant pool and BootstrapMethods section.
+    for line in lines:
+        stripped = line.strip()
+        if stripped == "Constant pool:":
+            in_cp = True
+            in_bsm = False
+            continue
+        if stripped == "BootstrapMethods:":
+            in_bsm = True
+            in_cp = False
+            cur_bsm_idx = None
+            in_bsm_args = False
+            continue
+        if stripped == "{":
+            in_cp = False
+            continue
+        if in_cp:
+            cm = cp_re.match(line)
+            if cm:
+                idx = int(cm.group(1))
+                tag = cm.group(2)
+                rest = cm.group(3)
+                if tag == "Utf8":
+                    # `javap -v` pads `= Utf8` with 15 spaces for non-empty values and 0 spaces for "".
+                    val_raw = rest[15:] if len(rest) >= 15 else ""
+                    utf8_pool[idx] = unescape_javap_utf8(val_raw)
+                else:
+                    const_pool_raw[idx] = (tag, rest.strip())
+            elif stripped == "" or not line.startswith("  "):
+                in_cp = False
+        elif in_bsm:
+            if not line.startswith("  ") and stripped != "":
+                in_bsm = False
+                continue
+            bm = bsm_entry_re.match(line)
+            if bm:
+                cur_bsm_idx = int(bm.group(1))
+                desc_part = bm.group(2)
+                in_bsm_args = False
+                kind = "makeConcatWithConstants" if "makeConcatWithConstants" in desc_part else desc_part
+                bootstrap_methods_raw[cur_bsm_idx] = (kind, None, "")
+                continue
+            if stripped == "Method arguments:":
+                in_bsm_args = True
+                continue
+            if in_bsm_args and cur_bsm_idx is not None:
+                am = bsm_arg_re.match(line)
+                if am:
+                    kind, existing_cp, existing_txt = bootstrap_methods_raw[cur_bsm_idx]
+                    if existing_cp is None:
+                        bootstrap_methods_raw[cur_bsm_idx] = (
+                            kind,
+                            int(am.group(1)),
+                            unescape_javap_utf8(am.group(2)),
+                        )
+                    in_bsm_args = False
+
+    # Overlay exact `CONSTANT_Utf8` strings from binary `.class` bytes because `javap -v` strips trailing spaces.
+    utf8_pool.update(read_class_utf8_pool(class_file))
+
+    const_pool: dict[int, tuple[str, str]] = {}
+    for idx, val in utf8_pool.items():
+        const_pool[idx] = ("Utf8", val)
+    for idx, (tag, rest) in const_pool_raw.items():
+        if tag == "String":
+            m_ref = re.match(r"#(\d+)", rest)
+            if m_ref:
+                const_pool[idx] = ("String", utf8_pool.get(int(m_ref.group(1)), ""))
+        elif tag == "Integer":
+            const_pool[idx] = ("Integer", rest.split()[0])
+        elif tag == "Long":
+            const_pool[idx] = ("Long", rest.split()[0])
+        elif tag == "Float":
+            const_pool[idx] = ("Float", rest.split()[0])
+        elif tag == "Double":
+            const_pool[idx] = ("Double", rest.split()[0])
+
+    bootstrap_methods: dict[int, tuple[str, str]] = {}
+    for bsm_idx, (kind, arg_cp, fallback_txt) in bootstrap_methods_raw.items():
+        if arg_cp is not None and arg_cp in const_pool and const_pool[arg_cp][0] in ("String", "Utf8"):
+            bootstrap_methods[bsm_idx] = (kind, const_pool[arg_cp][1])
+        else:
+            bootstrap_methods[bsm_idx] = (kind, fallback_txt)
+
+    # Second pass: parse method bodies.
     results: list[DisassembledMethod] = []
     cur_name: str | None = None
     cur_params = ""
     cur_instrs: list[tuple[int, str, str]] = []
     in_code = False
+    in_switch: tuple[int, str, list[str]] | None = None
 
     def flush_current() -> None:
         if cur_name is not None and cur_instrs:
@@ -154,10 +370,12 @@ def disassemble_class_file(class_file: Path) -> list[DisassembledMethod]:
                     jvm_name=cur_name,
                     descriptor_params=cur_params,
                     raw_instrs=cur_instrs,
+                    const_pool=const_pool,
+                    bootstrap_methods=bootstrap_methods,
                 )
             )
 
-    for line in output.splitlines():
+    for line in lines:
         if cur_name is None and not in_code:
             cm = class_re.search(line)
             if cm and line.rstrip().endswith("{"):
@@ -169,23 +387,74 @@ def disassemble_class_file(class_file: Path) -> list[DisassembledMethod]:
             cur_params = sig_match.group(2)
             cur_instrs = []
             in_code = False
+            in_switch = None
+            continue
+        if clinit_re.match(line):
+            flush_current()
+            cur_name = f"clinit_{class_file.stem}"
+            cur_params = ""
+            cur_instrs = []
+            in_code = False
+            in_switch = None
             continue
         if cur_name is None:
             continue
         stripped = line.strip()
         if stripped == "Code:":
             in_code = True
+            in_switch = None
             continue
-        if stripped == "" or stripped.endswith(":") or stripped == "}":
+        if not in_code:
+            continue
+        if in_switch is not None:
+            sw_off, sw_op, sw_lines = in_switch
+            if stripped == "}":
+                cur_instrs.append((sw_off, sw_op, "\n".join(sw_lines)))
+                in_switch = None
+            else:
+                sw_lines.append(stripped)
+            continue
+        if stripped == "" or stripped == "}" or stripped.startswith(_CODE_SECTION_END_PREFIXES):
             in_code = False
             continue
-        if in_code:
-            im = instr_re.match(line)
-            if im:
-                cur_instrs.append((int(im.group(1)), im.group(2), (im.group(3) or "").strip()))
+        if not in_code and line.startswith("  ") and not line.startswith("    ") and stripped.endswith(";"):
+            # Unrecognized method/field declaration resets pending method state so a subsequent
+            # unmatched method's `Code:` cannot append into `cur_instrs`.
+            if not stripped.startswith("descriptor:") and not stripped.startswith("Signature:"):
+                flush_current()
+                cur_name = None
+                cur_instrs = []
+        im = instr_re.match(line)
+        if im:
+            off = int(im.group(1))
+            op = im.group(2)
+            arg = (im.group(3) or "").strip()
+            if op in ("tableswitch", "lookupswitch"):
+                in_switch = (off, op, [])
+            else:
+                cur_instrs.append((off, op, arg))
 
     flush_current()
     return results
+
+
+def parse_switch_entries(payload: str) -> tuple[list[tuple[int, int]], int]:
+    """Parses `(cases, default_offset)` from `tableswitch`/`lookupswitch` body lines."""
+    cases: list[tuple[int, int]] = []
+    default_off: int | None = None
+    for line in payload.splitlines():
+        k, sep, v = line.partition(":")
+        if not sep:
+            raise ValueError(f"Malformed switch line: {line!r}")
+        key = k.strip()
+        target = int(v.strip())
+        if key == "default":
+            default_off = target
+        else:
+            cases.append((int(key), target))
+    if default_off is None:
+        raise ValueError(f"Missing default target in switch: {payload!r}")
+    return cases, default_off
 
 
 def lift_method(method: DisassembledMethod) -> list[str]:
@@ -211,40 +480,86 @@ def lift_method(method: DisassembledMethod) -> list[str]:
         elif op in ("bipush", "sipush"):
             lifted.append(f".iconst {to_u32_lit(arg)}")
         elif op in ("ldc", "ldc_w"):
+            cp_m = re.match(r"#(\d+)", arg)
+            if cp_m:
+                cp_idx = int(cp_m.group(1))
+                entry = method.const_pool.get(cp_idx)
+                if entry is not None:
+                    tag, val = entry
+                    if tag == "Integer":
+                        lifted.append(f".iconst {to_u32_lit(val)}")
+                        continue
+                    if tag == "String":
+                        lifted.append(f".ldcStr {lean_str_lit(val)}")
+                        continue
             int_m = re.search(r"// int (-?\d+)", arg)
-            str_m = re.search(r"// String (.*)", arg)
+            str_m = re.search(r"// String(?: (.*))?$", arg)
             if int_m:
                 lifted.append(f".iconst {to_u32_lit(int_m.group(1))}")
             elif str_m:
-                lifted.append(f".ldcStr {lean_str_lit(str_m.group(1))}")
+                lifted.append(f".ldcStr {lean_str_lit(str_m.group(1) or '')}")
             else:
                 raise ValueError(f"Unsupported constant pool entry for {op}: {arg}")
         elif op.startswith("lconst_"):
             lifted.append(f".lconst {op.removeprefix('lconst_')}")
         elif op == "ldc2_w":
+            cp_m = re.match(r"#(\d+)", arg)
+            if cp_m:
+                entry = method.const_pool.get(int(cp_m.group(1)))
+                if entry is not None and entry[0] == "Long":
+                    lifted.append(f".lconst {to_u64_lit(entry[1])}")
+                    continue
             m = re.search(r"// long (-?\d+l?)", arg)
             if not m:
                 raise ValueError(f"Unsupported constant pool entry for {op}: {arg}")
             lifted.append(f".lconst {to_u64_lit(m.group(1))}")
         elif op.startswith(("iload", "lload", "aload", "dload", "istore", "lstore", "astore", "dstore")):
             base, _, slot_suffix = op.partition("_")
-            slot = int(slot_suffix) if slot_suffix else int(arg)
+            slot = int(arg) if slot_suffix in ("", "w") else int(slot_suffix)
             lifted.append(f".{base} {slot}")
+        elif op in ("iinc", "iinc_w"):
+            idx_str, _, delta_str = arg.partition(",")
+            if not _:
+                raise ValueError(f"Malformed {op} arg: {arg!r}")
+            lifted.append(f".iinc {int(idx_str.strip())} {to_i32_lit(delta_str.strip())}")
+        elif op == "goto_w":
+            target_idx = offset_to_idx[int(arg)]
+            lifted.append(f".goto {target_idx}")
         elif op in BRANCH_OPCODES:
             target_idx = offset_to_idx[int(arg)]
             lifted.append(f".{op} {target_idx}")
+        elif op == "tableswitch":
+            cases, default_off = parse_switch_entries(arg)
+            low = cases[0][0] if cases else 0
+            targets = ", ".join(str(offset_to_idx[t]) for _, t in cases)
+            lifted.append(f".tableswitch {to_i32_lit(low)} [{targets}] {offset_to_idx[default_off]}")
+        elif op == "lookupswitch":
+            cases, default_off = parse_switch_entries(arg)
+            pairs = ", ".join(f"({to_i32_lit(k)}, {offset_to_idx[t]})" for k, t in cases)
+            lifted.append(f".lookupswitch [{pairs}] {offset_to_idx[default_off]}")
         elif op == "new":
             cls = parse_class_ref(arg)
             lifted.append(f".newClass {lean_str_lit(cls)}")
+        elif op == "newarray":
+            lifted.append(f".newarray {lean_str_lit(arg.strip())}")
+        elif op == "anewarray":
+            cls = parse_class_ref(arg)
+            lifted.append(f".anewarray {lean_str_lit(cls)}")
         elif op in ("checkcast", "instanceof"):
             cls = parse_class_ref(arg)
             lifted.append(f".{op} {lean_str_lit(cls)}")
-        elif op == "getfield":
+        elif op in ("getfield", "putfield", "getstatic", "putstatic"):
             owner, member, desc = parse_field_ref(arg, method.owner_internal)
-            lifted.append(f".getfield {lean_str_lit(owner)} {lean_str_lit(member)} {lean_str_lit(desc)}")
+            lifted.append(f".{op} {lean_str_lit(owner)} {lean_str_lit(member)} {lean_str_lit(desc)}")
         elif op in ("invokestatic", "invokevirtual", "invokespecial", "invokeinterface"):
             owner, member, desc = parse_method_ref(arg, method.owner_internal)
             lifted.append(f".{op} {lean_str_lit(owner)} {lean_str_lit(member)} {lean_str_lit(desc)}")
+        elif op == "invokedynamic":
+            bsm_idx, member, desc = parse_invokedynamic_ref(arg)
+            bsm_kind, bsm_arg = method.bootstrap_methods.get(bsm_idx, (member, ""))
+            lifted.append(
+                f".invokedynamic {lean_str_lit(bsm_kind)} {lean_str_lit(bsm_arg)} {lean_str_lit(desc)}"
+            )
         else:
             raise ValueError(f"Unsupported JVM opcode: {op} {arg}")
 
