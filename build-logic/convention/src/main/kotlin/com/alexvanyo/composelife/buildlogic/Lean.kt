@@ -338,6 +338,11 @@ abstract class VerifyLeanJvmBytecodeTask @Inject constructor(
             )
         }
 
+        val jvmEquivDir = File(workDir, "proofs/JvmEquiv")
+        if (jvmEquivDir.isDirectory) {
+            compileJvmEquivSubmodules(workDir, jvmEquivDir, oleanFile)
+        }
+
         execOperations.exec {
             workingDir = workDir
             commandLine(
@@ -345,8 +350,100 @@ abstract class VerifyLeanJvmBytecodeTask @Inject constructor(
                 "env",
                 "lean",
                 "-DwarningAsError=true",
+                "-j",
+                "4",
+                "-M",
+                "6144",
                 "proofs/JvmEquiv.lean",
             )
         }
+    }
+
+    private fun compileJvmEquivSubmodules(
+        workDir: File,
+        jvmEquivDir: File,
+        bytecodeOlean: File,
+    ) {
+        val libLeanDir = File(workDir, ".lake/build/lib/lean")
+        val subOleanDir = File(libLeanDir, "proofs/JvmEquiv")
+        subOleanDir.mkdirs()
+
+        val lratDir = File(workDir, "proofs/lrat")
+        val lratMtime = if (lratDir.isDirectory) {
+            lratDir.walkTopDown().filter { it.isFile }.maxOfOrNull { it.lastModified() } ?: 0L
+        } else {
+            0L
+        }
+        val otherOleanMtime = libLeanDir.walkTopDown()
+            .filter {
+                it.isFile &&
+                    it.extension == "olean" &&
+                    !it.toRelativeString(libLeanDir).startsWith("proofs/JvmEquiv/")
+            }
+            .maxOfOrNull { it.lastModified() } ?: 0L
+        val baseDepMtime = maxOf(bytecodeOlean.lastModified(), lratMtime, otherOleanMtime)
+
+        val moduleFiles = jvmEquivDir.listFiles { file -> file.isFile && file.extension == "lean" }
+            ?.associateBy { it.nameWithoutExtension }
+            ?: emptyMap()
+        val importRegex = Regex("""^\s*import\s+proofs\.JvmEquiv\.([A-Za-z0-9_]+)""")
+        val deps = moduleFiles.mapValues { (_, file) ->
+            file.readLines()
+                .mapNotNull { line -> importRegex.find(line)?.groupValues?.get(1) }
+                .filter { it in moduleFiles }
+        }
+        val ordered = topoSortModules(moduleFiles.keys.sorted(), deps)
+
+        for (name in ordered) {
+            val leanFile = moduleFiles.getValue(name)
+            val subOlean = File(subOleanDir, "$name.olean")
+            val depMtime = deps.getValue(name).maxOfOrNull { dep ->
+                File(subOleanDir, "$dep.olean").lastModified()
+            } ?: 0L
+            val requiredMtime = maxOf(leanFile.lastModified(), baseDepMtime, depMtime)
+            if (!subOlean.isFile || subOlean.lastModified() <= requiredMtime) {
+                execOperations.exec {
+                    workingDir = workDir
+                    commandLine(
+                        "lake",
+                        "env",
+                        "lean",
+                        "-DwarningAsError=true",
+                        "-j",
+                        "4",
+                        "-M",
+                        "6144",
+                        "--root=${workDir.absolutePath}",
+                        "-o",
+                        subOlean.absolutePath,
+                        leanFile.absolutePath,
+                    )
+                }
+            }
+        }
+    }
+
+    private fun topoSortModules(
+        names: List<String>,
+        deps: Map<String, List<String>>,
+    ): List<String> {
+        val state = mutableMapOf<String, Int>()
+        val result = mutableListOf<String>()
+        fun visit(name: String) {
+            when (state[name]) {
+                2 -> return
+                1 -> error("Cyclic import involving proofs.JvmEquiv.$name")
+            }
+            state[name] = 1
+            for (dep in deps.getValue(name).sorted()) {
+                visit(dep)
+            }
+            state[name] = 2
+            result.add(name)
+        }
+        for (name in names) {
+            visit(name)
+        }
+        return result
     }
 }

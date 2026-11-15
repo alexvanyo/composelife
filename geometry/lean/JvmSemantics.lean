@@ -14,158 +14,62 @@
  * limitations under the License.
  -/
 
-import Init.Data.UInt
+import Jvm
 import Geometry.LineSegment
 
 namespace Geometry.JvmVerification
 
-inductive JvmVal where
-  | i32 (v : UInt32)
-  | i64 (v : UInt64)
-  | f64 (v : Float)
-  deriving Repr, Inhabited
+export Jvm (JvmInstr setLocal)
 
-def JvmVal.asI32 : JvmVal → UInt32
-  | .i32 v => v
-  | .i64 v => v.toUInt32
-  | .f64 _ => 0
+abbrev JvmVal := Jvm.JvmVal Empty
+abbrev JvmState := Jvm.JvmState Empty Unit
 
-def JvmVal.asF64 : JvmVal → Float
-  | .f64 v => v
-  | _ => 0.0
+namespace JvmVal
+export Jvm.JvmVal (i32 i64 f64 null heapRef pair boxedInt isNull asI32 asI64 asF64)
+end JvmVal
 
-def JvmVal.ite (c : Bool) (t e : Option JvmVal) : Option JvmVal :=
-  match t, e with
-  | some (.i32 vt), some (.i32 ve) => some (.i32 (if c then vt else ve))
-  | some (.i64 vt), some (.i64 ve) => some (.i64 (if c then vt else ve))
-  | some (.f64 vt), some (.f64 ve) => some (.f64 (if c then vt else ve))
-  | _, _ => none
+def initJvmState (slots : List (Nat × JvmVal))
+    (jvmHeap : Jvm.JvmHeap Empty := {}) : JvmState :=
+  Jvm.initJvmState slots (.i32 0) () jvmHeap
 
-inductive JvmInstr where
-  | nop | dup | pop | swap | aconstNull | athrow
-  | iconst (v : UInt32)
-  | lconst (v : UInt64)
-  | dconst0 | dconst1
-  | ldcStr (s : String)
-  | iload (idx : Nat)
-  | lload (idx : Nat)
-  | aload (idx : Nat)
-  | dload (idx : Nat)
-  | istore (idx : Nat)
-  | lstore (idx : Nat)
-  | astore (idx : Nat)
-  | dstore (idx : Nat)
-  | iadd | isub | imul | ineg | iand | ior | ixor | ishl | ishr | iushr
-  | ladd | lsub | lmul | land | lor | lxor | lshl | lshr | lushr
-  | dneg | dcmpg | dcmpl
-  | i2l | l2i | i2b | lcmp
-  | ifeq (target : Nat)
-  | ifne (target : Nat)
-  | iflt (target : Nat)
-  | ifle (target : Nat)
-  | ifgt (target : Nat)
-  | ifge (target : Nat)
-  | ifnull (target : Nat)
-  | ifnonnull (target : Nat)
-  | if_icmpeq (target : Nat)
-  | if_icmpne (target : Nat)
-  | if_icmplt (target : Nat)
-  | goto (target : Nat)
-  | newClass (cls : String)
-  | checkcast (cls : String)
-  | instanceof (cls : String)
-  | invokevirtual (cls method desc : String)
-  | invokespecial (cls method desc : String)
-  | invokestatic (cls method desc : String)
-  | invokeinterface (cls method desc : String)
-  | getfield (cls field desc : String)
-  | ireturn | lreturn | areturn | dreturn | vreturn
-  deriving Repr, Inhabited
+def encodeCoordPairs (xs : Array (Int32 × Int32)) : Array JvmVal :=
+  xs.map fun (x, y) => .pair (.boxedInt x.toUInt32) (.boxedInt y.toUInt32)
 
-structure JvmState where
-  pc : Nat
-  stack : List JvmVal
-  locals : Nat → JvmVal
+def decodeCoordPair : JvmVal → Option (Int32 × Int32)
+  | .pair (.boxedInt x) (.boxedInt y) => some (x.toInt32, y.toInt32)
+  | _ => none
 
-def setLocal (locals : Nat → JvmVal) (idx : Nat) (v : JvmVal) : Nat → JvmVal :=
-  fun i => if i = idx then v else locals i
+def decodeCoordArray (elems : Array JvmVal) : Option (Array (Int32 × Int32)) :=
+  elems.mapM decodeCoordPair
 
-def initJvmState (slots : List (Nat × JvmVal)) : JvmState where
-  pc := 0
-  stack := []
-  locals := slots.foldl (fun loc (idx, v) => setLocal loc idx v) (fun _ => .i32 0)
+def geomHooks : Jvm.JvmHooks Empty Unit where
+  stepInvokeStatic st _cls method desc :=
+    match method, desc, st.stack with
+    | "f_Geometry_absFloat___closed__0", "()D", rest =>
+      .inl (some { st with pc := st.pc + 1, stack := .f64 0.0 :: rest })
+    | "f_Geometry_absFloat", "(D)D", x :: rest =>
+      .inl (some { st with pc := st.pc + 1, stack := .f64 (Geometry.absFloat x.asF64) :: rest })
+    | "f_Geometry_absInt", "(I)I", x :: rest =>
+      .inl (some { st with pc := st.pc + 1, stack := .i32 (Geometry.absInt x.asI32.toInt32) :: rest })
+    | "f_Geometry_rayMarchLoop___redArg-v0ARYG8", "(IDDDDIIIIIILjava/lang/Object;)Ljava/lang/Object;",
+        .heapRef accAddr :: curY :: curX :: endY :: endX :: stepY :: stepX ::
+          absDy :: absDx :: startY :: startX :: fuel :: rest =>
+      match st.jvmHeap.get? accAddr with
+      | some (.objArray cls elems) =>
+        match decodeCoordArray elems with
+        | some acc =>
+          let out := Geometry.rayMarchLoop
+            fuel.asI32 startX.asF64 startY.asF64 0.0 0.0 absDx.asF64 absDy.asF64
+            stepX.asI32.toInt32 stepY.asI32.toInt32 endX.asI32.toInt32 endY.asI32.toInt32
+            curX.asI32.toInt32 curY.asI32.toInt32 acc
+          let (outAddr, h') := st.jvmHeap.alloc (.objArray cls (encodeCoordPairs out))
+          .inl (some { st with pc := st.pc + 1, stack := .heapRef outAddr :: rest, jvmHeap := h' })
+        | none => .inr none
+      | _ => .inr none
+    | _, _, _ => .inr none
 
-def stepInstr (instr : JvmInstr) (st : JvmState) : Option JvmState ⊕ Option JvmVal :=
-  match instr with
-  | .nop => .inl (some { st with pc := st.pc + 1 })
-  | .invokestatic "kotlin/UInt" "constructor-impl" "(I)I"
-  | .invokestatic "kotlin/ULong" "constructor-impl" "(J)J" =>
-    .inl (some { st with pc := st.pc + 1 })
-  | .invokestatic _ "f_Geometry_absFloat___closed__0" "()D" =>
-    .inl (some { st with pc := st.pc + 1, stack := .f64 0.0 :: st.stack })
-  | .iconst v => .inl (some { st with pc := st.pc + 1, stack := .i32 v :: st.stack })
-  | .dconst0 => .inl (some { st with pc := st.pc + 1, stack := .f64 0.0 :: st.stack })
-  | .dconst1 => .inl (some { st with pc := st.pc + 1, stack := .f64 1.0 :: st.stack })
-  | .iload idx | .dload idx =>
-    .inl (some { st with pc := st.pc + 1, stack := st.locals idx :: st.stack })
-  | .istore idx | .dstore idx =>
-    match st.stack with
-    | v :: rest => .inl (some { pc := st.pc + 1, stack := rest, locals := setLocal st.locals idx v })
-    | _ => .inr none
-  | .ineg =>
-    match st.stack with
-    | a :: rest => .inl (some { st with pc := st.pc + 1, stack := .i32 (-a.asI32) :: rest })
-    | _ => .inr none
-  | .dneg =>
-    match st.stack with
-    | a :: rest => .inl (some { st with pc := st.pc + 1, stack := .f64 (-a.asF64) :: rest })
-    | _ => .inr none
-  | .dcmpg | .dcmpl =>
-    match st.stack with
-    | b :: a :: rest =>
-      let res : UInt32 :=
-        if a.asF64 < b.asF64 then 4294967295
-        else if a.asF64 == b.asF64 then 0
-        else 1
-      .inl (some { st with pc := st.pc + 1, stack := .i32 res :: rest })
-    | _ => .inr none
-  | .goto target => .inl (some { st with pc := target })
-  | .ireturn | .dreturn =>
-    match st.stack with
-    | v :: _ => .inr (some v)
-    | _ => .inr none
-  | _ => .inr none
-
-def runJvm : Nat → List JvmInstr → JvmState → Option JvmVal
-  | 0, _, _ => none
-  | fuel + 1, prog, st =>
-    match prog[st.pc]? with
-    | none => none
-    | some (.iflt target) =>
-      match st.stack with
-      | v :: rest =>
-        JvmVal.ite (v.asI32.toBitVec.slt 0#32)
-          (runJvm fuel prog { st with pc := target, stack := rest })
-          (runJvm fuel prog { st with pc := st.pc + 1, stack := rest })
-      | _ => none
-    | some (.ifeq target) =>
-      match st.stack with
-      | v :: rest =>
-        JvmVal.ite (v.asI32 == 0)
-          (runJvm fuel prog { st with pc := target, stack := rest })
-          (runJvm fuel prog { st with pc := st.pc + 1, stack := rest })
-      | _ => none
-    | some (.ifne target) =>
-      match st.stack with
-      | v :: rest =>
-        JvmVal.ite (!(v.asI32 == 0))
-          (runJvm fuel prog { st with pc := target, stack := rest })
-          (runJvm fuel prog { st with pc := st.pc + 1, stack := rest })
-      | _ => none
-    | some instr =>
-      match stepInstr instr st with
-      | .inl (some st') => runJvm fuel prog st'
-      | .inl none => none
-      | .inr res => res
+def stepInstr := Jvm.stepInstr geomHooks
+def runJvm := Jvm.runJvm geomHooks
+def runJvmRes := Jvm.runJvmRes geomHooks
 
 end Geometry.JvmVerification
