@@ -77,3 +77,8 @@ roots = [
   "AxiomAudit",
 ]
 
+[[lean_lib]]
+name = "Jvm"
+srcDir = "../../jvm-lean"
+roots = ["Jvm", "Jvm.Instr", "Jvm.Semantics", "Jvm.FastExec"]
+

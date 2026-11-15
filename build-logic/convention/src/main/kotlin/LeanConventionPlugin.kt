@@ -77,6 +77,11 @@ class LeanConventionPlugin :
             usesService(heavyTaskLimitingBuildService)
         }
 
+        val sharedJvmLeanFiles = rootProject.layout.projectDirectory.dir("jvm-lean").asFileTree.matching {
+            include("**/*.lean")
+            exclude(".lake/**")
+        }
+
         val checkLeanBvCheck = tasks.register("checkLeanBvCheck", CheckLeanBvCheckTask::class.java) {
             description = "Checks that Lean bit-level proofs use bv_check with stored certificates, not bv_decide"
             group = LifecycleBasePlugin.VERIFICATION_GROUP
@@ -85,6 +90,7 @@ class LeanConventionPlugin :
                     include("**/*.lean")
                     exclude(".lake/**")
                 },
+                sharedJvmLeanFiles,
             )
         }
 
@@ -161,6 +167,7 @@ class LeanConventionPlugin :
                     include("**/lrat/*.lrat")
                     exclude(".lake/**")
                 },
+                sharedJvmLeanFiles,
             )
             scriptFile.set(rootProject.layout.projectDirectory.file("script/jvm-bytecode2lean.py"))
             moduleNamespace.set(leanExtension.target.map { it.substringBefore(':') })
