@@ -42,7 +42,7 @@ androidxSqlite = "2.8.0-alpha03"
 #androidxTestCore
 androidxTestCore = "1.8.0-alpha04"
 #androidxTestEspresso
-androidxTestEspresso = "3.8.0-alpha01"
+androidxTestEspresso = "3.8.0-alpha03"
 #androidxTestExt
 androidxTestExt = "1.4.0-alpha03"
 #androidxTestRunner
@@ -52,7 +52,7 @@ androidxTestUiAutomator = "2.4.1"
 #androidxTracing
 androidxTracing = "2.0.5"
 #androidxWearCompose
-androidxWearCompose = "1.8.0-alpha02"
+androidxWearCompose = "1.8.0-alpha03"
 #androidxWearComposeMaterial3
 androidxWearComposeMaterial3 = "1.8.0-alpha02"
 #androidxWearWatchface
