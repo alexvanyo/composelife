@@ -119,7 +119,7 @@ private theorem encodeLife105Warning_spec (h : Jvm.JvmHeap AlgExt)
   | unexpectedInput inp ln col =>
     refine ⟨heapExtends_alloc _ _, ?_⟩
     simp [encodeLife105Warning, decodeLife105Warning, Jvm.JvmHeap.get?, Jvm.JvmHeap.alloc,
-      List.lookup, Jvm.JvmVal.asI32]
+      List.lookup]
 
 private def decodeLife105Status (h : Jvm.JvmHeap AlgExt) : JvmVal → Option Algorithm.Life105Status
   | .allocRef "com/alexvanyo/composelife/model/Life105Status$Ok" => some .ok
@@ -132,7 +132,7 @@ private def decodeLife105Status (h : Jvm.JvmHeap AlgExt) : JvmVal → Option Alg
       | _ => none
     | some (.instance "com/alexvanyo/composelife/model/Life105Status$UnexpectedInput" flds) =>
       match flds.lookup "input", flds.lookup "lineIndex", flds.lookup "columnIndex" with
-      | some (.str inp), some ln, some col => some (.unexpectedInput inp ln.asI32 col.asI32)
+      | some (.str inp), some (.i32 ln), some (.i32 col) => some (.unexpectedInput inp ln col)
       | _, _, _ => none
     | _ => none
   | _ => none
@@ -294,7 +294,7 @@ private theorem decodeLife105Result_encode
       [("input", .str inp), ("lineIndex", .i32 ln), ("columnIndex", .i32 col)])
     exact encodeLife105Result_spec_aux jh p.2 hp (.heapRef p.1) (.unexpectedInput inp ln col) warns cells
       (heapExtends_alloc _ _)
-      (by simp [p, decodeLife105Status, Jvm.JvmHeap.get?, Jvm.JvmHeap.alloc, List.lookup, Jvm.JvmVal.asI32])
+      (by simp [p, decodeLife105Status, Jvm.JvmHeap.get?, Jvm.JvmHeap.alloc, List.lookup])
 
 private def decodeOptParsedCoords (jh : Jvm.JvmHeap AlgExt) :
     JvmVal → Option (Option Algorithm.ParsedCoords)
@@ -399,13 +399,13 @@ private theorem stepSpecial_life105Result_init
           [("status", status), ("warnings", warns), ("cells", cells)])).2, hp⟩) := rfl
 
 private theorem stepStatic_intCompareUnsigned_105
-    {pc : Nat} {b a : JvmVal} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {b a : UInt32} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena}
     {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
-    stepInvokeStatic ⟨pc, b :: a :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 b :: .i32 a :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "java/lang/Integer" "compareUnsigned" "(II)I" =
       .inl (some ⟨pc + 1,
-        .i32 (if a.asI32 == b.asI32 then 0 else if a.asI32 < b.asI32 then 4294967295 else 1) :: rest,
+        .i32 (if a == b then 0 else if a < b then 4294967295 else 1) :: rest,
         locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
 
 private theorem stepStatic_scanDigitSet_heap
@@ -739,6 +739,31 @@ private theorem runJvmResFast_iconst_ireturn_step (f : Nat) (prog : List JvmInst
   simp only [stepInstr, hstep, ↓reduceIte]
   exact runJvmResFast_ireturn_step f prog (pc + 1) rest (.i32 c) stk locs jh hp
 
+private theorem setLocal_eq_self {Ext : Type} {locs : Nat → Jvm.JvmVal Ext} {idx : Nat} {v : Jvm.JvmVal Ext}
+    (h : locs idx = v) : setLocal locs idx v = locs := by
+  funext k; dsimp only [setLocal]; split <;> simp_all
+
+private theorem setLocal_self (locs : Nat → JvmVal) (k : Nat) (v : JvmVal) :
+    setLocal locs k v k = v := by simp [setLocal]
+
+private theorem setLocal_ne {locs : Nat → JvmVal} {k j : Nat} {v : JvmVal} (hne : j ≠ k) :
+    setLocal locs k v j = locs j := by simp [setLocal, hne]
+
+private theorem stepInstr_makeConcat {Ext Heap : Type} (hooks : Jvm.JvmHooks Ext Heap)
+    {pc : Nat} {recipe desc : String} {stk stkRest : List (Jvm.JvmVal Ext)}
+    {locs : Nat → Jvm.JvmVal Ext} {jh : Jvm.JvmHeap Ext} {hp : Heap} {res : String}
+    (heval : @Jvm.evalMakeConcatWithConstants Ext recipe desc stk = some (res, stkRest)) :
+    Jvm.stepInstr hooks (.invokedynamic "makeConcatWithConstants" recipe desc) ⟨pc, stk, locs, jh, hp⟩ =
+      .inl (some ⟨pc + 1, .str res :: stkRest, locs, jh, hp⟩) := by
+  unfold Jvm.stepInstr
+  simp only [beq_self_eq_true, ↓reduceIte, heval]
+
+private theorem stepInstr_areturn_val {Ext Heap : Type} (hooks : Jvm.JvmHooks Ext Heap)
+    {pc : Nat} {v : Jvm.JvmVal Ext} {stkRest : List (Jvm.JvmVal Ext)}
+    {locs : Nat → Jvm.JvmVal Ext} {jh : Jvm.JvmHeap Ext} {hp : Heap} :
+    Jvm.stepInstr hooks .areturn ⟨pc, v :: stkRest, locs, jh, hp⟩ = .inr (some v) := by
+  unfold Jvm.stepInstr; rfl
+
 theorem formatBlockHeader_equiv (x y : Int32) :
     runJvm 25 f_Algorithm_formatBlockHeader_prog
         (initJvmState [(0, .i32 x.toUInt32), (1, .i32 y.toUInt32)]) =
@@ -775,12 +800,10 @@ theorem formatBlockHeader_equiv (x y : Int32) :
         ⟨5, [.str s1], l1, {}, {}⟩ := by
     dsimp only [f_Algorithm_formatBlockHeader_prog, List.drop]
     rw [runJvmValFast_step_nonbranch (hbr := rfl) (hno := by simp)]
-    have hdyn : stepInstr
-        (.invokedynamic "makeConcatWithConstants" "\x01\x01" "(Ljava/lang/String;I)Ljava/lang/String;")
-        ⟨4, [.i32 x.toUInt32, .str "#P "], l1, {}, {}⟩ =
-        .inl (some ⟨5, [.str s1], l1, {}, {}⟩) := by
-      simp only [stepInstr, Jvm.stepInstr, hconcat1]; rfl
-    dsimp only; rw [hdyn]; rfl
+    try dsimp only [stepInstr]
+    rw [stepInstr_makeConcat algHooks hconcat1]
+    simp only [↓reduceIte, Nat.reduceAdd]
+    rfl
   rw [hstep2]
   have hstep3 : runJvmValFast 20 f_Algorithm_formatBlockHeader_prog 5
       (f_Algorithm_formatBlockHeader_prog.drop 5)
@@ -800,14 +823,12 @@ theorem formatBlockHeader_equiv (x y : Int32) :
       some (.str (s1 ++ (" " ++ (Jvm.i32ToDecimalString y.toUInt32 ++ "")))) := by
     dsimp only [f_Algorithm_formatBlockHeader_prog, List.drop]
     rw [runJvmValFast_step_nonbranch (hbr := rfl) (hno := by simp)]
-    have hdyn : stepInstr
-        (.invokedynamic "makeConcatWithConstants" "\x01\x01\x01"
-          "(Ljava/lang/String;Ljava/lang/String;I)Ljava/lang/String;")
-        ⟨11, [.i32 y.toUInt32, .str " ", .str s1], l2, {}, {}⟩ =
-        .inl (some ⟨12, [.str (s1 ++ (" " ++ (Jvm.i32ToDecimalString y.toUInt32 ++ "")))],
-          l2, {}, {}⟩) := by
-      simp only [stepInstr, Jvm.stepInstr]; rfl
-    dsimp only; rw [hdyn]; rfl
+    try dsimp only [stepInstr]
+    rw [stepInstr_makeConcat algHooks hconcat2]
+    simp only [↓reduceIte]
+    rw [runJvmValFast_step_nonbranch (hbr := rfl) (hno := by simp)]
+    try dsimp only [stepInstr]
+    rw [stepInstr_areturn_val algHooks]
   rw [hstep4]
   dsimp only [s1]
   rw [i32ToDecimalString_eq_toString x.toUInt32, i32ToDecimalString_eq_toString y.toUInt32]
@@ -831,15 +852,13 @@ private theorem isRowRest_continue (f : Nat) (bytesAddr : Nat) (limit p : UInt32
   refine ⟨?_, ?_, ?_, ?_⟩
   · split_res_fuel 16
     step_drop 16
-    heap_step_nonbranch_chunks; norm_res_fuel
-    (conv => lhs; norm_jvm_locals; jvm_whnf_run_args)
-    rw [h0, h1, h2]
+    rw [← setLocal_eq_self h2, ← setLocal_eq_self h1, ← setLocal_eq_self h0]
     heap_step_nonbranch_chunks; norm_res_fuel
     rw [runJvmResFast_goto]; norm_res_fuel
     rfl
   · simp [setLocal]
   · simp [setLocal]
-  · simp [setLocal, Jvm.JvmVal.asI32]
+  · simp [setLocal]
 
 private theorem isRowRest_loop (m : Nat) (f : Nat) (bytes : ByteArray) (bytesAddr : Nat)
     (limit p : UInt32) (locs : Nat → JvmVal) (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
@@ -871,7 +890,6 @@ private theorem isRowRest_loop (m : Nat) (f : Nat) (bytes : ByteArray) (bytesAdd
     heap_step_nonbranch_chunks; norm_res_fuel
     rw [h2, h1]
     heap_step_nonbranch_chunks; norm_res_fuel
-    dsimp only [Jvm.JvmVal.asI32]
     rw [runJvmResFast_iflt_fallthrough (by
       change (if p == limit then (0 : UInt32) else if p < limit then 4294967295 else 1).toBitVec.slt 0#32 = false
       rw [compareUnsigned_slt_zero]; exact decide_eq_false hge)]
@@ -907,7 +925,6 @@ private theorem isRowRest_loop (m : Nat) (f : Nat) (bytes : ByteArray) (bytesAdd
         heap_step_nonbranch_chunks; norm_res_fuel
         rw [h2, h1]
         heap_step_nonbranch_chunks; norm_res_fuel
-        dsimp only [Jvm.JvmVal.asI32]
         rw [runJvmResFast_iflt_branch (by
           change (if p == limit then (0 : UInt32) else if p < limit then 4294967295 else 1).toBitVec.slt 0#32 = true
           rw [compareUnsigned_slt_zero]; exact decide_eq_true hlt)]
@@ -1000,6 +1017,78 @@ private theorem isRowRest_loop (m : Nat) (f : Nat) (bytes : ByteArray) (bytesAdd
         have := mt UInt32.lt_iff_toNat_lt.mpr hlt
         omega) hf h0 h1 h2
 
+private theorem runJvmResFast_aload {f pc pc0 idx : Nat} {prog rest : List JvmInstr}
+    {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
+    runJvmResFast (f + 1) prog pc (.aload idx :: rest) ⟨pc0, stk, locs, jh, hp⟩ =
+      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, locs idx :: stk, locs, jh, hp⟩ := by
+  have hstep : Jvm.stepInstr algHooks (.aload idx) ⟨pc, stk, locs, jh, hp⟩ =
+      .inl (some ⟨pc + 1, locs idx :: stk, locs, jh, hp⟩) := rfl
+  rw [runJvmResFast_step_nonbranch (hbr := rfl) (hno := by simp)]
+  simp only [stepInstr, hstep, ↓reduceIte]
+
+private theorem runJvmResFast_ldcStr {f pc pc0 : Nat} {prog rest : List JvmInstr} {s : String}
+    {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
+    runJvmResFast (f + 1) prog pc (.ldcStr s :: rest) ⟨pc0, stk, locs, jh, hp⟩ =
+      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, .str s :: stk, locs, jh, hp⟩ := by
+  have hstep : Jvm.stepInstr algHooks (.ldcStr s) ⟨pc, stk, locs, jh, hp⟩ =
+      .inl (some ⟨pc + 1, .str s :: stk, locs, jh, hp⟩) := rfl
+  rw [runJvmResFast_step_nonbranch (hbr := rfl) (hno := by simp)]
+  simp only [stepInstr, hstep, ↓reduceIte]
+
+private theorem runJvmResFast_iconst {f pc pc0 : Nat} {prog rest : List JvmInstr} {c : UInt32}
+    {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
+    runJvmResFast (f + 1) prog pc (.iconst c :: rest) ⟨pc0, stk, locs, jh, hp⟩ =
+      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, .i32 c :: stk, locs, jh, hp⟩ := by
+  have hstep : Jvm.stepInstr algHooks (.iconst c) ⟨pc, stk, locs, jh, hp⟩ =
+      .inl (some ⟨pc + 1, .i32 c :: stk, locs, jh, hp⟩) := rfl
+  rw [runJvmResFast_step_nonbranch (hbr := rfl) (hno := by simp)]
+  simp only [stepInstr, hstep, ↓reduceIte]
+
+private theorem runJvmResFast_istore {f pc pc0 idx : Nat} {prog rest : List JvmInstr} {v : JvmVal}
+    {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
+    runJvmResFast (f + 1) prog pc (.istore idx :: rest) ⟨pc0, v :: stk, locs, jh, hp⟩ =
+      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stk, setLocal locs idx v, jh, hp⟩ := by
+  have hstep : Jvm.stepInstr algHooks (.istore idx) ⟨pc, v :: stk, locs, jh, hp⟩ =
+      .inl (some ⟨pc + 1, stk, setLocal locs idx v, jh, hp⟩) := rfl
+  rw [runJvmResFast_step_nonbranch (hbr := rfl) (hno := by simp)]
+  simp only [stepInstr, hstep, ↓reduceIte]
+
+private theorem runJvmResFast_iload {f pc pc0 idx : Nat} {prog rest : List JvmInstr}
+    {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
+    runJvmResFast (f + 1) prog pc (.iload idx :: rest) ⟨pc0, stk, locs, jh, hp⟩ =
+      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, locs idx :: stk, locs, jh, hp⟩ := by
+  have hstep : Jvm.stepInstr algHooks (.iload idx) ⟨pc, stk, locs, jh, hp⟩ =
+      .inl (some ⟨pc + 1, locs idx :: stk, locs, jh, hp⟩) := rfl
+  rw [runJvmResFast_step_nonbranch (hbr := rfl) (hno := by simp)]
+  simp only [stepInstr, hstep, ↓reduceIte]
+
+private theorem runJvmResFast_uintCtor {f pc pc0 : Nat} {prog rest : List JvmInstr}
+    {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
+    runJvmResFast (f + 1) prog pc
+        (.invokestatic "kotlin/UInt" "constructor-impl" "(I)I" :: rest)
+        ⟨pc0, stk, locs, jh, hp⟩ =
+      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stk, locs, jh, hp⟩ := by
+  rw [runJvmResFast_invokestatic_step (hs := rfl)]
+
+private theorem runJvmResFast_ubyteCtor {f pc pc0 : Nat} {prog rest : List JvmInstr}
+    {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
+    runJvmResFast (f + 1) prog pc
+        (.invokestatic "kotlin/UByte" "constructor-impl" "(B)B" :: rest)
+        ⟨pc0, stk, locs, jh, hp⟩ =
+      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stk, locs, jh, hp⟩ := by
+  rw [runJvmResFast_invokestatic_step (hs := rfl)]
+
+private theorem runJvmResFast_compareUnsigned {f pc pc0 : Nat} {prog rest : List JvmInstr}
+    {a b : UInt32} {stk : List JvmVal} {locs : Nat → JvmVal}
+    {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
+    runJvmResFast (f + 1) prog pc
+        (.invokestatic "java/lang/Integer" "compareUnsigned" "(II)I" :: rest)
+        ⟨pc0, .i32 b :: .i32 a :: stk, locs, jh, hp⟩ =
+      runJvmResFast f prog (pc + 1) rest
+        ⟨pc + 1, .i32 (if a == b then 0 else if a < b then 4294967295 else 1) :: stk,
+          locs, jh, hp⟩ := by
+  rw [runJvmResFast_invokestatic_step (hs := rfl)]
+
 theorem isRowRest_equiv (bytes : ByteArray) (bytesAddr : Nat) (limit p : UInt32)
     (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (hstat : jh.statics = [])
@@ -1024,7 +1113,10 @@ theorem isRowRest_equiv (bytes : ByteArray) (bytesAddr : Nat) (limit p : UInt32)
   split_res_fuel 3
   conv => lhs; arg 4; rw [← List.drop_zero (l := f_Algorithm_isRowRest_prog)]
   step_drop 3
-  heap_step_nonbranch_chunks
+  rw [runJvmResFast_aload]; simp only [setLocal]; norm_res_fuel
+  rw [runJvmResFast_ldcStr]; norm_res_fuel
+  rw [runJvmResFast_invokestatic_step (hs := stepStatic_checkNotNullParameter_heap rfl)]; norm_res_fuel
+  rw [show (0 + 1 + 1 + 1 : Nat) = 3 from rfl, Nat.add_sub_cancel]
   exact hrun
 
 theorem isRowLine_equiv (bytes : ByteArray) (bytesAddr : Nat)
@@ -1048,10 +1140,13 @@ theorem isRowLine_equiv (bytes : ByteArray) (bytesAddr : Nat)
     split_res_fuel 7
     conv => lhs; arg 4; rw [← List.drop_zero (l := f_Algorithm_isRowLine_prog)]
     step_drop 7
-    heap_step_nonbranch_chunks; norm_res_fuel
+    rw [runJvmResFast_aload]; dsimp only [locs0]; rw [setLocal_self]; norm_res_fuel
+    rw [runJvmResFast_ldcStr]; norm_res_fuel
+    rw [runJvmResFast_invokestatic_step (hs := stepStatic_checkNotNullParameter_heap rfl)]; norm_res_fuel
+    rw [runJvmResFast_aload, setLocal_self]; norm_res_fuel
     rw [runJvmResFast_arraylength_byte (hget := hbytes)]; norm_res_fuel
-    heap_step_nonbranch_chunks
-    rfl
+    rw [runJvmResFast_uintCtor]; norm_res_fuel
+    rw [runJvmResFast_istore]
   by_cases hz : limit = 0
   · have hres : Algorithm.isRowLine bytes = false := by
       simp [Algorithm.isRowLine, hlim_eq, hz]
@@ -1061,7 +1156,7 @@ theorem isRowLine_equiv (bytes : ByteArray) (bytesAddr : Nat)
     rw [hpre]
     split_res_fuel 18
     step_drop 2
-    heap_step_nonbranch_chunks; norm_res_fuel
+    rw [runJvmResFast_iload]; dsimp only [locs1]; rw [setLocal_self]; norm_res_fuel
     rw [runJvmResFast_ifeq_branch (hv := hz)]; norm_res_fuel
     step_drop 2
     exact runJvmResFast_iconst_ireturn_step _ _ _ _ _ _ _ _ _
@@ -1075,11 +1170,14 @@ theorem isRowLine_equiv (bytes : ByteArray) (bytesAddr : Nat)
     rw [hpre]
     split_res_fuel 18
     step_drop 7
-    heap_step_nonbranch_chunks; norm_res_fuel
+    rw [runJvmResFast_iload]; dsimp only [locs1]; rw [setLocal_self]; norm_res_fuel
     rw [runJvmResFast_ifeq_fallthrough (h := hne)]; norm_res_fuel
-    heap_step_nonbranch_chunks; norm_res_fuel
+    rw [runJvmResFast_aload]; dsimp only [locs1, locs0]; rw [setLocal_ne (by decide), setLocal_self]; norm_res_fuel
+    rw [runJvmResFast_iload, setLocal_self]; norm_res_fuel
+    rw [runJvmResFast_iconst]; norm_res_fuel
     rw [runJvmResFast_invokestatic_step (hs := stepStatic_isRowRest_heap (hget := hbytes))]
     norm_res_fuel
+    rw [show (7 + 1 + 1 + 1 + 1 + 1 + 1 : Nat) = 13 from rfl]
     exact runJvmResFast_ireturn_step _ _ _ _ _ _ _ _ _
 
 private theorem skipDescriptions_loop (m : Nat) (f : Nat) (lines : Array String)
@@ -1112,7 +1210,6 @@ private theorem skipDescriptions_loop (m : Nat) (f : Nat) (lines : Array String)
     heap_step_nonbranch_chunks; norm_res_fuel
     rw [h2, h1]
     heap_step_nonbranch_chunks; norm_res_fuel
-    dsimp only [Jvm.JvmVal.asI32]
     rw [runJvmResFast_iflt_fallthrough (by
       change (if i == numLines then (0 : UInt32) else if i < numLines then 4294967295 else 1).toBitVec.slt 0#32 = false
       rw [compareUnsigned_slt_zero]; exact decide_eq_false hge)]
@@ -1155,7 +1252,6 @@ private theorem skipDescriptions_loop (m : Nat) (f : Nat) (lines : Array String)
         heap_step_nonbranch_chunks; norm_res_fuel
         rw [h2, h1]
         heap_step_nonbranch_chunks; norm_res_fuel
-        dsimp only [Jvm.JvmVal.asI32]
         rw [runJvmResFast_iflt_branch (by
           change (if i == numLines then (0 : UInt32)
             else if i < numLines then 4294967295 else 1).toBitVec.slt 0#32 = true
@@ -1173,7 +1269,6 @@ private theorem skipDescriptions_loop (m : Nat) (f : Nat) (lines : Array String)
         heap_step_nonbranch_chunks; norm_res_fuel
         rw [runJvmResFast_arraylength_byte (hget := hbytes1)]; norm_res_fuel
         heap_step_nonbranch_chunks; norm_res_fuel
-        dsimp only [Jvm.JvmVal.asI32]
         rfl
       by_cases hlen : 2 ≤ bsLen
       · have h2_le : 2 ≤ bs.data.size := by
@@ -1247,6 +1342,9 @@ private theorem skipDescriptions_loop (m : Nat) (f : Nat) (lines : Array String)
               heap_step_nonbranch_chunks; norm_res_fuel
               (conv => lhs; norm_jvm_locals; jvm_whnf_run_args)
               rw [h0, h1, h2]
+              (conv => lhs; arg 1; jvm_whnf_blk)
+              rw [afterResBlockChunk_cont]
+              (conv => lhs; norm_jvm_locals; jvm_whnf_run_args)
               heap_step_nonbranch_chunks; norm_res_fuel
               rw [runJvmResFast_goto]; norm_res_fuel
               rfl
@@ -1333,8 +1431,78 @@ theorem skipDescriptions_equiv (lines : Array String) (numLines i : UInt32)
   split_res_fuel 3
   conv => lhs; arg 4; rw [← List.drop_zero (l := f_Algorithm_skipDescriptions_prog)]
   step_drop 3
-  heap_step_nonbranch_chunks
+  rw [runJvmResFast_aload]; simp only [setLocal]; norm_res_fuel
+  rw [runJvmResFast_ldcStr]; norm_res_fuel
+  rw [runJvmResFast_invokestatic_step (hs := stepStatic_checkNotNullParameter_heap rfl)]; norm_res_fuel
+  rw [show (0 + 1 + 1 + 1 : Nat) = 3 from rfl, Nat.add_sub_cancel]
   exact hrun
+
+private theorem checkRuleLine_hstep35
+    {bytes : ByteArray} {bytesAddr : Nat} {limit bv2 : UInt32}
+    {locs1 : Nat → JvmVal} {objs : Array (Jvm.HeapObj AlgExt)}
+    {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)}
+    {asc : List Algorithm.AsciiBytes}
+    (hbytes : ({ objects := objs, statics := [] } : Jvm.JvmHeap AlgExt).get? bytesAddr =
+      some (.byteArray bytes.data))
+    (heq32 : bv2 = 32)
+    (h0 : locs1 0 = .heapRef bytesAddr) (h1 : locs1 1 = .i32 limit) :
+    let r1 := Algorithm.scanDigitSet bytes limit 3 0
+    let locs1' : Nat → JvmVal := setLocal (setLocal (setLocal locs1
+      2 (.pair (.boxedUInt r1.1) (.boxedUInt r1.2))) 3 (.i32 r1.1)) 4 (.i32 r1.2)
+    runJvmResFast 100 f_Algorithm_checkRuleLine_prog 32 (f_Algorithm_checkRuleLine_prog.drop 32)
+        ⟨32, [.i32 32, .i32 bv2], locs1, ⟨objs, []⟩, ⟨ar, u64, asc⟩⟩ =
+      runJvmResFast 81 f_Algorithm_checkRuleLine_prog 53 (f_Algorithm_checkRuleLine_prog.drop 53)
+        ⟨53, [.i32 3, .i32 r1.1], locs1', ⟨objs, []⟩, ⟨ar, u64, asc⟩⟩ := by
+  dsimp only
+  split_res_fuel 19
+  step_drop 1
+  rw [runJvmResFast_if_icmpeq_branch (heq := heq32)]; norm_res_fuel
+  step_drop 18
+  rw [← setLocal_eq_self h0, ← setLocal_eq_self h1]
+  heap_step_nonbranch_chunks; norm_res_fuel
+  rw [runJvmResFast_invokestatic_step (hs := stepStatic_scanDigitSet_heap (hget := hbytes))]
+  norm_res_fuel
+  heap_step_nonbranch_chunks; norm_res_fuel
+  rw [runJvmResFast_checkcast_boxedUInt (hcls := Or.inl rfl)]; norm_res_fuel
+  heap_step_nonbranch_chunks; norm_res_fuel
+  rw [runJvmResFast_checkcast_boxedUInt (hcls := Or.inl rfl)]; norm_res_fuel
+  heap_step_nonbranch_chunks; norm_res_fuel
+  rw [setLocal_eq_self h1, setLocal_eq_self h0]
+  rfl
+
+private theorem checkRuleLine_hstep68
+    {bytes : ByteArray} {bytesAddr : Nat} {limit e1 bve1 : UInt32}
+    {locs1' : Nat → JvmVal} {objs : Array (Jvm.HeapObj AlgExt)}
+    {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)}
+    {asc : List Algorithm.AsciiBytes}
+    (hbytes : ({ objects := objs, statics := [] } : Jvm.JvmHeap AlgExt).get? bytesAddr =
+      some (.byteArray bytes.data))
+    (heq47 : bve1 = 47)
+    (h0 : locs1' 0 = .heapRef bytesAddr) (h1 : locs1' 1 = .i32 limit) (h3 : locs1' 3 = .i32 e1) :
+    let s5 := e1 + 1
+    let r2 := Algorithm.scanDigitSet bytes limit s5 0
+    let locs2' : Nat → JvmVal := setLocal (setLocal (setLocal (setLocal locs1' 5 (.i32 s5))
+      6 (.pair (.boxedUInt r2.1) (.boxedUInt r2.2))) 7 (.i32 r2.1)) 8 (.i32 r2.2)
+    runJvmResFast 71 f_Algorithm_checkRuleLine_prog 65 (f_Algorithm_checkRuleLine_prog.drop 65)
+        ⟨65, [.i32 47, .i32 bve1], locs1', ⟨objs, []⟩, ⟨ar, u64, asc⟩⟩ =
+      runJvmResFast 47 f_Algorithm_checkRuleLine_prog 91 (f_Algorithm_checkRuleLine_prog.drop 91)
+        ⟨91, [.i32 s5, .i32 r2.1], locs2', ⟨objs, []⟩, ⟨ar, u64, asc⟩⟩ := by
+  dsimp only
+  split_res_fuel 24
+  step_drop 1
+  rw [runJvmResFast_if_icmpeq_branch (heq := heq47)]; norm_res_fuel
+  step_drop 23
+  rw [← setLocal_eq_self h0, ← setLocal_eq_self h1, ← setLocal_eq_self h3]
+  heap_step_nonbranch_chunks; norm_res_fuel
+  rw [runJvmResFast_invokestatic_step (hs := stepStatic_scanDigitSet_heap (hget := hbytes))]
+  norm_res_fuel
+  heap_step_nonbranch_chunks; norm_res_fuel
+  rw [runJvmResFast_checkcast_boxedUInt (hcls := Or.inl rfl)]; norm_res_fuel
+  heap_step_nonbranch_chunks; norm_res_fuel
+  rw [runJvmResFast_checkcast_boxedUInt (hcls := Or.inl rfl)]; norm_res_fuel
+  heap_step_nonbranch_chunks; norm_res_fuel
+  rw [setLocal_eq_self h3, setLocal_eq_self h1, setLocal_eq_self h0]
+  rfl
 
 theorem checkRuleLine_equiv (bytes : ByteArray) (bytesAddr : Nat)
     (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
@@ -1363,11 +1531,16 @@ theorem checkRuleLine_equiv (bytes : ByteArray) (bytesAddr : Nat)
     split_res_fuel 10
     conv => lhs; arg 4; rw [← List.drop_zero (l := f_Algorithm_checkRuleLine_prog)]
     step_drop 10
-    heap_step_nonbranch_chunks; norm_res_fuel
+    rw [runJvmResFast_aload]; dsimp only [locs0]; rw [setLocal_self]; norm_res_fuel
+    rw [runJvmResFast_ldcStr]; norm_res_fuel
+    rw [runJvmResFast_invokestatic_step (hs := stepStatic_checkNotNullParameter_heap rfl)]; norm_res_fuel
+    rw [runJvmResFast_aload, setLocal_self]; norm_res_fuel
     rw [runJvmResFast_arraylength_byte (hget := hbytes)]; norm_res_fuel
-    heap_step_nonbranch_chunks; norm_res_fuel
-    dsimp only [Jvm.JvmVal.asI32]
-    rfl
+    rw [runJvmResFast_uintCtor]; norm_res_fuel
+    rw [runJvmResFast_istore]; norm_res_fuel
+    rw [runJvmResFast_iload, setLocal_self]; norm_res_fuel
+    rw [runJvmResFast_iconst]; norm_res_fuel
+    rw [runJvmResFast_compareUnsigned]
   by_cases hlt3 : limit < 3
   · have hres : Algorithm.checkRuleLine bytes = 1 := by
       simp [Algorithm.checkRuleLine, hlim_eq, hlt3]
@@ -1410,11 +1583,14 @@ theorem checkRuleLine_equiv (bytes : ByteArray) (bytesAddr : Nat)
         rw [compareUnsigned_slt_zero]; exact decide_eq_false hlt3)]
       norm_res_fuel
       step_drop 5
-      heap_step_nonbranch_chunks; norm_res_fuel
+      rw [runJvmResFast_aload]; dsimp only [locs1, locs0]
+      rw [setLocal_ne (by decide), setLocal_self]; norm_res_fuel
+      rw [runJvmResFast_iconst]; norm_res_fuel
       rw [runJvmResFast_baload (hget := hbytes) (hslt := by decide)
         (hlt := by show 0 < bytes.data.size; omega)]; norm_res_fuel
-      heap_step_nonbranch_chunks; norm_res_fuel
-      rfl
+      rw [runJvmResFast_ubyteCtor]; norm_res_fuel
+      rw [runJvmResFast_iconst]; norm_res_fuel
+      try rfl
     by_cases hb0 : b0 = 35
     · have heq35 : bv0 = 35 := signExtend_eq_u32 hb0 rfl (by decide)
       have hstep19 : runJvmResFast 112 f_Algorithm_checkRuleLine_prog 16 (f_Algorithm_checkRuleLine_prog.drop 16)
@@ -1425,11 +1601,14 @@ theorem checkRuleLine_equiv (bytes : ByteArray) (bytesAddr : Nat)
         step_drop 1
         rw [runJvmResFast_if_icmpeq_branch (heq := heq35)]; norm_res_fuel
         step_drop 5
-        heap_step_nonbranch_chunks; norm_res_fuel
+        rw [runJvmResFast_aload]; dsimp only [locs1, locs0]
+        rw [setLocal_ne (by decide), setLocal_self]; norm_res_fuel
+        rw [runJvmResFast_iconst]; norm_res_fuel
         rw [runJvmResFast_baload (hget := hbytes) (hslt := by decide)
           (hlt := by show 1 < bytes.data.size; omega)]; norm_res_fuel
-        heap_step_nonbranch_chunks; norm_res_fuel
-        rfl
+        rw [runJvmResFast_ubyteCtor]; norm_res_fuel
+        rw [runJvmResFast_iconst]; norm_res_fuel
+        try rfl
       by_cases hb1 : b1 = 82
       · have heq82 : bv1 = 82 := signExtend_eq_u32 hb1 rfl (by decide)
         have hstep27 : runJvmResFast 106 f_Algorithm_checkRuleLine_prog 24 (f_Algorithm_checkRuleLine_prog.drop 24)
@@ -1440,11 +1619,14 @@ theorem checkRuleLine_equiv (bytes : ByteArray) (bytesAddr : Nat)
           step_drop 1
           rw [runJvmResFast_if_icmpeq_branch (heq := heq82)]; norm_res_fuel
           step_drop 5
-          heap_step_nonbranch_chunks; norm_res_fuel
+          rw [runJvmResFast_aload]; dsimp only [locs1, locs0]
+          rw [setLocal_ne (by decide), setLocal_self]; norm_res_fuel
+          rw [runJvmResFast_iconst]; norm_res_fuel
           rw [runJvmResFast_baload (hget := hbytes) (hslt := by decide)
             (hlt := by show 2 < bytes.data.size; omega)]; norm_res_fuel
-          heap_step_nonbranch_chunks; norm_res_fuel
-          rfl
+          rw [runJvmResFast_ubyteCtor]; norm_res_fuel
+          rw [runJvmResFast_iconst]; norm_res_fuel
+          try rfl
         by_cases hb2 : b2 = 32
         · have heq32 : bv2 = 32 := signExtend_eq_u32 hb2 rfl (by decide)
           let r1 := Algorithm.scanDigitSet bytes limit 3 0
@@ -1455,20 +1637,9 @@ theorem checkRuleLine_equiv (bytes : ByteArray) (bytesAddr : Nat)
           have hstep35 : runJvmResFast 100 f_Algorithm_checkRuleLine_prog 32 (f_Algorithm_checkRuleLine_prog.drop 32)
               ⟨32, [.i32 32, .i32 bv2], locs1, ⟨objs, []⟩, ⟨ar, u64, asc⟩⟩ =
               runJvmResFast 81 f_Algorithm_checkRuleLine_prog 53 (f_Algorithm_checkRuleLine_prog.drop 53)
-                ⟨53, [.i32 3, .i32 e1], locs1', ⟨objs, []⟩, ⟨ar, u64, asc⟩⟩ := by
-            split_res_fuel 19
-            step_drop 1
-            rw [runJvmResFast_if_icmpeq_branch (heq := heq32)]; norm_res_fuel
-            step_drop 18
-            heap_step_nonbranch_chunks; norm_res_fuel
-            rw [runJvmResFast_invokestatic_step (hs := stepStatic_scanDigitSet_heap (hget := hbytes))]
-            norm_res_fuel
-            heap_step_nonbranch_chunks; norm_res_fuel
-            rw [runJvmResFast_checkcast_boxedUInt (hcls := Or.inl rfl)]; norm_res_fuel
-            heap_step_nonbranch_chunks; norm_res_fuel
-            rw [runJvmResFast_checkcast_boxedUInt (hcls := Or.inl rfl)]; norm_res_fuel
-            heap_step_nonbranch_chunks; norm_res_fuel
-            rfl
+                ⟨53, [.i32 3, .i32 e1], locs1', ⟨objs, []⟩, ⟨ar, u64, asc⟩⟩ :=
+            checkRuleLine_hstep35 hbytes heq32
+              (by simp [locs1, locs0, setLocal]) (by simp [locs1, setLocal])
           have hcheck_pre : Algorithm.checkRuleLine bytes =
               if e1 == 3 || !(e1 < limit) || bytes.get! e1.toNat != 47 then 1
               else
@@ -1504,9 +1675,11 @@ theorem checkRuleLine_equiv (bytes : ByteArray) (bytesAddr : Nat)
               step_drop 1
               rw [runJvmResFast_if_icmpeq_fallthrough (hne := hne_e1_3)]; norm_res_fuel
               step_drop 3
-              heap_step_nonbranch_chunks; norm_res_fuel
-              dsimp only [Jvm.JvmVal.asI32]
-              rfl
+              rw [runJvmResFast_iload]; dsimp only [locs1']
+              rw [setLocal_ne (by decide), setLocal_self]; norm_res_fuel
+              rw [runJvmResFast_iload]; dsimp only [locs1', locs1]
+              rw [setLocal_ne (by decide), setLocal_ne (by decide), setLocal_ne (by decide), setLocal_self]; norm_res_fuel
+              rw [runJvmResFast_compareUnsigned]
             by_cases he1_lim : e1 < limit
             · have he1_nat : e1.toNat < limit.toNat := UInt32.lt_iff_toNat_lt.mp he1_lim
               have hslt_e1 : e1.toBitVec.slt 0#32 = false := u32_slt_zero_of_lt he1_lim (by omega)
@@ -1526,10 +1699,13 @@ theorem checkRuleLine_equiv (bytes : ByteArray) (bytesAddr : Nat)
                 rw [runJvmResFast_iflt_branch (by rw [compareUnsigned_slt_zero]; exact decide_eq_true he1_lim)]
                 norm_res_fuel
                 step_drop 5
-                heap_step_nonbranch_chunks; norm_res_fuel
+                rw [runJvmResFast_aload]; dsimp only [locs1', locs1, locs0]
+                (repeat rw [setLocal_ne (by decide)]); rw [setLocal_self]; norm_res_fuel
+                rw [runJvmResFast_iload]
+                rw [setLocal_ne (by decide), setLocal_self]; norm_res_fuel
                 rw [runJvmResFast_baload (hget := hbytes) (hslt := hslt_e1) (hlt := by omega)]; norm_res_fuel
-                heap_step_nonbranch_chunks; norm_res_fuel
-                rfl
+                rw [runJvmResFast_ubyteCtor]; norm_res_fuel
+                rw [runJvmResFast_iconst]
               by_cases hbe1 : be1 = 47
               · have heq47 : bve1 = 47 := signExtend_eq_u32 hbe1 rfl (by decide)
                 let s5 := e1 + 1
@@ -1543,20 +1719,11 @@ theorem checkRuleLine_equiv (bytes : ByteArray) (bytesAddr : Nat)
                     ⟨65, [.i32 47, .i32 bve1], locs1', ⟨objs, []⟩, ⟨ar, u64, asc⟩⟩ =
                     runJvmResFast 47 f_Algorithm_checkRuleLine_prog 91
                       (f_Algorithm_checkRuleLine_prog.drop 91)
-                      ⟨91, [.i32 s5, .i32 e2], locs2', ⟨objs, []⟩, ⟨ar, u64, asc⟩⟩ := by
-                  split_res_fuel 24
-                  step_drop 1
-                  rw [runJvmResFast_if_icmpeq_branch (heq := heq47)]; norm_res_fuel
-                  step_drop 23
-                  heap_step_nonbranch_chunks; norm_res_fuel
-                  rw [runJvmResFast_invokestatic_step (hs := stepStatic_scanDigitSet_heap (hget := hbytes))]
-                  norm_res_fuel
-                  heap_step_nonbranch_chunks; norm_res_fuel
-                  rw [runJvmResFast_checkcast_boxedUInt (hcls := Or.inl rfl)]; norm_res_fuel
-                  heap_step_nonbranch_chunks; norm_res_fuel
-                  rw [runJvmResFast_checkcast_boxedUInt (hcls := Or.inl rfl)]; norm_res_fuel
-                  heap_step_nonbranch_chunks; norm_res_fuel
-                  rfl
+                      ⟨91, [.i32 s5, .i32 e2], locs2', ⟨objs, []⟩, ⟨ar, u64, asc⟩⟩ :=
+                  checkRuleLine_hstep68 hbytes heq47
+                    (by simp [locs1', locs1, locs0, setLocal])
+                    (by simp [locs1', locs1, setLocal])
+                    (by simp [locs1', setLocal])
                 have hcheck_mid : Algorithm.checkRuleLine bytes =
                     if e2 == s5 || e2 != limit then 1
                     else if surv == 12 && birth == 8 then 0
@@ -1586,8 +1753,10 @@ theorem checkRuleLine_equiv (bytes : ByteArray) (bytesAddr : Nat)
                     step_drop 1
                     rw [runJvmResFast_if_icmpeq_fallthrough (hne := hne_e2_s5)]; norm_res_fuel
                     step_drop 2
-                    heap_step_nonbranch_chunks; norm_res_fuel
-                    rfl
+                    rw [runJvmResFast_iload]; dsimp only [locs2']
+                    rw [setLocal_ne (by decide), setLocal_self]; norm_res_fuel
+                    rw [runJvmResFast_iload]; dsimp only [locs2', locs1', locs1]
+                    (repeat rw [setLocal_ne (by decide)]); rw [setLocal_self]
                   by_cases he2_lim : e2 = limit
                   · have hstep97 : runJvmResFast 44 f_Algorithm_checkRuleLine_prog 94
                         (f_Algorithm_checkRuleLine_prog.drop 94)
@@ -1599,8 +1768,9 @@ theorem checkRuleLine_equiv (bytes : ByteArray) (bytesAddr : Nat)
                       step_drop 1
                       rw [runJvmResFast_if_icmpeq_branch (heq := he2_lim)]; norm_res_fuel
                       step_drop 2
-                      heap_step_nonbranch_chunks; norm_res_fuel
-                      rfl
+                      rw [runJvmResFast_iload]; dsimp only [locs2', locs1']
+                      (repeat rw [setLocal_ne (by decide)]); rw [setLocal_self]; norm_res_fuel
+                      rw [runJvmResFast_iconst]
                     by_cases hsurv : surv = 12
                     · have hstep102 : runJvmResFast 41 f_Algorithm_checkRuleLine_prog 99
                           (f_Algorithm_checkRuleLine_prog.drop 99)
@@ -1612,8 +1782,8 @@ theorem checkRuleLine_equiv (bytes : ByteArray) (bytesAddr : Nat)
                         step_drop 1
                         rw [runJvmResFast_if_icmpeq_branch (heq := hsurv)]; norm_res_fuel
                         step_drop 2
-                        heap_step_nonbranch_chunks; norm_res_fuel
-                        rfl
+                        rw [runJvmResFast_iload]; dsimp only [locs2']; rw [setLocal_self]; norm_res_fuel
+                        rw [runJvmResFast_iconst]
                       by_cases hbirth : birth = 8
                       · have hres : Algorithm.checkRuleLine bytes = 0 := by
                           rw [hcheck_mid, hne_e2_s5]; simp [he2_lim, hsurv, hbirth]
@@ -1732,35 +1902,11 @@ private theorem jhSet_statics {Ext : Type} (h : Jvm.JvmHeap Ext) (a : Nat) (o : 
     (h.set a o).statics = h.statics := by
   dsimp only [Jvm.JvmHeap.set]; split <;> rfl
 
-private theorem setLocal_self (locs : Nat → JvmVal) (k : Nat) (v : JvmVal) :
-    setLocal locs k v k = v := by simp [setLocal]
-
-private theorem setLocal_ne {locs : Nat → JvmVal} {k j : Nat} {v : JvmVal} (hne : j ≠ k) :
-    setLocal locs k v j = locs j := by simp [setLocal, hne]
-
 private theorem runJvmResFast_areturn_step {f : Nat} {prog : List JvmInstr} {pc pc0 : Nat}
     {rest : List JvmInstr} {v : JvmVal} {stk : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     runJvmResFast (f + 1) prog pc (.areturn :: rest) ⟨pc0, v :: stk, locs, jh, hp⟩ =
       some (v, ⟨pc, v :: stk, locs, jh, hp⟩) := rfl
-
-private theorem runJvmResFast_iconst {f pc pc0 : Nat} {prog rest : List JvmInstr} {c : UInt32}
-    {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
-    runJvmResFast (f + 1) prog pc (.iconst c :: rest) ⟨pc0, stk, locs, jh, hp⟩ =
-      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, .i32 c :: stk, locs, jh, hp⟩ := by
-  have hstep : Jvm.stepInstr algHooks (.iconst c) ⟨pc, stk, locs, jh, hp⟩ =
-      .inl (some ⟨pc + 1, .i32 c :: stk, locs, jh, hp⟩) := rfl
-  rw [runJvmResFast_step_nonbranch (hbr := rfl) (hno := by simp)]
-  simp only [stepInstr, hstep, ↓reduceIte]
-
-private theorem runJvmResFast_istore {f pc pc0 idx : Nat} {prog rest : List JvmInstr} {v : JvmVal}
-    {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
-    runJvmResFast (f + 1) prog pc (.istore idx :: rest) ⟨pc0, v :: stk, locs, jh, hp⟩ =
-      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stk, setLocal locs idx v, jh, hp⟩ := by
-  have hstep : Jvm.stepInstr algHooks (.istore idx) ⟨pc, v :: stk, locs, jh, hp⟩ =
-      .inl (some ⟨pc + 1, stk, setLocal locs idx v, jh, hp⟩) := rfl
-  rw [runJvmResFast_step_nonbranch (hbr := rfl) (hno := by simp)]
-  simp only [stepInstr, hstep, ↓reduceIte]
 
 private theorem runJvmResFast_astore {f pc pc0 idx : Nat} {prog rest : List JvmInstr} {v : JvmVal}
     {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
@@ -1768,24 +1914,6 @@ private theorem runJvmResFast_astore {f pc pc0 idx : Nat} {prog rest : List JvmI
       runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stk, setLocal locs idx v, jh, hp⟩ := by
   have hstep : Jvm.stepInstr algHooks (.astore idx) ⟨pc, v :: stk, locs, jh, hp⟩ =
       .inl (some ⟨pc + 1, stk, setLocal locs idx v, jh, hp⟩) := rfl
-  rw [runJvmResFast_step_nonbranch (hbr := rfl) (hno := by simp)]
-  simp only [stepInstr, hstep, ↓reduceIte]
-
-private theorem runJvmResFast_aload {f pc pc0 idx : Nat} {prog rest : List JvmInstr}
-    {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
-    runJvmResFast (f + 1) prog pc (.aload idx :: rest) ⟨pc0, stk, locs, jh, hp⟩ =
-      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, locs idx :: stk, locs, jh, hp⟩ := by
-  have hstep : Jvm.stepInstr algHooks (.aload idx) ⟨pc, stk, locs, jh, hp⟩ =
-      .inl (some ⟨pc + 1, locs idx :: stk, locs, jh, hp⟩) := rfl
-  rw [runJvmResFast_step_nonbranch (hbr := rfl) (hno := by simp)]
-  simp only [stepInstr, hstep, ↓reduceIte]
-
-private theorem runJvmResFast_ldcStr {f pc pc0 : Nat} {prog rest : List JvmInstr} {s : String}
-    {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
-    runJvmResFast (f + 1) prog pc (.ldcStr s :: rest) ⟨pc0, stk, locs, jh, hp⟩ =
-      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, .str s :: stk, locs, jh, hp⟩ := by
-  have hstep : Jvm.stepInstr algHooks (.ldcStr s) ⟨pc, stk, locs, jh, hp⟩ =
-      .inl (some ⟨pc + 1, .str s :: stk, locs, jh, hp⟩) := rfl
   rw [runJvmResFast_step_nonbranch (hbr := rfl) (hno := by simp)]
   simp only [stepInstr, hstep, ↓reduceIte]
 
@@ -1842,8 +1970,8 @@ private theorem runJvmResFast_tableswitch {f pc pc0 dflt : Nat} {low : Int32} {t
         ⟨pc0, .i32 v :: stk, locs, jh, hp⟩ =
       let tgt := Jvm.tableswitchTarget v low targets dflt
       runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stk, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32]
+  rw [runJvmResFast_at_branch_cons (hbr := rfl)]
+  apply Jvm.evalResBranchInstrCons_tableswitch
 
 private theorem runJvmResFast_instanceof_boxedInt_uint {f pc pc0 : Nat} {prog rest : List JvmInstr}
     {v : UInt32} {stkRest : List JvmVal} {locs : Nat → JvmVal}
@@ -1857,15 +1985,6 @@ private theorem runJvmResFast_instanceof_boxedInt_uint {f pc pc0 : Nat} {prog re
   simp only [runJvmResFast]
   rw [Jvm.runJvmResFast_step_nonbranch algHooks (hbr := rfl) (hno := by simp)]
   simp only [hstep, ↓reduceIte]
-
-private theorem runJvmResFast_iload {f pc pc0 idx : Nat} {prog rest : List JvmInstr}
-    {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
-    runJvmResFast (f + 1) prog pc (.iload idx :: rest) ⟨pc0, stk, locs, jh, hp⟩ =
-      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, locs idx :: stk, locs, jh, hp⟩ := by
-  have hstep : Jvm.stepInstr algHooks (.iload idx) ⟨pc, stk, locs, jh, hp⟩ =
-      .inl (some ⟨pc + 1, locs idx :: stk, locs, jh, hp⟩) := rfl
-  rw [runJvmResFast_step_nonbranch (hbr := rfl) (hno := by simp)]
-  simp only [stepInstr, hstep, ↓reduceIte]
 
 private theorem runJvmResFast_lload {f pc pc0 idx : Nat} {prog rest : List JvmInstr}
     {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
@@ -1921,22 +2040,6 @@ private theorem runJvmResFast_isub {f pc pc0 : Nat} {prog rest : List JvmInstr} 
   rw [runJvmResFast_step_nonbranch (hbr := rfl) (hno := by simp)]
   simp only [stepInstr, hstep, ↓reduceIte]
 
-private theorem runJvmResFast_uintCtor {f pc pc0 : Nat} {prog rest : List JvmInstr}
-    {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
-    runJvmResFast (f + 1) prog pc
-        (.invokestatic "kotlin/UInt" "constructor-impl" "(I)I" :: rest)
-        ⟨pc0, stk, locs, jh, hp⟩ =
-      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stk, locs, jh, hp⟩ := by
-  rw [runJvmResFast_invokestatic_step (hs := rfl)]
-
-private theorem runJvmResFast_ubyteCtor {f pc pc0 : Nat} {prog rest : List JvmInstr}
-    {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
-    runJvmResFast (f + 1) prog pc
-        (.invokestatic "kotlin/UByte" "constructor-impl" "(B)B" :: rest)
-        ⟨pc0, stk, locs, jh, hp⟩ =
-      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stk, locs, jh, hp⟩ := by
-  rw [runJvmResFast_invokestatic_step (hs := rfl)]
-
 private theorem runJvmResFast_ulongCtor {f pc pc0 : Nat} {prog rest : List JvmInstr}
     {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     runJvmResFast (f + 1) prog pc
@@ -1944,18 +2047,6 @@ private theorem runJvmResFast_ulongCtor {f pc pc0 : Nat} {prog rest : List JvmIn
         ⟨pc0, stk, locs, jh, hp⟩ =
       runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stk, locs, jh, hp⟩ := by
   rw [runJvmResFast_invokestatic_step (hs := rfl)]
-
-private theorem runJvmResFast_compareUnsigned {f pc pc0 : Nat} {prog rest : List JvmInstr}
-    {a b : UInt32} {stk : List JvmVal} {locs : Nat → JvmVal}
-    {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
-    runJvmResFast (f + 1) prog pc
-        (.invokestatic "java/lang/Integer" "compareUnsigned" "(II)I" :: rest)
-        ⟨pc0, .i32 b :: .i32 a :: stk, locs, jh, hp⟩ =
-      runJvmResFast f prog (pc + 1) rest
-        ⟨pc + 1, .i32 (if a == b then 0 else if a < b then 4294967295 else 1) :: stk,
-          locs, jh, hp⟩ := by
-  rw [runJvmResFast_invokestatic_step (hs := rfl)]
-  rfl
 
 private theorem parseBlockHeader_retNone
     {f pc st_loc : Nat} {stk : List JvmVal}
@@ -2428,11 +2519,16 @@ theorem parseBlockHeader_equiv (bytes : ByteArray) (jh : Jvm.JvmHeap AlgExt) (hp
     split_res_fuel 10
     conv => lhs; arg 4; rw [← List.drop_zero (l := f_Algorithm_parseBlockHeader_prog)]
     step_drop 10
-    heap_step_nonbranch_chunks; norm_res_fuel
+    rw [runJvmResFast_aload]; dsimp only [locs0]; rw [setLocal_self]; norm_res_fuel
+    rw [runJvmResFast_ldcStr]; norm_res_fuel
+    rw [runJvmResFast_invokestatic_step (hs := stepStatic_checkNotNullParameter_heap rfl)]; norm_res_fuel
+    rw [runJvmResFast_aload, setLocal_self]; norm_res_fuel
     rw [runJvmResFast_arraylength_byte (hget := hget)]; norm_res_fuel
-    heap_step_nonbranch_chunks; norm_res_fuel
-    dsimp only [Jvm.JvmVal.asI32]
-    rfl
+    rw [runJvmResFast_uintCtor]; norm_res_fuel
+    rw [runJvmResFast_istore]; norm_res_fuel
+    rw [runJvmResFast_iload, setLocal_self]; norm_res_fuel
+    rw [runJvmResFast_iconst]; norm_res_fuel
+    rw [runJvmResFast_compareUnsigned]
   by_cases hlt3 : limit < 3
   · have hres : Algorithm.parseBlockHeader bytes = none := by
       simp [Algorithm.parseBlockHeader, hlim_eq, hlt3]
@@ -2566,7 +2662,6 @@ theorem parseBlockHeader_equiv (bytes : ByteArray) (jh : Jvm.JvmHeap AlgExt) (hp
             rw [setLocal_self]; norm_res_fuel
             rw [runJvmResFast_invokestatic_step
               (hs := stepStatic_parseInt32At_heap (Or.inl rfl) hget)]
-            dsimp only [Jvm.JvmVal.asI32]
             rw [show Algorithm.parseInt32At ⟨bytes.data⟩ 3 limit = p1 from rfl]
             rfl
           have hup1 := parseBlockHeader_unpack_pair (f := 217) (pc0 := 69) (k := 2) (defTgt := 329)
@@ -2691,7 +2786,6 @@ theorem parseBlockHeader_equiv (bytes : ByteArray) (jh : Jvm.JvmHeap AlgExt) (hp
                   rw [setLocal_ne (by decide), hl2_1']; norm_res_fuel
                   rw [runJvmResFast_invokestatic_step
                     (hs := stepStatic_parseInt32At_heap (Or.inl rfl) henc1_bytes)]
-                  dsimp only [Jvm.JvmVal.asI32]
                   rw [show Algorithm.parseInt32At ⟨bytes.data⟩ (r1.next + 1) limit = p2 from rfl]
                   rfl
                 have hup2 := parseBlockHeader_unpack_pair (f := 144) (pc0 := 187) (k := 7)
@@ -3292,7 +3386,7 @@ private theorem serializeLife105_loop_from6 (fuelN : Nat) :
       rw [runJvmResFast_aload, setLocal_ne (by decide), h1']; norm_res_fuel
       rw [runJvmResFast_iconst]; norm_res_fuel
       rw [runJvmResFast_invokestatic_step (hs := stepStatic_ulongArrGetU64_heap hcells)]
-      rw [show (Jvm.JvmVal.i32 0).asI32.toNat = 0 from rfl]
+      rw [show (0 : UInt32).toNat = 0 from rfl]
       norm_res_fuel
       rw [runJvmResFast_lstore]; norm_res_fuel
       rw [runJvmResFast_lload, setLocal_self]; norm_res_fuel
@@ -3456,8 +3550,10 @@ private theorem runJvmResFast_ifge_branch {f pc tgt : Nat} {prog rest : List Jvm
     (hv : (0#32).sle v.toBitVec = true) :
     runJvmResFast (f + 1) prog pc (.ifge tgt :: rest) ⟨pc, .i32 v :: stk, locs, jh, hp⟩ =
       runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stk, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32, hv]
+  rw [runJvmResFast_at_branch_cons (hbr := rfl)]
+  dsimp only [evalResBranchInstrCons]
+  rw [Jvm.evalResBranchInstrCons_ifge]
+  simp only [hv, ↓reduceIte]; rfl
 
 private theorem runJvmResFast_ifge_fallthrough {f pc tgt : Nat} {prog rest : List JvmInstr}
     {v : UInt32} {stk : List JvmVal} {locs : Nat → JvmVal}
@@ -3465,8 +3561,10 @@ private theorem runJvmResFast_ifge_fallthrough {f pc tgt : Nat} {prog rest : Lis
     (hv : (0#32).sle v.toBitVec = false) :
     runJvmResFast (f + 1) prog pc (.ifge tgt :: rest) ⟨pc, .i32 v :: stk, locs, jh, hp⟩ =
       runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stk, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32, hv]
+  rw [runJvmResFast_at_branch_cons (hbr := rfl)]
+  dsimp only [evalResBranchInstrCons]
+  rw [Jvm.evalResBranchInstrCons_ifge]
+  simp only [hv, Bool.false_eq_true, ↓reduceIte]; rfl
 
 private theorem runJvmResFast_ifgt_branch {f pc tgt : Nat} {prog rest : List JvmInstr}
     {v : UInt32} {stk : List JvmVal} {locs : Nat → JvmVal}
@@ -3474,8 +3572,10 @@ private theorem runJvmResFast_ifgt_branch {f pc tgt : Nat} {prog rest : List Jvm
     (hv : (0#32 : BitVec 32).slt v.toBitVec = true) :
     runJvmResFast (f + 1) prog pc (.ifgt tgt :: rest) ⟨pc, .i32 v :: stk, locs, jh, hp⟩ =
       runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stk, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32, hv]
+  rw [runJvmResFast_at_branch_cons (hbr := rfl)]
+  dsimp only [evalResBranchInstrCons]
+  rw [Jvm.evalResBranchInstrCons_ifgt]
+  simp only [hv, ↓reduceIte]; rfl
 
 private theorem runJvmResFast_ifgt_fallthrough {f pc tgt : Nat} {prog rest : List JvmInstr}
     {v : UInt32} {stk : List JvmVal} {locs : Nat → JvmVal}
@@ -3483,8 +3583,10 @@ private theorem runJvmResFast_ifgt_fallthrough {f pc tgt : Nat} {prog rest : Lis
     (hv : (0#32 : BitVec 32).slt v.toBitVec = false) :
     runJvmResFast (f + 1) prog pc (.ifgt tgt :: rest) ⟨pc, .i32 v :: stk, locs, jh, hp⟩ =
       runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stk, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32, hv]
+  rw [runJvmResFast_at_branch_cons (hbr := rfl)]
+  dsimp only [evalResBranchInstrCons]
+  rw [Jvm.evalResBranchInstrCons_ifgt]
+  simp only [hv, Bool.false_eq_true, ↓reduceIte]; rfl
 
 private theorem runJvmResFast_newClass {f pc pc0 : Nat} {prog rest : List JvmInstr} {cls : String}
     {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
@@ -3513,16 +3615,20 @@ private theorem runJvmResFast_land {f pc pc0 : Nat} {prog rest : List JvmInstr} 
   rw [runJvmResFast_step_nonbranch (hbr := rfl) (hno := by simp)]
   simp only [stepInstr, hstep, ↓reduceIte]
 
+private theorem stepInstr_lshl_32 {Ext Heap : Type} (hooks : Jvm.JvmHooks Ext Heap)
+    {pc : Nat} {a : UInt64} {stk : List (Jvm.JvmVal Ext)}
+    {locs : Nat → Jvm.JvmVal Ext} {jh : Jvm.JvmHeap Ext} {hp : Heap} :
+    Jvm.stepInstr hooks .lshl ⟨pc, .i32 32 :: .i64 a :: stk, locs, jh, hp⟩ =
+      .inl (some ⟨pc + 1, .i64 (a <<< 32) :: stk, locs, jh, hp⟩) := by
+  unfold Jvm.stepInstr; rfl
+
 private theorem runJvmResFast_lshl_32 {f pc pc0 : Nat} {prog rest : List JvmInstr} {a : UInt64}
     {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     runJvmResFast (f + 1) prog pc (.lshl :: rest)
         ⟨pc0, .i32 32 :: .i64 a :: stk, locs, jh, hp⟩ =
       runJvmResFast f prog (pc + 1) rest ⟨pc + 1, .i64 (a <<< 32) :: stk, locs, jh, hp⟩ := by
-  have hstep : Jvm.stepInstr algHooks .lshl ⟨pc, .i32 32 :: .i64 a :: stk, locs, jh, hp⟩ =
-      .inl (some ⟨pc + 1, .i64 (a <<< 32) :: stk, locs, jh, hp⟩) := by
-    simp [Jvm.stepInstr, Jvm.JvmVal.asI64, Jvm.JvmVal.asI32]
   rw [runJvmResFast_step_nonbranch (hbr := rfl) (hno := by simp)]
-  simp only [stepInstr, hstep, ↓reduceIte]
+  simp only [stepInstr, stepInstr_lshl_32 algHooks, ↓reduceIte]
 
 private theorem runJvmResFast_ladd {f pc pc0 : Nat} {prog rest : List JvmInstr} {a b : UInt64}
     {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
@@ -3809,7 +3915,7 @@ private theorem parseBlocks_header_none
     dsimp only [decodeLife105Result]
     rw [hres_get]
     dsimp only [rObj]
-    simp [List.lookup, decodeLife105Status, hst_get2, stObj, hwget', hwfold', hp', Jvm.JvmVal.asI32]
+    simp [List.lookup, decodeLife105Status, hst_get2, stObj, hwget', hwfold', hp']
 
 private theorem parseBlocks_unexpected_row
     (line : String) (i : UInt32) (wAddr : Nat) (wCls : String) (wElems : Array JvmVal)
@@ -3880,7 +3986,7 @@ private theorem parseBlocks_unexpected_row
     dsimp only [decodeLife105Result]
     rw [hres_get]
     dsimp only [rObj]
-    simp [List.lookup, decodeLife105Status, hst_get2, stObj, hwget', hwfold', hp', Jvm.JvmVal.asI32]
+    simp [List.lookup, decodeLife105Status, hst_get2, stObj, hwget', hwfold', hp']
 
 private theorem parseBlocks_header_some
     (lines : Array String) (numLines i limit : UInt32)
@@ -5421,11 +5527,12 @@ private theorem stepStatic_checkRuleLine_heap
 
 private theorem stepStatic_parseBlocks_match (pc : Nat) (locs : Nat → JvmVal)
     (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (cId : Nat)
-    (warnsVal rowIdx blockY blockX hasBlock p limit bytesVal inRow i numLines linesVal : JvmVal)
-    (rest : List JvmVal) :
+    (warnsVal : JvmVal) (rowIdx blockY blockX hasBlock p limit : UInt32) (bytesVal : JvmVal)
+    (inRow i numLines : UInt32) (linesVal : JvmVal) (rest : List JvmVal) :
     let st : JvmState :=
-      ⟨pc, .ext (.u64Ref cId) :: warnsVal :: rowIdx :: blockY :: blockX ::
-        hasBlock :: p :: limit :: bytesVal :: inRow :: i :: numLines :: linesVal :: rest,
+      ⟨pc, .ext (.u64Ref cId) :: warnsVal :: .i32 rowIdx :: .i32 blockY :: .i32 blockX ::
+        .i32 hasBlock :: .i32 p :: .i32 limit :: bytesVal :: .i32 inRow :: .i32 i ::
+        .i32 numLines :: linesVal :: rest,
         locs, jh, hp⟩
     stepInvokeStatic st "Life105LeanKt" "f_Algorithm_parseBlocks-eSeeRns"
       ("([Ljava/lang/Object;IIZ[BIIZIII[Ljava/lang/Object;[J)" ++
@@ -5442,9 +5549,9 @@ private theorem stepStatic_parseBlocks_match (pc : Nat) (locs : Nat → JvmVal)
         | _ => none
       match warnsOpt with
       | some warns' =>
-        let res := Algorithm.parseBlocks lines' numLines.asI32 i.asI32 (inRow.asI32 != 0) bytes'
-          limit.asI32 p.asI32 (hasBlock.asI32 != 0) blockX.asI32.toInt32 blockY.asI32.toInt32
-          rowIdx.asI32.toInt32 warns' cells'
+        let res := Algorithm.parseBlocks lines' numLines i (inRow != 0) bytes'
+          limit p (hasBlock != 0) blockX.toInt32 blockY.toInt32
+          rowIdx.toInt32 warns' cells'
         let (resVal, h', u64s') := encodeLife105Result st.jvmHeap st.heap.u64Arrays res
         .inl (some { st with
           pc := st.pc + 1, stack := resVal :: rest,
@@ -5456,8 +5563,8 @@ private theorem stepStatic_parseBlocks_match (pc : Nat) (locs : Nat → JvmVal)
 private theorem l105_match_elim
     (pc : Nat) (locs : Nat → JvmVal) (jh : Jvm.JvmHeap AlgExt)
     (hp : AlgHeap) (cId : Nat)
-    (warnsVal rowIdx blockY blockX hasBlock p limit bytesVal inRow i numLines linesVal : JvmVal)
-    (rest : List JvmVal)
+    (warnsVal : JvmVal) (rowIdx blockY blockX hasBlock p limit : UInt32) (bytesVal : JvmVal)
+    (inRow i numLines : UInt32) (linesVal : JvmVal) (rest : List JvmVal)
     (pbFn : Array String → UInt32 → UInt32 → Bool → ByteArray → UInt32 → UInt32 → Bool →
       Int32 → Int32 → Int32 → Array Algorithm.Life105Warning → Algorithm.U64Buf →
       Algorithm.Life105Result)
@@ -5469,8 +5576,9 @@ private theorem l105_match_elim
     {w2 : Array Algorithm.Life105Warning}
     (ha : a1 = some a2) (hb : b1 = some b2) (hc : c1 = some c2) (hw : w1 = some w2) :
     let st : JvmState :=
-      ⟨pc, .ext (.u64Ref cId) :: warnsVal :: rowIdx :: blockY :: blockX ::
-        hasBlock :: p :: limit :: bytesVal :: inRow :: i :: numLines :: linesVal :: rest,
+      ⟨pc, .ext (.u64Ref cId) :: warnsVal :: .i32 rowIdx :: .i32 blockY :: .i32 blockX ::
+        .i32 hasBlock :: .i32 p :: .i32 limit :: bytesVal :: .i32 inRow :: .i32 i ::
+        .i32 numLines :: linesVal :: rest,
         locs, jh, hp⟩
     (stepStatic_parseBlocks_match.match_3 (fun _ _ _ => Option JvmState ⊕ Option JvmVal)
       a1 b1 c1
@@ -5478,9 +5586,9 @@ private theorem l105_match_elim
         have warnsOpt := w1
         stepStatic_parseBlocks_match.match_2 (fun _ => Option JvmState ⊕ Option JvmVal) warnsOpt
           (fun warns' =>
-            let res := pbFn lines' numLines.asI32 i.asI32 (inRow.asI32 != 0) bytes'
-              limit.asI32 p.asI32 (hasBlock.asI32 != 0) blockX.asI32.toInt32 blockY.asI32.toInt32
-              rowIdx.asI32.toInt32 warns' cells'
+            let res := pbFn lines' numLines i (inRow != 0) bytes'
+              limit p (hasBlock != 0) blockX.toInt32 blockY.toInt32
+              rowIdx.toInt32 warns' cells'
             decodeLife105Result_encode.match_1 (fun _ => Option JvmState ⊕ Option JvmVal)
               (encFn st.jvmHeap st.heap.u64Arrays res) fun resVal h' u64s' =>
               .inl (some { st with
@@ -5489,17 +5597,17 @@ private theorem l105_match_elim
           (fun _ => .inr none))
       (fun _ _ _ => .inr none)) =
     (.inl (some ⟨pc + 1,
-      (encFn jh hp.u64Arrays (pbFn a2 numLines.asI32 i.asI32 (inRow.asI32 != 0) b2
-        limit.asI32 p.asI32 (hasBlock.asI32 != 0) blockX.asI32.toInt32 blockY.asI32.toInt32
-        rowIdx.asI32.toInt32 w2 c2)).1 :: rest,
+      (encFn jh hp.u64Arrays (pbFn a2 numLines i (inRow != 0) b2
+        limit p (hasBlock != 0) blockX.toInt32 blockY.toInt32
+        rowIdx.toInt32 w2 c2)).1 :: rest,
       locs,
-      (encFn jh hp.u64Arrays (pbFn a2 numLines.asI32 i.asI32 (inRow.asI32 != 0) b2
-        limit.asI32 p.asI32 (hasBlock.asI32 != 0) blockX.asI32.toInt32 blockY.asI32.toInt32
-        rowIdx.asI32.toInt32 w2 c2)).2.1,
+      (encFn jh hp.u64Arrays (pbFn a2 numLines i (inRow != 0) b2
+        limit p (hasBlock != 0) blockX.toInt32 blockY.toInt32
+        rowIdx.toInt32 w2 c2)).2.1,
       { arenas := hp.arenas,
-        u64Arrays := (encFn jh hp.u64Arrays (pbFn a2 numLines.asI32 i.asI32
-          (inRow.asI32 != 0) b2 limit.asI32 p.asI32 (hasBlock.asI32 != 0)
-          blockX.asI32.toInt32 blockY.asI32.toInt32 rowIdx.asI32.toInt32 w2 c2)).2.2,
+        u64Arrays := (encFn jh hp.u64Arrays (pbFn a2 numLines i
+          (inRow != 0) b2 limit p (hasBlock != 0)
+          blockX.toInt32 blockY.toInt32 rowIdx.toInt32 w2 c2)).2.2,
         asciiArrays := hp.asciiArrays }⟩) : Option JvmState ⊕ Option JvmVal) := by
   subst ha hb hc hw
   dsimp only
@@ -5575,21 +5683,18 @@ private theorem stepStatic_parseBlocks_heap
     rw [hwget]
     exact hwfold
   have h1 := stepStatic_parseBlocks_match pc locs jh ⟨ar, u64, asc⟩ cId
-    (.heapRef wAddr) (.i32 0) (.i32 0) (.i32 0) (.i32 0) (.i32 p) (.i32 limit)
-    (.heapRef bytesAddr) (.i32 0) (.i32 i) (.i32 numLines) (.strArr lines) rest
+    (.heapRef wAddr) 0 0 0 0 p limit
+    (.heapRef bytesAddr) 0 i numLines (.strArr lines) rest
   have h2 := l105_match_elim pc locs jh ⟨ar, u64, asc⟩ cId
-    (.heapRef wAddr) (.i32 0) (.i32 0) (.i32 0) (.i32 0) (.i32 p) (.i32 limit)
-    (.heapRef bytesAddr) (.i32 0) (.i32 i) (.i32 numLines) (.strArr lines) rest
+    (.heapRef wAddr) 0 0 0 0 p limit
+    (.heapRef bytesAddr) 0 i numLines (.strArr lines) rest
     Algorithm.parseBlocks encodeLife105Result hl hb hc hw
-  have harg : Algorithm.parseBlocks lines (JvmVal.i32 numLines : JvmVal).asI32
-      (JvmVal.i32 i : JvmVal).asI32 ((JvmVal.i32 0 : JvmVal).asI32 != 0) bytes
-      (JvmVal.i32 limit : JvmVal).asI32 (JvmVal.i32 p : JvmVal).asI32
-      ((JvmVal.i32 0 : JvmVal).asI32 != 0) (JvmVal.i32 0 : JvmVal).asI32.toInt32
-      (JvmVal.i32 0 : JvmVal).asI32.toInt32 (JvmVal.i32 0 : JvmVal).asI32.toInt32
+  have harg : Algorithm.parseBlocks lines numLines i ((0 : UInt32) != 0) bytes
+      limit p ((0 : UInt32) != 0) (0 : UInt32).toInt32
+      (0 : UInt32).toInt32 (0 : UInt32).toInt32
       warns cells =
       Algorithm.parseBlocks lines numLines i false bytes limit p false
         0 0 0 warns cells := by
-    dsimp only [Jvm.JvmVal.asI32]
     rw [show ((0 : UInt32) != 0) = false from rfl,
       show (0 : UInt32).toInt32 = 0 from by
         rw [show (0 : UInt32) = (0 : Int32).toUInt32 from rfl, Int32.toInt32_toUInt32]]
@@ -5677,13 +5782,14 @@ private theorem deserializeLife105_exit247
     (pc1 := 268) _ (heapExtends_refl jh)
   split_res_fuel 22
   conv => lhs; jvm_whnf_run_args
+  rw [← setLocal_eq_self hl4]
   heap_step_nonbranch_chunks
   conv => lhs; jvm_whnf_run_args
   rw [runJvmResFast_invokestatic_step (hs := stepStatic_u64BufEmpty_105_heap)]
   heap_step_nonbranch_chunks
   conv => lhs; jvm_whnf_run_args
-  conv => lhs; arg 5; arg 2; rw [hl0, hl1, hl4, hl6, hl7]; dsimp only [Jvm.JvmVal.asI32]
-  conv => lhs; arg 5; arg 3; rw [hl4]; dsimp only [Jvm.JvmVal.asI32]
+  conv => lhs; arg 5; arg 2; rw [hl0, hl1, hl6, hl7]
+  rw [setLocal_eq_self hl4]
   have hs := stepStatic_parseBlocks_heap (pc := 267) (lines := lines) (limit := 0) (p := 0)
     (numLines := numLines) (i := i + 1) (rest := [])
     (locs := setLocal (setLocal locs 8 (.i32 (i + 1))) 9 (.ext (.u64Ref u64.length)))
@@ -5706,7 +5812,7 @@ private theorem deserializeLife105_0_8
   rw [runJvmResFast_invokestatic_step (hs := stepStatic_checkNotNullParameter_heap rfl)]
   heap_step_nonbranch_chunks; rw [hl0, runJvmResFast_arraylength_strArr]
   heap_step_nonbranch_chunks
-  rw [← runJvmResFast_stepResHeapChunk, Nat.add_sub_cancel]; rfl
+  dsimp only [afterResBlockChunk]; rw [← Jvm.runJvmResFast_stepBlockChunkWith, Nat.add_sub_cancel]; rfl
 
 private theorem deserializeLife105_8_21
     {lines : Array String} {numLines : UInt32} {locs : Nat → JvmVal}
@@ -5735,15 +5841,14 @@ private theorem step_checkcast_subtype_heap
     {pc addr : Nat} {cls objCls : String} {fields : List (String × JvmVal)}
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     (hget : jh.get? addr = some (.instance objCls fields))
-    (hcc : jh.checkCast cls addr = none)
     (hsub : algHooks.isSubtypeOf objCls cls = true) :
     Jvm.stepInstr algHooks (.checkcast cls)
       ⟨pc, .heapRef addr :: rest, locs, jh, hp⟩ =
       .inl (some ⟨pc + 1, .heapRef addr :: rest, locs, jh, hp⟩) := by
   dsimp only [Jvm.stepInstr]
-  rw [hcc, hget]
   dsimp only [algHooks] at hsub
-  simp [hsub]
+  simp [Jvm.evalCheckCast, Jvm.JvmHeap.checkCast, Jvm.JvmHeap.checkInstanceOf, hget,
+    Jvm.HeapObj.matchesType, hsub]
 
 private theorem deserializeLife105_invalidHeader
     {header : String} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt}
@@ -5790,15 +5895,13 @@ private theorem deserializeLife105_invalidHeader
     heap_step_nonbranch_chunks
     rw [runJvmResFast_invokestatic_step (hs := stepStatic_noCells_105_heap)]
     heap_step_nonbranch_chunks
-    rw [runJvmResFast_checkcast_step (v' := .heapRef stAddr) (by
-      have hcc : jh2.checkCast "com/alexvanyo/composelife/model/Life105Status" stAddr = none := by
-        simp [Jvm.JvmHeap.checkCast, Jvm.JvmHeap.checkInstanceOf, hget_st2,
-          Jvm.HeapObj.matchesType]
-      exact step_checkcast_subtype_heap hget_st2 hcc rfl)]
+    rw [runJvmResFast_checkcast_step (v' := .heapRef stAddr)
+      (step_checkcast_subtype_heap hget_st2 rfl)]
     heap_step_nonbranch_chunks
     rw [runJvmResFast_invokespecial_step (hs := stepSpecial_life105Result_init)]
     heap_step_nonbranch_chunks
-    simp only [Jvm.JvmHeap.alloc, Array.size_push]; rfl
+    dsimp only [jh3, jh2, jh1, stAddr, wAddr, resAddr, locs3]
+    simp only [Jvm.JvmHeap.alloc, Array.size_push]
   · have hget_res : jh3.get? resAddr = some (.instance
         "com/alexvanyo/composelife/model/Life105Result"
         [("status", .heapRef stAddr), ("warnings", .heapRef wAddr),
@@ -5864,7 +5967,7 @@ private theorem deserializeLife105_48_67
   rw [runJvmResFast_invokestatic_step (hs := stepStatic_stringsEncodeToByteArray)]
   heap_step_nonbranch_chunks
   rw [show lines[i.toNat].toUTF8.data = lines[i.toNat].toByteArray.data from rfl]
-  rw [← runJvmResFast_stepResHeapChunk, Nat.add_sub_cancel]; rfl
+  dsimp only [afterResBlockChunk]; rw [← Jvm.runJvmResFast_stepBlockChunkWith, Nat.add_sub_cancel]; rfl
 
 private theorem deserializeLife105_228_exit
     {lines : Array String} {numLines i : UInt32} {bytes : ByteArray} {bytesAddr : Nat}
@@ -5900,7 +6003,7 @@ private theorem deserializeLife105_228_exit
   rw [runJvmResFast_invokestatic_step (hs := stepStatic_u64BufEmpty_105_heap)]
   heap_step_nonbranch_chunks
   conv => lhs; jvm_whnf_run_args
-  conv => lhs; arg 5; arg 2; rw [hl0, hl1, hl4, hl6, hl8]; dsimp only [Jvm.JvmVal.asI32]
+  conv => lhs; arg 5; arg 2; rw [hl0, hl1, hl4, hl6, hl8]
   have hs := stepStatic_parseBlocks_heap (pc := 245) (lines := lines) (limit := 0) (p := 0)
     (numLines := numLines) (i := i) (rest := [])
     (locs := setLocal (setLocal locs 10 (.heapRef wAddr)) 11 (.ext (.u64Ref u64.length)))
@@ -6095,6 +6198,7 @@ private theorem deserializeLife105_ruleR
               (pc1 := 227) _ (heapExtends_alloc jh1 _)
             split_res_fuel 25; conv => lhs; jvm_whnf_run_args
             rw [runJvmResFast_ifeq_branch (by simp [hst0])]
+            rw [← setLocal_eq_self hl4']
             heap_step_nonbranch_chunks
             conv => lhs; jvm_whnf_run_args
             rw [runJvmResFast_invokestatic_step (hs := stepStatic_closed1_105_heap)]
@@ -6103,8 +6207,8 @@ private theorem deserializeLife105_ruleR
             rw [runJvmResFast_invokestatic_step (hs := stepStatic_u64BufEmpty_105_heap)]
             heap_step_nonbranch_chunks
             conv => lhs; jvm_whnf_run_args
-            conv => lhs; arg 5; arg 2; rw [hl0, hl1, hl4', hl9, hl6]; dsimp only [Jvm.JvmVal.asI32]
-            conv => lhs; arg 5; arg 3; rw [hl4']; dsimp only [Jvm.JvmVal.asI32]
+            conv => lhs; arg 5; arg 2; rw [hl0, hl1, hl9, hl6]
+            rw [setLocal_eq_self hl4']
             have hs := stepStatic_parseBlocks_heap (pc := 226) (lines := lines) (limit := 0) (p := 0)
               (numLines := numLines) (i := i + 1) (rest := [])
               (locs := setLocal (setLocal (setLocal locs5 11 (.i32 (i + 1))) 12 (.heapRef wAddr)) 13
@@ -6153,8 +6257,9 @@ private theorem deserializeLife105_ruleR
               rw [runJvmResFast_ifeq_fallthrough (by simp [hst0])]
               heap_step_nonbranch_chunks
               rw [runJvmResFast_if_icmpeq_branch hst1]
+              rw [← setLocal_eq_self hl4']
               heap_step_nonbranch_chunks
-              rw [hl4', hl5]; dsimp only [Jvm.JvmVal.asI32]
+              rw [hl5]
               rw [runJvmResFast_invokespecial_step
                 (hs := stepSpecial_life105UnexpectedInput_init)]
               heap_step_nonbranch_chunks
@@ -6162,16 +6267,14 @@ private theorem deserializeLife105_ruleR
               heap_step_nonbranch_chunks
               rw [runJvmResFast_invokestatic_step (hs := stepStatic_noCells_105_heap)]
               heap_step_nonbranch_chunks
-              rw [runJvmResFast_checkcast_step (v' := .heapRef stAddr) (by
-                have hcc : jh1b.checkCast "com/alexvanyo/composelife/model/Life105Status"
-                    stAddr = none := by
-                  simp [Jvm.JvmHeap.checkCast, Jvm.JvmHeap.checkInstanceOf, hget_st1b,
-                    Jvm.HeapObj.matchesType]
-                exact step_checkcast_subtype_heap hget_st1b hcc rfl)]
+              rw [runJvmResFast_checkcast_step (v' := .heapRef stAddr)
+                (step_checkcast_subtype_heap hget_st1b rfl)]
               heap_step_nonbranch_chunks
               rw [runJvmResFast_invokespecial_step (hs := stepSpecial_life105Result_init)]
               heap_step_nonbranch_chunks
-              simp only [Jvm.JvmHeap.alloc, Array.size_push]; rfl
+              rw [setLocal_eq_self hl4']
+              dsimp only [jh2, jh1b, jh1a, stAddr, wAddr, resAddr, locs6]
+              simp only [Jvm.JvmHeap.alloc, Array.size_push]
             · have hget_res : jh2.get? resAddr = some (.instance
                   "com/alexvanyo/composelife/model/Life105Result"
                   [("status", .heapRef stAddr), ("warnings", .heapRef wAddr),
@@ -6184,7 +6287,7 @@ private theorem deserializeLife105_ruleR
                 have hsz : jh1a.objects.size = wAddr := by simp [jh1a, wAddr, Jvm.JvmHeap.alloc]
                 rw [← hsz]; simp [jh1b, Jvm.JvmHeap.get?, Jvm.JvmHeap.alloc]
               simp [hhash82, status, hst1, decodeLife105Result,
-                decodeLife105Status, hget_res, hget_st, hget_w, List.lookup, Jvm.JvmVal.asI32,
+                decodeLife105Status, hget_res, hget_st, hget_w, List.lookup,
                 Algorithm.noCells]
           · let res : Algorithm.Life105Result := ⟨.ruleNotSupported, #[], Algorithm.noCells⟩
             let enc := encodeLife105Result jh1 u64 res
@@ -6476,7 +6579,7 @@ private theorem deserializeLife105_ruleN
           have hwfold2 : (#[(.heapRef warnAddr : JvmVal)]).foldlM
               (fun acc v => (decodeLife105Warning jh2 v).map acc.push) #[] =
               some #[.unexpectedInput ruleLine (i + 1) 3] := by
-            simp [decodeLife105Warning, hwarn2, warnObj, List.lookup, Jvm.JvmVal.asI32]
+            simp [decodeLife105Warning, hwarn2, warnObj, List.lookup]
           have harr1b : jh1b.get? arr0Addr = some (.objArray "java/lang/Object" #[]) := by
             simp [jh1b, arr0Addr, Jvm.JvmHeap.get?, Jvm.JvmHeap.alloc]
           have harr1c : jh1c.get? arr0Addr = some (.objArray "java/lang/Object" #[]) :=
@@ -6498,7 +6601,8 @@ private theorem deserializeLife105_ruleN
           · rw [show 22 + 39 + 6 + 6 + 11 = (22 + 39) + 6 + 6 + 11 by omega, h67_99]
             split_res_fuel 39; conv => lhs; jvm_whnf_run_args
             rw [hrn_beq, runJvmResFast_ifne_bool_fallthrough]
-            heap_step_nonbranch_chunks; rw [hl4', hl5]; dsimp only [Jvm.JvmVal.asI32]
+            rw [← setLocal_eq_self hl4']
+            heap_step_nonbranch_chunks; rw [hl5]
             rw [runJvmResFast_invokespecial_step
               (hs := stepSpecial_life105WarningUnexpectedInput_init)]
             heap_step_nonbranch_chunks
@@ -6526,6 +6630,7 @@ private theorem deserializeLife105_ruleN
             rw [runJvmResFast_stepResHeapChunk 4]; (conv => lhs; arg 1; jvm_whnf_blk)
             rw [afterResBlockChunk_cont]; (conv => lhs; norm_jvm_locals)
             rw [runJvmResFast_goto]
+            rw [setLocal_eq_self hl4']
             exact h247
           · simp only [hhash78, hrn_beq, Bool.false_eq_true, ↓reduceIte]; exact hdec
       · have hne78 : (UInt32.ofBitVec (b1.toBitVec.signExtend 32) == 78) = false :=

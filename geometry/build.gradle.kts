@@ -44,6 +44,7 @@ composeCompiler {
 lean {
     target = "Geometry:static"
     packageName = "com.alexvanyo.composelife.geometry"
+    kotlinBytecodeClassPaths.add("com/alexvanyo/composelife/geometry/GeometryExtensionsKt.class")
     entries {
         register("lineSegment") {
             leanFile = "Geometry/LineSegment.lean"
@@ -104,6 +105,9 @@ kotlin {
         }
         val desktopTest by getting {
             dependsOn(jbTest)
+            dependencies {
+                implementation(projects.leanTestFixtures)
+            }
         }
         val androidSharedTest by getting {
             dependsOn(jbTest)

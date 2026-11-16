@@ -24,6 +24,7 @@ import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -31,7 +32,9 @@ import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
@@ -48,6 +51,8 @@ abstract class LeanExtension @Inject constructor(objects: ObjectFactory) {
     abstract val leanDirectory: DirectoryProperty
 
     abstract val leanBinary: Property<String>
+
+    abstract val kotlinBytecodeClassPaths: ListProperty<String>
 
     val entries: NamedDomainObjectContainer<LeanCodegenEntry> =
         objects.domainObjectContainer(LeanCodegenEntry::class.java)
@@ -98,12 +103,18 @@ abstract class CacheLeanTask @Inject constructor(private val execOperations: Exe
 
 @DisableCachingByDefault(because = "Lake verification handles its own caching")
 abstract class VerifyLeanTask @Inject constructor(private val execOperations: ExecOperations) : DefaultTask() {
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    @get:InputDirectory
+    @get:Internal
     abstract val workingDir: DirectoryProperty
+
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    @get:InputFiles
+    abstract val leanFiles: ConfigurableFileCollection
 
     @get:Input
     abstract val target: Property<String>
+
+    @get:OutputFile
+    abstract val stampFile: RegularFileProperty
 
     @TaskAction
     fun verify() {
@@ -111,6 +122,9 @@ abstract class VerifyLeanTask @Inject constructor(private val execOperations: Ex
             workingDir = this@VerifyLeanTask.workingDir.get().asFile
             commandLine("lake", "build", "--wfail", target.get())
         }
+        val stamp = stampFile.get().asFile
+        stamp.parentFile.mkdirs()
+        stamp.writeText("${target.get()}\n")
     }
 }
 
@@ -123,8 +137,7 @@ abstract class GenerateLeanKotlinTask @Inject constructor(private val execOperat
     @get:Input
     abstract val leanBinary: Property<String>
 
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    @get:InputDirectory
+    @get:Internal
     abstract val workingDir: DirectoryProperty
 
     @get:Input
@@ -138,6 +151,17 @@ abstract class GenerateLeanKotlinTask @Inject constructor(private val execOperat
 
     @TaskAction
     fun generate() {
+        val outDir = generatedSourcesDir.get().asFile
+        if (outDir.exists()) {
+            outDir.deleteRecursively()
+        }
+        outDir.mkdirs()
+
+        val configuredEntries = entries.get()
+        if (configuredEntries.isEmpty()) {
+            return
+        }
+
         val binary = File(leanBinary.get())
         check(binary.exists() && binary.canExecute()) {
             "Lean binary not found or not executable at '${binary.absolutePath}'. " +
@@ -148,7 +172,7 @@ abstract class GenerateLeanKotlinTask @Inject constructor(private val execOperat
         val workDir = workingDir.get().asFile
         val leanPath = File(workDir, ".lake/build/lib/lean").absolutePath
 
-        entries.get().forEach { (_, spec) ->
+        configuredEntries.forEach { (_, spec) ->
             val outFile = File(spec.outputFile)
             outFile.parentFile.mkdirs()
             execOperations.exec {
@@ -156,6 +180,10 @@ abstract class GenerateLeanKotlinTask @Inject constructor(private val execOperat
                 environment("LEAN_PATH", leanPath)
                 commandLine(
                     leanBinary.get(),
+                    "-j",
+                    "2",
+                    "-M",
+                    "4096",
                     "-DwarningAsError=true",
                     "-Dcompiler.kotlin.pruneUnreachable=true",
                     "-Dcompiler.kotlin.package=${spec.packageName}",
@@ -175,12 +203,24 @@ abstract class CheckLeanGeneratedKotlinTask : DefaultTask() {
     @get:InputDirectory
     abstract val generatedSourcesDir: DirectoryProperty
 
+    @get:Input
+    abstract val expectOutputs: Property<Boolean>
+
+    @get:OutputFile
+    abstract val stampFile: RegularFileProperty
+
     @TaskAction
     fun check() {
         val dir = generatedSourcesDir.get().asFile
-        val ktFiles = dir.walkTopDown().filter { it.extension == "kt" }.toList()
-        check(ktFiles.isNotEmpty()) {
-            "Expected generated Kotlin files in $dir, but found none."
+        val ktFiles = if (dir.exists()) {
+            dir.walkTopDown().filter { it.extension == "kt" }.toList()
+        } else {
+            emptyList()
+        }
+        if (expectOutputs.getOrElse(true)) {
+            check(ktFiles.isNotEmpty()) {
+                "Expected generated Kotlin files in $dir, but found none."
+            }
         }
         val forbiddenPatterns = listOf(
             "BigInteger",
@@ -198,6 +238,9 @@ abstract class CheckLeanGeneratedKotlinTask : DefaultTask() {
                 }
             }
         }
+        val stamp = stampFile.get().asFile
+        stamp.parentFile.mkdirs()
+        stamp.writeText("checked ${ktFiles.size} file(s)\n")
     }
 }
 
@@ -241,13 +284,19 @@ abstract class CheckLeanBvCheckTask : DefaultTask() {
     @get:InputFiles
     abstract val leanFiles: ConfigurableFileCollection
 
+    @get:OutputFile
+    abstract val stampFile: RegularFileProperty
+
     @TaskAction
     fun check() {
-        // A mention in backticks, a string or a dotted name (such as an axiom name) is not a use.
-        val tactic = Regex("""(?<![`".\w])bv_decide\??(?![`".\w])""")
-        val axiom = Regex("""^\s*(@\[[^]]*]\s*)?((private|protected|noncomputable|unsafe)\s+)*axiom\s""")
-        fun matches(regex: Regex) = leanFiles.files.sortedBy { it.path }.flatMap { file ->
-            file.readLines().withIndex()
+        val tactic = Regex("""(?<![`.\w])bv_decide\??(?![`.\w])""")
+        val axiom = Regex("""(?<![`.\w])axiom(?![`.\w])""")
+        val files = leanFiles.files.sortedBy { it.path }
+        val strippedByFile = files.map { file ->
+            file to stripLeanCommentsAndStrings(file.readText()).lines()
+        }
+        fun matches(regex: Regex) = strippedByFile.flatMap { (file, lines) ->
+            lines.withIndex()
                 .filter { (_, line) -> regex.containsMatchIn(line) }
                 .map { (index, line) -> "${file.path}:${index + 1}: ${line.trim()}" }
         }
@@ -262,13 +311,99 @@ abstract class CheckLeanBvCheckTask : DefaultTask() {
         if (axioms.isNotEmpty()) {
             error("Lean sources declare axioms, which master theorems may not depend on:\n" + axioms.joinToString("\n"))
         }
+        val stamp = stampFile.get().asFile
+        stamp.parentFile.mkdirs()
+        stamp.writeText("scanned ${files.size} file(s)\n")
     }
+
+    private fun stripLeanCommentsAndStrings(source: String): String = stripLeanCommentsAndStringsImpl(source)
+}
+
+private fun stripLeanCommentsAndStringsImpl(source: String): String {
+    val out = StringBuilder(source.length)
+    var i = 0
+    while (i < source.length) {
+        i = when {
+            source.startsWith("--", i) -> skipLineComment(source, i, out)
+
+            source.startsWith("/-", i) -> skipBlockComment(source, i, out)
+
+            source.startsWith("'\\\"'", i) || source.startsWith("'\"'", i) -> {
+                val len = if (source[i + 1] == '\\') 4 else 3
+                repeat(len) { out.append(' ') }
+                i + len
+            }
+
+            source[i] == '"' -> skipDoubleQuotedString(source, i, out)
+
+            else -> {
+                out.append(source[i])
+                i + 1
+            }
+        }
+    }
+    return out.toString()
+}
+
+private fun skipLineComment(source: String, start: Int, out: StringBuilder): Int {
+    var i = start
+    while (i < source.length && source[i] != '\n') {
+        out.append(' ')
+        i++
+    }
+    return i
+}
+
+private fun skipBlockComment(source: String, start: Int, out: StringBuilder): Int {
+    var i = start + 2
+    var depth = 1
+    out.append("  ")
+    while (i < source.length && depth > 0) {
+        when {
+            source.startsWith("/-", i) -> {
+                depth++
+                out.append("  ")
+                i += 2
+            }
+
+            source.startsWith("-/", i) -> {
+                depth--
+                out.append("  ")
+                i += 2
+            }
+
+            else -> {
+                out.append(if (source[i] == '\n') '\n' else ' ')
+                i++
+            }
+        }
+    }
+    return i
+}
+
+private fun skipDoubleQuotedString(source: String, start: Int, out: StringBuilder): Int {
+    out.append(' ')
+    var i = start + 1
+    while (i < source.length) {
+        val ch = source[i]
+        if (ch == '\\' && i + 1 < source.length) {
+            out.append(' ')
+            out.append(if (source[i + 1] == '\n') '\n' else ' ')
+            i += 2
+        } else {
+            out.append(if (ch == '\n' && ch != '"') '\n' else ' ')
+            i++
+            if (ch == '"') {
+                break
+            }
+        }
+    }
+    return i
 }
 
 @DisableCachingByDefault(because = "JVM bytecode verification runs Lean verification on compiled .class outputs")
-abstract class VerifyLeanJvmBytecodeTask @Inject constructor(
-    private val execOperations: ExecOperations,
-) : DefaultTask() {
+abstract class VerifyLeanJvmBytecodeTask @Inject constructor(private val execOperations: ExecOperations) :
+    DefaultTask() {
     @get:Internal
     abstract val workingDir: DirectoryProperty
 
@@ -280,9 +415,15 @@ abstract class VerifyLeanJvmBytecodeTask @Inject constructor(
     @get:InputFile
     abstract val scriptFile: RegularFileProperty
 
+    @get:Optional
     @get:PathSensitive(PathSensitivity.RELATIVE)
     @get:InputFiles
     abstract val classFiles: ConfigurableFileCollection
+
+    @get:Optional
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    @get:InputFiles
+    abstract val kotlinClassFiles: ConfigurableFileCollection
 
     @get:Input
     abstract val moduleNamespace: Property<String>
@@ -290,32 +431,89 @@ abstract class VerifyLeanJvmBytecodeTask @Inject constructor(
     @get:OutputDirectory
     abstract val generatedBytecodeDir: DirectoryProperty
 
+    @get:OutputFile
+    abstract val stampFile: RegularFileProperty
+
+    private data class BytecodeTargetSpec(
+        val classFilesToLift: List<File>,
+        val bytecodeOutDir: File,
+        val leanFileName: String,
+        val oleanRelativePath: String,
+        val leanNamespace: String,
+        val instrType: String,
+        val proofsSubdirName: String,
+        val rootProofFile: String,
+        val workDir: File,
+    )
+
     @TaskAction
     fun verify() {
         val existingClassFiles = classFiles.files.filter { it.isFile }.sortedBy { it.path }
-        check(existingClassFiles.isNotEmpty()) {
-            "Expected compiled Lean JVM .class files, but found none in: ${classFiles.files}"
+        val existingKotlinClassFiles = kotlinClassFiles.files.filter { it.isFile }.sortedBy { it.path }
+        check(existingClassFiles.isNotEmpty() || existingKotlinClassFiles.isNotEmpty()) {
+            "Expected compiled JVM .class files in either classFiles (${classFiles.files}) " +
+                "or kotlinClassFiles (${kotlinClassFiles.files}), but found none."
         }
 
         val workDir = workingDir.get().asFile
         val bytecodeOutDir = generatedBytecodeDir.get().asFile
         bytecodeOutDir.mkdirs()
-        val bytecodeLeanFile = File(bytecodeOutDir, "JvmBytecode.lean")
         val ns = moduleNamespace.get()
 
+        if (existingClassFiles.isNotEmpty()) {
+            verifyBytecodeTarget(
+                BytecodeTargetSpec(
+                    classFilesToLift = existingClassFiles,
+                    bytecodeOutDir = bytecodeOutDir,
+                    leanFileName = "JvmBytecode.lean",
+                    oleanRelativePath = ".lake/build/lib/lean/JvmBytecode.olean",
+                    leanNamespace = "$ns.JvmBytecode",
+                    instrType = "$ns.JvmVerification.JvmInstr",
+                    proofsSubdirName = "JvmEquiv",
+                    rootProofFile = "proofs/JvmEquiv.lean",
+                    workDir = workDir,
+                ),
+            )
+        }
+
+        if (existingKotlinClassFiles.isNotEmpty()) {
+            verifyBytecodeTarget(
+                BytecodeTargetSpec(
+                    classFilesToLift = existingKotlinClassFiles,
+                    bytecodeOutDir = bytecodeOutDir,
+                    leanFileName = "KotlinJvmBytecode.lean",
+                    oleanRelativePath = ".lake/build/lib/lean/KotlinJvmBytecode.olean",
+                    leanNamespace = "$ns.KotlinJvmBytecode",
+                    instrType = "$ns.JvmVerification.JvmInstr",
+                    proofsSubdirName = "KotlinJvmEquiv",
+                    rootProofFile = "proofs/KotlinJvmEquiv.lean",
+                    workDir = workDir,
+                ),
+            )
+        }
+
+        val stamp = stampFile.get().asFile
+        stamp.parentFile.mkdirs()
+        stamp.writeText(
+            "verified lean=${existingClassFiles.size} kotlin=${existingKotlinClassFiles.size}\n",
+        )
+    }
+
+    private fun verifyBytecodeTarget(target: BytecodeTargetSpec) {
+        val bytecodeLeanFile = File(target.bytecodeOutDir, target.leanFileName)
         val liftArgs = buildList {
             add("python3")
             add(scriptFile.get().asFile.absolutePath)
-            for (cf in existingClassFiles) {
+            for (cf in target.classFilesToLift) {
                 add("--class-file")
                 add(cf.absolutePath)
             }
             add("--import")
             add("JvmSemantics")
             add("--namespace")
-            add("$ns.JvmBytecode")
+            add(target.leanNamespace)
             add("--instr-type")
-            add("$ns.JvmVerification.JvmInstr")
+            add(target.instrType)
             add("-o")
             add(bytecodeLeanFile.absolutePath)
         }
@@ -323,38 +521,42 @@ abstract class VerifyLeanJvmBytecodeTask @Inject constructor(
             commandLine(liftArgs)
         }
 
-        val oleanFile = File(workDir, ".lake/build/lib/lean/JvmBytecode.olean")
+        val oleanFile = File(target.workDir, target.oleanRelativePath)
         oleanFile.parentFile.mkdirs()
         execOperations.exec {
-            workingDir = workDir
+            workingDir = target.workDir
             commandLine(
                 "lake",
                 "env",
                 "lean",
-                "--root=${bytecodeOutDir.absolutePath}",
+                "-j",
+                "2",
+                "-M",
+                "4096",
+                "--root=${target.bytecodeOutDir.absolutePath}",
                 "-o",
                 oleanFile.absolutePath,
                 bytecodeLeanFile.absolutePath,
             )
         }
 
-        val jvmEquivDir = File(workDir, "proofs/JvmEquiv")
+        val jvmEquivDir = File(target.workDir, "proofs/${target.proofsSubdirName}")
         if (jvmEquivDir.isDirectory) {
-            compileJvmEquivSubmodules(workDir, jvmEquivDir, oleanFile)
+            compileJvmEquivSubmodules(target.workDir, jvmEquivDir, target.proofsSubdirName, oleanFile)
         }
 
         execOperations.exec {
-            workingDir = workDir
+            workingDir = target.workDir
             commandLine(
                 "lake",
                 "env",
                 "lean",
                 "-DwarningAsError=true",
                 "-j",
-                "4",
+                "2",
                 "-M",
-                "6144",
-                "proofs/JvmEquiv.lean",
+                "4096",
+                target.rootProofFile,
             )
         }
     }
@@ -362,10 +564,11 @@ abstract class VerifyLeanJvmBytecodeTask @Inject constructor(
     private fun compileJvmEquivSubmodules(
         workDir: File,
         jvmEquivDir: File,
+        proofsSubdirName: String,
         bytecodeOlean: File,
     ) {
         val libLeanDir = File(workDir, ".lake/build/lib/lean")
-        val subOleanDir = File(libLeanDir, "proofs/JvmEquiv")
+        val subOleanDir = File(libLeanDir, "proofs/$proofsSubdirName")
         subOleanDir.mkdirs()
 
         val lratDir = File(workDir, "proofs/lrat")
@@ -374,25 +577,27 @@ abstract class VerifyLeanJvmBytecodeTask @Inject constructor(
         } else {
             0L
         }
+        val excludedPrefix = "proofs/$proofsSubdirName/"
         val otherOleanMtime = libLeanDir.walkTopDown()
             .filter {
                 it.isFile &&
                     it.extension == "olean" &&
-                    !it.toRelativeString(libLeanDir).startsWith("proofs/JvmEquiv/")
+                    !it.toRelativeString(libLeanDir).startsWith(excludedPrefix)
             }
             .maxOfOrNull { it.lastModified() } ?: 0L
         val baseDepMtime = maxOf(bytecodeOlean.lastModified(), lratMtime, otherOleanMtime)
 
         val moduleFiles = jvmEquivDir.listFiles { file -> file.isFile && file.extension == "lean" }
             ?.associateBy { it.nameWithoutExtension }
-            ?: emptyMap()
-        val importRegex = Regex("""^\s*import\s+proofs\.JvmEquiv\.([A-Za-z0-9_]+)""")
+            .orEmpty()
+        val escapedSubdir = Regex.escape(proofsSubdirName)
+        val importRegex = Regex("""^\s*import\s+proofs\.$escapedSubdir\.([A-Za-z0-9_]+)""")
         val deps = moduleFiles.mapValues { (_, file) ->
             file.readLines()
                 .mapNotNull { line -> importRegex.find(line)?.groupValues?.get(1) }
                 .filter { it in moduleFiles }
         }
-        val ordered = topoSortModules(moduleFiles.keys.sorted(), deps)
+        val ordered = topoSortModules(moduleFiles.keys.sorted(), deps, proofsSubdirName)
 
         for (name in ordered) {
             val leanFile = moduleFiles.getValue(name)
@@ -410,9 +615,9 @@ abstract class VerifyLeanJvmBytecodeTask @Inject constructor(
                         "lean",
                         "-DwarningAsError=true",
                         "-j",
-                        "4",
+                        "2",
                         "-M",
-                        "6144",
+                        "4096",
                         "--root=${workDir.absolutePath}",
                         "-o",
                         subOlean.absolutePath,
@@ -426,13 +631,14 @@ abstract class VerifyLeanJvmBytecodeTask @Inject constructor(
     private fun topoSortModules(
         names: List<String>,
         deps: Map<String, List<String>>,
+        proofsSubdirName: String,
     ): List<String> {
         val state = mutableMapOf<String, Int>()
         val result = mutableListOf<String>()
         fun visit(name: String) {
             when (state[name]) {
                 2 -> return
-                1 -> error("Cyclic import involving proofs.JvmEquiv.$name")
+                1 -> error("Cyclic import involving proofs.$proofsSubdirName.$name")
             }
             state[name] = 1
             for (dep in deps.getValue(name).sorted()) {

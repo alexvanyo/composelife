@@ -81,6 +81,257 @@ def isBranchInstr : JvmInstr → Bool
   | .tableswitch _ _ _ | .lookupswitch _ _ | .goto _ => true
   | _ => false
 
+/-- Dispatches a branch instruction at `pc` on `stack` directly to `onTaken` or `onFallthrough`
+so symbolic conditions stay outside `Option` and reduce definitionally (`rfl`). -/
+@[inline] def dispatchBranch {Ext Heap α : Type} (hooks : JvmHooks Ext Heap) (_pc : Nat)
+    (instr : JvmInstr) (stack : List (JvmVal Ext))
+    (onTaken : Nat → List (JvmVal Ext) → Option α)
+    (onFallthrough : List (JvmVal Ext) → Option α) : Option α :=
+  match instr with
+  | .goto target => onTaken target stack
+  | .ifeq target =>
+    match stack with
+    | v :: s =>
+      match hooks.isZero? v with
+      | some c => if c then onTaken target s else onFallthrough s
+      | none => none
+    | _ => none
+  | .ifne target =>
+    match stack with
+    | v :: s =>
+      match hooks.isZero? v with
+      | some c => if c then onFallthrough s else onTaken target s
+      | none => none
+    | _ => none
+  | .iflt target =>
+    match stack with
+    | v :: s =>
+      match v.asI32? with
+      | some iv => if iv.toBitVec.slt 0#32 then onTaken target s else onFallthrough s
+      | none => none
+    | _ => none
+  | .ifle target =>
+    match stack with
+    | v :: s =>
+      match v.asI32? with
+      | some iv => if iv.toBitVec.sle 0#32 then onTaken target s else onFallthrough s
+      | none => none
+    | _ => none
+  | .ifgt target =>
+    match stack with
+    | v :: s =>
+      match v.asI32? with
+      | some iv => if (0#32).slt iv.toBitVec then onTaken target s else onFallthrough s
+      | none => none
+    | _ => none
+  | .ifge target =>
+    match stack with
+    | v :: s =>
+      match v.asI32? with
+      | some iv => if (0#32).sle iv.toBitVec then onTaken target s else onFallthrough s
+      | none => none
+    | _ => none
+  | .ifnull target =>
+    match stack with
+    | v :: s => if v.isNull then onTaken target s else onFallthrough s
+    | _ => none
+  | .ifnonnull target =>
+    match stack with
+    | v :: s => if !v.isNull then onTaken target s else onFallthrough s
+    | _ => none
+  | .if_icmpeq target =>
+    match stack with
+    | b :: a :: s =>
+      match a.asI32?, b.asI32? with
+      | some av, some bv => if av == bv then onTaken target s else onFallthrough s
+      | _, _ => none
+    | _ => none
+  | .if_icmpne target =>
+    match stack with
+    | b :: a :: s =>
+      match a.asI32?, b.asI32? with
+      | some av, some bv => if !(av == bv) then onTaken target s else onFallthrough s
+      | _, _ => none
+    | _ => none
+  | .if_icmplt target =>
+    match stack with
+    | b :: a :: s =>
+      match a.asI32?, b.asI32? with
+      | some av, some bv => if av.toBitVec.slt bv.toBitVec then onTaken target s else onFallthrough s
+      | _, _ => none
+    | _ => none
+  | .if_icmpge target =>
+    match stack with
+    | b :: a :: s =>
+      match a.asI32?, b.asI32? with
+      | some av, some bv => if bv.toBitVec.sle av.toBitVec then onTaken target s else onFallthrough s
+      | _, _ => none
+    | _ => none
+  | .if_icmpgt target =>
+    match stack with
+    | b :: a :: s =>
+      match a.asI32?, b.asI32? with
+      | some av, some bv => if bv.toBitVec.slt av.toBitVec then onTaken target s else onFallthrough s
+      | _, _ => none
+    | _ => none
+  | .if_icmple target =>
+    match stack with
+    | b :: a :: s =>
+      match a.asI32?, b.asI32? with
+      | some av, some bv => if av.toBitVec.sle bv.toBitVec then onTaken target s else onFallthrough s
+      | _, _ => none
+    | _ => none
+  | .if_acmpeq target =>
+    match stack with
+    | b :: a :: s =>
+      match JvmVal.refEq? hooks.beqRefExt a b with
+      | some c => if c then onTaken target s else onFallthrough s
+      | none => none
+    | _ => none
+  | .if_acmpne target =>
+    match stack with
+    | b :: a :: s =>
+      match JvmVal.refEq? hooks.beqRefExt a b with
+      | some c => if c then onFallthrough s else onTaken target s
+      | none => none
+    | _ => none
+  | .tableswitch low targets defaultTarget =>
+    match stack with
+    | key :: s =>
+      match key.asI32? with
+      | some kv => onTaken (tableswitchTarget kv low targets defaultTarget) s
+      | none => none
+    | _ => none
+  | .lookupswitch cases defaultTarget =>
+    match stack with
+    | key :: s =>
+      match key.asI32? with
+      | some kv => onTaken (lookupswitchTarget kv cases defaultTarget) s
+      | none => none
+    | _ => none
+  | _ => none
+
+/-- Evaluates a branch instruction at `pc` on `stack`, returning `some (taken, nextPc, nextStack)`. -/
+def evalBranchTarget {Ext Heap : Type} (hooks : JvmHooks Ext Heap) (pc : Nat)
+    (instr : JvmInstr) (stack : List (JvmVal Ext)) : Option (Bool × Nat × List (JvmVal Ext)) :=
+  dispatchBranch hooks pc instr stack
+    (fun target s => some (true, target, s))
+    (fun s => some (false, pc + 1, s))
+
+private theorem dispatchBranch_eq_evalBranchTarget {Ext Heap α : Type} (hooks : JvmHooks Ext Heap)
+    (pc : Nat) (instr : JvmInstr) (stack : List (JvmVal Ext))
+    (onTaken : Nat → List (JvmVal Ext) → Option α)
+    (onFallthrough : List (JvmVal Ext) → Option α) :
+    dispatchBranch hooks pc instr stack onTaken onFallthrough =
+      match evalBranchTarget hooks pc instr stack with
+      | some (true, target, s) => onTaken target s
+      | some (false, _, s) => onFallthrough s
+      | none => none := by
+  cases instr <;> simp [dispatchBranch, evalBranchTarget] <;>
+    rcases stack with _ | ⟨v0, s0⟩ <;> try rfl
+  all_goals first
+  | ((split <;> rfl); done)
+  | ((cases h0 : hooks.isZero? v0 <;> simp [h0] <;> try (split <;> rfl)); done)
+  | ((cases h0 : v0.asI32? <;> simp [h0] <;> try (split <;> rfl)); done)
+  | (rcases s0 with _ | ⟨v1, s⟩ <;> try dsimp <;> first
+    | rfl
+    | ((cases h1 : v1.asI32? with
+        | none => simp
+        | some _ => cases h0 : v0.asI32? with
+          | none => simp
+          | some _ => simp; split <;> rfl); done)
+    | ((cases h1 : JvmVal.refEq? hooks.beqRefExt v1 v0 <;> simp <;> try (split <;> rfl)); done))
+
+private theorem dispatchBranch_map {Ext Heap α β : Type} (hooks : JvmHooks Ext Heap) (pc : Nat)
+    (instr : JvmInstr) (stack : List (JvmVal Ext)) (f : α → β)
+    (onTaken : Nat → List (JvmVal Ext) → Option α)
+    (onFallthrough : List (JvmVal Ext) → Option α) :
+    (dispatchBranch hooks pc instr stack onTaken onFallthrough).map f =
+      dispatchBranch hooks pc instr stack (fun t s => (onTaken t s).map f) (fun s => (onFallthrough s).map f) := by
+  rw [dispatchBranch_eq_evalBranchTarget, dispatchBranch_eq_evalBranchTarget]
+  cases evalBranchTarget hooks pc instr stack with
+  | none => rfl
+  | some x =>
+    rcases x with ⟨b, t, s⟩
+    cases b <;> rfl
+
+private theorem evalBranchTarget_false_pc {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
+    {pc : Nat} {instr : JvmInstr} {stack : List (JvmVal Ext)} {nextPc : Nat} {s' : List (JvmVal Ext)}
+    (hev : evalBranchTarget hooks pc instr stack = some (false, nextPc, s')) :
+    nextPc = pc + 1 := by
+  cases instr <;> simp [evalBranchTarget, dispatchBranch] at hev
+  all_goals
+    rcases stack with _ | ⟨v0, _ | ⟨v1, s⟩⟩ <;> simp at hev
+    all_goals
+      try (cases h0 : hooks.isZero? v0 <;> simp [h0] at hev)
+      try (cases h0 : v0.asI32? <;> simp [h0] at hev)
+      try (cases h1 : v1.asI32? <;> simp [h1] at hev)
+      try (cases h1 : JvmVal.refEq? hooks.beqRefExt v1 v0 <;> simp [h1] at hev)
+      all_goals (try split at hev) <;> simp_all
+
+private theorem runJvmRes_branch_of_evalBranchTarget {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
+    {fuel : Nat} {prog : List JvmInstr} {st : JvmState Ext Heap} {instr : JvmInstr}
+    (hget : prog[st.pc]? = some instr) (hbr : isBranchInstr instr = true) :
+    runJvmRes hooks (fuel + 1) prog st =
+      match evalBranchTarget hooks st.pc instr st.stack with
+      | some (_, nextPc, s') => runJvmRes hooks fuel prog { st with pc := nextPc, stack := s' }
+      | none => none := by
+  cases instr <;> simp [isBranchInstr] at hbr <;>
+    simp [runJvmRes, hget, evalBranchTarget, dispatchBranch]
+  · rcases st.stack with _ | ⟨v, s⟩
+    · rfl
+    · cases hev : hooks.isZero? v with | none => simp [hev] | some b => cases b <;> simp [hev]
+  · rcases st.stack with _ | ⟨v, s⟩
+    · rfl
+    · cases hev : hooks.isZero? v with | none => simp [hev] | some b => cases b <;> simp [hev]
+  · rcases st.stack with _ | ⟨v, s⟩
+    · rfl
+    · cases hv : v.asI32? with | none => simp [hv] | some iv => by_cases h : iv.toBitVec.slt 0#32 <;> simp [hv, h]
+  · rcases st.stack with _ | ⟨v, s⟩
+    · rfl
+    · cases hv : v.asI32? with | none => simp [hv] | some iv => by_cases h : iv.toBitVec.sle 0#32 <;> simp [hv, h]
+  · rcases st.stack with _ | ⟨v, s⟩
+    · rfl
+    · cases hv : v.asI32? with | none => simp [hv] | some iv => by_cases h : (0#32).slt iv.toBitVec <;> simp [hv, h]
+  · rcases st.stack with _ | ⟨v, s⟩
+    · rfl
+    · cases hv : v.asI32? with | none => simp [hv] | some iv => by_cases h : (0#32).sle iv.toBitVec <;> simp [hv, h]
+  · rcases st.stack with _ | ⟨v, s⟩
+    · rfl
+    · by_cases h : v.isNull <;> simp [h]
+  · rcases st.stack with _ | ⟨v, s⟩
+    · rfl
+    · by_cases h : v.isNull <;> simp [h]
+  · rcases st.stack with _ | ⟨b, _ | ⟨a, s⟩⟩ <;> try rfl
+    cases ha : a.asI32? <;> cases hb : b.asI32? <;> simp [ha, hb]
+    split <;> rfl
+  · rcases st.stack with _ | ⟨b, _ | ⟨a, s⟩⟩ <;> try rfl
+    cases ha : a.asI32? <;> cases hb : b.asI32? <;> simp [ha, hb]
+    split <;> rfl
+  · rcases st.stack with _ | ⟨b, _ | ⟨a, s⟩⟩ <;> try rfl
+    cases ha : a.asI32? <;> cases hb : b.asI32? <;> simp [ha, hb]
+    split <;> rfl
+  · rcases st.stack with _ | ⟨b, _ | ⟨a, s⟩⟩ <;> try rfl
+    cases ha : a.asI32? <;> cases hb : b.asI32? <;> simp [ha, hb]
+    split <;> rfl
+  · rcases st.stack with _ | ⟨b, _ | ⟨a, s⟩⟩ <;> try rfl
+    cases ha : a.asI32? <;> cases hb : b.asI32? <;> simp [ha, hb]
+    split <;> rfl
+  · rcases st.stack with _ | ⟨b, _ | ⟨a, s⟩⟩ <;> try rfl
+    cases ha : a.asI32? <;> cases hb : b.asI32? <;> simp [ha, hb]
+    split <;> rfl
+  · rcases st.stack with _ | ⟨b, _ | ⟨a, s⟩⟩ <;> try rfl
+    cases hc : JvmVal.refEq? hooks.beqRefExt a b with | none => simp [hc] | some c => cases c <;> simp [hc]
+  · rcases st.stack with _ | ⟨b, _ | ⟨a, s⟩⟩ <;> try rfl
+    cases hc : JvmVal.refEq? hooks.beqRefExt a b with | none => simp [hc] | some c => cases c <;> simp [hc]
+  · unfold stepInstr; rfl
+  · rcases st.stack with _ | ⟨k, s⟩
+    · rfl
+    · cases hk : k.asI32? <;> simp [hk]
+  · rcases st.stack with _ | ⟨k, s⟩
+    · rfl
+    · cases hk : k.asI32? <;> simp [hk]
+
 theorem runJvm_nonbranch {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
     (fuel : Nat) (prog : List JvmInstr) (st : JvmState Ext Heap) (instr : JvmInstr)
     (hget : prog[st.pc]? = some instr) (hnbr : isBranchInstr instr = false) :
@@ -162,7 +413,12 @@ theorem stepListAt_of_clean {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
   induction pc, instrs, st using stepListAtClean.induct (hooks := hooks) with
   | case1 pc st rest x s hstk ih =>
     simp [stepListAtClean, hstk] at h
-    simp [stepListAt, isBranchInstr, stepInstr, hstk, JvmVal.asI32, JvmVal.asI64, signExtend_and_mask]
+    rw [stepListAt]; simp only [isBranchInstr, Bool.false_eq_true, ↓reduceIte]
+    unfold stepInstr; simp only [hstk, JvmVal.asI32?_i32]
+    rw [stepListAt]; simp only [isBranchInstr, Bool.false_eq_true, ↓reduceIte]
+    unfold stepInstr; simp only []
+    rw [stepListAt]; simp only [isBranchInstr, Bool.false_eq_true, ↓reduceIte]
+    unfold stepInstr; simp only [JvmVal.asI64?_i64, signExtend_and_mask]
     exact ih h
   | case2 pc st rest hno =>
     simp [stepListAtClean] at h
@@ -230,132 +486,23 @@ def runJvmResFast {Ext Heap : Type} (hooks : JvmHooks Ext Heap) :
           | .inl none => none
           | .inr (some v) => some (v, { st with pc := pc })
           | .inr none => none
-      | .goto target =>
-        runJvmResFast hooks f1 prog target (prog.drop target) { st with pc := target }
-      | .ifeq target =>
-        match st.stack with
-        | v :: s =>
-          if hooks.isZero v then runJvmResFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmResFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .ifne target =>
-        match st.stack with
-        | v :: s =>
-          if !hooks.isZero v then runJvmResFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmResFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .iflt target =>
-        match st.stack with
-        | v :: s =>
-          if v.asI32.toBitVec.slt 0#32 then runJvmResFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmResFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .ifle target =>
-        match st.stack with
-        | v :: s =>
-          if v.asI32.toBitVec.sle 0#32 then runJvmResFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmResFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .ifgt target =>
-        match st.stack with
-        | v :: s =>
-          if (0#32).slt v.asI32.toBitVec then runJvmResFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmResFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .ifge target =>
-        match st.stack with
-        | v :: s =>
-          if (0#32).sle v.asI32.toBitVec then runJvmResFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmResFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .ifnull target =>
-        match st.stack with
-        | v :: s =>
-          if v.isNull then runJvmResFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmResFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .ifnonnull target =>
-        match st.stack with
-        | v :: s =>
-          if !v.isNull then runJvmResFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmResFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .if_icmpeq target =>
-        match st.stack with
-        | b :: a :: s =>
-          if a.asI32 == b.asI32 then runJvmResFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmResFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .if_icmpne target =>
-        match st.stack with
-        | b :: a :: s =>
-          if !(a.asI32 == b.asI32) then runJvmResFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmResFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .if_icmplt target =>
-        match st.stack with
-        | b :: a :: s =>
-          if a.asI32.toBitVec.slt b.asI32.toBitVec then
-            runJvmResFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmResFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .if_icmpge target =>
-        match st.stack with
-        | b :: a :: s =>
-          if b.asI32.toBitVec.sle a.asI32.toBitVec then
-            runJvmResFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmResFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .if_icmpgt target =>
-        match st.stack with
-        | b :: a :: s =>
-          if b.asI32.toBitVec.slt a.asI32.toBitVec then
-            runJvmResFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmResFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .if_icmple target =>
-        match st.stack with
-        | b :: a :: s =>
-          if a.asI32.toBitVec.sle b.asI32.toBitVec then
-            runJvmResFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmResFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .if_acmpeq target =>
-        match st.stack with
-        | b :: a :: s =>
-          if JvmVal.refEq hooks.beqExt a b then
-            runJvmResFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmResFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .if_acmpne target =>
-        match st.stack with
-        | b :: a :: s =>
-          if !JvmVal.refEq hooks.beqExt a b then
-            runJvmResFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmResFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .tableswitch low targets defaultTarget =>
-        match st.stack with
-        | key :: s =>
-          let target := tableswitchTarget key.asI32 low targets defaultTarget
-          runJvmResFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-        | _ => none
-      | .lookupswitch cases defaultTarget =>
-        match st.stack with
-        | key :: s =>
-          let target := lookupswitchTarget key.asI32 cases defaultTarget
-          runJvmResFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-        | _ => none
       | _ =>
-        match stepInstr hooks instr { st with pc := pc } with
-        | .inl (some st') =>
-          if st'.pc = pc + 1 then
-            runJvmResFast hooks f1 prog (pc + 1) rest st'
-          else
-            runJvmResFast hooks f1 prog st'.pc (prog.drop st'.pc) st'
-        | .inl none => none
-        | .inr (some v) => some (v, { st with pc := pc })
-        | .inr none => none
+        if isBranchInstr instr then
+          dispatchBranch hooks pc instr st.stack
+            (fun target s =>
+              runJvmResFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s })
+            (fun s =>
+              runJvmResFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s })
+        else
+          match stepInstr hooks instr { st with pc := pc } with
+          | .inl (some st') =>
+            if st'.pc = pc + 1 then
+              runJvmResFast hooks f1 prog (pc + 1) rest st'
+            else
+              runJvmResFast hooks f1 prog st'.pc (prog.drop st'.pc) st'
+          | .inl none => none
+          | .inr (some v) => some (v, { st with pc := pc })
+          | .inr none => none
 
 def runJvmFast {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
     (fuel : Nat) (prog : List JvmInstr) (pc : Nat) (instrs : List JvmInstr) (st : JvmState Ext Heap) :
@@ -363,9 +510,10 @@ def runJvmFast {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
   (runJvmResFast hooks fuel prog pc instrs st).map Prod.fst
 
 theorem runJvm_eq_runJvmRes {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
-    (hite : ∀ c t e, hooks.iteVal c t e = if c then t else e)
-    (hiteZ : ∀ v t e, hooks.iteZero v t e = if hooks.isZero v then t else e)
-    (hiteNZ : ∀ v t e, hooks.iteNonZero v t e = if !hooks.isZero v then t else e)
+    (hiteZ : ∀ v t e, hooks.iteZero? v t e =
+      match hooks.isZero? v with | some true => t | some false => e | none => none)
+    (hiteNZ : ∀ v t e, hooks.iteNonZero? v t e =
+      match hooks.isZero? v with | some true => e | some false => t | none => none)
     (fuel : Nat) (prog : List JvmInstr) (st : JvmState Ext Heap) :
     runJvm hooks fuel prog st = (runJvmRes hooks fuel prog st).map Prod.fst := by
   induction fuel generalizing st with
@@ -391,17 +539,21 @@ theorem runJvm_eq_runJvmRes {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
           simp only [runJvm, runJvmRes, h]
           rcases st.stack with _ | ⟨v, s⟩
           · rfl
-          · simp only [hiteZ, ih]; split <;> rfl
+          · simp only [hiteZ, ih]
+            cases hooks.isZero? v with | none => simp | some b => cases b <;> simp
         | ifne _ =>
           simp only [runJvm, runJvmRes, h]
           rcases st.stack with _ | ⟨v, s⟩
           · rfl
-          · simp only [hiteNZ, ih]; split <;> rfl
+          · simp only [hiteNZ, ih]
+            cases hooks.isZero? v with | none => simp | some b => cases b <;> simp
         | iflt _ | ifle _ | ifgt _ | ifge _ =>
           simp only [runJvm, runJvmRes, h]
           rcases st.stack with _ | ⟨v, s⟩
           · rfl
-          · simp only [hite, ih]; split <;> rfl
+          · cases hv : v.asI32? with
+            | none => simp [hv]
+            | some _ => simp only [hv, ih]; split <;> rfl
         | ifnull _ | ifnonnull _ =>
           simp only [runJvm, runJvmRes, h]
           rcases st.stack with _ | ⟨v, s⟩
@@ -409,21 +561,22 @@ theorem runJvm_eq_runJvmRes {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
           · simp only [ih]; split <;> rfl
         | if_icmpeq _ | if_icmpne _ | if_icmplt _ | if_icmpge _ | if_icmpgt _ | if_icmple _ =>
           simp only [runJvm, runJvmRes, h]
-          rcases st.stack with _ | ⟨b, _ | ⟨a, s⟩⟩
-          · rfl
-          · rfl
-          · simp only [hite, ih]; split <;> rfl
+          rcases st.stack with _ | ⟨b, _ | ⟨a, s⟩⟩ <;> try rfl
+          cases ha : a.asI32? <;> cases hb : b.asI32? <;> simp [ha, hb, ih]
+          split <;> rfl
         | if_acmpeq _ | if_acmpne _ =>
           simp only [runJvm, runJvmRes, h]
-          rcases st.stack with _ | ⟨b, _ | ⟨a, s⟩⟩
-          · rfl
-          · rfl
-          · simp only [ih]; split <;> rfl
+          rcases st.stack with _ | ⟨b, _ | ⟨a, s⟩⟩ <;> try rfl
+          cases hc : JvmVal.refEq? hooks.beqRefExt a b with
+          | none => simp [hc]
+          | some c => cases c <;> simp [hc, ih]
         | tableswitch _ _ _ | lookupswitch _ _ =>
           simp only [runJvm, runJvmRes, h]
           rcases st.stack with _ | ⟨key, s⟩
           · rfl
-          · simp only [ih]
+          · cases hk : key.asI32? with
+            | none => simp [hk]
+            | some _ => simp [hk, ih]
         | _ => simp [isBranchInstr] at hbr
 
 theorem runJvmRes_of_runJvmResFast {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
@@ -480,8 +633,8 @@ theorem runJvmRes_of_runJvmResFast {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
             | some v =>
               simp only [hs] at hf ⊢
               exact hf
-        cases instr with
-        | i2l =>
+        by_cases hi2l : instr = .i2l
+        · subst hi2l
           rcases rest with _ | ⟨i1, rest1⟩
           · exact step_catchall rfl (by simpa [runJvmResFast] using hfast)
           · cases i1 with
@@ -506,11 +659,14 @@ theorem runJvmRes_of_runJvmResFast {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
                             have h1 := hg1 .i2l (.lconst 4294967295) _ rfl
                             have h2 := hg2 .i2l (.lconst 4294967295) .land _ rfl
                             rw [runJvmRes_nonbranch hooks _ prog st .i2l h0 rfl]
-                            simp only [stepInstr, hstk, JvmVal.asI32]
+                            unfold stepInstr
+                            simp only [hstk, JvmVal.asI32?_i32]
                             rw [runJvmRes_nonbranch hooks _ prog _ (.lconst 4294967295) (by simpa [Nat.add_assoc] using h1) rfl]
-                            simp only [stepInstr]
+                            unfold stepInstr
+                            simp only []
                             rw [runJvmRes_nonbranch hooks _ prog _ .land (by simpa [Nat.add_assoc] using h2) rfl]
-                            simp only [stepInstr, JvmVal.asI64, signExtend_and_mask, hpc]
+                            unfold stepInstr
+                            simp only [JvmVal.asI64?_i64, signExtend_and_mask, hpc]
                             rw [runJvmResFast] at hfast
                             simp only [hstk] at hfast
                             exact ih f3 (by omega) (pc + 3) rest2 { st with pc := pc + 3, stack := .i64 x.toUInt64 :: s } rfl
@@ -520,221 +676,53 @@ theorem runJvmRes_of_runJvmResFast {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
               · exact step_catchall rfl (by
                   cases rest1 <;> simp [runJvmResFast, hv] at hfast ⊢ <;> exact hfast)
             | _ => exact step_catchall rfl (by simpa [runJvmResFast] using hfast)
-        | goto target =>
-          have h0 := hg0 _ _ rfl
-          unfold runJvmRes; rw [h0]; dsimp only
-          rw [runJvmResFast] at hfast
-          exact ih f1 (Nat.lt_succ_self f1) target (prog.drop target) _ rfl rfl hfast
-        | ifeq target =>
-          have h0 := hg0 _ _ rfl
-          rcases hstk : st.stack with _ | ⟨v, s⟩
-          · simp [runJvmResFast, hstk] at hfast
-          · unfold runJvmRes; rw [h0]; simp only [hstk, hpc]
-            rw [runJvmResFast] at hfast; simp only [hstk] at hfast
-            by_cases hcmp : hooks.isZero v = true
-            · simp only [hcmp, ite_true] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) target (prog.drop target) _ rfl rfl hfast
-            · simp only [hcmp] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) (pc + 1) rest _ rfl (by rw [← List.drop_drop, hdrop]; rfl) hfast
-        | ifne target =>
-          have h0 := hg0 _ _ rfl
-          rcases hstk : st.stack with _ | ⟨v, s⟩
-          · simp [runJvmResFast, hstk] at hfast
-          · unfold runJvmRes; rw [h0]; simp only [hstk, hpc]
-            rw [runJvmResFast] at hfast; simp only [hstk] at hfast
-            by_cases hcmp : (!hooks.isZero v) = true
-            · simp only [hcmp, ite_true] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) target (prog.drop target) _ rfl rfl hfast
-            · simp only [hcmp] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) (pc + 1) rest _ rfl (by rw [← List.drop_drop, hdrop]; rfl) hfast
-        | iflt target =>
-          have h0 := hg0 _ _ rfl
-          rcases hstk : st.stack with _ | ⟨v, s⟩
-          · simp [runJvmResFast, hstk] at hfast
-          · unfold runJvmRes; rw [h0]; simp only [hstk, hpc]
-            rw [runJvmResFast] at hfast; simp only [hstk] at hfast
-            by_cases hcmp : v.asI32.toBitVec.slt 0#32 = true
-            · simp only [hcmp, ite_true] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) target (prog.drop target) _ rfl rfl hfast
-            · simp only [hcmp] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) (pc + 1) rest _ rfl (by rw [← List.drop_drop, hdrop]; rfl) hfast
-        | ifle target =>
-          have h0 := hg0 _ _ rfl
-          rcases hstk : st.stack with _ | ⟨v, s⟩
-          · simp [runJvmResFast, hstk] at hfast
-          · unfold runJvmRes; rw [h0]; simp only [hstk, hpc]
-            rw [runJvmResFast] at hfast; simp only [hstk] at hfast
-            by_cases hcmp : v.asI32.toBitVec.sle 0#32 = true
-            · simp only [hcmp, ite_true] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) target (prog.drop target) _ rfl rfl hfast
-            · simp only [hcmp] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) (pc + 1) rest _ rfl (by rw [← List.drop_drop, hdrop]; rfl) hfast
-        | ifgt target =>
-          have h0 := hg0 _ _ rfl
-          rcases hstk : st.stack with _ | ⟨v, s⟩
-          · simp [runJvmResFast, hstk] at hfast
-          · unfold runJvmRes; rw [h0]; simp only [hstk, hpc]
-            rw [runJvmResFast] at hfast; simp only [hstk] at hfast
-            by_cases hcmp : (0#32).slt v.asI32.toBitVec = true
-            · simp only [hcmp, ite_true] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) target (prog.drop target) _ rfl rfl hfast
-            · simp only [hcmp] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) (pc + 1) rest _ rfl (by rw [← List.drop_drop, hdrop]; rfl) hfast
-        | ifge target =>
-          have h0 := hg0 _ _ rfl
-          rcases hstk : st.stack with _ | ⟨v, s⟩
-          · simp [runJvmResFast, hstk] at hfast
-          · unfold runJvmRes; rw [h0]; simp only [hstk, hpc]
-            rw [runJvmResFast] at hfast; simp only [hstk] at hfast
-            by_cases hcmp : (0#32).sle v.asI32.toBitVec = true
-            · simp only [hcmp, ite_true] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) target (prog.drop target) _ rfl rfl hfast
-            · simp only [hcmp] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) (pc + 1) rest _ rfl (by rw [← List.drop_drop, hdrop]; rfl) hfast
-        | ifnull target =>
-          have h0 := hg0 _ _ rfl
-          rcases hstk : st.stack with _ | ⟨v, s⟩
-          · simp [runJvmResFast, hstk] at hfast
-          · unfold runJvmRes; rw [h0]; simp only [hstk, hpc]
-            rw [runJvmResFast] at hfast; simp only [hstk] at hfast
-            by_cases hcmp : v.isNull = true
-            · simp only [hcmp, ite_true] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) target (prog.drop target) _ rfl rfl hfast
-            · simp only [hcmp] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) (pc + 1) rest _ rfl (by rw [← List.drop_drop, hdrop]; rfl) hfast
-        | ifnonnull target =>
-          have h0 := hg0 _ _ rfl
-          rcases hstk : st.stack with _ | ⟨v, s⟩
-          · simp [runJvmResFast, hstk] at hfast
-          · unfold runJvmRes; rw [h0]; simp only [hstk, hpc]
-            rw [runJvmResFast] at hfast; simp only [hstk] at hfast
-            by_cases hcmp : (!v.isNull) = true
-            · simp only [hcmp, ite_true] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) target (prog.drop target) _ rfl rfl hfast
-            · simp only [hcmp] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) (pc + 1) rest _ rfl (by rw [← List.drop_drop, hdrop]; rfl) hfast
-        | if_icmpeq target =>
-          have h0 := hg0 _ _ rfl
-          rcases hstk : st.stack with _ | ⟨b, _ | ⟨a, s⟩⟩
-          · simp [runJvmResFast, hstk] at hfast
-          · simp [runJvmResFast, hstk] at hfast
-          · unfold runJvmRes; rw [h0]; simp only [hstk, hpc]
-            rw [runJvmResFast] at hfast; simp only [hstk] at hfast
-            by_cases hcmp : (a.asI32 == b.asI32) = true
-            · simp only [hcmp, ite_true] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) target (prog.drop target) _ rfl rfl hfast
-            · simp only [hcmp] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) (pc + 1) rest _ rfl (by rw [← List.drop_drop, hdrop]; rfl) hfast
-        | if_icmpne target =>
-          have h0 := hg0 _ _ rfl
-          rcases hstk : st.stack with _ | ⟨b, _ | ⟨a, s⟩⟩
-          · simp [runJvmResFast, hstk] at hfast
-          · simp [runJvmResFast, hstk] at hfast
-          · unfold runJvmRes; rw [h0]; simp only [hstk, hpc]
-            rw [runJvmResFast] at hfast; simp only [hstk] at hfast
-            by_cases hcmp : (!(a.asI32 == b.asI32)) = true
-            · simp only [hcmp, ite_true] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) target (prog.drop target) _ rfl rfl hfast
-            · simp only [hcmp] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) (pc + 1) rest _ rfl (by rw [← List.drop_drop, hdrop]; rfl) hfast
-        | if_icmplt target =>
-          have h0 := hg0 _ _ rfl
-          rcases hstk : st.stack with _ | ⟨b, _ | ⟨a, s⟩⟩
-          · simp [runJvmResFast, hstk] at hfast
-          · simp [runJvmResFast, hstk] at hfast
-          · unfold runJvmRes; rw [h0]; simp only [hstk, hpc]
-            rw [runJvmResFast] at hfast; simp only [hstk] at hfast
-            by_cases hcmp : a.asI32.toBitVec.slt b.asI32.toBitVec = true
-            · simp only [hcmp, ite_true] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) target (prog.drop target) _ rfl rfl hfast
-            · simp only [hcmp] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) (pc + 1) rest _ rfl (by rw [← List.drop_drop, hdrop]; rfl) hfast
-        | if_icmpge target =>
-          have h0 := hg0 _ _ rfl
-          rcases hstk : st.stack with _ | ⟨b, _ | ⟨a, s⟩⟩
-          · simp [runJvmResFast, hstk] at hfast
-          · simp [runJvmResFast, hstk] at hfast
-          · unfold runJvmRes; rw [h0]; simp only [hstk, hpc]
-            rw [runJvmResFast] at hfast; simp only [hstk] at hfast
-            by_cases hcmp : b.asI32.toBitVec.sle a.asI32.toBitVec = true
-            · simp only [hcmp, ite_true] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) target (prog.drop target) _ rfl rfl hfast
-            · simp only [hcmp] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) (pc + 1) rest _ rfl (by rw [← List.drop_drop, hdrop]; rfl) hfast
-        | if_icmpgt target =>
-          have h0 := hg0 _ _ rfl
-          rcases hstk : st.stack with _ | ⟨b, _ | ⟨a, s⟩⟩
-          · simp [runJvmResFast, hstk] at hfast
-          · simp [runJvmResFast, hstk] at hfast
-          · unfold runJvmRes; rw [h0]; simp only [hstk, hpc]
-            rw [runJvmResFast] at hfast; simp only [hstk] at hfast
-            by_cases hcmp : b.asI32.toBitVec.slt a.asI32.toBitVec = true
-            · simp only [hcmp, ite_true] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) target (prog.drop target) _ rfl rfl hfast
-            · simp only [hcmp] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) (pc + 1) rest _ rfl (by rw [← List.drop_drop, hdrop]; rfl) hfast
-        | if_icmple target =>
-          have h0 := hg0 _ _ rfl
-          rcases hstk : st.stack with _ | ⟨b, _ | ⟨a, s⟩⟩
-          · simp [runJvmResFast, hstk] at hfast
-          · simp [runJvmResFast, hstk] at hfast
-          · unfold runJvmRes; rw [h0]; simp only [hstk, hpc]
-            rw [runJvmResFast] at hfast; simp only [hstk] at hfast
-            by_cases hcmp : a.asI32.toBitVec.sle b.asI32.toBitVec = true
-            · simp only [hcmp, ite_true] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) target (prog.drop target) _ rfl rfl hfast
-            · simp only [hcmp] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) (pc + 1) rest _ rfl (by rw [← List.drop_drop, hdrop]; rfl) hfast
-        | if_acmpeq target =>
-          have h0 := hg0 _ _ rfl
-          rcases hstk : st.stack with _ | ⟨b, _ | ⟨a, s⟩⟩
-          · simp [runJvmResFast, hstk] at hfast
-          · simp [runJvmResFast, hstk] at hfast
-          · unfold runJvmRes; rw [h0]; simp only [hstk, hpc]
-            rw [runJvmResFast] at hfast; simp only [hstk] at hfast
-            by_cases hcmp : JvmVal.refEq hooks.beqExt a b = true
-            · simp only [hcmp, ite_true] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) target (prog.drop target) _ rfl rfl hfast
-            · simp only [hcmp] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) (pc + 1) rest _ rfl (by rw [← List.drop_drop, hdrop]; rfl) hfast
-        | if_acmpne target =>
-          have h0 := hg0 _ _ rfl
-          rcases hstk : st.stack with _ | ⟨b, _ | ⟨a, s⟩⟩
-          · simp [runJvmResFast, hstk] at hfast
-          · simp [runJvmResFast, hstk] at hfast
-          · unfold runJvmRes; rw [h0]; simp only [hstk, hpc]
-            rw [runJvmResFast] at hfast; simp only [hstk] at hfast
-            by_cases hcmp : (!JvmVal.refEq hooks.beqExt a b) = true
-            · simp only [hcmp, ite_true] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) target (prog.drop target) _ rfl rfl hfast
-            · simp only [hcmp] at hfast ⊢
-              exact ih f1 (Nat.lt_succ_self f1) (pc + 1) rest _ rfl (by rw [← List.drop_drop, hdrop]; rfl) hfast
-        | tableswitch low targets defaultTarget =>
-          have h0 := hg0 _ _ rfl
-          rcases hstk : st.stack with _ | ⟨key, s⟩
-          · simp [runJvmResFast, hstk] at hfast
-          · unfold runJvmRes; rw [h0]; simp only [hstk]
-            rw [runJvmResFast] at hfast; simp only [hstk] at hfast
-            exact ih f1 (Nat.lt_succ_self f1) _ (prog.drop _) _ rfl rfl hfast
-        | lookupswitch cases defaultTarget =>
-          have h0 := hg0 _ _ rfl
-          rcases hstk : st.stack with _ | ⟨key, s⟩
-          · simp [runJvmResFast, hstk] at hfast
-          · unfold runJvmRes; rw [h0]; simp only [hstk]
-            rw [runJvmResFast] at hfast; simp only [hstk] at hfast
-            exact ih f1 (Nat.lt_succ_self f1) _ (prog.drop _) _ rfl rfl hfast
-        | _ => exact step_catchall rfl (by simpa [runJvmResFast] using hfast)
+        · by_cases hbr : isBranchInstr instr
+          · have h0 := hg0 instr rest rfl
+            rw [runJvmRes_branch_of_evalBranchTarget hooks h0 hbr, hpc]
+            have hfastBr :
+                (match evalBranchTarget hooks pc instr st.stack with
+                | some (true, target, s) =>
+                  runJvmResFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
+                | some (false, _, s) =>
+                  runJvmResFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
+                | none => none) = some res := by
+              rw [← dispatchBranch_eq_evalBranchTarget]
+              cases instr <;> simp [isBranchInstr] at hbr <;>
+                simpa [runJvmResFast, isBranchInstr] using hfast
+            cases hev : evalBranchTarget hooks pc instr st.stack with
+            | none => simp [hev] at hfastBr
+            | some x =>
+              rcases x with ⟨taken, nextPc, s'⟩
+              simp only [hev] at hfastBr ⊢
+              cases taken
+              · simp only [] at hfastBr ⊢
+                have hpc' : nextPc = pc + 1 := evalBranchTarget_false_pc hooks hev
+                subst hpc'
+                exact ih f1 (Nat.lt_succ_self f1) (pc + 1) rest { st with pc := pc + 1, stack := s' } rfl
+                  (by rw [← List.drop_drop, hdrop]; rfl) hfastBr
+              · simp only [] at hfastBr ⊢
+                exact ih f1 (Nat.lt_succ_self f1) nextPc (prog.drop nextPc)
+                  { st with pc := nextPc, stack := s' } rfl rfl hfastBr
+          · have hbrF : isBranchInstr instr = false := Bool.eq_false_iff.mpr hbr
+            refine step_catchall hbrF ?_
+            cases instr with
+            | i2l => contradiction
+            | _ =>
+              all_goals
+                simp [isBranchInstr] at hbrF
+                try simpa [runJvmResFast, isBranchInstr] using hfast
 
 theorem runJvm_of_runJvmFast {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
-    (hite : ∀ c t e, hooks.iteVal c t e = if c then t else e)
-    (hiteZ : ∀ v t e, hooks.iteZero v t e = if hooks.isZero v then t else e)
-    (hiteNZ : ∀ v t e, hooks.iteNonZero v t e = if !hooks.isZero v then t else e)
+    (hiteZ : ∀ v t e, hooks.iteZero? v t e =
+      match hooks.isZero? v with | some true => t | some false => e | none => none)
+    (hiteNZ : ∀ v t e, hooks.iteNonZero? v t e =
+      match hooks.isZero? v with | some true => e | some false => t | none => none)
     (fuel : Nat) (prog : List JvmInstr) (st : JvmState Ext Heap) (v : JvmVal Ext)
     (hfast : runJvmFast hooks fuel prog st.pc (prog.drop st.pc) st = some v) :
     runJvm hooks fuel prog st = some v := by
   simp only [runJvmFast, Option.map_eq_some_iff] at hfast
   rcases hfast with ⟨⟨res, st'⟩, hres, rfl⟩
-  rw [runJvm_eq_runJvmRes hooks hite hiteZ hiteNZ,
+  rw [runJvm_eq_runJvmRes hooks hiteZ hiteNZ,
     runJvmRes_of_runJvmResFast hooks fuel prog st.pc (prog.drop st.pc) st (res, st') rfl rfl hres]
   rfl
 
@@ -767,124 +755,21 @@ def runJvmValFast {Ext Heap : Type} (hooks : JvmHooks Ext Heap) :
           | .inl none => none
           | .inr (some v) => some v
           | .inr none => none
-      | .goto target =>
-        runJvmValFast hooks f1 prog target (prog.drop target) { st with pc := target }
-      | .ifeq target =>
-        match st.stack with
-        | v :: s =>
-          if hooks.isZero v then runJvmValFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmValFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .ifne target =>
-        match st.stack with
-        | v :: s =>
-          if !hooks.isZero v then runJvmValFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmValFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .iflt target =>
-        match st.stack with
-        | v :: s =>
-          if v.asI32.toBitVec.slt 0#32 then runJvmValFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmValFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .ifle target =>
-        match st.stack with
-        | v :: s =>
-          if v.asI32.toBitVec.sle 0#32 then runJvmValFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmValFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .ifgt target =>
-        match st.stack with
-        | v :: s =>
-          if (0#32).slt v.asI32.toBitVec then runJvmValFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmValFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .ifge target =>
-        match st.stack with
-        | v :: s =>
-          if (0#32).sle v.asI32.toBitVec then runJvmValFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmValFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .ifnull target =>
-        match st.stack with
-        | v :: s =>
-          if v.isNull then runJvmValFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmValFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .ifnonnull target =>
-        match st.stack with
-        | v :: s =>
-          if !v.isNull then runJvmValFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmValFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .if_icmpeq target =>
-        match st.stack with
-        | b :: a :: s =>
-          if a.asI32 == b.asI32 then runJvmValFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmValFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .if_icmpne target =>
-        match st.stack with
-        | b :: a :: s =>
-          if !(a.asI32 == b.asI32) then runJvmValFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmValFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .if_icmplt target =>
-        match st.stack with
-        | b :: a :: s =>
-          if a.asI32.toBitVec.slt b.asI32.toBitVec then runJvmValFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmValFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .if_icmpge target =>
-        match st.stack with
-        | b :: a :: s =>
-          if b.asI32.toBitVec.sle a.asI32.toBitVec then runJvmValFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmValFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .if_icmpgt target =>
-        match st.stack with
-        | b :: a :: s =>
-          if b.asI32.toBitVec.slt a.asI32.toBitVec then runJvmValFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmValFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .if_icmple target =>
-        match st.stack with
-        | b :: a :: s =>
-          if a.asI32.toBitVec.sle b.asI32.toBitVec then runJvmValFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmValFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .if_acmpeq target =>
-        match st.stack with
-        | b :: a :: s =>
-          if JvmVal.refEq hooks.beqExt a b then runJvmValFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmValFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .if_acmpne target =>
-        match st.stack with
-        | b :: a :: s =>
-          if !JvmVal.refEq hooks.beqExt a b then runJvmValFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-          else runJvmValFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-        | _ => none
-      | .tableswitch low targets defaultTarget =>
-        match st.stack with
-        | key :: s =>
-          let target := tableswitchTarget key.asI32 low targets defaultTarget
-          runJvmValFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-        | _ => none
-      | .lookupswitch cases defaultTarget =>
-        match st.stack with
-        | key :: s =>
-          let target := lookupswitchTarget key.asI32 cases defaultTarget
-          runJvmValFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s }
-        | _ => none
       | _ =>
-        match stepInstr hooks instr { st with pc := pc } with
-        | .inl (some st') =>
-          if st'.pc = pc + 1 then runJvmValFast hooks f1 prog (pc + 1) rest st'
-          else runJvmValFast hooks f1 prog st'.pc (prog.drop st'.pc) st'
-        | .inl none => none
-        | .inr (some v) => some v
-        | .inr none => none
+        if isBranchInstr instr then
+          dispatchBranch hooks pc instr st.stack
+            (fun target s =>
+              runJvmValFast hooks f1 prog target (prog.drop target) { st with pc := target, stack := s })
+            (fun s =>
+              runJvmValFast hooks f1 prog (pc + 1) rest { st with pc := pc + 1, stack := s })
+        else
+          match stepInstr hooks instr { st with pc := pc } with
+          | .inl (some st') =>
+            if st'.pc = pc + 1 then runJvmValFast hooks f1 prog (pc + 1) rest st'
+            else runJvmValFast hooks f1 prog st'.pc (prog.drop st'.pc) st'
+          | .inl none => none
+          | .inr (some v) => some v
+          | .inr none => none
 
 private theorem runJvmFast_eq_runJvmValFast {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
     (fuel : Nat) (prog : List JvmInstr) (pc : Nat) (instrs : List JvmInstr)
@@ -893,28 +778,30 @@ private theorem runJvmFast_eq_runJvmValFast {Ext Heap : Type} (hooks : JvmHooks 
   induction fuel, prog, pc, instrs, st using runJvmValFast.induct (hooks := hooks) with
   | case1 => rfl
   | _ =>
-    all_goals simp_all [runJvmFast, runJvmResFast, runJvmValFast]
+    all_goals simp_all [runJvmFast, runJvmResFast, runJvmValFast, dispatchBranch_map]
     all_goals first | assumption | (split <;> simp_all)
 
 theorem runJvm_of_runJvmValFast {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
-    (hite : ∀ c t e, hooks.iteVal c t e = if c then t else e)
-    (hiteZ : ∀ v t e, hooks.iteZero v t e = if hooks.isZero v then t else e)
-    (hiteNZ : ∀ v t e, hooks.iteNonZero v t e = if !hooks.isZero v then t else e)
+    (hiteZ : ∀ v t e, hooks.iteZero? v t e =
+      match hooks.isZero? v with | some true => t | some false => e | none => none)
+    (hiteNZ : ∀ v t e, hooks.iteNonZero? v t e =
+      match hooks.isZero? v with | some true => e | some false => t | none => none)
     (fuel : Nat) (prog : List JvmInstr) (st : JvmState Ext Heap) (v : JvmVal Ext)
     (hfast : runJvmValFast hooks fuel prog st.pc (prog.drop st.pc) st = some v) :
     runJvm hooks fuel prog st = some v :=
-  runJvm_of_runJvmFast hooks hite hiteZ hiteNZ fuel prog st v
+  runJvm_of_runJvmFast hooks hiteZ hiteNZ fuel prog st v
     (by rw [runJvmFast_eq_runJvmValFast]; exact hfast)
 
 theorem runJvm_of_runJvmValFast0 {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
-    (hite : ∀ c t e, hooks.iteVal c t e = if c then t else e)
-    (hiteZ : ∀ v t e, hooks.iteZero v t e = if hooks.isZero v then t else e)
-    (hiteNZ : ∀ v t e, hooks.iteNonZero v t e = if !hooks.isZero v then t else e)
+    (hiteZ : ∀ v t e, hooks.iteZero? v t e =
+      match hooks.isZero? v with | some true => t | some false => e | none => none)
+    (hiteNZ : ∀ v t e, hooks.iteNonZero? v t e =
+      match hooks.isZero? v with | some true => e | some false => t | none => none)
     (fuel : Nat) (prog : List JvmInstr) (st : JvmState Ext Heap) (v : JvmVal Ext)
     (hpc : st.pc = 0)
     (hfast : runJvmValFast hooks fuel prog 0 prog st = some v) :
     runJvm hooks fuel prog st = some v := by
-  apply runJvm_of_runJvmValFast hooks hite hiteZ hiteNZ
+  apply runJvm_of_runJvmValFast hooks hiteZ hiteNZ
   rwa [hpc, List.drop_zero]
 
 theorem runJvmRes_of_runJvmResFast0 {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
@@ -968,7 +855,7 @@ private theorem runJvmValFast_eq_drop_pc {Ext Heap : Type} (hooks : JvmHooks Ext
   cases fuel with
   | zero => rfl
   | succ f1 =>
-    cases instr <;> simp_all [isBranchInstr, runJvmValFast]
+    cases instr <;> simp [isBranchInstr] at hbr <;> simp [runJvmValFast, isBranchInstr]
 
 theorem runJvmValFast_step_nonbranch {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
     (f1 : Nat) (prog : List JvmInstr) (pc : Nat) (instr : JvmInstr)
@@ -1139,128 +1026,13 @@ theorem runJvmValFast_stepBlock0_after {Ext Heap : Type} (hooks : JvmHooks Ext H
 def evalBranchInstr {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
     (fuel1 : Nat) (prog : List JvmInstr) (pc : Nat) (instr : JvmInstr)
     (st : JvmState Ext Heap) : Option (JvmVal Ext) :=
-  match instr with
-  | .ifeq target =>
-    match st.stack with
-    | v :: s =>
-      if hooks.isZero v then runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) (prog.drop (pc + 1)) { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .ifne target =>
-    match st.stack with
-    | v :: s =>
-      if !hooks.isZero v then runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) (prog.drop (pc + 1)) { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .iflt target =>
-    match st.stack with
-    | v :: s =>
-      if v.asI32.toBitVec.slt 0#32 then
-        runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) (prog.drop (pc + 1)) { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .ifle target =>
-    match st.stack with
-    | v :: s =>
-      if v.asI32.toBitVec.sle 0#32 then
-        runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) (prog.drop (pc + 1)) { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .ifgt target =>
-    match st.stack with
-    | v :: s =>
-      if (0#32).slt v.asI32.toBitVec then
-        runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) (prog.drop (pc + 1)) { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .ifge target =>
-    match st.stack with
-    | v :: s =>
-      if (0#32).sle v.asI32.toBitVec then
-        runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) (prog.drop (pc + 1)) { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .ifnull target =>
-    match st.stack with
-    | v :: s =>
-      if v.isNull then runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) (prog.drop (pc + 1)) { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .ifnonnull target =>
-    match st.stack with
-    | v :: s =>
-      if !v.isNull then runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) (prog.drop (pc + 1)) { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .if_icmpeq target =>
-    match st.stack with
-    | b :: a :: s =>
-      if a.asI32 == b.asI32 then runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) (prog.drop (pc + 1)) { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .if_icmpne target =>
-    match st.stack with
-    | b :: a :: s =>
-      if !(a.asI32 == b.asI32) then
-        runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) (prog.drop (pc + 1)) { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .if_icmplt target =>
-    match st.stack with
-    | b :: a :: s =>
-      if a.asI32.toBitVec.slt b.asI32.toBitVec then
-        runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) (prog.drop (pc + 1)) { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .if_icmpge target =>
-    match st.stack with
-    | b :: a :: s =>
-      if b.asI32.toBitVec.sle a.asI32.toBitVec then
-        runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) (prog.drop (pc + 1)) { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .if_icmpgt target =>
-    match st.stack with
-    | b :: a :: s =>
-      if b.asI32.toBitVec.slt a.asI32.toBitVec then
-        runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) (prog.drop (pc + 1)) { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .if_icmple target =>
-    match st.stack with
-    | b :: a :: s =>
-      if a.asI32.toBitVec.sle b.asI32.toBitVec then
-        runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) (prog.drop (pc + 1)) { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .if_acmpeq target =>
-    match st.stack with
-    | b :: a :: s =>
-      if JvmVal.refEq hooks.beqExt a b then
-        runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) (prog.drop (pc + 1)) { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .if_acmpne target =>
-    match st.stack with
-    | b :: a :: s =>
-      if !JvmVal.refEq hooks.beqExt a b then
-        runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) (prog.drop (pc + 1)) { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .tableswitch low targets defaultTarget =>
-    match st.stack with
-    | key :: s =>
-      let target := tableswitchTarget key.asI32 low targets defaultTarget
-      runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-    | _ => none
-  | .lookupswitch cases defaultTarget =>
-    match st.stack with
-    | key :: s =>
-      let target := lookupswitchTarget key.asI32 cases defaultTarget
-      runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-    | _ => none
-  | .goto target => runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target }
-  | _ => none
+  if isBranchInstr instr then
+    dispatchBranch hooks pc instr st.stack
+      (fun target s =>
+        runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s })
+      (fun s =>
+        runJvmValFast hooks fuel1 prog (pc + 1) (prog.drop (pc + 1)) { st with pc := pc + 1, stack := s })
+  else none
 
 theorem runJvmValFast_at_branch {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
     {fuel : Nat} (hf : 0 < fuel) {prog : List JvmInstr} {pc : Nat}
@@ -1277,10 +1049,8 @@ theorem runJvmValFast_at_branch {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
       rw [← h1, ← hdrop, List.drop_drop, Nat.add_comm]
     rw [hdrop] at hbr
     simp only [List.headD] at hbr ⊢
-    cases instr <;> first
-      | (simp only [isBranchInstr] at hbr; contradiction)
-      | simp [runJvmValFast, evalBranchInstr, hrest]
-      | (simp only [runJvmValFast, evalBranchInstr, stepInstr]; split <;> simp_all [hrest])
+    cases instr <;> simp [isBranchInstr] at hbr <;>
+      simp [runJvmValFast, evalBranchInstr, isBranchInstr, hrest]
 
 inductive BlockChunkRes (Ext Heap : Type) where
   | cont (fuel' : Nat) (pc' : Nat) (instrs' : List JvmInstr) (st' : JvmState Ext Heap)
@@ -1412,142 +1182,152 @@ theorem runJvmValFast_stepBlockChunk {Ext Heap : Type} (hooks : JvmHooks Ext Hea
       afterBlockChunk hooks (stepBlockChunk hooks maxSteps fuel pc instrs st) prog :=
   runJvmValFast_stepBlockChunk_aux hooks maxSteps fuel prog pc instrs st
 
+def stepBlockChunkWith {Ext Heap : Type} (hooks : JvmHooks Ext Heap) (stop : JvmInstr → Bool) :
+    Nat → Nat → Nat → List JvmInstr → JvmState Ext Heap → BlockChunkRes Ext Heap
+  | _, 0, _, _, _ => .done none
+  | 0, f1 + 1, pc, instrs, st => .cont (f1 + 1) pc instrs st
+  | m + 1, f1 + 1, pc, instrs, st =>
+    match instrs with
+    | [] => .done none
+    | instr :: rest =>
+      if isBranchInstr instr || stop instr then .cont (f1 + 1) pc (instr :: rest) st
+      else match instr with
+      | .i2l =>
+        match rest with
+        | .lconst 4294967295 :: .land :: rest' =>
+          match f1 with
+          | 0 => .done none
+          | f2 + 1 =>
+            match f2 with
+            | 0 => .done none
+            | f3 + 1 =>
+              match st.stack with
+              | .i32 x :: s =>
+                stepBlockChunkWith hooks stop m f3 (pc + 3) rest'
+                  { st with pc := pc + 3, stack := .i64 x.toUInt64 :: s }
+              | _ => .done none
+        | _ =>
+          match stepInstr hooks instr { st with pc := pc } with
+          | .inl (some st') =>
+            if st'.pc = pc + 1 then stepBlockChunkWith hooks stop m f1 (pc + 1) rest st'
+            else .jump f1 st'
+          | .inl none => .done none
+          | .inr res => .done res
+      | _ =>
+        match stepInstr hooks instr { st with pc := pc } with
+        | .inl (some st') =>
+          if st'.pc = pc + 1 then stepBlockChunkWith hooks stop m f1 (pc + 1) rest st'
+          else .jump f1 st'
+        | .inl none => .done none
+        | .inr res => .done res
+
+private theorem stepBlockChunkWith_cons_ne {Ext Heap : Type} (hooks : JvmHooks Ext Heap) (stop : JvmInstr → Bool)
+    (m f1 pc : Nat) (instr : JvmInstr) (rest : List JvmInstr)
+    (st : JvmState Ext Heap) (hno : ¬∃ r', instr = .i2l ∧ rest = .lconst 4294967295 :: .land :: r') :
+    stepBlockChunkWith hooks stop (m + 1) (f1 + 1) pc (instr :: rest) st =
+      if isBranchInstr instr || stop instr then .cont (f1 + 1) pc (instr :: rest) st
+      else match stepInstr hooks instr { st with pc := pc } with
+      | .inl (some st') =>
+        if st'.pc = pc + 1 then stepBlockChunkWith hooks stop m f1 (pc + 1) rest st'
+        else .jump f1 st'
+      | .inl none => .done none
+      | .inr res => .done res := by
+  cases instr with
+  | i2l =>
+    cases rest with
+    | nil => rfl
+    | cons a r1 =>
+      cases a <;> try rfl
+      case lconst v =>
+        by_cases hv : v = 4294967295
+        · subst hv
+          cases r1 with
+          | nil => rfl
+          | cons b r2 =>
+            cases b <;> try rfl
+            exfalso; exact hno ⟨r2, rfl, rfl⟩
+        · simp [stepBlockChunkWith, hv]
+  | _ => rfl
+
+private theorem runJvmValFast_stepBlockChunkWith_aux {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
+    (stop : JvmInstr → Bool) (m : Nat) (fuel : Nat) (prog : List JvmInstr)
+    (pc : Nat) (instrs : List JvmInstr) (st : JvmState Ext Heap) :
+    runJvmValFast hooks fuel prog pc instrs st =
+      afterBlockChunk hooks (stepBlockChunkWith hooks stop m fuel pc instrs st) prog := by
+  induction m generalizing fuel pc instrs st with
+  | zero => cases fuel <;> rfl
+  | succ m ih =>
+    cases fuel with
+    | zero => rfl
+    | succ f1 =>
+      cases instrs with
+      | nil => rfl
+      | cons instr rest =>
+        by_cases hpat : ∃ r', instr = .i2l ∧ rest = .lconst 4294967295 :: .land :: r'
+        · rcases hpat with ⟨r', rfl, rfl⟩
+          by_cases hs : (isBranchInstr .i2l || stop .i2l) = true
+          · cases f1 with
+            | zero => simp only [stepBlockChunkWith, hs, ↓reduceIte, afterBlockChunk]
+            | succ f2 =>
+              cases f2 with
+              | zero => simp only [stepBlockChunkWith, hs, ↓reduceIte, afterBlockChunk]
+              | succ f3 => simp only [stepBlockChunkWith, hs, ↓reduceIte, afterBlockChunk]
+          · have hsf : (isBranchInstr .i2l || stop .i2l) = false := Bool.eq_false_iff.mpr hs
+            cases f1 with
+            | zero => simp only [stepBlockChunkWith, hsf, Bool.false_eq_true, ↓reduceIte, afterBlockChunk]; rfl
+            | succ f2 =>
+              cases f2 with
+              | zero => simp only [stepBlockChunkWith, hsf, Bool.false_eq_true, ↓reduceIte, afterBlockChunk]; rfl
+              | succ f3 =>
+                simp only [runJvmValFast, stepBlockChunkWith, hsf, Bool.false_eq_true, ↓reduceIte]
+                cases st.stack with
+                | nil => rfl
+                | cons hd tl => cases hd with | i32 x => exact ih f3 (pc + 3) r' _ | _ => rfl
+        · by_cases hs : (isBranchInstr instr || stop instr) = true
+          · rw [stepBlockChunkWith_cons_ne hooks stop m f1 pc instr rest st hpat]
+            simp only [hs, ↓reduceIte, afterBlockChunk]
+          · have hsf : (isBranchInstr instr || stop instr) = false := Bool.eq_false_iff.mpr hs
+            have hbrf : isBranchInstr instr = false := by
+              revert hsf; cases isBranchInstr instr <;> simp
+            have hno' : ¬(instr = .i2l ∧ ∃ r', rest = .lconst 4294967295 :: .land :: r') :=
+              fun ⟨h1, r', h2⟩ => hpat ⟨r', h1, h2⟩
+            rw [stepBlockChunkWith_cons_ne hooks stop m f1 pc instr rest st hpat,
+              runJvmValFast_step_nonbranch hooks f1 prog pc instr rest st hbrf hno']
+            simp only [hsf, Bool.false_eq_true, ↓reduceIte]
+            cases hst : stepInstr hooks instr { st with pc := pc } with
+            | inl o =>
+              cases o with
+              | none => rfl
+              | some st' =>
+                by_cases hpc : st'.pc = pc + 1
+                · simp only [hpc, ↓reduceIte]; exact ih f1 (pc + 1) rest st'
+                · simp only [hpc, ↓reduceIte, afterBlockChunk]
+            | inr res => cases res <;> rfl
+
+theorem runJvmValFast_stepBlockChunkWith {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
+    (stop : JvmInstr → Bool) (maxSteps fuel : Nat) (prog : List JvmInstr) (pc : Nat)
+    (instrs : List JvmInstr) (st : JvmState Ext Heap) :
+    runJvmValFast hooks fuel prog pc instrs st =
+      afterBlockChunk hooks (stepBlockChunkWith hooks stop maxSteps fuel pc instrs st) prog :=
+  runJvmValFast_stepBlockChunkWith_aux hooks stop maxSteps fuel prog pc instrs st
+
 def evalBranchInstrCons {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
     (fuel1 : Nat) (prog : List JvmInstr) (pc : Nat) (instr : JvmInstr)
     (rest : List JvmInstr) (st : JvmState Ext Heap) : Option (JvmVal Ext) :=
-  match instr with
-  | .ifeq target =>
-    match st.stack with
-    | v :: s =>
-      if hooks.isZero v then runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .ifne target =>
-    match st.stack with
-    | v :: s =>
-      if !hooks.isZero v then runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .iflt target =>
-    match st.stack with
-    | v :: s =>
-      if v.asI32.toBitVec.slt 0#32 then
-        runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .ifle target =>
-    match st.stack with
-    | v :: s =>
-      if v.asI32.toBitVec.sle 0#32 then
-        runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .ifgt target =>
-    match st.stack with
-    | v :: s =>
-      if (0#32).slt v.asI32.toBitVec then
-        runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .ifge target =>
-    match st.stack with
-    | v :: s =>
-      if (0#32).sle v.asI32.toBitVec then
-        runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .ifnull target =>
-    match st.stack with
-    | v :: s =>
-      if v.isNull then runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .ifnonnull target =>
-    match st.stack with
-    | v :: s =>
-      if !v.isNull then runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .if_icmpeq target =>
-    match st.stack with
-    | b :: a :: s =>
-      if a.asI32 == b.asI32 then
-        runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .if_icmpne target =>
-    match st.stack with
-    | b :: a :: s =>
-      if !(a.asI32 == b.asI32) then
-        runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .if_icmplt target =>
-    match st.stack with
-    | b :: a :: s =>
-      if a.asI32.toBitVec.slt b.asI32.toBitVec then
-        runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .if_icmpge target =>
-    match st.stack with
-    | b :: a :: s =>
-      if b.asI32.toBitVec.sle a.asI32.toBitVec then
-        runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .if_icmpgt target =>
-    match st.stack with
-    | b :: a :: s =>
-      if b.asI32.toBitVec.slt a.asI32.toBitVec then
-        runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .if_icmple target =>
-    match st.stack with
-    | b :: a :: s =>
-      if a.asI32.toBitVec.sle b.asI32.toBitVec then
-        runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .if_acmpeq target =>
-    match st.stack with
-    | b :: a :: s =>
-      if JvmVal.refEq hooks.beqExt a b then
-        runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .if_acmpne target =>
-    match st.stack with
-    | b :: a :: s =>
-      if !JvmVal.refEq hooks.beqExt a b then
-        runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmValFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .tableswitch low targets defaultTarget =>
-    match st.stack with
-    | key :: s =>
-      let target := tableswitchTarget key.asI32 low targets defaultTarget
-      runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-    | _ => none
-  | .lookupswitch cases defaultTarget =>
-    match st.stack with
-    | key :: s =>
-      let target := lookupswitchTarget key.asI32 cases defaultTarget
-      runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-    | _ => none
-  | .goto target => runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target }
-  | _ => none
+  if isBranchInstr instr then
+    dispatchBranch hooks pc instr st.stack
+      (fun target s =>
+        runJvmValFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s })
+      (fun s =>
+        runJvmValFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s })
+  else none
 
 theorem runJvmValFast_at_branch_cons {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
     (f1 : Nat) (prog : List JvmInstr) (pc : Nat)
     (instr : JvmInstr) (rest : List JvmInstr) (st : JvmState Ext Heap) (hbr : isBranchInstr instr = true) :
     runJvmValFast hooks (f1 + 1) prog pc (instr :: rest) st =
       evalBranchInstrCons hooks f1 prog pc instr rest st := by
-  cases instr <;> first
-    | (simp only [isBranchInstr] at hbr; contradiction)
-    | rfl
-    | (simp only [runJvmValFast, evalBranchInstrCons, stepInstr]; split <;> rfl)
+  cases instr <;> simp [isBranchInstr] at hbr <;> simp [runJvmValFast, evalBranchInstrCons, isBranchInstr]
 
 inductive BlockResChunkRes (Ext Heap : Type) where
   | cont (fuel' : Nat) (pc' : Nat) (instrs' : List JvmInstr) (st' : JvmState Ext Heap)
@@ -1711,141 +1491,154 @@ theorem runJvmResFast_stepBlockChunk {Ext Heap : Type} (hooks : JvmHooks Ext Hea
       afterResBlockChunk hooks (stepResBlockChunk hooks maxSteps fuel pc instrs st) prog :=
   runJvmResFast_stepBlockChunk_aux hooks maxSteps fuel prog pc instrs st
 
+def stepResBlockChunkWith {Ext Heap : Type} (hooks : JvmHooks Ext Heap) (stop : JvmInstr → Bool) :
+    Nat → Nat → Nat → List JvmInstr → JvmState Ext Heap → BlockResChunkRes Ext Heap
+  | _, 0, _, _, _ => .done none
+  | 0, f1 + 1, pc, instrs, st => .cont (f1 + 1) pc instrs st
+  | m + 1, f1 + 1, pc, instrs, st =>
+    match instrs with
+    | [] => .done none
+    | instr :: rest =>
+      if isBranchInstr instr || stop instr then .cont (f1 + 1) pc (instr :: rest) st
+      else match instr with
+      | .i2l =>
+        match rest with
+        | .lconst 4294967295 :: .land :: rest' =>
+          match f1 with
+          | 0 => .done none
+          | f2 + 1 =>
+            match f2 with
+            | 0 => .done none
+            | f3 + 1 =>
+              match st.stack with
+              | .i32 x :: s =>
+                stepResBlockChunkWith hooks stop m f3 (pc + 3) rest'
+                  { st with pc := pc + 3, stack := .i64 x.toUInt64 :: s }
+              | _ => .done none
+        | _ =>
+          match stepInstr hooks instr { st with pc := pc } with
+          | .inl (some st') =>
+            if st'.pc = pc + 1 then stepResBlockChunkWith hooks stop m f1 (pc + 1) rest st'
+            else .jump f1 st'
+          | .inl none => .done none
+          | .inr (some v) => .done (some (v, { st with pc := pc }))
+          | .inr none => .done none
+      | _ =>
+        match stepInstr hooks instr { st with pc := pc } with
+        | .inl (some st') =>
+          if st'.pc = pc + 1 then stepResBlockChunkWith hooks stop m f1 (pc + 1) rest st'
+          else .jump f1 st'
+        | .inl none => .done none
+        | .inr (some v) => .done (some (v, { st with pc := pc }))
+        | .inr none => .done none
+
+private theorem stepResBlockChunkWith_cons_ne {Ext Heap : Type} (hooks : JvmHooks Ext Heap) (stop : JvmInstr → Bool)
+    (m f1 pc : Nat) (instr : JvmInstr) (rest : List JvmInstr)
+    (st : JvmState Ext Heap) (hno : ¬∃ r', instr = .i2l ∧ rest = .lconst 4294967295 :: .land :: r') :
+    stepResBlockChunkWith hooks stop (m + 1) (f1 + 1) pc (instr :: rest) st =
+      if isBranchInstr instr || stop instr then .cont (f1 + 1) pc (instr :: rest) st
+      else match stepInstr hooks instr { st with pc := pc } with
+      | .inl (some st') =>
+        if st'.pc = pc + 1 then stepResBlockChunkWith hooks stop m f1 (pc + 1) rest st'
+        else .jump f1 st'
+      | .inl none => .done none
+      | .inr (some v) => .done (some (v, { st with pc := pc }))
+      | .inr none => .done none := by
+  cases instr with
+  | i2l =>
+    cases rest with
+    | nil => rfl
+    | cons a r1 =>
+      cases a <;> try rfl
+      case lconst v =>
+        by_cases hv : v = 4294967295
+        · subst hv
+          cases r1 with
+          | nil => rfl
+          | cons b r2 =>
+            cases b <;> try rfl
+            exfalso; exact hno ⟨r2, rfl, rfl⟩
+        · simp [stepResBlockChunkWith, hv]
+  | _ => rfl
+
+private theorem runJvmResFast_stepBlockChunkWith_aux {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
+    (stop : JvmInstr → Bool) (m : Nat) (fuel : Nat) (prog : List JvmInstr)
+    (pc : Nat) (instrs : List JvmInstr) (st : JvmState Ext Heap) :
+    runJvmResFast hooks fuel prog pc instrs st =
+      afterResBlockChunk hooks (stepResBlockChunkWith hooks stop m fuel pc instrs st) prog := by
+  induction m generalizing fuel pc instrs st with
+  | zero => cases fuel <;> rfl
+  | succ m ih =>
+    cases fuel with
+    | zero => rfl
+    | succ f1 =>
+      cases instrs with
+      | nil => rfl
+      | cons instr rest =>
+        by_cases hpat : ∃ r', instr = .i2l ∧ rest = .lconst 4294967295 :: .land :: r'
+        · rcases hpat with ⟨r', rfl, rfl⟩
+          by_cases hs : (isBranchInstr .i2l || stop .i2l) = true
+          · cases f1 with
+            | zero => simp only [stepResBlockChunkWith, hs, ↓reduceIte, afterResBlockChunk]
+            | succ f2 =>
+              cases f2 with
+              | zero => simp only [stepResBlockChunkWith, hs, ↓reduceIte, afterResBlockChunk]
+              | succ f3 => simp only [stepResBlockChunkWith, hs, ↓reduceIte, afterResBlockChunk]
+          · have hsf : (isBranchInstr .i2l || stop .i2l) = false := Bool.eq_false_iff.mpr hs
+            cases f1 with
+            | zero => simp only [stepResBlockChunkWith, hsf, Bool.false_eq_true, ↓reduceIte, afterResBlockChunk]; rfl
+            | succ f2 =>
+              cases f2 with
+              | zero => simp only [stepResBlockChunkWith, hsf, Bool.false_eq_true, ↓reduceIte, afterResBlockChunk]; rfl
+              | succ f3 =>
+                simp only [runJvmResFast, stepResBlockChunkWith, hsf, Bool.false_eq_true, ↓reduceIte]
+                cases st.stack with
+                | nil => rfl
+                | cons hd tl => cases hd with | i32 x => exact ih f3 (pc + 3) r' _ | _ => rfl
+        · by_cases hs : (isBranchInstr instr || stop instr) = true
+          · rw [stepResBlockChunkWith_cons_ne hooks stop m f1 pc instr rest st hpat]
+            simp only [hs, ↓reduceIte, afterResBlockChunk]
+          · have hsf : (isBranchInstr instr || stop instr) = false := Bool.eq_false_iff.mpr hs
+            have hbrf : isBranchInstr instr = false := by
+              revert hsf; cases isBranchInstr instr <;> simp
+            have hno' : ¬(instr = .i2l ∧ ∃ r', rest = .lconst 4294967295 :: .land :: r') :=
+              fun ⟨h1, r', h2⟩ => hpat ⟨r', h1, h2⟩
+            rw [stepResBlockChunkWith_cons_ne hooks stop m f1 pc instr rest st hpat,
+              runJvmResFast_step_nonbranch hooks f1 prog pc instr rest st hbrf hno']
+            simp only [hsf, Bool.false_eq_true, ↓reduceIte]
+            cases hst : stepInstr hooks instr { st with pc := pc } with
+            | inl o =>
+              cases o with
+              | none => rfl
+              | some st' =>
+                by_cases hpc : st'.pc = pc + 1
+                · simp only [hpc, ↓reduceIte]; exact ih f1 (pc + 1) rest st'
+                · simp only [hpc, ↓reduceIte, afterResBlockChunk]
+            | inr res => cases res <;> rfl
+
+theorem runJvmResFast_stepBlockChunkWith {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
+    (stop : JvmInstr → Bool) (maxSteps fuel : Nat) (prog : List JvmInstr) (pc : Nat)
+    (instrs : List JvmInstr) (st : JvmState Ext Heap) :
+    runJvmResFast hooks fuel prog pc instrs st =
+      afterResBlockChunk hooks (stepResBlockChunkWith hooks stop maxSteps fuel pc instrs st) prog :=
+  runJvmResFast_stepBlockChunkWith_aux hooks stop maxSteps fuel prog pc instrs st
+
 def evalResBranchInstrCons {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
     (fuel1 : Nat) (prog : List JvmInstr) (pc : Nat) (instr : JvmInstr)
     (rest : List JvmInstr) (st : JvmState Ext Heap) : Option (JvmVal Ext × JvmState Ext Heap) :=
-  match instr with
-  | .ifeq target =>
-    match st.stack with
-    | v :: s =>
-      if hooks.isZero v then runJvmResFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmResFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .ifne target =>
-    match st.stack with
-    | v :: s =>
-      if !hooks.isZero v then runJvmResFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmResFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .iflt target =>
-    match st.stack with
-    | v :: s =>
-      if v.asI32.toBitVec.slt 0#32 then
-        runJvmResFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmResFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .ifle target =>
-    match st.stack with
-    | v :: s =>
-      if v.asI32.toBitVec.sle 0#32 then
-        runJvmResFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmResFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .ifgt target =>
-    match st.stack with
-    | v :: s =>
-      if (0#32).slt v.asI32.toBitVec then
-        runJvmResFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmResFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .ifge target =>
-    match st.stack with
-    | v :: s =>
-      if (0#32).sle v.asI32.toBitVec then
-        runJvmResFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmResFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .ifnull target =>
-    match st.stack with
-    | v :: s =>
-      if v.isNull then runJvmResFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmResFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .ifnonnull target =>
-    match st.stack with
-    | v :: s =>
-      if !v.isNull then runJvmResFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmResFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .if_icmpeq target =>
-    match st.stack with
-    | b :: a :: s =>
-      if a.asI32 == b.asI32 then
-        runJvmResFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmResFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .if_icmpne target =>
-    match st.stack with
-    | b :: a :: s =>
-      if !(a.asI32 == b.asI32) then
-        runJvmResFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmResFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .if_icmplt target =>
-    match st.stack with
-    | b :: a :: s =>
-      if a.asI32.toBitVec.slt b.asI32.toBitVec then
-        runJvmResFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmResFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .if_icmpge target =>
-    match st.stack with
-    | b :: a :: s =>
-      if b.asI32.toBitVec.sle a.asI32.toBitVec then
-        runJvmResFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmResFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .if_icmpgt target =>
-    match st.stack with
-    | b :: a :: s =>
-      if b.asI32.toBitVec.slt a.asI32.toBitVec then
-        runJvmResFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmResFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .if_icmple target =>
-    match st.stack with
-    | b :: a :: s =>
-      if a.asI32.toBitVec.sle b.asI32.toBitVec then
-        runJvmResFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmResFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .if_acmpeq target =>
-    match st.stack with
-    | b :: a :: s =>
-      if JvmVal.refEq hooks.beqExt a b then
-        runJvmResFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmResFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .if_acmpne target =>
-    match st.stack with
-    | b :: a :: s =>
-      if !JvmVal.refEq hooks.beqExt a b then
-        runJvmResFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-      else runJvmResFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s }
-    | _ => none
-  | .tableswitch low targets defaultTarget =>
-    match st.stack with
-    | key :: s =>
-      let target := tableswitchTarget key.asI32 low targets defaultTarget
-      runJvmResFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-    | _ => none
-  | .lookupswitch cases defaultTarget =>
-    match st.stack with
-    | key :: s =>
-      let target := lookupswitchTarget key.asI32 cases defaultTarget
-      runJvmResFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s }
-    | _ => none
-  | .goto target => runJvmResFast hooks fuel1 prog target (prog.drop target) { st with pc := target }
-  | _ => none
+  if isBranchInstr instr then
+    dispatchBranch hooks pc instr st.stack
+      (fun target s =>
+        runJvmResFast hooks fuel1 prog target (prog.drop target) { st with pc := target, stack := s })
+      (fun s =>
+        runJvmResFast hooks fuel1 prog (pc + 1) rest { st with pc := pc + 1, stack := s })
+  else none
 
 theorem runJvmResFast_at_branch_cons {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
     (f1 : Nat) (prog : List JvmInstr) (pc : Nat)
     (instr : JvmInstr) (rest : List JvmInstr) (st : JvmState Ext Heap) (hbr : isBranchInstr instr = true) :
     runJvmResFast hooks (f1 + 1) prog pc (instr :: rest) st =
       evalResBranchInstrCons hooks f1 prog pc instr rest st := by
-  cases instr <;> first
-    | (simp only [isBranchInstr] at hbr; contradiction)
-    | rfl
-    | (simp only [runJvmResFast, evalResBranchInstrCons, stepInstr]; split <;> rfl)
+  cases instr <;> simp [isBranchInstr] at hbr <;> simp [runJvmResFast, evalResBranchInstrCons, isBranchInstr]
 
 end Jvm

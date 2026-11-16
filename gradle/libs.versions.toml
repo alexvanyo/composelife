@@ -137,6 +137,8 @@ lean = "4.0.0"
 metro = "1.4.5"
 #molecule
 molecule = "2.2.0"
+#mosaic
+mosaic = "0.18.0"
 #okio
 okio = "3.18.2"
 #proguard
@@ -302,6 +304,8 @@ leakCanary-android = { group = "com.squareup.leakcanary", name = "leakcanary-and
 leakCanary-instrumentation = { group = "com.squareup.leakcanary", name = "leakcanary-android-instrumentation", version.ref = "leakCanary" }
 metro-runtime = { group = "dev.zacsweers.metro", name = "runtime", version.ref = "metro" }
 molecule = { group = "app.cash.molecule", name = "molecule-runtime", version.ref = "molecule" }
+mosaic-runtime = { group = "com.jakewharton.mosaic", name = "mosaic-runtime", version.ref = "mosaic" }
+mosaic-testing = { group = "com.jakewharton.mosaic", name = "mosaic-testing", version.ref = "mosaic" }
 okio = { group = "com.squareup.okio", name = "okio", version.ref = "okio" }
 okio-fakefilesystem = { group = "com.squareup.okio", name = "okio-fakefilesystem", version.ref = "okio" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }

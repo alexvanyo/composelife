@@ -23,19 +23,19 @@ open Algorithm.JvmBytecode
 
 /-! ### Heap & Object-Array Stepping Infrastructure for Families 2–6 -/
 
-theorem nat_add_eq_add (a b : Nat) : Nat.add a b = a + b := rfl
+export Jvm (nat_add_eq_add)
 
 theorem runJvmValFast_split_fuel (m : Nat) {k : Nat}
     (prog : List JvmInstr) (pc : Nat) (instrs : List JvmInstr) (st : JvmState)
     (hk : m ≤ k) :
-    runJvmValFast k prog pc instrs st = runJvmValFast ((k - m) + m) prog pc instrs st := by
-  rw [Nat.sub_add_cancel hk]
+    runJvmValFast k prog pc instrs st = runJvmValFast ((k - m) + m) prog pc instrs st :=
+  Jvm.runJvmValFast_split_fuel algHooks m prog pc instrs st hk
 
 theorem runJvmResFast_split_fuel (m : Nat) {k : Nat}
     (prog : List JvmInstr) (pc : Nat) (instrs : List JvmInstr) (st : JvmState)
     (hk : m ≤ k) :
-    runJvmResFast k prog pc instrs st = runJvmResFast ((k - m) + m) prog pc instrs st := by
-  rw [Nat.sub_add_cancel hk]
+    runJvmResFast k prog pc instrs st = runJvmResFast ((k - m) + m) prog pc instrs st :=
+  Jvm.runJvmResFast_split_fuel algHooks m prog pc instrs st hk
 
 open Lean Elab Tactic in
 elab "split_val_fuel " n:term : tactic => do
@@ -57,61 +57,15 @@ elab "split_res_fuel " n:term : tactic => do
   unless rem.isEmpty do throwError "split_res_fuel: omega failed"
   setGoals (g1 :: rest)
 
-theorem u32_slt_zero_of_lt_2_31 {x : UInt32} (hx : x.toNat < 2 ^ 31) :
-    x.toBitVec.slt 0#32 = false := by
-  simp only [BitVec.slt, BitVec.toInt_zero]
-  have h1 : x.toBitVec.toInt = ↑x.toNat := by
-    rw [BitVec.toInt_eq_toNat_cond]
-    split
-    · rfl
-    · simp only [UInt32.toNat] at hx; omega
-  rw [h1]
-  exact decide_eq_false (by omega)
-
-theorem u32_slt_zero_of_lt {a b : UInt32} (hab : a < b) (hb : b.toNat ≤ 2 ^ 31) :
-    a.toBitVec.slt 0#32 = false :=
-  u32_slt_zero_of_lt_2_31 (Nat.lt_of_lt_of_le (UInt32.lt_iff_toNat_lt.mp hab) hb)
-
-theorem u32_toInt_eq_toNat {x : UInt32} (hx : x.toNat < 2 ^ 31) :
-    x.toBitVec.toInt = ↑x.toNat := by
-  rw [BitVec.toInt_eq_toNat_cond]
-  split
-  · rfl
-  · simp only [UInt32.toNat] at hx; omega
-
-theorem ui32_add1_toNat {a b : UInt32} (h : a < b) :
-    (a + 1).toNat = a.toNat + 1 := by
-  have h1 := UInt32.lt_iff_toNat_lt.mp h
-  have h2 := UInt32.toNat_lt b
-  rw [UInt32.toNat_add, UInt32.toNat_one]
-  exact Nat.mod_eq_of_lt (by omega)
-
-theorem jvmHeap_get?_alloc_self {Ext : Type} (jh : Jvm.JvmHeap Ext) (obj : Jvm.HeapObj Ext) :
-    (jh.alloc obj).2.get? jh.objects.size = some obj := by
-  simp [Jvm.JvmHeap.alloc, Jvm.JvmHeap.get?]
+export Jvm (
+  u32_slt_zero_of_lt_2_31 u32_slt_zero_of_lt u32_toInt_eq_toNat ui32_add1_toNat
+  jvmHeap_get?_alloc_self jvmHeap_get?_set_ne u32_shl1_add1_eq
+)
 
 theorem jvmHeap_get?_alloc_lt {Ext : Type} (jh : Jvm.JvmHeap Ext) (obj : Jvm.HeapObj Ext)
     {a : Nat} (ha : a < jh.objects.size) :
-    (jh.alloc obj).2.get? a = jh.get? a := by
-  simp [Jvm.JvmHeap.alloc, Jvm.JvmHeap.get?, Array.getElem?_push, ha, Nat.ne_of_lt ha]
-
-theorem jvmHeap_get?_set_ne {Ext : Type} (jh : Jvm.JvmHeap Ext) {a b : Nat}
-    (obj : Jvm.HeapObj Ext) (hne : a ≠ b) :
-    (jh.set b obj).get? a = jh.get? a := by
-  simp only [Jvm.JvmHeap.set, Jvm.JvmHeap.get?]
-  split
-  · simp [Array.getElem?_set_ne, Ne.symm hne]
-  · rfl
-
-theorem u32_shl1_add1_eq {n : Nat} :
-    (UInt32.ofNat n <<< 1) + 1 = 2 * UInt32.ofNat n + 1 := by
-  refine congrArg (· + 1) ?_
-  apply UInt32.eq_of_toBitVec_eq; apply BitVec.eq_of_toNat_eq
-  change (UInt32.ofNat n <<< 1).toNat = (2 * UInt32.ofNat n).toNat
-  rw [UInt32.toNat_shiftLeft, UInt32.toNat_mul]
-  rw [show (1 : UInt32).toNat % 32 = 1 from by decide]
-  rw [show (2 : UInt32).toNat = 2 from by decide]
-  rw [Nat.shiftLeft_eq, Nat.pow_one, Nat.mul_comm]
+    (jh.alloc obj).2.get? a = jh.get? a :=
+  Jvm.jvmHeap_get?_alloc_old jh obj ha
 
 theorem u8_signExtend_and_63 (b : UInt8) :
     (UInt32.ofBitVec (b.toBitVec.signExtend 32) &&& 255) &&& 63 = b.toUInt32 &&& 63 := by
@@ -131,7 +85,7 @@ theorem coerceInI32_of_bounds {v lo hi : UInt32}
     exact decide_eq_false (by omega)
   simp [Jvm.coerceInI32, hslt1, hslt2]
 
-def isHeapStop : JvmInstr → Bool
+def isHeapStopLeaf : JvmInstr → Bool
   | .invokestatic _ _ _ => true
   | .invokevirtual _ _ _ => true
   | .invokespecial _ _ _ => true
@@ -145,240 +99,26 @@ def isHeapStop : JvmInstr → Bool
   | .arraylength => true
   | .checkcast _ => true
   | .instanceof _ => true
-  | i => isBranchInstr i
+  | _ => false
 
-private theorem isBranchInstr_of_isHeapStop_false {i : JvmInstr} (h : isHeapStop i = false) :
-    isBranchInstr i = false := by
-  cases i <;> simp [isHeapStop, isBranchInstr] at h ⊢
+def isHeapStop (i : JvmInstr) : Bool :=
+  isBranchInstr i || isHeapStopLeaf i
 
-def stepHeapChunk : Nat → Nat → Nat → List JvmInstr → JvmState → BlockChunkRes AlgExt AlgHeap
-  | _, 0, _, _, _ => .done none
-  | 0, f1 + 1, pc, instrs, st => .cont (f1 + 1) pc instrs st
-  | m + 1, f1 + 1, pc, instrs, st =>
-    match instrs with
-    | [] => .done none
-    | instr :: rest =>
-      if isHeapStop instr then .cont (f1 + 1) pc (instr :: rest) st
-      else match instr with
-      | .i2l =>
-        match rest with
-        | .lconst 4294967295 :: .land :: rest' =>
-          match f1 with
-          | 0 => .done none
-          | f2 + 1 =>
-            match f2 with
-            | 0 => .done none
-            | f3 + 1 =>
-              match st.stack with
-              | .i32 x :: s =>
-                stepHeapChunk m f3 (pc + 3) rest' { st with pc := pc + 3, stack := .i64 x.toUInt64 :: s }
-              | _ => .done none
-        | _ =>
-          match stepInstr instr { st with pc := pc } with
-          | .inl (some st') =>
-            if st'.pc = pc + 1 then stepHeapChunk m f1 (pc + 1) rest st'
-            else .jump f1 st'
-          | .inl none => .done none
-          | .inr res => .done res
-      | _ =>
-        match stepInstr instr { st with pc := pc } with
-        | .inl (some st') =>
-          if st'.pc = pc + 1 then stepHeapChunk m f1 (pc + 1) rest st'
-          else .jump f1 st'
-        | .inl none => .done none
-        | .inr res => .done res
-
-private theorem stepHeapChunk_cons_ne (m f1 pc : Nat) (instr : JvmInstr) (rest : List JvmInstr)
-    (st : JvmState) (hno : ¬∃ r', instr = .i2l ∧ rest = .lconst 4294967295 :: .land :: r') :
-    stepHeapChunk (m + 1) (f1 + 1) pc (instr :: rest) st =
-      if isHeapStop instr then .cont (f1 + 1) pc (instr :: rest) st
-      else match stepInstr instr { st with pc := pc } with
-      | .inl (some st') =>
-        if st'.pc = pc + 1 then stepHeapChunk m f1 (pc + 1) rest st'
-        else .jump f1 st'
-      | .inl none => .done none
-      | .inr res => .done res := by
-  cases instr with
-  | i2l =>
-    cases rest with
-    | nil => rfl
-    | cons a r1 =>
-      cases a <;> try rfl
-      case lconst v =>
-        by_cases hv : v = 4294967295
-        · subst hv
-          cases r1 with
-          | nil => rfl
-          | cons b r2 =>
-            cases b <;> try rfl
-            exfalso; exact hno ⟨r2, rfl, rfl⟩
-        · simp [stepHeapChunk, hv]
-  | _ => rfl
-
-private theorem runJvmValFast_stepHeapChunk_aux (m : Nat) (fuel : Nat) (prog : List JvmInstr)
-    (pc : Nat) (instrs : List JvmInstr) (st : JvmState) :
-    runJvmValFast fuel prog pc instrs st = afterBlockChunk (stepHeapChunk m fuel pc instrs st) prog := by
-  induction m generalizing fuel pc instrs st with
-  | zero => cases fuel <;> rfl
-  | succ m ih =>
-    cases fuel with
-    | zero => rfl
-    | succ f1 =>
-      cases instrs with
-      | nil => rfl
-      | cons instr rest =>
-        by_cases hpat : ∃ r', instr = .i2l ∧ rest = .lconst 4294967295 :: .land :: r'
-        · rcases hpat with ⟨r', rfl, rfl⟩
-          cases f1 with
-          | zero => rfl
-          | succ f2 =>
-            cases f2 with
-            | zero => rfl
-            | succ f3 =>
-              simp only [runJvmValFast, Jvm.runJvmValFast, stepHeapChunk, isHeapStop]
-              cases st.stack with
-              | nil => rfl
-              | cons hd tl => cases hd with | i32 x => exact ih f3 (pc + 3) r' _ | _ => rfl
-        · by_cases hst : isHeapStop instr = true
-          · rw [stepHeapChunk_cons_ne m f1 pc instr rest st hpat]
-            simp only [hst, ↓reduceIte, afterBlockChunk, Jvm.afterBlockChunk, runJvmValFast]
-          · have hstf : isHeapStop instr = false := Bool.eq_false_iff.mpr hst
-            have hbrf : isBranchInstr instr = false := isBranchInstr_of_isHeapStop_false hstf
-            have hno' : ¬(instr = .i2l ∧ ∃ r', rest = .lconst 4294967295 :: .land :: r') :=
-              fun ⟨h1, r', h2⟩ => hpat ⟨r', h1, h2⟩
-            rw [stepHeapChunk_cons_ne m f1 pc instr rest st hpat,
-              runJvmValFast_step_nonbranch f1 prog pc instr rest st hbrf hno']
-            simp only [hstf, Bool.false_eq_true, ↓reduceIte]
-            cases hstep : stepInstr instr { st with pc := pc } with
-            | inl o =>
-              cases o with
-              | none => rfl
-              | some st' =>
-                by_cases hpc : st'.pc = pc + 1
-                · simp only [hpc, ↓reduceIte]; exact ih f1 (pc + 1) rest st'
-                · simp only [hpc, ↓reduceIte, afterBlockChunk, Jvm.afterBlockChunk, runJvmValFast]
-            | inr res => cases res <;> rfl
+def stepHeapChunk : Nat → Nat → Nat → List JvmInstr → JvmState → BlockChunkRes AlgExt AlgHeap :=
+  Jvm.stepBlockChunkWith algHooks isHeapStopLeaf
 
 theorem runJvmValFast_stepHeapChunk (maxSteps fuel : Nat) (prog : List JvmInstr) (pc : Nat)
     (instrs : List JvmInstr) (st : JvmState) :
     runJvmValFast fuel prog pc instrs st = afterBlockChunk (stepHeapChunk maxSteps fuel pc instrs st) prog :=
-  runJvmValFast_stepHeapChunk_aux maxSteps fuel prog pc instrs st
+  Jvm.runJvmValFast_stepBlockChunkWith algHooks isHeapStopLeaf maxSteps fuel prog pc instrs st
 
-def stepResHeapChunk : Nat → Nat → Nat → List JvmInstr → JvmState → BlockResChunkRes AlgExt AlgHeap
-  | _, 0, _, _, _ => .done none
-  | 0, f1 + 1, pc, instrs, st => .cont (f1 + 1) pc instrs st
-  | m + 1, f1 + 1, pc, instrs, st =>
-    match instrs with
-    | [] => .done none
-    | instr :: rest =>
-      if isHeapStop instr then .cont (f1 + 1) pc (instr :: rest) st
-      else match instr with
-      | .i2l =>
-        match rest with
-        | .lconst 4294967295 :: .land :: rest' =>
-          match f1 with
-          | 0 => .done none
-          | f2 + 1 =>
-            match f2 with
-            | 0 => .done none
-            | f3 + 1 =>
-              match st.stack with
-              | .i32 x :: s =>
-                stepResHeapChunk m f3 (pc + 3) rest' { st with pc := pc + 3, stack := .i64 x.toUInt64 :: s }
-              | _ => .done none
-        | _ =>
-          match stepInstr instr { st with pc := pc } with
-          | .inl (some st') =>
-            if st'.pc = pc + 1 then stepResHeapChunk m f1 (pc + 1) rest st'
-            else .jump f1 st'
-          | .inl none => .done none
-          | .inr (some v) => .done (some (v, { st with pc := pc }))
-          | .inr none => .done none
-      | _ =>
-        match stepInstr instr { st with pc := pc } with
-        | .inl (some st') =>
-          if st'.pc = pc + 1 then stepResHeapChunk m f1 (pc + 1) rest st'
-          else .jump f1 st'
-        | .inl none => .done none
-        | .inr (some v) => .done (some (v, { st with pc := pc }))
-        | .inr none => .done none
-
-private theorem stepResHeapChunk_cons_ne (m f1 pc : Nat) (instr : JvmInstr) (rest : List JvmInstr)
-    (st : JvmState) (hno : ¬∃ r', instr = .i2l ∧ rest = .lconst 4294967295 :: .land :: r') :
-    stepResHeapChunk (m + 1) (f1 + 1) pc (instr :: rest) st =
-      if isHeapStop instr then .cont (f1 + 1) pc (instr :: rest) st
-      else match stepInstr instr { st with pc := pc } with
-      | .inl (some st') =>
-        if st'.pc = pc + 1 then stepResHeapChunk m f1 (pc + 1) rest st'
-        else .jump f1 st'
-      | .inl none => .done none
-      | .inr (some v) => .done (some (v, { st with pc := pc }))
-      | .inr none => .done none := by
-  cases instr with
-  | i2l =>
-    cases rest with
-    | nil => rfl
-    | cons a r1 =>
-      cases a <;> try rfl
-      case lconst v =>
-        by_cases hv : v = 4294967295
-        · subst hv
-          cases r1 with
-          | nil => rfl
-          | cons b r2 =>
-            cases b <;> try rfl
-            exfalso; exact hno ⟨r2, rfl, rfl⟩
-        · simp [stepResHeapChunk, hv]
-  | _ => rfl
-
-private theorem runJvmResFast_stepResHeapChunk_aux (m : Nat) (fuel : Nat) (prog : List JvmInstr)
-    (pc : Nat) (instrs : List JvmInstr) (st : JvmState) :
-    runJvmResFast fuel prog pc instrs st = afterResBlockChunk (stepResHeapChunk m fuel pc instrs st) prog := by
-  induction m generalizing fuel pc instrs st with
-  | zero => cases fuel <;> rfl
-  | succ m ih =>
-    cases fuel with
-    | zero => rfl
-    | succ f1 =>
-      cases instrs with
-      | nil => rfl
-      | cons instr rest =>
-        by_cases hpat : ∃ r', instr = .i2l ∧ rest = .lconst 4294967295 :: .land :: r'
-        · rcases hpat with ⟨r', rfl, rfl⟩
-          cases f1 with
-          | zero => rfl
-          | succ f2 =>
-            cases f2 with
-            | zero => rfl
-            | succ f3 =>
-              simp only [runJvmResFast, Jvm.runJvmResFast, stepResHeapChunk, isHeapStop]
-              cases st.stack with
-              | nil => rfl
-              | cons hd tl => cases hd with | i32 x => exact ih f3 (pc + 3) r' _ | _ => rfl
-        · by_cases hst : isHeapStop instr = true
-          · rw [stepResHeapChunk_cons_ne m f1 pc instr rest st hpat]
-            simp only [hst, ↓reduceIte, afterResBlockChunk, Jvm.afterResBlockChunk, runJvmResFast]
-          · have hstf : isHeapStop instr = false := Bool.eq_false_iff.mpr hst
-            have hbrf : isBranchInstr instr = false := isBranchInstr_of_isHeapStop_false hstf
-            have hno' : ¬(instr = .i2l ∧ ∃ r', rest = .lconst 4294967295 :: .land :: r') :=
-              fun ⟨h1, r', h2⟩ => hpat ⟨r', h1, h2⟩
-            rw [stepResHeapChunk_cons_ne m f1 pc instr rest st hpat,
-              runJvmResFast_step_nonbranch f1 prog pc instr rest st hbrf hno']
-            simp only [hstf, Bool.false_eq_true, ↓reduceIte]
-            cases hstep : stepInstr instr { st with pc := pc } with
-            | inl o =>
-              cases o with
-              | none => rfl
-              | some st' =>
-                by_cases hpc : st'.pc = pc + 1
-                · simp only [hpc, ↓reduceIte]; exact ih f1 (pc + 1) rest st'
-                · simp only [hpc, ↓reduceIte, afterResBlockChunk, Jvm.afterResBlockChunk, runJvmResFast]
-            | inr res => cases res <;> rfl
+def stepResHeapChunk : Nat → Nat → Nat → List JvmInstr → JvmState → BlockResChunkRes AlgExt AlgHeap :=
+  Jvm.stepResBlockChunkWith algHooks isHeapStopLeaf
 
 theorem runJvmResFast_stepResHeapChunk (maxSteps fuel : Nat) (prog : List JvmInstr) (pc : Nat)
     (instrs : List JvmInstr) (st : JvmState) :
     runJvmResFast fuel prog pc instrs st = afterResBlockChunk (stepResHeapChunk maxSteps fuel pc instrs st) prog :=
-  runJvmResFast_stepResHeapChunk_aux maxSteps fuel prog pc instrs st
+  Jvm.runJvmResFast_stepBlockChunkWith algHooks isHeapStopLeaf maxSteps fuel prog pc instrs st
 
 /-! ### Generic Heap Instruction Stepping Lemmas -/
 
@@ -389,16 +129,9 @@ theorem runJvmResFast_checkcast_objArray {f : Nat} {prog : List JvmInstr} {pc : 
     (hcls : cls = "java/lang/Object" ∨ cls = "[Ljava/lang/Object;") :
     runJvmResFast (f + 1) prog pc (.checkcast "[Ljava/lang/Object;" :: rest)
         ⟨pc0, .heapRef addr :: stkRest, locs, jh, hp⟩ =
-      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, .heapRef addr :: stkRest, locs, jh, hp⟩ := by
-  have hm : (Jvm.HeapObj.objArray cls elems).matchesType "[Ljava/lang/Object;" = true := by
-    rcases hcls with rfl | rfl <;> simp [Jvm.HeapObj.matchesType]
-  have hstep : Jvm.stepInstr algHooks (.checkcast "[Ljava/lang/Object;")
-      ⟨pc, .heapRef addr :: stkRest, locs, jh, hp⟩ =
-      .inl (some ⟨pc + 1, .heapRef addr :: stkRest, locs, jh, hp⟩) := by
-    simp [Jvm.stepInstr, Jvm.JvmHeap.checkCast, Jvm.JvmHeap.checkInstanceOf, hget, hm]
-  simp only [runJvmResFast]
-  rw [Jvm.runJvmResFast_step_nonbranch algHooks (hbr := rfl) (hno := by simp)]
-  simp only [hstep, ↓reduceIte]
+      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, .heapRef addr :: stkRest, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_checkcast_objArray algHooks hget
+    (by rcases hcls with rfl | rfl <;> simp [Jvm.HeapObj.matchesType])
 
 theorem runJvmValFast_checkcast_objArray {f : Nat} {prog : List JvmInstr} {pc : Nat}
     {rest : List JvmInstr} {pc0 : Nat} {addr : Nat} {stkRest : List JvmVal}
@@ -407,16 +140,9 @@ theorem runJvmValFast_checkcast_objArray {f : Nat} {prog : List JvmInstr} {pc : 
     (hcls : cls = "java/lang/Object" ∨ cls = "[Ljava/lang/Object;") :
     runJvmValFast (f + 1) prog pc (.checkcast "[Ljava/lang/Object;" :: rest)
         ⟨pc0, .heapRef addr :: stkRest, locs, jh, hp⟩ =
-      runJvmValFast f prog (pc + 1) rest ⟨pc + 1, .heapRef addr :: stkRest, locs, jh, hp⟩ := by
-  have hm : (Jvm.HeapObj.objArray cls elems).matchesType "[Ljava/lang/Object;" = true := by
-    rcases hcls with rfl | rfl <;> simp [Jvm.HeapObj.matchesType]
-  have hstep : Jvm.stepInstr algHooks (.checkcast "[Ljava/lang/Object;")
-      ⟨pc, .heapRef addr :: stkRest, locs, jh, hp⟩ =
-      .inl (some ⟨pc + 1, .heapRef addr :: stkRest, locs, jh, hp⟩) := by
-    simp [Jvm.stepInstr, Jvm.JvmHeap.checkCast, Jvm.JvmHeap.checkInstanceOf, hget, hm]
-  simp only [runJvmValFast]
-  rw [Jvm.runJvmValFast_step_nonbranch algHooks (hbr := rfl) (hno := by simp)]
-  simp only [hstep, ↓reduceIte]
+      runJvmValFast f prog (pc + 1) rest ⟨pc + 1, .heapRef addr :: stkRest, locs, jh, hp⟩ :=
+  Jvm.runJvmValFast_checkcast_objArray algHooks hget
+    (by rcases hcls with rfl | rfl <;> simp [Jvm.HeapObj.matchesType])
 
 theorem runJvmResFast_checkcast_boxedInt {f : Nat} {prog : List JvmInstr} {pc : Nat}
     {rest : List JvmInstr} {pc0 : Nat} {v : UInt32} {stkRest : List JvmVal}
@@ -511,42 +237,34 @@ theorem runJvmResFast_aaload {f : Nat} {prog : List JvmInstr} {pc : Nat}
     (hslt : idx.toBitVec.slt 0#32 = false) (hlt : idx.toNat < elems.size) :
     runJvmResFast (f + 1) prog pc (.aaload :: rest)
         ⟨pc0, .i32 idx :: .heapRef addr :: stkRest, locs, jh, hp⟩ =
-      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, elems[idx.toNat] :: stkRest, locs, jh, hp⟩ := by
-  have hstep := Jvm.stepInstr_aaload algHooks (pc := pc) (stkRest := stkRest)
-    (locs := locs) (hp := hp) hget hslt hlt
-  simp only [runJvmResFast]
-  rw [Jvm.runJvmResFast_step_nonbranch algHooks (hbr := rfl) (hno := by simp)]
-  simp only [hstep, ↓reduceIte]
+      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, elems[idx.toNat] :: stkRest, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_aaload algHooks hget hslt hlt
 
 theorem runJvmResFast_aastore {f : Nat} {prog : List JvmInstr} {pc : Nat}
     {rest : List JvmInstr} {pc0 : Nat} {val : JvmVal} {idx : UInt32} {addr : Nat} {stkRest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} {cls : String} {elems : Array JvmVal}
     (hget : jh.get? addr = some (.objArray cls elems))
-    (hslt : idx.toBitVec.slt 0#32 = false) (hlt : idx.toNat < elems.size) :
+    (hslt : idx.toBitVec.slt 0#32 = false) (hlt : idx.toNat < elems.size)
+    (hcompat : Jvm.isArrayElemCompat algHooks jh cls val = true := by first | rfl | simp [Jvm.isArrayElemCompat]) :
     runJvmResFast (f + 1) prog pc (.aastore :: rest)
         ⟨pc0, val :: .i32 idx :: .heapRef addr :: stkRest, locs, jh, hp⟩ =
       runJvmResFast f prog (pc + 1) rest
-        ⟨pc + 1, stkRest, locs, jh.set addr (.objArray cls (elems.set idx.toNat val hlt)), hp⟩ := by
-  have hstep := Jvm.stepInstr_aastore algHooks (v := val) (pc := pc) (stkRest := stkRest)
-    (locs := locs) (hp := hp) hget hslt hlt
-  simp only [runJvmResFast]
-  rw [Jvm.runJvmResFast_step_nonbranch algHooks (hbr := rfl) (hno := by simp)]
-  simp only [hstep, ↓reduceIte]
+        ⟨pc + 1, stkRest, locs, jh.set addr (.objArray cls (elems.set idx.toNat val hlt)), hp⟩ :=
+  Jvm.runJvmResFast_step_of_stepInstr algHooks rfl (by simp)
+    (Jvm.stepInstr_aastore algHooks hcompat hget hslt hlt) rfl
 
 theorem runJvmValFast_aastore {f : Nat} {prog : List JvmInstr} {pc : Nat}
     {rest : List JvmInstr} {pc0 : Nat} {val : JvmVal} {idx : UInt32} {addr : Nat} {stkRest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} {cls : String} {elems : Array JvmVal}
     (hget : jh.get? addr = some (.objArray cls elems))
-    (hslt : idx.toBitVec.slt 0#32 = false) (hlt : idx.toNat < elems.size) :
+    (hslt : idx.toBitVec.slt 0#32 = false) (hlt : idx.toNat < elems.size)
+    (hcompat : Jvm.isArrayElemCompat algHooks jh cls val = true := by first | rfl | simp [Jvm.isArrayElemCompat]) :
     runJvmValFast (f + 1) prog pc (.aastore :: rest)
         ⟨pc0, val :: .i32 idx :: .heapRef addr :: stkRest, locs, jh, hp⟩ =
       runJvmValFast f prog (pc + 1) rest
-        ⟨pc + 1, stkRest, locs, jh.set addr (.objArray cls (elems.set idx.toNat val hlt)), hp⟩ := by
-  have hstep := Jvm.stepInstr_aastore algHooks (v := val) (pc := pc) (stkRest := stkRest)
-    (locs := locs) (hp := hp) hget hslt hlt
-  simp only [runJvmValFast]
-  rw [Jvm.runJvmValFast_step_nonbranch algHooks (hbr := rfl) (hno := by simp)]
-  simp only [hstep, ↓reduceIte]
+        ⟨pc + 1, stkRest, locs, jh.set addr (.objArray cls (elems.set idx.toNat val hlt)), hp⟩ :=
+  Jvm.runJvmValFast_step_of_stepInstr algHooks rfl (by simp)
+    (Jvm.stepInstr_aastore algHooks hcompat hget hslt hlt) rfl
 
 theorem runJvmResFast_baload {f : Nat} {prog : List JvmInstr} {pc : Nat}
     {rest : List JvmInstr} {pc0 : Nat} {idx : UInt32} {addr : Nat} {stkRest : List JvmVal}
@@ -556,12 +274,8 @@ theorem runJvmResFast_baload {f : Nat} {prog : List JvmInstr} {pc : Nat}
     runJvmResFast (f + 1) prog pc (.baload :: rest)
         ⟨pc0, .i32 idx :: .heapRef addr :: stkRest, locs, jh, hp⟩ =
       runJvmResFast f prog (pc + 1) rest
-        ⟨pc + 1, .i32 (UInt32.ofBitVec (elems[idx.toNat].toBitVec.signExtend 32)) :: stkRest, locs, jh, hp⟩ := by
-  have hstep := Jvm.stepInstr_baload algHooks (pc := pc) (stkRest := stkRest)
-    (locs := locs) (hp := hp) hget hslt hlt
-  simp only [runJvmResFast]
-  rw [Jvm.runJvmResFast_step_nonbranch algHooks (hbr := rfl) (hno := by simp)]
-  simp only [hstep, ↓reduceIte]
+        ⟨pc + 1, .i32 (UInt32.ofBitVec (elems[idx.toNat].toBitVec.signExtend 32)) :: stkRest, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_baload algHooks hget hslt hlt
 
 theorem runJvmResFast_arraylength_obj {f : Nat} {prog : List JvmInstr} {pc : Nat}
     {rest : List JvmInstr} {pc0 : Nat} {addr : Nat} {stkRest : List JvmVal}
@@ -570,13 +284,8 @@ theorem runJvmResFast_arraylength_obj {f : Nat} {prog : List JvmInstr} {pc : Nat
     runJvmResFast (f + 1) prog pc (.arraylength :: rest)
         ⟨pc0, .heapRef addr :: stkRest, locs, jh, hp⟩ =
       runJvmResFast f prog (pc + 1) rest
-        ⟨pc + 1, .i32 (UInt32.ofNat elems.size) :: stkRest, locs, jh, hp⟩ := by
-  have hstep : Jvm.stepInstr algHooks .arraylength ⟨pc, .heapRef addr :: stkRest, locs, jh, hp⟩ =
-      .inl (some ⟨pc + 1, .i32 (UInt32.ofNat elems.size) :: stkRest, locs, jh, hp⟩) := by
-    simp [Jvm.stepInstr, hget, Jvm.HeapObj.arrayLength?]
-  simp only [runJvmResFast]
-  rw [Jvm.runJvmResFast_step_nonbranch algHooks (hbr := rfl) (hno := by simp)]
-  simp only [hstep, ↓reduceIte]
+        ⟨pc + 1, .i32 (UInt32.ofNat elems.size) :: stkRest, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_arraylength_obj algHooks hget
 
 theorem runJvmValFast_arraylength_obj {f : Nat} {prog : List JvmInstr} {pc : Nat}
     {rest : List JvmInstr} {pc0 : Nat} {addr : Nat} {stkRest : List JvmVal}
@@ -585,13 +294,8 @@ theorem runJvmValFast_arraylength_obj {f : Nat} {prog : List JvmInstr} {pc : Nat
     runJvmValFast (f + 1) prog pc (.arraylength :: rest)
         ⟨pc0, .heapRef addr :: stkRest, locs, jh, hp⟩ =
       runJvmValFast f prog (pc + 1) rest
-        ⟨pc + 1, .i32 (UInt32.ofNat elems.size) :: stkRest, locs, jh, hp⟩ := by
-  have hstep : Jvm.stepInstr algHooks .arraylength ⟨pc, .heapRef addr :: stkRest, locs, jh, hp⟩ =
-      .inl (some ⟨pc + 1, .i32 (UInt32.ofNat elems.size) :: stkRest, locs, jh, hp⟩) := by
-    simp [Jvm.stepInstr, hget, Jvm.HeapObj.arrayLength?]
-  simp only [runJvmValFast]
-  rw [Jvm.runJvmValFast_step_nonbranch algHooks (hbr := rfl) (hno := by simp)]
-  simp only [hstep, ↓reduceIte]
+        ⟨pc + 1, .i32 (UInt32.ofNat elems.size) :: stkRest, locs, jh, hp⟩ :=
+  Jvm.runJvmValFast_arraylength_obj algHooks hget
 
 theorem runJvmResFast_arraylength_byte {f : Nat} {prog : List JvmInstr} {pc : Nat}
     {rest : List JvmInstr} {pc0 : Nat} {addr : Nat} {stkRest : List JvmVal}
@@ -600,13 +304,8 @@ theorem runJvmResFast_arraylength_byte {f : Nat} {prog : List JvmInstr} {pc : Na
     runJvmResFast (f + 1) prog pc (.arraylength :: rest)
         ⟨pc0, .heapRef addr :: stkRest, locs, jh, hp⟩ =
       runJvmResFast f prog (pc + 1) rest
-        ⟨pc + 1, .i32 (UInt32.ofNat elems.size) :: stkRest, locs, jh, hp⟩ := by
-  have hstep : Jvm.stepInstr algHooks .arraylength ⟨pc, .heapRef addr :: stkRest, locs, jh, hp⟩ =
-      .inl (some ⟨pc + 1, .i32 (UInt32.ofNat elems.size) :: stkRest, locs, jh, hp⟩) := by
-    simp [Jvm.stepInstr, hget, Jvm.HeapObj.arrayLength?]
-  simp only [runJvmResFast]
-  rw [Jvm.runJvmResFast_step_nonbranch algHooks (hbr := rfl) (hno := by simp)]
-  simp only [hstep, ↓reduceIte]
+        ⟨pc + 1, .i32 (UInt32.ofNat elems.size) :: stkRest, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_arraylength_byte algHooks hget
 
 theorem runJvmValFast_arraylength_byte {f : Nat} {prog : List JvmInstr} {pc : Nat}
     {rest : List JvmInstr} {pc0 : Nat} {addr : Nat} {stkRest : List JvmVal}
@@ -615,13 +314,8 @@ theorem runJvmValFast_arraylength_byte {f : Nat} {prog : List JvmInstr} {pc : Na
     runJvmValFast (f + 1) prog pc (.arraylength :: rest)
         ⟨pc0, .heapRef addr :: stkRest, locs, jh, hp⟩ =
       runJvmValFast f prog (pc + 1) rest
-        ⟨pc + 1, .i32 (UInt32.ofNat elems.size) :: stkRest, locs, jh, hp⟩ := by
-  have hstep : Jvm.stepInstr algHooks .arraylength ⟨pc, .heapRef addr :: stkRest, locs, jh, hp⟩ =
-      .inl (some ⟨pc + 1, .i32 (UInt32.ofNat elems.size) :: stkRest, locs, jh, hp⟩) := by
-    simp [Jvm.stepInstr, hget, Jvm.HeapObj.arrayLength?]
-  simp only [runJvmValFast]
-  rw [Jvm.runJvmValFast_step_nonbranch algHooks (hbr := rfl) (hno := by simp)]
-  simp only [hstep, ↓reduceIte]
+        ⟨pc + 1, .i32 (UInt32.ofNat elems.size) :: stkRest, locs, jh, hp⟩ :=
+  Jvm.runJvmValFast_arraylength_byte algHooks hget
 
 theorem runJvmResFast_anewarray_obj {f : Nat} {prog : List JvmInstr} {pc : Nat}
     {rest : List JvmInstr} {pc0 : Nat} {n : UInt32} {stkRest : List JvmVal}
@@ -631,70 +325,72 @@ theorem runJvmResFast_anewarray_obj {f : Nat} {prog : List JvmInstr} {pc : Nat}
         ⟨pc0, .i32 n :: stkRest, locs, jh, hp⟩ =
       runJvmResFast f prog (pc + 1) rest
         ⟨pc + 1, .heapRef jh.objects.size :: stkRest, locs,
-          (jh.alloc (.objArray "java/lang/Object" (Array.replicate n.toNat .null))).2, hp⟩ := by
-  have hstep := Jvm.stepInstr_anewarray algHooks "java/lang/Object" (pc := pc) (stkRest := stkRest)
-    (locs := locs) (jh := jh) (hp := hp) hslt
-  simp only [runJvmResFast]
-  rw [Jvm.runJvmResFast_step_nonbranch algHooks (hbr := rfl) (hno := by simp)]
-  simp only [hstep, ↓reduceIte]
+          (jh.alloc (.objArray "java/lang/Object" (Array.replicate n.toNat .null))).2, hp⟩ :=
+  Jvm.runJvmResFast_anewarray algHooks (cls := "java/lang/Object") hslt
 
 /-! ### Additional Static/Virtual Stepping Theorems & Heap Tactics -/
 
 theorem stepStatic_uintBox
-    {pc : Nat} {v : JvmVal} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {v : UInt32} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
-    stepInvokeStatic ⟨pc, v :: rest, locs, jh, hp⟩
+    stepInvokeStatic ⟨pc, .i32 v :: rest, locs, jh, hp⟩
       "kotlin/UInt" "box-impl" "(I)Lkotlin/UInt;" =
-      .inl (some ⟨pc + 1, .boxedUInt v.asI32 :: rest, locs, jh, hp⟩) := rfl
+      .inl (some ⟨pc + 1, .boxedUInt v :: rest, locs, jh, hp⟩) :=
+  Jvm.stepInvokeStatic_uint_box algHooks
 
 theorem stepVirtual_integer_intValue
     {pc : Nat} {v : UInt32} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeVirtual ⟨pc, .boxedInt v :: rest, locs, jh, hp⟩
       "java/lang/Integer" "intValue" "()I" =
-      .inl (some ⟨pc + 1, .i32 v :: rest, locs, jh, hp⟩) := rfl
+      .inl (some ⟨pc + 1, .i32 v :: rest, locs, jh, hp⟩) :=
+  Jvm.stepInvokeVirtual_integer_intValue algHooks (desc := "()I")
 
 theorem stepVirtual_number_intValue
     {pc : Nat} {v : UInt32} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeVirtual ⟨pc, .boxedInt v :: rest, locs, jh, hp⟩
       "java/lang/Number" "intValue" "()I" =
-      .inl (some ⟨pc + 1, .i32 v :: rest, locs, jh, hp⟩) := rfl
+      .inl (some ⟨pc + 1, .i32 v :: rest, locs, jh, hp⟩) :=
+  Jvm.stepInvokeVirtual_number_intValue algHooks (desc := "()I")
 
 theorem stepVirtual_pair_getFirst
     {pc : Nat} {a b : JvmVal} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeVirtual ⟨pc, .pair a b :: rest, locs, jh, hp⟩
       "kotlin/Pair" "getFirst" "()Ljava/lang/Object;" =
-      .inl (some ⟨pc + 1, a :: rest, locs, jh, hp⟩) := rfl
+      .inl (some ⟨pc + 1, a :: rest, locs, jh, hp⟩) :=
+  Jvm.stepInvokeVirtual_pair_getFirst algHooks (desc := "()Ljava/lang/Object;")
 
 theorem stepVirtual_ulong_unbox
     {pc : Nat} {v : UInt64} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeVirtual ⟨pc, .boxedULong v :: rest, locs, jh, hp⟩
       "kotlin/ULong" "unbox-impl" "()J" =
-      .inl (some ⟨pc + 1, .i64 v :: rest, locs, jh, hp⟩) := rfl
+      .inl (some ⟨pc + 1, .i64 v :: rest, locs, jh, hp⟩) :=
+  Jvm.stepInvokeVirtual_ulong_unbox algHooks (desc := "()J")
 
 theorem stepStatic_arraysFillAll_obj
     {pc : Nat} {handler elem : JvmVal} {addr : Nat} {stkRest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     {cls : String} {elems : Array JvmVal} {desc : String}
-    (hget : jh.get? addr = some (.objArray cls elems)) :
+    (hget : jh.get? addr = some (.objArray cls elems))
+    (hcompat : Jvm.isArrayElemCompat algHooks jh cls elem = true := by first | rfl | simp [Jvm.isArrayElemCompat]) :
     stepInvokeStatic ⟨pc, handler :: .i32 6 :: .i32 0 :: .i32 0 :: elem :: .heapRef addr :: stkRest, locs, jh, hp⟩
       "kotlin/collections/ArraysKt" "fill$default" desc =
       .inl (some ⟨pc + 1, stkRest, locs,
         jh.set addr (.objArray cls (Array.ofFn (n := elems.size) fun _ => elem)), hp⟩) :=
-  Jvm.stepInvokeStatic_arraysFillAll_obj algHooks (desc := desc) hget
+  Jvm.stepInvokeStatic_arraysFillAll_obj algHooks (desc := desc) hcompat hget
 
 theorem stepStatic_uarraysFillAll_byte
-    {pc : Nat} {handler elem : JvmVal} {addr : Nat} {stkRest : List JvmVal}
+    {pc : Nat} {handler : JvmVal} {elem : UInt32} {addr : Nat} {stkRest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     {elems : Array UInt8} {desc : String}
     (hget : jh.get? addr = some (.byteArray elems)) :
-    stepInvokeStatic ⟨pc, handler :: .i32 6 :: .i32 0 :: .i32 0 :: elem :: .heapRef addr :: stkRest, locs, jh, hp⟩
+    stepInvokeStatic ⟨pc, handler :: .i32 6 :: .i32 0 :: .i32 0 :: .i32 elem :: .heapRef addr :: stkRest, locs, jh, hp⟩
       "kotlin/collections/unsigned/UArraysKt" "fill-WpHrYlw$default" desc =
       .inl (some ⟨pc + 1, stkRest, locs,
-        jh.set addr (.byteArray (Array.ofFn (n := elems.size) fun _ => elem.asI32.toUInt8)), hp⟩) :=
+        jh.set addr (.byteArray (Array.ofFn (n := elems.size) fun _ => elem.toUInt8)), hp⟩) :=
   Jvm.stepInvokeStatic_uarraysFillAll_byte algHooks (desc := desc) hget
 
 theorem stepStatic_arraysCopyOfRange_obj
@@ -771,31 +467,31 @@ theorem stepStatic_ubyteArrayGet
   Jvm.stepInvokeStatic_ubyteArrayGet algHooks hget hslt hlt
 
 theorem stepStatic_uint32ToInt32
-    {pc : Nat} {cls : String} {x : JvmVal} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {cls : String} {x : UInt32} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     (hcls : cls = "Life105LeanKt" ∨ cls = "Life106LeanKt" ∨ cls = "MacroCellLeanKt" ∨
       cls = "PlaintextLeanKt" ∨ cls = "RleLeanKt") :
-    stepInvokeStatic ⟨pc, x :: rest, locs, jh, hp⟩
+    stepInvokeStatic ⟨pc, .i32 x :: rest, locs, jh, hp⟩
       cls "f_Algorithm_uint32ToInt32-WZ4Q5Ns" "(I)I" =
-      .inl (some ⟨pc + 1, .i32 x.asI32 :: rest, locs, jh, hp⟩) := by
+      .inl (some ⟨pc + 1, .i32 x :: rest, locs, jh, hp⟩) := by
   rcases hcls with rfl | rfl | rfl | rfl | rfl <;> rfl
 
 theorem stepStatic_decodeCharAtLam_heap
-    {pc : Nat} {cls : String} {k p : JvmVal} {addr : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {cls : String} {k p : UInt32} {addr : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} {elems : Array UInt8}
     (hcls : cls = "Life105LeanKt" ∨ cls = "Life106LeanKt" ∨ cls = "MacroCellLeanKt" ∨
       cls = "PlaintextLeanKt" ∨ cls = "RleLeanKt")
     (hget : jh.get? addr = some (.byteArray elems))
-    (hslt : (p.asI32 + k.asI32).toBitVec.slt 0#32 = false)
-    (hlt : (p.asI32 + k.asI32).toNat < elems.size) :
-    stepInvokeStatic ⟨pc, k :: .heapRef addr :: p :: rest, locs, jh, hp⟩
+    (hslt : (p + k).toBitVec.slt 0#32 = false)
+    (hlt : (p + k).toNat < elems.size) :
+    stepInvokeStatic ⟨pc, .i32 k :: .heapRef addr :: .i32 p :: rest, locs, jh, hp⟩
       cls "f_Algorithm_decodeCharAt___lam__0-Mv_zs3U" "(I[BI)I" =
-      .inl (some ⟨pc + 1, .i32 (elems[(p.asI32 + k.asI32).toNat].toUInt32 &&& 0x3F) :: rest,
+      .inl (some ⟨pc + 1, .i32 (elems[(p + k).toNat].toUInt32 &&& 0x3F) :: rest,
         locs, jh, hp⟩) := by
   rcases hcls with rfl | rfl | rfl | rfl | rfl <;>
     (refine Eq.trans (b := match jh.get? addr with
       | some (.byteArray el) =>
-        let idx := p.asI32 + k.asI32
+        let idx := p + k
         if idx.toBitVec.slt 0#32 then .inr none
         else if _ : idx.toNat < el.size then
           .inl (some ⟨pc + 1, .i32 (el[idx.toNat].toUInt32 &&& 0x3F) :: rest, locs, jh, hp⟩)
@@ -808,20 +504,20 @@ theorem stepStatic_decodeCharAtLam_heap
      · rename_i hn; exact absurd hlt (by simpa [UInt32.toNat_add] using hn))
 
 theorem stepStatic_scanDigits_heap
-    {pc : Nat} {cls : String} {acc p limit : JvmVal} {addr : Nat} {rest : List JvmVal}
+    {pc : Nat} {cls : String} {acc : UInt64} {p limit : UInt32} {addr : Nat} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} {elems : Array UInt8}
     (hcls : cls = "Life105LeanKt" ∨ cls = "Life106LeanKt" ∨ cls = "MacroCellLeanKt" ∨
       cls = "PlaintextLeanKt" ∨ cls = "RleLeanKt")
     (hget : jh.get? addr = some (.byteArray elems)) :
-    stepInvokeStatic ⟨pc, acc :: p :: limit :: .heapRef addr :: rest, locs, jh, hp⟩
+    stepInvokeStatic ⟨pc, .i64 acc :: .i32 p :: .i32 limit :: .heapRef addr :: rest, locs, jh, hp⟩
       cls "f_Algorithm_scanDigits-G4XTHLI" "([BIIJ)Lkotlin/Pair;" =
-      let r := Algorithm.scanDigits ⟨elems⟩ limit.asI32 p.asI32 acc.asI64
+      let r := Algorithm.scanDigits ⟨elems⟩ limit p acc
       .inl (some ⟨pc + 1, .pair (.boxedUInt r.1) (.boxedULong r.2) :: rest,
         locs, jh, hp⟩) := by
   rcases hcls with rfl | rfl | rfl | rfl | rfl <;>
     (refine Eq.trans (b := match jh.get? addr with
       | some (.byteArray el) =>
-        let r := Algorithm.scanDigits ⟨el⟩ limit.asI32 p.asI32 acc.asI64
+        let r := Algorithm.scanDigits ⟨el⟩ limit p acc
         .inl (some ⟨pc + 1, .pair (.boxedUInt r.1) (.boxedULong r.2) :: rest, locs, jh, hp⟩)
       | _ => .inr none) rfl ?_
      rw [hget])
@@ -829,54 +525,60 @@ theorem stepStatic_scanDigits_heap
 /-! ### Branch Cons Lemmas & Automated Heap Block Stepper -/
 
 theorem evalBranchInstrCons_if_icmpge (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
-    (rest : List JvmInstr) (pc0 : Nat) (b a : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
+    (rest : List JvmInstr) (pc0 : Nat) (b a : UInt32) (s : List JvmVal) (locs : Nat → JvmVal)
     (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
-    evalBranchInstrCons f1 prog pc (.if_icmpge target) rest ⟨pc0, b :: a :: s, locs, jh, hp⟩ =
-      if b.asI32.toBitVec.sle a.asI32.toBitVec then
+    evalBranchInstrCons f1 prog pc (.if_icmpge target) rest ⟨pc0, .i32 b :: .i32 a :: s, locs, jh, hp⟩ =
+      if b.toBitVec.sle a.toBitVec then
         runJvmValFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
-      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ := rfl
+      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalBranchInstrCons_if_icmpge algHooks f1 prog pc target rest pc0 b a s locs jh hp
 
 theorem evalResBranchInstrCons_if_icmpge (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
-    (rest : List JvmInstr) (pc0 : Nat) (b a : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
+    (rest : List JvmInstr) (pc0 : Nat) (b a : UInt32) (s : List JvmVal) (locs : Nat → JvmVal)
     (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
-    evalResBranchInstrCons f1 prog pc (.if_icmpge target) rest ⟨pc0, b :: a :: s, locs, jh, hp⟩ =
-      if b.asI32.toBitVec.sle a.asI32.toBitVec then
+    evalResBranchInstrCons f1 prog pc (.if_icmpge target) rest ⟨pc0, .i32 b :: .i32 a :: s, locs, jh, hp⟩ =
+      if b.toBitVec.sle a.toBitVec then
         runJvmResFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
-      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ := rfl
+      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalResBranchInstrCons_if_icmpge algHooks f1 prog pc target rest pc0 b a s locs jh hp
 
 theorem evalBranchInstrCons_if_icmple (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
-    (rest : List JvmInstr) (pc0 : Nat) (b a : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
+    (rest : List JvmInstr) (pc0 : Nat) (b a : UInt32) (s : List JvmVal) (locs : Nat → JvmVal)
     (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
-    evalBranchInstrCons f1 prog pc (.if_icmple target) rest ⟨pc0, b :: a :: s, locs, jh, hp⟩ =
-      if a.asI32.toBitVec.sle b.asI32.toBitVec then
+    evalBranchInstrCons f1 prog pc (.if_icmple target) rest ⟨pc0, .i32 b :: .i32 a :: s, locs, jh, hp⟩ =
+      if a.toBitVec.sle b.toBitVec then
         runJvmValFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
-      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ := rfl
+      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalBranchInstrCons_if_icmple algHooks f1 prog pc target rest pc0 b a s locs jh hp
 
 theorem evalResBranchInstrCons_if_icmple (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
-    (rest : List JvmInstr) (pc0 : Nat) (b a : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
+    (rest : List JvmInstr) (pc0 : Nat) (b a : UInt32) (s : List JvmVal) (locs : Nat → JvmVal)
     (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
-    evalResBranchInstrCons f1 prog pc (.if_icmple target) rest ⟨pc0, b :: a :: s, locs, jh, hp⟩ =
-      if a.asI32.toBitVec.sle b.asI32.toBitVec then
+    evalResBranchInstrCons f1 prog pc (.if_icmple target) rest ⟨pc0, .i32 b :: .i32 a :: s, locs, jh, hp⟩ =
+      if a.toBitVec.sle b.toBitVec then
         runJvmResFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
-      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ := rfl
+      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalResBranchInstrCons_if_icmple algHooks f1 prog pc target rest pc0 b a s locs jh hp
 
 theorem evalResBranchInstrCons_tableswitch (f1 : Nat) (prog : List JvmInstr) (pc : Nat)
     (low : Int32) (targets : List Nat) (defaultTarget : Nat)
-    (rest : List JvmInstr) (pc0 : Nat) (key : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
+    (rest : List JvmInstr) (pc0 : Nat) (key : UInt32) (s : List JvmVal) (locs : Nat → JvmVal)
     (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
     evalResBranchInstrCons f1 prog pc (.tableswitch low targets defaultTarget) rest
-        ⟨pc0, key :: s, locs, jh, hp⟩ =
-      let t := Jvm.tableswitchTarget key.asI32 low targets defaultTarget
-      runJvmResFast f1 prog t (prog.drop t) ⟨t, s, locs, jh, hp⟩ := rfl
+        ⟨pc0, .i32 key :: s, locs, jh, hp⟩ =
+      let t := Jvm.tableswitchTarget key low targets defaultTarget
+      runJvmResFast f1 prog t (prog.drop t) ⟨t, s, locs, jh, hp⟩ :=
+  Jvm.evalResBranchInstrCons_tableswitch algHooks f1 prog pc low targets defaultTarget rest pc0 key s locs jh hp
 
 theorem evalBranchInstrCons_tableswitch (f1 : Nat) (prog : List JvmInstr) (pc : Nat)
     (low : Int32) (targets : List Nat) (defaultTarget : Nat)
-    (rest : List JvmInstr) (pc0 : Nat) (key : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
+    (rest : List JvmInstr) (pc0 : Nat) (key : UInt32) (s : List JvmVal) (locs : Nat → JvmVal)
     (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
     evalBranchInstrCons f1 prog pc (.tableswitch low targets defaultTarget) rest
-        ⟨pc0, key :: s, locs, jh, hp⟩ =
-      let t := Jvm.tableswitchTarget key.asI32 low targets defaultTarget
-      runJvmValFast f1 prog t (prog.drop t) ⟨t, s, locs, jh, hp⟩ := rfl
+        ⟨pc0, .i32 key :: s, locs, jh, hp⟩ =
+      let t := Jvm.tableswitchTarget key low targets defaultTarget
+      runJvmValFast f1 prog t (prog.drop t) ⟨t, s, locs, jh, hp⟩ :=
+  Jvm.evalBranchInstrCons_tableswitch algHooks f1 prog pc low targets defaultTarget rest pc0 key s locs jh hp
 
 section HeapTactics
 open Lean Elab Tactic

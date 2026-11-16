@@ -24,6 +24,12 @@ open Algorithm.JvmBytecode
 
 /-! ### Family 2b: SerialCore (skipSpaces, decodeCharAt, scanDigits, scanDigitSet, parseUInt32At, parseInt32At) -/
 
+private theorem setLocal_eq_self {locs : Nat → JvmVal} {idx : Nat} {val : JvmVal}
+    (h : locs idx = val) : setLocal locs idx val = locs := by
+  funext i
+  dsimp [setLocal]
+  split <;> simp_all
+
 private theorem jvmHeap_set_set {H : Jvm.JvmHeap AlgExt} {a : Nat} {x y : Jvm.HeapObj AlgExt} :
     (H.set a x).set a y = H.set a y := by
   simp only [Jvm.JvmHeap.set]
@@ -537,11 +543,12 @@ private theorem decodeCharAt_pc120 (cls : String)
   have hp_nat : p.toNat < limit.toNat := UInt32.lt_iff_toNat_lt.mp hlt
   have hsub : (limit - p).toNat = limit.toNat - p.toNat := UInt32.toNat_sub_of_le _ _ (UInt32.le_of_lt hlt)
   dsimp only
+  rw [← setLocal_eq_self hl0, ← setLocal_eq_self hl1, ← setLocal_eq_self hl2, ← setLocal_eq_self hl3]
   by_cases hmask : b0 &&& 0xF8 = 0xF0
   · have hmbeq : (b0 &&& 248 == 240) = true := beq_iff_eq.mpr hmask
     simp only [hmbeq, Bool.not_true, Bool.false_eq_true, ↓reduceIte]
     heap_step_blk (decodeCharAtProg cls)
-    simp only [hl2, hl1, Jvm.JvmVal.asI32]; rw [compareUnsigned_sge_zero]
+    rw [compareUnsigned_sge_zero]
     by_cases hlen : (3 : UInt32) < limit - p
     · have hlen_nat : 3 < limit.toNat - p.toNat := by
         have := UInt32.lt_iff_toNat_lt.mp hlen
@@ -563,19 +570,16 @@ private theorem decodeCharAt_pc120 (cls : String)
       have hk3s : (p + 3).toBitVec.slt 0#32 = false := u32_slt_zero_of_lt_2_31 (by omega)
       have hk3l : (p + 3).toNat < elems.size := by omega
       heap_step_blk (decodeCharAtProg cls); dsimp only
-      rw [hl1, hl0]
       rw [runJvmValFast_invokestatic_step
-        (stepStatic_decodeCharAtLam_heap (k := .i32 1) (p := .i32 p) hcls hget hk1s hk1l)]
+        (stepStatic_decodeCharAtLam_heap (k := 1) (p := p) hcls hget hk1s hk1l)]
       heap_step_blk (decodeCharAtProg cls); dsimp only
-      rw [hl1, hl0]
       rw [runJvmValFast_invokestatic_step
-        (stepStatic_decodeCharAtLam_heap (k := .i32 2) (p := .i32 p) hcls hget hk2s hk2l)]
+        (stepStatic_decodeCharAtLam_heap (k := 2) (p := p) hcls hget hk2s hk2l)]
       heap_step_blk (decodeCharAtProg cls); dsimp only
-      rw [hl1, hl0]
       rw [runJvmValFast_invokestatic_step
-        (stepStatic_decodeCharAtLam_heap (k := .i32 3) (p := .i32 p) hcls hget hk3s hk3l)]
+        (stepStatic_decodeCharAtLam_heap (k := 3) (p := p) hcls hget hk3s hk3l)]
       heap_step_blk (decodeCharAtProg cls)
-      simp only [hl3, hl1, Jvm.JvmVal.asI32, ByteArray.get!,
+      simp only [ByteArray.get!,
         getElem!_pos elems (p + 1).toNat hk1l, getElem!_pos elems (p + 2).toNat hk2l,
         getElem!_pos elems (p + 3).toNat hk3l,
         show (18 &&& 31 : UInt32) = 18 from rfl,
@@ -586,11 +590,9 @@ private theorem decodeCharAt_pc120 (cls : String)
       have hlt_f : decide (limit - p > 3) = false := decide_eq_false hlen
       simp only [hle, decide_true, hlt_f, Bool.true_and, Bool.false_eq_true, ↓reduceIte]
       heap_step_blk (decodeCharAtProg cls)
-      simp only [hl3, hl1]; rfl
   · have hneq : (b0 &&& 248 == 240) = false := beq_false_of_ne hmask
     simp only [hneq, Bool.not_false, Bool.false_eq_true, Bool.false_and, ↓reduceIte]
     heap_step_blk (decodeCharAtProg cls)
-    simp only [hl3, hl1]; rfl
 
 private theorem decodeCharAt_pc56 (cls : String)
     (hcls : cls = "Life105LeanKt" ∨ cls = "Life106LeanKt" ∨ cls = "MacroCellLeanKt" ∨
@@ -615,12 +617,12 @@ private theorem decodeCharAt_pc56 (cls : String)
   have hp_nat : p.toNat < limit.toNat := UInt32.lt_iff_toNat_lt.mp hlt
   have hsub : (limit - p).toNat = limit.toNat - p.toNat := UInt32.toNat_sub_of_le _ _ (UInt32.le_of_lt hlt)
   dsimp only
+  rw [← setLocal_eq_self hl0, ← setLocal_eq_self hl1, ← setLocal_eq_self hl2, ← setLocal_eq_self hl3]
   heap_step_blk (decodeCharAtProg cls)
-  simp only [hl3, Jvm.JvmVal.asI32]
   by_cases hm3 : b0 &&& 240 = 224
   · simp only [show (b0 &&& 240 == 224) = true from beq_iff_eq.mpr hm3, ↓reduceIte]
     heap_step_blk (decodeCharAtProg cls)
-    simp only [hl2, hl1, Jvm.JvmVal.asI32]; rw [compareUnsigned_slt_zero]
+    rw [compareUnsigned_slt_zero]
     by_cases hl3len : 2 < limit - p
     · have hl3_nat : 2 < limit.toNat - p.toNat := by
         have := UInt32.lt_iff_toNat_lt.mp hl3len
@@ -635,29 +637,31 @@ private theorem decodeCharAt_pc56 (cls : String)
       have hk2l : (p + 2).toNat < elems.size := by omega
       simp only [hl3len, decide_true, Bool.true_and, ↓reduceIte]
       heap_step_blk (decodeCharAtProg cls); dsimp only
-      rw [hl1, hl0]
       rw [runJvmValFast_invokestatic_step
-        (stepStatic_decodeCharAtLam_heap (k := .i32 1) (p := .i32 p) hcls hget hk1s hk1l)]
+        (stepStatic_decodeCharAtLam_heap (k := 1) (p := p) hcls hget hk1s hk1l)]
       heap_step_blk (decodeCharAtProg cls); dsimp only
-      rw [hl1, hl0]
       rw [runJvmValFast_invokestatic_step
-        (stepStatic_decodeCharAtLam_heap (k := .i32 2) (p := .i32 p) hcls hget hk2s hk2l)]
+        (stepStatic_decodeCharAtLam_heap (k := 2) (p := p) hcls hget hk2s hk2l)]
       heap_step_blk (decodeCharAtProg cls)
-      simp only [hl3, hl1, Jvm.JvmVal.asI32, ByteArray.get!,
+      simp only [ByteArray.get!,
         getElem!_pos elems (p + 1).toNat hk1l, getElem!_pos elems (p + 2).toNat hk2l,
         show (12 &&& 31 : UInt32) = 12 from rfl,
         show (6 &&& 31 : UInt32) = 6 from rfl]
     · simp only [hl3len, decide_false, Bool.false_eq_true, Bool.true_and, ↓reduceIte]
       heap_step_blk (decodeCharAtProg cls)
-      simp only [hl3, Jvm.JvmVal.asI32, ByteArray.get!]
+      simp only [ByteArray.get!]
       exact decodeCharAt_pc120 cls hcls jh hp addr elems _ p limit b0 _
-        (by simp only [nat_add_eq_add]; omega) hget hlt hlim hlim31 hl0 hl1 hl2 hl3
+        (by simp only [nat_add_eq_add]; omega) hget hlt hlim hlim31
+        (by simp [setLocal]) (by simp [setLocal])
+        (by simp [setLocal]) (by simp [setLocal])
   · have hneq : (b0 &&& 240 == 224) = false := beq_false_of_ne hm3
     simp only [hneq, Bool.false_eq_true, Bool.false_and, ↓reduceIte]
     heap_step_blk (decodeCharAtProg cls)
-    simp only [hl3, Jvm.JvmVal.asI32, ByteArray.get!]
+    simp only [ByteArray.get!]
     exact decodeCharAt_pc120 cls hcls jh hp addr elems _ p limit b0 _
-      (by simp only [nat_add_eq_add]; omega) hget hlt hlim hlim31 hl0 hl1 hl2 hl3
+      (by simp only [nat_add_eq_add]; omega) hget hlt hlim hlim31
+      (by simp [setLocal]) (by simp [setLocal])
+      (by simp [setLocal]) (by simp [setLocal])
 
 private theorem decodeCharAt_spec (cls : String)
     (hcls : cls = "Life105LeanKt" ∨ cls = "Life106LeanKt" ∨ cls = "MacroCellLeanKt" ∨
@@ -704,7 +708,7 @@ private theorem decodeCharAt_spec (cls : String)
         simp only [hle_f, Bool.false_eq_true, hl2_t, Bool.true_and, ↓reduceIte]
         heap_step_blk (decodeCharAtProg cls); dsimp only
         rw [runJvmValFast_invokestatic_step
-          (stepStatic_decodeCharAtLam_heap (k := .i32 1) (p := .i32 p) hcls hget hk1s hk1l)]
+          (stepStatic_decodeCharAtLam_heap (k := 1) (p := p) hcls hget hk1s hk1l)]
         heap_step_blk (decodeCharAtProg cls)
         simp only [ByteArray.get!, getElem!_pos elems (p + 1).toNat hk1l,
           show (6 &&& 31 : UInt32) = 6 from rfl]
@@ -925,6 +929,7 @@ private theorem parseUInt32At_pc18 (cls : String)
       rw [afterResBlockChunk_done], by
       simp only [hbeq, ↓reduceIte]; exact jvmHeap_set1_u32_0 jh _⟩
   · have hbne : (e == pos) = false := beq_false_of_ne heq
+    rw [← setLocal_eq_self hl4, ← setLocal_eq_self hl5]
     by_cases hle : v ≤ 4294967295
     · let jh0 := (jh.alloc (.objArray "java/lang/Object" (Array.replicate 2 .null))).2
       have h2_0 : jh0.get? jh.objects.size = some (.objArray "java/lang/Object" (Array.replicate 2 .null)) :=
@@ -968,7 +973,7 @@ private theorem parseUInt32At_pc18 (cls : String)
       exact ⟨_, by
         simp only [hbne, Bool.false_eq_true, ↓reduceIte]
         heap_step_blk (parseUInt32AtProg cls)
-        simp only [hl5, Jvm.JvmVal.asI64]; rw [compareUnsigned64_sle_zero]
+        rw [compareUnsigned64_sle_zero]
         simp only [hle, decide_true, ↓reduceIte]
         heap_step_blk (parseUInt32AtProg cls)
         rw [runJvmResFast_anewarray_obj (by decide), show (2 : UInt32).toNat = 2 from rfl]
@@ -983,7 +988,7 @@ private theorem parseUInt32At_pc18 (cls : String)
         rw [runJvmResFast_aastore (idx := 0) hk0 (by decide) (by decide)]
         change runJvmResFast _ _ _ _ ⟨_, _, _, k1, hp⟩ = _
         heap_step_blk (parseUInt32AtProg cls)
-        rw [hl5, runJvmResFast_aastore (idx := 1) hk1 (by decide) (by simp [a6_1, a6_0])]
+        rw [runJvmResFast_aastore (idx := 1) hk1 (by decide) (by simp [a6_1, a6_0])]
         change runJvmResFast _ _ _ _ ⟨_, _, _, k2, hp⟩ = _
         heap_step_blk (parseUInt32AtProg cls)
         rw [runJvmResFast_aastore (idx := 2) hk2 (by decide) (by simp [a6_2, a6_1, a6_0])]
@@ -995,7 +1000,7 @@ private theorem parseUInt32At_pc18 (cls : String)
         rw [runJvmResFast_aastore (idx := 4) hk4 (by decide) (by simp [a6_4, a6_3, a6_2, a6_1, a6_0])]
         change runJvmResFast _ _ _ _ ⟨_, _, _, k5, hp⟩ = _
         heap_step_blk (parseUInt32AtProg cls)
-        rw [hl4, runJvmResFast_aastore (idx := 5) hk5 (by decide) (by simp [a6_5, a6_4, a6_3, a6_2, a6_1, a6_0])]
+        rw [runJvmResFast_aastore (idx := 5) hk5 (by decide) (by simp [a6_5, a6_4, a6_3, a6_2, a6_1, a6_0])]
         change runJvmResFast _ _ _ _ ⟨_, _, _, k6, hp⟩ = _
         heap_step_blk (parseUInt32AtProg cls)
         rw [runJvmResFast_aastore (idx := 1) hk6_get (by decide) (by decide)]
@@ -1008,7 +1013,7 @@ private theorem parseUInt32At_pc18 (cls : String)
     · exact ⟨_, by
         simp only [hbne, Bool.false_eq_true, ↓reduceIte]
         heap_step_blk (parseUInt32AtProg cls)
-        simp only [hl5, Jvm.JvmVal.asI64]; rw [compareUnsigned64_sle_zero]
+        rw [compareUnsigned64_sle_zero]
         simp only [hle, decide_false, Bool.false_eq_true, ↓reduceIte]
         heap_step_blk (parseUInt32AtProg cls)
         rw [runJvmResFast_anewarray_obj (by decide), show (1 : UInt32).toNat = 1 from rfl]
@@ -1180,6 +1185,7 @@ private theorem parseInt32At_pc52 (cls : String)
   · have hbne : (e == start) = false := beq_false_of_ne heq
     cases isNeg
     · dsimp only [Bool.false_eq_true, ↓reduceIte] at hl3 ⊢
+      rw [← setLocal_eq_self hl3, ← setLocal_eq_self hl6, ← setLocal_eq_self hl7]
       by_cases hle : v ≤ 2147483647
       · let jh0 := (jh.alloc (.objArray "java/lang/Object" (Array.replicate 2 .null))).2
         have h2_0 : jh0.get? jh.objects.size = some (.objArray "java/lang/Object" (Array.replicate 2 .null)) :=
@@ -1223,10 +1229,10 @@ private theorem parseInt32At_pc52 (cls : String)
         exact ⟨_, by
           simp only [hbne, Bool.false_eq_true, ↓reduceIte]
           heap_step_blk (parseInt32AtProg cls)
-          simp only [hl3, Jvm.JvmVal.asI32, show (!((0 : UInt32) == 0)) = false from rfl,
+          simp only [show (!((0 : UInt32) == 0)) = false from rfl,
             Bool.false_eq_true, ↓reduceIte]
           heap_step_blk (parseInt32AtProg cls)
-          simp only [hl7, Jvm.JvmVal.asI64]; rw [compareUnsigned64_sle_zero]
+          rw [compareUnsigned64_sle_zero]
           simp only [hle, decide_true, ↓reduceIte]
           heap_step_blk (parseInt32AtProg cls)
           rw [runJvmResFast_invokestatic_step (stepStatic_uint32ToInt32 hcls)]
@@ -1243,7 +1249,7 @@ private theorem parseInt32At_pc52 (cls : String)
           rw [runJvmResFast_aastore (idx := 0) hk0 (by decide) (by decide)]
           change runJvmResFast _ _ _ _ ⟨_, _, _, k1, hp⟩ = _
           heap_step_blk (parseInt32AtProg cls)
-          rw [hl7, runJvmResFast_aastore (idx := 1) hk1 (by decide) (by simp [a6_1, a6_0])]
+          rw [runJvmResFast_aastore (idx := 1) hk1 (by decide) (by simp [a6_1, a6_0])]
           change runJvmResFast _ _ _ _ ⟨_, _, _, k2, hp⟩ = _
           heap_step_blk (parseInt32AtProg cls)
           rw [runJvmResFast_aastore (idx := 2) hk2 (by decide) (by simp [a6_2, a6_1, a6_0])]
@@ -1255,7 +1261,7 @@ private theorem parseInt32At_pc52 (cls : String)
           rw [runJvmResFast_aastore (idx := 4) hk4 (by decide) (by simp [a6_4, a6_3, a6_2, a6_1, a6_0])]
           change runJvmResFast _ _ _ _ ⟨_, _, _, k5, hp⟩ = _
           heap_step_blk (parseInt32AtProg cls)
-          rw [hl6, runJvmResFast_aastore (idx := 5) hk5 (by decide) (by simp [a6_5, a6_4, a6_3, a6_2, a6_1, a6_0])]
+          rw [runJvmResFast_aastore (idx := 5) hk5 (by decide) (by simp [a6_5, a6_4, a6_3, a6_2, a6_1, a6_0])]
           change runJvmResFast _ _ _ _ ⟨_, _, _, k6, hp⟩ = _
           heap_step_blk (parseInt32AtProg cls)
           rw [runJvmResFast_aastore (idx := 1) hk6_get (by decide) (by decide)]
@@ -1269,10 +1275,10 @@ private theorem parseInt32At_pc52 (cls : String)
       · exact ⟨_, by
           simp only [hbne, Bool.false_eq_true, ↓reduceIte]
           heap_step_blk (parseInt32AtProg cls)
-          simp only [hl3, Jvm.JvmVal.asI32, show (!((0 : UInt32) == 0)) = false from rfl,
+          simp only [show (!((0 : UInt32) == 0)) = false from rfl,
             Bool.false_eq_true, ↓reduceIte]
           heap_step_blk (parseInt32AtProg cls)
-          simp only [hl7, Jvm.JvmVal.asI64]; rw [compareUnsigned64_sle_zero]
+          rw [compareUnsigned64_sle_zero]
           simp only [hle, decide_false, Bool.false_eq_true, ↓reduceIte]
           heap_step_blk (parseInt32AtProg cls)
           rw [runJvmResFast_anewarray_obj (by decide), show (1 : UInt32).toNat = 1 from rfl]
@@ -1284,6 +1290,7 @@ private theorem parseInt32At_pc52 (cls : String)
           simp only [hbne, hle, Bool.false_eq_true, ↓reduceIte]
           exact jvmHeap_set1_u32_0 jh _⟩
     · dsimp only [↓reduceIte] at hl3 ⊢
+      rw [← setLocal_eq_self hl3, ← setLocal_eq_self hl6, ← setLocal_eq_self hl7]
       by_cases hle : v ≤ 2147483648
       · let jh0 := (jh.alloc (.objArray "java/lang/Object" (Array.replicate 2 .null))).2
         have h2_0 : jh0.get? jh.objects.size = some (.objArray "java/lang/Object" (Array.replicate 2 .null)) :=
@@ -1328,9 +1335,9 @@ private theorem parseInt32At_pc52 (cls : String)
         exact ⟨_, by
           simp only [hbne, Bool.false_eq_true, ↓reduceIte]
           heap_step_blk (parseInt32AtProg cls)
-          simp only [hl3, Jvm.JvmVal.asI32, show (!((1 : UInt32) == 0)) = true from rfl, ↓reduceIte]
+          simp only [show (!((1 : UInt32) == 0)) = true from rfl, ↓reduceIte]
           heap_step_blk (parseInt32AtProg cls)
-          simp only [hl7, Jvm.JvmVal.asI64]; rw [compareUnsigned64_sle_zero]
+          rw [compareUnsigned64_sle_zero]
           simp only [hle, decide_true, ↓reduceIte]
           heap_step_blk (parseInt32AtProg cls)
           rw [runJvmResFast_anewarray_obj (by decide), show (2 : UInt32).toNat = 2 from rfl]
@@ -1345,7 +1352,7 @@ private theorem parseInt32At_pc52 (cls : String)
           rw [runJvmResFast_aastore (idx := 0) hk0 (by decide) (by decide)]
           change runJvmResFast _ _ _ _ ⟨_, _, _, k1, hp⟩ = _
           heap_step_blk (parseInt32AtProg cls)
-          rw [hl7, runJvmResFast_aastore (idx := 1) hk1 (by decide) (by simp [a6_1, a6_0])]
+          rw [runJvmResFast_aastore (idx := 1) hk1 (by decide) (by simp [a6_1, a6_0])]
           change runJvmResFast _ _ _ _ ⟨_, _, _, k2, hp⟩ = _
           heap_step_blk (parseInt32AtProg cls)
           rw [runJvmResFast_aastore (idx := 2) hk2 (by decide) (by simp [a6_2, a6_1, a6_0])]
@@ -1357,7 +1364,7 @@ private theorem parseInt32At_pc52 (cls : String)
           rw [runJvmResFast_aastore (idx := 4) hk4 (by decide) (by simp [a6_4, a6_3, a6_2, a6_1, a6_0])]
           change runJvmResFast _ _ _ _ ⟨_, _, _, k5, hp⟩ = _
           heap_step_blk (parseInt32AtProg cls)
-          rw [hl6, runJvmResFast_aastore (idx := 5) hk5 (by decide) (by simp [a6_5, a6_4, a6_3, a6_2, a6_1, a6_0])]
+          rw [runJvmResFast_aastore (idx := 5) hk5 (by decide) (by simp [a6_5, a6_4, a6_3, a6_2, a6_1, a6_0])]
           change runJvmResFast _ _ _ _ ⟨_, _, _, k6, hp⟩ = _
           heap_step_blk (parseInt32AtProg cls)
           rw [runJvmResFast_aastore (idx := 1) hk6_get (by decide) (by decide)]
@@ -1370,9 +1377,9 @@ private theorem parseInt32At_pc52 (cls : String)
       · exact ⟨_, by
           simp only [hbne, Bool.false_eq_true, ↓reduceIte]
           heap_step_blk (parseInt32AtProg cls)
-          simp only [hl3, Jvm.JvmVal.asI32, show (!((1 : UInt32) == 0)) = true from rfl, ↓reduceIte]
+          simp only [show (!((1 : UInt32) == 0)) = true from rfl, ↓reduceIte]
           heap_step_blk (parseInt32AtProg cls)
-          simp only [hl7, Jvm.JvmVal.asI64]; rw [compareUnsigned64_sle_zero]
+          rw [compareUnsigned64_sle_zero]
           simp only [hle, decide_false, Bool.false_eq_true, ↓reduceIte]
           heap_step_blk (parseInt32AtProg cls)
           rw [runJvmResFast_anewarray_obj (by decide), show (1 : UInt32).toNat = 1 from rfl]
@@ -1423,7 +1430,7 @@ private theorem parseInt32At_pc37 (cls : String)
   heap_step_blk (parseInt32AtProg cls)
   rw [runJvmResFast_checkcast_boxedULong (Or.inl rfl)]
   heap_step_blk (parseInt32AtProg cls)
-  simp only [hl4, Jvm.JvmVal.asI32]
+  simp only [hl4]
   exact hrun
 
 private theorem parseInt32At_spec (cls : String)

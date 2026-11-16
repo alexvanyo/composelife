@@ -207,6 +207,23 @@ theorem growBufEmpty_4_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (arg0 : Jv
 
 /-! ### copyPrefix -/
 
+private theorem isArrayElemCompat_set_objArray {jh : Jvm.JvmHeap AlgExt} {addr : Nat}
+    {arrCls dstCls : String} {elems0 elems1 : Array JvmVal} {v : JvmVal}
+    (hget : jh.get? addr = some (.objArray arrCls elems0)) :
+    Jvm.isArrayElemCompat algHooks (jh.set addr (.objArray arrCls elems1)) dstCls v =
+      Jvm.isArrayElemCompat algHooks jh dstCls v := by
+  cases v <;> try rfl
+  rename_i a
+  simp only [Jvm.isArrayElemCompat, Jvm.JvmVal.isRef]
+  by_cases hobj : dstCls == "java/lang/Object"
+  · simp [hobj]
+  · simp only [hobj, Bool.false_eq_true, ↓reduceIte, Jvm.evalInstanceOf, Jvm.JvmHeap.checkInstanceOf]
+    by_cases ha : a = addr
+    · subst ha
+      rw [jvmHeap_get?_set_self hget, hget]
+      rfl
+    · rw [jvmHeap_get?_set_ne jh _ ha]
+
 private theorem copyPrefix_loop (rem fuel : Nat) (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (inst : JvmVal) (srcAddr dstAddr : Nat) (srcCls dstCls : String)
     (srcElems dstElems : Array JvmVal) (n i : UInt32) (locs : Nat → JvmVal)
@@ -215,6 +232,8 @@ private theorem copyPrefix_loop (rem fuel : Nat) (jh : Jvm.JvmHeap AlgExt) (hp :
     (hdst : jh.get? dstAddr = some (.objArray dstCls dstElems))
     (hi : i.toNat ≤ n.toNat) (hn : n.toNat ≤ srcElems.size) (hd : n.toNat ≤ dstElems.size)
     (hn31 : n.toNat < 2 ^ 31)
+    (hcompat : ∀ (k : Nat) (hk : k < n.toNat), i.toNat ≤ k →
+      Jvm.isArrayElemCompat algHooks jh dstCls (srcElems[k]'(by omega)) = true)
     (hrem : n.toNat - i.toNat ≤ rem) (hf : rem * 35 + 15 ≤ fuel) :
     ∃ st', runJvmResFast fuel f_Algorithm_copyPrefix___redArg_prog 0 f_Algorithm_copyPrefix___redArg_prog
         ⟨0, [], setLocal (setLocal (setLocal (setLocal (setLocal locs 0 inst)
@@ -256,14 +275,19 @@ private theorem copyPrefix_loop (rem fuel : Nat) (jh : Jvm.JvmHeap AlgExt) (hp :
           1 (.heapRef srcAddr)) 2 (.i32 n)) 3 (.i32 i)) 4 (.heapRef dstAddr))
         5 (.i32 (i + 1))) 6 inst) 7 (.heapRef srcAddr)) 8 (.i32 n)) 9 (.heapRef dstAddr)
       obtain ⟨st', hrun, hst⟩ := ih (fuel - 34) (i := i + 1) (dstElems := dst1) (jh := jh1) (locs := locs1)
-        hsrc1 hdst1 (by omega) (by simp only [dst1, Array.size_set]; exact hd) (by omega) (by omega)
+        hsrc1 hdst1 (by omega) (by simp only [dst1, Array.size_set]; exact hd)
+        (fun k hk hik => by
+          dsimp only [jh1]
+          rw [isArrayElemCompat_set_objArray hdst]
+          exact hcompat k hk (by omega))
+        (by omega) (by omega)
       refine ⟨st', ?_, ?_⟩
       · split_res_fuel 34
         heap_step_blk f_Algorithm_copyPrefix___redArg_prog
         simp only [hcu, show (4294967295 : UInt32).toBitVec.slt 0#32 = true from by decide, ↓reduceIte]
         heap_step_blk f_Algorithm_copyPrefix___redArg_prog
         rw [runJvmResFast_aaload hsrc hislt hisrc]
-        rw [runJvmResFast_aastore hdst hislt hidst]
+        rw [runJvmResFast_aastore hdst hislt hidst (hcompat i.toNat hiltn (Nat.le_refl _))]
         heap_step_blk f_Algorithm_copyPrefix___redArg_prog
         exact hrun
       · rw [hst]
@@ -302,7 +326,9 @@ theorem copyPrefix_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (hsrc : jh.get? srcAddr = some (.objArray srcCls srcElems))
     (hdst : jh.get? dstAddr = some (.objArray dstCls dstElems))
     (hi : i.toNat ≤ n.toNat) (hn : n.toNat ≤ srcElems.size) (hd : n.toNat ≤ dstElems.size)
-    (hn31 : n.toNat < 2 ^ 31) :
+    (hn31 : n.toNat < 2 ^ 31)
+    (hcompat : ∀ (k : Nat) (hk : k < n.toNat), i.toNat ≤ k →
+      Jvm.isArrayElemCompat algHooks jh dstCls (srcElems[k]'(by omega)) = true) :
     ∃ st', runJvmRes (n.toNat * 35 + 20) f_Algorithm_copyPrefix___redArg_prog
         ⟨0, [], setLocal (setLocal (setLocal (setLocal (setLocal (fun _ => .null) 0 inst)
           1 (.heapRef srcAddr)) 2 (.i32 n)) 3 (.i32 i)) 4 (.heapRef dstAddr), jh, hp⟩ =
@@ -310,7 +336,7 @@ theorem copyPrefix_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
       st'.jvmHeap = jh.set dstAddr (.objArray dstCls
         (copyObjArrayPrefix srcElems dstElems n i (n.toNat - i.toNat + 1))) := by
   obtain ⟨st', hrun, hst⟩ := copyPrefix_loop n.toNat (n.toNat * 35 + 20) jh hp inst srcAddr dstAddr
-    srcCls dstCls srcElems dstElems n i _ hne hsrc hdst hi hn hd hn31 (by omega) (by omega)
+    srcCls dstCls srcElems dstElems n i _ hne hsrc hdst hi hn hd hn31 hcompat (by omega) (by omega)
   refine ⟨st', ?_, hst⟩
   apply runJvmRes_of_runJvmResFast0 _ _ _ _ rfl
   exact hrun
@@ -322,7 +348,9 @@ theorem copyPrefix_1_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (hsrc : jh.get? srcAddr = some (.objArray srcCls srcElems))
     (hdst : jh.get? dstAddr = some (.objArray dstCls dstElems))
     (hi : i.toNat ≤ n.toNat) (hn : n.toNat ≤ srcElems.size) (hd : n.toNat ≤ dstElems.size)
-    (hn31 : n.toNat < 2 ^ 31) :
+    (hn31 : n.toNat < 2 ^ 31)
+    (hcompat : ∀ (k : Nat) (hk : k < n.toNat), i.toNat ≤ k →
+      Jvm.isArrayElemCompat algHooks jh dstCls (srcElems[k]'(by omega)) = true) :
     ∃ st', runJvmRes (n.toNat * 35 + 20) f_Algorithm_copyPrefix___redArg_1_prog
         ⟨0, [], setLocal (setLocal (setLocal (setLocal (setLocal (fun _ => .null) 0 inst)
           1 (.heapRef srcAddr)) 2 (.i32 n)) 3 (.i32 i)) 4 (.heapRef dstAddr), jh, hp⟩ =
@@ -330,7 +358,7 @@ theorem copyPrefix_1_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
       st'.jvmHeap = jh.set dstAddr (.objArray dstCls
         (copyObjArrayPrefix srcElems dstElems n i (n.toNat - i.toNat + 1))) := by
   rw [show f_Algorithm_copyPrefix___redArg_1_prog = f_Algorithm_copyPrefix___redArg_prog from rfl]
-  exact copyPrefix_equiv jh hp inst srcAddr dstAddr srcCls dstCls srcElems dstElems n i hne hsrc hdst hi hn hd hn31
+  exact copyPrefix_equiv jh hp inst srcAddr dstAddr srcCls dstCls srcElems dstElems n i hne hsrc hdst hi hn hd hn31 hcompat
 
 theorem copyPrefix_2_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (inst : JvmVal) (srcAddr dstAddr : Nat) (srcCls dstCls : String)
@@ -339,7 +367,9 @@ theorem copyPrefix_2_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (hsrc : jh.get? srcAddr = some (.objArray srcCls srcElems))
     (hdst : jh.get? dstAddr = some (.objArray dstCls dstElems))
     (hi : i.toNat ≤ n.toNat) (hn : n.toNat ≤ srcElems.size) (hd : n.toNat ≤ dstElems.size)
-    (hn31 : n.toNat < 2 ^ 31) :
+    (hn31 : n.toNat < 2 ^ 31)
+    (hcompat : ∀ (k : Nat) (hk : k < n.toNat), i.toNat ≤ k →
+      Jvm.isArrayElemCompat algHooks jh dstCls (srcElems[k]'(by omega)) = true) :
     ∃ st', runJvmRes (n.toNat * 35 + 20) f_Algorithm_copyPrefix___redArg_2_prog
         ⟨0, [], setLocal (setLocal (setLocal (setLocal (setLocal (fun _ => .null) 0 inst)
           1 (.heapRef srcAddr)) 2 (.i32 n)) 3 (.i32 i)) 4 (.heapRef dstAddr), jh, hp⟩ =
@@ -347,7 +377,7 @@ theorem copyPrefix_2_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
       st'.jvmHeap = jh.set dstAddr (.objArray dstCls
         (copyObjArrayPrefix srcElems dstElems n i (n.toNat - i.toNat + 1))) := by
   rw [show f_Algorithm_copyPrefix___redArg_2_prog = f_Algorithm_copyPrefix___redArg_prog from rfl]
-  exact copyPrefix_equiv jh hp inst srcAddr dstAddr srcCls dstCls srcElems dstElems n i hne hsrc hdst hi hn hd hn31
+  exact copyPrefix_equiv jh hp inst srcAddr dstAddr srcCls dstCls srcElems dstElems n i hne hsrc hdst hi hn hd hn31 hcompat
 
 theorem copyPrefix_3_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (inst : JvmVal) (srcAddr dstAddr : Nat) (srcCls dstCls : String)
@@ -356,7 +386,9 @@ theorem copyPrefix_3_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (hsrc : jh.get? srcAddr = some (.objArray srcCls srcElems))
     (hdst : jh.get? dstAddr = some (.objArray dstCls dstElems))
     (hi : i.toNat ≤ n.toNat) (hn : n.toNat ≤ srcElems.size) (hd : n.toNat ≤ dstElems.size)
-    (hn31 : n.toNat < 2 ^ 31) :
+    (hn31 : n.toNat < 2 ^ 31)
+    (hcompat : ∀ (k : Nat) (hk : k < n.toNat), i.toNat ≤ k →
+      Jvm.isArrayElemCompat algHooks jh dstCls (srcElems[k]'(by omega)) = true) :
     ∃ st', runJvmRes (n.toNat * 35 + 20) f_Algorithm_copyPrefix___redArg_3_prog
         ⟨0, [], setLocal (setLocal (setLocal (setLocal (setLocal (fun _ => .null) 0 inst)
           1 (.heapRef srcAddr)) 2 (.i32 n)) 3 (.i32 i)) 4 (.heapRef dstAddr), jh, hp⟩ =
@@ -364,7 +396,7 @@ theorem copyPrefix_3_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
       st'.jvmHeap = jh.set dstAddr (.objArray dstCls
         (copyObjArrayPrefix srcElems dstElems n i (n.toNat - i.toNat + 1))) := by
   rw [show f_Algorithm_copyPrefix___redArg_3_prog = f_Algorithm_copyPrefix___redArg_prog from rfl]
-  exact copyPrefix_equiv jh hp inst srcAddr dstAddr srcCls dstCls srcElems dstElems n i hne hsrc hdst hi hn hd hn31
+  exact copyPrefix_equiv jh hp inst srcAddr dstAddr srcCls dstCls srcElems dstElems n i hne hsrc hdst hi hn hd hn31 hcompat
 
 theorem copyPrefix_4_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (inst : JvmVal) (srcAddr dstAddr : Nat) (srcCls dstCls : String)
@@ -373,7 +405,9 @@ theorem copyPrefix_4_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (hsrc : jh.get? srcAddr = some (.objArray srcCls srcElems))
     (hdst : jh.get? dstAddr = some (.objArray dstCls dstElems))
     (hi : i.toNat ≤ n.toNat) (hn : n.toNat ≤ srcElems.size) (hd : n.toNat ≤ dstElems.size)
-    (hn31 : n.toNat < 2 ^ 31) :
+    (hn31 : n.toNat < 2 ^ 31)
+    (hcompat : ∀ (k : Nat) (hk : k < n.toNat), i.toNat ≤ k →
+      Jvm.isArrayElemCompat algHooks jh dstCls (srcElems[k]'(by omega)) = true) :
     ∃ st', runJvmRes (n.toNat * 35 + 20) f_Algorithm_copyPrefix___redArg_4_prog
         ⟨0, [], setLocal (setLocal (setLocal (setLocal (setLocal (fun _ => .null) 0 inst)
           1 (.heapRef srcAddr)) 2 (.i32 n)) 3 (.i32 i)) 4 (.heapRef dstAddr), jh, hp⟩ =
@@ -381,7 +415,7 @@ theorem copyPrefix_4_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
       st'.jvmHeap = jh.set dstAddr (.objArray dstCls
         (copyObjArrayPrefix srcElems dstElems n i (n.toNat - i.toNat + 1))) := by
   rw [show f_Algorithm_copyPrefix___redArg_4_prog = f_Algorithm_copyPrefix___redArg_prog from rfl]
-  exact copyPrefix_equiv jh hp inst srcAddr dstAddr srcCls dstCls srcElems dstElems n i hne hsrc hdst hi hn hd hn31
+  exact copyPrefix_equiv jh hp inst srcAddr dstAddr srcCls dstCls srcElems dstElems n i hne hsrc hdst hi hn hd hn31 hcompat
 
 /-! ### GrowBuf.push (all 5 variants via parameterized program) -/
 
@@ -421,23 +455,23 @@ private def growBufPushProg (cls : String) : List JvmInstr := [
 ]
 
 private theorem stepStatic_copyPrefix_heap
-    {pc : Nat} {cls : String} {dstAddr srcAddr : Nat} {i n inst : JvmVal}
+    {pc : Nat} {cls : String} {dstAddr srcAddr : Nat} {i n : UInt32} {inst : JvmVal}
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     {srcCls dstCls : String} {srcElems dstElems : Array JvmVal}
     (hcls : cls = "Life105LeanKt" ∨ cls = "Life106LeanKt" ∨ cls = "MacroCellLeanKt" ∨
       cls = "PlaintextLeanKt" ∨ cls = "RleLeanKt")
     (hsrc : jh.get? srcAddr = some (.objArray srcCls srcElems))
     (hdst : jh.get? dstAddr = some (.objArray dstCls dstElems)) :
-    stepInvokeStatic ⟨pc, .heapRef dstAddr :: i :: n :: .heapRef srcAddr :: inst :: rest, locs, jh, hp⟩
+    stepInvokeStatic ⟨pc, .heapRef dstAddr :: .i32 i :: .i32 n :: .heapRef srcAddr :: inst :: rest, locs, jh, hp⟩
       cls "f_Algorithm_copyPrefix___redArg-yOCu0fQ" "(Ljava/lang/Object;[Ljava/lang/Object;II[Ljava/lang/Object;)V" =
       .inl (some ⟨pc + 1, rest, locs,
-        jh.set dstAddr (.objArray dstCls (copyObjArrayPrefix srcElems dstElems n.asI32 i.asI32 (n.asI32.toNat + 1))),
+        jh.set dstAddr (.objArray dstCls (copyObjArrayPrefix srcElems dstElems n i (n.toNat + 1))),
         hp⟩) := by
   rcases hcls with rfl | rfl | rfl | rfl | rfl <;>
     (refine Eq.trans (b := match jh.get? srcAddr, jh.get? dstAddr with
       | some (.objArray _ se), some (.objArray dc de) =>
         .inl (some ⟨pc + 1, rest, locs,
-          jh.set dstAddr (.objArray dc (copyObjArrayPrefix se de n.asI32 i.asI32 (n.asI32.toNat + 1))), hp⟩)
+          jh.set dstAddr (.objArray dc (copyObjArrayPrefix se de n i (n.toNat + 1))), hp⟩)
       | _, _ => .inr none) rfl ?_
      rw [hsrc, hdst])
 
@@ -471,7 +505,8 @@ private theorem growBufPush_spec (cls : String)
     (h2 : bufElems[2]? = some (.boxedUInt sz))
     (hdata : jh.get? dataAddr = some (.objArray "java/lang/Object" dataElems))
     (hcap : dataElems.size < 2 ^ 30)
-    (hsz : sz.toNat ≤ dataElems.size) :
+    (hsz : sz.toNat ≤ dataElems.size)
+    (helem : elem.isRef = true) :
     let cap : UInt32 := UInt32.ofNat dataElems.size
     let jhAfter :=
       if hlt : sz < cap then
@@ -550,7 +585,8 @@ private theorem growBufPush_spec (cls : String)
       split_res_fuel 10; heap_step_blk (growBufPushProg cls)
       simp only [hcu, hslt_92, ↓reduceIte]
       heap_step_blk (growBufPushProg cls)
-      split_res_fuel 1; rw [runJvmResFast_aastore hdata hslt_sz hlt_sz_data]
+      split_res_fuel 1; rw [runJvmResFast_aastore hdata hslt_sz hlt_sz_data
+        (by cases elem <;> simp_all [Jvm.isArrayElemCompat, Jvm.JvmVal.isRef])]
       heap_step_blk (growBufPushProg cls)
       split_res_fuel 1; rw [runJvmResFast_anewarray_obj (by decide)]
       change runJvmResFast _ _ _ _ ⟨_, _, _, (jh1.alloc _).2, hp⟩ = _
@@ -670,7 +706,8 @@ private theorem growBufPush_spec (cls : String)
       split_res_fuel 1; rw [runJvmResFast_anewarray_obj hslt_newcap]
       heap_step_blk (growBufPushProg cls)
       split_res_fuel 1
-      rw [runJvmResFast_invokestatic_step (stepStatic_arraysFillAll_obj ha_new)]
+      rw [runJvmResFast_invokestatic_step (stepStatic_arraysFillAll_obj ha_new
+        (by cases elem <;> simp_all [Jvm.isArrayElemCompat, Jvm.JvmVal.isRef]))]
       heap_step_blk (growBufPushProg cls)
       split_res_fuel 1
       rw [runJvmResFast_invokestatic_step (stepStatic_copyPrefix_heap hcls hdata1 ha_filled)]
@@ -704,12 +741,13 @@ theorem growBufPush_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (hbuf : jh.get? bufAddr = some (.objArray "java/lang/Object" bufElems))
     (h1 : bufElems[1]? = some (.heapRef dataAddr)) (h2 : bufElems[2]? = some (.boxedUInt sz))
     (hdata : jh.get? dataAddr = some (.objArray "java/lang/Object" dataElems))
-    (hcap : dataElems.size < 2 ^ 30) (hsz : sz.toNat ≤ dataElems.size) :
+    (hcap : dataElems.size < 2 ^ 30) (hsz : sz.toNat ≤ dataElems.size)
+    (helem : elem.isRef = true) :
     ∃ st', runJvmRes 120 f_Algorithm_GrowBuf_push___redArg_prog
         ⟨0, [], setLocal (setLocal (fun _ => .null) 0 (.heapRef bufAddr)) 1 elem, jh, hp⟩ =
       some (.heapRef (if sz < UInt32.ofNat dataElems.size then jh.objects.size else jh.objects.size + 1), st') := by
   rw [show f_Algorithm_GrowBuf_push___redArg_prog = growBufPushProg "Life105LeanKt" from rfl]
-  rcases growBufPush_spec "Life105LeanKt" (Or.inl rfl) jh hp bufAddr dataAddr bufElems dataElems sz elem hbuf h1 h2 hdata hcap hsz with
+  rcases growBufPush_spec "Life105LeanKt" (Or.inl rfl) jh hp bufAddr dataAddr bufElems dataElems sz elem hbuf h1 h2 hdata hcap hsz helem with
     ⟨st', h, _⟩
   exact ⟨st', h⟩
 
@@ -718,12 +756,13 @@ theorem growBufPush_1_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (hbuf : jh.get? bufAddr = some (.objArray "java/lang/Object" bufElems))
     (h1 : bufElems[1]? = some (.heapRef dataAddr)) (h2 : bufElems[2]? = some (.boxedUInt sz))
     (hdata : jh.get? dataAddr = some (.objArray "java/lang/Object" dataElems))
-    (hcap : dataElems.size < 2 ^ 30) (hsz : sz.toNat ≤ dataElems.size) :
+    (hcap : dataElems.size < 2 ^ 30) (hsz : sz.toNat ≤ dataElems.size)
+    (helem : elem.isRef = true) :
     ∃ st', runJvmRes 120 f_Algorithm_GrowBuf_push___redArg_1_prog
         ⟨0, [], setLocal (setLocal (fun _ => .null) 0 (.heapRef bufAddr)) 1 elem, jh, hp⟩ =
       some (.heapRef (if sz < UInt32.ofNat dataElems.size then jh.objects.size else jh.objects.size + 1), st') := by
   rw [show f_Algorithm_GrowBuf_push___redArg_1_prog = growBufPushProg "Life106LeanKt" from rfl]
-  rcases growBufPush_spec "Life106LeanKt" (Or.inr (Or.inl rfl)) jh hp bufAddr dataAddr bufElems dataElems sz elem hbuf h1 h2 hdata hcap hsz with
+  rcases growBufPush_spec "Life106LeanKt" (Or.inr (Or.inl rfl)) jh hp bufAddr dataAddr bufElems dataElems sz elem hbuf h1 h2 hdata hcap hsz helem with
     ⟨st', h, _⟩
   exact ⟨st', h⟩
 
@@ -732,12 +771,13 @@ theorem growBufPush_2_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (hbuf : jh.get? bufAddr = some (.objArray "java/lang/Object" bufElems))
     (h1 : bufElems[1]? = some (.heapRef dataAddr)) (h2 : bufElems[2]? = some (.boxedUInt sz))
     (hdata : jh.get? dataAddr = some (.objArray "java/lang/Object" dataElems))
-    (hcap : dataElems.size < 2 ^ 30) (hsz : sz.toNat ≤ dataElems.size) :
+    (hcap : dataElems.size < 2 ^ 30) (hsz : sz.toNat ≤ dataElems.size)
+    (helem : elem.isRef = true) :
     ∃ st', runJvmRes 120 f_Algorithm_GrowBuf_push___redArg_2_prog
         ⟨0, [], setLocal (setLocal (fun _ => .null) 0 (.heapRef bufAddr)) 1 elem, jh, hp⟩ =
       some (.heapRef (if sz < UInt32.ofNat dataElems.size then jh.objects.size else jh.objects.size + 1), st') := by
   rw [show f_Algorithm_GrowBuf_push___redArg_2_prog = growBufPushProg "MacroCellLeanKt" from rfl]
-  rcases growBufPush_spec "MacroCellLeanKt" (Or.inr (Or.inr (Or.inl rfl))) jh hp bufAddr dataAddr bufElems dataElems sz elem hbuf h1 h2 hdata hcap hsz with
+  rcases growBufPush_spec "MacroCellLeanKt" (Or.inr (Or.inr (Or.inl rfl))) jh hp bufAddr dataAddr bufElems dataElems sz elem hbuf h1 h2 hdata hcap hsz helem with
     ⟨st', h, _⟩
   exact ⟨st', h⟩
 
@@ -746,12 +786,13 @@ theorem growBufPush_3_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (hbuf : jh.get? bufAddr = some (.objArray "java/lang/Object" bufElems))
     (h1 : bufElems[1]? = some (.heapRef dataAddr)) (h2 : bufElems[2]? = some (.boxedUInt sz))
     (hdata : jh.get? dataAddr = some (.objArray "java/lang/Object" dataElems))
-    (hcap : dataElems.size < 2 ^ 30) (hsz : sz.toNat ≤ dataElems.size) :
+    (hcap : dataElems.size < 2 ^ 30) (hsz : sz.toNat ≤ dataElems.size)
+    (helem : elem.isRef = true) :
     ∃ st', runJvmRes 120 f_Algorithm_GrowBuf_push___redArg_3_prog
         ⟨0, [], setLocal (setLocal (fun _ => .null) 0 (.heapRef bufAddr)) 1 elem, jh, hp⟩ =
       some (.heapRef (if sz < UInt32.ofNat dataElems.size then jh.objects.size else jh.objects.size + 1), st') := by
   rw [show f_Algorithm_GrowBuf_push___redArg_3_prog = growBufPushProg "PlaintextLeanKt" from rfl]
-  rcases growBufPush_spec "PlaintextLeanKt" (Or.inr (Or.inr (Or.inr (Or.inl rfl)))) jh hp bufAddr dataAddr bufElems dataElems sz elem hbuf h1 h2 hdata hcap hsz with
+  rcases growBufPush_spec "PlaintextLeanKt" (Or.inr (Or.inr (Or.inr (Or.inl rfl)))) jh hp bufAddr dataAddr bufElems dataElems sz elem hbuf h1 h2 hdata hcap hsz helem with
     ⟨st', h, _⟩
   exact ⟨st', h⟩
 
@@ -760,12 +801,13 @@ theorem growBufPush_4_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (hbuf : jh.get? bufAddr = some (.objArray "java/lang/Object" bufElems))
     (h1 : bufElems[1]? = some (.heapRef dataAddr)) (h2 : bufElems[2]? = some (.boxedUInt sz))
     (hdata : jh.get? dataAddr = some (.objArray "java/lang/Object" dataElems))
-    (hcap : dataElems.size < 2 ^ 30) (hsz : sz.toNat ≤ dataElems.size) :
+    (hcap : dataElems.size < 2 ^ 30) (hsz : sz.toNat ≤ dataElems.size)
+    (helem : elem.isRef = true) :
     ∃ st', runJvmRes 120 f_Algorithm_GrowBuf_push___redArg_4_prog
         ⟨0, [], setLocal (setLocal (fun _ => .null) 0 (.heapRef bufAddr)) 1 elem, jh, hp⟩ =
       some (.heapRef (if sz < UInt32.ofNat dataElems.size then jh.objects.size else jh.objects.size + 1), st') := by
   rw [show f_Algorithm_GrowBuf_push___redArg_4_prog = growBufPushProg "RleLeanKt" from rfl]
-  rcases growBufPush_spec "RleLeanKt" (Or.inr (Or.inr (Or.inr (Or.inr rfl)))) jh hp bufAddr dataAddr bufElems dataElems sz elem hbuf h1 h2 hdata hcap hsz with
+  rcases growBufPush_spec "RleLeanKt" (Or.inr (Or.inr (Or.inr (Or.inr rfl)))) jh hp bufAddr dataAddr bufElems dataElems sz elem hbuf h1 h2 hdata hcap hsz helem with
     ⟨st', h, _⟩
   exact ⟨st', h⟩
 
@@ -1136,9 +1178,8 @@ private theorem runJvmResFast_astore_step (f1 : Nat) (prog : List JvmInstr) (pc 
     (v : JvmVal) (stk : List JvmVal) (locs : Nat → JvmVal) (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (rest : List JvmInstr) :
     runJvmResFast (f1 + 1) prog pc (.astore r :: rest) ⟨pc, v :: stk, locs, jh, hp⟩ =
-      runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, stk, setLocal locs r v, jh, hp⟩ := by
-  rw [runJvmResFast_step_nonbranch (hbr := rfl) (hno := by simp)]
-  simp only [stepInstr, Jvm.stepInstr, ↓reduceIte]
+      runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, stk, setLocal locs r v, jh, hp⟩ :=
+  Jvm.runJvmResFast_step_of_stepInstr algHooks rfl (by simp) rfl rfl
 
 private theorem asciiBytesReplicate_core (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (n : UInt32) (v : UInt8) (hv : v < 128) (hn31 : n.toNat < 2 ^ 31)

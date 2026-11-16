@@ -22,87 +22,88 @@ namespace Algorithm.JvmVerification
 open Algorithm.JvmBytecode
 
 private theorem lcmp_eq_zero (a b : UInt64) (c : Bool) :
-    ((if (a == b) = true then (0 : UInt32) else if c = true then 4294967295 else 1) = 0) ↔ a = b := by
-  by_cases h : a = b <;> cases c <;> simp [h]
+    ((if (a == b) = true then (0 : UInt32) else if c = true then 4294967295 else 1) = 0) ↔ a = b :=
+  Jvm.lcmp_eq_zero a b c
 
-private theorem u8_sext_eq_zero (b : UInt8) : (b.toInt8.toInt32.toUInt32 = 0) ↔ b = 0 := by
-  revert b; decide
+private theorem u8_sext_eq_zero (b : UInt8) : (b.toInt8.toInt32.toUInt32 = 0) ↔ b = 0 :=
+  Jvm.u8_sext_eq_zero b
 
-private theorem u8_sext_eq_one (b : UInt8) : (b.toInt8.toInt32.toUInt32 = 1) ↔ b = 1 := by
-  revert b; decide
+private theorem u8_sext_eq_one (b : UInt8) : (b.toInt8.toInt32.toUInt32 = 1) ↔ b = 1 :=
+  Jvm.u8_sext_eq_one b
 
-private theorem u8_sext_eq_five (b : UInt8) : (b.toInt8.toInt32.toUInt32 = 5) ↔ b = 5 := by
-  revert b; decide
+private theorem u8_sext_eq_five (b : UInt8) : (b.toInt8.toInt32.toUInt32 = 5) ↔ b = 5 :=
+  Jvm.u8_sext_eq_five b
 
-private theorem u8_sext_eq_six (b : UInt8) : (b.toInt8.toInt32.toUInt32 = 6) ↔ b = 6 := by
-  revert b; decide
+private theorem u8_sext_eq_six (b : UInt8) : (b.toInt8.toInt32.toUInt32 = 6) ↔ b = 6 :=
+  Jvm.u8_sext_eq_six b
 
-private theorem u8_sext_eq_seven (b : UInt8) : (b.toInt8.toInt32.toUInt32 = 7) ↔ b = 7 := by
-  revert b; decide
+private theorem u8_sext_eq_seven (b : UInt8) : (b.toInt8.toInt32.toUInt32 = 7) ↔ b = 7 :=
+  Jvm.u8_sext_eq_seven b
 
 theorem u8_sub1_u32_jvm (b : UInt8) :
     ({ toBitVec := BitVec.setWidth 8 (BitVec.signExtend 32
-        (BitVec.setWidth 8 ((BitVec.setWidth 32 b.toBitVec &&& 255#32) - 1#32))) } : UInt8) = b - 1 := by
-  revert b; decide
+        (BitVec.setWidth 8 ((BitVec.setWidth 32 b.toBitVec &&& 255#32) - 1#32))) } : UInt8) = b - 1 :=
+  Jvm.u8_sub1_u32_jvm b
 
 private theorem u8_sub1_sext_jvm (b : UInt8) :
     ({ toBitVec := BitVec.setWidth 8 (BitVec.signExtend 32
-        (BitVec.setWidth 8 ((b.toInt8.toInt32.toUInt32.toBitVec &&& 255#32) - 1#32))) } : UInt8) = b - 1 := by
-  revert b; decide
+        (BitVec.setWidth 8 ((b.toInt8.toInt32.toUInt32.toBitVec &&& 255#32) - 1#32))) } : UInt8) = b - 1 :=
+  Jvm.u8_sub1_sext_jvm b
 
 private theorem u8_sub2_sext_jvm (b : UInt8) :
     ({ toBitVec := BitVec.setWidth 8 (BitVec.signExtend 32
-        (BitVec.setWidth 8 ((b.toInt8.toInt32.toUInt32.toBitVec &&& 255#32) - 2#32))) } : UInt8) = b - 2 := by
-  revert b; decide
+        (BitVec.setWidth 8 ((b.toInt8.toInt32.toUInt32.toBitVec &&& 255#32) - 2#32))) } : UInt8) = b - 2 :=
+  Jvm.u8_sub2_sext_jvm b
 
 private theorem u8_add1_sext_jvm (b : UInt8) :
     ({ toBitVec := BitVec.setWidth 8 (BitVec.signExtend 32
-        (BitVec.setWidth 8 ((b.toInt8.toInt32.toUInt32.toBitVec &&& 255#32) + 1#32))) } : UInt8) = b + 1 := by
-  revert b; decide
+        (BitVec.setWidth 8 ((b.toInt8.toInt32.toUInt32.toBitVec &&& 255#32) + 1#32))) } : UInt8) = b + 1 :=
+  Jvm.u8_add1_sext_jvm b
 
 private theorem u8_add2_sext_jvm (b : UInt8) :
     ({ toBitVec := BitVec.setWidth 8 (BitVec.signExtend 32
-        (BitVec.setWidth 8 ((b.toInt8.toInt32.toUInt32.toBitVec &&& 255#32) + 2#32))) } : UInt8) = b + 2 := by
-  revert b; decide
+        (BitVec.setWidth 8 ((b.toInt8.toInt32.toUInt32.toBitVec &&& 255#32) + 2#32))) } : UInt8) = b + 2 :=
+  Jvm.u8_add2_sext_jvm b
 
 private theorem u8_and255_sext_jvm (b : UInt8) :
-    (b.toInt8.toInt32.toUInt32 &&& 255) = b.toUInt32 := by
-  revert b; decide
+    (b.toInt8.toInt32.toUInt32 &&& 255) = b.toUInt32 :=
+  Jvm.u8_and255_sext_jvm b
 
 private theorem u8_sub1_and255_u32 (b : UInt8) :
-    UInt32.ofBitVec ((b.toInt8.toInt32.toUInt32.toBitVec &&& 255#32) - 1#32) = b.toUInt32 - 1 := by
-  revert b; decide
+    UInt32.ofBitVec ((b.toInt8.toInt32.toUInt32.toBitVec &&& 255#32) - 1#32) = b.toUInt32 - 1 :=
+  Jvm.u8_sub1_and255_u32 b
 
 private theorem u8_sub5_and255_u32 (b : UInt8) :
-    UInt32.ofBitVec ((b.toInt8.toInt32.toUInt32.toBitVec &&& 255#32) - 5#32) = b.toUInt32 - 5 := by
-  revert b; decide
+    UInt32.ofBitVec ((b.toInt8.toInt32.toUInt32.toBitVec &&& 255#32) - 5#32) = b.toUInt32 - 5 :=
+  Jvm.u8_sub5_and255_u32 b
 
 private theorem u8_sub1_sub5_and255_u32 (b : UInt8) :
-    UInt32.ofBitVec (((b.toInt8.toInt32.toUInt32.toBitVec &&& 255#32) - 1#32) - 5#32) = (b.toUInt32 - 1) - 5 := by
-  revert b; decide
+    UInt32.ofBitVec (((b.toInt8.toInt32.toUInt32.toBitVec &&& 255#32) - 1#32) - 5#32) = (b.toUInt32 - 1) - 5 :=
+  Jvm.u8_sub1_sub5_and255_u32 b
 
 private theorem u8_ext_u32 (b : UInt8) :
-    UInt32.ofBitVec (BitVec.setWidth 32 b.toBitVec) = b.toUInt32 := rfl
+    UInt32.ofBitVec (BitVec.setWidth 32 b.toBitVec) = b.toUInt32 :=
+  Jvm.u8_ext_u32 b
 
 private theorem u8_sext_toUInt8 (b : UInt8) :
-    b.toInt8.toInt32.toUInt32.toUInt8 = b := by
-  revert b; decide
+    b.toInt8.toInt32.toUInt32.toUInt8 = b :=
+  Jvm.u8_sext_toUInt8 b
 
 private theorem u8_sub1_u32_exact (b : UInt8) :
-    ({ toBitVec := BitVec.signExtend 32 (BitVec.setWidth 8 (b.toUInt32 - 1).toBitVec) } : UInt32).toUInt8 = b - 1 := by
-  revert b; decide
+    ({ toBitVec := BitVec.signExtend 32 (BitVec.setWidth 8 (b.toUInt32 - 1).toBitVec) } : UInt32).toUInt8 = b - 1 :=
+  Jvm.u8_sub1_u32_exact b
 
 private theorem u8_sub2_u32_exact (b : UInt8) :
-    ({ toBitVec := BitVec.signExtend 32 (BitVec.setWidth 8 (b.toUInt32 - 2).toBitVec) } : UInt32).toUInt8 = b - 2 := by
-  revert b; decide
+    ({ toBitVec := BitVec.signExtend 32 (BitVec.setWidth 8 (b.toUInt32 - 2).toBitVec) } : UInt32).toUInt8 = b - 2 :=
+  Jvm.u8_sub2_u32_exact b
 
 private theorem u8_add1_u32_exact (b : UInt8) :
-    ({ toBitVec := BitVec.signExtend 32 (BitVec.setWidth 8 (b.toUInt32 + 1).toBitVec) } : UInt32).toUInt8 = b + 1 := by
-  revert b; decide
+    ({ toBitVec := BitVec.signExtend 32 (BitVec.setWidth 8 (b.toUInt32 + 1).toBitVec) } : UInt32).toUInt8 = b + 1 :=
+  Jvm.u8_add1_u32_exact b
 
 private theorem u8_add2_u32_exact (b : UInt8) :
-    ({ toBitVec := BitVec.signExtend 32 (BitVec.setWidth 8 (b.toUInt32 + 2).toBitVec) } : UInt32).toUInt8 = b + 2 := by
-  revert b; decide
+    ({ toBitVec := BitVec.signExtend 32 (BitVec.setWidth 8 (b.toUInt32 + 2).toBitVec) } : UInt32).toUInt8 = b + 2 :=
+  Jvm.u8_add2_u32_exact b
 
 private def flatOpaqueConsts : Array Lean.Name := #[
   ``Algorithm.FlatHashLifeArena.internCellNode,
@@ -144,46 +145,34 @@ private def flatOpaqueConsts : Array Lean.Name := #[
 ]
 
 private theorem ui32_toNat_add_1 (a : UInt32) : (a + 1).toNat = (a.toNat + 1) % 4294967296 :=
-  UInt32.toNat_add a 1
+  Jvm.ui32_toNat_add_1 a
 
 private theorem ui32_toNat_add_2 (a : UInt32) : (a + 2).toNat = (a.toNat + 2) % 4294967296 :=
-  UInt32.toNat_add a 2
+  Jvm.ui32_toNat_add_2 a
 
 private theorem ui32_toNat_add_3 (a : UInt32) : (a + 3).toNat = (a.toNat + 3) % 4294967296 :=
-  UInt32.toNat_add a 3
+  Jvm.ui32_toNat_add_3 a
 
 private theorem ui32_toNat_add_4 (a : UInt32) : (a + 4).toNat = (a.toNat + 4) % 4294967296 :=
-  UInt32.toNat_add a 4
+  Jvm.ui32_toNat_add_4 a
 
 private theorem beq_false_of_ne' {α : Type} [BEq α] [LawfulBEq α] {a b : α} (h : a ≠ b) : (a == b) = false :=
-  beq_false_of_ne h
+  Jvm.beq_false_of_ne' h
 
-private theorem bne_true_of_ne' {α : Type} [BEq α] [LawfulBEq α] {a b : α} (h : a ≠ b) : (a != b) = true := by
-  simp [bne, beq_false_of_ne h]
+private theorem bne_true_of_ne' {α : Type} [BEq α] [LawfulBEq α] {a b : α} (h : a ≠ b) : (a != b) = true :=
+  Jvm.bne_true_of_ne' h
 
-theorem eq_of_ite_branches {α : Type} {c : Prop} [Decidable c] {t e rhs : α}
-    (ht : c → t = rhs) (he : ¬c → e = rhs) : (if c then t else e) = rhs := by
-  by_cases h : c <;> simp [h, ht, he]
+export Jvm (eq_of_ite_branches)
 
 private theorem compareUnsigned_eq_zero (a b : UInt32) :
-    ((if a == b then (0 : UInt32) else if a < b then 4294967295 else 1) = 0) ↔ a = b := by
-  by_cases h1 : a == b <;> by_cases h2 : a < b <;> simp [h1, h2]
-  · exact LawfulBEq.eq_of_beq h1
-  · exact LawfulBEq.eq_of_beq h1
-  · exact fun heq => by subst heq; simp at h1
-  · exact fun heq => by subst heq; simp at h1
+    ((if a == b then (0 : UInt32) else if a < b then 4294967295 else 1) = 0) ↔ a = b :=
+  Jvm.compareUnsigned_eq_zero a b
 
 private theorem compareUnsigned64_sge' (a b : UInt64) :
-    (0#32).sle (if a == b then (0 : UInt32) else if a < b then 4294967295 else 1).toBitVec = decide (b ≤ a) := by
-  by_cases h1 : a == b
-  · have hab : a = b := LawfulBEq.eq_of_beq h1; subst hab; simp
-  · by_cases h2 : a < b
-    · have hlt' : ¬(b ≤ a) := Nat.not_le_of_gt h2
-      simp [h1, h2, hlt']
-    · have hle' : b ≤ a := Nat.le_of_not_lt h2
-      simp [h1, h2, hle']
+    (0#32).sle (if a == b then (0 : UInt32) else if a < b then 4294967295 else 1).toBitVec = decide (b ≤ a) :=
+  Jvm.compareUnsigned64_sge' a b
 
-def isFlatStop : JvmInstr → Bool
+def isFlatStopLeaf : JvmInstr → Bool
   | .invokestatic _ _ _ => true
   | .invokevirtual _ _ _ => true
   | .invokespecial _ _ _ => true
@@ -192,240 +181,26 @@ def isFlatStop : JvmInstr → Bool
   | .aaload => true
   | .bastore => true
   | .newarray _ => true
-  | i => isBranchInstr i
+  | _ => false
 
-private theorem isBranchInstr_of_isFlatStop_false {i : JvmInstr} (h : isFlatStop i = false) :
-    isBranchInstr i = false := by
-  cases i <;> simp [isFlatStop, isBranchInstr] at h ⊢
+def isFlatStop (i : JvmInstr) : Bool :=
+  isBranchInstr i || isFlatStopLeaf i
 
-def stepFlatChunk : Nat → Nat → Nat → List JvmInstr → JvmState → BlockChunkRes AlgExt AlgHeap
-  | _, 0, _, _, _ => .done none
-  | 0, f1 + 1, pc, instrs, st => .cont (f1 + 1) pc instrs st
-  | m + 1, f1 + 1, pc, instrs, st =>
-    match instrs with
-    | [] => .done none
-    | instr :: rest =>
-      if isFlatStop instr then .cont (f1 + 1) pc (instr :: rest) st
-      else match instr with
-      | .i2l =>
-        match rest with
-        | .lconst 4294967295 :: .land :: rest' =>
-          match f1 with
-          | 0 => .done none
-          | f2 + 1 =>
-            match f2 with
-            | 0 => .done none
-            | f3 + 1 =>
-              match st.stack with
-              | .i32 x :: s =>
-                stepFlatChunk m f3 (pc + 3) rest' { st with pc := pc + 3, stack := .i64 x.toUInt64 :: s }
-              | _ => .done none
-        | _ =>
-          match stepInstr instr { st with pc := pc } with
-          | .inl (some st') =>
-            if st'.pc = pc + 1 then stepFlatChunk m f1 (pc + 1) rest st'
-            else .jump f1 st'
-          | .inl none => .done none
-          | .inr res => .done res
-      | _ =>
-        match stepInstr instr { st with pc := pc } with
-        | .inl (some st') =>
-          if st'.pc = pc + 1 then stepFlatChunk m f1 (pc + 1) rest st'
-          else .jump f1 st'
-        | .inl none => .done none
-        | .inr res => .done res
-
-private theorem stepFlatChunk_cons_ne (m f1 pc : Nat) (instr : JvmInstr) (rest : List JvmInstr)
-    (st : JvmState) (hno : ¬∃ r', instr = .i2l ∧ rest = .lconst 4294967295 :: .land :: r') :
-    stepFlatChunk (m + 1) (f1 + 1) pc (instr :: rest) st =
-      if isFlatStop instr then .cont (f1 + 1) pc (instr :: rest) st
-      else match stepInstr instr { st with pc := pc } with
-      | .inl (some st') =>
-        if st'.pc = pc + 1 then stepFlatChunk m f1 (pc + 1) rest st'
-        else .jump f1 st'
-      | .inl none => .done none
-      | .inr res => .done res := by
-  cases instr with
-  | i2l =>
-    cases rest with
-    | nil => rfl
-    | cons a r1 =>
-      cases a <;> try rfl
-      case lconst v =>
-        by_cases hv : v = 4294967295
-        · subst hv
-          cases r1 with
-          | nil => rfl
-          | cons b r2 =>
-            cases b <;> try rfl
-            exfalso; exact hno ⟨r2, rfl, rfl⟩
-        · simp [stepFlatChunk, hv]
-  | _ => rfl
-
-private theorem runJvmValFast_stepFlatChunk_aux (m : Nat) (fuel : Nat) (prog : List JvmInstr)
-    (pc : Nat) (instrs : List JvmInstr) (st : JvmState) :
-    runJvmValFast fuel prog pc instrs st = afterBlockChunk (stepFlatChunk m fuel pc instrs st) prog := by
-  induction m generalizing fuel pc instrs st with
-  | zero => cases fuel <;> rfl
-  | succ m ih =>
-    cases fuel with
-    | zero => rfl
-    | succ f1 =>
-      cases instrs with
-      | nil => rfl
-      | cons instr rest =>
-        by_cases hpat : ∃ r', instr = .i2l ∧ rest = .lconst 4294967295 :: .land :: r'
-        · rcases hpat with ⟨r', rfl, rfl⟩
-          cases f1 with
-          | zero => rfl
-          | succ f2 =>
-            cases f2 with
-            | zero => rfl
-            | succ f3 =>
-              simp only [runJvmValFast, Jvm.runJvmValFast, stepFlatChunk, isFlatStop]
-              cases st.stack with
-              | nil => rfl
-              | cons hd tl => cases hd with | i32 x => exact ih f3 (pc + 3) r' _ | _ => rfl
-        · by_cases hst : isFlatStop instr = true
-          · rw [stepFlatChunk_cons_ne m f1 pc instr rest st hpat]
-            simp only [hst, ↓reduceIte, afterBlockChunk, Jvm.afterBlockChunk, runJvmValFast]
-          · have hstf : isFlatStop instr = false := Bool.eq_false_iff.mpr hst
-            have hbrf : isBranchInstr instr = false := isBranchInstr_of_isFlatStop_false hstf
-            have hno' : ¬(instr = .i2l ∧ ∃ r', rest = .lconst 4294967295 :: .land :: r') :=
-              fun ⟨h1, r', h2⟩ => hpat ⟨r', h1, h2⟩
-            rw [stepFlatChunk_cons_ne m f1 pc instr rest st hpat,
-              runJvmValFast_step_nonbranch f1 prog pc instr rest st hbrf hno']
-            simp only [hstf, Bool.false_eq_true, ↓reduceIte]
-            cases hstep : stepInstr instr { st with pc := pc } with
-            | inl o =>
-              cases o with
-              | none => rfl
-              | some st' =>
-                by_cases hpc : st'.pc = pc + 1
-                · simp only [hpc, ↓reduceIte]; exact ih f1 (pc + 1) rest st'
-                · simp only [hpc, ↓reduceIte, afterBlockChunk, Jvm.afterBlockChunk, runJvmValFast]
-            | inr res => cases res <;> rfl
+def stepFlatChunk : Nat → Nat → Nat → List JvmInstr → JvmState → BlockChunkRes AlgExt AlgHeap :=
+  Jvm.stepBlockChunkWith algHooks isFlatStopLeaf
 
 theorem runJvmValFast_stepFlatChunk (maxSteps fuel : Nat) (prog : List JvmInstr) (pc : Nat)
     (instrs : List JvmInstr) (st : JvmState) :
     runJvmValFast fuel prog pc instrs st = afterBlockChunk (stepFlatChunk maxSteps fuel pc instrs st) prog :=
-  runJvmValFast_stepFlatChunk_aux maxSteps fuel prog pc instrs st
+  Jvm.runJvmValFast_stepBlockChunkWith algHooks isFlatStopLeaf maxSteps fuel prog pc instrs st
 
-def stepResFlatChunk : Nat → Nat → Nat → List JvmInstr → JvmState → BlockResChunkRes AlgExt AlgHeap
-  | _, 0, _, _, _ => .done none
-  | 0, f1 + 1, pc, instrs, st => .cont (f1 + 1) pc instrs st
-  | m + 1, f1 + 1, pc, instrs, st =>
-    match instrs with
-    | [] => .done none
-    | instr :: rest =>
-      if isFlatStop instr then .cont (f1 + 1) pc (instr :: rest) st
-      else match instr with
-      | .i2l =>
-        match rest with
-        | .lconst 4294967295 :: .land :: rest' =>
-          match f1 with
-          | 0 => .done none
-          | f2 + 1 =>
-            match f2 with
-            | 0 => .done none
-            | f3 + 1 =>
-              match st.stack with
-              | .i32 x :: s =>
-                stepResFlatChunk m f3 (pc + 3) rest' { st with pc := pc + 3, stack := .i64 x.toUInt64 :: s }
-              | _ => .done none
-        | _ =>
-          match stepInstr instr { st with pc := pc } with
-          | .inl (some st') =>
-            if st'.pc = pc + 1 then stepResFlatChunk m f1 (pc + 1) rest st'
-            else .jump f1 st'
-          | .inl none => .done none
-          | .inr (some v) => .done (some (v, { st with pc := pc }))
-          | .inr none => .done none
-      | _ =>
-        match stepInstr instr { st with pc := pc } with
-        | .inl (some st') =>
-          if st'.pc = pc + 1 then stepResFlatChunk m f1 (pc + 1) rest st'
-          else .jump f1 st'
-        | .inl none => .done none
-        | .inr (some v) => .done (some (v, { st with pc := pc }))
-        | .inr none => .done none
-
-private theorem stepResFlatChunk_cons_ne (m f1 pc : Nat) (instr : JvmInstr) (rest : List JvmInstr)
-    (st : JvmState) (hno : ¬∃ r', instr = .i2l ∧ rest = .lconst 4294967295 :: .land :: r') :
-    stepResFlatChunk (m + 1) (f1 + 1) pc (instr :: rest) st =
-      if isFlatStop instr then .cont (f1 + 1) pc (instr :: rest) st
-      else match stepInstr instr { st with pc := pc } with
-      | .inl (some st') =>
-        if st'.pc = pc + 1 then stepResFlatChunk m f1 (pc + 1) rest st'
-        else .jump f1 st'
-      | .inl none => .done none
-      | .inr (some v) => .done (some (v, { st with pc := pc }))
-      | .inr none => .done none := by
-  cases instr with
-  | i2l =>
-    cases rest with
-    | nil => rfl
-    | cons a r1 =>
-      cases a <;> try rfl
-      case lconst v =>
-        by_cases hv : v = 4294967295
-        · subst hv
-          cases r1 with
-          | nil => rfl
-          | cons b r2 =>
-            cases b <;> try rfl
-            exfalso; exact hno ⟨r2, rfl, rfl⟩
-        · simp [stepResFlatChunk, hv]
-  | _ => rfl
-
-private theorem runJvmResFast_stepResFlatChunk_aux (m : Nat) (fuel : Nat) (prog : List JvmInstr)
-    (pc : Nat) (instrs : List JvmInstr) (st : JvmState) :
-    runJvmResFast fuel prog pc instrs st = afterResBlockChunk (stepResFlatChunk m fuel pc instrs st) prog := by
-  induction m generalizing fuel pc instrs st with
-  | zero => cases fuel <;> rfl
-  | succ m ih =>
-    cases fuel with
-    | zero => rfl
-    | succ f1 =>
-      cases instrs with
-      | nil => rfl
-      | cons instr rest =>
-        by_cases hpat : ∃ r', instr = .i2l ∧ rest = .lconst 4294967295 :: .land :: r'
-        · rcases hpat with ⟨r', rfl, rfl⟩
-          cases f1 with
-          | zero => rfl
-          | succ f2 =>
-            cases f2 with
-            | zero => rfl
-            | succ f3 =>
-              simp only [runJvmResFast, Jvm.runJvmResFast, stepResFlatChunk, isFlatStop]
-              cases st.stack with
-              | nil => rfl
-              | cons hd tl => cases hd with | i32 x => exact ih f3 (pc + 3) r' _ | _ => rfl
-        · by_cases hst : isFlatStop instr = true
-          · rw [stepResFlatChunk_cons_ne m f1 pc instr rest st hpat]
-            simp only [hst, ↓reduceIte, afterResBlockChunk, Jvm.afterResBlockChunk, runJvmResFast]
-          · have hstf : isFlatStop instr = false := Bool.eq_false_iff.mpr hst
-            have hbrf : isBranchInstr instr = false := isBranchInstr_of_isFlatStop_false hstf
-            have hno' : ¬(instr = .i2l ∧ ∃ r', rest = .lconst 4294967295 :: .land :: r') :=
-              fun ⟨h1, r', h2⟩ => hpat ⟨r', h1, h2⟩
-            rw [stepResFlatChunk_cons_ne m f1 pc instr rest st hpat,
-              runJvmResFast_step_nonbranch f1 prog pc instr rest st hbrf hno']
-            simp only [hstf, Bool.false_eq_true, ↓reduceIte]
-            cases hstep : stepInstr instr { st with pc := pc } with
-            | inl o =>
-              cases o with
-              | none => rfl
-              | some st' =>
-                by_cases hpc : st'.pc = pc + 1
-                · simp only [hpc, ↓reduceIte]; exact ih f1 (pc + 1) rest st'
-                · simp only [hpc, ↓reduceIte, afterResBlockChunk, Jvm.afterResBlockChunk, runJvmResFast]
-            | inr res => cases res <;> rfl
+def stepResFlatChunk : Nat → Nat → Nat → List JvmInstr → JvmState → BlockResChunkRes AlgExt AlgHeap :=
+  Jvm.stepResBlockChunkWith algHooks isFlatStopLeaf
 
 theorem runJvmResFast_stepResFlatChunk (maxSteps fuel : Nat) (prog : List JvmInstr) (pc : Nat)
     (instrs : List JvmInstr) (st : JvmState) :
     runJvmResFast fuel prog pc instrs st = afterResBlockChunk (stepResFlatChunk maxSteps fuel pc instrs st) prog :=
-  runJvmResFast_stepResFlatChunk_aux maxSteps fuel prog pc instrs st
+  Jvm.runJvmResFast_stepBlockChunkWith algHooks isFlatStopLeaf maxSteps fuel prog pc instrs st
 
 theorem runJvmValFast_invokestatic_step {f1 : Nat} {prog : List JvmInstr} {pc : Nat}
     {cls method desc : String} {rest : List JvmInstr} {pc0 : Nat} {stk stk' : List JvmVal}
@@ -433,9 +208,8 @@ theorem runJvmValFast_invokestatic_step {f1 : Nat} {prog : List JvmInstr} {pc : 
     (hs : stepInvokeStatic ⟨pc, stk, locs, jh, hp⟩ cls method desc =
       .inl (some ⟨pc + 1, stk', locs, jh', hp'⟩)) :
     runJvmValFast (f1 + 1) prog pc (.invokestatic cls method desc :: rest) ⟨pc0, stk, locs, jh, hp⟩ =
-      runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, stk', locs, jh', hp'⟩ := by
-  simp only [runJvmValFast, Jvm.runJvmValFast, stepInvokeStatic] at hs ⊢
-  rw [hs]; simp only [↓reduceIte]
+      runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, stk', locs, jh', hp'⟩ :=
+  Jvm.runJvmValFast_invokestatic_step algHooks hs
 
 theorem runJvmResFast_invokestatic_step {f1 : Nat} {prog : List JvmInstr} {pc : Nat}
     {cls method desc : String} {rest : List JvmInstr} {pc0 : Nat} {stk stk' : List JvmVal}
@@ -443,9 +217,8 @@ theorem runJvmResFast_invokestatic_step {f1 : Nat} {prog : List JvmInstr} {pc : 
     (hs : stepInvokeStatic ⟨pc, stk, locs, jh, hp⟩ cls method desc =
       .inl (some ⟨pc + 1, stk', locs, jh', hp'⟩)) :
     runJvmResFast (f1 + 1) prog pc (.invokestatic cls method desc :: rest) ⟨pc0, stk, locs, jh, hp⟩ =
-      runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, stk', locs, jh', hp'⟩ := by
-  simp only [runJvmResFast, Jvm.runJvmResFast, stepInvokeStatic] at hs ⊢
-  rw [hs]; simp only [↓reduceIte]
+      runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, stk', locs, jh', hp'⟩ :=
+  Jvm.runJvmResFast_invokestatic_step algHooks hs
 
 theorem runJvmValFast_baload {f1 : Nat} {prog : List JvmInstr} {pc : Nat}
     {idx : UInt32} {addr : Nat} {stkRest : List JvmVal} {rest : List JvmInstr} {pc0 : Nat}
@@ -457,12 +230,8 @@ theorem runJvmValFast_baload {f1 : Nat} {prog : List JvmInstr} {pc : Nat}
         ⟨pc0, .i32 idx :: .heapRef addr :: stkRest, locs, jh, hp⟩ =
       runJvmValFast f1 prog (pc + 1) rest
         ⟨pc + 1, .i32 (UInt32.ofBitVec (BitVec.signExtend 32 elems[idx.toNat].toBitVec)) :: stkRest,
-          locs, jh, hp⟩ := by
-  have hstep := Jvm.stepInstr_baload algHooks (pc := pc) (stkRest := stkRest)
-    (locs := locs) (hp := hp) hget hslt hlt
-  simp only [runJvmValFast]
-  rw [Jvm.runJvmValFast_step_nonbranch algHooks (hbr := rfl) (hno := by simp)]
-  simp only [hstep, ↓reduceIte]
+          locs, jh, hp⟩ :=
+  Jvm.runJvmValFast_baload algHooks hget hslt hlt
 
 theorem runJvmValFast_aaload {f1 : Nat} {prog : List JvmInstr} {pc : Nat}
     {idx : UInt32} {addr : Nat} {stkRest : List JvmVal} {rest : List JvmInstr} {pc0 : Nat}
@@ -473,12 +242,8 @@ theorem runJvmValFast_aaload {f1 : Nat} {prog : List JvmInstr} {pc : Nat}
     runJvmValFast (f1 + 1) prog pc (.aaload :: rest)
         ⟨pc0, .i32 idx :: .heapRef addr :: stkRest, locs, jh, hp⟩ =
       runJvmValFast f1 prog (pc + 1) rest
-        ⟨pc + 1, elems[idx.toNat] :: stkRest, locs, jh, hp⟩ := by
-  have hstep := Jvm.stepInstr_aaload algHooks (pc := pc) (stkRest := stkRest)
-    (locs := locs) (hp := hp) hget hslt hlt
-  simp only [runJvmValFast]
-  rw [Jvm.runJvmValFast_step_nonbranch algHooks (hbr := rfl) (hno := by simp)]
-  simp only [hstep, ↓reduceIte]
+        ⟨pc + 1, elems[idx.toNat] :: stkRest, locs, jh, hp⟩ :=
+  Jvm.runJvmValFast_aaload algHooks hget hslt hlt
 
 theorem runJvmResFast_bastore {f1 : Nat} {prog : List JvmInstr} {pc : Nat}
     {v idx : UInt32} {addr : Nat} {stkRest : List JvmVal} {rest : List JvmInstr} {pc0 : Nat}
@@ -489,18 +254,10 @@ theorem runJvmResFast_bastore {f1 : Nat} {prog : List JvmInstr} {pc : Nat}
     runJvmResFast (f1 + 1) prog pc (.bastore :: rest)
         ⟨pc0, .i32 v :: .i32 idx :: .heapRef addr :: stkRest, locs, jh, hp⟩ =
       runJvmResFast f1 prog (pc + 1) rest
-        ⟨pc + 1, stkRest, locs, jh.set addr (.byteArray (elems.set idx.toNat v.toUInt8 hlt)), hp⟩ := by
-  have hstep := Jvm.stepInstr_bastore algHooks (pc := pc) (v := v) (stkRest := stkRest)
-    (locs := locs) (hp := hp) hget hslt hlt
-  simp only [runJvmResFast]
-  rw [Jvm.runJvmResFast_step_nonbranch algHooks (hbr := rfl) (hno := by simp)]
-  simp only [hstep, ↓reduceIte]
+        ⟨pc + 1, stkRest, locs, jh.set addr (.byteArray (elems.set idx.toNat v.toUInt8 hlt)), hp⟩ :=
+  Jvm.runJvmResFast_bastore algHooks hget hslt hlt
 
-theorem jvmHeap_get?_set_self {jh : Jvm.JvmHeap AlgExt} {addr : Nat} {v w : Jvm.HeapObj AlgExt}
-    (hget : jh.get? addr = some v) : (jh.set addr w).get? addr = some w := by
-  have hlt : addr < jh.objects.size := by
-    rcases Array.getElem?_eq_some_iff.mp hget with ⟨h, _⟩; exact h
-  simp [Jvm.JvmHeap.get?, Jvm.JvmHeap.set, hlt]
+export Jvm (jvmHeap_get?_set_self)
 
 theorem runJvmResFast_newarray_byte {f1 : Nat} {prog : List JvmInstr} {pc : Nat}
     {n : UInt32} {stkRest : List JvmVal} {rest : List JvmInstr} {pc0 : Nat}
@@ -510,12 +267,8 @@ theorem runJvmResFast_newarray_byte {f1 : Nat} {prog : List JvmInstr} {pc : Nat}
         ⟨pc0, .i32 n :: stkRest, locs, jh, hp⟩ =
       runJvmResFast f1 prog (pc + 1) rest
         ⟨pc + 1, .heapRef jh.objects.size :: stkRest, locs,
-          (jh.alloc (.byteArray (Array.replicate n.toNat 0))).2, hp⟩ := by
-  have hstep := Jvm.stepInstr_newarray_byte algHooks (pc := pc) (n := n) (stkRest := stkRest)
-    (locs := locs) (jh := jh) (hp := hp) hslt
-  simp only [runJvmResFast]
-  rw [Jvm.runJvmResFast_step_nonbranch algHooks (hbr := rfl) (hno := by simp)]
-  simp only [hstep, ↓reduceIte]
+          (jh.alloc (.byteArray (Array.replicate n.toNat 0))).2, hp⟩ :=
+  Jvm.runJvmResFast_newarray_byte algHooks hslt
 
 theorem runJvmValFast_invokevirtual_step {f1 : Nat} {prog : List JvmInstr} {pc : Nat}
     {cls method desc : String} {rest : List JvmInstr} {pc0 : Nat} {stk stk' : List JvmVal}
@@ -523,9 +276,8 @@ theorem runJvmValFast_invokevirtual_step {f1 : Nat} {prog : List JvmInstr} {pc :
     (hs : stepInvokeVirtual ⟨pc, stk, locs, jh, hp⟩ cls method desc =
       .inl (some ⟨pc + 1, stk', locs, jh', hp'⟩)) :
     runJvmValFast (f1 + 1) prog pc (.invokevirtual cls method desc :: rest) ⟨pc0, stk, locs, jh, hp⟩ =
-      runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, stk', locs, jh', hp'⟩ := by
-  simp only [runJvmValFast, Jvm.runJvmValFast, stepInvokeVirtual] at hs ⊢
-  rw [hs]; simp only [↓reduceIte]
+      runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, stk', locs, jh', hp'⟩ :=
+  Jvm.runJvmValFast_invokevirtual_step algHooks hs
 
 theorem runJvmResFast_invokevirtual_step {f1 : Nat} {prog : List JvmInstr} {pc : Nat}
     {cls method desc : String} {rest : List JvmInstr} {pc0 : Nat} {stk stk' : List JvmVal}
@@ -533,9 +285,8 @@ theorem runJvmResFast_invokevirtual_step {f1 : Nat} {prog : List JvmInstr} {pc :
     (hs : stepInvokeVirtual ⟨pc, stk, locs, jh, hp⟩ cls method desc =
       .inl (some ⟨pc + 1, stk', locs, jh', hp'⟩)) :
     runJvmResFast (f1 + 1) prog pc (.invokevirtual cls method desc :: rest) ⟨pc0, stk, locs, jh, hp⟩ =
-      runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, stk', locs, jh', hp'⟩ := by
-  simp only [runJvmResFast, Jvm.runJvmResFast, stepInvokeVirtual] at hs ⊢
-  rw [hs]; simp only [↓reduceIte]
+      runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, stk', locs, jh', hp'⟩ :=
+  Jvm.runJvmResFast_invokevirtual_step algHooks hs
 
 private theorem runJvmValFast_invokespecial_step {f1 : Nat} {prog : List JvmInstr} {pc : Nat}
     {cls method desc : String} {rest : List JvmInstr} {pc0 : Nat} {stk stk' : List JvmVal}
@@ -543,9 +294,8 @@ private theorem runJvmValFast_invokespecial_step {f1 : Nat} {prog : List JvmInst
     (hs : stepInvokeSpecial ⟨pc, stk, locs, jh, hp⟩ cls method desc =
       .inl (some ⟨pc + 1, stk', locs, jh', hp'⟩)) :
     runJvmValFast (f1 + 1) prog pc (.invokespecial cls method desc :: rest) ⟨pc0, stk, locs, jh, hp⟩ =
-      runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, stk', locs, jh', hp'⟩ := by
-  simp only [runJvmValFast, Jvm.runJvmValFast, stepInvokeSpecial] at hs ⊢
-  rw [hs]; simp only [↓reduceIte]
+      runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, stk', locs, jh', hp'⟩ :=
+  Jvm.runJvmValFast_invokespecial_step algHooks hs
 
 theorem runJvmResFast_invokespecial_step {f1 : Nat} {prog : List JvmInstr} {pc : Nat}
     {cls method desc : String} {rest : List JvmInstr} {pc0 : Nat} {stk stk' : List JvmVal}
@@ -553,9 +303,8 @@ theorem runJvmResFast_invokespecial_step {f1 : Nat} {prog : List JvmInstr} {pc :
     (hs : stepInvokeSpecial ⟨pc, stk, locs, jh, hp⟩ cls method desc =
       .inl (some ⟨pc + 1, stk', locs, jh', hp'⟩)) :
     runJvmResFast (f1 + 1) prog pc (.invokespecial cls method desc :: rest) ⟨pc0, stk, locs, jh, hp⟩ =
-      runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, stk', locs, jh', hp'⟩ := by
-  simp only [runJvmResFast, Jvm.runJvmResFast, stepInvokeSpecial] at hs ⊢
-  rw [hs]; simp only [↓reduceIte]
+      runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, stk', locs, jh', hp'⟩ :=
+  Jvm.runJvmResFast_invokespecial_step algHooks hs
 
 private theorem runJvmResFast_invokespecial_pred {f : Nat} {prog : List JvmInstr} {pc : Nat}
     {cls method desc : String} {rest : List JvmInstr} {pc0 : Nat} {stk stk' : List JvmVal}
@@ -564,9 +313,8 @@ private theorem runJvmResFast_invokespecial_pred {f : Nat} {prog : List JvmInstr
     (hs : stepInvokeSpecial ⟨pc, stk, locs, jh, hp⟩ cls method desc =
       .inl (some ⟨pc + 1, stk', locs, jh', hp'⟩)) :
     runJvmResFast f prog pc (.invokespecial cls method desc :: rest) ⟨pc0, stk, locs, jh, hp⟩ =
-      runJvmResFast (f - 1) prog (pc + 1) rest ⟨pc + 1, stk', locs, jh', hp'⟩ := by
-  obtain ⟨f1, rfl⟩ := Nat.exists_eq_succ_of_ne_zero (Nat.ne_of_gt hf)
-  exact runJvmResFast_invokespecial_step hs
+      runJvmResFast (f - 1) prog (pc + 1) rest ⟨pc + 1, stk', locs, jh', hp'⟩ :=
+  Jvm.runJvmResFast_invokespecial_pred algHooks hf hs
 
 private theorem runJvmValFast_invokeinterface_step {f1 : Nat} {prog : List JvmInstr} {pc : Nat}
     {cls method desc : String} {rest : List JvmInstr} {pc0 : Nat} {stk stk' : List JvmVal}
@@ -574,9 +322,8 @@ private theorem runJvmValFast_invokeinterface_step {f1 : Nat} {prog : List JvmIn
     (hs : stepInvokeInterface ⟨pc, stk, locs, jh, hp⟩ cls method desc =
       .inl (some ⟨pc + 1, stk', locs, jh', hp'⟩)) :
     runJvmValFast (f1 + 1) prog pc (.invokeinterface cls method desc :: rest) ⟨pc0, stk, locs, jh, hp⟩ =
-      runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, stk', locs, jh', hp'⟩ := by
-  simp only [runJvmValFast, Jvm.runJvmValFast, stepInvokeInterface] at hs ⊢
-  rw [hs]; simp only [↓reduceIte]
+      runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, stk', locs, jh', hp'⟩ :=
+  Jvm.runJvmValFast_invokeinterface_step algHooks hs
 
 private theorem runJvmResFast_invokeinterface_step {f1 : Nat} {prog : List JvmInstr} {pc : Nat}
     {cls method desc : String} {rest : List JvmInstr} {pc0 : Nat} {stk stk' : List JvmVal}
@@ -584,9 +331,8 @@ private theorem runJvmResFast_invokeinterface_step {f1 : Nat} {prog : List JvmIn
     (hs : stepInvokeInterface ⟨pc, stk, locs, jh, hp⟩ cls method desc =
       .inl (some ⟨pc + 1, stk', locs, jh', hp'⟩)) :
     runJvmResFast (f1 + 1) prog pc (.invokeinterface cls method desc :: rest) ⟨pc0, stk, locs, jh, hp⟩ =
-      runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, stk', locs, jh', hp'⟩ := by
-  simp only [runJvmResFast, Jvm.runJvmResFast, stepInvokeInterface] at hs ⊢
-  rw [hs]; simp only [↓reduceIte]
+      runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, stk', locs, jh', hp'⟩ :=
+  Jvm.runJvmResFast_invokeinterface_step algHooks hs
 
 private theorem updateArena_eq_some {pc : Nat} {stk : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
@@ -602,60 +348,62 @@ theorem stepStatic_checkNotNullParameter
     (hnull : obj.isNull = false) :
     stepInvokeStatic ⟨pc, msg :: obj :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "kotlin/jvm/internal/Intrinsics" "checkNotNullParameter" "(Ljava/lang/Object;Ljava/lang/String;)V" =
-      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, msg :: obj :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "kotlin/jvm/internal/Intrinsics" "checkNotNullParameter" "(Ljava/lang/Object;Ljava/lang/String;)V" =
-      (if obj.isNull then .inr none else .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar, u64, asc⟩⟩)) := rfl
-  rw [hfn, hnull]; rfl
+      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar, u64, asc⟩⟩) :=
+  Jvm.stepInvokeStatic_intrinsics_checkNotNullParam algHooks hnull
 
 private theorem stepStatic_uintCtor
     {pc : Nat} {stk : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
     stepInvokeStatic ⟨pc, stk, locs, jh, ⟨ar, u64, asc⟩⟩
       "kotlin/UInt" "constructor-impl" "(I)I" =
-      .inl (some ⟨pc + 1, stk, locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
+      .inl (some ⟨pc + 1, stk, locs, jh, ⟨ar, u64, asc⟩⟩) :=
+  Jvm.stepInvokeStatic_uint_ctor algHooks
 
 private theorem stepStatic_ulongCtor
     {pc : Nat} {stk : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
     stepInvokeStatic ⟨pc, stk, locs, jh, ⟨ar, u64, asc⟩⟩
       "kotlin/ULong" "constructor-impl" "(J)J" =
-      .inl (some ⟨pc + 1, stk, locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
+      .inl (some ⟨pc + 1, stk, locs, jh, ⟨ar, u64, asc⟩⟩) :=
+  Jvm.stepInvokeStatic_ulong_ctor algHooks
 
 private theorem stepStatic_ubyteCtor
     {pc : Nat} {stk : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
     stepInvokeStatic ⟨pc, stk, locs, jh, ⟨ar, u64, asc⟩⟩
       "kotlin/UByte" "constructor-impl" "(B)B" =
-      .inl (some ⟨pc + 1, stk, locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
+      .inl (some ⟨pc + 1, stk, locs, jh, ⟨ar, u64, asc⟩⟩) :=
+  Jvm.stepInvokeStatic_ubyte_ctor algHooks
 
 private theorem stepStatic_intCompareUnsigned
-    {pc : Nat} {b a : JvmVal} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {b a : UInt32} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
-    stepInvokeStatic ⟨pc, b :: a :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 b :: .i32 a :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "java/lang/Integer" "compareUnsigned" "(II)I" =
       .inl (some ⟨pc + 1,
-        .i32 (if a.asI32 == b.asI32 then 0 else if a.asI32 < b.asI32 then 4294967295 else 1) :: rest,
-        locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
+        .i32 (if a == b then 0 else if a < b then 4294967295 else 1) :: rest,
+        locs, jh, ⟨ar, u64, asc⟩⟩) :=
+  Jvm.stepInvokeStatic_integer_compareUnsigned algHooks
 
 private theorem stepStatic_intDivideUnsigned
-    {pc : Nat} {a : JvmVal} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {a : UInt32} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
-    stepInvokeStatic ⟨pc, .i32 5 :: a :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 5 :: .i32 a :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "java/lang/Integer" "divideUnsigned" "(II)I" =
-      .inl (some ⟨pc + 1, .i32 (a.asI32 / 5) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
+      .inl (some ⟨pc + 1, .i32 (a / 5) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) :=
+  Jvm.stepInvokeStatic_integer_divideUnsigned algHooks (b := 5) (by decide)
 
 private theorem stepStatic_uintArrGet
-    {pc : Nat} {idx : JvmVal} {id : Nat} {f : ArenaU32Field} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {idx : UInt32} {id : Nat} {f : ArenaU32Field} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, idx :: (.ext (.arenaU32Ref id f)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 idx :: (.ext (.arenaU32Ref id f)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "kotlin/UIntArray" "get-pVg5ArA" "([II)I" =
-      .inl (some ⟨pc + 1, .i32 ((getArenaU32 a f)[idx.asI32.toNat]!) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, idx :: (.ext (.arenaU32Ref id f)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      .inl (some ⟨pc + 1, .i32 ((getArenaU32 a f)[idx.toNat]!) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 idx :: (.ext (.arenaU32Ref id f)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "kotlin/UIntArray" "get-pVg5ArA" "([II)I" =
       match ar[id]? with
-      | some a => .inl (some ⟨pc + 1, .i32 ((getArenaU32 a f)[idx.asI32.toNat]!) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩)
+      | some a => .inl (some ⟨pc + 1, .i32 ((getArenaU32 a f)[idx.toNat]!) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩)
       | none => .inr none := rfl
   rw [hfn, har]
 
@@ -674,97 +422,97 @@ private theorem stepStatic_uintArrGetSize
   rw [hfn, har]
 
 private theorem stepStatic_ubyteArrGet
-    {pc : Nat} {idx : JvmVal} {id : Nat} {f : ArenaU8Field} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {idx : UInt32} {id : Nat} {f : ArenaU8Field} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, idx :: (.ext (.arenaU8Ref id f)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 idx :: (.ext (.arenaU8Ref id f)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "kotlin/UByteArray" "get-w2LRezQ" "([BI)B" =
-      .inl (some ⟨pc + 1, .i32 ((getArenaU8 a f)[idx.asI32.toNat]!).toInt8.toInt32.toUInt32 :: rest,
+      .inl (some ⟨pc + 1, .i32 ((getArenaU8 a f)[idx.toNat]!).toInt8.toInt32.toUInt32 :: rest,
         locs, jh, ⟨ar, u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, idx :: (.ext (.arenaU8Ref id f)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+  have hfn : stepInvokeStatic ⟨pc, .i32 idx :: (.ext (.arenaU8Ref id f)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "kotlin/UByteArray" "get-w2LRezQ" "([BI)B" =
       match ar[id]? with
-      | some a => .inl (some ⟨pc + 1, .i32 ((getArenaU8 a f)[idx.asI32.toNat]!).toInt8.toInt32.toUInt32 :: rest,
+      | some a => .inl (some ⟨pc + 1, .i32 ((getArenaU8 a f)[idx.toNat]!).toInt8.toInt32.toUInt32 :: rest,
           locs, jh, ⟨ar, u64, asc⟩⟩)
       | none => .inr none := rfl
   rw [hfn, har]
 
 private theorem stepStatic_ulongArrGetArena
-    {pc : Nat} {idx : JvmVal} {id : Nat} {f : ArenaU64Field} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {idx : UInt32} {id : Nat} {f : ArenaU64Field} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, idx :: (.ext (.arenaU64Ref id f)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 idx :: (.ext (.arenaU64Ref id f)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "kotlin/ULongArray" "get-s-VKNKU" "([JI)J" =
-      .inl (some ⟨pc + 1, .i64 ((getArenaU64 a f)[idx.asI32.toNat]!) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, idx :: (.ext (.arenaU64Ref id f)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      .inl (some ⟨pc + 1, .i64 ((getArenaU64 a f)[idx.toNat]!) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 idx :: (.ext (.arenaU64Ref id f)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "kotlin/ULongArray" "get-s-VKNKU" "([JI)J" =
       match ar[id]? with
-      | some a => .inl (some ⟨pc + 1, .i64 ((getArenaU64 a f)[idx.asI32.toNat]!) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩)
+      | some a => .inl (some ⟨pc + 1, .i64 ((getArenaU64 a f)[idx.toNat]!) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩)
       | none => .inr none := rfl
   rw [hfn, har]
 
 theorem stepStatic_ulongArrGetU64
-    {pc : Nat} {idx : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {idx : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {arr : Array UInt64} (hu : u64[id]? = some arr) :
-    stepInvokeStatic ⟨pc, idx :: (.ext (.u64Ref id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 idx :: (.ext (.u64Ref id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "kotlin/ULongArray" "get-s-VKNKU" "([JI)J" =
-      .inl (some ⟨pc + 1, .i64 (arr[idx.asI32.toNat]!) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, idx :: (.ext (.u64Ref id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      .inl (some ⟨pc + 1, .i64 (arr[idx.toNat]!) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 idx :: (.ext (.u64Ref id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "kotlin/ULongArray" "get-s-VKNKU" "([JI)J" =
       match u64[id]? with
-      | some arr => .inl (some ⟨pc + 1, .i64 (arr[idx.asI32.toNat]!) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩)
+      | some arr => .inl (some ⟨pc + 1, .i64 (arr[idx.toNat]!) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩)
       | none => .inr none := rfl
   rw [hfn, hu]
 
 private theorem stepStatic_ulongArrSetU64
-    {pc : Nat} {val idx : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {val : UInt64} {idx : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {arr : Array UInt64} (hu : u64[id]? = some arr) :
-    stepInvokeStatic ⟨pc, val :: idx :: (.ext (.u64Ref id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i64 val :: .i32 idx :: (.ext (.u64Ref id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "kotlin/ULongArray" "set-k8EXiF4" "([JIJ)V" =
-      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar, u64.set id (arr.set! idx.asI32.toNat val.asI64), asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, val :: idx :: (.ext (.u64Ref id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar, u64.set id (arr.set! idx.toNat val), asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i64 val :: .i32 idx :: (.ext (.u64Ref id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "kotlin/ULongArray" "set-k8EXiF4" "([JIJ)V" =
       match u64[id]? with
-      | some arr => .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar, u64.set id (arr.set! idx.asI32.toNat val.asI64), asc⟩⟩)
+      | some arr => .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar, u64.set id (arr.set! idx.toNat val), asc⟩⟩)
       | none => .inr none := rfl
   rw [hfn, hu]
 
 private theorem stepStatic_ulongArrSetArena
-    {pc : Nat} {val idx : JvmVal} {id : Nat} {f : ArenaU64Field} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {val : UInt64} {idx : UInt32} {id : Nat} {f : ArenaU64Field} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, val :: idx :: (.ext (.arenaU64Ref id f)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i64 val :: .i32 idx :: (.ext (.arenaU64Ref id f)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "kotlin/ULongArray" "set-k8EXiF4" "([JIJ)V" =
-      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (setArenaU64 a f ((getArenaU64 a f).set! idx.asI32.toNat val.asI64)), u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, val :: idx :: (.ext (.arenaU64Ref id f)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (setArenaU64 a f ((getArenaU64 a f).set! idx.toNat val)), u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i64 val :: .i32 idx :: (.ext (.arenaU64Ref id f)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "kotlin/ULongArray" "set-k8EXiF4" "([JIJ)V" =
-      .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => setArenaU64 a f ((getArenaU64 a f).set! idx.asI32.toNat val.asI64))) := rfl
+      .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => setArenaU64 a f ((getArenaU64 a f).set! idx.toNat val))) := rfl
   rw [hfn, updateArena_eq_some har]
 
 private theorem stepStatic_uintArrSet
-    {pc : Nat} {val idx : JvmVal} {id : Nat} {f : ArenaU32Field} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {val idx : UInt32} {id : Nat} {f : ArenaU32Field} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, val :: idx :: (.ext (.arenaU32Ref id f)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 val :: .i32 idx :: (.ext (.arenaU32Ref id f)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "kotlin/UIntArray" "set-VXSXFK8" "([III)V" =
-      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (setArenaU32 a f ((getArenaU32 a f).set! idx.asI32.toNat val.asI32)), u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, val :: idx :: (.ext (.arenaU32Ref id f)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (setArenaU32 a f ((getArenaU32 a f).set! idx.toNat val)), u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 val :: .i32 idx :: (.ext (.arenaU32Ref id f)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "kotlin/UIntArray" "set-VXSXFK8" "([III)V" =
-      .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => setArenaU32 a f ((getArenaU32 a f).set! idx.asI32.toNat val.asI32))) := rfl
+      .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => setArenaU32 a f ((getArenaU32 a f).set! idx.toNat val))) := rfl
   rw [hfn, updateArena_eq_some har]
 
 private theorem stepStatic_ubyteArrSet
-    {pc : Nat} {val idx : JvmVal} {id : Nat} {f : ArenaU8Field} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {val idx : UInt32} {id : Nat} {f : ArenaU8Field} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, val :: idx :: (.ext (.arenaU8Ref id f)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 val :: .i32 idx :: (.ext (.arenaU8Ref id f)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "kotlin/UByteArray" "set-VurrAj0" "([BIB)V" =
-      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (setArenaU8 a f ((getArenaU8 a f).set! idx.asI32.toNat val.asI32.toUInt8)), u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, val :: idx :: (.ext (.arenaU8Ref id f)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (setArenaU8 a f ((getArenaU8 a f).set! idx.toNat val.toUInt8)), u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 val :: .i32 idx :: (.ext (.arenaU8Ref id f)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "kotlin/UByteArray" "set-VurrAj0" "([BIB)V" =
-      .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => setArenaU8 a f ((getArenaU8 a f).set! idx.asI32.toNat val.asI32.toUInt8))) := rfl
+      .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => setArenaU8 a f ((getArenaU8 a f).set! idx.toNat val.toUInt8))) := rfl
   rw [hfn, updateArena_eq_some har]
 
 private theorem stepStatic_checkNotNull
@@ -773,375 +521,376 @@ private theorem stepStatic_checkNotNull
     (hnull : obj.isNull = false) :
     stepInvokeStatic ⟨pc, msg :: obj :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "kotlin/jvm/internal/Intrinsics" "checkNotNull" "(Ljava/lang/Object;Ljava/lang/String;)V" =
-      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, msg :: obj :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "kotlin/jvm/internal/Intrinsics" "checkNotNull" "(Ljava/lang/Object;Ljava/lang/String;)V" =
-      (if obj.isNull then .inr none else .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar, u64, asc⟩⟩)) := rfl
-  rw [hfn, hnull]; rfl
+      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar, u64, asc⟩⟩) :=
+  Jvm.stepInvokeStatic_intrinsics_checkNotNull algHooks hnull
 
 private theorem stepStatic_intrinsicsCompare
-    {pc : Nat} {b a : JvmVal} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {b a : UInt32} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
-    stepInvokeStatic ⟨pc, b :: a :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 b :: .i32 a :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "kotlin/jvm/internal/Intrinsics" "compare" "(II)I" =
       .inl (some ⟨pc + 1,
-        .i32 (if a.asI32 == b.asI32 then 0 else if a.asI32.toBitVec.slt b.asI32.toBitVec then 4294967295 else 1) :: rest,
-        locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
+        .i32 (if a == b then 0 else if a.toBitVec.slt b.toBitVec then 4294967295 else 1) :: rest,
+        locs, jh, ⟨ar, u64, asc⟩⟩) :=
+  Jvm.stepInvokeStatic_intrinsics_compare algHooks
 
 private theorem stepStatic_longCompareUnsigned
-    {pc : Nat} {b a : JvmVal} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {b a : UInt64} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
-    stepInvokeStatic ⟨pc, b :: a :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i64 b :: .i64 a :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "java/lang/Long" "compareUnsigned" "(JJ)I" =
       .inl (some ⟨pc + 1,
-        .i32 (if a.asI64 == b.asI64 then 0 else if a.asI64 < b.asI64 then 4294967295 else 1) :: rest,
-        locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
+        .i32 (if a == b then 0 else if a < b then 4294967295 else 1) :: rest,
+        locs, jh, ⟨ar, u64, asc⟩⟩) :=
+  Jvm.stepInvokeStatic_long_compareUnsigned algHooks
 
 private theorem stepStatic_intValueOf
-    {pc : Nat} {v : JvmVal} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {v : UInt32} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
-    stepInvokeStatic ⟨pc, v :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 v :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "java/lang/Integer" "valueOf" "(I)Ljava/lang/Integer;" =
-      .inl (some ⟨pc + 1, .boxedInt v.asI32 :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
+      .inl (some ⟨pc + 1, .boxedInt v :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) :=
+  Jvm.stepInvokeStatic_integer_valueOf algHooks
 
 private theorem stepStatic_ulongBox
-    {pc : Nat} {v : JvmVal} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {v : UInt64} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
-    stepInvokeStatic ⟨pc, v :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i64 v :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "kotlin/ULong" "box-impl" "(J)Lkotlin/ULong;" =
-      .inl (some ⟨pc + 1, .boxedULong v.asI64 :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
+      .inl (some ⟨pc + 1, .boxedULong v :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) :=
+  Jvm.stepInvokeStatic_ulong_box algHooks
 
 private theorem stepStatic_flat_getRemapCell
-    {pc : Nat} {nodeId : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {nodeId : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_getRemapCell-Qn1smSk" "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
-      .inl (some ⟨pc + 1, .i32 (Algorithm.getRemapCell a nodeId.asI32) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      .inl (some ⟨pc + 1, .i32 (Algorithm.getRemapCell a nodeId) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_getRemapCell-Qn1smSk" "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       match ar[id]? with
-      | some a => .inl (some ⟨pc + 1, .i32 (Algorithm.getRemapCell a nodeId.asI32) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩)
+      | some a => .inl (some ⟨pc + 1, .i32 (Algorithm.getRemapCell a nodeId) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩)
       | none => .inr none := rfl
   rw [hfn, har]
 
 private theorem stepStatic_flat_getCellStepRes
-    {pc : Nat} {nodeId : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {nodeId : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_getCellStepRes-Qn1smSk" "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
-      .inl (some ⟨pc + 1, .i32 (Algorithm.getCellStepRes a nodeId.asI32) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      .inl (some ⟨pc + 1, .i32 (Algorithm.getCellStepRes a nodeId) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_getCellStepRes-Qn1smSk" "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       match ar[id]? with
-      | some a => .inl (some ⟨pc + 1, .i32 (Algorithm.getCellStepRes a nodeId.asI32) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩)
+      | some a => .inl (some ⟨pc + 1, .i32 (Algorithm.getCellStepRes a nodeId) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩)
       | none => .inr none := rfl
   rw [hfn, har]
 
 private theorem stepStatic_flat_centeredSubSubnodeSizeCell
-    {pc : Nat} {nodeId : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {nodeId : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_centeredSubSubnodeSizeCell-Qn1smSk" "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)J" =
-      .inl (some ⟨pc + 1, .i64 (Algorithm.centeredSubSubnodeSizeCell a nodeId.asI32) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      .inl (some ⟨pc + 1, .i64 (Algorithm.centeredSubSubnodeSizeCell a nodeId) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_centeredSubSubnodeSizeCell-Qn1smSk" "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)J" =
       match ar[id]? with
-      | some a => .inl (some ⟨pc + 1, .i64 (Algorithm.centeredSubSubnodeSizeCell a nodeId.asI32) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩)
+      | some a => .inl (some ⟨pc + 1, .i64 (Algorithm.centeredSubSubnodeSizeCell a nodeId) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩)
       | none => .inr none := rfl
   rw [hfn, har]
 
 private theorem stepStatic_flat_computeLevel4NextGen
-    {pc : Nat} {se sw ne nw : JvmVal} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {se sw ne nw : UInt64} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
-    stepInvokeStatic ⟨pc, se :: sw :: ne :: nw :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i64 se :: .i64 sw :: .i64 ne :: .i64 nw :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_computeLevel4NextGen16x16WithUInt___at___00Algorithm_computeLevel4NextGen16x16UInt_spec__0-2jIhpxI"
       "(JJJJ)J" =
       .inl (some ⟨pc + 1,
-        .i64 (Algorithm.computeLevel4NextGen16x16UInt nw.asI64 ne.asI64 sw.asI64 se.asI64) :: rest,
+        .i64 (Algorithm.computeLevel4NextGen16x16UInt nw ne sw se) :: rest,
         locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
 
 private theorem stepStatic_flat_centeredHorizontal
-    {pc : Nat} {eId wId : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {eId wId : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, eId :: wId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 eId :: .i32 wId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_centeredHorizontal-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)I" =
       .inl (some ⟨pc + 1,
-        .i32 (a.centeredHorizontal wId.asI32 eId.asI32).1 :: rest, locs, jh, ⟨ar.set id (a.centeredHorizontal wId.asI32 eId.asI32).2, u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, eId :: wId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+        .i32 (a.centeredHorizontal wId eId).1 :: rest, locs, jh, ⟨ar.set id (a.centeredHorizontal wId eId).2, u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 eId :: .i32 wId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_centeredHorizontal-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)I" =
       match ar[id]? with
       | some a =>
-        let (r, a') := a.centeredHorizontal wId.asI32 eId.asI32
+        let (r, a') := a.centeredHorizontal wId eId
         .inl (some ⟨pc + 1, .i32 r :: rest, locs, jh, ⟨ar.set id a', u64, asc⟩⟩)
       | none => .inr none := rfl
   rw [hfn, har]
 
 private theorem stepStatic_flat_centeredVertical
-    {pc : Nat} {sId nId : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {sId nId : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, sId :: nId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 sId :: .i32 nId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_centeredVertical-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)I" =
       .inl (some ⟨pc + 1,
-        .i32 (a.centeredVertical nId.asI32 sId.asI32).1 :: rest, locs, jh, ⟨ar.set id (a.centeredVertical nId.asI32 sId.asI32).2, u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, sId :: nId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+        .i32 (a.centeredVertical nId sId).1 :: rest, locs, jh, ⟨ar.set id (a.centeredVertical nId sId).2, u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 sId :: .i32 nId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_centeredVertical-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)I" =
       match ar[id]? with
       | some a =>
-        let (r, a') := a.centeredVertical nId.asI32 sId.asI32
+        let (r, a') := a.centeredVertical nId sId
         .inl (some ⟨pc + 1, .i32 r :: rest, locs, jh, ⟨ar.set id a', u64, asc⟩⟩)
       | none => .inr none := rfl
   rw [hfn, har]
 
 private theorem stepStatic_flat_centeredSubnode
-    {pc : Nat} {nodeId : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {nodeId : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_centeredSubnode-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       .inl (some ⟨pc + 1,
-        .i32 (a.centeredSubnode nodeId.asI32).1 :: rest, locs, jh, ⟨ar.set id (a.centeredSubnode nodeId.asI32).2, u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+        .i32 (a.centeredSubnode nodeId).1 :: rest, locs, jh, ⟨ar.set id (a.centeredSubnode nodeId).2, u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_centeredSubnode-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       match ar[id]? with
       | some a =>
-        let (r, a') := a.centeredSubnode nodeId.asI32
+        let (r, a') := a.centeredSubnode nodeId
         .inl (some ⟨pc + 1, .i32 r :: rest, locs, jh, ⟨ar.set id a', u64, asc⟩⟩)
       | none => .inr none := rfl
   rw [hfn, har]
 
 private theorem stepStatic_flat_centeredSubSubnode
-    {pc : Nat} {nodeId : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {nodeId : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_centeredSubSubnode-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       .inl (some ⟨pc + 1,
-        .i32 (a.centeredSubSubnode nodeId.asI32).1 :: rest, locs, jh, ⟨ar.set id (a.centeredSubSubnode nodeId.asI32).2, u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+        .i32 (a.centeredSubSubnode nodeId).1 :: rest, locs, jh, ⟨ar.set id (a.centeredSubSubnode nodeId).2, u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_centeredSubSubnode-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       match ar[id]? with
       | some a =>
-        let (r, a') := a.centeredSubSubnode nodeId.asI32
+        let (r, a') := a.centeredSubSubnode nodeId
         .inl (some ⟨pc + 1, .i32 r :: rest, locs, jh, ⟨ar.set id a', u64, asc⟩⟩)
       | none => .inr none := rfl
   rw [hfn, har]
 
 private theorem stepStatic_flat_quadrantNW
-    {pc : Nat} {nodeId : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {nodeId : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_quadrantNW-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       .inl (some ⟨pc + 1,
-        .i32 (a.quadrantNW nodeId.asI32).1 :: rest, locs, jh, ⟨ar.set id (a.quadrantNW nodeId.asI32).2, u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+        .i32 (a.quadrantNW nodeId).1 :: rest, locs, jh, ⟨ar.set id (a.quadrantNW nodeId).2, u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_quadrantNW-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       match ar[id]? with
       | some a =>
-        let (r, a') := a.quadrantNW nodeId.asI32
+        let (r, a') := a.quadrantNW nodeId
         .inl (some ⟨pc + 1, .i32 r :: rest, locs, jh, ⟨ar.set id a', u64, asc⟩⟩)
       | none => .inr none := rfl
   rw [hfn, har]
 
 private theorem stepStatic_flat_quadrantNE
-    {pc : Nat} {nodeId : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {nodeId : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_quadrantNE-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       .inl (some ⟨pc + 1,
-        .i32 (a.quadrantNE nodeId.asI32).1 :: rest, locs, jh, ⟨ar.set id (a.quadrantNE nodeId.asI32).2, u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+        .i32 (a.quadrantNE nodeId).1 :: rest, locs, jh, ⟨ar.set id (a.quadrantNE nodeId).2, u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_quadrantNE-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       match ar[id]? with
       | some a =>
-        let (r, a') := a.quadrantNE nodeId.asI32
+        let (r, a') := a.quadrantNE nodeId
         .inl (some ⟨pc + 1, .i32 r :: rest, locs, jh, ⟨ar.set id a', u64, asc⟩⟩)
       | none => .inr none := rfl
   rw [hfn, har]
 
 private theorem stepStatic_flat_quadrantSW
-    {pc : Nat} {nodeId : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {nodeId : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_quadrantSW-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       .inl (some ⟨pc + 1,
-        .i32 (a.quadrantSW nodeId.asI32).1 :: rest, locs, jh, ⟨ar.set id (a.quadrantSW nodeId.asI32).2, u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+        .i32 (a.quadrantSW nodeId).1 :: rest, locs, jh, ⟨ar.set id (a.quadrantSW nodeId).2, u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_quadrantSW-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       match ar[id]? with
       | some a =>
-        let (r, a') := a.quadrantSW nodeId.asI32
+        let (r, a') := a.quadrantSW nodeId
         .inl (some ⟨pc + 1, .i32 r :: rest, locs, jh, ⟨ar.set id a', u64, asc⟩⟩)
       | none => .inr none := rfl
   rw [hfn, har]
 
 private theorem stepStatic_flat_quadrantSE
-    {pc : Nat} {nodeId : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {nodeId : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_quadrantSE-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       .inl (some ⟨pc + 1,
-        .i32 (a.quadrantSE nodeId.asI32).1 :: rest, locs, jh, ⟨ar.set id (a.quadrantSE nodeId.asI32).2, u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+        .i32 (a.quadrantSE nodeId).1 :: rest, locs, jh, ⟨ar.set id (a.quadrantSE nodeId).2, u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_quadrantSE-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       match ar[id]? with
       | some a =>
-        let (r, a') := a.quadrantSE nodeId.asI32
+        let (r, a') := a.quadrantSE nodeId
         .inl (some ⟨pc + 1, .i32 r :: rest, locs, jh, ⟨ar.set id a', u64, asc⟩⟩)
       | none => .inr none := rfl
   rw [hfn, har]
 
 private theorem stepStatic_flat_stepLevel4
-    {pc : Nat} {l4Id : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {l4Id : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, l4Id :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 l4Id :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_stepLevel4-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)J" =
       .inl (some ⟨pc + 1,
-        .i64 (a.stepLevel4 l4Id.asI32).1 :: rest, locs, jh, ⟨ar.set id (a.stepLevel4 l4Id.asI32).2, u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, l4Id :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+        .i64 (a.stepLevel4 l4Id).1 :: rest, locs, jh, ⟨ar.set id (a.stepLevel4 l4Id).2, u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 l4Id :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_stepLevel4-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)J" =
       match ar[id]? with
       | some a =>
-        let (r, a') := a.stepLevel4 l4Id.asI32
+        let (r, a') := a.stepLevel4 l4Id
         .inl (some ⟨pc + 1, .i64 r :: rest, locs, jh, ⟨ar.set id a', u64, asc⟩⟩)
       | none => .inr none := rfl
   rw [hfn, har]
 
 private theorem stepStatic_flat_stepLevel5
-    {pc : Nat} {nodeId : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {nodeId : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_stepLevel5-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       .inl (some ⟨pc + 1,
-        .i32 (a.stepLevel5 nodeId.asI32).1 :: rest, locs, jh, ⟨ar.set id (a.stepLevel5 nodeId.asI32).2, u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+        .i32 (a.stepLevel5 nodeId).1 :: rest, locs, jh, ⟨ar.set id (a.stepLevel5 nodeId).2, u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_stepLevel5-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       match ar[id]? with
       | some a =>
-        let (r, a') := a.stepLevel5 nodeId.asI32
+        let (r, a') := a.stepLevel5 nodeId
         .inl (some ⟨pc + 1, .i32 r :: rest, locs, jh, ⟨ar.set id a', u64, asc⟩⟩)
       | none => .inr none := rfl
   rw [hfn, har]
 
 private theorem stepStatic_flat_setRemapL4
-    {pc : Nat} {val idx : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {val idx : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, val :: idx :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 val :: .i32 idx :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_setRemapL4-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
-      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (a.setRemapL4 idx.asI32 val.asI32), u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, val :: idx :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (a.setRemapL4 idx val), u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 val :: .i32 idx :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_setRemapL4-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
-      .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.setRemapL4 idx.asI32 val.asI32)) := rfl
+      .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.setRemapL4 idx val)) := rfl
   rw [hfn, updateArena_eq_some har]
 
 private theorem stepStatic_flat_setRemapCell
-    {pc : Nat} {val idx : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {val idx : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, val :: idx :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 val :: .i32 idx :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_setRemapCell-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
-      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (a.setRemapCell idx.asI32 val.asI32), u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, val :: idx :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (a.setRemapCell idx val), u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 val :: .i32 idx :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_setRemapCell-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
-      .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.setRemapCell idx.asI32 val.asI32)) := rfl
+      .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.setRemapCell idx val)) := rfl
   rw [hfn, updateArena_eq_some har]
 
 private theorem stepStatic_flat_setCellStepRes
-    {pc : Nat} {val idx : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {val idx : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, val :: idx :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 val :: .i32 idx :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_setCellStepRes-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
-      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (a.setCellStepRes idx.asI32 val.asI32), u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, val :: idx :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (a.setCellStepRes idx val), u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 val :: .i32 idx :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_setCellStepRes-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
-      .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.setCellStepRes idx.asI32 val.asI32)) := rfl
+      .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.setCellStepRes idx val)) := rfl
   rw [hfn, updateArena_eq_some har]
 
 private theorem stepStatic_flat_setL4StepRes
-    {pc : Nat} {val idx : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {val : UInt64} {idx : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, val :: idx :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i64 val :: .i32 idx :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_setL4StepRes-c82oGLE"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;IJ)V" =
-      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (a.setL4StepRes idx.asI32 val.asI64), u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, val :: idx :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (a.setL4StepRes idx val), u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i64 val :: .i32 idx :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_setL4StepRes-c82oGLE"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;IJ)V" =
-      .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.setL4StepRes idx.asI32 val.asI64)) := rfl
+      .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.setL4StepRes idx val)) := rfl
   rw [hfn, updateArena_eq_some har]
 
 private theorem stepStatic_flat_setOverflow
@@ -1161,110 +910,110 @@ private theorem stepStatic_flat_setOverflow
   rw [hfn, updateArena_eq_some har]
 
 private theorem stepStatic_flat_expandFrame
-    {pc : Nat} {base nodeId : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {base nodeId : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, base :: nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 base :: .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_expandFrame-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
-      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (a.expandFrame nodeId.asI32 base.asI32), u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, base :: nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (a.expandFrame nodeId base), u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 base :: .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_expandFrame-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
-      .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.expandFrame nodeId.asI32 base.asI32)) := rfl
+      .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.expandFrame nodeId base)) := rfl
   rw [hfn, updateArena_eq_some har]
 
 private theorem stepStatic_flat_initRemapL4Loop
-    {pc : Nat} {limit i : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {limit i : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, limit :: i :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 limit :: .i32 i :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_initRemapL4Loop-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
-      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (a.initRemapL4Loop i.asI32 limit.asI32), u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, limit :: i :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (a.initRemapL4Loop i limit), u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 limit :: .i32 i :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_initRemapL4Loop-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
-      .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.initRemapL4Loop i.asI32 limit.asI32)) := rfl
+      .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.initRemapL4Loop i limit)) := rfl
   rw [hfn, updateArena_eq_some har]
 
 private theorem stepStatic_flat_initRemapCellLoop
-    {pc : Nat} {limit i : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {limit i : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, limit :: i :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 limit :: .i32 i :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_initRemapCellLoop-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
-      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (a.initRemapCellLoop i.asI32 limit.asI32), u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, limit :: i :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (a.initRemapCellLoop i limit), u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 limit :: .i32 i :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_initRemapCellLoop-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
-      .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.initRemapCellLoop i.asI32 limit.asI32)) := rfl
+      .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.initRemapCellLoop i limit)) := rfl
   rw [hfn, updateArena_eq_some har]
 
 private theorem stepStatic_flat_stepCellSerialLoop
-    {pc : Nat} {fuel limit sp : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {fuel limit sp : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, fuel :: limit :: sp :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 fuel :: .i32 limit :: .i32 sp :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_stepCellSerialLoop-7IvYBaQ"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;III)V" =
-      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (a.stepCellSerialLoop sp.asI32 limit.asI32 fuel.asI32), u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, fuel :: limit :: sp :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (a.stepCellSerialLoop sp limit fuel), u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 fuel :: .i32 limit :: .i32 sp :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_stepCellSerialLoop-7IvYBaQ"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;III)V" =
-      .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.stepCellSerialLoop sp.asI32 limit.asI32 fuel.asI32)) := rfl
+      .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.stepCellSerialLoop sp limit fuel)) := rfl
   rw [hfn, updateArena_eq_some har]
 
 private theorem stepStatic_flat_copyL4From
-    {pc : Nat} {copyMemos l4Id : JvmVal} {srcId dstId : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {copyMemos l4Id : UInt32} {srcId dstId : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {dst src : Algorithm.FlatHashLifeArena} (hdst : ar[dstId]? = some dst) (hsrc : ar[srcId]? = some src) :
-    stepInvokeStatic ⟨pc, copyMemos :: l4Id :: (.ext (.arenaRef srcId)) :: (.ext (.arenaRef dstId)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 copyMemos :: .i32 l4Id :: (.ext (.arenaRef srcId)) :: (.ext (.arenaRef dstId)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_copyL4From-BzPDsQc"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;IZ)I" =
       .inl (some ⟨pc + 1,
-        .i32 (dst.copyL4From src l4Id.asI32 (copyMemos.asI32 != 0)).1 :: rest, locs, jh, ⟨ar.set dstId (dst.copyL4From src l4Id.asI32 (copyMemos.asI32 != 0)).2, u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, copyMemos :: l4Id :: (.ext (.arenaRef srcId)) :: (.ext (.arenaRef dstId)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+        .i32 (dst.copyL4From src l4Id (copyMemos != 0)).1 :: rest, locs, jh, ⟨ar.set dstId (dst.copyL4From src l4Id (copyMemos != 0)).2, u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 copyMemos :: .i32 l4Id :: (.ext (.arenaRef srcId)) :: (.ext (.arenaRef dstId)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_copyL4From-BzPDsQc"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;IZ)I" =
       match ar[dstId]?, ar[srcId]? with
       | some dst, some src =>
-        let (r, dst') := dst.copyL4From src l4Id.asI32 (copyMemos.asI32 != 0)
+        let (r, dst') := dst.copyL4From src l4Id (copyMemos != 0)
         .inl (some ⟨pc + 1, .i32 r :: rest, locs, jh, ⟨ar.set dstId dst', u64, asc⟩⟩)
       | _, _ => .inr none := rfl
   rw [hfn, hdst, hsrc]
 
 private theorem stepStatic_flat_copyCellFromLoop
-    {pc : Nat} {fuel sp stackBase copyMemos : JvmVal} {srcId dstId : Nat} {rest : List JvmVal}
+    {pc : Nat} {fuel sp stackBase copyMemos : UInt32} {srcId dstId : Nat} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)}
     {asc : List Algorithm.AsciiBytes} {dst src : Algorithm.FlatHashLifeArena}
     (hdst : ar[dstId]? = some dst) (hsrc : ar[srcId]? = some src) :
-    stepInvokeStatic ⟨pc, fuel :: sp :: stackBase :: copyMemos :: (.ext (.arenaRef srcId)) :: (.ext (.arenaRef dstId)) :: rest,
+    stepInvokeStatic ⟨pc, .i32 fuel :: .i32 sp :: .i32 stackBase :: .i32 copyMemos :: (.ext (.arenaRef srcId)) :: (.ext (.arenaRef dstId)) :: rest,
         locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_copyCellFromLoop-sA3nruY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;ZIII)V" =
-      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set dstId (dst.copyCellFromLoop src (copyMemos.asI32 != 0) stackBase.asI32 sp.asI32 fuel.asI32),
+      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set dstId (dst.copyCellFromLoop src (copyMemos != 0) stackBase sp fuel),
         u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, fuel :: sp :: stackBase :: copyMemos :: (.ext (.arenaRef srcId)) :: (.ext (.arenaRef dstId)) :: rest,
+  have hfn : stepInvokeStatic ⟨pc, .i32 fuel :: .i32 sp :: .i32 stackBase :: .i32 copyMemos :: (.ext (.arenaRef srcId)) :: (.ext (.arenaRef dstId)) :: rest,
         locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_copyCellFromLoop-sA3nruY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;ZIII)V" =
       match ar[dstId]?, ar[srcId]? with
       | some dst, some src =>
-        .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set dstId (dst.copyCellFromLoop src (copyMemos.asI32 != 0) stackBase.asI32 sp.asI32 fuel.asI32),
+        .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set dstId (dst.copyCellFromLoop src (copyMemos != 0) stackBase sp fuel),
           u64, asc⟩⟩)
       | _, _ => .inr none := rfl
   rw [hfn, hdst, hsrc]
@@ -1448,104 +1197,104 @@ private theorem stepVirtual_arena_getL4StepRes
       .inl (some ⟨pc + 1, (.ext (.arenaU64Ref id .l4StepRes)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
 
 private theorem stepVirtual_arena_internCellNode
-    {pc : Nat} {se sw ne nw lvl : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {se sw ne nw lvl : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeVirtual ⟨pc, se :: sw :: ne :: nw :: lvl :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeVirtual ⟨pc, .i32 se :: .i32 sw :: .i32 ne :: .i32 nw :: .i32 lvl :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "com/alexvanyo/composelife/algorithm/FlatHashLifeArena" "internCellNode-gt5aIGQ" "(BIIII)I" =
       .inl (some ⟨pc + 1,
-        .i32 (a.internCellNode lvl.asI32.toUInt8 nw.asI32 ne.asI32 sw.asI32 se.asI32).1 :: rest, locs, jh, ⟨ar.set id (a.internCellNode lvl.asI32.toUInt8 nw.asI32 ne.asI32 sw.asI32 se.asI32).2, u64, asc⟩⟩) := by
-  have hfn : stepInvokeVirtual ⟨pc, se :: sw :: ne :: nw :: lvl :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+        .i32 (a.internCellNode lvl.toUInt8 nw ne sw se).1 :: rest, locs, jh, ⟨ar.set id (a.internCellNode lvl.toUInt8 nw ne sw se).2, u64, asc⟩⟩) := by
+  have hfn : stepInvokeVirtual ⟨pc, .i32 se :: .i32 sw :: .i32 ne :: .i32 nw :: .i32 lvl :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "com/alexvanyo/composelife/algorithm/FlatHashLifeArena" "internCellNode-gt5aIGQ" "(BIIII)I" =
       match ar[id]? with
       | some a =>
-        let (r, a') := a.internCellNode lvl.asI32.toUInt8 nw.asI32 ne.asI32 sw.asI32 se.asI32
+        let (r, a') := a.internCellNode lvl.toUInt8 nw ne sw se
         .inl (some ⟨pc + 1, .i32 r :: rest, locs, jh, ⟨ar.set id a', u64, asc⟩⟩)
       | none => .inr none := rfl
   rw [hfn, har]
 
 private theorem stepVirtual_arena_internLevel4
-    {pc : Nat} {se sw ne nw : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {se sw ne nw : UInt64} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeVirtual ⟨pc, se :: sw :: ne :: nw :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeVirtual ⟨pc, .i64 se :: .i64 sw :: .i64 ne :: .i64 nw :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "com/alexvanyo/composelife/algorithm/FlatHashLifeArena" "internLevel4-PT-fW9Q" "(JJJJ)I" =
       .inl (some ⟨pc + 1,
-        .i32 (a.internLevel4 nw.asI64 ne.asI64 sw.asI64 se.asI64).1 :: rest, locs, jh, ⟨ar.set id (a.internLevel4 nw.asI64 ne.asI64 sw.asI64 se.asI64).2, u64, asc⟩⟩) := by
-  have hfn : stepInvokeVirtual ⟨pc, se :: sw :: ne :: nw :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+        .i32 (a.internLevel4 nw ne sw se).1 :: rest, locs, jh, ⟨ar.set id (a.internLevel4 nw ne sw se).2, u64, asc⟩⟩) := by
+  have hfn : stepInvokeVirtual ⟨pc, .i64 se :: .i64 sw :: .i64 ne :: .i64 nw :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "com/alexvanyo/composelife/algorithm/FlatHashLifeArena" "internLevel4-PT-fW9Q" "(JJJJ)I" =
       match ar[id]? with
       | some a =>
-        let (r, a') := a.internLevel4 nw.asI64 ne.asI64 sw.asI64 se.asI64
+        let (r, a') := a.internLevel4 nw ne sw se
         .inl (some ⟨pc + 1, .i32 r :: rest, locs, jh, ⟨ar.set id a', u64, asc⟩⟩)
       | none => .inr none := rfl
   rw [hfn, har]
 
 private theorem stepStatic_flat_expandFrameIfNeeded
-    {pc : Nat} {base nodeId : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {base nodeId : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, base :: nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 base :: .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_expandFrameIfNeeded-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
-      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (a.expandFrameIfNeeded nodeId.asI32 base.asI32), u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, base :: nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (a.expandFrameIfNeeded nodeId base), u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 base :: .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_expandFrameIfNeeded-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
-      .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.expandFrameIfNeeded nodeId.asI32 base.asI32)) := rfl
+      .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.expandFrameIfNeeded nodeId base)) := rfl
   rw [hfn, updateArena_eq_some har]
 
 private theorem stepStatic_flat_combineQuadrants
-    {pc : Nat} {se sw ne nw lvl nodeId : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {se sw ne nw lvl nodeId : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
-    stepInvokeStatic ⟨pc, se :: sw :: ne :: nw :: lvl :: nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 se :: .i32 sw :: .i32 ne :: .i32 nw :: .i32 lvl :: .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_combineQuadrants-t447iZE"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;IBIIII)I" =
       .inl (some ⟨pc + 1,
-        .i32 (a.combineQuadrants nodeId.asI32 lvl.asI32.toUInt8 nw.asI32 ne.asI32 sw.asI32 se.asI32).1 :: rest, locs, jh, ⟨ar.set id (a.combineQuadrants nodeId.asI32 lvl.asI32.toUInt8 nw.asI32 ne.asI32 sw.asI32 se.asI32).2, u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, se :: sw :: ne :: nw :: lvl :: nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+        .i32 (a.combineQuadrants nodeId lvl.toUInt8 nw ne sw se).1 :: rest, locs, jh, ⟨ar.set id (a.combineQuadrants nodeId lvl.toUInt8 nw ne sw se).2, u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 se :: .i32 sw :: .i32 ne :: .i32 nw :: .i32 lvl :: .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_combineQuadrants-t447iZE"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;IBIIII)I" =
       match ar[id]? with
       | some a =>
-        let (r, a') := a.combineQuadrants nodeId.asI32 lvl.asI32.toUInt8 nw.asI32 ne.asI32 sw.asI32 se.asI32
+        let (r, a') := a.combineQuadrants nodeId lvl.toUInt8 nw ne sw se
         .inl (some ⟨pc + 1, .i32 r :: rest, locs, jh, ⟨ar.set id a', u64, asc⟩⟩)
       | none => .inr none := rfl
   rw [hfn, har]
 
 private theorem stepStatic_flat_copyCellTryStep
-    {pc : Nat} {copyMemos cellId : JvmVal} {srcId dstId : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {copyMemos cellId : UInt32} {srcId dstId : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {dst src : Algorithm.FlatHashLifeArena} (hdst : ar[dstId]? = some dst) (hsrc : ar[srcId]? = some src) :
-    stepInvokeStatic ⟨pc, copyMemos :: cellId :: (.ext (.arenaRef srcId)) :: (.ext (.arenaRef dstId)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 copyMemos :: .i32 cellId :: (.ext (.arenaRef srcId)) :: (.ext (.arenaRef dstId)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_copyCellTryStep-BzPDsQc"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;IZ)I" =
       .inl (some ⟨pc + 1,
-        .i32 (Algorithm.copyCellTryStep dst src cellId.asI32 (copyMemos.asI32 != 0)).1 :: rest, locs, jh, ⟨ar.set dstId (Algorithm.copyCellTryStep dst src cellId.asI32 (copyMemos.asI32 != 0)).2, u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, copyMemos :: cellId :: (.ext (.arenaRef srcId)) :: (.ext (.arenaRef dstId)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+        .i32 (Algorithm.copyCellTryStep dst src cellId (copyMemos != 0)).1 :: rest, locs, jh, ⟨ar.set dstId (Algorithm.copyCellTryStep dst src cellId (copyMemos != 0)).2, u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 copyMemos :: .i32 cellId :: (.ext (.arenaRef srcId)) :: (.ext (.arenaRef dstId)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_copyCellTryStep-BzPDsQc"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;IZ)I" =
       match ar[dstId]?, ar[srcId]? with
       | some dst, some src =>
-        let (r, dst') := Algorithm.copyCellTryStep dst src cellId.asI32 (copyMemos.asI32 != 0)
+        let (r, dst') := Algorithm.copyCellTryStep dst src cellId (copyMemos != 0)
         .inl (some ⟨pc + 1, .i32 r :: rest, locs, jh, ⟨ar.set dstId dst', u64, asc⟩⟩)
       | _, _ => .inr none := rfl
   rw [hfn, hdst, hsrc]
 
 private theorem stepStatic_flat_leafContains
-    {pc : Nat} {y x leaf : JvmVal} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {y x : UInt32} {leaf : UInt64} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
-    stepInvokeStatic ⟨pc, y :: x :: leaf :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 y :: .i32 x :: .i64 leaf :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "FlatHashLifeLeanKt"
       "f_Algorithm_leafContains-fMEO4hA" "(JII)Z" =
-      .inl (some ⟨pc + 1, .i32 (if Algorithm.leafContains leaf.asI64 x.asI32 y.asI32 then 1 else 0) :: rest,
+      .inl (some ⟨pc + 1, .i32 (if Algorithm.leafContains leaf x y then 1 else 0) :: rest,
         locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
 
 private theorem stepStatic_makeCellNode
@@ -1558,23 +1307,23 @@ private theorem stepStatic_makeCellNode
       .inl (some ⟨pc + 1, (.ext (.mc (Algorithm.makeCellNode nw ne sw se))) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
 
 private theorem stepStatic_decodeCharAt
-    {pc : Nat} {limit p : JvmVal} {bytes : ByteArray} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {limit p : UInt32} {bytes : ByteArray} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
-    stepInvokeStatic ⟨pc, limit :: p :: (.ext (.byteArr bytes)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 limit :: .i32 p :: (.ext (.byteArr bytes)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "PlaintextLeanKt"
       "f_Algorithm_decodeCharAt-BltQuoY" "([BII)Lkotlin/Pair;" =
       .inl (some ⟨pc + 1,
-        .pair (.boxedUInt (Algorithm.decodeCharAt bytes p.asI32 limit.asI32).1)
-          (.boxedUInt (Algorithm.decodeCharAt bytes p.asI32 limit.asI32).2) :: rest,
+        .pair (.boxedUInt (Algorithm.decodeCharAt bytes p limit).1)
+          (.boxedUInt (Algorithm.decodeCharAt bytes p limit).2) :: rest,
         locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
 
 private theorem stepStatic_formatCoordLine
-    {pc : Nat} {y x : JvmVal} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {y x : UInt32} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
-    stepInvokeStatic ⟨pc, y :: x :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 y :: .i32 x :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "Life106LeanKt"
       "f_Algorithm_formatCoordLine-feOb9K0" "(II)Ljava/lang/String;" =
-      .inl (some ⟨pc + 1, .str (Algorithm.formatCoordLine x.asI32 y.asI32) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
+      .inl (some ⟨pc + 1, .str (Algorithm.formatCoordLine x y) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
 
 private theorem stepStatic_growBufPush_105
     {pc : Nat} {s : String} {b : Algorithm.GrowBuf String} {rest : List JvmVal}
@@ -1604,136 +1353,136 @@ private theorem stepStatic_growBufPush_plain
       .inl (some ⟨pc + 1, (.ext (.strGrowBuf (b.push s))) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
 
 theorem stepStatic_u64BufPush_105
-    {pc : Nat} {x : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {x : UInt64} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {arr : Array UInt64} (hu : u64[id]? = some arr) :
-    stepInvokeStatic ⟨pc, x :: (.ext (.u64Ref id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i64 x :: (.ext (.u64Ref id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "Life105LeanKt"
       "f_Algorithm_U64Buf_push-3yFGk1Y" "([JJ)[J" =
       .inl (some ⟨pc + 1, (.ext (.u64Ref u64.length)) :: rest, locs, jh, ⟨ar,
-        u64 ++ [Algorithm.U64Buf.push arr x.asI64], asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, x :: (.ext (.u64Ref id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+        u64 ++ [Algorithm.U64Buf.push arr x], asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i64 x :: (.ext (.u64Ref id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "Life105LeanKt"
       "f_Algorithm_U64Buf_push-3yFGk1Y" "([JJ)[J" =
       match u64[id]? with
       | some arr => .inl (some ⟨pc + 1, (.ext (.u64Ref u64.length)) :: rest, locs, jh, ⟨ar,
-          u64 ++ [Algorithm.U64Buf.push arr x.asI64], asc⟩⟩)
+          u64 ++ [Algorithm.U64Buf.push arr x], asc⟩⟩)
       | none => .inr none := rfl
   rw [hfn, hu]
 
 private theorem stepStatic_asciiToStringRange_105
-    {pc : Nat} {e s : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {e s : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {g : Algorithm.AsciiBytes} (hasc : asc[id]? = some g) :
-    stepInvokeStatic ⟨pc, e :: s :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 e :: .i32 s :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "Life105LeanKt"
       "f_Algorithm_AsciiBytes_toStringRange-BltQuoY" "([BII)Ljava/lang/String;" =
-      .inl (some ⟨pc + 1, .str (g.toStringRange s.asI32 e.asI32) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, e :: s :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      .inl (some ⟨pc + 1, .str (g.toStringRange s e) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 e :: .i32 s :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "Life105LeanKt"
       "f_Algorithm_AsciiBytes_toStringRange-BltQuoY" "([BII)Ljava/lang/String;" =
       match asc[id]? with
-      | some g => .inl (some ⟨pc + 1, .str (g.toStringRange s.asI32 e.asI32) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩)
+      | some g => .inl (some ⟨pc + 1, .str (g.toStringRange s e) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩)
       | none => .inr none := rfl
   rw [hfn, hasc]
 
 private theorem stepStatic_asciiToStringRange_plain
-    {pc : Nat} {e s : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {e s : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {g : Algorithm.AsciiBytes} (hasc : asc[id]? = some g) :
-    stepInvokeStatic ⟨pc, e :: s :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 e :: .i32 s :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "PlaintextLeanKt"
       "f_Algorithm_AsciiBytes_toStringRange-BltQuoY" "([BII)Ljava/lang/String;" =
-      .inl (some ⟨pc + 1, .str (g.toStringRange s.asI32 e.asI32) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, e :: s :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      .inl (some ⟨pc + 1, .str (g.toStringRange s e) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 e :: .i32 s :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "PlaintextLeanKt"
       "f_Algorithm_AsciiBytes_toStringRange-BltQuoY" "([BII)Ljava/lang/String;" =
       match asc[id]? with
-      | some g => .inl (some ⟨pc + 1, .str (g.toStringRange s.asI32 e.asI32) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩)
+      | some g => .inl (some ⟨pc + 1, .str (g.toStringRange s e) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩)
       | none => .inr none := rfl
   rw [hfn, hasc]
 
 theorem stepStatic_asciiSet_105
-    {pc : Nat} {v i : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {v i : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
-    {g : Algorithm.AsciiBytes} (hasc : asc[id]? = some g) (hb : v.asI32.toUInt8 < 128) :
-    stepInvokeStatic ⟨pc, v :: i :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    {g : Algorithm.AsciiBytes} (hasc : asc[id]? = some g) (hb : v.toUInt8 < 128) :
+    stepInvokeStatic ⟨pc, .i32 v :: .i32 i :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "Life105LeanKt"
       "f_Algorithm_AsciiBytes_set___redArg-snO9OKE" "([BIB)V" =
-      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar, u64, asc.set id (g.set i.asI32 v.asI32.toUInt8 hb)⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, v :: i :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar, u64, asc.set id (g.set i v.toUInt8 hb)⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 v :: .i32 i :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "Life105LeanKt"
       "f_Algorithm_AsciiBytes_set___redArg-snO9OKE" "([BIB)V" =
       match asc[id]? with
       | some g =>
-        if hb' : v.asI32.toUInt8 < 128 then
-          .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar, u64, asc.set id (g.set i.asI32 v.asI32.toUInt8 hb')⟩⟩)
+        if hb' : v.toUInt8 < 128 then
+          .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar, u64, asc.set id (g.set i v.toUInt8 hb')⟩⟩)
         else .inr none
       | none => .inr none := rfl
   rw [hfn, hasc]; simp only [hb, ↓reduceDIte]
 
 theorem stepStatic_asciiSet_plain
-    {pc : Nat} {v i : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {v i : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
-    {g : Algorithm.AsciiBytes} (hasc : asc[id]? = some g) (hb : v.asI32.toUInt8 < 128) :
-    stepInvokeStatic ⟨pc, v :: i :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    {g : Algorithm.AsciiBytes} (hasc : asc[id]? = some g) (hb : v.toUInt8 < 128) :
+    stepInvokeStatic ⟨pc, .i32 v :: .i32 i :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "PlaintextLeanKt"
       "f_Algorithm_AsciiBytes_set___redArg-snO9OKE" "([BIB)V" =
-      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar, u64, asc.set id (g.set i.asI32 v.asI32.toUInt8 hb)⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, v :: i :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar, u64, asc.set id (g.set i v.toUInt8 hb)⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 v :: .i32 i :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "PlaintextLeanKt"
       "f_Algorithm_AsciiBytes_set___redArg-snO9OKE" "([BIB)V" =
       match asc[id]? with
       | some g =>
-        if hb' : v.asI32.toUInt8 < 128 then
-          .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar, u64, asc.set id (g.set i.asI32 v.asI32.toUInt8 hb')⟩⟩)
+        if hb' : v.toUInt8 < 128 then
+          .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar, u64, asc.set id (g.set i v.toUInt8 hb')⟩⟩)
         else .inr none
       | none => .inr none := rfl
   rw [hfn, hasc]; simp only [hb, ↓reduceDIte]
 
 theorem stepStatic_asciiSet_rle
-    {pc : Nat} {v i : JvmVal} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {v i : UInt32} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
-    {g : Algorithm.AsciiBytes} (hasc : asc[id]? = some g) (hb : v.asI32.toUInt8 < 128) :
-    stepInvokeStatic ⟨pc, v :: i :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    {g : Algorithm.AsciiBytes} (hasc : asc[id]? = some g) (hb : v.toUInt8 < 128) :
+    stepInvokeStatic ⟨pc, .i32 v :: .i32 i :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "RleLeanKt"
       "f_Algorithm_AsciiBytes_set___redArg-snO9OKE" "([BIB)V" =
-      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar, u64, asc.set id (g.set i.asI32 v.asI32.toUInt8 hb)⟩⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, v :: i :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar, u64, asc.set id (g.set i v.toUInt8 hb)⟩⟩) := by
+  have hfn : stepInvokeStatic ⟨pc, .i32 v :: .i32 i :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "RleLeanKt"
       "f_Algorithm_AsciiBytes_set___redArg-snO9OKE" "([BIB)V" =
       match asc[id]? with
       | some g =>
-        if hb' : v.asI32.toUInt8 < 128 then
-          .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar, u64, asc.set id (g.set i.asI32 v.asI32.toUInt8 hb')⟩⟩)
+        if hb' : v.toUInt8 < 128 then
+          .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar, u64, asc.set id (g.set i v.toUInt8 hb')⟩⟩)
         else .inr none
       | none => .inr none := rfl
   rw [hfn, hasc]; simp only [hb, ↓reduceDIte]
 
 private theorem stepStatic_coerceIn
-    {pc : Nat} {hi lo v : JvmVal} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {hi lo v : UInt32} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena}
     {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
-    stepInvokeStatic ⟨pc, hi :: lo :: v :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 hi :: .i32 lo :: .i32 v :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "kotlin/ranges/RangesKt" "coerceIn" "(III)I" =
-      .inl (some ⟨pc + 1, .i32 (coerceInI32 v.asI32 lo.asI32 hi.asI32) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
+      .inl (some ⟨pc + 1, .i32 (coerceInI32 v lo hi) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
 
 private theorem stepStatic_makeLevel4Node
-    {pc : Nat} {se sw ne nw : JvmVal} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {se sw ne nw : UInt64} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena}
     {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
-    stepInvokeStatic ⟨pc, se :: sw :: ne :: nw :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i64 se :: .i64 sw :: .i64 ne :: .i64 nw :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "MacroCellLeanKt" "f_Algorithm_makeLevel4Node-2jIhpxI" "(JJJJ)Lcom/alexvanyo/composelife/model/MacroCell;" =
-      .inl (some ⟨pc + 1, .ext (.mc (Algorithm.makeLevel4Node nw.asI64 ne.asI64 sw.asI64 se.asI64)) :: rest,
+      .inl (some ⟨pc + 1, .ext (.mc (Algorithm.makeLevel4Node nw ne sw se)) :: rest,
         locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
 
 private theorem stepStatic_computeNextGen4x4BitwiseUInt
-    {pc : Nat} {w : JvmVal} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {w : UInt32} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena}
     {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
-    stepInvokeStatic ⟨pc, w :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+    stepInvokeStatic ⟨pc, .i32 w :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "AlgorithmLeanKt" "f_Algorithm_computeNextGen4x4BitwiseUInt-WZ4Q5Ns" "(I)I" =
-      .inl (some ⟨pc + 1, .i32 (Algorithm.computeNextGen4x4BitwiseUInt w.asI32) :: rest,
+      .inl (some ⟨pc + 1, .i32 (Algorithm.computeNextGen4x4BitwiseUInt w) :: rest,
         locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
 
 theorem stepStatic_getNextGen4x4Lut

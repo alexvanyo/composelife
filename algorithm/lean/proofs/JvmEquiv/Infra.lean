@@ -15,12 +15,16 @@
  -/
 
 import Lean
+import Jvm.Proofs
+import Jvm.Tactics
 import JvmSemantics
 import proofs.MacroCellEngineProofs
 import proofs.HashLifeKernelProofs
 import proofs.SemanticModelProofs
 
 namespace Algorithm.JvmVerification
+
+instance : Jvm.HasDefaultIsZero algHooks := ⟨rfl⟩
 
 /-! ### Execution helpers -/
 
@@ -112,11 +116,29 @@ theorem runJvmRes_nonbranch (fuel : Nat) (prog : List JvmInstr) (st : JvmState) 
   | inl o => cases o <;> rfl
   | inr o => cases o <;> rfl
 
+private theorem algHooks_iteZero? (v : JvmVal) (t e : Option JvmVal) :
+    algHooks.iteZero? v t e =
+      match algHooks.isZero? v with | some true => t | some false => e | none => none := by
+  dsimp [algHooks, Jvm.JvmHooks.iteZero?, Jvm.JvmHooks.isZero?]
+  cases hv : Jvm.JvmVal.asI32? v with
+  | none => rfl
+  | some x =>
+    simp only [Jvm.defaultIteVal_eq_if]
+    cases hx : (x == 0) <;> simp [hx]
+
+private theorem algHooks_iteNonZero? (v : JvmVal) (t e : Option JvmVal) :
+    algHooks.iteNonZero? v t e =
+      match algHooks.isZero? v with | some true => e | some false => t | none => none := by
+  dsimp [algHooks, Jvm.JvmHooks.iteNonZero?, Jvm.JvmHooks.isZero?]
+  cases hv : Jvm.JvmVal.asI32? v with
+  | none => rfl
+  | some x =>
+    simp only [Jvm.defaultIteVal_eq_if]
+    cases hx : (x == 0) <;> simp [hx]
+
 theorem runJvm_eq_runJvmRes (fuel : Nat) (prog : List JvmInstr) (st : JvmState) :
     runJvm fuel prog st = (runJvmRes fuel prog st).map Prod.fst :=
-  Jvm.runJvm_eq_runJvmRes algHooks
-    Jvm.defaultIteVal_eq_if (fun _ _ _ => Jvm.defaultIteVal_eq_if _ _ _)
-    (fun _ _ _ => Jvm.defaultIteVal_eq_if _ _ _) fuel prog st
+  Jvm.runJvm_eq_runJvmRes algHooks algHooks_iteZero? algHooks_iteNonZero? fuel prog st
 
 theorem runJvmRes_of_runJvmResFast (fuel : Nat) (prog : List JvmInstr) (pc : Nat) (instrs : List JvmInstr)
     (st : JvmState) (res : JvmVal × JvmState)
@@ -128,17 +150,13 @@ theorem runJvmRes_of_runJvmResFast (fuel : Nat) (prog : List JvmInstr) (pc : Nat
 theorem runJvm_of_runJvmValFast (fuel : Nat) (prog : List JvmInstr) (st : JvmState) (v : JvmVal)
     (hfast : runJvmValFast fuel prog st.pc (prog.drop st.pc) st = some v) :
     runJvm fuel prog st = some v :=
-  Jvm.runJvm_of_runJvmValFast algHooks
-    Jvm.defaultIteVal_eq_if (fun _ _ _ => Jvm.defaultIteVal_eq_if _ _ _)
-    (fun _ _ _ => Jvm.defaultIteVal_eq_if _ _ _) fuel prog st v hfast
+  Jvm.runJvm_of_runJvmValFast algHooks algHooks_iteZero? algHooks_iteNonZero? fuel prog st v hfast
 
 theorem runJvm_of_runJvmValFast0 (fuel : Nat) (prog : List JvmInstr) (st : JvmState) (v : JvmVal)
     (hpc : st.pc = 0)
     (hfast : runJvmValFast fuel prog 0 prog st = some v) :
     runJvm fuel prog st = some v :=
-  Jvm.runJvm_of_runJvmValFast0 algHooks
-    Jvm.defaultIteVal_eq_if (fun _ _ _ => Jvm.defaultIteVal_eq_if _ _ _)
-    (fun _ _ _ => Jvm.defaultIteVal_eq_if _ _ _) fuel prog st v hpc hfast
+  Jvm.runJvm_of_runJvmValFast0 algHooks algHooks_iteZero? algHooks_iteNonZero? fuel prog st v hpc hfast
 
 theorem runJvmRes_of_runJvmResFast0 (fuel : Nat) (prog : List JvmInstr) (st : JvmState)
     (res : JvmVal × JvmState) (hpc : st.pc = 0)
@@ -207,218 +225,99 @@ theorem runJvmResFast_step_nonbranch (f1 : Nat) (prog : List JvmInstr) (pc : Nat
   | inl o => cases o <;> rfl
   | inr o => cases o <;> rfl
 
-def whnfUnfoldInitJvmState (s' : Lean.Expr) : Lean.MetaM Lean.Expr := do
-  if s'.isAppOf ``initJvmState || s'.isAppOf ``Jvm.initJvmState then
-    let u1 ← match ← Lean.Meta.unfoldDefinition? s' with | some u => pure u | none => pure s'
-    let u2 ← if u1.isAppOf ``Jvm.initJvmState then
-        match ← Lean.Meta.unfoldDefinition? u1 with | some u => pure u | none => pure u1
-      else pure u1
-    Lean.Meta.whnfCore u2
-  else
-    Lean.Meta.whnfCore s'
-
-partial def reduceStateProj (e : Lean.Expr) : Lean.MetaM Lean.Expr := do
-  let e := e.consumeMData
-  if let .proj ``Jvm.JvmState i s := e then
-    let s' ← reduceStateProj s
-    if s'.isAppOfArity ``Jvm.JvmState.mk 7 then
-      return ← reduceStateProj (s'.getArg! (2 + i))
-    let sw ← whnfUnfoldInitJvmState s'
-    if sw.isAppOfArity ``Jvm.JvmState.mk 7 then
-      return ← reduceStateProj (sw.getArg! (2 + i))
-    return .proj ``Jvm.JvmState i s'
-  if let .proj ``AlgHeap i h := e then
-    let h' ← reduceStateProj h
+private partial def reduceAlgExtraProj (sub : Lean.Expr) : Lean.MetaM (Option Lean.Expr) := do
+  let sub := sub.consumeMData
+  let r := Jvm.Tactics.reduceJvmStateProj [``initJvmState] reduceAlgExtraProj
+  if let .proj ``AlgHeap i h := sub then
+    let h' ← r h
     if h'.isAppOfArity ``AlgHeap.mk 3 then
-      return ← reduceStateProj (h'.getArg! i)
-    return .proj ``AlgHeap i h'
-  if let some n := e.getAppFn.constName? then
-    if e.getAppNumArgs == 3 &&
-       (n == ``Jvm.JvmState.pc || n == ``Jvm.JvmState.stack ||
-        n == ``Jvm.JvmState.locals || n == ``Jvm.JvmState.jvmHeap || n == ``Jvm.JvmState.heap) then
-      let args := e.getAppArgs
-      let i := if n == ``Jvm.JvmState.pc then 0
-        else if n == ``Jvm.JvmState.stack then 1
-        else if n == ``Jvm.JvmState.locals then 2
-        else if n == ``Jvm.JvmState.jvmHeap then 3
-        else 4
-      let s' ← reduceStateProj args[2]!
-      if s'.isAppOfArity ``Jvm.JvmState.mk 7 then
-        return ← reduceStateProj (s'.getArg! (2 + i))
-      let sw ← whnfUnfoldInitJvmState s'
-      if sw.isAppOfArity ``Jvm.JvmState.mk 7 then
-        return ← reduceStateProj (sw.getArg! (2 + i))
-      return Lean.mkAppN e.getAppFn #[args[0]!, args[1]!, s']
-    if e.getAppNumArgs == 1 &&
+      return some (← r (h'.getArg! i))
+    return some (.proj ``AlgHeap i h')
+  if let some n := sub.getAppFn.constName? then
+    if sub.getAppNumArgs == 1 &&
        (n == ``AlgHeap.arenas || n == ``AlgHeap.u64Arrays || n == ``AlgHeap.asciiArrays) then
       let i := if n == ``AlgHeap.arenas then 0
         else if n == ``AlgHeap.u64Arrays then 1
         else 2
-      let h' ← reduceStateProj e.appArg!
+      let h' ← r sub.appArg!
       if h'.isAppOfArity ``AlgHeap.mk 3 then
-        return ← reduceStateProj (h'.getArg! i)
-      return Lean.mkApp e.getAppFn h'
-    if n == ``AlgHeap.mk && e.getAppNumArgs == 3 then
-      let args := e.getAppArgs
-      return Lean.mkApp3 e.getAppFn
-        (← reduceStateProj args[0]!) (← reduceStateProj args[1]!) (← reduceStateProj args[2]!)
-    if n == ``Jvm.setLocal && e.getAppNumArgs == 4 then
-      let args := e.getAppArgs
-      return Lean.mkApp4 e.getAppFn args[0]! (← reduceStateProj args[1]!) args[2]! args[3]!
+        return some (← r (h'.getArg! i))
+      return some (Lean.mkApp sub.getAppFn h')
+    if n == ``AlgHeap.mk && sub.getAppNumArgs == 3 then
+      let args := sub.getAppArgs
+      return some (Lean.mkApp3 sub.getAppFn (← r args[0]!) (← r args[1]!) (← r args[2]!))
+  return none
+
+abbrev whnfUnfoldInitJvmState := Jvm.Tactics.whnfUnfoldInitJvmState [``initJvmState]
+
+def reduceStateProj : Lean.Expr → Lean.MetaM Lean.Expr :=
+  Jvm.Tactics.reduceJvmStateProj [``initJvmState] reduceAlgExtraProj
+
+private partial def normJvmNat (e : Lean.Expr) : Lean.MetaM Lean.Expr := do
+  if let some n := Jvm.Tactics.natLit? e then
+    return Lean.mkNatLit n
+  let e' ← reduceStateProj e
+  let e' ← Lean.Meta.whnf e'
+  if let some n := Jvm.Tactics.natLit? e' then
+    return Lean.mkNatLit n
+  if e'.isAppOfArity ``Nat.succ 1 then
+    let a ← normJvmNat (e'.getArg! 0)
+    if let some n := Jvm.Tactics.natLit? a then
+      return Lean.mkNatLit (n + 1)
+    return Lean.mkApp (Lean.mkConst ``Nat.succ) a
+  if e'.isAppOfArity ``Nat.add 2 then
+    let a ← normJvmNat (e'.getArg! 0)
+    let b ← normJvmNat (e'.getArg! 1)
+    if let (some na, some nb) := (Jvm.Tactics.natLit? a, Jvm.Tactics.natLit? b) then
+      return Lean.mkNatLit (na + nb)
+    return Lean.mkApp2 (Lean.mkConst ``Nat.add) a b
+  return e'
+
+private def normJvmStatePc (st : Lean.Expr) : Lean.MetaM Lean.Expr := do
+  if st.isAppOfArity ``Jvm.JvmState.mk 7 then
+    let args := st.getAppArgs
+    let pc' ← normJvmNat args[2]!
+    return Lean.mkAppN st.getAppFn #[args[0]!, args[1]!, pc', args[3]!, args[4]!, args[5]!, args[6]!]
+  return st
+
+private partial def cleanJvmBlkPc (e : Lean.Expr) : Lean.MetaM Lean.Expr := do
+  if e.isAppOfArity ``Jvm.BlockChunkRes.cont 6 || e.isAppOfArity ``Jvm.BlockResChunkRes.cont 6 then
+    let args := e.getAppArgs
+    let st' ← normJvmStatePc args[5]!
+    return Lean.mkAppN e.getAppFn #[args[0]!, args[1]!, args[2]!, args[3]!, args[4]!, st']
+  if e.isAppOfArity ``Jvm.BlockChunkRes.jump 4 || e.isAppOfArity ``Jvm.BlockResChunkRes.jump 4 then
+    let args := e.getAppArgs
+    let st' ← normJvmStatePc args[3]!
+    return Lean.mkAppN e.getAppFn #[args[0]!, args[1]!, args[2]!, st']
+  if e.isAppOfArity ``Jvm.JvmState.mk 7 then
+    return ← normJvmStatePc e
+  if e.isAppOfArity ``Bool.rec 4 then
+    let args := e.getAppArgs
+    let args' ← args.mapM fun a => do
+      if a.isLambda then
+        Lean.Meta.lambdaTelescope a fun xs body => do
+          Lean.Meta.mkLambdaFVars xs (← cleanJvmBlkPc body)
+      else
+        return a
+    return Lean.mkAppN e.getAppFn args'
   return e
 
-partial def normJvmExpr (e : Lean.Expr) : Lean.MetaM Lean.Expr := do
-  let e ← Lean.Meta.whnf e
-  let fn := e.getAppFn
-  let args := e.getAppArgs
-  match fn.constName? with
-  | some n =>
-    if n == ``Sum.inl || n == ``Sum.inr || n == ``Prod.mk ||
-       n == ``Option.some || n == ``List.cons then
-      let args' ← args.mapM normJvmExpr
-      return Lean.mkAppN fn args'
-    else if n == ``Jvm.BlockChunkRes.done || n == ``Jvm.BlockResChunkRes.done then
-      let res' ← normJvmExpr args[2]!
-      return Lean.mkAppN fn #[args[0]!, args[1]!, res']
-    else if n == ``Jvm.BlockChunkRes.cont || n == ``Jvm.BlockResChunkRes.cont then
-      let f' ← normJvmExpr args[2]!
-      let pc' ← normJvmExpr args[3]!
-      let st' ← normJvmExpr args[5]!
-      return Lean.mkAppN fn #[args[0]!, args[1]!, f', pc', args[4]!, st']
-    else if n == ``Jvm.BlockChunkRes.jump || n == ``Jvm.BlockResChunkRes.jump then
-      let f' ← normJvmExpr args[2]!
-      let st' ← normJvmExpr args[3]!
-      return Lean.mkAppN fn #[args[0]!, args[1]!, f', st']
-    else if n == ``Jvm.JvmState.mk then
-      let pc' ← normJvmExpr args[2]!
-      let stk' ← normJvmExpr args[3]!
-      let locs' ← reduceStateProj args[4]!
-      let jh' ← reduceStateProj args[5]!
-      let heap' ← reduceStateProj args[6]!
-      return Lean.mkAppN fn #[args[0]!, args[1]!, pc', stk', locs', jh', heap']
-    else if n == ``Bool.rec then
-      let args' ← args.mapM fun a => do
-        let aw ← Lean.Meta.whnf a
-        if aw.isLambda then
-          Lean.Meta.lambdaTelescope aw fun xs body => do
-            let body' ← normJvmExpr body
-            Lean.Meta.mkLambdaFVars xs body'
-        else return a
-      return Lean.mkAppN fn args'
-    else
-      return e
-  | none => return e
+def normJvmExpr (e : Lean.Expr) : Lean.MetaM Lean.Expr := do
+  let e' ← Jvm.Tactics.normJvmBlkExpr [``initJvmState] reduceAlgExtraProj e
+  cleanJvmBlkPc e'
 
 elab "jvm_whnf_blk" : conv => do
   let lhs ← Lean.Elab.Tactic.Conv.getLhs
   let lhs' ← normJvmExpr lhs
   Lean.Elab.Tactic.Conv.changeLhs lhs'
 
-partial def evalNatLit? (e : Lean.Expr) : Lean.MetaM (Option Nat) := do
-  if e.hasFVar || e.hasLooseBVars then return none
-  let e ← Lean.Meta.whnf e
-  if let some n := e.rawNatLit? then return some n
-  if e.isConstOf ``Nat.zero then return some 0
-  if e.isAppOfArity ``Nat.succ 1 then
-    return (← evalNatLit? e.appArg!).map (· + 1)
-  return none
+abbrev evalNatLit? := Jvm.Tactics.evalNatLit?
 
-def foldInitLocals (init slots : Lean.Expr) : Lean.Expr := Id.run do
-  let mut acc := init
-  let mut cur := slots
-  let extTy := Lean.mkConst ``AlgExt
-  while cur.isAppOfArity ``List.cons 3 do
-    let hd := cur.getArg! 1
-    let tl := cur.getArg! 2
-    if hd.isAppOfArity ``Prod.mk 4 then
-      acc := Lean.mkApp4 (Lean.mkConst ``Jvm.setLocal) extTy acc (hd.getArg! 2) (hd.getArg! 3)
-      cur := tl
-    else
-      break
-  return acc
+abbrev foldInitLocals := Jvm.Tactics.foldInitLocals
 
-partial def normJvmLocalsExpr (e : Lean.Expr) : Lean.MetaM Lean.Expr :=
-  Lean.Meta.transform e
-    (pre := fun sub => do
-      if sub.isAppOfArity ``List.cons 3 && (sub.getArg! 0).isConstOf ``Jvm.JvmInstr then
-        return .done sub
-      else if sub.isAppOfArity ``List.nil 1 && (sub.getArg! 0).isConstOf ``Jvm.JvmInstr then
-        return .done sub
-      else if sub.isAppOfArity ``Jvm.setLocal 5 then
-        let args := sub.getAppArgs
-        if let (some nk, some nidx) := (← evalNatLit? args[2]!, ← evalNatLit? args[4]!) then
-          if nidx == nk then
-            return .visit args[3]!
-          else
-            return .visit (Lean.mkApp args[1]! args[4]!)
-        return .continue
-      else if sub.isAppOfArity ``List.foldl 6 then
-        let args := sub.getAppArgs
-        if Option.isSome (args[2]!.find? (·.isConstOf ``Jvm.setLocal)) then
-          if let some _ ← evalNatLit? args[5]! then
-            if args[4]!.isAppOfArity ``List.cons 3 || args[4]!.isAppOfArity ``List.nil 1 then
-              return .visit (Lean.mkApp (foldInitLocals args[3]! args[4]!) args[5]!)
-        return .continue
-      else if sub.isProj then
-        let sub' ← reduceStateProj sub
-        if sub' != sub then return .visit sub'
-        return .continue
-      else if sub.isAppOfArity ``Jvm.JvmState.locals 3 || sub.isAppOfArity ``Jvm.JvmState.heap 3 ||
-              sub.isAppOfArity ``AlgHeap.arenas 1 || sub.isAppOfArity ``AlgHeap.u64Arrays 1 ||
-              sub.isAppOfArity ``AlgHeap.asciiArrays 1 then
-        let sub' ← reduceStateProj sub
-        if sub' != sub then return .visit sub'
-        return .continue
-      else if sub.isApp && (sub.appFn!.isProj || sub.appFn!.isAppOfArity ``Jvm.JvmState.locals 3) then
-        let locs' ← reduceStateProj sub.appFn!
-        if locs' != sub.appFn! then
-          return .visit (Lean.mkApp locs' sub.appArg!)
-        return .continue
-      else if sub.isAppOfArity ``Jvm.JvmState.locals 4 then
-        let s := sub.appFn!.getArg! 2
-        let idx := sub.appArg!
-        if let some _ ← evalNatLit? idx then
-          let sw ← Lean.Meta.whnf s
-          if sw.isAppOfArity ``Jvm.JvmState.mk 7 then
-            let locs := sw.getArg! 4
-            if locs.isAppOfArity ``List.foldl 5 then
-              let folded := foldInitLocals (locs.getArg! 3) (locs.getArg! 4)
-              return .visit (Lean.mkApp folded idx)
-            else
-              let next := Lean.mkApp locs idx
-              if next != sub then return .visit next else return .continue
-          else return .continue
-        else return .continue
-      else if sub.isApp && sub.appFn!.isLambda then
-        let body := sub.appFn!.bindingBody!
-        if !body.hasLooseBVars && !sub.appArg!.hasFVar && !sub.appArg!.hasLooseBVars then
-          if let some _ ← evalNatLit? sub.appArg! then
-            return .visit body
-        return .continue
-      else
-        return .continue)
-    (post := fun sub => do
-      if sub.isAppOfArity ``Jvm.JvmVal.asI32 2 then
-        let a := sub.appArg!
-        if a.isAppOfArity ``Jvm.JvmVal.i32 2 then
-          return .done (a.getArg! 1)
-        else if a.isAppOfArity ``Jvm.JvmVal.i64 2 then
-          return .done (Lean.mkApp (Lean.mkConst ``UInt64.toUInt32) (a.getArg! 1))
-        return .done sub
-      else if sub.isAppOfArity ``Jvm.JvmVal.asI64 2 then
-        let a := sub.appArg!
-        if a.isAppOfArity ``Jvm.JvmVal.i64 2 then
-          return .done (a.getArg! 1)
-        else if a.isAppOfArity ``Jvm.JvmVal.i32 2 then
-          return .done (Lean.mkApp (Lean.mkConst ``UInt32.toUInt64) (a.getArg! 1))
-        return .done sub
-      else if sub.isAppOfArity ``Jvm.JvmVal.isNull 2 then
-        let a := sub.appArg!
-        if a.isAppOfArity ``Jvm.JvmVal.null 1 then
-          return .done (Lean.mkConst ``Bool.true)
-        return .done sub
-      else
-        return .done sub)
+def normJvmLocalsExpr : Lean.Expr → Lean.MetaM Lean.Expr :=
+  Jvm.Tactics.normJvmLocalsExpr [``initJvmState] reduceAlgExtraProj
+    [``AlgHeap.arenas, ``AlgHeap.u64Arrays, ``AlgHeap.asciiArrays]
 
 elab "norm_jvm_locals" : conv => do
   let lhs ← Lean.Elab.Tactic.Conv.getLhs
@@ -426,6 +325,9 @@ elab "norm_jvm_locals" : conv => do
   Lean.Elab.Tactic.Conv.changeLhs lhs'
 
 @[simp] theorem algHooks_checkInstanceOf : algHooks.checkInstanceOf = checkInstanceOf := rfl
+
+@[simp] theorem evalInstanceOf_algHooks_ext (jh : Jvm.JvmHeap AlgExt) (cls : String) (e : AlgExt) :
+    Jvm.evalInstanceOf algHooks jh cls (.ext e) = checkInstanceOf cls (.ext e) := rfl
 
 @[simp] theorem checkInstanceOf_level4_level4 (h : UInt32) (nw ne sw se : UInt64) :
     checkInstanceOf "com/alexvanyo/composelife/model/MacroCell$Level4Node"
@@ -443,94 +345,12 @@ elab "norm_jvm_locals" : conv => do
     checkInstanceOf "com/alexvanyo/composelife/model/MacroCell$CellNode"
       (.ext (.mc (.cellNode h nw ne sw se))) = true := rfl
 
-theorem ui32_beq_0_0 : ((0 : UInt32) == 0) = true := rfl
-theorem ui32_beq_1_0 : ((1 : UInt32) == 0) = false := rfl
+export Jvm (ui32_beq_0_0 ui32_beq_1_0 option_map_ite)
 
-partial def fastDropListEq (e : Lean.Expr) (n : Nat) : Lean.MetaM (Lean.Expr × Lean.Expr) := do
-  let ty := Lean.mkConst ``Jvm.JvmInstr
-  if n == 0 then
-    let lhs := Lean.mkAppN (Lean.mkConst ``List.drop [Lean.Level.zero]) #[ty, Lean.toExpr 0, e]
-    return (e, ← Lean.Meta.mkExpectedTypeHint (← Lean.Meta.mkEqRefl e) (← Lean.Meta.mkEq lhs e))
-  let mut cur := e
-  let mut remaining := n
-  let step := 40
-  let mut accEq : Option Lean.Expr := none
-  let mut dropped : Nat := 0
-  while remaining > 0 do
-    let k := min remaining step
-    let curWhnf ← Lean.Meta.whnf cur
-    let mut tail := curWhnf
-    for _ in [:k] do
-      let t ← Lean.Meta.whnf tail
-      if t.isAppOfArity ``List.cons 3 then
-        tail := t.getArg! 2
-      else
-        tail := t
-        break
-    let lhsStep := Lean.mkAppN (Lean.mkConst ``List.drop [Lean.Level.zero]) #[ty, Lean.toExpr k, curWhnf]
-    let stepEq ← Lean.Meta.mkExpectedTypeHint (← Lean.Meta.mkEqRefl tail) (← Lean.Meta.mkEq lhsStep tail)
-    match accEq with
-    | none =>
-      let origLhs := Lean.mkAppN (Lean.mkConst ``List.drop [Lean.Level.zero]) #[ty, Lean.toExpr k, e]
-      let eq0 ← Lean.Meta.mkExpectedTypeHint stepEq (← Lean.Meta.mkEq origLhs tail)
-      accEq := some eq0
-      cur := tail
-      dropped := k
-    | some prevEq =>
-      let fnDropK := Lean.mkApp2 (Lean.mkConst ``List.drop [Lean.Level.zero]) ty (Lean.toExpr k)
-      let ap ← Lean.Meta.mkCongrArg fnDropK prevEq
-      let eqCurWhnf ← Lean.Meta.mkEqTrans ap stepEq
-      let ddrop := Lean.mkAppN (Lean.mkConst ``List.drop_drop [Lean.Level.zero])
-        #[ty, Lean.toExpr k, Lean.toExpr dropped, e]
-      let symD ← Lean.Meta.mkEqSymm ddrop
-      let ap1 ← Lean.Meta.mkEqTrans symD eqCurWhnf
-      let newDropped := dropped + k
-      let sumEq := Lean.mkAppN (Lean.mkConst ``List.drop [Lean.Level.zero]) #[ty, Lean.toExpr newDropped, e]
-      let ap2 ← Lean.Meta.mkExpectedTypeHint ap1 (← Lean.Meta.mkEq sumEq tail)
-      accEq := some ap2
-      cur := tail
-      dropped := newDropped
-    remaining := remaining - k
-  return (cur, accEq.get!)
+abbrev fastDropListEq := Jvm.Tactics.fastDropListEq
 
-theorem option_map_ite {α β : Type} (f : α → β) (c : Prop) [Decidable c] (t e : Option α) :
-    (if c then t else e).map f = if c then t.map f else e.map f := by
-  split <;> rfl
-
-partial def normRunTail (b : Lean.Expr) : Lean.MetaM (Lean.Expr × Option Lean.Expr) := do
-  if b.isAppOfArity ``Option.map 4 then
-    let ma := b.getAppArgs
-    let (inner', eqOpt) ← normRunTail ma[3]!
-    let newB := Lean.mkAppN b.getAppFn #[ma[0]!, ma[1]!, ma[2]!, inner']
-    match eqOpt with
-    | none => return (newB, none)
-    | some eqP =>
-      let pf3 := Lean.mkAppN b.getAppFn #[ma[0]!, ma[1]!, ma[2]!]
-      return (newB, some (← Lean.Meta.mkCongrArg pf3 eqP))
-  else if b.isAppOfArity ``runJvmValFast 5 || b.isAppOfArity ``runJvmResFast 5 then
-    let ba := b.getAppArgs
-    let fuel' ← Lean.Meta.whnf ba[0]!
-    let pc' ← Lean.Meta.whnf ba[2]!
-    let st' ← normJvmExpr ba[4]!
-    let mut instrs' := ba[3]!
-    let mut instrsEq : Option Lean.Expr := none
-    if instrs'.isAppOfArity ``List.drop 3 then
-      let da := instrs'.getAppArgs
-      if let some n ← evalNatLit? da[1]! then
-        let (rhs, eqP) ← fastDropListEq da[2]! n
-        instrs' := rhs
-        instrsEq := some eqP
-    let newB := Lean.mkAppN b.getAppFn #[fuel', ba[1]!, pc', instrs', st']
-    match instrsEq with
-    | none => return (newB, none)
-    | some eqP =>
-      let lam := Lean.mkLambda `x .default (← Lean.Meta.inferType ba[3]!)
-        (Lean.mkAppN b.getAppFn #[fuel', ba[1]!, pc', Lean.Expr.bvar 0, st'])
-      let fullEq ← Lean.Meta.mkCongrArg lam eqP
-      let prefixB := Lean.mkAppN b.getAppFn #[fuel', ba[1]!, pc', ba[3]!, st']
-      let defEq ← Lean.Meta.mkExpectedTypeHint (← Lean.Meta.mkEqRefl b) (← Lean.Meta.mkEq b prefixB)
-      return (newB, some (← Lean.Meta.mkEqTrans defEq fullEq))
-  else return (b, none)
+def normRunTail : Lean.Expr → Lean.MetaM (Lean.Expr × Option Lean.Expr) :=
+  Jvm.Tactics.normRunTailWith ``runJvmValFast ``runJvmResFast normJvmExpr
 
 elab "jvm_whnf_run_args" : conv => do
   let e ← Lean.Elab.Tactic.Conv.getLhs
@@ -560,37 +380,13 @@ elab "jvm_whnf_run_args" : conv => do
       let c2 ← Lean.Meta.mkCongr c1 feq
       Lean.Elab.Tactic.Conv.updateLhs newE c2
 
-def unwrapRunLhs (e : Lean.Expr) : Lean.Expr × Bool :=
-  let e := e.consumeMData
-  if e.isAppOfArity ``Option.map 4 then
-    ((e.getArg! 3).consumeMData, true)
-  else
-    (e, false)
+abbrev unwrapRunLhs := Jvm.Tactics.unwrapRunLhs
 
-def isRunJvmAtNonBranch : Lean.Elab.Tactic.TacticM Bool := do
-  let tgt := (← Lean.Elab.Tactic.getMainTarget).consumeMData
-  let some (_, lhs, _) := tgt.eq? | return false
-  let (inner, _) := unwrapRunLhs lhs
-  if inner.isAppOfArity ``runJvmValFast 5 || inner.isAppOfArity ``runJvmResFast 5 then
-    let instrs ← Lean.Meta.whnf (inner.getArg! 3)
-    if instrs.isAppOfArity ``List.cons 3 then
-      let instr := instrs.getArg! 1
-      let br ← Lean.Meta.whnf (Lean.mkApp (Lean.mkConst ``isBranchInstr) instr)
-      return br.isConstOf ``Bool.false
-  return false
+def isRunJvmAtNonBranch : Lean.Elab.Tactic.TacticM Bool :=
+  Jvm.Tactics.isRunJvmAtPred ``runJvmValFast ``runJvmResFast ``isBranchInstr
 
-def isRunJvmAtForwardGoto : Lean.Elab.Tactic.TacticM Bool := do
-  let tgt := (← Lean.Elab.Tactic.getMainTarget).consumeMData
-  let some (_, lhs, _) := tgt.eq? | return false
-  let (inner, _) := unwrapRunLhs lhs
-  if inner.isAppOfArity ``runJvmValFast 5 || inner.isAppOfArity ``runJvmResFast 5 then
-    let instrs ← Lean.Meta.whnf (inner.getArg! 3)
-    if instrs.isAppOfArity ``List.cons 3 then
-      let instr ← Lean.Meta.whnf (instrs.getArg! 1)
-      if instr.isAppOfArity ``Jvm.JvmInstr.goto 1 then
-        if let (some pcVal, some tgtVal) := (← evalNatLit? (inner.getArg! 2), ← evalNatLit? (instr.getArg! 0)) then
-          return pcVal < tgtVal
-  return false
+def isRunJvmAtForwardGoto : Lean.Elab.Tactic.TacticM Bool :=
+  Jvm.Tactics.isRunJvmAtForwardGoto ``runJvmValFast ``runJvmResFast
 
 theorem afterBlockChunk_cont (f pc : Nat) (is : List JvmInstr) (st : JvmState) (prog : List JvmInstr) :
     afterBlockChunk (.cont f pc is st) prog = runJvmValFast f prog pc is st := rfl
@@ -623,226 +419,275 @@ private theorem option_map_none' {α β : Type} (f : α → β) :
     Option.map f none = none := rfl
 
 private theorem evalBranchInstrCons_ifeq (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
-    (rest : List JvmInstr) (pc0 : Nat) (v : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
-    (jh : Jvm.JvmHeap AlgExt) (ar : List Algorithm.FlatHashLifeArena) (u64 : List (Array UInt64)) (asc : List Algorithm.AsciiBytes) :
-    evalBranchInstrCons f1 prog pc (.ifeq target) rest ⟨pc0, v :: s, locs, jh, ⟨ar, u64, asc⟩⟩ =
-      if v.asI32 == 0 then runJvmValFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, ⟨ar, u64, asc⟩⟩
-      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, ⟨ar, u64, asc⟩⟩ := rfl
+    (rest : List JvmInstr) (pc0 : Nat) (v : UInt32) (s : List JvmVal) (locs : Nat → JvmVal)
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalBranchInstrCons f1 prog pc (.ifeq target) rest ⟨pc0, .i32 v :: s, locs, jh, hp⟩ =
+      if v == 0 then runJvmValFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
+      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalBranchInstrCons_ifeq algHooks f1 prog pc target rest pc0 v s locs jh hp
+
+private theorem evalBranchInstrCons_ifeq_bool (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
+    (rest : List JvmInstr) (pc0 : Nat) (b : Bool) (s : List JvmVal) (locs : Nat → JvmVal)
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalBranchInstrCons f1 prog pc (.ifeq target) rest ⟨pc0, .bool b :: s, locs, jh, hp⟩ =
+      if !b then runJvmValFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
+      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalBranchInstrCons_ifeq_bool algHooks f1 prog pc target rest pc0 b s locs jh hp
 
 private theorem evalBranchInstrCons_ifne (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
-    (rest : List JvmInstr) (pc0 : Nat) (v : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
-    (jh : Jvm.JvmHeap AlgExt) (ar : List Algorithm.FlatHashLifeArena) (u64 : List (Array UInt64)) (asc : List Algorithm.AsciiBytes) :
-    evalBranchInstrCons f1 prog pc (.ifne target) rest ⟨pc0, v :: s, locs, jh, ⟨ar, u64, asc⟩⟩ =
-      if !(v.asI32 == 0) then runJvmValFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, ⟨ar, u64, asc⟩⟩
-      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, ⟨ar, u64, asc⟩⟩ := rfl
+    (rest : List JvmInstr) (pc0 : Nat) (v : UInt32) (s : List JvmVal) (locs : Nat → JvmVal)
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalBranchInstrCons f1 prog pc (.ifne target) rest ⟨pc0, .i32 v :: s, locs, jh, hp⟩ =
+      if !(v == 0) then runJvmValFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
+      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalBranchInstrCons_ifne algHooks f1 prog pc target rest pc0 v s locs jh hp
+
+private theorem evalBranchInstrCons_ifne_bool (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
+    (rest : List JvmInstr) (pc0 : Nat) (b : Bool) (s : List JvmVal) (locs : Nat → JvmVal)
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalBranchInstrCons f1 prog pc (.ifne target) rest ⟨pc0, .bool b :: s, locs, jh, hp⟩ =
+      if b then runJvmValFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
+      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalBranchInstrCons_ifne_bool algHooks f1 prog pc target rest pc0 b s locs jh hp
 
 private theorem evalBranchInstrCons_iflt (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
-    (rest : List JvmInstr) (pc0 : Nat) (v : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
-    (jh : Jvm.JvmHeap AlgExt) (ar : List Algorithm.FlatHashLifeArena) (u64 : List (Array UInt64)) (asc : List Algorithm.AsciiBytes) :
-    evalBranchInstrCons f1 prog pc (.iflt target) rest ⟨pc0, v :: s, locs, jh, ⟨ar, u64, asc⟩⟩ =
-      if v.asI32.toBitVec.slt 0#32 then
-        runJvmValFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, ⟨ar, u64, asc⟩⟩
-      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, ⟨ar, u64, asc⟩⟩ := rfl
+    (rest : List JvmInstr) (pc0 : Nat) (v : UInt32) (s : List JvmVal) (locs : Nat → JvmVal)
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalBranchInstrCons f1 prog pc (.iflt target) rest ⟨pc0, .i32 v :: s, locs, jh, hp⟩ =
+      if v.toBitVec.slt 0#32 then
+        runJvmValFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
+      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalBranchInstrCons_iflt algHooks f1 prog pc target rest pc0 v s locs jh hp
 
 private theorem evalBranchInstrCons_ifle (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
-    (rest : List JvmInstr) (pc0 : Nat) (v : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
-    (jh : Jvm.JvmHeap AlgExt) (ar : List Algorithm.FlatHashLifeArena) (u64 : List (Array UInt64)) (asc : List Algorithm.AsciiBytes) :
-    evalBranchInstrCons f1 prog pc (.ifle target) rest ⟨pc0, v :: s, locs, jh, ⟨ar, u64, asc⟩⟩ =
-      if v.asI32.toBitVec.sle 0#32 then
-        runJvmValFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, ⟨ar, u64, asc⟩⟩
-      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, ⟨ar, u64, asc⟩⟩ := rfl
+    (rest : List JvmInstr) (pc0 : Nat) (v : UInt32) (s : List JvmVal) (locs : Nat → JvmVal)
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalBranchInstrCons f1 prog pc (.ifle target) rest ⟨pc0, .i32 v :: s, locs, jh, hp⟩ =
+      if v.toBitVec.sle 0#32 then
+        runJvmValFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
+      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalBranchInstrCons_ifle algHooks f1 prog pc target rest pc0 v s locs jh hp
 
 private theorem evalBranchInstrCons_ifgt (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
-    (rest : List JvmInstr) (pc0 : Nat) (v : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
-    (jh : Jvm.JvmHeap AlgExt) (ar : List Algorithm.FlatHashLifeArena) (u64 : List (Array UInt64)) (asc : List Algorithm.AsciiBytes) :
-    evalBranchInstrCons f1 prog pc (.ifgt target) rest ⟨pc0, v :: s, locs, jh, ⟨ar, u64, asc⟩⟩ =
-      if (0#32).slt v.asI32.toBitVec then
-        runJvmValFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, ⟨ar, u64, asc⟩⟩
-      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, ⟨ar, u64, asc⟩⟩ := rfl
+    (rest : List JvmInstr) (pc0 : Nat) (v : UInt32) (s : List JvmVal) (locs : Nat → JvmVal)
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalBranchInstrCons f1 prog pc (.ifgt target) rest ⟨pc0, .i32 v :: s, locs, jh, hp⟩ =
+      if (0#32).slt v.toBitVec then
+        runJvmValFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
+      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalBranchInstrCons_ifgt algHooks f1 prog pc target rest pc0 v s locs jh hp
 
 private theorem evalBranchInstrCons_ifge (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
-    (rest : List JvmInstr) (pc0 : Nat) (v : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
-    (jh : Jvm.JvmHeap AlgExt) (ar : List Algorithm.FlatHashLifeArena) (u64 : List (Array UInt64)) (asc : List Algorithm.AsciiBytes) :
-    evalBranchInstrCons f1 prog pc (.ifge target) rest ⟨pc0, v :: s, locs, jh, ⟨ar, u64, asc⟩⟩ =
-      if (0#32).sle v.asI32.toBitVec then
-        runJvmValFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, ⟨ar, u64, asc⟩⟩
-      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, ⟨ar, u64, asc⟩⟩ := rfl
+    (rest : List JvmInstr) (pc0 : Nat) (v : UInt32) (s : List JvmVal) (locs : Nat → JvmVal)
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalBranchInstrCons f1 prog pc (.ifge target) rest ⟨pc0, .i32 v :: s, locs, jh, hp⟩ =
+      if (0#32).sle v.toBitVec then
+        runJvmValFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
+      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalBranchInstrCons_ifge algHooks f1 prog pc target rest pc0 v s locs jh hp
 
 private theorem evalBranchInstrCons_ifnull (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
     (rest : List JvmInstr) (pc0 : Nat) (v : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
-    (jh : Jvm.JvmHeap AlgExt) (ar : List Algorithm.FlatHashLifeArena) (u64 : List (Array UInt64)) (asc : List Algorithm.AsciiBytes) :
-    evalBranchInstrCons f1 prog pc (.ifnull target) rest ⟨pc0, v :: s, locs, jh, ⟨ar, u64, asc⟩⟩ =
-      if v.isNull then runJvmValFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, ⟨ar, u64, asc⟩⟩
-      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, ⟨ar, u64, asc⟩⟩ := rfl
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalBranchInstrCons f1 prog pc (.ifnull target) rest ⟨pc0, v :: s, locs, jh, hp⟩ =
+      if v.isNull then runJvmValFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
+      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalBranchInstrCons_ifnull algHooks f1 prog pc target rest pc0 v s locs jh hp
 
 private theorem evalBranchInstrCons_ifnonnull (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
     (rest : List JvmInstr) (pc0 : Nat) (v : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
-    (jh : Jvm.JvmHeap AlgExt) (ar : List Algorithm.FlatHashLifeArena) (u64 : List (Array UInt64)) (asc : List Algorithm.AsciiBytes) :
-    evalBranchInstrCons f1 prog pc (.ifnonnull target) rest ⟨pc0, v :: s, locs, jh, ⟨ar, u64, asc⟩⟩ =
-      if !v.isNull then runJvmValFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, ⟨ar, u64, asc⟩⟩
-      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, ⟨ar, u64, asc⟩⟩ := rfl
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalBranchInstrCons f1 prog pc (.ifnonnull target) rest ⟨pc0, v :: s, locs, jh, hp⟩ =
+      if !v.isNull then runJvmValFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
+      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalBranchInstrCons_ifnonnull algHooks f1 prog pc target rest pc0 v s locs jh hp
 
 private theorem evalBranchInstrCons_if_icmpeq (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
-    (rest : List JvmInstr) (pc0 : Nat) (b a : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
-    (jh : Jvm.JvmHeap AlgExt) (ar : List Algorithm.FlatHashLifeArena) (u64 : List (Array UInt64)) (asc : List Algorithm.AsciiBytes) :
-    evalBranchInstrCons f1 prog pc (.if_icmpeq target) rest ⟨pc0, b :: a :: s, locs, jh, ⟨ar, u64, asc⟩⟩ =
-      if a.asI32 == b.asI32 then runJvmValFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, ⟨ar, u64, asc⟩⟩
-      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, ⟨ar, u64, asc⟩⟩ := rfl
+    (rest : List JvmInstr) (pc0 : Nat) (b a : UInt32) (s : List JvmVal) (locs : Nat → JvmVal)
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalBranchInstrCons f1 prog pc (.if_icmpeq target) rest ⟨pc0, .i32 b :: .i32 a :: s, locs, jh, hp⟩ =
+      if a == b then runJvmValFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
+      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalBranchInstrCons_if_icmpeq algHooks f1 prog pc target rest pc0 b a s locs jh hp
 
 private theorem evalBranchInstrCons_if_icmpne (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
-    (rest : List JvmInstr) (pc0 : Nat) (b a : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
-    (jh : Jvm.JvmHeap AlgExt) (ar : List Algorithm.FlatHashLifeArena) (u64 : List (Array UInt64)) (asc : List Algorithm.AsciiBytes) :
-    evalBranchInstrCons f1 prog pc (.if_icmpne target) rest ⟨pc0, b :: a :: s, locs, jh, ⟨ar, u64, asc⟩⟩ =
-      if !(a.asI32 == b.asI32) then runJvmValFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, ⟨ar, u64, asc⟩⟩
-      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, ⟨ar, u64, asc⟩⟩ := rfl
+    (rest : List JvmInstr) (pc0 : Nat) (b a : UInt32) (s : List JvmVal) (locs : Nat → JvmVal)
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalBranchInstrCons f1 prog pc (.if_icmpne target) rest ⟨pc0, .i32 b :: .i32 a :: s, locs, jh, hp⟩ =
+      if !(a == b) then runJvmValFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
+      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalBranchInstrCons_if_icmpne algHooks f1 prog pc target rest pc0 b a s locs jh hp
 
 private theorem evalBranchInstrCons_if_icmplt (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
-    (rest : List JvmInstr) (pc0 : Nat) (b a : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
-    (jh : Jvm.JvmHeap AlgExt) (ar : List Algorithm.FlatHashLifeArena) (u64 : List (Array UInt64)) (asc : List Algorithm.AsciiBytes) :
-    evalBranchInstrCons f1 prog pc (.if_icmplt target) rest ⟨pc0, b :: a :: s, locs, jh, ⟨ar, u64, asc⟩⟩ =
-      if a.asI32.toBitVec.slt b.asI32.toBitVec then
-        runJvmValFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, ⟨ar, u64, asc⟩⟩
-      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, ⟨ar, u64, asc⟩⟩ := rfl
+    (rest : List JvmInstr) (pc0 : Nat) (b a : UInt32) (s : List JvmVal) (locs : Nat → JvmVal)
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalBranchInstrCons f1 prog pc (.if_icmplt target) rest ⟨pc0, .i32 b :: .i32 a :: s, locs, jh, hp⟩ =
+      if a.toBitVec.slt b.toBitVec then
+        runJvmValFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
+      else runJvmValFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalBranchInstrCons_if_icmplt algHooks f1 prog pc target rest pc0 b a s locs jh hp
 
 private theorem evalBranchInstrCons_goto (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
     (rest : List JvmInstr) (pc0 : Nat) (stk : List JvmVal) (locs : Nat → JvmVal)
-    (jh : Jvm.JvmHeap AlgExt) (ar : List Algorithm.FlatHashLifeArena) (u64 : List (Array UInt64)) (asc : List Algorithm.AsciiBytes) :
-    evalBranchInstrCons f1 prog pc (.goto target) rest ⟨pc0, stk, locs, jh, ⟨ar, u64, asc⟩⟩ =
-      runJvmValFast f1 prog target (prog.drop target) ⟨target, stk, locs, jh, ⟨ar, u64, asc⟩⟩ := rfl
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalBranchInstrCons f1 prog pc (.goto target) rest ⟨pc0, stk, locs, jh, hp⟩ =
+      runJvmValFast f1 prog target (prog.drop target) ⟨target, stk, locs, jh, hp⟩ := rfl
 
 private theorem evalResBranchInstrCons_ifeq (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
-    (rest : List JvmInstr) (pc0 : Nat) (v : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
-    (jh : Jvm.JvmHeap AlgExt) (ar : List Algorithm.FlatHashLifeArena) (u64 : List (Array UInt64)) (asc : List Algorithm.AsciiBytes) :
-    evalResBranchInstrCons f1 prog pc (.ifeq target) rest ⟨pc0, v :: s, locs, jh, ⟨ar, u64, asc⟩⟩ =
-      if v.asI32 == 0 then runJvmResFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, ⟨ar, u64, asc⟩⟩
-      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, ⟨ar, u64, asc⟩⟩ := rfl
+    (rest : List JvmInstr) (pc0 : Nat) (v : UInt32) (s : List JvmVal) (locs : Nat → JvmVal)
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalResBranchInstrCons f1 prog pc (.ifeq target) rest ⟨pc0, .i32 v :: s, locs, jh, hp⟩ =
+      if v == 0 then runJvmResFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
+      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalResBranchInstrCons_ifeq algHooks f1 prog pc target rest pc0 v s locs jh hp
+
+private theorem evalResBranchInstrCons_ifeq_bool (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
+    (rest : List JvmInstr) (pc0 : Nat) (b : Bool) (s : List JvmVal) (locs : Nat → JvmVal)
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalResBranchInstrCons f1 prog pc (.ifeq target) rest ⟨pc0, .bool b :: s, locs, jh, hp⟩ =
+      if !b then runJvmResFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
+      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalResBranchInstrCons_ifeq_bool algHooks f1 prog pc target rest pc0 b s locs jh hp
 
 private theorem evalResBranchInstrCons_ifne (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
-    (rest : List JvmInstr) (pc0 : Nat) (v : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
-    (jh : Jvm.JvmHeap AlgExt) (ar : List Algorithm.FlatHashLifeArena) (u64 : List (Array UInt64)) (asc : List Algorithm.AsciiBytes) :
-    evalResBranchInstrCons f1 prog pc (.ifne target) rest ⟨pc0, v :: s, locs, jh, ⟨ar, u64, asc⟩⟩ =
-      if !(v.asI32 == 0) then runJvmResFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, ⟨ar, u64, asc⟩⟩
-      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, ⟨ar, u64, asc⟩⟩ := rfl
+    (rest : List JvmInstr) (pc0 : Nat) (v : UInt32) (s : List JvmVal) (locs : Nat → JvmVal)
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalResBranchInstrCons f1 prog pc (.ifne target) rest ⟨pc0, .i32 v :: s, locs, jh, hp⟩ =
+      if !(v == 0) then runJvmResFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
+      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalResBranchInstrCons_ifne algHooks f1 prog pc target rest pc0 v s locs jh hp
+
+private theorem evalResBranchInstrCons_ifne_bool (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
+    (rest : List JvmInstr) (pc0 : Nat) (b : Bool) (s : List JvmVal) (locs : Nat → JvmVal)
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalResBranchInstrCons f1 prog pc (.ifne target) rest ⟨pc0, .bool b :: s, locs, jh, hp⟩ =
+      if b then runJvmResFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
+      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalResBranchInstrCons_ifne_bool algHooks f1 prog pc target rest pc0 b s locs jh hp
 
 private theorem evalResBranchInstrCons_iflt (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
-    (rest : List JvmInstr) (pc0 : Nat) (v : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
-    (jh : Jvm.JvmHeap AlgExt) (ar : List Algorithm.FlatHashLifeArena) (u64 : List (Array UInt64)) (asc : List Algorithm.AsciiBytes) :
-    evalResBranchInstrCons f1 prog pc (.iflt target) rest ⟨pc0, v :: s, locs, jh, ⟨ar, u64, asc⟩⟩ =
-      if v.asI32.toBitVec.slt 0#32 then
-        runJvmResFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, ⟨ar, u64, asc⟩⟩
-      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, ⟨ar, u64, asc⟩⟩ := rfl
+    (rest : List JvmInstr) (pc0 : Nat) (v : UInt32) (s : List JvmVal) (locs : Nat → JvmVal)
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalResBranchInstrCons f1 prog pc (.iflt target) rest ⟨pc0, .i32 v :: s, locs, jh, hp⟩ =
+      if v.toBitVec.slt 0#32 then
+        runJvmResFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
+      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalResBranchInstrCons_iflt algHooks f1 prog pc target rest pc0 v s locs jh hp
 
 private theorem evalResBranchInstrCons_ifle (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
-    (rest : List JvmInstr) (pc0 : Nat) (v : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
-    (jh : Jvm.JvmHeap AlgExt) (ar : List Algorithm.FlatHashLifeArena) (u64 : List (Array UInt64)) (asc : List Algorithm.AsciiBytes) :
-    evalResBranchInstrCons f1 prog pc (.ifle target) rest ⟨pc0, v :: s, locs, jh, ⟨ar, u64, asc⟩⟩ =
-      if v.asI32.toBitVec.sle 0#32 then
-        runJvmResFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, ⟨ar, u64, asc⟩⟩
-      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, ⟨ar, u64, asc⟩⟩ := rfl
+    (rest : List JvmInstr) (pc0 : Nat) (v : UInt32) (s : List JvmVal) (locs : Nat → JvmVal)
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalResBranchInstrCons f1 prog pc (.ifle target) rest ⟨pc0, .i32 v :: s, locs, jh, hp⟩ =
+      if v.toBitVec.sle 0#32 then
+        runJvmResFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
+      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalResBranchInstrCons_ifle algHooks f1 prog pc target rest pc0 v s locs jh hp
 
 private theorem evalResBranchInstrCons_ifgt (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
-    (rest : List JvmInstr) (pc0 : Nat) (v : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
-    (jh : Jvm.JvmHeap AlgExt) (ar : List Algorithm.FlatHashLifeArena) (u64 : List (Array UInt64)) (asc : List Algorithm.AsciiBytes) :
-    evalResBranchInstrCons f1 prog pc (.ifgt target) rest ⟨pc0, v :: s, locs, jh, ⟨ar, u64, asc⟩⟩ =
-      if (0#32).slt v.asI32.toBitVec then
-        runJvmResFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, ⟨ar, u64, asc⟩⟩
-      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, ⟨ar, u64, asc⟩⟩ := rfl
+    (rest : List JvmInstr) (pc0 : Nat) (v : UInt32) (s : List JvmVal) (locs : Nat → JvmVal)
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalResBranchInstrCons f1 prog pc (.ifgt target) rest ⟨pc0, .i32 v :: s, locs, jh, hp⟩ =
+      if (0#32).slt v.toBitVec then
+        runJvmResFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
+      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalResBranchInstrCons_ifgt algHooks f1 prog pc target rest pc0 v s locs jh hp
 
 private theorem evalResBranchInstrCons_ifge (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
-    (rest : List JvmInstr) (pc0 : Nat) (v : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
-    (jh : Jvm.JvmHeap AlgExt) (ar : List Algorithm.FlatHashLifeArena) (u64 : List (Array UInt64)) (asc : List Algorithm.AsciiBytes) :
-    evalResBranchInstrCons f1 prog pc (.ifge target) rest ⟨pc0, v :: s, locs, jh, ⟨ar, u64, asc⟩⟩ =
-      if (0#32).sle v.asI32.toBitVec then
-        runJvmResFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, ⟨ar, u64, asc⟩⟩
-      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, ⟨ar, u64, asc⟩⟩ := rfl
+    (rest : List JvmInstr) (pc0 : Nat) (v : UInt32) (s : List JvmVal) (locs : Nat → JvmVal)
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalResBranchInstrCons f1 prog pc (.ifge target) rest ⟨pc0, .i32 v :: s, locs, jh, hp⟩ =
+      if (0#32).sle v.toBitVec then
+        runJvmResFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
+      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalResBranchInstrCons_ifge algHooks f1 prog pc target rest pc0 v s locs jh hp
 
 private theorem evalResBranchInstrCons_ifnull (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
     (rest : List JvmInstr) (pc0 : Nat) (v : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
-    (jh : Jvm.JvmHeap AlgExt) (ar : List Algorithm.FlatHashLifeArena) (u64 : List (Array UInt64)) (asc : List Algorithm.AsciiBytes) :
-    evalResBranchInstrCons f1 prog pc (.ifnull target) rest ⟨pc0, v :: s, locs, jh, ⟨ar, u64, asc⟩⟩ =
-      if v.isNull then runJvmResFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, ⟨ar, u64, asc⟩⟩
-      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, ⟨ar, u64, asc⟩⟩ := rfl
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalResBranchInstrCons f1 prog pc (.ifnull target) rest ⟨pc0, v :: s, locs, jh, hp⟩ =
+      if v.isNull then runJvmResFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
+      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalResBranchInstrCons_ifnull algHooks f1 prog pc target rest pc0 v s locs jh hp
 
 private theorem evalResBranchInstrCons_ifnonnull (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
     (rest : List JvmInstr) (pc0 : Nat) (v : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
-    (jh : Jvm.JvmHeap AlgExt) (ar : List Algorithm.FlatHashLifeArena) (u64 : List (Array UInt64)) (asc : List Algorithm.AsciiBytes) :
-    evalResBranchInstrCons f1 prog pc (.ifnonnull target) rest ⟨pc0, v :: s, locs, jh, ⟨ar, u64, asc⟩⟩ =
-      if !v.isNull then runJvmResFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, ⟨ar, u64, asc⟩⟩
-      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, ⟨ar, u64, asc⟩⟩ := rfl
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalResBranchInstrCons f1 prog pc (.ifnonnull target) rest ⟨pc0, v :: s, locs, jh, hp⟩ =
+      if !v.isNull then runJvmResFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
+      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalResBranchInstrCons_ifnonnull algHooks f1 prog pc target rest pc0 v s locs jh hp
 
 private theorem evalResBranchInstrCons_if_icmpeq (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
-    (rest : List JvmInstr) (pc0 : Nat) (b a : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
-    (jh : Jvm.JvmHeap AlgExt) (ar : List Algorithm.FlatHashLifeArena) (u64 : List (Array UInt64)) (asc : List Algorithm.AsciiBytes) :
-    evalResBranchInstrCons f1 prog pc (.if_icmpeq target) rest ⟨pc0, b :: a :: s, locs, jh, ⟨ar, u64, asc⟩⟩ =
-      if a.asI32 == b.asI32 then runJvmResFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, ⟨ar, u64, asc⟩⟩
-      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, ⟨ar, u64, asc⟩⟩ := rfl
+    (rest : List JvmInstr) (pc0 : Nat) (b a : UInt32) (s : List JvmVal) (locs : Nat → JvmVal)
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalResBranchInstrCons f1 prog pc (.if_icmpeq target) rest ⟨pc0, .i32 b :: .i32 a :: s, locs, jh, hp⟩ =
+      if a == b then runJvmResFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
+      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalResBranchInstrCons_if_icmpeq algHooks f1 prog pc target rest pc0 b a s locs jh hp
 
 private theorem evalResBranchInstrCons_if_icmpne (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
-    (rest : List JvmInstr) (pc0 : Nat) (b a : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
-    (jh : Jvm.JvmHeap AlgExt) (ar : List Algorithm.FlatHashLifeArena) (u64 : List (Array UInt64)) (asc : List Algorithm.AsciiBytes) :
-    evalResBranchInstrCons f1 prog pc (.if_icmpne target) rest ⟨pc0, b :: a :: s, locs, jh, ⟨ar, u64, asc⟩⟩ =
-      if !(a.asI32 == b.asI32) then runJvmResFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, ⟨ar, u64, asc⟩⟩
-      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, ⟨ar, u64, asc⟩⟩ := rfl
+    (rest : List JvmInstr) (pc0 : Nat) (b a : UInt32) (s : List JvmVal) (locs : Nat → JvmVal)
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalResBranchInstrCons f1 prog pc (.if_icmpne target) rest ⟨pc0, .i32 b :: .i32 a :: s, locs, jh, hp⟩ =
+      if !(a == b) then runJvmResFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
+      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalResBranchInstrCons_if_icmpne algHooks f1 prog pc target rest pc0 b a s locs jh hp
 
 private theorem evalResBranchInstrCons_if_icmplt (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
-    (rest : List JvmInstr) (pc0 : Nat) (b a : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
-    (jh : Jvm.JvmHeap AlgExt) (ar : List Algorithm.FlatHashLifeArena) (u64 : List (Array UInt64)) (asc : List Algorithm.AsciiBytes) :
-    evalResBranchInstrCons f1 prog pc (.if_icmplt target) rest ⟨pc0, b :: a :: s, locs, jh, ⟨ar, u64, asc⟩⟩ =
-      if a.asI32.toBitVec.slt b.asI32.toBitVec then
-        runJvmResFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, ⟨ar, u64, asc⟩⟩
-      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, ⟨ar, u64, asc⟩⟩ := rfl
+    (rest : List JvmInstr) (pc0 : Nat) (b a : UInt32) (s : List JvmVal) (locs : Nat → JvmVal)
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalResBranchInstrCons f1 prog pc (.if_icmplt target) rest ⟨pc0, .i32 b :: .i32 a :: s, locs, jh, hp⟩ =
+      if a.toBitVec.slt b.toBitVec then
+        runJvmResFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, hp⟩
+      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, hp⟩ :=
+  Jvm.evalResBranchInstrCons_if_icmplt algHooks f1 prog pc target rest pc0 b a s locs jh hp
 
 private theorem evalResBranchInstrCons_goto (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
     (rest : List JvmInstr) (pc0 : Nat) (stk : List JvmVal) (locs : Nat → JvmVal)
-    (jh : Jvm.JvmHeap AlgExt) (ar : List Algorithm.FlatHashLifeArena) (u64 : List (Array UInt64)) (asc : List Algorithm.AsciiBytes) :
-    evalResBranchInstrCons f1 prog pc (.goto target) rest ⟨pc0, stk, locs, jh, ⟨ar, u64, asc⟩⟩ =
-      runJvmResFast f1 prog target (prog.drop target) ⟨target, stk, locs, jh, ⟨ar, u64, asc⟩⟩ := rfl
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
+    evalResBranchInstrCons f1 prog pc (.goto target) rest ⟨pc0, stk, locs, jh, hp⟩ =
+      runJvmResFast f1 prog target (prog.drop target) ⟨target, stk, locs, jh, hp⟩ := rfl
 
 def rwEvalBranchByInstr (isRes : Bool) (instr : Lean.Expr) : Lean.Elab.Tactic.TacticM Unit := do
   let some n := instr.consumeMData.getAppFn.constName? | return ()
-  let thm : Option Lean.Name :=
+  let thms : List Lean.Name :=
     if !isRes then
-      if n == ``Jvm.JvmInstr.ifeq then some ``evalBranchInstrCons_ifeq
-      else if n == ``Jvm.JvmInstr.ifne then some ``evalBranchInstrCons_ifne
-      else if n == ``Jvm.JvmInstr.iflt then some ``evalBranchInstrCons_iflt
-      else if n == ``Jvm.JvmInstr.ifle then some ``evalBranchInstrCons_ifle
-      else if n == ``Jvm.JvmInstr.ifgt then some ``evalBranchInstrCons_ifgt
-      else if n == ``Jvm.JvmInstr.ifge then some ``evalBranchInstrCons_ifge
-      else if n == ``Jvm.JvmInstr.ifnull then some ``evalBranchInstrCons_ifnull
-      else if n == ``Jvm.JvmInstr.ifnonnull then some ``evalBranchInstrCons_ifnonnull
-      else if n == ``Jvm.JvmInstr.if_icmpeq then some ``evalBranchInstrCons_if_icmpeq
-      else if n == ``Jvm.JvmInstr.if_icmpne then some ``evalBranchInstrCons_if_icmpne
-      else if n == ``Jvm.JvmInstr.if_icmplt then some ``evalBranchInstrCons_if_icmplt
-      else if n == ``Jvm.JvmInstr.goto then some ``evalBranchInstrCons_goto
-      else none
+      if n == ``Jvm.JvmInstr.ifeq then [``evalBranchInstrCons_ifeq, ``evalBranchInstrCons_ifeq_bool]
+      else if n == ``Jvm.JvmInstr.ifne then [``evalBranchInstrCons_ifne, ``evalBranchInstrCons_ifne_bool]
+      else if n == ``Jvm.JvmInstr.iflt then [``evalBranchInstrCons_iflt]
+      else if n == ``Jvm.JvmInstr.ifle then [``evalBranchInstrCons_ifle]
+      else if n == ``Jvm.JvmInstr.ifgt then [``evalBranchInstrCons_ifgt]
+      else if n == ``Jvm.JvmInstr.ifge then [``evalBranchInstrCons_ifge]
+      else if n == ``Jvm.JvmInstr.ifnull then [``evalBranchInstrCons_ifnull]
+      else if n == ``Jvm.JvmInstr.ifnonnull then [``evalBranchInstrCons_ifnonnull]
+      else if n == ``Jvm.JvmInstr.if_icmpeq then [``evalBranchInstrCons_if_icmpeq]
+      else if n == ``Jvm.JvmInstr.if_icmpne then [``evalBranchInstrCons_if_icmpne]
+      else if n == ``Jvm.JvmInstr.if_icmplt then [``evalBranchInstrCons_if_icmplt]
+      else if n == ``Jvm.JvmInstr.goto then [``evalBranchInstrCons_goto]
+      else []
     else
-      if n == ``Jvm.JvmInstr.ifeq then some ``evalResBranchInstrCons_ifeq
-      else if n == ``Jvm.JvmInstr.ifne then some ``evalResBranchInstrCons_ifne
-      else if n == ``Jvm.JvmInstr.iflt then some ``evalResBranchInstrCons_iflt
-      else if n == ``Jvm.JvmInstr.ifle then some ``evalResBranchInstrCons_ifle
-      else if n == ``Jvm.JvmInstr.ifgt then some ``evalResBranchInstrCons_ifgt
-      else if n == ``Jvm.JvmInstr.ifge then some ``evalResBranchInstrCons_ifge
-      else if n == ``Jvm.JvmInstr.ifnull then some ``evalResBranchInstrCons_ifnull
-      else if n == ``Jvm.JvmInstr.ifnonnull then some ``evalResBranchInstrCons_ifnonnull
-      else if n == ``Jvm.JvmInstr.if_icmpeq then some ``evalResBranchInstrCons_if_icmpeq
-      else if n == ``Jvm.JvmInstr.if_icmpne then some ``evalResBranchInstrCons_if_icmpne
-      else if n == ``Jvm.JvmInstr.if_icmplt then some ``evalResBranchInstrCons_if_icmplt
-      else if n == ``Jvm.JvmInstr.goto then some ``evalResBranchInstrCons_goto
-      else none
-  if let some tn := thm then
+      if n == ``Jvm.JvmInstr.ifeq then [``evalResBranchInstrCons_ifeq, ``evalResBranchInstrCons_ifeq_bool]
+      else if n == ``Jvm.JvmInstr.ifne then [``evalResBranchInstrCons_ifne, ``evalResBranchInstrCons_ifne_bool]
+      else if n == ``Jvm.JvmInstr.iflt then [``evalResBranchInstrCons_iflt]
+      else if n == ``Jvm.JvmInstr.ifle then [``evalResBranchInstrCons_ifle]
+      else if n == ``Jvm.JvmInstr.ifgt then [``evalResBranchInstrCons_ifgt]
+      else if n == ``Jvm.JvmInstr.ifge then [``evalResBranchInstrCons_ifge]
+      else if n == ``Jvm.JvmInstr.ifnull then [``evalResBranchInstrCons_ifnull]
+      else if n == ``Jvm.JvmInstr.ifnonnull then [``evalResBranchInstrCons_ifnonnull]
+      else if n == ``Jvm.JvmInstr.if_icmpeq then [``evalResBranchInstrCons_if_icmpeq]
+      else if n == ``Jvm.JvmInstr.if_icmpne then [``evalResBranchInstrCons_if_icmpne]
+      else if n == ``Jvm.JvmInstr.if_icmplt then [``evalResBranchInstrCons_if_icmplt]
+      else if n == ``Jvm.JvmInstr.goto then [``evalResBranchInstrCons_goto]
+      else []
+  for tn in thms do
     let id := Lean.mkIdent tn
+    let pre ← Lean.Elab.Tactic.getMainTarget
     Lean.Elab.Tactic.evalTactic (← `(tactic| try rw [$id:ident]))
+    if (← Lean.Elab.Tactic.getUnsolvedGoals).isEmpty then return ()
+    let post ← Lean.Elab.Tactic.getMainTarget
+    if post != pre then return ()
 
-def rwOptionMapResult : Lean.Elab.Tactic.TacticM Unit := do
-  let tgt ← Lean.Elab.Tactic.getMainTarget
-  let some (_, lhs, _) := tgt.consumeMData.eq? | return ()
-  let lhs := lhs.consumeMData
-  if lhs.isAppOfArity ``Option.map 4 then
-    let arg := lhs.appArg!.consumeMData
-    if arg.isAppOfArity ``Option.some 2 then
-      Lean.Elab.Tactic.evalTactic (← `(tactic| (conv => lhs; rw [option_map_some'])))
-    else if arg.isAppOfArity ``Option.none 1 then
-      Lean.Elab.Tactic.evalTactic (← `(tactic| (conv => lhs; rw [option_map_none'])))
+abbrev rwOptionMapResult := Jvm.Tactics.rwOptionMapResult
 
 elab "jvm_step_one_chunk" : tactic => do
   let tgt := (← Lean.Elab.Tactic.getMainTarget).consumeMData
@@ -883,10 +728,10 @@ elab "jvm_step_one_chunk" : tactic => do
       Lean.Elab.Tactic.evalTactic (← `(tactic| (conv => lhs; jvm_whnf_run_args)))
 
 private theorem ite_bool_eq_true_left {α : Type} {b : Bool} (h : b = true) (t e : α) :
-    (if b = true then t else e) = t := by subst h; rfl
+    (if b = true then t else e) = t := Jvm.ite_bool_eq_true_left h t e
 
 private theorem ite_bool_eq_true_right {α : Type} {b : Bool} (h : b = false) (t e : α) :
-    (if b = true then t else e) = e := by subst h; rfl
+    (if b = true then t else e) = e := Jvm.ite_bool_eq_true_right h t e
 
 elab "reduce_top_mc_ite" : tactic => Lean.Elab.Tactic.withMainContext do
   let tgt ← Lean.Elab.Tactic.getMainTarget
@@ -912,7 +757,7 @@ elab "reduce_top_mc_ite" : tactic => Lean.Elab.Tactic.withMainContext do
     Lean.Elab.Tactic.setGoals [mvar.mvarId!]
     try
       Lean.Elab.Tactic.evalTactic (← `(tactic|
-        simp only [algHooks_checkInstanceOf, checkInstanceOf_level4_level4, checkInstanceOf_level4_cell,
+        simp only [algHooks_checkInstanceOf, evalInstanceOf_algHooks_ext, checkInstanceOf_level4_level4, checkInstanceOf_level4_cell,
           checkInstanceOf_cell_level4, checkInstanceOf_cell_cell,
           ui32_beq_0_0, ui32_beq_1_0, eq_self_iff_true,
           Bool.not_true, Bool.not_false, Bool.false_eq_true, beq_self_eq_true, ite_true, ite_false]))

@@ -14,7 +14,7 @@
  * limitations under the License.
  -/
 
-import Lean
+import Jvm.Audit
 import JvmBytecode
 import proofs.JvmEquiv.Infra
 import proofs.JvmEquiv.Batch1
@@ -43,43 +43,4 @@ import proofs.JvmEquiv.Family6b
 import proofs.JvmEquiv.Family6c
 import proofs.JvmEquiv.Family6d
 
-open Lean in
-private def isJvmBvCheckAxiom (env : Environment) (a : Name) : Bool :=
-  let named := match a with
-    | .str (.str (.str _ "_native") "bv_decide") _ => true
-    | _ => false
-  named && match env.find? a with
-    | some (.axiomInfo info) =>
-      info.type.isAppOfArity ``Eq 3 &&
-        (info.type.getArg! 1).isAppOf `Std.Tactic.BVDecide.Reflect.verifyBVExpr &&
-        (info.type.getArg! 2).isConstOf ``Bool.true
-    | _ => false
-
-open Lean Elab Command in
-elab "#audit_jvm_equiv_axioms" : command => do
-  let env ← getEnv
-  let allowed : List Name := [``propext, ``Classical.choice, ``Quot.sound]
-  let mut count := 0
-  let mut provenProgs : NameSet := {}
-  for (n, ci) in env.constants.toList do
-    unless `Algorithm.JvmVerification |>.isPrefixOf n do continue
-    unless ci matches .thmInfo _ do continue
-    if n.isInternal then continue
-    count := count + 1
-    for c in ci.type.getUsedConstants do
-      if `Algorithm.JvmBytecode |>.isPrefixOf c then
-        provenProgs := provenProgs.insert c
-    let axioms ← liftCoreM <| Lean.collectAxioms n
-    let bad := axioms.filter (fun a => !allowed.contains a && !isJvmBvCheckAxiom env a)
-    unless bad.isEmpty do
-      logError m!"JVM equivalence theorem {n} depends on non-standard axioms: {bad.toList}"
-  if count == 0 then
-    logError "no JVM equivalence theorems found"
-  for (n, ci) in env.constants.toList do
-    unless `Algorithm.JvmBytecode |>.isPrefixOf n do continue
-    unless ci matches .defnInfo _ do continue
-    if n.isInternal then continue
-    if n.toString.endsWith "_prog" && !provenProgs.contains n then
-      logError m!"lifted JVM program {n} has no equivalence theorem in Algorithm.JvmVerification"
-
-#audit_jvm_equiv_axioms
+#audit_jvm_equiv_axioms Algorithm.JvmVerification Algorithm.JvmBytecode
