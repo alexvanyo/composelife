@@ -78,9 +78,25 @@ def stepIntOffsetStatic (st : JvmState) (cls method desc : String) :
     match x.asI32?, y.asI32? with
     | some vx, some vy => .inl (some { st with pc := st.pc + 1, stack := .i64 (packIntOffset vx.toInt32 vy.toInt32) :: rest })
     | _, _ => .inr none
+  | "androidx/compose/ui/unit/IntOffset", "equals-impl0", "(JJ)Z", b :: a :: rest =>
+    match a.asI64?, b.asI64? with
+    | some pa, some pb => .inl (some { st with pc := st.pc + 1, stack := .i32 (if pa == pb then 1 else 0) :: rest })
+    | _, _ => .inr none
+  | "androidx/compose/ui/unit/DpOffset", "getX-D9Ej5fM", "(J)F", v :: rest =>
+    match v.asI64? with
+    | some p => .inl (some { st with pc := st.pc + 1, stack := .f32 (Float32.ofBits (p >>> 32).toUInt32) :: rest })
+    | none => .inr none
+  | "androidx/compose/ui/unit/DpOffset", "getY-D9Ej5fM", "(J)F", v :: rest =>
+    match v.asI64? with
+    | some p => .inl (some { st with pc := st.pc + 1, stack := .f32 (Float32.ofBits p.toUInt32) :: rest })
+    | none => .inr none
+  | "androidx/compose/ui/geometry/Offset", "constructor-impl", "(J)J", _ =>
+    .inl (some { st with pc := st.pc + 1 })
   | _, _, _, _ => .inr none
 
-def geomHooks : Jvm.JvmHooks Empty Unit where
+@[reducible] def mkGeomHooks
+    (calcDistance : UInt64 → Float32 := fun _ => (0.0 : Float32))
+    (densityToPx : Float32 → Float32 := fun v => v) : Jvm.JvmHooks Empty Unit where
   checkInstanceOf cls v :=
     match cls, v with
     | "androidx/compose/ui/unit/IntOffset", .boxedLong _ => true
@@ -91,23 +107,51 @@ def geomHooks : Jvm.JvmHooks Empty Unit where
     | "androidx/compose/ui/unit/IntOffset", .boxedLong _ => some v
     | "java/lang/Object", .boxedLong _ => some v
     | _, _ => Jvm.defaultCheckCast (fun _ a => nomatch a) cls v
+  resolveStatic _st cls field _desc :=
+    match cls, field with
+    | "androidx/compose/ui/unit/IntOffset", "Companion" =>
+      some (.allocRef "androidx/compose/ui/unit/IntOffset$Companion")
+    | _, _ => none
   stepInvokeVirtual st cls method desc :=
     match cls, method, desc, st.stack with
     | "androidx/compose/ui/unit/IntOffset", "unbox-impl", "()J", .boxedLong v :: rest =>
       .inl (some { st with pc := st.pc + 1, stack := .i64 v :: rest })
+    | "androidx/compose/ui/unit/IntOffset$Companion", "getZero-nOcc-ac", "()J",
+        .allocRef "androidx/compose/ui/unit/IntOffset$Companion" :: rest =>
+      .inl (some { st with pc := st.pc + 1, stack := .i64 0 :: rest })
+    | _, _, _, _ => .inr none
+  stepInvokeInterface st cls method desc :=
+    match cls, method, desc, st.stack with
+    | "androidx/compose/ui/unit/Density", "toPx-0680j_4", "(F)F",
+        v :: .allocRef "androidx/compose/ui/unit/Density" :: rest =>
+      match v.asF32? with
+      | some f => .inl (some { st with pc := st.pc + 1, stack := .f32 (densityToPx f) :: rest })
+      | none => .inr none
     | _, _, _, _ => .inr none
   stepInvokeStatic st cls method desc :=
     match stepIntOffsetStatic st cls method desc with
     | .inl (some st') => .inl (some st')
     | _ =>
       match cls, method, desc, st.stack with
+      | "androidx/compose/ui/geometry/Offset", "getDistance-impl", "(J)F", v :: rest =>
+        match v.asI64? with
+        | some p => .inl (some { st with pc := st.pc + 1, stack := .f32 (calcDistance p) :: rest })
+        | none => .inr none
       | "java/lang/Float", "intBitsToFloat", "(I)F", x :: rest =>
         match x.asI32? with
         | some va => .inl (some { st with pc := st.pc + 1, stack := .f32 (Float32.ofBits va) :: rest })
         | none => .inr none
+      | "java/lang/Float", "floatToRawIntBits", "(F)I", x :: rest =>
+        match x.asF32? with
+        | some va => .inl (some { st with pc := st.pc + 1, stack := .i32 va.toBits :: rest })
+        | none => .inr none
       | "java/lang/Math", "floor", "(D)D", x :: rest =>
         match x.asF64? with
         | some va => .inl (some { st with pc := st.pc + 1, stack := .f64 va.floor :: rest })
+        | none => .inr none
+      | "java/lang/Math", "sqrt", "(D)D", x :: rest =>
+        match x.asF64? with
+        | some va => .inl (some { st with pc := st.pc + 1, stack := .f64 (Float.sqrt va) :: rest })
         | none => .inr none
       | "java/lang/Math", "signum", "(F)F", x :: rest =>
         match x.asF32? with
@@ -115,6 +159,8 @@ def geomHooks : Jvm.JvmHooks Empty Unit where
           let s := if va.isNaN || va == 0.0 then va else if va < 0.0 then (-1.0 : Float32) else (1.0 : Float32)
           .inl (some { st with pc := st.pc + 1, stack := .f32 s :: rest })
         | none => .inr none
+      | "kotlin/TuplesKt", "to", "(Ljava/lang/Object;Ljava/lang/Object;)Lkotlin/Pair;", b :: a :: rest =>
+        .inl (some { st with pc := st.pc + 1, stack := .pair a b :: rest })
       | _, "f_Geometry_absFloat___closed__0", "()D", rest =>
         .inl (some { st with pc := st.pc + 1, stack := .f64 0.0 :: rest })
       | _, "f_Geometry_absFloat", "(D)D", x :: rest =>
@@ -146,6 +192,8 @@ def geomHooks : Jvm.JvmHooks Empty Unit where
           | none => .inr none
         | _, _, _, _, _, _, _, _, _, _, _, _ => .inr none
       | _, _, _, _ => .inr none
+
+abbrev geomHooks : Jvm.JvmHooks Empty Unit := mkGeomHooks
 
 def stepInstr := Jvm.stepInstr geomHooks
 def runJvm := Jvm.runJvm geomHooks

@@ -265,7 +265,6 @@ def parse_invokedynamic_ref(comment: str) -> tuple[int, str, str]:
 def disassemble_class_file(class_file: Path) -> list[DisassembledMethod]:
     """Disassembles one `.class` file with `javap -v -p`."""
     output = subprocess.check_output(["javap", "-v", "-p", str(class_file)], text=True)
-    class_re = re.compile(r"(?:class|interface|enum)\s+([A-Za-z0-9_.$-]+)")
     cp_re = re.compile(r"^\s+#(\d+)\s+=\s+(\S+)(.*)$")
     sig_re = re.compile(r"^\s{2}(?:.*\s)?([A-Za-z0-9_.$-]+)\(([^)]*)\)(?:\s+throws\s+[^;]+)?;")
     clinit_re = re.compile(r"^\s{2}static\s*\{\};$")
@@ -273,7 +272,12 @@ def disassemble_class_file(class_file: Path) -> list[DisassembledMethod]:
     bsm_entry_re = re.compile(r"^\s{2}(\d+):\s+#\d+\s+(.*)$")
     bsm_arg_re = re.compile(r"^\s+#(\d+)\s*(.*)$")
 
-    owner_internal = class_file.stem
+    # `javap -v` names the class being disassembled on its `this_class:` line. Same-class member refs omit the
+    # owner, so they must be qualified with this full internal name (not the file stem) to match cross-class refs.
+    this_class_m = re.search(r"^\s*this_class:\s*#\d+\s*//\s*(\S+)\s*$", output, re.MULTILINE)
+    if not this_class_m:
+        raise ValueError(f"Could not find this_class in javap output for {class_file}")
+    owner_internal = this_class_m.group(1)
     utf8_pool: dict[int, str] = {}
     const_pool_raw: dict[int, tuple[str, str]] = {}
     bootstrap_methods_raw: dict[int, tuple[str, int | None, str]] = {}
@@ -407,10 +411,6 @@ def disassemble_class_file(class_file: Path) -> list[DisassembledMethod]:
             )
 
     for line in lines:
-        if cur_name is None and not in_code:
-            cm = class_re.search(line)
-            if cm and line.rstrip().endswith("{"):
-                owner_internal = cm.group(1).replace(".", "/")
         sig_match = sig_re.match(line)
         if sig_match:
             flush_current()
@@ -424,7 +424,7 @@ def disassemble_class_file(class_file: Path) -> list[DisassembledMethod]:
             continue
         if clinit_re.match(line):
             flush_current()
-            cur_name = f"clinit_{class_file.stem}"
+            cur_name = "<clinit>"
             cur_params = ""
             cur_instrs = []
             cur_has_exc_table = False
@@ -646,16 +646,59 @@ def strip_kotlin_mangle(jvm_name: str) -> str:
     return re.sub(r"--?[A-Za-z0-9_-]{7}$", "", jvm_name)
 
 
-def assign_lean_names(methods: list[DisassembledMethod]) -> list[tuple[DisassembledMethod, str]]:
-    """Assigns clean, unique Lean identifier names `<name>_prog` for each method."""
-    used: dict[str, int] = {}
-    assigned: list[tuple[DisassembledMethod, str]] = []
+def lean_ident(text: str) -> str:
+    """Replaces every character that is not valid in a Lean identifier component with `_`."""
+    return re.sub(r"[^A-Za-z0-9_]", "_", text)
+
+
+def is_constructor(m: DisassembledMethod) -> bool:
+    """`javap` prints constructors under the dotted class name."""
+    return m.jvm_name == m.owner_internal.replace("/", ".")
+
+
+def method_id(m: DisassembledMethod) -> str:
+    """Stable `<internal class name>.<method>` identifier, with JVM `<init>` / `<clinit>` names."""
+    name = "<init>" if is_constructor(m) else m.jvm_name
+    return f"{m.owner_internal}.{name}"
+
+
+def assign_lean_names(
+    methods: list[DisassembledMethod],
+    qualify: bool = False,
+) -> list[tuple[DisassembledMethod, str]]:
+    """Assigns unique Lean identifier names `<name>_prog` for each method.
+
+    A name never depends on lifting order: overloads within a class are numbered `_1`, `_2`, ... in class file
+    order, and a name is never given a numeric suffix because of another class. With `qualify`, every name is
+    prefixed with its class's simple name, so lifting other classes alongside can never rename an existing
+    definition. Without it, only names that several classes produce are prefixed with the class's simple name; a
+    newly colliding class therefore removes the unprefixed name (a compile error) rather than re-pointing it.
+    """
+    bases: list[tuple[DisassembledMethod, str, str]] = []
+    used: dict[tuple[str, str], int] = {}
+    owners_by_name: dict[str, set[str]] = {}
     for m in methods:
-        base = strip_kotlin_mangle(m.jvm_name)
-        clean = re.sub(r"[^A-Za-z0-9_]", "_", base)
-        count = used.get(clean, 0)
-        used[clean] = count + 1
-        final_name = f"{clean}_prog" if count == 0 else f"{clean}_{count}_prog"
+        simple = lean_ident(m.owner_internal.rsplit("/", 1)[-1])
+        if m.jvm_name == "<clinit>":
+            base = "clinit" if qualify else f"clinit_{simple}"
+        elif qualify and is_constructor(m):
+            base = "init"
+        else:
+            base = lean_ident(strip_kotlin_mangle(m.jvm_name))
+        count = used.get((m.owner_internal, base), 0)
+        used[(m.owner_internal, base)] = count + 1
+        suffixed = base if count == 0 else f"{base}_{count}"
+        bases.append((m, simple, suffixed))
+        owners_by_name.setdefault(suffixed, set()).add(m.owner_internal)
+
+    assigned: list[tuple[DisassembledMethod, str]] = []
+    owner_of_final: dict[str, str] = {}
+    for m, simple, suffixed in bases:
+        prefix = qualify or len(owners_by_name[suffixed]) > 1
+        final_name = f"{simple}_{suffixed}_prog" if prefix else f"{suffixed}_prog"
+        other = owner_of_final.setdefault(final_name, m.owner_internal)
+        if other != m.owner_internal:
+            raise ValueError(f"Lifted name {final_name} is produced by both {other} and {m.owner_internal}")
         assigned.append((m, final_name))
     return assigned
 
@@ -667,6 +710,8 @@ def generate_lean_bytecode_file(
     instr_type: str,
     required_methods: list[str],
     strict: bool = False,
+    allowed_unlifted: list[str] | None = None,
+    qualify_names: bool = False,
 ) -> tuple[str, int, int]:
     """Lifts bytecode from `class_files` into pure Lean data definitions."""
     all_methods: list[DisassembledMethod] = []
@@ -684,15 +729,21 @@ def generate_lean_bytecode_file(
         except ValueError as exc:
             if matches_required:
                 raise ValueError(f"Required method {m.jvm_name} failed to lift: {exc}") from exc
-            skipped.append((m.jvm_name, str(exc)))
+            skipped.append((method_id(m), str(exc)))
             continue
         lifted_entries.append((m, instrs))
 
-    if strict and skipped:
-        preview = "; ".join(f"{name}: {reason}" for name, reason in skipped[:5])
-        raise ValueError(f"--strict: {len(skipped)} method(s) failed to lift: {preview}")
+    if strict:
+        allowed = set(allowed_unlifted or [])
+        unexpected = [(name, reason) for name, reason in skipped if name not in allowed]
+        if unexpected:
+            preview = "; ".join(f"{name}: {reason}" for name, reason in unexpected)
+            raise ValueError(f"--strict: {len(unexpected)} method(s) failed to lift: {preview}")
+        stale = sorted(allowed - {name for name, _ in skipped})
+        if stale:
+            raise ValueError(f"--strict: --allow-unlifted methods were not found or now lift: {stale}")
 
-    assigned = assign_lean_names([m for m, _ in lifted_entries])
+    assigned = assign_lean_names([m for m, _ in lifted_entries], qualify=qualify_names)
     lifted_by_obj = {id(m): instrs for m, instrs in lifted_entries}
 
     found_names = {m.jvm_name for m, _ in assigned} | {strip_kotlin_mangle(m.jvm_name) for m, _ in assigned} | {
@@ -724,7 +775,10 @@ def generate_lean_bytecode_file(
 
     if skipped:
         lines.append("")
-        lines.append(f"/- Skipped {len(skipped)} methods using out-of-subset JVM opcodes. -/")
+        lines.append(f"/- Not lifted ({len(skipped)} methods using out-of-subset JVM opcodes):")
+        for name, reason in skipped:
+            lines.append(f"   {name}: {reason}")
+        lines.append("-/")
 
     if namespace:
         lines.append("")
@@ -779,7 +833,18 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--strict",
         action="store_true",
-        help="Fail if any method fails to lift instead of skipping it.",
+        help="Fail if any method fails to lift instead of skipping it (except --allow-unlifted methods).",
+    )
+    parser.add_argument(
+        "--allow-unlifted",
+        action="append",
+        default=[],
+        help="With --strict, a `<internal class>.<method>` known not to lift; it must exist and fail to lift.",
+    )
+    parser.add_argument(
+        "--qualify-names",
+        action="store_true",
+        help="Prefix every lifted definition name with its class's simple name.",
     )
     parser.add_argument(
         "-o",
@@ -810,6 +875,8 @@ def main(argv: list[str] | None = None) -> int:
         instr_type=args.instr_type,
         required_methods=args.require,
         strict=args.strict,
+        allowed_unlifted=args.allow_unlifted,
+        qualify_names=args.qualify_names,
     )
 
     if args.output is not None:

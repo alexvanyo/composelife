@@ -26,7 +26,14 @@ plugins {
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
+    alias(libs.plugins.convention.lean)
     alias(libs.plugins.gradleDependenciesSorter)
+}
+
+lean {
+    target = "ResourceState:static"
+    packageName = "com.alexvanyo.composelife.resourcestate"
+    kotlinBytecodeClassPaths.add("com/alexvanyo/composelife/resourcestate/ResourceStateKt.class")
 }
 
 kotlin {
@@ -83,6 +90,10 @@ kotlin {
         }
         val desktopTest by getting {
             dependsOn(jbTest)
+            dependencies {
+                implementation(projects.leanTestFixtures)
+                implementation(libs.kotlin.test)
+            }
         }
         val androidSharedTest by getting {
             dependsOn(jbTest)

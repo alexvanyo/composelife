@@ -79,6 +79,15 @@ inductive AlgExt where
   | fnMcToMc (f : Algorithm.MacroCell → Algorithm.MacroCell)
   | fnMcToOptMc (f : Algorithm.MacroCell → Option Algorithm.MacroCell)
   | fnHlToHl (f : Algorithm.HashLifeStepState → Algorithm.HashLifeStepState)
+  /-- A boxed `androidx.compose.ui.unit.IntOffset` (value class over a packed `Long`): `(x << 32) | (y & 0xFFFFFFFF)`.
+  Used only by `mkAlgKotlinHooks` (hand-written Kotlin in `KotlinJvmBytecode`). -/
+  | intOffset (packed : UInt64)
+  /-- An `androidx.compose.ui.unit.IntRect` (final immutable data class of four `Int` fields). -/
+  | intRect (left top right bottom : UInt32)
+  /-- A `kotlin.ranges.IntRange` with step 1 (immutable), `first..last` inclusive. -/
+  | intRange (first last : UInt32)
+  /-- A caller-supplied Kotlin `(ULong) -> Int` lambda, assumed pure and total (callback contract). -/
+  | fnU64ToI32 (f : UInt64 → UInt32)
   deriving Inhabited
 
 structure AlgHeap where
@@ -1130,8 +1139,8 @@ def encodeRLEResult (h : Jvm.JvmHeap AlgExt) (u64s : List (Array UInt64))
 def evalPureKotlinFromHeap (jh : Jvm.JvmHeap AlgExt) (w : UInt64) : Option UInt32 :=
   if w == 0 then some 0
   else
-    match jh.getStatic? "BitComputationKt" "QUAD_INFO_LUT",
-        jh.getStatic? "AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" with
+    match jh.getStatic? "com/alexvanyo/composelife/algorithm/BitComputationKt" "QUAD_INFO_LUT",
+        jh.getStatic? "com/alexvanyo/composelife/algorithm/AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" with
     | some (.heapRef qiAddr), some (.heapRef ngAddr) =>
       match jh.get? qiAddr, jh.get? ngAddr with
       | some (.intArray qiArr), some (.byteArray ngArr) =>
@@ -1186,9 +1195,9 @@ def evalPureKotlinFromHeap (jh : Jvm.JvmHeap AlgExt) (w : UInt64) : Option UInt3
 
 def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmState ⊕ Option JvmVal :=
   match cls, method, desc, st.stack with
-  | "BitComputationKt", "computeQuadInfo", "(I)I", .i32 q :: rest =>
+  | "com/alexvanyo/composelife/algorithm/BitComputationKt", "computeQuadInfo", "(I)I", .i32 q :: rest =>
     .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.KotlinModel.computeQuadInfoModel q) :: rest })
-  | "BitComputationKt", "computeNextGenerationPureKotlin", "(J)I", .i64 wVal :: rest =>
+  | "com/alexvanyo/composelife/algorithm/BitComputationKt", "computeNextGenerationPureKotlin", "(J)I", .i64 wVal :: rest =>
     match evalPureKotlinFromHeap st.jvmHeap wVal with
     | some r => .inl (some { st with pc := st.pc + 1, stack := .i32 r :: rest })
     | none => .inr none
@@ -2427,14 +2436,14 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
           .inl (some { st with pc := st.pc + 1, stack := .heapRef addr :: rest, jvmHeap := h' })
       | _, _ => .inr none
     | "getEMPTY_LEVEL_4", rest =>
-      let v := (st.jvmHeap.getStatic? "MacroCellLeanKt" "EMPTY_LEVEL_4").getD (.ext (.mc Algorithm.emptyLevel4))
+      let v := (st.jvmHeap.getStatic? "com/alexvanyo/composelife/model/MacroCellLeanKt" "EMPTY_LEVEL_4").getD (.ext (.mc Algorithm.emptyLevel4))
       .inl (some { st with pc := st.pc + 1, stack := v :: rest })
     | "getEMPTY_NODES", rest =>
-      match st.jvmHeap.getStatic? "MacroCellLeanKt" "EMPTY_NODES" with
+      match st.jvmHeap.getStatic? "com/alexvanyo/composelife/model/MacroCellLeanKt" "EMPTY_NODES" with
       | some v => .inl (some { st with pc := st.pc + 1, stack := v :: rest })
       | none => .inr none
     | "getNEXT_GEN_4X4_LUT", rest =>
-      match st.jvmHeap.getStatic? "AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" with
+      match st.jvmHeap.getStatic? "com/alexvanyo/composelife/algorithm/AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" with
       | some v => .inl (some { st with pc := st.pc + 1, stack := v :: rest })
       | none => .inr none
     | _, _ => .inr none
@@ -2489,5 +2498,635 @@ abbrev runJvm (fuel : Nat) (prog : List JvmInstr) (st : JvmState) : Option JvmVa
 
 abbrev runJvmRes (fuel : Nat) (prog : List JvmInstr) (st : JvmState) : Option (JvmVal × JvmState) :=
   Jvm.runJvmRes algHooks fuel prog st
+
+
+/-!
+## Hooks for hand-written Kotlin (`KotlinJvmBytecode`)
+
+`mkAlgKotlinHooks` extends `algHooks` for the hand-written Kotlin classes lifted into `KotlinJvmBytecode`
+(`BitComputationKt`, `HashLifeComputationKt` and its two function-reference classes, `MacroCellCoordinatesKt`,
+`GameOfLifeStepKt`, `CellWindow`). `algHooks` itself is unchanged; it is still what the `BitComputation` and the
+Lean-generated (`JvmEquiv`) proofs run under.
+
+Calls between the lifted classes are not modeled: `mkAlgKotlinHooks resolveProg depth fuel` runs the callee's
+lifted program, found by `resolveProg` under the tag `"<Class>.<method>:<descriptor>"` (`algKotlinTag`, with the
+class shortened by `normalizeAlgKotlinClass`), for at most `fuel` steps and `depth` nested calls. A tag that
+`resolveProg` does not map falls back to the leaf hooks below (and then to `algHooks`), which fail closed except
+for the two pre-existing `BitComputationKt` models of `algHooks` and the mangled
+`computeNextGenerationPureKotlin-VKZWuLQ`, whose bytecode only forwards to `computeNextGenerationPureKotlin`.
+Theorems state which `resolveProg` they use.
+
+Trusted assumptions (each documented at its definition):
+- Compose `IntOffset`/`IntSize` packing, `IntRect` getters/`translate`/`hashCode`/`equals`, copied from the
+  `ui-unit` 1.13 bytecode.
+- `IntOffset.getMooreNeighbors()` from `:geometry`, modeled by geometry's verified model
+  (`getMooreNeighborsModel`, copied as `geomGetMooreNeighborsModel`) collected into a `LinkedHashSet` as `toSet()` does.
+- The Lean-compiled `f_Algorithm_*` functions, modeled by the Lean definitions they are compiled from (their
+  bytecode is proven equal to those definitions in `proofs/JvmEquiv`).
+- Kotlin/Java collections: `LinkedHashSet` is an insertion-ordered list without `equals`-duplicates, where
+  `equals` is `JvmVal.beqVal algKotlinBeqExt` (exact for `IntOffset`, `IntRect`, boxed primitives and strings);
+  `ArrayList` is an append-only list; `emptySet()` is an immutable empty set; `IntRange`/`IntProgressionIterator`
+  follow the stdlib bytecode (`until`, `IntProgressionIterator.<init>`/`nextInt`). An input `java/util/Set` is any
+  duplicate-free list in its iteration order.
+- A caller-supplied `(ULong) -> Int` callback (`AlgExt.fnU64ToI32 f`) is pure and total.
+- Function-reference singletons (`INSTANCE` of `HashLifeComputationKt$computeLevel4NextGeneration$1`/`$2`) carry
+  no state: their constructors (not lifted: they load a class literal) are modeled as producing `.allocRef cls`.
+-/
+
+/--
+Short names the hooks dispatch on for the lifted hand-written Kotlin classes, from the fully qualified internal
+names in lifted bytecode. Other classes keep their fully qualified names.
+-/
+def normalizeAlgKotlinClass : String → String
+  | "com/alexvanyo/composelife/algorithm/BitComputationKt" => "BitComputationKt"
+  | "com/alexvanyo/composelife/algorithm/GameOfLifeStepKt" => "GameOfLifeStepKt"
+  | "com/alexvanyo/composelife/algorithm/HashLifeComputationKt" => "HashLifeComputationKt"
+  | "com/alexvanyo/composelife/algorithm/HashLifeComputationKt$computeLevel4NextGeneration$1" =>
+    "HashLifeComputationKt$computeLevel4NextGeneration$1"
+  | "com/alexvanyo/composelife/algorithm/HashLifeComputationKt$computeLevel4NextGeneration$2" =>
+    "HashLifeComputationKt$computeLevel4NextGeneration$2"
+  | "com/alexvanyo/composelife/algorithm/MacroCellCoordinatesKt" => "MacroCellCoordinatesKt"
+  | "com/alexvanyo/composelife/model/CellWindow" => "CellWindow"
+  | cls => cls
+
+/-- Whether `cls` names one of the two function-reference classes of `computeLevel4NextGeneration`. -/
+def isAlgKotlinLambdaClass (cls : String) : Bool :=
+  match normalizeAlgKotlinClass cls with
+  | "HashLifeComputationKt$computeLevel4NextGeneration$1"
+  | "HashLifeComputationKt$computeLevel4NextGeneration$2" => true
+  | _ => false
+
+/-- Whether `cls` names a class whose methods are lifted into `KotlinJvmBytecode`. -/
+def isAlgKotlinLiftedClass (cls : String) : Bool :=
+  match normalizeAlgKotlinClass cls with
+  | "BitComputationKt" | "GameOfLifeStepKt" | "HashLifeComputationKt" | "MacroCellCoordinatesKt"
+  | "HashLifeComputationKt$computeLevel4NextGeneration$1"
+  | "HashLifeComputationKt$computeLevel4NextGeneration$2"
+  | "CellWindow" => true
+  | _ => false
+
+/-- The `resolveProg` tag of a method: `"<short class>.<method>:<descriptor>"`. -/
+def algKotlinTag (cls method desc : String) : String :=
+  normalizeAlgKotlinClass cls ++ "." ++ method ++ ":" ++ desc
+
+/-- Supertypes (transitively closed, `java/lang/Object` excluded) of the classes the hand-written Kotlin uses. -/
+def algKotlinSupertypes : String → List String
+  | "java/util/LinkedHashSet" =>
+    ["java/util/HashSet", "java/util/AbstractSet", "java/util/AbstractCollection", "java/util/Set",
+      "java/util/Collection", "java/lang/Iterable", "java/util/SequencedSet", "java/util/SequencedCollection",
+      "java/lang/Cloneable", "java/io/Serializable"]
+  | "kotlin/collections/EmptySet" =>
+    ["java/util/Set", "java/util/Collection", "java/lang/Iterable", "java/io/Serializable",
+      "kotlin/jvm/internal/markers/KMappedMarker"]
+  | "java/util/ArrayList" =>
+    ["java/util/AbstractList", "java/util/AbstractCollection", "java/util/List", "java/util/Collection",
+      "java/lang/Iterable", "java/util/SequencedCollection", "java/util/RandomAccess", "java/lang/Cloneable",
+      "java/io/Serializable"]
+  | "java/util/Set" => ["java/util/Collection", "java/lang/Iterable"]
+  | "java/util/List" => ["java/util/Collection", "java/lang/Iterable", "java/util/SequencedCollection"]
+  | "java/util/Collection" => ["java/lang/Iterable"]
+  | "kotlin/ranges/IntProgressionIterator" =>
+    ["kotlin/collections/IntIterator", "java/util/Iterator", "kotlin/jvm/internal/markers/KMappedMarker"]
+  | "HashLifeComputationKt$computeLevel4NextGeneration$1"
+  | "HashLifeComputationKt$computeLevel4NextGeneration$2" =>
+    ["kotlin/jvm/internal/FunctionReferenceImpl", "kotlin/jvm/internal/FunctionReference",
+      "kotlin/jvm/internal/CallableReference", "kotlin/jvm/internal/FunctionBase",
+      "kotlin/jvm/internal/KotlinGenericDeclaration", "kotlin/reflect/KFunction", "kotlin/reflect/KCallable",
+      "kotlin/reflect/KAnnotatedElement", "kotlin/Function", "kotlin/jvm/functions/Function1",
+      "java/io/Serializable"]
+  | _ => []
+
+/-- Subtyping for `mkAlgKotlinHooks`: `isSubtypeOf` and `Jvm.defaultIsSubtypeOf` up to `normalizeAlgKotlinClass`,
+plus `algKotlinSupertypes`. -/
+def algKotlinIsSubtypeOf (sub sup : String) : Bool :=
+  let s := normalizeAlgKotlinClass sub
+  let t := normalizeAlgKotlinClass sup
+  isSubtypeOf s t || Jvm.defaultIsSubtypeOf s t || (algKotlinSupertypes s).contains t
+
+/-- Whether an `AlgExt` value is one of the values introduced for the hand-written Kotlin. -/
+def isAlgKotlinExt : AlgExt → Bool
+  | .intOffset _ | .intRect .. | .intRange .. | .fnU64ToI32 _ => true
+  | _ => false
+
+/-- Supertypes (`java/lang/Object` excluded) of the runtime classes of the `isAlgKotlinExt` values. -/
+def algKotlinExtSupertypes : AlgExt → List String
+  | .intOffset _ => ["androidx/compose/ui/unit/IntOffset"]
+  | .intRect .. => ["androidx/compose/ui/unit/IntRect"]
+  | .intRange .. =>
+    ["kotlin/ranges/IntRange", "kotlin/ranges/IntProgression", "java/lang/Iterable", "kotlin/ranges/ClosedRange",
+      "kotlin/ranges/OpenEndRange", "kotlin/jvm/internal/markers/KMappedMarker"]
+  | .fnU64ToI32 _ => ["kotlin/jvm/functions/Function1", "kotlin/Function"]
+  | _ => []
+
+def algKotlinCheckInstanceOf (cls : String) (v : JvmVal) : Bool :=
+  match v with
+  | .ext e =>
+    if isAlgKotlinExt e then cls == "java/lang/Object" || (algKotlinExtSupertypes e).contains cls
+    else checkInstanceOf cls v
+  | .allocRef objCls => algKotlinIsSubtypeOf objCls cls
+  | _ => checkInstanceOf cls v
+
+def algKotlinCheckCast (cls : String) (v : JvmVal) : Option JvmVal :=
+  match v with
+  | .ext e =>
+    if isAlgKotlinExt e then (if algKotlinCheckInstanceOf cls v then some v else none)
+    else checkCast cls v
+  | .allocRef objCls => if algKotlinIsSubtypeOf objCls cls then some v else none
+  | _ => checkCast cls v
+
+/-- `kotlin.ranges.IntRange.isEmpty()` for step 1: `first > last` (signed). -/
+def intRangeIsEmpty (first last : UInt32) : Bool :=
+  last.toBitVec.slt first.toBitVec
+
+/--
+`equals` on the `isAlgKotlinExt` values: `IntOffset` compares packed values, `IntRect` (data class) compares its
+four fields, and `IntRange.equals` is `isEmpty() && other.isEmpty() || first == other.first && last == other.last`.
+Other `AlgExt` values are never equal, as under `algHooks` (whose `beqExt` is the default `false`).
+-/
+def algKotlinBeqExt : AlgExt → AlgExt → Bool
+  | .intOffset a, .intOffset b => a == b
+  | .intRect l t r b, .intRect l' t' r' b' => l == l' && t == t' && r == r' && b == b'
+  | .intRange f l, .intRange f' l' => (intRangeIsEmpty f l && intRangeIsEmpty f' l') || (f == f' && l == l')
+  | _, _ => false
+
+/-- Kotlin `equals` on modeled values (`Intrinsics.areEqual`, set membership). -/
+def algKotlinEquals (a b : JvmVal) : Bool :=
+  Jvm.JvmVal.beqVal algKotlinBeqExt a b
+
+/-! ### Compose `IntOffset` / `IntRect` (trusted: `ui-unit` 1.13 bytecode) -/
+
+/-- `IntOffset(x, y)` / `packInts`: `(x.toLong() shl 32) or (y.toLong() and 0xFFFFFFFF)`. -/
+def packIntOffset (x y : UInt32) : UInt64 :=
+  (x.toUInt64 <<< 32) ||| y.toUInt64
+
+/-- `IntOffset.getX-impl`: `(packed shr 32).toInt()`. -/
+def intOffsetX (packed : UInt64) : UInt32 :=
+  (packed >>> 32).toUInt32
+
+/-- `IntOffset.getY-impl`: `(packed and 0xFFFFFFFF).toInt()`. -/
+def intOffsetY (packed : UInt64) : UInt32 :=
+  packed.toUInt32
+
+/-- JVM `idiv` by 2 (truncating), as in `IntRect.getCenter`. -/
+def jvmIdiv2 (x : UInt32) : UInt32 :=
+  UInt32.ofBitVec (x.toBitVec.sdiv 2#32)
+
+/-- `IntRect.hashCode()` (data class): `((left * 31 + top) * 31 + right) * 31 + bottom`, wrapping. -/
+def intRectHashCode (l t r b : UInt32) : UInt32 :=
+  ((l * 31 + t) * 31 + r) * 31 + b
+
+/-- `IntRect.getCenter`: `IntOffset(left + width / 2, top + height / 2)`. -/
+def intRectCenter (l t r b : UInt32) : UInt64 :=
+  packIntOffset (l + jvmIdiv2 (r - l)) (t + jvmIdiv2 (b - t))
+
+/-! ### `IntOffset.getMooreNeighbors()` (trusted: `:geometry`'s verified model) -/
+
+/-- Copy of `Geometry.KotlinModel.mooreNeighborOffsetsModel` (`geometry/lean/models/GeometryExtensionsModel.lean`). -/
+def geomMooreNeighborOffsets : List (Int32 × Int32) :=
+  [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)]
+
+/-- Copy of `Geometry.KotlinModel.packOffset`. -/
+def geomPackOffset (x y : Int32) : UInt64 :=
+  (x.toUInt32.toUInt64 <<< 32) ||| y.toUInt32.toUInt64
+
+/-- Copy of `Geometry.KotlinModel.offsetX`. -/
+def geomOffsetX (packed : UInt64) : Int32 :=
+  (packed >>> 32).toUInt32.toInt32
+
+/-- Copy of `Geometry.KotlinModel.offsetY`. -/
+def geomOffsetY (packed : UInt64) : Int32 :=
+  packed.toUInt32.toInt32
+
+/-- Copy of `Geometry.KotlinModel.addPackedOffset`. -/
+def geomAddPackedOffset (a b : UInt64) : UInt64 :=
+  geomPackOffset (geomOffsetX a + geomOffsetX b) (geomOffsetY a + geomOffsetY b)
+
+/--
+Copy of `Geometry.KotlinModel.getMooreNeighborsModel`. `geometry`'s `getMooreNeighbors_equiv` proves that the
+bytecode of `IntOffset.getMooreNeighbors()` (`mooreNeighborOffsets.map { it + this }.toSet()`) returns a set
+holding exactly these offsets, in this order.
+-/
+def geomGetMooreNeighborsModel (packed : UInt64) : List UInt64 :=
+  geomMooreNeighborOffsets.map fun (dx, dy) => geomAddPackedOffset (geomPackOffset dx dy) packed
+
+/-! ### Collections -/
+
+/-- Collection classes modeled as `.instance cls [("arr", .heapRef arrAddr)]` with an `objArray` of elements. -/
+def isAlgKotlinCollClass (cls : String) : Bool :=
+  cls == "java/util/List" || cls == "java/util/ArrayList" || cls == "java/util/Set" ||
+    cls == "java/util/LinkedHashSet" || cls == "kotlin/collections/EmptySet"
+
+/-- The class, backing array address, array element class and elements of a modeled collection at `addr`. -/
+def algKotlinColl? (h : Jvm.JvmHeap AlgExt) (addr : Nat) : Option (String × Nat × String × Array JvmVal) :=
+  match h.get? addr with
+  | some (.instance cls fields) =>
+    if isAlgKotlinCollClass cls then
+      match (fields.find? (fun (f, _) => f == "arr")).map Prod.snd with
+      | some (.heapRef arrAddr) =>
+        match h.get? arrAddr with
+        | some (.objArray elemCls elems) => some (cls, arrAddr, elemCls, elems)
+        | _ => none
+      | _ => none
+    else none
+  | _ => none
+
+/-- Allocates a modeled collection of class `cls` holding `elems` (in iteration order). -/
+def allocAlgKotlinColl (h : Jvm.JvmHeap AlgExt) (cls : String) (elems : Array JvmVal) :
+    Nat × Jvm.JvmHeap AlgExt :=
+  let (arrAddr, h1) := h.alloc (.objArray "java/lang/Object" elems)
+  h1.alloc (.instance cls [("arr", .heapRef arrAddr)])
+
+/--
+`Collection.add(e)` on a mutable modeled collection. `ArrayList` appends. `LinkedHashSet` appends unless an
+`equals`-equal element is present (iteration order is insertion order). Returns whether the collection changed.
+Other classes (input `java/util/Set`s, `emptySet()`) are read-only here and fail closed.
+-/
+def algKotlinCollAdd (h : Jvm.JvmHeap AlgExt) (addr : Nat) (elem : JvmVal) :
+    Option (Bool × Jvm.JvmHeap AlgExt) :=
+  match algKotlinColl? h addr with
+  | some (cls, arrAddr, elemCls, elems) =>
+    if cls == "java/util/ArrayList" then
+      some (true, h.set arrAddr (.objArray elemCls (elems.push elem)))
+    else if cls == "java/util/LinkedHashSet" then
+      if elems.any (fun y => algKotlinEquals elem y) then some (false, h)
+      else some (true, h.set arrAddr (.objArray elemCls (elems.push elem)))
+    else none
+  | none => none
+
+/-- `addAll`: adds `xs` in order with `algKotlinCollAdd`; returns whether the collection changed. -/
+def algKotlinCollAddAll (h : Jvm.JvmHeap AlgExt) (addr : Nat) : List JvmVal → Option (Bool × Jvm.JvmHeap AlgExt)
+  | [] => some (false, h)
+  | x :: xs =>
+    match algKotlinCollAdd h addr x with
+    | some (c1, h1) =>
+      match algKotlinCollAddAll h1 addr xs with
+      | some (c2, h2) => some (c1 || c2, h2)
+      | none => none
+    | none => none
+
+/-- Boxed `IntOffset` values of packed offsets. -/
+def encodeIntOffsets (ps : List UInt64) : Array JvmVal :=
+  (ps.map fun p => JvmVal.ext (.intOffset p)).toArray
+
+def decodeIntOffset? : JvmVal → Option UInt64
+  | .ext (.intOffset p) => some p
+  | _ => none
+
+/-- The packed offsets, in iteration order, of a modeled collection of boxed `IntOffset`s. -/
+def decodeIntOffsetColl? (h : Jvm.JvmHeap AlgExt) : JvmVal → Option (List UInt64)
+  | .heapRef addr =>
+    match algKotlinColl? h addr with
+    | some (_, _, _, elems) => elems.toList.mapM decodeIntOffset?
+    | none => none
+  | _ => none
+
+/--
+`kotlin.ranges.IntProgressionIterator(first, last, 1)` (`IntProgression.iterator()` of an `IntRange`):
+`hasNext = first <= last`, `next = if hasNext then first else last`.
+-/
+def mkIntProgressionIterator (first last : UInt32) : Jvm.HeapObj AlgExt :=
+  let has := !(intRangeIsEmpty first last)
+  .instance "kotlin/ranges/IntProgressionIterator"
+    [("step", .i32 1), ("finalElement", .i32 last), ("hasNext", .i32 (if has then 1 else 0)),
+      ("next", .i32 (if has then first else last))]
+
+def algKotlinFieldI32? (fields : List (String × JvmVal)) (name : String) : Option UInt32 :=
+  match (fields.find? (fun (f, _) => f == name)).map Prod.snd with
+  | some (.i32 v) => some v
+  | _ => none
+
+/--
+`IntProgressionIterator.nextInt()`: returns `next`; at `finalElement` it clears `hasNext` (throwing
+`NoSuchElementException`, here `none`, when it was already clear), otherwise it advances `next` by `step`.
+-/
+def intProgressionNextInt? (fields : List (String × JvmVal)) : Option (UInt32 × Jvm.HeapObj AlgExt) :=
+  match algKotlinFieldI32? fields "step", algKotlinFieldI32? fields "finalElement",
+      algKotlinFieldI32? fields "hasNext", algKotlinFieldI32? fields "next" with
+  | some step, some fin, some has, some nxt =>
+    if nxt == fin then
+      if has == 0 then none
+      else some (nxt, .instance "kotlin/ranges/IntProgressionIterator"
+        [("step", .i32 step), ("finalElement", .i32 fin), ("hasNext", .i32 0), ("next", .i32 nxt)])
+    else some (nxt, .instance "kotlin/ranges/IntProgressionIterator"
+      [("step", .i32 step), ("finalElement", .i32 fin), ("hasNext", .i32 has), ("next", .i32 (nxt + step))])
+  | _, _, _, _ => none
+
+/-- `from until to`: `IntRange.EMPTY` (`1..0`) when `to <= Int.MIN_VALUE`, else `from..(to - 1)`. -/
+def kotlinUntil (a b : UInt32) : AlgExt :=
+  if b == 0x80000000 then .intRange 1 0 else .intRange a (b - 1)
+
+/-! ### Leaf hooks (no calls into lifted programs) -/
+
+/-- `invokestatic` on non-lifted classes; falls back to `algStepInvokeStatic`. -/
+def algKotlinStepStaticLeaf (st : JvmState) (cls method desc : String) : Option JvmState ⊕ Option JvmVal :=
+  match cls, method, desc, st.stack with
+  | "androidx/compose/ui/unit/IntOffset", "constructor-impl", "(J)J", _ =>
+    .inl (some { st with pc := st.pc + 1 })
+  | "androidx/compose/ui/unit/IntOffset", "box-impl", "(J)Landroidx/compose/ui/unit/IntOffset;", .i64 p :: rest =>
+    .inl (some { st with pc := st.pc + 1, stack := .ext (.intOffset p) :: rest })
+  | "androidx/compose/ui/unit/IntOffset", "getX-impl", "(J)I", .i64 p :: rest =>
+    .inl (some { st with pc := st.pc + 1, stack := .i32 (intOffsetX p) :: rest })
+  | "androidx/compose/ui/unit/IntOffset", "getY-impl", "(J)I", .i64 p :: rest =>
+    .inl (some { st with pc := st.pc + 1, stack := .i32 (intOffsetY p) :: rest })
+  -- `:geometry`'s `actual fun IntOffset(x: Int, y: Int): IntOffset = androidx.compose.ui.unit.IntOffset(x, y)`.
+  | "com/alexvanyo/composelife/geometry/IntOffset_jbKt", "IntOffset", "(II)J", .i32 y :: .i32 x :: rest =>
+    .inl (some { st with pc := st.pc + 1, stack := .i64 (packIntOffset x y) :: rest })
+  -- `IntOffset.getMooreNeighbors()`: a fresh `LinkedHashSet` (what `toSet()` returns for 8 elements).
+  | "com/alexvanyo/composelife/geometry/GeometryExtensionsKt", "getMooreNeighbors--gyyYBs", "(J)Ljava/util/Set;",
+      .i64 p :: rest =>
+    let elems := Jvm.dedupJvmVals algKotlinEquals (encodeIntOffsets (geomGetMooreNeighborsModel p)).toList
+    let (addr, h') := allocAlgKotlinColl st.jvmHeap "java/util/LinkedHashSet" elems.toArray
+    .inl (some { st with pc := st.pc + 1, stack := .heapRef addr :: rest, jvmHeap := h' })
+  | "kotlin/ranges/RangesKt", "until", "(II)Lkotlin/ranges/IntRange;", .i32 b :: .i32 a :: rest =>
+    .inl (some { st with pc := st.pc + 1, stack := .ext (kotlinUntil a b) :: rest })
+  -- `if (this is Collection<*>) size else default`.
+  | "kotlin/collections/CollectionsKt", "collectionSizeOrDefault", "(Ljava/lang/Iterable;I)I",
+      .i32 dflt :: coll :: rest =>
+    match coll with
+    | .ext (.intRange ..) => .inl (some { st with pc := st.pc + 1, stack := .i32 dflt :: rest })
+    | .heapRef addr =>
+      match algKotlinColl? st.jvmHeap addr with
+      | some (_, _, _, elems) =>
+        .inl (some { st with pc := st.pc + 1, stack := .i32 (UInt32.ofNat elems.size) :: rest })
+      | none => .inr none
+    | _ => .inr none
+  -- `MutableCollection.addAll(elements: Iterable)` for a `Collection` source: `this.addAll(elements)`.
+  | "kotlin/collections/CollectionsKt", "addAll", "(Ljava/util/Collection;Ljava/lang/Iterable;)Z",
+      .heapRef src :: .heapRef dst :: rest =>
+    match algKotlinColl? st.jvmHeap src with
+    | some (_, _, _, elems) =>
+      match algKotlinCollAddAll st.jvmHeap dst elems.toList with
+      | some (changed, h') =>
+        .inl (some { st with pc := st.pc + 1, stack := .i32 (if changed then 1 else 0) :: rest, jvmHeap := h' })
+      | none => .inr none
+    | none => .inr none
+  | "kotlin/collections/CollectionsKt", "throwCountOverflow", "()V", _ => .inr none
+  | "kotlin/collections/SetsKt", "emptySet", "()Ljava/util/Set;", rest =>
+    let (addr, h') := allocAlgKotlinColl st.jvmHeap "kotlin/collections/EmptySet" #[]
+    .inl (some { st with pc := st.pc + 1, stack := .heapRef addr :: rest, jvmHeap := h' })
+  -- Lean-compiled `f_Algorithm_exportComputeLeafNextGen8x8BranchUInt` (verified in `proofs/JvmEquiv/Batch1`).
+  | "com/alexvanyo/composelife/algorithm/AlgorithmLeanKt",
+      "f_Algorithm_exportComputeLeafNextGen8x8BranchUInt-VKZWuLQ", "(J)I", .i64 w :: rest =>
+    .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.exportComputeLeafNextGen8x8BranchUInt w) :: rest })
+  -- `ULong.computeNextGenerationPureKotlin()`, whose bytecode forwards to `computeNextGenerationPureKotlin(J)I`;
+  -- this is the `algHooks` model of that method (used only when `resolveProg` does not map the tag).
+  | "com/alexvanyo/composelife/algorithm/BitComputationKt", "computeNextGenerationPureKotlin-VKZWuLQ", "(J)I",
+      .i64 w :: rest =>
+    match evalPureKotlinFromHeap st.jvmHeap w with
+    | some r => .inl (some { st with pc := st.pc + 1, stack := .i32 r :: rest })
+    | none => .inr none
+  | _, _, _, _ => algStepInvokeStatic st cls method desc
+
+/-- `invokevirtual` on non-lifted classes; falls back to `algStepInvokeVirtual`. -/
+def algKotlinStepVirtualLeaf (st : JvmState) (cls method desc : String) : Option JvmState ⊕ Option JvmVal :=
+  match cls, method, desc, st.stack with
+  | "androidx/compose/ui/unit/IntOffset", "unbox-impl", "()J", .ext (.intOffset p) :: rest =>
+    .inl (some { st with pc := st.pc + 1, stack := .i64 p :: rest })
+  | "androidx/compose/ui/unit/IntRect", "getLeft", "()I", .ext (.intRect l _ _ _) :: rest =>
+    .inl (some { st with pc := st.pc + 1, stack := .i32 l :: rest })
+  | "androidx/compose/ui/unit/IntRect", "getTop", "()I", .ext (.intRect _ t _ _) :: rest =>
+    .inl (some { st with pc := st.pc + 1, stack := .i32 t :: rest })
+  | "androidx/compose/ui/unit/IntRect", "getRight", "()I", .ext (.intRect _ _ r _) :: rest =>
+    .inl (some { st with pc := st.pc + 1, stack := .i32 r :: rest })
+  | "androidx/compose/ui/unit/IntRect", "getBottom", "()I", .ext (.intRect _ _ _ b) :: rest =>
+    .inl (some { st with pc := st.pc + 1, stack := .i32 b :: rest })
+  | "androidx/compose/ui/unit/IntRect", "getWidth", "()I", .ext (.intRect l _ r _) :: rest =>
+    .inl (some { st with pc := st.pc + 1, stack := .i32 (r - l) :: rest })
+  | "androidx/compose/ui/unit/IntRect", "getHeight", "()I", .ext (.intRect _ t _ b) :: rest =>
+    .inl (some { st with pc := st.pc + 1, stack := .i32 (b - t) :: rest })
+  -- `IntSize(width, height)` packs like `IntOffset`.
+  | "androidx/compose/ui/unit/IntRect", "getSize-YbymL2g", "()J", .ext (.intRect l t r b) :: rest =>
+    .inl (some { st with pc := st.pc + 1, stack := .i64 (packIntOffset (r - l) (b - t)) :: rest })
+  | "androidx/compose/ui/unit/IntRect", "getTopLeft-nOcc-ac", "()J", .ext (.intRect l t _ _) :: rest =>
+    .inl (some { st with pc := st.pc + 1, stack := .i64 (packIntOffset l t) :: rest })
+  | "androidx/compose/ui/unit/IntRect", "getTopRight-nOcc-ac", "()J", .ext (.intRect _ t r _) :: rest =>
+    .inl (some { st with pc := st.pc + 1, stack := .i64 (packIntOffset r t) :: rest })
+  | "androidx/compose/ui/unit/IntRect", "getBottomRight-nOcc-ac", "()J", .ext (.intRect _ _ r b) :: rest =>
+    .inl (some { st with pc := st.pc + 1, stack := .i64 (packIntOffset r b) :: rest })
+  | "androidx/compose/ui/unit/IntRect", "getBottomLeft-nOcc-ac", "()J", .ext (.intRect l _ _ b) :: rest =>
+    .inl (some { st with pc := st.pc + 1, stack := .i64 (packIntOffset l b) :: rest })
+  | "androidx/compose/ui/unit/IntRect", "getCenter-nOcc-ac", "()J", .ext (.intRect l t r b) :: rest =>
+    .inl (some { st with pc := st.pc + 1, stack := .i64 (intRectCenter l t r b) :: rest })
+  | "androidx/compose/ui/unit/IntRect", "hashCode", "()I", .ext (.intRect l t r b) :: rest =>
+    .inl (some { st with pc := st.pc + 1, stack := .i32 (intRectHashCode l t r b) :: rest })
+  | "androidx/compose/ui/unit/IntRect", "translate--gyyYBs", "(J)Landroidx/compose/ui/unit/IntRect;",
+      .i64 p :: .ext (.intRect l t r b) :: rest =>
+    let dx := intOffsetX p
+    let dy := intOffsetY p
+    .inl (some { st with pc := st.pc + 1, stack := .ext (.intRect (l + dx) (t + dy) (r + dx) (b + dy)) :: rest })
+  | "kotlin/collections/IntIterator", "nextInt", "()I", .heapRef addr :: rest =>
+    match st.jvmHeap.get? addr with
+    | some (.instance "kotlin/ranges/IntProgressionIterator" fields) =>
+      match intProgressionNextInt? fields with
+      | some (v, obj') => .inl (some { st with pc := st.pc + 1, stack := .i32 v :: rest, jvmHeap := st.jvmHeap.set addr obj' })
+      | none => .inr none
+    | _ => .inr none
+  | _, _, _, _ => algStepInvokeVirtual st cls method desc
+
+/-- `invokespecial` on non-lifted classes; falls back to `algStepInvokeSpecial`. -/
+def algKotlinStepSpecialLeaf (st : JvmState) (cls method desc : String) : Option JvmState ⊕ Option JvmVal :=
+  match cls, method, desc, st.stack with
+  | "java/util/LinkedHashSet", "<init>", "()V",
+      .allocRef "java/util/LinkedHashSet" :: .allocRef "java/util/LinkedHashSet" :: rest =>
+    let (addr, h') := allocAlgKotlinColl st.jvmHeap "java/util/LinkedHashSet" #[]
+    .inl (some { st with pc := st.pc + 1, stack := .heapRef addr :: rest, jvmHeap := h' })
+  | "java/lang/Object", "<init>", "()V", .heapRef _ :: rest =>
+    .inl (some { st with pc := st.pc + 1, stack := rest })
+  | _, _, _, _ => algStepInvokeSpecial st cls method desc
+
+/-- `invokeinterface` on collections, iterators and callbacks; falls back to `algStepInvokeInterface`. -/
+def algKotlinStepInterfaceLeaf (st : JvmState) (cls method desc : String) : Option JvmState ⊕ Option JvmVal :=
+  match cls, method, desc, st.stack with
+  | "java/util/Set", "iterator", "()Ljava/util/Iterator;", .heapRef addr :: rest
+  | "java/util/Collection", "iterator", "()Ljava/util/Iterator;", .heapRef addr :: rest
+  | "java/lang/Iterable", "iterator", "()Ljava/util/Iterator;", .heapRef addr :: rest =>
+    match algKotlinColl? st.jvmHeap addr with
+    | some (_, arrAddr, _, _) =>
+      let (itAddr, h') := st.jvmHeap.alloc
+        (.instance "java/util/Iterator" [("arr", .heapRef arrAddr), ("idx", .i32 0)])
+      .inl (some { st with pc := st.pc + 1, stack := .heapRef itAddr :: rest, jvmHeap := h' })
+    | none => .inr none
+  | "java/lang/Iterable", "iterator", "()Ljava/util/Iterator;", .ext (.intRange f l) :: rest =>
+    let (itAddr, h') := st.jvmHeap.alloc (mkIntProgressionIterator f l)
+    .inl (some { st with pc := st.pc + 1, stack := .heapRef itAddr :: rest, jvmHeap := h' })
+  | "java/util/Iterator", "hasNext", "()Z", .heapRef addr :: rest =>
+    match st.jvmHeap.get? addr with
+    | some (.instance "kotlin/ranges/IntProgressionIterator" fields) =>
+      match algKotlinFieldI32? fields "hasNext" with
+      | some has => .inl (some { st with pc := st.pc + 1, stack := .i32 has :: rest })
+      | none => .inr none
+    | _ => .inr none
+  | "java/util/Iterator", "next", "()Ljava/lang/Object;", .heapRef addr :: rest =>
+    match st.jvmHeap.get? addr with
+    | some (.instance "kotlin/ranges/IntProgressionIterator" fields) =>
+      match intProgressionNextInt? fields with
+      | some (v, obj') =>
+        .inl (some { st with pc := st.pc + 1, stack := .boxedInt v :: rest, jvmHeap := st.jvmHeap.set addr obj' })
+      | none => .inr none
+    | _ => .inr none
+  | "java/util/Set", "add", "(Ljava/lang/Object;)Z", x :: .heapRef addr :: rest
+  | "java/util/Collection", "add", "(Ljava/lang/Object;)Z", x :: .heapRef addr :: rest =>
+    match algKotlinCollAdd st.jvmHeap addr x with
+    | some (changed, h') =>
+      .inl (some { st with pc := st.pc + 1, stack := .i32 (if changed then 1 else 0) :: rest, jvmHeap := h' })
+    | none => .inr none
+  | "java/util/Set", "addAll", "(Ljava/util/Collection;)Z", .heapRef src :: .heapRef dst :: rest
+  | "java/util/Collection", "addAll", "(Ljava/util/Collection;)Z", .heapRef src :: .heapRef dst :: rest =>
+    match algKotlinColl? st.jvmHeap src with
+    | some (_, _, _, elems) =>
+      match algKotlinCollAddAll st.jvmHeap dst elems.toList with
+      | some (changed, h') =>
+        .inl (some { st with pc := st.pc + 1, stack := .i32 (if changed then 1 else 0) :: rest, jvmHeap := h' })
+      | none => .inr none
+    | none => .inr none
+  | "java/util/Set", "contains", "(Ljava/lang/Object;)Z", x :: .heapRef addr :: rest
+  | "java/util/Collection", "contains", "(Ljava/lang/Object;)Z", x :: .heapRef addr :: rest =>
+    match algKotlinColl? st.jvmHeap addr with
+    | some (_, _, _, elems) =>
+      let found := elems.any (fun y => algKotlinEquals x y)
+      .inl (some { st with pc := st.pc + 1, stack := .i32 (if found then 1 else 0) :: rest })
+    | none => .inr none
+  | "java/util/Set", "isEmpty", "()Z", .heapRef addr :: rest
+  | "java/util/Collection", "isEmpty", "()Z", .heapRef addr :: rest =>
+    match algKotlinColl? st.jvmHeap addr with
+    | some (_, _, _, elems) =>
+      .inl (some { st with pc := st.pc + 1, stack := .i32 (if elems.isEmpty then 1 else 0) :: rest })
+    | none => .inr none
+  | "java/util/Set", "size", "()I", .heapRef addr :: rest
+  | "java/util/Collection", "size", "()I", .heapRef addr :: rest =>
+    match algKotlinColl? st.jvmHeap addr with
+    | some (_, _, _, elems) =>
+      .inl (some { st with pc := st.pc + 1, stack := .i32 (UInt32.ofNat elems.size) :: rest })
+    | none => .inr none
+  | "kotlin/jvm/functions/Function1", "invoke", "(Ljava/lang/Object;)Ljava/lang/Object;",
+      .boxedULong v :: .ext (.fnU64ToI32 f) :: rest =>
+    .inl (some { st with pc := st.pc + 1, stack := .boxedInt (f v) :: rest })
+  | _, _, _, _ => algStepInvokeInterface st cls method desc
+
+/-- `getstatic` fallback: a function-reference class's `INSTANCE` is its stateless singleton. -/
+def algKotlinResolveStatic (st : JvmState) (cls field desc : String) : Option JvmVal :=
+  if isAlgKotlinLambdaClass cls && field == "INSTANCE" then
+    some (.allocRef ("com/alexvanyo/composelife/algorithm/" ++ normalizeAlgKotlinClass cls))
+  else algResolveStatic st cls field desc
+
+/-! ### Calls into lifted programs -/
+
+/-- Local slots of a callee's parameters (`J`/`D` take two slots), starting at slot `start`. -/
+def algKotlinParamSlots (start : Nat) : List Char → List JvmVal → List (Nat × JvmVal)
+  | 'J' :: tags, v :: vs | 'D' :: tags, v :: vs => (start, v) :: algKotlinParamSlots (start + 2) tags vs
+  | _ :: tags, v :: vs => (start, v) :: algKotlinParamSlots (start + 1) tags vs
+  | _, _ => []
+
+/-- The caller's state after a call that returned `res` in callee state `st'`. -/
+def algKotlinAfterCall (st st' : JvmState) (desc : String) (res : JvmVal) (rest : List JvmVal) : JvmState :=
+  { st with
+    pc := st.pc + 1
+    stack := if desc.endsWith ")V" then rest else res :: rest
+    jvmHeap := st'.jvmHeap
+    heap := st'.heap }
+
+/--
+Hooks for the hand-written Kotlin, given `invokeProg tag st slots`, which runs the lifted program of `tag` with
+locals `slots` from the heaps of `st`: `none` when there is no program for `tag` (the leaf hooks apply), `some none`
+when the call fails, and `some (some (res, st'))` with the result and the caller state carrying the callee's heaps.
+-/
+def algKotlinHooksWith
+    (invokeProg : String → JvmState → List (Nat × JvmVal) → Option (Option (JvmVal × JvmState))) :
+    Jvm.JvmHooks AlgExt AlgHeap where
+  beqExt := algKotlinBeqExt
+  checkInstanceOf := algKotlinCheckInstanceOf
+  checkCast := algKotlinCheckCast
+  isSubtypeOf := algKotlinIsSubtypeOf
+  resolveStatic := algKotlinResolveStatic
+  stepInvokeStatic := fun st cls method desc =>
+    if isAlgKotlinLiftedClass cls then
+      let tags := Jvm.parseMethodParamTags desc
+      let n := tags.length
+      if st.stack.length < n then .inr none
+      else
+        let rest := st.stack.drop n
+        match invokeProg (algKotlinTag cls method desc) st
+            (algKotlinParamSlots 0 tags (st.stack.take n).reverse) with
+        | some (some (res, st')) => .inl (some (algKotlinAfterCall st st' desc res rest))
+        | some none => .inr none
+        | none => algKotlinStepStaticLeaf st cls method desc
+    else algKotlinStepStaticLeaf st cls method desc
+  stepInvokeVirtual := fun st cls method desc =>
+    if isAlgKotlinLiftedClass cls then
+      let tags := Jvm.parseMethodParamTags desc
+      let n := tags.length
+      match (st.stack.take (n + 1)).reverse with
+      | recv :: args =>
+        if st.stack.length < n + 1 || Jvm.JvmVal.isNull recv then .inr none
+        else
+          let rest := st.stack.drop (n + 1)
+          match invokeProg (algKotlinTag cls method desc) st ((0, recv) :: algKotlinParamSlots 1 tags args) with
+          | some (some (res, st')) => .inl (some (algKotlinAfterCall st st' desc res rest))
+          | some none => .inr none
+          | none => algKotlinStepVirtualLeaf st cls method desc
+      | [] => .inr none
+    else algKotlinStepVirtualLeaf st cls method desc
+  stepInvokeInterface := fun st cls method desc =>
+    let tags := Jvm.parseMethodParamTags desc
+    let n := tags.length
+    match st.stack[n]? with
+    | some (.allocRef recvCls) =>
+      if isAlgKotlinLiftedClass recvCls && n + 1 ≤ st.stack.length then
+        let rest := st.stack.drop (n + 1)
+        let args := (st.stack.take n).reverse
+        match invokeProg (algKotlinTag recvCls method desc) st
+            ((0, .allocRef recvCls) :: algKotlinParamSlots 1 tags args) with
+        | some (some (res, st')) => .inl (some (algKotlinAfterCall st st' desc res rest))
+        | some none => .inr none
+        | none => algKotlinStepInterfaceLeaf st cls method desc
+      else algKotlinStepInterfaceLeaf st cls method desc
+    | _ => algKotlinStepInterfaceLeaf st cls method desc
+  stepInvokeSpecial := fun st cls method desc =>
+    if isAlgKotlinLiftedClass cls && method == "<init>" then
+      let tags := Jvm.parseMethodParamTags desc
+      let n := tags.length
+      match st.stack.drop n with
+      | .allocRef c1 :: .allocRef c2 :: rest =>
+        if c1 == c2 && normalizeAlgKotlinClass c1 == normalizeAlgKotlinClass cls then
+          let args := (st.stack.take n).reverse
+          let (addr, h1) := st.jvmHeap.alloc (.instance c1 [])
+          match invokeProg (algKotlinTag cls method desc) { st with jvmHeap := h1 }
+              ((0, .heapRef addr) :: algKotlinParamSlots 1 tags args) with
+          | some (some (_, st')) =>
+            .inl (some { st with
+              pc := st.pc + 1, stack := .heapRef addr :: rest, jvmHeap := st'.jvmHeap, heap := st'.heap })
+          | some none => .inr none
+          | none =>
+            -- Function-reference constructors are not lifted (they load a class literal) and set no state.
+            if isAlgKotlinLambdaClass cls && n == 0 then
+              .inl (some { st with pc := st.pc + 1, stack := .allocRef c1 :: rest })
+            else algKotlinStepSpecialLeaf st cls method desc
+        else algKotlinStepSpecialLeaf st cls method desc
+      | _ => algKotlinStepSpecialLeaf st cls method desc
+    else algKotlinStepSpecialLeaf st cls method desc
+
+/--
+Hooks for the hand-written Kotlin in `KotlinJvmBytecode`. A call into a lifted class runs the program
+`resolveProg` gives for its tag for at most `fuel` steps, under the same hooks with one less `depth`; at depth 0
+such a call fails. Tags that `resolveProg` does not map use the leaf hooks.
+-/
+def mkAlgKotlinHooks (resolveProg : String → Option (List JvmInstr)) : Nat → Nat → Jvm.JvmHooks AlgExt AlgHeap
+  | 0, _ => algKotlinHooksWith fun tag _ _ => (resolveProg tag).map fun _ => none
+  | d + 1, fuel => algKotlinHooksWith fun tag st slots =>
+    (resolveProg tag).map fun prog =>
+      let subSt : JvmState := {
+        pc := 0
+        stack := []
+        locals := slots.foldl (fun loc (i, v) => setLocal loc i v) (fun _ => .i32 0)
+        jvmHeap := st.jvmHeap
+        heap := st.heap
+      }
+      match Jvm.runJvmRes (mkAlgKotlinHooks resolveProg d fuel) fuel prog subSt with
+      | some (res, endSt) => some (res, { st with jvmHeap := endSt.jvmHeap, heap := endSt.heap })
+      | none => none
+
+/-- Initial state for the hand-written Kotlin programs: the given local slots and JVM heap, an empty `AlgHeap`. -/
+def initKotlinJvmState (slots : List (Nat × JvmVal)) (jvmHeap : Jvm.JvmHeap AlgExt := {}) : JvmState :=
+  Jvm.initJvmState slots (.i32 0) {} jvmHeap
 
 end Algorithm.JvmVerification

@@ -15,6 +15,11 @@
  -/
 
 import AlgorithmTheorems
+import theorems.BitComputationModelTheorems
+import theorems.HashLifeComputationModelTheorems
+import theorems.MacroCellCoordinatesModelTheorems
+import theorems.GameOfLifeStepModelTheorems
+import theorems.CellWindowModelTheorems
 
 local notation "ℕ" => Nat
 local notation "ℤ" => Int
@@ -26,8 +31,9 @@ namespace Algorithm
 
 Each mutant below is a plausible buggy variant of a compiled function. For each one, we prove that it violates
 the property the corresponding master theorem proves for the real function, so the master theorem would catch
-the bug. The last section shows that the hypotheses of the flat-engine capacity theorems can all hold at once,
-so those theorems are not vacuous.
+the bug. `flat_capacity_hypotheses_satisfiable` shows that the hypotheses of the flat-engine capacity theorems can
+all hold at once, so those theorems are not vacuous. The last section does the same for the standalone models of
+hand-written Kotlin (`models/`).
 -/
 
 /--
@@ -171,5 +177,97 @@ def mutantDeserializeMacrocellLevel0 (lines : Array String) : MacrocellStatus :=
 theorem mutantDeserializeMacrocellLevel0_violates :
     mutantDeserializeMacrocellLevel0 #["[M2]", "0 0 0 0 0"] ≠ (deserializeMacrocell #["[M2]", "0 0 0 0 0"]).status := by
   decide +kernel
+
+/-! ## Models of hand-written Kotlin -/
+
+namespace KotlinModel
+
+/--
+Mutant 8: a `centeredSubnodeLevel3` that takes the north-west nibble from bits `8..11` of the quadrant instead of
+`12..15`.
+-/
+def mutantCenteredSubnodeLevel3 (w : UInt64) : UInt32 :=
+  ((leafNwModel w >>> 8) &&& (15 : UInt32)) |||
+  (((leafNeModel w >>> 8) &&& (15 : UInt32)) <<< 4) |||
+  (((leafSwModel w >>> 4) &&& (15 : UInt32)) <<< 8) |||
+  ((leafSeModel w &&& (15 : UInt32)) <<< 12)
+
+/-- Mutant 8 violates `centeredSubnodeLevel3Model_correct`: the cell `(2, 2)` of the leaf is lost. -/
+theorem mutantCenteredSubnodeLevel3_violates_correct :
+    ¬ ∀ (w : UInt64) (lx ly : ℤ), 0 ≤ lx ∧ lx < 4 → 0 ≤ ly ∧ ly < 4 →
+      grid4At (mutantCenteredSubnodeLevel3 w) lx ly = leafAt w (lx + 2) (ly + 2) := by
+  intro h
+  have := h 4096 0 0 ⟨by decide, by decide⟩ ⟨by decide, by decide⟩
+  revert this
+  decide +kernel
+
+/-- Mutant 9: a `leafToCoordinates` that transposes the leaf, emitting `(y, x)` for the cell at `(x, y)`. -/
+def mutantLeafToCoordinatesTransposed (leaf : UInt64) (ox oy : Int32) : List (Int32 × Int32) :=
+  (leafToCoordinatesModel leaf ox oy).map fun p => (p.2 - oy + ox, p.1 - ox + oy)
+
+/-- Mutant 9 violates `coordinatesToLeaf_leafToCoordinates`: the cell `(0, 1)` comes back as `(1, 0)`. -/
+theorem mutantLeafToCoordinatesTransposed_violates_round_trip :
+    coordinatesToLeafModel (mutantLeafToCoordinatesTransposed 2 0 0) 0 0 ≠ 2 := by
+  decide +kernel
+
+/-- Mutant 10: a `coordinatesToLevel4` that offsets the north-east quadrant down and the south-west one right. -/
+def mutantCoordinatesToLevel4Swapped (coords : List (Int32 × Int32)) (ox oy : Int32) : Level4Quads :=
+  { nw := coordinatesToLeafModel coords ox oy
+  , ne := coordinatesToLeafModel coords ox (oy + 8)
+  , sw := coordinatesToLeafModel coords (ox + 8) oy
+  , se := coordinatesToLeafModel coords (ox + 8) (oy + 8) }
+
+/-- Mutant 10 violates `level4CellAt_coordinatesToLevel4Model`: the cell `(8, 0)` is lost. -/
+theorem mutantCoordinatesToLevel4Swapped_violates_cells :
+    ¬ ∀ (coords : List (Int32 × Int32)) (ox oy : Int32) (x y : ℤ), 0 ≤ x ∧ x < 16 → 0 ≤ y ∧ y < 16 →
+      level4CellAt (mutantCoordinatesToLevel4Swapped coords ox oy).nw
+          (mutantCoordinatesToLevel4Swapped coords ox oy).ne (mutantCoordinatesToLevel4Swapped coords ox oy).sw
+          (mutantCoordinatesToLevel4Swapped coords ox oy).se x y =
+        decide ((ox + Int32.ofInt x, oy + Int32.ofInt y) ∈ coords) := by
+  intro h
+  have := h [(8, 0)] 0 0 8 0 ⟨by decide, by decide⟩ ⟨by decide, by decide⟩
+  revert this
+  decide +kernel
+
+/-- Mutant 11: a `stepGeneration` that also gives birth to dead cells with two neighbors. -/
+def mutantStepGenerationBirthOnTwo (alive : List (Int32 × Int32)) : List (Int32 × Int32) :=
+  let a := dedupCoords alive
+  let candidates := dedupCoords ((a.flatMap mooreNeighbors32) ++ a)
+  candidates.filter fun c =>
+    let count := ((mooreNeighbors32 c).filter fun n => a.contains n).length
+    count == 3 || count == 2
+
+/-- Mutant 11 violates `mem_stepGenerationModel_iff_nextGenAt`: the dead middle of two cells comes alive. -/
+theorem mutantStepGenerationBirthOnTwo_violates_rule :
+    ¬ ∀ (alive : List (Int32 × Int32)) (c : Int32 × Int32),
+      c ∈ mutantStepGenerationBirthOnTwo alive ↔
+        nextGenAt (fun x y => decide ((Int32.ofInt x, Int32.ofInt y) ∈ alive)) c.1.toInt c.2.toInt = true := by
+  intro h
+  have := (h [(0, 0), (2, 0)] (1, 0)).mp (by decide +kernel)
+  revert this
+  decide +kernel
+
+/-- Mutant 12: a `containedPoints` that lists the points column by column instead of row by row. -/
+def mutantContainedPointsColumnMajor (w : CellWindowModel) : List (Int32 × Int32) :=
+  (int32RangeUntil w.left w.right).flatMap fun x => (int32RangeUntil w.top w.bottom).map fun y => (x, y)
+
+/--
+Mutant 12 violates `CellWindowModel_containedPoints_getElem?` (it has the same points, so only the row-major
+theorem catches it).
+-/
+theorem mutantContainedPointsColumnMajor_violates_row_major :
+    (mutantContainedPointsColumnMajor ⟨0, 0, 2, 2⟩)[0 * 2 + 1]? ≠
+      some (Int32.ofInt (0 + (1 : Nat)), Int32.ofInt (0 + (0 : Nat))) := by
+  decide +kernel
+
+/-- The hypotheses of `CellWindowModel_translate_containedPoints` hold together for a real translation. -/
+theorem cellWindow_translate_hypotheses_satisfiable :
+    ∃ (w w' : CellWindowModel) (dx dy : Int32), w.translate dx dy = some w' ∧
+      w.left.toInt ≤ w.right.toInt ∧ w.top.toInt ≤ w.bottom.toInt ∧
+      Int32.minValue.toInt ≤ w.left.toInt + dx.toInt ∧ w.right.toInt + dx.toInt ≤ Int32.maxValue.toInt ∧
+      Int32.minValue.toInt ≤ w.top.toInt + dy.toInt ∧ w.bottom.toInt + dy.toInt ≤ Int32.maxValue.toInt :=
+  ⟨⟨0, 0, 2, 3⟩, ⟨1, -1, 3, 2⟩, 1, -1, by decide +kernel⟩
+
+end KotlinModel
 
 end Algorithm

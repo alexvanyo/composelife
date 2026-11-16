@@ -31,7 +31,7 @@ open Algorithm.KotlinModel
 /-- Heap invariant stating `BitComputationKt.QUAD_INFO_LUT` holds the 65536-entry `computeQuadInfoModel` table. -/
 def HasQuadInfoLut (jh : Jvm.JvmHeap AlgExt) : Prop :=
   ∃ lutAddr arr,
-    jh.getStatic? "BitComputationKt" "QUAD_INFO_LUT" = some (.heapRef lutAddr) ∧
+    jh.getStatic? "com/alexvanyo/composelife/algorithm/BitComputationKt" "QUAD_INFO_LUT" = some (.heapRef lutAddr) ∧
     jh.get? lutAddr = some (.intArray arr) ∧
     arr.size = 65536 ∧
     ∀ (k : Nat), k < 65536 → arr[k]! = computeQuadInfoModel (UInt32.ofNat k)
@@ -460,7 +460,7 @@ private theorem evalPureKotlinFromHeap_eq_model (jh : Jvm.JvmHeap AlgExt) (w : U
 /-- Equivalence theorem for `BitComputationKt.computeQuadInfo`. -/
 theorem computeQuadInfo_res_equiv (q : UInt32) (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
     ∃ st',
-      runJvmRes 150 computeQuadInfo_prog (Jvm.initJvmState [(0, .i32 q)] (.i32 0) hp jh) =
+      runJvmRes 150 BitComputationKt_computeQuadInfo_prog (Jvm.initJvmState [(0, .i32 q)] (.i32 0) hp jh) =
         some (.i32 (computeQuadInfoModel q), st') ∧
       st'.jvmHeap = jh ∧ st'.heap = hp := by
   apply exists_st_of_map_fast0 rfl
@@ -492,7 +492,7 @@ theorem computeQuadInfo_res_equiv (q : UInt32) (jh : Jvm.JvmHeap AlgExt) (hp : A
   rfl
 
 theorem computeQuadInfo_equiv (q : UInt32) (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
-    runJvm 150 computeQuadInfo_prog (Jvm.initJvmState [(0, .i32 q)] (.i32 0) hp jh) =
+    runJvm 150 BitComputationKt_computeQuadInfo_prog (Jvm.initJvmState [(0, .i32 q)] (.i32 0) hp jh) =
       some (.i32 (computeQuadInfoModel q)) := by
   rw [runJvm_eq_runJvmRes]
   rcases computeQuadInfo_res_equiv q jh hp with ⟨st', hrun, _⟩
@@ -502,7 +502,7 @@ theorem computeQuadInfo_equiv (q : UInt32) (jh : Jvm.JvmHeap AlgExt) (hp : AlgHe
 /-- Equivalence theorem for `BitComputationKt.computeNextGen4x4`. -/
 theorem computeNextGen4x4_equiv (w : UInt32) (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (hlut : HasNextGen4x4Lut jh) :
-    runJvm 30 computeNextGen4x4_prog (Jvm.initJvmState [(0, .i32 w)] (.i32 0) hp jh) =
+    runJvm 30 BitComputationKt_computeNextGen4x4_prog (Jvm.initJvmState [(0, .i32 w)] (.i32 0) hp jh) =
       some (.i32 (Algorithm.computeNextGen4x4BitwiseUInt (w &&& 0xFFFF) &&& 0xF)) := by
   rcases hlut with ⟨lutAddr, lutArr, hstat, hobj, hsz, hspec⟩
   have hlt65536 : (w &&& (65535 : UInt32)).toNat < 65536 := u32_and_65535_lt w
@@ -554,7 +554,7 @@ theorem computeNextGen4x4_equiv (w : UInt32) (jh : Jvm.JvmHeap AlgExt) (hp : Alg
 theorem computeNextGenerationPureKotlin_res_equiv (w : UInt64) (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (hqi : HasQuadInfoLut jh) (hng : HasNextGen4x4Lut jh) :
     ∃ st',
-      runJvmRes 250 computeNextGenerationPureKotlin_prog (Jvm.initJvmState [(0, .i64 w)] (.i32 0) hp jh) =
+      runJvmRes 250 BitComputationKt_computeNextGenerationPureKotlin_prog (Jvm.initJvmState [(0, .i64 w)] (.i32 0) hp jh) =
         some (.i32 (computeNextGenerationPureKotlinModel w), st') ∧
       st'.jvmHeap = jh ∧ st'.heap = hp := by
   by_cases hw : w = 0
@@ -571,8 +571,8 @@ theorem computeNextGenerationPureKotlin_res_equiv (w : UInt64) (jh : Jvm.JvmHeap
       lhs
       arg 2
       rw [afterResBlockChunk_cont]
-      change runJvmResFast 247 computeNextGenerationPureKotlin_prog 3
-        (.ifne 6 :: computeNextGenerationPureKotlin_prog.drop 4)
+      change runJvmResFast 247 BitComputationKt_computeNextGenerationPureKotlin_prog 3
+        (.ifne 6 :: BitComputationKt_computeNextGenerationPureKotlin_prog.drop 4)
         ⟨3, [.i32 0], Jvm.setLocal (fun _ => .i32 0) 0 (.i64 0), jh, hp⟩
       rw [runJvmResFast_ifne_fallthrough rfl]
       rw [runJvmResFast_stepKcChunk 10]
@@ -712,8 +712,8 @@ theorem computeNextGenerationPureKotlin_res_equiv (w : UInt64) (jh : Jvm.JvmHeap
       lhs
       arg 2
       rw [afterResBlockChunk_cont]
-      change runJvmResFast 247 computeNextGenerationPureKotlin_prog 3
-        (.ifne 6 :: computeNextGenerationPureKotlin_prog.drop 4)
+      change runJvmResFast 247 BitComputationKt_computeNextGenerationPureKotlin_prog 3
+        (.ifne 6 :: BitComputationKt_computeNextGenerationPureKotlin_prog.drop 4)
         ⟨3, [.i32 (if (w == 0) = true then 0 else if w.toBitVec.slt 0#64 = true then 4294967295 else 1)],
           Jvm.setLocal (fun _ => .i32 0) 0 (.i64 w), jh, hp⟩
       rw [runJvmResFast_ifne_branch hlcmp]
@@ -862,7 +862,7 @@ theorem computeNextGenerationPureKotlin_res_equiv (w : UInt64) (jh : Jvm.JvmHeap
 
 theorem computeNextGenerationPureKotlin_equiv (w : UInt64) (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (hqi : HasQuadInfoLut jh) (hng : HasNextGen4x4Lut jh) :
-    runJvm 250 computeNextGenerationPureKotlin_prog (Jvm.initJvmState [(0, .i64 w)] (.i32 0) hp jh) =
+    runJvm 250 BitComputationKt_computeNextGenerationPureKotlin_prog (Jvm.initJvmState [(0, .i64 w)] (.i32 0) hp jh) =
       some (.i32 (computeNextGenerationPureKotlinModel w)) := by
   rw [runJvm_eq_runJvmRes]
   rcases computeNextGenerationPureKotlin_res_equiv w jh hp hqi hng with ⟨st', hrun, _⟩
@@ -872,15 +872,15 @@ theorem computeNextGenerationPureKotlin_equiv (w : UInt64) (jh : Jvm.JvmHeap Alg
 /-- Equivalence theorem for `ULong.computeNextGenerationPureKotlin` (`-VKZWuLQ` bridge). -/
 theorem computeNextGenerationPureKotlin_1_equiv (w : UInt64) (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (hqi : HasQuadInfoLut jh) (hng : HasNextGen4x4Lut jh) :
-    runJvm 10 computeNextGenerationPureKotlin_1_prog (Jvm.initJvmState [(0, .i64 w)] (.i32 0) hp jh) =
+    runJvm 10 BitComputationKt_computeNextGenerationPureKotlin_1_prog (Jvm.initJvmState [(0, .i64 w)] (.i32 0) hp jh) =
       some (.i32 (computeNextGenerationPureKotlinModel w)) := by
   have hev := evalPureKotlinFromHeap_eq_model jh w hqi hng
   have hs : stepInvokeStatic ⟨1, [.i64 w], Jvm.setLocal (fun _ => .i32 0) 0 (.i64 w), jh, hp⟩
-      "BitComputationKt" "computeNextGenerationPureKotlin" "(J)I" =
+      "com/alexvanyo/composelife/algorithm/BitComputationKt" "computeNextGenerationPureKotlin" "(J)I" =
       .inl (some ⟨2, [.i32 (computeNextGenerationPureKotlinModel w)],
         Jvm.setLocal (fun _ => .i32 0) 0 (.i64 w), jh, hp⟩) := by
     have hfn : stepInvokeStatic ⟨1, [.i64 w], Jvm.setLocal (fun _ => .i32 0) 0 (.i64 w), jh, hp⟩
-        "BitComputationKt" "computeNextGenerationPureKotlin" "(J)I" =
+        "com/alexvanyo/composelife/algorithm/BitComputationKt" "computeNextGenerationPureKotlin" "(J)I" =
         match evalPureKotlinFromHeap jh w with
         | some r => .inl (some ⟨2, [.i32 r], Jvm.setLocal (fun _ => .i32 0) 0 (.i64 w), jh, hp⟩)
         | none => .inr none := rfl
@@ -941,15 +941,15 @@ private theorem clinitJH_zero :
 /-- Class initializer equivalence for `BitComputationKt.<clinit>`: populates `QUAD_INFO_LUT` with `computeQuadInfoModel`. -/
 theorem clinit_BitComputationKt_equiv :
     ∃ st',
-      runJvmRes 800000 clinit_BitComputationKt_prog ⟨0, [], fun _ => .i32 0, {}, ⟨[], [], []⟩⟩ =
+      runJvmRes 800000 BitComputationKt_clinit_prog ⟨0, [], fun _ => .i32 0, {}, ⟨[], [], []⟩⟩ =
         some (.unit, st') ∧
       HasQuadInfoLut st'.jvmHeap := by
   have hloop : ∀ (d : Nat) (hd : d ≤ 65536) (f : Nat) (locs : Nat → JvmVal),
       locs 0 = .i32 (UInt32.ofNat (65536 - d)) →
       locs 1 = .heapRef 0 →
       ∃ st',
-        runJvmResFast (f + 6 + d * 12) clinit_BitComputationKt_prog 5
-            (clinit_BitComputationKt_prog.drop 5)
+        runJvmResFast (f + 6 + d * 12) BitComputationKt_clinit_prog 5
+            (BitComputationKt_clinit_prog.drop 5)
             ⟨5, [], locs, clinitJH (65536 - d), ⟨[], [], []⟩⟩ =
           some (.unit, st') ∧
         HasQuadInfoLut st'.jvmHeap := by
@@ -958,7 +958,7 @@ theorem clinit_BitComputationKt_equiv :
     | zero =>
       intro f locs hl0 hl1
       simp only [Nat.sub_zero, Nat.zero_mul, Nat.add_zero] at hl0 ⊢
-      refine ⟨⟨19, [], locs, (clinitJH 65536).setStatic "BitComputationKt" "QUAD_INFO_LUT" (.heapRef 0),
+      refine ⟨⟨19, [], locs, (clinitJH 65536).setStatic "com/alexvanyo/composelife/algorithm/BitComputationKt" "QUAD_INFO_LUT" (.heapRef 0),
           ⟨[], [], []⟩⟩, ?_, ?_⟩
       · rw [show f + 6 = f + 4 + 2 by omega, runJvmResFast_stepKcChunk 2]
         (conv => lhs; arg 1; jvm_whnf_blk)
@@ -1000,7 +1000,7 @@ theorem clinit_BitComputationKt_equiv :
           ⟨13, [.i32 (UInt32.ofNat (65536 - (d + 1))), .i32 (UInt32.ofNat (65536 - (d + 1))), .heapRef 0],
             Jvm.setLocal locs 2 (.i32 (UInt32.ofNat (65536 - (d + 1)))),
             clinitJH (65536 - (d + 1)), ⟨[], [], []⟩⟩
-          "BitComputationKt" "computeQuadInfo" "(I)I" =
+          "com/alexvanyo/composelife/algorithm/BitComputationKt" "computeQuadInfo" "(I)I" =
           .inl (some ⟨14,
             [.i32 (computeQuadInfoModel (UInt32.ofNat (65536 - (d + 1)))),
               .i32 (UInt32.ofNat (65536 - (d + 1))), .heapRef 0],
@@ -1084,7 +1084,7 @@ theorem computeNextGenerationPureKotlin_bytecode_correct (w : UInt64)
     (hqi : HasQuadInfoLut jh) (hng : HasNextGen4x4Lut jh)
     (x y : ℤ) (hx : 2 ≤ x ∧ x < 6) (hy : 2 ≤ y ∧ y < 6) :
     ∃ r : UInt32,
-      runJvm 250 computeNextGenerationPureKotlin_prog (Jvm.initJvmState [(0, .i64 w)] (.i32 0) hp jh) = some (.i32 r) ∧
+      runJvm 250 BitComputationKt_computeNextGenerationPureKotlin_prog (Jvm.initJvmState [(0, .i64 w)] (.i32 0) hp jh) = some (.i32 r) ∧
       r.toBitVec.getLsbD (Algorithm.mortonIndex4 (x - 2).toNat (y - 2).toNat) =
         Algorithm.nextGenAt (Algorithm.leafAt w) x y := by
   refine ⟨computeNextGenerationPureKotlinModel w, ?_, ?_⟩

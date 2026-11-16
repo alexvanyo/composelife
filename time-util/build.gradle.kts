@@ -24,7 +24,14 @@ plugins {
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
+    alias(libs.plugins.convention.lean)
     alias(libs.plugins.gradleDependenciesSorter)
+}
+
+lean {
+    target = "TimeUtil:static"
+    packageName = "com.alexvanyo.composelife.timeutil"
+    kotlinBytecodeClassPaths.add("com/alexvanyo/composelife/timeutil/PeriodUntilKt.class")
 }
 
 kotlin {
@@ -56,6 +63,12 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.molecule)
                 implementation(libs.turbine)
+            }
+        }
+        val desktopTest by getting {
+            dependencies {
+                implementation(projects.leanTestFixtures)
+                implementation(libs.kotlin.test)
             }
         }
     }

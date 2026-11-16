@@ -27,12 +27,23 @@ private val forbiddenLeanBodyRules = listOf(
     "axiom" to Regex("""\baxiom\b"""),
     "unsafe" to Regex("""\bunsafe\b"""),
     "partial" to Regex("""\bpartial\b"""),
+    // Anything that runs metaprograms could add declarations (such as forged axioms) or bypass the kernel.
     "run_meta" to Regex("""\brun_meta\b"""),
     "run_elab" to Regex("""\brun_elab\b"""),
+    "run_cmd" to Regex("""\brun_cmd\b"""),
+    "run_tac" to Regex("""\brun_tac\b"""),
+    "by_elab" to Regex("""\bby_elab\b"""),
+    "#eval" to Regex("""(?<![A-Za-z0-9_])#eval\b"""),
+    "#exit" to Regex("""(?<![A-Za-z0-9_])#exit\b"""),
+    "elab" to Regex("""\belab(?:_rules)?\b"""),
+    "macro" to Regex("""\bmacro(?:_rules)?\b"""),
+    "syntax" to Regex("""\b(?:syntax|declare_syntax_cat)\b"""),
     "initialize" to Regex("""\binitialize\b"""),
+    "debug/trust option" to Regex("""\bset_option\s+(?:debug|trust)"""),
     "sorry" to Regex("""\bsorry\b"""),
     "admit" to Regex("""\badmit\b"""),
-    "implemented_by/extern/csimp attribute" to Regex("""@\[[^\]"]*\b(?:implemented_by|extern|csimp)\b"""),
+    "implemented_by/extern/csimp attribute" to
+        Regex("""(?:@\[|\battribute\s*\[)[^\]"]*\b(?:implemented_by|extern|csimp)\b"""),
 )
 
 internal fun validateLeanBody(theoremName: String, leanBody: String) {
@@ -56,15 +67,14 @@ internal fun buildKernelAxiomAuditSnippet(spec: JvmBytecodeVerificationSpec, the
     |    throwError "Declaration {thmName} must be a theorem, not an axiom or definition."
     |  unless Jvm.isNonTrivialTheoremType ci.type do
     |    throwError "Theorem {thmName} must have a non-trivial statement."
-    |  let usedConsts := ci.type.getUsedConstants
-    |  unless Jvm.referencesJvmExec usedConsts do
-    |    throwError "Theorem {thmName} must reference JVM execution (`runJvm*`)."
     |  let ns : Lean.Name := `${spec.realBytecodeNamespace}
-    |  unless usedConsts.any (fun c => ns.isPrefixOf c) do
-    |    throwError "Theorem {thmName} must reference lifted real bytecode under {ns}."
-    |  let allowed : List Lean.Name := [``propext, ``Classical.choice, ``Quot.sound]
-    |  let axioms ← Lean.collectAxioms thmName
-    |  let bad := axioms.filter (fun a => !allowed.contains a && !Jvm.isJvmBvCheckAxiom env a)
+    |  let realProgs := ci.type.getUsedConstants.filter (fun c => ns.isPrefixOf c)
+    |  unless realProgs.any (Jvm.provesExecutionOf ci.type) do
+    |    throwError "Theorem {thmName} must conclude about running (`runJvm*`) lifted real bytecode under {ns}."
+    |  for h in Jvm.theoremBinderTypes ci.type do
+    |    if realProgs.any (Jvm.executesProg h) then
+    |      throwError "Theorem {thmName} must not assume running real bytecode in a hypothesis."
+    |  let bad ← Jvm.nonStandardAxioms thmName
     |  unless bad.isEmpty do
     |    throwError "Theorem depended on non-standard axioms: {bad.toList}"
 """.trimMargin()
@@ -91,6 +101,7 @@ internal fun assertAxiomsAreStandard(theoremName: String, leanOutput: String) {
         .split(',')
         .map { it.trim() }
         .filter { it.isNotEmpty() }
+    // `bv_check` axioms are only name-checked here; the kernel audit snippet re-runs each one's certificate.
     val unexpected = axioms.filterNot { axiom ->
         axiom in allowedAxioms || "._native.bv_decide." in axiom
     }

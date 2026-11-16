@@ -29,14 +29,14 @@ open MosaicCalculator.Model
 /-- Bytecode lookup table for all `CalculatorEngineKt` methods. -/
 def engineProgLookup (fnTag : String) : Option (List JvmInstr) :=
   match fnTag with
-  | "CalculatorEngineKt.checkedAdd" => some checkedAdd_prog
-  | "CalculatorEngineKt.checkedSub" => some checkedSub_prog
-  | "CalculatorEngineKt.checkedMul" => some checkedMul_prog
-  | "CalculatorEngineKt.checkedDiv" => some checkedDiv_prog
-  | "CalculatorEngineKt.applyOp" => some applyOp_prog
-  | "CalculatorEngineKt.reduceCalculatorState" => some reduceCalculatorState_prog
-  | "CalculatorEngineKt.mapTerminalKey" => some mapTerminalKey_prog
-  | "CalculatorEngineKt.formatDisplayLine" => some formatDisplayLine_prog
+  | "CalculatorEngineKt.checkedAdd" => some CalculatorEngineKt_checkedAdd_prog
+  | "CalculatorEngineKt.checkedSub" => some CalculatorEngineKt_checkedSub_prog
+  | "CalculatorEngineKt.checkedMul" => some CalculatorEngineKt_checkedMul_prog
+  | "CalculatorEngineKt.checkedDiv" => some CalculatorEngineKt_checkedDiv_prog
+  | "CalculatorEngineKt.applyOp" => some CalculatorEngineKt_applyOp_prog
+  | "CalculatorEngineKt.reduceCalculatorState" => some CalculatorEngineKt_reduceCalculatorState_prog
+  | "CalculatorEngineKt.mapTerminalKey" => some CalculatorEngineKt_mapTerminalKey_prog
+  | "CalculatorEngineKt.formatDisplayLine" => some CalculatorEngineKt_formatDisplayLine_prog
   | _ => none
 
 /-- Default verification hooks wired with `engineProgLookup` at depth 4 and sub-fuel 400. -/
@@ -54,7 +54,7 @@ theorem engineProgLookup_extends : ExtendsEngineProgs engineProgLookup :=
 def HasEngineStaticsClean (jh : Jvm.JvmHeap CalcExt) : Prop :=
   ∀ cls fld,
     cls ≠ "com/alexvanyo/composelife/mosaiccalculator/CalculatorEngineKt$WhenMappings" →
-    cls ≠ "ComposableSingletons$CalculatorScreenKt" →
+    cls ≠ "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" →
     jh.getStatic? cls fld = none
 
 /-- Predicate asserting `CalculatorEngineKt$WhenMappings` enum switch arrays are populated in `jh`. -/
@@ -106,14 +106,14 @@ def calcOpaqueConsts : NameSet :=
   NameSet.empty
     |>.insert ``mkCalcHooks
     |>.insert ``engineProgLookup
-    |>.insert ``checkedAdd_prog
-    |>.insert ``checkedSub_prog
-    |>.insert ``checkedMul_prog
-    |>.insert ``checkedDiv_prog
-    |>.insert ``applyOp_prog
-    |>.insert ``reduceCalculatorState_prog
-    |>.insert ``mapTerminalKey_prog
-    |>.insert ``formatDisplayLine_prog
+    |>.insert ``CalculatorEngineKt_checkedAdd_prog
+    |>.insert ``CalculatorEngineKt_checkedSub_prog
+    |>.insert ``CalculatorEngineKt_checkedMul_prog
+    |>.insert ``CalculatorEngineKt_checkedDiv_prog
+    |>.insert ``CalculatorEngineKt_applyOp_prog
+    |>.insert ``CalculatorEngineKt_reduceCalculatorState_prog
+    |>.insert ``CalculatorEngineKt_mapTerminalKey_prog
+    |>.insert ``CalculatorEngineKt_formatDisplayLine_prog
     |>.insert ``Model.checkedAddModel
     |>.insert ``Model.checkedSubModel
     |>.insert ``Model.checkedMulModel
@@ -566,7 +566,7 @@ theorem checkedAdd_equiv (resolveProg : String → Option (List JvmInstr))
     (a b : Int64) (hp : CalcHeap) (jh : Jvm.JvmHeap CalcExt)
     (hc : HasEngineStaticsClean jh) :
     ∃ endSt,
-      Jvm.runJvmRes (mkCalcHooks resolveProg d subFuel) fuel checkedAdd_prog
+      Jvm.runJvmRes (mkCalcHooks resolveProg d subFuel) fuel CalculatorEngineKt_checkedAdd_prog
         (initCalcJvmState [(0, .i64 a.toUInt64), (2, .i64 b.toUInt64)] hp jh) =
         some (.ext (.evalRes (checkedAddModel a b)), endSt) ∧
       endSt.jvmHeap = jh ∧ endSt.heap = hp := by
@@ -574,7 +574,7 @@ theorem checkedAdd_equiv (resolveProg : String → Option (List JvmInstr))
   obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le' hf
   apply runJvmRes_exists_fast0 rfl
   apply exists_run_step
-  · conv => lhs; arg 5; dsimp only [checkedAdd_prog]
+  · conv => lhs; arg 5; dsimp only [CalculatorEngineKt_checkedAdd_prog]
     calc_step_blk
     calc_branch
     unfold holdOpt
@@ -614,7 +614,7 @@ theorem checkedSub_equiv (resolveProg : String → Option (List JvmInstr))
     (a b : Int64) (hp : CalcHeap) (jh : Jvm.JvmHeap CalcExt)
     (hc : HasEngineStaticsClean jh) :
     ∃ endSt,
-      Jvm.runJvmRes (mkCalcHooks resolveProg d subFuel) fuel checkedSub_prog
+      Jvm.runJvmRes (mkCalcHooks resolveProg d subFuel) fuel CalculatorEngineKt_checkedSub_prog
         (initCalcJvmState [(0, .i64 a.toUInt64), (2, .i64 b.toUInt64)] hp jh) =
         some (.ext (.evalRes (checkedSubModel a b)), endSt) ∧
       endSt.jvmHeap = jh ∧ endSt.heap = hp := by
@@ -622,7 +622,7 @@ theorem checkedSub_equiv (resolveProg : String → Option (List JvmInstr))
   obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le' hf
   apply runJvmRes_exists_fast0 rfl
   apply exists_run_step
-  · conv => lhs; arg 5; dsimp only [checkedSub_prog]
+  · conv => lhs; arg 5; dsimp only [CalculatorEngineKt_checkedSub_prog]
     calc_step_blk
     calc_branch
     unfold holdOpt
@@ -666,8 +666,8 @@ private theorem checkedMul_tail_equiv (resolveProg : String → Option (List Jvm
     let res : Int64 := (a.toUInt64 * b.toUInt64).toInt64
     let expected := if Model.jvmI64Div res b != a then CheckedEvalResult.error .overflow else .value res
     ∃ endSt,
-      Jvm.runJvmResFast (mkCalcHooks resolveProg (d1 + 1) subFuel) f checkedMul_prog 36
-        (List.drop 36 checkedMul_prog)
+      Jvm.runJvmResFast (mkCalcHooks resolveProg (d1 + 1) subFuel) f CalculatorEngineKt_checkedMul_prog 36
+        (List.drop 36 CalculatorEngineKt_checkedMul_prog)
         ⟨36, [],
           setLocal (setLocal (fun _ => .i32 0) 0 (.i64 a.toUInt64)) 2 (.i64 b.toUInt64), jh, hp⟩ =
         some (.ext (.evalRes expected), endSt) ∧
@@ -675,7 +675,7 @@ private theorem checkedMul_tail_equiv (resolveProg : String → Option (List Jvm
   intro res expected
   obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le' hf
   apply exists_run_step
-  · conv => lhs; arg 5; dsimp only [checkedMul_prog, List.drop]
+  · conv => lhs; arg 5; dsimp only [CalculatorEngineKt_checkedMul_prog, List.drop]
     calc_step_blk
     have hbu : b.toUInt64 ≠ 0 := fun h => hb (int64_toUInt64_inj h)
     rw [runJvmResFast_ldiv hbu]
@@ -723,15 +723,15 @@ private theorem checkedMul_zero_branch (resolveProg : String → Option (List Jv
     (d1 subFuel f : Nat) (hf : 10 ≤ f) (a b : Int64) (hp : CalcHeap)
     (jh : Jvm.JvmHeap CalcExt) :
     ∃ endSt,
-      Jvm.runJvmResFast (mkCalcHooks resolveProg (d1 + 1) subFuel) f checkedMul_prog 8
-        (List.drop 8 checkedMul_prog)
+      Jvm.runJvmResFast (mkCalcHooks resolveProg (d1 + 1) subFuel) f CalculatorEngineKt_checkedMul_prog 8
+        (List.drop 8 CalculatorEngineKt_checkedMul_prog)
         ⟨8, [],
           setLocal (setLocal (fun _ => .i32 0) 0 (.i64 a.toUInt64)) 2 (.i64 b.toUInt64), jh, hp⟩ =
         some (.ext (.evalRes (.value 0)), endSt) ∧
       endSt.jvmHeap = jh ∧ endSt.heap = hp := by
   obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le' hf
   apply exists_run_done
-  conv => lhs; arg 5; dsimp only [checkedMul_prog, List.drop]
+  conv => lhs; arg 5; dsimp only [CalculatorEngineKt_checkedMul_prog, List.drop]
   rw [runJvmResFast_newClass_calc (by decide)]
   calc_step_blk
   rw [Jvm.runJvmResFast_invokespecial_step _ stepSpecial_evalValue]
@@ -741,17 +741,17 @@ private theorem checkedMul_zero_branch (resolveProg : String → Option (List Jv
 
 private theorem checkedMul_overflow_branch (resolveProg : String → Option (List JvmInstr))
     (d1 subFuel f pc : Nat) (instrs : List JvmInstr) (locs : Nat → JvmVal)
-    (hf : 10 ≤ f) (hpc : pc = 30) (hin : instrs = List.drop 30 checkedMul_prog)
+    (hf : 10 ≤ f) (hpc : pc = 30) (hin : instrs = List.drop 30 CalculatorEngineKt_checkedMul_prog)
     (hp : CalcHeap) (jh : Jvm.JvmHeap CalcExt) (hc : HasEngineStaticsClean jh) :
     ∃ endSt,
-      Jvm.runJvmResFast (mkCalcHooks resolveProg (d1 + 1) subFuel) f checkedMul_prog pc
+      Jvm.runJvmResFast (mkCalcHooks resolveProg (d1 + 1) subFuel) f CalculatorEngineKt_checkedMul_prog pc
         instrs ⟨pc, [], locs, jh, hp⟩ =
         some (.ext (.evalRes (.error .overflow)), endSt) ∧
       endSt.jvmHeap = jh ∧ endSt.heap = hp := by
   subst hpc; subst hin
   obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le' hf
   apply exists_run_done
-  conv => lhs; arg 5; dsimp only [checkedMul_prog, List.drop]
+  conv => lhs; arg 5; dsimp only [CalculatorEngineKt_checkedMul_prog, List.drop]
   rw [runJvmResFast_newClass_calc (by decide)]
   calc_step_blk
   rw [runJvmResFast_getstatic_clean (hc _ _ (by decide) (by decide)) rfl]
@@ -764,7 +764,7 @@ theorem checkedMul_equiv (resolveProg : String → Option (List JvmInstr))
     (a b : Int64) (hp : CalcHeap) (jh : Jvm.JvmHeap CalcExt)
     (hc : HasEngineStaticsClean jh) :
     ∃ endSt,
-      Jvm.runJvmRes (mkCalcHooks resolveProg d subFuel) fuel checkedMul_prog
+      Jvm.runJvmRes (mkCalcHooks resolveProg d subFuel) fuel CalculatorEngineKt_checkedMul_prog
         (initCalcJvmState [(0, .i64 a.toUInt64), (2, .i64 b.toUInt64)] hp jh) =
         some (.ext (.evalRes (checkedMulModel a b)), endSt) ∧
       endSt.jvmHeap = jh ∧ endSt.heap = hp := by
@@ -772,7 +772,7 @@ theorem checkedMul_equiv (resolveProg : String → Option (List JvmInstr))
   obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le' hf
   apply runJvmRes_exists_fast0 rfl
   apply exists_run_step
-  · conv => lhs; arg 5; dsimp only [checkedMul_prog]
+  · conv => lhs; arg 5; dsimp only [CalculatorEngineKt_checkedMul_prog]
     calc_step_blk
     calc_branch
     unfold holdOpt
@@ -920,7 +920,7 @@ theorem checkedDiv_equiv (resolveProg : String → Option (List JvmInstr))
     (a b : Int64) (hp : CalcHeap) (jh : Jvm.JvmHeap CalcExt)
     (hc : HasEngineStaticsClean jh) :
     ∃ endSt,
-      Jvm.runJvmRes (mkCalcHooks resolveProg d subFuel) fuel checkedDiv_prog
+      Jvm.runJvmRes (mkCalcHooks resolveProg d subFuel) fuel CalculatorEngineKt_checkedDiv_prog
         (initCalcJvmState [(0, .i64 a.toUInt64), (2, .i64 b.toUInt64)] hp jh) =
         some (.ext (.evalRes (checkedDivModel a b)), endSt) ∧
       endSt.jvmHeap = jh ∧ endSt.heap = hp := by
@@ -928,7 +928,7 @@ theorem checkedDiv_equiv (resolveProg : String → Option (List JvmInstr))
   obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le' hf
   apply runJvmRes_exists_fast0 rfl
   apply exists_run_step
-  · conv => lhs; arg 5; dsimp only [checkedDiv_prog]
+  · conv => lhs; arg 5; dsimp only [CalculatorEngineKt_checkedDiv_prog]
     calc_step_blk
     calc_branch
     unfold holdOpt
@@ -1082,7 +1082,7 @@ private theorem runJvmResFast_invokestatic_checkedBin {resolveProg : String → 
         (initCalcJvmState [(0, .i64 a.toUInt64), (2, .i64 b.toUInt64)] hp jh) =
         some (.ext (.evalRes res), endSt) ∧ endSt.jvmHeap = jh ∧ endSt.heap = hp) :
     Jvm.runJvmResFast (mkCalcHooks resolveProg (d + 2) subFuel) (f + 1) prog pc
-        (.invokestatic "CalculatorEngineKt" method
+        (.invokestatic "com/alexvanyo/composelife/mosaiccalculator/CalculatorEngineKt" method
           "(JJ)Lcom/alexvanyo/composelife/mosaiccalculator/CheckedEvalResult;" :: rest)
         ⟨pc0, .i64 b.toUInt64 :: .i64 a.toUInt64 :: stkRest, locs, jh, hp⟩ =
       Jvm.runJvmResFast (mkCalcHooks resolveProg (d + 2) subFuel) f prog (pc + 1) rest
@@ -1125,7 +1125,7 @@ private theorem runJvmResFast_invokestatic_checkedBin {resolveProg : String → 
       rw [hjh, hhp]
       rfl )
   have hs : Jvm.stepInstr (mkCalcHooks resolveProg (d + 2) subFuel)
-      (.invokestatic "CalculatorEngineKt" method
+      (.invokestatic "com/alexvanyo/composelife/mosaiccalculator/CalculatorEngineKt" method
         "(JJ)Lcom/alexvanyo/composelife/mosaiccalculator/CheckedEvalResult;")
       ⟨pc, .i64 b.toUInt64 :: .i64 a.toUInt64 :: stkRest, locs, jh, hp⟩ =
       .inl (some ⟨pc + 1, .ext (.evalRes res) :: stkRest, locs, jh, hp⟩) := by
@@ -1139,7 +1139,7 @@ theorem applyOp_equiv (resolveProg : String → Option (List JvmInstr))
     (lhs : Int64) (op : CalculatorOp) (rhs : Int64) (hp : CalcHeap) (jh : Jvm.JvmHeap CalcExt)
     (hw : HasCalcWhenMappings jh) :
     ∃ endSt,
-      Jvm.runJvmRes (mkCalcHooks resolveProg d subFuel) fuel applyOp_prog
+      Jvm.runJvmRes (mkCalcHooks resolveProg d subFuel) fuel CalculatorEngineKt_applyOp_prog
         (initCalcJvmState [(0, .i64 lhs.toUInt64), (2, .ext (.calcOp op)), (3, .i64 rhs.toUInt64)]
           hp jh) =
         some (.ext (.evalRes (applyOpModel lhs op rhs)), endSt) ∧
@@ -1149,7 +1149,7 @@ theorem applyOp_equiv (resolveProg : String → Option (List JvmInstr))
   obtain ⟨opAddr, hopStatic, hopArr⟩ := hw.opSwitch
   apply runJvmRes_exists_fast0 rfl
   apply exists_run_step
-  · conv => lhs; arg 5; dsimp only [applyOp_prog]
+  · conv => lhs; arg 5; dsimp only [CalculatorEngineKt_applyOp_prog]
     calc_step_blk
     rw [runJvmResFast_checkNotNullParameter (by rfl)]
     calc_step_blk
@@ -1165,7 +1165,7 @@ theorem applyOp_equiv (resolveProg : String → Option (List JvmInstr))
   · cases op
     · apply exists_run_done
       calc_step_blk
-      rw [runJvmResFast_invokestatic_checkedBin "checkedAdd" checkedAdd_prog
+      rw [runJvmResFast_invokestatic_checkedBin "checkedAdd" CalculatorEngineKt_checkedAdd_prog
         (checkedAddModel lhs rhs) (Or.inl rfl) (hext _ _ rfl)
         (checkedAdd_equiv resolveProg (d2 + 1) subFuel subFuel (by omega) (by omega)
           lhs rhs hp jh hw.staticsClean)]
@@ -1174,7 +1174,7 @@ theorem applyOp_equiv (resolveProg : String → Option (List JvmInstr))
       rfl
     · apply exists_run_done
       calc_step_blk
-      rw [runJvmResFast_invokestatic_checkedBin "checkedSub" checkedSub_prog
+      rw [runJvmResFast_invokestatic_checkedBin "checkedSub" CalculatorEngineKt_checkedSub_prog
         (checkedSubModel lhs rhs) (Or.inr (Or.inl rfl)) (hext _ _ rfl)
         (checkedSub_equiv resolveProg (d2 + 1) subFuel subFuel (by omega) (by omega)
           lhs rhs hp jh hw.staticsClean)]
@@ -1183,7 +1183,7 @@ theorem applyOp_equiv (resolveProg : String → Option (List JvmInstr))
       rfl
     · apply exists_run_done
       calc_step_blk
-      rw [runJvmResFast_invokestatic_checkedBin "checkedMul" checkedMul_prog
+      rw [runJvmResFast_invokestatic_checkedBin "checkedMul" CalculatorEngineKt_checkedMul_prog
         (checkedMulModel lhs rhs) (Or.inr (Or.inr (Or.inl rfl))) (hext _ _ rfl)
         (checkedMul_equiv resolveProg (d2 + 1) subFuel subFuel (by omega) hsub
           lhs rhs hp jh hw.staticsClean)]
@@ -1192,7 +1192,7 @@ theorem applyOp_equiv (resolveProg : String → Option (List JvmInstr))
       rfl
     · apply exists_run_done
       calc_step_blk
-      rw [runJvmResFast_invokestatic_checkedBin "checkedDiv" checkedDiv_prog
+      rw [runJvmResFast_invokestatic_checkedBin "checkedDiv" CalculatorEngineKt_checkedDiv_prog
         (checkedDivModel lhs rhs) (Or.inr (Or.inr (Or.inr rfl))) (hext _ _ rfl)
         (checkedDiv_equiv resolveProg (d2 + 1) subFuel subFuel (by omega) (by omega)
           lhs rhs hp jh hw.staticsClean)]
@@ -1253,7 +1253,8 @@ theorem runJvmResFast_invokevirtual_step {resolveProg : String → Option (List 
 private theorem runJvmResFast_areEqual_step {resolveProg : String → Option (List JvmInstr)}
     {d subFuel f pc pc0 : Nat} {prog rest : List JvmInstr} {a b : JvmVal} {res : Bool}
     {stkRest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap CalcExt} {hp : CalcHeap}
-    (hbeq : Jvm.JvmVal.beqVal beqCalcExt a b = res) :
+    (hbeq : Jvm.JvmVal.beqVal beqCalcExt a b = res)
+    (ha : a.equalsModeled jh = true := by rfl) (hb : b.equalsModeled jh = true := by rfl) :
     Jvm.runJvmResFast (mkCalcHooks resolveProg (d + 1) subFuel) (f + 1) prog pc
         (.invokestatic "kotlin/jvm/internal/Intrinsics" "areEqual"
           "(Ljava/lang/Object;Ljava/lang/Object;)Z" :: rest)
@@ -1264,7 +1265,8 @@ private theorem runJvmResFast_areEqual_step {resolveProg : String → Option (Li
       (.invokestatic "kotlin/jvm/internal/Intrinsics" "areEqual"
         "(Ljava/lang/Object;Ljava/lang/Object;)Z")
       ⟨pc, b :: a :: stkRest, locs, jh, hp⟩ =
-      .inl (some ⟨pc + 1, .bool (Jvm.JvmVal.beqVal beqCalcExt a b) :: stkRest, locs, jh, hp⟩) := rfl
+      .inl (some ⟨pc + 1, .bool (Jvm.JvmVal.beqVal beqCalcExt a b) :: stkRest, locs, jh, hp⟩) :=
+    Jvm.stepInstr_areEqual _ ha hb
   rw [hbeq] at hs
   exact Jvm.runJvmResFast_step_of_stepInstr (mkCalcHooks resolveProg (d + 1) subFuel) rfl (by simp) hs rfl
 
@@ -1384,15 +1386,15 @@ set_option maxRecDepth 2048 in
 private theorem runJvmResFast_invokestatic_applyOp {resolveProg : String → Option (List JvmInstr)}
     {d subFuel f pc pc0 : Nat} {prog rest : List JvmInstr} {desc : String}
     (htags : Jvm.parseMethodParamTags desc = ['J', 'L', 'J'])
-    (hres : resolveProg "CalculatorEngineKt.applyOp" = some applyOp_prog)
+    (hres : resolveProg "CalculatorEngineKt.applyOp" = some CalculatorEngineKt_applyOp_prog)
     {lhs rhs : Int64} {op : CalculatorOp} {stkRest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap CalcExt} {hp : CalcHeap}
-    (heq : ∃ endSt, Jvm.runJvmRes (mkCalcHooks resolveProg (d + 2) subFuel) subFuel applyOp_prog
+    (heq : ∃ endSt, Jvm.runJvmRes (mkCalcHooks resolveProg (d + 2) subFuel) subFuel CalculatorEngineKt_applyOp_prog
         (initCalcJvmState [(0, .i64 lhs.toUInt64), (2, .ext (.calcOp op)), (3, .i64 rhs.toUInt64)]
           hp jh) =
         some (.ext (.evalRes (applyOpModel lhs op rhs)), endSt) ∧ endSt.jvmHeap = jh ∧ endSt.heap = hp) :
     Jvm.runJvmResFast (mkCalcHooks resolveProg (d + 3) subFuel) (f + 1) prog pc
-        (.invokestatic "CalculatorEngineKt" "applyOp" desc :: rest)
+        (.invokestatic "com/alexvanyo/composelife/mosaiccalculator/CalculatorEngineKt" "applyOp" desc :: rest)
         ⟨pc0, .i64 rhs.toUInt64 :: .ext (.calcOp op) :: .i64 lhs.toUInt64 :: stkRest, locs, jh, hp⟩ =
       Jvm.runJvmResFast (mkCalcHooks resolveProg (d + 3) subFuel) f prog (pc + 1) rest
         ⟨pc + 1, .ext (.evalRes (applyOpModel lhs op rhs)) :: stkRest, locs, jh, hp⟩ := by
@@ -1422,7 +1424,7 @@ private theorem runJvmResFast_invokestatic_applyOp {resolveProg : String → Opt
       rw [hjh, hhp]
       rfl
   have hs : Jvm.stepInstr (mkCalcHooks resolveProg (d + 3) subFuel)
-      (.invokestatic "CalculatorEngineKt" "applyOp" desc)
+      (.invokestatic "com/alexvanyo/composelife/mosaiccalculator/CalculatorEngineKt" "applyOp" desc)
       ⟨pc, .i64 rhs.toUInt64 :: .ext (.calcOp op) :: .i64 lhs.toUInt64 :: stkRest, locs, jh, hp⟩ =
       .inl (some ⟨pc + 1, .ext (.evalRes (applyOpModel lhs op rhs)) :: stkRest, locs, jh, hp⟩) := by
     dsimp only [Jvm.stepInstr, Jvm.stepInvokeStaticGeneric]
@@ -1432,7 +1434,7 @@ private theorem runJvmResFast_invokestatic_applyOp {resolveProg : String → Opt
 private theorem reduceDigit_finish_equiv (resolveProg : String → Option (List JvmInstr))
     (d3 subFuel f pc : Nat) (instrs : List JvmInstr) (locs : Nat → JvmVal)
     (cSt : CalculatorState) (r : CheckedEvalResult) (hf : 30 ≤ f) (hpc : pc = 79)
-    (hin : instrs = List.drop 79 reduceCalculatorState_prog)
+    (hin : instrs = List.drop 79 CalculatorEngineKt_reduceCalculatorState_prog)
     (h0 : locs 0 = .ext (.calcState cSt))
     (herr : cSt.error = none) (hent : cSt.enteringNewNumber = false)
     (hp : CalcHeap) (jh : Jvm.JvmHeap CalcExt) :
@@ -1440,7 +1442,7 @@ private theorem reduceDigit_finish_equiv (resolveProg : String → Option (List 
       | .error e => { cSt with error := some e, enteringNewNumber := false }
       | .value v => { cSt with displayValue := v, enteringNewNumber := false, error := none }
     ∃ endSt,
-      Jvm.runJvmResFast (mkCalcHooks resolveProg (d3 + 1 + 2) subFuel) f reduceCalculatorState_prog
+      Jvm.runJvmResFast (mkCalcHooks resolveProg (d3 + 1 + 2) subFuel) f CalculatorEngineKt_reduceCalculatorState_prog
           pc instrs ⟨pc, [.ext (.evalRes r)], locs, jh, hp⟩ =
         some (.ext (.calcState out), endSt) ∧
       endSt.jvmHeap = jh ∧ endSt.heap = hp := by
@@ -1454,7 +1456,7 @@ private theorem reduceDigit_finish_equiv (resolveProg : String → Option (List 
         ⟨79, [.ext (.evalRes r)], setLocal locs 0 (.ext (.calcState cSt)), jh, hp⟩ :=
       congrArg (fun l : Nat → JvmVal => (⟨79, [.ext (.evalRes r)], l, jh, hp⟩ : JvmState)) hloc
     rw [hst]
-    conv => lhs; arg 5; dsimp only [reduceCalculatorState_prog, List.drop]
+    conv => lhs; arg 5; dsimp only [CalculatorEngineKt_reduceCalculatorState_prog, List.drop]
     calc_step_blk
     unfold holdOpt
     rfl
@@ -1493,13 +1495,13 @@ private theorem reduceDigit_finish_equiv (resolveProg : String → Option (List 
 private theorem reduceOp_fallback_equiv (resolveProg : String → Option (List JvmInstr))
     (d3 subFuel f pc : Nat) (instrs : List JvmInstr) (locs : Nat → JvmVal)
     (cSt : CalculatorState) (o : CalculatorOp) (hf : 15 ≤ f) (hpc : pc = 204)
-    (hin : instrs = List.drop 204 reduceCalculatorState_prog)
+    (hin : instrs = List.drop 204 CalculatorEngineKt_reduceCalculatorState_prog)
     (h0 : locs 0 = .ext (.calcState cSt)) (h1 : locs 1 = .ext (.calcKey (.op o)))
     (herr : cSt.error = none) (hp : CalcHeap) (jh : Jvm.JvmHeap CalcExt) :
     let out : CalculatorState :=
       CalculatorState.mk cSt.displayValue (some cSt.displayValue) (some o) true none
     ∃ endSt,
-      Jvm.runJvmResFast (mkCalcHooks resolveProg (d3 + 2 + 1) subFuel) f reduceCalculatorState_prog
+      Jvm.runJvmResFast (mkCalcHooks resolveProg (d3 + 2 + 1) subFuel) f CalculatorEngineKt_reduceCalculatorState_prog
           pc instrs ⟨pc, [], locs, jh, hp⟩ =
         some (.ext (.calcState out), endSt) ∧
       endSt.jvmHeap = jh ∧ endSt.heap = hp := by
@@ -1519,7 +1521,7 @@ private theorem reduceOp_fallback_equiv (resolveProg : String → Option (List J
     congrArg (fun l : Nat → JvmVal => (⟨204, [], l, jh, hp⟩ : JvmState)) hloc
   rw [hst]
   apply exists_run_done
-  conv => lhs; arg 5; dsimp only [reduceCalculatorState_prog, List.drop]
+  conv => lhs; arg 5; dsimp only [CalculatorEngineKt_reduceCalculatorState_prog, List.drop]
   calc_step_blk
   calc_iv
   rw [runJvmResFast_longValueOf]
@@ -1552,7 +1554,7 @@ private theorem reduceClear_equiv (resolveProg : String → Option (List JvmInst
     (cSt : CalculatorState) (hp : CalcHeap) (jh : Jvm.JvmHeap CalcExt)
     (hw : HasCalcWhenMappings jh) :
     ∃ endSt,
-      Jvm.runJvmRes (mkCalcHooks resolveProg d subFuel) fuel reduceCalculatorState_prog
+      Jvm.runJvmRes (mkCalcHooks resolveProg d subFuel) fuel CalculatorEngineKt_reduceCalculatorState_prog
         (initCalcJvmState [(0, .ext (.calcState cSt)), (1, .ext (.calcKey .clear))] hp jh) =
         some (.ext (.calcState (reduceCalculatorStateModel cSt .clear)), endSt) ∧
       endSt.jvmHeap = jh ∧ endSt.heap = hp := by
@@ -1560,7 +1562,7 @@ private theorem reduceClear_equiv (resolveProg : String → Option (List JvmInst
   obtain ⟨kf, rfl⟩ := Nat.exists_eq_add_of_le' hf
   apply runJvmRes_exists_fast0 rfl
   apply exists_run_done
-  conv => lhs; arg 5; dsimp only [reduceCalculatorState_prog]
+  conv => lhs; arg 5; dsimp only [CalculatorEngineKt_reduceCalculatorState_prog]
   calc_step_blk
   rw [runJvmResFast_checkNotNullParameter (by rfl)]
   calc_step_blk
@@ -1580,7 +1582,7 @@ private theorem reduceDigit_equiv (resolveProg : String → Option (List JvmInst
     (cSt : CalculatorState) (d : UInt32) (hp : CalcHeap) (jh : Jvm.JvmHeap CalcExt)
     (hw : HasCalcWhenMappings jh) :
     ∃ endSt,
-      Jvm.runJvmRes (mkCalcHooks resolveProg depth subFuel) fuel reduceCalculatorState_prog
+      Jvm.runJvmRes (mkCalcHooks resolveProg depth subFuel) fuel CalculatorEngineKt_reduceCalculatorState_prog
         (initCalcJvmState [(0, .ext (.calcState cSt)), (1, .ext (.calcKey (.digit d)))] hp jh) =
         some (.ext (.calcState (reduceCalculatorStateModel cSt (.digit d))), endSt) ∧
       endSt.jvmHeap = jh ∧ endSt.heap = hp := by
@@ -1588,7 +1590,7 @@ private theorem reduceDigit_equiv (resolveProg : String → Option (List JvmInst
   obtain ⟨kf, rfl⟩ := Nat.exists_eq_add_of_le' hf
   apply runJvmRes_exists_fast0 rfl
   apply exists_run_step
-  · conv => lhs; arg 5; dsimp only [reduceCalculatorState_prog]
+  · conv => lhs; arg 5; dsimp only [CalculatorEngineKt_reduceCalculatorState_prog]
     calc_step_blk
     rw [runJvmResFast_checkNotNullParameter (by rfl)]
     calc_step_blk
@@ -1645,7 +1647,7 @@ private theorem reduceDigit_equiv (resolveProg : String → Option (List JvmInst
               calc_step_blk
               rw [show (10 : UInt64) = Int64.toUInt64 10 from rfl]
               (conv => lhs; arg 1; arg 2; change d3 + 1 + 2)
-              rw [runJvmResFast_invokestatic_checkedBin "checkedMul" checkedMul_prog
+              rw [runJvmResFast_invokestatic_checkedBin "checkedMul" CalculatorEngineKt_checkedMul_prog
                 (checkedMulModel cSt.displayValue 10) (Or.inr (Or.inr (Or.inl rfl))) (hext _ _ rfl)
                 (checkedMul_equiv resolveProg (d3 + 2) subFuel subFuel (by omega) hsub
                   cSt.displayValue 10 hp jh hw.staticsClean)]
@@ -1698,7 +1700,7 @@ private theorem reduceDigit_equiv (resolveProg : String → Option (List JvmInst
                       calc_iv
                       calc_step_blk
                       (conv => lhs; arg 1; arg 2; change d3 + 1 + 2)
-                      rw [runJvmResFast_invokestatic_checkedBin "checkedAdd" checkedAdd_prog
+                      rw [runJvmResFast_invokestatic_checkedBin "checkedAdd" CalculatorEngineKt_checkedAdd_prog
                         (checkedAddModel mul (Int32.ofInt d.toBitVec.toInt).toInt64) (Or.inl rfl)
                         (hext _ _ rfl)
                         (checkedAdd_equiv resolveProg (d3 + 2) subFuel subFuel (by omega) (by omega)
@@ -1710,7 +1712,7 @@ private theorem reduceDigit_equiv (resolveProg : String → Option (List JvmInst
                       · try simp only [Nat.add_eq]
                         omega
                       · rfl
-                      · dsimp only [reduceCalculatorState_prog, List.drop]; try rfl
+                      · dsimp only [CalculatorEngineKt_reduceCalculatorState_prog, List.drop]; try rfl
                       · rfl
                   · intro hge
                     rw [lcmp_ifge_iff_nslt] at hge
@@ -1726,7 +1728,7 @@ private theorem reduceDigit_equiv (resolveProg : String → Option (List JvmInst
                       calc_iv
                       calc_step_blk
                       (conv => lhs; arg 1; arg 2; change d3 + 1 + 2)
-                      rw [runJvmResFast_invokestatic_checkedBin "checkedSub" checkedSub_prog
+                      rw [runJvmResFast_invokestatic_checkedBin "checkedSub" CalculatorEngineKt_checkedSub_prog
                         (checkedSubModel mul (Int32.ofInt d.toBitVec.toInt).toInt64)
                         (Or.inr (Or.inl rfl)) (hext _ _ rfl)
                         (checkedSub_equiv resolveProg (d3 + 2) subFuel subFuel (by omega) (by omega)
@@ -1739,7 +1741,7 @@ private theorem reduceDigit_equiv (resolveProg : String → Option (List JvmInst
                       · try simp only [Nat.add_eq]
                         omega
                       · rfl
-                      · dsimp only [reduceCalculatorState_prog, List.drop]; try rfl
+                      · dsimp only [CalculatorEngineKt_reduceCalculatorState_prog, List.drop]; try rfl
                       · rfl
           · calc_ite_split
             apply exists_run_done
@@ -1756,7 +1758,7 @@ private theorem reduceBackspace_equiv (resolveProg : String → Option (List Jvm
     (cSt : CalculatorState) (hp : CalcHeap) (jh : Jvm.JvmHeap CalcExt)
     (hw : HasCalcWhenMappings jh) :
     ∃ endSt,
-      Jvm.runJvmRes (mkCalcHooks resolveProg d subFuel) fuel reduceCalculatorState_prog
+      Jvm.runJvmRes (mkCalcHooks resolveProg d subFuel) fuel CalculatorEngineKt_reduceCalculatorState_prog
         (initCalcJvmState [(0, .ext (.calcState cSt)), (1, .ext (.calcKey .backspace))] hp jh) =
         some (.ext (.calcState (reduceCalculatorStateModel cSt .backspace)), endSt) ∧
       endSt.jvmHeap = jh ∧ endSt.heap = hp := by
@@ -1764,7 +1766,7 @@ private theorem reduceBackspace_equiv (resolveProg : String → Option (List Jvm
   obtain ⟨kf, rfl⟩ := Nat.exists_eq_add_of_le' hf
   apply runJvmRes_exists_fast0 rfl
   apply exists_run_step
-  · conv => lhs; arg 5; dsimp only [reduceCalculatorState_prog]
+  · conv => lhs; arg 5; dsimp only [CalculatorEngineKt_reduceCalculatorState_prog]
     calc_step_blk
     rw [runJvmResFast_checkNotNullParameter (by rfl)]
     calc_step_blk
@@ -1840,7 +1842,7 @@ private theorem reduceOp_equiv (resolveProg : String → Option (List JvmInstr))
     (cSt : CalculatorState) (o : CalculatorOp) (hp : CalcHeap) (jh : Jvm.JvmHeap CalcExt)
     (hw : HasCalcWhenMappings jh) :
     ∃ endSt,
-      Jvm.runJvmRes (mkCalcHooks resolveProg d subFuel) fuel reduceCalculatorState_prog
+      Jvm.runJvmRes (mkCalcHooks resolveProg d subFuel) fuel CalculatorEngineKt_reduceCalculatorState_prog
         (initCalcJvmState [(0, .ext (.calcState cSt)), (1, .ext (.calcKey (.op o)))] hp jh) =
         some (.ext (.calcState (reduceCalculatorStateModel cSt (.op o))), endSt) ∧
       endSt.jvmHeap = jh ∧ endSt.heap = hp := by
@@ -1848,7 +1850,7 @@ private theorem reduceOp_equiv (resolveProg : String → Option (List JvmInstr))
   obtain ⟨kf, rfl⟩ := Nat.exists_eq_add_of_le' hf
   apply runJvmRes_exists_fast0 rfl
   apply exists_run_step
-  · conv => lhs; arg 5; dsimp only [reduceCalculatorState_prog]
+  · conv => lhs; arg 5; dsimp only [CalculatorEngineKt_reduceCalculatorState_prog]
     calc_step_blk
     rw [runJvmResFast_checkNotNullParameter (by rfl)]
     calc_step_blk
@@ -2032,7 +2034,7 @@ private theorem reduceEquals_equiv (resolveProg : String → Option (List JvmIns
     (cSt : CalculatorState) (hp : CalcHeap) (jh : Jvm.JvmHeap CalcExt)
     (hw : HasCalcWhenMappings jh) :
     ∃ endSt,
-      Jvm.runJvmRes (mkCalcHooks resolveProg d subFuel) fuel reduceCalculatorState_prog
+      Jvm.runJvmRes (mkCalcHooks resolveProg d subFuel) fuel CalculatorEngineKt_reduceCalculatorState_prog
         (initCalcJvmState [(0, .ext (.calcState cSt)), (1, .ext (.calcKey .equals))] hp jh) =
         some (.ext (.calcState (reduceCalculatorStateModel cSt .equals)), endSt) ∧
       endSt.jvmHeap = jh ∧ endSt.heap = hp := by
@@ -2040,7 +2042,7 @@ private theorem reduceEquals_equiv (resolveProg : String → Option (List JvmIns
   obtain ⟨kf, rfl⟩ := Nat.exists_eq_add_of_le' hf
   apply runJvmRes_exists_fast0 rfl
   apply exists_run_step
-  · conv => lhs; arg 5; dsimp only [reduceCalculatorState_prog]
+  · conv => lhs; arg 5; dsimp only [CalculatorEngineKt_reduceCalculatorState_prog]
     calc_step_blk
     rw [runJvmResFast_checkNotNullParameter (by rfl)]
     calc_step_blk
@@ -2200,7 +2202,7 @@ theorem reduceCalculatorState_equiv (resolveProg : String → Option (List JvmIn
     (cSt : CalculatorState) (k : CalculatorKey) (hp : CalcHeap) (jh : Jvm.JvmHeap CalcExt)
     (hw : HasCalcWhenMappings jh) :
     ∃ endSt,
-      Jvm.runJvmRes (mkCalcHooks resolveProg d subFuel) fuel reduceCalculatorState_prog
+      Jvm.runJvmRes (mkCalcHooks resolveProg d subFuel) fuel CalculatorEngineKt_reduceCalculatorState_prog
         (initCalcJvmState [(0, .ext (.calcState cSt)), (1, .ext (.calcKey k))] hp jh) =
         some (.ext (.calcState (reduceCalculatorStateModel cSt k)), endSt) ∧
       endSt.jvmHeap = jh ∧ endSt.heap = hp := by

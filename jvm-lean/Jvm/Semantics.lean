@@ -49,8 +49,10 @@ def JvmVal.isNull {Ext : Type} : JvmVal Ext → Bool
   | .null => true
   | _ => false
 
+/-- Category-2 (two-slot) computational types: `long` and `double`. `Unit.INSTANCE` and
+uninitialized `new` results are ordinary one-slot references. -/
 def JvmVal.isCat2 {Ext : Type} : JvmVal Ext → Bool
-  | .i64 _ | .f64 _ | .unit | .uninit => true
+  | .i64 _ | .f64 _ => true
   | _ => false
 
 def JvmVal.isRef {Ext : Type} : JvmVal Ext → Bool
@@ -245,6 +247,18 @@ def JvmHeap.getStatic? {Ext : Type} (h : JvmHeap Ext) (cls field : String) : Opt
 def JvmHeap.setStatic {Ext : Type} (h : JvmHeap Ext) (cls field : String) (v : JvmVal Ext) : JvmHeap Ext :=
   { h with statics := (cls, field, v) :: h.statics.filter (fun (c, f, _) => !(c == cls && f == field)) }
 
+/-- Whether the generic model knows `v.equals(_)`: everything except references to `.instance` heap objects,
+whose `equals` may be overridden (data classes, collections), so address identity is not their `equals`, and
+dangling references. -/
+def JvmVal.equalsModeled {Ext : Type} (h : JvmHeap Ext) : JvmVal Ext → Bool
+  | .heapRef addr =>
+    match h.get? addr with
+    | some (.instance _ _) => false
+    | some _ => true
+    | none => false
+  | .pair a b => equalsModeled h a && equalsModeled h b
+  | _ => true
+
 def JvmHeap.checkInstanceOf {Ext : Type} (h : JvmHeap Ext)
     (cls : String) (addr : Nat) (isSubtypeOf : String → String → Bool := fun a b => a == b) : Bool :=
   match h.get? addr with
@@ -290,6 +304,28 @@ def i32ToDecimalString (v : UInt32) : String :=
 def i64ToDecimalString (v : UInt64) : String :=
   if v < 0x8000000000000000 then toString v.toNat
   else "-" ++ toString (0x10000000000000000 - v.toNat)
+
+/-- A JVM `char` (UTF-16 code unit, low 16 bits of `v`) as a Lean `Char`, or `none` for a surrogate:
+a lone surrogate has no Lean `String` representation, and `Char.ofNat` would silently map it to `'\0'`. -/
+def utf16UnitToChar? (v : UInt32) : Option Char :=
+  let u := v &&& 0xFFFF
+  if 0xD800 ≤ u && u ≤ 0xDFFF then none else some (Char.ofNat u.toNat)
+
+/-- Decodes UTF-16 code units (a JVM `char[]`) into Lean characters, combining surrogate pairs;
+`none` on an unpaired surrogate, which a Lean `String` cannot represent. -/
+def decodeUtf16? : List UInt16 → Option (List Char)
+  | [] => some []
+  | hi :: rest =>
+    if 0xD800 ≤ hi && hi ≤ 0xDBFF then
+      match rest with
+      | lo :: rest' =>
+        if 0xDC00 ≤ lo && lo ≤ 0xDFFF then
+          (decodeUtf16? rest').map
+            (Char.ofNat (0x10000 + (hi.toNat - 0xD800) * 0x400 + (lo.toNat - 0xDC00)) :: ·)
+        else none
+      | [] => none
+    else if 0xDC00 ≤ hi && hi ≤ 0xDFFF then none
+    else (decodeUtf16? rest).map (Char.ofNat hi.toNat :: ·)
 
 def i32ToFloat (v : UInt32) : Float :=
   v.toInt32.toFloat
@@ -349,8 +385,12 @@ def float32ToI32 (x : Float32) : UInt32 :=
 def float32ToI64 (x : Float32) : UInt64 :=
   floatToI64 x.toFloat
 
+/-- JVM `l2f`: rounds the signed 64-bit value to the nearest `float` once (JLS §5.1.2). Going through
+`double` first rounds twice and differs from the JVM, e.g. `(1L shl 60) + (1L shl 36) + 1` is
+`0x5d800001` on the JVM but `0x5d800000` via `double`. -/
 def i64ToFloat32 (v : UInt64) : Float32 :=
-  (i64ToFloat v).toFloat32
+  if v.toBitVec.slt 0#64 then -(Float32.ofNat (-v).toNat)
+  else Float32.ofNat v.toNat
 
 def jvmI32Div (a b : UInt32) : Option UInt32 :=
   if b == 0 then none else some (UInt32.ofBitVec (a.toBitVec.sdiv b.toBitVec))
@@ -487,7 +527,7 @@ def formatConcatArg {Ext : Type} (tag : Char) (v : JvmVal Ext) : Option String :
   match tag with
   | 'I' | 'B' | 'S' => v.asI32?.map i32ToDecimalString
   | 'J' => v.asI64?.map i64ToDecimalString
-  | 'C' => v.asI32?.map fun x => String.singleton (Char.ofNat (x &&& 0xFFFF).toNat)
+  | 'C' => v.asI32? >>= utf16UnitToChar? |>.map String.singleton
   | 'Z' => v.asI32?.map fun x => if x != 0 then "true" else "false"
   | 'D' | 'F' => none
   | _ =>
@@ -509,7 +549,9 @@ private def interpConcatRecipeAux {Ext : Type} : List Char → List (Char × Jvm
   | [], [] => some ""
   | [], _ :: _ => none
   | c :: cs, tagged =>
-    if c.toNat == 1 then
+    -- `\u0002` splices a bootstrap-method constant, which the lifted recipe does not carry: fail closed.
+    if c.toNat == 2 then none
+    else if c.toNat == 1 then
       match tagged with
       | (tag, v) :: tRest =>
         match formatConcatArg tag v, interpConcatRecipeAux cs tRest with
@@ -726,9 +768,8 @@ def stepInvokeVirtualGeneric {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
         .inl (some { st with pc := st.pc + 1, stack := .heapRef addr :: rest, jvmHeap := h' })
       | _, _ => .inr none
     | "append", "(C)Ljava/lang/StringBuilder;", arg :: .heapRef addr :: rest =>
-      match st.jvmHeap.get? addr, arg.asI32? with
-      | some (.stringBuilder buf), some v =>
-        let ch := Char.ofNat (v &&& 0xFFFF).toNat
+      match st.jvmHeap.get? addr, arg.asI32? >>= utf16UnitToChar? with
+      | some (.stringBuilder buf), some ch =>
         let h' := st.jvmHeap.set addr (.stringBuilder (buf ++ String.singleton ch))
         .inl (some { st with pc := st.pc + 1, stack := .heapRef addr :: rest, jvmHeap := h' })
       | _, _ => .inr none
@@ -860,7 +901,9 @@ def stepInvokeStaticGeneric {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
         .inl (some { st with pc := st.pc + 1, stack := .i32 res :: rest })
       | _, _ => .inr none
     | "areEqual", "(Ljava/lang/Object;Ljava/lang/Object;)Z", b :: a :: rest =>
-      .inl (some { st with pc := st.pc + 1, stack := .bool (JvmVal.beqVal hooks.beqExt a b) :: rest })
+      if a.equalsModeled st.jvmHeap && b.equalsModeled st.jvmHeap then
+        .inl (some { st with pc := st.pc + 1, stack := .bool (JvmVal.beqVal hooks.beqExt a b) :: rest })
+      else hooks.stepInvokeStatic st cls method desc
     | "checkNotNull", "(Ljava/lang/Object;Ljava/lang/String;)V", _msg :: obj :: rest
     | "checkNotNullParameter", "(Ljava/lang/Object;Ljava/lang/String;)V", _msg :: obj :: rest
     | "checkNotNullExpressionValue", "(Ljava/lang/Object;Ljava/lang/String;)V", _msg :: obj :: rest =>
@@ -930,8 +973,15 @@ def stepInvokeStaticGeneric {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
     | _, _, _ => hooks.stepInvokeStatic st cls method desc
   | "kotlin/jvm/internal/TypeIntrinsics" =>
     match method, desc, st.stack with
-    | "beforeCheckcastToFunctionOfArity", "(Ljava/lang/Object;I)Ljava/lang/Object;", _arity :: fnObj :: rest =>
-      .inl (some { st with pc := st.pc + 1, stack := fnObj :: rest })
+    | "beforeCheckcastToFunctionOfArity", "(Ljava/lang/Object;I)Ljava/lang/Object;", arity :: fnObj :: rest =>
+      -- Throws `ClassCastException` unless `fnObj` is null or a function of exactly this arity.
+      match arity.asI32? with
+      | some n =>
+        if fnObj.isNull ||
+            evalInstanceOf hooks st.jvmHeap ("kotlin/jvm/functions/Function" ++ toString n.toNat) fnObj then
+          .inl (some { st with pc := st.pc + 1, stack := fnObj :: rest })
+        else hooks.stepInvokeStatic st cls method desc
+      | none => .inr none
     | _, _, _ => hooks.stepInvokeStatic st cls method desc
   | "kotlin/UByteArray" =>
     match method, desc, st.stack with
@@ -1056,6 +1106,7 @@ def stepInvokeStaticGeneric {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
     | "toSet", "(Ljava/lang/Iterable;)Ljava/util/Set;", .heapRef colAddr :: rest =>
       match extractListArray? st.jvmHeap colAddr with
       | some elems =>
+        if !elems.all (·.equalsModeled st.jvmHeap) then hooks.stepInvokeStatic st cls method desc else
         let dedup := (dedupJvmVals (JvmVal.beqVal hooks.beqExt) elems.toList).toArray
         let (arrAddr, h1) := st.jvmHeap.alloc (.objArray "java/lang/Object" dedup)
         let (setAddr, h2) := h1.alloc (.instance "java/util/Set" [("arr", .heapRef arrAddr)])
@@ -1081,8 +1132,9 @@ def stepInvokeStaticGeneric {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
     | "concatToString", "([C)Ljava/lang/String;", .heapRef addr :: rest =>
       match st.jvmHeap.get? addr with
       | some (.charArray elems) =>
-        let s := String.ofList (elems.toList.map fun c => Char.ofNat c.toNat)
-        .inl (some { st with pc := st.pc + 1, stack := .str s :: rest })
+        match decodeUtf16? elems.toList with
+        | some cs => .inl (some { st with pc := st.pc + 1, stack := .str (String.ofList cs) :: rest })
+        | none => .inr none
       | _ => .inr none
     | "decodeToString", "([B)Ljava/lang/String;", .heapRef addr :: rest =>
       match st.jvmHeap.get? addr with
@@ -1898,6 +1950,25 @@ def stepInstr {Ext Heap : Type} (hooks : JvmHooks Ext Heap) (instr : JvmInstr) (
     | _ => .inr none
   | .vreturn => .inr (some .unit)
   | _ => .inr none
+
+/-- `Intrinsics.areEqual` on operands whose `equals` the generic model decides (`JvmVal.equalsModeled`). -/
+theorem stepInstr_areEqual {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
+    {pc : Nat} {a b : JvmVal Ext} {stkRest : List (JvmVal Ext)}
+    {locs : Nat → JvmVal Ext} {jh : JvmHeap Ext} {hp : Heap}
+    (ha : a.equalsModeled jh = true) (hb : b.equalsModeled jh = true) :
+    stepInstr hooks
+        (.invokestatic "kotlin/jvm/internal/Intrinsics" "areEqual" "(Ljava/lang/Object;Ljava/lang/Object;)Z")
+        ⟨pc, b :: a :: stkRest, locs, jh, hp⟩ =
+      .inl (some ⟨pc + 1, .bool (JvmVal.beqVal hooks.beqExt a b) :: stkRest, locs, jh, hp⟩) := by
+  have h : stepInstr hooks
+        (.invokestatic "kotlin/jvm/internal/Intrinsics" "areEqual" "(Ljava/lang/Object;Ljava/lang/Object;)Z")
+        ⟨pc, b :: a :: stkRest, locs, jh, hp⟩ =
+      if (a.equalsModeled jh && b.equalsModeled jh) = true then
+        .inl (some ⟨pc + 1, .bool (JvmVal.beqVal hooks.beqExt a b) :: stkRest, locs, jh, hp⟩)
+      else hooks.stepInvokeStatic ⟨pc, b :: a :: stkRest, locs, jh, hp⟩
+        "kotlin/jvm/internal/Intrinsics" "areEqual" "(Ljava/lang/Object;Ljava/lang/Object;)Z" := rfl
+  rw [h, ha, hb]
+  rfl
 
 theorem stepInstr_aaload {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
     {pc : Nat} {idx : UInt32} {addr : Nat} {stkRest : List (JvmVal Ext)}

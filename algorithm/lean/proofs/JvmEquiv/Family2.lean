@@ -96,7 +96,7 @@ private theorem growBufEmpty_core (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (arg0
     let jh1 := (jh.alloc (.objArray "java/lang/Object" #[])).2
     let jh2 := (jh1.alloc (.objArray "java/lang/Object"
       #[.boxedInt 0, .heapRef jh.objects.size, .boxedUInt 0])).2
-    ∃ st', runJvmRes 30 f_Algorithm_GrowBuf_empty___redArg_prog
+    ∃ st', runJvmRes 30 Life105LeanKt_f_Algorithm_GrowBuf_empty___redArg_prog
         ⟨0, [], setLocal (fun _ => .null) 0 arg0, jh, hp⟩ =
       some (.heapRef (jh.objects.size + 1), st') ∧ st'.jvmHeap = jh2 := by
   have hrep0 : (Array.replicate 0 JvmVal.null : Array JvmVal) = #[] := rfl
@@ -119,20 +119,20 @@ private theorem growBufEmpty_core (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (arg0
   have hsz1 : jh1.objects.size = jh.objects.size + 1 := by simp [jh1, Jvm.JvmHeap.alloc]
   exact ⟨_, by
     apply runJvmRes_of_runJvmResFast0 _ _ _ _ rfl
-    split_res_fuel 10; heap_step_blk f_Algorithm_GrowBuf_empty___redArg_prog
+    split_res_fuel 10; heap_step_blk Life105LeanKt_f_Algorithm_GrowBuf_empty___redArg_prog
     split_res_fuel 1; rw [runJvmResFast_anewarray_obj (by decide)]
-    split_res_fuel 10; heap_step_blk f_Algorithm_GrowBuf_empty___redArg_prog
+    split_res_fuel 10; heap_step_blk Life105LeanKt_f_Algorithm_GrowBuf_empty___redArg_prog
     split_res_fuel 1; rw [runJvmResFast_anewarray_obj (by decide)]
     change runJvmResFast _ _ _ _ ⟨_, _, _, jh2_0, _⟩ = _
-    split_res_fuel 10; heap_step_blk f_Algorithm_GrowBuf_empty___redArg_prog
+    split_res_fuel 10; heap_step_blk Life105LeanKt_f_Algorithm_GrowBuf_empty___redArg_prog
     split_res_fuel 1; rw [runJvmResFast_aastore (idx := 0) h1 (by decide) (by decide)]
     change runJvmResFast _ _ _ _ ⟨_, _, _, jh2_1, _⟩ = _
-    split_res_fuel 10; heap_step_blk f_Algorithm_GrowBuf_empty___redArg_prog
+    split_res_fuel 10; heap_step_blk Life105LeanKt_f_Algorithm_GrowBuf_empty___redArg_prog
     split_res_fuel 1; rw [runJvmResFast_aastore (idx := 1) h2 (by decide) (by decide)]
     change runJvmResFast _ _ _ _ ⟨_, _, _, jh2_2, _⟩ = _
-    split_res_fuel 10; heap_step_blk f_Algorithm_GrowBuf_empty___redArg_prog
+    split_res_fuel 10; heap_step_blk Life105LeanKt_f_Algorithm_GrowBuf_empty___redArg_prog
     split_res_fuel 1; rw [runJvmResFast_aastore (idx := 2) h3 (by decide) (by simp)]
-    split_res_fuel 10; heap_step_blk f_Algorithm_GrowBuf_empty___redArg_prog; dsimp only; rw [hsz1], by
+    split_res_fuel 10; heap_step_blk Life105LeanKt_f_Algorithm_GrowBuf_empty___redArg_prog; dsimp only; rw [hsz1], by
     have harr : (((Array.replicate (3 : UInt32).toNat (JvmVal.null : Jvm.JvmVal AlgExt)).set
         (0 : Nat) (JvmVal.boxedInt 0)).set
         (1 : Nat) (Jvm.JvmVal.heapRef jh.objects.size)).set
@@ -160,7 +160,7 @@ theorem growBufEmpty_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (arg0 : JvmV
     let (_, jh1) := jh.alloc (.objArray "java/lang/Object" #[])
     let (bufAddr, jh2) := jh1.alloc (.objArray "java/lang/Object"
       #[.boxedInt 0, .heapRef jh.objects.size, .boxedUInt 0])
-    ∃ st', runJvmRes 30 f_Algorithm_GrowBuf_empty___redArg_prog
+    ∃ st', runJvmRes 30 Life105LeanKt_f_Algorithm_GrowBuf_empty___redArg_prog
         ⟨0, [], setLocal (fun _ => .null) 0 arg0, jh, hp⟩ =
       some (.heapRef bufAddr, st') ∧ st'.jvmHeap = jh2 := by
   simpa [Jvm.JvmHeap.alloc] using growBufEmpty_core jh hp arg0
@@ -169,40 +169,40 @@ theorem growBufEmpty_1_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (arg0 : Jv
     let (_, jh1) := jh.alloc (.objArray "java/lang/Object" #[])
     let (bufAddr, jh2) := jh1.alloc (.objArray "java/lang/Object"
       #[.boxedInt 0, .heapRef jh.objects.size, .boxedUInt 0])
-    ∃ st', runJvmRes 30 f_Algorithm_GrowBuf_empty___redArg_1_prog
+    ∃ st', runJvmRes 30 Life106LeanKt_f_Algorithm_GrowBuf_empty___redArg_prog
         ⟨0, [], setLocal (fun _ => .null) 0 arg0, jh, hp⟩ =
       some (.heapRef bufAddr, st') ∧ st'.jvmHeap = jh2 := by
-  rw [show f_Algorithm_GrowBuf_empty___redArg_1_prog = f_Algorithm_GrowBuf_empty___redArg_prog from rfl]
+  rw [show Life106LeanKt_f_Algorithm_GrowBuf_empty___redArg_prog = Life105LeanKt_f_Algorithm_GrowBuf_empty___redArg_prog from rfl]
   exact growBufEmpty_equiv jh hp arg0
 
 theorem growBufEmpty_2_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (arg0 : JvmVal) :
     let (_, jh1) := jh.alloc (.objArray "java/lang/Object" #[])
     let (bufAddr, jh2) := jh1.alloc (.objArray "java/lang/Object"
       #[.boxedInt 0, .heapRef jh.objects.size, .boxedUInt 0])
-    ∃ st', runJvmRes 30 f_Algorithm_GrowBuf_empty___redArg_2_prog
+    ∃ st', runJvmRes 30 MacroCellLeanKt_f_Algorithm_GrowBuf_empty___redArg_prog
         ⟨0, [], setLocal (fun _ => .null) 0 arg0, jh, hp⟩ =
       some (.heapRef bufAddr, st') ∧ st'.jvmHeap = jh2 := by
-  rw [show f_Algorithm_GrowBuf_empty___redArg_2_prog = f_Algorithm_GrowBuf_empty___redArg_prog from rfl]
+  rw [show MacroCellLeanKt_f_Algorithm_GrowBuf_empty___redArg_prog = Life105LeanKt_f_Algorithm_GrowBuf_empty___redArg_prog from rfl]
   exact growBufEmpty_equiv jh hp arg0
 
 theorem growBufEmpty_3_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (arg0 : JvmVal) :
     let (_, jh1) := jh.alloc (.objArray "java/lang/Object" #[])
     let (bufAddr, jh2) := jh1.alloc (.objArray "java/lang/Object"
       #[.boxedInt 0, .heapRef jh.objects.size, .boxedUInt 0])
-    ∃ st', runJvmRes 30 f_Algorithm_GrowBuf_empty___redArg_3_prog
+    ∃ st', runJvmRes 30 PlaintextLeanKt_f_Algorithm_GrowBuf_empty___redArg_prog
         ⟨0, [], setLocal (fun _ => .null) 0 arg0, jh, hp⟩ =
       some (.heapRef bufAddr, st') ∧ st'.jvmHeap = jh2 := by
-  rw [show f_Algorithm_GrowBuf_empty___redArg_3_prog = f_Algorithm_GrowBuf_empty___redArg_prog from rfl]
+  rw [show PlaintextLeanKt_f_Algorithm_GrowBuf_empty___redArg_prog = Life105LeanKt_f_Algorithm_GrowBuf_empty___redArg_prog from rfl]
   exact growBufEmpty_equiv jh hp arg0
 
 theorem growBufEmpty_4_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (arg0 : JvmVal) :
     let (_, jh1) := jh.alloc (.objArray "java/lang/Object" #[])
     let (bufAddr, jh2) := jh1.alloc (.objArray "java/lang/Object"
       #[.boxedInt 0, .heapRef jh.objects.size, .boxedUInt 0])
-    ∃ st', runJvmRes 30 f_Algorithm_GrowBuf_empty___redArg_4_prog
+    ∃ st', runJvmRes 30 RleLeanKt_f_Algorithm_GrowBuf_empty___redArg_prog
         ⟨0, [], setLocal (fun _ => .null) 0 arg0, jh, hp⟩ =
       some (.heapRef bufAddr, st') ∧ st'.jvmHeap = jh2 := by
-  rw [show f_Algorithm_GrowBuf_empty___redArg_4_prog = f_Algorithm_GrowBuf_empty___redArg_prog from rfl]
+  rw [show RleLeanKt_f_Algorithm_GrowBuf_empty___redArg_prog = Life105LeanKt_f_Algorithm_GrowBuf_empty___redArg_prog from rfl]
   exact growBufEmpty_equiv jh hp arg0
 
 /-! ### copyPrefix -/
@@ -235,7 +235,7 @@ private theorem copyPrefix_loop (rem fuel : Nat) (jh : Jvm.JvmHeap AlgExt) (hp :
     (hcompat : ∀ (k : Nat) (hk : k < n.toNat), i.toNat ≤ k →
       Jvm.isArrayElemCompat algHooks jh dstCls (srcElems[k]'(by omega)) = true)
     (hrem : n.toNat - i.toNat ≤ rem) (hf : rem * 35 + 15 ≤ fuel) :
-    ∃ st', runJvmResFast fuel f_Algorithm_copyPrefix___redArg_prog 0 f_Algorithm_copyPrefix___redArg_prog
+    ∃ st', runJvmResFast fuel Life105LeanKt_f_Algorithm_copyPrefix___redArg_prog 0 Life105LeanKt_f_Algorithm_copyPrefix___redArg_prog
         ⟨0, [], setLocal (setLocal (setLocal (setLocal (setLocal locs 0 inst)
           1 (.heapRef srcAddr)) 2 (.i32 n)) 3 (.i32 i)) 4 (.heapRef dstAddr), jh, hp⟩ =
       some (.unit, st') ∧
@@ -249,7 +249,7 @@ private theorem copyPrefix_loop (rem fuel : Nat) (jh : Jvm.JvmHeap AlgExt) (hp :
     subst hieq
     have hcu : (if i == i then (0 : UInt32) else if i < i then 4294967295 else 1) = 0 := by simp
     exact ⟨_, by
-      split_res_fuel 10; heap_step_blk f_Algorithm_copyPrefix___redArg_prog
+      split_res_fuel 10; heap_step_blk Life105LeanKt_f_Algorithm_copyPrefix___redArg_prog
       simp only [hcu, show (0 : UInt32).toBitVec.slt 0#32 = false from by decide, Bool.false_eq_true, ↓reduceIte]
       rfl, by
       have hltf : ¬(i < i) := UInt32.lt_irrefl i
@@ -283,12 +283,12 @@ private theorem copyPrefix_loop (rem fuel : Nat) (jh : Jvm.JvmHeap AlgExt) (hp :
         (by omega) (by omega)
       refine ⟨st', ?_, ?_⟩
       · split_res_fuel 34
-        heap_step_blk f_Algorithm_copyPrefix___redArg_prog
+        heap_step_blk Life105LeanKt_f_Algorithm_copyPrefix___redArg_prog
         simp only [hcu, show (4294967295 : UInt32).toBitVec.slt 0#32 = true from by decide, ↓reduceIte]
-        heap_step_blk f_Algorithm_copyPrefix___redArg_prog
+        heap_step_blk Life105LeanKt_f_Algorithm_copyPrefix___redArg_prog
         rw [runJvmResFast_aaload hsrc hislt hisrc]
         rw [runJvmResFast_aastore hdst hislt hidst (hcompat i.toNat hiltn (Nat.le_refl _))]
-        heap_step_blk f_Algorithm_copyPrefix___redArg_prog
+        heap_step_blk Life105LeanKt_f_Algorithm_copyPrefix___redArg_prog
         exact hrun
       · rw [hst]
         have hsub : n.toNat - i.toNat + 1 = (n.toNat - (i + 1).toNat + 1) + 1 := by omega
@@ -312,7 +312,7 @@ private theorem copyPrefix_loop (rem fuel : Nat) (jh : Jvm.JvmHeap AlgExt) (hp :
       subst hieq
       have hcu : (if i == i then (0 : UInt32) else if i < i then 4294967295 else 1) = 0 := by simp
       exact ⟨_, by
-        split_res_fuel 10; heap_step_blk f_Algorithm_copyPrefix___redArg_prog
+        split_res_fuel 10; heap_step_blk Life105LeanKt_f_Algorithm_copyPrefix___redArg_prog
         simp only [hcu, show (0 : UInt32).toBitVec.slt 0#32 = false from by decide, Bool.false_eq_true, ↓reduceIte]
         rfl, by
         have hltf : ¬(i < i) := UInt32.lt_irrefl i
@@ -329,7 +329,7 @@ theorem copyPrefix_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (hn31 : n.toNat < 2 ^ 31)
     (hcompat : ∀ (k : Nat) (hk : k < n.toNat), i.toNat ≤ k →
       Jvm.isArrayElemCompat algHooks jh dstCls (srcElems[k]'(by omega)) = true) :
-    ∃ st', runJvmRes (n.toNat * 35 + 20) f_Algorithm_copyPrefix___redArg_prog
+    ∃ st', runJvmRes (n.toNat * 35 + 20) Life105LeanKt_f_Algorithm_copyPrefix___redArg_prog
         ⟨0, [], setLocal (setLocal (setLocal (setLocal (setLocal (fun _ => .null) 0 inst)
           1 (.heapRef srcAddr)) 2 (.i32 n)) 3 (.i32 i)) 4 (.heapRef dstAddr), jh, hp⟩ =
       some (.unit, st') ∧
@@ -351,13 +351,13 @@ theorem copyPrefix_1_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (hn31 : n.toNat < 2 ^ 31)
     (hcompat : ∀ (k : Nat) (hk : k < n.toNat), i.toNat ≤ k →
       Jvm.isArrayElemCompat algHooks jh dstCls (srcElems[k]'(by omega)) = true) :
-    ∃ st', runJvmRes (n.toNat * 35 + 20) f_Algorithm_copyPrefix___redArg_1_prog
+    ∃ st', runJvmRes (n.toNat * 35 + 20) Life106LeanKt_f_Algorithm_copyPrefix___redArg_prog
         ⟨0, [], setLocal (setLocal (setLocal (setLocal (setLocal (fun _ => .null) 0 inst)
           1 (.heapRef srcAddr)) 2 (.i32 n)) 3 (.i32 i)) 4 (.heapRef dstAddr), jh, hp⟩ =
       some (.unit, st') ∧
       st'.jvmHeap = jh.set dstAddr (.objArray dstCls
         (copyObjArrayPrefix srcElems dstElems n i (n.toNat - i.toNat + 1))) := by
-  rw [show f_Algorithm_copyPrefix___redArg_1_prog = f_Algorithm_copyPrefix___redArg_prog from rfl]
+  rw [show Life106LeanKt_f_Algorithm_copyPrefix___redArg_prog = Life105LeanKt_f_Algorithm_copyPrefix___redArg_prog from rfl]
   exact copyPrefix_equiv jh hp inst srcAddr dstAddr srcCls dstCls srcElems dstElems n i hne hsrc hdst hi hn hd hn31 hcompat
 
 theorem copyPrefix_2_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
@@ -370,13 +370,13 @@ theorem copyPrefix_2_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (hn31 : n.toNat < 2 ^ 31)
     (hcompat : ∀ (k : Nat) (hk : k < n.toNat), i.toNat ≤ k →
       Jvm.isArrayElemCompat algHooks jh dstCls (srcElems[k]'(by omega)) = true) :
-    ∃ st', runJvmRes (n.toNat * 35 + 20) f_Algorithm_copyPrefix___redArg_2_prog
+    ∃ st', runJvmRes (n.toNat * 35 + 20) MacroCellLeanKt_f_Algorithm_copyPrefix___redArg_prog
         ⟨0, [], setLocal (setLocal (setLocal (setLocal (setLocal (fun _ => .null) 0 inst)
           1 (.heapRef srcAddr)) 2 (.i32 n)) 3 (.i32 i)) 4 (.heapRef dstAddr), jh, hp⟩ =
       some (.unit, st') ∧
       st'.jvmHeap = jh.set dstAddr (.objArray dstCls
         (copyObjArrayPrefix srcElems dstElems n i (n.toNat - i.toNat + 1))) := by
-  rw [show f_Algorithm_copyPrefix___redArg_2_prog = f_Algorithm_copyPrefix___redArg_prog from rfl]
+  rw [show MacroCellLeanKt_f_Algorithm_copyPrefix___redArg_prog = Life105LeanKt_f_Algorithm_copyPrefix___redArg_prog from rfl]
   exact copyPrefix_equiv jh hp inst srcAddr dstAddr srcCls dstCls srcElems dstElems n i hne hsrc hdst hi hn hd hn31 hcompat
 
 theorem copyPrefix_3_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
@@ -389,13 +389,13 @@ theorem copyPrefix_3_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (hn31 : n.toNat < 2 ^ 31)
     (hcompat : ∀ (k : Nat) (hk : k < n.toNat), i.toNat ≤ k →
       Jvm.isArrayElemCompat algHooks jh dstCls (srcElems[k]'(by omega)) = true) :
-    ∃ st', runJvmRes (n.toNat * 35 + 20) f_Algorithm_copyPrefix___redArg_3_prog
+    ∃ st', runJvmRes (n.toNat * 35 + 20) PlaintextLeanKt_f_Algorithm_copyPrefix___redArg_prog
         ⟨0, [], setLocal (setLocal (setLocal (setLocal (setLocal (fun _ => .null) 0 inst)
           1 (.heapRef srcAddr)) 2 (.i32 n)) 3 (.i32 i)) 4 (.heapRef dstAddr), jh, hp⟩ =
       some (.unit, st') ∧
       st'.jvmHeap = jh.set dstAddr (.objArray dstCls
         (copyObjArrayPrefix srcElems dstElems n i (n.toNat - i.toNat + 1))) := by
-  rw [show f_Algorithm_copyPrefix___redArg_3_prog = f_Algorithm_copyPrefix___redArg_prog from rfl]
+  rw [show PlaintextLeanKt_f_Algorithm_copyPrefix___redArg_prog = Life105LeanKt_f_Algorithm_copyPrefix___redArg_prog from rfl]
   exact copyPrefix_equiv jh hp inst srcAddr dstAddr srcCls dstCls srcElems dstElems n i hne hsrc hdst hi hn hd hn31 hcompat
 
 theorem copyPrefix_4_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
@@ -408,13 +408,13 @@ theorem copyPrefix_4_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (hn31 : n.toNat < 2 ^ 31)
     (hcompat : ∀ (k : Nat) (hk : k < n.toNat), i.toNat ≤ k →
       Jvm.isArrayElemCompat algHooks jh dstCls (srcElems[k]'(by omega)) = true) :
-    ∃ st', runJvmRes (n.toNat * 35 + 20) f_Algorithm_copyPrefix___redArg_4_prog
+    ∃ st', runJvmRes (n.toNat * 35 + 20) RleLeanKt_f_Algorithm_copyPrefix___redArg_prog
         ⟨0, [], setLocal (setLocal (setLocal (setLocal (setLocal (fun _ => .null) 0 inst)
           1 (.heapRef srcAddr)) 2 (.i32 n)) 3 (.i32 i)) 4 (.heapRef dstAddr), jh, hp⟩ =
       some (.unit, st') ∧
       st'.jvmHeap = jh.set dstAddr (.objArray dstCls
         (copyObjArrayPrefix srcElems dstElems n i (n.toNat - i.toNat + 1))) := by
-  rw [show f_Algorithm_copyPrefix___redArg_4_prog = f_Algorithm_copyPrefix___redArg_prog from rfl]
+  rw [show RleLeanKt_f_Algorithm_copyPrefix___redArg_prog = Life105LeanKt_f_Algorithm_copyPrefix___redArg_prog from rfl]
   exact copyPrefix_equiv jh hp inst srcAddr dstAddr srcCls dstCls srcElems dstElems n i hne hsrc hdst hi hn hd hn31 hcompat
 
 /-! ### GrowBuf.push (all 5 variants via parameterized program) -/
@@ -458,8 +458,8 @@ private theorem stepStatic_copyPrefix_heap
     {pc : Nat} {cls : String} {dstAddr srcAddr : Nat} {i n : UInt32} {inst : JvmVal}
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     {srcCls dstCls : String} {srcElems dstElems : Array JvmVal}
-    (hcls : cls = "Life105LeanKt" ∨ cls = "Life106LeanKt" ∨ cls = "MacroCellLeanKt" ∨
-      cls = "PlaintextLeanKt" ∨ cls = "RleLeanKt")
+    (hcls : cls = "com/alexvanyo/composelife/model/Life105LeanKt" ∨ cls = "com/alexvanyo/composelife/model/Life106LeanKt" ∨ cls = "com/alexvanyo/composelife/model/MacroCellLeanKt" ∨
+      cls = "com/alexvanyo/composelife/model/PlaintextLeanKt" ∨ cls = "com/alexvanyo/composelife/model/RleLeanKt")
     (hsrc : jh.get? srcAddr = some (.objArray srcCls srcElems))
     (hdst : jh.get? dstAddr = some (.objArray dstCls dstElems)) :
     stepInvokeStatic ⟨pc, .heapRef dstAddr :: .i32 i :: .i32 n :: .heapRef srcAddr :: inst :: rest, locs, jh, hp⟩
@@ -495,8 +495,8 @@ private theorem jvmHeap_alloc_set_set_push (H : Jvm.JvmHeap AlgExt)
     · next hne => omega
 
 private theorem growBufPush_spec (cls : String)
-    (hcls : cls = "Life105LeanKt" ∨ cls = "Life106LeanKt" ∨ cls = "MacroCellLeanKt" ∨
-      cls = "PlaintextLeanKt" ∨ cls = "RleLeanKt")
+    (hcls : cls = "com/alexvanyo/composelife/model/Life105LeanKt" ∨ cls = "com/alexvanyo/composelife/model/Life106LeanKt" ∨ cls = "com/alexvanyo/composelife/model/MacroCellLeanKt" ∨
+      cls = "com/alexvanyo/composelife/model/PlaintextLeanKt" ∨ cls = "com/alexvanyo/composelife/model/RleLeanKt")
     (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (bufAddr dataAddr : Nat) (bufElems dataElems : Array JvmVal)
     (sz : UInt32) (elem : JvmVal)
@@ -743,11 +743,11 @@ theorem growBufPush_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (hdata : jh.get? dataAddr = some (.objArray "java/lang/Object" dataElems))
     (hcap : dataElems.size < 2 ^ 30) (hsz : sz.toNat ≤ dataElems.size)
     (helem : elem.isRef = true) :
-    ∃ st', runJvmRes 120 f_Algorithm_GrowBuf_push___redArg_prog
+    ∃ st', runJvmRes 120 Life105LeanKt_f_Algorithm_GrowBuf_push___redArg_prog
         ⟨0, [], setLocal (setLocal (fun _ => .null) 0 (.heapRef bufAddr)) 1 elem, jh, hp⟩ =
       some (.heapRef (if sz < UInt32.ofNat dataElems.size then jh.objects.size else jh.objects.size + 1), st') := by
-  rw [show f_Algorithm_GrowBuf_push___redArg_prog = growBufPushProg "Life105LeanKt" from rfl]
-  rcases growBufPush_spec "Life105LeanKt" (Or.inl rfl) jh hp bufAddr dataAddr bufElems dataElems sz elem hbuf h1 h2 hdata hcap hsz helem with
+  rw [show Life105LeanKt_f_Algorithm_GrowBuf_push___redArg_prog = growBufPushProg "com/alexvanyo/composelife/model/Life105LeanKt" from rfl]
+  rcases growBufPush_spec "com/alexvanyo/composelife/model/Life105LeanKt" (Or.inl rfl) jh hp bufAddr dataAddr bufElems dataElems sz elem hbuf h1 h2 hdata hcap hsz helem with
     ⟨st', h, _⟩
   exact ⟨st', h⟩
 
@@ -758,11 +758,11 @@ theorem growBufPush_1_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (hdata : jh.get? dataAddr = some (.objArray "java/lang/Object" dataElems))
     (hcap : dataElems.size < 2 ^ 30) (hsz : sz.toNat ≤ dataElems.size)
     (helem : elem.isRef = true) :
-    ∃ st', runJvmRes 120 f_Algorithm_GrowBuf_push___redArg_1_prog
+    ∃ st', runJvmRes 120 Life106LeanKt_f_Algorithm_GrowBuf_push___redArg_prog
         ⟨0, [], setLocal (setLocal (fun _ => .null) 0 (.heapRef bufAddr)) 1 elem, jh, hp⟩ =
       some (.heapRef (if sz < UInt32.ofNat dataElems.size then jh.objects.size else jh.objects.size + 1), st') := by
-  rw [show f_Algorithm_GrowBuf_push___redArg_1_prog = growBufPushProg "Life106LeanKt" from rfl]
-  rcases growBufPush_spec "Life106LeanKt" (Or.inr (Or.inl rfl)) jh hp bufAddr dataAddr bufElems dataElems sz elem hbuf h1 h2 hdata hcap hsz helem with
+  rw [show Life106LeanKt_f_Algorithm_GrowBuf_push___redArg_prog = growBufPushProg "com/alexvanyo/composelife/model/Life106LeanKt" from rfl]
+  rcases growBufPush_spec "com/alexvanyo/composelife/model/Life106LeanKt" (Or.inr (Or.inl rfl)) jh hp bufAddr dataAddr bufElems dataElems sz elem hbuf h1 h2 hdata hcap hsz helem with
     ⟨st', h, _⟩
   exact ⟨st', h⟩
 
@@ -773,11 +773,11 @@ theorem growBufPush_2_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (hdata : jh.get? dataAddr = some (.objArray "java/lang/Object" dataElems))
     (hcap : dataElems.size < 2 ^ 30) (hsz : sz.toNat ≤ dataElems.size)
     (helem : elem.isRef = true) :
-    ∃ st', runJvmRes 120 f_Algorithm_GrowBuf_push___redArg_2_prog
+    ∃ st', runJvmRes 120 MacroCellLeanKt_f_Algorithm_GrowBuf_push___redArg_prog
         ⟨0, [], setLocal (setLocal (fun _ => .null) 0 (.heapRef bufAddr)) 1 elem, jh, hp⟩ =
       some (.heapRef (if sz < UInt32.ofNat dataElems.size then jh.objects.size else jh.objects.size + 1), st') := by
-  rw [show f_Algorithm_GrowBuf_push___redArg_2_prog = growBufPushProg "MacroCellLeanKt" from rfl]
-  rcases growBufPush_spec "MacroCellLeanKt" (Or.inr (Or.inr (Or.inl rfl))) jh hp bufAddr dataAddr bufElems dataElems sz elem hbuf h1 h2 hdata hcap hsz helem with
+  rw [show MacroCellLeanKt_f_Algorithm_GrowBuf_push___redArg_prog = growBufPushProg "com/alexvanyo/composelife/model/MacroCellLeanKt" from rfl]
+  rcases growBufPush_spec "com/alexvanyo/composelife/model/MacroCellLeanKt" (Or.inr (Or.inr (Or.inl rfl))) jh hp bufAddr dataAddr bufElems dataElems sz elem hbuf h1 h2 hdata hcap hsz helem with
     ⟨st', h, _⟩
   exact ⟨st', h⟩
 
@@ -788,11 +788,11 @@ theorem growBufPush_3_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (hdata : jh.get? dataAddr = some (.objArray "java/lang/Object" dataElems))
     (hcap : dataElems.size < 2 ^ 30) (hsz : sz.toNat ≤ dataElems.size)
     (helem : elem.isRef = true) :
-    ∃ st', runJvmRes 120 f_Algorithm_GrowBuf_push___redArg_3_prog
+    ∃ st', runJvmRes 120 PlaintextLeanKt_f_Algorithm_GrowBuf_push___redArg_prog
         ⟨0, [], setLocal (setLocal (fun _ => .null) 0 (.heapRef bufAddr)) 1 elem, jh, hp⟩ =
       some (.heapRef (if sz < UInt32.ofNat dataElems.size then jh.objects.size else jh.objects.size + 1), st') := by
-  rw [show f_Algorithm_GrowBuf_push___redArg_3_prog = growBufPushProg "PlaintextLeanKt" from rfl]
-  rcases growBufPush_spec "PlaintextLeanKt" (Or.inr (Or.inr (Or.inr (Or.inl rfl)))) jh hp bufAddr dataAddr bufElems dataElems sz elem hbuf h1 h2 hdata hcap hsz helem with
+  rw [show PlaintextLeanKt_f_Algorithm_GrowBuf_push___redArg_prog = growBufPushProg "com/alexvanyo/composelife/model/PlaintextLeanKt" from rfl]
+  rcases growBufPush_spec "com/alexvanyo/composelife/model/PlaintextLeanKt" (Or.inr (Or.inr (Or.inr (Or.inl rfl)))) jh hp bufAddr dataAddr bufElems dataElems sz elem hbuf h1 h2 hdata hcap hsz helem with
     ⟨st', h, _⟩
   exact ⟨st', h⟩
 
@@ -803,11 +803,11 @@ theorem growBufPush_4_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (hdata : jh.get? dataAddr = some (.objArray "java/lang/Object" dataElems))
     (hcap : dataElems.size < 2 ^ 30) (hsz : sz.toNat ≤ dataElems.size)
     (helem : elem.isRef = true) :
-    ∃ st', runJvmRes 120 f_Algorithm_GrowBuf_push___redArg_4_prog
+    ∃ st', runJvmRes 120 RleLeanKt_f_Algorithm_GrowBuf_push___redArg_prog
         ⟨0, [], setLocal (setLocal (fun _ => .null) 0 (.heapRef bufAddr)) 1 elem, jh, hp⟩ =
       some (.heapRef (if sz < UInt32.ofNat dataElems.size then jh.objects.size else jh.objects.size + 1), st') := by
-  rw [show f_Algorithm_GrowBuf_push___redArg_4_prog = growBufPushProg "RleLeanKt" from rfl]
-  rcases growBufPush_spec "RleLeanKt" (Or.inr (Or.inr (Or.inr (Or.inr rfl)))) jh hp bufAddr dataAddr bufElems dataElems sz elem hbuf h1 h2 hdata hcap hsz helem with
+  rw [show RleLeanKt_f_Algorithm_GrowBuf_push___redArg_prog = growBufPushProg "com/alexvanyo/composelife/model/RleLeanKt" from rfl]
+  rcases growBufPush_spec "com/alexvanyo/composelife/model/RleLeanKt" (Or.inr (Or.inr (Or.inr (Or.inr rfl)))) jh hp bufAddr dataAddr bufElems dataElems sz elem hbuf h1 h2 hdata hcap hsz helem with
     ⟨st', h, _⟩
   exact ⟨st', h⟩
 
@@ -822,7 +822,7 @@ theorem growBufToArray_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (hcap : dataElems.size < 2 ^ 31)
     (hsz : sz.toNat ≤ dataElems.size) :
     let b : Algorithm.GrowBuf JvmVal := ⟨dataElems, sz⟩
-    ∃ st', runJvmRes 100 f_Algorithm_GrowBuf_toArray___redArg_prog
+    ∃ st', runJvmRes 100 Life105LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog
         ⟨0, [], setLocal (fun _ => .null) 0 (.heapRef bufAddr), jh, hp⟩ =
       some (.heapRef jh.objects.size, st') ∧
       st'.jvmHeap.get? jh.objects.size = some (.objArray "java/lang/Object" b.toArray) := by
@@ -842,54 +842,54 @@ theorem growBufToArray_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     coerceInI32_of_bounds hsz_lt (by decide) hdata_lt (Nat.zero_le _) (by omega)
   exact ⟨_, by
     apply runJvmRes_of_runJvmResFast0 _ _ _ _ rfl
-    split_res_fuel 5; heap_step_blk f_Algorithm_GrowBuf_toArray___redArg_prog
+    split_res_fuel 5; heap_step_blk Life105LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog
     split_res_fuel 1; rw [runJvmResFast_checkcast_objArray hbuf (Or.inl rfl)]
-    split_res_fuel 5; heap_step_blk f_Algorithm_GrowBuf_toArray___redArg_prog
+    split_res_fuel 5; heap_step_blk Life105LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog
     split_res_fuel 1; rw [runJvmResFast_aaload (idx := 1) hbuf (by decide) hlt1,
       show bufElems[(1 : UInt32).toNat]'hlt1 = .heapRef dataAddr from he1]
-    split_res_fuel 5; heap_step_blk f_Algorithm_GrowBuf_toArray___redArg_prog
+    split_res_fuel 5; heap_step_blk Life105LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog
     split_res_fuel 1; rw [runJvmResFast_checkcast_objArray hdata (Or.inl rfl)]
-    split_res_fuel 5; heap_step_blk f_Algorithm_GrowBuf_toArray___redArg_prog
+    split_res_fuel 5; heap_step_blk Life105LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog
     split_res_fuel 1; rw [runJvmResFast_checkcast_objArray hbuf (Or.inl rfl)]
-    split_res_fuel 5; heap_step_blk f_Algorithm_GrowBuf_toArray___redArg_prog
+    split_res_fuel 5; heap_step_blk Life105LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog
     split_res_fuel 1; rw [runJvmResFast_aaload (idx := 1) hbuf (by decide) hlt1,
       show bufElems[(1 : UInt32).toNat]'hlt1 = .heapRef dataAddr from he1]
-    split_res_fuel 5; heap_step_blk f_Algorithm_GrowBuf_toArray___redArg_prog
+    split_res_fuel 5; heap_step_blk Life105LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog
     split_res_fuel 1; rw [runJvmResFast_checkcast_objArray hdata (Or.inl rfl)]
-    heap_step_blk f_Algorithm_GrowBuf_toArray___redArg_prog
+    heap_step_blk Life105LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog
     split_res_fuel 1; rw [runJvmResFast_arraylength_obj hdata]
-    heap_step_blk f_Algorithm_GrowBuf_toArray___redArg_prog
+    heap_step_blk Life105LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog
     rw [hc1]
     split_res_fuel 1; rw [runJvmResFast_checkcast_objArray hbuf (Or.inl rfl)]
-    heap_step_blk f_Algorithm_GrowBuf_toArray___redArg_prog
+    heap_step_blk Life105LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog
     split_res_fuel 1; rw [runJvmResFast_aaload (idx := 2) hbuf (by decide) hlt2,
       show bufElems[(2 : UInt32).toNat]'hlt2 = .boxedUInt sz from he2]
-    heap_step_blk f_Algorithm_GrowBuf_toArray___redArg_prog
+    heap_step_blk Life105LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog
     split_res_fuel 1; rw [runJvmResFast_instanceof_boxedUInt_int]
-    heap_step_blk f_Algorithm_GrowBuf_toArray___redArg_prog
+    heap_step_blk Life105LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog
     simp only [beq_self_eq_true, ↓reduceIte]
-    heap_step_blk f_Algorithm_GrowBuf_toArray___redArg_prog
+    heap_step_blk Life105LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog
     split_res_fuel 1; rw [runJvmResFast_checkcast_boxedUInt (Or.inl rfl)]
-    heap_step_blk f_Algorithm_GrowBuf_toArray___redArg_prog
+    heap_step_blk Life105LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog
     split_res_fuel 1; rw [runJvmResFast_checkcast_objArray hbuf (Or.inl rfl)]
-    heap_step_blk f_Algorithm_GrowBuf_toArray___redArg_prog
+    heap_step_blk Life105LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog
     split_res_fuel 1; rw [runJvmResFast_aaload (idx := 1) hbuf (by decide) hlt1,
       show bufElems[(1 : UInt32).toNat]'hlt1 = .heapRef dataAddr from he1]
-    heap_step_blk f_Algorithm_GrowBuf_toArray___redArg_prog
+    heap_step_blk Life105LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog
     split_res_fuel 1; rw [runJvmResFast_checkcast_objArray hdata (Or.inl rfl)]
-    heap_step_blk f_Algorithm_GrowBuf_toArray___redArg_prog
+    heap_step_blk Life105LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog
     split_res_fuel 1; rw [runJvmResFast_arraylength_obj hdata]
-    heap_step_blk f_Algorithm_GrowBuf_toArray___redArg_prog
+    heap_step_blk Life105LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog
     rw [hc1]
     split_res_fuel 1; rw [runJvmResFast_checkcast_objArray hbuf (Or.inl rfl)]
-    heap_step_blk f_Algorithm_GrowBuf_toArray___redArg_prog
+    heap_step_blk Life105LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog
     split_res_fuel 1; rw [runJvmResFast_aaload (idx := 1) hbuf (by decide) hlt1,
       show bufElems[(1 : UInt32).toNat]'hlt1 = .heapRef dataAddr from he1]
-    heap_step_blk f_Algorithm_GrowBuf_toArray___redArg_prog
+    heap_step_blk Life105LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog
     split_res_fuel 1; rw [runJvmResFast_checkcast_objArray hdata (Or.inl rfl)]
-    heap_step_blk f_Algorithm_GrowBuf_toArray___redArg_prog
+    heap_step_blk Life105LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog
     split_res_fuel 1; rw [runJvmResFast_arraylength_obj hdata]
-    heap_step_blk f_Algorithm_GrowBuf_toArray___redArg_prog
+    heap_step_blk Life105LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog
     rw [hc2]
     split_res_fuel 1
     rw [runJvmResFast_invokestatic_step (stepStatic_arraysCopyOfRange_obj hdata (by decide)
@@ -913,12 +913,12 @@ theorem growBufToArray_1_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (h1 : bufElems[1]? = some (.heapRef dataAddr)) (h2 : bufElems[2]? = some (.boxedUInt sz))
     (hdata : jh.get? dataAddr = some (.objArray "java/lang/Object" dataElems))
     (hcap : dataElems.size < 2 ^ 31) (hsz : sz.toNat ≤ dataElems.size) :
-    ∃ st', runJvmRes 100 f_Algorithm_GrowBuf_toArray___redArg_1_prog
+    ∃ st', runJvmRes 100 Life106LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog
         ⟨0, [], setLocal (fun _ => .null) 0 (.heapRef bufAddr), jh, hp⟩ =
       some (.heapRef jh.objects.size, st') ∧
       st'.jvmHeap.get? jh.objects.size = some (.objArray "java/lang/Object"
         (Algorithm.GrowBuf.mk dataElems sz).toArray) := by
-  rw [show f_Algorithm_GrowBuf_toArray___redArg_1_prog = f_Algorithm_GrowBuf_toArray___redArg_prog from rfl]
+  rw [show Life106LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog = Life105LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog from rfl]
   exact growBufToArray_equiv jh hp bufAddr dataAddr bufElems dataElems sz hbuf h1 h2 hdata hcap hsz
 
 theorem growBufToArray_2_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
@@ -927,12 +927,12 @@ theorem growBufToArray_2_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (h1 : bufElems[1]? = some (.heapRef dataAddr)) (h2 : bufElems[2]? = some (.boxedUInt sz))
     (hdata : jh.get? dataAddr = some (.objArray "java/lang/Object" dataElems))
     (hcap : dataElems.size < 2 ^ 31) (hsz : sz.toNat ≤ dataElems.size) :
-    ∃ st', runJvmRes 100 f_Algorithm_GrowBuf_toArray___redArg_2_prog
+    ∃ st', runJvmRes 100 MacroCellLeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog
         ⟨0, [], setLocal (fun _ => .null) 0 (.heapRef bufAddr), jh, hp⟩ =
       some (.heapRef jh.objects.size, st') ∧
       st'.jvmHeap.get? jh.objects.size = some (.objArray "java/lang/Object"
         (Algorithm.GrowBuf.mk dataElems sz).toArray) := by
-  rw [show f_Algorithm_GrowBuf_toArray___redArg_2_prog = f_Algorithm_GrowBuf_toArray___redArg_prog from rfl]
+  rw [show MacroCellLeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog = Life105LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog from rfl]
   exact growBufToArray_equiv jh hp bufAddr dataAddr bufElems dataElems sz hbuf h1 h2 hdata hcap hsz
 
 theorem growBufToArray_3_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
@@ -941,12 +941,12 @@ theorem growBufToArray_3_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (h1 : bufElems[1]? = some (.heapRef dataAddr)) (h2 : bufElems[2]? = some (.boxedUInt sz))
     (hdata : jh.get? dataAddr = some (.objArray "java/lang/Object" dataElems))
     (hcap : dataElems.size < 2 ^ 31) (hsz : sz.toNat ≤ dataElems.size) :
-    ∃ st', runJvmRes 100 f_Algorithm_GrowBuf_toArray___redArg_3_prog
+    ∃ st', runJvmRes 100 PlaintextLeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog
         ⟨0, [], setLocal (fun _ => .null) 0 (.heapRef bufAddr), jh, hp⟩ =
       some (.heapRef jh.objects.size, st') ∧
       st'.jvmHeap.get? jh.objects.size = some (.objArray "java/lang/Object"
         (Algorithm.GrowBuf.mk dataElems sz).toArray) := by
-  rw [show f_Algorithm_GrowBuf_toArray___redArg_3_prog = f_Algorithm_GrowBuf_toArray___redArg_prog from rfl]
+  rw [show PlaintextLeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog = Life105LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog from rfl]
   exact growBufToArray_equiv jh hp bufAddr dataAddr bufElems dataElems sz hbuf h1 h2 hdata hcap hsz
 
 theorem growBufToArray_4_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
@@ -955,12 +955,12 @@ theorem growBufToArray_4_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (h1 : bufElems[1]? = some (.heapRef dataAddr)) (h2 : bufElems[2]? = some (.boxedUInt sz))
     (hdata : jh.get? dataAddr = some (.objArray "java/lang/Object" dataElems))
     (hcap : dataElems.size < 2 ^ 31) (hsz : sz.toNat ≤ dataElems.size) :
-    ∃ st', runJvmRes 100 f_Algorithm_GrowBuf_toArray___redArg_4_prog
+    ∃ st', runJvmRes 100 RleLeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog
         ⟨0, [], setLocal (fun _ => .null) 0 (.heapRef bufAddr), jh, hp⟩ =
       some (.heapRef jh.objects.size, st') ∧
       st'.jvmHeap.get? jh.objects.size = some (.objArray "java/lang/Object"
         (Algorithm.GrowBuf.mk dataElems sz).toArray) := by
-  rw [show f_Algorithm_GrowBuf_toArray___redArg_4_prog = f_Algorithm_GrowBuf_toArray___redArg_prog from rfl]
+  rw [show RleLeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog = Life105LeanKt_f_Algorithm_GrowBuf_toArray___redArg_prog from rfl]
   exact growBufToArray_equiv jh hp bufAddr dataAddr bufElems dataElems sz hbuf h1 h2 hdata hcap hsz
 
 /-! ### AsciiBytes.{set, replicate, toStringRange} & decodeCharAt___lam__0 -/
@@ -969,7 +969,7 @@ theorem asciiBytesSet_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (addr : Nat) (g : Algorithm.AsciiBytes) (i : UInt32) (v : UInt8) (hv : v < 128)
     (hget : jh.get? addr = some (.byteArray g.1.data))
     (hlen : g.1.size < 2 ^ 31) :
-    ∃ st', runJvmRes 20 f_Algorithm_AsciiBytes_set___redArg_prog
+    ∃ st', runJvmRes 20 Life105LeanKt_f_Algorithm_AsciiBytes_set___redArg_prog
         ⟨0, [], setLocal (setLocal (setLocal (fun _ => .null) 0 (.heapRef addr))
           1 (.i32 i)) 2 (.i32 v.toUInt32), jh, hp⟩ =
       some (.unit, st') ∧
@@ -988,7 +988,7 @@ theorem asciiBytesSet_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
       · omega
     exact ⟨_, by
       apply runJvmRes_of_runJvmResFast0 _ _ _ _ rfl
-      split_res_fuel 5; heap_step_blk f_Algorithm_AsciiBytes_set___redArg_prog
+      split_res_fuel 5; heap_step_blk Life105LeanKt_f_Algorithm_AsciiBytes_set___redArg_prog
       simp only [hislt, ↓reduceIte]; rfl, by
       rw [hget]
       congr 2
@@ -1010,11 +1010,11 @@ theorem asciiBytesSet_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
         omega
       exact ⟨_, by
         apply runJvmRes_of_runJvmResFast0 _ _ _ _ rfl
-        split_res_fuel 5; heap_step_blk f_Algorithm_AsciiBytes_set___redArg_prog
+        split_res_fuel 5; heap_step_blk Life105LeanKt_f_Algorithm_AsciiBytes_set___redArg_prog
         simp only [hif, Bool.false_eq_true, ↓reduceIte]
-        heap_step_blk f_Algorithm_AsciiBytes_set___redArg_prog
+        heap_step_blk Life105LeanKt_f_Algorithm_AsciiBytes_set___redArg_prog
         split_res_fuel 1; rw [runJvmResFast_arraylength_byte hget]
-        heap_step_blk f_Algorithm_AsciiBytes_set___redArg_prog
+        heap_step_blk Life105LeanKt_f_Algorithm_AsciiBytes_set___redArg_prog
         simp only [hle, ↓reduceIte]; rfl, by
         rw [hget]
         congr 2
@@ -1029,13 +1029,13 @@ theorem asciiBytesSet_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
         omega
       exact ⟨_, by
         apply runJvmRes_of_runJvmResFast0 _ _ _ _ rfl
-        split_res_fuel 5; heap_step_blk f_Algorithm_AsciiBytes_set___redArg_prog
+        split_res_fuel 5; heap_step_blk Life105LeanKt_f_Algorithm_AsciiBytes_set___redArg_prog
         simp only [hif, Bool.false_eq_true, ↓reduceIte]
-        heap_step_blk f_Algorithm_AsciiBytes_set___redArg_prog
+        heap_step_blk Life105LeanKt_f_Algorithm_AsciiBytes_set___redArg_prog
         split_res_fuel 1; rw [runJvmResFast_arraylength_byte hget]
-        heap_step_blk f_Algorithm_AsciiBytes_set___redArg_prog
+        heap_step_blk Life105LeanKt_f_Algorithm_AsciiBytes_set___redArg_prog
         simp only [hlef, Bool.false_eq_true, ↓reduceIte]
-        heap_step_blk f_Algorithm_AsciiBytes_set___redArg_prog
+        heap_step_blk Life105LeanKt_f_Algorithm_AsciiBytes_set___redArg_prog
         split_res_fuel 1; rw [runJvmResFast_bastore hget hif hilt]; rfl, by
         rw [jvmHeap_get?_set_self hget]
         congr 2
@@ -1048,23 +1048,23 @@ theorem asciiBytesSet_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
 theorem asciiBytesSet_1_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (addr : Nat) (g : Algorithm.AsciiBytes) (i : UInt32) (v : UInt8) (hv : v < 128)
     (hget : jh.get? addr = some (.byteArray g.1.data)) (hlen : g.1.size < 2 ^ 31) :
-    ∃ st', runJvmRes 20 f_Algorithm_AsciiBytes_set___redArg_1_prog
+    ∃ st', runJvmRes 20 PlaintextLeanKt_f_Algorithm_AsciiBytes_set___redArg_prog
         ⟨0, [], setLocal (setLocal (setLocal (fun _ => .null) 0 (.heapRef addr))
           1 (.i32 i)) 2 (.i32 v.toUInt32), jh, hp⟩ =
       some (.unit, st') ∧
       st'.jvmHeap.get? addr = some (.byteArray (g.set i v hv).1.data) := by
-  rw [show f_Algorithm_AsciiBytes_set___redArg_1_prog = f_Algorithm_AsciiBytes_set___redArg_prog from rfl]
+  rw [show PlaintextLeanKt_f_Algorithm_AsciiBytes_set___redArg_prog = Life105LeanKt_f_Algorithm_AsciiBytes_set___redArg_prog from rfl]
   exact asciiBytesSet_equiv jh hp addr g i v hv hget hlen
 
 theorem asciiBytesSet_2_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (addr : Nat) (g : Algorithm.AsciiBytes) (i : UInt32) (v : UInt8) (hv : v < 128)
     (hget : jh.get? addr = some (.byteArray g.1.data)) (hlen : g.1.size < 2 ^ 31) :
-    ∃ st', runJvmRes 20 f_Algorithm_AsciiBytes_set___redArg_2_prog
+    ∃ st', runJvmRes 20 RleLeanKt_f_Algorithm_AsciiBytes_set___redArg_prog
         ⟨0, [], setLocal (setLocal (setLocal (fun _ => .null) 0 (.heapRef addr))
           1 (.i32 i)) 2 (.i32 v.toUInt32), jh, hp⟩ =
       some (.unit, st') ∧
       st'.jvmHeap.get? addr = some (.byteArray (g.set i v hv).1.data) := by
-  rw [show f_Algorithm_AsciiBytes_set___redArg_2_prog = f_Algorithm_AsciiBytes_set___redArg_prog from rfl]
+  rw [show RleLeanKt_f_Algorithm_AsciiBytes_set___redArg_prog = Life105LeanKt_f_Algorithm_AsciiBytes_set___redArg_prog from rfl]
   exact asciiBytesSet_equiv jh hp addr g i v hv hget hlen
 
 /-! ### AsciiBytes.replicate (+ _1.._2) -/
@@ -1078,8 +1078,8 @@ private theorem asciiReplicate_copy_loop (rem fuel : Nat) (jh : Jvm.JvmHeap AlgE
     (hi : i.toNat ≤ n.toNat)
     (hpre : ∀ k (hk : k < i.toNat), dst[k]'(by omega) = v)
     (hrem : n.toNat - i.toNat ≤ rem) (hf : rem * 25 + 15 ≤ fuel) :
-    ∃ st', runJvmResFast fuel f_Algorithm_AsciiBytes_replicate___redArg_prog 24
-        (f_Algorithm_AsciiBytes_replicate___redArg_prog.drop 24)
+    ∃ st', runJvmResFast fuel Life105LeanKt_f_Algorithm_AsciiBytes_replicate___redArg_prog 24
+        (Life105LeanKt_f_Algorithm_AsciiBytes_replicate___redArg_prog.drop 24)
         ⟨24, [], setLocal (setLocal (setLocal (setLocal (setLocal (setLocal locs 0 (.i32 n))
           1 (.i32 v.toUInt32)) 2 (.heapRef srcAddr)) 3 (.i32 i)) 4 (.i32 n)) 5 (.heapRef dstAddr), jh, hp⟩ =
       some (.heapRef dstAddr, st') ∧
@@ -1092,7 +1092,7 @@ private theorem asciiReplicate_copy_loop (rem fuel : Nat) (jh : Jvm.JvmHeap AlgE
     subst hieq
     have hle : i.toBitVec.sle i.toBitVec = true := by simp [BitVec.sle]
     exact ⟨_, by
-      split_res_fuel 10; heap_step_blk f_Algorithm_AsciiBytes_replicate___redArg_prog
+      split_res_fuel 10; heap_step_blk Life105LeanKt_f_Algorithm_AsciiBytes_replicate___redArg_prog
       simp only [hle, ↓reduceIte]
       rw [nat_add_eq_add]; rfl, by
       rw [hdst]
@@ -1110,7 +1110,7 @@ private theorem asciiReplicate_copy_loop (rem fuel : Nat) (jh : Jvm.JvmHeap AlgE
         simp only [BitVec.sle, hni, hii, decide_eq_true_eq] at hle
         omega
       exact ⟨_, by
-        split_res_fuel 10; heap_step_blk f_Algorithm_AsciiBytes_replicate___redArg_prog
+        split_res_fuel 10; heap_step_blk Life105LeanKt_f_Algorithm_AsciiBytes_replicate___redArg_prog
         simp only [hle, ↓reduceIte]
         rw [nat_add_eq_add]; rfl, by
         rw [hdst]
@@ -1163,13 +1163,13 @@ private theorem asciiReplicate_copy_loop (rem fuel : Nat) (jh : Jvm.JvmHeap AlgE
         (by omega) (by omega)
       refine ⟨st', ?_, hst⟩
       rw [show fuel = (fuel - 13) + 13 from by omega]
-      heap_step_blk f_Algorithm_AsciiBytes_replicate___redArg_prog
+      heap_step_blk Life105LeanKt_f_Algorithm_AsciiBytes_replicate___redArg_prog
       simp only [hlef, Bool.false_eq_true, ↓reduceIte]
-      heap_step_blk f_Algorithm_AsciiBytes_replicate___redArg_prog
+      heap_step_blk Life105LeanKt_f_Algorithm_AsciiBytes_replicate___redArg_prog
       rw [runJvmResFast_invokestatic_step (stepStatic_ubyteArrayGet hsrc hislt hisrc)]
-      heap_step_blk f_Algorithm_AsciiBytes_replicate___redArg_prog
+      heap_step_blk Life105LeanKt_f_Algorithm_AsciiBytes_replicate___redArg_prog
       rw [runJvmResFast_bastore hdst hislt hidst]
-      heap_step_blk f_Algorithm_AsciiBytes_replicate___redArg_prog
+      heap_step_blk Life105LeanKt_f_Algorithm_AsciiBytes_replicate___redArg_prog
       simp only [hb_eq] at hrun ⊢
       rw [hlocs_eq] at hrun
       exact hrun
@@ -1184,7 +1184,7 @@ private theorem runJvmResFast_astore_step (f1 : Nat) (prog : List JvmInstr) (pc 
 private theorem asciiBytesReplicate_core (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (n : UInt32) (v : UInt8) (hv : v < 128) (hn31 : n.toNat < 2 ^ 31)
     (F : Nat) (hF : n.toNat * 25 + 15 ≤ F) :
-    ∃ st', runJvmRes (F + 24) f_Algorithm_AsciiBytes_replicate___redArg_prog
+    ∃ st', runJvmRes (F + 24) Life105LeanKt_f_Algorithm_AsciiBytes_replicate___redArg_prog
         ⟨0, [], setLocal (setLocal (fun _ => .null) 0 (.i32 n)) 1 (.i32 v.toUInt32), jh, hp⟩ =
       some (.heapRef (jh.objects.size + 1), st') ∧
       st'.jvmHeap.get? (jh.objects.size + 1) =
@@ -1224,19 +1224,19 @@ private theorem asciiBytesReplicate_core (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap
     (by simp) hn31 (Nat.zero_le _) (fun k hk => absurd hk (by simp)) (by omega) hF
   refine ⟨st', ?_, ?_⟩
   · apply runJvmRes_of_runJvmResFast0 _ _ _ _ rfl
-    heap_step_blk f_Algorithm_AsciiBytes_replicate___redArg_prog
+    heap_step_blk Life105LeanKt_f_Algorithm_AsciiBytes_replicate___redArg_prog
     rw [runJvmResFast_invokestatic_step (stepStatic_ubyteArrayCtor hnslt)]
-    heap_step_blk f_Algorithm_AsciiBytes_replicate___redArg_prog
+    heap_step_blk Life105LeanKt_f_Algorithm_AsciiBytes_replicate___redArg_prog
     rw [runJvmResFast_invokestatic_step (stepStatic_uarraysFillAll_byte ha0)]
-    heap_step_blk f_Algorithm_AsciiBytes_replicate___redArg_prog
+    heap_step_blk Life105LeanKt_f_Algorithm_AsciiBytes_replicate___redArg_prog
     have ha1 : jh2.get? jh.objects.size = some (.byteArray filled) := jvmHeap_get?_set_self ha0
     rw [runJvmResFast_invokestatic_step (stepStatic_ubyteArrayGetSize ha1)]
-    heap_step_blk f_Algorithm_AsciiBytes_replicate___redArg_prog
+    heap_step_blk Life105LeanKt_f_Algorithm_AsciiBytes_replicate___redArg_prog
     have hlen1 : UInt32.ofNat filled.size = n := by rw [hfilled]; exact hlen
     have hnslt1 : (UInt32.ofNat filled.size).toBitVec.slt 0#32 = false := by rw [hlen1]; exact hnslt
     rw [runJvmResFast_newarray_byte hnslt1]
-    change runJvmResFast (F + 1) f_Algorithm_AsciiBytes_replicate___redArg_prog 23
-      (.astore 5 :: List.drop 24 f_Algorithm_AsciiBytes_replicate___redArg_prog)
+    change runJvmResFast (F + 1) Life105LeanKt_f_Algorithm_AsciiBytes_replicate___redArg_prog 23
+      (.astore 5 :: List.drop 24 Life105LeanKt_f_Algorithm_AsciiBytes_replicate___redArg_prog)
       { pc := 23, stack := [Jvm.JvmVal.heapRef jh2.objects.size], locals := _, jvmHeap := _, heap := _ } = _
     rw [runJvmResFast_astore_step]
     have hsz_eq : jh2.objects.size = jh.objects.size + 1 := by simp [jh2, jh1, Jvm.JvmHeap.set, Jvm.JvmHeap.alloc]
@@ -1262,7 +1262,7 @@ private theorem asciiBytesReplicate_core (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap
 
 theorem asciiBytesReplicate_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (n : UInt32) (v : UInt8) (hv : v < 128) (hn31 : n.toNat < 2 ^ 31) :
-    ∃ st', runJvmRes (n.toNat * 25 + 60) f_Algorithm_AsciiBytes_replicate___redArg_prog
+    ∃ st', runJvmRes (n.toNat * 25 + 60) Life105LeanKt_f_Algorithm_AsciiBytes_replicate___redArg_prog
         ⟨0, [], setLocal (setLocal (fun _ => .null) 0 (.i32 n)) 1 (.i32 v.toUInt32), jh, hp⟩ =
       some (.heapRef (jh.objects.size + 1), st') ∧
       st'.jvmHeap.get? (jh.objects.size + 1) =
@@ -1272,22 +1272,22 @@ theorem asciiBytesReplicate_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
 
 theorem asciiBytesReplicate_1_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (n : UInt32) (v : UInt8) (hv : v < 128) (hn31 : n.toNat < 2 ^ 31) :
-    ∃ st', runJvmRes (n.toNat * 25 + 60) f_Algorithm_AsciiBytes_replicate___redArg_1_prog
+    ∃ st', runJvmRes (n.toNat * 25 + 60) PlaintextLeanKt_f_Algorithm_AsciiBytes_replicate___redArg_prog
         ⟨0, [], setLocal (setLocal (fun _ => .null) 0 (.i32 n)) 1 (.i32 v.toUInt32), jh, hp⟩ =
       some (.heapRef (jh.objects.size + 1), st') ∧
       st'.jvmHeap.get? (jh.objects.size + 1) =
         some (.byteArray (Algorithm.AsciiBytes.replicate n v hv).1.data) := by
-  rw [show f_Algorithm_AsciiBytes_replicate___redArg_1_prog = f_Algorithm_AsciiBytes_replicate___redArg_prog from rfl]
+  rw [show PlaintextLeanKt_f_Algorithm_AsciiBytes_replicate___redArg_prog = Life105LeanKt_f_Algorithm_AsciiBytes_replicate___redArg_prog from rfl]
   exact asciiBytesReplicate_equiv jh hp n v hv hn31
 
 theorem asciiBytesReplicate_2_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (n : UInt32) (v : UInt8) (hv : v < 128) (hn31 : n.toNat < 2 ^ 31) :
-    ∃ st', runJvmRes (n.toNat * 25 + 60) f_Algorithm_AsciiBytes_replicate___redArg_2_prog
+    ∃ st', runJvmRes (n.toNat * 25 + 60) RleLeanKt_f_Algorithm_AsciiBytes_replicate___redArg_prog
         ⟨0, [], setLocal (setLocal (fun _ => .null) 0 (.i32 n)) 1 (.i32 v.toUInt32), jh, hp⟩ =
       some (.heapRef (jh.objects.size + 1), st') ∧
       st'.jvmHeap.get? (jh.objects.size + 1) =
         some (.byteArray (Algorithm.AsciiBytes.replicate n v hv).1.data) := by
-  rw [show f_Algorithm_AsciiBytes_replicate___redArg_2_prog = f_Algorithm_AsciiBytes_replicate___redArg_prog from rfl]
+  rw [show RleLeanKt_f_Algorithm_AsciiBytes_replicate___redArg_prog = Life105LeanKt_f_Algorithm_AsciiBytes_replicate___redArg_prog from rfl]
   exact asciiBytesReplicate_equiv jh hp n v hv hn31
 
 /-! ### AsciiBytes.toStringRange (+ _1.._2) -/
@@ -1296,7 +1296,7 @@ theorem asciiBytesToStringRange_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (addr : Nat) (g : Algorithm.AsciiBytes) (s e : UInt32)
     (hget : jh.get? addr = some (.byteArray g.1.data))
     (hsle : s.toNat ≤ e.toNat) (hel : e.toNat ≤ g.1.data.size) (hl31 : g.1.data.size < 2 ^ 31) :
-    runJvm 60 f_Algorithm_AsciiBytes_toStringRange_prog
+    runJvm 60 Life105LeanKt_f_Algorithm_AsciiBytes_toStringRange_prog
       ⟨0, [], setLocal (setLocal (setLocal (fun _ => .null) 0 (.heapRef addr)) 1 (.i32 s)) 2 (.i32 e), jh, hp⟩ =
       some (.str (g.toStringRange s e)) := by
   have hs31 : s.toNat < 2 ^ 31 := by omega
@@ -1349,22 +1349,22 @@ theorem asciiBytesToStringRange_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     congr 1
     simp only [Algorithm.AsciiBytes.toStringRange, Algorithm.asciiString, hsliced_eq, String.fromUTF8]
   rw [runJvm_eq_runJvmRes]
-  suffices h : ∃ st', runJvmRes 60 f_Algorithm_AsciiBytes_toStringRange_prog
+  suffices h : ∃ st', runJvmRes 60 Life105LeanKt_f_Algorithm_AsciiBytes_toStringRange_prog
       ⟨0, [], setLocal (setLocal (setLocal (fun _ => .null) 0 (.heapRef addr)) 1 (.i32 s)) 2 (.i32 e), jh, hp⟩ =
       some (.str (g.toStringRange s e), st') by
     rcases h with ⟨st', h⟩; rw [h]; rfl
   exact ⟨_, by
     apply runJvmRes_of_runJvmResFast0 _ _ _ _ rfl
-    split_res_fuel 10; heap_step_blk f_Algorithm_AsciiBytes_toStringRange_prog
+    split_res_fuel 10; heap_step_blk Life105LeanKt_f_Algorithm_AsciiBytes_toStringRange_prog
     split_res_fuel 1; rw [runJvmResFast_arraylength_byte hget]
-    heap_step_blk f_Algorithm_AsciiBytes_toStringRange_prog
+    heap_step_blk Life105LeanKt_f_Algorithm_AsciiBytes_toStringRange_prog
     rw [hc1]
     split_res_fuel 1; rw [runJvmResFast_arraylength_byte hget]
-    heap_step_blk f_Algorithm_AsciiBytes_toStringRange_prog
+    heap_step_blk Life105LeanKt_f_Algorithm_AsciiBytes_toStringRange_prog
     rw [hc2]
     split_res_fuel 1
     rw [runJvmResFast_invokestatic_step (stepStatic_arraysCopyOfRange_byte hget h0_le_s hs_le_e he_le_len)]
-    heap_step_blk f_Algorithm_AsciiBytes_toStringRange_prog
+    heap_step_blk Life105LeanKt_f_Algorithm_AsciiBytes_toStringRange_prog
     have ha_sl := jvmHeap_get?_alloc_self jh (.byteArray sliced)
     split_res_fuel 1
     rw [runJvmResFast_invokestatic_step (stepStatic_stringsDecodeToString ha_sl hutf8)]; rfl⟩
@@ -1373,20 +1373,20 @@ theorem asciiBytesToStringRange_1_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (addr : Nat) (g : Algorithm.AsciiBytes) (s e : UInt32)
     (hget : jh.get? addr = some (.byteArray g.1.data))
     (hsle : s.toNat ≤ e.toNat) (hel : e.toNat ≤ g.1.data.size) (hl31 : g.1.data.size < 2 ^ 31) :
-    runJvm 60 f_Algorithm_AsciiBytes_toStringRange_1_prog
+    runJvm 60 PlaintextLeanKt_f_Algorithm_AsciiBytes_toStringRange_prog
       ⟨0, [], setLocal (setLocal (setLocal (fun _ => .null) 0 (.heapRef addr)) 1 (.i32 s)) 2 (.i32 e), jh, hp⟩ =
       some (.str (g.toStringRange s e)) := by
-  rw [show f_Algorithm_AsciiBytes_toStringRange_1_prog = f_Algorithm_AsciiBytes_toStringRange_prog from rfl]
+  rw [show PlaintextLeanKt_f_Algorithm_AsciiBytes_toStringRange_prog = Life105LeanKt_f_Algorithm_AsciiBytes_toStringRange_prog from rfl]
   exact asciiBytesToStringRange_equiv jh hp addr g s e hget hsle hel hl31
 
 theorem asciiBytesToStringRange_2_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (addr : Nat) (g : Algorithm.AsciiBytes) (s e : UInt32)
     (hget : jh.get? addr = some (.byteArray g.1.data))
     (hsle : s.toNat ≤ e.toNat) (hel : e.toNat ≤ g.1.data.size) (hl31 : g.1.data.size < 2 ^ 31) :
-    runJvm 60 f_Algorithm_AsciiBytes_toStringRange_2_prog
+    runJvm 60 RleLeanKt_f_Algorithm_AsciiBytes_toStringRange_prog
       ⟨0, [], setLocal (setLocal (setLocal (fun _ => .null) 0 (.heapRef addr)) 1 (.i32 s)) 2 (.i32 e), jh, hp⟩ =
       some (.str (g.toStringRange s e)) := by
-  rw [show f_Algorithm_AsciiBytes_toStringRange_2_prog = f_Algorithm_AsciiBytes_toStringRange_prog from rfl]
+  rw [show RleLeanKt_f_Algorithm_AsciiBytes_toStringRange_prog = Life105LeanKt_f_Algorithm_AsciiBytes_toStringRange_prog from rfl]
   exact asciiBytesToStringRange_equiv jh hp addr g s e hget hsle hel hl31
 
 /-! ### decodeCharAt___lam__0 (+ _1.._2) -/
@@ -1396,39 +1396,39 @@ theorem decodeCharAtLam0_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (hget : jh.get? addr = some (.byteArray elems))
     (hslt : (p + k).toBitVec.slt 0#32 = false)
     (hlt : (p + k).toNat < elems.size) :
-    runJvm 30 f_Algorithm_decodeCharAt___lam__0_prog
+    runJvm 30 MacroCellLeanKt_f_Algorithm_decodeCharAt___lam__0_prog
       ⟨0, [], setLocal (setLocal (setLocal (fun _ => .null) 0 (.i32 p)) 1 (.heapRef addr)) 2 (.i32 k), jh, hp⟩ =
       some (.i32 (elems[(p + k).toNat].toUInt32 &&& 0x3F)) := by
   rw [runJvm_eq_runJvmRes]
-  suffices h : ∃ st', runJvmRes 30 f_Algorithm_decodeCharAt___lam__0_prog
+  suffices h : ∃ st', runJvmRes 30 MacroCellLeanKt_f_Algorithm_decodeCharAt___lam__0_prog
       ⟨0, [], setLocal (setLocal (setLocal (fun _ => .null) 0 (.i32 p)) 1 (.heapRef addr)) 2 (.i32 k), jh, hp⟩ =
       some (.i32 (elems[(p + k).toNat].toUInt32 &&& 0x3F), st') by
     rcases h with ⟨st', h⟩; rw [h]; rfl
   exact ⟨_, by
     apply runJvmRes_of_runJvmResFast0 _ _ _ _ rfl
-    split_res_fuel 10; heap_step_blk f_Algorithm_decodeCharAt___lam__0_prog
+    split_res_fuel 10; heap_step_blk MacroCellLeanKt_f_Algorithm_decodeCharAt___lam__0_prog
     split_res_fuel 1; rw [runJvmResFast_baload hget hslt hlt]
-    heap_step_blk f_Algorithm_decodeCharAt___lam__0_prog
+    heap_step_blk MacroCellLeanKt_f_Algorithm_decodeCharAt___lam__0_prog
     rw [u8_signExtend_and_63]⟩
 
 theorem decodeCharAtLam0_1_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (addr : Nat) (elems : Array UInt8) (p k : UInt32)
     (hget : jh.get? addr = some (.byteArray elems))
     (hslt : (p + k).toBitVec.slt 0#32 = false) (hlt : (p + k).toNat < elems.size) :
-    runJvm 30 f_Algorithm_decodeCharAt___lam__0_1_prog
+    runJvm 30 PlaintextLeanKt_f_Algorithm_decodeCharAt___lam__0_prog
       ⟨0, [], setLocal (setLocal (setLocal (fun _ => .null) 0 (.i32 p)) 1 (.heapRef addr)) 2 (.i32 k), jh, hp⟩ =
       some (.i32 (elems[(p + k).toNat].toUInt32 &&& 0x3F)) := by
-  rw [show f_Algorithm_decodeCharAt___lam__0_1_prog = f_Algorithm_decodeCharAt___lam__0_prog from rfl]
+  rw [show PlaintextLeanKt_f_Algorithm_decodeCharAt___lam__0_prog = MacroCellLeanKt_f_Algorithm_decodeCharAt___lam__0_prog from rfl]
   exact decodeCharAtLam0_equiv jh hp addr elems p k hget hslt hlt
 
 theorem decodeCharAtLam0_2_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (addr : Nat) (elems : Array UInt8) (p k : UInt32)
     (hget : jh.get? addr = some (.byteArray elems))
     (hslt : (p + k).toBitVec.slt 0#32 = false) (hlt : (p + k).toNat < elems.size) :
-    runJvm 30 f_Algorithm_decodeCharAt___lam__0_2_prog
+    runJvm 30 RleLeanKt_f_Algorithm_decodeCharAt___lam__0_prog
       ⟨0, [], setLocal (setLocal (setLocal (fun _ => .null) 0 (.i32 p)) 1 (.heapRef addr)) 2 (.i32 k), jh, hp⟩ =
       some (.i32 (elems[(p + k).toNat].toUInt32 &&& 0x3F)) := by
-  rw [show f_Algorithm_decodeCharAt___lam__0_2_prog = f_Algorithm_decodeCharAt___lam__0_prog from rfl]
+  rw [show RleLeanKt_f_Algorithm_decodeCharAt___lam__0_prog = MacroCellLeanKt_f_Algorithm_decodeCharAt___lam__0_prog from rfl]
   exact decodeCharAtLam0_equiv jh hp addr elems p k hget hslt hlt
 
 end Algorithm.JvmVerification

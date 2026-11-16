@@ -17,5 +17,9 @@
 import Jvm.Audit
 import KotlinJvmBytecode
 import proofs.KotlinJvmEquiv.BitComputation
+import proofs.KotlinJvmEquiv.HashLifeComputation
+import proofs.KotlinJvmEquiv.GameOfLifeStep
+import proofs.KotlinJvmEquiv.MacroCellCoordinates
+import proofs.KotlinJvmEquiv.CellWindow
 
 #audit_jvm_equiv_axioms Algorithm.KotlinJvmVerification Algorithm.KotlinJvmBytecode

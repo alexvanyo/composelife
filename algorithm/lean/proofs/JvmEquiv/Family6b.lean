@@ -262,20 +262,20 @@ private theorem stepStatic_noCells_rle_local {pc : Nat} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt}
     {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)}
     {asc : List Algorithm.AsciiBytes} :
-    stepInvokeStatic ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ "RleLeanKt" "f_Algorithm_noCells" "()[J" =
+    stepInvokeStatic ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_noCells" "()[J" =
       .inl (some ⟨pc + 1, .ext (.u64Ref u64.length) :: rest, locs, jh,
         ⟨ar, u64 ++ [Algorithm.noCells], asc⟩⟩) := rfl
 
 private theorem stepStatic_growBufEmpty_rle_local {pc : Nat} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .null :: rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_GrowBuf_empty___redArg" "(Ljava/lang/Object;)Ljava/lang/Object;" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_empty___redArg" "(Ljava/lang/Object;)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .ext (.strGrowBuf Algorithm.GrowBuf.empty) :: rest, locs, jh, hp⟩) := rfl
 
 private theorem stepStatic_parseRLEComments_closed1_local {pc : Nat} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_parseRLEComments___closed__1"
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_parseRLEComments___closed__1"
       "()Lcom/alexvanyo/composelife/model/RLEStatus;" =
       .inl (some ⟨pc + 1, .ext (.rleStatus (.invalidHeader "none")) :: rest, locs, jh, hp⟩) := rfl
 
@@ -283,13 +283,13 @@ private theorem stepStatic_parseRLEOffset_heap_local {pc addr : Nat} {rest : Lis
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} {elems : Array UInt8}
     (hget : jh.get? addr = some (.byteArray elems)) :
     stepInvokeStatic ⟨pc, .heapRef addr :: rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_parseRLEOffset" "([B)Ljava/lang/Object;" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_parseRLEOffset" "([B)Ljava/lang/Object;" =
       let optPair := (Algorithm.parseRLEOffset ⟨elems⟩).map fun r =>
         (.boxedInt r.x.toUInt32, .boxedInt r.y.toUInt32)
       let (res, h') := encodeOptScalarPair jh optPair
       .inl (some ⟨pc + 1, res :: rest, locs, h', hp⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .heapRef addr :: rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_parseRLEOffset" "([B)Ljava/lang/Object;" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_parseRLEOffset" "([B)Ljava/lang/Object;" =
       match decodeBytes ⟨pc, .heapRef addr :: rest, locs, jh, hp⟩ (.heapRef addr) with
       | some bytes =>
         let optPair := (Algorithm.parseRLEOffset bytes).map
@@ -303,10 +303,10 @@ private theorem stepStatic_parseRLEHeader_heap_local {pc addr : Nat} {rest : Lis
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} {elems : Array UInt8}
     (hget : jh.get? addr = some (.byteArray elems)) :
     stepInvokeStatic ⟨pc, .heapRef addr :: rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_parseRLEHeader" "([B)I" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_parseRLEHeader" "([B)I" =
       .inl (some ⟨pc + 1, .i32 (Algorithm.parseRLEHeader ⟨elems⟩) :: rest, locs, jh, hp⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .heapRef addr :: rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_parseRLEHeader" "([B)I" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_parseRLEHeader" "([B)I" =
       match decodeBytes ⟨pc, .heapRef addr :: rest, locs, jh, hp⟩ (.heapRef addr) with
       | some bytes =>
         .inl (some ⟨pc + 1, .i32 (Algorithm.parseRLEHeader bytes) :: rest, locs, jh, hp⟩)
@@ -316,7 +316,7 @@ private theorem stepStatic_parseRLEHeader_heap_local {pc addr : Nat} {rest : Lis
 private theorem stepStatic_deserializeRLE_closed1_local {pc : Nat} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_deserializeRLE___closed__1"
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_deserializeRLE___closed__1"
       "()Lcom/alexvanyo/composelife/model/RLEResult;" =
       let res := Algorithm.RLEResult.mk .emptyFile #[.emptyFile] Algorithm.noCells
       let (resVal, h', u64s') := encodeRLEResult jh hp.u64Arrays res
@@ -458,7 +458,7 @@ private theorem stepStatic_growBufPush_u32Pair
     {b : Algorithm.GrowBuf (UInt32 × UInt32)}
     (hrep : RlePairRep b bufVal) :
     stepInvokeStatic ⟨pc, .pair (.boxedUInt a) (.boxedUInt c) :: bufVal :: rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_push___redArg"
       "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .ext (.u32PairGrowBuf (b.push (a, c))) :: rest, locs, jh, hp⟩) := by
   cases hrep with
@@ -642,7 +642,7 @@ private theorem copyAscii_loop (m : Nat) :
               .iflt 52 :: f_Algorithm_copyAscii_prog.drop 33 := by drop_prefix 1
           have h52 : f_Algorithm_copyAscii_prog.drop 52 =
               .aload 4 :: .iload 3 :: .iload 5 ::
-              .invokestatic "RleLeanKt" "f_Algorithm_AsciiBytes_set___redArg-snO9OKE" "([BIB)V" ::
+              .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_AsciiBytes_set___redArg-snO9OKE" "([BIB)V" ::
               .aload 0 :: .astore 7 :: .iload 1 :: .istore 8 :: .iload 2 :: .istore 9 ::
               .aload 4 :: .astore 10 :: .aload 7 :: .astore 0 :: .iload 8 :: .istore 1 ::
               .iload 9 :: .istore 2 :: .iload 6 :: .istore 3 :: .aload 10 :: .astore 4 ::
@@ -923,7 +923,7 @@ private theorem stepStatic_rleData_match_only (pc : Nat) (locs : Nat → JvmVal)
       .i32 countCol :: .i32 countP :: .i32 hasCount :: .i64 count :: .i32 col :: .i32 p ::
       .i32 limit :: bytesVal :: .i32 inLine :: .i32 i :: .i32 numLines ::
       linesVal :: rest, locs, jh, hp⟩
-    stepInvokeStatic st "RleLeanKt" "f_Algorithm_parseRLEData-RjVw3pI" parseRLEDataDesc =
+    stepInvokeStatic st "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_parseRLEData-RjVw3pI" parseRLEDataDesc =
       rleDataDispatch pc locs jh hp startY startX runsVal warnsVal countCol countP hasCount count
         col p limit bytesVal inLine i numLines linesVal rest
         Algorithm.parseRLEData encodeRLEResult := rfl
@@ -989,7 +989,7 @@ private theorem stepStatic_parseRLEData_rle
         .i32 countCol :: .i32 countP :: .i32 hasCount :: .i64 count :: .i32 col :: .i32 p ::
         .i32 limit :: bytesVal :: .i32 inLine :: .i32 i :: .i32 numLines ::
         linesVal :: rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_parseRLEData-RjVw3pI" parseRLEDataDesc =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_parseRLEData-RjVw3pI" parseRLEDataDesc =
       let res := Algorithm.parseRLEData lines numLines i (inLine != 0)
         bytes limit p col count (hasCount != 0) countP
         countCol warns runs startX.toInt32 startY.toInt32
@@ -1017,7 +1017,7 @@ private theorem stepStatic_parseRLEData_header
         .ext (.strGrowBuf Algorithm.GrowBuf.empty) :: warnsVal :: .i32 0 :: .i32 0 ::
         .i32 0 :: .i64 0 :: .i32 0 :: .i32 0 :: .i32 0 :: .heapRef bytesAddr :: .i32 0 ::
         .i32 i :: .i32 numLines :: .strArr lines :: [], locs, jh, ⟨ar, u64, asc⟩⟩
-      "RleLeanKt" "f_Algorithm_parseRLEData-RjVw3pI" parseRLEDataDesc =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_parseRLEData-RjVw3pI" parseRLEDataDesc =
       .inl (some ⟨pc + 1, enc.1 :: [], locs, enc.2.1, ⟨ar, enc.2.2, asc⟩⟩) := by
   have hb : decodeBytes ⟨pc, .i32 offsetY.toUInt32 :: .i32 offsetX.toUInt32 ::
       .ext (.strGrowBuf Algorithm.GrowBuf.empty) :: warnsVal :: .i32 0 :: .i32 0 ::
@@ -1173,7 +1173,7 @@ private theorem stepStatic_growBufToArray_rleWarn_ext
     (hrep : RleWarnRep b bufVal) :
     ∃ (arrVal : JvmVal) (jh' : Jvm.JvmHeap AlgExt) (warnVals? : Option Nat),
       stepInvokeStatic ⟨pc, bufVal :: rest, locs, jh, hp⟩
-        "RleLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
+        "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
         "(Ljava/lang/Object;)[Ljava/lang/Object;" =
         .inl (some ⟨pc + 1, arrVal :: rest, locs, jh', hp⟩) ∧
       HeapExtends jh jh' ∧
@@ -1277,9 +1277,9 @@ private theorem parseRLEComments_ret_result
     (hf : f ≥ 15)
     (hd : f_Algorithm_parseRLEComments_prog.drop pc =
       .astore 10 :: .aload 6 ::
-      .invokestatic "RleLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
+      .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
         "(Ljava/lang/Object;)[Ljava/lang/Object;" ::
-      .astore 11 :: .invokestatic "RleLeanKt" "f_Algorithm_noCells" "()[J" :: .astore 12 ::
+      .astore 11 :: .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_noCells" "()[J" :: .astore 12 ::
       .newClass "com/alexvanyo/composelife/model/RLEResult" :: .dup ::
       .aload 10 :: .checkcast "com/alexvanyo/composelife/model/RLEStatus" ::
       .aload 11 :: .aload 12 :: .aconstNull ::
@@ -1364,12 +1364,12 @@ private theorem parseRLEComments_ret_closed1
   refine ⟨.heapRef resAddr, ⟨21, [.heapRef resAddr], locs3, jh2, hp1⟩, ?_, ?_,
     heapExtends_trans hext01 (heapExtends_alloc jh1 resObj), hstat01, rfl, rfl⟩
   · have h7 : f_Algorithm_parseRLEComments_prog.drop 7 =
-        .invokestatic "RleLeanKt" "f_Algorithm_parseRLEComments___closed__1"
+        .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_parseRLEComments___closed__1"
           "()Lcom/alexvanyo/composelife/model/RLEStatus;" ::
         .astore 7 :: .aload 6 ::
-        .invokestatic "RleLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
+        .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
           "(Ljava/lang/Object;)[Ljava/lang/Object;" ::
-        .astore 8 :: .invokestatic "RleLeanKt" "f_Algorithm_noCells" "()[J" :: .astore 9 ::
+        .astore 8 :: .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_noCells" "()[J" :: .astore 9 ::
         .newClass "com/alexvanyo/composelife/model/RLEResult" :: .dup ::
         .aload 7 :: .aload 8 :: .aload 9 :: .aconstNull ::
         .invokespecial "com/alexvanyo/composelife/model/RLEResult" "<init>"
@@ -1419,12 +1419,12 @@ private theorem parseRLEComments_header_ok
     (h262_287 : f_Algorithm_parseRLEComments_prog.drop 262 =
       .iload 2 :: .iconst 1 :: .iadd :: .invokestatic "kotlin/UInt" "constructor-impl" "(I)I" ::
       .istore 10 :: .aconstNull ::
-      .invokestatic "RleLeanKt" "f_Algorithm_GrowBuf_empty___redArg"
+      .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_empty___redArg"
         "(Ljava/lang/Object;)Ljava/lang/Object;" ::
       .astore 11 :: .aload 0 :: .iload 1 :: .iload 10 :: .iconst 0 :: .aload 8 ::
       .iconst 0 :: .iconst 0 :: .iconst 0 :: .lconst 0 :: .iconst 0 :: .iconst 0 ::
       .iconst 0 :: .aload 6 :: .aload 11 :: .iload 3 :: .iload 4 ::
-      .invokestatic "RleLeanKt" "f_Algorithm_parseRLEData-RjVw3pI" parseRLEDataDesc ::
+      .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_parseRLEData-RjVw3pI" parseRLEDataDesc ::
       .areturn :: f_Algorithm_parseRLEComments_prog.drop 288)
     (hstep_pd :
       let locs2 := setLocal (setLocal locs1 10 (.i32 (i + 1))) 11
@@ -1434,7 +1434,7 @@ private theorem parseRLEComments_header_ok
           .ext (.strGrowBuf Algorithm.GrowBuf.empty) :: warnsVal :: .i32 0 :: .i32 0 ::
           .i32 0 :: .i64 0 :: .i32 0 :: .i32 0 :: .i32 0 :: .heapRef bytesAddr :: .i32 0 ::
           .i32 (i + 1) :: .i32 numLines :: .strArr lines :: [], locs2, jh, ⟨ar, u64, asc⟩⟩
-        "RleLeanKt" "f_Algorithm_parseRLEData-RjVw3pI" parseRLEDataDesc =
+        "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_parseRLEData-RjVw3pI" parseRLEDataDesc =
         .inl (some ⟨287, enc.1 :: [], locs2, enc.2.1, ⟨ar, enc.2.2, asc⟩⟩)) :
     let enc := encodeRLEResult jh u64 pdRes
     let locs2 := setLocal (setLocal locs1 10 (.i32 (i + 1))) 11
@@ -1506,7 +1506,7 @@ private theorem parseRLEComments_header_branch
   intro st res
   have h234 : f_Algorithm_parseRLEComments_prog.drop 234 =
       .aload 8 ::
-      .invokestatic "RleLeanKt" "f_Algorithm_parseRLEHeader" "([B)I" ::
+      .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_parseRLEHeader" "([B)I" ::
       .istore 9 :: .iload 9 :: .iconst 3 :: .if_icmpeq 288 ::
       .iload 9 :: .ifeq 262 :: f_Algorithm_parseRLEComments_prog.drop 242 := by drop_prefix 8
   have hp_234 : runJvmResFast f f_Algorithm_parseRLEComments_prog 234
@@ -1528,9 +1528,9 @@ private theorem parseRLEComments_header_branch
         f_Algorithm_parseRLEComments_prog.drop 289 := by drop_prefix 1
     have h289_303 : f_Algorithm_parseRLEComments_prog.drop 289 =
         .astore 10 :: .aload 6 ::
-        .invokestatic "RleLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
+        .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
           "(Ljava/lang/Object;)[Ljava/lang/Object;" ::
-        .astore 11 :: .invokestatic "RleLeanKt" "f_Algorithm_noCells" "()[J" :: .astore 12 ::
+        .astore 11 :: .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_noCells" "()[J" :: .astore 12 ::
         .newClass "com/alexvanyo/composelife/model/RLEResult" :: .dup ::
         .aload 10 :: .checkcast "com/alexvanyo/composelife/model/RLEStatus" ::
         .aload 11 :: .aload 12 :: .aconstNull ::
@@ -1558,12 +1558,12 @@ private theorem parseRLEComments_header_branch
     · have h262_287 : f_Algorithm_parseRLEComments_prog.drop 262 =
           .iload 2 :: .iconst 1 :: .iadd :: .invokestatic "kotlin/UInt" "constructor-impl" "(I)I" ::
           .istore 10 :: .aconstNull ::
-          .invokestatic "RleLeanKt" "f_Algorithm_GrowBuf_empty___redArg"
+          .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_empty___redArg"
             "(Ljava/lang/Object;)Ljava/lang/Object;" ::
           .astore 11 :: .aload 0 :: .iload 1 :: .iload 10 :: .iconst 0 :: .aload 8 ::
           .iconst 0 :: .iconst 0 :: .iconst 0 :: .lconst 0 :: .iconst 0 :: .iconst 0 ::
           .iconst 0 :: .aload 6 :: .aload 11 :: .iload 3 :: .iload 4 ::
-          .invokestatic "RleLeanKt" "f_Algorithm_parseRLEData-RjVw3pI" parseRLEDataDesc ::
+          .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_parseRLEData-RjVw3pI" parseRLEDataDesc ::
           .areturn :: f_Algorithm_parseRLEComments_prog.drop 288 := by drop_prefix 26
       let locs2 := setLocal (setLocal locs1 10 (.i32 (i + 1))) 11
         (.ext (.strGrowBuf Algorithm.GrowBuf.empty))
@@ -1581,7 +1581,7 @@ private theorem parseRLEComments_header_branch
               .ext (.strGrowBuf Algorithm.GrowBuf.empty) :: warnsVal :: .i32 0 :: .i32 0 ::
               .i32 0 :: .i64 0 :: .i32 0 :: .i32 0 :: .i32 0 :: .heapRef bytesAddr :: .i32 0 ::
               .i32 (i + 1) :: .i32 numLines :: .strArr lines :: [], locs2, jh, ⟨ar, u64, asc⟩⟩
-            "RleLeanKt" "f_Algorithm_parseRLEData-RjVw3pI" parseRLEDataDesc =
+            "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_parseRLEData-RjVw3pI" parseRLEDataDesc =
             .inl (some ⟨287, (encodeRLEResult jh u64 pdRes).1 :: [], locs2,
               (encodeRLEResult jh u64 pdRes).2.1,
               ⟨ar, (encodeRLEResult jh u64 pdRes).2.2, asc⟩⟩)),
@@ -1628,9 +1628,9 @@ private theorem parseRLEComments_header_branch
           f_Algorithm_parseRLEComments_prog.drop 247 := by drop_prefix 5
       have h247_262 : f_Algorithm_parseRLEComments_prog.drop 247 =
           .astore 10 :: .aload 6 ::
-          .invokestatic "RleLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
+          .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
             "(Ljava/lang/Object;)[Ljava/lang/Object;" ::
-          .astore 11 :: .invokestatic "RleLeanKt" "f_Algorithm_noCells" "()[J" :: .astore 12 ::
+          .astore 11 :: .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_noCells" "()[J" :: .astore 12 ::
           .newClass "com/alexvanyo/composelife/model/RLEResult" :: .dup ::
           .aload 10 :: .checkcast "com/alexvanyo/composelife/model/RLEStatus" ::
           .aload 11 :: .aload 12 :: .aconstNull ::
@@ -1760,7 +1760,7 @@ private theorem parseRLEComments_dupOffset_branch
         .aconstNull ::
         .invokespecial "com/alexvanyo/composelife/model/RLEWarning$DuplicateOffset" "<init>"
           "(IIILkotlin/jvm/internal/DefaultConstructorMarker;)V" ::
-        .invokestatic "RleLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+        .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_push___redArg"
           "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" ::
         .astore 13 :: .aload 13 :: .astore 12 :: f_Algorithm_parseRLEComments_prog.drop 159 := by
       drop_prefix 12
@@ -1993,7 +1993,7 @@ private theorem parseRLEComments_none_offset
     (h1_8 : locs1 8 = .heapRef bytesAddr)
     (hget2 : jh2.get? outerAddr = some (.objArray "java/lang/Object" #[.boxedInt 0]))
     (h43_59 : f_Algorithm_parseRLEComments_prog.drop 43 =
-      .aload 8 :: .invokestatic "RleLeanKt" "f_Algorithm_parseRLEOffset" "([B)Ljava/lang/Object;" ::
+      .aload 8 :: .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_parseRLEOffset" "([B)Ljava/lang/Object;" ::
       .astore 9 :: .aload 9 :: .ldcStr "null cannot be cast to non-null type kotlin.Array<*>" ::
       .invokestatic "kotlin/jvm/internal/Intrinsics" "checkNotNull"
         "(Ljava/lang/Object;Ljava/lang/String;)V" ::
@@ -2013,7 +2013,7 @@ private theorem parseRLEComments_none_offset
       .iload 16 :: .istore 5 :: .aload 17 :: .astore 6 :: .goto 3 ::
       f_Algorithm_parseRLEComments_prog.drop 91)
     (hpo_step : stepInvokeStatic ⟨44, .heapRef bytesAddr :: [], locs1, jh1, ⟨ar, u64, asc⟩⟩
-        "RleLeanKt" "f_Algorithm_parseRLEOffset" "([B)Ljava/lang/Object;" =
+        "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_parseRLEOffset" "([B)Ljava/lang/Object;" =
       .inl (some ⟨45, .heapRef outerAddr :: [], locs1, jh2, ⟨ar, u64, asc⟩⟩)) :
     ∃ locs2,
       runJvmResFast f f_Algorithm_parseRLEComments_prog 43
@@ -2157,7 +2157,7 @@ private theorem parseRLEComments_drop_37_43 :
 
 private theorem parseRLEComments_drop_43_59 :
     f_Algorithm_parseRLEComments_prog.drop 43 =
-      .aload 8 :: .invokestatic "RleLeanKt" "f_Algorithm_parseRLEOffset" "([B)Ljava/lang/Object;" ::
+      .aload 8 :: .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_parseRLEOffset" "([B)Ljava/lang/Object;" ::
       .astore 9 :: .aload 9 :: .ldcStr "null cannot be cast to non-null type kotlin.Array<*>" ::
       .invokestatic "kotlin/jvm/internal/Intrinsics" "checkNotNull"
         "(Ljava/lang/Object;Ljava/lang/String;)V" ::
@@ -2245,7 +2245,7 @@ private theorem parseRLEComments_step_some_offset
     (h1_8 : locs1 8 = .heapRef bytesAddr)
     (houter2 : jh2.get? outerAddr = some (.objArray "java/lang/Object" #[.boxedInt 1, .heapRef innerAddr]))
     (hpo_step : stepInvokeStatic ⟨44, .heapRef bytesAddr :: [], locs1, jh1, ⟨ar, u64, asc⟩⟩
-        "RleLeanKt" "f_Algorithm_parseRLEOffset" "([B)Ljava/lang/Object;" =
+        "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_parseRLEOffset" "([B)Ljava/lang/Object;" =
       .inl (some ⟨45, .heapRef outerAddr :: [], locs1, jh2, ⟨ar, u64, asc⟩⟩)) :
     runJvmResFast f f_Algorithm_parseRLEComments_prog 43
       (f_Algorithm_parseRLEComments_prog.drop 43) ⟨43, [], locs1, jh1, ⟨ar, u64, asc⟩⟩ =
@@ -2430,7 +2430,7 @@ private theorem parseRLEComments_loop
               simp [jh2, outerAddr, Jvm.JvmHeap.get?, Jvm.JvmHeap.alloc]
             have hext12 : HeapExtends jh1 jh2 := heapExtends_alloc jh1 outerObj
             have hpo_step : stepInvokeStatic ⟨44, .heapRef bytesAddr :: [], locs1, jh1, ⟨ar, u64, asc⟩⟩
-                "RleLeanKt" "f_Algorithm_parseRLEOffset" "([B)Ljava/lang/Object;" =
+                "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_parseRLEOffset" "([B)Ljava/lang/Object;" =
                 .inl (some ⟨45, .heapRef outerAddr :: [], locs1, jh2, ⟨ar, u64, asc⟩⟩) := by
               rw [stepStatic_parseRLEOffset_heap_local hget1]
               have hbs' : (⟨bytes.data⟩ : ByteArray) = bytes := rfl
@@ -2476,7 +2476,7 @@ private theorem parseRLEComments_loop
             have hext12 : HeapExtends jh1 jh2 :=
               heapExtends_trans (heapExtends_alloc jh1 innerObj) (heapExtends_alloc jh1a outerObj)
             have hpo_step : stepInvokeStatic ⟨44, .heapRef bytesAddr :: [], locs1, jh1, ⟨ar, u64, asc⟩⟩
-                "RleLeanKt" "f_Algorithm_parseRLEOffset" "([B)Ljava/lang/Object;" =
+                "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_parseRLEOffset" "([B)Ljava/lang/Object;" =
                 .inl (some ⟨45, .heapRef outerAddr :: [], locs1, jh2, ⟨ar, u64, asc⟩⟩) := by
               rw [stepStatic_parseRLEOffset_heap_local hget1]
               have hbs' : (⟨bytes.data⟩ : ByteArray) = bytes := rfl
@@ -2636,7 +2636,7 @@ theorem deserializeRLE_equiv
     let enc := encodeRLEResult jh u64 res
     let stFinal : JvmState := ⟨22, [enc.1], locs1, enc.2.1, ⟨ar, enc.2.2, asc⟩⟩
     have h21 : f_Algorithm_deserializeRLE_prog.drop 21 =
-        .invokestatic "RleLeanKt" "f_Algorithm_deserializeRLE___closed__1"
+        .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_deserializeRLE___closed__1"
           "()Lcom/alexvanyo/composelife/model/RLEResult;" ::
         .areturn :: f_Algorithm_deserializeRLE_prog.drop 23 := by drop_prefix 2
     refine ⟨15, enc.1, stFinal, ?_, ?_, encodeRLEResult_heapExtends jh u64 res,
@@ -2670,17 +2670,17 @@ theorem deserializeRLE_equiv
     let stFinal : JvmState := ⟨20, [enc.1], locs2, enc.2.1, ⟨ar, enc.2.2, asc⟩⟩
     have h9 : f_Algorithm_deserializeRLE_prog.drop 9 =
         .aconstNull ::
-        .invokestatic "RleLeanKt" "f_Algorithm_GrowBuf_empty___redArg"
+        .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_empty___redArg"
           "(Ljava/lang/Object;)Ljava/lang/Object;" ::
         .astore 2 :: .aload 0 :: .iload 1 :: .iconst 0 :: .iconst 0 :: .iconst 0 :: .iconst 0 ::
         .aload 2 ::
-        .invokestatic "RleLeanKt" "f_Algorithm_parseRLEComments--R0mByA"
+        .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_parseRLEComments--R0mByA"
           "([Ljava/lang/Object;IIIIZLjava/lang/Object;)Lcom/alexvanyo/composelife/model/RLEResult;" ::
         .areturn :: f_Algorithm_deserializeRLE_prog.drop 21 := by drop_prefix 12
     have hstep_c : stepInvokeStatic ⟨19, .ext (.strGrowBuf Algorithm.GrowBuf.empty) :: .i32 0 ::
         .i32 0 :: .i32 0 :: .i32 0 :: .i32 numLines :: .strArr lines :: [],
         locs2, jh, ⟨ar, u64, asc⟩⟩
-        "RleLeanKt" "f_Algorithm_parseRLEComments--R0mByA"
+        "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_parseRLEComments--R0mByA"
         "([Ljava/lang/Object;IIIIZLjava/lang/Object;)Lcom/alexvanyo/composelife/model/RLEResult;" =
         .inl (some ⟨20, enc.1 :: [], locs2, enc.2.1, ⟨ar, enc.2.2, asc⟩⟩) := rfl
     refine ⟨25, enc.1, stFinal, ?_, ?_, encodeRLEResult_heapExtends jh u64 res,
@@ -2789,7 +2789,7 @@ private theorem stepStatic_ulongCtor_local {pc : Nat} {stk : List JvmVal} {locs 
 
 private theorem stepStatic_expandRuns_closed0_local {pc : Nat} {stk : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
-    stepInvokeStatic ⟨pc, stk, locs, jh, hp⟩ "RleLeanKt"
+    stepInvokeStatic ⟨pc, stk, locs, jh, hp⟩ "com/alexvanyo/composelife/model/RleLeanKt"
       "f_Algorithm_expandRuns___closed__0" "()Lkotlin/Pair;" =
       .inl (some ⟨pc + 1, .pair (.boxedUInt 0) (.boxedUInt 0) :: stk, locs, jh, hp⟩) := rfl
 
@@ -2855,7 +2855,7 @@ private theorem expandRuns_drop_0_6 : f_Algorithm_expandRuns_prog.drop 0 =
   drop_prefix 6
 
 private theorem expandRuns_drop_6_12 : f_Algorithm_expandRuns_prog.drop 6 =
-    .invokestatic "RleLeanKt" "f_Algorithm_expandRuns___closed__0" "()Lkotlin/Pair;" ::
+    .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_expandRuns___closed__0" "()Lkotlin/Pair;" ::
     .astore 8 :: .iload 2 :: .iload 1 ::
     .invokestatic "java/lang/Integer" "compareUnsigned" "(II)I" ::
     .iflt 14 :: f_Algorithm_expandRuns_prog.drop 12 := by
@@ -3027,7 +3027,7 @@ private theorem expandRuns_drop_277_338 : f_Algorithm_expandRuns_prog.drop 277 =
     .lconst 4294967295 :: .land ::
     .invokestatic "kotlin/ULong" "constructor-impl" "(J)J" ::
     .ladd :: .invokestatic "kotlin/ULong" "constructor-impl" "(J)J" ::
-    .invokestatic "RleLeanKt" "f_Algorithm_U64Buf_push-3yFGk1Y" "([JJ)[J" ::
+    .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_U64Buf_push-3yFGk1Y" "([JJ)[J" ::
     .astore 15 :: .aload 0 :: .astore 16 :: .iload 1 :: .istore 17 :: .iload 2 :: .istore 18 ::
     .iload 4 :: .istore 19 :: .iload 5 :: .istore 20 :: .iload 6 :: .istore 21 ::
     .aload 16 :: .astore 0 :: .iload 17 :: .istore 1 :: .iload 18 :: .istore 2 ::
@@ -3919,13 +3919,13 @@ private theorem stepStatic_longCompareUnsigned_pr {pc : Nat} {a b : UInt64} {stk
 private theorem stepStatic_parseRLEData_closed0_pr {pc : Nat} {stk : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, stk, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_parseRLEData___closed__0" "()Lkotlin/Pair;" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_parseRLEData___closed__0" "()Lkotlin/Pair;" =
       .inl (some ⟨pc + 1, .pair (.boxedUInt 0) (.boxedUInt 1) :: stk, locs, jh, hp⟩) := rfl
 
 private theorem stepStatic_parseRLEData_closed2_pr {pc : Nat} {stk : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, stk, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_parseRLEData___closed__2" "()[Ljava/lang/Object;" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_parseRLEData___closed__2" "()[Ljava/lang/Object;" =
       let (addr, h') := jh.alloc (.objArray "java/lang/Object" #[])
       .inl (some ⟨pc + 1, .heapRef addr :: stk, locs, h', hp⟩) := rfl
 
@@ -3933,10 +3933,10 @@ private theorem stepStatic_asciiStringLossy_heap_pr {pc addr : Nat} {s e : UInt3
     {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     {bytes : ByteArray} (hget : jh.get? addr = some (.byteArray bytes.data)) :
     stepInvokeStatic ⟨pc, .i32 e :: .i32 s :: .heapRef addr :: stk, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_asciiStringLossy-BltQuoY" "([BII)Ljava/lang/String;" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_asciiStringLossy-BltQuoY" "([BII)Ljava/lang/String;" =
       .inl (some ⟨pc + 1, .str (Algorithm.asciiStringLossy bytes s e) :: stk, locs, jh, hp⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 e :: .i32 s :: .heapRef addr :: stk, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_asciiStringLossy-BltQuoY" "([BII)Ljava/lang/String;" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_asciiStringLossy-BltQuoY" "([BII)Ljava/lang/String;" =
       match decodeBytes ⟨pc, .i32 e :: .i32 s :: .heapRef addr :: stk, locs, jh, hp⟩
           (.heapRef addr) with
       | some bs =>
@@ -3953,7 +3953,7 @@ private theorem stepStatic_finishRLE_pr {pc : Nat} {warnsVal runsVal : JvmVal}
     (hw : RleWarnRep warns warnsVal) (hr : RlePairRep runs runsVal) :
     stepInvokeStatic ⟨pc, .i32 startY.toUInt32 :: .i32 startX.toUInt32 :: runsVal :: warnsVal :: stk,
         locs, jh, ⟨ar, u64, asc⟩⟩
-      "RleLeanKt" "f_Algorithm_finishRLE"
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_finishRLE"
       "(Ljava/lang/Object;Ljava/lang/Object;II)Lcom/alexvanyo/composelife/model/RLEResult;" =
       let res := Algorithm.finishRLE warns runs startX startY
       let enc := encodeRLEResult jh u64 res
@@ -3965,7 +3965,7 @@ private theorem stepStatic_finishRLE_pr {pc : Nat} {warnsVal runsVal : JvmVal}
   have hfn : stepInvokeStatic
       ⟨pc, .i32 startY.toUInt32 :: .i32 startX.toUInt32 :: runsVal :: warnsVal :: stk,
         locs, jh, ⟨ar, u64, asc⟩⟩
-      "RleLeanKt" "f_Algorithm_finishRLE"
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_finishRLE"
       "(Ljava/lang/Object;Ljava/lang/Object;II)Lcom/alexvanyo/composelife/model/RLEResult;" =
       match (match warnsVal with
         | .ext (.rleWarnGrowBuf b) => some b
@@ -4183,7 +4183,7 @@ private theorem parseRLEData_drop_15_26 :
 private theorem parseRLEData_drop_26_32 :
     f_Algorithm_parseRLEData_prog.drop 26 =
       .aload 13 :: .aload 14 :: .iload 15 :: .iload 16 ::
-      .invokestatic "RleLeanKt" "f_Algorithm_finishRLE"
+      .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_finishRLE"
         "(Ljava/lang/Object;Ljava/lang/Object;II)Lcom/alexvanyo/composelife/model/RLEResult;" ::
       .areturn :: f_Algorithm_parseRLEData_prog.drop 32 := by drop_prefix 6
 
@@ -4244,7 +4244,7 @@ private theorem parseRLEData_drop_124_152 :
 private theorem parseRLEData_drop_152_175 :
     f_Algorithm_parseRLEData_prog.drop 152 =
       .aload 4 :: .iload 6 :: .iload 5 ::
-      .invokestatic "RleLeanKt" "f_Algorithm_decodeCharAt-BltQuoY" "([BII)Lkotlin/Pair;" ::
+      .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_decodeCharAt-BltQuoY" "([BII)Lkotlin/Pair;" ::
       .astore 24 :: .aload 24 ::
       .invokevirtual "kotlin/Pair" "getFirst" "()Ljava/lang/Object;" ::
       .checkcast "kotlin/UInt" :: .invokevirtual "kotlin/UInt" "unbox-impl" "()I" ::
@@ -4313,7 +4313,7 @@ private theorem parseRLEData_drop_247_254 :
 private theorem parseRLEData_drop_254_286 :
     f_Algorithm_parseRLEData_prog.drop 254 =
       .aload 4 :: .iload 11 :: .iload 6 ::
-      .invokestatic "RleLeanKt" "f_Algorithm_asciiStringLossy-BltQuoY"
+      .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_asciiStringLossy-BltQuoY"
         "([BII)Ljava/lang/String;" ::
       .astore 43 ::
       .newClass "com/alexvanyo/composelife/model/RLEStatus$UnexpectedInput" :: .dup ::
@@ -4324,9 +4324,9 @@ private theorem parseRLEData_drop_254_286 :
       .invokespecial "com/alexvanyo/composelife/model/RLEStatus$UnexpectedInput" "<init>"
         "(Ljava/lang/String;IILkotlin/jvm/internal/DefaultConstructorMarker;)V" ::
       .astore 44 ::
-      .invokestatic "RleLeanKt" "f_Algorithm_parseRLEData___closed__2"
+      .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_parseRLEData___closed__2"
         "()[Ljava/lang/Object;" ::
-      .astore 45 :: .invokestatic "RleLeanKt" "f_Algorithm_noCells" "()[J" :: .astore 46 ::
+      .astore 45 :: .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_noCells" "()[J" :: .astore 46 ::
       .newClass "com/alexvanyo/composelife/model/RLEResult" :: .dup ::
       .aload 44 :: .checkcast "com/alexvanyo/composelife/model/RLEStatus" ::
       .aload 45 :: .aload 46 :: .aconstNull ::
@@ -4362,14 +4362,14 @@ private theorem parseRLEData_drop_294_322 :
       .iload 12 :: .iconst 1 :: .iadd ::
       .invokestatic "kotlin/UInt" "constructor-impl" "(I)I" :: .istore 44 ::
       .aload 4 :: .iload 11 :: .iload 26 ::
-      .invokestatic "RleLeanKt" "f_Algorithm_asciiStringLossy-BltQuoY"
+      .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_asciiStringLossy-BltQuoY"
         "([BII)Ljava/lang/String;" ::
       .astore 45 :: .aload 13 ::
       .newClass "com/alexvanyo/composelife/model/RLEWarning$UnexpectedInput" :: .dup ::
       .iload 43 :: .iload 44 :: .aload 45 :: .aconstNull ::
       .invokespecial "com/alexvanyo/composelife/model/RLEWarning$UnexpectedInput" "<init>"
         "(IILjava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V" ::
-      .invokestatic "RleLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+      .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_push___redArg"
         "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" ::
       .astore 46 :: .aload 46 :: .astore 33 :: .goto 484 ::
       f_Algorithm_parseRLEData_prog.drop 322 := by drop_prefix 28
@@ -4449,7 +4449,7 @@ private theorem parseRLEData_drop_395_420 :
       .iload 25 :: .aconstNull ::
       .invokespecial "com/alexvanyo/composelife/model/RLEWarning$UnexpectedChar" "<init>"
         "(IIILkotlin/jvm/internal/DefaultConstructorMarker;)V" ::
-      .invokestatic "RleLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+      .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_push___redArg"
         "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" ::
       .astore 43 :: .iload 34 :: .istore 29 :: .iload 35 :: .istore 30 ::
       .iload 36 :: .istore 31 :: .aload 43 :: .astore 32 :: .goto 551 ::
@@ -4499,7 +4499,7 @@ private theorem parseRLEData_drop_500_524 :
       .aload 35 :: .checkcast "java/lang/String" :: .aconstNull ::
       .invokespecial "com/alexvanyo/composelife/model/RLEWarning$UnexpectedInput" "<init>"
         "(IILjava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V" ::
-      .invokestatic "RleLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+      .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_push___redArg"
         "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" ::
       .astore 36 :: .aload 36 :: .astore 17 :: .goto 777 ::
       f_Algorithm_parseRLEData_prog.drop 524 := by drop_prefix 24
@@ -4507,7 +4507,7 @@ private theorem parseRLEData_drop_500_524 :
 private theorem parseRLEData_drop_524_551 :
     f_Algorithm_parseRLEData_prog.drop 524 =
       .aload 4 :: .iload 26 :: .iload 5 ::
-      .invokestatic "RleLeanKt" "f_Algorithm_decodeCharAt-BltQuoY" "([BII)Lkotlin/Pair;" ::
+      .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_decodeCharAt-BltQuoY" "([BII)Lkotlin/Pair;" ::
       .astore 34 :: .aload 33 ::
       .newClass "com/alexvanyo/composelife/model/RLEWarning$CharAfterEnd" :: .dup ::
       .iload 2 :: .iconst 1 :: .iadd ::
@@ -4519,7 +4519,7 @@ private theorem parseRLEData_drop_524_551 :
       .aconstNull ::
       .invokespecial "com/alexvanyo/composelife/model/RLEWarning$CharAfterEnd" "<init>"
         "(IIILkotlin/jvm/internal/DefaultConstructorMarker;)V" ::
-      .invokestatic "RleLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+      .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_push___redArg"
         "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" ::
       .astore 35 :: .aload 35 :: .astore 17 :: .goto 777 ::
       f_Algorithm_parseRLEData_prog.drop 551 := by drop_prefix 27
@@ -4532,7 +4532,7 @@ private theorem parseRLEData_drop_551_581 :
       .iload 31 :: .invokestatic "kotlin/UInt" "box-impl" "(I)Lkotlin/UInt;" ::
       .iload 29 :: .invokestatic "kotlin/UInt" "box-impl" "(I)Lkotlin/UInt;" ::
       .invokespecial "kotlin/Pair" "<init>" "(Ljava/lang/Object;Ljava/lang/Object;)V" ::
-      .invokestatic "RleLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+      .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_push___redArg"
         "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" ::
       .astore 34 :: .aload 0 :: .astore 35 :: .iload 1 :: .istore 36 ::
       .iload 2 :: .istore 37 :: .aload 4 :: .astore 38 :: .iload 5 :: .istore 39 ::
@@ -4641,12 +4641,12 @@ private theorem parseRLEData_drop_745_777 :
 
 private theorem parseRLEData_drop_777_789 :
     f_Algorithm_parseRLEData_prog.drop 777 =
-      .invokestatic "RleLeanKt" "f_Algorithm_parseRLEData___closed__0" "()Lkotlin/Pair;" ::
+      .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_parseRLEData___closed__0" "()Lkotlin/Pair;" ::
       .astore 18 :: .aload 14 :: .aload 18 ::
-      .invokestatic "RleLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+      .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_push___redArg"
         "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" ::
       .astore 19 :: .aload 17 :: .aload 19 :: .iload 15 :: .iload 16 ::
-      .invokestatic "RleLeanKt" "f_Algorithm_finishRLE"
+      .invokestatic "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_finishRLE"
         "(Ljava/lang/Object;Ljava/lang/Object;II)Lcom/alexvanyo/composelife/model/RLEResult;" ::
       .areturn :: f_Algorithm_parseRLEData_prog.drop 789 := by drop_prefix 12
 

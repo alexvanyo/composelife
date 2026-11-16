@@ -28,11 +28,11 @@ class CalculatorVerificationTests {
         realBytecodeNamespace = "MosaicCalculator.RealJvmBytecode",
         instrType = "MosaicCalculator.JvmVerification.JvmInstr",
         requiredProgs = listOf(
-            "CalculatorApp_prog",
-            "CalculatorScreen_prog",
-            "reduceCalculatorState_prog",
-            "mapTerminalKey_prog",
-            "formatDisplayLine_prog",
+            "CalculatorScreenKt_CalculatorApp_prog",
+            "CalculatorScreenKt_CalculatorScreen_prog",
+            "CalculatorEngineKt_reduceCalculatorState_prog",
+            "CalculatorEngineKt_mapTerminalKey_prog",
+            "CalculatorEngineKt_formatDisplayLine_prog",
         ),
         defaultImports = listOf(
             "models.CalculatorModel",
@@ -59,15 +59,15 @@ class CalculatorVerificationTests {
             theoremName = "live_engine_bytecode_equiv",
             leanBody = """
               theorem live_engine_bytecode_equiv :
-                  (MosaicCalculator.RealJvmBytecode.mapTerminalKey_prog =
-                      MosaicCalculator.KotlinJvmBytecode.mapTerminalKey_prog) ∧
-                  (MosaicCalculator.RealJvmBytecode.reduceCalculatorState_prog =
-                      MosaicCalculator.KotlinJvmBytecode.reduceCalculatorState_prog) ∧
-                  (MosaicCalculator.RealJvmBytecode.formatDisplayLine_prog =
-                      MosaicCalculator.KotlinJvmBytecode.formatDisplayLine_prog) ∧
+                  (MosaicCalculator.RealJvmBytecode.CalculatorEngineKt_mapTerminalKey_prog =
+                      MosaicCalculator.KotlinJvmBytecode.CalculatorEngineKt_mapTerminalKey_prog) ∧
+                  (MosaicCalculator.RealJvmBytecode.CalculatorEngineKt_reduceCalculatorState_prog =
+                      MosaicCalculator.KotlinJvmBytecode.CalculatorEngineKt_reduceCalculatorState_prog) ∧
+                  (MosaicCalculator.RealJvmBytecode.CalculatorEngineKt_formatDisplayLine_prog =
+                      MosaicCalculator.KotlinJvmBytecode.CalculatorEngineKt_formatDisplayLine_prog) ∧
                   (∃ s1,
                     Jvm.runJvmRes (mkCalcHooks calcProgLookup 1 0) 25
-                        MosaicCalculator.RealJvmBytecode.mapTerminalKey_prog
+                        MosaicCalculator.RealJvmBytecode.CalculatorEngineKt_mapTerminalKey_prog
                         (initCalcJvmState
                           [(0, .str "invalid")] { closures := calcUiInitClosures } calcUiInitJvmHeap) =
                       some (.null, s1)) ∧
@@ -78,7 +78,7 @@ class CalculatorVerificationTests {
                         | some ck => reduceCalculatorStateModel s ck
                         | none => s) .initial
                     Jvm.runJvmRes (mkCalcHooks calcProgLookup 1 0) 35
-                        MosaicCalculator.RealJvmBytecode.formatDisplayLine_prog
+                        MosaicCalculator.RealJvmBytecode.CalculatorEngineKt_formatDisplayLine_prog
                         (initCalcJvmState [(0, .ext (.calcState divZeroSt))] {} calcUiInitJvmHeap) =
                       some (.str "ERR: DIV BY ZERO", endSt)) ∧
                   (∃ endSt,
@@ -88,20 +88,20 @@ class CalculatorVerificationTests {
                         | some ck => reduceCalculatorStateModel s ck
                         | none => s) .initial
                     Jvm.runJvmRes (mkCalcHooks calcProgLookup 3 60) 80
-                        MosaicCalculator.RealJvmBytecode.reduceCalculatorState_prog
+                        MosaicCalculator.RealJvmBytecode.CalculatorEngineKt_reduceCalculatorState_prog
                         (initCalcJvmState
                           [(0, .ext (.calcState addedSt)), (1, .ext (.calcKey .clear))]
                           {} calcUiInitJvmHeap) =
                       some (.ext (.calcState .initial), endSt)) := by
                 have hMapProg :
-                    MosaicCalculator.RealJvmBytecode.mapTerminalKey_prog =
-                      MosaicCalculator.KotlinJvmBytecode.mapTerminalKey_prog := by rfl
+                    MosaicCalculator.RealJvmBytecode.CalculatorEngineKt_mapTerminalKey_prog =
+                      MosaicCalculator.KotlinJvmBytecode.CalculatorEngineKt_mapTerminalKey_prog := by rfl
                 have hRedProg :
-                    MosaicCalculator.RealJvmBytecode.reduceCalculatorState_prog =
-                      MosaicCalculator.KotlinJvmBytecode.reduceCalculatorState_prog := by rfl
+                    MosaicCalculator.RealJvmBytecode.CalculatorEngineKt_reduceCalculatorState_prog =
+                      MosaicCalculator.KotlinJvmBytecode.CalculatorEngineKt_reduceCalculatorState_prog := by rfl
                 have hFmtProg :
-                    MosaicCalculator.RealJvmBytecode.formatDisplayLine_prog =
-                      MosaicCalculator.KotlinJvmBytecode.formatDisplayLine_prog := by rfl
+                    MosaicCalculator.RealJvmBytecode.CalculatorEngineKt_formatDisplayLine_prog =
+                      MosaicCalculator.KotlinJvmBytecode.CalculatorEngineKt_formatDisplayLine_prog := by rfl
                 refine ⟨hMapProg, hRedProg, hFmtProg, ?_, ?_, ?_⟩
                 · rw [hMapProg]
                   obtain ⟨s1, h1, _, _⟩ := mapTerminalKey_equiv calcProgLookup 1 0 25
@@ -146,8 +146,8 @@ class CalculatorVerificationTests {
             theoremName = "live_calculator_screen_skip_equiv",
             leanBody = """
               theorem live_calculator_screen_skip_equiv :
-                  (MosaicCalculator.RealJvmBytecode.CalculatorScreen_prog =
-                      MosaicCalculator.KotlinJvmBytecode.CalculatorScreen_prog) ∧
+                  (MosaicCalculator.RealJvmBytecode.CalculatorScreenKt_CalculatorScreen_prog =
+                      MosaicCalculator.KotlinJvmBytecode.CalculatorScreenKt_CalculatorScreen_prog) ∧
                   (let cSt : CalculatorState :=
                     ["1", "2"].foldl (fun s k =>
                       match mapTerminalKeyModel k with
@@ -165,7 +165,7 @@ class CalculatorVerificationTests {
                   }
                   ∃ endSt,
                     Jvm.runJvmRes (mkCalcHooks calcProgLookup 1 110) 80
-                        MosaicCalculator.RealJvmBytecode.CalculatorScreen_prog
+                        MosaicCalculator.RealJvmBytecode.CalculatorScreenKt_CalculatorScreen_prog
                         (initCalcJvmState
                           [(0, .ext (.calcState cSt)), (1, .ext (.closureRef 0)),
                            (2, .ext (.modifier none)), (3, .ext .composer),
@@ -175,8 +175,8 @@ class CalculatorVerificationTests {
                     endSt.heap.nodeStack = [] ∧
                     endSt.heap.emittedRoot? = some (calculatorScreenMosaicNode cSt 4)) := by
                 have hScrProg :
-                    MosaicCalculator.RealJvmBytecode.CalculatorScreen_prog =
-                      MosaicCalculator.KotlinJvmBytecode.CalculatorScreen_prog := by rfl
+                    MosaicCalculator.RealJvmBytecode.CalculatorScreenKt_CalculatorScreen_prog =
+                      MosaicCalculator.KotlinJvmBytecode.CalculatorScreenKt_CalculatorScreen_prog := by rfl
                 refine ⟨hScrProg, ?_⟩
                 dsimp only
                 rw [hScrProg]
@@ -210,13 +210,13 @@ class CalculatorVerificationTests {
             theoremName = "live_calculator_app_end_to_end_render",
             leanBody = """
               theorem live_calculator_app_end_to_end_render :
-                  (MosaicCalculator.RealJvmBytecode.CalculatorApp_prog =
-                      MosaicCalculator.KotlinJvmBytecode.CalculatorApp_prog) ∧
-                  (MosaicCalculator.RealJvmBytecode.CalculatorScreen_prog =
-                      MosaicCalculator.KotlinJvmBytecode.CalculatorScreen_prog) ∧
+                  (MosaicCalculator.RealJvmBytecode.CalculatorScreenKt_CalculatorApp_prog =
+                      MosaicCalculator.KotlinJvmBytecode.CalculatorScreenKt_CalculatorApp_prog) ∧
+                  (MosaicCalculator.RealJvmBytecode.CalculatorScreenKt_CalculatorScreen_prog =
+                      MosaicCalculator.KotlinJvmBytecode.CalculatorScreenKt_CalculatorScreen_prog) ∧
                   (∃ initSt initTree,
                     Jvm.runJvmRes (mkCalcHooks calcProgLookup 6 200) 200
-                        MosaicCalculator.RealJvmBytecode.CalculatorApp_prog
+                        MosaicCalculator.RealJvmBytecode.CalculatorScreenKt_CalculatorApp_prog
                         (initCalcJvmState
                           [(0, .null), (1, .null), (2, .ext .composer), (3, .i32 0), (4, .i32 3)]
                           { closures := calcUiInitClosures } calcUiInitJvmHeap) =
@@ -227,7 +227,7 @@ class CalculatorVerificationTests {
                         "[4] [5] [6] [*]\n[1] [2] [3] [-]\n[0] [C] [=] [+]") ∧
                   (∃ initSt finalSt finalTree,
                     Jvm.runJvmRes (mkCalcHooks calcProgLookup 6 200) 200
-                        MosaicCalculator.RealJvmBytecode.CalculatorApp_prog
+                        MosaicCalculator.RealJvmBytecode.CalculatorScreenKt_CalculatorApp_prog
                         (initCalcJvmState
                           [(0, .null), (1, .null), (2, .ext .composer), (3, .i32 0), (4, .i32 3)]
                           { closures := calcUiInitClosures } calcUiInitJvmHeap) =
@@ -239,7 +239,7 @@ class CalculatorVerificationTests {
                         "[4] [5] [6] [*]\n[1] [2] [3] [-]\n[0] [C] [=] [+]") ∧
                   (∃ initSt divSt divTree,
                     Jvm.runJvmRes (mkCalcHooks calcProgLookup 6 200) 200
-                        MosaicCalculator.RealJvmBytecode.CalculatorApp_prog
+                        MosaicCalculator.RealJvmBytecode.CalculatorScreenKt_CalculatorApp_prog
                         (initCalcJvmState
                           [(0, .null), (1, .null), (2, .ext .composer), (3, .i32 0), (4, .i32 3)]
                           { closures := calcUiInitClosures } calcUiInitJvmHeap) =
@@ -250,11 +250,11 @@ class CalculatorVerificationTests {
                       "=== Calculator ===\n> ERR: DIV BY ZERO\n[7] [8] [9] [/]\n" ++
                         "[4] [5] [6] [*]\n[1] [2] [3] [-]\n[0] [C] [=] [+]") := by
                 have hAppProg :
-                    MosaicCalculator.RealJvmBytecode.CalculatorApp_prog =
-                      MosaicCalculator.KotlinJvmBytecode.CalculatorApp_prog := by rfl
+                    MosaicCalculator.RealJvmBytecode.CalculatorScreenKt_CalculatorApp_prog =
+                      MosaicCalculator.KotlinJvmBytecode.CalculatorScreenKt_CalculatorApp_prog := by rfl
                 have hScrProg :
-                    MosaicCalculator.RealJvmBytecode.CalculatorScreen_prog =
-                      MosaicCalculator.KotlinJvmBytecode.CalculatorScreen_prog := by rfl
+                    MosaicCalculator.RealJvmBytecode.CalculatorScreenKt_CalculatorScreen_prog =
+                      MosaicCalculator.KotlinJvmBytecode.CalculatorScreenKt_CalculatorScreen_prog := by rfl
                 refine ⟨hAppProg, hScrProg, ?_, ?_, ?_⟩
                 · obtain ⟨initSt, initTree, hrun, _, hroot, hrend⟩ :=
                     CalculatorApp_initial_renders_expected 6 200 200 (by omega) (by omega) (by omega)

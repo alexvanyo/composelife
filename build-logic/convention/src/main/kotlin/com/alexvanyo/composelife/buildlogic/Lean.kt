@@ -54,6 +54,13 @@ abstract class LeanExtension @Inject constructor(objects: ObjectFactory) {
 
     abstract val kotlinBytecodeClassPaths: ListProperty<String>
 
+    /**
+     * Hand-written Kotlin methods (`<internal class name>.<method>`) that are known not to lift into the verified
+     * instruction subset. Every other method in [kotlinBytecodeClassPaths] must lift, and every listed method must
+     * still exist and still fail to lift, so this list is an explicit, reviewed record of unverified bytecode.
+     */
+    abstract val kotlinBytecodeUnliftedMethods: ListProperty<String>
+
     val entries: NamedDomainObjectContainer<LeanCodegenEntry> =
         objects.domainObjectContainer(LeanCodegenEntry::class.java)
 
@@ -115,6 +122,21 @@ abstract class VerifyLeanTask @Inject constructor(private val execOperations: Ex
 
     @get:OutputFile
     abstract val stampFile: RegularFileProperty
+
+    init {
+        // The real outputs are Lake's `.lake/build` artifacts, which are too large to snapshot and are also written
+        // by the bytecode tasks. Only trust the stamp while Lake's build of the target still exists, so a
+        // `lake clean` (or deleted `.lake`) reruns `lake build` instead of leaving later tasks with missing oleans.
+        outputs.upToDateWhen { lakeBuildArtifactsPresent() }
+    }
+
+    private fun lakeBuildArtifactsPresent(): Boolean {
+        val libDir = File(workingDir.get().asFile, ".lake/build/lib")
+        val libLeanDir = File(libDir, "lean")
+        if (libLeanDir.listFiles { file -> file.extension == "olean" }.isNullOrEmpty()) return false
+        val (libName, facet) = target.get().split(':', limit = 2).let { it[0] to it.getOrNull(1) }
+        return facet != "static" || libDir.listFiles()?.any { it.name.endsWith("_$libName.a") } == true
+    }
 
     @TaskAction
     fun verify() {
@@ -425,6 +447,16 @@ abstract class VerifyLeanJvmBytecodeTask @Inject constructor(private val execOpe
     @get:InputFiles
     abstract val kotlinClassFiles: ConfigurableFileCollection
 
+    /** The configured `kotlinBytecodeClassPaths` (relative to [desktopClassesDir]); each must exist. */
+    @get:Input
+    abstract val kotlinClassPathSpecs: ListProperty<String>
+
+    @get:Internal
+    abstract val desktopClassesDir: DirectoryProperty
+
+    @get:Input
+    abstract val kotlinUnliftedMethods: ListProperty<String>
+
     @get:Input
     abstract val moduleNamespace: Property<String>
 
@@ -441,14 +473,37 @@ abstract class VerifyLeanJvmBytecodeTask @Inject constructor(private val execOpe
         val oleanRelativePath: String,
         val leanNamespace: String,
         val instrType: String,
+        val qualifyNames: Boolean,
+        val allowedUnlifted: List<String>,
         val proofsSubdirName: String,
         val rootProofFile: String,
         val workDir: File,
     )
 
+    /** Fails when a configured class is missing, rather than silently lifting (and verifying) fewer classes. */
+    private fun checkConfiguredClassesExist() {
+        val missingClassFiles = classFiles.files.filterNot { it.isFile }
+        check(missingClassFiles.isEmpty()) {
+            "Expected compiled Lean-generated JVM classes are missing: $missingClassFiles"
+        }
+        val classesRoot = desktopClassesDir.get().asFile
+        val missingKotlinPaths = kotlinClassPathSpecs.get().filter { classPath ->
+            val file = File(classesRoot, classPath)
+            if (classPath.endsWith("/")) {
+                file.walkTopDown().none { it.isFile && it.extension == "class" }
+            } else {
+                !file.isFile
+            }
+        }
+        check(missingKotlinPaths.isEmpty()) {
+            "kotlinBytecodeClassPaths entries match no compiled classes under $classesRoot: $missingKotlinPaths"
+        }
+    }
+
     @TaskAction
     fun verify() {
-        val existingClassFiles = classFiles.files.filter { it.isFile }.sortedBy { it.path }
+        checkConfiguredClassesExist()
+        val existingClassFiles = classFiles.files.sortedBy { it.path }
         val existingKotlinClassFiles = kotlinClassFiles.files.filter { it.isFile }.sortedBy { it.path }
         check(existingClassFiles.isNotEmpty() || existingKotlinClassFiles.isNotEmpty()) {
             "Expected compiled JVM .class files in either classFiles (${classFiles.files}) " +
@@ -469,6 +524,8 @@ abstract class VerifyLeanJvmBytecodeTask @Inject constructor(private val execOpe
                     oleanRelativePath = ".lake/build/lib/lean/JvmBytecode.olean",
                     leanNamespace = "$ns.JvmBytecode",
                     instrType = "$ns.JvmVerification.JvmInstr",
+                    qualifyNames = false,
+                    allowedUnlifted = emptyList(),
                     proofsSubdirName = "JvmEquiv",
                     rootProofFile = "proofs/JvmEquiv.lean",
                     workDir = workDir,
@@ -485,6 +542,8 @@ abstract class VerifyLeanJvmBytecodeTask @Inject constructor(private val execOpe
                     oleanRelativePath = ".lake/build/lib/lean/KotlinJvmBytecode.olean",
                     leanNamespace = "$ns.KotlinJvmBytecode",
                     instrType = "$ns.JvmVerification.JvmInstr",
+                    qualifyNames = true,
+                    allowedUnlifted = kotlinUnliftedMethods.get(),
                     proofsSubdirName = "KotlinJvmEquiv",
                     rootProofFile = "proofs/KotlinJvmEquiv.lean",
                     workDir = workDir,
@@ -500,45 +559,8 @@ abstract class VerifyLeanJvmBytecodeTask @Inject constructor(private val execOpe
     }
 
     private fun verifyBytecodeTarget(target: BytecodeTargetSpec) {
-        val bytecodeLeanFile = File(target.bytecodeOutDir, target.leanFileName)
-        val liftArgs = buildList {
-            add("python3")
-            add(scriptFile.get().asFile.absolutePath)
-            for (cf in target.classFilesToLift) {
-                add("--class-file")
-                add(cf.absolutePath)
-            }
-            add("--import")
-            add("JvmSemantics")
-            add("--namespace")
-            add(target.leanNamespace)
-            add("--instr-type")
-            add(target.instrType)
-            add("-o")
-            add(bytecodeLeanFile.absolutePath)
-        }
-        execOperations.exec {
-            commandLine(liftArgs)
-        }
-
-        val oleanFile = File(target.workDir, target.oleanRelativePath)
-        oleanFile.parentFile.mkdirs()
-        execOperations.exec {
-            workingDir = target.workDir
-            commandLine(
-                "lake",
-                "env",
-                "lean",
-                "-j",
-                "2",
-                "-M",
-                "4096",
-                "--root=${target.bytecodeOutDir.absolutePath}",
-                "-o",
-                oleanFile.absolutePath,
-                bytecodeLeanFile.absolutePath,
-            )
-        }
+        val bytecodeLeanFile = liftBytecode(target)
+        val oleanFile = compileBytecodeOlean(target, bytecodeLeanFile)
 
         val jvmEquivDir = File(target.workDir, "proofs/${target.proofsSubdirName}")
         if (jvmEquivDir.isDirectory) {
@@ -561,6 +583,77 @@ abstract class VerifyLeanJvmBytecodeTask @Inject constructor(private val execOpe
         }
     }
 
+    /** Lifts the target's classes, returning the bytecode Lean file (left untouched when the lift is unchanged). */
+    private fun liftBytecode(target: BytecodeTargetSpec): File {
+        val bytecodeLeanFile = File(target.bytecodeOutDir, target.leanFileName)
+        val liftedLeanFile = File(target.bytecodeOutDir, "${target.leanFileName}.lifted")
+        val liftArgs = buildList {
+            add("python3")
+            add(scriptFile.get().asFile.absolutePath)
+            for (cf in target.classFilesToLift) {
+                add("--class-file")
+                add(cf.absolutePath)
+            }
+            add("--import")
+            add("JvmSemantics")
+            add("--namespace")
+            add(target.leanNamespace)
+            add("--instr-type")
+            add(target.instrType)
+            // Every method must lift unless explicitly listed: a silently skipped method would go unverified.
+            add("--strict")
+            for (method in target.allowedUnlifted) {
+                add("--allow-unlifted")
+                add(method)
+            }
+            if (target.qualifyNames) add("--qualify-names")
+            add("-o")
+            add(liftedLeanFile.absolutePath)
+        }
+        execOperations.exec {
+            commandLine(liftArgs)
+        }
+        // Keep the previous file (and its mtime) when the lift is unchanged, so the bytecode olean and the proof
+        // submodules that import it are only recompiled when something they depend on actually changed.
+        val bytecodeChanged = !bytecodeLeanFile.isFile || bytecodeLeanFile.readText() != liftedLeanFile.readText()
+        if (bytecodeChanged) {
+            liftedLeanFile.copyTo(bytecodeLeanFile, overwrite = true)
+        }
+        liftedLeanFile.delete()
+        return bytecodeLeanFile
+    }
+
+    /** Compiles the bytecode Lean file to its olean, unless the olean is newer than it and its dependencies. */
+    private fun compileBytecodeOlean(target: BytecodeTargetSpec, bytecodeLeanFile: File): File {
+        val libLeanDir = File(target.workDir, ".lake/build/lib/lean")
+        val oleanFile = File(target.workDir, target.oleanRelativePath)
+        oleanFile.parentFile.mkdirs()
+        // The lifted file imports only `JvmSemantics` (and through it `Jvm.*`), never proof or other bytecode oleans.
+        val oleanDepMtime = maxOf(
+            bytecodeLeanFile.lastModified(),
+            maxOleanMtime(libLeanDir) { rel -> rel.startsWith("proofs/") || rel.endsWith("Bytecode.olean") },
+        )
+        if (!oleanFile.isFile || oleanFile.lastModified() <= oleanDepMtime) {
+            execOperations.exec {
+                workingDir = target.workDir
+                commandLine(
+                    "lake",
+                    "env",
+                    "lean",
+                    "-j",
+                    "2",
+                    "-M",
+                    "4096",
+                    "--root=${target.bytecodeOutDir.absolutePath}",
+                    "-o",
+                    oleanFile.absolutePath,
+                    bytecodeLeanFile.absolutePath,
+                )
+            }
+        }
+        return oleanFile
+    }
+
     private fun compileJvmEquivSubmodules(
         workDir: File,
         jvmEquivDir: File,
@@ -577,14 +670,14 @@ abstract class VerifyLeanJvmBytecodeTask @Inject constructor(private val execOpe
         } else {
             0L
         }
-        val excludedPrefix = "proofs/$proofsSubdirName/"
-        val otherOleanMtime = libLeanDir.walkTopDown()
-            .filter {
-                it.isFile &&
-                    it.extension == "olean" &&
-                    !it.toRelativeString(libLeanDir).startsWith(excludedPrefix)
-            }
-            .maxOfOrNull { it.lastModified() } ?: 0L
+        // Exclude this directory's own oleans, and those of the other bytecode-proof directory unless this one imports
+        // it: that directory is compiled later in the same task, so counting it would make every run look stale.
+        val importedSubdirs = jvmEquivDir.walkTopDown()
+            .filter { it.isFile && it.extension == "lean" }
+            .flatMap { file -> file.readLines().mapNotNull { proofsImportRegex.find(it)?.groupValues?.get(1) } }
+            .toSet()
+        val excludedPrefixes = (BYTECODE_PROOF_SUBDIRS - importedSubdirs + proofsSubdirName).map { "proofs/$it/" }
+        val otherOleanMtime = maxOleanMtime(libLeanDir) { rel -> excludedPrefixes.any { rel.startsWith(it) } }
         val baseDepMtime = maxOf(bytecodeOlean.lastModified(), lratMtime, otherOleanMtime)
 
         val moduleFiles = jvmEquivDir.listFiles { file -> file.isFile && file.extension == "lean" }
@@ -627,6 +720,15 @@ abstract class VerifyLeanJvmBytecodeTask @Inject constructor(private val execOpe
             }
         }
     }
+
+    private companion object {
+        val BYTECODE_PROOF_SUBDIRS = setOf("JvmEquiv", "KotlinJvmEquiv")
+        val proofsImportRegex = Regex("""^\s*import\s+proofs\.([A-Za-z0-9_]+)\.""")
+    }
+
+    private fun maxOleanMtime(libLeanDir: File, excluded: (String) -> Boolean): Long = libLeanDir.walkTopDown()
+        .filter { it.isFile && it.extension == "olean" && !excluded(it.toRelativeString(libLeanDir)) }
+        .maxOfOrNull { it.lastModified() } ?: 0L
 
     private fun topoSortModules(
         names: List<String>,

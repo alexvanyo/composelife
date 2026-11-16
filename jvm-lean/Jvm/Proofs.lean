@@ -89,6 +89,42 @@ theorem jvmHeap_get?_set_ne {Ext : Type} (h : JvmHeap Ext) {a b : Nat}
   · simp [Array.getElem?_set_ne, Ne.symm hne]
   · rfl
 
+/-- Overwriting an `.instance` with another `.instance` (a `putfield`) keeps every value's
+`JvmVal.equalsModeled` status. -/
+theorem jvmVal_equalsModeled_set_instance {Ext : Type} {h : JvmHeap Ext} {addr : Nat}
+    {cls cls' : String} {fs fs' : List (String × JvmVal Ext)}
+    (hget : h.get? addr = some (.instance cls fs)) :
+    ∀ v : JvmVal Ext, v.equalsModeled (h.set addr (.instance cls' fs')) = v.equalsModeled h
+  | .heapRef a => by
+    by_cases ha : a = addr
+    · subst ha
+      simp [JvmVal.equalsModeled, jvmHeap_get?_set_self hget, hget]
+    · simp [JvmVal.equalsModeled, jvmHeap_get?_set_ne h _ ha]
+  | .pair a b => by
+    simp [JvmVal.equalsModeled, jvmVal_equalsModeled_set_instance hget a,
+      jvmVal_equalsModeled_set_instance hget b]
+  | .i32 _ | .i64 _ | .f32 _ | .f64 _ | .bool _ | .boxedBool _ | .null | .unit | .uninit | .str _
+  | .allocRef _ | .boxedByte _ | .boxedUByte _ | .boxedInt _ | .boxedUInt _ | .boxedLong _
+  | .boxedULong _ | .strArr _ | .ext _ => rfl
+
+/-- Allocating a new object keeps every modeled value modeled (its references are all in bounds). -/
+theorem jvmVal_equalsModeled_alloc {Ext : Type} {h : JvmHeap Ext} (obj : HeapObj Ext) :
+    ∀ v : JvmVal Ext, v.equalsModeled h = true → v.equalsModeled (h.alloc obj).2 = true
+  | .heapRef a, hv => by
+    simp only [JvmVal.equalsModeled] at hv ⊢
+    cases hg : h.get? a with
+    | none => simp [hg] at hv
+    | some o =>
+      have hlt : a < h.objects.size := jvmHeap_get?_some_lt hg
+      rw [jvmHeap_get?_alloc_old h obj hlt, hg]
+      simpa [hg] using hv
+  | .pair a b, hv => by
+    simp only [JvmVal.equalsModeled, Bool.and_eq_true] at hv ⊢
+    exact ⟨jvmVal_equalsModeled_alloc obj a hv.1, jvmVal_equalsModeled_alloc obj b hv.2⟩
+  | .i32 _, _ | .i64 _, _ | .f32 _, _ | .f64 _, _ | .bool _, _ | .boxedBool _, _ | .null, _ | .unit, _
+  | .uninit, _ | .str _, _ | .allocRef _, _ | .boxedByte _, _ | .boxedUByte _, _ | .boxedInt _, _
+  | .boxedUInt _, _ | .boxedLong _, _ | .boxedULong _, _ | .strArr _, _ | .ext _, _ => rfl
+
 /-! ### JVM BitVec, UInt8/UInt32/Int32/UInt64, Float, and String Helpers -/
 
 theorem int32_toUInt32_toBitVec (x : Int32) : x.toUInt32.toBitVec = x.toBitVec := by

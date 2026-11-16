@@ -28,9 +28,20 @@ plugins {
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
+    alias(libs.plugins.convention.lean)
     kotlin("plugin.serialization") version libs.versions.kotlin
     alias(libs.plugins.gradleDependenciesSorter)
     alias(libs.plugins.metro)
+}
+
+lean {
+    target = "UiCommon:static"
+    packageName = "com.alexvanyo.composelife.ui.util"
+    kotlinBytecodeClassPaths.addAll(
+        "com/alexvanyo/composelife/ui/util/TargetStateKt.class",
+        "com/alexvanyo/composelife/ui/util/TargetState\$InProgress.class",
+        "com/alexvanyo/composelife/ui/util/EasingPiecewiseKt.class",
+    )
 }
 
 metro {
@@ -139,6 +150,10 @@ kotlin {
         }
         val desktopTest by getting {
             dependsOn(jbTest)
+            dependencies {
+                implementation(projects.leanTestFixtures)
+                implementation(libs.kotlin.test)
+            }
         }
         val androidSharedTest by getting {
             dependsOn(jbTest)

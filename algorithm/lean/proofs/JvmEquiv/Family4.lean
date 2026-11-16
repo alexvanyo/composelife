@@ -365,14 +365,14 @@ private theorem stepStatic_noCells_105_heap
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena}
     {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
     stepInvokeStatic ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "Life105LeanKt" "f_Algorithm_noCells" "()[J" =
+      "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_noCells" "()[J" =
       .inl (some ⟨pc + 1, .ext (.u64Ref u64.length) :: rest, locs, jh, ⟨ar, u64 ++ [#[]], asc⟩⟩) := rfl
 
 private theorem stepStatic_closed5_105_heap
     {pc : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, rest, locs, jh, hp⟩
-      "Life105LeanKt" "f_Algorithm_deserializeLife105___closed__5" "()[Ljava/lang/Object;" =
+      "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_deserializeLife105___closed__5" "()[Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .heapRef jh.objects.size :: rest, locs,
         (jh.alloc (.objArray "java/lang/Object"
           #[.allocRef "com/alexvanyo/composelife/model/Life105Warning$EmptyFile"])).2, hp⟩) := rfl
@@ -381,7 +381,7 @@ private theorem stepStatic_closed1_105_heap
     {pc : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, rest, locs, jh, hp⟩
-      "Life105LeanKt" "f_Algorithm_deserializeLife105___closed__1" "()[Ljava/lang/Object;" =
+      "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_deserializeLife105___closed__1" "()[Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .heapRef jh.objects.size :: rest, locs,
         (jh.alloc (.objArray "java/lang/Object" #[])).2, hp⟩) := rfl
 
@@ -413,7 +413,7 @@ private theorem stepStatic_scanDigitSet_heap
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     {elems : Array UInt8} (hget : jh.get? addr = some (.byteArray elems)) :
     stepInvokeStatic ⟨pc, .i32 mask :: .i32 p :: .i32 limit :: .heapRef addr :: rest, locs, jh, hp⟩
-      "Life105LeanKt" "f_Algorithm_scanDigitSet-7IvYBaQ" "([BIII)Lkotlin/Pair;" =
+      "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_scanDigitSet-7IvYBaQ" "([BIII)Lkotlin/Pair;" =
       let r := Algorithm.scanDigitSet ⟨elems⟩ limit p mask
       .inl (some ⟨pc + 1, .pair (.boxedUInt r.1) (.boxedUInt r.2) :: rest, locs, jh, hp⟩) := by
   change (match decodeBytes
@@ -430,10 +430,10 @@ private theorem stepStatic_isRowRest_heap
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     {elems : Array UInt8} (hget : jh.get? addr = some (.byteArray elems)) :
     stepInvokeStatic ⟨pc, .i32 p :: .i32 limit :: .heapRef addr :: rest, locs, jh, hp⟩
-      "Life105LeanKt" "f_Algorithm_isRowRest-BltQuoY" "([BII)Z" =
+      "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_isRowRest-BltQuoY" "([BII)Z" =
       .inl (some ⟨pc + 1, .i32 (if Algorithm.isRowRest ⟨elems⟩ limit p then 1 else 0) :: rest, locs, jh, hp⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 p :: .i32 limit :: .heapRef addr :: rest, locs, jh, hp⟩
-      "Life105LeanKt" "f_Algorithm_isRowRest-BltQuoY" "([BII)Z" =
+      "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_isRowRest-BltQuoY" "([BII)Z" =
       match jh.get? addr with
       | some (.byteArray e) =>
         .inl (some ⟨pc + 1, .i32 (if Algorithm.isRowRest ⟨e⟩ limit p then 1 else 0) :: rest, locs, jh, hp⟩)
@@ -2981,7 +2981,7 @@ private theorem stepStatic_growBufPush_str
     {pc : Nat} {s : String} {b : Algorithm.GrowBuf String} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .str s :: .ext (.strGrowBuf b) :: rest, locs, jh, hp⟩
-      "Life105LeanKt" "f_Algorithm_GrowBuf_push___redArg"
+      "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_GrowBuf_push___redArg"
       "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .ext (.strGrowBuf (b.push s)) :: rest, locs, jh, hp⟩) := rfl
 
@@ -2992,13 +2992,13 @@ private theorem stepStatic_life105Bounds
     (hget : hp.u64Arrays[cId]? = some cells) :
     stepInvokeStatic ⟨pc, .i32 maxY :: .i32 minY :: .i32 minX :: .i32 limit :: .i32 i ::
         .ext (.u64Ref cId) :: rest, locs, jh, hp⟩
-      "Life105LeanKt" "f_Algorithm_life105Bounds-lLpu_l0" "([JIIIII)Lkotlin/Pair;" =
+      "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_life105Bounds-lLpu_l0" "([JIIIII)Lkotlin/Pair;" =
       let b := Algorithm.life105Bounds cells i limit minX.toInt32 minY.toInt32 maxY.toInt32
       .inl (some ⟨pc + 1, .pair (.boxedInt b.1.toUInt32)
         (.pair (.boxedInt b.2.1.toUInt32) (.boxedInt b.2.2.toUInt32)) :: rest, locs, jh, hp⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 maxY :: .i32 minY :: .i32 minX :: .i32 limit :: .i32 i ::
       .ext (.u64Ref cId) :: rest, locs, jh, hp⟩
-      "Life105LeanKt" "f_Algorithm_life105Bounds-lLpu_l0" "([JIIIII)Lkotlin/Pair;" =
+      "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_life105Bounds-lLpu_l0" "([JIIIII)Lkotlin/Pair;" =
       match hp.u64Arrays[cId]? with
       | some cs =>
         let b := Algorithm.life105Bounds cs i limit minX.toInt32 minY.toInt32 maxY.toInt32
@@ -3014,13 +3014,13 @@ private theorem stepStatic_serializeLife105Block
     (hget : hp.u64Arrays[cId]? = some cells) :
     stepInvokeStatic ⟨pc, .i32 maxY :: .i32 minY :: .i32 minX ::
         .ext (.u64Ref cId) :: rest, locs, jh, hp⟩
-      "Life105LeanKt" "f_Algorithm_serializeLife105Block-WhflrNI"
+      "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_serializeLife105Block-WhflrNI"
       "([JIII)[Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .strArr (Algorithm.serializeLife105Block cells
         minX.toInt32 minY.toInt32 maxY.toInt32) :: rest, locs, jh, hp⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 maxY :: .i32 minY :: .i32 minX ::
       .ext (.u64Ref cId) :: rest, locs, jh, hp⟩
-      "Life105LeanKt" "f_Algorithm_serializeLife105Block-WhflrNI"
+      "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_serializeLife105Block-WhflrNI"
       "([JIII)[Ljava/lang/Object;" =
       match hp.u64Arrays[cId]? with
       | some cs =>
@@ -3036,13 +3036,13 @@ private theorem stepStatic_life105Rest
     (hc : hp.u64Arrays[cId]? = some cells) (ha : hp.u64Arrays[accId]? = some acc) :
     stepInvokeStatic ⟨pc, .ext (.u64Ref accId) :: .i32 limit :: .i32 i :: .i32 minX ::
         .ext (.u64Ref cId) :: rest, locs, jh, hp⟩
-      "Life105LeanKt" "f_Algorithm_life105Rest-dlT0rtU" "([JIII[J)[J" =
+      "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_life105Rest-dlT0rtU" "([JIII[J)[J" =
       .inl (some ⟨pc + 1, .ext (.u64Ref hp.u64Arrays.length) :: rest, locs, jh,
         { hp with u64Arrays := hp.u64Arrays ++
           [Algorithm.life105Rest cells minX.toInt32 i limit acc] }⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .ext (.u64Ref accId) :: .i32 limit :: .i32 i :: .i32 minX ::
       .ext (.u64Ref cId) :: rest, locs, jh, hp⟩
-      "Life105LeanKt" "f_Algorithm_life105Rest-dlT0rtU" "([JIII[J)[J" =
+      "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_life105Rest-dlT0rtU" "([JIII[J)[J" =
       match hp.u64Arrays[cId]?, hp.u64Arrays[accId]? with
       | some cs, some ac =>
         .inl (some ⟨pc + 1, .ext (.u64Ref hp.u64Arrays.length) :: rest, locs, jh,
@@ -3665,11 +3665,11 @@ private theorem stepStatic_isRowLine_heap
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     (hget : jh.get? addr = some (.byteArray elems)) :
     stepInvokeStatic ⟨pc, .heapRef addr :: rest, locs, jh, hp⟩
-      "Life105LeanKt" "f_Algorithm_isRowLine" "([B)Z" =
+      "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_isRowLine" "([B)Z" =
       .inl (some ⟨pc + 1, .i32 (if Algorithm.isRowLine ⟨elems⟩ then 1 else 0) :: rest,
         locs, jh, hp⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .heapRef addr :: rest, locs, jh, hp⟩
-      "Life105LeanKt" "f_Algorithm_isRowLine" "([B)Z" =
+      "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_isRowLine" "([B)Z" =
       match decodeBytes ⟨pc, .heapRef addr :: rest, locs, jh, hp⟩ (.heapRef addr) with
       | some bytes =>
         .inl (some ⟨pc + 1, .i32 (if Algorithm.isRowLine bytes then 1 else 0) :: rest,
@@ -3687,11 +3687,11 @@ private theorem stepStatic_parseBlockHeader_none_heap
     (hget : jh.get? addr = some (.byteArray elems))
     (hbh : Algorithm.parseBlockHeader ⟨elems⟩ = none) :
     stepInvokeStatic ⟨pc, .heapRef addr :: rest, locs, jh, hp⟩
-      "Life105LeanKt" "f_Algorithm_parseBlockHeader" "([B)Ljava/lang/Object;" =
+      "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_parseBlockHeader" "([B)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .heapRef jh.objects.size :: rest, locs,
         (jh.alloc (.objArray "java/lang/Object" #[.boxedInt 0])).2, hp⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .heapRef addr :: rest, locs, jh, hp⟩
-      "Life105LeanKt" "f_Algorithm_parseBlockHeader" "([B)Ljava/lang/Object;" =
+      "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_parseBlockHeader" "([B)Ljava/lang/Object;" =
       match decodeBytes ⟨pc, .heapRef addr :: rest, locs, jh, hp⟩ (.heapRef addr) with
       | some bytes =>
         let optPair := (Algorithm.parseBlockHeader bytes).map fun r =>
@@ -3716,10 +3716,10 @@ private theorem stepStatic_parseBlockHeader_some_heap
     let h2 := (h1.alloc (.objArray "java/lang/Object"
       #[.boxedInt 1, .heapRef jh.objects.size])).2
     stepInvokeStatic ⟨pc, .heapRef addr :: rest, locs, jh, hp⟩
-      "Life105LeanKt" "f_Algorithm_parseBlockHeader" "([B)Ljava/lang/Object;" =
+      "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_parseBlockHeader" "([B)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .heapRef (jh.objects.size + 1) :: rest, locs, h2, hp⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .heapRef addr :: rest, locs, jh, hp⟩
-      "Life105LeanKt" "f_Algorithm_parseBlockHeader" "([B)Ljava/lang/Object;" =
+      "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_parseBlockHeader" "([B)Ljava/lang/Object;" =
       match decodeBytes ⟨pc, .heapRef addr :: rest, locs, jh, hp⟩ (.heapRef addr) with
       | some bytes =>
         let optPair := (Algorithm.parseBlockHeader bytes).map fun r =>
@@ -5432,7 +5432,7 @@ private theorem stepStatic_closed2_105_heap
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena}
     {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
     stepInvokeStatic ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "Life105LeanKt" "f_Algorithm_deserializeLife105___closed__2"
+      "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_deserializeLife105___closed__2"
       "()Lcom/alexvanyo/composelife/model/Life105Result;" =
       let r := encodeLife105Result jh u64 ⟨.ok, #[], #[]⟩
       .inl (some ⟨pc + 1, r.1 :: rest, locs, r.2.1, ⟨ar, r.2.2, asc⟩⟩) := rfl
@@ -5442,7 +5442,7 @@ private theorem stepStatic_closed3_105_heap
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena}
     {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
     stepInvokeStatic ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "Life105LeanKt" "f_Algorithm_deserializeLife105___closed__3"
+      "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_deserializeLife105___closed__3"
       "()Lcom/alexvanyo/composelife/model/Life105Result;" =
       let r := encodeLife105Result jh u64 ⟨.ruleNotSupported, #[], #[]⟩
       .inl (some ⟨pc + 1, r.1 :: rest, locs, r.2.1, ⟨ar, r.2.2, asc⟩⟩) := rfl
@@ -5452,7 +5452,7 @@ private theorem stepStatic_closed6_105_heap
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena}
     {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
     stepInvokeStatic ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "Life105LeanKt" "f_Algorithm_deserializeLife105___closed__6"
+      "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_deserializeLife105___closed__6"
       "()Lcom/alexvanyo/composelife/model/Life105Result;" =
       let r := encodeLife105Result jh u64 ⟨.ok, #[.emptyFile], #[]⟩
       .inl (some ⟨pc + 1, r.1 :: rest, locs, r.2.1, ⟨ar, r.2.2, asc⟩⟩) := rfl
@@ -5462,7 +5462,7 @@ private theorem stepStatic_u64BufEmpty_105_heap
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena}
     {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
     stepInvokeStatic ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "Life105LeanKt" "f_Algorithm_U64Buf_empty" "()[J" =
+      "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_U64Buf_empty" "()[J" =
       .inl (some ⟨pc + 1, .ext (.u64Ref u64.length) :: rest, locs, jh,
         ⟨ar, u64 ++ [Algorithm.U64Buf.empty], asc⟩⟩) := rfl
 
@@ -5502,7 +5502,7 @@ private theorem stepStatic_skipDescriptions_heap
     {pc : Nat} {i numLines : UInt32} {lines : Array String} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .i32 i :: .i32 numLines :: .strArr lines :: rest, locs, jh, hp⟩
-      "Life105LeanKt" "f_Algorithm_skipDescriptions-BltQuoY" "([Ljava/lang/Object;II)I" =
+      "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_skipDescriptions-BltQuoY" "([Ljava/lang/Object;II)I" =
       .inl (some ⟨pc + 1, .i32 (Algorithm.skipDescriptions lines numLines i) :: rest,
         locs, jh, hp⟩) := rfl
 
@@ -5511,10 +5511,10 @@ private theorem stepStatic_checkRuleLine_heap
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     (hget : jh.get? addr = some (.byteArray elems)) :
     stepInvokeStatic ⟨pc, .heapRef addr :: rest, locs, jh, hp⟩
-      "Life105LeanKt" "f_Algorithm_checkRuleLine" "([B)I" =
+      "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_checkRuleLine" "([B)I" =
       .inl (some ⟨pc + 1, .i32 (Algorithm.checkRuleLine ⟨elems⟩) :: rest, locs, jh, hp⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .heapRef addr :: rest, locs, jh, hp⟩
-      "Life105LeanKt" "f_Algorithm_checkRuleLine" "([B)I" =
+      "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_checkRuleLine" "([B)I" =
       match decodeBytes ⟨pc, .heapRef addr :: rest, locs, jh, hp⟩ (.heapRef addr) with
       | some bytes =>
         .inl (some ⟨pc + 1, .i32 (Algorithm.checkRuleLine bytes) :: rest, locs, jh, hp⟩)
@@ -5534,7 +5534,7 @@ private theorem stepStatic_parseBlocks_match (pc : Nat) (locs : Nat → JvmVal)
         .i32 hasBlock :: .i32 p :: .i32 limit :: bytesVal :: .i32 inRow :: .i32 i ::
         .i32 numLines :: linesVal :: rest,
         locs, jh, hp⟩
-    stepInvokeStatic st "Life105LeanKt" "f_Algorithm_parseBlocks-eSeeRns"
+    stepInvokeStatic st "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_parseBlocks-eSeeRns"
       ("([Ljava/lang/Object;IIZ[BIIZIII[Ljava/lang/Object;[J)" ++
         "Lcom/alexvanyo/composelife/model/Life105Result;") =
     match decodeStrArray st linesVal, decodeBytes st bytesVal, st.heap.u64Arrays[cId]? with
@@ -5644,7 +5644,7 @@ private theorem stepStatic_parseBlocks_heap
           .i32 0 :: .i32 p :: .i32 limit :: .heapRef bytesAddr ::
           .i32 0 :: .i32 i :: .i32 numLines :: .strArr lines :: rest,
           locs, jh, ⟨ar, u64, asc⟩⟩
-      "Life105LeanKt" "f_Algorithm_parseBlocks-eSeeRns"
+      "com/alexvanyo/composelife/model/Life105LeanKt" "f_Algorithm_parseBlocks-eSeeRns"
       ("([Ljava/lang/Object;IIZ[BIIZIII[Ljava/lang/Object;[J)" ++
         "Lcom/alexvanyo/composelife/model/Life105Result;") =
       .inl (some ⟨pc + 1,

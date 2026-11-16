@@ -1,0 +1,20 @@
+name = "TimeUtil"
+version = "0.1.0"
+defaultTargets = ["TimeUtil"]
+moreLeanArgs = ["-M4096", "-j2"]
+
+[[lean_lib]]
+name = "TimeUtil"
+roots = [
+  "models.PeriodUntilModel",
+  "proofs.PeriodUntilModelProofs",
+  "theorems.PeriodUntilModelTheorems",
+  "proofs.Mutations",
+  "JvmSemantics",
+  "AxiomAudit",
+]
+
+[[lean_lib]]
+name = "Jvm"
+srcDir = "../../jvm-lean"
+roots = ["Jvm", "Jvm.Instr", "Jvm.Semantics", "Jvm.FastExec", "Jvm.Proofs", "Jvm.Tactics", "Jvm.Audit"]

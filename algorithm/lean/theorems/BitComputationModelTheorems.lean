@@ -47,13 +47,7 @@ theorem computeQuadInfoModel_bitSpec (q : UInt32) :
       (((q >>> 15) &&& (1 : UInt32)) ||| (((q >>> 10) &&& (1 : UInt32)) <<< 1) |||
         (((q >>> 5) &&& (1 : UInt32)) <<< 2) ||| ((q &&& (1 : UInt32)) <<< 3))) ∧
     computeQuadInfoModel q < 0x1000000 :=
-  ⟨computeQuadInfoModel_center_Impl q,
-   computeQuadInfoModel_right_Impl q,
-   computeQuadInfoModel_left_Impl q,
-   computeQuadInfoModel_bottom_Impl q,
-   computeQuadInfoModel_top_Impl q,
-   computeQuadInfoModel_corner_Impl q,
-   computeQuadInfoModel_lt_Impl q⟩
+  computeQuadInfoModel_bitSpec_Impl q
 
 /-- For non-zero 8×8 leaves, the four 4×4 subgrid indices assembled from `QUAD_INFO_LUT` match `computeLeafNextGen8x8FastUInt`. -/
 theorem pureKotlin_subgrids_eq (nextGenLut : UInt32 → UInt32) (w : UInt64) (hw : w ≠ 0) :

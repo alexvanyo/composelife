@@ -156,7 +156,7 @@ private theorem step_leafChildClosed0
     {pc : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     Jvm.stepInstr algHooks
-      (.invokestatic "MacroCellLeanKt" "f_Algorithm_macrocellLeafChild___closed__0" "()Lkotlin/ULong;")
+      (.invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_macrocellLeafChild___closed__0" "()Lkotlin/ULong;")
       ⟨pc, rest, locs, jh, hp⟩ =
       .inl (some ⟨pc + 1, .boxedULong 0 :: rest, locs, jh, hp⟩) := rfl
 
@@ -164,7 +164,7 @@ private theorem step_sl_lam0
     {pc : Nat} {p : JvmVal} {v : UInt64} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     Jvm.stepInstr algHooks
-      (.invokestatic "MacroCellLeanKt" "f_Algorithm_macrocellSingleLeaf___lam__0-4PLdz1A"
+      (.invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_macrocellSingleLeaf___lam__0-4PLdz1A"
         "(JLjava/lang/Object;)Z")
       ⟨pc, p :: .i64 v :: rest, locs, jh, hp⟩ =
       .inl (some ⟨pc + 1, .i32 (if v == 0 then 1 else 0) :: rest, locs, jh, hp⟩) := rfl
@@ -173,7 +173,7 @@ private theorem step_sl_lam1
     {pc : Nat} {p : JvmVal} {v : UInt64} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     Jvm.stepInstr algHooks
-      (.invokestatic "MacroCellLeanKt" "f_Algorithm_macrocellSingleLeaf___lam__1-4PLdz1A"
+      (.invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_macrocellSingleLeaf___lam__1-4PLdz1A"
         "(JLjava/lang/Object;)Z")
       ⟨pc, p :: .i64 v :: rest, locs, jh, hp⟩ =
       .inl (some ⟨pc + 1, .i32 (if v == 0 then 1 else 0) :: rest, locs, jh, hp⟩) := rfl
@@ -182,7 +182,7 @@ private theorem step_sl_lam2
     {pc : Nat} {p : JvmVal} {v : UInt64} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     Jvm.stepInstr algHooks
-      (.invokestatic "MacroCellLeanKt" "f_Algorithm_macrocellSingleLeaf___lam__2-4PLdz1A"
+      (.invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_macrocellSingleLeaf___lam__2-4PLdz1A"
         "(JLjava/lang/Object;)Z")
       ⟨pc, p :: .i64 v :: rest, locs, jh, hp⟩ =
       .inl (some ⟨pc + 1, .i32 (if v == 0 then 1 else 0) :: rest, locs, jh, hp⟩) := rfl
@@ -468,7 +468,7 @@ private theorem step_invokestatic_macroCellAt
     (hget : jh.get? nodesDataAddr = some (.objArray "java/lang/Object"
       (nodes.map (fun m => JvmVal.ext (AlgExt.mc m))))) :
     Jvm.stepInstr algHooks
-      (.invokestatic "MacroCellLeanKt" "f_Algorithm_macroCellAt-Qn1smSk"
+      (.invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_macroCellAt-Qn1smSk"
         "([Ljava/lang/Object;I)Lcom/alexvanyo/composelife/model/MacroCell;")
       ⟨pc, .i32 i :: .heapRef nodesDataAddr :: stkRest, locs, jh, hp⟩ =
       .inl (some ⟨pc + 1, .ext (.mc (Algorithm.macroCellAt nodes i)) :: stkRest, locs, jh, hp⟩) := by
@@ -1106,11 +1106,11 @@ private theorem step_cell_getSe
 private theorem step_leafWithCell
     {pc : Nat} {leaf : UInt64} {x y : UInt32} {isAlive : Bool} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
-    Jvm.stepInstr algHooks (.invokestatic "MacroCellLeanKt" "f_Algorithm_leafWithCell-9LuH6mI" "(JIIZ)J")
+    Jvm.stepInstr algHooks (.invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_leafWithCell-9LuH6mI" "(JIIZ)J")
       ⟨pc, .i32 (if isAlive then 1 else 0) :: .i32 y :: .i32 x :: .i64 leaf :: rest, locs, jh, hp⟩ =
       .inl (some ⟨pc + 1, .i64 (Algorithm.leafWithCell leaf x y isAlive) :: rest, locs, jh, hp⟩) := by
   have hsub : Jvm.stepInstr algHooks
-      (.invokestatic "MacroCellLeanKt" "f_Algorithm_leafWithCell-9LuH6mI" "(JIIZ)J")
+      (.invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_leafWithCell-9LuH6mI" "(JIIZ)J")
       ⟨pc, .i32 (if isAlive then 1 else 0) :: .i32 y :: .i32 x :: .i64 leaf :: rest, locs, jh, hp⟩ =
       .inl (some ⟨pc + 1,
         .i64 (Algorithm.leafWithCell leaf x y ((if isAlive then (1 : UInt32) else 0) != 0)) :: rest,
@@ -1120,12 +1120,12 @@ private theorem step_leafWithCell
 private theorem step_macroCellWithCell
     {pc : Nat} {m : Algorithm.MacroCell} {x y : UInt32} {isAlive : Bool} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
-    Jvm.stepInstr algHooks (.invokestatic "MacroCellLeanKt" "f_Algorithm_macroCellWithCell"
+    Jvm.stepInstr algHooks (.invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_macroCellWithCell"
         "(Lcom/alexvanyo/composelife/model/MacroCell;IIZ)Lcom/alexvanyo/composelife/model/MacroCell;")
       ⟨pc, .i32 (if isAlive then 1 else 0) :: .i32 y :: .i32 x :: .ext (.mc m) :: rest, locs, jh, hp⟩ =
       .inl (some ⟨pc + 1, .ext (.mc (Algorithm.macroCellWithCell m x.toInt32 y.toInt32 isAlive)) :: rest,
         locs, jh, hp⟩) := by
-  have hsub : Jvm.stepInstr algHooks (.invokestatic "MacroCellLeanKt" "f_Algorithm_macroCellWithCell"
+  have hsub : Jvm.stepInstr algHooks (.invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_macroCellWithCell"
         "(Lcom/alexvanyo/composelife/model/MacroCell;IIZ)Lcom/alexvanyo/composelife/model/MacroCell;")
       ⟨pc, .i32 (if isAlive then 1 else 0) :: .i32 y :: .i32 x :: .ext (.mc m) :: rest, locs, jh, hp⟩ =
       .inl (some ⟨pc + 1,
@@ -1136,7 +1136,7 @@ private theorem step_macroCellWithCell
 private theorem step_leafContains
     {pc : Nat} {leaf : UInt64} {x y : UInt32} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
-    Jvm.stepInstr algHooks (.invokestatic "MacroCellLeanKt" "f_Algorithm_leafContains-fMEO4hA" "(JII)Z")
+    Jvm.stepInstr algHooks (.invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_leafContains-fMEO4hA" "(JII)Z")
       ⟨pc, .i32 y :: .i32 x :: .i64 leaf :: rest, locs, jh, hp⟩ =
       .inl (some ⟨pc + 1, .i32 (if Algorithm.leafContains leaf x y then 1 else 0) :: rest, locs, jh, hp⟩) := rfl
 
@@ -2758,7 +2758,7 @@ theorem deserializeMacrocell___closed__2_equiv (jh : Jvm.JvmHeap AlgExt) (hp : A
         objects := jh.objects.push (Jvm.HeapObj.objArray "java/lang/Object"
           #[JvmVal.allocRef "com/alexvanyo/composelife/model/MacrocellWarning$EmptyFile"]),
         statics := jh.statics } : Jvm.JvmHeap AlgExt).getStatic?
-        "MacroCellLeanKt" "EMPTY_LEVEL_4") = none by simp [Jvm.JvmHeap.getStatic?, hstat]]
+        "com/alexvanyo/composelife/model/MacroCellLeanKt" "EMPTY_LEVEL_4") = none by simp [Jvm.JvmHeap.getStatic?, hstat]]
     dsimp only [Option.getD]
     step1; step1; step1
     rw [runJvmResFast_checkNotNull_nonnull (by intro h; cases h)]
@@ -2845,15 +2845,15 @@ private theorem step_deserMC_pre (lines : Array String) (hp : AlgHeap) (f : Nat)
 
 private theorem stepStatic_getEMPTY_LEVEL_4 {pc : Nat} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
-    (hstat : jh.getStatic? "MacroCellLeanKt" "EMPTY_LEVEL_4" = none) :
+    (hstat : jh.getStatic? "com/alexvanyo/composelife/model/MacroCellLeanKt" "EMPTY_LEVEL_4" = none) :
     stepInvokeStatic ⟨pc, rest, locs, jh, hp⟩
-        "MacroCellLeanKt" "getEMPTY_LEVEL_4"
+        "com/alexvanyo/composelife/model/MacroCellLeanKt" "getEMPTY_LEVEL_4"
         "()Lcom/alexvanyo/composelife/model/MacroCell$Level4Node;" =
       .inl (some ⟨pc + 1, .ext (.mc Algorithm.emptyLevel4) :: rest, locs, jh, hp⟩) := by
   have h : stepInvokeStatic ⟨pc, rest, locs, jh, hp⟩
-      "MacroCellLeanKt" "getEMPTY_LEVEL_4"
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "getEMPTY_LEVEL_4"
       "()Lcom/alexvanyo/composelife/model/MacroCell$Level4Node;" =
-      .inl (some ⟨pc + 1, (jh.getStatic? "MacroCellLeanKt" "EMPTY_LEVEL_4").getD
+      .inl (some ⟨pc + 1, (jh.getStatic? "com/alexvanyo/composelife/model/MacroCellLeanKt" "EMPTY_LEVEL_4").getD
         (.ext (.mc Algorithm.emptyLevel4)) :: rest, locs, jh, hp⟩) := rfl
   rw [h, hstat]
   rfl
@@ -2868,7 +2868,7 @@ private theorem stepStatic_compareUnsigned {pc : Nat} {a b : UInt32} {rest : Lis
 
 private theorem step_deserMC_invalid (line0 : String) (h1 : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (f : Nat) (stk : List JvmVal) (locs : Nat → JvmVal) (hloc2 : locs 2 = .str line0)
-    (hstat : h1.getStatic? "MacroCellLeanKt" "EMPTY_LEVEL_4" = none) :
+    (hstat : h1.getStatic? "com/alexvanyo/composelife/model/MacroCellLeanKt" "EMPTY_LEVEL_4" = none) :
     runJvmResFast (f + 25) f_Algorithm_deserializeMacrocell_prog 78
         (f_Algorithm_deserializeMacrocell_prog.drop 78) ⟨78, stk, locs, h1, hp⟩ =
       let enc := encodeMacrocellResult h1 ⟨.invalidHeader line0, #[], Algorithm.emptyLevel4⟩
@@ -2957,7 +2957,7 @@ private theorem stepStatic_mcLoop_match (pc : Nat) (locs : Nat → JvmVal) (jh :
     let st : JvmState := ⟨pc, warnsVal :: isLeafVal :: leavesVal :: nodesVal :: .i64 leaf ::
       .i32 y :: .i32 x :: .i32 col :: .i32 p :: .i32 limit :: bytesVal :: .i32 inLeaf ::
       .i32 i :: .i32 numLines :: linesVal :: rest, locs, jh, hp⟩
-    stepInvokeStatic st "MacroCellLeanKt" "f_Algorithm_deserializeMacrocell_loop-ocggIy4"
+    stepInvokeStatic st "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_deserializeMacrocell_loop-ocggIy4"
       ("([Ljava/lang/Object;IIZ[BIIIIIJLjava/lang/Object;Ljava/lang/Object;" ++
         "Ljava/lang/Object;Ljava/lang/Object;)Lcom/alexvanyo/composelife/model/MacrocellResult;") =
       mcDispatch pc locs jh hp warnsVal isLeafVal leavesVal nodesVal leaf y x col p limit
@@ -3019,7 +3019,7 @@ private theorem stepStatic_deserMC_loop_empty {pc : Nat} {lines : Array String}
       .i64 0 :: .i32 0 :: .i32 0 :: .i32 0 :: .i32 0 :: .i32 0 ::
       .heapRef 0 :: .i32 0 :: .i32 1 :: .i32 numLines :: .strArr lines :: rest,
       locs, jh, hp⟩
-      "MacroCellLeanKt" "f_Algorithm_deserializeMacrocell_loop-ocggIy4"
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_deserializeMacrocell_loop-ocggIy4"
       ("([Ljava/lang/Object;IIZ[BIIIIIJLjava/lang/Object;Ljava/lang/Object;" ++
         "Ljava/lang/Object;Ljava/lang/Object;)Lcom/alexvanyo/composelife/model/MacrocellResult;") =
       Sum.inl (some ⟨pc + 1,
@@ -3104,7 +3104,7 @@ private theorem step_deserMC_valid (lines : Array String) (hBytes : ByteArray)
   rw [show f + (19 - 1 - 1 - 1 - 1 - 1 - 1 - 1 - 1 - 1 - 1 - 1 - 1 - 1 - 1 - 1 - 1) =
     (f + 2) + 1 from by omega]
   change runJvmResFast ((f + 2) + 1) f_Algorithm_deserializeMacrocell_prog 76
-    (.invokestatic "MacroCellLeanKt" "f_Algorithm_deserializeMacrocell_loop-ocggIy4"
+    (.invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_deserializeMacrocell_loop-ocggIy4"
       ("([Ljava/lang/Object;IIZ[BIIIIIJLjava/lang/Object;Ljava/lang/Object;" ++
         "Ljava/lang/Object;Ljava/lang/Object;)Lcom/alexvanyo/composelife/model/MacrocellResult;") ::
       f_Algorithm_deserializeMacrocell_prog.drop 77) _ = _
@@ -3115,7 +3115,7 @@ private theorem step_deserMC_valid (lines : Array String) (hBytes : ByteArray)
 private theorem step_deserMC_lt4 (line0 : String) (h1 : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
     (f : Nat) (locs : Nat → JvmVal) (hlt4 : line0.toByteArray.size.toUInt32 < 4)
     (hloc2 : locs 2 = .str line0)
-    (hstat : h1.getStatic? "MacroCellLeanKt" "EMPTY_LEVEL_4" = none) :
+    (hstat : h1.getStatic? "com/alexvanyo/composelife/model/MacroCellLeanKt" "EMPTY_LEVEL_4" = none) :
     runJvmResFast (f + 29) f_Algorithm_deserializeMacrocell_prog 21
         (f_Algorithm_deserializeMacrocell_prog.drop 21)
         ⟨21, [.i32 line0.toByteArray.size.toUInt32], locs, h1, hp⟩ =
@@ -3512,7 +3512,7 @@ private theorem stepStatic_skipSpaces {pc : Nat} {lim pos : UInt32} {addr : Nat}
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     {elems : Array UInt8} (hget : jh.get? addr = some (.byteArray elems)) :
     stepInvokeStatic ⟨pc, .i32 lim :: .i32 pos :: .heapRef addr :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt" "f_Algorithm_skipSpaces-BltQuoY" "([BII)I" =
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_skipSpaces-BltQuoY" "([BII)I" =
       .inl (some ⟨pc + 1, .i32 (Algorithm.skipSpaces ⟨elems⟩ pos lim) :: rest,
         locs, jh, hp⟩) := by
   change (match decodeBytes ⟨pc, .i32 lim :: .i32 pos :: .heapRef addr :: rest, locs, jh, hp⟩
@@ -3526,7 +3526,7 @@ private theorem stepStatic_parseUInt32At {pc : Nat} {lim pos : UInt32} {addr : N
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     {elems : Array UInt8} (hget : jh.get? addr = some (.byteArray elems)) :
     stepInvokeStatic ⟨pc, .i32 lim :: .i32 pos :: .heapRef addr :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt" "f_Algorithm_parseUInt32At-BltQuoY" "([BII)Ljava/lang/Object;" =
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_parseUInt32At-BltQuoY" "([BII)Ljava/lang/Object;" =
       let optPair := (Algorithm.parseUInt32At ⟨elems⟩ pos lim).map fun r =>
         (.boxedUInt r.val, .boxedUInt r.next)
       let (res, h') := encodeOptScalarPair jh optPair
@@ -3804,7 +3804,7 @@ private theorem step_parseMC_stage {f pc qIn resLoc innerLoc valLoc tmp1 tmp2 tm
     (hget : jh.get? bytesAddr = some (.byteArray bytes.data))
     (hprefix : f_Algorithm_parseMCNodeLine_prog.drop pc =
       .aload 0 :: .iload qIn :: .iload 1 ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_parseUInt32At-BltQuoY"
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_parseUInt32At-BltQuoY"
         "([BII)Ljava/lang/Object;" ::
       .astore resLoc ::
       .aload resLoc :: .ldcStr "null cannot be cast to non-null type kotlin.Array<*>" ::
@@ -3853,7 +3853,7 @@ private theorem step_parseMC_stage {f pc qIn resLoc innerLoc valLoc tmp1 tmp2 tm
       .invokevirtual "kotlin/UInt" "unbox-impl" "()I" ::
       .istore nextLoc ::
       .aload 0 :: .iload nextLoc :: .iload 1 ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_skipSpaces-BltQuoY" "([BII)I" ::
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_skipSpaces-BltQuoY" "([BII)I" ::
       .istore qOut :: restSome)
     (hdropU1 : f_Algorithm_parseMCNodeLine_prog.drop (someT + 23) =
       .aload tmp1 :: .ldcStr "null cannot be cast to non-null type kotlin.UInt" ::
@@ -3875,7 +3875,7 @@ private theorem step_parseMC_stage {f pc qIn resLoc innerLoc valLoc tmp1 tmp2 tm
       .invokevirtual "kotlin/UInt" "unbox-impl" "()I" ::
       .istore nextLoc ::
       .aload 0 :: .iload nextLoc :: .iload 1 ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_skipSpaces-BltQuoY" "([BII)I" ::
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_skipSpaces-BltQuoY" "([BII)I" ::
       .istore qOut :: restSome)
     (hdropU2 : f_Algorithm_parseMCNodeLine_prog.drop (someT + 45) =
       .aload tmp2 :: .ldcStr "null cannot be cast to non-null type kotlin.UInt" ::
@@ -3885,7 +3885,7 @@ private theorem step_parseMC_stage {f pc qIn resLoc innerLoc valLoc tmp1 tmp2 tm
       .invokevirtual "kotlin/UInt" "unbox-impl" "()I" ::
       .istore nextLoc ::
       .aload 0 :: .iload nextLoc :: .iload 1 ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_skipSpaces-BltQuoY" "([BII)I" ::
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_skipSpaces-BltQuoY" "([BII)I" ::
       .istore qOut :: restSome)
     (hne0 : resLoc ≠ 0) (hne1 : resLoc ≠ 1)
     (hneq0 : innerLoc ≠ 0) (hneq1 : innerLoc ≠ 1)
@@ -4025,7 +4025,7 @@ private theorem step_parseMC_stage {f pc qIn resLoc innerLoc valLoc tmp1 tmp2 tm
 private def parseMCStagePrefix (qIn resLoc noneT someT defT : Nat)
     (rest : List JvmInstr) : List JvmInstr :=
   .aload 0 :: .iload qIn :: .iload 1 ::
-  .invokestatic "MacroCellLeanKt" "f_Algorithm_parseUInt32At-BltQuoY" "([BII)Ljava/lang/Object;" ::
+  .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_parseUInt32At-BltQuoY" "([BII)Ljava/lang/Object;" ::
   .astore resLoc ::
   .aload resLoc :: .ldcStr "null cannot be cast to non-null type kotlin.Array<*>" ::
   .invokestatic "kotlin/jvm/internal/Intrinsics" "checkNotNull" "(Ljava/lang/Object;Ljava/lang/String;)V" ::
@@ -4071,7 +4071,7 @@ private def parseMCStageSome (resLoc innerLoc tmp1 tmp2 tmp3 valLoc nextLoc qOut
   .invokevirtual "kotlin/UInt" "unbox-impl" "()I" ::
   .istore nextLoc ::
   .aload 0 :: .iload nextLoc :: .iload 1 ::
-  .invokestatic "MacroCellLeanKt" "f_Algorithm_skipSpaces-BltQuoY" "([BII)I" ::
+  .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_skipSpaces-BltQuoY" "([BII)I" ::
   .istore qOut :: rest
 
 private def parseMCQuadInstrs (kNull : UInt32) (vLoc sLoc eLoc : Nat)
@@ -4100,7 +4100,7 @@ private theorem parseMC_drop_0 :
         "(Ljava/lang/Object;Ljava/lang/String;)V" ::
       .aload 0 :: .arraylength :: .invokestatic "kotlin/UInt" "constructor-impl" "(I)I" :: .istore 1 ::
       .aload 0 :: .iconst 0 :: .iload 1 ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_skipSpaces-BltQuoY" "([BII)I" :: .istore 2 ::
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_skipSpaces-BltQuoY" "([BII)I" :: .istore 2 ::
       f_Algorithm_parseMCNodeLine_prog.drop 12 := rfl
 
 private theorem parseMC_drop_12 :
@@ -4141,7 +4141,7 @@ private theorem parseMC_drop_42 :
         "(Ljava/lang/Object;Ljava/lang/String;)V" ::
       .aload 7 :: .checkcast "kotlin/UInt" ::
       .invokevirtual "kotlin/UInt" "unbox-impl" "()I" ::
-      .iload 1 :: .invokestatic "MacroCellLeanKt" "f_Algorithm_skipSpaces-BltQuoY" "([BII)I" ::
+      .iload 1 :: .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_skipSpaces-BltQuoY" "([BII)I" ::
       .istore 6 :: f_Algorithm_parseMCNodeLine_prog.drop 97 := rfl
 
 private theorem parseMC_drop_65 :
@@ -4163,7 +4163,7 @@ private theorem parseMC_drop_65 :
         "(Ljava/lang/Object;Ljava/lang/String;)V" ::
       .aload 7 :: .checkcast "kotlin/UInt" ::
       .invokevirtual "kotlin/UInt" "unbox-impl" "()I" ::
-      .iload 1 :: .invokestatic "MacroCellLeanKt" "f_Algorithm_skipSpaces-BltQuoY" "([BII)I" ::
+      .iload 1 :: .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_skipSpaces-BltQuoY" "([BII)I" ::
       .istore 6 :: f_Algorithm_parseMCNodeLine_prog.drop 97 := rfl
 
 private theorem parseMC_drop_88 :
@@ -4173,7 +4173,7 @@ private theorem parseMC_drop_88 :
         "(Ljava/lang/Object;Ljava/lang/String;)V" ::
       .aload 7 :: .checkcast "kotlin/UInt" ::
       .invokevirtual "kotlin/UInt" "unbox-impl" "()I" ::
-      .iload 1 :: .invokestatic "MacroCellLeanKt" "f_Algorithm_skipSpaces-BltQuoY" "([BII)I" ::
+      .iload 1 :: .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_skipSpaces-BltQuoY" "([BII)I" ::
       .istore 6 :: f_Algorithm_parseMCNodeLine_prog.drop 97 := rfl
 
 section
@@ -4277,7 +4277,7 @@ private theorem parseMC_stageSome_drop23 {resLoc innerLoc tmp1 tmp2 tmp3 valLoc 
       .invokevirtual "kotlin/UInt" "unbox-impl" "()I" ::
       .istore nextLoc ::
       .aload 0 :: .iload nextLoc :: .iload 1 ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_skipSpaces-BltQuoY" "([BII)I" ::
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_skipSpaces-BltQuoY" "([BII)I" ::
       .istore qOut :: rest := rfl
 
 private theorem parseMC_stageSome_drop45 {resLoc innerLoc tmp1 tmp2 tmp3 valLoc nextLoc qOut someT : Nat}
@@ -4290,7 +4290,7 @@ private theorem parseMC_stageSome_drop45 {resLoc innerLoc tmp1 tmp2 tmp3 valLoc 
       .invokevirtual "kotlin/UInt" "unbox-impl" "()I" ::
       .istore nextLoc ::
       .aload 0 :: .iload nextLoc :: .iload 1 ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_skipSpaces-BltQuoY" "([BII)I" ::
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_skipSpaces-BltQuoY" "([BII)I" ::
       .istore qOut :: rest := rfl
 
 private theorem step_parseMC_prelude {f : Nat} {bytesAddr : Nat} {bytes : ByteArray}
@@ -4899,7 +4899,7 @@ private theorem step_parseMC_stage_band {f pc qIn resLoc innerLoc noneT someT de
     (hres : 2 ≤ resLoc) (hband : resLoc < innerLoc)
     (hprefix : f_Algorithm_parseMCNodeLine_prog.drop pc =
       .aload 0 :: .iload qIn :: .iload 1 ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_parseUInt32At-BltQuoY"
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_parseUInt32At-BltQuoY"
         "([BII)Ljava/lang/Object;" ::
       .astore resLoc ::
       .aload resLoc :: .ldcStr "null cannot be cast to non-null type kotlin.Array<*>" ::

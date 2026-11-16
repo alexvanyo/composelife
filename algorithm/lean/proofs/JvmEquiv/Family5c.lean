@@ -60,7 +60,7 @@ private theorem step_invokestatic_macroCellAt
     (hget : jh.get? nodesDataAddr = some (.objArray "java/lang/Object"
       (nodes.map (fun m => JvmVal.ext (AlgExt.mc m))))) :
     Jvm.stepInstr algHooks
-      (.invokestatic "MacroCellLeanKt" "f_Algorithm_macroCellAt-Qn1smSk"
+      (.invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_macroCellAt-Qn1smSk"
         "([Ljava/lang/Object;I)Lcom/alexvanyo/composelife/model/MacroCell;")
       ⟨pc, .i32 i :: .heapRef nodesDataAddr :: stkRest, locs, jh, hp⟩ =
       .inl (some ⟨pc + 1, .ext (.mc (Algorithm.macroCellAt nodes i)) :: stkRest, locs, jh, hp⟩) := by
@@ -166,15 +166,15 @@ private theorem runJvmResFast_tableswitch {f : Nat} {prog : List JvmInstr} {pc :
 
 private theorem stepStatic_getEMPTY_LEVEL_4 {pc : Nat} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
-    (hstat : jh.getStatic? "MacroCellLeanKt" "EMPTY_LEVEL_4" = none) :
+    (hstat : jh.getStatic? "com/alexvanyo/composelife/model/MacroCellLeanKt" "EMPTY_LEVEL_4" = none) :
     stepInvokeStatic ⟨pc, rest, locs, jh, hp⟩
-        "MacroCellLeanKt" "getEMPTY_LEVEL_4"
+        "com/alexvanyo/composelife/model/MacroCellLeanKt" "getEMPTY_LEVEL_4"
         "()Lcom/alexvanyo/composelife/model/MacroCell$Level4Node;" =
       .inl (some ⟨pc + 1, .ext (.mc Algorithm.emptyLevel4) :: rest, locs, jh, hp⟩) := by
   have h : stepInvokeStatic ⟨pc, rest, locs, jh, hp⟩
-      "MacroCellLeanKt" "getEMPTY_LEVEL_4"
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "getEMPTY_LEVEL_4"
       "()Lcom/alexvanyo/composelife/model/MacroCell$Level4Node;" =
-      .inl (some ⟨pc + 1, (jh.getStatic? "MacroCellLeanKt" "EMPTY_LEVEL_4").getD
+      .inl (some ⟨pc + 1, (jh.getStatic? "com/alexvanyo/composelife/model/MacroCellLeanKt" "EMPTY_LEVEL_4").getD
         (.ext (.mc Algorithm.emptyLevel4)) :: rest, locs, jh, hp⟩) := rfl
   rw [h, hstat]
   rfl
@@ -268,7 +268,7 @@ private theorem stepStatic_growBufPush_mc {pc : Nat} {m : Algorithm.MacroCell} {
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     (hn : mcNodes? nv = some nodes) :
     stepInvokeStatic ⟨pc, .ext (.mc m) :: nv :: rest, locs, jh, hp⟩
-        "MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+        "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
         "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .ext (.mcGrowBuf (nodes.push m)) :: rest, locs, jh, hp⟩) := by
   cases nv with
@@ -294,7 +294,7 @@ private theorem stepStatic_growBufPush_u64 {pc : Nat} {x : UInt64} {lv : JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     (hl : mcLeaves? lv = some leaves) :
     stepInvokeStatic ⟨pc, .boxedULong x :: lv :: rest, locs, jh, hp⟩
-        "MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+        "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
         "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .ext (.u64GrowBuf (leaves.push x)) :: rest, locs, jh, hp⟩) := by
   cases lv with
@@ -320,7 +320,7 @@ private theorem stepStatic_growBufPush_bool {pc : Nat} {flag : Bool} {bv : JvmVa
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     (hb : mcIsLeaf? bv = some isLeaf) :
     stepInvokeStatic ⟨pc, .boxedBool flag :: bv :: rest, locs, jh, hp⟩
-        "MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+        "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
         "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .ext (.boolGrowBuf (isLeaf.push flag)) :: rest, locs, jh, hp⟩) := by
   cases bv with
@@ -347,7 +347,7 @@ private theorem stepStatic_growBufPush_mcWarn {pc : Nat} {wv wVal : JvmVal}
     (hw : mcWarns? wv = some warns) (hrle : decodeRLEWarning jh wVal = none)
     (hmc : decodeMacrocellWarning jh wVal = some w) :
     stepInvokeStatic ⟨pc, wVal :: wv :: rest, locs, jh, hp⟩
-        "MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+        "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
         "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .ext (.mcWarnGrowBuf (warns.push w)) :: rest, locs, jh, hp⟩) := by
   cases wv with
@@ -411,7 +411,7 @@ private theorem stepStatic_growBufToArray_mcWarn {pc : Nat}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     let (v, h') := encodeGrowBufArray jh encodeMacrocellWarning warns
     stepInvokeStatic ⟨pc, .ext (.mcWarnGrowBuf warns) :: rest, locs, jh, hp⟩
-        "MacroCellLeanKt" "f_Algorithm_GrowBuf_toArray___redArg" "(Ljava/lang/Object;)[Ljava/lang/Object;" =
+        "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_GrowBuf_toArray___redArg" "(Ljava/lang/Object;)[Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, v :: rest, locs, h', hp⟩) := rfl
 
 private theorem stepStatic_parseMCNodeLine_none {pc : Nat} {addr : Nat}
@@ -421,7 +421,7 @@ private theorem stepStatic_parseMCNodeLine_none {pc : Nat} {addr : Nat}
     (hnone : Algorithm.parseMCNodeLine bytes = none) :
     let (resAddr, h') := jh.alloc (.objArray "java/lang/Object" #[.boxedInt 0])
     stepInvokeStatic ⟨pc, .heapRef addr :: rest, locs, jh, hp⟩
-        "MacroCellLeanKt" "f_Algorithm_parseMCNodeLine" "([B)Ljava/lang/Object;" =
+        "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_parseMCNodeLine" "([B)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .heapRef resAddr :: rest, locs, h', hp⟩) := by
   change (match decodeBytes ⟨pc, .heapRef addr :: rest, locs, jh, hp⟩ (.heapRef addr) with
     | some bs =>
@@ -463,7 +463,7 @@ private theorem stepStatic_uintCtor5a {pc : Nat} {stk : List JvmVal} {locs : Nat
 private theorem stepStatic_emptyMacroCellUInt32 {pc : Nat} {lvl : UInt32} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .i32 lvl :: rest, locs, jh, hp⟩
-        "MacroCellLeanKt" "f_Algorithm_emptyMacroCellUInt32-WZ4Q5Ns"
+        "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_emptyMacroCellUInt32-WZ4Q5Ns"
         "(I)Lcom/alexvanyo/composelife/model/MacroCell;" =
       .inl (some ⟨pc + 1, .ext (.mc (Algorithm.emptyMacroCellUInt32 lvl)) :: rest, locs, jh, hp⟩) := rfl
 
@@ -471,7 +471,7 @@ private theorem stepStatic_makeCellNode {pc : Nat} {nw ne sw se : Algorithm.Macr
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .ext (.mc se) :: .ext (.mc sw) :: .ext (.mc ne) :: .ext (.mc nw) :: rest,
         locs, jh, hp⟩
-        "MacroCellLeanKt" "f_Algorithm_makeCellNode"
+        "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_makeCellNode"
         ("(Lcom/alexvanyo/composelife/model/MacroCell;Lcom/alexvanyo/composelife/model/MacroCell;" ++
          "Lcom/alexvanyo/composelife/model/MacroCell;Lcom/alexvanyo/composelife/model/MacroCell;)" ++
          "Lcom/alexvanyo/composelife/model/MacroCell;") =
@@ -498,7 +498,7 @@ private theorem stepStatic_macrocellCellChild {pc : Nat} {nv ilv : JvmVal}
       | none => .null
     stepInvokeStatic ⟨pc, .i32 id :: .ext (.mc emptySub) :: .i32 lvl :: ilv :: nv :: rest,
         locs, jh, hp⟩
-        "MacroCellLeanKt" "f_Algorithm_macrocellCellChild-xsr7cmg"
+        "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_macrocellCellChild-xsr7cmg"
         ("(Ljava/lang/Object;Ljava/lang/Object;ILcom/alexvanyo/composelife/model/MacroCell;I)" ++
          "Lcom/alexvanyo/composelife/model/MacroCell;") =
       .inl (some ⟨pc + 1, res :: rest, locs, jh, hp⟩) := by
@@ -542,7 +542,7 @@ private theorem stepStatic_macrocellLeafChild {pc : Nat} {lv ilv : JvmVal} {id :
       | some v => .boxedULong v
       | none => .null
     stepInvokeStatic ⟨pc, .i32 id :: ilv :: lv :: rest, locs, jh, hp⟩
-        "MacroCellLeanKt" "f_Algorithm_macrocellLeafChild-jXDDuk8"
+        "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_macrocellLeafChild-jXDDuk8"
         "(Ljava/lang/Object;Ljava/lang/Object;I)Lkotlin/ULong;" =
       .inl (some ⟨pc + 1, res :: rest, locs, jh, hp⟩) := by
   have hfl : lv = .ext (.u64GrowBuf leaves) ∨
@@ -602,13 +602,13 @@ private def unboxUIntInstrs (pc : Nat) (idx : UInt32) (dst tmp tmp2 : Nat) : Lis
 
 private def errTailInstrs (statusLoc arrLoc tmpLoc : Nat) : List JvmInstr :=
   [.aload 15,
-   .invokestatic "MacroCellLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
+   .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
      "(Ljava/lang/Object;)[Ljava/lang/Object;",
    .astore arrLoc,
    .newClass "com/alexvanyo/composelife/model/MacrocellResult", .dup,
    .aload statusLoc, .checkcast "com/alexvanyo/composelife/model/MacrocellStatus",
    .aload arrLoc, .iconst 0, .istore tmpLoc,
-   .invokestatic "MacroCellLeanKt" "getEMPTY_LEVEL_4"
+   .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "getEMPTY_LEVEL_4"
      "()Lcom/alexvanyo/composelife/model/MacroCell$Level4Node;",
    .checkcast "com/alexvanyo/composelife/model/MacroCell", .dup,
    .ldcStr "null cannot be cast to non-null type com.alexvanyo.composelife.model.MacroCell",
@@ -622,7 +622,7 @@ private def errTailInstrs (statusLoc arrLoc tmpLoc : Nat) : List JvmInstr :=
 private def cellChildInstrs (pc idLoc startLoc endLoc dstLoc errLoc1 errLoc2 errTmp : Nat) :
     List JvmInstr :=
   [.aload 12, .aload 14, .iload 23, .aload 36, .iload idLoc,
-   .invokestatic "MacroCellLeanKt" "f_Algorithm_macrocellCellChild-xsr7cmg"
+   .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_macrocellCellChild-xsr7cmg"
      ("(Ljava/lang/Object;Ljava/lang/Object;ILcom/alexvanyo/composelife/model/MacroCell;I)" ++
       "Lcom/alexvanyo/composelife/model/MacroCell;"),
    .astore dstLoc, .aload dstLoc, .ifnonnull (pc + 36),
@@ -635,7 +635,7 @@ private def cellChildInstrs (pc idLoc startLoc endLoc dstLoc errLoc1 errLoc2 err
 private def leafChildInstrs (pc idLoc startLoc endLoc dstLoc errLoc1 errLoc2 errTmp : Nat) :
     List JvmInstr :=
   [.aload 13, .aload 14, .iload idLoc,
-   .invokestatic "MacroCellLeanKt" "f_Algorithm_macrocellLeafChild-jXDDuk8"
+   .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_macrocellLeafChild-jXDDuk8"
      "(Ljava/lang/Object;Ljava/lang/Object;I)Lkotlin/ULong;",
    .astore dstLoc, .aload dstLoc, .ifnonnull (pc + 34),
    .newClass "com/alexvanyo/composelife/model/MacrocellStatus$UnexpectedNodeId", .dup,
@@ -711,11 +711,11 @@ private theorem deserLoop_drop_43 :
       .getstatic "com/alexvanyo/composelife/model/MacrocellStatus$Ok" "INSTANCE"
         "Lcom/alexvanyo/composelife/model/MacrocellStatus$Ok;" ::
       .astore 18 :: .aload 15 ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
         "(Ljava/lang/Object;)[Ljava/lang/Object;" ::
       .astore 19 :: .aload 16 :: .iload 17 :: .iconst 1 :: .isub ::
       .invokestatic "kotlin/UInt" "constructor-impl" "(I)I" ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_macroCellAt-Qn1smSk"
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_macroCellAt-Qn1smSk"
         "([Ljava/lang/Object;I)Lcom/alexvanyo/composelife/model/MacroCell;" ::
       .astore 20 ::
       .newClass "com/alexvanyo/composelife/model/MacrocellResult" :: .dup ::
@@ -731,13 +731,13 @@ private theorem deserLoop_drop_66 :
       .getstatic "com/alexvanyo/composelife/model/MacrocellStatus$Ok" "INSTANCE"
         "Lcom/alexvanyo/composelife/model/MacrocellStatus$Ok;" ::
       .astore 18 :: .aload 15 ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
         "(Ljava/lang/Object;)[Ljava/lang/Object;" ::
       .astore 19 ::
       .newClass "com/alexvanyo/composelife/model/MacrocellResult" :: .dup ::
       .aload 18 :: .checkcast "com/alexvanyo/composelife/model/MacrocellStatus" ::
       .aload 19 :: .iconst 0 :: .istore 21 ::
-      .invokestatic "MacroCellLeanKt" "getEMPTY_LEVEL_4"
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "getEMPTY_LEVEL_4"
         "()Lcom/alexvanyo/composelife/model/MacroCell$Level4Node;" ::
       .checkcast "com/alexvanyo/composelife/model/MacroCell" :: .dup ::
       .ldcStr "null cannot be cast to non-null type com.alexvanyo.composelife.model.MacroCell" ::
@@ -774,7 +774,7 @@ private theorem deserLoop_drop_104 :
 private theorem deserLoop_drop_128 :
     f_Algorithm_deserializeMacrocell_loop_prog.drop 128 =
       .aload 17 ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_parseMCNodeLine" "([B)Ljava/lang/Object;" ::
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_parseMCNodeLine" "([B)Ljava/lang/Object;" ::
       .astore 20 :: .aload 20 ::
       .ldcStr "null cannot be cast to non-null type kotlin.Array<*>" ::
       .invokestatic "kotlin/jvm/internal/Intrinsics" "checkNotNull"
@@ -795,13 +795,13 @@ private theorem deserLoop_drop_144 :
       .invokespecial "com/alexvanyo/composelife/model/MacrocellStatus$UnexpectedInput" "<init>"
         "(Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V" ::
       .astore 22 :: .aload 15 ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
         "(Ljava/lang/Object;)[Ljava/lang/Object;" ::
       .astore 23 ::
       .newClass "com/alexvanyo/composelife/model/MacrocellResult" :: .dup ::
       .aload 22 :: .checkcast "com/alexvanyo/composelife/model/MacrocellStatus" ::
       .aload 23 :: .iconst 0 :: .istore 25 ::
-      .invokestatic "MacroCellLeanKt" "getEMPTY_LEVEL_4"
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "getEMPTY_LEVEL_4"
         "()Lcom/alexvanyo/composelife/model/MacroCell$Level4Node;" ::
       .checkcast "com/alexvanyo/composelife/model/MacroCell" :: .dup ::
       .ldcStr "null cannot be cast to non-null type com.alexvanyo.composelife.model.MacroCell" ::
@@ -841,7 +841,7 @@ private theorem deserLoop_drop_463 :
       .iload 23 :: .iconst 4 :: .if_icmpeq 686 ::
       .iload 23 :: .iconst 1 :: .isub ::
       .invokestatic "kotlin/UInt" "constructor-impl" "(I)I" ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_emptyMacroCellUInt32-WZ4Q5Ns"
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_emptyMacroCellUInt32-WZ4Q5Ns"
         "(I)Lcom/alexvanyo/composelife/model/MacroCell;" ::
       .astore 36 :: f_Algorithm_deserializeMacrocell_loop_prog.drop 480 := rfl
 
@@ -858,20 +858,20 @@ private theorem deserLoop_drop_624 :
       .iload 2 :: .iconst 1 :: .iadd ::
       .invokestatic "kotlin/UInt" "constructor-impl" "(I)I" :: .istore 41 ::
       .aload 37 :: .aload 38 :: .aload 39 :: .aload 40 ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_makeCellNode"
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_makeCellNode"
         ("(Lcom/alexvanyo/composelife/model/MacroCell;Lcom/alexvanyo/composelife/model/MacroCell;" ++
          "Lcom/alexvanyo/composelife/model/MacroCell;Lcom/alexvanyo/composelife/model/MacroCell;)" ++
          "Lcom/alexvanyo/composelife/model/MacroCell;") ::
       .astore 42 :: .aload 12 :: .aload 42 ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
         "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" :: .astore 43 ::
       .aload 13 :: .lconst 0 ::
       .invokestatic "kotlin/ULong" "box-impl" "(J)Lkotlin/ULong;" ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
         "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" :: .astore 44 ::
       .aload 14 :: .iconst 0 ::
       .invokestatic "java/lang/Boolean" "valueOf" "(Z)Ljava/lang/Boolean;" ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
         "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" :: .astore 45 ::
       .aload 0 :: .astore 46 :: .iload 1 :: .istore 47 :: .aload 15 :: .astore 48 ::
       .aload 46 :: .astore 0 :: .iload 47 :: .istore 1 :: .iload 41 :: .istore 2 ::
@@ -900,18 +900,18 @@ private theorem deserLoop_drop_822 :
 
 private theorem deserLoop_drop_883 :
     f_Algorithm_deserializeMacrocell_loop_prog.drop 883 =
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_makeLevel4Node-2jIhpxI"
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_makeLevel4Node-2jIhpxI"
         "(JJJJ)Lcom/alexvanyo/composelife/model/MacroCell;" ::
       .astore 41 :: .aload 12 :: .aload 41 ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
         "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" :: .astore 42 ::
       .aload 13 :: .lconst 0 ::
       .invokestatic "kotlin/ULong" "box-impl" "(J)Lkotlin/ULong;" ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
         "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" :: .astore 43 ::
       .aload 14 :: .iconst 0 ::
       .invokestatic "java/lang/Boolean" "valueOf" "(Z)Ljava/lang/Boolean;" ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
         "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" :: .astore 44 ::
       .aload 0 :: .astore 45 :: .iload 1 :: .istore 46 :: .aload 15 :: .astore 47 ::
       .aload 45 :: .astore 0 :: .iload 46 :: .istore 1 :: .iload 40 :: .istore 2 ::
@@ -969,7 +969,7 @@ private theorem deserLoop_drop_1006 :
       .dup :: .iload 19 :: .aconstNull ::
       .invokespecial "com/alexvanyo/composelife/model/MacrocellWarning$BlankLine" "<init>"
         "(ILkotlin/jvm/internal/DefaultConstructorMarker;)V" ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
         "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" ::
       .astore 21 :: .aload 21 :: .astore 20 ::
       f_Algorithm_deserializeMacrocell_loop_prog.drop 1016 := rfl
@@ -1010,18 +1010,18 @@ private theorem deserLoop_drop_1131 :
       .iload 2 :: .iconst 1 :: .iadd ::
       .invokestatic "kotlin/UInt" "constructor-impl" "(I)I" :: .istore 16 ::
       .lload 10 :: .lconst 0 :: .lconst 0 :: .lconst 0 ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_makeLevel4Node-2jIhpxI"
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_makeLevel4Node-2jIhpxI"
         "(JJJJ)Lcom/alexvanyo/composelife/model/MacroCell;" :: .astore 17 ::
       .aload 12 :: .aload 17 ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
         "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" :: .astore 18 ::
       .aload 13 :: .lload 10 ::
       .invokestatic "kotlin/ULong" "box-impl" "(J)Lkotlin/ULong;" ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
         "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" :: .astore 19 ::
       .aload 14 :: .iconst 1 ::
       .invokestatic "java/lang/Boolean" "valueOf" "(Z)Ljava/lang/Boolean;" ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
         "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" :: .astore 20 ::
       .aload 0 :: .astore 21 :: .iload 1 :: .istore 22 :: .aload 4 :: .astore 23 ::
       .iload 5 :: .istore 24 :: .aload 15 :: .astore 25 ::
@@ -1036,7 +1036,7 @@ private theorem deserLoop_drop_1131 :
 private theorem deserLoop_drop_1197 :
     f_Algorithm_deserializeMacrocell_loop_prog.drop 1197 =
       .aload 4 :: .iload 6 :: .iload 5 ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_decodeCharAt-BltQuoY" "([BII)Lkotlin/Pair;" ::
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_decodeCharAt-BltQuoY" "([BII)Lkotlin/Pair;" ::
       .astore 16 :: .aload 16 ::
       .invokevirtual "kotlin/Pair" "getFirst" "()Ljava/lang/Object;" ::
       .checkcast "kotlin/UInt" ::
@@ -1065,7 +1065,7 @@ private theorem deserLoop_drop_1227 :
       .invokestatic "java/lang/Integer" "compareUnsigned" "(II)I" :: .iflt 1241 ::
       .lload 10 :: .lstore 22 :: .goto 1249 ::
       .lload 10 :: .iload 8 :: .iload 9 :: .iconst 1 ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_leafWithCell-9LuH6mI" "(JIIZ)J" ::
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_leafWithCell-9LuH6mI" "(JIIZ)J" ::
       .lstore 24 :: .lload 24 :: .lstore 22 ::
       f_Algorithm_deserializeMacrocell_loop_prog.drop 1249 := rfl
 
@@ -1079,7 +1079,7 @@ private theorem deserLoop_drop_1234 :
 private theorem deserLoop_drop_1241 :
     f_Algorithm_deserializeMacrocell_loop_prog.drop 1241 =
       .lload 10 :: .iload 8 :: .iload 9 :: .iconst 1 ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_leafWithCell-9LuH6mI" "(JIIZ)J" ::
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_leafWithCell-9LuH6mI" "(JIIZ)J" ::
       .lstore 24 :: .lload 24 :: .lstore 22 ::
       f_Algorithm_deserializeMacrocell_loop_prog.drop 1249 := rfl
 
@@ -1096,7 +1096,7 @@ private theorem deserLoop_drop_1249 :
       .aload 24 :: .checkcast "java/lang/String" :: .aconstNull ::
       .invokespecial "com/alexvanyo/composelife/model/MacrocellWarning$UnexpectedInput" "<init>"
         "(IILjava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V" ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
         "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" ::
       .astore 25 :: .lload 22 :: .lstore 19 :: .aload 25 :: .astore 21 :: .goto 1349 ::
       .lload 22 :: .lstore 19 :: .aload 15 :: .astore 21 :: .goto 1349 ::
@@ -1541,7 +1541,7 @@ private theorem stepStatic_mcLeafWithCell_heap
     {pc : Nat} {isAlive y x : UInt32} {leaf : UInt64} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .i32 isAlive :: .i32 y :: .i32 x :: .i64 leaf :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt" "f_Algorithm_leafWithCell-9LuH6mI" "(JIIZ)J" =
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_leafWithCell-9LuH6mI" "(JIIZ)J" =
       .inl (some ⟨pc + 1, .i64 (Algorithm.leafWithCell leaf x y (isAlive != 0)) :: rest,
         locs, jh, hp⟩) := rfl
 
@@ -2009,7 +2009,7 @@ private theorem stepStatic_parseMCNodeLine_some {pc : Nat} {addr : Nat}
     let (inAddr, h1) := jh.alloc (.objArray "java/lang/Object" inner)
     let (outAddr, h2) := h1.alloc (.objArray "java/lang/Object" #[.boxedInt 1, .heapRef inAddr])
     stepInvokeStatic ⟨pc, .heapRef addr :: rest, locs, jh, hp⟩
-        "MacroCellLeanKt" "f_Algorithm_parseMCNodeLine" "([B)Ljava/lang/Object;" =
+        "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_parseMCNodeLine" "([B)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .heapRef outAddr :: rest, locs, h2, hp⟩) := by
   change (match decodeBytes ⟨pc, .heapRef addr :: rest, locs, jh, hp⟩ (.heapRef addr) with
     | some bs =>
@@ -2046,7 +2046,7 @@ private theorem stepStatic_mcMakeLevel4Node_heap
     {pc : Nat} {se sw ne nw : UInt64} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .i64 se :: .i64 sw :: .i64 ne :: .i64 nw :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt" "f_Algorithm_makeLevel4Node-2jIhpxI"
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_makeLevel4Node-2jIhpxI"
       "(JJJJ)Lcom/alexvanyo/composelife/model/MacroCell;" =
       .inl (some ⟨pc + 1, .ext (.mc (Algorithm.makeLevel4Node nw ne sw se)) :: rest,
         locs, jh, hp⟩) := rfl
@@ -2066,7 +2066,7 @@ theorem step_deserLoop_parseNode_none {locs : Nat → JvmVal}
     (hlocs : DeserLoopLocs locs lines numLines i false bytesAddr limit p col x y leaf
       nodes leaves isLeaf warns)
     (hwarnBuf : locs 15 = .ext (.mcWarnGrowBuf warns))
-    (hstat : jh.getStatic? "MacroCellLeanKt" "EMPTY_LEVEL_4" = none)
+    (hstat : jh.getStatic? "com/alexvanyo/composelife/model/MacroCellLeanKt" "EMPTY_LEVEL_4" = none)
     (hiSz : i.toNat < lines.size) (hibv : i.toBitVec.slt 0#32 = false)
     (hnz : lines[i.toNat].toByteArray.size.toUInt32 ≠ 0)
     (hlPos : 0 < lines[i.toNat].toByteArray.data.size)
@@ -2105,7 +2105,7 @@ theorem step_deserLoop_parseNode_none {locs : Nat → JvmVal}
       some "com/alexvanyo/composelife/model/MacrocellStatus$UnexpectedInput" := by
     rw [hgetUI4]; rfl
   have hstat4 : (encodeGrowBufArray jh3 encodeMacrocellWarning warns).2.getStatic?
-      "MacroCellLeanKt" "EMPTY_LEVEL_4" = none := by
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "EMPTY_LEVEL_4" = none := by
     dsimp only [Jvm.JvmHeap.getStatic?]
     rw [encodeGrowBufArray_statics jh3 encodeMacrocellWarning warns encodeMCWarn_statics]
     exact hstat
@@ -2840,7 +2840,7 @@ private theorem step_deserLoop_err_tail {pc statusLoc arrLoc tmpLoc : Nat}
   have hjhW_cls : (jhW.get? sAddr).bind
       (fun o => match o with | .instance c _ => some c | _ => none) = some cls := by
     rw [hjhW_get]; exact hsCls
-  have hjhW_stat : jhW.getStatic? "MacroCellLeanKt" "EMPTY_LEVEL_4" = none := by
+  have hjhW_stat : jhW.getStatic? "com/alexvanyo/composelife/model/MacroCellLeanKt" "EMPTY_LEVEL_4" = none := by
     dsimp only [Jvm.JvmHeap.getStatic?]
     have hs := encodeGrowBufArray_statics jh encodeMacrocellWarning warns encodeMCWarn_statics
     rw [henc] at hs
@@ -2976,7 +2976,7 @@ theorem step_deserLoop_exit_some {f : Nat} {locs : Nat → JvmVal}
   let locs43 := setLocal (setLocal (setLocal locs 16 (.heapRef nodesDataAddr))
     18 (.boxedInt nodes.size)) 19 (.i32 0)
   let pW := encodeGrowBufArray jh encodeMacrocellWarning warns
-  have hstatW : pW.2.getStatic? "MacroCellLeanKt" "EMPTY_LEVEL_4" = none := by
+  have hstatW : pW.2.getStatic? "com/alexvanyo/composelife/model/MacroCellLeanKt" "EMPTY_LEVEL_4" = none := by
     dsimp only [Jvm.JvmHeap.getStatic?, pW]
     rw [encodeGrowBufArray_statics jh encodeMacrocellWarning warns encodeMCWarn_statics, hstat]
     rfl

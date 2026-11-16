@@ -292,20 +292,20 @@ private theorem runJvmResFast_stepGeo_step {f pc pc' : Nat} {prog : List JvmInst
 
 private theorem step_absFloat_closed0 {pc : Nat} {stk : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit} :
-    Jvm.stepInstr geomHooks (.invokestatic "LineSegmentLeanKt" "f_Geometry_absFloat___closed__0" "()D")
+    Jvm.stepInstr geomHooks (.invokestatic "com/alexvanyo/composelife/geometry/LineSegmentLeanKt" "f_Geometry_absFloat___closed__0" "()D")
         { pc := pc, stack := stk, locals := locs, jvmHeap := jh, heap := hp } =
       .inl (some { pc := pc + 1, stack := .f64 0.0 :: stk, locals := locs, jvmHeap := jh, heap := hp }) := rfl
 
 private theorem step_absFloat {pc : Nat} {x : Float} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit} :
-    Jvm.stepInstr geomHooks (.invokestatic "LineSegmentLeanKt" "f_Geometry_absFloat" "(D)D")
+    Jvm.stepInstr geomHooks (.invokestatic "com/alexvanyo/composelife/geometry/LineSegmentLeanKt" "f_Geometry_absFloat" "(D)D")
         { pc := pc, stack := .f64 x :: rest, locals := locs, jvmHeap := jh, heap := hp } =
       .inl (some { pc := pc + 1, stack := .f64 (Geometry.absFloat x) :: rest,
                    locals := locs, jvmHeap := jh, heap := hp }) := rfl
 
 private theorem step_absInt {pc : Nat} {x : UInt32} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit} :
-    Jvm.stepInstr geomHooks (.invokestatic "LineSegmentLeanKt" "f_Geometry_absInt" "(I)I")
+    Jvm.stepInstr geomHooks (.invokestatic "com/alexvanyo/composelife/geometry/LineSegmentLeanKt" "f_Geometry_absInt" "(I)I")
         { pc := pc, stack := .i32 x :: rest, locals := locs, jvmHeap := jh, heap := hp } =
       .inl (some { pc := pc + 1, stack := .i32 (Geometry.absInt x.toInt32) :: rest,
                    locals := locs, jvmHeap := jh, heap := hp }) := rfl
@@ -318,7 +318,7 @@ private theorem step_rayMarchLoop_call {pc accAddr : Nat}
     (hheap : jh.get? accAddr = some (.objArray cls elems))
     (hdec : decodeCoordArray elems = some acc) :
     Jvm.stepInstr geomHooks
-        (.invokestatic "LineSegmentLeanKt" "f_Geometry_rayMarchLoop___redArg-v0ARYG8"
+        (.invokestatic "com/alexvanyo/composelife/geometry/LineSegmentLeanKt" "f_Geometry_rayMarchLoop___redArg-v0ARYG8"
           "(IDDDDIIIIIILjava/lang/Object;)Ljava/lang/Object;")
         { pc := pc,
           stack := .heapRef accAddr :: .i32 curY :: .i32 curX :: .i32 endY :: .i32 endX ::
@@ -334,7 +334,7 @@ private theorem step_rayMarchLoop_call {pc accAddr : Nat}
       let res := jh.alloc (.objArray cls (encodeCoordPairs out))
       .inl (some { pc := pc + 1, stack := .heapRef res.1 :: rest, locals := locs, jvmHeap := res.2, heap := hp }) := by
   unfold Jvm.stepInstr
-  simp [Jvm.stepInvokeStaticGeneric, geomHooks, stepIntOffsetStatic, Jvm.JvmVal.asI32?, Jvm.JvmVal.asF64?, hheap, hdec]
+  simp [Jvm.stepInvokeStaticGeneric, stepIntOffsetStatic, Jvm.JvmVal.asI32?, Jvm.JvmVal.asF64?, hheap, hdec]
 
 private def geoDcmpg (a b : Float) : UInt32 :=
   if a < b then 4294967295 else if a == b then 0 else 1

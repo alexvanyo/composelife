@@ -153,8 +153,8 @@ theorem stepStatic_u64BufEmpty_heap
     {pc : Nat} {cls : String} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena}
     {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
-    (hcls : cls = "Life105LeanKt" ∨ cls = "Life106LeanKt" ∨ cls = "MacroCellLeanKt" ∨
-      cls = "PlaintextLeanKt" ∨ cls = "RleLeanKt") :
+    (hcls : cls = "com/alexvanyo/composelife/model/Life105LeanKt" ∨ cls = "com/alexvanyo/composelife/model/Life106LeanKt" ∨ cls = "com/alexvanyo/composelife/model/MacroCellLeanKt" ∨
+      cls = "com/alexvanyo/composelife/model/PlaintextLeanKt" ∨ cls = "com/alexvanyo/composelife/model/RleLeanKt") :
     stepInvokeStatic ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩
       cls "f_Algorithm_U64Buf_empty" "()[J" =
       .inl (some ⟨pc + 1, .ext (.u64Ref u64.length) :: rest, locs, jh,
@@ -166,8 +166,8 @@ theorem stepStatic_u64BufPush_heap
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt}
     {ar : List Algorithm.FlatHashLifeArena}
     {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} {arr : Array UInt64}
-    (hcls : cls = "Life105LeanKt" ∨ cls = "Life106LeanKt" ∨ cls = "MacroCellLeanKt" ∨
-      cls = "PlaintextLeanKt" ∨ cls = "RleLeanKt")
+    (hcls : cls = "com/alexvanyo/composelife/model/Life105LeanKt" ∨ cls = "com/alexvanyo/composelife/model/Life106LeanKt" ∨ cls = "com/alexvanyo/composelife/model/MacroCellLeanKt" ∨
+      cls = "com/alexvanyo/composelife/model/PlaintextLeanKt" ∨ cls = "com/alexvanyo/composelife/model/RleLeanKt")
     (hu : u64[id]? = some arr) :
     stepInvokeStatic ⟨pc, .i64 x :: .ext (.u64Ref id) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       cls "f_Algorithm_U64Buf_push-3yFGk1Y" "([JJ)[J" =
@@ -183,8 +183,8 @@ theorem stepStatic_u64BufToArray_heap
     {pc : Nat} {cls : String} {id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena}
     {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} {arr : Array UInt64}
-    (hcls : cls = "Life105LeanKt" ∨ cls = "Life106LeanKt" ∨ cls = "MacroCellLeanKt" ∨
-      cls = "PlaintextLeanKt" ∨ cls = "RleLeanKt")
+    (hcls : cls = "com/alexvanyo/composelife/model/Life105LeanKt" ∨ cls = "com/alexvanyo/composelife/model/Life106LeanKt" ∨ cls = "com/alexvanyo/composelife/model/MacroCellLeanKt" ∨
+      cls = "com/alexvanyo/composelife/model/PlaintextLeanKt" ∨ cls = "com/alexvanyo/composelife/model/RleLeanKt")
     (hu : u64[id]? = some arr) :
     stepInvokeStatic ⟨pc, .ext (.u64Ref id) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
       cls "f_Algorithm_U64Buf_toArray-QwZRm1k" "([J)[J" =
@@ -200,7 +200,7 @@ theorem stepStatic_noCells_heap
     {pc : Nat} {cls : String} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena}
     {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
-    (hcls : cls = "Life105LeanKt" ∨ cls = "Life106LeanKt") :
+    (hcls : cls = "com/alexvanyo/composelife/model/Life105LeanKt" ∨ cls = "com/alexvanyo/composelife/model/Life106LeanKt") :
     stepInvokeStatic ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩
       cls "f_Algorithm_noCells" "()[J" =
       .inl (some ⟨pc + 1, .ext (.u64Ref u64.length) :: rest, locs, jh,
@@ -210,8 +210,8 @@ theorem stepStatic_noCells_heap
 theorem stepStatic_growBufEmpty_heap
     {pc : Nat} {cls : String} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
-    (hcls : cls = "Life105LeanKt" ∨ cls = "MacroCellLeanKt" ∨
-      cls = "PlaintextLeanKt" ∨ cls = "RleLeanKt") :
+    (hcls : cls = "com/alexvanyo/composelife/model/Life105LeanKt" ∨ cls = "com/alexvanyo/composelife/model/MacroCellLeanKt" ∨
+      cls = "com/alexvanyo/composelife/model/PlaintextLeanKt" ∨ cls = "com/alexvanyo/composelife/model/RleLeanKt") :
     stepInvokeStatic ⟨pc, .null :: rest, locs, jh, hp⟩
       cls "f_Algorithm_GrowBuf_empty___redArg" "(Ljava/lang/Object;)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .ext (.strGrowBuf Algorithm.GrowBuf.empty) :: rest, locs, jh, hp⟩) := by
@@ -221,8 +221,8 @@ theorem stepStatic_skipSpaces_heap
     {pc : Nat} {cls : String} {limit pos : UInt32} {addr : Nat}
     {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} {elems : Array UInt8}
-    (hcls : cls = "Life105LeanKt" ∨ cls = "Life106LeanKt" ∨ cls = "MacroCellLeanKt" ∨
-      cls = "PlaintextLeanKt" ∨ cls = "RleLeanKt")
+    (hcls : cls = "com/alexvanyo/composelife/model/Life105LeanKt" ∨ cls = "com/alexvanyo/composelife/model/Life106LeanKt" ∨ cls = "com/alexvanyo/composelife/model/MacroCellLeanKt" ∨
+      cls = "com/alexvanyo/composelife/model/PlaintextLeanKt" ∨ cls = "com/alexvanyo/composelife/model/RleLeanKt")
     (hget : jh.get? addr = some (.byteArray elems)) :
     stepInvokeStatic ⟨pc, .i32 limit :: .i32 pos :: .heapRef addr :: rest, locs, jh, hp⟩
       cls "f_Algorithm_skipSpaces-BltQuoY" "([BII)I" =
@@ -241,7 +241,7 @@ theorem stepStatic_parseInt32At_heap
     {pc : Nat} {cls : String} {limit pos : UInt32} {addr : Nat}
     {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} {elems : Array UInt8}
-    (hcls : cls = "Life105LeanKt" ∨ cls = "Life106LeanKt" ∨ cls = "RleLeanKt")
+    (hcls : cls = "com/alexvanyo/composelife/model/Life105LeanKt" ∨ cls = "com/alexvanyo/composelife/model/Life106LeanKt" ∨ cls = "com/alexvanyo/composelife/model/RleLeanKt")
     (hget : jh.get? addr = some (.byteArray elems)) :
     stepInvokeStatic ⟨pc, .i32 limit :: .i32 pos :: .heapRef addr :: rest, locs, jh, hp⟩
       cls "f_Algorithm_parseInt32At-BltQuoY" "([BII)Ljava/lang/Object;" =
@@ -266,11 +266,11 @@ theorem stepStatic_countChars_heap
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} {elems : Array UInt8}
     (hget : jh.get? addr = some (.byteArray elems)) :
     stepInvokeStatic ⟨pc, .i32 n :: .i32 p :: .i32 limit :: .heapRef addr :: rest, locs, jh, hp⟩
-      "PlaintextLeanKt" "f_Algorithm_countChars-7IvYBaQ" "([BIII)I" =
+      "com/alexvanyo/composelife/model/PlaintextLeanKt" "f_Algorithm_countChars-7IvYBaQ" "([BIII)I" =
       .inl (some ⟨pc + 1, .i32 (Algorithm.countChars ⟨elems⟩ limit p n) :: rest,
         locs, jh, hp⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 n :: .i32 p :: .i32 limit :: .heapRef addr :: rest, locs, jh, hp⟩
-      "PlaintextLeanKt" "f_Algorithm_countChars-7IvYBaQ" "([BIII)I" =
+      "com/alexvanyo/composelife/model/PlaintextLeanKt" "f_Algorithm_countChars-7IvYBaQ" "([BIII)I" =
       match decodeBytes ⟨pc, .i32 n :: .i32 p :: .i32 limit :: .heapRef addr :: rest, locs, jh, hp⟩ (.heapRef addr) with
       | some bytes =>
         .inl (some ⟨pc + 1, .i32 (Algorithm.countChars bytes limit p n) :: rest,
@@ -282,8 +282,8 @@ theorem stepStatic_decodeCharAt_heap
     {pc : Nat} {cls : String} {limit p : UInt32} {addr : Nat}
     {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} {elems : Array UInt8}
-    (hcls : cls = "Life105LeanKt" ∨ cls = "Life106LeanKt" ∨ cls = "MacroCellLeanKt" ∨
-      cls = "PlaintextLeanKt" ∨ cls = "RleLeanKt")
+    (hcls : cls = "com/alexvanyo/composelife/model/Life105LeanKt" ∨ cls = "com/alexvanyo/composelife/model/Life106LeanKt" ∨ cls = "com/alexvanyo/composelife/model/MacroCellLeanKt" ∨
+      cls = "com/alexvanyo/composelife/model/PlaintextLeanKt" ∨ cls = "com/alexvanyo/composelife/model/RleLeanKt")
     (hget : jh.get? addr = some (.byteArray elems)) :
     stepInvokeStatic ⟨pc, .i32 limit :: .i32 p :: .heapRef addr :: rest, locs, jh, hp⟩
       cls "f_Algorithm_decodeCharAt-BltQuoY" "([BII)Lkotlin/Pair;" =
@@ -301,7 +301,7 @@ theorem stepStatic_leafWithCell_heap
     {pc : Nat} {isAlive y x : UInt32} {leaf : UInt64} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .i32 isAlive :: .i32 y :: .i32 x :: .i64 leaf :: rest, locs, jh, hp⟩
-      "FlatHashLifeLeanKt" "f_Algorithm_leafWithCell-9LuH6mI" "(JIIZ)J" =
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt" "f_Algorithm_leafWithCell-9LuH6mI" "(JIIZ)J" =
       .inl (some ⟨pc + 1, .i64 (Algorithm.leafWithCell leaf x y (isAlive != 0)) :: rest,
         locs, jh, hp⟩) := rfl
 
@@ -309,7 +309,7 @@ theorem stepStatic_makeLevel4Node_heap
     {pc : Nat} {se sw ne nw : UInt64} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .i64 se :: .i64 sw :: .i64 ne :: .i64 nw :: rest, locs, jh, hp⟩
-      "FlatHashLifeLeanKt" "f_Algorithm_makeLevel4Node-2jIhpxI"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt" "f_Algorithm_makeLevel4Node-2jIhpxI"
       "(JJJJ)Lcom/alexvanyo/composelife/model/MacroCell;" =
       .inl (some ⟨pc + 1, .ext (.mc (Algorithm.makeLevel4Node nw ne sw se)) :: rest,
         locs, jh, hp⟩) := rfl
@@ -319,7 +319,7 @@ theorem stepStatic_makeCellNode_heap
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .ext (.mc se) :: .ext (.mc sw) :: .ext (.mc ne) :: .ext (.mc nw) :: rest,
         locs, jh, hp⟩
-      "FlatHashLifeLeanKt" "f_Algorithm_makeCellNode"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt" "f_Algorithm_makeCellNode"
       "(Lcom/alexvanyo/composelife/model/MacroCell;Lcom/alexvanyo/composelife/model/MacroCell;Lcom/alexvanyo/composelife/model/MacroCell;Lcom/alexvanyo/composelife/model/MacroCell;)Lcom/alexvanyo/composelife/model/MacroCell;" =
       .inl (some ⟨pc + 1, .ext (.mc (Algorithm.makeCellNode nw ne sw se)) :: rest, locs, jh, hp⟩) := rfl
 
@@ -327,7 +327,7 @@ theorem stepStatic_emptyAtHeight_heap
     {pc : Nat} {h : UInt32} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .i32 h :: rest, locs, jh, hp⟩
-      "FlatHashLifeLeanKt" "f_Algorithm_emptyAtHeight-WZ4Q5Ns"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt" "f_Algorithm_emptyAtHeight-WZ4Q5Ns"
       "(I)Lcom/alexvanyo/composelife/model/MacroCell;" =
       .inl (some ⟨pc + 1, .ext (.mc (Algorithm.emptyAtHeight h)) :: rest, locs, jh, hp⟩) := rfl
 
@@ -339,14 +339,14 @@ theorem stepStatic_cellBoundsLoop_heap
     (hu : u64[cId]? = some cells) :
     stepInvokeStatic ⟨pc, .i64 maxY :: .i64 maxX :: .i64 minY :: .i64 minX :: .i32 limit :: .i32 i :: .ext (.u64Ref cId) :: rest,
         locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt" "f_Algorithm_cellBoundsLoop-Z0bPxiI" "([JIIJJJJ)Lkotlin/Pair;" =
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt" "f_Algorithm_cellBoundsLoop-Z0bPxiI" "([JIIJJJJ)Lkotlin/Pair;" =
       let r := Algorithm.cellBoundsLoop cells i limit minX minY maxX maxY
       let boxed := .pair (.boxedULong r.1)
         (.pair (.boxedULong r.2.1) (.pair (.boxedULong r.2.2.1) (.boxedULong r.2.2.2)))
       .inl (some ⟨pc + 1, boxed :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
   have h1 : stepInvokeStatic ⟨pc, .i64 maxY :: .i64 maxX :: .i64 minY :: .i64 minX :: .i32 limit :: .i32 i :: .ext (.u64Ref cId) :: rest,
         locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt" "f_Algorithm_cellBoundsLoop-Z0bPxiI" "([JIIJJJJ)Lkotlin/Pair;" =
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt" "f_Algorithm_cellBoundsLoop-Z0bPxiI" "([JIIJJJJ)Lkotlin/Pair;" =
       match u64[cId]? with
       | some cells =>
         let r := Algorithm.cellBoundsLoop cells i limit minX minY maxX maxY
@@ -360,7 +360,7 @@ theorem stepStatic_levelForSpanLoop_heap
     {pc : Nat} {lvl : UInt32} {span : UInt64} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .i32 lvl :: .i64 span :: rest, locs, jh, hp⟩
-      "FlatHashLifeLeanKt" "f_Algorithm_levelForSpanLoop-8GdB7C8" "(JI)I" =
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt" "f_Algorithm_levelForSpanLoop-8GdB7C8" "(JI)I" =
       .inl (some ⟨pc + 1, .i32 (Algorithm.levelForSpanLoop span lvl) :: rest,
         locs, jh, hp⟩) := rfl
 
@@ -368,7 +368,7 @@ theorem stepStatic_cellsToMacroCell_closed2_heap
     {pc : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, rest, locs, jh, hp⟩
-      "FlatHashLifeLeanKt" "f_Algorithm_cellsToMacroCell___closed__2" "()Lkotlin/Pair;" =
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt" "f_Algorithm_cellsToMacroCell___closed__2" "()Lkotlin/Pair;" =
       .inl (some ⟨pc + 1,
         .pair (.boxedULong 2147483648) (.pair (.boxedULong 2147483648) (.ext (.mc (Algorithm.emptyAtHeight 1)))) :: rest,
         locs, jh, hp⟩) := rfl

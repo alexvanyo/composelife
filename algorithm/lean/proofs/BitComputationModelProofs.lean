@@ -29,46 +29,65 @@ namespace Algorithm.KotlinModel
 def outerCornerMask : UInt64 :=
   ((1 : UInt64) <<< 0) ||| ((1 : UInt64) <<< 21) ||| ((1 : UInt64) <<< 42) ||| ((1 : UInt64) <<< 63)
 
-theorem computeQuadInfoModel_center_Impl (q : UInt32) :
+theorem computeQuadInfoModel_center (q : UInt32) :
     computeQuadInfoModel q &&& (0xF : UInt32) = Algorithm.extractCenterUInt q := by
   unfold computeQuadInfoModel Algorithm.extractCenterUInt
-  bv_check "lrat/BitComputationModelProofs.Algorithm.KotlinModel.computeQuadInfoModel_center_Impl.lrat"
+  bv_check "lrat/BitComputationModelProofs.Algorithm.KotlinModel.computeQuadInfoModel_center.lrat"
 
-theorem computeQuadInfoModel_right_Impl (q : UInt32) :
+theorem computeQuadInfoModel_right (q : UInt32) :
     ((computeQuadInfoModel q >>> 4) &&& (0x5 : UInt32)) =
       (((q >>> 7) &&& (1 : UInt32)) ||| (((q >>> 13) &&& (1 : UInt32)) <<< 2)) := by
   unfold computeQuadInfoModel
-  bv_check "lrat/BitComputationModelProofs.Algorithm.KotlinModel.computeQuadInfoModel_right_Impl.lrat"
+  bv_check "lrat/BitComputationModelProofs.Algorithm.KotlinModel.computeQuadInfoModel_right.lrat"
 
-theorem computeQuadInfoModel_left_Impl (q : UInt32) :
+theorem computeQuadInfoModel_left (q : UInt32) :
     ((computeQuadInfoModel q >>> 8) &&& (0xA : UInt32)) =
       ((((q >>> 2) &&& (1 : UInt32)) <<< 1) ||| (((q >>> 8) &&& (1 : UInt32)) <<< 3)) := by
   unfold computeQuadInfoModel
-  bv_check "lrat/BitComputationModelProofs.Algorithm.KotlinModel.computeQuadInfoModel_left_Impl.lrat"
+  bv_check "lrat/BitComputationModelProofs.Algorithm.KotlinModel.computeQuadInfoModel_left.lrat"
 
-theorem computeQuadInfoModel_bottom_Impl (q : UInt32) :
+theorem computeQuadInfoModel_bottom (q : UInt32) :
     ((computeQuadInfoModel q >>> 12) &&& (0x3 : UInt32)) =
       (((q >>> 11) &&& (1 : UInt32)) ||| (((q >>> 14) &&& (1 : UInt32)) <<< 1)) := by
   unfold computeQuadInfoModel
-  bv_check "lrat/BitComputationModelProofs.Algorithm.KotlinModel.computeQuadInfoModel_bottom_Impl.lrat"
+  bv_check "lrat/BitComputationModelProofs.Algorithm.KotlinModel.computeQuadInfoModel_bottom.lrat"
 
-theorem computeQuadInfoModel_top_Impl (q : UInt32) :
+theorem computeQuadInfoModel_top (q : UInt32) :
     ((computeQuadInfoModel q >>> 16) &&& (0xC : UInt32)) =
       ((((q >>> 1) &&& (1 : UInt32)) <<< 2) ||| (((q >>> 4) &&& (1 : UInt32)) <<< 3)) := by
   unfold computeQuadInfoModel
-  bv_check "lrat/BitComputationModelProofs.Algorithm.KotlinModel.computeQuadInfoModel_top_Impl.lrat"
+  bv_check "lrat/BitComputationModelProofs.Algorithm.KotlinModel.computeQuadInfoModel_top.lrat"
 
-theorem computeQuadInfoModel_corner_Impl (q : UInt32) :
+theorem computeQuadInfoModel_corner (q : UInt32) :
     (computeQuadInfoModel q >>> 20) &&& (0xF : UInt32) =
       (((q >>> 15) &&& (1 : UInt32)) ||| (((q >>> 10) &&& (1 : UInt32)) <<< 1) |||
         (((q >>> 5) &&& (1 : UInt32)) <<< 2) ||| ((q &&& (1 : UInt32)) <<< 3)) := by
   unfold computeQuadInfoModel
-  bv_check "lrat/BitComputationModelProofs.Algorithm.KotlinModel.computeQuadInfoModel_corner_Impl.lrat"
+  bv_check "lrat/BitComputationModelProofs.Algorithm.KotlinModel.computeQuadInfoModel_corner.lrat"
 
-theorem computeQuadInfoModel_lt_Impl (q : UInt32) :
+theorem computeQuadInfoModel_lt (q : UInt32) :
     computeQuadInfoModel q < 0x1000000 := by
   unfold computeQuadInfoModel
-  bv_check "lrat/BitComputationModelProofs.Algorithm.KotlinModel.computeQuadInfoModel_lt_Impl.lrat"
+  bv_check "lrat/BitComputationModelProofs.Algorithm.KotlinModel.computeQuadInfoModel_lt.lrat"
+
+/-- Proof of `computeQuadInfoModel_bitSpec`. -/
+theorem computeQuadInfoModel_bitSpec_Impl (q : UInt32) :
+    (computeQuadInfoModel q &&& (0xF : UInt32) = Algorithm.extractCenterUInt q) ∧
+    (((computeQuadInfoModel q >>> 4) &&& (0x5 : UInt32)) =
+      (((q >>> 7) &&& (1 : UInt32)) ||| (((q >>> 13) &&& (1 : UInt32)) <<< 2))) ∧
+    (((computeQuadInfoModel q >>> 8) &&& (0xA : UInt32)) =
+      ((((q >>> 2) &&& (1 : UInt32)) <<< 1) ||| (((q >>> 8) &&& (1 : UInt32)) <<< 3))) ∧
+    (((computeQuadInfoModel q >>> 12) &&& (0x3 : UInt32)) =
+      (((q >>> 11) &&& (1 : UInt32)) ||| (((q >>> 14) &&& (1 : UInt32)) <<< 1))) ∧
+    (((computeQuadInfoModel q >>> 16) &&& (0xC : UInt32)) =
+      ((((q >>> 1) &&& (1 : UInt32)) <<< 2) ||| (((q >>> 4) &&& (1 : UInt32)) <<< 3))) ∧
+    ((computeQuadInfoModel q >>> 20) &&& (0xF : UInt32) =
+      (((q >>> 15) &&& (1 : UInt32)) ||| (((q >>> 10) &&& (1 : UInt32)) <<< 1) |||
+        (((q >>> 5) &&& (1 : UInt32)) <<< 2) ||| ((q &&& (1 : UInt32)) <<< 3))) ∧
+    computeQuadInfoModel q < 0x1000000 :=
+  ⟨computeQuadInfoModel_center q, computeQuadInfoModel_right q, computeQuadInfoModel_left q,
+   computeQuadInfoModel_bottom q, computeQuadInfoModel_top q, computeQuadInfoModel_corner q,
+   computeQuadInfoModel_lt q⟩
 
 theorem pk_nw_in_eq (w : UInt64) :
     let q0 : UInt32 := (w &&& (0xFFFF : UInt64)).toUInt32

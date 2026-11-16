@@ -17,5 +17,6 @@
 import Jvm.Audit
 import KotlinJvmBytecode
 import proofs.KotlinJvmEquiv.GeometryExtensions
+import proofs.KotlinJvmEquiv.OffsetExtensions
 
 #audit_jvm_equiv_axioms Geometry.KotlinJvmVerification Geometry.KotlinJvmBytecode

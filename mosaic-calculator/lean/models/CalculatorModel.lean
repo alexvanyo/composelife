@@ -176,7 +176,9 @@ def formatDisplayLineModel (state : CalculatorState) : String :=
   | some .overflow => "ERR: OVERFLOW"
   | none =>
     match state.pendingOperand, state.pendingOp with
-    | some lhs, some op => s!"{int64ToString lhs} {op.symbol} {int64ToString state.displayValue}"
+    | some lhs, some op =>
+      if state.enteringNewNumber then s!"{int64ToString lhs} {op.symbol}"
+      else s!"{int64ToString lhs} {op.symbol} {int64ToString state.displayValue}"
     | _, _ => int64ToString state.displayValue
 
 def expectedCalculatorScreenLines (state : CalculatorState) : List String :=
