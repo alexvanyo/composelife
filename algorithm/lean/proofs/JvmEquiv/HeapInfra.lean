@@ -469,8 +469,8 @@ theorem stepStatic_ubyteArrayGet
 theorem stepStatic_uint32ToInt32
     {pc : Nat} {cls : String} {x : UInt32} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
-    (hcls : cls = "Life105LeanKt" ∨ cls = "Life106LeanKt" ∨ cls = "MacroCellLeanKt" ∨
-      cls = "PlaintextLeanKt" ∨ cls = "RleLeanKt") :
+    (hcls : cls = "com/alexvanyo/composelife/model/Life105LeanKt" ∨ cls = "com/alexvanyo/composelife/model/Life106LeanKt" ∨ cls = "com/alexvanyo/composelife/model/MacroCellLeanKt" ∨
+      cls = "com/alexvanyo/composelife/model/PlaintextLeanKt" ∨ cls = "com/alexvanyo/composelife/model/RleLeanKt") :
     stepInvokeStatic ⟨pc, .i32 x :: rest, locs, jh, hp⟩
       cls "f_Algorithm_uint32ToInt32-WZ4Q5Ns" "(I)I" =
       .inl (some ⟨pc + 1, .i32 x :: rest, locs, jh, hp⟩) := by
@@ -479,8 +479,8 @@ theorem stepStatic_uint32ToInt32
 theorem stepStatic_decodeCharAtLam_heap
     {pc : Nat} {cls : String} {k p : UInt32} {addr : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} {elems : Array UInt8}
-    (hcls : cls = "Life105LeanKt" ∨ cls = "Life106LeanKt" ∨ cls = "MacroCellLeanKt" ∨
-      cls = "PlaintextLeanKt" ∨ cls = "RleLeanKt")
+    (hcls : cls = "com/alexvanyo/composelife/model/Life105LeanKt" ∨ cls = "com/alexvanyo/composelife/model/Life106LeanKt" ∨ cls = "com/alexvanyo/composelife/model/MacroCellLeanKt" ∨
+      cls = "com/alexvanyo/composelife/model/PlaintextLeanKt" ∨ cls = "com/alexvanyo/composelife/model/RleLeanKt")
     (hget : jh.get? addr = some (.byteArray elems))
     (hslt : (p + k).toBitVec.slt 0#32 = false)
     (hlt : (p + k).toNat < elems.size) :
@@ -506,8 +506,8 @@ theorem stepStatic_decodeCharAtLam_heap
 theorem stepStatic_scanDigits_heap
     {pc : Nat} {cls : String} {acc : UInt64} {p limit : UInt32} {addr : Nat} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} {elems : Array UInt8}
-    (hcls : cls = "Life105LeanKt" ∨ cls = "Life106LeanKt" ∨ cls = "MacroCellLeanKt" ∨
-      cls = "PlaintextLeanKt" ∨ cls = "RleLeanKt")
+    (hcls : cls = "com/alexvanyo/composelife/model/Life105LeanKt" ∨ cls = "com/alexvanyo/composelife/model/Life106LeanKt" ∨ cls = "com/alexvanyo/composelife/model/MacroCellLeanKt" ∨
+      cls = "com/alexvanyo/composelife/model/PlaintextLeanKt" ∨ cls = "com/alexvanyo/composelife/model/RleLeanKt")
     (hget : jh.get? addr = some (.byteArray elems)) :
     stepInvokeStatic ⟨pc, .i64 acc :: .i32 p :: .i32 limit :: .heapRef addr :: rest, locs, jh, hp⟩
       cls "f_Algorithm_scanDigits-G4XTHLI" "([BIIJ)Lkotlin/Pair;" =

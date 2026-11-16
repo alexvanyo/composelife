@@ -151,7 +151,7 @@ private theorem stepStatic_splitKeys_heap
     (hse : decodeU64List jh (jh.objects.size + 2) seVal = some se) :
     stepInvokeStatic ⟨pc, seVal :: swVal :: neVal :: nwVal :: .i64 midY :: .i64 midX :: keysVal :: rest,
         locs, jh, hp⟩
-        "FlatHashLifeLeanKt" "f_Algorithm_splitKeys-0vDo7DQ"
+        "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt" "f_Algorithm_splitKeys-0vDo7DQ"
         "(Ljava/lang/Object;JJLjava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Lkotlin/Pair;" =
       let r := Algorithm.splitKeys keys midX midY nw ne sw se
       let (nwV, h1) := encodeU64List jh r.1
@@ -180,7 +180,7 @@ private theorem stepStatic_leafFromKeys_heap
     {keys : List UInt64}
     (hkeys : decodeU64List jh (jh.objects.size + 2) keysVal = some keys) :
     stepInvokeStatic ⟨pc, .i64 leaf :: .i64 y0 :: .i64 x0 :: keysVal :: rest, locs, jh, hp⟩
-        "FlatHashLifeLeanKt" "f_Algorithm_leafFromKeys-tc6d2E8" "(Ljava/lang/Object;JJJ)J" =
+        "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt" "f_Algorithm_leafFromKeys-tc6d2E8" "(Ljava/lang/Object;JJJ)J" =
       .inl (some ⟨pc + 1, .i64 (Algorithm.leafFromKeys keys x0 y0 leaf) :: rest,
         locs, jh, hp⟩) := by
   refine Eq.trans (b := match decodeU64List jh (jh.objects.size + 2) keysVal with
@@ -195,7 +195,7 @@ private theorem stepStatic_keysToMacroCell_heap
     {keys : List UInt64}
     (hkeys : decodeU64List jh (jh.objects.size + 2) keysVal = some keys) :
     stepInvokeStatic ⟨pc, .ext (.mc empty) :: .i32 h :: .i64 y0 :: .i64 x0 :: keysVal :: rest, locs, jh, hp⟩
-        "FlatHashLifeLeanKt" "f_Algorithm_keysToMacroCell-kVUmbH8"
+        "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt" "f_Algorithm_keysToMacroCell-kVUmbH8"
         "(Ljava/lang/Object;JJILcom/alexvanyo/composelife/model/MacroCell;)Lcom/alexvanyo/composelife/model/MacroCell;" =
       .inl (some ⟨pc + 1,
         .ext (.mc (Algorithm.keysToMacroCell keys x0 y0 h empty)) :: rest,
@@ -216,7 +216,7 @@ private theorem stepStatic_relativeKeysLoop_heap
     (hacc : decodeU64List jh (jh.objects.size + 2) accVal = some acc) :
     stepInvokeStatic ⟨pc, accVal :: .i64 minY :: .i64 minX :: .i32 limit :: .i32 i :: .ext (.u64Ref cId) :: rest,
         locs, jh, ⟨ar, u64, asc⟩⟩
-        "FlatHashLifeLeanKt" "f_Algorithm_relativeKeysLoop-CBMCY-A"
+        "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt" "f_Algorithm_relativeKeysLoop-CBMCY-A"
         "([JIIJJLjava/lang/Object;)Ljava/lang/Object;" =
       let res := Algorithm.relativeKeysLoop cells i limit minX minY acc
       let (resVal, h') := encodeU64List jh res

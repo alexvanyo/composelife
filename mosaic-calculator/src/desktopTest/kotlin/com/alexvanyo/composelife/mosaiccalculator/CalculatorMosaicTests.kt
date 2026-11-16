@@ -53,6 +53,18 @@ class CalculatorMosaicTests {
             state = reduceCalculatorState(state, CalculatorKey.Digit(1))
             state = reduceCalculatorState(state, CalculatorKey.Digit(2))
             state = reduceCalculatorState(state, CalculatorKey.Op(CalculatorOp.Add))
+            assertEquals(
+                """
+                |=== Calculator ===
+                |> 12 +
+                |[7] [8] [9] [/]
+                |[4] [5] [6] [*]
+                |[1] [2] [3] [-]
+                |[0] [C] [=] [+]
+                """.trimMargin(),
+                awaitSnapshot(),
+            )
+
             state = reduceCalculatorState(state, CalculatorKey.Digit(3))
             assertEquals(
                 """

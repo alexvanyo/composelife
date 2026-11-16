@@ -208,7 +208,7 @@ private theorem stepStatic_growBufPush_ptWarn
     {b : Algorithm.GrowBuf Algorithm.PlaintextWarning} {w : Algorithm.PlaintextWarning}
     (hrep : PtWarnRep b bufVal) (hdec : decodePlaintextWarning jh wVal = some w) :
     stepInvokeStatic ⟨pc, wVal :: bufVal :: rest, locs, jh, hp⟩
-      "PlaintextLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+      "com/alexvanyo/composelife/model/PlaintextLeanKt" "f_Algorithm_GrowBuf_push___redArg"
       "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .ext (.ptWarnGrowBuf (b.push w)) :: rest, locs, jh, hp⟩) := by
   have hnot := decodePlaintextWarning_not_rle_or_mc hdec
@@ -220,7 +220,7 @@ private theorem stepStatic_growBufPush_ptWarn
     | heapRef a =>
       have hstep : stepInvokeStatic
           ⟨pc, .heapRef a :: .ext (.strGrowBuf Algorithm.GrowBuf.empty) :: rest, locs, jh, hp⟩
-          "PlaintextLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+          "com/alexvanyo/composelife/model/PlaintextLeanKt" "f_Algorithm_GrowBuf_push___redArg"
           "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" =
           (if (Algorithm.GrowBuf.empty : Algorithm.GrowBuf String).data.isEmpty &&
               (Algorithm.GrowBuf.empty : Algorithm.GrowBuf String).size == 0 then
@@ -245,7 +245,7 @@ private theorem stepStatic_growBufPush_ptWarn
     cases wVal with
     | heapRef a =>
       have hstep : stepInvokeStatic ⟨pc, .heapRef a :: .ext (.ptWarnGrowBuf b) :: rest, locs, jh, hp⟩
-          "PlaintextLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+          "com/alexvanyo/composelife/model/PlaintextLeanKt" "f_Algorithm_GrowBuf_push___redArg"
           "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" =
           (match decodePlaintextWarning jh (.heapRef a) with
           | some w => .inl (some ⟨pc + 1, .ext (.ptWarnGrowBuf (b.push w)) :: rest, locs, jh, hp⟩)
@@ -260,7 +260,7 @@ private theorem stepStatic_growBufToArray_ptWarn
     (hrep : PtWarnRep b bufVal) :
     ∃ (arrVal : JvmVal) (jh' : Jvm.JvmHeap AlgExt) (warnVals? : Option Nat),
       stepInvokeStatic ⟨pc, bufVal :: rest, locs, jh, hp⟩
-        "PlaintextLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
+        "com/alexvanyo/composelife/model/PlaintextLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
         "(Ljava/lang/Object;)[Ljava/lang/Object;" =
         .inl (some ⟨pc + 1, arrVal :: rest, locs, jh', hp⟩) ∧
       match warnVals? with
@@ -1923,7 +1923,7 @@ private theorem stepStatic_match_only (pc : Nat) (locs : Nat → JvmVal) (jh : J
     (rest : List JvmVal) :
     let st : JvmState := ⟨pc, .ext (.u64Ref cId) :: warnsVal :: .i32 hasLongest :: .i32 longestLen :: .i32 longestIdx ::
       .i32 rowIdx :: .i32 col :: .i32 p :: .i32 limit :: bytesVal :: .i32 inRow :: .i32 i :: .i32 numLines :: linesVal :: rest, locs, jh, hp⟩
-    stepInvokeStatic st "PlaintextLeanKt" "f_Algorithm_deserializePlaintext_loop-JllRuGI"
+    stepInvokeStatic st "com/alexvanyo/composelife/model/PlaintextLeanKt" "f_Algorithm_deserializePlaintext_loop-JllRuGI"
       ("([Ljava/lang/Object;IIZ[BIIIIIIZLjava/lang/Object;[J)" ++
         "Lcom/alexvanyo/composelife/model/PlaintextResult;") =
     ptDispatch pc locs jh hp cId warnsVal hasLongest longestLen longestIdx rowIdx col p limit
@@ -1987,7 +1987,7 @@ private theorem stepStatic_deserializePlaintext_loop_heap
       locs, jh, ⟨ar, u64, asc⟩⟩ bytesVal = some bytes) :
     stepInvokeStatic ⟨pc, .ext (.u64Ref cId) :: warnsVal :: .i32 hasLongest :: .i32 longestLen :: .i32 longestIdx ::
       .i32 rowIdx :: .i32 col :: .i32 p :: .i32 limit :: bytesVal :: .i32 inRow :: .i32 i :: .i32 numLines :: linesVal :: rest,
-      locs, jh, ⟨ar, u64, asc⟩⟩ "PlaintextLeanKt" "f_Algorithm_deserializePlaintext_loop-JllRuGI"
+      locs, jh, ⟨ar, u64, asc⟩⟩ "com/alexvanyo/composelife/model/PlaintextLeanKt" "f_Algorithm_deserializePlaintext_loop-JllRuGI"
       ("([Ljava/lang/Object;IIZ[BIIIIIIZLjava/lang/Object;[J)" ++
         "Lcom/alexvanyo/composelife/model/PlaintextResult;") =
       .inl (some ⟨pc + 1,
@@ -2040,7 +2040,7 @@ private theorem stepStatic_deserializePlaintext_loop_init
         .i32 0, .i32 0, .i32 0, .i32 0, .i32 0, .i32 0, .i32 0, .heapRef 0,
         .i32 0, .i32 0, .i32 lines.size.toUInt32, .strArr lines],
       locs, jh0, ⟨[], [Algorithm.U64Buf.empty], []⟩⟩
-      "PlaintextLeanKt" "f_Algorithm_deserializePlaintext_loop-JllRuGI"
+      "com/alexvanyo/composelife/model/PlaintextLeanKt" "f_Algorithm_deserializePlaintext_loop-JllRuGI"
       ("([Ljava/lang/Object;IIZ[BIIIIIIZLjava/lang/Object;[J)" ++
         "Lcom/alexvanyo/composelife/model/PlaintextResult;") =
       .inl (some ⟨pc + 1, [enc.1], locs, enc.2.1, ⟨[], enc.2.2, []⟩⟩) := by
@@ -2078,7 +2078,7 @@ private theorem pt_loop_init_enc {pc : Nat} {lines : Array String} {locs : Nat �
         .i32 0, .i32 0, .i32 lines.size.toUInt32, .strArr lines],
       locs, ⟨#[Jvm.HeapObj.byteArray #[]], ({} : Jvm.JvmHeap AlgExt).statics⟩,
       ⟨[], [Algorithm.U64Buf.empty], []⟩⟩
-      "PlaintextLeanKt" "f_Algorithm_deserializePlaintext_loop-JllRuGI"
+      "com/alexvanyo/composelife/model/PlaintextLeanKt" "f_Algorithm_deserializePlaintext_loop-JllRuGI"
       ("([Ljava/lang/Object;IIZ[BIIIIIIZLjava/lang/Object;[J)" ++
         "Lcom/alexvanyo/composelife/model/PlaintextResult;") =
       .inl (some ⟨pc + 1,

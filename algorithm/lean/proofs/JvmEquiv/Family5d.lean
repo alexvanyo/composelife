@@ -252,7 +252,7 @@ private theorem deserLoop_parseNode_none_wrap {locs : Nat → JvmVal}
             ⟨.unexpectedInput lines[i.toNat] i, warns.toArray, Algorithm.emptyLevel4⟩).1],
             locs', (encodeMacrocellResult jhBase
             ⟨.unexpectedInput lines[i.toNat] i, warns.toArray, Algorithm.emptyLevel4⟩).2, hp⟩) := by
-  have hstatNone : jh.getStatic? "MacroCellLeanKt" "EMPTY_LEVEL_4" = none := by
+  have hstatNone : jh.getStatic? "com/alexvanyo/composelife/model/MacroCellLeanKt" "EMPTY_LEVEL_4" = none := by
     simp [Jvm.JvmHeap.getStatic?, hstat]
   rcases step_deserLoop_parseNode_none (jh := jh) (hp := hp)
       hlocs hwarnBuf hstatNone hiSz hibv hnz hlPos h48 h57 hnone with ⟨locs', hstep⟩

@@ -1,0 +1,20 @@
+name = "ResourceState"
+version = "0.1.0"
+defaultTargets = ["ResourceState"]
+moreLeanArgs = ["-M4096", "-j2"]
+
+[[lean_lib]]
+name = "ResourceState"
+roots = [
+  "models.ResourceStateModel",
+  "proofs.ResourceStateModelProofs",
+  "theorems.ResourceStateModelTheorems",
+  "proofs.Mutations",
+  "JvmSemantics",
+  "AxiomAudit",
+]
+
+[[lean_lib]]
+name = "Jvm"
+srcDir = "../../jvm-lean"
+roots = ["Jvm", "Jvm.Instr", "Jvm.Semantics", "Jvm.FastExec", "Jvm.Proofs", "Jvm.Tactics", "Jvm.Audit"]

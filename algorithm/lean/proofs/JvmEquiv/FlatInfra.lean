@@ -565,11 +565,11 @@ private theorem stepStatic_flat_getRemapCell
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
     stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_getRemapCell-Qn1smSk" "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       .inl (some ⟨pc + 1, .i32 (Algorithm.getRemapCell a nodeId) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_getRemapCell-Qn1smSk" "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       match ar[id]? with
       | some a => .inl (some ⟨pc + 1, .i32 (Algorithm.getRemapCell a nodeId) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩)
@@ -581,11 +581,11 @@ private theorem stepStatic_flat_getCellStepRes
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
     stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_getCellStepRes-Qn1smSk" "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       .inl (some ⟨pc + 1, .i32 (Algorithm.getCellStepRes a nodeId) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_getCellStepRes-Qn1smSk" "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       match ar[id]? with
       | some a => .inl (some ⟨pc + 1, .i32 (Algorithm.getCellStepRes a nodeId) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩)
@@ -597,11 +597,11 @@ private theorem stepStatic_flat_centeredSubSubnodeSizeCell
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
     stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_centeredSubSubnodeSizeCell-Qn1smSk" "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)J" =
       .inl (some ⟨pc + 1, .i64 (Algorithm.centeredSubSubnodeSizeCell a nodeId) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_centeredSubSubnodeSizeCell-Qn1smSk" "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)J" =
       match ar[id]? with
       | some a => .inl (some ⟨pc + 1, .i64 (Algorithm.centeredSubSubnodeSizeCell a nodeId) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩)
@@ -612,7 +612,7 @@ private theorem stepStatic_flat_computeLevel4NextGen
     {pc : Nat} {se sw ne nw : UInt64} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
     stepInvokeStatic ⟨pc, .i64 se :: .i64 sw :: .i64 ne :: .i64 nw :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_computeLevel4NextGen16x16WithUInt___at___00Algorithm_computeLevel4NextGen16x16UInt_spec__0-2jIhpxI"
       "(JJJJ)J" =
       .inl (some ⟨pc + 1,
@@ -624,13 +624,13 @@ private theorem stepStatic_flat_centeredHorizontal
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
     stepInvokeStatic ⟨pc, .i32 eId :: .i32 wId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_centeredHorizontal-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)I" =
       .inl (some ⟨pc + 1,
         .i32 (a.centeredHorizontal wId eId).1 :: rest, locs, jh, ⟨ar.set id (a.centeredHorizontal wId eId).2, u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 eId :: .i32 wId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_centeredHorizontal-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)I" =
       match ar[id]? with
@@ -645,13 +645,13 @@ private theorem stepStatic_flat_centeredVertical
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
     stepInvokeStatic ⟨pc, .i32 sId :: .i32 nId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_centeredVertical-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)I" =
       .inl (some ⟨pc + 1,
         .i32 (a.centeredVertical nId sId).1 :: rest, locs, jh, ⟨ar.set id (a.centeredVertical nId sId).2, u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 sId :: .i32 nId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_centeredVertical-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)I" =
       match ar[id]? with
@@ -666,13 +666,13 @@ private theorem stepStatic_flat_centeredSubnode
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
     stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_centeredSubnode-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       .inl (some ⟨pc + 1,
         .i32 (a.centeredSubnode nodeId).1 :: rest, locs, jh, ⟨ar.set id (a.centeredSubnode nodeId).2, u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_centeredSubnode-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       match ar[id]? with
@@ -687,13 +687,13 @@ private theorem stepStatic_flat_centeredSubSubnode
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
     stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_centeredSubSubnode-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       .inl (some ⟨pc + 1,
         .i32 (a.centeredSubSubnode nodeId).1 :: rest, locs, jh, ⟨ar.set id (a.centeredSubSubnode nodeId).2, u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_centeredSubSubnode-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       match ar[id]? with
@@ -708,13 +708,13 @@ private theorem stepStatic_flat_quadrantNW
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
     stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_quadrantNW-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       .inl (some ⟨pc + 1,
         .i32 (a.quadrantNW nodeId).1 :: rest, locs, jh, ⟨ar.set id (a.quadrantNW nodeId).2, u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_quadrantNW-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       match ar[id]? with
@@ -729,13 +729,13 @@ private theorem stepStatic_flat_quadrantNE
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
     stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_quadrantNE-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       .inl (some ⟨pc + 1,
         .i32 (a.quadrantNE nodeId).1 :: rest, locs, jh, ⟨ar.set id (a.quadrantNE nodeId).2, u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_quadrantNE-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       match ar[id]? with
@@ -750,13 +750,13 @@ private theorem stepStatic_flat_quadrantSW
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
     stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_quadrantSW-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       .inl (some ⟨pc + 1,
         .i32 (a.quadrantSW nodeId).1 :: rest, locs, jh, ⟨ar.set id (a.quadrantSW nodeId).2, u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_quadrantSW-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       match ar[id]? with
@@ -771,13 +771,13 @@ private theorem stepStatic_flat_quadrantSE
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
     stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_quadrantSE-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       .inl (some ⟨pc + 1,
         .i32 (a.quadrantSE nodeId).1 :: rest, locs, jh, ⟨ar.set id (a.quadrantSE nodeId).2, u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_quadrantSE-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       match ar[id]? with
@@ -792,13 +792,13 @@ private theorem stepStatic_flat_stepLevel4
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
     stepInvokeStatic ⟨pc, .i32 l4Id :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_stepLevel4-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)J" =
       .inl (some ⟨pc + 1,
         .i64 (a.stepLevel4 l4Id).1 :: rest, locs, jh, ⟨ar.set id (a.stepLevel4 l4Id).2, u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 l4Id :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_stepLevel4-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)J" =
       match ar[id]? with
@@ -813,13 +813,13 @@ private theorem stepStatic_flat_stepLevel5
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
     stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_stepLevel5-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       .inl (some ⟨pc + 1,
         .i32 (a.stepLevel5 nodeId).1 :: rest, locs, jh, ⟨ar.set id (a.stepLevel5 nodeId).2, u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_stepLevel5-Qn1smSk"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;I)I" =
       match ar[id]? with
@@ -834,12 +834,12 @@ private theorem stepStatic_flat_setRemapL4
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
     stepInvokeStatic ⟨pc, .i32 val :: .i32 idx :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_setRemapL4-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
       .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (a.setRemapL4 idx val), u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 val :: .i32 idx :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_setRemapL4-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
       .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.setRemapL4 idx val)) := rfl
@@ -850,12 +850,12 @@ private theorem stepStatic_flat_setRemapCell
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
     stepInvokeStatic ⟨pc, .i32 val :: .i32 idx :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_setRemapCell-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
       .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (a.setRemapCell idx val), u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 val :: .i32 idx :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_setRemapCell-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
       .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.setRemapCell idx val)) := rfl
@@ -866,12 +866,12 @@ private theorem stepStatic_flat_setCellStepRes
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
     stepInvokeStatic ⟨pc, .i32 val :: .i32 idx :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_setCellStepRes-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
       .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (a.setCellStepRes idx val), u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 val :: .i32 idx :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_setCellStepRes-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
       .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.setCellStepRes idx val)) := rfl
@@ -882,12 +882,12 @@ private theorem stepStatic_flat_setL4StepRes
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
     stepInvokeStatic ⟨pc, .i64 val :: .i32 idx :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_setL4StepRes-c82oGLE"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;IJ)V" =
       .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (a.setL4StepRes idx val), u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i64 val :: .i32 idx :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_setL4StepRes-c82oGLE"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;IJ)V" =
       .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.setL4StepRes idx val)) := rfl
@@ -898,12 +898,12 @@ private theorem stepStatic_flat_setOverflow
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
     stepInvokeStatic ⟨pc, (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_setOverflow"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;)V" =
       .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id a.setOverflow, u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_setOverflow"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;)V" =
       .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.setOverflow)) := rfl
@@ -914,12 +914,12 @@ private theorem stepStatic_flat_expandFrame
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
     stepInvokeStatic ⟨pc, .i32 base :: .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_expandFrame-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
       .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (a.expandFrame nodeId base), u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 base :: .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_expandFrame-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
       .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.expandFrame nodeId base)) := rfl
@@ -930,12 +930,12 @@ private theorem stepStatic_flat_initRemapL4Loop
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
     stepInvokeStatic ⟨pc, .i32 limit :: .i32 i :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_initRemapL4Loop-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
       .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (a.initRemapL4Loop i limit), u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 limit :: .i32 i :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_initRemapL4Loop-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
       .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.initRemapL4Loop i limit)) := rfl
@@ -946,12 +946,12 @@ private theorem stepStatic_flat_initRemapCellLoop
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
     stepInvokeStatic ⟨pc, .i32 limit :: .i32 i :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_initRemapCellLoop-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
       .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (a.initRemapCellLoop i limit), u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 limit :: .i32 i :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_initRemapCellLoop-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
       .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.initRemapCellLoop i limit)) := rfl
@@ -962,12 +962,12 @@ private theorem stepStatic_flat_stepCellSerialLoop
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
     stepInvokeStatic ⟨pc, .i32 fuel :: .i32 limit :: .i32 sp :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_stepCellSerialLoop-7IvYBaQ"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;III)V" =
       .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (a.stepCellSerialLoop sp limit fuel), u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 fuel :: .i32 limit :: .i32 sp :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_stepCellSerialLoop-7IvYBaQ"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;III)V" =
       .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.stepCellSerialLoop sp limit fuel)) := rfl
@@ -978,13 +978,13 @@ private theorem stepStatic_flat_copyL4From
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {dst src : Algorithm.FlatHashLifeArena} (hdst : ar[dstId]? = some dst) (hsrc : ar[srcId]? = some src) :
     stepInvokeStatic ⟨pc, .i32 copyMemos :: .i32 l4Id :: (.ext (.arenaRef srcId)) :: (.ext (.arenaRef dstId)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_copyL4From-BzPDsQc"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;IZ)I" =
       .inl (some ⟨pc + 1,
         .i32 (dst.copyL4From src l4Id (copyMemos != 0)).1 :: rest, locs, jh, ⟨ar.set dstId (dst.copyL4From src l4Id (copyMemos != 0)).2, u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 copyMemos :: .i32 l4Id :: (.ext (.arenaRef srcId)) :: (.ext (.arenaRef dstId)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_copyL4From-BzPDsQc"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;IZ)I" =
       match ar[dstId]?, ar[srcId]? with
@@ -1001,14 +1001,14 @@ private theorem stepStatic_flat_copyCellFromLoop
     (hdst : ar[dstId]? = some dst) (hsrc : ar[srcId]? = some src) :
     stepInvokeStatic ⟨pc, .i32 fuel :: .i32 sp :: .i32 stackBase :: .i32 copyMemos :: (.ext (.arenaRef srcId)) :: (.ext (.arenaRef dstId)) :: rest,
         locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_copyCellFromLoop-sA3nruY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;ZIII)V" =
       .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set dstId (dst.copyCellFromLoop src (copyMemos != 0) stackBase sp fuel),
         u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 fuel :: .i32 sp :: .i32 stackBase :: .i32 copyMemos :: (.ext (.arenaRef srcId)) :: (.ext (.arenaRef dstId)) :: rest,
         locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_copyCellFromLoop-sA3nruY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;ZIII)V" =
       match ar[dstId]?, ar[srcId]? with
@@ -1235,12 +1235,12 @@ private theorem stepStatic_flat_expandFrameIfNeeded
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
     stepInvokeStatic ⟨pc, .i32 base :: .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_expandFrameIfNeeded-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
       .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar.set id (a.expandFrameIfNeeded nodeId base), u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 base :: .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_expandFrameIfNeeded-BltQuoY"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;II)V" =
       .inl (updateArena ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩ id (fun a => a.expandFrameIfNeeded nodeId base)) := rfl
@@ -1251,13 +1251,13 @@ private theorem stepStatic_flat_combineQuadrants
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {a : Algorithm.FlatHashLifeArena} (har : ar[id]? = some a) :
     stepInvokeStatic ⟨pc, .i32 se :: .i32 sw :: .i32 ne :: .i32 nw :: .i32 lvl :: .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_combineQuadrants-t447iZE"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;IBIIII)I" =
       .inl (some ⟨pc + 1,
         .i32 (a.combineQuadrants nodeId lvl.toUInt8 nw ne sw se).1 :: rest, locs, jh, ⟨ar.set id (a.combineQuadrants nodeId lvl.toUInt8 nw ne sw se).2, u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 se :: .i32 sw :: .i32 ne :: .i32 nw :: .i32 lvl :: .i32 nodeId :: (.ext (.arenaRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_FlatHashLifeArena_combineQuadrants-t447iZE"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;IBIIII)I" =
       match ar[id]? with
@@ -1272,13 +1272,13 @@ private theorem stepStatic_flat_copyCellTryStep
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {dst src : Algorithm.FlatHashLifeArena} (hdst : ar[dstId]? = some dst) (hsrc : ar[srcId]? = some src) :
     stepInvokeStatic ⟨pc, .i32 copyMemos :: .i32 cellId :: (.ext (.arenaRef srcId)) :: (.ext (.arenaRef dstId)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_copyCellTryStep-BzPDsQc"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;IZ)I" =
       .inl (some ⟨pc + 1,
         .i32 (Algorithm.copyCellTryStep dst src cellId (copyMemos != 0)).1 :: rest, locs, jh, ⟨ar.set dstId (Algorithm.copyCellTryStep dst src cellId (copyMemos != 0)).2, u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 copyMemos :: .i32 cellId :: (.ext (.arenaRef srcId)) :: (.ext (.arenaRef dstId)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_copyCellTryStep-BzPDsQc"
       "(Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;Lcom/alexvanyo/composelife/algorithm/FlatHashLifeArena;IZ)I" =
       match ar[dstId]?, ar[srcId]? with
@@ -1292,7 +1292,7 @@ private theorem stepStatic_flat_leafContains
     {pc : Nat} {y x : UInt32} {leaf : UInt64} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
     stepInvokeStatic ⟨pc, .i32 y :: .i32 x :: .i64 leaf :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "FlatHashLifeLeanKt"
+      "com/alexvanyo/composelife/algorithm/FlatHashLifeLeanKt"
       "f_Algorithm_leafContains-fMEO4hA" "(JII)Z" =
       .inl (some ⟨pc + 1, .i32 (if Algorithm.leafContains leaf x y then 1 else 0) :: rest,
         locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
@@ -1301,7 +1301,7 @@ private theorem stepStatic_makeCellNode
     {pc : Nat} {se sw ne nw : Algorithm.MacroCell} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
     stepInvokeStatic ⟨pc, (.ext (.mc se)) :: (.ext (.mc sw)) :: (.ext (.mc ne)) :: (.ext (.mc nw)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "MacroCellLeanKt"
+      "com/alexvanyo/composelife/model/MacroCellLeanKt"
       "f_Algorithm_makeCellNode"
       "(Lcom/alexvanyo/composelife/model/MacroCell;Lcom/alexvanyo/composelife/model/MacroCell;Lcom/alexvanyo/composelife/model/MacroCell;Lcom/alexvanyo/composelife/model/MacroCell;)Lcom/alexvanyo/composelife/model/MacroCell;" =
       .inl (some ⟨pc + 1, (.ext (.mc (Algorithm.makeCellNode nw ne sw se))) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
@@ -1310,7 +1310,7 @@ private theorem stepStatic_decodeCharAt
     {pc : Nat} {limit p : UInt32} {bytes : ByteArray} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
     stepInvokeStatic ⟨pc, .i32 limit :: .i32 p :: (.ext (.byteArr bytes)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "PlaintextLeanKt"
+      "com/alexvanyo/composelife/model/PlaintextLeanKt"
       "f_Algorithm_decodeCharAt-BltQuoY" "([BII)Lkotlin/Pair;" =
       .inl (some ⟨pc + 1,
         .pair (.boxedUInt (Algorithm.decodeCharAt bytes p limit).1)
@@ -1321,7 +1321,7 @@ private theorem stepStatic_formatCoordLine
     {pc : Nat} {y x : UInt32} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
     stepInvokeStatic ⟨pc, .i32 y :: .i32 x :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "Life106LeanKt"
+      "com/alexvanyo/composelife/model/Life106LeanKt"
       "f_Algorithm_formatCoordLine-feOb9K0" "(II)Ljava/lang/String;" =
       .inl (some ⟨pc + 1, .str (Algorithm.formatCoordLine x y) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
 
@@ -1330,7 +1330,7 @@ private theorem stepStatic_growBufPush_105
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena}
     {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
     stepInvokeStatic ⟨pc, .str s :: (.ext (.strGrowBuf b)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "Life105LeanKt"
+      "com/alexvanyo/composelife/model/Life105LeanKt"
       "f_Algorithm_GrowBuf_push___redArg" "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, (.ext (.strGrowBuf (b.push s))) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
 
@@ -1339,7 +1339,7 @@ private theorem stepStatic_growBufPush_106
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena}
     {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
     stepInvokeStatic ⟨pc, .str s :: (.ext (.strGrowBuf b)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "Life106LeanKt"
+      "com/alexvanyo/composelife/model/Life106LeanKt"
       "f_Algorithm_GrowBuf_push___redArg" "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, (.ext (.strGrowBuf (b.push s))) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
 
@@ -1348,7 +1348,7 @@ private theorem stepStatic_growBufPush_plain
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena}
     {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
     stepInvokeStatic ⟨pc, .str s :: (.ext (.strGrowBuf b)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "PlaintextLeanKt"
+      "com/alexvanyo/composelife/model/PlaintextLeanKt"
       "f_Algorithm_GrowBuf_push___redArg" "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, (.ext (.strGrowBuf (b.push s))) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
 
@@ -1357,12 +1357,12 @@ theorem stepStatic_u64BufPush_105
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {arr : Array UInt64} (hu : u64[id]? = some arr) :
     stepInvokeStatic ⟨pc, .i64 x :: (.ext (.u64Ref id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "Life105LeanKt"
+      "com/alexvanyo/composelife/model/Life105LeanKt"
       "f_Algorithm_U64Buf_push-3yFGk1Y" "([JJ)[J" =
       .inl (some ⟨pc + 1, (.ext (.u64Ref u64.length)) :: rest, locs, jh, ⟨ar,
         u64 ++ [Algorithm.U64Buf.push arr x], asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i64 x :: (.ext (.u64Ref id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "Life105LeanKt"
+      "com/alexvanyo/composelife/model/Life105LeanKt"
       "f_Algorithm_U64Buf_push-3yFGk1Y" "([JJ)[J" =
       match u64[id]? with
       | some arr => .inl (some ⟨pc + 1, (.ext (.u64Ref u64.length)) :: rest, locs, jh, ⟨ar,
@@ -1375,11 +1375,11 @@ private theorem stepStatic_asciiToStringRange_105
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {g : Algorithm.AsciiBytes} (hasc : asc[id]? = some g) :
     stepInvokeStatic ⟨pc, .i32 e :: .i32 s :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "Life105LeanKt"
+      "com/alexvanyo/composelife/model/Life105LeanKt"
       "f_Algorithm_AsciiBytes_toStringRange-BltQuoY" "([BII)Ljava/lang/String;" =
       .inl (some ⟨pc + 1, .str (g.toStringRange s e) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 e :: .i32 s :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "Life105LeanKt"
+      "com/alexvanyo/composelife/model/Life105LeanKt"
       "f_Algorithm_AsciiBytes_toStringRange-BltQuoY" "([BII)Ljava/lang/String;" =
       match asc[id]? with
       | some g => .inl (some ⟨pc + 1, .str (g.toStringRange s e) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩)
@@ -1391,11 +1391,11 @@ private theorem stepStatic_asciiToStringRange_plain
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {g : Algorithm.AsciiBytes} (hasc : asc[id]? = some g) :
     stepInvokeStatic ⟨pc, .i32 e :: .i32 s :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "PlaintextLeanKt"
+      "com/alexvanyo/composelife/model/PlaintextLeanKt"
       "f_Algorithm_AsciiBytes_toStringRange-BltQuoY" "([BII)Ljava/lang/String;" =
       .inl (some ⟨pc + 1, .str (g.toStringRange s e) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 e :: .i32 s :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "PlaintextLeanKt"
+      "com/alexvanyo/composelife/model/PlaintextLeanKt"
       "f_Algorithm_AsciiBytes_toStringRange-BltQuoY" "([BII)Ljava/lang/String;" =
       match asc[id]? with
       | some g => .inl (some ⟨pc + 1, .str (g.toStringRange s e) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩)
@@ -1407,11 +1407,11 @@ theorem stepStatic_asciiSet_105
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {g : Algorithm.AsciiBytes} (hasc : asc[id]? = some g) (hb : v.toUInt8 < 128) :
     stepInvokeStatic ⟨pc, .i32 v :: .i32 i :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "Life105LeanKt"
+      "com/alexvanyo/composelife/model/Life105LeanKt"
       "f_Algorithm_AsciiBytes_set___redArg-snO9OKE" "([BIB)V" =
       .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar, u64, asc.set id (g.set i v.toUInt8 hb)⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 v :: .i32 i :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "Life105LeanKt"
+      "com/alexvanyo/composelife/model/Life105LeanKt"
       "f_Algorithm_AsciiBytes_set___redArg-snO9OKE" "([BIB)V" =
       match asc[id]? with
       | some g =>
@@ -1426,11 +1426,11 @@ theorem stepStatic_asciiSet_plain
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {g : Algorithm.AsciiBytes} (hasc : asc[id]? = some g) (hb : v.toUInt8 < 128) :
     stepInvokeStatic ⟨pc, .i32 v :: .i32 i :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "PlaintextLeanKt"
+      "com/alexvanyo/composelife/model/PlaintextLeanKt"
       "f_Algorithm_AsciiBytes_set___redArg-snO9OKE" "([BIB)V" =
       .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar, u64, asc.set id (g.set i v.toUInt8 hb)⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 v :: .i32 i :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "PlaintextLeanKt"
+      "com/alexvanyo/composelife/model/PlaintextLeanKt"
       "f_Algorithm_AsciiBytes_set___redArg-snO9OKE" "([BIB)V" =
       match asc[id]? with
       | some g =>
@@ -1445,11 +1445,11 @@ theorem stepStatic_asciiSet_rle
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {g : Algorithm.AsciiBytes} (hasc : asc[id]? = some g) (hb : v.toUInt8 < 128) :
     stepInvokeStatic ⟨pc, .i32 v :: .i32 i :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "RleLeanKt"
+      "com/alexvanyo/composelife/model/RleLeanKt"
       "f_Algorithm_AsciiBytes_set___redArg-snO9OKE" "([BIB)V" =
       .inl (some ⟨pc + 1, rest, locs, jh, ⟨ar, u64, asc.set id (g.set i v.toUInt8 hb)⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 v :: .i32 i :: (.ext (.asciiRef id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "RleLeanKt"
+      "com/alexvanyo/composelife/model/RleLeanKt"
       "f_Algorithm_AsciiBytes_set___redArg-snO9OKE" "([BIB)V" =
       match asc[id]? with
       | some g =>
@@ -1472,7 +1472,7 @@ private theorem stepStatic_makeLevel4Node
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena}
     {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
     stepInvokeStatic ⟨pc, .i64 se :: .i64 sw :: .i64 ne :: .i64 nw :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "MacroCellLeanKt" "f_Algorithm_makeLevel4Node-2jIhpxI" "(JJJJ)Lcom/alexvanyo/composelife/model/MacroCell;" =
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_makeLevel4Node-2jIhpxI" "(JJJJ)Lcom/alexvanyo/composelife/model/MacroCell;" =
       .inl (some ⟨pc + 1, .ext (.mc (Algorithm.makeLevel4Node nw ne sw se)) :: rest,
         locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
 
@@ -1481,7 +1481,7 @@ private theorem stepStatic_computeNextGen4x4BitwiseUInt
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena}
     {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} :
     stepInvokeStatic ⟨pc, .i32 w :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "AlgorithmLeanKt" "f_Algorithm_computeNextGen4x4BitwiseUInt-WZ4Q5Ns" "(I)I" =
+      "com/alexvanyo/composelife/algorithm/AlgorithmLeanKt" "f_Algorithm_computeNextGen4x4BitwiseUInt-WZ4Q5Ns" "(I)I" =
       .inl (some ⟨pc + 1, .i32 (Algorithm.computeNextGen4x4BitwiseUInt w) :: rest,
         locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
 
@@ -1489,13 +1489,13 @@ theorem stepStatic_getNextGen4x4Lut
     {pc : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena}
     {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} {lutAddr : Nat}
-    (hlut : jh.getStatic? "AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" = some (.heapRef lutAddr)) :
+    (hlut : jh.getStatic? "com/alexvanyo/composelife/algorithm/AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" = some (.heapRef lutAddr)) :
     stepInvokeStatic ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "AlgorithmLeanKt" "getNEXT_GEN_4X4_LUT" "()[B" =
+      "com/alexvanyo/composelife/algorithm/AlgorithmLeanKt" "getNEXT_GEN_4X4_LUT" "()[B" =
       .inl (some ⟨pc + 1, .heapRef lutAddr :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "AlgorithmLeanKt" "getNEXT_GEN_4X4_LUT" "()[B" =
-      match jh.getStatic? "AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" with
+      "com/alexvanyo/composelife/algorithm/AlgorithmLeanKt" "getNEXT_GEN_4X4_LUT" "()[B" =
+      match jh.getStatic? "com/alexvanyo/composelife/algorithm/AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" with
       | some v => .inl (some ⟨pc + 1, v :: rest, locs, jh, ⟨ar, u64, asc⟩⟩)
       | none => .inr none := rfl
   rw [hfn, hlut]
@@ -1504,13 +1504,13 @@ theorem stepStatic_getNextGen4x4LutPkg
     {pc : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena}
     {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} {lutAddr : Nat}
-    (hlut : jh.getStatic? "AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" = some (.heapRef lutAddr)) :
+    (hlut : jh.getStatic? "com/alexvanyo/composelife/algorithm/AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" = some (.heapRef lutAddr)) :
     stepInvokeStatic ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "com/alexvanyo/composelife/algorithm/AlgorithmLeanKt" "getNEXT_GEN_4X4_LUT" "()[B" =
       .inl (some ⟨pc + 1, .heapRef lutAddr :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩
       "com/alexvanyo/composelife/algorithm/AlgorithmLeanKt" "getNEXT_GEN_4X4_LUT" "()[B" =
-      match jh.getStatic? "AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" with
+      match jh.getStatic? "com/alexvanyo/composelife/algorithm/AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" with
       | some v => .inl (some ⟨pc + 1, v :: rest, locs, jh, ⟨ar, u64, asc⟩⟩)
       | none => .inr none := rfl
   rw [hfn, hlut]
@@ -1519,14 +1519,14 @@ theorem stepStatic_getEmptyLevel4
     {pc : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena}
     {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
-    (hl4 : jh.getStatic? "MacroCellLeanKt" "EMPTY_LEVEL_4" = some (.ext (.mc Algorithm.emptyLevel4))) :
+    (hl4 : jh.getStatic? "com/alexvanyo/composelife/model/MacroCellLeanKt" "EMPTY_LEVEL_4" = some (.ext (.mc Algorithm.emptyLevel4))) :
     stepInvokeStatic ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "MacroCellLeanKt" "getEMPTY_LEVEL_4" "()Lcom/alexvanyo/composelife/model/MacroCell$Level4Node;" =
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "getEMPTY_LEVEL_4" "()Lcom/alexvanyo/composelife/model/MacroCell$Level4Node;" =
       .inl (some ⟨pc + 1, .ext (.mc Algorithm.emptyLevel4) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "MacroCellLeanKt" "getEMPTY_LEVEL_4" "()Lcom/alexvanyo/composelife/model/MacroCell$Level4Node;" =
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "getEMPTY_LEVEL_4" "()Lcom/alexvanyo/composelife/model/MacroCell$Level4Node;" =
       .inl (some ⟨pc + 1,
-        ((jh.getStatic? "MacroCellLeanKt" "EMPTY_LEVEL_4").getD (.ext (.mc Algorithm.emptyLevel4))) :: rest,
+        ((jh.getStatic? "com/alexvanyo/composelife/model/MacroCellLeanKt" "EMPTY_LEVEL_4").getD (.ext (.mc Algorithm.emptyLevel4))) :: rest,
         locs, jh, ⟨ar, u64, asc⟩⟩) := rfl
   rw [hfn, hl4]; rfl
 
@@ -1534,13 +1534,13 @@ theorem stepStatic_getEmptyNodes
     {pc : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena}
     {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes} {nodesAddr : Nat}
-    (hnodes : jh.getStatic? "MacroCellLeanKt" "EMPTY_NODES" = some (.heapRef nodesAddr)) :
+    (hnodes : jh.getStatic? "com/alexvanyo/composelife/model/MacroCellLeanKt" "EMPTY_NODES" = some (.heapRef nodesAddr)) :
     stepInvokeStatic ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "MacroCellLeanKt" "getEMPTY_NODES" "()[Lcom/alexvanyo/composelife/model/MacroCell;" =
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "getEMPTY_NODES" "()[Lcom/alexvanyo/composelife/model/MacroCell;" =
       .inl (some ⟨pc + 1, .heapRef nodesAddr :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
   have hfn : stepInvokeStatic ⟨pc, rest, locs, jh, ⟨ar, u64, asc⟩⟩
-      "MacroCellLeanKt" "getEMPTY_NODES" "()[Lcom/alexvanyo/composelife/model/MacroCell;" =
-      match jh.getStatic? "MacroCellLeanKt" "EMPTY_NODES" with
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "getEMPTY_NODES" "()[Lcom/alexvanyo/composelife/model/MacroCell;" =
+      match jh.getStatic? "com/alexvanyo/composelife/model/MacroCellLeanKt" "EMPTY_NODES" with
       | some v => .inl (some ⟨pc + 1, v :: rest, locs, jh, ⟨ar, u64, asc⟩⟩)
       | none => .inr none := rfl
   rw [hfn, hnodes]
@@ -1812,23 +1812,23 @@ private def flatInvokeLookup :
     [(``stepStatic_makeLevel4Node, 0)]
   | ``Jvm.JvmInstr.invokestatic, "kotlin/ranges/RangesKt", "coerceIn", _ =>
     [(``stepStatic_coerceIn, 0)]
-  | ``Jvm.JvmInstr.invokestatic, "AlgorithmLeanKt", "f_Algorithm_computeNextGen4x4BitwiseUInt-WZ4Q5Ns", _ =>
+  | ``Jvm.JvmInstr.invokestatic, "com/alexvanyo/composelife/algorithm/AlgorithmLeanKt", "f_Algorithm_computeNextGen4x4BitwiseUInt-WZ4Q5Ns", _ =>
     [(``stepStatic_computeNextGen4x4BitwiseUInt, 0)]
   | ``Jvm.JvmInstr.invokestatic, _, "f_Algorithm_decodeCharAt-BltQuoY", _ =>
     [(``stepStatic_decodeCharAt, 0)]
   | ``Jvm.JvmInstr.invokestatic, _, "f_Algorithm_formatCoordLine-feOb9K0", _ =>
     [(``stepStatic_formatCoordLine, 0)]
-  | ``Jvm.JvmInstr.invokestatic, "Life105LeanKt", "f_Algorithm_U64Buf_push-3yFGk1Y", _ =>
+  | ``Jvm.JvmInstr.invokestatic, "com/alexvanyo/composelife/model/Life105LeanKt", "f_Algorithm_U64Buf_push-3yFGk1Y", _ =>
     [(``stepStatic_u64BufPush_105, 1)]
-  | ``Jvm.JvmInstr.invokestatic, "Life105LeanKt", "f_Algorithm_AsciiBytes_toStringRange-BltQuoY", _ =>
+  | ``Jvm.JvmInstr.invokestatic, "com/alexvanyo/composelife/model/Life105LeanKt", "f_Algorithm_AsciiBytes_toStringRange-BltQuoY", _ =>
     [(``stepStatic_asciiToStringRange_105, 1)]
-  | ``Jvm.JvmInstr.invokestatic, "PlaintextLeanKt", "f_Algorithm_AsciiBytes_toStringRange-BltQuoY", _ =>
+  | ``Jvm.JvmInstr.invokestatic, "com/alexvanyo/composelife/model/PlaintextLeanKt", "f_Algorithm_AsciiBytes_toStringRange-BltQuoY", _ =>
     [(``stepStatic_asciiToStringRange_plain, 1)]
-  | ``Jvm.JvmInstr.invokestatic, "Life105LeanKt", "f_Algorithm_GrowBuf_push___redArg", _ =>
+  | ``Jvm.JvmInstr.invokestatic, "com/alexvanyo/composelife/model/Life105LeanKt", "f_Algorithm_GrowBuf_push___redArg", _ =>
     [(``stepStatic_growBufPush_105, 0)]
-  | ``Jvm.JvmInstr.invokestatic, "Life106LeanKt", "f_Algorithm_GrowBuf_push___redArg", _ =>
+  | ``Jvm.JvmInstr.invokestatic, "com/alexvanyo/composelife/model/Life106LeanKt", "f_Algorithm_GrowBuf_push___redArg", _ =>
     [(``stepStatic_growBufPush_106, 0)]
-  | ``Jvm.JvmInstr.invokestatic, "PlaintextLeanKt", "f_Algorithm_GrowBuf_push___redArg", _ =>
+  | ``Jvm.JvmInstr.invokestatic, "com/alexvanyo/composelife/model/PlaintextLeanKt", "f_Algorithm_GrowBuf_push___redArg", _ =>
     [(``stepStatic_growBufPush_plain, 0)]
   | _, _, _, _ => []
 

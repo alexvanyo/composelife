@@ -229,7 +229,12 @@ fun formatDisplayLine(state: CalculatorState): String = when (state.error) {
         val op = state.pendingOp
         val lhs = state.pendingOperand
         if (op != null && lhs != null) {
-            "$lhs ${op.symbol} ${state.displayValue}"
+            // Until a second operand is typed, `displayValue` is still the left operand: show only `lhs op`.
+            if (state.enteringNewNumber) {
+                "$lhs ${op.symbol}"
+            } else {
+                "$lhs ${op.symbol} ${state.displayValue}"
+            }
         } else {
             state.displayValue.toString()
         }

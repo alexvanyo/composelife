@@ -31,6 +31,33 @@ def isJvmBvCheckAxiom (env : Environment) (a : Name) : Bool :=
         (info.type.getArg! 2).isConstOf ``Bool.true
     | _ => false
 
+open Lean Meta in
+private unsafe def evalBoolUnsafe (e : Expr) : MetaM Bool :=
+  evalExpr Bool (mkConst ``Bool) e
+
+open Lean Meta in
+@[implemented_by evalBoolUnsafe]
+private opaque evalBool (e : Expr) : MetaM Bool
+
+open Lean Meta in
+/--
+`isJvmBvCheckAxiom`, and the axiom's certificate actually checks: re-runs the compiled LRAT checker on the
+`verifyBVExpr e cert` it asserts. An axiom of that name and shape added by other means (say a metaprogram) with a
+false certificate is rejected rather than trusted.
+-/
+def isVerifiedJvmBvCheckAxiom (a : Name) : MetaM Bool := do
+  let env ← getEnv
+  unless isJvmBvCheckAxiom env a do return false
+  let some (.axiomInfo info) := env.find? a | return false
+  evalBool (info.type.getArg! 1)
+
+open Lean in
+/-- The axioms of `n` outside `propext`, `Classical.choice`, `Quot.sound` and verified `bv_check` axioms. -/
+def nonStandardAxioms (n : Name) : MetaM (Array Name) := do
+  let allowed : List Name := [``propext, ``Classical.choice, ``Quot.sound]
+  let axioms ← Lean.collectAxioms n
+  axioms.filterM fun a => return !allowed.contains a && !(← isVerifiedJvmBvCheckAxiom a)
+
 open Lean in
 private def isJvmExecConst (c : Name) : Bool :=
   let s : String := toString c
@@ -38,10 +65,26 @@ private def isJvmExecConst (c : Name) : Bool :=
     s.endsWith "runJvmFast" || s.endsWith "runJvmResFast" || s.endsWith "runJvmValFast"
 
 open Lean in
-def isNonTrivialTheoremType (ty : Expr) : Bool := Id.run do
+/-- What a theorem statement concludes: `ty` with every leading `∀`/`→` binder stripped. -/
+def theoremConclusion (ty : Expr) : Expr := Id.run do
   let mut cur := ty
   while cur.isForall do
     cur := cur.bindingBody!
+  return cur
+
+open Lean in
+/-- The types of a theorem statement's leading binders: its parameters and hypotheses. -/
+def theoremBinderTypes (ty : Expr) : Array Expr := Id.run do
+  let mut cur := ty
+  let mut out := #[]
+  while cur.isForall do
+    out := out.push cur.bindingDomain!
+    cur := cur.bindingBody!
+  return out
+
+open Lean in
+def isNonTrivialTheoremType (ty : Expr) : Bool := Id.run do
+  let cur := theoremConclusion ty
   if cur.isConstOf ``True then
     return false
   if cur.isAppOfArity ``Eq 3 && cur.getArg! 1 == cur.getArg! 2 then
@@ -49,7 +92,8 @@ def isNonTrivialTheoremType (ty : Expr) : Bool := Id.run do
   return true
 
 open Lean in
-private def executesProg (ty : Expr) (progName : Name) : Bool :=
+/-- Whether `ty` contains a `runJvm*` application with `progName` in its arguments. -/
+def executesProg (ty : Expr) (progName : Name) : Bool :=
   (ty.find? fun e =>
     e.isApp &&
     (match e.getAppFn.constName? with
@@ -60,13 +104,22 @@ private def executesProg (ty : Expr) (progName : Name) : Bool :=
 def referencesJvmExec (consts : Array Lean.Name) : Bool :=
   consts.any isJvmExecConst
 
+open Lean in
+/--
+Whether theorem statement `ty` establishes the execution of `progName`: its conclusion runs the program, and no
+hypothesis already assumes something about running it (which would make the theorem circular or vacuous).
+-/
+def provesExecutionOf (ty : Expr) (progName : Name) : Bool :=
+  isNonTrivialTheoremType ty &&
+    executesProg (theoremConclusion ty) progName &&
+    !(theoremBinderTypes ty).any (executesProg · progName)
+
 open Lean Elab Command in
 /-- Audits all JVM equivalence theorems in `verifNs` and ensures every `_prog` in `bytecodeNs` is covered. -/
 elab "#audit_jvm_equiv_axioms" verifNs:ident bytecodeNs:ident : command => do
   let env ← getEnv
   let verifPrefix := verifNs.getId
   let bytecodePrefix := bytecodeNs.getId
-  let allowed : List Name := [``propext, ``Classical.choice, ``Quot.sound]
   let mut count := 0
   let mut provenProgs : NameSet := {}
   let mut bytecodeProgs := 0
@@ -79,12 +132,11 @@ elab "#audit_jvm_equiv_axioms" verifNs:ident bytecodeNs:ident : command => do
     unless ci matches .thmInfo _ do continue
     count := count + 1
     let used := ci.type.getUsedConstants
-    if referencesJvmExec used && isNonTrivialTheoremType ci.type then
+    if referencesJvmExec used then
       for c in used do
-        if bytecodePrefix.isPrefixOf c && executesProg ci.type c then
+        if bytecodePrefix.isPrefixOf c && provesExecutionOf ci.type c then
           provenProgs := provenProgs.insert c
-    let axioms ← liftCoreM <| Lean.collectAxioms n
-    let bad := axioms.filter (fun a => !allowed.contains a && !isJvmBvCheckAxiom env a)
+    let bad ← liftTermElabM <| nonStandardAxioms n
     unless bad.isEmpty do
       logError m!"JVM equivalence theorem {n} depends on non-standard axioms: {bad.toList}"
   if count == 0 then
@@ -104,7 +156,6 @@ open Lean Elab Command in
 /-- Shared checker for axiom hygiene across module master theorems and mutation proofs. -/
 def checkMasterTheoremAxioms (isMaster : Name → Bool) : CommandElabM Unit := do
   let env ← getEnv
-  let allowed : List Name := [``propext, ``Classical.choice, ``Quot.sound]
   let mut count := 0
   for (n, ci) in env.constants.toList do
     let some modIdx := env.getModuleIdxFor? n | continue
@@ -113,8 +164,7 @@ def checkMasterTheoremAxioms (isMaster : Name → Bool) : CommandElabM Unit := d
     unless ci matches .thmInfo _ do continue
     if n.isInternal then continue
     count := count + 1
-    let axioms ← liftCoreM <| Lean.collectAxioms n
-    let bad := axioms.filter (fun a => !allowed.contains a && !isJvmBvCheckAxiom env a)
+    let bad ← liftTermElabM <| nonStandardAxioms n
     unless bad.isEmpty do
       logError m!"master theorem {n} depends on non-standard axioms: {bad.toList}"
   if count == 0 then

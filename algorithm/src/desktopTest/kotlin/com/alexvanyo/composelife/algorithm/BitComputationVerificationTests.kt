@@ -35,7 +35,7 @@ class BitComputationVerificationTests {
                 |theorem real_computeQuadInfo_implements_model
                 |    (q : UInt32) (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) :
                 |    ∃ r : UInt32,
-                |      runJvm 150 Algorithm.RealJvmBytecode.computeQuadInfo_prog
+                |      runJvm 150 Algorithm.RealJvmBytecode.BitComputationKt_computeQuadInfo_prog
                 |        (Jvm.initJvmState [(0, .i32 q)] (.i32 0) hp jh) = some (.i32 r) ∧
                 |      r = computeQuadInfoModel q ∧
                 |      (r &&& (0xF : UInt32) = Algorithm.extractCenterUInt q) ∧
@@ -51,8 +51,8 @@ class BitComputationVerificationTests {
                 |        (((q >>> 15) &&& (1 : UInt32)) ||| (((q >>> 10) &&& (1 : UInt32)) <<< 1) |||
                 |          (((q >>> 5) &&& (1 : UInt32)) <<< 2) ||| ((q &&& (1 : UInt32)) <<< 3))) ∧
                 |      r < 0x1000000 := by
-                |  have hprog : Algorithm.RealJvmBytecode.computeQuadInfo_prog =
-                |      Algorithm.KotlinJvmBytecode.computeQuadInfo_prog := rfl
+                |  have hprog : Algorithm.RealJvmBytecode.BitComputationKt_computeQuadInfo_prog =
+                |      Algorithm.KotlinJvmBytecode.BitComputationKt_computeQuadInfo_prog := rfl
                 |  rw [hprog]
                 |  rcases computeQuadInfoModel_bitSpec q with ⟨h1, h2, h3, h4, h5, h6, h7⟩
                 |  exact ⟨computeQuadInfoModel q, computeQuadInfo_equiv q jh hp, rfl, h1, h2, h3, h4, h5, h6, h7⟩
@@ -68,11 +68,11 @@ class BitComputationVerificationTests {
             leanBody = """
                 |theorem real_clinit_initializes_quad_info_lut :
                 |    ∃ st',
-                |      runJvmRes 800000 Algorithm.RealJvmBytecode.clinit_BitComputationKt_prog
+                |      runJvmRes 800000 Algorithm.RealJvmBytecode.BitComputationKt_clinit_prog
                 |        ⟨0, [], fun _ => .i32 0, {}, ⟨[], [], []⟩⟩ = some (.unit, st') ∧
                 |      HasQuadInfoLut st'.jvmHeap := by
-                |  have hprog : Algorithm.RealJvmBytecode.clinit_BitComputationKt_prog =
-                |      Algorithm.KotlinJvmBytecode.clinit_BitComputationKt_prog := rfl
+                |  have hprog : Algorithm.RealJvmBytecode.BitComputationKt_clinit_prog =
+                |      Algorithm.KotlinJvmBytecode.BitComputationKt_clinit_prog := rfl
                 |  rw [hprog]
                 |  exact clinit_BitComputationKt_equiv
             """.trimMargin(),
@@ -87,11 +87,11 @@ class BitComputationVerificationTests {
             leanBody = """
                 |theorem real_computeNextGen4x4_matches_conway_bitwise
                 |    (w : UInt32) (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (hlut : HasNextGen4x4Lut jh) :
-                |    runJvm 30 Algorithm.RealJvmBytecode.computeNextGen4x4_prog
+                |    runJvm 30 Algorithm.RealJvmBytecode.BitComputationKt_computeNextGen4x4_prog
                 |      (Jvm.initJvmState [(0, .i32 w)] (.i32 0) hp jh) =
                 |      some (.i32 (Algorithm.computeNextGen4x4BitwiseUInt (w &&& 0xFFFF) &&& 0xF)) := by
-                |  have hprog : Algorithm.RealJvmBytecode.computeNextGen4x4_prog =
-                |      Algorithm.KotlinJvmBytecode.computeNextGen4x4_prog := rfl
+                |  have hprog : Algorithm.RealJvmBytecode.BitComputationKt_computeNextGen4x4_prog =
+                |      Algorithm.KotlinJvmBytecode.BitComputationKt_computeNextGen4x4_prog := rfl
                 |  rw [hprog]
                 |  exact computeNextGen4x4_equiv w jh hp hlut
             """.trimMargin(),
@@ -110,19 +110,19 @@ class BitComputationVerificationTests {
                 |    (x y : Int) (hx : 2 ≤ x ∧ x < 6) (hy : 2 ≤ y ∧ y < 6)
                 |    (hc : c &&& ~~~outerCornerMask = 0) :
                 |    (∃ r : UInt32,
-                |      runJvm 250 Algorithm.RealJvmBytecode.computeNextGenerationPureKotlin_prog
+                |      runJvm 250 Algorithm.RealJvmBytecode.BitComputationKt_computeNextGenerationPureKotlin_prog
                 |        (Jvm.initJvmState [(0, .i64 w)] (.i32 0) hp jh) = some (.i32 r) ∧
                 |      r.toBitVec.getLsbD (Algorithm.mortonIndex4 (x - 2).toNat (y - 2).toNat) =
                 |        Algorithm.nextGenAt (Algorithm.leafAt w) x y ∧
                 |      r.toNat < 65536) ∧
-                |    runJvm 250 Algorithm.RealJvmBytecode.computeNextGenerationPureKotlin_prog
+                |    runJvm 250 Algorithm.RealJvmBytecode.BitComputationKt_computeNextGenerationPureKotlin_prog
                 |      (Jvm.initJvmState [(0, .i64 0)] (.i32 0) hp jh) = some (.i32 0) ∧
-                |    runJvm 250 Algorithm.RealJvmBytecode.computeNextGenerationPureKotlin_prog
+                |    runJvm 250 Algorithm.RealJvmBytecode.BitComputationKt_computeNextGenerationPureKotlin_prog
                 |      (Jvm.initJvmState [(0, .i64 (w ^^^ c))] (.i32 0) hp jh) =
-                |    runJvm 250 Algorithm.RealJvmBytecode.computeNextGenerationPureKotlin_prog
+                |    runJvm 250 Algorithm.RealJvmBytecode.BitComputationKt_computeNextGenerationPureKotlin_prog
                 |      (Jvm.initJvmState [(0, .i64 w)] (.i32 0) hp jh) := by
-                |  have hprog : Algorithm.RealJvmBytecode.computeNextGenerationPureKotlin_prog =
-                |      Algorithm.KotlinJvmBytecode.computeNextGenerationPureKotlin_prog := rfl
+                |  have hprog : Algorithm.RealJvmBytecode.BitComputationKt_computeNextGenerationPureKotlin_prog =
+                |      Algorithm.KotlinJvmBytecode.BitComputationKt_computeNextGenerationPureKotlin_prog := rfl
                 |  rw [hprog]
                 |  refine ⟨⟨computeNextGenerationPureKotlinModel w, ?_, ?_, ?_⟩, ?_, ?_⟩
                 |  · exact computeNextGenerationPureKotlin_equiv w jh hp hqi hng
@@ -145,11 +145,11 @@ class BitComputationVerificationTests {
                 |theorem real_ulong_computeNextGenerationPureKotlin_matches_life_fast
                 |    (w : UInt64) (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
                 |    (hqi : HasQuadInfoLut jh) (hng : HasNextGen4x4Lut jh) :
-                |    runJvm 10 Algorithm.RealJvmBytecode.computeNextGenerationPureKotlin_1_prog
+                |    runJvm 10 Algorithm.RealJvmBytecode.BitComputationKt_computeNextGenerationPureKotlin_1_prog
                 |      (Jvm.initJvmState [(0, .i64 w)] (.i32 0) hp jh) =
                 |      some (.i32 (Algorithm.computeLeafNextGen8x8FastUInt w)) := by
-                |  have hprog : Algorithm.RealJvmBytecode.computeNextGenerationPureKotlin_1_prog =
-                |      Algorithm.KotlinJvmBytecode.computeNextGenerationPureKotlin_1_prog := rfl
+                |  have hprog : Algorithm.RealJvmBytecode.BitComputationKt_computeNextGenerationPureKotlin_1_prog =
+                |      Algorithm.KotlinJvmBytecode.BitComputationKt_computeNextGenerationPureKotlin_1_prog := rfl
                 |  rw [hprog, computeNextGenerationPureKotlin_1_equiv w jh hp hqi hng,
                 |    computeNextGenerationPureKotlinModel_eq_fast w]
             """.trimMargin(),
@@ -163,11 +163,11 @@ class BitComputationVerificationTests {
             realBytecodeNamespace = "Algorithm.RealJvmBytecode",
             instrType = "Algorithm.JvmVerification.JvmInstr",
             requiredProgs = listOf(
-                "computeNextGen4x4_prog",
-                "computeQuadInfo_prog",
-                "computeNextGenerationPureKotlin_prog",
-                "computeNextGenerationPureKotlin_1_prog",
-                "clinit_BitComputationKt_prog",
+                "BitComputationKt_computeNextGen4x4_prog",
+                "BitComputationKt_computeQuadInfo_prog",
+                "BitComputationKt_computeNextGenerationPureKotlin_prog",
+                "BitComputationKt_computeNextGenerationPureKotlin_1_prog",
+                "BitComputationKt_clinit_prog",
             ),
             defaultImports = listOf(
                 "JvmSemantics",

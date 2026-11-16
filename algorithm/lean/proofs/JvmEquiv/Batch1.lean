@@ -22,16 +22,16 @@ namespace Algorithm.JvmVerification
 open Algorithm.JvmBytecode
 
 theorem cellToLeafBit_equiv (x y : UInt32) :
-    runJvm 60 f_Algorithm_cellToLeafBitUInt_prog (initJvmState [(0, .i32 x), (1, .i32 y)]) =
+    runJvm 60 FlatHashLifeLeanKt_f_Algorithm_cellToLeafBitUInt_prog (initJvmState [(0, .i32 x), (1, .i32 y)]) =
       some (.i32 (Algorithm.cellToLeafBitUInt x y)) := by rfl
 
 theorem cellNodeHash_equiv (l qnw qne qsw qse : UInt32) :
-    runJvm 70 f_Algorithm_cellNodeHash_prog
+    runJvm 70 FlatHashLifeLeanKt_f_Algorithm_cellNodeHash_prog
       (initJvmState [(0, .i32 l), (1, .i32 qnw), (2, .i32 qne), (3, .i32 qsw), (4, .i32 qse)]) =
       some (.i32 (Algorithm.cellNodeHash l qnw qne qsw qse)) := by rfl
 
 theorem level4Hash_equiv (qnw qne qsw qse : UInt64) :
-    runJvm 70 f_Algorithm_level4Hash_prog
+    runJvm 70 FlatHashLifeLeanKt_f_Algorithm_level4Hash_prog
       (initJvmState [(0, .i64 qnw), (2, .i64 qne), (4, .i64 qsw), (6, .i64 qse)]) =
       some (.i32 (Algorithm.level4Hash qnw qne qsw qse)) := by rfl
 
@@ -113,7 +113,7 @@ theorem stepOffsetDelta_equiv (lvl : UInt32) (h1 : 2 ≤ lvl) (h2 : lvl ≤ 30) 
   bv_check "../lrat/JvmEquiv.Algorithm.JvmVerification.stepOffsetDelta_equiv.lrat"
 
 theorem leafContains_equiv (leaf : UInt64) (x y : UInt32) :
-    runJvm 25 f_Algorithm_leafContains_prog (initJvmState [(0, .i64 leaf), (2, .i32 x), (3, .i32 y)]) =
+    runJvm 25 FlatHashLifeLeanKt_f_Algorithm_leafContains_prog (initJvmState [(0, .i64 leaf), (2, .i32 x), (3, .i32 y)]) =
       some (.i32 (if Algorithm.leafContains leaf x y then 1 else 0)) := by
   change some (JvmVal.i32 _) = some (JvmVal.i32 _)
   congr 2
@@ -122,7 +122,7 @@ theorem leafContains_equiv (leaf : UInt64) (x y : UInt32) :
   bv_check "../lrat/JvmEquiv.Algorithm.JvmVerification.leafContains_equiv.lrat"
 
 theorem leafWithCell_equiv (leaf : UInt64) (x y : UInt32) (isAlive : Bool) :
-    runJvm 35 f_Algorithm_leafWithCell_prog
+    runJvm 35 FlatHashLifeLeanKt_f_Algorithm_leafWithCell_prog
       (initJvmState [(0, .i64 leaf), (2, .i32 x), (3, .i32 y), (4, .i32 (if isAlive then 1 else 0))]) =
       some (.i64 (Algorithm.leafWithCell leaf x y isAlive)) := by
   change some (JvmVal.i64 _) = some (JvmVal.i64 _)
@@ -214,12 +214,12 @@ theorem cellsToMacroCell_closed2_equiv :
       some (.pair (.boxedULong 2147483648) (.pair (.boxedULong 2147483648) ((.ext (.mc (Algorithm.emptyAtHeight 1)))))) := by rfl
 
 theorem makeLevel4Node_equiv (nw ne sw se : UInt64) :
-    runJvm 25 f_Algorithm_makeLevel4Node_prog
+    runJvm 25 FlatHashLifeLeanKt_f_Algorithm_makeLevel4Node_prog
       (initJvmState [(0, .i64 nw), (2, .i64 ne), (4, .i64 sw), (6, .i64 se)]) =
       some ((.ext (.mc (Algorithm.makeLevel4Node nw ne sw se)))) := by rfl
 
 theorem makeCellNode_equiv (nw ne sw se : Algorithm.MacroCell) :
-    runJvm 60 f_Algorithm_makeCellNode_prog
+    runJvm 60 FlatHashLifeLeanKt_f_Algorithm_makeCellNode_prog
       (initJvmState [(0, (.ext (.mc nw))), (1, (.ext (.mc ne))), (2, (.ext (.mc sw))), (3, (.ext (.mc se)))]) =
       some ((.ext (.mc (Algorithm.makeCellNode nw ne sw se)))) := by rfl
 
@@ -337,7 +337,7 @@ private theorem stepStatic_arraysCopyOfRange_u64
   rfl
 
 private theorem u64buf_toArray_of_prog (prog : List JvmInstr)
-    (hprog : prog = f_Algorithm_U64Buf_toArray_prog)
+    (hprog : prog = Life105LeanKt_f_Algorithm_U64Buf_toArray_prog)
     (arr : Array UInt64) (h1 : 1 ≤ arr.size) (h2 : arr.size < 2 ^ 31)
     (h3 : arr[0]!.toUInt32.toNat + 1 ≤ arr.size) :
     runJvmRes 35 prog (initJvmState [(0, (.ext (.u64Ref 0)))] [] [arr]) =
@@ -355,7 +355,7 @@ private theorem u64buf_toArray_of_prog (prog : List JvmInstr)
     · rw [h01, hs]; omega
     · rw [hs]; omega
   apply runJvmRes_of_runJvmResFast0 _ _ _ _ rfl
-  dsimp only [initJvmState, Jvm.initJvmState, List.foldl, f_Algorithm_U64Buf_toArray_prog]
+  dsimp only [initJvmState, Jvm.initJvmState, List.foldl, Life105LeanKt_f_Algorithm_U64Buf_toArray_prog]
   rw [runJvmResFast_step_of_stepInstr' rfl (by simp) (hs := rfl) rfl]
   rw [runJvmResFast_step_of_stepInstr' rfl (by simp) (hs := rfl) rfl]
   rw [runJvmResFast_step_of_stepInstr' rfl (by simp) (hs := rfl) rfl]
@@ -398,74 +398,74 @@ private theorem u64buf_toArray_of_prog (prog : List JvmInstr)
 
 theorem u64Buf_toArray_equiv (arr : Array UInt64) (h1 : 1 ≤ arr.size) (h2 : arr.size < 2 ^ 31)
     (h3 : arr[0]!.toUInt32.toNat + 1 ≤ arr.size) :
-    runJvmRes 35 f_Algorithm_U64Buf_toArray_prog (initJvmState [(0, (.ext (.u64Ref 0)))] [] [arr]) =
+    runJvmRes 35 Life105LeanKt_f_Algorithm_U64Buf_toArray_prog (initJvmState [(0, (.ext (.u64Ref 0)))] [] [arr]) =
       some ((.ext (.u64Ref 1)), { (initJvmState [(0, (.ext (.u64Ref 0)))] [] [arr]) with
         pc := 24, stack := [(.ext (.u64Ref 1))], heap := { u64Arrays := [arr, Algorithm.U64Buf.toArray arr] } }) :=
-  u64buf_toArray_of_prog f_Algorithm_U64Buf_toArray_prog rfl arr h1 h2 h3
+  u64buf_toArray_of_prog Life105LeanKt_f_Algorithm_U64Buf_toArray_prog rfl arr h1 h2 h3
 
 theorem u64Buf_toArray_1_equiv (arr : Array UInt64) (h1 : 1 ≤ arr.size) (h2 : arr.size < 2 ^ 31)
     (h3 : arr[0]!.toUInt32.toNat + 1 ≤ arr.size) :
-    runJvmRes 35 f_Algorithm_U64Buf_toArray_1_prog (initJvmState [(0, (.ext (.u64Ref 0)))] [] [arr]) =
+    runJvmRes 35 Life106LeanKt_f_Algorithm_U64Buf_toArray_prog (initJvmState [(0, (.ext (.u64Ref 0)))] [] [arr]) =
       some ((.ext (.u64Ref 1)), { (initJvmState [(0, (.ext (.u64Ref 0)))] [] [arr]) with
         pc := 24, stack := [(.ext (.u64Ref 1))], heap := { u64Arrays := [arr, Algorithm.U64Buf.toArray arr] } }) :=
-  u64buf_toArray_of_prog f_Algorithm_U64Buf_toArray_1_prog rfl arr h1 h2 h3
+  u64buf_toArray_of_prog Life106LeanKt_f_Algorithm_U64Buf_toArray_prog rfl arr h1 h2 h3
 
 theorem u64Buf_toArray_2_equiv (arr : Array UInt64) (h1 : 1 ≤ arr.size) (h2 : arr.size < 2 ^ 31)
     (h3 : arr[0]!.toUInt32.toNat + 1 ≤ arr.size) :
-    runJvmRes 35 f_Algorithm_U64Buf_toArray_2_prog (initJvmState [(0, (.ext (.u64Ref 0)))] [] [arr]) =
+    runJvmRes 35 PlaintextLeanKt_f_Algorithm_U64Buf_toArray_prog (initJvmState [(0, (.ext (.u64Ref 0)))] [] [arr]) =
       some ((.ext (.u64Ref 1)), { (initJvmState [(0, (.ext (.u64Ref 0)))] [] [arr]) with
         pc := 24, stack := [(.ext (.u64Ref 1))], heap := { u64Arrays := [arr, Algorithm.U64Buf.toArray arr] } }) :=
-  u64buf_toArray_of_prog f_Algorithm_U64Buf_toArray_2_prog rfl arr h1 h2 h3
+  u64buf_toArray_of_prog PlaintextLeanKt_f_Algorithm_U64Buf_toArray_prog rfl arr h1 h2 h3
 
 theorem u64Buf_toArray_3_equiv (arr : Array UInt64) (h1 : 1 ≤ arr.size) (h2 : arr.size < 2 ^ 31)
     (h3 : arr[0]!.toUInt32.toNat + 1 ≤ arr.size) :
-    runJvmRes 35 f_Algorithm_U64Buf_toArray_3_prog (initJvmState [(0, (.ext (.u64Ref 0)))] [] [arr]) =
+    runJvmRes 35 RleLeanKt_f_Algorithm_U64Buf_toArray_prog (initJvmState [(0, (.ext (.u64Ref 0)))] [] [arr]) =
       some ((.ext (.u64Ref 1)), { (initJvmState [(0, (.ext (.u64Ref 0)))] [] [arr]) with
         pc := 24, stack := [(.ext (.u64Ref 1))], heap := { u64Arrays := [arr, Algorithm.U64Buf.toArray arr] } }) :=
-  u64buf_toArray_of_prog f_Algorithm_U64Buf_toArray_3_prog rfl arr h1 h2 h3
+  u64buf_toArray_of_prog RleLeanKt_f_Algorithm_U64Buf_toArray_prog rfl arr h1 h2 h3
 
 theorem noCells_equiv :
-    runJvmRes 10 f_Algorithm_noCells_prog (initJvmState []) =
+    runJvmRes 10 Life105LeanKt_f_Algorithm_noCells_prog (initJvmState []) =
       some ((.ext (.u64Ref 0)), { (initJvmState []) with pc := 2, stack := [(.ext (.u64Ref 0))], heap := { u64Arrays := [Algorithm.noCells] } }) := by rfl
 
 theorem noCells_1_equiv :
-    runJvmRes 10 f_Algorithm_noCells_1_prog (initJvmState []) =
+    runJvmRes 10 Life106LeanKt_f_Algorithm_noCells_prog (initJvmState []) =
       some ((.ext (.u64Ref 0)), { (initJvmState []) with pc := 2, stack := [(.ext (.u64Ref 0))], heap := { u64Arrays := [Algorithm.noCells] } }) := by rfl
 
 theorem noCells_2_equiv :
-    runJvmRes 10 f_Algorithm_noCells_2_prog (initJvmState []) =
+    runJvmRes 10 RleLeanKt_f_Algorithm_noCells_prog (initJvmState []) =
       some ((.ext (.u64Ref 0)), { (initJvmState []) with pc := 2, stack := [(.ext (.u64Ref 0))], heap := { u64Arrays := [Algorithm.noCells] } }) := by rfl
 
 theorem u64Buf_empty_equiv :
-    runJvmRes 10 f_Algorithm_U64Buf_empty_prog (initJvmState []) =
+    runJvmRes 10 Life105LeanKt_f_Algorithm_U64Buf_empty_prog (initJvmState []) =
       some ((.ext (.u64Ref 0)), { (initJvmState []) with pc := 2, stack := [(.ext (.u64Ref 0))], heap := { u64Arrays := [Algorithm.U64Buf.empty] } }) := by rfl
 
 theorem u64Buf_empty_1_equiv :
-    runJvmRes 10 f_Algorithm_U64Buf_empty_1_prog (initJvmState []) =
+    runJvmRes 10 Life106LeanKt_f_Algorithm_U64Buf_empty_prog (initJvmState []) =
       some ((.ext (.u64Ref 0)), { (initJvmState []) with pc := 2, stack := [(.ext (.u64Ref 0))], heap := { u64Arrays := [Algorithm.U64Buf.empty] } }) := by rfl
 
 theorem u64Buf_empty_2_equiv :
-    runJvmRes 10 f_Algorithm_U64Buf_empty_2_prog (initJvmState []) =
+    runJvmRes 10 MacroCellLeanKt_f_Algorithm_U64Buf_empty_prog (initJvmState []) =
       some ((.ext (.u64Ref 0)), { (initJvmState []) with pc := 2, stack := [(.ext (.u64Ref 0))], heap := { u64Arrays := [Algorithm.U64Buf.empty] } }) := by rfl
 
 theorem u64Buf_empty_3_equiv :
-    runJvmRes 10 f_Algorithm_U64Buf_empty_3_prog (initJvmState []) =
+    runJvmRes 10 PlaintextLeanKt_f_Algorithm_U64Buf_empty_prog (initJvmState []) =
       some ((.ext (.u64Ref 0)), { (initJvmState []) with pc := 2, stack := [(.ext (.u64Ref 0))], heap := { u64Arrays := [Algorithm.U64Buf.empty] } }) := by rfl
 
 theorem u64Buf_empty_4_equiv :
-    runJvmRes 10 f_Algorithm_U64Buf_empty_4_prog (initJvmState []) =
+    runJvmRes 10 RleLeanKt_f_Algorithm_U64Buf_empty_prog (initJvmState []) =
       some ((.ext (.u64Ref 0)), { (initJvmState []) with pc := 2, stack := [(.ext (.u64Ref 0))], heap := { u64Arrays := [Algorithm.U64Buf.empty] } }) := by rfl
 
 theorem uint32ToInt32_equiv (x : UInt32) :
-    runJvm 10 f_Algorithm_uint32ToInt32_prog (initJvmState [(0, .i32 x)]) =
+    runJvm 10 Life105LeanKt_f_Algorithm_uint32ToInt32_prog (initJvmState [(0, .i32 x)]) =
       some (.i32 (Algorithm.uint32ToInt32 x).toUInt32) := by rfl
 
 theorem uint32ToInt32_1_equiv (x : UInt32) :
-    runJvm 10 f_Algorithm_uint32ToInt32_1_prog (initJvmState [(0, .i32 x)]) =
+    runJvm 10 Life106LeanKt_f_Algorithm_uint32ToInt32_prog (initJvmState [(0, .i32 x)]) =
       some (.i32 (Algorithm.uint32ToInt32 x).toUInt32) := by rfl
 
 theorem uint32ToInt32_2_equiv (x : UInt32) :
-    runJvm 10 f_Algorithm_uint32ToInt32_2_prog (initJvmState [(0, .i32 x)]) =
+    runJvm 10 RleLeanKt_f_Algorithm_uint32ToInt32_prog (initJvmState [(0, .i32 x)]) =
       some (.i32 (Algorithm.uint32ToInt32 x).toUInt32) := by rfl
 
 theorem serializeLife106_equiv (cells : Array UInt64) :
@@ -473,18 +473,18 @@ theorem serializeLife106_equiv (cells : Array UInt64) :
       some (.strArr (Algorithm.serializeLife106 cells)) := by rfl
 
 theorem cellToLeafBit_1_equiv (x y : UInt32) :
-    runJvm 60 f_Algorithm_cellToLeafBitUInt_1_prog (initJvmState [(0, .i32 x), (1, .i32 y)]) =
+    runJvm 60 MacroCellLeanKt_f_Algorithm_cellToLeafBitUInt_prog (initJvmState [(0, .i32 x), (1, .i32 y)]) =
       some (.i32 (Algorithm.cellToLeafBitUInt x y)) := by
   exact cellToLeafBit_equiv x y
 
 theorem cellNodeHash_1_equiv (l qnw qne qsw qse : UInt32) :
-    runJvm 70 f_Algorithm_cellNodeHash_1_prog
+    runJvm 70 MacroCellLeanKt_f_Algorithm_cellNodeHash_prog
       (initJvmState [(0, .i32 l), (1, .i32 qnw), (2, .i32 qne), (3, .i32 qsw), (4, .i32 qse)]) =
       some (.i32 (Algorithm.cellNodeHash l qnw qne qsw qse)) := by
   exact cellNodeHash_equiv l qnw qne qsw qse
 
 theorem level4Hash_1_equiv (nw ne sw se : UInt64) :
-    runJvm 75 f_Algorithm_level4Hash_1_prog
+    runJvm 75 MacroCellLeanKt_f_Algorithm_level4Hash_prog
       (initJvmState [(0, .i64 nw), (2, .i64 ne), (4, .i64 sw), (6, .i64 se)]) =
       some (.i32 (Algorithm.level4Hash nw ne sw se)) := by
   exact level4Hash_equiv nw ne sw se
@@ -498,12 +498,12 @@ theorem macroCell_cellHashCode_equiv (m : Algorithm.MacroCell) :
       some (.i32 m.cellHashCode) := by rfl
 
 theorem makeLevel4Node_1_equiv (nw ne sw se : UInt64) :
-    runJvm 25 f_Algorithm_makeLevel4Node_1_prog
+    runJvm 25 MacroCellLeanKt_f_Algorithm_makeLevel4Node_prog
       (initJvmState [(0, .i64 nw), (2, .i64 ne), (4, .i64 sw), (6, .i64 se)]) =
       some ((.ext (.mc (Algorithm.makeLevel4Node nw ne sw se)))) := by rfl
 
 theorem makeCellNode_1_equiv (nw ne sw se : Algorithm.MacroCell) :
-    runJvm 70 f_Algorithm_makeCellNode_1_prog
+    runJvm 70 MacroCellLeanKt_f_Algorithm_makeCellNode_prog
       (initJvmState [(0, (.ext (.mc nw))), (1, (.ext (.mc ne))), (2, (.ext (.mc sw))), (3, (.ext (.mc se)))]) =
       some ((.ext (.mc (Algorithm.makeCellNode nw ne sw se)))) := by rfl
 
@@ -625,11 +625,11 @@ theorem serializeRLECells_equiv (cells : Array UInt64) :
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 800000 in
 theorem computeLevel4NextGen16x16WithUInt_spec0_equiv (nw ne sw se : UInt64) :
-    runJvm 800 f_Algorithm_computeLevel4NextGen16x16WithUInt___at___00Algorithm_computeLevel4NextGen16x16UInt_spec__0_prog
+    runJvm 800 FlatHashLifeLeanKt_f_Algorithm_computeLevel4NextGen16x16WithUInt___at___00Algorithm_computeLevel4NextGen16x16UInt_spec__0_prog
       (initJvmState [(0, .i64 nw), (2, .i64 ne), (4, .i64 sw), (6, .i64 se)]) =
       some (.i64 (Algorithm.computeLevel4NextGen16x16UInt nw ne sw se)) := by
-  apply runJvm_of_stepListAtClean _ f_Algorithm_computeLevel4NextGen16x16WithUInt___at___00Algorithm_computeLevel4NextGen16x16UInt_spec__0_prog _ _ _ rfl (by decide)
-  change stepListAtClean 0 f_Algorithm_computeLevel4NextGen16x16WithUInt___at___00Algorithm_computeLevel4NextGen16x16UInt_spec__0_prog
+  apply runJvm_of_stepListAtClean _ FlatHashLifeLeanKt_f_Algorithm_computeLevel4NextGen16x16WithUInt___at___00Algorithm_computeLevel4NextGen16x16UInt_spec__0_prog _ _ _ rfl (by decide)
+  change stepListAtClean 0 FlatHashLifeLeanKt_f_Algorithm_computeLevel4NextGen16x16WithUInt___at___00Algorithm_computeLevel4NextGen16x16UInt_spec__0_prog
     (initJvmState [(0, .i64 nw), (2, .i64 ne), (4, .i64 sw), (6, .i64 se)]) =
     some (.i64 (Algorithm.computeLevel4NextGen16x16UInt nw ne sw se))
   rfl
@@ -637,11 +637,11 @@ theorem computeLevel4NextGen16x16WithUInt_spec0_equiv (nw ne sw se : UInt64) :
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 800000 in
 theorem computeLevel4NextGen16x16WithUInt_spec0_1_equiv (nw ne sw se : UInt64) :
-    runJvm 800 f_Algorithm_computeLevel4NextGen16x16WithUInt___at___00Algorithm_computeLevel4NextGen16x16UInt_spec__0_1_prog
+    runJvm 800 MacroCellLeanKt_f_Algorithm_computeLevel4NextGen16x16WithUInt___at___00Algorithm_computeLevel4NextGen16x16UInt_spec__0_prog
       (initJvmState [(0, .i64 nw), (2, .i64 ne), (4, .i64 sw), (6, .i64 se)]) =
       some (.i64 (Algorithm.computeLevel4NextGen16x16UInt nw ne sw se)) := by
-  apply runJvm_of_stepListAtClean _ f_Algorithm_computeLevel4NextGen16x16WithUInt___at___00Algorithm_computeLevel4NextGen16x16UInt_spec__0_1_prog _ _ _ rfl (by decide)
-  change stepListAtClean 0 f_Algorithm_computeLevel4NextGen16x16WithUInt___at___00Algorithm_computeLevel4NextGen16x16UInt_spec__0_1_prog
+  apply runJvm_of_stepListAtClean _ MacroCellLeanKt_f_Algorithm_computeLevel4NextGen16x16WithUInt___at___00Algorithm_computeLevel4NextGen16x16UInt_spec__0_prog _ _ _ rfl (by decide)
+  change stepListAtClean 0 MacroCellLeanKt_f_Algorithm_computeLevel4NextGen16x16WithUInt___at___00Algorithm_computeLevel4NextGen16x16UInt_spec__0_prog
     (initJvmState [(0, .i64 nw), (2, .i64 ne), (4, .i64 sw), (6, .i64 se)]) =
     some (.i64 (Algorithm.computeLevel4NextGen16x16UInt nw ne sw se))
   rfl

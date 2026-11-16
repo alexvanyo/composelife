@@ -46,6 +46,9 @@ roots = [
   "models.GeometryExtensionsModel",
   "proofs.GeometryExtensionsModelProofs",
   "theorems.GeometryExtensionsModelTheorems",
+  "models.SpiralRingModel",
+  "proofs.SpiralRingModelProofs",
+  "theorems.SpiralRingModelTheorems",
   "JvmSemantics",
   "AxiomAudit",
 ]

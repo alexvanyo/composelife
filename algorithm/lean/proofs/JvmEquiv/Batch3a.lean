@@ -271,7 +271,7 @@ theorem stepNGenerationsWith_equiv (step : UInt32) (st : Algorithm.HashLifeStepS
 private theorem copyU64_aux (m : Nat) :
     ∀ (k : Nat) (src : Array UInt64) (n i : UInt32) (dst : Array UInt64)
       (_hn : n.toNat - i.toNat ≤ m) (base : Nat → JvmVal),
-    (runJvmResFast (k + (m + 1) * 40) f_Algorithm_copyU64_prog 0 f_Algorithm_copyU64_prog
+    (runJvmResFast (k + (m + 1) * 40) Life105LeanKt_f_Algorithm_copyU64_prog 0 Life105LeanKt_f_Algorithm_copyU64_prog
       ⟨0, [], setLocal (setLocal (setLocal (setLocal base 0 ((.ext (.u64Ref 0)))) 1 (.i32 n)) 2 (.i32 i)) 3 ((.ext (.u64Ref 1))), {}, ⟨[], [src, dst], []⟩⟩).map (fun p => (p.1, p.2.heap.u64Arrays)) =
       some (.unit, [src, Algorithm.copyU64 src n i dst]) := by
   induction m with
@@ -280,22 +280,22 @@ private theorem copyU64_aux (m : Nat) :
     have hge : ¬ (i < n) := by
       intro hlt; have : i.toNat < n.toNat := hlt; omega
     rw [show k + (0 + 1) * 40 = k + 40 by omega]
-    flat_step_blk f_Algorithm_copyU64_prog
+    flat_step_blk Life105LeanKt_f_Algorithm_copyU64_prog
     rw [compareUnsigned_slt']
     simp only [hge, decide_false, Bool.false_eq_true, ↓reduceIte]
     (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-    flat_step_blk f_Algorithm_copyU64_prog
+    flat_step_blk Life105LeanKt_f_Algorithm_copyU64_prog
     rw [Algorithm.copyU64]
     simp [hge]
   | succ m ih =>
     intro k src n i dst _hn base
     rw [show k + (m + 1 + 1) * 40 = (k + (m + 1) * 40) + 40 by omega]
-    flat_step_blk f_Algorithm_copyU64_prog
+    flat_step_blk Life105LeanKt_f_Algorithm_copyU64_prog
     rw [compareUnsigned_slt']
     by_cases hlt : i < n
     · simp only [hlt, decide_true, ↓reduceIte]
       (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-      flat_step_blk f_Algorithm_copyU64_prog
+      flat_step_blk Life105LeanKt_f_Algorithm_copyU64_prog
       (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
       simp only [nat_add_eq, Nat.succ_eq_add_one, Nat.add_assoc]
       rw [Nat.add_left_comm k ((m + 1) * 40), Nat.add_comm ((m + 1) * 40)]
@@ -306,12 +306,12 @@ private theorem copyU64_aux (m : Nat) :
       exact ih _ src n (i + 1) (dst.set! i.toNat src[i.toNat]!) hnext _
     · simp only [hlt, decide_false, Bool.false_eq_true, ↓reduceIte]
       (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-      flat_step_blk f_Algorithm_copyU64_prog
+      flat_step_blk Life105LeanKt_f_Algorithm_copyU64_prog
       rw [Algorithm.copyU64]
       simp [hlt]
 
 theorem copyU64_equiv (src : Array UInt64) (n i : UInt32) (dst : Array UInt64) :
-    (runJvmRes ((n.toNat - i.toNat + 1) * 40) f_Algorithm_copyU64_prog
+    (runJvmRes ((n.toNat - i.toNat + 1) * 40) Life105LeanKt_f_Algorithm_copyU64_prog
       (initJvmState [(0, (.ext (.u64Ref 0))), (1, .i32 n), (2, .i32 i), (3, (.ext (.u64Ref 1)))] [] [src, dst])).map
         (fun p => (p.1, p.2.heap.u64Arrays)) =
       some (.unit, [src, Algorithm.copyU64 src n i dst]) := by
@@ -320,28 +320,28 @@ theorem copyU64_equiv (src : Array UInt64) (n i : UInt32) (dst : Array UInt64) :
   exact copyU64_aux (n.toNat - i.toNat) 0 src n i dst (by omega) _
 
 theorem copyU64_1_equiv (src : Array UInt64) (n i : UInt32) (dst : Array UInt64) :
-    (runJvmRes ((n.toNat - i.toNat + 1) * 40) f_Algorithm_copyU64_1_prog
+    (runJvmRes ((n.toNat - i.toNat + 1) * 40) Life106LeanKt_f_Algorithm_copyU64_prog
       (initJvmState [(0, (.ext (.u64Ref 0))), (1, .i32 n), (2, .i32 i), (3, (.ext (.u64Ref 1)))] [] [src, dst])).map
         (fun p => (p.1, p.2.heap.u64Arrays)) =
       some (.unit, [src, Algorithm.copyU64 src n i dst]) :=
   copyU64_equiv src n i dst
 
 theorem copyU64_2_equiv (src : Array UInt64) (n i : UInt32) (dst : Array UInt64) :
-    (runJvmRes ((n.toNat - i.toNat + 1) * 40) f_Algorithm_copyU64_2_prog
+    (runJvmRes ((n.toNat - i.toNat + 1) * 40) MacroCellLeanKt_f_Algorithm_copyU64_prog
       (initJvmState [(0, (.ext (.u64Ref 0))), (1, .i32 n), (2, .i32 i), (3, (.ext (.u64Ref 1)))] [] [src, dst])).map
         (fun p => (p.1, p.2.heap.u64Arrays)) =
       some (.unit, [src, Algorithm.copyU64 src n i dst]) :=
   copyU64_equiv src n i dst
 
 theorem copyU64_3_equiv (src : Array UInt64) (n i : UInt32) (dst : Array UInt64) :
-    (runJvmRes ((n.toNat - i.toNat + 1) * 40) f_Algorithm_copyU64_3_prog
+    (runJvmRes ((n.toNat - i.toNat + 1) * 40) PlaintextLeanKt_f_Algorithm_copyU64_prog
       (initJvmState [(0, (.ext (.u64Ref 0))), (1, .i32 n), (2, .i32 i), (3, (.ext (.u64Ref 1)))] [] [src, dst])).map
         (fun p => (p.1, p.2.heap.u64Arrays)) =
       some (.unit, [src, Algorithm.copyU64 src n i dst]) :=
   copyU64_equiv src n i dst
 
 theorem copyU64_4_equiv (src : Array UInt64) (n i : UInt32) (dst : Array UInt64) :
-    (runJvmRes ((n.toNat - i.toNat + 1) * 40) f_Algorithm_copyU64_4_prog
+    (runJvmRes ((n.toNat - i.toNat + 1) * 40) RleLeanKt_f_Algorithm_copyU64_prog
       (initJvmState [(0, (.ext (.u64Ref 0))), (1, .i32 n), (2, .i32 i), (3, (.ext (.u64Ref 1)))] [] [src, dst])).map
         (fun p => (p.1, p.2.heap.u64Arrays)) =
       some (.unit, [src, Algorithm.copyU64 src n i dst]) :=
@@ -350,7 +350,7 @@ theorem copyU64_4_equiv (src : Array UInt64) (n i : UInt32) (dst : Array UInt64)
 private theorem gridRows_aux (m : Nat) :
     ∀ (k : Nat) (g : Algorithm.AsciiBytes) (width height r : UInt32) (acc : Algorithm.GrowBuf String)
       (_hn : height.toNat - r.toNat ≤ m) (base : Nat → JvmVal),
-    runJvmValFast (k + (m + 1) * 60) f_Algorithm_gridRows_prog 0 f_Algorithm_gridRows_prog
+    runJvmValFast (k + (m + 1) * 60) Life105LeanKt_f_Algorithm_gridRows_prog 0 Life105LeanKt_f_Algorithm_gridRows_prog
       ⟨0, [], setLocal (setLocal (setLocal (setLocal (setLocal base 0 ((.ext (.asciiRef 0)))) 1 (.i32 width))
         2 (.i32 height)) 3 (.i32 r)) 4 ((.ext (.strGrowBuf acc))), {}, ⟨[], [], [g]⟩⟩ =
       some ((.ext (.strGrowBuf (Algorithm.gridRows g width height r acc)))) := by
@@ -360,22 +360,22 @@ private theorem gridRows_aux (m : Nat) :
     have hge : ¬ (r < height) := by
       intro hlt; have : r.toNat < height.toNat := hlt; omega
     rw [show k + (0 + 1) * 60 = k + 60 by omega]
-    flat_step_blk f_Algorithm_gridRows_prog
+    flat_step_blk Life105LeanKt_f_Algorithm_gridRows_prog
     rw [compareUnsigned_slt']
     simp only [hge, decide_false, Bool.false_eq_true, ↓reduceIte]
     (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-    flat_step_blk f_Algorithm_gridRows_prog
+    flat_step_blk Life105LeanKt_f_Algorithm_gridRows_prog
     rw [Algorithm.gridRows]
     simp [hge]
   | succ m ih =>
     intro k g width height r acc _hn base
     rw [show k + (m + 1 + 1) * 60 = (k + (m + 1) * 60) + 60 by omega]
-    flat_step_blk f_Algorithm_gridRows_prog
+    flat_step_blk Life105LeanKt_f_Algorithm_gridRows_prog
     rw [compareUnsigned_slt']
     by_cases hlt : r < height
     · simp only [hlt, decide_true, ↓reduceIte]
       (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-      flat_step_blk f_Algorithm_gridRows_prog
+      flat_step_blk Life105LeanKt_f_Algorithm_gridRows_prog
       (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
       simp only [nat_add_eq, Nat.succ_eq_add_one, Nat.add_assoc]
       rw [Nat.add_left_comm k ((m + 1) * 60), Nat.add_comm ((m + 1) * 60)]
@@ -386,12 +386,12 @@ private theorem gridRows_aux (m : Nat) :
       exact ih _ g width height (r + 1) (acc.push (g.toStringRange (r * width) (r * width + width))) hnext _
     · simp only [hlt, decide_false, Bool.false_eq_true, ↓reduceIte]
       (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-      flat_step_blk f_Algorithm_gridRows_prog
+      flat_step_blk Life105LeanKt_f_Algorithm_gridRows_prog
       rw [Algorithm.gridRows]
       simp [hlt]
 
 theorem gridRows_equiv (g : Algorithm.AsciiBytes) (width height r : UInt32) (acc : Algorithm.GrowBuf String) :
-    runJvm ((height.toNat - r.toNat + 1) * 60) f_Algorithm_gridRows_prog
+    runJvm ((height.toNat - r.toNat + 1) * 60) Life105LeanKt_f_Algorithm_gridRows_prog
       (initJvmState [(0, (.ext (.asciiRef 0))), (1, .i32 width), (2, .i32 height), (3, .i32 r), (4, (.ext (.strGrowBuf acc)))]
         [] [] [g]) =
       some ((.ext (.strGrowBuf (Algorithm.gridRows g width height r acc)))) := by
@@ -402,7 +402,7 @@ theorem gridRows_equiv (g : Algorithm.AsciiBytes) (width height r : UInt32) (acc
 private theorem gridRows_1_aux (m : Nat) :
     ∀ (k : Nat) (g : Algorithm.AsciiBytes) (width height r : UInt32) (acc : Algorithm.GrowBuf String)
       (_hn : height.toNat - r.toNat ≤ m) (base : Nat → JvmVal),
-    runJvmValFast (k + (m + 1) * 60) f_Algorithm_gridRows_1_prog 0 f_Algorithm_gridRows_1_prog
+    runJvmValFast (k + (m + 1) * 60) PlaintextLeanKt_f_Algorithm_gridRows_prog 0 PlaintextLeanKt_f_Algorithm_gridRows_prog
       ⟨0, [], setLocal (setLocal (setLocal (setLocal (setLocal base 0 ((.ext (.asciiRef 0)))) 1 (.i32 width))
         2 (.i32 height)) 3 (.i32 r)) 4 ((.ext (.strGrowBuf acc))), {}, ⟨[], [], [g]⟩⟩ =
       some ((.ext (.strGrowBuf (Algorithm.gridRows g width height r acc)))) := by
@@ -412,22 +412,22 @@ private theorem gridRows_1_aux (m : Nat) :
     have hge : ¬ (r < height) := by
       intro hlt; have : r.toNat < height.toNat := hlt; omega
     rw [show k + (0 + 1) * 60 = k + 60 by omega]
-    flat_step_blk f_Algorithm_gridRows_1_prog
+    flat_step_blk PlaintextLeanKt_f_Algorithm_gridRows_prog
     rw [compareUnsigned_slt']
     simp only [hge, decide_false, Bool.false_eq_true, ↓reduceIte]
     (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-    flat_step_blk f_Algorithm_gridRows_1_prog
+    flat_step_blk PlaintextLeanKt_f_Algorithm_gridRows_prog
     rw [Algorithm.gridRows]
     simp [hge]
   | succ m ih =>
     intro k g width height r acc _hn base
     rw [show k + (m + 1 + 1) * 60 = (k + (m + 1) * 60) + 60 by omega]
-    flat_step_blk f_Algorithm_gridRows_1_prog
+    flat_step_blk PlaintextLeanKt_f_Algorithm_gridRows_prog
     rw [compareUnsigned_slt']
     by_cases hlt : r < height
     · simp only [hlt, decide_true, ↓reduceIte]
       (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-      flat_step_blk f_Algorithm_gridRows_1_prog
+      flat_step_blk PlaintextLeanKt_f_Algorithm_gridRows_prog
       (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
       simp only [nat_add_eq, Nat.succ_eq_add_one, Nat.add_assoc]
       rw [Nat.add_left_comm k ((m + 1) * 60), Nat.add_comm ((m + 1) * 60)]
@@ -438,12 +438,12 @@ private theorem gridRows_1_aux (m : Nat) :
       exact ih _ g width height (r + 1) (acc.push (g.toStringRange (r * width) (r * width + width))) hnext _
     · simp only [hlt, decide_false, Bool.false_eq_true, ↓reduceIte]
       (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-      flat_step_blk f_Algorithm_gridRows_1_prog
+      flat_step_blk PlaintextLeanKt_f_Algorithm_gridRows_prog
       rw [Algorithm.gridRows]
       simp [hlt]
 
 theorem gridRows_1_equiv (g : Algorithm.AsciiBytes) (width height r : UInt32) (acc : Algorithm.GrowBuf String) :
-    runJvm ((height.toNat - r.toNat + 1) * 60) f_Algorithm_gridRows_1_prog
+    runJvm ((height.toNat - r.toNat + 1) * 60) PlaintextLeanKt_f_Algorithm_gridRows_prog
       (initJvmState [(0, (.ext (.asciiRef 0))), (1, .i32 width), (2, .i32 height), (3, .i32 r), (4, (.ext (.strGrowBuf acc)))]
         [] [] [g]) =
       some ((.ext (.strGrowBuf (Algorithm.gridRows g width height r acc)))) := by
@@ -624,44 +624,44 @@ private theorem fillGrid_0_step (m : Nat) :
     ∀ (k : Nat) (cells : Array UInt64) (minX minY : Int32) (width height : UInt32)
       (alive : UInt8) (halive : alive < 128) (i limit : UInt32) (g : Algorithm.AsciiBytes)
       (_hn : limit.toNat - i.toNat ≤ m) (base : Nat → JvmVal),
-    (runJvmResFast (k + (m + 1) * 90) f_Algorithm_fillGrid___redArg_prog 0 f_Algorithm_fillGrid___redArg_prog
+    (runJvmResFast (k + (m + 1) * 90) Life105LeanKt_f_Algorithm_fillGrid___redArg_prog 0 Life105LeanKt_f_Algorithm_fillGrid___redArg_prog
       ⟨0, [], setLocal (setLocal (setLocal (setLocal (setLocal (setLocal (setLocal (setLocal (setLocal base
         0 ((.ext (.u64Ref 0)))) 1 (.i32 minX.toUInt32)) 2 (.i32 minY.toUInt32)) 3 (.i32 width))
         4 (.i32 height)) 5 (.i32 alive.toUInt32)) 6 (.i32 i)) 7 (.i32 limit)) 8 ((.ext (.asciiRef 0))), {}, ⟨[], [cells], [g]⟩⟩).map (fun p => (p.1, p.2.heap.asciiArrays)) =
       some (.unit, [Algorithm.fillGrid cells minX minY width height alive halive i limit g]) := by
   induction m with
-  | zero => prove_fillGrid_zero f_Algorithm_fillGrid___redArg_prog
-  | succ m ih => prove_fillGrid_succ m f_Algorithm_fillGrid___redArg_prog stepStatic_asciiSet_105 ih
+  | zero => prove_fillGrid_zero Life105LeanKt_f_Algorithm_fillGrid___redArg_prog
+  | succ m ih => prove_fillGrid_succ m Life105LeanKt_f_Algorithm_fillGrid___redArg_prog stepStatic_asciiSet_105 ih
 
 private theorem fillGrid_1_step (m : Nat) :
     ∀ (k : Nat) (cells : Array UInt64) (minX minY : Int32) (width height : UInt32)
       (alive : UInt8) (halive : alive < 128) (i limit : UInt32) (g : Algorithm.AsciiBytes)
       (_hn : limit.toNat - i.toNat ≤ m) (base : Nat → JvmVal),
-    (runJvmResFast (k + (m + 1) * 90) f_Algorithm_fillGrid___redArg_1_prog 0 f_Algorithm_fillGrid___redArg_1_prog
+    (runJvmResFast (k + (m + 1) * 90) PlaintextLeanKt_f_Algorithm_fillGrid___redArg_prog 0 PlaintextLeanKt_f_Algorithm_fillGrid___redArg_prog
       ⟨0, [], setLocal (setLocal (setLocal (setLocal (setLocal (setLocal (setLocal (setLocal (setLocal base
         0 ((.ext (.u64Ref 0)))) 1 (.i32 minX.toUInt32)) 2 (.i32 minY.toUInt32)) 3 (.i32 width))
         4 (.i32 height)) 5 (.i32 alive.toUInt32)) 6 (.i32 i)) 7 (.i32 limit)) 8 ((.ext (.asciiRef 0))), {}, ⟨[], [cells], [g]⟩⟩).map (fun p => (p.1, p.2.heap.asciiArrays)) =
       some (.unit, [Algorithm.fillGrid cells minX minY width height alive halive i limit g]) := by
   induction m with
-  | zero => prove_fillGrid_zero f_Algorithm_fillGrid___redArg_1_prog
-  | succ m ih => prove_fillGrid_succ m f_Algorithm_fillGrid___redArg_1_prog stepStatic_asciiSet_plain ih
+  | zero => prove_fillGrid_zero PlaintextLeanKt_f_Algorithm_fillGrid___redArg_prog
+  | succ m ih => prove_fillGrid_succ m PlaintextLeanKt_f_Algorithm_fillGrid___redArg_prog stepStatic_asciiSet_plain ih
 
 private theorem fillGrid_2_step (m : Nat) :
     ∀ (k : Nat) (cells : Array UInt64) (minX minY : Int32) (width height : UInt32)
       (alive : UInt8) (halive : alive < 128) (i limit : UInt32) (g : Algorithm.AsciiBytes)
       (_hn : limit.toNat - i.toNat ≤ m) (base : Nat → JvmVal),
-    (runJvmResFast (k + (m + 1) * 90) f_Algorithm_fillGrid___redArg_2_prog 0 f_Algorithm_fillGrid___redArg_2_prog
+    (runJvmResFast (k + (m + 1) * 90) RleLeanKt_f_Algorithm_fillGrid___redArg_prog 0 RleLeanKt_f_Algorithm_fillGrid___redArg_prog
       ⟨0, [], setLocal (setLocal (setLocal (setLocal (setLocal (setLocal (setLocal (setLocal (setLocal base
         0 ((.ext (.u64Ref 0)))) 1 (.i32 minX.toUInt32)) 2 (.i32 minY.toUInt32)) 3 (.i32 width))
         4 (.i32 height)) 5 (.i32 alive.toUInt32)) 6 (.i32 i)) 7 (.i32 limit)) 8 ((.ext (.asciiRef 0))), {}, ⟨[], [cells], [g]⟩⟩).map (fun p => (p.1, p.2.heap.asciiArrays)) =
       some (.unit, [Algorithm.fillGrid cells minX minY width height alive halive i limit g]) := by
   induction m with
-  | zero => prove_fillGrid_zero f_Algorithm_fillGrid___redArg_2_prog
-  | succ m ih => prove_fillGrid_succ m f_Algorithm_fillGrid___redArg_2_prog stepStatic_asciiSet_rle ih
+  | zero => prove_fillGrid_zero RleLeanKt_f_Algorithm_fillGrid___redArg_prog
+  | succ m ih => prove_fillGrid_succ m RleLeanKt_f_Algorithm_fillGrid___redArg_prog stepStatic_asciiSet_rle ih
 
 theorem fillGrid_equiv (cells : Array UInt64) (minX minY : Int32) (width height : UInt32)
     (alive : UInt8) (halive : alive < 128) (i limit : UInt32) (g : Algorithm.AsciiBytes) :
-    (runJvmRes ((limit.toNat - i.toNat + 1) * 90) f_Algorithm_fillGrid___redArg_prog
+    (runJvmRes ((limit.toNat - i.toNat + 1) * 90) Life105LeanKt_f_Algorithm_fillGrid___redArg_prog
       (initJvmState [(0, (.ext (.u64Ref 0))), (1, .i32 minX.toUInt32), (2, .i32 minY.toUInt32),
         (3, .i32 width), (4, .i32 height), (5, .i32 alive.toUInt32), (6, .i32 i),
         (7, .i32 limit), (8, (.ext (.asciiRef 0)))] [] [cells] [g])).map
@@ -673,7 +673,7 @@ theorem fillGrid_equiv (cells : Array UInt64) (minX minY : Int32) (width height 
 
 theorem fillGrid_1_equiv (cells : Array UInt64) (minX minY : Int32) (width height : UInt32)
     (alive : UInt8) (halive : alive < 128) (i limit : UInt32) (g : Algorithm.AsciiBytes) :
-    (runJvmRes ((limit.toNat - i.toNat + 1) * 90) f_Algorithm_fillGrid___redArg_1_prog
+    (runJvmRes ((limit.toNat - i.toNat + 1) * 90) PlaintextLeanKt_f_Algorithm_fillGrid___redArg_prog
       (initJvmState [(0, (.ext (.u64Ref 0))), (1, .i32 minX.toUInt32), (2, .i32 minY.toUInt32),
         (3, .i32 width), (4, .i32 height), (5, .i32 alive.toUInt32), (6, .i32 i),
         (7, .i32 limit), (8, (.ext (.asciiRef 0)))] [] [cells] [g])).map
@@ -685,7 +685,7 @@ theorem fillGrid_1_equiv (cells : Array UInt64) (minX minY : Int32) (width heigh
 
 theorem fillGrid_2_equiv (cells : Array UInt64) (minX minY : Int32) (width height : UInt32)
     (alive : UInt8) (halive : alive < 128) (i limit : UInt32) (g : Algorithm.AsciiBytes) :
-    (runJvmRes ((limit.toNat - i.toNat + 1) * 90) f_Algorithm_fillGrid___redArg_2_prog
+    (runJvmRes ((limit.toNat - i.toNat + 1) * 90) RleLeanKt_f_Algorithm_fillGrid___redArg_prog
       (initJvmState [(0, (.ext (.u64Ref 0))), (1, .i32 minX.toUInt32), (2, .i32 minY.toUInt32),
         (3, .i32 width), (4, .i32 height), (5, .i32 alive.toUInt32), (6, .i32 i),
         (7, .i32 limit), (8, (.ext (.asciiRef 0)))] [] [cells] [g])).map
@@ -698,7 +698,7 @@ theorem fillGrid_2_equiv (cells : Array UInt64) (minX minY : Int32) (width heigh
 private theorem cellBounds_aux (m : Nat) :
     ∀ (k : Nat) (cells : Array UInt64) (i limit : UInt32) (minX maxX minY maxY : Int32)
       (_hn : limit.toNat - i.toNat ≤ m) (base : Nat → JvmVal),
-    runJvmValFast (k + (m + 1) * 160) f_Algorithm_cellBounds_prog 0 f_Algorithm_cellBounds_prog
+    runJvmValFast (k + (m + 1) * 160) PlaintextLeanKt_f_Algorithm_cellBounds_prog 0 PlaintextLeanKt_f_Algorithm_cellBounds_prog
       ⟨0, [], setLocal (setLocal (setLocal (setLocal (setLocal (setLocal (setLocal base
         0 ((.ext (.u64Ref 0)))) 1 (.i32 i)) 2 (.i32 limit)) 3 (.i32 minX.toUInt32)) 4 (.i32 maxX.toUInt32))
         5 (.i32 minY.toUInt32)) 6 (.i32 maxY.toUInt32), {}, ⟨[], [cells], []⟩⟩ =
@@ -709,17 +709,17 @@ private theorem cellBounds_aux (m : Nat) :
     have hge : ¬ (i < limit) := by
       intro hlt; have : i.toNat < limit.toNat := hlt; omega
     rw [show k + (0 + 1) * 160 = k + 160 by omega]
-    flat_step_blk f_Algorithm_cellBounds_prog
+    flat_step_blk PlaintextLeanKt_f_Algorithm_cellBounds_prog
     rw [compareUnsigned_slt']
     simp only [hge, decide_false, Bool.false_eq_true, ↓reduceIte]
     (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-    flat_step_blk f_Algorithm_cellBounds_prog
+    flat_step_blk PlaintextLeanKt_f_Algorithm_cellBounds_prog
     unfold Algorithm.cellBounds
     simp [hge, boxCellBox]
   | succ m ih =>
     intro k cells i limit minX maxX minY maxY _hn base
     rw [show k + (m + 1 + 1) * 160 = (k + (m + 1) * 160) + 160 by omega]
-    flat_step_blk f_Algorithm_cellBounds_prog
+    flat_step_blk PlaintextLeanKt_f_Algorithm_cellBounds_prog
     rw [compareUnsigned_slt']
     by_cases hlt : i < limit
     · simp only [hlt, decide_true, ↓reduceIte]
@@ -727,7 +727,7 @@ private theorem cellBounds_aux (m : Nat) :
       have hnext : limit.toNat - (i + 1).toNat ≤ m := by
         rw [ui32_add1_toNat hlt]; omega
       (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-      flat_step_blk f_Algorithm_cellBounds_prog
+      flat_step_blk PlaintextLeanKt_f_Algorithm_cellBounds_prog
       let kv := cells[i.toNat]!
       let x := (kv >>> 32).toUInt32.toInt32
       let y := kv.toUInt32.toInt32
@@ -742,11 +742,11 @@ private theorem cellBounds_aux (m : Nat) :
           locs 10 = .i32 y.toUInt32 → locs 11 = .i32 (i + 1) → locs 12 = .i32 maxX'.toUInt32 →
           locs 13 = .i32 minX'.toUInt32 → locs 14 = .i32 minY'.toUInt32 →
           (if maxY.toUInt32.toBitVec.slt y.toUInt32.toBitVec = true then
-            runJvmValFast (k3 + (m + 1) * 160 + 50) f_Algorithm_cellBounds_prog 114
-              (f_Algorithm_cellBounds_prog.drop 114) ⟨114, [], locs, {}, ⟨[], [cells], []⟩⟩
+            runJvmValFast (k3 + (m + 1) * 160 + 50) PlaintextLeanKt_f_Algorithm_cellBounds_prog 114
+              (PlaintextLeanKt_f_Algorithm_cellBounds_prog.drop 114) ⟨114, [], locs, {}, ⟨[], [cells], []⟩⟩
           else
-            runJvmValFast (k3 + (m + 1) * 160 + 50) f_Algorithm_cellBounds_prog 93
-              (f_Algorithm_cellBounds_prog.drop 93) ⟨93, [], locs, {}, ⟨[], [cells], []⟩⟩) =
+            runJvmValFast (k3 + (m + 1) * 160 + 50) PlaintextLeanKt_f_Algorithm_cellBounds_prog 93
+              (PlaintextLeanKt_f_Algorithm_cellBounds_prog.drop 93) ⟨93, [], locs, {}, ⟨[], [cells], []⟩⟩) =
             some (boxCellBox (Algorithm.cellBounds cells i limit minX maxX minY maxY)) := by
         intro k3 locs h0 h2 h6 h10 h11 h12 h13 h14
         rw [cellBounds_slt, int32_toUInt32_toInt32, int32_toUInt32_toInt32]
@@ -754,7 +754,7 @@ private theorem cellBounds_aux (m : Nat) :
         simp only [hlt, ↓reduceDIte, ui32_toInt32_x_eq, ui32_toInt32_y_eq]
         by_cases hy2 : maxY < y
         · simp only [hy2, decide_true, ↓reduceIte]
-          flat_step_blk f_Algorithm_cellBounds_prog
+          flat_step_blk PlaintextLeanKt_f_Algorithm_cellBounds_prog
           (conv => lhs; simp only [h0, h2, h6, h10, h11, h12, h13, h14]; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
           try simp only [Nat.succ_eq_add_one]
           try simp only [nat_add_eq]
@@ -764,7 +764,7 @@ private theorem cellBounds_aux (m : Nat) :
           (conv => rhs; simp only [hy2', ↓reduceIte])
           exact ih _ cells (i + 1) limit minX' maxX' minY' y hnext _
         · simp only [hy2, decide_false, Bool.false_eq_true, ↓reduceIte]
-          flat_step_blk f_Algorithm_cellBounds_prog
+          flat_step_blk PlaintextLeanKt_f_Algorithm_cellBounds_prog
           (conv => lhs; simp only [h0, h2, h6, h10, h11, h12, h13, h14]; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
           try simp only [Nat.succ_eq_add_one]
           try simp only [nat_add_eq]
@@ -778,17 +778,17 @@ private theorem cellBounds_aux (m : Nat) :
           locs 6 = .i32 maxY.toUInt32 → locs 10 = .i32 y.toUInt32 → locs 11 = .i32 (i + 1) →
           locs 15 = .i32 minX'.toUInt32 → locs 16 = .i32 maxX'.toUInt32 →
           (if y.toUInt32.toBitVec.slt minY.toUInt32.toBitVec = true then
-            runJvmValFast (k2 + (m + 1) * 160 + 80) f_Algorithm_cellBounds_prog 84
-              (f_Algorithm_cellBounds_prog.drop 84) ⟨84, [], locs, {}, ⟨[], [cells], []⟩⟩
+            runJvmValFast (k2 + (m + 1) * 160 + 80) PlaintextLeanKt_f_Algorithm_cellBounds_prog 84
+              (PlaintextLeanKt_f_Algorithm_cellBounds_prog.drop 84) ⟨84, [], locs, {}, ⟨[], [cells], []⟩⟩
           else
-            runJvmValFast (k2 + (m + 1) * 160 + 80) f_Algorithm_cellBounds_prog 77
-              (f_Algorithm_cellBounds_prog.drop 77) ⟨77, [], locs, {}, ⟨[], [cells], []⟩⟩) =
+            runJvmValFast (k2 + (m + 1) * 160 + 80) PlaintextLeanKt_f_Algorithm_cellBounds_prog 77
+              (PlaintextLeanKt_f_Algorithm_cellBounds_prog.drop 77) ⟨77, [], locs, {}, ⟨[], [cells], []⟩⟩) =
             some (boxCellBox (Algorithm.cellBounds cells i limit minX maxX minY maxY)) := by
         intro k2 locs h0 h2 h5 h6 h10 h11 h15 h16
         rw [cellBounds_slt, int32_toUInt32_toInt32, int32_toUInt32_toInt32]
         by_cases hy1 : y < minY
         · simp only [hy1, decide_true, ↓reduceIte]
-          flat_step_blk f_Algorithm_cellBounds_prog
+          flat_step_blk PlaintextLeanKt_f_Algorithm_cellBounds_prog
           (conv => lhs; simp only [h0, h2, h5, h6, h10, h11, h15, h16]; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
           try simp only [Nat.succ_eq_add_one]
           try simp only [nat_add_eq]
@@ -806,7 +806,7 @@ private theorem cellBounds_aux (m : Nat) :
           · rfl
           · rw [hminY]; rfl
         · simp only [hy1, decide_false, Bool.false_eq_true, ↓reduceIte]
-          flat_step_blk f_Algorithm_cellBounds_prog
+          flat_step_blk PlaintextLeanKt_f_Algorithm_cellBounds_prog
           (conv => lhs; simp only [h0, h2, h5, h6, h10, h11, h15, h16]; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
           try simp only [Nat.succ_eq_add_one]
           try simp only [nat_add_eq]
@@ -828,17 +828,17 @@ private theorem cellBounds_aux (m : Nat) :
           locs 5 = .i32 minY.toUInt32 → locs 6 = .i32 maxY.toUInt32 → locs 9 = .i32 x.toUInt32 →
           locs 10 = .i32 y.toUInt32 → locs 11 = .i32 (i + 1) → locs 17 = .i32 minX'.toUInt32 →
           (if maxX.toUInt32.toBitVec.slt x.toUInt32.toBitVec = true then
-            runJvmValFast (k1 + (m + 1) * 160 + 100) f_Algorithm_cellBounds_prog 70
-              (f_Algorithm_cellBounds_prog.drop 70) ⟨70, [], locs, {}, ⟨[], [cells], []⟩⟩
+            runJvmValFast (k1 + (m + 1) * 160 + 100) PlaintextLeanKt_f_Algorithm_cellBounds_prog 70
+              (PlaintextLeanKt_f_Algorithm_cellBounds_prog.drop 70) ⟨70, [], locs, {}, ⟨[], [cells], []⟩⟩
           else
-            runJvmValFast (k1 + (m + 1) * 160 + 100) f_Algorithm_cellBounds_prog 65
-              (f_Algorithm_cellBounds_prog.drop 65) ⟨65, [], locs, {}, ⟨[], [cells], []⟩⟩) =
+            runJvmValFast (k1 + (m + 1) * 160 + 100) PlaintextLeanKt_f_Algorithm_cellBounds_prog 65
+              (PlaintextLeanKt_f_Algorithm_cellBounds_prog.drop 65) ⟨65, [], locs, {}, ⟨[], [cells], []⟩⟩) =
             some (boxCellBox (Algorithm.cellBounds cells i limit minX maxX minY maxY)) := by
         intro k1 locs h0 h2 h4 h5 h6 h9 h10 h11 h17
         rw [cellBounds_slt, int32_toUInt32_toInt32, int32_toUInt32_toInt32]
         by_cases hx2 : maxX < x
         · simp only [hx2, decide_true, ↓reduceIte]
-          flat_step_blk f_Algorithm_cellBounds_prog
+          flat_step_blk PlaintextLeanKt_f_Algorithm_cellBounds_prog
           (conv => lhs; simp only [h0, h2, h4, h5, h6, h9, h10, h11, h17]; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
           try simp only [Nat.succ_eq_add_one]
           try simp only [nat_add_eq]
@@ -856,7 +856,7 @@ private theorem cellBounds_aux (m : Nat) :
           · rfl
           · rw [hmaxX]; rfl
         · simp only [hx2, decide_false, Bool.false_eq_true, ↓reduceIte]
-          flat_step_blk f_Algorithm_cellBounds_prog
+          flat_step_blk PlaintextLeanKt_f_Algorithm_cellBounds_prog
           (conv => lhs; simp only [h0, h2, h4, h5, h6, h9, h10, h11, h17]; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
           try simp only [Nat.succ_eq_add_one]
           try simp only [nat_add_eq]
@@ -877,7 +877,7 @@ private theorem cellBounds_aux (m : Nat) :
       by_cases hx1 : x < minX
       · simp only [hx1, decide_true, ↓reduceIte]
         (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-        flat_step_blk f_Algorithm_cellBounds_prog
+        flat_step_blk PlaintextLeanKt_f_Algorithm_cellBounds_prog
         (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
         try simp only [Nat.succ_eq_add_one]
         try simp only [nat_add_eq]
@@ -888,7 +888,7 @@ private theorem cellBounds_aux (m : Nat) :
         exact hjoin1 _ _ rfl rfl rfl rfl rfl rfl rfl rfl (by rw [hminX]; rfl)
       · simp only [hx1, decide_false, Bool.false_eq_true, ↓reduceIte]
         (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-        flat_step_blk f_Algorithm_cellBounds_prog
+        flat_step_blk PlaintextLeanKt_f_Algorithm_cellBounds_prog
         (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
         try simp only [Nat.succ_eq_add_one]
         try simp only [nat_add_eq]
@@ -899,12 +899,12 @@ private theorem cellBounds_aux (m : Nat) :
         exact hjoin1 _ _ rfl rfl rfl rfl rfl rfl rfl rfl (by rw [hminX]; rfl)
     · simp only [hlt, decide_false, Bool.false_eq_true, ↓reduceIte]
       (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-      flat_step_blk f_Algorithm_cellBounds_prog
+      flat_step_blk PlaintextLeanKt_f_Algorithm_cellBounds_prog
       unfold Algorithm.cellBounds
       simp [hlt, boxCellBox]
 
 theorem cellBounds_equiv (cells : Array UInt64) (i limit : UInt32) (minX maxX minY maxY : Int32) :
-    runJvm ((limit.toNat - i.toNat + 1) * 160) f_Algorithm_cellBounds_prog
+    runJvm ((limit.toNat - i.toNat + 1) * 160) PlaintextLeanKt_f_Algorithm_cellBounds_prog
       (initJvmState [(0, (.ext (.u64Ref 0))), (1, .i32 i), (2, .i32 limit),
         (3, .i32 minX.toUInt32), (4, .i32 maxX.toUInt32),
         (5, .i32 minY.toUInt32), (6, .i32 maxY.toUInt32)] [] [cells]) =
@@ -914,7 +914,7 @@ theorem cellBounds_equiv (cells : Array UInt64) (i limit : UInt32) (minX maxX mi
   exact cellBounds_aux (limit.toNat - i.toNat) 0 cells i limit minX maxX minY maxY (by omega) _
 
 theorem cellBounds_1_equiv (cells : Array UInt64) (i limit : UInt32) (minX maxX minY maxY : Int32) :
-    runJvm ((limit.toNat - i.toNat + 1) * 160) f_Algorithm_cellBounds_1_prog
+    runJvm ((limit.toNat - i.toNat + 1) * 160) RleLeanKt_f_Algorithm_cellBounds_prog
       (initJvmState [(0, (.ext (.u64Ref 0))), (1, .i32 i), (2, .i32 limit),
         (3, .i32 minX.toUInt32), (4, .i32 maxX.toUInt32),
         (5, .i32 minY.toUInt32), (6, .i32 maxY.toUInt32)] [] [cells]) =

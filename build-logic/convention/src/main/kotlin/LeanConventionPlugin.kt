@@ -27,6 +27,7 @@ import com.alexvanyo.composelife.buildlogic.VerifyLeanTask
 import com.alexvanyo.composelife.buildlogic.heavyTaskLimitingBuildService
 import com.alexvanyo.composelife.buildlogic.leanTaskLimitingBuildService
 import org.gradle.api.Task
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import java.io.File
@@ -91,6 +92,7 @@ class LeanConventionPlugin :
             include("**/lrat/*.lrat")
             include("lakefile.toml")
             include("lakefile.lean")
+            include("lake-manifest.json")
             include("lean-toolchain")
             exclude(".lake/**")
         }
@@ -168,6 +170,8 @@ class LeanConventionPlugin :
             buildFile.set(layout.projectDirectory.file("build.gradle.kts"))
         }
 
+        val jvmBytecodeLiftScript = isolated.rootProject.projectDirectory.file("script/jvm-bytecode2lean.py")
+
         val desktopClassesDir = layout.buildDirectory.dir("classes/kotlin/desktop/main")
         val verifyLeanJvmBytecode = tasks.register(
             "verifyLeanJvmBytecode",
@@ -178,7 +182,7 @@ class LeanConventionPlugin :
             dependsOn(verifyLean, checkLeanBvCheck, generateLeanKotlin)
             workingDir.set(leanExtension.leanDirectory)
             leanFiles.from(moduleLeanInputFiles, sharedJvmLeanFiles)
-            scriptFile.set(isolated.rootProject.projectDirectory.file("script/jvm-bytecode2lean.py"))
+            scriptFile.set(jvmBytecodeLiftScript)
             moduleNamespace.set(leanExtension.target.map { leanTarget -> leanTarget.substringBefore(':') })
             generatedBytecodeDir.set(layout.buildDirectory.dir("generated/lean/jvm"))
             stampFile.set(layout.buildDirectory.file("lean/verify-jvm-bytecode.stamp"))
@@ -193,6 +197,9 @@ class LeanConventionPlugin :
                     }
                 },
             )
+            kotlinClassPathSpecs.set(leanExtension.kotlinBytecodeClassPaths)
+            this.desktopClassesDir.set(desktopClassesDir)
+            kotlinUnliftedMethods.set(leanExtension.kotlinBytecodeUnliftedMethods)
             kotlinClassFiles.from(
                 provider {
                     leanExtension.kotlinBytecodeClassPaths.getOrElse(emptyList()).map { classPath ->
@@ -215,6 +222,20 @@ class LeanConventionPlugin :
                 dependsOn("compileKotlinDesktop")
             }
             tasks.withType(Task::class.java).named { taskName -> taskName == "desktopTest" }.configureEach {
+                // The `*VerificationTests` suites elaborate theorems against this module's Lean sources and lift
+                // classes with the bytecode script at test time, so these are test inputs: a change to a proof,
+                // model, or hook must rerun (and re-key the build cache for) the tests, not reuse stale results.
+                inputs.files(moduleLeanInputFiles)
+                    .withPropertyName("leanSources")
+                    .withPathSensitivity(PathSensitivity.RELATIVE)
+                inputs.files(sharedJvmLeanFiles)
+                    .withPropertyName("sharedJvmLeanSources")
+                    .withPathSensitivity(PathSensitivity.RELATIVE)
+                inputs.file(jvmBytecodeLiftScript)
+                    .withPropertyName("jvmBytecodeLiftScript")
+                    .withPathSensitivity(PathSensitivity.RELATIVE)
+                // Each test case spawns `lake env lean` (up to 4 GiB), so share the Lean concurrency limit.
+                usesService(leanTaskLimitingBuildService)
                 dependsOn(verifyLean)
                 dependsOn(
                     provider {

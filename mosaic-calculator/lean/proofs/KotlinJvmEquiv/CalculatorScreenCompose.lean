@@ -299,9 +299,9 @@ private theorem runFast_getStatic_unit' (d subFuel f pc pc0 : Nat)
 private theorem runFast_getStatic_singletonInst (d subFuel f pc pc0 : Nat)
     {prog rest : List JvmInstr} {stk : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap CalcExt} {hp : CalcHeap}
-    (hclean : jh.getStatic?
+    (hinst : jh.getStatic?
         "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt"
-        "INSTANCE" = none) :
+        "INSTANCE" = some (.ext (.companion "ComposableSingletons$CalculatorScreenKt"))) :
     Jvm.runJvmResFast (mkCalcHooks calcProgLookup (d + 1) subFuel) (f + 1) prog pc
         (.getstatic
           "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt"
@@ -318,8 +318,7 @@ private theorem runFast_getStatic_singletonInst (d subFuel f pc pc0 : Nat)
       ⟨pc, stk, locs, jh, hp⟩ =
       .inl (some ⟨pc + 1, .ext (.companion "ComposableSingletons$CalculatorScreenKt") :: stk, locs, jh, hp⟩) := by
     dsimp only [Jvm.stepInstr]
-    rw [hclean]
-    rfl
+    rw [hinst]
   exact Jvm.runJvmResFast_step_of_stepInstr (mkCalcHooks calcProgLookup (d + 1) subFuel) rfl (by simp) hs rfl
 
 private theorem runFast_getLambda_step (d subFuel f pc : Nat)
@@ -327,9 +326,9 @@ private theorem runFast_getLambda_step (d subFuel f pc : Nat)
     {stk : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap CalcExt} {hp : CalcHeap}
     (hsuf : 2 ≤ subFuel)
-    (hStat : jh.getStatic? "ComposableSingletons$CalculatorScreenKt" fld = some (.ext (.closureRef cid)))
+    (hStat : jh.getStatic? "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" fld = some (.ext (.closureRef cid)))
     (hTag : calcProgLookup ("ComposableSingletons$CalculatorScreenKt." ++ method) = some [
-      .getstatic "ComposableSingletons$CalculatorScreenKt" fld "Lkotlin/jvm/functions/Function3;",
+      .getstatic "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" fld "Lkotlin/jvm/functions/Function3;",
       .areturn]) :
     Jvm.runJvmResFast (mkCalcHooks calcProgLookup (d + 1) subFuel) (f + 1) prog pc
         (.invokevirtual
@@ -340,7 +339,7 @@ private theorem runFast_getLambda_step (d subFuel f pc : Nat)
         ⟨pc + 1, .ext (.closureRef cid) :: stk, locs, jh, hp⟩ := by
   obtain ⟨sf, rfl⟩ := Nat.exists_eq_add_of_le' hsuf
   have hsub : Jvm.runJvmRes (mkCalcHooks calcProgLookup d (sf + 2)) (sf + 2)
-      [.getstatic "ComposableSingletons$CalculatorScreenKt" fld "Lkotlin/jvm/functions/Function3;",
+      [.getstatic "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" fld "Lkotlin/jvm/functions/Function3;",
        .areturn]
       ⟨0, [], fun _ => .i32 0, jh, hp⟩ =
         some (.ext (.closureRef cid), ⟨1, [.ext (.closureRef cid)], fun _ => .i32 0, jh, hp⟩) := by
@@ -348,7 +347,7 @@ private theorem runFast_getLambda_step (d subFuel f pc : Nat)
     rw [Jvm.runJvmResFast_step_nonbranch (mkCalcHooks calcProgLookup d (sf + 2)) (sf + 1) _ 0
       (.getstatic _ _ _) [.areturn] ⟨0, [], fun _ => .i32 0, jh, hp⟩ rfl (by simp)]
     have hs0 : Jvm.stepInstr (mkCalcHooks calcProgLookup d (sf + 2))
-        (.getstatic "ComposableSingletons$CalculatorScreenKt" fld "Lkotlin/jvm/functions/Function3;")
+        (.getstatic "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" fld "Lkotlin/jvm/functions/Function3;")
         ⟨0, [], fun _ => .i32 0, jh, hp⟩ =
         .inl (some ⟨1, [.ext (.closureRef cid)], fun _ => .i32 0, jh, hp⟩) := by
       dsimp only [Jvm.stepInstr]
@@ -471,7 +470,7 @@ private theorem runFast_formatDisplayLine (d subFuel f pc : Nat)
     | isFalse _ =>
       dsimp only [List.take, List.drop, List.reverse, List.reverseAux]
       unfold_locals_priv
-      rw [show calcProgLookup "CalculatorEngineKt.formatDisplayLine" = some formatDisplayLine_prog from rfl]
+      rw [show calcProgLookup "CalculatorEngineKt.formatDisplayLine" = some CalculatorEngineKt_formatDisplayLine_prog from rfl]
       dsimp only [initCalcJvmState, Jvm.initJvmState, List.foldl] at hrun ⊢
       rw [hrun]
       dsimp only
@@ -546,7 +545,7 @@ theorem CalculatorScreen_lambda_0_0_equiv (d subFuel fuel : Nat)
     (cid : Nat) (keyStr : String) (hp : CalcHeap) (jh : Jvm.JvmHeap CalcExt)
     (hstat : ∀ cls fld,
       cls ≠ "com/alexvanyo/composelife/mosaiccalculator/CalculatorEngineKt$WhenMappings" →
-      cls ≠ "ComposableSingletons$CalculatorScreenKt" →
+      cls ≠ "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" →
       jh.getStatic? cls fld = none)
     (fnTag : String) (caps? : Option JvmVal) (bodyProg : List JvmInstr)
     (hInvoke : ∀ k : CalculatorKey,
@@ -562,7 +561,7 @@ theorem CalculatorScreen_lambda_0_0_equiv (d subFuel fuel : Nat)
           some (res, subEnd) ∧
         subEnd.jvmHeap = jh' ∧ subEnd.heap = hp') :
     ∃ endSt handled,
-      Jvm.runJvmRes (mkCalcHooks calcProgLookup d subFuel) fuel CalculatorScreen_lambda_0_0_prog
+      Jvm.runJvmRes (mkCalcHooks calcProgLookup d subFuel) fuel CalculatorScreenKt_CalculatorScreen_lambda_0_0_prog
           (initCalcJvmState [(0, .ext (.closureRef cid)), (1, .ext (.keyEvent keyStr))] hp jh) =
         some (.i32 (if handled then 1 else 0), endSt) ∧
       match mapTerminalKeyModel keyStr with
@@ -623,7 +622,7 @@ theorem CalculatorScreen_lambda_0_0_equiv (d subFuel fuel : Nat)
       | isFalse _ =>
         dsimp only [List.take, List.drop, List.reverse, List.reverseAux]
         unfold_locals_priv
-        rw [show calcProgLookup "CalculatorEngineKt.mapTerminalKey" = some mapTerminalKey_prog from rfl]
+        rw [show calcProgLookup "CalculatorEngineKt.mapTerminalKey" = some CalculatorEngineKt_mapTerminalKey_prog from rfl]
         dsimp only [initCalcJvmState, Jvm.initJvmState, List.foldl] at hmRun ⊢
         rw [hmRun]
         dsimp only
@@ -652,14 +651,14 @@ theorem CalculatorScreen_lambda_0_0_equiv (d subFuel fuel : Nat)
       Jvm.runJvmRes_of_runJvmResFast0 _ _ _ _ _ rfl ?_, rfl, rfl, rfl⟩
     dsimp only [initCalcJvmState, Jvm.initJvmState, List.foldl]
     change Jvm.runJvmResFast (mkCalcHooks calcProgLookup (d' + 2) subFuel) (kF + 20)
-        CalculatorScreen_lambda_0_0_prog 0 CalculatorScreen_lambda_0_0_prog
+        CalculatorScreenKt_CalculatorScreen_lambda_0_0_prog 0 CalculatorScreenKt_CalculatorScreen_lambda_0_0_prog
         ⟨0, [], locs0, jh, hp⟩ = _
-    dsimp only [CalculatorScreen_lambda_0_0_prog]
+    dsimp only [CalculatorScreenKt_CalculatorScreen_lambda_0_0_prog]
     rw [runFast_aload, hl1, runFast_ldcStr, runFast_checkNotNull' (d' + 1) subFuel _ _ _ rfl]
     rw [runFast_aload, hl1, runFast_getKey, hMapStep, hmk, runFast_astore]
     have hl2 : (@setLocal CalcExt locs0 2 .null) 2 = .null := rfl
     rw [runFast_aload, hl2, runFast_ifnull_branch']
-    dsimp only [CalculatorScreen_lambda_0_0_prog, List.drop]
+    dsimp only [CalculatorScreenKt_CalculatorScreen_lambda_0_0_prog, List.drop]
     rw [runFast_iconst, runFast_ireturn calcProgLookup (d' + 2) subFuel]
     rfl
   | some ck =>
@@ -669,9 +668,9 @@ theorem CalculatorScreen_lambda_0_0_equiv (d subFuel fuel : Nat)
       ⟨rfl, res, subEnd, hclos, hlook, hsubRun, hsubJh, hsubHp⟩⟩
     dsimp only [initCalcJvmState, Jvm.initJvmState, List.foldl]
     change Jvm.runJvmResFast (mkCalcHooks calcProgLookup (d' + 2) subFuel) (kF + 20)
-        CalculatorScreen_lambda_0_0_prog 0 CalculatorScreen_lambda_0_0_prog
+        CalculatorScreenKt_CalculatorScreen_lambda_0_0_prog 0 CalculatorScreenKt_CalculatorScreen_lambda_0_0_prog
         ⟨0, [], locs0, jh, hp⟩ = _
-    dsimp only [CalculatorScreen_lambda_0_0_prog]
+    dsimp only [CalculatorScreenKt_CalculatorScreen_lambda_0_0_prog]
     rw [runFast_aload, hl1, runFast_ldcStr, runFast_checkNotNull' (d' + 1) subFuel _ _ _ rfl]
     rw [runFast_aload, hl1, runFast_getKey, hMapStep, hmk, runFast_astore]
     have hl0' : (@setLocal CalcExt locs0 2 (.ext (.calcKey ck))) 0 = .ext (.closureRef cid) := rfl
@@ -681,7 +680,7 @@ theorem CalculatorScreen_lambda_0_0_equiv (d subFuel fuel : Nat)
     rw [runFast_function1Invoke (d' + 1) subFuel _ _ fnTag caps? bodyProg hclos hlook
       ⟨subEnd, hsubRun, hsubJh, hsubHp⟩]
     rw [runFast_pop, runFast_iconst, runFast_goto']
-    dsimp only [CalculatorScreen_lambda_0_0_prog, List.drop]
+    dsimp only [CalculatorScreenKt_CalculatorScreen_lambda_0_0_prog, List.drop]
     rw [runFast_ireturn calcProgLookup (d' + 2) subFuel]
     rfl
 
@@ -798,11 +797,11 @@ theorem CalculatorScreen_lambda_1_equiv (d subFuel fuel : Nat)
       jh.get? errAddr = some (.intArray #[1, 2]))
     (hstat : ∀ cls fld,
       cls ≠ "com/alexvanyo/composelife/mosaiccalculator/CalculatorEngineKt$WhenMappings" →
-      cls ≠ "ComposableSingletons$CalculatorScreenKt" →
+      cls ≠ "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" →
       jh.getStatic? cls fld = none)
     (hsing : HasSingletonRowLambdas jh hp.closures) :
     ∃ endSt,
-      Jvm.runJvmRes (mkCalcHooks calcProgLookup d subFuel) fuel CalculatorScreen_lambda_1_prog
+      Jvm.runJvmRes (mkCalcHooks calcProgLookup d subFuel) fuel CalculatorScreenKt_CalculatorScreen_lambda_1_prog
           (initCalcJvmState
             [(0, .ext (.calcState cSt)), (1, .ext .unit), (2, .ext .composer), (3, .i32 6)]
             hp jh) =
@@ -819,13 +818,10 @@ theorem CalculatorScreen_lambda_1_equiv (d subFuel fuel : Nat)
           ], prevH?) :: parents } := by
   obtain ⟨d', rfl⟩ := Nat.exists_eq_add_of_le' hd
   obtain ⟨kF, rfl⟩ := Nat.exists_eq_add_of_le' hf
-  obtain ⟨id0, id1, id2, id3, hs0, hs1, hs2, hs3, hc0, hc1, hc2, hc3⟩ := hsing
+  obtain ⟨id0, id1, id2, id3, hs0, hs1, hs2, hs3, hsi, hc0, hc1, hc2, hc3⟩ := hsing
   have hunit : jh.getStatic? "kotlin/Unit" "INSTANCE" = none :=
     hstat _ _ (by decide) (by decide)
-  have hsingInst : jh.getStatic?
-      "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt"
-      "INSTANCE" = none :=
-    hstat _ _ (by decide) (by decide)
+  have hsingInst := hsi
   let hp1 : CalcHeap := { hp with
     nodeStack := (prevChildren ++ [.text "=== Calculator ==="], prevH?) :: parents }
   let hp2 : CalcHeap := { hp with
@@ -853,7 +849,7 @@ theorem CalculatorScreen_lambda_1_equiv (d subFuel fuel : Nat)
     simp only [List.append_assoc, List.cons_append, List.nil_append]
   suffices h : ∃ endSt,
       Jvm.runJvmResFast (mkCalcHooks calcProgLookup (d' + 2) subFuel) (kF + 110)
-          CalculatorScreen_lambda_1_prog 0 CalculatorScreen_lambda_1_prog
+          CalculatorScreenKt_CalculatorScreen_lambda_1_prog 0 CalculatorScreenKt_CalculatorScreen_lambda_1_prog
           (initCalcJvmState
             [(0, .ext (.calcState cSt)), (1, .ext .unit), (2, .ext .composer), (3, .i32 6)]
             hp jh) =
@@ -885,7 +881,7 @@ theorem CalculatorScreen_lambda_1_equiv (d subFuel fuel : Nat)
   have hl3 : locs0 3 = .i32 6 := rfl
   change ∃ endSt,
       Jvm.runJvmResFast (mkCalcHooks calcProgLookup (d' + 2) subFuel) (kF + 110)
-          CalculatorScreen_lambda_1_prog 0 CalculatorScreen_lambda_1_prog ⟨0, [], locs0, jh, hp⟩ =
+          CalculatorScreenKt_CalculatorScreen_lambda_1_prog 0 CalculatorScreenKt_CalculatorScreen_lambda_1_prog ⟨0, [], locs0, jh, hp⟩ =
         some (.ext .unit, endSt) ∧
       endSt.jvmHeap = jh ∧
       endSt.heap = { hp with
@@ -897,13 +893,13 @@ theorem CalculatorScreen_lambda_1_equiv (d subFuel fuel : Nat)
           , .row [.text "[1] [2] [3] [-]"] none
           , .row [.text "[0] [C] [=] [+]"] none
           ], prevH?) :: parents }
-  dsimp only [CalculatorScreen_lambda_1_prog]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_lambda_1_prog]
   rw [runFast_aload, hl1, runFast_ldcStr, runFast_checkNotNull' (d' + 1) subFuel _ _ _ rfl]
   rw [runFast_aload, hl2, runFast_ldcStr, runFast_sourceInfo' (d' + 1) subFuel]
   rw [runFast_aload, hl2, runFast_iload, hl3, runFast_iconst, runFast_iand, runFast_iconst]
   rw [runFast_if_icmpeq_ne (by decide)]
   rw [runFast_iconst, runFast_goto']
-  dsimp only [CalculatorScreen_lambda_1_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_lambda_1_prog, List.drop]
   rw [runFast_iload, hl3, runFast_iconst, runFast_iand]
   have hsh0 : Compose.shouldExecute hp.composer ((1 : UInt32) != 0) ((6 : UInt32) &&& (1 : UInt32)).toInt32 = true := by
     dsimp only [Compose.shouldExecute]
@@ -914,7 +910,7 @@ theorem CalculatorScreen_lambda_1_equiv (d subFuel fuel : Nat)
   rw [runFast_ifeq_nonzero (by decide)]
   rw [runFast_isTraceInProgress' (d' + 1) subFuel _ _ _ htrace]
   rw [runFast_ifeq_zero]
-  dsimp only [CalculatorScreen_lambda_1_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_lambda_1_prog, List.drop]
   rw [runFast_ldcStr, runFast_aconstNull, runFast_iconst, runFast_iconst, runFast_iconst,
     runFast_iconst, runFast_iconst, runFast_aload, hl2, runFast_iconst, runFast_iconst]
   rw [runFast_text' (d' + 1) subFuel, hemit1]
@@ -933,7 +929,7 @@ theorem CalculatorScreen_lambda_1_equiv (d subFuel fuel : Nat)
         "C63@2157L23:CalculatorScreen.kt#b0tpbg" 125313259
         "com.alexvanyo.composelife.mosaiccalculator.ComposableSingletons$CalculatorScreenKt.lambda$125313259.<anonymous> (CalculatorScreen.kt:63)"
         "[7] [8] [9] [/]" { hp2 with nodeStack := ([], none) :: hp2.nodeStack } jh htrace hunit
-      exact ⟨lambda_125313259_lambda_0_prog, st', rfl, h1, h2, h3⟩)]
+      exact ⟨ComposableSingletons_CalculatorScreenKt_lambda_125313259_lambda_0_prog, st', rfl, h1, h2, h3⟩)]
   rw [runFast_aconstNull, runFast_aconstNull, runFast_aconstNull,
     runFast_getStatic_singletonInst (d' + 1) subFuel _ _ _ hsingInst]
   rw [runFast_getLambda_step (d' + 1) subFuel _ _ (by omega) hs1 rfl]
@@ -944,7 +940,7 @@ theorem CalculatorScreen_lambda_1_equiv (d subFuel fuel : Nat)
         "C66@2217L23:CalculatorScreen.kt#b0tpbg" 9509460
         "com.alexvanyo.composelife.mosaiccalculator.ComposableSingletons$CalculatorScreenKt.lambda$9509460.<anonymous> (CalculatorScreen.kt:66)"
         "[4] [5] [6] [*]" { hp3 with nodeStack := ([], none) :: hp3.nodeStack } jh htrace hunit
-      exact ⟨lambda_9509460_lambda_0_prog, st', rfl, h1, h2, h3⟩)]
+      exact ⟨ComposableSingletons_CalculatorScreenKt_lambda_9509460_lambda_0_prog, st', rfl, h1, h2, h3⟩)]
   rw [runFast_aconstNull, runFast_aconstNull, runFast_aconstNull,
     runFast_getStatic_singletonInst (d' + 1) subFuel _ _ _ hsingInst]
   rw [runFast_getLambda_step (d' + 1) subFuel _ _ (by omega) hs2 rfl]
@@ -955,7 +951,7 @@ theorem CalculatorScreen_lambda_1_equiv (d subFuel fuel : Nat)
         "C69@2277L23:CalculatorScreen.kt#b0tpbg" 2033009011
         "com.alexvanyo.composelife.mosaiccalculator.ComposableSingletons$CalculatorScreenKt.lambda$2033009011.<anonymous> (CalculatorScreen.kt:69)"
         "[1] [2] [3] [-]" { hp4 with nodeStack := ([], none) :: hp4.nodeStack } jh htrace hunit
-      exact ⟨lambda_2033009011_lambda_0_prog, st', rfl, h1, h2, h3⟩)]
+      exact ⟨ComposableSingletons_CalculatorScreenKt_lambda_2033009011_lambda_0_prog, st', rfl, h1, h2, h3⟩)]
   rw [runFast_aconstNull, runFast_aconstNull, runFast_aconstNull,
     runFast_getStatic_singletonInst (d' + 1) subFuel _ _ _ hsingInst]
   rw [runFast_getLambda_step (d' + 1) subFuel _ _ (by omega) hs3 rfl]
@@ -966,11 +962,11 @@ theorem CalculatorScreen_lambda_1_equiv (d subFuel fuel : Nat)
         "C72@2337L23:CalculatorScreen.kt#b0tpbg" 4056508562
         "com.alexvanyo.composelife.mosaiccalculator.ComposableSingletons$CalculatorScreenKt.lambda$-238458734.<anonymous> (CalculatorScreen.kt:72)"
         "[0] [C] [=] [+]" { hp5 with nodeStack := ([], none) :: hp5.nodeStack } jh htrace hunit
-      exact ⟨lambda__238458734_lambda_0_prog, st', rfl, h1, h2, h3⟩)]
+      exact ⟨ComposableSingletons_CalculatorScreenKt_lambda__238458734_lambda_0_prog, st', rfl, h1, h2, h3⟩)]
   have htr5 : hp.composer.traceEnabled = false := htrace
   rw [runFast_isTraceInProgress' (d' + 1) subFuel _ _ _ (by exact htr5)]
   rw [runFast_ifeq_zero]
-  dsimp only [CalculatorScreen_lambda_1_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_lambda_1_prog, List.drop]
   rw [runFast_getStatic_unit' (d' + 1) subFuel _ _ _ hunit, runFast_areturn']
   refine ⟨_, rfl, rfl, ?_⟩
   simp only [hp5, hp4, hp3, hp2, List.append_assoc, List.cons_append, List.nil_append]
@@ -984,7 +980,7 @@ theorem CalculatorScreen_lambda_2_equiv (d subFuel fuel : Nat)
     (ch defF recompCh : UInt32) (hp hp' : CalcHeap) (jh jh' : Jvm.JvmHeap CalcExt)
     (hunit : jh'.getStatic? "kotlin/Unit" "INSTANCE" = none)
     (hScreen : ∃ subEnd,
-      Jvm.runJvmRes (mkCalcHooks calcProgLookup (d - 1) subFuel) subFuel CalculatorScreen_prog
+      Jvm.runJvmRes (mkCalcHooks calcProgLookup (d - 1) subFuel) subFuel CalculatorScreenKt_CalculatorScreen_prog
           (initCalcJvmState
             [(0, .ext (.calcState cSt)), (1, onKey), (2, modV), (3, .ext .composer),
              (4, .i32 (Compose.updateChangedFlags (ch ||| 1))), (5, .i32 defF)]
@@ -992,7 +988,7 @@ theorem CalculatorScreen_lambda_2_equiv (d subFuel fuel : Nat)
         some (.ext .unit, subEnd) ∧
       subEnd.jvmHeap = jh' ∧ subEnd.heap = hp') :
     ∃ endSt,
-      Jvm.runJvmRes (mkCalcHooks calcProgLookup d subFuel) fuel CalculatorScreen_lambda_2_prog
+      Jvm.runJvmRes (mkCalcHooks calcProgLookup d subFuel) fuel CalculatorScreenKt_CalculatorScreen_lambda_2_prog
           (initCalcJvmState
             [(0, .ext (.calcState cSt)), (1, onKey), (2, modV), (3, .i32 ch), (4, .i32 defF),
              (5, .ext .composer), (6, .i32 recompCh)]
@@ -1004,7 +1000,7 @@ theorem CalculatorScreen_lambda_2_equiv (d subFuel fuel : Nat)
   obtain ⟨subEnd, hrun, hjh', hhp'⟩ := hScreen
   suffices h : ∃ endSt,
       Jvm.runJvmResFast (mkCalcHooks calcProgLookup (d' + 1) subFuel) (kF + 15)
-          CalculatorScreen_lambda_2_prog 0 CalculatorScreen_lambda_2_prog
+          CalculatorScreenKt_CalculatorScreen_lambda_2_prog 0 CalculatorScreenKt_CalculatorScreen_lambda_2_prog
           (initCalcJvmState
             [(0, .ext (.calcState cSt)), (1, onKey), (2, modV), (3, .i32 ch), (4, .i32 defF),
              (5, .ext .composer), (6, .i32 recompCh)]
@@ -1036,10 +1032,10 @@ theorem CalculatorScreen_lambda_2_equiv (d subFuel fuel : Nat)
   have hl5 : locs0 5 = .ext .composer := rfl
   change ∃ endSt,
       Jvm.runJvmResFast (mkCalcHooks calcProgLookup (d' + 1) subFuel) (kF + 15)
-          CalculatorScreen_lambda_2_prog 0 CalculatorScreen_lambda_2_prog ⟨0, [], locs0, jh, hp⟩ =
+          CalculatorScreenKt_CalculatorScreen_lambda_2_prog 0 CalculatorScreenKt_CalculatorScreen_lambda_2_prog ⟨0, [], locs0, jh, hp⟩ =
         some (.ext .unit, endSt) ∧
       endSt.jvmHeap = jh' ∧ endSt.heap = hp'
-  dsimp only [CalculatorScreen_lambda_2_prog]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_lambda_2_prog]
   rw [runFast_aload, hl0, runFast_aload, hl1, runFast_aload, hl2, runFast_aload, hl5]
   rw [runFast_iload, hl3, runFast_iconst, runFast_ior]
   have huc : Jvm.stepInstr (mkCalcHooks calcProgLookup (d' + 1) subFuel)
@@ -1050,7 +1046,7 @@ theorem CalculatorScreen_lambda_2_equiv (d subFuel fuel : Nat)
   rw [Jvm.runJvmResFast_step_of_stepInstr (mkCalcHooks calcProgLookup (d' + 1) subFuel) rfl (by simp) huc rfl]
   rw [runFast_iload, hl4]
   have hsScr : Jvm.stepInstr (mkCalcHooks calcProgLookup (d' + 1) subFuel)
-      (.invokestatic "CalculatorScreenKt" "CalculatorScreen"
+      (.invokestatic "com/alexvanyo/composelife/mosaiccalculator/CalculatorScreenKt" "CalculatorScreen"
         "(Lcom/alexvanyo/composelife/mosaiccalculator/CalculatorState;Lkotlin/jvm/functions/Function1;Lcom/jakewharton/mosaic/modifier/Modifier;Landroidx/compose/runtime/Composer;II)V")
       ⟨9, [.i32 defF, .i32 (Compose.updateChangedFlags (ch ||| 1)),
         .ext .composer, modV, onKey, .ext (.calcState cSt)], locs0, jh, hp⟩ =
@@ -1212,7 +1208,7 @@ private theorem runFast_column_lambda1 (d subFuel f pc cid : Nat)
     {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap CalcExt} {hp hpAfter : CalcHeap}
     (hclos : hp.closures[cid]? = some ("CalculatorScreenKt.CalculatorScreen$lambda$1", [.ext (.calcState cSt)]))
     (hbody : ∃ endSt,
-      Jvm.runJvmRes (mkCalcHooks calcProgLookup d subFuel) subFuel CalculatorScreen_lambda_1_prog
+      Jvm.runJvmRes (mkCalcHooks calcProgLookup d subFuel) subFuel CalculatorScreenKt_CalculatorScreen_lambda_1_prog
           (initCalcJvmState
             [(0, .ext (.calcState cSt)), (1, .ext .unit), (2, .ext .composer), (3, .i32 6)]
             { hp with nodeStack := ([], handler?) :: hp.nodeStack } jh) =
@@ -1240,7 +1236,7 @@ private theorem runFast_column_lambda1 (d subFuel f pc cid : Nat)
     rw [hclos]
     dsimp only [List.cons_append]
     rw [show calcProgLookup "CalculatorScreenKt.CalculatorScreen$lambda$1" =
-        some CalculatorScreen_lambda_1_prog from rfl]
+        some CalculatorScreenKt_CalculatorScreen_lambda_1_prog from rfl]
     dsimp only
     unfold_locals_priv
     dsimp only [initCalcJvmState, Jvm.initJvmState, List.foldl] at hrun ⊢
@@ -1404,7 +1400,7 @@ theorem CalculatorScreen_initial_equiv (d subFuel fuel : Nat)
       jh.get? errAddr = some (.intArray #[1, 2]))
     (hstat : ∀ cls fld,
       cls ≠ "com/alexvanyo/composelife/mosaiccalculator/CalculatorEngineKt$WhenMappings" →
-      cls ≠ "ComposableSingletons$CalculatorScreenKt" →
+      cls ≠ "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" →
       jh.getStatic? cls fld = none)
     (hsing : HasSingletonRowLambdas jh hp.closures) :
     let modV : JvmVal := .ext (.modifier none)
@@ -1428,7 +1424,7 @@ theorem CalculatorScreen_initial_equiv (d subFuel fuel : Nat)
         ("CalculatorScreenKt.CalculatorScreen$lambda$1", [.ext (.calcState cSt)]) }
     let node := calculatorScreenMosaicNode cSt cidKey
     ∃ endSt,
-      Jvm.runJvmRes (mkCalcHooks calcProgLookup d subFuel) fuel CalculatorScreen_prog
+      Jvm.runJvmRes (mkCalcHooks calcProgLookup d subFuel) fuel CalculatorScreenKt_CalculatorScreen_prog
           (initCalcJvmState
             [(0, .ext (.calcState cSt)), (1, onKey), (2, modV), (3, .ext .composer),
              (4, .i32 432), (5, .i32 0)]
@@ -1504,12 +1500,12 @@ theorem CalculatorScreen_initial_equiv (d subFuel fuel : Nat)
     rw [traceEnabled_writeRemember, traceEnabled_readRemember]
     exact htr2
   have hsingMid : HasSingletonRowLambdas jh hpMid.closures := by
-    obtain ⟨id0, id1, id2, id3, hs0, hs1, hs2, hs3, hc0, hc1, hc2, hc3⟩ := hsing
+    obtain ⟨id0, id1, id2, id3, hs0, hs1, hs2, hs3, hsi, hc0, hc1, hc2, hc3⟩ := hsing
     have hlt0 : id0 < hp.closures.size := (Array.getElem?_eq_some_iff.mp hc0).1
     have hlt1 : id1 < hp.closures.size := (Array.getElem?_eq_some_iff.mp hc1).1
     have hlt2 : id2 < hp.closures.size := (Array.getElem?_eq_some_iff.mp hc2).1
     have hlt3 : id3 < hp.closures.size := (Array.getElem?_eq_some_iff.mp hc3).1
-    refine ⟨id0, id1, id2, id3, hs0, hs1, hs2, hs3, ?_, ?_, ?_, ?_⟩
+    refine ⟨id0, id1, id2, id3, hs0, hs1, hs2, hs3, hsi, ?_, ?_, ?_, ?_⟩
     · dsimp only [hpMid]
       rw [Array.getElem?_push_lt (by simp; omega), Array.getElem_push_lt hlt0, ← Array.getElem?_eq_getElem hlt0]
       exact hc0
@@ -1527,7 +1523,7 @@ theorem CalculatorScreen_initial_equiv (d subFuel fuel : Nat)
     [] (some cidKey) hpMid.nodeStack rfl herrSwitch hstat hsingMid
   suffices h : ∃ endSt,
       Jvm.runJvmResFast (mkCalcHooks calcProgLookup (d' + 3) subFuel) (kF + 150)
-          CalculatorScreen_prog 0 CalculatorScreen_prog
+          CalculatorScreenKt_CalculatorScreen_prog 0 CalculatorScreenKt_CalculatorScreen_prog
           (initCalcJvmState
             [(0, .ext (.calcState cSt)), (1, onKey), (2, modV), (3, .ext .composer),
              (4, .i32 432), (5, .i32 0)]
@@ -1563,7 +1559,7 @@ theorem CalculatorScreen_initial_equiv (d subFuel fuel : Nat)
   have hl5 : locs0 5 = .i32 0 := rfl
   change ∃ endSt,
       Jvm.runJvmResFast (mkCalcHooks calcProgLookup (d' + 3) subFuel) (kF + 150)
-          CalculatorScreen_prog 0 CalculatorScreen_prog ⟨0, [], locs0, jh, hp⟩ =
+          CalculatorScreenKt_CalculatorScreen_prog 0 CalculatorScreenKt_CalculatorScreen_prog ⟨0, [], locs0, jh, hp⟩ =
         some (.unit, endSt) ∧
       endSt.jvmHeap = jh ∧
       endSt.heap = { emitMosaicNode hpMid (calculatorScreenMosaicNode cSt cidKey) with
@@ -1572,7 +1568,7 @@ theorem CalculatorScreen_initial_equiv (d subFuel fuel : Nat)
         closures := hpMid.closures.push
           ("CalculatorScreenKt.CalculatorScreen$lambda$2",
             [.ext (.calcState cSt), onKey, modV, .i32 432, .i32 0]) }
-  dsimp only [CalculatorScreen_prog]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog]
   rw [runFast_aload, hl0, runFast_ldcStr, runFast_checkNotNullParam]
   rw [runFast_aload, hl1, runFast_ldcStr, runFast_checkNotNull' (d' + 2) subFuel _ _ _ honKey]
   rw [runFast_aload, hl3, runFast_iconst, runFast_startRestartGroup, runFast_astore]
@@ -1586,21 +1582,21 @@ theorem CalculatorScreen_initial_equiv (d subFuel fuel : Nat)
   rw [hChg1]
   simp only [↓reduceIte]
   rw [runFast_goto']
-  dsimp only [CalculatorScreen_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
   rw [runFast_ifeq_nonzero (by decide)]
   rw [runFast_iconst, runFast_goto']
-  dsimp only [CalculatorScreen_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
   rw [runFast_ior, runFast_istore]
   rw [runFast_iload]; peel_loc; rw [hl4, runFast_iconst, runFast_iand, runFast_ifne_nonzero' (by decide)]
-  dsimp only [CalculatorScreen_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
   rw [runFast_iload]; peel_loc; rw [hl5, runFast_iconst, runFast_iand, runFast_ifeq_zero]
-  dsimp only [CalculatorScreen_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
   rw [runFast_iload]; peel_loc; rw [hl4, runFast_iconst, runFast_iand, runFast_ifne_nonzero' (by decide)]
-  dsimp only [CalculatorScreen_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
   rw [runFast_aload]; peel_loc; rw [runFast_iload]; peel_loc; rw [runFast_iconst, runFast_iand, runFast_iconst]
   rw [runFast_if_icmpeq_ne (by decide)]
   rw [runFast_iconst, runFast_goto']
-  dsimp only [CalculatorScreen_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
   rw [runFast_iload]; peel_loc; rw [runFast_iconst, runFast_iand, runFast_shouldExecute']
   dsimp only
   have hsh : Compose.shouldExecute r2 (((1 : UInt32) != 0)) ((432 ||| 4) &&& (1 : UInt32)).toInt32 = true := by
@@ -1609,13 +1605,13 @@ theorem CalculatorScreen_initial_equiv (d subFuel fuel : Nat)
   simp only [↓reduceIte]
   rw [runFast_ifeq_nonzero (by decide)]
   rw [runFast_iload]; peel_loc; rw [hl5, runFast_iconst, runFast_iand, runFast_ifeq_zero]
-  dsimp only [CalculatorScreen_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
   rw [runFast_isTraceInProgress' (d' + 2) subFuel _ _ _ htr2, runFast_ifeq_zero]
-  dsimp only [CalculatorScreen_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
   rw [runFast_aload]; peel_loc; rw [hl2, runFast_aload]; peel_loc; rw [runFast_iconst, runFast_ldcStr, runFast_sourceInfoMarkerStart]
   rw [runFast_aload]; peel_loc; rw [runFast_astore, runFast_iload]; peel_loc; rw [runFast_iconst, runFast_iand, runFast_iconst]
   rw [runFast_if_icmpne_ne' (by decide)]
-  dsimp only [CalculatorScreen_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
   rw [runFast_iconst]
   rw [runFast_istore, runFast_iconst, runFast_istore]
   rw [runFast_aload]; peel_loc; rw [runFast_rememberedValue]
@@ -1633,7 +1629,7 @@ theorem CalculatorScreen_initial_equiv (d subFuel fuel : Nat)
   rw [runFast_aload]; peel_loc; rw [runFast_swap, runFast_astore]
   rw [runFast_aload]; peel_loc; rw [runFast_aload]; peel_loc; rw [runFast_updateRememberedValue]
   rw [runFast_aload]; peel_loc; rw [runFast_goto']
-  dsimp only [CalculatorScreen_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
   rw [runFast_nop, runFast_nop, runFast_checkCast_ext rfl, runFast_astore]
   rw [runFast_aload]; peel_loc; rw [runFast_sourceInfoMarkerEnd]
   rw [runFast_aload]; peel_loc; rw [runFast_onKeyEvent]
@@ -1656,7 +1652,7 @@ theorem CalculatorScreen_initial_equiv (d subFuel fuel : Nat)
       ] (some cidKey))) = emitMosaicNode hpMid (calculatorScreenMosaicNode cSt cidKey) from rfl]
   rw [runFast_isTraceInProgress' (d' + 2) subFuel _ _ _
     (by dsimp only [emitMosaicNode, hpMid]; cases hp.nodeStack <;> exact htr4), runFast_ifeq_zero]
-  dsimp only [CalculatorScreen_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
   rw [runFast_aload]; peel_loc; rw [runFast_endRestartGroup]
   dsimp only
   have hr4End : (Compose.endRestartGroup r4).1 = some 2094116101 := by
@@ -1676,7 +1672,7 @@ theorem CalculatorScreen_initial_equiv (d subFuel fuel : Nat)
   rw [runFast_invokedynamic_bsm5 parseTags_bsm2 bsm_CalculatorScreen_lambda_2]
   dsimp only [allocClosure]
   rw [runFast_updateScope, runFast_goto']
-  dsimp only [CalculatorScreen_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
   rw [runFast_vreturn']
   refine ⟨_, rfl, rfl, ?_⟩
   cases hns : hp.nodeStack <;>
@@ -1704,7 +1700,7 @@ theorem CalculatorScreen_recompose_equiv (d subFuel fuel : Nat)
       jh.get? errAddr = some (.intArray #[1, 2]))
     (hstat : ∀ cls fld,
       cls ≠ "com/alexvanyo/composelife/mosaiccalculator/CalculatorEngineKt$WhenMappings" →
-      cls ≠ "ComposableSingletons$CalculatorScreenKt" →
+      cls ≠ "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" →
       jh.getStatic? cls fld = none)
     (hsing : HasSingletonRowLambdas jh hp.closures) :
     let modV : JvmVal := .ext (.modifier none)
@@ -1719,7 +1715,7 @@ theorem CalculatorScreen_recompose_equiv (d subFuel fuel : Nat)
     let closuresEnd := hpMid.closures.push
       ("CalculatorScreenKt.CalculatorScreen$lambda$2", [.ext (.calcState cSt), onKey, modV, .i32 432, .i32 0])
     ∃ endSt,
-      Jvm.runJvmRes (mkCalcHooks calcProgLookup d subFuel) fuel CalculatorScreen_prog
+      Jvm.runJvmRes (mkCalcHooks calcProgLookup d subFuel) fuel CalculatorScreenKt_CalculatorScreen_prog
           (initCalcJvmState
             [(0, .ext (.calcState cSt)), (1, onKey), (2, modV), (3, .ext .composer),
              (4, .i32 432), (5, .i32 0)]
@@ -1848,12 +1844,12 @@ theorem CalculatorScreen_recompose_equiv (d subFuel fuel : Nat)
       simp only [he, ↓reduceIte]
       exact htrace
   have hsingMid : HasSingletonRowLambdas jh hpMid.closures := by
-    obtain ⟨id0, id1, id2, id3, hs0, hs1, hs2, hs3, hc0, hc1, hc2, hc3⟩ := hsing
+    obtain ⟨id0, id1, id2, id3, hs0, hs1, hs2, hs3, hsi, hc0, hc1, hc2, hc3⟩ := hsing
     have hlt0 : id0 < hp.closures.size := (Array.getElem?_eq_some_iff.mp hc0).1
     have hlt1 : id1 < hp.closures.size := (Array.getElem?_eq_some_iff.mp hc1).1
     have hlt2 : id2 < hp.closures.size := (Array.getElem?_eq_some_iff.mp hc2).1
     have hlt3 : id3 < hp.closures.size := (Array.getElem?_eq_some_iff.mp hc3).1
-    refine ⟨id0, id1, id2, id3, hs0, hs1, hs2, hs3, ?_, ?_, ?_, ?_⟩
+    refine ⟨id0, id1, id2, id3, hs0, hs1, hs2, hs3, hsi, ?_, ?_, ?_, ?_⟩
     · dsimp only [hpMid]; rw [Array.getElem?_push_lt hlt0, ← Array.getElem?_eq_getElem hlt0]; exact hc0
     · dsimp only [hpMid]; rw [Array.getElem?_push_lt hlt1, ← Array.getElem?_eq_getElem hlt1]; exact hc1
     · dsimp only [hpMid]; rw [Array.getElem?_push_lt hlt2, ← Array.getElem?_eq_getElem hlt2]; exact hc2
@@ -1863,7 +1859,7 @@ theorem CalculatorScreen_recompose_equiv (d subFuel fuel : Nat)
     [] (some cidKey) hpMid.nodeStack rfl herrSwitch hstat hsingMid
   suffices h : ∃ endSt,
       Jvm.runJvmResFast (mkCalcHooks calcProgLookup (d' + 3) subFuel) (kF + 150)
-          CalculatorScreen_prog 0 CalculatorScreen_prog
+          CalculatorScreenKt_CalculatorScreen_prog 0 CalculatorScreenKt_CalculatorScreen_prog
           (initCalcJvmState
             [(0, .ext (.calcState cSt)), (1, onKey), (2, modV), (3, .ext .composer),
              (4, .i32 432), (5, .i32 0)]
@@ -1899,7 +1895,7 @@ theorem CalculatorScreen_recompose_equiv (d subFuel fuel : Nat)
   have hl5 : locs0 5 = .i32 0 := rfl
   change ∃ endSt,
       Jvm.runJvmResFast (mkCalcHooks calcProgLookup (d' + 3) subFuel) (kF + 150)
-          CalculatorScreen_prog 0 CalculatorScreen_prog ⟨0, [], locs0, jh, hp⟩ =
+          CalculatorScreenKt_CalculatorScreen_prog 0 CalculatorScreenKt_CalculatorScreen_prog ⟨0, [], locs0, jh, hp⟩ =
         some (.unit, endSt) ∧
       endSt.jvmHeap = jh ∧
       endSt.heap = { emitMosaicNode hpMid (calculatorScreenMosaicNode cSt cidKey) with
@@ -1908,7 +1904,7 @@ theorem CalculatorScreen_recompose_equiv (d subFuel fuel : Nat)
         closures := hpMid.closures.push
           ("CalculatorScreenKt.CalculatorScreen$lambda$2",
             [.ext (.calcState cSt), onKey, modV, .i32 432, .i32 0]) }
-  dsimp only [CalculatorScreen_prog]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog]
   rw [runFast_aload, hl0, runFast_ldcStr, runFast_checkNotNullParam]
   rw [runFast_aload, hl1, runFast_ldcStr, runFast_checkNotNull' (d' + 2) subFuel _ _ _ honKey]
   rw [runFast_aload, hl3, runFast_iconst, runFast_startRestartGroup, runFast_astore]
@@ -1927,7 +1923,7 @@ theorem CalculatorScreen_recompose_equiv (d subFuel fuel : Nat)
         (h3 : stk88 3 = .ext .composer) (h4 : stk88 4 = .i32 432) (h5 : stk88 5 = .i32 0),
       ∃ endSt,
         Jvm.runJvmResFast (mkCalcHooks calcProgLookup (d' + 3) subFuel) fuel88
-            CalculatorScreen_prog 88 (CalculatorScreen_prog.drop 88)
+            CalculatorScreenKt_CalculatorScreen_prog 88 (CalculatorScreenKt_CalculatorScreen_prog.drop 88)
             ⟨88, [], stk88, jh, { hp with composer := r2 }⟩ =
           some (.unit, endSt) ∧
         endSt.jvmHeap = jh ∧
@@ -1941,15 +1937,15 @@ theorem CalculatorScreen_recompose_equiv (d subFuel fuel : Nat)
     obtain ⟨k88, rfl⟩ := Nat.exists_eq_add_of_le' hf88
     have hmask : (dirtyV &&& (112 : UInt32)) ≠ (32 : UInt32) := by
       dsimp only [dirtyV]; split <;> decide
-    dsimp only [CalculatorScreen_prog, List.drop]
+    dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
     rw [runFast_iload, h5, runFast_iconst, runFast_iand, runFast_ifeq_zero]
-    dsimp only [CalculatorScreen_prog, List.drop]
+    dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
     rw [runFast_isTraceInProgress' (d' + 2) subFuel _ _ _ htr2, runFast_ifeq_zero]
-    dsimp only [CalculatorScreen_prog, List.drop]
+    dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
     rw [runFast_aload, h2, runFast_aload, h3, runFast_iconst, runFast_ldcStr, runFast_sourceInfoMarkerStart]
     rw [runFast_aload]; peel_loc; rw [h3, runFast_astore, runFast_iload]; peel_loc; rw [h6, runFast_iconst, runFast_iand, runFast_iconst]
     rw [runFast_if_icmpne_ne' hmask]
-    dsimp only [CalculatorScreen_prog, List.drop]
+    dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
     rw [runFast_iconst]
     rw [runFast_istore, runFast_iconst, runFast_istore]
     rw [runFast_aload]; peel_loc; rw [runFast_rememberedValue]
@@ -1961,7 +1957,7 @@ theorem CalculatorScreen_recompose_equiv (d subFuel fuel : Nat)
     rw [runFast_aload]; peel_loc; rw [runFast_getComposerCompanion hcompStatic, runFast_getEmpty']
     rw [runFast_if_acmpne_ext rfl]
     simp only [Bool.not_false, ↓reduceIte]
-    dsimp only [CalculatorScreen_prog, List.drop]
+    dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
     rw [runFast_aload]; peel_loc; rw [runFast_nop, runFast_nop, runFast_checkCast_ext rfl, runFast_astore]
     rw [runFast_aload]; peel_loc; rw [h3, runFast_sourceInfoMarkerEnd]
     rw [runFast_aload]; peel_loc; rw [runFast_onKeyEvent]
@@ -1990,7 +1986,7 @@ theorem CalculatorScreen_recompose_equiv (d subFuel fuel : Nat)
     have htrMid : (emitMosaicNode hpMid (calculatorScreenMosaicNode cSt cidKey)).composer.traceEnabled = false := by
       dsimp only [emitMosaicNode]; cases hpMid.nodeStack <;> exact htr3
     rw [runFast_isTraceInProgress' (d' + 2) subFuel _ _ _ htrMid, runFast_ifeq_zero]
-    dsimp only [CalculatorScreen_prog, List.drop]
+    dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
     rw [runFast_aload]; peel_loc; rw [h3, runFast_endRestartGroup]
     dsimp only
     have hKeyEnd : (Compose.endRestartGroup (emitMosaicNode hpMid (calculatorScreenMosaicNode cSt cidKey)).composer).1 =
@@ -2009,7 +2005,7 @@ theorem CalculatorScreen_recompose_equiv (d subFuel fuel : Nat)
     rw [runFast_invokedynamic_bsm5 parseTags_bsm2 bsm_CalculatorScreen_lambda_2]
     dsimp only [allocClosure]
     rw [runFast_updateScope, runFast_goto']
-    dsimp only [CalculatorScreen_prog, List.drop]
+    dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
     rw [runFast_vreturn']
     refine ⟨_, rfl, rfl, ?_⟩
     cases hns : hp.nodeStack <;>
@@ -2021,19 +2017,19 @@ theorem CalculatorScreen_recompose_equiv (d subFuel fuel : Nat)
   rw [hbc]
   simp only [Bool.not_false, ↓reduceIte]
   rw [runFast_goto']
-  dsimp only [CalculatorScreen_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
   rw [runFast_ifeq_nonzero (by decide), runFast_iconst, runFast_goto']
-  dsimp only [CalculatorScreen_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
   rw [runFast_ior, runFast_istore]
   rw [runFast_iload]; peel_loc; rw [hl4, runFast_iconst, runFast_iand, runFast_ifne_nonzero' (by decide)]
-  dsimp only [CalculatorScreen_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
   rw [runFast_iload]; peel_loc; rw [hl5, runFast_iconst, runFast_iand, runFast_ifeq_zero]
-  dsimp only [CalculatorScreen_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
   rw [runFast_iload]; peel_loc; rw [hl4, runFast_iconst, runFast_iand, runFast_ifne_nonzero' (by decide)]
-  dsimp only [CalculatorScreen_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
   rw [runFast_aload]; peel_loc; rw [runFast_iload]; peel_loc; rw [runFast_iconst, runFast_iand, runFast_iconst]
   rw [runFast_if_icmpeq_ne (by decide), runFast_iconst, runFast_goto']
-  dsimp only [CalculatorScreen_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
   rw [runFast_iload]; peel_loc; rw [runFast_iconst, runFast_iand, runFast_shouldExecute']
   dsimp only
   rw [hbc] at hShTrue
@@ -2067,7 +2063,7 @@ theorem CalculatorScreen_skip_equiv_ch (d subFuel fuel : Nat)
     let closuresEnd := hp.closures.push
       ("CalculatorScreenKt.CalculatorScreen$lambda$2", [.ext (.calcState cSt), onKey, modV, .i32 ch, .i32 0])
     ∃ endSt,
-      Jvm.runJvmRes (mkCalcHooks calcProgLookup d subFuel) fuel CalculatorScreen_prog
+      Jvm.runJvmRes (mkCalcHooks calcProgLookup d subFuel) fuel CalculatorScreenKt_CalculatorScreen_prog
           (initCalcJvmState
             [(0, .ext (.calcState cSt)), (1, onKey), (2, modV), (3, .ext .composer),
              (4, .i32 ch), (5, .i32 0)]
@@ -2161,7 +2157,7 @@ theorem CalculatorScreen_skip_equiv_ch (d subFuel fuel : Nat)
       rfl
   suffices h : ∃ endSt,
       Jvm.runJvmResFast (mkCalcHooks calcProgLookup (d' + 1) subFuel) (kF + 80)
-          CalculatorScreen_prog 0 CalculatorScreen_prog
+          CalculatorScreenKt_CalculatorScreen_prog 0 CalculatorScreenKt_CalculatorScreen_prog
           (initCalcJvmState
             [(0, .ext (.calcState cSt)), (1, onKey), (2, modV), (3, .ext .composer),
              (4, .i32 ch), (5, .i32 0)]
@@ -2197,7 +2193,7 @@ theorem CalculatorScreen_skip_equiv_ch (d subFuel fuel : Nat)
   have hl5 : locs0 5 = .i32 0 := rfl
   change ∃ endSt,
       Jvm.runJvmResFast (mkCalcHooks calcProgLookup (d' + 1) subFuel) (kF + 80)
-          CalculatorScreen_prog 0 CalculatorScreen_prog ⟨0, [], locs0, jh, hp⟩ =
+          CalculatorScreenKt_CalculatorScreen_prog 0 CalculatorScreenKt_CalculatorScreen_prog ⟨0, [], locs0, jh, hp⟩ =
         some (.unit, endSt) ∧
       endSt.jvmHeap = jh ∧
       endSt.heap = { hp with
@@ -2206,7 +2202,7 @@ theorem CalculatorScreen_skip_equiv_ch (d subFuel fuel : Nat)
         closures := hp.closures.push
           ("CalculatorScreenKt.CalculatorScreen$lambda$2",
             [.ext (.calcState cSt), onKey, modV, .i32 ch, .i32 0]) }
-  dsimp only [CalculatorScreen_prog]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog]
   rw [runFast_aload, hl0, runFast_ldcStr, runFast_checkNotNullParam]
   rw [runFast_aload, hl1, runFast_ldcStr, runFast_checkNotNull' d' subFuel _ _ _ honKey]
   rw [runFast_aload, hl3, runFast_iconst, runFast_startRestartGroup, runFast_astore]
@@ -2222,21 +2218,21 @@ theorem CalculatorScreen_skip_equiv_ch (d subFuel fuel : Nat)
   rw [hChgFalse]
   simp only [Bool.false_eq_true, ↓reduceIte]
   rw [runFast_goto']
-  dsimp only [CalculatorScreen_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
   rw [runFast_ifeq_zero]
-  dsimp only [CalculatorScreen_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
   rw [runFast_iconst, runFast_ior, runFast_istore]
   rw [runFast_iload]; peel_loc; rw [hl4, runFast_iconst, runFast_iand,
     runFast_ifne_nonzero' (by rcases hch with rfl | rfl <;> decide)]
-  dsimp only [CalculatorScreen_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
   rw [runFast_iload]; peel_loc; rw [hl5, runFast_iconst, runFast_iand, runFast_ifeq_zero]
-  dsimp only [CalculatorScreen_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
   rw [runFast_iload]; peel_loc; rw [hl4, runFast_iconst, runFast_iand,
     runFast_ifne_nonzero' (by rcases hch with rfl | rfl <;> decide)]
-  dsimp only [CalculatorScreen_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
   rw [runFast_aload]; peel_loc; rw [runFast_iload]; peel_loc; rw [runFast_iconst, runFast_iand, runFast_iconst]
   rw [runFast_if_icmpeq_eq' (by rcases hch with rfl | rfl <;> decide)]
-  dsimp only [CalculatorScreen_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
   rw [runFast_iconst]
   rw [runFast_iload]; peel_loc; rw [runFast_iconst, runFast_iand, runFast_shouldExecute']
   dsimp only
@@ -2244,7 +2240,7 @@ theorem CalculatorScreen_skip_equiv_ch (d subFuel fuel : Nat)
   rw [show (Compose.checkChangedSlot (Jvm.JvmVal.beqVal beqCalcExt) r1 (.ext (.calcState cSt))).2 = r2 from rfl, hShFalse]
   simp only [Bool.false_eq_true, ↓reduceIte]
   rw [runFast_ifeq_zero]
-  dsimp only [CalculatorScreen_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
   rw [runFast_aload]; peel_loc; rw [runFast_skipToGroupEnd]
   rw [runFast_aload]; peel_loc; rw [runFast_endRestartGroup]
   dsimp only
@@ -2256,7 +2252,7 @@ theorem CalculatorScreen_skip_equiv_ch (d subFuel fuel : Nat)
   rw [runFast_invokedynamic_bsm5 parseTags_bsm2 bsm_CalculatorScreen_lambda_2]
   dsimp only [allocClosure]
   rw [runFast_updateScope, runFast_goto']
-  dsimp only [CalculatorScreen_prog, List.drop]
+  dsimp only [CalculatorScreenKt_CalculatorScreen_prog, List.drop]
   rw [runFast_vreturn']
   exact ⟨_, rfl, rfl, rfl⟩
 
@@ -2283,7 +2279,7 @@ theorem CalculatorScreen_skip_equiv (d subFuel fuel : Nat)
     let closuresEnd := hp.closures.push
       ("CalculatorScreenKt.CalculatorScreen$lambda$2", [.ext (.calcState cSt), onKey, modV, .i32 176, .i32 0])
     ∃ endSt,
-      Jvm.runJvmRes (mkCalcHooks calcProgLookup d subFuel) fuel CalculatorScreen_prog
+      Jvm.runJvmRes (mkCalcHooks calcProgLookup d subFuel) fuel CalculatorScreenKt_CalculatorScreen_prog
           (initCalcJvmState
             [(0, .ext (.calcState cSt)), (1, onKey), (2, modV), (3, .ext .composer),
              (4, .i32 176), (5, .i32 0)]

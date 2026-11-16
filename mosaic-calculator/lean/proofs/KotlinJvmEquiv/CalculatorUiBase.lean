@@ -30,43 +30,43 @@ open MosaicCalculator.Model
 /-- Complete program table resolving all lifted methods in `CalculatorEngineKt`, `CalculatorScreenKt`, and
 `ComposableSingletons$CalculatorScreenKt`. -/
 def calcProgLookup : String → Option (List JvmInstr)
-  | "CalculatorEngineKt.checkedAdd" => some checkedAdd_prog
-  | "CalculatorEngineKt.checkedSub" => some checkedSub_prog
-  | "CalculatorEngineKt.checkedMul" => some checkedMul_prog
-  | "CalculatorEngineKt.checkedDiv" => some checkedDiv_prog
-  | "CalculatorEngineKt.applyOp" => some applyOp_prog
-  | "CalculatorEngineKt.reduceCalculatorState" => some reduceCalculatorState_prog
-  | "CalculatorEngineKt.mapTerminalKey" => some mapTerminalKey_prog
-  | "CalculatorEngineKt.formatDisplayLine" => some formatDisplayLine_prog
-  | "CalculatorScreenKt.CalculatorApp" => some CalculatorApp_prog
-  | "CalculatorScreenKt.CalculatorScreen" => some CalculatorScreen_prog
-  | "CalculatorScreenKt.CalculatorApp$lambda$1" => some CalculatorApp_lambda_1_prog
-  | "CalculatorScreenKt.CalculatorApp$lambda$2" => some CalculatorApp_lambda_2_prog
-  | "CalculatorScreenKt.CalculatorApp$lambda$3$0" => some CalculatorApp_lambda_3_0_prog
-  | "CalculatorScreenKt.CalculatorApp$lambda$4" => some CalculatorApp_lambda_4_prog
-  | "CalculatorScreenKt.CalculatorScreen$lambda$0$0" => some CalculatorScreen_lambda_0_0_prog
-  | "CalculatorScreenKt.CalculatorScreen$lambda$1" => some CalculatorScreen_lambda_1_prog
-  | "CalculatorScreenKt.CalculatorScreen$lambda$2" => some CalculatorScreen_lambda_2_prog
+  | "CalculatorEngineKt.checkedAdd" => some CalculatorEngineKt_checkedAdd_prog
+  | "CalculatorEngineKt.checkedSub" => some CalculatorEngineKt_checkedSub_prog
+  | "CalculatorEngineKt.checkedMul" => some CalculatorEngineKt_checkedMul_prog
+  | "CalculatorEngineKt.checkedDiv" => some CalculatorEngineKt_checkedDiv_prog
+  | "CalculatorEngineKt.applyOp" => some CalculatorEngineKt_applyOp_prog
+  | "CalculatorEngineKt.reduceCalculatorState" => some CalculatorEngineKt_reduceCalculatorState_prog
+  | "CalculatorEngineKt.mapTerminalKey" => some CalculatorEngineKt_mapTerminalKey_prog
+  | "CalculatorEngineKt.formatDisplayLine" => some CalculatorEngineKt_formatDisplayLine_prog
+  | "CalculatorScreenKt.CalculatorApp" => some CalculatorScreenKt_CalculatorApp_prog
+  | "CalculatorScreenKt.CalculatorScreen" => some CalculatorScreenKt_CalculatorScreen_prog
+  | "CalculatorScreenKt.CalculatorApp$lambda$1" => some CalculatorScreenKt_CalculatorApp_lambda_1_prog
+  | "CalculatorScreenKt.CalculatorApp$lambda$2" => some CalculatorScreenKt_CalculatorApp_lambda_2_prog
+  | "CalculatorScreenKt.CalculatorApp$lambda$3$0" => some CalculatorScreenKt_CalculatorApp_lambda_3_0_prog
+  | "CalculatorScreenKt.CalculatorApp$lambda$4" => some CalculatorScreenKt_CalculatorApp_lambda_4_prog
+  | "CalculatorScreenKt.CalculatorScreen$lambda$0$0" => some CalculatorScreenKt_CalculatorScreen_lambda_0_0_prog
+  | "CalculatorScreenKt.CalculatorScreen$lambda$1" => some CalculatorScreenKt_CalculatorScreen_lambda_1_prog
+  | "CalculatorScreenKt.CalculatorScreen$lambda$2" => some CalculatorScreenKt_CalculatorScreen_lambda_2_prog
   | "ComposableSingletons$CalculatorScreenKt.<init>" =>
-    some com_alexvanyo_composelife_mosaiccalculator_ComposableSingletons_CalculatorScreenKt_prog
+    some ComposableSingletons_CalculatorScreenKt_init_prog
   | "ComposableSingletons$CalculatorScreenKt.getLambda$125313259$ComposeLife_mosaic_calculator" =>
-    some getLambda_125313259_ComposeLife_mosaic_calculator_prog
+    some ComposableSingletons_CalculatorScreenKt_getLambda_125313259_ComposeLife_mosaic_calculator_prog
   | "ComposableSingletons$CalculatorScreenKt.getLambda$9509460$ComposeLife_mosaic_calculator" =>
-    some getLambda_9509460_ComposeLife_mosaic_calculator_prog
+    some ComposableSingletons_CalculatorScreenKt_getLambda_9509460_ComposeLife_mosaic_calculator_prog
   | "ComposableSingletons$CalculatorScreenKt.getLambda$2033009011$ComposeLife_mosaic_calculator" =>
-    some getLambda_2033009011_ComposeLife_mosaic_calculator_prog
+    some ComposableSingletons_CalculatorScreenKt_getLambda_2033009011_ComposeLife_mosaic_calculator_prog
   | "ComposableSingletons$CalculatorScreenKt.getLambda$-238458734$ComposeLife_mosaic_calculator" =>
-    some getLambda__238458734_ComposeLife_mosaic_calculator_prog
+    some ComposableSingletons_CalculatorScreenKt_getLambda__238458734_ComposeLife_mosaic_calculator_prog
   | "ComposableSingletons$CalculatorScreenKt.lambda_125313259$lambda$0" =>
-    some lambda_125313259_lambda_0_prog
+    some ComposableSingletons_CalculatorScreenKt_lambda_125313259_lambda_0_prog
   | "ComposableSingletons$CalculatorScreenKt.lambda_9509460$lambda$0" =>
-    some lambda_9509460_lambda_0_prog
+    some ComposableSingletons_CalculatorScreenKt_lambda_9509460_lambda_0_prog
   | "ComposableSingletons$CalculatorScreenKt.lambda_2033009011$lambda$0" =>
-    some lambda_2033009011_lambda_0_prog
+    some ComposableSingletons_CalculatorScreenKt_lambda_2033009011_lambda_0_prog
   | "ComposableSingletons$CalculatorScreenKt.lambda__238458734$lambda$0" =>
-    some lambda__238458734_lambda_0_prog
+    some ComposableSingletons_CalculatorScreenKt_lambda__238458734_lambda_0_prog
   | "ComposableSingletons$CalculatorScreenKt.<clinit>" =>
-    some clinit_ComposableSingletons_CalculatorScreenKt_prog
+    some ComposableSingletons_CalculatorScreenKt_clinit_prog
   | _ => none
 
 /-- Full recursive JVM hooks for UI + engine execution (`depth := 8`, `fuel := 500`). -/
@@ -80,14 +80,16 @@ private instance mkCalcHooks_hasDefaultIsZero (r : String → Option (List JvmIn
 /-- Predicate asserting `ComposableSingletons$CalculatorScreenKt` static row lambdas are initialized. -/
 def HasSingletonRowLambdas (jh : Jvm.JvmHeap CalcExt) (closures : Array (String × List JvmVal)) : Prop :=
   ∃ id0 id1 id2 id3,
-    jh.getStatic? "ComposableSingletons$CalculatorScreenKt" "lambda$125313259" =
+    jh.getStatic? "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" "lambda$125313259" =
       some (.ext (.closureRef id0)) ∧
-    jh.getStatic? "ComposableSingletons$CalculatorScreenKt" "lambda$9509460" =
+    jh.getStatic? "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" "lambda$9509460" =
       some (.ext (.closureRef id1)) ∧
-    jh.getStatic? "ComposableSingletons$CalculatorScreenKt" "lambda$2033009011" =
+    jh.getStatic? "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" "lambda$2033009011" =
       some (.ext (.closureRef id2)) ∧
-    jh.getStatic? "ComposableSingletons$CalculatorScreenKt" "lambda$-238458734" =
+    jh.getStatic? "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" "lambda$-238458734" =
       some (.ext (.closureRef id3)) ∧
+    jh.getStatic? "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" "INSTANCE" =
+      some (.ext (.companion "ComposableSingletons$CalculatorScreenKt")) ∧
     closures[id0]? = some ("ComposableSingletons$CalculatorScreenKt.lambda_125313259$lambda$0", []) ∧
     closures[id1]? = some ("ComposableSingletons$CalculatorScreenKt.lambda_9509460$lambda$0", []) ∧
     closures[id2]? = some ("ComposableSingletons$CalculatorScreenKt.lambda_2033009011$lambda$0", []) ∧
@@ -130,14 +132,14 @@ theorem runFast_iconst {hooks : Jvm.JvmHooks CalcExt CalcHeap} {f pc : Nat}
 
 private theorem exec_singleton_getLambda {d f : Nat} (fld : String) (v : JvmVal)
     (hp : CalcHeap) {jh : Jvm.JvmHeap CalcExt}
-    (hgs : jh.getStatic? "ComposableSingletons$CalculatorScreenKt" fld = some v) :
+    (hgs : jh.getStatic? "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" fld = some v) :
     Jvm.runJvmRes (mkCalcHooks calcProgLookup (d + 1) f) 10
-        [.getstatic "ComposableSingletons$CalculatorScreenKt" fld "Lkotlin/jvm/functions/Function3;", .areturn]
+        [.getstatic "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" fld "Lkotlin/jvm/functions/Function3;", .areturn]
         (initCalcJvmState [] hp jh) =
       some (v, { pc := 1, stack := [v], locals := fun _ => .i32 0, jvmHeap := jh, heap := hp }) := by
   apply Jvm.runJvmRes_of_runJvmResFast (mkCalcHooks calcProgLookup (d + 1) f) 10 _ 0 _ _ _ rfl rfl
   have h1 : Jvm.stepInstr (mkCalcHooks calcProgLookup (d + 1) f)
-      (.getstatic "ComposableSingletons$CalculatorScreenKt" fld "Lkotlin/jvm/functions/Function3;")
+      (.getstatic "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" fld "Lkotlin/jvm/functions/Function3;")
       ⟨0, [], fun _ => .i32 0, jh, hp⟩ =
       .inl (some ⟨1, [v], fun _ => .i32 0, jh, hp⟩) := by
     dsimp [Jvm.stepInstr]
@@ -147,40 +149,40 @@ private theorem exec_singleton_getLambda {d f : Nat} (fld : String) (v : JvmVal)
   rfl
 
 theorem getLambda_125313259_bytecode_equiv (d f : Nat) (hp : CalcHeap) {jh : Jvm.JvmHeap CalcExt} {v : JvmVal}
-    (hgs : jh.getStatic? "ComposableSingletons$CalculatorScreenKt" "lambda$125313259" = some v) :
+    (hgs : jh.getStatic? "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" "lambda$125313259" = some v) :
     ∃ st',
       Jvm.runJvmRes (mkCalcHooks calcProgLookup (d + 1) f) 10
-        getLambda_125313259_ComposeLife_mosaic_calculator_prog (initCalcJvmState [] hp jh) =
+        ComposableSingletons_CalculatorScreenKt_getLambda_125313259_ComposeLife_mosaic_calculator_prog (initCalcJvmState [] hp jh) =
         some (v, st') ∧
       st'.jvmHeap = jh ∧
       st'.heap = hp :=
   ⟨_, exec_singleton_getLambda "lambda$125313259" v hp hgs, rfl, rfl⟩
 
 theorem getLambda_9509460_bytecode_equiv (d f : Nat) (hp : CalcHeap) {jh : Jvm.JvmHeap CalcExt} {v : JvmVal}
-    (hgs : jh.getStatic? "ComposableSingletons$CalculatorScreenKt" "lambda$9509460" = some v) :
+    (hgs : jh.getStatic? "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" "lambda$9509460" = some v) :
     ∃ st',
       Jvm.runJvmRes (mkCalcHooks calcProgLookup (d + 1) f) 10
-        getLambda_9509460_ComposeLife_mosaic_calculator_prog (initCalcJvmState [] hp jh) =
+        ComposableSingletons_CalculatorScreenKt_getLambda_9509460_ComposeLife_mosaic_calculator_prog (initCalcJvmState [] hp jh) =
         some (v, st') ∧
       st'.jvmHeap = jh ∧
       st'.heap = hp :=
   ⟨_, exec_singleton_getLambda "lambda$9509460" v hp hgs, rfl, rfl⟩
 
 theorem getLambda_2033009011_bytecode_equiv (d f : Nat) (hp : CalcHeap) {jh : Jvm.JvmHeap CalcExt} {v : JvmVal}
-    (hgs : jh.getStatic? "ComposableSingletons$CalculatorScreenKt" "lambda$2033009011" = some v) :
+    (hgs : jh.getStatic? "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" "lambda$2033009011" = some v) :
     ∃ st',
       Jvm.runJvmRes (mkCalcHooks calcProgLookup (d + 1) f) 10
-        getLambda_2033009011_ComposeLife_mosaic_calculator_prog (initCalcJvmState [] hp jh) =
+        ComposableSingletons_CalculatorScreenKt_getLambda_2033009011_ComposeLife_mosaic_calculator_prog (initCalcJvmState [] hp jh) =
         some (v, st') ∧
       st'.jvmHeap = jh ∧
       st'.heap = hp :=
   ⟨_, exec_singleton_getLambda "lambda$2033009011" v hp hgs, rfl, rfl⟩
 
 theorem getLambda__238458734_bytecode_equiv (d f : Nat) (hp : CalcHeap) {jh : Jvm.JvmHeap CalcExt} {v : JvmVal}
-    (hgs : jh.getStatic? "ComposableSingletons$CalculatorScreenKt" "lambda$-238458734" = some v) :
+    (hgs : jh.getStatic? "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" "lambda$-238458734" = some v) :
     ∃ st',
       Jvm.runJvmRes (mkCalcHooks calcProgLookup (d + 1) f) 10
-        getLambda__238458734_ComposeLife_mosaic_calculator_prog (initCalcJvmState [] hp jh) =
+        ComposableSingletons_CalculatorScreenKt_getLambda__238458734_ComposeLife_mosaic_calculator_prog (initCalcJvmState [] hp jh) =
         some (v, st') ∧
       st'.jvmHeap = jh ∧
       st'.heap = hp :=
@@ -200,7 +202,7 @@ private theorem runFast_newClass {d f pc fuel : Nat} {prog rest : List JvmInstr}
 private theorem runFast_invokespecial_singletonInit {d f pc fuel : Nat} {prog rest : List JvmInstr}
     {c1 c2 : String} {stack : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap CalcExt} {hp : CalcHeap} :
     Jvm.runJvmResFast (mkCalcHooks calcProgLookup (d + 1) f) (fuel + 1) prog pc
-        (.invokespecial "ComposableSingletons$CalculatorScreenKt" "<init>" "()V" :: rest)
+        (.invokespecial "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" "<init>" "()V" :: rest)
         ⟨pc, .allocRef c1 :: .allocRef c2 :: stack, locs, jh, hp⟩ =
       Jvm.runJvmResFast (mkCalcHooks calcProgLookup (d + 1) f) fuel prog (pc + 1) rest
         ⟨pc + 1, .ext (.companion "ComposableSingletons$CalculatorScreenKt") :: stack, locs, jh, hp⟩ := by
@@ -238,7 +240,6 @@ private theorem runFast_composableLambdaInstance {d f pc fuel : Nat} {prog rest 
       Jvm.runJvmResFast (mkCalcHooks calcProgLookup (d + 1) f) fuel prog (pc + 1) rest
         ⟨pc + 1, block :: stack, locs, jh, hp⟩ := by
   refine Jvm.runJvmResFast_step_of_stepInstr _ rfl (by simp) ?_ rfl
-  dsimp [Jvm.stepInstr, Jvm.stepInvokeStaticGeneric, mkCalcHooks, normalizeCalcClass]
   rfl
 
 private theorem runFast_lambda0 {d f pc fuel : Nat} {prog rest : List JvmInstr}
@@ -289,7 +290,7 @@ private theorem bsm_lambda_238458734 :
 theorem clinit_ComposableSingletons_equiv (d f : Nat) :
     let hooks := mkCalcHooks calcProgLookup (d + 1) f
     ∃ st',
-      Jvm.runJvmRes hooks 64 clinit_ComposableSingletons_CalculatorScreenKt_prog
+      Jvm.runJvmRes hooks 64 ComposableSingletons_CalculatorScreenKt_clinit_prog
         (initCalcJvmState [] {} calcInitJvmHeap) = some (.unit, st') ∧
       HasSingletonRowLambdas st'.jvmHeap st'.heap.closures ∧
       st'.heap.composer = {} ∧
@@ -297,18 +298,18 @@ theorem clinit_ComposableSingletons_equiv (d f : Nat) :
       st'.heap.emittedRoot? = none := by
   intro hooks
   have hrun : ∃ st',
-      Jvm.runJvmRes hooks 64 clinit_ComposableSingletons_CalculatorScreenKt_prog
+      Jvm.runJvmRes hooks 64 ComposableSingletons_CalculatorScreenKt_clinit_prog
         (initCalcJvmState [] {} calcInitJvmHeap) = some (.unit, st') ∧
       st' = {
         pc := 28
         stack := []
         locals := fun _ => .i32 0
-        jvmHeap := ((((calcInitJvmHeap.setStatic "ComposableSingletons$CalculatorScreenKt" "INSTANCE"
+        jvmHeap := ((((calcInitJvmHeap.setStatic "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" "INSTANCE"
             (.ext (.companion "ComposableSingletons$CalculatorScreenKt")))
-          |>.setStatic "ComposableSingletons$CalculatorScreenKt" "lambda$125313259" (.ext (.closureRef 0)))
-          |>.setStatic "ComposableSingletons$CalculatorScreenKt" "lambda$9509460" (.ext (.closureRef 1)))
-          |>.setStatic "ComposableSingletons$CalculatorScreenKt" "lambda$2033009011" (.ext (.closureRef 2)))
-          |>.setStatic "ComposableSingletons$CalculatorScreenKt" "lambda$-238458734" (.ext (.closureRef 3))
+          |>.setStatic "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" "lambda$125313259" (.ext (.closureRef 0)))
+          |>.setStatic "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" "lambda$9509460" (.ext (.closureRef 1)))
+          |>.setStatic "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" "lambda$2033009011" (.ext (.closureRef 2)))
+          |>.setStatic "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" "lambda$-238458734" (.ext (.closureRef 3))
         heap := {
           closures := #[
             ("ComposableSingletons$CalculatorScreenKt.lambda_125313259$lambda$0", []),
@@ -320,7 +321,7 @@ theorem clinit_ComposableSingletons_equiv (d f : Nat) :
       } := by
     refine ⟨_, ?_, rfl⟩
     apply Jvm.runJvmRes_of_runJvmResFast hooks 64 _ 0 _ _ _ rfl rfl
-    dsimp only [initCalcJvmState, Jvm.initJvmState, List.foldl, clinit_ComposableSingletons_CalculatorScreenKt_prog, List.drop]
+    dsimp only [initCalcJvmState, Jvm.initJvmState, List.foldl, ComposableSingletons_CalculatorScreenKt_clinit_prog, List.drop]
     rw [runFast_newClass (by decide)]
     rw [runFast_dup]
     rw [runFast_invokespecial_singletonInit]
@@ -336,7 +337,7 @@ theorem clinit_ComposableSingletons_equiv (d f : Nat) :
     simp [allocClosure]
     rfl
   rcases hrun with ⟨st', hrun, rfl⟩
-  exact ⟨_, hrun, ⟨0, 1, 2, 3, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩, rfl, rfl, rfl⟩
+  exact ⟨_, hrun, ⟨0, 1, 2, 3, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩, rfl, rfl, rfl⟩
 
 theorem bsm_CalculatorApp_lambda_3_0 :
     extractBsmTarget
@@ -447,7 +448,6 @@ theorem runFast_sourceInfo {d f pc fuel : Nat} {prog rest : List JvmInstr}
       Jvm.runJvmResFast (mkCalcHooks calcProgLookup (d + 1) f) fuel prog (pc + 1) rest
         ⟨pc + 1, stack, locs, jh, hp⟩ := by
   refine Jvm.runJvmResFast_step_of_stepInstr _ rfl (by simp) ?_ rfl
-  dsimp [Jvm.stepInstr, Jvm.stepInvokeStaticGeneric, mkCalcHooks, normalizeCalcClass]
   rfl
 
 theorem runFast_shouldExecute {d f pc fuel : Nat} {prog rest : List JvmInstr}
@@ -472,7 +472,6 @@ theorem runFast_isTraceInProgress {d f pc fuel : Nat} {prog rest : List JvmInstr
       Jvm.runJvmResFast (mkCalcHooks calcProgLookup (d + 1) f) fuel prog (pc + 1) rest
         ⟨pc + 1, .i32 (if hp.composer.traceEnabled then 1 else 0) :: stack, locs, jh, hp⟩ := by
   refine Jvm.runJvmResFast_step_of_stepInstr _ rfl (by simp) ?_ rfl
-  dsimp [Jvm.stepInstr, Jvm.stepInvokeStaticGeneric, mkCalcHooks, normalizeCalcClass]
   rfl
 
 theorem runFast_text {d f pc fuel : Nat} {prog rest : List JvmInstr}
@@ -487,7 +486,6 @@ theorem runFast_text {d f pc fuel : Nat} {prog rest : List JvmInstr}
       Jvm.runJvmResFast (mkCalcHooks calcProgLookup (d + 1) f) fuel prog (pc + 1) rest
         ⟨pc + 1, stack, locs, jh, emitMosaicNode hp (.text txt)⟩ := by
   refine Jvm.runJvmResFast_step_of_stepInstr _ rfl (by simp) ?_ rfl
-  dsimp [Jvm.stepInstr, Jvm.stepInvokeStaticGeneric, mkCalcHooks, normalizeCalcClass]
   rfl
 
 theorem runFast_getStatic_unit {d f pc fuel : Nat} {prog rest : List JvmInstr}
@@ -598,7 +596,7 @@ theorem lambda_125313259_lambda_0_equiv (d f : Nat) (hp : CalcHeap) (jh : Jvm.Jv
     (htrace : hp.composer.traceEnabled = false)
     (hunit : jh.getStatic? "kotlin/Unit" "INSTANCE" = none) :
     ∃ st',
-      Jvm.runJvmRes (mkCalcHooks calcProgLookup (d + 1) f) 40 lambda_125313259_lambda_0_prog
+      Jvm.runJvmRes (mkCalcHooks calcProgLookup (d + 1) f) 40 ComposableSingletons_CalculatorScreenKt_lambda_125313259_lambda_0_prog
         (initCalcJvmState [(0, .ext .unit), (1, .ext .composer), (2, .i32 6)] hp jh) =
         some (.ext .unit, st') ∧
       st'.jvmHeap = jh ∧
@@ -611,7 +609,7 @@ theorem lambda_9509460_lambda_0_equiv (d f : Nat) (hp : CalcHeap) (jh : Jvm.JvmH
     (htrace : hp.composer.traceEnabled = false)
     (hunit : jh.getStatic? "kotlin/Unit" "INSTANCE" = none) :
     ∃ st',
-      Jvm.runJvmRes (mkCalcHooks calcProgLookup (d + 1) f) 40 lambda_9509460_lambda_0_prog
+      Jvm.runJvmRes (mkCalcHooks calcProgLookup (d + 1) f) 40 ComposableSingletons_CalculatorScreenKt_lambda_9509460_lambda_0_prog
         (initCalcJvmState [(0, .ext .unit), (1, .ext .composer), (2, .i32 6)] hp jh) =
         some (.ext .unit, st') ∧
       st'.jvmHeap = jh ∧
@@ -624,7 +622,7 @@ theorem lambda_2033009011_lambda_0_equiv (d f : Nat) (hp : CalcHeap) (jh : Jvm.J
     (htrace : hp.composer.traceEnabled = false)
     (hunit : jh.getStatic? "kotlin/Unit" "INSTANCE" = none) :
     ∃ st',
-      Jvm.runJvmRes (mkCalcHooks calcProgLookup (d + 1) f) 40 lambda_2033009011_lambda_0_prog
+      Jvm.runJvmRes (mkCalcHooks calcProgLookup (d + 1) f) 40 ComposableSingletons_CalculatorScreenKt_lambda_2033009011_lambda_0_prog
         (initCalcJvmState [(0, .ext .unit), (1, .ext .composer), (2, .i32 6)] hp jh) =
         some (.ext .unit, st') ∧
       st'.jvmHeap = jh ∧
@@ -637,7 +635,7 @@ theorem lambda__238458734_lambda_0_equiv (d f : Nat) (hp : CalcHeap) (jh : Jvm.J
     (htrace : hp.composer.traceEnabled = false)
     (hunit : jh.getStatic? "kotlin/Unit" "INSTANCE" = none) :
     ∃ st',
-      Jvm.runJvmRes (mkCalcHooks calcProgLookup (d + 1) f) 40 lambda__238458734_lambda_0_prog
+      Jvm.runJvmRes (mkCalcHooks calcProgLookup (d + 1) f) 40 ComposableSingletons_CalculatorScreenKt_lambda__238458734_lambda_0_prog
         (initCalcJvmState [(0, .ext .unit), (1, .ext .composer), (2, .i32 6)] hp jh) =
         some (.ext .unit, st') ∧
       st'.jvmHeap = jh ∧
@@ -650,7 +648,7 @@ theorem CalculatorApp_lambda_1_equiv (d f : Nat) (sid : Nat) (hp : CalcHeap) (jh
     (cSt : CalculatorState) (comp' : Compose.ComposerModel JvmVal)
     (hread : Compose.readMutableState hp.composer sid = some (.ext (.calcState cSt), comp')) :
     ∃ st',
-      Jvm.runJvmRes (mkCalcHooks calcProgLookup (d + 1) f) 20 CalculatorApp_lambda_1_prog
+      Jvm.runJvmRes (mkCalcHooks calcProgLookup (d + 1) f) 20 CalculatorScreenKt_CalculatorApp_lambda_1_prog
         (initCalcJvmState [(0, .ext (.stateRef sid))] hp jh) =
         some (.ext (.calcState cSt), st') ∧
       st'.jvmHeap = jh ∧
@@ -658,7 +656,7 @@ theorem CalculatorApp_lambda_1_equiv (d f : Nat) (sid : Nat) (hp : CalcHeap) (jh
   let hooks := mkCalcHooks calcProgLookup (d + 1) f
   let locs1 : Nat → JvmVal := setLocal (setLocal (setLocal (setLocal (setLocal
     (fun _ => .i32 0) 0 (.ext (.stateRef sid))) 1 (.ext (.stateRef sid))) 2 .null) 3 .null) 4 (.i32 0)
-  have hrun : Jvm.runJvmRes hooks 20 CalculatorApp_lambda_1_prog
+  have hrun : Jvm.runJvmRes hooks 20 CalculatorScreenKt_CalculatorApp_lambda_1_prog
       (initCalcJvmState [(0, .ext (.stateRef sid))] hp jh) =
       some (.ext (.calcState cSt), {
         pc := 12
@@ -668,7 +666,7 @@ theorem CalculatorApp_lambda_1_equiv (d f : Nat) (sid : Nat) (hp : CalcHeap) (jh
         heap := { hp with composer := comp' }
       }) := by
     apply Jvm.runJvmRes_of_runJvmResFast hooks 20 _ 0 _ _ _ rfl rfl
-    dsimp only [initCalcJvmState, Jvm.initJvmState, List.foldl, CalculatorApp_lambda_1_prog, List.drop]
+    dsimp only [initCalcJvmState, Jvm.initJvmState, List.foldl, CalculatorScreenKt_CalculatorApp_lambda_1_prog, List.drop]
     rw [runFast_aload]; simp only [setLocal, ↓reduceIte]
     have hcc1 : Jvm.stepInstr hooks (.checkcast "androidx/compose/runtime/State")
         ⟨1, [.ext (.stateRef sid)], setLocal (fun _ => .i32 0) 0 (.ext (.stateRef sid)), jh, hp⟩ =
@@ -679,7 +677,7 @@ theorem CalculatorApp_lambda_1_equiv (d f : Nat) (sid : Nat) (hp : CalcHeap) (jh
     rw [runFast_astore, runFast_aconstNull, runFast_astore, runFast_aconstNull, runFast_astore,
       runFast_iconst, runFast_istore, runFast_aload]
     have hlocs1_1 : locs1 1 = .ext (.stateRef sid) := rfl
-    change Jvm.runJvmResFast hooks 10 CalculatorApp_lambda_1_prog 10
+    change Jvm.runJvmResFast hooks 10 CalculatorScreenKt_CalculatorApp_lambda_1_prog 10
         [.invokeinterface "androidx/compose/runtime/State" "getValue" "()Ljava/lang/Object;",
          .checkcast "com/alexvanyo/composelife/mosaiccalculator/CalculatorState", .areturn]
         ⟨10, [locs1 1], locs1, jh, hp⟩ = _
@@ -710,7 +708,7 @@ theorem CalculatorApp_lambda_2_equiv (d f : Nat) (sid : Nat) (hp : CalcHeap) (jh
     (hwrite : Compose.writeMutableState (Jvm.JvmVal.beqVal beqCalcExt)
       hp.composer sid (.ext (.calcState cSt)) = some comp') :
     ∃ st',
-      Jvm.runJvmRes (mkCalcHooks calcProgLookup (d + 1) f) 20 CalculatorApp_lambda_2_prog
+      Jvm.runJvmRes (mkCalcHooks calcProgLookup (d + 1) f) 20 CalculatorScreenKt_CalculatorApp_lambda_2_prog
         (initCalcJvmState [(0, .ext (.stateRef sid)), (1, .ext (.calcState cSt))] hp jh) =
         some (.unit, st') ∧
       st'.jvmHeap = jh ∧
@@ -719,7 +717,7 @@ theorem CalculatorApp_lambda_2_equiv (d f : Nat) (sid : Nat) (hp : CalcHeap) (jh
   let locs2 : Nat → JvmVal := setLocal (setLocal (setLocal (setLocal (setLocal (setLocal
     (setLocal (fun _ => .i32 0) 0 (.ext (.stateRef sid)))
     1 (.ext (.calcState cSt))) 2 (.ext (.stateRef sid))) 3 .null) 4 .null) 5 (.ext (.calcState cSt))) 6 (.i32 0)
-  have hrun : Jvm.runJvmRes hooks 20 CalculatorApp_lambda_2_prog
+  have hrun : Jvm.runJvmRes hooks 20 CalculatorScreenKt_CalculatorApp_lambda_2_prog
       (initCalcJvmState [(0, .ext (.stateRef sid)), (1, .ext (.calcState cSt))] hp jh) =
       some (.unit, {
         pc := 14
@@ -729,21 +727,21 @@ theorem CalculatorApp_lambda_2_equiv (d f : Nat) (sid : Nat) (hp : CalcHeap) (jh
         heap := { hp with composer := comp' }
       }) := by
     apply Jvm.runJvmRes_of_runJvmResFast hooks 20 _ 0 _ _ _ rfl rfl
-    dsimp only [initCalcJvmState, Jvm.initJvmState, List.foldl, CalculatorApp_lambda_2_prog, List.drop]
+    dsimp only [initCalcJvmState, Jvm.initJvmState, List.foldl, CalculatorScreenKt_CalculatorApp_lambda_2_prog, List.drop]
     let initL : Nat → JvmVal :=
       setLocal (setLocal (fun _ => .i32 0) 0 (.ext (.stateRef sid))) 1 (.ext (.calcState cSt))
     have ha0 : initL 0 = .ext (.stateRef sid) := rfl
     have ha1 : (setLocal (setLocal (setLocal initL 2 (.ext (.stateRef sid))) 3 .null) 4 .null) 1 =
         .ext (.calcState cSt) := rfl
-    change Jvm.runJvmResFast hooks 20 CalculatorApp_lambda_2_prog 0 CalculatorApp_lambda_2_prog
+    change Jvm.runJvmResFast hooks 20 CalculatorScreenKt_CalculatorApp_lambda_2_prog 0 CalculatorScreenKt_CalculatorApp_lambda_2_prog
       ⟨0, [], initL, jh, hp⟩ = _
-    dsimp only [CalculatorApp_lambda_2_prog]
+    dsimp only [CalculatorScreenKt_CalculatorApp_lambda_2_prog]
     rw [runFast_aload, ha0, runFast_astore, runFast_aconstNull, runFast_astore, runFast_aconstNull,
       runFast_astore, runFast_aload, ha1, runFast_astore, runFast_iconst, runFast_istore,
       runFast_aload, runFast_aload]
     have h2 : locs2 2 = .ext (.stateRef sid) := rfl
     have h5 : locs2 5 = .ext (.calcState cSt) := rfl
-    change Jvm.runJvmResFast hooks 8 CalculatorApp_lambda_2_prog 12
+    change Jvm.runJvmResFast hooks 8 CalculatorScreenKt_CalculatorApp_lambda_2_prog 12
         [.invokeinterface "androidx/compose/runtime/MutableState" "setValue" "(Ljava/lang/Object;)V",
          .nop, .vreturn]
         ⟨12, [locs2 5, locs2 2], locs2, jh, hp⟩ = _
@@ -834,7 +832,6 @@ theorem runFast_sourceInfoMarkerStart {d f pc fuel : Nat} {prog rest : List JvmI
       Jvm.runJvmResFast (mkCalcHooks calcProgLookup (d + 1) f) fuel prog (pc + 1) rest
         ⟨pc + 1, stack, locs, jh, hp⟩ := by
   refine Jvm.runJvmResFast_step_of_stepInstr _ rfl (by simp) ?_ rfl
-  dsimp [Jvm.stepInstr, Jvm.stepInvokeStaticGeneric, mkCalcHooks, normalizeCalcClass]
   rfl
 
 theorem runFast_sourceInfoMarkerEnd {d f pc fuel : Nat} {prog rest : List JvmInstr}
@@ -846,7 +843,6 @@ theorem runFast_sourceInfoMarkerEnd {d f pc fuel : Nat} {prog rest : List JvmIns
       Jvm.runJvmResFast (mkCalcHooks calcProgLookup (d + 1) f) fuel prog (pc + 1) rest
         ⟨pc + 1, stack, locs, jh, hp⟩ := by
   refine Jvm.runJvmResFast_step_of_stepInstr _ rfl (by simp) ?_ rfl
-  dsimp [Jvm.stepInstr, Jvm.stepInvokeStaticGeneric, mkCalcHooks, normalizeCalcClass]
   rfl
 
 theorem runFast_startRestartGroup {d f pc fuel : Nat} {prog rest : List JvmInstr}
@@ -997,7 +993,6 @@ theorem runFast_mutableStateOfDefault {d f pc fuel : Nat} {prog rest : List JvmI
       Jvm.runJvmResFast (mkCalcHooks calcProgLookup (d + 1) f) fuel prog (pc + 1) rest
         ⟨pc + 1, .ext (.stateRef r.1) :: stack, locs, jh, { hp with composer := r.2 }⟩ := by
   refine Jvm.runJvmResFast_step_of_stepInstr _ rfl (by simp) ?_ rfl
-  dsimp [Jvm.stepInstr, Jvm.stepInvokeStaticGeneric, mkCalcHooks, normalizeCalcClass]
   rfl
 
 theorem runFast_rememberComposableLambda {d f pc fuel : Nat} {prog rest : List JvmInstr}
@@ -1010,7 +1005,6 @@ theorem runFast_rememberComposableLambda {d f pc fuel : Nat} {prog rest : List J
       Jvm.runJvmResFast (mkCalcHooks calcProgLookup (d + 1) f) fuel prog (pc + 1) rest
         ⟨pc + 1, block :: stack, locs, jh, hp⟩ := by
   refine Jvm.runJvmResFast_step_of_stepInstr _ rfl (by simp) ?_ rfl
-  dsimp [Jvm.stepInstr, Jvm.stepInvokeStaticGeneric, mkCalcHooks, normalizeCalcClass]
   rfl
 
 theorem runFast_onKeyEvent {d f pc fuel : Nat} {prog rest : List JvmInstr}
@@ -1023,7 +1017,6 @@ theorem runFast_onKeyEvent {d f pc fuel : Nat} {prog rest : List JvmInstr}
       Jvm.runJvmResFast (mkCalcHooks calcProgLookup (d + 1) f) fuel prog (pc + 1) rest
         ⟨pc + 1, .ext (.modifier (some cid)) :: stack, locs, jh, hp⟩ := by
   refine Jvm.runJvmResFast_step_of_stepInstr _ rfl (by simp) ?_ rfl
-  dsimp [Jvm.stepInstr, Jvm.stepInvokeStaticGeneric, mkCalcHooks, normalizeCalcClass]
   rfl
 
 theorem runFast_updateChangedFlags {d f pc fuel : Nat} {prog rest : List JvmInstr}
@@ -1035,7 +1028,6 @@ theorem runFast_updateChangedFlags {d f pc fuel : Nat} {prog rest : List JvmInst
       Jvm.runJvmResFast (mkCalcHooks calcProgLookup (d + 1) f) fuel prog (pc + 1) rest
         ⟨pc + 1, .i32 (Compose.updateChangedFlags flagsVal) :: stack, locs, jh, hp⟩ := by
   refine Jvm.runJvmResFast_step_of_stepInstr _ rfl (by simp) ?_ rfl
-  dsimp [Jvm.stepInstr, Jvm.stepInvokeStaticGeneric, mkCalcHooks, normalizeCalcClass]
   rfl
 
 theorem runFast_makeConcat_gt {d f pc fuel : Nat} {prog rest : List JvmInstr}

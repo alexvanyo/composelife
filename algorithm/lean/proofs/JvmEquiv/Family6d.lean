@@ -152,7 +152,7 @@ private theorem stepStatic_growBufToArray_str6d
     {pc : Nat} {b : Algorithm.GrowBuf String}
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .ext (.strGrowBuf b) :: rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_GrowBuf_toArray___redArg" "(Ljava/lang/Object;)[Ljava/lang/Object;" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_toArray___redArg" "(Ljava/lang/Object;)[Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .strArr b.toArray :: rest, locs, jh, hp⟩) := rfl
 
 private inductive RleWarnRep6d : Algorithm.GrowBuf Algorithm.RLEWarning → JvmVal → Prop
@@ -257,12 +257,12 @@ private theorem stepStatic_growBufToArray_u32Pair6d
     {pc : Nat} {b : Algorithm.GrowBuf (UInt32 × UInt32)}
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .ext (.u32PairGrowBuf b) :: rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_GrowBuf_toArray___redArg" "(Ljava/lang/Object;)[Ljava/lang/Object;" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_toArray___redArg" "(Ljava/lang/Object;)[Ljava/lang/Object;" =
       let (addr, h') := jh.alloc (.objArray "java/lang/Object"
         (b.toArray.map fun x => .pair (.boxedUInt x.1) (.boxedUInt x.2)))
       .inl (some ⟨pc + 1, .heapRef addr :: rest, locs, h', hp⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .ext (.u32PairGrowBuf b) :: rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_GrowBuf_toArray___redArg" "(Ljava/lang/Object;)[Ljava/lang/Object;" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_toArray___redArg" "(Ljava/lang/Object;)[Ljava/lang/Object;" =
       let res := encodeGrowBufArray jh (fun ch x =>
         (.pair (.boxedUInt x.1) (.boxedUInt x.2), ch)) b
       .inl (some ⟨pc + 1, res.1 :: rest, locs, res.2, hp⟩) := rfl
@@ -272,7 +272,7 @@ private theorem stepStatic_u64BufEmpty6d
     {pc : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_U64Buf_empty" "()[J" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_U64Buf_empty" "()[J" =
       .inl (some ⟨pc + 1, .ext (.u64Ref hp.u64Arrays.length) :: rest, locs, jh,
         { hp with u64Arrays := hp.u64Arrays ++ [Algorithm.U64Buf.empty] }⟩) := rfl
 
@@ -280,11 +280,11 @@ private theorem stepStatic_u64BufToArray6d
     {pc cId : Nat} {arr : Array UInt64} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} (hc : hp.u64Arrays[cId]? = some arr) :
     stepInvokeStatic ⟨pc, .ext (.u64Ref cId) :: rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_U64Buf_toArray-QwZRm1k" "([J)[J" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_U64Buf_toArray-QwZRm1k" "([J)[J" =
       .inl (some ⟨pc + 1, .ext (.u64Ref hp.u64Arrays.length) :: rest, locs, jh,
         { hp with u64Arrays := hp.u64Arrays ++ [Algorithm.U64Buf.toArray arr] }⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .ext (.u64Ref cId) :: rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_U64Buf_toArray-QwZRm1k" "([J)[J" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_U64Buf_toArray-QwZRm1k" "([J)[J" =
       match hp.u64Arrays[cId]? with
       | some arr' => .inl (some ⟨pc + 1, .ext (.u64Ref hp.u64Arrays.length) :: rest, locs, jh,
         { hp with u64Arrays := hp.u64Arrays ++ [Algorithm.U64Buf.toArray arr'] }⟩)
@@ -301,7 +301,7 @@ private theorem stepStatic_expandRuns6d
     stepInvokeStatic ⟨pc, .ext (.u64Ref cId) :: .i32 startX.toUInt32 :: .i32 y.toUInt32 ::
         .i32 x.toUInt32 :: .i32 k :: .i32 j :: .i32 numRuns :: .heapRef runsAddr :: rest,
         locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_expandRuns-Wy9PQLY" "([Ljava/lang/Object;IIIIII[J)[J" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_expandRuns-Wy9PQLY" "([Ljava/lang/Object;IIIIII[J)[J" =
       let res := Algorithm.expandRuns runs numRuns j k x y startX cells
       .inl (some ⟨pc + 1, .ext (.u64Ref hp.u64Arrays.length) :: rest, locs, jh,
         { hp with u64Arrays := hp.u64Arrays ++ [res] }⟩) := by
@@ -328,7 +328,7 @@ private theorem stepStatic_expandRuns6d
   have hfn : stepInvokeStatic ⟨pc, .ext (.u64Ref cId) :: .i32 startX.toUInt32 ::
       .i32 y.toUInt32 :: .i32 x.toUInt32 :: .i32 k :: .i32 j :: .i32 numRuns ::
       .heapRef runsAddr :: rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_expandRuns-Wy9PQLY" "([Ljava/lang/Object;IIIIII[J)[J" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_expandRuns-Wy9PQLY" "([Ljava/lang/Object;IIIIII[J)[J" =
       match jh.get? runsAddr, hp.u64Arrays[cId]? with
       | some (.objArray _ elems), some cells' =>
         match elems.foldlM (fun acc v => match v with
@@ -508,12 +508,12 @@ private theorem finishRLE_full_run6d
   step_res_plain6d 2
   have hgw : ∀ rest6 locs6, stepInvokeStatic ⟨6, .ext (.rleWarnGrowBuf warns) :: rest6,
       locs6, jh1, hp⟩
-      "RleLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
       "(Ljava/lang/Object;)[Ljava/lang/Object;" =
       .inl (some ⟨7, .heapRef rWarns :: rest6, locs6, jh2, hp⟩) := by
     intro rest6 locs6
     have hfn : stepInvokeStatic ⟨6, .ext (.rleWarnGrowBuf warns) :: rest6, locs6, jh1, hp⟩
-        "RleLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
+        "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
         "(Ljava/lang/Object;)[Ljava/lang/Object;" =
         let res := encodeGrowBufArray jh1 encodeRLEWarning warns
         .inl (some ⟨7, res.1 :: rest6, locs6, res.2, hp⟩) := rfl

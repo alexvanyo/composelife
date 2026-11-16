@@ -25,7 +25,7 @@ section Family1
 
 def HasNextGen4x4Lut (jh : Jvm.JvmHeap AlgExt) : Prop :=
   ∃ lutAddr arr,
-    jh.getStatic? "AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" = some (.heapRef lutAddr) ∧
+    jh.getStatic? "com/alexvanyo/composelife/algorithm/AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" = some (.heapRef lutAddr) ∧
     jh.get? lutAddr = some (.byteArray arr) ∧
     arr.size = 65536 ∧
     ∀ (k : Nat), k < 65536 →
@@ -36,8 +36,8 @@ def emptyNodesArray : Array JvmVal :=
 
 def HasEmptyNodes (jh : Jvm.JvmHeap AlgExt) : Prop :=
   ∃ nodesAddr,
-    jh.getStatic? "MacroCellLeanKt" "EMPTY_LEVEL_4" = some (.ext (.mc Algorithm.emptyLevel4)) ∧
-    jh.getStatic? "MacroCellLeanKt" "EMPTY_NODES" = some (.heapRef nodesAddr) ∧
+    jh.getStatic? "com/alexvanyo/composelife/model/MacroCellLeanKt" "EMPTY_LEVEL_4" = some (.ext (.mc Algorithm.emptyLevel4)) ∧
+    jh.getStatic? "com/alexvanyo/composelife/model/MacroCellLeanKt" "EMPTY_NODES" = some (.heapRef nodesAddr) ∧
     jh.get? nodesAddr = some (.objArray "com/alexvanyo/composelife/model/MacroCell" emptyNodesArray)
 
 private theorem lut_byte_signExtend_and15 (x : UInt32) :
@@ -96,7 +96,7 @@ private theorem bitRuleUInt_ite (c n : UInt32) :
     by_cases h3 : n = 3 <;> by_cases h2 : n = 2 <;> simp [hc, h3, h2]
 
 theorem getNEXT_GEN_4X4_LUT_equiv (jh : Jvm.JvmHeap AlgExt) (lutAddr : Nat)
-    (hlut : jh.getStatic? "AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" = some (.heapRef lutAddr)) :
+    (hlut : jh.getStatic? "com/alexvanyo/composelife/algorithm/AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" = some (.heapRef lutAddr)) :
     runJvm 10 getNEXT_GEN_4X4_LUT_prog
       (Jvm.initJvmState [] (.i32 0) ⟨[], [], []⟩ jh) = some (.heapRef lutAddr) := by
   apply runJvm_of_runJvmValFast0 10 _ _ _ rfl
@@ -108,7 +108,7 @@ theorem getNEXT_GEN_4X4_LUT_equiv (jh : Jvm.JvmHeap AlgExt) (lutAddr : Nat)
   rfl
 
 theorem getEMPTY_LEVEL_4_equiv (jh : Jvm.JvmHeap AlgExt)
-    (hl4 : jh.getStatic? "MacroCellLeanKt" "EMPTY_LEVEL_4" = some (.ext (.mc Algorithm.emptyLevel4))) :
+    (hl4 : jh.getStatic? "com/alexvanyo/composelife/model/MacroCellLeanKt" "EMPTY_LEVEL_4" = some (.ext (.mc Algorithm.emptyLevel4))) :
     runJvm 10 getEMPTY_LEVEL_4_prog
       (Jvm.initJvmState [] (.i32 0) ⟨[], [], []⟩ jh) = some (.ext (.mc Algorithm.emptyLevel4)) := by
   apply runJvm_of_runJvmValFast0 10 _ _ _ rfl
@@ -120,7 +120,7 @@ theorem getEMPTY_LEVEL_4_equiv (jh : Jvm.JvmHeap AlgExt)
   rfl
 
 theorem getEMPTY_NODES_equiv (jh : Jvm.JvmHeap AlgExt) (nodesAddr : Nat)
-    (hnodes : jh.getStatic? "MacroCellLeanKt" "EMPTY_NODES" = some (.heapRef nodesAddr)) :
+    (hnodes : jh.getStatic? "com/alexvanyo/composelife/model/MacroCellLeanKt" "EMPTY_NODES" = some (.heapRef nodesAddr)) :
     runJvm 10 getEMPTY_NODES_prog
       (Jvm.initJvmState [] (.i32 0) ⟨[], [], []⟩ jh) = some (.heapRef nodesAddr) := by
   apply runJvm_of_runJvmValFast0 10 _ _ _ rfl
@@ -331,7 +331,7 @@ private theorem clinit_alg_loop :
       jh.get? arrAddr = some (.byteArray arr) →
       arr.size = 65536 →
       (∀ (j : Nat), j < i.toNat → arr[j]! = (Algorithm.computeNextGen4x4BitwiseUInt (UInt32.ofNat j)).toUInt8) →
-      jh.getStatic? "AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" = none →
+      jh.getStatic? "com/alexvanyo/composelife/algorithm/AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" = none →
       locs 0 = .i32 i →
       locs 1 = .heapRef arrAddr →
       ∃ st', runJvmResFast (k + 200 + m * 14) clinit_AlgorithmLeanKt_prog 5
@@ -347,7 +347,7 @@ private theorem clinit_alg_loop :
     have hrun : runJvmResFast (k + 200 + 0 * 14) clinit_AlgorithmLeanKt_prog 5
         (clinit_AlgorithmLeanKt_prog.drop 5) ⟨5, [], locs, jh, ⟨[], [], []⟩⟩ =
         some (.unit, ⟨21, [], locs,
-          jh.setStatic "AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" (.heapRef arrAddr), ⟨[], [], []⟩⟩) := by
+          jh.setStatic "com/alexvanyo/composelife/algorithm/AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" (.heapRef arrAddr), ⟨[], [], []⟩⟩) := by
       f1_split_res_fuel 120
       flat_step_blk clinit_AlgorithmLeanKt_prog
       rw [hl0, evalResBranchInstrCons_if_icmpge]
@@ -367,7 +367,7 @@ private theorem clinit_alg_loop :
       have hrun : runJvmResFast (k + 200 + (m + 1) * 14) clinit_AlgorithmLeanKt_prog 5
           (clinit_AlgorithmLeanKt_prog.drop 5) ⟨5, [], locs, jh, ⟨[], [], []⟩⟩ =
           some (.unit, ⟨21, [], locs,
-            jh.setStatic "AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" (.heapRef arrAddr), ⟨[], [], []⟩⟩) := by
+            jh.setStatic "com/alexvanyo/composelife/algorithm/AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" (.heapRef arrAddr), ⟨[], [], []⟩⟩) := by
         f1_split_res_fuel 120
         flat_step_blk clinit_AlgorithmLeanKt_prog
         rw [hl0, evalResBranchInstrCons_if_icmpge]
@@ -407,7 +407,7 @@ private theorem clinit_alg_loop :
           dsimp [arr']
           rw [Array.getElem_set_ne hlt_arr hj_arr (by omega), ← getElem!_pos arr j hj_arr]
           exact htbl j hjlt
-      have hstat' : jh'.getStatic? "AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" = none := by
+      have hstat' : jh'.getStatic? "com/alexvanyo/composelife/algorithm/AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" = none := by
         dsimp [jh', Jvm.JvmHeap.set, Jvm.JvmHeap.getStatic?]
         split <;> exact hstat
       obtain ⟨st', hrun', hres'⟩ := ih k (i + 1) arrAddr arr' jh'
@@ -484,21 +484,21 @@ private theorem clinit_mc_node_step {f : Nat} (pc : Nat) (h : UInt32)
     (jh : Jvm.JvmHeap AlgExt) (locs : Nat → JvmVal)
     (hprog : clinit_MacroCellLeanKt_prog.drop pc =
       .newClass "com/alexvanyo/composelife/model/MacroCell$CellNode" :: .dup :: .iconst h ::
-      .getstatic "MacroCellLeanKt" prev prevDesc :: .checkcast "com/alexvanyo/composelife/model/MacroCell" ::
-      .getstatic "MacroCellLeanKt" prev prevDesc :: .checkcast "com/alexvanyo/composelife/model/MacroCell" ::
-      .getstatic "MacroCellLeanKt" prev prevDesc :: .checkcast "com/alexvanyo/composelife/model/MacroCell" ::
-      .getstatic "MacroCellLeanKt" prev prevDesc :: .checkcast "com/alexvanyo/composelife/model/MacroCell" ::
+      .getstatic "com/alexvanyo/composelife/model/MacroCellLeanKt" prev prevDesc :: .checkcast "com/alexvanyo/composelife/model/MacroCell" ::
+      .getstatic "com/alexvanyo/composelife/model/MacroCellLeanKt" prev prevDesc :: .checkcast "com/alexvanyo/composelife/model/MacroCell" ::
+      .getstatic "com/alexvanyo/composelife/model/MacroCellLeanKt" prev prevDesc :: .checkcast "com/alexvanyo/composelife/model/MacroCell" ::
+      .getstatic "com/alexvanyo/composelife/model/MacroCellLeanKt" prev prevDesc :: .checkcast "com/alexvanyo/composelife/model/MacroCell" ::
       .aconstNull ::
       .invokespecial "com/alexvanyo/composelife/model/MacroCell$CellNode" "<init>"
         "(ILcom/alexvanyo/composelife/model/MacroCell;Lcom/alexvanyo/composelife/model/MacroCell;Lcom/alexvanyo/composelife/model/MacroCell;Lcom/alexvanyo/composelife/model/MacroCell;Lkotlin/jvm/internal/DefaultConstructorMarker;)V" ::
-      .putstatic "MacroCellLeanKt" next nextDesc ::
+      .putstatic "com/alexvanyo/composelife/model/MacroCellLeanKt" next nextDesc ::
       clinit_MacroCellLeanKt_prog.drop (pc + 14))
-    (hget : jh.getStatic? "MacroCellLeanKt" prev = some (.ext (.mc sub))) :
+    (hget : jh.getStatic? "com/alexvanyo/composelife/model/MacroCellLeanKt" prev = some (.ext (.mc sub))) :
     runJvmResFast (f + 1 + 14) clinit_MacroCellLeanKt_prog pc (clinit_MacroCellLeanKt_prog.drop pc)
         ⟨pc, [], locs, jh, ⟨[], [], []⟩⟩ =
       runJvmResFast (f + 1) clinit_MacroCellLeanKt_prog (pc + 14) (clinit_MacroCellLeanKt_prog.drop (pc + 14))
         ⟨pc + 14, [], locs,
-          jh.setStatic "MacroCellLeanKt" next (.ext (.mc (.cellNode h sub sub sub sub))), ⟨[], [], []⟩⟩ := by
+          jh.setStatic "com/alexvanyo/composelife/model/MacroCellLeanKt" next (.ext (.mc (.cellNode h sub sub sub sub))), ⟨[], [], []⟩⟩ := by
   rw [hprog, show f + 1 + 14 = (f + 3) + 12 by omega, runJvmResFast_stepResFlatChunk 12]
   (conv => lhs; arg 1; dsimp only [stepResFlatChunk, Jvm.stepResBlockChunkWith, Jvm.isBranchInstr, isFlatStopLeaf, Jvm.stepInstr,
     Jvm.evalCheckCast, Jvm.JvmHeap.checkCast, isSubtypeOf,
@@ -614,18 +614,18 @@ set_option maxRecDepth 2048 in
 private theorem clinitMcSpecs_drop (i : Fin 28) :
     clinit_MacroCellLeanKt_prog.drop (7 + i.val * 14) =
       .newClass "com/alexvanyo/composelife/model/MacroCell$CellNode" :: .dup :: .iconst clinitMcSpecs[i.val].2.1 ::
-      .getstatic "MacroCellLeanKt" clinitMcSpecs[i.val].2.2.1 clinitMcSpecs[i.val].2.2.2.1 ::
+      .getstatic "com/alexvanyo/composelife/model/MacroCellLeanKt" clinitMcSpecs[i.val].2.2.1 clinitMcSpecs[i.val].2.2.2.1 ::
       .checkcast "com/alexvanyo/composelife/model/MacroCell" ::
-      .getstatic "MacroCellLeanKt" clinitMcSpecs[i.val].2.2.1 clinitMcSpecs[i.val].2.2.2.1 ::
+      .getstatic "com/alexvanyo/composelife/model/MacroCellLeanKt" clinitMcSpecs[i.val].2.2.1 clinitMcSpecs[i.val].2.2.2.1 ::
       .checkcast "com/alexvanyo/composelife/model/MacroCell" ::
-      .getstatic "MacroCellLeanKt" clinitMcSpecs[i.val].2.2.1 clinitMcSpecs[i.val].2.2.2.1 ::
+      .getstatic "com/alexvanyo/composelife/model/MacroCellLeanKt" clinitMcSpecs[i.val].2.2.1 clinitMcSpecs[i.val].2.2.2.1 ::
       .checkcast "com/alexvanyo/composelife/model/MacroCell" ::
-      .getstatic "MacroCellLeanKt" clinitMcSpecs[i.val].2.2.1 clinitMcSpecs[i.val].2.2.2.1 ::
+      .getstatic "com/alexvanyo/composelife/model/MacroCellLeanKt" clinitMcSpecs[i.val].2.2.1 clinitMcSpecs[i.val].2.2.2.1 ::
       .checkcast "com/alexvanyo/composelife/model/MacroCell" ::
       .aconstNull ::
       .invokespecial "com/alexvanyo/composelife/model/MacroCell$CellNode" "<init>"
         "(ILcom/alexvanyo/composelife/model/MacroCell;Lcom/alexvanyo/composelife/model/MacroCell;Lcom/alexvanyo/composelife/model/MacroCell;Lcom/alexvanyo/composelife/model/MacroCell;Lkotlin/jvm/internal/DefaultConstructorMarker;)V" ::
-      .putstatic "MacroCellLeanKt" clinitMcSpecs[i.val].2.2.2.2.1 clinitMcSpecs[i.val].2.2.2.2.2 ::
+      .putstatic "com/alexvanyo/composelife/model/MacroCellLeanKt" clinitMcSpecs[i.val].2.2.2.2.1 clinitMcSpecs[i.val].2.2.2.2.2 ::
       clinit_MacroCellLeanKt_prog.drop (7 + i.val * 14 + 14) := by
   rcases i with ⟨i, hi⟩
   dsimp only
@@ -642,7 +642,7 @@ private theorem clinit_MacroCellLeanKt_prog_drop_399 :
 set_option maxRecDepth 4096 in
 private theorem clinit_MacroCellLeanKt_prog_drop_534 :
     clinit_MacroCellLeanKt_prog.drop 534 =
-      .aload 0 :: .putstatic "MacroCellLeanKt" "EMPTY_NODES" "[Lcom/alexvanyo/composelife/model/MacroCell;" ::
+      .aload 0 :: .putstatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "EMPTY_NODES" "[Lcom/alexvanyo/composelife/model/MacroCell;" ::
       .vreturn :: clinit_MacroCellLeanKt_prog.drop 537 := rfl
 
 private def clinitMcArrFieldNames : List String := [
@@ -666,7 +666,7 @@ set_option maxRecDepth 4096 in
 private theorem clinitMcArr_drop (k : Fin 33) :
     clinit_MacroCellLeanKt_prog.drop (402 + k.val * 4) =
       .aload 0 :: .iconst (UInt32.ofNat k.val) ::
-      .getstatic "MacroCellLeanKt" (if k.val < 5 then "EMPTY_LEVEL_4" else s!"emptyNode_{k.val}")
+      .getstatic "com/alexvanyo/composelife/model/MacroCellLeanKt" (if k.val < 5 then "EMPTY_LEVEL_4" else s!"emptyNode_{k.val}")
         (if k.val < 5 then "Lcom/alexvanyo/composelife/model/MacroCell$Level4Node;"
          else "Lcom/alexvanyo/composelife/model/MacroCell$CellNode;") ::
       .aastore :: clinit_MacroCellLeanKt_prog.drop (402 + k.val * 4 + 4) := by
@@ -678,9 +678,9 @@ private theorem clinitMcArr_drop (k : Fin 33) :
   | n + 33 => omega
 
 private def mkMcJH : Nat → Jvm.JvmHeap AlgExt
-  | 0 => ({} : Jvm.JvmHeap AlgExt).setStatic "MacroCellLeanKt" "EMPTY_LEVEL_4" (.ext (.mc (Algorithm.emptyNode 4)))
+  | 0 => ({} : Jvm.JvmHeap AlgExt).setStatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "EMPTY_LEVEL_4" (.ext (.mc (Algorithm.emptyNode 4)))
   | k + 1 =>
-    (mkMcJH k).setStatic "MacroCellLeanKt" (clinitMcArrFieldNames.getD (k + 5) "") (.ext (.mc (Algorithm.emptyNode (k + 5))))
+    (mkMcJH k).setStatic "com/alexvanyo/composelife/model/MacroCellLeanKt" (clinitMcArrFieldNames.getD (k + 5) "") (.ext (.mc (Algorithm.emptyNode (k + 5))))
 
 private theorem jvHeap_alloc_set0_eq {jh : Jvm.JvmHeap AlgExt} (h0 : jh.objects = #[])
     (a b : Jvm.HeapObj AlgExt) :
@@ -770,7 +770,7 @@ theorem clinit_MacroCellLeanKt_equiv :
         .lconst 0 :: .lconst 0 :: .lconst 0 :: .lconst 0 ::
         .invokevirtual "com/alexvanyo/composelife/model/MacroCell$Level4Node$Companion"
           "invoke-2jIhpxI" "(JJJJ)Lcom/alexvanyo/composelife/model/MacroCell$Level4Node;" ::
-        .putstatic "MacroCellLeanKt" "EMPTY_LEVEL_4"
+        .putstatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "EMPTY_LEVEL_4"
           "Lcom/alexvanyo/composelife/model/MacroCell$Level4Node;" ::
         clinit_MacroCellLeanKt_prog.drop 7 := rfl
     rw [hp0, show (550 : Nat) = 545 + 5 by decide, runJvmResFast_stepResFlatChunk 5]
@@ -787,7 +787,7 @@ theorem clinit_MacroCellLeanKt_equiv :
     rfl
   -- Now chain k = 0..27 in a loop using clinit_mc_node_step and mkJH
   have hmk_get : ∀ (k : Fin 29),
-      (mkJH k.val).getStatic? "MacroCellLeanKt" (clinitMcArrFieldNames.getD (k.val + 4) "") =
+      (mkJH k.val).getStatic? "com/alexvanyo/composelife/model/MacroCellLeanKt" (clinitMcArrFieldNames.getD (k.val + 4) "") =
         some (.ext (.mc (Algorithm.emptyNode (k.val + 4)))) := by
     intro k
     rcases k with ⟨k, hk⟩
@@ -823,7 +823,7 @@ theorem clinit_MacroCellLeanKt_equiv :
         exact of_decide_eq_true (List.all_eq_true.mp hall idx (List.mem_finRange idx))
       have hhash_i := hhashes idx
       dsimp only [idx] at hspec hspecPrev hspecNext hhash_i
-      have hgetPrev : (mkJH i).getStatic? "MacroCellLeanKt" clinitMcSpecs[i].2.2.1 =
+      have hgetPrev : (mkJH i).getStatic? "com/alexvanyo/composelife/model/MacroCellLeanKt" clinitMcSpecs[i].2.2.1 =
           some (.ext (.mc (Algorithm.emptyNode (i + 4)))) := by
         rw [hspecPrev]; exact hmk_get ⟨i, by omega⟩
       have hstep := clinit_mc_node_step (f := f + d * 14) (7 + i * 14)
@@ -831,7 +831,7 @@ theorem clinit_MacroCellLeanKt_equiv :
         clinitMcSpecs[i].2.2.2.2.1 clinitMcSpecs[i].2.2.2.2.2 (Algorithm.emptyNode (i + 4))
         (mkJH i) locs hspec hgetPrev
       rw [hbuild_cell i _ (by exact hhash_i), hspecNext] at hstep
-      have hmkSucc : (mkJH i).setStatic "MacroCellLeanKt" (clinitMcArrFieldNames.getD (i + 5) "")
+      have hmkSucc : (mkJH i).setStatic "com/alexvanyo/composelife/model/MacroCellLeanKt" (clinitMcArrFieldNames.getD (i + 5) "")
           (.ext (.mc (Algorithm.emptyNode (i + 5)))) = mkJH (i + 1) := rfl
       rw [hmkSucc] at hstep
       rw [show f + 1 + (d + 1) * 14 = (f + d * 14) + 1 + 14 by omega]
@@ -844,7 +844,7 @@ theorem clinit_MacroCellLeanKt_equiv :
       rw [hpc1, hi1, hfuel]
       exact ih (by omega) f locs
   have hmk_get_all : ∀ (j : Fin 33),
-      (mkJH 28).getStatic? "MacroCellLeanKt" (if j.val < 5 then "EMPTY_LEVEL_4" else s!"emptyNode_{j.val}") =
+      (mkJH 28).getStatic? "com/alexvanyo/composelife/model/MacroCellLeanKt" (if j.val < 5 then "EMPTY_LEVEL_4" else s!"emptyNode_{j.val}") =
         some (.ext (.mc (Algorithm.emptyNode j.val))) := by
     intro j
     rw [clinitMcArrFieldName_eq j]
@@ -881,9 +881,9 @@ theorem clinit_MacroCellLeanKt_equiv :
       (elems : Array JvmVal) (jh : Jvm.JvmHeap AlgExt) (locs : Nat → JvmVal) (val : Algorithm.MacroCell)
       (hlt33 : idx < 33) (hsz : elems.size = 33),
       clinit_MacroCellLeanKt_prog.drop pc =
-        .aload 0 :: .iconst (UInt32.ofNat idx) :: .getstatic "MacroCellLeanKt" name desc :: .aastore ::
+        .aload 0 :: .iconst (UInt32.ofNat idx) :: .getstatic "com/alexvanyo/composelife/model/MacroCellLeanKt" name desc :: .aastore ::
         clinit_MacroCellLeanKt_prog.drop (pc + 4) →
-      jh.getStatic? "MacroCellLeanKt" name = some (.ext (.mc val)) →
+      jh.getStatic? "com/alexvanyo/composelife/model/MacroCellLeanKt" name = some (.ext (.mc val)) →
       locs 0 = .heapRef 0 →
       jh.get? 0 = some (.objArray "com/alexvanyo/composelife/model/MacroCell" elems) →
       runJvmResFast (f + 4) clinit_MacroCellLeanKt_prog pc (clinit_MacroCellLeanKt_prog.drop pc)
@@ -935,11 +935,11 @@ theorem clinit_MacroCellLeanKt_equiv :
       let desc := if j < 5 then "Lcom/alexvanyo/composelife/model/MacroCell$Level4Node;"
         else "Lcom/alexvanyo/composelife/model/MacroCell$CellNode;"
       have hp_j : clinit_MacroCellLeanKt_prog.drop (402 + j * 4) =
-          .aload 0 :: .iconst (UInt32.ofNat j) :: .getstatic "MacroCellLeanKt" name desc :: .aastore ::
+          .aload 0 :: .iconst (UInt32.ofNat j) :: .getstatic "com/alexvanyo/composelife/model/MacroCellLeanKt" name desc :: .aastore ::
           clinit_MacroCellLeanKt_prog.drop (402 + j * 4 + 4) :=
         clinitMcArr_drop ⟨j, hj33⟩
       let jh_j := ((mkJH 28).alloc (.objArray "com/alexvanyo/composelife/model/MacroCell" (arrAt j))).2
-      have hstatic_j : jh_j.getStatic? "MacroCellLeanKt" name = some (.ext (.mc (Algorithm.emptyNode j))) := by
+      have hstatic_j : jh_j.getStatic? "com/alexvanyo/composelife/model/MacroCellLeanKt" name = some (.ext (.mc (Algorithm.emptyNode j))) := by
         dsimp only [jh_j, Jvm.JvmHeap.alloc, Jvm.JvmHeap.getStatic?, name]
         exact hmk_get_all ⟨j, hj33⟩
       have hget0_j : jh_j.get? 0 = some (.objArray "com/alexvanyo/composelife/model/MacroCell" (arrAt j)) :=
@@ -967,7 +967,7 @@ theorem clinit_MacroCellLeanKt_equiv :
   let stFinal : JvmState :=
     ⟨536, [], setLocal (fun _ => .i32 0) 0 (.heapRef 0),
       (((mkJH 28).alloc (.objArray "com/alexvanyo/composelife/model/MacroCell" emptyNodesArray)).2).setStatic
-        "MacroCellLeanKt" "EMPTY_NODES" (.heapRef 0),
+        "com/alexvanyo/composelife/model/MacroCellLeanKt" "EMPTY_NODES" (.heapRef 0),
       ⟨[], [], []⟩⟩
   refine ⟨stFinal, ?_, ?_⟩
   · apply runJvmRes_of_runJvmResFast0 _ _ _ _ rfl
@@ -1034,45 +1034,45 @@ private theorem lut_entry_and15 (arr : Array UInt8) (hsz : arr.size = 65536)
 
 theorem computeLeafNextGen8x8FastUInt_equiv (w : UInt64) (jh : Jvm.JvmHeap AlgExt)
     (hlut : HasNextGen4x4Lut jh) :
-    runJvm 1200 f_Algorithm_computeLeafNextGen8x8FastUInt_prog
+    runJvm 1200 AlgorithmLeanKt_f_Algorithm_computeLeafNextGen8x8FastUInt_prog
       (Jvm.initJvmState [(0, .i64 w)] (.i32 0) ⟨[], [], []⟩ jh) =
       some (.i32 (Algorithm.computeLeafNextGen8x8FastUInt w)) := by
   rcases hlut with ⟨lutAddr, arr, hstat, harr, hsz, htbl⟩
   apply runJvm_of_runJvmValFast0 _ _ _ _ rfl
   f1_split_val_fuel 120
-  flat_step_blk f_Algorithm_computeLeafNextGen8x8FastUInt_prog
+  flat_step_blk AlgorithmLeanKt_f_Algorithm_computeLeafNextGen8x8FastUInt_prog
   repeat' (
     first
     | (f1_split_val_fuel 1; rw [runJvmValFast_invokestatic_step (stepStatic_getNextGen4x4Lut hstat)];
-       f1_split_val_fuel 120; flat_step_blk f_Algorithm_computeLeafNextGen8x8FastUInt_prog)
+       f1_split_val_fuel 120; flat_step_blk AlgorithmLeanKt_f_Algorithm_computeLeafNextGen8x8FastUInt_prog)
     | (f1_split_val_fuel 1; rw [runJvmValFast_invokestatic_step (stepStatic_getNextGen4x4LutPkg hstat)];
-       f1_split_val_fuel 120; flat_step_blk f_Algorithm_computeLeafNextGen8x8FastUInt_prog)
+       f1_split_val_fuel 120; flat_step_blk AlgorithmLeanKt_f_Algorithm_computeLeafNextGen8x8FastUInt_prog)
     | (f1_split_val_fuel 1; rw [runJvmValFast_baload_and65535 harr hsz];
-       f1_split_val_fuel 120; flat_step_blk f_Algorithm_computeLeafNextGen8x8FastUInt_prog))
+       f1_split_val_fuel 120; flat_step_blk AlgorithmLeanKt_f_Algorithm_computeLeafNextGen8x8FastUInt_prog))
   repeat rw [lut_entry_and15 arr hsz htbl]
   rfl
 
 theorem computeLeafNextGen8x8FastUInt_1_equiv (w : UInt64) (jh : Jvm.JvmHeap AlgExt)
     (hlut : HasNextGen4x4Lut jh) :
-    runJvm 1200 f_Algorithm_computeLeafNextGen8x8FastUInt_1_prog
+    runJvm 1200 FlatHashLifeLeanKt_f_Algorithm_computeLeafNextGen8x8FastUInt_prog
       (Jvm.initJvmState [(0, .i64 w)] (.i32 0) ⟨[], [], []⟩ jh) =
       some (.i32 (Algorithm.computeLeafNextGen8x8FastUInt w)) := by
   rcases hlut with ⟨lutAddr, arr, hstat, harr, hsz, htbl⟩
   apply runJvm_of_runJvmValFast0 _ _ _ _ rfl
   f1_split_val_fuel 120
-  flat_step_blk f_Algorithm_computeLeafNextGen8x8FastUInt_1_prog
+  flat_step_blk FlatHashLifeLeanKt_f_Algorithm_computeLeafNextGen8x8FastUInt_prog
   repeat' (
     first
     | (f1_split_val_fuel 1; rw [runJvmValFast_invokestatic_step (stepStatic_getNextGen4x4LutPkg hstat)];
-       f1_split_val_fuel 120; flat_step_blk f_Algorithm_computeLeafNextGen8x8FastUInt_1_prog)
+       f1_split_val_fuel 120; flat_step_blk FlatHashLifeLeanKt_f_Algorithm_computeLeafNextGen8x8FastUInt_prog)
     | (f1_split_val_fuel 1; rw [runJvmValFast_baload_and65535 harr hsz];
-       f1_split_val_fuel 120; flat_step_blk f_Algorithm_computeLeafNextGen8x8FastUInt_1_prog))
+       f1_split_val_fuel 120; flat_step_blk FlatHashLifeLeanKt_f_Algorithm_computeLeafNextGen8x8FastUInt_prog))
   repeat rw [lut_entry_and15 arr hsz htbl]
   rfl
 
 theorem computeLeafNextGen8x8FastUInt_2_equiv (w : UInt64) (jh : Jvm.JvmHeap AlgExt)
     (hlut : HasNextGen4x4Lut jh) :
-    runJvm 1200 f_Algorithm_computeLeafNextGen8x8FastUInt_2_prog
+    runJvm 1200 MacroCellLeanKt_f_Algorithm_computeLeafNextGen8x8FastUInt_prog
       (Jvm.initJvmState [(0, .i64 w)] (.i32 0) ⟨[], [], []⟩ jh) =
       some (.i32 (Algorithm.computeLeafNextGen8x8FastUInt w)) :=
   computeLeafNextGen8x8FastUInt_1_equiv w jh hlut

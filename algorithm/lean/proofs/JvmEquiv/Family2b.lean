@@ -135,7 +135,7 @@ private theorem skipSpaces_loop : ∀ (m fuel : Nat)
     (_ : limit.toNat < 2 ^ 31)
     (_ : limit.toNat - pos.toNat ≤ m)
     (_ : (limit.toNat - pos.toNat) * 45 + 20 ≤ fuel),
-    runJvmValFast fuel f_Algorithm_skipSpaces_prog 0 f_Algorithm_skipSpaces_prog
+    runJvmValFast fuel Life106LeanKt_f_Algorithm_skipSpaces_prog 0 Life106LeanKt_f_Algorithm_skipSpaces_prog
       ⟨0, [], setLocal (setLocal (setLocal locs 0 (.heapRef addr)) 1 (.i32 pos)) 2 (.i32 limit), jh, hp⟩ =
       some (.i32 (Algorithm.skipSpaces ⟨elems⟩ pos limit))
   | 0, fuel, jh, hp, addr, elems, locs, pos, limit, hget, hlim, hlim31, hm, hfuel => by
@@ -145,7 +145,7 @@ private theorem skipSpaces_loop : ∀ (m fuel : Nat)
         false := by
       rw [compareUnsigned_slt_zero]; exact decide_eq_false hge
     conv => rhs; rw [Algorithm.skipSpaces]; simp only [hge, ↓reduceDIte]
-    split_val_fuel 20; heap_step_blk f_Algorithm_skipSpaces_prog
+    split_val_fuel 20; heap_step_blk Life106LeanKt_f_Algorithm_skipSpaces_prog
     rw [hcu]; simp only [Bool.false_eq_true, ↓reduceIte]; rfl
   | m + 1, fuel, jh, hp, addr, elems, locs, pos, limit, hget, hlim, hlim31, hm, hfuel => by
     by_cases hlt : pos < limit
@@ -159,33 +159,33 @@ private theorem skipSpaces_loop : ∀ (m fuel : Nat)
         rw [compareUnsigned_slt_zero]; exact decide_eq_true hlt
       have hb_eq : elems[pos.toNat] = (⟨elems⟩ : ByteArray).get! pos.toNat := getElem_eq_byteArray_getBang elems hpos_lt
       conv => rhs; rw [Algorithm.skipSpaces]; simp only [hlt, ↓reduceDIte, ← hb_eq]
-      split_val_fuel 45; heap_step_blk f_Algorithm_skipSpaces_prog
+      split_val_fuel 45; heap_step_blk Life106LeanKt_f_Algorithm_skipSpaces_prog
       rw [hcu]; simp only [↓reduceIte]
-      heap_step_blk f_Algorithm_skipSpaces_prog
+      heap_step_blk Life106LeanKt_f_Algorithm_skipSpaces_prog
       rw [runJvmValFast_baload hget hpos_slt hpos_lt]
-      heap_step_blk f_Algorithm_skipSpaces_prog
+      heap_step_blk Life106LeanKt_f_Algorithm_skipSpaces_prog
       rw [u8_signExt_eq_32]
       by_cases h32 : elems[pos.toNat] == 32
       · simp only [h32, Bool.true_or, ↓reduceIte, Algorithm.isSpaceByte]
-        heap_step_blk f_Algorithm_skipSpaces_prog
+        heap_step_blk Life106LeanKt_f_Algorithm_skipSpaces_prog
         exact skipSpaces_loop m _ jh hp addr elems _ (pos + 1) limit
           hget hlim hlim31 (by omega) (by simp only [Nat.add_eq]; omega)
       · have h32f : (elems[pos.toNat] == 32) = false := Bool.eq_false_iff.mpr h32
         simp only [h32f, Bool.false_eq_true, ↓reduceIte]
-        heap_step_blk f_Algorithm_skipSpaces_prog
+        heap_step_blk Life106LeanKt_f_Algorithm_skipSpaces_prog
         rw [u8_signExt_eq_9]
         by_cases h9 : elems[pos.toNat] == 9
         · simp only [h32f, h9, Bool.false_or, Bool.true_or, ↓reduceIte, Algorithm.isSpaceByte]
-          heap_step_blk f_Algorithm_skipSpaces_prog
+          heap_step_blk Life106LeanKt_f_Algorithm_skipSpaces_prog
           exact skipSpaces_loop m _ jh hp addr elems _ (pos + 1) limit
             hget hlim hlim31 (by omega) (by simp only [Nat.add_eq]; omega)
         · have h9f : (elems[pos.toNat] == 9) = false := Bool.eq_false_iff.mpr h9
           simp only [h9f, Bool.false_eq_true, ↓reduceIte]
-          heap_step_blk f_Algorithm_skipSpaces_prog
+          heap_step_blk Life106LeanKt_f_Algorithm_skipSpaces_prog
           rw [u8_signExt_eq_13]
           by_cases h13 : elems[pos.toNat] == 13
           · simp only [h32f, h9f, h13, Bool.false_or, ↓reduceIte, Algorithm.isSpaceByte]
-            heap_step_blk f_Algorithm_skipSpaces_prog
+            heap_step_blk Life106LeanKt_f_Algorithm_skipSpaces_prog
             exact skipSpaces_loop m _ jh hp addr elems _ (pos + 1) limit
               hget hlim hlim31 (by omega) (by simp only [Nat.add_eq]; omega)
           · have h13f : (elems[pos.toNat] == 13) = false := Bool.eq_false_iff.mpr h13
@@ -195,13 +195,13 @@ private theorem skipSpaces_loop : ∀ (m fuel : Nat)
           false := by
         rw [compareUnsigned_slt_zero]; exact decide_eq_false hlt
       conv => rhs; rw [Algorithm.skipSpaces]; simp only [hlt, ↓reduceDIte]
-      split_val_fuel 20; heap_step_blk f_Algorithm_skipSpaces_prog
+      split_val_fuel 20; heap_step_blk Life106LeanKt_f_Algorithm_skipSpaces_prog
       rw [hcu]; simp only [Bool.false_eq_true, ↓reduceIte]; rfl
 
 theorem skipSpaces_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (addr : Nat) (elems : Array UInt8)
     (pos limit : UInt32) (hget : jh.get? addr = some (.byteArray elems))
     (hlim : limit.toNat ≤ elems.size) (hlim31 : limit.toNat < 2 ^ 31) :
-    runJvm ((limit.toNat - pos.toNat) * 45 + 20) f_Algorithm_skipSpaces_prog
+    runJvm ((limit.toNat - pos.toNat) * 45 + 20) Life106LeanKt_f_Algorithm_skipSpaces_prog
       ⟨0, [], setLocal (setLocal (setLocal (fun _ => .null) 0 (.heapRef addr)) 1 (.i32 pos)) 2 (.i32 limit), jh, hp⟩ =
       some (.i32 (Algorithm.skipSpaces ⟨elems⟩ pos limit)) := by
   apply runJvm_of_runJvmValFast0 _ _ _ _ rfl
@@ -211,19 +211,19 @@ theorem skipSpaces_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (addr : Nat) (
 theorem skipSpaces_1_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (addr : Nat) (elems : Array UInt8)
     (pos limit : UInt32) (hget : jh.get? addr = some (.byteArray elems))
     (hlim : limit.toNat ≤ elems.size) (hlim31 : limit.toNat < 2 ^ 31) :
-    runJvm ((limit.toNat - pos.toNat) * 45 + 20) f_Algorithm_skipSpaces_1_prog
+    runJvm ((limit.toNat - pos.toNat) * 45 + 20) MacroCellLeanKt_f_Algorithm_skipSpaces_prog
       ⟨0, [], setLocal (setLocal (setLocal (fun _ => .null) 0 (.heapRef addr)) 1 (.i32 pos)) 2 (.i32 limit), jh, hp⟩ =
       some (.i32 (Algorithm.skipSpaces ⟨elems⟩ pos limit)) := by
-  rw [show f_Algorithm_skipSpaces_1_prog = f_Algorithm_skipSpaces_prog from rfl]
+  rw [show MacroCellLeanKt_f_Algorithm_skipSpaces_prog = Life106LeanKt_f_Algorithm_skipSpaces_prog from rfl]
   exact skipSpaces_equiv jh hp addr elems pos limit hget hlim hlim31
 
 theorem skipSpaces_2_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (addr : Nat) (elems : Array UInt8)
     (pos limit : UInt32) (hget : jh.get? addr = some (.byteArray elems))
     (hlim : limit.toNat ≤ elems.size) (hlim31 : limit.toNat < 2 ^ 31) :
-    runJvm ((limit.toNat - pos.toNat) * 45 + 20) f_Algorithm_skipSpaces_2_prog
+    runJvm ((limit.toNat - pos.toNat) * 45 + 20) RleLeanKt_f_Algorithm_skipSpaces_prog
       ⟨0, [], setLocal (setLocal (setLocal (fun _ => .null) 0 (.heapRef addr)) 1 (.i32 pos)) 2 (.i32 limit), jh, hp⟩ =
       some (.i32 (Algorithm.skipSpaces ⟨elems⟩ pos limit)) := by
-  rw [show f_Algorithm_skipSpaces_2_prog = f_Algorithm_skipSpaces_prog from rfl]
+  rw [show RleLeanKt_f_Algorithm_skipSpaces_prog = Life106LeanKt_f_Algorithm_skipSpaces_prog from rfl]
   exact skipSpaces_equiv jh hp addr elems pos limit hget hlim hlim31
 
 /-! ### scanDigits (+ _1.._3) -/
@@ -237,7 +237,7 @@ private theorem scanDigits_loop : ∀ (m fuel : Nat)
     (_ : limit.toNat - p.toNat ≤ m)
     (_ : (limit.toNat - p.toNat) * 80 + 30 ≤ fuel),
     let r := Algorithm.scanDigits ⟨elems⟩ limit p acc
-    runJvmValFast fuel f_Algorithm_scanDigits_prog 0 f_Algorithm_scanDigits_prog
+    runJvmValFast fuel Life105LeanKt_f_Algorithm_scanDigits_prog 0 Life105LeanKt_f_Algorithm_scanDigits_prog
       ⟨0, [], setLocal (setLocal (setLocal (setLocal locs 0 (.heapRef addr)) 1 (.i32 limit)) 2 (.i32 p))
         3 (.i64 acc), jh, hp⟩ =
       some (.pair (.boxedUInt r.1) (.boxedULong r.2))
@@ -248,9 +248,9 @@ private theorem scanDigits_loop : ∀ (m fuel : Nat)
         false := by
       rw [compareUnsigned_slt_zero]; exact decide_eq_false hge
     dsimp only; rw [Algorithm.scanDigits]; simp only [hge, ↓reduceDIte]
-    split_val_fuel 30; heap_step_blk f_Algorithm_scanDigits_prog
+    split_val_fuel 30; heap_step_blk Life105LeanKt_f_Algorithm_scanDigits_prog
     rw [hcu]; simp only [Bool.false_eq_true, ↓reduceIte]
-    heap_step_blk f_Algorithm_scanDigits_prog
+    heap_step_blk Life105LeanKt_f_Algorithm_scanDigits_prog
   | m + 1, fuel, jh, hp, addr, elems, locs, limit, p, acc, hget, hlim, hlim31, hm, hfuel => by
     dsimp only
     by_cases hlt : p < limit
@@ -264,29 +264,29 @@ private theorem scanDigits_loop : ∀ (m fuel : Nat)
         rw [compareUnsigned_slt_zero]; exact decide_eq_true hlt
       have hb_eq : elems[p.toNat] = (⟨elems⟩ : ByteArray).get! p.toNat := getElem_eq_byteArray_getBang elems hp_lt
       rw [Algorithm.scanDigits]; simp only [hlt, ↓reduceDIte, ← hb_eq]
-      split_val_fuel 80; heap_step_blk f_Algorithm_scanDigits_prog
+      split_val_fuel 80; heap_step_blk Life105LeanKt_f_Algorithm_scanDigits_prog
       rw [hcu]; simp only [↓reduceIte]
-      heap_step_blk f_Algorithm_scanDigits_prog
+      heap_step_blk Life105LeanKt_f_Algorithm_scanDigits_prog
       rw [runJvmValFast_baload hget hp_slt hp_lt]
-      heap_step_blk f_Algorithm_scanDigits_prog
+      heap_step_blk Life105LeanKt_f_Algorithm_scanDigits_prog
       rw [show (48 &&& 255 : UInt32) = 48 from rfl, intrinsicsCompare_48_sle]
       by_cases h48 : 48 ≤ elems[p.toNat]
       · simp only [h48, decide_true, ↓reduceIte]
-        heap_step_blk f_Algorithm_scanDigits_prog
+        heap_step_blk Life105LeanKt_f_Algorithm_scanDigits_prog
         rw [show (57 &&& 255 : UInt32) = 57 from rfl, intrinsicsCompare_57_sle]
         by_cases h57 : elems[p.toNat] ≤ 57
         · have hdig : Algorithm.isDigitByte elems[p.toNat] = true := by
             simp [Algorithm.isDigitByte, h48, h57]
           simp only [h57, decide_true, hdig, ↓reduceIte]
-          heap_step_blk f_Algorithm_scanDigits_prog
+          heap_step_blk Life105LeanKt_f_Algorithm_scanDigits_prog
           rw [compareUnsigned64_slt_zero]
           by_cases hgt : 4294967296 < acc
           · simp only [hgt, decide_true, ↓reduceIte]
-            heap_step_blk f_Algorithm_scanDigits_prog
+            heap_step_blk Life105LeanKt_f_Algorithm_scanDigits_prog
             exact scanDigits_loop m _ jh hp addr elems _ limit (p + 1) acc
               hget hlim hlim31 (by omega) (by simp only [Nat.add_eq]; omega)
           · simp only [hgt, decide_false, Bool.false_eq_true, ↓reduceIte]
-            heap_step_blk f_Algorithm_scanDigits_prog
+            heap_step_blk Life105LeanKt_f_Algorithm_scanDigits_prog
             rw [u8_signExt64_and255]
             exact scanDigits_loop m _ jh hp addr elems _ limit (p + 1)
               (acc * 10 + (elems[p.toNat].toUInt64 - 48)) hget hlim hlim31
@@ -294,24 +294,24 @@ private theorem scanDigits_loop : ∀ (m fuel : Nat)
         · have hdig : Algorithm.isDigitByte elems[p.toNat] = false := by
             simp [Algorithm.isDigitByte, h57]
           simp only [h57, decide_false, Bool.false_eq_true, hdig, ↓reduceIte]
-          heap_step_blk f_Algorithm_scanDigits_prog
+          heap_step_blk Life105LeanKt_f_Algorithm_scanDigits_prog
       · have hdig : Algorithm.isDigitByte elems[p.toNat] = false := by
           simp [Algorithm.isDigitByte, h48]
         simp only [h48, decide_false, Bool.false_eq_true, hdig, ↓reduceIte]
-        heap_step_blk f_Algorithm_scanDigits_prog
+        heap_step_blk Life105LeanKt_f_Algorithm_scanDigits_prog
     · have hcu : (if p == limit then (0 : UInt32) else if p < limit then 4294967295 else 1).toBitVec.slt 0#32 =
           false := by
         rw [compareUnsigned_slt_zero]; exact decide_eq_false hlt
       rw [Algorithm.scanDigits]; simp only [hlt, ↓reduceDIte]
-      split_val_fuel 30; heap_step_blk f_Algorithm_scanDigits_prog
+      split_val_fuel 30; heap_step_blk Life105LeanKt_f_Algorithm_scanDigits_prog
       rw [hcu]; simp only [Bool.false_eq_true, ↓reduceIte]
-      heap_step_blk f_Algorithm_scanDigits_prog
+      heap_step_blk Life105LeanKt_f_Algorithm_scanDigits_prog
 
 theorem scanDigits_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (addr : Nat) (elems : Array UInt8)
     (limit p : UInt32) (acc : UInt64) (hget : jh.get? addr = some (.byteArray elems))
     (hlim : limit.toNat ≤ elems.size) (hlim31 : limit.toNat < 2 ^ 31) :
     let r := Algorithm.scanDigits ⟨elems⟩ limit p acc
-    runJvm ((limit.toNat - p.toNat) * 80 + 30) f_Algorithm_scanDigits_prog
+    runJvm ((limit.toNat - p.toNat) * 80 + 30) Life105LeanKt_f_Algorithm_scanDigits_prog
       ⟨0, [], setLocal (setLocal (setLocal (setLocal (fun _ => .null) 0 (.heapRef addr)) 1 (.i32 limit)) 2 (.i32 p))
         3 (.i64 acc), jh, hp⟩ =
       some (.pair (.boxedUInt r.1) (.boxedULong r.2)) := by
@@ -323,33 +323,33 @@ theorem scanDigits_1_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (addr : Nat)
     (limit p : UInt32) (acc : UInt64) (hget : jh.get? addr = some (.byteArray elems))
     (hlim : limit.toNat ≤ elems.size) (hlim31 : limit.toNat < 2 ^ 31) :
     let r := Algorithm.scanDigits ⟨elems⟩ limit p acc
-    runJvm ((limit.toNat - p.toNat) * 80 + 30) f_Algorithm_scanDigits_1_prog
+    runJvm ((limit.toNat - p.toNat) * 80 + 30) Life106LeanKt_f_Algorithm_scanDigits_prog
       ⟨0, [], setLocal (setLocal (setLocal (setLocal (fun _ => .null) 0 (.heapRef addr)) 1 (.i32 limit)) 2 (.i32 p))
         3 (.i64 acc), jh, hp⟩ =
       some (.pair (.boxedUInt r.1) (.boxedULong r.2)) := by
-  rw [show f_Algorithm_scanDigits_1_prog = f_Algorithm_scanDigits_prog from rfl]
+  rw [show Life106LeanKt_f_Algorithm_scanDigits_prog = Life105LeanKt_f_Algorithm_scanDigits_prog from rfl]
   exact scanDigits_equiv jh hp addr elems limit p acc hget hlim hlim31
 
 theorem scanDigits_2_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (addr : Nat) (elems : Array UInt8)
     (limit p : UInt32) (acc : UInt64) (hget : jh.get? addr = some (.byteArray elems))
     (hlim : limit.toNat ≤ elems.size) (hlim31 : limit.toNat < 2 ^ 31) :
     let r := Algorithm.scanDigits ⟨elems⟩ limit p acc
-    runJvm ((limit.toNat - p.toNat) * 80 + 30) f_Algorithm_scanDigits_2_prog
+    runJvm ((limit.toNat - p.toNat) * 80 + 30) MacroCellLeanKt_f_Algorithm_scanDigits_prog
       ⟨0, [], setLocal (setLocal (setLocal (setLocal (fun _ => .null) 0 (.heapRef addr)) 1 (.i32 limit)) 2 (.i32 p))
         3 (.i64 acc), jh, hp⟩ =
       some (.pair (.boxedUInt r.1) (.boxedULong r.2)) := by
-  rw [show f_Algorithm_scanDigits_2_prog = f_Algorithm_scanDigits_prog from rfl]
+  rw [show MacroCellLeanKt_f_Algorithm_scanDigits_prog = Life105LeanKt_f_Algorithm_scanDigits_prog from rfl]
   exact scanDigits_equiv jh hp addr elems limit p acc hget hlim hlim31
 
 theorem scanDigits_3_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (addr : Nat) (elems : Array UInt8)
     (limit p : UInt32) (acc : UInt64) (hget : jh.get? addr = some (.byteArray elems))
     (hlim : limit.toNat ≤ elems.size) (hlim31 : limit.toNat < 2 ^ 31) :
     let r := Algorithm.scanDigits ⟨elems⟩ limit p acc
-    runJvm ((limit.toNat - p.toNat) * 80 + 30) f_Algorithm_scanDigits_3_prog
+    runJvm ((limit.toNat - p.toNat) * 80 + 30) RleLeanKt_f_Algorithm_scanDigits_prog
       ⟨0, [], setLocal (setLocal (setLocal (setLocal (fun _ => .null) 0 (.heapRef addr)) 1 (.i32 limit)) 2 (.i32 p))
         3 (.i64 acc), jh, hp⟩ =
       some (.pair (.boxedUInt r.1) (.boxedULong r.2)) := by
-  rw [show f_Algorithm_scanDigits_3_prog = f_Algorithm_scanDigits_prog from rfl]
+  rw [show RleLeanKt_f_Algorithm_scanDigits_prog = Life105LeanKt_f_Algorithm_scanDigits_prog from rfl]
   exact scanDigits_equiv jh hp addr elems limit p acc hget hlim hlim31
 
 /-! ### scanDigitSet (+ _1) -/
@@ -363,7 +363,7 @@ private theorem scanDigitSet_loop : ∀ (m fuel : Nat)
     (_ : limit.toNat - p.toNat ≤ m)
     (_ : (limit.toNat - p.toNat) * 75 + 30 ≤ fuel),
     let r := Algorithm.scanDigitSet ⟨elems⟩ limit p mask
-    runJvmValFast fuel f_Algorithm_scanDigitSet_prog 0 f_Algorithm_scanDigitSet_prog
+    runJvmValFast fuel Life105LeanKt_f_Algorithm_scanDigitSet_prog 0 Life105LeanKt_f_Algorithm_scanDigitSet_prog
       ⟨0, [], setLocal (setLocal (setLocal (setLocal locs 0 (.heapRef addr)) 1 (.i32 limit)) 2 (.i32 p))
         3 (.i32 mask), jh, hp⟩ =
       some (.pair (.boxedUInt r.1) (.boxedUInt r.2))
@@ -374,9 +374,9 @@ private theorem scanDigitSet_loop : ∀ (m fuel : Nat)
         false := by
       rw [compareUnsigned_slt_zero]; exact decide_eq_false hge
     dsimp only; rw [Algorithm.scanDigitSet]; simp only [hge, ↓reduceDIte]
-    split_val_fuel 30; heap_step_blk f_Algorithm_scanDigitSet_prog
+    split_val_fuel 30; heap_step_blk Life105LeanKt_f_Algorithm_scanDigitSet_prog
     rw [hcu]; simp only [Bool.false_eq_true, ↓reduceIte]
-    heap_step_blk f_Algorithm_scanDigitSet_prog
+    heap_step_blk Life105LeanKt_f_Algorithm_scanDigitSet_prog
   | m + 1, fuel, jh, hp, addr, elems, locs, limit, p, mask, hget, hlim, hlim31, hm, hfuel => by
     dsimp only
     by_cases hlt : p < limit
@@ -390,21 +390,21 @@ private theorem scanDigitSet_loop : ∀ (m fuel : Nat)
         rw [compareUnsigned_slt_zero]; exact decide_eq_true hlt
       have hb_eq : elems[p.toNat] = (⟨elems⟩ : ByteArray).get! p.toNat := getElem_eq_byteArray_getBang elems hp_lt
       rw [Algorithm.scanDigitSet]; simp only [hlt, ↓reduceDIte, ← hb_eq]
-      split_val_fuel 75; heap_step_blk f_Algorithm_scanDigitSet_prog
+      split_val_fuel 75; heap_step_blk Life105LeanKt_f_Algorithm_scanDigitSet_prog
       rw [hcu]; simp only [↓reduceIte]
-      heap_step_blk f_Algorithm_scanDigitSet_prog
+      heap_step_blk Life105LeanKt_f_Algorithm_scanDigitSet_prog
       rw [runJvmValFast_baload hget hp_slt hp_lt]
-      heap_step_blk f_Algorithm_scanDigitSet_prog
+      heap_step_blk Life105LeanKt_f_Algorithm_scanDigitSet_prog
       rw [show (48 &&& 255 : UInt32) = 48 from rfl, intrinsicsCompare_48_sle]
       by_cases h48 : 48 ≤ elems[p.toNat]
       · simp only [h48, decide_true, ↓reduceIte]
-        heap_step_blk f_Algorithm_scanDigitSet_prog
+        heap_step_blk Life105LeanKt_f_Algorithm_scanDigitSet_prog
         rw [show (57 &&& 255 : UInt32) = 57 from rfl, intrinsicsCompare_57_sle]
         by_cases h57 : elems[p.toNat] ≤ 57
         · have hdig : Algorithm.isDigitByte elems[p.toNat] = true := by
             simp [Algorithm.isDigitByte, h48, h57]
           simp only [h57, decide_true, hdig, ↓reduceIte]
-          heap_step_blk f_Algorithm_scanDigitSet_prog
+          heap_step_blk Life105LeanKt_f_Algorithm_scanDigitSet_prog
           rw [u8_signExt_and255_sub48, u8_sub48_and31 h48 h57]
           exact scanDigitSet_loop m _ jh hp addr elems _ limit (p + 1)
             (mask ||| (1 : UInt32) <<< (elems[p.toNat].toUInt32 - 48)) hget hlim hlim31
@@ -412,24 +412,24 @@ private theorem scanDigitSet_loop : ∀ (m fuel : Nat)
         · have hdig : Algorithm.isDigitByte elems[p.toNat] = false := by
             simp [Algorithm.isDigitByte, h57]
           simp only [h57, decide_false, Bool.false_eq_true, hdig, ↓reduceIte]
-          heap_step_blk f_Algorithm_scanDigitSet_prog
+          heap_step_blk Life105LeanKt_f_Algorithm_scanDigitSet_prog
       · have hdig : Algorithm.isDigitByte elems[p.toNat] = false := by
           simp [Algorithm.isDigitByte, h48]
         simp only [h48, decide_false, Bool.false_eq_true, hdig, ↓reduceIte]
-        heap_step_blk f_Algorithm_scanDigitSet_prog
+        heap_step_blk Life105LeanKt_f_Algorithm_scanDigitSet_prog
     · have hcu : (if p == limit then (0 : UInt32) else if p < limit then 4294967295 else 1).toBitVec.slt 0#32 =
           false := by
         rw [compareUnsigned_slt_zero]; exact decide_eq_false hlt
       rw [Algorithm.scanDigitSet]; simp only [hlt, ↓reduceDIte]
-      split_val_fuel 30; heap_step_blk f_Algorithm_scanDigitSet_prog
+      split_val_fuel 30; heap_step_blk Life105LeanKt_f_Algorithm_scanDigitSet_prog
       rw [hcu]; simp only [Bool.false_eq_true, ↓reduceIte]
-      heap_step_blk f_Algorithm_scanDigitSet_prog
+      heap_step_blk Life105LeanKt_f_Algorithm_scanDigitSet_prog
 
 theorem scanDigitSet_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (addr : Nat) (elems : Array UInt8)
     (limit p mask : UInt32) (hget : jh.get? addr = some (.byteArray elems))
     (hlim : limit.toNat ≤ elems.size) (hlim31 : limit.toNat < 2 ^ 31) :
     let r := Algorithm.scanDigitSet ⟨elems⟩ limit p mask
-    runJvm ((limit.toNat - p.toNat) * 75 + 30) f_Algorithm_scanDigitSet_prog
+    runJvm ((limit.toNat - p.toNat) * 75 + 30) Life105LeanKt_f_Algorithm_scanDigitSet_prog
       ⟨0, [], setLocal (setLocal (setLocal (setLocal (fun _ => .null) 0 (.heapRef addr)) 1 (.i32 limit)) 2 (.i32 p))
         3 (.i32 mask), jh, hp⟩ =
       some (.pair (.boxedUInt r.1) (.boxedUInt r.2)) := by
@@ -441,11 +441,11 @@ theorem scanDigitSet_1_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (addr : Na
     (limit p mask : UInt32) (hget : jh.get? addr = some (.byteArray elems))
     (hlim : limit.toNat ≤ elems.size) (hlim31 : limit.toNat < 2 ^ 31) :
     let r := Algorithm.scanDigitSet ⟨elems⟩ limit p mask
-    runJvm ((limit.toNat - p.toNat) * 75 + 30) f_Algorithm_scanDigitSet_1_prog
+    runJvm ((limit.toNat - p.toNat) * 75 + 30) RleLeanKt_f_Algorithm_scanDigitSet_prog
       ⟨0, [], setLocal (setLocal (setLocal (setLocal (fun _ => .null) 0 (.heapRef addr)) 1 (.i32 limit)) 2 (.i32 p))
         3 (.i32 mask), jh, hp⟩ =
       some (.pair (.boxedUInt r.1) (.boxedUInt r.2)) := by
-  rw [show f_Algorithm_scanDigitSet_1_prog = f_Algorithm_scanDigitSet_prog from rfl]
+  rw [show RleLeanKt_f_Algorithm_scanDigitSet_prog = Life105LeanKt_f_Algorithm_scanDigitSet_prog from rfl]
   exact scanDigitSet_equiv jh hp addr elems limit p mask hget hlim hlim31
 
 /-! ### decodeCharAt (+ _1.._2) -/
@@ -519,8 +519,8 @@ private def decodeCharAtProg (cls : String) : List JvmInstr :=
    .invokespecial "kotlin/Pair" "<init>" "(Ljava/lang/Object;Ljava/lang/Object;)V", .areturn]
 
 private theorem decodeCharAt_pc120 (cls : String)
-    (hcls : cls = "Life105LeanKt" ∨ cls = "Life106LeanKt" ∨ cls = "MacroCellLeanKt" ∨
-      cls = "PlaintextLeanKt" ∨ cls = "RleLeanKt")
+    (hcls : cls = "com/alexvanyo/composelife/model/Life105LeanKt" ∨ cls = "com/alexvanyo/composelife/model/Life106LeanKt" ∨ cls = "com/alexvanyo/composelife/model/MacroCellLeanKt" ∨
+      cls = "com/alexvanyo/composelife/model/PlaintextLeanKt" ∨ cls = "com/alexvanyo/composelife/model/RleLeanKt")
     (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (addr : Nat) (elems : Array UInt8)
     (locs : Nat → JvmVal) (p limit b0 : UInt32) (fuel : Nat) (hfuel : 60 ≤ fuel)
     (hget : jh.get? addr = some (.byteArray elems))
@@ -595,8 +595,8 @@ private theorem decodeCharAt_pc120 (cls : String)
     heap_step_blk (decodeCharAtProg cls)
 
 private theorem decodeCharAt_pc56 (cls : String)
-    (hcls : cls = "Life105LeanKt" ∨ cls = "Life106LeanKt" ∨ cls = "MacroCellLeanKt" ∨
-      cls = "PlaintextLeanKt" ∨ cls = "RleLeanKt")
+    (hcls : cls = "com/alexvanyo/composelife/model/Life105LeanKt" ∨ cls = "com/alexvanyo/composelife/model/Life106LeanKt" ∨ cls = "com/alexvanyo/composelife/model/MacroCellLeanKt" ∨
+      cls = "com/alexvanyo/composelife/model/PlaintextLeanKt" ∨ cls = "com/alexvanyo/composelife/model/RleLeanKt")
     (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (addr : Nat) (elems : Array UInt8)
     (locs : Nat → JvmVal) (p limit b0 : UInt32) (fuel : Nat) (hfuel : 100 ≤ fuel)
     (hget : jh.get? addr = some (.byteArray elems))
@@ -664,8 +664,8 @@ private theorem decodeCharAt_pc56 (cls : String)
       (by simp [setLocal]) (by simp [setLocal])
 
 private theorem decodeCharAt_spec (cls : String)
-    (hcls : cls = "Life105LeanKt" ∨ cls = "Life106LeanKt" ∨ cls = "MacroCellLeanKt" ∨
-      cls = "PlaintextLeanKt" ∨ cls = "RleLeanKt")
+    (hcls : cls = "com/alexvanyo/composelife/model/Life105LeanKt" ∨ cls = "com/alexvanyo/composelife/model/Life106LeanKt" ∨ cls = "com/alexvanyo/composelife/model/MacroCellLeanKt" ∨
+      cls = "com/alexvanyo/composelife/model/PlaintextLeanKt" ∨ cls = "com/alexvanyo/composelife/model/RleLeanKt")
     (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (addr : Nat) (elems : Array UInt8)
     (p limit : UInt32) (hget : jh.get? addr = some (.byteArray elems))
     (hlt : p < limit) (hlim : limit.toNat ≤ elems.size) (hlim31 : limit.toNat < 2 ^ 31) :
@@ -730,31 +730,31 @@ theorem decodeCharAt_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (addr : Nat)
     (p limit : UInt32) (hget : jh.get? addr = some (.byteArray elems))
     (hlt : p < limit) (hlim : limit.toNat ≤ elems.size) (hlim31 : limit.toNat < 2 ^ 31) :
     let r := Algorithm.decodeCharAt ⟨elems⟩ p limit
-    runJvm 150 f_Algorithm_decodeCharAt_prog
+    runJvm 150 MacroCellLeanKt_f_Algorithm_decodeCharAt_prog
       ⟨0, [], setLocal (setLocal (setLocal (fun _ => .null) 0 (.heapRef addr)) 1 (.i32 p)) 2 (.i32 limit), jh, hp⟩ =
       some (.pair (.boxedUInt r.1) (.boxedUInt r.2)) := by
-  rw [show f_Algorithm_decodeCharAt_prog = decodeCharAtProg "MacroCellLeanKt" from rfl]
-  exact decodeCharAt_spec "MacroCellLeanKt" (by simp) jh hp addr elems p limit hget hlt hlim hlim31
+  rw [show MacroCellLeanKt_f_Algorithm_decodeCharAt_prog = decodeCharAtProg "com/alexvanyo/composelife/model/MacroCellLeanKt" from rfl]
+  exact decodeCharAt_spec "com/alexvanyo/composelife/model/MacroCellLeanKt" (by simp) jh hp addr elems p limit hget hlt hlim hlim31
 
 theorem decodeCharAt_1_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (addr : Nat) (elems : Array UInt8)
     (p limit : UInt32) (hget : jh.get? addr = some (.byteArray elems))
     (hlt : p < limit) (hlim : limit.toNat ≤ elems.size) (hlim31 : limit.toNat < 2 ^ 31) :
     let r := Algorithm.decodeCharAt ⟨elems⟩ p limit
-    runJvm 150 f_Algorithm_decodeCharAt_1_prog
+    runJvm 150 PlaintextLeanKt_f_Algorithm_decodeCharAt_prog
       ⟨0, [], setLocal (setLocal (setLocal (fun _ => .null) 0 (.heapRef addr)) 1 (.i32 p)) 2 (.i32 limit), jh, hp⟩ =
       some (.pair (.boxedUInt r.1) (.boxedUInt r.2)) := by
-  rw [show f_Algorithm_decodeCharAt_1_prog = decodeCharAtProg "PlaintextLeanKt" from rfl]
-  exact decodeCharAt_spec "PlaintextLeanKt" (by simp) jh hp addr elems p limit hget hlt hlim hlim31
+  rw [show PlaintextLeanKt_f_Algorithm_decodeCharAt_prog = decodeCharAtProg "com/alexvanyo/composelife/model/PlaintextLeanKt" from rfl]
+  exact decodeCharAt_spec "com/alexvanyo/composelife/model/PlaintextLeanKt" (by simp) jh hp addr elems p limit hget hlt hlim hlim31
 
 theorem decodeCharAt_2_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (addr : Nat) (elems : Array UInt8)
     (p limit : UInt32) (hget : jh.get? addr = some (.byteArray elems))
     (hlt : p < limit) (hlim : limit.toNat ≤ elems.size) (hlim31 : limit.toNat < 2 ^ 31) :
     let r := Algorithm.decodeCharAt ⟨elems⟩ p limit
-    runJvm 150 f_Algorithm_decodeCharAt_2_prog
+    runJvm 150 RleLeanKt_f_Algorithm_decodeCharAt_prog
       ⟨0, [], setLocal (setLocal (setLocal (fun _ => .null) 0 (.heapRef addr)) 1 (.i32 p)) 2 (.i32 limit), jh, hp⟩ =
       some (.pair (.boxedUInt r.1) (.boxedUInt r.2)) := by
-  rw [show f_Algorithm_decodeCharAt_2_prog = decodeCharAtProg "RleLeanKt" from rfl]
-  exact decodeCharAt_spec "RleLeanKt" (by simp) jh hp addr elems p limit hget hlt hlim hlim31
+  rw [show RleLeanKt_f_Algorithm_decodeCharAt_prog = decodeCharAtProg "com/alexvanyo/composelife/model/RleLeanKt" from rfl]
+  exact decodeCharAt_spec "com/alexvanyo/composelife/model/RleLeanKt" (by simp) jh hp addr elems p limit hget hlt hlim hlim31
 
 /-! ### Option helpers for ParsedUInt32 / ParsedInt32 -/
 
@@ -1026,8 +1026,8 @@ private theorem parseUInt32At_pc18 (cls : String)
         exact jvmHeap_set1_u32_0 jh _⟩
 
 private theorem parseUInt32At_spec (cls : String)
-    (hcls : cls = "Life105LeanKt" ∨ cls = "Life106LeanKt" ∨ cls = "MacroCellLeanKt" ∨
-      cls = "PlaintextLeanKt" ∨ cls = "RleLeanKt")
+    (hcls : cls = "com/alexvanyo/composelife/model/Life105LeanKt" ∨ cls = "com/alexvanyo/composelife/model/Life106LeanKt" ∨ cls = "com/alexvanyo/composelife/model/MacroCellLeanKt" ∨
+      cls = "com/alexvanyo/composelife/model/PlaintextLeanKt" ∨ cls = "com/alexvanyo/composelife/model/RleLeanKt")
     (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (addr : Nat) (elems : Array UInt8)
     (pos limit : UInt32) (hget : jh.get? addr = some (.byteArray elems)) :
     let res := Algorithm.parseUInt32At ⟨elems⟩ pos limit
@@ -1065,11 +1065,11 @@ theorem parseUInt32At_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (addr : Nat
         { objects := (jh.objects.push (.objArray "java/lang/Object" #[.boxedInt 1, .heapRef (jh.objects.size + 1)])).push
             (.objArray "java/lang/Object" #[.boxedInt 0, .boxedUInt p.val, .null, .null, .null, .boxedUInt p.next]),
           statics := jh.statics }
-    ∃ st', runJvmRes 120 f_Algorithm_parseUInt32At_prog
+    ∃ st', runJvmRes 120 MacroCellLeanKt_f_Algorithm_parseUInt32At_prog
       ⟨0, [], setLocal (setLocal (setLocal (fun _ => .null) 0 (.heapRef addr)) 1 (.i32 pos)) 2 (.i32 limit), jh, hp⟩ =
       some (.heapRef jh.objects.size, st') ∧ st'.jvmHeap = jhAfter := by
-  rw [show f_Algorithm_parseUInt32At_prog = parseUInt32AtProg "MacroCellLeanKt" from rfl]
-  exact parseUInt32At_spec "MacroCellLeanKt" (by simp) jh hp addr elems pos limit hget
+  rw [show MacroCellLeanKt_f_Algorithm_parseUInt32At_prog = parseUInt32AtProg "com/alexvanyo/composelife/model/MacroCellLeanKt" from rfl]
+  exact parseUInt32At_spec "com/alexvanyo/composelife/model/MacroCellLeanKt" (by simp) jh hp addr elems pos limit hget
 
 theorem parseUInt32At_1_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (addr : Nat) (elems : Array UInt8)
     (pos limit : UInt32) (hget : jh.get? addr = some (.byteArray elems)) :
@@ -1080,11 +1080,11 @@ theorem parseUInt32At_1_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (addr : N
         { objects := (jh.objects.push (.objArray "java/lang/Object" #[.boxedInt 1, .heapRef (jh.objects.size + 1)])).push
             (.objArray "java/lang/Object" #[.boxedInt 0, .boxedUInt p.val, .null, .null, .null, .boxedUInt p.next]),
           statics := jh.statics }
-    ∃ st', runJvmRes 120 f_Algorithm_parseUInt32At_1_prog
+    ∃ st', runJvmRes 120 RleLeanKt_f_Algorithm_parseUInt32At_prog
       ⟨0, [], setLocal (setLocal (setLocal (fun _ => .null) 0 (.heapRef addr)) 1 (.i32 pos)) 2 (.i32 limit), jh, hp⟩ =
       some (.heapRef jh.objects.size, st') ∧ st'.jvmHeap = jhAfter := by
-  rw [show f_Algorithm_parseUInt32At_1_prog = parseUInt32AtProg "RleLeanKt" from rfl]
-  exact parseUInt32At_spec "RleLeanKt" (by simp) jh hp addr elems pos limit hget
+  rw [show RleLeanKt_f_Algorithm_parseUInt32At_prog = parseUInt32AtProg "com/alexvanyo/composelife/model/RleLeanKt" from rfl]
+  exact parseUInt32At_spec "com/alexvanyo/composelife/model/RleLeanKt" (by simp) jh hp addr elems pos limit hget
 
 /-! ### parseInt32At (+ _1.._2) -/
 
@@ -1144,8 +1144,8 @@ private def parseInt32AtProg (cls : String) : List JvmInstr :=
    .aastore, .aload 10, .astore 9, .aload 9, .areturn]
 
 private theorem parseInt32At_pc52 (cls : String)
-    (hcls : cls = "Life105LeanKt" ∨ cls = "Life106LeanKt" ∨ cls = "MacroCellLeanKt" ∨
-      cls = "PlaintextLeanKt" ∨ cls = "RleLeanKt")
+    (hcls : cls = "com/alexvanyo/composelife/model/Life105LeanKt" ∨ cls = "com/alexvanyo/composelife/model/Life106LeanKt" ∨ cls = "com/alexvanyo/composelife/model/MacroCellLeanKt" ∨
+      cls = "com/alexvanyo/composelife/model/PlaintextLeanKt" ∨ cls = "com/alexvanyo/composelife/model/RleLeanKt")
     (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (locs : Nat → JvmVal)
     (start e : UInt32) (v : UInt64) (isNeg : Bool) (fuel : Nat) (hfuel : 80 ≤ fuel)
     (hl3 : locs 3 = .i32 (if isNeg then 1 else 0)) (_hl4 : locs 4 = .i32 start)
@@ -1392,8 +1392,8 @@ private theorem parseInt32At_pc52 (cls : String)
           exact jvmHeap_set1_u32_0 jh _⟩
 
 private theorem parseInt32At_pc37 (cls : String)
-    (hcls : cls = "Life105LeanKt" ∨ cls = "Life106LeanKt" ∨ cls = "MacroCellLeanKt" ∨
-      cls = "PlaintextLeanKt" ∨ cls = "RleLeanKt")
+    (hcls : cls = "com/alexvanyo/composelife/model/Life105LeanKt" ∨ cls = "com/alexvanyo/composelife/model/Life106LeanKt" ∨ cls = "com/alexvanyo/composelife/model/MacroCellLeanKt" ∨
+      cls = "com/alexvanyo/composelife/model/PlaintextLeanKt" ∨ cls = "com/alexvanyo/composelife/model/RleLeanKt")
     (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (addr : Nat) (elems : Array UInt8)
     (locs : Nat → JvmVal) (limit start : UInt32) (isNeg : Bool) (fuel : Nat)
     (hget : jh.get? addr = some (.byteArray elems))
@@ -1434,8 +1434,8 @@ private theorem parseInt32At_pc37 (cls : String)
   exact hrun
 
 private theorem parseInt32At_spec (cls : String)
-    (hcls : cls = "Life105LeanKt" ∨ cls = "Life106LeanKt" ∨ cls = "MacroCellLeanKt" ∨
-      cls = "PlaintextLeanKt" ∨ cls = "RleLeanKt")
+    (hcls : cls = "com/alexvanyo/composelife/model/Life105LeanKt" ∨ cls = "com/alexvanyo/composelife/model/Life106LeanKt" ∨ cls = "com/alexvanyo/composelife/model/MacroCellLeanKt" ∨
+      cls = "com/alexvanyo/composelife/model/PlaintextLeanKt" ∨ cls = "com/alexvanyo/composelife/model/RleLeanKt")
     (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (addr : Nat) (elems : Array UInt8)
     (pos limit : UInt32) (hget : jh.get? addr = some (.byteArray elems))
     (hlim : limit.toNat ≤ elems.size) (hlim31 : limit.toNat < 2 ^ 31) :
@@ -1527,11 +1527,11 @@ theorem parseInt32At_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (addr : Nat)
             (.objArray "java/lang/Object"
               #[.boxedInt 0, .boxedInt p.val.toUInt32, .null, .null, .null, .boxedUInt p.next]),
           statics := jh.statics }
-    ∃ st', runJvmRes 160 f_Algorithm_parseInt32At_prog
+    ∃ st', runJvmRes 160 Life105LeanKt_f_Algorithm_parseInt32At_prog
       ⟨0, [], setLocal (setLocal (setLocal (fun _ => .null) 0 (.heapRef addr)) 1 (.i32 pos)) 2 (.i32 limit), jh, hp⟩ =
       some (.heapRef jh.objects.size, st') ∧ st'.jvmHeap = jhAfter := by
-  rw [show f_Algorithm_parseInt32At_prog = parseInt32AtProg "Life105LeanKt" from rfl]
-  exact parseInt32At_spec "Life105LeanKt" (by simp) jh hp addr elems pos limit hget hlim hlim31
+  rw [show Life105LeanKt_f_Algorithm_parseInt32At_prog = parseInt32AtProg "com/alexvanyo/composelife/model/Life105LeanKt" from rfl]
+  exact parseInt32At_spec "com/alexvanyo/composelife/model/Life105LeanKt" (by simp) jh hp addr elems pos limit hget hlim hlim31
 
 theorem parseInt32At_1_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (addr : Nat) (elems : Array UInt8)
     (pos limit : UInt32) (hget : jh.get? addr = some (.byteArray elems))
@@ -1544,11 +1544,11 @@ theorem parseInt32At_1_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (addr : Na
             (.objArray "java/lang/Object"
               #[.boxedInt 0, .boxedInt p.val.toUInt32, .null, .null, .null, .boxedUInt p.next]),
           statics := jh.statics }
-    ∃ st', runJvmRes 160 f_Algorithm_parseInt32At_1_prog
+    ∃ st', runJvmRes 160 Life106LeanKt_f_Algorithm_parseInt32At_prog
       ⟨0, [], setLocal (setLocal (setLocal (fun _ => .null) 0 (.heapRef addr)) 1 (.i32 pos)) 2 (.i32 limit), jh, hp⟩ =
       some (.heapRef jh.objects.size, st') ∧ st'.jvmHeap = jhAfter := by
-  rw [show f_Algorithm_parseInt32At_1_prog = parseInt32AtProg "Life106LeanKt" from rfl]
-  exact parseInt32At_spec "Life106LeanKt" (by simp) jh hp addr elems pos limit hget hlim hlim31
+  rw [show Life106LeanKt_f_Algorithm_parseInt32At_prog = parseInt32AtProg "com/alexvanyo/composelife/model/Life106LeanKt" from rfl]
+  exact parseInt32At_spec "com/alexvanyo/composelife/model/Life106LeanKt" (by simp) jh hp addr elems pos limit hget hlim hlim31
 
 theorem parseInt32At_2_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (addr : Nat) (elems : Array UInt8)
     (pos limit : UInt32) (hget : jh.get? addr = some (.byteArray elems))
@@ -1561,10 +1561,10 @@ theorem parseInt32At_2_equiv (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (addr : Na
             (.objArray "java/lang/Object"
               #[.boxedInt 0, .boxedInt p.val.toUInt32, .null, .null, .null, .boxedUInt p.next]),
           statics := jh.statics }
-    ∃ st', runJvmRes 160 f_Algorithm_parseInt32At_2_prog
+    ∃ st', runJvmRes 160 RleLeanKt_f_Algorithm_parseInt32At_prog
       ⟨0, [], setLocal (setLocal (setLocal (fun _ => .null) 0 (.heapRef addr)) 1 (.i32 pos)) 2 (.i32 limit), jh, hp⟩ =
       some (.heapRef jh.objects.size, st') ∧ st'.jvmHeap = jhAfter := by
-  rw [show f_Algorithm_parseInt32At_2_prog = parseInt32AtProg "RleLeanKt" from rfl]
-  exact parseInt32At_spec "RleLeanKt" (by simp) jh hp addr elems pos limit hget hlim hlim31
+  rw [show RleLeanKt_f_Algorithm_parseInt32At_prog = parseInt32AtProg "com/alexvanyo/composelife/model/RleLeanKt" from rfl]
+  exact parseInt32At_spec "com/alexvanyo/composelife/model/RleLeanKt" (by simp) jh hp addr elems pos limit hget hlim hlim31
 
 end Algorithm.JvmVerification

@@ -229,6 +229,9 @@ object JvmBytecodeLeanVerifier {
             add(spec.realBytecodeNamespace)
             add("--instr-type")
             add(spec.instrType)
+            // Same naming as the Gradle `KotlinJvmBytecode` lift, so `RealJvmBytecode.x` and `KotlinJvmBytecode.x`
+            // always name the same method regardless of which classes each lift includes.
+            add("--qualify-names")
             spec.requiredProgs.forEach { prog ->
                 add("--require")
                 add(prog)

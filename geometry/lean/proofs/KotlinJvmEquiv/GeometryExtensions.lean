@@ -30,12 +30,12 @@ open Geometry.KotlinModel
 /-- Heap invariant stating `GeometryExtensionsKt` static neighbor offset lists are initialized. -/
 def HasGeometryNeighborLuts (jh : Jvm.JvmHeap Empty) : Prop :=
   (∃ listAddr arrAddr,
-    jh.getStatic? "GeometryExtensionsKt" "mooreNeighborOffsets" = some (.heapRef listAddr) ∧
+    jh.getStatic? "com/alexvanyo/composelife/geometry/GeometryExtensionsKt" "mooreNeighborOffsets" = some (.heapRef listAddr) ∧
     jh.get? listAddr = some (.instance "java/util/List" [("arr", .heapRef arrAddr)]) ∧
     jh.get? arrAddr = some (.objArray "androidx/compose/ui/unit/IntOffset"
       (mooreNeighborOffsetsModel.map (fun (dx, dy) => Jvm.JvmVal.boxedLong (packOffset dx dy))).toArray)) ∧
   (∃ listAddr arrAddr,
-    jh.getStatic? "GeometryExtensionsKt" "vonNeumannNeighborOffsets" = some (.heapRef listAddr) ∧
+    jh.getStatic? "com/alexvanyo/composelife/geometry/GeometryExtensionsKt" "vonNeumannNeighborOffsets" = some (.heapRef listAddr) ∧
     jh.get? listAddr = some (.instance "java/util/List" [("arr", .heapRef arrAddr)]) ∧
     jh.get? arrAddr = some (.objArray "androidx/compose/ui/unit/IntOffset"
       (vonNeumannNeighborOffsetsModel.map (fun (dx, dy) => Jvm.JvmVal.boxedLong (packOffset dx dy))).toArray))
@@ -59,18 +59,18 @@ def extractPackedSet? (jh : Jvm.JvmHeap Empty) : JvmVal → Option (List UInt64)
 
 /-- Bridge lemma: `GeometryExtensionsKt.chebyshevDistance` JVM bytecode matches `chebyshevDistanceModel`. -/
 theorem chebyshevDistance_equiv (o : UInt64) (jh : Jvm.JvmHeap Empty := {}) :
-    runJvm 15 chebyshevDistance_prog (initJvmState [(0, .i64 o)] jh) =
+    runJvm 15 GeometryExtensionsKt_chebyshevDistance_prog (initJvmState [(0, .i64 o)] jh) =
       some (.i32 (chebyshevDistanceModel o)) := rfl
 
 /-- Bridge lemma: `GeometryExtensionsKt.manhattanDistance` JVM bytecode matches `manhattanDistanceModel`. -/
 theorem manhattanDistance_equiv (o : UInt64) (jh : Jvm.JvmHeap Empty := {}) :
-    runJvm 15 manhattanDistance_prog (initJvmState [(0, .i64 o)] jh) =
+    runJvm 15 GeometryExtensionsKt_manhattanDistance_prog (initJvmState [(0, .i64 o)] jh) =
       some (.i32 (manhattanDistanceModel o)) := rfl
 
 /-- Bridge lemma: `<clinit>` initializes `GeometryExtensionsKt`'s neighbor offset LUTs on the JVM heap. -/
 theorem clinit_GeometryExtensionsKt_equiv :
     ∃ st',
-      runJvmRes 100 clinit_GeometryExtensionsKt_prog (initJvmState [] {}) = some (.unit, st') ∧
+      runJvmRes 100 GeometryExtensionsKt_clinit_prog (initJvmState [] {}) = some (.unit, st') ∧
       HasGeometryNeighborLuts st'.jvmHeap := by
   refine ⟨_, rfl, ⟨1, 0, rfl, rfl, rfl⟩, ⟨3, 2, rfl, rfl, rfl⟩⟩
 
@@ -106,7 +106,7 @@ private def neighborProgAfter0 : List JvmInstr :=
   ] ++ neighborLoopTail
 
 private def neighborProgram (fieldName : String) : List JvmInstr :=
-  .getstatic "GeometryExtensionsKt" fieldName "Ljava/util/List;" :: neighborProgAfter0
+  .getstatic "com/alexvanyo/composelife/geometry/GeometryExtensionsKt" fieldName "Ljava/util/List;" :: neighborProgAfter0
 
 private theorem drop20_neighborProgram (fieldName : String) :
     (neighborProgram fieldName).drop 20 = neighborLoopTail := by
@@ -320,8 +320,9 @@ private theorem runJvmResFast_checkcast_boxedLong {f pc pc0 : Nat} {cls : String
         ⟨pc + 1, .boxedLong x :: stk, locs, jh, hp⟩ := by
   refine Jvm.runJvmResFast_step_of_stepInstr geomHooks rfl (by simp) ?_ rfl
   unfold Jvm.stepInstr Jvm.evalCheckCast
-  dsimp only
-  rw [hc]
+  have hc' := hc
+  dsimp only at hc' ⊢
+  rw [hc']
 
 private theorem runJvmResFast_checkcast_instance {f pc pc0 addr : Nat} {targetCls objCls : String}
     {fields : List (String × JvmVal)} {prog rest : List JvmInstr}
@@ -605,7 +606,7 @@ private theorem runJvmResFast_floorToIntBlock {f pc pc0 : Nat}
 
 /-- Bridge lemma: `GeometryExtensionsKt.floor` JVM bytecode matches `floorModel`. -/
 theorem floor_equiv (o : UInt64) (jh : Jvm.JvmHeap Empty := {}) :
-    runJvm 55 floor_prog (initJvmState [(0, .i64 o)] jh) =
+    runJvm 55 GeometryExtensionsKt_floor_prog (initJvmState [(0, .i64 o)] jh) =
       some (.i64 (floorModel o)) := by
   let locs0 : Nat → JvmVal := Jvm.setLocal (fun _ => .i32 0) 0 (.i64 o)
   let locs1 := unpackLocs locs0 2 o (o >>> 32).toUInt32
@@ -613,11 +614,11 @@ theorem floor_equiv (o : UInt64) (jh : Jvm.JvmHeap Empty := {}) :
   have hloc0 : locs0 0 = .i64 o := rfl
   have hloc1 : locs1 0 = .i64 o := (unpackLocs_lt locs0 _ _ (by omega)).trans hloc0
   have hfast :
-      Jvm.runJvmResFast geomHooks 55 floor_prog 0 floor_prog (initJvmState [(0, .i64 o)] jh) =
+      Jvm.runJvmResFast geomHooks 55 GeometryExtensionsKt_floor_prog 0 GeometryExtensionsKt_floor_prog (initJvmState [(0, .i64 o)] jh) =
         some (.i64 (floorModel o),
           { pc := 47, stack := [.i64 (floorModel o)], locals := locs2, jvmHeap := jh, heap := () }) := by
     have hprog :
-        floor_prog =
+        GeometryExtensionsKt_floor_prog =
           unpackOffsetXBlock 0 2 ++
             (floorToIntBlock ++
               (unpackOffsetYBlock 0 2 ++
@@ -641,7 +642,7 @@ theorem floor_equiv (o : UInt64) (jh : Jvm.JvmHeap Empty := {}) :
 
 /-- Bridge lemma: `GeometryExtensionsKt.sideOfLine` JVM bytecode matches `sideOfLineModel`. -/
 theorem sideOfLine_equiv (point startPt endPt : UInt64) (jh : Jvm.JvmHeap Empty := {}) :
-    runJvm 200 sideOfLine_prog
+    runJvm 200 GeometryExtensionsKt_sideOfLine_prog
         (initJvmState [(0, .i64 point), (2, .i64 startPt), (4, .i64 endPt)] jh) =
       some (.f32 (sideOfLineModel point startPt endPt)) := by
   let locs0 : Nat → JvmVal :=
@@ -673,12 +674,12 @@ theorem sideOfLine_equiv (point startPt endPt : UInt64) (jh : Jvm.JvmHeap Empty 
       ((unpackLocs_lt _ _ _ (by omega)).trans ((unpackLocs_lt _ _ _ (by omega)).trans h2_0)))
   have h7_2 : l7 2 = .i64 startPt := (unpackLocs_lt _ _ _ (by omega)).trans ((unpackLocs_lt _ _ _ (by omega)).trans h5_2)
   have hfast :
-      Jvm.runJvmResFast geomHooks 200 sideOfLine_prog 0 sideOfLine_prog
+      Jvm.runJvmResFast geomHooks 200 GeometryExtensionsKt_sideOfLine_prog 0 GeometryExtensionsKt_sideOfLine_prog
           (initJvmState [(0, .i64 point), (2, .i64 startPt), (4, .i64 endPt)] jh) =
         some (.f32 (sideOfLineModel point startPt endPt),
           { pc := 160, stack := [.f32 (sideOfLineModel point startPt endPt)], locals := l8, jvmHeap := jh, heap := () }) := by
     have hprog :
-        sideOfLine_prog =
+        GeometryExtensionsKt_sideOfLine_prog =
           unpackOffsetXBlock 4 6 ++
             (unpackOffsetXBlock 2 6 ++
               (.fsub ::
@@ -784,7 +785,7 @@ private theorem step_neighbor_iter_head {fieldName : String} {jh : Jvm.JvmHeap E
   -- pc 29: invokevirtual unbox-impl
   rw [show fuel + 5 = (fuel + 4) + 1 by omega]
   rw [Jvm.runJvmResFast_invokevirtual_step geomHooks (by
-    simp [Jvm.stepInvokeVirtualGeneric, geomHooks]
+    simp [Jvm.stepInvokeVirtualGeneric]
     exact ⟨rfl, rfl, rfl⟩)]
   -- pc 30: lstore 9
   rw [show fuel + 4 = (fuel + 3) + 1 by omega]
@@ -835,12 +836,12 @@ private theorem step_neighbor_iter_tail {fieldName : String} {jh1 : Jvm.JvmHeap 
           (unpackIntOffsetY (packOffset dx dy) + unpackIntOffsetY o) =
         addPackedOffset (packOffset dx dy) o := rfl
   rw [Jvm.runJvmResFast_invokestatic_step geomHooks (by
-    simp [Jvm.stepInvokeStaticGeneric, geomHooks, stepIntOffsetStatic, Jvm.JvmVal.asI64?, hsum]
+    simp [Jvm.stepInvokeStaticGeneric, stepIntOffsetStatic, Jvm.JvmVal.asI64?, hsum]
     exact ⟨rfl, rfl, rfl⟩)]
   -- pc 37: invokestatic box-impl
   rw [show fuel + 6 = (fuel + 5) + 1 by omega]
   rw [Jvm.runJvmResFast_invokestatic_step geomHooks (by
-    simp [Jvm.stepInvokeStaticGeneric, geomHooks, stepIntOffsetStatic, Jvm.JvmVal.asI64?]
+    simp [Jvm.stepInvokeStaticGeneric, stepIntOffsetStatic, Jvm.JvmVal.asI64?]
     exact ⟨rfl, rfl, rfl⟩)]
   -- pc 38: aload 12
   rw [show fuel + 5 = (fuel + 4) + 1 by omega]
@@ -1060,9 +1061,16 @@ private theorem run_neighbor_epilogue {fieldName : String}
         (offsets.map fun (dx, dy) => addPackedOffset (packOffset dx dy) o).map Jvm.JvmVal.boxedLong := by
       simp [List.map_map]
     rw [hmap, dedupJvmVals_boxedLong_nodup _ (packedOffsets_nodup o offsets hnodup)]
+  -- `toSet` only deduplicates by `beqVal` when every element's `equals` is modeled (boxed longs are).
+  have hmodeled : finalElems.all (·.equalsModeled jh_end) = true := by
+    rw [Array.all_eq_true_iff_forall_mem]
+    intro v hv
+    rw [← Array.mem_toList_iff, hfin_e, List.mem_map] at hv
+    obtain ⟨_, _, rfl⟩ := hv
+    rfl
   rw [show (3 : Nat) = 2 + 1 by omega]
   rw [Jvm.runJvmResFast_invokestatic_step geomHooks (by
-    simp [Jvm.stepInvokeStaticGeneric, geomHooks, Jvm.extractListArray?, hdstList_e, hdstArr_e]
+    simp [Jvm.stepInvokeStaticGeneric, Jvm.extractListArray?, hdstList_e, hdstArr_e, hmodeled]
     exact ⟨rfl, rfl, rfl⟩)]
   -- pc 48: areturn
   let dedupArr := (dedupJvmVals (Jvm.JvmVal.beqVal emptyEq) finalElems.toList).toArray
@@ -1085,7 +1093,7 @@ private theorem run_neighbor_epilogue {fieldName : String}
 private theorem run_neighbor_program {fieldName : String}
     {jh : Jvm.JvmHeap Empty} {srcListAddr srcArrAddr : Nat}
     {srcElems : Array JvmVal} {offsets : List (Int32 × Int32)} (o : UInt64)
-    (hstat : jh.getStatic? "GeometryExtensionsKt" fieldName = some (.heapRef srcListAddr))
+    (hstat : jh.getStatic? "com/alexvanyo/composelife/geometry/GeometryExtensionsKt" fieldName = some (.heapRef srcListAddr))
     (hlist : jh.get? srcListAddr = some (.instance "java/util/List" [("arr", .heapRef srcArrAddr)]))
     (harr : jh.get? srcArrAddr = some (.objArray "androidx/compose/ui/unit/IntOffset" srcElems))
     (hsrc_size : srcElems.size = offsets.length)
@@ -1253,11 +1261,11 @@ private theorem run_neighbor_program {fieldName : String}
 theorem getMooreNeighbors_equiv (o : UInt64) {jh : Jvm.JvmHeap Empty}
     (hlut : HasGeometryNeighborLuts jh) :
     ∃ setAddr st',
-      runJvmRes 214 getMooreNeighbors_prog (initJvmState [(0, .i64 o)] jh) =
+      runJvmRes 214 GeometryExtensionsKt_getMooreNeighbors_prog (initJvmState [(0, .i64 o)] jh) =
         some (.heapRef setAddr, st') ∧
       extractPackedSet? st'.jvmHeap (.heapRef setAddr) = some (getMooreNeighborsModel o) := by
   rcases hlut.1 with ⟨listAddr, arrAddr, hstat, hlist, harr⟩
-  have hnp : getMooreNeighbors_prog = neighborProgram "mooreNeighborOffsets" := rfl
+  have hnp : GeometryExtensionsKt_getMooreNeighbors_prog = neighborProgram "mooreNeighborOffsets" := rfl
   have hnd : mooreNeighborOffsetsModel.Nodup := by dsimp [mooreNeighborOffsetsModel]; simp
   have hlen : mooreNeighborOffsetsModel.length * 23 + 30 = 214 := rfl
   rw [hnp, ← hlen]
@@ -1268,11 +1276,11 @@ theorem getMooreNeighbors_equiv (o : UInt64) {jh : Jvm.JvmHeap Empty}
 theorem getVonNeumannNeighbors_equiv (o : UInt64) {jh : Jvm.JvmHeap Empty}
     (hlut : HasGeometryNeighborLuts jh) :
     ∃ setAddr st',
-      runJvmRes 122 getVonNeumannNeighbors_prog (initJvmState [(0, .i64 o)] jh) =
+      runJvmRes 122 GeometryExtensionsKt_getVonNeumannNeighbors_prog (initJvmState [(0, .i64 o)] jh) =
         some (.heapRef setAddr, st') ∧
       extractPackedSet? st'.jvmHeap (.heapRef setAddr) = some (getVonNeumannNeighborsModel o) := by
   rcases hlut.2 with ⟨listAddr, arrAddr, hstat, hlist, harr⟩
-  have hnp : getVonNeumannNeighbors_prog = neighborProgram "vonNeumannNeighborOffsets" := rfl
+  have hnp : GeometryExtensionsKt_getVonNeumannNeighbors_prog = neighborProgram "vonNeumannNeighborOffsets" := rfl
   have hnd : vonNeumannNeighborOffsetsModel.Nodup := by dsimp [vonNeumannNeighborOffsetsModel]; simp
   have hlen : vonNeumannNeighborOffsetsModel.length * 23 + 30 = 122 := rfl
   rw [hnp, ← hlen]
@@ -1284,8 +1292,8 @@ theorem chebyshev_manhattan_norm_equiv_bytecode (p : UInt64)
     (hx : offsetX p ≠ Int32.minValue) (hy : offsetY p ≠ Int32.minValue)
     (hsum : (offsetX p).toInt.natAbs + (offsetY p).toInt.natAbs < 2 ^ 31) :
     ∃ dInf d1 : UInt32,
-      runJvm 15 chebyshevDistance_prog (initJvmState [(0, .i64 p)]) = some (.i32 dInf) ∧
-      runJvm 15 manhattanDistance_prog (initJvmState [(0, .i64 p)]) = some (.i32 d1) ∧
+      runJvm 15 GeometryExtensionsKt_chebyshevDistance_prog (initJvmState [(0, .i64 p)]) = some (.i32 dInf) ∧
+      runJvm 15 GeometryExtensionsKt_manhattanDistance_prog (initJvmState [(0, .i64 p)]) = some (.i32 d1) ∧
       dInf.toInt32.toInt ≤ d1.toInt32.toInt ∧
       d1.toInt32.toInt ≤ 2 * dInf.toInt32.toInt := by
   refine ⟨chebyshevDistanceModel p, manhattanDistanceModel p,
@@ -1294,14 +1302,14 @@ theorem chebyshev_manhattan_norm_equiv_bytecode (p : UInt64)
 /-- End-to-end JVM bytecode theorem: executing `<clinit>` then `getMooreNeighbors` produces 8 Chebyshev-unit neighbors. -/
 theorem getMooreNeighbors_bytecode_unit_sphere (o : UInt64) :
     ∃ st0 setAddr st1 neighbors,
-      runJvmRes 100 clinit_GeometryExtensionsKt_prog (initJvmState [] {}) = some (.unit, st0) ∧
-      runJvmRes 214 getMooreNeighbors_prog (initJvmState [(0, .i64 o)] st0.jvmHeap) =
+      runJvmRes 100 GeometryExtensionsKt_clinit_prog (initJvmState [] {}) = some (.unit, st0) ∧
+      runJvmRes 214 GeometryExtensionsKt_getMooreNeighbors_prog (initJvmState [(0, .i64 o)] st0.jvmHeap) =
         some (.heapRef setAddr, st1) ∧
       extractPackedSet? st1.jvmHeap (.heapRef setAddr) = some neighbors ∧
       neighbors.length = 8 ∧
       neighbors.Nodup ∧
       ∀ n ∈ neighbors,
-        runJvm 15 chebyshevDistance_prog (initJvmState [(0, .i64 (subPackedOffset n o))]) = some (.i32 1) := by
+        runJvm 15 GeometryExtensionsKt_chebyshevDistance_prog (initJvmState [(0, .i64 (subPackedOffset n o))]) = some (.i32 1) := by
   rcases clinit_GeometryExtensionsKt_equiv with ⟨st0, hclinit, hluts⟩
   rcases getMooreNeighbors_equiv o hluts with ⟨setAddr, st1, hrun, hextract⟩
   refine ⟨st0, setAddr, st1, getMooreNeighborsModel o, hclinit, hrun, hextract,
@@ -1312,17 +1320,17 @@ theorem getMooreNeighbors_bytecode_unit_sphere (o : UInt64) :
 /-- End-to-end JVM bytecode theorem: Von Neumann neighbors from compiled bytecode are 4 Manhattan-unit cells forming a subset of Moore neighbors. -/
 theorem getVonNeumannNeighbors_bytecode_unit_sphere_subset (o : UInt64) :
     ∃ st0 vSet mSet stV stM vNeighbors mNeighbors,
-      runJvmRes 100 clinit_GeometryExtensionsKt_prog (initJvmState [] {}) = some (.unit, st0) ∧
-      runJvmRes 122 getVonNeumannNeighbors_prog (initJvmState [(0, .i64 o)] st0.jvmHeap) =
+      runJvmRes 100 GeometryExtensionsKt_clinit_prog (initJvmState [] {}) = some (.unit, st0) ∧
+      runJvmRes 122 GeometryExtensionsKt_getVonNeumannNeighbors_prog (initJvmState [(0, .i64 o)] st0.jvmHeap) =
         some (.heapRef vSet, stV) ∧
-      runJvmRes 214 getMooreNeighbors_prog (initJvmState [(0, .i64 o)] st0.jvmHeap) =
+      runJvmRes 214 GeometryExtensionsKt_getMooreNeighbors_prog (initJvmState [(0, .i64 o)] st0.jvmHeap) =
         some (.heapRef mSet, stM) ∧
       extractPackedSet? stV.jvmHeap (.heapRef vSet) = some vNeighbors ∧
       extractPackedSet? stM.jvmHeap (.heapRef mSet) = some mNeighbors ∧
       vNeighbors.length = 4 ∧
       vNeighbors.Nodup ∧
       (∀ n ∈ vNeighbors,
-        runJvm 15 manhattanDistance_prog (initJvmState [(0, .i64 (subPackedOffset n o))]) = some (.i32 1)) ∧
+        runJvm 15 GeometryExtensionsKt_manhattanDistance_prog (initJvmState [(0, .i64 (subPackedOffset n o))]) = some (.i32 1)) ∧
       (∀ n ∈ vNeighbors, n ∈ mNeighbors) := by
   rcases clinit_GeometryExtensionsKt_equiv with ⟨st0, hclinit, hluts⟩
   rcases getVonNeumannNeighbors_equiv o hluts with ⟨vSet, stV, hrunV, hextractV⟩

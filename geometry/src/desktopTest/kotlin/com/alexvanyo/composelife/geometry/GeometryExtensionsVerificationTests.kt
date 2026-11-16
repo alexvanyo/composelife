@@ -36,21 +36,21 @@ class GeometryExtensionsVerificationTests {
                 |    (p : UInt64) (x y : Int32)
                 |    (hx : offsetX p ≠ Int32.minValue) (hy : offsetY p ≠ Int32.minValue) :
                 |    ∃ d : UInt32,
-                |      runJvm 15 Geometry.RealJvmBytecode.chebyshevDistance_prog
+                |      runJvm 15 Geometry.RealJvmBytecode.GeometryExtensionsKt_chebyshevDistance_prog
                 |        (initJvmState [(0, .i64 p)]) = some (.i32 d) ∧
                 |      d.toInt32.toInt = max (offsetX p).toInt.natAbs (offsetY p).toInt.natAbs ∧
                 |      d.toBitVec.slt 0#32 = false ∧
                 |      (d = 0 ↔ p = 0) ∧
-                |      runJvm 15 Geometry.RealJvmBytecode.chebyshevDistance_prog
+                |      runJvm 15 Geometry.RealJvmBytecode.GeometryExtensionsKt_chebyshevDistance_prog
                 |        (initJvmState [(0, .i64 (packOffset (-x) (-y)))]) =
-                |      runJvm 15 Geometry.RealJvmBytecode.chebyshevDistance_prog
+                |      runJvm 15 Geometry.RealJvmBytecode.GeometryExtensionsKt_chebyshevDistance_prog
                 |        (initJvmState [(0, .i64 (packOffset x y))]) ∧
-                |      runJvm 15 Geometry.RealJvmBytecode.chebyshevDistance_prog
+                |      runJvm 15 Geometry.RealJvmBytecode.GeometryExtensionsKt_chebyshevDistance_prog
                 |        (initJvmState [(0, .i64 (packOffset x y))]) =
-                |      runJvm 15 Geometry.RealJvmBytecode.chebyshevDistance_prog
+                |      runJvm 15 Geometry.RealJvmBytecode.GeometryExtensionsKt_chebyshevDistance_prog
                 |        (initJvmState [(0, .i64 (packOffset y x))]) := by
-                |  have hprog : Geometry.RealJvmBytecode.chebyshevDistance_prog =
-                |      Geometry.KotlinJvmBytecode.chebyshevDistance_prog := rfl
+                |  have hprog : Geometry.RealJvmBytecode.GeometryExtensionsKt_chebyshevDistance_prog =
+                |      Geometry.KotlinJvmBytecode.GeometryExtensionsKt_chebyshevDistance_prog := rfl
                 |  rw [hprog]
                 |  rcases chebyshevDistanceModel_eq_natMax p hx hy with ⟨hmax, hnonneg⟩
                 |  refine ⟨chebyshevDistanceModel p, chebyshevDistance_equiv p, hmax, hnonneg,
@@ -76,28 +76,28 @@ class GeometryExtensionsVerificationTests {
                 |    (hbx : -((2 ^ 28 : Int)) ≤ (offsetX b).toInt ∧ (offsetX b).toInt ≤ 2 ^ 28)
                 |    (hby : -((2 ^ 28 : Int)) ≤ (offsetY b).toInt ∧ (offsetY b).toInt ≤ 2 ^ 28) :
                 |    (∃ dInf d1 : UInt32,
-                |      runJvm 15 Geometry.RealJvmBytecode.chebyshevDistance_prog
+                |      runJvm 15 Geometry.RealJvmBytecode.GeometryExtensionsKt_chebyshevDistance_prog
                 |        (initJvmState [(0, .i64 p)]) = some (.i32 dInf) ∧
-                |      runJvm 15 Geometry.RealJvmBytecode.manhattanDistance_prog
+                |      runJvm 15 Geometry.RealJvmBytecode.GeometryExtensionsKt_manhattanDistance_prog
                 |        (initJvmState [(0, .i64 p)]) = some (.i32 d1) ∧
                 |      dInf.toInt32.toInt ≤ d1.toInt32.toInt ∧
                 |      d1.toInt32.toInt ≤ 2 * dInf.toInt32.toInt) ∧
                 |    (∃ dab da db : UInt32,
-                |      runJvm 15 Geometry.RealJvmBytecode.manhattanDistance_prog
+                |      runJvm 15 Geometry.RealJvmBytecode.GeometryExtensionsKt_manhattanDistance_prog
                 |        (initJvmState [(0, .i64 (addPackedOffset a b))]) = some (.i32 dab) ∧
-                |      runJvm 15 Geometry.RealJvmBytecode.manhattanDistance_prog
+                |      runJvm 15 Geometry.RealJvmBytecode.GeometryExtensionsKt_manhattanDistance_prog
                 |        (initJvmState [(0, .i64 a)]) = some (.i32 da) ∧
-                |      runJvm 15 Geometry.RealJvmBytecode.manhattanDistance_prog
+                |      runJvm 15 Geometry.RealJvmBytecode.GeometryExtensionsKt_manhattanDistance_prog
                 |        (initJvmState [(0, .i64 b)]) = some (.i32 db) ∧
                 |      dab.toInt32.toInt ≤ da.toInt32.toInt + db.toInt32.toInt) ∧
-                |    runJvm 15 Geometry.RealJvmBytecode.manhattanDistance_prog
+                |    runJvm 15 Geometry.RealJvmBytecode.GeometryExtensionsKt_manhattanDistance_prog
                 |      (initJvmState [(0, .i64 (packOffset (-x) (-y)))]) =
-                |    runJvm 15 Geometry.RealJvmBytecode.manhattanDistance_prog
+                |    runJvm 15 Geometry.RealJvmBytecode.GeometryExtensionsKt_manhattanDistance_prog
                 |      (initJvmState [(0, .i64 (packOffset y x))]) := by
-                |  have hprogC : Geometry.RealJvmBytecode.chebyshevDistance_prog =
-                |      Geometry.KotlinJvmBytecode.chebyshevDistance_prog := rfl
-                |  have hprogM : Geometry.RealJvmBytecode.manhattanDistance_prog =
-                |      Geometry.KotlinJvmBytecode.manhattanDistance_prog := rfl
+                |  have hprogC : Geometry.RealJvmBytecode.GeometryExtensionsKt_chebyshevDistance_prog =
+                |      Geometry.KotlinJvmBytecode.GeometryExtensionsKt_chebyshevDistance_prog := rfl
+                |  have hprogM : Geometry.RealJvmBytecode.GeometryExtensionsKt_manhattanDistance_prog =
+                |      Geometry.KotlinJvmBytecode.GeometryExtensionsKt_manhattanDistance_prog := rfl
                 |  rw [hprogC, hprogM]
                 |  refine ⟨chebyshev_manhattan_norm_equiv_bytecode p hx hy hsum, ?_, ?_⟩
                 |  · exact ⟨manhattanDistanceModel (addPackedOffset a b),
@@ -117,23 +117,23 @@ class GeometryExtensionsVerificationTests {
             leanBody = """
                 |theorem real_getMooreNeighbors_unit_sphere (o : UInt64) :
                 |    ∃ st0 setAddr st1 neighbors,
-                |      runJvmRes 100 Geometry.RealJvmBytecode.clinit_GeometryExtensionsKt_prog
+                |      runJvmRes 100 Geometry.RealJvmBytecode.GeometryExtensionsKt_clinit_prog
                 |        (initJvmState [] {}) = some (.unit, st0) ∧
-                |      runJvmRes 214 Geometry.RealJvmBytecode.getMooreNeighbors_prog
+                |      runJvmRes 214 Geometry.RealJvmBytecode.GeometryExtensionsKt_getMooreNeighbors_prog
                 |        (initJvmState [(0, .i64 o)] st0.jvmHeap) =
                 |        some (.heapRef setAddr, st1) ∧
                 |      extractPackedSet? st1.jvmHeap (.heapRef setAddr) = some neighbors ∧
                 |      neighbors.length = 8 ∧
                 |      neighbors.Nodup ∧
                 |      ∀ n ∈ neighbors,
-                |        runJvm 15 Geometry.RealJvmBytecode.chebyshevDistance_prog
+                |        runJvm 15 Geometry.RealJvmBytecode.GeometryExtensionsKt_chebyshevDistance_prog
                 |          (initJvmState [(0, .i64 (subPackedOffset n o))]) = some (.i32 1) := by
-                |  have hprogCl : Geometry.RealJvmBytecode.clinit_GeometryExtensionsKt_prog =
-                |      Geometry.KotlinJvmBytecode.clinit_GeometryExtensionsKt_prog := rfl
-                |  have hprogM : Geometry.RealJvmBytecode.getMooreNeighbors_prog =
-                |      Geometry.KotlinJvmBytecode.getMooreNeighbors_prog := rfl
-                |  have hprogC : Geometry.RealJvmBytecode.chebyshevDistance_prog =
-                |      Geometry.KotlinJvmBytecode.chebyshevDistance_prog := rfl
+                |  have hprogCl : Geometry.RealJvmBytecode.GeometryExtensionsKt_clinit_prog =
+                |      Geometry.KotlinJvmBytecode.GeometryExtensionsKt_clinit_prog := rfl
+                |  have hprogM : Geometry.RealJvmBytecode.GeometryExtensionsKt_getMooreNeighbors_prog =
+                |      Geometry.KotlinJvmBytecode.GeometryExtensionsKt_getMooreNeighbors_prog := rfl
+                |  have hprogC : Geometry.RealJvmBytecode.GeometryExtensionsKt_chebyshevDistance_prog =
+                |      Geometry.KotlinJvmBytecode.GeometryExtensionsKt_chebyshevDistance_prog := rfl
                 |  rw [hprogCl, hprogM, hprogC]
                 |  exact getMooreNeighbors_bytecode_unit_sphere o
             """.trimMargin(),
@@ -148,12 +148,12 @@ class GeometryExtensionsVerificationTests {
             leanBody = """
                 |theorem real_getVonNeumannNeighbors_unit_sphere_subset (o : UInt64) :
                 |    ∃ st0 vSet mSet stV stM vNeighbors mNeighbors,
-                |      runJvmRes 100 Geometry.RealJvmBytecode.clinit_GeometryExtensionsKt_prog
+                |      runJvmRes 100 Geometry.RealJvmBytecode.GeometryExtensionsKt_clinit_prog
                 |        (initJvmState [] {}) = some (.unit, st0) ∧
-                |      runJvmRes 122 Geometry.RealJvmBytecode.getVonNeumannNeighbors_prog
+                |      runJvmRes 122 Geometry.RealJvmBytecode.GeometryExtensionsKt_getVonNeumannNeighbors_prog
                 |        (initJvmState [(0, .i64 o)] st0.jvmHeap) =
                 |        some (.heapRef vSet, stV) ∧
-                |      runJvmRes 214 Geometry.RealJvmBytecode.getMooreNeighbors_prog
+                |      runJvmRes 214 Geometry.RealJvmBytecode.GeometryExtensionsKt_getMooreNeighbors_prog
                 |        (initJvmState [(0, .i64 o)] st0.jvmHeap) =
                 |        some (.heapRef mSet, stM) ∧
                 |      extractPackedSet? stV.jvmHeap (.heapRef vSet) = some vNeighbors ∧
@@ -161,17 +161,17 @@ class GeometryExtensionsVerificationTests {
                 |      vNeighbors.length = 4 ∧
                 |      vNeighbors.Nodup ∧
                 |      (∀ n ∈ vNeighbors,
-                |        runJvm 15 Geometry.RealJvmBytecode.manhattanDistance_prog
+                |        runJvm 15 Geometry.RealJvmBytecode.GeometryExtensionsKt_manhattanDistance_prog
                 |          (initJvmState [(0, .i64 (subPackedOffset n o))]) = some (.i32 1)) ∧
                 |      (∀ n ∈ vNeighbors, n ∈ mNeighbors) := by
-                |  have hprogCl : Geometry.RealJvmBytecode.clinit_GeometryExtensionsKt_prog =
-                |      Geometry.KotlinJvmBytecode.clinit_GeometryExtensionsKt_prog := rfl
-                |  have hprogV : Geometry.RealJvmBytecode.getVonNeumannNeighbors_prog =
-                |      Geometry.KotlinJvmBytecode.getVonNeumannNeighbors_prog := rfl
-                |  have hprogM : Geometry.RealJvmBytecode.getMooreNeighbors_prog =
-                |      Geometry.KotlinJvmBytecode.getMooreNeighbors_prog := rfl
-                |  have hprogMan : Geometry.RealJvmBytecode.manhattanDistance_prog =
-                |      Geometry.KotlinJvmBytecode.manhattanDistance_prog := rfl
+                |  have hprogCl : Geometry.RealJvmBytecode.GeometryExtensionsKt_clinit_prog =
+                |      Geometry.KotlinJvmBytecode.GeometryExtensionsKt_clinit_prog := rfl
+                |  have hprogV : Geometry.RealJvmBytecode.GeometryExtensionsKt_getVonNeumannNeighbors_prog =
+                |      Geometry.KotlinJvmBytecode.GeometryExtensionsKt_getVonNeumannNeighbors_prog := rfl
+                |  have hprogM : Geometry.RealJvmBytecode.GeometryExtensionsKt_getMooreNeighbors_prog =
+                |      Geometry.KotlinJvmBytecode.GeometryExtensionsKt_getMooreNeighbors_prog := rfl
+                |  have hprogMan : Geometry.RealJvmBytecode.GeometryExtensionsKt_manhattanDistance_prog =
+                |      Geometry.KotlinJvmBytecode.GeometryExtensionsKt_manhattanDistance_prog := rfl
                 |  rw [hprogCl, hprogV, hprogM, hprogMan]
                 |  exact getVonNeumannNeighbors_bytecode_unit_sphere_subset o
             """.trimMargin(),
@@ -185,11 +185,11 @@ class GeometryExtensionsVerificationTests {
             realBytecodeNamespace = "Geometry.RealJvmBytecode",
             instrType = "Geometry.JvmVerification.JvmInstr",
             requiredProgs = listOf(
-                "chebyshevDistance_prog",
-                "manhattanDistance_prog",
-                "getMooreNeighbors_prog",
-                "getVonNeumannNeighbors_prog",
-                "clinit_GeometryExtensionsKt_prog",
+                "GeometryExtensionsKt_chebyshevDistance_prog",
+                "GeometryExtensionsKt_manhattanDistance_prog",
+                "GeometryExtensionsKt_getMooreNeighbors_prog",
+                "GeometryExtensionsKt_getVonNeumannNeighbors_prog",
+                "GeometryExtensionsKt_clinit_prog",
             ),
             defaultImports = listOf(
                 "JvmSemantics",

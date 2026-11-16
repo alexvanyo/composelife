@@ -81,43 +81,43 @@ private theorem cellToLeafBitUInt_and_63 (x y : UInt32) :
     · simp [show ¬(i < 32) by omega]
 
 theorem computeLeafNextGen8x8BranchUInt_equiv (w : UInt64) :
-    runJvm 15 f_Algorithm_computeLeafNextGen8x8BranchUInt_prog (initJvmState [(0, .i64 w)]) =
+    runJvm 15 AlgorithmLeanKt_f_Algorithm_computeLeafNextGen8x8BranchUInt_prog (initJvmState [(0, .i64 w)]) =
       some (.i32 (Algorithm.computeLeafNextGen8x8BranchUInt w)) := by
   apply runJvm_of_runJvmValFast0 15 _ _ _ rfl
-  have heval : runJvmValFast 15 f_Algorithm_computeLeafNextGen8x8BranchUInt_prog 0
-      f_Algorithm_computeLeafNextGen8x8BranchUInt_prog (initJvmState [(0, .i64 w)]) =
+  have heval : runJvmValFast 15 AlgorithmLeanKt_f_Algorithm_computeLeafNextGen8x8BranchUInt_prog 0
+      AlgorithmLeanKt_f_Algorithm_computeLeafNextGen8x8BranchUInt_prog (initJvmState [(0, .i64 w)]) =
       (if ((if w == 0 then (0 : UInt32) else if w.toBitVec.slt 0#64 then 4294967295 else 1) == 0) = true then
         some (.i32 0) else some (.i32 (Algorithm.computeLeafNextGen8x8FastUInt w))) := rfl
   rw [heval, lcmp_bv_eq_zero]; unfold Algorithm.computeLeafNextGen8x8BranchUInt
   by_cases hw : w == 0 <;> simp [hw]
 
 theorem computeLeafNextGen8x8BranchUInt_1_equiv (w : UInt64) :
-    runJvm 15 f_Algorithm_computeLeafNextGen8x8BranchUInt_1_prog (initJvmState [(0, .i64 w)]) =
+    runJvm 15 FlatHashLifeLeanKt_f_Algorithm_computeLeafNextGen8x8BranchUInt_prog (initJvmState [(0, .i64 w)]) =
       some (.i32 (Algorithm.computeLeafNextGen8x8BranchUInt w)) := by
   apply runJvm_of_runJvmValFast0 15 _ _ _ rfl
-  have heval : runJvmValFast 15 f_Algorithm_computeLeafNextGen8x8BranchUInt_1_prog 0
-      f_Algorithm_computeLeafNextGen8x8BranchUInt_1_prog (initJvmState [(0, .i64 w)]) =
+  have heval : runJvmValFast 15 FlatHashLifeLeanKt_f_Algorithm_computeLeafNextGen8x8BranchUInt_prog 0
+      FlatHashLifeLeanKt_f_Algorithm_computeLeafNextGen8x8BranchUInt_prog (initJvmState [(0, .i64 w)]) =
       (if ((if w == 0 then (0 : UInt32) else if w.toBitVec.slt 0#64 then 4294967295 else 1) == 0) = true then
         some (.i32 0) else some (.i32 (Algorithm.computeLeafNextGen8x8FastUInt w))) := rfl
   rw [heval, lcmp_bv_eq_zero]; unfold Algorithm.computeLeafNextGen8x8BranchUInt
   by_cases hw : w == 0 <;> simp [hw]
 
 theorem computeLeafNextGen8x8BranchUInt_2_equiv (w : UInt64) :
-    runJvm 15 f_Algorithm_computeLeafNextGen8x8BranchUInt_2_prog (initJvmState [(0, .i64 w)]) =
+    runJvm 15 MacroCellLeanKt_f_Algorithm_computeLeafNextGen8x8BranchUInt_prog (initJvmState [(0, .i64 w)]) =
       some (.i32 (Algorithm.computeLeafNextGen8x8BranchUInt w)) := by
   apply runJvm_of_runJvmValFast0 15 _ _ _ rfl
-  have heval : runJvmValFast 15 f_Algorithm_computeLeafNextGen8x8BranchUInt_2_prog 0
-      f_Algorithm_computeLeafNextGen8x8BranchUInt_2_prog (initJvmState [(0, .i64 w)]) =
+  have heval : runJvmValFast 15 MacroCellLeanKt_f_Algorithm_computeLeafNextGen8x8BranchUInt_prog 0
+      MacroCellLeanKt_f_Algorithm_computeLeafNextGen8x8BranchUInt_prog (initJvmState [(0, .i64 w)]) =
       (if ((if w == 0 then (0 : UInt32) else if w.toBitVec.slt 0#64 then 4294967295 else 1) == 0) = true then
         some (.i32 0) else some (.i32 (Algorithm.computeLeafNextGen8x8FastUInt w))) := rfl
   rw [heval, lcmp_bv_eq_zero]; unfold Algorithm.computeLeafNextGen8x8BranchUInt
   by_cases hw : w == 0 <;> simp [hw]
 
 theorem leafContains_1_equiv (leaf : UInt64) (x y : UInt32) :
-    runJvm 25 f_Algorithm_leafContains_1_prog (initJvmState [(0, .i64 leaf), (2, .i32 x), (3, .i32 y)]) =
+    runJvm 25 MacroCellLeanKt_f_Algorithm_leafContains_prog (initJvmState [(0, .i64 leaf), (2, .i32 x), (3, .i32 y)]) =
       some (.i32 (if Algorithm.leafContains leaf x y then 1 else 0)) := by
   apply runJvm_of_runJvmValFast0 25 _ _ _ rfl
-  have heval : runJvmValFast 25 f_Algorithm_leafContains_1_prog 0 f_Algorithm_leafContains_1_prog
+  have heval : runJvmValFast 25 MacroCellLeanKt_f_Algorithm_leafContains_prog 0 MacroCellLeanKt_f_Algorithm_leafContains_prog
       (initJvmState [(0, .i64 leaf), (2, .i32 x), (3, .i32 y)]) =
       (if ((if (leaf >>> (Algorithm.cellToLeafBitUInt x y &&& 63).toUInt64) &&& 1 == 1 then (0 : UInt32)
         else if ((leaf >>> (Algorithm.cellToLeafBitUInt x y &&& 63).toUInt64) &&& 1).toBitVec.slt 1#64 then 4294967295 else 1) == 0) then
@@ -127,50 +127,50 @@ theorem leafContains_1_equiv (leaf : UInt64) (x y : UInt32) :
   by_cases h : (((leaf >>> (Algorithm.cellToLeafBitUInt x y).toUInt64) &&& 1) == 1) = true <;> simp [h]
 
 theorem leafWithCell_1_equiv (leaf : UInt64) (x y : UInt32) (isAlive : Bool) :
-    runJvm 35 f_Algorithm_leafWithCell_1_prog
+    runJvm 35 MacroCellLeanKt_f_Algorithm_leafWithCell_prog
       (initJvmState [(0, .i64 leaf), (2, .i32 x), (3, .i32 y), (4, .i32 (if isAlive then 1 else 0))]) =
       some (.i64 (Algorithm.leafWithCell leaf x y isAlive)) := by
   apply runJvm_of_runJvmValFast0 35 _ _ _ rfl
   unfold Algorithm.leafWithCell
   cases isAlive <;> dsimp
-  · have heval : runJvmValFast 35 f_Algorithm_leafWithCell_1_prog 0 f_Algorithm_leafWithCell_1_prog
+  · have heval : runJvmValFast 35 MacroCellLeanKt_f_Algorithm_leafWithCell_prog 0 MacroCellLeanKt_f_Algorithm_leafWithCell_prog
         (initJvmState [(0, .i64 leaf), (2, .i32 x), (3, .i32 y), (4, .i32 0)]) =
         some (.i64 (leaf &&& ((1 <<< (Algorithm.cellToLeafBitUInt x y &&& 63).toUInt64) ^^^ 18446744073709551615))) := rfl
     rw [heval, cellToLeafBitUInt_and_63, xor_allOnes_eq_not]
-  · have heval : runJvmValFast 35 f_Algorithm_leafWithCell_1_prog 0 f_Algorithm_leafWithCell_1_prog
+  · have heval : runJvmValFast 35 MacroCellLeanKt_f_Algorithm_leafWithCell_prog 0 MacroCellLeanKt_f_Algorithm_leafWithCell_prog
         (initJvmState [(0, .i64 leaf), (2, .i32 x), (3, .i32 y), (4, .i32 1)]) =
         some (.i64 (leaf ||| (1 <<< (Algorithm.cellToLeafBitUInt x y &&& 63).toUInt64))) := rfl
     rw [heval, cellToLeafBitUInt_and_63]
 
 theorem leanUnboxULong_equiv (v : UInt64) :
-    runJvm 25 leanUnboxULong_prog (initJvmState [(0, .boxedULong v)]) = some (.i64 v) := by rfl
+    runJvm 25 FlatHashLifeLeanKt_leanUnboxULong_prog (initJvmState [(0, .boxedULong v)]) = some (.i64 v) := by rfl
 
 theorem leanUnboxULong_1_equiv (v : UInt64) :
-    runJvm 25 leanUnboxULong_1_prog (initJvmState [(0, .boxedULong v)]) = some (.i64 v) := by rfl
+    runJvm 25 MacroCellLeanKt_leanUnboxULong_prog (initJvmState [(0, .boxedULong v)]) = some (.i64 v) := by rfl
 
 theorem leanUnboxInt_equiv (v : UInt32) :
-    runJvm 25 leanUnboxInt_prog (initJvmState [(0, .boxedInt v)]) = some (.i32 v) := by rfl
+    runJvm 25 Life105LeanKt_leanUnboxInt_prog (initJvmState [(0, .boxedInt v)]) = some (.i32 v) := by rfl
 
 theorem leanUnboxInt_1_equiv (v : UInt32) :
-    runJvm 25 leanUnboxInt_1_prog (initJvmState [(0, .boxedInt v)]) = some (.i32 v) := by rfl
+    runJvm 25 Life106LeanKt_leanUnboxInt_prog (initJvmState [(0, .boxedInt v)]) = some (.i32 v) := by rfl
 
 theorem leanUnboxInt_2_equiv (v : UInt32) :
-    runJvm 25 leanUnboxInt_2_prog (initJvmState [(0, .boxedInt v)]) = some (.i32 v) := by rfl
+    runJvm 25 RleLeanKt_leanUnboxInt_prog (initJvmState [(0, .boxedInt v)]) = some (.i32 v) := by rfl
 
 theorem leanUnboxUInt_equiv (v : UInt32) :
-    runJvm 25 leanUnboxUInt_prog (initJvmState [(0, .boxedUInt v)]) = some (.i32 v) := by rfl
+    runJvm 25 Life105LeanKt_leanUnboxUInt_prog (initJvmState [(0, .boxedUInt v)]) = some (.i32 v) := by rfl
 
 theorem leanUnboxUInt_1_equiv (v : UInt32) :
-    runJvm 25 leanUnboxUInt_1_prog (initJvmState [(0, .boxedUInt v)]) = some (.i32 v) := by rfl
+    runJvm 25 Life106LeanKt_leanUnboxUInt_prog (initJvmState [(0, .boxedUInt v)]) = some (.i32 v) := by rfl
 
 theorem leanUnboxUInt_2_equiv (v : UInt32) :
-    runJvm 25 leanUnboxUInt_2_prog (initJvmState [(0, .boxedUInt v)]) = some (.i32 v) := by rfl
+    runJvm 25 MacroCellLeanKt_leanUnboxUInt_prog (initJvmState [(0, .boxedUInt v)]) = some (.i32 v) := by rfl
 
 theorem leanUnboxUInt_3_equiv (v : UInt32) :
-    runJvm 25 leanUnboxUInt_3_prog (initJvmState [(0, .boxedUInt v)]) = some (.i32 v) := by rfl
+    runJvm 25 PlaintextLeanKt_leanUnboxUInt_prog (initJvmState [(0, .boxedUInt v)]) = some (.i32 v) := by rfl
 
 theorem leanUnboxUInt_4_equiv (v : UInt32) :
-    runJvm 25 leanUnboxUInt_4_prog (initJvmState [(0, .boxedUInt v)]) = some (.i32 v) := by rfl
+    runJvm 25 RleLeanKt_leanUnboxUInt_prog (initJvmState [(0, .boxedUInt v)]) = some (.i32 v) := by rfl
 
 theorem leanUnboxUByte_equiv (v : UInt32) :
     runJvm 25 leanUnboxUByte_prog (initJvmState [(0, .boxedUByte v)]) =
@@ -249,10 +249,10 @@ private def jvmBoxCellBox (b : Int32 × Int32 × Int32 × Int32) : JvmVal :=
       (.pair (.boxedInt b.2.2.1.toUInt32) (.boxedInt b.2.2.2.toUInt32)))
 
 theorem cellBox_equiv (cells : Array UInt64) :
-    runJvm 60 f_Algorithm_cellBox_prog (initJvmState [(0, (.ext (.u64Ref 0)))] [] [cells]) =
+    runJvm 60 PlaintextLeanKt_f_Algorithm_cellBox_prog (initJvmState [(0, (.ext (.u64Ref 0)))] [] [cells]) =
       some (jvmBoxCellBox (Algorithm.cellBox cells)) := by
   apply runJvm_of_runJvmValFast0 60 _ _ _ rfl
-  have heval : runJvmValFast 60 f_Algorithm_cellBox_prog 0 f_Algorithm_cellBox_prog
+  have heval : runJvmValFast 60 PlaintextLeanKt_f_Algorithm_cellBox_prog 0 PlaintextLeanKt_f_Algorithm_cellBox_prog
       (initJvmState [(0, (.ext (.u64Ref 0)))] [] [cells]) =
       (if cells.size.toUInt32 == 0 then some (jvmBoxCellBox (0, 0, 0, 0))
        else
@@ -264,10 +264,10 @@ theorem cellBox_equiv (cells : Array UInt64) :
   by_cases h0 : cells.size.toUInt32 == 0 <;> simp [h0]
 
 theorem cellBox_1_equiv (cells : Array UInt64) :
-    runJvm 60 f_Algorithm_cellBox_1_prog (initJvmState [(0, (.ext (.u64Ref 0)))] [] [cells]) =
+    runJvm 60 RleLeanKt_f_Algorithm_cellBox_prog (initJvmState [(0, (.ext (.u64Ref 0)))] [] [cells]) =
       some (jvmBoxCellBox (Algorithm.cellBox cells)) := by
   apply runJvm_of_runJvmValFast0 60 _ _ _ rfl
-  have heval : runJvmValFast 60 f_Algorithm_cellBox_1_prog 0 f_Algorithm_cellBox_1_prog
+  have heval : runJvmValFast 60 RleLeanKt_f_Algorithm_cellBox_prog 0 RleLeanKt_f_Algorithm_cellBox_prog
       (initJvmState [(0, (.ext (.u64Ref 0)))] [] [cells]) =
       (if cells.size.toUInt32 == 0 then some (jvmBoxCellBox (0, 0, 0, 0))
        else
@@ -737,39 +737,39 @@ macro "prove_u64Buf_push" prog:ident arr:ident hsz:ident : tactic =>
       simp [Algorithm.U64Buf.push, hlt, hnat]))
 
 theorem u64Buf_push_equiv (arr : Array UInt64) (x : UInt64) (hsz : arr.size < 2 ^ 30) :
-    (runJvmRes 65 f_Algorithm_U64Buf_push_prog (initJvmState [(0, (.ext (.u64Ref 0))), (1, .i64 x)] [] [arr])).map
+    (runJvmRes 65 Life105LeanKt_f_Algorithm_U64Buf_push_prog (initJvmState [(0, (.ext (.u64Ref 0))), (1, .i64 x)] [] [arr])).map
       (fun p => (p.1, p.2.heap.u64Arrays)) =
       some (if arr[0]!.toUInt32 + 1 < arr.size.toUInt32 then ((.ext (.u64Ref 0)), [Algorithm.U64Buf.push arr x])
             else ((.ext (.u64Ref 1)), [arr, Algorithm.U64Buf.push arr x])) := by
-  prove_u64Buf_push f_Algorithm_U64Buf_push_prog arr hsz
+  prove_u64Buf_push Life105LeanKt_f_Algorithm_U64Buf_push_prog arr hsz
 
 theorem u64Buf_push_1_equiv (arr : Array UInt64) (x : UInt64) (hsz : arr.size < 2 ^ 30) :
-    (runJvmRes 65 f_Algorithm_U64Buf_push_1_prog (initJvmState [(0, (.ext (.u64Ref 0))), (1, .i64 x)] [] [arr])).map
+    (runJvmRes 65 Life106LeanKt_f_Algorithm_U64Buf_push_prog (initJvmState [(0, (.ext (.u64Ref 0))), (1, .i64 x)] [] [arr])).map
       (fun p => (p.1, p.2.heap.u64Arrays)) =
       some (if arr[0]!.toUInt32 + 1 < arr.size.toUInt32 then ((.ext (.u64Ref 0)), [Algorithm.U64Buf.push arr x])
             else ((.ext (.u64Ref 1)), [arr, Algorithm.U64Buf.push arr x])) := by
-  prove_u64Buf_push f_Algorithm_U64Buf_push_1_prog arr hsz
+  prove_u64Buf_push Life106LeanKt_f_Algorithm_U64Buf_push_prog arr hsz
 
 theorem u64Buf_push_2_equiv (arr : Array UInt64) (x : UInt64) (hsz : arr.size < 2 ^ 30) :
-    (runJvmRes 65 f_Algorithm_U64Buf_push_2_prog (initJvmState [(0, (.ext (.u64Ref 0))), (1, .i64 x)] [] [arr])).map
+    (runJvmRes 65 MacroCellLeanKt_f_Algorithm_U64Buf_push_prog (initJvmState [(0, (.ext (.u64Ref 0))), (1, .i64 x)] [] [arr])).map
       (fun p => (p.1, p.2.heap.u64Arrays)) =
       some (if arr[0]!.toUInt32 + 1 < arr.size.toUInt32 then ((.ext (.u64Ref 0)), [Algorithm.U64Buf.push arr x])
             else ((.ext (.u64Ref 1)), [arr, Algorithm.U64Buf.push arr x])) := by
-  prove_u64Buf_push f_Algorithm_U64Buf_push_2_prog arr hsz
+  prove_u64Buf_push MacroCellLeanKt_f_Algorithm_U64Buf_push_prog arr hsz
 
 theorem u64Buf_push_3_equiv (arr : Array UInt64) (x : UInt64) (hsz : arr.size < 2 ^ 30) :
-    (runJvmRes 65 f_Algorithm_U64Buf_push_3_prog (initJvmState [(0, (.ext (.u64Ref 0))), (1, .i64 x)] [] [arr])).map
+    (runJvmRes 65 PlaintextLeanKt_f_Algorithm_U64Buf_push_prog (initJvmState [(0, (.ext (.u64Ref 0))), (1, .i64 x)] [] [arr])).map
       (fun p => (p.1, p.2.heap.u64Arrays)) =
       some (if arr[0]!.toUInt32 + 1 < arr.size.toUInt32 then ((.ext (.u64Ref 0)), [Algorithm.U64Buf.push arr x])
             else ((.ext (.u64Ref 1)), [arr, Algorithm.U64Buf.push arr x])) := by
-  prove_u64Buf_push f_Algorithm_U64Buf_push_3_prog arr hsz
+  prove_u64Buf_push PlaintextLeanKt_f_Algorithm_U64Buf_push_prog arr hsz
 
 theorem u64Buf_push_4_equiv (arr : Array UInt64) (x : UInt64) (hsz : arr.size < 2 ^ 30) :
-    (runJvmRes 65 f_Algorithm_U64Buf_push_4_prog (initJvmState [(0, (.ext (.u64Ref 0))), (1, .i64 x)] [] [arr])).map
+    (runJvmRes 65 RleLeanKt_f_Algorithm_U64Buf_push_prog (initJvmState [(0, (.ext (.u64Ref 0))), (1, .i64 x)] [] [arr])).map
       (fun p => (p.1, p.2.heap.u64Arrays)) =
       some (if arr[0]!.toUInt32 + 1 < arr.size.toUInt32 then ((.ext (.u64Ref 0)), [Algorithm.U64Buf.push arr x])
             else ((.ext (.u64Ref 1)), [arr, Algorithm.U64Buf.push arr x])) := by
-  prove_u64Buf_push f_Algorithm_U64Buf_push_4_prog arr hsz
+  prove_u64Buf_push RleLeanKt_f_Algorithm_U64Buf_push_prog arr hsz
 
 theorem leafRowMask_equiv (leaf : UInt64) (x0 y0 l t r b : Int64) (i : UInt32) :
     runJvm 95 f_Algorithm_leafRowMask_prog

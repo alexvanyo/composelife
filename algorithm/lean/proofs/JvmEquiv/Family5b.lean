@@ -187,11 +187,6 @@ private theorem i32_slt_eq_toString (v : UInt32) (hv : v.toNat < 2 ^ 31) :
   rw [hnat]
   rfl
 
-private theorem evalConcat_str_char {s : String} {c : UInt32} :
-    @Jvm.evalMakeConcatWithConstants AlgExt "\x01\x01"
-      "(Ljava/lang/String;C)Ljava/lang/String;" [.i32 c, .str s] =
-      some (s ++ (String.singleton (Char.ofNat (c &&& 0xFFFF).toNat) ++ ""), []) := rfl
-
 private theorem evalConcat_str_str {a b : String} :
     @Jvm.evalMakeConcatWithConstants AlgExt "\x01\x01"
       "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;" [.str b, .str a] =
@@ -213,29 +208,24 @@ private theorem runJvmResFast_invokedynamic_concat2 {f pc : Nat} {prog rest : Li
       .inl (some ⟨pc + 1, .str (a ++ (b ++ "")) :: stkRest, locs, jh, hp⟩) from rfl]
   simp [String.append_empty]
 
-private theorem runJvmResFast_invokedynamic_concat_char {f pc : Nat} {prog rest : List JvmInstr}
-    {pc0 : Nat} {s : String} {c : UInt32} {stkRest : List JvmVal}
+private theorem str_push_eq (s : String) (c : Char) :
+    s ++ (String.singleton c ++ "") = s.push c := by
+  rw [String.append_empty, ← String.push_eq_append]
+
+/-- `s + c` for the cell characters `'*'` (42) / `'.'` (46). A `char` concatenation only evaluates for
+non-surrogate code units, so the step is stated for the two concrete codes the loop emits. -/
+private theorem runJvmResFast_invokedynamic_concat_char (b : Bool) {f pc : Nat} {prog rest : List JvmInstr}
+    {pc0 : Nat} {s : String} {stkRest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     runJvmResFast (f + 1) prog pc
         (.invokedynamic "makeConcatWithConstants" "\x01\x01"
           "(Ljava/lang/String;C)Ljava/lang/String;" :: rest)
-        ⟨pc0, .i32 c :: .str s :: stkRest, locs, jh, hp⟩ =
+        ⟨pc0, .i32 (if b then 42 else 46) :: .str s :: stkRest, locs, jh, hp⟩ =
       runJvmResFast f prog (pc + 1) rest
-        ⟨pc + 1, .str (s ++ (String.singleton (Char.ofNat (c &&& 0xFFFF).toNat))) :: stkRest,
-          locs, jh, hp⟩ := by
+        ⟨pc + 1, .str (s.push (if b then '*' else '.')) :: stkRest, locs, jh, hp⟩ := by
   apply runJvmResFast_step_nonbranch_nonret rfl (by intro h; cases h)
-  rw [show Jvm.stepInstr algHooks
-      (.invokedynamic "makeConcatWithConstants" "\x01\x01"
-        "(Ljava/lang/String;C)Ljava/lang/String;")
-      ⟨pc, .i32 c :: .str s :: stkRest, locs, jh, hp⟩ =
-      .inl (some ⟨pc + 1,
-        .str (s ++ (String.singleton (Char.ofNat (c &&& 0xFFFF).toNat) ++ "")) :: stkRest,
-        locs, jh, hp⟩) from rfl]
-  simp [String.append_empty]
-
-private theorem str_push_eq (s : String) (c : Char) :
-    s ++ (String.singleton c ++ "") = s.push c := by
-  rw [String.append_empty, ← String.push_eq_append]
+  rw [← str_push_eq]
+  cases b <;> rfl
 
 /-! ### serializeMacrocell___closed__2 -/
 
@@ -393,7 +383,7 @@ private theorem stepStatic_leafContains
     {pc : Nat} {leaf : UInt64} {x y : UInt32} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .i32 y :: .i32 x :: .i64 leaf :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt" "f_Algorithm_leafContains-fMEO4hA" "(JII)Z" =
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_leafContains-fMEO4hA" "(JII)Z" =
       .inl (some ⟨pc + 1, .i32 (if Algorithm.leafContains leaf x y then 1 else 0) :: rest,
         locs, jh, hp⟩) := rfl
 
@@ -401,7 +391,7 @@ private theorem stepStatic_findLastLeafX
     {pc : Nat} {leaf : UInt64} {y : UInt32} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .i32 y :: .i64 leaf :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt" "f_Algorithm_findLastLeafX-8GdB7C8" "(JI)Lkotlin/UInt;" =
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_findLastLeafX-8GdB7C8" "(JI)Lkotlin/UInt;" =
       .inl (some ⟨pc + 1,
         (match Algorithm.findLastLeafX leaf y with | some v => .boxedUInt v | none => .null) :: rest,
         locs, jh, hp⟩) := rfl
@@ -411,7 +401,7 @@ private theorem stepStatic_formatLeafRow_loop
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic
       ⟨pc, .str acc :: .i32 limit :: .i32 x :: .i32 y :: .i64 leaf :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt" "f_Algorithm_formatLeafRow_loop-L5XE2Go"
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_formatLeafRow_loop-L5XE2Go"
       "(JIIILjava/lang/String;)Ljava/lang/String;" =
       .inl (some ⟨pc + 1,
         .str (Algorithm.formatLeafRow.loop leaf y x limit acc) :: rest, locs, jh, hp⟩) := rfl
@@ -420,7 +410,7 @@ private theorem stepStatic_findLastLeafRow
     {pc : Nat} {leaf : UInt64} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .i64 leaf :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt" "f_Algorithm_findLastLeafRow-VKZWuLQ" "(J)Lkotlin/UInt;" =
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_findLastLeafRow-VKZWuLQ" "(J)Lkotlin/UInt;" =
       .inl (some ⟨pc + 1,
         (match Algorithm.findLastLeafRow leaf with | some v => .boxedUInt v | none => .null) :: rest,
         locs, jh, hp⟩) := rfl
@@ -429,7 +419,7 @@ private theorem stepStatic_formatLeafRow
     {pc : Nat} {leaf : UInt64} {y : UInt32} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .i32 y :: .i64 leaf :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt" "f_Algorithm_formatLeafRow-8GdB7C8" "(JI)Ljava/lang/String;" =
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_formatLeafRow-8GdB7C8" "(JI)Ljava/lang/String;" =
       .inl (some ⟨pc + 1, .str (Algorithm.formatLeafRow leaf y) :: rest, locs, jh, hp⟩) := rfl
 
 private theorem stepStatic_formatLeafNode_loop
@@ -437,7 +427,7 @@ private theorem stepStatic_formatLeafNode_loop
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic
       ⟨pc, .str acc :: .i32 limit :: .i32 y :: .i64 leaf :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt" "f_Algorithm_formatLeafNode_loop-9LuH6mI"
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_formatLeafNode_loop-9LuH6mI"
       "(JIILjava/lang/String;)Ljava/lang/String;" =
       .inl (some ⟨pc + 1,
         .str (Algorithm.formatLeafNode.loop leaf y limit acc) :: rest, locs, jh, hp⟩) := rfl
@@ -501,9 +491,6 @@ private theorem formatLeafRow_loop_aux (n : Nat) :
       let ch := if Algorithm.leafContains leaf x y then '*' else '.'
       let chCode : UInt32 := if Algorithm.leafContains leaf x y then 42 else 46
       let acc' := acc.push ch
-      have hacc'_eq : acc' = acc ++ (String.singleton (Char.ofNat (chCode &&& 0xFFFF).toNat) ++ "") := by
-        rw [str_push_eq]
-        by_cases hc : Algorithm.leafContains leaf x y <;> simp [acc', ch, chCode, hc]
       let locsEnd :=
         setLocal (setLocal (setLocal (setLocal (setLocal (setLocal (setLocal (setLocal (setLocal (setLocal
           (setLocal (setLocal (setLocal (setLocal (setLocal locs 6 (.i32 0))
@@ -517,10 +504,6 @@ private theorem formatLeafRow_loop_aux (n : Nat) :
         (by simp [locsEnd, setLocal]) hsub
       rw [Algorithm.formatLeafRow.loop.eq_1]
       simp only [hlt, ↓reduceDIte]
-      have hconcat : @Jvm.evalMakeConcatWithConstants AlgExt "\x01\x01"
-          "(Ljava/lang/String;C)Ljava/lang/String;" [.i32 chCode, .str acc] =
-          some (acc', []) := by
-        rw [hacc'_eq]; rfl
       refine ⟨if Algorithm.leafContains leaf x y then fRec + 56 else fRec + 57, locs', ?_⟩
       -- Step pc 3..11 (head check, branch to 11)
       rw [show (if Algorithm.leafContains leaf x y = true then fRec + 56 else fRec + 57) =
@@ -545,7 +528,7 @@ private theorem formatLeafRow_loop_aux (n : Nat) :
         by_cases hc : Algorithm.leafContains leaf x y <;> simp [hc]]
       conv => lhs; arg 4; rw [show f_Algorithm_formatLeafRow_loop_prog.drop 11 =
         [.lload 0, .iload 3, .iload 2,
-          .invokestatic "MacroCellLeanKt" "f_Algorithm_leafContains-fMEO4hA" "(JII)Z", .istore 7] ++
+          .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_leafContains-fMEO4hA" "(JII)Z", .istore 7] ++
           f_Algorithm_formatLeafRow_loop_prog.drop 16 from rfl]
       simp only [List.cons_append, List.nil_append]
       rw [runJvmResFast_load_step (k := 0) (v := .i64 leaf) (Or.inr (Or.inr rfl)) (by simp [setLocal, h0])]
@@ -643,9 +626,8 @@ private theorem formatLeafRow_loop_aux (n : Nat) :
       have hi2c : chCode &&& 65535 = chCode := by
         by_cases hc : Algorithm.leafContains leaf x y <;> simp [chCode, hc] <;> decide
       rw [hi2c]
-      rw [runJvmResFast_invokedynamic_concat_char]
-      rw [show acc ++ String.singleton (Char.ofNat (chCode &&& 65535).toNat) = acc' from by
-        rw [hacc'_eq, String.append_empty]]
+      rw [runJvmResFast_invokedynamic_concat_char (Algorithm.leafContains leaf x y)]
+      rw [show acc.push (if Algorithm.leafContains leaf x y then '*' else '.') = acc' from rfl]
       rw [runJvmResFast_goto]
       -- Now at pc 130..143 -> goto 3 (13 instrs)
       conv => lhs; arg 4; rw [show f_Algorithm_formatLeafRow_loop_prog.drop 130 =
@@ -849,7 +831,7 @@ private theorem formatLeafNode_loop_aux (n : Nat) :
       conv => lhs; arg 4; rw [show f_Algorithm_formatLeafNode_loop_prog.drop 9 =
         [.iload 2, .iconst 1, .iadd, .invokestatic "kotlin/UInt" "constructor-impl" "(I)I",
           .istore 5, .lload 0, .iload 2,
-          .invokestatic "MacroCellLeanKt" "f_Algorithm_formatLeafRow-8GdB7C8" "(JI)Ljava/lang/String;",
+          .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_formatLeafRow-8GdB7C8" "(JI)Ljava/lang/String;",
           .astore 6, .aload 4, .aload 6,
           .invokedynamic "makeConcatWithConstants" "\x01\x01"
             "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;",
@@ -2721,7 +2703,7 @@ private theorem stepStatic_listLookup_addLeaf
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} {xs : List (UInt64 × UInt32)}
     (hlist : decodeLeafBucketList jh (jh.objects.size + 2) listVal = some xs) :
     stepInvokeStatic ⟨pc, listVal :: .i64 leaf :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt"
+      "com/alexvanyo/composelife/model/MacroCellLeanKt"
       "f_List_lookup___at___00Algorithm_MacrocellWriterState_addLeaf_spec__0___redArg-4PLdz1A"
       "(JLjava/lang/Object;)Ljava/lang/Object;" =
       match xs.lookup leaf with
@@ -2730,7 +2712,7 @@ private theorem stepStatic_listLookup_addLeaf
       | some id => .inl (some ⟨pc + 1, .heapRef jh.objects.size :: rest, locs,
           (jh.alloc (.objArray "java/lang/Object" #[.boxedInt 1, .boxedUInt id])).2, hp⟩) := by
   have h0 : stepInvokeStatic ⟨pc, listVal :: .i64 leaf :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt"
+      "com/alexvanyo/composelife/model/MacroCellLeanKt"
       "f_List_lookup___at___00Algorithm_MacrocellWriterState_addLeaf_spec__0___redArg-4PLdz1A"
       "(JLjava/lang/Object;)Ljava/lang/Object;" =
       match decodeLeafBucketList jh (jh.objects.size + 2) listVal with
@@ -2749,7 +2731,7 @@ private theorem stepStatic_listLookup_addLeaf_hit
     (hlist : decodeLeafBucketList jh (jh.objects.size + 2) listVal = some xs)
     (hhit : xs.lookup leaf = some id) :
     stepInvokeStatic ⟨pc, listVal :: .i64 leaf :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt"
+      "com/alexvanyo/composelife/model/MacroCellLeanKt"
       "f_List_lookup___at___00Algorithm_MacrocellWriterState_addLeaf_spec__0___redArg-4PLdz1A"
       "(JLjava/lang/Object;)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .heapRef jh.objects.size :: rest, locs,
@@ -2762,7 +2744,7 @@ private theorem stepStatic_listLookup_addLeaf_miss
     (hlist : decodeLeafBucketList jh (jh.objects.size + 2) listVal = some xs)
     (hmiss : xs.lookup leaf = none) :
     stepInvokeStatic ⟨pc, listVal :: .i64 leaf :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt"
+      "com/alexvanyo/composelife/model/MacroCellLeanKt"
       "f_List_lookup___at___00Algorithm_MacrocellWriterState_addLeaf_spec__0___redArg-4PLdz1A"
       "(JLjava/lang/Object;)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .heapRef jh.objects.size :: rest, locs,
@@ -2777,7 +2759,7 @@ private theorem stepStatic_listLookup_addNode
     (hk : decodeNodeKey kVal = some k)
     (hlist : decodeNodeBucketList jh (jh.objects.size + 2) listVal = some xs) :
     stepInvokeStatic ⟨pc, listVal :: kVal :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt"
+      "com/alexvanyo/composelife/model/MacroCellLeanKt"
       "f_List_lookup___at___00Algorithm_MacrocellWriterState_addNode_spec__0___redArg"
       "(Lkotlin/Pair;Ljava/lang/Object;)Ljava/lang/Object;" =
       match xs.lookup k with
@@ -2786,7 +2768,7 @@ private theorem stepStatic_listLookup_addNode
       | some id => .inl (some ⟨pc + 1, .heapRef jh.objects.size :: rest, locs,
           (jh.alloc (.objArray "java/lang/Object" #[.boxedInt 1, .boxedUInt id])).2, hp⟩) := by
   have h0 : stepInvokeStatic ⟨pc, listVal :: kVal :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt"
+      "com/alexvanyo/composelife/model/MacroCellLeanKt"
       "f_List_lookup___at___00Algorithm_MacrocellWriterState_addNode_spec__0___redArg"
       "(Lkotlin/Pair;Ljava/lang/Object;)Ljava/lang/Object;" =
       match decodeNodeKey kVal, decodeNodeBucketList jh (jh.objects.size + 2) listVal with
@@ -2808,7 +2790,7 @@ private theorem stepStatic_listLookup_addNode_hit
     (hlist : decodeNodeBucketList jh (jh.objects.size + 2) listVal = some xs)
     (hhit : xs.lookup k = some id) :
     stepInvokeStatic ⟨pc, listVal :: kVal :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt"
+      "com/alexvanyo/composelife/model/MacroCellLeanKt"
       "f_List_lookup___at___00Algorithm_MacrocellWriterState_addNode_spec__0___redArg"
       "(Lkotlin/Pair;Ljava/lang/Object;)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .heapRef jh.objects.size :: rest, locs,
@@ -2826,7 +2808,7 @@ private theorem stepStatic_listLookup_addNode_miss
     (hlist : decodeNodeBucketList jh (jh.objects.size + 2) listVal = some xs)
     (hmiss : xs.lookup k = none) :
     stepInvokeStatic ⟨pc, listVal :: kVal :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt"
+      "com/alexvanyo/composelife/model/MacroCellLeanKt"
       "f_List_lookup___at___00Algorithm_MacrocellWriterState_addNode_spec__0___redArg"
       "(Lkotlin/Pair;Ljava/lang/Object;)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .heapRef jh.objects.size :: rest, locs,
@@ -3900,13 +3882,13 @@ private theorem stepStatic_dagWriter_addLeafAt
     {w : Algorithm.DagWriter}
     (hdec : decodeDagWriter jh (.heapRef wAddr) = some w) :
     stepInvokeStatic ⟨pc, .i32 slot :: .i64 leaf :: .heapRef wAddr :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt" "f_Algorithm_DagWriter_addLeafAt-7pzH9BY" "(Ljava/lang/Object;JI)Lkotlin/Pair;" =
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_DagWriter_addLeafAt-7pzH9BY" "(Ljava/lang/Object;JI)Lkotlin/Pair;" =
       .inl (some ⟨pc + 1,
         .pair (.boxedUInt (w.addLeafAt leaf slot).1)
           (encodeDagWriter jh (w.addLeafAt leaf slot).2).1 :: rest,
         locs, (encodeDagWriter jh (w.addLeafAt leaf slot).2).2, hp⟩) := by
   have h0 : stepInvokeStatic ⟨pc, .i32 slot :: .i64 leaf :: .heapRef wAddr :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt" "f_Algorithm_DagWriter_addLeafAt-7pzH9BY" "(Ljava/lang/Object;JI)Lkotlin/Pair;" =
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_DagWriter_addLeafAt-7pzH9BY" "(Ljava/lang/Object;JI)Lkotlin/Pair;" =
       match decodeDagWriter jh (.heapRef wAddr) with
       | some w =>
         let r := w.addLeafAt leaf slot
@@ -3922,14 +3904,14 @@ private theorem stepStatic_dagWriter_addNodeAt
     (hk : decodeNodeKey kVal = some k)
     (hdec : decodeDagWriter jh (.heapRef wAddr) = some w) :
     stepInvokeStatic ⟨pc, .i32 slot :: kVal :: .heapRef wAddr :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt" "f_Algorithm_DagWriter_addNodeAt-jXDDuk8"
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_DagWriter_addNodeAt-jXDDuk8"
       "(Ljava/lang/Object;Lkotlin/Pair;I)Lkotlin/Pair;" =
       .inl (some ⟨pc + 1,
         .pair (.boxedUInt (w.addNodeAt k slot).1)
           (encodeDagWriter jh (w.addNodeAt k slot).2).1 :: rest,
         locs, (encodeDagWriter jh (w.addNodeAt k slot).2).2, hp⟩) := by
   have h0 : stepInvokeStatic ⟨pc, .i32 slot :: kVal :: .heapRef wAddr :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt" "f_Algorithm_DagWriter_addNodeAt-jXDDuk8"
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_DagWriter_addNodeAt-jXDDuk8"
       "(Ljava/lang/Object;Lkotlin/Pair;I)Lkotlin/Pair;" =
       match decodeNodeKey kVal, decodeDagWriter jh (.heapRef wAddr) with
       | some k, some w =>
@@ -4032,7 +4014,7 @@ theorem dagWriter_addLeaf_equiv
     step_drop_at 3
     rw [runJvmResFast_invokestatic_step (stepStatic_remainderUnsigned (hsize hzero))]
     change runJvmResFast 2 progALF (24 + 1 + 1 + 1 + 1 + 1)
-      (.invokestatic "MacroCellLeanKt" "f_Algorithm_DagWriter_addLeafAt-7pzH9BY"
+      (.invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_DagWriter_addLeafAt-7pzH9BY"
           "(Ljava/lang/Object;JI)Lkotlin/Pair;" ::
         .areturn :: List.drop 31 (List.drop 0 progALF))
       ⟨24 + 1 + 1 + 1 + 1 + 1, [.i32 slot, .i64 leaf, .heapRef wAddr], locs0, jh, hp⟩ =
@@ -4172,7 +4154,7 @@ theorem dagWriter_addNode_equiv
   step_drop_at 3
   rw [runJvmResFast_invokestatic_step (stepStatic_remainderUnsigned hsize)]
   change runJvmResFast 2 progANode (89 + 1 + 1 + 1 + 1 + 1)
-    (.invokestatic "MacroCellLeanKt" "f_Algorithm_DagWriter_addNodeAt-jXDDuk8"
+    (.invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_DagWriter_addNodeAt-jXDDuk8"
         "(Ljava/lang/Object;Lkotlin/Pair;I)Lkotlin/Pair;" ::
       .areturn :: List.drop 96 progANode)
     ⟨89 + 1 + 1 + 1 + 1 + 1, [.i32 slot, kVal, .heapRef wAddr], locs0, jh, hp⟩ =
@@ -4435,7 +4417,7 @@ private theorem stepStatic_u64BufGet {pc id : Nat} {arr : Array UInt64} {idx : U
 
 private theorem stepStatic_u64BufEmpty_5b {pc : Nat}
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
-    stepInvokeStatic ⟨pc, rest, locs, jh, hp⟩ "MacroCellLeanKt" "f_Algorithm_U64Buf_empty" "()[J" =
+    stepInvokeStatic ⟨pc, rest, locs, jh, hp⟩ "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_U64Buf_empty" "()[J" =
       .inl (some ⟨pc + 1, .ext (.u64Ref hp.u64Arrays.length) :: rest, locs, jh,
         { hp with u64Arrays := hp.u64Arrays ++ [Algorithm.U64Buf.empty] }⟩) := rfl
 
@@ -4443,11 +4425,11 @@ private theorem stepStatic_u64BufPush_5b {pc id : Nat} {arr : Array UInt64} {x :
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     (hget : hp.u64Arrays[id]? = some arr) :
     stepInvokeStatic ⟨pc, .i64 x :: .ext (.u64Ref id) :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt" "f_Algorithm_U64Buf_push-3yFGk1Y" "([JJ)[J" =
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_U64Buf_push-3yFGk1Y" "([JJ)[J" =
       .inl (some ⟨pc + 1, .ext (.u64Ref hp.u64Arrays.length) :: rest, locs, jh,
         { hp with u64Arrays := hp.u64Arrays ++ [Algorithm.U64Buf.push arr x] }⟩) := by
   have h0 : stepInvokeStatic ⟨pc, .i64 x :: .ext (.u64Ref id) :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt" "f_Algorithm_U64Buf_push-3yFGk1Y" "([JJ)[J" =
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_U64Buf_push-3yFGk1Y" "([JJ)[J" =
       match hp.u64Arrays[id]? with
       | some arr =>
         let pushed := Algorithm.U64Buf.push arr x
@@ -4465,7 +4447,7 @@ private theorem stepStatic_dagWriter_addEntry
     stepInvokeStatic
       ⟨pc, .i32 c4 :: .i32 c3 :: .i32 c2 :: .i32 c1 :: .ext (.mc m) :: .heapRef wAddr :: rest,
         locs, jh, hp⟩
-      "MacroCellLeanKt" "f_Algorithm_DagWriter_addEntry-Z0ptBHY"
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_DagWriter_addEntry-Z0ptBHY"
       "(Ljava/lang/Object;Lcom/alexvanyo/composelife/model/MacroCell;IIII)Lkotlin/Pair;" =
       .inl (some ⟨pc + 1,
         .pair (.boxedUInt (w.addEntry m c1 c2 c3 c4).1)
@@ -4474,7 +4456,7 @@ private theorem stepStatic_dagWriter_addEntry
   have h0 : stepInvokeStatic
       ⟨pc, .i32 c4 :: .i32 c3 :: .i32 c2 :: .i32 c1 :: .ext (.mc m) :: .heapRef wAddr :: rest,
         locs, jh, hp⟩
-      "MacroCellLeanKt" "f_Algorithm_DagWriter_addEntry-Z0ptBHY"
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_DagWriter_addEntry-Z0ptBHY"
       "(Ljava/lang/Object;Lcom/alexvanyo/composelife/model/MacroCell;IIII)Lkotlin/Pair;" =
       match decodeDagWriter jh (.heapRef wAddr) with
       | some w =>
@@ -4495,7 +4477,7 @@ private theorem stepStatic_writeDag_match
     stepInvokeStatic
       ⟨pc, .heapRef wAddr :: .ext (.u64Ref idsId) :: .i32 n :: .i32 k ::
         .heapRef kidsAddr :: .heapRef entriesAddr :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt" "f_Algorithm_writeDag-EGiNdXo"
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_writeDag-EGiNdXo"
       "([Ljava/lang/Object;[III[JLjava/lang/Object;)Ljava/lang/Object;" =
       match jh.get? entriesAddr, jh.get? kidsAddr, hp.u64Arrays[idsId]? with
       | some (.objArray _ eElems), some (.intArray kids), some ids =>
@@ -4561,7 +4543,7 @@ private theorem stepStatic_writeDag_heap
     stepInvokeStatic
       ⟨pc, .heapRef wAddr :: .ext (.u64Ref idsId) :: .i32 n :: .i32 k ::
         .heapRef kidsAddr :: .heapRef entriesAddr :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt" "f_Algorithm_writeDag-EGiNdXo"
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_writeDag-EGiNdXo"
       "([Ljava/lang/Object;[III[JLjava/lang/Object;)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1,
         (encodeDagWriter jh (Algorithm.writeDag entries kids k n ids w)).1 :: rest,
@@ -4572,7 +4554,7 @@ private theorem stepStatic_writeDag_heap
 private theorem stepStatic_growBufEmpty_5b {pc : Nat}
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .null :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt" "f_Algorithm_GrowBuf_empty___redArg"
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_GrowBuf_empty___redArg"
       "(Ljava/lang/Object;)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .ext (.strGrowBuf Algorithm.GrowBuf.empty) :: rest, locs, jh, hp⟩) :=
   rfl
@@ -4580,21 +4562,21 @@ private theorem stepStatic_growBufEmpty_5b {pc : Nat}
 private theorem stepStatic_growBufPush_str {pc : Nat} {s : String} {b : Algorithm.GrowBuf String}
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .str s :: .ext (.strGrowBuf b) :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_GrowBuf_push___redArg"
       "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .ext (.strGrowBuf (b.push s)) :: rest, locs, jh, hp⟩) := rfl
 
 private theorem stepStatic_growBufToArray_str {pc : Nat} {b : Algorithm.GrowBuf String}
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .ext (.strGrowBuf b) :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
       "(Ljava/lang/Object;)[Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .strArr b.toArray :: rest, locs, jh, hp⟩) := rfl
 
 private theorem stepStatic_macrocellSingleLeaf {pc : Nat} {m : Algorithm.MacroCell}
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .ext (.mc m) :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt" "f_Algorithm_macrocellSingleLeaf"
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_macrocellSingleLeaf"
       "(Lcom/alexvanyo/composelife/model/MacroCell;)Lkotlin/ULong;" =
       .inl (some ⟨pc + 1,
         (match Algorithm.macrocellSingleLeaf m with | some v => .boxedULong v | none => .null) ::
@@ -4603,13 +4585,13 @@ private theorem stepStatic_macrocellSingleLeaf {pc : Nat} {m : Algorithm.MacroCe
 private theorem stepStatic_formatLeafNode_5b {pc : Nat} {v : UInt64}
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .i64 v :: rest, locs, jh, hp⟩
-      "MacroCellLeanKt" "f_Algorithm_formatLeafNode-VKZWuLQ" "(J)Ljava/lang/String;" =
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_formatLeafNode-VKZWuLQ" "(J)Ljava/lang/String;" =
       .inl (some ⟨pc + 1, .str (Algorithm.formatLeafNode v) :: rest, locs, jh, hp⟩) := rfl
 
 private theorem stepStatic_serializeMacrocell___closed__2_5b {pc : Nat}
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, rest, locs, jh, hp⟩
-      "MacroCellLeanKt" "f_Algorithm_serializeMacrocell___closed__2" "()[Ljava/lang/Object;" =
+      "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_serializeMacrocell___closed__2" "()[Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .heapRef jh.objects.size :: rest, locs,
         (jh.alloc (.objArray "java/lang/Object" #[.str "[M2] (ComposeLife 1.0)"])).2, hp⟩) := rfl
 
@@ -5057,7 +5039,7 @@ private theorem serializeMacrocellDag_none_finish
       .invokestatic "kotlin/jvm/internal/Intrinsics" "checkNotNull"
         "(Ljava/lang/Object;Ljava/lang/String;)V" ::
       .aload 12 :: .checkcast "[Ljava/lang/Object;" :: .iconst 1 :: .aaload ::
-      .invokestatic "MacroCellLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
+      .invokestatic "com/alexvanyo/composelife/model/MacroCellLeanKt" "f_Algorithm_GrowBuf_toArray___redArg"
         "(Ljava/lang/Object;)[Ljava/lang/Object;" ::
       .areturn :: List.drop (pc + 10) progSMD) :
     ∃ st',

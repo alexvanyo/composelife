@@ -549,7 +549,7 @@ private theorem stepStatic_growBufPush_str
     {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .str s :: .ext (.strGrowBuf b) :: rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_push___redArg"
       "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .ext (.strGrowBuf (b.push s)) :: rest, locs, jh, hp⟩) := rfl
 
@@ -557,7 +557,7 @@ private theorem stepStatic_wrapRLEItems_closed0_6c
     {pc : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_wrapRLEItems___closed__0" "()Lkotlin/Pair;" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_wrapRLEItems___closed__0" "()Lkotlin/Pair;" =
       .inl (some ⟨pc + 1, .pair (.boxedUByte 0) (.boxedUInt 0) :: rest, locs, jh, hp⟩) := rfl
 
 private theorem runJvmResFast_instanceof_pair {f : Nat} {prog : List JvmInstr} {pc : Nat}
@@ -642,7 +642,7 @@ private theorem stepStatic_formatRLEItem_sext
           .i32 count ::
             .i32 (UInt32.ofBitVec ((tag.toUInt32.toBitVec.setWidth 8).signExtend 32)) :: rest,
           locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_formatRLEItem-g_SBl1M" "(BI)Ljava/lang/String;" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_formatRLEItem-g_SBl1M" "(BI)Ljava/lang/String;" =
       .inl (some ⟨pc + 1, .str (Algorithm.formatRLEItem tag count) :: rest,
         locs, jh, hp⟩) := by
   have hfn :
@@ -651,7 +651,7 @@ private theorem stepStatic_formatRLEItem_sext
             .i32 count ::
               .i32 (UInt32.ofBitVec ((tag.toUInt32.toBitVec.setWidth 8).signExtend 32)) :: rest,
             locs, jh, hp⟩
-        "RleLeanKt" "f_Algorithm_formatRLEItem-g_SBl1M" "(BI)Ljava/lang/String;" =
+        "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_formatRLEItem-g_SBl1M" "(BI)Ljava/lang/String;" =
         .inl (some ⟨pc + 1,
           .str (Algorithm.formatRLEItem
             (UInt32.ofBitVec ((tag.toUInt32.toBitVec.setWidth 8).signExtend 32)).toUInt8
@@ -663,7 +663,7 @@ private theorem stepStatic_formatRLEItemLength
     {pc : Nat} {count : UInt32} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .i32 count :: rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_formatRLEItemLength-WZ4Q5Ns" "(I)I" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_formatRLEItemLength-WZ4Q5Ns" "(I)I" =
       .inl (some ⟨pc + 1, .i32 (Algorithm.formatRLEItemLength count) :: rest,
         locs, jh, hp⟩) := rfl
 
@@ -695,7 +695,7 @@ private theorem stepStatic_growBufPush_u8u32
     (hrep : U8U32PairRep6c b bufVal) :
     stepInvokeStatic ⟨pc, .pair (.boxedUByte tag.toUInt32) (.boxedUInt len) :: bufVal :: rest,
         locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_push___redArg"
       "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .ext (.u8U32PairGrowBuf (b.push (tag, len))) :: rest,
         locs, jh, hp⟩) := by
@@ -704,7 +704,7 @@ private theorem stepStatic_growBufPush_u8u32
     have hfn : stepInvokeStatic
         ⟨pc, .pair (.boxedUByte tag.toUInt32) (.boxedUInt len) ::
           .ext (.strGrowBuf d) :: rest, locs, jh, hp⟩
-        "RleLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+        "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_push___redArg"
         "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" =
         (if (d.data.isEmpty && d.size == 0) = true then
           .inl (some ⟨pc + 1,
@@ -717,7 +717,7 @@ private theorem stepStatic_growBufPush_u8u32
     have hfn : stepInvokeStatic
         ⟨pc, .pair (.boxedUByte tag.toUInt32) (.boxedUInt len) ::
           .ext (.u8U32PairGrowBuf b) :: rest, locs, jh, hp⟩
-        "RleLeanKt" "f_Algorithm_GrowBuf_push___redArg"
+        "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_push___redArg"
         "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;" =
         .inl (some ⟨pc + 1,
           .ext (.u8U32PairGrowBuf (b.push (tag.toUInt32.toUInt8, len))) :: rest,
@@ -1749,7 +1749,7 @@ private theorem stepStatic_growBufEmpty6c
     {pc : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .null :: rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_GrowBuf_empty___redArg" "(Ljava/lang/Object;)Ljava/lang/Object;" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_empty___redArg" "(Ljava/lang/Object;)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .ext (.strGrowBuf Algorithm.GrowBuf.empty) :: rest, locs, jh, hp⟩) := rfl
 
 private theorem stepStatic_ulongArrSize6c
@@ -1770,7 +1770,7 @@ private theorem stepStatic_serializeRLE_closed3_6c
     {pc : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_serializeRLE___closed__3" "()[Ljava/lang/Object;" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_serializeRLE___closed__3" "()[Ljava/lang/Object;" =
       let (addr, h') := jh.alloc (.objArray "java/lang/Object"
         #[.str "#R 0 0", .str "x = 0, y = 0, rule = B3/S23", .str "!"])
       .inl (some ⟨pc + 1, .heapRef addr :: rest, locs, h', hp⟩) := rfl
@@ -1779,7 +1779,7 @@ private theorem stepStatic_serializeRLE_closed0_6c
     {pc : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_serializeRLE___closed__0" "()Lkotlin/Pair;" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_serializeRLE___closed__0" "()Lkotlin/Pair;" =
       .inl (some ⟨pc + 1, .pair (.boxedUByte 33) (.boxedUInt 1) :: rest, locs, jh, hp⟩) := rfl
 
 private theorem stepStatic_asciiBytesReplicate6c
@@ -1787,13 +1787,13 @@ private theorem stepStatic_asciiBytesReplicate6c
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     (hb : v.toUInt8 < 128) :
     stepInvokeStatic ⟨pc, .i32 v :: .i32 n :: rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_AsciiBytes_replicate___redArg-LMfZGw8" "(IB)[B" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_AsciiBytes_replicate___redArg-LMfZGw8" "(IB)[B" =
       let newId := hp.asciiArrays.length
       let arr := Algorithm.AsciiBytes.replicate n v.toUInt8 hb
       .inl (some ⟨pc + 1, .ext (.asciiRef newId) :: rest, locs, jh,
         { hp with asciiArrays := hp.asciiArrays ++ [arr] }⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .i32 v :: .i32 n :: rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_AsciiBytes_replicate___redArg-LMfZGw8" "(IB)[B" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_AsciiBytes_replicate___redArg-LMfZGw8" "(IB)[B" =
       if hb' : v.toUInt8 < 128 then
         let newId := hp.asciiArrays.length
         let arr := Algorithm.AsciiBytes.replicate n v.toUInt8 hb'
@@ -1815,14 +1815,14 @@ private theorem stepStatic_fillGrid6c
     stepInvokeStatic ⟨pc, .ext (.asciiRef gId) :: .i32 limit :: .i32 i :: .i32 ab.toUInt32 ::
         .i32 h :: .i32 w :: .i32 minY.toUInt32 :: .i32 minX.toUInt32 ::
         .ext (.u64Ref cId) :: rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_fillGrid___redArg-RyWfpmY" "([JIIIIBII[B)V" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_fillGrid___redArg-RyWfpmY" "([JIIIIBII[B)V" =
       let g' := Algorithm.fillGrid cells minX minY w h ab ha i limit g
       .inl (some ⟨pc + 1, rest, locs, jh,
         { hp with asciiArrays := hp.asciiArrays.set gId g' }⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .ext (.asciiRef gId) :: .i32 limit :: .i32 i ::
       .i32 ab.toUInt32 :: .i32 h :: .i32 w :: .i32 minY.toUInt32 :: .i32 minX.toUInt32 ::
       .ext (.u64Ref cId) :: rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_fillGrid___redArg-RyWfpmY" "([JIIIIBII[B)V" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_fillGrid___redArg-RyWfpmY" "([JIIIIBII[B)V" =
       let ab' := ab.toUInt32.toUInt8
       match hp.u64Arrays[cId]?, hp.asciiArrays[gId]? with
       | some cells, some g =>
@@ -1844,7 +1844,7 @@ private theorem stepStatic_gridItems6c
     (hg : hp.asciiArrays[gId]? = some g) (hrep : U8U32PairRep6c items itemsVal) :
     stepInvokeStatic ⟨pc, itemsVal :: .i32 rowEnds :: .i32 runLen :: .i32 runTag.toUInt32 ::
         .i32 k :: .i32 total :: .i32 w :: .ext (.asciiRef gId) :: rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_gridItems-DRwJadE"
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_gridItems-DRwJadE"
       "([BIIIBIILjava/lang/Object;)Ljava/lang/Object;" =
       let r := Algorithm.gridItems g w total k runTag runLen rowEnds items
       .inl (some ⟨pc + 1, .ext (.u8U32PairGrowBuf r) :: rest, locs, jh, hp⟩) := by
@@ -1853,7 +1853,7 @@ private theorem stepStatic_gridItems6c
     have hfn : stepInvokeStatic ⟨pc, .ext (.strGrowBuf d) :: .i32 rowEnds :: .i32 runLen ::
         .i32 runTag.toUInt32 :: .i32 k :: .i32 total :: .i32 w :: .ext (.asciiRef gId) :: rest,
         locs, jh, hp⟩
-        "RleLeanKt" "f_Algorithm_gridItems-DRwJadE"
+        "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_gridItems-DRwJadE"
         "([BIIIBIILjava/lang/Object;)Ljava/lang/Object;" =
         match hp.asciiArrays[gId]?,
             (if d.data.isEmpty && d.size == 0 then some Algorithm.GrowBuf.empty else none) with
@@ -1867,7 +1867,7 @@ private theorem stepStatic_gridItems6c
     have hfn : stepInvokeStatic ⟨pc, .ext (.u8U32PairGrowBuf items) :: .i32 rowEnds ::
         .i32 runLen :: .i32 runTag.toUInt32 :: .i32 k :: .i32 total :: .i32 w ::
         .ext (.asciiRef gId) :: rest, locs, jh, hp⟩
-        "RleLeanKt" "f_Algorithm_gridItems-DRwJadE"
+        "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_gridItems-DRwJadE"
         "([BIIIBIILjava/lang/Object;)Ljava/lang/Object;" =
         match hp.asciiArrays[gId]?, some items with
         | some g, some items' =>
@@ -1905,12 +1905,12 @@ private theorem stepStatic_growBufToArray_u8u32_6c
     {pc : Nat} {b : Algorithm.GrowBuf (UInt8 × UInt32)}
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .ext (.u8U32PairGrowBuf b) :: rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_GrowBuf_toArray___redArg" "(Ljava/lang/Object;)[Ljava/lang/Object;" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_toArray___redArg" "(Ljava/lang/Object;)[Ljava/lang/Object;" =
       let (addr, h') := jh.alloc (.objArray "java/lang/Object"
         (b.toArray.map fun x => .pair (.boxedUByte x.1.toUInt32) (.boxedUInt x.2)))
       .inl (some ⟨pc + 1, .heapRef addr :: rest, locs, h', hp⟩) := by
   have hfn : stepInvokeStatic ⟨pc, .ext (.u8U32PairGrowBuf b) :: rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_GrowBuf_toArray___redArg" "(Ljava/lang/Object;)[Ljava/lang/Object;" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_toArray___redArg" "(Ljava/lang/Object;)[Ljava/lang/Object;" =
       let res := encodeGrowBufArray jh (fun ch x =>
         (.pair (.boxedUByte x.1.toUInt32) (.boxedUInt x.2), ch)) b
       .inl (some ⟨pc + 1, res.1 :: rest, locs, res.2, hp⟩) := rfl
@@ -1920,7 +1920,7 @@ private theorem stepStatic_growBufToArray_str6c
     {pc : Nat} {b : Algorithm.GrowBuf String}
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .ext (.strGrowBuf b) :: rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_GrowBuf_toArray___redArg" "(Ljava/lang/Object;)[Ljava/lang/Object;" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_GrowBuf_toArray___redArg" "(Ljava/lang/Object;)[Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .strArr b.toArray :: rest, locs, jh, hp⟩) := rfl
 
 private theorem stepStatic_arraysCopyOf6c
@@ -1957,7 +1957,7 @@ private theorem stepStatic_formatRLEHeader6c
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .i32 h :: .i32 w :: .i32 minY.toUInt32 :: .i32 minX.toUInt32 :: rest,
         locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_formatRLEHeader-uqS13hg" "(IIII)[Ljava/lang/Object;" =
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_formatRLEHeader-uqS13hg" "(IIII)[Ljava/lang/Object;" =
       let arr := Algorithm.formatRLEHeader minX minY w h
       let (addr, h') := jh.alloc (.objArray "java/lang/Object" (arr.map .str))
       .inl (some ⟨pc + 1, .heapRef addr :: rest, locs, h', hp⟩) := rfl
@@ -1970,7 +1970,7 @@ private theorem stepStatic_wrapRLEItems6c
       (items.map fun x => .pair (.boxedUByte x.1.toUInt32) (.boxedUInt x.2)))) :
     stepInvokeStatic ⟨pc, .ext (.strGrowBuf out) :: .i32 lineLen :: .str line :: .i32 j ::
         .i32 items.size.toUInt32 :: .heapRef itemsAddr :: rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_wrapRLEItems-zax99WU"
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_wrapRLEItems-zax99WU"
       "([Ljava/lang/Object;IILjava/lang/String;ILjava/lang/Object;)Ljava/lang/Object;" =
       let r := Algorithm.wrapRLEItems items items.size.toUInt32 j line lineLen out
       .inl (some ⟨pc + 1, .ext (.strGrowBuf r) :: rest, locs, jh, hp⟩) := by
@@ -1997,7 +1997,7 @@ private theorem stepStatic_wrapRLEItems6c
     simpa [unboxU8?, unboxI32?, u8_toUInt32_toUInt8] using h0
   have hfn : stepInvokeStatic ⟨pc, .ext (.strGrowBuf out) :: .i32 lineLen :: .str line ::
       .i32 j :: .i32 items.size.toUInt32 :: .heapRef itemsAddr :: rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_wrapRLEItems-zax99WU"
+      "com/alexvanyo/composelife/model/RleLeanKt" "f_Algorithm_wrapRLEItems-zax99WU"
       "([Ljava/lang/Object;IILjava/lang/String;ILjava/lang/Object;)Ljava/lang/Object;" =
       match jh.get? itemsAddr with
       | some (.objArray _ elems) =>

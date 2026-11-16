@@ -299,6 +299,89 @@ private theorem runFast_stringValueOfJ (r : String → Option (List JvmInstr))
     rfl
   exact Jvm.runJvmResFast_step_of_stepInstr (mkCalcHooks r (d + 1) subFuel) rfl (by simp) hs rfl
 
+private theorem runFast_ifeq_zero [Jvm.HasDefaultIsZero hooks]
+    {f pc pc0 target : Nat} {prog rest : List JvmInstr} {v : UInt32} {stk : List JvmVal}
+    {locs : Nat → JvmVal} {jh : Jvm.JvmHeap CalcExt} {hp : CalcHeap}
+    (hz : v = 0 := by decide) :
+    Jvm.runJvmResFast hooks (f + 1) prog pc (.ifeq target :: rest) ⟨pc0, .i32 v :: stk, locs, jh, hp⟩ =
+      Jvm.runJvmResFast hooks f prog target (prog.drop target) ⟨target, stk, locs, jh, hp⟩ := by
+  subst hz
+  rw [Jvm.runJvmResFast_at_branch_cons hooks (hbr := rfl)]
+  simp [Jvm.evalResBranchInstrCons, Jvm.isBranchInstr, Jvm.dispatchBranch,
+    Jvm.HasDefaultIsZero.isZero?_eq (hooks := hooks)]
+
+private theorem runFast_ifeq_nonzero [Jvm.HasDefaultIsZero hooks]
+    {f pc pc0 target : Nat} {prog rest : List JvmInstr} {v : UInt32} {stk : List JvmVal}
+    {locs : Nat → JvmVal} {jh : Jvm.JvmHeap CalcExt} {hp : CalcHeap} (hnz : v ≠ 0 := by decide) :
+    Jvm.runJvmResFast hooks (f + 1) prog pc (.ifeq target :: rest) ⟨pc0, .i32 v :: stk, locs, jh, hp⟩ =
+      Jvm.runJvmResFast hooks f prog (pc + 1) rest ⟨pc + 1, stk, locs, jh, hp⟩ := by
+  rw [Jvm.runJvmResFast_at_branch_cons hooks (hbr := rfl)]
+  simp [Jvm.evalResBranchInstrCons, Jvm.isBranchInstr, Jvm.dispatchBranch,
+    Jvm.HasDefaultIsZero.isZero?_eq (hooks := hooks), hnz]
+
+private theorem runFast_getEnteringNewNumber (r : String → Option (List JvmInstr))
+    (d subFuel f pc pc0 : Nat) {prog rest : List JvmInstr} {cSt : CalculatorState}
+    {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap CalcExt} {hp : CalcHeap} :
+    Jvm.runJvmResFast (mkCalcHooks r (d + 1) subFuel) (f + 1) prog pc
+        (.invokevirtual "com/alexvanyo/composelife/mosaiccalculator/CalculatorState" "getEnteringNewNumber"
+          "()Z" :: rest)
+        ⟨pc0, .ext (.calcState cSt) :: stk, locs, jh, hp⟩ =
+      Jvm.runJvmResFast (mkCalcHooks r (d + 1) subFuel) f prog (pc + 1) rest
+        ⟨pc + 1, .i32 (if cSt.enteringNewNumber then 1 else 0) :: stk, locs, jh, hp⟩ := by
+  have hs : Jvm.stepInstr (mkCalcHooks r (d + 1) subFuel)
+      (.invokevirtual "com/alexvanyo/composelife/mosaiccalculator/CalculatorState" "getEnteringNewNumber"
+        "()Z")
+      ⟨pc, .ext (.calcState cSt) :: stk, locs, jh, hp⟩ =
+      .inl (some ⟨pc + 1, .i32 (if cSt.enteringNewNumber then 1 else 0) :: stk, locs, jh, hp⟩) := rfl
+  exact Jvm.runJvmResFast_step_of_stepInstr (mkCalcHooks r (d + 1) subFuel) rfl (by simp) hs rfl
+
+private theorem runFast_makeConcat_fmtPending (r : String → Option (List JvmInstr))
+    (d subFuel f pc pc0 : Nat) {prog rest : List JvmInstr} {lhs : Int64} {op : CalculatorOp}
+    {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap CalcExt} {hp : CalcHeap} :
+    Jvm.runJvmResFast (mkCalcHooks r (d + 1) subFuel) (f + 1) prog pc
+        (.invokedynamic "makeConcatWithConstants" "\x01 \x01"
+          "(Ljava/lang/Long;Ljava/lang/String;)Ljava/lang/String;" :: rest)
+        ⟨pc0, .str op.symbol :: .boxedLong lhs.toUInt64 :: stk, locs, jh, hp⟩ =
+      Jvm.runJvmResFast (mkCalcHooks r (d + 1) subFuel) f prog (pc + 1) rest
+        ⟨pc + 1, .str s!"{int64ToString lhs} {op.symbol}" :: stk, locs, jh, hp⟩ := by
+  have hcat : Jvm.evalMakeConcatWithConstants "\x01 \x01"
+      "(Ljava/lang/Long;Ljava/lang/String;)Ljava/lang/String;"
+      (.str op.symbol :: .boxedLong lhs.toUInt64 :: stk) =
+      some (Jvm.i64ToDecimalString lhs.toUInt64 ++ (" " ++ (op.symbol ++ "")), stk) := by
+    dsimp only [Jvm.evalMakeConcatWithConstants]
+    have hm1 : Jvm.parseMethodParamTags
+        "(Ljava/lang/Long;Ljava/lang/String;)Ljava/lang/String;" = ['L', 'L'] := by decide
+    have hm2 : String.toList "\x01 \x01" = ['\x01', ' ', '\x01'] := by decide
+    rw [hm1, hm2]
+    dsimp only [List.length]
+    split
+    · omega
+    · rfl
+  have hstr : Jvm.i64ToDecimalString lhs.toUInt64 ++ (" " ++ (op.symbol ++ "")) =
+      s!"{int64ToString lhs} {op.symbol}" := by
+    rw [i64ToDecimalString_eq_int64ToString lhs]
+    simp only [String.append_empty, ← String.append_assoc]
+    rfl
+  rw [hstr] at hcat
+  have hs : Jvm.stepInstr (mkCalcHooks r (d + 1) subFuel)
+      (.invokedynamic "makeConcatWithConstants" "\x01 \x01"
+        "(Ljava/lang/Long;Ljava/lang/String;)Ljava/lang/String;")
+      ⟨pc, .str op.symbol :: .boxedLong lhs.toUInt64 :: stk, locs, jh, hp⟩ =
+      .inl (some ⟨pc + 1, .str s!"{int64ToString lhs} {op.symbol}" :: stk, locs, jh, hp⟩) := by
+    dsimp only [Jvm.stepInstr]
+    have hm : ("makeConcatWithConstants" == "makeConcatWithConstants") = true := rfl
+    change (if ("makeConcatWithConstants" == "makeConcatWithConstants") = true then
+      match Jvm.evalMakeConcatWithConstants "\x01 \x01"
+          "(Ljava/lang/Long;Ljava/lang/String;)Ljava/lang/String;"
+          (.str op.symbol :: .boxedLong lhs.toUInt64 :: stk) with
+      | some (s, rest) =>
+        Sum.inl (some (Jvm.JvmState.mk (pc + 1) (.str s :: rest) locs jh hp : JvmState))
+      | none => Sum.inr none
+      else _) = _
+    rw [hm, hcat]
+    simp only [↓reduceIte]
+  exact Jvm.runJvmResFast_step_of_stepInstr (mkCalcHooks r (d + 1) subFuel) rfl (by simp) hs rfl
+
 private theorem runFast_makeConcat_fmt (r : String → Option (List JvmInstr))
     (d subFuel f pc pc0 : Nat) {prog rest : List JvmInstr} {lhs rhs : Int64} {op : CalculatorOp}
     {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap CalcExt} {hp : CalcHeap} :
@@ -387,7 +470,7 @@ theorem formatDisplayLine_equiv (resolveProg : String → Option (List JvmInstr)
         "$EnumSwitchMapping$1" = some (.heapRef errAddr) ∧
       jh.get? errAddr = some (.intArray #[1, 2])) :
     ∃ endSt,
-      Jvm.runJvmRes (mkCalcHooks resolveProg d subFuel) fuel formatDisplayLine_prog
+      Jvm.runJvmRes (mkCalcHooks resolveProg d subFuel) fuel CalculatorEngineKt_formatDisplayLine_prog
           (initCalcJvmState [(0, .ext (.calcState cSt))] hp jh) =
         some (.str (formatDisplayLineModel cSt), endSt) ∧
       endSt.jvmHeap = jh ∧ endSt.heap = hp := by
@@ -395,7 +478,7 @@ theorem formatDisplayLine_equiv (resolveProg : String → Option (List JvmInstr)
   obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le' hf
   suffices h : ∃ endSt,
       Jvm.runJvmResFast (mkCalcHooks resolveProg (d' + 1) subFuel) (k + 35)
-          formatDisplayLine_prog 0 formatDisplayLine_prog
+          CalculatorEngineKt_formatDisplayLine_prog 0 CalculatorEngineKt_formatDisplayLine_prog
           (initCalcJvmState [(0, .ext (.calcState cSt))] hp jh) =
         some (.str (formatDisplayLineModel cSt), endSt) ∧
       endSt.jvmHeap = jh ∧ endSt.heap = hp by
@@ -406,16 +489,16 @@ theorem formatDisplayLine_equiv (resolveProg : String → Option (List JvmInstr)
   have hl0 : locs0 0 = .ext (.calcState cSt) := rfl
   change ∃ endSt,
       Jvm.runJvmResFast (mkCalcHooks resolveProg (d' + 1) subFuel) (k + 35)
-          formatDisplayLine_prog 0 formatDisplayLine_prog ⟨0, [], locs0, jh, hp⟩ =
+          CalculatorEngineKt_formatDisplayLine_prog 0 CalculatorEngineKt_formatDisplayLine_prog ⟨0, [], locs0, jh, hp⟩ =
         some (.str (formatDisplayLineModel cSt), endSt) ∧
       endSt.jvmHeap = jh ∧ endSt.heap = hp
-  dsimp only [formatDisplayLine_prog]
+  dsimp only [CalculatorEngineKt_formatDisplayLine_prog]
   rw [runFast_aload, hl0, runFast_ldcStr, runFast_checkNotNullParam' resolveProg d' subFuel _ _ _ rfl]
   rw [runFast_aload, hl0, runFast_getError, runFast_dup]
   cases hcErr : cSt.error with
   | some err =>
     rw [runFast_ifnonnull_branch' (by cases err <;> rfl)]
-    dsimp only [formatDisplayLine_prog, List.drop]
+    dsimp only [CalculatorEngineKt_formatDisplayLine_prog, List.drop]
     obtain ⟨errAddr, hStat, hArr⟩ := herrSwitch
     rw [runFast_getStatic_when1 resolveProg (d' + 1) subFuel _ 10 10 errAddr hStat]
     rw [runFast_swap, runFast_errOrdinal]
@@ -425,13 +508,13 @@ theorem formatDisplayLine_equiv (resolveProg : String → Option (List JvmInstr)
         hArr (by decide) (by decide)]
       have hi0 : (#[1, 2] : Array UInt32)[UInt32.toNat 0] = 1 := rfl
       rw [hi0, runFast_tableswitch]
-      have ht : Jvm.tableswitchTarget 1 (-1) [19, 40, 15, 17] 40 = 15 := rfl
+      have ht : Jvm.tableswitchTarget 1 (-1) [19, 48, 15, 17] 48 = 15 := rfl
       dsimp only; rw [ht]
-      dsimp only [formatDisplayLine_prog, List.drop, formatDisplayLineModel]
+      dsimp only [CalculatorEngineKt_formatDisplayLine_prog, List.drop, formatDisplayLineModel]
       rw [hcErr]
       dsimp only
       rw [runFast_ldcStr, runFast_goto]
-      dsimp only [formatDisplayLine_prog, List.drop]
+      dsimp only [CalculatorEngineKt_formatDisplayLine_prog, List.drop]
       rw [runFast_areturn]
       exact exists_run_done' rfl
     | overflow =>
@@ -439,22 +522,22 @@ theorem formatDisplayLine_equiv (resolveProg : String → Option (List JvmInstr)
         hArr (by decide) (by decide)]
       have hi1 : (#[1, 2] : Array UInt32)[UInt32.toNat 1] = 2 := rfl
       rw [hi1, runFast_tableswitch]
-      have ht : Jvm.tableswitchTarget 2 (-1) [19, 40, 15, 17] 40 = 17 := rfl
+      have ht : Jvm.tableswitchTarget 2 (-1) [19, 48, 15, 17] 48 = 17 := rfl
       dsimp only; rw [ht]
-      dsimp only [formatDisplayLine_prog, List.drop, formatDisplayLineModel]
+      dsimp only [CalculatorEngineKt_formatDisplayLine_prog, List.drop, formatDisplayLineModel]
       rw [hcErr]
       dsimp only
       rw [runFast_ldcStr, runFast_goto]
-      dsimp only [formatDisplayLine_prog, List.drop]
+      dsimp only [CalculatorEngineKt_formatDisplayLine_prog, List.drop]
       rw [runFast_areturn]
       exact exists_run_done' rfl
   | none =>
     rw [runFast_ifnonnull_fallthrough', runFast_pop, runFast_iconst, runFast_goto]
-    dsimp only [formatDisplayLine_prog, List.drop]
+    dsimp only [CalculatorEngineKt_formatDisplayLine_prog, List.drop]
     rw [runFast_tableswitch]
-    have ht : Jvm.tableswitchTarget 4294967295 (-1) [19, 40, 15, 17] 40 = 19 := by decide
+    have ht : Jvm.tableswitchTarget 4294967295 (-1) [19, 48, 15, 17] 48 = 19 := by decide
     dsimp only; rw [ht]
-    dsimp only [formatDisplayLine_prog, List.drop]
+    dsimp only [CalculatorEngineKt_formatDisplayLine_prog, List.drop]
     rw [runFast_aload, hl0, runFast_getPendingOp, runFast_astore]
     have hl0' : (@setLocal CalcExt locs0 1
         (match cSt.pendingOp with | some o => .ext (.calcOp o) | none => .null)) 0 =
@@ -472,9 +555,9 @@ theorem formatDisplayLine_equiv (resolveProg : String → Option (List JvmInstr)
           (match cSt.pendingOperand with | some v => .boxedLong v.toUInt64 | none => .null)) 0 =
           .ext (.calcState cSt) := rfl
       rw [runFast_aload, hl1, runFast_ifnull_branch]
-      dsimp only [formatDisplayLine_prog, List.drop]
+      dsimp only [CalculatorEngineKt_formatDisplayLine_prog, List.drop]
       rw [runFast_aload, hl0'', runFast_getDisplayValue, runFast_stringValueOfJ, runFast_goto]
-      dsimp only [formatDisplayLine_prog, List.drop]
+      dsimp only [CalculatorEngineKt_formatDisplayLine_prog, List.drop]
       rw [runFast_areturn]
       cases cSt.pendingOperand <;> exact exists_run_done' rfl
     | some op =>
@@ -491,9 +574,9 @@ theorem formatDisplayLine_equiv (resolveProg : String → Option (List JvmInstr)
         rw [hl2]
         dsimp only
         rw [runFast_ifnull_branch]
-        dsimp only [formatDisplayLine_prog, List.drop]
+        dsimp only [CalculatorEngineKt_formatDisplayLine_prog, List.drop]
         rw [runFast_aload, hl0'', runFast_getDisplayValue, runFast_stringValueOfJ, runFast_goto]
-        dsimp only [formatDisplayLine_prog, List.drop]
+        dsimp only [CalculatorEngineKt_formatDisplayLine_prog, List.drop]
         rw [runFast_areturn]
         exact exists_run_done' rfl
       | some lhs =>
@@ -506,11 +589,24 @@ theorem formatDisplayLine_equiv (resolveProg : String → Option (List JvmInstr)
         rw [hl2]
         dsimp only
         rw [runFast_ifnull_fallthrough (by rfl)]
-        rw [runFast_aload, hl2, runFast_aload, hl1', runFast_getSymbol,
-          runFast_aload, hl0'', runFast_getDisplayValue, runFast_makeConcat_fmt, runFast_goto]
-        dsimp only [formatDisplayLine_prog, List.drop]
-        rw [runFast_areturn]
-        exact exists_run_done' rfl
+        rw [runFast_aload, hl0'', runFast_getEnteringNewNumber]
+        cases hEnt : cSt.enteringNewNumber with
+        | true =>
+          -- No second operand typed yet: `lhs op`.
+          rw [runFast_ifeq_nonzero]
+          rw [runFast_aload, hl2, runFast_aload, hl1', runFast_getSymbol, runFast_makeConcat_fmtPending,
+            runFast_goto]
+          dsimp only [CalculatorEngineKt_formatDisplayLine_prog, List.drop]
+          rw [runFast_areturn]
+          exact exists_run_done' rfl
+        | false =>
+          rw [runFast_ifeq_zero]
+          dsimp only [CalculatorEngineKt_formatDisplayLine_prog, List.drop]
+          rw [runFast_aload, hl2, runFast_aload, hl1', runFast_getSymbol,
+            runFast_aload, hl0'', runFast_getDisplayValue, runFast_makeConcat_fmt, runFast_goto]
+          dsimp only [CalculatorEngineKt_formatDisplayLine_prog, List.drop]
+          rw [runFast_areturn]
+          exact exists_run_done' rfl
 
 /-! ### `mapTerminalKey` Proof -/
 
@@ -603,10 +699,10 @@ private theorem mapKey_finish_miss (r : String → Option (List JvmInstr)) (d su
     {lit : String} {hitPc : Nat} {rest : List JvmInstr} {key : String}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap CalcExt} {hp : CalcHeap}
     (hl1 : locs 1 = .str key) (hne : key ≠ lit)
-    (hdrop : mapTerminalKey_prog.drop t =
+    (hdrop : CalculatorEngineKt_mapTerminalKey_prog.drop t =
       .aload 1 :: .ldcStr lit :: .invokevirtual "java/lang/String" "equals" "(Ljava/lang/Object;)Z" ::
         .ifne hitPc :: .goto 201 :: rest) :
-    Jvm.runJvmResFast (mkCalcHooks r (d + 1) subFuel) (k + 8) mapTerminalKey_prog t (mapTerminalKey_prog.drop t)
+    Jvm.runJvmResFast (mkCalcHooks r (d + 1) subFuel) (k + 8) CalculatorEngineKt_mapTerminalKey_prog t (CalculatorEngineKt_mapTerminalKey_prog.drop t)
         ⟨t, [], locs, jh, hp⟩ =
       some (.null, ⟨202, [.null], locs, jh, hp⟩) := by
   rw [hdrop]
@@ -615,7 +711,7 @@ private theorem mapKey_finish_miss (r : String → Option (List JvmInstr)) (d su
   rw [hbeq]
   simp only [Bool.false_eq_true, ↓reduceIte]
   rw [runFast_ifne_fallthrough, runFast_goto]
-  dsimp only [mapTerminalKey_prog, List.drop]
+  dsimp only [CalculatorEngineKt_mapTerminalKey_prog, List.drop]
   rw [runFast_aconstNull, runFast_areturn]
 
 private def mapKeyCases : List (Int32 × Nat) :=
@@ -626,7 +722,7 @@ private def mapKeyCases : List (Int32 × Nat) :=
 private def ValidMissBucket (key : String) (t : Nat) : Prop :=
   t = 201 ∨
   ∃ lit hitPc rest,
-    mapTerminalKey_prog.drop t =
+    CalculatorEngineKt_mapTerminalKey_prog.drop t =
       .aload 1 :: .ldcStr lit :: .invokevirtual "java/lang/String" "equals" "(Ljava/lang/Object;)Z" ::
         .ifne hitPc :: .goto 201 :: rest ∧
     key ≠ lit
@@ -740,18 +836,18 @@ private theorem mapKey_hit_digit (r : String → Option (List JvmInstr)) (d subF
     (locs : Nat → JvmVal) (jh : Jvm.JvmHeap CalcExt) (hp : CalcHeap)
     (hl1 : locs 1 = .str lit)
     (hhash : Jvm.lookupswitchTarget (javaStringHashCode lit) mapKeyCases 201 = t)
-    (hdrop1 : mapTerminalKey_prog.drop t =
+    (hdrop1 : CalculatorEngineKt_mapTerminalKey_prog.drop t =
       .aload 1 :: .ldcStr lit :: .invokevirtual "java/lang/String" "equals" "(Ljava/lang/Object;)Z" ::
         .ifne hitPc :: .goto 201 :: rest1)
-    (hdrop2 : mapTerminalKey_prog.drop hitPc =
+    (hdrop2 : CalculatorEngineKt_mapTerminalKey_prog.drop hitPc =
       .newClass "com/alexvanyo/composelife/mosaiccalculator/CalculatorKey$Digit" ::
       .dup :: .iconst dig ::
       .invokespecial "com/alexvanyo/composelife/mosaiccalculator/CalculatorKey$Digit" "<init>" "(I)V" ::
       .checkcast "com/alexvanyo/composelife/mosaiccalculator/CalculatorKey" ::
       .goto 202 :: rest2) :
-    Jvm.runJvmResFast (mkCalcHooks r (d + 1) subFuel) (k + 12) mapTerminalKey_prog
+    Jvm.runJvmResFast (mkCalcHooks r (d + 1) subFuel) (k + 12) CalculatorEngineKt_mapTerminalKey_prog
         (Jvm.lookupswitchTarget (javaStringHashCode lit) mapKeyCases 201)
-        (mapTerminalKey_prog.drop (Jvm.lookupswitchTarget (javaStringHashCode lit) mapKeyCases 201))
+        (CalculatorEngineKt_mapTerminalKey_prog.drop (Jvm.lookupswitchTarget (javaStringHashCode lit) mapKeyCases 201))
         ⟨Jvm.lookupswitchTarget (javaStringHashCode lit) mapKeyCases 201, [], locs, jh, hp⟩ =
       some (.ext (.calcKey (.digit dig)), ⟨202, [.ext (.calcKey (.digit dig))], locs, jh, hp⟩) := by
   rw [hhash, hdrop1]
@@ -763,7 +859,7 @@ private theorem mapKey_hit_digit (r : String → Option (List JvmInstr)) (d subF
   rw [runFast_newClass r d subFuel _ _ _ (by decide), runFast_dup, runFast_iconst, runFast_digitInit]
   rw [runFast_checkCast_calcKey r d subFuel]
   rw [runFast_goto]
-  dsimp only [mapTerminalKey_prog, List.drop]
+  dsimp only [CalculatorEngineKt_mapTerminalKey_prog, List.drop]
   rw [runFast_areturn]
 
 private theorem mapKey_hit_op (r : String → Option (List JvmInstr)) (d subFuel k : Nat)
@@ -775,10 +871,10 @@ private theorem mapKey_hit_op (r : String → Option (List JvmInstr)) (d subFuel
         "com/alexvanyo/composelife/mosaiccalculator/CalculatorOp" fld
         "Lcom/alexvanyo/composelife/mosaiccalculator/CalculatorOp;" = some (.ext (.calcOp op)))
     (hhash : Jvm.lookupswitchTarget (javaStringHashCode lit) mapKeyCases 201 = t)
-    (hdrop1 : mapTerminalKey_prog.drop t =
+    (hdrop1 : CalculatorEngineKt_mapTerminalKey_prog.drop t =
       .aload 1 :: .ldcStr lit :: .invokevirtual "java/lang/String" "equals" "(Ljava/lang/Object;)Z" ::
         .ifne hitPc :: .goto 201 :: rest1)
-    (hdrop2 : mapTerminalKey_prog.drop hitPc =
+    (hdrop2 : CalculatorEngineKt_mapTerminalKey_prog.drop hitPc =
       .newClass "com/alexvanyo/composelife/mosaiccalculator/CalculatorKey$Op" ::
       .dup ::
       .getstatic "com/alexvanyo/composelife/mosaiccalculator/CalculatorOp" fld
@@ -787,9 +883,9 @@ private theorem mapKey_hit_op (r : String → Option (List JvmInstr)) (d subFuel
         "(Lcom/alexvanyo/composelife/mosaiccalculator/CalculatorOp;)V" ::
       .checkcast "com/alexvanyo/composelife/mosaiccalculator/CalculatorKey" ::
       .goto 202 :: rest2) :
-    Jvm.runJvmResFast (mkCalcHooks r (d + 1) subFuel) (k + 12) mapTerminalKey_prog
+    Jvm.runJvmResFast (mkCalcHooks r (d + 1) subFuel) (k + 12) CalculatorEngineKt_mapTerminalKey_prog
         (Jvm.lookupswitchTarget (javaStringHashCode lit) mapKeyCases 201)
-        (mapTerminalKey_prog.drop (Jvm.lookupswitchTarget (javaStringHashCode lit) mapKeyCases 201))
+        (CalculatorEngineKt_mapTerminalKey_prog.drop (Jvm.lookupswitchTarget (javaStringHashCode lit) mapKeyCases 201))
         ⟨Jvm.lookupswitchTarget (javaStringHashCode lit) mapKeyCases 201, [], locs, jh, hp⟩ =
       some (.ext (.calcKey (.op op)), ⟨202, [.ext (.calcKey (.op op))], locs, jh, hp⟩) := by
   rw [hhash, hdrop1]
@@ -803,7 +899,7 @@ private theorem mapKey_hit_op (r : String → Option (List JvmInstr)) (d subFuel
   rw [runFast_opInit]
   rw [runFast_checkCast_calcKey r d subFuel]
   rw [runFast_goto]
-  dsimp only [mapTerminalKey_prog, List.drop]
+  dsimp only [CalculatorEngineKt_mapTerminalKey_prog, List.drop]
   rw [runFast_areturn]
 
 private theorem mapKey_hit_singleton (r : String → Option (List JvmInstr)) (d subFuel k : Nat)
@@ -814,16 +910,16 @@ private theorem mapKey_hit_singleton (r : String → Option (List JvmInstr)) (d 
     (hres : ∀ pc stk, (mkCalcHooks r (d + 1) subFuel).resolveStatic ⟨pc, stk, locs, jh, hp⟩
         cls "INSTANCE" desc = some (.ext (.calcKey ck)))
     (hhash : Jvm.lookupswitchTarget (javaStringHashCode lit) mapKeyCases 201 = t)
-    (hdrop1 : mapTerminalKey_prog.drop t =
+    (hdrop1 : CalculatorEngineKt_mapTerminalKey_prog.drop t =
       .aload 1 :: .ldcStr lit :: .invokevirtual "java/lang/String" "equals" "(Ljava/lang/Object;)Z" ::
         .ifne hitPc :: .goto 201 :: rest1)
-    (hdrop2 : mapTerminalKey_prog.drop hitPc =
+    (hdrop2 : CalculatorEngineKt_mapTerminalKey_prog.drop hitPc =
       .getstatic cls "INSTANCE" desc ::
       .checkcast "com/alexvanyo/composelife/mosaiccalculator/CalculatorKey" ::
       .goto 202 :: rest2) :
-    Jvm.runJvmResFast (mkCalcHooks r (d + 1) subFuel) (k + 10) mapTerminalKey_prog
+    Jvm.runJvmResFast (mkCalcHooks r (d + 1) subFuel) (k + 10) CalculatorEngineKt_mapTerminalKey_prog
         (Jvm.lookupswitchTarget (javaStringHashCode lit) mapKeyCases 201)
-        (mapTerminalKey_prog.drop (Jvm.lookupswitchTarget (javaStringHashCode lit) mapKeyCases 201))
+        (CalculatorEngineKt_mapTerminalKey_prog.drop (Jvm.lookupswitchTarget (javaStringHashCode lit) mapKeyCases 201))
         ⟨Jvm.lookupswitchTarget (javaStringHashCode lit) mapKeyCases 201, [], locs, jh, hp⟩ =
       some (.ext (.calcKey ck), ⟨202, [.ext (.calcKey ck)], locs, jh, hp⟩) := by
   rw [hhash, hdrop1]
@@ -835,7 +931,7 @@ private theorem mapKey_hit_singleton (r : String → Option (List JvmInstr)) (d 
   rw [runFast_getStatic_cleanCalc r d subFuel _ _ _ hclean (hres _ _)]
   rw [runFast_checkCast_calcKey r d subFuel]
   rw [runFast_goto]
-  dsimp only [mapTerminalKey_prog, List.drop]
+  dsimp only [CalculatorEngineKt_mapTerminalKey_prog, List.drop]
   rw [runFast_areturn]
 
 /-- Bytecode equivalence theorem for `CalculatorEngineKt.mapTerminalKey`. -/
@@ -844,13 +940,13 @@ theorem mapTerminalKey_equiv (resolveProg : String → Option (List JvmInstr))
     (jh : Jvm.JvmHeap CalcExt)
     (hstat : ∀ cls fld,
       cls ≠ "com/alexvanyo/composelife/mosaiccalculator/CalculatorEngineKt$WhenMappings" →
-      cls ≠ "ComposableSingletons$CalculatorScreenKt" →
+      cls ≠ "com/alexvanyo/composelife/mosaiccalculator/ComposableSingletons$CalculatorScreenKt" →
       jh.getStatic? cls fld = none) :
     let expected : JvmVal := match mapTerminalKeyModel key with
       | some k => .ext (.calcKey k)
       | none => .null
     ∃ endSt,
-      Jvm.runJvmRes (mkCalcHooks resolveProg d subFuel) fuel mapTerminalKey_prog
+      Jvm.runJvmRes (mkCalcHooks resolveProg d subFuel) fuel CalculatorEngineKt_mapTerminalKey_prog
           (initCalcJvmState [(0, .str key)] hp jh) =
         some (expected, endSt) ∧
       endSt.jvmHeap = jh ∧ endSt.heap = hp := by
@@ -861,19 +957,19 @@ theorem mapTerminalKey_equiv (resolveProg : String → Option (List JvmInstr))
     Jvm.runJvmRes_of_runJvmResFast0 _ _ _ _ _ rfl ?_, rfl, rfl⟩
   dsimp only [initCalcJvmState, Jvm.initJvmState, List.foldl]
   have hl0 : (@setLocal CalcExt (fun _ => .i32 0) 0 (.str key)) 0 = .str key := rfl
-  dsimp only [mapTerminalKey_prog]
+  dsimp only [CalculatorEngineKt_mapTerminalKey_prog]
   rw [runFast_aload, hl0, runFast_ldcStr, runFast_checkNotNullParam' resolveProg d' subFuel _ _ _ rfl]
   rw [runFast_aload, hl0, runFast_astore]
   let locs1 : Nat → JvmVal :=
     @setLocal CalcExt (@setLocal CalcExt (fun _ => .i32 0) 0 (.str key)) 1 (.str key)
   have hl1 : locs1 1 = .str key := rfl
-  change Jvm.runJvmResFast (mkCalcHooks resolveProg (d' + 1) subFuel) (k + 20) mapTerminalKey_prog
-      5 (mapTerminalKey_prog.drop 5) ⟨5, [], locs1, jh, hp⟩ = _
-  dsimp only [mapTerminalKey_prog, List.drop]
+  change Jvm.runJvmResFast (mkCalcHooks resolveProg (d' + 1) subFuel) (k + 20) CalculatorEngineKt_mapTerminalKey_prog
+      5 (CalculatorEngineKt_mapTerminalKey_prog.drop 5) ⟨5, [], locs1, jh, hp⟩ = _
+  dsimp only [CalculatorEngineKt_mapTerminalKey_prog, List.drop]
   rw [runFast_aload, hl1, runFast_stringHashCode, runFast_lookupswitch]
-  change Jvm.runJvmResFast (mkCalcHooks resolveProg (d' + 1) subFuel) (k + 17) mapTerminalKey_prog
+  change Jvm.runJvmResFast (mkCalcHooks resolveProg (d' + 1) subFuel) (k + 17) CalculatorEngineKt_mapTerminalKey_prog
       (Jvm.lookupswitchTarget (javaStringHashCode key) mapKeyCases 201)
-      (mapTerminalKey_prog.drop (Jvm.lookupswitchTarget (javaStringHashCode key) mapKeyCases 201))
+      (CalculatorEngineKt_mapTerminalKey_prog.drop (Jvm.lookupswitchTarget (javaStringHashCode key) mapKeyCases 201))
       ⟨Jvm.lookupswitchTarget (javaStringHashCode key) mapKeyCases 201, [], locs1, jh, hp⟩ =
     some (expected, ⟨202, [expected], locs1, jh, hp⟩)
   by_cases h0 : key = "0"
@@ -965,7 +1061,7 @@ theorem mapTerminalKey_equiv (resolveProg : String → Option (List JvmInstr))
     hEq hEnt hc hC hEsc hBs
   rcases hmb with ht | ⟨lit, hitPc, rest, hdrop, hne⟩
   · rw [ht]
-    dsimp only [mapTerminalKey_prog, List.drop]
+    dsimp only [CalculatorEngineKt_mapTerminalKey_prog, List.drop]
     rw [runFast_aconstNull, runFast_areturn]
   · exact mapKey_finish_miss resolveProg d' subFuel (k + 9) _ hl1 hne hdrop
 

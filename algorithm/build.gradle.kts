@@ -47,7 +47,22 @@ composeCompiler {
 lean {
     target = "Algorithm:static"
     packageName = "com.alexvanyo.composelife.algorithm"
-    kotlinBytecodeClassPaths.add("com/alexvanyo/composelife/algorithm/BitComputationKt.class")
+    kotlinBytecodeClassPaths.addAll(
+        "com/alexvanyo/composelife/algorithm/BitComputationKt.class",
+        "com/alexvanyo/composelife/algorithm/HashLifeComputationKt.class",
+        "com/alexvanyo/composelife/algorithm/HashLifeComputationKt\$computeLevel4NextGeneration\$1.class",
+        "com/alexvanyo/composelife/algorithm/HashLifeComputationKt\$computeLevel4NextGeneration\$2.class",
+        "com/alexvanyo/composelife/algorithm/MacroCellCoordinatesKt.class",
+        "com/alexvanyo/composelife/algorithm/GameOfLifeStepKt.class",
+        "com/alexvanyo/composelife/model/CellWindow.class",
+    )
+    // Function-reference constructors (`::computeNextGenerationPureKotlin`) load `BitComputationKt::class` with an
+    // `ldc` class constant, which the lifted instruction subset does not model. They are not verified; the
+    // `<clinit>` that creates each singleton instance is, with `mkAlgKotlinHooks` modelling the constructed object.
+    kotlinBytecodeUnliftedMethods.addAll(
+        "com/alexvanyo/composelife/algorithm/HashLifeComputationKt\$computeLevel4NextGeneration\$1.<init>",
+        "com/alexvanyo/composelife/algorithm/HashLifeComputationKt\$computeLevel4NextGeneration\$2.<init>",
+    )
     entries {
         register("algorithm") {
             leanFile = "Algorithm/HashLife.lean"
