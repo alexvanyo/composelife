@@ -23,6 +23,14 @@ import proofs.JvmEquiv.Batch3a
 namespace Algorithm.JvmVerification
 open Algorithm.JvmBytecode
 
+private theorem jvm_runJvmResFast_eq (f : Nat) (prog : List JvmInstr) (pc : Nat)
+    (instrs : List JvmInstr) (st : JvmState) :
+    Jvm.runJvmResFast algHooks f prog pc instrs st = runJvmResFast f prog pc instrs st := rfl
+
+private theorem jvm_runJvmValFast_eq (f : Nat) (prog : List JvmInstr) (pc : Nat)
+    (instrs : List JvmInstr) (st : JvmState) :
+    Jvm.runJvmValFast algHooks f prog pc instrs st = runJvmValFast f prog pc instrs st := rfl
+
 private theorem u8_sext_inj (a b : UInt8) :
     (a.toInt8.toInt32.toUInt32 = b.toInt8.toInt32.toUInt32) ↔ a = b := by
   constructor
@@ -186,7 +194,12 @@ private theorem probeLevel4_aux (m : Nat) :
             flat_step_blk f_Algorithm_probeLevel4_prog
             (conv => lhs; simp only [h0, h1, h2, h4, h6, h8, h10, h12]; dsimp only [getArenaU32]; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
             flat_step_blk f_Algorithm_probeLevel4_prog
-            (conv => lhs; dsimp only [getArenaU32]; simp only [h0, h1, h2, h4, h6, h8, h10, h12]; dsimp only [Jvm.JvmVal.asI32]; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
+            (conv => lhs; dsimp only [getArenaU32]; simp only [h0, h1, h2, h4, h6, h8, h10, h12])
+            (conv => lhs; arg 1; jvm_whnf_blk)
+            (conv => lhs; try rw [afterBlockChunk_cont]; try rw [afterBlockChunk_jump]; try rw [afterBlockChunk_done])
+            (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
+            (conv => lhs; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq])
+            flat_step_blk f_Algorithm_probeLevel4_prog
             try simp only [Nat.succ_eq_add_one]
             try simp only [nat_add_eq]
             simp only [Nat.add_assoc]
@@ -344,7 +357,12 @@ private theorem probeCellNode_aux (m : Nat) :
             flat_step_blk f_Algorithm_probeCellNode_prog
             (conv => lhs; simp only [h0, h1, h2, h3, h4, h5, h6, h7, h9]; dsimp only [getArenaU32]; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
             flat_step_blk f_Algorithm_probeCellNode_prog
-            (conv => lhs; dsimp only [getArenaU32]; simp only [h0, h1, h2, h3, h4, h5, h6, h7, h9]; dsimp only [Jvm.JvmVal.asI32]; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
+            (conv => lhs; dsimp only [getArenaU32]; simp only [h0, h1, h2, h3, h4, h5, h6, h7, h9])
+            (conv => lhs; arg 1; jvm_whnf_blk)
+            (conv => lhs; try rw [afterBlockChunk_cont]; try rw [afterBlockChunk_jump]; try rw [afterBlockChunk_done])
+            (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
+            (conv => lhs; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq])
+            flat_step_blk f_Algorithm_probeCellNode_prog
             try simp only [Nat.succ_eq_add_one]
             try simp only [nat_add_eq]
             simp only [Nat.add_assoc]
@@ -870,10 +888,22 @@ private theorem stepCellSerialLoop_aux (m : Nat) :
                     (conv => lhs; arg 2; rw [hdrop249])
                     (conv => lhs; arg 2; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
                     flat_step_blk f_Algorithm_FlatHashLifeArena_stepCellSerialLoop_prog
-                    (conv => lhs; arg 2; arg 5; simp only [h0, h1, h2, h3, h15])
+                    (conv => lhs; arg 2; simp only [h0, h1, h2, h3, h15])
+                    (conv => lhs; arg 2; arg 1; jvm_whnf_blk)
+                    (conv => lhs; arg 2; try rw [afterResBlockChunk_cont]; try rw [afterResBlockChunk_jump]; try rw [afterResBlockChunk_done])
                     (conv => lhs; arg 2; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
+                    (conv => lhs; arg 2; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq])
                     flat_step_blk f_Algorithm_FlatHashLifeArena_stepCellSerialLoop_prog
-                    (conv => lhs; arg 2; arg 5; simp only [h0, h1, h2, h3, h15])
+                    iterate 3 (
+                      (conv => lhs; arg 2; try simp only [h0, h1, h2, h3, h15])
+                      (conv => lhs; arg 2; try (arg 1; jvm_whnf_blk))
+                      (conv => lhs; arg 2; try rw [afterResBlockChunk_cont]; try rw [afterResBlockChunk_jump]; try rw [afterResBlockChunk_done])
+                      (conv => lhs; arg 2; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
+                      (conv => lhs; arg 2; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq])
+                      flat_step_blk f_Algorithm_FlatHashLifeArena_stepCellSerialLoop_prog)
+                    (conv => lhs; arg 2; try simp only [h0, h1, h2, h3, h15])
+                    (conv => lhs; arg 2; try (arg 1; jvm_whnf_blk))
+                    (conv => lhs; arg 2; try rw [afterResBlockChunk_cont]; try rw [afterResBlockChunk_jump]; try rw [afterResBlockChunk_done])
                     (conv => lhs; arg 2; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
                     (conv => lhs; arg 2; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq]; simp only [Nat.add_assoc])
                     rw [Nat.add_left_comm km ((m + 1) * 250), Nat.add_comm ((m + 1) * 250)]
@@ -896,83 +926,129 @@ private theorem stepCellSerialLoop_aux (m : Nat) :
                     intro km locs h0 h1 h2 h3 h16 h17 h18 h19 h21 h22 h23
                     (conv => lhs; arg 2; arg 5; simp only [h0, h1, h2, h3, h16, h17, h18, h19, h21, h22, h23]); (conv => lhs; arg 2; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
                     flat_step_blk f_Algorithm_FlatHashLifeArena_stepCellSerialLoop_prog
+                    (conv => lhs; arg 2; simp only [h1, h2])
+                    flat_step_blk f_Algorithm_FlatHashLifeArena_stepCellSerialLoop_prog
                     by_cases hlim : stackLimit ≤ sp
-                    · (conv => lhs; rw [ite_eq_left (by simp only [Jvm.JvmVal.asI32, h1, h2]; rw [compareUnsigned_sle']; exact decide_eq_true hlim)])
+                    · (conv => lhs; rw [ite_eq_left (by rw [compareUnsigned_sle']; exact decide_eq_true hlim)])
                       (conv => lhs; arg 2; arg 5; simp only [h0, h1, h2, h3])
                       (conv => lhs; arg 2; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
                       flat_step_blk f_Algorithm_FlatHashLifeArena_stepCellSerialLoop_prog
-                      (conv => lhs; arg 2; arg 5; simp only [h0, h1, h2, h3])
+                      (conv => lhs; arg 2; simp only [h0, h1, h2, h3])
+                      (conv => lhs; arg 2; try (arg 1; jvm_whnf_blk))
+                      (conv => lhs; arg 2; try rw [afterResBlockChunk_cont]; try rw [afterResBlockChunk_jump]; try rw [afterResBlockChunk_done])
                       (conv => lhs; arg 2; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
+                      (conv => lhs; arg 2; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq])
+                      flat_step_blk f_Algorithm_FlatHashLifeArena_stepCellSerialLoop_prog
+                      (conv => lhs; arg 2; simp only [h0, h2])
                       (conv => lhs; arg 2; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq]; simp only [Nat.add_assoc])
                       rw [Nat.add_left_comm km ((m + 1) * 250), Nat.add_comm ((m + 1) * 250)]
                       have hlims : sp ≥ stackLimit := hlim
                       (conv => rhs; simp only [hlims, ↓reduceIte])
                       exact ih _ a4 0 stackLimit (fuel - 1) hnext _
-                    · (conv => lhs; rw [ite_eq_right (by simp only [Jvm.JvmVal.asI32, h1, h2]; rw [compareUnsigned_sle', decide_eq_false hlim]; exact Bool.false_ne_true)])
+                    · (conv => lhs; rw [ite_eq_right (by rw [compareUnsigned_sle', decide_eq_false hlim]; exact Bool.false_ne_true)])
                       (conv => lhs; arg 2; arg 5; simp only [h0, h1, h2, h3, h16, h17, h18, h19, h21, h22, h23])
                       (conv => lhs; arg 2; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
                       flat_step_blk f_Algorithm_FlatHashLifeArena_stepCellSerialLoop_prog
+                      (conv => lhs; arg 2; simp only [h23])
+                      (conv => lhs; arg 2; dsimp only [evalResBranchInstrCons])
+                      (conv => lhs; rw [Jvm.evalResBranchInstrCons_ifne, jvm_runJvmResFast_eq, jvm_runJvmResFast_eq, option_map_ite])
                       have hlims : ¬ (sp ≥ stackLimit) := hlim
                       (conv => rhs; simp only [hlims, ↓reduceIte])
                       by_cases hrnw : r_nw = Algorithm.UNCOMPUTED
                       · have hrnwb : (r_nw == Algorithm.UNCOMPUTED) = true := beq_iff_eq.mpr hrnw
-                        (conv => lhs; rw [ite_eq_left (by simp only [Jvm.JvmVal.asI32, h23, hrnw]; simp)])
+                        (conv => lhs; rw [ite_eq_left (by simp only [hrnw]; decide)])
                         (conv => lhs; arg 2; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
+                        (conv => lhs; arg 2; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq])
                         flat_step_blk f_Algorithm_FlatHashLifeArena_stepCellSerialLoop_prog
-                        (conv => lhs; arg 2; arg 5; simp only [h0, h1, h2, h3, h16, h17, h18, h19])
-                        (conv => lhs; arg 2; norm_jvm_locals; jvm_whnf_run_args)
+                        (conv => lhs; arg 2; simp only [h0, h1, h2, h3, h16, h17, h18, h19])
+                        (conv => lhs; arg 2; try (arg 1; jvm_whnf_blk))
+                        (conv => lhs; arg 2; try rw [afterResBlockChunk_cont]; try rw [afterResBlockChunk_jump]; try rw [afterResBlockChunk_done])
+                        (conv => lhs; arg 2; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
+                        (conv => lhs; arg 2; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq])
+                        flat_step_blk f_Algorithm_FlatHashLifeArena_stepCellSerialLoop_prog
                         (conv => lhs; arg 2; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq]; simp only [Nat.add_assoc])
                         rw [Nat.add_left_comm km ((m + 1) * 250), Nat.add_comm ((m + 1) * 250)]
                         rw [fuel_split (C := 50) km ((m + 1) * 250) _ (by omega)]
                         (conv => rhs; simp only [hrnwb, ↓reduceIte])
-                        refine hpush _ q_nw _ h0 h1 h2 h3 (by simp only [setLocal]; rfl)
+                        (conv => lhs; arg 2; try simp only [h0])
+                        refine hpush _ q_nw _ ?_ ?_ ?_ ?_ ?_
+                        all_goals simp [setLocal, h0, h1, h2, h3]
                       · have hrnwb : (r_nw == Algorithm.UNCOMPUTED) = false := beq_false_of_ne hrnw
-                        (conv => lhs; rw [ite_eq_right (by simp only [Jvm.JvmVal.asI32, h23, hrnw]; simp)])
+                        (conv => lhs; rw [ite_eq_right (by simp only [hrnw]; decide)])
                         (conv => lhs; arg 2; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
+                        (conv => lhs; arg 2; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq])
                         flat_step_blk f_Algorithm_FlatHashLifeArena_stepCellSerialLoop_prog
+                        (conv => lhs; arg 2; simp only [h21])
+                        (conv => lhs; arg 2; dsimp only [evalResBranchInstrCons])
+                        (conv => lhs; rw [Jvm.evalResBranchInstrCons_if_icmpeq, jvm_runJvmResFast_eq, jvm_runJvmResFast_eq, option_map_ite])
                         by_cases hrne : r_ne = Algorithm.UNCOMPUTED
                         · have hrneb : (r_ne == Algorithm.UNCOMPUTED) = true := beq_iff_eq.mpr hrne
                           have hrnes : (r_ne == 4294967295) = true := by simpa [Algorithm.UNCOMPUTED] using hrneb
-                          (conv => lhs; rw [ite_eq_left (by simp only [Jvm.JvmVal.asI32, h21]; exact hrnes)])
+                          (conv => lhs; rw [ite_eq_left (by exact hrnes)])
                           (conv => lhs; arg 2; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
+                          (conv => lhs; arg 2; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq])
                           flat_step_blk f_Algorithm_FlatHashLifeArena_stepCellSerialLoop_prog
-                          (conv => lhs; arg 2; arg 5; simp only [h0, h1, h2, h3, h16, h17, h18, h19])
-                          (conv => lhs; arg 2; norm_jvm_locals; jvm_whnf_run_args)
+                          (conv => lhs; arg 2; simp only [h0, h1, h2, h3, h16, h17, h18, h19])
+                          (conv => lhs; arg 2; try (arg 1; jvm_whnf_blk))
+                          (conv => lhs; arg 2; try rw [afterResBlockChunk_cont]; try rw [afterResBlockChunk_jump]; try rw [afterResBlockChunk_done])
+                          (conv => lhs; arg 2; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
+                          (conv => lhs; arg 2; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq])
+                          flat_step_blk f_Algorithm_FlatHashLifeArena_stepCellSerialLoop_prog
                           (conv => lhs; arg 2; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq]; simp only [Nat.add_assoc])
                           rw [Nat.add_left_comm km ((m + 1) * 250), Nat.add_comm ((m + 1) * 250)]
                           rw [fuel_split (C := 50) km ((m + 1) * 250) _ (by omega)]
                           (conv => rhs; simp only [hrnwb, hrneb, Bool.false_eq_true, ↓reduceIte])
-                          refine hpush _ q_ne _ h0 h1 h2 h3 (by simp only [setLocal]; rfl)
+                          (conv => lhs; arg 2; try simp only [h0])
+                          refine hpush _ q_ne _ ?_ ?_ ?_ ?_ ?_
+                          all_goals simp [setLocal, h0, h1, h2, h3]
                         · have hrneb : (r_ne == Algorithm.UNCOMPUTED) = false := beq_false_of_ne hrne
                           have hrnes : (r_ne == 4294967295) = false := by simpa [Algorithm.UNCOMPUTED] using hrneb
-                          (conv => lhs; rw [ite_eq_right (by simp only [Jvm.JvmVal.asI32, h21, hrnes]; exact Bool.false_ne_true)])
+                          (conv => lhs; rw [ite_eq_right (by simp only [hrnes]; exact Bool.false_ne_true)])
                           (conv => lhs; arg 2; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
+                          (conv => lhs; arg 2; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq])
                           flat_step_blk f_Algorithm_FlatHashLifeArena_stepCellSerialLoop_prog
+                          (conv => lhs; arg 2; simp only [h22])
+                          (conv => lhs; arg 2; dsimp only [evalResBranchInstrCons])
+                          (conv => lhs; rw [Jvm.evalResBranchInstrCons_if_icmpeq, jvm_runJvmResFast_eq, jvm_runJvmResFast_eq, option_map_ite])
                           by_cases hrsw : r_sw = Algorithm.UNCOMPUTED
                           · have hrswb : (r_sw == Algorithm.UNCOMPUTED) = true := beq_iff_eq.mpr hrsw
                             have hrsws : (r_sw == 4294967295) = true := by simpa [Algorithm.UNCOMPUTED] using hrswb
-                            (conv => lhs; rw [ite_eq_left (by simp only [Jvm.JvmVal.asI32, h22]; exact hrsws)])
+                            (conv => lhs; rw [ite_eq_left (by exact hrsws)])
                             (conv => lhs; arg 2; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
+                            (conv => lhs; arg 2; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq])
                             flat_step_blk f_Algorithm_FlatHashLifeArena_stepCellSerialLoop_prog
-                            (conv => lhs; arg 2; arg 5; simp only [h0, h1, h2, h3, h16, h17, h18, h19])
-                            (conv => lhs; arg 2; norm_jvm_locals; jvm_whnf_run_args)
+                            (conv => lhs; arg 2; simp only [h0, h1, h2, h3, h16, h17, h18, h19])
+                            (conv => lhs; arg 2; try (arg 1; jvm_whnf_blk))
+                            (conv => lhs; arg 2; try rw [afterResBlockChunk_cont]; try rw [afterResBlockChunk_jump]; try rw [afterResBlockChunk_done])
+                            (conv => lhs; arg 2; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
+                            (conv => lhs; arg 2; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq])
+                            flat_step_blk f_Algorithm_FlatHashLifeArena_stepCellSerialLoop_prog
                             (conv => lhs; arg 2; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq]; simp only [Nat.add_assoc])
                             rw [Nat.add_left_comm km ((m + 1) * 250), Nat.add_comm ((m + 1) * 250)]
                             rw [fuel_split (C := 50) km ((m + 1) * 250) _ (by omega)]
                             (conv => rhs; simp only [hrnwb, hrneb, hrswb, Bool.false_eq_true, ↓reduceIte])
-                            refine hpush _ q_sw _ h0 h1 h2 h3 (by simp only [setLocal]; rfl)
+                            (conv => lhs; arg 2; try simp only [h0])
+                            refine hpush _ q_sw _ ?_ ?_ ?_ ?_ ?_
+                            all_goals simp [setLocal, h0, h1, h2, h3]
                           · have hrswb : (r_sw == Algorithm.UNCOMPUTED) = false := beq_false_of_ne hrsw
                             have hrsws : (r_sw == 4294967295) = false := by simpa [Algorithm.UNCOMPUTED] using hrswb
-                            (conv => lhs; rw [ite_eq_right (by simp only [Jvm.JvmVal.asI32, h22, hrsws]; exact Bool.false_ne_true)])
+                            (conv => lhs; rw [ite_eq_right (by simp only [hrsws]; exact Bool.false_ne_true)])
                             (conv => lhs; arg 2; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
+                            (conv => lhs; arg 2; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq])
                             flat_step_blk f_Algorithm_FlatHashLifeArena_stepCellSerialLoop_prog
-                            (conv => lhs; arg 2; arg 5; simp only [h0, h1, h2, h3, h16, h17, h18, h19])
-                            (conv => lhs; arg 2; norm_jvm_locals; jvm_whnf_run_args)
+                            (conv => lhs; arg 2; simp only [h0, h1, h2, h3, h16, h17, h18, h19])
+                            (conv => lhs; arg 2; try (arg 1; jvm_whnf_blk))
+                            (conv => lhs; arg 2; try rw [afterResBlockChunk_cont]; try rw [afterResBlockChunk_jump]; try rw [afterResBlockChunk_done])
+                            (conv => lhs; arg 2; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
+                            (conv => lhs; arg 2; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq])
+                            flat_step_blk f_Algorithm_FlatHashLifeArena_stepCellSerialLoop_prog
                             (conv => lhs; arg 2; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq]; simp only [Nat.add_assoc])
                             rw [Nat.add_left_comm km ((m + 1) * 250), Nat.add_comm ((m + 1) * 250)]
                             rw [fuel_split (C := 50) km ((m + 1) * 250) _ (by omega)]
                             (conv => rhs; simp only [hrnwb, hrneb, hrswb, Bool.false_eq_true, ↓reduceIte])
-                            refine hpush _ q_se _ h0 h1 h2 h3 (by simp only [setLocal]; rfl)
+                            (conv => lhs; arg 2; try simp only [h0])
+                            refine hpush _ q_se _ ?_ ?_ ?_ ?_ ?_
+                            all_goals simp [setLocal, h0, h1, h2, h3]
                   by_cases hrnw : r_nw = Algorithm.UNCOMPUTED
                   · have hrnwb : (r_nw == Algorithm.UNCOMPUTED) = true := beq_iff_eq.mpr hrnw
                     have hrnws : (r_nw == 4294967295) = true := by simpa [Algorithm.UNCOMPUTED] using hrnwb
@@ -1183,6 +1259,81 @@ elab "flat_step_to" tgtPc:num : tactic => do
     else
       break
 
+elab "flat_step_with" "[" hs:Lean.Parser.Tactic.simpLemma,* "]" : tactic => do
+  for _ in [:8] do
+    if (← Lean.Elab.Tactic.getUnsolvedGoals).isEmpty then break
+    let tgt := (← Lean.Elab.Tactic.getMainTarget).consumeMData
+    let some (_, lhs, _) := tgt.eq? | break
+    let lhs := lhs.consumeMData
+    if !lhs.isAppOfArity ``afterBlockChunk 2 &&
+       !lhs.isAppOfArity ``evalBranchInstrCons 6 &&
+       !lhs.isAppOfArity ``runJvmValFast 5 then
+      break
+    if lhs.isAppOfArity ``afterBlockChunk 2 then
+      Lean.Elab.Tactic.evalTactic (← `(tactic| (
+        (conv => lhs; arg 1; try simp only [$hs,*])
+        (conv => lhs; arg 1; jvm_whnf_blk)
+        (conv => lhs; try rw [afterBlockChunk_cont]; try rw [afterBlockChunk_jump]; try rw [afterBlockChunk_done])
+        (conv => lhs; norm_jvm_locals; jvm_whnf_run_args))))
+    else if lhs.isAppOfArity ``evalBranchInstrCons 6 then
+      let instr := lhs.getArg! 3
+      Lean.Elab.Tactic.evalTactic (← `(tactic| (conv => lhs; arg 6; try simp only [$hs,*])))
+      Lean.Elab.Tactic.evalTactic (← `(tactic| (conv => lhs; dsimp only [evalBranchInstrCons])))
+      rwEvalBranchByInstr false instr
+      Lean.Elab.Tactic.evalTactic (← `(tactic| (conv => lhs; try simp only [jvm_runJvmValFast_eq]; norm_jvm_locals; jvm_whnf_run_args)))
+    else if lhs.isAppOfArity ``runJvmValFast 5 then
+      Lean.Elab.Tactic.evalTactic (← `(tactic| (
+        (conv => lhs; arg 5; try simp only [$hs,*])
+        (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
+        (conv => lhs; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq])
+        flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog)))
+    else
+      break
+    let tgt3 := (← Lean.Elab.Tactic.getMainTarget).consumeMData
+    if tgt3 == tgt then break
+
+elab "flat_step_to_with" tgtPc:num "[" hs:Lean.Parser.Tactic.simpLemma,* "]" : tactic => do
+  for _ in [:8] do
+    if (← Lean.Elab.Tactic.getUnsolvedGoals).isEmpty then break
+    let tgt := (← Lean.Elab.Tactic.getMainTarget).consumeMData
+    let some (_, lhs, _) := tgt.eq? | break
+    let lhs := lhs.consumeMData
+    if lhs.isAppOfArity ``runJvmValFast 5 then
+      let pcExpr ← Lean.Meta.whnf (lhs.getArg! 2)
+      if pcExpr.rawNatLit? == some tgtPc.getNat then
+        Lean.Elab.Tactic.evalTactic (← `(tactic| (conv => lhs; arg 5; try simp only [$hs,*])))
+        break
+      Lean.Elab.Tactic.evalTactic (← `(tactic| (
+        (conv => lhs; arg 5; try simp only [$hs,*])
+        (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
+        (conv => lhs; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq])
+        flat_step_to $tgtPc)))
+    let tgt2 := (← Lean.Elab.Tactic.getMainTarget).consumeMData
+    let some (_, lhs2, _) := tgt2.eq? | break
+    let lhs2 := lhs2.consumeMData
+    if lhs2.isAppOfArity ``afterBlockChunk 2 then
+      Lean.Elab.Tactic.evalTactic (← `(tactic| (
+        (conv => lhs; arg 1; try simp only [$hs,*])
+        (conv => lhs; arg 1; jvm_whnf_blk)
+        (conv => lhs; try rw [afterBlockChunk_cont]; try rw [afterBlockChunk_jump]; try rw [afterBlockChunk_done])
+        (conv => lhs; norm_jvm_locals; jvm_whnf_run_args))))
+    else if lhs2.isAppOfArity ``evalBranchInstrCons 6 then
+      let instr := lhs2.getArg! 3
+      Lean.Elab.Tactic.evalTactic (← `(tactic| (conv => lhs; arg 6; try simp only [$hs,*])))
+      Lean.Elab.Tactic.evalTactic (← `(tactic| (conv => lhs; dsimp only [evalBranchInstrCons])))
+      rwEvalBranchByInstr false instr
+      Lean.Elab.Tactic.evalTactic (← `(tactic| (conv => lhs; try simp only [jvm_runJvmValFast_eq]; norm_jvm_locals; jvm_whnf_run_args)))
+    else if lhs2.isAppOfArity ``runJvmValFast 5 then
+      let pcExpr ← Lean.Meta.whnf (lhs2.getArg! 2)
+      if pcExpr.rawNatLit? == some tgtPc.getNat then
+        Lean.Elab.Tactic.evalTactic (← `(tactic| (conv => lhs; arg 5; try simp only [$hs,*])))
+        break
+      Lean.Elab.Tactic.evalTactic (← `(tactic| (conv => lhs; arg 5; try simp only [$hs,*])))
+      let tgt2b := (← Lean.Elab.Tactic.getMainTarget).consumeMData
+      if tgt2b == tgt then break
+    else
+      break
+
 private theorem int64_sub_toUInt32 (a b : Int64) :
     (a - b).toUInt64.toUInt32 = a.toUInt64.toUInt32 - b.toUInt64.toUInt32 := by
   apply UInt32.eq_of_toBitVec_eq; bv_check "../lrat/JvmEquiv._private.proofs.JvmEquiv.0.Algorithm.JvmVerification.int64_sub_toUInt32.lrat"
@@ -1195,6 +1346,33 @@ private theorem int64_sub8_toUInt32 (x : Int64) :
     (x - 8).toUInt64.toUInt32 = x.toUInt64.toUInt32 - (8 : Int64).toUInt64.toUInt32 := by
   rw [Int64.toUInt64_sub]
   exact uint64_sub8_toUInt32 x
+
+private theorem u32_sub1_u64_lshl (x : UInt32) :
+    (1 : UInt64) <<< ((x.toUInt64 - 1) % 4294967296 &&& 63) =
+      (1 : UInt64) <<< ((x.toUInt64 - 1) % 4294967296) := by
+  have h1 : (x.toUInt64 - 1) % 4294967296 = (x - 1).toUInt64 := by
+    apply UInt64.eq_of_toBitVec_eq; apply BitVec.eq_of_toNat_eq
+    have hx := x.toNat_lt
+    simp only [UInt64.toBitVec_mod, BitVec.toNat_umod, UInt64.toBitVec_sub, BitVec.toNat_sub,
+      UInt32.toNat_toUInt64, UInt32.toNat_sub, UInt64.toNat_toBitVec]
+    have h42 : (4294967296 : UInt64).toNat = 4294967296 := rfl
+    have h1a : (1 : UInt64).toNat = 1 := rfl
+    have h1b : (1 : UInt32).toNat = 1 := rfl
+    rw [h42, h1a, h1b]; omega
+  have h2 : (x - 1).toUInt64 &&& 63 = ((x - 1) &&& 63).toUInt64 := by
+    apply UInt64.eq_of_toBitVec_eq; apply BitVec.eq_of_toNat_eq
+    simp only [UInt64.toBitVec_and, BitVec.toNat_and, UInt32.toNat_toUInt64,
+      UInt32.toNat_and, UInt64.toNat_toBitVec]
+    have h63a : (63 : UInt64).toNat = 63 := rfl
+    have h63b : (63 : UInt32).toNat = 63 := rfl
+    rw [h63a, h63b]
+  rw [h1, h2, lshl_63_mask, ← h1]
+
+private theorem setLocal_noop {locs : Nat → JvmVal} {idx : Nat} {v : JvmVal} (h : locs idx = v) :
+    setLocal locs idx v = locs := by
+  funext i; simp only [setLocal]; split
+  · next heq => subst heq; exact h.symm
+  · rfl
 
 private theorem fuel_split1 {C : Nat} (k r : Nat) (hr : C ≤ r) : k + r = (k + (r - C)) + C := by omega
 
@@ -1304,66 +1482,45 @@ private theorem containsCellLoop_aux :
                     (if rx' ≥ 8 then rx' - 8 else rx').toUInt64.toUInt32
                     (if ry' ≥ 8 then ry' - 8 else ry').toUInt64.toUInt32 then 1 else 0)) := by
               intro km l26 l24 l27 locs h7 h8 h9 h10 h21 h23 h24 h26 h27 hl24 hl26 hl27
-              (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-              flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
+              have h24' := h24.trans (congrArg JvmVal.i64 hl24)
+              have h26' := h26.trans (congrArg JvmVal.i32 hl26)
+              have h27' := h27.trans (congrArg JvmVal.i64 hl27)
+              (conv => lhs; arg 5; rw [← setLocal_noop h7, ← setLocal_noop h8, ← setLocal_noop h9, ← setLocal_noop h10, ← setLocal_noop h21, ← setLocal_noop h23, ← setLocal_noop h24', ← setLocal_noop h26', ← setLocal_noop h27'])
+              flat_step_with [h7, h8, h9, h10, h21, h23, h24, h26, h27, hl24, hl26, hl27]
               by_cases hqy8 : ry' ≥ 8
               · have hqy8s : ((if (8 : Int64).toUInt64 == ry'.toUInt64 then (0 : UInt32)
                     else if (8 : Int64).toUInt64.toBitVec.slt ry'.toUInt64.toBitVec then 4294967295 else 1).toBitVec.sle 0#32) = true :=
                   (lcmp_sle_zero_int64 8 ry').mpr hqy8
-                (conv => lhs; rw [ite_eq_left (by simp only [Jvm.JvmVal.asI64, h21, h24, hl24]; exact hqy8s)])
-                (conv => lhs; arg 5; simp only [h7, h8, h9, h10, h21, h23, h24, h26, h27, hl24, hl26, hl27])
-                (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
-                (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
+                (conv => lhs; rw [ite_eq_left (by exact hqy8s)])
+                flat_step_with [h21, h24, h26, hl24, hl26]
                 by_cases hqx8 : rx' ≥ 8
-                · have hqx8l : (!(locs 26).asI32 == 0) = true := by simp [h26, hl26, hqx8]; decide
+                · have hqx8l : (!(if rx' ≥ 8 then (1 : UInt32) else 0) == 0) = true := by simp [hqx8]
                   (conv => lhs; rw [ite_eq_left hqx8l])
-                  (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                  flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
-                  (conv => lhs; simp only [h7, h8, h9, h10, h21, h23, h24, h27, hl24, hl27, hqy8, hqx8, ↓reduceIte, getArenaU64, uint64_sub8_toUInt32])
-                  (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                  flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
+                  flat_step_with [h7, h8, h9, h10, h21, h23, h24, h27, hl24, hl27, hqy8, hqx8, ↓reduceIte, getArenaU64, uint64_sub8_toUInt32]
                   (conv => lhs; simp only [hqy8, hqx8, ↓reduceIte, getArenaU64, uint64_sub8_toUInt32, int64_sub8_toUInt32])
                   (conv => rhs; simp only [hqy8, hqx8, ↓reduceIte, int64_sub8_toUInt32])
                   try rfl
-                · have hqx8l : ¬((!(locs 26).asI32 == 0) = true) := by simp [h26, hl26, hqx8]; decide
+                · have hqx8l : ¬((!(if rx' ≥ 8 then (1 : UInt32) else 0) == 0) = true) := by simp [hqx8]
                   (conv => lhs; rw [ite_eq_right hqx8l])
-                  (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                  flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
-                  (conv => lhs; simp only [h7, h8, h9, h10, h21, h23, h24, h27, hl24, hl27, hqy8, hqx8, ↓reduceIte, getArenaU64, uint64_sub8_toUInt32])
-                  (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                  flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
+                  flat_step_with [h7, h8, h9, h10, h21, h23, h24, h27, hl24, hl27, hqy8, hqx8, ↓reduceIte, getArenaU64, uint64_sub8_toUInt32]
                   (conv => lhs; simp only [hqy8, hqx8, ↓reduceIte, getArenaU64, uint64_sub8_toUInt32])
                   (conv => rhs; simp only [hqy8, hqx8, ↓reduceIte, int64_sub8_toUInt32])
                   try rfl
               · have hqy8s : ((if (8 : Int64).toUInt64 == ry'.toUInt64 then (0 : UInt32)
                     else if (8 : Int64).toUInt64.toBitVec.slt ry'.toUInt64.toBitVec then 4294967295 else 1).toBitVec.sle 0#32) = false :=
                   Bool.eq_false_iff.mpr (mt (lcmp_sle_zero_int64 8 ry').mp hqy8)
-                (conv => lhs; rw [ite_eq_right (by intro h; simp only [Jvm.JvmVal.asI64, h21, h24, hl24] at h; exact Bool.false_ne_true (hqy8s.symm.trans h))])
-                (conv => lhs; arg 5; simp only [h7, h8, h9, h10, h21, h23, h24, h26, h27, hl24, hl26, hl27])
-                (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
-                (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
+                (conv => lhs; rw [ite_eq_right (by intro h; exact Bool.false_ne_true (hqy8s.symm.trans h))])
+                flat_step_with [h21, h24, h26, hl24, hl26]
                 by_cases hqx8 : rx' ≥ 8
-                · have hqx8l : (!(locs 26).asI32 == 0) = true := by simp [h26, hl26, hqx8]; decide
+                · have hqx8l : (!(if rx' ≥ 8 then (1 : UInt32) else 0) == 0) = true := by simp [hqx8]
                   (conv => lhs; rw [ite_eq_left hqx8l])
-                  (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                  flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
-                  (conv => lhs; simp only [h7, h8, h9, h10, h21, h23, h24, h27, hl24, hl27, hqy8, hqx8, ↓reduceIte, getArenaU64, uint64_sub8_toUInt32])
-                  (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                  flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
+                  flat_step_with [h7, h8, h9, h10, h21, h23, h24, h27, hl24, hl27, hqy8, hqx8, ↓reduceIte, getArenaU64, uint64_sub8_toUInt32]
                   (conv => lhs; simp only [hqy8, hqx8, ↓reduceIte, getArenaU64, uint64_sub8_toUInt32])
                   (conv => rhs; simp only [hqy8, hqx8, ↓reduceIte])
                   rfl
-                · have hqx8l : ¬((!(locs 26).asI32 == 0) = true) := by simp [h26, hl26, hqx8]; decide
+                · have hqx8l : ¬((!(if rx' ≥ 8 then (1 : UInt32) else 0) == 0) = true) := by simp [hqx8]
                   (conv => lhs; rw [ite_eq_right hqx8l])
-                  (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                  flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
-                  (conv => lhs; simp only [h7, h8, h9, h10, h21, h23, h24, h27, hl24, hl27, hqy8, hqx8, ↓reduceIte, getArenaU64, uint64_sub8_toUInt32])
-                  (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                  flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
+                  flat_step_with [h7, h8, h9, h10, h21, h23, h24, h27, hl24, hl27, hqy8, hqx8, ↓reduceIte, getArenaU64, uint64_sub8_toUInt32]
                   (conv => lhs; simp only [hqy8, hqx8, ↓reduceIte, getArenaU64, uint64_sub8_toUInt32])
                   (conv => rhs; simp only [hqy8, hqx8, ↓reduceIte])
                   rfl
@@ -1381,78 +1538,70 @@ private theorem containsCellLoop_aux :
                   some (.i32 (if (if lvl ≤ 5 then Algorithm.containsLevel4 arena childId rx' ry'
                     else arena.containsCellLoop childId rx' ry' (fuel - 1)) then 1 else 0)) := by
               intro km locs h0 h6 h7 h8 h9 h10 h31 h32 h33 h34 h35 h37 h39
-              (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-              flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
+              (conv => lhs; arg 5; rw [← setLocal_noop h0, ← setLocal_noop h6, ← setLocal_noop h7, ← setLocal_noop h8, ← setLocal_noop h9, ← setLocal_noop h10, ← setLocal_noop h31, ← setLocal_noop h32, ← setLocal_noop h33, ← setLocal_noop h34, ← setLocal_noop h35, ← setLocal_noop h37, ← setLocal_noop h39])
+              flat_step_with [h0, h6, h7, h8, h9, h10, h31, h32, h33, h34, h35, h37, h39]
               by_cases h5 : lvl ≤ 5
-              · (conv => lhs; rw [ite_eq_left (by simp only [Jvm.JvmVal.asI32, h31]; rw [compareUnsigned_sle']; exact decide_eq_true h5)])
-                (conv => lhs; arg 5; simp only [h0, h6, h7, h8, h9, h10, h31, h32, h33, h34, h35, h37, h39])
-                (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
+              · (conv => lhs; rw [ite_eq_left (by rw [compareUnsigned_sle']; exact decide_eq_true h5)])
+                flat_step_with [h39]
                 (conv => rhs; rw [Algorithm.containsLevel4.eq_1])
                 by_cases hcz : childId = 0
                 · have hczb : (childId == 0) = true := beq_iff_eq.mpr hcz
-                  (conv => lhs; rw [ite_eq_left (by simp only [Jvm.JvmVal.asI32, h39]; exact hczb)])
+                  (conv => lhs; rw [ite_eq_left (by exact hczb)])
                   (conv => rhs; simp only [h5, hczb, Bool.true_or, ↓reduceIte])
-                  flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
-                  simp only [h33]; rfl
+                  flat_step_with [h33]
+                  try simp only [h33]
+                  rfl
                 · have hczb : (childId == 0) = false := beq_false_of_ne hcz
-                  (conv => lhs; rw [ite_eq_right (by intro h; simp only [Jvm.JvmVal.asI32, h39] at h; exact Bool.false_ne_true (hczb.symm.trans h))])
+                  (conv => lhs; rw [ite_eq_right (by intro h; exact Bool.false_ne_true (hczb.symm.trans h))])
                   (conv => rhs; simp only [h5, hczb, Bool.false_or, ↓reduceIte])
-                  (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                  flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
+                  flat_step_with [h32, h39]
                   by_cases hcoob : arena.l4Count ≤ childId
                   · have hcoobs : decide (childId ≥ arena.l4Count) = true := decide_eq_true hcoob
-                    (conv => lhs; rw [ite_eq_left (by simp only [Jvm.JvmVal.asI32, h32, h39]; rw [compareUnsigned_sle']; exact decide_eq_true hcoob)])
+                    (conv => lhs; rw [ite_eq_left (by rw [compareUnsigned_sle']; exact decide_eq_true hcoob)])
                     (conv => rhs; simp only [hcoobs, ↓reduceIte])
-                    (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                    flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
+                    flat_step_with [h33]
+                    try simp only [h33]
                     rfl
                   · have hcoobs : decide (childId ≥ arena.l4Count) = false := decide_eq_false hcoob
-                    (conv => lhs; rw [ite_eq_right (by simp only [Jvm.JvmVal.asI32, h32, h39]; rw [compareUnsigned_sle', decide_eq_false hcoob]; exact Bool.false_ne_true)])
+                    (conv => lhs; rw [ite_eq_right (by rw [compareUnsigned_sle', decide_eq_false hcoob]; exact Bool.false_ne_true)])
                     (conv => rhs; simp only [hcoobs, ↓reduceIte])
-                    (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                    flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
+                    flat_step_with [h35]
                     by_cases hqx8 : rx' ≥ 8
                     · have hqx8s : ((if (8 : Int64).toUInt64 == rx'.toUInt64 then (0 : UInt32)
                           else if (8 : Int64).toUInt64.toBitVec.slt rx'.toUInt64.toBitVec then 4294967295 else 1).toBitVec.sle 0#32) = true :=
                         (lcmp_sle_zero_int64 8 rx').mpr hqx8
-                      (conv => lhs; rw [ite_eq_left (by simp only [Jvm.JvmVal.asI64, h35]; exact hqx8s)])
+                      (conv => lhs; rw [ite_eq_left (by exact hqx8s)])
                       (conv => rhs; simp only [Bool.false_eq_true, ↓reduceIte])
-                      (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                      flat_step_to 365
-                      (conv => lhs; arg 5; simp only [h7, h8, h9, h10, h35, h37, h39])
+                      flat_step_to_with 365 [h7, h8, h9, h10, h35, h37, h39]
                       (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
                       (conv => lhs; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq]; simp only [Nat.add_assoc])
                       rw [← Nat.add_assoc km ((m + 1) * 330), fuel_split1 (C := 45)]; rotate_left; omega
                       refine hjoin365 _ (1 : UInt32) ry'.toUInt64 (rx'.toUInt64 - 8) _
-                        (by simp [setLocal, h7]) (by simp [setLocal, h8])
-                        (by simp [setLocal, h9]) (by simp [setLocal, h10])
+                        (by simp [setLocal]) (by simp [setLocal])
+                        (by simp [setLocal]) (by simp [setLocal])
                         rfl rfl rfl rfl rfl rfl ?_ ?_
                       · simp [hqx8]
                       · simp [hqx8]; rfl
                     · have hqx8s : ((if (8 : Int64).toUInt64 == rx'.toUInt64 then (0 : UInt32)
                           else if (8 : Int64).toUInt64.toBitVec.slt rx'.toUInt64.toBitVec then 4294967295 else 1).toBitVec.sle 0#32) = false :=
                         Bool.eq_false_iff.mpr (mt (lcmp_sle_zero_int64 8 rx').mp hqx8)
-                      (conv => lhs; rw [ite_eq_right (by intro h; simp only [Jvm.JvmVal.asI64, h35] at h; exact Bool.false_ne_true (hqx8s.symm.trans h))])
+                      (conv => lhs; rw [ite_eq_right (by intro h; exact Bool.false_ne_true (hqx8s.symm.trans h))])
                       (conv => rhs; simp only [Bool.false_eq_true, ↓reduceIte])
-                      (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                      flat_step_to 365
-                      (conv => lhs; arg 5; simp only [h7, h8, h9, h10, h35, h37, h39])
+                      flat_step_to_with 365 [h7, h8, h9, h10, h35, h37, h39]
                       (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
                       (conv => lhs; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq]; simp only [Nat.add_assoc])
                       rw [← Nat.add_assoc km ((m + 1) * 330), fuel_split1 (C := 45)]; rotate_left; omega
                       refine hjoin365 _ (0 : UInt32) ry'.toUInt64 rx'.toUInt64 _
-                        (by simp [setLocal, h7]) (by simp [setLocal, h8])
-                        (by simp [setLocal, h9]) (by simp [setLocal, h10])
+                        (by simp [setLocal]) (by simp [setLocal])
+                        (by simp [setLocal]) (by simp [setLocal])
                         rfl rfl rfl rfl rfl rfl ?_ ?_
                       · simp [hqx8]
                       · simp [hqx8]
-              · (conv => lhs; rw [ite_eq_right (by simp only [Jvm.JvmVal.asI32, h31]; rw [compareUnsigned_sle', decide_eq_false h5]; exact Bool.false_ne_true)])
+              · (conv => lhs; rw [ite_eq_right (by rw [compareUnsigned_sle', decide_eq_false h5]; exact Bool.false_ne_true)])
                 (conv => rhs; simp only [h5, ↓reduceIte])
-                (conv => lhs; arg 5; simp only [h0, h6, h7, h8, h9, h10, h31, h32, h33, h34, h35, h37, h39])
-                (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
-                (conv => lhs; arg 5; simp only [h0, h6, h7, h8, h9, h10, h31, h32, h33, h34, h35, h37, h39])
+                flat_step_to_with 3 [h0, h6, h7, h8, h9, h10, h31, h32, h33, h34, h35, h37, h39]
+                (conv => lhs; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq])
+                jvm_step_branch_tail
                 (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
                 (conv => lhs; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq]; simp only [Nat.add_assoc])
                 rw [Nat.add_left_comm km ((m + 1) * 330), Nat.add_comm ((m + 1) * 330)]
@@ -1478,73 +1627,55 @@ private theorem containsCellLoop_aux :
                     else arena.containsCellLoop childId rx' ry' (fuel - 1)) then 1 else 0)) := by
               intro km l46 l49 l50 locs h0 h1 h4 h6 h7 h8 h9 h10 h31 h32 h40 h41 h42 h43 h44 h45 h46 h47 h49 h50
                 hl46 hl49 hl50
-              (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-              flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
+              have h46' := h46.trans (congrArg JvmVal.i32 hl46)
+              have h49' := h49.trans (congrArg JvmVal.i32 hl49)
+              have h50' := h50.trans (congrArg JvmVal.i64 hl50)
+              (conv => lhs; arg 5; rw [← setLocal_noop h0, ← setLocal_noop h1, ← setLocal_noop h4, ← setLocal_noop h6, ← setLocal_noop h7, ← setLocal_noop h8, ← setLocal_noop h9, ← setLocal_noop h10, ← setLocal_noop h31, ← setLocal_noop h32, ← setLocal_noop h40, ← setLocal_noop h41, ← setLocal_noop h42, ← setLocal_noop h43, ← setLocal_noop h44, ← setLocal_noop h45, ← setLocal_noop h46', ← setLocal_noop h47, ← setLocal_noop h49', ← setLocal_noop h50'])
+              flat_step_with [h0, h1, h4, h6, h7, h8, h9, h10, h31, h32, h40, h41, h42, h43,
+                h44, h45, h46, h47, h49, h50, hl46, hl49, hl50]
               by_cases hs : south = true
-              · (conv => lhs; rw [ite_eq_left (by simp only [Jvm.JvmVal.asI32, h46, hl46, hs]; decide)])
-                (conv => lhs; arg 5; simp only [h0, h1, h4, h6, h7, h8, h9, h10, h31, h32, h40, h41, h42, h43,
-                  h44, h45, h46, h47, h49, h50, hl46, hl49, hl50])
-                (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
+              · (conv => lhs; rw [ite_eq_left (by simp only [hs]; decide)])
+                flat_step_with [h49, hl49]
                 by_cases he : east = true
-                · (conv => lhs; rw [ite_eq_left (by simp only [Jvm.JvmVal.asI32, h49, hl49, he]; decide)])
-                  (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                  flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
-                  (conv => lhs; simp only [h40, h41, h42, h43])
-                  (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                  flat_step_to 293
+                · (conv => lhs; rw [ite_eq_left (by simp only [he]; decide)])
+                  flat_step_to_with 293 [h40, h41, h42, h43, h4, h47, h1]
                   (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
                   (conv => lhs; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq]; simp only [Nat.add_assoc])
                   rw [← Nat.add_assoc km ((m + 1) * 330), fuel_split1 (C := 80)]; rotate_left; omega
                   rw [Nat.add_right_comm km ((m + 1) * 330)]
-                  refine hjoin293 _ _ h0 h6 h7 h8 h9 h10 h31 h32 h44 h45 (h50.trans (congrArg JvmVal.i64 hl50)) ?_ ?_
-                  · simp [setLocal, Jvm.JvmVal.asI64, h4, h47, ry', hs]
-                  · simp [setLocal, Jvm.JvmVal.asI32, getArenaU32, childId, hs, he, h1]
-                · (conv => lhs; rw [ite_eq_right (by simp only [Jvm.JvmVal.asI32, h49, hl49, he]; decide)])
-                  (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                  flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
-                  (conv => lhs; simp only [h40, h41, h42, h43])
-                  (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                  flat_step_to 293
+                  refine hjoin293 _ _ (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) ?_ ?_
+                  · simp [setLocal, ry', hs]
+                  · simp [setLocal, getArenaU32, childId, hs, he]
+                · (conv => lhs; rw [ite_eq_right (by simp only [he]; decide)])
+                  flat_step_to_with 293 [h40, h41, h42, h43, h4, h47, h1]
                   (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
                   (conv => lhs; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq]; simp only [Nat.add_assoc])
                   rw [← Nat.add_assoc km ((m + 1) * 330), fuel_split1 (C := 80)]; rotate_left; omega
                   rw [Nat.add_right_comm km ((m + 1) * 330)]
-                  refine hjoin293 _ _ h0 h6 h7 h8 h9 h10 h31 h32 h44 h45 (h50.trans (congrArg JvmVal.i64 hl50)) ?_ ?_
-                  · simp [setLocal, Jvm.JvmVal.asI64, h4, h47, ry', hs]
-                  · simp [setLocal, Jvm.JvmVal.asI32, getArenaU32, childId, hs, he, h1]
-              · (conv => lhs; rw [ite_eq_right (by simp only [Jvm.JvmVal.asI32, h46, hl46, hs]; decide)])
-                (conv => lhs; arg 5; simp only [h0, h1, h4, h6, h7, h8, h9, h10, h31, h32, h40, h41, h42, h43,
-                  h44, h45, h46, h47, h49, h50, hl46, hl49, hl50])
-                (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
+                  refine hjoin293 _ _ (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) ?_ ?_
+                  · simp [setLocal, ry', hs]
+                  · simp [setLocal, getArenaU32, childId, hs, he]
+              · (conv => lhs; rw [ite_eq_right (by simp only [hs]; decide)])
+                flat_step_with [h49, hl49]
                 by_cases he : east = true
-                · (conv => lhs; rw [ite_eq_left (by simp only [Jvm.JvmVal.asI32, h49, hl49, he]; decide)])
-                  (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                  flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
-                  (conv => lhs; simp only [h40, h41, h42, h43])
-                  (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                  flat_step_to 293
+                · (conv => lhs; rw [ite_eq_left (by simp only [he]; decide)])
+                  flat_step_to_with 293 [h40, h41, h42, h43, h4, h1]
                   (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
                   (conv => lhs; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq]; simp only [Nat.add_assoc])
                   rw [← Nat.add_assoc km ((m + 1) * 330), fuel_split1 (C := 80)]; rotate_left; omega
                   rw [Nat.add_right_comm km ((m + 1) * 330)]
-                  refine hjoin293 _ _ h0 h6 h7 h8 h9 h10 h31 h32 h44 h45 (h50.trans (congrArg JvmVal.i64 hl50)) ?_ ?_
-                  · simp [setLocal, h4, ry', hs]
-                  · simp [setLocal, Jvm.JvmVal.asI32, getArenaU32, childId, hs, he, h1]
-                · (conv => lhs; rw [ite_eq_right (by simp only [Jvm.JvmVal.asI32, h49, hl49, he]; decide)])
-                  (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                  flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
-                  (conv => lhs; simp only [h40, h41, h42, h43])
-                  (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                  flat_step_to 293
+                  refine hjoin293 _ _ (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) ?_ ?_
+                  · simp [setLocal, ry', hs]
+                  · simp [setLocal, getArenaU32, childId, hs, he]
+                · (conv => lhs; rw [ite_eq_right (by simp only [he]; decide)])
+                  flat_step_to_with 293 [h40, h41, h42, h43, h4, h1]
                   (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
                   (conv => lhs; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq]; simp only [Nat.add_assoc])
                   rw [← Nat.add_assoc km ((m + 1) * 330), fuel_split1 (C := 80)]; rotate_left; omega
                   rw [Nat.add_right_comm km ((m + 1) * 330)]
-                  refine hjoin293 _ _ h0 h6 h7 h8 h9 h10 h31 h32 h44 h45 (h50.trans (congrArg JvmVal.i64 hl50)) ?_ ?_
-                  · simp [setLocal, h4, ry', hs]
-                  · simp [setLocal, Jvm.JvmVal.asI32, getArenaU32, childId, hs, he, h1]
+                  refine hjoin293 _ _ (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) ?_ ?_
+                  · simp [setLocal, ry', hs]
+                  · simp [setLocal, getArenaU32, childId, hs, he]
             have hjoin193 : ∀ km (l56 l57 : UInt32) (locs : Nat → JvmVal),
                 locs 0 = (.ext (.arenaRef 0)) → locs 1 = .i32 nodeId →
                 locs 2 = .i64 rx.toUInt64 → locs 4 = .i64 ry.toUInt64 → locs 6 = .i32 fuel →
@@ -1564,33 +1695,38 @@ private theorem containsCellLoop_aux :
                     else arena.containsCellLoop childId rx' ry' (fuel - 1)) then 1 else 0)) := by
               intro km l56 l57 locs h0 h1 h2 h4 h6 h7 h8 h9 h10 h31 h32 h40 h41 h42 h43
                 h52 h53 h54 h56 h57 hl56 hl57
-              (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-              flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
+              have h56' := h56.trans (congrArg JvmVal.i32 hl56)
+              have h57' := h57.trans (congrArg JvmVal.i32 hl57)
+              (conv => lhs; arg 5; rw [← setLocal_noop h0, ← setLocal_noop h1, ← setLocal_noop h2, ← setLocal_noop h4, ← setLocal_noop h6, ← setLocal_noop h7, ← setLocal_noop h8, ← setLocal_noop h9, ← setLocal_noop h10, ← setLocal_noop h31, ← setLocal_noop h32, ← setLocal_noop h40, ← setLocal_noop h41, ← setLocal_noop h42, ← setLocal_noop h43, ← setLocal_noop h52, ← setLocal_noop h53, ← setLocal_noop h54, ← setLocal_noop h56', ← setLocal_noop h57'])
+              flat_step_with [h0, h1, h2, h4, h6, h7, h8, h9, h10, h31, h32, h40, h41, h42, h43,
+                h52, h53, h54, h56, h57, hl56, hl57]
               by_cases he : east = true
-              · (conv => lhs; rw [ite_eq_left (by simp only [Jvm.JvmVal.asI32, h56, hl56, he]; decide)])
-                (conv => lhs; arg 5; simp only [h0, h1, h2, h4, h6, h7, h8, h9, h10, h31, h32, h40, h41, h42, h43,
-                  h52, h53, h54, h56, h57, hl56, hl57])
-                (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                flat_step_to 224
+              · (conv => lhs; rw [ite_eq_left (by simp only [he]; decide)])
+                flat_step_to_with 224 [h2, h54, h40, h41, h42, h43]
                 (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
                 (conv => lhs; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq]; simp only [Nat.add_assoc])
                 rw [← Nat.add_assoc km ((m + 1) * 330), fuel_split1 (C := 115)]; rotate_left; omega
                 rw [Nat.add_right_comm km ((m + 1) * 330)]
                 refine hjoin224 _ l57 (1 : UInt32) (rx.toUInt64 - half.toUInt64) _
-                  h0 h1 h4 h6 h7 h8 h9 h10 h31 h32 h40 h41 h42 h43 h53 h52 h57 h54 rfl
-                  (by simp [setLocal, Jvm.JvmVal.asI64, h2, h54]) hl57 (by simp [he]) (by simp [rx', he])
-              · (conv => lhs; rw [ite_eq_right (by simp only [Jvm.JvmVal.asI32, h56, hl56, he]; decide)])
-                (conv => lhs; arg 5; simp only [h0, h1, h2, h4, h6, h7, h8, h9, h10, h31, h32, h40, h41, h42, h43,
-                  h52, h53, h54, h56, h57, hl56, hl57])
-                (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                flat_step_to 224
+                  (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal])
+                  (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal])
+                  (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal])
+                  (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal])
+                  (by simp [setLocal, hl57]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal])
+                  hl57 (by simp [he]) (by simp [rx', he])
+              · (conv => lhs; rw [ite_eq_right (by simp only [he]; decide)])
+                flat_step_to_with 224 [h2, h54, h40, h41, h42, h43]
                 (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
                 (conv => lhs; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq]; simp only [Nat.add_assoc])
                 rw [← Nat.add_assoc km ((m + 1) * 330), fuel_split1 (C := 115)]; rotate_left; omega
                 rw [Nat.add_right_comm km ((m + 1) * 330)]
                 refine hjoin224 _ l57 (0 : UInt32) rx.toUInt64 _
-                  h0 h1 h4 h6 h7 h8 h9 h10 h31 h32 h40 h41 h42 h43 h53 h52 h57 h54 rfl
-                  h2 hl57 (by simp [he]) (by simp [rx', he])
+                  (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal])
+                  (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal])
+                  (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal])
+                  (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal])
+                  (by simp [setLocal, hl57]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal])
+                  hl57 (by simp [he]) (by simp [rx', he])
             have hjoin143 : ∀ km (locs : Nat → JvmVal),
                 locs 0 = (.ext (.arenaRef 0)) → locs 1 = .i32 nodeId →
                 locs 2 = .i64 rx.toUInt64 → locs 4 = .i64 ry.toUInt64 → locs 6 = .i32 fuel →
@@ -1606,6 +1742,7 @@ private theorem containsCellLoop_aux :
                   ⟨143, [], locs, {}, ⟨[arena], [], []⟩⟩ =
                   some (.i32 (if arena.containsCellLoop nodeId rx ry fuel then 1 else 0)) := by
               intro km locs h0 h1 h2 h4 h6 h7 h8 h9 h10 h31 h32 h40 h41 h42 h43 h58 hbounds
+              (conv => lhs; arg 5; rw [← setLocal_noop h0, ← setLocal_noop h1, ← setLocal_noop h2, ← setLocal_noop h4, ← setLocal_noop h6, ← setLocal_noop h7, ← setLocal_noop h8, ← setLocal_noop h9, ← setLocal_noop h10, ← setLocal_noop h31, ← setLocal_noop h32, ← setLocal_noop h40, ← setLocal_noop h41, ← setLocal_noop h42, ← setLocal_noop h43, ← setLocal_noop h58])
               have hbnd' : (decide (lvl < 63) && (decide (rx ≥ Algorithm.pow2Int64 lvl) || decide (ry ≥ Algorithm.pow2Int64 lvl))) = false := by
                 by_cases h63lt : lvl < 63
                 · have ⟨hx, hy⟩ := hbounds h63lt
@@ -1619,13 +1756,10 @@ private theorem containsCellLoop_aux :
                 simp only [hfz, ↓reduceDIte, hoobb, hrx0, hry0, decide_false, Bool.false_or, hbnd', Bool.false_eq_true, ↓reduceIte]
               change _ = some (JvmVal.i32 (if (if lvl ≤ 5 then Algorithm.containsLevel4 arena childId rx' ry'
                 else arena.containsCellLoop childId rx' ry' (fuel - 1)) then 1 else 0))
-              (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-              flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
+              flat_step_with [h0, h1, h2, h4, h6, h7, h8, h9, h10, h31, h32, h40, h41, h42, h43, h58]
               by_cases h63le : lvl ≤ 63
-              · (conv => lhs; rw [ite_eq_left (by simp only [Jvm.JvmVal.asI32, h31]; rw [compareUnsigned_sle']; exact decide_eq_true h63le)])
-                (conv => lhs; arg 5; simp only [h0, h1, h2, h4, h6, h7, h8, h9, h10, h31, h32, h40, h41, h42, h43, h58])
-                (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
+              · (conv => lhs; rw [ite_eq_left (by rw [compareUnsigned_sle']; exact decide_eq_true h63le)])
+                flat_step_with [h2, h4, h58]
                 have hhalf : ((1 : UInt64) <<< ((lvl - 1) &&& 63).toUInt64) = half.toUInt64 := by
                   simp only [half, Algorithm.pow2Int64.eq_1, lshl_63_mask]; rfl
                 rw [hhalf]
@@ -1633,86 +1767,82 @@ private theorem containsCellLoop_aux :
                 · have hrxs : ((0#32).slt (if half.toUInt64 == rx.toUInt64 then (0 : UInt32)
                       else if half.toUInt64.toBitVec.slt rx.toUInt64.toBitVec then 4294967295 else 1).toBitVec) = false :=
                     Bool.eq_false_iff.mpr (mt (lcmp_sgt_zero_int64 half rx).mp (Classical.not_not.mpr hrx))
-                  (conv => lhs; rw [ite_eq_right (by intro h; simp only [Jvm.JvmVal.asI64, h2] at h; exact Bool.false_ne_true (hrxs.symm.trans h))])
-                  (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                  flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
+                  (conv => lhs; rw [ite_eq_right (by intro h; exact Bool.false_ne_true (hrxs.symm.trans h))])
+                  flat_step_with [h4, h58]
                   by_cases hry : ry ≥ half
                   · have hrys : ((0#32).slt (if half.toUInt64 == ry.toUInt64 then (0 : UInt32)
                         else if half.toUInt64.toBitVec.slt ry.toUInt64.toBitVec then 4294967295 else 1).toBitVec) = false :=
                       Bool.eq_false_iff.mpr (mt (lcmp_sgt_zero_int64 half ry).mp (Classical.not_not.mpr hry))
-                    (conv => lhs; rw [ite_eq_right (by intro h; simp only [Jvm.JvmVal.asI64, h4] at h; exact Bool.false_ne_true (hrys.symm.trans h))])
-                    (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                    flat_step_to 193
+                    (conv => lhs; rw [ite_eq_right (by intro h; exact Bool.false_ne_true (hrys.symm.trans h))])
+                    flat_step_to_with 193 [h0, h1, h2, h4, h6, h7, h8, h9, h10, h31, h32, h40, h41, h42, h43, h58]
                     (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
                     (conv => lhs; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq]; simp only [Nat.add_assoc])
                     rw [← Nat.add_assoc km ((m + 1) * 330), fuel_split1 (C := 135)]; rotate_left; omega
                     rw [Nat.add_right_comm km ((m + 1) * 330)]
-                    refine hjoin193 _ (1 : UInt32) (1 : UInt32) _ h0 h1 h2 h4 h6 h7 h8 h9 h10 h31 h32 h40 h41 h42 h43 ?_ ?_ ?_ ?_ ?_ ?_ ?_
-                    iterate 5 (first | rfl | exact h58)
+                    refine hjoin193 _ (1 : UInt32) (1 : UInt32) _ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_
+                    iterate 20 (simp [setLocal])
                     · simp [east, h63le, hrx]
                     · simp [south, h63le, hry]
                   · have hrys : ((0#32).slt (if half.toUInt64 == ry.toUInt64 then (0 : UInt32)
                         else if half.toUInt64.toBitVec.slt ry.toUInt64.toBitVec then 4294967295 else 1).toBitVec) = true :=
                       (lcmp_sgt_zero_int64 half ry).mpr hry
-                    (conv => lhs; rw [ite_eq_left (by simp only [Jvm.JvmVal.asI64, h4]; exact hrys)])
-                    (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                    flat_step_to 193
+                    (conv => lhs; rw [ite_eq_left (by exact hrys)])
+                    flat_step_to_with 193 [h0, h1, h2, h4, h6, h7, h8, h9, h10, h31, h32, h40, h41, h42, h43, h58]
                     (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
                     (conv => lhs; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq]; simp only [Nat.add_assoc])
                     rw [← Nat.add_assoc km ((m + 1) * 330), fuel_split1 (C := 135)]; rotate_left; omega
                     rw [Nat.add_right_comm km ((m + 1) * 330)]
-                    refine hjoin193 _ (1 : UInt32) (0 : UInt32) _ h0 h1 h2 h4 h6 h7 h8 h9 h10 h31 h32 h40 h41 h42 h43 ?_ ?_ ?_ ?_ ?_ ?_ ?_
-                    iterate 5 (first | rfl | exact h58)
+                    refine hjoin193 _ (1 : UInt32) (0 : UInt32) _ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_
+                    iterate 20 (simp [setLocal])
                     · simp [east, h63le, hrx]
                     · simp [south, h63le, hry]
                 · have hrxs : ((0#32).slt (if half.toUInt64 == rx.toUInt64 then (0 : UInt32)
                       else if half.toUInt64.toBitVec.slt rx.toUInt64.toBitVec then 4294967295 else 1).toBitVec) = true :=
                     (lcmp_sgt_zero_int64 half rx).mpr hrx
-                  (conv => lhs; rw [ite_eq_left (by simp only [Jvm.JvmVal.asI64, h2]; exact hrxs)])
-                  (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                  flat_step_blk f_Algorithm_FlatHashLifeArena_containsCellLoop_prog
+                  (conv => lhs; rw [ite_eq_left (by exact hrxs)])
+                  flat_step_with [h4, h58]
                   by_cases hry : ry ≥ half
                   · have hrys : ((0#32).slt (if half.toUInt64 == ry.toUInt64 then (0 : UInt32)
                         else if half.toUInt64.toBitVec.slt ry.toUInt64.toBitVec then 4294967295 else 1).toBitVec) = false :=
                       Bool.eq_false_iff.mpr (mt (lcmp_sgt_zero_int64 half ry).mp (Classical.not_not.mpr hry))
-                    (conv => lhs; rw [ite_eq_right (by intro h; simp only [Jvm.JvmVal.asI64, h4] at h; exact Bool.false_ne_true (hrys.symm.trans h))])
-                    (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                    flat_step_to 193
+                    (conv => lhs; rw [ite_eq_right (by intro h; exact Bool.false_ne_true (hrys.symm.trans h))])
+                    flat_step_to_with 193 [h0, h1, h2, h4, h6, h7, h8, h9, h10, h31, h32, h40, h41, h42, h43, h58]
                     (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
                     (conv => lhs; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq]; simp only [Nat.add_assoc])
                     rw [← Nat.add_assoc km ((m + 1) * 330), fuel_split1 (C := 135)]; rotate_left; omega
                     rw [Nat.add_right_comm km ((m + 1) * 330)]
-                    refine hjoin193 _ (0 : UInt32) (1 : UInt32) _ h0 h1 h2 h4 h6 h7 h8 h9 h10 h31 h32 h40 h41 h42 h43 ?_ ?_ ?_ ?_ ?_ ?_ ?_
-                    iterate 5 (first | rfl | exact h58)
+                    refine hjoin193 _ (0 : UInt32) (1 : UInt32) _ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_
+                    iterate 20 (simp [setLocal])
                     · simp [east, h63le, hrx]
                     · simp [south, h63le, hry]
                   · have hrys : ((0#32).slt (if half.toUInt64 == ry.toUInt64 then (0 : UInt32)
                         else if half.toUInt64.toBitVec.slt ry.toUInt64.toBitVec then 4294967295 else 1).toBitVec) = true :=
                       (lcmp_sgt_zero_int64 half ry).mpr hry
-                    (conv => lhs; rw [ite_eq_left (by simp only [Jvm.JvmVal.asI64, h4]; exact hrys)])
-                    (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                    flat_step_to 193
+                    (conv => lhs; rw [ite_eq_left (by exact hrys)])
+                    flat_step_to_with 193 [h0, h1, h2, h4, h6, h7, h8, h9, h10, h31, h32, h40, h41, h42, h43, h58]
                     (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
                     (conv => lhs; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq]; simp only [Nat.add_assoc])
                     rw [← Nat.add_assoc km ((m + 1) * 330), fuel_split1 (C := 135)]; rotate_left; omega
                     rw [Nat.add_right_comm km ((m + 1) * 330)]
-                    refine hjoin193 _ (0 : UInt32) (0 : UInt32) _ h0 h1 h2 h4 h6 h7 h8 h9 h10 h31 h32 h40 h41 h42 h43 ?_ ?_ ?_ ?_ ?_ ?_ ?_
-                    iterate 5 (first | rfl | exact h58)
+                    refine hjoin193 _ (0 : UInt32) (0 : UInt32) _ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_
+                    iterate 20 (simp [setLocal])
                     · simp [east, h63le, hrx]
                     · simp [south, h63le, hry]
-              · (conv => lhs; rw [ite_eq_right (by simp only [Jvm.JvmVal.asI32, h31]; rw [compareUnsigned_sle', decide_eq_false h63le]; exact Bool.false_ne_true)])
-                (conv => lhs; arg 5; simp only [h0, h1, h2, h4, h6, h7, h8, h9, h10, h31, h32, h40, h41, h42, h43, h58])
-                (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
-                flat_step_to 193
+              · (conv => lhs; rw [ite_eq_right (by rw [compareUnsigned_sle', decide_eq_false h63le]; exact Bool.false_ne_true)])
+                flat_step_to_with 193 [h0, h1, h2, h4, h6, h7, h8, h9, h10, h31, h32, h40, h41, h42, h43, h58]
                 (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
                 (conv => lhs; arg 1; try simp only [Nat.succ_eq_add_one]; try simp only [nat_add_eq]; simp only [Nat.add_assoc])
                 rw [← Nat.add_assoc km ((m + 1) * 330), fuel_split1 (C := 135)]; rotate_left; omega
                 rw [Nat.add_right_comm km ((m + 1) * 330)]
-                refine hjoin193 _ (0 : UInt32) (0 : UInt32) _ h0 h1 h2 h4 h6 h7 h8 h9 h10 h31 h32 h40 h41 h42 h43
-                  rfl h58 (congrArg JvmVal.i64 (by simp only [half, Algorithm.pow2Int64.eq_1, lshl_63_mask]; rfl))
-                  h58 h58 ?_ ?_
-                · simp [east, h63le]
-                · simp [south, h63le]
+                refine hjoin193 _ (0 : UInt32) (0 : UInt32) _
+                  (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal])
+                  (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal])
+                  (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal])
+                  (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal])
+                  (by simp [setLocal])
+                  (by simp [setLocal, half, Algorithm.pow2Int64.eq_1]; exact u32_sub1_u64_lshl lvl)
+                  (by simp [setLocal]) (by simp [setLocal])
+                  (by simp [east, h63le]) (by simp [south, h63le])
             by_cases h63lt : lvl < 63
             · (conv => lhs; rw [ite_eq_left (by simp only [getArenaU8, u8_sext_band255]; rw [compareUnsigned_slt']; exact decide_eq_true h63lt)])
               (conv => lhs; arg 5; simp only [getArenaU8, u8_sext_band255])

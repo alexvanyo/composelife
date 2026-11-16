@@ -25,104 +25,83 @@ macro "norm_res_fuel" : tactic =>
   `(tactic| (conv => lhs; try zeta; arg 1; simp only [Nat.succ_eq_add_one, nat_add_eq_add]))
 
 theorem compareUnsigned_slt_zero (a b : UInt32) :
-    (if a == b then (0 : UInt32) else if a < b then 4294967295 else 1).toBitVec.slt 0#32 = decide (a < b) := by
-  by_cases h1 : a == b
-  · have hab : a = b := LawfulBEq.eq_of_beq h1; subst hab; simp
-  · by_cases h2 : a < b <;> simp [h1, h2]
+    (if a == b then (0 : UInt32) else if a < b then 4294967295 else 1).toBitVec.slt 0#32 = decide (a < b) :=
+  Jvm.compareUnsigned_slt_zero a b
 
 theorem runJvmResFast_ifle_branch {f pc tgt : Nat} {prog rest : List JvmInstr}
     {v : UInt32} {stk : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     (hv : v.toBitVec.sle 0#32 = true) :
     runJvmResFast (f + 1) prog pc (.ifle tgt :: rest) ⟨pc, .i32 v :: stk, locs, jh, hp⟩ =
-      runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stk, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32, hv]
+      runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stk, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_ifle_branch algHooks hv
 
 theorem runJvmResFast_ifle_fallthrough {f pc tgt : Nat} {prog rest : List JvmInstr}
     {v : UInt32} {stk : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     (hv : v.toBitVec.sle 0#32 = false) :
     runJvmResFast (f + 1) prog pc (.ifle tgt :: rest) ⟨pc, .i32 v :: stk, locs, jh, hp⟩ =
-      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stk, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32, hv]
+      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stk, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_ifle_fallthrough algHooks hv
 
 theorem runJvmResFast_iflt_branch {f pc tgt : Nat} {prog rest : List JvmInstr}
     {v : UInt32} {stk : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     (hv : v.toBitVec.slt 0#32 = true) :
     runJvmResFast (f + 1) prog pc (.iflt tgt :: rest) ⟨pc, .i32 v :: stk, locs, jh, hp⟩ =
-      runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stk, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32, hv]
+      runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stk, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_iflt_branch algHooks hv
 
 theorem runJvmResFast_iflt_fallthrough {f pc tgt : Nat} {prog rest : List JvmInstr}
     {v : UInt32} {stk : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     (hv : v.toBitVec.slt 0#32 = false) :
     runJvmResFast (f + 1) prog pc (.iflt tgt :: rest) ⟨pc, .i32 v :: stk, locs, jh, hp⟩ =
-      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stk, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32, hv]
+      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stk, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_iflt_fallthrough algHooks hv
 
 theorem runJvmResFast_ifeq_branch {f pc tgt : Nat} {prog rest : List JvmInstr}
     {v : UInt32} {stk : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     (hv : v = 0) :
     runJvmResFast (f + 1) prog pc (.ifeq tgt :: rest) ⟨pc, .i32 v :: stk, locs, jh, hp⟩ =
-      runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stk, locs, jh, hp⟩ := by
-  subst hv; conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32]
+      runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stk, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_ifeq_branch algHooks hv
 
 theorem runJvmResFast_ifeq_fallthrough {f pc tgt : Nat} {prog rest : List JvmInstr}
     {v : UInt32} {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     (h : (v == 0) = false) :
     runJvmResFast (f + 1) prog pc (.ifeq tgt :: rest) ⟨pc, .i32 v :: stk, locs, jh, hp⟩ =
-      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stk, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32, h]
+      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stk, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_ifeq_fallthrough algHooks h
 
 theorem runJvmResFast_ifnonnull_branch {f pc tgt : Nat} {prog rest : List JvmInstr}
     {v : JvmVal} {stkRest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} (hnn : v.isNull = false) :
     runJvmResFast (f + 1) prog pc (.ifnonnull tgt :: rest) ⟨pc, v :: stkRest, locs, jh, hp⟩ =
-      runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stkRest, locs, jh, hp⟩ := by
-  rw [runJvmResFast]
-  change (if !v.isNull then
-      runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stkRest, locs, jh, hp⟩
-    else
-      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stkRest, locs, jh, hp⟩) = _
-  simp [hnn]
+      runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stkRest, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_ifnonnull_branch algHooks hnn
 
 theorem runJvmResFast_ifnonnull_fallthrough {f pc tgt : Nat} {prog rest : List JvmInstr}
     {stkRest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     runJvmResFast (f + 1) prog pc (.ifnonnull tgt :: rest) ⟨pc, .null :: stkRest, locs, jh, hp⟩ =
-      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stkRest, locs, jh, hp⟩ := by
-  rw [runJvmResFast]
-  rfl
+      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stkRest, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_ifnonnull_fallthrough algHooks
 
 theorem runJvmResFast_ifne_branch {f pc tgt : Nat} {prog rest : List JvmInstr}
     {v : UInt32} {stkRest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} (hne : v ≠ 0) :
     runJvmResFast (f + 1) prog pc (.ifne tgt :: rest) ⟨pc, .i32 v :: stkRest, locs, jh, hp⟩ =
-      runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stkRest, locs, jh, hp⟩ := by
-  rw [runJvmResFast]
-  change (if !(v == 0) then
-      runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stkRest, locs, jh, hp⟩
-    else
-      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stkRest, locs, jh, hp⟩) = _
-  have hbeq : (v == 0) = false := beq_false_of_ne hne
-  simp [hbeq]
+      runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stkRest, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_ifne_branch algHooks (beq_false_of_ne hne)
 
 theorem runJvmResFast_ifne_fallthrough {f pc tgt : Nat} {prog rest : List JvmInstr}
     {stkRest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     runJvmResFast (f + 1) prog pc (.ifne tgt :: rest) ⟨pc, .i32 0 :: stkRest, locs, jh, hp⟩ =
-      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stkRest, locs, jh, hp⟩ := by
-  rw [runJvmResFast]
-  rfl
+      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stkRest, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_ifne_fallthrough algHooks rfl
 
 theorem runJvmResFast_ifne_bool_branch {f pc tgt : Nat} {prog rest : List JvmInstr}
     {stkRest : List JvmVal} {locs : Nat → JvmVal}
@@ -144,43 +123,36 @@ theorem runJvmResFast_if_icmpeq_branch {f pc tgt : Nat} {prog rest : List JvmIns
     {a b : UInt32} {stkRest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} (heq : a = b) :
     runJvmResFast (f + 1) prog pc (.if_icmpeq tgt :: rest) ⟨pc, .i32 b :: .i32 a :: stkRest, locs, jh, hp⟩ =
-      runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stkRest, locs, jh, hp⟩ := by
-  subst heq
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32]
+      runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stkRest, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_if_icmpeq_branch algHooks heq
 
 theorem runJvmResFast_if_icmpeq_fallthrough {f pc tgt : Nat} {prog rest : List JvmInstr}
     {a b : UInt32} {stkRest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} (hne : (a == b) = false) :
     runJvmResFast (f + 1) prog pc (.if_icmpeq tgt :: rest) ⟨pc, .i32 b :: .i32 a :: stkRest, locs, jh, hp⟩ =
-      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stkRest, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32, hne]
+      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stkRest, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_if_icmpeq_fallthrough algHooks (fun h => by subst h; simp at hne)
 
 theorem runJvmResFast_if_icmpne_branch {f pc tgt : Nat} {prog rest : List JvmInstr}
     {a b : UInt32} {stkRest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} (hne : (a == b) = false) :
     runJvmResFast (f + 1) prog pc (.if_icmpne tgt :: rest) ⟨pc, .i32 b :: .i32 a :: stkRest, locs, jh, hp⟩ =
-      runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stkRest, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32, hne]
+      runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stkRest, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_if_icmpne_branch algHooks (fun h => by subst h; simp at hne)
 
 theorem runJvmResFast_if_icmpne_fallthrough {f pc tgt : Nat} {prog rest : List JvmInstr}
     {a b : UInt32} {stkRest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} (heq : a = b) :
     runJvmResFast (f + 1) prog pc (.if_icmpne tgt :: rest) ⟨pc, .i32 b :: .i32 a :: stkRest, locs, jh, hp⟩ =
-      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stkRest, locs, jh, hp⟩ := by
-  subst heq
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32]
+      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stkRest, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_if_icmpne_fallthrough algHooks heq
 
 theorem runJvmResFast_goto {f pc tgt : Nat} {prog rest : List JvmInstr}
     {stk : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     runJvmResFast (f + 1) prog pc (.goto tgt :: rest) ⟨pc, stk, locs, jh, hp⟩ =
-      runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stk, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast]
+      runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stk, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_goto algHooks
 
 theorem runJvmResFast_arraylength_strArr {f : Nat} {prog : List JvmInstr} {pc : Nat}
     {rest : List JvmInstr} {pc0 : Nat} {xs : Array String} {stkRest : List JvmVal}
@@ -202,13 +174,8 @@ theorem runJvmResFast_arraylength_byteArray {f : Nat} {prog : List JvmInstr} {pc
     runJvmResFast (f + 1) prog pc (.arraylength :: rest)
         ⟨pc0, .heapRef addr :: stkRest, locs, jh, hp⟩ =
       runJvmResFast f prog (pc + 1) rest
-        ⟨pc + 1, .i32 (UInt32.ofNat elems.size) :: stkRest, locs, jh, hp⟩ := by
-  have hstep : Jvm.stepInstr algHooks .arraylength ⟨pc, .heapRef addr :: stkRest, locs, jh, hp⟩ =
-      .inl (some ⟨pc + 1, .i32 (UInt32.ofNat elems.size) :: stkRest, locs, jh, hp⟩) := by
-    simp [Jvm.stepInstr, hget, Jvm.HeapObj.arrayLength?]
-  simp only [runJvmResFast]
-  rw [Jvm.runJvmResFast_step_nonbranch algHooks (hbr := rfl) (hno := by simp)]
-  simp only [hstep, ↓reduceIte]
+        ⟨pc + 1, .i32 (UInt32.ofNat elems.size) :: stkRest, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_arraylength_byte algHooks hget
 
 theorem runJvmResFast_getstatic_step {f : Nat} {prog : List JvmInstr} {pc : Nat}
     {cls fld desc : String} {rest : List JvmInstr} {pc0 : Nat} {v : JvmVal}
@@ -223,7 +190,10 @@ theorem runJvmResFast_getstatic_step {f : Nat} {prog : List JvmInstr} {pc : Nat}
   have hgs : jh.getStatic? cls fld = none := by simp [Jvm.JvmHeap.getStatic?, hstat]
   have hstep : Jvm.stepInstr algHooks (.getstatic cls fld desc) ⟨pc, stkRest, locs, jh, hp⟩ =
       Sum.inl (some ⟨pc + 1, v :: stkRest, locs, jh, hp⟩) := by
-    simp only [Jvm.stepInstr, hgs, hres]
+    dsimp only [Jvm.stepInstr]
+    rw [hgs]
+    dsimp only
+    rw [hres]
   simp only [runJvmResFast]
   rw [Jvm.runJvmResFast_step_nonbranch algHooks (hbr := rfl) (hno := by simp)]
   simp only [hstep, ↓reduceIte]
@@ -246,15 +216,11 @@ theorem runJvmResFast_checkcast_instance {f : Nat} {prog : List JvmInstr} {pc : 
       simp only [hga, Option.bind_some, Option.some.injEq] at hget
       subst hget
       apply runJvmResFast_checkcast_step
-      have hmatch : jh.checkInstanceOf ty addr = (ty == objCls || ty == "java/lang/Object") := by
-        simp [Jvm.JvmHeap.checkInstanceOf, hga, Jvm.HeapObj.matchesType]
       have hchk : Jvm.stepInstr algHooks (.checkcast ty)
           ⟨pc, .heapRef addr :: stkRest, locs, jh, hp⟩ =
           Sum.inl (some ⟨pc + 1, .heapRef addr :: stkRest, locs, jh, hp⟩) := by
-        simp only [Jvm.stepInstr, Jvm.JvmHeap.checkCast, hmatch]
-        by_cases hcls : (ty == objCls || ty == "java/lang/Object") = true
-        · simp [hcls]
-        · simp [hcls, hga]; exact hsub
+        dsimp only [Jvm.stepInstr, Jvm.evalCheckCast, Jvm.JvmHeap.checkCast, Jvm.JvmHeap.checkInstanceOf]
+        simp only [hga, Jvm.HeapObj.matchesType, hsub, Bool.or_true, ↓reduceIte]
       exact hchk
     | _ => simp [hga] at hget
 
@@ -287,11 +253,7 @@ theorem runJvmResFast_baload_byteArray {f : Nat} {prog : List JvmInstr} {pc : Na
         ⟨pc0, .i32 idx :: .heapRef addr :: stkRest, locs, jh, hp⟩ =
       runJvmResFast f prog (pc + 1) rest
         ⟨pc + 1, .i32 (UInt32.ofBitVec (elems[idx.toNat].toBitVec.signExtend 32)) :: stkRest,
-          locs, jh, hp⟩ := by
-  have hstep := Jvm.stepInstr_baload algHooks (pc := pc) hget hslt hlt (stkRest := stkRest)
-    (locs := locs) (hp := hp)
-  simp only [runJvmResFast]
-  rw [Jvm.runJvmResFast_step_nonbranch algHooks (hbr := rfl) (hno := by simp)]
-  simp only [hstep, ↓reduceIte]
+          locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_baload algHooks hget hslt hlt
 
 end Algorithm.JvmVerification

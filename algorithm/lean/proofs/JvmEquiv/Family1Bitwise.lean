@@ -29,6 +29,12 @@ local macro "step_val_n " n:num : tactic => `(tactic| (
   first | rw [afterBlockChunk_cont] | rw [afterBlockChunk_jump]
   (conv => lhs; norm_jvm_locals; jvm_whnf_run_args)))
 
+private theorem setLocal_eq_self {locs : Nat → JvmVal} {idx : Nat} {val : JvmVal}
+    (h : locs idx = val) : setLocal locs idx val = locs := by
+  funext i
+  dsimp [setLocal]
+  split <;> simp_all
+
 private theorem bitwise_pc309 {k : Nat} (hk : 600 ≤ k) (w : UInt32) (locs : Nat → JvmVal)
     (h0 : locs 0 = .i32 w) (h6 : locs 6 = .i32 (w >>> 3 &&& 1))
     (h7 : locs 7 = .i32 (w >>> 6 &&& 1)) (h9 : locs 9 = .i32 (w >>> 9 &&& 1))
@@ -39,42 +45,39 @@ private theorem bitwise_pc309 {k : Nat} (hk : 600 ≤ k) (w : UInt32) (locs : Na
       (f_Algorithm_computeNextGen4x4BitwiseUInt_prog.drop 309)
       ⟨309, [], locs, {}, ⟨[], [], []⟩⟩ =
       some (.i32 (Algorithm.computeNextGen4x4BitwiseUInt w)) := by
+  rw [← setLocal_eq_self h0, ← setLocal_eq_self h6, ← setLocal_eq_self h7, ← setLocal_eq_self h9,
+    ← setLocal_eq_self h10, ← setLocal_eq_self h11, ← setLocal_eq_self h12]
   f1_split_val_fuel 120
   flat_step_blk f_Algorithm_computeNextGen4x4BitwiseUInt_prog
-  rw [h0, h7, h9]
   refine eq_of_ite_branches (fun hc3 => ?_) (fun hc3 => ?_)
   · have hnc : Algorithm.neighborCount11UInt w = 3 := by
-      simpa [Algorithm.neighborCount11UInt, Jvm.JvmVal.asI32] using hc3
+      simpa [Algorithm.neighborCount11UInt] using hc3
     f1_split_val_fuel 120
     flat_step_blk f_Algorithm_computeNextGen4x4BitwiseUInt_prog
-    simp [h10, h11, h12, Algorithm.computeNextGen4x4BitwiseUInt, Algorithm.bitRuleUInt, hnc, Jvm.JvmVal.asI32]
+    simp [Algorithm.computeNextGen4x4BitwiseUInt, Algorithm.bitRuleUInt, hnc]
   · have hnc3 : Algorithm.neighborCount11UInt w ≠ 3 := by
-      simpa [Algorithm.neighborCount11UInt, Jvm.JvmVal.asI32] using hc3
+      simpa [Algorithm.neighborCount11UInt] using hc3
     f1_split_val_fuel 120
     flat_step_blk f_Algorithm_computeNextGen4x4BitwiseUInt_prog
     refine eq_of_ite_branches (fun hc2 => ?_) (fun hc2 => ?_)
     · have hnc2 : Algorithm.neighborCount11UInt w = 2 := by
-        simpa [Algorithm.neighborCount11UInt, Jvm.JvmVal.asI32] using hc2
+        simpa [Algorithm.neighborCount11UInt] using hc2
       f1_split_val_fuel 120
       flat_step_blk f_Algorithm_computeNextGen4x4BitwiseUInt_prog
-      rw [h6]
       refine eq_of_ite_branches (fun hbit => ?_) (fun hbit => ?_)
-      · have hb : (w >>> 3 &&& 1) = 1 := by simpa [Jvm.JvmVal.asI32] using hbit
+      · have hb : (w >>> 3 &&& 1) = 1 := by simpa using hbit
         f1_split_val_fuel 120
         flat_step_blk f_Algorithm_computeNextGen4x4BitwiseUInt_prog
-        simp [h10, h11, h12, Algorithm.computeNextGen4x4BitwiseUInt, Algorithm.bitRuleUInt, hnc2, hb,
-          Jvm.JvmVal.asI32]
-      · have hb : (w >>> 3 &&& 1) ≠ 1 := by simpa [Jvm.JvmVal.asI32] using hbit
+        simp [Algorithm.computeNextGen4x4BitwiseUInt, Algorithm.bitRuleUInt, hnc2, hb]
+      · have hb : (w >>> 3 &&& 1) ≠ 1 := by simpa using hbit
         f1_split_val_fuel 120
         flat_step_blk f_Algorithm_computeNextGen4x4BitwiseUInt_prog
-        simp [h10, h11, h12, Algorithm.computeNextGen4x4BitwiseUInt, Algorithm.bitRuleUInt, hnc2, hb,
-          Jvm.JvmVal.asI32]
+        simp [Algorithm.computeNextGen4x4BitwiseUInt, Algorithm.bitRuleUInt, hnc2, hb]
     · have hnc2 : Algorithm.neighborCount11UInt w ≠ 2 := by
-        simpa [Algorithm.neighborCount11UInt, Jvm.JvmVal.asI32] using hc2
+        simpa [Algorithm.neighborCount11UInt] using hc2
       f1_split_val_fuel 120
       flat_step_blk f_Algorithm_computeNextGen4x4BitwiseUInt_prog
-      simp [h10, h11, h12, Algorithm.computeNextGen4x4BitwiseUInt, Algorithm.bitRuleUInt, hnc3, hnc2,
-        Jvm.JvmVal.asI32]
+      simp [Algorithm.computeNextGen4x4BitwiseUInt, Algorithm.bitRuleUInt, hnc3, hnc2]
 
 private theorem bitwise_pc296 {k : Nat} (hk : 610 ≤ k) (w : UInt32) (locs : Nat → JvmVal)
     (h0 : locs 0 = .i32 w) (h6 : locs 6 = .i32 (w >>> 3 &&& 1))
@@ -134,25 +137,28 @@ private theorem bitwise_pc220_nc2 {k : Nat} (hk : 900 ≤ k) (w : UInt32) (locs 
       (f_Algorithm_computeNextGen4x4BitwiseUInt_prog.drop 276)
       ⟨276, [], setLocal locs 21 (.i32 (Algorithm.neighborCount21UInt w)), {}, ⟨[], [], []⟩⟩ =
       some (.i32 (Algorithm.computeNextGen4x4BitwiseUInt w)) := by
+  rw [← setLocal_eq_self h7]
   f1_split_val_fuel 120
   flat_step_blk f_Algorithm_computeNextGen4x4BitwiseUInt_prog
   refine eq_of_ite_branches (fun hc2 => ?_) (fun hc2 => ?_)
   · have hnc2 : Algorithm.neighborCount21UInt w = 2 := by
-      simpa [Algorithm.neighborCount21UInt, Jvm.JvmVal.asI32] using hc2
+      simpa [Algorithm.neighborCount21UInt] using hc2
     f1_split_val_fuel 120
     flat_step_blk f_Algorithm_computeNextGen4x4BitwiseUInt_prog
-    rw [h7]
     refine eq_of_ite_branches (fun hbit => ?_) (fun hbit => ?_)
-    · have hb : (w >>> 6 &&& 1) = 1 := by simpa [Jvm.JvmVal.asI32] using hbit
+    · have hb : (w >>> 6 &&& 1) = 1 := by simpa using hbit
       exact bitwise_pc296 (by (try simp only [f1_nat_add_eq_add, Nat.succ_eq_add_one]); omega)
-        w locs h0 h6 h7 h9 h15 h16 hb hnc2
-    · have hb : (w >>> 6 &&& 1) ≠ 1 := by simpa [Jvm.JvmVal.asI32] using hbit
+        w _ (by simp [setLocal, h0]) (by simp [setLocal, h6]) (by simp [setLocal])
+        (by simp [setLocal, h9]) (by simp [setLocal, h15]) (by simp [setLocal, h16]) hb hnc2
+    · have hb : (w >>> 6 &&& 1) ≠ 1 := by simpa using hbit
       exact bitwise_pc289 (by (try simp only [f1_nat_add_eq_add, Nat.succ_eq_add_one]); omega)
-        w locs h0 h6 h7 h9 h15 h16 hb hnc2
+        w _ (by simp [setLocal, h0]) (by simp [setLocal, h6]) (by simp [setLocal])
+        (by simp [setLocal, h9]) (by simp [setLocal, h15]) (by simp [setLocal, h16]) hb hnc2
   · have hnc2 : Algorithm.neighborCount21UInt w ≠ 2 := by
-      simpa [Algorithm.neighborCount21UInt, Jvm.JvmVal.asI32] using hc2
+      simpa [Algorithm.neighborCount21UInt] using hc2
     exact bitwise_pc279 (by (try simp only [f1_nat_add_eq_add, Nat.succ_eq_add_one]); omega)
-      w locs h0 h6 h7 h9 h15 h16 hnc3 hnc2
+      w _ (by simp [setLocal, h0]) (by simp [setLocal, h6]) (by simp [setLocal])
+      (by simp [setLocal, h9]) (by simp [setLocal, h15]) (by simp [setLocal, h16]) hnc3 hnc2
 
 private theorem bitwise_pc220 {k : Nat} (hk : 1200 ≤ k) (w : UInt32) (locs : Nat → JvmVal)
     (h0 : locs 0 = .i32 w) (h6 : locs 6 = .i32 (w >>> 3 &&& 1))
@@ -164,21 +170,23 @@ private theorem bitwise_pc220 {k : Nat} (hk : 1200 ≤ k) (w : UInt32) (locs : N
       (f_Algorithm_computeNextGen4x4BitwiseUInt_prog.drop 220)
       ⟨220, [], locs, {}, ⟨[], [], []⟩⟩ =
       some (.i32 (Algorithm.computeNextGen4x4BitwiseUInt w)) := by
+  rw [← setLocal_eq_self h0, ← setLocal_eq_self h6, ← setLocal_eq_self h8, ← setLocal_eq_self h9,
+    ← setLocal_eq_self h14]
   f1_split_val_fuel 120
   flat_step_blk f_Algorithm_computeNextGen4x4BitwiseUInt_prog
-  rw [h0, h6, h8, h9, h14]
   refine eq_of_ite_branches (fun hc3 => ?_) (fun hc3 => ?_)
   · have hnc : Algorithm.neighborCount21UInt w = 3 := by
-      simpa [Algorithm.neighborCount21UInt, Jvm.JvmVal.asI32] using hc3
+      simpa [Algorithm.neighborCount21UInt] using hc3
     step_val_n 6
     apply bitwise_pc309 (by (try simp only [f1_nat_add_eq_add, Nat.succ_eq_add_one]); omega) w _
-      (by simp [setLocal, h0]) (by simp [setLocal, h6])
-      (by simp [setLocal, h7]) (by simp [setLocal, h9]) (by simp [setLocal, h16])
+      (by simp [setLocal]) (by simp [setLocal])
+      (by simp [setLocal, h7]) (by simp [setLocal]) (by simp [setLocal, h16])
       (by simp [setLocal, h15]) (by dsimp [setLocal]; simp [Algorithm.bitRuleUInt, hnc])
   · have hnc3 : Algorithm.neighborCount21UInt w ≠ 3 := by
-      simpa [Algorithm.neighborCount21UInt, Jvm.JvmVal.asI32] using hc3
+      simpa [Algorithm.neighborCount21UInt] using hc3
     exact bitwise_pc220_nc2 (by (try simp only [f1_nat_add_eq_add, Nat.succ_eq_add_one]); omega)
-      w locs h0 h6 h7 h9 h15 h16 hnc3
+      w _ (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal, h7])
+      (by simp [setLocal]) (by simp [setLocal, h15]) (by simp [setLocal, h16]) hnc3
 
 private theorem bitwise_pc216 {k : Nat} (hk : 1210 ≤ k) (w : UInt32) (locs : Nat → JvmVal)
     (h0 : locs 0 = .i32 w) (h6 : locs 6 = .i32 (w >>> 3 &&& 1))
@@ -258,35 +266,43 @@ private theorem bitwise_pc139 {k : Nat} (hk : 1800 ≤ k) (w : UInt32) (locs : N
       (f_Algorithm_computeNextGen4x4BitwiseUInt_prog.drop 139)
       ⟨139, [], locs, {}, ⟨[], [], []⟩⟩ =
       some (.i32 (Algorithm.computeNextGen4x4BitwiseUInt w)) := by
+  rw [← setLocal_eq_self h0, ← setLocal_eq_self h6, ← setLocal_eq_self h7, ← setLocal_eq_self h9,
+    ← setLocal_eq_self h13, ← setLocal_eq_self h17]
   f1_split_val_fuel 120
   flat_step_blk f_Algorithm_computeNextGen4x4BitwiseUInt_prog
-  rw [h0, h6, h7, h13, h17]
   refine eq_of_ite_branches (fun hc3 => ?_) (fun hc3 => ?_)
   · have hnc : Algorithm.neighborCount12UInt w = 3 := by
-      simpa [Algorithm.neighborCount12UInt, Jvm.JvmVal.asI32] using hc3
+      simpa [Algorithm.neighborCount12UInt] using hc3
     exact bitwise_pc216 (by (try simp only [f1_nat_add_eq_add, Nat.succ_eq_add_one]); omega)
-      w locs h0 h6 h7 h8 h9 h14 h18 hnc
+      w _ (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal])
+      (by simp [setLocal, h8]) (by simp [setLocal]) (by simp [setLocal, h14])
+      (by simp [setLocal, h18]) hnc
   · have hnc3 : Algorithm.neighborCount12UInt w ≠ 3 := by
-      simpa [Algorithm.neighborCount12UInt, Jvm.JvmVal.asI32] using hc3
+      simpa [Algorithm.neighborCount12UInt] using hc3
     f1_split_val_fuel 120
     flat_step_blk f_Algorithm_computeNextGen4x4BitwiseUInt_prog
     refine eq_of_ite_branches (fun hc2 => ?_) (fun hc2 => ?_)
     · have hnc2 : Algorithm.neighborCount12UInt w = 2 := by
-        simpa [Algorithm.neighborCount12UInt, Jvm.JvmVal.asI32] using hc2
+        simpa [Algorithm.neighborCount12UInt] using hc2
       f1_split_val_fuel 120
       flat_step_blk f_Algorithm_computeNextGen4x4BitwiseUInt_prog
-      rw [h9]
       refine eq_of_ite_branches (fun hbit => ?_) (fun hbit => ?_)
-      · have hb : (w >>> 9 &&& 1) = 1 := by simpa [Jvm.JvmVal.asI32] using hbit
+      · have hb : (w >>> 9 &&& 1) = 1 := by simpa using hbit
         exact bitwise_pc211 (by (try simp only [f1_nat_add_eq_add, Nat.succ_eq_add_one]); omega)
-          w locs h0 h6 h7 h8 h9 h14 h18 hnc2 hb
-      · have hb : (w >>> 9 &&& 1) ≠ 1 := by simpa [Jvm.JvmVal.asI32] using hbit
+          w _ (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal])
+          (by simp [setLocal, h8]) (by simp [setLocal]) (by simp [setLocal, h14])
+          (by simp [setLocal, h18]) hnc2 hb
+      · have hb : (w >>> 9 &&& 1) ≠ 1 := by simpa using hbit
         exact bitwise_pc206 (by (try simp only [f1_nat_add_eq_add, Nat.succ_eq_add_one]); omega)
-          w locs h0 h6 h7 h8 h9 h14 h18 hnc2 hb
+          w _ (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal])
+          (by simp [setLocal, h8]) (by simp [setLocal]) (by simp [setLocal, h14])
+          (by simp [setLocal, h18]) hnc2 hb
     · have hnc2 : Algorithm.neighborCount12UInt w ≠ 2 := by
-        simpa [Algorithm.neighborCount12UInt, Jvm.JvmVal.asI32] using hc2
+        simpa [Algorithm.neighborCount12UInt] using hc2
       exact bitwise_pc198 (by (try simp only [f1_nat_add_eq_add, Nat.succ_eq_add_one]); omega)
-        w locs h0 h6 h7 h8 h9 h14 h18 hnc3 hnc2
+        w _ (by simp [setLocal]) (by simp [setLocal]) (by simp [setLocal])
+        (by simp [setLocal, h8]) (by simp [setLocal]) (by simp [setLocal, h14])
+        (by simp [setLocal, h18]) hnc3 hnc2
 
 private def bitwiseInitLocals (w : UInt32) : Nat → JvmVal :=
   setLocal
@@ -344,16 +360,16 @@ private theorem bitwise_pc0_nc2 {k : Nat} (hk : 2000 ≤ k) (w : UInt32)
   flat_step_blk f_Algorithm_computeNextGen4x4BitwiseUInt_prog
   refine eq_of_ite_branches (fun hc2 => ?_) (fun hc2 => ?_)
   · have hnc2 : Algorithm.neighborCount22UInt w = 2 := by
-      simpa [Algorithm.neighborCount22UInt, Jvm.JvmVal.asI32] using hc2
+      simpa [Algorithm.neighborCount22UInt] using hc2
     f1_split_val_fuel 120
     flat_step_blk f_Algorithm_computeNextGen4x4BitwiseUInt_prog
     refine eq_of_ite_branches (fun hbit => ?_) (fun hbit => ?_)
-    · have hb : (w >>> 12 &&& 1) = 1 := by simpa [bitwiseInitLocals, setLocal, Jvm.JvmVal.asI32] using hbit
+    · have hb : (w >>> 12 &&& 1) = 1 := by simpa [bitwiseInitLocals, setLocal] using hbit
       exact bitwise_pc134 (by (try simp only [f1_nat_add_eq_add, Nat.succ_eq_add_one]); omega) w hnc2 hb
-    · have hb : (w >>> 12 &&& 1) ≠ 1 := by simpa [bitwiseInitLocals, setLocal, Jvm.JvmVal.asI32] using hbit
+    · have hb : (w >>> 12 &&& 1) ≠ 1 := by simpa [bitwiseInitLocals, setLocal] using hbit
       exact bitwise_pc131 (by (try simp only [f1_nat_add_eq_add, Nat.succ_eq_add_one]); omega) w hnc2 hb
   · have hnc2 : Algorithm.neighborCount22UInt w ≠ 2 := by
-      simpa [Algorithm.neighborCount22UInt, Jvm.JvmVal.asI32] using hc2
+      simpa [Algorithm.neighborCount22UInt] using hc2
     exact bitwise_pc119 (by (try simp only [f1_nat_add_eq_add, Nat.succ_eq_add_one]); omega) w hnc3 hnc2
 
 theorem computeNextGen4x4BitwiseUInt_equiv (w : UInt32) :
@@ -364,13 +380,13 @@ theorem computeNextGen4x4BitwiseUInt_equiv (w : UInt32) :
   flat_step_blk f_Algorithm_computeNextGen4x4BitwiseUInt_prog
   refine eq_of_ite_branches (fun hc3 => ?_) (fun hc3 => ?_)
   · have hnc : Algorithm.neighborCount22UInt w = 3 := by
-      simpa [Algorithm.neighborCount22UInt, Jvm.JvmVal.asI32] using hc3
+      simpa [Algorithm.neighborCount22UInt] using hc3
     step_val_n 2
     apply bitwise_pc139 (by decide) w _
       rfl rfl rfl rfl rfl rfl rfl rfl
       (by simp [setLocal, Algorithm.bitRuleUInt, hnc])
   · have hnc3 : Algorithm.neighborCount22UInt w ≠ 3 := by
-      simpa [Algorithm.neighborCount22UInt, Jvm.JvmVal.asI32] using hc3
+      simpa [Algorithm.neighborCount22UInt] using hc3
     exact bitwise_pc0_nc2 (by decide) w hnc3
 
 

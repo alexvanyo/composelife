@@ -60,7 +60,7 @@ theorem centeredSubnodeLevel4_equiv (qnw qne qsw qse : UInt64) :
       some (.i64 (Algorithm.centeredSubnodeLevel4 qnw qne qsw qse)) := by
   change some (JvmVal.i64 _) = some (JvmVal.i64 _)
   congr 2
-  dsimp [Jvm.JvmVal.asI32, Jvm.JvmVal.asI64, setLocal, initJvmState, Jvm.initJvmState, List.foldl,
+  dsimp [setLocal, initJvmState, Jvm.initJvmState, List.foldl,
     Algorithm.centeredSubnodeLevel4]
   bv_check "../lrat/JvmEquiv.Algorithm.JvmVerification.centeredSubnodeLevel4_equiv.lrat"
 
@@ -70,7 +70,7 @@ theorem centeredHorizontalSubnodeLevel4_equiv (qnw qne qsw qse : UInt64) :
       some (.i64 (Algorithm.centeredHorizontalSubnodeLevel4 qnw qne qsw qse)) := by
   change some (JvmVal.i64 _) = some (JvmVal.i64 _)
   congr 2
-  dsimp [Jvm.JvmVal.asI32, Jvm.JvmVal.asI64, setLocal, initJvmState, Jvm.initJvmState, List.foldl,
+  dsimp [setLocal, initJvmState, Jvm.initJvmState, List.foldl,
     Algorithm.centeredHorizontalSubnodeLevel4, Algorithm.centeredSubnodeLevel4]
   bv_check "../lrat/JvmEquiv.Algorithm.JvmVerification.centeredHorizontalSubnodeLevel4_equiv.lrat"
 
@@ -80,7 +80,7 @@ theorem centeredVerticalSubnodeLevel4_equiv (qnw qne qsw qse : UInt64) :
       some (.i64 (Algorithm.centeredVerticalSubnodeLevel4 qnw qne qsw qse)) := by
   change some (JvmVal.i64 _) = some (JvmVal.i64 _)
   congr 2
-  dsimp [Jvm.JvmVal.asI32, Jvm.JvmVal.asI64, setLocal, initJvmState, Jvm.initJvmState, List.foldl,
+  dsimp [setLocal, initJvmState, Jvm.initJvmState, List.foldl,
     Algorithm.centeredVerticalSubnodeLevel4, Algorithm.centeredSubnodeLevel4]
   bv_check "../lrat/JvmEquiv.Algorithm.JvmVerification.centeredVerticalSubnodeLevel4_equiv.lrat"
 
@@ -90,7 +90,7 @@ theorem packLeafFrom4x4s_equiv (q0 q1 q2 q3 : UInt32) :
       some (.i64 (Algorithm.packLeafFrom4x4sUInt q0 q1 q2 q3)) := by
   change some (JvmVal.i64 _) = some (JvmVal.i64 _)
   congr 2
-  dsimp [Jvm.JvmVal.asI32, Jvm.JvmVal.asI64, setLocal, initJvmState, Jvm.initJvmState, List.foldl,
+  dsimp [setLocal, initJvmState, Jvm.initJvmState, List.foldl,
     Algorithm.packLeafFrom4x4sUInt]
   bv_check "../lrat/JvmEquiv.Algorithm.JvmVerification.packLeafFrom4x4s_equiv.lrat"
 
@@ -99,7 +99,7 @@ theorem expandOffsetDelta_equiv (lvl : UInt32) (h1 : 1 ≤ lvl) (h2 : lvl ≤ 30
       some (.i32 (Algorithm.expandOffsetDeltaUInt lvl).toUInt32) := by
   change some (JvmVal.i32 _) = some (JvmVal.i32 _)
   congr 2
-  dsimp [Jvm.JvmVal.asI32, Jvm.JvmVal.asI64, setLocal, initJvmState, Jvm.initJvmState, List.foldl,
+  dsimp [setLocal, initJvmState, Jvm.initJvmState, List.foldl,
     Algorithm.expandOffsetDeltaUInt]
   bv_check "../lrat/JvmEquiv.Algorithm.JvmVerification.expandOffsetDelta_equiv.lrat"
 
@@ -108,7 +108,7 @@ theorem stepOffsetDelta_equiv (lvl : UInt32) (h1 : 2 ≤ lvl) (h2 : lvl ≤ 30) 
       some (.i32 (Algorithm.stepOffsetDeltaUInt lvl).toUInt32) := by
   change some (JvmVal.i32 _) = some (JvmVal.i32 _)
   congr 2
-  dsimp [Jvm.JvmVal.asI32, Jvm.JvmVal.asI64, setLocal, initJvmState, Jvm.initJvmState, List.foldl,
+  dsimp [setLocal, initJvmState, Jvm.initJvmState, List.foldl,
     Algorithm.stepOffsetDeltaUInt]
   bv_check "../lrat/JvmEquiv.Algorithm.JvmVerification.stepOffsetDelta_equiv.lrat"
 
@@ -117,7 +117,7 @@ theorem leafContains_equiv (leaf : UInt64) (x y : UInt32) :
       some (.i32 (if Algorithm.leafContains leaf x y then 1 else 0)) := by
   change some (JvmVal.i32 _) = some (JvmVal.i32 _)
   congr 2
-  dsimp [Jvm.JvmVal.asI32, Jvm.JvmVal.asI64, setLocal, initJvmState, Jvm.initJvmState, List.foldl,
+  dsimp [setLocal, initJvmState, Jvm.initJvmState, List.foldl,
     Algorithm.leafContains, Algorithm.cellToLeafBitUInt]
   bv_check "../lrat/JvmEquiv.Algorithm.JvmVerification.leafContains_equiv.lrat"
 
@@ -127,7 +127,7 @@ theorem leafWithCell_equiv (leaf : UInt64) (x y : UInt32) (isAlive : Bool) :
       some (.i64 (Algorithm.leafWithCell leaf x y isAlive)) := by
   change some (JvmVal.i64 _) = some (JvmVal.i64 _)
   congr 2
-  dsimp [Jvm.JvmVal.asI32, Jvm.JvmVal.asI64, setLocal, initJvmState, Jvm.initJvmState, List.foldl,
+  dsimp [setLocal, initJvmState, Jvm.initJvmState, List.foldl,
     Algorithm.leafWithCell, Algorithm.cellToLeafBitUInt]
   bv_check "../lrat/JvmEquiv.Algorithm.JvmVerification.leafWithCell_equiv.lrat"
 
@@ -243,6 +243,76 @@ theorem serializeLife105_equiv (cells : Array UInt64) :
       (initJvmState [(0, (.ext (.u64Ref 0)))] [] [cells]) =
       some (.strArr (Algorithm.serializeLife105 cells)) := by rfl
 
+private theorem runJvmResFast_invokestatic_step' {f1 : Nat} {prog : List JvmInstr} {pc : Nat}
+    {cls method desc : String} {rest : List JvmInstr} {pc0 : Nat} {stk stk' : List JvmVal}
+    {locs : Nat → JvmVal} {jh jh' : Jvm.JvmHeap AlgExt} {hp hp' : AlgHeap}
+    (hs : stepInvokeStatic ⟨pc, stk, locs, jh, hp⟩ cls method desc =
+      .inl (some ⟨pc + 1, stk', locs, jh', hp'⟩)) :
+    runJvmResFast (f1 + 1) prog pc (.invokestatic cls method desc :: rest) ⟨pc0, stk, locs, jh, hp⟩ =
+      runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, stk', locs, jh', hp'⟩ :=
+  Jvm.runJvmResFast_invokestatic_step algHooks hs
+
+private theorem runJvmResFast_invokestatic_generic' {f1 : Nat} {prog : List JvmInstr} {pc : Nat}
+    {cls method desc : String} {rest : List JvmInstr} {pc0 : Nat} {stk stk' : List JvmVal}
+    {locs : Nat → JvmVal} {jh jh' : Jvm.JvmHeap AlgExt} {hp hp' : AlgHeap}
+    (hs : Jvm.stepInvokeStaticGeneric algHooks ⟨pc, stk, locs, jh, hp⟩ cls method desc =
+      .inl (some ⟨pc + 1, stk', locs, jh', hp'⟩)) :
+    runJvmResFast (f1 + 1) prog pc (.invokestatic cls method desc :: rest) ⟨pc0, stk, locs, jh, hp⟩ =
+      runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, stk', locs, jh', hp'⟩ :=
+  Jvm.runJvmResFast_invokestatic_step algHooks hs
+
+private theorem runJvmResFast_step_of_stepInstr' {f1 : Nat} {prog : List JvmInstr} {pc : Nat}
+    {instr : JvmInstr} {rest : List JvmInstr} {st st' : JvmState}
+    (hbr : isBranchInstr instr = false)
+    (hno : ¬(instr = .i2l ∧ ∃ r', rest = .lconst 4294967295 :: .land :: r'))
+    (hs : Jvm.stepInstr algHooks instr { st with pc := pc } = .inl (some st'))
+    (hpc : st'.pc = pc + 1) :
+    runJvmResFast (f1 + 1) prog pc (instr :: rest) st =
+      runJvmResFast f1 prog (pc + 1) rest st' :=
+  Jvm.runJvmResFast_step_of_stepInstr algHooks hbr hno hs hpc
+
+private theorem stepStatic_ulongArrGetSize_u64
+    {pc id : Nat} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
+    {arr : Array UInt64} (hget : u64[id]? = some arr) :
+    stepInvokeStatic ⟨pc, (.ext (.u64Ref id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      "kotlin/ULongArray" "getSize-impl" "([J)I" =
+      .inl (some ⟨pc + 1, .i32 arr.size.toUInt32 :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
+  have h1 : stepInvokeStatic ⟨pc, (.ext (.u64Ref id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      "kotlin/ULongArray" "getSize-impl" "([J)I" =
+      match u64[id]? with
+      | some a => .inl (some ⟨pc + 1, .i32 a.size.toUInt32 :: rest, locs, jh, ⟨ar, u64, asc⟩⟩)
+      | none => .inr none := rfl
+  rw [h1, hget]
+
+private theorem stepStatic_ulongArrGet_u64
+    {pc id : Nat} {idx : UInt32} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
+    {arr : Array UInt64} (hget : u64[id]? = some arr) :
+    stepInvokeStatic ⟨pc, .i32 idx :: (.ext (.u64Ref id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      "kotlin/ULongArray" "get-s-VKNKU" "([JI)J" =
+      .inl (some ⟨pc + 1, .i64 (arr[idx.toNat]!) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩) := by
+  have h1 : stepInvokeStatic ⟨pc, .i32 idx :: (.ext (.u64Ref id)) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩
+      "kotlin/ULongArray" "get-s-VKNKU" "([JI)J" =
+      match u64[id]? with
+      | some a => .inl (some ⟨pc + 1, .i64 (a[idx.toNat]!) :: rest, locs, jh, ⟨ar, u64, asc⟩⟩)
+      | none => .inr none := rfl
+  rw [h1, hget]
+
+private theorem stepStatic_coerceIn
+    {pc : Nat} {hi lo v : UInt32} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
+    Jvm.stepInvokeStaticGeneric algHooks ⟨pc, .i32 hi :: .i32 lo :: .i32 v :: rest, locs, jh, hp⟩
+      "kotlin/ranges/RangesKt" "coerceIn" "(III)I" =
+      .inl (some ⟨pc + 1, .i32 (coerceInI32 v lo hi) :: rest, locs, jh, hp⟩) := rfl
+
+private theorem stepStatic_ulongArrCtor
+    {pc : Nat} {stk : List JvmVal} {locs : Nat → JvmVal}
+    {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
+    Jvm.stepInvokeStaticGeneric algHooks ⟨pc, stk, locs, jh, hp⟩
+      "kotlin/ULongArray" "constructor-impl" "([J)[J" =
+      .inl (some ⟨pc + 1, stk, locs, jh, hp⟩) := rfl
+
 private theorem stepStatic_arraysCopyOfRange_u64
     {pc : Nat} {id : Nat} {s e : UInt32} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
@@ -285,14 +355,34 @@ private theorem u64buf_toArray_of_prog (prog : List JvmInstr)
     · rw [h01, hs]; omega
     · rw [hs]; omega
   apply runJvmRes_of_runJvmResFast0 _ _ _ _ rfl
-  have heval1 : runJvmResFast 35 f_Algorithm_U64Buf_toArray_prog 0 f_Algorithm_U64Buf_toArray_prog
-      (initJvmState [(0, (.ext (.u64Ref 0)))] [] [arr]) =
-    runJvmResFast 13 f_Algorithm_U64Buf_toArray_prog 22 (f_Algorithm_U64Buf_toArray_prog.drop 22)
-      { (initJvmState [(0, (.ext (.u64Ref 0)))] [] [arr]) with
-        pc := 22,
-        stack := [.i32 (coerceInI32 (arr[0]!.toUInt32 + 1) (coerceInI32 1 0 arr.size.toUInt32) arr.size.toUInt32),
-          .i32 (coerceInI32 1 0 arr.size.toUInt32), .ext (.u64Ref 0)] } := rfl
-  rw [heval1, hc1, hc2]
+  dsimp only [initJvmState, Jvm.initJvmState, List.foldl, f_Algorithm_U64Buf_toArray_prog]
+  rw [runJvmResFast_step_of_stepInstr' rfl (by simp) (hs := rfl) rfl]
+  rw [runJvmResFast_step_of_stepInstr' rfl (by simp) (hs := rfl) rfl]
+  rw [runJvmResFast_step_of_stepInstr' rfl (by simp) (hs := rfl) rfl]
+  rw [runJvmResFast_step_of_stepInstr' rfl (by simp) (hs := rfl) rfl]
+  simp only [setLocal, ite_true]
+  rw [runJvmResFast_invokestatic_step' (stepStatic_ulongArrGetSize_u64 rfl)]
+  rw [runJvmResFast_invokestatic_generic' stepStatic_coerceIn, hc1]
+  rw [runJvmResFast_step_of_stepInstr' rfl (by simp) (hs := rfl) rfl]
+  simp only [setLocal, ite_true]
+  rw [runJvmResFast_step_of_stepInstr' rfl (by simp) (hs := rfl) rfl]
+  rw [runJvmResFast_invokestatic_step' (stepStatic_ulongArrGet_u64 rfl)]
+  simp only [UInt32.toNat_zero]
+  rw [runJvmResFast_step_of_stepInstr' rfl (by simp) (hs := rfl) rfl]
+  rw [runJvmResFast_invokestatic_generic' (Jvm.stepInvokeStatic_uint_ctor algHooks)]
+  rw [runJvmResFast_step_of_stepInstr' rfl (by simp) (hs := rfl) rfl]
+  rw [runJvmResFast_step_of_stepInstr' rfl (by simp) (hs := rfl) rfl]
+  rw [runJvmResFast_invokestatic_generic' (Jvm.stepInvokeStatic_uint_ctor algHooks)]
+  rw [runJvmResFast_step_of_stepInstr' rfl (by simp) (hs := rfl) rfl]
+  rw [runJvmResFast_step_of_stepInstr' rfl (by simp) (hs := rfl) rfl]
+  rw [runJvmResFast_step_of_stepInstr' rfl (by simp) (hs := rfl) rfl]
+  simp only [setLocal, ite_true]
+  rw [runJvmResFast_invokestatic_step' (stepStatic_ulongArrGetSize_u64 rfl)]
+  rw [runJvmResFast_invokestatic_generic' stepStatic_coerceIn, hc1]
+  rw [runJvmResFast_step_of_stepInstr' rfl (by simp) (hs := rfl) rfl]
+  simp only [setLocal, ite_true]
+  rw [runJvmResFast_invokestatic_step' (stepStatic_ulongArrGetSize_u64 rfl)]
+  rw [runJvmResFast_invokestatic_generic' stepStatic_coerceIn, hc2]
   have hs_lt : (1 : UInt32) < 0x80000000 := by decide
   have he_lt : arr[0]!.toUInt32 + 1 < 0x80000000 := by
     change (arr[0]!.toUInt32 + 1).toNat < 2147483648; omega
@@ -300,24 +390,9 @@ private theorem u64buf_toArray_of_prog (prog : List JvmInstr)
     change (1 : UInt32).toNat ≤ (arr[0]!.toUInt32 + 1).toNat
     simp only [UInt32.toNat_one]; omega
   have heb : (arr[0]!.toUInt32 + 1).toNat ≤ arr.size := by omega
-  have hdrop22 : f_Algorithm_U64Buf_toArray_prog.drop 22 =
-      [.invokestatic "kotlin/collections/ArraysKt" "copyOfRange" "([JII)[J",
-       .invokestatic "kotlin/ULongArray" "constructor-impl" "([J)[J", .areturn] := rfl
-  rw [hdrop22, show (13 : Nat) = 12 + 1 by decide]
-  dsimp only [runJvmResFast, Jvm.runJvmResFast, Jvm.isBranchInstr]
-  have hcopy : Jvm.stepInstr algHooks (.invokestatic "kotlin/collections/ArraysKt" "copyOfRange" "([JII)[J")
-      { pc := 22, stack := [.i32 (arr[0]!.toUInt32 + 1), .i32 1, .ext (.u64Ref 0)],
-        locals := (initJvmState [(0, (.ext (.u64Ref 0)))] [] [arr]).locals,
-        jvmHeap := (initJvmState [(0, (.ext (.u64Ref 0)))] [] [arr]).jvmHeap,
-        heap := (initJvmState [(0, (.ext (.u64Ref 0)))] [] [arr]).heap } =
-      stepInvokeStatic
-        { pc := 22, stack := [.i32 (arr[0]!.toUInt32 + 1), .i32 1, .ext (.u64Ref 0)],
-          locals := (initJvmState [(0, (.ext (.u64Ref 0)))] [] [arr]).locals,
-          jvmHeap := (initJvmState [(0, (.ext (.u64Ref 0)))] [] [arr]).jvmHeap,
-          heap := (initJvmState [(0, (.ext (.u64Ref 0)))] [] [arr]).heap }
-        "kotlin/collections/ArraysKt" "copyOfRange" "([JII)[J" := rfl
-  rw [hcopy, stepStatic_arraysCopyOfRange_u64 (by rfl) hs_lt he_lt hse heb]
-  dsimp only [Option.map]
+  rw [runJvmResFast_invokestatic_step'
+    (stepStatic_arraysCopyOfRange_u64 rfl hs_lt he_lt hse heb)]
+  rw [runJvmResFast_invokestatic_generic' stepStatic_ulongArrCtor]
   rw [UInt32.toNat_one]
   rfl
 
@@ -480,7 +555,6 @@ theorem computeGenerationStep_equiv (step : UInt32) (st : Algorithm.HashLifeStep
       some ((.ext (.stepBatch (Algorithm.computeGenerationStep step st computedGenerations macroKeep leafKeep stepOneGen)))) := by
   change some (JvmVal.ext (AlgExt.stepBatch _)) = some (JvmVal.ext (AlgExt.stepBatch _))
   congr 4
-  dsimp [Jvm.JvmVal.asI32, Jvm.JvmVal.asI64, setLocal, initJvmState, Jvm.initJvmState, List.foldl]
   rw [signExtend_and_mask]
 
 theorem computeLevel4NextGen16x16UInt_equiv (nw ne sw se : UInt64) :

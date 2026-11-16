@@ -25,6 +25,7 @@ import com.alexvanyo.composelife.buildlogic.LeanExtension
 import com.alexvanyo.composelife.buildlogic.VerifyLeanJvmBytecodeTask
 import com.alexvanyo.composelife.buildlogic.VerifyLeanTask
 import com.alexvanyo.composelife.buildlogic.heavyTaskLimitingBuildService
+import com.alexvanyo.composelife.buildlogic.leanTaskLimitingBuildService
 import org.gradle.api.Task
 import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -77,8 +78,20 @@ class LeanConventionPlugin :
             usesService(heavyTaskLimitingBuildService)
         }
 
-        val sharedJvmLeanFiles = rootProject.layout.projectDirectory.dir("jvm-lean").asFileTree.matching {
+        val sharedJvmLeanFiles = fileTree(isolated.rootProject.projectDirectory.dir("jvm-lean")) {
             include("**/*.lean")
+            include("lakefile.toml")
+            include("lakefile.lean")
+            include("lean-toolchain")
+            exclude(".lake/**")
+        }
+
+        val moduleLeanInputFiles = leanExtension.leanDirectory.asFileTree.matching {
+            include("**/*.lean")
+            include("**/lrat/*.lrat")
+            include("lakefile.toml")
+            include("lakefile.lean")
+            include("lean-toolchain")
             exclude(".lake/**")
         }
 
@@ -90,8 +103,12 @@ class LeanConventionPlugin :
                     include("**/*.lean")
                     exclude(".lake/**")
                 },
-                sharedJvmLeanFiles,
+                fileTree(isolated.rootProject.projectDirectory.dir("jvm-lean")) {
+                    include("**/*.lean")
+                    exclude(".lake/**")
+                },
             )
+            stampFile.set(layout.buildDirectory.file("lean/check-bv-check.stamp"))
         }
 
         val verifyLean = tasks.register("verifyLean", VerifyLeanTask::class.java) {
@@ -99,22 +116,19 @@ class LeanConventionPlugin :
             group = LifecycleBasePlugin.VERIFICATION_GROUP
             dependsOn(cacheLean, checkLeanBvCheck)
             workingDir.set(leanExtension.leanDirectory)
+            leanFiles.from(moduleLeanInputFiles, sharedJvmLeanFiles)
             target.set(leanExtension.target)
+            stampFile.set(layout.buildDirectory.file("lean/verify-lean.stamp"))
             usesService(heavyTaskLimitingBuildService)
+            usesService(leanTaskLimitingBuildService)
         }
 
         val generateLeanKotlin = tasks.register("generateLeanKotlin", GenerateLeanKotlinTask::class.java) {
             description = "Generates Kotlin code directly from Lean formal models"
             group = LifecycleBasePlugin.BUILD_GROUP
             dependsOn(verifyLean)
-            leanFiles.from(
-                leanExtension.leanDirectory.asFileTree.matching {
-                    include("**/*.lean")
-                    include("lakefile.toml")
-                    include("lakefile.lean")
-                    include("lean-toolchain")
-                },
-            )
+            usesService(leanTaskLimitingBuildService)
+            leanFiles.from(moduleLeanInputFiles, sharedJvmLeanFiles)
             leanBinary.set(leanExtension.leanBinary)
             workingDir.set(leanExtension.leanDirectory)
             packageName.set(leanExtension.packageName)
@@ -141,6 +155,8 @@ class LeanConventionPlugin :
             group = LifecycleBasePlugin.VERIFICATION_GROUP
             dependsOn(generateLeanKotlin)
             this.generatedSourcesDir.set(generatedSourcesDir)
+            expectOutputs.set(provider { leanExtension.entries.isNotEmpty() })
+            stampFile.set(layout.buildDirectory.file("lean/check-generated-kotlin.stamp"))
         }
 
         val checkLeanBuildScriptHygiene = tasks.register(
@@ -161,17 +177,11 @@ class LeanConventionPlugin :
             group = LifecycleBasePlugin.VERIFICATION_GROUP
             dependsOn(verifyLean, checkLeanBvCheck, generateLeanKotlin)
             workingDir.set(leanExtension.leanDirectory)
-            leanFiles.from(
-                leanExtension.leanDirectory.asFileTree.matching {
-                    include("**/*.lean")
-                    include("**/lrat/*.lrat")
-                    exclude(".lake/**")
-                },
-                sharedJvmLeanFiles,
-            )
-            scriptFile.set(rootProject.layout.projectDirectory.file("script/jvm-bytecode2lean.py"))
-            moduleNamespace.set(leanExtension.target.map { it.substringBefore(':') })
+            leanFiles.from(moduleLeanInputFiles, sharedJvmLeanFiles)
+            scriptFile.set(isolated.rootProject.projectDirectory.file("script/jvm-bytecode2lean.py"))
+            moduleNamespace.set(leanExtension.target.map { leanTarget -> leanTarget.substringBefore(':') })
             generatedBytecodeDir.set(layout.buildDirectory.dir("generated/lean/jvm"))
+            stampFile.set(layout.buildDirectory.file("lean/verify-jvm-bytecode.stamp"))
             classFiles.from(
                 provider {
                     leanExtension.entries.map { entry ->
@@ -183,12 +193,40 @@ class LeanConventionPlugin :
                     }
                 },
             )
+            kotlinClassFiles.from(
+                provider {
+                    leanExtension.kotlinBytecodeClassPaths.getOrElse(emptyList()).map { classPath ->
+                        if (classPath.endsWith("/")) {
+                            fileTree(desktopClassesDir.get().dir(classPath)) {
+                                include("**/*.class")
+                            }
+                        } else {
+                            desktopClassesDir.get().file(classPath)
+                        }
+                    }
+                },
+            )
             usesService(heavyTaskLimitingBuildService)
+            usesService(leanTaskLimitingBuildService)
         }
 
         pluginManager.withPlugin("org.jetbrains.kotlin.multiplatform") {
             verifyLeanJvmBytecode.configure {
                 dependsOn("compileKotlinDesktop")
+            }
+            tasks.withType(Task::class.java).named { taskName -> taskName == "desktopTest" }.configureEach {
+                dependsOn(verifyLean)
+                dependsOn(
+                    provider {
+                        if (leanExtension.entries.isNotEmpty() ||
+                            leanExtension.kotlinBytecodeClassPaths.getOrElse(emptyList()).isNotEmpty()
+                        ) {
+                            listOf(verifyLeanJvmBytecode)
+                        } else {
+                            emptyList()
+                        }
+                    },
+                )
             }
             extensions.configure(KotlinMultiplatformExtension::class.java) {
                 sourceSets.named("commonMain").configure {
@@ -197,12 +235,23 @@ class LeanConventionPlugin :
             }
         }
 
-        tasks.withType(Task::class.java).named { it == LifecycleBasePlugin.CHECK_TASK_NAME }.configureEach {
-            dependsOn(
-                verifyLean,
-                checkLeanGeneratedKotlin,
-                checkLeanBuildScriptHygiene,
-                verifyLeanJvmBytecode,
-            )
-        }
+        tasks
+            .withType(Task::class.java)
+            .named { it == LifecycleBasePlugin.CHECK_TASK_NAME }
+            .configureEach {
+                dependsOn(
+                    verifyLean,
+                    checkLeanGeneratedKotlin,
+                    checkLeanBuildScriptHygiene,
+                    provider {
+                        if (leanExtension.entries.isNotEmpty() ||
+                            leanExtension.kotlinBytecodeClassPaths.getOrElse(emptyList()).isNotEmpty()
+                        ) {
+                            listOf(verifyLeanJvmBytecode)
+                        } else {
+                            emptyList()
+                        }
+                    },
+                )
+            }
     })

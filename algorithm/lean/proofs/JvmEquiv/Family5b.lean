@@ -100,7 +100,7 @@ private theorem step1_load_helper {f' k pc idx : Nat} {prog : List JvmInstr} {in
     runJvmResFast (f' + k) prog pc (instr :: rest) ⟨pc0, stk, locs, jh, hp⟩ =
       runJvmResFast (f' + (k - 1)) prog (pc + 1) rest ⟨pc + 1, v :: stk, locs, jh, hp⟩ := by
   rcases hi with rfl | rfl | rfl <;>
-    exact step1_helper hk rfl (by intro h; cases h) (by simp [Jvm.stepInstr, hloc])
+    exact step1_helper hk rfl (by intro h; cases h) (by unfold Jvm.stepInstr; dsimp only; rw [hloc])
 
 local macro "step1_load" k:num v:term "," hloc:term : tactic => `(tactic| (
   rw [step1_load_helper (idx := $k) (v := $v) (by decide) (by simp) $hloc]
@@ -111,7 +111,7 @@ local macro "step1_load" k:num v:term "," hloc:term : tactic => `(tactic| (
 local macro "step1" : tactic => `(tactic| (
   rw [step1_helper (by decide) rfl (by intro h; cases h) rfl]
   (try (conv => lhs; arg 5; dsimp only [Jvm.JvmState.pc, Jvm.JvmState.stack, Jvm.JvmState.locals,
-    Jvm.JvmState.jvmHeap, Jvm.JvmState.heap, Jvm.JvmVal.asI32]))
+    Jvm.JvmState.jvmHeap, Jvm.JvmState.heap, Jvm.JvmVal.asI32?]))
   (try (conv => lhs; arg 3; simp only [Nat.reduceAdd]))
   (try (conv => lhs; arg 5; arg 1; simp only [Nat.reduceAdd]))
   (repeat (first
@@ -141,7 +141,7 @@ private theorem runJvmResFast_i2c {f pc : Nat} {prog rest : List JvmInstr} {pc0 
       runJvmResFast f prog (pc + 1) rest
         ⟨pc + 1, .i32 (v &&& 65535) :: stk, locs, jh, hp⟩ :=
   runJvmResFast_step_nonbranch_nonret rfl (by intro h; cases h)
-    (by simp [Jvm.stepInstr, Jvm.JvmVal.asI32])
+    (by unfold Jvm.stepInstr; rfl)
 
 private theorem runJvmResFast_checkNotNullParameter {f pc : Nat} {prog rest : List JvmInstr}
     {pc0 : Nat} {msg obj : JvmVal} {stk : List JvmVal} {locs : Nat → JvmVal}
@@ -162,8 +162,8 @@ private theorem runJvmResFast_if_icmpge_fallthrough {f pc tgt : Nat} {prog rest 
     runJvmResFast (f + 1) prog pc (.if_icmpge tgt :: rest)
         ⟨pc, .i32 b :: .i32 a :: stk, locs, jh, hp⟩ =
       runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stk, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32, h]
+  rw [runJvmResFast_at_branch_cons (hbr := rfl), evalResBranchInstrCons_if_icmpge, h]
+  rfl
 
 private theorem runJvmResFast_if_icmple_branch {f pc tgt : Nat} {prog rest : List JvmInstr}
     {a b : UInt32} {stk : List JvmVal} {locs : Nat → JvmVal}
@@ -172,8 +172,8 @@ private theorem runJvmResFast_if_icmple_branch {f pc tgt : Nat} {prog rest : Lis
     runJvmResFast (f + 1) prog pc (.if_icmple tgt :: rest)
         ⟨pc, .i32 b :: .i32 a :: stk, locs, jh, hp⟩ =
       runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stk, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32, h]
+  rw [runJvmResFast_at_branch_cons (hbr := rfl), evalResBranchInstrCons_if_icmple, h]
+  rfl
 
 private theorem i32_slt_eq_toString (v : UInt32) (hv : v.toNat < 2 ^ 31) :
     Jvm.i32ToDecimalString v = toString v := by
@@ -360,7 +360,10 @@ theorem formatMacrocellNode_equiv (lvl nw ne sw se : UInt32)
         ⟨14, [.i32 se, .str " ", .i32 sw, .str " ", .i32 ne, .str " ", .i32 nw, .str " ",
           .str (Jvm.i32ToDecimalString lvl)], locs1, jh, hp⟩ =
         .inl (some ⟨15, [.str resStr], locs1, jh, hp⟩) := by
-      simp [Jvm.stepInstr, hconcat, resStr, String.append_empty]
+      unfold Jvm.stepInstr
+      dsimp only
+      rw [hconcat]
+      simp [resStr, String.append_empty]
     dsimp only [fmConcatDesc] at hinv
     rw [show (10 + 1 : Nat) = (9 + 1) + 1 from rfl]
     rw [runJvmResFast_step_nonbranch_nonret rfl (by intro h; cases h) hinv]
@@ -384,7 +387,7 @@ private theorem runJvmResFast_load_step {f pc : Nat} {prog : List JvmInstr}
     runJvmResFast (f + 1) prog pc (instr :: rest) ⟨pc0, stk, locs, jh, hp⟩ =
       runJvmResFast f prog (pc + 1) rest ⟨pc + 1, v :: stk, locs, jh, hp⟩ := by
   rcases hi with rfl | rfl | rfl <;>
-    exact runJvmResFast_step_nonbranch_nonret rfl (by intro h; cases h) (by simp [Jvm.stepInstr, hk])
+    exact runJvmResFast_step_nonbranch_nonret rfl (by intro h; cases h) (by unfold Jvm.stepInstr; dsimp only; rw [hk])
 
 private theorem stepStatic_leafContains
     {pc : Nat} {leaf : UInt64} {x y : UInt32} {rest : List JvmVal}
@@ -1025,8 +1028,7 @@ private theorem runJvmResFast_tableswitch {f : Nat} {prog : List JvmInstr} {pc :
         ⟨pc0, .i32 key :: stkRest, locs, jh, hp⟩ =
       let t := Jvm.tableswitchTarget key low targets defT
       runJvmResFast f prog t (prog.drop t) ⟨t, stkRest, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32]
+  rw [runJvmResFast_at_branch_cons (hbr := rfl), evalResBranchInstrCons_tableswitch]
 
 private theorem runJvmResFast_lcmp {f pc pc0 : Nat} {prog rest : List JvmInstr}
     {a b : UInt64} {stkRest : List JvmVal} {locs : Nat → JvmVal}
@@ -1096,8 +1098,9 @@ private theorem runJvmResFast_checkNotNull {f pc pc0 : Nat} {prog rest : List Jv
           "(Ljava/lang/Object;Ljava/lang/String;)V" :: rest)
         ⟨pc0, .str msg :: v :: stkRest, locs, jh, hp⟩ =
       runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stkRest, locs, jh, hp⟩ := by
-  apply runJvmResFast_step_nonbranch_nonret rfl (by intro h; cases h)
-  cases v <;> simp [Jvm.stepInstr, Jvm.stepInvokeStaticGeneric, Jvm.JvmVal.isNull] at hnn ⊢
+  have his : Jvm.JvmVal.isNull v = false := by cases v <;> simp_all [Jvm.JvmVal.isNull]
+  exact Jvm.runJvmResFast_invokestatic_step algHooks
+    (Jvm.stepInvokeStatic_intrinsics_checkNotNull algHooks his)
 
 private theorem stepVirtual_uint_unbox {pc : Nat} {v : UInt32} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
@@ -1207,7 +1210,10 @@ private theorem runJvmResFast_checkcast_objArray_any {f pc pc0 addr : Nat}
         ⟨pc0, .heapRef addr :: stkRest, locs, jh, hp⟩ =
       runJvmResFast f prog (pc + 1) rest ⟨pc + 1, .heapRef addr :: stkRest, locs, jh, hp⟩ := by
   apply runJvmResFast_checkcast_step
-  simp [Jvm.stepInstr, Jvm.JvmHeap.checkCast, Jvm.JvmHeap.checkInstanceOf, hget, Jvm.HeapObj.matchesType]
+  unfold Jvm.stepInstr Jvm.evalCheckCast Jvm.JvmHeap.checkCast Jvm.JvmHeap.checkInstanceOf
+  dsimp only
+  rw [hget]
+  simp [Jvm.HeapObj.matchesType]
 
 private theorem runJvmResFast_aaload_elem {f pc pc0 addr : Nat} {idx : UInt32}
     {prog rest : List JvmInstr} {cls : String} {elems : Array JvmVal} {val : JvmVal}
@@ -2711,25 +2717,25 @@ private theorem decodeDagWriter_unpack {jh : Jvm.JvmHeap AlgExt} {wAddr : Nat}
     hgw, he1, he2, he3, hgl, hgn, hlSz.symm, hnSz.symm, hlGet, hnGet⟩
 
 private theorem stepStatic_listLookup_addLeaf
-    {pc : Nat} {leafVal listVal : JvmVal} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {leaf : UInt64} {listVal : JvmVal} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} {xs : List (UInt64 × UInt32)}
     (hlist : decodeLeafBucketList jh (jh.objects.size + 2) listVal = some xs) :
-    stepInvokeStatic ⟨pc, listVal :: leafVal :: rest, locs, jh, hp⟩
+    stepInvokeStatic ⟨pc, listVal :: .i64 leaf :: rest, locs, jh, hp⟩
       "MacroCellLeanKt"
       "f_List_lookup___at___00Algorithm_MacrocellWriterState_addLeaf_spec__0___redArg-4PLdz1A"
       "(JLjava/lang/Object;)Ljava/lang/Object;" =
-      match xs.lookup leafVal.asI64 with
+      match xs.lookup leaf with
       | none => .inl (some ⟨pc + 1, .heapRef jh.objects.size :: rest, locs,
           (jh.alloc (.objArray "java/lang/Object" #[.boxedInt 0])).2, hp⟩)
       | some id => .inl (some ⟨pc + 1, .heapRef jh.objects.size :: rest, locs,
           (jh.alloc (.objArray "java/lang/Object" #[.boxedInt 1, .boxedUInt id])).2, hp⟩) := by
-  have h0 : stepInvokeStatic ⟨pc, listVal :: leafVal :: rest, locs, jh, hp⟩
+  have h0 : stepInvokeStatic ⟨pc, listVal :: .i64 leaf :: rest, locs, jh, hp⟩
       "MacroCellLeanKt"
       "f_List_lookup___at___00Algorithm_MacrocellWriterState_addLeaf_spec__0___redArg-4PLdz1A"
       "(JLjava/lang/Object;)Ljava/lang/Object;" =
       match decodeLeafBucketList jh (jh.objects.size + 2) listVal with
       | some xs =>
-        match xs.lookup leafVal.asI64 with
+        match xs.lookup leaf with
         | none => .inl (some ⟨pc + 1, .heapRef jh.objects.size :: rest, locs,
             (jh.alloc (.objArray "java/lang/Object" #[.boxedInt 0])).2, hp⟩)
         | some id => .inl (some ⟨pc + 1, .heapRef jh.objects.size :: rest, locs,
@@ -2748,10 +2754,7 @@ private theorem stepStatic_listLookup_addLeaf_hit
       "(JLjava/lang/Object;)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .heapRef jh.objects.size :: rest, locs,
         (jh.alloc (.objArray "java/lang/Object" #[.boxedInt 1, .boxedUInt id])).2, hp⟩) := by
-  have h := stepStatic_listLookup_addLeaf (pc := pc) (leafVal := .i64 leaf)
-    (rest := rest) (locs := locs) (hp := hp) hlist
-  simp only [Jvm.JvmVal.asI64, hhit] at h
-  exact h
+  rw [stepStatic_listLookup_addLeaf hlist, hhit]
 
 private theorem stepStatic_listLookup_addLeaf_miss
     {pc : Nat} {leaf : UInt64} {listVal : JvmVal} {rest : List JvmVal} {locs : Nat → JvmVal}
@@ -2764,10 +2767,7 @@ private theorem stepStatic_listLookup_addLeaf_miss
       "(JLjava/lang/Object;)Ljava/lang/Object;" =
       .inl (some ⟨pc + 1, .heapRef jh.objects.size :: rest, locs,
         (jh.alloc (.objArray "java/lang/Object" #[.boxedInt 0])).2, hp⟩) := by
-  have h := stepStatic_listLookup_addLeaf (pc := pc) (leafVal := .i64 leaf)
-    (rest := rest) (locs := locs) (hp := hp) hlist
-  simp only [Jvm.JvmVal.asI64, hmiss] at h
-  exact h
+  rw [stepStatic_listLookup_addLeaf hlist, hmiss]
 
 private theorem stepStatic_listLookup_addNode
     {pc : Nat} {kVal listVal : JvmVal} {rest : List JvmVal} {locs : Nat → JvmVal}
@@ -2997,49 +2997,49 @@ private theorem allFuelNoneAt_dup {prog rest : List JvmInstr} {pc : Nat}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     (hnext : AllFuelNoneAt prog (pc + 1) rest ⟨pc + 1, v :: v :: stkRest, locs, jh, hp⟩) :
     AllFuelNoneAt prog pc (.dup :: rest) ⟨pc, v :: stkRest, locs, jh, hp⟩ :=
-  allFuelNoneAt_step rfl (by simp [stepInstr, Jvm.stepInstr]) hnext
+  allFuelNoneAt_step rfl (by unfold stepInstr Jvm.stepInstr; rfl) hnext
 
 private theorem allFuelNoneAt_ldcStr {prog rest : List JvmInstr} {pc : Nat}
     {s : String} {stkRest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     (hnext : AllFuelNoneAt prog (pc + 1) rest ⟨pc + 1, .str s :: stkRest, locs, jh, hp⟩) :
     AllFuelNoneAt prog pc (.ldcStr s :: rest) ⟨pc, stkRest, locs, jh, hp⟩ :=
-  allFuelNoneAt_step rfl (by simp [stepInstr, Jvm.stepInstr]) hnext
+  allFuelNoneAt_step rfl (by unfold stepInstr Jvm.stepInstr; rfl) hnext
 
 private theorem allFuelNoneAt_iconst {prog rest : List JvmInstr} {pc : Nat}
     {n : UInt32} {stkRest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     (hnext : AllFuelNoneAt prog (pc + 1) rest ⟨pc + 1, .i32 n :: stkRest, locs, jh, hp⟩) :
     AllFuelNoneAt prog pc (.iconst n :: rest) ⟨pc, stkRest, locs, jh, hp⟩ :=
-  allFuelNoneAt_step rfl (by simp [stepInstr, Jvm.stepInstr]) hnext
+  allFuelNoneAt_step rfl (by unfold stepInstr Jvm.stepInstr; rfl) hnext
 
 private theorem allFuelNoneAt_astore {prog rest : List JvmInstr} {pc idx : Nat}
     {v : JvmVal} {stkRest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     (hnext : AllFuelNoneAt prog (pc + 1) rest ⟨pc + 1, stkRest, setLocal locs idx v, jh, hp⟩) :
     AllFuelNoneAt prog pc (.astore idx :: rest) ⟨pc, v :: stkRest, locs, jh, hp⟩ :=
-  allFuelNoneAt_step rfl (by simp [stepInstr, Jvm.stepInstr]) hnext
+  allFuelNoneAt_step rfl (by unfold stepInstr Jvm.stepInstr; rfl) hnext
 
 private theorem allFuelNoneAt_aload {prog rest : List JvmInstr} {pc idx : Nat}
     {v : JvmVal} {stkRest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} (hloc : locs idx = v)
     (hnext : AllFuelNoneAt prog (pc + 1) rest ⟨pc + 1, v :: stkRest, locs, jh, hp⟩) :
     AllFuelNoneAt prog pc (.aload idx :: rest) ⟨pc, stkRest, locs, jh, hp⟩ :=
-  allFuelNoneAt_step rfl (by simp [stepInstr, Jvm.stepInstr, hloc]) hnext
+  allFuelNoneAt_step rfl (by unfold stepInstr Jvm.stepInstr; dsimp only; rw [hloc]) hnext
 
 private theorem allFuelNoneAt_iload {prog rest : List JvmInstr} {pc idx : Nat}
     {v : JvmVal} {stkRest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} (hloc : locs idx = v)
     (hnext : AllFuelNoneAt prog (pc + 1) rest ⟨pc + 1, v :: stkRest, locs, jh, hp⟩) :
     AllFuelNoneAt prog pc (.iload idx :: rest) ⟨pc, stkRest, locs, jh, hp⟩ :=
-  allFuelNoneAt_step rfl (by simp [stepInstr, Jvm.stepInstr, hloc]) hnext
+  allFuelNoneAt_step rfl (by unfold stepInstr Jvm.stepInstr; dsimp only; rw [hloc]) hnext
 
 private theorem allFuelNoneAt_lload {prog rest : List JvmInstr} {pc idx : Nat}
     {v : JvmVal} {stkRest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} (hloc : locs idx = v)
     (hnext : AllFuelNoneAt prog (pc + 1) rest ⟨pc + 1, v :: stkRest, locs, jh, hp⟩) :
     AllFuelNoneAt prog pc (.lload idx :: rest) ⟨pc, stkRest, locs, jh, hp⟩ :=
-  allFuelNoneAt_step rfl (by simp [stepInstr, Jvm.stepInstr, hloc]) hnext
+  allFuelNoneAt_step rfl (by unfold stepInstr Jvm.stepInstr; dsimp only; rw [hloc]) hnext
 
 private theorem allFuelNoneAt_checkcast_boxedInt {prog rest : List JvmInstr} {pc : Nat}
     {v : UInt32} {stkRest : List JvmVal} {locs : Nat → JvmVal}
@@ -3047,7 +3047,7 @@ private theorem allFuelNoneAt_checkcast_boxedInt {prog rest : List JvmInstr} {pc
     (hnext : AllFuelNoneAt prog (pc + 1) rest ⟨pc + 1, .boxedInt v :: stkRest, locs, jh, hp⟩) :
     AllFuelNoneAt prog pc (.checkcast "java/lang/Integer" :: rest)
       ⟨pc, .boxedInt v :: stkRest, locs, jh, hp⟩ :=
-  allFuelNoneAt_step rfl (by simp [stepInstr, Jvm.stepInstr]; rfl) hnext
+  allFuelNoneAt_step rfl (by unfold stepInstr Jvm.stepInstr Jvm.evalCheckCast; rfl) hnext
 
 private theorem allFuelNoneAt_checkcast_pair {prog rest : List JvmInstr} {pc : Nat}
     {a b : JvmVal} {stkRest : List JvmVal} {locs : Nat → JvmVal}
@@ -3055,7 +3055,7 @@ private theorem allFuelNoneAt_checkcast_pair {prog rest : List JvmInstr} {pc : N
     (hnext : AllFuelNoneAt prog (pc + 1) rest ⟨pc + 1, .pair a b :: stkRest, locs, jh, hp⟩) :
     AllFuelNoneAt prog pc (.checkcast "kotlin/Pair" :: rest)
       ⟨pc, .pair a b :: stkRest, locs, jh, hp⟩ :=
-  allFuelNoneAt_step rfl (by simp [stepInstr, Jvm.stepInstr]; rfl) hnext
+  allFuelNoneAt_step rfl (by unfold stepInstr Jvm.stepInstr Jvm.evalCheckCast; rfl) hnext
 
 private theorem allFuelNoneAt_tableswitch_next {prog rest : List JvmInstr} {pc : Nat}
     {low : Int32} {targets : List Nat} {defT : Nat} {key : UInt32}
@@ -3078,7 +3078,7 @@ private theorem allFuelNoneAt_tableswitch_next {prog rest : List JvmInstr} {pc :
     change runJvmRes (f + 1) prog ⟨pc, .i32 key :: stkRest, locs, jh, hp⟩ = none
     dsimp only [runJvmRes]
     rw [Jvm.runJvmRes.eq_def]
-    simp only [hg, Jvm.JvmVal.asI32, htgt]
+    simp only [hg, Jvm.JvmVal.asI32?, htgt]
     exact hnext rfl hdrop1 f
 
 private theorem allFuelNoneAt_invokestatic_step {prog rest : List JvmInstr} {pc : Nat}
@@ -3108,8 +3108,10 @@ private theorem allFuelNoneAt_checkNotNullParameter {prog rest : List JvmInstr} 
         "(Ljava/lang/Object;Ljava/lang/String;)V" :: rest)
       ⟨pc, .str param :: v :: stkRest, locs, jh, hp⟩ :=
   allFuelNoneAt_step rfl (by
-    cases v <;> simp [stepInstr, Jvm.stepInstr, Jvm.stepInvokeStaticGeneric,
-      Jvm.JvmVal.isNull] at hnn ⊢ <;> rfl) hnext
+    unfold stepInstr Jvm.stepInstr
+    dsimp only
+    have his : Jvm.JvmVal.isNull v = false := by cases v <;> simp_all [Jvm.JvmVal.isNull]
+    exact Jvm.stepInvokeStatic_intrinsics_checkNotNullParam algHooks his) hnext
 
 private theorem allFuelNoneAt_checkNotNull {prog rest : List JvmInstr} {pc : Nat}
     {v : JvmVal} {msg : String} {stkRest : List JvmVal} {locs : Nat → JvmVal}
@@ -3120,8 +3122,10 @@ private theorem allFuelNoneAt_checkNotNull {prog rest : List JvmInstr} {pc : Nat
         "(Ljava/lang/Object;Ljava/lang/String;)V" :: rest)
       ⟨pc, .str msg :: v :: stkRest, locs, jh, hp⟩ :=
   allFuelNoneAt_step rfl (by
-    cases v <;> simp [stepInstr, Jvm.stepInstr, Jvm.stepInvokeStaticGeneric,
-      Jvm.JvmVal.isNull] at hnn ⊢ <;> rfl) hnext
+    unfold stepInstr Jvm.stepInstr
+    dsimp only
+    have his : Jvm.JvmVal.isNull v = false := by cases v <;> simp_all [Jvm.JvmVal.isNull]
+    exact Jvm.stepInvokeStatic_intrinsics_checkNotNull algHooks his) hnext
 
 private theorem allFuelNoneAt_checkcast_objArray {prog rest : List JvmInstr} {pc addr : Nat}
     {cls : String} {elems : Array JvmVal} {stkRest : List JvmVal} {locs : Nat → JvmVal}
@@ -3131,8 +3135,10 @@ private theorem allFuelNoneAt_checkcast_objArray {prog rest : List JvmInstr} {pc
     AllFuelNoneAt prog pc (.checkcast "[Ljava/lang/Object;" :: rest)
       ⟨pc, .heapRef addr :: stkRest, locs, jh, hp⟩ :=
   allFuelNoneAt_step rfl (by
-    simp [stepInstr, Jvm.stepInstr, Jvm.JvmHeap.checkCast, Jvm.JvmHeap.checkInstanceOf,
-      hget, Jvm.HeapObj.matchesType]) hnext
+    unfold stepInstr Jvm.stepInstr Jvm.evalCheckCast Jvm.JvmHeap.checkCast Jvm.JvmHeap.checkInstanceOf
+    dsimp only
+    rw [hget]
+    simp [Jvm.HeapObj.matchesType]) hnext
 
 private theorem allFuelNoneAt_aaload {prog rest : List JvmInstr} {pc addr : Nat}
     {cls : String} {elems : Array JvmVal} {idx : UInt32} {stkRest : List JvmVal}
@@ -3621,7 +3627,7 @@ private theorem encodeLeafBucketList_spec (jh : Jvm.JvmHeap AlgExt)
       have htl := decodeLeafBucketList_mono (HeapExtends_alloc (encodeLeafBucketList jh tl).2 obj)
         (hdec b (by simp at hb; omega))
       dsimp only [obj] at htl
-      simp [htl, unboxI64, unboxI32]
+      simp [htl, unboxI64?, unboxI32?]
 
 private theorem encodeNodeBucketList_spec (jh : Jvm.JvmHeap AlgExt)
     (xs : List ((UInt32 × UInt32 × UInt32 × UInt32 × UInt32) × UInt32)) :
@@ -3662,7 +3668,7 @@ private theorem encodeNodeBucketList_spec (jh : Jvm.JvmHeap AlgExt)
       have hk : decodeNodeKey (encodeNodeKey k) = some k := by
         rcases k with ⟨l, nw, ne, sw, se⟩; rfl
       dsimp only [obj] at htl
-      simp [hk, htl, unboxI32]
+      simp [hk, htl, unboxI32?]
 
 private theorem foldl_encodeBuckets_list {α : Type}
     (enc : Jvm.JvmHeap AlgExt → α → JvmVal × Jvm.JvmHeap AlgExt)
@@ -3903,12 +3909,11 @@ private theorem stepStatic_dagWriter_addLeafAt
       "MacroCellLeanKt" "f_Algorithm_DagWriter_addLeafAt-7pzH9BY" "(Ljava/lang/Object;JI)Lkotlin/Pair;" =
       match decodeDagWriter jh (.heapRef wAddr) with
       | some w =>
-        let r := w.addLeafAt (JvmVal.i64 leaf).asI64 (JvmVal.i32 slot).asI32
+        let r := w.addLeafAt leaf slot
         let enc := encodeDagWriter jh r.2
         .inl (some ⟨pc + 1, .pair (.boxedUInt r.1) enc.1 :: rest, locs, enc.2, hp⟩)
       | none => .inr none := rfl
   rw [h0, hdec]
-  dsimp only [Jvm.JvmVal.asI64, Jvm.JvmVal.asI32]
 
 private theorem stepStatic_dagWriter_addNodeAt
     {pc wAddr : Nat} {slot : UInt32} {kVal : JvmVal} {rest : List JvmVal}
@@ -3928,12 +3933,11 @@ private theorem stepStatic_dagWriter_addNodeAt
       "(Ljava/lang/Object;Lkotlin/Pair;I)Lkotlin/Pair;" =
       match decodeNodeKey kVal, decodeDagWriter jh (.heapRef wAddr) with
       | some k, some w =>
-        let r := w.addNodeAt k (JvmVal.i32 slot).asI32
+        let r := w.addNodeAt k slot
         let enc := encodeDagWriter jh r.2
         .inl (some ⟨pc + 1, .pair (.boxedUInt r.1) enc.1 :: rest, locs, enc.2, hp⟩)
       | _, _ => .inr none := rfl
   rw [h0, hk, hdec]
-  dsimp only [Jvm.JvmVal.asI32]
 
 private abbrev progALF : List JvmInstr := f_Algorithm_DagWriter_addLeaf_prog
 
@@ -4024,7 +4028,6 @@ theorem dagWriter_addLeaf_equiv
     rw [runJvmResFast_checkcast_objArray_any hgl]
     rw [runJvmResFast_arraylength_obj hgl]
     rw [runJvmResFast_invokestatic_step stepStatic_uintCtor5b]
-    dsimp only [Jvm.JvmVal.asI32, Jvm.JvmVal.asI64]
     rw [show (UInt32.ofNat lBuckets.size) = w.leafT.size.toUInt32 by simp [hlSz]]
     step_drop_at 3
     rw [runJvmResFast_invokestatic_step (stepStatic_remainderUnsigned (hsize hzero))]
@@ -4165,7 +4168,6 @@ theorem dagWriter_addNode_equiv
   rw [runJvmResFast_checkcast_objArray_any hgn]
   rw [runJvmResFast_arraylength_obj hgn]
   rw [runJvmResFast_invokestatic_step stepStatic_uintCtor5b]
-  dsimp only [Jvm.JvmVal.asI32, Jvm.JvmVal.asI64]
   rw [show (UInt32.ofNat nBuckets.size) = w.nodeT.size.toUInt32 by simp [hnSz]]
   step_drop_at 3
   rw [runJvmResFast_invokestatic_step (stepStatic_remainderUnsigned hsize)]
@@ -4413,8 +4415,9 @@ private theorem stepStatic_uintArrayGet {pc addr : Nat} {elems : Array UInt32} {
     stepInvokeStatic ⟨pc, .i32 idx :: .heapRef addr :: rest, locs, jh, hp⟩
       "kotlin/UIntArray" "get-pVg5ArA" "([II)I" =
       .inl (some ⟨pc + 1, .i32 elems[idx.toNat] :: rest, locs, jh, hp⟩) := by
-  simp [stepInvokeStatic, Jvm.stepInstr, Jvm.stepInvokeStaticGeneric,
-    Jvm.JvmVal.asI32, hs, hget, hlt]
+  unfold stepInvokeStatic Jvm.stepInstr Jvm.stepInvokeStaticGeneric
+  dsimp only
+  simp [Jvm.JvmVal.asI32?, hs, hget, hlt]
 
 private theorem stepStatic_u64BufGet {pc id : Nat} {arr : Array UInt64} {idx : UInt32}
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
@@ -4426,9 +4429,9 @@ private theorem stepStatic_u64BufGet {pc id : Nat} {arr : Array UInt64} {idx : U
       "kotlin/ULongArray" "get-s-VKNKU" "([JI)J" =
       match hp.u64Arrays[id]? with
       | some arr =>
-        .inl (some ⟨pc + 1, .i64 (arr[(JvmVal.i32 idx).asI32.toNat]!) :: rest, locs, jh, hp⟩)
+        .inl (some ⟨pc + 1, .i64 (arr[idx.toNat]!) :: rest, locs, jh, hp⟩)
       | none => .inr none := rfl
-  rw [h0, hget]; rfl
+  rw [h0, hget]
 
 private theorem stepStatic_u64BufEmpty_5b {pc : Nat}
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
@@ -4447,12 +4450,12 @@ private theorem stepStatic_u64BufPush_5b {pc id : Nat} {arr : Array UInt64} {x :
       "MacroCellLeanKt" "f_Algorithm_U64Buf_push-3yFGk1Y" "([JJ)[J" =
       match hp.u64Arrays[id]? with
       | some arr =>
-        let pushed := Algorithm.U64Buf.push arr (JvmVal.i64 x).asI64
+        let pushed := Algorithm.U64Buf.push arr x
         let newId := hp.u64Arrays.length
         .inl (some ⟨pc + 1, .ext (.u64Ref newId) :: rest, locs, jh,
           { hp with u64Arrays := hp.u64Arrays ++ [pushed] }⟩)
       | none => .inr none := rfl
-  rw [h0, hget]; rfl
+  rw [h0, hget]
 
 private theorem stepStatic_dagWriter_addEntry
     {pc wAddr : Nat} {m : Algorithm.MacroCell} {c1 c2 c3 c4 : UInt32}
@@ -4475,13 +4478,11 @@ private theorem stepStatic_dagWriter_addEntry
       "(Ljava/lang/Object;Lcom/alexvanyo/composelife/model/MacroCell;IIII)Lkotlin/Pair;" =
       match decodeDagWriter jh (.heapRef wAddr) with
       | some w =>
-        let r := w.addEntry m (JvmVal.i32 c1).asI32 (JvmVal.i32 c2).asI32
-          (JvmVal.i32 c3).asI32 (JvmVal.i32 c4).asI32
+        let r := w.addEntry m c1 c2 c3 c4
         let p := encodeDagWriter jh r.2
         .inl (some ⟨pc + 1, .pair (.boxedUInt r.1) p.1 :: rest, locs, p.2, hp⟩)
       | none => .inr none := rfl
   rw [h0, hdec]
-  dsimp only [Jvm.JvmVal.asI32]
 
 private def mcElemPush (acc : Array Algorithm.MacroCell) :
     JvmVal → Option (Array Algorithm.MacroCell)
@@ -4503,8 +4504,7 @@ private theorem stepStatic_writeDag_match
         | some entries =>
           match decodeDagWriter jh (.heapRef wAddr) with
           | some w =>
-            let w' := Algorithm.writeDag entries kids (Jvm.JvmVal.i32 k : JvmVal).asI32
-              (Jvm.JvmVal.i32 n : JvmVal).asI32 ids w
+            let w' := Algorithm.writeDag entries kids k n ids w
             let p := encodeDagWriter jh w'
             .inl (some ⟨pc + 1, p.1 :: rest, locs, p.2, hp⟩)
           | none => .inr none
@@ -4531,8 +4531,7 @@ private theorem writeDag_step_match_elim
         | some entries =>
           match decodeDagWriter jh (.heapRef wAddr) with
           | some w =>
-            let w' := wd entries kids (Jvm.JvmVal.i32 k : JvmVal).asI32
-              (Jvm.JvmVal.i32 n : JvmVal).asI32 ids w
+            let w' := wd entries kids k n ids w
             let p := enc jh w'
             .inl (some ⟨pc + 1, p.1 :: rest, locs, p.2, hp⟩)
           | none => .inr none
@@ -4546,7 +4545,6 @@ private theorem writeDag_step_match_elim
   rw [h4]
   dsimp only
   rw [h5]
-  rfl
 
 private theorem stepStatic_writeDag_heap
     {pc entriesAddr kidsAddr idsId wAddr : Nat} {k n : UInt32}
@@ -4632,13 +4630,14 @@ private theorem stepStatic_arraysFillAll_5b {pc : Nat} {handler elem : JvmVal}
     {addr : Nat} {stkRest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     {cls : String} {elems : Array JvmVal} {desc : String}
-    (hget : jh.get? addr = some (.objArray cls elems)) :
+    (hget : jh.get? addr = some (.objArray cls elems))
+    (hcompat : Jvm.isArrayElemCompat algHooks jh cls elem = true := by first | rfl | simp [Jvm.isArrayElemCompat]) :
     stepInvokeStatic ⟨pc, handler :: .i32 6 :: .i32 0 :: .i32 0 :: elem :: .heapRef addr :: stkRest,
         locs, jh, hp⟩
       "kotlin/collections/ArraysKt" "fill$default" desc =
       .inl (some (⟨pc + 1, stkRest, locs,
         jh.set addr (.objArray cls (Array.ofFn (n := elems.size) fun _ => elem)), hp⟩)) :=
-  Jvm.stepInvokeStatic_arraysFillAll_obj algHooks (desc := desc) hget
+  Jvm.stepInvokeStatic_arraysFillAll_obj algHooks (desc := desc) hcompat hget
 
 private theorem writeDag_child_step {f pc : Nat} {rest : List JvmInstr}
     {kidsAddr idsId : Nat} {base off : UInt32}
@@ -4684,7 +4683,6 @@ private theorem writeDag_child_step {f pc : Nat} {rest : List JvmInstr}
   rw [show f + 2 = (f + 1) + 1 from by omega]; step1
   rw [runJvmResFast_invokestatic_step stepStatic_u32_constructor]
   rw [← getElem!_pos kids (base + off).toNat hLt]
-  rfl
 
 private theorem writeDag_body_step
     {entriesAddr kidsAddr idsId wAddr : Nat} {k n : UInt32}
@@ -4799,7 +4797,6 @@ private theorem writeDag_body_step
     rw [show fNext + 81 = (fNext + 80) + 1 from by omega]; step1
     rw [show fNext + 80 = (fNext + 79) + 1 from by omega]
     rw [runJvmResFast_invokestatic_step stepStatic_u32_constructor]
-    dsimp only [Jvm.JvmVal.asI64]
     rw [← getElem!_pos kids (4 * k).toNat hLt0]
     step_drop_at 13
     rw [show fNext + 79 = (fNext + 66) + 13 from by omega]

@@ -58,6 +58,29 @@ private theorem cellKey_bits_eq (x y : Int32) :
   rw [hmask x.toUInt32, hmask y.toUInt32, hsh]
   rfl
 
+private theorem stepInstr_makeConcat {Ext Heap : Type} (hooks : Jvm.JvmHooks Ext Heap)
+    {pc : Nat} {recipe desc : String} {stk stkRest : List (Jvm.JvmVal Ext)}
+    {locs : Nat → Jvm.JvmVal Ext} {jh : Jvm.JvmHeap Ext} {hp : Heap} {res : String}
+    (heval : @Jvm.evalMakeConcatWithConstants Ext recipe desc stk = some (res, stkRest)) :
+    Jvm.stepInstr hooks (.invokedynamic "makeConcatWithConstants" recipe desc) ⟨pc, stk, locs, jh, hp⟩ =
+      .inl (some ⟨pc + 1, .str res :: stkRest, locs, jh, hp⟩) := by
+  unfold Jvm.stepInstr
+  simp only [beq_self_eq_true, ↓reduceIte, heval]
+
+private theorem stepInstr_areturn_val {Ext Heap : Type} (hooks : Jvm.JvmHooks Ext Heap)
+    {pc : Nat} {v : Jvm.JvmVal Ext} {stkRest : List (Jvm.JvmVal Ext)}
+    {locs : Nat → Jvm.JvmVal Ext} {jh : Jvm.JvmHeap Ext} {hp : Heap} :
+    Jvm.stepInstr hooks .areturn ⟨pc, v :: stkRest, locs, jh, hp⟩ = .inr (some v) := by
+  unfold Jvm.stepInstr; rfl
+
+private theorem stepInstr_stringValueOf_i32 {Ext Heap : Type} (hooks : Jvm.JvmHooks Ext Heap)
+    {pc : Nat} {v : UInt32} {stkRest : List (Jvm.JvmVal Ext)}
+    {locs : Nat → Jvm.JvmVal Ext} {jh : Jvm.JvmHeap Ext} {hp : Heap} :
+    Jvm.stepInstr hooks (.invokestatic "java/lang/String" "valueOf" "(I)Ljava/lang/String;")
+        ⟨pc, .i32 v :: stkRest, locs, jh, hp⟩ =
+      .inl (some ⟨pc + 1, .str (Jvm.i32ToDecimalString v) :: stkRest, locs, jh, hp⟩) := by
+  unfold Jvm.stepInstr; rfl
+
 theorem formatCoordLine_equiv (x y : UInt32) :
     runJvm 20 f_Algorithm_formatCoordLine_prog (initJvmState [(0, .i32 x), (1, .i32 y)]) =
       some (.str (Algorithm.formatCoordLine x y)) := by
@@ -73,8 +96,16 @@ theorem formatCoordLine_equiv (x y : UInt32) :
         ⟨8, [.i32 y, .str " ", .str (Jvm.i32ToDecimalString x)],
           setLocal (setLocal (setLocal (setLocal (fun _ => .i32 0) 0 (.i32 x)) 1 (.i32 y))
             2 (.str (Jvm.i32ToDecimalString x))) 3 (.str " "), {}, {}⟩ := by
+    dsimp only [f_Algorithm_formatCoordLine_prog, List.drop, initJvmState, Jvm.initJvmState, List.foldl]
+    split_val_fuel 19
+    heap_step_blk f_Algorithm_formatCoordLine_prog
+    norm_res_fuel
+    rw [show (19 : Nat) = 18 + 1 from rfl]
+    rw [runJvmValFast_step_nonbranch (hbr := rfl) (hno := by simp)]
+    try dsimp only [stepInstr]
+    rw [stepInstr_stringValueOf_i32 algHooks]
+    simp only [↓reduceIte]
     split_val_fuel 12
-    dsimp only [f_Algorithm_formatCoordLine_prog, List.drop]
     heap_step_blk f_Algorithm_formatCoordLine_prog
     norm_res_fuel
     rfl
@@ -86,20 +117,15 @@ theorem formatCoordLine_equiv (x y : UInt32) :
           2 (.str (Jvm.i32ToDecimalString x))) 3 (.str " "), {}, {}⟩ =
       some (.str (Jvm.i32ToDecimalString x ++ (" " ++ (Jvm.i32ToDecimalString y ++ "")))) := by
     dsimp only [f_Algorithm_formatCoordLine_prog, List.drop]
+    rw [show (12 : Nat) = 11 + 1 from rfl]
     rw [runJvmValFast_step_nonbranch (hbr := rfl) (hno := by simp)]
-    have hdyn : stepInstr
-        (.invokedynamic "makeConcatWithConstants" "\x01\x01\x01"
-          "(Ljava/lang/String;Ljava/lang/String;I)Ljava/lang/String;")
-        ⟨8, [.i32 y, .str " ", .str (Jvm.i32ToDecimalString x)],
-          setLocal (setLocal (setLocal (setLocal (fun _ => .i32 0) 0 (.i32 x)) 1 (.i32 y))
-            2 (.str (Jvm.i32ToDecimalString x))) 3 (.str " "), {}, {}⟩ =
-        .inl (some ⟨9, [.str (Jvm.i32ToDecimalString x ++ (" " ++ (Jvm.i32ToDecimalString y ++ "")))],
-          setLocal (setLocal (setLocal (setLocal (fun _ => .i32 0) 0 (.i32 x)) 1 (.i32 y))
-            2 (.str (Jvm.i32ToDecimalString x))) 3 (.str " "), {}, {}⟩) := by
-      simp only [stepInstr, Jvm.stepInstr, hconcat]; rfl
-    dsimp only
-    rw [hdyn]
-    rfl
+    try dsimp only [stepInstr]
+    rw [stepInstr_makeConcat algHooks hconcat]
+    simp only [↓reduceIte]
+    rw [show (11 : Nat) = 10 + 1 from rfl]
+    rw [runJvmValFast_step_nonbranch (hbr := rfl) (hno := by simp)]
+    try dsimp only [stepInstr]
+    rw [stepInstr_areturn_val algHooks]
   rw [hstep2, i32ToDecimalString_eq_toString x, i32ToDecimalString_eq_toString y]
   simp only [Algorithm.formatCoordLine, String.append_empty, String.append_assoc]
   rfl
@@ -230,6 +256,10 @@ private theorem deserializeLife106_loop_pre
   heap_step_nonbranch_chunks; norm_res_fuel
   rfl
 
+private theorem setLocal_eq_self {Ext : Type} {locs : Nat → Jvm.JvmVal Ext} {idx : Nat} {v : Jvm.JvmVal Ext}
+    (h : locs idx = v) : setLocal locs idx v = locs := by
+  funext i; simp only [setLocal, Jvm.setLocal]; split <;> simp_all
+
 private theorem deserializeLife106_loop_none
     (f : Nat) (lines : Array String) (i : UInt32) (locs : Nat → JvmVal)
     (jh : Jvm.JvmHeap AlgExt) (ar : List Algorithm.FlatHashLifeArena)
@@ -254,9 +284,9 @@ private theorem deserializeLife106_loop_none
   conv => lhs; arg 4; dsimp only [f_Algorithm_deserializeLife106_loop_prog, List.drop]
   rw [runJvmResFast_ifnonnull_fallthrough]; norm_res_fuel
   conv => lhs; arg 4; dsimp only [f_Algorithm_deserializeLife106_loop_prog, List.drop]
+  rw [← setLocal_eq_self h1]
   heap_step_nonbranch_chunks; norm_res_fuel
   conv => lhs; arg 5; arg 1; simp only [Nat.add_eq, Nat.succ_eq_add_one]
-  conv => lhs; arg 5; dsimp only [Jvm.JvmVal.asI32]
   rw [runJvmResFast_checkcast_step rfl]; norm_res_fuel
   conv => lhs; arg 4; dsimp only [f_Algorithm_deserializeLife106_loop_prog, List.drop]
   heap_step_nonbranch_chunks; norm_res_fuel
@@ -279,8 +309,8 @@ private theorem deserializeLife106_loop_none
     rw [runJvmResFast_invokespecial_step rfl]; norm_res_fuel
     conv => lhs; arg 4; dsimp only [f_Algorithm_deserializeLife106_loop_prog, List.drop]
     heap_step_nonbranch_chunks
-    rw [h1]
-    dsimp only [Jvm.JvmHeap.alloc, Jvm.JvmVal.asI32]
+    rw [setLocal_eq_self h1]
+    dsimp only [Jvm.JvmHeap.alloc]
     rw [Array.size_push]
   · simp [Jvm.JvmHeap.get?]
 
@@ -308,9 +338,7 @@ private theorem deserializeLife106_loop_some
   rw [runJvmResFast_ifnonnull_branch (v := .pair (.boxedInt c.1.toUInt32) (.boxedInt c.2.toUInt32)) rfl]
   norm_res_fuel
   conv => lhs; arg 4; dsimp only [f_Algorithm_deserializeLife106_loop_prog, List.drop]
-  heap_step_nonbranch_chunks; norm_res_fuel
-  conv => lhs; arg 5; arg 1; simp only [Nat.add_eq, Nat.succ_eq_add_one]
-  simp only [h1]
+  rw [← setLocal_eq_self h1, ← setLocal_eq_self h3]
   heap_step_nonbranch_chunks; norm_res_fuel
   conv => lhs; arg 5; arg 1; simp only [Nat.add_eq, Nat.succ_eq_add_one]
   rw [runJvmResFast_checkcast_step rfl]; norm_res_fuel
@@ -318,9 +346,6 @@ private theorem deserializeLife106_loop_some
   heap_step_nonbranch_chunks; norm_res_fuel
   rw [runJvmResFast_checkcast_step rfl]; norm_res_fuel
   conv => lhs; arg 4; dsimp only [f_Algorithm_deserializeLife106_loop_prog, List.drop]
-  heap_step_nonbranch_chunks; norm_res_fuel
-  conv => lhs; arg 5; arg 1; simp only [Nat.add_eq, Nat.succ_eq_add_one]
-  simp only [h3]
   heap_step_nonbranch_chunks; norm_res_fuel
   conv => lhs; arg 5; arg 1; simp only [Nat.add_eq, Nat.succ_eq_add_one]
   rw [runJvmResFast_invokestatic_step (stepStatic_u64BufPush_heap (Or.inr (Or.inl rfl)) hu)]
@@ -330,7 +355,7 @@ private theorem deserializeLife106_loop_some
   rw [runJvmResFast_goto]
   norm_res_fuel
   conv => lhs; arg 5; simp only [h0, h2, hcb]
-  rfl
+  congr 1
 
 private theorem deserializeLife106_loop_tail
     (m : Nat) (f : Nat) (lines : Array String) (i limit : UInt32) (accId : Nat)
@@ -386,7 +411,7 @@ private theorem deserializeLife106_loop_tail
           show ("cells" == "cells") = true from rfl]
         dsimp only
         rw [hget1]
-        simp [obj1, List.lookup, Jvm.JvmVal.asI32]
+        simp [obj1, List.lookup]
       | some c =>
         have hstep := deserializeLife106_loop_some f lines i limit accId acc locs jh ar u64 asc c
           hilen hu h0 h1 h2 h3
@@ -601,8 +626,8 @@ private theorem runJvmResFast_tableswitch_pcl {f pc dflt : Nat} {low : Int32} {t
         ⟨pc, .i32 v :: stk, locs, jh, hp⟩ =
       let tgt := Jvm.tableswitchTarget v low targets dflt
       runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stk, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32]
+  rw [runJvmResFast_at_branch_cons (hbr := rfl)]
+  apply evalResBranchInstrCons_tableswitch
 
 private theorem runJvmResFast_instanceof_boxedInt_uint {f : Nat} {prog : List JvmInstr}
     {pc : Nat} {rest : List JvmInstr} {pc0 : Nat} {v : UInt32} {stkRest : List JvmVal}
@@ -689,12 +714,17 @@ private theorem jvm_runJvmRes_mono {Ext Heap : Type} (hooks : Jvm.JvmHooks Ext H
             | (rcases hstk : st.stack with _ | ⟨v, rest⟩
                · simp [hstk] at hrun
                · first
-                 | (simp only [hstk] at hrun ⊢; split at hrun <;> simp_all only [] <;>
-                     exact ih _ _ _ _ hle hrun)
+                 | (simp only [hstk] at hrun ⊢
+                    split at hrun <;> simp_all only [] <;>
+                    (try (split at hrun <;> simp_all only [])) <;>
+                    exact ih _ _ _ _ hle hrun)
                  | (rcases rest with _ | ⟨v2, rest2⟩
                     · simp [hstk] at hrun
-                    · simp only [hstk] at hrun ⊢; split at hrun <;> simp_all only [] <;>
-                        exact ih _ _ _ _ hle hrun)
+                    · simp only [hstk] at hrun ⊢
+                      split at hrun <;> simp_all only [] <;>
+                      (try (split at hrun <;> simp_all only [])) <;>
+                      (try (split at hrun <;> simp_all only [])) <;>
+                      exact ih _ _ _ _ hle hrun)
                  | (simp only [hstk] at hrun ⊢; exact ih _ _ _ _ hle hrun))
 
 private theorem runJvmRes_eq_runJvmResFast_no_i2l {Ext Heap : Type} (hooks : Jvm.JvmHooks Ext Heap)
@@ -707,24 +737,25 @@ private theorem runJvmRes_eq_runJvmResFast_no_i2l {Ext Heap : Type} (hooks : Jvm
       st.pc = pc → prog.drop pc = instrs →
       Jvm.runJvmResFast hooks f prog pc instrs st = Jvm.runJvmRes hooks f prog st) fuel ?_
   intro fuel ih pc instrs st hpc hdrop
+  rcases st with ⟨st_pc, st_stack, st_locals, st_jh, st_hp⟩
+  dsimp only at hpc; subst hpc
   cases fuel with
   | zero => simp [Jvm.runJvmResFast, Jvm.runJvmRes]
   | succ f1 =>
     rcases instrs with _ | ⟨instr, rest⟩
-    · have hnone : prog[st.pc]? = none := by
-        have hdrop0 : (prog.drop pc)[0]? = prog[pc]? := by simp [List.getElem?_drop]
-        rw [hpc, ← hdrop0, hdrop]; rfl
+    · have hnone : prog[st_pc]? = none := by
+        have hdrop0 : (prog.drop st_pc)[0]? = prog[st_pc]? := by simp [List.getElem?_drop]
+        rw [← hdrop0, hdrop]; rfl
       simp [Jvm.runJvmResFast, Jvm.runJvmRes, hnone]
-    · have hg0 : prog[st.pc]? = some instr := by
-        have hdrop0 : (prog.drop pc)[0]? = prog[pc]? := by simp [List.getElem?_drop]
-        rw [hpc, ← hdrop0, hdrop]; rfl
+    · have hg0 : prog[st_pc]? = some instr := by
+        have hdrop0 : (prog.drop st_pc)[0]? = prog[st_pc]? := by simp [List.getElem?_drop]
+        rw [← hdrop0, hdrop]; rfl
       have hne : instr ≠ .i2l := hnoi2l instr (List.mem_of_getElem? hg0)
-      have hst_eq : { st with pc := pc } = st := by cases st; cases hpc; rfl
-      have hdrop_succ : prog.drop (pc + 1) = rest := by rw [← List.drop_drop, hdrop]; rfl
+      have hdrop_succ : prog.drop (st_pc + 1) = rest := by rw [← List.drop_drop, hdrop]; rfl
       cases hbr : Jvm.isBranchInstr instr
-      · rw [Jvm.runJvmResFast_step_nonbranch hooks f1 prog pc instr rest st hbr (fun ⟨hi, _⟩ => hne hi)]
-        rw [hst_eq, Jvm.runJvmRes_nonbranch hooks f1 prog st instr hg0 hbr]
-        cases Jvm.stepInstr hooks instr st with
+      · rw [Jvm.runJvmResFast_step_nonbranch hooks f1 prog st_pc instr rest _ hbr (fun ⟨hi, _⟩ => hne hi)]
+        rw [Jvm.runJvmRes_nonbranch hooks f1 prog _ instr hg0 hbr]
+        cases Jvm.stepInstr hooks instr ⟨st_pc, st_stack, st_locals, st_jh, st_hp⟩ with
         | inr opt => cases opt <;> rfl
         | inl opt =>
           cases opt with
@@ -732,26 +763,35 @@ private theorem runJvmRes_eq_runJvmResFast_no_i2l {Ext Heap : Type} (hooks : Jvm
           | some st' =>
             dsimp only
             split
-            · next hpc' => exact ih f1 (Nat.lt_succ_self f1) (pc + 1) rest st' hpc' hdrop_succ
+            · next hpc' => exact ih f1 (Nat.lt_succ_self f1) (st_pc + 1) rest st' hpc' hdrop_succ
             · exact ih f1 (Nat.lt_succ_self f1) st'.pc (prog.drop st'.pc) st' rfl rfl
       · cases instr <;> simp [Jvm.isBranchInstr] at hbr <;>
           (unfold Jvm.runJvmResFast Jvm.runJvmRes; rw [hg0]
+           simp only [Jvm.isBranchInstr, ↓reduceIte, Jvm.dispatchBranch]
            first
-           | (dsimp only; exact ih f1 (Nat.lt_succ_self f1) _ (prog.drop _) _ rfl rfl)
-           | (rcases hstk : st.stack with _ | ⟨v, s⟩
-              · simp
+           | ((try dsimp only [Jvm.stepInstr]); refine ih f1 (Nat.lt_succ_self f1) _ _ _ ?_ ?_ <;> rfl)
+           | (rcases hstk : st_stack with _ | ⟨v, s⟩
+              · rfl
               · first
-                | (dsimp only; (try rw [hpc]); exact ih f1 (Nat.lt_succ_self f1) _ (prog.drop _) _ rfl rfl)
-                | (dsimp only; (try rw [hpc]); split <;>
-                    first
-                    | exact ih f1 (Nat.lt_succ_self f1) _ (prog.drop _) _ rfl rfl
-                    | exact ih f1 (Nat.lt_succ_self f1) (pc + 1) rest _ rfl hdrop_succ)
+                | ((try dsimp); refine ih f1 (Nat.lt_succ_self f1) _ _ _ ?_ ?_ <;> rfl)
+                | ((try dsimp)
+                   split <;> simp_all only [] <;> (try dsimp) <;>
+                   (try (split <;> simp_all only [] <;> (try dsimp))) <;>
+                   (try (apply ite_congr rfl <;> intro _)) <;>
+                   (try simp only [↓reduceIte]) <;>
+                   first
+                   | rfl
+                   | (refine ih f1 (Nat.lt_succ_self f1) _ _ _ ?_ ?_ <;> first | rfl | exact hdrop_succ))
                 | (rcases s with _ | ⟨v2, s2⟩
-                   · simp
-                   · dsimp only; (try rw [hpc]); split <;>
-                       first
-                       | exact ih f1 (Nat.lt_succ_self f1) _ (prog.drop _) _ rfl rfl
-                       | exact ih f1 (Nat.lt_succ_self f1) (pc + 1) rest _ rfl hdrop_succ)))
+                   · rfl
+                   · (try dsimp)
+                     split <;> simp_all only [] <;> (try dsimp) <;>
+                     (try (split <;> simp_all only [] <;> (try dsimp))) <;>
+                     (try (apply ite_congr rfl <;> intro _)) <;>
+                     (try simp only [↓reduceIte]) <;>
+                     first
+                     | rfl
+                     | (refine ih f1 (Nat.lt_succ_self f1) _ _ _ ?_ ?_ <;> first | rfl | exact hdrop_succ))))
 
 def ParseCoordLineSupported (line : String) : Prop :=
   let bytes := line.toByteArray
@@ -887,7 +927,7 @@ private theorem parseCoordLine_pc109 (fuel : Nat) (hf : 70 ≤ fuel)
     norm_res_fuel
     conv => lhs; arg 4; dsimp only [f_Algorithm_parseCoordLine_prog, List.drop]
     have hbytes_eta : (⟨bytes.data⟩ : ByteArray) = bytes := rfl
-    dsimp only [encodeOptScalarPair, Jvm.JvmVal.asI32]
+    dsimp only [encodeOptScalarPair]
     rw [hbytes_eta, h2]
     dsimp only [Option.map_some]
     heap_step_nonbranch_chunks; norm_res_fuel
@@ -1009,8 +1049,12 @@ private theorem parseCoordLine_pc109 (fuel : Nat) (hf : 70 ≤ fuel)
       rw [show fuel - 68 + 8 = (fuel - 68 + 5) + 3 from by omega]
       heap_step_nonbranch_chunks
       rw [hl6]
+      norm_res_fuel
+      rw [show fuel - 68 + 5 = (fuel - 68 + 1) + 4 from by omega]
+      heap_step_one_chunk; norm_res_fuel
       cases hp
-      dsimp only [locs179, Jvm.JvmVal.asI32]
+      dsimp only [locs179]
+      rfl
     · rfl
   · refine ⟨⟨181, [.null], locs179, jh3, hp⟩, ?_, rfl⟩
     rw [show fuel - 59 = (fuel - 62) + 2 + 1 from by omega]
@@ -1362,7 +1406,6 @@ theorem parseCoordLine_equiv_cond (line : String)
         heap_step_nonbranch_chunks; norm_res_fuel
         conv => lhs; arg 4; dsimp only [f_Algorithm_parseCoordLine_prog, List.drop]
         conv => lhs; arg 5; arg 1; simp only [Nat.reduceAdd]
-        dsimp only [Jvm.JvmVal.asI32]
         rw [hgetb_eq]
         conv => rhs; arg 4; dsimp only [f_Algorithm_parseCoordLine_prog, List.drop]
       rw [h89_to_100]
@@ -1603,7 +1646,6 @@ theorem parseCoordLine_second_parseInt32At_none_traps (line : String)
       rw [show f + 36 = (f + 33) + 3 from by omega]
       heap_step_nonbranch_chunks
       conv => lhs; arg 1; simp only [Nat.succ_eq_add_one, nat_add_eq_add, Nat.add_zero, Nat.add_assoc, Nat.reduceAdd]
-      dsimp only [Jvm.JvmVal.asI32]
       have hgetb_eq : bytes.data[r1.next.toNat] = bytes.get! r1.next.toNat := by
         simp only [ByteArray.get!]
         exact (getElem!_pos bytes.data r1.next.toNat hr1_lt_sz).symm
@@ -1636,7 +1678,7 @@ theorem parseCoordLine_second_parseInt32At_none_traps (line : String)
         rw [runJvmResFast_invokestatic_step (stepStatic_parseInt32At_heap (Or.inr (Or.inl rfl)) hget_b2)]
         conv => lhs; arg 4; dsimp only [f_Algorithm_parseCoordLine_prog, List.drop]
         have hbytes_eta : (⟨bytes.data⟩ : ByteArray) = bytes := rfl
-        dsimp only [encodeOptScalarPair, Jvm.JvmVal.asI32]
+        dsimp only [encodeOptScalarPair]
         rw [hbytes_eta, h2]
         dsimp only [Option.map_none]
         rw [show k - 9 = (k - 12) + 1 + 2 from by omega]

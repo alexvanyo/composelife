@@ -35,7 +35,7 @@ abbrev JvmVal := Jvm.JvmVal SvExt
 abbrev JvmState := Jvm.JvmState SvExt Unit
 
 namespace JvmVal
-export Jvm.JvmVal (i32 i64 f64 bool null unit uninit str allocRef pair ext isNull asI32 asI64 asF64)
+export Jvm.JvmVal (i32 i64 f64 bool null unit uninit str allocRef pair ext isNull asI32? asI64? asF32? asF64?)
 
 def isTruthy : JvmVal → Bool
   | .bool b => b
@@ -103,9 +103,18 @@ def checkOptSv : JvmVal → Option (Option (SessionValue Nat))
 def svHooks : Jvm.JvmHooks SvExt Unit where
   beqExt := JvmVal.beqExt
   iteVal := JvmVal.ite
-  isZero := fun v => !JvmVal.isTruthy v
-  iteZero := fun v jump fall => JvmVal.ite (JvmVal.isTruthy v) fall jump
-  iteNonZero := fun v jump fall => JvmVal.ite (JvmVal.isTruthy v) jump fall
+  isZero? := fun v => match v with
+    | .bool b => some (!b)
+    | .i32 x => some (x == 0)
+    | _ => none
+  iteZero? := fun v jump fall => match v with
+    | .bool b => JvmVal.ite (!b) jump fall
+    | .i32 x => JvmVal.ite (x == 0) jump fall
+    | _ => none
+  iteNonZero? := fun v jump fall => match v with
+    | .bool b => JvmVal.ite b jump fall
+    | .i32 x => JvmVal.ite (!(x == 0)) jump fall
+    | _ => none
   ireturnVal := fun v => .bool (JvmVal.isTruthy v)
   stepNewClass := fun st _ => .inl (some { st with pc := st.pc + 1, stack := .uninit :: st.stack })
   checkInstanceOf :=

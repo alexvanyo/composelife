@@ -93,7 +93,8 @@ open Lean Elab Tactic in
 elab "step_res_plain6d " n:num : tactic => do
   for _ in [:n.getNat] do
     evalTactic (← `(tactic| rw [runJvmResFast_step_nonbranch (hbr := rfl) (hno := by simp)]))
-    evalTactic (← `(tactic| simp only [stepInstr, Jvm.stepInstr, setLocal_apply6d,
+    evalTactic (← `(tactic| dsimp only [stepInstr, Jvm.stepInstr]))
+    evalTactic (← `(tactic| try simp only [setLocal_apply6d, Jvm.JvmVal.asI32?, Jvm.JvmVal.asI64?,
       Nat.reduceAdd, Nat.reduceBEq, Bool.false_eq_true, ↓reduceIte]))
 
 private theorem growBuf_eq_empty_of6d {α : Type} {b : Algorithm.GrowBuf α}
@@ -115,9 +116,9 @@ private theorem runJvmResFast_areturn6d {f pc : Nat} {prog rest : List JvmInstr}
     {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     runJvmResFast (f + 1) prog pc (.areturn :: rest) ⟨pc, v :: stk, locs, jh, hp⟩ =
       some (v, ⟨pc, v :: stk, locs, jh, hp⟩) := by
-  dsimp only [runJvmResFast]
-  rw [Jvm.runJvmResFast.eq_def]
-  simp [Jvm.stepInstr]
+  rw [runJvmResFast_step_nonbranch (hbr := rfl) (hno := by simp)]
+  have hstep : stepInstr .areturn ⟨pc, v :: stk, locs, jh, hp⟩ = .inr (some v) := rfl
+  rw [hstep]
 
 private theorem int32_toInt32_toUInt32_6d (x : Int32) : x.toUInt32.toInt32 = x := by
   cases x; rfl
@@ -306,7 +307,10 @@ private theorem stepStatic_expandRuns6d
         { hp with u64Arrays := hp.u64Arrays ++ [res] }⟩) := by
   have hfold : (runs.map fun p => JvmVal.pair (.boxedUInt p.1) (.boxedUInt p.2)).foldlM
       (fun acc (v : JvmVal) => match v with
-        | .pair a b => some (acc.push (unboxI32 a, unboxI32 b))
+        | .pair a b => do
+          let ad ← unboxI32? a
+          let bd ← unboxI32? b
+          some (acc.push (ad, bd))
         | _ => none) #[] = some runs := by
     rw [← Array.foldlM_toList, Array.toList_map, List.foldlM_map]
     have hgen : ∀ (xs : List (UInt32 × UInt32)) (acc : Array (UInt32 × UInt32)),
@@ -320,7 +324,7 @@ private theorem stepStatic_expandRuns6d
         simp only [List.foldlM_cons, bind, Option.bind_some]
         rw [ih (acc.push p)]
         simp [Array.toList_push, List.append_assoc]
-    simpa [unboxI32] using hgen runs.toList #[]
+    simpa [unboxI32?] using hgen runs.toList #[]
   have hfn : stepInvokeStatic ⟨pc, .ext (.u64Ref cId) :: .i32 startX.toUInt32 ::
       .i32 y.toUInt32 :: .i32 x.toUInt32 :: .i32 k :: .i32 j :: .i32 numRuns ::
       .heapRef runsAddr :: rest, locs, jh, hp⟩
@@ -328,7 +332,10 @@ private theorem stepStatic_expandRuns6d
       match jh.get? runsAddr, hp.u64Arrays[cId]? with
       | some (.objArray _ elems), some cells' =>
         match elems.foldlM (fun acc v => match v with
-            | .pair a b => some (acc.push (unboxI32 a, unboxI32 b))
+            | .pair a b => do
+              let ad ← unboxI32? a
+              let bd ← unboxI32? b
+              some (acc.push (ad, bd))
             | _ => none) #[] with
         | some runs' =>
           let res := Algorithm.expandRuns runs' numRuns j k
@@ -423,8 +430,8 @@ private theorem finishRLE_empty_run6d
   rw [runJvmResFast_invokestatic_step (stepStatic_u64BufToArray6d hc1)]
   step_res_plain6d 1
   rw [runJvmResFast_step_nonbranch (hbr := rfl) (hno := by simp)]
-  simp only [stepInstr, Jvm.stepInstr,
-    show ("com/alexvanyo/composelife/model/RLEResult" == "java/lang/StringBuilder") = false from rfl,
+  dsimp only [stepInstr, Jvm.stepInstr]
+  simp only [show ("com/alexvanyo/composelife/model/RLEResult" == "java/lang/StringBuilder") = false from rfl,
     Bool.false_eq_true, ↓reduceIte, Nat.reduceAdd]
   step_res_plain6d 2
   rw [runJvmResFast_checkcast_step rfl]
@@ -530,8 +537,8 @@ private theorem finishRLE_full_run6d
   rw [runJvmResFast_invokestatic_step (stepStatic_u64BufToArray6d hc1)]
   step_res_plain6d 1
   rw [runJvmResFast_step_nonbranch (hbr := rfl) (hno := by simp)]
-  simp only [stepInstr, Jvm.stepInstr,
-    show ("com/alexvanyo/composelife/model/RLEResult" == "java/lang/StringBuilder") = false from rfl,
+  dsimp only [stepInstr, Jvm.stepInstr]
+  simp only [show ("com/alexvanyo/composelife/model/RLEResult" == "java/lang/StringBuilder") = false from rfl,
     Bool.false_eq_true, ↓reduceIte, Nat.reduceAdd]
   step_res_plain6d 2
   rw [runJvmResFast_checkcast_step rfl]

@@ -73,6 +73,9 @@ roots = [
   "proofs.MacrocellProofs",
   "proofs.MacrocellDagProofs",
   "theorems.MacrocellTheorems",
+  "models.BitComputationModel",
+  "proofs.BitComputationModelProofs",
+  "theorems.BitComputationModelTheorems",
   "JvmSemantics",
   "AxiomAudit",
 ]
@@ -80,5 +83,5 @@ roots = [
 [[lean_lib]]
 name = "Jvm"
 srcDir = "../../jvm-lean"
-roots = ["Jvm", "Jvm.Instr", "Jvm.Semantics", "Jvm.FastExec"]
+roots = ["Jvm", "Jvm.Instr", "Jvm.Semantics", "Jvm.FastExec", "Jvm.Proofs", "Jvm.Tactics", "Jvm.Audit"]
 

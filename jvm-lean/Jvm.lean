@@ -17,3 +17,6 @@
 import Jvm.Instr
 import Jvm.Semantics
 import Jvm.FastExec
+import Jvm.Proofs
+import Jvm.Tactics
+import Jvm.Audit
