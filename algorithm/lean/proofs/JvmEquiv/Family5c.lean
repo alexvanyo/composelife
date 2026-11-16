@@ -66,7 +66,7 @@ private theorem step_invokestatic_macroCellAt
       .inl (some ⟨pc + 1, .ext (.mc (Algorithm.macroCellAt nodes i)) :: stkRest, locs, jh, hp⟩) := by
   conv => lhs; whnf
   rw [hget]
-  dsimp only [Jvm.JvmVal.asI32]
+  dsimp only
   erw [foldlM_map_mc nodes]
 
 
@@ -116,7 +116,7 @@ private theorem step1_helper {f' k pc : Nat} {prog : List JvmInstr} {instr : Jvm
 local macro "step1" : tactic => `(tactic| (
   rw [step1_helper (by decide) rfl (by intro h; cases h) rfl]
   (try (conv => lhs; arg 5; dsimp only [Jvm.JvmState.pc, Jvm.JvmState.stack, Jvm.JvmState.locals,
-    Jvm.JvmState.jvmHeap, Jvm.JvmState.heap, Jvm.JvmVal.asI32]))
+    Jvm.JvmState.jvmHeap, Jvm.JvmState.heap, Jvm.JvmVal.asI32?]))
   (try (conv => lhs; arg 3; simp only [Nat.reduceAdd]))
   (try (conv => lhs; arg 5; arg 1; simp only [Nat.reduceAdd]))
   (repeat (first
@@ -127,7 +127,7 @@ local macro "step1" : tactic => `(tactic| (
 local macro "step1_ex" : tactic => `(tactic| (
   rw [step1_helper (by decide) rfl (by intro h; cases h) rfl]
   (try dsimp only [Jvm.JvmState.pc, Jvm.JvmState.stack, Jvm.JvmState.locals,
-    Jvm.JvmState.jvmHeap, Jvm.JvmState.heap, Jvm.JvmVal.asI32])
+    Jvm.JvmState.jvmHeap, Jvm.JvmState.heap, Jvm.JvmVal.asI32?])
   (repeat (first
     | rw [setLocal_eq_val rfl]
     | rw [setLocal_ne_eq rfl]))
@@ -144,14 +144,8 @@ private theorem runJvmResFast_checkNotNull_nonnull {f : Nat} {prog : List JvmIns
         ⟨pc0, .str msg :: v :: stkRest, locs, jh, hp⟩ =
       runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stkRest, locs, jh, hp⟩ := by
   have his : Jvm.JvmVal.isNull v = false := by cases v <;> simp_all [Jvm.JvmVal.isNull]
-  have hstep : Jvm.stepInstr algHooks
-      (.invokestatic "kotlin/jvm/internal/Intrinsics" "checkNotNull"
-        "(Ljava/lang/Object;Ljava/lang/String;)V")
-      ⟨pc, .str msg :: v :: stkRest, locs, jh, hp⟩ =
-      .inl (some ⟨pc + 1, stkRest, locs, jh, hp⟩) := by
-    simp only [Jvm.stepInstr, Jvm.stepInvokeStaticGeneric, his]
-    rfl
-  exact step1_helper (f' := f) (k := 1) (by decide) rfl (by intro h; cases h) hstep
+  exact Jvm.runJvmResFast_invokestatic_step algHooks
+    (Jvm.stepInvokeStatic_intrinsics_checkNotNull algHooks his)
 
 private theorem runJvmResFast_areturn {f : Nat} {prog : List JvmInstr} {pc : Nat}
     {rest : List JvmInstr} {pc0 : Nat} {v : JvmVal} {stkRest : List JvmVal}
@@ -161,14 +155,13 @@ private theorem runJvmResFast_areturn {f : Nat} {prog : List JvmInstr} {pc : Nat
 
 private theorem runJvmResFast_tableswitch {f : Nat} {prog : List JvmInstr} {pc : Nat}
     {low : Int32} {targets : List Nat} {defT : Nat} {rest : List JvmInstr} {pc0 : Nat}
-    {key : JvmVal} {stkRest : List JvmVal} {locs : Nat → JvmVal}
+    {key : UInt32} {stkRest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     runJvmResFast (f + 1) prog pc (.tableswitch low targets defT :: rest)
-        ⟨pc0, key :: stkRest, locs, jh, hp⟩ =
-      let t := Jvm.tableswitchTarget key.asI32 low targets defT
+        ⟨pc0, .i32 key :: stkRest, locs, jh, hp⟩ =
+      let t := Jvm.tableswitchTarget key low targets defT
       runJvmResFast f prog t (prog.drop t) ⟨t, stkRest, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast]
+  rw [runJvmResFast_at_branch_cons (hbr := rfl), evalResBranchInstrCons_tableswitch]
 
 
 private theorem stepStatic_getEMPTY_LEVEL_4 {pc : Nat} {rest : List JvmVal}
@@ -228,8 +221,10 @@ private theorem runJvmResFast_ifgt_branch {f pc tgt : Nat} {prog rest : List Jvm
     (hv : (0#32 : BitVec 32).slt v.toBitVec = true) :
     runJvmResFast (f + 1) prog pc (.ifgt tgt :: rest) ⟨pc, .i32 v :: stk, locs, jh, hp⟩ =
       runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stk, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32, hv]
+  rw [runJvmResFast_at_branch_cons (hbr := rfl)]
+  dsimp only [evalResBranchInstrCons]
+  rw [Jvm.evalResBranchInstrCons_ifgt, hv]
+  rfl
 
 private theorem runJvmResFast_ifgt_fallthrough {f pc tgt : Nat} {prog rest : List JvmInstr}
     {v : UInt32} {stk : List JvmVal} {locs : Nat → JvmVal}
@@ -237,8 +232,10 @@ private theorem runJvmResFast_ifgt_fallthrough {f pc tgt : Nat} {prog rest : Lis
     (hv : (0#32 : BitVec 32).slt v.toBitVec = false) :
     runJvmResFast (f + 1) prog pc (.ifgt tgt :: rest) ⟨pc, .i32 v :: stk, locs, jh, hp⟩ =
       runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stk, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32, hv]
+  rw [runJvmResFast_at_branch_cons (hbr := rfl)]
+  dsimp only [evalResBranchInstrCons]
+  rw [Jvm.evalResBranchInstrCons_ifgt, hv]
+  rfl
 
 private theorem u8_sext_and_255 (b : UInt8) :
     UInt32.ofBitVec (b.toBitVec.signExtend 32) &&& (255 : UInt32) = b.toUInt32 := by
@@ -1304,7 +1301,7 @@ private theorem allFuelNoneAt_iflt_fallthrough {prog rest : List JvmInstr} {pc t
       rw [← h1, hdrop]; rfl
     dsimp only [runJvmRes]
     rw [Jvm.runJvmRes.eq_def]
-    simp [hg, Jvm.JvmVal.asI32, hv]
+    simp [hg, Jvm.JvmVal.asI32?, hv]
     exact hnext rfl hdrop1 f
 
 private theorem allFuelNoneAt_checkcast_ext_objArr {prog rest : List JvmInstr} {pc : Nat}
@@ -1541,11 +1538,11 @@ private theorem u8_sext_eq_35 (b : UInt8) :
     simp [hb, hne]
 
 private theorem stepStatic_mcLeafWithCell_heap
-    {pc : Nat} {isAlive y x leaf : JvmVal} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {isAlive y x : UInt32} {leaf : UInt64} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
-    stepInvokeStatic ⟨pc, isAlive :: y :: x :: leaf :: rest, locs, jh, hp⟩
+    stepInvokeStatic ⟨pc, .i32 isAlive :: .i32 y :: .i32 x :: .i64 leaf :: rest, locs, jh, hp⟩
       "MacroCellLeanKt" "f_Algorithm_leafWithCell-9LuH6mI" "(JIIZ)J" =
-      .inl (some ⟨pc + 1, .i64 (Algorithm.leafWithCell leaf.asI64 x.asI32 y.asI32 (isAlive.asI32 != 0)) :: rest,
+      .inl (some ⟨pc + 1, .i64 (Algorithm.leafWithCell leaf x y (isAlive != 0)) :: rest,
         locs, jh, hp⟩) := rfl
 
 theorem step_deserLoop_blank_line {locs : Nat → JvmVal}
@@ -2046,12 +2043,12 @@ private theorem stepStatic_parseMCNodeLine_some {pc : Nat} {addr : Nat}
   dsimp only [Jvm.JvmHeap.alloc]
 
 private theorem stepStatic_mcMakeLevel4Node_heap
-    {pc : Nat} {se sw ne nw : JvmVal} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {pc : Nat} {se sw ne nw : UInt64} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
-    stepInvokeStatic ⟨pc, se :: sw :: ne :: nw :: rest, locs, jh, hp⟩
+    stepInvokeStatic ⟨pc, .i64 se :: .i64 sw :: .i64 ne :: .i64 nw :: rest, locs, jh, hp⟩
       "MacroCellLeanKt" "f_Algorithm_makeLevel4Node-2jIhpxI"
       "(JJJJ)Lcom/alexvanyo/composelife/model/MacroCell;" =
-      .inl (some ⟨pc + 1, .ext (.mc (Algorithm.makeLevel4Node nw.asI64 ne.asI64 sw.asI64 se.asI64)) :: rest,
+      .inl (some ⟨pc + 1, .ext (.mc (Algorithm.makeLevel4Node nw ne sw se)) :: rest,
         locs, jh, hp⟩) := rfl
 
 private theorem stepStatic_booleanValueOf {pc : Nat} {b : UInt32} {rest : List JvmVal}
@@ -2145,7 +2142,7 @@ theorem step_deserLoop_parseNode_none {locs : Nat → JvmVal}
   step1_ex
   rw [show f + 26 = (f + 25) + 1 from by omega]
   rw [runJvmResFast_tableswitch]
-  rw [show Jvm.tableswitchTarget (JvmVal.i32 0).asI32 0 [144, 169] 938 = 144 from by decide]
+  rw [show Jvm.tableswitchTarget 0 0 [144, 169] 938 = 144 from by decide]
   dsimp only
   rw [deserLoop_drop_144]
   step1_ex; step1_ex; step1_ex
@@ -2251,9 +2248,9 @@ theorem step_deserLoop_leaf_end {locs : Nat → JvmVal}
   step1_ex
   step1_ex
   step1_ex
+  rw [hlocs.h10]
   step1_ex
   rw [show f + 48 = (f + 47) + 1 from by omega]
-  rw [hlocs.h10]; dsimp only [Jvm.JvmVal.asI64]
   rw [runJvmResFast_invokestatic_step (stepStatic_growBufPush_u64 hlocs.h13)]
   step1_ex
   step1_ex
@@ -2614,7 +2611,6 @@ private theorem step_deserLoop_leaf_decode {f : Nat} {locs : Nat → JvmVal}
   rw [show f + 19 = (f + 18) + 1 from by omega]
   rw [runJvmResFast_invokestatic_step (stepStatic_decodeCharAt_heap
     (Or.inr (Or.inr (Or.inl rfl))) hgetBytes)]
-  dsimp only [Jvm.JvmVal.asI32]
   rw [hr]
   step1; step1; step1; step1; step1; step1
   step1; step1; step1; step1; step1
@@ -3925,8 +3921,8 @@ private theorem step_deserLoop_parseNode_level4 {locs : Nat → JvmVal}
           rw [show f + 108 = (f + 101) + 7 from by omega, hs3]
           rw [show f + 101 = (f + 94) + 7 from by omega, hs4]
           rw [deserLoop_drop_822]
-          rw [show f + 94 = (f + 91) + 3 from by omega]; chunk 3; rw [hl4_2]
-          dsimp only [Jvm.JvmVal.asI32]
+          rw [show f + 94 = (f + 92) + 2 from by omega]; chunk 2; rw [hl4_2]
+          rw [show f + 92 = (f + 91) + 1 from by omega]; chunk 1
           rw [show f + 91 = (f + 90) + 1 from by omega]
           erw [runJvmResFast_invokestatic_step stepStatic_uintCtor5a]
           rw [show f + 90 = (f + 89) + 1 from by omega]; chunk 1
@@ -3942,7 +3938,6 @@ private theorem step_deserLoop_parseNode_level4 {locs : Nat → JvmVal}
           rw [deserLoop_drop_883]
           rw [show f + 53 = (f + 52) + 1 from by omega]
           rw [runJvmResFast_invokestatic_step stepStatic_mcMakeLevel4Node_heap]
-          dsimp only [Jvm.JvmVal.asI64]
           rw [show f + 52 = (f + 49) + 3 from by omega]; chunk 3
           rw [show f + 49 = (f + 48) + 1 from by omega]
           rw [runJvmResFast_invokestatic_step (stepStatic_growBufPush_mc hu4_12)]
@@ -4165,7 +4160,8 @@ private theorem step_deserLoop_parseNode_cell {locs : Nat → JvmVal}
           rw [show f + 80 = (f + 71) + 9 from by omega, hs3]
           rw [show f + 71 = (f + 62) + 9 from by omega, hs4]
           rw [deserLoop_drop_624]
-          rw [show f + 62 = (f + 59) + 3 from by omega]; chunk 3; rw [hl4_2]
+          rw [show f + 62 = (f + 60) + 2 from by omega]; chunk 2; rw [hl4_2]
+          rw [show f + 60 = (f + 59) + 1 from by omega]; chunk 1
           rw [show f + 59 = (f + 58) + 1 from by omega]
           rw [runJvmResFast_invokestatic_step stepStatic_uintCtor5a]
           rw [show f + 58 = (f + 53) + 5 from by omega]; chunk 5
@@ -4366,7 +4362,7 @@ theorem step_deserLoop_parseNode_some {locs : Nat → JvmVal}
     step1_ex
     rw [show g + 230 = (g + 229) + 1 from by omega]
     rw [runJvmResFast_tableswitch]
-    rw [show Jvm.tableswitchTarget (JvmVal.i32 1).asI32 0 [144, 169] 938 = 169 from by decide]
+    rw [show Jvm.tableswitchTarget 1 0 [144, 169] 938 = 169 from by decide]
     dsimp only
     rw [deserLoop_drop_169]
     step1_ex

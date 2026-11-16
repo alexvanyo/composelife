@@ -27,6 +27,7 @@ import Algorithm.Life105
 import Algorithm.Life106
 import Algorithm.Plaintext
 import Algorithm.RLE
+import models.BitComputationModel
 
 namespace Algorithm.JvmVerification
 
@@ -91,9 +92,10 @@ abbrev JvmState := Jvm.JvmState AlgExt AlgHeap
 
 namespace JvmVal
 export Jvm.JvmVal (
-  i32 i64 f64 bool null unit uninit str allocRef
+  i32 i64 f32 f64 bool null unit uninit str allocRef
   boxedByte boxedUByte boxedInt boxedUInt boxedLong boxedULong
   pair strArr ext
+  asI32? asI64? asF32? asF64?
 )
 end JvmVal
 
@@ -441,8 +443,8 @@ def algStepInvokeVirtual (st : JvmState) (cls method _desc : String) : Option Jv
     | some a => .inl (some { st with pc := st.pc + 1, stack := .i32 a.overflow.toInt8.toInt32.toUInt32 :: rest })
     | none => .inr none
   | "com/alexvanyo/composelife/algorithm/FlatHashLifeArena", "setOverflow-7apg3OU",
-      v :: .ext (.arenaRef id) :: rest =>
-    .inl (updateArena { st with stack := rest } id (fun a => { a with overflow := v.asI32.toUInt8 }))
+      .i32 v :: .ext (.arenaRef id) :: rest =>
+    .inl (updateArena { st with stack := rest } id (fun a => { a with overflow := v.toUInt8 }))
   | "com/alexvanyo/composelife/algorithm/FlatHashLifeArena", "getCellLevel-TcUX1vc", .ext (.arenaRef id) :: rest =>
     .inl (some { st with pc := st.pc + 1, stack := .ext (.arenaU8Ref id .cellLevel) :: rest })
   | "com/alexvanyo/composelife/algorithm/FlatHashLifeArena", "getL4HasRes-TcUX1vc", .ext (.arenaRef id) :: rest =>
@@ -478,19 +480,19 @@ def algStepInvokeVirtual (st : JvmState) (cls method _desc : String) : Option Jv
   | "com/alexvanyo/composelife/algorithm/FlatHashLifeArena", "getL4StepRes-Y2RjT0g", .ext (.arenaRef id) :: rest =>
     .inl (some { st with pc := st.pc + 1, stack := .ext (.arenaU64Ref id .l4StepRes) :: rest })
   | "com/alexvanyo/composelife/algorithm/FlatHashLifeArena", "internCellNode-gt5aIGQ",
-      se :: sw :: ne :: nw :: lvl :: .ext (.arenaRef id) :: rest =>
+      .i32 se :: .i32 sw :: .i32 ne :: .i32 nw :: .i32 lvl :: .ext (.arenaRef id) :: rest =>
     match st.heap.arenas[id]? with
     | some a =>
-      let (resId, a') := a.internCellNode lvl.asI32.toUInt8 nw.asI32 ne.asI32 sw.asI32 se.asI32
+      let (resId, a') := a.internCellNode lvl.toUInt8 nw ne sw se
       .inl (some { st with
         pc := st.pc + 1, stack := .i32 resId :: rest,
         heap := { st.heap with arenas := st.heap.arenas.set id a' } })
     | none => .inr none
   | "com/alexvanyo/composelife/algorithm/FlatHashLifeArena", "internLevel4-PT-fW9Q",
-      se :: sw :: ne :: nw :: .ext (.arenaRef id) :: rest =>
+      .i64 se :: .i64 sw :: .i64 ne :: .i64 nw :: .ext (.arenaRef id) :: rest =>
     match st.heap.arenas[id]? with
     | some a =>
-      let (resId, a') := a.internLevel4 nw.asI64 ne.asI64 sw.asI64 se.asI64
+      let (resId, a') := a.internLevel4 nw ne sw se
       .inl (some { st with
         pc := st.pc + 1, stack := .i32 resId :: rest,
         heap := { st.heap with arenas := st.heap.arenas.set id a' } })
@@ -538,36 +540,36 @@ def algStepInvokeVirtual (st : JvmState) (cls method _desc : String) : Option Jv
       .ext (.mc (.level4Node _ _ _ _ se)) :: rest =>
     .inl (some { st with pc := st.pc + 1, stack := .i64 se :: rest })
   | "com/alexvanyo/composelife/model/MacroCell$Level4Node$Companion", "invoke-2jIhpxI",
-      se :: sw :: ne :: nw :: .allocRef "com/alexvanyo/composelife/model/MacroCell$Level4Node$Companion" :: rest =>
+      .i64 se :: .i64 sw :: .i64 ne :: .i64 nw :: .allocRef "com/alexvanyo/composelife/model/MacroCell$Level4Node$Companion" :: rest =>
     .inl (some { st with
       pc := st.pc + 1,
-      stack := .ext (.mc (Algorithm.makeLevel4Node nw.asI64 ne.asI64 sw.asI64 se.asI64)) :: rest })
+      stack := .ext (.mc (Algorithm.makeLevel4Node nw ne sw se)) :: rest })
   | _, _, _ => .inr none
 
 def algStepInvokeSpecial (st : JvmState) (cls method _desc : String) : Option JvmState ⊕ Option JvmVal :=
   match cls, method, st.stack with
   | "com/alexvanyo/composelife/model/HashLifeStepState", "<init>",
-      .ext (.mc m) :: oy :: ox ::
+      .ext (.mc m) :: .i32 oy :: .i32 ox ::
       .allocRef "com/alexvanyo/composelife/model/HashLifeStepState" ::
       .allocRef "com/alexvanyo/composelife/model/HashLifeStepState" :: rest =>
-    .inl (some { st with pc := st.pc + 1, stack := .ext (.hlState ⟨ox.asI32.toInt32, oy.asI32.toInt32, m⟩) :: rest })
+    .inl (some { st with pc := st.pc + 1, stack := .ext (.hlState ⟨ox.toInt32, oy.toInt32, m⟩) :: rest })
   | "com/alexvanyo/composelife/model/MacroCell$CellNode", "<init>",
-      .null :: .ext (.mc se) :: .ext (.mc sw) :: .ext (.mc ne) :: .ext (.mc nw) :: h ::
+      .null :: .ext (.mc se) :: .ext (.mc sw) :: .ext (.mc ne) :: .ext (.mc nw) :: .i32 h ::
       .allocRef "com/alexvanyo/composelife/model/MacroCell$CellNode" ::
       .allocRef "com/alexvanyo/composelife/model/MacroCell$CellNode" :: rest =>
-    .inl (some { st with pc := st.pc + 1, stack := .ext (.mc (.cellNode h.asI32 nw ne sw se)) :: rest })
+    .inl (some { st with pc := st.pc + 1, stack := .ext (.mc (.cellNode h nw ne sw se)) :: rest })
   | "com/alexvanyo/composelife/model/MacroCell$Level4Node", "<init>",
-      .null :: se :: sw :: ne :: nw :: h ::
+      .null :: .i64 se :: .i64 sw :: .i64 ne :: .i64 nw :: .i32 h ::
       .allocRef "com/alexvanyo/composelife/model/MacroCell$Level4Node" ::
       .allocRef "com/alexvanyo/composelife/model/MacroCell$Level4Node" :: rest =>
     .inl (some { st with
       pc := st.pc + 1,
-      stack := .ext (.mc (.level4Node h.asI32 nw.asI64 ne.asI64 sw.asI64 se.asI64)) :: rest })
+      stack := .ext (.mc (.level4Node h nw ne sw se)) :: rest })
   | "com/alexvanyo/composelife/model/PruneThresholds", "<init>",
-      .null :: leaf :: mac ::
+      .null :: .i64 leaf :: .i64 mac ::
       .allocRef "com/alexvanyo/composelife/model/PruneThresholds" ::
       .allocRef "com/alexvanyo/composelife/model/PruneThresholds" :: rest =>
-    .inl (some { st with pc := st.pc + 1, stack := .ext (.pruneThresh ⟨mac.asI64, leaf.asI64⟩) :: rest })
+    .inl (some { st with pc := st.pc + 1, stack := .ext (.pruneThresh ⟨mac, leaf⟩) :: rest })
   | "com/alexvanyo/composelife/model/RLEStatus$InvalidHeader", "<init>",
       .str s ::
       .allocRef "com/alexvanyo/composelife/model/RLEStatus$InvalidHeader" ::
@@ -579,21 +581,21 @@ def algStepInvokeSpecial (st : JvmState) (cls method _desc : String) : Option Jv
       .allocRef "com/alexvanyo/composelife/model/StepBatchResult" :: rest =>
     .inl (some { st with pc := st.pc + 1, stack := .ext (.stepBatch ⟨hs, pt⟩) :: rest })
   | "com/alexvanyo/composelife/model/StepPreparation", "<init>",
-      .ext (.mc m) :: delta ::
+      .ext (.mc m) :: .i32 delta ::
       .allocRef "com/alexvanyo/composelife/model/StepPreparation" ::
       .allocRef "com/alexvanyo/composelife/model/StepPreparation" :: rest =>
-    .inl (some { st with pc := st.pc + 1, stack := .ext (.stepPrep ⟨delta.asI32.toInt32, m⟩) :: rest })
+    .inl (some { st with pc := st.pc + 1, stack := .ext (.stepPrep ⟨delta.toInt32, m⟩) :: rest })
   | "com/alexvanyo/composelife/model/StepQuadrants", "<init>",
       .ext (.mc qse) :: .ext (.mc qsw) :: .ext (.mc qne) :: .ext (.mc qnw) ::
       .allocRef "com/alexvanyo/composelife/model/StepQuadrants" ::
       .allocRef "com/alexvanyo/composelife/model/StepQuadrants" :: rest =>
     .inl (some { st with pc := st.pc + 1, stack := .ext (.stepQuad ⟨qnw, qne, qsw, qse⟩) :: rest })
   | "com/alexvanyo/composelife/model/RLEStatus$UnexpectedInput", "<init>",
-      _marker :: col :: lineNum :: .str input ::
+      _marker :: .i32 col :: .i32 lineNum :: .str input ::
       .allocRef "com/alexvanyo/composelife/model/RLEStatus$UnexpectedInput" ::
       .allocRef "com/alexvanyo/composelife/model/RLEStatus$UnexpectedInput" :: rest =>
     .inl (some { st with
-      pc := st.pc + 1, stack := .ext (.rleStatus (.unexpectedInput input lineNum.asI32 col.asI32)) :: rest })
+      pc := st.pc + 1, stack := .ext (.rleStatus (.unexpectedInput input lineNum col)) :: rest })
   | "com/alexvanyo/composelife/algorithm/CellFrame$Node", "<init>",
       _marker :: k :: f2 :: f1 :: f0 ::
       .allocRef "com/alexvanyo/composelife/algorithm/CellFrame$Node" ::
@@ -755,17 +757,17 @@ def decodeStrArray (st : JvmState) : JvmVal → Option (Array String)
     | _ => none
   | _ => none
 
-def unboxI32 : JvmVal → UInt32
-  | .i32 v | .boxedInt v | .boxedUInt v => v
-  | v => v.asI32
+def unboxI32? : JvmVal → Option UInt32
+  | .i32 v | .boxedInt v | .boxedUInt v => some v
+  | _ => none
 
-def unboxI64 : JvmVal → UInt64
-  | .i64 v | .boxedLong v | .boxedULong v => v
-  | v => v.asI64
+def unboxI64? : JvmVal → Option UInt64
+  | .i64 v | .boxedLong v | .boxedULong v => some v
+  | _ => none
 
-def unboxU8 : JvmVal → UInt8
-  | .i32 v | .boxedByte v | .boxedUByte v | .boxedInt v | .boxedUInt v => v.toUInt8
-  | v => v.asI32.toUInt8
+def unboxU8? : JvmVal → Option UInt8
+  | .i32 v | .boxedByte v | .boxedUByte v | .boxedInt v | .boxedUInt v => some v.toUInt8
+  | _ => none
 
 def decodeU64List (h : Jvm.JvmHeap AlgExt) : Nat → JvmVal → Option (List UInt64)
   | 0, _ => none
@@ -776,7 +778,10 @@ def decodeU64List (h : Jvm.JvmHeap AlgExt) : Nat → JvmVal → Option (List UIn
       | some (.boxedInt 0) => some []
       | some (.boxedInt 1) =>
         match (elems[1]? : Option JvmVal), (elems[2]? : Option JvmVal) with
-        | some hd, some tl => (decodeU64List h fuel tl).map (unboxI64 hd :: ·)
+        | some hd, some tl => do
+          let v ← unboxI64? hd
+          let rest ← decodeU64List h fuel tl
+          some (v :: rest)
         | _, _ => none
       | _ => none
     | _ => none
@@ -800,8 +805,11 @@ def decodeLeafBucketList (h : Jvm.JvmHeap AlgExt) : Nat → JvmVal → Option (L
       | some (.boxedInt 0) => some []
       | some (.boxedInt 1) =>
         match (elems[1]? : Option JvmVal), (elems[2]? : Option JvmVal) with
-        | some (.pair k v), some tl =>
-          (decodeLeafBucketList h fuel tl).map ((unboxI64 k, unboxI32 v) :: ·)
+        | some (.pair k v), some tl => do
+          let kd ← unboxI64? k
+          let vd ← unboxI32? v
+          let rest ← decodeLeafBucketList h fuel tl
+          some ((kd, vd) :: rest)
         | _, _ => none
       | _ => none
     | _ => none
@@ -821,8 +829,8 @@ def encodeLeafBucketList (h : Jvm.JvmHeap AlgExt) :
 private abbrev NodeKey := UInt32 × UInt32 × UInt32 × UInt32 × UInt32
 
 def decodeNodeKey : JvmVal → Option NodeKey
-  | .pair l (.pair nw (.pair ne (.pair sw se))) =>
-    some (unboxI32 l, unboxI32 nw, unboxI32 ne, unboxI32 sw, unboxI32 se)
+  | .pair l (.pair nw (.pair ne (.pair sw se))) => do
+    some (← unboxI32? l, ← unboxI32? nw, ← unboxI32? ne, ← unboxI32? sw, ← unboxI32? se)
   | _ => none
 
 def encodeNodeKey (k : NodeKey) : JvmVal :=
@@ -839,10 +847,11 @@ def decodeNodeBucketList (h : Jvm.JvmHeap AlgExt) : Nat → JvmVal → Option (L
       | some (.boxedInt 0) => some []
       | some (.boxedInt 1) =>
         match (elems[1]? : Option JvmVal), (elems[2]? : Option JvmVal) with
-        | some (.pair kv v), some tl =>
-          match decodeNodeKey kv, decodeNodeBucketList h fuel tl with
-          | some k, some rest => some ((k, unboxI32 v) :: rest)
-          | _, _ => none
+        | some (.pair kv v), some tl => do
+          let k ← decodeNodeKey kv
+          let vd ← unboxI32? v
+          let rest ← decodeNodeBucketList h fuel tl
+          some ((k, vd) :: rest)
         | _, _ => none
       | _ => none
     | _ => none
@@ -928,7 +937,7 @@ def decodeLife105Warning (h : Jvm.JvmHeap AlgExt) : JvmVal → Option Algorithm.
     match h.get? addr with
     | some (.instance "com/alexvanyo/composelife/model/Life105Warning$UnexpectedInput" flds) =>
       match flds.lookup "input", flds.lookup "lineIndex", flds.lookup "columnIndex" with
-      | some (.str inp), some ln, some col => some (.unexpectedInput inp ln.asI32 col.asI32)
+      | some (.str inp), some (.i32 ln), some (.i32 col) => some (.unexpectedInput inp ln col)
       | _, _, _ => none
     | _ => none
   | _ => none
@@ -978,10 +987,12 @@ def decodeMacrocellWarning (h : Jvm.JvmHeap AlgExt) : JvmVal → Option Algorith
   | .heapRef addr =>
     match h.get? addr with
     | some (.instance "com/alexvanyo/composelife/model/MacrocellWarning$BlankLine" flds) =>
-      (flds.lookup "lineIndex").map fun v => .blankLine v.asI32
+      match flds.lookup "lineIndex" with
+      | some (.i32 ln) => some (.blankLine ln)
+      | _ => none
     | some (.instance "com/alexvanyo/composelife/model/MacrocellWarning$UnexpectedInput" flds) =>
       match flds.lookup "lineIndex", flds.lookup "columnIndex", flds.lookup "input" with
-      | some ln, some col, some (.str inp) => some (.unexpectedInput ln.asI32 col.asI32 inp)
+      | some (.i32 ln), some (.i32 col), some (.str inp) => some (.unexpectedInput ln col inp)
       | _, _, _ => none
     | _ => none
   | _ => none
@@ -1024,12 +1035,16 @@ def decodePlaintextWarning (h : Jvm.JvmHeap AlgExt) : JvmVal → Option Algorith
   | .heapRef addr =>
     match h.get? addr with
     | some (.instance "com/alexvanyo/composelife/model/PlaintextWarning$BlankLine" flds) =>
-      (flds.lookup "lineIndex").map fun v => .blankLine v.asI32
+      match flds.lookup "lineIndex" with
+      | some (.i32 ln) => some (.blankLine ln)
+      | _ => none
     | some (.instance "com/alexvanyo/composelife/model/PlaintextWarning$ShortLine" flds) =>
-      (flds.lookup "lineIndex").map fun v => .shortLine v.asI32
+      match flds.lookup "lineIndex" with
+      | some (.i32 ln) => some (.shortLine ln)
+      | _ => none
     | some (.instance "com/alexvanyo/composelife/model/PlaintextWarning$UnexpectedChar" flds) =>
       match flds.lookup "lineIndex", flds.lookup "columnIndex", flds.lookup "codePoint" with
-      | some ln, some col, some cp => some (.unexpectedChar ln.asI32 col.asI32 cp.asI32)
+      | some (.i32 ln), some (.i32 col), some (.i32 cp) => some (.unexpectedChar ln col cp)
       | _, _, _ => none
     | _ => none
   | _ => none
@@ -1064,19 +1079,19 @@ def decodeRLEWarning (h : Jvm.JvmHeap AlgExt) : JvmVal → Option Algorithm.RLEW
     match h.get? addr with
     | some (.instance "com/alexvanyo/composelife/model/RLEWarning$DuplicateOffset" flds) =>
       match flds.lookup "lineIndex", flds.lookup "x", flds.lookup "y" with
-      | some ln, some x, some y => some (.duplicateOffset ln.asI32 x.asI32.toInt32 y.asI32.toInt32)
+      | some (.i32 ln), some (.i32 x), some (.i32 y) => some (.duplicateOffset ln x.toInt32 y.toInt32)
       | _, _, _ => none
     | some (.instance "com/alexvanyo/composelife/model/RLEWarning$UnexpectedChar" flds) =>
       match flds.lookup "lineIndex", flds.lookup "columnIndex", flds.lookup "codePoint" with
-      | some ln, some col, some cp => some (.unexpectedChar ln.asI32 col.asI32 cp.asI32)
+      | some (.i32 ln), some (.i32 col), some (.i32 cp) => some (.unexpectedChar ln col cp)
       | _, _, _ => none
     | some (.instance "com/alexvanyo/composelife/model/RLEWarning$UnexpectedInput" flds) =>
       match flds.lookup "lineIndex", flds.lookup "columnIndex", flds.lookup "input" with
-      | some ln, some col, some (.str inp) => some (.unexpectedInput ln.asI32 col.asI32 inp)
+      | some (.i32 ln), some (.i32 col), some (.str inp) => some (.unexpectedInput ln col inp)
       | _, _, _ => none
     | some (.instance "com/alexvanyo/composelife/model/RLEWarning$CharAfterEnd" flds) =>
       match flds.lookup "lineIndex", flds.lookup "columnIndex", flds.lookup "codePoint" with
-      | some ln, some col, some cp => some (.charAfterEnd ln.asI32 col.asI32 cp.asI32)
+      | some (.i32 ln), some (.i32 col), some (.i32 cp) => some (.charAfterEnd ln col cp)
       | _, _, _ => none
     | _ => none
   | _ => none
@@ -1112,14 +1127,80 @@ def encodeRLEResult (h : Jvm.JvmHeap AlgExt) (u64s : List (Array UInt64))
     [("status", .ext (.rleStatus res.status)), ("warnings", .heapRef wArrAddr), ("cells", .ext (.u64Ref cId))])
   (.heapRef resAddr, h3, u64s')
 
+def evalPureKotlinFromHeap (jh : Jvm.JvmHeap AlgExt) (w : UInt64) : Option UInt32 :=
+  if w == 0 then some 0
+  else
+    match jh.getStatic? "BitComputationKt" "QUAD_INFO_LUT",
+        jh.getStatic? "AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" with
+    | some (.heapRef qiAddr), some (.heapRef ngAddr) =>
+      match jh.get? qiAddr, jh.get? ngAddr with
+      | some (.intArray qiArr), some (.byteArray ngArr) =>
+        let q0 := (w &&& (0xFFFF : UInt64)).toUInt32.toNat
+        let q1 := ((w >>> 16) &&& (0xFFFF : UInt64)).toUInt32.toNat
+        let q2 := ((w >>> 32) &&& (0xFFFF : UInt64)).toUInt32.toNat
+        let q3 := (w >>> 48).toUInt32.toNat
+        if h0 : q0 < qiArr.size then
+          if h1 : q1 < qiArr.size then
+            if h2 : q2 < qiArr.size then
+              if h3 : q3 < qiArr.size then
+                let info0 := qiArr[q0]
+                let info1 := qiArr[q1]
+                let info2 := qiArr[q2]
+                let info3 := qiArr[q3]
+                let n00 := info0 &&& (0xF : UInt32)
+                let n02 := info1 &&& (0xF : UInt32)
+                let n20 := info2 &&& (0xF : UInt32)
+                let n22 := info3 &&& (0xF : UInt32)
+                let n01 := ((info0 >>> 4) &&& (0x5 : UInt32)) ||| ((info1 >>> 8) &&& (0xA : UInt32))
+                let n21 := ((info2 >>> 4) &&& (0x5 : UInt32)) ||| ((info3 >>> 8) &&& (0xA : UInt32))
+                let n10 := ((info0 >>> 12) &&& (0x3 : UInt32)) ||| ((info2 >>> 16) &&& (0xC : UInt32))
+                let n12 := ((info1 >>> 12) &&& (0x3 : UInt32)) ||| ((info3 >>> 16) &&& (0xC : UInt32))
+                let n11 :=
+                  ((info0 >>> 20) &&& (1 : UInt32)) |||
+                  ((info1 >>> 20) &&& (2 : UInt32)) |||
+                  ((info2 >>> 20) &&& (4 : UInt32)) |||
+                  ((info3 >>> 20) &&& (8 : UInt32))
+                let idxNW := (n00 ||| (n01 <<< 4) ||| (n10 <<< 8) ||| (n11 <<< 12)).toNat
+                let idxNE := (n01 ||| (n02 <<< 4) ||| (n11 <<< 8) ||| (n12 <<< 12)).toNat
+                let idxSW := (n10 ||| (n11 <<< 4) ||| (n20 <<< 8) ||| (n21 <<< 12)).toNat
+                let idxSE := (n11 ||| (n12 <<< 4) ||| (n21 <<< 8) ||| (n22 <<< 12)).toNat
+                if hnw : idxNW < ngArr.size then
+                  if hne : idxNE < ngArr.size then
+                    if hsw : idxSW < ngArr.size then
+                      if hse : idxSE < ngArr.size then
+                        let nw := UInt32.ofBitVec (ngArr[idxNW].toBitVec.signExtend 32)
+                        let ne := UInt32.ofBitVec (ngArr[idxNE].toBitVec.signExtend 32)
+                        let sw := UInt32.ofBitVec (ngArr[idxSW].toBitVec.signExtend 32)
+                        let se := UInt32.ofBitVec (ngArr[idxSE].toBitVec.signExtend 32)
+                        some (nw ||| (ne <<< 4) ||| (sw <<< 8) ||| (se <<< 12))
+                      else none
+                    else none
+                  else none
+                else none
+              else none
+            else none
+          else none
+        else none
+      | _, _ => none
+    | _, _ => none
+
 def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmState ⊕ Option JvmVal :=
   match cls, method, desc, st.stack with
+  | "BitComputationKt", "computeQuadInfo", "(I)I", .i32 q :: rest =>
+    .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.KotlinModel.computeQuadInfoModel q) :: rest })
+  | "BitComputationKt", "computeNextGenerationPureKotlin", "(J)I", .i64 wVal :: rest =>
+    match evalPureKotlinFromHeap st.jvmHeap wVal with
+    | some r => .inl (some { st with pc := st.pc + 1, stack := .i32 r :: rest })
+    | none => .inr none
   | "kotlin/ULongArray", "constructor-impl", "([J)[J", _ =>
     .inl (some { st with pc := st.pc + 1 })
-  | "kotlin/UIntArray", "get-pVg5ArA", "([II)I", idx :: .ext (.arenaU32Ref id f) :: rest =>
+  -- Note: `.arenaU*Ref` and `.u64Ref` are `AlgExt` abstract views of Lean-domain `FlatHashLifeArena`
+  -- and `U64Buf` arrays; pre-existing `proofs/JvmEquiv` lemmas state unguarded Lean `Array[i]!`/`.set!`
+  -- equivalence over them. Real JVM arrays use `jvm-lean`'s `HeapObj` with strict bounds checks.
+  | "kotlin/UIntArray", "get-pVg5ArA", "([II)I", .i32 idx :: .ext (.arenaU32Ref id f) :: rest =>
     match st.heap.arenas[id]? with
     | some a =>
-      let val := (getArenaU32 a f)[idx.asI32.toNat]!
+      let val := (getArenaU32 a f)[idx.toNat]!
       .inl (some { st with pc := st.pc + 1, stack := .i32 val :: rest })
     | none => .inr none
   | "kotlin/UIntArray", "getSize-impl", "([I)I", .ext (.arenaU32Ref id f) :: rest =>
@@ -1127,56 +1208,58 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
     | some a =>
       .inl (some { st with pc := st.pc + 1, stack := .i32 (getArenaU32 a f).size.toUInt32 :: rest })
     | none => .inr none
-  | "kotlin/UIntArray", "set-VXSXFK8", "([III)V", val :: idx :: .ext (.arenaU32Ref id f) :: rest =>
+  | "kotlin/UIntArray", "set-VXSXFK8", "([III)V", .i32 val :: .i32 idx :: .ext (.arenaU32Ref id f) :: rest =>
     .inl (updateArena { st with stack := rest } id
-      (fun a => setArenaU32 a f ((getArenaU32 a f).set! idx.asI32.toNat val.asI32)))
-  | "kotlin/UByteArray", "get-w2LRezQ", "([BI)B", idx :: .ext (.arenaU8Ref id f) :: rest =>
+      (fun a => setArenaU32 a f ((getArenaU32 a f).set! idx.toNat val)))
+  | "kotlin/UByteArray", "get-w2LRezQ", "([BI)B", .i32 idx :: .ext (.arenaU8Ref id f) :: rest =>
     match st.heap.arenas[id]? with
     | some a =>
-      let val := (getArenaU8 a f)[idx.asI32.toNat]!
+      let val := (getArenaU8 a f)[idx.toNat]!
       .inl (some { st with pc := st.pc + 1, stack := .i32 val.toInt8.toInt32.toUInt32 :: rest })
     | none => .inr none
-  | "kotlin/UByteArray", "set-VurrAj0", "([BIB)V", val :: idx :: .ext (.arenaU8Ref id f) :: rest =>
+  | "kotlin/UByteArray", "set-VurrAj0", "([BIB)V", .i32 val :: .i32 idx :: .ext (.arenaU8Ref id f) :: rest =>
     .inl (updateArena { st with stack := rest } id
-      (fun a => setArenaU8 a f ((getArenaU8 a f).set! idx.asI32.toNat val.asI32.toUInt8)))
-  | "kotlin/ULongArray", "constructor-impl", "(I)[J", sz :: rest =>
-    let newId := st.heap.u64Arrays.length
-    let arr := Array.replicate sz.asI32.toNat 0
-    .inl (some { st with
-      pc := st.pc + 1, stack := .ext (.u64Ref newId) :: rest,
-      heap := { st.heap with u64Arrays := st.heap.u64Arrays ++ [arr] } })
-  | "kotlin/ULongArray", "get-s-VKNKU", "([JI)J", idx :: .ext (.arenaU64Ref id f) :: rest =>
+      (fun a => setArenaU8 a f ((getArenaU8 a f).set! idx.toNat val.toUInt8)))
+  | "kotlin/ULongArray", "constructor-impl", "(I)[J", .i32 sz :: rest =>
+    if sz.toBitVec.slt 0#32 then .inr none
+    else
+      let newId := st.heap.u64Arrays.length
+      let arr := Array.replicate sz.toNat 0
+      .inl (some { st with
+        pc := st.pc + 1, stack := .ext (.u64Ref newId) :: rest,
+        heap := { st.heap with u64Arrays := st.heap.u64Arrays ++ [arr] } })
+  | "kotlin/ULongArray", "get-s-VKNKU", "([JI)J", .i32 idx :: .ext (.arenaU64Ref id f) :: rest =>
     match st.heap.arenas[id]? with
     | some a =>
-      let val := (getArenaU64 a f)[idx.asI32.toNat]!
+      let val := (getArenaU64 a f)[idx.toNat]!
       .inl (some { st with pc := st.pc + 1, stack := .i64 val :: rest })
     | none => .inr none
-  | "kotlin/ULongArray", "get-s-VKNKU", "([JI)J", idx :: .ext (.u64Ref id) :: rest =>
+  | "kotlin/ULongArray", "get-s-VKNKU", "([JI)J", .i32 idx :: .ext (.u64Ref id) :: rest =>
     match st.heap.u64Arrays[id]? with
     | some arr =>
-      .inl (some { st with pc := st.pc + 1, stack := .i64 (arr[idx.asI32.toNat]!) :: rest })
+      .inl (some { st with pc := st.pc + 1, stack := .i64 (arr[idx.toNat]!) :: rest })
     | none => .inr none
   | "kotlin/ULongArray", "getSize-impl", "([J)I", .ext (.u64Ref id) :: rest =>
     match st.heap.u64Arrays[id]? with
     | some arr =>
       .inl (some { st with pc := st.pc + 1, stack := .i32 arr.size.toUInt32 :: rest })
     | none => .inr none
-  | "kotlin/ULongArray", "set-k8EXiF4", "([JIJ)V", val :: idx :: .ext (.u64Ref id) :: rest =>
+  | "kotlin/ULongArray", "set-k8EXiF4", "([JIJ)V", .i64 val :: .i32 idx :: .ext (.u64Ref id) :: rest =>
     match st.heap.u64Arrays[id]? with
     | some arr =>
       .inl (some { st with
         pc := st.pc + 1, stack := rest,
-        heap := { st.heap with u64Arrays := st.heap.u64Arrays.set id (arr.set! idx.asI32.toNat val.asI64) } })
+        heap := { st.heap with u64Arrays := st.heap.u64Arrays.set id (arr.set! idx.toNat val) } })
     | none => .inr none
-  | "kotlin/ULongArray", "set-k8EXiF4", "([JIJ)V", val :: idx :: .ext (.arenaU64Ref id f) :: rest =>
+  | "kotlin/ULongArray", "set-k8EXiF4", "([JIJ)V", .i64 val :: .i32 idx :: .ext (.arenaU64Ref id f) :: rest =>
     .inl (updateArena { st with stack := rest } id
-      (fun a => setArenaU64 a f ((getArenaU64 a f).set! idx.asI32.toNat val.asI64)))
-  | "kotlin/collections/ArraysKt", "copyOfRange", "([JII)[J", e :: s :: .ext (.u64Ref id) :: rest =>
+      (fun a => setArenaU64 a f ((getArenaU64 a f).set! idx.toNat val)))
+  | "kotlin/collections/ArraysKt", "copyOfRange", "([JII)[J", .i32 e :: .i32 s :: .ext (.u64Ref id) :: rest =>
     match st.heap.u64Arrays[id]? with
     | some arr =>
-      if s.asI32 < 0x80000000 && e.asI32 < 0x80000000 && s.asI32 <= e.asI32 && e.asI32.toNat <= arr.size then
+      if s < 0x80000000 && e < 0x80000000 && s <= e && e.toNat <= arr.size then
         let newId := st.heap.u64Arrays.length
-        let sub := arr.extract s.asI32.toNat e.asI32.toNat
+        let sub := arr.extract s.toNat e.toNat
         .inl (some { st with
           pc := st.pc + 1, stack := .ext (.u64Ref newId) :: rest,
           heap := { st.heap with u64Arrays := st.heap.u64Arrays ++ [sub] } })
@@ -1185,28 +1268,28 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
   | _, _, _, _ =>
     let baseMethod := stripMangle method
     match baseMethod, st.stack with
-    | "f_Algorithm_computeNextGen4x4BitwiseUInt", w :: rest =>
-      .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.computeNextGen4x4BitwiseUInt w.asI32) :: rest })
-    | "f_Algorithm_computeLeafNextGen8x8FastUInt", w :: rest =>
-      .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.computeLeafNextGen8x8FastUInt w.asI64) :: rest })
-    | "f_Algorithm_computeLeafNextGen8x8BranchUInt", w :: rest =>
-      .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.computeLeafNextGen8x8BranchUInt w.asI64) :: rest })
-    | "f_Algorithm_cellToLeafBitUInt", y :: x :: rest =>
-      .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.cellToLeafBitUInt x.asI32 y.asI32) :: rest })
-    | "f_Algorithm_leafContains", y :: x :: leaf :: rest =>
+    | "f_Algorithm_computeNextGen4x4BitwiseUInt", .i32 w :: rest =>
+      .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.computeNextGen4x4BitwiseUInt w) :: rest })
+    | "f_Algorithm_computeLeafNextGen8x8FastUInt", .i64 w :: rest =>
+      .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.computeLeafNextGen8x8FastUInt w) :: rest })
+    | "f_Algorithm_computeLeafNextGen8x8BranchUInt", .i64 w :: rest =>
+      .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.computeLeafNextGen8x8BranchUInt w) :: rest })
+    | "f_Algorithm_cellToLeafBitUInt", .i32 y :: .i32 x :: rest =>
+      .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.cellToLeafBitUInt x y) :: rest })
+    | "f_Algorithm_leafContains", .i32 y :: .i32 x :: .i64 leaf :: rest =>
       .inl (some { st with
-        pc := st.pc + 1, stack := .i32 (if Algorithm.leafContains leaf.asI64 x.asI32 y.asI32 then 1 else 0) :: rest })
-    | "f_Algorithm_cellNodeHash", se :: sw :: ne :: nw :: lvl :: rest =>
-      .inl (some { st with
-        pc := st.pc + 1,
-        stack := .i32 (Algorithm.cellNodeHash lvl.asI32 nw.asI32 ne.asI32 sw.asI32 se.asI32) :: rest })
-    | "f_Algorithm_level4Hash", se :: sw :: ne :: nw :: rest =>
-      .inl (some { st with
-        pc := st.pc + 1, stack := .i32 (Algorithm.level4Hash nw.asI64 ne.asI64 sw.asI64 se.asI64) :: rest })
-    | "f_Algorithm_makeLevel4Node", se :: sw :: ne :: nw :: rest =>
+        pc := st.pc + 1, stack := .i32 (if Algorithm.leafContains leaf x y then 1 else 0) :: rest })
+    | "f_Algorithm_cellNodeHash", .i32 se :: .i32 sw :: .i32 ne :: .i32 nw :: .i32 lvl :: rest =>
       .inl (some { st with
         pc := st.pc + 1,
-        stack := .ext (.mc (Algorithm.makeLevel4Node nw.asI64 ne.asI64 sw.asI64 se.asI64)) :: rest })
+        stack := .i32 (Algorithm.cellNodeHash lvl nw ne sw se) :: rest })
+    | "f_Algorithm_level4Hash", .i64 se :: .i64 sw :: .i64 ne :: .i64 nw :: rest =>
+      .inl (some { st with
+        pc := st.pc + 1, stack := .i32 (Algorithm.level4Hash nw ne sw se) :: rest })
+    | "f_Algorithm_makeLevel4Node", .i64 se :: .i64 sw :: .i64 ne :: .i64 nw :: rest =>
+      .inl (some { st with
+        pc := st.pc + 1,
+        stack := .ext (.mc (Algorithm.makeLevel4Node nw ne sw se)) :: rest })
     | "f_Algorithm_makeCellNode", .ext (.mc se) :: .ext (.mc sw) :: .ext (.mc ne) :: .ext (.mc nw) :: rest =>
       .inl (some { st with pc := st.pc + 1, stack := .ext (.mc (Algorithm.makeCellNode nw ne sw se)) :: rest })
     | "f_Algorithm_MacroCell_cellEquals", .ext (.mc other) :: .ext (.mc m) :: rest =>
@@ -1229,25 +1312,25 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
       .inl (some { st with pc := st.pc + 1, stack := .i32 (if Algorithm.needToExpand m then 1 else 0) :: rest })
     | "f_Algorithm_prepareStep", .ext (.mc m) :: rest =>
       .inl (some { st with pc := st.pc + 1, stack := .ext (.stepPrep (Algorithm.prepareStep m)) :: rest })
-    | "f_Algorithm_stepNGenerationsWith", .ext (.fnHlToHl fn) :: .ext (.hlState hs) :: step :: rest =>
+    | "f_Algorithm_stepNGenerationsWith", .ext (.fnHlToHl fn) :: .ext (.hlState hs) :: .i32 step :: rest =>
       .inl (some { st with
-        pc := st.pc + 1, stack := .ext (.hlState (Algorithm.stepNGenerationsWith step.asI32 hs fn)) :: rest })
-    | "f_Algorithm_computePruneThresholds", leafKeep :: macKeep :: gens :: rest =>
+        pc := st.pc + 1, stack := .ext (.hlState (Algorithm.stepNGenerationsWith step hs fn)) :: rest })
+    | "f_Algorithm_computePruneThresholds", .i32 leafKeep :: .i32 macKeep :: .i64 gens :: rest =>
       .inl (some { st with
         pc := st.pc + 1,
-        stack := .ext (.pruneThresh (Algorithm.computePruneThresholds gens.asI64 macKeep.asI32 leafKeep.asI32)) :: rest })
+        stack := .ext (.pruneThresh (Algorithm.computePruneThresholds gens macKeep leafKeep)) :: rest })
     | "f_Algorithm_computeLevel4NextGen16x16WithUInt___at___00Algorithm_computeLevel4NextGen16x16UInt_spec__0",
-        se :: sw :: ne :: nw :: rest =>
+        .i64 se :: .i64 sw :: .i64 ne :: .i64 nw :: rest =>
       .inl (some { st with
         pc := st.pc + 1,
-        stack := .i64 (Algorithm.computeLevel4NextGen16x16UInt nw.asI64 ne.asI64 sw.asI64 se.asI64) :: rest })
+        stack := .i64 (Algorithm.computeLevel4NextGen16x16UInt nw ne sw se) :: rest })
     | "f_Algorithm_computeLevel4NextGen16x16WithUInt___at___00Algorithm_stepLevel4NodeWith_spec__0",
-        se :: sw :: ne :: nw :: .ext (.fnU64ToU32 fn) :: rest =>
+        .i64 se :: .i64 sw :: .i64 ne :: .i64 nw :: .ext (.fnU64ToU32 fn) :: rest =>
       .inl (some { st with
         pc := st.pc + 1,
-        stack := .i64 (Algorithm.computeLevel4NextGen16x16WithUInt nw.asI64 ne.asI64 sw.asI64 se.asI64 fn) :: rest })
-    | "f_Algorithm_emptyAtHeight", h :: rest =>
-      .inl (some { st with pc := st.pc + 1, stack := .ext (.mc (Algorithm.emptyAtHeight h.asI32)) :: rest })
+        stack := .i64 (Algorithm.computeLevel4NextGen16x16WithUInt nw ne sw se fn) :: rest })
+    | "f_Algorithm_emptyAtHeight", .i32 h :: rest =>
+      .inl (some { st with pc := st.pc + 1, stack := .ext (.mc (Algorithm.emptyAtHeight h)) :: rest })
     | "f_Algorithm_cellsToMacroCell___closed__0", rest =>
       .inl (some { st with pc := st.pc + 1, stack := .ext (.mc (Algorithm.emptyAtHeight 1)) :: rest })
     | "f_Algorithm_cellsToMacroCell___closed__1", rest =>
@@ -1256,9 +1339,9 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
         stack := .pair (.boxedULong 2147483648) (.ext (.mc (Algorithm.emptyAtHeight 1))) :: rest })
     | "f_Algorithm_importsAsEmpty", .ext (.mc m) :: rest =>
       .inl (some { st with pc := st.pc + 1, stack := .i32 (if Algorithm.importsAsEmpty m then 1 else 0) :: rest })
-    | "f_Algorithm_leafRowMask", i :: b :: r :: t :: l :: y0 :: x0 :: leaf :: rest =>
-      let res := Algorithm.leafRowMask leaf.asI64 x0.asI64.toInt64 y0.asI64.toInt64
-        l.asI64.toInt64 t.asI64.toInt64 r.asI64.toInt64 b.asI64.toInt64 i.asI32
+    | "f_Algorithm_leafRowMask", .i32 i :: .i64 b :: .i64 r :: .i64 t :: .i64 l :: .i64 y0 :: .i64 x0 :: .i64 leaf :: rest =>
+      let res := Algorithm.leafRowMask leaf x0.toInt64 y0.toInt64
+        l.toInt64 t.toInt64 r.toInt64 b.toInt64 i
       .inl (some { st with pc := st.pc + 1, stack := .i64 res :: rest })
     | "f_List_isEmpty___redArg", .ext (.cellFrames fs) :: rest =>
       .inl (some { st with pc := st.pc + 1, stack := .i32 (if fs.isEmpty then 1 else 0) :: rest })
@@ -1268,10 +1351,10 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
         let isEmpty := match (elems[0]? : Option JvmVal) with | some (.boxedInt 0) => true | _ => false
         .inl (some { st with pc := st.pc + 1, stack := .i32 (if isEmpty then 1 else 0) :: rest })
       | _ => .inr none
-    | "f_Algorithm_emptyMacroCellUInt32_loop", .ext (.mc curNode) :: curLevel :: level :: rest =>
+    | "f_Algorithm_emptyMacroCellUInt32_loop", .ext (.mc curNode) :: .i32 curLevel :: .i32 level :: rest =>
       .inl (some { st with
         pc := st.pc + 1,
-        stack := .ext (.mc (Algorithm.emptyMacroCellUInt32.loop level.asI32 curLevel.asI32 curNode)) :: rest })
+        stack := .ext (.mc (Algorithm.emptyMacroCellUInt32.loop level curLevel curNode)) :: rest })
     | "f_Algorithm_findLastLeafX___closed__0", rest =>
       .inl (some { st with pc := st.pc + 1, stack := .boxedUInt 0 :: rest })
     | "f_Algorithm_findLastLeafX___closed__1", rest =>
@@ -1288,8 +1371,8 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
       .inl (some { st with pc := st.pc + 1, stack := .boxedUInt 6 :: rest })
     | "f_Algorithm_findLastLeafX___closed__7", rest =>
       .inl (some { st with pc := st.pc + 1, stack := .boxedUInt 7 :: rest })
-    | "f_Algorithm_findLastLeafX", y :: leaf :: rest =>
-      let res := match Algorithm.findLastLeafX leaf.asI64 y.asI32 with
+    | "f_Algorithm_findLastLeafX", .i32 y :: .i64 leaf :: rest =>
+      let res := match Algorithm.findLastLeafX leaf y with
         | some v => .boxedUInt v
         | none => .null
       .inl (some { st with pc := st.pc + 1, stack := res :: rest })
@@ -1300,174 +1383,174 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
         | .boxedInt v => some v
         | _ => none
       .inl (some { st with pc := st.pc + 1, stack := .i32 (if optOf a == optOf b then 1 else 0) :: rest })
-    | "f_Algorithm_DagWriter_addLeaf", leaf :: .ext (.dagWriter w) :: rest =>
-      let r := w.addLeaf leaf.asI64
+    | "f_Algorithm_DagWriter_addLeaf", .i64 leaf :: .ext (.dagWriter w) :: rest =>
+      let r := w.addLeaf leaf
       .inl (some { st with pc := st.pc + 1, stack := .pair (.boxedUInt r.1) (.ext (.dagWriter r.2)) :: rest })
-    | "f_Algorithm_DagWriter_addLeaf", leaf :: wVal :: rest =>
+    | "f_Algorithm_DagWriter_addLeaf", .i64 leaf :: wVal :: rest =>
       match decodeDagWriter st.jvmHeap wVal with
       | some w =>
-        let r := w.addLeaf leaf.asI64
+        let r := w.addLeaf leaf
         let (w', h') := encodeDagWriter st.jvmHeap r.2
         .inl (some { st with pc := st.pc + 1, stack := .pair (.boxedUInt r.1) w' :: rest, jvmHeap := h' })
       | none => .inr none
-    | "f_Algorithm_DagWriter_addNode", se :: sw :: ne :: nw :: lvl :: .ext (.dagWriter w) :: rest =>
-      let r := w.addNode lvl.asI32 nw.asI32 ne.asI32 sw.asI32 se.asI32
+    | "f_Algorithm_DagWriter_addNode", .i32 se :: .i32 sw :: .i32 ne :: .i32 nw :: .i32 lvl :: .ext (.dagWriter w) :: rest =>
+      let r := w.addNode lvl nw ne sw se
       .inl (some { st with pc := st.pc + 1, stack := .pair (.boxedUInt r.1) (.ext (.dagWriter r.2)) :: rest })
-    | "f_Algorithm_DagWriter_addNode", se :: sw :: ne :: nw :: lvl :: wVal :: rest =>
+    | "f_Algorithm_DagWriter_addNode", .i32 se :: .i32 sw :: .i32 ne :: .i32 nw :: .i32 lvl :: wVal :: rest =>
       match decodeDagWriter st.jvmHeap wVal with
       | some w =>
-        let r := w.addNode lvl.asI32 nw.asI32 ne.asI32 sw.asI32 se.asI32
+        let r := w.addNode lvl nw ne sw se
         let (w', h') := encodeDagWriter st.jvmHeap r.2
         .inl (some { st with pc := st.pc + 1, stack := .pair (.boxedUInt r.1) w' :: rest, jvmHeap := h' })
       | none => .inr none
-    | "f_Algorithm_FlatHashLifeArena_centeredHorizontal", eId :: wId :: .ext (.arenaRef id) :: rest =>
+    | "f_Algorithm_FlatHashLifeArena_centeredHorizontal", .i32 eId :: .i32 wId :: .ext (.arenaRef id) :: rest =>
       match st.heap.arenas[id]? with
       | some a =>
-        let (r, a') := a.centeredHorizontal wId.asI32 eId.asI32
+        let (r, a') := a.centeredHorizontal wId eId
         .inl (some { st with
           pc := st.pc + 1, stack := .i32 r :: rest,
           heap := { st.heap with arenas := st.heap.arenas.set id a' } })
       | none => .inr none
-    | "f_Algorithm_FlatHashLifeArena_centeredVertical", sId :: nId :: .ext (.arenaRef id) :: rest =>
+    | "f_Algorithm_FlatHashLifeArena_centeredVertical", .i32 sId :: .i32 nId :: .ext (.arenaRef id) :: rest =>
       match st.heap.arenas[id]? with
       | some a =>
-        let (r, a') := a.centeredVertical nId.asI32 sId.asI32
+        let (r, a') := a.centeredVertical nId sId
         .inl (some { st with
           pc := st.pc + 1, stack := .i32 r :: rest,
           heap := { st.heap with arenas := st.heap.arenas.set id a' } })
       | none => .inr none
-    | "f_Algorithm_FlatHashLifeArena_centeredSubnode", nodeId :: .ext (.arenaRef id) :: rest =>
+    | "f_Algorithm_FlatHashLifeArena_centeredSubnode", .i32 nodeId :: .ext (.arenaRef id) :: rest =>
       match st.heap.arenas[id]? with
       | some a =>
-        let (r, a') := a.centeredSubnode nodeId.asI32
+        let (r, a') := a.centeredSubnode nodeId
         .inl (some { st with
           pc := st.pc + 1, stack := .i32 r :: rest,
           heap := { st.heap with arenas := st.heap.arenas.set id a' } })
       | none => .inr none
-    | "f_Algorithm_FlatHashLifeArena_centeredSubSubnode", nodeId :: .ext (.arenaRef id) :: rest =>
+    | "f_Algorithm_FlatHashLifeArena_centeredSubSubnode", .i32 nodeId :: .ext (.arenaRef id) :: rest =>
       match st.heap.arenas[id]? with
       | some a =>
-        let (r, a') := a.centeredSubSubnode nodeId.asI32
+        let (r, a') := a.centeredSubSubnode nodeId
         .inl (some { st with
           pc := st.pc + 1, stack := .i32 r :: rest,
           heap := { st.heap with arenas := st.heap.arenas.set id a' } })
       | none => .inr none
-    | "f_Algorithm_centeredSubSubnodeSizeCell", nodeId :: .ext (.arenaRef id) :: rest =>
+    | "f_Algorithm_centeredSubSubnodeSizeCell", .i32 nodeId :: .ext (.arenaRef id) :: rest =>
       match st.heap.arenas[id]? with
       | some a =>
         .inl (some { st with
-          pc := st.pc + 1, stack := .i64 (Algorithm.centeredSubSubnodeSizeCell a nodeId.asI32) :: rest })
+          pc := st.pc + 1, stack := .i64 (Algorithm.centeredSubSubnodeSizeCell a nodeId) :: rest })
       | none => .inr none
-    | "f_Algorithm_FlatHashLifeArena_quadrantNW", nodeId :: .ext (.arenaRef id) :: rest =>
+    | "f_Algorithm_FlatHashLifeArena_quadrantNW", .i32 nodeId :: .ext (.arenaRef id) :: rest =>
       match st.heap.arenas[id]? with
       | some a =>
-        let (r, a') := a.quadrantNW nodeId.asI32
-        .inl (some { st with
-          pc := st.pc + 1, stack := .i32 r :: rest,
-          heap := { st.heap with arenas := st.heap.arenas.set id a' } })
-      | none => .inr none
-    | "f_Algorithm_FlatHashLifeArena_quadrantNE", nodeId :: .ext (.arenaRef id) :: rest =>
-      match st.heap.arenas[id]? with
-      | some a =>
-        let (r, a') := a.quadrantNE nodeId.asI32
+        let (r, a') := a.quadrantNW nodeId
         .inl (some { st with
           pc := st.pc + 1, stack := .i32 r :: rest,
           heap := { st.heap with arenas := st.heap.arenas.set id a' } })
       | none => .inr none
-    | "f_Algorithm_FlatHashLifeArena_quadrantSW", nodeId :: .ext (.arenaRef id) :: rest =>
+    | "f_Algorithm_FlatHashLifeArena_quadrantNE", .i32 nodeId :: .ext (.arenaRef id) :: rest =>
       match st.heap.arenas[id]? with
       | some a =>
-        let (r, a') := a.quadrantSW nodeId.asI32
+        let (r, a') := a.quadrantNE nodeId
         .inl (some { st with
           pc := st.pc + 1, stack := .i32 r :: rest,
           heap := { st.heap with arenas := st.heap.arenas.set id a' } })
       | none => .inr none
-    | "f_Algorithm_FlatHashLifeArena_quadrantSE", nodeId :: .ext (.arenaRef id) :: rest =>
+    | "f_Algorithm_FlatHashLifeArena_quadrantSW", .i32 nodeId :: .ext (.arenaRef id) :: rest =>
       match st.heap.arenas[id]? with
       | some a =>
-        let (r, a') := a.quadrantSE nodeId.asI32
+        let (r, a') := a.quadrantSW nodeId
+        .inl (some { st with
+          pc := st.pc + 1, stack := .i32 r :: rest,
+          heap := { st.heap with arenas := st.heap.arenas.set id a' } })
+      | none => .inr none
+    | "f_Algorithm_FlatHashLifeArena_quadrantSE", .i32 nodeId :: .ext (.arenaRef id) :: rest =>
+      match st.heap.arenas[id]? with
+      | some a =>
+        let (r, a') := a.quadrantSE nodeId
         .inl (some { st with
           pc := st.pc + 1, stack := .i32 r :: rest,
           heap := { st.heap with arenas := st.heap.arenas.set id a' } })
       | none => .inr none
     | "f_Algorithm_FlatHashLifeArena_combineQuadrants",
-        se :: sw :: ne :: nw :: lvl :: nodeId :: .ext (.arenaRef id) :: rest =>
+        .i32 se :: .i32 sw :: .i32 ne :: .i32 nw :: .i32 lvl :: .i32 nodeId :: .ext (.arenaRef id) :: rest =>
       match st.heap.arenas[id]? with
       | some a =>
-        let (r, a') := a.combineQuadrants nodeId.asI32 lvl.asI32.toUInt8 nw.asI32 ne.asI32 sw.asI32 se.asI32
+        let (r, a') := a.combineQuadrants nodeId lvl.toUInt8 nw ne sw se
         .inl (some { st with
           pc := st.pc + 1, stack := .i32 r :: rest,
           heap := { st.heap with arenas := st.heap.arenas.set id a' } })
       | none => .inr none
-    | "f_Algorithm_FlatHashLifeArena_stepLevel4", l4Id :: .ext (.arenaRef id) :: rest =>
+    | "f_Algorithm_FlatHashLifeArena_stepLevel4", .i32 l4Id :: .ext (.arenaRef id) :: rest =>
       match st.heap.arenas[id]? with
       | some a =>
-        let (r, a') := a.stepLevel4 l4Id.asI32
+        let (r, a') := a.stepLevel4 l4Id
         .inl (some { st with
           pc := st.pc + 1, stack := .i64 r :: rest,
           heap := { st.heap with arenas := st.heap.arenas.set id a' } })
       | none => .inr none
-    | "f_Algorithm_FlatHashLifeArena_stepLevel5", nodeId :: .ext (.arenaRef id) :: rest =>
+    | "f_Algorithm_FlatHashLifeArena_stepLevel5", .i32 nodeId :: .ext (.arenaRef id) :: rest =>
       match st.heap.arenas[id]? with
       | some a =>
-        let (r, a') := a.stepLevel5 nodeId.asI32
+        let (r, a') := a.stepLevel5 nodeId
         .inl (some { st with
           pc := st.pc + 1, stack := .i32 r :: rest,
           heap := { st.heap with arenas := st.heap.arenas.set id a' } })
       | none => .inr none
-    | "f_Algorithm_getCellStepRes", nodeId :: .ext (.arenaRef id) :: rest =>
+    | "f_Algorithm_getCellStepRes", .i32 nodeId :: .ext (.arenaRef id) :: rest =>
       match st.heap.arenas[id]? with
       | some a =>
-        .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.getCellStepRes a nodeId.asI32) :: rest })
+        .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.getCellStepRes a nodeId) :: rest })
       | none => .inr none
-    | "f_Algorithm_getRemapCell", nodeId :: .ext (.arenaRef id) :: rest =>
+    | "f_Algorithm_getRemapCell", .i32 nodeId :: .ext (.arenaRef id) :: rest =>
       match st.heap.arenas[id]? with
       | some a =>
-        .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.getRemapCell a nodeId.asI32) :: rest })
+        .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.getRemapCell a nodeId) :: rest })
       | none => .inr none
-    | "f_Algorithm_FlatHashLifeArena_setRemapL4", val :: idx :: .ext (.arenaRef id) :: rest =>
-      .inl (updateArena { st with stack := rest } id (fun a => a.setRemapL4 idx.asI32 val.asI32))
-    | "f_Algorithm_FlatHashLifeArena_setRemapCell", val :: idx :: .ext (.arenaRef id) :: rest =>
-      .inl (updateArena { st with stack := rest } id (fun a => a.setRemapCell idx.asI32 val.asI32))
-    | "f_Algorithm_FlatHashLifeArena_setCellStepRes", val :: idx :: .ext (.arenaRef id) :: rest =>
-      .inl (updateArena { st with stack := rest } id (fun a => a.setCellStepRes idx.asI32 val.asI32))
-    | "f_Algorithm_FlatHashLifeArena_setL4StepRes", val :: idx :: .ext (.arenaRef id) :: rest =>
-      .inl (updateArena { st with stack := rest } id (fun a => a.setL4StepRes idx.asI32 val.asI64))
+    | "f_Algorithm_FlatHashLifeArena_setRemapL4", .i32 val :: .i32 idx :: .ext (.arenaRef id) :: rest =>
+      .inl (updateArena { st with stack := rest } id (fun a => a.setRemapL4 idx val))
+    | "f_Algorithm_FlatHashLifeArena_setRemapCell", .i32 val :: .i32 idx :: .ext (.arenaRef id) :: rest =>
+      .inl (updateArena { st with stack := rest } id (fun a => a.setRemapCell idx val))
+    | "f_Algorithm_FlatHashLifeArena_setCellStepRes", .i32 val :: .i32 idx :: .ext (.arenaRef id) :: rest =>
+      .inl (updateArena { st with stack := rest } id (fun a => a.setCellStepRes idx val))
+    | "f_Algorithm_FlatHashLifeArena_setL4StepRes", .i64 val :: .i32 idx :: .ext (.arenaRef id) :: rest =>
+      .inl (updateArena { st with stack := rest } id (fun a => a.setL4StepRes idx val))
     | "f_Algorithm_FlatHashLifeArena_setOverflow", .ext (.arenaRef id) :: rest =>
       .inl (updateArena { st with stack := rest } id (fun a => a.setOverflow))
-    | "f_Algorithm_FlatHashLifeArena_expandFrame", base :: nodeId :: .ext (.arenaRef id) :: rest =>
-      .inl (updateArena { st with stack := rest } id (fun a => a.expandFrame nodeId.asI32 base.asI32))
-    | "f_Algorithm_FlatHashLifeArena_expandFrameIfNeeded", base :: nodeId :: .ext (.arenaRef id) :: rest =>
-      .inl (updateArena { st with stack := rest } id (fun a => a.expandFrameIfNeeded nodeId.asI32 base.asI32))
-    | "f_Algorithm_FlatHashLifeArena_stepCellSerialLoop", fuel :: limit :: sp :: .ext (.arenaRef id) :: rest =>
-      .inl (updateArena { st with stack := rest } id (fun a => a.stepCellSerialLoop sp.asI32 limit.asI32 fuel.asI32))
-    | "f_Algorithm_FlatHashLifeArena_initRemapL4Loop", limit :: i :: .ext (.arenaRef id) :: rest =>
-      .inl (updateArena { st with stack := rest } id (fun a => a.initRemapL4Loop i.asI32 limit.asI32))
-    | "f_Algorithm_FlatHashLifeArena_initRemapCellLoop", limit :: i :: .ext (.arenaRef id) :: rest =>
-      .inl (updateArena { st with stack := rest } id (fun a => a.initRemapCellLoop i.asI32 limit.asI32))
+    | "f_Algorithm_FlatHashLifeArena_expandFrame", .i32 base :: .i32 nodeId :: .ext (.arenaRef id) :: rest =>
+      .inl (updateArena { st with stack := rest } id (fun a => a.expandFrame nodeId base))
+    | "f_Algorithm_FlatHashLifeArena_expandFrameIfNeeded", .i32 base :: .i32 nodeId :: .ext (.arenaRef id) :: rest =>
+      .inl (updateArena { st with stack := rest } id (fun a => a.expandFrameIfNeeded nodeId base))
+    | "f_Algorithm_FlatHashLifeArena_stepCellSerialLoop", .i32 fuel :: .i32 limit :: .i32 sp :: .ext (.arenaRef id) :: rest =>
+      .inl (updateArena { st with stack := rest } id (fun a => a.stepCellSerialLoop sp limit fuel))
+    | "f_Algorithm_FlatHashLifeArena_initRemapL4Loop", .i32 limit :: .i32 i :: .ext (.arenaRef id) :: rest =>
+      .inl (updateArena { st with stack := rest } id (fun a => a.initRemapL4Loop i limit))
+    | "f_Algorithm_FlatHashLifeArena_initRemapCellLoop", .i32 limit :: .i32 i :: .ext (.arenaRef id) :: rest =>
+      .inl (updateArena { st with stack := rest } id (fun a => a.initRemapCellLoop i limit))
     | "f_Algorithm_FlatHashLifeArena_copyL4From",
-        copyMemos :: l4Id :: .ext (.arenaRef srcId) :: .ext (.arenaRef dstId) :: rest =>
+        .i32 copyMemos :: .i32 l4Id :: .ext (.arenaRef srcId) :: .ext (.arenaRef dstId) :: rest =>
       match st.heap.arenas[dstId]?, st.heap.arenas[srcId]? with
       | some dst, some src =>
-        let (r, dst') := dst.copyL4From src l4Id.asI32 (copyMemos.asI32 != 0)
+        let (r, dst') := dst.copyL4From src l4Id (copyMemos != 0)
         .inl (some { st with
           pc := st.pc + 1, stack := .i32 r :: rest,
           heap := { st.heap with arenas := st.heap.arenas.set dstId dst' } })
       | _, _ => .inr none
     | "f_Algorithm_copyCellTryStep",
-        copyMemos :: cellId :: .ext (.arenaRef srcId) :: .ext (.arenaRef dstId) :: rest =>
+        .i32 copyMemos :: .i32 cellId :: .ext (.arenaRef srcId) :: .ext (.arenaRef dstId) :: rest =>
       match st.heap.arenas[dstId]?, st.heap.arenas[srcId]? with
       | some dst, some src =>
-        let (r, dst') := Algorithm.copyCellTryStep dst src cellId.asI32 (copyMemos.asI32 != 0)
+        let (r, dst') := Algorithm.copyCellTryStep dst src cellId (copyMemos != 0)
         .inl (some { st with
           pc := st.pc + 1, stack := .i32 r :: rest,
           heap := { st.heap with arenas := st.heap.arenas.set dstId dst' } })
       | _, _ => .inr none
     | "f_Algorithm_FlatHashLifeArena_copyCellFromLoop",
-        fuel :: sp :: stackBase :: copyMemos :: .ext (.arenaRef srcId) :: .ext (.arenaRef dstId) :: rest =>
+        .i32 fuel :: .i32 sp :: .i32 stackBase :: .i32 copyMemos :: .ext (.arenaRef srcId) :: .ext (.arenaRef dstId) :: rest =>
       match st.heap.arenas[dstId]?, st.heap.arenas[srcId]? with
       | some dst, some src =>
-        let dst' := dst.copyCellFromLoop src (copyMemos.asI32 != 0) stackBase.asI32 sp.asI32 fuel.asI32
+        let dst' := dst.copyCellFromLoop src (copyMemos != 0) stackBase sp fuel
         .inl (some { st with
           pc := st.pc + 1, stack := rest,
           heap := { st.heap with arenas := st.heap.arenas.set dstId dst' } })
@@ -1544,113 +1627,112 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
     | "f_Algorithm_GrowBuf_toArray___redArg", .ext (.ptWarnGrowBuf b) :: rest =>
       let (v, h') := encodeGrowBufArray st.jvmHeap encodePlaintextWarning b
       .inl (some { st with pc := st.pc + 1, stack := v :: rest, jvmHeap := h' })
-    | "f_Algorithm_U64Buf_push", x :: .ext (.u64Ref id) :: rest =>
+    | "f_Algorithm_U64Buf_push", .i64 x :: .ext (.u64Ref id) :: rest =>
       match st.heap.u64Arrays[id]? with
       | some arr =>
-        let pushed := Algorithm.U64Buf.push arr x.asI64
+        let pushed := Algorithm.U64Buf.push arr x
         let newId := st.heap.u64Arrays.length
         .inl (some { st with
           pc := st.pc + 1, stack := .ext (.u64Ref newId) :: rest,
           heap := { st.heap with u64Arrays := st.heap.u64Arrays ++ [pushed] } })
       | none => .inr none
-    | "f_Algorithm_copyU64", .ext (.u64Ref dstId) :: i :: n :: .ext (.u64Ref srcId) :: rest =>
+    | "f_Algorithm_copyU64", .ext (.u64Ref dstId) :: .i32 i :: .i32 n :: .ext (.u64Ref srcId) :: rest =>
       match st.heap.u64Arrays[srcId]?, st.heap.u64Arrays[dstId]? with
       | some src, some dst =>
-        let dst' := Algorithm.copyU64 src n.asI32 i.asI32 dst
+        let dst' := Algorithm.copyU64 src n i dst
         .inl (some { st with
           pc := st.pc + 1, stack := rest,
           heap := { st.heap with u64Arrays := st.heap.u64Arrays.set dstId dst' } })
       | _, _ => .inr none
-    | "f_Algorithm_AsciiBytes_replicate___redArg", v :: n :: rest =>
-      let b := v.asI32.toUInt8
+    | "f_Algorithm_AsciiBytes_replicate___redArg", .i32 v :: .i32 n :: rest =>
+      let b := v.toUInt8
       if hb : b < 128 then
         let newId := st.heap.asciiArrays.length
-        let arr := Algorithm.AsciiBytes.replicate n.asI32 b hb
+        let arr := Algorithm.AsciiBytes.replicate n b hb
         .inl (some { st with
           pc := st.pc + 1, stack := .ext (.asciiRef newId) :: rest,
           heap := { st.heap with asciiArrays := st.heap.asciiArrays ++ [arr] } })
       else .inr none
-    | "f_Algorithm_AsciiBytes_set___redArg", v :: i :: .ext (.asciiRef id) :: rest =>
-      let b := v.asI32.toUInt8
+    | "f_Algorithm_AsciiBytes_set___redArg", .i32 v :: .i32 i :: .ext (.asciiRef id) :: rest =>
+      let b := v.toUInt8
       match st.heap.asciiArrays[id]? with
       | some g =>
         if hb : b < 128 then
           .inl (some { st with
             pc := st.pc + 1, stack := rest,
-            heap := { st.heap with asciiArrays := st.heap.asciiArrays.set id (g.set i.asI32 b hb) } })
+            heap := { st.heap with asciiArrays := st.heap.asciiArrays.set id (g.set i b hb) } })
         else .inr none
       | none => .inr none
-    | "f_Algorithm_AsciiBytes_set___redArg", v :: idx :: .heapRef addr :: rest =>
+    | "f_Algorithm_AsciiBytes_set___redArg", .i32 v :: .i32 i :: .heapRef addr :: rest =>
       match st.jvmHeap.get? addr with
       | some (.byteArray elems) =>
-        let i := idx.asI32
         if !i.toBitVec.slt 0#32 then
           if h : i.toNat < elems.size then
-            let h' := st.jvmHeap.set addr (.byteArray (elems.set i.toNat v.asI32.toUInt8 h))
+            let h' := st.jvmHeap.set addr (.byteArray (elems.set i.toNat v.toUInt8 h))
             .inl (some { st with pc := st.pc + 1, stack := rest, jvmHeap := h' })
           else .inl (some { st with pc := st.pc + 1, stack := rest })
         else .inl (some { st with pc := st.pc + 1, stack := rest })
       | _ => .inr none
-    | "f_Algorithm_AsciiBytes_toStringRange", e :: s :: .ext (.asciiRef id) :: rest =>
+    | "f_Algorithm_AsciiBytes_toStringRange", .i32 e :: .i32 s :: .ext (.asciiRef id) :: rest =>
       match st.heap.asciiArrays[id]? with
       | some g =>
-        .inl (some { st with pc := st.pc + 1, stack := .str (g.toStringRange s.asI32 e.asI32) :: rest })
+        .inl (some { st with pc := st.pc + 1, stack := .str (g.toStringRange s e) :: rest })
       | none => .inr none
     | "f_Algorithm_fillGrid___redArg",
-        .ext (.asciiRef gId) :: limit :: i :: alive :: h :: w :: minY :: minX :: .ext (.u64Ref cId) :: rest =>
-      let ab := alive.asI32.toUInt8
+        .ext (.asciiRef gId) :: .i32 limit :: .i32 i :: .i32 alive :: .i32 h :: .i32 w :: .i32 minY :: .i32 minX :: .ext (.u64Ref cId) :: rest =>
+      let ab := alive.toUInt8
       match st.heap.u64Arrays[cId]?, st.heap.asciiArrays[gId]? with
       | some cells, some g =>
         if ha : ab < 128 then
-          let g' := Algorithm.fillGrid cells minX.asI32.toInt32 minY.asI32.toInt32 w.asI32 h.asI32 ab ha i.asI32 limit.asI32 g
+          let g' := Algorithm.fillGrid cells minX.toInt32 minY.toInt32 w h ab ha i limit g
           .inl (some { st with
             pc := st.pc + 1, stack := rest,
             heap := { st.heap with asciiArrays := st.heap.asciiArrays.set gId g' } })
         else .inr none
       | _, _ => .inr none
-    | "f_Algorithm_gridRows", .ext (.strGrowBuf acc) :: r :: h :: w :: .ext (.asciiRef gId) :: rest =>
+    | "f_Algorithm_gridRows", .ext (.strGrowBuf acc) :: .i32 r :: .i32 h :: .i32 w :: .ext (.asciiRef gId) :: rest =>
       match st.heap.asciiArrays[gId]? with
       | some g =>
         .inl (some { st with
           pc := st.pc + 1,
-          stack := .ext (.strGrowBuf (Algorithm.gridRows g w.asI32 h.asI32 r.asI32 acc)) :: rest })
+          stack := .ext (.strGrowBuf (Algorithm.gridRows g w h r acc)) :: rest })
       | none => .inr none
-    | "f_Algorithm_copyAscii", .ext (.asciiRef gId) :: k :: n :: s :: .ext (.byteArr bytes) :: rest =>
+    | "f_Algorithm_copyAscii", .ext (.asciiRef gId) :: .i32 k :: .i32 n :: .i32 s :: .ext (.byteArr bytes) :: rest =>
       match st.heap.asciiArrays[gId]? with
       | some g =>
-        let g' := Algorithm.copyAscii bytes s.asI32 n.asI32 k.asI32 g
+        let g' := Algorithm.copyAscii bytes s n k g
         .inl (some { st with
           pc := st.pc + 1, stack := rest,
           heap := { st.heap with asciiArrays := st.heap.asciiArrays.set gId g' } })
       | none => .inr none
-    | "f_Algorithm_formatBlockHeader", y :: x :: rest =>
+    | "f_Algorithm_formatBlockHeader", .i32 y :: .i32 x :: rest =>
       .inl (some { st with
-        pc := st.pc + 1, stack := .str (Algorithm.formatBlockHeader x.asI32.toInt32 y.asI32.toInt32) :: rest })
-    | "f_Algorithm_formatCoordLine", y :: x :: rest =>
-      .inl (some { st with pc := st.pc + 1, stack := .str (Algorithm.formatCoordLine x.asI32 y.asI32) :: rest })
+        pc := st.pc + 1, stack := .str (Algorithm.formatBlockHeader x.toInt32 y.toInt32) :: rest })
+    | "f_Algorithm_formatCoordLine", .i32 y :: .i32 x :: rest =>
+      .inl (some { st with pc := st.pc + 1, stack := .str (Algorithm.formatCoordLine x y) :: rest })
     | "f_Algorithm_serializeLife105___closed__0", rest =>
       .inl (some { st with pc := st.pc + 1, stack := .strArr #[] :: rest })
     | "f_Algorithm_serializeLife105_loop",
-        .ext (.strGrowBuf acc) :: j :: .strArr block :: .ext (.u64Ref cId) :: fuel :: rest =>
+        .ext (.strGrowBuf acc) :: .i32 j :: .strArr block :: .ext (.u64Ref cId) :: .i32 fuel :: rest =>
       match st.heap.u64Arrays[cId]? with
       | some cells =>
         .inl (some { st with
           pc := st.pc + 1,
-          stack := .ext (.strGrowBuf (Algorithm.serializeLife105.loop fuel.asI32 cells block j.asI32 acc)) :: rest })
+          stack := .ext (.strGrowBuf (Algorithm.serializeLife105.loop fuel cells block j acc)) :: rest })
       | none => .inr none
     | "f_Algorithm_serializeLife106_loop",
-        .ext (.strGrowBuf acc) :: limit :: i :: .ext (.u64Ref cId) :: rest =>
+        .ext (.strGrowBuf acc) :: .i32 limit :: .i32 i :: .ext (.u64Ref cId) :: rest =>
       match st.heap.u64Arrays[cId]? with
       | some cells =>
         .inl (some { st with
           pc := st.pc + 1,
-          stack := .ext (.strGrowBuf (Algorithm.serializeLife106.loop cells i.asI32 limit.asI32 acc)) :: rest })
+          stack := .ext (.strGrowBuf (Algorithm.serializeLife106.loop cells i limit acc)) :: rest })
       | none => .inr none
-    | "f_Algorithm_cellBounds", maxY :: minY :: maxX :: minX :: limit :: i :: .ext (.u64Ref cId) :: rest =>
+    | "f_Algorithm_cellBounds", .i32 maxY :: .i32 minY :: .i32 maxX :: .i32 minX :: .i32 limit :: .i32 i :: .ext (.u64Ref cId) :: rest =>
       match st.heap.u64Arrays[cId]? with
       | some cells =>
-        let b := Algorithm.cellBounds cells i.asI32 limit.asI32
-          minX.asI32.toInt32 maxX.asI32.toInt32 minY.asI32.toInt32 maxY.asI32.toInt32
+        let b := Algorithm.cellBounds cells i limit
+          minX.toInt32 maxX.toInt32 minY.toInt32 maxY.toInt32
         .inl (some { st with pc := st.pc + 1, stack := boxCellBox b :: rest })
       | none => .inr none
     | "f_Algorithm_cellBox", .ext (.u64Ref cId) :: rest =>
@@ -1658,65 +1740,65 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
       | some cells =>
         .inl (some { st with pc := st.pc + 1, stack := boxCellBox (Algorithm.cellBox cells) :: rest })
       | none => .inr none
-    | "f_Algorithm_decodeCharAt", limit :: p :: .ext (.byteArr bytes) :: rest =>
-      let r := Algorithm.decodeCharAt bytes p.asI32 limit.asI32
+    | "f_Algorithm_decodeCharAt", .i32 limit :: .i32 p :: .ext (.byteArr bytes) :: rest =>
+      let r := Algorithm.decodeCharAt bytes p limit
       .inl (some { st with pc := st.pc + 1, stack := .pair (.boxedUInt r.1) (.boxedUInt r.2) :: rest })
-    | "f_Algorithm_decodeCharAt", limit :: p :: .heapRef addr :: rest =>
+    | "f_Algorithm_decodeCharAt", .i32 limit :: .i32 p :: .heapRef addr :: rest =>
       match st.jvmHeap.get? addr with
       | some (.byteArray elems) =>
-        let r := Algorithm.decodeCharAt ⟨elems⟩ p.asI32 limit.asI32
+        let r := Algorithm.decodeCharAt ⟨elems⟩ p limit
         .inl (some { st with pc := st.pc + 1, stack := .pair (.boxedUInt r.1) (.boxedUInt r.2) :: rest })
       | _ => .inr none
     | "f_Algorithm_serializePlaintext___closed__1", rest =>
       .inl (some { st with pc := st.pc + 1, stack := .strArr #["."] :: rest })
-    | "f_Algorithm_serializePlaintext", maxY :: minY :: maxX :: minX :: .ext (.u64Ref cId) :: rest =>
+    | "f_Algorithm_serializePlaintext", .i32 maxY :: .i32 minY :: .i32 maxX :: .i32 minX :: .ext (.u64Ref cId) :: rest =>
       match st.heap.u64Arrays[cId]? with
       | some cells =>
         .inl (some { st with
           pc := st.pc + 1,
           stack := .strArr (Algorithm.serializePlaintext cells
-            minX.asI32.toInt32 maxX.asI32.toInt32 minY.asI32.toInt32 maxY.asI32.toInt32) :: rest })
+            minX.toInt32 maxX.toInt32 minY.toInt32 maxY.toInt32) :: rest })
       | none => .inr none
-    | "f_Algorithm_decimalLength", n :: rest =>
-      .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.decimalLength n.asI32) :: rest })
-    | "f_Algorithm_serializeRLE", maxY :: minY :: maxX :: minX :: .ext (.u64Ref cId) :: rest =>
+    | "f_Algorithm_decimalLength", .i32 n :: rest =>
+      .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.decimalLength n) :: rest })
+    | "f_Algorithm_serializeRLE", .i32 maxY :: .i32 minY :: .i32 maxX :: .i32 minX :: .ext (.u64Ref cId) :: rest =>
       match st.heap.u64Arrays[cId]? with
       | some cells =>
         .inl (some { st with
           pc := st.pc + 1,
           stack := .strArr (Algorithm.serializeRLE cells
-            minX.asI32.toInt32 maxX.asI32.toInt32 minY.asI32.toInt32 maxY.asI32.toInt32) :: rest })
+            minX.toInt32 maxX.toInt32 minY.toInt32 maxY.toInt32) :: rest })
       | none => .inr none
-    | "f_Algorithm_DagWriter_addEntry", c4 :: c3 :: c2 :: c1 :: .ext (.mc m) :: .ext (.dagWriter w) :: rest =>
-      let r := w.addEntry m c1.asI32 c2.asI32 c3.asI32 c4.asI32
+    | "f_Algorithm_DagWriter_addEntry", .i32 c4 :: .i32 c3 :: .i32 c2 :: .i32 c1 :: .ext (.mc m) :: .ext (.dagWriter w) :: rest =>
+      let r := w.addEntry m c1 c2 c3 c4
       .inl (some { st with pc := st.pc + 1, stack := .pair (.boxedUInt r.1) (.ext (.dagWriter r.2)) :: rest })
-    | "f_Algorithm_DagWriter_addEntry", c4 :: c3 :: c2 :: c1 :: .ext (.mc m) :: wVal :: rest =>
+    | "f_Algorithm_DagWriter_addEntry", .i32 c4 :: .i32 c3 :: .i32 c2 :: .i32 c1 :: .ext (.mc m) :: wVal :: rest =>
       match decodeDagWriter st.jvmHeap wVal with
       | some w =>
-        let r := w.addEntry m c1.asI32 c2.asI32 c3.asI32 c4.asI32
+        let r := w.addEntry m c1 c2 c3 c4
         let (w', h') := encodeDagWriter st.jvmHeap r.2
         .inl (some { st with pc := st.pc + 1, stack := .pair (.boxedUInt r.1) w' :: rest, jvmHeap := h' })
       | none => .inr none
-    | "f_Algorithm_DagWriter_addLeafAt", s :: leaf :: .ext (.dagWriter w) :: rest =>
-      let r := w.addLeafAt leaf.asI64 s.asI32
+    | "f_Algorithm_DagWriter_addLeafAt", .i32 s :: .i64 leaf :: .ext (.dagWriter w) :: rest =>
+      let r := w.addLeafAt leaf s
       .inl (some { st with pc := st.pc + 1, stack := .pair (.boxedUInt r.1) (.ext (.dagWriter r.2)) :: rest })
-    | "f_Algorithm_DagWriter_addLeafAt", s :: leaf :: wVal :: rest =>
+    | "f_Algorithm_DagWriter_addLeafAt", .i32 s :: .i64 leaf :: wVal :: rest =>
       match decodeDagWriter st.jvmHeap wVal with
       | some w =>
-        let r := w.addLeafAt leaf.asI64 s.asI32
+        let r := w.addLeafAt leaf s
         let (w', h') := encodeDagWriter st.jvmHeap r.2
         .inl (some { st with pc := st.pc + 1, stack := .pair (.boxedUInt r.1) w' :: rest, jvmHeap := h' })
       | none => .inr none
-    | "f_Algorithm_DagWriter_addNodeAt", s :: kVal :: .ext (.dagWriter w) :: rest =>
+    | "f_Algorithm_DagWriter_addNodeAt", .i32 s :: kVal :: .ext (.dagWriter w) :: rest =>
       match decodeNodeKey kVal with
       | some k =>
-        let r := w.addNodeAt k s.asI32
+        let r := w.addNodeAt k s
         .inl (some { st with pc := st.pc + 1, stack := .pair (.boxedUInt r.1) (.ext (.dagWriter r.2)) :: rest })
       | none => .inr none
-    | "f_Algorithm_DagWriter_addNodeAt", s :: kVal :: wVal :: rest =>
+    | "f_Algorithm_DagWriter_addNodeAt", .i32 s :: kVal :: wVal :: rest =>
       match decodeNodeKey kVal, decodeDagWriter st.jvmHeap wVal with
       | some k, some w =>
-        let r := w.addNodeAt k s.asI32
+        let r := w.addNodeAt k s
         let (w', h') := encodeDagWriter st.jvmHeap r.2
         .inl (some { st with pc := st.pc + 1, stack := .pair (.boxedUInt r.1) w' :: rest, jvmHeap := h' })
       | _, _ => .inr none
@@ -1733,15 +1815,15 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
           pc := st.pc + 1, stack := .ext (.u64Ref newId) :: rest,
           heap := { st.heap with u64Arrays := st.heap.u64Arrays ++ [Algorithm.U64Buf.toArray arr] } })
       | none => .inr none
-    | "f_Algorithm_asciiStringLossy", e :: s :: bytesVal :: rest =>
+    | "f_Algorithm_asciiStringLossy", .i32 e :: .i32 s :: bytesVal :: rest =>
       match decodeBytes st bytesVal with
       | some bytes =>
-        .inl (some { st with pc := st.pc + 1, stack := .str (Algorithm.asciiStringLossy bytes s.asI32 e.asI32) :: rest })
+        .inl (some { st with pc := st.pc + 1, stack := .str (Algorithm.asciiStringLossy bytes s e) :: rest })
       | none => .inr none
-    | "f_Algorithm_cellBoundsLoop", maxY :: maxX :: minY :: minX :: limit :: i :: .ext (.u64Ref cId) :: rest =>
+    | "f_Algorithm_cellBoundsLoop", .i64 maxY :: .i64 maxX :: .i64 minY :: .i64 minX :: .i32 limit :: .i32 i :: .ext (.u64Ref cId) :: rest =>
       match st.heap.u64Arrays[cId]? with
       | some cells =>
-        let r := Algorithm.cellBoundsLoop cells i.asI32 limit.asI32 minX.asI64 minY.asI64 maxX.asI64 maxY.asI64
+        let r := Algorithm.cellBoundsLoop cells i limit minX minY maxX maxY
         let boxed := .pair (.boxedULong r.1) (.pair (.boxedULong r.2.1) (.pair (.boxedULong r.2.2.1) (.boxedULong r.2.2.2)))
         .inl (some { st with pc := st.pc + 1, stack := boxed :: rest })
       | none => .inr none
@@ -1749,10 +1831,10 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
       .inl (some { st with
         pc := st.pc + 1,
         stack := .pair (.boxedULong 2147483648) (.pair (.boxedULong 2147483648) (.ext (.mc (Algorithm.emptyAtHeight 1)))) :: rest })
-    | "f_Algorithm_checkRLERule", limit :: pos :: bytesVal :: rest =>
+    | "f_Algorithm_checkRLERule", .i32 limit :: .i32 pos :: bytesVal :: rest =>
       match decodeBytes st bytesVal with
       | some bytes =>
-        .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.checkRLERule bytes pos.asI32 limit.asI32) :: rest })
+        .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.checkRLERule bytes pos limit) :: rest })
       | none => .inr none
     | "f_Algorithm_checkRuleLine", bytesVal :: rest =>
       match decodeBytes st bytesVal with
@@ -1760,23 +1842,23 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
         .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.checkRuleLine bytes) :: rest })
       | none => .inr none
     | "f_Algorithm_copyPrefix___redArg",
-        .heapRef dstAddr :: i :: n :: .heapRef srcAddr :: _inst :: rest =>
+        .heapRef dstAddr :: .i32 i :: .i32 n :: .heapRef srcAddr :: _inst :: rest =>
       match st.jvmHeap.get? srcAddr, st.jvmHeap.get? dstAddr with
       | some (.objArray _ srcElems), some (.objArray dstCls dstElems) =>
-        let dst' := copyObjArrayPrefix srcElems dstElems n.asI32 i.asI32 (n.asI32.toNat + 1)
+        let dst' := copyObjArrayPrefix srcElems dstElems n i (n.toNat + 1)
         .inl (some { st with
           pc := st.pc + 1, stack := rest,
           jvmHeap := st.jvmHeap.set dstAddr (.objArray dstCls dst') })
       | _, _ => .inr none
-    | "f_Algorithm_countChars", n :: p :: limit :: bytesVal :: rest =>
+    | "f_Algorithm_countChars", .i32 n :: .i32 p :: .i32 limit :: bytesVal :: rest =>
       match decodeBytes st bytesVal with
       | some bytes =>
-        .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.countChars bytes limit.asI32 p.asI32 n.asI32) :: rest })
+        .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.countChars bytes limit p n) :: rest })
       | none => .inr none
-    | "f_Algorithm_decodeCharAt___lam__0", k :: .heapRef addr :: p :: rest =>
+    | "f_Algorithm_decodeCharAt___lam__0", .i32 k :: .heapRef addr :: .i32 p :: rest =>
       match st.jvmHeap.get? addr with
       | some (.byteArray elems) =>
-        let idx := p.asI32 + k.asI32
+        let idx := p + k
         if idx.toBitVec.slt 0#32 then .inr none
         else if h : idx.toNat < elems.size then
           let b := elems[idx.toNat].toUInt32 &&& 0x3F
@@ -1810,10 +1892,10 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
       .inl (some { st with
         pc := st.pc + 1, stack := resVal :: rest,
         jvmHeap := h', heap := { st.heap with u64Arrays := u64s' } })
-    | "f_Algorithm_deserializeLife106_loop", .ext (.u64Ref accId) :: limit :: i :: linesVal :: rest =>
+    | "f_Algorithm_deserializeLife106_loop", .ext (.u64Ref accId) :: .i32 limit :: .i32 i :: linesVal :: rest =>
       match decodeStrArray st linesVal, st.heap.u64Arrays[accId]? with
       | some lines, some acc =>
-        let res := Algorithm.deserializeLife106.loop lines i.asI32 limit.asI32 acc
+        let res := Algorithm.deserializeLife106.loop lines i limit acc
         let (resVal, h', u64s') := encodeLife106Result st.jvmHeap st.heap.u64Arrays res
         .inl (some { st with
           pc := st.pc + 1, stack := resVal :: rest,
@@ -1830,8 +1912,8 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
       let (resVal, h') := encodeMacrocellResult st.jvmHeap ⟨.emptyFile, #[.emptyFile], Algorithm.emptyLevel4⟩
       .inl (some { st with pc := st.pc + 1, stack := resVal :: rest, jvmHeap := h' })
     | "f_Algorithm_deserializeMacrocell_loop",
-        warnsVal :: isLeafVal :: leavesVal :: nodesVal :: leaf :: y :: x :: col :: p ::
-        limit :: bytesVal :: inLeaf :: i :: numLines :: linesVal :: rest =>
+        warnsVal :: isLeafVal :: leavesVal :: nodesVal :: .i64 leaf :: .i32 y :: .i32 x :: .i32 col :: .i32 p ::
+        .i32 limit :: bytesVal :: .i32 inLeaf :: .i32 i :: .i32 numLines :: linesVal :: rest =>
       let nodes? : Option (Algorithm.GrowBuf Algorithm.MacroCell) := match nodesVal with
         | .ext (.mcGrowBuf b) => some b
         | .ext (.strGrowBuf b) => if b.data.isEmpty && b.size == 0 then some Algorithm.GrowBuf.empty else none
@@ -1850,23 +1932,23 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
         | _ => none
       match decodeStrArray st linesVal, decodeBytes st bytesVal, nodes?, leaves?, isLeaf?, warns? with
       | some lines, some bytes, some nodes, some leaves, some isLeaf, some warns =>
-        let res := Algorithm.deserializeMacrocell.loop lines numLines.asI32 i.asI32 (inLeaf.asI32 != 0)
-          bytes limit.asI32 p.asI32 col.asI32 x.asI32 y.asI32 leaf.asI64 nodes leaves isLeaf warns
+        let res := Algorithm.deserializeMacrocell.loop lines numLines i (inLeaf != 0)
+          bytes limit p col x y leaf nodes leaves isLeaf warns
         let (resVal, h') := encodeMacrocellResult st.jvmHeap res
         .inl (some { st with pc := st.pc + 1, stack := resVal :: rest, jvmHeap := h' })
       | _, _, _, _, _, _ => .inr none
     | "f_Algorithm_deserializePlaintext_loop",
-        .ext (.u64Ref cId) :: warnsVal :: hasLongest :: longestLen :: longestIdx :: rowIdx ::
-        col :: p :: limit :: bytesVal :: inRow :: i :: numLines :: linesVal :: rest =>
+        .ext (.u64Ref cId) :: warnsVal :: .i32 hasLongest :: .i32 longestLen :: .i32 longestIdx :: .i32 rowIdx ::
+        .i32 col :: .i32 p :: .i32 limit :: bytesVal :: .i32 inRow :: .i32 i :: .i32 numLines :: linesVal :: rest =>
       let warns? : Option (Algorithm.GrowBuf Algorithm.PlaintextWarning) := match warnsVal with
         | .ext (.ptWarnGrowBuf b) => some b
         | .ext (.strGrowBuf b) => if b.data.isEmpty && b.size == 0 then some Algorithm.GrowBuf.empty else none
         | _ => none
       match decodeStrArray st linesVal, decodeBytes st bytesVal, warns?, st.heap.u64Arrays[cId]? with
       | some lines, some bytes, some warns, some cells =>
-        let res := Algorithm.deserializePlaintext.loop lines numLines.asI32 i.asI32 (inRow.asI32 != 0)
-          bytes limit.asI32 p.asI32 col.asI32 rowIdx.asI32 longestIdx.asI32 longestLen.asI32
-          (hasLongest.asI32 != 0) warns cells
+        let res := Algorithm.deserializePlaintext.loop lines numLines i (inRow != 0)
+          bytes limit p col rowIdx longestIdx longestLen
+          (hasLongest != 0) warns cells
         let (resVal, h', u64s') := encodePlaintextResult st.jvmHeap st.heap.u64Arrays res
         .inl (some { st with
           pc := st.pc + 1, stack := resVal :: rest,
@@ -1881,18 +1963,21 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
       .inl (some { st with
         pc := st.pc + 1, stack := resVal :: rest,
         jvmHeap := h', heap := { st.heap with u64Arrays := u64s' } })
-    | "f_Algorithm_emptyMacroCellUInt32", lvl :: rest =>
-      .inl (some { st with pc := st.pc + 1, stack := .ext (.mc (Algorithm.emptyMacroCellUInt32 lvl.asI32)) :: rest })
-    | "f_Algorithm_expandRuns", .ext (.u64Ref cId) :: startX :: y :: x :: k :: j :: numRuns :: .heapRef runsAddr :: rest =>
+    | "f_Algorithm_emptyMacroCellUInt32", .i32 lvl :: rest =>
+      .inl (some { st with pc := st.pc + 1, stack := .ext (.mc (Algorithm.emptyMacroCellUInt32 lvl)) :: rest })
+    | "f_Algorithm_expandRuns", .ext (.u64Ref cId) :: .i32 startX :: .i32 y :: .i32 x :: .i32 k :: .i32 j :: .i32 numRuns :: .heapRef runsAddr :: rest =>
       match st.jvmHeap.get? runsAddr, st.heap.u64Arrays[cId]? with
       | some (.objArray _ elems), some cells =>
         let runsOpt := elems.foldlM (fun acc v => match v with
-          | .pair a b => some (acc.push (unboxI32 a, unboxI32 b))
+          | .pair a b => do
+            let ad ← unboxI32? a
+            let bd ← unboxI32? b
+            some (acc.push (ad, bd))
           | _ => none) #[]
         match runsOpt with
         | some runs =>
-          let res := Algorithm.expandRuns runs numRuns.asI32 j.asI32 k.asI32
-            x.asI32.toInt32 y.asI32.toInt32 startX.asI32.toInt32 cells
+          let res := Algorithm.expandRuns runs numRuns j k
+            x.toInt32 y.toInt32 startX.toInt32 cells
           let newId := st.heap.u64Arrays.length
           .inl (some { st with
             pc := st.pc + 1, stack := .ext (.u64Ref newId) :: rest,
@@ -1901,12 +1986,12 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
       | _, _ => .inr none
     | "f_Algorithm_expandRuns___closed__0", rest =>
       .inl (some { st with pc := st.pc + 1, stack := .pair (.boxedUInt 0) (.boxedUInt 0) :: rest })
-    | "f_Algorithm_findLastLeafRow", leaf :: rest =>
-      let res := match Algorithm.findLastLeafRow leaf.asI64 with
+    | "f_Algorithm_findLastLeafRow", .i64 leaf :: rest =>
+      let res := match Algorithm.findLastLeafRow leaf with
         | some v => .boxedUInt v
         | none => .null
       .inl (some { st with pc := st.pc + 1, stack := res :: rest })
-    | "f_Algorithm_finishRLE", startY :: startX :: runsVal :: warnsVal :: rest =>
+    | "f_Algorithm_finishRLE", .i32 startY :: .i32 startX :: runsVal :: warnsVal :: rest =>
       let warns? : Option (Algorithm.GrowBuf Algorithm.RLEWarning) := match warnsVal with
         | .ext (.rleWarnGrowBuf b) => some b
         | .ext (.strGrowBuf b) => if b.data.isEmpty && b.size == 0 then some Algorithm.GrowBuf.empty else none
@@ -1917,44 +2002,44 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
         | _ => none
       match warns?, runs? with
       | some warns, some runs =>
-        let res := Algorithm.finishRLE warns runs startX.asI32.toInt32 startY.asI32.toInt32
+        let res := Algorithm.finishRLE warns runs startX.toInt32 startY.toInt32
         let (resVal, h', u64s') := encodeRLEResult st.jvmHeap st.heap.u64Arrays res
         .inl (some { st with
           pc := st.pc + 1, stack := resVal :: rest,
           jvmHeap := h', heap := { st.heap with u64Arrays := u64s' } })
       | _, _ => .inr none
-    | "f_Algorithm_formatLeafNode", leaf :: rest =>
-      .inl (some { st with pc := st.pc + 1, stack := .str (Algorithm.formatLeafNode leaf.asI64) :: rest })
-    | "f_Algorithm_formatLeafNode_loop", .str acc :: limit :: y :: leaf :: rest =>
+    | "f_Algorithm_formatLeafNode", .i64 leaf :: rest =>
+      .inl (some { st with pc := st.pc + 1, stack := .str (Algorithm.formatLeafNode leaf) :: rest })
+    | "f_Algorithm_formatLeafNode_loop", .str acc :: .i32 limit :: .i32 y :: .i64 leaf :: rest =>
       .inl (some { st with
-        pc := st.pc + 1, stack := .str (Algorithm.formatLeafNode.loop leaf.asI64 y.asI32 limit.asI32 acc) :: rest })
-    | "f_Algorithm_formatLeafRow", y :: leaf :: rest =>
-      .inl (some { st with pc := st.pc + 1, stack := .str (Algorithm.formatLeafRow leaf.asI64 y.asI32) :: rest })
-    | "f_Algorithm_formatLeafRow_loop", .str acc :: limit :: x :: y :: leaf :: rest =>
+        pc := st.pc + 1, stack := .str (Algorithm.formatLeafNode.loop leaf y limit acc) :: rest })
+    | "f_Algorithm_formatLeafRow", .i32 y :: .i64 leaf :: rest =>
+      .inl (some { st with pc := st.pc + 1, stack := .str (Algorithm.formatLeafRow leaf y) :: rest })
+    | "f_Algorithm_formatLeafRow_loop", .str acc :: .i32 limit :: .i32 x :: .i32 y :: .i64 leaf :: rest =>
       .inl (some { st with
-        pc := st.pc + 1, stack := .str (Algorithm.formatLeafRow.loop leaf.asI64 y.asI32 x.asI32 limit.asI32 acc) :: rest })
-    | "f_Algorithm_formatMacrocellNode", se :: sw :: ne :: nw :: lvl :: rest =>
+        pc := st.pc + 1, stack := .str (Algorithm.formatLeafRow.loop leaf y x limit acc) :: rest })
+    | "f_Algorithm_formatMacrocellNode", .i32 se :: .i32 sw :: .i32 ne :: .i32 nw :: .i32 lvl :: rest =>
       .inl (some { st with
         pc := st.pc + 1,
-        stack := .str (Algorithm.formatMacrocellNode lvl.asI32 nw.asI32 ne.asI32 sw.asI32 se.asI32) :: rest })
-    | "f_Algorithm_formatRLEHeader", height :: width :: minY :: minX :: rest =>
-      let arr := Algorithm.formatRLEHeader minX.asI32.toInt32 minY.asI32.toInt32 width.asI32 height.asI32
+        stack := .str (Algorithm.formatMacrocellNode lvl nw ne sw se) :: rest })
+    | "f_Algorithm_formatRLEHeader", .i32 height :: .i32 width :: .i32 minY :: .i32 minX :: rest =>
+      let arr := Algorithm.formatRLEHeader minX.toInt32 minY.toInt32 width height
       let (addr, h') := st.jvmHeap.alloc (.objArray "java/lang/Object" (arr.map .str))
       .inl (some { st with pc := st.pc + 1, stack := .heapRef addr :: rest, jvmHeap := h' })
-    | "f_Algorithm_formatRLEItem", count :: tag :: rest =>
-      .inl (some { st with pc := st.pc + 1, stack := .str (Algorithm.formatRLEItem tag.asI32.toUInt8 count.asI32) :: rest })
-    | "f_Algorithm_formatRLEItemLength", count :: rest =>
-      .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.formatRLEItemLength count.asI32) :: rest })
+    | "f_Algorithm_formatRLEItem", .i32 count :: .i32 tag :: rest =>
+      .inl (some { st with pc := st.pc + 1, stack := .str (Algorithm.formatRLEItem tag.toUInt8 count) :: rest })
+    | "f_Algorithm_formatRLEItemLength", .i32 count :: rest =>
+      .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.formatRLEItemLength count) :: rest })
     | "f_Algorithm_gridItems",
-        itemsVal :: rowEnds :: runLen :: runTag :: k :: total :: w :: .ext (.asciiRef gId) :: rest =>
+        itemsVal :: .i32 rowEnds :: .i32 runLen :: .i32 runTag :: .i32 k :: .i32 total :: .i32 w :: .ext (.asciiRef gId) :: rest =>
       let items? : Option (Algorithm.GrowBuf (UInt8 × UInt32)) := match itemsVal with
         | .ext (.u8U32PairGrowBuf b) => some b
         | .ext (.strGrowBuf b) => if b.data.isEmpty && b.size == 0 then some Algorithm.GrowBuf.empty else none
         | _ => none
       match st.heap.asciiArrays[gId]?, items? with
       | some g, some items =>
-        let r := Algorithm.gridItems g w.asI32 total.asI32 k.asI32 runTag.asI32.toUInt8
-          runLen.asI32 rowEnds.asI32 items
+        let r := Algorithm.gridItems g w total k runTag.toUInt8
+          runLen rowEnds items
         .inl (some { st with pc := st.pc + 1, stack := .ext (.u8U32PairGrowBuf r) :: rest })
       | _, _ => .inr none
     | "f_Algorithm_isRowLine", bytesVal :: rest =>
@@ -1962,63 +2047,63 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
       | some bytes =>
         .inl (some { st with pc := st.pc + 1, stack := .i32 (if Algorithm.isRowLine bytes then 1 else 0) :: rest })
       | none => .inr none
-    | "f_Algorithm_isRowRest", p :: limit :: .heapRef addr :: rest =>
+    | "f_Algorithm_isRowRest", .i32 p :: .i32 limit :: .heapRef addr :: rest =>
       match st.jvmHeap.get? addr with
       | some (.byteArray elems) =>
-        let r := Algorithm.isRowRest ⟨elems⟩ limit.asI32 p.asI32
+        let r := Algorithm.isRowRest ⟨elems⟩ limit p
         .inl (some { st with pc := st.pc + 1, stack := .i32 (if r then 1 else 0) :: rest })
       | _ => .inr none
-    | "f_Algorithm_keysToMacroCell", .ext (.mc empty) :: h :: y0 :: x0 :: keysVal :: rest =>
+    | "f_Algorithm_keysToMacroCell", .ext (.mc empty) :: .i32 h :: .i64 y0 :: .i64 x0 :: keysVal :: rest =>
       match decodeU64List st.jvmHeap (st.jvmHeap.objects.size + 2) keysVal with
       | some keys =>
         .inl (some { st with
           pc := st.pc + 1,
-          stack := .ext (.mc (Algorithm.keysToMacroCell keys x0.asI64 y0.asI64 h.asI32 empty)) :: rest })
+          stack := .ext (.mc (Algorithm.keysToMacroCell keys x0 y0 h empty)) :: rest })
       | none => .inr none
-    | "f_Algorithm_leafFromKeys", leaf :: y0 :: x0 :: keysVal :: rest =>
+    | "f_Algorithm_leafFromKeys", .i64 leaf :: .i64 y0 :: .i64 x0 :: keysVal :: rest =>
       match decodeU64List st.jvmHeap (st.jvmHeap.objects.size + 2) keysVal with
       | some keys =>
         .inl (some { st with
-          pc := st.pc + 1, stack := .i64 (Algorithm.leafFromKeys keys x0.asI64 y0.asI64 leaf.asI64) :: rest })
+          pc := st.pc + 1, stack := .i64 (Algorithm.leafFromKeys keys x0 y0 leaf) :: rest })
       | none => .inr none
-    | "f_Algorithm_leafWithCell", isAlive :: y :: x :: leaf :: rest =>
+    | "f_Algorithm_leafWithCell", .i32 isAlive :: .i32 y :: .i32 x :: .i64 leaf :: rest =>
       .inl (some { st with
         pc := st.pc + 1,
-        stack := .i64 (Algorithm.leafWithCell leaf.asI64 x.asI32 y.asI32 (isAlive.asI32 != 0)) :: rest })
-    | "f_Algorithm_levelForSpanLoop", lvl :: span :: rest =>
-      .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.levelForSpanLoop span.asI64 lvl.asI32) :: rest })
-    | "f_Algorithm_life105Bounds", maxY :: minY :: minX :: limit :: i :: .ext (.u64Ref cId) :: rest =>
+        stack := .i64 (Algorithm.leafWithCell leaf x y (isAlive != 0)) :: rest })
+    | "f_Algorithm_levelForSpanLoop", .i32 lvl :: .i64 span :: rest =>
+      .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.levelForSpanLoop span lvl) :: rest })
+    | "f_Algorithm_life105Bounds", .i32 maxY :: .i32 minY :: .i32 minX :: .i32 limit :: .i32 i :: .ext (.u64Ref cId) :: rest =>
       match st.heap.u64Arrays[cId]? with
       | some cells =>
-        let r := Algorithm.life105Bounds cells i.asI32 limit.asI32
-          minX.asI32.toInt32 minY.asI32.toInt32 maxY.asI32.toInt32
+        let r := Algorithm.life105Bounds cells i limit
+          minX.toInt32 minY.toInt32 maxY.toInt32
         .inl (some { st with
           pc := st.pc + 1,
           stack := .pair (.boxedInt r.1.toUInt32) (.pair (.boxedInt r.2.1.toUInt32) (.boxedInt r.2.2.toUInt32)) :: rest })
       | none => .inr none
-    | "f_Algorithm_life105Rest", .ext (.u64Ref accId) :: limit :: i :: minX :: .ext (.u64Ref cId) :: rest =>
+    | "f_Algorithm_life105Rest", .ext (.u64Ref accId) :: .i32 limit :: .i32 i :: .i32 minX :: .ext (.u64Ref cId) :: rest =>
       match st.heap.u64Arrays[cId]?, st.heap.u64Arrays[accId]? with
       | some cells, some acc =>
-        let res := Algorithm.life105Rest cells minX.asI32.toInt32 i.asI32 limit.asI32 acc
+        let res := Algorithm.life105Rest cells minX.toInt32 i limit acc
         let newId := st.heap.u64Arrays.length
         .inl (some { st with
           pc := st.pc + 1, stack := .ext (.u64Ref newId) :: rest,
           heap := { st.heap with u64Arrays := st.heap.u64Arrays ++ [res] } })
       | _, _ => .inr none
-    | "f_Algorithm_macroCellAt", i :: .heapRef nodesAddr :: rest =>
+    | "f_Algorithm_macroCellAt", .i32 i :: .heapRef nodesAddr :: rest =>
       match st.jvmHeap.get? nodesAddr with
       | some (.objArray _ elems) =>
         let nodesOpt := elems.foldlM (fun acc v => match v with | .ext (.mc m) => some (acc.push m) | _ => none) #[]
         match nodesOpt with
         | some nodes =>
-          .inl (some { st with pc := st.pc + 1, stack := .ext (.mc (Algorithm.macroCellAt nodes i.asI32)) :: rest })
+          .inl (some { st with pc := st.pc + 1, stack := .ext (.mc (Algorithm.macroCellAt nodes i)) :: rest })
         | none => .inr none
       | _ => .inr none
-    | "f_Algorithm_macroCellWithCell", isAlive :: y :: x :: .ext (.mc m) :: rest =>
+    | "f_Algorithm_macroCellWithCell", .i32 isAlive :: .i32 y :: .i32 x :: .ext (.mc m) :: rest =>
       .inl (some { st with
         pc := st.pc + 1,
-        stack := .ext (.mc (Algorithm.macroCellWithCell m x.asI32.toInt32 y.asI32.toInt32 (isAlive.asI32 != 0))) :: rest })
-    | "f_Algorithm_macrocellCellChild", id :: .ext (.mc emptySub) :: lvl :: isLeafVal :: nodesVal :: rest =>
+        stack := .ext (.mc (Algorithm.macroCellWithCell m x.toInt32 y.toInt32 (isAlive != 0))) :: rest })
+    | "f_Algorithm_macrocellCellChild", .i32 id :: .ext (.mc emptySub) :: .i32 lvl :: isLeafVal :: nodesVal :: rest =>
       let nodes? : Option (Algorithm.GrowBuf Algorithm.MacroCell) := match nodesVal with
         | .ext (.mcGrowBuf b) => some b
         | .ext (.strGrowBuf b) => if b.data.isEmpty && b.size == 0 then some Algorithm.GrowBuf.empty else none
@@ -2029,12 +2114,12 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
         | _ => none
       match nodes?, isLeaf? with
       | some nodes, some isLeaf =>
-        let res := match Algorithm.macrocellCellChild nodes isLeaf lvl.asI32 emptySub id.asI32 with
+        let res := match Algorithm.macrocellCellChild nodes isLeaf lvl emptySub id with
           | some c => .ext (.mc c)
           | none => .null
         .inl (some { st with pc := st.pc + 1, stack := res :: rest })
       | _, _ => .inr none
-    | "f_Algorithm_macrocellLeafChild", id :: isLeafVal :: leavesVal :: rest =>
+    | "f_Algorithm_macrocellLeafChild", .i32 id :: isLeafVal :: leavesVal :: rest =>
       let leaves? : Option (Algorithm.GrowBuf UInt64) := match leavesVal with
         | .ext (.u64GrowBuf b) => some b
         | .ext (.strGrowBuf b) => if b.data.isEmpty && b.size == 0 then some Algorithm.GrowBuf.empty else none
@@ -2045,7 +2130,7 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
         | _ => none
       match leaves?, isLeaf? with
       | some leaves, some isLeaf =>
-        let res := match Algorithm.macrocellLeafChild leaves isLeaf id.asI32 with
+        let res := match Algorithm.macrocellLeafChild leaves isLeaf id with
           | some v => .boxedULong v
           | none => .null
         .inl (some { st with pc := st.pc + 1, stack := res :: rest })
@@ -2055,10 +2140,10 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
     | "f_Algorithm_macrocellSingleLeaf", .ext (.mc m) :: rest =>
       let res := match Algorithm.macrocellSingleLeaf m with | some v => .boxedULong v | none => .null
       .inl (some { st with pc := st.pc + 1, stack := res :: rest })
-    | "f_Algorithm_macrocellSingleLeaf___lam__0", _p :: v :: rest
-    | "f_Algorithm_macrocellSingleLeaf___lam__1", _p :: v :: rest
-    | "f_Algorithm_macrocellSingleLeaf___lam__2", _p :: v :: rest =>
-      .inl (some { st with pc := st.pc + 1, stack := .i32 (if v.asI64 == 0 then 1 else 0) :: rest })
+    | "f_Algorithm_macrocellSingleLeaf___lam__0", _p :: .i64 v :: rest
+    | "f_Algorithm_macrocellSingleLeaf___lam__1", _p :: .i64 v :: rest
+    | "f_Algorithm_macrocellSingleLeaf___lam__2", _p :: .i64 v :: rest =>
+      .inl (some { st with pc := st.pc + 1, stack := .i32 (if v == 0 then 1 else 0) :: rest })
     | "f_Algorithm_noCells", rest =>
       let newId := st.heap.u64Arrays.length
       .inl (some { st with
@@ -2073,8 +2158,8 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
         .inl (some { st with pc := st.pc + 1, stack := res :: rest, jvmHeap := h' })
       | none => .inr none
     | "f_Algorithm_parseBlocks",
-        .ext (.u64Ref cId) :: warnsVal :: rowIdx :: blockY :: blockX :: hasBlock ::
-        p :: limit :: bytesVal :: inRow :: i :: numLines :: linesVal :: rest =>
+        .ext (.u64Ref cId) :: warnsVal :: .i32 rowIdx :: .i32 blockY :: .i32 blockX :: .i32 hasBlock ::
+        .i32 p :: .i32 limit :: bytesVal :: .i32 inRow :: .i32 i :: .i32 numLines :: linesVal :: rest =>
       match decodeStrArray st linesVal, decodeBytes st bytesVal, st.heap.u64Arrays[cId]? with
       | some lines, some bytes, some cells =>
         let warnsOpt : Option (Array Algorithm.Life105Warning) := match warnsVal with
@@ -2086,9 +2171,9 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
           | _ => none
         match warnsOpt with
         | some warns =>
-          let res := Algorithm.parseBlocks lines numLines.asI32 i.asI32 (inRow.asI32 != 0) bytes
-            limit.asI32 p.asI32 (hasBlock.asI32 != 0) blockX.asI32.toInt32 blockY.asI32.toInt32
-            rowIdx.asI32.toInt32 warns cells
+          let res := Algorithm.parseBlocks lines numLines i (inRow != 0) bytes
+            limit p (hasBlock != 0) blockX.toInt32 blockY.toInt32
+            rowIdx.toInt32 warns cells
           let (resVal, h', u64s') := encodeLife105Result st.jvmHeap st.heap.u64Arrays res
           .inl (some { st with
             pc := st.pc + 1, stack := resVal :: rest,
@@ -2100,10 +2185,10 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
         | some (x, y) => .pair (.boxedInt x.toUInt32) (.boxedInt y.toUInt32)
         | none => .null
       .inl (some { st with pc := st.pc + 1, stack := v :: rest })
-    | "f_Algorithm_parseInt32At", limit :: pos :: bytesVal :: rest =>
+    | "f_Algorithm_parseInt32At", .i32 limit :: .i32 pos :: bytesVal :: rest =>
       match decodeBytes st bytesVal with
       | some bytes =>
-        let optPair := (Algorithm.parseInt32At bytes pos.asI32 limit.asI32).map fun r =>
+        let optPair := (Algorithm.parseInt32At bytes pos limit).map fun r =>
           (.boxedInt r.val.toUInt32, .boxedUInt r.next)
         let (res, h') := encodeOptScalarPair st.jvmHeap optPair
         .inl (some { st with pc := st.pc + 1, stack := res :: rest, jvmHeap := h' })
@@ -2136,15 +2221,15 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
           .inl (some { st with pc := st.pc + 1, stack := .heapRef outerAddr :: rest, jvmHeap := h2 })
       | none => .inr none
     | "f_Algorithm_parseRLEComments",
-        warnsVal :: hasOffset :: offsetY :: offsetX :: i :: numLines :: linesVal :: rest =>
+        warnsVal :: .i32 hasOffset :: .i32 offsetY :: .i32 offsetX :: .i32 i :: .i32 numLines :: linesVal :: rest =>
       let warns? : Option (Algorithm.GrowBuf Algorithm.RLEWarning) := match warnsVal with
         | .ext (.rleWarnGrowBuf b) => some b
         | .ext (.strGrowBuf b) => if b.data.isEmpty && b.size == 0 then some Algorithm.GrowBuf.empty else none
         | _ => none
       match decodeStrArray st linesVal, warns? with
       | some lines, some warns =>
-        let res := Algorithm.parseRLEComments lines numLines.asI32 i.asI32
-          offsetX.asI32.toInt32 offsetY.asI32.toInt32 (hasOffset.asI32 != 0) warns
+        let res := Algorithm.parseRLEComments lines numLines i
+          offsetX.toInt32 offsetY.toInt32 (hasOffset != 0) warns
         let (resVal, h', u64s') := encodeRLEResult st.jvmHeap st.heap.u64Arrays res
         .inl (some { st with
           pc := st.pc + 1, stack := resVal :: rest,
@@ -2153,8 +2238,8 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
     | "f_Algorithm_parseRLEComments___closed__1", rest =>
       .inl (some { st with pc := st.pc + 1, stack := .ext (.rleStatus (.invalidHeader "none")) :: rest })
     | "f_Algorithm_parseRLEData",
-        startY :: startX :: runsVal :: warnsVal :: countCol :: countP :: hasCount :: count ::
-        col :: p :: limit :: bytesVal :: inLine :: i :: numLines :: linesVal :: rest =>
+        .i32 startY :: .i32 startX :: runsVal :: warnsVal :: .i32 countCol :: .i32 countP :: .i32 hasCount :: .i64 count ::
+        .i32 col :: .i32 p :: .i32 limit :: bytesVal :: .i32 inLine :: .i32 i :: .i32 numLines :: linesVal :: rest =>
       let warns? : Option (Algorithm.GrowBuf Algorithm.RLEWarning) := match warnsVal with
         | .ext (.rleWarnGrowBuf b) => some b
         | .ext (.strGrowBuf b) => if b.data.isEmpty && b.size == 0 then some Algorithm.GrowBuf.empty else none
@@ -2165,9 +2250,9 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
         | _ => none
       match decodeStrArray st linesVal, decodeBytes st bytesVal, warns?, runs? with
       | some lines, some bytes, some warns, some runs =>
-        let res := Algorithm.parseRLEData lines numLines.asI32 i.asI32 (inLine.asI32 != 0)
-          bytes limit.asI32 p.asI32 col.asI32 count.asI64 (hasCount.asI32 != 0) countP.asI32 countCol.asI32
-          warns runs startX.asI32.toInt32 startY.asI32.toInt32
+        let res := Algorithm.parseRLEData lines numLines i (inLine != 0)
+          bytes limit p col count (hasCount != 0) countP countCol
+          warns runs startX.toInt32 startY.toInt32
         let (resVal, h', u64s') := encodeRLEResult st.jvmHeap st.heap.u64Arrays res
         .inl (some { st with
           pc := st.pc + 1, stack := resVal :: rest,
@@ -2183,20 +2268,20 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
       | some bytes =>
         .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.parseRLEHeader bytes) :: rest })
       | none => .inr none
-    | "f_Algorithm_parseRLEHeader___lam__0", ch :: pos :: limit :: bytesVal :: rest =>
+    | "f_Algorithm_parseRLEHeader___lam__0", .i32 ch :: .i32 pos :: .i32 limit :: bytesVal :: rest =>
       match decodeBytes st bytesVal with
       | some bytes =>
-        let p' := Algorithm.skipSpaces bytes pos.asI32 limit.asI32
+        let p' := Algorithm.skipSpaces bytes pos limit
         let res :=
-          if p' < limit.asI32 && bytes.data[p'.toNat]! == ch.asI32.toUInt8 then .boxedUInt (p' + 1)
+          if p' < limit && bytes.data[p'.toNat]! == ch.toUInt8 then .boxedUInt (p' + 1)
           else .null
         .inl (some { st with pc := st.pc + 1, stack := res :: rest })
       | none => .inr none
-    | "f_Algorithm_parseRLEHeader___lam__1", pos :: limit :: bytesVal :: rest =>
+    | "f_Algorithm_parseRLEHeader___lam__1", .i32 pos :: .i32 limit :: bytesVal :: rest =>
       match decodeBytes st bytesVal with
       | some bytes =>
-        let p' := Algorithm.skipSpaces bytes pos.asI32 limit.asI32
-        let res := match Algorithm.parseUInt32At bytes p' limit.asI32 with
+        let p' := Algorithm.skipSpaces bytes pos limit
+        let res := match Algorithm.parseUInt32At bytes p' limit with
           | some r => .boxedUInt r.next
           | none => .null
         .inl (some { st with pc := st.pc + 1, stack := res :: rest })
@@ -2209,37 +2294,37 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
         let (res, h') := encodeOptScalarPair st.jvmHeap optPair
         .inl (some { st with pc := st.pc + 1, stack := res :: rest, jvmHeap := h' })
       | none => .inr none
-    | "f_Algorithm_parseUInt32At", limit :: pos :: bytesVal :: rest =>
+    | "f_Algorithm_parseUInt32At", .i32 limit :: .i32 pos :: bytesVal :: rest =>
       match decodeBytes st bytesVal with
       | some bytes =>
-        let optPair := (Algorithm.parseUInt32At bytes pos.asI32 limit.asI32).map fun r =>
+        let optPair := (Algorithm.parseUInt32At bytes pos limit).map fun r =>
           (.boxedUInt r.val, .boxedUInt r.next)
         let (res, h') := encodeOptScalarPair st.jvmHeap optPair
         .inl (some { st with pc := st.pc + 1, stack := res :: rest, jvmHeap := h' })
       | none => .inr none
-    | "f_Algorithm_relativeKeysLoop", accVal :: minY :: minX :: limit :: i :: .ext (.u64Ref cId) :: rest =>
+    | "f_Algorithm_relativeKeysLoop", accVal :: .i64 minY :: .i64 minX :: .i32 limit :: .i32 i :: .ext (.u64Ref cId) :: rest =>
       match st.heap.u64Arrays[cId]?, decodeU64List st.jvmHeap (st.jvmHeap.objects.size + 2) accVal with
       | some cells, some acc =>
-        let res := Algorithm.relativeKeysLoop cells i.asI32 limit.asI32 minX.asI64 minY.asI64 acc
+        let res := Algorithm.relativeKeysLoop cells i limit minX minY acc
         let (resVal, h') := encodeU64List st.jvmHeap res
         .inl (some { st with pc := st.pc + 1, stack := resVal :: rest, jvmHeap := h' })
       | _, _ => .inr none
-    | "f_Algorithm_scanDigitSet", mask :: p :: limit :: bytesVal :: rest =>
+    | "f_Algorithm_scanDigitSet", .i32 mask :: .i32 p :: .i32 limit :: bytesVal :: rest =>
       match decodeBytes st bytesVal with
       | some bytes =>
-        let r := Algorithm.scanDigitSet bytes limit.asI32 p.asI32 mask.asI32
+        let r := Algorithm.scanDigitSet bytes limit p mask
         .inl (some { st with pc := st.pc + 1, stack := .pair (.boxedUInt r.1) (.boxedUInt r.2) :: rest })
       | none => .inr none
-    | "f_Algorithm_scanDigits", acc :: p :: limit :: .heapRef addr :: rest =>
+    | "f_Algorithm_scanDigits", .i64 acc :: .i32 p :: .i32 limit :: .heapRef addr :: rest =>
       match st.jvmHeap.get? addr with
       | some (.byteArray elems) =>
-        let r := Algorithm.scanDigits ⟨elems⟩ limit.asI32 p.asI32 acc.asI64
+        let r := Algorithm.scanDigits ⟨elems⟩ limit p acc
         .inl (some { st with pc := st.pc + 1, stack := .pair (.boxedUInt r.1) (.boxedULong r.2) :: rest })
       | _ => .inr none
-    | "f_Algorithm_serializeLife105Block", maxY :: minY :: minX :: .ext (.u64Ref cId) :: rest =>
+    | "f_Algorithm_serializeLife105Block", .i32 maxY :: .i32 minY :: .i32 minX :: .ext (.u64Ref cId) :: rest =>
       match st.heap.u64Arrays[cId]? with
       | some cells =>
-        let arr := Algorithm.serializeLife105Block cells minX.asI32.toInt32 minY.asI32.toInt32 maxY.asI32.toInt32
+        let arr := Algorithm.serializeLife105Block cells minX.toInt32 minY.toInt32 maxY.toInt32
         .inl (some { st with pc := st.pc + 1, stack := .strArr arr :: rest })
       | none => .inr none
     | "f_Algorithm_serializeMacrocell___closed__2", rest =>
@@ -2251,18 +2336,18 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
       let (addr, h') := st.jvmHeap.alloc (.objArray "java/lang/Object"
         #[.str "#R 0 0", .str "x = 0, y = 0, rule = B3/S23", .str "!"])
       .inl (some { st with pc := st.pc + 1, stack := .heapRef addr :: rest, jvmHeap := h' })
-    | "f_Algorithm_skipDescriptions", i :: numLines :: linesVal :: rest =>
+    | "f_Algorithm_skipDescriptions", .i32 i :: .i32 numLines :: linesVal :: rest =>
       match decodeStrArray st linesVal with
       | some lines =>
         .inl (some { st with
-          pc := st.pc + 1, stack := .i32 (Algorithm.skipDescriptions lines numLines.asI32 i.asI32) :: rest })
+          pc := st.pc + 1, stack := .i32 (Algorithm.skipDescriptions lines numLines i) :: rest })
       | none => .inr none
-    | "f_Algorithm_skipSpaces", limit :: pos :: bytesVal :: rest =>
+    | "f_Algorithm_skipSpaces", .i32 limit :: .i32 pos :: bytesVal :: rest =>
       match decodeBytes st bytesVal with
       | some bytes =>
-        .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.skipSpaces bytes pos.asI32 limit.asI32) :: rest })
+        .inl (some { st with pc := st.pc + 1, stack := .i32 (Algorithm.skipSpaces bytes pos limit) :: rest })
       | none => .inr none
-    | "f_Algorithm_splitKeys", seVal :: swVal :: neVal :: nwVal :: midY :: midX :: keysVal :: rest =>
+    | "f_Algorithm_splitKeys", seVal :: swVal :: neVal :: nwVal :: .i64 midY :: .i64 midX :: keysVal :: rest =>
       let fuel := st.jvmHeap.objects.size + 2
       match decodeU64List st.jvmHeap fuel keysVal,
             decodeU64List st.jvmHeap fuel nwVal,
@@ -2270,7 +2355,7 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
             decodeU64List st.jvmHeap fuel swVal,
             decodeU64List st.jvmHeap fuel seVal with
       | some keys, some nw, some ne, some sw, some se =>
-        let r := Algorithm.splitKeys keys midX.asI64 midY.asI64 nw ne sw se
+        let r := Algorithm.splitKeys keys midX midY nw ne sw se
         let (nwV, h1) := encodeU64List st.jvmHeap r.1
         let (neV, h2) := encodeU64List h1 r.2.1
         let (swV, h3) := encodeU64List h2 r.2.2.1
@@ -2280,24 +2365,27 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
           stack := .pair nwV (.pair neV (.pair swV seV)) :: rest,
           jvmHeap := h4 })
       | _, _, _, _, _ => .inr none
-    | "f_Algorithm_uint32ToInt32", x :: rest =>
-      .inl (some { st with pc := st.pc + 1, stack := .i32 x.asI32 :: rest })
+    | "f_Algorithm_uint32ToInt32", .i32 x :: rest =>
+      .inl (some { st with pc := st.pc + 1, stack := .i32 x :: rest })
     | "f_Algorithm_wrapRLEItems",
-        .ext (.strGrowBuf out) :: lineLen :: .str line :: j :: numItems :: .heapRef itemsAddr :: rest =>
+        .ext (.strGrowBuf out) :: .i32 lineLen :: .str line :: .i32 j :: .i32 numItems :: .heapRef itemsAddr :: rest =>
       match st.jvmHeap.get? itemsAddr with
       | some (.objArray _ elems) =>
         let itemsOpt := elems.foldlM (fun acc v => match v with
-          | .pair a b => some (acc.push (unboxU8 a, unboxI32 b))
+          | .pair a b => do
+            let ad ← unboxU8? a
+            let bd ← unboxI32? b
+            some (acc.push (ad, bd))
           | _ => none) #[]
         match itemsOpt with
         | some items =>
-          let r := Algorithm.wrapRLEItems items numItems.asI32 j.asI32 line lineLen.asI32 out
+          let r := Algorithm.wrapRLEItems items numItems j line lineLen out
           .inl (some { st with pc := st.pc + 1, stack := .ext (.strGrowBuf r) :: rest })
         | none => .inr none
       | _ => .inr none
     | "f_Algorithm_wrapRLEItems___closed__0", rest =>
       .inl (some { st with pc := st.pc + 1, stack := .pair (.boxedUByte 0) (.boxedUInt 0) :: rest })
-    | "f_Algorithm_writeDag", wVal :: .ext (.u64Ref idsId) :: n :: k :: .heapRef kidsAddr :: .heapRef entriesAddr :: rest =>
+    | "f_Algorithm_writeDag", wVal :: .ext (.u64Ref idsId) :: .i32 n :: .i32 k :: .heapRef kidsAddr :: .heapRef entriesAddr :: rest =>
       match st.jvmHeap.get? entriesAddr, st.jvmHeap.get? kidsAddr, st.heap.u64Arrays[idsId]? with
       | some (.objArray _ eElems), some (.intArray kids), some ids =>
         let entriesOpt := eElems.foldlM (fun acc v => match v with | .ext (.mc m) => some (acc.push m) | _ => none) #[]
@@ -2305,21 +2393,21 @@ def algStepInvokeStatic (st : JvmState) (cls method desc : String) : Option JvmS
         | some entries =>
           match wVal with
           | .ext (.dagWriter w) =>
-            let w' := Algorithm.writeDag entries kids k.asI32 n.asI32 ids w
+            let w' := Algorithm.writeDag entries kids k n ids w
             .inl (some { st with pc := st.pc + 1, stack := .ext (.dagWriter w') :: rest })
           | _ =>
             match decodeDagWriter st.jvmHeap wVal with
             | some w =>
-              let w' := Algorithm.writeDag entries kids k.asI32 n.asI32 ids w
+              let w' := Algorithm.writeDag entries kids k n ids w
               let (wVal', h') := encodeDagWriter st.jvmHeap w'
               .inl (some { st with pc := st.pc + 1, stack := wVal' :: rest, jvmHeap := h' })
             | none => .inr none
         | none => .inr none
       | _, _, _ => .inr none
-    | "f_List_lookup___at___00Algorithm_MacrocellWriterState_addLeaf_spec__0___redArg", listVal :: k :: rest =>
+    | "f_List_lookup___at___00Algorithm_MacrocellWriterState_addLeaf_spec__0___redArg", listVal :: .i64 k :: rest =>
       match decodeLeafBucketList st.jvmHeap (st.jvmHeap.objects.size + 2) listVal with
       | some lst =>
-        match lst.lookup k.asI64 with
+        match lst.lookup k with
         | none =>
           let (addr, h') := st.jvmHeap.alloc (.objArray "java/lang/Object" #[.boxedInt 0])
           .inl (some { st with pc := st.pc + 1, stack := .heapRef addr :: rest, jvmHeap := h' })

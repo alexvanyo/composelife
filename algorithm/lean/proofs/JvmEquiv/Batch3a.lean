@@ -600,7 +600,7 @@ local macro "prove_fillGrid_succ" m:ident prog:ident setThm:ident ih:ident : tac
       · simp only [hy, decide_false, Bool.false_eq_true, ↓reduceIte]
         (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
         flat_step_nonbranch_chunks
-        (conv => lhs; arg 2; rw [runJvmResFast_invokestatic_step ($setThm rfl (by simpa [Jvm.JvmVal.asI32, u8_toUInt32_toUInt8] using halive))])
+        (conv => lhs; arg 2; rw [runJvmResFast_invokestatic_step ($setThm rfl (by simpa [u8_toUInt32_toUInt8] using halive))])
         (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
         flat_step_blk $prog
         (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
@@ -1425,6 +1425,8 @@ private theorem cellBoundsLoop_aux (m : Nat) :
         · simp only [hx2, decide_true, ↓reduceIte]
           flat_step_blk f_Algorithm_cellBoundsLoop_prog
           (conv => lhs; simp only [h0, h2, h7, h9, h13, h22, h24, h26, h28]; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
+          flat_step_blk f_Algorithm_cellBoundsLoop_prog
+          (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
           try simp only [Nat.succ_eq_add_one]
           try simp only [nat_add_eq]
           simp only [Nat.add_assoc]
@@ -1443,6 +1445,8 @@ private theorem cellBoundsLoop_aux (m : Nat) :
         · simp only [hx2, decide_false, Bool.false_eq_true, ↓reduceIte]
           flat_step_blk f_Algorithm_cellBoundsLoop_prog
           (conv => lhs; simp only [h0, h2, h7, h9, h13, h22, h24, h26, h28]; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
+          flat_step_blk f_Algorithm_cellBoundsLoop_prog
+          (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
           try simp only [Nat.succ_eq_add_one]
           try simp only [nat_add_eq]
           simp only [Nat.add_assoc]
@@ -1476,6 +1480,8 @@ private theorem cellBoundsLoop_aux (m : Nat) :
         · simp only [hy1, decide_true, ↓reduceIte]
           flat_step_blk f_Algorithm_cellBoundsLoop_prog
           (conv => lhs; simp only [h0, h2, h5, h7, h9, h13, h22, h30, h32]; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
+          flat_step_blk f_Algorithm_cellBoundsLoop_prog
+          (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
           try simp only [Nat.succ_eq_add_one]
           try simp only [nat_add_eq]
           simp only [Nat.add_assoc]
@@ -1495,6 +1501,8 @@ private theorem cellBoundsLoop_aux (m : Nat) :
         · simp only [hy1, decide_false, Bool.false_eq_true, ↓reduceIte]
           flat_step_blk f_Algorithm_cellBoundsLoop_prog
           (conv => lhs; simp only [h0, h2, h5, h7, h9, h13, h22, h30, h32]; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
+          flat_step_blk f_Algorithm_cellBoundsLoop_prog
+          (conv => lhs; norm_jvm_locals; norm_flat_run; jvm_whnf_run_args)
           try simp only [Nat.succ_eq_add_one]
           try simp only [nat_add_eq]
           simp only [Nat.add_assoc]

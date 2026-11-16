@@ -119,9 +119,9 @@ theorem leafContains_1_equiv (leaf : UInt64) (x y : UInt32) :
   apply runJvm_of_runJvmValFast0 25 _ _ _ rfl
   have heval : runJvmValFast 25 f_Algorithm_leafContains_1_prog 0 f_Algorithm_leafContains_1_prog
       (initJvmState [(0, .i64 leaf), (2, .i32 x), (3, .i32 y)]) =
-      (if !((if (leaf >>> (Algorithm.cellToLeafBitUInt x y &&& 63).toUInt64) &&& 1 == 1 then (0 : UInt32)
+      (if ((if (leaf >>> (Algorithm.cellToLeafBitUInt x y &&& 63).toUInt64) &&& 1 == 1 then (0 : UInt32)
         else if ((leaf >>> (Algorithm.cellToLeafBitUInt x y &&& 63).toUInt64) &&& 1).toBitVec.slt 1#64 then 4294967295 else 1) == 0) then
-        some (.i32 0) else some (.i32 1)) := rfl
+        some (.i32 1) else some (.i32 0)) := rfl
   rw [heval, cellToLeafBitUInt_and_63, lcmp_bv_eq_zero]
   unfold Algorithm.leafContains
   by_cases h : (((leaf >>> (Algorithm.cellToLeafBitUInt x y).toUInt64) &&& 1) == 1) = true <;> simp [h]
@@ -173,7 +173,8 @@ theorem leanUnboxUInt_4_equiv (v : UInt32) :
     runJvm 25 leanUnboxUInt_4_prog (initJvmState [(0, .boxedUInt v)]) = some (.i32 v) := by rfl
 
 theorem leanUnboxUByte_equiv (v : UInt32) :
-    runJvm 25 leanUnboxUByte_prog (initJvmState [(0, .boxedUByte v)]) = some (.i32 v) := by rfl
+    runJvm 25 leanUnboxUByte_prog (initJvmState [(0, .boxedUByte v)]) =
+      some (.i32 (UInt32.ofBitVec ((v.toBitVec.setWidth 8).signExtend 32))) := by rfl
 
 theorem macrocellSingleLeaf_lam0_equiv (w : UInt64) :
     runJvm 15 f_Algorithm_macrocellSingleLeaf___lam__0_prog (initJvmState [(0, .i64 w)]) =
@@ -181,8 +182,8 @@ theorem macrocellSingleLeaf_lam0_equiv (w : UInt64) :
   apply runJvm_of_runJvmValFast0 15 _ _ _ rfl
   have heval : runJvmValFast 15 f_Algorithm_macrocellSingleLeaf___lam__0_prog 0
       f_Algorithm_macrocellSingleLeaf___lam__0_prog (initJvmState [(0, .i64 w)]) =
-      (if !((if w == 0 then (0 : UInt32) else if w.toBitVec.slt 0#64 then 4294967295 else 1) == 0) then
-        some (.i32 0) else some (.i32 1)) := rfl
+      (if (if w == 0 then (0 : UInt32) else if w.toBitVec.slt 0#64 then 4294967295 else 1) == 0 then
+        some (.i32 1) else some (.i32 0)) := rfl
   rw [heval, lcmp_bv_eq_zero]
   by_cases hw : w == 0 <;> simp [hw]
 
@@ -192,8 +193,8 @@ theorem macrocellSingleLeaf_lam1_equiv (w : UInt64) :
   apply runJvm_of_runJvmValFast0 15 _ _ _ rfl
   have heval : runJvmValFast 15 f_Algorithm_macrocellSingleLeaf___lam__1_prog 0
       f_Algorithm_macrocellSingleLeaf___lam__1_prog (initJvmState [(0, .i64 w)]) =
-      (if !((if w == 0 then (0 : UInt32) else if w.toBitVec.slt 0#64 then 4294967295 else 1) == 0) then
-        some (.i32 0) else some (.i32 1)) := rfl
+      (if (if w == 0 then (0 : UInt32) else if w.toBitVec.slt 0#64 then 4294967295 else 1) == 0 then
+        some (.i32 1) else some (.i32 0)) := rfl
   rw [heval, lcmp_bv_eq_zero]
   by_cases hw : w == 0 <;> simp [hw]
 
@@ -203,8 +204,8 @@ theorem macrocellSingleLeaf_lam2_equiv (w : UInt64) :
   apply runJvm_of_runJvmValFast0 15 _ _ _ rfl
   have heval : runJvmValFast 15 f_Algorithm_macrocellSingleLeaf___lam__2_prog 0
       f_Algorithm_macrocellSingleLeaf___lam__2_prog (initJvmState [(0, .i64 w)]) =
-      (if !((if w == 0 then (0 : UInt32) else if w.toBitVec.slt 0#64 then 4294967295 else 1) == 0) then
-        some (.i32 0) else some (.i32 1)) := rfl
+      (if (if w == 0 then (0 : UInt32) else if w.toBitVec.slt 0#64 then 4294967295 else 1) == 0 then
+        some (.i32 1) else some (.i32 0)) := rfl
   rw [heval, lcmp_bv_eq_zero]
   by_cases hw : w == 0 <;> simp [hw]
 
@@ -299,20 +300,15 @@ theorem serializePlaintext_equiv (cells : Array UInt64) (minX maxX minY maxY : I
         (3, .i32 minY.toUInt32), (4, .i32 maxY.toUInt32)] [] [cells]) =
       some (.strArr (Algorithm.serializePlaintext cells minX maxX minY maxY)) := by
   apply runJvm_of_runJvmValFast0 70 _ _ _ rfl
-  have heval : runJvmValFast 70 f_Algorithm_serializePlaintext_prog 0 f_Algorithm_serializePlaintext_prog
-      (initJvmState [(0, (.ext (.u64Ref 0))), (1, .i32 minX.toUInt32), (2, .i32 maxX.toUInt32),
-        (3, .i32 minY.toUInt32), (4, .i32 maxY.toUInt32)] [] [cells]) =
-      (if cells.size.toUInt32 == 0 then some (.strArr #["."])
-       else
-         let w := maxX.toUInt32 - minX.toUInt32 + Int32.toUInt32 1
-         let h := maxY.toUInt32 - minY.toUInt32 + Int32.toUInt32 1
-         let g := Algorithm.fillGrid cells minX minY w h 79 (by decide) 0 cells.size.toUInt32
-           (Algorithm.AsciiBytes.replicate (w * h) 46 (by decide))
-         some (.strArr (Algorithm.gridRows g w h 0 Algorithm.GrowBuf.empty).toArray)) := rfl
-  rw [heval]; unfold Algorithm.serializePlaintext
+  jvm_step_blk0 f_Algorithm_serializePlaintext_prog
+  unfold Algorithm.serializePlaintext
   by_cases h0 : cells.size.toUInt32 == 0
-  · simp [h0]
-  · simp [h0, Int32.toUInt32_add, Int32.toUInt32_sub]
+  · simp only [h0, ↓reduceIte]
+    jvm_step_blk f_Algorithm_serializePlaintext_prog
+  · simp only [h0, Bool.false_eq_true, ↓reduceIte]
+    jvm_step_blk f_Algorithm_serializePlaintext_prog
+    rw [show (1 : UInt32) = Int32.toUInt32 1 from rfl, Int32.toUInt32_add, Int32.toUInt32_sub]
+    rfl
 
 theorem instBEqOption_findLastLeafRow_equiv (a b : Option UInt32) :
     runJvm 55 f_instBEqOption_beq___at___00Algorithm_findLastLeafRow_spec__0_prog
@@ -441,6 +437,69 @@ theorem findLastLeafRow_equiv (leaf : UInt64) :
                     Bool.not_false, Bool.false_eq_true, ite_true, ite_false]
                   rfl
 
+elab "jvm_step_branch_tail_mc" : tactic => do
+  if (← Lean.Elab.Tactic.getUnsolvedGoals).isEmpty then return ()
+  let tgt := (← Lean.Elab.Tactic.getMainTarget).consumeMData
+  let some (_, lhs, _) := tgt.eq? | return ()
+  let (inner, isMap) := unwrapRunLhs lhs
+  let isRes := inner.isAppOfArity ``runJvmResFast 5
+  let isVal := inner.isAppOfArity ``runJvmValFast 5
+  if !isRes && !isVal then return ()
+  try
+    if isRes then
+      Lean.Elab.Tactic.evalTactic (← `(tactic| rw [runJvmResFast_at_branch_cons (hbr := rfl)]))
+    else
+      Lean.Elab.Tactic.evalTactic (← `(tactic| rw [runJvmValFast_at_branch_cons (hbr := rfl)]))
+  catch _ =>
+    return ()
+  if !(← Lean.Elab.Tactic.getUnsolvedGoals).isEmpty then
+    if isMap then
+      Lean.Elab.Tactic.evalTactic (← `(tactic| (
+        (conv => lhs; arg 2; arg 1; whnf)
+        (conv => lhs; arg 2; arg 3; whnf)
+        (conv => lhs; arg 2; arg 4; whnf)
+        (conv => lhs; arg 2; arg 6; jvm_whnf_blk)
+        (try (conv => {
+          lhs; arg 2; arg 6; arg 2
+          simp only [evalInstanceOf_algHooks_ext, checkInstanceOf_level4_level4,
+            checkInstanceOf_level4_cell, checkInstanceOf_cell_level4, checkInstanceOf_cell_cell,
+            eq_self_iff_true, Bool.false_eq_true, ite_true, ite_false]
+        })))))
+      let tgt2 := (← Lean.Elab.Tactic.getMainTarget).consumeMData
+      let some (_, lhs2, _) := tgt2.eq? | return ()
+      let (evalApp, _) := unwrapRunLhs lhs2
+      rwEvalBranchByInstr isRes (evalApp.getArg! 3)
+      Lean.Elab.Tactic.evalTactic (← `(tactic| (
+        (conv => lhs; arg 2; norm_jvm_locals)
+        (conv => lhs; try rw [option_map_ite])
+        reduce_top_mc_ite)))
+      rwOptionMapResult
+      Lean.Elab.Tactic.evalTactic (← `(tactic| (conv => lhs; jvm_whnf_run_args)))
+    else
+      Lean.Elab.Tactic.evalTactic (← `(tactic| (
+        (conv => lhs; arg 1; whnf)
+        (conv => lhs; arg 3; whnf)
+        (conv => lhs; arg 4; whnf)
+        (conv => lhs; arg 6; jvm_whnf_blk)
+        (try (conv => {
+          lhs; arg 6; arg 2
+          simp only [evalInstanceOf_algHooks_ext, checkInstanceOf_level4_level4,
+            checkInstanceOf_level4_cell, checkInstanceOf_cell_level4, checkInstanceOf_cell_cell,
+            eq_self_iff_true, Bool.false_eq_true, ite_true, ite_false]
+        })))))
+      let tgt2 := (← Lean.Elab.Tactic.getMainTarget).consumeMData
+      let some (_, lhs2, _) := tgt2.eq? | return ()
+      rwEvalBranchByInstr isRes (lhs2.getArg! 3)
+      Lean.Elab.Tactic.evalTactic (← `(tactic| (
+        (conv => lhs; norm_jvm_locals)
+        reduce_top_mc_ite
+        (conv => lhs; jvm_whnf_run_args))))
+
+elab "jvm_step_blk_mc" _prog:ident : tactic => do
+  Lean.Elab.Tactic.evalTactic (← `(tactic| jvm_step_nonbranch_chunks))
+  if !(← Lean.Elab.Tactic.getUnsolvedGoals).isEmpty then
+    Lean.Elab.Tactic.evalTactic (← `(tactic| jvm_step_branch_tail_mc))
+
 theorem dagWriter_addEntry_equiv (w : Algorithm.DagWriter) (m : Algorithm.MacroCell) (c1 c2 c3 c4 : UInt32) :
     runJvm 150 f_Algorithm_DagWriter_addEntry_prog
       (initJvmState [(0, (.ext (.dagWriter w))), (1, (.ext (.mc m))), (2, .i32 c1), (3, .i32 c2), (4, .i32 c3), (5, .i32 c4)]) =
@@ -448,64 +507,64 @@ theorem dagWriter_addEntry_equiv (w : Algorithm.DagWriter) (m : Algorithm.MacroC
       some (.pair (.boxedUInt r.1) ((.ext (.dagWriter r.2)))) := by
   apply runJvm_of_runJvmValFast0 150 _ _ _ rfl
   rcases m with ⟨h, nw, ne, sw, se⟩ | ⟨h, nw, ne, sw, se⟩
-  · jvm_step_blk0 f_Algorithm_DagWriter_addEntry_prog
-    jvm_step_blk f_Algorithm_DagWriter_addEntry_prog
+  · jvm_step_blk_mc f_Algorithm_DagWriter_addEntry_prog
+    jvm_step_blk_mc f_Algorithm_DagWriter_addEntry_prog
     rw [lcmp_bv_eq_zero]
     by_cases hnw : nw = 0
     · simp only [hnw, beq_self_eq_true, Bool.not_true, Bool.false_eq_true, ite_false]
-      jvm_step_blk f_Algorithm_DagWriter_addEntry_prog
+      jvm_step_blk_mc f_Algorithm_DagWriter_addEntry_prog
       rw [lcmp_bv_eq_zero]
       by_cases hne : ne = 0
       · simp only [hne, beq_self_eq_true, Bool.not_true, Bool.false_eq_true, ite_false]
-        jvm_step_blk f_Algorithm_DagWriter_addEntry_prog
+        jvm_step_blk_mc f_Algorithm_DagWriter_addEntry_prog
         rw [lcmp_bv_eq_zero]
         by_cases hsw : sw = 0
         · simp only [hsw, beq_self_eq_true, Bool.not_true, Bool.false_eq_true, ite_false]
-          jvm_step_blk f_Algorithm_DagWriter_addEntry_prog
+          jvm_step_blk_mc f_Algorithm_DagWriter_addEntry_prog
           rw [lcmp_bv_eq_zero]
           by_cases hse : se = 0
           · simp only [hse, beq_self_eq_true, Bool.not_true, Bool.false_eq_true, ite_false]
-            jvm_step_blk f_Algorithm_DagWriter_addEntry_prog
+            jvm_step_blk_mc f_Algorithm_DagWriter_addEntry_prog
             simp [Algorithm.DagWriter.addEntry]
           · simp only [beq_eq_false_iff_ne.mpr hse, Bool.not_false, ite_true]
-            jvm_step_blk f_Algorithm_DagWriter_addEntry_prog
+            jvm_step_blk_mc f_Algorithm_DagWriter_addEntry_prog
             simp [Algorithm.DagWriter.addEntry, hse]
         · simp only [beq_eq_false_iff_ne.mpr hsw, Bool.not_false, ite_true]
-          jvm_step_blk f_Algorithm_DagWriter_addEntry_prog
+          jvm_step_blk_mc f_Algorithm_DagWriter_addEntry_prog
           simp [Algorithm.DagWriter.addEntry, hsw]
       · simp only [beq_eq_false_iff_ne.mpr hne, Bool.not_false, ite_true]
-        jvm_step_blk f_Algorithm_DagWriter_addEntry_prog
+        jvm_step_blk_mc f_Algorithm_DagWriter_addEntry_prog
         simp [Algorithm.DagWriter.addEntry, hne]
     · simp only [beq_eq_false_iff_ne.mpr hnw, Bool.not_false, ite_true]
-      jvm_step_blk f_Algorithm_DagWriter_addEntry_prog
+      jvm_step_blk_mc f_Algorithm_DagWriter_addEntry_prog
       simp [Algorithm.DagWriter.addEntry, hnw]
-  · jvm_step_blk0 f_Algorithm_DagWriter_addEntry_prog
-    jvm_step_blk f_Algorithm_DagWriter_addEntry_prog
-    jvm_step_blk f_Algorithm_DagWriter_addEntry_prog
+  · jvm_step_blk_mc f_Algorithm_DagWriter_addEntry_prog
+    jvm_step_blk_mc f_Algorithm_DagWriter_addEntry_prog
+    jvm_step_blk_mc f_Algorithm_DagWriter_addEntry_prog
     by_cases h1 : c1 == 0
     · simp only [h1, Bool.not_true, Bool.false_eq_true, ↓reduceIte]
-      jvm_step_blk f_Algorithm_DagWriter_addEntry_prog
+      jvm_step_blk_mc f_Algorithm_DagWriter_addEntry_prog
       by_cases h2 : c2 == 0
       · simp only [h2, Bool.not_true, Bool.false_eq_true, ↓reduceIte]
-        jvm_step_blk f_Algorithm_DagWriter_addEntry_prog
+        jvm_step_blk_mc f_Algorithm_DagWriter_addEntry_prog
         by_cases h3 : c3 == 0
         · simp only [h3, Bool.not_true, Bool.false_eq_true, ↓reduceIte]
-          jvm_step_blk f_Algorithm_DagWriter_addEntry_prog
+          jvm_step_blk_mc f_Algorithm_DagWriter_addEntry_prog
           by_cases h4 : c4 == 0
           · simp only [h4, Bool.not_true, Bool.false_eq_true, ↓reduceIte]
-            jvm_step_blk f_Algorithm_DagWriter_addEntry_prog
+            jvm_step_blk_mc f_Algorithm_DagWriter_addEntry_prog
             simp [Algorithm.DagWriter.addEntry, h1, h2, h3, h4]
           · simp only [h4, Bool.not_false, ↓reduceIte]
-            jvm_step_blk f_Algorithm_DagWriter_addEntry_prog
+            jvm_step_blk_mc f_Algorithm_DagWriter_addEntry_prog
             simp [Algorithm.DagWriter.addEntry, h1, h2, h3, h4]
         · simp only [h3, Bool.not_false, ↓reduceIte]
-          jvm_step_blk f_Algorithm_DagWriter_addEntry_prog
+          jvm_step_blk_mc f_Algorithm_DagWriter_addEntry_prog
           simp [Algorithm.DagWriter.addEntry, h1, h2, h3]
       · simp only [h2, Bool.not_false, ↓reduceIte]
-        jvm_step_blk f_Algorithm_DagWriter_addEntry_prog
+        jvm_step_blk_mc f_Algorithm_DagWriter_addEntry_prog
         simp [Algorithm.DagWriter.addEntry, h1, h2]
     · simp only [h1, Bool.not_false, ↓reduceIte]
-      jvm_step_blk f_Algorithm_DagWriter_addEntry_prog
+      jvm_step_blk_mc f_Algorithm_DagWriter_addEntry_prog
       simp [Algorithm.DagWriter.addEntry, h1]
 
 private theorem uint32_and_63_of_lt {i : UInt32} (hi : i < 64) : i &&& 63 = i := by
@@ -609,76 +668,108 @@ private def mkU64BufPushProg (cls : String) : List JvmInstr :=
    .invokestatic "kotlin/ULong" "constructor-impl" "(J)J",
    .invokestatic "kotlin/ULongArray" "set-k8EXiF4" "([JIJ)V", .aload 0, .areturn]
 
-macro "prove_u64Buf_push" prog:ident arr:ident x:ident : tactic =>
-  `(tactic| (
-    let st0 := initJvmState [(0, (.ext (.u64Ref 0))), (1, .i64 $x)] [] [$arr]
-    let n := ($arr)[0]!.toUInt32 + 1
-    let cap := ($arr).size.toUInt32
-    let l3 := setLocal st0.locals 3 (.i32 n)
-    let l4 := setLocal l3 4 (.i32 cap)
-    let l5 := setLocal l4 5 ((.ext (.u64Ref 1)))
-    have hcmp : (if n == cap then (0 : UInt32) else if n < cap then 4294967295 else 1).toBitVec.slt 0#32 =
-        decide (n < cap) := compareUnsigned_slt' n cap
-    have heval : runJvmResFast 65 $prog 0 $prog st0 =
-        if (if n == cap then (0 : UInt32) else if n < cap then 4294967295 else 1).toBitVec.slt 0#32 then
-          some ((.ext (.u64Ref 0)), {
-            pc := 58
-            stack := [(.ext (.u64Ref 0))]
-            locals := l4
-            heap := { u64Arrays := [(($arr).set! n.toNat $x).set! 0 n.toUInt64] }
-          })
-        else
-          let doubled := Array.replicate (cap <<< 1 + 1).toNat (0 : UInt64)
-          let copied := Algorithm.copyU64 $arr cap 0 doubled
-          some ((.ext (.u64Ref 1)), {
-            pc := 44
-            stack := [(.ext (.u64Ref 1))]
-            locals := l5
-            heap := { u64Arrays := [$arr, (copied.set! n.toNat $x).set! 0 n.toUInt64] }
-          }) := rfl
-    rw [hcmp] at heval
-    by_cases hlt : n < cap
-    · simp only [hlt, decide_true, ite_true] at heval
-      rw [runJvmRes_of_runJvmResFast 65 _ _ _ _ _ rfl rfl heval]
-      simp [Algorithm.U64Buf.push, n, cap, hlt]
-    · simp only [hlt, decide_false, ite_false] at heval
-      rw [runJvmRes_of_runJvmResFast 65 _ _ _ _ _ rfl rfl heval]
-      simp [Algorithm.U64Buf.push, n, cap, hlt, uint32_shl_one]))
+private theorem u32_double_add1_slt_zero {n : Nat} (hn : n < 2 ^ 30) :
+    ((n.toUInt32 <<< 1 + 1).toBitVec.slt 0#32) = false := by
+  have h1 : n.toUInt32.toNat = n := Nat.mod_eq_of_lt (by omega)
+  have h2 : (n.toUInt32 <<< 1 + 1).toNat = 2 * n + 1 := by
+    rw [UInt32.toNat_add, UInt32.toNat_shiftLeft, h1]
+    have hmod : UInt32.toNat 1 % 32 = 1 := rfl
+    have h1n : UInt32.toNat 1 = 1 := rfl
+    rw [hmod, h1n, Nat.shiftLeft_eq]
+    omega
+  change decide ((n.toUInt32 <<< 1 + 1).toBitVec.toInt < (0#32).toInt) = false
+  rw [decide_eq_false_iff_not]
+  have hbv : (n.toUInt32 <<< 1 + 1).toBitVec.toNat = 2 * n + 1 := h2
+  rw [BitVec.toInt_eq_toNat_cond, hbv]
+  have h0 : (0#32 : BitVec 32).toInt = 0 := rfl
+  rw [h0]
+  split <;> omega
 
-theorem u64Buf_push_equiv (arr : Array UInt64) (x : UInt64) :
+private theorem uint32_shl_one' (x : UInt32) : x <<< (1 &&& 31) = x <<< 1 := rfl
+
+private theorem runJvmResFast_ulongArrayNew (fuel : Nat) (prog : List JvmInstr) (pc : Nat)
+    (rest : List JvmInstr) (pc0 : Nat) (sz : UInt32) (stk : List JvmVal) (locs : Nat → JvmVal)
+    (jh : Jvm.JvmHeap AlgExt) (hp : AlgHeap)
+    (hsz : sz.toBitVec.slt 0#32 = false) :
+    runJvmResFast (fuel + 1) prog pc
+      (.invokestatic "kotlin/ULongArray" "constructor-impl" "(I)[J" :: rest)
+      ⟨pc0, .i32 sz :: stk, locs, jh, hp⟩ =
+      runJvmResFast fuel prog (pc + 1) rest
+        ⟨pc + 1, .ext (.u64Ref hp.u64Arrays.length) :: stk, locs, jh,
+          { hp with u64Arrays := hp.u64Arrays ++ [Array.replicate sz.toNat 0] }⟩ := by
+  dsimp only [runJvmResFast, Jvm.runJvmResFast]
+  have hnbr : (isBranchInstr (.invokestatic "kotlin/ULongArray" "constructor-impl" "(I)[J") = true) = False := by
+    decide
+  rw [ite_eq_right (fun h => by rw [hnbr] at h; exact h.elim)]
+  have hstep : Jvm.stepInstr algHooks (.invokestatic "kotlin/ULongArray" "constructor-impl" "(I)[J")
+      ⟨pc, .i32 sz :: stk, locs, jh, hp⟩ =
+      .inl (some ⟨pc + 1, .ext (.u64Ref hp.u64Arrays.length) :: stk, locs, jh,
+        { hp with u64Arrays := hp.u64Arrays ++ [Array.replicate sz.toNat 0] }⟩) := by
+    change (if sz.toBitVec.slt 0#32 = true then _ else _) = _
+    rw [hsz]
+    rfl
+  rw [hstep]
+  dsimp only
+  simp only [↓reduceIte]
+
+macro "prove_u64Buf_push" prog:ident arr:ident hsz:ident : tactic =>
+  `(tactic| (
+    apply runJvmRes_map_of_runJvmResFast0 _ 65 _ _ _ rfl
+    jvm_step_blk0 $prog
+    rw [show UInt32.toNat 0 = 0 from rfl, compareUnsigned_slt']
+    by_cases hlt : ($arr)[0]!.toUInt32 + 1 < ($arr).size.toUInt32
+    · simp only [hlt, decide_true, ite_true]
+      jvm_step_blk $prog
+      simp [Algorithm.U64Buf.push, hlt]
+    · simp only [hlt, decide_false, Bool.false_eq_true, ite_false]
+      rw [runJvmResFast_stepBlockChunk 7]
+      (conv => lhs; arg 2; arg 1; jvm_whnf_blk)
+      rw [afterResBlockChunk_cont]
+      (conv => lhs; arg 2; norm_jvm_locals; jvm_whnf_run_args)
+      (conv => lhs; arg 2; arg 5; arg 2; rw [uint32_shl_one'])
+      rw [runJvmResFast_ulongArrayNew (hsz := u32_double_add1_slt_zero $hsz)]
+      (conv => lhs; arg 2; norm_jvm_locals; jvm_whnf_run_args)
+      jvm_step_blk $prog
+      have hnat : ((($arr).size % 4294967296) <<< 1 + 1) % 4294967296 =
+          (2 * ($arr).size + 1) % 4294967296 := by
+        rw [Nat.mod_eq_of_lt (by omega), Nat.shiftLeft_eq]
+        omega
+      simp [Algorithm.U64Buf.push, hlt, hnat]))
+
+theorem u64Buf_push_equiv (arr : Array UInt64) (x : UInt64) (hsz : arr.size < 2 ^ 30) :
     (runJvmRes 65 f_Algorithm_U64Buf_push_prog (initJvmState [(0, (.ext (.u64Ref 0))), (1, .i64 x)] [] [arr])).map
       (fun p => (p.1, p.2.heap.u64Arrays)) =
       some (if arr[0]!.toUInt32 + 1 < arr.size.toUInt32 then ((.ext (.u64Ref 0)), [Algorithm.U64Buf.push arr x])
             else ((.ext (.u64Ref 1)), [arr, Algorithm.U64Buf.push arr x])) := by
-  prove_u64Buf_push f_Algorithm_U64Buf_push_prog arr x
+  prove_u64Buf_push f_Algorithm_U64Buf_push_prog arr hsz
 
-theorem u64Buf_push_1_equiv (arr : Array UInt64) (x : UInt64) :
+theorem u64Buf_push_1_equiv (arr : Array UInt64) (x : UInt64) (hsz : arr.size < 2 ^ 30) :
     (runJvmRes 65 f_Algorithm_U64Buf_push_1_prog (initJvmState [(0, (.ext (.u64Ref 0))), (1, .i64 x)] [] [arr])).map
       (fun p => (p.1, p.2.heap.u64Arrays)) =
       some (if arr[0]!.toUInt32 + 1 < arr.size.toUInt32 then ((.ext (.u64Ref 0)), [Algorithm.U64Buf.push arr x])
             else ((.ext (.u64Ref 1)), [arr, Algorithm.U64Buf.push arr x])) := by
-  prove_u64Buf_push f_Algorithm_U64Buf_push_1_prog arr x
+  prove_u64Buf_push f_Algorithm_U64Buf_push_1_prog arr hsz
 
-theorem u64Buf_push_2_equiv (arr : Array UInt64) (x : UInt64) :
+theorem u64Buf_push_2_equiv (arr : Array UInt64) (x : UInt64) (hsz : arr.size < 2 ^ 30) :
     (runJvmRes 65 f_Algorithm_U64Buf_push_2_prog (initJvmState [(0, (.ext (.u64Ref 0))), (1, .i64 x)] [] [arr])).map
       (fun p => (p.1, p.2.heap.u64Arrays)) =
       some (if arr[0]!.toUInt32 + 1 < arr.size.toUInt32 then ((.ext (.u64Ref 0)), [Algorithm.U64Buf.push arr x])
             else ((.ext (.u64Ref 1)), [arr, Algorithm.U64Buf.push arr x])) := by
-  prove_u64Buf_push f_Algorithm_U64Buf_push_2_prog arr x
+  prove_u64Buf_push f_Algorithm_U64Buf_push_2_prog arr hsz
 
-theorem u64Buf_push_3_equiv (arr : Array UInt64) (x : UInt64) :
+theorem u64Buf_push_3_equiv (arr : Array UInt64) (x : UInt64) (hsz : arr.size < 2 ^ 30) :
     (runJvmRes 65 f_Algorithm_U64Buf_push_3_prog (initJvmState [(0, (.ext (.u64Ref 0))), (1, .i64 x)] [] [arr])).map
       (fun p => (p.1, p.2.heap.u64Arrays)) =
       some (if arr[0]!.toUInt32 + 1 < arr.size.toUInt32 then ((.ext (.u64Ref 0)), [Algorithm.U64Buf.push arr x])
             else ((.ext (.u64Ref 1)), [arr, Algorithm.U64Buf.push arr x])) := by
-  prove_u64Buf_push f_Algorithm_U64Buf_push_3_prog arr x
+  prove_u64Buf_push f_Algorithm_U64Buf_push_3_prog arr hsz
 
-theorem u64Buf_push_4_equiv (arr : Array UInt64) (x : UInt64) :
+theorem u64Buf_push_4_equiv (arr : Array UInt64) (x : UInt64) (hsz : arr.size < 2 ^ 30) :
     (runJvmRes 65 f_Algorithm_U64Buf_push_4_prog (initJvmState [(0, (.ext (.u64Ref 0))), (1, .i64 x)] [] [arr])).map
       (fun p => (p.1, p.2.heap.u64Arrays)) =
       some (if arr[0]!.toUInt32 + 1 < arr.size.toUInt32 then ((.ext (.u64Ref 0)), [Algorithm.U64Buf.push arr x])
             else ((.ext (.u64Ref 1)), [arr, Algorithm.U64Buf.push arr x])) := by
-  prove_u64Buf_push f_Algorithm_U64Buf_push_4_prog arr x
+  prove_u64Buf_push f_Algorithm_U64Buf_push_4_prog arr hsz
 
 theorem leafRowMask_equiv (leaf : UInt64) (x0 y0 l t r b : Int64) (i : UInt32) :
     runJvm 95 f_Algorithm_leafRowMask_prog
@@ -850,6 +941,7 @@ private def extractMcInstanceOfFVar? (sub : Lean.Expr) : Option Lean.FVarId := d
   let val ←
     if sub.isAppOfArity ``checkInstanceOf 2 then some (sub.getArg! 1)
     else if sub.isAppOfArity ``Jvm.JvmHooks.checkInstanceOf 5 then some (sub.getArg! 4)
+    else if sub.isAppOfArity ``Jvm.evalInstanceOf 6 then some (sub.getArg! 5)
     else none
   guard (val.isAppOfArity ``Jvm.JvmVal.ext 2)
   let extVal := val.getArg! 1
@@ -876,7 +968,7 @@ elab "split_next_mc_instanceof" : tactic => Lean.Elab.Tactic.withMainContext do
   Lean.Elab.Tactic.evalTactic (← `(tactic| all_goals reduce_top_mc_ite))
 
 elab "step_mc_tree" prog:ident : tactic => do
-  Lean.Elab.Tactic.evalTactic (← `(tactic| jvm_step_blk0 $prog))
+  Lean.Elab.Tactic.evalTactic (← `(tactic| jvm_step_blk_mc $prog))
   for _ in [:40] do
     let goals ← Lean.Elab.Tactic.getUnsolvedGoals
     if goals.isEmpty then break
@@ -890,10 +982,10 @@ elab "step_mc_tree" prog:ident : tactic => do
         | none => (false, false)
       if hasMc then
         Lean.Elab.Tactic.evalTactic (← `(tactic| split_next_mc_instanceof))
-        Lean.Elab.Tactic.evalTactic (← `(tactic| all_goals (try jvm_step_blk $prog)))
+        Lean.Elab.Tactic.evalTactic (← `(tactic| all_goals (try jvm_step_blk_mc $prog)))
         madeProgress := true
       else if isUnbranched then
-        Lean.Elab.Tactic.evalTactic (← `(tactic| try jvm_step_blk $prog))
+        Lean.Elab.Tactic.evalTactic (← `(tactic| try jvm_step_blk_mc $prog))
         let post ← Lean.Elab.Tactic.getUnsolvedGoals
         if post != [g] then
           madeProgress := true

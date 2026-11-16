@@ -47,6 +47,7 @@ composeCompiler {
 lean {
     target = "Algorithm:static"
     packageName = "com.alexvanyo.composelife.algorithm"
+    kotlinBytecodeClassPaths.add("com/alexvanyo/composelife/algorithm/BitComputationKt.class")
     entries {
         register("algorithm") {
             leanFile = "Algorithm/HashLife.lean"
@@ -194,6 +195,7 @@ kotlin {
         val desktopTest by getting {
             dependsOn(jvmTest)
             dependencies {
+                implementation(projects.leanTestFixtures)
                 implementation(compose.desktop.currentOs)
             }
         }

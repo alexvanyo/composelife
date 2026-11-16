@@ -39,3 +39,23 @@ val Project.heavyTaskLimitingBuildService: Provider<HeavyTaskLimitingBuildServic
                     .map { value -> value.toIntOrNull() },
             )
         }
+
+interface LeanTaskLimitingBuildService : BuildService<BuildServiceParameters.None> {
+    companion object {
+        fun createKey(): String = "LeanTaskLimitingBuildService"
+    }
+}
+
+val Project.leanTaskLimitingBuildService: Provider<LeanTaskLimitingBuildService>
+    get() =
+        gradle.sharedServices.registerIfAbsent(
+            LeanTaskLimitingBuildService.createKey(),
+            LeanTaskLimitingBuildService::class.java,
+        ) {
+            maxParallelUsages.set(
+                providers
+                    .gradleProperty("com.alexvanyo.composelife.maxConcurrentLeanTasks")
+                    .map { value -> value.toIntOrNull() }
+                    .orElse(1),
+            )
+        }

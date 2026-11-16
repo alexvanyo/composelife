@@ -15,8 +15,10 @@
  -/
 
 import Lean
-import Std.Tactic.BVDecide
 import Jvm.FastExec
+import Jvm.Proofs
+import Jvm.Tactics
+import Jvm.Audit
 import JvmSemantics
 import JvmBytecode
 
@@ -29,108 +31,127 @@ theorem absFloat_closed0_equiv :
       some (.f64 0.0) := by
   rfl
 
+private theorem geomHooks_iteZero? (v : JvmVal) (t e : Option JvmVal) :
+    geomHooks.iteZero? v t e =
+      match geomHooks.isZero? v with | some true => t | some false => e | none => none := by
+  dsimp [geomHooks, Jvm.JvmHooks.iteZero?, Jvm.JvmHooks.isZero?]
+  cases hv : Jvm.JvmVal.asI32? v with
+  | none => rfl
+  | some x => by_cases hx : (x == 0) = true <;> simp [Jvm.defaultIteVal, hx] <;> split <;> rfl
+
+private theorem geomHooks_iteNonZero? (v : JvmVal) (t e : Option JvmVal) :
+    geomHooks.iteNonZero? v t e =
+      match geomHooks.isZero? v with | some true => e | some false => t | none => none := by
+  dsimp [geomHooks, Jvm.JvmHooks.iteNonZero?, Jvm.JvmHooks.isZero?]
+  cases hv : Jvm.JvmVal.asI32? v with
+  | none => rfl
+  | some x => by_cases hx : (x == 0) = true <;> simp [Jvm.defaultIteVal, hx] <;> split <;> rfl
+
 theorem absFloat_equiv (x : Float) :
     runJvm 15 f_Geometry_absFloat_prog (initJvmState [(0, .f64 x)]) =
       some (.f64 (Geometry.absFloat x)) := by
-  change some (JvmVal.f64 _) = some (JvmVal.f64 _)
-  congr 2
-  dsimp [JvmVal.asI32, JvmVal.asF64, setLocal, initJvmState, Jvm.initJvmState, List.foldl, Geometry.absFloat]
+  apply Jvm.runJvm_of_runJvmValFast0 geomHooks geomHooks_iteZero? geomHooks_iteNonZero? 15 _ _ _ rfl
+  dsimp only [f_Geometry_absFloat_prog, initJvmState, Jvm.initJvmState, List.foldl, Jvm.setLocal]
+  rw [Jvm.runJvmValFast_step_of_stepInstr geomHooks rfl (by simp) rfl rfl]
+  rw [Jvm.runJvmValFast_step_of_stepInstr geomHooks rfl (by simp) rfl rfl]
+  rw [Jvm.runJvmValFast_step_of_stepInstr geomHooks rfl (by simp) rfl rfl]
+  rw [Jvm.runJvmValFast_step_of_stepInstr geomHooks rfl (by simp) rfl rfl]
+  rw [Jvm.runJvmValFast_step_of_stepInstr geomHooks rfl (by simp) rfl rfl]
+  dsimp only
+  rw [Jvm.runJvmValFast_at_branch_cons (hooks := geomHooks) (hbr := rfl), Jvm.evalBranchInstrCons_iflt]
   by_cases hlt : x < 0.0
-  · simp [hlt]
-  · by_cases heq : (x == 0.0) = true <;> simp [hlt, heq]
+  · simp [hlt, Geometry.absFloat]
+    rfl
+  · by_cases heq : (x == 0.0) = true <;>
+      simp [hlt, heq, Geometry.absFloat] <;>
+      rfl
 
 theorem absInt_equiv (x : Int32) :
     runJvm 15 f_Geometry_absInt_prog (initJvmState [(0, .i32 x.toUInt32)]) =
       some (.i32 (Geometry.absInt x)) := by
-  rfl
+  apply Jvm.runJvm_of_runJvmValFast0 geomHooks geomHooks_iteZero? geomHooks_iteNonZero? 15 _ _ _ rfl
+  dsimp only [f_Geometry_absInt_prog, initJvmState, Jvm.initJvmState, List.foldl, Jvm.setLocal]
+  rw [Jvm.runJvmValFast_step_of_stepInstr geomHooks rfl (by simp) rfl rfl]
+  simp only [Jvm.setLocal, ↓reduceIte]
+  rw [Jvm.runJvmValFast_at_branch_cons (hooks := geomHooks) (hbr := rfl), Jvm.evalBranchInstrCons_iflt]
+  by_cases hlt : x < 0
+  · have hcond : x.toUInt32.toBitVec.slt 0#32 = true := hlt
+    have hneg : 0 - x.toUInt32 = (-x).toUInt32 := by simp [UInt32.zero_sub]
+    simp only [hcond, ↓reduceIte, Geometry.absInt, hlt]
+    dsimp only [List.drop]
+    rw [Jvm.runJvmValFast_step_of_stepInstr geomHooks rfl (by simp) rfl rfl]
+    simp only [Jvm.setLocal, ↓reduceIte]
+    rw [Jvm.runJvmValFast_step_of_stepInstr geomHooks rfl (by simp) rfl rfl]
+    rw [Jvm.runJvmValFast_step_of_stepInstr geomHooks rfl (by simp) rfl rfl]
+    rw [show -x.toUInt32 = (-x).toUInt32 from by rw [← UInt32.zero_sub]; exact hneg]
+    rfl
+  · have hcond : x.toUInt32.toBitVec.slt 0#32 = false := by
+      cases h : x.toUInt32.toBitVec.slt 0#32 with
+      | true => exact absurd h hlt
+      | false => rfl
+    simp only [hcond, Bool.false_eq_true, ↓reduceIte, Geometry.absInt, hlt]
+    rfl
 
 section Helpers
 
 private theorem get?_some_lt {Ext : Type} {h : Jvm.JvmHeap Ext} {addr : Nat} {obj : Jvm.HeapObj Ext}
-    (hget : h.get? addr = some obj) : addr < h.objects.size := by
-  simp only [Jvm.JvmHeap.get?] at hget
-  exact Classical.byContradiction fun hge => by
-    have hnone : h.objects[addr]? = none := Array.getElem?_eq_none (Nat.le_of_not_lt hge)
-    rw [hnone] at hget
-    contradiction
+    (hget : h.get? addr = some obj) : addr < h.objects.size :=
+  Jvm.jvmHeap_get?_some_lt hget
 
 private theorem get?_alloc_self {Ext : Type} (h : Jvm.JvmHeap Ext) (obj : Jvm.HeapObj Ext) :
     (h.alloc obj).2.get? (h.alloc obj).1 = some obj := by
-  simp [Jvm.JvmHeap.alloc, Jvm.JvmHeap.get?]
+  simpa [Jvm.JvmHeap.alloc] using Jvm.jvmHeap_get?_alloc_self h obj
 
 private theorem get?_alloc_old {Ext : Type} (h : Jvm.JvmHeap Ext) (newObj : Jvm.HeapObj Ext)
     {addr : Nat} {oldObj : Jvm.HeapObj Ext} (hget : h.get? addr = some oldObj) :
     (h.alloc newObj).2.get? addr = some oldObj := by
-  have hlt := get?_some_lt hget
-  have hne : addr ≠ h.objects.size := Nat.ne_of_lt hlt
-  simp only [Jvm.JvmHeap.alloc, Jvm.JvmHeap.get?, Array.getElem?_push, hne, ↓reduceIte]
-  exact hget
+  rw [Jvm.jvmHeap_get?_alloc_old h newObj (Jvm.jvmHeap_get?_some_lt hget), hget]
 
 private theorem alloc_fst_lt {Ext : Type} (h : Jvm.JvmHeap Ext) (obj : Jvm.HeapObj Ext) :
-    (h.alloc obj).1 < (h.alloc obj).2.objects.size := by
-  simp [Jvm.JvmHeap.alloc]
+    (h.alloc obj).1 < (h.alloc obj).2.objects.size :=
+  Jvm.jvmHeap_alloc_fst_lt h obj
 
 private theorem get?_set_self {Ext : Type} (h : Jvm.JvmHeap Ext) (addr : Nat) (obj : Jvm.HeapObj Ext)
     (hlt : addr < h.objects.size) :
     (h.set addr obj).get? addr = some obj := by
   simp [Jvm.JvmHeap.set, hlt, Jvm.JvmHeap.get?]
 
-private theorem int32_toUInt32_toBitVec (x : Int32) : x.toUInt32.toBitVec = x.toBitVec := by
-  cases x; rfl
+private theorem int32_toUInt32_toBitVec (x : Int32) : x.toUInt32.toBitVec = x.toBitVec :=
+  Jvm.int32_toUInt32_toBitVec x
 
 private theorem int32_slt_zero (x : Int32) :
-    (0#32).slt x.toUInt32.toBitVec = decide ((0 : Int32) < x) := by
-  rw [int32_toUInt32_toBitVec]
-  by_cases h : (0 : Int32) < x
-  · have : (0#32).slt x.toBitVec = true := by simpa [Int32.lt_iff_toBitVec_slt] using h
-    simp [h, this]
-  · have : (0#32).slt x.toBitVec = false := by
-      rw [Bool.eq_false_iff]; intro hslt
-      exact h (by simpa [Int32.lt_iff_toBitVec_slt] using hslt)
-    simp [h, this]
+    (0#32).slt x.toUInt32.toBitVec = decide ((0 : Int32) < x) :=
+  Jvm.int32_slt_zero x
 
 private theorem int32_toUInt32_add (x y : Int32) :
-    x.toUInt32 + y.toUInt32 = (x + y).toUInt32 := by
-  rcases x with ⟨⟨a⟩⟩; rcases y with ⟨⟨b⟩⟩; rfl
+    x.toUInt32 + y.toUInt32 = (x + y).toUInt32 :=
+  Jvm.int32_toUInt32_add x y
 
 private theorem int32_toUInt32_sub (x y : Int32) :
-    x.toUInt32 - y.toUInt32 = (x - y).toUInt32 := by
-  rcases x with ⟨⟨a⟩⟩; rcases y with ⟨⟨b⟩⟩; rfl
+    x.toUInt32 - y.toUInt32 = (x - y).toUInt32 :=
+  Jvm.int32_toUInt32_sub x y
 
 private theorem int32_beq_toUInt32 (x y : Int32) :
-    (x.toUInt32 == y.toUInt32) = (x == y) := by
-  by_cases h : x = y
-  · subst h; simp
-  · have hne : x.toUInt32 ≠ y.toUInt32 := by
-      intro heq; apply h; cases x; cases y; cases heq; rfl
-    rw [beq_false_of_ne hne, beq_false_of_ne h]
+    (x.toUInt32 == y.toUInt32) = (x == y) :=
+  Jvm.int32_beq_toUInt32 x y
 
 private theorem ui32_slt_zero_of_lt (n : Nat) (hlt : n < 2 ^ 31) :
-    (UInt32.ofNat n).toBitVec.slt 0#32 = false := by
-  rw [BitVec.slt_eq_ult, BitVec.msb_zero]
-  have hm : (UInt32.ofNat n).toBitVec.msb = false := by
-    rw [BitVec.msb_eq_toNat]
-    have ht : (UInt32.ofNat n).toBitVec.toNat = n := by
-      change (UInt32.ofNat n).toNat = n
-      exact Nat.mod_eq_of_lt (by omega)
-    rw [ht]
-    exact decide_eq_false (by omega)
-  simp [hm, BitVec.ult]
+    (UInt32.ofNat n).toBitVec.slt 0#32 = false :=
+  Jvm.ui32_slt_zero_of_lt n hlt
 
 private theorem ui32_ofNat_toNat_of_lt (n : Nat) (hlt : n < 2 ^ 31) :
     (UInt32.ofNat n).toNat = n :=
-  Nat.mod_eq_of_lt (by omega)
+  Jvm.ui32_ofNat_toNat_of_lt n hlt
 
 private theorem dcmpg_slt_zero (a b : Float) :
     (if (a < b) = true then (4294967295 : UInt32) else if (a == b) = true then 0 else 1).toBitVec.slt 0#32 =
-      decide (a < b) := by
-  by_cases hlt : a < b <;> by_cases heq : (a == b) = true <;> simp [hlt, heq]
+      decide (a < b) :=
+  Jvm.dcmpg_slt_zero a b
 
 private theorem dcmpg_sle_zero (a b : Float) :
     (if (a < b) = true then (4294967295 : UInt32) else if (a == b) = true then 0 else 1).toBitVec.sle 0#32 =
-      decide (a ≤ b) := by
-  rw [Jvm.float_le_eq_lt_or_beq]
-  by_cases hlt : a < b <;> by_cases heq : (a == b) = true <;> simp [hlt, heq]
+      decide (a ≤ b) :=
+  Jvm.dcmpg_sle_zero a b
 
 private theorem encodeCoordPairs_push (xs : Array (Int32 × Int32)) (x y : Int32) :
     let copied : Array JvmVal := Array.ofFn (n := xs.size + 1)
@@ -240,70 +261,19 @@ end Helpers
 
 section ChunkExec
 
-private def isGeoStop (instr : JvmInstr) : Bool :=
-  Jvm.isBranchInstr instr ||
-    match instr with
-    | .invokestatic _ _ _ | .invokespecial _ _ _ | .newClass _ | .anewarray _
-    | .arraylength | .aastore | .checkcast _ | .i2l | .dcmpg | .dcmpl => true
-    | _ => false
+private def isGeoStopLeaf (instr : JvmInstr) : Bool :=
+  match instr with
+  | .invokestatic _ _ _ | .invokespecial _ _ _ | .newClass _ | .anewarray _
+  | .arraylength | .aastore | .checkcast _ | .i2l | .dcmpg | .dcmpl => true
+  | _ => false
 
-private def stepGeoChunk :
-    Nat → Nat → Nat → List JvmInstr → JvmState → Jvm.BlockResChunkRes Empty Unit
-  | _, 0, _, _, _ => .done none
-  | 0, f1 + 1, pc, instrs, st => .cont (f1 + 1) pc instrs st
-  | m + 1, f1 + 1, pc, instrs, st =>
-    match instrs with
-    | [] => .done none
-    | instr :: rest =>
-      if isGeoStop instr then .cont (f1 + 1) pc (instr :: rest) st
-      else match Jvm.stepInstr geomHooks instr { st with pc := pc } with
-        | .inl (some st') =>
-          if st'.pc = pc + 1 then stepGeoChunk m f1 (pc + 1) rest st'
-          else .jump f1 st'
-        | .inl none => .done none
-        | .inr (some v) => .done (some (v, { st with pc := pc }))
-        | .inr none => .done none
+private abbrev stepGeoChunk := Jvm.stepResBlockChunkWith geomHooks isGeoStopLeaf
 
 private theorem runJvmResFast_stepGeoChunk (m f1 pc : Nat) (prog instrs : List JvmInstr)
-    (st : JvmState) (hdrop : prog.drop pc = instrs) :
+    (st : JvmState) (_hdrop : prog.drop pc = instrs) :
     Jvm.runJvmResFast geomHooks (f1 + 1) prog pc instrs st =
-      Jvm.afterResBlockChunk geomHooks (stepGeoChunk m (f1 + 1) pc instrs st) prog := by
-  induction m generalizing f1 pc instrs st with
-  | zero => simp [stepGeoChunk, Jvm.afterResBlockChunk]
-  | succ m ih =>
-    cases instrs with
-    | nil => simp [stepGeoChunk, Jvm.afterResBlockChunk, Jvm.runJvmResFast]
-    | cons instr rest =>
-      dsimp only [stepGeoChunk]
-      by_cases hstop : isGeoStop instr = true
-      · simp [hstop, Jvm.afterResBlockChunk]
-      · have hnotbr : Jvm.isBranchInstr instr = false := by
-          cases hbr : Jvm.isBranchInstr instr with
-          | false => rfl
-          | true =>
-            have : isGeoStop instr = true := by simp [isGeoStop, hbr]
-            simp [this] at hstop
-        have hno' : ¬(instr = .i2l ∧ ∃ r', rest = .lconst 4294967295 :: .land :: r') := by
-          rintro ⟨rfl, _⟩
-          have : isGeoStop .i2l = true := rfl
-          simp [this] at hstop
-        rw [Jvm.runJvmResFast_step_nonbranch geomHooks f1 prog pc instr rest st hnotbr hno']
-        simp only [hstop, Bool.false_eq_true, ↓reduceIte]
-        cases hstep : Jvm.stepInstr geomHooks instr { st with pc := pc } with
-        | inr res => cases res <;> simp [Jvm.afterResBlockChunk]
-        | inl ost =>
-          cases ost with
-          | none => simp [Jvm.afterResBlockChunk]
-          | some st' =>
-            by_cases hpc : st'.pc = pc + 1
-            · simp only [hpc, ↓reduceIte]
-              have hdrop' : prog.drop (pc + 1) = rest := by
-                have := congrArg List.tail hdrop
-                simpa [List.tail_drop] using this
-              cases f1 with
-              | zero => simp [stepGeoChunk, Jvm.afterResBlockChunk, Jvm.runJvmResFast]
-              | succ f2 => exact ih f2 (pc + 1) rest st' hdrop'
-            · simp only [hpc, ↓reduceIte, Jvm.afterResBlockChunk]
+      Jvm.afterResBlockChunk geomHooks (stepGeoChunk m (f1 + 1) pc instrs st) prog :=
+  Jvm.runJvmResFast_stepBlockChunkWith geomHooks isGeoStopLeaf m (f1 + 1) prog pc instrs st
 
 private theorem runJvmResFast_stepGeo_step {f pc pc' : Nat} {prog : List JvmInstr}
     {instr : JvmInstr} {rest : List JvmInstr} {stk stk' : List JvmVal}
@@ -317,14 +287,8 @@ private theorem runJvmResFast_stepGeo_step {f pc pc' : Nat} {prog : List JvmInst
     Jvm.runJvmResFast geomHooks (f + 1) prog pc (instr :: rest)
         { pc := pc, stack := stk, locals := locs, jvmHeap := jh, heap := hp } =
       Jvm.runJvmResFast geomHooks f prog (pc + 1) rest
-        { pc := pc', stack := stk', locals := locs', jvmHeap := jh', heap := hp' } := by
-  have h1 := Jvm.runJvmResFast_step_nonbranch geomHooks f prog pc instr rest
-    { pc := pc, stack := stk, locals := locs, jvmHeap := jh, heap := hp } hnbr hnoi2l
-  change _ = _ at h1
-  rw [h1]
-  dsimp only
-  rw [hstep]
-  simp [hpc]
+        { pc := pc', stack := stk', locals := locs', jvmHeap := jh', heap := hp' } :=
+  Jvm.runJvmResFast_step_of_stepInstr geomHooks hnbr hnoi2l hstep hpc
 
 private theorem step_absFloat_closed0 {pc : Nat} {stk : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit} :
@@ -332,22 +296,23 @@ private theorem step_absFloat_closed0 {pc : Nat} {stk : List JvmVal}
         { pc := pc, stack := stk, locals := locs, jvmHeap := jh, heap := hp } =
       .inl (some { pc := pc + 1, stack := .f64 0.0 :: stk, locals := locs, jvmHeap := jh, heap := hp }) := rfl
 
-private theorem step_absFloat {pc : Nat} {x : JvmVal} {rest : List JvmVal}
+private theorem step_absFloat {pc : Nat} {x : Float} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit} :
     Jvm.stepInstr geomHooks (.invokestatic "LineSegmentLeanKt" "f_Geometry_absFloat" "(D)D")
-        { pc := pc, stack := x :: rest, locals := locs, jvmHeap := jh, heap := hp } =
-      .inl (some { pc := pc + 1, stack := .f64 (Geometry.absFloat (JvmVal.asF64 x)) :: rest,
+        { pc := pc, stack := .f64 x :: rest, locals := locs, jvmHeap := jh, heap := hp } =
+      .inl (some { pc := pc + 1, stack := .f64 (Geometry.absFloat x) :: rest,
                    locals := locs, jvmHeap := jh, heap := hp }) := rfl
 
-private theorem step_absInt {pc : Nat} {x : JvmVal} {rest : List JvmVal}
+private theorem step_absInt {pc : Nat} {x : UInt32} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit} :
     Jvm.stepInstr geomHooks (.invokestatic "LineSegmentLeanKt" "f_Geometry_absInt" "(I)I")
-        { pc := pc, stack := x :: rest, locals := locs, jvmHeap := jh, heap := hp } =
-      .inl (some { pc := pc + 1, stack := .i32 (Geometry.absInt (JvmVal.asI32 x).toInt32) :: rest,
+        { pc := pc, stack := .i32 x :: rest, locals := locs, jvmHeap := jh, heap := hp } =
+      .inl (some { pc := pc + 1, stack := .i32 (Geometry.absInt x.toInt32) :: rest,
                    locals := locs, jvmHeap := jh, heap := hp }) := rfl
 
 private theorem step_rayMarchLoop_call {pc accAddr : Nat}
-    {curY curX endY endX stepY stepX absDy absDx startY startX fuel : JvmVal} {rest : List JvmVal}
+    {curY curX endY endX stepY stepX : UInt32}
+    {absDy absDx startY startX : Float} {fuel : UInt32} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit}
     {cls : String} {elems : Array JvmVal} {acc : Array (Int32 × Int32)}
     (hheap : jh.get? accAddr = some (.objArray cls elems))
@@ -356,21 +321,20 @@ private theorem step_rayMarchLoop_call {pc accAddr : Nat}
         (.invokestatic "LineSegmentLeanKt" "f_Geometry_rayMarchLoop___redArg-v0ARYG8"
           "(IDDDDIIIIIILjava/lang/Object;)Ljava/lang/Object;")
         { pc := pc,
-          stack := .heapRef accAddr :: curY :: curX :: endY :: endX :: stepY :: stepX ::
-            absDy :: absDx :: startY :: startX :: fuel :: rest,
+          stack := .heapRef accAddr :: .i32 curY :: .i32 curX :: .i32 endY :: .i32 endX ::
+            .i32 stepY :: .i32 stepX :: .f64 absDy :: .f64 absDx :: .f64 startY :: .f64 startX ::
+            .i32 fuel :: rest,
           locals := locs, jvmHeap := jh, heap := hp } =
       let out := Geometry.rayMarchLoop
-        (JvmVal.asI32 fuel) (JvmVal.asF64 startX) (JvmVal.asF64 startY) 0.0 0.0
-        (JvmVal.asF64 absDx) (JvmVal.asF64 absDy)
-        (JvmVal.asI32 stepX).toInt32 (JvmVal.asI32 stepY).toInt32
-        (JvmVal.asI32 endX).toInt32 (JvmVal.asI32 endY).toInt32
-        (JvmVal.asI32 curX).toInt32 (JvmVal.asI32 curY).toInt32 acc
+        fuel startX startY 0.0 0.0
+        absDx absDy
+        stepX.toInt32 stepY.toInt32
+        endX.toInt32 endY.toInt32
+        curX.toInt32 curY.toInt32 acc
       let res := jh.alloc (.objArray cls (encodeCoordPairs out))
       .inl (some { pc := pc + 1, stack := .heapRef res.1 :: rest, locals := locs, jvmHeap := res.2, heap := hp }) := by
-  change (match jh.get? accAddr with
-    | some (.objArray cls elems) => _
-    | _ => _) = _
-  rw [hheap]; dsimp only; rw [hdec]
+  unfold Jvm.stepInstr
+  simp [Jvm.stepInvokeStaticGeneric, geomHooks, stepIntOffsetStatic, Jvm.JvmVal.asI32?, Jvm.JvmVal.asF64?, hheap, hdec]
 
 private def geoDcmpg (a b : Float) : UInt32 :=
   if a < b then 4294967295 else if a == b then 0 else 1
@@ -380,20 +344,15 @@ private theorem step_dcmpg {pc : Nat} {a b : Float} {rest : List JvmVal}
     Jvm.stepInstr geomHooks .dcmpg
         { pc := pc, stack := .f64 b :: .f64 a :: rest, locals := locs, jvmHeap := jh, heap := hp } =
       .inl (some { pc := pc + 1, stack := .i32 (geoDcmpg a b) :: rest,
-                   locals := locs, jvmHeap := jh, heap := hp }) := by
-  dsimp [Jvm.stepInstr, geoDcmpg, Jvm.JvmVal.asF64]
-  by_cases heq : a == b
-  · by_cases hlt : a < b <;> simp [heq, hlt]
-    -- a == b and a < b is possible? wait for Float, check both branches!
-  · by_cases hlt : a < b <;> simp [heq, hlt]
+                   locals := locs, jvmHeap := jh, heap := hp }) :=
+  Jvm.stepInstr_dcmpg geomHooks
 
 private theorem step_newClass_pair {pc : Nat} {stk : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit} :
     Jvm.stepInstr geomHooks (.newClass "kotlin/Pair")
         { pc := pc, stack := stk, locals := locs, jvmHeap := jh, heap := hp } =
       .inl (some { pc := pc + 1, stack := .allocRef "kotlin/Pair" :: stk,
-                   locals := locs, jvmHeap := jh, heap := hp }) := by
-  dsimp [Jvm.stepInstr, geomHooks]
+                   locals := locs, jvmHeap := jh, heap := hp }) := rfl
 
 private theorem step_pair_init {pc : Nat} {a b : JvmVal} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit} :
@@ -402,35 +361,38 @@ private theorem step_pair_init {pc : Nat} {a b : JvmVal} {rest : List JvmVal}
         { pc := pc, stack := b :: a :: .allocRef "kotlin/Pair" :: .allocRef "kotlin/Pair" :: rest,
           locals := locs, jvmHeap := jh, heap := hp } =
       .inl (some { pc := pc + 1, stack := .pair a b :: rest,
-                   locals := locs, jvmHeap := jh, heap := hp }) := by
-  simp [Jvm.stepInstr, Jvm.stepInvokeSpecialGeneric]
+                   locals := locs, jvmHeap := jh, heap := hp }) := rfl
 
-private theorem step_integer_valueOf {pc : Nat} {v : JvmVal} {rest : List JvmVal}
+private theorem step_integer_valueOf {pc : Nat} {v : UInt32} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit} :
     Jvm.stepInstr geomHooks (.invokestatic "java/lang/Integer" "valueOf" "(I)Ljava/lang/Integer;")
-        { pc := pc, stack := v :: rest, locals := locs, jvmHeap := jh, heap := hp } =
-      .inl (some { pc := pc + 1, stack := .boxedInt (JvmVal.asI32 v) :: rest,
-                   locals := locs, jvmHeap := jh, heap := hp }) := rfl
+        { pc := pc, stack := .i32 v :: rest, locals := locs, jvmHeap := jh, heap := hp } =
+      .inl (some { pc := pc + 1, stack := .boxedInt v :: rest,
+                   locals := locs, jvmHeap := jh, heap := hp }) :=
+  Jvm.stepInvokeStatic_integer_valueOf geomHooks
 
 private theorem step_uint_ctor {pc : Nat} {v : JvmVal} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit} :
     Jvm.stepInstr geomHooks (.invokestatic "kotlin/UInt" "constructor-impl" "(I)I")
         { pc := pc, stack := v :: rest, locals := locs, jvmHeap := jh, heap := hp } =
-      .inl (some { pc := pc + 1, stack := v :: rest, locals := locs, jvmHeap := jh, heap := hp }) := rfl
+      .inl (some { pc := pc + 1, stack := v :: rest, locals := locs, jvmHeap := jh, heap := hp }) :=
+  Jvm.stepInvokeStatic_uint_ctor geomHooks
 
 private theorem step_intrinsics_checkNotNull {pc addr : Nat} {msg : JvmVal} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit} :
     Jvm.stepInstr geomHooks (.invokestatic "kotlin/jvm/internal/Intrinsics" "checkNotNull"
         "(Ljava/lang/Object;Ljava/lang/String;)V")
         { pc := pc, stack := msg :: .heapRef addr :: rest, locals := locs, jvmHeap := jh, heap := hp } =
-      .inl (some { pc := pc + 1, stack := rest, locals := locs, jvmHeap := jh, heap := hp }) := rfl
+      .inl (some { pc := pc + 1, stack := rest, locals := locs, jvmHeap := jh, heap := hp }) :=
+  Jvm.stepInvokeStatic_intrinsics_checkNotNull geomHooks (obj := .heapRef addr) rfl
 
 private theorem step_intrinsics_checkNotNullExpr {pc addr : Nat} {msg : JvmVal} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit} :
     Jvm.stepInstr geomHooks (.invokestatic "kotlin/jvm/internal/Intrinsics" "checkNotNullExpressionValue"
         "(Ljava/lang/Object;Ljava/lang/String;)V")
         { pc := pc, stack := msg :: .heapRef addr :: rest, locals := locs, jvmHeap := jh, heap := hp } =
-      .inl (some { pc := pc + 1, stack := rest, locals := locs, jvmHeap := jh, heap := hp }) := rfl
+      .inl (some { pc := pc + 1, stack := rest, locals := locs, jvmHeap := jh, heap := hp }) :=
+  Jvm.stepInvokeStatic_intrinsics_checkNotNullExpr geomHooks (obj := .heapRef addr) rfl
 
 private theorem step_arrays_copyOf {pc addr : Nat} {newLen : UInt32} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit}
@@ -443,11 +405,8 @@ private theorem step_arrays_copyOf {pc addr : Nat} {newLen : UInt32} {rest : Lis
       let n := newLen.toNat
       let copied := Array.ofFn (n := n) (fun i => if h : i.val < elems.size then elems[i.val] else .null)
       let res := jh.alloc (.objArray elemCls copied)
-      .inl (some { pc := pc + 1, stack := .heapRef res.1 :: rest, locals := locs, jvmHeap := res.2, heap := hp }) := by
-  change (if (JvmVal.asI32 (.i32 newLen)).toBitVec.slt 0#32 = true then _ else _) = _
-  have hnn : (JvmVal.asI32 (Ext := Empty) (.i32 newLen)).toBitVec.slt 0#32 = false := hnonneg
-  rw [ite_eq_right_iff.mpr (fun ht => by simp [hnn] at ht), hheap]
-  rfl
+      .inl (some { pc := pc + 1, stack := .heapRef res.1 :: rest, locals := locs, jvmHeap := res.2, heap := hp }) :=
+  Jvm.stepInvokeStatic_arrays_copyOf_obj geomHooks hnonneg hheap
 
 private theorem step_anewarray {pc : Nat} {cls : String} {len : UInt32} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit}
@@ -456,10 +415,7 @@ private theorem step_anewarray {pc : Nat} {cls : String} {len : UInt32} {rest : 
         { pc := pc, stack := .i32 len :: rest, locals := locs, jvmHeap := jh, heap := hp } =
       let res := jh.alloc (.objArray cls (Array.replicate len.toNat .null))
       .inl (some { pc := pc + 1, stack := .heapRef res.1 :: rest, locals := locs, jvmHeap := res.2, heap := hp }) := by
-  change (if (JvmVal.asI32 (.i32 len)).toBitVec.slt 0#32 = true then _ else _) = _
-  have hnn : (JvmVal.asI32 (Ext := Empty) (.i32 len)).toBitVec.slt 0#32 = false := hnonneg
-  rw [ite_eq_right_iff.mpr (fun ht => by simp [hnn] at ht)]
-  rfl
+  simpa [Jvm.JvmHeap.alloc] using Jvm.stepInstr_anewarray geomHooks cls hnonneg
 
 private theorem step_arraylength {pc addr : Nat} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit}
@@ -468,12 +424,8 @@ private theorem step_arraylength {pc addr : Nat} {rest : List JvmVal}
     Jvm.stepInstr geomHooks .arraylength
         { pc := pc, stack := .heapRef addr :: rest, locals := locs, jvmHeap := jh, heap := hp } =
       .inl (some { pc := pc + 1, stack := .i32 (UInt32.ofNat elems.size) :: rest,
-                   locals := locs, jvmHeap := jh, heap := hp }) := by
-  change (match jh.get? addr >>= Jvm.HeapObj.arrayLength? with
-    | some len => _
-    | none => _) = _
-  rw [hheap]
-  rfl
+                   locals := locs, jvmHeap := jh, heap := hp }) :=
+  Jvm.stepInstr_arraylength_obj geomHooks hheap
 
 private theorem step_checkcast_objArray {pc addr : Nat} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit}
@@ -482,15 +434,17 @@ private theorem step_checkcast_objArray {pc addr : Nat} {rest : List JvmVal}
     Jvm.stepInstr geomHooks (.checkcast "[Ljava/lang/Object;")
         { pc := pc, stack := .heapRef addr :: rest, locals := locs, jvmHeap := jh, heap := hp } =
       .inl (some { pc := pc + 1, stack := .heapRef addr :: rest,
-                   locals := locs, jvmHeap := jh, heap := hp }) := by
-  simp [Jvm.stepInstr, Jvm.JvmHeap.checkCast, Jvm.JvmHeap.checkInstanceOf, hheap, Jvm.HeapObj.matchesType]
+                   locals := locs, jvmHeap := jh, heap := hp }) :=
+  Jvm.stepInstr_checkcast_objArray geomHooks hheap (by simp [Jvm.HeapObj.matchesType])
 
 private theorem step_aastore {pc addr : Nat} {val : JvmVal} {idx : UInt32} {rest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit}
     {cls : String} {elems : Array JvmVal}
     (hnonneg : idx.toBitVec.slt 0#32 = false)
     (hheap : jh.get? addr = some (.objArray cls elems))
-    (hlt : idx.toNat < elems.size) :
+    (hlt : idx.toNat < elems.size)
+    (hcompat : Jvm.isArrayElemCompat geomHooks jh cls val = true := by
+      simp [Jvm.isArrayElemCompat, Jvm.JvmVal.isRef]) :
     Jvm.stepInstr geomHooks .aastore
         { pc := pc, stack := val :: .i32 idx :: .heapRef addr :: rest, locals := locs, jvmHeap := jh, heap := hp } =
       .inl (some {
@@ -499,11 +453,8 @@ private theorem step_aastore {pc addr : Nat} {val : JvmVal} {idx : UInt32} {rest
         locals := locs
         jvmHeap := jh.set addr (.objArray cls (elems.set idx.toNat val hlt))
         heap := hp
-      }) := by
-  change (if (JvmVal.asI32 (.i32 idx)).toBitVec.slt 0#32 = true then _ else _) = _
-  have hnn : (JvmVal.asI32 (Ext := Empty) (.i32 idx)).toBitVec.slt 0#32 = false := hnonneg
-  rw [ite_eq_right_iff.mpr (fun ht => by simp [hnn] at ht), hheap]
-  simp only [JvmVal.asI32, hlt, ↓reduceDIte]
+      }) :=
+  Jvm.stepInstr_aastore geomHooks hcompat hheap hnonneg hlt
 
 private def geoBlkOpaque : NameSet :=
   List.foldl NameSet.insert {} [
@@ -516,40 +467,18 @@ private def geoBlkOpaque : NameSet :=
     `UInt32.add, `UInt32.sub,
     `Geometry.absFloat, `Geometry.absInt, `Geometry.rayMarchLoop,
     `BitVec.slt, `BitVec.sle,
-    `Jvm.setLocal, `Jvm.JvmVal.asI32, `Jvm.JvmVal.asF64,
+    `Jvm.setLocal,
     `Jvm.runJvmResFast,
     `Jvm.JvmHeap.alloc, `Jvm.JvmHeap.get?, `Jvm.JvmHeap.set,
     `encodeCoordPairs, `decodeCoordArray, `Array.ofFn, `Array.set, ``geoDcmpg
   ]
 
-private def geoWithOpaque {α : Type} (opaques : NameSet) (k : MetaM α) : MetaM α := do
-  let orig ← getTransparency
-  withConfig (fun cfg => { cfg with transparency := orig }) do
-    Lean.Meta.withCanUnfoldPred (fun cfg c => do
-      if opaques.contains c.name then return false
-      else Lean.Meta.canUnfoldDefault cfg c) k
+private abbrev geoWithOpaque := @Jvm.Tactics.withOpaque
 
-private def geoNatLit? (e : Expr) : Option Nat :=
-  e.rawNatLit? <|> e.nat?
+private abbrev geoNatLit? := Jvm.Tactics.natLit?
 
-private partial def geoNormNat (e : Expr) : MetaM Expr := do
-  if let some n := geoNatLit? e then
-    return Lean.mkNatLit n
-  let e ← geoWithOpaque geoBlkOpaque (whnf e)
-  if let some n := geoNatLit? e then
-    return Lean.mkNatLit n
-  if e.isAppOfArity ``Nat.succ 1 then
-    let a ← geoNormNat (e.getArg! 0)
-    if let some n := geoNatLit? a then
-      return Lean.mkNatLit (n + 1)
-    return mkApp (mkConst ``Nat.succ) a
-  else if e.isAppOfArity ``Nat.add 2 then
-    let a ← geoNormNat (e.getArg! 0)
-    let b ← geoNormNat (e.getArg! 1)
-    if let (some na, some nb) := (geoNatLit? a, geoNatLit? b) then
-      return Lean.mkNatLit (na + nb)
-    return mkApp2 (mkConst ``Nat.add) a b
-  else return e
+private partial def geoNormNat (e : Expr) : MetaM Expr :=
+  Jvm.Tactics.normJvmNatWith geoBlkOpaque e
 
 mutual
 private partial def geoNormLocalsSpine (e : Expr) : MetaM Expr := do
@@ -606,22 +535,6 @@ private partial def geoNormExpr (e : Expr) : MetaM Expr := do
     let fn := e.getAppFn
     let args ← e.getAppArgs.mapM geoNormExpr
     return mkAppN fn args
-  else if e.isAppOf ``Jvm.JvmVal.asI32 then
-    let args := e.getAppArgs
-    if args.size == 2 then
-      let v' ← geoNormExpr args[1]!
-      if v'.isAppOfArity ``Jvm.JvmVal.i32 2 then
-        return v'.getArg! 1
-      else return mkApp2 e.getAppFn args[0]! v'
-    else return e
-  else if e.isAppOf ``Jvm.JvmVal.asF64 then
-    let args := e.getAppArgs
-    if args.size == 2 then
-      let v' ← geoNormExpr args[1]!
-      if v'.isAppOfArity ``Jvm.JvmVal.f64 2 then
-        return v'.getArg! 1
-      else return mkApp2 e.getAppFn args[0]! v'
-    else return e
   else if e.isAppOf ``HSub.hSub || e.isAppOf ``HAdd.hAdd || e.isAppOf ``HMul.hMul || e.isAppOf ``HDiv.hDiv then
     let args := e.getAppArgs
     if args.size == 6 then
@@ -756,14 +669,15 @@ private theorem runJvmResFast_eq {f pc : Nat} {prog : List JvmInstr} {i1 i2 : Li
       Jvm.runJvmResFast geomHooks f prog pc i2 s2 := by
   rw [hi, hs]
 
+private instance : Jvm.HasDefaultIsZero geomHooks := ⟨rfl⟩
+
 private theorem branch_goto {f1 pc target : Nat} {prog : List JvmInstr} {rest : List JvmInstr}
     {srest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit} :
     Jvm.runJvmResFast geomHooks (f1 + 1) prog pc (.goto target :: rest)
         { pc := pc, stack := srest, locals := locs, jvmHeap := jh, heap := hp } =
       Jvm.runJvmResFast geomHooks f1 prog target (prog.drop target)
-        { pc := target, stack := srest, locals := locs, jvmHeap := jh, heap := hp } := by
-  rw [Jvm.runJvmResFast_at_branch_cons (hbr := rfl)]
-  simp [Jvm.evalResBranchInstrCons]
+        { pc := target, stack := srest, locals := locs, jvmHeap := jh, heap := hp } :=
+  Jvm.runJvmResFast_goto geomHooks
 
 private theorem branch_goto_eq {f1 pc target : Nat} {prog : List JvmInstr} {rest : List JvmInstr}
     {srest : List JvmVal} {locs1 locs2 : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit}
@@ -786,9 +700,8 @@ private theorem branch_iflt_true {f1 pc target : Nat} {prog : List JvmInstr} {re
     Jvm.runJvmResFast geomHooks (f1 + 1) prog pc (.iflt target :: rest)
         { pc := pc, stack := .i32 x :: srest, locals := locs, jvmHeap := jh, heap := hp } =
       Jvm.runJvmResFast geomHooks f1 prog target (prog.drop target)
-        { pc := target, stack := srest, locals := locs, jvmHeap := jh, heap := hp } := by
-  rw [Jvm.runJvmResFast_at_branch_cons (hbr := rfl)]
-  simp [Jvm.evalResBranchInstrCons, Jvm.JvmVal.asI32, h]
+        { pc := target, stack := srest, locals := locs, jvmHeap := jh, heap := hp } :=
+  Jvm.runJvmResFast_iflt_branch geomHooks h
 
 private theorem branch_iflt_false {f1 pc target : Nat} {prog : List JvmInstr} {rest : List JvmInstr}
     {x : UInt32} {srest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit}
@@ -796,9 +709,8 @@ private theorem branch_iflt_false {f1 pc target : Nat} {prog : List JvmInstr} {r
     Jvm.runJvmResFast geomHooks (f1 + 1) prog pc (.iflt target :: rest)
         { pc := pc, stack := .i32 x :: srest, locals := locs, jvmHeap := jh, heap := hp } =
       Jvm.runJvmResFast geomHooks f1 prog (pc + 1) rest
-        { pc := pc + 1, stack := srest, locals := locs, jvmHeap := jh, heap := hp } := by
-  rw [Jvm.runJvmResFast_at_branch_cons (hbr := rfl)]
-  simp [Jvm.evalResBranchInstrCons, Jvm.JvmVal.asI32, h]
+        { pc := pc + 1, stack := srest, locals := locs, jvmHeap := jh, heap := hp } :=
+  Jvm.runJvmResFast_iflt_fallthrough geomHooks h
 
 private theorem branch_ifle_true {f1 pc target : Nat} {prog : List JvmInstr} {rest : List JvmInstr}
     {x : UInt32} {srest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit}
@@ -806,9 +718,8 @@ private theorem branch_ifle_true {f1 pc target : Nat} {prog : List JvmInstr} {re
     Jvm.runJvmResFast geomHooks (f1 + 1) prog pc (.ifle target :: rest)
         { pc := pc, stack := .i32 x :: srest, locals := locs, jvmHeap := jh, heap := hp } =
       Jvm.runJvmResFast geomHooks f1 prog target (prog.drop target)
-        { pc := target, stack := srest, locals := locs, jvmHeap := jh, heap := hp } := by
-  rw [Jvm.runJvmResFast_at_branch_cons (hbr := rfl)]
-  simp [Jvm.evalResBranchInstrCons, Jvm.JvmVal.asI32, h]
+        { pc := target, stack := srest, locals := locs, jvmHeap := jh, heap := hp } :=
+  Jvm.runJvmResFast_ifle_branch geomHooks h
 
 private theorem branch_ifle_false {f1 pc target : Nat} {prog : List JvmInstr} {rest : List JvmInstr}
     {x : UInt32} {srest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit}
@@ -816,9 +727,8 @@ private theorem branch_ifle_false {f1 pc target : Nat} {prog : List JvmInstr} {r
     Jvm.runJvmResFast geomHooks (f1 + 1) prog pc (.ifle target :: rest)
         { pc := pc, stack := .i32 x :: srest, locals := locs, jvmHeap := jh, heap := hp } =
       Jvm.runJvmResFast geomHooks f1 prog (pc + 1) rest
-        { pc := pc + 1, stack := srest, locals := locs, jvmHeap := jh, heap := hp } := by
-  rw [Jvm.runJvmResFast_at_branch_cons (hbr := rfl)]
-  simp [Jvm.evalResBranchInstrCons, Jvm.JvmVal.asI32, h]
+        { pc := pc + 1, stack := srest, locals := locs, jvmHeap := jh, heap := hp } :=
+  Jvm.runJvmResFast_ifle_fallthrough geomHooks h
 
 private theorem branch_ifeq_true {f1 pc target : Nat} {prog : List JvmInstr} {rest : List JvmInstr}
     {x : UInt32} {srest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit}
@@ -826,9 +736,8 @@ private theorem branch_ifeq_true {f1 pc target : Nat} {prog : List JvmInstr} {re
     Jvm.runJvmResFast geomHooks (f1 + 1) prog pc (.ifeq target :: rest)
         { pc := pc, stack := .i32 x :: srest, locals := locs, jvmHeap := jh, heap := hp } =
       Jvm.runJvmResFast geomHooks f1 prog target (prog.drop target)
-        { pc := target, stack := srest, locals := locs, jvmHeap := jh, heap := hp } := by
-  rw [Jvm.runJvmResFast_at_branch_cons (hbr := rfl)]
-  simp [Jvm.evalResBranchInstrCons, geomHooks, Jvm.JvmVal.asI32, h]
+        { pc := target, stack := srest, locals := locs, jvmHeap := jh, heap := hp } :=
+  Jvm.runJvmResFast_ifeq_branch geomHooks h
 
 private theorem branch_ifeq_false {f1 pc target : Nat} {prog : List JvmInstr} {rest : List JvmInstr}
     {x : UInt32} {srest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit}
@@ -836,9 +745,8 @@ private theorem branch_ifeq_false {f1 pc target : Nat} {prog : List JvmInstr} {r
     Jvm.runJvmResFast geomHooks (f1 + 1) prog pc (.ifeq target :: rest)
         { pc := pc, stack := .i32 x :: srest, locals := locs, jvmHeap := jh, heap := hp } =
       Jvm.runJvmResFast geomHooks f1 prog (pc + 1) rest
-        { pc := pc + 1, stack := srest, locals := locs, jvmHeap := jh, heap := hp } := by
-  rw [Jvm.runJvmResFast_at_branch_cons (hbr := rfl)]
-  simp [Jvm.evalResBranchInstrCons, geomHooks, Jvm.JvmVal.asI32, h]
+        { pc := pc + 1, stack := srest, locals := locs, jvmHeap := jh, heap := hp } :=
+  Jvm.runJvmResFast_ifeq_fallthrough geomHooks (beq_false_of_ne h)
 
 private theorem branch_if_icmpne_true {f1 pc target : Nat} {prog : List JvmInstr} {rest : List JvmInstr}
     {a b : UInt32} {srest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit}
@@ -846,9 +754,8 @@ private theorem branch_if_icmpne_true {f1 pc target : Nat} {prog : List JvmInstr
     Jvm.runJvmResFast geomHooks (f1 + 1) prog pc (.if_icmpne target :: rest)
         { pc := pc, stack := .i32 b :: .i32 a :: srest, locals := locs, jvmHeap := jh, heap := hp } =
       Jvm.runJvmResFast geomHooks f1 prog target (prog.drop target)
-        { pc := target, stack := srest, locals := locs, jvmHeap := jh, heap := hp } := by
-  rw [Jvm.runJvmResFast_at_branch_cons (hbr := rfl)]
-  simp [Jvm.evalResBranchInstrCons, Jvm.JvmVal.asI32, h]
+        { pc := target, stack := srest, locals := locs, jvmHeap := jh, heap := hp } :=
+  Jvm.runJvmResFast_if_icmpne_branch geomHooks h
 
 private theorem branch_if_icmpne_false {f1 pc target : Nat} {prog : List JvmInstr} {rest : List JvmInstr}
     {a b : UInt32} {srest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit}
@@ -856,9 +763,8 @@ private theorem branch_if_icmpne_false {f1 pc target : Nat} {prog : List JvmInst
     Jvm.runJvmResFast geomHooks (f1 + 1) prog pc (.if_icmpne target :: rest)
         { pc := pc, stack := .i32 b :: .i32 a :: srest, locals := locs, jvmHeap := jh, heap := hp } =
       Jvm.runJvmResFast geomHooks f1 prog (pc + 1) rest
-        { pc := pc + 1, stack := srest, locals := locs, jvmHeap := jh, heap := hp } := by
-  rw [Jvm.runJvmResFast_at_branch_cons (hbr := rfl)]
-  simp [Jvm.evalResBranchInstrCons, Jvm.JvmVal.asI32, h]
+        { pc := pc + 1, stack := srest, locals := locs, jvmHeap := jh, heap := hp } :=
+  Jvm.runJvmResFast_if_icmpne_fallthrough geomHooks h
 
 private theorem branch_if_icmplt_true {f1 pc target : Nat} {prog : List JvmInstr} {rest : List JvmInstr}
     {a b : UInt32} {srest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit}
@@ -866,9 +772,8 @@ private theorem branch_if_icmplt_true {f1 pc target : Nat} {prog : List JvmInstr
     Jvm.runJvmResFast geomHooks (f1 + 1) prog pc (.if_icmplt target :: rest)
         { pc := pc, stack := .i32 b :: .i32 a :: srest, locals := locs, jvmHeap := jh, heap := hp } =
       Jvm.runJvmResFast geomHooks f1 prog target (prog.drop target)
-        { pc := target, stack := srest, locals := locs, jvmHeap := jh, heap := hp } := by
-  rw [Jvm.runJvmResFast_at_branch_cons (hbr := rfl)]
-  simp [Jvm.evalResBranchInstrCons, Jvm.JvmVal.asI32, h]
+        { pc := target, stack := srest, locals := locs, jvmHeap := jh, heap := hp } :=
+  Jvm.runJvmResFast_if_icmplt_branch geomHooks h
 
 private theorem branch_if_icmplt_false {f1 pc target : Nat} {prog : List JvmInstr} {rest : List JvmInstr}
     {a b : UInt32} {srest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {hp : Unit}
@@ -876,14 +781,11 @@ private theorem branch_if_icmplt_false {f1 pc target : Nat} {prog : List JvmInst
     Jvm.runJvmResFast geomHooks (f1 + 1) prog pc (.if_icmplt target :: rest)
         { pc := pc, stack := .i32 b :: .i32 a :: srest, locals := locs, jvmHeap := jh, heap := hp } =
       Jvm.runJvmResFast geomHooks f1 prog (pc + 1) rest
-        { pc := pc + 1, stack := srest, locals := locs, jvmHeap := jh, heap := hp } := by
-  rw [Jvm.runJvmResFast_at_branch_cons (hbr := rfl)]
-  simp [Jvm.evalResBranchInstrCons, Jvm.JvmVal.asI32, h]
+        { pc := pc + 1, stack := srest, locals := locs, jvmHeap := jh, heap := hp } :=
+  Jvm.runJvmResFast_if_icmplt_fallthrough geomHooks h
 
 end ChunkExec
 
-private theorem asI32_i32 (x : UInt32) : JvmVal.asI32 (Ext := Empty) (.i32 x) = x := rfl
-private theorem asF64_f64 (x : Float) : JvmVal.asF64 (Ext := Empty) (.f64 x) = x := rfl
 private theorem ui32_sub_eq (a b : UInt32) : a.sub b = a - b := rfl
 private theorem ui32_add_eq (a b : UInt32) : a.add b = a + b := rfl
 
@@ -969,12 +871,17 @@ private theorem seg_from132 (k : Nat) (startX startY endX endY : Float)
     geo_chunk
     rw [h12]
     geo_step step_absFloat
+    geo_chunk_n 3
+    rw [h10, h8]
     geo_chunk
-    rw [h10, h8, asI32_i32, asI32_i32, ui32_sub_eq, int32_toUInt32_sub]
+    rw [ui32_sub_eq, int32_toUInt32_sub]
     geo_step step_absInt
+    geo_chunk_n 3
+    rw [h11, h9]
     geo_chunk
-    rw [h11, h9, asI32_i32, asI32_i32, ui32_sub_eq, int32_toUInt32_sub]
+    rw [ui32_sub_eq, int32_toUInt32_sub]
     geo_step step_absInt
+    geo_chunk_n 3
     geo_chunk
     geo_step step_uint_ctor
     geo_chunk
@@ -1038,7 +945,6 @@ private theorem seg_from132 (k : Nat) (startX startY endX endY : Float)
     exact rfl
   case hget =>
     rw [get?_alloc_self h5]
-    simp only [asI32_i32, asF64_f64]
     rw [rayMarchLoop_dx_dy_irrel (dx := 0.0) (dx' := endX - startX) (dy := 0.0) (dy' := endY - startY)]
     rfl
 
@@ -1208,9 +1114,11 @@ private theorem seg_from54 (k : Nat) (startX startY endX endY : Float)
     refine ⟨outAddr, st', ?_, hget⟩
     rw [← hrun]
     rw [show k + 200 = (k + 18 + 160) + 22 from by omega]
+    geo_chunk_n 2
+    rw [h4, h0]
+    geo_chunk_n 4
+    rw [h6, h2]
     geo_chunk
-    rw [h4, h0, h6, h2]
-    simp only [asF64_f64]
     geo_step step_absFloat_closed0
     geo_chunk
     geo_step step_dcmpg
@@ -1238,9 +1146,11 @@ private theorem seg_from54 (k : Nat) (startX startY endX endY : Float)
       refine ⟨outAddr, st', ?_, hget⟩
       rw [← hrun]
       rw [show k + 200 = (k + 13 + 160) + 27 from by omega]
+      geo_chunk_n 2
+      rw [h4, h0]
+      geo_chunk_n 4
+      rw [h6, h2]
       geo_chunk
-      rw [h4, h0, h6, h2]
-      simp only [asF64_f64]
       geo_step step_absFloat_closed0
       geo_chunk
       geo_step step_dcmpg
@@ -1271,9 +1181,11 @@ private theorem seg_from54 (k : Nat) (startX startY endX endY : Float)
       refine ⟨outAddr, st', ?_, hget⟩
       rw [← hrun]
       rw [show k + 200 = (k + 13 + 160) + 27 from by omega]
+      geo_chunk_n 2
+      rw [h4, h0]
+      geo_chunk_n 4
+      rw [h6, h2]
       geo_chunk
-      rw [h4, h0, h6, h2]
-      simp only [asF64_f64]
       geo_step step_absFloat_closed0
       geo_chunk
       geo_step step_dcmpg
@@ -1513,14 +1425,14 @@ private theorem array_copy_set_eq_push (src : Array JvmVal) (x : JvmVal)
 private theorem loop_from369
     {k accAddr : Nat} {fuel : UInt32} {startX startY absDx absDy : Float}
     {stepX stepY endX endY curX curY nextX nextY : Int32}
-    {locals : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {cls : String}
+    {locals : Nat → JvmVal} {jh : Jvm.JvmHeap Empty}
     {acc : Array (Int32 × Int32)}
     (hl : LoopLocals locals fuel startX startY absDx absDy stepX stepY endX endY curX curY accAddr)
     (h16 : locals 16 = .i32 nextX.toUInt32)
     (h17 : locals 17 = .i32 nextY.toUInt32)
-    (hheap : jh.get? accAddr = some (Jvm.HeapObj.objArray cls (encodeCoordPairs acc)))
+    (hheap : jh.get? accAddr = some (Jvm.HeapObj.objArray "java/lang/Object" (encodeCoordPairs acc)))
     (hsz : acc.size + 1 < 2 ^ 31) :
-    ∃ (locals' : Nat → JvmVal) (jh' : Jvm.JvmHeap Empty) (addr' : Nat) (cls' : String),
+    ∃ (locals' : Nat → JvmVal) (jh' : Jvm.JvmHeap Empty) (addr' : Nat),
       (Jvm.runJvmResFast geomHooks (k + 79) f_Geometry_rayMarchLoop___redArg_prog 369
         (f_Geometry_rayMarchLoop___redArg_prog.drop 369)
         { pc := 369, stack := [], locals := locals, jvmHeap := jh, heap := () } =
@@ -1528,7 +1440,7 @@ private theorem loop_from369
         f_Geometry_rayMarchLoop___redArg_prog
         { pc := 0, stack := [], locals := locals', jvmHeap := jh', heap := () }) ∧
       LoopLocals locals' (fuel - 1) startX startY absDx absDy stepX stepY endX endY nextX nextY addr' ∧
-      jh'.get? addr' = some (Jvm.HeapObj.objArray cls' (encodeCoordPairs (acc.push (nextX, nextY)))) := by
+      jh'.get? addr' = some (Jvm.HeapObj.objArray "java/lang/Object" (encodeCoordPairs (acc.push (nextX, nextY)))) := by
   have hlen : (encodeCoordPairs acc).size + 1 < 2 ^ 31 := by
     rw [encodeCoordPairs_size]; exact hsz
   have hnneg : (((UInt32.ofNat (encodeCoordPairs acc).size).add (UInt32.ofNat 1)).toBitVec.slt 0#32) = false :=
@@ -1539,10 +1451,10 @@ private theorem loop_from369
   let newLen := (UInt32.ofNat (encodeCoordPairs acc).size).add (UInt32.ofNat 1)
   let copied : Array JvmVal := Array.ofFn (n := newLen.toNat)
     (fun i => if h : i.val < (encodeCoordPairs acc).size then (encodeCoordPairs acc)[i.val] else .null)
-  let a' := jh.alloc (.objArray cls copied)
-  have ha_old : a'.2.get? accAddr = some (.objArray cls (encodeCoordPairs acc)) :=
+  let a' := jh.alloc (.objArray "java/lang/Object" copied)
+  have ha_old : a'.2.get? accAddr = some (.objArray "java/lang/Object" (encodeCoordPairs acc)) :=
     get?_alloc_old jh _ hheap
-  have ha'_self : a'.2.get? a'.1 = some (.objArray cls copied) :=
+  have ha'_self : a'.2.get? a'.1 = some (.objArray "java/lang/Object" copied) :=
     get?_alloc_self jh _
   have ha'_lt : a'.1 < a'.2.objects.size := alloc_fst_lt jh _
   have hidx_lt : (UInt32.ofNat (encodeCoordPairs acc).size).toNat < copied.size := by
@@ -1555,19 +1467,20 @@ private theorem loop_from369
       change (encodeCoordPairs acc).size % 2 ^ 32 = _
       omega
     simp [copied, hnew, hold]
-  let jh' := a'.2.set a'.1 (.objArray cls (copied.set (UInt32.ofNat (encodeCoordPairs acc).size).toNat pairVal hidx_lt))
+  let jh' := a'.2.set a'.1 (.objArray "java/lang/Object" (copied.set (UInt32.ofNat (encodeCoordPairs acc).size).toNat pairVal hidx_lt))
   have hpush : copied.set (UInt32.ofNat (encodeCoordPairs acc).size).toNat pairVal hidx_lt =
       encodeCoordPairs (acc.push (nextX, nextY)) := by
     rw [array_copy_set_eq_push (encodeCoordPairs acc) pairVal hlen]
     simp [pairVal, encodeCoordPairs, Array.map_push]
-  have ha'_in_jh' : jh'.get? a'.1 = some (.objArray cls (encodeCoordPairs (acc.push (nextX, nextY)))) := by
+  have ha'_in_jh' : jh'.get? a'.1 = some (.objArray "java/lang/Object" (encodeCoordPairs (acc.push (nextX, nextY)))) := by
     rw [← hpush]
     exact get?_set_self a'.2 a'.1 _ ha'_lt
-  refine ⟨?locals', jh', a'.1, cls, ?heq, ?hl', ha'_in_jh'⟩
+  refine ⟨?locals', jh', a'.1, ?heq, ?hl', ha'_in_jh'⟩
   case heq =>
     -- 369..371
-    geo_chunk
+    geo_chunk_n 2
     rw [hl.h0]
+    geo_chunk
     -- 372: kotlin/UInt.constructor-impl
     geo_step step_uint_ctor
     -- 373..375
@@ -1639,9 +1552,9 @@ private def LoopResultOk (res : Option (JvmVal × JvmState)) (expected : Array (
 private abbrev LoopRecHyp (fuel : UInt32) (startX startY dx dy absDx absDy : Float)
     (stepX stepY endX endY : Int32) (acc : Array (Int32 × Int32)) : Prop :=
   ∀ (k0 : Nat) (nextX nextY : Int32) (locals' : Nat → JvmVal) (jh' : Jvm.JvmHeap Empty)
-    (addr' : Nat) (cls' : String),
+    (addr' : Nat),
     LoopLocals locals' (fuel - 1) startX startY absDx absDy stepX stepY endX endY nextX nextY addr' →
-    jh'.get? addr' = some (Jvm.HeapObj.objArray cls' (encodeCoordPairs (acc.push (nextX, nextY)))) →
+    jh'.get? addr' = some (Jvm.HeapObj.objArray "java/lang/Object" (encodeCoordPairs (acc.push (nextX, nextY)))) →
     LoopResultOk
       (Jvm.runJvmResFast geomHooks (k0 + (fuel - 1).toNat * 250 + 120) f_Geometry_rayMarchLoop___redArg_prog 0
         f_Geometry_rayMarchLoop___redArg_prog
@@ -1652,13 +1565,13 @@ private abbrev LoopRecHyp (fuel : UInt32) (startX startY dx dy absDx absDy : Flo
 private theorem loop_from352
     {k accAddr : Nat} {fuel : UInt32} {startX startY dx dy absDx absDy crossX crossY : Float}
     {stepX stepY endX endY curX curY nextX : Int32}
-    {locals : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {cls : String}
+    {locals : Nat → JvmVal} {jh : Jvm.JvmHeap Empty}
     {acc : Array (Int32 × Int32)}
     (hl : LoopLocals locals fuel startX startY absDx absDy stepX stepY endX endY curX curY accAddr)
     (h18 : locals 18 = .f64 crossY)
     (h20 : locals 20 = .f64 crossX)
     (h22 : locals 22 = .i32 nextX.toUInt32)
-    (hheap : jh.get? accAddr = some (Jvm.HeapObj.objArray cls (encodeCoordPairs acc)))
+    (hheap : jh.get? accAddr = some (Jvm.HeapObj.objArray "java/lang/Object" (encodeCoordPairs acc)))
     (hsz : acc.size + 1 < 2 ^ 31)
     (hrec : LoopRecHyp fuel startX startY dx dy absDx absDy stepX stepY endX endY acc) :
     LoopResultOk
@@ -1697,21 +1610,22 @@ private theorem loop_from352
         -- 355: ifle 361
         geo_branch_step (branch_ifle_true hle_dc)
         -- 361..368: 8 steps falling through to 369
-        geo_chunk_n 8
+        geo_chunk_n 2
         rw [hl.h14, hl.h10]
+        geo_chunk_n 6
         exact runJvmResFast_eq rfl rfl
       · refine ⟨?_, ⟨?_, ?_⟩⟩
         · refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩ <;>
             simp [Jvm.setLocal, hl.h0, hl.h1, hl.h3, hl.h5, hl.h7, hl.h9, hl.h10, hl.h11, hl.h12, hl.h13, hl.h14, hl.h15]
         · simp [Jvm.setLocal, h22]
         · simp only [Jvm.setLocal]
-          rw [asI32_i32, asI32_i32, ui32_add_eq, int32_toUInt32_add]
+          rw [ui32_add_eq, int32_toUInt32_add]
           simp
     rcases hrun with ⟨loc, heq, hl', h16, h17⟩
     rw [heq]
-    rcases loop_from369 hl' h16 h17 hheap hsz with ⟨locals', jh', addr', cls', htail, hl'', hheap'⟩
+    rcases loop_from369 hl' h16 h17 hheap hsz with ⟨locals', jh', addr', htail, hl'', hheap'⟩
     rw [htail]
-    exact hrec k nextX (curY + stepY) locals' jh' addr' cls' hl'' hheap'
+    exact hrec k nextX (curY + stepY) locals' jh' addr' hl'' hheap'
   · simp only [hle, ↓reduceIte]
     have hle_dc : ((geoDcmpg crossY crossX).toBitVec.sle 0#32) = false := by
       rw [geoDcmpg_fle_iff]; exact decide_eq_false hle
@@ -1749,21 +1663,21 @@ private theorem loop_from352
         · simp [Jvm.setLocal, hl.h14]
     rcases hrun with ⟨loc, heq, hl', h16, h17⟩
     rw [heq]
-    rcases loop_from369 hl' h16 h17 hheap hsz with ⟨locals', jh', addr', cls', htail, hl'', hheap'⟩
+    rcases loop_from369 hl' h16 h17 hheap hsz with ⟨locals', jh', addr', htail, hl'', hheap'⟩
     rw [htail]
-    exact hrec (k + 3) nextX curY locals' jh' addr' cls' hl'' hheap'
+    exact hrec (k + 3) nextX curY locals' jh' addr' hl'' hheap'
 
 private theorem loop_from324
     {k accAddr : Nat} {fuel : UInt32} {startX startY dx dy absDx absDy limitCross crossY crossX minCross : Float}
     {stepX stepY endX endY curX curY : Int32}
-    {locals : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {cls : String}
+    {locals : Nat → JvmVal} {jh : Jvm.JvmHeap Empty}
     {acc : Array (Int32 × Int32)}
     (hl : LoopLocals locals fuel startX startY absDx absDy stepX stepY endX endY curX curY accAddr)
     (h23 : locals 23 = .f64 limitCross)
     (h25 : locals 25 = .f64 crossY)
     (h27 : locals 27 = .f64 crossX)
     (h29 : locals 29 = .f64 minCross)
-    (hheap : jh.get? accAddr = some (Jvm.HeapObj.objArray cls (encodeCoordPairs acc)))
+    (hheap : jh.get? accAddr = some (Jvm.HeapObj.objArray "java/lang/Object" (encodeCoordPairs acc)))
     (hsz : acc.size + 1 < 2 ^ 31)
     (hrec : LoopRecHyp fuel startX startY dx dy absDx absDy stepX stepY endX endY acc) :
     LoopResultOk
@@ -1798,7 +1712,7 @@ private theorem loop_from324
       -- 350..351: aload 15, areturn
       geo_chunk
       rw [hl.h15]
-    exact ⟨_, accAddr, cls, hrun, hheap⟩
+    exact ⟨_, accAddr, "java/lang/Object", hrun, hheap⟩
   · simp only [hlim, ↓reduceIte]
     have hlim_dc : ((geoDcmpg limitCross minCross).toBitVec.sle 0#32) = false := by
       rw [geoDcmpg_fle_iff]; exact decide_eq_false hlim
@@ -1831,8 +1745,10 @@ private theorem loop_from324
           rw [h27, h25]
           geo_step step_dcmpg
           geo_branch_step (branch_ifle_true hxy_dc)
+          geo_chunk_n 2
+          rw [hl.h13, hl.h9]
           geo_chunk
-          rw [hl.h13, hl.h9, h25, h27]
+          rw [h25, h27]
           rw [branch_goto_eq rfl]
           try exact runJvmResFast_eq rfl rfl
         · refine ⟨?_, ⟨?_, ?_, ?_⟩⟩
@@ -1841,7 +1757,7 @@ private theorem loop_from324
           · simp [Jvm.setLocal]
           · simp [Jvm.setLocal]
           · simp only [Jvm.setLocal]
-            rw [asI32_i32, asI32_i32, ui32_add_eq, int32_toUInt32_add]
+            rw [ui32_add_eq, int32_toUInt32_add]
             simp
       rcases hrun with ⟨loc, heq, hl', h18', h20', h22'⟩
       rw [heq]
@@ -1891,11 +1807,11 @@ private theorem loop_from324
 private theorem loop_from132
     {k accAddr : Nat} {fuel : UInt32} {startX startY dx dy absDx absDy xb : Float}
     {stepX stepY endX endY curX curY : Int32}
-    {locals : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {cls : String}
+    {locals : Nat → JvmVal} {jh : Jvm.JvmHeap Empty}
     {acc : Array (Int32 × Int32)}
     (hl : LoopLocals locals fuel startX startY absDx absDy stepX stepY endX endY curX curY accAddr)
     (h31 : locals 31 = .f64 xb)
-    (hheap : jh.get? accAddr = some (Jvm.HeapObj.objArray cls (encodeCoordPairs acc)))
+    (hheap : jh.get? accAddr = some (Jvm.HeapObj.objArray "java/lang/Object" (encodeCoordPairs acc)))
     (hsz : acc.size + 1 < 2 ^ 31)
     (hrec : LoopRecHyp fuel startX startY dx dy absDx absDy stepX stepY endX endY acc) :
     LoopResultOk
@@ -1925,8 +1841,9 @@ private theorem loop_from132
       rw [show k + 94 + ((fuel - 1).toNat * 250 + 120) =
         (k + 83 + ((fuel - 1).toNat * 250 + 120)) + 11 by omega]
       -- 132..134
-      geo_chunk
+      geo_chunk_n 2
       rw [h31, hl.h1]
+      geo_chunk
       -- 135: absFloat
       geo_step step_absFloat
       -- 136..138
@@ -1940,7 +1857,7 @@ private theorem loop_from132
       geo_chunk
       rw [hl.h15]
       rfl
-    exact ⟨_, accAddr, cls, hrun, hheap⟩
+    exact ⟨_, accAddr, "java/lang/Object", hrun, hheap⟩
   · simp only [hrem, ↓reduceIte]
     have hrem_dc : ((geoDcmpg absDx (Geometry.absFloat (xb - startX))).toBitVec.sle 0#32) = false := by
       rw [geoDcmpg_fle_iff]; exact decide_eq_false hrem
@@ -1955,10 +1872,10 @@ private theorem loop_from132
     let newLen := (UInt32.ofNat (encodeCoordPairs acc).size).add (UInt32.ofNat 1)
     let copied : Array JvmVal := Array.ofFn (n := newLen.toNat)
       (fun i => if h : i.val < (encodeCoordPairs acc).size then (encodeCoordPairs acc)[i.val] else .null)
-    let a' := jh.alloc (.objArray cls copied)
-    have ha_old : a'.2.get? accAddr = some (.objArray cls (encodeCoordPairs acc)) :=
+    let a' := jh.alloc (.objArray "java/lang/Object" copied)
+    have ha_old : a'.2.get? accAddr = some (.objArray "java/lang/Object" (encodeCoordPairs acc)) :=
       get?_alloc_old jh _ hheap
-    have ha'_self : a'.2.get? a'.1 = some (.objArray cls copied) :=
+    have ha'_self : a'.2.get? a'.1 = some (.objArray "java/lang/Object" copied) :=
       get?_alloc_self jh _
     have ha'_lt : a'.1 < a'.2.objects.size := alloc_fst_lt jh _
     have hidx_lt : (UInt32.ofNat (encodeCoordPairs acc).size).toNat < copied.size := by
@@ -1971,12 +1888,12 @@ private theorem loop_from132
         change (encodeCoordPairs acc).size % 2 ^ 32 = _
         omega
       simp [copied, hnew, hold]
-    let jh' := a'.2.set a'.1 (.objArray cls (copied.set (UInt32.ofNat (encodeCoordPairs acc).size).toNat pairVal hidx_lt))
+    let jh' := a'.2.set a'.1 (.objArray "java/lang/Object" (copied.set (UInt32.ofNat (encodeCoordPairs acc).size).toNat pairVal hidx_lt))
     have hpush : copied.set (UInt32.ofNat (encodeCoordPairs acc).size).toNat pairVal hidx_lt =
         encodeCoordPairs (acc.push (nextX, curY)) := by
       rw [array_copy_set_eq_push (encodeCoordPairs acc) pairVal hlen]
       simp [pairVal, encodeCoordPairs, Array.map_push]
-    have ha'_in_jh' : jh'.get? a'.1 = some (.objArray cls (encodeCoordPairs (acc.push (nextX, curY)))) := by
+    have ha'_in_jh' : jh'.get? a'.1 = some (.objArray "java/lang/Object" (encodeCoordPairs (acc.push (nextX, curY)))) := by
       rw [← hpush]
       exact get?_set_self a'.2 a'.1 _ ha'_lt
     have hstep : ∃ (locals' : Nat → JvmVal),
@@ -1992,15 +1909,20 @@ private theorem loop_from132
       constructor
       apply And.intro
       · rw [show k + 94 + ((fuel - 1).toNat * 250 + 120) = (k + ((fuel - 1).toNat * 250 + 120)) + 94 by omega]
-        geo_chunk
+        geo_chunk_n 2
         rw [h31, hl.h1]
+        geo_chunk
         geo_step step_absFloat
         geo_chunk
         rw [hl.h5, show xb.sub startX = xb - startX from rfl]
         geo_step step_dcmpg
         geo_branch_step (branch_ifle_false hrem_dc)
+        geo_chunk_n 2
+        rw [hl.h13, hl.h9]
+        geo_chunk_n 4
+        rw [hl.h0]
         geo_chunk
-        rw [hl.h13, hl.h9, hl.h0, asI32_i32, asI32_i32, ui32_add_eq, int32_toUInt32_add]
+        rw [ui32_add_eq, int32_toUInt32_add]
         geo_step step_uint_ctor
         geo_chunk
         rw [hl.h15]
@@ -2037,16 +1959,16 @@ private theorem loop_from132
           rfl
     rcases hstep with ⟨loc', heq, hl'⟩
     rw [heq]
-    exact hrec k nextX curY loc' jh' a'.1 cls hl' ha'_in_jh'
+    exact hrec k nextX curY loc' jh' a'.1 hl' ha'_in_jh'
 
 private theorem loop_from228
     {k accAddr : Nat} {fuel : UInt32} {startX startY dx dy absDx absDy yb : Float}
     {stepX stepY endX endY curX curY : Int32}
-    {locals : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {cls : String}
+    {locals : Nat → JvmVal} {jh : Jvm.JvmHeap Empty}
     {acc : Array (Int32 × Int32)}
     (hl : LoopLocals locals fuel startX startY absDx absDy stepX stepY endX endY curX curY accAddr)
     (h34 : locals 34 = .f64 yb)
-    (hheap : jh.get? accAddr = some (Jvm.HeapObj.objArray cls (encodeCoordPairs acc)))
+    (hheap : jh.get? accAddr = some (Jvm.HeapObj.objArray "java/lang/Object" (encodeCoordPairs acc)))
     (hsz : acc.size + 1 < 2 ^ 31)
     (hrec : LoopRecHyp fuel startX startY dx dy absDx absDy stepX stepY endX endY acc) :
     LoopResultOk
@@ -2075,8 +1997,9 @@ private theorem loop_from228
             jvmHeap := jh, heap := () }) := by
       rw [show k + 94 + ((fuel - 1).toNat * 250 + 120) =
         (k + 83 + ((fuel - 1).toNat * 250 + 120)) + 11 by omega]
-      geo_chunk
+      geo_chunk_n 2
       rw [h34, hl.h3]
+      geo_chunk
       geo_step step_absFloat
       geo_chunk
       rw [hl.h7, show yb.sub startY = yb - startY from rfl]
@@ -2085,7 +2008,7 @@ private theorem loop_from228
       geo_chunk
       rw [hl.h15]
       rfl
-    exact ⟨_, accAddr, cls, hrun, hheap⟩
+    exact ⟨_, accAddr, "java/lang/Object", hrun, hheap⟩
   · simp only [hrem, ↓reduceIte]
     have hrem_dc : ((geoDcmpg absDy (Geometry.absFloat (yb - startY))).toBitVec.sle 0#32) = false := by
       rw [geoDcmpg_fle_iff]; exact decide_eq_false hrem
@@ -2100,10 +2023,10 @@ private theorem loop_from228
     let newLen := (UInt32.ofNat (encodeCoordPairs acc).size).add (UInt32.ofNat 1)
     let copied : Array JvmVal := Array.ofFn (n := newLen.toNat)
       (fun i => if h : i.val < (encodeCoordPairs acc).size then (encodeCoordPairs acc)[i.val] else .null)
-    let a' := jh.alloc (.objArray cls copied)
-    have ha_old : a'.2.get? accAddr = some (.objArray cls (encodeCoordPairs acc)) :=
+    let a' := jh.alloc (.objArray "java/lang/Object" copied)
+    have ha_old : a'.2.get? accAddr = some (.objArray "java/lang/Object" (encodeCoordPairs acc)) :=
       get?_alloc_old jh _ hheap
-    have ha'_self : a'.2.get? a'.1 = some (.objArray cls copied) :=
+    have ha'_self : a'.2.get? a'.1 = some (.objArray "java/lang/Object" copied) :=
       get?_alloc_self jh _
     have ha'_lt : a'.1 < a'.2.objects.size := alloc_fst_lt jh _
     have hidx_lt : (UInt32.ofNat (encodeCoordPairs acc).size).toNat < copied.size := by
@@ -2116,12 +2039,12 @@ private theorem loop_from228
         change (encodeCoordPairs acc).size % 2 ^ 32 = _
         omega
       simp [copied, hnew, hold]
-    let jh' := a'.2.set a'.1 (.objArray cls (copied.set (UInt32.ofNat (encodeCoordPairs acc).size).toNat pairVal hidx_lt))
+    let jh' := a'.2.set a'.1 (.objArray "java/lang/Object" (copied.set (UInt32.ofNat (encodeCoordPairs acc).size).toNat pairVal hidx_lt))
     have hpush : copied.set (UInt32.ofNat (encodeCoordPairs acc).size).toNat pairVal hidx_lt =
         encodeCoordPairs (acc.push (curX, nextY)) := by
       rw [array_copy_set_eq_push (encodeCoordPairs acc) pairVal hlen]
       simp [pairVal, encodeCoordPairs, Array.map_push]
-    have ha'_in_jh' : jh'.get? a'.1 = some (.objArray cls (encodeCoordPairs (acc.push (curX, nextY)))) := by
+    have ha'_in_jh' : jh'.get? a'.1 = some (.objArray "java/lang/Object" (encodeCoordPairs (acc.push (curX, nextY)))) := by
       rw [← hpush]
       exact get?_set_self a'.2 a'.1 _ ha'_lt
     have hstep : ∃ (locals' : Nat → JvmVal),
@@ -2137,15 +2060,20 @@ private theorem loop_from228
       constructor
       apply And.intro
       · rw [show k + 94 + ((fuel - 1).toNat * 250 + 120) = (k + ((fuel - 1).toNat * 250 + 120)) + 94 by omega]
-        geo_chunk
+        geo_chunk_n 2
         rw [h34, hl.h3]
+        geo_chunk
         geo_step step_absFloat
         geo_chunk
         rw [hl.h7, show yb.sub startY = yb - startY from rfl]
         geo_step step_dcmpg
         geo_branch_step (branch_ifle_false hrem_dc)
+        geo_chunk_n 2
+        rw [hl.h14, hl.h10]
+        geo_chunk_n 4
+        rw [hl.h0]
         geo_chunk
-        rw [hl.h14, hl.h10, hl.h0, asI32_i32, asI32_i32, ui32_add_eq, int32_toUInt32_add]
+        rw [ui32_add_eq, int32_toUInt32_add]
         geo_step step_uint_ctor
         geo_chunk
         rw [hl.h15]
@@ -2182,7 +2110,7 @@ private theorem loop_from228
           rfl
     rcases hstep with ⟨loc', heq, hl'⟩
     rw [heq]
-    exact hrec k curX nextY loc' jh' a'.1 cls hl' ha'_in_jh'
+    exact hrec k curX nextY loc' jh' a'.1 hl' ha'_in_jh'
 
 private theorem int32_toUInt32_eq_iff (a b : Int32) : a.toUInt32 = b.toUInt32 ↔ a = b :=
   ⟨fun h => by
@@ -2204,12 +2132,12 @@ private theorem ui32_pred_toNat {x : UInt32} (hx : x ≠ 0) : (x - 1).toNat = x.
 private theorem loop_from84
     {k accAddr : Nat} {fuel : UInt32} {startX startY dx dy absDx absDy xb yb : Float}
     {stepX stepY endX endY curX curY : Int32}
-    {locals : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {cls : String}
+    {locals : Nat → JvmVal} {jh : Jvm.JvmHeap Empty}
     {acc : Array (Int32 × Int32)}
     (hl : LoopLocals locals fuel startX startY absDx absDy stepX stepY endX endY curX curY accAddr)
     (h31 : locals 31 = .f64 xb)
     (h34 : locals 34 = .f64 yb)
-    (hheap : jh.get? accAddr = some (Jvm.HeapObj.objArray cls (encodeCoordPairs acc)))
+    (hheap : jh.get? accAddr = some (Jvm.HeapObj.objArray "java/lang/Object" (encodeCoordPairs acc)))
     (hsz : acc.size + 1 < 2 ^ 31)
     (hrec : LoopRecHyp fuel startX startY dx dy absDx absDy stepX stepY endX endY acc) :
     LoopResultOk
@@ -2340,16 +2268,22 @@ private theorem loop_from84
             geo_chunk
             rw [hl.h10]
             geo_branch_step (branch_ifeq_false hsy0)
-            geo_chunk
+            geo_chunk_n 2
             rw [h31, hl.h1]
-            geo_step step_absFloat
             geo_chunk
+            geo_step step_absFloat
+            geo_chunk_n 3
             rw [h34, hl.h3]
-            geo_step step_absFloat
             geo_chunk
-            rw [hl.h7, hl.h5, show xb.sub startX = xb - startX from rfl, show yb.sub startY = yb - startY from rfl]
-            rw [show (JvmVal.f64 absDx).asF64 = absDx from rfl,
-                show (JvmVal.f64 absDy).asF64 = absDy from rfl]
+            geo_step step_absFloat
+            geo_chunk_n 3
+            rw [hl.h7]
+            geo_chunk_n 4
+            rw [hl.h5]
+            geo_chunk_n 4
+            rw [hl.h5, hl.h7]
+            geo_chunk
+            rw [show xb.sub startX = xb - startX from rfl, show yb.sub startY = yb - startY from rfl]
             rw [show (Geometry.absFloat (xb - startX)).mul absDy = crossX from rfl,
                 show (Geometry.absFloat (yb - startY)).mul absDx = crossY from rfl,
                 show absDx.mul absDy = limitCross from rfl]
@@ -2396,16 +2330,22 @@ private theorem loop_from84
             geo_chunk
             rw [hl.h10]
             geo_branch_step (branch_ifeq_false hsy0)
-            geo_chunk
+            geo_chunk_n 2
             rw [h31, hl.h1]
-            geo_step step_absFloat
             geo_chunk
+            geo_step step_absFloat
+            geo_chunk_n 3
             rw [h34, hl.h3]
-            geo_step step_absFloat
             geo_chunk
-            rw [hl.h7, hl.h5, show xb.sub startX = xb - startX from rfl, show yb.sub startY = yb - startY from rfl]
-            rw [show (JvmVal.f64 absDx).asF64 = absDx from rfl,
-                show (JvmVal.f64 absDy).asF64 = absDy from rfl]
+            geo_step step_absFloat
+            geo_chunk_n 3
+            rw [hl.h7]
+            geo_chunk_n 4
+            rw [hl.h5]
+            geo_chunk_n 4
+            rw [hl.h5, hl.h7]
+            geo_chunk
+            rw [show xb.sub startX = xb - startX from rfl, show yb.sub startY = yb - startY from rfl]
             rw [show (Geometry.absFloat (xb - startX)).mul absDy = crossX from rfl,
                 show (Geometry.absFloat (yb - startY)).mul absDx = crossY from rfl,
                 show absDx.mul absDy = limitCross from rfl]
@@ -2428,12 +2368,12 @@ private theorem loop_from84
 private theorem loop_from60
     {k accAddr : Nat} {fuel : UInt32} {startX startY dx dy absDx absDy xb : Float}
     {stepX stepY endX endY curX curY : Int32}
-    {locals : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {cls : String}
+    {locals : Nat → JvmVal} {jh : Jvm.JvmHeap Empty}
     {acc : Array (Int32 × Int32)}
     (hl : LoopLocals locals fuel startX startY absDx absDy stepX stepY endX endY curX curY accAddr)
     (h36 : locals 36 = .i32 0)
     (h37 : locals 37 = .f64 xb)
-    (hheap : jh.get? accAddr = some (Jvm.HeapObj.objArray cls (encodeCoordPairs acc)))
+    (hheap : jh.get? accAddr = some (Jvm.HeapObj.objArray "java/lang/Object" (encodeCoordPairs acc)))
     (hsz : acc.size + 1 < 2 ^ 31)
     (hrec : LoopRecHyp fuel startX startY dx dy absDx absDy stepX stepY endX endY acc) :
     LoopResultOk
@@ -2491,15 +2431,17 @@ private theorem loop_from60
         geo_chunk
         rw [h36, hl.h10]
         geo_branch_step (branch_if_icmplt_true hsy_slt)
-        geo_chunk_n 11
-        rw [hl.h14, h37, h36]
+        geo_chunk_n 2
+        rw [hl.h14]
+        geo_chunk_n 9
+        rw [h37, h36]
         exact runJvmResFast_eq rfl rfl
       · refine ⟨?_, ⟨?_, ?_⟩⟩
         · refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩ <;>
             simp [Jvm.setLocal, hl.h0, hl.h1, hl.h3, hl.h5, hl.h7, hl.h9, hl.h10, hl.h11, hl.h12, hl.h13, hl.h14, hl.h15]
         · simp [Jvm.setLocal]
         · simp only [Jvm.setLocal]
-          rw [asI32_i32, ui32_add_eq]
+          rw [ui32_add_eq]
           rfl
     rcases hrun with ⟨loc, heq, hl', h31, h34⟩
     rw [heq]
@@ -2524,8 +2466,10 @@ private theorem loop_from60
         geo_chunk
         rw [h36, hl.h10]
         geo_branch_step (branch_if_icmplt_false hsy_slt)
+        geo_chunk_n 1
+        rw [hl.h14]
         geo_chunk
-        rw [hl.h14, h37, h36]
+        rw [h37, h36]
         rw [branch_goto_eq rfl]
         try exact runJvmResFast_eq rfl rfl
       · refine ⟨?_, ⟨?_, ?_⟩⟩
@@ -2533,7 +2477,6 @@ private theorem loop_from60
             simp [Jvm.setLocal, hl.h0, hl.h1, hl.h3, hl.h5, hl.h7, hl.h9, hl.h10, hl.h11, hl.h12, hl.h13, hl.h14, hl.h15]
         · simp [Jvm.setLocal]
         · simp only [Jvm.setLocal]
-          rw [asI32_i32]
           rfl
     rcases hrun with ⟨loc, heq, hl', h31, h34⟩
     rw [heq]
@@ -2542,10 +2485,10 @@ private theorem loop_from60
 private theorem loop_from40
     {k accAddr : Nat} {fuel : UInt32} {startX startY dx dy absDx absDy : Float}
     {stepX stepY endX endY curX curY : Int32}
-    {locals : Nat → JvmVal} {jh : Jvm.JvmHeap Empty} {cls : String}
+    {locals : Nat → JvmVal} {jh : Jvm.JvmHeap Empty}
     {acc : Array (Int32 × Int32)}
     (hl : LoopLocals locals fuel startX startY absDx absDy stepX stepY endX endY curX curY accAddr)
-    (hheap : jh.get? accAddr = some (Jvm.HeapObj.objArray cls (encodeCoordPairs acc)))
+    (hheap : jh.get? accAddr = some (Jvm.HeapObj.objArray "java/lang/Object" (encodeCoordPairs acc)))
     (hsz : acc.size + 1 < 2 ^ 31)
     (hrec : LoopRecHyp fuel startX startY dx dy absDx absDy stepX stepY endX endY acc) :
     LoopResultOk
@@ -2604,15 +2547,16 @@ private theorem loop_from40
         geo_chunk
         rw [hl.h9, show (UInt32.ofNat 0) = 0 from rfl]
         geo_branch_step (branch_if_icmplt_true hsx_slt)
-        geo_chunk_n 9
+        geo_chunk_n 2
         rw [hl.h13]
+        geo_chunk_n 7
         exact runJvmResFast_eq rfl rfl
       · refine ⟨?_, ⟨?_, ?_⟩⟩
         · refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩ <;>
             simp [Jvm.setLocal, hl.h0, hl.h1, hl.h3, hl.h5, hl.h7, hl.h9, hl.h10, hl.h11, hl.h12, hl.h13, hl.h14, hl.h15]
         · simp [Jvm.setLocal]
         · simp only [Jvm.setLocal]
-          rw [asI32_i32, ui32_add_eq]
+          rw [ui32_add_eq]
           rfl
     rcases hrun with ⟨loc, heq, hl', h36, h37⟩
     rw [heq]
@@ -2637,8 +2581,9 @@ private theorem loop_from40
         geo_chunk
         rw [hl.h9, show (UInt32.ofNat 0) = 0 from rfl]
         geo_branch_step (branch_if_icmplt_false hsx_slt)
-        geo_chunk
+        geo_chunk_n 1
         rw [hl.h13]
+        geo_chunk
         rw [branch_goto_eq rfl]
         try exact runJvmResFast_eq rfl rfl
       · refine ⟨?_, ⟨?_, ?_⟩⟩
@@ -2646,7 +2591,6 @@ private theorem loop_from40
             simp [Jvm.setLocal, hl.h0, hl.h1, hl.h3, hl.h5, hl.h7, hl.h9, hl.h10, hl.h11, hl.h12, hl.h13, hl.h14, hl.h15]
         · simp [Jvm.setLocal]
         · simp only [Jvm.setLocal]
-          rw [asI32_i32]
           rfl
     rcases hrun with ⟨loc, heq, hl', h36, h37⟩
     rw [heq]
@@ -2663,10 +2607,10 @@ private def rayMarchZeroLocals (locals : Nat → JvmVal) : Nat → JvmVal :=
 private theorem rayMarchLoop_fuel_zero
     (k accAddr : Nat) (startX startY absDx absDy : Float)
     (stepX stepY endX endY curX curY : Int32)
-    (locals : Nat → JvmVal) (jh : Jvm.JvmHeap Empty) (cls : String)
+    (locals : Nat → JvmVal) (jh : Jvm.JvmHeap Empty)
     (acc : Array (Int32 × Int32))
     (hl : LoopLocals locals 0 startX startY absDx absDy stepX stepY endX endY curX curY accAddr)
-    (hheap : jh.get? accAddr = some (Jvm.HeapObj.objArray cls (encodeCoordPairs acc))) :
+    (hheap : jh.get? accAddr = some (Jvm.HeapObj.objArray "java/lang/Object" (encodeCoordPairs acc))) :
     LoopResultOk
       (Jvm.runJvmResFast geomHooks (k + (0 : UInt32).toNat * 250 + 120)
         f_Geometry_rayMarchLoop___redArg_prog 0
@@ -2687,16 +2631,16 @@ private theorem rayMarchLoop_fuel_zero
     geo_chunk
     rw [hl.h15]
     rfl
-  exact ⟨_, accAddr, cls, hrun, hheap⟩
+  exact ⟨_, accAddr, "java/lang/Object", hrun, hheap⟩
 
 private theorem rayMarchLoop_from0 :
     ∀ (n k accAddr : Nat) (fuel : UInt32) (startX startY dx dy absDx absDy : Float)
       (stepX stepY endX endY curX curY : Int32)
-      (locals : Nat → JvmVal) (jh : Jvm.JvmHeap Empty) (cls : String)
+      (locals : Nat → JvmVal) (jh : Jvm.JvmHeap Empty)
       (acc : Array (Int32 × Int32)),
       fuel.toNat ≤ n →
       LoopLocals locals fuel startX startY absDx absDy stepX stepY endX endY curX curY accAddr →
-      jh.get? accAddr = some (Jvm.HeapObj.objArray cls (encodeCoordPairs acc)) →
+      jh.get? accAddr = some (Jvm.HeapObj.objArray "java/lang/Object" (encodeCoordPairs acc)) →
       acc.size + fuel.toNat < 2 ^ 31 →
       LoopResultOk
         (Jvm.runJvmResFast geomHooks (k + fuel.toNat * 250 + 120)
@@ -2707,23 +2651,23 @@ private theorem rayMarchLoop_from0 :
   intro n
   induction n with
   | zero =>
-    intro k accAddr fuel startX startY dx dy absDx absDy stepX stepY endX endY curX curY locals jh cls acc
+    intro k accAddr fuel startX startY dx dy absDx absDy stepX stepY endX endY curX curY locals jh acc
       hfn hl hheap hbound
     have hfuel : fuel = 0 := ui32_eq_zero_of_toNat_eq_zero (by omega)
     subst hfuel
     rw [Geometry.rayMarchLoop.eq_1]
     simp only [beq_self_eq_true, ↓reduceIte]
     exact rayMarchLoop_fuel_zero k accAddr startX startY absDx absDy stepX stepY endX endY curX curY
-      locals jh cls acc hl hheap
+      locals jh acc hl hheap
   | succ n ih =>
-    intro k accAddr fuel startX startY dx dy absDx absDy stepX stepY endX endY curX curY locals jh cls acc
+    intro k accAddr fuel startX startY dx dy absDx absDy stepX stepY endX endY curX curY locals jh acc
       hfn hl hheap hbound
     rw [Geometry.rayMarchLoop.eq_1]
     by_cases hfuel : fuel = 0
     · subst hfuel
       simp only [beq_self_eq_true, ↓reduceIte]
       exact rayMarchLoop_fuel_zero k accAddr startX startY absDx absDy stepX stepY endX endY curX curY
-        locals jh cls acc hl hheap
+        locals jh acc hl hheap
     · have hfb : (fuel == 0) = false := beq_false_of_ne hfuel
       simp only [hfb, Bool.false_eq_true, ↓reduceIte]
       have hpred : (fuel - 1).toNat = fuel.toNat - 1 := ui32_pred_toNat hfuel
@@ -2732,9 +2676,9 @@ private theorem rayMarchLoop_from0 :
       have hfn' : (fuel - 1).toNat ≤ n := by omega
       have hsz : acc.size + 1 < 2 ^ 31 := by omega
       have hrec : LoopRecHyp fuel startX startY dx dy absDx absDy stepX stepY endX endY acc := by
-        intro k0 nx ny loc' jh' addr' cls' hl' hheap'
+        intro k0 nx ny loc' jh' addr' hl' hheap'
         exact ih k0 addr' (fuel - 1) startX startY dx dy absDx absDy stepX stepY endX endY nx ny
-          loc' jh' cls' (acc.push (nx, ny)) hfn' hl' hheap' (by simp; omega)
+          loc' jh' (acc.push (nx, ny)) hfn' hl' hheap' (by simp; omega)
       by_cases hdone : (curX == endX && curY == endY) = true
       · simp only [hdone, ↓reduceIte]
         have hx : curX = endX := by
@@ -2765,7 +2709,7 @@ private theorem rayMarchLoop_from0 :
           geo_chunk
           rw [hl.h15]
           rfl
-        exact ⟨_, accAddr, cls, hrun, hheap⟩
+        exact ⟨_, accAddr, "java/lang/Object", hrun, hheap⟩
       · have hdonef : (curX == endX && curY == endY) = false := Bool.eq_false_iff.mpr hdone
         simp only [hdonef, Bool.false_eq_true, ↓reduceIte]
         by_cases hx : curX = endX
@@ -2834,7 +2778,7 @@ theorem rayMarchLoop_equiv (fuel : UInt32) (startX startY dx dy absDx absDy : Fl
     (stepX stepY endX endY curX curY : Int32) (acc : Array (Int32 × Int32))
     (hbound : acc.size + fuel.toNat < 2 ^ 31) :
     let a0 := ({} : Jvm.JvmHeap Empty).alloc
-      (.objArray "[Ljava/lang/Object;" (encodeCoordPairs acc))
+      (.objArray "java/lang/Object" (encodeCoordPairs acc))
     let st0 := initJvmState
       [ (0, .i32 fuel), (1, .f64 startX), (3, .f64 startY), (5, .f64 absDx),
         (7, .f64 absDy), (9, .i32 stepX.toUInt32), (10, .i32 stepY.toUInt32),
@@ -2847,13 +2791,13 @@ theorem rayMarchLoop_equiv (fuel : UInt32) (startX startY dx dy absDx absDy : Fl
       st'.jvmHeap.get? resAddr = some (Jvm.HeapObj.objArray resCls (encodeCoordPairs
         (Geometry.rayMarchLoop fuel startX startY dx dy absDx absDy stepX stepY endX endY curX curY acc))) := by
   intro a0 st0
-  have ha0 : a0.2.get? a0.1 = some (.objArray "[Ljava/lang/Object;" (encodeCoordPairs acc)) := by
-    simpa [a0] using get?_alloc_self ({} : Jvm.JvmHeap Empty) (.objArray "[Ljava/lang/Object;" (encodeCoordPairs acc))
+  have ha0 : a0.2.get? a0.1 = some (.objArray "java/lang/Object" (encodeCoordPairs acc)) := by
+    simpa [a0] using get?_alloc_self ({} : Jvm.JvmHeap Empty) (.objArray "java/lang/Object" (encodeCoordPairs acc))
   have hl0 : LoopLocals st0.locals fuel startX startY absDx absDy stepX stepY endX endY curX curY a0.1 := by
     refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩ <;>
       simp [st0, initJvmState, Jvm.initJvmState, List.foldl, Jvm.setLocal]
   have hmain := rayMarchLoop_from0 fuel.toNat 0 a0.1 fuel startX startY dx dy absDx absDy
-    stepX stepY endX endY curX curY st0.locals a0.2 "[Ljava/lang/Object;" acc (Nat.le_refl _) hl0 ha0 hbound
+    stepX stepY endX endY curX curY st0.locals a0.2 acc (Nat.le_refl _) hl0 ha0 hbound
   rcases hmain with ⟨st', resAddr, resCls, hres, hget⟩
   refine ⟨st', resAddr, resCls, ?_, hget⟩
   rw [Jvm.runJvmRes_of_runJvmResFast0 geomHooks _ _ _ _ rfl]
@@ -2865,43 +2809,4 @@ end RayMarchLoop
 
 end Geometry.JvmVerification
 
-open Lean in
-private def isJvmBvCheckAxiom (env : Environment) (a : Name) : Bool :=
-  let named := match a with
-    | .str (.str (.str _ "_native") "bv_decide") _ => true
-    | _ => false
-  named && match env.find? a with
-    | some (.axiomInfo info) =>
-      info.type.isAppOfArity ``Eq 3 &&
-        (info.type.getArg! 1).isAppOf `Std.Tactic.BVDecide.Reflect.verifyBVExpr &&
-        (info.type.getArg! 2).isConstOf ``Bool.true
-    | _ => false
-
-open Lean Elab Command in
-elab "#audit_jvm_equiv_axioms" : command => do
-  let env ← getEnv
-  let allowed : List Name := [``propext, ``Classical.choice, ``Quot.sound]
-  let mut count := 0
-  let mut provenProgs : NameSet := {}
-  for (n, ci) in env.constants.toList do
-    unless `Geometry.JvmVerification |>.isPrefixOf n do continue
-    unless ci matches .thmInfo _ do continue
-    if n.isInternal then continue
-    count := count + 1
-    for c in ci.type.getUsedConstants do
-      if `Geometry.JvmBytecode |>.isPrefixOf c then
-        provenProgs := provenProgs.insert c
-    let axioms ← liftCoreM <| Lean.collectAxioms n
-    let bad := axioms.filter (fun a => !allowed.contains a && !isJvmBvCheckAxiom env a)
-    unless bad.isEmpty do
-      logError m!"JVM equivalence theorem {n} depends on non-standard axioms: {bad.toList}"
-  if count == 0 then
-    logError "no JVM equivalence theorems found"
-  for (n, ci) in env.constants.toList do
-    unless `Geometry.JvmBytecode |>.isPrefixOf n do continue
-    unless ci matches .defnInfo _ do continue
-    if n.isInternal then continue
-    if n.toString.endsWith "_prog" && !provenProgs.contains n then
-      logError m!"lifted JVM program {n} has no equivalence theorem in Geometry.JvmVerification"
-
-#audit_jvm_equiv_axioms
+#audit_jvm_equiv_axioms Geometry.JvmVerification Geometry.JvmBytecode

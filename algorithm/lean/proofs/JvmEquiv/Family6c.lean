@@ -111,8 +111,15 @@ private theorem runJvmValFast_invokedynamic_makeConcat {fuel : Nat}
     runJvmValFast (fuel + 1) prog pc (.invokedynamic "makeConcatWithConstants" recipe desc :: rest)
         ⟨pc, stk, locs, jh, hp⟩ =
       runJvmValFast fuel prog (pc + 1) rest ⟨pc + 1, .str res :: stkRest, locs, jh, hp⟩ := by
+  have hstep : Jvm.stepInstr algHooks (.invokedynamic "makeConcatWithConstants" recipe desc)
+      ⟨pc, stk, locs, jh, hp⟩ = .inl (some ⟨pc + 1, .str res :: stkRest, locs, jh, hp⟩) := by
+    dsimp only [Jvm.stepInstr]
+    rw [ite_eq_left (by decide), heval]
   rw [runJvmValFast_step_nonbranch (hbr := rfl) (hno := by simp)]
-  simp only [stepInstr, Jvm.stepInstr, beq_self_eq_true, ↓reduceIte, heval]
+  dsimp only [stepInstr]
+  rw [hstep]
+  dsimp only
+  rw [ite_eq_left rfl]
 
 private theorem runJvmResFast_invokedynamic_makeConcat {fuel : Nat}
     {prog rest : List JvmInstr} {pc : Nat}
@@ -123,8 +130,15 @@ private theorem runJvmResFast_invokedynamic_makeConcat {fuel : Nat}
     runJvmResFast (fuel + 1) prog pc (.invokedynamic "makeConcatWithConstants" recipe desc :: rest)
         ⟨pc, stk, locs, jh, hp⟩ =
       runJvmResFast fuel prog (pc + 1) rest ⟨pc + 1, .str res :: stkRest, locs, jh, hp⟩ := by
+  have hstep : Jvm.stepInstr algHooks (.invokedynamic "makeConcatWithConstants" recipe desc)
+      ⟨pc, stk, locs, jh, hp⟩ = .inl (some ⟨pc + 1, .str res :: stkRest, locs, jh, hp⟩) := by
+    dsimp only [Jvm.stepInstr]
+    rw [ite_eq_left (by decide), heval]
   rw [runJvmResFast_step_nonbranch (hbr := rfl) (hno := by simp)]
-  simp only [stepInstr, Jvm.stepInstr, beq_self_eq_true, ↓reduceIte, heval]
+  dsimp only [stepInstr]
+  rw [hstep]
+  dsimp only
+  rw [ite_eq_left rfl]
 
 private theorem setLocal_apply {Ext : Type} {locs : Nat → Jvm.JvmVal Ext} {idx i : Nat}
     {v : Jvm.JvmVal Ext} :
@@ -135,14 +149,16 @@ open Lean Elab Tactic in
 elab "step_res_plain " n:num : tactic => do
   for _ in [:n.getNat] do
     evalTactic (← `(tactic| rw [runJvmResFast_step_nonbranch (hbr := rfl) (hno := by simp)]))
-    evalTactic (← `(tactic| simp only [stepInstr, Jvm.stepInstr, setLocal_apply,
+    evalTactic (← `(tactic| dsimp only [stepInstr, Jvm.stepInstr]))
+    evalTactic (← `(tactic| try simp only [setLocal_apply, Jvm.JvmVal.asI32?, Jvm.JvmVal.asI64?,
       Nat.reduceAdd, Nat.reduceBEq, Bool.false_eq_true, ↓reduceIte]))
 
 open Lean Elab Tactic in
 elab "step_val_plain " n:num : tactic => do
   for _ in [:n.getNat] do
     evalTactic (← `(tactic| rw [runJvmValFast_step_nonbranch (hbr := rfl) (hno := by simp)]))
-    evalTactic (← `(tactic| simp only [stepInstr, Jvm.stepInstr, setLocal_apply,
+    evalTactic (← `(tactic| dsimp only [stepInstr, Jvm.stepInstr]))
+    evalTactic (← `(tactic| try simp only [setLocal_apply, Jvm.JvmVal.asI32?, Jvm.JvmVal.asI64?,
       Nat.reduceAdd, Nat.reduceBEq, Bool.false_eq_true, ↓reduceIte]))
 
 /-! #### 1. `serializeRLE___closed__3` -/
@@ -296,42 +312,71 @@ theorem formatRLEItem_equiv (tag : UInt8) (count : UInt32) (hcount : count.toNat
         simp [UInt32.toNat_ofNat] at this
         apply BitVec.eq_of_toNat_eq; exact this)
     · subst h; rfl
-  have htagStr : runJvmValFast 50 f_Algorithm_formatRLEItem_prog 0 f_Algorithm_formatRLEItem_prog
+  have heval30 : ∀ (n : Nat) (_ : 10 ≤ n) (s : String) (locs : Nat → JvmVal),
+      locs 1 = .i32 count → locs 2 = .str s →
+      (if (count == 1) = true then
+        runJvmValFast n f_Algorithm_formatRLEItem_prog 37
+          [Jvm.JvmInstr.aload 2, Jvm.JvmInstr.areturn] ⟨37, [], locs, {}, {}⟩
+      else
+        runJvmValFast n f_Algorithm_formatRLEItem_prog 33
+          [Jvm.JvmInstr.iload 1, Jvm.JvmInstr.aload 2,
+           Jvm.JvmInstr.invokedynamic "makeConcatWithConstants" "\x01\x01" "(ILjava/lang/String;)Ljava/lang/String;",
+           Jvm.JvmInstr.areturn, Jvm.JvmInstr.aload 2, Jvm.JvmInstr.areturn]
+          ⟨33, [], locs, {}, {}⟩) =
+      some (.str (if count == 1 then s else Jvm.i32ToDecimalString count ++ (s ++ ""))) := by
+    intro n hn s locs h1 h2
+    obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le' hn
+    by_cases hc1 : count = 1
+    · subst hc1
+      simp only [beq_self_eq_true, ↓reduceIte]
+      step_val_plain 1; rw [h2]
+      have hret : stepInstr .areturn ⟨38, [.str s], locs, {}, {}⟩ = .inr (some (.str s)) := rfl
+      rw [runJvmValFast_step_nonbranch (hbr := rfl) (hno := by simp), hret]
+    · have hcn : (count == 1) = false := beq_false_of_ne hc1
+      simp only [hcn, Bool.false_eq_true, ↓reduceIte]
+      step_val_plain 2; rw [h2, h1]
+      rw [runJvmValFast_invokedynamic_makeConcat (evalConcat_i32_str count s)]
+      have hret : stepInstr .areturn ⟨36, [.str (Jvm.i32ToDecimalString count ++ (s ++ ""))], locs, {}, {}⟩ =
+          .inr (some (.str (Jvm.i32ToDecimalString count ++ (s ++ "")))) := rfl
+      rw [runJvmValFast_step_nonbranch (hbr := rfl) (hno := by simp), hret]
+  change runJvmValFast 50 f_Algorithm_formatRLEItem_prog 0 f_Algorithm_formatRLEItem_prog
+      ⟨0, [], l0, {}, {}⟩ = _
+  have hrun0 : runJvmValFast 50 f_Algorithm_formatRLEItem_prog 0 f_Algorithm_formatRLEItem_prog
       ⟨0, [], l0, {}, {}⟩ =
-      runJvmValFast 30 f_Algorithm_formatRLEItem_prog 30
-        (f_Algorithm_formatRLEItem_prog.drop 30) ⟨30, [], setLocal l1 2 (.str tagStr), {}, {}⟩ := by
+      some (.str (if count == 1 then tagStr else Jvm.i32ToDecimalString count ++ (tagStr ++ ""))) := by
     by_cases ht111 : tag = 111
     · have hu : tag.toUInt32 = 111 := h111_iff.mpr ht111
       have hts : tagStr = "o" := by subst ht111; rfl
       rw [hts]
-      split_val_fuel 30
-      dsimp only [f_Algorithm_formatRLEItem_prog]
+      (conv => lhs; arg 4; dsimp only [f_Algorithm_formatRLEItem_prog])
       flat_step_blk f_Algorithm_formatRLEItem_prog
       simp only [hu, beq_self_eq_true, ↓reduceIte]
       flat_step_blk f_Algorithm_formatRLEItem_prog
-      rfl
+      refine heval30 _ (by decide) "o" _ ?_ ?_
+      · simp [setLocal, l0]
+      · simp [setLocal]
     · have hu111 : (tag.toUInt32 == 111) = false := beq_false_of_ne (fun h => ht111 (h111_iff.mp h))
       have hb111 : (tag == 111) = false := beq_false_of_ne ht111
       by_cases ht98 : tag = 98
       · have hu : tag.toUInt32 = 98 := h98_iff.mpr ht98
         have hts : tagStr = "b" := by subst ht98; rfl
         rw [hts]
-        split_val_fuel 30
-        dsimp only [f_Algorithm_formatRLEItem_prog]
+        (conv => lhs; arg 4; dsimp only [f_Algorithm_formatRLEItem_prog])
         flat_step_blk f_Algorithm_formatRLEItem_prog
         simp only [hu111, Bool.false_eq_true, ↓reduceIte]
         flat_step_blk f_Algorithm_formatRLEItem_prog
         simp only [hu, beq_self_eq_true, ↓reduceIte]
         flat_step_blk f_Algorithm_formatRLEItem_prog
-        rfl
+        refine heval30 _ (by decide) "b" _ ?_ ?_
+        · simp [setLocal, l0]
+        · simp [setLocal]
       · have hu98 : (tag.toUInt32 == 98) = false := beq_false_of_ne (fun h => ht98 (h98_iff.mp h))
         have hb98 : (tag == 98) = false := beq_false_of_ne ht98
         by_cases ht36 : tag = 36
         · have hu : tag.toUInt32 = 36 := h36_iff.mpr ht36
           have hts : tagStr = "$" := by subst ht36; rfl
           rw [hts]
-          split_val_fuel 30
-          dsimp only [f_Algorithm_formatRLEItem_prog]
+          (conv => lhs; arg 4; dsimp only [f_Algorithm_formatRLEItem_prog])
           flat_step_blk f_Algorithm_formatRLEItem_prog
           simp only [hu111, Bool.false_eq_true, ↓reduceIte]
           flat_step_blk f_Algorithm_formatRLEItem_prog
@@ -339,14 +384,15 @@ theorem formatRLEItem_equiv (tag : UInt8) (count : UInt32) (hcount : count.toNat
           flat_step_blk f_Algorithm_formatRLEItem_prog
           simp only [hu, beq_self_eq_true, ↓reduceIte]
           flat_step_blk f_Algorithm_formatRLEItem_prog
-          rfl
+          refine heval30 _ (by decide) "$" _ ?_ ?_
+          · simp [setLocal, l0]
+          · simp [setLocal]
         · have hu36 : (tag.toUInt32 == 36) = false := beq_false_of_ne (fun h => ht36 (h36_iff.mp h))
           have hb36 : (tag == 36) = false := beq_false_of_ne ht36
           have hts : tagStr = "!" := by
             simp only [tagStr, hb111, hb98, hb36, Bool.false_eq_true, ↓reduceIte]
           rw [hts]
-          split_val_fuel 30
-          dsimp only [f_Algorithm_formatRLEItem_prog]
+          (conv => lhs; arg 4; dsimp only [f_Algorithm_formatRLEItem_prog])
           flat_step_blk f_Algorithm_formatRLEItem_prog
           simp only [hu111, Bool.false_eq_true, ↓reduceIte]
           flat_step_blk f_Algorithm_formatRLEItem_prog
@@ -354,29 +400,10 @@ theorem formatRLEItem_equiv (tag : UInt8) (count : UInt32) (hcount : count.toNat
           flat_step_blk f_Algorithm_formatRLEItem_prog
           simp only [hu36, Bool.false_eq_true, ↓reduceIte]
           flat_step_blk f_Algorithm_formatRLEItem_prog
-          rfl
-  change runJvmValFast 50 f_Algorithm_formatRLEItem_prog 0 f_Algorithm_formatRLEItem_prog
-      ⟨0, [], l0, {}, {}⟩ = _
-  rw [htagStr]
-  have heval30 : runJvmValFast 30 f_Algorithm_formatRLEItem_prog 30
-      (f_Algorithm_formatRLEItem_prog.drop 30) ⟨30, [], setLocal l1 2 (.str tagStr), {}, {}⟩ =
-      some (.str (if count == 1 then tagStr else Jvm.i32ToDecimalString count ++ (tagStr ++ ""))) := by
-    by_cases hc1 : count = 1
-    · subst hc1
-      dsimp only [f_Algorithm_formatRLEItem_prog, List.drop]
-      flat_step_blk f_Algorithm_formatRLEItem_prog
-      simp only [beq_self_eq_true, ↓reduceIte]
-      flat_step_blk f_Algorithm_formatRLEItem_prog
-    · have hcn : (count == 1) = false := beq_false_of_ne hc1
-      dsimp only [f_Algorithm_formatRLEItem_prog, List.drop]
-      flat_step_blk f_Algorithm_formatRLEItem_prog
-      simp only [hcn, Bool.false_eq_true, ↓reduceIte]
-      step_val_plain 2
-      have hl1 : l1 1 = .i32 count := rfl
-      rw [hl1]
-      rw [runJvmValFast_invokedynamic_makeConcat (evalConcat_i32_str count tagStr)]
-      flat_step_blk f_Algorithm_formatRLEItem_prog
-  rw [heval30]
+          refine heval30 _ (by decide) "!" _ ?_ ?_
+          · simp [setLocal, l0]
+          · simp [setLocal]
+  rw [hrun0]
   rw [u32_toString_eq_i32ToDecimalString hcount]
   unfold Algorithm.formatRLEItem
   change some (JvmVal.str (if count == 1 then tagStr else toString count ++ (tagStr ++ ""))) =
@@ -578,7 +605,9 @@ private theorem stepVirtual_ubyte_unbox
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeVirtual ⟨pc, .boxedUByte v :: rest, locs, jh, hp⟩
       "kotlin/UByte" "unbox-impl" "()B" =
-      .inl (some ⟨pc + 1, .i32 v :: rest, locs, jh, hp⟩) := rfl
+      .inl (some ⟨pc + 1,
+        .i32 (UInt32.ofBitVec ((v.toBitVec.setWidth 8).signExtend 32)) :: rest,
+        locs, jh, hp⟩) := rfl
 
 private theorem stepVirtual_uint_unbox
     {pc : Nat} {v : UInt32} {rest : List JvmVal} {locs : Nat → JvmVal}
@@ -592,20 +621,43 @@ private theorem u8_toUInt32_toUInt8 (b : UInt8) : b.toUInt32.toUInt8 = b := by
   rw [UInt32.toUInt8, UInt8.toUInt32]
   simp
 
-private theorem stepStatic_formatRLEItem
+private theorem u8_sext_toUInt8 (b : UInt8) :
+    (UInt32.ofBitVec ((b.toUInt32.toBitVec.setWidth 8).signExtend 32)).toUInt8 = b := by
+  apply UInt8.eq_of_toBitVec_eq
+  rw [UInt32.toUInt8]
+  change (((b.toBitVec.setWidth 32).setWidth 8).signExtend 32).setWidth 8 = b.toBitVec
+  have h1 : (b.toBitVec.setWidth 32).setWidth 8 = b.toBitVec := by simp
+  rw [h1]
+  ext i hi
+  simp only [BitVec.getElem_setWidth, BitVec.getLsbD_signExtend]
+  have h32 : i < 32 := by omega
+  simp [hi, h32, BitVec.getLsbD_eq_getElem]
+
+private theorem stepStatic_formatRLEItem_sext
     {pc : Nat} {tag : UInt8} {count : UInt32}
     {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
-    stepInvokeStatic ⟨pc, .i32 count :: .i32 tag.toUInt32 :: rest, locs, jh, hp⟩
+    stepInvokeStatic
+        ⟨pc,
+          .i32 count ::
+            .i32 (UInt32.ofBitVec ((tag.toUInt32.toBitVec.setWidth 8).signExtend 32)) :: rest,
+          locs, jh, hp⟩
       "RleLeanKt" "f_Algorithm_formatRLEItem-g_SBl1M" "(BI)Ljava/lang/String;" =
       .inl (some ⟨pc + 1, .str (Algorithm.formatRLEItem tag count) :: rest,
         locs, jh, hp⟩) := by
-  have hfn : stepInvokeStatic ⟨pc, .i32 count :: .i32 tag.toUInt32 :: rest, locs, jh, hp⟩
-      "RleLeanKt" "f_Algorithm_formatRLEItem-g_SBl1M" "(BI)Ljava/lang/String;" =
-      .inl (some ⟨pc + 1,
-        .str (Algorithm.formatRLEItem tag.toUInt32.toUInt8 count) :: rest,
-        locs, jh, hp⟩) := rfl
-  rw [hfn, u8_toUInt32_toUInt8]
+  have hfn :
+      stepInvokeStatic
+          ⟨pc,
+            .i32 count ::
+              .i32 (UInt32.ofBitVec ((tag.toUInt32.toBitVec.setWidth 8).signExtend 32)) :: rest,
+            locs, jh, hp⟩
+        "RleLeanKt" "f_Algorithm_formatRLEItem-g_SBl1M" "(BI)Ljava/lang/String;" =
+        .inl (some ⟨pc + 1,
+          .str (Algorithm.formatRLEItem
+            (UInt32.ofBitVec ((tag.toUInt32.toBitVec.setWidth 8).signExtend 32)).toUInt8
+            count) :: rest,
+          locs, jh, hp⟩) := rfl
+  rw [hfn, u8_sext_toUInt8]
 
 private theorem stepStatic_formatRLEItemLength
     {pc : Nat} {count : UInt32} {rest : List JvmVal} {locs : Nat → JvmVal}
@@ -741,9 +793,9 @@ private theorem runJvmResFast_areturn6c {f pc : Nat} {prog rest : List JvmInstr}
     {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     runJvmResFast (f + 1) prog pc (.areturn :: rest) ⟨pc, v :: stk, locs, jh, hp⟩ =
       some (v, ⟨pc, v :: stk, locs, jh, hp⟩) := by
-  dsimp only [runJvmResFast]
-  rw [Jvm.runJvmResFast.eq_def]
-  simp [Jvm.stepInstr]
+  rw [runJvmResFast_step_nonbranch (hbr := rfl) (hno := by simp)]
+  have hstep : stepInstr .areturn ⟨pc, v :: stk, locs, jh, hp⟩ = .inr (some v) := rfl
+  rw [hstep]
 
 private theorem wrapRLEItems_base
     (numItems j lineLen : UInt32) (line : String) (out : Algorithm.GrowBuf String)
@@ -837,7 +889,7 @@ private theorem wrapRLEItems_loop
         6 (.pair (.boxedUByte 0) (.boxedUInt 0)))
         7 (.pair (.boxedUByte item.1.toUInt32) (.boxedUInt item.2)))
         8 (.boxedUInt item.2)) 10 (.boxedUByte item.1.toUInt32)) 11 (.i32 0))
-        9 (.i32 item.1.toUInt32)) 11 (.boxedUInt item.2)) 12 (.i32 0))
+        9 (.i32 (UInt32.ofBitVec ((item.1.toUInt32.toBitVec.setWidth 8).signExtend 32)))) 11 (.boxedUInt item.2)) 12 (.i32 0))
         10 (.i32 item.2)) 11 (.str text)) 13 (.boxedUInt item.2)) 14 (.i32 0))
         12 (.i32 item.2)) 13 (.i32 len)) 14 (.i32 (lineLen + len))
       have hpre : ∀ (fuelR : Nat),
@@ -889,7 +941,7 @@ private theorem wrapRLEItems_loop
         rw [runJvmResFast_checkcast_boxedUInt]
         · rw [runJvmResFast_invokevirtual_step stepVirtual_uint_unbox]
           step_res_plain 3
-          rw [runJvmResFast_invokestatic_step stepStatic_formatRLEItem]
+          rw [runJvmResFast_invokestatic_step stepStatic_formatRLEItem_sext]
           step_res_plain 6
           rw [runJvmResFast_instanceof_boxedUInt_int]
           rw [runJvmResFast_ifeq_branch rfl]; step_drop6c 18
@@ -905,7 +957,6 @@ private theorem wrapRLEItems_loop
             rw [runJvmResFast_invokestatic_step stepStatic_uintCtor6c]
             step_res_plain 3
             rw [runJvmResFast_invokestatic_step stepStatic_compareUnsigned_i32]
-            rfl
           · left; rfl
         · left; rfl
       by_cases hwrap : lineLen + len > 70
@@ -944,7 +995,7 @@ private theorem wrapRLEItems_loop
           change runJvmResFast fuel' f_Algorithm_wrapRLEItems_prog 6
               (f_Algorithm_wrapRLEItems_prog.drop 6)
               ⟨6, [], locsLoop, jh, hp⟩ = some st' at hrun'
-          simpa [locsLoop, locsNext, setLocal_apply, Jvm.JvmVal.asI32] using hrun'
+          simpa [locsLoop, locsNext, setLocal_apply] using hrun'
         · simpa [hidx_eq, hwrap, text, len, item] using hres'
       · have hiflt := compareUnsigned_slt_false_of_not_lt 70 (lineLen + len) hwrap
         let locsNext := setLocal (setLocal (setLocal (setLocal (setLocal locsMid
@@ -978,7 +1029,7 @@ private theorem wrapRLEItems_loop
           change runJvmResFast fuel' f_Algorithm_wrapRLEItems_prog 6
               (f_Algorithm_wrapRLEItems_prog.drop 6)
               ⟨6, [], locsLoop, jh, hp⟩ = some st' at hrun'
-          simpa [locsLoop, locsNext, setLocal_apply, Jvm.JvmVal.asI32] using hrun'
+          simpa [locsLoop, locsNext, setLocal_apply] using hrun'
         · simpa [hidx_eq, hwrap, text, len, item] using hres'
     · rw [Algorithm.wrapRLEItems.eq_1]
       simp only [hj, ↓reduceDIte]
@@ -1035,12 +1086,36 @@ private theorem stepStatic_ubyteCtor6c
       "kotlin/UByte" "constructor-impl" "(B)B" =
       .inl (some ⟨pc + 1, stk, locs, jh, hp⟩) := rfl
 
+private theorem u8_toUInt32_and_0xFF (b : UInt8) : b.toUInt32 &&& 0xFF = b.toUInt32 := by
+  apply UInt32.eq_of_toBitVec_eq
+  rw [UInt32.toBitVec_and]
+  change (b.toBitVec.setWidth 32) &&& (255#32) = b.toBitVec.setWidth 32
+  ext i hi
+  simp only [BitVec.getElem_and, BitVec.getElem_setWidth]
+  by_cases hi8 : i < 8
+  · have h255 : (255#32 : BitVec 32)[i] = true := by
+      simp only [BitVec.getElem_eq_testBit_toNat]
+      rcases (by omega : i = 0 ∨ i = 1 ∨ i = 2 ∨ i = 3 ∨ i = 4 ∨ i = 5 ∨ i = 6 ∨ i = 7) with
+        rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl <;> decide
+    simp [h255]
+  · simp only [Bool.and_eq_left_iff_imp]
+    intro h
+    exact absurd (BitVec.lt_of_getLsbD h) hi8
+
 private theorem stepStatic_ubyteBox6c
     {pc : Nat} {v : UInt32} {rest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     stepInvokeStatic ⟨pc, .i32 v :: rest, locs, jh, hp⟩
       "kotlin/UByte" "box-impl" "(B)Lkotlin/UByte;" =
-      .inl (some ⟨pc + 1, .boxedUByte v :: rest, locs, jh, hp⟩) := rfl
+      .inl (some ⟨pc + 1, .boxedUByte (v &&& 0xFF) :: rest, locs, jh, hp⟩) := rfl
+
+private theorem stepStatic_ubyteBox6c_u8
+    {pc : Nat} {b : UInt8} {rest : List JvmVal} {locs : Nat → JvmVal}
+    {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
+    stepInvokeStatic ⟨pc, .i32 b.toUInt32 :: rest, locs, jh, hp⟩
+      "kotlin/UByte" "box-impl" "(B)Lkotlin/UByte;" =
+      .inl (some ⟨pc + 1, .boxedUByte b.toUInt32 :: rest, locs, jh, hp⟩) := by
+  rw [stepStatic_ubyteBox6c, u8_toUInt32_and_0xFF]
 
 private theorem stepStatic_uintBox6c
     {pc : Nat} {v : UInt32} {rest : List JvmVal} {locs : Nat → JvmVal}
@@ -1076,9 +1151,12 @@ private theorem runJvmResFast_newClass_pair6c
     {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     runJvmResFast (f + 1) prog pc (.newClass "kotlin/Pair" :: rest) ⟨pc0, stk, locs, jh, hp⟩ =
       runJvmResFast f prog (pc + 1) rest ⟨pc + 1, .allocRef "kotlin/Pair" :: stk, locs, jh, hp⟩ := by
-  dsimp only [runJvmResFast]
-  rw [Jvm.runJvmResFast.eq_def]
-  simp [Jvm.stepInstr]
+  rw [runJvmResFast_step_nonbranch (hbr := rfl) (hno := by simp)]
+  have hstep : stepInstr (.newClass "kotlin/Pair") ⟨pc, stk, locs, jh, hp⟩ =
+      .inl (some ⟨pc + 1, .allocRef "kotlin/Pair" :: stk, locs, jh, hp⟩) := rfl
+  rw [hstep]
+  dsimp only
+  rw [ite_eq_left rfl]
 
 private theorem u8_toUInt32_beq6c (a b : UInt8) :
     (a.toUInt32 == b.toUInt32) = (a == b) := by
@@ -1227,11 +1305,10 @@ private theorem gridItems_mid
         rw [runJvmResFast_if_icmpeq_branch rfl]; step_drop6c 5
         step_res_plain 4; rw [hl7, hl6]
         rw [runJvmResFast_goto]; step_drop6c 14
-        step_res_plain 3; rw [hl5]
+        step_res_plain 3; rw [hl5]; dsimp only
         rw [runJvmResFast_invokestatic_step stepStatic_uintCtor6c]
         step_res_plain 9; rw [hl4]
         rw [runJvmResFast_goto]
-        dsimp only [locsN, Jvm.JvmVal.asI32]
     · have htag_ne : (tag.toUInt32 == runTag.toUInt32) = false := by
         rw [u8_toUInt32_beq6c]; exact beq_false_of_ne htag
       have hgrows : grows = false := by simp [grows, htag]
@@ -1266,7 +1343,7 @@ private theorem gridItems_mid
           step_res_plain 1
           rw [runJvmResFast_newClass_pair6c]
           step_res_plain 2; rw [hl4]
-          rw [runJvmResFast_invokestatic_step stepStatic_ubyteBox6c]
+          rw [runJvmResFast_invokestatic_step stepStatic_ubyteBox6c_u8]
           step_res_plain 1; rw [hl5]
           rw [runJvmResFast_invokestatic_step stepStatic_uintBox6c]
           rw [runJvmResFast_invokespecial_step stepSpecial_pairInit6c]
@@ -1309,14 +1386,14 @@ private theorem gridItems_mid
           step_res_plain 1; rw [hl6]
           rw [runJvmResFast_invokestatic_step stepStatic_uintBox6c]
           rw [runJvmResFast_invokespecial_step stepSpecial_pairInit6c]
-          rw [show (36 : UInt32) = (Algorithm.rleRowEnd : UInt8).toUInt32 from rfl]
+          rw [show (36 : UInt32) &&& 0xFF = (Algorithm.rleRowEnd : UInt8).toUInt32 from rfl]
           rw [runJvmResFast_invokestatic_step (stepStatic_growBufPush_u8u32 hrep)]
           step_res_plain 5
           rw [runJvmResFast_goto]; step_drop6c 16
           step_res_plain 1
           rw [runJvmResFast_newClass_pair6c]
           step_res_plain 2; rw [hl4]
-          rw [runJvmResFast_invokestatic_step stepStatic_ubyteBox6c]
+          rw [runJvmResFast_invokestatic_step stepStatic_ubyteBox6c_u8]
           step_res_plain 1; rw [hl5]
           rw [runJvmResFast_invokestatic_step stepStatic_uintBox6c]
           rw [runJvmResFast_invokespecial_step stepSpecial_pairInit6c]
@@ -1385,11 +1462,10 @@ private theorem gridItems_tail
             pushed]
           exact U8U32PairRep6c.full pushed
         · step_drop6c 9
-          step_res_plain 3; rw [hl3]
+          step_res_plain 3; rw [hl3]; dsimp only
           rw [runJvmResFast_invokestatic_step stepStatic_uintCtor6c]
           step_res_plain 3; rw [hl1]
           rw [runJvmResFast_invokestatic_step (stepStatic_remainderUnsigned6c hw)]
-          dsimp only [Jvm.JvmVal.asI32]
           rw [runJvmResFast_ifeq_branch (by simp [heor])]; step_drop6c 14
           step_res_plain 2; rw [hl20]
           rw [runJvmResFast_if_icmpeq_branch (by simp [Algorithm.rleAlive])]; step_drop6c 12
@@ -1402,14 +1478,14 @@ private theorem gridItems_tail
           step_res_plain 1
           rw [runJvmResFast_invokestatic_step stepStatic_uintBox6c]
           rw [runJvmResFast_invokespecial_step stepSpecial_pairInit6c]
-          rw [show (111 : UInt32) = (Algorithm.rleAlive : UInt8).toUInt32 from rfl]
+          rw [show (111 : UInt32) &&& 0xFF = (Algorithm.rleAlive : UInt8).toUInt32 from rfl]
           rw [runJvmResFast_invokestatic_step (stepStatic_growBufPush_u8u32 hrep2)]
           step_res_plain 10; step_drop6c 28
           step_res_plain 9; rw [hl0, hl1, hl2]
           rw [runJvmResFast_invokestatic_step stepStatic_uintCtor6c]
           step_res_plain 17
           rw [runJvmResFast_goto]
-          dsimp only [locsN, locsM, pushedVal, pushed, Jvm.JvmVal.asI32,
+          dsimp only [locsN, locsM, pushedVal, pushed,
             Algorithm.rleAlive, Algorithm.rleDead]
           rw [show (98 : UInt32) = (98 : UInt8).toUInt32 from rfl]
           rfl
@@ -1440,11 +1516,10 @@ private theorem gridItems_tail
             pushed1, pushed2Val]
           exact U8U32PairRep6c.full pushed2
         · step_drop6c 9
-          step_res_plain 3; rw [hl3]
+          step_res_plain 3; rw [hl3]; dsimp only
           rw [runJvmResFast_invokestatic_step stepStatic_uintCtor6c]
           step_res_plain 3; rw [hl1]
           rw [runJvmResFast_invokestatic_step (stepStatic_remainderUnsigned6c hw)]
-          dsimp only [Jvm.JvmVal.asI32]
           rw [runJvmResFast_ifeq_branch (by simp [heor])]; step_drop6c 14
           step_res_plain 2; rw [hl20]
           rw [runJvmResFast_if_icmpeq_branch (by simp [Algorithm.rleAlive])]; step_drop6c 12
@@ -1458,7 +1533,7 @@ private theorem gridItems_tail
           step_res_plain 1; rw [hl19]
           rw [runJvmResFast_invokestatic_step stepStatic_uintBox6c]
           rw [runJvmResFast_invokespecial_step stepSpecial_pairInit6c]
-          rw [show (36 : UInt32) = (Algorithm.rleRowEnd : UInt8).toUInt32 from rfl]
+          rw [show (36 : UInt32) &&& 0xFF = (Algorithm.rleRowEnd : UInt8).toUInt32 from rfl]
           rw [runJvmResFast_invokestatic_step (stepStatic_growBufPush_u8u32 hrep2)]
           step_res_plain 11; rw [hl21]
           rw [runJvmResFast_goto]; step_drop6c 19
@@ -1469,7 +1544,7 @@ private theorem gridItems_tail
           step_res_plain 1
           rw [runJvmResFast_invokestatic_step stepStatic_uintBox6c]
           rw [runJvmResFast_invokespecial_step stepSpecial_pairInit6c]
-          rw [show (111 : UInt32) = (Algorithm.rleAlive : UInt8).toUInt32 from rfl]
+          rw [show (111 : UInt32) &&& 0xFF = (Algorithm.rleAlive : UInt8).toUInt32 from rfl]
           rw [runJvmResFast_invokestatic_step
             (stepStatic_growBufPush_u8u32 (U8U32PairRep6c.full pushed1))]
           step_res_plain 10; step_drop6c 28
@@ -1478,8 +1553,9 @@ private theorem gridItems_tail
           step_res_plain 17
           rw [runJvmResFast_goto]
           dsimp only [locsN, locsM', pushed1Val, pushed2Val, pushed2, pushed1,
-            Jvm.JvmVal.asI32, Algorithm.rleAlive, Algorithm.rleRowEnd, Algorithm.rleDead]
+            Algorithm.rleAlive, Algorithm.rleRowEnd, Algorithm.rleDead]
           rw [show (98 : UInt32) = (98 : UInt8).toUInt32 from rfl]
+          rfl
     · have hnot111 : (curTag.toUInt32 == 111) = false := by
         rw [show (111 : UInt32) = (111 : UInt8).toUInt32 from rfl, u8_toUInt32_beq6c]
         exact beq_false_of_ne halive
@@ -1497,11 +1573,10 @@ private theorem gridItems_tail
       · simp [locsN, setLocal_apply, nextRowEnds, rowEnds2, heor_t, hemit]
       · simpa [locsN, setLocal_apply, nextItems, heor_t, items4, items3, hemit] using hrep2
       · step_drop6c 9
-        step_res_plain 3; rw [hl3]
+        step_res_plain 3; rw [hl3]; dsimp only
         rw [runJvmResFast_invokestatic_step stepStatic_uintCtor6c]
         step_res_plain 3; rw [hl1]
         rw [runJvmResFast_invokestatic_step (stepStatic_remainderUnsigned6c hw)]
-        dsimp only [Jvm.JvmVal.asI32]
         rw [runJvmResFast_ifeq_branch (by simp [heor])]; step_drop6c 12
         step_res_plain 2; rw [hl20]
         rw [runJvmResFast_if_icmpeq_fallthrough hnot111]
@@ -1512,7 +1587,7 @@ private theorem gridItems_tail
         rw [runJvmResFast_invokestatic_step stepStatic_uintCtor6c]
         step_res_plain 17
         rw [runJvmResFast_goto]
-        dsimp only [locsN, locsM, Jvm.JvmVal.asI32, Algorithm.rleDead]
+        dsimp only [locsN, locsM, Algorithm.rleDead]
         rw [show (98 : UInt32) = (98 : UInt8).toUInt32 from rfl]
   · have heor_f : ((k + 1) % w == 0) = false := beq_false_of_ne heor
     have heor_bool : eor = false := by simp [eor, heor]
@@ -1527,11 +1602,10 @@ private theorem gridItems_tail
     · simp [locsN, setLocal_apply, nextRowEnds, heor_bool]
     · simpa [locsN, setLocal_apply, nextItems, heor_bool] using hrep2
     · step_drop6c 9
-      step_res_plain 3; rw [hl3]
+      step_res_plain 3; rw [hl3]; dsimp only
       rw [runJvmResFast_invokestatic_step stepStatic_uintCtor6c]
       step_res_plain 3; rw [hl1]
       rw [runJvmResFast_invokestatic_step (stepStatic_remainderUnsigned6c hw)]
-      dsimp only [Jvm.JvmVal.asI32]
       rw [runJvmResFast_ifeq_fallthrough heor_f]
       step_drop6c 23
       step_res_plain 6; rw [hl0, hl1, hl2]
@@ -1902,7 +1976,10 @@ private theorem stepStatic_wrapRLEItems6c
       .inl (some ⟨pc + 1, .ext (.strGrowBuf r) :: rest, locs, jh, hp⟩) := by
   have hfold : (items.map fun x => JvmVal.pair (.boxedUByte x.1.toUInt32) (.boxedUInt x.2)).foldlM
       (fun acc (v : JvmVal) => match v with
-        | .pair a b => some (acc.push (unboxU8 a, unboxI32 b))
+        | .pair a b => do
+          let ad ← unboxU8? a
+          let bd ← unboxI32? b
+          some (acc.push (ad, bd))
         | _ => none) #[] = some items := by
     rw [← Array.foldlM_toList, Array.toList_map, List.foldlM_map]
     have hgen : ∀ (xs : List (UInt8 × UInt32)) (acc : Array (UInt8 × UInt32)),
@@ -1917,7 +1994,7 @@ private theorem stepStatic_wrapRLEItems6c
         rw [ih (acc.push x)]
         simp [Array.toList_push, List.append_assoc]
     have h0 := hgen items.toList #[]
-    simpa [unboxU8, unboxI32, u8_toUInt32_toUInt8] using h0
+    simpa [unboxU8?, unboxI32?, u8_toUInt32_toUInt8] using h0
   have hfn : stepInvokeStatic ⟨pc, .ext (.strGrowBuf out) :: .i32 lineLen :: .str line ::
       .i32 j :: .i32 items.size.toUInt32 :: .heapRef itemsAddr :: rest, locs, jh, hp⟩
       "RleLeanKt" "f_Algorithm_wrapRLEItems-zax99WU"
@@ -1925,7 +2002,10 @@ private theorem stepStatic_wrapRLEItems6c
       match jh.get? itemsAddr with
       | some (.objArray _ elems) =>
         match elems.foldlM (fun acc v => match v with
-            | .pair a b => some (acc.push (unboxU8 a, unboxI32 b))
+            | .pair a b => do
+              let ad ← unboxU8? a
+              let bd ← unboxI32? b
+              some (acc.push (ad, bd))
             | _ => none) #[] with
         | some items' =>
           .inl (some ⟨pc + 1, .ext (.strGrowBuf
@@ -2143,7 +2223,6 @@ theorem serializeRLE_equiv (cells : Array UInt64) (minX maxX minY maxY : Int32)
       step_res_plain 1
       rw [runJvmResFast_invokestatic_step stepStatic_uintCtor6c]
       step_res_plain 3
-      dsimp only [Jvm.JvmVal.asI32]
       rw [hw_eq, hh_eq]
       rw [runJvmResFast_invokestatic_step (stepStatic_asciiBytesReplicate6c (by decide))]
       step_drop6c 26
@@ -2186,7 +2265,6 @@ theorem serializeRLE_equiv (cells : Array UInt64) (minX maxX minY maxY : Int32)
       step_res_plain 3
       rw [runJvmResFast_arraylength_obj hget_r1]
       step_res_plain 2
-      dsimp only [Jvm.JvmVal.asI32]
       have hlen_e : elems0.size = items0.size := by simp [elems0]
       rw [hlen_e]
       rw [runJvmResFast_invokestatic_step (stepStatic_arraysCopyOf6c hget_r1 hslt0)]

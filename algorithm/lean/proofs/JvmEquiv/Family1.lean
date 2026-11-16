@@ -99,22 +99,37 @@ theorem getNEXT_GEN_4X4_LUT_equiv (jh : Jvm.JvmHeap AlgExt) (lutAddr : Nat)
     (hlut : jh.getStatic? "AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" = some (.heapRef lutAddr)) :
     runJvm 10 getNEXT_GEN_4X4_LUT_prog
       (Jvm.initJvmState [] (.i32 0) ⟨[], [], []⟩ jh) = some (.heapRef lutAddr) := by
-  unfold runJvm getNEXT_GEN_4X4_LUT_prog
-  simp [Jvm.runJvm, Jvm.stepInstr, Jvm.initJvmState, hlut]
+  apply runJvm_of_runJvmValFast0 10 _ _ _ rfl
+  rw [show (10 : Nat) = 9 + 1 from rfl]
+  dsimp only [getNEXT_GEN_4X4_LUT_prog, Jvm.initJvmState]
+  rw [runJvmValFast_step_nonbranch (hbr := rfl) (hno := by simp)]
+  dsimp only [stepInstr, Jvm.stepInstr]
+  rw [hlut]
+  rfl
 
 theorem getEMPTY_LEVEL_4_equiv (jh : Jvm.JvmHeap AlgExt)
     (hl4 : jh.getStatic? "MacroCellLeanKt" "EMPTY_LEVEL_4" = some (.ext (.mc Algorithm.emptyLevel4))) :
     runJvm 10 getEMPTY_LEVEL_4_prog
       (Jvm.initJvmState [] (.i32 0) ⟨[], [], []⟩ jh) = some (.ext (.mc Algorithm.emptyLevel4)) := by
-  unfold runJvm getEMPTY_LEVEL_4_prog
-  simp [Jvm.runJvm, Jvm.stepInstr, Jvm.initJvmState, hl4]
+  apply runJvm_of_runJvmValFast0 10 _ _ _ rfl
+  rw [show (10 : Nat) = 9 + 1 from rfl]
+  dsimp only [getEMPTY_LEVEL_4_prog, Jvm.initJvmState]
+  rw [runJvmValFast_step_nonbranch (hbr := rfl) (hno := by simp)]
+  dsimp only [stepInstr, Jvm.stepInstr]
+  rw [hl4]
+  rfl
 
 theorem getEMPTY_NODES_equiv (jh : Jvm.JvmHeap AlgExt) (nodesAddr : Nat)
     (hnodes : jh.getStatic? "MacroCellLeanKt" "EMPTY_NODES" = some (.heapRef nodesAddr)) :
     runJvm 10 getEMPTY_NODES_prog
       (Jvm.initJvmState [] (.i32 0) ⟨[], [], []⟩ jh) = some (.heapRef nodesAddr) := by
-  unfold runJvm getEMPTY_NODES_prog
-  simp [Jvm.runJvm, Jvm.stepInstr, Jvm.initJvmState, hnodes]
+  apply runJvm_of_runJvmValFast0 10 _ _ _ rfl
+  rw [show (10 : Nat) = 9 + 1 from rfl]
+  dsimp only [getEMPTY_NODES_prog, Jvm.initJvmState]
+  rw [runJvmValFast_step_nonbranch (hbr := rfl) (hno := by simp)]
+  dsimp only [stepInstr, Jvm.stepInstr]
+  rw [hnodes]
+  rfl
 
 private theorem u32_and_65535_lt (w : UInt32) :
     (w &&& (65535 : UInt32)).toNat < 65536 := by
@@ -186,12 +201,13 @@ elab "f1_split_res_fuel " n:term : tactic => do
   setGoals (g1 :: rest)
 
 private theorem evalResBranchInstrCons_if_icmpge (f1 : Nat) (prog : List JvmInstr) (pc target : Nat)
-    (rest : List JvmInstr) (pc0 : Nat) (b a : JvmVal) (s : List JvmVal) (locs : Nat → JvmVal)
+    (rest : List JvmInstr) (pc0 : Nat) (b a : UInt32) (s : List JvmVal) (locs : Nat → JvmVal)
     (jh : Jvm.JvmHeap AlgExt) (ar : List Algorithm.FlatHashLifeArena) (u64 : List (Array UInt64)) (asc : List Algorithm.AsciiBytes) :
-    evalResBranchInstrCons f1 prog pc (.if_icmpge target) rest ⟨pc0, b :: a :: s, locs, jh, ⟨ar, u64, asc⟩⟩ =
-      if b.asI32.toBitVec.sle a.asI32.toBitVec then
+    evalResBranchInstrCons f1 prog pc (.if_icmpge target) rest ⟨pc0, .i32 b :: .i32 a :: s, locs, jh, ⟨ar, u64, asc⟩⟩ =
+      if b.toBitVec.sle a.toBitVec then
         runJvmResFast f1 prog target (prog.drop target) ⟨target, s, locs, jh, ⟨ar, u64, asc⟩⟩
-      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, ⟨ar, u64, asc⟩⟩ := rfl
+      else runJvmResFast f1 prog (pc + 1) rest ⟨pc + 1, s, locs, jh, ⟨ar, u64, asc⟩⟩ :=
+  Jvm.evalResBranchInstrCons_if_icmpge algHooks f1 prog pc target rest pc0 b a s locs jh ⟨ar, u64, asc⟩
 
 private theorem emptyNodesArray_getElem (d : Nat) (hd : d < emptyNodesArray.size) :
     emptyNodesArray[d]'hd = .ext (.mc (Algorithm.emptyNode d)) := by
@@ -334,8 +350,8 @@ private theorem clinit_alg_loop :
           jh.setStatic "AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" (.heapRef arrAddr), ⟨[], [], []⟩⟩) := by
       f1_split_res_fuel 120
       flat_step_blk clinit_AlgorithmLeanKt_prog
-      rw [evalResBranchInstrCons_if_icmpge]; dsimp [Jvm.JvmVal.asI32]
-      rw [hl0]; simp [hge]
+      rw [hl0, evalResBranchInstrCons_if_icmpge]
+      simp [hge]
       f1_split_res_fuel 120
       flat_step_blk clinit_AlgorithmLeanKt_prog
       rw [hl1]
@@ -354,8 +370,8 @@ private theorem clinit_alg_loop :
             jh.setStatic "AlgorithmLeanKt" "NEXT_GEN_4X4_LUT" (.heapRef arrAddr), ⟨[], [], []⟩⟩) := by
         f1_split_res_fuel 120
         flat_step_blk clinit_AlgorithmLeanKt_prog
-        rw [evalResBranchInstrCons_if_icmpge]; dsimp [Jvm.JvmVal.asI32]
-        rw [hl0]; simp [hge]
+        rw [hl0, evalResBranchInstrCons_if_icmpge]
+        simp [hge]
         f1_split_res_fuel 120
         flat_step_blk clinit_AlgorithmLeanKt_prog
         rw [hl1]
@@ -400,19 +416,33 @@ private theorem clinit_alg_loop :
       refine ⟨st', ?_, hres'⟩
       f1_split_res_fuel 120
       flat_step_blk clinit_AlgorithmLeanKt_prog
-      rw [evalResBranchInstrCons_if_icmpge]; dsimp [Jvm.JvmVal.asI32]
-      rw [hl0]; simp [hslt_icmp]
+      rw [hl0, evalResBranchInstrCons_if_icmpge]
+      simp [hslt_icmp]
       f1_split_res_fuel 120
       flat_step_blk clinit_AlgorithmLeanKt_prog
       dsimp only
       rw [hl0, hl1]
-      f1_split_res_fuel 1
-      rw [runJvmResFast_bastore hget hslt0 hlt_arr]
       f1_split_res_fuel 120
       flat_step_blk clinit_AlgorithmLeanKt_prog
-      rw [show ((((k + 200 + (m + 1) * 14 - 120 + 116 + 1 - 120 + 111).add 0).succ - 1 - 120).add 117).succ =
+      f1_split_res_fuel 1
+      rw [runJvmResFast_bastore hget hslt0 hlt_arr]
+      f1_split_res_fuel 1
+      dsimp only [runJvmResFast]
+      rw [Jvm.runJvmResFast_step_nonbranch algHooks (hbr := rfl) (hno := by intro ⟨h, _⟩; cases h)]
+      dsimp only [Jvm.stepInstr, setLocal]
+      rw [hl0]
+      dsimp only [Jvm.JvmVal.asI32?]
+      simp only [show (0 = 2) ↔ False by decide, ↓reduceIte]
+      rw [← show runJvmResFast = Jvm.runJvmResFast algHooks from rfl]
+      f1_split_res_fuel 1
+      rw [show (16 + 1 + 1 : Nat) = 18 by rfl]
+      dsimp only [runJvmResFast]
+      rw [Jvm.runJvmResFast_at_branch_cons algHooks (hbr := rfl)]
+      rw [Jvm.evalResBranchInstrCons_goto]
+      change runJvmResFast _ clinit_AlgorithmLeanKt_prog 5 (clinit_AlgorithmLeanKt_prog.drop 5) _ = _
+      rw [show ((((k + 200 + (m + 1) * 14 - 120 + 116 + 1 - 120).add 113).succ - 120 + 117).add 0).succ - 1 - 1 - 1 =
         k + 200 + m * 14 by simp only [f1_nat_add_eq_add, Nat.succ_eq_add_one]; omega]
-      dsimp only [Jvm.JvmVal.asI32, Int32.toUInt32]
+      rw [show Int32.toUInt32 1 = 1 from rfl]
       have hbyte_eq : ∀ (x : UInt32),
           { toBitVec := BitVec.signExtend 32 (BitVec.setWidth 8 x.toBitVec) : UInt32 }.toUInt8 = x.toUInt8 := by
         intro x
@@ -423,7 +453,7 @@ private theorem clinit_alg_loop :
         rw [hbv, hbv]
         simp only [BitVec.getLsbD_setWidth, BitVec.getLsbD_signExtend, hb, decide_true, Bool.true_and,
           ↓reduceIte, show b < 32 by omega]
-      rw [hl0, hbyte_eq]
+      rw [hbyte_eq]
       exact hrun'
 
 theorem clinit_AlgorithmLeanKt_equiv :
@@ -445,8 +475,8 @@ theorem clinit_AlgorithmLeanKt_equiv :
   rw [runJvmResFast_newarray_byte (by decide)]
   f1_split_res_fuel 1
   rw [runJvmResFast_stepResFlatChunk 1]
-  simp only [List.foldl, stepResFlatChunk, Jvm.isBranchInstr, isFlatStop, stepInstr, Jvm.stepInstr,
-    Jvm.JvmHeap.alloc, Array.size_empty, afterResBlockChunk]
+  dsimp only [List.foldl, stepResFlatChunk, Jvm.stepResBlockChunkWith, Jvm.isBranchInstr, isFlatStopLeaf, Jvm.stepInstr,
+    Jvm.JvmHeap.alloc, Array.size_empty, afterResBlockChunk, Jvm.afterResBlockChunk]
   exact hrun
 
 private theorem clinit_mc_node_step {f : Nat} (pc : Nat) (h : UInt32)
@@ -470,16 +500,21 @@ private theorem clinit_mc_node_step {f : Nat} (pc : Nat) (h : UInt32)
         ⟨pc + 14, [], locs,
           jh.setStatic "MacroCellLeanKt" next (.ext (.mc (.cellNode h sub sub sub sub))), ⟨[], [], []⟩⟩ := by
   rw [hprog, show f + 1 + 14 = (f + 3) + 12 by omega, runJvmResFast_stepResFlatChunk 12]
-  (conv => lhs; arg 1; simp only [stepResFlatChunk, Jvm.isBranchInstr, isFlatStop, stepInstr, Jvm.stepInstr,
-    algHooks, algResolveStatic, checkCast, Jvm.defaultCheckCast,
+  (conv => lhs; arg 1; dsimp only [stepResFlatChunk, Jvm.stepResBlockChunkWith, Jvm.isBranchInstr, isFlatStopLeaf, Jvm.stepInstr,
+    Jvm.evalCheckCast, Jvm.JvmHeap.checkCast, isSubtypeOf,
+    algHooks, algResolveStatic, checkCast, Jvm.defaultCheckCast])
+  (conv => lhs; arg 1; simp only [
     show ("com/alexvanyo/composelife/model/MacroCell$CellNode" == "java/lang/StringBuilder") = false from rfl,
-    Bool.false_eq_true, ↓reduceIte, hget])
-  rw [afterResBlockChunk_cont, show f + 3 = (f + 2) + 1 by omega, runJvmResFast_invokespecial_step rfl,
+    Bool.or_false, Bool.false_eq_true, ↓reduceIte, hget])
+  (conv => lhs; arg 1; jvm_whnf_blk)
+  rw [afterResBlockChunk_cont,
+    show ((f + 2).add 0).succ = f + 2 + 1 from rfl,
+    show ((pc + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1).add 0).succ = pc + 12 from rfl,
+    runJvmResFast_invokespecial_step rfl,
     show f + 2 = (f + 1) + 1 by omega, runJvmResFast_stepResFlatChunk 1]
-  (conv => lhs; arg 1; simp only [stepResFlatChunk, Jvm.isBranchInstr, isFlatStop, stepInstr, Jvm.stepInstr,
-    Bool.false_eq_true, ↓reduceIte, ite_true])
+  (conv => lhs; arg 1; dsimp only [stepResFlatChunk, Jvm.stepResBlockChunkWith, Jvm.isBranchInstr, isFlatStopLeaf, Jvm.stepInstr, setLocal])
+  (conv => lhs; arg 1; simp only [Bool.or_false, Bool.false_eq_true, ↓reduceIte, ite_true])
   rw [afterResBlockChunk_cont]
-  rfl
 
 private def clinitMcSpecs : List (Nat × UInt32 × String × String × String × String) := [
   (7, 572885659, "EMPTY_LEVEL_4", "Lcom/alexvanyo/composelife/model/MacroCell$Level4Node;", "emptyNode_5", "Lcom/alexvanyo/composelife/model/MacroCell$CellNode;"),
@@ -739,15 +774,15 @@ theorem clinit_MacroCellLeanKt_equiv :
           "Lcom/alexvanyo/composelife/model/MacroCell$Level4Node;" ::
         clinit_MacroCellLeanKt_prog.drop 7 := rfl
     rw [hp0, show (550 : Nat) = 545 + 5 by decide, runJvmResFast_stepResFlatChunk 5]
-    (conv => lhs; arg 1; simp only [stepResFlatChunk, Jvm.isBranchInstr, isFlatStop, stepInstr, Jvm.stepInstr,
-      algHooks, algResolveStatic,
+    (conv => lhs; arg 1; dsimp only [stepResFlatChunk, Jvm.stepResBlockChunkWith, Jvm.isBranchInstr, isFlatStopLeaf, Jvm.stepInstr,
+      algHooks, algResolveStatic])
+    (conv => lhs; arg 1; simp only [
       show ({} : Jvm.JvmHeap AlgExt).getStatic? "com/alexvanyo/composelife/model/MacroCell$Level4Node" "Companion" =
         none from rfl,
-      Bool.false_eq_true, ↓reduceIte, ite_true])
+      Bool.or_false, Bool.false_eq_true, ↓reduceIte, ite_true])
     rw [afterResBlockChunk_cont,
       runJvmResFast_invokevirtual_step rfl, runJvmResFast_stepResFlatChunk 1]
-    (conv => lhs; arg 1; simp only [stepResFlatChunk, Jvm.isBranchInstr, isFlatStop, stepInstr, Jvm.stepInstr,
-      Bool.false_eq_true, ↓reduceIte, ite_true])
+    (conv => lhs; arg 1; jvm_whnf_blk)
     rw [afterResBlockChunk_cont]
     rfl
   -- Now chain k = 0..27 in a loop using clinit_mc_node_step and mkJH
@@ -863,19 +898,20 @@ theorem clinit_MacroCellLeanKt_equiv :
       simp [BitVec.slt, BitVec.toInt]; omega
     have hlt_elems : (UInt32.ofNat idx).toNat < elems.size := by omega
     rw [hp, show f + 4 = (f + 1) + 3 by omega, runJvmResFast_stepResFlatChunk 3]
-    simp only [stepResFlatChunk, Jvm.isBranchInstr, isFlatStop, stepInstr, Jvm.stepInstr,
-      hl0, hjg, afterResBlockChunk, Jvm.afterResBlockChunk, Bool.false_eq_true, ↓reduceIte]
-    rw [show pc + 1 + 1 + 1 = pc + 3 by omega]
+    (conv => lhs; arg 1; dsimp only [stepResFlatChunk, Jvm.stepResBlockChunkWith, Jvm.isBranchInstr, isFlatStopLeaf, Jvm.stepInstr,
+      Jvm.JvmVal.asI32?])
+    (conv => lhs; arg 1; simp only [hl0, hjg, Bool.or_false, Bool.false_eq_true, ↓reduceIte])
+    rw [afterResBlockChunk_cont, show pc + 1 + 1 + 1 = pc + 3 by omega]
     have hstep := Jvm.stepInstr_aastore algHooks (pc := pc + 3) (v := .ext (.mc val))
       (idx := UInt32.ofNat idx) (addr := 0) (stkRest := []) (locs := locs) (hp := ⟨[], [], []⟩)
-      hj0 hslt hlt_elems
+      rfl hj0 hslt hlt_elems
+    dsimp only [runJvmResFast]
     rw [Jvm.runJvmResFast_step_nonbranch algHooks (hbr := rfl) (hno := by intro ⟨h, _⟩; cases h)]
     simp only [hstep, ↓reduceIte]
     have heqSet : elems.set (UInt32.ofNat idx).toNat (.ext (.mc val)) hlt_elems =
         elems.set idx (.ext (.mc val)) (by omega) := by
       congr 1
     rw [heqSet, show pc + 3 + 1 = pc + 4 by omega]
-    rfl
   have harr_chain : ∀ (d : Nat) (hd : d ≤ 33) (f : Nat) (locs : Nat → JvmVal),
       locs 0 = .heapRef 0 →
       runJvmResFast (f + d * 4) clinit_MacroCellLeanKt_prog (402 + (33 - d) * 4)
@@ -953,9 +989,10 @@ theorem clinit_MacroCellLeanKt_equiv :
       rw [hrepl]
       simp [Jvm.JvmHeap.alloc, hmk0]
     rw [hp399, show (151 : Nat) = 148 + 3 by decide, runJvmResFast_stepResFlatChunk 3]
-    (conv => lhs; arg 1; simp only [stepResFlatChunk, Jvm.isBranchInstr, isFlatStop, stepInstr, Jvm.stepInstr,
-      Jvm.JvmVal.asI32, show ((33 : UInt32).toBitVec.slt 0#32) = false from rfl,
-      show (33 : UInt32).toNat = 33 from rfl, harr0', Bool.false_eq_true, ↓reduceIte])
+    (conv => lhs; arg 1; dsimp only [stepResFlatChunk, Jvm.stepResBlockChunkWith, Jvm.isBranchInstr, isFlatStopLeaf, Jvm.stepInstr,
+      Jvm.JvmVal.asI32?])
+    (conv => lhs; arg 1; simp only [show ((33 : UInt32).toBitVec.slt 0#32) = false from rfl,
+      show (33 : UInt32).toNat = 33 from rfl, harr0', Bool.or_false, Bool.false_eq_true, ↓reduceIte])
     rw [afterResBlockChunk_cont]
     change runJvmResFast (16 + 33 * 4) clinit_MacroCellLeanKt_prog (402 + (33 - 33) * 4)
       (clinit_MacroCellLeanKt_prog.drop (402 + (33 - 33) * 4))
@@ -965,8 +1002,8 @@ theorem clinit_MacroCellLeanKt_equiv :
     rw [harr_chain 33 (by decide) 16 (setLocal (fun _ => .i32 0) 0 (.heapRef 0)) rfl, harr33]
     have hp534 := clinit_MacroCellLeanKt_prog_drop_534
     rw [hp534, show (16 : Nat) = 13 + 3 by decide, runJvmResFast_stepResFlatChunk 3]
-    simp only [stepResFlatChunk, Jvm.isBranchInstr, isFlatStop, stepInstr, Jvm.stepInstr,
-      setLocal, afterResBlockChunk, Jvm.afterResBlockChunk, Bool.false_eq_true, ↓reduceIte]
+    (conv => lhs; arg 1; jvm_whnf_blk)
+    dsimp only [afterResBlockChunk]
     rfl
   · refine ⟨0, ?_, ?_, ?_⟩
     · have h0 := hmk_get_all ⟨0, by decide⟩

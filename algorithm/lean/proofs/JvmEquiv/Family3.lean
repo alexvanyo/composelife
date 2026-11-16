@@ -25,6 +25,10 @@ open Algorithm.JvmBytecode
 
 /-! ### Family 3: FlatHashLife keys/cursor + Life106 + Plaintext -/
 
+private theorem setLocal_eq_self {locs : Nat → JvmVal} {idx : Nat} {val : JvmVal}
+    (h : locs idx = val) : setLocal locs idx val = locs := by
+  funext i; dsimp [setLocal]; split <;> simp_all
+
 private theorem jvmHeap_alloc_set_self {Ext : Type} (jh : Jvm.JvmHeap Ext) (x y : Jvm.HeapObj Ext) :
     (jh.alloc x).snd.set jh.objects.size y = (jh.alloc y).snd := by
   simp only [Jvm.JvmHeap.alloc, Jvm.JvmHeap.set]
@@ -137,7 +141,7 @@ private theorem stepSpecial_pair_init_heap
       .inl (some ⟨pc + 1, .pair a b :: rest, locs, jh, hp⟩) := rfl
 
 private theorem stepStatic_splitKeys_heap
-    {pc : Nat} {keysVal nwVal neVal swVal seVal midY midX : JvmVal}
+    {pc : Nat} {keysVal nwVal neVal swVal seVal : JvmVal} {midY midX : UInt64}
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     {keys nw ne sw se : List UInt64}
     (hkeys : decodeU64List jh (jh.objects.size + 2) keysVal = some keys)
@@ -145,11 +149,11 @@ private theorem stepStatic_splitKeys_heap
     (hne : decodeU64List jh (jh.objects.size + 2) neVal = some ne)
     (hsw : decodeU64List jh (jh.objects.size + 2) swVal = some sw)
     (hse : decodeU64List jh (jh.objects.size + 2) seVal = some se) :
-    stepInvokeStatic ⟨pc, seVal :: swVal :: neVal :: nwVal :: midY :: midX :: keysVal :: rest,
+    stepInvokeStatic ⟨pc, seVal :: swVal :: neVal :: nwVal :: .i64 midY :: .i64 midX :: keysVal :: rest,
         locs, jh, hp⟩
         "FlatHashLifeLeanKt" "f_Algorithm_splitKeys-0vDo7DQ"
         "(Ljava/lang/Object;JJLjava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Lkotlin/Pair;" =
-      let r := Algorithm.splitKeys keys midX.asI64 midY.asI64 nw ne sw se
+      let r := Algorithm.splitKeys keys midX midY nw ne sw se
       let (nwV, h1) := encodeU64List jh r.1
       let (neV, h2) := encodeU64List h1 r.2.1
       let (swV, h3) := encodeU64List h2 r.2.2.1
@@ -160,7 +164,7 @@ private theorem stepStatic_splitKeys_heap
     match decodeU64List jh fuel keysVal, decodeU64List jh fuel nwVal, decodeU64List jh fuel neVal,
           decodeU64List jh fuel swVal, decodeU64List jh fuel seVal with
     | some keys, some nw, some ne, some sw, some se =>
-      let r := Algorithm.splitKeys keys midX.asI64 midY.asI64 nw ne sw se
+      let r := Algorithm.splitKeys keys midX midY nw ne sw se
       let (nwV, h1) := encodeU64List jh r.1
       let (neV, h2) := encodeU64List h1 r.2.1
       let (swV, h3) := encodeU64List h2 r.2.2.1
@@ -171,55 +175,55 @@ private theorem stepStatic_splitKeys_heap
   rw [hkeys, hnw, hne, hsw, hse]
 
 private theorem stepStatic_leafFromKeys_heap
-    {pc : Nat} {leaf y0 x0 keysVal : JvmVal}
+    {pc : Nat} {leaf y0 x0 : UInt64} {keysVal : JvmVal}
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     {keys : List UInt64}
     (hkeys : decodeU64List jh (jh.objects.size + 2) keysVal = some keys) :
-    stepInvokeStatic ⟨pc, leaf :: y0 :: x0 :: keysVal :: rest, locs, jh, hp⟩
+    stepInvokeStatic ⟨pc, .i64 leaf :: .i64 y0 :: .i64 x0 :: keysVal :: rest, locs, jh, hp⟩
         "FlatHashLifeLeanKt" "f_Algorithm_leafFromKeys-tc6d2E8" "(Ljava/lang/Object;JJJ)J" =
-      .inl (some ⟨pc + 1, .i64 (Algorithm.leafFromKeys keys x0.asI64 y0.asI64 leaf.asI64) :: rest,
+      .inl (some ⟨pc + 1, .i64 (Algorithm.leafFromKeys keys x0 y0 leaf) :: rest,
         locs, jh, hp⟩) := by
   refine Eq.trans (b := match decodeU64List jh (jh.objects.size + 2) keysVal with
-    | some keys => .inl (some ⟨pc + 1, .i64 (Algorithm.leafFromKeys keys x0.asI64 y0.asI64 leaf.asI64) :: rest,
+    | some keys => .inl (some ⟨pc + 1, .i64 (Algorithm.leafFromKeys keys x0 y0 leaf) :: rest,
         locs, jh, hp⟩)
     | none => .inr none) rfl ?_
   rw [hkeys]
 
 private theorem stepStatic_keysToMacroCell_heap
-    {pc : Nat} {empty : Algorithm.MacroCell} {h y0 x0 keysVal : JvmVal}
+    {pc : Nat} {empty : Algorithm.MacroCell} {h : UInt32} {y0 x0 : UInt64} {keysVal : JvmVal}
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     {keys : List UInt64}
     (hkeys : decodeU64List jh (jh.objects.size + 2) keysVal = some keys) :
-    stepInvokeStatic ⟨pc, .ext (.mc empty) :: h :: y0 :: x0 :: keysVal :: rest, locs, jh, hp⟩
+    stepInvokeStatic ⟨pc, .ext (.mc empty) :: .i32 h :: .i64 y0 :: .i64 x0 :: keysVal :: rest, locs, jh, hp⟩
         "FlatHashLifeLeanKt" "f_Algorithm_keysToMacroCell-kVUmbH8"
         "(Ljava/lang/Object;JJILcom/alexvanyo/composelife/model/MacroCell;)Lcom/alexvanyo/composelife/model/MacroCell;" =
       .inl (some ⟨pc + 1,
-        .ext (.mc (Algorithm.keysToMacroCell keys x0.asI64 y0.asI64 h.asI32 empty)) :: rest,
+        .ext (.mc (Algorithm.keysToMacroCell keys x0 y0 h empty)) :: rest,
         locs, jh, hp⟩) := by
   refine Eq.trans (b := match decodeU64List jh (jh.objects.size + 2) keysVal with
     | some keys => .inl (some ⟨pc + 1,
-        .ext (.mc (Algorithm.keysToMacroCell keys x0.asI64 y0.asI64 h.asI32 empty)) :: rest,
+        .ext (.mc (Algorithm.keysToMacroCell keys x0 y0 h empty)) :: rest,
         locs, jh, hp⟩)
     | none => .inr none) rfl ?_
   rw [hkeys]
 
 private theorem stepStatic_relativeKeysLoop_heap
-    {pc : Nat} {accVal minY minX limit i : JvmVal} {cId : Nat}
+    {pc : Nat} {accVal : JvmVal} {minY minX : UInt64} {limit i : UInt32} {cId : Nat}
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt}
     {ar : List Algorithm.FlatHashLifeArena} {u64 : List (Array UInt64)} {asc : List Algorithm.AsciiBytes}
     {cells : Array UInt64} {acc : List UInt64}
     (hu : u64[cId]? = some cells)
     (hacc : decodeU64List jh (jh.objects.size + 2) accVal = some acc) :
-    stepInvokeStatic ⟨pc, accVal :: minY :: minX :: limit :: i :: .ext (.u64Ref cId) :: rest,
+    stepInvokeStatic ⟨pc, accVal :: .i64 minY :: .i64 minX :: .i32 limit :: .i32 i :: .ext (.u64Ref cId) :: rest,
         locs, jh, ⟨ar, u64, asc⟩⟩
         "FlatHashLifeLeanKt" "f_Algorithm_relativeKeysLoop-CBMCY-A"
         "([JIIJJLjava/lang/Object;)Ljava/lang/Object;" =
-      let res := Algorithm.relativeKeysLoop cells i.asI32 limit.asI32 minX.asI64 minY.asI64 acc
+      let res := Algorithm.relativeKeysLoop cells i limit minX minY acc
       let (resVal, h') := encodeU64List jh res
       .inl (some ⟨pc + 1, resVal :: rest, locs, h', ⟨ar, u64, asc⟩⟩) := by
   refine Eq.trans (b := match u64[cId]?, decodeU64List jh (jh.objects.size + 2) accVal with
     | some cells, some acc =>
-      let res := Algorithm.relativeKeysLoop cells i.asI32 limit.asI32 minX.asI64 minY.asI64 acc
+      let res := Algorithm.relativeKeysLoop cells i limit minX minY acc
       let (resVal, h') := encodeU64List jh res
       .inl (some ⟨pc + 1, resVal :: rest, locs, h', ⟨ar, u64, asc⟩⟩)
     | _, _ => .inr none) rfl ?_
@@ -232,8 +236,8 @@ def decodeCellFrame (jh : Jvm.JvmHeap AlgExt) : JvmVal → Option Algorithm.Cell
     match jh.get? addr with
     | some (.instance "com/alexvanyo/composelife/algorithm/CellFrame$Node" flds) =>
       match List.lookup "f0" flds, List.lookup "f1" flds, List.lookup "f2" flds, List.lookup "f3" flds with
-      | some f0, some f1, some f2, some f3 =>
-        some (.node f0.asI32 f1.asI64.toInt64 f2.asI64.toInt64 f3.asI32)
+      | some (.i32 f0), some (.i64 f1), some (.i64 f2), some (.i32 f3) =>
+        some (.node f0 f1.toInt64 f2.toInt64 f3)
       | _, _, _, _ => none
     | _ => none
   | _ => none
@@ -373,8 +377,12 @@ theorem cellCursorStart___redArg_equiv
   dsimp only [decodeCellFrames]
   rw [hh3_0]
   dsimp only [hdObj]
-  simp [harr0, harr1, harr2, hdec2, decodeCellFrame, hh3_1, nodeObj, List.lookup,
-    Jvm.JvmVal.asI32, Jvm.JvmVal.asI64]
+  simp [harr0, harr1, harr2, hdec2, decodeCellFrame, hh3_1, nodeObj, List.lookup]
+
+private theorem U64ListRep.isCompat {jh jh' : Jvm.JvmHeap AlgExt} {v : JvmVal} {xs : List UInt64}
+    (h : U64ListRep jh v xs) :
+    Jvm.isArrayElemCompat algHooks jh' "java/lang/Object" v = true := by
+  cases h <;> rfl
 
 /-! ### relativeKeysLoop -/
 
@@ -474,7 +482,8 @@ private theorem relativeKeysLoop_loop (rem fuel : Nat)
         rw [jvmHeap_alloc_set_self]
         split_res_fuel 6
         heap_step_blk f_Algorithm_relativeKeysLoop_prog
-        rw [runJvmResFast_aastore (hget := jvmHeap_get?_alloc_self _ _) (hslt := by decide) (hlt := by simp)]
+        rw [runJvmResFast_aastore (hget := jvmHeap_get?_alloc_self _ _) (hslt := by decide) (hlt := by simp)
+          (hcompat := hacc.isCompat)]
         dsimp only
         rw [show (#[.boxedInt 1, .boxedULong rk, .null] : Array JvmVal).set (UInt32.toNat 2) accVal =
             #[.boxedInt 1, .boxedULong rk, accVal] from rfl]
@@ -843,7 +852,8 @@ private theorem splitKeys_loop (keys : List UInt64) :
           heap_step_nonbranch_chunks; norm_res_fuel
           rw [runJvmResFast_aastore
             (jvmHeap_get?_set_self (jvmHeap_get?_set_self (jvmHeap_get?_alloc_self _ _)))
-            (by decide) (by simp [UInt32.toNat])]
+            (by decide) (by simp [UInt32.toNat])
+            (hse.isCompat)]
           heap_step_blk f_Algorithm_splitKeys_prog
           norm_res_fuel
           conv => lhs; arg 5; arg 4; erw [splitKeys_cons_heap]
@@ -914,7 +924,8 @@ private theorem splitKeys_loop (keys : List UInt64) :
           heap_step_nonbranch_chunks; norm_res_fuel
           rw [runJvmResFast_aastore
             (jvmHeap_get?_set_self (jvmHeap_get?_set_self (jvmHeap_get?_alloc_self _ _)))
-            (by decide) (by simp [UInt32.toNat])]
+            (by decide) (by simp [UInt32.toNat])
+            (hsw.isCompat)]
           heap_step_blk f_Algorithm_splitKeys_prog
           norm_res_fuel
           conv => lhs; arg 5; arg 4; erw [splitKeys_cons_heap]
@@ -985,7 +996,8 @@ private theorem splitKeys_loop (keys : List UInt64) :
           heap_step_nonbranch_chunks; norm_res_fuel
           rw [runJvmResFast_aastore
             (jvmHeap_get?_set_self (jvmHeap_get?_set_self (jvmHeap_get?_alloc_self _ _)))
-            (by decide) (by simp [UInt32.toNat])]
+            (by decide) (by simp [UInt32.toNat])
+            (hne.isCompat)]
           heap_step_blk f_Algorithm_splitKeys_prog
           norm_res_fuel
           conv => lhs; arg 5; arg 4; erw [splitKeys_cons_heap]
@@ -1055,7 +1067,8 @@ private theorem splitKeys_loop (keys : List UInt64) :
           heap_step_nonbranch_chunks; norm_res_fuel
           rw [runJvmResFast_aastore
             (jvmHeap_get?_set_self (jvmHeap_get?_set_self (jvmHeap_get?_alloc_self _ _)))
-            (by decide) (by simp [UInt32.toNat])]
+            (by decide) (by simp [UInt32.toNat])
+            (hnw.isCompat)]
           heap_step_blk f_Algorithm_splitKeys_prog
           norm_res_fuel
           conv => lhs; arg 5; arg 4; erw [splitKeys_cons_heap]
@@ -1106,53 +1119,47 @@ private theorem runJvmResFast_ifle_branch {f pc tgt : Nat} {prog rest : List Jvm
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     (hv : v.toBitVec.sle 0#32 = true) :
     runJvmResFast (f + 1) prog pc (.ifle tgt :: rest) ⟨pc, .i32 v :: stk, locs, jh, hp⟩ =
-      runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stk, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32, hv]
+      runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stk, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_ifle_branch algHooks hv
 
 private theorem runJvmResFast_ifle_fallthrough {f pc tgt : Nat} {prog rest : List JvmInstr}
     {v : UInt32} {stk : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     (hv : v.toBitVec.sle 0#32 = false) :
     runJvmResFast (f + 1) prog pc (.ifle tgt :: rest) ⟨pc, .i32 v :: stk, locs, jh, hp⟩ =
-      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stk, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32, hv]
+      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stk, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_ifle_fallthrough algHooks hv
 
 private theorem runJvmResFast_iflt_branch {f pc tgt : Nat} {prog rest : List JvmInstr}
     {v : UInt32} {stk : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     (hv : v.toBitVec.slt 0#32 = true) :
     runJvmResFast (f + 1) prog pc (.iflt tgt :: rest) ⟨pc, .i32 v :: stk, locs, jh, hp⟩ =
-      runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stk, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32, hv]
+      runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stk, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_iflt_branch algHooks hv
 
 private theorem runJvmResFast_iflt_fallthrough {f pc tgt : Nat} {prog rest : List JvmInstr}
     {v : UInt32} {stk : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     (hv : v.toBitVec.slt 0#32 = false) :
     runJvmResFast (f + 1) prog pc (.iflt tgt :: rest) ⟨pc, .i32 v :: stk, locs, jh, hp⟩ =
-      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stk, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32, hv]
+      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stk, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_iflt_fallthrough algHooks hv
 
 private theorem runJvmResFast_ifeq_branch {f pc tgt : Nat} {prog rest : List JvmInstr}
     {v : UInt32} {stk : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     (hv : v = 0) :
     runJvmResFast (f + 1) prog pc (.ifeq tgt :: rest) ⟨pc, .i32 v :: stk, locs, jh, hp⟩ =
-      runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stk, locs, jh, hp⟩ := by
-  subst hv; conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32]
+      runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stk, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_ifeq_branch algHooks hv
 
 private theorem runJvmResFast_goto {f pc tgt : Nat} {prog rest : List JvmInstr}
     {stk : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     runJvmResFast (f + 1) prog pc (.goto tgt :: rest) ⟨pc, stk, locs, jh, hp⟩ =
-      runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stk, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast]
+      runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stk, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_goto algHooks
 
 private theorem runJvmResFast_tableswitch {f pc dflt : Nat} {low : Int32} {targets : List Nat}
     {prog rest : List JvmInstr} {v : UInt32} {stk : List JvmVal} {locs : Nat → JvmVal}
@@ -1160,8 +1167,8 @@ private theorem runJvmResFast_tableswitch {f pc dflt : Nat} {low : Int32} {targe
     runJvmResFast (f + 1) prog pc (.tableswitch low targets dflt :: rest) ⟨pc, .i32 v :: stk, locs, jh, hp⟩ =
       let tgt := Jvm.tableswitchTarget v low targets dflt
       runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stk, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32]
+  rw [runJvmResFast_at_branch_cons (hbr := rfl)]
+  exact evalResBranchInstrCons_tableswitch f prog pc low targets dflt rest pc v stk locs jh hp
 
 private theorem cmpUnsigned_sle0_iff (a b : UInt64) :
     (if a == b then (0 : UInt32) else if a < b then 4294967295 else 1).toBitVec.sle 0#32 =
@@ -1235,14 +1242,15 @@ private theorem leafFromKeys_pre {fuel : Nat} {k x0 : UInt64} {kId : Nat} {tlVal
   conv => lhs; arg 4; dsimp only [f_Algorithm_leafFromKeys_prog, List.drop]
   heap_step_nonbranch_chunks; norm_res_fuel
   rw [runJvmResFast_checkcast_boxedULong (Or.inl rfl)]
+  rw [← setLocal_eq_self h1]
   heap_step_nonbranch_chunks; norm_res_fuel
-  rw [h1]
-  dsimp [Jvm.JvmVal.asI64]
-  conv => lhs; arg 5; arg 2; simp only [u64_shift32_eq_keyHi]
-  conv => lhs; arg 5; arg 3; rw [u64_shift32_eq_keyHi]
+  have hsh32 : ((32 : UInt32) &&& 63).toUInt64 = (32 : UInt32).toUInt64 := rfl
+  have ha1 : (#[JvmVal.boxedInt 1, JvmVal.boxedULong k, tlVal] : Array JvmVal)[UInt32.toNat 1] =
+      .boxedULong k := rfl
+  have ha2 : (#[JvmVal.boxedInt 1, JvmVal.boxedULong k, tlVal] : Array JvmVal)[UInt32.toNat 2] =
+      tlVal := rfl
+  conv => lhs; arg 5; simp only [ha1, ha2, hsh32, u64_shift32_eq_keyHi]
   conv => rhs; arg 4; dsimp only [f_Algorithm_leafFromKeys_prog, List.drop]
-  rw [show fuel - 130 + 84 + 1 = fuel - 130 + 85 from by omega]
-  rfl
 
 private theorem leafFromKeys_step74 {f : Nat} {k x0 : UInt64} {tlVal : JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
@@ -1262,11 +1270,9 @@ private theorem leafFromKeys_step74 {f : Nat} {k x0 : UInt64} {tlVal : JvmVal}
   rw [runJvmResFast_ifle_branch hifle1]
   norm_res_fuel
   conv => lhs; arg 4; dsimp only [f_Algorithm_leafFromKeys_prog, List.drop]
-  heap_step_nonbranch_chunks; norm_res_fuel
-  rw [h1]
+  rw [← setLocal_eq_self h1]
   heap_step_nonbranch_chunks; norm_res_fuel
   conv => rhs; arg 4; dsimp only [f_Algorithm_leafFromKeys_prog, List.drop]
-  rfl
 
 private theorem leafFromKeys_step117 {f : Nat} {k x0 y0 : UInt64} {tlVal : JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
@@ -1296,12 +1302,10 @@ private theorem leafFromKeys_step117 {f : Nat} {k x0 y0 : UInt64} {tlVal : JvmVa
   conv => lhs; arg 4; dsimp only [f_Algorithm_leafFromKeys_prog, List.drop]
   heap_step_nonbranch_chunks; norm_res_fuel
   rw [runJvmResFast_checkcast_boxedULong (Or.inl rfl)]
+  rw [← setLocal_eq_self h3]
   heap_step_nonbranch_chunks; norm_res_fuel
-  rw [h3]
-  dsimp [Jvm.JvmVal.asI64]
   conv => rhs; arg 4; dsimp only [f_Algorithm_leafFromKeys_prog, List.drop]
   rw [u64_andMask32_eq_keyLo]
-  rfl
 
 private theorem leafFromKeys_step139 {f : Nat} {k y0 : UInt64} {tlVal : JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
@@ -1323,11 +1327,9 @@ private theorem leafFromKeys_step139 {f : Nat} {k y0 : UInt64} {tlVal : JvmVal}
   rw [runJvmResFast_ifle_branch hifle2]
   norm_res_fuel
   conv => lhs; arg 4; dsimp only [f_Algorithm_leafFromKeys_prog, List.drop]
-  heap_step_nonbranch_chunks; norm_res_fuel
-  rw [h3]
+  rw [← setLocal_eq_self h3]
   heap_step_nonbranch_chunks; norm_res_fuel
   conv => rhs; arg 4; dsimp only [f_Algorithm_leafFromKeys_prog, List.drop]
-  rfl
 
 private theorem leafFromKeys_loop (keys : List UInt64) :
     ∀ (fuel : Nat) (x0 y0 leaf : UInt64) (keysV : JvmVal)
@@ -1408,20 +1410,18 @@ private theorem leafFromKeys_loop (keys : List UInt64) :
                 rw [runJvmResFast_iflt_branch hiflt2]
                 norm_res_fuel
                 conv => lhs; arg 4; dsimp only [f_Algorithm_leafFromKeys_prog, List.drop]
-                heap_step_nonbranch_chunks; norm_res_fuel
-                rw [h5, h1]
-                heap_step_nonbranch_chunks; norm_res_fuel
-                rw [h3]
+                rw [← setLocal_eq_self h1, ← setLocal_eq_self h3, ← setLocal_eq_self h5]
                 heap_step_nonbranch_chunks; norm_res_fuel
                 rw [runJvmResFast_invokestatic_step (hs := stepStatic_leafWithCell_heap)]
                 heap_step_nonbranch_chunks; norm_res_fuel
                 rw [runJvmResFast_goto, List.drop_zero]
+                rw [setLocal_eq_self h5, setLocal_eq_self h3, setLocal_eq_self h1]
                 exact midBox_eq_self _
               case h2_1 =>
                 refine ih _ x0 y0 _ tlVal _ jh hp htl ?_ ?_ ?_ ?_ ?_
                 · simp [setLocal]
-                · simp [setLocal, h1]
-                · simp [setLocal, h3]
+                · simp [setLocal]
+                · simp [setLocal]
                 · simp [setLocal]
                 · simp only [List.length_cons] at hfuel; omega
             · have hiflt2 : (if Algorithm.keyLo k == y0 + 8 then (0 : UInt32)
@@ -1643,22 +1643,16 @@ private theorem runJvmResFast_ifeq_fallthrough {f pc tgt : Nat} {prog rest : Lis
     {v : UInt32} {stk : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     (h : (v == 0) = false) :
     runJvmResFast (f + 1) prog pc (.ifeq tgt :: rest) ⟨pc, .i32 v :: stk, locs, jh, hp⟩ =
-      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stk, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32, h]
+      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stk, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_ifeq_fallthrough algHooks h
 
 private theorem runJvmResFast_checkcast_pair {f : Nat} {prog : List JvmInstr} {pc : Nat}
     {rest : List JvmInstr} {pc0 : Nat} {a b : JvmVal} {stkRest : List JvmVal}
     {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     runJvmResFast (f + 1) prog pc (.checkcast "kotlin/Pair" :: rest)
         ⟨pc0, .pair a b :: stkRest, locs, jh, hp⟩ =
-      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, .pair a b :: stkRest, locs, jh, hp⟩ := by
-  have hstep : Jvm.stepInstr algHooks (.checkcast "kotlin/Pair")
-      ⟨pc, .pair a b :: stkRest, locs, jh, hp⟩ =
-      .inl (some ⟨pc + 1, .pair a b :: stkRest, locs, jh, hp⟩) := rfl
-  simp only [runJvmResFast]
-  rw [Jvm.runJvmResFast_step_nonbranch algHooks (hbr := rfl) (hno := by simp)]
-  simp only [hstep, ↓reduceIte]
+      runJvmResFast f prog (pc + 1) rest ⟨pc + 1, .pair a b :: stkRest, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_step_of_stepInstr algHooks rfl (by simp) rfl rfl
 
 private theorem runJvmResFast_checkcast_mcCellNode {f : Nat} {prog : List JvmInstr} {pc : Nat}
     {rest : List JvmInstr} {pc0 : Nat} {ch : UInt32} {nw ne sw se : Algorithm.MacroCell}
@@ -1667,14 +1661,8 @@ private theorem runJvmResFast_checkcast_mcCellNode {f : Nat} {prog : List JvmIns
         (.checkcast "com/alexvanyo/composelife/model/MacroCell$CellNode" :: rest)
         ⟨pc0, .ext (.mc (.cellNode ch nw ne sw se)) :: stkRest, locs, jh, hp⟩ =
       runJvmResFast f prog (pc + 1) rest
-        ⟨pc + 1, .ext (.mc (.cellNode ch nw ne sw se)) :: stkRest, locs, jh, hp⟩ := by
-  have hstep : Jvm.stepInstr algHooks
-      (.checkcast "com/alexvanyo/composelife/model/MacroCell$CellNode")
-      ⟨pc, .ext (.mc (.cellNode ch nw ne sw se)) :: stkRest, locs, jh, hp⟩ =
-      .inl (some ⟨pc + 1, .ext (.mc (.cellNode ch nw ne sw se)) :: stkRest, locs, jh, hp⟩) := rfl
-  simp only [runJvmResFast]
-  rw [Jvm.runJvmResFast_step_nonbranch algHooks (hbr := rfl) (hno := by simp)]
-  simp only [hstep, ↓reduceIte]
+        ⟨pc + 1, .ext (.mc (.cellNode ch nw ne sw se)) :: stkRest, locs, jh, hp⟩ :=
+  Jvm.runJvmResFast_step_of_stepInstr algHooks rfl (by simp) rfl rfl
 
 private theorem keysToMacroCell_zero_or_leaf
     {x0 y0 : UInt64} {keys : List UInt64} {keysV : JvmVal}
@@ -1695,20 +1683,17 @@ private theorem keysToMacroCell_zero_or_leaf
   · have hkdec := hkeys.decode_self
     conv => lhs; arg 4; dsimp only [f_Algorithm_keysToMacroCell_prog, List.drop]
     conv => lhs; arg 1; rw [show f + 45 = (f + 41) + 4 by omega]
+    rw [← setLocal_eq_self h0, ← setLocal_eq_self h1, ← setLocal_eq_self h3]
     heap_step_nonbranch_chunks; norm_res_fuel
-    simp only [h0, h1, h3]
     split_res_fuel 1
     rw [runJvmResFast_invokestatic_step (stepStatic_leafFromKeys_heap hkdec)]; norm_res_fuel
     heap_step_nonbranch_chunks; norm_res_fuel
-    simp only [h0, h1, h3]
     split_res_fuel 1
     rw [runJvmResFast_invokestatic_step (stepStatic_leafFromKeys_heap hkdec)]; norm_res_fuel
     heap_step_nonbranch_chunks; norm_res_fuel
-    simp only [h0, h1, h3]
     split_res_fuel 1
     rw [runJvmResFast_invokestatic_step (stepStatic_leafFromKeys_heap hkdec)]; norm_res_fuel
     heap_step_nonbranch_chunks; norm_res_fuel
-    simp only [h0]
     split_res_fuel 1
     rw [runJvmResFast_invokestatic_step (stepStatic_leafFromKeys_heap hkdec)]; norm_res_fuel
     heap_step_nonbranch_chunks; norm_res_fuel
@@ -1746,6 +1731,8 @@ private theorem keysToMacroCell_tail
     have dse := hse.decode_self
     conv => lhs; arg 4; dsimp only [f_Algorithm_keysToMacroCell_prog, List.drop]
     conv => lhs; arg 1; rw [show f + 56 = (f + 30) + 26 by omega]
+    rw [← setLocal_eq_self h1, ← setLocal_eq_self h3, ← setLocal_eq_self h5,
+      ← setLocal_eq_self h9, ← setLocal_eq_self h11, ← setLocal_eq_self h14, ← setLocal_eq_self h15]
     split_res_fuel 1
     rw [runJvmResFast_checkcast_pair]; norm_res_fuel
     heap_step_nonbranch_chunks; norm_res_fuel
@@ -1754,29 +1741,24 @@ private theorem keysToMacroCell_tail
     heap_step_nonbranch_chunks; norm_res_fuel
     conv => lhs; arg 3; dsimp only
     conv => lhs; arg 5; dsimp only [Nat.add]
-    simp only [h5, h14]
     heap_step_nonbranch_chunks; norm_res_fuel
     conv => lhs; arg 3; dsimp only
     conv => lhs; arg 5; arg 1; simp only [Nat.succ_eq_add_one]
-    simp only [h1, h3, h15]
     split_res_fuel 1
     rw [runJvmResFast_invokestatic_step (stepStatic_keysToMacroCell_heap dnw)]; norm_res_fuel
     heap_step_nonbranch_chunks; norm_res_fuel
     conv => lhs; arg 3; dsimp only
     conv => lhs; arg 5; arg 1; simp only [Nat.succ_eq_add_one]
-    simp only [h3, h9, h15]
     split_res_fuel 1
     rw [runJvmResFast_invokestatic_step (stepStatic_keysToMacroCell_heap dne)]; norm_res_fuel
     heap_step_nonbranch_chunks; norm_res_fuel
     conv => lhs; arg 3; dsimp only
     conv => lhs; arg 5; arg 1; simp only [Nat.succ_eq_add_one]
-    simp only [h1, h11, h15]
     split_res_fuel 1
     rw [runJvmResFast_invokestatic_step (stepStatic_keysToMacroCell_heap dsw)]; norm_res_fuel
     heap_step_nonbranch_chunks; norm_res_fuel
     conv => lhs; arg 3; dsimp only
     conv => lhs; arg 5; arg 1; simp only [Nat.succ_eq_add_one]
-    simp only [h9, h11, h15]
     split_res_fuel 1
     rw [runJvmResFast_invokestatic_step (stepStatic_keysToMacroCell_heap dse)]; norm_res_fuel
     heap_step_nonbranch_chunks; norm_res_fuel
@@ -1927,8 +1909,8 @@ theorem keysToMacroCell_equiv
         split_res_fuel 1
         rw [runJvmResFast_ifeq_fallthrough hne0]
         conv => lhs; arg 4; dsimp only [f_Algorithm_keysToMacroCell_prog, List.drop]
-        heap_step_nonbranch_chunks; norm_res_fuel
-        simp only [h1, h3, h5]
+        rw [← setLocal_eq_self h0, ← setLocal_eq_self h1, ← setLocal_eq_self h3,
+          ← setLocal_eq_self h5, ← setLocal_eq_self h6]
         heap_step_nonbranch_chunks; norm_res_fuel
         split_res_fuel 1
         rw [runJvmResFast_anewarray_obj (hslt := by decide)]; norm_res_fuel
@@ -1938,7 +1920,6 @@ theorem keysToMacroCell_equiv
         rw [jvmHeap_alloc_set_self, arr1_set0_boxedInt0, ← hjh1]
         norm_res_fuel
         heap_step_nonbranch_chunks; norm_res_fuel
-        simp only [h0]
         have hkeys1 : U64ListRep jh1 (.heapRef addr) (hd :: tl) :=
           hjh1 ▸ U64ListRep.alloc _ hkeys'
         have hnil1 : U64ListRep jh1 (.heapRef jh.objects.size) [] :=
@@ -1947,12 +1928,12 @@ theorem keysToMacroCell_equiv
         rw [runJvmResFast_invokestatic_step
           (stepStatic_splitKeys_heap hkeys1.decode_self hnil1.decode_self hnil1.decode_self hnil1.decode_self hnil1.decode_self)]
         norm_res_fuel
-        dsimp only [Jvm.JvmVal.asI64]
         rw [← hparts, henc1, henc2, henc3, henc4]
         heap_step_nonbranch_chunks; norm_res_fuel
-        simp only [h6]
         congr 1
         · rw [setLocal_comm _ (by decide : (14 : Nat) ≠ 13), setLocal_overwrite]
+          rw [setLocal_eq_self h6, setLocal_eq_self h5, setLocal_eq_self h3,
+            setLocal_eq_self h1, setLocal_eq_self h0]
       rw [hpre61]
       have hnw : U64ListRep jh5 nwV parts.1 := by
         have r1 := (U64ListRep_encodeU64List jh1 parts.1).1
@@ -2075,10 +2056,9 @@ private theorem cellsToMacroCell_tail
   rotate_left 1
   · conv => lhs; arg 4; dsimp only [f_Algorithm_cellsToMacroCell_prog, List.drop]
     conv => lhs; arg 1; rw [show f + 45 = (f + 2) + 43 by omega]
+    rw [← setLocal_eq_self h0, ← setLocal_eq_self h1, ← setLocal_eq_self h10, ← setLocal_eq_self h12]
     split_res_fuel 1
     rw [runJvmResFast_invokestatic_step stepStatic_levelForSpanLoop_heap]; norm_res_fuel
-    heap_step_nonbranch_chunks; norm_res_fuel
-    simp only [h0, h1, h10, h12]
     heap_step_nonbranch_chunks; norm_res_fuel
     split_res_fuel 1
     rw [runJvmResFast_anewarray_obj (hslt := by decide)]; norm_res_fuel
@@ -2092,7 +2072,6 @@ private theorem cellsToMacroCell_tail
       hjh1 ▸ .nil _ _ (jvmHeap_get?_alloc_self _ _)
     split_res_fuel 1
     rw [runJvmResFast_invokestatic_step (stepStatic_relativeKeysLoop_heap hu hnil1.decode_self)]; norm_res_fuel
-    dsimp only [Jvm.JvmVal.asI32, Jvm.JvmVal.asI64]
     rw [← hrk, henc]
     heap_step_nonbranch_chunks; norm_res_fuel
     split_res_fuel 1
@@ -2104,10 +2083,8 @@ private theorem cellsToMacroCell_tail
       exact r
     split_res_fuel 1
     rw [runJvmResFast_invokestatic_step (stepStatic_keysToMacroCell_heap hrkRep.decode_self)]; norm_res_fuel
-    dsimp only [Jvm.JvmVal.asI32, Jvm.JvmVal.asI64]
-    heap_step_nonbranch_chunks; norm_res_fuel
-    simp only [h10, h12]
-    dsimp only [Jvm.JvmVal.asI64]
+    rw [show f + 13 + 1 - 1 = (f + 1) + 12 from by omega]
+    heap_step_one_chunk; norm_res_fuel
     rfl
   · rfl
 
@@ -2217,7 +2194,6 @@ private theorem cellsToMacroCell_pre71
   simp only [h0]
   split_res_fuel 1
   rw [runJvmResFast_invokestatic_step (stepStatic_ulongArrGetU64_heap hu)]; norm_res_fuel
-  dsimp only [Jvm.JvmVal.asI32]
   have hz : (0 : UInt32).toNat = 0 := rfl
   have hsh : ((32 : UInt32) &&& 63).toUInt64 = 32 := rfl
   rw [hz]
@@ -2228,7 +2204,6 @@ private theorem cellsToMacroCell_pre71
   conv => lhs; arg 5; simp only [hsh]
   split_res_fuel 1
   rw [runJvmResFast_invokestatic_step (stepStatic_cellBoundsLoop_heap hu)]; norm_res_fuel
-  dsimp only [Jvm.JvmVal.asI32, Jvm.JvmVal.asI64]
   have hkh : ∀ x : UInt64, x >>> 32 = Algorithm.keyHi x := fun _ => rfl
   have hkl : ∀ x : UInt64, x &&& 4294967295 = Algorithm.keyLo x := fun _ => rfl
   conv => lhs; arg 5; simp only [hkh, hkl]

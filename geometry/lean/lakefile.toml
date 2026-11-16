@@ -43,6 +43,9 @@ roots = [
   "proofs.Connectivity",
   "proofs.CompiledPath",
   "proofs.Mutations",
+  "models.GeometryExtensionsModel",
+  "proofs.GeometryExtensionsModelProofs",
+  "theorems.GeometryExtensionsModelTheorems",
   "JvmSemantics",
   "AxiomAudit",
 ]
@@ -50,5 +53,5 @@ roots = [
 [[lean_lib]]
 name = "Jvm"
 srcDir = "../../jvm-lean"
-roots = ["Jvm", "Jvm.Instr", "Jvm.Semantics", "Jvm.FastExec"]
+roots = ["Jvm", "Jvm.Instr", "Jvm.Semantics", "Jvm.FastExec", "Jvm.Proofs", "Jvm.Tactics", "Jvm.Audit"]
 

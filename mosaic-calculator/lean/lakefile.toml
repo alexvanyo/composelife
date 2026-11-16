@@ -1,0 +1,22 @@
+name = "MosaicCalculator"
+version = "0.1.0"
+defaultTargets = ["MosaicCalculator"]
+moreLeanArgs = ["-M4096", "-j2"]
+
+[[lean_lib]]
+name = "MosaicCalculator"
+roots = [
+  "models.CalculatorModel",
+  "proofs.CalculatorModelProofs",
+  "theorems.CalculatorModelTheorems",
+  "proofs.Mutations",
+  "ComposeSemantics",
+  "MosaicSemantics",
+  "JvmSemantics",
+  "AxiomAudit",
+]
+
+[[lean_lib]]
+name = "Jvm"
+srcDir = "../../jvm-lean"
+roots = ["Jvm", "Jvm.Instr", "Jvm.Semantics", "Jvm.FastExec", "Jvm.Proofs", "Jvm.Tactics", "Jvm.Audit"]

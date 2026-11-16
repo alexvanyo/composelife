@@ -21,21 +21,26 @@ inductive JvmInstr where
   | nop | dup | pop | swap | aconstNull | athrow
   | iconst (v : UInt32)
   | lconst (v : UInt64)
+  | fconst (bits : UInt32)
+  | dconst (bits : UInt64)
   | dconst0 | dconst1
   | ldcStr (s : String)
   | iload (idx : Nat)
   | lload (idx : Nat)
   | aload (idx : Nat)
+  | fload (idx : Nat)
   | dload (idx : Nat)
   | istore (idx : Nat)
   | lstore (idx : Nat)
   | astore (idx : Nat)
+  | fstore (idx : Nat)
   | dstore (idx : Nat)
   | iinc (idx : Nat) (delta : Int32)
-  | iadd | isub | imul | ineg | iand | ior | ixor | ishl | ishr | iushr
-  | ladd | lsub | lmul | land | lor | lxor | lshl | lshr | lushr
+  | iadd | isub | imul | idiv | irem | ineg | iand | ior | ixor | ishl | ishr | iushr
+  | ladd | lsub | lmul | ldiv | lrem | land | lor | lxor | lshl | lshr | lushr
+  | fadd | fsub | fmul | fdiv | fneg | fcmpg | fcmpl
   | dadd | dsub | dmul | ddiv | dneg | dcmpg | dcmpl
-  | i2l | l2i | i2b | i2c | i2d | d2i | lcmp
+  | i2l | l2i | i2b | i2c | i2s | i2f | l2f | f2i | f2l | i2d | l2d | d2i | d2l | f2d | d2f | lcmp
   | ifeq (target : Nat)
   | ifne (target : Nat)
   | iflt (target : Nat)
@@ -62,8 +67,10 @@ inductive JvmInstr where
   | aaload | aastore
   | baload | bastore
   | caload | castore
+  | saload | sastore
   | iaload | iastore
   | laload | lastore
+  | faload | fastore
   | daload | dastore
   | checkcast (cls : String)
   | instanceof (cls : String)
@@ -76,7 +83,7 @@ inductive JvmInstr where
   | putfield (cls field desc : String)
   | getstatic (cls field desc : String)
   | putstatic (cls field desc : String)
-  | ireturn | lreturn | areturn | dreturn | vreturn
+  | ireturn | lreturn | areturn | freturn | dreturn | vreturn
   deriving Repr, Inhabited
 
 end Jvm

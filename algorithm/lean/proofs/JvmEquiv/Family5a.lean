@@ -474,7 +474,7 @@ private theorem step_invokestatic_macroCellAt
       .inl (some ⟨pc + 1, .ext (.mc (Algorithm.macroCellAt nodes i)) :: stkRest, locs, jh, hp⟩) := by
   conv => lhs; whnf
   rw [hget]
-  dsimp only [Jvm.JvmVal.asI32]
+  dsimp only
   erw [foldlM_map_mc nodes]
 
 local macro "step_cc_tail" hnodes:ident hnodesData:ident : tactic => `(tactic| (
@@ -682,7 +682,7 @@ local macro "step_sl_l4" : tactic => `(tactic| (
 
 local macro "norm_lcmp_zero" : tactic => `(tactic| (
   (conv => lhs; jvm_whnf_run_args)
-  (conv => lhs; arg 5; dsimp only [Jvm.JvmVal.asI64])
+  (conv => lhs; arg 5; dsimp only [Jvm.JvmVal.asI64?])
   (conv => lhs; arg 5; simp only [Nat.add_zero, Nat.succ_eq_add_one, Nat.reduceAdd])
   (try rw [show (0 : UInt64).toBitVec = 0#64 from rfl])))
 
@@ -1041,8 +1041,8 @@ private theorem runJvmResFast_if_icmple_branch {f pc tgt : Nat} {prog rest : Lis
     runJvmResFast (f + 1) prog pc (.if_icmple tgt :: rest)
         ⟨pc, .i32 b :: .i32 a :: stk, locs, jh, hp⟩ =
       runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stk, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32, h]
+  rw [runJvmResFast_at_branch_cons (hbr := rfl), evalResBranchInstrCons_if_icmple, h]
+  rfl
 
 private theorem runJvmResFast_if_icmple_fallthrough {f pc tgt : Nat} {prog rest : List JvmInstr}
     {a b : UInt32} {stk : List JvmVal} {locs : Nat → JvmVal}
@@ -1050,8 +1050,8 @@ private theorem runJvmResFast_if_icmple_fallthrough {f pc tgt : Nat} {prog rest 
     runJvmResFast (f + 1) prog pc (.if_icmple tgt :: rest)
         ⟨pc, .i32 b :: .i32 a :: stk, locs, jh, hp⟩ =
       runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stk, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32, h]
+  rw [runJvmResFast_at_branch_cons (hbr := rfl), evalResBranchInstrCons_if_icmple, h]
+  rfl
 
 private theorem runJvmResFast_if_icmpge_branch {f pc tgt : Nat} {prog rest : List JvmInstr}
     {a b : UInt32} {stk : List JvmVal} {locs : Nat → JvmVal}
@@ -1059,8 +1059,8 @@ private theorem runJvmResFast_if_icmpge_branch {f pc tgt : Nat} {prog rest : Lis
     runJvmResFast (f + 1) prog pc (.if_icmpge tgt :: rest)
         ⟨pc, .i32 b :: .i32 a :: stk, locs, jh, hp⟩ =
       runJvmResFast f prog tgt (prog.drop tgt) ⟨tgt, stk, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32, h]
+  rw [runJvmResFast_at_branch_cons (hbr := rfl), evalResBranchInstrCons_if_icmpge, h]
+  rfl
 
 private theorem runJvmResFast_if_icmpge_fallthrough {f pc tgt : Nat} {prog rest : List JvmInstr}
     {a b : UInt32} {stk : List JvmVal} {locs : Nat → JvmVal}
@@ -1068,8 +1068,8 @@ private theorem runJvmResFast_if_icmpge_fallthrough {f pc tgt : Nat} {prog rest 
     runJvmResFast (f + 1) prog pc (.if_icmpge tgt :: rest)
         ⟨pc, .i32 b :: .i32 a :: stk, locs, jh, hp⟩ =
       runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stk, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast, Jvm.JvmVal.asI32, h]
+  rw [runJvmResFast_at_branch_cons (hbr := rfl), evalResBranchInstrCons_if_icmpge, h]
+  rfl
 
 private theorem step_cell_getNw
     {pc : Nat} {h : UInt32} {nw ne sw se : Algorithm.MacroCell} {rest : List JvmVal} {locs : Nat → JvmVal}
@@ -1196,7 +1196,7 @@ private theorem step1_helper {f' k pc : Nat} {prog : List JvmInstr} {instr : Jvm
 local macro "step1" : tactic => `(tactic| (
   rw [step1_helper (by decide) rfl (by intro h; cases h) rfl]
   (try (conv => lhs; arg 5; dsimp only [Jvm.JvmState.pc, Jvm.JvmState.stack, Jvm.JvmState.locals,
-    Jvm.JvmState.jvmHeap, Jvm.JvmState.heap, Jvm.JvmVal.asI32]))
+    Jvm.JvmState.jvmHeap, Jvm.JvmState.heap, Jvm.JvmVal.asI32?]))
   (try (conv => lhs; arg 3; simp only [Nat.reduceAdd]))
   (try (conv => lhs; arg 5; arg 1; simp only [Nat.reduceAdd]))
   (repeat (first
@@ -1207,7 +1207,7 @@ local macro "step1" : tactic => `(tactic| (
 local macro "step1_ex" : tactic => `(tactic| (
   rw [step1_helper (by decide) rfl (by intro h; cases h) rfl]
   (try dsimp only [Jvm.JvmState.pc, Jvm.JvmState.stack, Jvm.JvmState.locals,
-    Jvm.JvmState.jvmHeap, Jvm.JvmState.heap, Jvm.JvmVal.asI32])
+    Jvm.JvmState.jvmHeap, Jvm.JvmState.heap, Jvm.JvmVal.asI32?])
   (repeat (first
     | rw [setLocal_eq_val rfl]
     | rw [setLocal_ne_eq rfl]))
@@ -2312,12 +2312,12 @@ def decodeMacrocellStatus (h : Jvm.JvmHeap AlgExt) : JvmVal → Option Algorithm
       | _ => none
     | some (.instance "com/alexvanyo/composelife/model/MacrocellStatus$UnexpectedInput" flds) =>
       match flds.lookup "input", flds.lookup "lineIndex" with
-      | some (.str s), some ln => some (.unexpectedInput s ln.asI32)
+      | some (.str s), some (.i32 ln) => some (.unexpectedInput s ln)
       | _, _ => none
     | some (.instance "com/alexvanyo/composelife/model/MacrocellStatus$UnexpectedNodeId" flds) =>
       match flds.lookup "input", flds.lookup "n1", flds.lookup "n2", flds.lookup "n3" with
-      | some (.str s), some n1, some n2, some n3 =>
-        some (.unexpectedNodeId s n1.asI32 n2.asI32 n3.asI32)
+      | some (.str s), some (.i32 n1), some (.i32 n2), some (.i32 n3) =>
+        some (.unexpectedNodeId s n1 n2 n3)
       | _, _, _, _ => none
     | _ => none
   | _ => none
@@ -2382,14 +2382,8 @@ private theorem runJvmResFast_checkNotNull_nonnull {f : Nat} {prog : List JvmIns
         ⟨pc0, .str msg :: v :: stkRest, locs, jh, hp⟩ =
       runJvmResFast f prog (pc + 1) rest ⟨pc + 1, stkRest, locs, jh, hp⟩ := by
   have his : Jvm.JvmVal.isNull v = false := by cases v <;> simp_all [Jvm.JvmVal.isNull]
-  have hstep : Jvm.stepInstr algHooks
-      (.invokestatic "kotlin/jvm/internal/Intrinsics" "checkNotNull"
-        "(Ljava/lang/Object;Ljava/lang/String;)V")
-      ⟨pc, .str msg :: v :: stkRest, locs, jh, hp⟩ =
-      .inl (some ⟨pc + 1, stkRest, locs, jh, hp⟩) := by
-    simp only [Jvm.stepInstr, Jvm.stepInvokeStaticGeneric, his]
-    rfl
-  exact step1_helper (f' := f) (k := 1) (by decide) rfl (by intro h; cases h) hstep
+  exact Jvm.runJvmResFast_invokestatic_step algHooks
+    (Jvm.stepInvokeStatic_intrinsics_checkNotNull algHooks his)
 
 private theorem runJvmResFast_areturn {f : Nat} {prog : List JvmInstr} {pc : Nat}
     {rest : List JvmInstr} {pc0 : Nat} {v : JvmVal} {stkRest : List JvmVal}
@@ -2399,14 +2393,13 @@ private theorem runJvmResFast_areturn {f : Nat} {prog : List JvmInstr} {pc : Nat
 
 private theorem runJvmResFast_tableswitch {f : Nat} {prog : List JvmInstr} {pc : Nat}
     {low : Int32} {targets : List Nat} {defT : Nat} {rest : List JvmInstr} {pc0 : Nat}
-    {key : JvmVal} {stkRest : List JvmVal} {locs : Nat → JvmVal}
+    {key : UInt32} {stkRest : List JvmVal} {locs : Nat → JvmVal}
     {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap} :
     runJvmResFast (f + 1) prog pc (.tableswitch low targets defT :: rest)
-        ⟨pc0, key :: stkRest, locs, jh, hp⟩ =
-      let t := Jvm.tableswitchTarget key.asI32 low targets defT
+        ⟨pc0, .i32 key :: stkRest, locs, jh, hp⟩ =
+      let t := Jvm.tableswitchTarget key low targets defT
       runJvmResFast f prog t (prog.drop t) ⟨t, stkRest, locs, jh, hp⟩ := by
-  conv => lhs; dsimp only [runJvmResFast]; rw [Jvm.runJvmResFast.eq_def]
-  simp [runJvmResFast]
+  rw [runJvmResFast_at_branch_cons (hbr := rfl), evalResBranchInstrCons_tableswitch]
 
 private theorem decodeMacrocellStatus_encode (jh : Jvm.JvmHeap AlgExt) (s : Algorithm.MacrocellStatus) :
     let (sv, h1) := match s with
@@ -2433,10 +2426,10 @@ private theorem decodeMacrocellStatus_encode (jh : Jvm.JvmHeap AlgExt) (s : Algo
     simp [List.lookup]
   | unexpectedInput inp ln =>
     dsimp only [decodeMacrocellStatus, Jvm.JvmHeap.alloc, Jvm.JvmHeap.get?]
-    simp [List.lookup, Jvm.JvmVal.asI32]
+    simp [List.lookup]
   | unexpectedNodeId inp n1 n2 n3 =>
     dsimp only [decodeMacrocellStatus, Jvm.JvmHeap.alloc, Jvm.JvmHeap.get?]
-    simp [List.lookup, Jvm.JvmVal.asI32]
+    simp [List.lookup]
 
 private theorem decodeMacrocellStatus_ext {h1 h2 : Jvm.JvmHeap AlgExt}
     (hext : ∀ a o, h1.get? a = some o → h2.get? a = some o)
@@ -2490,10 +2483,10 @@ private theorem decodeMacrocellWarning_encode (jh : Jvm.JvmHeap AlgExt)
   | emptyFile => rfl
   | blankLine ln =>
     dsimp only [encodeMacrocellWarning, decodeMacrocellWarning, Jvm.JvmHeap.alloc, Jvm.JvmHeap.get?]
-    simp [List.lookup, Jvm.JvmVal.asI32]
+    simp [List.lookup]
   | unexpectedInput ln col inp =>
     dsimp only [encodeMacrocellWarning, decodeMacrocellWarning, Jvm.JvmHeap.alloc, Jvm.JvmHeap.get?]
-    simp [List.lookup, Jvm.JvmVal.asI32]
+    simp [List.lookup]
 
 private theorem encodeMacrocellWarns_foldl (ws : List Algorithm.MacrocellWarning)
     (acc : Array JvmVal) (accWs : List Algorithm.MacrocellWarning)
@@ -2936,30 +2929,34 @@ private def mcWarns? : JvmVal → Option (Algorithm.GrowBuf Algorithm.MacrocellW
   | _ => none
 
 private def mcDispatch (pc : Nat) (locs : Nat → JvmVal) (jh : Jvm.JvmHeap AlgExt)
-    (hp : AlgHeap) (warnsVal isLeafVal leavesVal nodesVal leaf y x col p limit
-      bytesVal inLeaf i numLines linesVal : JvmVal) (rest : List JvmVal)
+    (hp : AlgHeap) (warnsVal isLeafVal leavesVal nodesVal : JvmVal)
+    (leaf : UInt64) (y x col p limit : UInt32) (bytesVal : JvmVal)
+    (inLeaf i numLines : UInt32) (linesVal : JvmVal) (rest : List JvmVal)
     (loopFn : Array String → UInt32 → UInt32 → Bool → ByteArray → UInt32 → UInt32 → UInt32 →
       UInt32 → UInt32 → UInt64 → Algorithm.GrowBuf Algorithm.MacroCell →
       Algorithm.GrowBuf UInt64 → Algorithm.GrowBuf Bool →
       Algorithm.GrowBuf Algorithm.MacrocellWarning → Algorithm.MacrocellResult)
     (encFn : Jvm.JvmHeap AlgExt → Algorithm.MacrocellResult → JvmVal × Jvm.JvmHeap AlgExt) :
     Option JvmState ⊕ Option JvmVal :=
-  let st : JvmState := ⟨pc, warnsVal :: isLeafVal :: leavesVal :: nodesVal :: leaf :: y :: x ::
-    col :: p :: limit :: bytesVal :: inLeaf :: i :: numLines :: linesVal :: rest, locs, jh, hp⟩
+  let st : JvmState := ⟨pc, warnsVal :: isLeafVal :: leavesVal :: nodesVal :: .i64 leaf ::
+    .i32 y :: .i32 x :: .i32 col :: .i32 p :: .i32 limit :: bytesVal :: .i32 inLeaf ::
+    .i32 i :: .i32 numLines :: linesVal :: rest, locs, jh, hp⟩
   match decodeStrArray st linesVal, decodeBytes st bytesVal,
       mcNodes? nodesVal, mcLeaves? leavesVal, mcIsLeaf? isLeafVal, mcWarns? warnsVal with
   | some lines', some bytes', some nodes', some leaves', some isLeaf', some warns' =>
-    let res := loopFn lines' numLines.asI32 i.asI32 (inLeaf.asI32 != 0)
-      bytes' limit.asI32 p.asI32 col.asI32 x.asI32 y.asI32 leaf.asI64 nodes' leaves' isLeaf' warns'
+    let res := loopFn lines' numLines i (inLeaf != 0)
+      bytes' limit p col x y leaf nodes' leaves' isLeaf' warns'
     let (resVal, h') := encFn st.jvmHeap res
     .inl (some { st with pc := st.pc + 1, stack := resVal :: rest, jvmHeap := h' })
   | _, _, _, _, _, _ => .inr none
 
 private theorem stepStatic_mcLoop_match (pc : Nat) (locs : Nat → JvmVal) (jh : Jvm.JvmHeap AlgExt)
-    (hp : AlgHeap) (warnsVal isLeafVal leavesVal nodesVal leaf y x col p limit
-      bytesVal inLeaf i numLines linesVal : JvmVal) (rest : List JvmVal) :
-    let st : JvmState := ⟨pc, warnsVal :: isLeafVal :: leavesVal :: nodesVal :: leaf :: y :: x ::
-      col :: p :: limit :: bytesVal :: inLeaf :: i :: numLines :: linesVal :: rest, locs, jh, hp⟩
+    (hp : AlgHeap) (warnsVal isLeafVal leavesVal nodesVal : JvmVal)
+    (leaf : UInt64) (y x col p limit : UInt32) (bytesVal : JvmVal)
+    (inLeaf i numLines : UInt32) (linesVal : JvmVal) (rest : List JvmVal) :
+    let st : JvmState := ⟨pc, warnsVal :: isLeafVal :: leavesVal :: nodesVal :: .i64 leaf ::
+      .i32 y :: .i32 x :: .i32 col :: .i32 p :: .i32 limit :: bytesVal :: .i32 inLeaf ::
+      .i32 i :: .i32 numLines :: linesVal :: rest, locs, jh, hp⟩
     stepInvokeStatic st "MacroCellLeanKt" "f_Algorithm_deserializeMacrocell_loop-ocggIy4"
       ("([Ljava/lang/Object;IIZ[BIIIIIJLjava/lang/Object;Ljava/lang/Object;" ++
         "Ljava/lang/Object;Ljava/lang/Object;)Lcom/alexvanyo/composelife/model/MacrocellResult;") =
@@ -2968,8 +2965,9 @@ private theorem stepStatic_mcLoop_match (pc : Nat) (locs : Nat → JvmVal) (jh :
         Algorithm.deserializeMacrocell.loop encodeMacrocellResult := rfl
 
 private theorem mc_match_elim (pc : Nat) (locs : Nat → JvmVal) (jh : Jvm.JvmHeap AlgExt)
-    (hp : AlgHeap) (warnsVal isLeafVal leavesVal nodesVal leaf y x col p limit
-      bytesVal inLeaf i numLines linesVal : JvmVal) (rest : List JvmVal)
+    (hp : AlgHeap) (warnsVal isLeafVal leavesVal nodesVal : JvmVal)
+    (leaf : UInt64) (y x col p limit : UInt32) (bytesVal : JvmVal)
+    (inLeaf i numLines : UInt32) (linesVal : JvmVal) (rest : List JvmVal)
     (loopFn : Array String → UInt32 → UInt32 → Bool → ByteArray → UInt32 → UInt32 → UInt32 →
       UInt32 → UInt32 → UInt64 → Algorithm.GrowBuf Algorithm.MacroCell →
       Algorithm.GrowBuf UInt64 → Algorithm.GrowBuf Bool →
@@ -2978,22 +2976,24 @@ private theorem mc_match_elim (pc : Nat) (locs : Nat → JvmVal) (jh : Jvm.JvmHe
     {lines : Array String} {bytes : ByteArray}
     {nodes : Algorithm.GrowBuf Algorithm.MacroCell} {leaves : Algorithm.GrowBuf UInt64}
     {isLeaf : Algorithm.GrowBuf Bool} {warns : Algorithm.GrowBuf Algorithm.MacrocellWarning}
-    (hl : decodeStrArray ⟨pc, warnsVal :: isLeafVal :: leavesVal :: nodesVal :: leaf :: y :: x ::
-      col :: p :: limit :: bytesVal :: inLeaf :: i :: numLines :: linesVal :: rest, locs, jh, hp⟩
+    (hl : decodeStrArray ⟨pc, warnsVal :: isLeafVal :: leavesVal :: nodesVal :: .i64 leaf ::
+      .i32 y :: .i32 x :: .i32 col :: .i32 p :: .i32 limit :: bytesVal :: .i32 inLeaf ::
+      .i32 i :: .i32 numLines :: linesVal :: rest, locs, jh, hp⟩
       linesVal = some lines)
-    (hb : decodeBytes ⟨pc, warnsVal :: isLeafVal :: leavesVal :: nodesVal :: leaf :: y :: x ::
-      col :: p :: limit :: bytesVal :: inLeaf :: i :: numLines :: linesVal :: rest, locs, jh, hp⟩
+    (hb : decodeBytes ⟨pc, warnsVal :: isLeafVal :: leavesVal :: nodesVal :: .i64 leaf ::
+      .i32 y :: .i32 x :: .i32 col :: .i32 p :: .i32 limit :: bytesVal :: .i32 inLeaf ::
+      .i32 i :: .i32 numLines :: linesVal :: rest, locs, jh, hp⟩
       bytesVal = some bytes)
     (hn : mcNodes? nodesVal = some nodes) (hlf : mcLeaves? leavesVal = some leaves)
     (hil : mcIsLeaf? isLeafVal = some isLeaf) (hw : mcWarns? warnsVal = some warns) :
     mcDispatch pc locs jh hp warnsVal isLeafVal leavesVal nodesVal leaf y x col p limit
         bytesVal inLeaf i numLines linesVal rest loopFn encFn =
       .inl (some ⟨pc + 1,
-        (encFn jh (loopFn lines numLines.asI32 i.asI32 (inLeaf.asI32 != 0) bytes limit.asI32
-          p.asI32 col.asI32 x.asI32 y.asI32 leaf.asI64 nodes leaves isLeaf warns)).1 :: rest,
+        (encFn jh (loopFn lines numLines i (inLeaf != 0) bytes limit
+          p col x y leaf nodes leaves isLeaf warns)).1 :: rest,
         locs,
-        (encFn jh (loopFn lines numLines.asI32 i.asI32 (inLeaf.asI32 != 0) bytes limit.asI32
-          p.asI32 col.asI32 x.asI32 y.asI32 leaf.asI64 nodes leaves isLeaf warns)).2,
+        (encFn jh (loopFn lines numLines i (inLeaf != 0) bytes limit
+          p col x y leaf nodes leaves isLeaf warns)).2,
         hp⟩) := by
   dsimp only [mcDispatch]
   rw [hl, hb, hn, hlf, hil, hw]
@@ -3036,8 +3036,7 @@ private theorem stepStatic_deserMC_loop_empty {pc : Nat} {lines : Array String}
     (.ext (.strGrowBuf Algorithm.GrowBuf.empty))
     (.ext (.strGrowBuf Algorithm.GrowBuf.empty))
     (.ext (.strGrowBuf Algorithm.GrowBuf.empty))
-    (.i64 0) (.i32 0) (.i32 0) (.i32 0) (.i32 0) (.i32 0)
-    (.heapRef 0) (.i32 0) (.i32 1) (.i32 numLines) (.strArr lines) rest
+    0 0 0 0 0 0 (.heapRef 0) 0 1 numLines (.strArr lines) rest
   have hdb : decodeBytes ⟨pc, .ext (.strGrowBuf Algorithm.GrowBuf.empty) ::
       .ext (.strGrowBuf Algorithm.GrowBuf.empty) ::
       .ext (.strGrowBuf Algorithm.GrowBuf.empty) ::
@@ -3048,28 +3047,12 @@ private theorem stepStatic_deserMC_loop_empty {pc : Nat} {lines : Array String}
     change (match jh.get? 0 with
       | some (.byteArray elems) => some (⟨elems⟩ : ByteArray) | _ => none) = _
     rw [hget]
-  have he := mc_match_elim pc locs jh hp _ _ _ _ (.i64 0) (.i32 0) (.i32 0) (.i32 0) (.i32 0)
-    (.i32 0) (.heapRef 0) (.i32 0) (.i32 1) (.i32 numLines) (.strArr lines) rest
+  have he := mc_match_elim pc locs jh hp _ _ _ _ 0 0 0 0 0 0
+    (.heapRef 0) 0 1 numLines (.strArr lines) rest
     Algorithm.deserializeMacrocell.loop encodeMacrocellResult rfl hdb rfl rfl rfl rfl
   have hbool0 : (((0 : UInt32) != 0)) = false := by decide
-  have harg : Algorithm.deserializeMacrocell.loop lines
-      (Jvm.JvmVal.asI32 (.i32 numLines : JvmVal))
-      (Jvm.JvmVal.asI32 (.i32 1 : JvmVal))
-      (Jvm.JvmVal.asI32 (.i32 0 : JvmVal) != 0) bytes
-      (Jvm.JvmVal.asI32 (.i32 0 : JvmVal))
-      (Jvm.JvmVal.asI32 (.i32 0 : JvmVal))
-      (Jvm.JvmVal.asI32 (.i32 0 : JvmVal))
-      (Jvm.JvmVal.asI32 (.i32 0 : JvmVal))
-      (Jvm.JvmVal.asI32 (.i32 0 : JvmVal))
-      (Jvm.JvmVal.asI64 (.i64 0 : JvmVal))
-      Algorithm.GrowBuf.empty Algorithm.GrowBuf.empty
-      Algorithm.GrowBuf.empty Algorithm.GrowBuf.empty =
-      Algorithm.deserializeMacrocell.loop lines numLines 1 false bytes
-        0 0 0 0 0 0 Algorithm.GrowBuf.empty Algorithm.GrowBuf.empty
-        Algorithm.GrowBuf.empty Algorithm.GrowBuf.empty := by
-    dsimp only [Jvm.JvmVal.asI32, Jvm.JvmVal.asI64]
-    rw [hbool0]
-  exact Eq.trans hm (Eq.trans he (mc_enc_state_congr pc locs jh hp rest encodeMacrocellResult _ _ harg))
+  rw [hbool0] at he
+  exact Eq.trans hm he
 
 private theorem step_deserMC_valid (lines : Array String) (hBytes : ByteArray)
     (h1 : Jvm.JvmHeap AlgExt) (hp : AlgHeap) (f : Nat) (locs : Nat → JvmVal)
@@ -3525,33 +3508,33 @@ theorem deserializeMacrocell_equiv (lines : Array String) (hp : AlgHeap) :
 
 /-! ### parseMCNodeLine -/
 
-private theorem stepStatic_skipSpaces {pc : Nat} {lim pos : JvmVal} {addr : Nat}
+private theorem stepStatic_skipSpaces {pc : Nat} {lim pos : UInt32} {addr : Nat}
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     {elems : Array UInt8} (hget : jh.get? addr = some (.byteArray elems)) :
-    stepInvokeStatic ⟨pc, lim :: pos :: .heapRef addr :: rest, locs, jh, hp⟩
+    stepInvokeStatic ⟨pc, .i32 lim :: .i32 pos :: .heapRef addr :: rest, locs, jh, hp⟩
       "MacroCellLeanKt" "f_Algorithm_skipSpaces-BltQuoY" "([BII)I" =
-      .inl (some ⟨pc + 1, .i32 (Algorithm.skipSpaces ⟨elems⟩ pos.asI32 lim.asI32) :: rest,
+      .inl (some ⟨pc + 1, .i32 (Algorithm.skipSpaces ⟨elems⟩ pos lim) :: rest,
         locs, jh, hp⟩) := by
-  change (match decodeBytes ⟨pc, lim :: pos :: .heapRef addr :: rest, locs, jh, hp⟩
+  change (match decodeBytes ⟨pc, .i32 lim :: .i32 pos :: .heapRef addr :: rest, locs, jh, hp⟩
       (.heapRef addr) with
     | some bytes => Sum.inl (some (⟨pc + 1,
-        .i32 (Algorithm.skipSpaces bytes pos.asI32 lim.asI32) :: rest, locs, jh, hp⟩ : JvmState))
+        .i32 (Algorithm.skipSpaces bytes pos lim) :: rest, locs, jh, hp⟩ : JvmState))
     | none => Sum.inr none) = _
   simp only [decodeBytes, hget]
 
-private theorem stepStatic_parseUInt32At {pc : Nat} {lim pos : JvmVal} {addr : Nat}
+private theorem stepStatic_parseUInt32At {pc : Nat} {lim pos : UInt32} {addr : Nat}
     {rest : List JvmVal} {locs : Nat → JvmVal} {jh : Jvm.JvmHeap AlgExt} {hp : AlgHeap}
     {elems : Array UInt8} (hget : jh.get? addr = some (.byteArray elems)) :
-    stepInvokeStatic ⟨pc, lim :: pos :: .heapRef addr :: rest, locs, jh, hp⟩
+    stepInvokeStatic ⟨pc, .i32 lim :: .i32 pos :: .heapRef addr :: rest, locs, jh, hp⟩
       "MacroCellLeanKt" "f_Algorithm_parseUInt32At-BltQuoY" "([BII)Ljava/lang/Object;" =
-      let optPair := (Algorithm.parseUInt32At ⟨elems⟩ pos.asI32 lim.asI32).map fun r =>
+      let optPair := (Algorithm.parseUInt32At ⟨elems⟩ pos lim).map fun r =>
         (.boxedUInt r.val, .boxedUInt r.next)
       let (res, h') := encodeOptScalarPair jh optPair
       .inl (some ⟨pc + 1, res :: rest, locs, h', hp⟩) := by
-  change (match decodeBytes ⟨pc, lim :: pos :: .heapRef addr :: rest, locs, jh, hp⟩
+  change (match decodeBytes ⟨pc, .i32 lim :: .i32 pos :: .heapRef addr :: rest, locs, jh, hp⟩
       (.heapRef addr) with
     | some bytes =>
-      let optPair := (Algorithm.parseUInt32At bytes pos.asI32 lim.asI32).map
+      let optPair := (Algorithm.parseUInt32At bytes pos lim).map
         fun (r : ParsedUInt32) => (JvmVal.boxedUInt r.val, JvmVal.boxedUInt r.next)
       let (res, h') := encodeOptScalarPair jh optPair
       Sum.inl (some (⟨pc + 1, res :: rest, locs, h', hp⟩ : JvmState))
@@ -3680,7 +3663,7 @@ private theorem step_parseMC_dispatch_none {f pc : Nat} {resLoc noneT someT defT
   rw [runJvmResFast_checkcast_boxedInt (Or.inl rfl)]
   rw [runJvmResFast_invokevirtual_step stepVirtual_integer_intValue]
   rw [runJvmResFast_tableswitch,
-    show Jvm.tableswitchTarget (JvmVal.i32 0).asI32 0 [noneT, someT] defT = noneT from rfl]
+    show Jvm.tableswitchTarget 0 0 [noneT, someT] defT = noneT from rfl]
   dsimp only
   rw [hdrop]
   exact step_parseMC_none_ret
@@ -3722,7 +3705,7 @@ private theorem step_parseMC_dispatch_some {f pc : Nat} {resLoc noneT someT defT
   rw [runJvmResFast_checkcast_boxedInt (Or.inl rfl)]
   rw [runJvmResFast_invokevirtual_step stepVirtual_integer_intValue]
   rw [runJvmResFast_tableswitch,
-    show Jvm.tableswitchTarget (JvmVal.i32 1).asI32 0 [noneT, someT] defT = someT from rfl]
+    show Jvm.tableswitchTarget 1 0 [noneT, someT] defT = someT from rfl]
   dsimp only
   rw [hdrop]
   step1; rw [hl]
@@ -3938,9 +3921,9 @@ private theorem step_parseMC_stage {f pc qIn resLoc innerLoc valLoc tmp1 tmp2 tm
   | none =>
     rw [hprefix]
     step1; dsimp only; rw [hl0]; step1; dsimp only; rw [hlq]; step1; dsimp only; rw [hl1]
-    have hsp := stepStatic_parseUInt32At (pc := pc + 3) (lim := .i32 lim) (pos := .i32 qVal)
+    have hsp := stepStatic_parseUInt32At (pc := pc + 3) (lim := lim) (pos := qVal)
       (addr := bytesAddr) (rest := []) (locs := locs) (hp := hp) hget
-    simp only [Jvm.JvmVal.asI32, hparse, Option.map_none, encodeOptScalarPair] at hsp
+    simp only [hparse, Option.map_none, encodeOptScalarPair] at hsp
     split_res_fuel 1
     rw [runJvmResFast_invokestatic_step hsp]
     rw [show f + (65 - 1 - 1 - 1) - 1 = (f + 36) + 25 from by omega]
@@ -3963,9 +3946,9 @@ private theorem step_parseMC_stage {f pc qIn resLoc innerLoc valLoc tmp1 tmp2 tm
     let qNext := Algorithm.skipSpaces bytes r.next lim
     rw [hprefix]
     step1; dsimp only; rw [hl0]; step1; dsimp only; rw [hlq]; step1; dsimp only; rw [hl1]
-    have hsp := stepStatic_parseUInt32At (pc := pc + 3) (lim := .i32 lim) (pos := .i32 qVal)
+    have hsp := stepStatic_parseUInt32At (pc := pc + 3) (lim := lim) (pos := qVal)
       (addr := bytesAddr) (rest := []) (locs := locs) (hp := hp) hget
-    simp only [Jvm.JvmVal.asI32, hparse, Option.map_some, encodeOptScalarPair] at hsp
+    simp only [hparse, Option.map_some, encodeOptScalarPair] at hsp
     split_res_fuel 1
     rw [runJvmResFast_invokestatic_step hsp]
     rw [show f + (65 - 1 - 1 - 1) - 1 = (f + 40) + 21 from by omega]
@@ -4026,7 +4009,6 @@ private theorem step_parseMC_stage {f pc qIn resLoc innerLoc valLoc tmp1 tmp2 tm
     rw [runJvmResFast_invokestatic_step
       (stepStatic_skipSpaces (pc := someT + 55) (hp := hp) (hext bytesAddr _ hget))]
     step1
-    dsimp only [Jvm.JvmVal.asI32]
     rw [show f + (1 - 1) = f from by omega, show someT + 55 + 1 + 1 = someT + 57 from by omega,
       show ({ data := bytes.data } : ByteArray) = bytes from rfl]
     refine ⟨h2, _, hext, ?_, ?_, ?_, ?_, ?_, ?_, rfl⟩
@@ -4336,7 +4318,7 @@ private theorem step_parseMC_prelude {f : Nat} {bytesAddr : Nat} {bytes : ByteAr
   step1; step1
   rw [show f + (7 - 1 - 1 - 1 - 1 - 1) = (f + 1) + 1 from by omega]
   rw [runJvmResFast_invokestatic_step (stepStatic_skipSpaces (pc := 10)
-    (lim := .i32 bytes.data.size.toUInt32) (pos := .i32 0) (addr := bytesAddr)
+    (lim := bytes.data.size.toUInt32) (pos := 0) (addr := bytesAddr)
     (rest := []) (hp := hp) hget)]
   step1
   rfl
@@ -4368,9 +4350,9 @@ private theorem step_parseMC_stage0 {f : Nat} {locs : Nat → JvmVal}
     rw [parseMC_drop_12]
     dsimp only [parseMCStagePrefix]
     step1; dsimp only; rw [hl0]; step1; dsimp only; rw [hl2]; step1; dsimp only; rw [hl1]
-    have hsp := stepStatic_parseUInt32At (pc := 15) (lim := .i32 lim) (pos := .i32 q0)
+    have hsp := stepStatic_parseUInt32At (pc := 15) (lim := lim) (pos := q0)
       (addr := bytesAddr) (rest := []) (locs := locs) (hp := hp) hget
-    simp only [Jvm.JvmVal.asI32, hparse, Option.map_none, encodeOptScalarPair] at hsp
+    simp only [hparse, Option.map_none, encodeOptScalarPair] at hsp
     split_res_fuel 1
     rw [runJvmResFast_invokestatic_step hsp]
     rw [show f + (63 - 1 - 1 - 1) - 1 = (f + 34) + 25 from by omega]
@@ -4393,9 +4375,9 @@ private theorem step_parseMC_stage0 {f : Nat} {locs : Nat → JvmVal}
     rw [parseMC_drop_12]
     dsimp only [parseMCStagePrefix]
     step1; dsimp only; rw [hl0]; step1; dsimp only; rw [hl2]; step1; dsimp only; rw [hl1]
-    have hsp := stepStatic_parseUInt32At (pc := 15) (lim := .i32 lim) (pos := .i32 q0)
+    have hsp := stepStatic_parseUInt32At (pc := 15) (lim := lim) (pos := q0)
       (addr := bytesAddr) (rest := []) (locs := locs) (hp := hp) hget
-    simp only [Jvm.JvmVal.asI32, hparse, Option.map_some, encodeOptScalarPair] at hsp
+    simp only [hparse, Option.map_some, encodeOptScalarPair] at hsp
     split_res_fuel 1
     rw [runJvmResFast_invokestatic_step hsp]
     rw [show f + (63 - 1 - 1 - 1) - 1 = (f + 38) + 21 from by omega]
@@ -4447,7 +4429,6 @@ private theorem step_parseMC_stage0 {f : Nat} {locs : Nat → JvmVal}
     rw [runJvmResFast_invokestatic_step
       (stepStatic_skipSpaces (pc := 95) (hp := hp) (hext bytesAddr _ hget))]
     step1
-    dsimp only [Jvm.JvmVal.asI32]
     rw [show f + (1 - 1) = f from by omega, show (95 + 1 + 1 : Nat) = 97 from rfl,
       show ({ data := bytes.data } : ByteArray) = bytes from rfl]
     refine ⟨h2, _, hext, ?_, ?_, ?_, ?_, rfl⟩
@@ -4706,7 +4687,7 @@ private theorem step_parseMC_alloc_init {f : Nat} {locs : Nat → JvmVal}
   step1
   rw [runJvmResFast_anewarray_obj (by decide)]
   step1; step1; step1; step1; step1
-  dsimp only [setLocal, Jvm.JvmVal.asI32]; simp only [↓reduceIte]
+  dsimp only [setLocal]; simp only [↓reduceIte]
   have hgetOut0 : (jh.alloc (.objArray "java/lang/Object"
       (Array.replicate (2 : UInt32).toNat (JvmVal.null : JvmVal)))).2.get? jh.objects.size =
       some (.objArray "java/lang/Object" (Array.replicate (2 : UInt32).toNat (JvmVal.null : JvmVal))) :=
@@ -4715,7 +4696,7 @@ private theorem step_parseMC_alloc_init {f : Nat} {locs : Nat → JvmVal}
   step1; step1; step1
   rw [runJvmResFast_anewarray_obj (by decide)]
   step1; step1; step1; step1; step1
-  dsimp only [setLocal, Jvm.JvmVal.asI32]; simp only [↓reduceIte]
+  dsimp only [setLocal]; simp only [↓reduceIte]
   let outer0 := (jh.alloc (.objArray "java/lang/Object"
     (Array.replicate (2 : UInt32).toNat (JvmVal.null : JvmVal)))).2
   let outer1 := outer0.set jh.objects.size (.objArray "java/lang/Object" #[.boxedInt 1, .null])
