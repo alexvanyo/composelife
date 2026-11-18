@@ -49,7 +49,6 @@ kotlin {
                 api(libs.okio.fakefilesystem)
 
                 implementation(projects.injectScopes)
-                implementation(projects.updatable)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
             }

@@ -74,6 +74,11 @@ fun main() {
     ComposeViewport(
         viewportContainer = element,
     ) {
+        DisposableEffect(applicationGraph) {
+            onDispose {
+                applicationGraph.close()
+            }
+        }
         val ctx = applicationGraph.composeLifeApplicationCtx
         val appUpdatables = ctx.appUpdatables
         LaunchedEffect(Unit) {
@@ -107,6 +112,11 @@ fun main() {
                             override val clipboard = clipboard
                         },
                     )
+                }
+                DisposableEffect(uiGraph) {
+                    onDispose {
+                        uiGraph.close()
+                    }
                 }
                 val mainInjectCtx = uiGraph.mainInjectCtx
                 val uiUpdatables = mainInjectCtx.uiUpdatables

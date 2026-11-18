@@ -52,7 +52,6 @@ kotlin {
 
                 implementation(projects.dispatchers)
                 implementation(projects.injectScopes)
-                implementation(projects.updatable)
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.sqldelightAndroidXDriver)
             }

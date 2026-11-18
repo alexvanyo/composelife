@@ -53,7 +53,6 @@ kotlin {
                 implementation(projects.dispatchers)
                 implementation(projects.injectScopes)
                 implementation(projects.network)
-                implementation(projects.updatable)
             }
         }
     }

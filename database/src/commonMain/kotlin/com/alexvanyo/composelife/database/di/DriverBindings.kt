@@ -22,6 +22,8 @@ import com.alexvanyo.composelife.database.ComposeLifeDriver
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.ExperimentalMetroApi
+import dev.zacsweers.metro.OnGraphClose
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 
@@ -33,5 +35,16 @@ interface DriverBindings {
         @Provides
         @SingleIn(AppScope::class)
         internal fun providesDriver(composeLifeDriver: ComposeLifeDriver): SqlDriver = composeLifeDriver.sqlDriver
+    }
+}
+
+@OptIn(ExperimentalMetroApi::class)
+@ContributesTo(AppScope::class)
+interface ComposeLifeDriverLifecycle {
+    @OnGraphClose
+    fun closeDriver(composeLifeDriver: Lazy<ComposeLifeDriver>) {
+        if (composeLifeDriver.isInitialized()) {
+            composeLifeDriver.value.sqlDriver.close()
+        }
     }
 }

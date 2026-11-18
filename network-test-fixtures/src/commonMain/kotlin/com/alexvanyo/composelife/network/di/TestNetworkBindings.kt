@@ -18,17 +18,13 @@ package com.alexvanyo.composelife.network.di
 
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.network.FakeRequestHandler
-import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.ForScope
-import dev.zacsweers.metro.IntoSet
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
-import kotlinx.coroutines.awaitCancellation
 
 @ContributesTo(AppScope::class, replaces = [NetworkBindings::class])
 @BindingContainer
@@ -44,16 +40,6 @@ interface TestNetworkBindings {
             engine {
                 addHandler(fakeRequestHandler.asMockRequestHandler())
                 dispatcher = dispatchers.IOWithLimitedParallelism(1)
-            }
-        }
-
-        @Provides
-        @SingleIn(AppScope::class)
-        @IntoSet
-        @ForScope(AppScope::class)
-        internal fun providesHttpClientClosingIntoUpdatable(httpClient: HttpClient): Updatable = object : Updatable {
-            override suspend fun update(): Nothing = httpClient.use { _ ->
-                awaitCancellation()
             }
         }
     }
