@@ -48,12 +48,12 @@ kotlin {
             dependencies {
                 api(projects.kmpAndroidRunner)
                 api(projects.tracingTestFixtures)
+                api(projects.updatable)
                 api(libs.jetbrains.compose.uiTest)
                 api(libs.kotlinx.coroutines.test)
 
                 implementation(projects.dispatchersTestFixtures)
                 implementation(projects.injectScopes)
-                implementation(projects.updatable)
             }
         }
         val jbMain = create("jbMain") {

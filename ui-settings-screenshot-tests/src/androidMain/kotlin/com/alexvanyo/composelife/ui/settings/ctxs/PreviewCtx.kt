@@ -21,6 +21,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
@@ -99,20 +100,27 @@ private val testTraceDriver = TestTraceDriver()
 @Suppress("LongParameterList")
 @Composable
 internal fun WithPreviewDependencies(content: @Composable context(PreviewCtx) () -> Unit) {
-    val previewGraph = createGraphFactory<PreviewGlobalGraph.Factory>().create(testTraceDriver.tracer)
+    val previewGraph = remember {
+        createGraphFactory<PreviewGlobalGraph.Factory>().create(testTraceDriver.tracer)
+    }
     val context = LocalContext.current
-    val applicationGraph = remember {
+    val applicationGraph = remember(previewGraph, context) {
         (previewGraph as ApplicationGraph.Factory).create(
             object : ApplicationGraphArguments {
                 override val applicationContext: Context = context.applicationContext
             },
         )
     }
+    DisposableEffect(applicationGraph) {
+        onDispose {
+            applicationGraph.close()
+        }
+    }
     val appCtx = applicationGraph as AppPreviewCtx
     val activity = LocalActivity.current
     val windowInfo = LocalWindowInfo.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val uiGraph = remember(context, activity, windowInfo) {
+    val uiGraph = remember(applicationGraph, context, activity, windowInfo) {
         (applicationGraph as UiGraph.Factory).create(
             object : UiGraphArguments {
                 override val uiContext: Context = context
@@ -121,6 +129,11 @@ internal fun WithPreviewDependencies(content: @Composable context(PreviewCtx) ()
                 override val uiLifecycleOwner: LifecycleOwner = lifecycleOwner
             },
         )
+    }
+    DisposableEffect(uiGraph) {
+        onDispose {
+            uiGraph.close()
+        }
     }
     val ctx = uiGraph as PreviewCtx
 

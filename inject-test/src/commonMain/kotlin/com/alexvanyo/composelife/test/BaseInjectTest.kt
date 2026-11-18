@@ -77,10 +77,14 @@ abstract class BaseInjectTestImpl(applicationGraphCreator: (ApplicationGraphArgu
         context = generalTestDispatcher + context,
         timeout = timeout,
     ) {
-        withUpdatables(appUpdatables) {
-            // Let any background jobs launch and stabilize before running the test body
-            advanceUntilIdle()
-            testBody()
+        try {
+            withUpdatables(appUpdatables) {
+                // Let any background jobs launch and stabilize before running the test body
+                advanceUntilIdle()
+                testBody()
+            }
+        } finally {
+            applicationGraph.close()
         }
     }
 }
