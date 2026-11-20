@@ -19,6 +19,26 @@ package com.alexvanyo.composelife.navigation
 import kotlin.jvm.JvmName
 import kotlin.uuid.Uuid
 
+private fun <T> MutableBackstackMap<T>.toBackstackModel(currentEntryId: Uuid): BackstackModel<T> = BackstackModel(
+    entries = values.map { it as Any? }.toTypedArray(),
+    currentEntryId = currentEntryId,
+)
+
+@Suppress("UNCHECKED_CAST")
+private fun <T> MutableBackstackMap<T>.applyBackstackModel(model: BackstackModel<T>): Uuid {
+    val newEntries = model.entries.associate {
+        val entry = it as BackstackEntry<T>
+        entry.id to entry
+    }
+    keys.retainAll(newEntries.keys)
+    for ((id, entry) in newEntries) {
+        if (this[id] !== entry) {
+            this[id] = entry
+        }
+    }
+    return model.currentEntryId
+}
+
 /**
  * A navigation action on [MutableBackstackMap] that pops the backstack until the [entryPredicate] is `true` for some
  * entry, starting at the given [currentEntryId].
@@ -30,22 +50,22 @@ import kotlin.uuid.Uuid
  *
  * This new [currentEntryId] is returned.
  */
+@Suppress("UNCHECKED_CAST")
 fun <T> MutableBackstackMap<T>.popUpTo(
     currentEntryId: Uuid,
     entryPredicate: (BackstackEntry<T>) -> Boolean,
     inclusive: Boolean = false,
-): Uuid {
-    var current = getValue(currentEntryId)
-    while (!entryPredicate(current)) {
-        remove(current.id)
-        current = checkNotNull(current.previous) { "Predicate did not correspond to any entry in the backstack!" }
-    }
-    if (inclusive) {
-        remove(current.id)
-        current = checkNotNull(current.previous) { "Tried to pop last entry in the backstack!" }
-    }
-    return current.id
-}
+): Uuid = applyBackstackModel(
+    checkNotNull(
+        f_Navigation_popUpTo(
+            toBackstackModel(currentEntryId),
+            { entryPredicate(it as BackstackEntry<T>) },
+            inclusive,
+        ),
+    ) {
+        "Predicate did not correspond to any entry in the backstack, or tried to pop last entry in the backstack!"
+    },
+)
 
 /**
  * A navigation action on [MutableBackstackMap] that pops the backstack to the entry with the given [id], starting at
@@ -55,11 +75,18 @@ fun <T> MutableBackstackMap<T>.popUpTo(
  *
  * This new [currentEntryId] is returned.
  */
-fun <T> MutableBackstackMap<T>.popUpTo(currentEntryId: Uuid, id: Uuid, inclusive: Boolean = false): Uuid = popUpTo(
-    currentEntryId = currentEntryId,
-    entryPredicate = { it.id == id },
-    inclusive = inclusive,
-)
+fun <T> MutableBackstackMap<T>.popUpTo(currentEntryId: Uuid, id: Uuid, inclusive: Boolean = false): Uuid =
+    applyBackstackModel(
+        checkNotNull(
+            f_Navigation_popUpToId(
+                toBackstackModel(currentEntryId),
+                id,
+                inclusive,
+            ),
+        ) {
+            "Id did not correspond to any entry in the backstack, or tried to pop last entry in the backstack!"
+        },
+    )
 
 /**
  * A navigation action on [MutableBackstackMap] that pops the backstack until the [predicate] is `true` for some
@@ -74,45 +101,63 @@ fun <T> MutableBackstackMap<T>.popUpTo(
     currentEntryId: Uuid,
     predicate: (T) -> Boolean,
     inclusive: Boolean = false,
-): Uuid = popUpTo(
-    currentEntryId = currentEntryId,
-    entryPredicate = { predicate(it.value) },
-    inclusive = inclusive,
+): Uuid = applyBackstackModel(
+    checkNotNull(
+        f_Navigation_popUpToValue(
+            toBackstackModel(currentEntryId),
+            predicate,
+            inclusive,
+        ),
+    ) {
+        "Predicate did not correspond to any entry in the backstack, or tried to pop last entry in the backstack!"
+    },
 )
 
 /**
  * A navigation action which adds the destination.
  */
+@Suppress("UNCHECKED_CAST")
 fun <T> MutableBackstackMap<T>.navigate(
     currentEntryId: Uuid,
     valueFactory: (previous: BackstackEntry<T>) -> T,
     id: Uuid = Uuid.random(),
-): Uuid {
-    val previous = getValue(currentEntryId)
-    val current = BackstackEntry(
-        value = valueFactory(previous),
-        id = id,
-        previous = previous,
-    )
-    put(current.id, current)
-    return current.id
-}
+): Uuid = applyBackstackModel(
+    checkNotNull(
+        f_Navigation_navigateWithFactory(
+            toBackstackModel(currentEntryId),
+            { valueFactory(it as BackstackEntry<T>) },
+            id,
+        ),
+    ) {
+        "Current entry id did not correspond to any entry in the backstack!"
+    },
+)
 
 /**
  * A navigation action which adds the destination.
  */
-fun <T> MutableBackstackMap<T>.navigate(currentEntryId: Uuid, value: T, id: Uuid = Uuid.random()): Uuid = navigate(
-    currentEntryId = currentEntryId,
-    valueFactory = { value },
-    id = id,
-)
+fun <T> MutableBackstackMap<T>.navigate(currentEntryId: Uuid, value: T, id: Uuid = Uuid.random()): Uuid =
+    applyBackstackModel(
+        checkNotNull(
+            f_Navigation_navigate(
+                toBackstackModel(currentEntryId),
+                value,
+                id,
+            ),
+        ) {
+            "Current entry id did not correspond to any entry in the backstack!"
+        },
+    )
 
 /**
  * A navigation action which removes the last destination.
  */
-fun <T> MutableBackstackMap<T>.popBackstack(currentEntryId: Uuid): Uuid {
-    val current = getValue(currentEntryId)
-    val previous = checkNotNull(current.previous) { "Tried to pop last entry in the backstack!" }
-    remove(current.id)
-    return previous.id
-}
+fun <T> MutableBackstackMap<T>.popBackstack(currentEntryId: Uuid): Uuid = applyBackstackModel(
+    checkNotNull(
+        f_Navigation_popBackstack(
+            toBackstackModel(currentEntryId),
+        ),
+    ) {
+        "Tried to pop last entry in the backstack!"
+    },
+)
