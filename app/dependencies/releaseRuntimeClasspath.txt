@@ -186,8 +186,8 @@ com.squareup.okhttp3:okhttp-android:5.5.1
 com.squareup.okhttp3:okhttp:5.5.1
 com.squareup.okio:okio-jvm:3.18.2
 com.squareup.okio:okio:3.18.2
-com.squareup.wire:wire-runtime-jvm:7.2.1
-com.squareup.wire:wire-runtime:7.2.1
+com.squareup.wire:wire-runtime-jvm:7.2.2
+com.squareup.wire:wire-runtime:7.2.2
 dev.zacsweers.metro:metro-trace:1.5.0
 dev.zacsweers.metro:runtime-jvm:1.5.0
 dev.zacsweers.metro:runtime:1.5.0
