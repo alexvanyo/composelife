@@ -50,6 +50,8 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
@@ -95,7 +97,6 @@ import androidx.compose.ui.semantics.dismiss
 import androidx.compose.ui.semantics.expand
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -721,10 +722,8 @@ internal fun EdgeToEdgeModalBottomSheetPreview() {
         ) {
             LazyColumn {
                 items(100) { _ ->
-                    var textFieldValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-                        mutableStateOf(TextFieldValue())
-                    }
-                    TextField(value = textFieldValue, onValueChange = { textFieldValue = it })
+                    val textFieldState = rememberTextFieldState()
+                    TextField(state = textFieldState)
                 }
             }
         }
@@ -736,10 +735,8 @@ internal fun EdgeToEdgeModalBottomSheetPreview() {
         ) {
             LazyColumn {
                 items(100) { _ ->
-                    var textFieldValue by remember {
-                        mutableStateOf(TextFieldValue())
-                    }
-                    TextField(value = textFieldValue, onValueChange = { textFieldValue = it })
+                    val textFieldState = remember { TextFieldState() }
+                    TextField(state = textFieldState)
                 }
             }
         }

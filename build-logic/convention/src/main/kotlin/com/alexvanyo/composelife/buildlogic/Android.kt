@@ -36,7 +36,7 @@ fun Project.configureAndroid(commonExtension: CommonExtension) {
     commonExtension.apply {
         compileSdk {
             version = release(37) {
-                minorApiLevel = 1
+                minorApiLevel = 2
             }
         }
 
@@ -102,7 +102,7 @@ fun Project.configureAndroid(extension: KotlinMultiplatformAndroidLibraryTarget)
     extension.apply {
         compileSdk {
             version = release(37) {
-                minorApiLevel = 1
+                minorApiLevel = 2
             }
         }
 
