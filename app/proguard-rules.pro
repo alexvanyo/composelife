@@ -21,6 +21,10 @@
 #-renamesourcefileattribute SourceFile
 
 -dontwarn android.extensions.xr.XrExtensions
+-dontwarn android.extensions.xr.node.InputEvent$HitInfo
+-dontwarn android.extensions.xr.node.InputEvent
+-dontwarn android.extensions.xr.node.Mat4f
+-dontwarn android.extensions.xr.node.Vec3
 -dontwarn com.android.extensions.xr.XrExtensionResult
 -dontwarn com.android.extensions.xr.XrExtensions
 -dontwarn com.android.extensions.xr.function.Consumer
