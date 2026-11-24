@@ -16,7 +16,9 @@
 
 package com.alexvanyo.composelife.ui.app
 
+import com.alexvanyo.composelife.model.CellStateFormat
 import com.alexvanyo.composelife.model.DeserializationResult
+import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackMapSerializer
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
@@ -146,11 +148,25 @@ class ComposeLifeNavigationBrowserFragmentTests {
             ),
             previous = list,
         )
-        val deserializationInfo = BackstackEntry<ComposeLifeNavigation>(
+        val deserializationInfoUnsuccessful = BackstackEntry<ComposeLifeNavigation>(
             value = ComposeLifeNavigation.DeserializationInfo(
                 deserializationResult = DeserializationResult.Unsuccessful(
                     warnings = emptyList(),
                     errors = listOf(ParameterizedString("Invalid pattern")),
+                ),
+            ),
+            previous = root,
+        )
+        val deserializationInfoSuccessful = BackstackEntry<ComposeLifeNavigation>(
+            value = ComposeLifeNavigation.DeserializationInfo(
+                deserializationResult = DeserializationResult.Successful(
+                    warnings = emptyList(),
+                    cellState = """
+                        |O.O
+                        |.OO
+                        |.O.
+                    """.toCellState(),
+                    format = CellStateFormat.FixedFormat.Plaintext,
                 ),
             ),
             previous = root,
@@ -160,19 +176,28 @@ class ComposeLifeNavigationBrowserFragmentTests {
             root.id to root,
             list.id to list,
             detail.id to detail,
-            deserializationInfo.id to deserializationInfo,
+            deserializationInfoUnsuccessful.id to deserializationInfoUnsuccessful,
+            deserializationInfoSuccessful.id to deserializationInfoSuccessful,
         )
 
         val encoded = Json.encodeToString(serializer, map)
         val decoded = Json.decodeFromString(serializer, encoded)
 
-        assertEquals(4, decoded.size)
+        assertEquals(5, decoded.size)
         assertEquals(ComposeLifeNavigation.CellUniverse, decoded.getValue(root.id).value)
         val decodedList = assertIs<ComposeLifeNavigation.FullscreenSettingsList>(decoded.getValue(list.id).value)
         assertEquals(SettingsCategory.Algorithm, decodedList.settingsCategory)
         val decodedDetail = assertIs<ComposeLifeNavigation.FullscreenSettingsDetail>(decoded.getValue(detail.id).value)
         assertEquals(SettingsCategory.Visual, decodedDetail.settingsCategory)
         assertEquals(Setting.DarkThemeConfig, decodedDetail.settingToScrollTo)
-        assertIs<ComposeLifeNavigation.DeserializationInfo>(decoded.getValue(deserializationInfo.id).value)
+        assertIs<ComposeLifeNavigation.DeserializationInfo>(
+            decoded.getValue(deserializationInfoUnsuccessful.id).value,
+        )
+        val decodedSuccessful = assertIs<ComposeLifeNavigation.DeserializationInfo>(
+            decoded.getValue(deserializationInfoSuccessful.id).value,
+        )
+        val result = assertIs<DeserializationResult.Successful>(decodedSuccessful.deserializationResult)
+        assertEquals(CellStateFormat.FixedFormat.Plaintext, result.format)
+        assertEquals(5, result.cellState.aliveCells.size)
     }
 }

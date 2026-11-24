@@ -41,11 +41,29 @@ class WindowBrowserHistory(private val window: Window = kotlinx.browser.window) 
         get() = window.location.hash.removePrefix("#")
 
     override fun pushState(state: String?, fragment: String?) {
-        window.history.pushState(state?.toJsString(), "", buildUrl(fragment))
+        val url = buildUrl(fragment)
+        runCatching {
+            window.history.pushState(state?.toJsString(), "", url)
+        }.getOrElse {
+            if (state != null) {
+                runCatching {
+                    window.history.pushState(null, "", url)
+                }.getOrDefault(Unit)
+            }
+        }
     }
 
     override fun replaceState(state: String?, fragment: String?) {
-        window.history.replaceState(state?.toJsString(), "", buildUrl(fragment))
+        val url = buildUrl(fragment)
+        runCatching {
+            window.history.replaceState(state?.toJsString(), "", url)
+        }.getOrElse {
+            if (state != null) {
+                runCatching {
+                    window.history.replaceState(null, "", url)
+                }.getOrDefault(Unit)
+            }
+        }
     }
 
     override fun go(delta: Int) {

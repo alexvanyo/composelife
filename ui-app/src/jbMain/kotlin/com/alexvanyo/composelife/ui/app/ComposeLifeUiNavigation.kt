@@ -113,113 +113,112 @@ sealed interface ComposeLifeUiNavigation {
 fun BackstackState<ComposeLifeNavigation>.toComposeLifeUiNavigation(
     windowSizeClass: WindowSizeClass,
     windowSize: DpSize,
-): BackstackState<ComposeLifeUiNavigation> =
-    remember(entryMap.keys.toSet(), currentEntryId, windowSizeClass, windowSize) {
-        /**
-         * The result entry map of [ComposeLifeUiNavigation].
-         */
-        val map = mutableMapOf<Uuid, BackstackEntry<ComposeLifeUiNavigation>>()
+): BackstackState<ComposeLifeUiNavigation> = remember(entryMap.toMap(), currentEntryId, windowSizeClass, windowSize) {
+    /**
+     * The result entry map of [ComposeLifeUiNavigation].
+     */
+    val map = mutableMapOf<Uuid, BackstackEntry<ComposeLifeUiNavigation>>()
 
-        /**
-         * A set of [Uuid]s representing list destinations that are known to be paired with existing detail
-         * destinations.
-         */
-        val listsPairedWithDetails = mutableSetOf<Uuid>()
+    /**
+     * A set of [Uuid]s representing list destinations that are known to be paired with existing detail
+     * destinations.
+     */
+    val listsPairedWithDetails = mutableSetOf<Uuid>()
 
-        /**
-         * The resulting current entry id for the transformed backstack state.
-         *
-         * This is initially the [currentEntryId], but may be updated in the mapping.
-         */
-        var transformedCurrentEntryId by mutableStateOf(currentEntryId)
+    /**
+     * The resulting current entry id for the transformed backstack state.
+     *
+     * This is initially the [currentEntryId], but may be updated in the mapping.
+     */
+    var transformedCurrentEntryId by mutableStateOf(currentEntryId)
 
-        @Suppress("LongMethod")
-        fun createEntry(nav: BackstackEntry<ComposeLifeNavigation>): BackstackEntry<ComposeLifeUiNavigation> =
-            map.getOrPut(nav.id) {
-                when (val value = nav.value) {
-                    ComposeLifeNavigation.CellUniverse -> BackstackEntry(
-                        value = ComposeLifeUiNavigation.CellUniverse,
-                        previous = nav.previous?.let(::createEntry),
-                        id = nav.id,
-                    )
+    @Suppress("LongMethod")
+    fun createEntry(nav: BackstackEntry<ComposeLifeNavigation>): BackstackEntry<ComposeLifeUiNavigation> =
+        map.getOrPut(nav.id) {
+            when (val value = nav.value) {
+                ComposeLifeNavigation.CellUniverse -> BackstackEntry(
+                    value = ComposeLifeUiNavigation.CellUniverse,
+                    previous = nav.previous?.let(::createEntry),
+                    id = nav.id,
+                )
 
-                    is ComposeLifeNavigation.FullscreenSettingsDetail -> {
-                        val previous = nav.previous
-                        requireNotNull(previous)
-                        require(previous.value is ComposeLifeNavigation.FullscreenSettingsList)
-                        listsPairedWithDetails.add(previous.id)
-                        val listEntry = previous.let(::createEntry)
-                        val listNavEntry = listEntry.value as ListDetailInfo
-                        BackstackEntry(
-                            value = ComposeLifeUiNavigation.FullscreenSettingsDetail(
-                                nav = value,
-                                windowSizeClass = windowSizeClass,
-                                windowSize = windowSize,
-                                listDetailInfo = listNavEntry,
-                            ),
-                            previous = listEntry,
-                            id = nav.id,
-                        )
-                    }
-
-                    is ComposeLifeNavigation.FullscreenSettingsList -> {
-                        val isDetailPresent = nav.id in listsPairedWithDetails
-                        val newEntryValue = ComposeLifeUiNavigation.FullscreenSettingsList(
+                is ComposeLifeNavigation.FullscreenSettingsDetail -> {
+                    val previous = nav.previous
+                    requireNotNull(previous)
+                    require(previous.value is ComposeLifeNavigation.FullscreenSettingsList)
+                    listsPairedWithDetails.add(previous.id)
+                    val listEntry = previous.let(::createEntry)
+                    val listNavEntry = listEntry.value as ListDetailInfo
+                    BackstackEntry(
+                        value = ComposeLifeUiNavigation.FullscreenSettingsDetail(
                             nav = value,
                             windowSizeClass = windowSizeClass,
                             windowSize = windowSize,
-                            isDetailPresent = isDetailPresent,
-                        )
-                        val newEntry = BackstackEntry(
-                            value = newEntryValue,
-                            previous = nav.previous?.let(::createEntry),
-                            id = nav.id,
-                        )
-                        if (!isDetailPresent &&
-                            windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
-                        ) {
-                            map.put(
-                                value.transientDetailId,
-                                BackstackEntry(
-                                    value = ComposeLifeUiNavigation.FullscreenSettingsDetail(
-                                        nav = value.transientFullscreenSettingsDetail,
-                                        windowSizeClass = windowSizeClass,
-                                        windowSize = windowSize,
-                                        listDetailInfo = newEntryValue,
-                                    ),
-                                    previous = newEntry,
-                                    id = value.transientDetailId,
-                                ),
-                            )
-                            transformedCurrentEntryId = value.transientDetailId
-                        }
-                        newEntry
-                    }
-
-                    is ComposeLifeNavigation.DeserializationInfo -> BackstackEntry(
-                        value = ComposeLifeUiNavigation.DeserializationInfo(
-                            nav = value,
-                            windowSizeClass = windowSizeClass,
+                            listDetailInfo = listNavEntry,
                         ),
-                        previous = nav.previous?.let(::createEntry),
+                        previous = listEntry,
                         id = nav.id,
                     )
                 }
+
+                is ComposeLifeNavigation.FullscreenSettingsList -> {
+                    val isDetailPresent = nav.id in listsPairedWithDetails
+                    val newEntryValue = ComposeLifeUiNavigation.FullscreenSettingsList(
+                        nav = value,
+                        windowSizeClass = windowSizeClass,
+                        windowSize = windowSize,
+                        isDetailPresent = isDetailPresent,
+                    )
+                    val newEntry = BackstackEntry(
+                        value = newEntryValue,
+                        previous = nav.previous?.let(::createEntry),
+                        id = nav.id,
+                    )
+                    if (!isDetailPresent &&
+                        windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
+                    ) {
+                        map.put(
+                            value.transientDetailId,
+                            BackstackEntry(
+                                value = ComposeLifeUiNavigation.FullscreenSettingsDetail(
+                                    nav = value.transientFullscreenSettingsDetail,
+                                    windowSizeClass = windowSizeClass,
+                                    windowSize = windowSize,
+                                    listDetailInfo = newEntryValue,
+                                ),
+                                previous = newEntry,
+                                id = value.transientDetailId,
+                            ),
+                        )
+                        transformedCurrentEntryId = value.transientDetailId
+                    }
+                    newEntry
+                }
+
+                is ComposeLifeNavigation.DeserializationInfo -> BackstackEntry(
+                    value = ComposeLifeUiNavigation.DeserializationInfo(
+                        nav = value,
+                        windowSizeClass = windowSizeClass,
+                    ),
+                    previous = nav.previous?.let(::createEntry),
+                    id = nav.id,
+                )
             }
-
-        // First, generate entries iterating through the current backstack hierarchy with the previous pointers
-        generateSequence(currentEntry, BackstackEntry<ComposeLifeNavigation>::previous).forEach(::createEntry)
-
-        // Second, iterate through all of the entries, to generate any missing entries that are not part of the current
-        // backstack hierarchy
-        entryMap.values.forEach {
-            createEntry(it)
         }
 
-        object : BackstackState<ComposeLifeUiNavigation> {
-            override val entryMap: BackstackMap<ComposeLifeUiNavigation>
-                get() = map
-            override val currentEntryId: Uuid
-                get() = transformedCurrentEntryId
-        }
+    // First, generate entries iterating through the current backstack hierarchy with the previous pointers
+    generateSequence(currentEntry, BackstackEntry<ComposeLifeNavigation>::previous).forEach(::createEntry)
+
+    // Second, iterate through all of the entries, to generate any missing entries that are not part of the current
+    // backstack hierarchy
+    entryMap.values.forEach {
+        createEntry(it)
     }
+
+    object : BackstackState<ComposeLifeUiNavigation> {
+        override val entryMap: BackstackMap<ComposeLifeUiNavigation>
+            get() = map
+        override val currentEntryId: Uuid
+            get() = transformedCurrentEntryId
+    }
+}

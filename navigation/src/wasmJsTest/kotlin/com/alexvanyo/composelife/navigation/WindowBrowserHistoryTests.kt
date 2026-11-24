@@ -75,6 +75,24 @@ class WindowBrowserHistoryTests {
         assertEquals(id2, navController.currentEntryId)
         assertEquals("settings", navController.currentEntry.value)
         assertEquals("#settings", window.location.hash)
+
+        // In-app popBackstack moves browser history back and allows browser forward
+        awaitPopState {
+            navController.popBackstack()
+            waitForIdle()
+        }
+        waitForIdle()
+        assertEquals(id1, navController.currentEntryId)
+        assertEquals("home", navController.currentEntry.value)
+        assertEquals("", window.location.hash)
+
+        awaitPopState {
+            window.history.forward()
+        }
+        waitForIdle()
+        assertEquals(id2, navController.currentEntryId)
+        assertEquals("settings", navController.currentEntry.value)
+        assertEquals("#settings", window.location.hash)
     }
 
     private suspend fun awaitPopState(action: () -> Unit) = suspendCancellableCoroutine { continuation ->

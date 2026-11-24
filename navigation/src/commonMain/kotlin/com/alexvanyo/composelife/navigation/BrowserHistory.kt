@@ -24,6 +24,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.serializer
 import kotlin.jvm.JvmName
 import kotlin.uuid.Uuid
@@ -109,15 +110,14 @@ suspend fun <T> MutableBackstackNavigationController<T>.bindToBrowserHistory(
     getBackstackFragment: (BackstackEntry<T>) -> String? = { null },
     parseFragment: (String) -> List<BackstackEntry<T>>? = { null },
 ) {
-    val sessionId = Uuid.random()
+    var sessionId = Uuid.random()
     val sessionHistory = mutableMapOf<Int, List<Uuid>>()
     var currentHistoryIndex: Int
     var lastSyncedSnapshot: BackstackSnapshot
     var pendingGoTargetIndex: Int? = null
-    var pendingGoDeferred: CompletableDeferred<Unit>? = null
+    var pendingGoDeferred: CompletableDeferred<Boolean>? = null
 
-    fun captureSnapshot(): BackstackSnapshot {
-        val current = currentEntry
+    fun createSnapshot(current: BackstackEntry<T>): BackstackSnapshot {
         val chain = current.toList().reversed()
         val activeMap = mutableMapOf<Uuid, BackstackEntry<T>>().apply {
             chain.forEach { put(it.id, it) }
@@ -125,20 +125,25 @@ suspend fun <T> MutableBackstackNavigationController<T>.bindToBrowserHistory(
         return BackstackSnapshot(
             entryIds = chain.map(BackstackEntry<T>::id),
             currentEntryId = current.id,
-            backstackMapJson = BrowserHistoryJson.encodeToString(backstackMapSerializer, activeMap),
+            backstackMapElement = BrowserHistoryJson.encodeToJsonElement(backstackMapSerializer, activeMap),
             fragment = getBackstackFragment(current),
         )
     }
 
-    fun encodeHistoryState(index: Int, snapshot: BackstackSnapshot): String = BrowserHistoryJson.encodeToString(
-        SerializedBrowserHistoryState.serializer(),
-        SerializedBrowserHistoryState(
-            sessionId = sessionId,
-            index = index,
-            currentEntryId = snapshot.currentEntryId,
-            backstackMapJson = snapshot.backstackMapJson,
-        ),
-    )
+    fun captureSnapshot(): BackstackSnapshot = createSnapshot(currentEntry)
+
+    fun encodeHistoryState(index: Int, snapshot: BackstackSnapshot): String? = runCatching {
+        BrowserHistoryJson.encodeToString(
+            SerializedBrowserHistoryState.serializer(),
+            SerializedBrowserHistoryState(
+                sessionId = sessionId,
+                index = index,
+                currentEntryId = snapshot.currentEntryId,
+                backstackMap = snapshot.backstackMapElement,
+                sessionHistory = sessionHistory.filterKeys { it <= index },
+            ),
+        )
+    }.getOrNull()
 
     fun decodeHistoryState(rawState: String?): Pair<SerializedBrowserHistoryState, MutableBackstackMap<T>>? =
         rawState?.let { raw ->
@@ -147,7 +152,7 @@ suspend fun <T> MutableBackstackNavigationController<T>.bindToBrowserHistory(
             }.getOrNull()
         }?.let { decodedState ->
             runCatching {
-                BrowserHistoryJson.decodeFromString(backstackMapSerializer, decodedState.backstackMapJson)
+                BrowserHistoryJson.decodeFromJsonElement(backstackMapSerializer, decodedState.backstackMap)
             }.getOrNull()?.takeIf { decodedState.currentEntryId in it }?.let { restoredMap ->
                 decodedState to restoredMap
             }
@@ -165,6 +170,8 @@ suspend fun <T> MutableBackstackNavigationController<T>.bindToBrowserHistory(
     val initialRestored = decodeHistoryState(browserHistory.currentState)
     if (initialRestored != null) {
         val (decodedState, restoredMap) = initialRestored
+        sessionId = decodedState.sessionId
+        sessionHistory.putAll(decodedState.sessionHistory)
         applyBackstack(restoredMap, decodedState.currentEntryId)
         currentHistoryIndex = decodedState.index
     } else {
@@ -172,9 +179,11 @@ suspend fun <T> MutableBackstackNavigationController<T>.bindToBrowserHistory(
         if (initialFragment.isNotEmpty()) {
             val parsedEntries = parseFragment(initialFragment)
             if (!parsedEntries.isNullOrEmpty()) {
+                val parsedCurrent = parsedEntries.last()
+                val activeParsedMap = parsedCurrent.toList().reversed().associateBy(BackstackEntry<T>::id)
                 applyBackstack(
-                    newEntries = parsedEntries.associateBy(BackstackEntry<T>::id),
-                    newCurrentEntryId = parsedEntries.last().id,
+                    newEntries = activeParsedMap,
+                    newCurrentEntryId = parsedCurrent.id,
                 )
             }
         }
@@ -194,13 +203,13 @@ suspend fun <T> MutableBackstackNavigationController<T>.bindToBrowserHistory(
             val (decodedState, restoredMap) = decoded
             if (decodedState.sessionId == sessionId && decodedState.index == pendingGoTargetIndex) {
                 pendingGoTargetIndex = null
-                pendingGoDeferred?.complete(Unit)
+                pendingGoDeferred?.complete(true)
                 pendingGoDeferred = null
                 return@addPopStateListener
             }
 
             pendingGoTargetIndex = null
-            pendingGoDeferred?.complete(Unit)
+            pendingGoDeferred?.complete(false)
             pendingGoDeferred = null
 
             val restoredCurrent = restoredMap.getValue(decodedState.currentEntryId)
@@ -208,34 +217,24 @@ suspend fun <T> MutableBackstackNavigationController<T>.bindToBrowserHistory(
             val restoredSnapshot = BackstackSnapshot(
                 entryIds = restoredChain.map(BackstackEntry<T>::id),
                 currentEntryId = decodedState.currentEntryId,
-                backstackMapJson = decodedState.backstackMapJson,
+                backstackMapElement = decodedState.backstackMap,
                 fragment = getBackstackFragment(restoredCurrent),
             )
             currentHistoryIndex = decodedState.index
             lastSyncedSnapshot = restoredSnapshot
+            sessionHistory.putAll(decodedState.sessionHistory)
             sessionHistory[currentHistoryIndex] = restoredSnapshot.entryIds
             applyBackstack(restoredMap, decodedState.currentEntryId)
         } else {
             pendingGoTargetIndex = null
-            pendingGoDeferred?.complete(Unit)
+            pendingGoDeferred?.complete(false)
             pendingGoDeferred = null
 
             val parsedEntries = parseFragment(fragment)
             if (!parsedEntries.isNullOrEmpty()) {
-                val parsedMap = mutableMapOf<Uuid, BackstackEntry<T>>().apply {
-                    parsedEntries.forEach { put(it.id, it) }
-                }
                 val parsedCurrent = parsedEntries.last()
-                val parsedChain = parsedCurrent.toList().reversed()
-                val activeParsedMap = mutableMapOf<Uuid, BackstackEntry<T>>().apply {
-                    parsedChain.forEach { put(it.id, it) }
-                }
-                val newSnapshot = BackstackSnapshot(
-                    entryIds = parsedChain.map(BackstackEntry<T>::id),
-                    currentEntryId = parsedCurrent.id,
-                    backstackMapJson = BrowserHistoryJson.encodeToString(backstackMapSerializer, activeParsedMap),
-                    fragment = getBackstackFragment(parsedCurrent),
-                )
+                val activeParsedMap = parsedCurrent.toList().reversed().associateBy(BackstackEntry<T>::id)
+                val newSnapshot = createSnapshot(parsedCurrent)
                 currentHistoryIndex += 1
                 sessionHistory.keys.removeAll { it >= currentHistoryIndex }
                 lastSyncedSnapshot = newSnapshot
@@ -245,8 +244,18 @@ suspend fun <T> MutableBackstackNavigationController<T>.bindToBrowserHistory(
                     fragment = newSnapshot.fragment,
                 )
                 applyBackstack(
-                    newEntries = parsedMap,
+                    newEntries = activeParsedMap,
                     newCurrentEntryId = parsedCurrent.id,
+                )
+            } else {
+                // Unknown or external history entry: reset relative history tracking so subsequent
+                // in-app navigation does not compute an invalid delta.
+                currentHistoryIndex += 1
+                sessionHistory.clear()
+                sessionHistory[currentHistoryIndex] = lastSyncedSnapshot.entryIds
+                browserHistory.replaceState(
+                    state = encodeHistoryState(currentHistoryIndex, lastSyncedSnapshot),
+                    fragment = lastSyncedSnapshot.fragment,
                 )
             }
         }
@@ -275,19 +284,21 @@ suspend fun <T> MutableBackstackNavigationController<T>.bindToBrowserHistory(
                 val delta = previousMatchIndex - currentHistoryIndex
                 currentHistoryIndex = previousMatchIndex
                 lastSyncedSnapshot = newSnapshot
-                val deferred = CompletableDeferred<Unit>()
+                val deferred = CompletableDeferred<Boolean>()
                 pendingGoTargetIndex = previousMatchIndex
                 pendingGoDeferred = deferred
                 browserHistory.go(delta)
-                withTimeoutOrNull(POPSTATE_TIMEOUT_MS) {
+                val completedExpectedPopState = withTimeoutOrNull(POPSTATE_TIMEOUT_MS) {
                     deferred.await()
-                }
+                } == true
                 pendingGoTargetIndex = null
                 pendingGoDeferred = null
-                browserHistory.replaceState(
-                    state = encodeHistoryState(currentHistoryIndex, newSnapshot),
-                    fragment = newSnapshot.fragment,
-                )
+                if (completedExpectedPopState && lastSyncedSnapshot == newSnapshot) {
+                    browserHistory.replaceState(
+                        state = encodeHistoryState(currentHistoryIndex, newSnapshot),
+                        fragment = newSnapshot.fragment,
+                    )
+                }
             } else if (
                 newSnapshot.entryIds.size < lastSyncedSnapshot.entryIds.size &&
                 lastSyncedSnapshot.entryIds.subList(0, newSnapshot.entryIds.size) == newSnapshot.entryIds
@@ -317,7 +328,7 @@ suspend fun <T> MutableBackstackNavigationController<T>.bindToBrowserHistory(
 private data class BackstackSnapshot(
     val entryIds: List<Uuid>,
     val currentEntryId: Uuid,
-    val backstackMapJson: String,
+    val backstackMapElement: JsonElement,
     val fragment: String?,
 )
 
@@ -326,12 +337,12 @@ private data class SerializedBrowserHistoryState(
     val sessionId: Uuid,
     val index: Int,
     val currentEntryId: Uuid,
-    val backstackMapJson: String,
+    val backstackMap: JsonElement,
+    val sessionHistory: Map<Int, List<Uuid>> = emptyMap(),
 )
 
 private val BrowserHistoryJson = Json {
     ignoreUnknownKeys = true
-    allowStructuredMapKeys = true
 }
 
 private const val POPSTATE_TIMEOUT_MS = 500L

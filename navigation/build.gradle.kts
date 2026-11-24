@@ -95,7 +95,7 @@ kotlin {
         val wasmJsMain by getting {
             dependsOn(jbMain)
             dependencies {
-                implementation(libs.kotlinx.browser)
+                api(libs.kotlinx.browser)
             }
         }
         val commonTest by getting {

@@ -361,9 +361,152 @@ class BrowserHistoryTests : BaseKmpTest() {
         assertEquals(id1, navController2.currentEntryId)
         assertEquals("home", navController2.currentEntry.value)
     }
+
+    @Test
+    fun in_app_back_after_page_reload_moves_browser_history_back() = runComposeUiTest {
+        val browserHistory = FakeBrowserHistory()
+        lateinit var navController1: MutableBackstackNavigationController<String>
+
+        setContent {
+            navController1 = rememberMutableBackstackNavigationController(
+                initialBackstackEntries = listOf(
+                    BackstackEntry(value = "home", previous = null, id = id1),
+                ),
+            )
+            LaunchedEffect(navController1) {
+                navController1.bindToBrowserHistory(
+                    browserHistory = browserHistory,
+                    getBackstackFragment = { if (it.value == "home") "" else it.value },
+                )
+            }
+        }
+
+        waitForIdle()
+        navController1.navigate(value = "settings", id = id2)
+        waitForIdle()
+        assertEquals(1, browserHistory.currentIndex)
+
+        // Simulate page reload on "settings"
+        lateinit var navController2: MutableBackstackNavigationController<String>
+        setContent {
+            navController2 = rememberMutableBackstackNavigationController(
+                initialBackstackEntries = listOf(
+                    BackstackEntry(value = "home", previous = null, id = Uuid.random()),
+                ),
+            )
+            LaunchedEffect(navController2) {
+                navController2.bindToBrowserHistory(
+                    browserHistory = browserHistory,
+                    getBackstackFragment = { if (it.value == "home") "" else it.value },
+                )
+            }
+        }
+
+        waitForIdle()
+        assertEquals(id2, navController2.currentEntryId)
+
+        // In-app Back after reload should call go(-1) rather than replaceState
+        navController2.popBackstack()
+        waitForIdle()
+
+        assertEquals(id1, navController2.currentEntryId)
+        assertEquals(0, browserHistory.currentIndex)
+        assertEquals(2, browserHistory.entries.size)
+        assertEquals("", browserHistory.currentFragment)
+
+        // Browser forward still restores "settings"
+        browserHistory.forward()
+        waitForIdle()
+        assertEquals(id2, navController2.currentEntryId)
+        assertEquals("settings", navController2.currentEntry.value)
+    }
+
+    @Test
+    fun interleaved_popstate_during_in_app_back_does_not_overwrite_history() = runComposeUiTest {
+        val browserHistory = FakeBrowserHistory(dispatchPopStateOnGo = false)
+        lateinit var navController: MutableBackstackNavigationController<String>
+
+        setContent {
+            navController = rememberMutableBackstackNavigationController(
+                initialBackstackEntries = listOf(
+                    BackstackEntry(value = "home", previous = null, id = id1),
+                ),
+            )
+            LaunchedEffect(navController) {
+                navController.bindToBrowserHistory(
+                    browserHistory = browserHistory,
+                    getBackstackFragment = { if (it.value == "home") "" else it.value },
+                )
+            }
+        }
+
+        waitForIdle()
+        navController.navigate(value = "settings", id = id2)
+        waitForIdle()
+        navController.navigate(value = "detail", id = id3)
+        waitForIdle()
+
+        // Start in-app back from "detail" -> "settings" (go(-1) is in flight, popstate not yet dispatched)
+        navController.popBackstack()
+        waitForIdle()
+
+        // Before go(-1)'s popstate arrives, simulate user jumping all the way back to "home"
+        browserHistory.jumpTo(0)
+        waitForIdle()
+
+        assertEquals(id1, navController.currentEntryId)
+        assertEquals("home", navController.currentEntry.value)
+        assertEquals(0, browserHistory.currentIndex)
+        assertEquals("", browserHistory.currentFragment)
+    }
+
+    @Test
+    fun unparseable_manual_hash_change_does_not_desync_in_app_back() = runComposeUiTest {
+        val browserHistory = FakeBrowserHistory()
+        lateinit var navController: MutableBackstackNavigationController<String>
+
+        setContent {
+            navController = rememberMutableBackstackNavigationController(
+                initialBackstackEntries = listOf(
+                    BackstackEntry(value = "home", previous = null, id = id1),
+                ),
+            )
+            LaunchedEffect(navController) {
+                navController.bindToBrowserHistory(
+                    browserHistory = browserHistory,
+                    getBackstackFragment = { if (it.value == "home") "" else it.value },
+                    parseFragment = { null },
+                )
+            }
+        }
+
+        waitForIdle()
+        navController.navigate(value = "settings", id = id2)
+        waitForIdle()
+        assertEquals(1, browserHistory.currentIndex)
+
+        // User enters an unknown hash manually
+        browserHistory.navigateToHash("unknown")
+        waitForIdle()
+
+        assertEquals(id2, navController.currentEntryId)
+        assertEquals("settings", browserHistory.currentFragment)
+
+        // Subsequent in-app back should succeed without reverting
+        navController.popBackstack()
+        waitForIdle()
+
+        assertEquals(id1, navController.currentEntryId)
+        assertEquals("home", navController.currentEntry.value)
+        assertEquals("", browserHistory.currentFragment)
+    }
 }
 
-private class FakeBrowserHistory(initialState: String? = null, initialFragment: String = "") : BrowserHistory {
+private class FakeBrowserHistory(
+    initialState: String? = null,
+    initialFragment: String = "",
+    private val dispatchPopStateOnGo: Boolean = true,
+) : BrowserHistory {
     data class Entry(val state: String?, val fragment: String)
 
     val entries = mutableListOf(Entry(state = initialState, fragment = initialFragment))
@@ -394,14 +537,22 @@ private class FakeBrowserHistory(initialState: String? = null, initialFragment: 
         val targetIndex = (currentIndex + delta).coerceIn(0, entries.lastIndex)
         if (targetIndex != currentIndex) {
             currentIndex = targetIndex
-            val entry = entries[currentIndex]
-            listeners.toList().forEach { it(entry.state, entry.fragment) }
+            if (dispatchPopStateOnGo) {
+                val entry = entries[currentIndex]
+                listeners.toList().forEach { it(entry.state, entry.fragment) }
+            }
         }
     }
 
-    fun back() = go(-1)
+    fun jumpTo(index: Int) {
+        currentIndex = index.coerceIn(0, entries.lastIndex)
+        val entry = entries[currentIndex]
+        listeners.toList().forEach { it(entry.state, entry.fragment) }
+    }
 
-    fun forward() = go(1)
+    fun back() = jumpTo(currentIndex - 1)
+
+    fun forward() = jumpTo(currentIndex + 1)
 
     fun navigateToHash(fragment: String) {
         pushState(state = null, fragment = fragment)
