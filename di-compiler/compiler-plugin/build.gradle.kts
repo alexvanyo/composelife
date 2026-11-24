@@ -27,7 +27,7 @@ kotlin {
     jvm()
 
     sourceSets {
-        val jvmMain by getting {
+        val jvmMain = getByName("jvmMain") {
             dependencies {
                 compileOnly("org.jetbrains.kotlin:kotlin-compiler-embeddable:${libs.versions.kotlin.get()}")
             }

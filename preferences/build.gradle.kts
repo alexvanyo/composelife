@@ -36,7 +36,7 @@ plugins {
 
 kotlin {
     jvm("desktop")
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.preferences"
         minSdk = 24
         configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
@@ -53,7 +53,7 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 api(projects.dispatchers)
                 api(projects.logging)
@@ -74,13 +74,13 @@ kotlin {
                 implementation(libs.okio)
             }
         }
-        val jbMain by creating {
+        val jbMain = create("jbMain") {
             dependsOn(commonMain)
         }
-        val nonBrowserMain by creating {
+        val nonBrowserMain = create("nonBrowserMain") {
             dependsOn(jbMain)
         }
-        val androidMain by getting {
+        val androidMain = getByName("androidMain") {
             dependsOn(nonBrowserMain)
             configurations["kspAndroid"].dependencies.addAll(
                 listOf(
@@ -92,7 +92,7 @@ kotlin {
                 api(libs.kotlinx.coroutines.android)
             }
         }
-        val desktopMain by getting {
+        val desktopMain = getByName("desktopMain") {
             dependsOn(nonBrowserMain)
             configurations["kspDesktop"].dependencies.addAll(
                 listOf(
@@ -100,7 +100,7 @@ kotlin {
                 )
             )
         }
-        val wasmJsMain by getting {
+        val wasmJsMain = getByName("wasmJsMain") {
             dependsOn(jbMain)
             configurations["kspWasmJs"].dependencies.addAll(
                 listOf(
@@ -111,13 +111,13 @@ kotlin {
                 implementation(libs.kotlinx.browser)
             }
         }
-        val commonTest by getting {
+        val commonTest = getByName("commonTest") {
             dependencies {
                 implementation(projects.dispatchersTestFixtures)
                 implementation(projects.kmpAndroidRunner)
             }
         }
-        val jbTest by creating {
+        val jbTest = create("jbTest") {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.kotlinx.coroutines.test)
@@ -125,13 +125,13 @@ kotlin {
                 implementation(libs.turbine)
             }
         }
-        val jvmTest by creating {
+        val jvmTest = create("jvmTest") {
             dependsOn(jbTest)
         }
-        val desktopTest by getting {
+        val desktopTest = getByName("desktopTest") {
             dependsOn(jvmTest)
         }
-        val androidSharedTest by getting {
+        val androidSharedTest = getByName("androidSharedTest") {
             dependsOn(jvmTest)
             dependencies {
                 implementation(libs.androidx.test.core)
@@ -139,7 +139,7 @@ kotlin {
                 implementation(libs.androidx.test.runner)
             }
         }
-        val wasmJsTest by getting {
+        val wasmJsTest = getByName("wasmJsTest") {
             dependsOn(jbTest)
         }
     }

@@ -38,6 +38,7 @@ kotlin {
             }
         }
     }
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
     wasmJs {
         browser {
             testTask {
@@ -56,7 +57,7 @@ kotlin {
     mingwX64()
 
     sourceSets {
-        val commonTest by getting {
+        val commonTest = getByName("commonTest") {
             dependencies {
                 implementation(kotlin("test"))
             }

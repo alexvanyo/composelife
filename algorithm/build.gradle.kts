@@ -83,7 +83,7 @@ lean {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.algorithm"
         minSdk = 24
         configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
@@ -101,12 +101,12 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 api(projects.geometry)
             }
         }
-        val jbMain by creating {
+        val jbMain = create("jbMain") {
             dependsOn(commonMain)
             dependencies {
                 api(projects.dispatchers)
@@ -128,13 +128,13 @@ kotlin {
                 implementation(libs.kotlinx.serialization.json)
             }
         }
-        val jvmMain by creating {
+        val jvmMain = create("jvmMain") {
             dependsOn(jbMain)
         }
-        val jbNonAndroidMain by creating {
+        val jbNonAndroidMain = create("jbNonAndroidMain") {
             dependsOn(jbMain)
         }
-        val desktopMain by getting {
+        val desktopMain = getByName("desktopMain") {
             dependsOn(jvmMain)
             dependsOn(jbNonAndroidMain)
             configurations["kspDesktop"].dependencies.addAll(
@@ -146,7 +146,7 @@ kotlin {
                 implementation(libs.jetbrains.compose.ui)
             }
         }
-        val androidMain by getting {
+        val androidMain = getByName("androidMain") {
             dependsOn(jvmMain)
             configurations["kspAndroid"].dependencies.addAll(
                 listOf(
@@ -158,7 +158,7 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.android)
             }
         }
-        val wasmJsMain by getting {
+        val wasmJsMain = getByName("wasmJsMain") {
             dependsOn(jbNonAndroidMain)
             configurations["kspWasmJs"].dependencies.addAll(
                 listOf(
@@ -166,13 +166,13 @@ kotlin {
                 )
             )
         }
-        val commonTest by getting {
+        val commonTest = getByName("commonTest") {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(libs.testBalloon.framework.core)
             }
         }
-        val jbTest by creating {
+        val jbTest = create("jbTest") {
             dependsOn(commonTest)
             dependencies {
                 implementation(projects.algorithmTestResources)
@@ -188,16 +188,16 @@ kotlin {
                 implementation(libs.turbine)
             }
         }
-        val jvmTest by creating {
+        val jvmTest = create("jvmTest") {
             dependsOn(jbTest)
         }
-        val desktopTest by getting {
+        val desktopTest = getByName("desktopTest") {
             dependsOn(jvmTest)
             dependencies {
                 implementation(compose.desktop.currentOs)
             }
         }
-        val androidSharedTest by getting {
+        val androidSharedTest = getByName("androidSharedTest") {
             dependsOn(jvmTest)
             dependencies {
                 implementation(projects.testActivity)

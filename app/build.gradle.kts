@@ -31,7 +31,9 @@ plugins {
 }
 
 metro {
+    @OptIn(dev.zacsweers.metro.gradle.ExperimentalMetroGradleApi::class)
     enableRuntimeTracing.set(true)
+    @OptIn(dev.zacsweers.metro.gradle.DelicateMetroGradleApi::class, dev.zacsweers.metro.gradle.RequiresIdeSupport::class)
     enableTopLevelFunctionInjection = true
     unusedGraphInputsSeverity = DiagnosticSeverity.NONE
 }

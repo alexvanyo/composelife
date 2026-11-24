@@ -27,13 +27,13 @@ kotlin {
     jvm()
 
     sourceSets {
-        val jvmMain by getting {
+        val jvmMain = getByName("jvmMain") {
             dependencies {
                 implementation(projects.sealedEnum.runtime)
                 implementation(libs.kotlinPoet)
             }
         }
-        val jvmTest by getting {
+        val jvmTest = getByName("jvmTest") {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(libs.junit.jupiter)

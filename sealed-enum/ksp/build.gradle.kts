@@ -24,7 +24,7 @@ kotlin {
     jvm()
 
     sourceSets {
-        val jvmMain by getting {
+        val jvmMain = getByName("jvmMain") {
             configurations["kspJvm"].dependencies.addAll(
                 listOf(
                     libs.autoService.ksp.get(),

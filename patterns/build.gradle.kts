@@ -30,7 +30,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.patterns"
         minSdk = 24
         configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
@@ -48,50 +48,50 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 api(projects.algorithm)
                 api(projects.sealedEnum.runtime)
             }
         }
-        val jbMain by creating {
+        val jbMain = create("jbMain") {
             dependsOn(commonMain)
             dependencies {
                 api(libs.jetbrains.compose.uiUnit)
             }
         }
-        val jvmMain by creating {
+        val jvmMain = create("jvmMain") {
             dependsOn(jbMain)
         }
-        val desktopMain by getting {
+        val desktopMain = getByName("desktopMain") {
             dependsOn(jvmMain)
             configurations["kspDesktop"].dependencies.add(projects.sealedEnum.ksp)
         }
-        val androidMain by getting {
+        val androidMain = getByName("androidMain") {
             dependsOn(jvmMain)
             configurations["kspAndroid"].dependencies.add(projects.sealedEnum.ksp)
         }
-        val wasmJsMain by getting {
+        val wasmJsMain = getByName("wasmJsMain") {
             dependsOn(jbMain)
             configurations["kspWasmJs"].dependencies.add(projects.sealedEnum.ksp)
         }
-        val commonTest by getting {}
-        val jbTest by creating {
+        val commonTest = getByName("commonTest") {}
+        val jbTest = create("jbTest") {
             dependsOn(commonTest)
         }
-        val jvmTest by creating {
+        val jvmTest = create("jvmTest") {
             dependsOn(jbTest)
             dependencies {
                 implementation(libs.testParameterInjector.junit4)
             }
         }
-        val desktopTest by getting {
+        val desktopTest = getByName("desktopTest") {
             dependsOn(jvmTest)
         }
-        val androidSharedTest by getting {
+        val androidSharedTest = getByName("androidSharedTest") {
             dependsOn(jvmTest)
         }
-        val wasmJsTest by getting {
+        val wasmJsTest = getByName("wasmJsTest") {
             dependsOn(jbTest)
         }
     }

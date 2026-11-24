@@ -28,7 +28,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.timeutil"
         minSdk = 23
     }
@@ -45,13 +45,13 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 implementation(libs.androidx.compose.runtime)
                 implementation(libs.kotlinx.datetime)
             }
         }
-        val commonTest by getting {
+        val commonTest = getByName("commonTest") {
             dependencies {
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.molecule)

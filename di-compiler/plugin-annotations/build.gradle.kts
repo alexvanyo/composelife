@@ -65,7 +65,7 @@ kotlin {
     mingwX64()
 
     sourceSets {
-        val commonTest by getting {
+        val commonTest = getByName("commonTest") {
             dependencies {
                 implementation(kotlin("test"))
             }

@@ -26,7 +26,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.dispatcherstest"
         minSdk = 24
     }
@@ -43,7 +43,7 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 api(projects.clock)
                 api(projects.dispatchers)
@@ -53,13 +53,13 @@ kotlin {
                 implementation(projects.injectScopes)
             }
         }
-        val jvmMain by creating {
+        val jvmMain = create("jvmMain") {
             dependsOn(commonMain)
         }
-        val desktopMain by getting {
+        val desktopMain = getByName("desktopMain") {
             dependsOn(jvmMain)
         }
-        val androidMain by getting {
+        val androidMain = getByName("androidMain") {
             dependsOn(jvmMain)
             dependencies {
                 api(libs.androidx.test.junit)

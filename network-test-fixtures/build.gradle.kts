@@ -28,7 +28,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.network.test"
         minSdk = 24
     }
@@ -45,7 +45,7 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 api(libs.ktor.client.core)
                 api(libs.ktor.client.mock)

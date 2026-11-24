@@ -29,14 +29,14 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.ui.wear"
         minSdk = 26
         configureGradleManagedDevices(setOf(FormFactor.Wear), this)
     }
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 api(projects.updatable)
 
@@ -56,7 +56,7 @@ kotlin {
                 implementation(libs.kotlinx.serialization.core)
             }
         }
-        val androidMain by getting {
+        val androidMain = getByName("androidMain") {
             configurations["kspAndroid"].dependencies.add(projects.sealedEnum.ksp)
             dependencies {
                 implementation(projects.sealedEnum.runtime)

@@ -19,6 +19,7 @@ import com.alexvanyo.composelife.buildlogic.configureAndroid
 import com.alexvanyo.composelife.buildlogic.configureKotlin
 import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 class AndroidLibraryConventionPlugin :
     ConventionPlugin({
@@ -35,12 +36,12 @@ class AndroidLibraryConventionPlugin :
                 optimization.consumerKeepRules.file("consumer-rules.pro")
             }
         }
-        extensions.configure(KotlinMultiplatformExtension::class.java) {
-            sourceSets.configureEach {
-                languageSettings {
-                    optIn("kotlin.uuid.ExperimentalUuidApi")
-                    optIn("kotlin.time.ExperimentalTime")
-                }
+        tasks.withType(KotlinCompilationTask::class.java).configureEach {
+            compilerOptions {
+                optIn.addAll(
+                    "kotlin.uuid.ExperimentalUuidApi",
+                    "kotlin.time.ExperimentalTime",
+                )
             }
         }
     })

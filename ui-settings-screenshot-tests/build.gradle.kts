@@ -33,6 +33,7 @@ plugins {
 }
 
 metro {
+    @OptIn(dev.zacsweers.metro.gradle.DelicateMetroGradleApi::class, dev.zacsweers.metro.gradle.RequiresIdeSupport::class)
     enableTopLevelFunctionInjection = true
     unusedGraphInputsSeverity = DiagnosticSeverity.NONE
 }
@@ -42,7 +43,7 @@ ksp {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.ui.settings.screenshottests"
         minSdk = 24
         compilations.withType(KotlinMultiplatformAndroidDeviceTestCompilation::class.java) {
@@ -52,7 +53,7 @@ kotlin {
     jvm("desktop")
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 implementation(projects.data)
                 implementation(projects.databaseTestFixtures)
@@ -72,19 +73,19 @@ kotlin {
                 implementation(libs.androidx.navigationEvent)
             }
         }
-        val jbMain by creating {
+        val jbMain = create("jbMain") {
             dependsOn(commonMain)
             dependencies {
                 implementation(libs.jetbrains.compose.material3)
             }
         }
-        val desktopMain by getting {
+        val desktopMain = getByName("desktopMain") {
             dependsOn(jbMain)
             dependencies {
                 implementation(compose.desktop.currentOs)
             }
         }
-        val androidMain by getting {
+        val androidMain = getByName("androidMain") {
             dependsOn(jbMain)
             configurations["kspAndroid"].dependencies.addAll(
                 listOf(
@@ -100,7 +101,7 @@ kotlin {
                 implementation(libs.showkase.runtime)
             }
         }
-        val commonTest by getting {
+        val commonTest = getByName("commonTest") {
             dependencies {
                 implementation(projects.injectTest)
                 implementation(projects.kmpAndroidRunner)
@@ -111,25 +112,25 @@ kotlin {
                 implementation(libs.turbine)
             }
         }
-        val jvmTest by creating {
+        val jvmTest = create("jvmTest") {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.testParameterInjector.junit4)
             }
         }
-        val jbTest by creating {
+        val jbTest = create("jbTest") {
             dependsOn(jvmTest)
             dependencies {
                 implementation(libs.jetbrains.compose.uiTest)
             }
         }
-        val desktopTest by getting {
+        val desktopTest = getByName("desktopTest") {
             dependsOn(jbTest)
         }
-        val androidSharedTest by getting {
+        val androidSharedTest = getByName("androidSharedTest") {
             dependsOn(jbTest)
         }
-        val androidHostTest by getting {
+        val androidHostTest = getByName("androidHostTest") {
             configurations["kspAndroidHostTest"].dependencies.addAll(
                 listOf(
                     libs.showkase.processor.get(),

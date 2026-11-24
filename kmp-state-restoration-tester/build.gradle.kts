@@ -26,7 +26,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.kmpstaterestorationtester"
         minSdk = 24
     }
@@ -43,25 +43,25 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 implementation(libs.androidx.compose.runtime)
                 implementation(libs.androidx.compose.runtime.retain)
             }
         }
-        val jbMain by creating {
+        val jbMain = create("jbMain") {
             dependsOn(commonMain)
             dependencies {
                 implementation(libs.jetbrains.compose.uiTest)
             }
         }
-        val desktopMain by getting {
+        val desktopMain = getByName("desktopMain") {
             dependsOn(jbMain)
         }
-        val androidMain by getting {
+        val androidMain = getByName("androidMain") {
             dependsOn(jbMain)
         }
-        val wasmJsMain by getting {
+        val wasmJsMain = getByName("wasmJsMain") {
             dependsOn(jbMain)
         }
     }

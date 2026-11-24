@@ -29,33 +29,33 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.appcompatsync"
         minSdk = 24
         configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
     }
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 implementation(projects.injectScopes)
                 implementation(projects.preferences)
                 implementation(projects.updatable)
             }
         }
-        val androidMain by getting {
+        val androidMain = getByName("androidMain") {
             dependencies {
                 implementation(libs.androidx.appcompat)
             }
         }
-        val commonTest by getting {
+        val commonTest = getByName("commonTest") {
             dependencies {
                 implementation(projects.testActivity)
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
             }
         }
-        val androidSharedTest by getting {
+        val androidSharedTest = getByName("androidSharedTest") {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.androidx.test.core)

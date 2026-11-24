@@ -35,12 +35,13 @@ plugins {
 }
 
 metro {
+    @OptIn(dev.zacsweers.metro.gradle.DelicateMetroGradleApi::class, dev.zacsweers.metro.gradle.RequiresIdeSupport::class)
     enableTopLevelFunctionInjection = true
     unusedGraphInputsSeverity = DiagnosticSeverity.NONE
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.database"
         minSdk = 24
         compilations.withType(KotlinMultiplatformAndroidDeviceTestCompilation::class.java) {
@@ -61,7 +62,7 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 api(projects.updatable)
                 api(libs.kotlinx.coroutines.core)
@@ -75,26 +76,26 @@ kotlin {
                 implementation(libs.sqldelightAndroidXDriver)
             }
         }
-        val androidMain by getting {
+        val androidMain = getByName("androidMain") {
             dependencies {
                 api(libs.kotlinx.coroutines.android)
 
                 implementation(libs.androidx.sqlite.framework)
             }
         }
-        val desktopMain by getting {
+        val desktopMain = getByName("desktopMain") {
             dependencies {
                 implementation(libs.androidx.sqlite.bundled)
             }
         }
-        val wasmJsMain by getting {
+        val wasmJsMain = getByName("wasmJsMain") {
             dependencies {
                 implementation(libs.androidx.sqlite.web)
                 implementation(libs.jetbrains.compose.ui)
                 implementation(libs.sqldelightAndroidXDriver.opfs)
             }
         }
-        val commonTest by getting {
+        val commonTest = getByName("commonTest") {
             dependencies {
                 implementation(projects.databaseTestFixtures)
                 implementation(projects.dispatchersTestFixtures)
@@ -106,13 +107,13 @@ kotlin {
                 implementation(libs.turbine)
             }
         }
-        val jvmTest by creating {
+        val jvmTest = create("jvmTest") {
             dependsOn(commonTest)
         }
-        val desktopTest by getting {
+        val desktopTest = getByName("desktopTest") {
             dependsOn(jvmTest)
         }
-        val androidSharedTest by getting {
+        val androidSharedTest = getByName("androidSharedTest") {
             dependsOn(jvmTest)
             dependencies {
                 implementation(libs.androidx.test.core)

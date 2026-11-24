@@ -35,12 +35,13 @@ plugins {
 }
 
 metro {
+    @OptIn(dev.zacsweers.metro.gradle.DelicateMetroGradleApi::class, dev.zacsweers.metro.gradle.RequiresIdeSupport::class)
     enableTopLevelFunctionInjection = true
     unusedGraphInputsSeverity = DiagnosticSeverity.NONE
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.ui.app"
         minSdk = 24
         compilations.withType(KotlinMultiplatformAndroidDeviceTestCompilation::class.java) {
@@ -62,7 +63,7 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 api(projects.algorithm)
                 api(projects.clock)
@@ -94,7 +95,7 @@ kotlin {
                 implementation(libs.kotlinx.serialization.json)
             }
         }
-        val jbMain by creating {
+        val jbMain = create("jbMain") {
             dependsOn(commonMain)
             dependencies {
                 api(libs.jetbrains.compose.material3.adaptive)
@@ -109,10 +110,10 @@ kotlin {
                 implementation(libs.jetbrains.compose.uiUtil)
             }
         }
-        val nonAndroidMain by creating {
+        val nonAndroidMain = create("nonAndroidMain") {
             dependsOn(jbMain)
         }
-        val desktopMain by getting {
+        val desktopMain = getByName("desktopMain") {
             dependsOn(nonAndroidMain)
             configurations["kspDesktop"].dependencies.addAll(listOf(
                 projects.sealedEnum.ksp,
@@ -121,7 +122,7 @@ kotlin {
                 implementation(compose.desktop.currentOs)
             }
         }
-        val androidMain by getting {
+        val androidMain = getByName("androidMain") {
             dependsOn(jbMain)
             configurations["kspAndroid"].dependencies.addAll(listOf(
                 projects.sealedEnum.ksp,
@@ -139,13 +140,13 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.android)
             }
         }
-        val wasmJsMain by getting {
+        val wasmJsMain = getByName("wasmJsMain") {
             dependsOn(nonAndroidMain)
             configurations["kspWasmJs"].dependencies.addAll(listOf(
                 projects.sealedEnum.ksp,
             ))
         }
-        val commonTest by getting {
+        val commonTest = getByName("commonTest") {
             dependencies {
                 implementation(projects.dispatchersTestFixtures)
                 implementation(projects.filesystemTestFixtures)
@@ -163,25 +164,25 @@ kotlin {
                 implementation(libs.turbine)
             }
         }
-        val jbTest by creating {
+        val jbTest = create("jbTest") {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.jetbrains.compose.uiTest)
             }
         }
-        val jvmTest by creating {
+        val jvmTest = create("jvmTest") {
             dependsOn(jbTest)
             dependencies {
                 implementation(libs.testParameterInjector.junit4)
             }
         }
-        val desktopTest by getting {
+        val desktopTest = getByName("desktopTest") {
             dependsOn(jvmTest)
             dependencies {
                 implementation(libs.kotlinx.coroutines.swing)
             }
         }
-        val androidSharedTest by getting {
+        val androidSharedTest = getByName("androidSharedTest") {
             dependsOn(jvmTest)
             dependencies {
                 implementation(libs.androidx.compose.uiTest)
@@ -190,12 +191,12 @@ kotlin {
                 implementation(libs.androidx.test.junit)
             }
         }
-        val androidDeviceTest by getting {
+        val androidDeviceTest = getByName("androidDeviceTest") {
             dependencies {
                 implementation(libs.androidx.test.uiAutomator)
             }
         }
-        val wasmJsTest by getting {
+        val wasmJsTest = getByName("wasmJsTest") {
             dependsOn(jbTest)
         }
     }

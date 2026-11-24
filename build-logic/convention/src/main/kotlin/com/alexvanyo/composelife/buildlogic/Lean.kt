@@ -88,8 +88,14 @@ abstract class CacheLeanTask @Inject constructor(private val execOperations: Exe
 
     @TaskAction
     fun cache() {
+        val workDir = this@CacheLeanTask.workingDir.get().asFile
+        val hasMathlib = listOf("lakefile.toml", "lakefile.lean").any { name ->
+            File(workDir, name).takeIf { it.exists() }?.readText()?.contains("mathlib") == true
+        }
+        if (!hasMathlib) return
         execOperations.exec {
-            workingDir = this@CacheLeanTask.workingDir.get().asFile
+            workingDir = workDir
+            environment("ELAN_NO_OVERRIDE_NOTICE", "1")
             commandLine("lake", "exe", "cache", "get")
             isIgnoreExitValue = true
         }
@@ -109,6 +115,7 @@ abstract class VerifyLeanTask @Inject constructor(private val execOperations: Ex
     fun verify() {
         execOperations.exec {
             workingDir = this@VerifyLeanTask.workingDir.get().asFile
+            environment("ELAN_NO_OVERRIDE_NOTICE", "1")
             commandLine("lake", "build", "--wfail", target.get())
         }
     }
