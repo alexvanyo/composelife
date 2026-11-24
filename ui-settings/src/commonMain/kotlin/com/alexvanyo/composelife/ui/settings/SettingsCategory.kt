@@ -30,21 +30,25 @@ sealed interface SettingsCategory {
     /**
      * A setting impacting the algorithm.
      */
+    @Serializable
     data object Algorithm : SettingsCategory
 
     /**
      * A setting related to the visual display.
      */
+    @Serializable
     data object Visual : SettingsCategory
 
     /**
      * A setting related to pattern collections.
      */
+    @Serializable
     data object PatternCollections : SettingsCategory
 
     /**
      * A setting for some app feature flag.
      */
+    @Serializable
     data object FeatureFlags : SettingsCategory
 
     @GenSealedEnum

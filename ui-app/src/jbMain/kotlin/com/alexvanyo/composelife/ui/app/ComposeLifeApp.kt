@@ -48,6 +48,7 @@ import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.navigation.BackstackEntry
 import com.alexvanyo.composelife.navigation.BackstackMapSerializer
 import com.alexvanyo.composelife.navigation.BackstackState
+import com.alexvanyo.composelife.navigation.BindToBrowserNavigation
 import com.alexvanyo.composelife.navigation.MaterialPredictiveNavDisplay
 import com.alexvanyo.composelife.navigation.canNavigateBack
 import com.alexvanyo.composelife.navigation.currentEntry
@@ -283,6 +284,9 @@ fun rememberComposeLifeAppState(
             )
         }
 
+        val backstackMapSerializer = remember {
+            BackstackMapSerializer(ComposeLifeNavigation::surrogate)
+        }
         val navController = rememberMutableBackstackNavigationController(
             initialBackstackEntries = listOf(
                 BackstackEntry(
@@ -290,7 +294,13 @@ fun rememberComposeLifeAppState(
                     previous = null,
                 ),
             ),
-            backstackMapSerializer = BackstackMapSerializer(ComposeLifeNavigation::surrogate),
+            backstackMapSerializer = backstackMapSerializer,
+        )
+
+        navController.BindToBrowserNavigation(
+            backstackMapSerializer = backstackMapSerializer,
+            getBackstackFragment = BackstackEntry<ComposeLifeNavigation>::toBrowserFragment,
+            parseFragment = ::parseComposeLifeBrowserFragment,
         )
 
         val currentEntryId = navController.currentEntryId

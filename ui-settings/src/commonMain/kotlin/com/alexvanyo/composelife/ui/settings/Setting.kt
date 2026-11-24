@@ -45,71 +45,85 @@ sealed interface Setting {
      */
     val quickAccessSetting: QuickAccessSetting?
 
+    @Serializable
     data object AlgorithmImplementation : Setting {
         override val category = SettingsCategory.Algorithm
         override val quickAccessSetting = QuickAccessSetting.AlgorithmImplementation
     }
 
+    @Serializable
     data object CellStatePreview : Setting {
         override val category = SettingsCategory.Visual
         override val quickAccessSetting = null
     }
 
+    @Serializable
     data object DarkThemeConfig : Setting {
         override val category = SettingsCategory.Visual
         override val quickAccessSetting = QuickAccessSetting.DarkThemeConfig
     }
 
+    @Serializable
     data object CellShapeConfig : Setting {
         override val category = SettingsCategory.Visual
         override val quickAccessSetting = QuickAccessSetting.CellShapeConfig
     }
 
+    @Serializable
     data object SynchronizePatternCollectionsOnMeteredNetwork : Setting {
         override val category = SettingsCategory.PatternCollections
         override val quickAccessSetting = QuickAccessSetting.SynchronizePatternCollectionsOnMeteredNetwork
     }
 
+    @Serializable
     data object PatternCollectionsSynchronizationPeriod : Setting {
         override val category = SettingsCategory.PatternCollections
         override val quickAccessSetting = QuickAccessSetting.PatternCollectionsSynchronizationPeriod
     }
 
+    @Serializable
     data object PatternCollectionSources : Setting {
         override val category = SettingsCategory.PatternCollections
         override val quickAccessSetting = null
     }
 
+    @Serializable
     data object DisableAGSL : Setting {
         override val category = SettingsCategory.FeatureFlags
         override val quickAccessSetting = QuickAccessSetting.DisableAGSL
     }
 
+    @Serializable
     data object DisableOpenGL : Setting {
         override val category = SettingsCategory.FeatureFlags
         override val quickAccessSetting = QuickAccessSetting.DisableOpenGL
     }
 
+    @Serializable
     data object DoNotKeepProcess : Setting {
         override val category = SettingsCategory.FeatureFlags
         override val quickAccessSetting = QuickAccessSetting.DoNotKeepProcess
     }
 
+    @Serializable
     data object EnableClipboardWatching : Setting {
         override val category = SettingsCategory.FeatureFlags
         override val quickAccessSetting = QuickAccessSetting.EnableClipboardWatching
     }
 
+    @Serializable
     data object ClipboardWatchingOnboardingCompleted : Setting {
         override val category = SettingsCategory.FeatureFlags
         override val quickAccessSetting = QuickAccessSetting.ClipboardWatchingOnboardingCompleted
     }
 
+    @Serializable
     data object EnableWindowShapeClipping : Setting {
         override val category = SettingsCategory.FeatureFlags
         override val quickAccessSetting = QuickAccessSetting.EnableWindowShapeClipping
     }
 
+    @Serializable
     data object CellStatePruningPeriod : Setting {
         override val category = SettingsCategory.FeatureFlags
         override val quickAccessSetting = QuickAccessSetting.CellStatePruningPeriod
