@@ -60,6 +60,7 @@ kotlin {
                 implementation(libs.androidx.compose.runtime.retain)
                 implementation(libs.androidx.compose.runtime.saveable)
                 implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.serialization.json)
             }
         }
         val jbMain by creating {
@@ -93,6 +94,9 @@ kotlin {
         }
         val wasmJsMain by getting {
             dependsOn(jbMain)
+            dependencies {
+                implementation(libs.kotlinx.browser)
+            }
         }
         val commonTest by getting {
             dependencies {

@@ -117,3 +117,67 @@ sealed interface ComposeLifeNavigation {
  */
 @Serializable
 sealed interface ComposeLifeNavigationSurrogate : BackstackValueSurrogate<ComposeLifeNavigation>
+
+fun BackstackEntry<ComposeLifeNavigation>.toBrowserFragment(): String = when (val value = value) {
+    ComposeLifeNavigation.CellUniverse -> ""
+    is ComposeLifeNavigation.FullscreenSettingsList -> "settings"
+    is ComposeLifeNavigation.FullscreenSettingsDetail -> "settings/${value.settingsCategory.toUrlSlug()}"
+    is ComposeLifeNavigation.DeserializationInfo -> "deserialization-info"
+}
+
+fun parseComposeLifeBrowserFragment(fragment: String): List<BackstackEntry<ComposeLifeNavigation>>? {
+    val normalized = fragment.removePrefix("#").trim('/')
+    val cellUniverseEntry = BackstackEntry<ComposeLifeNavigation>(
+        value = ComposeLifeNavigation.CellUniverse,
+        previous = null,
+    )
+    return when {
+        normalized.isEmpty() -> listOf(cellUniverseEntry)
+
+        normalized == "settings" -> {
+            val listEntry = BackstackEntry<ComposeLifeNavigation>(
+                value = ComposeLifeNavigation.FullscreenSettingsList(
+                    initialSettingsCategory = SettingsCategory.Algorithm,
+                ),
+                previous = cellUniverseEntry,
+            )
+            listOf(cellUniverseEntry, listEntry)
+        }
+
+        normalized.startsWith("settings/") -> {
+            val categorySlug = normalized.removePrefix("settings/")
+            val category = settingsCategoryFromUrlSlug(categorySlug) ?: return null
+            val listEntry = BackstackEntry<ComposeLifeNavigation>(
+                value = ComposeLifeNavigation.FullscreenSettingsList(
+                    initialSettingsCategory = category,
+                ),
+                previous = cellUniverseEntry,
+            )
+            val detailEntry = BackstackEntry<ComposeLifeNavigation>(
+                value = ComposeLifeNavigation.FullscreenSettingsDetail(
+                    settingsCategory = category,
+                    initialSettingToScrollTo = null,
+                ),
+                previous = listEntry,
+            )
+            listOf(cellUniverseEntry, listEntry, detailEntry)
+        }
+
+        else -> null
+    }
+}
+
+private fun SettingsCategory.toUrlSlug(): String = when (this) {
+    SettingsCategory.Algorithm -> "algorithm"
+    SettingsCategory.Visual -> "visual"
+    SettingsCategory.PatternCollections -> "pattern-collections"
+    SettingsCategory.FeatureFlags -> "feature-flags"
+}
+
+private fun settingsCategoryFromUrlSlug(slug: String): SettingsCategory? = when (slug) {
+    "algorithm" -> SettingsCategory.Algorithm
+    "visual" -> SettingsCategory.Visual
+    "pattern-collections" -> SettingsCategory.PatternCollections
+    "feature-flags" -> SettingsCategory.FeatureFlags
+    else -> null
+}
