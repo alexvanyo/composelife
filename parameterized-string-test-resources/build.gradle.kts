@@ -22,7 +22,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.parameterizedstring.testresources"
         minSdk = 24
         androidResources { enable = true }

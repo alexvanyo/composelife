@@ -26,7 +26,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.wff.resources"
         minSdk = 33
         configureTesting(this)
@@ -40,7 +40,7 @@ kotlin {
     jvm {}
 
     sourceSets {
-        val jvmTest by getting {
+        val jvmTest = getByName("jvmTest") {
             dependencies {
                 implementation(projects.algorithm)
                 implementation(projects.dispatchersTestFixtures)

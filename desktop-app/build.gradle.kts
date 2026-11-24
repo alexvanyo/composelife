@@ -28,7 +28,9 @@ plugins {
 }
 
 metro {
+    @OptIn(dev.zacsweers.metro.gradle.ExperimentalMetroGradleApi::class)
     enableRuntimeTracing.set(true)
+    @OptIn(dev.zacsweers.metro.gradle.DelicateMetroGradleApi::class, dev.zacsweers.metro.gradle.RequiresIdeSupport::class)
     enableTopLevelFunctionInjection = true
     unusedGraphInputsSeverity = DiagnosticSeverity.NONE
 }
@@ -37,7 +39,7 @@ kotlin {
     jvm("desktop")
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 implementation(projects.filesystem)
                 implementation(projects.imageLoader)
@@ -51,7 +53,7 @@ kotlin {
                 implementation(libs.kotlinx.serialization.core)
             }
         }
-        val desktopMain by getting {
+        val desktopMain = getByName("desktopMain") {
             configurations["kspDesktop"].dependencies.addAll(listOf(
                 projects.sealedEnum.ksp,
             ))
@@ -61,7 +63,7 @@ kotlin {
                 implementation(libs.sqldelight.sqliteDriver)
             }
         }
-        val commonTest by getting {
+        val commonTest = getByName("commonTest") {
             dependencies {
                 implementation(projects.databaseTestFixtures)
                 implementation(projects.dispatchersTestFixtures)

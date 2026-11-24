@@ -28,7 +28,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.kmpandroidrunner"
         minSdk = 24
     }
@@ -45,26 +45,26 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {}
-        val jbMain by creating {
+        val commonMain = getByName("commonMain") {}
+        val jbMain = create("jbMain") {
             dependsOn(commonMain)
         }
-        val jvmMain by creating {
+        val jvmMain = create("jvmMain") {
             dependsOn(jbMain)
             dependencies {
                 implementation(libs.junit4)
             }
         }
-        val desktopMain by getting {
+        val desktopMain = getByName("desktopMain") {
             dependsOn(jvmMain)
         }
-        val androidMain by getting {
+        val androidMain = getByName("androidMain") {
             dependsOn(jvmMain)
             dependencies {
                 api(libs.androidx.test.junit)
             }
         }
-        val wasmJsMain by getting {
+        val wasmJsMain = getByName("wasmJsMain") {
             dependsOn(jbMain)
         }
     }

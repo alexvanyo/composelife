@@ -30,7 +30,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.ui.mobile"
         minSdk = 24
         configureGradleManagedDevices(setOf(FormFactor.Mobile), this)
@@ -48,7 +48,7 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 api(projects.parameterizedString)
                 api(projects.preferences)
@@ -63,10 +63,10 @@ kotlin {
                 implementation(libs.androidx.navigationEvent)
             }
         }
-        val jvmMain by creating {
+        val jvmMain = create("jvmMain") {
             dependsOn(commonMain)
         }
-        val jbMain by creating {
+        val jbMain = create("jbMain") {
             dependsOn(jvmMain)
             dependencies {
                 implementation(libs.jetbrains.compose.material3)
@@ -74,17 +74,17 @@ kotlin {
                 implementation(libs.jetbrains.navigation3.ui)
             }
         }
-        val nonAndroidMain by creating {
+        val nonAndroidMain = create("nonAndroidMain") {
             dependsOn(jbMain)
         }
-        val desktopMain by getting {
+        val desktopMain = getByName("desktopMain") {
             dependsOn(nonAndroidMain)
             configurations["kspDesktop"].dependencies.add(projects.sealedEnum.ksp)
             dependencies {
                 implementation(compose.desktop.currentOs)
             }
         }
-        val androidMain by getting {
+        val androidMain = getByName("androidMain") {
             dependsOn(jbMain)
             configurations["kspAndroid"].dependencies.add(projects.sealedEnum.ksp)
             dependencies {
@@ -94,11 +94,11 @@ kotlin {
                 implementation(libs.androidx.xr.compose)
             }
         }
-        val wasmJsMain by getting {
+        val wasmJsMain = getByName("wasmJsMain") {
             dependsOn(nonAndroidMain)
             configurations["kspWasmJs"].dependencies.add(projects.sealedEnum.ksp)
         }
-        val commonTest by getting {
+        val commonTest = getByName("commonTest") {
             dependencies {
                 implementation(projects.dispatchersTestFixtures)
                 implementation(projects.injectTest)
@@ -108,19 +108,19 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.test)
             }
         }
-        val jbTest by creating {
+        val jbTest = create("jbTest") {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.jetbrains.compose.uiTest)
             }
         }
-        val desktopTest by getting {
+        val desktopTest = getByName("desktopTest") {
             dependsOn(jbTest)
         }
-        val androidSharedTest by getting {
+        val androidSharedTest = getByName("androidSharedTest") {
             dependsOn(jbTest)
         }
-        val wasmJsTest by getting {
+        val wasmJsTest = getByName("wasmJsTest") {
             dependsOn(jbTest)
         }
     }

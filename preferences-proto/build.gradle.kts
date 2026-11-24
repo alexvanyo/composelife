@@ -35,7 +35,7 @@ wire {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.preferencesproto"
         minSdk = 24
     }
@@ -52,7 +52,7 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 api(libs.wire.runtime)
             }

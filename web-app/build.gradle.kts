@@ -30,6 +30,7 @@ plugins {
 }
 
 metro {
+    @OptIn(dev.zacsweers.metro.gradle.DelicateMetroGradleApi::class, dev.zacsweers.metro.gradle.RequiresIdeSupport::class)
     enableTopLevelFunctionInjection = true
     unusedGraphInputsSeverity = DiagnosticSeverity.NONE
 }
@@ -48,7 +49,7 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             val composeBom = project.dependencies.platform(libs.androidx.compose.bom)
             dependencies {
                 implementation(projects.data)
@@ -71,7 +72,7 @@ kotlin {
                 implementation(libs.kotlinx.serialization.core)
             }
         }
-        val wasmJsMain by getting {
+        val wasmJsMain = getByName("wasmJsMain") {
             configurations["kspWasmJs"].dependencies.addAll(listOf(
                 projects.sealedEnum.ksp,
             ))

@@ -56,7 +56,7 @@ lean {
 
 kotlin {
 
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.sessionvalue"
         minSdk = 24
         configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
@@ -76,12 +76,12 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 api(libs.kotlinx.serialization.core)
             }
         }
-        val jbMain by creating {
+        val jbMain = create("jbMain") {
             dependsOn(commonMain)
             dependencies {
                 api(libs.androidx.compose.runtime)
@@ -90,24 +90,24 @@ kotlin {
                 implementation(projects.serialization)
             }
         }
-        val androidMain by getting {
+        val androidMain = getByName("androidMain") {
             dependsOn(jbMain)
         }
-        val desktopMain by getting {
+        val desktopMain = getByName("desktopMain") {
             dependsOn(jbMain)
             dependencies {
                 implementation(compose.desktop.currentOs)
             }
         }
-        val wasmJsMain by getting {
+        val wasmJsMain = getByName("wasmJsMain") {
             dependsOn(jbMain)
         }
-        val commonTest by getting {
+        val commonTest = getByName("commonTest") {
             dependencies {
                 implementation(kotlin("test"))
             }
         }
-        val jbTest by creating {
+        val jbTest = create("jbTest") {
             dependsOn(commonTest)
             dependencies {
                 implementation(projects.injectTest)
@@ -122,16 +122,16 @@ kotlin {
                 implementation(libs.turbine)
             }
         }
-        val desktopTest by getting {
+        val desktopTest = getByName("desktopTest") {
             dependsOn(jbTest)
         }
-        val androidSharedTest by getting {
+        val androidSharedTest = getByName("androidSharedTest") {
             dependsOn(jbTest)
             dependencies {
                 implementation(libs.androidx.compose.ui)
             }
         }
-        val wasmJsTest by getting {
+        val wasmJsTest = getByName("wasmJsTest") {
             dependsOn(jbTest)
             dependencies {
                 implementation(libs.jetbrains.compose.ui)

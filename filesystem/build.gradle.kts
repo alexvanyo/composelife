@@ -25,7 +25,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.filesystem"
         minSdk = 24
     }
@@ -42,7 +42,7 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 api(libs.okio)
 
@@ -53,23 +53,23 @@ kotlin {
                 implementation(libs.kotlinx.datetime)
             }
         }
-        val jvmMain by creating {
+        val jvmMain = create("jvmMain") {
             dependsOn(commonMain)
         }
-        val desktopMain by getting {
+        val desktopMain = getByName("desktopMain") {
             dependsOn(jvmMain)
         }
-        val androidMain by getting {
+        val androidMain = getByName("androidMain") {
             dependsOn(jvmMain)
         }
-        val wasmJsMain by getting {
+        val wasmJsMain = getByName("wasmJsMain") {
             dependencies {
                 implementation(libs.jetbrains.compose.ui)
                 implementation(libs.kotlinx.browser)
                 implementation(libs.okio.fakefilesystem)
             }
         }
-        val wasmJsTest by getting {
+        val wasmJsTest = getByName("wasmJsTest") {
             dependencies {
                 implementation(projects.dispatchersTestFixtures)
                 implementation(kotlin("test"))

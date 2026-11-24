@@ -28,19 +28,21 @@ plugins {
 }
 
 metro {
+    @OptIn(dev.zacsweers.metro.gradle.ExperimentalMetroGradleApi::class)
     enableRuntimeTracing.set(true)
+    @OptIn(dev.zacsweers.metro.gradle.DelicateMetroGradleApi::class, dev.zacsweers.metro.gradle.RequiresIdeSupport::class)
     enableTopLevelFunctionInjection = true
     unusedGraphInputsSeverity = DiagnosticSeverity.NONE
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.wearimpl"
         minSdk = 26
     }
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(projects.androidApplication)
@@ -51,7 +53,7 @@ kotlin {
                 implementation(projects.wearWatchface)
             }
         }
-        val androidMain by getting {
+        val androidMain = getByName("androidMain") {
             dependencies {
                 implementation(libs.androidx.lifecycle.runtime)
             }

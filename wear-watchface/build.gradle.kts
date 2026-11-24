@@ -31,14 +31,14 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.wear.watchface"
         minSdk = 26
         configureGradleManagedDevices(setOf(FormFactor.Wear), this)
     }
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 api(projects.algorithm)
 
@@ -51,7 +51,7 @@ kotlin {
                 implementation(libs.kotlinx.datetime)
             }
         }
-        val androidMain by getting {
+        val androidMain = getByName("androidMain") {
             configurations["kspAndroid"].dependencies.addAll(listOf(
                 projects.sealedEnum.ksp,
             ))
@@ -74,24 +74,24 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.android)
             }
         }
-        val commonTest by getting {
+        val commonTest = getByName("commonTest") {
             dependencies {
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
             }
         }
-        val androidSharedTest by getting {
+        val androidSharedTest = getByName("androidSharedTest") {
             dependencies {
                 implementation(libs.androidx.compose.uiTest)
                 implementation(libs.androidx.test.espresso)
             }
         }
-        val androidHostTest by getting {
+        val androidHostTest = getByName("androidHostTest") {
             dependencies {
                 implementation(libs.testParameterInjector.junit4)
             }
         }
-        val androidDeviceTest by getting {
+        val androidDeviceTest = getByName("androidDeviceTest") {
             dependencies {
                 compileOnly(libs.apiGuardian.api)
                 compileOnly(libs.google.autoValue.annotations)

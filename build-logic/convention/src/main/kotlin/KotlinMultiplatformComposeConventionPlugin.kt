@@ -16,6 +16,8 @@
 
 import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.jetbrains.compose.ComposeExtension
+import org.jetbrains.compose.DependencyCompatibilityExtension
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinWasmTargetDsl
@@ -28,6 +30,14 @@ class KotlinMultiplatformComposeConventionPlugin :
         with(pluginManager) {
             apply("org.jetbrains.compose")
             apply("org.jetbrains.kotlin.plugin.compose")
+        }
+
+        extensions.configure(ComposeExtension::class.java) {
+            extensions.configure(DependencyCompatibilityExtension::class.java) {
+                // TODO: Remove once Coil (io.coil-kt.coil3) releases a version built against a Skiko version
+                //  compatible with the Compose Multiplatform runtime (currently 0.150.1 vs 0.156.1).
+                exclude("io.coil-kt.coil3")
+            }
         }
 
         extensions.findByType(KotlinMultiplatformExtension::class.java)?.apply {

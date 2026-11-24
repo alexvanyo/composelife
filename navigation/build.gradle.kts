@@ -31,7 +31,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.navigation"
         minSdk = 24
         configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
@@ -49,7 +49,7 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 api(libs.androidx.navigation3.runtime)
 
@@ -62,7 +62,7 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.core)
             }
         }
-        val jbMain by creating {
+        val jbMain = create("jbMain") {
             dependsOn(commonMain)
             dependencies {
                 api(libs.jetbrains.compose.animation)
@@ -74,13 +74,13 @@ kotlin {
                 implementation(libs.jetbrains.navigationEvent.compose)
             }
         }
-        val desktopMain by getting {
+        val desktopMain = getByName("desktopMain") {
             dependsOn(jbMain)
             dependencies {
                 implementation(compose.desktop.currentOs)
             }
         }
-        val androidMain by getting {
+        val androidMain = getByName("androidMain") {
             dependsOn(jbMain)
             dependencies {
                 implementation(libs.androidx.compose.animation)
@@ -91,10 +91,10 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.android)
             }
         }
-        val wasmJsMain by getting {
+        val wasmJsMain = getByName("wasmJsMain") {
             dependsOn(jbMain)
         }
-        val commonTest by getting {
+        val commonTest = getByName("commonTest") {
             dependencies {
                 implementation(projects.injectTest)
                 implementation(projects.kmpAndroidRunner)
@@ -102,17 +102,17 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.test)
             }
         }
-        val jbTest by creating {
+        val jbTest = create("jbTest") {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.jetbrains.compose.foundation)
                 implementation(libs.jetbrains.compose.uiTest)
             }
         }
-        val desktopTest by getting {
+        val desktopTest = getByName("desktopTest") {
             dependsOn(jbTest)
         }
-        val androidSharedTest by getting {
+        val androidSharedTest = getByName("androidSharedTest") {
             dependsOn(jbTest)
             dependencies {
                 implementation(projects.testActivity)
@@ -121,7 +121,7 @@ kotlin {
                 implementation(libs.androidx.test.espresso)
             }
         }
-        val wasmJsTest by getting {
+        val wasmJsTest = getByName("wasmJsTest") {
             dependsOn(jbTest)
         }
     }

@@ -34,21 +34,21 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.ui.common.screenshottests"
         minSdk = 24
     }
     jvm("desktop")
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 implementation(projects.uiCommon)
                 implementation(libs.jetbrains.compose.foundation)
                 implementation(libs.jetbrains.compose.ui)
             }
         }
-        val androidMain by getting {
+        val androidMain = getByName("androidMain") {
             configurations["kspAndroid"].dependencies.addAll(
                 listOf(
                     libs.showkase.processor.get(),
@@ -61,30 +61,30 @@ kotlin {
                 implementation(libs.showkase.runtime)
             }
         }
-        val commonTest by getting {
+        val commonTest = getByName("commonTest") {
             dependencies {
                 implementation(projects.testActivity)
             }
         }
-        val jvmTest by creating {
+        val jvmTest = create("jvmTest") {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.testParameterInjector.junit4)
             }
         }
-        val jbTest by creating {
+        val jbTest = create("jbTest") {
             dependsOn(jvmTest)
             dependencies {
                 implementation(libs.jetbrains.compose.uiTest)
             }
         }
-        val desktopTest by getting {
+        val desktopTest = getByName("desktopTest") {
             dependsOn(jbTest)
         }
-        val androidSharedTest by getting {
+        val androidSharedTest = getByName("androidSharedTest") {
             dependsOn(jbTest)
         }
-        val androidHostTest by getting {
+        val androidHostTest = getByName("androidHostTest") {
             configurations["kspAndroidHostTest"].dependencies.addAll(
                 listOf(
                     libs.showkase.processor.get(),

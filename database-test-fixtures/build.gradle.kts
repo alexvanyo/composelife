@@ -28,7 +28,7 @@ plugins {
 
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.databasetest"
         minSdk = 24
     }
@@ -45,7 +45,7 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 api(projects.database)
                 api(libs.kotlinx.coroutines.core)
@@ -57,19 +57,19 @@ kotlin {
                 implementation(libs.sqldelightAndroidXDriver)
             }
         }
-        val androidMain by getting {
+        val androidMain = getByName("androidMain") {
             dependencies {
                 api(libs.kotlinx.coroutines.android)
 
                 implementation(libs.androidx.sqlite.framework)
             }
         }
-        val desktopMain by getting {
+        val desktopMain = getByName("desktopMain") {
             dependencies {
                 implementation(libs.androidx.sqlite.bundled)
             }
         }
-        val wasmJsMain by getting {
+        val wasmJsMain = getByName("wasmJsMain") {
             dependencies {
                 implementation(libs.androidx.sqlite.web)
                 implementation(libs.sqldelightAndroidXDriver.opfs)
