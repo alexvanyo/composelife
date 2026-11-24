@@ -37,8 +37,6 @@ import com.alexvanyo.composelife.algorithm.GameOfLifeAlgorithm
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
 import com.alexvanyo.composelife.model.TemporalGameOfLifeState
 import com.alexvanyo.composelife.model.emptyCellState
-import com.alexvanyo.composelife.scopes.ApplicationGraph
-import com.alexvanyo.composelife.scopes.ApplicationGraphOwner
 import com.alexvanyo.composelife.wear.watchface.configuration.createGameOfLifeComplicationSlotsManager
 import com.alexvanyo.composelife.wear.watchface.configuration.createGameOfLifeStyleSchema
 import com.alexvanyo.composelife.wear.watchface.configuration.getGameOfLifeColor
@@ -54,15 +52,15 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 
+interface GameOfLifeWatchFaceServiceCtxOwner {
+    val gameOfLifeWatchFaceServiceCtx: GameOfLifeWatchFaceServiceCtx
+}
+
 @ContributesTo(AppScope::class)
 interface GameOfLifeWatchFaceServiceCtx {
     val gameOfLifeAlgorithm: GameOfLifeAlgorithm
     val dispatchers: ComposeLifeDispatchers
 }
-
-// TODO: Replace with asContribution()
-internal val ApplicationGraph.gameOfLifeWatchFaceServiceCtx: GameOfLifeWatchFaceServiceCtx get() =
-    this as GameOfLifeWatchFaceServiceCtx
 
 @Suppress("Deprecated")
 @OptIn(WatchFaceExperimental::class)
@@ -85,8 +83,7 @@ class GameOfLifeWatchFaceService : WatchFaceService() {
     override fun onCreate() {
         super.onCreate()
 
-        val applicationGraph = (application as ApplicationGraphOwner).applicationGraph
-        val ctx = applicationGraph.gameOfLifeWatchFaceServiceCtx
+        val ctx = (application as GameOfLifeWatchFaceServiceCtxOwner).gameOfLifeWatchFaceServiceCtx
         gameOfLifeAlgorithm = ctx.gameOfLifeAlgorithm
         dispatchers = ctx.dispatchers
 

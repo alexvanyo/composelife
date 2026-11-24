@@ -63,10 +63,11 @@ import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
-import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.UiGraph
+import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.test.BaseUiInjectTest
+import com.alexvanyo.composelife.test.BaseUiInjectTestCtx
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.resources.ApplyPaste
 import com.alexvanyo.composelife.ui.app.resources.Collapse
@@ -86,6 +87,8 @@ import com.alexvanyo.composelife.ui.util.FullscreenModeManager
 import com.alexvanyo.composelife.ui.util.setText
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.GraphExtension
+import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.asContribution
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestDispatcher
@@ -105,29 +108,35 @@ interface InteractiveCellUniverseTestsAppCtx {
     val dispatchers: ComposeLifeDispatchers
 }
 
-// TODO: Replace with asContribution()
-val ApplicationGraph.interactiveCellUniverseTestsAppCtx: InteractiveCellUniverseTestsAppCtx get() =
-    this as InteractiveCellUniverseTestsAppCtx
-
-@ContributesTo(UiScope::class)
-interface InteractiveCellUniverseTestsUiCtx {
+@GraphExtension(UiScope::class)
+interface InteractiveCellUniverseTestsUiGraph :
+    UiGraph,
+    BaseUiInjectTestCtx {
     val interactiveCellUniverse: InteractiveCellUniverse
     val cellStateParser: CellStateParser
     val clipboardReaderWriter: ClipboardReaderWriter
     val fullscreenModeManager: FullscreenModeManager
-}
 
-// TODO: Replace with asContribution()
-val UiGraph.interactiveCellUniverseTestsUiCtx: InteractiveCellUniverseTestsUiCtx get() =
-    this as InteractiveCellUniverseTestsUiCtx
+    @ContributesTo(AppScope::class)
+    @GraphExtension.Factory
+    fun interface Factory {
+        fun createInteractiveCellUniverseTestsUiGraph(
+            @Provides uiGraphArguments: UiGraphArguments,
+        ): InteractiveCellUniverseTestsUiGraph
+    }
+}
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
 class InteractiveCellUniverseTests :
-    BaseUiInjectTest(
-        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    BaseUiInjectTest<AndroidSharedTestApplicationGraph, InteractiveCellUniverseTestsUiGraph>(
+        applicationGraphCreator = ::createAndroidSharedTestApplicationGraph,
+        uiGraphCreator = {
+            asContribution<InteractiveCellUniverseTestsUiGraph.Factory>()
+                .createInteractiveCellUniverseTestsUiGraph(it)
+        },
     ) {
-    private val ctx get() = applicationGraph.interactiveCellUniverseTestsAppCtx
+    private val ctx get() = applicationGraph.asContribution<InteractiveCellUniverseTestsAppCtx>()
 
     private val generalTestDispatcher get() = ctx.generalTestDispatcher
 
@@ -139,7 +148,7 @@ class InteractiveCellUniverseTests :
 
     @Test
     fun info_card_closes_upon_back_press() = runUiTest { uiGraph ->
-        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
+        val uiCtx = uiGraph
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -190,7 +199,7 @@ class InteractiveCellUniverseTests :
 
     @Test
     fun action_card_closes_upon_back_press() = runUiTest { uiGraph ->
-        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
+        val uiCtx = uiGraph
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -243,7 +252,7 @@ class InteractiveCellUniverseTests :
     fun six_long_line_evolves_correctly() = runUiTest(
         timeout = 120.seconds,
     ) { uiGraph ->
-        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
+        val uiCtx = uiGraph
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -309,7 +318,7 @@ class InteractiveCellUniverseTests :
     fun six_long_line_evolves_correctly_with_spacebar() = runUiTest(
         timeout = 120.seconds,
     ) { uiGraph ->
-        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
+        val uiCtx = uiGraph
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -379,7 +388,7 @@ class InteractiveCellUniverseTests :
     fun six_long_line_evolves_correctly_after_slowing_down() = runUiTest(
         timeout = 120.seconds,
     ) { uiGraph ->
-        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
+        val uiCtx = uiGraph
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -460,7 +469,7 @@ class InteractiveCellUniverseTests :
     fun six_long_line_evolves_correctly_with_step() = runUiTest(
         timeout = 120.seconds,
     ) { uiGraph ->
-        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
+        val uiCtx = uiGraph
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -522,7 +531,7 @@ class InteractiveCellUniverseTests :
     fun six_long_line_evolves_correctly_with_double_step_via_slider() = runUiTest(
         timeout = 120.seconds,
     ) { uiGraph ->
-        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
+        val uiCtx = uiGraph
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -598,7 +607,7 @@ class InteractiveCellUniverseTests :
     fun six_long_line_evolves_correctly_with_double_step_via_text() = runUiTest(
         timeout = 120.seconds,
     ) { uiGraph ->
-        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
+        val uiCtx = uiGraph
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -680,7 +689,7 @@ class InteractiveCellUniverseTests :
 
     @Test
     fun glider_is_copied_correctly_with_keyboard_shortcuts() = runUiTest { uiGraph ->
-        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
+        val uiCtx = uiGraph
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -773,7 +782,7 @@ class InteractiveCellUniverseTests :
 
     @Test
     fun selection_is_cleared_correctly_with_keyboard_shortcuts() = runUiTest { uiGraph ->
-        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
+        val uiCtx = uiGraph
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -847,7 +856,7 @@ class InteractiveCellUniverseTests :
 
     @Test
     fun glider_is_pasted_correctly_with_keyboard_shortcuts() = runUiTest { uiGraph ->
-        val uiCtx = uiGraph.interactiveCellUniverseTestsUiCtx
+        val uiCtx = uiGraph
 
         lateinit var resolver: (ParameterizedString) -> String
 

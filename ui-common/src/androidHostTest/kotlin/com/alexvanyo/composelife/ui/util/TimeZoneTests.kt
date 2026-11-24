@@ -23,7 +23,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.test.core.app.ApplicationProvider
-import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.test.BaseInjectTest
 import com.alexvanyo.composelife.test.runComposeUiTest
 import dev.zacsweers.metro.AppScope
@@ -39,14 +38,10 @@ interface TimeZoneTestsCtx {
     val timeZoneHolder: TimeZoneHolder
 }
 
-// TODO: Replace with asContribution()
-val ApplicationGraph.timeZoneTests: TimeZoneTestsCtx get() =
-    this as TimeZoneTestsCtx
-
 @OptIn(ExperimentalTestApi::class)
 class TimeZoneTests :
-    BaseInjectTest(
-        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    BaseInjectTest<TestApplicationGraph>(
+        ::createTestApplicationGraph,
     ) {
 
     @Test
@@ -55,7 +50,7 @@ class TimeZoneTests :
         var timeZone: TimeZone by mutableStateOf(TimeZone.UTC)
 
         setContent {
-            context(applicationGraph.timeZoneTests.timeZoneHolder) {
+            context(applicationGraph.asContribution<TimeZoneTestsCtx>().timeZoneHolder) {
                 timeZone = currentTimeZone()
             }
         }

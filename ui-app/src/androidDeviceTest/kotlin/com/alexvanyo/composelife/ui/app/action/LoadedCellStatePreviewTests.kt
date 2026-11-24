@@ -40,39 +40,54 @@ import com.alexvanyo.composelife.model.CellStateFormat
 import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.model.DeserializationResult
 import com.alexvanyo.composelife.patterns.GliderPattern
-import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.UiGraph
+import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.test.BaseUiInjectTest
+import com.alexvanyo.composelife.test.BaseUiInjectTestCtx
 import com.alexvanyo.composelife.test.runUiTest
-import com.alexvanyo.composelife.ui.app.globalGraph
+import com.alexvanyo.composelife.ui.app.AndroidDeviceTestApplicationGraph
+import com.alexvanyo.composelife.ui.app.createAndroidDeviceTestApplicationGraph
 import com.alexvanyo.composelife.ui.cells.ThumbnailImmutableCellWindow
 import com.alexvanyo.composelife.ui.cells.cellStateDragAndDropTarget
 import com.alexvanyo.composelife.ui.cells.rememberMutableCellStateDropStateHolder
+import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.GraphExtension
+import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.asContribution
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@ContributesTo(UiScope::class)
-interface LoadedCellStatePreviewTestsUiCtx {
+@GraphExtension(UiScope::class)
+interface LoadedCellStatePreviewTestsUiGraph :
+    UiGraph,
+    BaseUiInjectTestCtx {
     val thumbnailImmutableCellWindow: ThumbnailImmutableCellWindow
     val cellStateParser: CellStateParser
-}
 
-// TODO: Replace with asContribution()
-val UiGraph.loadedCellStatePreviewTestsUiCtx: LoadedCellStatePreviewTestsUiCtx get() =
-    this as LoadedCellStatePreviewTestsUiCtx
+    @ContributesTo(AppScope::class)
+    @GraphExtension.Factory
+    fun interface Factory {
+        fun createLoadedCellStatePreviewTestsUiGraph(
+            @Provides uiGraphArguments: UiGraphArguments,
+        ): LoadedCellStatePreviewTestsUiGraph
+    }
+}
 
 @OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
 class LoadedCellStatePreviewTests :
-    BaseUiInjectTest(
-        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    BaseUiInjectTest<AndroidDeviceTestApplicationGraph, LoadedCellStatePreviewTestsUiGraph>(
+        applicationGraphCreator = ::createAndroidDeviceTestApplicationGraph,
+        uiGraphCreator = {
+            asContribution<LoadedCellStatePreviewTestsUiGraph.Factory>()
+                .createLoadedCellStatePreviewTestsUiGraph(it)
+        },
     ) {
     @Test
     fun drag_and_drop_works_correctly() = runUiTest { uiGraph ->
-        val uiCtx = uiGraph.loadedCellStatePreviewTestsUiCtx
+        val uiCtx = uiGraph
 
         var droppedCellState: CellState? = null
 

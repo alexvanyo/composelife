@@ -39,12 +39,14 @@ import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.patterns.GliderPattern
 import com.alexvanyo.composelife.preferences.ToolConfig
-import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.UiGraph
+import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.test.BaseUiInjectTest
+import com.alexvanyo.composelife.test.BaseUiInjectTestCtx
 import com.alexvanyo.composelife.test.runUiTest
-import com.alexvanyo.composelife.ui.app.globalGraph
+import com.alexvanyo.composelife.ui.app.TestApplicationGraph
+import com.alexvanyo.composelife.ui.app.createTestApplicationGraph
 import com.alexvanyo.composelife.ui.app.resources.Draw
 import com.alexvanyo.composelife.ui.app.resources.Erase
 import com.alexvanyo.composelife.ui.app.resources.None
@@ -53,30 +55,40 @@ import com.alexvanyo.composelife.ui.app.resources.Paste
 import com.alexvanyo.composelife.ui.app.resources.Pin
 import com.alexvanyo.composelife.ui.app.resources.Select
 import com.alexvanyo.composelife.ui.app.resources.Strings
+import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.GraphExtension
+import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.asContribution
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.uuid.Uuid
 
-@ContributesTo(UiScope::class)
-interface InlineEditPaneTestsCtx {
+@GraphExtension(UiScope::class)
+interface InlineEditPaneTestsUiGraph :
+    UiGraph,
+    BaseUiInjectTestCtx {
     val clipboardCellStatePreview: ClipboardCellStatePreview
-}
 
-// TODO: Replace with asContribution()
-val UiGraph.inlineEditPaneTestsCtx: InlineEditPaneTestsCtx get() =
-    this as InlineEditPaneTestsCtx
+    @ContributesTo(AppScope::class)
+    @GraphExtension.Factory
+    fun interface Factory {
+        fun createInlineEditPaneTestsUiGraph(@Provides uiGraphArguments: UiGraphArguments,): InlineEditPaneTestsUiGraph
+    }
+}
 
 @OptIn(ExperimentalTestApi::class)
 class InlineEditPaneTests :
-    BaseUiInjectTest(
-        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    BaseUiInjectTest<TestApplicationGraph, InlineEditPaneTestsUiGraph>(
+        applicationGraphCreator = ::createTestApplicationGraph,
+        uiGraphCreator = {
+            asContribution<InlineEditPaneTestsUiGraph.Factory>().createInlineEditPaneTestsUiGraph(it)
+        },
     ) {
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun clipboard_cell_state_preview_loading_is_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.inlineEditPaneTestsCtx
+        val ctx = uiGraph
 
         setContent {
             context(ctx.clipboardCellStatePreview) {
@@ -115,7 +127,7 @@ class InlineEditPaneTests :
 
     @Test
     fun clipboard_cell_state_preview_success_is_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.inlineEditPaneTestsCtx
+        val ctx = uiGraph
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -186,7 +198,7 @@ class InlineEditPaneTests :
 
     @Test
     fun clipboard_cell_state_preview_success_paste_is_handled_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.inlineEditPaneTestsCtx
+        val ctx = uiGraph
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -255,7 +267,7 @@ class InlineEditPaneTests :
 
     @Test
     fun clipboard_cell_state_preview_success_pin_is_handled_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.inlineEditPaneTestsCtx
+        val ctx = uiGraph
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -323,7 +335,7 @@ class InlineEditPaneTests :
 
     @Test
     fun touch_config_pan_is_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.inlineEditPaneTestsCtx
+        val ctx = uiGraph
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -366,7 +378,7 @@ class InlineEditPaneTests :
 
     @Test
     fun touch_config_draw_is_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.inlineEditPaneTestsCtx
+        val ctx = uiGraph
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -409,7 +421,7 @@ class InlineEditPaneTests :
 
     @Test
     fun touch_config_erase_is_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.inlineEditPaneTestsCtx
+        val ctx = uiGraph
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -452,7 +464,7 @@ class InlineEditPaneTests :
 
     @Test
     fun touch_config_select_is_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.inlineEditPaneTestsCtx
+        val ctx = uiGraph
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -495,7 +507,7 @@ class InlineEditPaneTests :
 
     @Test
     fun touch_config_none_is_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.inlineEditPaneTestsCtx
+        val ctx = uiGraph
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -538,7 +550,7 @@ class InlineEditPaneTests :
 
     @Test
     fun touch_config_popup_displays_options() = runUiTest { uiGraph ->
-        val ctx = uiGraph.inlineEditPaneTestsCtx
+        val ctx = uiGraph
 
         var touchToolConfig: ToolConfig by mutableStateOf(ToolConfig.Pan)
 

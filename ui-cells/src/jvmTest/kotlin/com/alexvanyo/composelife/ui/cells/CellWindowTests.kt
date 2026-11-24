@@ -40,41 +40,50 @@ import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.ToolConfig
-import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.UiGraph
+import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.test.BaseUiInjectTest
+import com.alexvanyo.composelife.test.BaseUiInjectTestCtx
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.cells.resources.InteractableCellContentDescription
 import com.alexvanyo.composelife.ui.cells.resources.Strings
+import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.GraphExtension
+import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.asContribution
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.uuid.Uuid
 
-@ContributesTo(UiScope::class)
-interface CellWindowTestsCtx {
+@GraphExtension(UiScope::class)
+interface CellWindowTestsUiGraph :
+    UiGraph,
+    BaseUiInjectTestCtx {
     val mutableCellWindow: MutableCellWindow
     val testComposeLifePreferences: TestComposeLifePreferences
-}
 
-// TODO: Replace with asContribution()
-val UiGraph.cellWindowTestsCtx: CellWindowTestsCtx get() =
-    this as CellWindowTestsCtx
+    @ContributesTo(AppScope::class)
+    @GraphExtension.Factory
+    fun interface Factory {
+        fun createCellWindowTestsUiGraph(@Provides uiGraphArguments: UiGraphArguments): CellWindowTestsUiGraph
+    }
+}
 
 @OptIn(ExperimentalTestApi::class)
 class CellWindowTests :
-    BaseUiInjectTest(
-        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    BaseUiInjectTest<TestApplicationGraph, CellWindowTestsUiGraph>(
+        applicationGraphCreator = ::createTestApplicationGraph,
+        uiGraphCreator = { asContribution<CellWindowTestsUiGraph.Factory>().createCellWindowTestsUiGraph(it) },
     ) {
 
     @Suppress("LongMethod")
     @Test
     fun cells_are_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.cellWindowTestsCtx
+        val ctx = uiGraph
 
         val mutableGameOfLifeState = MutableGameOfLifeState(
             cellState = setOf(
@@ -162,7 +171,7 @@ class CellWindowTests :
     @Suppress("LongMethod")
     @Test
     fun cells_are_displayed_correctly_after_scrolling() = runUiTest { uiGraph ->
-        val ctx = uiGraph.cellWindowTestsCtx
+        val ctx = uiGraph
         ctx.testComposeLifePreferences.touchToolConfig = ToolConfig.Pan
 
         val mutableGameOfLifeState = MutableGameOfLifeState(
@@ -224,7 +233,7 @@ class CellWindowTests :
     @Suppress("LongMethod")
     @Test
     fun cells_are_not_scrolled_with_none_touch_tool_config() = runUiTest { uiGraph ->
-        val ctx = uiGraph.cellWindowTestsCtx
+        val ctx = uiGraph
         ctx.testComposeLifePreferences.touchToolConfig = ToolConfig.None
 
         val mutableGameOfLifeState = MutableGameOfLifeState(
@@ -287,7 +296,7 @@ class CellWindowTests :
 
     @Test
     fun cells_are_displayed_correctly_after_zooming_in_with_mouse_wheel() = runUiTest { uiGraph ->
-        val ctx = uiGraph.cellWindowTestsCtx
+        val ctx = uiGraph
 
         val mutableGameOfLifeState = MutableGameOfLifeState(
             cellState = setOf(
@@ -337,7 +346,7 @@ class CellWindowTests :
 
     @Test
     fun cells_are_displayed_correctly_after_zooming_out_with_mouse_wheel() = runUiTest { uiGraph ->
-        val ctx = uiGraph.cellWindowTestsCtx
+        val ctx = uiGraph
 
         val mutableGameOfLifeState = MutableGameOfLifeState(
             cellState = setOf(

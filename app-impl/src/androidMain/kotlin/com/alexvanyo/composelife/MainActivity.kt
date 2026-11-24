@@ -41,7 +41,6 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.LifecycleOwner
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.resourcestate.isSuccess
-import com.alexvanyo.composelife.scopes.ApplicationGraphOwner
 import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
@@ -50,23 +49,34 @@ import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
 import com.alexvanyo.composelife.ui.mobile.shouldUseDarkTheme
 import com.alexvanyo.composelife.ui.util.ProvideLocalWindowInsetsHolder
 import com.alexvanyo.composelife.updatable.Updatable
+import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.ForScope
+import dev.zacsweers.metro.GraphExtension
+import dev.zacsweers.metro.Provides
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 
-@ContributesTo(UiScope::class)
-interface MainActivityInjectCtx : ComposeLifePreferencesProvider {
+interface MainActivityUiGraphFactoryOwner {
+    val mainActivityUiGraphFactory: MainActivityUiGraph.Factory
+}
+
+@GraphExtension(UiScope::class)
+interface MainActivityUiGraph :
+    UiGraph,
+    ComposeLifePreferencesProvider {
     val composeLifeAppUi: ComposeLifeAppUi
 
     @ForScope(UiScope::class)
     val uiUpdatables: Set<Updatable>
-}
 
-// TODO: Replace with asContribution()
-internal val UiGraph.mainActivityInjectCtx: MainActivityInjectCtx get() =
-    this as MainActivityInjectCtx
+    @ContributesTo(AppScope::class)
+    @GraphExtension.Factory
+    fun interface Factory {
+        fun create(@Provides uiGraphArguments: UiGraphArguments): MainActivityUiGraph
+    }
+}
 
 class MainActivity : AppCompatActivity() {
 
@@ -80,7 +90,8 @@ class MainActivity : AppCompatActivity() {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        val application = application as ApplicationGraphOwner
+        val mainActivityUiGraphFactory =
+            (application as MainActivityUiGraphFactoryOwner).mainActivityUiGraphFactory
 
         // Keep the splash screen on screen until we've loaded preferences
         splashScreen.setKeepOnScreenCondition { !isPreferencesLoaded }
@@ -100,7 +111,7 @@ class MainActivity : AppCompatActivity() {
         setContent {
             val windowInfo = LocalWindowInfo.current
             val uiGraph = remember {
-                (application.applicationGraph as UiGraph.Factory).create(
+                mainActivityUiGraphFactory.create(
                     object : UiGraphArguments {
                         override val activity: AppCompatActivity = this@MainActivity
                         override val uiContext: Context = activity
@@ -109,7 +120,7 @@ class MainActivity : AppCompatActivity() {
                     },
                 ).also {
                     isPreferencesLoaded =
-                        it.mainActivityInjectCtx.composeLifePreferences.loadedPreferencesState.isSuccess()
+                        it.composeLifePreferences.loadedPreferencesState.isSuccess()
                 }
             }
             DisposableEffect(uiGraph) {
@@ -117,12 +128,11 @@ class MainActivity : AppCompatActivity() {
                     uiGraph.close()
                 }
             }
-            val mainActivityInjectCtx = uiGraph.mainActivityInjectCtx
-            val uiUpdatables = mainActivityInjectCtx.uiUpdatables
+            val uiUpdatables = uiGraph.uiUpdatables
 
-            LaunchedEffect(mainActivityInjectCtx) {
+            LaunchedEffect(uiGraph) {
                 isPreferencesLoaded =
-                    snapshotFlow { mainActivityInjectCtx.composeLifePreferences.loadedPreferencesState.isSuccess() }
+                    snapshotFlow { uiGraph.composeLifePreferences.loadedPreferencesState.isSuccess() }
                         .first { it }
             }
 
@@ -137,7 +147,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             ProvideLocalWindowInsetsHolder {
-                context(mainActivityInjectCtx) {
+                context(uiGraph) {
                     val darkTheme = shouldUseDarkTheme()
                     DisposableEffect(darkTheme) {
                         val insetsController = WindowInsetsControllerCompat(window, window.decorView)
@@ -157,7 +167,7 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     ComposeLifeTheme(darkTheme) {
-                        context(mainActivityInjectCtx.composeLifeAppUi) {
+                        context(uiGraph.composeLifeAppUi) {
                             ComposeLifeAppUi(
                                 windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
                                 windowSize = LocalWindowInfo.current.containerDpSize,

@@ -26,7 +26,6 @@ import com.alexvanyo.composelife.model.MacrocellCellStateSerializer
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.network.FakeRequestHandler
 import com.alexvanyo.composelife.resourcestate.ResourceState
-import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.test.BaseInjectTest
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
@@ -56,17 +55,12 @@ interface PatternCollectionRepositoryTestsCtx {
     @PersistedDataPath val persistedDataPath: Path
 }
 
-// TODO: Replace with asContribution()
-internal val ApplicationGraph.patternCollectionRepositoryTestsCtx:
-    PatternCollectionRepositoryTestsCtx get() =
-        this as PatternCollectionRepositoryTestsCtx
-
 @OptIn(ExperimentalCoroutinesApi::class)
 class PatternCollectionRepositoryTests :
-    BaseInjectTest(
-        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    BaseInjectTest<TestApplicationGraph>(
+        ::createTestApplicationGraph,
     ) {
-    private val ctx get() = applicationGraph.patternCollectionRepositoryTestsCtx
+    private val ctx get() = applicationGraph.asContribution<PatternCollectionRepositoryTestsCtx>()
 
     private val patternCollectionRepository: PatternCollectionRepository
         get() = ctx.patternCollectionRepository

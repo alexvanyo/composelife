@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,33 @@
 
 package com.alexvanyo.composelife.ui.app
 
-import com.alexvanyo.composelife.scopes.GlobalScope
+import com.alexvanyo.composelife.scopes.ApplicationGraph
+import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
+import com.alexvanyo.composelife.test.BaseInjectTestCtx
 import com.alexvanyo.composelife.tracing.TestTraceDriver
 import com.alexvanyo.composelife.tracing.Tracer
-import dev.zacsweers.metro.BindingContainer
-import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.createGraphFactory
 
-@DependencyGraph(GlobalScope::class)
-interface GlobalGraph {
+@DependencyGraph(AppScope::class)
+interface AndroidDeviceTestApplicationGraph :
+    ApplicationGraph,
+    BaseInjectTestCtx {
     @DependencyGraph.Factory
     fun interface Factory {
-        fun create(@Provides tracer: Tracer): GlobalGraph
+        fun create(
+            @Provides tracer: Tracer,
+            @Provides applicationGraphArguments: ApplicationGraphArguments,
+        ): AndroidDeviceTestApplicationGraph
     }
 }
 
 private val testTraceDriver = TestTraceDriver()
-internal val globalGraph = createGraphFactory<GlobalGraph.Factory>().create(testTraceDriver.tracer)
-
-@ContributesTo(UiWithLoadedPreferencesScope::class, replaces = [UiWithLoadedPreferencesScopeBindings::class])
-@BindingContainer
-interface TestLoadedComposeLifePreferencesHolderBindings
+internal fun createAndroidDeviceTestApplicationGraph(
+    applicationGraphArguments: ApplicationGraphArguments,
+): AndroidDeviceTestApplicationGraph = createGraphFactory<AndroidDeviceTestApplicationGraph.Factory>().create(
+    tracer = testTraceDriver.tracer,
+    applicationGraphArguments = applicationGraphArguments,
+)

@@ -34,10 +34,11 @@ import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.preferences.QuickAccessSetting
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
-import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.UiGraph
+import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.test.BaseUiInjectTest
+import com.alexvanyo.composelife.test.BaseUiInjectTestCtx
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.settings.resources.DisableOpenGL
 import com.alexvanyo.composelife.ui.settings.resources.OpenInSettings
@@ -45,30 +46,42 @@ import com.alexvanyo.composelife.ui.settings.resources.QuickSettingsInfo
 import com.alexvanyo.composelife.ui.settings.resources.RemoveSettingFromQuickAccess
 import com.alexvanyo.composelife.ui.settings.resources.SeeAll
 import com.alexvanyo.composelife.ui.settings.resources.Strings
+import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.GraphExtension
+import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.asContribution
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@ContributesTo(UiScope::class)
-interface InlineSettingsPaneTestsCtx {
+@GraphExtension(UiScope::class)
+interface InlineSettingsPaneTestsUiGraph :
+    UiGraph,
+    BaseUiInjectTestCtx {
     val inlineSettingsPane: InlineSettingsPane
     val testComposeLifePreferences: TestComposeLifePreferences
-}
 
-// TODO: Replace with asContribution()
-val UiGraph.inlineSettingsPaneTestsCtx: InlineSettingsPaneTestsCtx get() =
-    this as InlineSettingsPaneTestsCtx
+    @ContributesTo(AppScope::class)
+    @GraphExtension.Factory
+    fun interface Factory {
+        fun createInlineSettingsPaneTestsUiGraph(
+            @Provides uiGraphArguments: UiGraphArguments,
+        ): InlineSettingsPaneTestsUiGraph
+    }
+}
 
 @OptIn(ExperimentalTestApi::class)
 class InlineSettingsPaneTests :
-    BaseUiInjectTest(
-        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    BaseUiInjectTest<TestApplicationGraph, InlineSettingsPaneTestsUiGraph>(
+        applicationGraphCreator = ::createTestApplicationGraph,
+        uiGraphCreator = {
+            asContribution<InlineSettingsPaneTestsUiGraph.Factory>().createInlineSettingsPaneTestsUiGraph(it)
+        },
     ) {
     @Test
     fun saving_settings_onboarding_is_shown_with_no_quick_access_settings_saved() {
         runUiTest { uiGraph ->
-            val ctx = uiGraph.inlineSettingsPaneTestsCtx
+            val ctx = uiGraph
             ctx.testComposeLifePreferences.quickAccessSettings = emptySet()
 
             var onSeeMoreClickedCount = 0
@@ -105,7 +118,7 @@ class InlineSettingsPaneTests :
     @Test
     fun saved_opengl_setting_is_displayed_correctly() {
         runUiTest { uiGraph ->
-            val ctx = uiGraph.inlineSettingsPaneTestsCtx
+            val ctx = uiGraph
             ctx.testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
 
             lateinit var resolver: (ParameterizedString) -> String
@@ -149,7 +162,7 @@ class InlineSettingsPaneTests :
     @Test
     fun opening_saved_setting_functions_correctly() {
         runUiTest { uiGraph ->
-            val ctx = uiGraph.inlineSettingsPaneTestsCtx
+            val ctx = uiGraph
             ctx.testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
 
             var onOpenInSettingsClickedCount = 0
@@ -186,7 +199,7 @@ class InlineSettingsPaneTests :
     @Test
     fun removing_saved_setting_functions_correctly() {
         runUiTest { uiGraph ->
-            val ctx = uiGraph.inlineSettingsPaneTestsCtx
+            val ctx = uiGraph
             ctx.testComposeLifePreferences.quickAccessSettings = setOf(QuickAccessSetting.DisableOpenGL)
 
             lateinit var resolver: (ParameterizedString) -> String

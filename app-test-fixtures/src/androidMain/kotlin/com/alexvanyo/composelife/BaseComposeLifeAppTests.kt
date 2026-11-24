@@ -16,6 +16,7 @@
 
 package com.alexvanyo.composelife
 
+import android.app.Application
 import android.content.ClipData
 import android.content.ClipboardManager
 import androidx.compose.ui.graphics.toComposeRect
@@ -35,6 +36,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.Density
 import androidx.core.content.getSystemService
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowSizeClass.Companion.BREAKPOINTS_V1
@@ -48,7 +50,6 @@ import com.alexvanyo.composelife.preferences.algorithmChoiceState
 import com.alexvanyo.composelife.preferences.darkThemeConfigState
 import com.alexvanyo.composelife.preferences.quickAccessSettingsState
 import com.alexvanyo.composelife.resourcestate.ResourceState
-import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.test.BaseActivityInjectTest
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
@@ -66,18 +67,19 @@ interface ComposeLifeAppTestsCtx {
     val preferences: ComposeLifePreferences
 }
 
-// TODO: Replace with asContribution()
-internal val ApplicationGraph.composeLifeAppTestsCtx: ComposeLifeAppTestsCtx get() =
-    this as ComposeLifeAppTestsCtx
-
 @Suppress("LongMethod", "UnnecessaryAbstractClass", "UnsafeCallOnNullableType", "AbstractClassCanBeConcreteClass")
 @OptIn(ExperimentalTestApi::class)
 abstract class BaseComposeLifeAppTests :
-    BaseActivityInjectTest<MainActivity>(
-        { testGlobalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    BaseActivityInjectTest<TestApplicationGraph, MainActivity>(
+        ::createTestApplicationGraph,
         MainActivity::class.java,
     ) {
-    private val ctx get() = applicationGraph.composeLifeAppTestsCtx
+    init {
+        (ApplicationProvider.getApplicationContext<Application>() as? TestAppInjectApplication)
+            ?.mainActivityUiGraphFactory = applicationGraph.asContribution<MainActivityUiGraph.Factory>()
+    }
+
+    private val ctx get() = applicationGraph.asContribution<ComposeLifeAppTestsCtx>()
 
     private val preferences get() = ctx.preferences
 

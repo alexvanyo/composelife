@@ -63,7 +63,6 @@ import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferences
 import com.alexvanyo.composelife.preferences.LoadedComposeLifePreferencesHolder
 import com.alexvanyo.composelife.resourcestate.ResourceState
-import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.ui.mobile.component.DialogSceneStrategy
 import com.alexvanyo.composelife.ui.mobile.component.ListDetailInfo
@@ -90,7 +89,7 @@ import kotlin.reflect.KClass
 @Composable
 context(
     composeLifePreferences: ComposeLifePreferences,
-    uiGraph: UiGraph,
+    uiWithLoadedPreferencesGraphFactory: UiWithLoadedPreferencesGraph.Factory,
 )
 fun ComposeLifeAppUi(
     @Assisted windowSizeClass: WindowSizeClass,
@@ -100,7 +99,7 @@ fun ComposeLifeAppUi(
 ) {
     val resolvedComposeLifeAppState = composeLifeAppState ?: rememberComposeLifeAppState(
         composeLifePreferences = composeLifePreferences,
-        uiGraph = uiGraph,
+        uiWithLoadedPreferencesGraphFactory = uiWithLoadedPreferencesGraphFactory,
         windowSizeClass = windowSizeClass,
         windowSize = windowSize,
     )
@@ -257,7 +256,7 @@ fun ComposeLifeAppUiWithLoadedPreferences(
 @Composable
 fun rememberComposeLifeAppState(
     composeLifePreferences: ComposeLifePreferences,
-    uiGraph: UiGraph,
+    uiWithLoadedPreferencesGraphFactory: UiWithLoadedPreferencesGraph.Factory,
     windowSizeClass: WindowSizeClass,
     windowSize: DpSize,
 ): ComposeLifeAppState = when (val loadedPreferencesState = composeLifePreferences.loadedPreferencesState) {
@@ -276,7 +275,7 @@ fun rememberComposeLifeAppState(
         }
 
         val uiWithLoadedPreferencesGraph = remember(currentLoadedPreferences) {
-            (uiGraph as UiWithLoadedPreferencesGraph.Factory).create(
+            uiWithLoadedPreferencesGraphFactory.create(
                 UiWithLoadedPreferencesGraphArguments(
                     loadedComposeLifePreferencesHolder = preferencesHolder,
                 ),

@@ -25,7 +25,6 @@ import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.updatable.Updatable
-import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.ForScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.currentCoroutineContext
@@ -38,27 +37,23 @@ import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-@ContributesTo(UiScope::class)
 interface BaseUiInjectTestCtx {
     @ForScope(UiScope::class)
     val uiUpdatables: Set<Updatable>
 }
 
-// TODO: Replace with asContribution()
-internal val UiGraph.baseUiInjectTestCtx: BaseUiInjectTestCtx get() =
-    this as BaseUiInjectTestCtx
-
 /**
  * A base class for testing UI that depends on injected classes.
  *
- * Subclasses must call [runUiTest] instead of [runAppTest] or [runAppTest] to properly initialize dependencies.
+ * Subclasses must call [runUiTest] instead of [runAppTest] to properly initialize dependencies.
  */
 @Suppress("AbstractClassCanBeConcreteClass")
-abstract class BaseUiInjectTest(applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph) :
-    BaseInjectTest(applicationGraphCreator) {
-    internal val uiGraphCreator: UiGraph.Factory get() =
-        applicationGraph as UiGraph.Factory
-
+abstract class BaseUiInjectTest<G, U>(
+    applicationGraphCreator: (ApplicationGraphArguments) -> G,
+    internal val uiGraphCreator: G.(UiGraphArguments) -> U,
+) : BaseInjectTest<G>(applicationGraphCreator)
+    where G : ApplicationGraph, G : BaseInjectTestCtx,
+          U : UiGraph, U : BaseUiInjectTestCtx {
     @Deprecated("Testing with BaseUiInjectTest should call runUiTest instead of runAppTest")
     override fun runAppTest(
         context: CoroutineContext,
@@ -68,35 +63,37 @@ abstract class BaseUiInjectTest(applicationGraphCreator: (ApplicationGraphArgume
 }
 
 @OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
-fun BaseUiInjectTest.runUiTest(
+fun <G, U> BaseUiInjectTest<G, U>.runUiTest(
     appTestContext: CoroutineContext = EmptyCoroutineContext,
     timeout: Duration = 60.seconds,
-    testBody: suspend ComposeUiTest.(uiGraph: UiGraph) -> Unit,
-): TestResult = runPlatformUiTest(
-    runTestContext = generalTestDispatcher + appTestContext,
-    timeout = timeout,
-) { uiGraphArguments ->
-    val uiGraph = uiGraphCreator.create(uiGraphArguments)
-    try {
-        val uiUpdatables = uiGraph.baseUiInjectTestCtx.uiUpdatables
-        withUpdatables(appUpdatables + uiUpdatables) {
-            // Let any background jobs launch and stabilize before running the test body
-            @OptIn(kotlin.ExperimentalStdlibApi::class)
-            val testDispatcher = currentCoroutineContext()[ContinuationInterceptor] as? TestDispatcher
-            testDispatcher?.scheduler?.advanceUntilIdle()
-            testBody(
-                this@runPlatformUiTest,
-                uiGraph,
-            )
-        }
-    } finally {
+    testBody: suspend ComposeUiTest.(uiGraph: U) -> Unit,
+): TestResult where G : ApplicationGraph, G : BaseInjectTestCtx,
+                    U : UiGraph, U : BaseUiInjectTestCtx =
+    runPlatformUiTest(
+        runTestContext = generalTestDispatcher + appTestContext,
+        timeout = timeout,
+    ) { uiGraphArguments ->
+        val uiGraph = applicationGraph.uiGraphCreator(uiGraphArguments)
         try {
-            uiGraph.close()
+            val uiUpdatables = uiGraph.uiUpdatables
+            withUpdatables(appUpdatables + uiUpdatables) {
+                // Let any background jobs launch and stabilize before running the test body
+                @OptIn(kotlin.ExperimentalStdlibApi::class)
+                val testDispatcher = currentCoroutineContext()[ContinuationInterceptor] as? TestDispatcher
+                testDispatcher?.scheduler?.advanceUntilIdle()
+                testBody(
+                    this@runPlatformUiTest,
+                    uiGraph,
+                )
+            }
         } finally {
-            applicationGraph.close()
+            try {
+                uiGraph.close()
+            } finally {
+                applicationGraph.close()
+            }
         }
     }
-}
 
 @OptIn(ExperimentalTestApi::class)
 internal expect fun runPlatformUiTest(

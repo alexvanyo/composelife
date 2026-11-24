@@ -23,7 +23,6 @@ import com.alexvanyo.composelife.database.CellState
 import com.alexvanyo.composelife.database.CellStateQueries
 import com.alexvanyo.composelife.filesystem.PersistedDataPath
 import com.alexvanyo.composelife.model.toCellState
-import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.test.BaseInjectTest
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
@@ -49,16 +48,12 @@ interface CellStateRepositoryTestsCtx {
     @PersistedDataPath val persistedDataPath: Path
 }
 
-// TODO: Replace with asContribution()
-internal val ApplicationGraph.cellStateRepositoryTestsCtx: CellStateRepositoryTestsCtx get() =
-    this as CellStateRepositoryTestsCtx
-
 @Suppress("TooManyFunctions")
 class CellStateRepositoryTests :
-    BaseInjectTest(
-        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    BaseInjectTest<TestApplicationGraph>(
+        ::createTestApplicationGraph,
     ) {
-    private val ctx get() = applicationGraph.cellStateRepositoryTestsCtx
+    private val ctx get() = applicationGraph.asContribution<CellStateRepositoryTestsCtx>()
 
     private val cellStateRepository get() = ctx.cellStateRepository
 

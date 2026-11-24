@@ -14,31 +14,39 @@
  * limitations under the License.
  */
 
-package com.alexvanyo.composelife
+package com.alexvanyo.composelife.ui.app
 
-import com.alexvanyo.composelife.scopes.GlobalScope
+import com.alexvanyo.composelife.scopes.ApplicationGraph
+import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
+import com.alexvanyo.composelife.test.BaseInjectTestCtx
 import com.alexvanyo.composelife.tracing.TestTraceDriver
 import com.alexvanyo.composelife.tracing.Tracer
-import com.alexvanyo.composelife.ui.app.UiWithLoadedPreferencesScope
-import com.alexvanyo.composelife.ui.app.UiWithLoadedPreferencesScopeBindings
+import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.createGraphFactory
 
-@DependencyGraph(GlobalScope::class)
-interface TestGlobalGraph {
+@DependencyGraph(AppScope::class)
+interface TestApplicationGraph :
+    ApplicationGraph,
+    BaseInjectTestCtx {
     @DependencyGraph.Factory
     fun interface Factory {
-        fun create(@Provides tracer: Tracer): TestGlobalGraph
+        fun create(
+            @Provides tracer: Tracer,
+            @Provides applicationGraphArguments: ApplicationGraphArguments,
+        ): TestApplicationGraph
     }
 }
 
 private val testTraceDriver = TestTraceDriver()
-internal val testGlobalGraph = createGraphFactory<TestGlobalGraph.Factory>().create(
-    testTraceDriver.tracer,
-)
+internal fun createTestApplicationGraph(applicationGraphArguments: ApplicationGraphArguments): TestApplicationGraph =
+    createGraphFactory<TestApplicationGraph.Factory>().create(
+        tracer = testTraceDriver.tracer,
+        applicationGraphArguments = applicationGraphArguments,
+    )
 
 @ContributesTo(UiWithLoadedPreferencesScope::class, replaces = [UiWithLoadedPreferencesScopeBindings::class])
 @BindingContainer

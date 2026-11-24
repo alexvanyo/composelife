@@ -38,7 +38,6 @@ import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
-import com.alexvanyo.composelife.scopes.GlobalScope
 import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
@@ -53,27 +52,39 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.ForScope
+import dev.zacsweers.metro.GraphExtension
 import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.asContribution
 import dev.zacsweers.metro.createGraphFactory
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
 
-@ContributesTo(AppScope::class)
-internal interface AppPreviewCtx {
+@DependencyGraph(AppScope::class)
+internal interface PreviewApplicationGraph : ApplicationGraph {
     @ForScope(AppScope::class)
     val appUpdatables: Set<Updatable>
 
     val workerFactories:
         Map<KClass<out ListenableWorker>, @JvmSuppressWildcards (Context, WorkerParameters) -> ListenableWorker>
+
+    @DependencyGraph.Factory
+    fun interface Factory {
+        fun create(
+            @Provides tracer: Tracer,
+            @Provides applicationGraphArguments: ApplicationGraphArguments,
+        ): PreviewApplicationGraph
+    }
 }
 
 /**
  * The full super-interface implementing all entry points for rendering
  * previews in this module.
  */
-@ContributesTo(UiScope::class)
-internal interface PreviewCtx : ComposeLifePreferencesProvider {
+@GraphExtension(UiScope::class)
+internal interface PreviewCtx :
+    UiGraph,
+    ComposeLifePreferencesProvider {
     val cellStatePreviewUi: CellStatePreviewUi
     val fullscreenSettingsDetailPane: FullscreenSettingsDetailPane
     val inlineSettingsPane: InlineSettingsPane
@@ -82,13 +93,11 @@ internal interface PreviewCtx : ComposeLifePreferencesProvider {
 
     @ForScope(UiScope::class)
     val uiUpdatables: Set<Updatable>
-}
 
-@DependencyGraph(GlobalScope::class)
-interface PreviewGlobalGraph {
-    @DependencyGraph.Factory
+    @ContributesTo(AppScope::class)
+    @GraphExtension.Factory
     fun interface Factory {
-        fun create(@Provides tracer: Tracer): PreviewGlobalGraph
+        fun create(@Provides uiGraphArguments: UiGraphArguments): PreviewCtx
     }
 }
 
@@ -100,13 +109,11 @@ private val testTraceDriver = TestTraceDriver()
 @Suppress("LongParameterList")
 @Composable
 internal fun WithPreviewDependencies(content: @Composable context(PreviewCtx) () -> Unit) {
-    val previewGraph = remember {
-        createGraphFactory<PreviewGlobalGraph.Factory>().create(testTraceDriver.tracer)
-    }
     val context = LocalContext.current
-    val applicationGraph = remember(previewGraph, context) {
-        (previewGraph as ApplicationGraph.Factory).create(
-            object : ApplicationGraphArguments {
+    val applicationGraph = remember(context) {
+        createGraphFactory<PreviewApplicationGraph.Factory>().create(
+            tracer = testTraceDriver.tracer,
+            applicationGraphArguments = object : ApplicationGraphArguments {
                 override val applicationContext: Context = context.applicationContext
             },
         )
@@ -116,12 +123,11 @@ internal fun WithPreviewDependencies(content: @Composable context(PreviewCtx) ()
             applicationGraph.close()
         }
     }
-    val appCtx = applicationGraph as AppPreviewCtx
     val activity = LocalActivity.current
     val windowInfo = LocalWindowInfo.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val uiGraph = remember(applicationGraph, context, activity, windowInfo) {
-        (applicationGraph as UiGraph.Factory).create(
+        applicationGraph.asContribution<PreviewCtx.Factory>().create(
             object : UiGraphArguments {
                 override val uiContext: Context = context
                 override val activity: ComponentActivity? = activity as? ComponentActivity
@@ -135,11 +141,10 @@ internal fun WithPreviewDependencies(content: @Composable context(PreviewCtx) ()
             uiGraph.close()
         }
     }
-    val ctx = uiGraph as PreviewCtx
 
-    LaunchedEffect(ctx) {
+    LaunchedEffect(uiGraph) {
         coroutineScope {
-            (appCtx.appUpdatables + ctx.uiUpdatables).forEach {
+            (applicationGraph.appUpdatables + uiGraph.uiUpdatables).forEach {
                 launch { it.update() }
             }
         }
@@ -149,6 +154,6 @@ internal fun WithPreviewDependencies(content: @Composable context(PreviewCtx) ()
         override val navigationEventDispatcher = NavigationEventDispatcher()
     }
     CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides navigationEventDispatcherOwner) {
-        content(ctx)
+        content(uiGraph)
     }
 }

@@ -23,15 +23,19 @@ import com.alexvanyo.composelife.preferences.ComposeLifePreferences
 import com.alexvanyo.composelife.preferences.ToolConfig
 import com.alexvanyo.composelife.resourcestate.isSuccess
 import com.alexvanyo.composelife.resourcestate.successes
-import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.UiGraph
+import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.test.BaseUiInjectTest
+import com.alexvanyo.composelife.test.BaseUiInjectTestCtx
 import com.alexvanyo.composelife.test.runUiTest
-import com.alexvanyo.composelife.ui.app.globalGraph
+import com.alexvanyo.composelife.ui.app.TestApplicationGraph
+import com.alexvanyo.composelife.ui.app.createTestApplicationGraph
 import com.alexvanyo.composelife.ui.util.ClipboardReader
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.GraphExtension
+import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.asContribution
 import kotlinx.coroutines.flow.first
 import kotlin.test.Test
@@ -46,31 +50,36 @@ interface InlineEditPaneStateTestsAppCtx {
     val cellStateParser: CellStateParser
 }
 
-// TODO: Replace with asContribution()
-val ApplicationGraph.inlineEditPaneStateTestsAppCtx: InlineEditPaneStateTestsAppCtx get() =
-    this as InlineEditPaneStateTestsAppCtx
-
-@ContributesTo(UiScope::class)
-interface InlineEditPaneStateTestsUiCtx {
+@GraphExtension(UiScope::class)
+interface InlineEditPaneStateTestsUiGraph :
+    UiGraph,
+    BaseUiInjectTestCtx {
     val clipboardReader: ClipboardReader
-}
 
-// TODO: Replace with asContribution()
-val UiGraph.inlineEditPaneStateTestsUiCtx: InlineEditPaneStateTestsUiCtx get() =
-    this as InlineEditPaneStateTestsUiCtx
+    @ContributesTo(AppScope::class)
+    @GraphExtension.Factory
+    fun interface Factory {
+        fun createInlineEditPaneStateTestsUiGraph(
+            @Provides uiGraphArguments: UiGraphArguments,
+        ): InlineEditPaneStateTestsUiGraph
+    }
+}
 
 @OptIn(ExperimentalTestApi::class)
 class InlineEditPaneStateTests :
-    BaseUiInjectTest(
-        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    BaseUiInjectTest<TestApplicationGraph, InlineEditPaneStateTestsUiGraph>(
+        applicationGraphCreator = ::createTestApplicationGraph,
+        uiGraphCreator = {
+            asContribution<InlineEditPaneStateTestsUiGraph.Factory>().createInlineEditPaneStateTestsUiGraph(it)
+        },
     ) {
-    private val ctx get() = applicationGraph.inlineEditPaneStateTestsAppCtx
+    private val ctx get() = applicationGraph.asContribution<InlineEditPaneStateTestsAppCtx>()
 
     private val composeLifePreferences get() = ctx.composeLifePreferences
 
     @Test
     fun initial_state_is_correct_when_onboarding() = runUiTest { uiGraph ->
-        val uiCtx = uiGraph.inlineEditPaneStateTestsUiCtx
+        val uiCtx = uiGraph
         composeLifePreferences.update {
             setTouchToolConfig(ToolConfig.Pan)
             setMouseToolConfig(ToolConfig.Select)
@@ -115,7 +124,7 @@ class InlineEditPaneStateTests :
 
     @Test
     fun allowing_clipboard_watching_updates_state_correctly() = runUiTest { uiGraph ->
-        val uiCtx = uiGraph.inlineEditPaneStateTestsUiCtx
+        val uiCtx = uiGraph
         composeLifePreferences.update {
             setTouchToolConfig(ToolConfig.Pan)
             setMouseToolConfig(ToolConfig.Select)
@@ -159,7 +168,7 @@ class InlineEditPaneStateTests :
 
     @Test
     fun disallowing_clipboard_watching_updates_state_correctly() = runUiTest { uiGraph ->
-        val uiCtx = uiGraph.inlineEditPaneStateTestsUiCtx
+        val uiCtx = uiGraph
         composeLifePreferences.update {
             setTouchToolConfig(ToolConfig.Pan)
             setMouseToolConfig(ToolConfig.Select)
@@ -203,7 +212,7 @@ class InlineEditPaneStateTests :
 
     @Test
     fun initial_state_is_correct_when_clipboard_watching_enabled() = runUiTest { uiGraph ->
-        val uiCtx = uiGraph.inlineEditPaneStateTestsUiCtx
+        val uiCtx = uiGraph
         composeLifePreferences.update {
             setTouchToolConfig(ToolConfig.Pan)
             setMouseToolConfig(ToolConfig.Select)
@@ -248,7 +257,7 @@ class InlineEditPaneStateTests :
 
     @Test
     fun initial_state_is_correct_when_clipboard_watching_disabled() = runUiTest { uiGraph ->
-        val uiCtx = uiGraph.inlineEditPaneStateTestsUiCtx
+        val uiCtx = uiGraph
         composeLifePreferences.update {
             setTouchToolConfig(ToolConfig.Pan)
             setMouseToolConfig(ToolConfig.Select)

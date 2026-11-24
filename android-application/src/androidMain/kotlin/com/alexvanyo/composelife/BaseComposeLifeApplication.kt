@@ -36,12 +36,10 @@ import com.alexvanyo.composelife.tracing.createTraceDriver
 import com.alexvanyo.composelife.tracing.trace
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.ForScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 
-@ContributesTo(AppScope::class)
 interface ComposeLifeApplicationCtx {
     @ProcessLifecycleOwner val processLifecycleOwner: LifecycleOwner
 
@@ -49,16 +47,17 @@ interface ComposeLifeApplicationCtx {
     val appUpdatables: Set<Updatable>
 }
 
-// TODO: Replace with asContribution()
-internal val ApplicationGraph.composeLifeApplicationCtx: ComposeLifeApplicationCtx get() =
-    this as ComposeLifeApplicationCtx
-
 @Suppress("UnnecessaryAbstractClass", "AbstractClassCanBeConcreteClass")
-abstract class BaseComposeLifeApplication<G>(private val createGlobalGraph: (tracer: Tracer) -> G) :
-    Application(),
+abstract class BaseComposeLifeApplication<G>(
+    private val createApplicationGraph: (
+        tracer: Tracer,
+        applicationGraphArguments: ApplicationGraphArguments,
+    ) -> G,
+) : Application(),
     AbstractTraceDriverFactory,
-    ApplicationGraphOwner {
-    override lateinit var applicationGraph: ApplicationGraph
+    ApplicationGraphOwner
+    where G : ApplicationGraph, G : ComposeLifeApplicationCtx {
+    override lateinit var applicationGraph: G
 
     private val traceDriver by lazy { createTraceDriver(this) }
 
@@ -72,19 +71,16 @@ abstract class BaseComposeLifeApplication<G>(private val createGlobalGraph: (tra
 
         val tracer = traceDriver.tracer
 
-        val globalGraph = tracer.trace("startup", "createGlobalGraph") {
-            createGlobalGraph(tracer)
-        }
         applicationGraph = tracer.trace("startup", "createApplicationGraph") {
-            (globalGraph as ApplicationGraph.Factory).create(
+            createApplicationGraph(
+                tracer,
                 object : ApplicationGraphArguments {
                     override val applicationContext: Context = this@BaseComposeLifeApplication
                 },
             )
         }
-        val ctx = applicationGraph.composeLifeApplicationCtx
-        val processLifecycleOwner = ctx.processLifecycleOwner
-        val appUpdatables = ctx.appUpdatables
+        val processLifecycleOwner = applicationGraph.processLifecycleOwner
+        val appUpdatables = applicationGraph.appUpdatables
 
         // Update all singleton scoped updatables in the process lifecycle scope, when its created.
         // Effectively, this is just a permanently running coroutine scope.

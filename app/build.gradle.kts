@@ -46,7 +46,7 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-        testInstrumentationRunner = "com.alexvanyo.composelife.test.InjectTestRunner"
+        testInstrumentationRunner = "com.alexvanyo.composelife.AppInjectTestRunner"
     }
     configureGradleManagedDevices(setOf(FormFactor.Mobile), this)
 }
