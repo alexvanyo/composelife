@@ -32,46 +32,23 @@ import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
-import com.alexvanyo.composelife.scopes.UiGraph
-import com.alexvanyo.composelife.scopes.UiGraphArguments
-import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.screenshot.assertPixels
 import com.alexvanyo.composelife.test.BaseUiInjectTest
-import com.alexvanyo.composelife.test.BaseUiInjectTestCtx
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.GraphExtension
-import dev.zacsweers.metro.Provides
-import dev.zacsweers.metro.asContribution
 import org.junit.Assume.assumeTrue
 import kotlin.test.Test
 
-@GraphExtension(UiScope::class)
-interface NonInteractableCellsVisualTestsUiGraph :
-    UiGraph,
-    BaseUiInjectTestCtx {
+interface NonInteractableCellsVisualTestsCtx {
     val nonInteractableCells: NonInteractableCells
     val testComposeLifePreferences: TestComposeLifePreferences
-
-    @ContributesTo(AppScope::class)
-    @GraphExtension.Factory
-    fun interface Factory {
-        fun createNonInteractableCellsVisualTestsUiGraph(
-            @Provides uiGraphArguments: UiGraphArguments,
-        ): NonInteractableCellsVisualTestsUiGraph
-    }
 }
 
 @OptIn(ExperimentalTestApi::class)
 class NonInteractableCellsVisualTests :
-    BaseUiInjectTest<AndroidDeviceTestApplicationGraph, NonInteractableCellsVisualTestsUiGraph>(
+    BaseUiInjectTest<AndroidDeviceTestApplicationGraph, AndroidDeviceTestUiGraph>(
         applicationGraphCreator = ::createAndroidDeviceTestApplicationGraph,
-        uiGraphCreator = {
-            asContribution<NonInteractableCellsVisualTestsUiGraph.Factory>()
-                .createNonInteractableCellsVisualTestsUiGraph(it)
-        },
+        uiGraphCreator = AndroidDeviceTestApplicationGraph::create,
     ) {
     @Test
     fun non_interactable_cells_draws_correctly_dark_mode() = runUiTest { uiGraph ->

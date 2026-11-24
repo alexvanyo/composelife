@@ -42,51 +42,27 @@ import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
-import com.alexvanyo.composelife.scopes.UiGraph
-import com.alexvanyo.composelife.scopes.UiGraphArguments
-import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.test.BaseUiInjectTest
-import com.alexvanyo.composelife.test.BaseUiInjectTestCtx
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.settings.resources.CornerFractionLabel
 import com.alexvanyo.composelife.ui.settings.resources.Strings
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.GraphExtension
-import dev.zacsweers.metro.Provides
-import dev.zacsweers.metro.asContribution
 import org.junit.Assume.assumeTrue
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
-@GraphExtension(UiScope::class)
-interface FullscreenSettingsDetailPaneTestsUiGraph :
-    UiGraph,
-    BaseUiInjectTestCtx {
+interface FullscreenSettingsDetailPaneTestsCtx {
     val fullscreenSettingsDetailPane: FullscreenSettingsDetailPane
-
-    @ContributesTo(AppScope::class)
-    @GraphExtension.Factory
-    fun interface Factory {
-        fun createFullscreenSettingsDetailPaneTestsUiGraph(
-            @Provides uiGraphArguments: UiGraphArguments,
-        ): FullscreenSettingsDetailPaneTestsUiGraph
-    }
 }
 
 @OptIn(ExperimentalTestApi::class)
 class FullscreenSettingsDetailPaneTests :
-    BaseUiInjectTest<AndroidSharedTestApplicationGraph, FullscreenSettingsDetailPaneTestsUiGraph>(
+    BaseUiInjectTest<AndroidSharedTestApplicationGraph, AndroidSharedTestUiGraph>(
         applicationGraphCreator = ::createAndroidSharedTestApplicationGraph,
-        uiGraphCreator = {
-            asContribution<FullscreenSettingsDetailPaneTestsUiGraph.Factory>()
-                .createFullscreenSettingsDetailPaneTestsUiGraph(it)
-        },
+        uiGraphCreator = AndroidSharedTestApplicationGraph::create,
     ) {
     @Test
-    fun visual_settings_category_keeps_scroll_position_with_ime() = runUiTest { uiGraph ->
+    fun visual_settings_category_keeps_scroll_position_with_ime() = runUiTest { ctx ->
         assumeTrue(Build.VERSION.SDK_INT >= 30)
-        val ctx = uiGraph
 
         lateinit var resolver: (ParameterizedString) -> String
 

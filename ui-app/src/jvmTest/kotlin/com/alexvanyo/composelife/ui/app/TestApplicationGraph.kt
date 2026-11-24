@@ -18,20 +18,29 @@ package com.alexvanyo.composelife.ui.app
 
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
+import com.alexvanyo.composelife.scopes.UiGraph
+import com.alexvanyo.composelife.scopes.UiGraphArguments
+import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.test.BaseInjectTestCtx
+import com.alexvanyo.composelife.test.BaseUiInjectTestCtx
 import com.alexvanyo.composelife.tracing.TestTraceDriver
 import com.alexvanyo.composelife.tracing.Tracer
+import com.alexvanyo.composelife.ui.app.action.InlineEditPaneStateTestsUiCtx
+import com.alexvanyo.composelife.ui.app.action.InlineEditPaneTestsCtx
+import com.alexvanyo.composelife.ui.app.component.GameOfLifeProgressIndicatorTestsCtx
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.DependencyGraph
+import dev.zacsweers.metro.GraphExtension
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.createGraphFactory
 
 @DependencyGraph(AppScope::class)
 interface TestApplicationGraph :
     ApplicationGraph,
-    BaseInjectTestCtx {
+    BaseInjectTestCtx,
+    TestUiGraph.Factory {
     @DependencyGraph.Factory
     fun interface Factory {
         fun create(
@@ -41,12 +50,25 @@ interface TestApplicationGraph :
     }
 }
 
+@GraphExtension(UiScope::class)
+interface TestUiGraph :
+    UiGraph,
+    BaseUiInjectTestCtx,
+    GameOfLifeProgressIndicatorTestsCtx,
+    InlineEditPaneTestsCtx,
+    InlineEditPaneStateTestsUiCtx {
+    @GraphExtension.Factory
+    fun interface Factory {
+        fun create(@Provides uiGraphArguments: UiGraphArguments): TestUiGraph
+    }
+}
+
 private val testTraceDriver = TestTraceDriver()
-internal fun createTestApplicationGraph(applicationGraphArguments: ApplicationGraphArguments): TestApplicationGraph =
+internal fun createTestApplicationGraph(applicationGraphArguments: ApplicationGraphArguments,): TestApplicationGraph =
     createGraphFactory<TestApplicationGraph.Factory>().create(
-        tracer = testTraceDriver.tracer,
-        applicationGraphArguments = applicationGraphArguments,
-    )
+    tracer = testTraceDriver.tracer,
+    applicationGraphArguments = applicationGraphArguments,
+)
 
 @ContributesTo(UiWithLoadedPreferencesScope::class, replaces = [UiWithLoadedPreferencesScopeBindings::class])
 @BindingContainer

@@ -75,8 +75,11 @@ abstract class BaseComposeLifeAppTests :
         MainActivity::class.java,
     ) {
     init {
-        (ApplicationProvider.getApplicationContext<Application>() as? TestAppInjectApplication)
-            ?.mainActivityUiGraphFactory = applicationGraph.asContribution<MainActivityUiGraph.Factory>()
+        checkNotNull(
+            ApplicationProvider.getApplicationContext<Application>() as? TestAppInjectApplication,
+        ) {
+            "BaseComposeLifeAppTests requires TestAppInjectApplication"
+        }.mainActivityUiGraphFactory = applicationGraph.asContribution<MainActivityUiGraph.Factory>()
     }
 
     private val ctx get() = applicationGraph.asContribution<ComposeLifeAppTestsCtx>()

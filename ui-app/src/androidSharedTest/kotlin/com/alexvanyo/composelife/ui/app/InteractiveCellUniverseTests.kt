@@ -63,11 +63,7 @@ import com.alexvanyo.composelife.model.rememberTemporalGameOfLifeStateMutator
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
 import com.alexvanyo.composelife.patterns.SixLongLinePattern
-import com.alexvanyo.composelife.scopes.UiGraph
-import com.alexvanyo.composelife.scopes.UiGraphArguments
-import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.test.BaseUiInjectTest
-import com.alexvanyo.composelife.test.BaseUiInjectTestCtx
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.app.resources.ApplyPaste
 import com.alexvanyo.composelife.ui.app.resources.Collapse
@@ -87,8 +83,6 @@ import com.alexvanyo.composelife.ui.util.FullscreenModeManager
 import com.alexvanyo.composelife.ui.util.setText
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.GraphExtension
-import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.asContribution
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestDispatcher
@@ -108,33 +102,19 @@ interface InteractiveCellUniverseTestsAppCtx {
     val dispatchers: ComposeLifeDispatchers
 }
 
-@GraphExtension(UiScope::class)
-interface InteractiveCellUniverseTestsUiGraph :
-    UiGraph,
-    BaseUiInjectTestCtx {
+interface InteractiveCellUniverseTestsUiCtx {
     val interactiveCellUniverse: InteractiveCellUniverse
     val cellStateParser: CellStateParser
     val clipboardReaderWriter: ClipboardReaderWriter
     val fullscreenModeManager: FullscreenModeManager
-
-    @ContributesTo(AppScope::class)
-    @GraphExtension.Factory
-    fun interface Factory {
-        fun createInteractiveCellUniverseTestsUiGraph(
-            @Provides uiGraphArguments: UiGraphArguments,
-        ): InteractiveCellUniverseTestsUiGraph
-    }
 }
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
 class InteractiveCellUniverseTests :
-    BaseUiInjectTest<AndroidSharedTestApplicationGraph, InteractiveCellUniverseTestsUiGraph>(
+    BaseUiInjectTest<AndroidSharedTestApplicationGraph, AndroidSharedTestUiGraph>(
         applicationGraphCreator = ::createAndroidSharedTestApplicationGraph,
-        uiGraphCreator = {
-            asContribution<InteractiveCellUniverseTestsUiGraph.Factory>()
-                .createInteractiveCellUniverseTestsUiGraph(it)
-        },
+        uiGraphCreator = AndroidSharedTestApplicationGraph::create,
     ) {
     private val ctx get() = applicationGraph.asContribution<InteractiveCellUniverseTestsAppCtx>()
 
@@ -147,8 +127,7 @@ class InteractiveCellUniverseTests :
     private val dispatchers get() = ctx.dispatchers
 
     @Test
-    fun info_card_closes_upon_back_press() = runUiTest { uiGraph ->
-        val uiCtx = uiGraph
+    fun info_card_closes_upon_back_press() = runUiTest { uiCtx ->
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -198,8 +177,7 @@ class InteractiveCellUniverseTests :
     }
 
     @Test
-    fun action_card_closes_upon_back_press() = runUiTest { uiGraph ->
-        val uiCtx = uiGraph
+    fun action_card_closes_upon_back_press() = runUiTest { uiCtx ->
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -688,8 +666,7 @@ class InteractiveCellUniverseTests :
     }
 
     @Test
-    fun glider_is_copied_correctly_with_keyboard_shortcuts() = runUiTest { uiGraph ->
-        val uiCtx = uiGraph
+    fun glider_is_copied_correctly_with_keyboard_shortcuts() = runUiTest { uiCtx ->
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -781,8 +758,7 @@ class InteractiveCellUniverseTests :
     }
 
     @Test
-    fun selection_is_cleared_correctly_with_keyboard_shortcuts() = runUiTest { uiGraph ->
-        val uiCtx = uiGraph
+    fun selection_is_cleared_correctly_with_keyboard_shortcuts() = runUiTest { uiCtx ->
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -855,8 +831,7 @@ class InteractiveCellUniverseTests :
     }
 
     @Test
-    fun glider_is_pasted_correctly_with_keyboard_shortcuts() = runUiTest { uiGraph ->
-        val uiCtx = uiGraph
+    fun glider_is_pasted_correctly_with_keyboard_shortcuts() = runUiTest { uiCtx ->
 
         lateinit var resolver: (ParameterizedString) -> String
 

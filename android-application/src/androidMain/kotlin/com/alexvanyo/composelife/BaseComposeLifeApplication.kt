@@ -27,7 +27,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.alexvanyo.composelife.processlifecycle.ProcessLifecycleOwner
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
-import com.alexvanyo.composelife.scopes.ApplicationGraphOwner
 import com.alexvanyo.composelife.strictmode.initStrictModeIfNeeded
 import com.alexvanyo.composelife.tracing.AbstractTraceDriver
 import com.alexvanyo.composelife.tracing.AbstractTraceDriverFactory
@@ -54,10 +53,9 @@ abstract class BaseComposeLifeApplication<G>(
         applicationGraphArguments: ApplicationGraphArguments,
     ) -> G,
 ) : Application(),
-    AbstractTraceDriverFactory,
-    ApplicationGraphOwner
+    AbstractTraceDriverFactory
     where G : ApplicationGraph, G : ComposeLifeApplicationCtx {
-    override lateinit var applicationGraph: G
+    lateinit var applicationGraph: G
 
     private val traceDriver by lazy { createTraceDriver(this) }
 

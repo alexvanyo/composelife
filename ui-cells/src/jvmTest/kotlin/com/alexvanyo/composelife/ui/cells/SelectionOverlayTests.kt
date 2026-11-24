@@ -34,53 +34,30 @@ import com.alexvanyo.composelife.model.emptyCellState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
-import com.alexvanyo.composelife.scopes.UiGraph
-import com.alexvanyo.composelife.scopes.UiGraphArguments
-import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.sessionvalue.SessionValue
 import com.alexvanyo.composelife.test.BaseUiInjectTest
-import com.alexvanyo.composelife.test.BaseUiInjectTestCtx
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.cells.resources.SelectingBoxHandle
 import com.alexvanyo.composelife.ui.cells.resources.Strings
 import com.alexvanyo.composelife.ui.cells.util.isAndroid
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.GraphExtension
-import dev.zacsweers.metro.Provides
-import dev.zacsweers.metro.asContribution
 import org.junit.Assume.assumeTrue
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.uuid.Uuid
 
-@GraphExtension(UiScope::class)
-interface SelectionOverlayTestsUiGraph :
-    UiGraph,
-    BaseUiInjectTestCtx {
+interface SelectionOverlayTestsCtx {
     val selectionOverlay: SelectionOverlay
-
-    @ContributesTo(AppScope::class)
-    @GraphExtension.Factory
-    fun interface Factory {
-        fun createSelectionOverlayTestsUiGraph(
-            @Provides uiGraphArguments: UiGraphArguments,
-        ): SelectionOverlayTestsUiGraph
-    }
 }
 
 @OptIn(ExperimentalTestApi::class)
 class SelectionOverlayTests :
-    BaseUiInjectTest<TestApplicationGraph, SelectionOverlayTestsUiGraph>(
+    BaseUiInjectTest<TestApplicationGraph, TestUiGraph>(
         applicationGraphCreator = ::createTestApplicationGraph,
-        uiGraphCreator = {
-            asContribution<SelectionOverlayTestsUiGraph.Factory>().createSelectionOverlayTestsUiGraph(it)
-        },
+        uiGraphCreator = TestApplicationGraph::create,
     ) {
 
     @Test
-    fun no_selection_is_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph
+    fun no_selection_is_displayed_correctly() = runUiTest { ctx ->
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -115,8 +92,7 @@ class SelectionOverlayTests :
     }
 
     @Test
-    fun selecting_box_is_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph
+    fun selecting_box_is_displayed_correctly() = runUiTest { ctx ->
 
         lateinit var resolver: (ParameterizedString) -> String
 
@@ -233,8 +209,7 @@ class SelectionOverlayTests :
     }
 
     @Test
-    fun selection_is_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph
+    fun selection_is_displayed_correctly() = runUiTest { ctx ->
 
         setContent {
             context(ctx.selectionOverlay) {

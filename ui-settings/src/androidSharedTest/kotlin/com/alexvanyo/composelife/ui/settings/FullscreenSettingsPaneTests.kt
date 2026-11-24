@@ -46,11 +46,7 @@ import androidx.window.core.layout.WindowSizeClass.Companion.BREAKPOINTS_V1
 import androidx.window.core.layout.computeWindowSizeClass
 import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
 import com.alexvanyo.composelife.parameterizedstring.parameterizedStringResolver
-import com.alexvanyo.composelife.scopes.UiGraph
-import com.alexvanyo.composelife.scopes.UiGraphArguments
-import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.test.BaseUiInjectTest
-import com.alexvanyo.composelife.test.BaseUiInjectTestCtx
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.settings.resources.Algorithm
 import com.alexvanyo.composelife.ui.settings.resources.Back
@@ -60,43 +56,23 @@ import com.alexvanyo.composelife.ui.settings.resources.FeatureFlags
 import com.alexvanyo.composelife.ui.settings.resources.HashLifeAlgorithm
 import com.alexvanyo.composelife.ui.settings.resources.Strings
 import com.alexvanyo.composelife.ui.settings.resources.Visual
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.GraphExtension
-import dev.zacsweers.metro.Provides
-import dev.zacsweers.metro.asContribution
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
-@GraphExtension(UiScope::class)
-interface FullscreenSettingsPaneTestsUiGraph :
-    UiGraph,
-    BaseUiInjectTestCtx {
+interface FullscreenSettingsPaneTestsCtx {
     val fullscreenSettingsDetailPane: FullscreenSettingsDetailPane
-
-    @ContributesTo(AppScope::class)
-    @GraphExtension.Factory
-    fun interface Factory {
-        fun createFullscreenSettingsPaneTestsUiGraph(
-            @Provides uiGraphArguments: UiGraphArguments,
-        ): FullscreenSettingsPaneTestsUiGraph
-    }
 }
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalTestApi::class)
 class FullscreenSettingsPaneTests :
-    BaseUiInjectTest<AndroidSharedTestApplicationGraph, FullscreenSettingsPaneTestsUiGraph>(
+    BaseUiInjectTest<AndroidSharedTestApplicationGraph, AndroidSharedTestUiGraph>(
         applicationGraphCreator = ::createAndroidSharedTestApplicationGraph,
-        uiGraphCreator = {
-            asContribution<FullscreenSettingsPaneTestsUiGraph.Factory>()
-                .createFullscreenSettingsPaneTestsUiGraph(it)
-        },
+        uiGraphCreator = AndroidSharedTestApplicationGraph::create,
     ) {
     @Test
-    fun show_list_screen_is_displayed_correctly_with_compact_width() = runUiTest { uiGraph ->
-        val ctx = uiGraph
+    fun show_list_screen_is_displayed_correctly_with_compact_width() = runUiTest { ctx ->
 
         var onBackButtonPressedCount = 0
 
@@ -187,8 +163,7 @@ class FullscreenSettingsPaneTests :
     }
 
     @Test
-    fun show_list_screen_is_displayed_correctly_with_medium_width() = runUiTest { uiGraph ->
-        val ctx = uiGraph
+    fun show_list_screen_is_displayed_correctly_with_medium_width() = runUiTest { ctx ->
 
         var onBackButtonPressedCount = 0
 
@@ -283,8 +258,7 @@ class FullscreenSettingsPaneTests :
     }
 
     @Test
-    fun show_detail_screen_is_displayed_correctly_with_compact_width() = runUiTest { uiGraph ->
-        val ctx = uiGraph
+    fun show_detail_screen_is_displayed_correctly_with_compact_width() = runUiTest { ctx ->
 
         var onBackButtonPressedCount = 0
 
@@ -363,8 +337,7 @@ class FullscreenSettingsPaneTests :
     }
 
     @Test
-    fun show_detail_screen_is_displayed_correctly_with_medium_width() = runUiTest { uiGraph ->
-        val ctx = uiGraph
+    fun show_detail_screen_is_displayed_correctly_with_medium_width() = runUiTest { ctx ->
 
         var onBackButtonPressedCount = 0
 
@@ -453,8 +426,7 @@ class FullscreenSettingsPaneTests :
     }
 
     @Test
-    fun click_on_detail_is_displayed_correctly_with_compact_width() = runUiTest { uiGraph ->
-        val ctx = uiGraph
+    fun click_on_detail_is_displayed_correctly_with_compact_width() = runUiTest { ctx ->
 
         var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Algorithm)
         var isDetailPresent by mutableStateOf(false)
@@ -527,8 +499,7 @@ class FullscreenSettingsPaneTests :
     }
 
     @Test
-    fun click_on_detail_is_displayed_correctly_with_medium_width() = runUiTest { uiGraph ->
-        val ctx = uiGraph
+    fun click_on_detail_is_displayed_correctly_with_medium_width() = runUiTest { ctx ->
 
         var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Algorithm)
         var isDetailPresent by mutableStateOf(false)
@@ -613,8 +584,7 @@ class FullscreenSettingsPaneTests :
     }
 
     @Test
-    fun no_detail_to_scroll_to_is_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph
+    fun no_detail_to_scroll_to_is_displayed_correctly() = runUiTest { ctx ->
 
         val settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Visual)
         var settingToScrollTo: Setting? by mutableStateOf(null)
@@ -670,8 +640,7 @@ class FullscreenSettingsPaneTests :
     }
 
     @Test
-    fun detail_to_scroll_to_is_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph
+    fun detail_to_scroll_to_is_displayed_correctly() = runUiTest { ctx ->
 
         val settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Visual)
         var settingToScrollTo: Setting? by mutableStateOf(Setting.CellShapeConfig)
@@ -731,8 +700,7 @@ class FullscreenSettingsPaneTests :
     }
 
     @Test
-    fun reducing_size_keeps_selected_detail() = runUiTest { uiGraph ->
-        val ctx = uiGraph
+    fun reducing_size_keeps_selected_detail() = runUiTest { ctx ->
 
         var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Algorithm)
         var isDetailPresent by mutableStateOf(false)
@@ -804,8 +772,7 @@ class FullscreenSettingsPaneTests :
     }
 
     @Test
-    fun expanding_size_keeps_selected_detail() = runUiTest { uiGraph ->
-        val ctx = uiGraph
+    fun expanding_size_keeps_selected_detail() = runUiTest { ctx ->
 
         var settingsCategory: SettingsCategory by mutableStateOf(SettingsCategory.Algorithm)
         var isDetailPresent by mutableStateOf(false)

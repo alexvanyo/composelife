@@ -18,24 +18,42 @@ package com.alexvanyo.composelife.ui.app
 
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
+import com.alexvanyo.composelife.scopes.UiGraph
+import com.alexvanyo.composelife.scopes.UiGraphArguments
+import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.test.BaseInjectTestCtx
+import com.alexvanyo.composelife.test.BaseUiInjectTestCtx
 import com.alexvanyo.composelife.tracing.TestTraceDriver
 import com.alexvanyo.composelife.tracing.Tracer
+import com.alexvanyo.composelife.ui.app.action.LoadedCellStatePreviewTestsUiCtx
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.DependencyGraph
+import dev.zacsweers.metro.GraphExtension
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.createGraphFactory
 
 @DependencyGraph(AppScope::class)
 interface AndroidDeviceTestApplicationGraph :
     ApplicationGraph,
-    BaseInjectTestCtx {
+    BaseInjectTestCtx,
+    AndroidDeviceTestUiGraph.Factory {
     @DependencyGraph.Factory
     fun interface Factory {
         fun create(
             @Provides tracer: Tracer,
             @Provides applicationGraphArguments: ApplicationGraphArguments,
         ): AndroidDeviceTestApplicationGraph
+    }
+}
+
+@GraphExtension(UiScope::class)
+interface AndroidDeviceTestUiGraph :
+    UiGraph,
+    BaseUiInjectTestCtx,
+    LoadedCellStatePreviewTestsUiCtx {
+    @GraphExtension.Factory
+    fun interface Factory {
+        fun create(@Provides uiGraphArguments: UiGraphArguments): AndroidDeviceTestUiGraph
     }
 }
 
