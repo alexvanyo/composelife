@@ -58,8 +58,8 @@ interface TestUiGraph :
 }
 
 private val testTraceDriver = TestTraceDriver()
-internal fun createTestApplicationGraph(applicationGraphArguments: ApplicationGraphArguments,): TestApplicationGraph =
+internal fun createTestApplicationGraph(applicationGraphArguments: ApplicationGraphArguments): TestApplicationGraph =
     createGraphFactory<TestApplicationGraph.Factory>().create(
-    tracer = testTraceDriver.tracer,
-    applicationGraphArguments = applicationGraphArguments,
-)
+        tracer = testTraceDriver.tracer,
+        applicationGraphArguments = applicationGraphArguments,
+    )

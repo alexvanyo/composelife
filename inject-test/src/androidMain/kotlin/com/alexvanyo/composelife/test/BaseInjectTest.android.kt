@@ -25,7 +25,7 @@ import org.junit.runner.RunWith
 
 @Suppress("UnnecessaryAbstractClass", "AbstractClassCanBeConcreteClass")
 @RunWith(KmpAndroidJUnit4::class)
-actual abstract class BaseInjectTest<G> actual constructor(applicationGraphCreator: (ApplicationGraphArguments) -> G,) :
+actual abstract class BaseInjectTest<G> actual constructor(applicationGraphCreator: (ApplicationGraphArguments) -> G) :
     BaseInjectTestImpl<G>(applicationGraphCreator)
     where G : ApplicationGraph, G : BaseInjectTestCtx
 
