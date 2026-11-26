@@ -47,6 +47,31 @@ composeCompiler {
 lean {
     target = "Algorithm:static"
     packageName = "com.alexvanyo.composelife.algorithm"
+    kotlinBytecodeClassPaths.addAll(
+        "com/alexvanyo/composelife/algorithm/BitComputationKt.class",
+        "com/alexvanyo/composelife/algorithm/HashLifeComputationKt.class",
+        "com/alexvanyo/composelife/algorithm/HashLifeComputationKt\$computeLevel4NextGeneration\$1.class",
+        "com/alexvanyo/composelife/algorithm/HashLifeComputationKt\$computeLevel4NextGeneration\$2.class",
+        "com/alexvanyo/composelife/algorithm/MacroCellCoordinatesKt.class",
+        "com/alexvanyo/composelife/algorithm/GameOfLifeStepKt.class",
+        "com/alexvanyo/composelife/model/CellWindow.class",
+        "com/alexvanyo/composelife/model/DeserializationResultKt.class",
+        "com/alexvanyo/composelife/model/CellStateFormatKt.class",
+        "com/alexvanyo/composelife/model/CellState.class",
+        "com/alexvanyo/composelife/model/CellStateKt.class",
+        "com/alexvanyo/composelife/model/CellStateImpl.class",
+        "com/alexvanyo/composelife/algorithm/Cache.class",
+        "com/alexvanyo/composelife/algorithm/Equivalence\$Wrapper.class",
+        "com/alexvanyo/composelife/algorithm/Equivalence\$FixedWrapper.class",
+        "com/alexvanyo/composelife/algorithm/Equivalence\$ReusableWrapper.class",
+    )
+    // Function-reference constructors (`::computeNextGenerationPureKotlin`) load `BitComputationKt::class` with an
+    // `ldc` class constant, which the lifted instruction subset does not model. They are not verified; the
+    // `<clinit>` that creates each singleton instance is, with `mkAlgKotlinHooks` modelling the constructed object.
+    kotlinBytecodeUnliftedMethods.addAll(
+        "com/alexvanyo/composelife/algorithm/HashLifeComputationKt\$computeLevel4NextGeneration\$1.<init>",
+        "com/alexvanyo/composelife/algorithm/HashLifeComputationKt\$computeLevel4NextGeneration\$2.<init>",
+    )
     entries {
         register("algorithm") {
             leanFile = "Algorithm/HashLife.lean"
@@ -194,6 +219,7 @@ kotlin {
         val desktopTest by getting {
             dependsOn(jvmTest)
             dependencies {
+                implementation(projects.leanTestFixtures)
                 implementation(compose.desktop.currentOs)
             }
         }

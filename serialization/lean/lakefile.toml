@@ -1,0 +1,20 @@
+name = "Serialization"
+version = "0.1.0"
+defaultTargets = ["Serialization"]
+moreLeanArgs = ["-M4096", "-j2"]
+
+[[lean_lib]]
+name = "Serialization"
+roots = [
+  "models.SerializersModel",
+  "proofs.SerializersModelProofs",
+  "theorems.SerializersModelTheorems",
+  "proofs.Mutations",
+  "JvmSemantics",
+  "AxiomAudit",
+]
+
+[[lean_lib]]
+name = "Jvm"
+srcDir = "../../jvm-lean"
+roots = ["Jvm", "Jvm.Instr", "Jvm.Semantics", "Jvm.FastExec", "Jvm.Proofs", "Jvm.Tactics", "Jvm.Audit"]

@@ -26,8 +26,20 @@ plugins {
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
+    alias(libs.plugins.convention.lean)
     kotlin("plugin.serialization") version libs.versions.kotlin
     alias(libs.plugins.gradleDependenciesSorter)
+}
+
+lean {
+    target = "Navigation:static"
+    packageName = "com.alexvanyo.composelife.navigation"
+    kotlinBytecodeClassPaths.addAll(
+        "com/alexvanyo/composelife/navigation/BackstackNavigationKt.class",
+        "com/alexvanyo/composelife/navigation/BackstackEntry.class",
+        "com/alexvanyo/composelife/navigation/MutableBackstackNavigationControllerKt.class",
+        "com/alexvanyo/composelife/navigation/BackstackStateKt.class",
+    )
 }
 
 kotlin {
@@ -111,6 +123,10 @@ kotlin {
         }
         val desktopTest by getting {
             dependsOn(jbTest)
+            dependencies {
+                implementation(projects.leanTestFixtures)
+                implementation(libs.kotlin.test)
+            }
         }
         val androidSharedTest by getting {
             dependsOn(jbTest)

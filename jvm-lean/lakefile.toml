@@ -1,0 +1,6 @@
+name = "Jvm"
+defaultTargets = ["Jvm"]
+
+[[lean_lib]]
+name = "Jvm"
+roots = ["Jvm", "Jvm.Instr", "Jvm.Semantics", "Jvm.FastExec", "Jvm.Proofs", "Jvm.Tactics", "Jvm.Audit"]

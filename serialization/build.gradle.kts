@@ -26,8 +26,21 @@ plugins {
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
+    alias(libs.plugins.convention.lean)
     kotlin("plugin.serialization") version libs.versions.kotlin
     alias(libs.plugins.gradleDependenciesSorter)
+}
+
+lean {
+    target = "Serialization:static"
+    packageName = "com.alexvanyo.composelife.serialization"
+    kotlinBytecodeClassPaths.addAll(
+        "com/alexvanyo/composelife/serialization/ClosedFloatRangeSerializer.class",
+        "com/alexvanyo/composelife/serialization/IntOffsetSerializer.class",
+        "com/alexvanyo/composelife/serialization/OffsetSerializer.class",
+        "com/alexvanyo/composelife/serialization/RectSerializer.class",
+        "com/alexvanyo/composelife/serialization/SurrogatingSerializerKt\$SurrogatingSerializer\$1.class",
+    )
 }
 
 kotlin {
@@ -107,7 +120,9 @@ kotlin {
         val desktopTest by getting {
             dependsOn(jvmTest)
             dependencies {
+                implementation(projects.leanTestFixtures)
                 implementation(compose.desktop.currentOs)
+                implementation(libs.kotlin.test)
             }
         }
         val androidSharedTest by getting {

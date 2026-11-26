@@ -22,9 +22,12 @@ import com.alexvanyo.composelife.buildlogic.ConventionPlugin
 import com.alexvanyo.composelife.buildlogic.GenerateLeanKotlinTask
 import com.alexvanyo.composelife.buildlogic.LeanEntrySpec
 import com.alexvanyo.composelife.buildlogic.LeanExtension
+import com.alexvanyo.composelife.buildlogic.VerifyLeanJvmBytecodeTask
 import com.alexvanyo.composelife.buildlogic.VerifyLeanTask
 import com.alexvanyo.composelife.buildlogic.heavyTaskLimitingBuildService
+import com.alexvanyo.composelife.buildlogic.leanTaskLimitingBuildService
 import org.gradle.api.Task
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import java.io.File
@@ -76,6 +79,24 @@ class LeanConventionPlugin :
             usesService(heavyTaskLimitingBuildService)
         }
 
+        val sharedJvmLeanFiles = fileTree(isolated.rootProject.projectDirectory.dir("jvm-lean")) {
+            include("**/*.lean")
+            include("lakefile.toml")
+            include("lakefile.lean")
+            include("lean-toolchain")
+            exclude(".lake/**")
+        }
+
+        val moduleLeanInputFiles = leanExtension.leanDirectory.asFileTree.matching {
+            include("**/*.lean")
+            include("**/lrat/*.lrat")
+            include("lakefile.toml")
+            include("lakefile.lean")
+            include("lake-manifest.json")
+            include("lean-toolchain")
+            exclude(".lake/**")
+        }
+
         val checkLeanBvCheck = tasks.register("checkLeanBvCheck", CheckLeanBvCheckTask::class.java) {
             description = "Checks that Lean bit-level proofs use bv_check with stored certificates, not bv_decide"
             group = LifecycleBasePlugin.VERIFICATION_GROUP
@@ -84,7 +105,12 @@ class LeanConventionPlugin :
                     include("**/*.lean")
                     exclude(".lake/**")
                 },
+                fileTree(isolated.rootProject.projectDirectory.dir("jvm-lean")) {
+                    include("**/*.lean")
+                    exclude(".lake/**")
+                },
             )
+            stampFile.set(layout.buildDirectory.file("lean/check-bv-check.stamp"))
         }
 
         val verifyLean = tasks.register("verifyLean", VerifyLeanTask::class.java) {
@@ -92,22 +118,19 @@ class LeanConventionPlugin :
             group = LifecycleBasePlugin.VERIFICATION_GROUP
             dependsOn(cacheLean, checkLeanBvCheck)
             workingDir.set(leanExtension.leanDirectory)
+            leanFiles.from(moduleLeanInputFiles, sharedJvmLeanFiles)
             target.set(leanExtension.target)
+            stampFile.set(layout.buildDirectory.file("lean/verify-lean.stamp"))
             usesService(heavyTaskLimitingBuildService)
+            usesService(leanTaskLimitingBuildService)
         }
 
         val generateLeanKotlin = tasks.register("generateLeanKotlin", GenerateLeanKotlinTask::class.java) {
             description = "Generates Kotlin code directly from Lean formal models"
             group = LifecycleBasePlugin.BUILD_GROUP
             dependsOn(verifyLean)
-            leanFiles.from(
-                leanExtension.leanDirectory.asFileTree.matching {
-                    include("**/*.lean")
-                    include("lakefile.toml")
-                    include("lakefile.lean")
-                    include("lean-toolchain")
-                },
-            )
+            usesService(leanTaskLimitingBuildService)
+            leanFiles.from(moduleLeanInputFiles, sharedJvmLeanFiles)
             leanBinary.set(leanExtension.leanBinary)
             workingDir.set(leanExtension.leanDirectory)
             packageName.set(leanExtension.packageName)
@@ -134,6 +157,8 @@ class LeanConventionPlugin :
             group = LifecycleBasePlugin.VERIFICATION_GROUP
             dependsOn(generateLeanKotlin)
             this.generatedSourcesDir.set(generatedSourcesDir)
+            expectOutputs.set(provider { leanExtension.entries.isNotEmpty() })
+            stampFile.set(layout.buildDirectory.file("lean/check-generated-kotlin.stamp"))
         }
 
         val checkLeanBuildScriptHygiene = tasks.register(
@@ -145,7 +170,85 @@ class LeanConventionPlugin :
             buildFile.set(layout.projectDirectory.file("build.gradle.kts"))
         }
 
+        val jvmBytecodeLiftScript = isolated.rootProject.projectDirectory.file("script/jvm-bytecode2lean.py")
+
+        val desktopClassesDir = layout.buildDirectory.dir("classes/kotlin/desktop/main")
+        val verifyLeanJvmBytecode = tasks.register(
+            "verifyLeanJvmBytecode",
+            VerifyLeanJvmBytecodeTask::class.java,
+        ) {
+            description = "Lifts compiled JVM .class bytecode into Lean and verifies equivalence proofs"
+            group = LifecycleBasePlugin.VERIFICATION_GROUP
+            dependsOn(verifyLean, checkLeanBvCheck, generateLeanKotlin)
+            workingDir.set(leanExtension.leanDirectory)
+            leanFiles.from(moduleLeanInputFiles, sharedJvmLeanFiles)
+            scriptFile.set(jvmBytecodeLiftScript)
+            moduleNamespace.set(leanExtension.target.map { leanTarget -> leanTarget.substringBefore(':') })
+            generatedBytecodeDir.set(layout.buildDirectory.dir("generated/lean/jvm"))
+            stampFile.set(layout.buildDirectory.file("lean/verify-jvm-bytecode.stamp"))
+            classFiles.from(
+                provider {
+                    leanExtension.entries.map { entry ->
+                        val packagePath = entry.packageName.get().replace('.', '/')
+                        val capitalizedName = entry.name.replaceFirstChar {
+                            if (it.isLowerCase()) it.titlecase() else it.toString()
+                        }
+                        desktopClassesDir.get().file("$packagePath/${capitalizedName}LeanKt.class")
+                    }
+                },
+            )
+            kotlinClassPathSpecs.set(leanExtension.kotlinBytecodeClassPaths)
+            this.desktopClassesDir.set(desktopClassesDir)
+            kotlinUnliftedMethods.set(leanExtension.kotlinBytecodeUnliftedMethods)
+            kotlinClassFiles.from(
+                provider {
+                    leanExtension.kotlinBytecodeClassPaths.getOrElse(emptyList()).map { classPath ->
+                        if (classPath.endsWith("/")) {
+                            fileTree(desktopClassesDir.get().dir(classPath)) {
+                                include("**/*.class")
+                            }
+                        } else {
+                            desktopClassesDir.get().file(classPath)
+                        }
+                    }
+                },
+            )
+            usesService(heavyTaskLimitingBuildService)
+            usesService(leanTaskLimitingBuildService)
+        }
+
         pluginManager.withPlugin("org.jetbrains.kotlin.multiplatform") {
+            verifyLeanJvmBytecode.configure {
+                dependsOn("compileKotlinDesktop")
+            }
+            tasks.withType(Task::class.java).named { taskName -> taskName == "desktopTest" }.configureEach {
+                // The `*VerificationTests` suites elaborate theorems against this module's Lean sources and lift
+                // classes with the bytecode script at test time, so these are test inputs: a change to a proof,
+                // model, or hook must rerun (and re-key the build cache for) the tests, not reuse stale results.
+                inputs.files(moduleLeanInputFiles)
+                    .withPropertyName("leanSources")
+                    .withPathSensitivity(PathSensitivity.RELATIVE)
+                inputs.files(sharedJvmLeanFiles)
+                    .withPropertyName("sharedJvmLeanSources")
+                    .withPathSensitivity(PathSensitivity.RELATIVE)
+                inputs.file(jvmBytecodeLiftScript)
+                    .withPropertyName("jvmBytecodeLiftScript")
+                    .withPathSensitivity(PathSensitivity.RELATIVE)
+                // Each test case spawns `lake env lean` (up to 4 GiB), so share the Lean concurrency limit.
+                usesService(leanTaskLimitingBuildService)
+                dependsOn(verifyLean)
+                dependsOn(
+                    provider {
+                        if (leanExtension.entries.isNotEmpty() ||
+                            leanExtension.kotlinBytecodeClassPaths.getOrElse(emptyList()).isNotEmpty()
+                        ) {
+                            listOf(verifyLeanJvmBytecode)
+                        } else {
+                            emptyList()
+                        }
+                    },
+                )
+            }
             extensions.configure(KotlinMultiplatformExtension::class.java) {
                 sourceSets.named("commonMain").configure {
                     kotlin.srcDir(generateLeanKotlin.flatMap { it.generatedSourcesDir })
@@ -153,7 +256,23 @@ class LeanConventionPlugin :
             }
         }
 
-        tasks.withType(Task::class.java).named { it == LifecycleBasePlugin.CHECK_TASK_NAME }.configureEach {
-            dependsOn(verifyLean, checkLeanGeneratedKotlin, checkLeanBuildScriptHygiene)
-        }
+        tasks
+            .withType(Task::class.java)
+            .named { it == LifecycleBasePlugin.CHECK_TASK_NAME }
+            .configureEach {
+                dependsOn(
+                    verifyLean,
+                    checkLeanGeneratedKotlin,
+                    checkLeanBuildScriptHygiene,
+                    provider {
+                        if (leanExtension.entries.isNotEmpty() ||
+                            leanExtension.kotlinBytecodeClassPaths.getOrElse(emptyList()).isNotEmpty()
+                        ) {
+                            listOf(verifyLeanJvmBytecode)
+                        } else {
+                            emptyList()
+                        }
+                    },
+                )
+            }
     })

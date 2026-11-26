@@ -73,6 +73,36 @@ roots = [
   "proofs.MacrocellProofs",
   "proofs.MacrocellDagProofs",
   "theorems.MacrocellTheorems",
+  "models.BitComputationModel",
+  "proofs.BitComputationModelProofs",
+  "theorems.BitComputationModelTheorems",
+  "models.HashLifeComputationModel",
+  "proofs.HashLifeComputationModelProofs",
+  "theorems.HashLifeComputationModelTheorems",
+  "models.MacroCellCoordinatesModel",
+  "proofs.MacroCellCoordinatesModelProofs",
+  "theorems.MacroCellCoordinatesModelTheorems",
+  "models.GameOfLifeStepModel",
+  "proofs.GameOfLifeStepModelProofs",
+  "theorems.GameOfLifeStepModelTheorems",
+  "models.CellWindowModel",
+  "proofs.CellWindowModelProofs",
+  "theorems.CellWindowModelTheorems",
+  "models.DeserializationResultModel",
+  "proofs.DeserializationResultModelProofs",
+  "theorems.DeserializationResultModelTheorems",
+  "models.CellStateModel",
+  "proofs.CellStateModelProofs",
+  "theorems.CellStateModelTheorems",
+  "models.HashLifeCacheModel",
+  "proofs.HashLifeCacheModelProofs",
+  "theorems.HashLifeCacheModelTheorems",
+  "JvmSemantics",
   "AxiomAudit",
 ]
+
+[[lean_lib]]
+name = "Jvm"
+srcDir = "../../jvm-lean"
+roots = ["Jvm", "Jvm.Instr", "Jvm.Semantics", "Jvm.FastExec", "Jvm.Proofs", "Jvm.Tactics", "Jvm.Audit"]
 

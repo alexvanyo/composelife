@@ -14,7 +14,7 @@
  * limitations under the License.
  -/
 
-import Lean
+import Jvm.Audit
 import GeometryTheorems
 import proofs.Mutations
 
@@ -24,82 +24,20 @@ import proofs.Mutations
 Fails the build if any master theorem or mutation proof depends on an axiom other than `propext`,
 `Classical.choice`, `Quot.sound` and the axioms `bv_check` adds. This catches `sorry`, custom axioms and
 `native_decide`.
-
-`bv_check` (like `bv_decide`) adds an axiom `<declaration>._native.bv_decide.ax_<n>` stating
-`verifyBVExpr <goal> <certificate> = true`, that the compiled LRAT checker accepts its certificate; these are
-allowed. Lean sources may not declare axioms themselves (`checkLeanBvCheck` rejects them), so only the tactic
-can add one.
 -/
-
-open Lean in
-/-- Whether `a` is an axiom added by `bv_check` or `bv_decide` to trust the compiled LRAT checker. -/
-def isBvCheckAxiom (env : Environment) (a : Name) : Bool :=
-  let named := match a with
-    | .str (.str (.str _ "_native") "bv_decide") _ => true
-    | _ => false
-  named && match env.find? a with
-    | some (.axiomInfo info) =>
-      info.type.isAppOfArity ``Eq 3 &&
-        (info.type.getArg! 1).isAppOf `Std.Tactic.BVDecide.Reflect.verifyBVExpr &&
-        (info.type.getArg! 2).isConstOf ``Bool.true
-    | _ => false
 
 open Lean Elab Command in
 /-- Checks the axioms of every theorem declared in the master theorem and mutation modules. -/
-elab "#audit_master_theorem_axioms" : command => do
-  let env ← getEnv
-  let allowed : List Name := [``propext, ``Classical.choice, ``Quot.sound]
-  let mut count := 0
-  for (n, ci) in env.constants.toList do
-    let some modIdx := env.getModuleIdxFor? n | continue
-    let mod := env.header.moduleNames[modIdx.toNat]!
-    unless mod == `GeometryTheorems || mod.toString.endsWith "Mutations" do continue
-    unless ci matches .thmInfo _ do continue
-    if n.isInternal then continue
-    count := count + 1
-    let axioms ← liftCoreM <| Lean.collectAxioms n
-    let bad := axioms.filter (fun a => !allowed.contains a && !isBvCheckAxiom env a)
-    unless bad.isEmpty do
-      logError m!"master theorem {n} depends on non-standard axioms: {bad.toList}"
-  if count == 0 then
-    logError "no master theorems found"
+elab "#audit_master_theorem_axioms" : command =>
+  Jvm.checkMasterTheoremAxioms (· == `GeometryTheorems)
 
 #audit_master_theorem_axioms
 
 open Lean Elab Command in
-/--
-Checks the `X` / `X_Impl` naming pattern of `docs/lean.md`: each master theorem `X` has no `_Impl`, `_spec` or
-`_thm` suffix and is exactly `X_Impl` applied to its parameters, and each `_Impl` theorem in a proof module is the
-proof of a master theorem.
--/
-elab "#audit_master_theorem_names" : command => do
-  let env ← getEnv
-  let moduleOf (n : Name) : Option Name := (env.getModuleIdxFor? n).map (env.header.moduleNames[·.toNat]!)
-  let isMaster (mod : Name) : Bool := mod == `GeometryTheorems
-  let isProof (mod : Name) : Bool := mod.getRoot == `proofs || mod == `GeometryProofs
-  let mut masters : NameSet := {}
-  for (n, ci) in env.constants.toList do
-    let some mod := moduleOf n | continue
-    unless isMaster mod do continue
-    let .thmInfo info := ci | continue
-    if n.isInternal then continue
-    masters := masters.insert n
-    let .str _ last := n | continue
-    for suffix in ["_Impl", "_spec", "_thm"] do
-      if last.endsWith suffix then
-        logError m!"master theorem {n} ends in `{suffix}`: name it for what it states"
-    let impl := n.appendAfter "_Impl"
-    let mut body := info.value
-    while body.isLambda do body := body.bindingBody!
-    unless body.getAppFn.isConstOf impl && body.getAppArgs.all (·.isBVar) do
-      logError m!"master theorem {n} must be `{impl}` applied to its parameters"
-  for (n, ci) in env.constants.toList do
-    unless ci matches .thmInfo _ do continue
-    let .str pre last := n | continue
-    unless last.endsWith "_Impl" do continue
-    let some mod := moduleOf n | continue
-    unless isProof mod do continue
-    unless masters.contains (.str pre (last.dropEnd 5).toString) do
-      logError m!"{n} is not the proof of a master theorem `{(last.dropEnd 5).toString}`"
+/-- Checks the `X` / `X_Impl` naming pattern for `GeometryTheorems`. -/
+elab "#audit_master_theorem_names" : command =>
+  Jvm.checkMasterTheoremNames
+    (· == `GeometryTheorems)
+    (fun mod => mod.getRoot == `proofs || mod == `GeometryProofs)
 
 #audit_master_theorem_names

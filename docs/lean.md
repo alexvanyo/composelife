@@ -1,8 +1,11 @@
 # Lean 4 Formal Verification Architecture
 
-ComposeLife uses [Lean 4](https://lean-lang.org/) and [Mathlib](https://github.com/leanprover-community/mathlib4) to formally specify, model, and verify core state machines, cellular automata algorithms, and continuous geometry routines. Verified Lean code is compiled directly to multiplatform Kotlin source code using Lean's Kotlin backend (`lean -K`), running across Android, Desktop JVM, and WebAssembly (Wasm).
+ComposeLife uses [Lean 4](https://lean-lang.org/) and [Mathlib](https://github.com/leanprover-community/mathlib4) in two complementary ways:
 
-This document normatively defines the formalization rules, 4-role architecture, type disciplines, and build system integration required for all Lean components in the repository.
+1. **Lean-first code generation (`lean -K`)**: Core state machines, cellular automata algorithms, and continuous geometry routines are written in Lean, formally proved against mathematical specifications, and compiled directly to multiplatform Kotlin running across Android, Desktop JVM, and WebAssembly (Wasm).
+2. **JVM bytecode verification (`jvm-lean`)**: Compiled JVM `.class` bytecode—both from Lean-generated Kotlin (`JvmBytecode.lean`) and from **existing hand-written Kotlin** (`KotlinJvmBytecode.lean`)—is lifted into Lean and proved equivalent to Lean models and domain theorems under a shared operational JVM semantics, with standard Kotlin `@Test` suites checking the live test-classpath bytecode.
+
+This document normatively defines the formalization rules, when and how to choose each approach, the 4-role architecture, shared JVM bytecode semantics, type disciplines, and build system integration required for all Lean components in the repository.
 
 ---
 
@@ -16,6 +19,25 @@ All code and verification in Lean must adhere to four strict rules, enforced by 
 | **R2** | **No Verbatim Kotlin in Build Scripts** | Verbatim Kotlin code must be kept to a minimum and must live exclusively in Kotlin source files (`src/commonMain/kotlin`) or Lean files (`FileSpec` / `kotlin_member`). **Never in Gradle build scripts (`*.gradle.kts`)**. | Automated build script hygiene check fails if any `*.gradle.kts` contains inline Kotlin blocks (`footerFile`, `preambleFile`, or Kotlin code strings). |
 | **R3** | **Fixed-Width Production Types** | Production (compiled) Lean code must use fixed-width programming types (`UInt8/16/32/64`, `Int8/16/32/64`, `Float`, `Bool`), never unbounded types (`Nat`, `Int`, `ℚ`) that emit `BigInteger`. Unbounded and continuous types are restricted to non-compiled specifications, models, and proofs. | `checkLeanGeneratedKotlin` fails if generated Kotlin code contains `BigInteger`, `Nat`, or `java.math`. |
 | **R4** | **Warnings as Errors** | All Lean builds and code generation invocations must treat warnings as fatal errors. | Lake verification runs with `--wfail`; Lean compiler runs with `-DwarningAsError=true`. |
+
+---
+
+## Choosing an Approach: Lean-First Codegen vs. Proving Existing Kotlin
+
+Use the table below to decide whether a component should be written in Lean and compiled to Kotlin, or kept in hand-written Kotlin and verified via JVM bytecode lifting:
+
+| Criterion | Write in Lean & Generate Kotlin (`lean -K`) | Keep Hand-Written Kotlin & Prove JVM Bytecode (`jvm-lean`) |
+|---|---|---|
+| **Best fit** | New or core pure algorithms, parsers, lookup tables, recursive trees/bitboards, and finite state machines (`HashLife`, `MacroCell`, `FlatHashLife`, `RLE`/`Life105`/`Life106`/`Plaintext`, `RayMarch`, `SessionValue`). | Existing idiomatic Kotlin functions using `inline value` classes, Compose geometry types (`Offset`, `IntOffset`), `@Composable` wrappers, Kotlin collections/`Set`/`List`, `<clinit>` tables, or Kotlin-specific stdlib calls (`BitComputationKt`, `HashLifeComputationKt`, `MacroCellCoordinatesKt`, `GameOfLifeStepKt`, `CellWindow`, `DeserializationResultKt`, `CellState`, `Cache`/`Equivalence`, `GeometryExtensionsKt`, `OffsetExtensionsKt`, `RectExtensionsKt`, `IntSizeLerpKt`, `LineSegmentKt`/`LineSegmentPath`, `BackstackNavigationKt`, `BackstackEntry`/`BackstackStateKt`, `ResourceStateKt`, `PeriodUntilKt`, `TargetStateKt`, `EasingPiecewiseKt`, `ColorComponentKt`, `WindowInsetsLerpKt`/`PaddingValuesExtensionsKt`/`NonNegativeLong`/`NonNegativeDouble`, `GridDraggableAnchors2d`/`MutableCellWindowViewportStateImpl`, `serialization` serializers, `mosaic-calculator`). |
+| **Multiplatform artifact** | Emits `commonMain` Kotlin automatically for Android, Desktop JVM, and Wasm from one verified source. | Production Kotlin remains untouched in `commonMain`/`jvmMain`; verification applies directly to the compiled JVM `.class` bytecode. |
+| **What is verified** | Master theorems prove properties of the Lean source definitions; `JvmEquiv` separately proves the JVM bytecode emitted by `kotlinc` matches those Lean definitions. | A standalone Lean model + domain theorems are proved in Lean (never using codegen as the source of truth), and a JVM equivalence proof links the real `.class` bytecode to that model. |
+| **Compiler assumptions** | Trusts the custom Lean-to-Kotlin compiler (`av/jvm`) and any `kotlin_expr`/`FileSpec` shims to match Lean execution semantics. | Trusts `jvm-lean`'s operational model of JVM bytecode instructions and module hooks (`<clinit>`, Kotlin stdlib/Compose inline helpers) to match the JVM runtime. |
+| **Gradle / Test integration** | `verifyLean`, `generateLeanKotlin`, `checkLeanGeneratedKotlin`, and `verifyLeanJvmBytecode` (for `JvmBytecode.lean`). | `verifyLeanJvmBytecode` (`kotlinBytecodeClassPaths` -> `KotlinJvmBytecode.lean` + `#audit_jvm_equiv_axioms`) plus optional Kotlin `@Test` suites via `:lean-test-fixtures`. |
+
+Rule of thumb:
+- **Prefer Lean-first codegen** when designing self-contained computational kernels or state machines whose API can be exposed cleanly with `@[export]` / `kotlin_member`.
+- **Prefer JVM bytecode verification** when the code is already written in idiomatic Kotlin, relies on Kotlin/Compose value classes or standard collections (`List`/`Set`/`Iterator`), or when you want to verify existing Kotlin without rewriting it into Lean.
+- **Note on trust boundaries**: Lean-first components covered by `verifyLeanJvmBytecode` also gain end-to-end JVM assurance—their source Lean proofs connect through `JvmEquiv` proofs all the way down to the compiled `.class` instructions produced by `kotlinc`.
 
 ---
 
@@ -274,21 +296,114 @@ The Gradle convention plugin `com.alexvanyo.composelife.lean` (configured in `bu
 
 ### Configured Tasks
 - `cacheLean`: Runs `lake exe cache get` with task concurrency limits.
-- `verifyLean`: Runs `lake build --wfail <Target>:static`, failing on any warning. Automatically hooked into `./gradlew check`.
-- `generateLeanKotlin`: Runs `lean` with `-DwarningAsError=true` and `-K`, outputting Kotlin into Gradle's generated sources directory. Automatically added to `commonMain` source set.
+- `verifyLean`: Runs `lake build --wfail <Target>:static`, failing on any warning. Automatically hooked into `./gradlew check`. Its stamp only counts as up to date while Lake's build of the target (`.lake/build`) still exists, so a `lake clean` reruns it.
+- `generateLeanKotlin`: Runs `lean` with `-j 2 -M 4096 -DwarningAsError=true` and `-K`, outputting Kotlin into Gradle's generated sources directory. Automatically added to `commonMain` source set.
 - `checkLeanGeneratedKotlin`: Inspects generated Kotlin to ensure no `BigInteger`, `Nat`, or `java.math` imports are present.
 - `checkLeanBuildScriptHygiene`: Asserts no verbatim Kotlin code is embedded in `build.gradle.kts`.
+- `verifyLeanJvmBytecode`: Lifts compiled desktop JVM `.class` outputs from both generated `entries` (`JvmBytecode.lean`) and `kotlinBytecodeClassPaths` (`KotlinJvmBytecode.lean`) via `script/jvm-bytecode2lean.py`, compiles `proofs/JvmEquiv/*.lean` and `proofs/KotlinJvmEquiv/*.lean` submodules in topological order (recompiling the bytecode olean and each submodule only when the lift, a dependency olean, or the source changed), and elaborates `proofs/JvmEquiv.lean` / `proofs/KotlinJvmEquiv.lean` with `-DwarningAsError=true -j 2 -M 4096`. Hooked into `desktopTest` and `check` whenever `entries` or `kotlinBytecodeClassPaths` is non-empty. Lifting is `--strict`: every method of every lifted class must lift, except the `<internal class>.<method>` entries listed in `lean { kotlinBytecodeUnliftedMethods }` (each of which must still exist and still fail to lift), and every `kotlinBytecodeClassPaths` entry must match compiled classes.
+
+### Resource & Memory Caps
+Lean elaboration and symbolic JVM stepping can allocate significant memory if unbounded:
+- All Gradle Lean invocations (`generateLeanKotlin` and `verifyLeanJvmBytecode`) and `:lean-test-fixtures` desktop test runs pass `-j 2 -M 4096` (capping each `lean` process to 4 GiB and 2 threads).
+- `verifyLean`, `generateLeanKotlin`, `verifyLeanJvmBytecode`, and the `desktopTest` task (whose `*VerificationTests` start `lake env lean`) acquire `leanTaskLimitingBuildService` (default `maxParallelUsages = 1`, configurable via `-Pcom.alexvanyo.composelife.maxConcurrentLeanTasks=...`) so multiple modules do not run concurrent Lean builds under Gradle `--parallel`.
 
 ### Verification Commands
 ```bash
 # Verify Lean formalization across modules
-./gradlew :session-value:verifyLean
-./gradlew :geometry:verifyLean
-./gradlew :algorithm:verifyLean
+./gradlew :session-value:verifyLean :geometry:verifyLean :algorithm:verifyLean \
+  :navigation:verifyLean :resource-state:verifyLean :time-util:verifyLean \
+  :ui-common:verifyLean :ui-cells:verifyLean :serialization:verifyLean :mosaic-calculator:verifyLean
 
-# Full check including proof verification, codegen checks, and test suites
+# Lift compiled JVM bytecode and check JvmEquiv / KotlinJvmEquiv proofs
+./gradlew :session-value:verifyLeanJvmBytecode :geometry:verifyLeanJvmBytecode \
+  :algorithm:verifyLeanJvmBytecode :navigation:verifyLeanJvmBytecode \
+  :resource-state:verifyLeanJvmBytecode :time-util:verifyLeanJvmBytecode \
+  :ui-common:verifyLeanJvmBytecode :ui-cells:verifyLeanJvmBytecode \
+  :serialization:verifyLeanJvmBytecode :mosaic-calculator:verifyLeanJvmBytecode
+
+# Run Kotlin @Test bytecode verification suites on desktop JVM
+./gradlew :algorithm:desktopTest --tests "*.BitComputationVerificationTests"
+./gradlew :geometry:desktopTest --tests "*.GeometryExtensionsVerificationTests"
+
+# Full check including proof verification, codegen checks, bytecode audits, and test suites
 ./gradlew check
 ```
+
+---
+
+## JVM Bytecode Semantics & Verifying Existing Kotlin
+
+When verifying existing hand-written Kotlin (or validating the JVM bytecode produced for Lean-generated Kotlin), proofs connect directly to the compiled JVM instructions via the shared `jvm-lean` library and module-level bytecode harnesses.
+
+### Shared JVM Semantics Library (`jvm-lean`)
+
+Each Lean package (`session-value/lean`, `geometry/lean`, `algorithm/lean`, `navigation/lean`, `resource-state/lean`, `time-util/lean`, `ui-common/lean`, `ui-cells/lean`, `serialization/lean`, `mosaic-calculator/lean`) includes `jvm-lean` as a `[[lean_lib]]` dependency (`Jvm`):
+
+| Module | Role |
+|---|---|
+| `Jvm.Instr` | Pure Lean AST (`JvmInstr`) of JVM bytecode instructions: stack/local loads & stores, `i32`/`i64`/`f32`/`f64` arithmetic & conversions, conditional/unconditional jumps, `tableswitch`/`lookupswitch`, primitive & object array accesses, field & method calls (`invokevirtual`, `invokespecial`, `invokestatic`, `invokeinterface`), object instantiation, `checkcast`/`instanceof`, `invokedynamic`, `athrow` (always fails closed: exception handlers are not modelled), and returns. Monitors and `dup_x*`/`dup2*`/`pop2` are not supported; the lifter rejects them. |
+| `Jvm.Semantics` | Operational state & interpreter: `JvmVal Ext` (primitives `.i32`/`.i64`/`.f32`/`.f64`/`.bool`, references `.null`/`.heapRef`/`.str`/`.strArr`/`.allocRef`/`.pair`, boxed wrappers, and module extensions `.ext Ext`), `HeapObj Ext` (mutable typed primitive arrays, `objArray cls elems`, `stringBuilder`, `instance cls fields`), `JvmHeap Ext` (including static field tables), `JvmHooks Ext Heap` (module-specific extension hooks for `checkInstanceOf`, `checkCast`, `isSubtypeOf`, static/virtual/special/interface dispatch, and `beqExt`/`beqRefExt`), and fuel-bounded evaluators `runJvm` / `runJvmRes`. |
+| `Jvm.FastExec` & `Jvm.Proofs` | Continuation/block-chunked evaluators (`runJvmValFast`, `runJvmResFast`, `stepBlockChunk`, `stepResBlockChunk`) proved equivalent to `runJvm`/`runJvmRes` (`runJvm_of_runJvmValFast0`, `runJvmRes_of_runJvmResFast0`), paired with opcode, call, and branch-normalization lemmas (`evalBranchInstrCons_*`, `evalResBranchInstrCons_*`, `runJvmResFast_invokestatic_step`, `runJvmResFast_invokeinterface_step`, `step_aastore`, etc.) so symbolic proofs avoid exploding `whnf`/`isDefEq`. |
+| `Jvm.Tactics` | Meta-level normalization tactics (`normJvmBlkExpr`, `normJvmLocalsExpr`, `fastDropListEq`, `defaultEvalBranchThm`) used by module steppers (`jvm_step_blk0`, `jvm_step_blk`, etc.). |
+| `Jvm.Audit` | Implements `#audit_jvm_equiv_axioms` and shared master-theorem audit helpers. |
+
+Key safety & soundness invariants in `Jvm.Semantics`:
+- **Fail-closed decoding**: `.asI32?`, `.asI64?`, `.asF32?`, `.asF64?` return `Option` (`none` traps execution to `none` instead of synthesizing bogus default integers or floats).
+- **Division, bounds, and array checks**: Integer division/remainder by zero returns `none`; `newarray`/`anewarray` reject negative sizes (`slt 0#32`); primitive/object array loads/stores check bounds (`idx.toNat < size`) and `isArrayElemCompat`; `if_acmpeq`/`if_acmpne` use partial `JvmVal.refEq?` so undecidable/unboxed comparisons fail closed rather than silently evaluating equal.
+- **Equality, strings, and conversions**: `Intrinsics.areEqual` and `toSet` deduplication only use the generic `JvmVal.beqVal` when `JvmVal.equalsModeled` holds for every operand (references to `.instance` heap objects may override `equals`, so they defer to the module hook instead of comparing addresses; dangling references are not modeled either). Theorems about code that compares generic values, such as ui-common's `TargetState.InProgress` constructor, `copy`, `map` and `equals`, therefore take `equalsModeled` hypotheses on those values; `Jvm.jvmVal_equalsModeled_set_instance` and `Jvm.jvmVal_equalsModeled_alloc` carry them across `putfield` and allocation. A JVM `char` that is a lone UTF-16 surrogate cannot be represented in a Lean `String`, so `char` concatenation, `StringBuilder.append(C)` and `concatToString` fail closed on it (`utf16UnitToChar?`, `decodeUtf16?`, which also combines surrogate pairs); `makeConcatWithConstants` recipes containing `\u0002` constants fail closed because the lifter does not carry bootstrap constants. `l2f` (`i64ToFloat32`) rounds once, directly from the integer, as the JVM does.
+- **Trusted modelling limits**: `instanceof` returns a `Bool`, so a module's `isSubtypeOf`/`checkInstanceOf` tables must be complete for every class a proof tests (a missing supertype makes `instanceof` wrongly false rather than failing). Instance fields are keyed by name only (a subclass field that shadows a superclass field of the same name would share a slot), and the `ArrayList` iterator does not model `ConcurrentModificationException`. `dup`/`pop` do not reject category-2 values; this relies on the JVM verifier, which rejects such class files at load time (the lifter does not support `dup2`/`pop2`).
+- **Module-specific hooks (`<module>/lean/JvmSemantics.lean`)**:
+  - `session-value/lean/JvmSemantics.lean` (`svHooks`): Models `SessionValue` classes/helpers with `SessionValueExt` and `Unit` module heap.
+  - `geometry/lean/JvmSemantics.lean` (`geomHooks`): Uses `Empty`/`Unit` (standard `JvmHeap` objects/arrays only) plus hooks for Compose `IntOffset` / `Offset` packing/boxing (`getX-impl`, `getY-impl`, `box-impl`, `unbox-impl`, `plus-qkQi6aY`, `IntOffset_jbKt.IntOffset`), `java/lang/Float.intBitsToFloat`, `java/lang/Math.floor`, `java/lang/Math.signum`, `IntOffset` `checkInstanceOf`/`checkCast`, and array-backed `java/lang/Iterable` / `java/util/List` / `ArrayList` / `Set`.
+  - `algorithm/lean/JvmSemantics.lean` (`algHooks`): Adds `AlgExt` / `AlgHeap` for `MacroCell` nodes, `Arena` refs, and `ULongArray` refs alongside `JvmHeap`. Note the documented soundness boundary for `algorithm/lean`: `.arena*Ref` and `.u64Ref` fast paths use Lean's total `Array.get!`/`set!` (while `ULongArray.constructor-impl(I)[J` checks negative sizes fail-closed and arithmetic/bit operations use fail-closed `.asI32?`/`.asI64?`), whereas generic `HeapObj` arrays in `jvm-lean` enforce full bounds and element compatibility checks.
+    For the hand-written Kotlin in `KotlinJvmBytecode` (`HashLifeComputationKt`, `MacroCellCoordinatesKt`, `GameOfLifeStepKt`, `CellWindow`), `mkAlgKotlinHooks resolveProg depth fuel` extends these hooks: calls between lifted classes run the callee's lifted program (looked up by `"<Class>.<method>:<descriptor>"`, see `proofs/KotlinJvmEquiv/AlgKotlinProgs.lean`), and leaf hooks model Compose `IntOffset`/`IntRect`, `LinkedHashSet`/`ArrayList`/`IntRange`, `getMooreNeighbors` (geometry's verified model) and the Lean-compiled `f_Algorithm_*` functions, with each trusted assumption documented in `JvmSemantics.lean`.
+  - `navigation/lean/JvmSemantics.lean`: Models `BackstackEntry` / `BackstackState` / `MutableBackstackState` value payloads (`NavValue`, `NavExt`) and map/list operations for `BackstackNavigationKt`.
+  - `resource-state/lean/JvmSemantics.lean`: Models `ResourceState` sealed hierarchy (`Loading`, `Success`, `Failure`), payload values (`RsVal`), and `Pair` / lambda hooks for `ResourceStateKt`.
+  - `time-util/lean/JvmSemantics.lean`: Models `kotlinx.datetime` `Instant` / `DateTimePeriod` / `DateTimeUnit` / `TimeZone` / `Clock` plus Compose `Composer` slot-table helpers (`composerEmpty`, `composer`, `stateRef`, `remember` / `LaunchedEffect` / `mutableStateOf`) to verify `PeriodUntilKt` including its `@Composable` wrappers on initial composition.
+  - `ui-common/lean/JvmSemantics.lean`: Models `TargetState` (`Single`, `InProgress`, `copy`, `map`, `equals`), `Easing` / `EasingPiecewise` (`UiEasing`, `UiExt`), stable `sortedWith`, and module-internal static-call dispatch.
+  - `mosaic-calculator/lean/JvmSemantics.lean`: Combines `ComposeSemantics` and `MosaicSemantics` with `CalcExt` to verify a handwritten Kotlin calculator model and its `@Composable` Mosaic UI.
+
+### Bytecode Lifting (`script/jvm-bytecode2lean.py`)
+
+`script/jvm-bytecode2lean.py` disassembles `.class` files using `javap -v -p` and emits pure `List JvmInstr` Lean definitions. No semantics live in the Python script; it supports `--instr-type`, `--require` (to fail if expected method symbols are missing), `--strict` / `--allow-unlifted` (fail on any method outside the instruction subset unless explicitly listed), and constant-pool decoding (`ldc`, `ldc2_w`, `tableswitch`, `lookupswitch`). Member references inside a class are qualified with the class's full internal name (from `javap`'s `this_class`), exactly like references from other classes.
+
+Names never depend on which other classes are lifted or in what order. Overloads within one class are numbered `_1`, `_2`, … in class-file order. Hand-written Kotlin (`KotlinJvmBytecode`, and the test-time `RealJvmBytecode`) is lifted with `--qualify-names`: every definition is `<ClassSimpleName>_<method>_prog` (`<Class>_init_prog` for constructors, `<Class>_clinit_prog` for static initializers), so the Gradle and test lifts always agree. Lean-generated classes (`JvmBytecode`) keep `<method>_prog` (`clinit_<Class>_prog` for static initializers) and prefix the class name only on a name that several classes produce; a later collision therefore removes the unprefixed name (a compile error) rather than silently re-pointing it.
+
+### Workflow: Proving an Existing Kotlin Function
+
+Follow these five steps to verify hand-written Kotlin without rewriting the production implementation into Lean:
+
+1. **Configure bytecode lifting in `<module>/build.gradle.kts`**:
+   Add the target `.class` path under the `lean` block (only desktop JVM `.class` files under `build/classes/kotlin/desktop/main` are inspected):
+   ```kotlin
+   lean {
+       target = "Geometry:static"
+       packageName = "com.alexvanyo.composelife.geometry"
+       kotlinBytecodeClassPaths.add("com/alexvanyo/composelife/geometry/GeometryExtensionsKt.class")
+   }
+   ```
+   Running `./gradlew :<module>:verifyLeanJvmBytecode` lifts those methods into `<module>/build/generated/lean/jvm/KotlinJvmBytecode.lean`.
+
+2. **Write an independent Lean model (`<module>/lean/models/<Name>Model.lean`)**:
+   Model the intended behavior directly from first principles and Kotlin semantics using fixed-width/list/grid types (never using Lean-to-Kotlin codegen output as the spec). Export any helper types or predicates needed downstream.
+
+3. **Prove properties of the model (`<module>/lean/proofs/<Name>ModelProofs.lean`, `<module>/lean/theorems/<Name>ModelTheorems.lean`)**:
+   State clear domain guarantees (invariants, round-trips, metric inequalities, exact Conway transition equivalence) with zero `sorry` and zero custom axioms (using `bv_check` with stored `.lrat` certificates for bit-level proofs).
+
+4. **Prove JVM bytecode equivalence (`<module>/lean/proofs/KotlinJvmEquiv/<Name>.lean` + `proofs/KotlinJvmEquiv.lean`)**:
+   - Prove that executing `runJvm` / `runJvmRes` on `<fn>_prog` returns the exact result/heap effect of your Lean model (and if static fields/lookup tables are used, prove `<clinit>_prog` establishes a heap invariant such as `HasQuadInfoLut` or `HasGeometryNeighborLuts`, and assume that invariant on methods reading the static fields).
+   - End `proofs/KotlinJvmEquiv.lean` with:
+     ```lean
+     #audit_jvm_equiv_axioms <Module>.KotlinJvmVerification <Module>.KotlinJvmBytecode
+     ```
+     This build-time command fails if any verification theorem relies on `sorry` or non-standard axioms, or if any lifted `*_prog` in the target class lacks an equivalence theorem: one whose conclusion runs the program (`runJvm*`) and none of whose hypotheses already assume something about running it.
+
+5. **Expose theorems as standard Kotlin `@Test` cases (`:lean-test-fixtures`)**:
+   Add a `*VerificationTests.kt` test class in `<module>/src/desktopTest/...` using `JvmBytecodeVerificationSpec` and `verifyTheorem` from `lean-test-fixtures`:
+   - `JvmBytecodeLeanVerifier.verifyBytecodeTheorem` loads the **live `.class` resource from the test runtime classpath**, verifies its `0xCAFEBABE` header, lifts it via `script/jvm-bytecode2lean.py` into `RealJvmBytecode`, and compiles it to an `.olean`.
+   - It then elaborates the theorem stated in the `@Test` against `RealJvmBytecode` (using `lake env lean -DwarningAsError=true -j 2 -M 4096`), rejecting forbidden constructs (`sorry`, `admit`, `axiom`, `bv_decide`, `unsafe`, `partial`, `initialize`, anything that runs metaprograms (`run_meta`, `run_elab`, `run_cmd`, `run_tac`, `by_elab`, `#eval`, `#exit`, `elab`, `macro`, `syntax`), `set_option debug.*`/`trust*`, and `implemented_by`/`extern`/`csimp` attributes) via `validateLeanBody`, checking via `run_meta` that the theorem is non-trivial, that its conclusion runs (`runJvm*`) a `RealJvmBytecode` program, and that no hypothesis assumes running one, and asserting `#print axioms` reports only standard core axioms (`propext`, `Classical.choice`, `Quot.sound`) or LRAT `bv_check` axioms (`._native.bv_decide.`).
+   - The convention plugin declares the module's Lean sources (`moduleLeanInputFiles`), the shared `jvm-lean` sources, and `script/jvm-bytecode2lean.py` as `desktopTest` inputs, so changing a proof, model, or hook reruns these suites instead of reusing an up-to-date or build-cached result.
+   - See [BitComputationVerificationTests.kt](file:///home/xela/Projects/composelife/algorithm/src/desktopTest/kotlin/com/alexvanyo/composelife/algorithm/BitComputationVerificationTests.kt) and [GeometryExtensionsVerificationTests.kt](file:///home/xela/Projects/composelife/geometry/src/desktopTest/kotlin/com/alexvanyo/composelife/geometry/GeometryExtensionsVerificationTests.kt) for complete examples.
 
 ---
 
@@ -309,9 +424,9 @@ code. A plain `grep axiom` does not find natively evaluated axioms; only `#print
 Each package checks this on every build. Its `AxiomAudit.lean` root module runs `#audit_master_theorem_axioms`,
 which collects the axioms of every theorem in the master theorem and mutation modules and fails the build if any
 is neither standard nor a `bv_check` axiom (named `<declaration>._native.bv_decide.ax_<n>` and stating
-`verifyBVExpr … = true`). Because a hand-written `axiom` could copy that name and statement, `checkLeanBvCheck`
+`verifyBVExpr … = true`) whose certificate the audit re-checks by running the compiled LRAT checker again (`Jvm.isVerifiedJvmBvCheckAxiom`), so an axiom of that shape added by a metaprogram with a false certificate is rejected. Because a hand-written `axiom` could copy that name and statement, `checkLeanBvCheck`
 also rejects every `axiom` declaration in the Lean sources. `verifyLean` (`lake build --wfail`)
-therefore fails on any other axiom. To inspect a single theorem:
+therefore fails on any other axiom. Additionally, `#audit_jvm_equiv_axioms <VerifNs> <BytecodeNs>` (defined in `jvm-lean/Jvm/Audit.lean` and run by `proofs/JvmEquiv.lean` and `proofs/KotlinJvmEquiv.lean`) checks that no custom axioms or `sorry` are used in bytecode equivalence namespaces and that every lifted `*_prog` has a non-trivial equivalence theorem. To inspect a single theorem:
 ```lean
 #print axioms computeNextGen4x4_correct
 ```

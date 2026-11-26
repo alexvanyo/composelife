@@ -111,7 +111,7 @@ private class MutableCellWindowViewportStateImpl(
     override var scaleRange: ClosedRange<Float>
         get() = _scaleRange
         set(value) {
-            require(!scaleRange.isEmpty()) { "scaleRange cannot be empty" }
+            require(!value.isEmpty()) { "scaleRange cannot be empty" }
             _scaleRange = value
             // Set scale, to coerce the value to the new range (if necessary)
             setScale(scale)
