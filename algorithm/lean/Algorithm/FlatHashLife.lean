@@ -1622,9 +1622,6 @@ def cellsToMacroCell (cells : Array UInt64) : UInt64 × UInt64 × MacroCell :=
 
 @[kotlin_file]
 def flatHashLifeFileSpec : FileSpec := {
-  fileAnnotations := #[
-    "@file:OptIn(ExperimentalUnsignedTypes::class)"
-  ]
   imports := #[
     "import com.alexvanyo.composelife.model.MacroCell",
     "import com.alexvanyo.composelife.model.emptyLevel4",

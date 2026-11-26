@@ -16,72 +16,40 @@
 
 package com.alexvanyo.composelife.model
 
-import androidx.compose.ui.unit.IntOffset
-import com.alexvanyo.composelife.parameterizedstring.ParameterizedString
-
+@OptIn(ExperimentalUnsignedTypes::class)
 object Life106CellStateSerializer : FixedFormatCellStateSerializer {
     override val format: CellStateFormat.FixedFormat = CellStateFormat.FixedFormat.Life106
 
-    @Suppress("ReturnCount")
     override fun deserializeToCellState(lines: Sequence<String>): DeserializationResult {
-        val warnings = mutableListOf<ParameterizedString>()
-        var lineIndex = 0
+        val result = f_Algorithm_deserializeLife106(lines.toList().toTypedArray())
 
-        val iterator = lines.iterator()
+        return when (val status = result.status) {
+            is Life106Status.Ok -> DeserializationResult.Successful(
+                warnings = emptyList(),
+                cellState = CellState(leanCellsToOffsets(result.cells)),
+                format = CellStateFormat.FixedFormat.Life106,
+            )
 
-        if (!iterator.hasNext()) {
-            warnings.add(UnexpectedEmptyFileMessage)
-
-            return DeserializationResult.Successful(
-                warnings = warnings,
+            is Life106Status.EmptyFile -> DeserializationResult.Successful(
+                warnings = listOf(UnexpectedEmptyFileMessage),
                 cellState = emptyCellState(),
                 format = CellStateFormat.FixedFormat.Life106,
             )
-        }
 
-        val headerLine = iterator.next()
-        if (headerLine != "#Life 1.06") {
-            return DeserializationResult.Unsuccessful(
-                warnings = warnings,
-                errors =
-                listOf(
-                    UnexpectedHeaderMessage(headerLine),
-                ),
+            is Life106Status.InvalidHeader -> DeserializationResult.Unsuccessful(
+                warnings = emptyList(),
+                errors = listOf(UnexpectedHeaderMessage(status.line)),
+            )
+
+            is Life106Status.InvalidLine -> DeserializationResult.Unsuccessful(
+                warnings = emptyList(),
+                errors = listOf(UnexpectedInputMessage(status.line, status.lineIndex.toInt(), 0)),
             )
         }
-        lineIndex++
-
-        val aliveCells = mutableSetOf<IntOffset>()
-
-        while (iterator.hasNext()) {
-            val line = iterator.next()
-
-            val matchResult = Regex("""(\d+) (\d+)""").matchEntire(line)
-
-            if (matchResult == null) {
-                return DeserializationResult.Unsuccessful(
-                    warnings = warnings,
-                    errors =
-                    listOf(
-                        UnexpectedInputMessage(line, lineIndex + 1, 0),
-                    ),
-                )
-            } else {
-                val x = matchResult.groupValues[1].toInt()
-                val y = matchResult.groupValues[2].toInt()
-                aliveCells.add(IntOffset(x, y))
-            }
-        }
-
-        return DeserializationResult.Successful(
-            warnings = warnings,
-            cellState = CellState(aliveCells),
-            format = CellStateFormat.FixedFormat.Life106,
-        )
     }
 
-    override fun serializeToString(cellState: CellState): Sequence<String> = sequence {
-        yield("#Life 1.06")
-        yieldAll(cellState.aliveCells.map { "${it.x} ${it.y}" })
+    override fun serializeToString(cellState: CellState): Sequence<String> {
+        val lines = f_Algorithm_serializeLife106(cellState.aliveCells.toLeanCells())
+        return lines.asSequence().map { it as String }
     }
 }

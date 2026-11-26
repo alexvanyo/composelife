@@ -59,7 +59,7 @@ theorem flat_initEmptyNodes_wf {a : FlatHashLifeArena}
       a.initEmptyNodes.cellCount = 56 ∧ a.initEmptyNodes.l4Mask = a.l4Mask ∧
       a.initEmptyNodes.cellMask = a.cellMask ∧ a.initEmptyNodes.remapL4 = a.remapL4 ∧
       a.initEmptyNodes.remapCell = a.remapCell :=
-  flat_initEmptyNodes_Impl hl4 hcell hmask
+  flat_initEmptyNodes_wf_Impl hl4 hcell hmask
 
 /--
 Interning a Level 4 node keeps the arena well-formed and every existing node intact, and unless the arena
@@ -70,7 +70,7 @@ theorem flat_internLevel4_correct {a : FlatHashLifeArena} (hwf : ArenaWF a) (nw 
     ((a.internLevel4 nw ne sw se).2.overflow = 0 →
       (a.internLevel4 nw ne sw se).1 < (a.internLevel4 nw ne sw se).2.l4Count ∧
       denoteLevel4 (a.internLevel4 nw ne sw se).2 (a.internLevel4 nw ne sw se).1 = makeLevel4Node nw ne sw se) :=
-  flat_internLevel4_Impl hwf nw ne sw se
+  flat_internLevel4_correct_Impl hwf nw ne sw se
 
 /--
 Interning a CellNode whose children are nodes one level down keeps the arena well-formed and every existing
@@ -84,7 +84,7 @@ theorem flat_internCellNode_correct {a : FlatHashLifeArena} (hwf : ArenaWF a) {l
     ((a.internCellNode lvl nw ne sw se).2.overflow = 0 →
       NodeIs (a.internCellNode lvl nw ne sw se).2 (h + 1) (a.internCellNode lvl nw ne sw se).1
         (makeCellNode m1 m2 m3 m4)) :=
-  flat_internCellNode_Impl hwf hl h1 h2 h3 h4
+  flat_internCellNode_correct_Impl hwf hl h1 h2 h3 h4
 
 /--
 Importing a Level 4 pattern whose top-left corner is `(ox, oy)` keeps the arena well-formed and every
@@ -108,7 +108,7 @@ theorem flat_importLevel4Root_correct {a : FlatHashLifeArena} (hwf : ArenaWF a) 
     (-2 ^ 31 ≤ ox.toInt - 24 → -2 ^ 31 ≤ oy.toInt - 24 →
       (a.importLevel4Root ox oy nw ne sw se).2.overflow = 0 →
       (a.importLevel4Root ox oy nw ne sw se).1.2.2 ≠ UNCOMPUTED) :=
-  flat_importLevel4Root_Impl hwf ox oy nw ne sw se
+  flat_importLevel4Root_correct_Impl hwf ox oy nw ne sw se
 
 /--
 The flat engine's generation function (`flatNextGeneration`: expand if needed, then one HashLife step)
@@ -118,7 +118,7 @@ theorem flat_nextGeneration_equivalence (st : HashLifeCellState)
     (h_wf : isWellFormed st.macroCell) (h_depth : st.macroCell.depth ≤ 30) :
     isWellFormed (flatNextGeneration st).macroCell ∧
     ∀ c, c ∈ hashLifeToGrid (flatNextGeneration st) ↔ c ∈ stepGrid (hashLifeToGrid st) :=
-  flat_nextGeneration_Impl st h_wf h_depth
+  flat_nextGeneration_equivalence_Impl st h_wf h_depth
 
 /--
 Master single-generation theorem for the compiled flat engine: `stepOneGeneration` keeps the arena
@@ -141,7 +141,7 @@ theorem flat_stepOneGeneration_correct {a : FlatHashLifeArena} (hwf : ArenaWF a)
         (stepGrid (hashLifeToGrid (flatState a ox oy root))) = true) ∧
     (root < a.cellCount → flatStepInRange (flatState a ox oy root) →
       (a.stepOneGeneration ox oy root).2.overflow = 0 → (a.stepOneGeneration ox oy root).1.2.2 ≠ UNCOMPUTED) :=
-  flat_stepOneGeneration_Impl hwf ox oy root
+  flat_stepOneGeneration_correct_Impl hwf ox oy root
 
 /--
 Success condition for one step, on the input only: `stepOneGeneration` succeeds whenever the root is valid, its
@@ -154,8 +154,7 @@ theorem flat_stepOneGeneration_succeeds {a : FlatHashLifeArena} (hwf : ArenaWF a
     (hcy : -2 ^ 30 ≤ (windowCenter (flatState a ox oy root)).2 ∧ (windowCenter (flatState a ox oy root)).2 ≤ 2 ^ 30)
     (hov : (a.stepOneGeneration ox oy root).2.overflow = 0) :
     (a.stepOneGeneration ox oy root).1.2.2 ≠ UNCOMPUTED :=
-  (flat_stepOneGeneration_Impl hwf ox oy root).2.2.2 hid
-    (flatStepInRange_of_center _ (flatState_isWellFormed hwf hid ox oy) hd hcx hcy) hov
+  flat_stepOneGeneration_succeeds_Impl hwf ox oy root hid hd hcx hcy hov
 
 /--
 A full node table is the only failure one step can report: when the work stack `remapL4` has room for 26 frames
@@ -169,7 +168,7 @@ theorem flat_stepOneGeneration_fails_only_when_full {a : FlatHashLifeArena} (hwf
     (hmask : a.cellMask.toNat < 2 ^ 28) :
     (a.stepOneGeneration ox oy root).2.overflow ≠ 0 →
       a.overflow ≠ 0 ∨ ArenaFull (a.stepOneGeneration ox oy root).2 :=
-  stepOneGeneration_budget hwf ox oy root hsz hsz' hmask
+  flat_stepOneGeneration_fails_only_when_full_Impl hwf ox oy root hsz hsz' hmask
 
 /--
 `FlatLeanHashLifeAlgorithm` steps with `stepOneGenerationInto`, which passes exactly the components of
@@ -181,7 +180,7 @@ theorem flat_stepOneGenerationInto_eq {β : Type} (a : FlatHashLifeArena) (ox oy
     a.stepOneGenerationInto ox oy root k =
       (k (a.stepOneGeneration ox oy root).1.1 (a.stepOneGeneration ox oy root).1.2.1
         (a.stepOneGeneration ox oy root).1.2.2, (a.stepOneGeneration ox oy root).2) :=
-  rfl
+  flat_stepOneGenerationInto_eq_Impl a ox oy root k
 
 /--
 Master multi-generation theorem: `n` successive steps keep the arena well-formed and every existing node intact;
@@ -205,9 +204,7 @@ theorem flat_stepOneGenerationN_correct (n : ℕ) {a : FlatHashLifeArena} (hwf :
       (-2 ^ 30 ≤ (windowCenter (flatState a ox oy root)).1 ∧ (windowCenter (flatState a ox oy root)).1 ≤ 2 ^ 30) →
       (-2 ^ 30 ≤ (windowCenter (flatState a ox oy root)).2 ∧ (windowCenter (flatState a ox oy root)).2 ≤ 2 ^ 30) →
       (a.stepOneGenerationN n ox oy root).2.overflow = 0 → (a.stepOneGenerationN n ox oy root).1.2.2 ≠ UNCOMPUTED) :=
-  have h := flat_stepOneGenerationN_Impl n hwf ox oy root hid
-  have l := stepOneGenerationN_live n hwf ox oy root hid
-  ⟨h.1, l.1, h.2, l.2⟩
+  flat_stepOneGenerationN_correct_Impl n hwf ox oy root hid
 
 /--
 A full node table is the only failure `n` steps can report, under the capacity assumptions of
@@ -218,7 +215,7 @@ theorem flat_stepOneGenerationN_fails_only_when_full (n : ℕ) {a : FlatHashLife
     (hmask : a.cellMask.toNat < 2 ^ 28) :
     (a.stepOneGenerationN n ox oy root).2.overflow ≠ 0 →
       a.overflow ≠ 0 ∨ ArenaFull (a.stepOneGenerationN n ox oy root).2 :=
-  stepOneGenerationN_budget n hwf ox oy root hsz hsz' hmask
+  flat_stepOneGenerationN_fails_only_when_full_Impl n hwf ox oy root hsz hsz' hmask
 
 /--
 Master theorem for the generation loop of `FlatLeanHashLifeAlgorithm`: every state it reaches after `k`
@@ -230,7 +227,7 @@ theorem flat_generationLoop_correct {st0 : HashLifeCellState} {k : ℕ} {a : Fla
     {root : UInt32} (h : FlatRun st0 k a ox oy root) :
     ArenaWF a ∧ root < a.cellCount ∧ flatState a ox oy root = flatStepN k st0 ∧
       cellsEqual (hashLifeToGrid (flatState a ox oy root)) (stepN k (hashLifeToGrid st0)) = true :=
-  flatRun_correct h
+  flat_generationLoop_correct_Impl h
 
 /--
 `canCopySubgraphFrom` holds exactly when the destination's scratch tables can hold the remapping of every
@@ -240,7 +237,7 @@ theorem flat_canCopySubgraphFrom_iff (dst src : FlatHashLifeArena) (h1 : dst.rem
     (h2 : dst.remapCell.size < 2 ^ 32) :
     dst.canCopySubgraphFrom src = true ↔
       src.l4Count.toNat ≤ dst.remapL4.size ∧ src.cellCount.toNat + 256 ≤ dst.remapCell.size :=
-  flat_canCopySubgraphFrom_Impl dst src h1 h2
+  flat_canCopySubgraphFrom_iff_Impl dst src h1 h2
 
 /--
 Copying a subgraph between well-formed arenas keeps the destination well-formed, keeps every existing node and
@@ -264,7 +261,7 @@ theorem flat_copySubgraphFrom_correct {src dst : FlatHashLifeArena} (hsrc : Aren
         denoteCell src rootId ∧
       ∀ ox oy : Int32, flatState (dst.copySubgraphFrom src rootId copyMemos).2 ox oy
         (dst.copySubgraphFrom src rootId copyMemos).1 = flatState src ox oy rootId) :=
-  flat_copySubgraphFrom_Impl hsrc hwf rootId copyMemos
+  flat_copySubgraphFrom_correct_Impl hsrc hwf rootId copyMemos
 
 /--
 A full node table is the only failure of a copy that has its scratch space: copying a valid root of `src` into a
@@ -278,8 +275,7 @@ theorem flat_copySubgraphFrom_fails_only_when_full {src dst : FlatHashLifeArena}
     (h32 : dst.remapCell.size < 2 ^ 32) :
     (dst.copySubgraphFrom src rootId copyMemos).1 = UNCOMPUTED →
       ArenaFull (dst.copySubgraphFrom src rootId copyMemos).2 :=
-  fun h => copySubgraphFrom_budget hsrc hwf hov hcan hid (by have := hsrc.cellCountLe; omega) h32 copyMemos
-    (fun h0 => (copySubgraphFrom_spec hsrc hwf rootId copyMemos).2.1.mpr h0 h)
+  flat_copySubgraphFrom_fails_only_when_full_Impl hsrc hwf rootId copyMemos hid hov hcan hmask h32
 
 /--
 Compacting a root into a destination arena keeps the destination well-formed, keeps every existing node and the
@@ -302,7 +298,7 @@ theorem flat_compactRootFrom_correct {src dst : FlatHashLifeArena} (hsrc : Arena
         flatState src ox oy rootId) ∧
     (rootId < src.cellCount → src.overflow = 0 → (dst.compactRootFrom src rootId).2.overflow = 0 →
       (dst.compactRootFrom src rootId).1.1 ≠ UNCOMPUTED) :=
-  flat_compactRootFrom_Impl hsrc hwf rootId
+  flat_compactRootFrom_correct_Impl hsrc hwf rootId
 
 /--
 A full node table is the only failure of compaction that has its scratch space: compacting a valid root of a
@@ -314,7 +310,7 @@ theorem flat_compactRootFrom_fails_only_when_full {src dst : FlatHashLifeArena} 
     (hcan : dst.canCopySubgraphFrom src = true) (hmask : src.cellMask.toNat < 2 ^ 28)
     (h32 : dst.remapCell.size < 2 ^ 32) :
     (dst.compactRootFrom src rootId).1.1 = UNCOMPUTED → ArenaFull (dst.compactRootFrom src rootId).2 :=
-  compactRootFrom_budget hsrc hwf hid hso hcan (by have := hsrc.cellCountLe; omega) h32
+  flat_compactRootFrom_fails_only_when_full_Impl hsrc hwf rootId hid hso hcan hmask h32
 
 /--
 For any root of a well-formed arena with top-left corner `(ox, oy)`, `containsCell` at the 64-bit offset of
@@ -324,7 +320,7 @@ theorem flat_containsCell_correct {a : FlatHashLifeArena} (hwf : ArenaWF a) {roo
     (hid : root < a.cellCount) (ox oy x y : Int32) :
     a.containsCell root (x.toInt64 - ox.toInt64) (y.toInt64 - oy.toInt64) = true ↔
       (x.toInt, y.toInt) ∈ hashLifeToGrid (flatState a ox oy root) :=
-  flat_containsCell_Impl hwf hid ox oy x y
+  flat_containsCell_correct_Impl hwf hid ox oy x y
 
 /--
 Master theorem for `internMacroCellDag` in `FlatHashLifeCellState.kt`, whose memoized recursion `DagIntern` drives
@@ -341,7 +337,7 @@ theorem flat_internMacroCellDag_correct {a : FlatHashLifeArena} (hwf : ArenaWF a
     ArenaWF a' ∧ NodesPreserved a a' ∧
     (id ≠ UNCOMPUTED → id < a'.cellCount ∧ flatState a' ox oy id = st) ∧
     (id = UNCOMPUTED → ArenaFull a') :=
-  internMacroCellDag_Impl hwf hov st ox oy hoff hm h5 h60 H hrun
+  flat_internMacroCellDag_correct_Impl hwf hov st ox oy hoff hm h5 h60 H hrun
 
 /--
 `cellsToMacroCell` builds the quadtree of a list of cells given by their keys (`coordKey`): at the corner of their
@@ -353,7 +349,7 @@ theorem flat_cellsToMacroCell_correct (cells : Array UInt64) (hsz : cells.size <
       ∀ c, c ∈ hashLifeToGrid ⟨(((cellsToMacroCell cells).1.toNat : ℤ) - 2 ^ 31,
         ((cellsToMacroCell cells).2.1.toNat : ℤ) - 2 ^ 31), (cellsToMacroCell cells).2.2⟩ ↔
         c ∈ cells.toList.map keyCoord :=
-  cellsToMacroCell_Impl cells hsz
+  flat_cellsToMacroCell_correct_Impl cells hsz
 
 /--
 Master theorem for `buildQuadtreeBottomUp` in `FlatHashLifeCellState.kt`, which imports `cellsToMacroCell` of the
@@ -372,7 +368,7 @@ theorem flat_buildQuadtree_correct {a : FlatHashLifeArena} (hwf : ArenaWF a) (ho
     (id ≠ UNCOMPUTED → id < a'.cellCount ∧ cellLevelOf a' id ≤ 32 ∧
       ∀ c, c ∈ hashLifeToGrid (flatState a' ox oy id) ↔ c ∈ cells.toList.map keyCoord) ∧
     (id = UNCOMPUTED → ArenaFull a') :=
-  buildQuadtree_Impl hwf hov cells hsz ox oy hox hoy hrun
+  flat_buildQuadtree_correct_Impl hwf hov cells hsz ox oy hox hoy hrun
 
 /--
 The cursor behind `FlatHashLifeCellState.getAliveCellsInWindow`: `cellCursorStepInWindow`, run from
@@ -386,7 +382,7 @@ theorem flat_cellCursorInWindow_correct {a : FlatHashLifeArena} (hwf : ArenaWF a
       (∀ c, c ∈ L ↔ c ∈ hashLifeToGrid (flatState a ox oy root) ∧ InWindow l.toInt t.toInt r.toInt b.toInt c) ∧
       ∀ n, stackWeight (a.cellCursorStart root ox oy) ≤ n →
         cellCursorRun (a.cellCursorStepInWindow l t r b) n (a.cellCursorStart root ox oy) = (L.map coordKey, []) :=
-  cellCursorInWindow_Impl hwf hid hlv ox oy l t r b
+  flat_cellCursorInWindow_correct_Impl hwf hid hlv ox oy l t r b
 
 /--
 The cursor behind `FlatHashLifeCellState.aliveCells`: `cellCursorStepAll`, run from `cellCursorStart` until the stack
@@ -399,7 +395,7 @@ theorem flat_cellCursorAll_correct {a : FlatHashLifeArena} (hwf : ArenaWF a) {ro
       (∀ c, c ∈ L ↔ c ∈ hashLifeToGrid (flatState a ox oy root) ∧ InWindow (-2 ^ 31) (-2 ^ 31) (2 ^ 31) (2 ^ 31) c) ∧
       ∀ n, stackWeight (a.cellCursorStart root ox oy) ≤ n →
         cellCursorRun a.cellCursorStepAll n (a.cellCursorStart root ox oy) = (L.map coordKey, []) :=
-  cellCursorAll_Impl hwf hid hlv ox oy
+  flat_cellCursorAll_correct_Impl hwf hid hlv ox oy
 
 /--
 `FlatHashLifeCellState.fitsInIntRange`: running `cellCursorStepPastX` and `cellCursorStepPastY` from `cellCursorStart`
@@ -411,7 +407,7 @@ theorem flat_fitsInIntRange_correct {a : FlatHashLifeArena} (hwf : ArenaWF a) {r
       (((cellCursorRun a.cellCursorStepPastX n (a.cellCursorStart root ox oy)).1 = [] ∧
         (cellCursorRun a.cellCursorStepPastY n (a.cellCursorStart root ox oy)).1 = []) ↔
       ∀ c ∈ hashLifeToGrid (flatState a ox oy root), InWindow (-2 ^ 31) (-2 ^ 31) (2 ^ 31) (2 ^ 31) c) :=
-  fitsInIntRange_Impl hwf hid hlv ox oy
+  flat_fitsInIntRange_correct_Impl hwf hid hlv ox oy
 
 /--
 `FlatHashLifeCellState.fitsInIntRange`'s fast path: when `rootFitsInIntRange` holds (the root's square lies in the
@@ -421,7 +417,7 @@ theorem flat_fitsInIntRange_correct {a : FlatHashLifeArena} (hwf : ArenaWF a) {r
 theorem flat_rootFitsInIntRange_sound {a : FlatHashLifeArena} (hwf : ArenaWF a) {root : UInt32} (ox oy : Int32)
     (h : a.rootFitsInIntRange root ox oy = true) :
     ∀ c ∈ hashLifeToGrid (flatState a ox oy root), InWindow (-2 ^ 31) (-2 ^ 31) (2 ^ 31) (2 ^ 31) c :=
-  rootFitsInIntRange_Impl hwf ox oy h
+  flat_rootFitsInIntRange_sound_Impl hwf ox oy h
 
 /--
 `FlatHashLifeCellState`'s iterators step the cursor with the `...Into` members, which pass exactly the components of
@@ -442,16 +438,16 @@ theorem flat_cellCursorStepInto_eq {β : Type} (a : FlatHashLifeArena) (stack : 
     a.cellCursorStepPastYInto stack k =
       k (a.cellCursorStepPastY stack).1 (a.cellCursorStepPastY stack).2.1 (a.cellCursorStepPastY stack).2.2.1
         (a.cellCursorStepPastY stack).2.2.2 :=
-  ⟨rfl, rfl, rfl, rfl⟩
+  flat_cellCursorStepInto_eq_Impl a stack k l t r b
 
 /-- A step of the cursor emits no cell exactly when its mask is zero, where the Kotlin iterators skip it. -/
 theorem flat_chunkKeys_eq_nil_iff (mask : UInt64) (x0 y0 : Int64) : chunkKeys mask x0 y0 = [] ↔ mask = 0 :=
-  chunkKeys_eq_nil_iff mask x0 y0
+  flat_chunkKeys_eq_nil_iff_Impl mask x0 y0
 
 /-- The keys the cursor emits decode (`keyCoord`, as Kotlin decodes them) to their cells. -/
 theorem flat_keyCoord_coordKey {c : Coord} (h : InWindow (-2 ^ 31) (-2 ^ 31) (2 ^ 31) (2 ^ 31) c) :
     keyCoord (coordKey c) = c :=
-  keyCoord_coordKey h
+  flat_keyCoord_coordKey_Impl h
 
 /--
 Replacing an arena's scratch tables (`withScratch`, as `FlatHashLifeCellState.kt` does to make room for a copy) keeps
@@ -462,7 +458,7 @@ theorem flat_withScratch_correct {a : FlatHashLifeArena} (hwf : ArenaWF a) (l4 c
     ArenaWF (a.withScratch l4 cell) ∧ NodesPreserved a (a.withScratch l4 cell) ∧
     (a.withScratch l4 cell).overflow = a.overflow ∧ (a.withScratch l4 cell).cellCount = a.cellCount ∧
     ∀ (ox oy : Int32) (root : UInt32), flatState (a.withScratch l4 cell) ox oy root = flatState a ox oy root :=
-  withScratch_Impl hwf l4 cell
+  flat_withScratch_correct_Impl hwf l4 cell
 
 /--
 The compaction trigger `isNearCapacity` holds exactly when either node table is at least 75% full.
@@ -471,7 +467,7 @@ theorem flat_isNearCapacity_iff {a : FlatHashLifeArena} (hwf : ArenaWF a) (hl : 
     (hc : a.cellMask.toNat < 2 ^ 29) :
     a.isNearCapacity = true ↔
       3 * (a.l4Mask.toNat + 1) ≤ 4 * a.l4Count.toNat ∨ 3 * (a.cellMask.toNat + 1) ≤ 4 * a.cellCount.toNat :=
-  flat_isNearCapacity_Impl hwf hl hc
+  flat_isNearCapacity_iff_Impl hwf hl hc
 
 /--
 The growth trigger `isOver60Percent` holds exactly when either node table is at least 60% full.
@@ -480,6 +476,6 @@ theorem flat_isOver60Percent_iff {a : FlatHashLifeArena} (hwf : ArenaWF a) (hl :
     (hc : a.cellMask.toNat < 2 ^ 29) :
     a.isOver60Percent = true ↔
       3 * (a.l4Mask.toNat + 1) ≤ 5 * a.l4Count.toNat ∨ 3 * (a.cellMask.toNat + 1) ≤ 5 * a.cellCount.toNat :=
-  flat_isOver60Percent_Impl hwf hl hc
+  flat_isOver60Percent_iff_Impl hwf hl hc
 
 end Algorithm

@@ -118,11 +118,11 @@ internal fun buildQuadtreeBottomUp(cellState: CellState, arena: FlatHashLifeAren
     if (cells.size == Int.MAX_VALUE) {
         throw FlatHashLifeArenaException("Pattern has too many live cells to import into FlatHashLifeArena")
     }
-    val keys = ArrayList<Any?>(cells.size)
-    for (cell in cells) {
-        keys.add(cellKeyOf(cell))
+    val keys = ULongArray(cells.size)
+    cells.forEachIndexed { index, cell ->
+        keys[index] = cellKeyOf(cell)
     }
-    val (cornerX, cornerYAndMacroCell) = f_Algorithm_cellsToMacroCell(keys.toTypedArray())
+    val (cornerX, cornerYAndMacroCell) = f_Algorithm_cellsToMacroCell(keys)
     val (cornerY, macroCell) = cornerYAndMacroCell
     return internMacroCellDag(
         HashLifeCellState(IntOffset(keyCoordinate(cornerX), keyCoordinate(cornerY)), macroCell),

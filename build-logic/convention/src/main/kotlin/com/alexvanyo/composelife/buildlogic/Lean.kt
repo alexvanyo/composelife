@@ -65,9 +65,21 @@ abstract class LeanCodegenEntry @Inject constructor(private val name: String) : 
     abstract val outputFile: RegularFileProperty
 
     abstract val packageName: Property<String>
+
+    /**
+     * Whether to pass `compiler.kotlin.typedArrays` when generating. It must match the `set_option` of the Lean
+     * file (and of the modules it uses with primitive arrays): the backend reads the option from the command line
+     * for signatures, and from the file for function bodies.
+     */
+    abstract val typedArrays: Property<Boolean>
 }
 
-data class LeanEntrySpec(val leanFile: String, val outputFile: String, val packageName: String) : java.io.Serializable
+data class LeanEntrySpec(
+    val leanFile: String,
+    val outputFile: String,
+    val packageName: String,
+    val typedArrays: Boolean,
+) : java.io.Serializable
 
 @DisableCachingByDefault(because = "Downloads external cache from Lake")
 abstract class CacheLeanTask @Inject constructor(private val execOperations: ExecOperations) : DefaultTask() {
@@ -147,6 +159,7 @@ abstract class GenerateLeanKotlinTask @Inject constructor(private val execOperat
                     "-DwarningAsError=true",
                     "-Dcompiler.kotlin.pruneUnreachable=true",
                     "-Dcompiler.kotlin.package=${spec.packageName}",
+                    "-Dcompiler.kotlin.typedArrays=${spec.typedArrays}",
                     "-K",
                     outFile.absolutePath,
                     spec.leanFile,

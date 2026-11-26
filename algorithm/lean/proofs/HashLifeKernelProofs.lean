@@ -162,6 +162,11 @@ theorem computeLeafNextGen8x8BranchUInt_eq_fast (w : UInt64) :
 -- Level 4 Stepping Kernel (16x16 -> central 8x8, one generation)
 -- =========================================================================
 
+/-- Proof of `computeLeafNextGen8x8BranchUInt_eq_fastUInt`. -/
+theorem computeLeafNextGen8x8BranchUInt_eq_fastUInt_Impl (w : UInt64) :
+    computeLeafNextGen8x8BranchUInt w = computeLeafNextGen8x8FastUInt w :=
+  computeLeafNextGen8x8BranchUInt_eq_fast w
+
 set_option maxHeartbeats 0 in
 set_option maxRecDepth 100000 in
 /--
@@ -530,6 +535,13 @@ theorem leafAt_computeLevel4NextGen16x16UInt (a b c d : UInt64) (x y : ℤ)
       k24, k25, k26, k27, k28, k29, k30, k31, k32, k33, k34, k35, k36, k37, k38, k39, k40, k41, k42, k43, k44, k45,
       k46, k47, k48, k49, k50, k51, k52, k53, k54, k55, k56, k57, k58, k59, k60, k61, k62, k63]
 
+/-- Proof of `computeLevel4NextGen16x16UInt_correct`. -/
+theorem computeLevel4NextGen16x16UInt_correct_Impl (a b c d : UInt64) (x y : ℤ)
+    (hx0 : 0 ≤ x) (hx : x < 8) (hy0 : 0 ≤ y) (hy : y < 8) :
+    leafAt (computeLevel4NextGen16x16UInt a b c d) x y =
+      nextGenAt (quadSel (leafAt a) (leafAt b) (leafAt c) (leafAt d) 8) (x + 4) (y + 4) :=
+  leafAt_computeLevel4NextGen16x16UInt a b c d x y hx0 hx hy0 hy
+
 set_option linter.unusedSimpArgs false in
 theorem leafAt_centeredSubnodeLevel4 (a b c d : UInt64) (x y : ℤ)
     (hx0 : 0 ≤ x) (hx : x < 8) (hy0 : 0 ≤ y) (hy : y < 8) :
@@ -567,7 +579,7 @@ theorem popcount64_centeredSubnodeLevel4 (a b c d : UInt64) :
 -- =========================================================================
 
 /-- Each output bit of the 4x4 kernel is one Conway generation of its cell of the 4x4 grid. -/
-theorem computeNextGen4x4UInt_spec (w : UInt32) (x y : ℤ) (hx : 1 ≤ x ∧ x ≤ 2) (hy : 1 ≤ y ∧ y ≤ 2) :
+theorem computeNextGen4x4UInt_correct_Impl (w : UInt32) (x y : ℤ) (hx : 1 ≤ x ∧ x ≤ 2) (hy : 1 ≤ y ∧ y ≤ 2) :
     (computeNextGen4x4UInt w).toBitVec.getLsbD (mortonIndex4 (x - 1).toNat (y - 1).toNat) = nextGenAt (grid4At w) x y := by
   obtain ⟨k0, k1, k2, k3, -⟩ := nextGen4x4_bits w
   rw [nextGenAt_eq_lifeB]
@@ -579,7 +591,7 @@ theorem computeNextGen4x4UInt_spec (w : UInt32) (x y : ℤ) (hx : 1 ≤ x ∧ x 
       k0, k1, k2, k3]
 
 /-- The 4x4 kernel's result fits in 4 bits. -/
-theorem computeNextGen4x4UInt_lt (w : UInt32) : (computeNextGen4x4UInt w).toNat < 16 :=
+theorem computeNextGen4x4UInt_lt_16_Impl (w : UInt32) : (computeNextGen4x4UInt w).toNat < 16 :=
   UInt32.lt_iff_toNat_lt.mp (nextGen4x4_bits w).2.2.2.2
 
 /--
@@ -592,8 +604,13 @@ theorem computeNextGen4x4UInt_eq_table (w : UInt32) :
     neighborCount21UInt neighborCount11UInt
   bv_check "lrat/HashLifeKernelProofs.Algorithm.computeNextGen4x4UInt_eq_table.lrat"
 
+/-- Proof of `computeNextGen4x4UInt_eq_lookup`. -/
+theorem computeNextGen4x4UInt_eq_lookup_Impl (w : UInt32) :
+    computeNextGen4x4UInt w = computeNextGen4x4BitwiseUInt (w &&& 0xFFFF) &&& 0xF :=
+  computeNextGen4x4UInt_eq_table w
+
 /-- Each of the 16 output bits of the 8x8 leaf kernel is one Conway generation of its cell of the leaf. -/
-theorem computeLeafNextGen8x8BranchUInt_spec (w : UInt64) (x y : ℤ) (hx : 2 ≤ x ∧ x < 6) (hy : 2 ≤ y ∧ y < 6) :
+theorem computeLeafNextGen8x8BranchUInt_correct_Impl (w : UInt64) (x y : ℤ) (hx : 2 ≤ x ∧ x < 6) (hy : 2 ≤ y ∧ y < 6) :
     (computeLeafNextGen8x8BranchUInt w).toBitVec.getLsbD (mortonIndex4 (x - 2).toNat (y - 2).toNat) =
       nextGenAt (leafAt w) x y := by
   obtain ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15⟩ := leafNextGen_bits w

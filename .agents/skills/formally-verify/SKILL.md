@@ -62,8 +62,13 @@ graph TD
 1. **State the Master Theorem**:
    ```lean
    theorem algorithm_correctness (inputs : InputType) :
-       algorithmExecutable inputs ↔ SpecificationPredicate inputs
+       algorithmExecutable inputs ↔ SpecificationPredicate inputs :=
+     algorithm_correctness_Impl inputs
    ```
+   The master theorem (in `<Component>Theorems.lean` or `theorems/`) has a plain descriptive name and no proof
+   body; its proof is `algorithm_correctness_Impl` in a proof module, with the same statement. Follow the
+   `X` / `X_Impl` naming rules in [`docs/lean.md`](../../../docs/lean.md#3-master-theorems-componenttheoremslean-or-theoremslean):
+   no `_spec`, `_thm` or `_Impl` suffix on master theorems, and exactly one `_Impl` per master theorem.
 2. **Prove a Reduction Lemma Early**:
    - Factor out trivial edge cases (e.g. empty collections, identity inputs, degenerate bounds) into base lemmas.
    - Separate the equivalence into two independent directions:

@@ -198,14 +198,14 @@ theorem hashLifeStepN_succ_Impl (n : ℕ) (st : HashLifeCellState) :
     hashLifeStepN (n + 1) st = hashLifeStepN n (hashLifeNextGeneration st) := by
   rfl
 
-theorem emptyNode_depth_Impl : ∀ (k : ℕ),
+theorem emptyNode_depth : ∀ (k : ℕ),
     (emptyNode (k + 4)).depth = k + 4
   | 0 => rfl
   | k + 1 => by
     dsimp [emptyNode, makeCellNode, MacroCell.depth]
-    rw [emptyNode_depth_Impl k]
+    rw [emptyNode_depth k]
 
-theorem stepQuadrants_emptyNode_Impl : ∀ (k : ℕ),
+theorem stepQuadrants_emptyNode : ∀ (k : ℕ),
     stepQuadrants (emptyNode (k + 6)) =
       { nw := emptyNode (k + 5)
       , ne := emptyNode (k + 5)
@@ -214,7 +214,7 @@ theorem stepQuadrants_emptyNode_Impl : ∀ (k : ℕ),
   | 0 => rfl
   | _ + 1 => rfl
 
-theorem hashLifeStepRecursiveAux_emptyNode_Impl : ∀ (fuel k : ℕ) (_h_fuel : fuel ≥ k + 1),
+theorem hashLifeStepRecursiveAux_emptyNode : ∀ (fuel k : ℕ) (_h_fuel : fuel ≥ k + 1),
     hashLifeStepRecursiveAux fuel (emptyNode (k + 5)) = emptyNode (k + 4)
   | 0, _, h => by omega
   | fuel + 1, 0, _ => rfl
@@ -225,19 +225,19 @@ theorem hashLifeStepRecursiveAux_emptyNode_Impl : ∀ (fuel k : ℕ) (_h_fuel : 
                       (hashLifeStepRecursiveAux fuel (stepQuadrants (emptyNode (k + 6))).sw)
                       (hashLifeStepRecursiveAux fuel (stepQuadrants (emptyNode (k + 6))).se) =
          emptyNode (k + 5)
-    rw [stepQuadrants_emptyNode_Impl k]
+    rw [stepQuadrants_emptyNode k]
     dsimp
-    rw [hashLifeStepRecursiveAux_emptyNode_Impl fuel k h_fuel']
+    rw [hashLifeStepRecursiveAux_emptyNode fuel k h_fuel']
     rfl
 
 theorem hashLifeStep_emptyNode_Impl (k : ℕ) :
     hashLifeStep (emptyNode (k + 5)) = emptyNode (k + 4) := by
   dsimp [hashLifeStep, hashLifeStepRecursive]
   have h_depth : (emptyNode (k + 5)).depth = k + 5 := by
-    have := emptyNode_depth_Impl (k + 1)
+    have := emptyNode_depth (k + 1)
     exact this
   rw [h_depth]
-  exact hashLifeStepRecursiveAux_emptyNode_Impl (k + 5) k (by omega)
+  exact hashLifeStepRecursiveAux_emptyNode (k + 5) k (by omega)
 
 theorem stepLevel4Node_eq_stepLevel4NodeWith_Impl (m : MacroCell) :
     stepLevel4Node m = stepLevel4NodeWith m computeLeafNextGen8x8BranchUInt := by

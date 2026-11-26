@@ -67,13 +67,13 @@ private theorem mem_foldl_dedupStep [DecidableEq α] (xs : List α) (acc : List 
         · left; right; rfl
         · right; exact hys
 
-theorem mem_deduplicate_iff [DecidableEq α] (x : α) (xs : List α) :
+theorem mem_deduplicate_iff_Impl [DecidableEq α] (x : α) (xs : List α) :
     x ∈ deduplicate xs ↔ x ∈ xs := by
   change x ∈ xs.foldl dedupStep [] ↔ x ∈ xs
   rw [mem_foldl_dedupStep]
   simp
 
-theorem cellsEqual_of_same_elements (a b : List Coord)
+theorem cellsEqual_of_same_elements_Impl (a b : List Coord)
     (h : ∀ c, c ∈ a ↔ c ∈ b) :
     cellsEqual a b = true := by
   dsimp [cellsEqual]
@@ -81,30 +81,30 @@ theorem cellsEqual_of_same_elements (a b : List Coord)
     rw [List.all_eq_true]
     intro x hx
     rw [List.contains_iff_mem]
-    rw [mem_deduplicate_iff] at hx ⊢
+    rw [mem_deduplicate_iff_Impl] at hx ⊢
     exact (h x).mp hx
   have hb : (deduplicate b).all ((deduplicate a).contains ·) = true := by
     rw [List.all_eq_true]
     intro x hx
     rw [List.contains_iff_mem]
-    rw [mem_deduplicate_iff] at hx ⊢
+    rw [mem_deduplicate_iff_Impl] at hx ⊢
     exact (h x).mpr hx
   rw [ha, hb]
   rfl
 
-theorem cellsEqual_refl (xs : List Coord) :
+theorem cellsEqual_refl_Impl (xs : List Coord) :
     cellsEqual xs xs = true := by
-  apply cellsEqual_of_same_elements
+  apply cellsEqual_of_same_elements_Impl
   intro c
   rfl
 
-theorem cellsEqual_deduplicate_self (xs : List Coord) :
+theorem cellsEqual_deduplicate_self_Impl (xs : List Coord) :
     cellsEqual xs (deduplicate xs) = true := by
-  apply cellsEqual_of_same_elements
+  apply cellsEqual_of_same_elements_Impl
   intro c
-  rw [mem_deduplicate_iff]
+  rw [mem_deduplicate_iff_Impl]
 
-theorem cellsEqual_symm {a b : List Coord}
+theorem cellsEqual_symm_Impl {a b : List Coord}
     (h : cellsEqual a b = true) : cellsEqual b a = true := by
   dsimp [cellsEqual] at h ⊢
   rw [Bool.and_comm]
@@ -120,17 +120,17 @@ theorem cellsEqual_iff_mem (a b : List Coord) :
     rw [List.all_eq_true] at ha hb
     constructor
     · intro hca
-      have hca' : c ∈ deduplicate a := by rw [mem_deduplicate_iff]; exact hca
+      have hca' : c ∈ deduplicate a := by rw [mem_deduplicate_iff_Impl]; exact hca
       have hcont := ha c hca'
-      rw [List.contains_iff_mem, mem_deduplicate_iff] at hcont
+      rw [List.contains_iff_mem, mem_deduplicate_iff_Impl] at hcont
       exact hcont
     · intro hcb
-      have hcb' : c ∈ deduplicate b := by rw [mem_deduplicate_iff]; exact hcb
+      have hcb' : c ∈ deduplicate b := by rw [mem_deduplicate_iff_Impl]; exact hcb
       have hcont := hb c hcb'
-      rw [List.contains_iff_mem, mem_deduplicate_iff] at hcont
+      rw [List.contains_iff_mem, mem_deduplicate_iff_Impl] at hcont
       exact hcont
   · intro h
-    exact cellsEqual_of_same_elements a b h
+    exact cellsEqual_of_same_elements_Impl a b h
 
 theorem cellsEqual_trans {a b c : List Coord}
     (h1 : cellsEqual a b = true)
@@ -210,7 +210,7 @@ theorem deduplicate_idempotent [DecidableEq α] (xs : List α) :
     deduplicate (deduplicate xs) = deduplicate xs :=
   deduplicate_of_nodup (deduplicate xs) (nodup_deduplicate xs)
 
-theorem stepGrid_deduplicate (s : List Coord) :
+theorem stepGrid_deduplicate_Impl (s : List Coord) :
     stepGrid (deduplicate s) = stepGrid s := by
   dsimp [stepGrid]
   rw [deduplicate_idempotent]
@@ -224,30 +224,30 @@ theorem stepGrid_cellsEqual_stepGrid {a b : List Coord}
   simp only [List.mem_filter]
   have h_cand : c ∈ candidateCells (deduplicate a) ↔ c ∈ candidateCells (deduplicate b) := by
     dsimp [candidateCells]
-    rw [mem_deduplicate_iff, mem_deduplicate_iff]
+    rw [mem_deduplicate_iff_Impl, mem_deduplicate_iff_Impl]
     simp only [List.mem_append, List.mem_flatMap]
     constructor
     · intro hc
       rcases hc with hca | ⟨p, hpa, hcp⟩
-      · rw [mem_deduplicate_iff] at hca
-        left; rw [mem_deduplicate_iff]; exact (h c).mp hca
-      · rw [mem_deduplicate_iff] at hpa
+      · rw [mem_deduplicate_iff_Impl] at hca
+        left; rw [mem_deduplicate_iff_Impl]; exact (h c).mp hca
+      · rw [mem_deduplicate_iff_Impl] at hpa
         right; refine ⟨p, ?_, hcp⟩
-        rw [mem_deduplicate_iff]; exact (h p).mp hpa
+        rw [mem_deduplicate_iff_Impl]; exact (h p).mp hpa
     · intro hc
       rcases hc with hcb | ⟨p, hpb, hcp⟩
-      · rw [mem_deduplicate_iff] at hcb
-        left; rw [mem_deduplicate_iff]; exact (h c).mpr hcb
-      · rw [mem_deduplicate_iff] at hpb
+      · rw [mem_deduplicate_iff_Impl] at hcb
+        left; rw [mem_deduplicate_iff_Impl]; exact (h c).mpr hcb
+      · rw [mem_deduplicate_iff_Impl] at hpb
         right; refine ⟨p, ?_, hcp⟩
-        rw [mem_deduplicate_iff]; exact (h p).mpr hpb
+        rw [mem_deduplicate_iff_Impl]; exact (h p).mpr hpb
   have h_rule :
     lifeRule ((deduplicate a).contains c) (countAliveNeighbors c (deduplicate a)) =
     lifeRule ((deduplicate b).contains c) (countAliveNeighbors c (deduplicate b)) := by
     have h_cont : (deduplicate a).contains c = (deduplicate b).contains c := by
       rw [Bool.eq_iff_iff]
       rw [List.contains_iff_mem, List.contains_iff_mem]
-      rw [mem_deduplicate_iff, mem_deduplicate_iff]
+      rw [mem_deduplicate_iff_Impl, mem_deduplicate_iff_Impl]
       exact h c
     have h_nbr : countAliveNeighbors c (deduplicate a) = countAliveNeighbors c (deduplicate b) := by
       dsimp [countAliveNeighbors]
@@ -258,27 +258,27 @@ theorem stepGrid_cellsEqual_stepGrid {a b : List Coord}
         intro n _
         rw [Bool.eq_iff_iff]
         rw [List.contains_iff_mem, List.contains_iff_mem]
-        rw [mem_deduplicate_iff, mem_deduplicate_iff]
+        rw [mem_deduplicate_iff_Impl, mem_deduplicate_iff_Impl]
         exact h n
       rw [h_filt]
     rw [h_cont, h_nbr]
   rw [h_cand, h_rule]
 
-theorem stepGrid_support (s : List Coord) (c : Coord) (hc : c ∈ stepGrid s) :
+theorem stepGrid_speed_of_light_Impl (s : List Coord) (c : Coord) (hc : c ∈ stepGrid s) :
     ∃ p ∈ s, max (c.1 - p.1).natAbs (c.2 - p.2).natAbs ≤ 1 := by
   dsimp [stepGrid] at hc
   rw [List.mem_filter] at hc
   have hcand := hc.1
   dsimp [candidateCells] at hcand
-  rw [mem_deduplicate_iff] at hcand
+  rw [mem_deduplicate_iff_Impl] at hcand
   rw [List.mem_append] at hcand
   rcases hcand with h_in | h_nbr
-  · rw [mem_deduplicate_iff] at h_in
+  · rw [mem_deduplicate_iff_Impl] at h_in
     refine ⟨c, h_in, ?_⟩
     simp
   · rw [List.mem_flatMap] at h_nbr
     rcases h_nbr with ⟨p, hp, hcp⟩
-    rw [mem_deduplicate_iff] at hp
+    rw [mem_deduplicate_iff_Impl] at hp
     refine ⟨p, hp, ?_⟩
     dsimp [mooreNeighbors] at hcp
     rw [List.mem_map] at hcp
@@ -297,8 +297,8 @@ theorem stepN_cellsEqual_stepN (n : ℕ) {a b : List Coord}
   induction n with
   | zero =>
     dsimp [stepN]
-    have ha : cellsEqual (deduplicate a) a = true := cellsEqual_symm (cellsEqual_deduplicate_self a)
-    have hb : cellsEqual b (deduplicate b) = true := cellsEqual_deduplicate_self b
+    have ha : cellsEqual (deduplicate a) a = true := cellsEqual_symm_Impl (cellsEqual_deduplicate_self_Impl a)
+    have hb : cellsEqual b (deduplicate b) = true := cellsEqual_deduplicate_self_Impl b
     exact cellsEqual_trans (cellsEqual_trans ha h) hb
   | succ n ih =>
     dsimp [stepN]
@@ -309,8 +309,8 @@ theorem stepN_stepGrid_cellsEqual (n : ℕ) (s : List Coord) :
   induction n with
   | zero =>
     dsimp [stepN]
-    rw [stepGrid_deduplicate]
-    exact cellsEqual_symm (cellsEqual_deduplicate_self (stepGrid s))
+    rw [stepGrid_deduplicate_Impl]
+    exact cellsEqual_symm_Impl (cellsEqual_deduplicate_self_Impl (stepGrid s))
   | succ n ih =>
     dsimp [stepN]
     exact stepGrid_cellsEqual_stepGrid ih
@@ -355,7 +355,7 @@ theorem candidateCells_of_lifeRule (c : Coord) (alive : List Coord)
   dsimp [lifeRule] at h_rule
   rw [Bool.or_eq_true] at h_rule
   dsimp [candidateCells]
-  rw [mem_deduplicate_iff]
+  rw [mem_deduplicate_iff_Impl]
   rw [List.mem_append]
   rcases h_rule with h3 | h2
   · have h_count : countAliveNeighbors c (deduplicate alive) = 3 := by

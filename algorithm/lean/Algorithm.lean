@@ -20,6 +20,10 @@ import Algorithm.Patterns
 import Algorithm.MacroCell
 import Algorithm.MacroCellHash
 import Algorithm.HashLife
+import Algorithm.Life106
+import Algorithm.Plaintext
+import Algorithm.Life105
+import Algorithm.RLE
 import AlgorithmDefs
 import AlgorithmProofs
 import AlgorithmTheorems

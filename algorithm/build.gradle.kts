@@ -54,9 +54,30 @@ lean {
         register("macroCell") {
             leanFile = "Algorithm/MacroCell.lean"
             packageName = "com.alexvanyo.composelife.model"
+            typedArrays = true
         }
         register("flatHashLife") {
             leanFile = "Algorithm/FlatHashLife.lean"
+        }
+        register("life106") {
+            leanFile = "Algorithm/Life106.lean"
+            packageName = "com.alexvanyo.composelife.model"
+            typedArrays = true
+        }
+        register("plaintext") {
+            leanFile = "Algorithm/Plaintext.lean"
+            packageName = "com.alexvanyo.composelife.model"
+            typedArrays = true
+        }
+        register("life105") {
+            leanFile = "Algorithm/Life105.lean"
+            packageName = "com.alexvanyo.composelife.model"
+            typedArrays = true
+        }
+        register("rle") {
+            leanFile = "Algorithm/RLE.lean"
+            packageName = "com.alexvanyo.composelife.model"
+            typedArrays = true
         }
     }
 }

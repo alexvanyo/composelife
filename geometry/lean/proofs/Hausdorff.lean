@@ -47,7 +47,7 @@ satisfies the discrete Chebyshev Hausdorff distance bound ≤ 1 relative to its 
 then the full floating-point path output satisfies the discrete Chebyshev Hausdorff distance bound ≤ 1
 relative to the full rational path output.
 -/
-theorem cellIntersectionsPathFloat_hausdorff_bound_of_segments_Impl :
+theorem cellIntersectionsPathFloat_hausdorff_bound_of_segments :
     ∀ (Ps : List Point32), AllFinite Ps →
       (∀ (i : Nat) (hi : i + 1 < Ps.length),
         cellHausdorffDistanceLe
@@ -1075,7 +1075,7 @@ theorem cellIntersectionsPathFloat_hausdorff_bound_Impl
     cellHausdorffDistanceLe
       (cellIntersectionsPathFloat Ps)
       (cellIntersectionsPath (pointsToRational Ps)) 1 := by
-  apply cellIntersectionsPathFloat_hausdorff_bound_of_segments_Impl Ps h_fin
+  apply cellIntersectionsPathFloat_hausdorff_bound_of_segments Ps h_fin
   intro i hi
   have hP_fin1 : (Ps.get ⟨i, by omega⟩).isFinite := h_fin _ (List.get_mem Ps ⟨i, by omega⟩)
   have hP_fin2 : (Ps.get ⟨i + 1, hi⟩).isFinite := h_fin _ (List.get_mem Ps ⟨i + 1, hi⟩)

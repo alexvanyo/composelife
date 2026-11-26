@@ -21,7 +21,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
-@Suppress("TooManyFunctions")
+@Suppress("LargeClass", "TooManyFunctions")
 class RunLengthEncodingCellStateSerializerTests {
     private val serializer = RunLengthEncodedCellStateSerializer
 
@@ -622,6 +622,68 @@ class RunLengthEncodingCellStateSerializerTests {
                 |x!
                 """.trimMargin().lineSequence(),
             ),
+        )
+    }
+
+    @Test
+    fun deserialization_with_reordered_rule_digits_is_successful() {
+        listOf("B3/S32", "b33/s322", "32/3").forEach { rule ->
+            assertEquals(
+                DeserializationResult.Successful(
+                    warnings = emptyList(),
+                    cellState = setOf(0 to 0).toCellState(),
+                    format = CellStateFormat.FixedFormat.RunLengthEncoding,
+                ),
+                serializer.deserializeToCellState(sequenceOf("x = 1, y = 1, rule = $rule", "o!")),
+            )
+        }
+    }
+
+    @Test
+    fun deserialization_with_out_of_range_count_returns_unsuccessful() {
+        assertEquals(
+            DeserializationResult.Unsuccessful(
+                warnings = emptyList(),
+                errors = listOf(UnexpectedInputMessage(input = "4294967297", lineIndex = 2, characterIndex = 1)),
+            ),
+            serializer.deserializeToCellState(sequenceOf("x = 1, y = 1", "4294967297o!")),
+        )
+    }
+
+    @Test
+    fun deserialization_reports_count_before_exclamation_as_written() {
+        assertEquals(
+            DeserializationResult.Successful(
+                warnings = listOf(UnexpectedInputMessage(input = "007!", lineIndex = 2, characterIndex = 2)),
+                cellState = setOf(0 to 0).toCellState(),
+                format = CellStateFormat.FixedFormat.RunLengthEncoding,
+            ),
+            serializer.deserializeToCellState(sequenceOf("x = 1, y = 1", "o007!")),
+        )
+    }
+
+    @Test
+    fun deserialization_counts_non_ascii_characters_as_one_column() {
+        assertEquals(
+            DeserializationResult.Successful(
+                warnings = listOf(UnexpectedCharacterMessage(character = '\u00e9', lineIndex = 2, characterIndex = 2)),
+                cellState = setOf(0 to 0, 1 to 0, 2 to 0).toCellState(),
+                format = CellStateFormat.FixedFormat.RunLengthEncoding,
+            ),
+            serializer.deserializeToCellState(sequenceOf("x = 3, y = 1", "o\u00e9o!")),
+        )
+    }
+
+    @Test
+    fun negative_coordinates_round_trip() {
+        val cellState = setOf(-1 to -2, 0 to -1, -3 to 0, 2 to -5, -100 to 7).toCellState()
+        assertEquals(
+            DeserializationResult.Successful(
+                warnings = emptyList(),
+                cellState = cellState,
+                format = CellStateFormat.FixedFormat.RunLengthEncoding,
+            ),
+            serializer.deserializeToCellState(serializer.serializeToString(cellState)),
         )
     }
 }

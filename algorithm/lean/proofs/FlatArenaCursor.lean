@@ -406,7 +406,7 @@ theorem cellCursor_root {a : FlatHashLifeArena} (hwf : ArenaWF a) {root : UInt32
 stops and emits the keys of the live cells of the state in the window `[l, r) × [t, b)`, each once and in a fixed
 order.
 -/
-theorem cellCursorInWindow_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) {root : UInt32} (hid : root < a.cellCount)
+theorem flat_cellCursorInWindow_correct_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) {root : UInt32} (hid : root < a.cellCount)
     (hlv : cellLevelOf a root ≤ 61) (ox oy l t r b : Int32) :
     ∃ L : List Coord, L.Nodup ∧
       (∀ c, c ∈ L ↔ c ∈ hashLifeToGrid (flatState a ox oy root) ∧ InWindow l.toInt t.toInt r.toInt b.toInt c) ∧
@@ -426,7 +426,7 @@ theorem cellCursorInWindow_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) {root 
 `cellCursorStepAll` (the iterator of `FlatHashLifeCellState.aliveCells`), run from `cellCursorStart`, stops and emits
 the keys of the live cells of the state with 32-bit coordinates, each once and in a fixed order.
 -/
-theorem cellCursorAll_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) {root : UInt32} (hid : root < a.cellCount)
+theorem flat_cellCursorAll_correct_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) {root : UInt32} (hid : root < a.cellCount)
     (hlv : cellLevelOf a root ≤ 61) (ox oy : Int32) :
     ∃ L : List Coord, L.Nodup ∧
       (∀ c, c ∈ L ↔ c ∈ hashLifeToGrid (flatState a ox oy root) ∧ InWindow (-2 ^ 31) (-2 ^ 31) (2 ^ 31) (2 ^ 31) c) ∧
@@ -440,7 +440,7 @@ theorem cellCursorAll_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) {root : UIn
   rw [e1, e2] at this
   exact this
 
-theorem chunkKeys_eq_nil_iff (mask : UInt64) (x0 y0 : Int64) : chunkKeys mask x0 y0 = [] ↔ mask = 0 := by
+theorem flat_chunkKeys_eq_nil_iff_Impl (mask : UInt64) (x0 y0 : Int64) : chunkKeys mask x0 y0 = [] ↔ mask = 0 := by
   constructor
   · intro h
     apply UInt64.toBitVec_inj.mp
@@ -461,7 +461,7 @@ theorem chunkKeys_eq_nil_iff (mask : UInt64) (x0 y0 : Int64) : chunkKeys mask x0
 `FlatHashLifeCellState.fitsInIntRange` runs `cellCursorStepPastX` and `cellCursorStepPastY` from `cellCursorStart`
 and finds no emitted cell exactly when every live cell of the state has 32-bit coordinates.
 -/
-theorem fitsInIntRange_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) {root : UInt32} (hid : root < a.cellCount)
+theorem flat_fitsInIntRange_correct_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) {root : UInt32} (hid : root < a.cellCount)
     (hlv : cellLevelOf a root ≤ 61) (ox oy : Int32) :
     ∀ n, stackWeight (a.cellCursorStart root ox oy) ≤ n →
       (((cellCursorRun a.cellCursorStepPastX n (a.cellCursorStart root ox oy)).1 = [] ∧
@@ -500,7 +500,7 @@ theorem fitsInIntRange_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) {root : UI
 /--
 `rootFitsInIntRange` is sound: when it holds, every live cell of the state has 32-bit coordinates.
 -/
-theorem rootFitsInIntRange_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) {root : UInt32} (ox oy : Int32)
+theorem flat_rootFitsInIntRange_sound_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) {root : UInt32} (ox oy : Int32)
     (h : a.rootFitsInIntRange root ox oy = true) :
     ∀ c ∈ hashLifeToGrid (flatState a ox oy root), InWindow (-2 ^ 31) (-2 ^ 31) (2 ^ 31) (2 ^ 31) c := by
   unfold FlatHashLifeArena.rootFitsInIntRange at h

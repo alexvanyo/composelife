@@ -17,27 +17,22 @@
 package com.alexvanyo.composelife.model
 
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.fail
 
+/**
+ * Asserts that [actual] equals [expected] (or equals it up to an offset, if [equalsModuleOffset]). The failure message
+ * shows both as RLE, which is only formatted on failure.
+ */
 fun assertCellStateEquals(expected: CellState, actual: CellState, equalsModuleOffset: Boolean = false) {
+    val matches = if (equalsModuleOffset) expected.equalsModuloOffset(actual) else expected == actual
+    if (matches) return
+    val qualifier = if (equalsModuleOffset) "modulo offset " else ""
+    val message = "Expected $qualifier${expected.toRle()} but was ${actual.toRle()}"
     if (equalsModuleOffset) {
-        assertTrue(
-            expected.equalsModuloOffset(actual),
-            message = "Expected modulo offset ${RunLengthEncodedCellStateSerializer.serializeToString(
-                expected,
-            ).joinToString(
-                "\n",
-            )} but was ${RunLengthEncodedCellStateSerializer.serializeToString(actual).joinToString("\n")}",
-        )
+        fail(message)
     } else {
-        assertEquals(
-            expected = expected,
-            actual = actual,
-            message = "Expected ${RunLengthEncodedCellStateSerializer.serializeToString(
-                expected,
-            ).joinToString(
-                "\n",
-            )} but was ${RunLengthEncodedCellStateSerializer.serializeToString(actual).joinToString("\n")}",
-        )
+        assertEquals(expected = expected, actual = actual, message = message)
     }
 }
+
+private fun CellState.toRle(): String = RunLengthEncodedCellStateSerializer.serializeToString(this).joinToString("\n")

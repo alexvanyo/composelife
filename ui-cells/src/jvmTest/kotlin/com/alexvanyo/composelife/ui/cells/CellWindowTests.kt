@@ -17,6 +17,9 @@
 package com.alexvanyo.composelife.ui.cells
 
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalDensity
@@ -380,5 +383,64 @@ class CellWindowTests :
         }
 
         assertEquals(9f / 10f, mutableCellWindowViewportState.scale)
+    }
+
+    @Test
+    fun tracking_viewport_animates_to_fit_cells() = runUiTest { uiGraph ->
+        val ctx = uiGraph.cellWindowTestsCtx
+
+        val mutableGameOfLifeState = MutableGameOfLifeState(
+            cellState = setOf(
+                10 to 10,
+                14 to 14,
+            ).toCellState(),
+        )
+
+        val mutableCellWindowViewportState = MutableCellWindowViewportState(
+            offset = Offset.Zero,
+            scale = 1f,
+        )
+        val selectionStateHolder = MutableSelectionStateHolder(
+            SessionValue(
+                sessionId = Uuid.random(),
+                valueId = Uuid.random(),
+                value = SelectionState.NoSelection,
+            ),
+        )
+        var isTracking by mutableStateOf(false)
+
+        setContent {
+            val trackingCellWindowViewportState = rememberTrackingCellWindowViewportState(
+                gameOfLifeState = mutableGameOfLifeState,
+            )
+
+            context(ctx.mutableCellWindow) {
+                MutableCellWindow(
+                    gameOfLifeState = mutableGameOfLifeState,
+                    modifier = Modifier.size(150.dp),
+                    cellWindowInteractionState = object :
+                        MutableCellWindowInteractionState,
+                        MutableSelectionStateHolder by selectionStateHolder {
+                        override val viewportInteractionConfig: ViewportInteractionConfig
+                            get() = if (isTracking) {
+                                ViewportInteractionConfig.Tracking(
+                                    trackingCellWindowViewportState = trackingCellWindowViewportState,
+                                    syncableMutableCellWindowViewportStates = listOf(mutableCellWindowViewportState),
+                                )
+                            } else {
+                                ViewportInteractionConfig.Navigable(mutableCellWindowViewportState)
+                            }
+                    },
+                    cellDpSize = 30.dp,
+                )
+            }
+        }
+
+        isTracking = true
+        waitForIdle()
+
+        assertEquals(12.0f, mutableCellWindowViewportState.offset.x, absoluteTolerance = 0.05f)
+        assertEquals(12.0f, mutableCellWindowViewportState.offset.y, absoluteTolerance = 0.05f)
+        assertEquals(5f / 9f, mutableCellWindowViewportState.scale, absoluteTolerance = 0.05f)
     }
 }

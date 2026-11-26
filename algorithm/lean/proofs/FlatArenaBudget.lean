@@ -710,11 +710,19 @@ theorem stepOneGeneration_budget {a : FlatHashLifeArena} (hwf : ArenaWF a) (ox o
       · rename_i hov2
         intro h
         exact absurd (by simpa using hov2) h
+/-- Proof of `flat_stepOneGeneration_fails_only_when_full`. -/
+theorem flat_stepOneGeneration_fails_only_when_full_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) (ox oy : Int32)
+    (root : UInt32) (hsz : 130 ≤ a.remapL4.size) (hsz' : a.remapL4.size < 2 ^ 32)
+    (hmask : a.cellMask.toNat < 2 ^ 28) :
+    (a.stepOneGeneration ox oy root).2.overflow ≠ 0 →
+      a.overflow ≠ 0 ∨ ArenaFull (a.stepOneGeneration ox oy root).2 :=
+  stepOneGeneration_budget hwf ox oy root hsz hsz' hmask
+
 /--
 `n` steps of the flat engine fail only when the arena had already failed or a node table is full, provided the
 work stack `remapL4` has room for 26 frames (130 entries) and the CellNode table has at most `2 ^ 28` slots.
 -/
-theorem stepOneGenerationN_budget (n : ℕ) :
+theorem flat_stepOneGenerationN_fails_only_when_full_Impl (n : ℕ) :
     ∀ {a : FlatHashLifeArena} (_ : ArenaWF a) (ox oy : Int32) (root : UInt32), 130 ≤ a.remapL4.size →
       a.remapL4.size < 2 ^ 32 → a.cellMask.toNat < 2 ^ 28 →
       (a.stepOneGenerationN n ox oy root).2.overflow ≠ 0 →
@@ -1468,5 +1476,23 @@ theorem compactRootFrom_budget {src dst : FlatHashLifeArena} (hsrc : ArenaWF src
     dsimp only at hb hi3 ⊢
     intro h
     exact hb (fun h0 => hi3.mpr h0 h)
+
+/-- Proof of `flat_copySubgraphFrom_fails_only_when_full`. -/
+theorem flat_copySubgraphFrom_fails_only_when_full_Impl {src dst : FlatHashLifeArena} (hsrc : ArenaWF src)
+    (hwf : ArenaWF dst) (rootId : UInt32) (copyMemos : Bool) (hid : rootId < src.cellCount)
+    (hov : dst.overflow = 0) (hcan : dst.canCopySubgraphFrom src = true) (hmask : src.cellMask.toNat < 2 ^ 28)
+    (h32 : dst.remapCell.size < 2 ^ 32) :
+    (dst.copySubgraphFrom src rootId copyMemos).1 = UNCOMPUTED →
+      ArenaFull (dst.copySubgraphFrom src rootId copyMemos).2 :=
+  fun h => copySubgraphFrom_budget hsrc hwf hov hcan hid (by have := hsrc.cellCountLe; omega) h32 copyMemos
+    (fun h0 => (copySubgraphFrom_spec hsrc hwf rootId copyMemos).2.1.mpr h0 h)
+
+/-- Proof of `flat_compactRootFrom_fails_only_when_full`. -/
+theorem flat_compactRootFrom_fails_only_when_full_Impl {src dst : FlatHashLifeArena} (hsrc : ArenaWF src)
+    (hwf : ArenaWF dst) (rootId : UInt32) (hid : rootId < src.cellCount) (hso : src.overflow = 0)
+    (hcan : dst.canCopySubgraphFrom src = true) (hmask : src.cellMask.toNat < 2 ^ 28)
+    (h32 : dst.remapCell.size < 2 ^ 32) :
+    (dst.compactRootFrom src rootId).1.1 = UNCOMPUTED → ArenaFull (dst.compactRootFrom src rootId).2 :=
+  compactRootFrom_budget hsrc hwf hid hso hcan (by have := hsrc.cellCountLe; omega) h32
 
 end Algorithm

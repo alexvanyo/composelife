@@ -84,14 +84,14 @@ theorem mul_inv_cancel32 {a m minv : UInt32} (h : m * minv = 1) : a * m * minv =
   rw [UInt32.mul_assoc, h, UInt32.mul_one]
 
 /-- `unmix13` inverts the Mix13 finalizer of `level4Hash`, so `mix13` is a bijection of `UInt64`. -/
-theorem unmix13_mix13 (x : UInt64) : unmix13 (mix13 x) = x := by
+theorem mix13_invertible_Impl (x : UInt64) : unmix13 (mix13 x) = x := by
   unfold unmix13 mix13
   simp only
   rw [unxorshift64_31, mul_inv_cancel64 inv_mix64_2_valid_Impl, unxorshift64_27,
     mul_inv_cancel64 inv_mix64_1_valid_Impl, unxorshift64_30]
 
 /-- `unfmix32` inverts the fmix32 finalizer of `cellNodeHash`, so `fmix32` is a bijection of `UInt32`. -/
-theorem unfmix32_fmix32 (x : UInt32) : unfmix32 (fmix32 x) = x := by
+theorem fmix32_invertible_Impl (x : UInt32) : unfmix32 (fmix32 x) = x := by
   unfold unfmix32 fmix32
   simp only
   rw [unxorshift32_16, mul_inv_cancel32 inv_mix32_2_valid_Impl, unxorshift32_13,

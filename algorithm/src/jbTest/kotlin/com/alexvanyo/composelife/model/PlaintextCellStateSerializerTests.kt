@@ -172,4 +172,16 @@ class PlaintextCellStateSerializerTests {
                 ).joinToString("\n"),
         )
     }
+
+    @Test
+    fun deserialization_counts_non_ascii_characters_as_one_column() {
+        assertEquals(
+            DeserializationResult.Successful(
+                warnings = listOf(UnexpectedCharacterMessage('\u00e9', 1, 2)),
+                cellState = setOf(0 to 0, 1 to 0, 2 to 0).toCellState(),
+                format = CellStateFormat.FixedFormat.Plaintext,
+            ),
+            serializer.deserializeToCellState(sequenceOf("O\u00e9O")),
+        )
+    }
 }

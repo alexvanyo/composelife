@@ -30,30 +30,30 @@ namespace Algorithm
 -- Coordinate Set Equality Infrastructure
 -- =========================================================================
 
-theorem mem_deduplicate_iff_thm [DecidableEq α] (x : α) (xs : List α) :
+theorem mem_deduplicate_iff [DecidableEq α] (x : α) (xs : List α) :
     x ∈ deduplicate xs ↔ x ∈ xs :=
-  mem_deduplicate_iff x xs
+  mem_deduplicate_iff_Impl x xs
 
-theorem cellsEqual_of_same_elements_thm (a b : List Coord)
+theorem cellsEqual_of_same_elements (a b : List Coord)
     (h : ∀ c, c ∈ a ↔ c ∈ b) :
     cellsEqual a b = true :=
-  cellsEqual_of_same_elements a b h
+  cellsEqual_of_same_elements_Impl a b h
 
-theorem cellsEqual_refl_thm (xs : List Coord) :
+theorem cellsEqual_refl (xs : List Coord) :
     cellsEqual xs xs = true :=
-  cellsEqual_refl xs
+  cellsEqual_refl_Impl xs
 
-theorem cellsEqual_deduplicate_self_thm (xs : List Coord) :
+theorem cellsEqual_deduplicate_self (xs : List Coord) :
     cellsEqual xs (deduplicate xs) = true :=
-  cellsEqual_deduplicate_self xs
+  cellsEqual_deduplicate_self_Impl xs
 
-theorem cellsEqual_symm_thm {a b : List Coord}
+theorem cellsEqual_symm {a b : List Coord}
     (h : cellsEqual a b = true) : cellsEqual b a = true :=
-  cellsEqual_symm h
+  cellsEqual_symm_Impl h
 
-theorem stepGrid_deduplicate_thm (s : List Coord) :
+theorem stepGrid_deduplicate (s : List Coord) :
     stepGrid (deduplicate s) = stepGrid s :=
-  stepGrid_deduplicate s
+  stepGrid_deduplicate_Impl s
 
 -- =========================================================================
 -- Master Universal HashLife Equivalence Theorems

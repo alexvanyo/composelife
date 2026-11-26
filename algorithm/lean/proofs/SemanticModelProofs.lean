@@ -153,6 +153,10 @@ theorem WFd_level_toNat : ∀ {m : MacroCell} {d : ℕ}, WFd m d → d < 2 ^ 32 
     simp only [UInt32.reduceToNat]
     omega
 
+/-- Proof of `macroCell_level_eq_depth`. -/
+theorem macroCell_level_eq_depth_Impl {m : MacroCell} {d : ℕ} (hm : WFd m d) (hd : d < 2 ^ 32) : m.level.toNat = d :=
+  WFd_level_toNat hm hd
+
 theorem WFd_level4 {m : MacroCell} (h : WFd m 4) :
     ∃ hh nw ne sw se, m = .level4Node hh nw ne sw se := by
   cases m with
@@ -368,7 +372,7 @@ theorem mem_stepGrid_iff_nextGenAt (L : List Coord) (g : ℤ → ℤ → Bool)
     c ∈ stepGrid L ↔ nextGenAt g c.1 c.2 = true := by
   have hD : ∀ c, c ∈ deduplicate L ↔ g c.1 c.2 = true := by
     intro c
-    rw [mem_deduplicate_iff, hL]
+    rw [mem_deduplicate_iff_Impl, hL]
   rw [mem_stepGrid_iff, countAliveNeighbors_of_cellFn _ g hD]
   unfold nextGenAt
   have hc : (deduplicate L).contains c = g c.1 c.2 := by

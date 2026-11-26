@@ -43,7 +43,7 @@ Proofs of the master theorems in `theorems/FlatHashLifeTheorems.lean`, stated on
 theorem u32_mul_toNat {x y : UInt32} (h : x.toNat * y.toNat < 2 ^ 32) : (x * y).toNat = x.toNat * y.toNat := by
   rw [UInt32.toNat_mul, Nat.mod_eq_of_lt h]
 
-theorem flat_isNearCapacity_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) (hl : a.l4Mask.toNat < 2 ^ 29)
+theorem flat_isNearCapacity_iff_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) (hl : a.l4Mask.toNat < 2 ^ 29)
     (hc : a.cellMask.toNat < 2 ^ 29) :
     a.isNearCapacity = true ↔
       3 * (a.l4Mask.toNat + 1) ≤ 4 * a.l4Count.toNat ∨ 3 * (a.cellMask.toNat + 1) ≤ 4 * a.cellCount.toNat := by
@@ -59,7 +59,7 @@ theorem flat_isNearCapacity_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) (hl :
     u32_mul_toNat (x := a.cellMask + 1) (y := 3) (by rw [m2]; simp; omega), m1, m2, UInt32.reduceToNat]
   omega
 
-theorem flat_isOver60Percent_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) (hl : a.l4Mask.toNat < 2 ^ 29)
+theorem flat_isOver60Percent_iff_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) (hl : a.l4Mask.toNat < 2 ^ 29)
     (hc : a.cellMask.toNat < 2 ^ 29) :
     a.isOver60Percent = true ↔
       3 * (a.l4Mask.toNat + 1) ≤ 5 * a.l4Count.toNat ∨ 3 * (a.cellMask.toNat + 1) ≤ 5 * a.cellCount.toNat := by
@@ -75,7 +75,7 @@ theorem flat_isOver60Percent_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) (hl 
     u32_mul_toNat (x := a.cellMask + 1) (y := 3) (by rw [m2]; simp; omega), m1, m2, UInt32.reduceToNat]
   omega
 
-theorem flat_initEmptyNodes_Impl {a : FlatHashLifeArena}
+theorem flat_initEmptyNodes_wf_Impl {a : FlatHashLifeArena}
     (hl4 :
       a.l4Mask.toNat + 1 ≤ a.l4Nw.size ∧ a.l4Mask.toNat + 1 ≤ a.l4Ne.size ∧
       a.l4Mask.toNat + 1 ≤ a.l4Sw.size ∧ a.l4Mask.toNat + 1 ≤ a.l4Se.size ∧
@@ -92,7 +92,7 @@ theorem flat_initEmptyNodes_Impl {a : FlatHashLifeArena}
       a.initEmptyNodes.remapCell = a.remapCell :=
   initEmptyNodes_spec hl4 hcell hmask
 
-theorem flat_internLevel4_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) (nw ne sw se : UInt64) :
+theorem flat_internLevel4_correct_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) (nw ne sw se : UInt64) :
     ArenaWF (a.internLevel4 nw ne sw se).2 ∧ NodesPreserved a (a.internLevel4 nw ne sw se).2 ∧
     ((a.internLevel4 nw ne sw se).2.overflow = 0 →
       (a.internLevel4 nw ne sw se).1 < (a.internLevel4 nw ne sw se).2.l4Count ∧
@@ -100,7 +100,7 @@ theorem flat_internLevel4_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) (nw ne 
   obtain ⟨g, hn⟩ := internLevel4_spec hwf nw ne sw se
   exact ⟨g.wf, g.nodes hwf, fun h => hn h⟩
 
-theorem flat_internCellNode_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) {lvl : UInt8} {h : ℕ}
+theorem flat_internCellNode_correct_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) {lvl : UInt8} {h : ℕ}
     (hl : lvl.toNat = h + 5) {nw ne sw se : UInt32} {m1 m2 m3 m4 : MacroCell}
     (h1 : NodeIs a h nw m1) (h2 : NodeIs a h ne m2) (h3 : NodeIs a h sw m3) (h4 : NodeIs a h se m4) :
     ArenaWF (a.internCellNode lvl nw ne sw se).2 ∧ NodesPreserved a (a.internCellNode lvl nw ne sw se).2 ∧
@@ -110,7 +110,7 @@ theorem flat_internCellNode_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) {lvl 
   obtain ⟨g, hn⟩ := internCellNode_spec hwf hl h1 h2 h3 h4
   exact ⟨g.wf, g.nodes hwf, hn⟩
 
-theorem flat_importLevel4Root_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) (ox oy : Int32)
+theorem flat_importLevel4Root_correct_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) (ox oy : Int32)
     (nw ne sw se : UInt64) :
     ArenaWF (a.importLevel4Root ox oy nw ne sw se).2 ∧ NodesPreserved a (a.importLevel4Root ox oy nw ne sw se).2 ∧
     ((a.importLevel4Root ox oy nw ne sw se).1.2.2 ≠ UNCOMPUTED →
@@ -131,7 +131,7 @@ theorem flat_importLevel4Root_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) (ox
   obtain ⟨h1, h2, h3⟩ := hs hok
   exact ⟨h1, h2, h3, importLevel4Root_grid hwf ox oy nw ne sw se hok⟩
 
-theorem flat_stepOneGeneration_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) (ox oy : Int32) (root : UInt32) :
+theorem flat_stepOneGeneration_correct_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) (ox oy : Int32) (root : UInt32) :
     ArenaWF (a.stepOneGeneration ox oy root).2 ∧ NodesPreserved a (a.stepOneGeneration ox oy root).2 ∧
     ((a.stepOneGeneration ox oy root).1.2.2 ≠ UNCOMPUTED →
       (a.stepOneGeneration ox oy root).2.overflow = 0 ∧
@@ -150,7 +150,7 @@ theorem flat_stepOneGeneration_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) (o
   obtain ⟨h1, _, h3, h4, _⟩ := hs hok
   exact ⟨h1, h3, h4, stepOneGeneration_grid hwf ox oy root hok⟩
 
-theorem flat_stepOneGenerationN_Impl (n : ℕ) {a : FlatHashLifeArena} (hwf : ArenaWF a) (ox oy : Int32)
+theorem flat_stepOneGenerationN_wf (n : ℕ) {a : FlatHashLifeArena} (hwf : ArenaWF a) (ox oy : Int32)
     (root : UInt32) (hid : root < a.cellCount) :
     ArenaWF (a.stepOneGenerationN n ox oy root).2 ∧
     ((a.stepOneGenerationN n ox oy root).1.2.2 ≠ UNCOMPUTED →
@@ -164,13 +164,13 @@ theorem flat_stepOneGenerationN_Impl (n : ℕ) {a : FlatHashLifeArena} (hwf : Ar
         (stepN n (hashLifeToGrid (flatState a ox oy root))) = true) :=
   stepOneGenerationN_spec n hwf ox oy root hid
 
-theorem flat_nextGeneration_Impl (st : HashLifeCellState)
+theorem flat_nextGeneration_equivalence_Impl (st : HashLifeCellState)
     (h_wf : isWellFormed st.macroCell) (h_depth : st.macroCell.depth ≤ 30) :
     isWellFormed (flatNextGeneration st).macroCell ∧
     ∀ c, c ∈ hashLifeToGrid (flatNextGeneration st) ↔ c ∈ stepGrid (hashLifeToGrid st) :=
   flatNextGeneration_correct st h_wf h_depth
 
-theorem flat_canCopySubgraphFrom_Impl (dst src : FlatHashLifeArena) (h1 : dst.remapL4.size < 2 ^ 32)
+theorem flat_canCopySubgraphFrom_iff_Impl (dst src : FlatHashLifeArena) (h1 : dst.remapL4.size < 2 ^ 32)
     (h2 : dst.remapCell.size < 2 ^ 32) :
     dst.canCopySubgraphFrom src = true ↔
       src.l4Count.toNat ≤ dst.remapL4.size ∧ src.cellCount.toNat + 256 ≤ dst.remapCell.size := by
@@ -202,7 +202,7 @@ theorem copied_root {src d : FlatHashLifeArena} (hsrc : ArenaWF src) {rootId new
   unfold flatState
   rw [hn.denoteCell_eq]
 
-theorem flat_copySubgraphFrom_Impl {src dst : FlatHashLifeArena} (hsrc : ArenaWF src) (hwf : ArenaWF dst)
+theorem flat_copySubgraphFrom_correct_Impl {src dst : FlatHashLifeArena} (hsrc : ArenaWF src) (hwf : ArenaWF dst)
     (rootId : UInt32) (copyMemos : Bool) :
     ArenaWF (dst.copySubgraphFrom src rootId copyMemos).2 ∧
     NodesPreserved dst (dst.copySubgraphFrom src rootId copyMemos).2 ∧
@@ -224,7 +224,7 @@ theorem flat_copySubgraphFrom_Impl {src dst : FlatHashLifeArena} (hsrc : ArenaWF
   obtain ⟨_, hid, hn⟩ := hs (hiff.mp hok)
   exact ⟨hid, copied_root hsrc hid hn⟩
 
-theorem flat_compactRootFrom_Impl {src dst : FlatHashLifeArena} (hsrc : ArenaWF src) (hwf : ArenaWF dst)
+theorem flat_compactRootFrom_correct_Impl {src dst : FlatHashLifeArena} (hsrc : ArenaWF src) (hwf : ArenaWF dst)
     (rootId : UInt32) :
     ArenaWF (dst.compactRootFrom src rootId).2 ∧ NodesPreserved dst (dst.compactRootFrom src rootId).2 ∧
     (dst.compactRootFrom src rootId).2.remapL4.size = dst.remapL4.size ∧
@@ -244,13 +244,13 @@ theorem flat_compactRootFrom_Impl {src dst : FlatHashLifeArena} (hsrc : ArenaWF 
   obtain ⟨hov, hid, hn⟩ := hs hok
   exact ⟨hov, hid, copied_root hsrc hid hn⟩
 
-theorem flat_containsCell_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) {root : UInt32}
+theorem flat_containsCell_correct_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) {root : UInt32}
     (hid : root < a.cellCount) (ox oy x y : Int32) :
     a.containsCell root (x.toInt64 - ox.toInt64) (y.toInt64 - oy.toInt64) = true ↔
       (x.toInt, y.toInt) ∈ hashLifeToGrid (flatState a ox oy root) :=
   containsCell_grid hwf hid ox oy x y
 
-theorem withScratch_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) (l4 cell : Array UInt32) :
+theorem flat_withScratch_correct_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) (l4 cell : Array UInt32) :
     ArenaWF (a.withScratch l4 cell) ∧ NodesPreserved a (a.withScratch l4 cell) ∧
     (a.withScratch l4 cell).overflow = a.overflow ∧ (a.withScratch l4 cell).cellCount = a.cellCount ∧
     ∀ (ox oy : Int32) (root : UInt32), flatState (a.withScratch l4 cell) ox oy root = flatState a ox oy root := by
@@ -259,5 +259,32 @@ theorem withScratch_Impl {a : FlatHashLifeArena} (hwf : ArenaWF a) (l4 cell : Ar
     fun ox oy root => ?_⟩
   unfold flatState
   rw [denoteCell_same hs]
+
+/-! ## Concrete checks of the master theorems -/
+
+/-- Proof of `flat_stepOneGenerationInto_eq`. -/
+theorem flat_stepOneGenerationInto_eq_Impl {β : Type} (a : FlatHashLifeArena) (ox oy : Int32) (root : UInt32)
+    (k : Int32 → Int32 → UInt32 → β) :
+    a.stepOneGenerationInto ox oy root k =
+      (k (a.stepOneGeneration ox oy root).1.1 (a.stepOneGeneration ox oy root).1.2.1
+        (a.stepOneGeneration ox oy root).1.2.2, (a.stepOneGeneration ox oy root).2) :=
+  rfl
+
+/-- Proof of `flat_cellCursorStepInto_eq`. -/
+theorem flat_cellCursorStepInto_eq_Impl {β : Type} (a : FlatHashLifeArena) (stack : List CellFrame)
+    (k : UInt64 → Int64 → Int64 → List CellFrame → β) (l t r b : Int32) :
+    a.cellCursorStepInWindowInto l t r b stack k =
+      k (a.cellCursorStepInWindow l t r b stack).1 (a.cellCursorStepInWindow l t r b stack).2.1
+        (a.cellCursorStepInWindow l t r b stack).2.2.1 (a.cellCursorStepInWindow l t r b stack).2.2.2 ∧
+    a.cellCursorStepAllInto stack k =
+      k (a.cellCursorStepAll stack).1 (a.cellCursorStepAll stack).2.1 (a.cellCursorStepAll stack).2.2.1
+        (a.cellCursorStepAll stack).2.2.2 ∧
+    a.cellCursorStepPastXInto stack k =
+      k (a.cellCursorStepPastX stack).1 (a.cellCursorStepPastX stack).2.1 (a.cellCursorStepPastX stack).2.2.1
+        (a.cellCursorStepPastX stack).2.2.2 ∧
+    a.cellCursorStepPastYInto stack k =
+      k (a.cellCursorStepPastY stack).1 (a.cellCursorStepPastY stack).2.1 (a.cellCursorStepPastY stack).2.2.1
+        (a.cellCursorStepPastY stack).2.2.2 :=
+  ⟨rfl, rfl, rfl, rfl⟩
 
 end Algorithm
