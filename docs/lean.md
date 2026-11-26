@@ -28,7 +28,7 @@ Use the table below to decide whether a component should be written in Lean and 
 
 | Criterion | Write in Lean & Generate Kotlin (`lean -K`) | Keep Hand-Written Kotlin & Prove JVM Bytecode (`jvm-lean`) |
 |---|---|---|
-| **Best fit** | New or core pure algorithms, parsers, lookup tables, recursive trees/bitboards, and finite state machines (`HashLife`, `MacroCell`, `FlatHashLife`, `RLE`/`Life105`/`Life106`/`Plaintext`, `RayMarch`, `SessionValue`). | Existing idiomatic Kotlin functions using `inline value` classes, Compose geometry types (`Offset`, `IntOffset`), Kotlin collections/`Set`/`List`, `<clinit>` tables, or Kotlin-specific stdlib calls (`BitComputationKt`, `GeometryExtensionsKt`). |
+| **Best fit** | New or core pure algorithms, parsers, lookup tables, recursive trees/bitboards, and finite state machines (`HashLife`, `MacroCell`, `FlatHashLife`, `RLE`/`Life105`/`Life106`/`Plaintext`, `RayMarch`, `SessionValue`). | Existing idiomatic Kotlin functions using `inline value` classes, Compose geometry types (`Offset`, `IntOffset`), `@Composable` wrappers, Kotlin collections/`Set`/`List`, `<clinit>` tables, or Kotlin-specific stdlib calls (`BitComputationKt`, `HashLifeComputationKt`, `MacroCellCoordinatesKt`, `GameOfLifeStepKt`, `CellWindow`, `DeserializationResultKt`, `CellState`, `Cache`/`Equivalence`, `GeometryExtensionsKt`, `OffsetExtensionsKt`, `RectExtensionsKt`, `IntSizeLerpKt`, `LineSegmentKt`/`LineSegmentPath`, `BackstackNavigationKt`, `BackstackEntry`/`BackstackStateKt`, `ResourceStateKt`, `PeriodUntilKt`, `TargetStateKt`, `EasingPiecewiseKt`, `ColorComponentKt`, `WindowInsetsLerpKt`/`PaddingValuesExtensionsKt`/`NonNegativeLong`/`NonNegativeDouble`, `GridDraggableAnchors2d`/`MutableCellWindowViewportStateImpl`, `serialization` serializers, `mosaic-calculator`). |
 | **Multiplatform artifact** | Emits `commonMain` Kotlin automatically for Android, Desktop JVM, and Wasm from one verified source. | Production Kotlin remains untouched in `commonMain`/`jvmMain`; verification applies directly to the compiled JVM `.class` bytecode. |
 | **What is verified** | Master theorems prove properties of the Lean source definitions; `JvmEquiv` separately proves the JVM bytecode emitted by `kotlinc` matches those Lean definitions. | A standalone Lean model + domain theorems are proved in Lean (never using codegen as the source of truth), and a JVM equivalence proof links the real `.class` bytecode to that model. |
 | **Compiler assumptions** | Trusts the custom Lean-to-Kotlin compiler (`av/jvm`) and any `kotlin_expr`/`FileSpec` shims to match Lean execution semantics. | Trusts `jvm-lean`'s operational model of JVM bytecode instructions and module hooks (`<clinit>`, Kotlin stdlib/Compose inline helpers) to match the JVM runtime. |
@@ -310,14 +310,16 @@ Lean elaboration and symbolic JVM stepping can allocate significant memory if un
 ### Verification Commands
 ```bash
 # Verify Lean formalization across modules
-./gradlew :session-value:verifyLean
-./gradlew :geometry:verifyLean
-./gradlew :algorithm:verifyLean
+./gradlew :session-value:verifyLean :geometry:verifyLean :algorithm:verifyLean \
+  :navigation:verifyLean :resource-state:verifyLean :time-util:verifyLean \
+  :ui-common:verifyLean :ui-cells:verifyLean :serialization:verifyLean :mosaic-calculator:verifyLean
 
 # Lift compiled JVM bytecode and check JvmEquiv / KotlinJvmEquiv proofs
-./gradlew :session-value:verifyLeanJvmBytecode
-./gradlew :geometry:verifyLeanJvmBytecode
-./gradlew :algorithm:verifyLeanJvmBytecode
+./gradlew :session-value:verifyLeanJvmBytecode :geometry:verifyLeanJvmBytecode \
+  :algorithm:verifyLeanJvmBytecode :navigation:verifyLeanJvmBytecode \
+  :resource-state:verifyLeanJvmBytecode :time-util:verifyLeanJvmBytecode \
+  :ui-common:verifyLeanJvmBytecode :ui-cells:verifyLeanJvmBytecode \
+  :serialization:verifyLeanJvmBytecode :mosaic-calculator:verifyLeanJvmBytecode
 
 # Run Kotlin @Test bytecode verification suites on desktop JVM
 ./gradlew :algorithm:desktopTest --tests "*.BitComputationVerificationTests"
@@ -335,7 +337,7 @@ When verifying existing hand-written Kotlin (or validating the JVM bytecode prod
 
 ### Shared JVM Semantics Library (`jvm-lean`)
 
-Each Lean package (`session-value/lean`, `geometry/lean`, `algorithm/lean`) includes `jvm-lean` as a `[[lean_lib]]` dependency (`Jvm`):
+Each Lean package (`session-value/lean`, `geometry/lean`, `algorithm/lean`, `navigation/lean`, `resource-state/lean`, `time-util/lean`, `ui-common/lean`, `ui-cells/lean`, `serialization/lean`, `mosaic-calculator/lean`) includes `jvm-lean` as a `[[lean_lib]]` dependency (`Jvm`):
 
 | Module | Role |
 |---|---|
@@ -355,6 +357,11 @@ Key safety & soundness invariants in `Jvm.Semantics`:
   - `geometry/lean/JvmSemantics.lean` (`geomHooks`): Uses `Empty`/`Unit` (standard `JvmHeap` objects/arrays only) plus hooks for Compose `IntOffset` / `Offset` packing/boxing (`getX-impl`, `getY-impl`, `box-impl`, `unbox-impl`, `plus-qkQi6aY`, `IntOffset_jbKt.IntOffset`), `java/lang/Float.intBitsToFloat`, `java/lang/Math.floor`, `java/lang/Math.signum`, `IntOffset` `checkInstanceOf`/`checkCast`, and array-backed `java/lang/Iterable` / `java/util/List` / `ArrayList` / `Set`.
   - `algorithm/lean/JvmSemantics.lean` (`algHooks`): Adds `AlgExt` / `AlgHeap` for `MacroCell` nodes, `Arena` refs, and `ULongArray` refs alongside `JvmHeap`. Note the documented soundness boundary for `algorithm/lean`: `.arena*Ref` and `.u64Ref` fast paths use Lean's total `Array.get!`/`set!` (while `ULongArray.constructor-impl(I)[J` checks negative sizes fail-closed and arithmetic/bit operations use fail-closed `.asI32?`/`.asI64?`), whereas generic `HeapObj` arrays in `jvm-lean` enforce full bounds and element compatibility checks.
     For the hand-written Kotlin in `KotlinJvmBytecode` (`HashLifeComputationKt`, `MacroCellCoordinatesKt`, `GameOfLifeStepKt`, `CellWindow`), `mkAlgKotlinHooks resolveProg depth fuel` extends these hooks: calls between lifted classes run the callee's lifted program (looked up by `"<Class>.<method>:<descriptor>"`, see `proofs/KotlinJvmEquiv/AlgKotlinProgs.lean`), and leaf hooks model Compose `IntOffset`/`IntRect`, `LinkedHashSet`/`ArrayList`/`IntRange`, `getMooreNeighbors` (geometry's verified model) and the Lean-compiled `f_Algorithm_*` functions, with each trusted assumption documented in `JvmSemantics.lean`.
+  - `navigation/lean/JvmSemantics.lean`: Models `BackstackEntry` / `BackstackState` / `MutableBackstackState` value payloads (`NavValue`, `NavExt`) and map/list operations for `BackstackNavigationKt`.
+  - `resource-state/lean/JvmSemantics.lean`: Models `ResourceState` sealed hierarchy (`Loading`, `Success`, `Failure`), payload values (`RsVal`), and `Pair` / lambda hooks for `ResourceStateKt`.
+  - `time-util/lean/JvmSemantics.lean`: Models `kotlinx.datetime` `Instant` / `DateTimePeriod` / `DateTimeUnit` / `TimeZone` / `Clock` plus Compose `Composer` slot-table helpers (`composerEmpty`, `composer`, `stateRef`, `remember` / `LaunchedEffect` / `mutableStateOf`) to verify `PeriodUntilKt` including its `@Composable` wrappers on initial composition.
+  - `ui-common/lean/JvmSemantics.lean`: Models `TargetState` (`Single`, `InProgress`, `copy`, `map`, `equals`), `Easing` / `EasingPiecewise` (`UiEasing`, `UiExt`), stable `sortedWith`, and module-internal static-call dispatch.
+  - `mosaic-calculator/lean/JvmSemantics.lean`: Combines `ComposeSemantics` and `MosaicSemantics` with `CalcExt` to verify a handwritten Kotlin calculator model and its `@Composable` Mosaic UI.
 
 ### Bytecode Lifting (`script/jvm-bytecode2lean.py`)
 

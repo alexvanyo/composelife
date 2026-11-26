@@ -49,6 +49,9 @@ roots = [
   "models.SpiralRingModel",
   "proofs.SpiralRingModelProofs",
   "theorems.SpiralRingModelTheorems",
+  "models.RectAndLerpModel",
+  "proofs.RectAndLerpModelProofs",
+  "theorems.RectAndLerpModelTheorems",
   "JvmSemantics",
   "AxiomAudit",
 ]

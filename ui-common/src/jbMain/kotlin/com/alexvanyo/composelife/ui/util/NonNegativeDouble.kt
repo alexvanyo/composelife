@@ -34,7 +34,7 @@ private object NonNegativeDouble : InputTransformation {
         val charSequence = asCharSequence()
         if (charSequence.isNotEmpty()) {
             val double = charSequence.toString().toDoubleOrNull()
-            if (double == null || double < 0f) {
+            if (double == null || double.isNaN() || double < 0.0) {
                 revertAllChanges()
             }
         }

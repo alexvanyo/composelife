@@ -55,6 +55,15 @@ lean {
         "com/alexvanyo/composelife/algorithm/MacroCellCoordinatesKt.class",
         "com/alexvanyo/composelife/algorithm/GameOfLifeStepKt.class",
         "com/alexvanyo/composelife/model/CellWindow.class",
+        "com/alexvanyo/composelife/model/DeserializationResultKt.class",
+        "com/alexvanyo/composelife/model/CellStateFormatKt.class",
+        "com/alexvanyo/composelife/model/CellState.class",
+        "com/alexvanyo/composelife/model/CellStateKt.class",
+        "com/alexvanyo/composelife/model/CellStateImpl.class",
+        "com/alexvanyo/composelife/algorithm/Cache.class",
+        "com/alexvanyo/composelife/algorithm/Equivalence\$Wrapper.class",
+        "com/alexvanyo/composelife/algorithm/Equivalence\$FixedWrapper.class",
+        "com/alexvanyo/composelife/algorithm/Equivalence\$ReusableWrapper.class",
     )
     // Function-reference constructors (`::computeNextGenerationPureKotlin`) load `BitComputationKt::class` with an
     // `ldc` class constant, which the lifted instruction subset does not model. They are not verified; the

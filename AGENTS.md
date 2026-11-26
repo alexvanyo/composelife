@@ -11,6 +11,7 @@ This is a Kotlin Multiplatform (KMP) project that implements Conway's Game of Li
 - **Architecture:** This is a multi-module project. Functionality is separated into layers like `data`, `database`, `algorithm`, and UI modules (`ui-mobile`, `ui-wear`, etc.).
 - **Dependency Injection:** The project uses `metro` for dependency injection.
 - **Rendering:** The project uses advanced rendering techniques including AGSL, OpenGL, and SKSL.
+- **Formal Verification:** The project uses Lean 4 (`docs/lean.md`) in two complementary ways: Lean-first multiplatform Kotlin codegen (`lean -K`) and direct JVM bytecode semantics verification (`jvm-lean` + `script/jvm-bytecode2lean.py`) of compiled Kotlin `.class` files (exposed via `verifyLeanJvmBytecode` and `:lean-test-fixtures` desktop tests).
 
 ## Coding Style & Conventions
 

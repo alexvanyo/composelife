@@ -20,5 +20,7 @@ import proofs.KotlinJvmEquiv.TargetState
 import proofs.KotlinJvmEquiv.EasingPiecewise
 import proofs.KotlinJvmEquiv.EasingLambda
 import proofs.KotlinJvmEquiv.EasingFactory
+import proofs.KotlinJvmEquiv.ColorComponent
+import proofs.KotlinJvmEquiv.UiUtil
 
 #audit_jvm_equiv_axioms UiCommon.KotlinJvmVerification UiCommon.KotlinJvmBytecode

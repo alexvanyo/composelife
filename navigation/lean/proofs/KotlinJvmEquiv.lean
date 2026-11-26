@@ -17,5 +17,6 @@
 import Jvm.Audit
 import KotlinJvmBytecode
 import proofs.KotlinJvmEquiv.BackstackNavigation
+import proofs.KotlinJvmEquiv.BackstackState
 
 #audit_jvm_equiv_axioms Navigation.KotlinJvmVerification Navigation.KotlinJvmBytecode

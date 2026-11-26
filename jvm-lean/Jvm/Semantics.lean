@@ -1106,7 +1106,7 @@ def stepInvokeStaticGeneric {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
     | "toSet", "(Ljava/lang/Iterable;)Ljava/util/Set;", .heapRef colAddr :: rest =>
       match extractListArray? st.jvmHeap colAddr with
       | some elems =>
-        if !elems.all (·.equalsModeled st.jvmHeap) then hooks.stepInvokeStatic st cls method desc else
+        if !elems.toList.all (·.equalsModeled st.jvmHeap) then hooks.stepInvokeStatic st cls method desc else
         let dedup := (dedupJvmVals (JvmVal.beqVal hooks.beqExt) elems.toList).toArray
         let (arrAddr, h1) := st.jvmHeap.alloc (.objArray "java/lang/Object" dedup)
         let (setAddr, h2) := h1.alloc (.instance "java/util/Set" [("arr", .heapRef arrAddr)])
@@ -2051,6 +2051,30 @@ theorem stepInstr_iastore {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
     (hlt : idx.toNat < elems.size) :
     stepInstr hooks .iastore ⟨pc, .i32 v :: .i32 idx :: .heapRef addr :: stkRest, locs, jh, hp⟩ =
       .inl (some ⟨pc + 1, stkRest, locs, jh.set addr (.intArray (elems.set idx.toNat v hlt)), hp⟩) := by
+  unfold stepInstr stepArrayStore
+  simp [hget, hslt, hlt]
+
+theorem stepInstr_faload {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
+    {pc : Nat} {idx : UInt32} {addr : Nat} {stkRest : List (JvmVal Ext)}
+    {locs : Nat → JvmVal Ext} {jh : JvmHeap Ext} {hp : Heap}
+    {elems : Array Float32}
+    (hget : jh.get? addr = some (.floatArray elems))
+    (hslt : idx.toBitVec.slt 0#32 = false)
+    (hlt : idx.toNat < elems.size) :
+    stepInstr hooks .faload ⟨pc, .i32 idx :: .heapRef addr :: stkRest, locs, jh, hp⟩ =
+      .inl (some ⟨pc + 1, .f32 elems[idx.toNat] :: stkRest, locs, jh, hp⟩) := by
+  unfold stepInstr stepArrayLoad
+  simp [hget, hslt, hlt]
+
+theorem stepInstr_fastore {Ext Heap : Type} (hooks : JvmHooks Ext Heap)
+    {pc : Nat} {v : Float32} {idx : UInt32} {addr : Nat} {stkRest : List (JvmVal Ext)}
+    {locs : Nat → JvmVal Ext} {jh : JvmHeap Ext} {hp : Heap}
+    {elems : Array Float32}
+    (hget : jh.get? addr = some (.floatArray elems))
+    (hslt : idx.toBitVec.slt 0#32 = false)
+    (hlt : idx.toNat < elems.size) :
+    stepInstr hooks .fastore ⟨pc, .f32 v :: .i32 idx :: .heapRef addr :: stkRest, locs, jh, hp⟩ =
+      .inl (some ⟨pc + 1, stkRest, locs, jh.set addr (.floatArray (elems.set idx.toNat v hlt)), hp⟩) := by
   unfold stepInstr stepArrayStore
   simp [hget, hslt, hlt]
 

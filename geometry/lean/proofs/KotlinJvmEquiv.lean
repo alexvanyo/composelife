@@ -18,5 +18,7 @@ import Jvm.Audit
 import KotlinJvmBytecode
 import proofs.KotlinJvmEquiv.GeometryExtensions
 import proofs.KotlinJvmEquiv.OffsetExtensions
+import proofs.KotlinJvmEquiv.RectAndLerp
+import proofs.KotlinJvmEquiv.LineSegmentWrapper
 
 #audit_jvm_equiv_axioms Geometry.KotlinJvmVerification Geometry.KotlinJvmBytecode

@@ -21,5 +21,8 @@ import proofs.KotlinJvmEquiv.HashLifeComputation
 import proofs.KotlinJvmEquiv.GameOfLifeStep
 import proofs.KotlinJvmEquiv.MacroCellCoordinates
 import proofs.KotlinJvmEquiv.CellWindow
+import proofs.KotlinJvmEquiv.DeserializationResult
+import proofs.KotlinJvmEquiv.CellState
+import proofs.KotlinJvmEquiv.HashLifeCache
 
 #audit_jvm_equiv_axioms Algorithm.KotlinJvmVerification Algorithm.KotlinJvmBytecode

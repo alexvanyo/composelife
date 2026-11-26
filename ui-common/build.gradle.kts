@@ -41,6 +41,15 @@ lean {
         "com/alexvanyo/composelife/ui/util/TargetStateKt.class",
         "com/alexvanyo/composelife/ui/util/TargetState\$InProgress.class",
         "com/alexvanyo/composelife/ui/util/EasingPiecewiseKt.class",
+        "com/alexvanyo/composelife/ui/util/ColorComponentKt.class",
+        "com/alexvanyo/composelife/ui/util/WindowInsetsLerpKt.class",
+        "com/alexvanyo/composelife/ui/util/WindowInsetsLerpKt\$lerp\$1.class",
+        "com/alexvanyo/composelife/ui/util/PaddingValuesExtensionsKt.class",
+        "com/alexvanyo/composelife/ui/util/PaddingValuesExtensionsKt\$plus\$1.class",
+        "com/alexvanyo/composelife/ui/util/NonNegativeLong.class",
+        "com/alexvanyo/composelife/ui/util/NonNegativeLongKt.class",
+        "com/alexvanyo/composelife/ui/util/NonNegativeDouble.class",
+        "com/alexvanyo/composelife/ui/util/NonNegativeDoubleKt.class",
     )
 }
 

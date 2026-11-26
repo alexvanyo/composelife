@@ -21,6 +21,8 @@ These include:
   - Custom [adaptive navigation library][navigation]
 - [Dependency injection][dependency-injection] using [Metro][metro] and
   [context parameters][context_parameters]
+- [Formal verification][lean] using [Lean 4][lean4] — both Lean-to-Kotlin codegen and direct JVM
+  bytecode semantics verification (`jvm-lean`) of compiled Kotlin `.class` files
 - [AGSL][agsl], [OpenGL](https://developer.android.com/develop/ui/views/graphics/opengl/about-opengl) and [SKSL][sksl] rendering
 - Fully functional CI system with GitHub Actions with:
     - Comprehensive automated tests
@@ -94,6 +96,7 @@ limitations under the License.
 [keeper]: https://slackhq.github.io/keeper/
 [kotlin]: https://kotlinlang.org/
 [leakcanary]: https://square.github.io/leakcanary/
+[lean4]: https://lean-lang.org/
 [metro]: https://github.com/ZacSweers/metro
 [opengl]: https://developer.android.com/develop/ui/views/graphics/opengl/about-opengl
 [renovate]: https://docs.renovatebot.com/
@@ -108,6 +111,7 @@ limitations under the License.
 [desktop-app]: desktop-app
 [dependency-injection]: docs/di.md
 [icon]: app/src/androidMain/ic_launcher-playstore.png
+[lean]: docs/lean.md
 [navigation]: docs/navigation.md
 [watchface]: resources-wear/src/androidMain/res/drawable-nodpi/watchface_round.png
 [wear]: wear

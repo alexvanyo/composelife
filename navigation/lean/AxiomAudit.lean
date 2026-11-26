@@ -16,18 +16,20 @@
 
 import Jvm.Audit
 import theorems.BackstackNavigationModelTheorems
+import theorems.BackstackStateModelTheorems
 import proofs.Mutations
 
 open Lean Elab Command in
 elab "#audit_master_theorem_axioms" : command =>
-  Jvm.checkMasterTheoremAxioms (· == `theorems.BackstackNavigationModelTheorems)
+  Jvm.checkMasterTheoremAxioms
+    (fun mod => mod == `theorems.BackstackNavigationModelTheorems || mod == `theorems.BackstackStateModelTheorems)
 
 #audit_master_theorem_axioms
 
 open Lean Elab Command in
 elab "#audit_master_theorem_names" : command =>
   Jvm.checkMasterTheoremNames
-    (· == `theorems.BackstackNavigationModelTheorems)
+    (fun mod => mod == `theorems.BackstackNavigationModelTheorems || mod == `theorems.BackstackStateModelTheorems)
     (fun mod => mod.getRoot == `proofs)
 
 #audit_master_theorem_names

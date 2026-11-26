@@ -29,6 +29,7 @@ plugins {
     alias(libs.plugins.convention.androidLibraryTesting)
     alias(libs.plugins.convention.detekt)
     alias(libs.plugins.convention.kotlinMultiplatformCompose)
+    alias(libs.plugins.convention.lean)
     kotlin("plugin.serialization") version libs.versions.kotlin
     alias(libs.plugins.gradleDependenciesSorter)
     alias(libs.plugins.metro)
@@ -37,6 +38,16 @@ plugins {
 metro {
     enableTopLevelFunctionInjection = true
     unusedGraphInputsSeverity = DiagnosticSeverity.NONE
+}
+
+lean {
+    target = "UiCells:static"
+    packageName = "com.alexvanyo.composelife.ui.cells"
+    kotlinBytecodeClassPaths.addAll(
+        "com/alexvanyo/composelife/ui/cells/GridDraggableAnchors2d.class",
+        "com/alexvanyo/composelife/ui/cells/MutableCellWindowViewportStateImpl.class",
+        "com/alexvanyo/composelife/ui/cells/TrackingCellWindowViewportState.class",
+    )
 }
 
 kotlin {
@@ -182,6 +193,8 @@ kotlin {
         val desktopTest by getting {
             dependsOn(jvmTest)
             dependencies {
+                implementation(projects.leanTestFixtures)
+                implementation(libs.kotlin.test)
                 implementation(libs.kotlinx.coroutines.swing)
             }
         }

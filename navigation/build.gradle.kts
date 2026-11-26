@@ -34,7 +34,12 @@ plugins {
 lean {
     target = "Navigation:static"
     packageName = "com.alexvanyo.composelife.navigation"
-    kotlinBytecodeClassPaths.add("com/alexvanyo/composelife/navigation/BackstackNavigationKt.class")
+    kotlinBytecodeClassPaths.addAll(
+        "com/alexvanyo/composelife/navigation/BackstackNavigationKt.class",
+        "com/alexvanyo/composelife/navigation/BackstackEntry.class",
+        "com/alexvanyo/composelife/navigation/MutableBackstackNavigationControllerKt.class",
+        "com/alexvanyo/composelife/navigation/BackstackStateKt.class",
+    )
 }
 
 kotlin {

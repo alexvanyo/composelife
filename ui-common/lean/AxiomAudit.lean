@@ -17,19 +17,23 @@
 import Jvm.Audit
 import theorems.TargetStateModelTheorems
 import theorems.EasingPiecewiseModelTheorems
+import theorems.ColorComponentModelTheorems
+import theorems.UiUtilModelTheorems
 import proofs.Mutations
 
 open Lean Elab Command in
 elab "#audit_master_theorem_axioms" : command =>
   Jvm.checkMasterTheoremAxioms
-    (fun mod => mod == `theorems.TargetStateModelTheorems || mod == `theorems.EasingPiecewiseModelTheorems)
+    (fun mod => mod == `theorems.TargetStateModelTheorems || mod == `theorems.EasingPiecewiseModelTheorems ||
+      mod == `theorems.ColorComponentModelTheorems || mod == `theorems.UiUtilModelTheorems)
 
 #audit_master_theorem_axioms
 
 open Lean Elab Command in
 elab "#audit_master_theorem_names" : command =>
   Jvm.checkMasterTheoremNames
-    (fun mod => mod == `theorems.TargetStateModelTheorems || mod == `theorems.EasingPiecewiseModelTheorems)
+    (fun mod => mod == `theorems.TargetStateModelTheorems || mod == `theorems.EasingPiecewiseModelTheorems ||
+      mod == `theorems.ColorComponentModelTheorems || mod == `theorems.UiUtilModelTheorems)
     (fun mod => mod.getRoot == `proofs)
 
 #audit_master_theorem_names

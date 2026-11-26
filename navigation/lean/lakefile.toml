@@ -7,8 +7,11 @@ moreLeanArgs = ["-M4096", "-j2"]
 name = "Navigation"
 roots = [
   "models.BackstackNavigationModel",
+  "models.BackstackStateModel",
   "proofs.BackstackNavigationModelProofs",
+  "proofs.BackstackStateModelProofs",
   "theorems.BackstackNavigationModelTheorems",
+  "theorems.BackstackStateModelTheorems",
   "proofs.Mutations",
   "JvmSemantics",
   "AxiomAudit",

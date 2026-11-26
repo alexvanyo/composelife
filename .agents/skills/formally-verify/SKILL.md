@@ -2,15 +2,18 @@
 name: formally-verify
 description: >-
   Guides formal verification of algorithms, data structures, and properties in the ComposeLife project using Lean 4 and Mathlib.
-  Covers mathematical specification, equivalence reduction, metric-based completeness, invariant-based soundness,
-  timeout avoidance, Lean modularization, C/Kotlin FFI bridge interop, and verification checks.
+  Covers both Lean-first Kotlin codegen (`lean -K`) and direct JVM bytecode semantics verification (`jvm-lean`) of compiled
+  Kotlin `.class` files, including mathematical specification, equivalence reduction, metric-based completeness,
+  invariant-based soundness, timeout avoidance, Lean modularization, bytecode lifting, axiom auditing, and verification checks.
 ---
 
 # Formally Verify Skill
 
 Use this skill when formally verifying an algorithm, data structure, or mathematical property in the **ComposeLife** codebase using Lean 4 and Mathlib.
 
-The repository pairs Kotlin Multiplatform implementations with formal Lean 4 models, connected via C FFI bridges (and Kotlin/Native cinterop) for runtime validation and differential conformance testing.
+See [`docs/lean.md`](../../../docs/lean.md) for the normative architecture guide. ComposeLife uses Lean 4 in two complementary ways:
+1. **Lean-first Kotlin codegen (`lean -K`)**: Core algorithms and state machines are written in Lean using fixed-width types, formally proved against mathematical specifications, and compiled to multiplatform Kotlin.
+2. **Direct JVM bytecode verification (`jvm-lean`)**: Compiled desktop JVM `.class` files—both from Lean-generated Kotlin (`JvmBytecode.lean`) and from **existing hand-written Kotlin** (`KotlinJvmBytecode.lean`)—are lifted via `script/jvm-bytecode2lean.py` into pure Lean `List JvmInstr` programs and proved equivalent to standalone Lean models and domain theorems under the shared `jvm-lean` operational semantics.
 
 ---
 
@@ -23,9 +26,9 @@ A verification task is only complete when:
    ```lean
    [propext, Classical.choice, Quot.sound]
    ```
-   No custom `axiom` declarations or unverified assumptions.
-4. **Clean Compilation**: `lake build <Target>:static` succeeds with **0 warnings and 0 errors**.
-5. **Differential & Conformance Tests Pass**: All Kotlin/Native bridge tests and randomized fuzz tests pass cleanly via Gradle (`./gradlew :<module>:check`).
+   (plus verified `bv_check` LRAT certificate axioms `._native.bv_decide.ax_*` for bit-level proofs). No custom `axiom` declarations, `bv_decide`, or unverified assumptions.
+4. **Clean Compilation**: `lake build --wfail <Target>:static` succeeds with **0 warnings and 0 errors**.
+5. **JVM Bytecode & Test Verification Pass**: For modules with `kotlinBytecodeClassPaths` or `entries`, `./gradlew :<module>:verifyLeanJvmBytecode` passes (including `#audit_jvm_equiv_axioms`), and all `*VerificationTests` suites (`:lean-test-fixtures`) and unit tests pass via `./gradlew :<module>:check`.
 
 ---
 
@@ -126,22 +129,21 @@ When a verification file exceeds 1,500–2,000 lines, split it into a clean Dire
 
 ---
 
-### Phase 6: C / Kotlin FFI & Differential Conformance Testing
-1. **Lossless Type Marshaling**:
-   - Connect the Lean model to Kotlin via C ABI bindings.
-   - When converting between Kotlin primitives (e.g. IEEE-754 floats) and exact mathematical models (e.g. dyadic rationals `Rat`):
-     - Unpack binary representations faithfully (e.g. evaluating sign, exponent, and fraction bitfields) to preserve exact numerical values.
-     - Never cast raw bit patterns directly into integer values.
-2. **Memory & Runtime Safety**:
-   - Ensure Lean runtime initialization (`lean_initialize_runtime_module`) is called once.
-   - Correctly manage Lean reference counting (`lean_dec_ref`, `lean_alloc_array`, `lean_box_*`, `lean_unbox_*`).
-3. **Differential Fuzz Testing**:
-   - In Kotlin tests, write randomized property-based tests running hundreds of iterations comparing Kotlin implementations against the Lean oracle:
-     ```kotlin
-     assertEquals(oracle.compute(inputs), kotlinImplementation(inputs))
-     ```
-4. **Gradle Native Cache Invalidation**:
-   - When modifying C or Lean native static libraries, rerun native test binaries with `--no-build-cache --rerun-tasks` to ensure the linker doesn't reuse stale executables.
+### Phase 6: JVM Bytecode Verification (`jvm-lean`) & Kotlin Test Integration
+When verifying existing hand-written Kotlin `.class` output directly (or closing the gap on Lean-generated Kotlin):
+1. **Configure Bytecode Lifting**:
+   - Add target `.class` paths under `lean { kotlinBytecodeClassPaths.add(...) }` in `<module>/build.gradle.kts` (and document any intentionally unlifted methods in `kotlinBytecodeUnliftedMethods`).
+   - Run `./gradlew :<module>:verifyLeanJvmBytecode` to lift the desktop JVM `.class` files via `script/jvm-bytecode2lean.py` into `<module>/build/generated/lean/jvm/KotlinJvmBytecode.lean`.
+2. **Model Module Hooks (`<module>/lean/JvmSemantics.lean`)**:
+   - Import the shared `Jvm` library (`jvm-lean`) and define module-specific extension values and `JvmHooks` (e.g., Compose value classes, Kotlin collections, Compose `Composer` slot-table helpers, or cross-class lifted-program dispatch).
+   - Keep hooks fail-closed and document every trusted boundary.
+3. **Prove Bytecode Equivalence (`proofs/KotlinJvmEquiv/*.lean` + `proofs/KotlinJvmEquiv.lean`)**:
+   - Use `Jvm.FastExec` / `Jvm.Proofs` / `Jvm.Tactics` (`runJvmValFast`, `runJvmResFast`, block-chunked stepping) to prove that executing each lifted `*_prog` matches the standalone Lean model (`models/<Name>Model.lean`) and preserves any `<clinit>` static-field invariants.
+   - End `proofs/KotlinJvmEquiv.lean` with `#audit_jvm_equiv_axioms <Module>.KotlinJvmVerification <Module>.KotlinJvmBytecode` so every lifted `*_prog` is audited for coverage and standard axioms.
+4. **Expose Live-Classpath `@Test` Verification (`:lean-test-fixtures`)**:
+   - Add `<Name>VerificationTests.kt` in `<module>/src/desktopTest/` using `JvmBytecodeVerificationSpec` and `verifyTheorem` to lift the live `.class` resource from the test classpath and elaborate the theorems against `RealJvmBytecode`.
+5. **Mutation & Non-Vacuity Proofs (`proofs/Mutations.lean`)**:
+   - Add mutant and non-vacuity proofs to ensure master theorems reject buggy implementations and have satisfiable hypotheses.
 
 ---
 
