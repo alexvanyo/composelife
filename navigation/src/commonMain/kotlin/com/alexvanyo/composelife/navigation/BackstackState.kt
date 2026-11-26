@@ -37,7 +37,7 @@ interface BackstackState<T> : NavigationState<BackstackEntry<T>> {
  * The id of the previous entry if any. This acts a pointer into [BackstackState.entryMap].
  */
 val <T> BackstackState<T>.previousEntryId: Uuid?
-    get() = currentEntry.previous?.id
+    get() = f_Navigation_previousEntryId<T>(currentEntry)
 
 /**
  * The previous entry of this [BackstackState], based on the [BackstackState.previousEntryId].
@@ -93,11 +93,6 @@ internal data class ValueAsSurrogate<T>(val value: T) : BackstackValueSurrogate<
     override fun createFromSurrogate(previous: BackstackEntry<T>?): T = value
 }
 
-@Serializable
-private data class BackstackEntrySurrogate<S>(val id: Uuid, val previousId: Uuid?, val surrogate: S) {
-    companion object
-}
-
 interface BackstackValueSurrogate<T> {
     fun createFromSurrogate(previous: BackstackEntry<T>?): T
 }
@@ -109,49 +104,35 @@ inline fun <T, reified S : BackstackValueSurrogate<T>> BackstackMapSerializer(
     backstackValueSurrogateSerializer = serializer(),
 )
 
+@Suppress("UNCHECKED_CAST")
 fun <T, S : BackstackValueSurrogate<T>> BackstackMapSerializer(
     convertToSurrogate: (T) -> S,
     backstackValueSurrogateSerializer: KSerializer<S>,
 ): KSerializer<MutableBackstackMap<T>> = SurrogatingSerializer(
     serialName = "com.alexvanyo.composelife.navigation.BackstackMap",
     convertFromSurrogate = { entrySurrogateList ->
-        val map = mutableStateMapOf<Uuid, BackstackEntry<T>>()
-
-        entrySurrogateList.forEach { backstackEntrySurrogate ->
-            val id = backstackEntrySurrogate.id
-            val previous = backstackEntrySurrogate.previousId?.let(map::getValue)
-            val value = backstackEntrySurrogate.surrogate.createFromSurrogate(previous)
-            map[id] = BackstackEntry(
-                id = id,
-                previous = previous,
-                value = value,
-            )
+        val entries = checkNotNull(
+            f_Navigation_deserializeBackstackEntries<S, T>(
+                entrySurrogateList.map { it as Any? }.toTypedArray(),
+            ) { surrogate, previous ->
+                surrogate.createFromSurrogate(previous as BackstackEntry<T>?)
+            },
+        ) {
+            "Failed to deserialize backstack entries!"
         }
-
-        map
+        mutableStateMapOf<Uuid, BackstackEntry<T>>().apply {
+            for (entry in entries) {
+                val typedEntry = entry as BackstackEntry<T>
+                put(typedEntry.id, typedEntry)
+            }
+        }
     },
     convertToSurrogate = { backstackMap ->
-        buildList {
-            val remainingKeys = backstackMap.keys.toMutableSet()
-
-            fun addEntry(key: Uuid) {
-                if (key !in remainingKeys) return
-                val entry = backstackMap.getValue(key)
-                entry.previous?.id?.let(::addEntry)
-                add(
-                    BackstackEntrySurrogate(
-                        id = entry.id,
-                        previousId = entry.previous?.id,
-                        surrogate = convertToSurrogate(entry.value),
-                    ),
-                )
-                remainingKeys.remove(key)
-            }
-
-            while (remainingKeys.isNotEmpty()) {
-                addEntry(remainingKeys.first())
-            }
-        }
+        val surrogates = f_Navigation_serializeBackstackEntries<T, S>(
+            backstackMap.values.map { it as Any? }.toTypedArray(),
+            convertToSurrogate,
+        )
+        surrogates.map { it as BackstackEntrySurrogate<S> }
     },
     surrogateSerializer = ListSerializer(
         BackstackEntrySurrogate.serializer(backstackValueSurrogateSerializer),
