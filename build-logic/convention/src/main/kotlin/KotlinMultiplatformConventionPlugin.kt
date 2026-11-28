@@ -23,6 +23,7 @@ import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.testing.AbstractTestTask
 import org.jetbrains.kotlin.gradle.targets.js.testing.KotlinJsTest
 import org.jetbrains.kotlin.gradle.targets.js.testing.karma.KotlinKarma
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
 import java.io.File
 
 class KotlinMultiplatformConventionPlugin :
@@ -41,6 +42,12 @@ class KotlinMultiplatformConventionPlugin :
             heavyTaskLimitingBuildService = heavyTaskLimitingBuildService,
             karmaConfigDir = karmaConfigDir,
         )
+
+        val webpackConfigDir = isolated.rootProject.projectDirectory.dir("config/webpack").asFile
+        configureKotlinWebpack(
+            tasks = tasks,
+            webpackConfigDir = webpackConfigDir,
+        )
     })
 
 private fun configureKotlinJsTest(
@@ -54,6 +61,14 @@ private fun configureKotlinJsTest(
             if (this is KotlinKarma) {
                 useConfigDirectory(karmaConfigDir)
             }
+        }
+    }
+}
+
+private fun configureKotlinWebpack(tasks: TaskContainer, webpackConfigDir: File) {
+    tasks.withType(KotlinWebpack::class.java).configureEach {
+        webpackConfigApplier {
+            configDirectory = webpackConfigDir
         }
     }
 }

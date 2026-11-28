@@ -30,7 +30,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.algorithmmoleculetests"
         minSdk = 24
         configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
@@ -49,12 +49,12 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 implementation(projects.algorithm)
             }
         }
-        val commonTest by getting {
+        val commonTest = getByName("commonTest") {
             dependencies {
                 implementation(projects.algorithmTestResources)
                 implementation(projects.dispatchersTestFixtures)

@@ -25,7 +25,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.tracingtest"
         minSdk = 24
     }
@@ -42,7 +42,7 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 api(projects.tracing)
                 implementation(projects.injectScopes)

@@ -25,7 +25,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.tracing"
         minSdk = 24
     }
@@ -42,30 +42,30 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 implementation(projects.dispatchers)
                 implementation(projects.injectScopes)
             }
         }
-        val jvmMain by creating {
+        val jvmMain = create("jvmMain") {
             dependsOn(commonMain)
         }
-        val androidMain by getting {
+        val androidMain = getByName("androidMain") {
             dependsOn(jvmMain)
             dependencies {
                 api(libs.androidx.tracing)
                 implementation(libs.androidx.tracing.wire)
             }
         }
-        val desktopMain by getting {
+        val desktopMain = getByName("desktopMain") {
             dependsOn(jvmMain)
             dependencies {
                 api(libs.androidx.tracing)
                 implementation(libs.androidx.tracing.wire)
             }
         }
-        val wasmJsMain by getting {
+        val wasmJsMain = getByName("wasmJsMain") {
             dependsOn(commonMain)
         }
     }

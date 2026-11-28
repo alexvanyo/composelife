@@ -24,7 +24,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.resources.common"
         minSdk = 24
         // This library contains no code, so desugaring isn't needed

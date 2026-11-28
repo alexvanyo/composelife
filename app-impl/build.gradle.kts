@@ -30,11 +30,12 @@ plugins {
 }
 
 metro {
+    @OptIn(dev.zacsweers.metro.gradle.ExperimentalMetroGradleApi::class)
     enableRuntimeTracing.set(true)
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.appimpl"
         minSdk = 24
         compilations.withType(KotlinMultiplatformAndroidDeviceTestCompilation::class.java) {
@@ -45,7 +46,7 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 implementation(projects.androidApplication)
                 implementation(projects.doNotKeepProcess)
@@ -65,7 +66,7 @@ kotlin {
                 implementation(libs.kotlinx.serialization.core)
             }
         }
-        val androidMain by getting {
+        val androidMain = getByName("androidMain") {
             dependencies {
                 implementation(libs.androidx.activityCompose)
                 implementation(libs.androidx.appcompat)
@@ -75,7 +76,7 @@ kotlin {
                 implementation(libs.androidx.profileInstaller)
             }
         }
-        val commonTest by getting {
+        val commonTest = getByName("commonTest") {
             dependencies {
                 implementation(projects.appTestFixtures)
                 implementation(projects.databaseTestFixtures)
@@ -88,7 +89,7 @@ kotlin {
                 implementation(projects.workTestFixtures)
             }
         }
-        val androidSharedTest by getting {
+        val androidSharedTest = getByName("androidSharedTest") {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.androidx.test.core)

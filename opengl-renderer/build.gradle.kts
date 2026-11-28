@@ -25,7 +25,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.openglrenderer"
         minSdk = 24
     }
@@ -42,7 +42,7 @@ kotlin {
     }
 
     sourceSets {
-        val androidMain by getting {
+        val androidMain = getByName("androidMain") {
             dependencies {
                 api(libs.androidx.compose.runtime)
                 api(libs.androidx.compose.ui)

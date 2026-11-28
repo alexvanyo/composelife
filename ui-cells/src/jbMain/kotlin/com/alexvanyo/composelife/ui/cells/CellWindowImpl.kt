@@ -19,6 +19,7 @@ package com.alexvanyo.composelife.ui.cells
 
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationVector
+import androidx.compose.animation.core.AnimationVector3D
 import androidx.compose.animation.core.SnapSpec
 import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.animation.core.animateValueAsState
@@ -162,15 +163,7 @@ internal fun CellWindowImpl(
          */
         val animatingCellWindowViewport by animateValueAsState(
             targetValue = targetCellWindowViewport,
-            typeConverter = TwoWayConverter(
-                { AnimationVector(it.offset.x, it.offset.y, it.scale) },
-                {
-                    CellWindowViewport(
-                        offset = Offset(it.v1, it.v2),
-                        scale = it.v3,
-                    )
-                },
-            ),
+            typeConverter = CellWindowViewportVectorConverter,
             animationSpec = cellWindowViewportAnimationSpec,
             visibilityThreshold = CellWindowViewport(Offset(0.01f, 0.01f), 0.01f),
             label = "CellWindowViewport Animation",
@@ -421,3 +414,13 @@ private fun CellWindowUiState.getSelectionCellState(selectionState: SelectionSta
 
     is SelectionState.Selection -> selectionState.cellState
 }
+
+private val CellWindowViewportVectorConverter = TwoWayConverter<CellWindowViewport, AnimationVector3D>(
+    convertToVector = { AnimationVector(it.offset.x, it.offset.y, it.scale) },
+    convertFromVector = {
+        CellWindowViewport(
+            offset = Offset(it.v1, it.v2),
+            scale = it.v3,
+        )
+    },
+)

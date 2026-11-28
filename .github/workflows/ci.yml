@@ -245,7 +245,7 @@ jobs:
       - name: Run unit and screenshot tests
         id: check-tests
         continue-on-error: true
-        run: ./gradlew testDebugUnitTest desktopTest linuxX64Test --stacktrace
+        run: ./gradlew testDebugUnitTest testAndroidHostTest desktopTest linuxX64Test --stacktrace
 
       - name: Update screenshots
         if: ${{ !cancelled() && matrix.sdk == '37' && steps.check-tests.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
@@ -257,6 +257,75 @@ jobs:
         with:
           commit_message: Auto update screenshots
           push_options: --force-with-lease
+
+      - name: Generate and comment PR screenshot comparison report
+        if: ${{ !cancelled() && matrix.sdk == '37' && github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT || github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          REPO: ${{ github.repository }}
+        run: |
+          git fetch origin "$BASE_SHA" --depth 1
+          CHANGED_HASHES=$(git diff --name-only "$BASE_SHA" HEAD -- '*.png.sha256' || true)
+          BRANCH_NAME="companion_pr_${PR_NUMBER}"
+          EXISTING_COMMENT_ID=$(gh api "/repos/${REPO}/issues/${PR_NUMBER}/comments" --jq '.[] | select(.body | contains("<!-- roborazzi-diff-report -->")) | .id' 2>/dev/null | head -n 1 || true)
+
+          if [ -z "$CHANGED_HASHES" ]; then
+            echo "No screenshot hash changes detected against $BASE_REF."
+            if [ -n "$EXISTING_COMMENT_ID" ]; then
+              gh api -X PATCH "/repos/${REPO}/issues/comments/$EXISTING_COMMENT_ID" \
+                -f body="## 📸 Roborazzi Screenshot Comparison Report\n<!-- roborazzi-diff-report -->\n✅ All screenshots match base branch \`${BASE_REF}\`."
+            fi
+            exit 0
+          fi
+
+          echo "Screenshot hash changes detected:"
+          echo "$CHANGED_HASHES"
+
+          ./scripts/compare-screenshots.sh "$BASE_SHA"
+
+          DIFF_DIR=$(mktemp -d)
+          find . -name "*_compare.png" -path "*/build/outputs/roborazzi/*" | while read -r file; do
+            target_path="$DIFF_DIR/${file#./}"
+            mkdir -p "$(dirname "$target_path")"
+            cp "$file" "$target_path"
+          done
+
+          if [ -z "$(ls -A "$DIFF_DIR")" ]; then
+            echo "No compare diff images produced."
+            rm -rf "$DIFF_DIR"
+            exit 0
+          fi
+
+          (
+            cd "$DIFF_DIR"
+            git init -b "$BRANCH_NAME"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git config user.name "github-actions[bot]"
+            git add .
+            git commit -m "Roborazzi screenshot comparison diffs for PR #${PR_NUMBER}"
+            git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO}.git" "HEAD:refs/heads/${BRANCH_NAME}" --force
+          )
+          rm -rf "$DIFF_DIR"
+
+          COMMENT_BODY="## 📸 Roborazzi Screenshot Comparison Report\n<!-- roborazzi-diff-report -->\nDifferences detected compared to \`${BASE_REF}\`:\n\n| Screenshot | Difference Preview |\n| :--- | :--- |\n"
+          while read -r file; do
+            [ -n "$file" ] || continue
+            rel_file="${file#./}"
+            image_url="https://github.com/${REPO}/raw/${BRANCH_NAME}/${rel_file}"
+            base_name=$(basename "$file")
+            COMMENT_BODY="${COMMENT_BODY}| \`${base_name}\` | [![Diff](${image_url})](${image_url}) |\n"
+          done < <(find . -name "*_compare.png" -path "*/build/outputs/roborazzi/*")
+
+          if [ -n "$EXISTING_COMMENT_ID" ]; then
+            echo "Updating existing PR comment $EXISTING_COMMENT_ID..."
+            gh api -X PATCH "/repos/${REPO}/issues/comments/$EXISTING_COMMENT_ID" -f body="$(echo -e "$COMMENT_BODY")"
+          else
+            echo "Creating new PR comment..."
+            gh pr comment "$PR_NUMBER" --body "$(echo -e "$COMMENT_BODY")"
+          fi
 
       - name: Run Wasm tests
         id: check-wasm

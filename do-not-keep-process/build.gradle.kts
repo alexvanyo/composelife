@@ -29,13 +29,13 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.donotkeepprocess"
         minSdk = 24
     }
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 api(projects.processLifecycle)
 
@@ -44,7 +44,7 @@ kotlin {
                 implementation(projects.updatable)
             }
         }
-        val androidMain by getting {
+        val androidMain = getByName("androidMain") {
             dependencies {
                 implementation(libs.androidx.lifecycle.process)
             }

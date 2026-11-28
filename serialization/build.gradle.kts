@@ -31,7 +31,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.serialization"
         minSdk = 24
         configureGradleManagedDevices(enumValues<FormFactor>().toSet(), this)
@@ -49,7 +49,7 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 api(projects.sealedEnum.runtime)
                 api(libs.androidx.compose.runtime)
@@ -59,7 +59,7 @@ kotlin {
                 api(libs.kotlinx.serialization.core)
             }
         }
-        val jbMain by creating {
+        val jbMain = create("jbMain") {
             dependsOn(commonMain)
             dependencies {
                 api(libs.jetbrains.compose.uiGeometry)
@@ -68,22 +68,22 @@ kotlin {
                 implementation(libs.jetbrains.compose.uiUtil)
             }
         }
-        val jvmMain by creating {
+        val jvmMain = create("jvmMain") {
             dependsOn(jbMain)
         }
-        val desktopMain by getting {
+        val desktopMain = getByName("desktopMain") {
             dependsOn(jvmMain)
         }
-        val androidMain by getting {
+        val androidMain = getByName("androidMain") {
             dependsOn(jvmMain)
         }
-        val wasmJsMain by getting {
+        val wasmJsMain = getByName("wasmJsMain") {
             dependsOn(jbMain)
             dependencies {
                 implementation(libs.jetbrains.compose.ui)
             }
         }
-        val commonTest by getting {
+        val commonTest = getByName("commonTest") {
             dependencies {
                 implementation(projects.dispatchersTestFixtures)
                 implementation(projects.injectTest)
@@ -93,7 +93,7 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.test)
             }
         }
-        val jbTest by creating {
+        val jbTest = create("jbTest") {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.jetbrains.compose.foundation)
@@ -101,22 +101,22 @@ kotlin {
                 implementation(libs.kotlinx.serialization.json)
             }
         }
-        val jvmTest by creating {
+        val jvmTest = create("jvmTest") {
             dependsOn(jbTest)
         }
-        val desktopTest by getting {
+        val desktopTest = getByName("desktopTest") {
             dependsOn(jvmTest)
             dependencies {
                 implementation(compose.desktop.currentOs)
             }
         }
-        val androidSharedTest by getting {
+        val androidSharedTest = getByName("androidSharedTest") {
             dependsOn(jvmTest)
             dependencies {
                 implementation(libs.androidx.compose.ui)
             }
         }
-        val wasmJsTest by getting {
+        val wasmJsTest = getByName("wasmJsTest") {
             dependsOn(jbTest)
         }
     }

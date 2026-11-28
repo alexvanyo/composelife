@@ -25,7 +25,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.alexvanyo.composelife.worktest"
         minSdk = 24
     }
@@ -42,14 +42,14 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        val commonMain = getByName("commonMain") {
             dependencies {
                 implementation(projects.injectScopes)
                 implementation(projects.updatable)
                 implementation(projects.work)
             }
         }
-        val androidMain by getting {
+        val androidMain = getByName("androidMain") {
             dependencies {
                 implementation(libs.androidx.work.testing)
             }
