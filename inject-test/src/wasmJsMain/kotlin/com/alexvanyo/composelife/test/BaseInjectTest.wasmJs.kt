@@ -21,8 +21,8 @@ import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
 
 @Suppress("AbstractClassCanBeConcreteClass")
-actual abstract class BaseInjectTest actual constructor(
-    applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph,
-) : BaseInjectTestImpl(applicationGraphCreator)
+actual abstract class BaseInjectTest<G> actual constructor(applicationGraphCreator: (ApplicationGraphArguments) -> G) :
+    BaseInjectTestImpl<G>(applicationGraphCreator)
+    where G : ApplicationGraph, G : BaseInjectTestCtx
 
 actual fun createApplicationGraphArguments(): ApplicationGraphArguments = object : ApplicationGraphArguments {}

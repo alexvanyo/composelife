@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.database
 
-import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.test.BaseInjectTest
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
@@ -29,15 +28,11 @@ interface ComposeLifeDatabaseTestsCtx {
     val composeLifeDatabase: ComposeLifeDatabase
 }
 
-// TODO: Replace with asContribution()
-internal val ApplicationGraph.composeLifeDatabaseTestsCtx: ComposeLifeDatabaseTestsCtx get() =
-    this as ComposeLifeDatabaseTestsCtx
-
 class ComposeLifeDatabaseTests :
-    BaseInjectTest(
-        globalGraph.asContribution<ApplicationGraph.Factory>()::create,
+    BaseInjectTest<TestApplicationGraph>(
+        ::createTestApplicationGraph,
     ) {
-    private val ctx get() = applicationGraph.composeLifeDatabaseTestsCtx
+    private val ctx get() = applicationGraph.asContribution<ComposeLifeDatabaseTestsCtx>()
 
     private val composeLifeDatabase get() = ctx.composeLifeDatabase
 

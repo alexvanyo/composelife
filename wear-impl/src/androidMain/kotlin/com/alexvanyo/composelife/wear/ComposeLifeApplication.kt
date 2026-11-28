@@ -17,21 +17,39 @@
 package com.alexvanyo.composelife.wear
 
 import com.alexvanyo.composelife.BaseComposeLifeApplication
-import com.alexvanyo.composelife.scopes.GlobalScope
+import com.alexvanyo.composelife.ComposeLifeApplicationCtx
+import com.alexvanyo.composelife.scopes.ApplicationGraph
+import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
 import com.alexvanyo.composelife.tracing.Tracer
+import com.alexvanyo.composelife.wear.watchface.GameOfLifeWatchFaceServiceCtx
+import com.alexvanyo.composelife.wear.watchface.GameOfLifeWatchFaceServiceCtxOwner
+import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.asContribution
 import dev.zacsweers.metro.createGraphFactory
 
 class ComposeLifeApplication :
-    BaseComposeLifeApplication<GlobalGraph>({ tracer ->
-        createGraphFactory<GlobalGraph.Factory>().create(tracer)
-    })
+    BaseComposeLifeApplication<WearApplicationGraph>({ tracer, applicationGraphArguments ->
+        createGraphFactory<WearApplicationGraph.Factory>().create(
+            tracer = tracer,
+            applicationGraphArguments = applicationGraphArguments,
+        )
+    }),
+    GameOfLifeWatchFaceServiceCtxOwner {
+    override val gameOfLifeWatchFaceServiceCtx: GameOfLifeWatchFaceServiceCtx
+        get() = applicationGraph.asContribution<GameOfLifeWatchFaceServiceCtx>()
+}
 
-@DependencyGraph(GlobalScope::class)
-interface GlobalGraph {
+@DependencyGraph(AppScope::class)
+interface WearApplicationGraph :
+    ApplicationGraph,
+    ComposeLifeApplicationCtx {
     @DependencyGraph.Factory
     fun interface Factory {
-        fun create(@Provides tracer: Tracer): GlobalGraph
+        fun create(
+            @Provides tracer: Tracer,
+            @Provides applicationGraphArguments: ApplicationGraphArguments,
+        ): WearApplicationGraph
     }
 }

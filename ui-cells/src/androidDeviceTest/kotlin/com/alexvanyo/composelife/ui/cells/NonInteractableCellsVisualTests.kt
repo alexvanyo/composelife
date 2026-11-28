@@ -32,39 +32,30 @@ import com.alexvanyo.composelife.model.CellWindow
 import com.alexvanyo.composelife.model.GameOfLifeState
 import com.alexvanyo.composelife.model.toCellState
 import com.alexvanyo.composelife.preferences.TestComposeLifePreferences
-import com.alexvanyo.composelife.scopes.ApplicationGraph
-import com.alexvanyo.composelife.scopes.UiGraph
-import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.screenshot.assertPixels
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
 import com.alexvanyo.composelife.ui.mobile.ComposeLifeTheme
-import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.asContribution
 import org.junit.Assume.assumeTrue
 import kotlin.test.Test
 
-@ContributesTo(UiScope::class)
 interface NonInteractableCellsVisualTestsCtx {
     val nonInteractableCells: NonInteractableCells
     val testComposeLifePreferences: TestComposeLifePreferences
 }
 
-// TODO: Replace with asContribution()
-val UiGraph.nonInteractableCellsVisualTestsCtx: NonInteractableCellsVisualTestsCtx get() =
-    this as NonInteractableCellsVisualTestsCtx
-
 @OptIn(ExperimentalTestApi::class)
 class NonInteractableCellsVisualTests :
-    BaseUiInjectTest(
-        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    BaseUiInjectTest<AndroidDeviceTestApplicationGraph, AndroidDeviceTestUiGraph>(
+        applicationGraphCreator = ::createAndroidDeviceTestApplicationGraph,
+        uiGraphCreator = AndroidDeviceTestApplicationGraph::create,
     ) {
     @Test
     fun non_interactable_cells_draws_correctly_dark_mode() = runUiTest { uiGraph ->
         assumeTrue(Build.VERSION.SDK_INT >= 28)
         if (Build.VERSION.SDK_INT < 28) return@runUiTest
 
-        val ctx = uiGraph.nonInteractableCellsVisualTestsCtx
+        val ctx = uiGraph
         ctx.testComposeLifePreferences.disableAGSL = true
         ctx.testComposeLifePreferences.disableOpenGL = true
 
@@ -136,7 +127,7 @@ class NonInteractableCellsVisualTests :
         assumeTrue(Build.VERSION.SDK_INT >= 28)
         if (Build.VERSION.SDK_INT < 28) return@runUiTest
 
-        val ctx = uiGraph.nonInteractableCellsVisualTestsCtx
+        val ctx = uiGraph
         ctx.testComposeLifePreferences.disableAGSL = true
         ctx.testComposeLifePreferences.disableOpenGL = true
 

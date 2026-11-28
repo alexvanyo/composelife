@@ -35,7 +35,6 @@ import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
 import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
-import com.alexvanyo.composelife.scopes.GlobalScope
 import com.alexvanyo.composelife.scopes.UiGraph
 import com.alexvanyo.composelife.scopes.UiGraphArguments
 import com.alexvanyo.composelife.scopes.UiScope
@@ -50,6 +49,7 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.ForScope
+import dev.zacsweers.metro.GraphExtension
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.asContribution
 import dev.zacsweers.metro.createGraphFactory
@@ -63,9 +63,9 @@ import org.w3c.dom.HTMLElement
 fun main() {
     val traceDriver = createTraceDriver()
     val tracer = traceDriver.tracer
-    val globalGraph = createGraphFactory<GlobalGraph.Factory>().create(tracer)
-    val applicationGraph = globalGraph.asContribution<ApplicationGraph.Factory>().create(
-        object : ApplicationGraphArguments {},
+    val applicationGraph = createGraphFactory<WebApplicationGraph.Factory>().create(
+        tracer = tracer,
+        applicationGraphArguments = object : ApplicationGraphArguments {},
     )
 
     val element = document.getElementById("composeApp") as HTMLElement
@@ -79,8 +79,7 @@ fun main() {
                 applicationGraph.close()
             }
         }
-        val ctx = applicationGraph.composeLifeApplicationCtx
-        val appUpdatables = ctx.appUpdatables
+        val appUpdatables = applicationGraph.appUpdatables
         LaunchedEffect(Unit) {
             supervisorScope {
                 appUpdatables.forEach { updatable ->
@@ -106,7 +105,7 @@ fun main() {
             LocalRetainedValuesStoreProvider(retainedValuesStore) {
                 val clipboard = LocalClipboard.current
                 val uiGraph = remember(applicationGraph, clipboard) {
-                    (applicationGraph as UiGraph.Factory).create(
+                    applicationGraph.asContribution<WebUiGraph.Factory>().create(
                         object : UiGraphArguments {
                             override val element = element
                             override val clipboard = clipboard
@@ -118,8 +117,7 @@ fun main() {
                         uiGraph.close()
                     }
                 }
-                val mainInjectCtx = uiGraph.mainInjectCtx
-                val uiUpdatables = mainInjectCtx.uiUpdatables
+                val uiUpdatables = uiGraph.uiUpdatables
 
                 LaunchedEffect(uiUpdatables) {
                     supervisorScope {
@@ -131,7 +129,7 @@ fun main() {
                     }
                 }
 
-                context(mainInjectCtx) {
+                context(uiGraph) {
                     val darkTheme = shouldUseDarkTheme()
                     DisposableEffect(darkTheme) {
                         document.body?.style?.backgroundColor = if (darkTheme) "black" else "white"
@@ -139,7 +137,7 @@ fun main() {
                     }
                     ProvideLocalWindowInsetsHolder {
                         ComposeLifeTheme(darkTheme) {
-                            context(mainInjectCtx.composeLifeAppUi) {
+                            context(uiGraph.composeLifeAppUi) {
                                 ComposeLifeAppUi(
                                     windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass,
                                     windowSize = with(LocalDensity.current) {
@@ -155,32 +153,32 @@ fun main() {
     }
 }
 
-@ContributesTo(AppScope::class)
-interface ComposeLifeApplicationCtx {
+@DependencyGraph(AppScope::class)
+interface WebApplicationGraph : ApplicationGraph {
     @ForScope(AppScope::class)
     val appUpdatables: Set<Updatable>
+
+    @DependencyGraph.Factory
+    fun interface Factory {
+        fun create(
+            @Provides tracer: Tracer,
+            @Provides applicationGraphArguments: ApplicationGraphArguments,
+        ): WebApplicationGraph
+    }
 }
 
-// TODO: Replace with asContribution()
-internal val ApplicationGraph.composeLifeApplicationCtx: ComposeLifeApplicationCtx get() =
-    this as ComposeLifeApplicationCtx
-
-@ContributesTo(UiScope::class)
-interface MainInjectCtx : ComposeLifePreferencesProvider {
+@GraphExtension(UiScope::class)
+interface WebUiGraph :
+    UiGraph,
+    ComposeLifePreferencesProvider {
     val composeLifeAppUi: ComposeLifeAppUi
 
     @ForScope(UiScope::class)
     val uiUpdatables: Set<Updatable>
-}
 
-// TODO: Replace with asContribution()
-internal val UiGraph.mainInjectCtx: MainInjectCtx get() =
-    this as MainInjectCtx
-
-@DependencyGraph(GlobalScope::class)
-interface GlobalGraph {
-    @DependencyGraph.Factory
+    @ContributesTo(AppScope::class)
+    @GraphExtension.Factory
     fun interface Factory {
-        fun create(@Provides tracer: Tracer): GlobalGraph
+        fun create(@Provides uiGraphArguments: UiGraphArguments): WebUiGraph
     }
 }

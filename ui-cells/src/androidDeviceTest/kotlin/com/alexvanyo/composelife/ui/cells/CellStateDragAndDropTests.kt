@@ -39,13 +39,8 @@ import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
 import com.alexvanyo.composelife.model.CellState
 import com.alexvanyo.composelife.model.CellStateParser
 import com.alexvanyo.composelife.patterns.GliderPattern
-import com.alexvanyo.composelife.scopes.ApplicationGraph
-import com.alexvanyo.composelife.scopes.UiGraph
-import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
-import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.asContribution
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.runner.RunWith
 import kotlin.test.Test
@@ -53,24 +48,20 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNull
 
-@ContributesTo(UiScope::class)
 interface CellStateDragAndDropTestsUiCtx {
     val cellStateParser: CellStateParser
 }
 
-// TODO: Replace with asContribution()
-val UiGraph.cellStateDragAndDropTestsUiCtx: CellStateDragAndDropTestsUiCtx get() =
-    this as CellStateDragAndDropTestsUiCtx
-
 @OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
 @RunWith(KmpAndroidJUnit4::class)
 class CellStateDragAndDropTests :
-    BaseUiInjectTest(
-        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    BaseUiInjectTest<AndroidDeviceTestApplicationGraph, AndroidDeviceTestUiGraph>(
+        applicationGraphCreator = ::createAndroidDeviceTestApplicationGraph,
+        uiGraphCreator = AndroidDeviceTestApplicationGraph::create,
     ) {
     @Test
     fun drag_and_drop_works_correctly_when_dropped() = runUiTest { uiGraph ->
-        val cellStateParser = uiGraph.cellStateDragAndDropTestsUiCtx.cellStateParser
+        val cellStateParser = uiGraph.cellStateParser
 
         lateinit var mutableCellStateDropStateHolder: MutableCellStateDropStateHolder
 
@@ -192,7 +183,7 @@ class CellStateDragAndDropTests :
 
     @Test
     fun drag_and_drop_works_correctly_when_ended() = runUiTest { uiGraph ->
-        val cellStateParser = uiGraph.cellStateDragAndDropTestsUiCtx.cellStateParser
+        val cellStateParser = uiGraph.cellStateParser
 
         lateinit var mutableCellStateDropStateHolder: MutableCellStateDropStateHolder
 

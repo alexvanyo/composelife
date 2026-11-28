@@ -17,7 +17,6 @@
 package com.alexvanyo.composelife.preferences
 
 import com.alexvanyo.composelife.preferences.di.ComposeLifePreferencesProvider
-import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.test.BaseInjectTest
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
@@ -28,15 +27,11 @@ import kotlin.test.assertIs
 @ContributesTo(AppScope::class)
 interface TestPreferencesBindingsTestsCtx : ComposeLifePreferencesProvider
 
-// TODO: Replace with asContribution()
-internal val ApplicationGraph.testPreferencesBindingsTestsCtx: TestPreferencesBindingsTestsCtx get() =
-    this as TestPreferencesBindingsTestsCtx
-
 class TestPreferencesBindingsTests :
-    BaseInjectTest(
-        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    BaseInjectTest<TestApplicationGraph>(
+        ::createTestApplicationGraph,
     ) {
-    private val ctx = applicationGraph.testPreferencesBindingsTestsCtx
+    private val ctx = applicationGraph.asContribution<TestPreferencesBindingsTestsCtx>()
 
     @Test
     fun checkType() {

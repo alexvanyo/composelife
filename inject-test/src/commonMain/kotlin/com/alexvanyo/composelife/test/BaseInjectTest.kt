@@ -22,7 +22,6 @@ import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
 import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.ForScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
@@ -38,7 +37,6 @@ import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-@ContributesTo(AppScope::class)
 interface BaseInjectTestCtx {
     @GeneralTestDispatcher val generalTestDispatcher: TestDispatcher
 
@@ -46,13 +44,10 @@ interface BaseInjectTestCtx {
     val appUpdatables: Set<Updatable>
 }
 
-// TODO: Replace with asContribution()
-private val ApplicationGraph.baseInjectTestCtx: BaseInjectTestCtx get() =
-    this as BaseInjectTestCtx
-
 @Suppress("AbstractClassCanBeConcreteClass")
-expect abstract class BaseInjectTest(applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph) :
-    BaseInjectTestImpl
+expect abstract class BaseInjectTest<G>(applicationGraphCreator: (ApplicationGraphArguments) -> G) :
+    BaseInjectTestImpl<G>
+    where G : ApplicationGraph, G : BaseInjectTestCtx
 
 /**
  * A base class for testing components that depend on injected classes.
@@ -60,13 +55,13 @@ expect abstract class BaseInjectTest(applicationGraphCreator: (ApplicationGraphA
  * Subclasses must call [runAppTest] instead of [runTest] to properly initialize dependencies.
  */
 @Suppress("UnnecessaryAbstractClass", "AbstractClassCanBeConcreteClass")
-abstract class BaseInjectTestImpl(applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph) :
-    BaseKmpTest() {
-    val applicationGraph = applicationGraphCreator(createApplicationGraphArguments())
+abstract class BaseInjectTestImpl<G>(applicationGraphCreator: (ApplicationGraphArguments) -> G) :
+    BaseKmpTest()
+    where G : ApplicationGraph, G : BaseInjectTestCtx {
+    val applicationGraph: G = applicationGraphCreator(createApplicationGraphArguments())
 
-    private val ctx get() = applicationGraph.baseInjectTestCtx
-    internal val appUpdatables: Set<Updatable> get() = ctx.appUpdatables
-    internal val generalTestDispatcher: TestDispatcher get() = ctx.generalTestDispatcher
+    internal val appUpdatables: Set<Updatable> get() = applicationGraph.appUpdatables
+    internal val generalTestDispatcher: TestDispatcher get() = applicationGraph.generalTestDispatcher
 
     @OptIn(ExperimentalCoroutinesApi::class)
     open fun runAppTest(

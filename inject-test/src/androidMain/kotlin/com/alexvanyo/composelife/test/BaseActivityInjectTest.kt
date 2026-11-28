@@ -42,10 +42,11 @@ import kotlin.time.Duration.Companion.seconds
  * Subclasses must call [runAppTest] instead of [runTest] to properly initialize dependencies.
  */
 @Suppress("UnnecessaryAbstractClass", "AbstractClassCanBeConcreteClass")
-abstract class BaseActivityInjectTest<A : ComponentActivity>(
-    applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph,
+abstract class BaseActivityInjectTest<G, A : ComponentActivity>(
+    applicationGraphCreator: (ApplicationGraphArguments) -> G,
     private val clazz: Class<A>,
-) : BaseInjectTest(applicationGraphCreator) {
+) : BaseInjectTest<G>(applicationGraphCreator)
+    where G : ApplicationGraph, G : BaseInjectTestCtx {
 
     @get:Rule(order = 0)
     val outerLeakRule = createLeakRule("Outer")

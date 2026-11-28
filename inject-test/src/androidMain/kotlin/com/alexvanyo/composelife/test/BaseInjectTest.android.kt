@@ -16,7 +16,6 @@
 
 package com.alexvanyo.composelife.test
 
-import android.app.Application
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import com.alexvanyo.composelife.kmpandroidrunner.KmpAndroidJUnit4
@@ -26,15 +25,9 @@ import org.junit.runner.RunWith
 
 @Suppress("UnnecessaryAbstractClass", "AbstractClassCanBeConcreteClass")
 @RunWith(KmpAndroidJUnit4::class)
-actual abstract class BaseInjectTest actual constructor(
-    applicationGraphCreator: (ApplicationGraphArguments) -> ApplicationGraph,
-) : BaseInjectTestImpl(applicationGraphCreator) {
-    init {
-        // If TestInjectApplication is being used, store the created application graph into it
-        (ApplicationProvider.getApplicationContext<Application>() as? TestInjectApplication)?.applicationGraph =
-            this.applicationGraph
-    }
-}
+actual abstract class BaseInjectTest<G> actual constructor(applicationGraphCreator: (ApplicationGraphArguments) -> G) :
+    BaseInjectTestImpl<G>(applicationGraphCreator)
+    where G : ApplicationGraph, G : BaseInjectTestCtx
 
 actual fun createApplicationGraphArguments(): ApplicationGraphArguments = object : ApplicationGraphArguments {
     override val applicationContext: Context = ApplicationProvider.getApplicationContext()

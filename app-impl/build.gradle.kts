@@ -39,7 +39,7 @@ kotlin {
         namespace = "com.alexvanyo.composelife.appimpl"
         minSdk = 24
         compilations.withType(KotlinMultiplatformAndroidDeviceTestCompilation::class.java) {
-            instrumentationRunner = "com.alexvanyo.composelife.test.InjectTestRunner"
+            instrumentationRunner = "com.alexvanyo.composelife.AppInjectTestRunner"
         }
         configureGradleManagedDevices(setOf(FormFactor.Mobile), this)
         androidResources { enable = true }

@@ -22,34 +22,26 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasProgressBarRangeInfo
-import com.alexvanyo.composelife.scopes.ApplicationGraph
-import com.alexvanyo.composelife.scopes.UiGraph
-import com.alexvanyo.composelife.scopes.UiScope
 import com.alexvanyo.composelife.test.BaseUiInjectTest
 import com.alexvanyo.composelife.test.runUiTest
-import com.alexvanyo.composelife.ui.app.globalGraph
-import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.asContribution
+import com.alexvanyo.composelife.ui.app.TestApplicationGraph
+import com.alexvanyo.composelife.ui.app.TestUiGraph
+import com.alexvanyo.composelife.ui.app.createTestApplicationGraph
 import kotlin.test.Test
 
-@ContributesTo(UiScope::class)
 interface GameOfLifeProgressIndicatorTestsCtx {
     val gameOfLifeProgressIndicatorCtx: GameOfLifeProgressIndicator
 }
 
-// TODO: Replace with asContribution()
-val UiGraph.gameOfLifeProgressIndicatorTestsCtx: GameOfLifeProgressIndicatorTestsCtx get() =
-    this as GameOfLifeProgressIndicatorTestsCtx
-
 @OptIn(ExperimentalTestApi::class)
 class GameOfLifeProgressIndicatorTests :
-    BaseUiInjectTest(
-        { globalGraph.asContribution<ApplicationGraph.Factory>().create(it) },
+    BaseUiInjectTest<TestApplicationGraph, TestUiGraph>(
+        applicationGraphCreator = ::createTestApplicationGraph,
+        uiGraphCreator = TestApplicationGraph::create,
     ) {
 
     @Test
-    fun progress_indicator_is_displayed_correctly() = runUiTest { uiGraph ->
-        val ctx = uiGraph.gameOfLifeProgressIndicatorTestsCtx
+    fun progress_indicator_is_displayed_correctly() = runUiTest { ctx ->
 
         setContent {
             context(ctx.gameOfLifeProgressIndicatorCtx) {

@@ -16,21 +16,36 @@
 
 package com.alexvanyo.composelife
 
-import com.alexvanyo.composelife.scopes.GlobalScope
+import com.alexvanyo.composelife.scopes.ApplicationGraph
+import com.alexvanyo.composelife.scopes.ApplicationGraphArguments
 import com.alexvanyo.composelife.tracing.Tracer
+import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.asContribution
 import dev.zacsweers.metro.createGraphFactory
 
 class ComposeLifeApplication :
-    BaseComposeLifeApplication<GlobalGraph>({ tracer ->
-        createGraphFactory<GlobalGraph.Factory>().create(tracer)
-    })
+    BaseComposeLifeApplication<ComposeLifeApplicationGraph>({ tracer, applicationGraphArguments ->
+        createGraphFactory<ComposeLifeApplicationGraph.Factory>().create(
+            tracer = tracer,
+            applicationGraphArguments = applicationGraphArguments,
+        )
+    }),
+    MainActivityUiGraphFactoryOwner {
+    override val mainActivityUiGraphFactory: MainActivityUiGraph.Factory
+        get() = applicationGraph.asContribution<MainActivityUiGraph.Factory>()
+}
 
-@DependencyGraph(GlobalScope::class)
-interface GlobalGraph {
+@DependencyGraph(AppScope::class)
+interface ComposeLifeApplicationGraph :
+    ApplicationGraph,
+    ComposeLifeApplicationCtx {
     @DependencyGraph.Factory
     fun interface Factory {
-        fun create(@Provides tracer: Tracer): GlobalGraph
+        fun create(
+            @Provides tracer: Tracer,
+            @Provides applicationGraphArguments: ApplicationGraphArguments,
+        ): ComposeLifeApplicationGraph
     }
 }

@@ -22,7 +22,6 @@ import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import app.cash.turbine.test
 import app.cash.turbine.withTurbineTimeout
-import com.alexvanyo.composelife.scopes.ApplicationGraph
 import com.alexvanyo.composelife.test.BaseInjectTest
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
@@ -38,15 +37,11 @@ interface CellStateQueriesTestsCtx {
     val cellStateQueries: CellStateQueries
 }
 
-// TODO: Replace with asContribution()
-internal val ApplicationGraph.cellStateQueriesTestsCtx: CellStateQueriesTestsCtx get() =
-    this as CellStateQueriesTestsCtx
-
 class CellStateQueriesTests :
-    BaseInjectTest(
-        globalGraph.asContribution<ApplicationGraph.Factory>()::create,
+    BaseInjectTest<TestApplicationGraph>(
+        ::createTestApplicationGraph,
     ) {
-    private val ctx get() = applicationGraph.cellStateQueriesTestsCtx
+    private val ctx get() = applicationGraph.asContribution<CellStateQueriesTestsCtx>()
     private val cellStateQueries get() = ctx.cellStateQueries
 
     @Test
