@@ -16,15 +16,13 @@
 
 package com.alexvanyo.composelife.filesystem.di
 
-import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.ForScope
-import dev.zacsweers.metro.IntoSet
+import dev.zacsweers.metro.ExperimentalMetroApi
+import dev.zacsweers.metro.OnGraphClose
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
-import kotlinx.coroutines.awaitCancellation
 import okio.fakefilesystem.FakeFileSystem
 import kotlin.time.Clock
 
@@ -37,18 +35,16 @@ interface FakeFileSystemBindings {
         internal fun providesFakeFileSystem(clock: Clock): FakeFileSystem = FakeFileSystem(
             clock = clock,
         )
+    }
+}
 
-        @Provides
-        @SingleIn(AppScope::class)
-        @IntoSet
-        @ForScope(AppScope::class)
-        internal fun providesFakeFileSystemIntoUpdatable(fakeFileSystem: FakeFileSystem): Updatable =
-            object : Updatable {
-                override suspend fun update(): Nothing = try {
-                    awaitCancellation()
-                } finally {
-                    fakeFileSystem.checkNoOpenFiles()
-                }
-            }
+@OptIn(ExperimentalMetroApi::class)
+@ContributesTo(AppScope::class)
+interface FakeFileSystemLifecycle {
+    @OnGraphClose
+    fun checkNoOpenFiles(fakeFileSystem: Lazy<FakeFileSystem>) {
+        if (fakeFileSystem.isInitialized()) {
+            fakeFileSystem.value.checkNoOpenFiles()
+        }
     }
 }

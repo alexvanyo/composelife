@@ -54,7 +54,6 @@ kotlin {
                 implementation(projects.dispatchers)
                 implementation(projects.injectScopes)
                 implementation(projects.logging)
-                implementation(projects.updatable)
                 implementation(libs.ktor.client.logging)
             }
         }

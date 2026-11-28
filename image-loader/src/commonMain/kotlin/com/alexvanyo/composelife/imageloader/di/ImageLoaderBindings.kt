@@ -22,15 +22,13 @@ import coil3.annotation.ExperimentalCoilApi
 import coil3.disk.DiskCache
 import coil3.memory.MemoryCache
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
-import com.alexvanyo.composelife.updatable.Updatable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.ForScope
-import dev.zacsweers.metro.IntoSet
+import dev.zacsweers.metro.ExperimentalMetroApi
+import dev.zacsweers.metro.OnGraphClose
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
-import kotlinx.coroutines.awaitCancellation
 import okio.FileSystem
 
 @ContributesTo(AppScope::class)
@@ -67,18 +65,16 @@ interface ImageLoaderBindings {
             .coroutineContext(dispatchers.IO)
             .mainCoroutineContext { dispatchers.MainImmediate }
             .build()
+    }
+}
 
-        @Provides
-        @SingleIn(AppScope::class)
-        @IntoSet
-        @ForScope(AppScope::class)
-        internal fun providesImageLoaderShutdownIntoUpdatable(imageLoader: ImageLoader): Updatable =
-            object : Updatable {
-                override suspend fun update(): Nothing = try {
-                    awaitCancellation()
-                } finally {
-                    imageLoader.shutdown()
-                }
-            }
+@OptIn(ExperimentalMetroApi::class)
+@ContributesTo(AppScope::class)
+interface ImageLoaderLifecycle {
+    @OnGraphClose
+    fun shutdownImageLoader(imageLoader: Lazy<ImageLoader>) {
+        if (imageLoader.isInitialized()) {
+            imageLoader.value.shutdown()
+        }
     }
 }

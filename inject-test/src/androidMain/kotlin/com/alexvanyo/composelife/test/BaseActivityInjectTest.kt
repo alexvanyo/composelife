@@ -101,7 +101,11 @@ abstract class BaseActivityInjectTest<A : ComponentActivity>(
             // AndroidComposeView from the view hierarchy which breaks this loop, which is why we
             // call close() outside the runTest lambda. This will not help if the content is not set
             // through the test's setContent method though, in which case we'll still time out here.
-            scenario?.close()
+            try {
+                scenario?.close()
+            } finally {
+                applicationGraph.close()
+            }
         }
     }
 }

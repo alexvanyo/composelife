@@ -18,6 +18,7 @@ package com.alexvanyo.composelife
 
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -69,6 +70,12 @@ fun main() = application {
         )
     }
 
+    DisposableEffect(applicationGraph) {
+        onDispose {
+            applicationGraph.close()
+        }
+    }
+
     val ctx = applicationGraph.composeLifeApplicationCtx
     val appUpdatables = ctx.appUpdatables
 
@@ -112,6 +119,11 @@ fun main() = application {
                             override val clipboard = clipboard
                         },
                     )
+                }
+                DisposableEffect(uiGraph) {
+                    onDispose {
+                        uiGraph.close()
+                    }
                 }
                 val mainInjectCtx = uiGraph.mainInjectCtx
                 val uiUpdatables = mainInjectCtx.uiUpdatables
