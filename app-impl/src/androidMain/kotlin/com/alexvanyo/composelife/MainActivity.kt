@@ -112,6 +112,11 @@ class MainActivity : AppCompatActivity() {
                         it.mainActivityInjectCtx.composeLifePreferences.loadedPreferencesState.isSuccess()
                 }
             }
+            DisposableEffect(uiGraph) {
+                onDispose {
+                    uiGraph.close()
+                }
+            }
             val mainActivityInjectCtx = uiGraph.mainActivityInjectCtx
             val uiUpdatables = mainActivityInjectCtx.uiUpdatables
 

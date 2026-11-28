@@ -77,16 +77,24 @@ fun BaseUiInjectTest.runUiTest(
     timeout = timeout,
 ) { uiGraphArguments ->
     val uiGraph = uiGraphCreator.create(uiGraphArguments)
-    val uiUpdatables = uiGraph.baseUiInjectTestCtx.uiUpdatables
-    withUpdatables(appUpdatables + uiUpdatables) {
-        // Let any background jobs launch and stabilize before running the test body
-        @OptIn(kotlin.ExperimentalStdlibApi::class)
-        val testDispatcher = currentCoroutineContext()[ContinuationInterceptor] as? TestDispatcher
-        testDispatcher?.scheduler?.advanceUntilIdle()
-        testBody(
-            this@runPlatformUiTest,
-            uiGraph,
-        )
+    try {
+        val uiUpdatables = uiGraph.baseUiInjectTestCtx.uiUpdatables
+        withUpdatables(appUpdatables + uiUpdatables) {
+            // Let any background jobs launch and stabilize before running the test body
+            @OptIn(kotlin.ExperimentalStdlibApi::class)
+            val testDispatcher = currentCoroutineContext()[ContinuationInterceptor] as? TestDispatcher
+            testDispatcher?.scheduler?.advanceUntilIdle()
+            testBody(
+                this@runPlatformUiTest,
+                uiGraph,
+            )
+        }
+    } finally {
+        try {
+            uiGraph.close()
+        } finally {
+            applicationGraph.close()
+        }
     }
 }
 

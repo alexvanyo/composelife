@@ -17,9 +17,7 @@
 package com.alexvanyo.composelife.database
 
 import app.cash.sqldelight.db.SqlDriver
-import app.cash.sqldelight.db.use
 import com.alexvanyo.composelife.dispatchers.ComposeLifeDispatchers
-import com.alexvanyo.composelife.updatable.Updatable
 import com.eygraber.sqldelight.androidx.driver.AndroidxSqliteConcurrencyModel
 import com.eygraber.sqldelight.androidx.driver.AndroidxSqliteConfiguration
 import com.eygraber.sqldelight.androidx.driver.AndroidxSqliteDatabaseType
@@ -30,11 +28,8 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Binds
 import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.ForScope
 import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.IntoSet
 import dev.zacsweers.metro.SingleIn
-import kotlinx.coroutines.awaitCancellation
 
 @ContributesTo(AppScope::class, replaces = [WebComposeLifeDriverBindings::class])
 @BindingContainer
@@ -42,18 +37,11 @@ interface WebComposeLifeTestDriverBindings {
 
     @Binds
     val WebComposeLifeTestDriver.bind: ComposeLifeDriver
-
-    @Binds
-    @IntoSet
-    @ForScope(AppScope::class)
-    val WebComposeLifeTestDriver.bindIntoUpdatable: Updatable
 }
 
 @SingleIn(AppScope::class)
 @Inject
-class WebComposeLifeTestDriver(dispatchers: ComposeLifeDispatchers) :
-    ComposeLifeDriver,
-    Updatable {
+class WebComposeLifeTestDriver(dispatchers: ComposeLifeDispatchers) : ComposeLifeDriver {
 
     override val sqlDriver: SqlDriver = AndroidxSqliteDriver(
         driver = androidxSqliteOpfsDriver(multiTabMode = OpfsMultiTabMode.Shared),
@@ -71,8 +59,4 @@ class WebComposeLifeTestDriver(dispatchers: ComposeLifeDispatchers) :
     )
 
     override suspend fun awaitDriverReady() = Unit
-
-    override suspend fun update(): Nothing = sqlDriver.use {
-        awaitCancellation()
-    }
 }

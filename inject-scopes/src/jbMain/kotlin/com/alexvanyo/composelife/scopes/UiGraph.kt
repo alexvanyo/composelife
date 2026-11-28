@@ -17,12 +17,15 @@
 package com.alexvanyo.composelife.scopes
 
 import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.CloseableGraph
 import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.ExperimentalMetroApi
 import dev.zacsweers.metro.GraphExtension
 import dev.zacsweers.metro.Provides
 
+@OptIn(ExperimentalMetroApi::class)
 @GraphExtension(UiScope::class)
-interface UiGraph {
+interface UiGraph : CloseableGraph {
     @ContributesTo(AppScope::class)
     @GraphExtension.Factory
     fun interface Factory {

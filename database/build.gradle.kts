@@ -64,7 +64,6 @@ kotlin {
     sourceSets {
         val commonMain = getByName("commonMain") {
             dependencies {
-                api(projects.updatable)
                 api(libs.kotlinx.coroutines.core)
                 api(libs.kotlinx.datetime)
                 api(libs.sqldelight.coroutinesExtensions)
@@ -99,7 +98,6 @@ kotlin {
             dependencies {
                 implementation(projects.databaseTestFixtures)
                 implementation(projects.dispatchersTestFixtures)
-                implementation(projects.filesystemTestFixtures)
                 implementation(projects.injectTest)
                 implementation(projects.kmpAndroidRunner)
                 implementation(projects.tracingTestFixtures)

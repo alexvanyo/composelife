@@ -130,7 +130,7 @@ junit5 = "6.2.0-M1"
 #leakCanary
 leakCanary = "3.0-alpha-8"
 #metro
-metro = "1.5.0"
+metro = "1.6.0"
 #molecule
 molecule = "2.2.0"
 #okio
